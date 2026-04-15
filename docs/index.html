@@ -286,9 +286,9 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay}){
         <g key={i} onClick={()=>onSel(sel===i?null:i)} style={{cursor:'pointer'}}>
           {isSel&&<circle cx={pt.x} cy={pt.y} r={nr+8} fill={c} opacity=".06" filter="url(#gw)"/>}
           <circle cx={pt.x} cy={pt.y} r={nr} fill="#fff" stroke={c} strokeWidth={isSel?2.5:1.8} opacity={o} filter="url(#ns)"/>
-          <text x={pt.x} y={pt.y+6} textAnchor="middle" fill={c} fontSize={isMob?(isSel?"19":"17"):(isSel?"16":"15")} fontWeight="700" fontFamily="var(--sans)" opacity={o} style={{pointerEvents:'none'}}>{i}</text>
+          <text x={pt.x} y={pt.y+6} textAnchor="middle" fill={c} fontSize={isSel?"16":"15"} fontWeight="700" fontFamily="var(--sans)" opacity={o} style={{pointerEvents:'none'}}>{i}</text>
         </g>);})}
-      {!overlay&&lps.map((pt,i)=>{const l=p[i]||'';if(!l)return null;let dy=5;if(i===0)dy=16;if(i===6)dy=-7;return<text key={`l${i}`} x={pt.x} y={pt.y+dy} textAnchor={anch(i)} fill={'#000'} fontSize={isMob?(sel===i?"18":"16"):(sel===i?"16":"14")} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}>{l}</text>;})}
+      {!overlay&&lps.map((pt,i)=>{const l=p[i]||'';if(!l)return null;let dy=5;if(i===0)dy=16;if(i===6)dy=-7;return<text key={`l${i}`} x={pt.x} y={pt.y+dy} textAnchor={anch(i)} fill={'#000'} fontSize={sel===i?"16":"14"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}>{l}</text>;})}
       {overlay&&<>
         {/* Primary Yasna labels - inner ring */}
         {ilps.map((pt,i)=>{const l=p[i]||'';if(!l)return null;const a=angDeg(i);let dy=4;if(i===0)dy=12;if(i===6)dy=-5;return<text key={`p${i}`} x={pt.x} y={pt.y+dy} textAnchor={anch(i)} fill={sel===i?'#1d1d1f':'rgba(0,122,255,.8)'} fontSize={sel===i?"16":"14"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'500'} style={{pointerEvents:'none'}}>{l}</text>;})}
