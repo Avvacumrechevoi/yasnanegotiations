@@ -347,7 +347,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
         {/* Primary Yasna labels - inner ring */}
         {ilps.map((pt,i)=>{const l=p[i]||'';if(!l)return null;const a=angDeg(i);let dy=4;if(i===0)dy=12;if(i===6)dy=-5;return<text key={`p${i}`} x={pt.x} y={pt.y+dy} textAnchor={anch(i)} fill={sel===i?'#1d1d1f':'rgba(0,122,255,.8)'} fontSize={sel===i?"16":"14"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'500'} style={{pointerEvents:'none'}}>{l}</text>;})}
         {/* Overlay Yasna labels - outer ring */}
-        {olps.map((pt,i)=>{const l=(overlay.p||[])[i]||'';if(!l)return null;let dy=20;if(i===0)dy=32;if(i===6)dy=-20;if([3,9].includes(i))dy=22;if([2,10].includes(i))dy=22;if([4,8].includes(i))dy=22;return<text key={`o${i}`} x={pt.x} y={pt.y+dy} textAnchor={anch(i)} fill={sel===i?'#a8d8ea':'rgba(175,82,222,.7)'} fontSize={sel===i?"16":"14"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'500'} fontStyle="italic" style={{pointerEvents:'none'}}>{l}</text>;})}
+        {olps.map((pt,i)=>{const l=(overlay.p||[])[i]||'';if(!l)return null;let dy=22;if(i===0)dy=34;if(i===6)dy=-22;if([3,9].includes(i))dy=26;if([2,10].includes(i))dy=26;if([4,8].includes(i))dy=26;if([1,11].includes(i))dy=28;if([5,7].includes(i))dy=24;return<text key={`o${i}`} x={pt.x} y={pt.y+dy} textAnchor={anch(i)} fill={sel===i?'#a8d8ea':'rgba(175,82,222,.7)'} fontSize={sel===i?"14":"11"} fontFamily="var(--serif)" fontWeight={sel===i?'600':'400'} fontStyle="italic" style={{pointerEvents:'none'}}>{l}</text>;})}
         {/* Second orbit ring for overlay */}
         <circle cx={cx} cy={cy} r={lr-8} fill="none" stroke="rgba(175,82,222,.06)" strokeWidth=".5" strokeDasharray="3 6"/>
       </>}
@@ -529,7 +529,7 @@ function Info({i,p,af=[],onClose}){
 function OverlayLegend({y,overlay,onClear}){
   if(!overlay)return null;
   return(
-    <div style={{position:'absolute',top:12,right:12,background:'rgba(255,255,255,.95)',border:'1px solid rgba(0,0,0,.06)',borderRadius:12,padding:'10px 14px',backdropFilter:'blur(16px)',minWidth:180}}>
+    <div style={{position:'absolute',top:50,right:12,background:'rgba(255,255,255,.95)',border:'1px solid rgba(0,0,0,.06)',borderRadius:12,padding:'10px 14px',backdropFilter:'blur(16px)',minWidth:180}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
         <span style={{fontSize:10,color:'#6e6e73',textTransform:'uppercase',letterSpacing:1}}>Совмещение</span>
         <button onClick={onClear} style={{fontSize:14,color:'#6e6e73',padding:'0 4px'}}>✕</button>
