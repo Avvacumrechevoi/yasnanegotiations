@@ -337,9 +337,9 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
       {!overlay&&lps.map((pt,i)=>{const l=p[i]||'';if(!l)return null;let dy=5;if(i===0)dy=16;if(i===6)dy=-7;const words=l.split(' ');const tooLong=words.length>=2;
         if(tooLong&&words.length>1){const mid=Math.ceil(words.length/2);const l1=words.slice(0,mid).join(' ');const l2=words.slice(mid).join(' ');
           const xOff2=i===3?14:i===9?-14:i===4?8:i===8?-8:0;
-          return<text key={`l${i}`} x={pt.x+xOff2} y={pt.y+dy-4} textAnchor={anch(i)} fill={'#000'} fontSize={l.length>14?(sel===i?"12":"11"):(sel===i?"14":"12")} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}><tspan x={pt.x+xOff2} dy="0">{l1}</tspan><tspan x={pt.x+xOff2} dy="16">{l2}</tspan></text>;}
+          return<text key={`l${i}`} x={pt.x+xOff2} y={pt.y+dy-4} textAnchor={anch(i)} fill={'#000'} fontSize={isMob?(sel===i?"20":"17"):(sel===i?"15":"13")} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}><tspan x={pt.x+xOff2} dy="0">{l1}</tspan><tspan x={pt.x+xOff2} dy="16">{l2}</tspan></text>;}
         const xOff=i===3?14:i===9?-14:i===4?8:i===8?-8:0;
-        return<text key={`l${i}`} x={pt.x+xOff} y={pt.y+dy} textAnchor={anch(i)} fill={'#000'} fontSize={l.length>12?(sel===i?"13":"12"):(sel===i?"16":"14")} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}>{l}</text>;})}
+        return<text key={`l${i}`} x={pt.x+xOff} y={pt.y+dy} textAnchor={anch(i)} fill={'#000'} fontSize={isMob?(sel===i?"22":"19"):(sel===i?"16":"14")} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}>{l}</text>;})}
       {overlay&&<>
         {/* Primary Yasna labels - inner ring */}
         {ilps.map((pt,i)=>{const l=p[i]||'';if(!l)return null;const a=angDeg(i);let dy=4;if(i===0)dy=12;if(i===6)dy=-5;return<text key={`p${i}`} x={pt.x} y={pt.y+dy} textAnchor={anch(i)} fill={sel===i?'#1d1d1f':'rgba(0,122,255,.8)'} fontSize={sel===i?"16":"14"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'500'} style={{pointerEvents:'none'}}>{l}</text>;})}
