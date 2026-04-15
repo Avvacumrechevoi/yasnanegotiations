@@ -24,50 +24,35 @@ input{font-family:var(--sans)}
 
 /* ═══ MOBILE RESPONSIVE ═══ */
 @media(max-width:768px){
-  /* Header: compact single line */
   .hdr{padding:6px 10px!important;gap:4px!important}
   .hdr-title{font-size:15px!important}
   .hdr-sub{display:none!important}
   .hdr-meta{display:none!important}
   .hdr-btns{gap:3px!important}
   .hdr-btns button{padding:4px 8px!important;font-size:9px!important}
-  
-  /* Nav tabs: thin line */
   .nav-tabs{padding:2px 0 2px 6px!important;min-height:26px!important}
   .nav-tabs button{padding:2px 7px!important;font-size:9px!important;border-radius:10px!important}
   .nav-right{padding-right:6px!important;padding-left:3px!important;gap:2px!important}
   .nav-right button{font-size:9px!important}
-  
-  /* Filters: horizontal scroll instead of wrap */
-  .filters{padding:4px 8px!important;gap:3px!important;flex-wrap:nowrap!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch}
-  .filters button{padding:2px 6px!important;font-size:8px!important;flex-shrink:0!important}
+  .filters{padding:6px 8px!important;gap:4px!important;flex-wrap:wrap!important;overflow-x:visible!important}
+  .filters button{padding:3px 8px!important;font-size:10px!important;flex-shrink:0!important;line-height:1.3!important}
   .filters .sep{display:none!important}
-  
-  /* Star area: maximize */
   .star-area{min-height:0!important;flex:1!important}
   .star-area>div{max-height:none!important}
-  
-  /* Info card: bottom sheet */
+  .star-area text{font-size:115%!important}
+  .star-area circle text{font-size:120%!important}
   .fi{left:0!important;right:0!important;bottom:0!important;width:auto!important;max-width:none!important;max-height:50vh!important;border-radius:16px 16px 0 0!important;padding:12px 14px!important;border-bottom:none!important}
-  
-  /* Editor: full screen */
   .editor-panel{width:100%!important}
-  
-  /* Picker popup */
   .picker-inner{width:96%!important;padding:14px!important;max-height:88vh!important;border-radius:14px!important}
   .picker-grid{grid-template-columns:1fr!important;gap:4px!important}
-  
-  /* Fullscreen pages */
   .fullpage-content{padding:12px 14px!important}
   .fullpage-content h2{font-size:18px!important}
 }
-
 @media(max-width:480px){
   .hdr{padding:4px 8px!important}
   .hdr-title{font-size:14px!important}
   .hdr-btns button{padding:3px 6px!important;font-size:8px!important;border-radius:4px!important}
   .nav-tabs{min-height:24px!important}
-  .filters button{font-size:7px!important;padding:1px 5px!important}
   .fi{max-height:45vh!important;padding:10px 12px!important;font-size:11px!important}
 }
 </style>
@@ -301,9 +286,9 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay}){
         <g key={i} onClick={()=>onSel(sel===i?null:i)} style={{cursor:'pointer'}}>
           {isSel&&<circle cx={pt.x} cy={pt.y} r={nr+8} fill={c} opacity=".06" filter="url(#gw)"/>}
           <circle cx={pt.x} cy={pt.y} r={nr} fill="#fff" stroke={c} strokeWidth={isSel?2.5:1.8} opacity={o} filter="url(#ns)"/>
-          <text x={pt.x} y={pt.y+6} textAnchor="middle" fill={c} fontSize={isSel?"16":"15"} fontWeight="700" fontFamily="var(--sans)" opacity={o} style={{pointerEvents:'none'}}>{i}</text>
+          <text x={pt.x} y={pt.y+6} textAnchor="middle" fill={c} fontSize={isMob?(isSel?"19":"17"):(isSel?"16":"15")} fontWeight="700" fontFamily="var(--sans)" opacity={o} style={{pointerEvents:'none'}}>{i}</text>
         </g>);})}
-      {!overlay&&lps.map((pt,i)=>{const l=p[i]||'';if(!l)return null;let dy=5;if(i===0)dy=16;if(i===6)dy=-7;return<text key={`l${i}`} x={pt.x} y={pt.y+dy} textAnchor={anch(i)} fill={'#000'} fontSize={sel===i?"16":"14"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'500'} style={{pointerEvents:'none'}}>{l}</text>;})}
+      {!overlay&&lps.map((pt,i)=>{const l=p[i]||'';if(!l)return null;let dy=5;if(i===0)dy=16;if(i===6)dy=-7;return<text key={`l${i}`} x={pt.x} y={pt.y+dy} textAnchor={anch(i)} fill={'#000'} fontSize={isMob?(sel===i?"18":"16"):(sel===i?"16":"14")} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}>{l}</text>;})}
       {overlay&&<>
         {/* Primary Yasna labels - inner ring */}
         {ilps.map((pt,i)=>{const l=p[i]||'';if(!l)return null;const a=angDeg(i);let dy=4;if(i===0)dy=12;if(i===6)dy=-5;return<text key={`p${i}`} x={pt.x} y={pt.y+dy} textAnchor={anch(i)} fill={sel===i?'#1d1d1f':'rgba(0,122,255,.8)'} fontSize={sel===i?"16":"14"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'500'} style={{pointerEvents:'none'}}>{l}</text>;})}
