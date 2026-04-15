@@ -302,9 +302,9 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay}){
         </g>);})}
       {!overlay&&lps.map((pt,i)=>{const l=p[i]||'';if(!l)return null;let dy=5;if(i===0)dy=16;if(i===6)dy=-7;const words=l.split(' ');const tooLong=l.length>10&&[2,3,4,8,9,10].includes(i);
         if(tooLong&&words.length>1){const mid=Math.ceil(words.length/2);const l1=words.slice(0,mid).join(' ');const l2=words.slice(mid).join(' ');
-          const xOff2=0;const anch2=[3,9].includes(i)?'middle':anch(i);
-          return<text key={`l${i}`} x={pt.x+xOff2} y={pt.y+dy-7} textAnchor={anch2} fill={'#000'} fontSize={sel===i?"15":"13"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}><tspan x={pt.x+xOff2} dy="0">{l1}</tspan><tspan x={pt.x+xOff2} dy="14">{l2}</tspan></text>;}
-        const xOff=i===3?18:i===9?-18:0;
+          const xOff2=i===3?20:i===9?-20:0;
+          return<text key={`l${i}`} x={pt.x+xOff2} y={pt.y+dy-4} textAnchor={anch(i)} fill={'#000'} fontSize={sel===i?"15":"13"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}><tspan x={pt.x+xOff2} dy="0">{l1}</tspan><tspan x={pt.x+xOff2} dy="14">{l2}</tspan></text>;}
+        const xOff=i===3?20:i===9?-20:0;
         return<text key={`l${i}`} x={pt.x+xOff} y={pt.y+dy} textAnchor={anch(i)} fill={'#000'} fontSize={sel===i?"16":"14"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}>{l}</text>;})}
       {overlay&&<>
         {/* Primary Yasna labels - inner ring */}
