@@ -189,6 +189,7 @@ const FL=[
 ];
 
 function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
+  const isMob=typeof window!=="undefined"&&window.innerWidth<=768;
   const p=yy.p||[];
   const S=isMob?600:900,W=isMob?500:700,cx=S/2,cy=W/2,R=isMob?160:215,nr=isMob?20:23,lr=R+(isMob?50:60);
   const pts=Array.from({length:12},(_,i)=>xy(i,cx,cy,R))
