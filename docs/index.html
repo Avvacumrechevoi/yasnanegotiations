@@ -43,7 +43,7 @@ input{font-family:var(--sans)}
   .star-area>div{max-height:none!important}
   .star-area svg{transform:scale(1.25);transform-origin:center}
   .star-area circle text{font-size:120%!important}
-  .fi{left:0!important;right:0!important;bottom:0!important;width:auto!important;max-width:none!important;max-height:50vh!important;border-radius:16px 16px 0 0!important;padding:12px 14px!important;border-bottom:none!important}
+  .fi{left:0!important;right:0!important;bottom:0!important;width:auto!important;max-width:none!important;max-height:40vh!important;border-radius:16px 16px 0 0!important;padding:12px 14px!important;border-bottom:none!important}
   .editor-panel{width:100%!important}
   .picker-inner{width:96%!important;padding:14px!important;max-height:88vh!important;border-radius:14px!important}
   .picker-grid{grid-template-columns:1fr!important;gap:4px!important}
@@ -1125,7 +1125,7 @@ function App(){
         {af.length>0&&<button onClick={()=>setAf([])} style={{padding:'3px 10px',borderRadius:14,fontSize:10,color:'#86868b',border:'1px solid #c7c7cc'}}>✕</button>}
         
       </div>
-      <div className='star-area' style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}}>
+      <div className='star-area' style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'auto'}} onClick={()=>setSel(null)}>
         <div style={{width:'100%',height:'100%',maxWidth:900,maxHeight:700}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay}/></div>
         <Info i={sel} p={y.p} af={af}/>
         <OverlayLegend y={y} overlay={overlay} onClear={()=>setOverlay(null)}/>
