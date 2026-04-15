@@ -1125,7 +1125,7 @@ function App(){
         {af.length>0&&<button onClick={()=>setAf([])} style={{padding:'3px 10px',borderRadius:14,fontSize:10,color:'#86868b',border:'1px solid #c7c7cc'}}>✕</button>}
         
       </div>
-      <div className='star-area' style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'auto'}} onClick={()=>setSel(null)}>
+      <div className='star-area' style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'auto'}} onClick={e=>{if(e.target===e.currentTarget)setSel(null)}}>
         <div style={{width:'100%',height:'100%',maxWidth:900,maxHeight:700}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay}/></div>
         <Info i={sel} p={y.p} af={af}/>
         <OverlayLegend y={y} overlay={overlay} onClear={()=>setOverlay(null)}/>
