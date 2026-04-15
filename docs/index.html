@@ -1099,8 +1099,8 @@ function App(){
     <div style={{background:'var(--bg)',height:'100vh',display:'flex',flexDirection:'column'}}>
       <div style={{display:'flex',alignItems:'center',padding:'8px 20px',background:'var(--bg2)',borderBottom:'1px solid rgba(0,0,0,.08)',flexShrink:0}}>
         <span style={{fontSize:17,color:'#0071e3',marginRight:8}}>✦</span>
-        <span className='hdr-title' style={{fontFamily:'var(--serif)',fontSize:16,color:'#1d1d1f',fontWeight:700,marginRight:6}}>{y.name}</span><span className='hdr-sub' style={{fontSize:9,color:y.custom?'var(--accent)':'#86868b',marginLeft:4,fontWeight:400}}>{y.custom?'кастомная':'верифицирована'}</span>
-        <span className='hdr-meta' style={{fontSize:9,color:'#6e6e73'}}>12 полочек · 3 креста · 4 стихии</span>
+        <span className='hdr-title' style={{fontFamily:'var(--serif)',fontSize:16,color:'#1d1d1f',fontWeight:700,marginRight:6}}>{y.name}</span>
+        
         <div style={{flex:1}}/>
         <div className='hdr-btns' style={{display:'flex',gap:6,alignItems:'center'}}>
         <button onClick={()=>setVerif(true)} style={{border:'1px solid #d2d2d7',color:'#6e6e73',padding:'5px 14px',borderRadius:6,fontSize:11}}>Верификация</button>
