@@ -939,8 +939,8 @@ function App(){
         </div>
         <div style={{display:'flex',alignItems:'center',gap:3,paddingRight:16,paddingLeft:6,flexShrink:0,background:'var(--bg2)',borderLeft:'1px solid #e5e5ea'}}>
         <button onClick={()=>setPicker(true)} style={{padding:'2px 8px',borderRadius:12,fontSize:10,color:'#6e6e73',border:'1px dashed var(--border)',whiteSpace:'nowrap',lineHeight:'18px'}}>+ ещё</button>
-        <button onClick={()=>overlay?setOverlay(null):setShowOverlayPicker(true)} style={{padding:'2px 8px',borderRadius:12,fontSize:10,whiteSpace:'nowrap',background:overlay?'rgba(175,82,222,.08)':'transparent',color:overlay?'#af52de':'var(--txt3)',border:`1px solid ${overlay?'rgba(175,82,222,.15)':'var(--border)'}`,lineHeight:'18px'}}>{overlay?'⊗':'⊕'}</button>
-        <button onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);}} style={{padding:'2px 8px',borderRadius:12,fontSize:10,color:'#0071e3',border:'1px dashed rgba(0,122,255,.3)',whiteSpace:'nowrap',lineHeight:'18px'}}>+</button>
+        <button onClick={()=>overlay?setOverlay(null):setShowOverlayPicker(true)} style={{padding:'2px 8px',borderRadius:12,fontSize:10,whiteSpace:'nowrap',background:overlay?'rgba(175,82,222,.08)':'transparent',color:overlay?'#af52de':'var(--txt3)',border:`1px solid ${overlay?'rgba(175,82,222,.15)':'var(--border)'}`,lineHeight:'18px'}}>{overlay?'⊗ Снять':'Синтез'}</button>
+        <button onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);}} style={{padding:'2px 8px',borderRadius:12,fontSize:10,color:'#0071e3',border:'1px dashed rgba(0,122,255,.3)',whiteSpace:'nowrap',lineHeight:'18px'}}>+ Создать</button>
         </div>
       </div>
       <div style={{display:'flex',gap:4,padding:'7px 20px',flexWrap:'wrap',flexShrink:0}}>
