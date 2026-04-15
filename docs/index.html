@@ -22,13 +22,15 @@ input{font-family:var(--sans)}
 @keyframes pulse{0%,100%{opacity:.35}50%{opacity:.5}}
 .hide-scroll::-webkit-scrollbar{display:none}
 
+.hdr-burger{display:none}
 /* ═══ MOBILE RESPONSIVE ═══ */
 @media(max-width:768px){
   .hdr{padding:6px 10px!important;gap:4px!important}
   .hdr-title{font-size:15px!important}
   .hdr-sub{display:none!important}
   .hdr-meta{display:none!important}
-  .hdr-btns{gap:3px!important}
+  .hdr-btns{display:none!important}
+  .hdr-burger{display:flex!important}
   .hdr-btns button{padding:4px 8px!important;font-size:9px!important}
   .nav-tabs{padding:2px 0 2px 6px!important;min-height:26px!important}
   .nav-tabs button{padding:2px 7px!important;font-size:9px!important;border-radius:10px!important}
@@ -39,7 +41,7 @@ input{font-family:var(--sans)}
   .filters .sep{display:none!important}
   .star-area{min-height:0!important;flex:1!important}
   .star-area>div{max-height:none!important}
-  .star-area svg{transform:scale(1.08);transform-origin:center}
+  .star-area svg{transform:scale(1.12);transform-origin:center}
   .star-area circle text{font-size:120%!important}
   .fi{left:0!important;right:0!important;bottom:0!important;width:auto!important;max-width:none!important;max-height:50vh!important;border-radius:16px 16px 0 0!important;padding:12px 14px!important;border-bottom:none!important}
   .editor-panel{width:100%!important}
@@ -288,7 +290,10 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay}){
           <circle cx={pt.x} cy={pt.y} r={nr} fill="#fff" stroke={c} strokeWidth={isSel?2.5:1.8} opacity={o} filter="url(#ns)"/>
           <text x={pt.x} y={pt.y+6} textAnchor="middle" fill={c} fontSize={isSel?"16":"15"} fontWeight="700" fontFamily="var(--sans)" opacity={o} style={{pointerEvents:'none'}}>{i}</text>
         </g>);})}
-      {!overlay&&lps.map((pt,i)=>{const l=p[i]||'';if(!l)return null;let dy=5;if(i===0)dy=16;if(i===6)dy=-7;return<text key={`l${i}`} x={pt.x} y={pt.y+dy} textAnchor={anch(i)} fill={'#000'} fontSize={sel===i?"16":"14"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}>{l}</text>;})}
+      {!overlay&&lps.map((pt,i)=>{const l=p[i]||'';if(!l)return null;let dy=5;if(i===0)dy=16;if(i===6)dy=-7;const words=l.split(' ');const tooLong=l.length>12&&[2,3,4,8,9,10].includes(i);
+        if(tooLong&&words.length>1){const mid=Math.ceil(words.length/2);const l1=words.slice(0,mid).join(' ');const l2=words.slice(mid).join(' ');
+          return<text key={`l${i}`} x={pt.x} y={pt.y+dy-7} textAnchor={anch(i)} fill={'#000'} fontSize={sel===i?"15":"13"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}><tspan x={pt.x} dy="0">{l1}</tspan><tspan x={pt.x} dy="15">{l2}</tspan></text>;}
+        return<text key={`l${i}`} x={pt.x} y={pt.y+dy} textAnchor={anch(i)} fill={'#000'} fontSize={sel===i?"16":"14"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}>{l}</text>;})}
       {overlay&&<>
         {/* Primary Yasna labels - inner ring */}
         {ilps.map((pt,i)=>{const l=p[i]||'';if(!l)return null;const a=angDeg(i);let dy=4;if(i===0)dy=12;if(i===6)dy=-5;return<text key={`p${i}`} x={pt.x} y={pt.y+dy} textAnchor={anch(i)} fill={sel===i?'#1d1d1f':'rgba(0,122,255,.8)'} fontSize={sel===i?"16":"14"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'500'} style={{pointerEvents:'none'}}>{l}</text>;})}
@@ -1070,6 +1075,7 @@ function App(){
   const[glossary,setGlossary]=useState(false);
   const[instr,setInstr]=useState(false);
   const[verif,setVerif]=useState(false);
+  const[menu,setMenu]=useState(false);
   const[vState,setVState]=useState({});
   const[overlay,setOverlay]=useState(null);
   const[showOverlayPicker,setShowOverlayPicker]=useState(false);
