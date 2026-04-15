@@ -46,8 +46,8 @@ input{font-family:var(--sans)}
   .filters .sep{display:none!important}
   .star-area{min-height:0!important;flex:1!important}
   .star-area>div{max-height:none!important}
-  .star-area svg{transform:scale(1.15);transform-origin:center;transition:transform .3s}
-  .star-shift svg{transform:scale(1.0) translateY(-16vh)!important}
+  .star-area svg{transition:transform .3s}
+  .star-shift svg{transform:translateY(-16vh)!important}
   .star-area circle text{font-size:120%!important}
   .fi{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;width:auto!important;max-width:none!important;height:30vh!important;max-height:30vh!important;border-radius:16px 16px 0 0!important;padding:0!important;border-bottom:none!important;box-shadow:0 -4px 20px rgba(0,0,0,.1)!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;z-index:50!important}
   .fi>div:last-child{overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;flex:1!important;min-height:0!important;scrollbar-width:thin;scrollbar-color:#c7c7cc transparent}
@@ -183,6 +183,8 @@ const FL=[
 ];
 
 function Star({yy,sel,onSel,hl,af=[],showOpp,overlay}){
+  const[isMob,setIsMob]=useState(false);
+  useEffect(()=>{const c=()=>setIsMob(window.innerWidth<=768);c();window.addEventListener('resize',c);return()=>window.removeEventListener('resize',c);},[]);
   const p=yy.p||[];
   const S=900,W=700,cx=S/2,cy=W/2,R=215,nr=23,lr=R+60;
   const pts=useMemo(()=>Array.from({length:12},(_,i)=>xy(i,cx,cy,R)),[]);
@@ -298,14 +300,14 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay}){
         <g key={i} onClick={()=>onSel(sel===i?null:i)} style={{cursor:'pointer'}}>
           {isSel&&<circle cx={pt.x} cy={pt.y} r={nr+8} fill={c} opacity=".06" filter="url(#gw)"/>}
           <circle cx={pt.x} cy={pt.y} r={nr} fill="#fff" stroke={c} strokeWidth={isSel?2.5:1.8} opacity={o} filter="url(#ns)"/>
-          <text x={pt.x} y={pt.y+6} textAnchor="middle" fill={c} fontSize={isSel?"16":"15"} fontWeight="700" fontFamily="var(--sans)" opacity={o} style={{pointerEvents:'none'}}>{i}</text>
+          <text x={pt.x} y={pt.y+6} textAnchor="middle" fill={c} fontSize={isMob?(isSel?"20":"18"):(isSel?"16":"15")} fontWeight="700" fontFamily="var(--sans)" opacity={o} style={{pointerEvents:'none'}}>{i}</text>
         </g>);})}
       {!overlay&&lps.map((pt,i)=>{const l=p[i]||'';if(!l)return null;let dy=5;if(i===0)dy=16;if(i===6)dy=-7;const words=l.split(' ');const tooLong=l.length>10&&[2,3,4,8,9,10].includes(i);
         if(tooLong&&words.length>1){const mid=Math.ceil(words.length/2);const l1=words.slice(0,mid).join(' ');const l2=words.slice(mid).join(' ');
           const xOff2=i===3?20:i===9?-20:0;
-          return<text key={`l${i}`} x={pt.x+xOff2} y={pt.y+dy-4} textAnchor={anch(i)} fill={'#000'} fontSize={sel===i?"15":"13"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}><tspan x={pt.x+xOff2} dy="0">{l1}</tspan><tspan x={pt.x+xOff2} dy="14">{l2}</tspan></text>;}
+          return<text key={`l${i}`} x={pt.x+xOff2} y={pt.y+dy-4} textAnchor={anch(i)} fill={'#000'} fontSize={isMob?(sel===i?"17":"15"):(sel===i?"15":"13")} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}><tspan x={pt.x+xOff2} dy="0">{l1}</tspan><tspan x={pt.x+xOff2} dy="14">{l2}</tspan></text>;}
         const xOff=i===3?20:i===9?-20:0;
-        return<text key={`l${i}`} x={pt.x+xOff} y={pt.y+dy} textAnchor={anch(i)} fill={'#000'} fontSize={sel===i?"16":"14"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}>{l}</text>;})}
+        return<text key={`l${i}`} x={pt.x+xOff} y={pt.y+dy} textAnchor={anch(i)} fill={'#000'} fontSize={isMob?(sel===i?"18":"16"):(sel===i?"16":"14")} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}>{l}</text>;})}
       {overlay&&<>
         {/* Primary Yasna labels - inner ring */}
         {ilps.map((pt,i)=>{const l=p[i]||'';if(!l)return null;const a=angDeg(i);let dy=4;if(i===0)dy=12;if(i===6)dy=-5;return<text key={`p${i}`} x={pt.x} y={pt.y+dy} textAnchor={anch(i)} fill={sel===i?'#1d1d1f':'rgba(0,122,255,.8)'} fontSize={sel===i?"16":"14"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'500'} style={{pointerEvents:'none'}}>{l}</text>;})}
