@@ -439,23 +439,26 @@ function Info({i,p,af=[],onClose}){
   const Tag=({color,children})=><span style={{display:'inline-block',padding:'1px 8px',borderRadius:10,fontSize:10,fontWeight:500,background:color+'12',color:color,border:`1px solid ${color}25`}}>{children}</span>;
 
   return(
-    <div className="fi" style={{position:'fixed',bottom:14,left:14,width:360,maxHeight:hasMech?'65vh':'50vh',overflowY:'auto',background:'rgba(255,255,255,.97)',border:'1px solid #e5e5ea',borderRadius:16,padding:'14px 16px',backdropFilter:'blur(16px)',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
-      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
+    <div className="fi" style={{position:'fixed',bottom:14,left:14,width:360,maxHeight:hasMech?'65vh':'50vh',background:'rgba(255,255,255,.97)',border:'1px solid #e5e5ea',borderRadius:16,backdropFilter:'blur(16px)',boxShadow:'0 4px 20px rgba(0,0,0,.06)',display:'flex',flexDirection:'column'}}>
+      <div style={{padding:'10px 16px 6px',flexShrink:0}}>
         <div style={{width:36,height:4,borderRadius:2,background:'#d2d2d7',margin:'0 auto 8px'}}/>
         <button onClick={onClose} style={{position:'absolute',top:8,right:10,width:28,height:28,borderRadius:'50%',border:'1px solid #e5e5ea',background:'#f5f5f7',fontSize:14,color:'#86868b',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:1}}>✕</button>
-        <div style={{width:36,height:36,borderRadius:'50%',border:`2px solid ${cr.c}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontWeight:700,color:cr.c,flexShrink:0}}>{i}</div>
-        <div style={{flex:1,minWidth:0}}>
-          <div style={{fontSize:17,color:'#1d1d1f',fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{label||<span style={{color:'#aeaeb2'}}>Не заполнено</span>}</div>
-          <div style={{display:'flex',gap:4,marginTop:3,flexWrap:'wrap'}}>
-            <Tag color={cr.c}>{cr.v}</Tag>
-            <Tag color={pr.c}>{pr.n.split(' ')[0]}</Tag>
-            <Tag color="#86868b">{isLong?'Долгое':'Короткое'}</Tag>
+        <div style={{display:'flex',alignItems:'center',gap:10}}>
+          <div style={{width:36,height:36,borderRadius:'50%',border:`2px solid ${cr.c}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontWeight:700,color:cr.c,flexShrink:0}}>{i}</div>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:17,color:'#1d1d1f',fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{label||<span style={{color:'#aeaeb2'}}>Не заполнено</span>}</div>
+            <div style={{display:'flex',gap:4,marginTop:3,flexWrap:'wrap'}}>
+              <Tag color={cr.c}>{cr.v}</Tag>
+              <Tag color={pr.c}>{pr.n.split(' ')[0]}</Tag>
+              <Tag color="#86868b">{isLong?'Долгое':'Короткое'}</Tag>
+            </div>
           </div>
         </div>
       </div>
-      <div style={{fontSize:12,color:'#424245',lineHeight:1.55,marginBottom:8,padding:'8px 10px',background:'var(--bg2)',borderRadius:10}}>
-        {POS_DESC[i]}
-      </div>
+      <div style={{flex:1,overflowY:'auto',padding:'0 16px 14px'}}>
+        <div style={{fontSize:12,color:'#424245',lineHeight:1.55,marginBottom:8,padding:'8px 10px',background:'var(--bg2)',borderRadius:10}}>
+          {POS_DESC[i]}
+        </div>
       {label&&(prevL||nextL)&&<div style={{display:'flex',alignItems:'center',gap:4,marginBottom:8,fontSize:11,color:'#6e6e73',flexWrap:'wrap'}}>
         {prevL?<><span style={{color:'#aeaeb2'}}>[{(i+11)%12}]</span><span>{prevL}</span><span style={{color:'#d2d2d7'}}>→</span></>:null}
         <span style={{fontWeight:600,color:'#1d1d1f'}}>{label}</span>
@@ -465,7 +468,7 @@ function Info({i,p,af=[],onClose}){
         <span>↔</span>
         <span>[{opp(i)}] {oppLabel}</span>
       </div>}
-      {mechItems.length>0&&<div style={{maxHeight:mechItems.length>2?160:undefined,overflowY:mechItems.length>2?'auto':undefined,display:'flex',flexDirection:'column',gap:4,marginBottom:6}}>
+      {mechItems.length>0&&<div style={{display:'flex',flexDirection:'column',gap:4,marginBottom:6}}>
         {mechItems.map((it,j)=><div key={j} style={{padding:'6px 10px',background:it.dim?'#fafafa':it.c+'08',borderRadius:8,borderLeft:`3px solid ${it.dim?'#e5e5ea':it.c}`,flexShrink:0,opacity:it.dim?.45:1}}>
           <div style={{fontSize:10,fontWeight:600,color:it.dim?'#aeaeb2':it.c,marginBottom:1}}>{it.title}</div>
           <div style={{fontSize:11,color:it.dim?'#aeaeb2':'#424245',lineHeight:1.45}}>{it.text}</div>
@@ -473,6 +476,7 @@ function Info({i,p,af=[],onClose}){
       </div>}
       <div style={{fontSize:10,color:'#86868b',lineHeight:1.4}}>
         <span style={{fontWeight:600,color:'#6e6e73'}}>{ref.f}</span> · {ref.ex}
+      </div>
       </div>
     </div>);
 }
