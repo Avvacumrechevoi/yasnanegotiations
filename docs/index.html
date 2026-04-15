@@ -21,6 +21,50 @@ input{font-family:var(--sans)}
 @keyframes dashFlow{from{stroke-dashoffset:0}to{stroke-dashoffset:-24}}
 @keyframes pulse{0%,100%{opacity:.35}50%{opacity:.5}}
 .hide-scroll::-webkit-scrollbar{display:none}
+
+/* ═══ MOBILE RESPONSIVE ═══ */
+@media(max-width:768px){
+  /* Header */
+  .hdr{flex-wrap:wrap;padding:8px 12px!important;gap:6px!important}
+  .hdr-title{font-size:15px!important}
+  .hdr-sub{font-size:9px!important}
+  .hdr-btns button{padding:4px 10px!important;font-size:10px!important}
+  
+  /* Nav tabs */
+  .nav-tabs{padding:3px 0 3px 8px!important;height:28px!important}
+  .nav-tabs button{padding:2px 8px!important;font-size:9px!important;border-radius:10px!important}
+  .nav-right{padding-right:8px!important;padding-left:4px!important;gap:2px!important}
+  
+  /* Filters */
+  .filters{padding:5px 8px!important;gap:3px!important}
+  .filters button{padding:2px 7px!important;font-size:9px!important}
+  
+  /* Star area */
+  .star-area{min-height:300px}
+  
+  /* Info card */
+  .fi{left:8px!important;right:8px!important;bottom:8px!important;width:auto!important;max-width:none!important;max-height:45vh!important;font-size:11px!important}
+  
+  /* Editor */
+  .editor-panel{width:100%!important}
+  
+  /* Picker popup */
+  .picker-inner{width:95%!important;padding:14px!important;max-height:85vh!important}
+  .picker-grid{grid-template-columns:1fr!important}
+  
+  /* Fullscreen pages (glossary, instruction, verification) */
+  .fullpage{padding:12px!important}
+  .fullpage h2{font-size:18px!important}
+  .fullpage-content{padding:12px 14px!important}
+}
+
+@media(max-width:480px){
+  .hdr-btns{display:flex;gap:4px}
+  .hdr-btns button{padding:3px 8px!important;font-size:9px!important}
+  .nav-tabs{height:26px!important}
+  .fi{max-height:40vh!important;padding:10px 12px!important}
+  .star-area{min-height:260px}
+}
 </style>
 </head>
 <body>
@@ -450,7 +494,7 @@ function OverlayLegend({y,overlay,onClear}){
 
 function Editor({y,setY,onClose}){
   return(
-    <div className="fi" style={{position:'fixed',top:0,right:0,width:370,height:'100vh',background:'rgba(255,255,255,.98)',borderLeft:'1px solid rgba(0,0,0,.08)',zIndex:50,display:'flex',flexDirection:'column'}}>
+    <div className="fi" className='editor-panel' style={{position:'fixed',top:0,right:0,width:370,height:'100vh',background:'rgba(255,255,255,.98)',borderLeft:'1px solid rgba(0,0,0,.08)',zIndex:50,display:'flex',flexDirection:'column'}}>
       <div style={{padding:'14px 18px',borderBottom:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
         <h3 style={{fontFamily:'var(--serif)',fontSize:18,color:'#1d1d1f',fontWeight:600}}>Редактор</h3>
         <button onClick={onClose} style={{fontSize:18,padding:'4px 8px'}}>✕</button>
@@ -478,7 +522,7 @@ function Editor({y,setY,onClose}){
 function Picker({pinned,onTogglePin,onClear,onClose}){
   return(
     <div className="fi" style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'rgba(0,0,0,.04)',zIndex:60,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={onClose}>
-      <div style={{background:'rgba(255,255,255,.98)',border:'1px solid rgba(0,122,255,.08)',borderRadius:20,backdropFilter:'blur(20px)',padding:'20px 24px',width:520,maxHeight:'80vh',overflowY:'auto'}} onClick={e=>e.stopPropagation()}>
+      <div className='picker-inner' style={{background:'rgba(255,255,255,.98)',border:'1px solid rgba(0,122,255,.08)',borderRadius:20,backdropFilter:'blur(20px)',padding:'20px 24px',width:520,maxHeight:'80vh',overflowY:'auto'}} onClick={e=>e.stopPropagation()}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
           <h3 style={{fontFamily:'var(--serif)',fontSize:18,color:'#1d1d1f'}}>Все Ясны</h3>
           <div style={{display:'flex',gap:8,alignItems:'center'}}>
@@ -487,7 +531,7 @@ function Picker({pinned,onTogglePin,onClear,onClose}){
           </div>
         </div>
         <div style={{fontSize:10,color:'var(--txt2)',marginBottom:12}}>Нажмите чтобы добавить в панель. Нажмите ещё раз чтобы убрать.</div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
+        <div className='picker-grid' style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
           {T.map(t=>{const active=pinned.includes(t.id);return(
             <button key={t.id} onClick={()=>onTogglePin(t.id)}
               style={{padding:'10px 14px',borderRadius:8,fontSize:13,textAlign:'left',
@@ -721,7 +765,7 @@ function Verification({y,vs,setVs,onClose}){
         <TabBtn id="mech" label={`Механики (${score(allMechIds).pass}/${allMechIds.length})`}/>
       </div>
 
-      <div style={{flex:1,overflowY:'auto',padding:'16px 24px',maxWidth:760,margin:'0 auto',width:'100%'}}>
+      <div className='fullpage-content' style={{flex:1,overflowY:'auto',padding:'16px 24px',maxWidth:760,margin:'0 auto',width:'100%'}}>
 
         {tab==='pos'&&Array.from({length:12},(_,i)=>{
           const checks=posChecks(i);const s=score(checks.map(c=>c.id));
@@ -761,7 +805,7 @@ function Instruction({onClose}){
         <h2 style={{fontSize:24,fontWeight:700,color:'#1d1d1f',flex:1}}>Инструкция по составлению Ясны</h2>
         <button onClick={onClose} style={{fontSize:13,color:'#0071e3',padding:'7px 20px',border:'1px solid #0071e3',borderRadius:8}}>Закрыть</button>
       </div>
-      <div style={{flex:1,overflowY:'auto',padding:'24px',maxWidth:760,margin:'0 auto',width:'100%'}}>
+      <div className='fullpage-content' style={{flex:1,overflowY:'auto',padding:'24px',maxWidth:760,margin:'0 auto',width:'100%'}}>
 
         {/* INTRO */}
         <div style={{padding:'20px 24px',background:'linear-gradient(135deg,#f0f5ff,#faf5ff)',borderRadius:16,marginBottom:32}}>
@@ -970,7 +1014,7 @@ function Glossary({onClose}){
         <h2 style={{fontSize:24,fontWeight:700,color:'#1d1d1f',flex:1}}>Глоссарий</h2>
         <button onClick={onClose} style={{fontSize:13,color:'#0071e3',padding:'7px 20px',border:'1px solid #0071e3',borderRadius:8}}>Закрыть</button>
       </div>
-      <div style={{flex:1,overflowY:'auto',padding:'20px 24px',maxWidth:720,margin:'0 auto',width:'100%'}}>
+      <div className='fullpage-content' style={{flex:1,overflowY:'auto',padding:'20px 24px',maxWidth:720,margin:'0 auto',width:'100%'}}>
         <p style={{fontSize:14,color:'#6e6e73',marginBottom:24,lineHeight:1.7}}>
           Ясна — это способ описать любое явление через 12 позиций, расположенных по кругу. Каждая позиция имеет свойства и связана с другими через механики. Понимание механик — ключ к составлению правильных Ясен.
         </p>
@@ -1050,7 +1094,7 @@ function App(){
     <div style={{background:'var(--bg)',height:'100vh',display:'flex',flexDirection:'column'}}>
       <div style={{display:'flex',alignItems:'center',padding:'8px 20px',background:'var(--bg2)',borderBottom:'1px solid rgba(0,0,0,.08)',flexShrink:0}}>
         <span style={{fontSize:17,color:'#0071e3',marginRight:8}}>✦</span>
-        <span style={{fontFamily:'var(--serif)',fontSize:16,color:'#1d1d1f',fontWeight:700,marginRight:6}}>{y.name}</span><span style={{fontSize:9,color:y.custom?'var(--accent)':'#86868b',marginLeft:4,fontWeight:400}}>{y.custom?'кастомная':'верифицирована'}</span>
+        <span className='hdr-title' style={{fontFamily:'var(--serif)',fontSize:16,color:'#1d1d1f',fontWeight:700,marginRight:6}}>{y.name}</span><span className='hdr-sub' style={{fontSize:9,color:y.custom?'var(--accent)':'#86868b',marginLeft:4,fontWeight:400}}>{y.custom?'кастомная':'верифицирована'}</span>
         <span style={{fontSize:9,color:'#6e6e73'}}>12 полочек · 3 креста · 4 стихии</span>
         <div style={{flex:1}}/>
         <button onClick={()=>setVerif(true)} style={{border:'1px solid #d2d2d7',color:'#6e6e73',padding:'5px 14px',borderRadius:6,fontSize:11}}>Верификация</button>
@@ -1062,18 +1106,18 @@ function App(){
         <div style={{flex:1,display:'flex',alignItems:'center',gap:3,overflowX:'auto',minWidth:0,scrollbarWidth:'none',msOverflowStyle:'none'}} className="hide-scroll">
         {pinnedTemplates.map(t=><button key={t.id} onClick={()=>load(t)} style={{padding:'2px 10px',borderRadius:12,fontSize:10,whiteSpace:'nowrap',background:y.name===t.n?'rgba(0,122,255,.06)':'transparent',color:y.name===t.n?'#1d1d1f':'var(--txt2)',border:`1px solid ${y.name===t.n?'rgba(0,122,255,.3)':'transparent'}`,flexShrink:0,lineHeight:'18px'}}>{t.custom?'◇':'✦'} {t.n}</button>)}
         </div>
-        <div style={{display:'flex',alignItems:'center',gap:3,paddingRight:16,paddingLeft:6,flexShrink:0,background:'var(--bg2)',borderLeft:'1px solid #e5e5ea'}}>
+        <div className='nav-right' style={{display:'flex',alignItems:'center',gap:3,paddingRight:16,paddingLeft:6,flexShrink:0,background:'var(--bg2)',borderLeft:'1px solid #e5e5ea'}}>
         <button onClick={()=>setPicker(true)} style={{padding:'2px 8px',borderRadius:12,fontSize:10,color:'#6e6e73',border:'1px dashed var(--border)',whiteSpace:'nowrap',lineHeight:'18px'}}>+ ещё</button>
         <button onClick={()=>overlay?setOverlay(null):setShowOverlayPicker(true)} style={{padding:'2px 8px',borderRadius:12,fontSize:10,whiteSpace:'nowrap',background:overlay?'rgba(175,82,222,.08)':'transparent',color:overlay?'#af52de':'var(--txt3)',border:`1px solid ${overlay?'rgba(175,82,222,.15)':'var(--border)'}`,lineHeight:'18px'}}>{overlay?'⊗ Снять':'Синтез'}</button>
         <button onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);}} style={{padding:'2px 8px',borderRadius:12,fontSize:10,color:'#0071e3',border:'1px dashed rgba(0,122,255,.3)',whiteSpace:'nowrap',lineHeight:'18px'}}>+ Создать</button>
         </div>
       </div>
-      <div style={{display:'flex',gap:4,padding:'7px 20px',flexWrap:'wrap',flexShrink:0}}>
+      <div className='filters' style={{display:'flex',gap:4,padding:'7px 20px',flexWrap:'wrap',flexShrink:0}}>
         {FL.map((f,fi)=>{const a=af.includes(f.id);const prevG=fi>0?FL[fi-1].g:'';const showSep=f.g!==prevG&&fi>0;return<React.Fragment key={f.id}>{showSep&&<div style={{width:1,height:14,background:'#d2d2d7',margin:'0 2px',flexShrink:0}}/>}<button onClick={()=>tog(f.id)} style={{padding:'3px 10px',borderRadius:14,fontSize:10,whiteSpace:'nowrap',background:a?`${f.c}22`:'transparent',color:a?f.c:'#86868b',border:`1px solid ${a?f.c+'55':'#d2d2d7'}`}}>{f.l}</button></React.Fragment>;})}
         {af.length>0&&<button onClick={()=>setAf([])} style={{padding:'3px 10px',borderRadius:14,fontSize:10,color:'#86868b',border:'1px solid #333'}}>✕</button>}
         
       </div>
-      <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}}>
+      <div className='star-area' style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}}>
         <div style={{width:'100%',height:'100%',maxWidth:900,maxHeight:700}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} showAxes={false} overlay={overlay}/></div>
         <Info i={sel} p={y.p} af={af}/>
         <OverlayLegend y={y} overlay={overlay} onClear={()=>setOverlay(null)}/>
@@ -1081,13 +1125,13 @@ function App(){
       {ed&&<Editor y={y} setY={setY} onClose={()=>setEd(false)}/>}
       {showOverlayPicker&&(
         <div className="fi" style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'rgba(0,0,0,.04)',zIndex:60,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>setShowOverlayPicker(false)}>
-          <div style={{background:'rgba(255,255,255,.98)',border:'1px solid rgba(0,122,255,.08)',borderRadius:20,padding:'20px 24px',width:480,maxHeight:'70vh',overflowY:'auto',backdropFilter:'blur(20px)'}} onClick={e=>e.stopPropagation()}>
+          <div className='picker-inner' style={{background:'rgba(255,255,255,.98)',border:'1px solid rgba(0,122,255,.08)',borderRadius:20,padding:'20px 24px',width:480,maxHeight:'70vh',overflowY:'auto',backdropFilter:'blur(20px)'}} onClick={e=>e.stopPropagation()}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
               <h3 style={{fontFamily:'var(--serif)',fontSize:18,color:'#af52de'}}>Совместить с...</h3>
               <button onClick={()=>setShowOverlayPicker(false)} style={{fontSize:18}}>✕</button>
             </div>
             <div style={{fontSize:10,color:'var(--txt2)',marginBottom:12}}>Выберите вторую Ясну для наложения. Её подписи появятся вторым кольцом.</div>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
+            <div className='picker-grid' style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
               {T.filter(t=>t.n!==y.name).map(t=>(
                 <button key={t.id} onClick={()=>{setOverlay({name:t.n,p:[...t.p]});setShowOverlayPicker(false);}}
                   style={{padding:'10px 14px',borderRadius:8,fontSize:13,textAlign:'left',background:overlay&&overlay.name===t.n?'rgba(175,82,222,.08)':'var(--bg3)',color:overlay&&overlay.name===t.n?'#a8d8ea':'var(--txt2)',border:`1px solid ${overlay&&overlay.name===t.n?'rgba(175,82,222,.2)':'var(--border)'}`,transition:'all .15s'}}>
