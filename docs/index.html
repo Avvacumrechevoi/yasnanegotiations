@@ -518,7 +518,7 @@ function Editor({y,setY,onClose}){
 
 function Picker({pinned,onTogglePin,onClear,onClose}){
   return(
-    <div className="fi" style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'rgba(0,0,0,.04)',zIndex:60,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={onClose}>
+    <div className="popup-overlay" style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'rgba(0,0,0,.2)',zIndex:60,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={onClose}>
       <div className='picker-inner' style={{background:'rgba(255,255,255,.98)',border:'1px solid rgba(0,122,255,.08)',borderRadius:20,backdropFilter:'blur(20px)',padding:'20px 24px',width:520,maxHeight:'80vh',overflowY:'auto'}} onClick={e=>e.stopPropagation()}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
           <h3 style={{fontFamily:'var(--serif)',fontSize:18,color:'#1d1d1f'}}>Все Ясны</h3>
@@ -1134,7 +1134,7 @@ function App(){
       </div>
       {ed&&<Editor y={y} setY={setY} onClose={()=>setEd(false)}/>}
       {showOverlayPicker&&(
-        <div className="fi" style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'rgba(0,0,0,.04)',zIndex:60,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>setShowOverlayPicker(false)}>
+        <div className="popup-overlay" style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'rgba(0,0,0,.2)',zIndex:60,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>setShowOverlayPicker(false)}>
           <div className='picker-inner' style={{background:'rgba(255,255,255,.98)',border:'1px solid rgba(0,122,255,.08)',borderRadius:20,padding:'20px 24px',width:480,maxHeight:'70vh',overflowY:'auto',backdropFilter:'blur(20px)'}} onClick={e=>e.stopPropagation()}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
               <h3 style={{fontFamily:'var(--serif)',fontSize:18,color:'#af52de'}}>Совместить с...</h3>
