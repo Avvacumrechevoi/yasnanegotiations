@@ -1093,10 +1093,22 @@ function App(){
         <span className='hdr-title' style={{fontFamily:'var(--serif)',fontSize:16,color:'#1d1d1f',fontWeight:700,marginRight:6}}>{y.name}</span><span className='hdr-sub' style={{fontSize:9,color:y.custom?'var(--accent)':'#86868b',marginLeft:4,fontWeight:400}}>{y.custom?'кастомная':'верифицирована'}</span>
         <span className='hdr-meta' style={{fontSize:9,color:'#6e6e73'}}>12 полочек · 3 креста · 4 стихии</span>
         <div style={{flex:1}}/>
+        <div className='hdr-btns' style={{display:'flex',gap:6,alignItems:'center'}}>
         <button onClick={()=>setVerif(true)} style={{border:'1px solid #d2d2d7',color:'#6e6e73',padding:'5px 14px',borderRadius:6,fontSize:11}}>Верификация</button>
         <button onClick={()=>setInstr(true)} style={{border:'1px solid #d2d2d7',color:'#6e6e73',padding:'5px 14px',borderRadius:6,fontSize:11}}>Инструкция</button>
         <button onClick={()=>setGlossary(true)} style={{border:'1px solid #d2d2d7',color:'#6e6e73',padding:'5px 14px',borderRadius:6,fontSize:11}}>Глоссарий</button>
         <button onClick={()=>setEd(!ed)} style={{background:ed?'rgba(0,122,255,.06)':'transparent',border:'1px solid #d2d2d7',color:ed?'#0071e3':'#6e6e73',padding:'5px 14px',borderRadius:6,fontSize:11}}>{ed?'✕ Закрыть':'Редактор'}</button>
+        </div>
+        <div className='hdr-burger' style={{position:'relative'}}>
+          <button onClick={()=>setMenu(!menu)} style={{fontSize:18,padding:'4px 10px',border:'1px solid #d2d2d7',borderRadius:8,background:menu?'#f5f5f7':'#fff',color:'#424245'}}>☰</button>
+          {menu&&<div onClick={()=>setMenu(false)} style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:79}}/>}
+          {menu&&<div style={{position:'absolute',top:'100%',right:0,marginTop:4,background:'#fff',border:'1px solid #e5e5ea',borderRadius:12,boxShadow:'0 8px 30px rgba(0,0,0,.12)',zIndex:80,minWidth:180,overflow:'hidden'}}>
+            <button onClick={()=>{setVerif(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Верификация</button>
+            <button onClick={()=>{setInstr(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Инструкция</button>
+            <button onClick={()=>{setGlossary(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Глоссарий</button>
+            <button onClick={()=>{setEd(!ed);setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:'#1d1d1f',border:'none',background:'#fff',textAlign:'left'}}>Редактор</button>
+          </div>}
+        </div>
       </div>
       <div style={{display:'flex',alignItems:'center',padding:'4px 0 4px 16px',background:'var(--bg2)',borderBottom:'1px solid #d2d2d7',flexShrink:0,height:32}}>
         <div style={{flex:1,display:'flex',alignItems:'center',gap:3,overflowX:'auto',minWidth:0,scrollbarWidth:'none',msOverflowStyle:'none'}} className="hide-scroll">
