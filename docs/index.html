@@ -183,8 +183,7 @@ const FL=[
 ];
 
 function Star({yy,sel,onSel,hl,af=[],showOpp,overlay}){
-  const[isMob,setIsMob]=useState(false);
-  useEffect(()=>{const c=()=>setIsMob(window.innerWidth<=768);c();window.addEventListener('resize',c);return()=>window.removeEventListener('resize',c);},[]);
+    useEffect(()=>{const c=()=>setIsMob(window.innerWidth<=768);c();window.addEventListener('resize',c);return()=>window.removeEventListener('resize',c);},[]);
   const p=yy.p||[];
   const S=900,W=700,cx=S/2,cy=W/2,R=215,nr=23,lr=R+60;
   const pts=useMemo(()=>Array.from({length:12},(_,i)=>xy(i,cx,cy,R)),[]);
@@ -300,7 +299,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay}){
         <g key={i} onClick={()=>onSel(sel===i?null:i)} style={{cursor:'pointer'}}>
           {isSel&&<circle cx={pt.x} cy={pt.y} r={nr+8} fill={c} opacity=".06" filter="url(#gw)"/>}
           <circle cx={pt.x} cy={pt.y} r={nr} fill="#fff" stroke={c} strokeWidth={isSel?2.5:1.8} opacity={o} filter="url(#ns)"/>
-          <text x={pt.x} y={pt.y+6} textAnchor="middle" fill={c} fontSize={isMob?(isSel?"28":"24"):(isSel?"16":"15")} fontWeight="700" fontFamily="var(--sans)" opacity={o} style={{pointerEvents:'none'}}>{i}</text>
+          <text x={pt.x} y={pt.y+6} textAnchor="middle" fill={c} fontSize={isSel?"16":"15"} fontWeight="700" fontFamily="var(--sans)" opacity={o} style={{pointerEvents:'none'}}>{i}</text>
         </g>);})}
       {!overlay&&lps.map((pt,i)=>{const l=p[i]||'';if(!l)return null;let dy=5;if(i===0)dy=16;if(i===6)dy=-7;const words=l.split(' ');const tooLong=words.length>=2;
         if(tooLong&&words.length>1){const mid=Math.ceil(words.length/2);const l1=words.slice(0,mid).join(' ');const l2=words.slice(mid).join(' ');
