@@ -18,6 +18,7 @@ input{font-family:var(--sans)}
 /* Premium effects */
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .fi{animation:fadeIn .25s ease-out}
+@keyframes bounce{0%,100%{transform:translateY(0);opacity:.6}50%{transform:translateY(3px);opacity:1}}
 @keyframes dashFlow{from{stroke-dashoffset:0}to{stroke-dashoffset:-24}}
 @keyframes pulse{0%,100%{opacity:.35}50%{opacity:.5}}
 .hide-scroll::-webkit-scrollbar{display:none}
@@ -481,6 +482,9 @@ function Info({i,p,af=[],onClose}){
       <div style={{fontSize:10,color:'#86868b',lineHeight:1.4,paddingBottom:8}}>
         <span style={{fontWeight:600,color:'#6e6e73'}}>{ref.f}</span> · {ref.ex}
       </div>
+      </div>
+      <div style={{position:'absolute',bottom:0,left:0,right:0,height:32,background:'linear-gradient(transparent,rgba(255,255,255,.95))',display:'flex',alignItems:'flex-end',justifyContent:'center',paddingBottom:4,pointerEvents:'none'}}>
+        <span style={{fontSize:10,color:'#aeaeb2',animation:'bounce 1.5s infinite'}}>↓</span>
       </div>
     </div>);
 }
