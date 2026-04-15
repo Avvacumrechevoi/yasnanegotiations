@@ -20,6 +20,7 @@ input{font-family:var(--sans)}
 .fi{animation:fadeIn .25s ease-out}
 @keyframes dashFlow{from{stroke-dashoffset:0}to{stroke-dashoffset:-24}}
 @keyframes pulse{0%,100%{opacity:.35}50%{opacity:.5}}
+.hide-scroll::-webkit-scrollbar{display:none}
 </style>
 </head>
 <body>
@@ -932,12 +933,15 @@ function App(){
         <button onClick={()=>setGlossary(true)} style={{border:'1px solid #d2d2d7',color:'#6e6e73',padding:'5px 14px',borderRadius:6,fontSize:11}}>Глоссарий</button>
         <button onClick={()=>setEd(!ed)} style={{background:ed?'rgba(0,122,255,.06)':'transparent',border:'1px solid #d2d2d7',color:ed?'#0071e3':'#6e6e73',padding:'5px 14px',borderRadius:6,fontSize:11}}>{ed?'✕ Закрыть':'Редактор'}</button>
       </div>
-      <div style={{display:'flex',alignItems:'center',gap:4,padding:'6px 20px',background:'var(--bg2)',borderBottom:'1px solid #d2d2d7',flexShrink:0,overflowX:'auto'}}>
-        {pinnedTemplates.map(t=><button key={t.id} onClick={()=>load(t)} style={{padding:'4px 12px',borderRadius:16,fontSize:11,whiteSpace:'nowrap',background:y.name===t.n?'rgba(0,122,255,.06)':'transparent',color:y.name===t.n?'#1d1d1f':'var(--txt2)',border:`1px solid ${y.name===t.n?'rgba(0,122,255,.3)':'transparent'}`}}>{t.custom?'◇':'✦'} {t.n}</button>)}
-        <button onClick={()=>setPicker(true)} style={{padding:'4px 12px',borderRadius:16,fontSize:11,color:'#6e6e73',border:'1px dashed var(--border)',whiteSpace:'nowrap'}}>+ ещё</button>
-        <div style={{width:1,height:16,background:'var(--border)',margin:'0 4px',flexShrink:0}}/>
+      <div style={{display:'flex',alignItems:'center',padding:'6px 0 6px 20px',background:'var(--bg2)',borderBottom:'1px solid #d2d2d7',flexShrink:0}}>
+        <div style={{flex:1,display:'flex',alignItems:'center',gap:4,overflowX:'auto',minWidth:0,paddingRight:8,scrollbarWidth:'none',msOverflowStyle:'none'}} className="hide-scroll">
+        {pinnedTemplates.map(t=><button key={t.id} onClick={()=>load(t)} style={{padding:'4px 12px',borderRadius:16,fontSize:11,whiteSpace:'nowrap',background:y.name===t.n?'rgba(0,122,255,.06)':'transparent',color:y.name===t.n?'#1d1d1f':'var(--txt2)',border:`1px solid ${y.name===t.n?'rgba(0,122,255,.3)':'transparent'}`,flexShrink:0}}>{t.custom?'◇':'✦'} {t.n}</button>)}
+        <button onClick={()=>setPicker(true)} style={{padding:'4px 12px',borderRadius:16,fontSize:11,color:'#6e6e73',border:'1px dashed var(--border)',whiteSpace:'nowrap',flexShrink:0}}>+ ещё</button>
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:4,paddingRight:20,paddingLeft:8,borderLeft:'1px solid #e5e5ea',flexShrink:0}}>
         <button onClick={()=>overlay?setOverlay(null):setShowOverlayPicker(true)} style={{padding:'4px 12px',borderRadius:16,fontSize:11,whiteSpace:'nowrap',background:overlay?'rgba(175,82,222,.08)':'transparent',color:overlay?'#a8d8ea':'var(--txt3)',border:`1px solid ${overlay?'rgba(175,82,222,.15)':'var(--border)'}`}}>{overlay?'⊗ '+overlay.name:'⊕ Совместить'}</button>
         <button onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);}} style={{padding:'4px 12px',borderRadius:16,fontSize:11,color:'#0071e3',border:'1px dashed rgba(0,122,255,.3)',whiteSpace:'nowrap'}}>✦ Создать</button>
+        </div>
       </div>
       <div style={{display:'flex',gap:4,padding:'7px 20px',flexWrap:'wrap',flexShrink:0}}>
         {FL.map((f,fi)=>{const a=af.includes(f.id);const prevG=fi>0?FL[fi-1].g:'';const showSep=f.g!==prevG&&fi>0;return<React.Fragment key={f.id}>{showSep&&<div style={{width:1,height:14,background:'#d2d2d7',margin:'0 2px',flexShrink:0}}/>}<button onClick={()=>tog(f.id)} style={{padding:'3px 10px',borderRadius:14,fontSize:10,whiteSpace:'nowrap',background:a?`${f.c}22`:'transparent',color:a?f.c:'#86868b',border:`1px solid ${a?f.c+'55':'#d2d2d7'}`}}>{f.l}</button></React.Fragment>;})}
