@@ -191,10 +191,10 @@ const FL=[
 function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
   const p=yy.p||[];
   const S=isMob?600:900,W=isMob?500:700,cx=S/2,cy=W/2,R=isMob?160:215,nr=isMob?20:23,lr=R+(isMob?50:60);
-  const pts=useMemo(()=>Array.from({length:12},(_,i)=>xy(i,cx,cy,R)),[isMob]);
-  const lps=useMemo(()=>Array.from({length:12},(_,i)=>xy(i,cx,cy,lr)),[isMob]);
-  const olps=useMemo(()=>Array.from({length:12},(_,i)=>xy(i,cx,cy,lr+24)),[isMob]);
-  const ilps=useMemo(()=>Array.from({length:12},(_,i)=>xy(i,cx,cy,lr-16)),[isMob]);
+  const pts=useMemo(()=>Array.from({length:12},(_,i)=>xy(i,cx,cy,R)),[])
+  const lps=useMemo(()=>Array.from({length:12},(_,i)=>xy(i,cx,cy,lr)),[])
+  const olps=useMemo(()=>Array.from({length:12},(_,i)=>xy(i,cx,cy,lr+24)),[])
+  const ilps=useMemo(()=>Array.from({length:12},(_,i)=>xy(i,cx,cy,lr-16)),[])
   const hasMech=af.length>0;
   const nc=i=>(hl&&!hl.includes(i))?'#e0e0e8':CR[gc(i)].c;
   const no=i=>(hl&&!hl.includes(i))?.15:1;
