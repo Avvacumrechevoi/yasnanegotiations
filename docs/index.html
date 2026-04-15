@@ -8,7 +8,7 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#ffffff;--bg2:#f5f5f7;--bg3:#e8e8ed;--border:#d2d2d7;--accent:#0071e3;--red:#E8364F;--orange:#E8A834;--blue:#5B9CF6;--txt:#1d1d1f;--txt2:#6e6e73;--txt3:#86868b;--serif:-apple-system,BlinkMacSystemFont,'SF Pro Display',Georgia,serif;--sans:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif}
+:root{--bg:#ffffff;--bg2:#f5f5f7;--bg3:#e8e8ed;--border:#d2d2d7;--accent:#0071e3;--txt:#1d1d1f;--txt2:#6e6e73;--txt3:#86868b;--serif:-apple-system,BlinkMacSystemFont,'SF Pro Display',Georgia,serif;--sans:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif}
 body{font-family:var(--sans);background:var(--bg);color:var(--txt);overflow:hidden;height:100vh}
 button{font-family:var(--sans);cursor:pointer;transition:all .15s;border:none;background:none;color:var(--txt2)}
 button:hover{color:var(--txt)}
@@ -180,7 +180,7 @@ const FL=[
   {id:'error89',l:'Ошибка 8↔9',c:'#D946EF',p:null,g:'struct'},
 ];
 
-function Star({yy,sel,onSel,hl,af=[],showOpp,showAxes,overlay}){
+function Star({yy,sel,onSel,hl,af=[],showOpp,overlay}){
   const p=yy.p||[];
   const S=900,W=700,cx=S/2,cy=W/2,R=215,nr=23,lr=R+60;
   const pts=useMemo(()=>Array.from({length:12},(_,i)=>xy(i,cx,cy,R)),[]);
@@ -216,7 +216,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,showAxes,overlay}){
       {!hasMech&&[1,2,4,5,7,8,10,11].map(i=>{const t=pts[i],a=rad(angDeg(i)+60),tw=11;return<line key={`tk${i}`} x1={t.x+tw*Math.cos(a)} y1={t.y-tw*Math.sin(a)} x2={t.x-tw*Math.cos(a)} y2={t.y+tw*Math.sin(a)} stroke="#c8c8cd" strokeWidth=".7" strokeLinecap="round"/>;})}
       {af.includes('halves')&&(yy.th||yy.bh)&&<line x1={pts[3].x} y1={pts[3].y} x2={pts[9].x} y2={pts[9].y} stroke="#d2d2d7" strokeWidth="1" strokeDasharray="8 4" opacity=".6"/>}
       {af.includes('halves')&&(yy.lh||yy.rh)&&<line x1={pts[0].x} y1={pts[0].y} x2={pts[6].x} y2={pts[6].y} stroke="#d2d2d7" strokeWidth="1" strokeDasharray="8 4" opacity=".6"/>}
-      {showAxes&&<><line x1={pts[0].x} y1={pts[0].y} x2={pts[6].x} y2={pts[6].y} stroke="#C9A84C" strokeWidth="1" strokeDasharray="8 4" opacity=".2"/><text x={cx+12} y={cy-R*.5} textAnchor="start" fill="rgba(0,0,0,.04)" fontSize="9" fontFamily="var(--sans)">Единство</text><line x1={pts[3].x} y1={pts[3].y} x2={pts[9].x} y2={pts[9].y} stroke="#C9A84C" strokeWidth="1" strokeDasharray="8 4" opacity=".2"/><text x={cx+R*.4} y={cy-10} textAnchor="start" fill="rgba(0,0,0,.04)" fontSize="9" fontFamily="var(--sans)">Борьба</text></>}
+      
       {showOpp&&Array.from({length:6},(_,i)=><g key={`o${i}`}><line x1={pts[i].x} y1={pts[i].y} x2={pts[i+6].x} y2={pts[i+6].y} stroke="#ff9500" strokeWidth="1" opacity=".18" strokeDasharray="5 4"/><circle cx={(pts[i].x+pts[i+6].x)/2} cy={(pts[i].y+pts[i+6].y)/2} r="2" fill="#ff9500" opacity=".15"/></g>)}
       {/* Rhythm: 4 triples Вера→Бой→Победа */}
       {af.includes('rhythm')&&[[2,3,4],[5,6,7],[8,9,10],[11,0,1]].map((tr,ti)=>{
@@ -1114,11 +1114,11 @@ function App(){
       </div>
       <div className='filters' style={{display:'flex',gap:4,padding:'7px 20px',flexWrap:'wrap',flexShrink:0}}>
         {FL.map((f,fi)=>{const a=af.includes(f.id);const prevG=fi>0?FL[fi-1].g:'';const showSep=f.g!==prevG&&fi>0;return<React.Fragment key={f.id}>{showSep&&<div style={{width:1,height:14,background:'#d2d2d7',margin:'0 2px',flexShrink:0}}/>}<button onClick={()=>tog(f.id)} style={{padding:'3px 10px',borderRadius:14,fontSize:10,whiteSpace:'nowrap',background:a?`${f.c}22`:'transparent',color:a?f.c:'#86868b',border:`1px solid ${a?f.c+'55':'#d2d2d7'}`}}>{f.l}</button></React.Fragment>;})}
-        {af.length>0&&<button onClick={()=>setAf([])} style={{padding:'3px 10px',borderRadius:14,fontSize:10,color:'#86868b',border:'1px solid #333'}}>✕</button>}
+        {af.length>0&&<button onClick={()=>setAf([])} style={{padding:'3px 10px',borderRadius:14,fontSize:10,color:'#86868b',border:'1px solid #c7c7cc'}}>✕</button>}
         
       </div>
       <div className='star-area' style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}}>
-        <div style={{width:'100%',height:'100%',maxWidth:900,maxHeight:700}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} showAxes={false} overlay={overlay}/></div>
+        <div style={{width:'100%',height:'100%',maxWidth:900,maxHeight:700}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay}/></div>
         <Info i={sel} p={y.p} af={af}/>
         <OverlayLegend y={y} overlay={overlay} onClear={()=>setOverlay(null)}/>
       </div>
