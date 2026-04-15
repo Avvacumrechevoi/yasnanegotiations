@@ -305,7 +305,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay}){
         {/* Primary Yasna labels - inner ring */}
         {ilps.map((pt,i)=>{const l=p[i]||'';if(!l)return null;const a=angDeg(i);let dy=4;if(i===0)dy=12;if(i===6)dy=-5;return<text key={`p${i}`} x={pt.x} y={pt.y+dy} textAnchor={anch(i)} fill={sel===i?'#1d1d1f':'rgba(0,122,255,.8)'} fontSize={sel===i?"16":"14"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'500'} style={{pointerEvents:'none'}}>{l}</text>;})}
         {/* Overlay Yasna labels - outer ring */}
-        {olps.map((pt,i)=>{const l=(overlay.p||[])[i]||'';if(!l)return null;let dy=5;if(i===0)dy=18;if(i===6)dy=-8;return<text key={`o${i}`} x={pt.x} y={pt.y+dy} textAnchor={anch(i)} fill={sel===i?'#a8d8ea':'rgba(175,82,222,.7)'} fontSize={sel===i?"16":"14"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'500'} fontStyle="italic" style={{pointerEvents:'none'}}>{l}</text>;})}
+        {olps.map((pt,i)=>{const l=(overlay.p||[])[i]||'';if(!l)return null;let dy=20;if(i===0)dy=32;if(i===6)dy=-20;if([3,9].includes(i))dy=22;if([2,10].includes(i))dy=22;if([4,8].includes(i))dy=22;return<text key={`o${i}`} x={pt.x} y={pt.y+dy} textAnchor={anch(i)} fill={sel===i?'#a8d8ea':'rgba(175,82,222,.7)'} fontSize={sel===i?"16":"14"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'500'} fontStyle="italic" style={{pointerEvents:'none'}}>{l}</text>;})}
         {/* Second orbit ring for overlay */}
         <circle cx={cx} cy={cy} r={lr-8} fill="none" stroke="rgba(175,82,222,.06)" strokeWidth=".5" strokeDasharray="3 6"/>
       </>}
