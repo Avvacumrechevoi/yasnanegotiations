@@ -1128,7 +1128,7 @@ function App(){
       </div>
       <div className='star-area' style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}} onClick={e=>{if(e.target===e.currentTarget)setSel(null)}}>
         <div style={{width:'100%',height:'100%',maxWidth:900,maxHeight:700}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay}/></div>
-        <Info i={sel} p={y.p} af={af}/>
+        <Info i={sel} p={y.p} af={af} onClose={()=>setSel(null)}/>
         <OverlayLegend y={y} overlay={overlay} onClear={()=>setOverlay(null)}/>
       </div>
       {ed&&<Editor y={y} setY={setY} onClose={()=>setEd(false)}/>}
