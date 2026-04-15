@@ -183,7 +183,6 @@ const FL=[
 ];
 
 function Star({yy,sel,onSel,hl,af=[],showOpp,overlay}){
-    useEffect(()=>{const c=()=>setIsMob(window.innerWidth<=768);c();window.addEventListener('resize',c);return()=>window.removeEventListener('resize',c);},[]);
   const p=yy.p||[];
   const S=900,W=700,cx=S/2,cy=W/2,R=215,nr=23,lr=R+60;
   const pts=useMemo(()=>Array.from({length:12},(_,i)=>xy(i,cx,cy,R)),[]);
