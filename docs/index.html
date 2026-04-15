@@ -73,6 +73,33 @@ input{font-family:var(--sans)}
   .nav-tabs{min-height:auto!important;padding-bottom:env(safe-area-inset-bottom,6px)!important}
   .fi{height:28vh!important;max-height:28vh!important;padding:0!important;font-size:11px!important}
 }
+
+/* ═══ LANDSCAPE MOBILE ═══ */
+@media(max-height:500px) and (orientation:landscape){
+  /* Hide filters */
+  .filters{display:none!important}
+  
+  /* Minimal header */
+  .hdr{padding:2px 10px!important}
+  .hdr-title{font-size:16px!important}
+  
+  /* Star area: no bottom padding, full height */
+  .star-area{padding-bottom:36px!important}
+  .star-area svg{transform:scale(1)!important}
+  
+  /* Tab bar: thinner */
+  .nav-tabs{padding:2px 0 2px 8px!important}
+  .nav-tabs button{padding:2px 8px!important;font-size:11px!important}
+  
+  /* Card: right side panel instead of bottom sheet */
+  .fi{left:auto!important;right:0!important;top:0!important;bottom:auto!important;width:280px!important;max-width:45vw!important;height:100vh!important;max-height:100vh!important;border-radius:0!important;border-left:1px solid #e5e5ea!important;box-shadow:-4px 0 20px rgba(0,0,0,.08)!important}
+  
+  /* Star doesn't shift in landscape */
+  .star-shift svg{transform:scale(0.9) translateX(-15vw)!important}
+  
+  /* Burger menu */
+  .hdr-burger button{padding:2px 6px!important;font-size:14px!important}
+}
 </style>
 </head>
 <body>
