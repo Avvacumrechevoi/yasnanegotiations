@@ -436,6 +436,7 @@ function Info({i,p,af=[]}){
   return(
     <div className="fi" style={{position:'absolute',bottom:14,left:14,width:360,maxHeight:hasMech?'65vh':'50vh',overflowY:'auto',background:'rgba(255,255,255,.97)',border:'1px solid #e5e5ea',borderRadius:16,padding:'14px 16px',backdropFilter:'blur(16px)',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
       <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
+        <button onClick={()=>onSel(null)} style={{position:'absolute',top:8,right:10,width:28,height:28,borderRadius:'50%',border:'1px solid #e5e5ea',background:'#f5f5f7',fontSize:14,color:'#86868b',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:1}}>✕</button>
         <div style={{width:36,height:36,borderRadius:'50%',border:`2px solid ${cr.c}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontWeight:700,color:cr.c,flexShrink:0}}>{i}</div>
         <div style={{flex:1,minWidth:0}}>
           <div style={{fontSize:17,color:'#1d1d1f',fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{label||<span style={{color:'#aeaeb2'}}>Не заполнено</span>}</div>
@@ -1125,7 +1126,7 @@ function App(){
         {af.length>0&&<button onClick={()=>setAf([])} style={{padding:'3px 10px',borderRadius:14,fontSize:10,color:'#86868b',border:'1px solid #c7c7cc'}}>✕</button>}
         
       </div>
-      <div className='star-area' style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'auto'}} onClick={e=>{if(e.target===e.currentTarget)setSel(null)}}>
+      <div className='star-area' style={{flex:1,display:'flex',alignItems:'flex-start',justifyContent:'center',position:'relative',overflow:'auto',paddingBottom:sel!==null?'45vh':'0'}} onClick={e=>{if(e.target===e.currentTarget)setSel(null)}}>
         <div style={{width:'100%',height:'100%',maxWidth:900,maxHeight:700}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay}/></div>
         <Info i={sel} p={y.p} af={af}/>
         <OverlayLegend y={y} overlay={overlay} onClear={()=>setOverlay(null)}/>
