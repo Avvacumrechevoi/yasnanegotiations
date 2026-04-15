@@ -471,12 +471,12 @@ function Info({i,p,af=[],onClose}){
         <div style={{fontSize:12,color:'#424245',lineHeight:1.55,marginBottom:8,padding:'8px 10px',background:'var(--bg2)',borderRadius:10}}>
           {POS_DESC[i]}
         </div>
-      {label&&(prevL||nextL)&&<div style={{display:'flex',alignItems:'center',gap:4,marginBottom:8,fontSize:11,color:'#6e6e73',flexWrap:'wrap'}}>
+      {false&&<div style={{display:'flex',alignItems:'center',gap:4,marginBottom:8,fontSize:11,color:'#6e6e73',flexWrap:'wrap'}}>
         {prevL?<><span style={{color:'#aeaeb2'}}>[{(i+11)%12}]</span><span>{prevL}</span><span style={{color:'#d2d2d7'}}>→</span></>:null}
         <span style={{fontWeight:600,color:'#1d1d1f'}}>{label}</span>
         {nextL?<><span style={{color:'#d2d2d7'}}>→</span><span>{nextL}</span><span style={{color:'#aeaeb2'}}>[{(i+1)%12}]</span></>:null}
       </div>}
-      {!af.includes('opp')&&label&&oppLabel&&<div style={{display:'flex',alignItems:'center',gap:5,marginBottom:6,fontSize:11,color:'#6e6e73'}}>
+      {false&&<div style={{display:'flex',alignItems:'center',gap:5,marginBottom:6,fontSize:11,color:'#6e6e73'}}>
         <span>↔</span>
         <span>[{opp(i)}] {oppLabel}</span>
       </div>}
