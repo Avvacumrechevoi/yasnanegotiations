@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Ясна-Конструктор</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>"/>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#ffffff;--bg2:#f5f5f7;--bg3:#e8e8ed;--border:#d2d2d7;--accent:#0071e3;--red:#E8364F;--orange:#E8A834;--blue:#5B9CF6;--txt:#1d1d1f;--txt2:#6e6e73;--txt3:#86868b;--serif:-apple-system,BlinkMacSystemFont,'SF Pro Display',Georgia,serif;--sans:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif}
+body{font-family:var(--sans);background:var(--bg);color:var(--txt);overflow:hidden;height:100vh}
+button{font-family:var(--sans);cursor:pointer;transition:all .15s;border:none;background:none;color:var(--txt2)}
+button:hover{color:var(--txt)}
+input{font-family:var(--sans)}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#c7c7cc;border-radius:2px}
+
+/* Premium effects */
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.fi{animation:fadeIn .25s ease-out}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script type="text/babel">
+const{useState,useMemo}=React;
+const CR={support:{id:'support',n:'Крест Опоры',p:[0,3,6,9],c:'#E8364F',v:'Надежда',
+   questions:['Если убрать этот элемент — Ясна всё ещё имеет смысл? Если да — он не Опорный.','Это одно из 4 самых важных состояний/событий в вашем явлении?'],
+   mistakes:['Поставить второстепенный элемент на опорную позицию.','Забыть проверить ось: 0 и 6 должны быть антиподами, 3 и 9 тоже.'],
+   related:['opp','type','halves']},right:{id:'right',n:'Крест Любви',p:[1,4,7,10],c:'#E8A834',v:'Любовь',
+   questions:['Этот элемент — следствие того, что произошло на предыдущей позиции?','Уберите предыдущую Опорную — этот элемент потеряет смысл?'],
+   mistakes:['Поставить причину вместо следствия. Правый крест — это ИТОГ, а не НАЧАЛО.','Перепутать с Левым крестом: Правый = результат, Левый = подготовка.'],
+   related:['left','support','rhythm']},left:{id:'left',n:'Крест Веры',p:[2,5,8,11],c:'#5B9CF6',v:'Вера',
+   questions:['Этот элемент готовит к тому, что будет дальше?','Он несёт в себе ожидание, предчувствие, настройку?'],
+   mistakes:['Поставить результат вместо подготовки. Левый крест — это ПЕРЕД, а не ПОСЛЕ.','Забыть, что Левый крест — самый «тихий». Здесь не должно быть ярких событий.'],
+   related:['right','support','rhythm']}};
+const PR={she:{id:'she',n:'Земля ШЭ',p:[0,4,8],c:'#C0943A',el:'Земля',
+   questions:['Все три элемента (0, 4, 8) — про стабильность, основу, надёжность?','Между ними чувствуется внутренняя связь? Общая тема?'],
+   mistakes:['Один из трёх элементов — про перемены, движение, текучесть (это Вода ФО, не Земля).'],
+   related:['tsi','type']},fo:{id:'fo',n:'Вода ФО',p:[1,5,9],c:'#4090D8',el:'Вода',
+   questions:['Все три элемента (1, 5, 9) — про движение, поток, перемену?','Все три — короткие переломные моменты?'],
+   mistakes:['Один из трёх — устойчивый и неизменный (это Земля ШЭ, не Вода).'],
+   related:['ha','type']},tsi:{id:'tsi',n:'Воздух ЦИ',p:[2,6,10],c:'#70B8F0',el:'Воздух',
+   questions:['Все три элемента (2, 6, 10) — промежуточные, переходные?','Они больше похожи на мосты между событиями, чем на сами события?'],
+   mistakes:['Один из трёх — яркое событие или твёрдая основа (не промежуточное состояние).'],
+   related:['she','type']},ha:{id:'ha',n:'Огонь ХА',p:[3,7,11],c:'#F06838',el:'Огонь',
+   questions:['Все три элемента (3, 7, 11) — яркие, горячие, энергичные?','Все три — моменты перемен, а не длительные процессы?'],
+   mistakes:['Один из трёх — спокойный и текучий (это Вода ФО, не Огонь).'],
+   related:['fo','type']}};
+const gc=i=>[0,3,6,9].includes(i)?'support':[1,4,7,10].includes(i)?'right':'left';
+const gp=i=>['she','fo','tsi','ha'][i%4];
+const opp=i=>(i+6)%12;
+const angDeg=i=>270-i*30;
+const rad=d=>d*Math.PI/180;
+const xy=(i,cx,cy,r)=>({x:cx+r*Math.cos(rad(angDeg(i))),y:cy-r*Math.sin(rad(angDeg(i)))});
+const REF=[{f:'ВХОД / ОСНОВА',ex:'Ночь · Прихожая · Свинья'},{f:'ПЕРВЫЙ РЕЗУЛЬТАТ',ex:'Первый свет · Гостиная · Мойка'},{f:'КАНАЛ / ПОТОК',ex:'Заря · Столовая · Река'},{f:'ГЛАВНОЕ СОБЫТИЕ',ex:'Выход Солнца · Кухня · Плита'},{f:'ПОДЪЁМ / КУЛЬТУРА',ex:'Подъём · Веранда · Пар'},{f:'НАКОПИТЕЛЬ',ex:'Последняя тьма · Амбар · Облако'},{f:'ВЕРШИНА / ЦЕНТР',ex:'День · Чулан · Перенос'},{f:'ПИК / НАБЛЮДЕНИЕ',ex:'Первая тьма · Детская · Гроза'},{f:'ЗАЩИТА / СПУСК',ex:'Спуск · Женская · Дождь'},{f:'ОЦЕНКА / ВЕСЫ',ex:'Заход · Спальня · Касание'},{f:'УГАСАНИЕ',ex:'Сумерки · Кабинет · Стекание'},{f:'КОНЕЦ / ВЫХОД',ex:'Последний свет · Санблок · Лужа'}];
+const T=[
+  {id:'цветов',n:'Цветов радуги',p:['Желтый','Оранжевый','Алый','Красный','Черный / Золотой','Фиолетовый','Синий','Голубой','Ультрамарин','Зеленый','Изумрудный','Салатовый']},
+  {id:'суток',n:'Суток',p:['Ночь','Искра','Утр.Заря, Рассвет','Утро','Восход','Утренний Салют','День','Первая тьма','Закат / Вечерняя Заря','Запад / Вечер Сутки','Сумерки','Вечерний Салют'],th:'День',bh:'Ночь'},
+  {id:'знаки_з.',n:'Зодиака',p:['Козерог','Водолей','Рыбы','Овен','Телец','Близнецы','Рак','Лев','Дева','Весы','Скорпион','Стрелец']},
+  {id:'двора_животных',n:'Животных',p:['Свинья','Грызуны','Лошадь','Козлы / Бараны','Корова / Бык','Верблюд','Человек','Кошка / Дети','Собака','Птицы','Дракон','Змея']},
+  {id:'двора',n:'Двора (Постройки)',p:['Ворота','Калитка','Конюшня','Козлы / бараны','Коровник','Амбар','Веранда','Лавка хозяина','Баня / дровник','Голубятник','Пчелы / мед','Туалет / Навозная куча']},
+  {id:'дома',n:'Дома',p:['Прихожая','Гостиная','Столовая','Кухня','Веранда','Амбар','Чулан','Детская','Женская комната','Общая спальня','Кабинет','Сан.Блок']},
+  {id:'спальни',n:'Спальни',p:['Халат','Гантели / Вода','Зарядка','Одеяло или Сундук','Окно / Гобилен','шкаф с книгами','Бельевой Шкаф','Красный угол','Прикроват. Тумбочка','Кровать','Прикроват.Тумбочка','Светильник']},
+  {id:'кухни',n:'Кухни',p:['Вход / Фартук (без свинст','Мойка (водолей)','Рыбы (разделочный стол)','Плита','Стол Полуфабриктов ("кита','Шкаф Специй / Книга Рецеп','Стол для готовки','Готовое блюдо','Делим на порции','Оценочный стол','Шведский стол (дракон нап','Вынос блюд / Меню']},
+  {id:'круговорота_воды',n:'Круговорота воды',p:['Вода с землей-грязь','Болото / Ключ / Родник','Река','Поверхность водоема','Пар','Облако','Холод / переход-перенос','Гроза / Молния','Дождь','Касание воды','Стекание','Лужа (брызгает-стреляет)']},
+  {id:'печи',n:'Печи',p:['Каналы подачи','Колосники','Объем топки (духовой шкаф','огнеупорная пластина','Лабиринт (воздуховоды в п','Камора (расшир.камера)','Труба','Догорел','Отапливаемый объем','Теплоупор','Кондиционер','Дверцы-заслоник / форточк']},
+  {id:'дерева',n:'Дерева',p:['Корни','Косточка','Плод','Клетка (Рыльце)','Домен (Столбик)','Бахрома (Пестик)','Лепесток','','Лист','Ветка','Ствол','Пень']},
+  {id:'заода_предприятия',n:'Завода',p:['Рекламный отдел','Отдел Кадров / Закупок / ','Рабочие','Плановый отдел (Нач.Цеха)','Констр.Бюро / Изобретател','Главный инж. / Склад / Тр','Директор / Управа','Хозяин / ОТК / СБ','Охрана Предприятия','Бухгалтерия','Юр. ОТдел','Готовая продукция / Отд.С']},
+  {id:'удочки',n:'Удочки',p:['Поводок','Торец Удочки','Бедро УДочки','Первая рука (держит ниже)','Спина удочки','Вторая рука (выше держит ','Дуга','','Струна / Нерв','Поплавок','Отвес','Грузило / Дробина']},
+  {id:'мирового_яйца',n:'Мирового Яйца',p:['Река','Заливные Луга','Редколесье','Лес (Чаща леса)','Опушка','Альпийские луга','Горная река / Роща','Скалы / Висячие сады','Вечные снега / Небо','Вершина горы / Небосвод','Спуск с горы / Небосклон','Обрывистый берег / Женски']},
+  {id:'мирового_яйца_2',n:'Мирового Яйца 2',p:['Море','Выпас','Двор','Дом','Церковь / Сад','Храм','Школа / Терем','','Дворец / Небо','Палаты / Небосвод','Канада / Небосклон','Америка / Обрывистый бере']},
+  {id:'колокольни',n:'Колокольни',p:['Река / Колодец','Луг / Подвал','Двор / Хозяйственный этаж','Дом','Церковь / Памятные вещи','Храм','Школа / Колокол','Малиновый звон','Дворец','Купол','Фонарь / Маяк','Золотая рыбка / Маковка к']},
+  {id:'театра',n:'Театра',p:['Театральный коридор','Закулисье / Капустник','Замостье','Сцена / Мост','Подмостки / Авансцена / Э','Оркестровая яма / Рампа','Зрительный зал','Балкон','Знать / Дворяне','Царская Ложа','Дирекция театра','Гримерки']},
+  {id:'месяцев',n:'Месяцев',p:['Январь / Стужень','Февраль / Лютый','Март / березень','Апрель / Квитень','Май / Маженья','Июнь / Травень','Июль / Червень-Липень','Август','Сентябрь / Вересень','Октябрь / Ружник / Костри','Ноябрь / Листопад','Декабрь / Грудень / Грубж']},
+  {id:'головы',n:'Головы',p:['Шея','Грызло','Рот','Нос','Глаза','Лоб','Темя','Макушка','Коса','Ухо','Загивок','Задняя часть шеи']},
+  {id:'тела',n:'Тела',p:['Ступни','Половые органы','Живот','Грудь','Лицо','Лоб','Волосы','Макушка / Внеш. коса','Внутр.сторона косы','Шея плечи','Спина','Ягодицы']},
+  {id:'внут.органов',n:'Внутренних органов',p:['Под носом / Нюхаем','Между губами и зубами','Ротовая полость','Полость глотки','Пищевод','Желудок','12-перстная кишка','Тонкий кишечник','Слепая кишка','Ободочная кишка','Сигм.кишка','Прямая кишка']},
+    {id:'kostra',n:'Костра',p:['Стопка дров','Искра / Идея','Первый огонь','Шатун','Разгорается','Разгорелся','Горит','Догорел','Тухнет','Последний огонь','Раскалённые угли','Зола']},
+  {id:'emotsiy',n:'Эмоций',p:['Страх','Стыд','Обида','Гнев','Интерес','Удивление','Радость','Удовольствие','Любовь','Грусть','Скука','Отвращение']},
+  {id:'sistem',n:'Систем человека',p:['Сущность','Нервная','Кровеносная','Пищеварительная','Сенсорная','Лимфатическая','Дыхательная','Половая','Мышечная','Гормональная','Опорно-двигательная','Выделительная']},
+  {id:'zhanrov',n:'Жанров',p:['Мистика','Семейный','Триллер','Боевик','Культурный','Фантастика','Приключения','Исторический','Музыкальный','Мелодрама','Комедия','Ужас']},
+  {id:'not',n:'Нот',p:['Си','До','До диез','Рэ','Рэ диез','Ми','Фа','Фа диез','Соль','Соль диез','Ля','Ля диез']},
+  {id:'chisel',n:'Чисел',p:['300/600/900','133','122','99/111/555','88/100/400','77','66/222/666','55','44/200/500','33/333/777','22/166','11/155']},
+  {id:'metro',n:'Метро Москвы',p:['Таганская','Павелецкая','Серпуховская','Октябрьская','Парк культуры','Киевская','Баррикадная','Белорусская','Новослободская','Проспект Мира','Комсомольская','Курская']},
+
+  {id:'oblachnost',n:'Облачности',p:['Свинцовое небо','Шероховатости','Много облаков','Просветы (Анастасия)','Больше неба','Единичные облака','Ясное чистое небо','Первые облака','Облаков много','Просветы уменьшаются','Небо невидимо','Затягивает']},];
+const FL=[
+  {id:'support',l:'Опорный 0·3·6·9',c:'#E8364F',p:[0,3,6,9],g:'crosses'},
+  {id:'right',l:'Правый 1·4·7·10',c:'#E8A834',p:[1,4,7,10],g:'crosses'},
+  {id:'left',l:'Левый 2·5·8·11',c:'#5B9CF6',p:[2,5,8,11],g:'crosses'},
+  {id:'ha',l:'Огонь 3·7·11',c:'#F06838',p:[3,7,11],g:'pranas'},
+  {id:'fo',l:'Вода 1·5·9',c:'#4090D8',p:[1,5,9],g:'pranas'},
+  {id:'tsi',l:'Воздух 2·6·10',c:'#70B8F0',p:[2,6,10],g:'pranas'},
+  {id:'she',l:'Земля 0·4·8',c:'#C0943A',p:[0,4,8],g:'pranas'},
+  {id:'opp',l:'Противоположности',c:'#ff9500',p:null,g:'struct',
+   questions:['Можете сформулировать, в чём именно эти два элемента противоположны?','Если поменять их местами — Ясна сломается?'],
+   mistakes:['Элементы похожи вместо того чтобы быть противоположными.','Противоположность не по сути, а случайная (далёкие по теме, но не зеркальные).'],
+   related:['support','halves']},
+  {id:'rhythm',l:'Ритм В→Б→П',c:'#30A060',p:null,g:'struct',
+   questions:['Прочитайте тройку вслух как предложение: «[Вера] готовит к [Бой], из которого рождается [Победа]» — звучит?','Можно ли поменять элементы тройки местами и смысл сохранится? Если да — порядок неверен.'],
+   mistakes:['Три элемента тройки не связаны друг с другом по смыслу.','Элемент «Вера» ярче элемента «Бой» — должно быть наоборот.'],
+   related:['support','right','left']},
+  {id:'arcs',l:'Три дуги',c:'#9060D0',p:null,g:'struct',
+   questions:['Прочитайте 5 элементов дуги подряд — получается плавная история?','Середина дуги (позиция ХА) — самый яркий элемент из пяти?'],
+   mistakes:['Элемент в середине дуги (ХА) тусклее крайних (ФО) — должно быть наоборот.'],
+   related:['rhythm','she','fo','tsi','ha']},
+  {id:'halves',l:'Половины',c:'#6366f1',p:null,g:'struct',
+   questions:['Верхние элементы (4-8) — про открытое и явное? Нижние (10-2) — про скрытое?','Левые элементы (1-5) связаны с ростом? Правые (7-11) со спадом?'],
+   mistakes:['Скрытый элемент стоит наверху (должен быть внизу).','Элемент роста стоит в правой части (должен быть слева).'],
+   related:['support','opp']},
+];
+
+function Star({yy,sel,onSel,hl,af=[],showOpp,showAxes,overlay}){
+  const p=yy.p||[];
+  const S=900,W=700,cx=S/2,cy=W/2,R=215,nr=23,lr=R+60;
+  const pts=useMemo(()=>Array.from({length:12},(_,i)=>xy(i,cx,cy,R)),[]);
+  const lps=useMemo(()=>Array.from({length:12},(_,i)=>xy(i,cx,cy,lr)),[]);
+  const olps=useMemo(()=>Array.from({length:12},(_,i)=>xy(i,cx,cy,lr+24)),[]);
+  const ilps=useMemo(()=>Array.from({length:12},(_,i)=>xy(i,cx,cy,lr-16)),[]);
+  const hasMech=af.length>0;
+  const nc=i=>(hl&&!hl.includes(i))?'#e0e0e8':CR[gc(i)].c;
+  const no=i=>(hl&&!hl.includes(i))?.15:1;
+  const anch=i=>{const x=lps[i].x;return Math.abs(x-cx)<25?'middle':x<cx?'end':'start';};
+  return(
+    <svg viewBox={`0 0 ${S} ${W}`} style={{width:'100%',height:'100%'}}>
+      <defs>
+        <filter id="gw"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="ns"><feDropShadow dx="0" dy="1" stdDeviation="2.5" floodOpacity=".07"/></filter>
+      </defs>
+      <rect width={S} height={W} fill="#fff"/>
+      {/* Decorative outer ring */}
+      <circle cx={cx} cy={cy} r={R+10} fill="none" stroke="#ececee" strokeWidth=".5"/>
+      {/* Main orbit */}
+      <circle cx={cx} cy={cy} r={R} fill="none" stroke="#d0d0d5" strokeWidth="1.2"/>
+      {/* Inner orbits - hidden when mechanics active */}
+      {!hasMech&&<><circle cx={cx} cy={cy} r={R*.7} fill="none" stroke="#e4e4e8" strokeWidth=".7"/>
+      <circle cx={cx} cy={cy} r={R*.4} fill="none" stroke="#eee" strokeWidth=".5"/></>}
+      {/* Hexagon of LONG positions 0-2-4-6-8-10 */}
+      {!hasMech&&<polygon points={[0,2,4,6,8,10].map(i=>`${pts[i].x},${pts[i].y}`).join(' ')} fill="none" stroke="#d8d8dd" strokeWidth=".8"/>}
+      {/* Hexagram of SHORT positions 1-3-5-7-9-11 */}
+      {!hasMech&&<polygon points={[1,3,5,7,9,11].map(i=>`${pts[i].x},${pts[i].y}`).join(' ')} fill="none" stroke="#d8d8dd" strokeWidth=".8"/>}
+      {/* 12 rays from center - hidden when mechanics active */}
+      {!hasMech&&Array.from({length:12},(_,i)=>{const s=[0,3,6,9].includes(i);return<line key={`ry${i}`} x1={cx} y1={cy} x2={pts[i].x} y2={pts[i].y} stroke={s?'#c0c0c5':'#d8d8dd'} strokeWidth={s?.9:.4}/>;})}
+      {/* Crossbars and ticks - hidden when mechanics active */}
+      {!hasMech&&[0,3,6,9].map(i=>{const t=pts[i],a=rad(angDeg(i)+90),bw=17;return<line key={`cb${i}`} x1={t.x+bw*Math.cos(a)} y1={t.y-bw*Math.sin(a)} x2={t.x-bw*Math.cos(a)} y2={t.y+bw*Math.sin(a)} stroke="#b8b8be" strokeWidth="1.2" strokeLinecap="round"/>;})}
+      {!hasMech&&[1,2,4,5,7,8,10,11].map(i=>{const t=pts[i],a=rad(angDeg(i)+60),tw=11;return<line key={`tk${i}`} x1={t.x+tw*Math.cos(a)} y1={t.y-tw*Math.sin(a)} x2={t.x-tw*Math.cos(a)} y2={t.y+tw*Math.sin(a)} stroke="#c8c8cd" strokeWidth=".7" strokeLinecap="round"/>;})}
+      {(yy.th||yy.bh)&&<line x1={pts[3].x} y1={pts[3].y} x2={pts[9].x} y2={pts[9].y} stroke="#d2d2d7" strokeWidth="1" strokeDasharray="8 4" opacity=".6"/>}
+      {(yy.lh||yy.rh)&&<line x1={pts[0].x} y1={pts[0].y} x2={pts[6].x} y2={pts[6].y} stroke="#d2d2d7" strokeWidth="1" strokeDasharray="8 4" opacity=".6"/>}
+      {showAxes&&<><line x1={pts[0].x} y1={pts[0].y} x2={pts[6].x} y2={pts[6].y} stroke="#C9A84C" strokeWidth="1" strokeDasharray="8 4" opacity=".2"/><text x={cx+12} y={cy-R*.5} textAnchor="start" fill="rgba(0,0,0,.04)" fontSize="9" fontFamily="var(--sans)">Единство</text><line x1={pts[3].x} y1={pts[3].y} x2={pts[9].x} y2={pts[9].y} stroke="#C9A84C" strokeWidth="1" strokeDasharray="8 4" opacity=".2"/><text x={cx+R*.4} y={cy-10} textAnchor="start" fill="rgba(0,0,0,.04)" fontSize="9" fontFamily="var(--sans)">Борьба</text></>}
+      {showOpp&&Array.from({length:6},(_,i)=><g key={`o${i}`}><line x1={pts[i].x} y1={pts[i].y} x2={pts[i+6].x} y2={pts[i+6].y} stroke="#ff9500" strokeWidth="1" opacity=".18" strokeDasharray="5 4"/><circle cx={(pts[i].x+pts[i+6].x)/2} cy={(pts[i].y+pts[i+6].y)/2} r="2" fill="#ff9500" opacity=".15"/></g>)}
+      {/* Rhythm: 4 triples Вера→Бой→Победа */}
+      {af.includes('rhythm')&&[[2,3,4],[5,6,7],[8,9,10],[11,0,1]].map((tr,ti)=>{
+        const col='#30A060';const d=tr.map((idx,j)=>`${j===0?'M':'L'}${pts[idx].x},${pts[idx].y}`).join(' ');
+        return<g key={`rh${ti}`}>
+          <path d={d} fill="none" stroke={col} strokeWidth="3.5" opacity=".7" strokeLinecap="round"/>
+          <circle cx={pts[tr[1]].x} cy={pts[tr[1]].y} r={nr+6} fill={col} opacity=".12"/>
+          {tr.map((idx,j)=><text key={j} x={pts[idx].x} y={pts[idx].y-nr-6} textAnchor="middle" fill={col} fontSize="12" fontWeight="800" opacity=".9" style={{pointerEvents:'none'}}>{['В','Б','П'][j]}</text>)}
+        </g>;
+      })}
+      {/* Three arcs: ФО→ЦИ→ХА→ШЭ→ФО */}
+      {af.includes('arcs')&&[[1,2,3,4,5],[5,6,7,8,9],[9,10,11,0,1]].map((arc,ai)=>{
+        const cols=['#4090D8','#9060D0','#30A060'];const col=cols[ai];
+        const d=arc.map((idx,j)=>{const p=pts[idx];return`${j===0?'M':'L'}${p.x},${p.y}`;}).join(' ');
+        return<path key={`arc${ai}`} d={d} fill="none" stroke={col} strokeWidth="4" opacity=".6" strokeLinecap="round"/>;
+      })}
+      {/* Halves */}
+      {af.includes('halves')&&<>
+        {/* Top/Bottom: Чаша Света / Чаша Тьмы */}
+        <path d={`M${pts[3].x},${pts[3].y} A${R},${R} 0 0,0 ${pts[9].x},${pts[9].y}`} fill="rgba(255,180,0,.08)" stroke="rgba(200,150,0,.45)" strokeWidth="2.5"/>
+        <path d={`M${pts[9].x},${pts[9].y} A${R},${R} 0 0,0 ${pts[3].x},${pts[3].y}`} fill="rgba(80,100,200,.08)" stroke="rgba(80,100,200,.4)" strokeWidth="2.5"/>
+        {/* Left/Right: Нарастание / Спад */}
+        <path d={`M${pts[0].x},${pts[0].y} A${R},${R} 0 0,0 ${pts[6].x},${pts[6].y}`} fill="rgba(40,180,100,.05)" stroke="rgba(40,160,90,.25)" strokeWidth="1.2"/>
+        <path d={`M${pts[6].x},${pts[6].y} A${R},${R} 0 0,0 ${pts[0].x},${pts[0].y}`} fill="rgba(180,80,180,.05)" stroke="rgba(160,70,160,.25)" strokeWidth="1.2"/>
+        {/* Axes */}
+        <line x1={pts[3].x} y1={pts[3].y} x2={pts[9].x} y2={pts[9].y} stroke="#86868b" strokeWidth="1" strokeDasharray="6 4" opacity=".25"/>
+        <line x1={pts[0].x} y1={pts[0].y} x2={pts[6].x} y2={pts[6].y} stroke="#86868b" strokeWidth="1" strokeDasharray="6 4" opacity=".25"/>
+        {/* Labels - darker */}
+        <text x={cx} y={cy-R*.5} textAnchor="middle" fill="rgba(170,130,0,.6)" fontSize="11" fontFamily="var(--sans)" fontWeight="600">Чаша Света</text>
+        <text x={cx} y={cy+R*.55} textAnchor="middle" fill="rgba(70,80,170,.5)" fontSize="11" fontFamily="var(--sans)" fontWeight="600">Чаша Тьмы</text>
+        <text x={cx-R*.5} y={cy+6} textAnchor="middle" fill="rgba(40,140,80,.45)" fontSize="10" fontFamily="var(--sans)" fontWeight="500" transform={`rotate(-90 ${cx-R*.5} ${cy})`}>Нарастание ↑</text>
+        <text x={cx+R*.5} y={cy+6} textAnchor="middle" fill="rgba(140,60,140,.4)" fontSize="10" fontFamily="var(--sans)" fontWeight="500" transform={`rotate(90 ${cx+R*.5} ${cy})`}>Спад ↓</text>
+      </>}
+      {sel!==null&&<line x1={pts[sel].x} y1={pts[sel].y} x2={pts[opp(sel)].x} y2={pts[opp(sel)].y} stroke="#ff9500" strokeWidth="1.2" opacity=".2" strokeDasharray="5 3"/>}
+      {/* Multi-mechanic layers */}
+      {af.filter(id=>!['opp','axes'].includes(id)).map(id=>{const f=FL.find(x=>x.id===id);if(!f||!f.p)return null;
+        const isCross=f.p.length===4;
+        const d=f.p.map((idx,j)=>`${j===0?'M':'L'}${pts[idx].x},${pts[idx].y}`).join(' ')+'Z';
+        return(<g key={id}>
+          <path d={d} fill={f.c+'06'} stroke={f.c} strokeWidth="1.8" opacity=".35"/>
+          {isCross&&<><line x1={pts[f.p[0]].x} y1={pts[f.p[0]].y} x2={pts[f.p[2]].x} y2={pts[f.p[2]].y} stroke={f.c} strokeWidth="1.2" opacity=".2" strokeDasharray="6 4"/>
+          <line x1={pts[f.p[1]].x} y1={pts[f.p[1]].y} x2={pts[f.p[3]].x} y2={pts[f.p[3]].y} stroke={f.c} strokeWidth="1.2" opacity=".2" strokeDasharray="6 4"/></>}
+          {f.p.map(idx=><circle key={idx} cx={pts[idx].x} cy={pts[idx].y} r={nr+6} fill={f.c} opacity=".06"/>)}
+        </g>);})}
+      
+      <circle cx={cx} cy={cy} r={22} fill="#fff" stroke="#d2d2d7" strokeWidth="1.2"/>
+      <circle cx={cx} cy={cy} r={3} fill="#d2d2d7"/>
+      <text x={cx} y={cy-2} textAnchor="middle" fill="rgba(0,0,0,.3)" fontSize="7" fontFamily="var(--sans)" fontWeight="600" letterSpacing="2.5">{(yy.name||'').slice(0,10).toUpperCase()}</text>
+      <text x={cx} y={cy+7} textAnchor="middle" fill="rgba(0,0,0,.15)" fontSize="6" fontFamily="var(--sans)" letterSpacing="2">ЯСНА</text>
+      {yy.th&&<text x={cx} y={34} textAnchor="middle" fill="rgba(0,0,0,.5)" fontSize="13" fontFamily="var(--sans)" fontWeight="600">{yy.th}</text>}
+      {yy.bh&&<text x={cx} y={W-22} textAnchor="middle" fill="rgba(0,0,0,.5)" fontSize="13" fontFamily="var(--sans)" fontWeight="600">{yy.bh}</text>}
+      {yy.lh&&<text x={20} y={cy} textAnchor="middle" fill="rgba(0,0,0,.5)" fontSize="13" fontFamily="var(--sans)" fontWeight="600" transform={`rotate(-90 20 ${cy})`}>{yy.lh}</text>}
+      {yy.rh&&<text x={S-20} y={cy} textAnchor="middle" fill="rgba(0,0,0,.5)" fontSize="13" fontFamily="var(--sans)" fontWeight="600" transform={`rotate(90 ${S-20} ${cy})`}>{yy.rh}</text>}
+      {pts.map((pt,i)=>{const isSel=sel===i,c=nc(i),o=no(i);return(
+        <g key={i} onClick={()=>onSel(sel===i?null:i)} style={{cursor:'pointer'}}>
+          {isSel&&<circle cx={pt.x} cy={pt.y} r={nr+8} fill={c} opacity=".06" filter="url(#gw)"/>}
+          <circle cx={pt.x} cy={pt.y} r={nr} fill="#fff" stroke={c} strokeWidth={isSel?2.5:1.8} opacity={o} filter="url(#ns)"/>
+          <text x={pt.x} y={pt.y+6} textAnchor="middle" fill={c} fontSize={isSel?"16":"15"} fontWeight="700" fontFamily="var(--sans)" opacity={o} style={{pointerEvents:'none'}}>{i}</text>
+        </g>);})}
+      {!overlay&&lps.map((pt,i)=>{const l=p[i]||'';if(!l)return null;let dy=5;if(i===0)dy=16;if(i===6)dy=-7;return<text key={`l${i}`} x={pt.x} y={pt.y+dy} textAnchor={anch(i)} fill={'#000'} fontSize={sel===i?"16":"14"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'500'} style={{pointerEvents:'none'}}>{l}</text>;})}
+      {overlay&&<>
+        {/* Primary Yasna labels - inner ring */}
+        {ilps.map((pt,i)=>{const l=p[i]||'';if(!l)return null;const a=angDeg(i);let dy=4;if(i===0)dy=12;if(i===6)dy=-5;return<text key={`p${i}`} x={pt.x} y={pt.y+dy} textAnchor={anch(i)} fill={sel===i?'#1d1d1f':'rgba(0,122,255,.8)'} fontSize={sel===i?"16":"14"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'500'} style={{pointerEvents:'none'}}>{l}</text>;})}
+        {/* Overlay Yasna labels - outer ring */}
+        {olps.map((pt,i)=>{const l=(overlay.p||[])[i]||'';if(!l)return null;let dy=5;if(i===0)dy=18;if(i===6)dy=-8;return<text key={`o${i}`} x={pt.x} y={pt.y+dy} textAnchor={anch(i)} fill={sel===i?'#a8d8ea':'rgba(175,82,222,.7)'} fontSize={sel===i?"16":"14"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'500'} fontStyle="italic" style={{pointerEvents:'none'}}>{l}</text>;})}
+        {/* Second orbit ring for overlay */}
+        <circle cx={cx} cy={cy} r={lr-8} fill="none" stroke="rgba(175,82,222,.06)" strokeWidth=".5" strokeDasharray="3 6"/>
+      </>}
+    </svg>);
+}
+
+// ═══ POSITION DESCRIPTIONS ═══
+const POS_DESC=[
+  'Начальная точка цикла. Самое базовое, неочищенное состояние. Точка максимальной тьмы и покоя. Тайный союз — скрытое соединение двух миров.',
+  'Первый результат ожидания. Искра — момент, когда что-то впервые проявляется. Самое холодное/начальное. Маленькое, но важное.',
+  'Нарастание. Канал, по которому энергия течёт к главному событию. Лёгкое время — процесс ускоряется. Подготовка, вера в победу.',
+  'Главное событие цикла. Точка проявления, рождения, борьбы. Горизонт — граница между мирами. Время Истины. Война.',
+  'Результат главного события. Подъём, рост, культура. Тяжёлое время — процесс замедляется. Обзор, мастерство.',
+  'Накопитель. Хранилище того, что собрано. Конец одного этапа, вера перед следующим. Караван, запас, амбар.',
+  'Вершина цикла. Максимум света и ясности. Центр, откуда всё видно. Явный союз — открытое соединение. Главный процесс.',
+  'Пик — результат труда на вершине. Первый знак спада. Самый жар. Наблюдательный пост, дети, игра.',
+  'Спуск, защита. Самое красивое время. Лёгкий спад — процесс ускоряется вниз. Вера в жизнь. Женское начало.',
+  'Оценка, взвешивание. Весы — момент суда и розыгрыша. Горизонт — граница возврата. Время Розыгрыша. Мир.',
+  'Угасание. Итог вечернего цикла. Тяжёлое время — замедление. Авторитет, скрытый порядок, дисциплина.',
+  'Конец цикла. Последняя вспышка перед новым началом. Выход, отходы, зола. Вера в завтра — цикл замкнётся.',
+];
+
+const CROSS_CTX={
+  support:{
+    0:'Тайный союз — скрытая основа. Без этого ничего не начнётся.',
+    3:'Война — главное сражение. Точка проявления истины.',
+    6:'Явный союз — открытая вершина. Центр силы и света.',
+    9:'Мир — оценка итогов. Весы, равновесие, розыгрыш.',
+  },
+  right:{
+    1:'Результат ожидания в тьме (после 0). Первая победа.',
+    4:'Исход утреннего боя (после 3). Свет победил.',
+    7:'Результат дневного труда (после 6). Победа над собой.',
+    10:'Исход вечернего боя (после 9). Здравый смысл.',
+  },
+  left:{
+    2:'Вера в победу перед утренним боем (→3). Подготовка.',
+    5:'Вера в свои силы перед трудом (→6). Конец сомнений.',
+    8:'Вера в жизнь перед вечерним боем (→9). Сложная вера.',
+    11:'Вера в завтра после поражения (→0). Этот бой не последний.',
+  }
+};
+
+const PRANA_CTX={
+  she:'Устойчивость, неизменность, фундамент. Как почва — на ней всё стоит. Треугольник Земли: позиции 0, 4, 8 связаны через стабильность.',
+  fo:'Спад, текучесть, понижение. Как вода — течёт, находит путь. Треугольник Воды: позиции 1, 5, 9 связаны через движение вниз.',
+  tsi:'Неустойчивый покой, переходность. Как воздух — лёгкий, но изменчивый. Треугольник Воздуха: позиции 2, 6, 10 связаны через промежуточность.',
+  ha:'Рост, вспышка, повышение. Как огонь — яркий, быстрый. Треугольник Огня: позиции 3, 7, 11 связаны через энергию перемен.',
+};
+
+const OPP_DESC={
+  0:'Тьма ↔ Свет. Вход ↔ Центр. Скрытое ↔ Явное.',
+  1:'Начало ↔ Пик. Первое ↔ Последнее в своём роде. Холод ↔ Жар.',
+  2:'Нарастание ↔ Спадание. Один процесс — два направления.',
+  3:'Проявление ↔ Сокрытие. Истина ↔ Розыгрыш. Восток ↔ Запад.',
+  4:'Утренний итог ↔ Вечерний итог. Рост ↔ Угасание.',
+  5:'Конец тьмы ↔ Конец света. Одно закончилось ↔ другое закончилось.',
+};
+
+function Info({i,p,af=[]}){
+  if(i===null)return null;
+  const cr=CR[gc(i)],pr=PR[gp(i)],ref=REF[i],label=p[i]||'',oppLabel=p[opp(i)]||'';
+  const prevL=p[(i+11)%12]||'',nextL=p[(i+1)%12]||'';
+  const isLong=i%2===0;
+  const oppPairIdx=i<6?i:i-6;
+  const hasMech=af.length>0;
+
+  const mechItems=[];
+  af.forEach(fid=>{
+    if(['support','right','left'].includes(fid)){
+      if(CR[fid].p.includes(i)) mechItems.push({c:CR[fid].c,title:CR[fid].n+' · '+CR[fid].v,text:CROSS_CTX[fid][i]});
+      else mechItems.push({c:'#aeaeb2',title:CR[fid].n,text:'Позиция '+i+' не входит в этот крест ('+CR[fid].p.join('·')+')',dim:true});
+    }
+    if(['she','fo','tsi','ha'].includes(fid)){
+      if(PR[fid].p.includes(i)) mechItems.push({c:PR[fid].c,title:PR[fid].n,text:PRANA_CTX[fid]});
+      else mechItems.push({c:'#aeaeb2',title:PR[fid].n,text:'Позиция '+i+' не входит в треугольник ('+PR[fid].p.join('·')+')',dim:true});
+    }
+    if(fid==='opp') mechItems.push({c:'#ff9500',title:'↔ ['+i+'] — ['+opp(i)+']',text:OPP_DESC[oppPairIdx]+(oppLabel?' «'+label+'» ↔ «'+oppLabel+'»':'')});
+    if(fid==='rhythm'){
+      const triples=[[2,3,4],[5,6,7],[8,9,10],[11,0,1]];
+      const tri=triples.find(t=>t.includes(i));
+      if(tri){
+        const roles=['Вера','Бой','Победа'];
+        const role=roles[tri.indexOf(i)];
+        const names=tri.map(j=>p[j]||'['+j+']');
+        mechItems.push({c:'#30A060',title:'Ритм · '+role,text:names[0]+' (Вера) → '+names[1]+' (Бой) → '+names[2]+' (Победа)'});
+      }
+    }
+    if(fid==='arcs'){
+      const arcs=[[1,2,3,4,5],[5,6,7,8,9],[9,10,11,0,1]];
+      const arcNames=['Дуга I (утренняя)','Дуга II (дневная)','Дуга III (ночная)'];
+      const arcRoles=['ФО(исток)','ЦИ(нагрев)','ХА(пик)','ШЭ(остыв.)','ФО(конец)'];
+      arcs.forEach((arc,ai)=>{
+        if(arc.includes(i)){
+          const role=arcRoles[arc.indexOf(i)];
+          mechItems.push({c:['#4090D8','#9060D0','#30A060'][ai],title:arcNames[ai]+' · '+role,text:arc.map((j,k)=>arcRoles[k]+'=«'+(p[j]||j)+'»').join(' → ')});
+        }
+      });
+    }
+    if(fid==='halves'){
+      const isLight=[4,5,6,7,8].includes(i);
+      const isDark=[10,11,0,1,2].includes(i);
+      const isHoriz=[3,9].includes(i);
+      const isLeft=[1,2,3,4,5].includes(i);
+      const isRight=[7,8,9,10,11].includes(i);
+      const isVert=[0,6].includes(i);
+      mechItems.push({c:isLight?'#C0A030':isDark?'#5868B8':'#86868b',
+        title:isLight?'Чаша Света (верх)':isDark?'Чаша Тьмы (низ)':'Горизонт',
+        text:isLight?'Явное, открытое, активное. Позиции 4-5-6-7-8.':isDark?'Скрытое, закрытое, пассивное. Позиции 10-11-0-1-2.':'Соединяет чаши. Точка борьбы и перехода.'});
+      mechItems.push({c:isLeft?'#28A060':isRight?'#A046A0':'#86868b',
+        title:isLeft?'Левая половина (нарастание)':isRight?'Правая половина (спад)':'Ось Единства',
+        text:isLeft?'Энергия растёт, свет нарастает. Позиции 1-2-3-4-5.':isRight?'Энергия падает, свет убывает. Позиции 7-8-9-10-11.':'Вертикальная ось. Полюс '+(i===0?'Тьмы':'Света')+'.'});
+    }
+    if(fid==='__none__'){
+      if([0,6].includes(i)) mechItems.push({c:'#86868b',title:'Линия Единства (0↔6)',text:'Вертикальная ось. Позиция '+i+' — '+(i===0?'полюс Тьмы':'полюс Света')+'.'});
+      else if([3,9].includes(i)) mechItems.push({c:'#86868b',title:'Линия Борьбы (3↔9)',text:'Горизонтальная ось. Позиция '+i+' — '+(i===3?'Восток (Истина)':'Запад (Розыгрыш)')+'.'});
+      else mechItems.push({c:'#aeaeb2',title:'Оси',text:'Позиция '+i+' не на осях.',dim:true});
+    }
+  });
+
+  const Tag=({color,children})=><span style={{display:'inline-block',padding:'1px 8px',borderRadius:10,fontSize:10,fontWeight:500,background:color+'12',color:color,border:`1px solid ${color}25`}}>{children}</span>;
+
+  return(
+    <div className="fi" style={{position:'absolute',bottom:14,left:14,width:360,maxHeight:hasMech?'65vh':'50vh',overflowY:'auto',background:'rgba(255,255,255,.97)',border:'1px solid #e5e5ea',borderRadius:16,padding:'14px 16px',backdropFilter:'blur(16px)',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
+        <div style={{width:36,height:36,borderRadius:'50%',border:`2px solid ${cr.c}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontWeight:700,color:cr.c,flexShrink:0}}>{i}</div>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontSize:17,color:'#1d1d1f',fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{label||<span style={{color:'#aeaeb2'}}>Не заполнено</span>}</div>
+          <div style={{display:'flex',gap:4,marginTop:3,flexWrap:'wrap'}}>
+            <Tag color={cr.c}>{cr.v}</Tag>
+            <Tag color={pr.c}>{pr.n.split(' ')[0]}</Tag>
+            <Tag color="#86868b">{isLong?'Долгое':'Короткое'}</Tag>
+          </div>
+        </div>
+      </div>
+      <div style={{fontSize:12,color:'#424245',lineHeight:1.55,marginBottom:8,padding:'8px 10px',background:'var(--bg2)',borderRadius:10}}>
+        {POS_DESC[i]}
+      </div>
+      {label&&(prevL||nextL)&&<div style={{display:'flex',alignItems:'center',gap:4,marginBottom:8,fontSize:11,color:'#6e6e73',flexWrap:'wrap'}}>
+        {prevL?<><span style={{color:'#aeaeb2'}}>[{(i+11)%12}]</span><span>{prevL}</span><span style={{color:'#d2d2d7'}}>→</span></>:null}
+        <span style={{fontWeight:600,color:'#1d1d1f'}}>{label}</span>
+        {nextL?<><span style={{color:'#d2d2d7'}}>→</span><span>{nextL}</span><span style={{color:'#aeaeb2'}}>[{(i+1)%12}]</span></>:null}
+      </div>}
+      {!af.includes('opp')&&label&&oppLabel&&<div style={{display:'flex',alignItems:'center',gap:5,marginBottom:6,fontSize:11,color:'#6e6e73'}}>
+        <span>↔</span>
+        <span>[{opp(i)}] {oppLabel}</span>
+      </div>}
+      {mechItems.length>0&&<div style={{maxHeight:mechItems.length>2?160:undefined,overflowY:mechItems.length>2?'auto':undefined,display:'flex',flexDirection:'column',gap:4,marginBottom:6}}>
+        {mechItems.map((it,j)=><div key={j} style={{padding:'6px 10px',background:it.dim?'#fafafa':it.c+'08',borderRadius:8,borderLeft:`3px solid ${it.dim?'#e5e5ea':it.c}`,flexShrink:0,opacity:it.dim?.45:1}}>
+          <div style={{fontSize:10,fontWeight:600,color:it.dim?'#aeaeb2':it.c,marginBottom:1}}>{it.title}</div>
+          <div style={{fontSize:11,color:it.dim?'#aeaeb2':'#424245',lineHeight:1.45}}>{it.text}</div>
+        </div>)}
+      </div>}
+      <div style={{fontSize:10,color:'#86868b',lineHeight:1.4}}>
+        <span style={{fontWeight:600,color:'#6e6e73'}}>{ref.f}</span> · {ref.ex}
+      </div>
+    </div>);
+}
+
+function OverlayLegend({y,overlay,onClear}){
+  if(!overlay)return null;
+  return(
+    <div className="fi" style={{position:'absolute',top:12,right:12,background:'rgba(255,255,255,.95)',border:'1px solid rgba(0,0,0,.06)',borderRadius:12,padding:'10px 14px',backdropFilter:'blur(16px)',minWidth:180}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+        <span style={{fontSize:10,color:'#6e6e73',textTransform:'uppercase',letterSpacing:1}}>Совмещение</span>
+        <button onClick={onClear} style={{fontSize:14,color:'#6e6e73',padding:'0 4px'}}>✕</button>
+      </div>
+      <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:4}}>
+        <div style={{width:12,height:3,borderRadius:2,background:'rgba(0,122,255,.6)'}}/>
+        <span style={{fontSize:11,color:'#1d1d1f'}}>{y.name}</span>
+      </div>
+      <div style={{display:'flex',alignItems:'center',gap:6}}>
+        <div style={{width:12,height:3,borderRadius:2,background:'rgba(175,82,222,.5)'}}/>
+        <span style={{fontSize:11,color:'#af52de',fontStyle:'italic'}}>{overlay.name||overlay.n}</span>
+      </div>
+    </div>);
+}
+
+function Editor({y,setY,onClose}){
+  return(
+    <div className="fi" style={{position:'fixed',top:0,right:0,width:370,height:'100vh',background:'rgba(255,255,255,.98)',borderLeft:'1px solid rgba(0,0,0,.08)',zIndex:50,display:'flex',flexDirection:'column'}}>
+      <div style={{padding:'14px 18px',borderBottom:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <h3 style={{fontFamily:'var(--serif)',fontSize:18,color:'#1d1d1f',fontWeight:600}}>Редактор</h3>
+        <button onClick={onClose} style={{fontSize:18,padding:'4px 8px'}}>✕</button>
+      </div>
+      <div style={{padding:'12px 18px',overflowY:'auto',flex:1}}>
+        <input value={y.name} onChange={e=>setY({...y,name:e.target.value})} placeholder="Название"
+          style={{width:'100%',background:'var(--bg3)',border:'1px solid var(--border)',color:'#1d1d1f',padding:'9px 12px',borderRadius:7,fontFamily:'var(--serif)',fontSize:17,fontWeight:700,marginBottom:10,outline:'none'}}/>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:5,marginBottom:14}}>
+          {[['th','▲ Верх'],['bh','▼ Низ'],['lh','◀ Лево'],['rh','▶ Право']].map(([k,ph])=>
+            <input key={k} placeholder={ph} value={y[k]||''} onChange={e=>setY({...y,[k]:e.target.value})}
+              style={{background:'var(--bg3)',border:'1px solid var(--border)',color:'var(--txt)',padding:'5px 8px',borderRadius:5,fontSize:10,outline:'none'}}/>
+          )}
+        </div>
+        {y.p.map((l,i)=>{const c=CR[gc(i)].c;return(
+          <div key={i} style={{display:'flex',alignItems:'center',gap:7,marginBottom:5}}>
+            <div style={{width:26,height:26,borderRadius:'50%',border:`2px solid ${c}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:c,flexShrink:0}}>{i}</div>
+            <input value={l} onChange={e=>{const np=[...y.p];np[i]=e.target.value;setY({...y,p:np});}} placeholder={(REF[i]||{}).f||''}
+              style={{flex:1,background:'var(--bg)',border:'1px solid var(--border)',color:'#1d1d1f',padding:'7px 10px',borderRadius:5,fontSize:12,outline:'none'}}
+              onFocus={e=>e.target.style.borderColor=c} onBlur={e=>e.target.style.borderColor='var(--border)'}/>
+          </div>);})}
+      </div>
+    </div>);
+}
+
+function Picker({pinned,onTogglePin,onClear,onClose}){
+  return(
+    <div className="fi" style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'rgba(0,0,0,.04)',zIndex:60,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={onClose}>
+      <div style={{background:'rgba(255,255,255,.98)',border:'1px solid rgba(0,122,255,.08)',borderRadius:20,backdropFilter:'blur(20px)',padding:'20px 24px',width:520,maxHeight:'80vh',overflowY:'auto'}} onClick={e=>e.stopPropagation()}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+          <h3 style={{fontFamily:'var(--serif)',fontSize:18,color:'#1d1d1f'}}>Все Ясны</h3>
+          <div style={{display:'flex',gap:8,alignItems:'center'}}>
+            <button onClick={()=>onClear()} style={{fontSize:10,color:'var(--txt2)',border:'1px solid var(--border)',padding:'4px 12px',borderRadius:12}}>Снять все</button>
+            <button onClick={onClose} style={{fontSize:18}}>✕</button>
+          </div>
+        </div>
+        <div style={{fontSize:10,color:'var(--txt2)',marginBottom:12}}>Нажмите чтобы добавить в панель. Нажмите ещё раз чтобы убрать.</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
+          {T.map(t=>{const active=pinned.includes(t.id);return(
+            <button key={t.id} onClick={()=>onTogglePin(t.id)}
+              style={{padding:'10px 14px',borderRadius:8,fontSize:13,textAlign:'left',
+                background:active?'rgba(0,122,255,.06)':'var(--bg3)',
+                color:active?'#1d1d1f':'var(--txt2)',
+                border:`1px solid ${active?'rgba(0,122,255,.3)':'var(--border)'}`}}>
+              {t.n}
+            </button>);})}
+        </div>
+      </div>
+    </div>);
+}
+
+
+const GLOSS=[
+  {id:'type',title:'Долгое и Короткое время',color:'#1d1d1f',
+   what:'12 позиций Ясны чередуются: чётные (0,2,4,6,8,10) — долгие, нечётные (1,3,5,7,9,11) — короткие.',
+   why:'Мир устроен как дыхание: вдох (накопление) → выдох (перемена). Долгое копит энергию, короткое её высвобождает.',
+   how:'Долгое время — это процесс, состояние, зона. Оно длится, в нём ничего резко не меняется. Короткое время — это перелом, момент, вспышка. В нём количество переходит в качество.',
+   apply:'Поставьте на чётную позицию то, что длится (комната, процесс, состояние). На нечётную — то, что происходит мгновенно (событие, перелом, момент).',
+   example:'Ясна Суток: Ночь(долгая) → Искра(момент) → Заря(долгая) → Восход(момент). Ясна Кухни: Разделка(долгая) → Плита(момент) → Полуфабрикаты(долгие) → Специи(момент).',
+   questions:['Этот элемент — это длительный процесс или мгновенное событие?','Можно ли «растянуть» этот элемент во времени? Если да — он долгий.'],
+   mistakes:['Поставить событие (момент, вспышку) на чётную позицию. Например «Взрыв» на позицию 4.','Поставить длительный процесс на нечётную позицию. Например «Плавание» на позицию 3.'],
+   related:['support','rhythm']},
+  {id:'support',title:'Опорный крест',color:'#E8364F',positions:'0 · 3 · 6 · 9',
+   what:'Четыре главные точки Ясны. Если их убрать — всё рассыпется. Добродетель креста — Надежда.',
+   why:'У любого явления есть 4 опоры: начало (0), первый поворот (3), вершина (6), второй поворот (9). Это скелет, на котором держится всё.',
+   how:'Позиция 0 — Тайный союз. Скрытое начало, основа. Позиция 3 — Война. Главное сражение, точка истины. Позиция 6 — Явный союз. Вершина, центр, максимум. Позиция 9 — Мир. Оценка, весы, итог.',
+   apply:'Сначала заполните эти 4 позиции. Спросите себя: что является началом? кульминацией? вершиной? оценкой? Если ответы не приходят — Ясна ещё не созрела.',
+   example:'Суток: 0=Ночь, 3=Утро, 6=День, 9=Вечер. Дома: 0=Прихожая, 3=Кухня, 6=Чулан, 9=Спальня. Кухни: 0=Вход, 3=Плита, 6=Готовка, 9=Оценка.'},
+  {id:'right',title:'Правый крест',color:'#E8A834',positions:'1 · 4 · 7 · 10',
+   what:'Четыре позиции, каждая из которых — результат предыдущей Опорной. Добродетель — Любовь.',
+   why:'Каждое действие рождает результат. Правый крест показывает: что получилось после каждого из 4 главных событий.',
+   how:'0→1: что получилось после начала. 3→4: что получилось после битвы. 6→7: что получилось после труда. 9→10: что получилось после оценки.',
+   apply:'Для каждой позиции спросите: это следствие того, что было на предыдущей позиции? Если элемент не является результатом — он стоит не на своём месте.',
+   example:'Суток: Ночь(0)→Искра(1), Утро(3)→Восход(4), День(6)→Первая тьма(7). Кухни: Плита(3)→Полуфабрикаты(4), Готовка(6)→Блюдо(7).'},
+  {id:'left',title:'Левый крест',color:'#5B9CF6',positions:'2 · 5 · 8 · 11',
+   what:'Четыре позиции, каждая из которых — подготовка к следующей Опорной. Добродетель — Вера.',
+   why:'Перед каждым важным событием есть период подготовки и ожидания. Левый крест — это вера в то, что впереди.',
+   how:'2→3: подготовка к битве. 5→6: подготовка к труду. 8→9: подготовка к оценке. 11→0: подготовка к новому циклу.',
+   apply:'Для каждой позиции спросите: это готовит к тому, что будет на следующей опорной? Если элемент не готовит — он не на месте.',
+   example:'Суток: Заря(2) готовит к Утру(3). Утренний салют(5) готовит ко Дню(6). Закат(8) готовит к Вечеру(9). Вечерний салют(11) готовит к Ночи(0).'},
+  {id:'rhythm',title:'Ритм «Вера → Бой → Победа»',color:'#30A060',positions:'4 тройки: 2-3-4, 5-6-7, 8-9-10, 11-0-1',
+   what:'Каждые три соседние позиции (Левый → Опорный → Правый) образуют мини-историю из трёх актов.',
+   why:'Любое событие проходит три фазы: подготовка, действие, итог. Это универсальный ритм жизни.',
+   how:'Тройка I: 2(Вера)→3(Бой)→4(Победа). Тройка II: 5→6→7. Тройка III: 8→9→10. Тройка IV: 11→0→1. В каждой тройке: первый верит, второй сражается, третий побеждает.',
+   apply:'Прочитайте каждую тройку как историю. Если не получается связный рассказ из трёх слов — что-то стоит не на месте.',
+   example:'Кухни: Специи(верим в рецепт) → Готовка(работаем) → Блюдо(результат!). Животных: Лошадь(несёт к бою) → Козлы(бодаются) → Корова(молоко — победа).'},
+  {id:'she',title:'Земля ШЭ',color:'#C0943A',positions:'0 · 4 · 8',
+   what:'Треугольник из трёх позиций, объединённых качеством устойчивости. Стихия — Земля.',
+   why:'В каждом явлении есть три точки стабильности — то, на чём всё стоит. Они образуют невидимый фундамент.',
+   how:'Позиция 0 — основа (ожидание). Позиция 4 — подъём (тяжёлый труд). Позиция 8 — спуск (лёгкий спад). Все три — долгие процессы, все устойчивы.',
+   apply:'Три элемента треугольника должны быть похожи по духу: все про стабильность, надёжность, фундамент. Между ними должна чувствоваться связь.',
+   example:'Суток: 0=Ночь, 4=Подъём, 8=Спуск — три спокойных процесса. Животных: 0=Свинья, 4=Корова, 8=Собака — все приземлённые, верные, земные.'},
+  {id:'fo',title:'Вода ФО',color:'#4090D8',positions:'1 · 5 · 9',
+   what:'Треугольник из трёх позиций, объединённых качеством текучести. Стихия — Вода.',
+   why:'В каждом явлении есть три точки перемен — моменты, когда что-то утекает, перетекает, меняет форму.',
+   how:'Позиция 1 — первый результат (искра). Позиция 5 — накопитель (конец этапа). Позиция 9 — оценка (весы). Все три — короткие переломы.',
+   apply:'Три элемента должны быть похожи: все про движение, поток, перемену. Все текучие, все на переломе.',
+   example:'Кухни: 1=Мойка (вода!), 5=Специи (сыпучие), 9=Оценочный стол (взвешивание). Круговорота: 1=Родник, 5=Облако, 9=Касание воды.'},
+  {id:'tsi',title:'Воздух ЦИ',color:'#70B8F0',positions:'2 · 6 · 10',
+   what:'Треугольник из трёх позиций, объединённых качеством переходности. Стихия — Воздух.',
+   why:'В каждом явлении есть три промежуточных состояния — ни то, ни сё, переход от одного к другому.',
+   how:'Позиция 2 — канал, нарастание. Позиция 6 — вершина, неустойчивый покой. Позиция 10 — угасание. Все три — долгие, все переходные.',
+   apply:'Три элемента должны быть воздушными, лёгкими, промежуточными. Это каналы и мосты между событиями.',
+   example:'Суток: 2=Заря(переход), 6=День(неустойчивый покой), 10=Сумерки(переход). Кухни: 2=Разделка, 6=Стол готовки, 10=Шведский стол.'},
+  {id:'ha',title:'Огонь ХА',color:'#F06838',positions:'3 · 7 · 11',
+   what:'Треугольник из трёх позиций, объединённых качеством роста и вспышки. Стихия — Огонь.',
+   why:'В каждом явлении есть три момента взрыва — когда энергия бьёт фонтаном и всё меняется разом.',
+   how:'Позиция 3 — главный огонь (восход, рождение). Позиция 7 — пик жара (результат труда). Позиция 11 — последний огонь (зола, конец). Все три — короткие, все яркие.',
+   apply:'Три элемента должны быть горячими, острыми, энергичными. Это моменты, когда что-то загорается, взрывается, проявляется.',
+   example:'Суток: 3=Восход(огонь!), 7=Первая тьма(жар), 11=Последний свет(огонь). Кухни: 3=Плита(огонь!), 7=Готовое блюдо(горячее!), 11=Вынос(горящие заказы).'},
+  {id:'opp',title:'Противоположности',color:'#ff9500',positions:'0↔6, 1↔7, 2↔8, 3↔9, 4↔10, 5↔11',
+   what:'Каждая позиция имеет зеркальную пару через центр. Всего 6 пар.',
+   why:'Мир построен на противоположностях: день и ночь, верх и низ, начало и конец. Ясна это отражает.',
+   how:'0↔6: Тьма и Свет. 1↔7: Начало и Пик. 2↔8: Подъём и Спуск. 3↔9: Истина и Розыгрыш. 4↔10: Утренний итог и Вечерний итог. 5↔11: Конец тьмы и Конец света.',
+   apply:'Заполните одну позицию — автоматически проверьте противоположную. Если 0=Прихожая, то 6 должен быть её антиподом (Чулан — центр дома). Если не получается найти антипод — элемент не на месте.',
+   example:'Суток: Ночь↔День. Дома: Прихожая↔Чулан (вход↔центр). Животных: Свинья↔Человек (низ↔верх). Кухни: Вход↔Стол готовки.'},
+  {id:'arcs',title:'Три дуги',color:'#9060D0',positions:'Дуга I: 1→5, Дуга II: 5→9, Дуга III: 9→1',
+   what:'Круг делится на три дуги по 5 позиций. Каждая дуга — мини-цикл нагрева и остывания.',
+   why:'Внутри большого цикла (12 позиций) живут три малых цикла. Как три волны внутри одного прилива.',
+   how:'Каждая дуга проходит все 4 стихии по порядку: Вода(исток) → Воздух(нагрев) → Огонь(пик) → Земля(остывание) → Вода(конец). Дуга I: 1→2→3→4→5. Дуга II: 5→6→7→8→9. Дуга III: 9→10→11→0→1.',
+   apply:'Прочитайте каждую дугу из 5 элементов как связную последовательность. Если один из пяти выбивается — он не на месте.',
+   example:'Круговорота: Дуга I: Родник→Река→Поверхность→Пар→Облако (подъём воды). Дуга II: Облако→Перенос→Гроза→Дождь→Касание (путь обратно). Кухни: Дуга II: Специи→Готовка→Блюдо→Порции→Оценка.'},
+  {id:'halves',title:'Четыре половины',color:'#6366f1',positions:'Верх 4-8, Низ 10-2, Лево 1-5, Право 7-11',
+   what:'Две оси делят круг на 4 части: верх/низ (горизонтальная ось 3↔9) и лево/право (вертикальная ось 0↔6).',
+   why:'У любого явления есть светлая и тёмная сторона, фаза роста и фаза спада. Половины показывают эту структуру.',
+   how:'Верх (Чаша Света, 4-5-6-7-8) — явное, открытое, активное, дневное. Низ (Чаша Тьмы, 10-11-0-1-2) — скрытое, закрытое, пассивное, ночное. Лево (1-2-3-4-5) — энергия растёт, нарастание. Право (7-8-9-10-11) — энергия падает, спад. Позиции 3 и 9 — горизонт: точки перехода между верхом и низом.',
+   apply:'Все верхние элементы должны быть про открытое и явное. Все нижние — про скрытое и тайное. Левые — про рост. Правые — про убывание. Если элемент не вписывается — переместите.',
+   example:'Суток: Верх=День,Восход,Салют(явное). Низ=Ночь,Заря,Сумерки(скрытое). Дома: Верх=Веранда,Амбар,Чулан(главные комнаты). Низ=Кабинет,Санблок,Прихожая(служебные).'},
+
+
+];
+
+
+function Instruction({onClose}){
+  const Step=({n,title,children})=><div style={{display:'flex',gap:16,marginBottom:28}}>
+    <div style={{width:40,height:40,borderRadius:'50%',background:'#0071e3',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:700,flexShrink:0}}>{n}</div>
+    <div style={{flex:1}}><h3 style={{fontSize:17,fontWeight:700,color:'#1d1d1f',marginBottom:6}}>{title}</h3><div style={{fontSize:13,color:'#424245',lineHeight:1.7}}>{children}</div></div>
+  </div>;
+  const Check=({children})=><div style={{display:'flex',gap:8,alignItems:'flex-start',padding:'6px 0'}}><span style={{color:'#30A060',fontSize:14,flexShrink:0}}>✓</span><div style={{fontSize:13,color:'#424245',lineHeight:1.6}}>{children}</div></div>;
+  const Card=({title,color,children})=><div style={{padding:'16px 18px',background:color+'06',border:'1px solid '+color+'20',borderRadius:12,marginBottom:12}}><div style={{fontSize:13,fontWeight:700,color:color,marginBottom:8}}>{title}</div>{children}</div>;
+
+  return(
+    <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#fff',zIndex:70,display:'flex',flexDirection:'column'}}>
+      <div style={{display:'flex',alignItems:'center',padding:'14px 24px',borderBottom:'1px solid #e5e5ea',flexShrink:0}}>
+        <h2 style={{fontSize:24,fontWeight:700,color:'#1d1d1f',flex:1}}>Инструкция по составлению Ясны</h2>
+        <button onClick={onClose} style={{fontSize:13,color:'#0071e3',padding:'7px 20px',border:'1px solid #0071e3',borderRadius:8}}>Закрыть</button>
+      </div>
+      <div style={{flex:1,overflowY:'auto',padding:'24px',maxWidth:760,margin:'0 auto',width:'100%'}}>
+
+        {/* INTRO */}
+        <div style={{padding:'20px 24px',background:'linear-gradient(135deg,#f0f5ff,#faf5ff)',borderRadius:16,marginBottom:32}}>
+          <div style={{fontSize:20,fontWeight:700,color:'#1d1d1f',marginBottom:8}}>Что такое Ясна?</div>
+          <div style={{fontSize:14,color:'#424245',lineHeight:1.7}}>
+            Ясна — это 12-частная циклическая структура, описывающая любое явление. Как циферблат часов, но вместо часов — этапы процесса. Каждый элемент стоит на своей «полочке» и связан с остальными через набор правил (механик). Если все 12 элементов расставлены правильно — Ясна «звучит», как настроенный инструмент.
+          </div>
+        </div>
+
+        {/* 7 STEPS */}
+        <div style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:20}}>7 шагов составления</div>
+
+        <Step n="1" title="Назовите явление">
+          Выберите то, что хотите разложить на 12 частей. Это может быть что угодно: профессия, процесс, место, система. Важно: явление должно быть <b>циклическим</b> — иметь начало и конец, которые замыкаются в круг.
+          <div style={{padding:'10px 14px',background:'var(--bg2)',borderRadius:8,marginTop:8,fontSize:12,color:'#6e6e73'}}>
+            Пример — Круговорот воды: вода проходит цикл от грязи на земле через испарение, облака, дождь — и возвращается обратно в грязь. Цикл замкнут ✓
+          </div>
+        </Step>
+
+        <Step n="2" title="Найдите 4 опоры (Опорный крест)">
+          Определите 4 главных состояния/события вашего явления:<br/>
+          <b>Позиция 0</b> — Начало. Самое базовое, скрытое, «тёмное» состояние.<br/>
+          <b>Позиция 3</b> — Главное событие. Восток, точка проявления, «война».<br/>
+          <b>Позиция 6</b> — Вершина. Максимум, центр, «явный союз».<br/>
+          <b>Позиция 9</b> — Оценка. Запад, весы, «розыгрыш».<br/>
+          <div style={{padding:'10px 14px',background:'#E8364F08',borderLeft:'3px solid #E8364F',borderRadius:8,marginTop:8,fontSize:12,color:'#6e6e73'}}>
+            Проверка: 0 и 6 — противоположности. 3 и 9 — тоже. Если антипод не читается — позиции перепутаны.
+          </div>
+          <div style={{padding:'10px 14px',background:'#f0f5ff',borderRadius:8,marginTop:8,fontSize:12,color:'#424245',lineHeight:1.6}}>
+            <b>Круговорот воды:</b><br/>
+            0 = Грязь (вода в земле — самое «тёмное», скрытое состояние) ✓<br/>
+            3 = Поверхность водоёма (главное событие — вода вышла наружу) ✓<br/>
+            6 = Холод / Перенос (вершина — вода в небе, максимум «света») ✓<br/>
+            9 = Касание воды (оценка — вода вернулась, коснулась земли) ✓<br/>
+            Проверка: Грязь(0) ↔ Перенос(6) = земля↔небо ✓. Поверхность(3) ↔ Касание(9) = подъём↔спуск ✓
+          </div>
+        </Step>
+
+        <Step n="3" title="Расставьте результаты (Правый крест)">
+          Для каждой Опорной найдите <b>результат</b> — что получается ПОСЛЕ неё:<br/>
+          0→<b>1</b>: результат начала. 3→<b>4</b>: результат сражения. 6→<b>7</b>: результат труда. 9→<b>10</b>: результат оценки.
+          <div style={{padding:'10px 14px',background:'#f0f5ff',borderRadius:8,marginTop:8,fontSize:12,color:'#424245',lineHeight:1.6}}>
+            <b>Круговорот воды:</b><br/>
+            0(Грязь) → <b>1 = Болото/Родник</b> — результат: из грязи родился источник ✓<br/>
+            3(Поверхность) → <b>4 = Пар</b> — результат: вода испарилась ✓<br/>
+            6(Перенос) → <b>7 = Гроза/Молния</b> — результат: облака разрядились ✓<br/>
+            9(Касание) → <b>10 = Стекание</b> — результат: вода потекла по земле ✓
+          </div>
+        </Step>
+
+        <Step n="4" title="Расставьте подготовку (Левый крест)">
+          Для каждой Опорной найдите <b>подготовку</b> — что готовит к ней:<br/>
+          <b>2</b>→3: вера перед боем. <b>5</b>→6: вера перед трудом. <b>8</b>→9: вера перед оценкой. <b>11</b>→0: вера в новый цикл.
+          <div style={{padding:'10px 14px',background:'#f0f5ff',borderRadius:8,marginTop:8,fontSize:12,color:'#424245',lineHeight:1.6}}>
+            <b>Круговорот воды:</b><br/>
+            <b>2 = Река</b> → 3(Поверхность) — река несёт воду к открытой поверхности, готовит ✓<br/>
+            <b>5 = Облако</b> → 6(Перенос) — облако копится перед переносом ✓<br/>
+            <b>8 = Дождь</b> → 9(Касание) — дождь падает, готовит касание ✓<br/>
+            <b>11 = Лужа</b> → 0(Грязь) — лужа впитывается, возвращается в грязь ✓
+          </div>
+        </Step>
+
+        <Step n="5" title="Проверьте тип (Долгое/Короткое)">
+          Чётные позиции (0,2,4,6,8,10) — <b>долгие</b>: процессы, зоны, состояния.<br/>
+          Нечётные (1,3,5,7,9,11) — <b>короткие</b>: моменты, переломы, вспышки.<br/>
+          Если на чётной стоит «момент» или на нечётной «процесс» — переместите.
+          <div style={{padding:'10px 14px',background:'#f0f5ff',borderRadius:8,marginTop:8,fontSize:12,color:'#424245',lineHeight:1.6}}>
+            <b>Круговорот воды:</b><br/>
+            Долгие (процессы): 0=Грязь, 2=Река, 4=Пар, 6=Перенос, 8=Дождь, 10=Стекание — все длительные ✓<br/>
+            Короткие (моменты): 1=Родник(пробился!), 3=Поверхность(вышла!), 5=Облако(собралось!), 7=Гроза(ударила!), 9=Касание(коснулась!), 11=Лужа(собралась!) — все мгновенные ✓
+          </div>
+        </Step>
+
+        <Step n="6" title="Проверьте стихии (4 треугольника)">
+          Три позиции каждой стихии должны быть похожи «по духу»:<br/>
+          <b>Земля</b> (0,4,8): все устойчивые. <b>Вода</b> (1,5,9): все текучие.<br/>
+          <b>Воздух</b> (2,6,10): все переходные. <b>Огонь</b> (3,7,11): все яркие.
+          <div style={{padding:'10px 14px',background:'#f0f5ff',borderRadius:8,marginTop:8,fontSize:12,color:'#424245',lineHeight:1.6}}>
+            <b>Круговорот воды:</b><br/>
+            Земля ШЭ (0,4,8): Грязь, Пар, Дождь — устойчивые состояния воды ✓<br/>
+            Вода ФО (1,5,9): Родник, Облако, Касание — моменты перемен, текучие ✓<br/>
+            Воздух ЦИ (2,6,10): Река, Перенос, Стекание — каналы, несущие среды ✓<br/>
+            Огонь ХА (3,7,11): Поверхность(вскипает), Гроза(молния!), Лужа(последняя вспышка) ✓
+          </div>
+        </Step>
+
+        <Step n="7" title="Прочитайте вслух по кругу">
+          Пройдите 0→1→2→...→11→0. Каждый переход должен быть плавным и логичным. Если где-то «спотыкаетесь» — там ошибка.
+          <div style={{padding:'10px 14px',background:'#f0f5ff',borderRadius:8,marginTop:8,fontSize:12,color:'#424245',lineHeight:1.6}}>
+            <b>Круговорот воды — читаем по кругу:</b><br/>
+            Грязь → Родник → Река → Поверхность → Пар → Облако → Перенос → Гроза → Дождь → Касание → Стекание → Лужа → Грязь...<br/>
+            Каждый переход плавный, логика не ломается ✓
+          </div>
+        </Step>
+
+        {/* CHECKLIST: POSITION */}
+        <div style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:16,marginTop:40,paddingTop:20,borderTop:'1px solid #e5e5ea'}}>Чек-лист полочки (7 проверок)</div>
+        <p style={{fontSize:13,color:'#6e6e73',marginBottom:16,lineHeight:1.6}}>Каждый элемент на каждой позиции должен пройти все 7 проверок. Если хотя бы одна не проходит — элемент стоит не на месте.</p>
+
+        <Card title="1. Тип" color="#1d1d1f">
+          <Check>Чётная позиция → элемент является процессом, состоянием, зоной?</Check>
+          <Check>Нечётная позиция → элемент является моментом, переломом, вспышкой?</Check>
+        </Card>
+        <Card title="2. Прана (стихия)" color="#C0943A">
+          <Check>Позиции 0,4,8 → элемент устойчивый, земной, фундаментальный?</Check>
+          <Check>Позиции 1,5,9 → элемент текучий, водный, переменчивый?</Check>
+          <Check>Позиции 2,6,10 → элемент воздушный, промежуточный, переходный?</Check>
+          <Check>Позиции 3,7,11 → элемент огненный, яркий, взрывной?</Check>
+        </Card>
+        <Card title="3. Крест" color="#E8364F">
+          <Check>Опорная (0,3,6,9) → это одно из 4 главных событий? Без него всё рассыпется?</Check>
+          <Check>Правая (1,4,7,10) → это результат предыдущей Опорной?</Check>
+          <Check>Левая (2,5,8,11) → это подготовка к следующей Опорной?</Check>
+        </Card>
+        <Card title="4. Противоположность" color="#ff9500">
+          <Check>Элемент [i] и элемент [i+6] — зеркально противоположны?</Check>
+          <Check>Можете назвать, в чём именно противоположность?</Check>
+        </Card>
+        <Card title="5. Соседство" color="#30A060">
+          <Check>Переход [i-1] → [i] → [i+1] читается плавно?</Check>
+          <Check>Нет «разрывов» — логика не ломается?</Check>
+        </Card>
+        <Card title="6. Половина" color="#6366f1">
+          <Check>Верхний элемент (4-8) → про явное, открытое?</Check>
+          <Check>Нижний элемент (10-2) → про скрытое, закрытое?</Check>
+          <Check>Левый (1-5) → про рост? Правый (7-11) → про спад?</Check>
+        </Card>
+        <Card title="7. Аналогия с эталонами" color="#9060D0">
+          <Check>Элемент выполняет ту же функцию, что и элементы на этой позиции в других Яснах?</Check>
+          <Check>Примеры для сравнения: Суток, Дома, Кухни, Круговорота воды</Check>
+        </Card>
+
+        {/* CHECKLIST: MECHANICS */}
+        <div style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:16,marginTop:40,paddingTop:20,borderTop:'1px solid #e5e5ea'}}>Чек-лист механик (10 проверок)</div>
+        <p style={{fontSize:13,color:'#6e6e73',marginBottom:16,lineHeight:1.6}}>Проверьте каждую механику на всей Ясне целиком.</p>
+
+        <Card title="Опорный крест" color="#E8364F">
+          <Check>4 Опоры (0,3,6,9) — самые важные элементы? Остальные без них теряют смысл?</Check>
+          <Check>0↔6 противоположны? 3↔9 противоположны?</Check>
+        </Card>
+        <Card title="Правый крест" color="#E8A834">
+          <Check>Каждый из 4 элементов (1,4,7,10) — результат предыдущей Опорной?</Check>
+        </Card>
+        <Card title="Левый крест" color="#5B9CF6">
+          <Check>Каждый из 4 элементов (2,5,8,11) — подготовка к следующей Опорной?</Check>
+        </Card>
+        <Card title="4 тройки ритма" color="#30A060">
+          <Check>Тройка 2→3→4: читается как Вера→Бой→Победа?</Check>
+          <Check>Тройка 5→6→7: читается как Вера→Бой→Победа?</Check>
+          <Check>Тройка 8→9→10: читается как Вера→Бой→Победа?</Check>
+          <Check>Тройка 11→0→1: читается как Вера→Бой→Победа?</Check>
+        </Card>
+        <Card title="4 треугольника стихий" color="#C0943A">
+          <Check>Земля (0,4,8) — все три про устойчивость? Связаны по духу?</Check>
+          <Check>Вода (1,5,9) — все три про текучесть? Связаны?</Check>
+          <Check>Воздух (2,6,10) — все три переходные? Связаны?</Check>
+          <Check>Огонь (3,7,11) — все три яркие/острые? Связаны?</Check>
+        </Card>
+        <Card title="6 противоположностей" color="#ff9500">
+          <Check>Все 6 пар (0↔6, 1↔7, 2↔8, 3↔9, 4↔10, 5↔11) — зеркальны?</Check>
+        </Card>
+        <Card title="3 дуги" color="#9060D0">
+          <Check>Дуга 1→5: плавная последовательность из 5 элементов?</Check>
+          <Check>Дуга 5→9: плавная последовательность?</Check>
+          <Check>Дуга 9→1: плавная последовательность?</Check>
+        </Card>
+
+        {/* FINAL CHECKLIST */}
+        <div style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:16,marginTop:40,paddingTop:20,borderTop:'1px solid #e5e5ea'}}>Финальная проверка всей Ясны</div>
+
+        <div style={{padding:'20px 24px',background:'var(--bg2)',borderRadius:16,marginBottom:20}}>
+          <Check>Все 12 позиций заполнены?</Check>
+          <Check>Ясна читается по кругу 0→1→...→11→0 без разрывов?</Check>
+          <Check>Все 6 противоположностей зеркальны?</Check>
+          <Check>4 Опоры — действительно главные? Без них всё теряет смысл?</Check>
+          <Check>Чётные — процессы, нечётные — моменты? (12 проверок)</Check>
+          <Check>Треугольники стихий — элементы внутри каждого похожи? (4 проверки)</Check>
+          <Check>4 тройки ритма — каждая читается как мини-история?</Check>
+          <Check>Верхние элементы (4-8) явные? Нижние (10-2) скрытые?</Check>
+          <Check>Левые (1-5) растут? Правые (7-11) убывают?</Check>
+          <Check>Можете объяснить каждый элемент не-эксперту за 1 предложение?</Check>
+        </div>
+
+        <div style={{padding:'20px 24px',background:'linear-gradient(135deg,#f0fff5,#f0f5ff)',borderRadius:16,marginBottom:32}}>
+          <div style={{fontSize:16,fontWeight:700,color:'#1d1d1f',marginBottom:8}}>Когда Ясна готова?</div>
+          <div style={{fontSize:14,color:'#424245',lineHeight:1.7}}>
+            Ясна готова, когда все проверки пройдены и вы можете объяснить логику размещения каждого элемента. Идеальная Ясна — та, где невозможно поменять местами ни одну пару элементов без потери смысла. Каждый стоит на единственно возможном месте.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+function Glossary({onClose}){
+  const[open,setOpen]=useState(null);
+  const Section=({label,children})=><div style={{marginBottom:14}}><div style={{fontSize:10,fontWeight:600,color:'#86868b',textTransform:'uppercase',letterSpacing:1.5,marginBottom:6}}>{label}</div>{children}</div>;
+  const Tip=({children})=><div style={{display:'flex',gap:8,alignItems:'flex-start',marginBottom:6}}><span style={{color:'#30A060',fontSize:14,lineHeight:1,flexShrink:0}}>→</span><div style={{fontSize:13,color:'#424245',lineHeight:1.6}}>{children}</div></div>;
+  const Warn=({children})=><div style={{display:'flex',gap:8,alignItems:'flex-start',marginBottom:6}}><span style={{color:'#ff9500',fontSize:13,lineHeight:1,flexShrink:0}}>⚠</span><div style={{fontSize:12,color:'#6e6e73',lineHeight:1.5}}>{children}</div></div>;
+
+  return(
+    <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#fff',zIndex:70,display:'flex',flexDirection:'column'}}>
+      <div style={{display:'flex',alignItems:'center',padding:'14px 24px',borderBottom:'1px solid #e5e5ea',flexShrink:0}}>
+        <h2 style={{fontSize:24,fontWeight:700,color:'#1d1d1f',flex:1}}>Глоссарий</h2>
+        <button onClick={onClose} style={{fontSize:13,color:'#0071e3',padding:'7px 20px',border:'1px solid #0071e3',borderRadius:8}}>Закрыть</button>
+      </div>
+      <div style={{flex:1,overflowY:'auto',padding:'20px 24px',maxWidth:720,margin:'0 auto',width:'100%'}}>
+        <p style={{fontSize:14,color:'#6e6e73',marginBottom:24,lineHeight:1.7}}>
+          Ясна — это способ описать любое явление через 12 позиций, расположенных по кругу. Каждая позиция имеет свойства и связана с другими через механики. Понимание механик — ключ к составлению правильных Ясен.
+        </p>
+
+        {GLOSS.map(g=>{const isOpen=open===g.id;return(
+          <div key={g.id} style={{marginBottom:10,border:'1px solid '+(isOpen?g.color+'30':'#e5e5ea'),borderRadius:14,overflow:'hidden',transition:'all .2s',boxShadow:isOpen?'0 2px 12px rgba(0,0,0,.04)':'none'}}>
+            <button onClick={()=>setOpen(isOpen?null:g.id)} style={{width:'100%',display:'flex',alignItems:'center',gap:12,padding:'16px 20px',textAlign:'left',background:isOpen?g.color+'06':'#fff'}}>
+              <div style={{width:8,height:8,borderRadius:'50%',background:g.color,flexShrink:0}}/>
+              <div style={{flex:1}}>
+                <div style={{fontSize:16,fontWeight:600,color:'#1d1d1f'}}>{g.title}</div>
+                {g.positions&&<div style={{fontSize:11,color:'#86868b',marginTop:2}}>Позиции: {g.positions}</div>}
+                {!isOpen&&<div style={{fontSize:12,color:'#aeaeb2',marginTop:4}}>{g.what.slice(0,80)}...</div>}
+              </div>
+              <span style={{fontSize:18,color:'#c7c7cc',transform:isOpen?'rotate(90deg)':'none',transition:'transform .2s'}}>›</span>
+            </button>
+            {isOpen&&<div style={{padding:'4px 20px 20px'}}>
+
+              <div style={{padding:'14px 16px',background:'var(--bg2)',borderRadius:12,marginBottom:16}}>
+                <div style={{fontSize:14,color:'#1d1d1f',lineHeight:1.65,fontWeight:500}}>{g.what}</div>
+              </div>
+
+              <Section label="Зачем нужно">
+                <div style={{fontSize:13,color:'#424245',lineHeight:1.65}}>{g.why}</div>
+              </Section>
+
+              <Section label="Как работает">
+                <div style={{fontSize:13,color:'#424245',lineHeight:1.65}}>{g.how}</div>
+              </Section>
+
+              <Section label="Как применять при составлении">
+                <Tip>{g.apply}</Tip>
+                {g.questions&&g.questions.map((q,qi)=><Tip key={qi}>{q}</Tip>)}
+              </Section>
+
+              {g.mistakes&&<Section label="Частые ошибки">
+                {g.mistakes.map((m,mi)=><Warn key={mi}>{m}</Warn>)}
+              </Section>}
+
+              {g.related&&<Section label="Связанные механики">
+                <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                  {g.related.map(r=>{const gl=GLOSS.find(x=>x.id===r);return gl?<button key={r} onClick={()=>setOpen(r)} style={{padding:'4px 12px',borderRadius:16,fontSize:11,background:gl.color+'10',color:gl.color,border:`1px solid ${gl.color}25`}}>{gl.title}</button>:null;})}
+                </div>
+              </Section>}
+
+              <div style={{padding:'12px 14px',background:g.color+'06',borderLeft:`3px solid ${g.color}`,borderRadius:8,marginTop:4}}>
+                <div style={{fontSize:10,fontWeight:600,color:g.color,textTransform:'uppercase',letterSpacing:1,marginBottom:4}}>Пример</div>
+                <div style={{fontSize:13,color:'#424245',lineHeight:1.6}}>{g.example}</div>
+              </div>
+
+            </div>}
+          </div>);})}
+      </div>
+    </div>);
+}
+
+function App(){
+  const defPinned=['круговорота_воды','oblachnost','цветов','двора_животных'];
+  const initT=T.find(t=>t.id==='круговорота_воды')||T[0];
+  const[y,setY]=useState({name:initT.n,p:[...initT.p],th:initT.th||'',bh:initT.bh||'',lh:initT.lh||'',rh:initT.rh||''});
+  const[sel,setSel]=useState(null);
+  const[af,setAf]=useState([]);
+  const[ed,setEd]=useState(false);
+  const[glossary,setGlossary]=useState(false);
+  const[instr,setInstr]=useState(false);
+  const[overlay,setOverlay]=useState(null);
+  const[showOverlayPicker,setShowOverlayPicker]=useState(false);
+  const[picker,setPicker]=useState(false);
+  const[pinned,setPinned]=useState(defPinned);
+  const load=t=>{setY({name:t.n,p:[...t.p],th:t.th||'',bh:t.bh||'',lh:t.lh||'',rh:t.rh||''});setSel(null);setAf([]);};
+  const tog=f=>setAf(p=>p.includes(f)?p.filter(x=>x!==f):[...p,f]);
+  const togglePin=id=>setPinned(p=>p.includes(id)?p.filter(x=>x!==id):[...p,id]);
+  const hl=useMemo(()=>{if(!af.length)return null;const all=new Set();af.forEach(id=>{const f=FL.find(x=>x.id===id);if(f?.p)f.p.forEach(x=>all.add(x));});return all.size?[...all]:null;},[af]);
+  const pinnedTemplates=pinned.map(id=>T.find(t=>t.id===id)).filter(Boolean);
+  return(
+    <div style={{background:'var(--bg)',height:'100vh',display:'flex',flexDirection:'column'}}>
+      <div style={{display:'flex',alignItems:'center',padding:'8px 20px',background:'var(--bg2)',borderBottom:'1px solid rgba(0,0,0,.08)',flexShrink:0}}>
+        <span style={{fontSize:17,color:'#0071e3',marginRight:8}}>✦</span>
+        <span style={{fontFamily:'var(--serif)',fontSize:16,color:'#1d1d1f',fontWeight:700,marginRight:6}}>{y.name}</span>
+        <span style={{fontSize:9,color:'#6e6e73'}}>12 полочек · 3 креста · 4 стихии</span>
+        <div style={{flex:1}}/>
+        <button onClick={()=>setInstr(true)} style={{border:'1px solid #d2d2d7',color:'#6e6e73',padding:'5px 14px',borderRadius:6,fontSize:11}}>Инструкция</button>
+        <button onClick={()=>setGlossary(true)} style={{border:'1px solid #d2d2d7',color:'#6e6e73',padding:'5px 14px',borderRadius:6,fontSize:11}}>Глоссарий</button>
+        <button onClick={()=>setEd(!ed)} style={{background:ed?'rgba(0,122,255,.06)':'transparent',border:'1px solid #d2d2d7',color:ed?'#0071e3':'#6e6e73',padding:'5px 14px',borderRadius:6,fontSize:11}}>{ed?'✕ Закрыть':'Редактор'}</button>
+      </div>
+      <div style={{display:'flex',alignItems:'center',gap:4,padding:'6px 20px',background:'var(--bg2)',borderBottom:'1px solid #d2d2d7',flexShrink:0,overflowX:'auto'}}>
+        {pinnedTemplates.map(t=><button key={t.id} onClick={()=>load(t)} style={{padding:'4px 12px',borderRadius:16,fontSize:11,whiteSpace:'nowrap',background:y.name===t.n?'rgba(0,122,255,.06)':'transparent',color:y.name===t.n?'#1d1d1f':'var(--txt2)',border:`1px solid ${y.name===t.n?'rgba(0,122,255,.3)':'transparent'}`}}>{t.n}</button>)}
+        <button onClick={()=>setPicker(true)} style={{padding:'4px 12px',borderRadius:16,fontSize:11,color:'#6e6e73',border:'1px dashed var(--border)',whiteSpace:'nowrap'}}>+ ещё</button>
+        <div style={{width:1,height:16,background:'var(--border)',margin:'0 4px',flexShrink:0}}/>
+        <button onClick={()=>overlay?setOverlay(null):setShowOverlayPicker(true)} style={{padding:'4px 12px',borderRadius:16,fontSize:11,whiteSpace:'nowrap',background:overlay?'rgba(175,82,222,.08)':'transparent',color:overlay?'#a8d8ea':'var(--txt3)',border:`1px solid ${overlay?'rgba(175,82,222,.15)':'var(--border)'}`}}>{overlay?'⊗ '+overlay.name:'⊕ Совместить'}</button>
+        <button onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:''});setSel(null);setEd(true);}} style={{padding:'4px 12px',borderRadius:16,fontSize:11,color:'#0071e3',border:'1px dashed rgba(0,122,255,.3)',whiteSpace:'nowrap'}}>✦ Создать</button>
+      </div>
+      <div style={{display:'flex',gap:4,padding:'7px 20px',flexWrap:'wrap',flexShrink:0}}>
+        {FL.map((f,fi)=>{const a=af.includes(f.id);const prevG=fi>0?FL[fi-1].g:'';const showSep=f.g!==prevG&&fi>0;return<React.Fragment key={f.id}>{showSep&&<div style={{width:1,height:14,background:'#d2d2d7',margin:'0 2px',flexShrink:0}}/>}<button onClick={()=>tog(f.id)} style={{padding:'3px 10px',borderRadius:14,fontSize:10,whiteSpace:'nowrap',background:a?`${f.c}22`:'transparent',color:a?f.c:'#86868b',border:`1px solid ${a?f.c+'55':'#d2d2d7'}`}}>{f.l}</button></React.Fragment>;})}
+        {af.length>0&&<button onClick={()=>setAf([])} style={{padding:'3px 10px',borderRadius:14,fontSize:10,color:'#86868b',border:'1px solid #333'}}>✕</button>}
+        
+      </div>
+      <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}}>
+        <div style={{width:'100%',height:'100%',maxWidth:900,maxHeight:700}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} showAxes={false} overlay={overlay}/></div>
+        <Info i={sel} p={y.p} af={af}/>
+        <OverlayLegend y={y} overlay={overlay} onClear={()=>setOverlay(null)}/>
+      </div>
+      {ed&&<Editor y={y} setY={setY} onClose={()=>setEd(false)}/>}
+      {showOverlayPicker&&(
+        <div className="fi" style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'rgba(0,0,0,.04)',zIndex:60,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>setShowOverlayPicker(false)}>
+          <div style={{background:'rgba(255,255,255,.98)',border:'1px solid rgba(0,122,255,.08)',borderRadius:20,padding:'20px 24px',width:480,maxHeight:'70vh',overflowY:'auto',backdropFilter:'blur(20px)'}} onClick={e=>e.stopPropagation()}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+              <h3 style={{fontFamily:'var(--serif)',fontSize:18,color:'#af52de'}}>Совместить с...</h3>
+              <button onClick={()=>setShowOverlayPicker(false)} style={{fontSize:18}}>✕</button>
+            </div>
+            <div style={{fontSize:10,color:'var(--txt2)',marginBottom:12}}>Выберите вторую Ясну для наложения. Её подписи появятся вторым кольцом.</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
+              {T.filter(t=>t.n!==y.name).map(t=>(
+                <button key={t.id} onClick={()=>{setOverlay({name:t.n,p:[...t.p]});setShowOverlayPicker(false);}}
+                  style={{padding:'10px 14px',borderRadius:8,fontSize:13,textAlign:'left',background:overlay&&overlay.name===t.n?'rgba(175,82,222,.08)':'var(--bg3)',color:overlay&&overlay.name===t.n?'#a8d8ea':'var(--txt2)',border:`1px solid ${overlay&&overlay.name===t.n?'rgba(175,82,222,.2)':'var(--border)'}`,transition:'all .15s'}}>
+                  {t.n}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+      {instr&&<Instruction onClose={()=>setInstr(false)}/>}
+      {glossary&&<Glossary onClose={()=>setGlossary(false)}/>}
+      {picker&&<Picker pinned={pinned} onTogglePin={togglePin} onClear={()=>setPinned([])} onClose={()=>setPicker(false)}/>}
+    </div>);
+}
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>
