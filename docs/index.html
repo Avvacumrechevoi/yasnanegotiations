@@ -41,7 +41,7 @@ input{font-family:var(--sans)}
   .filters .sep{display:none!important}
   .star-area{min-height:0!important;flex:1!important}
   .star-area>div{max-height:none!important}
-  .star-area svg{transform:scale(1.12);transform-origin:center}
+  .star-area svg{transform:scale(1.25);transform-origin:center}
   .star-area circle text{font-size:120%!important}
   .fi{left:0!important;right:0!important;bottom:0!important;width:auto!important;max-width:none!important;max-height:50vh!important;border-radius:16px 16px 0 0!important;padding:12px 14px!important;border-bottom:none!important}
   .editor-panel{width:100%!important}
@@ -1117,7 +1117,7 @@ function App(){
         <div className='nav-right' style={{display:'flex',alignItems:'center',gap:3,paddingRight:16,paddingLeft:6,flexShrink:0,background:'var(--bg2)',borderLeft:'1px solid #e5e5ea'}}>
         <button onClick={()=>setPicker(true)} style={{padding:'2px 8px',borderRadius:12,fontSize:10,color:'#6e6e73',border:'1px dashed var(--border)',whiteSpace:'nowrap',lineHeight:'18px'}}>+ ещё</button>
         <button onClick={()=>overlay?setOverlay(null):setShowOverlayPicker(true)} style={{padding:'2px 8px',borderRadius:12,fontSize:10,whiteSpace:'nowrap',background:overlay?'rgba(175,82,222,.08)':'transparent',color:overlay?'#af52de':'var(--txt3)',border:`1px solid ${overlay?'rgba(175,82,222,.15)':'var(--border)'}`,lineHeight:'18px'}}>{overlay?'⊗ Снять':'Синтез'}</button>
-        <button onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);}} style={{padding:'2px 8px',borderRadius:12,fontSize:10,color:'#0071e3',border:'1px dashed rgba(0,122,255,.3)',whiteSpace:'nowrap',lineHeight:'18px'}}>+ Создать</button>
+        <button onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);}} style={{padding:'2px 8px',borderRadius:12,fontSize:10,color:'#0071e3',border:'1px dashed rgba(0,122,255,.3)',whiteSpace:'nowrap',lineHeight:'18px'}}>+</button>
         </div>
       </div>
       <div className='filters hide-scroll' style={{display:'flex',gap:4,padding:'7px 20px',flexWrap:'wrap',flexShrink:0}}>
