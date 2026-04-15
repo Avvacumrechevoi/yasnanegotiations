@@ -18,6 +18,8 @@ input{font-family:var(--sans)}
 /* Premium effects */
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .fi{animation:fadeIn .25s ease-out}
+@keyframes dashFlow{from{stroke-dashoffset:0}to{stroke-dashoffset:-24}}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:.5}}
 </style>
 </head>
 <body>
@@ -95,8 +97,8 @@ const FL=[
   {id:'right',l:'Управления 1·4·7·10',c:'#E8A834',p:[1,4,7,10],g:'crosses'},
   {id:'left',l:'Веры 2·5·8·11',c:'#5B9CF6',p:[2,5,8,11],g:'crosses'},
   {id:'ha',l:'Огонь 3·7·11',c:'#F06838',p:[3,7,11],g:'pranas'},
-  {id:'fo',l:'Вода 1·5·9',c:'#4090D8',p:[1,5,9],g:'pranas'},
-  {id:'tsi',l:'Воздух 2·6·10',c:'#70B8F0',p:[2,6,10],g:'pranas'},
+  {id:'fo',l:'Вода 1·5·9',c:'#2563EB',p:[1,5,9],g:'pranas'},
+  {id:'tsi',l:'Воздух 2·6·10',c:'#06B6D4',p:[2,6,10],g:'pranas'},
   {id:'she',l:'Земля 0·4·8',c:'#C0943A',p:[0,4,8],g:'pranas'},
   {id:'opp',l:'Противоположности',c:'#ff9500',p:null,g:'struct',
    questions:['Можете сформулировать, в чём именно эти два элемента противоположны?','Если поменять их местами — Ясна сломается?'],
@@ -212,10 +214,13 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,showAxes,overlay}){
         const isCross=f.p.length===4;
         const d=f.p.map((idx,j)=>`${j===0?'M':'L'}${pts[idx].x},${pts[idx].y}`).join(' ')+'Z';
         return(<g key={id}>
-          <path d={d} fill={f.c+'06'} stroke={f.c} strokeWidth="1.8" opacity=".35"/>
+          <path d={d} fill={f.c+'06'} stroke={f.c} strokeWidth={['she','fo','tsi','ha'].includes(id)?2.5:1.8} opacity=".4" strokeDasharray={id==='she'?'none':id==='fo'?'8 4':id==='tsi'?'4 4':id==='ha'?'12 3 3 3':'none'} strokeLinecap="round"/>
           {isCross&&<><line x1={pts[f.p[0]].x} y1={pts[f.p[0]].y} x2={pts[f.p[2]].x} y2={pts[f.p[2]].y} stroke={f.c} strokeWidth="1.2" opacity=".2" strokeDasharray="6 4"/>
           <line x1={pts[f.p[1]].x} y1={pts[f.p[1]].y} x2={pts[f.p[3]].x} y2={pts[f.p[3]].y} stroke={f.c} strokeWidth="1.2" opacity=".2" strokeDasharray="6 4"/></>}
-          {f.p.map(idx=><circle key={idx} cx={pts[idx].x} cy={pts[idx].y} r={nr+6} fill={f.c} opacity=".06"/>)}
+          {f.p.map(idx=><g key={idx}>
+            <circle cx={pts[idx].x} cy={pts[idx].y} r={nr+6} fill={f.c} opacity=".06"/>
+            {['she','fo','tsi','ha'].includes(id)&&<circle cx={pts[idx].x} cy={pts[idx].y} r={nr+4} fill="none" stroke={f.c} strokeWidth=".8" opacity=".2" strokeDasharray="3 5" style={{animation:'dashFlow 3s linear infinite'}}/>}
+          </g>)}
         </g>);})}
       
       <circle cx={cx} cy={cy} r={22} fill="#fff" stroke="#d2d2d7" strokeWidth="1.2"/>
