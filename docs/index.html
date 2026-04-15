@@ -192,15 +192,15 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,showAxes,overlay}){
         {/* Primary zone 8↔9 */}
         <path d={`M${pts[8].x},${pts[8].y} A${R},${R} 0 0,1 ${pts[9].x},${pts[9].y}`} fill="rgba(217,70,239,.06)" stroke="#D946EF" strokeWidth="3" strokeDasharray="6 3"/>
         <line x1={pts[8].x} y1={pts[8].y} x2={pts[9].x} y2={pts[9].y} stroke="#D946EF" strokeWidth="2" opacity=".4" strokeDasharray="4 4"/>
-        <text x={(pts[8].x+pts[9].x)/2+15} y={(pts[8].y+pts[9].y)/2} textAnchor="middle" fill="#D946EF" fontSize="9" fontWeight="600" fontFamily="var(--sans)" opacity=".7">8↔9</text>
+        <text x={(pts[8].x+pts[9].x)/2+25} y={(pts[8].y+pts[9].y)/2+16} textAnchor="middle" fill="#D946EF" fontSize="9" fontWeight="600" fontFamily="var(--sans)" opacity=".7">8↔9</text>
         {/* Mirror zone 2↔3 */}
         <path d={`M${pts[2].x},${pts[2].y} A${R},${R} 0 0,0 ${pts[3].x},${pts[3].y}`} fill="rgba(217,70,239,.03)" stroke="#D946EF" strokeWidth="1.5" strokeDasharray="4 4" opacity=".5"/>
         <line x1={pts[2].x} y1={pts[2].y} x2={pts[3].x} y2={pts[3].y} stroke="#D946EF" strokeWidth="1.2" opacity=".25" strokeDasharray="4 4"/>
-        <text x={(pts[2].x+pts[3].x)/2-15} y={(pts[2].y+pts[3].y)/2} textAnchor="middle" fill="#D946EF" fontSize="8" fontWeight="500" fontFamily="var(--sans)" opacity=".45">2↔3</text>
+        <text x={(pts[2].x+pts[3].x)/2-25} y={(pts[2].y+pts[3].y)/2-12} textAnchor="middle" fill="#D946EF" fontSize="8" fontWeight="500" fontFamily="var(--sans)" opacity=".45">2↔3</text>
         {/* 4 error types on support cross */}
         {[[0,'Ошибка во сне'],[3,'Просмотрел'],[6,'Мираж'],[9,'Ошибка измерения']].map(([idx,label])=>{
-          const p=pts[idx];const a=angDeg(idx);const ox=12*Math.cos(rad(a));const oy=-12*Math.sin(rad(a));
-          return<text key={`e${idx}`} x={p.x+ox} y={p.y+oy-nr-8} textAnchor="middle" fill="#D946EF" fontSize="7" fontWeight="500" fontFamily="var(--sans)" opacity=".5" style={{pointerEvents:'none'}}>{label}</text>;
+          const p=pts[idx];const a=angDeg(idx);const ox=20*Math.cos(rad(a));const oy=-20*Math.sin(rad(a));
+          return<text key={`e${idx}`} x={p.x+ox} y={p.y+oy-nr-12} textAnchor="middle" fill="#D946EF" fontSize="7" fontWeight="500" fontFamily="var(--sans)" opacity=".5" style={{pointerEvents:'none'}}>{label}</text>;
         })}
         {/* Connection line 8↔9 to 2↔3 showing mirror */}
         <line x1={(pts[8].x+pts[9].x)/2} y1={(pts[8].y+pts[9].y)/2} x2={(pts[2].x+pts[3].x)/2} y2={(pts[2].y+pts[3].y)/2} stroke="#D946EF" strokeWidth=".8" opacity=".15" strokeDasharray="3 6"/>
