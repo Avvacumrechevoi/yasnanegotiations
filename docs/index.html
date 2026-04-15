@@ -51,7 +51,7 @@ input{font-family:var(--sans)}
   .filters button{padding:4px 10px!important;font-size:12px!important;flex-shrink:0!important;line-height:1.4!important}
   .filters .sep{display:none!important}
   .star-area{min-height:0!important;flex:1!important}
-  .star-area>div{max-height:none!important}
+  .star-area>div{max-height:none!important;max-width:none!important}
   .star-area svg{transition:transform .3s}
   .star-shift svg{transform:translateY(-16vh)!important}
   .star-area circle text{font-size:120%!important}
@@ -188,7 +188,7 @@ const FL=[
   {id:'error89',l:'Ошибка 8↔9',c:'#D946EF',p:null,g:'struct'},
 ];
 
-function Star({yy,sel,onSel,hl,af=[],showOpp,overlay}){
+function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
   const p=yy.p||[];
   const S=900,W=700,cx=S/2,cy=W/2,R=215,nr=23,lr=R+60;
   const pts=useMemo(()=>Array.from({length:12},(_,i)=>xy(i,cx,cy,R)),[]);
@@ -200,7 +200,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay}){
   const no=i=>(hl&&!hl.includes(i))?.15:1;
   const anch=i=>{const x=lps[i].x;return Math.abs(x-cx)<25?'middle':x<cx?'end':'start';};
   return(
-    <svg viewBox={`0 0 ${S} ${W}`} style={{width:'100%',height:'100%'}}>
+    <svg viewBox={mob?`80 -10 740 720`:`0 0 ${S} ${W}`} style={{width:'100%',height:'100%'}}>
       <defs>
         <filter id="gw"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
         <filter id="ns"><feDropShadow dx="0" dy="1" stdDeviation="2.5" floodOpacity=".07"/></filter>
@@ -1161,13 +1161,13 @@ function App(){
       </div>
       <div className={'star-area'+(sel!==null?' star-shift':'')} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}} onClick={e=>{if(e.target===e.currentTarget)setSel(null)}}>
         <button className='fullstar-btn' onClick={()=>setFullStar(true)} style={{display:'none',position:'absolute',top:8,right:8,width:32,height:32,borderRadius:8,border:'1px solid #e5e5ea',background:'rgba(255,255,255,.8)',fontSize:16,zIndex:5,alignItems:'center',justifyContent:'center'}}>⤢</button>
-        <div style={{width:'100%',height:'100%',maxWidth:900,maxHeight:700}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay}/></div>
+        <div style={{width:'100%',height:'100%',maxWidth:900,maxHeight:700}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768}/></div>
         <Info i={sel} p={y.p} af={af} onClose={()=>setSel(null)}/>
         <OverlayLegend y={y} overlay={overlay} onClear={()=>setOverlay(null)}/>
       </div>
       {fullStar&&<>
         <div className='fullstar' style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
-          <div style={{width:'100%',height:'100%',maxWidth:'100vw',maxHeight:'100vh'}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay}/></div>
+          <div style={{width:'100%',height:'100%',maxWidth:'100vw',maxHeight:'100vh'}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768}/></div>
         </div>
         <button className='fullstar-close' onClick={()=>setFullStar(false)}>✕</button>
       </>}
