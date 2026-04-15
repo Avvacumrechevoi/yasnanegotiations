@@ -255,12 +255,12 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay}){
       {/* Error 8↔9: zone of confusion */}
       {af.includes('error89')&&<>
         {/* Primary zone 8↔9 */}
-        <path d={`M${pts[8].x},${pts[8].y} A${R},${R} 0 0,1 ${pts[9].x},${pts[9].y}`} fill="rgba(217,70,239,.06)" stroke="#D946EF" strokeWidth="3.5" strokeDasharray="6 3"/>
-        <line x1={pts[8].x} y1={pts[8].y} x2={pts[9].x} y2={pts[9].y} stroke="#D946EF" strokeWidth="2" opacity=".4" strokeDasharray="4 4"/>
+        <path d={`M${pts[8].x},${pts[8].y} A${R},${R} 0 0,1 ${pts[9].x},${pts[9].y}`} fill="rgba(217,70,239,.06)" stroke="#D946EF" strokeWidth="4" strokeDasharray="8 4"/>
+        <line x1={pts[8].x} y1={pts[8].y} x2={pts[9].x} y2={pts[9].y} stroke="#D946EF" strokeWidth="3" opacity=".5" strokeDasharray="6 4"/>
         <text x={(pts[8].x+pts[9].x)/2+25} y={(pts[8].y+pts[9].y)/2+20} textAnchor="middle" fill="#D946EF" fontSize="12" fontWeight="700" fontFamily="var(--sans)" opacity=".7">8↔9</text>
         {/* Mirror zone 2↔3 */}
-        <path d={`M${pts[2].x},${pts[2].y} A${R},${R} 0 0,0 ${pts[3].x},${pts[3].y}`} fill="rgba(217,70,239,.03)" stroke="#D946EF" strokeWidth="1.5" strokeDasharray="4 4" opacity=".5"/>
-        <line x1={pts[2].x} y1={pts[2].y} x2={pts[3].x} y2={pts[3].y} stroke="#D946EF" strokeWidth="1.2" opacity=".25" strokeDasharray="4 4"/>
+        <path d={`M${pts[2].x},${pts[2].y} A${R},${R} 0 0,0 ${pts[3].x},${pts[3].y}`} fill="rgba(217,70,239,.03)" stroke="#D946EF" strokeWidth="2.5" strokeDasharray="6 4" opacity=".6"/>
+        <line x1={pts[2].x} y1={pts[2].y} x2={pts[3].x} y2={pts[3].y} stroke="#D946EF" strokeWidth="2" opacity=".4" strokeDasharray="6 4"/>
         <text x={(pts[2].x+pts[3].x)/2-25} y={(pts[2].y+pts[3].y)/2-14} textAnchor="middle" fill="#D946EF" fontSize="11" fontWeight="600" fontFamily="var(--sans)" opacity=".45">2↔3</text>
         {/* 4 error types on support cross */}
         {[[0,'Ошибка во сне',0,nr+30],[3,'Просмотрел',(pts[2].x-pts[3].x)/2-70,(pts[2].y-pts[3].y)/2-12],[6,'Мираж',0,-nr-22],[9,'Ошибка измерения',(pts[8].x-pts[9].x)/2+70,(pts[8].y-pts[9].y)/2-12]].map(([idx,label,dx,dy])=>{
@@ -268,7 +268,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay}){
           return<text key={`e${idx}`} x={p.x+dx} y={p.y+dy} textAnchor="middle" fill="#D946EF" fontSize="10" fontWeight="700" fontFamily="var(--sans)" opacity=".85" style={{pointerEvents:'none'}}>{label}</text>;
         })}
         {/* Connection line 8↔9 to 2↔3 showing mirror */}
-        <line x1={(pts[8].x+pts[9].x)/2} y1={(pts[8].y+pts[9].y)/2} x2={(pts[2].x+pts[3].x)/2} y2={(pts[2].y+pts[3].y)/2} stroke="#D946EF" strokeWidth=".8" opacity=".15" strokeDasharray="3 6"/>
+        <line x1={(pts[8].x+pts[9].x)/2} y1={(pts[8].y+pts[9].y)/2} x2={(pts[2].x+pts[3].x)/2} y2={(pts[2].y+pts[3].y)/2} stroke="#D946EF" strokeWidth="1.5" opacity=".25" strokeDasharray="4 6"/>
       </>}
 
       {sel!==null&&<line x1={pts[sel].x} y1={pts[sel].y} x2={pts[opp(sel)].x} y2={pts[opp(sel)].y} stroke="#ff9500" strokeWidth="1.2" opacity=".2" strokeDasharray="5 3"/>}
