@@ -263,7 +263,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay}){
         <line x1={pts[2].x} y1={pts[2].y} x2={pts[3].x} y2={pts[3].y} stroke="#D946EF" strokeWidth="1.2" opacity=".25" strokeDasharray="4 4"/>
         <text x={(pts[2].x+pts[3].x)/2-25} y={(pts[2].y+pts[3].y)/2-14} textAnchor="middle" fill="#D946EF" fontSize="11" fontWeight="600" fontFamily="var(--sans)" opacity=".45">2↔3</text>
         {/* 4 error types on support cross */}
-        {[[0,'Ошибка во сне',0,nr+30],[3,'Просмотрел',(pts[2].x-pts[3].x)/2-20,(pts[2].y-pts[3].y)/2],[6,'Мираж',0,-nr-22],[9,'Ошибка измерения',(pts[8].x-pts[9].x)/2+20,(pts[8].y-pts[9].y)/2]].map(([idx,label,dx,dy])=>{
+        {[[0,'Ошибка во сне',0,nr+30],[3,'Просмотрел',(pts[2].x-pts[3].x)/2-50,(pts[2].y-pts[3].y)/2-10],[6,'Мираж',0,-nr-22],[9,'Ошибка измерения',(pts[8].x-pts[9].x)/2+50,(pts[8].y-pts[9].y)/2-10]].map(([idx,label,dx,dy])=>{
           const p=pts[idx];
           return<text key={`e${idx}`} x={p.x+dx} y={p.y+dy} textAnchor="middle" fill="#D946EF" fontSize="9" fontWeight="600" fontFamily="var(--sans)" opacity=".7" style={{pointerEvents:'none'}}>{label}</text>;
         })}
