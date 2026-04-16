@@ -32,7 +32,7 @@ input{font-family:var(--sans)}
 /* ═══ MOBILE RESPONSIVE ═══ */
 @media(max-width:768px){
   .hdr{padding:8px 12px!important;gap:6px!important}
-  .hdr-title{font-size:28px!important}
+  .hdr-title{font-size:18px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;max-width:calc(100vw - 80px)!important}
   .hdr-sub{display:none!important}
   .hdr-meta{display:none!important}
   .hdr-btns{display:none!important}
@@ -53,15 +53,18 @@ input{font-family:var(--sans)}
   .star-area{min-height:0!important;flex:1!important;padding-bottom:52px!important}
   .star-area>div{max-height:none!important;max-width:none!important}
   .star-area svg{transition:transform .3s}
-  .star-shift svg{transform:translateY(-16vh)!important}
+  .star-shift svg{transform:translateY(-18vh) scale(0.85)!important;transform-origin:center center!important}
   .star-area circle text{font-size:120%!important}
-  .fi{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;width:auto!important;max-width:none!important;height:30vh!important;max-height:30vh!important;border-radius:16px 16px 0 0!important;padding:0!important;border-bottom:none!important;box-shadow:0 -4px 20px rgba(0,0,0,.1)!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;z-index:50!important}
+  .fi{position:fixed!important;left:0!important;right:0!important;bottom:42px!important;top:auto!important;width:auto!important;max-width:none!important;height:32vh!important;max-height:32vh!important;border-radius:16px 16px 0 0!important;padding:0!important;border:1px solid #e5e5ea!important;border-bottom:none!important;background:#ffffff!important;backdrop-filter:none!important;box-shadow:0 -8px 24px rgba(0,0,0,.12)!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;z-index:55!important}
   .fi>div:last-child{overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;flex:1!important;min-height:0!important;scrollbar-width:thin;scrollbar-color:#c7c7cc transparent}
   .fi>div:last-child::-webkit-scrollbar{width:4px}
   .fi>div:last-child::-webkit-scrollbar-thumb{background:#c7c7cc;border-radius:4px}
   .fi>div:last-child::-webkit-scrollbar-track{background:transparent}
   .editor-panel{width:100%!important}
-  .picker-inner{width:96%!important;padding:14px!important;max-height:88vh!important;border-radius:14px!important}
+  .picker-inner{width:96%!important;padding:0!important;max-height:88vh!important;border-radius:14px!important}
+  .picker-actions{flex-wrap:wrap!important}
+  .picker-actions button{font-size:10px!important;padding:4px 8px!important}
+  .picker-legend{display:none!important}
   .picker-grid{grid-template-columns:1fr!important;gap:4px!important}
   .fullpage-content{padding:12px 14px!important}
   .fullpage-content h2{font-size:18px!important}
@@ -632,7 +635,7 @@ function Picker({pinned,onTogglePin,onClear,onClose}){
             {q&&<button onClick={()=>setQ('')} style={{position:'absolute',right:8,top:'50%',transform:'translateY(-50%)',width:22,height:22,borderRadius:'50%',border:'none',background:'#e5e5ea',color:'#6e6e73',fontSize:11,cursor:'pointer'}}>✕</button>}
           </div>
           {/* ACTIONS */}
-          <div style={{display:'flex',gap:6,alignItems:'center'}}>
+          <div className="picker-actions" style={{display:'flex',gap:6,alignItems:'center'}}>
             {pinnedCount===total?
               <button onClick={onClear} style={{fontSize:11,color:'#0071e3',border:'1px solid rgba(0,122,255,.3)',padding:'4px 12px',borderRadius:12,background:'rgba(0,122,255,.08)',cursor:'pointer',fontWeight:600}}>✓ Все выбраны — снять</button>
               :<button onClick={()=>{T.forEach(t=>{if(!pinned.includes(t.id))onTogglePin(t.id);});}} style={{fontSize:11,color:'#0071e3',border:'1px solid rgba(0,122,255,.3)',padding:'4px 12px',borderRadius:12,background:'transparent',cursor:'pointer'}}>✓ Выбрать все</button>}
@@ -641,7 +644,7 @@ function Picker({pinned,onTogglePin,onClear,onClose}){
               :<button onClick={()=>{rubrikIds.forEach(id=>{if(!pinned.includes(id))onTogglePin(id);});}} style={{fontSize:11,color:'#30A060',border:'1px solid rgba(48,160,96,.3)',padding:'4px 12px',borderRadius:12,background:'transparent',cursor:'pointer'}}>✓ Только верифицированные</button>;})()}
             {pinnedCount>0&&pinnedCount<total&&<button onClick={onClear} style={{fontSize:11,color:'#E8364F',border:'1px solid rgba(232,54,79,.3)',padding:'4px 12px',borderRadius:12,background:'transparent',cursor:'pointer'}}>Снять все</button>}
             <div style={{flex:1}}/>
-            <span style={{fontSize:10,color:'#aeaeb2',display:'flex',alignItems:'center',gap:4}}><span style={{width:12,height:12,borderRadius:'50%',background:'#30A060',color:'#fff',fontSize:7,display:'inline-flex',alignItems:'center',justifyContent:'center',fontWeight:700}}>✓</span> верифицированные</span>
+            <span className="picker-legend" style={{fontSize:10,color:'#aeaeb2',display:'flex',alignItems:'center',gap:4}}><span style={{width:12,height:12,borderRadius:'50%',background:'#30A060',color:'#fff',fontSize:7,display:'inline-flex',alignItems:'center',justifyContent:'center',fontWeight:700}}>✓</span> верифицированные</span>
           </div>
         </div>
         {/* LIST */}
@@ -1201,6 +1204,8 @@ function App(){
   const[showOverlayPicker,setShowOverlayPicker]=useState(false);
   const[picker,setPicker]=useState(false);
   const[pinned,setPinned]=useState(defPinned);
+  // Auto-close burger menu when any modal/panel opens
+  useEffect(()=>{if(ed||glossary||instr||verif||fullStar||picker||showOverlayPicker)setMenu(false);},[ed,glossary,instr,verif,fullStar,picker,showOverlayPicker]);
   const load=t=>{setY({name:t.n,p:[...t.p],th:t.th||'',bh:t.bh||'',lh:t.lh||'',rh:t.rh||'',custom:!!t.custom});setSel(null);setAf([]);};
   const tog=f=>setAf(p=>p.includes(f)?p.filter(x=>x!==f):[...p,f]);
   const togglePin=id=>setPinned(p=>p.includes(id)?p.filter(x=>x!==id):[...p,id]);
@@ -1221,7 +1226,7 @@ function App(){
         <div className='hdr-burger' style={{position:'relative'}}>
           <button onClick={()=>setMenu(!menu)} style={{fontSize:18,padding:'4px 10px',border:'1px solid #d2d2d7',borderRadius:8,background:menu?'#f5f5f7':'#fff',color:'#424245'}}>☰</button>
           {menu&&<div onClick={()=>setMenu(false)} style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:79}}/>}
-          {menu&&<div style={{position:'absolute',top:'100%',right:0,marginTop:4,background:'#fff',border:'1px solid #e5e5ea',borderRadius:12,boxShadow:'0 8px 30px rgba(0,0,0,.12)',zIndex:80,minWidth:180,overflow:'hidden'}}>
+          {menu&&<div style={{position:'absolute',top:'100%',right:0,marginTop:4,background:'#fff',border:'1px solid #e5e5ea',borderRadius:12,boxShadow:'0 8px 30px rgba(0,0,0,.12)',zIndex:80,minWidth:160,maxWidth:'calc(100vw - 24px)',overflow:'hidden'}}>
             <button onClick={()=>{setVerif(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Верификация</button>
             <button onClick={()=>{setInstr(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Инструкция</button>
             <button onClick={()=>{setGlossary(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Глоссарий</button>
