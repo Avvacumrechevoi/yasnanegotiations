@@ -307,18 +307,20 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
 
       {sel!==null&&<line x1={pts[sel].x} y1={pts[sel].y} x2={pts[opp(sel)].x} y2={pts[opp(sel)].y} stroke="#ff9500" strokeWidth="1.2" opacity=".2" strokeDasharray="5 3"/>}
       {/* Multi-mechanic layers */}
-      {af.filter(id=>!['opp','axes'].includes(id)).map(id=>{const f=FL.find(x=>x.id===id);if(!f||!f.p)return null;
+      {(()=>{const activeLayers=af.filter(id=>!['opp','axes'].includes(id)).length;
+        const opaScale=activeLayers<=1?1:activeLayers<=2?.85:activeLayers<=4?.7:.55;
+        return af.filter(id=>!['opp','axes'].includes(id)).map(id=>{const f=FL.find(x=>x.id===id);if(!f||!f.p)return null;
         const isCross=f.p.length===4;
         const d=f.p.map((idx,j)=>`${j===0?'M':'L'}${pts[idx].x},${pts[idx].y}`).join(' ')+'Z';
         return(<g key={id}>
-          <path d={d} fill={f.c+'06'} stroke={f.c} strokeWidth={['she','fo','tsi','ha'].includes(id)?2.5:1.8} opacity=".4" strokeDasharray={id==='she'?'none':id==='fo'?'8 4':id==='tsi'?'4 4':id==='ha'?'12 3 3 3':'none'} strokeLinecap="round"/>
-          {isCross&&<><line x1={pts[f.p[0]].x} y1={pts[f.p[0]].y} x2={pts[f.p[2]].x} y2={pts[f.p[2]].y} stroke={f.c} strokeWidth="1.2" opacity=".2" strokeDasharray="6 4"/>
-          <line x1={pts[f.p[1]].x} y1={pts[f.p[1]].y} x2={pts[f.p[3]].x} y2={pts[f.p[3]].y} stroke={f.c} strokeWidth="1.2" opacity=".2" strokeDasharray="6 4"/></>}
+          <path d={d} fill={f.c+'06'} stroke={f.c} strokeWidth={['she','fo','tsi','ha'].includes(id)?2.5:1.8} opacity={.4*opaScale} strokeDasharray={id==='she'?'none':id==='fo'?'8 4':id==='tsi'?'4 4':id==='ha'?'12 3 3 3':'none'} strokeLinecap="round"/>
+          {isCross&&<><line x1={pts[f.p[0]].x} y1={pts[f.p[0]].y} x2={pts[f.p[2]].x} y2={pts[f.p[2]].y} stroke={f.c} strokeWidth="1.2" opacity={.2*opaScale} strokeDasharray="6 4"/>
+          <line x1={pts[f.p[1]].x} y1={pts[f.p[1]].y} x2={pts[f.p[3]].x} y2={pts[f.p[3]].y} stroke={f.c} strokeWidth="1.2" opacity={.2*opaScale} strokeDasharray="6 4"/></>}
           {f.p.map(idx=><g key={idx}>
-            <circle cx={pts[idx].x} cy={pts[idx].y} r={nr+6} fill={f.c} opacity=".06"/>
-            {['she','fo','tsi','ha'].includes(id)&&<circle cx={pts[idx].x} cy={pts[idx].y} r={nr+4} fill="none" stroke={f.c} strokeWidth=".8" opacity=".2" strokeDasharray="3 5" style={{animation:'dashFlow 3s linear infinite'}}/>}
+            <circle cx={pts[idx].x} cy={pts[idx].y} r={nr+6} fill={f.c} opacity={.06*opaScale}/>
+            {['she','fo','tsi','ha'].includes(id)&&<circle cx={pts[idx].x} cy={pts[idx].y} r={nr+4} fill="none" stroke={f.c} strokeWidth=".8" opacity={.2*opaScale} strokeDasharray="3 5" style={{animation:'dashFlow 3s linear infinite'}}/>}
           </g>)}
-        </g>);})}
+        </g>);});})()}
       
       <circle cx={cx} cy={cy} r={22} fill="#fff" stroke="#d2d2d7" strokeWidth="1.2"/>
       <circle cx={cx} cy={cy} r={3} fill="#d2d2d7"/>
@@ -1148,17 +1150,7 @@ function App(){
   const[picker,setPicker]=useState(false);
   const[pinned,setPinned]=useState(defPinned);
   const load=t=>{setY({name:t.n,p:[...t.p],th:t.th||'',bh:t.bh||'',lh:t.lh||'',rh:t.rh||'',custom:!!t.custom});setSel(null);setAf([]);};
-  const tog=f=>setAf(p=>{
-    if(p.includes(f))return p.filter(x=>x!==f);
-    const newFl=FL.find(x=>x.id===f);
-    if(!newFl)return [...p,f];
-    // Within crosses and pranas groups: only one active at a time
-    if(newFl.g==='crosses'||newFl.g==='pranas'){
-      const filtered=p.filter(x=>{const fl=FL.find(y=>y.id===x);return !fl||fl.g!==newFl.g;});
-      return [...filtered,f];
-    }
-    return [...p,f];
-  });
+  const tog=f=>setAf(p=>p.includes(f)?p.filter(x=>x!==f):[...p,f]);
   const togglePin=id=>setPinned(p=>p.includes(id)?p.filter(x=>x!==id):[...p,id]);
   const hl=useMemo(()=>{if(!af.length)return null;const all=new Set();af.forEach(id=>{const f=FL.find(x=>x.id===id);if(f?.p)f.p.forEach(x=>all.add(x));});return all.size?[...all]:null;},[af]);
   const pinnedTemplates=pinned.map(id=>T.find(t=>t.id===id)).filter(Boolean);
@@ -1202,7 +1194,13 @@ function App(){
         </button>
       </div>
       <div className={'filters hide-scroll'+(filtersOpen?'':' filters-closed')} style={{display:'flex',gap:4,padding:'8px 20px',flexWrap:'wrap',flexShrink:0}}>
-        {af.length>0?<button onClick={()=>setAf([])} style={{padding:'4px 12px',borderRadius:14,fontSize:12,whiteSpace:'nowrap',background:'#f5f5f7',color:'#6e6e73',border:'1px solid #d2d2d7',fontWeight:500,display:'flex',alignItems:'center',gap:4}}>✕ Сбросить</button>:<span style={{fontSize:11,color:'#aeaeb2',padding:'4px 0',whiteSpace:'nowrap'}}>Механики:</span>}{FL.map((f,fi)=>{const a=af.includes(f.id);const prevG=fi>0?FL[fi-1].g:'';const showSep=f.g!==prevG&&fi>0;return<React.Fragment key={f.id}>{showSep&&<div className='sep' style={{width:1,height:14,background:'#d2d2d7',margin:'0 2px',flexShrink:0}}/>}<button onClick={()=>tog(f.id)} style={{padding:'4px 12px',borderRadius:14,fontSize:12,whiteSpace:'nowrap',background:a?`${f.c}22`:'transparent',color:a?f.c:'#86868b',border:`1px solid ${a?f.c+'55':'#d2d2d7'}`}}>{f.l}</button></React.Fragment>;})}
+        <span style={{fontSize:11,color:'#aeaeb2',padding:'4px 0',whiteSpace:'nowrap',marginRight:2}}>Механики:</span>
+        {af.length===FL.length?
+          <button onClick={()=>setAf([])} style={{padding:'4px 12px',borderRadius:14,fontSize:12,whiteSpace:'nowrap',background:'#0071e322',color:'#0071e3',border:'1px solid #0071e355',fontWeight:600}}>Все</button>
+          :<button onClick={()=>setAf(FL.map(f=>f.id))} style={{padding:'4px 12px',borderRadius:14,fontSize:12,whiteSpace:'nowrap',background:'transparent',color:'#86868b',border:'1px solid #d2d2d7'}}>Все</button>
+        }
+        {af.length>0&&af.length<FL.length&&<button onClick={()=>setAf([])} style={{padding:'4px 12px',borderRadius:14,fontSize:12,whiteSpace:'nowrap',background:'#f5f5f7',color:'#6e6e73',border:'1px solid #d2d2d7'}}>✕</button>}
+        {FL.map((f,fi)=>{const a=af.includes(f.id);const prevG=fi>0?FL[fi-1].g:'';const showSep=f.g!==prevG&&fi>0;return<React.Fragment key={f.id}>{showSep&&<div className='sep' style={{width:1,height:14,background:'#d2d2d7',margin:'0 2px',flexShrink:0}}/>}<button onClick={()=>tog(f.id)} style={{padding:'4px 12px',borderRadius:14,fontSize:12,whiteSpace:'nowrap',background:a?`${f.c}22`:'transparent',color:a?f.c:'#86868b',border:`1px solid ${a?f.c+'55':'#d2d2d7'}`}}>{f.l}</button></React.Fragment>;})}
         
       </div>
       <div className={'star-area'+(sel!==null?' star-shift':'')} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}} onClick={e=>{if(e.target===e.currentTarget)setSel(null)}}>
