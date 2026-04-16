@@ -580,27 +580,75 @@ function Editor({y,setY,onClose}){
 }
 
 function Picker({pinned,onTogglePin,onClear,onClose}){
+  const[q,setQ]=useState('');
+  const filtered=T.filter(t=>t.n.toLowerCase().includes(q.toLowerCase()));
+  const rubrikList=filtered.filter(t=>t.rubrik);
+  const customList=filtered.filter(t=>t.custom&&!t.rubrik);
+  const otherList=filtered.filter(t=>!t.rubrik&&!t.custom);
+  const pinnedCount=pinned.length;
+  const total=T.length;
+
+  const Card=({t})=>{const active=pinned.includes(t.id);return(
+    <button key={t.id} onClick={()=>onTogglePin(t.id)}
+      style={{position:'relative',padding:'10px 14px',paddingRight:t.rubrik?28:14,borderRadius:10,fontSize:13,textAlign:'left',
+        background:active?'rgba(0,122,255,.08)':'#f5f5f7',
+        color:active?'#0071e3':'#424245',
+        border:`1px solid ${active?'rgba(0,122,255,.35)':'transparent'}`,
+        fontWeight:active?600:400,
+        transition:'all .12s',
+        cursor:'pointer'}}>
+      {active?<span style={{marginRight:6,color:'#0071e3'}}>●</span>:<span style={{marginRight:6,color:'#c7c7cc'}}>○</span>}
+      {t.n}
+      {t.rubrik&&<span title="В рубрикаторе Ясны" style={{position:'absolute',top:'50%',right:8,transform:'translateY(-50%)',width:16,height:16,borderRadius:'50%',background:'#30A060',color:'#fff',fontSize:9,display:'inline-flex',alignItems:'center',justifyContent:'center',fontWeight:700}}>✓</span>}
+    </button>);};
+
+  const Section=({title,items,empty})=>items.length===0?(empty?null:null):(
+    <div style={{marginBottom:18}}>
+      <div style={{fontSize:11,fontWeight:600,color:'#6e6e73',textTransform:'uppercase',letterSpacing:1,marginBottom:8,paddingLeft:4}}>{title} <span style={{color:'#aeaeb2',fontWeight:400}}>· {items.length}</span></div>
+      <div className='picker-grid' style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
+        {items.map(t=><Card key={t.id} t={t}/>)}
+      </div>
+    </div>);
+
   return(
-    <div className="popup-overlay" style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'rgba(0,0,0,.2)',zIndex:60,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={onClose}>
-      <div className='picker-inner' style={{background:'rgba(255,255,255,.98)',border:'1px solid rgba(0,122,255,.08)',borderRadius:20,backdropFilter:'blur(20px)',padding:'20px 24px',width:520,maxHeight:'80vh',overflowY:'auto'}} onClick={e=>e.stopPropagation()}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
-          <h3 style={{fontFamily:'var(--serif)',fontSize:18,color:'#1d1d1f'}}>Все Ясны</h3>
-          <div style={{display:'flex',gap:8,alignItems:'center'}}>
-            <button onClick={()=>onClear()} style={{fontSize:10,color:'var(--txt2)',border:'1px solid var(--border)',padding:'4px 12px',borderRadius:12}}>Снять все</button>
-            <button onClick={onClose} style={{fontSize:18}}>✕</button>
+    <div className="popup-overlay" style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'rgba(0,0,0,.25)',zIndex:60,display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(3px)'}} onClick={onClose}>
+      <div className='picker-inner' style={{background:'rgba(255,255,255,.99)',border:'1px solid rgba(0,0,0,.08)',borderRadius:20,boxShadow:'0 20px 60px rgba(0,0,0,.15)',padding:0,width:600,maxWidth:'92vw',height:'82vh',maxHeight:720,display:'flex',flexDirection:'column',overflow:'hidden'}} onClick={e=>e.stopPropagation()}>
+        {/* HEADER */}
+        <div style={{padding:'18px 22px 14px',borderBottom:'1px solid #f0f0f2',flexShrink:0}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:10}}>
+            <div>
+              <h3 style={{fontFamily:'var(--serif)',fontSize:20,color:'#1d1d1f',fontWeight:700,marginBottom:2}}>Все Ясны</h3>
+              <div style={{fontSize:12,color:'#86868b'}}>Выбрано <b style={{color:'#0071e3'}}>{pinnedCount}</b> из {total} · показываются во вкладках</div>
+            </div>
+            <button onClick={onClose} style={{width:32,height:32,borderRadius:'50%',background:'#f5f5f7',border:'none',fontSize:16,color:'#6e6e73',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+          </div>
+          {/* SEARCH */}
+          <div style={{position:'relative',marginBottom:10}}>
+            <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:'#aeaeb2',fontSize:14,pointerEvents:'none'}}>🔍</span>
+            <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Поиск по названию..." autoFocus
+              style={{width:'100%',padding:'9px 14px 9px 36px',borderRadius:10,border:'1px solid #d2d2d7',fontSize:13,fontFamily:'var(--sans)',outline:'none',background:'#fff',color:'#1d1d1f'}}
+              onFocus={e=>e.target.style.borderColor='#0071e3'}
+              onBlur={e=>e.target.style.borderColor='#d2d2d7'}/>
+            {q&&<button onClick={()=>setQ('')} style={{position:'absolute',right:8,top:'50%',transform:'translateY(-50%)',width:22,height:22,borderRadius:'50%',border:'none',background:'#e5e5ea',color:'#6e6e73',fontSize:11,cursor:'pointer'}}>✕</button>}
+          </div>
+          {/* ACTIONS */}
+          <div style={{display:'flex',gap:6,alignItems:'center'}}>
+            <button onClick={()=>{T.forEach(t=>{if(!pinned.includes(t.id))onTogglePin(t.id);});}} style={{fontSize:11,color:'#0071e3',border:'1px solid rgba(0,122,255,.3)',padding:'4px 12px',borderRadius:12,background:'transparent',cursor:'pointer'}}>✓ Выбрать все</button>
+            <button onClick={()=>{T.filter(t=>t.rubrik).forEach(t=>{if(!pinned.includes(t.id))onTogglePin(t.id);});}} style={{fontSize:11,color:'#30A060',border:'1px solid rgba(48,160,96,.3)',padding:'4px 12px',borderRadius:12,background:'transparent',cursor:'pointer'}}>✓ Только рубрикатор</button>
+            {pinnedCount>0&&<button onClick={onClear} style={{fontSize:11,color:'#E8364F',border:'1px solid rgba(232,54,79,.3)',padding:'4px 12px',borderRadius:12,background:'transparent',cursor:'pointer'}}>Снять все</button>}
+            <div style={{flex:1}}/>
+            <span style={{fontSize:10,color:'#aeaeb2',display:'flex',alignItems:'center',gap:4}}><span style={{width:12,height:12,borderRadius:'50%',background:'#30A060',color:'#fff',fontSize:7,display:'inline-flex',alignItems:'center',justifyContent:'center',fontWeight:700}}>✓</span> в рубрикаторе</span>
           </div>
         </div>
-        <div style={{fontSize:10,color:'var(--txt2)',marginBottom:12}}>Нажмите чтобы добавить в панель. Нажмите ещё раз чтобы убрать.</div>
-        <div className='picker-grid' style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
-          {T.map(t=>{const active=pinned.includes(t.id);return(
-            <button key={t.id} onClick={()=>onTogglePin(t.id)}
-              style={{position:'relative',padding:'10px 14px',borderRadius:8,fontSize:13,textAlign:'left',
-                background:active?'rgba(0,122,255,.06)':'var(--bg3)',
-                color:active?'#1d1d1f':'var(--txt2)',
-                border:`1px solid ${active?'rgba(0,122,255,.3)':'var(--border)'}`}}>
-              {t.custom?'◇':'✦'} {t.n}
-              {t.rubrik&&<span style={{position:'absolute',top:-5,right:-5,width:16,height:16,borderRadius:'50%',background:'#30A060',color:'#fff',fontSize:10,display:'inline-flex',alignItems:'center',justifyContent:'center',fontWeight:700,border:'2px solid #fff',boxShadow:'0 1px 3px rgba(0,0,0,.15)'}}>✓</span>}
-            </button>);})}
+        {/* LIST */}
+        <div style={{flex:1,overflowY:'auto',padding:'14px 22px 18px'}}>
+          {filtered.length===0?
+            <div style={{textAlign:'center',padding:'60px 20px',color:'#aeaeb2',fontSize:13}}>Ничего не найдено по запросу «{q}»</div>
+            :<>
+              <Section title="Рубрикатор" items={rubrikList}/>
+              <Section title="Встречи (кастомные)" items={customList}/>
+              <Section title="Прочие" items={otherList}/>
+            </>}
         </div>
       </div>
     </div>);
