@@ -65,6 +65,12 @@ input{font-family:var(--sans)}
   .picker-actions{flex-wrap:wrap!important}
   .picker-actions button{font-size:10px!important;padding:4px 8px!important}
   .picker-legend{display:none!important}
+  .overlay-legend{top:auto!important;right:auto!important;bottom:52px!important;left:12px!important;min-width:0!important;padding:6px 10px!important;font-size:10px!important;max-width:calc(100vw - 24px)!important}
+  .overlay-legend>div:first-child span:first-child{font-size:9px!important}
+  .verif-header{padding:10px 14px!important;gap:8px!important}
+  .verif-title{font-size:15px!important;margin-bottom:2px!important}
+  .verif-header>div:first-child>div:last-child{font-size:11px!important;gap:6px!important}
+  .verif-actions button{font-size:11px!important;padding:6px 10px!important}
   .picker-grid{grid-template-columns:1fr!important;gap:4px!important}
   .fullpage-content{padding:12px 14px!important}
   .fullpage-content h2{font-size:18px!important}
@@ -539,7 +545,7 @@ function Info({i,p,af=[],onClose}){
 function OverlayLegend({y,overlay,onClear}){
   if(!overlay)return null;
   return(
-    <div style={{position:'absolute',top:50,right:12,background:'rgba(255,255,255,.95)',border:'1px solid rgba(0,0,0,.06)',borderRadius:12,padding:'10px 14px',backdropFilter:'blur(16px)',minWidth:180}}>
+    <div className="overlay-legend" style={{position:'absolute',top:50,right:12,background:'rgba(255,255,255,.95)',border:'1px solid rgba(0,0,0,.06)',borderRadius:12,padding:'10px 14px',backdropFilter:'blur(16px)',minWidth:180,zIndex:10}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
         <span style={{fontSize:10,color:'#6e6e73',textTransform:'uppercase',letterSpacing:1}}>Совмещение</span>
         <button onClick={onClear} style={{fontSize:14,color:'#6e6e73',padding:'0 4px'}}>✕</button>
@@ -861,9 +867,9 @@ function Verification({y,vs,setVs,onClose}){
 
   return(
     <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#fff',zIndex:70,display:'flex',flexDirection:'column'}}>
-      <div style={{display:'flex',alignItems:'center',padding:'14px 24px',borderBottom:'1px solid #e5e5ea',flexShrink:0}}>
-        <div style={{flex:1}}>
-          <h2 style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:4}}>Верификация: {y.name}</h2>
+      <div className="verif-header" style={{display:'flex',alignItems:'center',padding:'14px 24px',borderBottom:'1px solid #e5e5ea',flexShrink:0,gap:12}}>
+        <div style={{flex:1,minWidth:0}}>
+          <h2 className="verif-title" style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:4,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>Верификация: {y.name}</h2>
           <div style={{display:'flex',alignItems:'center',gap:12}}>
             <div style={{fontSize:13,color:statusColor,fontWeight:600}}>{status}</div>
             <div style={{flex:1,maxWidth:200,height:6,background:'#e5e5ea',borderRadius:3,overflow:'hidden'}}>
@@ -872,8 +878,8 @@ function Verification({y,vs,setVs,onClose}){
             <div style={{fontSize:12,color:'#86868b'}}>{total.pass}/{allIds.length} ({pct}%)</div>
           </div>
         </div>
-        <div style={{display:'flex',gap:8}}><button onClick={()=>{const keys=Object.keys(vs).filter(k=>k.startsWith(y.name+'_'));const nv={...vs};keys.forEach(k=>delete nv[k]);setVs(nv);}} style={{fontSize:12,color:'#E8364F',padding:'7px 16px',border:'1px solid #E8364F30',borderRadius:8}}>Сбросить</button>
-        <button onClick={onClose} style={{fontSize:13,color:'#0071e3',padding:'8px 20px',border:'1px solid #0071e3',borderRadius:8}}>Закрыть</button></div>
+        <div className="verif-actions" style={{display:'flex',gap:8,flexShrink:0}}><button onClick={()=>{const keys=Object.keys(vs).filter(k=>k.startsWith(y.name+'_'));const nv={...vs};keys.forEach(k=>delete nv[k]);setVs(nv);}} style={{fontSize:12,color:'#E8364F',padding:'7px 16px',border:'1px solid #E8364F30',borderRadius:8,background:'transparent',cursor:'pointer'}}>Сбросить</button>
+        <button onClick={onClose} style={{fontSize:13,color:'#0071e3',padding:'8px 20px',border:'1px solid #0071e3',borderRadius:8,background:'transparent',cursor:'pointer'}}>Закрыть</button></div>
       </div>
 
       <div style={{display:'flex',gap:4,padding:'8px 24px',borderBottom:'1px solid #f0f0f2',flexShrink:0}}>
