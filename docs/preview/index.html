@@ -49,11 +49,14 @@ input{font-family:var(--sans)}
   .nav-right{padding-right:12px!important;padding-left:10px!important;gap:4px!important;border-left:1px solid #e5e5ea!important;background:#fff!important}
   .nav-right button{font-size:14px!important;padding:10px 14px!important;min-height:38px!important}
   .nav-right .combine-btn{display:none!important}
-  .filters-toggle{display:flex!important}
-  .fullstar-btn{display:flex!important}
-  .filters{padding:6px 10px!important;gap:5px!important;flex-wrap:wrap!important;overflow-x:visible!important}
+  .filters-toggle{display:none!important}
+  .fullstar-btn{display:none!important}
+  .hdr-mob-tools{display:flex!important}
+  .filters{padding:6px 10px!important;gap:5px!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:none!important;background:#fafafa!important}
+  .filters::-webkit-scrollbar{display:none!important}
   .filters-closed{display:none!important}
-  .filters button{padding:4px 10px!important;font-size:12px!important;flex-shrink:0!important;line-height:1.4!important}
+  .filters button{padding:4px 10px!important;font-size:11px!important;flex-shrink:0!important;line-height:1.4!important}
+  .filters>span{display:none!important}
   .filters .sep{display:none!important}
   .star-area{min-height:0!important;flex:1!important;padding-bottom:52px!important}
   .star-area>div{max-height:none!important;max-width:none!important}
@@ -1296,8 +1299,8 @@ function App(){
   const pinnedTemplates=pinned.map(id=>T.find(t=>t.id===id)).filter(Boolean);
   return(
     <div style={{background:'var(--bg)',height:'100vh',display:'flex',flexDirection:'column'}}>
-      <div style={{display:'flex',alignItems:'center',padding:'8px 20px',background:'var(--bg2)',borderBottom:'1px solid rgba(0,0,0,.08)',flexShrink:0}}>
-        <span style={{fontSize:17,color:'#0071e3',marginRight:8}}>✦</span>
+      <div style={{display:'flex',alignItems:'center',padding:'6px 16px',background:'var(--bg2)',borderBottom:'1px solid rgba(0,0,0,.06)',flexShrink:0,minHeight:44}}>
+        <span style={{fontSize:15,color:'#0071e3',marginRight:8}}>✦</span>
         <span className='hdr-title' style={{fontFamily:'var(--serif)',fontSize:16,color:'#1d1d1f',fontWeight:700,marginRight:6}}>{y.name}</span>
         
         <div style={{flex:1}}/>
@@ -1305,6 +1308,12 @@ function App(){
         <button onClick={()=>setVerif(true)} style={{border:'1px solid #d2d2d7',color:'#6e6e73',padding:'5px 14px',borderRadius:6,fontSize:11}}>Верификация</button>
         <button onClick={()=>setInstr(true)} style={{border:'1px solid #d2d2d7',color:'#6e6e73',padding:'5px 14px',borderRadius:6,fontSize:11}}>Инструкция</button>
         <button onClick={()=>setGlossary(true)} style={{border:'1px solid #d2d2d7',color:'#6e6e73',padding:'5px 14px',borderRadius:6,fontSize:11}}>Глоссарий</button>
+        </div>
+        <div className='hdr-mob-tools' style={{display:'none',gap:4,alignItems:'center',marginRight:6}}>
+          <button onClick={()=>setFiltersOpen(!filtersOpen)} style={{fontSize:12,padding:'6px 10px',border:`1px solid ${filtersOpen||af.length>0?'rgba(0,122,255,.35)':'#d2d2d7'}`,borderRadius:8,background:filtersOpen||af.length>0?'rgba(0,122,255,.06)':'#fff',color:filtersOpen||af.length>0?'#0071e3':'#6e6e73',whiteSpace:'nowrap',fontWeight:af.length>0?600:400}}>
+            Механики{af.length>0?` · ${af.length}`:''} <span style={{marginLeft:2,fontSize:9,display:'inline-block',transform:filtersOpen?'rotate(180deg)':'none',transition:'transform .2s'}}>▼</span>
+          </button>
+          <button onClick={()=>setFullStar(true)} style={{fontSize:14,padding:'6px 9px',border:'1px solid #d2d2d7',borderRadius:8,background:'#fff',color:'#6e6e73'}}>⤢</button>
         </div>
         <div className='hdr-burger' style={{position:'relative'}}>
           <button onClick={()=>setMenu(!menu)} style={{fontSize:18,padding:'4px 10px',border:'1px solid #d2d2d7',borderRadius:8,background:menu?'#f5f5f7':'#fff',color:'#424245'}}>☰</button>
