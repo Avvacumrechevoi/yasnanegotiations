@@ -587,11 +587,12 @@ function Picker({pinned,onTogglePin,onClear,onClose}){
         <div className='picker-grid' style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
           {T.map(t=>{const active=pinned.includes(t.id);return(
             <button key={t.id} onClick={()=>onTogglePin(t.id)}
-              style={{padding:'10px 14px',borderRadius:8,fontSize:13,textAlign:'left',
+              style={{position:'relative',padding:'10px 14px',borderRadius:8,fontSize:13,textAlign:'left',
                 background:active?'rgba(0,122,255,.06)':'var(--bg3)',
                 color:active?'#1d1d1f':'var(--txt2)',
                 border:`1px solid ${active?'rgba(0,122,255,.3)':'var(--border)'}`}}>
-              {t.custom?'◇':t.rubrik?'✦':'✧'} {t.n}
+              {t.custom?'◇':'✦'} {t.n}
+              {t.rubrik&&<span style={{position:'absolute',top:-5,right:-5,width:16,height:16,borderRadius:'50%',background:'#30A060',color:'#fff',fontSize:10,display:'inline-flex',alignItems:'center',justifyContent:'center',fontWeight:700,border:'2px solid #fff',boxShadow:'0 1px 3px rgba(0,0,0,.15)'}}>✓</span>}
             </button>);})}
         </div>
       </div>
