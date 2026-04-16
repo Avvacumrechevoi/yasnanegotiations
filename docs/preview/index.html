@@ -23,6 +23,7 @@ input{font-family:var(--sans)}
 @keyframes pulse{0%,100%{opacity:.35}50%{opacity:.5}}
 .hide-scroll::-webkit-scrollbar{display:none}
 
+.popup-overlay{padding:12px}
 .hdr-burger{display:none}
 .fullstar{position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;z-index:65!important;background:#fff!important;padding:0!important;margin:0!important}
 .fullstar svg{transform:scale(1)!important}
@@ -40,10 +41,14 @@ input{font-family:var(--sans)}
   .desk-only{display:none!important}
   .hdr-burger{display:flex!important}
   .hdr-btns button{padding:6px 12px!important;font-size:13px!important}
-  .nav-tabs{position:fixed!important;bottom:0!important;left:0!important;right:0!important;z-index:50!important;padding:6px 0 env(safe-area-inset-bottom,8px) 10px!important;min-height:auto!important;background:#fff!important;border-top:1px solid #e5e5ea!important;border-bottom:none!important;box-shadow:0 -2px 12px rgba(0,0,0,.06)!important}
-  .nav-tabs button{padding:6px 12px!important;font-size:13px!important;border-radius:8px!important}
-  .nav-right{padding-right:10px!important;padding-left:8px!important;gap:4px!important;border-left:1px solid #e5e5ea!important;background:#fff!important}
-  .nav-right button{font-size:13px!important}
+  .nav-tabs{position:fixed!important;bottom:0!important;left:0!important;right:0!important;z-index:50!important;padding:8px 0 env(safe-area-inset-bottom,10px) 12px!important;min-height:54px!important;background:#fff!important;border-top:1px solid #e5e5ea!important;border-bottom:none!important;box-shadow:0 -2px 12px rgba(0,0,0,.06)!important}
+  .nav-tabs button{padding:10px 16px!important;font-size:14px!important;border-radius:10px!important;min-height:38px!important}
+  .nav-tabs>div:first-child{scroll-snap-type:x mandatory!important;-webkit-overflow-scrolling:touch!important;gap:6px!important}
+  .nav-tabs>div:first-child button{scroll-snap-align:start!important;flex-shrink:0!important}
+  .nav-empty{color:#aeaeb2!important;font-size:13px!important;padding:6px 12px!important;white-space:nowrap!important}
+  .nav-right{padding-right:12px!important;padding-left:10px!important;gap:4px!important;border-left:1px solid #e5e5ea!important;background:#fff!important}
+  .nav-right button{font-size:14px!important;padding:10px 14px!important;min-height:38px!important}
+  .nav-right .combine-btn{display:none!important}
   .filters-toggle{display:flex!important}
   .fullstar-btn{display:flex!important}
   .filters{padding:6px 10px!important;gap:5px!important;flex-wrap:wrap!important;overflow-x:visible!important}
@@ -61,7 +66,7 @@ input{font-family:var(--sans)}
   .fi>div:last-child::-webkit-scrollbar-thumb{background:#c7c7cc;border-radius:4px}
   .fi>div:last-child::-webkit-scrollbar-track{background:transparent}
   .editor-panel{width:100%!important}
-  .picker-inner{width:96%!important;padding:0!important;max-height:88vh!important;border-radius:14px!important}
+  .picker-inner{width:100vw!important;max-width:100vw!important;height:100dvh!important;max-height:100dvh!important;padding:0!important;border-radius:0!important;border:none!important}
   .picker-actions{flex-wrap:wrap!important}
   .picker-actions button{font-size:10px!important;padding:4px 8px!important}
   .picker-legend{display:none!important}
@@ -588,6 +593,71 @@ function Editor({y,setY,onClose}){
     </div>);
 }
 
+function OverlayPicker({currentName,overlay,onSelect,onClose}){
+  const[q,setQ]=useState('');
+  const filtered=T.filter(t=>t.n!==currentName&&t.n.toLowerCase().includes(q.toLowerCase()));
+  const rubrikList=filtered.filter(t=>t.rubrik);
+  const customList=filtered.filter(t=>t.custom&&!t.rubrik);
+  const otherList=filtered.filter(t=>!t.rubrik&&!t.custom);
+
+  const Card=({t})=>{const active=overlay&&overlay.name===t.n;return(
+    <button key={t.id} onClick={()=>{onSelect({name:t.n,p:[...t.p]});onClose();}}
+      style={{position:'relative',padding:'10px 14px',paddingRight:t.rubrik?28:14,borderRadius:10,fontSize:13,textAlign:'left',
+        background:active?'rgba(175,82,222,.10)':'#f5f5f7',
+        color:active?'#af52de':'#424245',
+        border:`1px solid ${active?'rgba(175,82,222,.4)':'transparent'}`,
+        fontWeight:active?600:400,
+        fontStyle:active?'italic':'normal',
+        transition:'all .12s',cursor:'pointer'}}>
+      {active?<span style={{marginRight:6,color:'#af52de'}}>●</span>:<span style={{marginRight:6,color:'#c7c7cc'}}>○</span>}
+      {t.n}
+      {t.rubrik&&<span title="Верифицирована" style={{position:'absolute',top:'50%',right:8,transform:'translateY(-50%)',width:16,height:16,borderRadius:'50%',background:'#30A060',color:'#fff',fontSize:9,display:'inline-flex',alignItems:'center',justifyContent:'center',fontWeight:700}}>✓</span>}
+    </button>);};
+
+  const Section=({title,items})=>items.length===0?null:(
+    <div style={{marginBottom:18}}>
+      <div style={{fontSize:11,fontWeight:600,color:'#6e6e73',textTransform:'uppercase',letterSpacing:1,marginBottom:8,paddingLeft:4}}>{title} <span style={{color:'#aeaeb2',fontWeight:400}}>· {items.length}</span></div>
+      <div className='picker-grid' style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
+        {items.map(t=><Card key={t.id} t={t}/>)}
+      </div>
+    </div>);
+
+  return(
+    <div className="popup-overlay" style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'rgba(0,0,0,.25)',zIndex:60,display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(3px)'}} onClick={onClose}>
+      <div className='picker-inner' style={{background:'rgba(255,255,255,.99)',border:'1px solid rgba(175,82,222,.15)',borderRadius:20,boxShadow:'0 20px 60px rgba(0,0,0,.15)',padding:0,width:600,maxWidth:'92vw',height:'82vh',maxHeight:720,display:'flex',flexDirection:'column',overflow:'hidden'}} onClick={e=>e.stopPropagation()}>
+        {/* HEADER */}
+        <div style={{padding:'18px 22px 14px',borderBottom:'1px solid #f0f0f2',flexShrink:0}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:10}}>
+            <div style={{flex:1,minWidth:0,paddingRight:10}}>
+              <h3 style={{fontFamily:'var(--serif)',fontSize:20,color:'#af52de',fontWeight:700,marginBottom:2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>Совместить «{currentName}» с…</h3>
+              <div style={{fontSize:12,color:'#86868b'}}>Выберите вторую Ясну — её подписи появятся вторым кольцом вокруг.</div>
+            </div>
+            <button onClick={onClose} style={{width:32,height:32,borderRadius:'50%',background:'#f5f5f7',border:'none',fontSize:16,color:'#6e6e73',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>✕</button>
+          </div>
+          {/* SEARCH */}
+          <div style={{position:'relative'}}>
+            <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:'#aeaeb2',fontSize:14,pointerEvents:'none'}}>🔍</span>
+            <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Поиск по названию..." autoFocus
+              style={{width:'100%',padding:'9px 14px 9px 36px',borderRadius:10,border:'1px solid #d2d2d7',fontSize:13,fontFamily:'var(--sans)',outline:'none',background:'#fff',color:'#1d1d1f',boxSizing:'border-box'}}
+              onFocus={e=>e.target.style.borderColor='#af52de'}
+              onBlur={e=>e.target.style.borderColor='#d2d2d7'}/>
+            {q&&<button onClick={()=>setQ('')} style={{position:'absolute',right:8,top:'50%',transform:'translateY(-50%)',width:22,height:22,borderRadius:'50%',border:'none',background:'#e5e5ea',color:'#6e6e73',fontSize:11,cursor:'pointer'}}>✕</button>}
+          </div>
+        </div>
+        {/* LIST */}
+        <div style={{flex:1,overflowY:'auto',padding:'14px 22px 18px'}}>
+          {filtered.length===0?
+            <div style={{textAlign:'center',padding:'60px 20px',color:'#aeaeb2',fontSize:13}}>Ничего не найдено по запросу «{q}»</div>
+            :<>
+              <Section title="Верифицированные" items={rubrikList}/>
+              <Section title="Встречи (кастомные)" items={customList}/>
+              <Section title="Прочие" items={otherList}/>
+            </>}
+        </div>
+      </div>
+    </div>);
+}
+
 function Picker({pinned,onTogglePin,onClear,onClose}){
   const[q,setQ]=useState('');
   const filtered=T.filter(t=>t.n.toLowerCase().includes(q.toLowerCase()));
@@ -621,7 +691,7 @@ function Picker({pinned,onTogglePin,onClear,onClose}){
 
   return(
     <div className="popup-overlay" style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'rgba(0,0,0,.25)',zIndex:60,display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(3px)'}} onClick={onClose}>
-      <div className='picker-inner' style={{background:'rgba(255,255,255,.99)',border:'1px solid rgba(0,0,0,.08)',borderRadius:20,boxShadow:'0 20px 60px rgba(0,0,0,.15)',padding:0,width:600,maxWidth:'92vw',height:'82vh',maxHeight:720,display:'flex',flexDirection:'column',overflow:'hidden'}} onClick={e=>e.stopPropagation()}>
+      <div className='picker-inner' style={{background:'rgba(255,255,255,.99)',border:'1px solid rgba(0,0,0,.08)',borderRadius:20,boxShadow:'0 20px 60px rgba(0,0,0,.15)',padding:0,width:'100%',maxWidth:600,height:'82vh',maxHeight:720,display:'flex',flexDirection:'column',overflow:'hidden'}} onClick={e=>e.stopPropagation()}>
         {/* HEADER */}
         <div style={{padding:'18px 22px 14px',borderBottom:'1px solid #f0f0f2',flexShrink:0}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:10}}>
@@ -1233,6 +1303,7 @@ function App(){
           <button onClick={()=>setMenu(!menu)} style={{fontSize:18,padding:'4px 10px',border:'1px solid #d2d2d7',borderRadius:8,background:menu?'#f5f5f7':'#fff',color:'#424245'}}>☰</button>
           {menu&&<div onClick={()=>setMenu(false)} style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:79}}/>}
           {menu&&<div style={{position:'absolute',top:'100%',right:0,marginTop:4,background:'#fff',border:'1px solid #e5e5ea',borderRadius:12,boxShadow:'0 8px 30px rgba(0,0,0,.12)',zIndex:80,minWidth:160,maxWidth:'calc(100vw - 24px)',overflow:'hidden'}}>
+            <button onClick={()=>{if(overlay){setOverlay(null)}else{setShowOverlayPicker(true)};setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:overlay?'#af52de':'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>{overlay?'⊗ Снять совмещение':'⊕ Совместить ясны'}</button>
             <button onClick={()=>{setVerif(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Верификация</button>
             <button onClick={()=>{setInstr(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Инструкция</button>
             <button onClick={()=>{setGlossary(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Глоссарий</button>
@@ -1242,11 +1313,13 @@ function App(){
       </div>
       <div className='nav-tabs' style={{display:'flex',alignItems:'center',padding:'6px 0 6px 16px',background:'var(--bg2)',borderBottom:'1px solid #d2d2d7',flexShrink:0}}>
         <div style={{flex:1,display:'flex',alignItems:'center',gap:3,overflowX:'auto',minWidth:0,scrollbarWidth:'none',msOverflowStyle:'none'}} className="hide-scroll">
-        {pinnedTemplates.map(t=><button key={t.id} onClick={()=>load(t)} style={{padding:'4px 12px',borderRadius:14,fontSize:12,whiteSpace:'nowrap',background:y.name===t.n?'rgba(0,122,255,.06)':'transparent',color:y.name===t.n?'#1d1d1f':'var(--txt2)',border:`1px solid ${y.name===t.n?'rgba(0,122,255,.3)':'transparent'}`,flexShrink:0}}>{t.custom?'◇':t.rubrik?'✦':'✧'} {t.n}</button>)}
+        {pinnedTemplates.length===0
+          ?<span className="nav-empty" style={{fontSize:12,color:'#aeaeb2',padding:'4px 12px',whiteSpace:'nowrap',fontStyle:'italic'}}>Нет выбранных ясн — нажмите «+ ещё»</span>
+          :pinnedTemplates.map(t=><button key={t.id} onClick={()=>load(t)} style={{padding:'4px 12px',borderRadius:14,fontSize:12,whiteSpace:'nowrap',background:y.name===t.n?'rgba(0,122,255,.06)':'transparent',color:y.name===t.n?'#1d1d1f':'var(--txt2)',border:`1px solid ${y.name===t.n?'rgba(0,122,255,.3)':'transparent'}`,flexShrink:0}}>{t.custom?'◇':t.rubrik?'✦':'✧'} {t.n}</button>)}
         </div>
         <div className='nav-right' style={{display:'flex',alignItems:'center',gap:3,paddingRight:16,paddingLeft:6,flexShrink:0,background:'var(--bg2)',borderLeft:'1px solid #e5e5ea'}}>
         <button onClick={()=>setPicker(true)} style={{padding:'4px 12px',borderRadius:14,fontSize:12,color:'#6e6e73',border:'1px dashed var(--border)',whiteSpace:'nowrap'}}><span className='desk-only'>+ ещё</span><span className='mob-only'>☰</span></button>
-        <button onClick={()=>overlay?setOverlay(null):setShowOverlayPicker(true)} style={{padding:'4px 12px',borderRadius:14,fontSize:12,whiteSpace:'nowrap',background:overlay?'rgba(175,82,222,.08)':'transparent',color:overlay?'#af52de':'var(--txt3)',border:`1px solid ${overlay?'rgba(175,82,222,.15)':'var(--border)'}`,}}><span className='desk-only'>{overlay?'⊗ Снять':'⊕ Совместить'}</span><span className='mob-only'>{overlay?'⊗':'⊕'}</span></button>
+        <button className='combine-btn' onClick={()=>overlay?setOverlay(null):setShowOverlayPicker(true)} style={{padding:'4px 12px',borderRadius:14,fontSize:12,whiteSpace:'nowrap',background:overlay?'rgba(175,82,222,.08)':'transparent',color:overlay?'#af52de':'var(--txt3)',border:`1px solid ${overlay?'rgba(175,82,222,.15)':'var(--border)'}`,}}><span className='desk-only'>{overlay?'⊗ Снять':'⊕ Совместить'}</span><span className='mob-only'>{overlay?'⊗':'⊕'}</span></button>
         <button className='desk-only' onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);}} style={{padding:'4px 12px',borderRadius:14,fontSize:12,color:'#0071e3',border:'1px dashed rgba(0,122,255,.3)',whiteSpace:'nowrap'}}>+ Создать</button>
         </div>
       </div>
@@ -1279,25 +1352,7 @@ function App(){
         <button className='fullstar-close' onClick={()=>setFullStar(false)}>✕</button>
       </>}
       {ed&&<Editor y={y} setY={setY} onClose={()=>setEd(false)}/>}
-      {showOverlayPicker&&(
-        <div className="popup-overlay" style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'rgba(0,0,0,.2)',zIndex:60,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>setShowOverlayPicker(false)}>
-          <div className='picker-inner' style={{background:'rgba(255,255,255,.98)',border:'1px solid rgba(0,122,255,.08)',borderRadius:20,padding:'20px 24px',width:480,maxHeight:'70vh',overflowY:'auto',backdropFilter:'blur(20px)'}} onClick={e=>e.stopPropagation()}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
-              <h3 style={{fontFamily:'var(--serif)',fontSize:18,color:'#af52de'}}>Совместить «{y.name}» с…</h3>
-              <button onClick={()=>setShowOverlayPicker(false)} style={{fontSize:18}}>✕</button>
-            </div>
-            <div style={{fontSize:10,color:'var(--txt2)',marginBottom:12}}>Выберите вторую Ясну для наложения. Её подписи появятся вторым кольцом.</div>
-            <div className='picker-grid' style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
-              {T.filter(t=>t.n!==y.name).map(t=>(
-                <button key={t.id} onClick={()=>{setOverlay({name:t.n,p:[...t.p]});setShowOverlayPicker(false);}}
-                  style={{padding:'10px 14px',borderRadius:8,fontSize:13,textAlign:'left',background:overlay&&overlay.name===t.n?'rgba(175,82,222,.08)':'var(--bg3)',color:overlay&&overlay.name===t.n?'#a8d8ea':'var(--txt2)',border:`1px solid ${overlay&&overlay.name===t.n?'rgba(175,82,222,.2)':'var(--border)'}`,transition:'all .15s'}}>
-                  {t.n}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      {showOverlayPicker&&<OverlayPicker currentName={y.name} overlay={overlay} onSelect={setOverlay} onClose={()=>setShowOverlayPicker(false)}/>}
       {verif&&<Verification y={y} vs={vState} setVs={setVState} onClose={()=>setVerif(false)}/>}
       {instr&&<Instruction onClose={()=>setInstr(false)}/>}
       {glossary&&<Glossary onClose={()=>setGlossary(false)}/>}
