@@ -599,7 +599,7 @@ function Picker({pinned,onTogglePin,onClear,onClose}){
         cursor:'pointer'}}>
       {active?<span style={{marginRight:6,color:'#0071e3'}}>●</span>:<span style={{marginRight:6,color:'#c7c7cc'}}>○</span>}
       {t.n}
-      {t.rubrik&&<span title="В рубрикаторе Ясны" style={{position:'absolute',top:'50%',right:8,transform:'translateY(-50%)',width:16,height:16,borderRadius:'50%',background:'#30A060',color:'#fff',fontSize:9,display:'inline-flex',alignItems:'center',justifyContent:'center',fontWeight:700}}>✓</span>}
+      {t.rubrik&&<span title="Верифицирована" style={{position:'absolute',top:'50%',right:8,transform:'translateY(-50%)',width:16,height:16,borderRadius:'50%',background:'#30A060',color:'#fff',fontSize:9,display:'inline-flex',alignItems:'center',justifyContent:'center',fontWeight:700}}>✓</span>}
     </button>);};
 
   const Section=({title,items,empty})=>items.length===0?(empty?null:null):(
@@ -633,11 +633,15 @@ function Picker({pinned,onTogglePin,onClear,onClose}){
           </div>
           {/* ACTIONS */}
           <div style={{display:'flex',gap:6,alignItems:'center'}}>
-            <button onClick={()=>{T.forEach(t=>{if(!pinned.includes(t.id))onTogglePin(t.id);});}} style={{fontSize:11,color:'#0071e3',border:'1px solid rgba(0,122,255,.3)',padding:'4px 12px',borderRadius:12,background:'transparent',cursor:'pointer'}}>✓ Выбрать все</button>
-            <button onClick={()=>{T.filter(t=>t.rubrik).forEach(t=>{if(!pinned.includes(t.id))onTogglePin(t.id);});}} style={{fontSize:11,color:'#30A060',border:'1px solid rgba(48,160,96,.3)',padding:'4px 12px',borderRadius:12,background:'transparent',cursor:'pointer'}}>✓ Только рубрикатор</button>
-            {pinnedCount>0&&<button onClick={onClear} style={{fontSize:11,color:'#E8364F',border:'1px solid rgba(232,54,79,.3)',padding:'4px 12px',borderRadius:12,background:'transparent',cursor:'pointer'}}>Снять все</button>}
+            {pinnedCount===total?
+              <button onClick={onClear} style={{fontSize:11,color:'#0071e3',border:'1px solid rgba(0,122,255,.3)',padding:'4px 12px',borderRadius:12,background:'rgba(0,122,255,.08)',cursor:'pointer',fontWeight:600}}>✓ Все выбраны — снять</button>
+              :<button onClick={()=>{T.forEach(t=>{if(!pinned.includes(t.id))onTogglePin(t.id);});}} style={{fontSize:11,color:'#0071e3',border:'1px solid rgba(0,122,255,.3)',padding:'4px 12px',borderRadius:12,background:'transparent',cursor:'pointer'}}>✓ Выбрать все</button>}
+            {(()=>{const rubrikIds=T.filter(t=>t.rubrik).map(t=>t.id);const allRubrikSelected=rubrikIds.every(id=>pinned.includes(id));return allRubrikSelected?
+              <button onClick={()=>{rubrikIds.forEach(id=>{if(pinned.includes(id))onTogglePin(id);});}} style={{fontSize:11,color:'#30A060',border:'1px solid rgba(48,160,96,.3)',padding:'4px 12px',borderRadius:12,background:'rgba(48,160,96,.08)',cursor:'pointer',fontWeight:600}}>✓ Верифицированные — снять</button>
+              :<button onClick={()=>{rubrikIds.forEach(id=>{if(!pinned.includes(id))onTogglePin(id);});}} style={{fontSize:11,color:'#30A060',border:'1px solid rgba(48,160,96,.3)',padding:'4px 12px',borderRadius:12,background:'transparent',cursor:'pointer'}}>✓ Только верифицированные</button>;})()}
+            {pinnedCount>0&&pinnedCount<total&&<button onClick={onClear} style={{fontSize:11,color:'#E8364F',border:'1px solid rgba(232,54,79,.3)',padding:'4px 12px',borderRadius:12,background:'transparent',cursor:'pointer'}}>Снять все</button>}
             <div style={{flex:1}}/>
-            <span style={{fontSize:10,color:'#aeaeb2',display:'flex',alignItems:'center',gap:4}}><span style={{width:12,height:12,borderRadius:'50%',background:'#30A060',color:'#fff',fontSize:7,display:'inline-flex',alignItems:'center',justifyContent:'center',fontWeight:700}}>✓</span> в рубрикаторе</span>
+            <span style={{fontSize:10,color:'#aeaeb2',display:'flex',alignItems:'center',gap:4}}><span style={{width:12,height:12,borderRadius:'50%',background:'#30A060',color:'#fff',fontSize:7,display:'inline-flex',alignItems:'center',justifyContent:'center',fontWeight:700}}>✓</span> верифицированные</span>
           </div>
         </div>
         {/* LIST */}
@@ -645,7 +649,7 @@ function Picker({pinned,onTogglePin,onClear,onClose}){
           {filtered.length===0?
             <div style={{textAlign:'center',padding:'60px 20px',color:'#aeaeb2',fontSize:13}}>Ничего не найдено по запросу «{q}»</div>
             :<>
-              <Section title="Рубрикатор" items={rubrikList}/>
+              <Section title="Верифицированные" items={rubrikList}/>
               <Section title="Встречи (кастомные)" items={customList}/>
               <Section title="Прочие" items={otherList}/>
             </>}
