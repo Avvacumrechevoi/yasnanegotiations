@@ -2435,6 +2435,10 @@ function App(){
         
         <div style={{flex:1}}/>
         <div className='hdr-btns' style={{display:'flex',gap:6,alignItems:'center'}}>
+        <button onClick={()=>setLessonPicker(true)} style={{border:'1px solid rgba(0,122,255,.35)',color:'#0071e3',padding:'7px 14px',borderRadius:8,fontSize:13,background:'rgba(0,122,255,.06)',cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:5}}>
+          <span style={{fontSize:14}}>🎓</span>
+          <span>Уроки</span>
+        </button>
         <button onClick={()=>setVerif(true)} style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 16px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>Верификация</button>
         <button onClick={()=>setInstr(true)} style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 16px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>Инструкция</button>
         <button onClick={()=>setGlossary(true)} style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 16px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>Глоссарий</button>
