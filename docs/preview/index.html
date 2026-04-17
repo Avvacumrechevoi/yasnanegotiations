@@ -1771,11 +1771,14 @@ const LESSONS=[
       // Step 9: Carousel — examples of other cycles
       {type:'carousel-examples',
         title:'Одно правило — много явлений',
-        body:'Закон Ясны работает не только для суток. Любой цикл можно разложить на 12 полочек.',
+        body:'Любой цикл можно разложить на 12 полочек. Свайпните — увидите как тот же закон работает для разных явлений.',
         examples:[
-          {title:'Сутки',items:['Ночь','Заря','Утро','День','Закат','Вечер'],color:'#FFB020'},
-          {title:'Жизнь человека',items:['Зачатие','Рост','Рождение','Зрелость','Закат сил','Уход'],color:'#4090D8'},
-          {title:'Огонь',items:['Искра','Разгорание','Пламя','Угли','Догорание','Зола'],color:'#E8364F'}
+          {emoji:'☀️',title:'Сутки',subtitle:'Наш изначальный пример',color:'#FFB020',
+           items:['Ночь','Искра','Заря','Утро','Восход','Утр.Салют','День','Обед','Закат','Вечер','Сумерки','Веч.Салют']},
+          {emoji:'🌱',title:'Жизнь человека',subtitle:'От зачатия до ухода',color:'#4090D8',
+           items:['Зачатие','Росток','Беременность','Рождение','Детство','Юность','Зрелость','Мудрость','Старение','Уход','Память','Завершение']},
+          {emoji:'🔥',title:'Огонь',subtitle:'От искры до пепла',color:'#E8364F',
+           items:['Покой','Искра','Тление','Возгорание','Разгорание','Треск','Пламя','Жар','Спад','Угли','Затухание','Зола']}
         ],
         cta:'Закрепить'},
       // Step 10: Final quiz
@@ -2237,34 +2240,74 @@ function StepTransformStar({step,onNext}){
 // Step 9: Carousel of examples
 function StepCarouselExamples({step,onNext}){
   const[idx,setIdx]=useState(0);
-  const ex=step.examples[idx];
+  const scrollerRef=React.useRef(null);
+
+  // Sync active idx with scroll position
+  const onScroll=()=>{
+    const el=scrollerRef.current;
+    if(!el)return;
+    const newIdx=Math.round(el.scrollLeft/el.clientWidth);
+    if(newIdx!==idx&&newIdx>=0&&newIdx<step.examples.length)setIdx(newIdx);
+  };
+
+  const isLast=idx===step.examples.length-1;
+
   return(
-    <div style={{display:'flex',flexDirection:'column',height:'100%',padding:'20px',maxWidth:520,margin:'0 auto',width:'100%'}}>
-      <h2 style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:10,textAlign:'center'}}>{step.title}</h2>
-      <p style={{fontSize:13,color:'#6e6e73',lineHeight:1.5,marginBottom:20,textAlign:'center'}}>{step.body}</p>
+    <div style={{display:'flex',flexDirection:'column',height:'100%',maxWidth:560,margin:'0 auto',width:'100%',position:'relative'}}>
+      <div style={{flexShrink:0,padding:'18px 20px 10px',textAlign:'center'}}>
+        <h2 style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:6}}>{step.title}</h2>
+        <p style={{fontSize:13,color:'#6e6e73',lineHeight:1.5}}>{step.body}</p>
+      </div>
 
-      <div style={{flex:'0 0 auto',padding:'20px 18px',background:`linear-gradient(135deg,${ex.color}08,${ex.color}18)`,border:`1px solid ${ex.color}30`,borderRadius:16,marginBottom:14,minHeight:220,display:'flex',flexDirection:'column',transition:'all .35s'}}>
-        <div style={{fontSize:11,fontWeight:700,color:ex.color,letterSpacing:0.6,textTransform:'uppercase',marginBottom:10}}>Пример {idx+1} из {step.examples.length}</div>
-        <div style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:16}}>{ex.title}</div>
-        <div style={{display:'flex',flexDirection:'column',gap:8}}>
-          {ex.items.map((it,i)=><div key={i} style={{display:'flex',alignItems:'center',gap:10,fontSize:14,color:'#424245'}}>
-            <div style={{width:20,height:20,borderRadius:'50%',background:ex.color,color:'#fff',fontSize:11,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{i+1}</div>
-            <span>{it}</span>
-          </div>)}
+      {/* Horizontal scroll-snap carousel */}
+      <div ref={scrollerRef} onScroll={onScroll}
+        style={{flex:1,display:'flex',overflowX:'auto',overflowY:'hidden',scrollSnapType:'x mandatory',scrollBehavior:'smooth',WebkitOverflowScrolling:'touch',scrollbarWidth:'none'}}
+        className="hide-scroll">
+        {step.examples.map((ex,i)=>(
+          <div key={i} style={{flex:'0 0 100%',scrollSnapAlign:'center',padding:'0 16px 8px',boxSizing:'border-box',display:'flex'}}>
+            <div style={{flex:1,padding:'22px 20px',background:`linear-gradient(145deg,${ex.color}10,${ex.color}22)`,border:`1px solid ${ex.color}40`,borderRadius:18,display:'flex',flexDirection:'column',overflow:'hidden'}}>
+              {/* Header with emoji + title */}
+              <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:18}}>
+                <div style={{fontSize:38,lineHeight:1,flexShrink:0}}>{ex.emoji}</div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:10,fontWeight:700,color:ex.color,letterSpacing:0.7,textTransform:'uppercase',marginBottom:3}}>Пример {i+1} из {step.examples.length}</div>
+                  <div style={{fontSize:22,fontWeight:700,color:'#1d1d1f',lineHeight:1.15,overflow:'hidden',textOverflow:'ellipsis'}}>{ex.title}</div>
+                  {ex.subtitle&&<div style={{fontSize:12,color:'#6e6e73',marginTop:2}}>{ex.subtitle}</div>}
+                </div>
+              </div>
+              {/* 12 positions in 2 columns */}
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'6px 12px',flex:1,alignContent:'start'}}>
+                {ex.items.map((it,j)=>{
+                  const isLong=j%2===0;
+                  return<div key={j} style={{display:'flex',alignItems:'center',gap:8,fontSize:13,color:'#1d1d1f',lineHeight:1.25}}>
+                    <div style={{width:20,height:20,borderRadius:'50%',background:isLong?ex.color:'#fff',border:`1.5px solid ${ex.color}`,color:isLong?'#fff':ex.color,fontSize:10,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{j}</div>
+                    <span style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{it}</span>
+                  </div>;
+                })}
+              </div>
+              {/* Swipe hint on first card only */}
+              {i===0&&!isLast&&<div style={{marginTop:12,fontSize:11,color:ex.color,opacity:.7,textAlign:'center',fontStyle:'italic'}}>← свайп →</div>}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Sticky footer with pager + CTA */}
+      <div style={{flexShrink:0,padding:'12px 20px 16px',background:'#fff',borderTop:'1px solid #f0f0f2',boxShadow:'0 -4px 16px rgba(0,0,0,.04)'}}>
+        <div style={{display:'flex',alignItems:'center',gap:10}}>
+          {/* Pager: X of Y */}
+          <div style={{fontSize:12,color:'#86868b',fontWeight:600,minWidth:36}}>{idx+1}/{step.examples.length}</div>
+          {/* Progress bar */}
+          <div style={{flex:1,height:3,background:'#f0f0f2',borderRadius:2,overflow:'hidden'}}>
+            <div style={{width:`${((idx+1)/step.examples.length)*100}%`,height:'100%',background:'#0071e3',transition:'width .3s'}}/>
+          </div>
         </div>
-      </div>
-
-      {/* Dots pagination */}
-      <div style={{display:'flex',gap:6,justifyContent:'center',marginBottom:14}}>
-        {step.examples.map((_,i)=><button key={i} onClick={()=>setIdx(i)} style={{width:8,height:8,borderRadius:'50%',border:'none',background:i===idx?'#0071e3':'#d2d2d7',cursor:'pointer',padding:0}}/>)}
-      </div>
-
-      <div style={{display:'flex',gap:8,marginTop:'auto'}}>
-        {idx>0&&<button onClick={()=>setIdx(idx-1)} style={{fontSize:13,padding:'10px 14px',borderRadius:10,border:'1px solid #e5e5ea',background:'#fff',cursor:'pointer',color:'#424245'}}>← Предыдущий</button>}
-        {idx<step.examples.length-1?
-          <button onClick={()=>setIdx(idx+1)} style={{flex:1,fontSize:15,fontWeight:600,padding:'12px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer'}}>Следующий пример →</button>
-          :<button onClick={onNext} style={{flex:1,fontSize:15,fontWeight:600,padding:'12px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer'}}>{step.cta||'Закрепить'} →</button>
-        }
+        <button onClick={isLast?onNext:()=>{
+          const el=scrollerRef.current;
+          if(el)el.scrollTo({left:(idx+1)*el.clientWidth,behavior:'smooth'});
+        }} style={{width:'100%',marginTop:10,fontSize:15,fontWeight:600,padding:'12px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer'}}>
+          {isLast?(step.cta||'Закрепить')+' →':'Следующий пример →'}
+        </button>
       </div>
     </div>);
 }
