@@ -513,49 +513,86 @@ function Info({i,p,af=[],onClose}){
 
   const Tag=({color,children})=><span style={{display:'inline-block',padding:'1px 8px',borderRadius:10,fontSize:10,fontWeight:500,background:color+'12',color:color,border:`1px solid ${color}25`}}>{children}</span>;
 
+  // Split mechItems into active and dim; collapse dim into one line when there are many
+  const activeMech=mechItems.filter(it=>!it.dim);
+  const dimMech=mechItems.filter(it=>it.dim);
+  const collapseDim=dimMech.length>3;
+
+  // Scroll indicator: show only when content overflows
+  const[scrollHint,setScrollHint]=useState(false);
+  const scrollRef=(el)=>{
+    if(!el)return;
+    const check=()=>{
+      const overflowing=el.scrollHeight>el.clientHeight+4;
+      const atBottom=el.scrollTop+el.clientHeight>=el.scrollHeight-8;
+      setScrollHint(overflowing&&!atBottom);
+    };
+    check();
+    el.onscroll=check;
+    // re-check after mechItems might re-render
+    setTimeout(check,50);
+  };
+
   return(
     <div className="fi" style={{position:'fixed',bottom:14,right:14,width:420,maxHeight:hasMech?'75vh':'55vh',background:'rgba(255,255,255,.97)',border:'1px solid #e5e5ea',borderRadius:16,backdropFilter:'blur(16px)',boxShadow:'0 4px 24px rgba(0,0,0,.08)',display:'flex',flexDirection:'column'}}>
-      <div style={{padding:'12px 18px 8px',flexShrink:0}}>
+      <div style={{padding:'12px 18px 10px',flexShrink:0}}>
         <div style={{width:36,height:4,borderRadius:2,background:'#d2d2d7',margin:'0 auto 8px'}}/>
         <button onClick={onClose} style={{position:'absolute',top:10,right:12,width:28,height:28,borderRadius:'50%',border:'1px solid #e5e5ea',background:'#f5f5f7',fontSize:14,color:'#86868b',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:1}}>✕</button>
         <div style={{display:'flex',alignItems:'center',gap:12}}>
           <div style={{width:40,height:40,borderRadius:'50%',border:`2px solid ${cr.c}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:17,fontWeight:700,color:cr.c,flexShrink:0}}>{i}</div>
           <div style={{flex:1,minWidth:0}}>
             <div style={{fontSize:18,color:'#1d1d1f',fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{label||<span style={{color:'#aeaeb2'}}>Не заполнено</span>}</div>
-            <div style={{display:'flex',gap:4,marginTop:4,flexWrap:'wrap'}}>
+            {ref.f&&<div style={{fontSize:10,color:'#6e6e73',textTransform:'uppercase',letterSpacing:0.6,marginTop:2,fontWeight:600}}>{ref.f}</div>}
+            <div style={{display:'flex',gap:4,marginTop:5,flexWrap:'wrap'}}>
               <Tag color={cr.c}>{cr.v}</Tag>
               <Tag color={pr.c}>{pr.n.split(' ')[0]}</Tag>
               <Tag color="#86868b">{isLong?'Долгое':'Короткое'}</Tag>
             </div>
           </div>
         </div>
+        {/* Context strip: prev → current → next, then ↔ opposite */}
+        <div style={{marginTop:10,paddingTop:8,borderTop:'1px solid #f0f0f2',display:'flex',flexDirection:'column',gap:4}}>
+          <div style={{display:'flex',alignItems:'center',gap:5,fontSize:11,color:'#6e6e73',flexWrap:'wrap',minHeight:16}}>
+            <span style={{color:'#aeaeb2',fontSize:10,fontWeight:600}}>[{(i+11)%12}]</span>
+            <span style={{color:prevL?'#424245':'#c0c0c5'}}>{prevL||<span style={{fontStyle:'italic'}}>—</span>}</span>
+            <span style={{color:'#d2d2d7'}}>→</span>
+            <span style={{color:'#1d1d1f',fontWeight:600}}>{label||'·'}</span>
+            <span style={{color:'#d2d2d7'}}>→</span>
+            <span style={{color:nextL?'#424245':'#c0c0c5'}}>{nextL||<span style={{fontStyle:'italic'}}>—</span>}</span>
+            <span style={{color:'#aeaeb2',fontSize:10,fontWeight:600}}>[{(i+1)%12}]</span>
+          </div>
+          <div style={{display:'flex',alignItems:'center',gap:5,fontSize:11,color:'#6e6e73',flexWrap:'wrap'}}>
+            <span style={{color:'#ff9500',fontWeight:600}}>↔</span>
+            <span style={{color:'#aeaeb2',fontSize:10,fontWeight:600}}>[{opp(i)}]</span>
+            <span style={{color:oppLabel?'#424245':'#c0c0c5',fontStyle:oppLabel?'normal':'italic'}}>{oppLabel||'—'}</span>
+          </div>
+        </div>
       </div>
-      <div style={{flex:1,overflowY:'auto',padding:'0 18px 16px',position:'relative'}}>
+      <div ref={scrollRef} style={{flex:1,overflowY:'auto',padding:'0 18px 16px',position:'relative'}}>
         <div style={{fontSize:13,color:'#424245',lineHeight:1.6,marginBottom:10,padding:'10px 12px',background:'var(--bg2)',borderRadius:10}}>
           {POS_DESC[i]}
         </div>
-      {false&&<div style={{display:'flex',alignItems:'center',gap:4,marginBottom:8,fontSize:11,color:'#6e6e73',flexWrap:'wrap'}}>
-        {prevL?<><span style={{color:'#aeaeb2'}}>[{(i+11)%12}]</span><span>{prevL}</span><span style={{color:'#d2d2d7'}}>→</span></>:null}
-        <span style={{fontWeight:600,color:'#1d1d1f'}}>{label}</span>
-        {nextL?<><span style={{color:'#d2d2d7'}}>→</span><span>{nextL}</span><span style={{color:'#aeaeb2'}}>[{(i+1)%12}]</span></>:null}
-      </div>}
-      {false&&<div style={{display:'flex',alignItems:'center',gap:5,marginBottom:6,fontSize:11,color:'#6e6e73'}}>
-        <span>↔</span>
-        <span>[{opp(i)}] {oppLabel}</span>
-      </div>}
-      {mechItems.length>0&&<div style={{display:'flex',flexDirection:'column',gap:4,marginBottom:6}}>
-        {mechItems.map((it,j)=><div key={j} style={{padding:'6px 10px',background:it.dim?'#fafafa':it.c+'08',borderRadius:8,borderLeft:`3px solid ${it.dim?'#e5e5ea':it.c}`,flexShrink:0,opacity:it.dim?.45:1}}>
-          <div style={{fontSize:10,fontWeight:600,color:it.dim?'#aeaeb2':it.c,marginBottom:1}}>{it.title}</div>
-          <div style={{fontSize:11,color:it.dim?'#aeaeb2':'#424245',lineHeight:1.45}}>{it.text}</div>
+      {activeMech.length>0&&<div style={{display:'flex',flexDirection:'column',gap:4,marginBottom:6}}>
+        {activeMech.map((it,j)=><div key={j} style={{padding:'6px 10px',background:it.c+'08',borderRadius:8,borderLeft:`3px solid ${it.c}`,flexShrink:0}}>
+          <div style={{fontSize:10,fontWeight:600,color:it.c,marginBottom:1}}>{it.title}</div>
+          <div style={{fontSize:11,color:'#424245',lineHeight:1.45}}>{it.text}</div>
         </div>)}
       </div>}
-      <div style={{fontSize:10,color:'#86868b',lineHeight:1.4,paddingBottom:8}}>
-        <span style={{fontWeight:600,color:'#6e6e73'}}>{ref.f}</span>
+      {dimMech.length>0&&(collapseDim
+        ?<div style={{padding:'6px 10px',background:'#fafafa',borderRadius:8,border:'1px dashed #e5e5ea',fontSize:10,color:'#aeaeb2',lineHeight:1.5,marginBottom:6}}>
+          <span style={{fontWeight:600}}>Не входит в:</span> {dimMech.map(it=>it.title).join(' · ')}
+        </div>
+        :<div style={{display:'flex',flexDirection:'column',gap:4,marginBottom:6}}>
+          {dimMech.map((it,j)=><div key={'d'+j} style={{padding:'6px 10px',background:'#fafafa',borderRadius:8,borderLeft:'3px solid #e5e5ea',opacity:.55}}>
+            <div style={{fontSize:10,fontWeight:600,color:'#aeaeb2',marginBottom:1}}>{it.title}</div>
+            <div style={{fontSize:11,color:'#aeaeb2',lineHeight:1.45}}>{it.text}</div>
+          </div>)}
+        </div>
+      )}
       </div>
-      </div>
-      <div style={{position:'absolute',bottom:0,left:0,right:0,height:32,background:'linear-gradient(transparent,rgba(255,255,255,.95))',display:'flex',alignItems:'flex-end',justifyContent:'center',paddingBottom:4,pointerEvents:'none'}}>
+      {scrollHint&&<div style={{position:'absolute',bottom:0,left:0,right:0,height:28,background:'linear-gradient(transparent,rgba(255,255,255,.95))',display:'flex',alignItems:'flex-end',justifyContent:'center',paddingBottom:4,pointerEvents:'none'}}>
         <span style={{fontSize:10,color:'#aeaeb2',animation:'bounce 1.5s infinite'}}>↓</span>
-      </div>
+      </div>}
     </div>);
 }
 
