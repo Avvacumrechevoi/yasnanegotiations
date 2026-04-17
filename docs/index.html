@@ -1982,10 +1982,10 @@ function StepAnimationSun({step,onNext}){
 function StepDndHalves({step,onNext}){
   const[placed,setPlaced]=useState({top:null,bottom:null});
   const[wrong,setWrong]=useState(null);
-  const[selected,setSelected]=useState(null); // tap-mode selection
-  const[ghost,setGhost]=useState(null); // {id,label,x,y} — floating drag ghost
-  const[hoverZone,setHoverZone]=useState(null); // 'top'|'bottom'|null — which drop zone pointer is over
-  const dragRef=React.useRef({id:null,startX:0,startY:0,moved:false});
+  const[selected,setSelected]=useState(null);
+  const[ghost,setGhost]=useState(null);
+  const[hoverZone,setHoverZone]=useState(null);
+  const stateRef=React.useRef({id:null,label:null,startX:0,startY:0,moved:false});
   const allCorrect=step.items.every(it=>placed[it.correctSlot]===it.id);
 
   const tryPlace=(itemId,slot)=>{
@@ -1998,45 +1998,42 @@ function StepDndHalves({step,onNext}){
     }
   };
 
+  // Attach global listeners when drag starts — survives cursor leaving the button
   const onItemPointerDown=(e,itemId,label)=>{
     e.preventDefault();
-    dragRef.current={id:itemId,label,startX:e.clientX,startY:e.clientY,moved:false};
-    e.currentTarget.setPointerCapture(e.pointerId);
-  };
+    stateRef.current={id:itemId,label,startX:e.clientX,startY:e.clientY,moved:false};
 
-  const onItemPointerMove=(e)=>{
-    const d=dragRef.current;
-    if(!d.id)return;
-    const dx=e.clientX-d.startX, dy=e.clientY-d.startY;
-    // Start drag after 5px movement
-    if(!d.moved&&(Math.abs(dx)>5||Math.abs(dy)>5))d.moved=true;
-    if(d.moved){
-      setGhost({id:d.id,label:d.label,x:e.clientX,y:e.clientY});
-      // Detect which dropzone is under pointer
-      const target=document.elementFromPoint(e.clientX,e.clientY);
-      const zone=target?target.closest('[data-dropzone]'):null;
-      setHoverZone(zone?zone.getAttribute('data-dropzone'):null);
-    }
-  };
-
-  const onItemPointerUp=(e)=>{
-    const d=dragRef.current;
-    if(!d.id){dragRef.current={id:null,moved:false};return;}
-    if(d.moved){
-      // Drag completed — try to place in hovered zone
-      const target=document.elementFromPoint(e.clientX,e.clientY);
-      const zone=target?target.closest('[data-dropzone]'):null;
-      if(zone){
-        const slot=zone.getAttribute('data-dropzone');
-        tryPlace(d.id,slot);
+    const onMove=(ev)=>{
+      const s=stateRef.current;
+      if(!s.id)return;
+      const dx=ev.clientX-s.startX, dy=ev.clientY-s.startY;
+      if(!s.moved&&(Math.abs(dx)>5||Math.abs(dy)>5))s.moved=true;
+      if(s.moved){
+        setGhost({id:s.id,label:s.label,x:ev.clientX,y:ev.clientY});
+        const target=document.elementFromPoint(ev.clientX,ev.clientY);
+        const zone=target?target.closest('[data-dropzone]'):null;
+        setHoverZone(zone?zone.getAttribute('data-dropzone'):null);
       }
-    } else {
-      // Was a tap — toggle selection
-      setSelected(selected===d.id?null:d.id);
-    }
-    dragRef.current={id:null,moved:false};
-    setGhost(null);
-    setHoverZone(null);
+    };
+    const onUp=(ev)=>{
+      const s=stateRef.current;
+      window.removeEventListener('pointermove',onMove);
+      window.removeEventListener('pointerup',onUp);
+      window.removeEventListener('pointercancel',onUp);
+      if(!s.id){setGhost(null);setHoverZone(null);return;}
+      if(s.moved){
+        const target=document.elementFromPoint(ev.clientX,ev.clientY);
+        const zone=target?target.closest('[data-dropzone]'):null;
+        if(zone)tryPlace(s.id,zone.getAttribute('data-dropzone'));
+      } else {
+        setSelected(prev=>prev===s.id?null:s.id);
+      }
+      stateRef.current={id:null,moved:false};
+      setGhost(null);setHoverZone(null);
+    };
+    window.addEventListener('pointermove',onMove);
+    window.addEventListener('pointerup',onUp);
+    window.addEventListener('pointercancel',onUp);
   };
 
   const onZoneClick=(slot)=>{
@@ -2048,18 +2045,18 @@ function StepDndHalves({step,onNext}){
       <h2 style={{fontSize:20,fontWeight:700,color:'#1d1d1f',marginBottom:6,textAlign:'center'}}>{step.title}</h2>
       <p style={{fontSize:13,color:'#6e6e73',lineHeight:1.5,marginBottom:20,textAlign:'center'}}>{step.body}</p>
 
-      {/* Circle with two slots */}
+      {/* Circle with two slots. Drop zones cover full halves of container. */}
       <div style={{flex:'0 0 auto',position:'relative',width:'100%',maxWidth:320,margin:'0 auto',aspectRatio:'1/1'}}>
-        <svg viewBox="0 0 320 320" style={{width:'100%',height:'100%'}}>
-          <path d="M 40 160 A 120 120 0 0 1 280 160 Z" fill={wrong==='top'?'#ffd0d0':placed.top?'rgba(255,200,40,.15)':hoverZone==='top'?'rgba(255,200,40,.25)':'#fafafa'} stroke={placed.top||hoverZone==='top'?'#FFB020':'#e5e5ea'} strokeWidth={hoverZone==='top'?'3':'2'} style={{transition:'all .15s'}}/>
-          <path d="M 40 160 A 120 120 0 0 0 280 160 Z" fill={wrong==='bottom'?'#ffd0d0':placed.bottom?'rgba(40,60,160,.15)':hoverZone==='bottom'?'rgba(40,60,160,.22)':'#fafafa'} stroke={placed.bottom||hoverZone==='bottom'?'#4060a0':'#e5e5ea'} strokeWidth={hoverZone==='bottom'?'3':'2'} style={{transition:'all .15s'}}/>
+        <svg viewBox="0 0 320 320" style={{width:'100%',height:'100%',position:'absolute',inset:0,pointerEvents:'none'}}>
+          <path d="M 40 160 A 120 120 0 0 1 280 160 Z" fill={wrong==='top'?'#ffd0d0':placed.top?'rgba(255,200,40,.15)':hoverZone==='top'?'rgba(255,200,40,.3)':'#fafafa'} stroke={placed.top||hoverZone==='top'?'#FFB020':'#e5e5ea'} strokeWidth={hoverZone==='top'?'3':'2'} style={{transition:'all .15s'}}/>
+          <path d="M 40 160 A 120 120 0 0 0 280 160 Z" fill={wrong==='bottom'?'#ffd0d0':placed.bottom?'rgba(40,60,160,.15)':hoverZone==='bottom'?'rgba(40,60,160,.28)':'#fafafa'} stroke={placed.bottom||hoverZone==='bottom'?'#4060a0':'#e5e5ea'} strokeWidth={hoverZone==='bottom'?'3':'2'} style={{transition:'all .15s'}}/>
           <line x1="40" y1="160" x2="280" y2="160" stroke="#d2d2d7" strokeWidth="1" strokeDasharray="3 4"/>
         </svg>
-        {/* Drop zones overlay */}
-        <div data-dropzone="top" onClick={()=>onZoneClick('top')} style={{position:'absolute',top:'15%',left:'15%',right:'15%',height:'35%',cursor:selected?'pointer':'default',display:'flex',alignItems:'center',justifyContent:'center'}}>
+        {/* Full-half drop zones — generous hit area */}
+        <div data-dropzone="top" onClick={()=>onZoneClick('top')} style={{position:'absolute',top:0,left:0,right:0,height:'50%',display:'flex',alignItems:'center',justifyContent:'center',cursor:selected?'pointer':'default'}}>
           {placed.top&&<div style={{fontSize:16,fontWeight:600,color:'#c07800',pointerEvents:'none'}}>{step.items.find(it=>it.id===placed.top).label}</div>}
         </div>
-        <div data-dropzone="bottom" onClick={()=>onZoneClick('bottom')} style={{position:'absolute',bottom:'15%',left:'15%',right:'15%',height:'35%',cursor:selected?'pointer':'default',display:'flex',alignItems:'center',justifyContent:'center'}}>
+        <div data-dropzone="bottom" onClick={()=>onZoneClick('bottom')} style={{position:'absolute',bottom:0,left:0,right:0,height:'50%',display:'flex',alignItems:'center',justifyContent:'center',cursor:selected?'pointer':'default'}}>
           {placed.bottom&&<div style={{fontSize:16,fontWeight:600,color:'#4060a0',pointerEvents:'none'}}>{step.items.find(it=>it.id===placed.bottom).label}</div>}
         </div>
       </div>
@@ -2071,17 +2068,14 @@ function StepDndHalves({step,onNext}){
           if(isPlaced)return null;
           const active=selected===it.id;
           const isDragging=ghost&&ghost.id===it.id;
-          return<button key={it.id}
+          return<div key={it.id}
+            role="button"
             onPointerDown={(e)=>onItemPointerDown(e,it.id,it.label)}
-            onPointerMove={onItemPointerMove}
-            onPointerUp={onItemPointerUp}
-            onPointerCancel={()=>{dragRef.current={id:null,moved:false};setGhost(null);setHoverZone(null);}}
-            style={{padding:'10px 18px',borderRadius:10,fontSize:14,fontWeight:500,border:active?'2px solid #0071e3':'1.5px solid #d2d2d7',background:active?'rgba(0,122,255,.08)':'#fff',color:'#1d1d1f',cursor:'grab',touchAction:'none',userSelect:'none',opacity:isDragging?.3:1,transition:'opacity .15s'}}>{it.label}</button>;
+            style={{padding:'10px 18px',borderRadius:10,fontSize:14,fontWeight:500,border:active?'2px solid #0071e3':'1.5px solid #d2d2d7',background:active?'rgba(0,122,255,.08)':'#fff',color:'#1d1d1f',cursor:'grab',touchAction:'none',userSelect:'none',opacity:isDragging?.3:1,transition:'opacity .15s',display:'inline-block'}}>{it.label}</div>;
         })}
       </div>
       <p style={{fontSize:12,color:'#6e6e73',textAlign:'center',marginTop:8}}>{selected?'Тапните на нужную половину круга':'Перетащите или тапните'}</p>
 
-      {/* Floating drag ghost */}
       {ghost&&<div style={{position:'fixed',left:ghost.x-60,top:ghost.y-20,padding:'10px 18px',borderRadius:10,fontSize:14,fontWeight:600,background:'#fff',border:'2px solid #0071e3',color:'#1d1d1f',pointerEvents:'none',boxShadow:'0 8px 24px rgba(0,122,255,.25)',zIndex:100,transform:'rotate(-3deg)'}}>{ghost.label}</div>}
 
       {allCorrect&&<div style={{marginTop:'auto',paddingTop:20}}>
@@ -2125,7 +2119,7 @@ function StepDndCross({step,onNext}){
   const[selected,setSelected]=useState(null);
   const[ghost,setGhost]=useState(null);
   const[hoverZone,setHoverZone]=useState(null);
-  const dragRef=React.useRef({id:null,startX:0,startY:0,moved:false});
+  const stateRef=React.useRef({id:null,label:null,startX:0,startY:0,moved:false});
   const allCorrect=step.items.every(it=>placed[it.correctPos]===it.id);
 
   const tryPlace=(itemId,pos)=>{
@@ -2146,42 +2140,51 @@ function StepDndCross({step,onNext}){
   const labelXY=(i)=>{const a=angDeg(i)*Math.PI/180;const LR=R+30;return{x:cx+LR*Math.cos(a),y:cy-LR*Math.sin(a)};};
   const anch=(i)=>{const x=labelXY(i).x;return Math.abs(x-cx)<8?'middle':x<cx?'end':'start';};
 
-  // Convert SVG position to % of the 400×300 viewBox (-60 -10 S+120 S+20 = -60..340 x, -10..310 y → 400w × 320h)
   const vbW=S+120, vbH=S+30;
   const pctX=(sx)=>((sx-(-60))/vbW)*100;
   const pctY=(sy)=>((sy-(-10))/vbH)*100;
 
   const onItemPointerDown=(e,itemId,label)=>{
     e.preventDefault();
-    dragRef.current={id:itemId,label,startX:e.clientX,startY:e.clientY,moved:false};
-    e.currentTarget.setPointerCapture(e.pointerId);
+    stateRef.current={id:itemId,label,startX:e.clientX,startY:e.clientY,moved:false};
+
+    const onMove=(ev)=>{
+      const s=stateRef.current;
+      if(!s.id)return;
+      const dx=ev.clientX-s.startX, dy=ev.clientY-s.startY;
+      if(!s.moved&&(Math.abs(dx)>5||Math.abs(dy)>5))s.moved=true;
+      if(s.moved){
+        setGhost({id:s.id,label:s.label,x:ev.clientX,y:ev.clientY});
+        const target=document.elementFromPoint(ev.clientX,ev.clientY);
+        const zone=target?target.closest('[data-droppos]'):null;
+        setHoverZone(zone?parseInt(zone.getAttribute('data-droppos')):null);
+      }
+    };
+    const onUp=(ev)=>{
+      const s=stateRef.current;
+      window.removeEventListener('pointermove',onMove);
+      window.removeEventListener('pointerup',onUp);
+      window.removeEventListener('pointercancel',onUp);
+      if(!s.id){setGhost(null);setHoverZone(null);return;}
+      if(s.moved){
+        const target=document.elementFromPoint(ev.clientX,ev.clientY);
+        const zone=target?target.closest('[data-droppos]'):null;
+        if(zone)tryPlace(s.id,parseInt(zone.getAttribute('data-droppos')));
+      } else {
+        setSelected(prev=>prev===s.id?null:s.id);
+      }
+      stateRef.current={id:null,moved:false};
+      setGhost(null);setHoverZone(null);
+    };
+    window.addEventListener('pointermove',onMove);
+    window.addEventListener('pointerup',onUp);
+    window.addEventListener('pointercancel',onUp);
   };
-  const onItemPointerMove=(e)=>{
-    const d=dragRef.current;
-    if(!d.id)return;
-    const dx=e.clientX-d.startX, dy=e.clientY-d.startY;
-    if(!d.moved&&(Math.abs(dx)>5||Math.abs(dy)>5))d.moved=true;
-    if(d.moved){
-      setGhost({id:d.id,label:d.label,x:e.clientX,y:e.clientY});
-      const target=document.elementFromPoint(e.clientX,e.clientY);
-      const zone=target?target.closest('[data-droppos]'):null;
-      setHoverZone(zone?parseInt(zone.getAttribute('data-droppos')):null);
-    }
-  };
-  const onItemPointerUp=(e)=>{
-    const d=dragRef.current;
-    if(!d.id){dragRef.current={id:null,moved:false};return;}
-    if(d.moved){
-      const target=document.elementFromPoint(e.clientX,e.clientY);
-      const zone=target?target.closest('[data-droppos]'):null;
-      if(zone){const pos=parseInt(zone.getAttribute('data-droppos'));tryPlace(d.id,pos);}
-    } else {
-      setSelected(selected===d.id?null:d.id);
-    }
-    dragRef.current={id:null,moved:false};
-    setGhost(null);setHoverZone(null);
-  };
+
   const onZoneClick=(pos)=>{if(selected){tryPlace(selected,pos);}};
+
+  // Bigger dropzone radius for easier targeting (was 26, now 50 around the 22px circle)
+  const DROP_R=50;
 
   return(
     <div style={{display:'flex',flexDirection:'column',height:'100%',padding:'20px',maxWidth:480,margin:'0 auto',width:'100%',touchAction:'manipulation'}}>
@@ -2190,24 +2193,24 @@ function StepDndCross({step,onNext}){
 
       {/* Interactive circle with 4 empty slots */}
       <div style={{position:'relative',width:'100%',maxWidth:340,margin:'0 auto',aspectRatio:`${vbW}/${vbH}`}}>
-        <svg viewBox={`-60 -10 ${vbW} ${vbH}`} style={{width:'100%',height:'100%',overflow:'visible',position:'absolute',inset:0}}>
+        <svg viewBox={`-60 -10 ${vbW} ${vbH}`} style={{width:'100%',height:'100%',overflow:'visible',position:'absolute',inset:0,pointerEvents:'none'}}>
           <circle cx={cx} cy={cy} r={R} fill="none" stroke="#e5e5ea" strokeWidth="1"/>
           <line x1={cx} y1={cy-R-15} x2={cx} y2={cy+R+15} stroke="#e5e5ea" strokeWidth="1" strokeDasharray="3 4"/>
           <line x1={cx-R-15} y1={cy} x2={cx+R+15} y2={cy} stroke="#e5e5ea" strokeWidth="1" strokeDasharray="3 4"/>
           {[0,3,6,9].map(i=>{
             const p=xy(i);const pl=placed[i];const isWrong=wrong===i;const isHover=hoverZone===i;
             return<g key={i}>
-              <circle cx={p.x} cy={p.y} r={isHover?'26':'22'} fill={isWrong?'#ffd0d0':pl?'#E8364F':isHover?'rgba(232,54,79,.2)':'#fafafa'} stroke={isWrong||pl||isHover?'#E8364F':'#d2d2d7'} strokeWidth={isHover?'3':'2'} style={{transition:'all .15s'}}/>
+              <circle cx={p.x} cy={p.y} r={isHover?'28':'22'} fill={isWrong?'#ffd0d0':pl?'#E8364F':isHover?'rgba(232,54,79,.25)':'#fafafa'} stroke={isWrong||pl||isHover?'#E8364F':'#d2d2d7'} strokeWidth={isHover?'3':'2'} style={{transition:'all .15s'}}/>
               <text x={p.x} y={p.y+5} textAnchor="middle" fontSize="14" fontWeight="700" fill={pl?'#fff':'#aeaeb2'}>{i}</text>
               {pl&&<text x={labelXY(i).x} y={labelXY(i).y+4} textAnchor={anch(i)} fontSize="13" fontWeight="600" fill="#1d1d1f">{step.items.find(it=>it.id===pl).label}</text>}
             </g>;
           })}
         </svg>
-        {/* HTML drop zone overlays (invisible, capture pointer over each circle) */}
+        {/* HTML drop zone overlays — bigger hit targets around each opornyi circle */}
         {[0,3,6,9].map(i=>{
           const p=xy(i);
           return<div key={'dz'+i} data-droppos={i} onClick={()=>onZoneClick(i)}
-            style={{position:'absolute',left:`${pctX(p.x-26)}%`,top:`${pctY(p.y-26)}%`,width:`${(52/vbW)*100}%`,height:`${(52/vbH)*100}%`,cursor:selected?'pointer':'default',borderRadius:'50%'}}/>;
+            style={{position:'absolute',left:`${pctX(p.x-DROP_R)}%`,top:`${pctY(p.y-DROP_R)}%`,width:`${(DROP_R*2/vbW)*100}%`,height:`${(DROP_R*2/vbH)*100}%`,cursor:selected?'pointer':'default',borderRadius:'50%'}}/>;
         })}
       </div>
 
@@ -2216,12 +2219,10 @@ function StepDndCross({step,onNext}){
         {step.items.filter(it=>!Object.values(placed).includes(it.id)).map(it=>{
           const active=selected===it.id;
           const isDragging=ghost&&ghost.id===it.id;
-          return<button key={it.id}
+          return<div key={it.id}
+            role="button"
             onPointerDown={(e)=>onItemPointerDown(e,it.id,it.label)}
-            onPointerMove={onItemPointerMove}
-            onPointerUp={onItemPointerUp}
-            onPointerCancel={()=>{dragRef.current={id:null,moved:false};setGhost(null);setHoverZone(null);}}
-            style={{padding:'8px 14px',borderRadius:10,fontSize:13,fontWeight:500,border:active?'2px solid #0071e3':'1.5px solid #d2d2d7',background:active?'rgba(0,122,255,.08)':'#fff',color:'#1d1d1f',cursor:'grab',touchAction:'none',userSelect:'none',opacity:isDragging?.3:1,transition:'opacity .15s'}}>{it.label}</button>;
+            style={{padding:'8px 14px',borderRadius:10,fontSize:13,fontWeight:500,border:active?'2px solid #0071e3':'1.5px solid #d2d2d7',background:active?'rgba(0,122,255,.08)':'#fff',color:'#1d1d1f',cursor:'grab',touchAction:'none',userSelect:'none',opacity:isDragging?.3:1,transition:'opacity .15s',display:'inline-block'}}>{it.label}</div>;
         })}
       </div>
       <p style={{fontSize:11,color:'#6e6e73',textAlign:'center',marginTop:6}}>{selected?'Тапните на правильный кружок':'Перетащите или тапните'}</p>
