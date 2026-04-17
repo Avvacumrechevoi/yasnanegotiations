@@ -1748,9 +1748,11 @@ const LESSONS=[
 function LessonStar({mode,highlighted=[],labels={}}){
   // mode: 'empty' | 'halves' | 'cross-outline' | 'cross-labeled' | 'full'
   const S=400,cx=S/2,cy=S/2,R=140;
-  const xy=(i)=>{const a=(i*30-90)*Math.PI/180;return{x:cx+R*Math.cos(a),y:cy+R*Math.sin(a)};};
+  // Same orientation as main app: 0 bottom, 3 left, 6 top, 9 right
+  const angDeg=(i)=>270-i*30;
+  const xy=(i)=>{const a=angDeg(i)*Math.PI/180;return{x:cx+R*Math.cos(a),y:cy-R*Math.sin(a)};};
   const pts=Array.from({length:12},(_,i)=>xy(i));
-  const labelXY=(i)=>{const a=(i*30-90)*Math.PI/180;const LR=R+38;return{x:cx+LR*Math.cos(a),y:cy+LR*Math.sin(a)};};
+  const labelXY=(i)=>{const a=angDeg(i)*Math.PI/180;const LR=R+38;return{x:cx+LR*Math.cos(a),y:cy-LR*Math.sin(a)};};
   const anch=(i)=>{const x=labelXY(i).x;return Math.abs(x-cx)<8?'middle':x<cx?'end':'start';};
 
   // Default labels from Ясна Суток
