@@ -198,7 +198,7 @@ const T=[
   {id:'двора',verified:true,n:'Двора (Постройки)',rubrik:true,p:['Ворота','Калитка','Конюшня','Козлы / бараны','Коровник','Амбар','Веранда','Лавка хозяина','Баня / дровник','Голубятник','Пчелы / мед','Туалет / Навозная куча']},
   {id:'дома',verified:true,starter:true,n:'Дома',rubrik:true,p:['Прихожая','Гостиная','Столовая','Кухня','Веранда','Амбар','Чулан','Детская','Женская комната','Общая спальня','Кабинет','Сан.Блок']},
   {id:'спальни',verified:true,n:'Спальни',rubrik:true,p:['Халат','Гантели / Вода','Зарядка','Одеяло или Сундук','Окно / Гобилен','шкаф с книгами','Бельевой Шкаф','Красный угол','Прикроват. Тумбочка','Кровать','Прикроват.Тумбочка','Светильник']},
-  {id:'кухни',verified:true,starter:true,n:'Кухни',rubrik:true,p:['Вход / Фартук (без свинст','Мойка (водолей)','Рыбы (разделочный стол)','Плита','Стол Полуфабриктов ("кита','Шкаф Специй / Книга Рецеп','Стол для готовки','Готовое блюдо','Делим на порции','Оценочный стол','Шведский стол (дракон нап','Вынос блюд / Меню']},
+  {id:'кухни',verified:true,starter:true,n:'Кухни',rubrik:true,p:['Вход / Фартук','Мойка','Разделочный стол','Плита','Стол полуфабрикатов','Шкаф специй / Книга рецептов','Стол для готовки','Готовое блюдо','Делим на порции','Оценочный стол','Шведский стол','Вынос блюд / Меню']},
   {id:'круговорота_воды',verified:true,starter:true,n:'Круговорота воды',rubrik:true,p:['Вода с землей-грязь','Болото / Ключ / Родник','Река','Поверхность водоема','Пар','Облако','Холод / переход-перенос','Гроза / Молния','Дождь','Касание воды','Стекание','Лужа (брызгает-стреляет)']},
   {id:'печи',verified:true,n:'Печи',rubrik:true,p:['Каналы подачи','Колосники','Объем топки (духовой шкаф','огнеупорная пластина','Лабиринт (воздуховоды в п','Камора (расшир.камера)','Труба','Догорел','Отапливаемый объем','Теплоупор','Кондиционер','Дверцы-заслоник / форточк']},
   {id:'дерева',verified:true,n:'Дерева',rubrik:true,p:['Корни','Косточка','Плод','Клетка (Рыльце)','Домен (Столбик)','Бахрома (Пестик)','Лепесток','','Лист','Ветка','Ствол','Пень']},
@@ -279,7 +279,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
   const no=i=>(hl&&!hl.includes(i))?.15:1;
   const anch=i=>{const x=lps[i].x;return Math.abs(x-cx)<25?'middle':x<cx?'end':'start';};
   return(
-    <svg viewBox={mob?`80 -10 740 720`:`0 0 ${S} ${W}`} style={{width:'100%',height:'100%'}}>
+    <svg viewBox={mob?`40 -10 820 720`:`0 0 ${S} ${W}`} style={{width:'100%',height:'100%'}}>
       <defs>
         <filter id="gw"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
         <filter id="ns"><feDropShadow dx="0" dy="1" stdDeviation="2.5" floodOpacity=".07"/></filter>
@@ -388,11 +388,18 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
           <circle cx={pt.x} cy={pt.y} r={nr} fill="#fff" stroke={c} strokeWidth={isSel?2.5:1.8} opacity={o} filter="url(#ns)" style={{pointerEvents:'none'}}/>
           <text x={pt.x} y={pt.y+6} textAnchor="middle" fill={c} fontSize={isMob?(isSel?"22":"20"):(isSel?"16":"15")} fontWeight="700" fontFamily="var(--sans)" opacity={o} style={{pointerEvents:'none'}}>{i}</text>
         </g>);})}
-      {!overlay&&lps.map((pt,i)=>{const l=p[i]||'';if(!l)return null;let dy=5;if(i===0)dy=16;if(i===6)dy=-7;let parts=null;
+      {!overlay&&lps.map((pt,i)=>{const lOrig=p[i]||'';if(!lOrig)return null;let dy=5;if(i===0)dy=16;if(i===6)dy=-7;
+        // Trim incomplete trailing tokens (e.g. '("кита' or '(без свинст') — likely data-import artifacts
+        let l=lOrig.replace(/\s*\([^)]*$/,'').replace(/\s*\/\s*$/,'').trim();
+        // Cap each line to fit the canvas
+        const maxLine=isMob?14:18;
+        let parts=null;
         if(l.includes(' ')){const w=l.split(' ');const m=Math.ceil(w.length/2);parts=[w.slice(0,m).join(' '),w.slice(m).join(' ')];}
         else if(l.includes('-')&&l.length>10){const hi=l.indexOf('-');parts=[l.slice(0,hi+1),l.slice(hi+1)];}
         else if(l.includes('/')&&l.length>10){const si=l.indexOf('/');parts=[l.slice(0,si+1),l.slice(si+1).trim()];}
         else if(l.length>12){const m=Math.ceil(l.length/2);parts=[l.slice(0,m)+'-',l.slice(m)];}
+        if(parts){parts=parts.map(s=>s.length>maxLine?s.slice(0,maxLine-1).trimEnd()+'…':s);}
+        else if(l.length>maxLine)l=l.slice(0,maxLine-1).trimEnd()+'…';
         const xOff=i===3?14:i===9?-14:i===4?8:i===8?-8:0;
         const fs=isMob?(sel===i?'22':'19'):(sel===i?'16':'14');
         const fsW=isMob?(sel===i?'20':'17'):(sel===i?'15':'13');if(parts){return<text key={`l${i}`} x={pt.x+xOff} y={pt.y+dy-7} textAnchor={anch(i)} fill={'#000'} fontSize={fsW} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}><tspan x={pt.x+xOff} dy="0">{parts[0]}</tspan><tspan x={pt.x+xOff} dy="16">{parts[1]}</tspan></text>;}
@@ -2072,7 +2079,7 @@ function Glossary({onClose}){
 
 function App(){
   const defPinned=['суток','круговорота_воды','цветов','знаки_з.','дома','кухни'];
-  const initT=T.find(t=>t.id==='круговорота_воды')||T[0];
+  const initT=T.find(t=>t.id==='суток')||T[0];
   const[y,setY]=useState({name:initT.n,p:[...initT.p],th:initT.th||'',bh:initT.bh||'',lh:initT.lh||'',rh:initT.rh||'',custom:!!initT.custom});
   const[sel,setSel]=useState(null);
   const[af,setAf]=useState([]);
