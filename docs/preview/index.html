@@ -1735,7 +1735,68 @@ const LESSONS=[
       {type:'animation-cross',
         title:'Четыре опоры',
         body:'Четыре момента, которые знает каждый.\n\n0 — Ночь: Солнца нет\n3 — Утро: Солнце выходит из-за горизонта\n6 — День: Солнце на вершине\n9 — Вечер: Солнце уходит за горизонт\n\nЭто Опорный Крест — скелет Ясны.',
-        cta:'Дальше'}
+        cta:'Дальше'},
+      // Step 5: DnD — place opornyi yourself
+      {type:'dnd-cross',
+        title:'Поставьте опоры сами',
+        body:'Перетащите 4 подписи на правильные позиции круга.',
+        items:[
+          {id:'night',label:'Ночь',correctPos:0},
+          {id:'morning',label:'Утро',correctPos:3},
+          {id:'day',label:'День',correctPos:6},
+          {id:'evening',label:'Вечер',correctPos:9}
+        ],
+        success:'Опорный крест на месте. Теперь усложним.'},
+      // Step 6: Animation — 6 longs (чётные) appear one by one
+      {type:'animation-longs',
+        title:'Шесть долгих состояний',
+        body:'К 4 опорам добавились ещё 2 долгих состояния:\n\n2 — Заря: свет нарастает перед утром\n10 — Сумерки: свет убывает после заката\n\nВсего 6 долгих — они длятся часами. Они на чётных позициях.',
+        cta:'Посмотрим короткие'},
+      // Step 7: Animation — shorts + mini quiz
+      {type:'animation-shorts-quiz',
+        title:'Шесть коротких переходов',
+        body:'Между долгими — короткие переходы. Они длятся минуты.\n\n1 — Искра: первая вспышка света после ночи\n11 — Последний свет: последний проблеск перед темнотой\n\nИтого: 6 долгих + 6 коротких = 12 полочек.',
+        quiz:{
+          question:'Что из этого длится долго?',
+          options:['Ночь','Искра (первая вспышка света)'],
+          correctIdx:0,
+          successMsg:'Верно. Ночь — долгое состояние. Искра — короткий переход длиной в минуты.',
+          errorMsg:'Искра длится около минуты — это короткий переход. Ночь же тянется часами.'
+        }},
+      // Step 8: Transform to star
+      {type:'transform-star',
+        title:'Ясна-Звезда',
+        body:'Те же 12 состояний можно изобразить как звезду.\n\nКаждая позиция называется полочкой.\n\nРазложить явление в Ясну — значит разложить по 12 полочкам.',
+        cta:'Дальше'},
+      // Step 9: Carousel — examples of other cycles
+      {type:'carousel-examples',
+        title:'Одно правило — много явлений',
+        body:'Закон Ясны работает не только для суток. Любой цикл можно разложить на 12 полочек.',
+        examples:[
+          {title:'Сутки',items:['Ночь','Заря','Утро','День','Закат','Вечер'],color:'#FFB020'},
+          {title:'Жизнь человека',items:['Зачатие','Рост','Рождение','Зрелость','Закат сил','Уход'],color:'#4090D8'},
+          {title:'Огонь',items:['Искра','Разгорание','Пламя','Угли','Догорание','Зола'],color:'#E8364F'}
+        ],
+        cta:'Закрепить'},
+      // Step 10: Final quiz
+      {type:'final-quiz',
+        title:'Проверим что узнали',
+        questions:[
+          {q:'Сколько полочек в Ясне?',options:['8','10','12','24'],correctIdx:2,explain:'12 — потому что 6 долгих + 6 коротких.'},
+          {q:'На какой полочке Солнце на максимуме?',options:['0','3','6','9'],correctIdx:2,explain:'6 — это День. Солнце на вершине, свет максимален.'},
+          {q:'Опорный крест — это...',options:['4 случайные позиции','4 главные опоры (Ночь, Утро, День, Вечер)','4 коротких перехода'],correctIdx:1,explain:'Опорный Крест — скелет Ясны. Без этих 4 опор цикл разваливается.'}
+        ]},
+      // Step 11: Summary
+      {type:'summary',
+        title:'Урок 1 завершён',
+        achievements:[
+          'Ясна — 12 состояний одного цикла',
+          '6 долгих (чётные) + 6 коротких (нечётные) = 12 полочек',
+          'Опорный Крест — 4 главные точки: Ночь, Утро, День, Вечер'
+        ],
+        next:'Дальше — Урок 2: «Долгие и короткие». Разберём, почему чётные полочки тянутся, а нечётные — это вспышки.'},
+      // Step 12: Next steps
+      {type:'next-steps'}
     ]
   }
 ];
@@ -1745,56 +1806,89 @@ const LESSONS=[
 // ═══════════════════════════════════════════════════════════════════
 
 // Simplified star for lesson visualization — shows only what's needed per mode
-function LessonStar({mode,highlighted=[],labels={}}){
-  // mode: 'empty' | 'halves' | 'cross-outline' | 'cross-labeled' | 'full'
+function LessonStar({mode,highlighted=[],labels={},visiblePositions=null,showNumbers=true,showCircle=true,showLabels=true,starLines=false,transformProgress=0}){
+  // mode: 'empty' | 'halves' | 'cross-outline' | 'cross-labeled' | 'longs' | 'shorts' | 'full' | 'star'
+  // visiblePositions: null = use mode default; array = only show these (for step-by-step animation)
+  // transformProgress: 0..1 — for animation from circle to star (used in 'star' mode)
   const S=400,cx=S/2,cy=S/2,R=140;
-  // Same orientation as main app: 0 bottom, 3 left, 6 top, 9 right
   const angDeg=(i)=>270-i*30;
   const xy=(i)=>{const a=angDeg(i)*Math.PI/180;return{x:cx+R*Math.cos(a),y:cy-R*Math.sin(a)};};
   const pts=Array.from({length:12},(_,i)=>xy(i));
   const labelXY=(i)=>{const a=angDeg(i)*Math.PI/180;const LR=R+38;return{x:cx+LR*Math.cos(a),y:cy-LR*Math.sin(a)};};
   const anch=(i)=>{const x=labelXY(i).x;return Math.abs(x-cx)<8?'middle':x<cx?'end':'start';};
 
-  // Default labels from Ясна Суток
-  const sutokLabels={0:'Ночь',3:'Утро',6:'День',9:'Вечер'};
+  // Default labels from Ясна Суток (full 12)
+  const sutokLabels={0:'Ночь',1:'Искра',2:'Заря',3:'Утро',4:'Восход',5:'Утр.Салют',6:'День',7:'Обед',8:'Закат',9:'Вечер',10:'Сумерки',11:'Веч.Салют'};
+
+  // Which positions show as opornyi (red filled)
+  const opornyi=[0,3,6,9];
+  // Long (даже) and short (нечётные)
+  const longs=[0,2,4,6,8,10];
+  const shorts=[1,3,5,7,9,11];
+
+  const isVisible=(i)=>{
+    if(visiblePositions)return visiblePositions.includes(i);
+    if(mode==='cross-outline'||mode==='cross-labeled')return opornyi.includes(i);
+    if(mode==='longs')return longs.includes(i);
+    if(mode==='shorts')return true; // shows both — longs dimmed + shorts
+    if(mode==='full'||mode==='star')return true;
+    return false;
+  };
+  const isHighlighted=(i)=>highlighted.length===0?true:highlighted.includes(i);
+
+  // For star mode — draw connecting lines
+  const showStarLines=starLines||mode==='star';
 
   return(
     <svg viewBox={`0 0 ${S} ${S}`} style={{width:'100%',height:'100%',maxHeight:400}}>
       {/* Halves background */}
-      {(mode==='halves'||mode==='cross-outline'||mode==='cross-labeled'||mode==='full')&&<>
-        <path d={`M ${cx-R-30} ${cy} A ${R+30} ${R+30} 0 0 1 ${cx+R+30} ${cy} Z`} fill="rgba(255,200,40,.08)"/>
-        <path d={`M ${cx-R-30} ${cy} A ${R+30} ${R+30} 0 0 0 ${cx+R+30} ${cy} Z`} fill="rgba(40,60,160,.06)"/>
-        <line x1={cx-R-30} y1={cy} x2={cx+R+30} y2={cy} stroke="#d2d2d7" strokeWidth="1" strokeDasharray="3 4"/>
+      {(mode==='halves'||mode==='cross-outline'||mode==='cross-labeled'||mode==='longs'||mode==='shorts'||mode==='full')&&<>
+        <path d={`M ${cx-R-30} ${cy} A ${R+30} ${R+30} 0 0 1 ${cx+R+30} ${cy} Z`} fill="rgba(255,200,40,.07)"/>
+        <path d={`M ${cx-R-30} ${cy} A ${R+30} ${R+30} 0 0 0 ${cx+R+30} ${cy} Z`} fill="rgba(40,60,160,.05)"/>
+        <line x1={cx-R-30} y1={cy} x2={cx+R+30} y2={cy} stroke="#e5e5ea" strokeWidth="1" strokeDasharray="3 4"/>
       </>}
 
-      {/* Halves labels */}
+      {/* Halves labels (only in halves mode) */}
       {mode==='halves'&&<>
         <text x={cx} y={cy-R-12} textAnchor="middle" fontSize="16" fontWeight="600" fill="#c07800">☀️ День · Свет</text>
         <text x={cx} y={cy+R+24} textAnchor="middle" fontSize="16" fontWeight="600" fill="#4060a0">🌙 Ночь · Тьма</text>
       </>}
 
-      {/* Cross outline (vertical + horizontal axes) */}
-      {(mode==='cross-outline'||mode==='cross-labeled'||mode==='full')&&<>
-        <line x1={cx} y1={cy-R-20} x2={cx} y2={cy+R+20} stroke="#d2d2d7" strokeWidth="1" strokeDasharray="3 4"/>
+      {/* Vertical axis + circle */}
+      {showCircle&&(mode==='cross-outline'||mode==='cross-labeled'||mode==='longs'||mode==='shorts'||mode==='full')&&<>
+        <line x1={cx} y1={cy-R-20} x2={cx} y2={cy+R+20} stroke="#e5e5ea" strokeWidth="1" strokeDasharray="3 4"/>
         <circle cx={cx} cy={cy} r={R} fill="none" stroke="#e5e5ea" strokeWidth="1"/>
       </>}
 
-      {/* Positions: 12 dots */}
-      {(mode==='full')&&pts.map((p,i)=><circle key={i} cx={p.x} cy={p.y} r={i%2===0?8:6} fill="#fff" stroke="#c7c7cc" strokeWidth="1.5"/>)}
+      {/* Star connecting lines (12-sided polygon) */}
+      {showStarLines&&<polygon points={pts.map(p=>`${p.x},${p.y}`).join(' ')} fill="none" stroke="#c7c7cc" strokeWidth="1.5" opacity={mode==='star'?1:.5}/>}
 
-      {/* Cross-only: show just 4 opornyi (0,3,6,9) */}
-      {(mode==='cross-outline'||mode==='cross-labeled'||mode==='full')&&[0,3,6,9].map(i=>{
-        const p=pts[i];const on=highlighted.includes(i)||mode==='cross-labeled'||mode==='full';
-        return<g key={i} opacity={on?1:.3}>
-          <circle cx={p.x} cy={p.y} r="14" fill="#E8364F" stroke="#fff" strokeWidth="2"/>
-          <text x={p.x} y={p.y+5} textAnchor="middle" fontSize="13" fontWeight="700" fill="#fff">{i}</text>
+      {/* Individual position dots */}
+      {Array.from({length:12}).map((_,i)=>{
+        if(!isVisible(i))return null;
+        const p=pts[i];
+        const isOpor=opornyi.includes(i);
+        const isLong=i%2===0;
+        const highlighted=isHighlighted(i);
+        const opacity=highlighted?1:.25;
+        // Colors: opor red, long orange, short blue  (simplified pedagogical palette)
+        const fill=isOpor?'#E8364F':(isLong?'#FFB020':'#4090D8');
+        const r=isOpor?14:(isLong?11:9);
+        return<g key={i} opacity={opacity} style={{transition:'opacity .3s'}}>
+          <circle cx={p.x} cy={p.y} r={r} fill={fill} stroke="#fff" strokeWidth="2"/>
+          {showNumbers&&<text x={p.x} y={p.y+4} textAnchor="middle" fontSize={isOpor?'13':'11'} fontWeight="700" fill="#fff">{i}</text>}
         </g>;
       })}
 
-      {/* Cross labels */}
-      {(mode==='cross-labeled'||mode==='full')&&[0,3,6,9].map(i=>{
-        const lp=labelXY(i);const lbl=labels[i]||sutokLabels[i];
-        return<text key={'l'+i} x={lp.x} y={lp.y+5} textAnchor={anch(i)} fontSize="14" fontWeight="600" fill="#1d1d1f">{lbl}</text>;
+      {/* Position labels */}
+      {showLabels&&Array.from({length:12}).map((_,i)=>{
+        if(!isVisible(i))return null;
+        const lp=labelXY(i);
+        const isOpor=opornyi.includes(i);
+        const lbl=labels[i]||(isOpor?sutokLabels[i]:((mode==='full'||mode==='star')?sutokLabels[i]:null));
+        if(!lbl)return null;
+        const highlighted=isHighlighted(i);
+        return<text key={'l'+i} x={lp.x} y={lp.y+4} textAnchor={anch(i)} fontSize={isOpor?'14':'11'} fontWeight={isOpor?'600':'500'} fill={isOpor?'#1d1d1f':'#424245'} opacity={highlighted?1:.3} style={{transition:'opacity .3s'}}>{lbl}</text>;
       })}
     </svg>);
 }
@@ -1940,29 +2034,353 @@ function StepAnimationCross({step,onNext}){
 }
 
 // Step router
-function LessonStep({step,onNext}){
+// Step 5: DnD — place opornyi on 4 positions
+function StepDndCross({step,onNext}){
+  const[placed,setPlaced]=useState({});
+  const[wrong,setWrong]=useState(null);
+  const[drag,setDrag]=useState(null);
+  const allCorrect=step.items.every(it=>placed[it.correctPos]===it.id);
+
+  const tryPlace=(itemId,pos)=>{
+    if(placed[pos])return; // slot taken
+    const item=step.items.find(it=>it.id===itemId);
+    if(item.correctPos===pos){
+      setPlaced(p=>({...p,[pos]:itemId}));
+      setWrong(null);setDrag(null);
+    } else {
+      setWrong(pos);setTimeout(()=>setWrong(null),450);
+    }
+  };
+
+  // Position coordinates (same system as LessonStar, scaled for this small circle)
+  const S=280,cx=S/2,cy=S/2,R=100;
+  const angDeg=(i)=>270-i*30;
+  const xy=(i)=>{const a=angDeg(i)*Math.PI/180;return{x:cx+R*Math.cos(a),y:cy-R*Math.sin(a)};};
+
+  const labelXY=(i)=>{const a=angDeg(i)*Math.PI/180;const LR=R+30;return{x:cx+LR*Math.cos(a),y:cy-LR*Math.sin(a)};};
+  const anch=(i)=>{const x=labelXY(i).x;return Math.abs(x-cx)<8?'middle':x<cx?'end':'start';};
+
+  return(
+    <div style={{display:'flex',flexDirection:'column',height:'100%',padding:'20px',maxWidth:480,margin:'0 auto',width:'100%'}}>
+      <h2 style={{fontSize:20,fontWeight:700,color:'#1d1d1f',marginBottom:6,textAlign:'center'}}>{step.title}</h2>
+      <p style={{fontSize:13,color:'#6e6e73',lineHeight:1.5,marginBottom:14,textAlign:'center'}}>{step.body}</p>
+
+      {/* Interactive circle with 4 empty slots */}
+      <div style={{position:'relative',width:'100%',maxWidth:280,margin:'0 auto',aspectRatio:'1/1'}}>
+        <svg viewBox={`0 0 ${S} ${S}`} style={{width:'100%',height:'100%',overflow:'visible'}}>
+          <circle cx={cx} cy={cy} r={R} fill="none" stroke="#e5e5ea" strokeWidth="1"/>
+          <line x1={cx} y1={cy-R-15} x2={cx} y2={cy+R+15} stroke="#e5e5ea" strokeWidth="1" strokeDasharray="3 4"/>
+          <line x1={cx-R-15} y1={cy} x2={cx+R+15} y2={cy} stroke="#e5e5ea" strokeWidth="1" strokeDasharray="3 4"/>
+          {[0,3,6,9].map(i=>{
+            const p=xy(i);const pl=placed[i];const isWrong=wrong===i;
+            return<g key={i} style={{cursor:drag?'pointer':'default'}} onClick={()=>drag&&tryPlace(drag,i)}>
+              <circle cx={p.x} cy={p.y} r="22" fill={isWrong?'#ffd0d0':pl?'#E8364F':'#fafafa'} stroke={isWrong?'#E8364F':pl?'#E8364F':'#d2d2d7'} strokeWidth="2"/>
+              <text x={p.x} y={p.y+5} textAnchor="middle" fontSize="14" fontWeight="700" fill={pl?'#fff':'#aeaeb2'}>{i}</text>
+              {pl&&<text x={labelXY(i).x} y={labelXY(i).y+4} textAnchor={anch(i)} fontSize="13" fontWeight="600" fill="#1d1d1f">{step.items.find(it=>it.id===pl).label}</text>}
+            </g>;
+          })}
+        </svg>
+      </div>
+
+      {/* Items to drag */}
+      <div style={{marginTop:16,display:'flex',gap:8,flexWrap:'wrap',justifyContent:'center'}}>
+        {step.items.filter(it=>!Object.values(placed).includes(it.id)).map(it=>{
+          const active=drag===it.id;
+          return<button key={it.id} onClick={()=>setDrag(active?null:it.id)} style={{padding:'8px 14px',borderRadius:10,fontSize:13,fontWeight:500,border:active?'2px solid #0071e3':'1.5px solid #d2d2d7',background:active?'rgba(0,122,255,.08)':'#fff',color:'#1d1d1f',cursor:'pointer'}}>{it.label}</button>;
+        })}
+      </div>
+      {drag&&<p style={{fontSize:11,color:'#0071e3',textAlign:'center',marginTop:6}}>Тапните на правильный кружок</p>}
+
+      {allCorrect&&<div style={{marginTop:'auto',paddingTop:18}}>
+        <div style={{padding:'11px 14px',background:'#e8f5ec',border:'1px solid #30A06040',borderRadius:10,fontSize:13,color:'#1d6032',textAlign:'center',marginBottom:12,fontWeight:500}}>✓ {step.success}</div>
+        <button onClick={onNext} style={{width:'100%',fontSize:15,fontWeight:600,padding:'12px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer'}}>Дальше →</button>
+      </div>}
+    </div>);
+}
+
+// Step 6: Animate longs appearing (0,2,4,6,8,10)
+function StepAnimationLongs({step,onNext}){
+  const[visible,setVisible]=useState([0,3,6,9]); // Start with opornyi already visible
+  useEffect(()=>{
+    const timers=[];
+    [2,4,8,10].forEach((pos,idx)=>{
+      timers.push(setTimeout(()=>setVisible(v=>v.concat(pos)),600+idx*700));
+    });
+    return()=>timers.forEach(clearTimeout);
+  },[]);
+  const allShown=visible.length>=6+2; // 4 opornyi + 2 new
+
+  return(
+    <div style={{display:'flex',flexDirection:'column',height:'100%',padding:'20px',maxWidth:560,margin:'0 auto',width:'100%'}}>
+      <h2 style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:12,textAlign:'center'}}>{step.title}</h2>
+      <div style={{flex:'1 1 auto',minHeight:280,maxHeight:400,display:'flex',alignItems:'center',justifyContent:'center'}}>
+        <LessonStar mode="longs" visiblePositions={visible}/>
+      </div>
+      <p style={{fontSize:14,color:'#424245',lineHeight:1.65,whiteSpace:'pre-wrap',marginBottom:18,marginTop:8}}>{step.body}</p>
+      {allShown?
+        <button onClick={onNext} style={{fontSize:15,fontWeight:600,padding:'12px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer'}}>{step.cta||'Дальше'} →</button>
+        :<div style={{height:48,display:'flex',alignItems:'center',justifyContent:'center',color:'#aeaeb2',fontSize:12}}>● ● ● добавляем долгие состояния...</div>}
+    </div>);
+}
+
+// Step 7: Shorts animation + inline quiz
+function StepAnimationShortsQuiz({step,onNext}){
+  const[visible,setVisible]=useState([0,2,3,4,6,8,9,10]); // longs + opornyi already shown
+  const[quizAnswer,setQuizAnswer]=useState(null);
+  useEffect(()=>{
+    const timers=[];
+    [1,5,7,11].forEach((pos,idx)=>{
+      timers.push(setTimeout(()=>setVisible(v=>v.concat(pos)),400+idx*500));
+    });
+    return()=>timers.forEach(clearTimeout);
+  },[]);
+  const allShown=visible.length>=12;
+
+  return(
+    <div style={{display:'flex',flexDirection:'column',height:'100%',padding:'20px',maxWidth:560,margin:'0 auto',width:'100%'}}>
+      <h2 style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:12,textAlign:'center'}}>{step.title}</h2>
+      <div style={{flex:'0 0 auto',minHeight:240,maxHeight:320,display:'flex',alignItems:'center',justifyContent:'center'}}>
+        <LessonStar mode="full" visiblePositions={visible}/>
+      </div>
+      <p style={{fontSize:13,color:'#424245',lineHeight:1.6,whiteSpace:'pre-wrap',marginBottom:14,marginTop:6}}>{step.body}</p>
+
+      {allShown&&step.quiz&&<div style={{padding:'14px 16px',background:'#f5f5f7',borderRadius:12,border:'1px solid #e5e5ea',marginBottom:14}}>
+        <div style={{fontSize:14,fontWeight:600,color:'#1d1d1f',marginBottom:10}}>{step.quiz.question}</div>
+        <div style={{display:'flex',flexDirection:'column',gap:6}}>
+          {step.quiz.options.map((opt,i)=>{
+            const picked=quizAnswer===i;
+            const correct=step.quiz.correctIdx===i;
+            const isWrong=quizAnswer!==null&&picked&&!correct;
+            const isRight=quizAnswer!==null&&picked&&correct;
+            return<button key={i} onClick={()=>quizAnswer===null&&setQuizAnswer(i)} disabled={quizAnswer!==null}
+              style={{padding:'10px 14px',borderRadius:10,fontSize:13,textAlign:'left',
+                border:`1.5px solid ${isRight?'#30A060':isWrong?'#E8364F':'#d2d2d7'}`,
+                background:isRight?'rgba(48,160,96,.08)':isWrong?'rgba(232,54,79,.06)':'#fff',
+                color:isRight?'#1d6032':isWrong?'#8a1d32':'#1d1d1f',
+                cursor:quizAnswer===null?'pointer':'default',
+                fontWeight:picked?600:400}}>
+              {isRight&&'✓ '}{isWrong&&'✗ '}{opt}
+            </button>;
+          })}
+        </div>
+        {quizAnswer!==null&&<div style={{marginTop:10,fontSize:12,color:'#6e6e73',lineHeight:1.5}}>
+          {quizAnswer===step.quiz.correctIdx?step.quiz.successMsg:step.quiz.errorMsg}
+        </div>}
+      </div>}
+
+      {quizAnswer!==null&&<button onClick={onNext} style={{fontSize:15,fontWeight:600,padding:'12px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer'}}>Дальше →</button>}
+    </div>);
+}
+
+// Step 8: Transform circle → star
+function StepTransformStar({step,onNext}){
+  const[done,setDone]=useState(false);
+  useEffect(()=>{const t=setTimeout(()=>setDone(true),1200);return()=>clearTimeout(t);},[]);
+
+  return(
+    <div style={{display:'flex',flexDirection:'column',height:'100%',padding:'20px',maxWidth:560,margin:'0 auto',width:'100%'}}>
+      <h2 style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:12,textAlign:'center'}}>{step.title}</h2>
+      <div style={{flex:'1 1 auto',minHeight:280,maxHeight:400,display:'flex',alignItems:'center',justifyContent:'center',position:'relative'}}>
+        {/* Cross-fade between circle and star */}
+        <div style={{position:'absolute',inset:0,opacity:done?0:1,transition:'opacity 1s'}}>
+          <LessonStar mode="full" showCircle={true} starLines={false}/>
+        </div>
+        <div style={{position:'absolute',inset:0,opacity:done?1:0,transition:'opacity 1s'}}>
+          <LessonStar mode="star" showCircle={false} starLines={true}/>
+        </div>
+      </div>
+      <p style={{fontSize:14,color:'#424245',lineHeight:1.65,whiteSpace:'pre-wrap',marginBottom:18,marginTop:8,textAlign:'center'}}>{step.body}</p>
+      {done&&<button onClick={onNext} style={{fontSize:15,fontWeight:600,padding:'12px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer'}}>{step.cta||'Дальше'} →</button>}
+    </div>);
+}
+
+// Step 9: Carousel of examples
+function StepCarouselExamples({step,onNext}){
+  const[idx,setIdx]=useState(0);
+  const ex=step.examples[idx];
+  return(
+    <div style={{display:'flex',flexDirection:'column',height:'100%',padding:'20px',maxWidth:520,margin:'0 auto',width:'100%'}}>
+      <h2 style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:10,textAlign:'center'}}>{step.title}</h2>
+      <p style={{fontSize:13,color:'#6e6e73',lineHeight:1.5,marginBottom:20,textAlign:'center'}}>{step.body}</p>
+
+      <div style={{flex:'0 0 auto',padding:'20px 18px',background:`linear-gradient(135deg,${ex.color}08,${ex.color}18)`,border:`1px solid ${ex.color}30`,borderRadius:16,marginBottom:14,minHeight:220,display:'flex',flexDirection:'column',transition:'all .35s'}}>
+        <div style={{fontSize:11,fontWeight:700,color:ex.color,letterSpacing:0.6,textTransform:'uppercase',marginBottom:10}}>Пример {idx+1} из {step.examples.length}</div>
+        <div style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:16}}>{ex.title}</div>
+        <div style={{display:'flex',flexDirection:'column',gap:8}}>
+          {ex.items.map((it,i)=><div key={i} style={{display:'flex',alignItems:'center',gap:10,fontSize:14,color:'#424245'}}>
+            <div style={{width:20,height:20,borderRadius:'50%',background:ex.color,color:'#fff',fontSize:11,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{i+1}</div>
+            <span>{it}</span>
+          </div>)}
+        </div>
+      </div>
+
+      {/* Dots pagination */}
+      <div style={{display:'flex',gap:6,justifyContent:'center',marginBottom:14}}>
+        {step.examples.map((_,i)=><button key={i} onClick={()=>setIdx(i)} style={{width:8,height:8,borderRadius:'50%',border:'none',background:i===idx?'#0071e3':'#d2d2d7',cursor:'pointer',padding:0}}/>)}
+      </div>
+
+      <div style={{display:'flex',gap:8,marginTop:'auto'}}>
+        {idx>0&&<button onClick={()=>setIdx(idx-1)} style={{fontSize:13,padding:'10px 14px',borderRadius:10,border:'1px solid #e5e5ea',background:'#fff',cursor:'pointer',color:'#424245'}}>← Предыдущий</button>}
+        {idx<step.examples.length-1?
+          <button onClick={()=>setIdx(idx+1)} style={{flex:1,fontSize:15,fontWeight:600,padding:'12px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer'}}>Следующий пример →</button>
+          :<button onClick={onNext} style={{flex:1,fontSize:15,fontWeight:600,padding:'12px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer'}}>{step.cta||'Закрепить'} →</button>
+        }
+      </div>
+    </div>);
+}
+
+// Step 10: Final quiz
+function StepFinalQuiz({step,onNext}){
+  const[answers,setAnswers]=useState({}); // {qIdx: optionIdx}
+  const[activeQ,setActiveQ]=useState(0);
+
+  const pick=(qIdx,optIdx)=>{
+    if(answers[qIdx]!==undefined)return;
+    setAnswers(a=>({...a,[qIdx]:optIdx}));
+    // Auto-advance after a moment if correct
+    if(step.questions[qIdx].correctIdx===optIdx){
+      setTimeout(()=>{if(qIdx<step.questions.length-1)setActiveQ(qIdx+1);},900);
+    }
+  };
+
+  const allCorrect=step.questions.every((q,i)=>answers[i]===q.correctIdx);
+  const allAnswered=step.questions.every((q,i)=>answers[i]!==undefined);
+
+  return(
+    <div style={{display:'flex',flexDirection:'column',height:'100%',padding:'20px',maxWidth:560,margin:'0 auto',width:'100%'}}>
+      <h2 style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:6,textAlign:'center'}}>{step.title}</h2>
+      <p style={{fontSize:12,color:'#86868b',marginBottom:16,textAlign:'center'}}>Вопрос {Math.min(activeQ+1,step.questions.length)} из {step.questions.length}</p>
+
+      <div style={{flex:'1 1 auto',display:'flex',flexDirection:'column',gap:14,overflowY:'auto'}}>
+        {step.questions.map((q,qIdx)=>{
+          const show=qIdx<=activeQ||answers[qIdx]!==undefined;
+          if(!show)return null;
+          const myAns=answers[qIdx];
+          return<div key={qIdx} style={{padding:'14px 16px',background:'#f5f5f7',borderRadius:12,border:'1px solid #e5e5ea'}}>
+            <div style={{fontSize:14,fontWeight:600,color:'#1d1d1f',marginBottom:10}}>{qIdx+1}. {q.q}</div>
+            <div style={{display:'flex',flexDirection:'column',gap:6}}>
+              {q.options.map((opt,optIdx)=>{
+                const picked=myAns===optIdx;
+                const correct=q.correctIdx===optIdx;
+                const isRight=picked&&correct;
+                const isWrong=picked&&!correct;
+                const showCorrectHint=myAns!==undefined&&correct&&!picked;
+                return<button key={optIdx} onClick={()=>pick(qIdx,optIdx)} disabled={myAns!==undefined}
+                  style={{padding:'10px 14px',borderRadius:10,fontSize:13,textAlign:'left',
+                    border:`1.5px solid ${isRight||showCorrectHint?'#30A060':isWrong?'#E8364F':'#d2d2d7'}`,
+                    background:isRight?'rgba(48,160,96,.1)':isWrong?'rgba(232,54,79,.06)':showCorrectHint?'rgba(48,160,96,.04)':'#fff',
+                    color:isRight?'#1d6032':isWrong?'#8a1d32':'#1d1d1f',
+                    cursor:myAns===undefined?'pointer':'default',
+                    fontWeight:picked||showCorrectHint?600:400}}>
+                  {isRight&&'✓ '}{isWrong&&'✗ '}{showCorrectHint&&'✓ '}{opt}
+                </button>;
+              })}
+            </div>
+            {myAns!==undefined&&q.explain&&<div style={{marginTop:10,fontSize:12,color:'#6e6e73',lineHeight:1.5,padding:'8px 10px',background:'#fff',borderRadius:8,borderLeft:'2px solid #0071e3'}}>{q.explain}</div>}
+          </div>;
+        })}
+      </div>
+
+      {allAnswered&&<div style={{marginTop:14}}>
+        {allCorrect?
+          <div style={{padding:'10px 14px',background:'#e8f5ec',border:'1px solid #30A06040',borderRadius:10,fontSize:13,color:'#1d6032',textAlign:'center',marginBottom:12,fontWeight:600}}>✓ Все ответы верны!</div>
+          :<div style={{padding:'10px 14px',background:'#fff8e8',border:'1px solid #E8A83440',borderRadius:10,fontSize:13,color:'#8a5a00',textAlign:'center',marginBottom:12}}>Посмотрите правильные ответы и объяснения выше</div>
+        }
+        <button onClick={onNext} style={{width:'100%',fontSize:15,fontWeight:600,padding:'12px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer'}}>Дальше →</button>
+      </div>}
+    </div>);
+}
+
+// Step 11: Summary of achievements
+function StepSummary({step,onNext}){
+  return(
+    <div style={{display:'flex',flexDirection:'column',height:'100%',padding:'30px 24px',maxWidth:520,margin:'0 auto',width:'100%'}}>
+      <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
+        <div style={{width:80,height:80,borderRadius:'50%',background:'linear-gradient(135deg,#30A060,#5cb88a)',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:40,marginBottom:20,boxShadow:'0 8px 24px rgba(48,160,96,.3)'}}>✓</div>
+        <h2 style={{fontSize:26,fontWeight:700,color:'#1d1d1f',marginBottom:24,textAlign:'center'}}>{step.title}</h2>
+
+        <div style={{width:'100%',padding:'18px 20px',background:'#f5f5f7',borderRadius:14,marginBottom:20}}>
+          <div style={{fontSize:11,fontWeight:700,color:'#6e6e73',textTransform:'uppercase',letterSpacing:0.5,marginBottom:10}}>Теперь вы знаете</div>
+          {step.achievements.map((a,i)=><div key={i} style={{display:'flex',alignItems:'flex-start',gap:10,marginBottom:8,fontSize:14,color:'#1d1d1f',lineHeight:1.5}}>
+            <span style={{color:'#30A060',fontWeight:700,flexShrink:0}}>✓</span>
+            <span>{a}</span>
+          </div>)}
+        </div>
+
+        {step.next&&<div style={{padding:'12px 16px',background:'rgba(0,122,255,.06)',border:'1px solid rgba(0,122,255,.2)',borderRadius:12,fontSize:13,color:'#424245',lineHeight:1.55,marginBottom:20}}>
+          <span style={{fontWeight:600,color:'#0071e3'}}>→ </span>{step.next}
+        </div>}
+      </div>
+
+      <button onClick={onNext} style={{fontSize:15,fontWeight:600,padding:'12px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer'}}>Завершить урок →</button>
+    </div>);
+}
+
+// Step 12: Next steps after completion
+function StepNextSteps({step,onNext,onRepeat,onPickAnother}){
+  return(
+    <div style={{display:'flex',flexDirection:'column',height:'100%',padding:'30px 24px',maxWidth:480,margin:'0 auto',width:'100%',justifyContent:'center'}}>
+      <div style={{fontSize:44,textAlign:'center',marginBottom:14}}>🎓</div>
+      <h2 style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:8,textAlign:'center'}}>Что дальше?</h2>
+      <p style={{fontSize:13,color:'#6e6e73',lineHeight:1.6,marginBottom:28,textAlign:'center'}}>Следующие уроки в разработке. Пока можете изучить Ясну Суток в приложении.</p>
+
+      <div style={{display:'flex',flexDirection:'column',gap:10}}>
+        <button onClick={onNext} style={{fontSize:15,fontWeight:600,padding:'14px 20px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer',textAlign:'left',display:'flex',alignItems:'center',gap:10}}>
+          <span style={{fontSize:20}}>⭐</span>
+          <div style={{flex:1}}>
+            <div>Открыть Ясну Суток</div>
+            <div style={{fontSize:11,opacity:.85,fontWeight:400,marginTop:2}}>Применить то что узнали</div>
+          </div>
+        </button>
+        {onRepeat&&<button onClick={onRepeat} style={{fontSize:14,padding:'12px 18px',borderRadius:12,border:'1px solid #e5e5ea',background:'#fff',cursor:'pointer',color:'#424245',textAlign:'left',display:'flex',alignItems:'center',gap:10}}>
+          <span style={{fontSize:18}}>↻</span>
+          <span>Повторить Урок 1</span>
+        </button>}
+        {onPickAnother&&<button onClick={onPickAnother} style={{fontSize:14,padding:'12px 18px',borderRadius:12,border:'1px solid #e5e5ea',background:'#fff',cursor:'pointer',color:'#424245',textAlign:'left',display:'flex',alignItems:'center',gap:10}}>
+          <span style={{fontSize:18}}>📋</span>
+          <span>Все уроки</span>
+        </button>}
+      </div>
+    </div>);
+}
+
+function LessonStep({step,onNext,onRepeat,onPickAnother}){
   switch(step.type){
     case 'intro': return<StepIntro step={step} onNext={onNext}/>;
     case 'animation-sun': return<StepAnimationSun step={step} onNext={onNext}/>;
     case 'dnd-halves': return<StepDndHalves step={step} onNext={onNext}/>;
     case 'animation-cross': return<StepAnimationCross step={step} onNext={onNext}/>;
+    case 'dnd-cross': return<StepDndCross step={step} onNext={onNext}/>;
+    case 'animation-longs': return<StepAnimationLongs step={step} onNext={onNext}/>;
+    case 'animation-shorts-quiz': return<StepAnimationShortsQuiz step={step} onNext={onNext}/>;
+    case 'transform-star': return<StepTransformStar step={step} onNext={onNext}/>;
+    case 'carousel-examples': return<StepCarouselExamples step={step} onNext={onNext}/>;
+    case 'final-quiz': return<StepFinalQuiz step={step} onNext={onNext}/>;
+    case 'summary': return<StepSummary step={step} onNext={onNext}/>;
+    case 'next-steps': return<StepNextSteps step={step} onNext={onNext} onRepeat={onRepeat} onPickAnother={onPickAnother}/>;
     default: return<div style={{padding:20,textAlign:'center',color:'#aeaeb2'}}>Шаг типа '{step.type}' ещё не реализован</div>;
   }
 }
 
 // Main Lesson component
-function Lesson({lessonId,onClose,onComplete}){
+function Lesson({lessonId,onClose,onComplete,onPickAnother}){
   const lesson=LESSONS.find(l=>l.id===lessonId)||LESSONS[0];
   const[stepIdx,setStepIdx]=useState(0);
   const totalSteps=lesson.steps.length;
   const currentStep=lesson.steps[stepIdx];
   const progress=((stepIdx+1)/totalSteps)*100;
 
+  // Mark lesson complete once the user reaches the summary (step 11 — penultimate)
+  useEffect(()=>{
+    if(currentStep.type==='summary'&&onComplete)onComplete(lesson.id);
+  },[currentStep.type]);
+
   const goNext=()=>{
     if(stepIdx<totalSteps-1){setStepIdx(stepIdx+1);}
-    else {if(onComplete)onComplete(lesson.id);onClose();}
+    else {onClose();}
   };
   const goPrev=()=>{if(stepIdx>0)setStepIdx(stepIdx-1);};
+  const goRepeat=()=>setStepIdx(0);
 
   return(
     <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#fff',zIndex:70,display:'flex',flexDirection:'column'}}>
@@ -1981,7 +2399,7 @@ function Lesson({lessonId,onClose,onComplete}){
       </div>
       {/* Content */}
       <div style={{flex:1,overflowY:'auto'}}>
-        <LessonStep step={currentStep} onNext={goNext}/>
+        <LessonStep step={currentStep} onNext={goNext} onRepeat={goRepeat} onPickAnother={onPickAnother}/>
       </div>
     </div>);
 }
@@ -2001,8 +2419,8 @@ function LessonPicker({onSelectLesson,onClose,completedLessons=[]}){
         <div style={{fontSize:14,color:'#6e6e73',lineHeight:1.6,marginBottom:24}}>
           Шаг за шагом разберём устройство Ясны. Начнём с самого знакомого — суток. Каждый урок 5-10 минут.
         </div>
-        <div style={{padding:'10px 14px',background:'#fff8e8',border:'1px solid #E8A83440',borderRadius:10,fontSize:12,color:'#424245',marginBottom:20,lineHeight:1.5}}>
-          <b style={{color:'#c07800'}}>⚠ Прототип.</b> Доступны первые 4 шага первого урока для оценки формата. Остальные уроки — в разработке.
+        <div style={{padding:'10px 14px',background:'rgba(0,122,255,.06)',border:'1px solid rgba(0,122,255,.2)',borderRadius:10,fontSize:12,color:'#424245',marginBottom:20,lineHeight:1.5}}>
+          <b style={{color:'#0071e3'}}>ℹ</b> Первый урок готов полностью — 12 шагов, ~8 минут. Уроки 2-7 в разработке.
         </div>
         {LESSONS.map(l=>{
           const done=completedLessons.includes(l.id);
@@ -2516,7 +2934,7 @@ function App(){
       {verif&&<Verification y={y} vs={vState} setVs={setVState} onClose={()=>setVerif(false)}/>}
       {instr&&<Instruction onClose={()=>setInstr(false)}/>}
       {lessonPicker&&<LessonPicker onSelectLesson={(id)=>{setActiveLesson(id);setLessonPicker(false);}} onClose={()=>setLessonPicker(false)} completedLessons={completedLessons}/>}
-      {activeLesson&&<Lesson lessonId={activeLesson} onClose={()=>setActiveLesson(null)} onComplete={(id)=>setCompletedLessons(prev=>prev.includes(id)?prev:[...prev,id])}/>}
+      {activeLesson&&<Lesson lessonId={activeLesson} onClose={()=>setActiveLesson(null)} onComplete={(id)=>setCompletedLessons(prev=>prev.includes(id)?prev:[...prev,id])} onPickAnother={()=>{setActiveLesson(null);setLessonPicker(true);}}/>}
       {glossary&&<Glossary onClose={()=>setGlossary(false)}/>}
       {picker&&<Picker pinned={pinned} onTogglePin={togglePin} onClear={()=>setPinned([])} onClose={()=>setPicker(false)}/>}
     </div>);
