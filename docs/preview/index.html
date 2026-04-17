@@ -468,20 +468,25 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose}){
       const triples=[[2,3,4],[5,6,7],[8,9,10],[11,0,1]];
       const tri=triples.find(t=>t.includes(i));
       if(tri){
-        const roles=['Вера','Бой','Победа'];
-        const role=roles[tri.indexOf(i)];
-        const names=tri.map(j=>p[j]||'['+j+']');
-        mechItems.push({c:'#30A060',title:'Ритм · '+role,text:names[0]+' (Вера) → '+names[1]+' (Бой) → '+names[2]+' (Победа)'});
+        const myK=tri.indexOf(i);
+        const roles=[{r:'Вера',l:'подготовка',c:'#5B9CF6'},{r:'Бой',l:'событие',c:'#E8364F'},{r:'Победа',l:'итог',c:'#E8A834'}];
+        const role=roles[myK];
+        const triIdx=triples.indexOf(tri)+1;
+        const triNames=['I','II','III','IV'];
+        const steps=tri.map((j,k)=>({idx:j,role:roles[k],name:p[j]||'',active:k===myK}));
+        mechItems.push({c:'#30A060',title:'Ритм · Тройка '+triNames[triIdx-1]+' · '+role.r,steps});
       }
     }
     if(fid==='arcs'){
       const arcs=[[1,2,3,4,5],[5,6,7,8,9],[9,10,11,0,1]];
       const arcNames=['Дуга I (утренняя)','Дуга II (дневная)','Дуга III (ночная)'];
-      const arcRoles=['ФО(исток)','ЦИ(нагрев)','ХА(пик)','ШЭ(остыв.)','ФО(конец)'];
+      const arcRoles=[{r:'ФО',l:'исток',c:'#4090D8'},{r:'ЦИ',l:'нагрев',c:'#70B8F0'},{r:'ХА',l:'пик',c:'#F06838'},{r:'ШЭ',l:'остыв.',c:'#C0943A'},{r:'ФО',l:'конец',c:'#4090D8'}];
       arcs.forEach((arc,ai)=>{
         if(arc.includes(i)){
-          const role=arcRoles[arc.indexOf(i)];
-          mechItems.push({c:['#4090D8','#9060D0','#30A060'][ai],title:arcNames[ai]+' · '+role,text:arc.map((j,k)=>arcRoles[k]+'=«'+(p[j]||j)+'»').join(' → ')});
+          const myK=arc.indexOf(i);
+          const role=arcRoles[myK];
+          const steps=arc.map((j,k)=>({idx:j,role:arcRoles[k],name:p[j]||'',active:k===myK}));
+          mechItems.push({c:['#4090D8','#9060D0','#30A060'][ai],title:arcNames[ai]+' · '+role.r+' ('+role.l+')',steps});
         }
       });
     }
@@ -595,8 +600,18 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose}){
       </div>}
       {activeMech.length>0&&<div style={{display:'flex',flexDirection:'column',gap:4,marginBottom:6}}>
         {activeMech.map((it,j)=><div key={j} style={{padding:'6px 10px',background:it.c+'08',borderRadius:8,borderLeft:`3px solid ${it.c}`,flexShrink:0}}>
-          <div style={{fontSize:10,fontWeight:600,color:it.c,marginBottom:1}}>{it.title}</div>
-          <div style={{fontSize:11,color:'#424245',lineHeight:1.45}}>{it.text}</div>
+          <div style={{fontSize:10,fontWeight:600,color:it.c,marginBottom:it.steps?4:1}}>{it.title}</div>
+          {it.steps
+            ?<div style={{display:'flex',flexDirection:'column',gap:2,marginTop:2}}>
+              {it.steps.map((s,k)=><div key={k} style={{display:'flex',alignItems:'center',gap:6,fontSize:11,padding:s.active?'3px 6px':'2px 6px',background:s.active?'#ffffff':'transparent',borderRadius:4,border:s.active?'1px solid '+it.c+'40':'1px solid transparent'}}>
+                <span style={{fontSize:9,color:s.role.c,fontWeight:700,minWidth:22,padding:'1px 4px',background:s.role.c+'14',borderRadius:3,textAlign:'center'}}>{s.role.r}</span>
+                <span style={{fontSize:9,color:'#86868b',minWidth:14}}>[{s.idx}]</span>
+                <span style={{color:s.active?'#1d1d1f':'#424245',fontWeight:s.active?600:400,flex:1,minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{s.name||<span style={{color:'#c0c0c5',fontStyle:'italic'}}>—</span>}</span>
+                <span style={{fontSize:9,color:'#aeaeb2'}}>{s.role.l}</span>
+              </div>)}
+            </div>
+            :<div style={{fontSize:11,color:'#424245',lineHeight:1.45}}>{it.text}</div>
+          }
         </div>)}
       </div>}
       {dimMech.length>0&&(collapseDim
