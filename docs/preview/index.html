@@ -82,6 +82,7 @@ input{font-family:var(--sans)}
   .fi-full{height:calc(100vh - 100px)!important;max-height:calc(100vh - 100px)!important}
   .fi-dragging{transition:none!important}
   .fi-handle{touch-action:none;cursor:grab;padding:10px 0 8px!important;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+  .fi-header-zone{touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
   .fi-handle:active{cursor:grabbing}
   .fi-handle-bar{transition:background .15s, width .15s, height .15s}
   .fi-handle:active .fi-handle-bar{background:#86868b!important;width:44px!important;height:5px!important}
@@ -584,9 +585,13 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose}){
     if(!handle)return;
 
     const onDown=(e)=>{
+      // Don't start drag on close button or interactive children
+      if(e.target.closest('button'))return;
       const y=e.touches?e.touches[0].clientY:e.clientY;
       const h=window.innerHeight;
-      dragRef.current={startY:y,startH:sizeHeights[cardSize]*h,h,moved:false,curH:null,tapStart:Date.now()};
+      // Mark if the touch started on the narrow handle (tap here cycles sizes)
+      const fromHandle=e.currentTarget.classList.contains('fi-handle');
+      dragRef.current={startY:y,startH:sizeHeights[cardSize]*h,h,moved:false,curH:null,tapStart:Date.now(),fromHandle};
       // add window listeners
       window.addEventListener('touchmove',onMove,{passive:false});
       window.addEventListener('touchend',onUp);
@@ -611,7 +616,8 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose}){
       if(!d){cleanup();return;}
       const el=document.querySelector('.fi');
       const wasTap=!d.moved&&(Date.now()-d.tapStart)<300;
-      if(wasTap){
+      if(wasTap&&d.fromHandle){
+        // Only cycle on handle tap
         if(el){ el.style.height=''; el.style.maxHeight=''; el.classList.remove('fi-dragging'); }
         cycleSize();
       } else if(d.curH!=null){
@@ -637,9 +643,19 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose}){
 
     handle.addEventListener('touchstart',onDown,{passive:true});
     handle.addEventListener('mousedown',onDown);
+    // Also attach to header zone for bigger swipe target
+    const headerZone=document.querySelector('.fi-header-zone');
+    if(headerZone){
+      headerZone.addEventListener('touchstart',onDown,{passive:true});
+      headerZone.addEventListener('mousedown',onDown);
+    }
     return()=>{
       handle.removeEventListener('touchstart',onDown);
       handle.removeEventListener('mousedown',onDown);
+      if(headerZone){
+        headerZone.removeEventListener('touchstart',onDown);
+        headerZone.removeEventListener('mousedown',onDown);
+      }
       cleanup();
     };
   },[cardSize]);
@@ -652,7 +668,7 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose}){
       <div className="fi-handle" style={{display:'flex',justifyContent:'center',flexShrink:0}}>
         <div className="fi-handle-bar" style={{width:36,height:4,borderRadius:2,background:'#d2d2d7'}}/>
       </div>
-      <div style={{padding:'4px 18px 8px',flexShrink:0,position:'relative'}}>
+      <div className="fi-header-zone" style={{padding:'4px 18px 8px',flexShrink:0,position:'relative'}}>
         <button onClick={onClose} style={{position:'absolute',top:2,right:12,width:28,height:28,borderRadius:'50%',border:'1px solid #e5e5ea',background:'#f5f5f7',fontSize:14,color:'#86868b',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:1}}>✕</button>
         <div style={{display:'flex',alignItems:'center',gap:12,paddingRight:34}}>
           <div style={{width:36,height:36,borderRadius:'50%',border:`2px solid ${cr.c}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:700,color:cr.c,flexShrink:0}}>{i}</div>
