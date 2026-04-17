@@ -101,8 +101,10 @@ input{font-family:var(--sans)}
   .verif-sub{padding:6px 14px!important;gap:6px!important}
   .verif-sub>div:first-child{font-size:11px!important;gap:6px!important}
   .verif-sub>div:first-child>span:last-child{font-size:10px!important}
-  .verif-sub>div:last-child button{font-size:10px!important;padding:4px 8px!important}
+  .verif-actions-row{padding:5px 14px 7px!important;gap:4px!important}
+  .verif-actions-row button{font-size:10px!important;padding:4px 8px!important}
   .verif-close{width:32px!important;height:32px!important;font-size:14px!important}
+  .verif-help{width:32px!important;height:32px!important;font-size:13px!important}
   .picker-grid{grid-template-columns:1fr!important;gap:4px!important}
   .fullpage-content{padding:12px 14px!important}
   .fullpage-content h2{font-size:18px!important}
@@ -1050,9 +1052,20 @@ function Verification({y,vs,setVs,onClose}){
   const[tab,setTab]=useState('pos');
   const[hidePassed,setHidePassed]=useState(false);
   const[openInfo,setOpenInfo]=useState(null);
+  const[showIntro,setShowIntro]=useState(null); // null = auto-detect, false = skip, true = show
+  const[copyFeedback,setCopyFeedback]=useState('');
   const k=(id)=>y.name+'_'+id;
   const ans=(id,v)=>setVs(s=>({...s,[k(id)]:v}));
   const get=(id)=>vs[k(id)];
+
+  // Count how many answers this yasna has
+  const yasnaKeys=Object.keys(vs).filter(kk=>kk.startsWith(y.name+'_'));
+  const hasAnyAnswer=yasnaKeys.length>0;
+
+  // Auto-show intro for fresh verification (null → true on first render if no answers)
+  useEffect(()=>{
+    if(showIntro===null)setShowIntro(!hasAnyAnswer);
+  },[]);
 
   // Weight-based scoring: КРИТ=3, ВАЖ=2, ЖЕЛ=1
   const W={КРИТ:3,ВАЖ:2,ЖЕЛ:1};
@@ -1072,7 +1085,7 @@ function Verification({y,vs,setVs,onClose}){
     const wColor=weight==='КРИТ'?'#E8364F':weight==='ВАЖ'?'#E8A834':'#86868b';
     const isOpen=openInfo===id;
     return(
-    <div style={{display:'flex',alignItems:'flex-start',gap:10,padding:'10px 0',borderBottom:'1px solid #f0f0f2'}}>
+    <div data-check-id={id} style={{display:'flex',alignItems:'flex-start',gap:10,padding:'10px 0',borderBottom:'1px solid #f0f0f2'}}>
       <div style={{display:'flex',gap:4,flexShrink:0,marginTop:1}}>
         <button onClick={()=>ans(id,v===true?null:true)} title="Да" style={{width:28,height:28,borderRadius:6,border:`1.5px solid ${v===true?'#30A060':'#d2d2d7'}`,background:v===true?'#30A06012':'#fff',fontSize:13,color:v===true?'#30A060':'#c7c7cc',cursor:'pointer',fontWeight:600}}>✓</button>
         <button onClick={()=>ans(id,v===false?null:false)} title="Нет" style={{width:28,height:28,borderRadius:6,border:`1.5px solid ${v===false?'#E8364F':'#d2d2d7'}`,background:v===false?'#E8364F12':'#fff',fontSize:13,color:v===false?'#E8364F':'#c7c7cc',cursor:'pointer',fontWeight:600}}>✗</button>
@@ -1325,10 +1338,158 @@ function Verification({y,vs,setVs,onClose}){
   else if(critPct>=0.9){status='◇ С оговорками';statusColor='#E8A834';statusDesc='Критические почти все пройдены, есть замечания.';}
   else {status='Требует доработки';statusColor='#E8A834';statusDesc='Часть критических пунктов не пройдена.';}
 
+  // Export to text report
+  const exportReport=()=>{
+    const lines=[];
+    lines.push(`ВЕРИФИКАЦИЯ ЯСНЫ: ${y.name}`);
+    lines.push(`Дата: ${new Date().toLocaleDateString('ru-RU')} ${new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}`);
+    lines.push(``);
+    lines.push(`ИТОГ: ${status}`);
+    lines.push(`${statusDesc}`);
+    lines.push(`КРИТ: ${critS.pass}/${critChecks.length} пройдено${critS.failed>0?`, ${critS.failed} провалено`:''}`);
+    lines.push(`ВАЖ:  ${vazhS.pass}/${vazhChecks.length} пройдено${vazhS.failed>0?`, ${vazhS.failed} провалено`:''}`);
+    lines.push(`ЖЕЛ:  ${zhelS.pass}/${zhelChecks.length} пройдено`);
+    lines.push(``);
+    lines.push(`ЭЛЕМЕНТЫ ЯСНЫ:`);
+    for(let i=0;i<12;i++)lines.push(`  ${i}: ${p[i]||'(не заполнено)'}`);
+    lines.push(``);
+    lines.push(`=== ПРОВАЛЕННЫЕ ПУНКТЫ ===`);
+    let hasFailed=false;
+    allChecks.forEach(c=>{if(get(c.id)===false){hasFailed=true;lines.push(`[${c.w||'ВАЖ'}] ✗ ${c.q}`);if(c.hint)lines.push(`    💡 ${c.hint}`);lines.push(``);}});
+    if(!hasFailed)lines.push(`(нет проваленных пунктов)`);
+    lines.push(``);
+    lines.push(`=== НЕОТВЕЧЕННЫЕ ПУНКТЫ ===`);
+    let hasUnanswered=false;
+    allChecks.forEach(c=>{if(get(c.id)===undefined){hasUnanswered=true;lines.push(`[${c.w||'ВАЖ'}] ? ${c.q}`);}});
+    if(!hasUnanswered)lines.push(`(все пункты отвечены)`);
+    const report=lines.join('\n');
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(report).then(()=>{
+        setCopyFeedback('Скопировано в буфер');
+        setTimeout(()=>setCopyFeedback(''),2000);
+      }).catch(()=>{setCopyFeedback('Ошибка копирования');setTimeout(()=>setCopyFeedback(''),2000);});
+    } else {
+      setCopyFeedback('Буфер недоступен');
+      setTimeout(()=>setCopyFeedback(''),2000);
+    }
+  };
+
+  // Jump to next failed or unanswered check
+  const jumpToNextIssue=()=>{
+    const order=['pos','conn','mech','holi'];
+    const groups={pos:allPosIds,conn:connChecks,mech:mechChecks,holi:holiChecks};
+    for(const t of order){
+      const issue=groups[t].find(c=>{const v=get(c.id);return v===false||v===undefined;});
+      if(issue){
+        if(tab!==t)setTab(t);
+        setTimeout(()=>{
+          const el=document.querySelector(`[data-check-id="${issue.id}"]`);
+          if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.animation='pulse 1.2s ease-in-out 2';setTimeout(()=>{if(el)el.style.animation=''},2500);}
+        },120);
+        return;
+      }
+    }
+  };
+
+  const totalDone=critS.done+vazhS.done+zhelS.done;
+  const totalCount=critChecks.length+vazhChecks.length+zhelChecks.length;
+  const totalFailed=critS.failed+vazhS.failed+zhelS.failed;
+  const progressPct=totalCount>0?Math.round(totalDone/totalCount*100):0;
+
   const TabBtn=({id,label,s})=><button onClick={()=>setTab(id)} style={{padding:'7px 12px',borderRadius:8,fontSize:12,fontWeight:tab===id?600:500,color:tab===id?'#0071e3':'#6e6e73',background:tab===id?'rgba(0,122,255,.08)':'transparent',border:'none',display:'flex',alignItems:'center',gap:6,cursor:'pointer',flexShrink:0,whiteSpace:'nowrap'}}>
     <span>{label}</span>
     {s&&<span style={{fontSize:10,padding:'1px 6px',borderRadius:8,background:tab===id?'rgba(0,122,255,.15)':'#f0f0f2',color:tab===id?'#0071e3':'#86868b',fontWeight:600}}>{s.done}/{s.total}</span>}
   </button>;
+
+  // INTRO SCREEN
+  if(showIntro===true){
+    return(
+      <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#fff',zIndex:70,display:'flex',flexDirection:'column'}}>
+        <div style={{padding:'12px 20px',borderBottom:'1px solid #f0f0f2',display:'flex',alignItems:'center',gap:10,flexShrink:0}}>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:10,color:'#86868b',textTransform:'uppercase',letterSpacing:0.8,fontWeight:600,marginBottom:2}}>Верификация</div>
+            <h2 style={{fontSize:18,fontWeight:700,color:'#1d1d1f',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{y.name}</h2>
+          </div>
+          <button onClick={onClose} style={{width:36,height:36,borderRadius:10,border:'1px solid #e5e5ea',background:'#fff',fontSize:16,color:'#424245',cursor:'pointer',flexShrink:0}}>✕</button>
+        </div>
+        <div className='fullpage-content' style={{flex:1,overflowY:'auto',padding:'24px 20px',maxWidth:680,margin:'0 auto',width:'100%'}}>
+          <div style={{fontSize:24,fontWeight:700,color:'#1d1d1f',marginBottom:10,lineHeight:1.25}}>Проверим вашу Ясну по 4 уровням</div>
+          <div style={{fontSize:14,color:'#6e6e73',lineHeight:1.6,marginBottom:24}}>
+            Верификация подтверждает, что Ясна составлена по законам Лебедева и не противоречит другим верифицированным Яснам. Занимает ~20-30 минут при вдумчивом прохождении.
+          </div>
+
+          {hasEmpties&&<div style={{padding:'12px 14px',background:'#fff8e8',border:'1px solid #E8A83440',borderRadius:10,marginBottom:20,fontSize:13,color:'#424245',lineHeight:1.55}}>
+            <div style={{fontWeight:700,color:'#c07800',marginBottom:4}}>⚠ Не заполнены: {emptyPos.join(', ')}</div>
+            Сначала заполните все 12 позиций в Редакторе — без этого верификация неточна.
+          </div>}
+
+          <div style={{fontSize:13,fontWeight:700,color:'#1d1d1f',marginBottom:10,textTransform:'uppercase',letterSpacing:0.5}}>4 уровня, снизу вверх</div>
+
+          <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:24}}>
+            <div style={{padding:'14px 16px',background:'#f5f5f7',borderRadius:12,borderLeft:'3px solid #0071e3'}}>
+              <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:4}}>
+                <span style={{fontSize:11,fontWeight:700,color:'#0071e3'}}>1</span>
+                <div style={{fontSize:15,fontWeight:600,color:'#1d1d1f'}}>Полочки ({allPosIds.length} проверок)</div>
+              </div>
+              <div style={{fontSize:13,color:'#6e6e73',lineHeight:1.55}}>Каждый элемент отдельно по 6–9 критериям: тип, стихия, крест, противоположность, соседство. Фундамент — сюда пойдёт больше всего времени.</div>
+            </div>
+            <div style={{padding:'14px 16px',background:'#f5f5f7',borderRadius:12,borderLeft:'3px solid #0071e3'}}>
+              <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:4}}>
+                <span style={{fontSize:11,fontWeight:700,color:'#0071e3'}}>2</span>
+                <div style={{fontSize:15,fontWeight:600,color:'#1d1d1f'}}>Связи ({connChecks.length} проверок)</div>
+              </div>
+              <div style={{fontSize:13,color:'#6e6e73',lineHeight:1.55}}>Как полочки работают в группе: 4 тройки Ритма (Вера→Бой→Победа), 3 Дуги Тепла, переходы нарастания и спада.</div>
+            </div>
+            <div style={{padding:'14px 16px',background:'#f5f5f7',borderRadius:12,borderLeft:'3px solid #0071e3'}}>
+              <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:4}}>
+                <span style={{fontSize:11,fontWeight:700,color:'#0071e3'}}>3</span>
+                <div style={{fontSize:15,fontWeight:600,color:'#1d1d1f'}}>Механики ({mechChecks.length} проверок)</div>
+              </div>
+              <div style={{fontSize:13,color:'#6e6e73',lineHeight:1.55}}>Структурные группы целиком: 4 Праны, 3 Креста, 2 Оси, Зоны, Системная ошибка 8↔9.</div>
+            </div>
+            <div style={{padding:'14px 16px',background:'#f5f5f7',borderRadius:12,borderLeft:'3px solid #0071e3'}}>
+              <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:4}}>
+                <span style={{fontSize:11,fontWeight:700,color:'#0071e3'}}>4</span>
+                <div style={{fontSize:15,fontWeight:600,color:'#1d1d1f'}}>Цельность ({holiChecks.length} проверок)</div>
+              </div>
+              <div style={{fontSize:13,color:'#6e6e73',lineHeight:1.55}}>Ясна как система: замкнутость цикла, единый параметр, самостоятельность, согласованность с эталонами.</div>
+            </div>
+          </div>
+
+          <div style={{fontSize:13,fontWeight:700,color:'#1d1d1f',marginBottom:10,textTransform:'uppercase',letterSpacing:0.5}}>Три приоритета ответов</div>
+          <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:24}}>
+            <div style={{display:'flex',alignItems:'center',gap:10,padding:'8px 12px',background:'#fff5f5',borderRadius:8,border:'1px solid #E8364F20'}}>
+              <span style={{fontSize:10,fontWeight:700,color:'#E8364F',padding:'2px 6px',border:'1px solid #E8364F40',borderRadius:4,flexShrink:0}}>КРИТ</span>
+              <span style={{fontSize:13,color:'#424245'}}>Обязательно. Провал = Ясна не верифицируется.</span>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:10,padding:'8px 12px',background:'#fff8e8',borderRadius:8,border:'1px solid #E8A83420'}}>
+              <span style={{fontSize:10,fontWeight:700,color:'#E8A834',padding:'2px 6px',border:'1px solid #E8A83440',borderRadius:4,flexShrink:0}}>ВАЖ</span>
+              <span style={{fontSize:13,color:'#424245'}}>Влияет на итоговый статус (Безупречно / С оговорками).</span>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:10,padding:'8px 12px',background:'#f5f5f7',borderRadius:8,border:'1px solid #d2d2d7'}}>
+              <span style={{fontSize:10,fontWeight:700,color:'#86868b',padding:'2px 6px',border:'1px solid #86868b40',borderRadius:4,flexShrink:0}}>ЖЕЛ</span>
+              <span style={{fontSize:13,color:'#424245'}}>Бонус. На статус не влияет, но повышает качество.</span>
+            </div>
+          </div>
+
+          <div style={{fontSize:13,fontWeight:700,color:'#1d1d1f',marginBottom:10,textTransform:'uppercase',letterSpacing:0.5}}>Советы</div>
+          <ul style={{fontSize:13,color:'#424245',lineHeight:1.8,marginLeft:20,marginBottom:28}}>
+            <li>На каждом вопросе есть <b style={{color:'#0071e3'}}>(i)</b> — разворачивает подробное пояснение с контекстом из книги.</li>
+            <li>Если отвечаете <b style={{color:'#E8364F'}}>✗</b> — появится подсказка 💡 куда смотреть для исправления.</li>
+            <li>Кнопка <b>«К следующему непройденному»</b> перепрыгнет к первому ✗ или неотвеченному пункту.</li>
+            <li>Прогресс сохраняется автоматически. Можно вернуться позже.</li>
+            <li>В конце можно экспортировать отчёт в буфер обмена.</li>
+          </ul>
+
+          <div style={{display:'flex',gap:10,justifyContent:'flex-end',flexWrap:'wrap'}}>
+            <button onClick={onClose} style={{fontSize:14,padding:'10px 18px',borderRadius:10,border:'1px solid #e5e5ea',background:'#fff',color:'#424245',cursor:'pointer'}}>Отмена</button>
+            <button onClick={()=>setShowIntro(false)} style={{fontSize:14,fontWeight:600,padding:'10px 20px',borderRadius:10,border:'1px solid #0071e3',background:'#0071e3',color:'#fff',cursor:'pointer'}}>Начать проверку →</button>
+          </div>
+        </div>
+      </div>);
+  }
+
+
 
   return(
     <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#fff',zIndex:70,display:'flex',flexDirection:'column'}}>
@@ -1338,19 +1499,42 @@ function Verification({y,vs,setVs,onClose}){
           <div style={{fontSize:10,color:'#86868b',textTransform:'uppercase',letterSpacing:0.8,fontWeight:600,marginBottom:2}}>Верификация</div>
           <h2 className="verif-title" style={{fontSize:18,fontWeight:700,color:'#1d1d1f',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{y.name}</h2>
         </div>
+        <button onClick={()=>setShowIntro(true)} className="verif-help" title="Показать инструкцию" style={{width:36,height:36,borderRadius:10,border:'1px solid #e5e5ea',background:'#fff',fontSize:15,color:'#424245',cursor:'pointer',flexShrink:0,fontFamily:'Georgia,serif',fontStyle:'italic',fontWeight:700}}>?</button>
         <button onClick={onClose} className="verif-close" style={{width:36,height:36,borderRadius:10,border:'1px solid #e5e5ea',background:'#fff',fontSize:16,color:'#424245',cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
       </div>
 
-      {/* HEADER ROW 2 — status + action buttons */}
-      <div className="verif-sub" style={{display:'flex',alignItems:'center',padding:'8px 20px',borderBottom:'1px solid #f0f0f2',flexShrink:0,gap:10,flexWrap:'wrap'}}>
-        <div style={{flex:1,minWidth:0,display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+      {/* HEADER ROW 2 — status + progress bar */}
+      <div className="verif-sub" style={{padding:'8px 20px',borderBottom:'1px solid #f0f0f2',flexShrink:0}}>
+        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6,flexWrap:'wrap'}}>
           <span style={{fontSize:13,color:statusColor,fontWeight:600}}>{status}</span>
-          <span style={{fontSize:11,color:'#86868b'}}>КРИТ {critS.pass}/{critChecks.length} · ВАЖ {vazhS.pass}/{vazhChecks.length} · ЖЕЛ {zhelS.pass}/{zhelChecks.length}</span>
+          <span style={{fontSize:11,color:'#86868b'}}>
+            <span style={{color:'#E8364F'}}>КРИТ {critS.pass}/{critChecks.length}</span>
+            {' · '}
+            <span style={{color:'#c07800'}}>ВАЖ {vazhS.pass}/{vazhChecks.length}</span>
+            {' · '}
+            <span>ЖЕЛ {zhelS.pass}/{zhelChecks.length}</span>
+          </span>
         </div>
-        <div style={{display:'flex',gap:6,flexShrink:0}}>
-          <button onClick={()=>setHidePassed(v=>!v)} style={{fontSize:11,color:hidePassed?'#0071e3':'#6e6e73',padding:'5px 10px',border:`1px solid ${hidePassed?'#0071e3':'#e5e5ea'}`,borderRadius:7,background:hidePassed?'rgba(0,122,255,.06)':'#fff',cursor:'pointer',fontWeight:500}}>{hidePassed?'Показать все':'Скрыть ✓'}</button>
-          <button onClick={()=>{const keys=Object.keys(vs).filter(k=>k.startsWith(y.name+'_'));const nv={...vs};keys.forEach(k=>delete nv[k]);setVs(nv);}} style={{fontSize:11,color:'#E8364F',padding:'5px 10px',border:'1px solid #E8364F30',borderRadius:7,background:'#fff',cursor:'pointer'}}>Сбросить</button>
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
+          <div style={{flex:1,height:6,background:'#f0f0f2',borderRadius:3,overflow:'hidden',position:'relative'}}>
+            <div style={{position:'absolute',top:0,left:0,height:'100%',width:(totalCount>0?((totalDone-totalFailed)/totalCount*100):0)+'%',background:'#30A060',transition:'width .3s'}}/>
+            <div style={{position:'absolute',top:0,left:(totalCount>0?((totalDone-totalFailed)/totalCount*100):0)+'%',height:'100%',width:(totalCount>0?(totalFailed/totalCount*100):0)+'%',background:'#E8364F',transition:'width .3s'}}/>
+          </div>
+          <span style={{fontSize:11,color:'#86868b',fontWeight:600,minWidth:52,textAlign:'right'}}>{totalDone}/{totalCount}</span>
         </div>
+      </div>
+
+      {/* HEADER ROW 3 — action buttons */}
+      <div className="verif-actions-row" style={{padding:'6px 20px 8px',borderBottom:'1px solid #f0f0f2',flexShrink:0,display:'flex',gap:6,flexWrap:'wrap',alignItems:'center'}}>
+        {(totalFailed>0||totalDone<totalCount)&&<button onClick={jumpToNextIssue} style={{fontSize:11,color:'#0071e3',padding:'5px 10px',border:'1px solid #0071e320',borderRadius:7,background:'rgba(0,122,255,.06)',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:4}}>
+          <span>→</span><span>К следующему</span>
+        </button>}
+        <button onClick={()=>setHidePassed(v=>!v)} style={{fontSize:11,color:hidePassed?'#0071e3':'#6e6e73',padding:'5px 10px',border:`1px solid ${hidePassed?'#0071e3':'#e5e5ea'}`,borderRadius:7,background:hidePassed?'rgba(0,122,255,.06)':'#fff',cursor:'pointer',fontWeight:500}}>{hidePassed?'Показать все':'Скрыть ✓'}</button>
+        {totalDone>0&&<button onClick={exportReport} style={{fontSize:11,color:'#424245',padding:'5px 10px',border:'1px solid #e5e5ea',borderRadius:7,background:'#fff',cursor:'pointer',fontWeight:500}}>
+          {copyFeedback||'📋 Отчёт'}
+        </button>}
+        <div style={{flex:1}}/>
+        <button onClick={()=>{if(confirm('Сбросить все ответы для этой Ясны?')){const keys=Object.keys(vs).filter(k=>k.startsWith(y.name+'_'));const nv={...vs};keys.forEach(k=>delete nv[k]);setVs(nv);setShowIntro(true);}}} style={{fontSize:11,color:'#E8364F',padding:'5px 10px',border:'1px solid #E8364F30',borderRadius:7,background:'#fff',cursor:'pointer'}}>Сбросить</button>
       </div>
 
       {/* TABS */}
