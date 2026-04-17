@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
-<title>Ясна-Конструктор — Preview v2</title>
+<title>Ясна-Конструктор</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>"/>
 
 <style>
@@ -152,6 +152,26 @@ input{font-family:var(--sans)}
   /* Burger menu */
   .hdr-burger button{padding:2px 6px!important;font-size:14px!important}
 }
+
+/* ─── Scroll Lesson animations ─── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseStar {
+  0%, 100% { filter: drop-shadow(0 0 0 rgba(48,160,96,0)); }
+  50% { filter: drop-shadow(0 0 12px rgba(48,160,96,0.35)); }
+}
+
+.yasna-star-pulse svg {
+  animation: pulseStar 2.4s ease-in-out infinite;
+}
+
+/* Gentle appear for blocks on scroll into view */
+.scroll-lesson-block {
+  animation: fadeIn 0.4s ease both;
+}
 </style>
 </head>
 <body>
@@ -160,7 +180,7 @@ input{font-family:var(--sans)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
 <script type="text/babel">
-const{useState,useMemo,useEffect}=React;
+const{useState,useMemo,useEffect,useRef}=React;
 const CR={support:{id:'support',n:'Крест Опоры',p:[0,3,6,9],c:'#E8364F',v:'Надежда',
    questions:['Если убрать этот элемент — Ясна всё ещё имеет смысл? Если да — он не Опорный.','Это одно из 4 самых важных состояний/событий в вашем явлении?'],
    mistakes:['Поставить второстепенный элемент на опорную позицию.','Забыть проверить ось: 0 и 6 должны быть антиподами, 3 и 9 тоже.'],
@@ -1802,6 +1822,210 @@ const LESSONS=[
       // Step 12: Next steps
       {type:'next-steps'}
     ]
+  },
+  // ─────────────────────────────────────────────────────────────────
+  // УРОК 2 — Модуль «Как устроены сутки», урок 1: Ночь как фундамент
+  // Scroll-format в стиле Product Do: long-form, inline-валидация, сценарии
+  // ─────────────────────────────────────────────────────────────────
+  {
+    id:'l2_night_foundation',
+    order:2,
+    format:'scroll',
+    module:'Как устроены сутки',
+    moduleOrder:1,
+    title:'Ночь как фундамент',
+    subtitle:'Полочка 0 и почему день без неё разваливается',
+    duration:'10–15 мин',
+    yasna:'суток',
+    blocks:[
+      // 1. Hero
+      {type:'hero',
+        eyebrow:'Урок 2 · Модуль «Как устроены сутки»',
+        title:'Ночь как фундамент',
+        lead:'Посмотри на свой вчерашний вечер. Ты помнишь его целиком? Большинство — нет. Не потому что случилось что-то плохое. Потому что вечер не был собран.'},
+      // 2. Speaker intro
+      {type:'speaker',
+        name:'Марк',
+        role:'Автор курса',
+        avatar:'М',
+        avatarColor:'#1d4d60',
+        text:'Мы привыкли думать, что день начинается утром. На самом деле день начинается ночью — с полочки 0. И если эта полочка устроена плохо, то дальше всё разваливается: утро тяжёлое, полдень истеричный, вечер тревожный.\n\nСегодня разберём, как устроена ночь — на конкретном кейсе и на твоём собственном дне.'},
+      // 3. CTA divider
+      {type:'divider-cta',label:'С чего начнём'},
+      // 4. Speaker: introducing the case
+      {type:'speaker',
+        name:'Марк',
+        role:'Автор курса',
+        avatar:'М',
+        avatarColor:'#1d4d60',
+        text:'Начнём с места, где структура ночи видна особенно чётко — потому что без неё смена не выживет. Дежурная бригада скорой помощи.\n\nМне написал главврач станции скорой помощи в Нижнем Новгороде. Он уже третий год ведёт статистику по ночным сменам. И то, что он заметил — ровно то, что описывает Ясна.'},
+      // 5. Email from "client"
+      {type:'email',
+        from:'Виктор Орлов',
+        fromRole:'Главврач станции скорой помощи',
+        to:'Автору курса «Ясна»',
+        subject:'Странная закономерность в ночных сменах',
+        body:'Здравствуйте.\n\nТри года веду статистику по бригадам. Заметил вот что: те смены, где фельдшеры пытаются работать всю ночь без «провала» в 00:00–03:00, сдают самые тяжёлые утренние вызовы хуже. Объективно хуже — по времени доезда, по исходу пациента, по количеству ошибок в заполнении карт.\n\nСмены, где фельдшеры честно отдыхают по очереди в 00:00–03:00 (когда вызовов меньше всего), в 03:00–06:00 работают лучше. Хотя, казалось бы, должны быть наоборот — отдохнувшие же меньше работали.\n\nЭто похоже на то, что вы называете «полочкой 0» в цикле суток?\n\nПрикрепляю сводные данные за последний год.\n\nС уважением,\nВиктор'},
+      // 6. Speaker reaction + setup
+      {type:'speaker',
+        name:'Марк',
+        role:'Автор курса',
+        avatar:'М',
+        avatarColor:'#1d4d60',
+        text:'Это именно то. Виктор вышел на главную мысль: провал в 00:00–03:00 — не слабость смены, а её фундамент. Без этого провала вся ночь рассыпается.\n\nВот как устроены сутки скорой помощи по полочкам:'},
+      // 7. Explanation: 12 shelves of emergency night
+      {type:'explanation',
+        title:'Устройство ночной смены — 12 полочек',
+        body:'**20:00–22:00** · пересменка, передача активных вызовов, проверка укладок — полочки 10–11 завершения предыдущего дня.\n\n**22:00–00:00** · первый пик: бытовые травмы, алкоголь, скачки давления — полочка 11 → переход в 0.\n\n**00:00–03:00** · ключевой провал. Фельдшеры спят по очереди, диспетчер держит связь. Это и есть **полочка 0** — ядро ночи. Самый глубокий сон, самое низкое количество вызовов.\n\n**03:00–05:00** · «мёртвый час»: редкие, но самые тяжёлые вызовы — инфаркты, роды, острая хирургия. Полочки 1–2: искра, заря.\n\n**05:00–08:00** · подготовка к утру, сводка, сдача смены. Полочка 3: утро.\n\nПровал в 00:00–03:00 — не «простой», а структурная фаза, на которой держится вся оставшаяся часть ночи и первая половина дня.'},
+      // 8. CTA divider
+      {type:'divider-cta',label:'Понятно. А что это значит для меня'},
+      // 9. Speaker: transition to personal
+      {type:'speaker',
+        name:'Марк',
+        role:'Автор курса',
+        avatar:'М',
+        avatarColor:'#1d4d60',
+        text:'То же самое у тебя. Только у скорой всё видно по статистике, а у тебя — размыто по ощущениям.\n\nДавай проверим — какие из этих явлений относятся к полочке 0 (Ночь), а какие нет.'},
+      // 10. Interactive quiz 1 — checkboxes with inline validation
+      {type:'checkbox-quiz',
+        question:'Что из этого относится к полочке 0 — Ночь?',
+        hint:'Отметь всё, что по твоему ощущению принадлежит фазе «Ночь».',
+        items:[
+          {id:'sleep',label:'Глубокий сон 3-4 часа',correct:true,
+            feedbackOn:'Верно. Ядро полочки 0 — непрерывный глубокий сон, во время которого работают иммунитет, восстановление и консолидация памяти.',
+            feedbackOff:'Это главное содержание полочки 0 — стоило отметить.'},
+          {id:'preparation',label:'Час спокойствия перед сном: приглушённый свет, не-экран, не-работа',correct:true,
+            feedbackOn:'Верно. Час подготовки — часть полочки 0, а не ещё-вечер. Без него само ядро работает хуже.',
+            feedbackOff:'Правильно было отметить: подготовка ко сну — это рамка полочки 0, а не предыдущая полочка.'},
+          {id:'scrolling',label:'Скролл TikTok в кровати с выключенным светом',correct:false,
+            feedbackOn:'Упс. Это — сбой полочки 0. Формально ты в ночи, содержательно ты на полочке 6 (День) — активное потребление информации.',
+            feedbackOff:'Верно. Тело в кровати, но нервная система в дне — это не полочка 0.'},
+          {id:'first-hour',label:'Первый час после пробуждения — без новостей, без звонков, без соцсетей',correct:true,
+            feedbackOn:'Да. Первый час — это тоже рамка полочки 0, а не сразу утро. Мозг переключается с ночного режима на дневной, и ему нужно время.',
+            feedbackOff:'Обычно это пропускают, но это часть полочки 0 — переход из ночи в утро должен быть защищённым.'},
+          {id:'gym',label:'Ранняя пробежка в 6:30',correct:false,
+            feedbackOn:'Ошибка. Пробежка — полочки 3–4 (утро, восхождение). Полочка 0 закончилась.',
+            feedbackOff:'Верно. Это уже утро.'},
+          {id:'night-snack',label:'«Ночной дожор» из-за стресса в 01:30',correct:false,
+            feedbackOn:'Это сбой полочки 0. Еда в фазе покоя нагружает пищеварение, которое сейчас должно спать.',
+            feedbackOff:'Верно. Ночная еда — чужеродный процесс для полочки 0.'},
+          {id:'bad-thoughts',label:'Тревожный полусон с прокручиванием завтрашних задач в 03:00',correct:false,
+            feedbackOn:'Нет — это не полочка 0, это её поломка. Полочка 0 — это покой. Прокручивание задач — это полочка 6 (День), вклинившаяся в ночь.',
+            feedbackOff:'Верно. Формально время ночное, но содержание — дневное. Это симптом того, что полочка 0 у тебя «протекает».'}
+        ]},
+      // 11. Explanation after quiz
+      {type:'explanation',
+        title:'Главное наблюдение',
+        body:'Полочка 0 — не «часы с закрытыми глазами», а **режим покоя**, в котором работают восстановление, иммунитет, консолидация памяти.\n\nЕсли в этот режим вклиниваются задачи, тревога, экраны, еда — полочка 0 формально есть, а содержательно её нет. И утром ты просыпаешься разбитым, хотя «спал 8 часов».'},
+      // 12. CTA
+      {type:'divider-cta',label:'А как это выглядит у разных людей'},
+      // 13. Speaker: scenarios intro
+      {type:'speaker',
+        name:'Марк',
+        role:'Автор курса',
+        avatar:'М',
+        avatarColor:'#1d4d60',
+        text:'Полочка 0 у всех одинаковая по функции, но разная по форме. Посмотрим на три типичных случая. Твоя задача — определить, у кого полочка 0 работает, а у кого нет.'},
+      // 14. Scenario 1 — Врач скорой
+      {type:'scenario',
+        variant:'Вариант 1',
+        name:'Виктор, 42 года',
+        context:'Главврач станции скорой помощи. Ночная смена с 20:00 до 8:00. В 00:00–03:00 честно отдыхает в смене, пока дежурит второй фельдшер. В 05:00 просыпается, пьёт воду, выходит на вызовы. Утром в 8:00 сдаёт смену, едет домой, спит до 14:00.'},
+      {type:'checkbox-quiz',
+        question:'У Виктора полочка 0 работает?',
+        hint:'Отметь один вариант.',
+        single:true,
+        items:[
+          {id:'v1-yes',label:'Да, работает — несмотря на необычные часы',correct:true,
+            feedbackOn:'Верно. Содержание полочки 0 — покой и восстановление — у Виктора есть, просто сдвинуто во времени. Форма другая, функция та же.',
+            feedbackOff:''},
+          {id:'v1-no',label:'Нет, не работает — ночью положено спать от 22 до 7',correct:false,
+            feedbackOn:'Ясна не про расписание, а про устройство. У Виктора есть настоящий провал-покой, он просто не в «обычные» ночные часы.',
+            feedbackOff:''}
+        ]},
+      // 15. Scenario 2 — Фрилансер
+      {type:'scenario',
+        variant:'Вариант 2',
+        name:'Полина, 29 лет',
+        context:'Дизайнер на фрилансе. Ложится в 2:30 ночи, встаёт в 10:30. Формально — 8 часов сна. Но: последний час перед сном — доделывание макета с дедлайном. Первый час после пробуждения — Slack, почта, пять срочных сообщений от клиентов.'},
+      {type:'checkbox-quiz',
+        question:'У Полины полочка 0 работает?',
+        hint:'Отметь один вариант.',
+        single:true,
+        items:[
+          {id:'v2-yes',label:'Да — 8 часов сна это нормально',correct:false,
+            feedbackOn:'Нет. 8 часов — это ядро полочки 0, но у неё отсутствуют обе рамки: час до и час после. Это значит, мозг не успевает ни войти в ночь, ни выйти из неё.',
+            feedbackOff:''},
+          {id:'v2-no',label:'Нет — у полочки 0 отсутствуют рамки: час до и час после сна',correct:true,
+            feedbackOn:'Именно. Это самый частый сбой у фрилансеров и удалёнщиков: границы ночи стираются, и ядро сна работает в «дерганом» режиме. Качество восстановления снижается, даже если часов много.',
+            feedbackOff:''}
+        ]},
+      // 16. Scenario 3 — Мама с младенцем
+      {type:'scenario',
+        variant:'Вариант 3',
+        name:'Анна, 33 года',
+        context:'Мама с ребёнком 4 месяца. Ночью просыпается каждые 2 часа, чтобы кормить. Спит суммарно 5 часов, но рваными отрезками. Днём старается лечь с ребёнком в обеденный сон.'},
+      {type:'checkbox-quiz',
+        question:'У Анны полочка 0 работает?',
+        hint:'Отметь один вариант.',
+        single:true,
+        items:[
+          {id:'v3-partial',label:'Частично — ночью ядро сломано, но днём она компенсирует',correct:true,
+            feedbackOn:'Точно. Это типичная ситуация нового родительства: ночь как фундамент временно невозможна, но полочка 0 перераспределена — часть уходит в дневной сон. Это не нормально как состояние, но это функциональный компромисс.',
+            feedbackOff:''},
+          {id:'v3-broken',label:'Полностью сломана — рваный сон не восстанавливает',correct:false,
+            feedbackOn:'Не совсем. Рваный сон правда хуже цельного, но Анна компенсирует это дневным сном с ребёнком. Полочка 0 раздроблена, но не пустая.',
+            feedbackOff:''}
+        ]},
+      // 17. CTA
+      {type:'divider-cta',label:'Понял. А что у меня'},
+      // 18. Yasna star with highlight
+      {type:'yasna-star',
+        title:'Полочка 0 на звезде Ясны',
+        highlightPos:0,
+        caption:'Нижняя точка звезды. С неё цикл начинается, в неё он замыкается. Это фундамент, а не пустота.'},
+      // 19. Reflection
+      {type:'reflection',
+        title:'Твоя типичная ночь',
+        intro:'Теперь посмотри на свою собственную полочку 0. Три коротких вопроса — не тест, а наблюдение.',
+        questions:[
+          {id:'before',label:'Что ты делал в последний час перед сном вчера?',placeholder:'Например: скроллил телефон, доделывал рабочую почту, смотрел сериал...'},
+          {id:'sleep',label:'Во сколько лёг и во сколько встал? Сколько часов сна получилось?',placeholder:'Например: лёг в 00:40, встал в 7:15, примерно 6.5 часа'},
+          {id:'after',label:'Что было в первый час после пробуждения?',placeholder:'Например: сразу телефон, потом душ, кофе и бегом на созвон...'}
+        ],
+        footer:'Ответы сохраняются только у тебя в браузере. Никто их не увидит.'},
+      // 20. CTA
+      {type:'divider-cta',label:'Проверим понимание'},
+      // 21. Final quiz block
+      {type:'final-quiz-inline',
+        title:'Три вопроса, чтобы закрепить',
+        questions:[
+          {q:'Почему полочка 0 — фундамент, а не пустота?',
+           options:['Потому что во сне ничего не происходит','Потому что на ней идёт восстановление, без которого не работают остальные полочки','Потому что ночь — самая длинная часть суток','Потому что 0 — начало нумерации'],
+           correctIdx:1,
+           explain:'На полочке 0 работают восстановление, иммунитет, консолидация памяти. Без этой работы другие полочки дня не имеют фундамента.'},
+          {q:'Какие части входят в полочку 0, помимо самого сна?',
+           options:['Только время в кровати с закрытыми глазами','Час перед сном и первый час после пробуждения','Весь вечер с 18:00','Любое время, когда темно'],
+           correctIdx:1,
+           explain:'Полочка 0 — это рамка: час подготовки + ядро сна + час настройки после. Без рамок ядро работает хуже.'},
+          {q:'У кого из троих полочка 0 сильнее всего сломана?',
+           options:['У Виктора (врача скорой)','У Полины (фрилансера)','У Анны (мамы с младенцем)','Ни у кого — у всех по-разному'],
+           correctIdx:1,
+           explain:'У Полины формально 8 часов сна, но полностью отсутствуют рамки. Это самая коварная поломка — её сложнее всего заметить. У Анны полочка 0 тоже страдает, но она осознанно компенсирует дневным сном.'}
+        ]},
+      // 22. Summary
+      {type:'summary-block',
+        title:'Что мы поняли в этом уроке',
+        points:[
+          'Полочка 0 — не пустота, а режим покоя. На ней держится весь цикл суток.',
+          'У полочки 0 есть ядро (сон) и рамки (час до, час после). Без рамок ядро работает хуже.',
+          'Качество полочки 0 важнее её часов. 8 часов с поломанными рамками хуже 6 часов с целыми.',
+          'Содержание важнее формы. Виктор работает ночью — его полочка 0 работает. Полина спит ночью — её полочки 0 нет.'
+        ],
+        nextLabel:'Дальше — урок 3: «Восхождение — искра, рассвет, утро». Полочки 1–2–3. Разберём, почему утро не начинается в 7:00.'},
+      // 23. Close
+      {type:'next-steps-block'}
+    ]
   }
 ];
 
@@ -2572,8 +2796,347 @@ function LessonStep({step,onNext,onRepeat,onPickAnother}){
 }
 
 // Main Lesson component
+// ═══════════════════════════════════════════════════════════════════
+// SCROLL-FORMAT LESSON (Product Do / Go Practice style)
+// Long-form single page, sticky progress bar, inline validation
+// ═══════════════════════════════════════════════════════════════════
+
+// Helper: render text with **bold** markdown and \n for line breaks
+function renderRichText(text){
+  if(!text) return null;
+  const parts=text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((p,i)=>{
+    if(p.startsWith('**')&&p.endsWith('**'))
+      return<b key={i} style={{fontWeight:700,color:'#1d1d1f'}}>{p.slice(2,-2)}</b>;
+    // keep \n as actual line breaks
+    const lines=p.split('\n');
+    return lines.map((line,j)=>(
+      <React.Fragment key={i+'_'+j}>
+        {j>0&&<br/>}
+        {line}
+      </React.Fragment>
+    ));
+  });
+}
+
+// ───── Block components ─────
+
+function HeroBlock({block}){
+  return(
+    <div style={{padding:'40px 24px 24px',maxWidth:680,margin:'0 auto'}}>
+      {block.eyebrow&&<div style={{fontSize:11,color:'#0071e3',textTransform:'uppercase',letterSpacing:1,fontWeight:700,marginBottom:14}}>{block.eyebrow}</div>}
+      <h1 style={{fontSize:32,fontWeight:800,color:'#1d1d1f',marginBottom:18,lineHeight:1.15,letterSpacing:'-0.5px'}}>{block.title}</h1>
+      {block.lead&&<p style={{fontSize:17,color:'#424245',lineHeight:1.55,fontWeight:400}}>{renderRichText(block.lead)}</p>}
+      <div style={{height:3,width:60,background:'#1d4d60',marginTop:28,borderRadius:2}}/>
+    </div>);
+}
+
+function SpeakerBlock({block}){
+  return(
+    <div style={{padding:'20px 24px',maxWidth:680,margin:'0 auto'}}>
+      <div style={{display:'flex',gap:14,alignItems:'center',marginBottom:14}}>
+        <div style={{width:48,height:48,borderRadius:'50%',background:block.avatarColor||'#1d4d60',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:700,flexShrink:0}}>{block.avatar||'?'}</div>
+        <div>
+          <div style={{fontSize:15,fontWeight:700,color:'#1d1d1f'}}>{block.name}</div>
+          <div style={{fontSize:13,color:'#86868b'}}>{block.role}</div>
+        </div>
+      </div>
+      <div style={{fontSize:15,color:'#1d1d1f',lineHeight:1.65,whiteSpace:'pre-wrap'}}>{renderRichText(block.text)}</div>
+    </div>);
+}
+
+function EmailBlock({block}){
+  return(
+    <div style={{padding:'16px 24px',maxWidth:680,margin:'0 auto'}}>
+      <div style={{border:'1px solid #e5e5ea',borderRadius:12,overflow:'hidden',background:'#fff',boxShadow:'0 1px 3px rgba(0,0,0,0.04)'}}>
+        <div style={{background:'#707075',color:'#fff',padding:'10px 16px',fontSize:12,fontWeight:600,letterSpacing:0.3,textAlign:'center'}}>Входящее письмо</div>
+        <div style={{padding:'16px 20px',borderBottom:'1px dashed #d1d1d6',fontSize:13,lineHeight:1.8}}>
+          <div><span style={{color:'#86868b',fontWeight:600}}>От кого:</span> <b>{block.from}</b>{block.fromRole?<span style={{color:'#86868b'}}> · {block.fromRole}</span>:null}</div>
+          <div><span style={{color:'#86868b',fontWeight:600}}>Кому:</span> {block.to}</div>
+          <div style={{marginTop:6}}><span style={{color:'#86868b',fontWeight:600}}>Тема:</span> <b>{block.subject}</b></div>
+        </div>
+        <div style={{padding:'18px 20px',fontSize:14,lineHeight:1.65,color:'#1d1d1f',whiteSpace:'pre-wrap'}}>{renderRichText(block.body)}</div>
+      </div>
+    </div>);
+}
+
+function ExplanationBlock({block}){
+  return(
+    <div style={{padding:'20px 24px',maxWidth:680,margin:'0 auto'}}>
+      <div style={{paddingLeft:16,borderLeft:'3px solid #c7c7cc'}}>
+        {block.title&&<div style={{fontSize:11,color:'#86868b',textTransform:'uppercase',letterSpacing:0.8,fontWeight:700,marginBottom:10}}>{block.title}</div>}
+        <div style={{fontSize:14,color:'#424245',lineHeight:1.7,whiteSpace:'pre-wrap'}}>{renderRichText(block.body)}</div>
+      </div>
+    </div>);
+}
+
+function DividerCtaBlock({block,scrollToNext}){
+  return(
+    <div style={{padding:'24px 24px',maxWidth:680,margin:'0 auto',display:'flex',justifyContent:'center'}}>
+      <button
+        onClick={scrollToNext}
+        style={{fontSize:14,fontWeight:600,color:'#1d1d1f',padding:'12px 28px',borderRadius:10,border:'1.5px solid #1d1d1f',background:'#fff',cursor:'pointer',transition:'all .2s'}}
+        onMouseEnter={e=>{e.currentTarget.style.background='#1d1d1f';e.currentTarget.style.color='#fff';}}
+        onMouseLeave={e=>{e.currentTarget.style.background='#fff';e.currentTarget.style.color='#1d1d1f';}}
+      >{block.label||'Дальше'}</button>
+    </div>);
+}
+
+function CheckboxQuizBlock({block,blockId}){
+  // inline-validated checkboxes, state persists per block in memory
+  const[checked,setChecked]=useState({});
+  const[showFeedback,setShowFeedback]=useState(false);
+  const single=!!block.single;
+  const toggle=(id)=>{
+    setShowFeedback(true);
+    if(single){
+      setChecked({[id]:true});
+    } else {
+      setChecked(prev=>({...prev,[id]:!prev[id]}));
+    }
+  };
+  return(
+    <div style={{padding:'16px 24px',maxWidth:680,margin:'0 auto'}}>
+      <div style={{fontSize:16,fontWeight:700,color:'#1d1d1f',marginBottom:6,lineHeight:1.4}}>{block.question}</div>
+      {block.hint&&<div style={{fontSize:13,color:'#86868b',marginBottom:14}}>{block.hint}</div>}
+      <div style={{display:'flex',flexDirection:'column',gap:10}}>
+        {block.items.map(item=>{
+          const isChecked=!!checked[item.id];
+          const correct=item.correct;
+          // показываем валидацию только после первого клика на любой чекбокс
+          const showItemFeedback=showFeedback;
+          const isRight=showItemFeedback&&(isChecked===correct);
+          const borderColor=showItemFeedback?(isRight?'#30A060':'#E8364F'):'#e5e5ea';
+          const feedbackColor=isRight?'#30A060':'#E8364F';
+          const feedbackText=isChecked?item.feedbackOn:item.feedbackOff;
+          return(
+            <div key={item.id} style={{paddingLeft:14,borderLeft:'3px solid '+borderColor,transition:'border-color .3s'}}>
+              <label style={{display:'flex',alignItems:'flex-start',gap:10,cursor:'pointer',padding:'4px 0'}}>
+                <input
+                  type={single?'radio':'checkbox'}
+                  name={single?blockId:undefined}
+                  checked={isChecked}
+                  onChange={()=>toggle(item.id)}
+                  style={{marginTop:3,cursor:'pointer',accentColor:'#0071e3'}}
+                />
+                <span style={{fontSize:14,color:'#1d1d1f',lineHeight:1.5}}>{item.label}</span>
+              </label>
+              {showItemFeedback&&feedbackText&&(
+                <div style={{fontSize:12,color:feedbackColor,marginTop:3,marginLeft:25,lineHeight:1.5,animation:'fadeIn .3s ease'}}>{feedbackText}</div>
+              )}
+            </div>);
+        })}
+      </div>
+    </div>);
+}
+
+function ScenarioBlock({block}){
+  return(
+    <div style={{padding:'28px 24px 8px',maxWidth:680,margin:'0 auto'}}>
+      <div style={{display:'flex',alignItems:'baseline',gap:12,marginBottom:6}}>
+        <div style={{fontSize:11,color:'#B8874A',textTransform:'uppercase',letterSpacing:1,fontWeight:700,background:'#FFF4E3',padding:'3px 10px',borderRadius:6}}>{block.variant}</div>
+        <div style={{fontSize:17,fontWeight:700,color:'#1d1d1f'}}>{block.name}</div>
+      </div>
+      <div style={{fontSize:15,color:'#424245',lineHeight:1.6}}>{block.context}</div>
+    </div>);
+}
+
+function YasnaStarBlock({block}){
+  const highlighted=block.highlightPos!=null?[block.highlightPos]:[];
+  // use pulse animation on highlighted position
+  return(
+    <div style={{padding:'28px 24px',maxWidth:680,margin:'0 auto',textAlign:'center'}}>
+      {block.title&&<div style={{fontSize:16,fontWeight:700,color:'#1d1d1f',marginBottom:16}}>{block.title}</div>}
+      <div style={{height:280,display:'flex',alignItems:'center',justifyContent:'center'}}>
+        <div className="yasna-star-pulse" style={{width:'100%',maxWidth:280,height:'100%'}}>
+          <LessonStar mode="full" highlighted={highlighted} focusType="longs"/>
+        </div>
+      </div>
+      {block.caption&&<div style={{fontSize:13,color:'#6e6e73',marginTop:14,lineHeight:1.6,maxWidth:460,marginLeft:'auto',marginRight:'auto'}}>{block.caption}</div>}
+    </div>);
+}
+
+function ReflectionBlock({block,lessonId}){
+  const storageKey='yasna_reflection_'+lessonId+'_'+(block.id||'default');
+  const[answers,setAnswers]=useState(()=>{
+    try{const s=localStorage.getItem(storageKey);return s?JSON.parse(s):{};}catch(e){return{};}
+  });
+  const update=(qid,val)=>{
+    const next={...answers,[qid]:val};
+    setAnswers(next);
+    try{localStorage.setItem(storageKey,JSON.stringify(next));}catch(e){}
+  };
+  return(
+    <div style={{padding:'20px 24px',maxWidth:680,margin:'0 auto'}}>
+      <div style={{background:'#FFF9F0',border:'1px solid #F2D8A8',borderRadius:14,padding:'22px 22px'}}>
+        <div style={{fontSize:11,color:'#B8874A',textTransform:'uppercase',letterSpacing:1,fontWeight:700,marginBottom:10}}>Твой журнал · сохраняется локально</div>
+        <div style={{fontSize:17,fontWeight:700,color:'#1d1d1f',marginBottom:8}}>{block.title}</div>
+        {block.intro&&<div style={{fontSize:14,color:'#6e6e73',lineHeight:1.6,marginBottom:18}}>{block.intro}</div>}
+        {(block.questions||[]).map(q=>(
+          <div key={q.id} style={{marginBottom:14}}>
+            <label style={{display:'block',fontSize:13,fontWeight:600,color:'#1d1d1f',marginBottom:6,lineHeight:1.4}}>{q.label}</label>
+            <textarea
+              value={answers[q.id]||''}
+              onChange={e=>update(q.id,e.target.value)}
+              placeholder={q.placeholder||''}
+              rows={2}
+              style={{width:'100%',padding:'10px 12px',fontSize:14,fontFamily:'inherit',color:'#1d1d1f',border:'1px solid #e5e5ea',borderRadius:8,outline:'none',resize:'vertical',lineHeight:1.5,background:'#fff',boxSizing:'border-box'}}
+            />
+          </div>
+        ))}
+        {block.footer&&<div style={{fontSize:12,color:'#86868b',lineHeight:1.5,marginTop:8}}>{block.footer}</div>}
+      </div>
+    </div>);
+}
+
+function FinalQuizInlineBlock({block}){
+  const[answers,setAnswers]=useState({});
+  return(
+    <div style={{padding:'24px 24px',maxWidth:680,margin:'0 auto'}}>
+      {block.title&&<div style={{fontSize:17,fontWeight:700,color:'#1d1d1f',marginBottom:18}}>{block.title}</div>}
+      {block.questions.map((q,qi)=>{
+        const answeredIdx=answers[qi];
+        const answered=answeredIdx!=null;
+        return(
+          <div key={qi} style={{marginBottom:26,paddingBottom:22,borderBottom:qi<block.questions.length-1?'1px dashed #e5e5ea':'none'}}>
+            <div style={{fontSize:15,fontWeight:600,color:'#1d1d1f',marginBottom:12,lineHeight:1.45}}>{qi+1}. {q.q}</div>
+            <div style={{display:'flex',flexDirection:'column',gap:8}}>
+              {q.options.map((opt,oi)=>{
+                const isSelected=answeredIdx===oi;
+                const isCorrect=oi===q.correctIdx;
+                let bg='#fff',border='#e5e5ea',color='#1d1d1f';
+                if(answered){
+                  if(isCorrect){bg='#F0FBF3';border='#30A060';color='#1d1d1f';}
+                  else if(isSelected){bg='#FFF3F4';border='#E8364F';color='#1d1d1f';}
+                }
+                return(
+                  <button key={oi}
+                    onClick={()=>!answered&&setAnswers(prev=>({...prev,[qi]:oi}))}
+                    disabled={answered}
+                    style={{textAlign:'left',padding:'11px 14px',fontSize:14,color,background:bg,border:'1.5px solid '+border,borderRadius:10,cursor:answered?'default':'pointer',transition:'all .2s',fontFamily:'inherit',lineHeight:1.4}}
+                  >{opt}{answered&&isCorrect?<span style={{color:'#30A060',fontWeight:700,marginLeft:8}}>✓</span>:null}{answered&&isSelected&&!isCorrect?<span style={{color:'#E8364F',fontWeight:700,marginLeft:8}}>✗</span>:null}</button>);
+              })}
+            </div>
+            {answered&&q.explain&&(
+              <div style={{marginTop:10,padding:'12px 14px',background:'#f5f5f7',borderRadius:8,fontSize:13,color:'#424245',lineHeight:1.6}}>
+                <b style={{color:'#1d1d1f'}}>Разбор:</b> {q.explain}
+              </div>
+            )}
+          </div>);
+      })}
+    </div>);
+}
+
+function SummaryBlockInline({block}){
+  return(
+    <div style={{padding:'24px'}}>
+      <div style={{maxWidth:680,margin:'0 auto',background:'linear-gradient(135deg,#1d4d60 0%,#2a6a80 100%)',color:'#fff',borderRadius:16,padding:'28px 26px'}}>
+        <div style={{fontSize:11,color:'rgba(255,255,255,.7)',textTransform:'uppercase',letterSpacing:1.2,fontWeight:700,marginBottom:10}}>Главное за урок</div>
+        <div style={{fontSize:22,fontWeight:700,marginBottom:18,lineHeight:1.25}}>{block.title}</div>
+        <ul style={{listStyle:'none',padding:0,margin:0}}>
+          {(block.points||[]).map((p,i)=>(
+            <li key={i} style={{display:'flex',gap:10,marginBottom:10,fontSize:14,lineHeight:1.55,color:'rgba(255,255,255,.92)'}}>
+              <span style={{flexShrink:0,marginTop:2}}>✦</span>
+              <span>{p}</span>
+            </li>
+          ))}
+        </ul>
+        {block.nextLabel&&(
+          <div style={{marginTop:22,padding:'14px 16px',background:'rgba(255,255,255,.08)',borderRadius:10,fontSize:13,color:'rgba(255,255,255,.85)',lineHeight:1.55}}>{block.nextLabel}</div>
+        )}
+      </div>
+    </div>);
+}
+
+function NextStepsBlockInline({block,onClose,onPickAnother,onRepeat}){
+  return(
+    <div style={{padding:'20px 24px 60px',maxWidth:680,margin:'0 auto',display:'flex',flexDirection:'column',gap:10}}>
+      <button onClick={onPickAnother} style={{fontSize:15,fontWeight:600,padding:'14px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer'}}>← Вернуться к списку уроков</button>
+      <button onClick={onRepeat} style={{fontSize:14,fontWeight:500,padding:'12px 24px',borderRadius:12,border:'1px solid #e5e5ea',background:'#fff',color:'#424245',cursor:'pointer'}}>⟲ Пройти урок ещё раз</button>
+    </div>);
+}
+
+// Main ScrollLesson component
+function ScrollLesson({lesson,onClose,onComplete,onPickAnother}){
+  const scrollRef=useRef(null);
+  const blockRefs=useRef([]);
+  const[progress,setProgress]=useState(0);
+  const[completed,setCompleted]=useState(false);
+
+  // Track scroll progress
+  useEffect(()=>{
+    const el=scrollRef.current;
+    if(!el) return;
+    const onScroll=()=>{
+      const sh=el.scrollHeight-el.clientHeight;
+      const pct=sh>0?Math.min(100,Math.max(0,(el.scrollTop/sh)*100)):0;
+      setProgress(pct);
+      if(pct>=85&&!completed){setCompleted(true);if(onComplete)onComplete(lesson.id);}
+    };
+    el.addEventListener('scroll',onScroll);
+    onScroll();
+    return()=>el.removeEventListener('scroll',onScroll);
+  },[lesson.id,completed]);
+
+  const scrollToBlockAfter=(idx)=>{
+    const next=blockRefs.current[idx+1];
+    if(next){next.scrollIntoView({behavior:'smooth',block:'start'});}
+  };
+
+  const repeat=()=>{
+    if(scrollRef.current)scrollRef.current.scrollTop=0;
+  };
+
+  return(
+    <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#fff',zIndex:70,display:'flex',flexDirection:'column'}}>
+      {/* Sticky header with progress */}
+      <div style={{padding:'10px 16px',borderBottom:'1px solid #f0f0f2',flexShrink:0,display:'flex',alignItems:'center',gap:10,background:'#fff',position:'relative'}}>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontSize:10,color:'#86868b',textTransform:'uppercase',letterSpacing:0.6,fontWeight:600}}>{lesson.module?'Урок '+lesson.order+' · '+lesson.module:'Урок '+lesson.order}</div>
+          <div style={{fontSize:14,fontWeight:600,color:'#1d1d1f',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{lesson.title}</div>
+        </div>
+        <div style={{fontSize:11,color:'#86868b',fontWeight:600,marginRight:8}}>{Math.round(progress)}%</div>
+        <button onClick={onClose} style={{width:32,height:32,borderRadius:8,border:'1px solid #e5e5ea',background:'#fff',cursor:'pointer',color:'#424245',fontSize:14}}>✕</button>
+        {/* Green progress bar */}
+        <div style={{position:'absolute',left:0,bottom:-1,height:3,width:'100%',background:'#f0f0f2'}}>
+          <div style={{height:'100%',width:progress+'%',background:'#30A060',transition:'width .15s linear'}}/>
+        </div>
+      </div>
+
+      {/* Scrollable content */}
+      <div ref={scrollRef} style={{flex:1,overflowY:'auto',WebkitOverflowScrolling:'touch'}}>
+        {lesson.blocks.map((block,i)=>{
+          const setRef=(el)=>{blockRefs.current[i]=el;};
+          switch(block.type){
+            case 'hero': return<div key={i} ref={setRef}><HeroBlock block={block}/></div>;
+            case 'speaker': return<div key={i} ref={setRef}><SpeakerBlock block={block}/></div>;
+            case 'email': return<div key={i} ref={setRef}><EmailBlock block={block}/></div>;
+            case 'explanation': return<div key={i} ref={setRef}><ExplanationBlock block={block}/></div>;
+            case 'divider-cta': return<div key={i} ref={setRef}><DividerCtaBlock block={block} scrollToNext={()=>scrollToBlockAfter(i)}/></div>;
+            case 'checkbox-quiz': return<div key={i} ref={setRef}><CheckboxQuizBlock block={block} blockId={'b'+i}/></div>;
+            case 'scenario': return<div key={i} ref={setRef}><ScenarioBlock block={block}/></div>;
+            case 'yasna-star': return<div key={i} ref={setRef}><YasnaStarBlock block={block}/></div>;
+            case 'reflection': return<div key={i} ref={setRef}><ReflectionBlock block={block} lessonId={lesson.id}/></div>;
+            case 'final-quiz-inline': return<div key={i} ref={setRef}><FinalQuizInlineBlock block={block}/></div>;
+            case 'summary-block': return<div key={i} ref={setRef}><SummaryBlockInline block={block}/></div>;
+            case 'next-steps-block': return<div key={i} ref={setRef}><NextStepsBlockInline block={block} onClose={onClose} onPickAnother={onPickAnother} onRepeat={repeat}/></div>;
+            default: return<div key={i} ref={setRef} style={{padding:20,color:'#aeaeb2',textAlign:'center'}}>Блок типа '{block.type}' не реализован</div>;
+          }
+        })}
+      </div>
+    </div>);
+}
+
+// Main Lesson component — dispatches between step-based and scroll-based formats
 function Lesson({lessonId,onClose,onComplete,onPickAnother}){
   const lesson=LESSONS.find(l=>l.id===lessonId)||LESSONS[0];
+  if(lesson.format==='scroll'){
+    return<ScrollLesson lesson={lesson} onClose={onClose} onComplete={onComplete} onPickAnother={onPickAnother}/>;
+  }
+  return<LessonStepBased lesson={lesson} onClose={onClose} onComplete={onComplete} onPickAnother={onPickAnother}/>;
+}
+
+function LessonStepBased({lesson,onClose,onComplete,onPickAnother}){
   const[stepIdx,setStepIdx]=useState(0);
   const totalSteps=lesson.steps.length;
   const currentStep=lesson.steps[stepIdx];
@@ -2629,13 +3192,14 @@ function LessonPicker({onSelectLesson,onClose,completedLessons=[]}){
           Шаг за шагом разберём устройство Ясны. Начнём с самого знакомого — суток. Каждый урок 5-10 минут.
         </div>
         <div style={{padding:'10px 14px',background:'rgba(0,122,255,.06)',border:'1px solid rgba(0,122,255,.2)',borderRadius:10,fontSize:12,color:'#424245',marginBottom:20,lineHeight:1.5}}>
-          <b style={{color:'#0071e3'}}>ℹ</b> Первый урок готов полностью — 12 шагов, ~8 минут. Уроки 2-7 в разработке.
+          <b style={{color:'#0071e3'}}>ℹ</b> Готовы первые два урока. Урок 1 — знакомство с методом. Урок 2 — первый урок модуля «Как устроены сутки».
         </div>
         {LESSONS.map(l=>{
           const done=completedLessons.includes(l.id);
           return<button key={l.id} onClick={()=>onSelectLesson(l.id)} style={{display:'flex',width:'100%',padding:'16px 18px',marginBottom:10,background:'#fff',border:'1px solid #e5e5ea',borderRadius:14,textAlign:'left',cursor:'pointer',gap:14,alignItems:'center',transition:'all .15s'}}>
             <div style={{width:44,height:44,borderRadius:'50%',background:done?'#30A060':'#0071e3',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:700,flexShrink:0}}>{done?'✓':l.order}</div>
             <div style={{flex:1,minWidth:0}}>
+              {l.module&&<div style={{fontSize:10,color:'#0071e3',textTransform:'uppercase',letterSpacing:0.5,fontWeight:700,marginBottom:3}}>Модуль · {l.module}</div>}
               <div style={{fontSize:15,fontWeight:600,color:'#1d1d1f',marginBottom:2}}>{l.title}</div>
               <div style={{fontSize:12,color:'#6e6e73'}}>{l.subtitle} · {l.duration}</div>
             </div>
