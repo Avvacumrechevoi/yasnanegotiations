@@ -53,6 +53,7 @@ input{font-family:var(--sans)}
   .nav-right .combine-btn{display:none!important}
   .hdr-title-desk{display:none!important}
   .hdr-title-mob{display:inline!important}
+  .hdr-brand-desk{display:none!important}
   .filters-toggle{display:none!important}
   .fullstar-btn{display:none!important}
   .hdr-mob-tools{display:flex!important}
@@ -513,15 +514,15 @@ function Info({i,p,af=[],onClose}){
   const Tag=({color,children})=><span style={{display:'inline-block',padding:'1px 8px',borderRadius:10,fontSize:10,fontWeight:500,background:color+'12',color:color,border:`1px solid ${color}25`}}>{children}</span>;
 
   return(
-    <div className="fi" style={{position:'fixed',bottom:14,right:14,width:380,maxHeight:hasMech?'75vh':'55vh',background:'rgba(255,255,255,.97)',border:'1px solid #e5e5ea',borderRadius:16,backdropFilter:'blur(16px)',boxShadow:'0 4px 24px rgba(0,0,0,.08)',display:'flex',flexDirection:'column'}}>
-      <div style={{padding:'10px 16px 6px',flexShrink:0}}>
+    <div className="fi" style={{position:'fixed',bottom:14,right:14,width:420,maxHeight:hasMech?'75vh':'55vh',background:'rgba(255,255,255,.97)',border:'1px solid #e5e5ea',borderRadius:16,backdropFilter:'blur(16px)',boxShadow:'0 4px 24px rgba(0,0,0,.08)',display:'flex',flexDirection:'column'}}>
+      <div style={{padding:'12px 18px 8px',flexShrink:0}}>
         <div style={{width:36,height:4,borderRadius:2,background:'#d2d2d7',margin:'0 auto 8px'}}/>
-        <button onClick={onClose} style={{position:'absolute',top:8,right:10,width:28,height:28,borderRadius:'50%',border:'1px solid #e5e5ea',background:'#f5f5f7',fontSize:14,color:'#86868b',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:1}}>✕</button>
-        <div style={{display:'flex',alignItems:'center',gap:10}}>
-          <div style={{width:36,height:36,borderRadius:'50%',border:`2px solid ${cr.c}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontWeight:700,color:cr.c,flexShrink:0}}>{i}</div>
+        <button onClick={onClose} style={{position:'absolute',top:10,right:12,width:28,height:28,borderRadius:'50%',border:'1px solid #e5e5ea',background:'#f5f5f7',fontSize:14,color:'#86868b',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:1}}>✕</button>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <div style={{width:40,height:40,borderRadius:'50%',border:`2px solid ${cr.c}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:17,fontWeight:700,color:cr.c,flexShrink:0}}>{i}</div>
           <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:17,color:'#1d1d1f',fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{label||<span style={{color:'#aeaeb2'}}>Не заполнено</span>}</div>
-            <div style={{display:'flex',gap:4,marginTop:3,flexWrap:'wrap'}}>
+            <div style={{fontSize:18,color:'#1d1d1f',fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{label||<span style={{color:'#aeaeb2'}}>Не заполнено</span>}</div>
+            <div style={{display:'flex',gap:4,marginTop:4,flexWrap:'wrap'}}>
               <Tag color={cr.c}>{cr.v}</Tag>
               <Tag color={pr.c}>{pr.n.split(' ')[0]}</Tag>
               <Tag color="#86868b">{isLong?'Долгое':'Короткое'}</Tag>
@@ -529,8 +530,8 @@ function Info({i,p,af=[],onClose}){
           </div>
         </div>
       </div>
-      <div style={{flex:1,overflowY:'auto',padding:'0 16px 14px',position:'relative'}}>
-        <div style={{fontSize:12,color:'#424245',lineHeight:1.55,marginBottom:8,padding:'8px 10px',background:'var(--bg2)',borderRadius:10}}>
+      <div style={{flex:1,overflowY:'auto',padding:'0 18px 16px',position:'relative'}}>
+        <div style={{fontSize:13,color:'#424245',lineHeight:1.6,marginBottom:10,padding:'10px 12px',background:'var(--bg2)',borderRadius:10}}>
           {POS_DESC[i]}
         </div>
       {false&&<div style={{display:'flex',alignItems:'center',gap:4,marginBottom:8,fontSize:11,color:'#6e6e73',flexWrap:'wrap'}}>
@@ -1308,16 +1309,18 @@ function App(){
   const pinnedTemplates=pinned.map(id=>T.find(t=>t.id===id)).filter(Boolean);
   return(
     <div style={{background:'var(--bg)',height:'100vh',display:'flex',flexDirection:'column'}}>
-      <div className='hdr' style={{display:'flex',alignItems:'center',padding:'10px 16px',background:'var(--bg2)',borderBottom:'1px solid rgba(0,0,0,.06)',flexShrink:0,minHeight:56}}>
-        <span style={{fontSize:18,color:'#0071e3',marginRight:8}}>✦</span>
-        <span className='hdr-title hdr-title-desk' style={{fontFamily:'var(--serif)',fontSize:16,color:'#1d1d1f',fontWeight:700,marginRight:6}}>{y.name}</span>
+      <div className='hdr' style={{display:'flex',alignItems:'center',padding:'10px 20px',background:'var(--bg2)',borderBottom:'1px solid rgba(0,0,0,.06)',flexShrink:0,minHeight:56}}>
+        <span style={{fontSize:20,color:'#0071e3',marginRight:6}}>✦</span>
+        <span className='hdr-brand-desk' style={{fontFamily:'var(--serif)',fontSize:17,color:'#1d1d1f',fontWeight:700,marginRight:12,letterSpacing:-0.3}}>Ясна</span>
+        <span className='hdr-title hdr-title-desk' style={{fontFamily:'var(--serif)',fontSize:18,color:'#6e6e73',fontWeight:500,marginRight:6,paddingLeft:12,borderLeft:'1px solid #d2d2d7'}}>{y.name}</span>
         <span className='hdr-title-mob' style={{display:'none',fontFamily:'var(--serif)',fontSize:20,color:'#1d1d1f',fontWeight:700,marginRight:6,letterSpacing:-0.2}}>Ясна</span>
         
         <div style={{flex:1}}/>
         <div className='hdr-btns' style={{display:'flex',gap:6,alignItems:'center'}}>
-        <button onClick={()=>setVerif(true)} style={{border:'1px solid #d2d2d7',color:'#6e6e73',padding:'5px 14px',borderRadius:6,fontSize:11}}>Верификация</button>
-        <button onClick={()=>setInstr(true)} style={{border:'1px solid #d2d2d7',color:'#6e6e73',padding:'5px 14px',borderRadius:6,fontSize:11}}>Инструкция</button>
-        <button onClick={()=>setGlossary(true)} style={{border:'1px solid #d2d2d7',color:'#6e6e73',padding:'5px 14px',borderRadius:6,fontSize:11}}>Глоссарий</button>
+        <button onClick={()=>setVerif(true)} style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 16px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>Верификация</button>
+        <button onClick={()=>setInstr(true)} style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 16px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>Инструкция</button>
+        <button onClick={()=>setGlossary(true)} style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 16px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>Глоссарий</button>
+        <button onClick={()=>setFullStar(true)} title="Во весь экран" style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 11px',borderRadius:8,fontSize:15,background:'#fff',cursor:'pointer',minWidth:36}}>⤢</button>
         </div>
         <div className='hdr-mob-tools' style={{display:'none',gap:6,alignItems:'center',marginRight:8}}>
           <button onClick={()=>setFiltersOpen(!filtersOpen)} style={{fontSize:14,padding:'8px 14px',border:`1px solid ${filtersOpen||af.length>0?'rgba(0,122,255,.35)':'#d2d2d7'}`,borderRadius:10,background:filtersOpen||af.length>0?'rgba(0,122,255,.06)':'#fff',color:filtersOpen||af.length>0?'#0071e3':'#6e6e73',whiteSpace:'nowrap',fontWeight:af.length>0?600:500,minHeight:36}}>
@@ -1338,16 +1341,16 @@ function App(){
           </div>}
         </div>
       </div>
-      <div className='nav-tabs' style={{display:'flex',alignItems:'center',padding:'6px 0 6px 16px',background:'var(--bg2)',borderBottom:'1px solid #d2d2d7',flexShrink:0}}>
-        <div style={{flex:1,display:'flex',alignItems:'center',gap:3,overflowX:'auto',minWidth:0,scrollbarWidth:'none',msOverflowStyle:'none'}} className="hide-scroll">
+      <div className='nav-tabs' style={{display:'flex',alignItems:'center',padding:'8px 0 8px 20px',background:'var(--bg2)',borderBottom:'1px solid #d2d2d7',flexShrink:0}}>
+        <div style={{flex:1,display:'flex',alignItems:'center',gap:4,overflowX:'auto',minWidth:0,scrollbarWidth:'none',msOverflowStyle:'none'}} className="hide-scroll">
         {pinnedTemplates.length===0
-          ?<span className="nav-empty" style={{fontSize:12,color:'#aeaeb2',padding:'4px 12px',whiteSpace:'nowrap',fontStyle:'italic'}}>Нет выбранных ясн — нажмите «+ ещё»</span>
-          :pinnedTemplates.map(t=><button key={t.id} onClick={()=>load(t)} style={{padding:'4px 12px',borderRadius:14,fontSize:12,whiteSpace:'nowrap',background:y.name===t.n?'rgba(0,122,255,.06)':'transparent',color:y.name===t.n?'#1d1d1f':'var(--txt2)',border:`1px solid ${y.name===t.n?'rgba(0,122,255,.3)':'transparent'}`,flexShrink:0}}>{t.custom?'◇':t.rubrik?'✦':'✧'} {t.n}</button>)}
+          ?<span className="nav-empty" style={{fontSize:13,color:'#aeaeb2',padding:'6px 14px',whiteSpace:'nowrap',fontStyle:'italic'}}>Нет выбранных ясн — нажмите «+ ещё»</span>
+          :pinnedTemplates.map(t=><button key={t.id} onClick={()=>load(t)} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:y.name===t.n?'rgba(0,122,255,.08)':'transparent',color:y.name===t.n?'#0071e3':'var(--txt2)',border:`1px solid ${y.name===t.n?'rgba(0,122,255,.35)':'transparent'}`,flexShrink:0,fontWeight:y.name===t.n?600:400,cursor:'pointer'}}>{t.custom?'◇':t.rubrik?'✦':'✧'} {t.n}</button>)}
         </div>
-        <div className='nav-right' style={{display:'flex',alignItems:'center',gap:3,paddingRight:16,paddingLeft:6,flexShrink:0,background:'var(--bg2)',borderLeft:'1px solid #e5e5ea'}}>
-        <button onClick={()=>setPicker(true)} style={{padding:'4px 12px',borderRadius:14,fontSize:12,color:'#6e6e73',border:'1px dashed var(--border)',whiteSpace:'nowrap'}}><span className='desk-only'>+ ещё</span><span className='mob-only'>☰</span></button>
-        <button className='combine-btn' onClick={()=>overlay?setOverlay(null):setShowOverlayPicker(true)} style={{padding:'4px 12px',borderRadius:14,fontSize:12,whiteSpace:'nowrap',background:overlay?'rgba(175,82,222,.08)':'transparent',color:overlay?'#af52de':'var(--txt3)',border:`1px solid ${overlay?'rgba(175,82,222,.15)':'var(--border)'}`,}}><span className='desk-only'>{overlay?'⊗ Снять':'⊕ Совместить'}</span><span className='mob-only'>{overlay?'⊗':'⊕'}</span></button>
-        <button className='desk-only' onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);}} style={{padding:'4px 12px',borderRadius:14,fontSize:12,color:'#0071e3',border:'1px dashed rgba(0,122,255,.3)',whiteSpace:'nowrap'}}>+ Создать</button>
+        <div className='nav-right' style={{display:'flex',alignItems:'center',gap:5,paddingRight:20,paddingLeft:10,flexShrink:0,background:'var(--bg2)',borderLeft:'1px solid #e5e5ea'}}>
+        <button onClick={()=>setPicker(true)} style={{padding:'6px 14px',borderRadius:16,fontSize:13,color:'#6e6e73',border:'1px dashed var(--border)',whiteSpace:'nowrap',background:'transparent',cursor:'pointer'}}><span className='desk-only'>+ ещё</span><span className='mob-only'>☰</span></button>
+        <button className='combine-btn' onClick={()=>overlay?setOverlay(null):setShowOverlayPicker(true)} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:overlay?'rgba(175,82,222,.08)':'transparent',color:overlay?'#af52de':'var(--txt3)',border:`1px solid ${overlay?'rgba(175,82,222,.3)':'var(--border)'}`,cursor:'pointer'}}><span className='desk-only'>{overlay?'⊗ Снять':'⊕ Совместить'}</span><span className='mob-only'>{overlay?'⊗':'⊕'}</span></button>
+        <button className='desk-only' onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);}} style={{padding:'6px 14px',borderRadius:16,fontSize:13,color:'#0071e3',border:'1px dashed rgba(0,122,255,.35)',whiteSpace:'nowrap',background:'transparent',cursor:'pointer',fontWeight:500}}>+ Создать</button>
         </div>
       </div>
       <div className='filters-toggle' style={{display:'none',padding:'4px 10px',borderBottom:'1px solid #e5e5ea',flexShrink:0}}>
@@ -1356,14 +1359,14 @@ function App(){
           Механики{af.length>0?` (${af.length})`:''} 
         </button>
       </div>
-      <div className={'filters hide-scroll'+(filtersOpen?'':' filters-closed')} style={{display:'flex',gap:4,padding:'8px 20px',flexWrap:'wrap',flexShrink:0}}>
-        <span style={{fontSize:11,color:'#aeaeb2',padding:'4px 0',whiteSpace:'nowrap',marginRight:2}}>Механики:</span>
+      <div className={'filters hide-scroll'+(filtersOpen?'':' filters-closed')} style={{display:'flex',gap:5,padding:'10px 20px',flexWrap:'wrap',flexShrink:0,alignItems:'center'}}>
+        <span style={{fontSize:12,color:'#6e6e73',padding:'4px 0',whiteSpace:'nowrap',marginRight:4,fontWeight:500}}>Механики:</span>
         {af.length===FL.length?
-          <button onClick={()=>setAf([])} style={{padding:'4px 12px',borderRadius:14,fontSize:12,whiteSpace:'nowrap',background:'#0071e322',color:'#0071e3',border:'1px solid #0071e355',fontWeight:600}}>Все</button>
-          :<button onClick={()=>setAf(FL.map(f=>f.id))} style={{padding:'4px 12px',borderRadius:14,fontSize:12,whiteSpace:'nowrap',background:'transparent',color:'#86868b',border:'1px solid #d2d2d7'}}>Все</button>
+          <button onClick={()=>setAf([])} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:'#0071e322',color:'#0071e3',border:'1px solid #0071e355',fontWeight:600,cursor:'pointer'}}>Все</button>
+          :<button onClick={()=>setAf(FL.map(f=>f.id))} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:'transparent',color:'#86868b',border:'1px solid #d2d2d7',cursor:'pointer'}}>Все</button>
         }
-        {af.length>0&&af.length<FL.length&&<button onClick={()=>setAf([])} style={{padding:'4px 12px',borderRadius:14,fontSize:12,whiteSpace:'nowrap',background:'#f5f5f7',color:'#6e6e73',border:'1px solid #d2d2d7'}}>✕</button>}
-        {FL.map((f,fi)=>{const a=af.includes(f.id);const prevG=fi>0?FL[fi-1].g:'';const showSep=f.g!==prevG&&fi>0;return<React.Fragment key={f.id}>{showSep&&<div className='sep' style={{width:1,height:14,background:'#d2d2d7',margin:'0 2px',flexShrink:0}}/>}<button onClick={()=>tog(f.id)} style={{padding:'4px 12px',borderRadius:14,fontSize:12,whiteSpace:'nowrap',background:a?`${f.c}22`:'transparent',color:a?f.c:'#86868b',border:`1px solid ${a?f.c+'55':'#d2d2d7'}`}}>{f.l}</button></React.Fragment>;})}
+        {af.length>0&&af.length<FL.length&&<button onClick={()=>setAf([])} style={{padding:'6px 12px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:'#f5f5f7',color:'#6e6e73',border:'1px solid #d2d2d7',cursor:'pointer'}}>✕</button>}
+        {FL.map((f,fi)=>{const a=af.includes(f.id);const prevG=fi>0?FL[fi-1].g:'';const showSep=f.g!==prevG&&fi>0;return<React.Fragment key={f.id}>{showSep&&<div className='sep' style={{width:1,height:18,background:'#d2d2d7',margin:'0 4px',flexShrink:0}}/>}<button onClick={()=>tog(f.id)} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:a?`${f.c}22`:'transparent',color:a?f.c:'#86868b',border:`1px solid ${a?f.c+'55':'#d2d2d7'}`,cursor:'pointer',fontWeight:a?600:400}}>{f.l}</button></React.Fragment>;})}
         
       </div>
       <div className={'star-area'+(sel!==null?' star-shift':'')} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}} onClick={e=>{if(e.target===e.currentTarget)setSel(null)}}>
