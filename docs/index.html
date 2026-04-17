@@ -1802,6 +1802,85 @@ const LESSONS=[
       // Step 12: Next steps
       {type:'next-steps'}
     ]
+  },
+  // ─────────────────────────────────────────────────────────────────
+  // УРОК 2 — Модуль «Как устроены сутки», урок 1: Ночь как фундамент
+  // Формат v3: экспозиция → сторонний кейс → разбор метода → практика → закрытие
+  // ─────────────────────────────────────────────────────────────────
+  {
+    id:'l2_night_foundation',
+    order:2,
+    module:'Как устроены сутки',
+    moduleOrder:1,
+    title:'Ночь как фундамент',
+    subtitle:'Полочка 0 и почему день без неё разваливается',
+    duration:'8–12 мин',
+    yasna:'суток',
+    steps:[
+      // 1. Экспозиция — наблюдение
+      {type:'intro',
+        title:'Посмотри на свой вчерашний вечер',
+        body:'Ты помнишь его целиком?\n\nБольшинство людей — нет. Не потому что случилось что-то плохое. А потому что вечер не был собран: он стёрся в ленту уведомлений, дожёвывание сериала и тревожные мысли перед сном.\n\nМы привыкли думать, что день начинается утром. На самом деле день начинается ночью. С полочки 0.\n\nСегодня разберём, почему.',
+        cta:'Начнём'},
+      // 2. Сторонний кейс — скорая помощь
+      {type:'case-card',
+        title:'Как устроена ночь в скорой помощи',
+        caseLabel:'Сторонний кейс · 2 минуты',
+        emoji:'🚑',
+        body:'Ночная смена в дежурной бригаде — с 20:00 до 8:00. Двенадцать часов. Казалось бы, просто «время без света».\n\nНо если посмотреть изнутри — ночь устроена очень точно.\n\n· 20:00–22:00 — пересменка, передача активных вызовов, проверка укладок.\n· 22:00–00:00 — первый пик: бытовые травмы, алкоголь, скачки давления.\n· 00:00–03:00 — провал активности, фельдшеры спят по очереди, диспетчер держит связь.\n· 03:00–05:00 — «мёртвый час»: редкие, но самые тяжёлые вызовы. Инфаркты, острые боли, роды.\n· 05:00–08:00 — подготовка к утру, сводка, сдача смены.\n\nБез провала в 00:00–03:00 бригада не доживёт до тяжёлых часов. Этот провал — не слабость смены, а её фундамент. Без него вся ночь рассыпается.\n\nТо же самое у человека. Ночь — не пустота между днями. Это полочка, на которой держится всё остальное.',
+        cta:'Разберём, почему'},
+      // 3. Разбор метода — фокус на полочке 0
+      {type:'deep-dive',
+        title:'Полочка 0 на Ясне Суток',
+        highlightPos:0,
+        paragraphs:[
+          {label:'Где она',text:'Полочка 0 — внизу звезды. Это точка, с которой начинается и которой заканчивается цикл суток. Она же — Ночь.'},
+          {label:'Что на ней происходит',text:'Восстановление. Обработка впечатлений дня. Консолидация памяти. Физиологически — работа иммунитета, регенерация тканей, выработка гормонов, очистка мозга (глимфатическая система).'},
+          {label:'Почему это фундамент',text:'Всё, что происходит на других полочках, опирается на то, что успело произойти на полочке 0. Не выспался — не работает полочка 3 (утро). Сбилась ночь — сорвался полудень (6). Пропала ночь как структура — пропал весь день.'},
+          {label:'Типичная ошибка горожанина',text:'Считать, что ночь — это просто 7–8 часов сна. На самом деле полочка 0 — это ещё и час перед сном (подготовка, замедление, завершение дня) и первый час после пробуждения (переход, не-действие, настройка). Без этих рамок сам сон работает хуже.'}
+        ],
+        cta:'Понятно'},
+      // 4. Практика — опиши свою ночь
+      {type:'reflection',
+        title:'Опиши свою типичную ночь',
+        body:'Чтобы увидеть, как у тебя устроена полочка 0, ответь на три вопроса. Это не тест — это наблюдение.',
+        questions:[
+          {id:'before',label:'Что ты делал в последний час перед сном вчера?',placeholder:'Например: скроллил телефон в кровати, дочитывал рабочую почту, смотрел сериал...'},
+          {id:'sleep',label:'Во сколько лёг и во сколько встал? Сколько часов сна получилось?',placeholder:'Например: лёг в 00:40, встал в 7:15, примерно 6.5 часа'},
+          {id:'after',label:'Что было в первый час после пробуждения?',placeholder:'Например: сразу телефон, потом душ, кофе и уже бегом на созвон...'}
+        ],
+        footer:'Ответы сохраняются только у тебя в браузере. Никто их не увидит. Это твой личный журнал.',
+        cta:'Посмотреть разбор'},
+      // 5. Финальный мини-квиз
+      {type:'final-quiz',
+        title:'Проверим понимание',
+        questions:[
+          {q:'Почему полочка 0 — фундамент, а не пустота?',
+           options:['Потому что во сне ничего не происходит','Потому что на ней идёт восстановление, без которого не работают остальные полочки','Потому что ночь — самая длинная часть суток','Потому что 0 — это начало нумерации'],
+           correctIdx:1,
+           explain:'На полочке 0 идёт восстановление, консолидация памяти, работа иммунитета. Без неё не работают другие полочки — утро, полудень, вечер.'},
+          {q:'Что относится к полочке 0, кроме самого сна?',
+           options:['Только время в кровати с закрытыми глазами','Час перед сном и первый час после пробуждения','Весь вечер с 18:00','Любое время, когда темно'],
+           correctIdx:1,
+           explain:'Полочка 0 — это рамка: час подготовки ко сну + сам сон + час настройки после. Без рамок ядро работает хуже.'},
+          {q:'Что случилось бы со сменой скорой помощи без провала в 00:00–03:00?',
+           options:['Они бы закрыли больше вызовов','Бригада бы не справилась с тяжёлыми вызовами в 03:00–05:00','Ничего, провал — это слабость','Они бы устали к 22:00'],
+           correctIdx:1,
+           explain:'Провал в 00:00–03:00 — это восстановительная пауза. Без неё бригада не дотянет до самого тяжёлого отрезка ночи.'}
+        ]},
+      // 6. Summary
+      {type:'summary',
+        title:'Урок завершён',
+        achievements:[
+          'Полочка 0 — не пустота, а фундамент всего цикла',
+          'У неё есть рамки: час до сна, сам сон, час после',
+          'Провал и покой — структурная часть ночи, без которой всё остальное разваливается',
+          'В скорой помощи, в твоём дне, в природе — одна и та же логика'
+        ],
+        next:'Дальше — Урок 2 модуля: «Восхождение — искра, рассвет, утро» (полочки 1–2–3). Разберём, почему утро не начинается в 7:00.'},
+      // 7. Next
+      {type:'next-steps'}
+    ]
   }
 ];
 
@@ -2553,6 +2632,80 @@ function StepNextSteps({step,onNext,onRepeat,onPickAnother}){
     </div>);
 }
 
+// ─────────────────────────────────────────────────────────────────
+// New step types for v3 format: case-card, deep-dive, reflection
+// ─────────────────────────────────────────────────────────────────
+
+// Сторонний кейс — яркий внешний пример, читается 1–2 минуты
+function StepCaseCard({step,onNext}){
+  return(
+    <div style={{display:'flex',flexDirection:'column',height:'100%',padding:'24px 20px',maxWidth:640,margin:'0 auto',width:'100%',overflowY:'auto'}}>
+      {step.caseLabel&&<div style={{fontSize:10,color:'#0071e3',textTransform:'uppercase',letterSpacing:0.8,fontWeight:700,marginBottom:8,textAlign:'center'}}>{step.caseLabel}</div>}
+      <div style={{fontSize:44,textAlign:'center',marginBottom:12}}>{step.emoji||'📎'}</div>
+      <h2 style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:16,textAlign:'center',lineHeight:1.25}}>{step.title}</h2>
+      <div style={{padding:'20px 22px',background:'#f5f5f7',borderRadius:14,marginBottom:24,fontSize:14,color:'#1d1d1f',lineHeight:1.7,whiteSpace:'pre-wrap'}}>{step.body}</div>
+      <button onClick={onNext} style={{alignSelf:'center',fontSize:15,fontWeight:600,padding:'12px 32px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer',boxShadow:'0 4px 14px rgba(0,122,255,.3)',marginTop:'auto'}}>{step.cta||'Дальше'} →</button>
+    </div>);
+}
+
+// Разбор метода — текстовый разбор с подсветкой конкретной полочки на звезде
+function StepDeepDive({step,onNext}){
+  const highlighted=step.highlightPos!=null?[step.highlightPos]:[];
+  return(
+    <div style={{display:'flex',flexDirection:'column',height:'100%',padding:'20px 20px',maxWidth:640,margin:'0 auto',width:'100%',overflowY:'auto'}}>
+      <h2 style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:16,textAlign:'center',lineHeight:1.25}}>{step.title}</h2>
+      <div style={{flex:'0 0 auto',height:220,marginBottom:20,display:'flex',alignItems:'center',justifyContent:'center'}}>
+        <LessonStar mode="full" highlighted={highlighted} focusType="longs"/>
+      </div>
+      {(step.paragraphs||[]).map((p,i)=>(
+        <div key={i} style={{marginBottom:16,paddingLeft:14,borderLeft:'3px solid '+(i===0?'#0071e3':'#e5e5ea')}}>
+          <div style={{fontSize:11,color:'#0071e3',textTransform:'uppercase',letterSpacing:0.6,fontWeight:700,marginBottom:4}}>{p.label}</div>
+          <div style={{fontSize:14,color:'#1d1d1f',lineHeight:1.65}}>{p.text}</div>
+        </div>
+      ))}
+      <button onClick={onNext} style={{alignSelf:'center',marginTop:16,fontSize:15,fontWeight:600,padding:'12px 32px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer',boxShadow:'0 4px 14px rgba(0,122,255,.3)'}}>{step.cta||'Дальше'} →</button>
+    </div>);
+}
+
+// Рефлексия — открытое задание, ответы сохраняются в localStorage
+function StepReflection({step,onNext}){
+  const storageKey='yasna_reflection_'+(step.id||step.title.replace(/\s+/g,'_').toLowerCase());
+  const[answers,setAnswers]=useState(()=>{
+    try{const s=localStorage.getItem(storageKey);return s?JSON.parse(s):{};}catch(e){return{};}
+  });
+  const update=(qid,val)=>{
+    const next={...answers,[qid]:val};
+    setAnswers(next);
+    try{localStorage.setItem(storageKey,JSON.stringify(next));}catch(e){}
+  };
+  const allFilled=(step.questions||[]).every(q=>(answers[q.id]||'').trim().length>=3);
+  return(
+    <div style={{display:'flex',flexDirection:'column',height:'100%',padding:'24px 20px',maxWidth:640,margin:'0 auto',width:'100%',overflowY:'auto'}}>
+      <div style={{fontSize:10,color:'#30A060',textTransform:'uppercase',letterSpacing:0.8,fontWeight:700,marginBottom:8,textAlign:'center'}}>Практика · применение к себе</div>
+      <h2 style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:12,textAlign:'center',lineHeight:1.25}}>{step.title}</h2>
+      {step.body&&<p style={{fontSize:14,color:'#6e6e73',lineHeight:1.6,marginBottom:22,textAlign:'center'}}>{step.body}</p>}
+      {(step.questions||[]).map(q=>(
+        <div key={q.id} style={{marginBottom:18}}>
+          <label style={{display:'block',fontSize:13,fontWeight:600,color:'#1d1d1f',marginBottom:8,lineHeight:1.4}}>{q.label}</label>
+          <textarea
+            value={answers[q.id]||''}
+            onChange={e=>update(q.id,e.target.value)}
+            placeholder={q.placeholder||''}
+            rows={3}
+            style={{width:'100%',padding:'10px 12px',fontSize:14,fontFamily:'inherit',color:'#1d1d1f',border:'1px solid #e5e5ea',borderRadius:10,outline:'none',resize:'vertical',lineHeight:1.5,background:'#fff'}}
+          />
+        </div>
+      ))}
+      {step.footer&&<div style={{fontSize:12,color:'#86868b',lineHeight:1.5,padding:'10px 14px',background:'#f5f5f7',borderRadius:8,marginBottom:16}}>{step.footer}</div>}
+      <button
+        onClick={onNext}
+        disabled={!allFilled}
+        style={{alignSelf:'center',fontSize:15,fontWeight:600,padding:'12px 32px',borderRadius:12,border:'none',background:allFilled?'#0071e3':'#d1d1d6',color:'#fff',cursor:allFilled?'pointer':'not-allowed',boxShadow:allFilled?'0 4px 14px rgba(0,122,255,.3)':'none',marginTop:8}}
+      >{step.cta||'Дальше'} →</button>
+      {!allFilled&&<div style={{fontSize:11,color:'#aeaeb2',textAlign:'center',marginTop:8}}>Ответь хотя бы коротко на все три вопроса</div>}
+    </div>);
+}
+
 function LessonStep({step,onNext,onRepeat,onPickAnother}){
   switch(step.type){
     case 'intro': return<StepIntro step={step} onNext={onNext}/>;
@@ -2567,6 +2720,9 @@ function LessonStep({step,onNext,onRepeat,onPickAnother}){
     case 'final-quiz': return<StepFinalQuiz step={step} onNext={onNext}/>;
     case 'summary': return<StepSummary step={step} onNext={onNext}/>;
     case 'next-steps': return<StepNextSteps step={step} onNext={onNext} onRepeat={onRepeat} onPickAnother={onPickAnother}/>;
+    case 'case-card': return<StepCaseCard step={step} onNext={onNext}/>;
+    case 'deep-dive': return<StepDeepDive step={step} onNext={onNext}/>;
+    case 'reflection': return<StepReflection step={step} onNext={onNext}/>;
     default: return<div style={{padding:20,textAlign:'center',color:'#aeaeb2'}}>Шаг типа '{step.type}' ещё не реализован</div>;
   }
 }
@@ -2629,13 +2785,14 @@ function LessonPicker({onSelectLesson,onClose,completedLessons=[]}){
           Шаг за шагом разберём устройство Ясны. Начнём с самого знакомого — суток. Каждый урок 5-10 минут.
         </div>
         <div style={{padding:'10px 14px',background:'rgba(0,122,255,.06)',border:'1px solid rgba(0,122,255,.2)',borderRadius:10,fontSize:12,color:'#424245',marginBottom:20,lineHeight:1.5}}>
-          <b style={{color:'#0071e3'}}>ℹ</b> Первый урок готов полностью — 12 шагов, ~8 минут. Уроки 2-7 в разработке.
+          <b style={{color:'#0071e3'}}>ℹ</b> Готовы первые два урока. Урок 1 — знакомство с методом. Урок 2 — первый урок модуля «Как устроены сутки».
         </div>
         {LESSONS.map(l=>{
           const done=completedLessons.includes(l.id);
           return<button key={l.id} onClick={()=>onSelectLesson(l.id)} style={{display:'flex',width:'100%',padding:'16px 18px',marginBottom:10,background:'#fff',border:'1px solid #e5e5ea',borderRadius:14,textAlign:'left',cursor:'pointer',gap:14,alignItems:'center',transition:'all .15s'}}>
             <div style={{width:44,height:44,borderRadius:'50%',background:done?'#30A060':'#0071e3',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:700,flexShrink:0}}>{done?'✓':l.order}</div>
             <div style={{flex:1,minWidth:0}}>
+              {l.module&&<div style={{fontSize:10,color:'#0071e3',textTransform:'uppercase',letterSpacing:0.5,fontWeight:700,marginBottom:3}}>Модуль · {l.module}</div>}
               <div style={{fontSize:15,fontWeight:600,color:'#1d1d1f',marginBottom:2}}>{l.title}</div>
               <div style={{fontSize:12,color:'#6e6e73'}}>{l.subtitle} · {l.duration}</div>
             </div>
