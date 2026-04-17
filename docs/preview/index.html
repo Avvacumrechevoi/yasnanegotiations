@@ -64,10 +64,21 @@ input{font-family:var(--sans)}
   .filters .sep{display:none!important}
   .star-area{min-height:0!important;flex:1!important;padding-bottom:52px!important}
   .star-area>div{max-height:none!important;max-width:none!important}
-  .star-area svg{transition:transform .3s}
+  .star-area svg{transition:transform .3s, opacity .3s}
   .star-shift svg{transform:translateY(-18vh) scale(0.85)!important;transform-origin:center center!important}
+  /* When card is mid — shift star more up and shrink */
+  body:has(.fi-mid) .star-shift svg{transform:translateY(-32vh) scale(0.55)!important;opacity:.35!important}
+  body:has(.fi-full) .star-shift svg{transform:translateY(-42vh) scale(0.30)!important;opacity:.15!important}
   .star-area circle text{font-size:120%!important}
-  .fi{position:fixed!important;left:0!important;right:0!important;bottom:42px!important;top:auto!important;width:auto!important;max-width:none!important;height:32vh!important;max-height:32vh!important;border-radius:16px 16px 0 0!important;padding:0!important;border:1px solid #e5e5ea!important;border-bottom:none!important;background:#ffffff!important;backdrop-filter:none!important;box-shadow:0 -8px 24px rgba(0,0,0,.12)!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;z-index:55!important}
+  .fi{position:fixed!important;left:0!important;right:0!important;bottom:42px!important;top:auto!important;width:auto!important;max-width:none!important;border-radius:16px 16px 0 0!important;padding:0!important;border:1px solid #e5e5ea!important;border-bottom:none!important;background:#ffffff!important;backdrop-filter:none!important;box-shadow:0 -8px 24px rgba(0,0,0,.12)!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;z-index:55!important;transition:height .28s cubic-bezier(.4,0,.2,1), max-height .28s cubic-bezier(.4,0,.2,1)!important}
+  .fi-compact{height:32vh!important;max-height:32vh!important}
+  .fi-mid{height:60vh!important;max-height:60vh!important}
+  .fi-full{height:calc(100vh - 100px)!important;max-height:calc(100vh - 100px)!important}
+  .fi-dragging{transition:none!important}
+  .fi-handle{touch-action:none;cursor:grab;padding:8px 0 4px!important;-webkit-tap-highlight-color:transparent}
+  .fi-handle:active{cursor:grabbing}
+  .fi-handle-bar{transition:background .15s, width .15s, height .15s}
+  .fi-handle:active .fi-handle-bar{background:#86868b!important;width:44px!important;height:5px!important}
   .fi>div:last-child{overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;flex:1!important;min-height:0!important;scrollbar-width:thin;scrollbar-color:#c7c7cc transparent}
   .fi>div:last-child::-webkit-scrollbar{width:4px}
   .fi>div:last-child::-webkit-scrollbar-thumb{background:#c7c7cc;border-radius:4px}
@@ -101,7 +112,8 @@ input{font-family:var(--sans)}
   .hdr-title-mob{font-size:15px!important}
   .hdr-btns button{padding:4px 8px!important;font-size:11px!important;border-radius:6px!important}
   .nav-tabs{min-height:auto!important;padding-bottom:env(safe-area-inset-bottom,6px)!important}
-  .fi{height:28vh!important;max-height:28vh!important;padding:0!important;font-size:11px!important}
+  .fi-compact{height:28vh!important;max-height:28vh!important}
+  .fi-mid{height:55vh!important;max-height:55vh!important}
 }
 
 /* ═══ LANDSCAPE MOBILE ═══ */
@@ -547,11 +559,83 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose}){
     setTimeout(check,50);
   };
 
+  // Card size state: 'compact' | 'mid' | 'full' (mobile only)
+  const[cardSize,setCardSize]=useState('compact');
+  const[dragState,setDragState]=useState(null); // {startY, startH, curH}
+  const sizeHeights={compact:0.32,mid:0.60,full:0.90}; // vh fractions
+  const cardRef=(el)=>{ if(el) el._ref=el; };
+
+  // Cycle through states on tap of handle
+  const cycleSize=()=>{
+    setCardSize(s=>s==='compact'?'mid':s==='mid'?'full':'compact');
+  };
+
+  // Drag-to-resize via touch/pointer
+  const onHandleDown=(e)=>{
+    const y=e.touches?e.touches[0].clientY:e.clientY;
+    const h=window.innerHeight;
+    setDragState({startY:y,startH:sizeHeights[cardSize]*h,h,moved:false,tapStart:Date.now()});
+    e.preventDefault();
+  };
+  const onHandleMove=(e)=>{
+    if(!dragState)return;
+    const y=e.touches?e.touches[0].clientY:e.clientY;
+    const dy=dragState.startY-y;
+    const newH=Math.max(dragState.h*0.20, Math.min(dragState.h*0.92, dragState.startH+dy));
+    const el=document.querySelector('.fi');
+    if(el){ el.style.height=newH+'px'; el.style.maxHeight=newH+'px'; el.classList.add('fi-dragging'); }
+    setDragState({...dragState,curH:newH,moved:Math.abs(dy)>5});
+    e.preventDefault();
+  };
+  const onHandleUp=()=>{
+    if(!dragState)return;
+    const el=document.querySelector('.fi');
+    const wasTap=!dragState.moved&&(Date.now()-dragState.tapStart)<300;
+    if(wasTap){
+      if(el){ el.style.height=''; el.style.maxHeight=''; el.classList.remove('fi-dragging'); }
+      cycleSize();
+    } else if(dragState.curH){
+      // Snap to nearest size
+      const h=dragState.h;
+      const frac=dragState.curH/h;
+      let target='compact';
+      if(frac>0.75) target='full';
+      else if(frac>0.45) target='mid';
+      setCardSize(target);
+      if(el){ el.style.height=''; el.style.maxHeight=''; el.classList.remove('fi-dragging'); }
+    } else {
+      if(el){ el.style.height=''; el.style.maxHeight=''; el.classList.remove('fi-dragging'); }
+    }
+    setDragState(null);
+  };
+  useEffect(()=>{
+    if(!dragState)return;
+    const move=(e)=>onHandleMove(e);
+    const up=()=>onHandleUp();
+    window.addEventListener('touchmove',move,{passive:false});
+    window.addEventListener('touchend',up);
+    window.addEventListener('touchcancel',up);
+    window.addEventListener('mousemove',move);
+    window.addEventListener('mouseup',up);
+    return()=>{
+      window.removeEventListener('touchmove',move);
+      window.removeEventListener('touchend',up);
+      window.removeEventListener('touchcancel',up);
+      window.removeEventListener('mousemove',move);
+      window.removeEventListener('mouseup',up);
+    };
+  },[dragState]);
+
+  // Reset card size when selecting a new position
+  useEffect(()=>{setCardSize('compact');},[i]);
+
   return(
-    <div className="fi" style={{position:'fixed',bottom:14,right:14,width:420,maxHeight:hasMech?'75vh':'55vh',background:'rgba(255,255,255,.97)',border:'1px solid #e5e5ea',borderRadius:16,backdropFilter:'blur(16px)',boxShadow:'0 4px 24px rgba(0,0,0,.08)',display:'flex',flexDirection:'column'}}>
-      <div style={{padding:'12px 18px 10px',flexShrink:0}}>
-        <div style={{width:36,height:4,borderRadius:2,background:'#d2d2d7',margin:'0 auto 8px'}}/>
-        <button onClick={onClose} style={{position:'absolute',top:10,right:12,width:28,height:28,borderRadius:'50%',border:'1px solid #e5e5ea',background:'#f5f5f7',fontSize:14,color:'#86868b',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:1}}>✕</button>
+    <div className={"fi fi-"+cardSize} style={{position:'fixed',bottom:14,right:14,width:420,maxHeight:hasMech?'75vh':'55vh',background:'rgba(255,255,255,.97)',border:'1px solid #e5e5ea',borderRadius:16,backdropFilter:'blur(16px)',boxShadow:'0 4px 24px rgba(0,0,0,.08)',display:'flex',flexDirection:'column'}}>
+      <div className="fi-handle" onTouchStart={onHandleDown} onMouseDown={onHandleDown} style={{display:'flex',justifyContent:'center',flexShrink:0}}>
+        <div className="fi-handle-bar" style={{width:36,height:4,borderRadius:2,background:'#d2d2d7'}}/>
+      </div>
+      <div style={{padding:'4px 18px 10px',flexShrink:0,position:'relative'}}>
+        <button onClick={onClose} style={{position:'absolute',top:2,right:12,width:28,height:28,borderRadius:'50%',border:'1px solid #e5e5ea',background:'#f5f5f7',fontSize:14,color:'#86868b',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:1}}>✕</button>
         <div style={{display:'flex',alignItems:'center',gap:12}}>
           <div style={{width:40,height:40,borderRadius:'50%',border:`2px solid ${cr.c}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:17,fontWeight:700,color:cr.c,flexShrink:0}}>{i}</div>
           <div style={{flex:1,minWidth:0}}>
