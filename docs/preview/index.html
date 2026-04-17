@@ -73,6 +73,7 @@ input{font-family:var(--sans)}
   .fi>div:last-child::-webkit-scrollbar-thumb{background:#c7c7cc;border-radius:4px}
   .fi>div:last-child::-webkit-scrollbar-track{background:transparent}
   .editor-panel{width:100%!important}
+  .editor-panel input{font-size:16px!important}
   .popup-overlay{padding:0!important;display:block!important;max-width:100vw!important;overflow:hidden!important}
   .picker-inner{position:fixed!important;top:0!important;left:0!important;right:0!important;bottom:0!important;width:auto!important;max-width:100vw!important;height:auto!important;max-height:none!important;padding:0!important;border-radius:0!important;border:none!important;margin:0!important;box-sizing:border-box!important}
   .picker-inner *{max-width:100%!important;box-sizing:border-box!important}
@@ -648,8 +649,8 @@ function OverlayPicker({currentName,overlay,onSelect,onClose}){
           {/* SEARCH */}
           <div style={{position:'relative'}}>
             <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:'#aeaeb2',fontSize:14,pointerEvents:'none'}}>🔍</span>
-            <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Поиск по названию..." autoFocus
-              style={{width:'100%',padding:'9px 14px 9px 36px',borderRadius:10,border:'1px solid #d2d2d7',fontSize:13,fontFamily:'var(--sans)',outline:'none',background:'#fff',color:'#1d1d1f',boxSizing:'border-box'}}
+            <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Поиск по названию..."
+              style={{width:'100%',padding:'9px 14px 9px 36px',borderRadius:10,border:'1px solid #d2d2d7',fontSize:16,fontFamily:'var(--sans)',outline:'none',background:'#fff',color:'#1d1d1f',boxSizing:'border-box'}}
               onFocus={e=>e.target.style.borderColor='#af52de'}
               onBlur={e=>e.target.style.borderColor='#d2d2d7'}/>
             {q&&<button onClick={()=>setQ('')} style={{position:'absolute',right:8,top:'50%',transform:'translateY(-50%)',width:22,height:22,borderRadius:'50%',border:'none',background:'#e5e5ea',color:'#6e6e73',fontSize:11,cursor:'pointer'}}>✕</button>}
@@ -715,8 +716,8 @@ function Picker({pinned,onTogglePin,onClear,onClose}){
           {/* SEARCH */}
           <div style={{position:'relative',marginBottom:10}}>
             <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:'#aeaeb2',fontSize:14,pointerEvents:'none'}}>🔍</span>
-            <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Поиск по названию..." autoFocus
-              style={{width:'100%',padding:'9px 14px 9px 36px',borderRadius:10,border:'1px solid #d2d2d7',fontSize:13,fontFamily:'var(--sans)',outline:'none',background:'#fff',color:'#1d1d1f'}}
+            <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Поиск по названию..."
+              style={{width:'100%',padding:'9px 14px 9px 36px',borderRadius:10,border:'1px solid #d2d2d7',fontSize:16,fontFamily:'var(--sans)',outline:'none',background:'#fff',color:'#1d1d1f'}}
               onFocus={e=>e.target.style.borderColor='#0071e3'}
               onBlur={e=>e.target.style.borderColor='#d2d2d7'}/>
             {q&&<button onClick={()=>setQ('')} style={{position:'absolute',right:8,top:'50%',transform:'translateY(-50%)',width:22,height:22,borderRadius:'50%',border:'none',background:'#e5e5ea',color:'#6e6e73',fontSize:11,cursor:'pointer'}}>✕</button>}
