@@ -2173,38 +2173,42 @@ function StepAnimationShortsQuiz({step,onNext}){
   const allShown=visible.length>=12;
 
   return(
-    <div style={{display:'flex',flexDirection:'column',height:'100%',padding:'20px',maxWidth:560,margin:'0 auto',width:'100%'}}>
-      <h2 style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:12,textAlign:'center'}}>{step.title}</h2>
-      <div style={{flex:'0 0 auto',minHeight:240,maxHeight:320,display:'flex',alignItems:'center',justifyContent:'center'}}>
-        <LessonStar mode="full" visiblePositions={visible} focusType="shorts" newPositions={lastAdded!==null?[lastAdded]:[]}/>
-      </div>
-      <p style={{fontSize:13,color:'#424245',lineHeight:1.6,whiteSpace:'pre-wrap',marginBottom:14,marginTop:6}}>{step.body}</p>
-
-      {allShown&&step.quiz&&<div style={{padding:'14px 16px',background:'#f5f5f7',borderRadius:12,border:'1px solid #e5e5ea',marginBottom:14}}>
-        <div style={{fontSize:14,fontWeight:600,color:'#1d1d1f',marginBottom:10}}>{step.quiz.question}</div>
-        <div style={{display:'flex',flexDirection:'column',gap:6}}>
-          {step.quiz.options.map((opt,i)=>{
-            const picked=quizAnswer===i;
-            const correct=step.quiz.correctIdx===i;
-            const isWrong=quizAnswer!==null&&picked&&!correct;
-            const isRight=quizAnswer!==null&&picked&&correct;
-            return<button key={i} onClick={()=>quizAnswer===null&&setQuizAnswer(i)} disabled={quizAnswer!==null}
-              style={{padding:'10px 14px',borderRadius:10,fontSize:13,textAlign:'left',
-                border:`1.5px solid ${isRight?'#30A060':isWrong?'#E8364F':'#d2d2d7'}`,
-                background:isRight?'rgba(48,160,96,.08)':isWrong?'rgba(232,54,79,.06)':'#fff',
-                color:isRight?'#1d6032':isWrong?'#8a1d32':'#1d1d1f',
-                cursor:quizAnswer===null?'pointer':'default',
-                fontWeight:picked?600:400}}>
-              {isRight&&'✓ '}{isWrong&&'✗ '}{opt}
-            </button>;
-          })}
+    <div style={{display:'flex',flexDirection:'column',height:'100%',maxWidth:560,margin:'0 auto',width:'100%',position:'relative'}}>
+      <div style={{flex:1,overflowY:'auto',padding:'20px 20px 16px'}}>
+        <h2 style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:12,textAlign:'center'}}>{step.title}</h2>
+        <div style={{minHeight:240,maxHeight:320,display:'flex',alignItems:'center',justifyContent:'center'}}>
+          <LessonStar mode="full" visiblePositions={visible} focusType="shorts" newPositions={lastAdded!==null?[lastAdded]:[]}/>
         </div>
-        {quizAnswer!==null&&<div style={{marginTop:10,fontSize:12,color:'#6e6e73',lineHeight:1.5}}>
-          {quizAnswer===step.quiz.correctIdx?step.quiz.successMsg:step.quiz.errorMsg}
-        </div>}
-      </div>}
+        <p style={{fontSize:13,color:'#424245',lineHeight:1.6,whiteSpace:'pre-wrap',marginBottom:14,marginTop:6}}>{step.body}</p>
 
-      {quizAnswer!==null&&<button onClick={onNext} style={{fontSize:15,fontWeight:600,padding:'12px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer'}}>Дальше →</button>}
+        {allShown&&step.quiz&&<div style={{padding:'14px 16px',background:'#f5f5f7',borderRadius:12,border:'1px solid #e5e5ea',marginBottom:14}}>
+          <div style={{fontSize:14,fontWeight:600,color:'#1d1d1f',marginBottom:10}}>{step.quiz.question}</div>
+          <div style={{display:'flex',flexDirection:'column',gap:6}}>
+            {step.quiz.options.map((opt,i)=>{
+              const picked=quizAnswer===i;
+              const correct=step.quiz.correctIdx===i;
+              const isWrong=quizAnswer!==null&&picked&&!correct;
+              const isRight=quizAnswer!==null&&picked&&correct;
+              return<button key={i} onClick={()=>quizAnswer===null&&setQuizAnswer(i)} disabled={quizAnswer!==null}
+                style={{padding:'10px 14px',borderRadius:10,fontSize:13,textAlign:'left',
+                  border:`1.5px solid ${isRight?'#30A060':isWrong?'#E8364F':'#d2d2d7'}`,
+                  background:isRight?'rgba(48,160,96,.08)':isWrong?'rgba(232,54,79,.06)':'#fff',
+                  color:isRight?'#1d6032':isWrong?'#8a1d32':'#1d1d1f',
+                  cursor:quizAnswer===null?'pointer':'default',
+                  fontWeight:picked?600:400}}>
+                {isRight&&'✓ '}{isWrong&&'✗ '}{opt}
+              </button>;
+            })}
+          </div>
+          {quizAnswer!==null&&<div style={{marginTop:10,fontSize:12,color:'#6e6e73',lineHeight:1.5}}>
+            {quizAnswer===step.quiz.correctIdx?step.quiz.successMsg:step.quiz.errorMsg}
+          </div>}
+        </div>}
+      </div>
+
+      {quizAnswer!==null&&<div style={{flexShrink:0,padding:'12px 20px 16px',background:'#fff',borderTop:'1px solid #f0f0f2',boxShadow:'0 -4px 16px rgba(0,0,0,.04)'}}>
+        <button onClick={onNext} style={{width:'100%',fontSize:15,fontWeight:600,padding:'12px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer'}}>Дальше →</button>
+      </div>}
     </div>);
 }
 
@@ -2283,11 +2287,13 @@ function StepFinalQuiz({step,onNext}){
   const allAnswered=step.questions.every((q,i)=>answers[i]!==undefined);
 
   return(
-    <div style={{display:'flex',flexDirection:'column',height:'100%',padding:'20px',maxWidth:560,margin:'0 auto',width:'100%'}}>
-      <h2 style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:6,textAlign:'center'}}>{step.title}</h2>
-      <p style={{fontSize:12,color:'#86868b',marginBottom:16,textAlign:'center'}}>Вопрос {Math.min(activeQ+1,step.questions.length)} из {step.questions.length}</p>
+    <div style={{display:'flex',flexDirection:'column',height:'100%',maxWidth:560,margin:'0 auto',width:'100%',position:'relative'}}>
+      <div style={{flexShrink:0,padding:'20px 20px 8px',textAlign:'center'}}>
+        <h2 style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:6}}>{step.title}</h2>
+        <p style={{fontSize:12,color:'#86868b'}}>Вопрос {Math.min(activeQ+1,step.questions.length)} из {step.questions.length}</p>
+      </div>
 
-      <div style={{flex:'1 1 auto',display:'flex',flexDirection:'column',gap:14,overflowY:'auto'}}>
+      <div style={{flex:1,overflowY:'auto',padding:'8px 20px 20px',display:'flex',flexDirection:'column',gap:14}}>
         {step.questions.map((q,qIdx)=>{
           const show=qIdx<=activeQ||answers[qIdx]!==undefined;
           if(!show)return null;
@@ -2317,10 +2323,10 @@ function StepFinalQuiz({step,onNext}){
         })}
       </div>
 
-      {allAnswered&&<div style={{marginTop:14}}>
+      {allAnswered&&<div style={{flexShrink:0,padding:'12px 20px 16px',background:'#fff',borderTop:'1px solid #f0f0f2',boxShadow:'0 -4px 16px rgba(0,0,0,.04)'}}>
         {allCorrect?
-          <div style={{padding:'10px 14px',background:'#e8f5ec',border:'1px solid #30A06040',borderRadius:10,fontSize:13,color:'#1d6032',textAlign:'center',marginBottom:12,fontWeight:600}}>✓ Все ответы верны!</div>
-          :<div style={{padding:'10px 14px',background:'#fff8e8',border:'1px solid #E8A83440',borderRadius:10,fontSize:13,color:'#8a5a00',textAlign:'center',marginBottom:12}}>Посмотрите правильные ответы и объяснения выше</div>
+          <div style={{padding:'8px 12px',background:'#e8f5ec',border:'1px solid #30A06040',borderRadius:10,fontSize:12,color:'#1d6032',textAlign:'center',marginBottom:10,fontWeight:600}}>✓ Все ответы верны!</div>
+          :<div style={{padding:'8px 12px',background:'#fff8e8',border:'1px solid #E8A83440',borderRadius:10,fontSize:12,color:'#8a5a00',textAlign:'center',marginBottom:10}}>Посмотрите правильные ответы и объяснения выше</div>
         }
         <button onClick={onNext} style={{width:'100%',fontSize:15,fontWeight:600,padding:'12px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer'}}>Дальше →</button>
       </div>}
