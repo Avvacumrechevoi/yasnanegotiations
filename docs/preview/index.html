@@ -960,126 +960,311 @@ const GLOSS=[
 function Verification({y,vs,setVs,onClose}){
   const p=y.p||[];
   const[tab,setTab]=useState('pos');
+  const[hidePassed,setHidePassed]=useState(false);
   const k=(id)=>y.name+'_'+id;
   const ans=(id,v)=>setVs(s=>({...s,[k(id)]:v}));
   const get=(id)=>vs[k(id)];
-  const score=(ids)=>{let t=0,y2=0;ids.forEach(id=>{if(get(id)===true){t++;y2++}else if(get(id)===false)t++});return{done:t,pass:y2,total:ids.length}};
 
-  const Check=({id,children})=>{const v=get(id);return(
-    <div style={{display:'flex',alignItems:'flex-start',gap:8,padding:'6px 0',borderBottom:'1px solid #f0f0f2'}}>
+  // Weight-based scoring: КРИТ=3, ВАЖ=2, ЖЕЛ=1
+  const W={КРИТ:3,ВАЖ:2,ЖЕЛ:1};
+  const scoreW=(checks)=>{let total=0,max=0,done=0,failed=0;checks.forEach(c=>{const w=W[c.w||'ВАЖ'];max+=w;const v=get(c.id);if(v===true){total+=w;done++}else if(v===false){failed++;done++}});return{total,max,pct:max>0?Math.round(total/max*100):0,done,failed,count:checks.length}};
+  const scoreCount=(checks)=>{let pass=0,failed=0;checks.forEach(c=>{const v=get(c.id);if(v===true)pass++;else if(v===false)failed++});return{pass,failed,done:pass+failed,total:checks.length}};
+
+  const prDesc={she:'устойчивое, земное, неподвижное',fo:'текучее, спадающее, переходное',tsi:'воздушное, промежуточное, парящее',ha:'резкое, огненное, взрывное'};
+
+  // Empty positions warning
+  const emptyPos=[];
+  for(let i=0;i<12;i++)if(!p[i])emptyPos.push(i);
+  const hasEmpties=emptyPos.length>0;
+
+  const Check=({id,weight,children,hint})=>{const v=get(id);const dim=hidePassed&&v===true;
+    if(dim)return null;
+    const wColor=weight==='КРИТ'?'#E8364F':weight==='ВАЖ'?'#E8A834':'#86868b';
+    return(
+    <div style={{display:'flex',alignItems:'flex-start',gap:8,padding:'8px 0',borderBottom:'1px solid #f0f0f2'}}>
       <div style={{display:'flex',gap:4,flexShrink:0,marginTop:2}}>
-        <button onClick={()=>ans(id,v===true?null:true)} title="Да, утверждение верно" style={{width:26,height:26,borderRadius:6,border:`1.5px solid ${v===true?'#30A060':'#d2d2d7'}`,background:v===true?'#30A06012':'#fff',fontSize:13,color:v===true?'#30A060':'#c7c7cc',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontWeight:600}}>✓</button>
-        <button onClick={()=>ans(id,v===false?null:false)} title="Нет, утверждение неверно" style={{width:26,height:26,borderRadius:6,border:`1.5px solid ${v===false?'#E8364F':'#d2d2d7'}`,background:v===false?'#E8364F12':'#fff',fontSize:13,color:v===false?'#E8364F':'#c7c7cc',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontWeight:600}}>✗</button>
+        <button onClick={()=>ans(id,v===true?null:true)} title="Да, верно" style={{width:26,height:26,borderRadius:6,border:`1.5px solid ${v===true?'#30A060':'#d2d2d7'}`,background:v===true?'#30A06012':'#fff',fontSize:13,color:v===true?'#30A060':'#c7c7cc',cursor:'pointer',fontWeight:600}}>✓</button>
+        <button onClick={()=>ans(id,v===false?null:false)} title="Нет, неверно" style={{width:26,height:26,borderRadius:6,border:`1.5px solid ${v===false?'#E8364F':'#d2d2d7'}`,background:v===false?'#E8364F12':'#fff',fontSize:13,color:v===false?'#E8364F':'#c7c7cc',cursor:'pointer',fontWeight:600}}>✗</button>
+        <button onClick={()=>ans(id,v==='na'?null:'na')} title="Не применимо" style={{width:26,height:26,borderRadius:6,border:`1.5px solid ${v==='na'?'#86868b':'#d2d2d7'}`,background:v==='na'?'#86868b12':'#fff',fontSize:12,color:v==='na'?'#86868b':'#c7c7cc',cursor:'pointer',fontWeight:600}}>—</button>
       </div>
-      <div style={{fontSize:12,color:'#424245',lineHeight:1.55,flex:1}}>{children}</div>
+      <div style={{flex:1,minWidth:0}}>
+        <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:2}}>
+          {weight&&<span style={{fontSize:9,fontWeight:700,color:wColor,padding:'1px 5px',border:`1px solid ${wColor}40`,borderRadius:3,letterSpacing:0.3}}>{weight}</span>}
+        </div>
+        <div style={{fontSize:12,color:'#424245',lineHeight:1.55}}>{children}</div>
+        {hint&&v===false&&<div style={{fontSize:11,color:'#E8A834',marginTop:4,padding:'5px 8px',background:'#fff8e8',borderRadius:5,borderLeft:'2px solid #E8A834',lineHeight:1.5}}>💡 {hint}</div>}
+      </div>
     </div>);};
 
+  // ========== LEVEL 1: POSITIONS (8-9 checks each) ==========
   const posChecks=(i)=>{
     const label=p[i]||'[пусто]';const oppLabel=p[opp(i)]||'[пусто]';
-    const isLong=i%2===0;const cr=CR[gc(i)];const pr=PR[gp(i)];
-    const prev=p[(i+11)%12]||'[пусто]';const next=p[(i+1)%12]||'[пусто]';
-    const prDesc={she:'устойчивое, тяжёлое, неподвижное — как земля',fo:'текучее, переходное, спадающее — как вода',tsi:'воздушное, промежуточное, неустойчивое — как воздух',ha:'яркое, резкое, вспыхивающее — как огонь'};
+    const isLong=i%2===0;const pr=PR[gp(i)];
     const checks=[
-      {id:`p${i}_type`,q:isLong
-        ?`Позиция ${i} — долгая (чётная). «${label}» — это действительно длительный процесс или устойчивое состояние? Его можно «растянуть» во времени?`
-        :`Позиция ${i} — короткая (нечётная). «${label}» — это действительно быстрый перелом, момент, скачок? Количество перешло в качество?`},
-      {id:`p${i}_prana`,q:`Стихия позиции ${i} — ${pr.n}. «${label}» — это нечто ${prDesc[gp(i)]}? Похоже ли оно по духу на «${p[PR[gp(i)].p[0]]||'?'}» и «${p[PR[gp(i)].p[2]]||'?'}» (остальные элементы этой стихии)?`},
-      {id:`p${i}_cross`,q:gc(i)==='support'
-        ?`Позиция ${i} — Опорный крест. «${label}» — одна из 4 главных опор? Если убрать «${label}» из Ясны — остальные 11 элементов потеряют смысл?`
-        :gc(i)==='right'
-        ?`Позиция ${i} — Крест Управления. «${label}» — это РЕЗУЛЬТАТ того, что произошло на позиции ${(i+11)%12} («${p[(i+11)%12]||'?'}»)? Можно сказать: «Из-за «${p[(i+11)%12]||'?'}» появилось «${label}»»?`
-        :`Позиция ${i} — Крест Веры. «${label}» ГОТОВИТ к тому, что будет на позиции ${(i+1)%12} («${p[(i+1)%12]||'?'}»)? Можно сказать: «Когда видим «${label}», значит впереди «${p[(i+1)%12]||'?'}»»?`},
-      {id:`p${i}_opp`,q:`Позиции ${i} и ${opp(i)} — противоположности. «${label}» ↔ «${oppLabel}». Это действительно антиподы — максимум и минимум одного параметра? Одно невозможно при другом?`},
-      {id:`p${i}_seq`,q:`Цепочка: [${(i+11)%12}] «${prev}» → [${i}] «${label}» → [${(i+1)%12}] «${next}». Переход плавный и логичный? Нет разрыва? Каждый шаг — естественное продолжение предыдущего?`},
-      {id:`p${i}_half`,q:[4,5,6,7,8].includes(i)
-        ?`Позиция ${i} — верхняя половина (Чаша Света). «${label}» — это нечто явное, открытое, видимое, активное? Оно «на поверхности»?`
-        :[10,11,0,1,2].includes(i)
-        ?`Позиция ${i} — нижняя половина (Чаша Тьмы). «${label}» — это нечто скрытое, закрытое, невидимое, пассивное? Оно «под поверхностью»?`
-        :`Позиция ${i} — горизонт (граница чаш). «${label}» — это переходный элемент между явным и скрытым? Он на границе двух миров?`},
+      {id:`p${i}_type`,w:'КРИТ',
+        q:isLong?`Долгая (грань). «${label}» — длительный процесс или устойчивое состояние?`
+                :`Короткая (угол). «${label}» — быстрый перелом, момент, скачок?`,
+        hint:isLong?'Если это скорее момент — переставьте на соседнюю нечётную.':'Если это скорее процесс — переставьте на соседнюю чётную.'},
+      {id:`p${i}_prana`,w:'КРИТ',
+        q:`${pr.n}. «${label}» — ${prDesc[gp(i)]}? Похоже по духу на «${p[PR[gp(i)].p[0]]||'?'}» и «${p[PR[gp(i)].p[2]]||'?'}»?`,
+        hint:'Три элемента одной Праны должны быть внутренне связаны. Проверьте соседние позиции той же Праны.'},
+      {id:`p${i}_cross`,w:'КРИТ',
+        q:gc(i)==='support'?`Опорный крест. «${label}» — одна из 4 главных опор? Если убрать — цикл теряет смысл?`
+         :gc(i)==='right'?`Крест Управления. «${label}» — ИСХОД из «${p[(i+11)%12]||'?'}»? Фраза «Из-за [${(i+11)%12}] появилось [${i}]» звучит естественно?`
+         :`Крест Веры. «${label}» ГОТОВИТ к «${p[(i+1)%12]||'?'}»? Фраза «Когда видим [${i}], впереди [${(i+1)%12}]» звучит естественно?`,
+        hint:'Возможно элемент на чужом кресте. Проверьте альтернативные позиции.'},
+      {id:`p${i}_opp`,w:'КРИТ',
+        q:`Противоположность. «${label}» ↔ «${oppLabel}». В чём именно они противоположны? Одно исключает другое?`,
+        hint:'Ошибка может быть не на этой полочке, а на антиподе. Проверьте позицию ' + opp(i) + '.'},
+      {id:`p${i}_seq`,w:'ВАЖ',
+        q:`Соседство. [${(i+11)%12}]«${p[(i+11)%12]||'?'}» → [${i}]«${label}» → [${(i+1)%12}]«${p[(i+1)%12]||'?'}». Плавный переход?`,
+        hint:'Если спотыкается — проверьте соседа, возможно виноват он.'},
+      {id:`p${i}_half`,w:'ВАЖ',
+        q:[4,5,6,7,8].includes(i)?`Чаша Света (верх). «${label}» — явное, открытое, дневное?`
+         :[10,11,0,1,2].includes(i)?`Чаша Тьмы (низ). «${label}» — скрытое, закрытое, ночное?`
+         :`Горизонт (Линия Борьбы). «${label}» — переломная точка между чашами?`,
+        hint:'Если элемент по духу из противоположной зоны — место может быть в зеркале.'},
     ];
-    if([8,9].includes(i))checks.push({id:`p${i}_err`,q:`Системная ошибка: «${p[8]||'[8]'}» (поз.8) и «${p[9]||'[9]'}» (поз.9) — можно ли их перепутать? Есть ли состояние, которое выглядит как одно, но по сути является другим? (Если да — это подтверждает правильность Ясны)`});
-    if([2,3].includes(i))checks.push({id:`p${i}_mirror`,q:`Зеркальная ошибка: «${p[2]||'[2]'}» (поз.2) и «${p[3]||'[3]'}» (поз.3) — есть ли между ними путаница, аналогичная паре 8↔9?`});
+    // Лёгкие/Тяжёлые/Ожидания — только для долгих
+    if([2,8].includes(i))checks.push({id:`p${i}_time`,w:'ВАЖ',q:`Лёгкое время. «${label}» — изменение с ускорением (бодрый процесс)?`,hint:'Лёгкие времена — когда параметр меняется с ускорением.'});
+    if([4,10].includes(i))checks.push({id:`p${i}_time`,w:'ВАЖ',q:`Тяжёлое время. «${label}» — изменение с замедлением (давящий процесс)?`,hint:'Тяжёлые времена — когда параметр меняется с замедлением.'});
+    if([0,6].includes(i))checks.push({id:`p${i}_time`,w:'ВАЖ',q:`Время Ожидания. «${label}» — параметр не меняется, но копится что-то другое?`,hint:'В Ночи (0) и Дне (6) главное — не свет меняется, а накапливаются холод/жар.'});
+    // Системная ошибка — ТОЛЬКО для 8, 9
+    if(i===8)checks.push({id:`p${i}_err`,w:'КРИТ',q:`Путаница 8↔9. Что в «${p[8]||'?'}» (8) может быть принято за «${p[9]||'?'}» (9)?`,hint:'Путаница встроена в мир — если не нашли, значит плохо искали. Спросите: что новички часто путают в вашей области?'});
+    if(i===9)checks.push({id:`p${i}_err`,w:'КРИТ',q:`Путаница 9↔8. Что в «${p[9]||'?'}» (9) может быть принято за «${p[8]||'?'}» (8)?`});
+    if(i===2)checks.push({id:`p${i}_mirror`,w:'ВАЖ',q:`Зеркало путаницы. Есть ли путаница между «${p[2]||'?'}» (2) и «${p[3]||'?'}» (3), аналогичная 8↔9?`});
+    if(i===3)checks.push({id:`p${i}_mirror`,w:'ВАЖ',q:`Зеркало путаницы. Что в «${p[3]||'?'}» (3) может проявляться как «${p[2]||'?'}» (2)?`});
+    // Тип ошибки Опорного
+    if(i===0)checks.push({id:`p${i}_errtype`,w:'ЖЕЛ',q:`Тип ошибки: «во сне». Что в «${p[0]||'?'}» может показаться ложным, присниться, оказаться иллюзией покоя?`});
+    if(i===3)checks.push({id:`p${i}_errtype`,w:'ЖЕЛ',q:`Тип ошибки: «просмотрел». Что в «${p[3]||'?'}» можно пропустить, не заметить в суматохе рождения?`});
+    if(i===6)checks.push({id:`p${i}_errtype`,w:'ЖЕЛ',q:`Тип ошибки: «мираж». Что в «${p[6]||'?'}» может оказаться иллюзией на максимуме?`});
+    if(i===9)checks.push({id:`p${i}_errtype`,w:'ЖЕЛ',q:`Тип ошибки: «измерения». Что в «${p[9]||'?'}» измеряется неточно, где стрелка весов играет?`});
     return checks;
   };
 
-  const mechChecks=[
-    {id:'m_type',q:`ДОЛГИЕ / КОРОТКИЕ. Пройдите по всем 12 позициям: чётные (${[0,2,4,6,8,10].map(i=>'«'+(p[i]||i)+'»').join(', ')}) — все длительные процессы? Нечётные (${[1,3,5,7,9,11].map(i=>'«'+(p[i]||i)+'»').join(', ')}) — все короткие переломы?`},
-    {id:'m_she',q:`ЗЕМЛЯ ШЭ (0·4·8). «${p[0]||'?'}», «${p[4]||'?'}», «${p[8]||'?'}» — все три устойчивые, тяжёлые, неподвижные? Между ними чувствуется общий «земной» дух? Они связаны не случайно?`},
-    {id:'m_fo',q:`ВОДА ФО (1·5·9). «${p[1]||'?'}», «${p[5]||'?'}», «${p[9]||'?'}» — все три текучие, спадающие, переходные? Общий «водный» дух?`},
-    {id:'m_tsi',q:`ВОЗДУХ ЦИ (2·6·10). «${p[2]||'?'}», «${p[6]||'?'}», «${p[10]||'?'}» — все три воздушные, промежуточные, неустойчивые? Это каналы и мосты между событиями?`},
-    {id:'m_ha',q:`ОГОНЬ ХА (3·7·11). «${p[3]||'?'}», «${p[7]||'?'}», «${p[11]||'?'}» — все три яркие, резкие, взрывные? Моменты, когда что-то загорается?`},
-    {id:'m_support',q:`ОПОРНЫЙ КРЕСТ (0·3·6·9). «${p[0]||'?'}», «${p[3]||'?'}», «${p[6]||'?'}», «${p[9]||'?'}» — это 4 главных состояния вашего явления? Если убрать любое из них — Ясна потеряет смысл?`},
-    {id:'m_right',q:`КРЕСТ УПРАВЛЕНИЯ (1·4·7·10). Каждый элемент — результат предыдущей опоры: 0→«${p[1]||'?'}», 3→«${p[4]||'?'}», 6→«${p[7]||'?'}», 9→«${p[10]||'?'}». Для каждой пары звучит: «Из-за [опоры] появился [результат]»?`},
-    {id:'m_left',q:`КРЕСТ ВЕРЫ (2·5·8·11). Каждый элемент готовит к следующей опоре: «${p[2]||'?'}»→3, «${p[5]||'?'}»→6, «${p[8]||'?'}»→9, «${p[11]||'?'}»→0. Для каждой пары звучит: «Когда видим [обещание], впереди [опора]»?`},
-    {id:'m_opp06',q:`ЛИНИЯ ЕДИНСТВА. «${p[0]||'?'}» (0) ↔ «${p[6]||'?'}» (6). Это абсолютные антиподы — максимум и минимум одного параметра? Они на одной шкале, но на разных концах?`},
-    {id:'m_opp39',q:`ЛИНИЯ БОРЬБЫ. «${p[3]||'?'}» (3) ↔ «${p[9]||'?'}» (9). Это два горизонта — два переломных момента, зеркально отражающих друг друга?`},
-    {id:'m_opp_all',q:`6 ПАР ПРОТИВОПОЛОЖНОСТЕЙ. Проверьте каждую: ${[0,1,2,3,4,5].map(i=>'«'+(p[i]||i)+'»↔«'+(p[i+6]||(i+6))+'»').join(', ')}. Каждая пара — зеркальная? Одно невозможно при другом?`},
-    {id:'m_cycle',q:`ЗАМКНУТОСТЬ ЦИКЛА. «${p[11]||'?'}» (11) → «${p[0]||'?'}» (0). Этот переход естественный? Конец цикла плавно возвращается в начало? Нет разрыва?`},
-    {id:'m_rhythm',q:`РИТМ В→Б→П. Четыре тройки: «${p[2]||'?'}»→«${p[3]||'?'}»→«${p[4]||'?'}», «${p[5]||'?'}»→«${p[6]||'?'}»→«${p[7]||'?'}», «${p[8]||'?'}»→«${p[9]||'?'}»→«${p[10]||'?'}», «${p[11]||'?'}»→«${p[0]||'?'}»→«${p[1]||'?'}». Каждая читается как мини-история: подготовка→действие→результат?`},
-    {id:'m_err89',q:`ОШИБКА 8↔9. «${p[8]||'?'}» и «${p[9]||'?'}» — можно ли их перепутать? Есть ли зеркальная путаница между «${p[2]||'?'}» и «${p[3]||'?'}» (2↔3)?`},
-    {id:'m_unique',q:'УНИКАЛЬНОСТЬ. Ясна имеет свою уникальную предметную область? Она не повторяет содержание другой существующей Ясны?'},
+  // ========== LEVEL 2: CONNECTIONS ==========
+  const connChecks=[
+    // 4 Тройки Ритма
+    {id:'c_triI',w:'ВАЖ',g:'Тройки Ритма',
+      q:`Тройка I: «${p[2]||'?'}» (Вера) → «${p[3]||'?'}» (Бой) → «${p[4]||'?'}» (Победа). Читается как история «подготовка → действие → итог»?`,
+      hint:'Если Вера громче Боя — переформулируйте Веру как тихую подготовку.'},
+    {id:'c_triII',w:'ВАЖ',g:'Тройки Ритма',
+      q:`Тройка II: «${p[5]||'?'}» → «${p[6]||'?'}» → «${p[7]||'?'}». Читается как мини-история?`},
+    {id:'c_triIII',w:'ВАЖ',g:'Тройки Ритма',
+      q:`Тройка III: «${p[8]||'?'}» → «${p[9]||'?'}» → «${p[10]||'?'}». Читается как мини-история?`},
+    {id:'c_triIV',w:'ВАЖ',g:'Тройки Ритма',
+      q:`Тройка IV: «${p[11]||'?'}» → «${p[0]||'?'}» → «${p[1]||'?'}». Читается как мини-история?`},
+    // 3 Дуги Тепла
+    {id:'c_arcI',w:'ВАЖ',g:'Дуги Тепла',
+      q:`Дуга I (утренняя): «${p[1]||'?'}» → «${p[2]||'?'}» → «${p[3]||'?'}» → «${p[4]||'?'}» → «${p[5]||'?'}». 5 шагов ФО→ЦИ→ХА→ШЭ→ФО. Читается плавно? Середина (3) — самый яркий элемент?`,
+      hint:'Если середина тусклее краёв — проверьте позицию 3.'},
+    {id:'c_arcII',w:'ВАЖ',g:'Дуги Тепла',
+      q:`Дуга II (дневная): «${p[5]||'?'}» → «${p[6]||'?'}» → «${p[7]||'?'}» → «${p[8]||'?'}» → «${p[9]||'?'}». Читается плавно? Середина (7) — пик?`},
+    {id:'c_arcIII',w:'ВАЖ',g:'Дуги Тепла',
+      q:`Дуга III (ночная): «${p[9]||'?'}» → «${p[10]||'?'}» → «${p[11]||'?'}» → «${p[0]||'?'}» → «${p[1]||'?'}». Читается плавно? Середина (11) — пик?`},
+    // Переходы (укрупнённые)
+    {id:'c_transup',w:'ВАЖ',g:'Переходы',
+      q:`Нарастание (0→6). Путь через 0→1→2→3→4→5→6 — плавное усиление основного параметра?`,
+      hint:'Если где-то «рвётся» — проблема в конкретной паре. Уменьшите до соседних переходов.'},
+    {id:'c_trandown',w:'ВАЖ',g:'Переходы',
+      q:`Спад (6→0). Путь через 6→7→8→9→10→11→0 — плавное ослабление параметра?`},
+    // Внутри крестов
+    {id:'c_crossR',w:'ВАЖ',g:'Внутри крестов',
+      q:`Крест Управления. Связи [0→1], [3→4], [6→7], [9→10] читаются одинаково убедительно (результаты)?`},
+    {id:'c_crossL',w:'ВАЖ',g:'Внутри крестов',
+      q:`Крест Веры. Связи [2→3], [5→6], [8→9], [11→0] читаются одинаково убедительно (подготовки)?`},
   ];
 
-  const allPosIds=Array.from({length:12},(_,i)=>posChecks(i).map(c=>c.id)).flat();
-  const allMechIds=mechChecks.map(c=>c.id);
-  const allIds=[...allPosIds,...allMechIds];
-  const total=score(allIds);
-  const pct=allIds.length>0?Math.round(total.pass/allIds.length*100):0;
-  const status=pct>=90?'✦ Верифицирована':pct>=70?'◇ С оговоркой':'Не пройдена';
-  const statusColor=pct>=90?'#30A060':pct>=70?'#E8A834':'#E8364F';
+  // ========== LEVEL 3: MECHANICS (system level) ==========
+  const mechChecks=[
+    {id:'m_type',w:'КРИТ',g:'Типы',q:`ВСЕ чётные — долгие (процессы), ВСЕ нечётные — короткие (скачки)? Без исключений?`},
+    {id:'m_law',w:'КРИТ',g:'Типы',q:`Основной Закон. Каждая пара чётное→нечётное: накопление действительно завершается качественным скачком? Без «пустых» скачков?`},
+    {id:'m_she',w:'КРИТ',g:'Праны',q:`ШЭ (Земля, 0·4·8). «${p[0]||'?'}», «${p[4]||'?'}», «${p[8]||'?'}» — все три земные по духу, связаны?`,hint:'Возможно один из трёх на чужой полочке. Проверьте, где он мог бы стоять лучше.'},
+    {id:'m_fo',w:'КРИТ',g:'Праны',q:`ФО (Вода, 1·5·9). «${p[1]||'?'}», «${p[5]||'?'}», «${p[9]||'?'}» — все три водные по духу?`},
+    {id:'m_tsi',w:'КРИТ',g:'Праны',q:`ЦИ (Воздух, 2·6·10). «${p[2]||'?'}», «${p[6]||'?'}», «${p[10]||'?'}» — все три воздушные?`},
+    {id:'m_ha',w:'КРИТ',g:'Праны',q:`ХА (Огонь, 3·7·11). «${p[3]||'?'}», «${p[7]||'?'}», «${p[11]||'?'}» — все три огненные, взрывные?`},
+    {id:'m_support',w:'КРИТ',g:'Кресты',q:`Опорный крест. «${p[0]||'?'}», «${p[3]||'?'}», «${p[6]||'?'}», «${p[9]||'?'}» — 4 фундаментальных опоры, без которых Ясна рассыпется?`},
+    {id:'m_right',w:'КРИТ',g:'Кресты',q:`Крест Управления. Все 4 элемента (1,4,7,10) — результаты/исходы предыдущих опор, связаны общей функцией?`},
+    {id:'m_left',w:'КРИТ',g:'Кресты',q:`Крест Веры. Все 4 элемента (2,5,8,11) — подготовка, вера, ожидание перед опорами?`},
+    {id:'m_opp06',w:'КРИТ',g:'Оси',q:`Линия Единства (0↔6). «${p[0]||'?'}» ↔ «${p[6]||'?'}». Абсолютные антиподы — мин ↔ макс основного параметра?`},
+    {id:'m_opp39',w:'КРИТ',g:'Оси',q:`Линия Борьбы (3↔9). «${p[3]||'?'}» ↔ «${p[9]||'?'}». Два горизонта — рождение ↔ завершение?`},
+    {id:'m_opp_all',w:'КРИТ',g:'Противоположности',q:`Все 6 пар противоположностей работают как зеркала через центр?`},
+    {id:'m_half_vert',w:'ВАЖ',g:'Зоны',q:`Чаша Света (4-8) — всё явное. Чаша Тьмы (10-2) — всё скрытое. Согласовано?`},
+    {id:'m_half_horiz',w:'ВАЖ',g:'Зоны',q:`Лево (1-5) — нарастание. Право (7-11) — спад. Согласовано?`},
+    {id:'m_err89',w:'КРИТ',g:'Системная ошибка',q:`Зона путаницы 8↔9 найдена и конкретно описана?`,hint:'Если ещё не нашли — вернитесь к полочкам 8 и 9, подумайте какие вещи новички часто путают.'},
+    {id:'m_mirror',w:'ВАЖ',g:'Системная ошибка',q:`Зеркальная зона 2↔3 найдена?`},
+  ];
 
-  const TabBtn=({id,label})=><button onClick={()=>setTab(id)} style={{padding:'6px 16px',borderRadius:8,fontSize:12,fontWeight:tab===id?600:400,color:tab===id?'#0071e3':'#6e6e73',background:tab===id?'rgba(0,122,255,.06)':'transparent',border:'none'}}>{label}</button>;
+  // ========== LEVEL 4: HOLISTIC ==========
+  const holiChecks=[
+    {id:'h_types',w:'КРИТ',q:`Ясна описывает ТИПЫ состояний, а не процесс/хронологию. Элементы осмысленны как существительные, а не как глаголы.`,hint:'Если получаются глаголы («светает», «испаряется») — скорее всего это процесс, не Ясна.'},
+    {id:'h_param',w:'КРИТ',q:`Основной параметр определён и одинаков для всех 12 полочек. Его можно назвать одним словом.`,hint:'Параметр может быть: свет, тепло, нестабильность, открытость, сытость и т.д.'},
+    {id:'h_cycle',w:'КРИТ',q:`Цикл замкнут. Переход 11→0 такой же естественный, как 0→1. Нет ощущения «полуцикла».`,hint:'Если 11→0 рвётся — возможно неверно выбран 0 или 11.'},
+    {id:'h_unique',w:'ВАЖ',q:`Ясна не дублирует ни одну из существующих. У неё своя предметная область.`},
+    {id:'h_refs',w:'ВАЖ',q:`Позиции согласуются с эталонами: на 0 — «основа», на 3 — «рождение», на 6 — «вершина», на 9 — «завершение»?`,hint:'Откройте вкладку «+ ещё» и сверьте с Ясной Суток, Воды, Кухни.'},
+    {id:'h_coherent',w:'ВАЖ',q:`После прочтения всей Ясны подряд появляется цельный образ явления, а не набор разрозненных элементов?`},
+    {id:'h_explain',w:'ВАЖ',q:`Можете объяснить Ясну не-эксперту за 3 минуты так, чтобы он повторил главную идею?`,hint:'Если не можете — формулировки слишком абстрактны или полюса слабые.'},
+    {id:'h_immovable',w:'ЖЕЛ',q:`Нельзя поменять местами ни одну пару элементов без потери смысла. Каждый на единственно возможном месте?`},
+  ];
+
+  // All groups
+  const allPosIds=Array.from({length:12},(_,i)=>posChecks(i)).flat();
+  const allIds={pos:allPosIds,conn:connChecks,mech:mechChecks,holi:holiChecks};
+
+  const posScore=scoreW(allPosIds);
+  const connScore=scoreW(connChecks);
+  const mechScore=scoreW(mechChecks);
+  const holiScore=scoreW(holiChecks);
+
+  // Separate crit / важ / жел scores
+  const allChecks=[...allPosIds,...connChecks,...mechChecks,...holiChecks];
+  const critChecks=allChecks.filter(c=>c.w==='КРИТ');
+  const vazhChecks=allChecks.filter(c=>c.w==='ВАЖ');
+  const zhelChecks=allChecks.filter(c=>c.w==='ЖЕЛ');
+  const critS=scoreCount(critChecks);
+  const vazhS=scoreCount(vazhChecks);
+  const zhelS=scoreCount(zhelChecks);
+
+  // Status based on methodology v3 thresholds
+  // КРИТ: must be all ✓ or almost all. ВАЖ: 70%+. ЖЕЛ: bonus
+  const critPct=critChecks.length>0?critS.pass/critChecks.length:0;
+  const vazhPct=vazhChecks.length>0?vazhS.pass/vazhChecks.length:0;
+  const anyCritFail=critS.failed>0;
+  let status,statusColor,statusDesc;
+  if(anyCritFail||critPct<0.8){status='Не верифицирована';statusColor='#E8364F';statusDesc='Провалены критические пункты. Требует структурной правки.';}
+  else if(critPct>=1&&vazhPct>=0.9){status='✦ Верифицирована безупречно';statusColor='#30A060';statusDesc='Все критические и почти все важные пункты пройдены.';}
+  else if(critPct>=1&&vazhPct>=0.7){status='✓ Верифицирована';statusColor='#30A060';statusDesc='Критические пройдены, большинство важных — тоже.';}
+  else if(critPct>=0.9){status='◇ С оговорками';statusColor='#E8A834';statusDesc='Критические почти все пройдены, есть замечания.';}
+  else {status='Требует доработки';statusColor='#E8A834';statusDesc='Часть критических пунктов не пройдена.';}
+
+  const TabBtn=({id,label,s})=><button onClick={()=>setTab(id)} style={{padding:'6px 14px',borderRadius:8,fontSize:12,fontWeight:tab===id?600:500,color:tab===id?'#0071e3':'#6e6e73',background:tab===id?'rgba(0,122,255,.08)':'transparent',border:'none',display:'flex',alignItems:'center',gap:6,cursor:'pointer'}}>
+    <span>{label}</span>
+    {s&&<span style={{fontSize:10,padding:'1px 6px',borderRadius:8,background:tab===id?'rgba(0,122,255,.15)':'#f0f0f2',color:tab===id?'#0071e3':'#86868b',fontWeight:600}}>{s.done}/{s.count}</span>}
+  </button>;
 
   return(
     <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#fff',zIndex:70,display:'flex',flexDirection:'column'}}>
       <div className="verif-header" style={{display:'flex',alignItems:'center',padding:'14px 24px',borderBottom:'1px solid #e5e5ea',flexShrink:0,gap:12}}>
         <div style={{flex:1,minWidth:0}}>
-          <h2 className="verif-title" style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:4,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>Верификация: {y.name}</h2>
-          <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <h2 className="verif-title" style={{fontSize:20,fontWeight:700,color:'#1d1d1f',marginBottom:4,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>Верификация: {y.name}</h2>
+          <div style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
             <div style={{fontSize:13,color:statusColor,fontWeight:600}}>{status}</div>
-            <div style={{flex:1,maxWidth:200,height:6,background:'#e5e5ea',borderRadius:3,overflow:'hidden'}}>
-              <div style={{width:pct+'%',height:'100%',background:statusColor,borderRadius:3,transition:'width .3s'}}/>
-            </div>
-            <div style={{fontSize:12,color:'#86868b'}}>{total.pass}/{allIds.length} ({pct}%)</div>
+            <div style={{fontSize:11,color:'#86868b'}}>КРИТ {critS.pass}/{critChecks.length} · ВАЖ {vazhS.pass}/{vazhChecks.length} · ЖЕЛ {zhelS.pass}/{zhelChecks.length}</div>
           </div>
         </div>
-        <div className="verif-actions" style={{display:'flex',gap:8,flexShrink:0}}><button onClick={()=>{const keys=Object.keys(vs).filter(k=>k.startsWith(y.name+'_'));const nv={...vs};keys.forEach(k=>delete nv[k]);setVs(nv);}} style={{fontSize:12,color:'#E8364F',padding:'7px 16px',border:'1px solid #E8364F30',borderRadius:8,background:'transparent',cursor:'pointer'}}>Сбросить</button>
-        <button onClick={onClose} style={{fontSize:13,color:'#0071e3',padding:'8px 20px',border:'1px solid #0071e3',borderRadius:8,background:'transparent',cursor:'pointer'}}>Закрыть</button></div>
+        <div className="verif-actions" style={{display:'flex',gap:8,flexShrink:0}}>
+          <button onClick={()=>setHidePassed(v=>!v)} style={{fontSize:11,color:hidePassed?'#0071e3':'#6e6e73',padding:'6px 12px',border:`1px solid ${hidePassed?'#0071e3':'#e5e5ea'}`,borderRadius:8,background:hidePassed?'rgba(0,122,255,.06)':'#fff',cursor:'pointer',fontWeight:500}}>{hidePassed?'Показать все':'Скрыть пройденные'}</button>
+          <button onClick={()=>{const keys=Object.keys(vs).filter(k=>k.startsWith(y.name+'_'));const nv={...vs};keys.forEach(k=>delete nv[k]);setVs(nv);}} style={{fontSize:11,color:'#E8364F',padding:'6px 12px',border:'1px solid #E8364F30',borderRadius:8,background:'#fff',cursor:'pointer'}}>Сбросить</button>
+          <button onClick={onClose} style={{fontSize:13,color:'#0071e3',padding:'7px 16px',border:'1px solid #0071e3',borderRadius:8,background:'transparent',cursor:'pointer'}}>Закрыть</button>
+        </div>
       </div>
 
-      <div style={{display:'flex',gap:4,padding:'8px 24px',borderBottom:'1px solid #f0f0f2',flexShrink:0}}>
-        <TabBtn id="pos" label={`Полочки (${score(allPosIds).pass}/${allPosIds.length})`}/>
-        <TabBtn id="mech" label={`Механики (${score(allMechIds).pass}/${allMechIds.length})`}/>
+      <div style={{display:'flex',gap:4,padding:'8px 24px',borderBottom:'1px solid #f0f0f2',flexShrink:0,overflowX:'auto'}}>
+        <TabBtn id="pos" label="1. Полочки" s={{done:posScore.done,count:posScore.count}}/>
+        <TabBtn id="conn" label="2. Связи" s={{done:connScore.done,count:connScore.count}}/>
+        <TabBtn id="mech" label="3. Механики" s={{done:mechScore.done,count:mechScore.count}}/>
+        <TabBtn id="holi" label="4. Цельность" s={{done:holiScore.done,count:holiScore.count}}/>
       </div>
 
-      <div className='fullpage-content' style={{flex:1,overflowY:'auto',padding:'16px 24px',maxWidth:760,margin:'0 auto',width:'100%'}}>
+      <div className='fullpage-content' style={{flex:1,overflowY:'auto',padding:'16px 24px',maxWidth:820,margin:'0 auto',width:'100%'}}>
 
-        <div style={{display:'flex',alignItems:'center',gap:16,padding:'10px 14px',background:'#f5f5f7',borderRadius:10,marginBottom:14,fontSize:12,color:'#6e6e73',flexWrap:'wrap'}}>
+        {hasEmpties&&<div style={{padding:'12px 14px',background:'#fff8e8',border:'1px solid #E8A83440',borderRadius:10,marginBottom:14,fontSize:12,color:'#424245',lineHeight:1.55}}>
+          <div style={{fontWeight:700,color:'#E8A834',marginBottom:4}}>⚠ Незаполненные позиции: {emptyPos.join(', ')}</div>
+          Верификация работает достоверно только с полностью заполненной Ясной. Сначала заполните все 12 позиций в Редакторе.
+        </div>}
+
+        <div style={{display:'flex',alignItems:'center',gap:14,padding:'10px 14px',background:'#f5f5f7',borderRadius:10,marginBottom:14,fontSize:11,color:'#6e6e73',flexWrap:'wrap'}}>
           <span style={{fontWeight:600,color:'#424245'}}>Как отвечать:</span>
-          <span style={{display:'inline-flex',alignItems:'center',gap:5}}><span style={{width:20,height:20,borderRadius:5,border:'1.5px solid #30A060',background:'#30A06012',color:'#30A060',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700}}>✓</span> утверждение верно</span>
-          <span style={{display:'inline-flex',alignItems:'center',gap:5}}><span style={{width:20,height:20,borderRadius:5,border:'1.5px solid #E8364F',background:'#E8364F12',color:'#E8364F',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700}}>✗</span> неверно</span>
-          <span style={{color:'#aeaeb2'}}>· повторное нажатие снимает ответ</span>
+          <span style={{display:'inline-flex',alignItems:'center',gap:4}}><span style={{width:18,height:18,borderRadius:4,border:'1.5px solid #30A060',background:'#30A06012',color:'#30A060',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700}}>✓</span>верно</span>
+          <span style={{display:'inline-flex',alignItems:'center',gap:4}}><span style={{width:18,height:18,borderRadius:4,border:'1.5px solid #E8364F',background:'#E8364F12',color:'#E8364F',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700}}>✗</span>неверно</span>
+          <span style={{display:'inline-flex',alignItems:'center',gap:4}}><span style={{width:18,height:18,borderRadius:4,border:'1.5px solid #86868b',background:'#86868b12',color:'#86868b',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700}}>—</span>не применимо</span>
+          <span style={{color:'#aeaeb2'}}>· <b>КРИТ</b> — критично, <b style={{color:'#E8A834'}}>ВАЖ</b> — важно, <b style={{color:'#86868b'}}>ЖЕЛ</b> — желательно</span>
         </div>
 
-        {tab==='pos'&&Array.from({length:12},(_,i)=>{
-          const checks=posChecks(i);const s=score(checks.map(c=>c.id));
-          const cr=CR[gc(i)];
-          return(
-            <div key={i} style={{marginBottom:12,border:'1px solid #e5e5ea',borderRadius:12,overflow:'hidden'}}>
-              <div style={{display:'flex',alignItems:'center',gap:10,padding:'10px 14px',background:s.pass===s.total&&s.done===s.total?'#f0fff5':s.done===s.total?'#fff5f5':'#fafafa'}}>
-                <div style={{width:28,height:28,borderRadius:'50%',border:`2px solid ${cr.c}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:cr.c}}>{i}</div>
-                <div style={{flex:1,fontSize:14,fontWeight:600,color:'#1d1d1f'}}>{p[i]||<span style={{color:'#aeaeb2'}}>Не заполнено</span>}</div>
-                <div style={{fontSize:11,color:s.pass===s.total?'#30A060':'#86868b',fontWeight:600}}>{s.pass}/{s.total}</div>
-              </div>
-              <div style={{padding:'4px 14px 8px'}}>
-                {checks.map(c=><Check key={c.id} id={c.id}>{c.q}</Check>)}
-              </div>
-            </div>);
-        })}
+        {tab==='pos'&&<>
+          <div style={{fontSize:13,color:'#6e6e73',marginBottom:12,lineHeight:1.55,padding:'10px 14px',background:'#f0f5ff',borderRadius:8}}>
+            <b style={{color:'#0071e3'}}>Уровень 1 — Полочки.</b> Каждый из 12 элементов проверяется отдельно по 6–9 критериям. Это фундамент верификации — если ошибка здесь, выше она только разрастётся.
+          </div>
+          {Array.from({length:12},(_,i)=>{
+            const checks=posChecks(i);const s=scoreCount(checks);
+            const allDone=s.done===s.total;const allPass=s.pass===s.total;
+            if(hidePassed&&allPass&&allDone)return null;
+            const cr=CR[gc(i)];
+            return(
+              <div key={i} style={{marginBottom:10,border:'1px solid #e5e5ea',borderRadius:12,overflow:'hidden'}}>
+                <div style={{display:'flex',alignItems:'center',gap:10,padding:'10px 14px',background:allPass&&allDone?'#f0fff5':s.failed>0?'#fff5f5':'#fafafa'}}>
+                  <div style={{width:28,height:28,borderRadius:'50%',border:`2px solid ${cr.c}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:cr.c}}>{i}</div>
+                  <div style={{flex:1,fontSize:14,fontWeight:600,color:'#1d1d1f'}}>{p[i]||<span style={{color:'#aeaeb2'}}>Не заполнено</span>}</div>
+                  <div style={{fontSize:11,color:allPass?'#30A060':s.failed>0?'#E8364F':'#86868b',fontWeight:600}}>{s.pass}/{s.total}</div>
+                </div>
+                <div style={{padding:'4px 14px 8px'}}>
+                  {checks.map(c=><Check key={c.id} id={c.id} weight={c.w} hint={c.hint}>{c.q}</Check>)}
+                </div>
+              </div>);
+          })}
+        </>}
 
-        {tab==='mech'&&<div>
-          {mechChecks.map(c=><Check key={c.id} id={c.id}>{c.q}</Check>)}
-        </div>}
+        {tab==='conn'&&<>
+          <div style={{fontSize:13,color:'#6e6e73',marginBottom:12,lineHeight:1.55,padding:'10px 14px',background:'#f0f5ff',borderRadius:8}}>
+            <b style={{color:'#0071e3'}}>Уровень 2 — Связи.</b> Проверяем как полочки работают в паре и в группе: соседство, тройки Ритма, Дуги Тепла, переходы нарастания и спада.
+          </div>
+          {['Тройки Ритма','Дуги Тепла','Переходы','Внутри крестов'].map(g=>{
+            const groupChecks=connChecks.filter(c=>c.g===g);
+            const s=scoreCount(groupChecks);
+            return(
+              <div key={g} style={{marginBottom:14}}>
+                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,paddingLeft:4}}>
+                  <div style={{fontSize:12,fontWeight:700,color:'#424245',textTransform:'uppercase',letterSpacing:0.5}}>{g}</div>
+                  <div style={{fontSize:11,color:'#86868b'}}>{s.pass}/{s.total}</div>
+                </div>
+                <div style={{border:'1px solid #e5e5ea',borderRadius:10,padding:'4px 14px'}}>
+                  {groupChecks.map(c=><Check key={c.id} id={c.id} weight={c.w} hint={c.hint}>{c.q}</Check>)}
+                </div>
+              </div>);
+          })}
+        </>}
+
+        {tab==='mech'&&<>
+          <div style={{fontSize:13,color:'#6e6e73',marginBottom:12,lineHeight:1.55,padding:'10px 14px',background:'#f0f5ff',borderRadius:8}}>
+            <b style={{color:'#0071e3'}}>Уровень 3 — Механики.</b> Проверяем структурные группы: Типы, Праны, Кресты, Оси, Зоны, Системная ошибка.
+          </div>
+          {['Типы','Праны','Кресты','Оси','Противоположности','Зоны','Системная ошибка'].map(g=>{
+            const groupChecks=mechChecks.filter(c=>c.g===g);
+            if(groupChecks.length===0)return null;
+            const s=scoreCount(groupChecks);
+            return(
+              <div key={g} style={{marginBottom:14}}>
+                <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,paddingLeft:4}}>
+                  <div style={{fontSize:12,fontWeight:700,color:'#424245',textTransform:'uppercase',letterSpacing:0.5}}>{g}</div>
+                  <div style={{fontSize:11,color:'#86868b'}}>{s.pass}/{s.total}</div>
+                </div>
+                <div style={{border:'1px solid #e5e5ea',borderRadius:10,padding:'4px 14px'}}>
+                  {groupChecks.map(c=><Check key={c.id} id={c.id} weight={c.w} hint={c.hint}>{c.q}</Check>)}
+                </div>
+              </div>);
+          })}
+        </>}
+
+        {tab==='holi'&&<>
+          <div style={{fontSize:13,color:'#6e6e73',marginBottom:12,lineHeight:1.55,padding:'10px 14px',background:'#f0f5ff',borderRadius:8}}>
+            <b style={{color:'#0071e3'}}>Уровень 4 — Цельность.</b> Ясна как единая система: замкнутость, единый параметр, самостоятельность, согласованность с эталонами, ясность для не-эксперта.
+          </div>
+          <div style={{border:'1px solid #e5e5ea',borderRadius:10,padding:'4px 14px',marginBottom:14}}>
+            {holiChecks.map(c=><Check key={c.id} id={c.id} weight={c.w} hint={c.hint}>{c.q}</Check>)}
+          </div>
+
+          {/* Final verdict card */}
+          <div style={{padding:'16px 20px',background:`linear-gradient(135deg,${statusColor}08,${statusColor}14)`,border:`1px solid ${statusColor}40`,borderRadius:14,marginTop:20}}>
+            <div style={{fontSize:11,fontWeight:700,color:statusColor,letterSpacing:0.5,textTransform:'uppercase',marginBottom:6}}>Итоговый вердикт</div>
+            <div style={{fontSize:18,fontWeight:700,color:'#1d1d1f',marginBottom:8}}>{status}</div>
+            <div style={{fontSize:13,color:'#424245',lineHeight:1.6,marginBottom:10}}>{statusDesc}</div>
+            <div style={{display:'flex',gap:10,flexWrap:'wrap',fontSize:11,color:'#6e6e73'}}>
+              <span><b style={{color:'#E8364F'}}>КРИТ:</b> {critS.pass}/{critChecks.length} прошли{critS.failed>0?`, ${critS.failed} провалено`:''}</span>
+              <span><b style={{color:'#E8A834'}}>ВАЖ:</b> {vazhS.pass}/{vazhChecks.length}</span>
+              <span><b style={{color:'#86868b'}}>ЖЕЛ:</b> {zhelS.pass}/{zhelChecks.length}</span>
+            </div>
+          </div>
+        </>}
 
       </div>
     </div>);
