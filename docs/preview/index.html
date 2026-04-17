@@ -1703,6 +1703,323 @@ function Verification({y,vs,setVs,onClose}){
     </div>);
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// EDUCATIONAL LAYER · LESSONS
+// ═══════════════════════════════════════════════════════════════════
+
+const LESSONS=[
+  {
+    id:'l1_intro',
+    order:1,
+    title:'Что такое Ясна?',
+    subtitle:'Разложим сутки по полочкам',
+    duration:'7-10 мин',
+    yasna:'суток',
+    steps:[
+      // Step 1: Intro
+      {type:'intro',title:'Что такое Ясна?',
+        body:'Разложим то, что вы знаете с детства — сутки — на 12 типов состояний. Это самый простой способ понять устройство Ясны: каждый узнает и Ночь, и Утро, и Закат.\n\nСледующие 7 минут — понаблюдаем за Солнцем и увидим, как из знакомого опыта рождается универсальный закон.',
+        cta:'Начать'},
+      // Step 2: Animation — path of the Sun
+      {type:'animation-sun',
+        title:'Путь Солнца',
+        body:'Весь путь Солнца делится линией горизонта на две части:\n\n☀️ День — видимая часть (сверху)\n🌙 Ночь — невидимая часть (снизу)\n\nЗемля вращается, а мы с Земли видим, как Солнце идёт слева направо.',
+        cta:'Понятно'},
+      // Step 3: DnD — halves
+      {type:'dnd-halves',
+        title:'Что наверху, а что внизу?',
+        body:'Перетащите ярлыки в правильные половины круга.',
+        items:[{id:'light',label:'☀️ Свет (День)',correctSlot:'top'},{id:'dark',label:'🌙 Тьма (Ночь)',correctSlot:'bottom'}],
+        success:'Верно. Горизонт делит сутки на свет и тьму.'},
+      // Step 4: Animation — 4 pillars appear
+      {type:'animation-cross',
+        title:'Четыре опоры',
+        body:'Четыре момента, которые знает каждый.\n\n0 — Ночь: Солнца нет\n3 — Утро: Солнце выходит из-за горизонта\n6 — День: Солнце на вершине\n9 — Вечер: Солнце уходит за горизонт\n\nЭто Опорный Крест — скелет Ясны.',
+        cta:'Дальше'}
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════════════════════
+// LESSON COMPONENTS
+// ═══════════════════════════════════════════════════════════════════
+
+// Simplified star for lesson visualization — shows only what's needed per mode
+function LessonStar({mode,highlighted=[],labels={}}){
+  // mode: 'empty' | 'halves' | 'cross-outline' | 'cross-labeled' | 'full'
+  const S=400,cx=S/2,cy=S/2,R=140;
+  const xy=(i)=>{const a=(i*30-90)*Math.PI/180;return{x:cx+R*Math.cos(a),y:cy+R*Math.sin(a)};};
+  const pts=Array.from({length:12},(_,i)=>xy(i));
+  const labelXY=(i)=>{const a=(i*30-90)*Math.PI/180;const LR=R+38;return{x:cx+LR*Math.cos(a),y:cy+LR*Math.sin(a)};};
+  const anch=(i)=>{const x=labelXY(i).x;return Math.abs(x-cx)<8?'middle':x<cx?'end':'start';};
+
+  // Default labels from Ясна Суток
+  const sutokLabels={0:'Ночь',3:'Утро',6:'День',9:'Вечер'};
+
+  return(
+    <svg viewBox={`0 0 ${S} ${S}`} style={{width:'100%',height:'100%',maxHeight:400}}>
+      {/* Halves background */}
+      {(mode==='halves'||mode==='cross-outline'||mode==='cross-labeled'||mode==='full')&&<>
+        <path d={`M ${cx-R-30} ${cy} A ${R+30} ${R+30} 0 0 1 ${cx+R+30} ${cy} Z`} fill="rgba(255,200,40,.08)"/>
+        <path d={`M ${cx-R-30} ${cy} A ${R+30} ${R+30} 0 0 0 ${cx+R+30} ${cy} Z`} fill="rgba(40,60,160,.06)"/>
+        <line x1={cx-R-30} y1={cy} x2={cx+R+30} y2={cy} stroke="#d2d2d7" strokeWidth="1" strokeDasharray="3 4"/>
+      </>}
+
+      {/* Halves labels */}
+      {mode==='halves'&&<>
+        <text x={cx} y={cy-R-12} textAnchor="middle" fontSize="16" fontWeight="600" fill="#c07800">☀️ День · Свет</text>
+        <text x={cx} y={cy+R+24} textAnchor="middle" fontSize="16" fontWeight="600" fill="#4060a0">🌙 Ночь · Тьма</text>
+      </>}
+
+      {/* Cross outline (vertical + horizontal axes) */}
+      {(mode==='cross-outline'||mode==='cross-labeled'||mode==='full')&&<>
+        <line x1={cx} y1={cy-R-20} x2={cx} y2={cy+R+20} stroke="#d2d2d7" strokeWidth="1" strokeDasharray="3 4"/>
+        <circle cx={cx} cy={cy} r={R} fill="none" stroke="#e5e5ea" strokeWidth="1"/>
+      </>}
+
+      {/* Positions: 12 dots */}
+      {(mode==='full')&&pts.map((p,i)=><circle key={i} cx={p.x} cy={p.y} r={i%2===0?8:6} fill="#fff" stroke="#c7c7cc" strokeWidth="1.5"/>)}
+
+      {/* Cross-only: show just 4 opornyi (0,3,6,9) */}
+      {(mode==='cross-outline'||mode==='cross-labeled'||mode==='full')&&[0,3,6,9].map(i=>{
+        const p=pts[i];const on=highlighted.includes(i)||mode==='cross-labeled'||mode==='full';
+        return<g key={i} opacity={on?1:.3}>
+          <circle cx={p.x} cy={p.y} r="14" fill="#E8364F" stroke="#fff" strokeWidth="2"/>
+          <text x={p.x} y={p.y+5} textAnchor="middle" fontSize="13" fontWeight="700" fill="#fff">{i}</text>
+        </g>;
+      })}
+
+      {/* Cross labels */}
+      {(mode==='cross-labeled'||mode==='full')&&[0,3,6,9].map(i=>{
+        const lp=labelXY(i);const lbl=labels[i]||sutokLabels[i];
+        return<text key={'l'+i} x={lp.x} y={lp.y+5} textAnchor={anch(i)} fontSize="14" fontWeight="600" fill="#1d1d1f">{lbl}</text>;
+      })}
+    </svg>);
+}
+
+// Step 1: Intro screen
+function StepIntro({step,onNext}){
+  return(
+    <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',padding:'40px 24px',textAlign:'center',maxWidth:560,margin:'0 auto'}}>
+      <div style={{fontSize:48,marginBottom:20}}>☀️🌙</div>
+      <h1 style={{fontSize:28,fontWeight:700,color:'#1d1d1f',marginBottom:16,lineHeight:1.2}}>{step.title}</h1>
+      <p style={{fontSize:15,color:'#6e6e73',lineHeight:1.65,whiteSpace:'pre-wrap',marginBottom:32}}>{step.body}</p>
+      <button onClick={onNext} style={{fontSize:15,fontWeight:600,padding:'12px 32px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer',boxShadow:'0 4px 14px rgba(0,122,255,.3)'}}>{step.cta||'Дальше'} →</button>
+    </div>);
+}
+
+// Step 2: Animation showing Sun's path
+function StepAnimationSun({step,onNext}){
+  const[tick,setTick]=useState(0);
+  useEffect(()=>{const t=setInterval(()=>setTick(v=>(v+1)%200),40);return()=>clearInterval(t);},[]);
+  // Sun traverses a full circle. t∈[0..1]: 0=East, 0.25=Zenith, 0.5=West, 0.75=Nadir, 1=East again
+  const t=tick/200;
+  const angle=Math.PI - 2*Math.PI*t; // starts at π (east/left), rotates CCW... we need clockwise
+  // Simpler: we want East (x=left) at t=0 → going up to Zenith (y=top) → West (right) → Nadir (bottom) → back East
+  // On SVG, that's: start (20,200) → (200,60) → (380,200) → (200,340) → back
+  const sunAngle=Math.PI - 2*Math.PI*t; // east=π, zenith=π/2, west=0, nadir=-π/2
+  const sunX=200+180*Math.cos(sunAngle);
+  const sunY=200-180*Math.sin(sunAngle);
+  const aboveHorizon=sunY<200;
+
+  return(
+    <div style={{display:'flex',flexDirection:'column',height:'100%',padding:'24px 20px',maxWidth:640,margin:'0 auto',width:'100%'}}>
+      <h2 style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:10,textAlign:'center'}}>{step.title}</h2>
+      <div style={{flex:'0 0 auto',height:320,marginBottom:16,position:'relative'}}>
+        <svg viewBox="0 0 400 400" style={{width:'100%',height:'100%'}}>
+          {/* Horizon line */}
+          <line x1="10" y1="200" x2="390" y2="200" stroke="#86868b" strokeWidth="1.5"/>
+          {/* Upper arc shading */}
+          <path d="M 20 200 A 180 180 0 0 1 380 200 Z" fill="rgba(255,200,40,.09)"/>
+          {/* Lower arc shading */}
+          <path d="M 20 200 A 180 180 0 0 0 380 200 Z" fill="rgba(40,60,160,.07)"/>
+          {/* Sun path arc (dashed) */}
+          <circle cx="200" cy="200" r="180" fill="none" stroke="#e5e5ea" strokeWidth="1" strokeDasharray="3 5"/>
+          {/* Labels */}
+          <text x="200" y="40" textAnchor="middle" fontSize="14" fill="#c07800" fontWeight="600">☀️ День · видимая часть</text>
+          <text x="200" y="375" textAnchor="middle" fontSize="14" fill="#4060a0" fontWeight="600">🌙 Ночь · скрытая часть</text>
+          <text x="10" y="220" fontSize="11" fill="#86868b" fontWeight="500">восток</text>
+          <text x="350" y="220" fontSize="11" fill="#86868b" fontWeight="500">запад</text>
+          {/* Glow for sun */}
+          {aboveHorizon&&<circle cx={sunX} cy={sunY} r="22" fill="#FFB020" opacity=".25"/>}
+          {/* Sun */}
+          <circle cx={sunX} cy={sunY} r="14" fill={aboveHorizon?'#FFB020':'#4a5a8a'} stroke="#fff" strokeWidth="2" opacity={aboveHorizon?1:.5}/>
+        </svg>
+      </div>
+      <p style={{fontSize:14,color:'#424245',lineHeight:1.6,whiteSpace:'pre-wrap',marginBottom:24,textAlign:'center'}}>{step.body}</p>
+      <div style={{marginTop:'auto'}}>
+        <button onClick={onNext} style={{width:'100%',fontSize:15,fontWeight:600,padding:'12px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer'}}>{step.cta||'Дальше'} →</button>
+      </div>
+    </div>);
+}
+
+// Step 3: Drag-n-drop halves
+function StepDndHalves({step,onNext}){
+  const[placed,setPlaced]=useState({top:null,bottom:null});
+  const[wrong,setWrong]=useState(null);
+  const[drag,setDrag]=useState(null);
+  const allCorrect=step.items.every(it=>placed[it.correctSlot]===it.id);
+
+  const tryPlace=(itemId,slot)=>{
+    const item=step.items.find(it=>it.id===itemId);
+    if(item.correctSlot===slot){
+      setPlaced(p=>({...p,[slot]:itemId}));
+      setWrong(null);
+    } else {
+      setWrong(slot);setTimeout(()=>setWrong(null),500);
+    }
+  };
+
+  return(
+    <div style={{display:'flex',flexDirection:'column',height:'100%',padding:'20px',maxWidth:500,margin:'0 auto',width:'100%'}}>
+      <h2 style={{fontSize:20,fontWeight:700,color:'#1d1d1f',marginBottom:6,textAlign:'center'}}>{step.title}</h2>
+      <p style={{fontSize:13,color:'#6e6e73',lineHeight:1.5,marginBottom:20,textAlign:'center'}}>{step.body}</p>
+
+      {/* Circle with two slots */}
+      <div style={{flex:'0 0 auto',position:'relative',width:'100%',maxWidth:320,margin:'0 auto',aspectRatio:'1/1'}}>
+        <svg viewBox="0 0 320 320" style={{width:'100%',height:'100%'}}>
+          {/* Top half */}
+          <path d="M 40 160 A 120 120 0 0 1 280 160 Z" fill={wrong==='top'?'#ffd0d0':placed.top?'rgba(255,200,40,.15)':'#fafafa'} stroke={placed.top?'#FFB020':'#e5e5ea'} strokeWidth="2"/>
+          {/* Bottom half */}
+          <path d="M 40 160 A 120 120 0 0 0 280 160 Z" fill={wrong==='bottom'?'#ffd0d0':placed.bottom?'rgba(40,60,160,.15)':'#fafafa'} stroke={placed.bottom?'#4060a0':'#e5e5ea'} strokeWidth="2"/>
+          <line x1="40" y1="160" x2="280" y2="160" stroke="#d2d2d7" strokeWidth="1" strokeDasharray="3 4"/>
+        </svg>
+        {/* Drop zones overlay */}
+        <div onClick={()=>drag&&tryPlace(drag,'top')} style={{position:'absolute',top:'15%',left:'15%',right:'15%',height:'35%',cursor:drag?'pointer':'default',display:'flex',alignItems:'center',justifyContent:'center',pointerEvents:drag?'auto':'none'}}>
+          {placed.top&&<div style={{fontSize:16,fontWeight:600,color:'#c07800'}}>{step.items.find(it=>it.id===placed.top).label}</div>}
+        </div>
+        <div onClick={()=>drag&&tryPlace(drag,'bottom')} style={{position:'absolute',bottom:'15%',left:'15%',right:'15%',height:'35%',cursor:drag?'pointer':'default',display:'flex',alignItems:'center',justifyContent:'center',pointerEvents:drag?'auto':'none'}}>
+          {placed.bottom&&<div style={{fontSize:16,fontWeight:600,color:'#4060a0'}}>{step.items.find(it=>it.id===placed.bottom).label}</div>}
+        </div>
+      </div>
+
+      {/* Items to drag */}
+      <div style={{marginTop:20,display:'flex',gap:10,flexWrap:'wrap',justifyContent:'center'}}>
+        {step.items.map(it=>{
+          const isPlaced=Object.values(placed).includes(it.id);
+          if(isPlaced)return null;
+          const active=drag===it.id;
+          return<button key={it.id} onClick={()=>setDrag(active?null:it.id)} style={{padding:'10px 18px',borderRadius:10,fontSize:14,fontWeight:500,border:active?'2px solid #0071e3':'1.5px solid #d2d2d7',background:active?'rgba(0,122,255,.08)':'#fff',color:'#1d1d1f',cursor:'pointer'}}>{it.label}</button>;
+        })}
+      </div>
+      {drag&&<p style={{fontSize:12,color:'#0071e3',textAlign:'center',marginTop:8}}>Теперь тапните на нужную половину круга</p>}
+
+      {allCorrect&&<div style={{marginTop:'auto',paddingTop:20}}>
+        <div style={{padding:'12px 16px',background:'#e8f5ec',border:'1px solid #30A06040',borderRadius:10,fontSize:14,color:'#1d6032',textAlign:'center',marginBottom:14,fontWeight:500}}>✓ {step.success}</div>
+        <button onClick={onNext} style={{width:'100%',fontSize:15,fontWeight:600,padding:'12px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer'}}>Дальше →</button>
+      </div>}
+    </div>);
+}
+
+// Step 4: Animation — four pillars (Опорный крест) appear
+function StepAnimationCross({step,onNext}){
+  const[visible,setVisible]=useState(0); // How many pillars shown
+  useEffect(()=>{
+    const timers=[];
+    [3,6,9,0].forEach((_,idx)=>{
+      timers.push(setTimeout(()=>setVisible(v=>v+1),600+idx*800));
+    });
+    return()=>timers.forEach(clearTimeout);
+  },[]);
+
+  const order=[3,6,9,0]; // East, Zenith, West, Nadir — matches narrative
+  const shownPillars=order.slice(0,visible);
+
+  return(
+    <div style={{display:'flex',flexDirection:'column',height:'100%',padding:'20px',maxWidth:560,margin:'0 auto',width:'100%'}}>
+      <h2 style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:14,textAlign:'center'}}>{step.title}</h2>
+      <div style={{flex:'1 1 auto',minHeight:280,maxHeight:400,display:'flex',alignItems:'center',justifyContent:'center'}}>
+        <LessonStar mode="cross-labeled" highlighted={shownPillars}/>
+      </div>
+      <p style={{fontSize:14,color:'#424245',lineHeight:1.65,whiteSpace:'pre-wrap',marginBottom:20,marginTop:10}}>{step.body}</p>
+      {visible>=4&&<button onClick={onNext} style={{fontSize:15,fontWeight:600,padding:'12px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer'}}>{step.cta||'Дальше'} →</button>}
+      {visible<4&&<div style={{height:48,display:'flex',alignItems:'center',justifyContent:'center',color:'#aeaeb2',fontSize:12}}>● ● ● появление опор...</div>}
+    </div>);
+}
+
+// Step router
+function LessonStep({step,onNext}){
+  switch(step.type){
+    case 'intro': return<StepIntro step={step} onNext={onNext}/>;
+    case 'animation-sun': return<StepAnimationSun step={step} onNext={onNext}/>;
+    case 'dnd-halves': return<StepDndHalves step={step} onNext={onNext}/>;
+    case 'animation-cross': return<StepAnimationCross step={step} onNext={onNext}/>;
+    default: return<div style={{padding:20,textAlign:'center',color:'#aeaeb2'}}>Шаг типа '{step.type}' ещё не реализован</div>;
+  }
+}
+
+// Main Lesson component
+function Lesson({lessonId,onClose,onComplete}){
+  const lesson=LESSONS.find(l=>l.id===lessonId)||LESSONS[0];
+  const[stepIdx,setStepIdx]=useState(0);
+  const totalSteps=lesson.steps.length;
+  const currentStep=lesson.steps[stepIdx];
+  const progress=((stepIdx+1)/totalSteps)*100;
+
+  const goNext=()=>{
+    if(stepIdx<totalSteps-1){setStepIdx(stepIdx+1);}
+    else {if(onComplete)onComplete(lesson.id);onClose();}
+  };
+  const goPrev=()=>{if(stepIdx>0)setStepIdx(stepIdx-1);};
+
+  return(
+    <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#fff',zIndex:70,display:'flex',flexDirection:'column'}}>
+      {/* Header */}
+      <div style={{padding:'10px 16px',borderBottom:'1px solid #f0f0f2',flexShrink:0,display:'flex',alignItems:'center',gap:10}}>
+        <button onClick={goPrev} disabled={stepIdx===0} style={{width:32,height:32,borderRadius:8,border:'1px solid #e5e5ea',background:'#fff',cursor:stepIdx===0?'default':'pointer',color:stepIdx===0?'#d2d2d7':'#424245',fontSize:14}}>←</button>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontSize:10,color:'#86868b',textTransform:'uppercase',letterSpacing:0.5,fontWeight:600}}>Урок {lesson.order} · {stepIdx+1} из {totalSteps}</div>
+          <div style={{fontSize:14,fontWeight:600,color:'#1d1d1f',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{lesson.title}</div>
+        </div>
+        <button onClick={onClose} style={{width:32,height:32,borderRadius:8,border:'1px solid #e5e5ea',background:'#fff',cursor:'pointer',color:'#424245',fontSize:14}}>✕</button>
+      </div>
+      {/* Progress */}
+      <div style={{height:3,background:'#f0f0f2',flexShrink:0}}>
+        <div style={{width:progress+'%',height:'100%',background:'#0071e3',transition:'width .3s'}}/>
+      </div>
+      {/* Content */}
+      <div style={{flex:1,overflowY:'auto'}}>
+        <LessonStep step={currentStep} onNext={goNext}/>
+      </div>
+    </div>);
+}
+
+// Lesson Picker — splash to pick a lesson
+function LessonPicker({onSelectLesson,onClose,completedLessons=[]}){
+  return(
+    <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#fff',zIndex:70,display:'flex',flexDirection:'column'}}>
+      <div style={{padding:'14px 20px',borderBottom:'1px solid #f0f0f2',flexShrink:0,display:'flex',alignItems:'center',gap:10}}>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontSize:10,color:'#86868b',textTransform:'uppercase',letterSpacing:0.6,fontWeight:600,marginBottom:2}}>🎓 Интерактивные уроки</div>
+          <h2 style={{fontSize:18,fontWeight:700,color:'#1d1d1f'}}>Курс по Ясне</h2>
+        </div>
+        <button onClick={onClose} style={{width:36,height:36,borderRadius:10,border:'1px solid #e5e5ea',background:'#fff',cursor:'pointer',color:'#424245',fontSize:14}}>✕</button>
+      </div>
+      <div style={{flex:1,overflowY:'auto',padding:'20px',maxWidth:640,margin:'0 auto',width:'100%'}}>
+        <div style={{fontSize:14,color:'#6e6e73',lineHeight:1.6,marginBottom:24}}>
+          Шаг за шагом разберём устройство Ясны. Начнём с самого знакомого — суток. Каждый урок 5-10 минут.
+        </div>
+        <div style={{padding:'10px 14px',background:'#fff8e8',border:'1px solid #E8A83440',borderRadius:10,fontSize:12,color:'#424245',marginBottom:20,lineHeight:1.5}}>
+          <b style={{color:'#c07800'}}>⚠ Прототип.</b> Доступны первые 4 шага первого урока для оценки формата. Остальные уроки — в разработке.
+        </div>
+        {LESSONS.map(l=>{
+          const done=completedLessons.includes(l.id);
+          return<button key={l.id} onClick={()=>onSelectLesson(l.id)} style={{display:'flex',width:'100%',padding:'16px 18px',marginBottom:10,background:'#fff',border:'1px solid #e5e5ea',borderRadius:14,textAlign:'left',cursor:'pointer',gap:14,alignItems:'center',transition:'all .15s'}}>
+            <div style={{width:44,height:44,borderRadius:'50%',background:done?'#30A060':'#0071e3',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:700,flexShrink:0}}>{done?'✓':l.order}</div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:15,fontWeight:600,color:'#1d1d1f',marginBottom:2}}>{l.title}</div>
+              <div style={{fontSize:12,color:'#6e6e73'}}>{l.subtitle} · {l.duration}</div>
+            </div>
+            <div style={{color:'#aeaeb2',fontSize:20}}>›</div>
+          </button>;
+        })}
+        <div style={{marginTop:30,paddingTop:20,borderTop:'1px solid #f0f0f2',fontSize:12,color:'#aeaeb2',lineHeight:1.6,textAlign:'center'}}>
+          Следующие уроки появятся после проверки этого прототипа
+        </div>
+      </div>
+    </div>);
+}
+
 function Instruction({onClose}){
   const Step=({n,title,children})=><div style={{display:'flex',gap:16,marginBottom:28}}>
     <div style={{width:40,height:40,borderRadius:'50%',background:'#0071e3',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:700,flexShrink:0}}>{n}</div>
@@ -2098,8 +2415,11 @@ function App(){
   const[showOverlayPicker,setShowOverlayPicker]=useState(false);
   const[picker,setPicker]=useState(false);
   const[pinned,setPinned]=useState(defPinned);
+  const[lessonPicker,setLessonPicker]=useState(false);
+  const[activeLesson,setActiveLesson]=useState(null);
+  const[completedLessons,setCompletedLessons]=useState([]);
   // Auto-close burger menu when any modal/panel opens
-  useEffect(()=>{if(ed||glossary||instr||verif||fullStar||picker||showOverlayPicker)setMenu(false);},[ed,glossary,instr,verif,fullStar,picker,showOverlayPicker]);
+  useEffect(()=>{if(ed||glossary||instr||verif||fullStar||picker||showOverlayPicker||lessonPicker||activeLesson)setMenu(false);},[ed,glossary,instr,verif,fullStar,picker,showOverlayPicker,lessonPicker,activeLesson]);
   const load=t=>{setY({name:t.n,p:[...t.p],th:t.th||'',bh:t.bh||'',lh:t.lh||'',rh:t.rh||'',custom:!!t.custom});setSel(null);setAf([]);};
   const tog=f=>setAf(p=>p.includes(f)?p.filter(x=>x!==f):[...p,f]);
   const togglePin=id=>setPinned(p=>p.includes(id)?p.filter(x=>x!==id):[...p,id]);
@@ -2132,11 +2452,11 @@ function App(){
           <button onClick={()=>setMenu(!menu)} style={{fontSize:20,padding:'6px 12px',border:'1px solid #d2d2d7',borderRadius:10,background:menu?'#f5f5f7':'#fff',color:'#424245',minHeight:36,minWidth:40}}>☰</button>
           {menu&&<div onClick={()=>setMenu(false)} style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:79}}/>}
           {menu&&<div style={{position:'absolute',top:'100%',right:0,marginTop:4,background:'#fff',border:'1px solid #e5e5ea',borderRadius:12,boxShadow:'0 8px 30px rgba(0,0,0,.12)',zIndex:80,minWidth:200,maxWidth:'calc(100vw - 24px)',overflow:'hidden'}}>
-            <div style={{padding:'10px 16px',fontSize:13,color:'#aeaeb2',borderBottom:'1px solid #f5f5f7',background:'#fafafa',display:'flex',alignItems:'center',gap:8,cursor:'not-allowed'}}>
+            <button onClick={()=>{setLessonPicker(true);setMenu(false)}} style={{display:'flex',width:'100%',padding:'12px 16px',fontSize:14,color:'#0071e3',border:'none',borderBottom:'1px solid #f5f5f7',background:'linear-gradient(90deg,rgba(0,122,255,.04),transparent)',textAlign:'left',alignItems:'center',gap:8,cursor:'pointer',fontWeight:500}}>
               <span style={{fontSize:15}}>🎓</span>
               <span style={{flex:1}}>Уроки</span>
-              <span style={{fontSize:10,padding:'2px 7px',background:'#e5e5ea',color:'#6e6e73',borderRadius:8,fontWeight:600,letterSpacing:0.3,textTransform:'uppercase'}}>скоро</span>
-            </div>
+              <span style={{fontSize:10,padding:'2px 7px',background:'#0071e3',color:'#fff',borderRadius:8,fontWeight:600,letterSpacing:0.3,textTransform:'uppercase'}}>new</span>
+            </button>
             <button onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);setMenu(false);}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:'#0071e3',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left',fontWeight:500}}>+ Создать новую Ясну</button>
             <button onClick={()=>{if(overlay){setOverlay(null)}else{setShowOverlayPicker(true)};setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:overlay?'#af52de':'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>{overlay?'⊗ Снять совмещение':'⊕ Совместить ясны'}</button>
             <button onClick={()=>{setVerif(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Верификация</button>
@@ -2189,6 +2509,8 @@ function App(){
       {showOverlayPicker&&<OverlayPicker currentName={y.name} overlay={overlay} onSelect={setOverlay} onClose={()=>setShowOverlayPicker(false)}/>}
       {verif&&<Verification y={y} vs={vState} setVs={setVState} onClose={()=>setVerif(false)}/>}
       {instr&&<Instruction onClose={()=>setInstr(false)}/>}
+      {lessonPicker&&<LessonPicker onSelectLesson={(id)=>{setActiveLesson(id);setLessonPicker(false);}} onClose={()=>setLessonPicker(false)} completedLessons={completedLessons}/>}
+      {activeLesson&&<Lesson lessonId={activeLesson} onClose={()=>setActiveLesson(null)} onComplete={(id)=>setCompletedLessons(prev=>prev.includes(id)?prev:[...prev,id])}/>}
       {glossary&&<Glossary onClose={()=>setGlossary(false)}/>}
       {picker&&<Picker pinned={pinned} onTogglePin={togglePin} onClear={()=>setPinned([])} onClose={()=>setPicker(false)}/>}
     </div>);
