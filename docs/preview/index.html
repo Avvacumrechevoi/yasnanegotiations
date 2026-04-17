@@ -2321,6 +2321,7 @@ function StepCarouselExamples({step,onNext}){
 function StepFinalQuiz({step,onNext}){
   const[answers,setAnswers]=useState({}); // {qIdx: optionIdx}
   const[activeQ,setActiveQ]=useState(0);
+  const questionRefs=React.useRef([]);
 
   const pick=(qIdx,optIdx)=>{
     if(answers[qIdx]!==undefined)return;
@@ -2330,6 +2331,14 @@ function StepFinalQuiz({step,onNext}){
       setTimeout(()=>{if(qIdx<step.questions.length-1)setActiveQ(qIdx+1);},900);
     }
   };
+
+  // Auto-scroll to the active question when it changes
+  useEffect(()=>{
+    if(activeQ>0){
+      const el=questionRefs.current[activeQ];
+      if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+    }
+  },[activeQ]);
 
   const allCorrect=step.questions.every((q,i)=>answers[i]===q.correctIdx);
   const allAnswered=step.questions.every((q,i)=>answers[i]!==undefined);
@@ -2341,12 +2350,12 @@ function StepFinalQuiz({step,onNext}){
         <p style={{fontSize:12,color:'#86868b'}}>Вопрос {Math.min(activeQ+1,step.questions.length)} из {step.questions.length}</p>
       </div>
 
-      <div style={{flex:1,overflowY:'auto',padding:'8px 20px 20px',display:'flex',flexDirection:'column',gap:14}}>
+      <div style={{flex:1,overflowY:'auto',padding:'8px 20px 20px',display:'flex',flexDirection:'column',gap:14,scrollBehavior:'smooth'}}>
         {step.questions.map((q,qIdx)=>{
           const show=qIdx<=activeQ||answers[qIdx]!==undefined;
           if(!show)return null;
           const myAns=answers[qIdx];
-          return<div key={qIdx} style={{padding:'14px 16px',background:'#f5f5f7',borderRadius:12,border:'1px solid #e5e5ea'}}>
+          return<div key={qIdx} ref={el=>questionRefs.current[qIdx]=el} style={{padding:'14px 16px',background:'#f5f5f7',borderRadius:12,border:'1px solid #e5e5ea',scrollMarginTop:8}}>
             <div style={{fontSize:14,fontWeight:600,color:'#1d1d1f',marginBottom:10}}>{qIdx+1}. {q.q}</div>
             <div style={{display:'flex',flexDirection:'column',gap:6}}>
               {q.options.map((opt,optIdx)=>{
