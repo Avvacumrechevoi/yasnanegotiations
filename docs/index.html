@@ -1462,9 +1462,11 @@ function Verification({y,vs,setVs,onClose}){
         </div>
         <div className='fullpage-content' style={{flex:1,overflowY:'auto',padding:'24px 20px',maxWidth:680,margin:'0 auto',width:'100%'}}>
           <div style={{fontSize:24,fontWeight:700,color:'#1d1d1f',marginBottom:10,lineHeight:1.25}}>Проверим вашу Ясну по 4 уровням</div>
-          <div style={{fontSize:14,color:'#6e6e73',lineHeight:1.6,marginBottom:24}}>
+          <div style={{fontSize:14,color:'#6e6e73',lineHeight:1.6,marginBottom:16}}>
             Верификация подтверждает, что Ясна составлена по законам Лебедева и не противоречит другим верифицированным Яснам. Занимает ~20-30 минут при вдумчивом прохождении.
           </div>
+
+          <button onClick={()=>setShowIntro(false)} style={{fontSize:13,color:'#0071e3',padding:'6px 0',border:'none',background:'transparent',cursor:'pointer',fontWeight:500,marginBottom:20,display:'inline-flex',alignItems:'center',gap:4}}>Пропустить инструкцию →</button>
 
           {hasEmpties&&<div style={{padding:'12px 14px',background:'#fff8e8',border:'1px solid #E8A83440',borderRadius:10,marginBottom:20,fontSize:13,color:'#424245',lineHeight:1.55}}>
             <div style={{fontWeight:700,color:'#c07800',marginBottom:4}}>⚠ Не заполнены: {emptyPos.join(', ')}</div>
@@ -1521,17 +1523,18 @@ function Verification({y,vs,setVs,onClose}){
           </div>
 
           <div style={{fontSize:13,fontWeight:700,color:'#1d1d1f',marginBottom:10,textTransform:'uppercase',letterSpacing:0.5}}>Советы</div>
-          <ul style={{fontSize:13,color:'#424245',lineHeight:1.8,marginLeft:20,marginBottom:28}}>
+          <ul style={{fontSize:13,color:'#424245',lineHeight:1.8,marginLeft:20,marginBottom:8}}>
             <li>На каждом вопросе есть <b style={{color:'#0071e3'}}>(i)</b> — разворачивает подробное пояснение с контекстом из книги.</li>
             <li>Если отвечаете <b style={{color:'#E8364F'}}>✗</b> — появится подсказка 💡 куда смотреть для исправления.</li>
             <li>Кнопка <b>«К следующему непройденному»</b> перепрыгнет к первому ✗ или неотвеченному пункту.</li>
             <li>Прогресс сохраняется автоматически. Можно вернуться позже.</li>
             <li>В конце можно экспортировать отчёт в буфер обмена.</li>
           </ul>
-
-          <div style={{display:'flex',gap:10,justifyContent:'flex-end',flexWrap:'wrap'}}>
+        </div>
+        <div style={{padding:'14px 20px',borderTop:'1px solid #f0f0f2',background:'#fff',flexShrink:0,boxShadow:'0 -4px 16px rgba(0,0,0,.04)'}}>
+          <div style={{maxWidth:680,margin:'0 auto',display:'flex',gap:10,justifyContent:'flex-end',flexWrap:'wrap'}}>
             <button onClick={onClose} style={{fontSize:14,padding:'10px 18px',borderRadius:10,border:'1px solid #e5e5ea',background:'#fff',color:'#424245',cursor:'pointer'}}>Отмена</button>
-            <button onClick={()=>setShowIntro(false)} style={{fontSize:14,fontWeight:600,padding:'10px 20px',borderRadius:10,border:'1px solid #0071e3',background:'#0071e3',color:'#fff',cursor:'pointer'}}>Начать проверку →</button>
+            <button onClick={()=>setShowIntro(false)} style={{fontSize:14,fontWeight:600,padding:'10px 20px',borderRadius:10,border:'1px solid #0071e3',background:'#0071e3',color:'#fff',cursor:'pointer',flex:'1 1 auto',minWidth:180}}>Начать проверку →</button>
           </div>
         </div>
       </div>);
