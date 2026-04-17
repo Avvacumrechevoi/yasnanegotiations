@@ -1806,7 +1806,7 @@ const LESSONS=[
 // ═══════════════════════════════════════════════════════════════════
 
 // Simplified star for lesson visualization — shows only what's needed per mode
-function LessonStar({mode,highlighted=[],labels={},visiblePositions=null,showNumbers=true,showCircle=true,showLabels=true,starLines=false,transformProgress=0}){
+function LessonStar({mode,highlighted=[],labels={},visiblePositions=null,showNumbers=true,showCircle=true,showLabels=true,starLines=false,transformProgress=0,focusType=null,newPositions=[]}){
   // mode: 'empty' | 'halves' | 'cross-outline' | 'cross-labeled' | 'longs' | 'shorts' | 'full' | 'star'
   // visiblePositions: null = use mode default; array = only show these (for step-by-step animation)
   // transformProgress: 0..1 — for animation from circle to star (used in 'star' mode)
@@ -1869,13 +1869,26 @@ function LessonStar({mode,highlighted=[],labels={},visiblePositions=null,showNum
         const p=pts[i];
         const isOpor=opornyi.includes(i);
         const isLong=i%2===0;
+        const isNew=newPositions.includes(i);
+        // Focus logic: if focusType set, dim positions that aren't in focus
+        let focusOpacity=1;
+        if(focusType==='longs'&&!isLong)focusOpacity=.18;
+        if(focusType==='shorts'&&isLong)focusOpacity=.18;
         const highlighted=isHighlighted(i);
-        const opacity=highlighted?1:.25;
+        const opacity=highlighted?focusOpacity:.25;
         // Colors: opor red, long orange, short blue  (simplified pedagogical palette)
         const fill=isOpor?'#E8364F':(isLong?'#FFB020':'#4090D8');
-        const r=isOpor?14:(isLong?11:9);
+        // In focus: focused type a bit bigger, non-focused smaller
+        let r=isOpor?14:(isLong?11:9);
+        if(focusType==='shorts'&&!isLong)r=isOpor?15:12;
+        if(focusType==='longs'&&isLong)r=isOpor?15:13;
         return<g key={i} opacity={opacity} style={{transition:'opacity .3s'}}>
-          <circle cx={p.x} cy={p.y} r={r} fill={fill} stroke="#fff" strokeWidth="2"/>
+          {/* Pulse glow for newly added (freshly animated in) positions */}
+          {isNew&&<circle cx={p.x} cy={p.y} r={r+8} fill={fill} opacity=".18">
+            <animate attributeName="r" values={`${r+4};${r+14};${r+4}`} dur="1.4s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values=".25;.05;.25" dur="1.4s" repeatCount="indefinite"/>
+          </circle>}
+          <circle cx={p.x} cy={p.y} r={r} fill={fill} stroke="#fff" strokeWidth="2" style={{transition:'r .3s'}}/>
           {showNumbers&&<text x={p.x} y={p.y+4} textAnchor="middle" fontSize={isOpor?'13':'11'} fontWeight="700" fill="#fff">{i}</text>}
         </g>;
       })}
@@ -1885,11 +1898,18 @@ function LessonStar({mode,highlighted=[],labels={},visiblePositions=null,showNum
         if(!isVisible(i))return null;
         const lp=labelXY(i);
         const isOpor=opornyi.includes(i);
+        const isLong=i%2===0;
         // Always show label for any visible position
         const lbl=labels[i]||sutokLabels[i];
         if(!lbl)return null;
+        let focusOpacity=1;
+        if(focusType==='longs'&&!isLong)focusOpacity=.2;
+        if(focusType==='shorts'&&isLong)focusOpacity=.2;
         const highlighted=isHighlighted(i);
-        return<text key={'l'+i} x={lp.x} y={lp.y+4} textAnchor={anch(i)} fontSize={isOpor?'15':'13'} fontWeight={isOpor?'700':'500'} fill={isOpor?'#1d1d1f':'#424245'} opacity={highlighted?1:.3} style={{transition:'opacity .3s'}}>{lbl}</text>;
+        const opacity=highlighted?focusOpacity:.3;
+        // Focused labels slightly bolder
+        const inFocus=!focusType||(focusType==='longs'&&isLong)||(focusType==='shorts'&&!isLong);
+        return<text key={'l'+i} x={lp.x} y={lp.y+4} textAnchor={anch(i)} fontSize={isOpor?'15':'13'} fontWeight={inFocus?(isOpor?'700':'600'):'400'} fill={inFocus?'#1d1d1f':'#6e6e73'} opacity={opacity} style={{transition:'opacity .3s, font-weight .3s'}}>{lbl}</text>;
       })}
     </svg>);
 }
@@ -2103,12 +2123,18 @@ function StepDndCross({step,onNext}){
 function StepAnimationLongs({step,onNext}){
   // Start with just Ночь (0) and День (6) — already known from step 4 as opornyi
   const[visible,setVisible]=useState([0,6]);
+  const[lastAdded,setLastAdded]=useState(null);
   useEffect(()=>{
     const timers=[];
     // Add the other 4 longs: Заря (2), Восход (4), Закат (8), Сумерки (10)
     [2,4,8,10].forEach((pos,idx)=>{
-      timers.push(setTimeout(()=>setVisible(v=>v.concat(pos)),500+idx*650));
+      timers.push(setTimeout(()=>{
+        setVisible(v=>v.concat(pos));
+        setLastAdded(pos);
+      },500+idx*650));
     });
+    // After the last one, clear the pulse after a moment
+    timers.push(setTimeout(()=>setLastAdded(null),500+4*650+2000));
     return()=>timers.forEach(clearTimeout);
   },[]);
   const allShown=visible.length>=6;
@@ -2117,7 +2143,7 @@ function StepAnimationLongs({step,onNext}){
     <div style={{display:'flex',flexDirection:'column',height:'100%',padding:'20px',maxWidth:560,margin:'0 auto',width:'100%'}}>
       <h2 style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:12,textAlign:'center'}}>{step.title}</h2>
       <div style={{flex:'1 1 auto',minHeight:280,maxHeight:400,display:'flex',alignItems:'center',justifyContent:'center'}}>
-        <LessonStar mode="longs" visiblePositions={visible}/>
+        <LessonStar mode="longs" visiblePositions={visible} focusType="longs" newPositions={lastAdded!==null?[lastAdded]:[]}/>
       </div>
       <p style={{fontSize:14,color:'#424245',lineHeight:1.65,whiteSpace:'pre-wrap',marginBottom:18,marginTop:8}}>{step.body}</p>
       {allShown?
@@ -2130,13 +2156,18 @@ function StepAnimationLongs({step,onNext}){
 function StepAnimationShortsQuiz({step,onNext}){
   // Start with 6 longs (чётные) — continuation from step 6
   const[visible,setVisible]=useState([0,2,4,6,8,10]);
+  const[lastAdded,setLastAdded]=useState(null);
   const[quizAnswer,setQuizAnswer]=useState(null);
   useEffect(()=>{
     const timers=[];
     // Add all 6 shorts (нечётные): 1, 3, 5, 7, 9, 11
     [1,3,5,7,9,11].forEach((pos,idx)=>{
-      timers.push(setTimeout(()=>setVisible(v=>v.concat(pos)),400+idx*380));
+      timers.push(setTimeout(()=>{
+        setVisible(v=>v.concat(pos));
+        setLastAdded(pos);
+      },400+idx*380));
     });
+    timers.push(setTimeout(()=>setLastAdded(null),400+6*380+2000));
     return()=>timers.forEach(clearTimeout);
   },[]);
   const allShown=visible.length>=12;
@@ -2145,7 +2176,7 @@ function StepAnimationShortsQuiz({step,onNext}){
     <div style={{display:'flex',flexDirection:'column',height:'100%',padding:'20px',maxWidth:560,margin:'0 auto',width:'100%'}}>
       <h2 style={{fontSize:22,fontWeight:700,color:'#1d1d1f',marginBottom:12,textAlign:'center'}}>{step.title}</h2>
       <div style={{flex:'0 0 auto',minHeight:240,maxHeight:320,display:'flex',alignItems:'center',justifyContent:'center'}}>
-        <LessonStar mode="full" visiblePositions={visible}/>
+        <LessonStar mode="full" visiblePositions={visible} focusType="shorts" newPositions={lastAdded!==null?[lastAdded]:[]}/>
       </div>
       <p style={{fontSize:13,color:'#424245',lineHeight:1.6,whiteSpace:'pre-wrap',marginBottom:14,marginTop:6}}>{step.body}</p>
 
