@@ -614,16 +614,16 @@ function OverlayPicker({currentName,overlay,onSelect,onClose}){
 
   const Card=({t})=>{const active=overlay&&overlay.name===t.n;return(
     <button key={t.id} onClick={()=>{onSelect({name:t.n,p:[...t.p]});onClose();}}
-      style={{position:'relative',padding:'10px 14px',paddingRight:t.rubrik?28:14,borderRadius:10,fontSize:13,textAlign:'left',
-        background:active?'rgba(175,82,222,.10)':'#f5f5f7',
-        color:active?'#af52de':'#424245',
+      style={{position:'relative',padding:'11px 14px',paddingLeft:t.rubrik?18:14,paddingRight:active?36:14,borderRadius:10,fontSize:14,textAlign:'left',
+        background:active?'rgba(175,82,222,.12)':'#f5f5f7',
+        color:active?'#af52de':'#1d1d1f',
         border:`1px solid ${active?'rgba(175,82,222,.4)':'transparent'}`,
         fontWeight:active?600:400,
         fontStyle:active?'italic':'normal',
-        transition:'all .12s',cursor:'pointer'}}>
-      {active?<span style={{marginRight:6,color:'#af52de'}}>●</span>:<span style={{marginRight:6,color:'#c7c7cc'}}>○</span>}
+        transition:'all .12s',cursor:'pointer',overflow:'hidden'}}>
+      {t.rubrik&&<span style={{position:'absolute',left:0,top:0,bottom:0,width:3,background:'#30A060'}} title="Верифицирована"/>}
       {t.n}
-      {t.rubrik&&<span title="Верифицирована" style={{position:'absolute',top:'50%',right:8,transform:'translateY(-50%)',width:16,height:16,borderRadius:'50%',background:'#30A060',color:'#fff',fontSize:9,display:'inline-flex',alignItems:'center',justifyContent:'center',fontWeight:700}}>✓</span>}
+      {active&&<span style={{position:'absolute',right:10,top:'50%',transform:'translateY(-50%)',color:'#af52de',fontSize:15,fontWeight:700}}>✓</span>}
     </button>);};
 
   const Section=({title,items})=>items.length===0?null:(
@@ -681,16 +681,17 @@ function Picker({pinned,onTogglePin,onClear,onClose}){
 
   const Card=({t})=>{const active=pinned.includes(t.id);return(
     <button key={t.id} onClick={()=>onTogglePin(t.id)}
-      style={{position:'relative',padding:'10px 14px',paddingRight:t.rubrik?28:14,borderRadius:10,fontSize:13,textAlign:'left',
-        background:active?'rgba(0,122,255,.08)':'#f5f5f7',
-        color:active?'#0071e3':'#424245',
-        border:`1px solid ${active?'rgba(0,122,255,.35)':'transparent'}`,
+      style={{position:'relative',padding:'11px 14px',paddingLeft:t.rubrik?18:14,paddingRight:active?36:14,borderRadius:10,fontSize:14,textAlign:'left',
+        background:active?'#e6f0fa':'#f5f5f7',
+        color:active?'#0071e3':'#1d1d1f',
+        border:`1px solid ${active?'rgba(0,122,255,.4)':'transparent'}`,
         fontWeight:active?600:400,
         transition:'all .12s',
-        cursor:'pointer'}}>
-      {active?<span style={{marginRight:6,color:'#0071e3'}}>●</span>:<span style={{marginRight:6,color:'#c7c7cc'}}>○</span>}
+        cursor:'pointer',
+        overflow:'hidden'}}>
+      {t.rubrik&&<span style={{position:'absolute',left:0,top:0,bottom:0,width:3,background:'#30A060'}} title="Верифицирована"/>}
       {t.n}
-      {t.rubrik&&<span title="Верифицирована" style={{position:'absolute',top:'50%',right:8,transform:'translateY(-50%)',width:16,height:16,borderRadius:'50%',background:'#30A060',color:'#fff',fontSize:9,display:'inline-flex',alignItems:'center',justifyContent:'center',fontWeight:700}}>✓</span>}
+      {active&&<span style={{position:'absolute',right:10,top:'50%',transform:'translateY(-50%)',color:'#0071e3',fontSize:15,fontWeight:700}}>✓</span>}
     </button>);};
 
   const Section=({title,items,empty})=>items.length===0?(empty?null:null):(
@@ -732,7 +733,7 @@ function Picker({pinned,onTogglePin,onClear,onClose}){
               :<button onClick={()=>{rubrikIds.forEach(id=>{if(!pinned.includes(id))onTogglePin(id);});}} style={{fontSize:11,color:'#30A060',border:'1px solid rgba(48,160,96,.3)',padding:'4px 12px',borderRadius:12,background:'transparent',cursor:'pointer'}}>✓ Только верифицированные</button>;})()}
             {pinnedCount>0&&pinnedCount<total&&<button onClick={onClear} style={{fontSize:11,color:'#E8364F',border:'1px solid rgba(232,54,79,.3)',padding:'4px 12px',borderRadius:12,background:'transparent',cursor:'pointer'}}>Снять все</button>}
             <div style={{flex:1}}/>
-            <span className="picker-legend" style={{fontSize:10,color:'#aeaeb2',display:'flex',alignItems:'center',gap:4}}><span style={{width:12,height:12,borderRadius:'50%',background:'#30A060',color:'#fff',fontSize:7,display:'inline-flex',alignItems:'center',justifyContent:'center',fontWeight:700}}>✓</span> верифицированные</span>
+            <span className="picker-legend" style={{fontSize:10,color:'#aeaeb2',display:'flex',alignItems:'center',gap:5}}><span style={{width:3,height:14,background:'#30A060',display:'inline-block',borderRadius:1}}/> верифицирована</span>
           </div>
         </div>
         {/* LIST */}
