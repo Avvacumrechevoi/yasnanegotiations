@@ -1786,15 +1786,15 @@ const LESSONS=[
       {type:'explanation',
         title:'Четыре точки, которые держат сутки',
         body:'Без **ночи** — был бы сплошной день, а это уже не сутки.\n\nБез **утра** — не успел бы проснуться и собраться.\n\nБез **дня** — некогда было бы работать и заниматься делами.\n\nБез **вечера** — некогда было бы прийти в себя после дня.\n\nЧетыре точки. Убери любую — и явление рассыплется. Это не просто «названия времени» — это **опоры**, на которых держится день.\n\nА теперь вспомни: сутки — это **цикл**. После вечера приходит новая ночь, и всё повторяется. Значит, эти четыре опоры можно расположить по кругу.'},
+      {type:'explanation',
+        title:'Опоры идут парами',
+        body:'У каждой из четырёх опор есть **противоположность** — опора на другой стороне круга, через центр.\n\n**Ночь — напротив Дня.** Темнота и свет. Покой и пик активности.\n\n**Утро — напротив Вечера.** Подъём и спад. Начало и завершение.\n\nЭто не случайно. Опоры всегда идут **парами противоположностей**. Две такие пары проходят через центр круга — и образуют две пересекающиеся линии.\n\nЭти две линии и есть **Опорный Крест**. Он держит сутки.'},
       {type:'yasna-star',
-        title:'Четыре опоры на круге суток',
+        title:'Опорный Крест суток',
         mode:'cross-labeled',
         highlighted:[0,3,6,9],
         labels:{0:'Ночь',3:'Утро',6:'День',9:'Вечер'},
-        caption:'Ночь внизу, День наверху, Утро слева, Вечер справа. Сутки идут по кругу от опоры к опоре.'},
-      {type:'explanation',
-        title:'Опоры идут парами',
-        body:'Посмотри на круг внимательно. У каждой опоры есть **противоположность** — опора на другой стороне круга, через центр.\n\n**Ночь — напротив Дня.** Темнота и свет. Покой и пик активности.\n\n**Утро — напротив Вечера.** Подъём и спад. Начало и завершение.\n\nЭто не случайно. Опоры всегда идут **парами противоположностей**. Две такие пары проходят через центр круга — и образуют две пересекающиеся линии.\n\nЭти две линии и есть **Опорный Крест**. Он держит сутки.'},
+        caption:'Две пересекающиеся линии через центр. Ночь и День на вертикали, Утро и Вечер на горизонтали. Это и есть Опорный Крест.'},
       {type:'gate',label:'Проверим на других явлениях',gateNum:2},
 
       // ━━ СЕКЦИЯ 3: ПРОВЕРКА · Дерево + Дом ━━
@@ -2592,8 +2592,8 @@ function LessonStar({mode,highlighted=[],labels={},visiblePositions=null,showNum
 
   return(
     <svg viewBox={`-170 -20 ${S+340} ${S+40}`} style={{width:'100%',height:'100%',maxHeight:420}}>
-      {/* Halves background */}
-      {(mode==='halves'||mode==='cross-outline'||mode==='cross-labeled'||mode==='longs'||mode==='shorts'||mode==='full')&&<>
+      {/* Halves background — only for halves mode (subtle bg tint), not for cross-labeled */}
+      {(mode==='halves'||mode==='cross-outline'||mode==='longs'||mode==='shorts'||mode==='full')&&<>
         <path d={`M ${cx-R-30} ${cy} A ${R+30} ${R+30} 0 0 1 ${cx+R+30} ${cy} Z`} fill="rgba(255,200,40,.07)"/>
         <path d={`M ${cx-R-30} ${cy} A ${R+30} ${R+30} 0 0 0 ${cx+R+30} ${cy} Z`} fill="rgba(40,60,160,.05)"/>
         <line x1={cx-R-30} y1={cy} x2={cx+R+30} y2={cy} stroke="#e5e5ea" strokeWidth="1" strokeDasharray="3 4"/>
@@ -2605,10 +2605,21 @@ function LessonStar({mode,highlighted=[],labels={},visiblePositions=null,showNum
         <text x={cx} y={cy+R+24} textAnchor="middle" fontSize="16" fontWeight="600" fill="#4060a0">🌙 Ночь · Тьма</text>
       </>}
 
-      {/* Vertical axis + circle */}
+      {/* Circle */}
       {showCircle&&(mode==='cross-outline'||mode==='cross-labeled'||mode==='longs'||mode==='shorts'||mode==='full')&&<>
-        <line x1={cx} y1={cy-R-20} x2={cx} y2={cy+R+20} stroke="#e5e5ea" strokeWidth="1" strokeDasharray="3 4"/>
         <circle cx={cx} cy={cy} r={R} fill="none" stroke="#e5e5ea" strokeWidth="1"/>
+      </>}
+
+      {/* Cross lines: in cross-labeled mode — ACCENT colors (visible cross);
+          in other modes — technical dashed gray */}
+      {mode==='cross-labeled'&&<>
+        {/* Vertical (0↔6, foundations) — gold */}
+        <line x1={cx} y1={cy-R-6} x2={cx} y2={cy+R+6} stroke="#E8A52B" strokeWidth="2.5" strokeLinecap="round"/>
+        {/* Horizontal (3↔9, transitions) — blue */}
+        <line x1={cx-R-6} y1={cy} x2={cx+R+6} y2={cy} stroke="#3B7BC7" strokeWidth="2.5" strokeLinecap="round"/>
+      </>}
+      {(mode==='cross-outline'||mode==='longs'||mode==='shorts'||mode==='full')&&<>
+        <line x1={cx} y1={cy-R-20} x2={cx} y2={cy+R+20} stroke="#e5e5ea" strokeWidth="1" strokeDasharray="3 4"/>
       </>}
 
       {/* Star connecting lines — two overlapping hexagons make the Ясна-Звезда */}
