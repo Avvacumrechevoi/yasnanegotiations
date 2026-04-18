@@ -1781,7 +1781,7 @@ const LESSONS=[
         duration:'12–15 минут'},
       {type:'speaker',
         name:'Наставник',
-        role:'Курс «Как устроена жизнь»',
+        role:'Курс по Ясне',
         avatar:'logo',
         text:'Привет. Меня часто спрашивают: «Ясна — это эзотерика?» Нет. Это метод, который учит видеть устройство любого явления — дня, недели, проекта, разговора.\n\nУ любого живого циклического явления есть **четыре опоры**. Они не случайны. Их можно научиться видеть — и тогда многое становится на места.\n\nСегодня — знакомство. В уроке 2 начнём тренировку.'},
       {type:'gate',label:'Начинаем со знакомого',gateNum:1},
@@ -1911,7 +1911,7 @@ const LESSONS=[
         duration:'12–15 минут'},
       {type:'speaker',
         name:'Наставник',
-        role:'Курс «Как устроена жизнь»',
+        role:'Курс по Ясне',
         avatar:'logo',
         text:'Напомню о методе. **Ясна** — способ разложить любое явление на 12 частей. Мы смотрим на это как на спираль: каждый следующий урок возвращает нас к знакомой структуре, но на более глубоком уровне.\\n\\nПервый урок дал общую карту из 12 полочек. Сегодняшний — зум в одну из них.'},
       {type:'gate',label:'Посмотрим на данные',gateNum:1},
@@ -1950,7 +1950,7 @@ const LESSONS=[
       // ━━ СЕКЦИЯ 4: ТВОЯ НОЧЬ ━━
       {type:'speaker',
         name:'Наставник',
-        role:'Курс «Как устроена жизнь»',
+        role:'Курс по Ясне',
         avatar:'logo',
         text:'Теперь посмотрим, как полочка 0 устроена у тебя. Ниже — список привычек.\n\nОтмечай только то, что **действительно есть в твоей жизни**. Это не тест на правильность — это наблюдение. После каждого клика появится короткий комментарий.'},
       {type:'checkbox-quiz',
@@ -1987,7 +1987,7 @@ const LESSONS=[
       // ━━ СЕКЦИЯ 5: ТРИ СЛУЧАЯ ━━
       {type:'speaker',
         name:'Наставник',
-        role:'Курс «Как устроена жизнь»',
+        role:'Курс по Ясне',
         avatar:'logo',
         text:'Три случая из практики. Имена изменены, ситуации собирательные. У каждого своя профессия и свой график. Посмотрим, работает ли у них полочка 0.'},
       {type:'scenario',
@@ -2148,7 +2148,7 @@ const LESSONS=[
         duration:'14–18 минут'},
       {type:'speaker',
         name:'Наставник',
-        role:'Курс «Как устроена жизнь»',
+        role:'Курс по Ясне',
         avatar:'logo',
         text:'В уроке 2 ты разобрал полочку 0 изнутри: ядро + рамка «подготовка» + рамка «возвращение». Держи эту тройку в голове.\\n\\nСегодня она вернётся в новом виде. **Рамка «возвращение» из ночи переходит в полочку 1 — Искру.** А дальше — Заря и Утро. Три полочки, один и тот же принцип перехода из сна в активность.'},
       {type:'gate',label:'Начнём с биологии',gateNum:1},
@@ -2156,7 +2156,7 @@ const LESSONS=[
       // ━━ СЕКЦИЯ 2: КОРТИЗОЛ ━━
       {type:'speaker',
         name:'Наставник',
-        role:'Курс «Как устроена жизнь»',
+        role:'Курс по Ясне',
         avatar:'logo',
         text:'Сначала — один биологический факт, который меняет представление об утре. Разберём его, потом покажем на анимации.'},
       {type:'explanation',
@@ -2170,7 +2170,7 @@ const LESSONS=[
       // ━━ СЕКЦИЯ 3: ТРИ ПОЛОЧКИ ━━
       {type:'speaker',
         name:'Наставник',
-        role:'Курс «Как устроена жизнь»',
+        role:'Курс по Ясне',
         avatar:'logo',
         text:'В Ясне утро — это не одна полочка, а три. Каждая отвечает за свой этап. Даю определения.'},
       {type:'explanation',
@@ -2194,7 +2194,7 @@ const LESSONS=[
       // ━━ СЕКЦИЯ 4: DND — расставь по полочкам ━━
       {type:'speaker',
         name:'Наставник',
-        role:'Курс «Как устроена жизнь»',
+        role:'Курс по Ясне',
         avatar:'logo',
         text:'Сейчас разложим конкретные моменты типичного утра по трём полочкам. Для каждого нажми цифру полочки. Не угадывай — подумай, о какой фазе идёт речь.'},
       {type:'three-shelves',
@@ -2227,7 +2227,7 @@ const LESSONS=[
       // ━━ СЕКЦИЯ 5: ТРИ РЕАЛЬНЫХ УТРА ━━
       {type:'speaker',
         name:'Наставник',
-        role:'Курс «Как устроена жизнь»',
+        role:'Курс по Ясне',
         avatar:'logo',
         text:'Три истории. У каждого своё утро — разные профессии, разные задачи. Смотри, где какие полочки работают, а где нет.'},
       {type:'scenario',
@@ -2283,7 +2283,7 @@ const LESSONS=[
       // ━━ СЕКЦИЯ 6: CAROUSEL — 5 утренних режимов ━━
       {type:'speaker',
         name:'Наставник',
-        role:'Курс «Как устроена жизнь»',
+        role:'Курс по Ясне',
         avatar:'logo',
         text:'Полочки 1–2–3 работают везде, но форма у них разная. Пять примеров из разных профессий — пролистай карусель.'},
       {type:'carousel',
@@ -3454,24 +3454,16 @@ function TocBlock({block}){
 
 // Custom avatar: tiny Ясна star fragment — geometric identity mark
 function YasnaAvatar({size=40}){
-  const s=size;
-  const cx=s/2, cy=s/2;
-  const r=s*0.32;
-  // Draw a simple 12-point glyph: 12 dots in a circle with polochka 0 highlighted
-  const dots=[];
-  for(let i=0;i<12;i++){
-    const ang=(i/12)*Math.PI*2 - Math.PI/2; // start from top
-    const x=cx+Math.cos(ang)*r;
-    const y=cy+Math.sin(ang)*r;
-    const active=i===6; // "0" is at the bottom (i=6)
-    dots.push(<circle key={i} cx={x} cy={y} r={active?s*0.09:s*0.055} fill={active?'#FFB020':'#fff'} opacity={active?1:0.85}/>);
-  }
+  // Real logo from the brand guide (docs/assets/logo-yasna.png).
+  // Replaces the earlier procedural SVG — PNG gives precise visual match.
   return(
-    <svg width={s} height={s} viewBox={`0 0 ${s} ${s}`}>
-      <circle cx={cx} cy={cy} r={s/2} fill="#0071e3"/>
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#fff" strokeWidth={s*0.035} opacity={0.35}/>
-      {dots}
-    </svg>);
+    <img
+      src="assets/logo-yasna.png"
+      alt="Ясна"
+      width={size}
+      height={size}
+      style={{display:'block',width:size,height:size,objectFit:'contain'}}
+    />);
 }
 
 function SpeakerBlock({block}){
@@ -3481,7 +3473,7 @@ function SpeakerBlock({block}){
       <div style={{background:'#F4F8FD',borderRadius:16,padding:'20px 22px',border:'1px solid #E0ECF7'}}>
         <div style={{display:'flex',gap:12,alignItems:'center',marginBottom:12}}>
           {useAvatarLogo
-            ? <div style={{flexShrink:0,boxShadow:'0 2px 6px rgba(0,113,227,.25)',borderRadius:'50%',width:40,height:40,overflow:'hidden'}}><YasnaAvatar size={40}/></div>
+            ? <div style={{flexShrink:0,borderRadius:'50%',width:52,height:52,overflow:'hidden',background:'#fff',border:'1px solid #E0ECF7',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 1px 3px rgba(15,27,42,.06)'}}><YasnaAvatar size={44}/></div>
             : <div style={{width:40,height:40,borderRadius:'50%',background:block.avatarColor||'#0071e3',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontWeight:700,flexShrink:0,boxShadow:'0 2px 6px rgba(0,113,227,.25)'}}>{block.avatar||'?'}</div>
           }
           <div>
