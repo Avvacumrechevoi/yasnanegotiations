@@ -1750,98 +1750,115 @@ const LESSONS=[
   {
     id:'l1_intro',
     order:1,
+    format:'scroll',
+    module:'Базовый курс · Метод Ясны',
+    moduleOrder:1,
     title:'Что такое Ясна?',
-    subtitle:'Разложим сутки по полочкам',
-    duration:'7–10 мин',
+    subtitle:'Знакомство с методом и Опорным Крестом',
+    duration:'12–15 мин',
     yasna:'суток',
-    steps:[
-      // Step 1: Intro
-      {type:'intro',title:'Что такое Ясна?',
-        body:'Это первый урок курса — первый виток спирали.\n\nСейчас мы разложим то, что ты знаешь с детства — сутки — на 12 частей. Этого достаточно, чтобы увидеть общий скелет метода.\n\nДальше в курсе эти же 12 частей будут возвращаться снова и снова, каждый раз глубже. Поехали.',
-        cta:'Начать'},
-      // Step 2: Animation — path of the Sun
-      {type:'animation-sun',
-        title:'Путь Солнца',
-        body:'Посмотри на Солнце. За сутки оно проходит полный круг.\n\n☀️ Над горизонтом — видимая часть, день.\n🌙 Под горизонтом — скрытая часть, ночь.\n\nЗемля вращается, а мы видим, как Солнце идёт слева направо. Горизонт делит этот круг на две половины.',
-        cta:'Понятно'},
-      // Step 3: DnD — halves
-      {type:'dnd-halves',
-        title:'Где свет, а где тьма?',
-        body:'Перетащи карточки в правильные половины круга.',
-        items:[{id:'light',label:'☀️ Свет (День)',correctSlot:'top'},{id:'dark',label:'🌙 Тьма (Ночь)',correctSlot:'bottom'}],
-        success:'Верно. Горизонт делит сутки на свет и тьму.'},
-      // Step 4: Animation — 4 pillars appear
-      {type:'animation-cross',
-        title:'Четыре опоры',
-        body:'Внутри круга есть четыре момента, которые знает каждый.\n\n0 — Ночь: Солнца нет, темно.\n3 — Утро: Солнце выходит из-за горизонта.\n6 — День: Солнце на вершине.\n9 — Вечер: Солнце уходит за горизонт.\n\nЭто Опорный Крест — скелет Ясны. На нём держится всё остальное.',
-        cta:'Расставить самому'},
-      // Step 5: DnD — place opornyi yourself
-      {type:'dnd-cross',
-        title:'Поставь опоры сам',
-        body:'Перетащи четыре карточки на правильные позиции круга.',
+    blocks:[
+      // ━━ СЕКЦИЯ 1: ВХОД ━━
+      {type:'hero',
+        eyebrow:'Урок 1 · Базовый курс',
+        title:'Что такое Ясна?',
+        lead:'Коротко о методе, который учит видеть устройство любого явления — от суток до рабочего проекта. Начнём с того, что знакомо всем.'},
+      {type:'toc',
+        title:'Что будет в этом уроке',
+        intro:'Разберём первую и главную механику Ясны — Опорный Крест. Четыре опоры, которые есть в любом цикле.',
+        itemsHeader:'Пойдём по шагам:',
         items:[
-          {id:'night',label:'Ночь',correctPos:0},
-          {id:'morning',label:'Утро',correctPos:3},
-          {id:'day',label:'День',correctPos:6},
-          {id:'evening',label:'Вечер',correctPos:9}
+          'Начнём с **суток** — самого знакомого цикла',
+          'Увидим **четыре момента**, которые есть у каждого дня',
+          'Обнаружим, что **то же самое** есть в других явлениях',
+          'Проверим понимание — **три простых вопроса**',
+          'Узнаем, **куда идти дальше**'
         ],
-        success:'Опорный Крест на месте. Теперь усложним.'},
-      // Step 6: Animation — 6 longs (чётные) appear one by one
-      {type:'animation-longs',
-        title:'Шесть долгих состояний',
-        body:'Между четырьмя опорами есть ещё состояния. Долгие — те, что тянутся часами:\n\n0 — Ночь · 2 — Заря · 4 — Восход\n6 — День · 8 — Закат · 10 — Сумерки\n\nШесть долгих состояний на чётных позициях. Это не события, а режимы, в которых мы живём часами.',
-        cta:'А теперь короткие'},
-      // Step 7: Animation — shorts + mini quiz
-      {type:'animation-shorts-quiz',
-        title:'Шесть коротких переходов',
-        body:'Между долгими живут короткие переходы — те, что длятся минуты:\n\n1 — Искра · 3 — Утро · 5 — Восход\n7 — Полдень · 9 — Вечер · 11 — Полночь\n\nШесть коротких на нечётных позициях.\n\nИтого: 6 долгих + 6 коротких = **12 полочек**.',
-        quiz:{
-          question:'Какое состояние длится часами?',
-          options:['Ночь (позиция 0)','Искра (позиция 1)'],
-          correctIdx:0,
-          successMsg:'Верно. Ночь — чётная позиция (0), долгое состояние. Искра — нечётная (1), короткий переход длиной в минуты.',
-          errorMsg:'Нет. Искра — короткий переход на нечётной позиции, она длится минуты. Ночь — чётная, долгое состояние на часы.'
-        }},
-      // Step 8: Transform to star
-      {type:'transform-star',
-        title:'Одно и то же — двумя способами',
-        body:'Круг с 12 точками можно изобразить как звезду. Это та же структура, просто вид другой.\n\nКаждая из 12 позиций называется **полочкой**. А разложить любое явление в Ясну — значит разложить его по этим 12 полочкам.',
-        cta:'Посмотреть примеры'},
-      // Step 9: Carousel — examples of other cycles
-      {type:'carousel-examples',
-        title:'Один закон — разные явления',
-        body:'Любой завершённый цикл можно разложить на 12 полочек. Пролистай карусель — увидишь, как один и тот же закон работает для разных явлений.',
-        examples:[
-          {emoji:'☀️',title:'Сутки',subtitle:'Наш исходный пример',color:'#E8954A',type:'sun',
-           palette:['#1B2A4A','#3D5480','#6B8AB8','#9FBCE0','#FFD5A0','#FFB878','#FFA048','#FFB878','#FFD5A0','#9FBCE0','#6B8AB8','#3D5480'],
-           items:['Ночь','Искра','Заря','Утро','Восход','Полдень перед','День','Полдень','Закат','Вечер','Сумерки','Полночь']},
-          {emoji:'🌱',title:'Жизнь человека',subtitle:'От зачатия до ухода',color:'#4A9D68',type:'life',
-           palette:['#A8E0B8','#4A9D68','#2D7A4A','#4A9D68','#6BB388','#8FC4A3','#E8A23B','#C89030','#B08440','#9A7848','#8F7860','#6B6B6B'],
-           items:['Зачатие','Росток','Беременность','Рождение','Детство','Юность','Зрелость','Мудрость','Старение','Уход','Память','Завершение']},
-          {emoji:'🔥',title:'Огонь',subtitle:'От искры до пепла',color:'#E8364F',type:'fire',
-           palette:['#6B7A8F','#E8A23B','#D46B6B','#E8364F','#FF5530','#FF7538','#FF4518','#FF5530','#D46B6B','#A85050','#6B6060','#4A5060'],
-           items:['Покой','Искра','Тление','Возгорание','Разгорание','Треск','Пламя','Жар','Спад','Угли','Затухание','Зола']}
+        outcomesHeader:'После урока ты поймёшь:',
+        outcomes:[
+          'Что такое Ясна — без эзотерики, по делу',
+          'Что у цикла есть четыре главные опоры',
+          'Почему на этом методе можно строить понимание любой области жизни'
         ],
-        cta:'Закрепить'},
-      // Step 10: Final quiz
-      {type:'final-quiz',
-        title:'Проверим понимание',
-        questions:[
-          {q:'Сколько полочек в Ясне?',options:['8','10','12','24'],correctIdx:2,explain:'12 — это 6 долгих (чётные позиции) плюс 6 коротких (нечётные).'},
-          {q:'На какой полочке Солнце на вершине?',options:['0','3','6','9'],correctIdx:2,explain:'6 — это День. Солнце в зените, свет максимален. Это середина верхней половины круга.'},
-          {q:'Опорный Крест — это...',options:['4 случайные позиции','4 главные опоры: Ночь, Утро, День, Вечер','4 коротких перехода'],correctIdx:1,explain:'Опорный Крест — скелет Ясны. Ночь, Утро, День, Вечер. Без этих четырёх опор цикл не держится.'}
+        duration:'12–15 минут'},
+      {type:'speaker',
+        name:'Наставник',
+        role:'Курс «Как устроена жизнь»',
+        avatar:'logo',
+        text:'Привет. Меня часто спрашивают: «Ясна — это эзотерика?» Нет. Это метод, который учит видеть устройство любого явления — дня, недели, проекта, разговора.\n\nУ любого живого циклического явления есть **четыре опоры**. Они не случайны. Их можно научиться видеть — и тогда многое становится на места.\n\nСегодня — знакомство. В уроке 2 начнём тренировку.'},
+      {type:'gate',label:'Начинаем со знакомого',gateNum:1},
+
+      // ━━ СЕКЦИЯ 2: ОТКРЫТИЕ — сутки как знакомый цикл ━━
+      {type:'explanation',
+        title:'Сутки — самый знакомый цикл',
+        body:'Каждый из нас прожил тысячи дней. Сутки — это явление, которое ты **уже знаешь** наизусть.\n\nДавай посмотрим на них не как на поток, а как на **структуру**. Что если в сутках есть моменты, которые повторяются — и не случайно, а по закону?'},
+      {type:'explanation',
+        title:'Четыре момента, которые знает каждый',
+        body:'Посмотри на один день внимательно. В нём есть:\n\n• **Ночь** — когда темно, все спят, ничего не происходит\n• **Утро** — солнце выходит, всё просыпается, начинается движение\n• **День** — свет в полной силе, работа в разгаре\n• **Вечер** — солнце уходит, всё замедляется, возвращается покой\n\nЭто не просто названия. Это **четыре опоры** — устойчивые точки, между которыми сутки движутся как по кругу. Мы называем эту структуру **Опорный Крест**.'},
+      {type:'yasna-star',
+        title:'Опорный Крест в сутках',
+        highlighted:[0,3,6,9],
+        labels:{0:'Ночь',3:'Утро',6:'День',9:'Вечер'},
+        caption:'Ночь (0) · Утро (3) · День (6) · Вечер (9). Между опорами — ещё 8 полочек. Разберём их в следующих уроках.'},
+      {type:'gate',label:'Та же структура в других явлениях',gateNum:2},
+
+      // ━━ СЕКЦИЯ 3: ОБОБЩЕНИЕ — 4 опоры везде ━━
+      {type:'explanation',
+        title:'Та же структура — в других явлениях',
+        body:'Самое интересное начинается здесь. **Четыре опоры** есть не только у суток. Они есть у любого явления, которое идёт по циклу.\n\nПосмотри на три примера. В каждом — те же четыре фазы: начало, подъём, пик, спад.'},
+      {type:'carousel',
+        title:'Одна структура — три разных явления',
+        items:[
+          {emoji:'🌓',title:'Сутки',subtitle:'Цикл дня и ночи',color:'#4A7CD1',
+           pillars:[{pos:0,label:'Ночь'},{pos:3,label:'Утро'},{pos:6,label:'День'},{pos:9,label:'Вечер'}]},
+          {emoji:'🌱',title:'Жизнь растения',subtitle:'Из Ясны Дерева',color:'#4A9D68',
+           pillars:[{pos:0,label:'Корни'},{pos:3,label:'Плод'},{pos:6,label:'Лепесток'},{pos:9,label:'Лист'}]},
+          {emoji:'💧',title:'Круговорот воды',subtitle:'Природный цикл',color:'#3EA0C6',
+           pillars:[{pos:0,label:'Грязь'},{pos:3,label:'Река'},{pos:6,label:'Облако'},{pos:9,label:'Туча'}]}
         ]},
-      // Step 11: Summary
-      {type:'summary',
-        title:'Первый виток пройден',
-        achievements:[
-          'Ясна — это карта любого цикла из 12 полочек',
-          '6 долгих состояний (чётные) + 6 коротких переходов (нечётные)',
-          'Опорный Крест: Ночь, Утро, День, Вечер — скелет всего цикла'
+      {type:'explanation',
+        title:'Главный вывод первого урока',
+        body:'Ты только что увидел, что **четыре опоры** работают и в сутках, и в жизни дерева, и в круговороте воды.\n\nЭто и есть Ясна — **у всех явлений одинаковое внутреннее устройство**. Зная эту структуру, ты научишься раскладывать любое явление из своей жизни.\n\nВ уроке 2 начнём с самого главного — как уверенно **находить четыре опоры** в любом новом явлении.'},
+      {type:'gate',label:'Проверим понимание',gateNum:3},
+
+      // ━━ СЕКЦИЯ 4: ПРОВЕРКА ━━
+      {type:'final-quiz-inline',
+        title:'Три вопроса на понимание',
+        intro:'Ответь на каждый вопрос, чтобы закрепить материал.',
+        questions:[
+          {q:'Ясна — это...',
+           options:['Эзотерическое учение о тайных знаниях','Метод, который показывает устройство любого явления','Астрологическая система'],
+           correctIdx:1,
+           explain:'Ясна — практический метод. В нём нет ничего тайного, его можно освоить и применять в работе, отношениях, быту.'},
+          {q:'Опорный Крест — это...',
+           options:['Религиозный символ','Четыре главные опоры любого цикла','Особая фигура из геометрии'],
+           correctIdx:1,
+           explain:'Опорный Крест — это четыре устойчивые точки цикла: ночь/утро/день/вечер в сутках, начало/подъём/пик/спад в любом явлении.'},
+          {q:'Почему у жизни дерева, суток и круговорота воды один и тот же узор из 4 опор?',
+           options:['Случайное совпадение','Все три явления про природу','Потому что у всех циклов одно устройство — это главное открытие Ясны'],
+           correctIdx:2,
+           explain:'Это не совпадение, это закон. Ясна называется так, потому что делает устройство явлений ясным — видимым.'}
+        ]},
+
+      // ━━ СЕКЦИЯ 5: ВЫХОД ━━
+      {type:'summary-block',
+        title:'Что ты теперь знаешь',
+        items:[
+          'Ясна — метод, а не эзотерика',
+          'У любого цикла есть 4 опоры: начало, подъём, пик, спад',
+          'Эти опоры называются **Опорный Крест**',
+          'Та же структура работает в самых разных явлениях'
         ],
-        next:'Это был первый виток. Дальше ты увидишь, что каждая полочка сама по себе имеет внутреннее устройство. Начнём с Ночи — урок 2 в модуле «Как устроены сутки».'},
-      // Step 12: Next steps
-      {type:'next-steps'}
+        closingLine:'В первом уроке ты получил карту. Дальше — учимся по ней двигаться.'},
+      {type:'next-steps-block',
+        title:'Куда дальше',
+        intro:'Ты увидел, что у явлений есть структура. Теперь нужно научиться её **находить** — быстро и уверенно.',
+        nextLessonId:'b2_four_pillars',
+        nextLessonTitle:'Урок 2 · Четыре опоры',
+        nextLessonSubtitle:'Главная тренировка Базового курса — найдёшь Опорный Крест в 5 разных явлениях',
+        nextLessonDuration:'~20 минут',
+        nextLessonStatus:'planned'
+      }
     ]
   },
   // ─────────────────────────────────────────────────────────────────
@@ -3609,14 +3626,17 @@ function ScenarioBlock({block}){
 function YasnaStarBlock({block}){
   const highlighted=block.highlightPositions!=null
     ? block.highlightPositions
-    : (block.highlightPos!=null ? [block.highlightPos] : []);
+    : block.highlighted!=null
+      ? block.highlighted
+      : (block.highlightPos!=null ? [block.highlightPos] : []);
+  const labels=block.labels||{};
   return(
     <div style={{padding:'20px 24px',maxWidth:680,margin:'0 auto'}}>
       <div style={{background:'#F8FAFC',borderRadius:16,padding:'24px 20px',border:'1px solid #E5E9EF',textAlign:'center'}}>
-        {block.title&&<div style={{fontSize:13,fontWeight:600,color:'#0D1B2A',marginBottom:10}}>{block.title}</div>}
+        {block.title&&<div style={{fontSize:14,fontWeight:700,color:'#0D1B2A',marginBottom:12}}>{block.title}</div>}
         <div style={{height:260,display:'flex',alignItems:'center',justifyContent:'center'}}>
           <div className="yasna-star-pulse" style={{width:'100%',maxWidth:260,height:'100%'}}>
-            <LessonStar mode="full" highlighted={highlighted} focusType="longs"/>
+            <LessonStar mode="full" highlighted={highlighted} labels={labels} focusType="longs"/>
           </div>
         </div>
         {block.caption&&<div style={{fontSize:13,color:'#6E7781',marginTop:10,lineHeight:1.55}}>{block.caption}</div>}
@@ -3725,9 +3745,26 @@ function SummaryBlockInline({block}){
 
 function NextStepsBlockInline({block,onClose,onPickAnother,onRepeat}){
   return(
-    <div style={{padding:'16px 24px 60px',maxWidth:680,margin:'0 auto',display:'flex',flexDirection:'column',gap:10}}>
-      <button onClick={onPickAnother} style={{fontSize:15,fontWeight:600,padding:'14px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer',boxShadow:'0 4px 14px rgba(0,113,227,.3)'}}>← Вернуться к списку уроков</button>
-      <button onClick={onRepeat} style={{fontSize:14,fontWeight:500,padding:'12px 24px',borderRadius:12,border:'1px solid #E5E5EA',background:'#fff',color:'#3D4852',cursor:'pointer'}}>⟲ Пройти ещё раз</button>
+    <div style={{padding:'16px 24px 60px',maxWidth:680,margin:'0 auto'}}>
+      {/* Custom next-lesson promo (optional) */}
+      {block.nextLessonTitle&&(
+        <div style={{background:'#fff',border:'1px solid #E5E5EA',borderRadius:14,padding:'18px 18px',marginBottom:12,boxShadow:'0 1px 3px rgba(15,27,42,.05)'}}>
+          {block.title&&<div style={{fontSize:10,fontWeight:700,color:'#0071e3',textTransform:'uppercase',letterSpacing:0.8,marginBottom:6}}>{block.title}</div>}
+          {block.intro&&<div style={{fontSize:13.5,color:'#3D4852',lineHeight:1.55,marginBottom:14}}>{renderRichText(block.intro)}</div>}
+          <div style={{padding:'14px 14px',background:'#F0F7FF',borderRadius:12,border:'1px solid #C6E0FA'}}>
+            <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6}}>
+              <div style={{fontSize:14,fontWeight:700,color:'#0D1B2A',flex:1,minWidth:0}}>{block.nextLessonTitle}</div>
+              {block.nextLessonStatus==='planned'&&<span style={{fontSize:10,fontWeight:700,color:'#6E7781',background:'#EEF0F3',padding:'3px 8px',borderRadius:10,letterSpacing:0.3,textTransform:'uppercase',whiteSpace:'nowrap'}}>скоро</span>}
+            </div>
+            {block.nextLessonSubtitle&&<div style={{fontSize:12.5,color:'#3D4852',lineHeight:1.5,marginBottom:4}}>{block.nextLessonSubtitle}</div>}
+            {block.nextLessonDuration&&<div style={{fontSize:11.5,color:'#6E7781'}}>{block.nextLessonDuration}</div>}
+          </div>
+        </div>
+      )}
+      <div style={{display:'flex',flexDirection:'column',gap:10}}>
+        <button onClick={onPickAnother} style={{fontSize:15,fontWeight:600,padding:'14px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer',boxShadow:'0 4px 14px rgba(0,113,227,.3)',fontFamily:'inherit'}}>← Вернуться к списку уроков</button>
+        <button onClick={onRepeat} style={{fontSize:14,fontWeight:500,padding:'12px 24px',borderRadius:12,border:'1px solid #E5E5EA',background:'#fff',color:'#3D4852',cursor:'pointer',fontFamily:'inherit'}}>⟲ Пройти ещё раз</button>
+      </div>
     </div>);
 }
 
@@ -3887,6 +3924,40 @@ function InlineCarouselBlock({block}){
     setActiveIdx(Math.min(i,block.items.length-1));
   };
 
+  // Mini-star for pillars visualization
+  const PillarsMini=({pillars,color})=>{
+    const size=130, cx=size/2, cy=size/2, r=size*0.36;
+    const posAngle=(i)=>Math.PI/2 + (i/12)*Math.PI*2;
+    const pt=(i)=>{const a=posAngle(i);return{x:cx+Math.cos(a)*r, y:cy-Math.sin(a)*r};};
+    const pillarPositions=pillars.map(p=>p.pos);
+    return(
+      <svg viewBox={`0 0 ${size} ${size}`} style={{width:'100%',maxWidth:150,display:'block',margin:'0 auto'}}>
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke={color+'33'} strokeWidth="1" strokeDasharray="2 3"/>
+        {/* cross lines */}
+        {[[0,6],[3,9]].map(([a,b],i)=>{
+          const pa=pt(a), pb=pt(b);
+          return<line key={i} x1={pa.x} y1={pa.y} x2={pb.x} y2={pb.y} stroke={color+'55'} strokeWidth="1.5"/>;
+        })}
+        {/* 12 dots — only 4 pillars are colored, rest are muted */}
+        {Array.from({length:12}).map((_,i)=>{
+          const p=pt(i);
+          const isPillar=pillarPositions.includes(i);
+          return<circle key={i} cx={p.x} cy={p.y} r={isPillar?6:2.5} fill={isPillar?color:'#D1D1D6'}/>;
+        })}
+        {/* pillar labels */}
+        {pillars.map(p=>{
+          const pos=pt(p.pos);
+          const outR=r+18;
+          const a=posAngle(p.pos);
+          const lx=cx+Math.cos(a)*outR, ly=cy-Math.sin(a)*outR;
+          return(
+            <g key={p.pos}>
+              <text x={lx} y={ly+4} textAnchor="middle" fontSize="10" fontWeight="700" fill={color}>{p.label}</text>
+            </g>);
+        })}
+      </svg>);
+  };
+
   return(
     <div style={{padding:'16px 0',maxWidth:680,margin:'0 auto'}}>
       <div style={{padding:'0 24px',marginBottom:14}}>
@@ -3899,11 +3970,12 @@ function InlineCarouselBlock({block}){
         style={{display:'flex',gap:12,overflowX:'auto',scrollSnapType:'x mandatory',padding:'4px 24px 12px',WebkitOverflowScrolling:'touch',scrollbarWidth:'none'}}
       >
         {block.items.map((item,i)=>(
-          <div key={i} style={{flex:'0 0 78%',maxWidth:320,scrollSnapAlign:'start',background:item.bg||'#fff',borderRadius:14,padding:'18px 18px',border:'1px solid '+(item.accent||'#E5E5EA'),boxShadow:'0 1px 3px rgba(15,27,42,.05)'}}>
+          <div key={i} style={{flex:'0 0 78%',maxWidth:320,scrollSnapAlign:'start',background:item.bg||'#fff',borderRadius:14,padding:'18px 18px',border:'1px solid '+(item.color||item.accent||'#E5E5EA')+'40',boxShadow:'0 1px 3px rgba(15,27,42,.05)'}}>
             {item.emoji&&<div style={{fontSize:26,marginBottom:8}}>{item.emoji}</div>}
             <div style={{fontSize:15,fontWeight:700,color:'#0D1B2A',marginBottom:3,lineHeight:1.3}}>{item.title}</div>
             {item.subtitle&&<div style={{fontSize:11.5,color:'#6E7781',marginBottom:12,textTransform:'uppercase',letterSpacing:0.6,fontWeight:600}}>{item.subtitle}</div>}
-            <div style={{fontSize:13.5,color:'#3D4852',lineHeight:1.6,whiteSpace:'pre-wrap'}}>{renderRichText(item.body)}</div>
+            {item.pillars && <div style={{padding:'12px 0 8px'}}><PillarsMini pillars={item.pillars} color={item.color||'#0071e3'}/></div>}
+            {item.body && <div style={{fontSize:13.5,color:'#3D4852',lineHeight:1.6,whiteSpace:'pre-wrap'}}>{renderRichText(item.body)}</div>}
           </div>
         ))}
       </div>
