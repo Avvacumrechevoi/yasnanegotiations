@@ -181,6 +181,15 @@ input{font-family:var(--sans)}
 .scroll-lesson-block-appear {
   animation: blockAppear 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+@keyframes gateHint {
+  0%, 100% { box-shadow: 0 4px 16px rgba(0,113,227,.32); }
+  50% { box-shadow: 0 6px 22px rgba(0,113,227,.5); }
+}
+
+.gate-active {
+  animation: gateHint 2.2s ease-in-out infinite;
+}
 </style>
 </head>
 <body>
@@ -189,7 +198,7 @@ input{font-family:var(--sans)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
 <script type="text/babel">
-const{useState,useMemo,useEffect,useRef}=React;
+const{useState,useMemo,useEffect,useRef,useCallback}=React;
 const CR={support:{id:'support',n:'Крест Опоры',p:[0,3,6,9],c:'#E8364F',v:'Надежда',
    questions:['Если убрать этот элемент — Ясна всё ещё имеет смысл? Если да — он не Опорный.','Это одно из 4 самых важных состояний/событий в вашем явлении?'],
    mistakes:['Поставить второстепенный элемент на опорную позицию.','Забыть проверить ось: 0 и 6 должны быть антиподами, 3 и 9 тоже.'],
@@ -2861,9 +2870,10 @@ function ExplanationBlock({block}){
     </div>);
 }
 
-function GateBlock({block,isActive,isUnlocked,onUnlock}){
+function GateBlock({block,isActive,isUnlocked,canUnlock,onUnlock}){
   // isUnlocked: этот gate уже пройден (следующая секция раскрыта)
   // isActive: этот gate — текущий (кнопка активна)
+  // canUnlock: все требуемые активности в текущей секции выполнены
   if(isUnlocked){
     return(
       <div style={{padding:'20px 24px',maxWidth:680,margin:'0 auto',display:'flex',alignItems:'center',gap:10,justifyContent:'center'}}>
@@ -2873,10 +2883,25 @@ function GateBlock({block,isActive,isUnlocked,onUnlock}){
         </div>
       </div>);
   }
+  if(!canUnlock){
+    return(
+      <div style={{padding:'28px 24px 32px',maxWidth:680,margin:'0 auto',display:'flex',flexDirection:'column',alignItems:'center',gap:10}}>
+        <button
+          disabled
+          style={{
+            fontSize:15,fontWeight:600,color:'#A8A8B0',padding:'14px 32px',
+            borderRadius:14,border:'1px solid #E5E5EA',background:'#F5F5F7',
+            cursor:'not-allowed',fontFamily:'inherit',transition:'all .2s'
+          }}
+        >{block.label||'Продолжить'} →</button>
+        <div style={{fontSize:12,color:'#8A8A8F',textAlign:'center',lineHeight:1.5}}>↑ Сначала ответь на вопросы выше</div>
+      </div>);
+  }
   return(
     <div style={{padding:'28px 24px 32px',maxWidth:680,margin:'0 auto',display:'flex',justifyContent:'center'}}>
       <button
         onClick={onUnlock}
+        className="gate-active"
         style={{
           fontSize:15,fontWeight:600,color:'#fff',padding:'14px 32px',
           borderRadius:14,border:'none',background:'#0071e3',cursor:'pointer',
@@ -2889,12 +2914,15 @@ function GateBlock({block,isActive,isUnlocked,onUnlock}){
     </div>);
 }
 
-function CheckboxQuizBlock({block,blockId}){
+function CheckboxQuizBlock({block,blockId,onComplete}){
   const[checked,setChecked]=useState({});
   const[interacted,setInteracted]=useState(false);
   const single=!!block.single;
   const toggle=(id)=>{
-    setInteracted(true);
+    if(!interacted){
+      setInteracted(true);
+      if(onComplete)onComplete();
+    }
     if(single){setChecked({[id]:true});}
     else {setChecked(prev=>({...prev,[id]:!prev[id]}));}
   };
@@ -2996,8 +3024,13 @@ function ReflectionBlock({block,lessonId}){
     </div>);
 }
 
-function FinalQuizInlineBlock({block}){
+function FinalQuizInlineBlock({block,onComplete}){
   const[answers,setAnswers]=useState({});
+  useEffect(()=>{
+    if(Object.keys(answers).length===block.questions.length&&onComplete){
+      onComplete();
+    }
+  },[Object.keys(answers).length]);
   return(
     <div style={{padding:'20px 24px',maxWidth:680,margin:'0 auto'}}>
       <div style={{background:'#fff',borderRadius:16,padding:'24px 24px',border:'1px solid #E5E5EA'}}>
@@ -3080,8 +3113,39 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother}){
     return res;
   },[lesson.id]);
 
+  // For each gate: list of block indices that must be completed before it can unlock
+  const gateRequirements=useMemo(()=>{
+    return gateIndices.map((gateBlockIdx,gi)=>{
+      const prevGateBlockIdx=gi>0?gateIndices[gi-1]:-1;
+      const required=[];
+      for(let j=prevGateBlockIdx+1;j<gateBlockIdx;j++){
+        const bt=lesson.blocks[j].type;
+        if(bt==='checkbox-quiz'||bt==='final-quiz-inline'){
+          required.push(j);
+        }
+      }
+      return required;
+    });
+  },[lesson.id]);
+
   // unlockedGates: количество раскрытых секций. Старт = 1 (первая секция + её gate видны)
   const[unlockedGates,setUnlockedGates]=useState(1);
+  const[completedBlocks,setCompletedBlocks]=useState(()=>new Set());
+
+  const markBlockComplete=useCallback((blockIdx)=>{
+    setCompletedBlocks(prev=>{
+      if(prev.has(blockIdx))return prev;
+      const next=new Set(prev);
+      next.add(blockIdx);
+      return next;
+    });
+  },[]);
+
+  const canUnlockGate=(gateNum)=>{
+    const required=gateRequirements[gateNum-1]||[];
+    return required.every(idx=>completedBlocks.has(idx));
+  };
+
   const totalGates=gateIndices.length;
   const fullyDone=unlockedGates>totalGates;
 
@@ -3090,7 +3154,6 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother}){
     ? lesson.blocks.length-1
     : gateIndices[unlockedGates-1];
 
-  // Есть ли следующий gate после текущего
   const visibleBlocks=lesson.blocks.slice(0,lastVisibleIdx+1);
 
   // Прогресс: по количеству раскрытых gates
@@ -3101,14 +3164,11 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother}){
   },[fullyDone]);
 
   const unlockGate=(gateNum)=>{
-    // gateNum — это порядковый номер gate (1-based), совпадает с unlockedGates когда он активен
     setUnlockedGates(prev=>Math.max(prev,gateNum+1));
-    // Scroll to первый блок новой секции
     setTimeout(()=>{
-      const nextIdx=gateIndices[gateNum-1]+1; // блок сразу после этого gate
+      const nextIdx=gateIndices[gateNum-1]+1;
       const el=blockRefs.current[nextIdx];
       if(el){
-        // smooth scroll с учётом sticky header (~60px)
         const rect=el.getBoundingClientRect();
         const scrollEl=scrollRef.current;
         if(scrollEl){
@@ -3121,6 +3181,7 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother}){
 
   const repeat=()=>{
     setUnlockedGates(1);
+    setCompletedBlocks(new Set());
     if(scrollRef.current)scrollRef.current.scrollTop=0;
   };
 
@@ -3155,13 +3216,14 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother}){
               const gateNum=block.gateNum;
               const isUnlocked=unlockedGates>gateNum;
               const isActive=unlockedGates===gateNum;
-              return wrap(<GateBlock block={block} isActive={isActive} isUnlocked={isUnlocked} onUnlock={()=>unlockGate(gateNum)}/>);
+              const canUnlock=canUnlockGate(gateNum);
+              return wrap(<GateBlock block={block} isActive={isActive} isUnlocked={isUnlocked} canUnlock={canUnlock} onUnlock={()=>unlockGate(gateNum)}/>);
             }
-            case 'checkbox-quiz': return wrap(<CheckboxQuizBlock block={block} blockId={'b'+i}/>);
+            case 'checkbox-quiz': return wrap(<CheckboxQuizBlock block={block} blockId={'b'+i} onComplete={()=>markBlockComplete(i)}/>);
             case 'scenario': return wrap(<ScenarioBlock block={block}/>);
             case 'yasna-star': return wrap(<YasnaStarBlock block={block}/>);
             case 'reflection': return wrap(<ReflectionBlock block={block} lessonId={lesson.id}/>);
-            case 'final-quiz-inline': return wrap(<FinalQuizInlineBlock block={block}/>);
+            case 'final-quiz-inline': return wrap(<FinalQuizInlineBlock block={block} onComplete={()=>markBlockComplete(i)}/>);
             case 'summary-block': return wrap(<SummaryBlockInline block={block}/>);
             case 'next-steps-block': return wrap(<NextStepsBlockInline block={block} onClose={onClose} onPickAnother={onPickAnother} onRepeat={repeat}/>);
             default: return wrap(<div style={{padding:20,color:'#B0B0B8',textAlign:'center'}}>Блок '{block.type}' не реализован</div>);
