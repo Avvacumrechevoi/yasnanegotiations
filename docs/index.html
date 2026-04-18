@@ -4151,117 +4151,354 @@ function LessonStepBased({lesson,onClose,onComplete,onPickAnother}){
 
 // Lesson Picker — splash to pick a lesson
 // Curriculum structure — defines modules, their lessons, and planned future lessons
-const CURRICULUM=[
-  {
-    type:'intro',
-    lessonId:'l1_intro'
-  },
-  {
-    type:'module',
-    id:'module_day',
-    title:'Как устроены сутки',
-    subtitle:'12 полочек дня — от ночи до ночи',
-    lessonIds:['l2_night_foundation','l3_morning'],
-    planned:[
-      {title:'Полдень — пик активности',subtitle:'Полочки 4–5–6'},
-      {title:'После полудня — спуск к вечеру',subtitle:'Полочки 7–8'},
-      {title:'Вечер и сумерки',subtitle:'Полочки 9–10–11'},
-      {title:'Весь цикл целиком',subtitle:'Синтез всех 12 полочек'}
-    ]
-  },
-  {
-    type:'module',
-    id:'module_home',
-    title:'Как устроен дом',
-    subtitle:'Двенадцать состояний жилого пространства',
-    lessonIds:[],
-    planned:[
-      {title:'Модуль в разработке',subtitle:'Появится после модуля «Сутки»'}
+// ═══════════════════════════════════════════════════════════════════
+// CURRICULUM STRUCTURE v5 — two paths
+//
+// Путь 1 — Метод Ясны (освоение самого метода как навыка мышления):
+//   • Базовый (Крест, 4 опоры)     — 9 уроков · ~3 часа
+//   • Стандарт (Восьмёрка, 8)      — 8 уроков · ~3 часа    [в разработке]
+//   • Продвинутый (Полная, 12)     — 10 уроков · ~4 часа   [в разработке]
+//
+// Путь 2 — Конкретные Ясны (углубления после Базового):
+//   • Ясна Суток — детально        [в разработке]
+//   • Ясна Дома                    [в разработке]
+//   • Ясна Круговорота Воды        [в разработке]
+//   • … (остальные по мере готовности)
+//
+// Архив — ранние черновики, убраны из основной навигации.
+// Существующие уроки l2_night_foundation и l3_morning — именно туда.
+// ═══════════════════════════════════════════════════════════════════
+
+const CURRICULUM={
+  paths:[
+    // ─────────────────────────────────────────────────────────────
+    // ПУТЬ 1 — Метод Ясны
+    // ─────────────────────────────────────────────────────────────
+    {
+      id:'path_method',
+      title:'Метод Ясны',
+      subtitle:'Учимся видеть устройство любого явления',
+      icon:'🧭',
+      courses:[
+        {
+          id:'course_basic',
+          title:'Базовый · Крест',
+          subtitle:'4 опоры — скелет любого явления',
+          level:4,
+          duration:'~3 часа',
+          status:'active',
+          // Intro-урок Базового (существующий l1_intro). Остальные — планируются.
+          lessons:[
+            {id:'l1_intro',status:'ready'},
+            {id:'b2_four_pillars',status:'planned',
+              title:'Четыре опоры',
+              subtitle:'Опорный Крест — ночь/утро/день/вечер в любом явлении',
+              duration:'~20 мин',
+              mechanics:['Опорный Крест']},
+            {id:'b3_two_lines',status:'planned',
+              title:'Две главные линии',
+              subtitle:'Линия Борьбы и Линия Единства',
+              duration:'~18 мин',
+              mechanics:['Линия Борьбы (горизонт 3↔9)','Линия Единства (вертикаль 0↔6)']},
+            {id:'b4_events',status:'planned',
+              title:'Война, Мир и Союзы',
+              subtitle:'Содержание четырёх опор Креста',
+              duration:'~22 мин',
+              mechanics:['Война в 3','Мир в 9','Тайный Союз в 0','Явный Союз в 6']},
+            {id:'b5_opposites',status:'planned',
+              title:'Пары противоположностей',
+              subtitle:'Полные противостояния 0↔6 и 3↔9',
+              duration:'~18 мин',
+              mechanics:['Полные противостояния на Опорном Кресте']},
+            {id:'b6_cycle',status:'planned',
+              title:'Цикл и замыкание',
+              subtitle:'Чем Ясна отличается от линейного процесса',
+              duration:'~15 мин',
+              mechanics:['Циклическое движение','Замыкание 9→0']},
+            {id:'b7_elements',status:'planned',
+              title:'Стихии на опорах',
+              subtitle:'Земля, Огонь, Воздух, Вода — по одной на каждой опоре',
+              duration:'~22 мин',
+              mechanics:['Стихии на опорах']},
+            {id:'b8_similarity',status:'planned',
+              title:'Закон Подобия',
+              subtitle:'Одно устройство у всех явлений — проверка через эталон',
+              duration:'~20 мин',
+              mechanics:['Закон Подобия','Кросс-верификация']},
+            {id:'b9_practice',status:'planned',
+              title:'Разложи своё',
+              subtitle:'Финальная практика — ваш Крест на личном явлении',
+              duration:'~35 мин',
+              mechanics:['Применение всех механик уровня 4']}
+          ]
+        },
+        {
+          id:'course_standard',
+          title:'Стандарт · Восьмёрка',
+          subtitle:'Добавляем долгие состояния между опорами',
+          level:8,
+          duration:'~3 часа',
+          status:'planned',
+          note:'Откроется после Базового',
+          lessons:[
+            {id:'s1_refresher',status:'planned',title:'Возвращение к Кресту',duration:'~5 мин'},
+            {id:'s2_long_states',status:'planned',title:'Природа долгих состояний',duration:'~22 мин'},
+            {id:'s3_build_eight',status:'planned',title:'Достраиваем до восьмёрки',duration:'~22 мин'},
+            {id:'s4_pairs_long',status:'planned',title:'Пары долгих (2↔8, 4↔10)',duration:'~18 мин'},
+            {id:'s5_two_triangles',status:'planned',title:'Треугольники Земли и Воздуха',duration:'~22 мин'},
+            {id:'s6_quality_law',status:'planned',title:'Закон Перехода Количества в Качество',duration:'~18 мин'},
+            {id:'s7_mirror',status:'planned',title:'Зеркальность половин',duration:'~20 мин'},
+            {id:'s8_practice',status:'planned',title:'Восьмёрка твоего явления',duration:'~35 мин'}
+          ]
+        },
+        {
+          id:'course_advanced',
+          title:'Продвинутый · Двенадцать',
+          subtitle:'Полная Ясна: короткие переходы, три Креста, Ошибка 9, вложенность',
+          level:12,
+          duration:'~4 часа',
+          status:'planned',
+          note:'Откроется после Стандарта',
+          lessons:[
+            {id:'a1_refresher',status:'planned',title:'Возвращение к Восьмёрке',duration:'~5 мин'},
+            {id:'a2_short_transitions',status:'planned',title:'Короткие переходы',duration:'~22 мин'},
+            {id:'a3_build_twelve',status:'planned',title:'Достраиваем до двенадцати',duration:'~22 мин'},
+            {id:'a4_four_triangles',status:'planned',title:'Все четыре Треугольника стихий',duration:'~25 мин'},
+            {id:'a5_right_cross',status:'planned',title:'Правый Крест (Тепловой · Крест Победы)',duration:'~28 мин'},
+            {id:'a6_left_cross',status:'planned',title:'Левый Крест (Крест Веры)',duration:'~28 мин'},
+            {id:'a7_star',status:'planned',title:'Звезда Ясна — три Креста вместе',duration:'~22 мин'},
+            {id:'a8_error_nine',status:'planned',title:'Ошибка 9 как свойство мира',duration:'~22 мин'},
+            {id:'a9_nested',status:'planned',title:'Ясна в Ясне — вложенность',duration:'~25 мин'},
+            {id:'a10_practice',status:'planned',title:'Полная Ясна твоего явления',duration:'~45 мин'}
+          ]
+        }
+      ]
+    },
+
+    // ─────────────────────────────────────────────────────────────
+    // ПУТЬ 2 — Конкретные Ясны (углубления)
+    // ─────────────────────────────────────────────────────────────
+    {
+      id:'path_specific',
+      title:'Конкретные Ясны',
+      subtitle:'Углубляемся в отдельные явления — после Базового',
+      icon:'📚',
+      lockedHint:'Откроется после Базового',
+      modules:[
+        {id:'mod_sutok',title:'Ясна Суток',subtitle:'Детальный разбор цикла дня и ночи',status:'planned',
+          themes:['Полочка 0 — Ночь','Полочки 1-2-3 — Утро','Полочки 4-5-6 — Подъём и День','Полочки 7-8-9 — Спад и Вечер','Полочки 10-11 — Сумерки']},
+        {id:'mod_doma',title:'Ясна Дома',subtitle:'12 комнат и их смысл',status:'planned'},
+        {id:'mod_vody',title:'Ясна Круговорота Воды',subtitle:'От грязи к облаку и обратно',status:'planned'},
+        {id:'mod_dereva',title:'Ясна Дерева',subtitle:'От корня до ветки и обратно',status:'planned'},
+        {id:'mod_mesyacev',title:'Ясна Месяцев',subtitle:'Годовой цикл в 12 частях',status:'planned'},
+        {id:'mod_tela',title:'Ясна Тела',subtitle:'Устройство тела человека',status:'planned'},
+        {id:'mod_kuhni',title:'Ясна Кухни',subtitle:'Как готовится еда — от входа до подачи',status:'planned'},
+        {id:'mod_dvora',title:'Ясна Двора и Домашних Животных',subtitle:'Кто где живёт во дворе',status:'planned'},
+        {id:'mod_pechi',title:'Ясна Печи',subtitle:'12 частей правильной печи',status:'planned'},
+        {id:'mod_zavoda',title:'Ясна Завода',subtitle:'Структура предприятия',status:'planned'},
+        {id:'mod_teatra',title:'Ясна Театра',subtitle:'От коридора до гримёрки',status:'planned'}
+      ]
+    }
+  ],
+
+  // ─────────────────────────────────────────────────────────────
+  // АРХИВ — ранние черновики, убраны из основной навигации
+  // ─────────────────────────────────────────────────────────────
+  archive:{
+    id:'archive_drafts',
+    title:'Ранние черновики',
+    subtitle:'Первые эксперименты с глубоким разбором отдельных полочек',
+    note:'Эти уроки дали ценные находки, которые войдут в «Ясну Суток — детально» (Путь 2). Пока оставлены для справки.',
+    lessons:[
+      {id:'l2_night_foundation',status:'draft'},
+      {id:'l3_morning',status:'draft'}
     ]
   }
-];
+};
 
 function LessonPicker({onSelectLesson,onClose,completedLessons=[]}){
   const lessonsMap=Object.fromEntries(LESSONS.map(l=>[l.id,l]));
+  const[showArchive,setShowArchive]=useState(false);
 
-  const LessonCard=({l})=>{
+  // ── primitives ──
+  const statusPill=(status,note)=>{
+    const c=status==='ready'?{bg:'#E8F5EE',fg:'#1B7A3F',t:'готов'}
+          :status==='in_progress'?{bg:'#FFF4E0',fg:'#B8560E',t:'идёт'}
+          :status==='draft'?{bg:'#F3E9F8',fg:'#6B3A8A',t:'черновик'}
+          :{bg:'#EEF0F3',fg:'#6E7781',t:note||'скоро'};
+    return<span style={{display:'inline-block',fontSize:10,fontWeight:700,color:c.fg,background:c.bg,padding:'3px 8px',borderRadius:10,letterSpacing:0.3,textTransform:'uppercase',whiteSpace:'nowrap'}}>{c.t}</span>;
+  };
+
+  // ── ready lesson card (clickable) ──
+  const ReadyLesson=({l,idx})=>{
     const done=completedLessons.includes(l.id);
     return(
-      <button onClick={()=>onSelectLesson(l.id)} style={{display:'flex',width:'100%',padding:'14px 16px',marginBottom:8,background:'#fff',border:'1px solid #e5e5ea',borderRadius:14,textAlign:'left',cursor:'pointer',gap:12,alignItems:'center',transition:'all .15s'}}>
-        <div style={{width:38,height:38,borderRadius:'50%',background:done?'#30A060':'#0071e3',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:700,flexShrink:0}}>{done?'✓':l.order}</div>
+      <button onClick={()=>onSelectLesson(l.id)} style={{display:'flex',width:'100%',padding:'13px 14px',marginBottom:7,background:'#fff',border:'1px solid #E5E5EA',borderRadius:12,textAlign:'left',cursor:'pointer',gap:11,alignItems:'center',transition:'all .15s',fontFamily:'inherit'}}>
+        <div style={{width:30,height:30,borderRadius:'50%',background:done?'#30A060':'#0071E3',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,flexShrink:0}}>{done?'✓':idx}</div>
         <div style={{flex:1,minWidth:0}}>
-          <div style={{fontSize:14.5,fontWeight:600,color:'#1d1d1f',marginBottom:2,lineHeight:1.3}}>{l.title}</div>
-          <div style={{fontSize:12,color:'#6e6e73',lineHeight:1.4}}>{l.subtitle} · {l.duration}</div>
+          <div style={{fontSize:14,fontWeight:600,color:'#0D1B2A',marginBottom:1,lineHeight:1.3}}>{l.title}</div>
+          <div style={{fontSize:11.5,color:'#6E7781',lineHeight:1.4}}>{l.subtitle} · {l.duration}</div>
         </div>
-        <div style={{color:'#aeaeb2',fontSize:20,flexShrink:0}}>›</div>
+        <div style={{color:'#AEAEB2',fontSize:18,flexShrink:0}}>›</div>
       </button>
     );
   };
 
-  const PlannedCard=({p})=>(
-    <div style={{display:'flex',width:'100%',padding:'12px 16px',marginBottom:8,background:'#f5f5f7',border:'1px solid #ecedef',borderRadius:14,gap:12,alignItems:'center',opacity:0.65}}>
-      <div style={{width:32,height:32,borderRadius:'50%',background:'#d1d1d6',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,flexShrink:0}}>🔒</div>
+  // ── planned lesson card (non-clickable, muted) ──
+  const PlannedLesson=({l,idx})=>(
+    <div style={{display:'flex',width:'100%',padding:'12px 14px',marginBottom:7,background:'#F8F8F9',border:'1px dashed #DCDEE3',borderRadius:12,gap:11,alignItems:'center',cursor:'not-allowed'}}>
+      <div style={{width:30,height:30,borderRadius:'50%',background:'#D1D1D6',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,flexShrink:0}}>{idx}</div>
       <div style={{flex:1,minWidth:0}}>
-        <div style={{fontSize:13.5,fontWeight:600,color:'#6e6e73',lineHeight:1.3}}>{p.title}</div>
-        <div style={{fontSize:11.5,color:'#aeaeb2',marginTop:1,lineHeight:1.4}}>{p.subtitle}</div>
+        <div style={{fontSize:13.5,fontWeight:600,color:'#6E7781',lineHeight:1.3,marginBottom:1}}>{l.title}</div>
+        <div style={{fontSize:11.5,color:'#AEAEB2',lineHeight:1.4}}>{l.subtitle||(l.mechanics&&l.mechanics.join(' · '))||'В разработке'}{l.duration?' · '+l.duration:''}</div>
       </div>
-      <div style={{fontSize:10,color:'#86868b',textTransform:'uppercase',letterSpacing:0.5,fontWeight:600,flexShrink:0}}>скоро</div>
+      <div style={{flexShrink:0}}>{statusPill('planned','скоро')}</div>
     </div>
   );
 
-  return(
-    <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#F8F8F9',zIndex:70,display:'flex',flexDirection:'column'}}>
-      <div style={{padding:'14px 20px',borderBottom:'1px solid #f0f0f2',flexShrink:0,display:'flex',alignItems:'center',gap:10,background:'#fff'}}>
-        <div style={{flex:1,minWidth:0}}>
-          <div style={{fontSize:10,color:'#86868b',textTransform:'uppercase',letterSpacing:0.6,fontWeight:600,marginBottom:2}}>🎓 Интерактивные уроки</div>
-          <h2 style={{fontSize:18,fontWeight:700,color:'#1d1d1f'}}>Курс по Ясне</h2>
-        </div>
-        <button onClick={onClose} style={{width:36,height:36,borderRadius:10,border:'1px solid #e5e5ea',background:'#fff',cursor:'pointer',color:'#424245',fontSize:14}}>✕</button>
-      </div>
-      <div style={{flex:1,overflowY:'auto',padding:'20px',maxWidth:640,margin:'0 auto',width:'100%'}}>
-        <div style={{fontSize:14,color:'#424245',lineHeight:1.6,marginBottom:20}}>
-          Шаг за шагом разберём устройство Ясны. Начнём с суток — самого знакомого цикла. Каждый урок 7–15 минут.
-        </div>
+  // ── course block (Базовый / Стандарт / Продвинутый) ──
+  const CourseBlock=({course,pathLocked})=>{
+    const readyLessons=course.lessons.filter(cl=>cl.status==='ready').map(cl=>({...cl,...lessonsMap[cl.id]}));
+    const plannedLessons=course.lessons.filter(cl=>cl.status==='planned');
+    const completedCount=readyLessons.filter(l=>completedLessons.includes(l.id)).length;
+    const total=course.lessons.length;
+    const isLocked=course.status==='planned'||pathLocked;
 
-        {CURRICULUM.map(entry=>{
-          if(entry.type==='intro'){
-            const l=lessonsMap[entry.lessonId];
-            if(!l) return null;
-            return(
-              <div key="intro" style={{marginBottom:28}}>
-                <div style={{fontSize:11,color:'#86868b',textTransform:'uppercase',letterSpacing:1,fontWeight:700,marginBottom:10}}>Знакомство с методом</div>
-                <LessonCard l={l}/>
-              </div>);
-          }
-          // module
-          const lessons=entry.lessonIds.map(id=>lessonsMap[id]).filter(Boolean);
-          const totalReady=lessons.length;
-          const totalPlanned=entry.planned?entry.planned.length:0;
-          const completedInModule=lessons.filter(l=>completedLessons.includes(l.id)).length;
-          return(
-            <div key={entry.id} style={{marginBottom:28}}>
-              {/* Module header */}
-              <div style={{padding:'14px 16px',background:'#EEF4FD',border:'1px solid #D5E4F7',borderRadius:14,marginBottom:12}}>
-                <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:10,marginBottom:4}}>
-                  <div style={{fontSize:10.5,color:'#0071e3',textTransform:'uppercase',letterSpacing:1,fontWeight:700}}>Модуль {entry.id==='module_day'?'1':entry.id==='module_home'?'2':''}</div>
-                  {totalReady>0&&<div style={{fontSize:11,color:'#0071e3',fontWeight:600}}>{completedInModule} из {totalReady+totalPlanned}</div>}
-                </div>
-                <div style={{fontSize:16,fontWeight:700,color:'#0D1B2A',lineHeight:1.25,marginBottom:3}}>{entry.title}</div>
-                <div style={{fontSize:12.5,color:'#3D4852',lineHeight:1.5}}>{entry.subtitle}</div>
-                {totalReady>0&&(
-                  <div style={{marginTop:10,height:4,background:'#D5E4F7',borderRadius:2,overflow:'hidden'}}>
-                    <div style={{width:(totalReady+totalPlanned>0?completedInModule/(totalReady+totalPlanned)*100:0)+'%',height:'100%',background:'#0071e3',transition:'width .4s'}}/>
-                  </div>
-                )}
+    const accent=course.level===4?'#0071E3':course.level===8?'#8B60D3':'#D6502B';
+
+    return(
+      <div style={{marginBottom:20,background:'#fff',border:'1px solid #E5E5EA',borderRadius:16,overflow:'hidden'}}>
+        {/* Course header */}
+        <div style={{padding:'14px 16px 12px',background:`linear-gradient(135deg,${accent}08,${accent}16)`,borderBottom:'1px solid '+accent+'22'}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:10,marginBottom:4}}>
+            <div style={{fontSize:10,fontWeight:700,color:accent,letterSpacing:0.8,textTransform:'uppercase'}}>Уровень {course.level} · {course.duration}</div>
+            {isLocked?statusPill('planned',course.note?'скоро':'в разработке'):null}
+          </div>
+          <div style={{fontSize:16,fontWeight:800,color:'#0D1B2A',letterSpacing:'-0.2px',marginBottom:3}}>{course.title}</div>
+          <div style={{fontSize:12.5,color:'#3D4852',lineHeight:1.45}}>{course.subtitle}</div>
+          {!isLocked&&total>0&&(
+            <div style={{marginTop:10}}>
+              <div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}>
+                <div style={{fontSize:11,color:accent,fontWeight:600}}>Прогресс</div>
+                <div style={{fontSize:11,color:accent,fontWeight:600}}>{completedCount} из {total}</div>
               </div>
-              {/* Lessons */}
-              {lessons.map(l=><LessonCard key={l.id} l={l}/>)}
-              {(entry.planned||[]).map((p,i)=><PlannedCard key={i} p={p}/>)}
-            </div>);
-        })}
+              <div style={{height:4,background:accent+'22',borderRadius:2,overflow:'hidden'}}>
+                <div style={{width:(completedCount/total*100)+'%',height:'100%',background:accent,transition:'width .4s'}}/>
+              </div>
+            </div>
+          )}
+        </div>
+        {/* Lessons list */}
+        <div style={{padding:'12px 14px'}}>
+          {course.lessons.map((cl,i)=>{
+            if(cl.status==='ready'){
+              const full=lessonsMap[cl.id];
+              if(!full) return null;
+              return<ReadyLesson key={cl.id} l={full} idx={i+1}/>;
+            }
+            return<PlannedLesson key={cl.id} l={cl} idx={i+1}/>;
+          })}
+          {isLocked&&course.note&&(
+            <div style={{marginTop:8,padding:'10px 12px',background:'#F8F8F9',borderRadius:10,fontSize:11.5,color:'#6E7781',textAlign:'center'}}>
+              🔒 {course.note}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
-        <div style={{marginTop:12,paddingTop:16,borderTop:'1px solid #f0f0f2',fontSize:12,color:'#aeaeb2',lineHeight:1.6,textAlign:'center'}}>
-          Курс идёт как спираль — каждый виток расширяет знакомую структуру на новый уровень.
+  // ── specific Yasna module card (one for each Ясна) ──
+  const YasnaModule=({m})=>(
+    <div style={{display:'flex',padding:'12px 14px',marginBottom:7,background:'#F8F8F9',border:'1px dashed #DCDEE3',borderRadius:12,gap:11,alignItems:'center'}}>
+      <div style={{fontSize:20,flexShrink:0}}>📖</div>
+      <div style={{flex:1,minWidth:0}}>
+        <div style={{fontSize:13.5,fontWeight:600,color:'#6E7781',marginBottom:1}}>{m.title}</div>
+        <div style={{fontSize:11.5,color:'#AEAEB2',lineHeight:1.4}}>{m.subtitle}</div>
+      </div>
+      <div style={{flexShrink:0}}>{statusPill('planned')}</div>
+    </div>
+  );
+
+  // ── path block (top level) ──
+  const PathBlock=({path})=>{
+    const locked=path.id==='path_specific';
+    return(
+      <div style={{marginBottom:30}}>
+        <div style={{padding:'0 4px',marginBottom:12}}>
+          <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:4}}>
+            <span style={{fontSize:20}}>{path.icon}</span>
+            <div style={{fontSize:15,fontWeight:800,color:'#0D1B2A',letterSpacing:'-0.1px'}}>{path.title}</div>
+            {locked&&statusPill('planned','скоро')}
+          </div>
+          <div style={{fontSize:12.5,color:'#6E7781',lineHeight:1.5,paddingLeft:29}}>{path.subtitle}</div>
+        </div>
+        {path.courses&&path.courses.map(c=><CourseBlock key={c.id} course={c} pathLocked={false}/>)}
+        {path.modules&&(
+          <div style={{padding:'4px 2px'}}>
+            {locked&&path.lockedHint&&(
+              <div style={{padding:'11px 14px',background:'#FFF9E8',border:'1px solid #F0D98A',borderRadius:12,marginBottom:10,fontSize:12,color:'#8A6400',lineHeight:1.5}}>
+                🔒 {path.lockedHint}
+              </div>
+            )}
+            {path.modules.map(m=><YasnaModule key={m.id} m={m}/>)}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return(
+    <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#F5F5F7',zIndex:70,display:'flex',flexDirection:'column'}}>
+      {/* Header */}
+      <div style={{padding:'14px 20px',borderBottom:'1px solid #E5E5EA',flexShrink:0,display:'flex',alignItems:'center',gap:10,background:'#fff'}}>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontSize:10,color:'#86868B',textTransform:'uppercase',letterSpacing:0.6,fontWeight:700,marginBottom:2}}>🎓 Интерактивный курс</div>
+          <h2 style={{fontSize:18,fontWeight:800,color:'#0D1B2A',letterSpacing:'-0.2px'}}>Курс по Ясне</h2>
+        </div>
+        <button onClick={onClose} style={{width:36,height:36,borderRadius:10,border:'1px solid #E5E5EA',background:'#fff',cursor:'pointer',color:'#424245',fontSize:14}}>✕</button>
+      </div>
+
+      {/* Content */}
+      <div style={{flex:1,overflowY:'auto',padding:'18px 16px 24px',maxWidth:700,margin:'0 auto',width:'100%',boxSizing:'border-box'}}>
+        <div style={{padding:'14px 16px',background:'#fff',border:'1px solid #E5E5EA',borderRadius:14,marginBottom:22,fontSize:13,color:'#3D4852',lineHeight:1.6}}>
+          Два пути обучения: <b>Метод Ясны</b> — осваиваем способ мыслить через три уровня разрешения (4 → 8 → 12). <b>Конкретные Ясны</b> — применяем метод к отдельным явлениям.
+        </div>
+
+        {CURRICULUM.paths.map(p=><PathBlock key={p.id} path={p}/>)}
+
+        {/* Archive toggle */}
+        <div style={{marginTop:20,padding:'14px 16px',background:'#FAFAFB',border:'1px solid #ECECEE',borderRadius:14}}>
+          <button onClick={()=>setShowArchive(!showArchive)} style={{display:'flex',width:'100%',background:'none',border:'none',padding:0,cursor:'pointer',alignItems:'center',gap:10,fontFamily:'inherit',textAlign:'left'}}>
+            <div style={{fontSize:18,flexShrink:0,color:'#86868B'}}>📦</div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:13,fontWeight:700,color:'#424245',marginBottom:1}}>{CURRICULUM.archive.title}</div>
+              <div style={{fontSize:11.5,color:'#86868B',lineHeight:1.4}}>{CURRICULUM.archive.subtitle}</div>
+            </div>
+            <div style={{color:'#AEAEB2',fontSize:14,flexShrink:0,transition:'transform .2s',transform:showArchive?'rotate(90deg)':'none'}}>›</div>
+          </button>
+          {showArchive&&(
+            <div style={{marginTop:12,paddingTop:12,borderTop:'1px solid #ECECEE'}}>
+              <div style={{fontSize:11.5,color:'#86868B',lineHeight:1.55,marginBottom:10,fontStyle:'italic'}}>{CURRICULUM.archive.note}</div>
+              {CURRICULUM.archive.lessons.map((al,i)=>{
+                const full=lessonsMap[al.id];
+                if(!full)return null;
+                return(
+                  <button key={al.id} onClick={()=>onSelectLesson(al.id)} style={{display:'flex',width:'100%',padding:'11px 13px',marginBottom:6,background:'#fff',border:'1px solid #E5E5EA',borderRadius:10,textAlign:'left',cursor:'pointer',gap:10,alignItems:'center',fontFamily:'inherit'}}>
+                    <div style={{width:26,height:26,borderRadius:'50%',background:'#9098A3',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,flexShrink:0}}>{i+1}</div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontSize:13,fontWeight:600,color:'#424245',marginBottom:1}}>{full.title}</div>
+                      <div style={{fontSize:11,color:'#86868B'}}>{full.subtitle} · {full.duration}</div>
+                    </div>
+                    {statusPill('draft')}
+                  </button>);
+              })}
+            </div>
+          )}
+        </div>
+
+        <div style={{marginTop:20,padding:'0 8px',fontSize:11.5,color:'#AEAEB2',lineHeight:1.6,textAlign:'center'}}>
+          Курс выстроен как спираль: каждый уровень расширяет структуру на более точное разрешение.
         </div>
       </div>
     </div>);
