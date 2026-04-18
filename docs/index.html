@@ -1812,11 +1812,14 @@ const LESSONS=[
         title:'Один закон — разные явления',
         body:'Любой завершённый цикл можно разложить на 12 полочек. Пролистай карусель — увидишь, как один и тот же закон работает для разных явлений.',
         examples:[
-          {emoji:'☀️',title:'Сутки',subtitle:'Наш исходный пример',color:'#FFB020',
+          {emoji:'☀️',title:'Сутки',subtitle:'Наш исходный пример',color:'#E8954A',type:'sun',
+           palette:['#1B2A4A','#3D5480','#6B8AB8','#9FBCE0','#FFD5A0','#FFB878','#FFA048','#FFB878','#FFD5A0','#9FBCE0','#6B8AB8','#3D5480'],
            items:['Ночь','Искра','Заря','Утро','Восход','Полдень перед','День','Полдень','Закат','Вечер','Сумерки','Полночь']},
-          {emoji:'🌱',title:'Жизнь человека',subtitle:'От зачатия до ухода',color:'#4090D8',
+          {emoji:'🌱',title:'Жизнь человека',subtitle:'От зачатия до ухода',color:'#4A9D68',type:'life',
+           palette:['#A8E0B8','#4A9D68','#2D7A4A','#4A9D68','#6BB388','#8FC4A3','#E8A23B','#C89030','#B08440','#9A7848','#8F7860','#6B6B6B'],
            items:['Зачатие','Росток','Беременность','Рождение','Детство','Юность','Зрелость','Мудрость','Старение','Уход','Память','Завершение']},
-          {emoji:'🔥',title:'Огонь',subtitle:'От искры до пепла',color:'#E8364F',
+          {emoji:'🔥',title:'Огонь',subtitle:'От искры до пепла',color:'#E8364F',type:'fire',
+           palette:['#6B7A8F','#E8A23B','#D46B6B','#E8364F','#FF5530','#FF7538','#FF4518','#FF5530','#D46B6B','#A85050','#6B6060','#4A5060'],
            items:['Покой','Искра','Тление','Возгорание','Разгорание','Треск','Пламя','Жар','Спад','Угли','Затухание','Зола']}
         ],
         cta:'Закрепить'},
@@ -2924,11 +2927,148 @@ function StepTransformStar({step,onNext}){
 }
 
 // Step 9: Carousel of examples
+// Animated ring showing a cyclical phenomenon — each position lights up in sequence
+// with a theme-specific centerpiece (sun for day, heart for life, flame for fire).
+function PhenomenonRing({example,accent}){
+  const[activePos,setActivePos]=useState(0);
+  const[autoplay,setAutoplay]=useState(true);
+  const size=280;
+  const cx=size/2, cy=size/2;
+  const r=size*0.36;
+
+  // Autoplay: advance every 1.8s unless user tapped
+  useEffect(()=>{
+    if(!autoplay)return;
+    const t=setInterval(()=>setActivePos(p=>(p+1)%12),1800);
+    return()=>clearInterval(t);
+  },[autoplay]);
+
+  // Canonical Yasna orientation: 0 bottom, 6 top, 3 left, 9 right
+  const posAngle=(i)=>Math.PI/2 + (i/12)*Math.PI*2;
+  const pt=(i,rad=r)=>{
+    const a=posAngle(i);
+    return{x:cx+Math.cos(a)*rad, y:cy-Math.sin(a)*rad};
+  };
+
+  const handleTap=(i)=>{
+    setAutoplay(false);
+    setActivePos(i);
+  };
+
+  // Theme-specific colors per position (12 colors, each phenomenon has its own palette)
+  const palette=example.palette||Array(12).fill(accent);
+
+  // Centerpiece visualization depends on example type
+  const renderCenterpiece=()=>{
+    if(example.type==='sun'){
+      // Sun that orbits position activePos
+      const p=pt(activePos,r*0.88);
+      const isDay=[4,5,6,7,8].includes(activePos);
+      const isNight=[10,11,0,1,2].includes(activePos);
+      return(
+        <g>
+          {/* Sky gradient behind (via circle) */}
+          <defs>
+            <radialGradient id="skyGrad">
+              <stop offset="0%" stopColor={isDay?'#FFE8A8':isNight?'#1B2A4A':'#FFB878'}/>
+              <stop offset="100%" stopColor={isDay?'#FFF4D5':isNight?'#2D3E5F':'#F8E5D0'}/>
+            </radialGradient>
+          </defs>
+          <circle cx={cx} cy={cy} r={r*0.65} fill="url(#skyGrad)" opacity={0.35}/>
+          {/* Sun at active position */}
+          <circle cx={p.x} cy={p.y} r="22" fill="#FFB020" opacity=".35"/>
+          <circle cx={p.x} cy={p.y} r="14" fill={isNight?'#E8E0D0':'#FFB020'} stroke="#fff" strokeWidth="2"/>
+        </g>
+      );
+    }
+    if(example.type==='life'){
+      // Growing plant/trail. Draw the arc up to activePos
+      let pathD='';
+      for(let i=0;i<=activePos;i++){
+        const p=pt(i,r*0.72);
+        pathD+=(i===0?'M':'L')+' '+p.x+' '+p.y+' ';
+      }
+      const headP=pt(activePos,r*0.72);
+      // Gradient from green (young) to grey (end)
+      const t=activePos/11;
+      const headColor=t<0.33?'#4A9D68':t<0.66?'#E8A23B':'#9098A3';
+      return(
+        <g>
+          <path d={pathD} fill="none" stroke="#4A9D68" strokeWidth="3" strokeLinecap="round" opacity="0.25"/>
+          <circle cx={headP.x} cy={headP.y} r="10" fill={headColor} opacity="0.3"/>
+          <circle cx={headP.x} cy={headP.y} r="6" fill={headColor}/>
+        </g>
+      );
+    }
+    if(example.type==='fire'){
+      // Fire intensity — flame at center grows and shrinks with the cycle
+      // Intensity peaks at position 6 (pylamya)
+      const intensity=Math.abs(activePos-6)<=3?1-Math.abs(activePos-6)/3:0;
+      const flameR=20+intensity*30;
+      const flameColor=activePos<2?'#6B7A8F':activePos<4?'#D46B6B':activePos<7?'#FF7538':activePos<9?'#E8A23B':activePos<11?'#6B7A8F':'#4A5060';
+      return(
+        <g>
+          {intensity>0&&<>
+            <circle cx={cx} cy={cy} r={flameR+12} fill={flameColor} opacity={intensity*0.15}/>
+            <circle cx={cx} cy={cy} r={flameR} fill={flameColor} opacity={intensity*0.35}/>
+          </>}
+          <circle cx={cx} cy={cy} r={12+intensity*8} fill={flameColor}/>
+        </g>
+      );
+    }
+    return null;
+  };
+
+  const currentLabel=example.items[activePos];
+
+  return(
+    <div style={{position:'relative',width:'100%',maxWidth:size,margin:'0 auto'}}>
+      <svg viewBox={`0 0 ${size} ${size}`} style={{width:'100%',height:'auto',display:'block'}}>
+        {/* Background circle */}
+        <circle cx={cx} cy={cy} r={r*0.92} fill="#fff" opacity="0.5"/>
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#E5E9EF" strokeWidth="1" strokeDasharray="2 3"/>
+
+        {/* Theme-specific centerpiece */}
+        {renderCenterpiece()}
+
+        {/* 12 dots with labels */}
+        {Array.from({length:12}).map((_,i)=>{
+          const p=pt(i);
+          const isActive=i===activePos;
+          const isLong=i%2===0;
+          const color=palette[i]||accent;
+          const dotR=isActive?12:isLong?7:5.5;
+          return(
+            <g key={i} onClick={()=>handleTap(i)} style={{cursor:'pointer'}}>
+              {/* Invisible larger tap target */}
+              <circle cx={p.x} cy={p.y} r="18" fill="transparent"/>
+              {/* Pulsing glow on active */}
+              {isActive&&<circle cx={p.x} cy={p.y} r={dotR+6} fill={color} opacity="0.3">
+                <animate attributeName="r" values={`${dotR+3};${dotR+10};${dotR+3}`} dur="1.4s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.5;0.15;0.5" dur="1.4s" repeatCount="indefinite"/>
+              </circle>}
+              <circle cx={p.x} cy={p.y} r={dotR} fill={color} stroke="#fff" strokeWidth={isActive?2:1.5} style={{transition:'r .3s'}}/>
+              {isActive&&<text x={p.x} y={p.y+4} textAnchor="middle" fontSize="11" fill="#fff" fontWeight="700">{i}</text>}
+            </g>
+          );
+        })}
+      </svg>
+
+      {/* Center overlay with current label */}
+      <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',pointerEvents:'none'}}>
+        <div style={{textAlign:'center',padding:'0 60px'}}>
+          <div style={{fontSize:11,color:accent,fontWeight:700,letterSpacing:1,textTransform:'uppercase',marginBottom:4}}>Полочка {activePos}</div>
+          <div style={{fontSize:22,fontWeight:800,color:'#0D1B2A',lineHeight:1.1,letterSpacing:'-0.3px'}}>{currentLabel}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function StepCarouselExamples({step,onNext}){
   const[idx,setIdx]=useState(0);
   const scrollerRef=React.useRef(null);
 
-  // Sync active idx with scroll position
   const onScroll=()=>{
     const el=scrollerRef.current;
     if(!el)return;
@@ -2940,36 +3080,33 @@ function StepCarouselExamples({step,onNext}){
 
   return(
     <div style={{display:'flex',flexDirection:'column',maxWidth:560,margin:'0 auto',width:'100%',position:'relative',minHeight:'100%'}}>
-      <div style={{padding:'20px 20px 12px',textAlign:'center'}}>
+      <div style={{padding:'20px 20px 8px',textAlign:'center'}}>
         <h2 style={{fontSize:22,fontWeight:800,color:'#0D1B2A',marginBottom:8,letterSpacing:'-0.3px'}}>{step.title}</h2>
         <p style={{fontSize:13.5,color:'#6E7781',lineHeight:1.55}}>{step.body}</p>
       </div>
 
       {/* Horizontal scroll-snap carousel */}
       <div ref={scrollerRef} onScroll={onScroll}
-        style={{flex:1,display:'flex',overflowX:'auto',overflowY:'hidden',scrollSnapType:'x mandatory',scrollBehavior:'smooth',WebkitOverflowScrolling:'touch',scrollbarWidth:'none',minHeight:480}}
+        style={{flex:1,display:'flex',overflowX:'auto',overflowY:'hidden',scrollSnapType:'x mandatory',scrollBehavior:'smooth',WebkitOverflowScrolling:'touch',scrollbarWidth:'none',minHeight:440}}
         className="hide-scroll">
         {step.examples.map((ex,i)=>(
           <div key={i} style={{flex:'0 0 100%',scrollSnapAlign:'center',padding:'0 16px 8px',boxSizing:'border-box',display:'flex'}}>
-            <div style={{flex:1,padding:'22px 20px',background:`linear-gradient(145deg,${ex.color}10,${ex.color}22)`,border:`1px solid ${ex.color}40`,borderRadius:18,display:'flex',flexDirection:'column',overflow:'hidden',boxShadow:'0 1px 3px rgba(15,27,42,.04)'}}>
-              <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:18}}>
-                <div style={{fontSize:38,lineHeight:1,flexShrink:0}}>{ex.emoji}</div>
+            <div style={{flex:1,padding:'20px 18px 24px',background:`linear-gradient(145deg,${ex.color}08,${ex.color}1E)`,border:`1px solid ${ex.color}35`,borderRadius:18,display:'flex',flexDirection:'column',boxShadow:'0 1px 3px rgba(15,27,42,.04)'}}>
+              {/* Header */}
+              <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
+                <div style={{fontSize:32,lineHeight:1,flexShrink:0}}>{ex.emoji}</div>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:10,fontWeight:700,color:ex.color,letterSpacing:0.7,textTransform:'uppercase',marginBottom:3}}>Пример {i+1} из {step.examples.length}</div>
-                  <div style={{fontSize:22,fontWeight:800,color:'#0D1B2A',lineHeight:1.15,overflow:'hidden',textOverflow:'ellipsis',letterSpacing:'-0.2px'}}>{ex.title}</div>
+                  <div style={{fontSize:22,fontWeight:800,color:'#0D1B2A',lineHeight:1.15,letterSpacing:'-0.2px'}}>{ex.title}</div>
                   {ex.subtitle&&<div style={{fontSize:12,color:'#6E7781',marginTop:2}}>{ex.subtitle}</div>}
                 </div>
               </div>
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'6px 12px',flex:1,alignContent:'start'}}>
-                {ex.items.map((it,j)=>{
-                  const isLong=j%2===0;
-                  return<div key={j} style={{display:'flex',alignItems:'center',gap:8,fontSize:13,color:'#1F2933',lineHeight:1.25}}>
-                    <div style={{width:20,height:20,borderRadius:'50%',background:isLong?ex.color:'#fff',border:`1.5px solid ${ex.color}`,color:isLong?'#fff':ex.color,fontSize:10,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>{j}</div>
-                    <span style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{it}</span>
-                  </div>;
-                })}
-              </div>
-              {i===0&&!isLast&&<div style={{marginTop:12,fontSize:11,color:ex.color,opacity:.7,textAlign:'center',fontStyle:'italic'}}>← пролистай →</div>}
+
+              {/* Animated ring (only render for active card for perf) */}
+              {i===idx?<PhenomenonRing example={ex} accent={ex.color}/>:<div style={{maxWidth:280,margin:'0 auto',aspectRatio:'1',opacity:0.3,display:'flex',alignItems:'center',justifyContent:'center',color:'#9098A3',fontSize:12}}>пролистай →</div>}
+
+              {/* Hint */}
+              <div style={{marginTop:14,fontSize:11,color:ex.color,opacity:.75,textAlign:'center'}}>Тапай на точки или смотри автовоспроизведение</div>
             </div>
           </div>
         ))}
