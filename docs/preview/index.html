@@ -2960,7 +2960,8 @@ function PhenomenonRing({example,accent}){
   },[autoplay]);
 
   // Canonical Yasna orientation: 0 bottom, 6 top, 3 left, 9 right
-  const posAngle=(i)=>Math.PI/2 + (i/12)*Math.PI*2;
+  // Clockwise: i=0 bottom → i=3 LEFT → i=6 top → i=9 RIGHT
+  const posAngle=(i)=>-Math.PI/2 - (i/12)*Math.PI*2;
   const pt=(i,rad=r)=>{
     const a=posAngle(i);
     return{x:cx+Math.cos(a)*rad, y:cy-Math.sin(a)*rad};
@@ -3334,7 +3335,8 @@ function SpiralMap({block}){
   const learned=new Set(block.learned||[]);
   const current=new Set(block.current||[]);
   // Position 0 at bottom, 6 at top, 3 at left, 9 at right (canonical Yasna orientation)
-  const posAngle=(i)=>(i/12)*Math.PI*2 + Math.PI/2; // i=0 → bottom, clockwise
+  // Clockwise: i=0 bottom → i=3 LEFT → i=6 top → i=9 RIGHT
+  const posAngle=(i)=>-Math.PI/2 - (i/12)*Math.PI*2; // i=0 → bottom, clockwise
   const dots=[];
   for(let i=0;i<12;i++){
     const ang=posAngle(i);
@@ -3919,14 +3921,20 @@ function InlineCarouselBlock({block}){
 
   // Mini-star for pillars visualization
   const PillarsMini=({pillars,color})=>{
+    // Orientation canon (matches LessonStar): 0→bottom, 3→left, 6→top, 9→right
+    // angDeg(i) = 270 - i*30 (math convention, SVG y-flipped via -sin)
     const size=200, cx=size/2, cy=size/2, r=size*0.32;
-    const posAngle=(i)=>Math.PI/2 + (i/12)*Math.PI*2;
-    const pt=(i)=>{const a=posAngle(i);return{x:cx+Math.cos(a)*r, y:cy-Math.sin(a)*r};};
+    const angDeg=(i)=>270 - i*30;
+    const rad=(d)=>d*Math.PI/180;
+    const pt=(i)=>{const a=rad(angDeg(i));return{x:cx+Math.cos(a)*r, y:cy-Math.sin(a)*r};};
     const pillarPositions=pillars.map(p=>p.pos);
+    // Use extended viewBox so side labels ("Утро" on left, "Вечер" on right) don't clip.
+    // Extend horizontally by ~38px on each side; vertical doesn't need as much (top/bottom labels are centered).
+    const vbPadX=44, vbPadY=22;
     return(
-      <svg viewBox={`0 0 ${size} ${size}`} style={{width:'100%',maxWidth:240,display:'block',margin:'0 auto'}}>
+      <svg viewBox={`${-vbPadX} ${-vbPadY} ${size+vbPadX*2} ${size+vbPadY*2}`} style={{width:'100%',maxWidth:260,display:'block',margin:'0 auto'}}>
         <circle cx={cx} cy={cy} r={r} fill="none" stroke={color+'33'} strokeWidth="1" strokeDasharray="2 3"/>
-        {/* cross lines */}
+        {/* cross lines: 0↔6 (vertical) and 3↔9 (horizontal) */}
         {[[0,6],[3,9]].map(([a,b],i)=>{
           const pa=pt(a), pb=pt(b);
           return<line key={i} x1={pa.x} y1={pa.y} x2={pb.x} y2={pb.y} stroke={color+'55'} strokeWidth="1.5"/>;
@@ -3942,13 +3950,18 @@ function InlineCarouselBlock({block}){
           const pos=pt(p.pos);
           return<text key={'n'+p.pos} x={pos.x} y={pos.y+3.5} textAnchor="middle" fontSize="9" fontWeight="700" fill="#fff">{p.pos}</text>;
         })}
-        {/* pillar labels outside */}
+        {/* pillar labels outside — anchored by position to avoid clipping at sides */}
         {pillars.map(p=>{
           const outR=r+22;
-          const a=posAngle(p.pos);
+          const a=rad(angDeg(p.pos));
           const lx=cx+Math.cos(a)*outR, ly=cy-Math.sin(a)*outR;
+          // Anchor by side: top/bottom → middle; left → end; right → start
+          const anchor=p.pos===0||p.pos===6?'middle':p.pos===3?'end':'start';
+          // Slight offset for side labels so they sit next to the dot, not overlap
+          const dx=p.pos===3?-6:p.pos===9?6:0;
+          const dy=p.pos===0?14:p.pos===6?-6:4;
           return(
-            <text key={'l'+p.pos} x={lx} y={ly+4} textAnchor="middle" fontSize="12" fontWeight="700" fill={color}>{p.label}</text>
+            <text key={'l'+p.pos} x={lx+dx} y={ly+dy} textAnchor={anchor} fontSize="13" fontWeight="700" fill={color}>{p.label}</text>
           );
         })}
       </svg>);
