@@ -1861,12 +1861,31 @@ const LESSONS=[
         eyebrow:'Урок 2 · Модуль «Как устроены сутки»',
         title:'Как устроена ночь',
         lead:'Сравни две знакомые ночи. После одной ты просыпаешься собранным — и весь день получается. После другой — целый день туго идёт и работа, и разговоры. Часов сна могло быть поровну. Значит, дело не в часах.'},
+      {type:'toc',
+        title:'Что будет в этом уроке',
+        intro:'Первая полочка Ясны Суток — ночь. Разберём её на данных и на тебе самом.',
+        itemsHeader:'Пойдём по шагам:',
+        items:[
+          'Посмотрим на **эксперимент 2003 года**, в котором сравнили группы с 4, 6 и 8 часами сна. Цифры, а не мнения.',
+          'Разберём, **как устроена ночь внутри** — циклы по 90 минут, глубокий сон, быстрый сон (REM).',
+          'Введём понятие **полочки 0**: это не только сон, но и рамки до и после.',
+          'Проверим на **твоей собственной ночи** — что работает, что нет.',
+          'Разберём **три случая разных людей**: фрилансер, офисный работник, тимлид в IT.',
+          'Запишем **твоё наблюдение в журнал** — вернёшься через месяц, сравнишь.'
+        ],
+        outcomesHeader:'После урока ты сможешь:',
+        outcomes:[
+          'Отличить «спал 8 часов» от «ночь работала»',
+          'Увидеть в своём дне рамки полочки 0 — или их отсутствие',
+          'Назвать три типа ошибок ночного режима и понимать, какая у тебя'
+        ],
+        duration:'12–15 минут'},
       {type:'speaker',
         name:'Марк',
         role:'Ведёт курс',
         avatar:'М',
         avatarColor:'#0071e3',
-        text:'Привет. Сегодня разбираем первую из двенадцати полочек Ясны Суток — ночь.\n\nРазобрать значит посмотреть, из чего она состоит и почему от неё так многое зависит. Без эзотерики — на данных и твоих собственных наблюдениях.\n\nЭто займёт минут 12–15. Можно скроллить вверх, если захочешь вернуться к прочитанному.'},
+        text:'Привет. Разбираем первую из двенадцати полочек Ясны Суток — ночь.\n\nРазобрать значит посмотреть, из чего она состоит и почему от неё так многое зависит. Без эзотерики — на данных и твоих собственных наблюдениях.\n\nМожно скроллить вверх, если захочешь вернуться к прочитанному.'},
       {type:'gate',label:'Начнём с данных',gateNum:1},
 
       // ━━ СЕКЦИЯ 2: ЭКСПЕРИМЕНТ ━━
@@ -2844,6 +2863,48 @@ function HeroBlock({block}){
     </div>);
 }
 
+function TocBlock({block}){
+  return(
+    <div style={{padding:'12px 24px 20px',maxWidth:680,margin:'0 auto'}}>
+      <div style={{background:'#fff',border:'1px solid #E5E5EA',borderRadius:16,padding:'24px 24px',boxShadow:'0 1px 3px rgba(15,27,42,.04)'}}>
+        <div style={{fontSize:19,fontWeight:700,color:'#0D1B2A',marginBottom:14,letterSpacing:'-0.2px'}}>{block.title||'Что в этом уроке'}</div>
+        {block.intro&&<div style={{fontSize:14.5,color:'#3D4852',lineHeight:1.65,marginBottom:16}}>{renderRichText(block.intro)}</div>}
+        {block.items&&block.items.length>0&&(
+          <>
+            {block.itemsHeader&&<div style={{fontSize:14,color:'#0D1B2A',fontWeight:600,marginBottom:10}}>{block.itemsHeader}</div>}
+            <ul style={{listStyle:'none',padding:0,margin:0}}>
+              {block.items.map((item,i)=>(
+                <li key={i} style={{display:'flex',gap:10,marginBottom:10,fontSize:14,color:'#3D4852',lineHeight:1.55}}>
+                  <span style={{flexShrink:0,marginTop:1,color:'#0071e3',fontWeight:700}}>{i+1}.</span>
+                  <span>{renderRichText(item)}</span>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+        {block.outcomes&&block.outcomes.length>0&&(
+          <div style={{marginTop:18,paddingTop:16,borderTop:'1px solid #F0F0F2'}}>
+            <div style={{fontSize:13,color:'#0D1B2A',fontWeight:600,marginBottom:10}}>{block.outcomesHeader||'После урока ты сможешь:'}</div>
+            <ul style={{listStyle:'none',padding:0,margin:0}}>
+              {block.outcomes.map((o,i)=>(
+                <li key={i} style={{display:'flex',gap:10,marginBottom:8,fontSize:13.5,color:'#3D4852',lineHeight:1.55}}>
+                  <span style={{flexShrink:0,marginTop:2,color:'#2D7A4A'}}>✓</span>
+                  <span>{renderRichText(o)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {block.duration&&(
+          <div style={{marginTop:18,paddingTop:14,borderTop:'1px solid #F0F0F2',display:'flex',alignItems:'center',gap:8,fontSize:13,color:'#6E7781'}}>
+            <span style={{fontSize:14}}>⏱</span>
+            <span>Время прохождения: <b style={{color:'#0D1B2A',fontWeight:600}}>{block.duration}</b></span>
+          </div>
+        )}
+      </div>
+    </div>);
+}
+
 function SpeakerBlock({block}){
   return(
     <div style={{padding:'16px 24px',maxWidth:680,margin:'0 auto'}}>
@@ -3210,6 +3271,7 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother}){
           );
           switch(block.type){
             case 'hero': return wrap(<HeroBlock block={block}/>);
+            case 'toc': return wrap(<TocBlock block={block}/>);
             case 'speaker': return wrap(<SpeakerBlock block={block}/>);
             case 'explanation': return wrap(<ExplanationBlock block={block}/>);
             case 'gate': {
