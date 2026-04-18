@@ -2845,9 +2845,21 @@ function StepAnimationShortsQuiz({step,onNext}){
     return()=>timers.forEach(clearTimeout);
   },[]);
   const allShown=visible.length>=12;
+  const feedbackRef=React.useRef(null);
+
+  // When user answers, auto-scroll feedback+button into view
+  useEffect(()=>{
+    if(quizAnswer!==null&&feedbackRef.current){
+      setTimeout(()=>{
+        if(feedbackRef.current){
+          feedbackRef.current.scrollIntoView({behavior:'smooth',block:'end'});
+        }
+      },100);
+    }
+  },[quizAnswer]);
 
   return(
-    <div style={{display:'flex',flexDirection:'column',maxWidth:560,margin:'0 auto',width:'100%',position:'relative'}}>
+    <div style={{display:'flex',flexDirection:'column',maxWidth:560,margin:'0 auto',width:'100%',position:'relative',paddingBottom:quizAnswer!==null?96:0}}>
       <div style={{padding:'20px 20px 16px',boxSizing:'border-box'}}>
         <h2 style={{fontSize:22,fontWeight:800,color:'#0D1B2A',marginBottom:12,textAlign:'center',letterSpacing:'-0.3px'}}>{step.title}</h2>
         <div style={{background:'#fff',borderRadius:16,padding:'16px',border:'1px solid #E5E5EA',boxShadow:'0 1px 3px rgba(15,27,42,.04)',marginBottom:14}}>
@@ -2855,9 +2867,9 @@ function StepAnimationShortsQuiz({step,onNext}){
             <LessonStar mode="full" visiblePositions={visible} focusType="shorts" newPositions={lastAdded!==null?[lastAdded]:[]}/>
           </div>
         </div>
-        <p style={{fontSize:14,color:'#3D4852',lineHeight:1.65,whiteSpace:'pre-wrap',marginBottom:14}}>{step.body}</p>
+        <p style={{fontSize:14,color:'#3D4852',lineHeight:1.65,whiteSpace:'pre-wrap',marginBottom:14}}>{renderRichText(step.body)}</p>
 
-        {allShown&&step.quiz&&<div style={{padding:'16px 18px',background:'#fff',borderRadius:14,border:'1px solid #E5E5EA',boxShadow:'0 1px 3px rgba(15,27,42,.04)',marginBottom:14}}>
+        {allShown&&step.quiz&&<div ref={feedbackRef} style={{padding:'16px 18px',background:'#fff',borderRadius:14,border:'1px solid #E5E5EA',boxShadow:'0 1px 3px rgba(15,27,42,.04)',marginBottom:14}}>
           <div style={{fontSize:14.5,fontWeight:700,color:'#0D1B2A',marginBottom:12}}>{step.quiz.question}</div>
           <div style={{display:'flex',flexDirection:'column',gap:8}}>
             {step.quiz.options.map((opt,i)=>{
@@ -2882,7 +2894,7 @@ function StepAnimationShortsQuiz({step,onNext}){
         </div>}
       </div>
 
-      {quizAnswer!==null&&<div style={{padding:'12px 20px 20px',background:'#F8F8F9'}}>
+      {quizAnswer!==null&&<div style={{position:'sticky',bottom:0,padding:'12px 20px 16px',background:'linear-gradient(to top,#F8F8F9 70%,rgba(248,248,249,0))',marginTop:'auto'}}>
         <button onClick={onNext} style={{width:'100%',fontSize:15,fontWeight:600,padding:'14px 24px',borderRadius:14,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer',boxShadow:'0 4px 16px rgba(0,113,227,.32)',fontFamily:'inherit'}}>Дальше →</button>
       </div>}
     </div>);
