@@ -2056,7 +2056,266 @@ const LESSONS=[
           'Сокращение сна обрезает не всё равномерно, а именно быстрый сон (REM) — вторую половину ночи. Отсюда туман в голове.',
           'Если ядро есть, а рамок нет — ночь протекает с двух сторон. Формально спал, по сути восстановился хуже.'
         ],
-        nextLabel:'Дальше — урок 3: «Утро, которое не начинается в 7:00». Полочки 1–2–3 Ясны Суток.'},
+        nextLabel:'Дальше — урок 3: «Утро, которое начинается раньше будильника». Полочки 1–2–3 Ясны Суток.'},
+      {type:'next-steps-block'}
+    ]
+  },
+  // ─────────────────────────────────────────────────────────────────
+  // УРОК 3 — Модуль «Как устроены сутки», урок 2: Как устроено утро
+  // Смешанный формат: scroll-структура + интерактив из урока 1
+  // (анимация восхода, drag-drop по полочкам, карусель примеров)
+  // ─────────────────────────────────────────────────────────────────
+  {
+    id:'l3_morning',
+    order:3,
+    format:'scroll',
+    module:'Как устроены сутки',
+    moduleOrder:2,
+    title:'Утро начинается раньше будильника',
+    subtitle:'Полочки 1–2–3 Ясны Суток',
+    duration:'14–18 мин',
+    yasna:'суток',
+    blocks:[
+      // ━━ СЕКЦИЯ 1: ВХОД ━━
+      {type:'hero',
+        eyebrow:'Урок 3 · Модуль «Как устроены сутки»',
+        title:'Утро начинается раньше будильника',
+        lead:'Большинство людей считают, что утро — это момент, когда звонит будильник. С точки зрения биологии это грубая ошибка. К моменту, когда ты открываешь глаза, твоё утро уже идёт часа три.'},
+      {type:'toc',
+        title:'Что будет в этом уроке',
+        intro:'В прошлом уроке разобрали полочку 0 — ночь. Сегодня разложим утро на три полочки: 1, 2 и 3.',
+        itemsHeader:'Пойдём по шагам:',
+        items:[
+          'Посмотрим на **эффект утреннего кортизола** — почему тело просыпается за два-три часа до будильника.',
+          'Увидим на **анимации**, как синхронизируются восход, гормоны и полочки 1–2–3.',
+          'Введём три полочки: **Искра, Заря, Утро** — и сразу проверим их на практике.',
+          'Сами разложим **элементы настоящего утра** по трём полочкам.',
+          'Разберём **три случая** — как устроено утро у реальных людей.',
+          'Посмотрим **пять разных утренних ритмов** — от дальнобойщика до мамы с младенцем.',
+          'Запишем наблюдение **про своё утро** в журнал.'
+        ],
+        outcomesHeader:'После урока ты сможешь:',
+        outcomes:[
+          'Назвать три полочки утра и отличать их друг от друга',
+          'Увидеть в своём дне, работает ли у тебя каждая из полочек',
+          'Понимать, почему «встал по будильнику и сразу в дела» — это сбой, а не норма'
+        ],
+        duration:'14–18 минут'},
+      {type:'speaker',
+        name:'Марк',
+        role:'Ведёт курс',
+        avatar:'М',
+        avatarColor:'#0071e3',
+        text:'Привет. В прошлый раз мы смотрели на нижнюю точку цикла суток — полочку 0, ночь. Сегодня поднимаемся выше: 1, 2 и 3 — это то, что мы обычно называем «утро», хотя в самом слове три разных фазы.\n\nКаждая из них нужна. Пропустил одну — и весь день сбит.'},
+      {type:'gate',label:'Начнём с биологии',gateNum:1},
+
+      // ━━ СЕКЦИЯ 2: КОРТИЗОЛ ━━
+      {type:'speaker',
+        name:'Марк',
+        role:'Ведёт курс',
+        avatar:'М',
+        avatarColor:'#0071e3',
+        text:'Сначала — факт, который переворачивает само понятие «утро». Мы разберём его, потом покажем на анимации.'},
+      {type:'explanation',
+        title:'Что такое CAR — утренний подъём кортизола',
+        body:'В 1996 году группа Клеменса Кирштбаума в Университете Трира (Германия) описала явление, которое теперь называют **Cortisol Awakening Response** — CAR, или утренняя реакция кортизола.\n\nКортизол — гормон, отвечающий за переход тела в активный режим. Его уровень в крови меняется по суткам. Вот как это устроено:\n\n— За **2–3 часа до пробуждения** кортизол начинает расти. Ты ещё спишь.\n— В момент **пробуждения** он уже на средней высоте.\n— Через **30–45 минут после** открывания глаз он достигает пика.\n— Дальше весь день медленно снижается.\n\n**Главный вывод:** будильник в 7:00 — это не начало утра. Это середина процесса, который тело запустило в 4:00–5:00.\n\nЕсть и обратная сторона. У людей с хроническим стрессом или хроническим недосыпом подъём кортизола сглажен или вовсе ломается. Тело не может нормально «включить день». Отсюда знакомое многим состояние: спал вроде достаточно, а утром как будто не проснулся.'},
+      {type:'sunrise-animation',
+        title:'Восход и кортизол синхронизированы',
+        caption:'Солнце идёт по небу, синий пунктир — рост кортизола. Ниже подсвечивается фаза, в которой сейчас утро.'},
+      {type:'gate',label:'Теперь три полочки',gateNum:2},
+
+      // ━━ СЕКЦИЯ 3: ТРИ ПОЛОЧКИ ━━
+      {type:'speaker',
+        name:'Марк',
+        role:'Ведёт курс',
+        avatar:'М',
+        avatarColor:'#0071e3',
+        text:'В Ясне утро — это не одна полочка, а три. Каждая отвечает за свой этап. Даю определения.'},
+      {type:'explanation',
+        title:'Полочка 1 — Искра',
+        body:'**Что это:** первый импульс пробуждения, самое начало фазы.\n\n**Что происходит в природе:** на горизонте появляется первый серый свет. Солнца ещё нет. Большинство этого не видит, потому что спит.\n\n**Что происходит в теле:** кортизол пошёл вверх, температура тела начала расти, мелатонин падает. Ты этого не чувствуешь — это происходит во сне.\n\n**Сколько длится:** около 2–3 часов. Примерно с 4:00 до 6:00–6:30 у типичного жителя города, который встаёт в 7:00.\n\n**Как понять, что она работает:** ты просыпаешься за несколько минут до будильника — тело уже готово. Если каждое утро будильник тебя «ловит» — значит, Искра не дотянула до конца своей фазы.'},
+      {type:'explanation',
+        title:'Полочка 2 — Заря',
+        body:'**Что это:** физическое пробуждение без активности. Глаза открыты, но ты ещё не встал.\n\n**Что происходит в природе:** небо светлеет, розовеет. Солнце подходит к горизонту. Всё видно, но дневной свет ещё не включился.\n\n**Что происходит в теле:** кортизол идёт к пику. Мозг переключается из ночного режима в дневной. Этот процесс занимает 20–40 минут.\n\n**Сколько длится:** 20–40 минут с момента открывания глаз до первого активного действия.\n\n**Как понять, что она работает:** между «проснулся» и «встал» у тебя есть пауза — хотя бы 10 минут без телефона и без задач. Если ты проснулся и сразу открыл мессенджер — Зари у тебя нет. Ты прыгаешь из сна сразу в полочку 3.'},
+      {type:'explanation',
+        title:'Полочка 3 — Утро',
+        body:'**Что это:** начало активного действия. Ты встал, двигаешься, делаешь.\n\n**Что происходит в природе:** солнце над горизонтом, свет полноценный дневной.\n\n**Что происходит в теле:** кортизол на пике, тело готово к нагрузке. Следующие два часа — самые продуктивные за весь день с точки зрения когнитивных функций.\n\n**Сколько длится:** примерно 2–3 часа — до обеда или первой существенной смены активности.\n\n**Важное наблюдение:** если полочки 1 и 2 прошли правильно, полочка 3 начинается легко. Если хотя бы одна из них сломана, Утро превращается в тяжёлый старт с кофе и туманом в голове.'},
+      {type:'yasna-star',
+        title:'Полочки 1–2–3 на звезде Ясны Суток',
+        highlightPos:2,
+        caption:'Нижний правый квадрант звезды. Это «восходящая» часть — от ночи к пику активности в полдень.'},
+      {type:'gate',label:'Проверим на практике',gateNum:3},
+
+      // ━━ СЕКЦИЯ 4: DND — расставь по полочкам ━━
+      {type:'speaker',
+        name:'Марк',
+        role:'Ведёт курс',
+        avatar:'М',
+        avatarColor:'#0071e3',
+        text:'Сейчас разложим конкретные моменты типичного утра по трём полочкам. Для каждого нажми цифру полочки. Не угадывай — подумай, о какой фазе идёт речь.'},
+      {type:'three-shelves',
+        question:'К какой полочке относится каждый момент?',
+        hint:'1 — Искра (тело просыпается). 2 — Заря (открыл глаза, но ещё не встал). 3 — Утро (активное действие).',
+        shelves:[
+          {num:1,name:'Искра'},
+          {num:2,name:'Заря'},
+          {num:3,name:'Утро'}
+        ],
+        items:[
+          {id:'i1',label:'Первый свет через шторы. Ты ещё спишь, но тело уже реагирует на свет.',correct:2,
+            explain:'Это Заря. Свет — признак 2 полочки. А вот кортизол пошёл вверх — это уже на Искре, раньше.'},
+          {id:'i2',label:'Кортизол начал расти. Ты не помнишь этого — ты спишь.',correct:1,
+            explain:'Это Искра — самое начало. Биология уже работает, сознание ещё нет.'},
+          {id:'i3',label:'Ты встал, пошёл в душ, включил чайник.',correct:3,
+            explain:'Активное действие — всегда полочка 3.'},
+          {id:'i4',label:'Открыл глаза. Лежишь, смотришь в потолок. Пока ничего не делаешь.',correct:2,
+            explain:'Это Заря — физическое пробуждение без активности. Если этой фазы у тебя нет — сразу хватаешь телефон — Зари нет.'},
+          {id:'i5',label:'Температура тела начала расти, хотя за окном темно и ты спишь.',correct:1,
+            explain:'Это Искра. Все процессы тела готовятся к дню, но сознание ещё не включилось.'},
+          {id:'i6',label:'Открыл ноутбук и начал отвечать на сообщения.',correct:3,
+            explain:'Активное действие — полочка 3. Если оно происходит через минуту после пробуждения — значит, Заря пропущена.'}
+        ]},
+      {type:'explanation',
+        title:'Что показывает это упражнение',
+        body:'В типичном утре все три полочки присутствуют. Вопрос только в том, **как они распределены по времени** и **есть ли между ними переходы**.\n\nТипичная городская ошибка — сжать все три полочки в 15 минут: Искра (будильник), Заря (кофе в телефоне), Утро (сразу в задачи). Тело не успевает переключиться, и первые два часа дня ты работаешь на остатках.'},
+      {type:'gate',label:'Как бывает у разных людей',gateNum:4},
+
+      // ━━ СЕКЦИЯ 5: ТРИ РЕАЛЬНЫХ УТРА ━━
+      {type:'speaker',
+        name:'Марк',
+        role:'Ведёт курс',
+        avatar:'М',
+        avatarColor:'#0071e3',
+        text:'Три истории. У каждого своё утро — разные профессии, разные задачи. Смотри, где какие полочки работают, а где нет.'},
+      {type:'scenario',
+        variant:'Случай 1',
+        name:'Светлана, 32 года, HR-менеджер',
+        context:'Ложится в 23:00, встаёт строго по будильнику в 6:45. За 15 минут — душ, кофе, собралась, выехала. По дороге в такси отвечает на рабочие сообщения. На работе первые два часа чувствует «туман» — тяжело включиться, путается в простых задачах.'},
+      {type:'checkbox-quiz',
+        question:'У Светланы утро работает?',
+        hint:'Один вариант.',
+        single:true,
+        items:[
+          {id:'s1-yes',label:'Да — ложится и встаёт вовремя, всё под контролем',correct:false,
+            feedbackOn:'Формально да, но «туман» первые два часа — это симптом. Полочки 1 и 3 у Светланы есть, а вот полочки 2 (Зари) — нет. Она прыгает из сна сразу в активность.',
+            feedbackOff:''},
+          {id:'s1-partial',label:'Частично — работают полочки 1 и 3, а полочки 2 (Зари) нет',correct:true,
+            feedbackOn:'Верно. «Туман» первые два часа — прямое следствие отсутствия Зари. Мозг не успел переключиться из ночного режима, ему нужно 20–40 минут без активности. Решение: поставить будильник на 20 минут раньше и провести их без телефона и задач.',
+            feedbackOff:''}
+        ]},
+      {type:'scenario',
+        variant:'Случай 2',
+        name:'Артём, 40 лет, предприниматель',
+        context:'Будильник в 6:00. До 6:30 лежит с открытыми глазами без телефона — смотрит в окно, пьёт стакан воды. В 6:30 встаёт, зарядка 10 минут, медленный завтрак без новостей. Работать начинает в 8:00. Говорит, что с тех пор как ввёл эти 30 минут паузы, перестал «залипать» в важных решениях.'},
+      {type:'checkbox-quiz',
+        question:'У Артёма утро работает?',
+        hint:'Один вариант.',
+        single:true,
+        items:[
+          {id:'s2-yes',label:'Да. Все три полочки работают — Искра до 6:00, Заря 6:00–6:30, Утро с 6:30',correct:true,
+            feedbackOn:'Верно. Это собранное утро. 30 минут Зари — немного, но их достаточно для переключения. «Перестал залипать в решениях» — прямое следствие того, что мозг успевает настроиться.',
+            feedbackOff:''},
+          {id:'s2-partial',label:'Нет. Полчаса в кровати — это лень, нужно вставать сразу',correct:false,
+            feedbackOn:'«Вставать сразу» — популярный совет, но он игнорирует биологию. Пауза после пробуждения — не лень, а технический переход между режимами. Без неё первые часы дня теряются.',
+            feedbackOff:''}
+        ]},
+      {type:'scenario',
+        variant:'Случай 3',
+        name:'Мила, 28 лет, копирайтер на фрилансе',
+        context:'Работает из дома, график гибкий. Спит до 10:30. Первое действие после открывания глаз — телефон: лента, мессенджеры, почта. Проводит в телефоне 20–30 минут лёжа, потом встаёт. Кофе, сразу за ноутбук. Чувствует, что тексты даются тяжело — перечитывает, переписывает.'},
+      {type:'checkbox-quiz',
+        question:'У Милы утро работает?',
+        hint:'Один вариант.',
+        single:true,
+        items:[
+          {id:'s3-full',label:'Да. Полноценные 8–9 часов сна и пауза перед подъёмом',correct:false,
+            feedbackOn:'Мила действительно долго спит, но пауза перед подъёмом — это телефон, а не Заря. Телефон в кровати — это когнитивная нагрузка. Заря — про покой, а не про информацию.',
+            feedbackOff:''},
+          {id:'s3-none',label:'Не совсем. Есть только полочка 3 — Искра и Заря сломаны',correct:true,
+            feedbackOn:'Верно. Искра сломана потому, что Мила спит до 10:30 — её кортизол уже должен был выйти на пик, но вместо этого она его «продлевает». Зари нет — вместо покоя телефон. Осталось только Утро, и оно заходит с трудом. Это объясняет, почему тексты даются тяжело.',
+            feedbackOff:''}
+        ]},
+      {type:'gate',label:'Посмотрим разные режимы',gateNum:5},
+
+      // ━━ СЕКЦИЯ 6: CAROUSEL — 5 утренних режимов ━━
+      {type:'speaker',
+        name:'Марк',
+        role:'Ведёт курс',
+        avatar:'М',
+        avatarColor:'#0071e3',
+        text:'Полочки 1–2–3 работают везде, но форма у них разная. Пять примеров из разных профессий — свайпай карусель.'},
+      {type:'carousel',
+        title:'Как утро устроено у разных людей',
+        hint:'Смотри, как три полочки работают независимо от «правильного» времени пробуждения.',
+        items:[
+          {emoji:'🚚',title:'Дальнобойщик',subtitle:'Ночной рейс',
+            bg:'#F8FAFC',accent:'#D8E2EC',
+            body:'Просыпается в 3:00, в 3:30 уже за рулём. Его Искра начинается в полночь — кортизол разгоняется точно к подъёму. Заря — первые 30 минут на трассе без радио и разговоров. Утро — активное вождение с 4:00. Всё работает, просто сдвинуто на 4 часа назад.'},
+          {emoji:'🍼',title:'Мама с младенцем 4 месяцев',subtitle:'Рваное утро',
+            bg:'#FFF7E8',accent:'#F2E1BF',
+            body:'Её утро подстроено под ребёнка. Искра и Заря фрагментированы — ребёнок будит каждые два часа. Утро как полноценная фаза появляется только после того, как муж уходит на работу и можно уложить малыша. Это не сбой, это временный компромисс.'},
+          {emoji:'🧘',title:'Йога-инструктор',subtitle:'Заведённый ритуал',
+            bg:'#F0F8F3',accent:'#C5E5D0',
+            body:'Будильник в 6:00. 15 минут дыхательной практики на коврике (Заря). В 6:15 — первая группа (Утро). Искра приходится на 4:00 — он её не чувствует, но к 6:00 уже готов. Классическая собранная модель.'},
+          {emoji:'💻',title:'Тимлид в IT',subtitle:'Международная команда',
+            bg:'#F5F8FC',accent:'#D3DFEE',
+            body:'Будильник в 6:50. Стендап в 7:30 с командой в Европе. Заря — 15 минут между душем и первым звонком. Искра сдвинута: он ложится поздно из-за вечерних созвонов, поэтому кортизол не успевает полностью накопиться. Через полгода такой режим выгорает.'},
+          {emoji:'🏖',title:'Ты в отпуске',subtitle:'Утро по солнцу',
+            bg:'#FFF4E8',accent:'#F2D7B5',
+            body:'Будильника нет. Просыпаешься сам около 7:30 — потому что свет через окно попадает в глаза (Искра сработала естественно). 20–30 минут без планов — кофе на балконе, книга (Заря). В 8:00 идёшь на завтрак (Утро). Такое утро кажется редкостью, хотя биологически это норма.'}
+        ]},
+      {type:'gate',label:'Запишу про себя',gateNum:6},
+
+      // ━━ СЕКЦИЯ 7: РЕФЛЕКСИЯ ━━
+      {type:'reflection',
+        title:'Твоё вчерашнее утро',
+        intro:'Три коротких вопроса про своё утро. Ответы сохраняются только у тебя в браузере — это твой журнал.',
+        questions:[
+          {id:'wake',label:'Во сколько ты проснулся и что было первым действием?',placeholder:'Например: проснулся в 7:10, сразу взял телефон и открыл почту...'},
+          {id:'pause',label:'Была ли у тебя пауза между «проснулся» и «встал»? Если да — что ты делал в эту паузу?',placeholder:'Например: нет, встал сразу. Или: лежал 10 минут, смотрел в потолок...'},
+          {id:'feeling',label:'Как ты чувствовал себя первые два часа дня — собранно или в тумане?',placeholder:'Например: туман до первой чашки кофе и часа на работе...'}
+        ],
+        footer:'Через месяц вернёшься — увидишь, есть ли у тебя полочка 2.'},
+      {type:'gate',label:'Проверим, что запомнил',gateNum:7},
+
+      // ━━ СЕКЦИЯ 8: ФИНАЛЬНЫЙ КВИЗ ━━
+      {type:'final-quiz-inline',
+        title:'Три вопроса для закрепления',
+        questions:[
+          {q:'Что такое CAR (Cortisol Awakening Response)?',
+           options:[
+             'Состояние, когда кортизол падает ночью',
+             'Подъём кортизола за 2–3 часа до пробуждения',
+             'Скачок кортизола от стресса в течение дня',
+             'Медицинский тест на уровень гормонов'
+           ],
+           correctIdx:1,
+           explain:'CAR — это утренняя реакция кортизола, открытая группой Кирштбаума в 1996 году. Кортизол начинает расти за 2–3 часа до пробуждения и достигает пика через 30–45 минут после открывания глаз. Это и есть биологическое «утро».'},
+          {q:'К какой полочке относится момент «открыл глаза, лежишь, пока ничего не делаешь»?',
+           options:['1 — Искра','2 — Заря','3 — Утро','Это ещё полочка 0 — Ночь'],
+           correctIdx:1,
+           explain:'Полочка 2 — Заря. Физическое пробуждение без активности. Эта пауза нужна мозгу, чтобы переключиться из ночного режима в дневной. Она занимает 20–40 минут и у большинства городских жителей отсутствует.'},
+          {q:'Что произойдёт, если утром пропустить полочку 2 (Зарю)?',
+           options:[
+             'Ничего — главное, чтобы был сон',
+             'Утро начнётся резко, без переходного режима. Первые 1–2 часа мозг будет в тумане',
+             'Ускорится наступление полочки 3',
+             'Кортизол не поднимется'
+           ],
+           correctIdx:1,
+           explain:'Без Зари мозг не успевает переключиться. Ты прыгаешь из сна в активность. Следствие — «туман» первые 1–2 часа, сниженное качество решений, раздражительность. Классический случай — Светлана из нашего примера.'}
+        ]},
+
+      // ━━ СЕКЦИЯ 9: ИТОГ ━━
+      {type:'summary-block',
+        title:'Что забираем из этого урока',
+        points:[
+          'Утро — это три полочки: Искра (кортизол растёт во сне), Заря (открытые глаза без активности), Утро (активное действие).',
+          'Биологическое утро начинается за 2–3 часа до будильника. Будильник — середина процесса, не начало.',
+          'Самая часто пропускаемая полочка — Заря. Именно из-за её отсутствия появляется «туман» первые два часа дня.',
+          'Форма утра у всех разная (дальнобойщик, мама с младенцем, йога-инструктор), но три полочки нужны в любой.'
+        ],
+        nextLabel:'Дальше — урок 4: «Полдень, ради которого всё». Полочки 4–5–6 Ясны Суток и пик активности.'},
       {type:'next-steps-block'}
     ]
   }
@@ -3159,6 +3418,184 @@ function NextStepsBlockInline({block,onClose,onPickAnother,onRepeat}){
     </div>);
 }
 
+// ─── Animated sunrise with rising cortisol curve ───
+function InlineSunriseBlock({block}){
+  const[tick,setTick]=useState(0);
+  useEffect(()=>{
+    const t=setInterval(()=>setTick(v=>(v+1)%300),60);
+    return()=>clearInterval(t);
+  },[]);
+  const t=tick/300;
+  // Sun path: arc from low-left to higher-right
+  const sunX=30+t*340;
+  const sunY=170-Math.sin(t*Math.PI*0.9)*130;
+  // Cortisol rises from ~20% to ~90%
+  const cortisolH=(Math.sin(t*Math.PI*0.85)*0.45+0.25);
+  // Which shelf is "active" right now: 1 (Искра), 2 (Заря), 3 (Утро)
+  const activeShelf=t<0.38?1:t<0.7?2:3;
+  const shelfLabels=[
+    {num:1,name:'Искра',desc:'кортизол пошёл вверх'},
+    {num:2,name:'Заря',desc:'первый свет, глаза открылись'},
+    {num:3,name:'Утро',desc:'ты встал, день пошёл'}
+  ];
+
+  return(
+    <div style={{padding:'16px 24px',maxWidth:680,margin:'0 auto'}}>
+      <div style={{background:'linear-gradient(180deg,#F8FAFC 0%,#FFF6E8 60%,#FFEBD9 100%)',borderRadius:16,padding:'20px 18px',border:'1px solid #F2E1BF'}}>
+        {block.title&&<div style={{fontSize:15,fontWeight:700,color:'#0D1B2A',marginBottom:4,textAlign:'center'}}>{block.title}</div>}
+        {block.caption&&<div style={{fontSize:13,color:'#6E7781',marginBottom:14,textAlign:'center',lineHeight:1.5}}>{block.caption}</div>}
+
+        <svg viewBox="0 0 400 220" style={{width:'100%',height:200,display:'block'}}>
+          {/* Horizon */}
+          <line x1="10" y1="170" x2="390" y2="170" stroke="#B8874A" strokeWidth="1.5" strokeDasharray="2 3"/>
+
+          {/* Cortisol curve — dashed blue line */}
+          <path
+            d={`M 20 170 Q 100 ${170-cortisolH*100} ${sunX} ${170-cortisolH*120}`}
+            fill="none" stroke="#0071e3" strokeWidth="2.5" strokeDasharray="4 4" opacity="0.7"
+          />
+
+          {/* Sun */}
+          <circle cx={sunX} cy={sunY} r={20} fill="#FFB020" opacity="0.3"/>
+          <circle cx={sunX} cy={sunY} r={14} fill="#FFB020"/>
+
+          {/* Axis labels */}
+          <text x="20" y="190" fontSize="10" fill="#6E7781">~3:00</text>
+          <text x="200" y="190" fontSize="10" fill="#6E7781" textAnchor="middle">~6:30</text>
+          <text x="380" y="190" fontSize="10" fill="#6E7781" textAnchor="end">~9:00</text>
+
+          {/* Legend */}
+          <g transform="translate(10, 208)">
+            <line x1="0" y1="0" x2="16" y2="0" stroke="#0071e3" strokeWidth="2" strokeDasharray="3 3"/>
+            <text x="22" y="3" fontSize="9" fill="#6E7781">кортизол</text>
+            <circle cx="80" cy="0" r="4" fill="#FFB020"/>
+            <text x="90" y="3" fontSize="9" fill="#6E7781">солнце</text>
+          </g>
+        </svg>
+
+        {/* Which shelf is active */}
+        <div style={{display:'flex',justifyContent:'space-around',marginTop:8,gap:6}}>
+          {shelfLabels.map(s=>{
+            const isActive=activeShelf===s.num;
+            return(
+              <div key={s.num} style={{flex:1,textAlign:'center',padding:'8px 6px',borderRadius:10,background:isActive?'#fff':'transparent',border:'1.5px solid '+(isActive?'#0071e3':'transparent'),transition:'all .3s'}}>
+                <div style={{fontSize:16,fontWeight:800,color:isActive?'#0071e3':'#B0B8C0',transition:'color .3s'}}>{s.num}</div>
+                <div style={{fontSize:11.5,fontWeight:700,color:isActive?'#0D1B2A':'#8A8A8F',marginTop:2,transition:'color .3s'}}>{s.name}</div>
+                <div style={{fontSize:10.5,color:'#6E7781',marginTop:1,lineHeight:1.3}}>{s.desc}</div>
+              </div>);
+          })}
+        </div>
+      </div>
+    </div>);
+}
+
+// ─── Tap-to-assign: place elements on 3 shelves ───
+function InlineThreeShelvesBlock({block,onComplete}){
+  const[assignments,setAssignments]=useState({});
+  const[interacted,setInteracted]=useState(false);
+
+  const assign=(itemId,shelfNum)=>{
+    if(!interacted){setInteracted(true);if(onComplete)onComplete();}
+    setAssignments(prev=>({...prev,[itemId]:shelfNum}));
+  };
+
+  return(
+    <div style={{padding:'16px 24px',maxWidth:680,margin:'0 auto'}}>
+      <div style={{background:'#fff',borderRadius:14,padding:'22px 22px',border:'1px solid #E5E5EA',boxShadow:'0 1px 3px rgba(15,27,42,.04)'}}>
+        <div style={{fontSize:15,fontWeight:700,color:'#0D1B2A',marginBottom:6,lineHeight:1.4}}>{block.question}</div>
+        {block.hint&&<div style={{fontSize:13,color:'#6E7781',marginBottom:16,lineHeight:1.5}}>{block.hint}</div>}
+
+        {/* Shelf legend */}
+        <div style={{display:'flex',gap:8,marginBottom:16,padding:'12px 10px',background:'#F5F8FC',borderRadius:12}}>
+          {block.shelves.map(s=>(
+            <div key={s.num} style={{flex:1,textAlign:'center'}}>
+              <div style={{fontSize:16,fontWeight:800,color:'#0071e3'}}>{s.num}</div>
+              <div style={{fontSize:12,fontWeight:700,color:'#0D1B2A',marginTop:2}}>{s.name}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Items */}
+        {block.items.map(item=>{
+          const assigned=assignments[item.id];
+          const attempted=assigned!=null;
+          const isCorrect=assigned===item.correct;
+          const cardBg=attempted?(isCorrect?'#F0F8F3':'#FDF3F3'):'#fff';
+          const cardBorder=attempted?(isCorrect?'#4A9D68':'#D46B6B'):'#E5E5EA';
+          return(
+            <div key={item.id} style={{marginBottom:10,padding:'14px 14px',background:cardBg,border:'1px solid '+cardBorder,borderRadius:12,transition:'all .25s'}}>
+              <div style={{fontSize:14,color:'#1F2933',marginBottom:10,lineHeight:1.45}}>{item.label}</div>
+              <div style={{display:'flex',gap:6}}>
+                {block.shelves.map(s=>{
+                  const selected=assigned===s.num;
+                  const correctBtn=attempted&&s.num===item.correct;
+                  let bg='#fff',color='#3D4852',border='#E5E5EA';
+                  if(attempted){
+                    if(selected&&isCorrect){bg='#4A9D68';color='#fff';border='#4A9D68';}
+                    else if(selected&&!isCorrect){bg='#D46B6B';color='#fff';border='#D46B6B';}
+                    else if(correctBtn){bg='#fff';color='#4A9D68';border='#4A9D68';}
+                  }
+                  return(
+                    <button key={s.num}
+                      onClick={()=>!attempted&&assign(item.id,s.num)}
+                      disabled={attempted}
+                      style={{flex:1,padding:'9px 10px',fontSize:13.5,fontWeight:700,color,background:bg,border:'1.5px solid '+border,borderRadius:8,cursor:attempted?'default':'pointer',fontFamily:'inherit',transition:'all .15s'}}
+                    >{s.num}</button>);
+                })}
+              </div>
+              {attempted&&item.explain&&(
+                <div style={{fontSize:12.5,color:isCorrect?'#2D7A4A':'#B8464D',marginTop:10,lineHeight:1.55}}>
+                  {isCorrect?'✓ ':'Правильно — '+item.correct+'. '}{item.explain}
+                </div>
+              )}
+            </div>);
+        })}
+      </div>
+    </div>);
+}
+
+// ─── Horizontal carousel of example cards ───
+function InlineCarouselBlock({block}){
+  const ref=useRef(null);
+  const[activeIdx,setActiveIdx]=useState(0);
+
+  const onScroll=()=>{
+    const el=ref.current;
+    if(!el)return;
+    const w=el.clientWidth-48; // minus padding
+    const i=Math.round(el.scrollLeft/(w*0.85+12));
+    setActiveIdx(Math.min(i,block.items.length-1));
+  };
+
+  return(
+    <div style={{padding:'16px 0',maxWidth:680,margin:'0 auto'}}>
+      <div style={{padding:'0 24px',marginBottom:14}}>
+        {block.title&&<div style={{fontSize:15,fontWeight:700,color:'#0D1B2A',marginBottom:4}}>{block.title}</div>}
+        {block.hint&&<div style={{fontSize:13,color:'#6E7781',lineHeight:1.5}}>{block.hint}</div>}
+      </div>
+      <div
+        ref={ref}
+        onScroll={onScroll}
+        style={{display:'flex',gap:12,overflowX:'auto',scrollSnapType:'x mandatory',padding:'4px 24px 12px',WebkitOverflowScrolling:'touch',scrollbarWidth:'none'}}
+      >
+        {block.items.map((item,i)=>(
+          <div key={i} style={{flex:'0 0 78%',maxWidth:320,scrollSnapAlign:'start',background:item.bg||'#fff',borderRadius:14,padding:'18px 18px',border:'1px solid '+(item.accent||'#E5E5EA'),boxShadow:'0 1px 3px rgba(15,27,42,.05)'}}>
+            {item.emoji&&<div style={{fontSize:26,marginBottom:8}}>{item.emoji}</div>}
+            <div style={{fontSize:15,fontWeight:700,color:'#0D1B2A',marginBottom:3,lineHeight:1.3}}>{item.title}</div>
+            {item.subtitle&&<div style={{fontSize:11.5,color:'#6E7781',marginBottom:12,textTransform:'uppercase',letterSpacing:0.6,fontWeight:600}}>{item.subtitle}</div>}
+            <div style={{fontSize:13.5,color:'#3D4852',lineHeight:1.6,whiteSpace:'pre-wrap'}}>{renderRichText(item.body)}</div>
+          </div>
+        ))}
+      </div>
+      {/* dots */}
+      <div style={{display:'flex',justifyContent:'center',gap:6,marginTop:8}}>
+        {block.items.map((_,i)=>(
+          <div key={i} style={{width:activeIdx===i?18:6,height:6,borderRadius:3,background:activeIdx===i?'#0071e3':'#D1D1D6',transition:'all .25s'}}/>
+        ))}
+      </div>
+    </div>);
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // MAIN SCROLL LESSON — gate-based progressive disclosure
 // ═══════════════════════════════════════════════════════════════════
@@ -3181,7 +3618,7 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother}){
       const required=[];
       for(let j=prevGateBlockIdx+1;j<gateBlockIdx;j++){
         const bt=lesson.blocks[j].type;
-        if(bt==='checkbox-quiz'||bt==='final-quiz-inline'){
+        if(bt==='checkbox-quiz'||bt==='final-quiz-inline'||bt==='three-shelves'){
           required.push(j);
         }
       }
@@ -3286,6 +3723,9 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother}){
             case 'yasna-star': return wrap(<YasnaStarBlock block={block}/>);
             case 'reflection': return wrap(<ReflectionBlock block={block} lessonId={lesson.id}/>);
             case 'final-quiz-inline': return wrap(<FinalQuizInlineBlock block={block} onComplete={()=>markBlockComplete(i)}/>);
+            case 'sunrise-animation': return wrap(<InlineSunriseBlock block={block}/>);
+            case 'three-shelves': return wrap(<InlineThreeShelvesBlock block={block} onComplete={()=>markBlockComplete(i)}/>);
+            case 'carousel': return wrap(<InlineCarouselBlock block={block}/>);
             case 'summary-block': return wrap(<SummaryBlockInline block={block}/>);
             case 'next-steps-block': return wrap(<NextStepsBlockInline block={block} onClose={onClose} onPickAnother={onPickAnother} onRepeat={repeat}/>);
             default: return wrap(<div style={{padding:20,color:'#B0B0B8',textAlign:'center'}}>Блок '{block.type}' не реализован</div>);
