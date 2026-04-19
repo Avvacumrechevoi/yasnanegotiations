@@ -321,7 +321,7 @@ window.YasnaLessons.lessons.push(
         nextLessonTitle:'Урок 3 · Две главные линии',
         nextLessonSubtitle:'Почему опоры идут парами — и что через них проходит',
         nextLessonDuration:'~18 минут',
-        nextLessonStatus:'planned'
+        nextLessonStatus:'ready'
       }
     ]
   }
