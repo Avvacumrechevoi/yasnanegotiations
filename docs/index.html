@@ -4005,13 +4005,13 @@ function SpeakerBlock({block}){
   const[popup,setPopup]=useState(false);
   return(
     <div style={{padding:'16px 24px',maxWidth:680,margin:'0 auto'}}>
-      <div style={{background:'#F4F8FD',borderRadius:16,padding:'20px 22px',border:'1px solid #E0ECF7',position:'relative'}}>
+      <div style={{background:'#F4F8FD',borderRadius:16,padding:'20px 22px',border:'1px solid #E0ECF7'}}>
         {block.science&&(
-          <div style={{position:'absolute',top:12,right:12}}>
+          <div style={{display:'flex',justifyContent:'flex-end',marginBottom:10}}>
             <ScienceTag science={block.science} onOpen={()=>setPopup(true)}/>
           </div>
         )}
-        <div style={{display:'flex',gap:12,alignItems:'center',marginBottom:12,paddingRight:block.science?70:0}}>
+        <div style={{display:'flex',gap:12,alignItems:'center',marginBottom:12}}>
           {useAvatarLogo
             ? <div style={{flexShrink:0,borderRadius:'50%',width:52,height:52,overflow:'hidden',background:'#fff',border:'1px solid #E0ECF7',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 1px 3px rgba(15,27,42,.06)'}}><YasnaAvatar size={44}/></div>
             : <div style={{width:40,height:40,borderRadius:'50%',background:block.avatarColor||'#0071e3',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontWeight:700,flexShrink:0,boxShadow:'0 2px 6px rgba(0,113,227,.25)'}}>{block.avatar||'?'}</div>
@@ -4031,13 +4031,13 @@ function ExplanationBlock({block}){
   const[popup,setPopup]=useState(false);
   return(
     <div style={{padding:'16px 24px',maxWidth:680,margin:'0 auto'}}>
-      <div style={{background:'#fff',borderRadius:14,padding:'22px 24px',border:'1px solid #E8E3D9',boxShadow:'0 1px 3px rgba(15,27,42,.04)',position:'relative'}}>
+      <div style={{background:'#fff',borderRadius:14,padding:'22px 24px',border:'1px solid #E8E3D9',boxShadow:'0 1px 3px rgba(15,27,42,.04)'}}>
         {block.science&&(
-          <div style={{position:'absolute',top:12,right:12}}>
+          <div style={{display:'flex',justifyContent:'flex-end',marginBottom:10}}>
             <ScienceTag science={block.science} onOpen={()=>setPopup(true)}/>
           </div>
         )}
-        {block.title&&<div style={{fontSize:14,fontWeight:700,color:'#0D1B2A',marginBottom:12,lineHeight:1.35,paddingRight:block.science?80:0}}>{block.title}</div>}
+        {block.title&&<div style={{fontSize:14,fontWeight:700,color:'#0D1B2A',marginBottom:12,lineHeight:1.35}}>{block.title}</div>}
         <div style={{fontSize:14.5,color:'#3D4852',lineHeight:1.7,whiteSpace:'pre-wrap'}}>{renderRichText(block.body)}</div>
       </div>
       {popup&&<SciencePopupSheet science={block.science} onClose={()=>setPopup(false)}/>}
@@ -4292,53 +4292,55 @@ function PillarsPickerBlock({block,onComplete}){
   };
 
   return(
-    <div style={{padding:'16px 24px',maxWidth:680,margin:'0 auto'}}>
-      <div style={{background:'#fff',borderRadius:14,padding:'22px 20px',border:'1px solid #E5E5EA',boxShadow:'0 1px 3px rgba(15,27,42,.04)'}}>
-        {/* Header */}
-        <div style={{marginBottom:14}}>
-          <div style={{fontSize:10,fontWeight:700,color:block.mode==='guided'?'#B8560E':'#0071E3',letterSpacing:0.8,textTransform:'uppercase',marginBottom:4}}>
+    <div style={{padding:'16px 20px',maxWidth:680,margin:'0 auto'}}>
+      {/* Question card — black border, minimalist */}
+      <div style={{background:'#fff',border:'2px solid #0D1B2A',borderRadius:4,padding:'22px 20px'}}>
+        {/* Mode + Yasna label */}
+        <div style={{marginBottom:16}}>
+          <div style={{fontSize:10,fontWeight:700,color:block.mode==='guided'?'#B8560E':'#0071E3',letterSpacing:0.8,textTransform:'uppercase',marginBottom:6}}>
             {block.mode==='guided'?'Упражнение с подсказкой':'Практика'}
           </div>
-          {block.yasna&&<div style={{fontSize:17,fontWeight:700,color:'#0D1B2A',marginBottom:8,letterSpacing:'-0.1px'}}>{block.yasna}</div>}
-          {block.question&&<div style={{fontSize:14,color:'#1F2933',lineHeight:1.55,fontWeight:500}}>{renderRichText(block.question)}</div>}
+          {block.yasna&&<div style={{fontSize:18,fontWeight:700,color:'#0D1B2A',marginBottom:10,letterSpacing:'-0.2px',lineHeight:1.25}}>{block.yasna}</div>}
+          {block.question&&<div style={{fontSize:15,color:'#1F2933',lineHeight:1.55,fontWeight:400}}>{renderRichText(block.question)}</div>}
         </div>
 
         {/* Hint (guided only) */}
         {block.mode==='guided'&&block.hint&&(
-          <div style={{padding:'12px 14px',background:'#FFF4E0',border:'1px solid #F2D89A',borderRadius:10,marginBottom:14,fontSize:13,color:'#8A5200',lineHeight:1.55}}>
+          <div style={{padding:'12px 14px',background:'#FFF8EC',borderLeft:'3px solid #E8A52B',borderRadius:'0 4px 4px 0',marginBottom:16,fontSize:13.5,color:'#6B4E15',lineHeight:1.55}}>
             💡 <b>Подсказка.</b> {renderRichText(block.hint)}
           </div>
         )}
 
-        {/* Candidate cards — no position numbers, just labels */}
-        <div style={{display:'grid',gridTemplateColumns:'1fr',gap:8,marginBottom:14}}>
-          {(block.candidates||[]).map(c=>{
+        {/* Candidate rows — borderless, single-line, with circular checkboxes */}
+        <div style={{display:'flex',flexDirection:'column',marginBottom:0}}>
+          {(block.candidates||[]).map((c,idx)=>{
             const isSelected=selected.has(c.id);
             const isRight=correct.has(c.id);
-            let bg='#fff', border='#E5E5EA', color='#1F2933', fontWeight=500, icon=null, iconColor='#D1D1D6';
+            let rowColor='#1F2933', rowWeight=400, indicatorBg='#fff', indicatorBorder='#C7C7CC', indicatorFill=null;
             if(submitted){
               if(isSelected && isRight){
-                bg='#E8F5EE'; border='#4A9D68'; color='#1B5D35'; fontWeight=600;
-                icon='✓'; iconColor='#4A9D68';
+                rowColor='#1B5D35'; rowWeight=600;
+                indicatorBg='#4A9D68'; indicatorBorder='#4A9D68'; indicatorFill='✓';
               } else if(isSelected && !isRight){
-                bg='#FCE9EA'; border='#D46B6B'; color='#8A3939';
-                icon='✕'; iconColor='#D46B6B';
+                rowColor='#8A3939'; rowWeight=500;
+                indicatorBg='#D46B6B'; indicatorBorder='#D46B6B'; indicatorFill='✕';
               } else if(!isSelected && isRight){
-                bg='#F8F5E8'; border='#C89030'; color='#6B5018';
-                icon='⟡'; iconColor='#C89030';
+                rowColor='#6B5018'; rowWeight=500;
+                indicatorBorder='#C89030'; indicatorFill=null;
               }
             } else if(isSelected){
-              bg='#EEF4FD'; border='#0071E3'; color='#004EB5'; fontWeight=600;
+              rowColor='#004EB5'; rowWeight=600;
+              indicatorBg='#0071E3'; indicatorBorder='#0071E3'; indicatorFill='✓';
             }
             return(
               <button key={c.id} onClick={()=>toggle(c.id)}
                 disabled={submitted&&isCorrect}
-                style={{display:'flex',alignItems:'center',gap:12,padding:'14px 14px',background:bg,border:`1.5px solid ${border}`,borderRadius:10,cursor:submitted&&isCorrect?'default':'pointer',textAlign:'left',transition:'all .2s',fontFamily:'inherit',minHeight:50}}>
-                {/* Checkbox-like indicator */}
-                <span style={{flexShrink:0,width:22,height:22,borderRadius:6,border:`2px solid ${submitted?border:(isSelected?'#0071E3':'#C7C7CC')}`,background:isSelected&&!submitted?'#0071E3':'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:isSelected&&!submitted?'#fff':iconColor,transition:'all .2s'}}>
-                  {submitted?icon:(isSelected?'✓':'')}
+                style={{display:'flex',alignItems:'center',gap:14,padding:'14px 0',background:'transparent',border:'none',borderBottom:idx<block.candidates.length-1?'1px solid #F0F0F2':'none',cursor:submitted&&isCorrect?'default':'pointer',textAlign:'left',fontFamily:'inherit',width:'100%'}}>
+                {/* Circular checkbox indicator */}
+                <span style={{flexShrink:0,width:22,height:22,borderRadius:'50%',border:`2px solid ${indicatorBorder}`,background:indicatorBg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'#fff',transition:'all .15s'}}>
+                  {indicatorFill}
                 </span>
-                <span style={{fontSize:14.5,color,fontWeight,lineHeight:1.35,flex:1}}>{c.label}</span>
+                <span style={{fontSize:15,color:rowColor,fontWeight:rowWeight,lineHeight:1.4,flex:1}}>{c.label}</span>
               </button>
             );
           })}
@@ -4346,31 +4348,31 @@ function PillarsPickerBlock({block,onComplete}){
 
         {/* Counter + action */}
         {!submitted&&(
-          <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <div style={{display:'flex',alignItems:'center',gap:12,marginTop:18,paddingTop:16,borderTop:'1px solid #F0F0F2'}}>
             <div style={{fontSize:12.5,color:'#6E7781',flex:1}}>Выбрано <b style={{color:selected.size===numCorrect?'#0071E3':'#0D1B2A'}}>{selected.size}</b> из {numCorrect}</div>
             <button onClick={check} disabled={selected.size!==numCorrect}
-              style={{fontSize:13,fontWeight:600,padding:'10px 18px',borderRadius:10,border:'none',background:selected.size===numCorrect?'#0071E3':'#E5E5EA',color:selected.size===numCorrect?'#fff':'#AEAEB2',cursor:selected.size===numCorrect?'pointer':'default',fontFamily:'inherit',transition:'all .2s'}}>
+              style={{fontSize:13.5,fontWeight:600,padding:'10px 20px',borderRadius:4,border:'none',background:selected.size===numCorrect?'#0D1B2A':'#E5E5EA',color:selected.size===numCorrect?'#fff':'#AEAEB2',cursor:selected.size===numCorrect?'pointer':'default',fontFamily:'inherit',transition:'all .15s',letterSpacing:0.2}}>
               Проверить
             </button>
           </div>
         )}
-
-        {/* Feedback */}
-        {submitted&&(
-          <div style={{padding:'14px 16px',background:isCorrect?'#E8F5EE':'#FCE9EA',border:`1px solid ${isCorrect?'#4A9D68':'#D46B6B'}`,borderRadius:10,fontSize:13.5,lineHeight:1.6,color:isCorrect?'#1B5D35':'#8A3939'}}>
-            <div style={{fontWeight:700,marginBottom:6,display:'flex',alignItems:'center',gap:6}}>
-              {isCorrect?'✓ Верно':'Не совсем'}
-            </div>
-            <div style={{whiteSpace:'pre-wrap'}}>{renderRichText(isCorrect?block.feedbackOk:block.feedbackError)}</div>
-            {!isCorrect&&(
-              <button onClick={reset}
-                style={{marginTop:12,fontSize:12.5,fontWeight:600,padding:'8px 14px',borderRadius:8,border:'1px solid #D46B6B',background:'#fff',color:'#8A3939',cursor:'pointer',fontFamily:'inherit'}}>
-                ⟲ Попробовать снова
-              </button>
-            )}
-          </div>
-        )}
       </div>
+
+      {/* Feedback — OUTSIDE the question card, with coloured vertical bar on the left */}
+      {submitted&&(
+        <div style={{marginTop:14,padding:'16px 18px 16px 20px',borderLeft:`3px solid ${isCorrect?'#4A9D68':'#D46B6B'}`,fontSize:14,lineHeight:1.65,color:'#1F2933'}}>
+          <div style={{fontWeight:700,marginBottom:8,color:isCorrect?'#1B5D35':'#8A3939'}}>
+            {isCorrect?'Верно!':'Неверный ответ.'}
+          </div>
+          <div style={{whiteSpace:'pre-wrap'}}>{renderRichText(isCorrect?block.feedbackOk:block.feedbackError)}</div>
+          {!isCorrect&&(
+            <button onClick={reset}
+              style={{marginTop:14,fontSize:13,fontWeight:500,padding:'8px 16px',borderRadius:4,border:'1px solid #D1D5DB',background:'#fff',color:'#3D4852',cursor:'pointer',fontFamily:'inherit'}}>
+              Попробовать снова
+            </button>
+          )}
+        </div>
+      )}
     </div>);
 }
 
