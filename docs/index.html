@@ -4589,6 +4589,14 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
     if(fullyDone&&onComplete)onComplete(lesson.id);
   },[fullyDone]);
 
+  // Guarantee scroll starts at top when lesson opens (belt + suspenders;
+  // key prop should already remount component on lesson.id change)
+  useEffect(()=>{
+    if(scrollRef.current){
+      scrollRef.current.scrollTop=0;
+    }
+  },[lesson.id]);
+
   const unlockGate=(gateNum)=>{
     setUnlockedGates(prev=>Math.max(prev,gateNum+1));
     setTimeout(()=>{
@@ -4673,9 +4681,9 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
 function Lesson({lessonId,onClose,onComplete,onPickAnother,onOpenLesson}){
   const lesson=LESSONS.find(l=>l.id===lessonId)||LESSONS[0];
   if(lesson.format==='scroll'){
-    return<ScrollLesson lesson={lesson} onClose={onClose} onComplete={onComplete} onPickAnother={onPickAnother} onOpenLesson={onOpenLesson}/>;
+    return<ScrollLesson key={lesson.id} lesson={lesson} onClose={onClose} onComplete={onComplete} onPickAnother={onPickAnother} onOpenLesson={onOpenLesson}/>;
   }
-  return<LessonStepBased lesson={lesson} onClose={onClose} onComplete={onComplete} onPickAnother={onPickAnother}/>;
+  return<LessonStepBased key={lesson.id} lesson={lesson} onClose={onClose} onComplete={onComplete} onPickAnother={onPickAnother}/>;
 }
 
 function LessonStepBased({lesson,onClose,onComplete,onPickAnother}){
