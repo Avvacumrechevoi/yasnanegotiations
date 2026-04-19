@@ -3871,21 +3871,23 @@ function ScienceTag({science,onOpen}){
   return(
     <button onClick={onOpen}
       style={{
-        display:'inline-flex',alignItems:'center',gap:5,
-        padding:'6px 11px',borderRadius:20,
-        background:'#EEF0F3',border:'1px solid #D9DEE5',
-        color:'#5C6A80',fontSize:11.5,fontWeight:700,
-        letterSpacing:0.3,textTransform:'uppercase',
+        display:'inline-flex',alignItems:'center',gap:6,
+        padding:'7px 12px',borderRadius:20,
+        background:'#EEF4FD',border:'1px solid #B8D4F5',
+        color:'#0060C0',fontSize:11.5,fontWeight:600,
+        letterSpacing:0.2,
         cursor:'pointer',fontFamily:'inherit',flexShrink:0,
-        minHeight:32,
-        transition:'all .15s'
+        minHeight:34,
+        transition:'all .15s',
+        boxShadow:'0 1px 2px rgba(0,96,192,.08)',
       }}
-      onMouseEnter={e=>{e.currentTarget.style.background='#E3E8EF';e.currentTarget.style.borderColor='#B8BFC9';}}
-      onMouseLeave={e=>{e.currentTarget.style.background='#EEF0F3';e.currentTarget.style.borderColor='#D9DEE5';}}
-      aria-label="Научное обоснование"
+      onMouseEnter={e=>{e.currentTarget.style.background='#DEEAFB';e.currentTarget.style.borderColor='#7FB0E8';}}
+      onMouseLeave={e=>{e.currentTarget.style.background='#EEF4FD';e.currentTarget.style.borderColor='#B8D4F5';}}
+      aria-label="Открыть научное обоснование"
     >
-      <span style={{fontSize:12}}>🔬</span>
-      <span>Научно</span>
+      <span style={{fontSize:13}}>🔬</span>
+      <span>Наука</span>
+      <span style={{fontSize:13,fontWeight:700,marginLeft:-2}}>→</span>
     </button>
   );
 }
@@ -3904,9 +3906,21 @@ function SciencePopupSheet({science,onClose}){
     return()=>window.removeEventListener('keydown',h);
   },[onClose]);
 
+  // Prevent bubbling explicitly — use mousedown+click pair
+  const handleClose=(e)=>{
+    if(e){e.preventDefault();e.stopPropagation();}
+    onClose();
+  };
+  const handleOverlayClick=(e)=>{
+    // Only close if the actual overlay itself was clicked, not any child
+    if(e.target===e.currentTarget){
+      handleClose(e);
+    }
+  };
+
   return(
     <div
-      onClick={onClose}
+      onClick={handleOverlayClick}
       style={{
         position:'fixed',inset:0,zIndex:200,
         background:'rgba(15,27,42,.55)',
@@ -3915,30 +3929,45 @@ function SciencePopupSheet({science,onClose}){
       }}
     >
       <div
-        onClick={e=>e.stopPropagation()}
         style={{
           width:'100%',maxWidth:680,
           background:'#fff',
           borderTopLeftRadius:20,borderTopRightRadius:20,
           padding:'20px 22px 32px',
-          maxHeight:'80vh',overflowY:'auto',
+          maxHeight:'85vh',overflowY:'auto',
           boxShadow:'0 -10px 40px rgba(15,27,42,.2)',
           animation:'scienceSlide .25s ease-out',
+          position:'relative',
         }}
       >
+        {/* Close X button — always visible at top right */}
+        <button
+          onClick={handleClose}
+          aria-label="Закрыть"
+          style={{
+            position:'absolute',top:14,right:14,
+            width:36,height:36,borderRadius:'50%',
+            border:'none',background:'#F2F4F7',
+            color:'#5C6A80',fontSize:20,fontWeight:400,
+            cursor:'pointer',fontFamily:'inherit',
+            display:'flex',alignItems:'center',justifyContent:'center',
+            padding:0,lineHeight:1,zIndex:2,
+          }}
+        >×</button>
+
         {/* Drag handle */}
         <div style={{width:40,height:4,background:'#D1D5DB',borderRadius:2,margin:'0 auto 16px'}}/>
 
         {/* Area label */}
         {science.area&&(
-          <div style={{fontSize:10.5,color:'#5C6A80',textTransform:'uppercase',letterSpacing:1.1,fontWeight:700,marginBottom:8,display:'flex',alignItems:'center',gap:6}}>
+          <div style={{fontSize:10.5,color:'#5C6A80',textTransform:'uppercase',letterSpacing:1.1,fontWeight:700,marginBottom:8,display:'flex',alignItems:'center',gap:6,paddingRight:40}}>
             <span style={{fontSize:12}}>🔬</span>
             <span>Научная опора · {science.area}</span>
           </div>
         )}
 
         {/* Title */}
-        {science.title&&<div style={{fontSize:17,fontWeight:700,color:'#0D1B2A',marginBottom:4,lineHeight:1.3,letterSpacing:'-0.2px'}}>{science.title}</div>}
+        {science.title&&<div style={{fontSize:17,fontWeight:700,color:'#0D1B2A',marginBottom:4,lineHeight:1.3,letterSpacing:'-0.2px',paddingRight:40}}>{science.title}</div>}
 
         {/* Citation */}
         {science.citation&&<div style={{fontSize:12,color:'#6B7A90',fontStyle:'italic',marginBottom:14}}>{science.citation}</div>}
@@ -3949,11 +3978,11 @@ function SciencePopupSheet({science,onClose}){
         {/* Note */}
         {science.note&&<div style={{marginTop:14,padding:'12px 14px',background:'#F4F7FC',borderRadius:10,border:'1px solid #DCE6F2',fontSize:13,color:'#3D5A80',lineHeight:1.55}}>{renderRichText(science.note)}</div>}
 
-        {/* Close */}
-        <div style={{marginTop:20,textAlign:'center'}}>
-          <button onClick={onClose}
-            style={{fontSize:14,fontWeight:600,padding:'11px 28px',borderRadius:12,border:'1px solid #E5E5EA',background:'#fff',color:'#3D4852',cursor:'pointer',fontFamily:'inherit'}}>
-            Закрыть
+        {/* Bottom close button */}
+        <div style={{marginTop:22,textAlign:'center'}}>
+          <button onClick={handleClose}
+            style={{fontSize:14,fontWeight:600,padding:'12px 36px',borderRadius:12,border:'none',background:'#0071E3',color:'#fff',cursor:'pointer',fontFamily:'inherit',boxShadow:'0 2px 8px rgba(0,113,227,.25)'}}>
+            Понятно
           </button>
         </div>
       </div>
