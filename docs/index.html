@@ -2606,7 +2606,7 @@ function LessonStar({mode,highlighted=[],labels={},visiblePositions=null,showNum
   const angDeg=(i)=>270-i*30;
   const xy=(i)=>{const a=angDeg(i)*Math.PI/180;return{x:cx+R*Math.cos(a),y:cy-R*Math.sin(a)};};
   const pts=Array.from({length:12},(_,i)=>xy(i));
-  const labelXY=(i)=>{const a=angDeg(i)*Math.PI/180;const LR=R+38;return{x:cx+LR*Math.cos(a),y:cy-LR*Math.sin(a)};};
+  const labelXY=(i)=>{const a=angDeg(i)*Math.PI/180;const LR=R+50;return{x:cx+LR*Math.cos(a),y:cy-LR*Math.sin(a)};};
   const anch=(i)=>{const x=labelXY(i).x;return Math.abs(x-cx)<8?'middle':x<cx?'end':'start';};
 
   // Default labels from Ясна Суток (full 12)
@@ -2632,7 +2632,7 @@ function LessonStar({mode,highlighted=[],labels={},visiblePositions=null,showNum
   const showStarLines=starLines||mode==='star';
 
   return(
-    <svg viewBox={`-170 -20 ${S+340} ${S+40}`} style={{width:'100%',height:'100%',maxHeight:420}}>
+    <svg viewBox={`-200 -30 ${S+400} ${S+60}`} style={{width:'100%',height:'100%',display:'block'}}>
       {/* Halves background — only for halves mode (subtle bg tint), not for cross-labeled */}
       {(mode==='halves'||mode==='cross-outline'||mode==='longs'||mode==='shorts'||mode==='full')&&<>
         <path d={`M ${cx-R-30} ${cy} A ${R+30} ${R+30} 0 0 1 ${cx+R+30} ${cy} Z`} fill="rgba(255,200,40,.07)"/>
@@ -2655,9 +2655,9 @@ function LessonStar({mode,highlighted=[],labels={},visiblePositions=null,showNum
           in other modes — technical dashed gray */}
       {mode==='cross-labeled'&&<>
         {/* Vertical (0↔6, foundations) — gold */}
-        <line x1={cx} y1={cy-R-6} x2={cx} y2={cy+R+6} stroke="#E8A52B" strokeWidth="2.5" strokeLinecap="round"/>
+        <line x1={cx} y1={cy-R-6} x2={cx} y2={cy+R+6} stroke="#E8A52B" strokeWidth="4" strokeLinecap="round"/>
         {/* Horizontal (3↔9, transitions) — blue */}
-        <line x1={cx-R-6} y1={cy} x2={cx+R+6} y2={cy} stroke="#3B7BC7" strokeWidth="2.5" strokeLinecap="round"/>
+        <line x1={cx-R-6} y1={cy} x2={cx+R+6} y2={cy} stroke="#3B7BC7" strokeWidth="4" strokeLinecap="round"/>
       </>}
       {(mode==='cross-outline'||mode==='longs'||mode==='shorts'||mode==='full')&&<>
         <line x1={cx} y1={cy-R-20} x2={cx} y2={cy+R+20} stroke="#e5e5ea" strokeWidth="1" strokeDasharray="3 4"/>
@@ -2687,9 +2687,9 @@ function LessonStar({mode,highlighted=[],labels={},visiblePositions=null,showNum
         // Colors: opor red, long orange, short blue  (simplified pedagogical palette)
         const fill=isOpor?'#E8364F':(isLong?'#FFB020':'#4090D8');
         // In focus: focused type a bit bigger, non-focused smaller
-        let r=isOpor?14:(isLong?11:9);
-        if(focusType==='shorts'&&!isLong)r=isOpor?15:12;
-        if(focusType==='longs'&&isLong)r=isOpor?15:13;
+        let r=isOpor?18:(isLong?14:12);
+        if(focusType==='shorts'&&!isLong)r=isOpor?19:15;
+        if(focusType==='longs'&&isLong)r=isOpor?19:16;
         return<g key={i} opacity={opacity} style={{transition:'opacity .3s'}}>
           {/* Pulse glow for newly added (freshly animated in) positions */}
           {isNew&&<circle cx={p.x} cy={p.y} r={r+8} fill={fill} opacity=".18">
@@ -2697,7 +2697,7 @@ function LessonStar({mode,highlighted=[],labels={},visiblePositions=null,showNum
             <animate attributeName="opacity" values=".25;.05;.25" dur="1.4s" repeatCount="indefinite"/>
           </circle>}
           <circle cx={p.x} cy={p.y} r={r} fill={fill} stroke="#fff" strokeWidth="2" style={{transition:'r .3s'}}/>
-          {showNumbers&&<text x={p.x} y={p.y+4} textAnchor="middle" fontSize={isOpor?'13':'11'} fontWeight="700" fill="#fff">{i}</text>}
+          {showNumbers&&<text x={p.x} y={p.y+5} textAnchor="middle" fontSize={isOpor?'16':'13'} fontWeight="700" fill="#fff">{i}</text>}
         </g>;
       })}
 
@@ -2717,7 +2717,7 @@ function LessonStar({mode,highlighted=[],labels={},visiblePositions=null,showNum
         const opacity=highlighted?focusOpacity:.3;
         // Focused labels slightly bolder
         const inFocus=!focusType||(focusType==='longs'&&isLong)||(focusType==='shorts'&&!isLong);
-        return<text key={'l'+i} x={lp.x} y={lp.y+4} textAnchor={anch(i)} fontSize={isOpor?'18':'16'} fontWeight={inFocus?(isOpor?'700':'600'):'400'} fill={inFocus?'#1d1d1f':'#6e6e73'} opacity={opacity} style={{transition:'opacity .3s, font-weight .3s'}}>{lbl}</text>;
+        return<text key={'l'+i} x={lp.x} y={lp.y+4} textAnchor={anch(i)} fontSize={isOpor?'24':'20'} fontWeight={inFocus?(isOpor?'700':'600'):'400'} fill={inFocus?'#1d1d1f':'#6e6e73'} opacity={opacity} style={{transition:'opacity .3s, font-weight .3s'}}>{lbl}</text>;
       })}
     </svg>);
 }
@@ -4086,9 +4086,9 @@ function YasnaStarBlock({block}){
   const focusType=block.focusType!==undefined?block.focusType:(mode==='full'?'longs':null);
   return(
     <div style={{padding:'20px 16px',maxWidth:680,margin:'0 auto'}}>
-      <div style={{background:'#F8FAFC',borderRadius:16,padding:'20px 8px',border:'1px solid #E5E9EF',textAlign:'center'}}>
+      <div style={{background:'#F8FAFC',borderRadius:16,padding:'20px 4px',border:'1px solid #E5E9EF',textAlign:'center'}}>
         {block.title&&<div style={{fontSize:14,fontWeight:700,color:'#0D1B2A',marginBottom:12}}>{block.title}</div>}
-        <div style={{width:'100%',maxWidth:600,margin:'0 auto',aspectRatio:'740/440'}}>
+        <div style={{width:'100%',margin:'0 auto',aspectRatio:'800/460'}}>
           <div className="yasna-star-pulse" style={{width:'100%',height:'100%'}}>
             <LessonStar mode={mode} highlighted={highlighted} labels={labels} focusType={focusType}/>
           </div>
