@@ -1803,13 +1803,13 @@ const LESSONS=[
       {type:'science-note',
         subtitle:'Нобелевская премия 2017',
         title:'Молекулярные часы внутри клетки — тоже четыре фазы',
-        body:'Джеффри Холл, Майкл Росбаш и Майкл Янг получили Нобелевскую премию по физиологии и медицине за открытие молекулярного механизма суточного ритма.\n\nВнутриклеточные часы человека работают как петля обратной связи из **четырёх последовательных событий**: транскрипция гена *period* → синтез белка PER → его перенос в ядро и блокировка собственного гена → деградация PER и перезапуск цикла.\n\nСутки на молекулярном уровне — не плавная синусоида, а четыре дискретных состояния, каждое из которых открывает следующее. Тот же Опорный Крест, только внутри клетки.',
-        phasesTitle:'Цикл молекулярных часов (24 часа)',
+        body:'Джеффри Холл, Майкл Росбаш и Майкл Янг получили Нобелевскую премию за то, что объяснили, как устроены часы внутри живой клетки.\n\nВот как работает цикл. В клетке есть специальный ген, управляющий ходом суток. Сначала **ген включается** и начинает работать. Потом по его команде **собирается белок**, который накапливается в клетке. Когда белка становится много, он возвращается к гену и **выключает его**. После этого белок **распадается**, ген снова может включиться — и цикл идёт по новой.\n\nИ так 24 часа в сутки, каждые сутки, во всех клетках твоего тела.\n\nЭто значит, сутки — не плавная смена темноты и света. Это **четыре дискретных события**, каждое запускает следующее. Тот же Опорный Крест, только внутри клетки.',
+        phasesTitle:'Цикл клеточных часов · 24 часа',
         phases:[
-          {label:'Ген работает',type:'hold'},
-          {label:'Синтез белка',type:'switch'},
-          {label:'Блокировка гена',type:'hold'},
-          {label:'Распад белка',type:'switch'}
+          {label:'Ген включён',type:'hold'},
+          {label:'Белок собирается',type:'switch'},
+          {label:'Ген выключен',type:'hold'},
+          {label:'Белок распадается',type:'switch'}
         ],
         citation:'Nobel Prize in Physiology or Medicine 2017.'},
       {type:'gate',label:'Проверим на других явлениях',gateNum:2},
@@ -1827,13 +1827,13 @@ const LESSONS=[
       {type:'science-note',
         subtitle:'Нобелевская премия 2001',
         title:'Сама клетка устроена по тому же принципу',
-        body:'Лиланд Хартуэлл, Тим Хант и Пол Нёрс получили Нобелевскую премию за открытие регуляторов клеточного цикла.\n\nЛюбая делящаяся клетка проходит **четыре фазы**: G1 (рост) → S (синтез ДНК) → G2 (рост) → M (митоз). Две фазы (G1, G2) — устойчивые состояния роста; две (S, M) — концентрированные события трансформации, отделённые друг от друга двумя **контрольными точками** (checkpoints), которые Хартуэлл и ввёл в науку.\n\nТо есть самая базовая единица жизни устроена как **две опоры «есть» + две опоры «переключения»**. Та же структура, что у суток и у дерева.',
+        body:'Лиланд Хартуэлл, Тим Хант и Пол Нёрс получили Нобелевскую премию за то, что объяснили, как клетка делится пополам.\n\nКогда клетка готовится к делению, она проходит **четыре фазы**. Сначала она **растёт** — копит нужные вещества. Потом **удваивает ДНК** — чтобы каждой из двух будущих клеток достался полный набор. Потом снова **растёт** — проверяет, что всё скопировалось правильно. И наконец **делится** пополам.\n\nДве из этих фаз — **устойчивый рост**: ничего принципиально нового не происходит, клетка накапливает ресурсы. Две другие — **резкие превращения**: удвоение ДНК и само деление.\n\nТо есть самая базовая единица жизни — клетка — устроена как две опоры «держится» + две опоры «меняется». Та же структура, что у суток и у дерева.',
         phasesTitle:'Клеточный цикл',
         phases:[
-          {label:'G1 · рост',type:'hold'},
-          {label:'S · синтез ДНК',type:'switch'},
-          {label:'G2 · рост',type:'hold'},
-          {label:'M · деление',type:'switch'}
+          {label:'Рост',type:'hold'},
+          {label:'Удвоение ДНК',type:'switch'},
+          {label:'Проверка',type:'hold'},
+          {label:'Деление',type:'switch'}
         ],
         citation:'Nobel Prize in Physiology or Medicine 2001.'},
       {type:'explanation',
@@ -1848,15 +1848,15 @@ const LESSONS=[
       {type:'science-note',
         subtitle:'Nature, 2009 · свыше 10 000 цитирований',
         title:'Все сложные системы устроены как «две опоры + два перехода»',
-        body:'Группа Марти Шеффера в журнале *Nature* (2009) показала: любая сложная система — **экосистема, климат, мозг, финансовый рынок, живой организм** — живёт в одном из **двух альтернативных устойчивых состояний** и переключается между ними через **точки бифуркации** (tipping points).\n\nДинамика внутри устойчивого состояния и динамика рядом с точкой перехода — **качественно разные**. Рядом с переходом появляется «критическое замедление», растёт вариативность, система становится чувствительнее к малым возмущениям. То есть опоры-состояния и опоры-переходы ведут себя по-разному не случайно, а по физической природе.\n\nЭто прямое эмпирическое подтверждение главной идеи Ясны: в любом явлении **две опоры держат форму**, а **две — переключают состояние**. Одна природа на все циклы — от одной секунды сердечного удара до многолетних климатических сдвигов.',
+        body:'В 2009 году в журнале *Nature* вышла работа группы Марти Шеффера — одна из самых цитируемых в современной науке о сложных системах.\n\nРечь в ней о том, что **экосистемы, климат, мозг, финансовые рынки, живой организм** — все они устроены одинаково. Каждая такая система живёт **в одном из двух устойчивых состояний** и время от времени **переключается** в другое.\n\nСамое важное: **жизнь внутри устойчивого состояния и момент самого переключения — это две разные истории**. Внутри устойчивого состояния всё идёт своим чередом. А у границы перехода система становится нервной, вздрагивает от мелочей, колеблется сильнее обычного.\n\nЭто прямое подтверждение главной идеи Ясны: в любом явлении **две опоры держат форму**, а **две — переключают её на другую**. Один закон — от одной секунды удара сердца до многолетних климатических сдвигов.',
         phasesTitle:'Любой цикл в природе',
         phases:[
-          {label:'Устойчивое\u00A0A',type:'hold'},
-          {label:'Переход →',type:'switch'},
-          {label:'Устойчивое\u00A0B',type:'hold'},
-          {label:'← Переход',type:'switch'}
+          {label:'Устойчивое A',type:'hold'},
+          {label:'Переход',type:'switch'},
+          {label:'Устойчивое B',type:'hold'},
+          {label:'Переход',type:'switch'}
         ],
-        citation:'Scheffer M., Bascompte J., Brock W. A., et al. Early-warning signals for critical transitions. Nature, 2009, 461, 53–59.'},
+        citation:'Scheffer M. et al. Early-warning signals for critical transitions. Nature, 2009, 461, 53–59.'},
       {type:'explanation',
         title:'Главный вывод',
         body:'Смотри, что получилось.\n\nВ **сутках**, в **дереве**, в **доме** — везде четыре опоры, везде на круге, везде попарно через центр. Это не три случайных совпадения — это **закон**.\n\nТы уже сам заметил по ходу: в каждом случае пары опор **разной природы**.\n\n**Одна пара — то, что держится.** Ночь и День. Корни и Лепесток. Прихожая и Чулан. Эти опоры **просто есть на своих местах** — ничего активно не меняется.\n\n**Другая пара — то, где идёт смена.** Утро и Вечер. Клетка и Ветка. Кухня и Спальня. В этих опорах явление **переключается**: тьма на свет, не-плод на плод, сырое на готовое, день на ночь.\n\nТак устроен Опорный Крест в любом явлении: **две пары опор на круге, через центр — одна где держится, другая где идёт смена**.\n\nМетод, который учит видеть этот Крест в любом явлении, называется **Ясна** — потому что он делает устройство явлений **ясным**.\n\nТы только что прошёл его первый шаг.'},
@@ -3744,69 +3744,73 @@ function ScienceNoteBlock({block}){
 
         {/* Optional 4-phase diagram */}
         {phases&&phases.length===4&&(()=>{
-          // Layout: 4 circles arranged in a square pattern with connecting arrows
-          // Position 0: top (phase 1), 1: right (phase 2), 2: bottom (phase 3), 3: left (phase 4)
-          // Following the cycle: 0 → 1 → 2 → 3 → 0
-          const W=320, H=220;
-          const cx=W/2, cy=H/2, R=70;
-          // Positions around center (12, 3, 6, 9 o'clock)
+          // 2x2 grid layout for labels to never overflow
+          // Positions: [top-left, top-right, bottom-right, bottom-left]
+          // Cycle direction: TL → TR → BR → BL → TL (clockwise)
+          const W=320, H=260;
           const positions=[
-            {x:cx, y:cy-R},       // top
-            {x:cx+R, y:cy},       // right
-            {x:cx, y:cy+R},       // bottom
-            {x:cx-R, y:cy}        // left
+            {x:W*0.28, y:60},    // top-left
+            {x:W*0.72, y:60},    // top-right
+            {x:W*0.72, y:175},   // bottom-right
+            {x:W*0.28, y:175}    // bottom-left
           ];
-          // Colors by type
           const color=(type)=>type==='hold'?'#E8A52B':'#3B7BC7';
           const colorLight=(type)=>type==='hold'?'#FBEFD3':'#DEEBF9';
-          // Arc path between two consecutive points on the circle
-          const arcPath=(from,to)=>{
-            const r=R*0.82;
-            return `M ${from.x} ${from.y} A ${r} ${r} 0 0 1 ${to.x} ${to.y}`;
-          };
+          const labelY=(i)=>i<2?positions[i].y-36:positions[i].y+42;
+          // Arrows between consecutive phases (rectangular path)
+          const arrows=[
+            {from:0,to:1,type:'horizontal',y:60},
+            {from:1,to:2,type:'vertical',x:W*0.72},
+            {from:2,to:3,type:'horizontal',y:175},
+            {from:3,to:0,type:'vertical',x:W*0.28}
+          ];
           return(
             <div style={{marginTop:14,marginBottom:4,background:'#fff',borderRadius:10,padding:'14px 10px',border:'1px solid #E0E4EA'}}>
-              {block.phasesTitle&&<div style={{fontSize:11,color:'#6B7A90',textAlign:'center',marginBottom:6,fontWeight:600}}>{block.phasesTitle}</div>}
-              <svg viewBox={`0 0 ${W} ${H}`} style={{width:'100%',height:'auto',display:'block',maxHeight:240}}>
-                {/* Arrows between phases (clockwise) */}
-                {[0,1,2,3].map(i=>{
-                  const from=positions[i];
-                  const to=positions[(i+1)%4];
-                  return(
-                    <g key={'arc'+i}>
-                      <path d={arcPath(from,to)} fill="none" stroke="#C7CED6" strokeWidth="1.5" strokeDasharray="3 3"/>
-                    </g>
-                  );
+              {block.phasesTitle&&<div style={{fontSize:11,color:'#6B7A90',textAlign:'center',marginBottom:4,fontWeight:600}}>{block.phasesTitle}</div>}
+              <svg viewBox={`0 0 ${W} ${H}`} style={{width:'100%',height:'auto',display:'block',maxHeight:260}}>
+                {/* Arrows forming rectangular cycle */}
+                {arrows.map((a,i)=>{
+                  const from=positions[a.from],to=positions[a.to];
+                  const isForward=(a.from+1)%4===a.to;
+                  if(a.type==='horizontal'){
+                    const x1=isForward?from.x+24:from.x-24;
+                    const x2=isForward?to.x-24:to.x+24;
+                    return<g key={'a'+i}>
+                      <line x1={x1} y1={a.y} x2={x2} y2={a.y} stroke="#C7CED6" strokeWidth="1.5" strokeDasharray="3 3"/>
+                      {/* arrow head */}
+                      <polygon points={`${x2},${a.y} ${x2-5},${a.y-3} ${x2-5},${a.y+3}`} fill="#C7CED6" transform={isForward?'':`rotate(180 ${x2} ${a.y})`}/>
+                    </g>;
+                  }else{
+                    const y1=isForward?from.y+24:from.y-24;
+                    const y2=isForward?to.y-24:to.y+24;
+                    return<g key={'a'+i}>
+                      <line x1={a.x} y1={y1} x2={a.x} y2={y2} stroke="#C7CED6" strokeWidth="1.5" strokeDasharray="3 3"/>
+                      <polygon points={`${a.x},${y2} ${a.x-3},${y2-5} ${a.x+3},${y2-5}`} fill="#C7CED6" transform={isForward?'':`rotate(180 ${a.x} ${y2})`}/>
+                    </g>;
+                  }
                 })}
 
-                {/* Phase circles */}
+                {/* Phase circles with numbers */}
                 {phases.map((ph,i)=>{
                   const p=positions[i];
-                  const isHold=ph.type==='hold';
                   return(
                     <g key={'ph'+i}>
-                      <circle cx={p.x} cy={p.y} r={26} fill={colorLight(ph.type)} stroke={color(ph.type)} strokeWidth="2"/>
-                      <text x={p.x} y={p.y+4} textAnchor="middle" fontSize="11" fontWeight="700" fill={color(ph.type)}>{i+1}</text>
+                      <circle cx={p.x} cy={p.y} r={22} fill={colorLight(ph.type)} stroke={color(ph.type)} strokeWidth="2.5"/>
+                      <text x={p.x} y={p.y+5} textAnchor="middle" fontSize="13" fontWeight="700" fill={color(ph.type)}>{i+1}</text>
                     </g>
                   );
                 })}
 
-                {/* Phase labels */}
+                {/* Phase labels above top row, below bottom row */}
                 {phases.map((ph,i)=>{
                   const p=positions[i];
-                  // Position label outside the circle
-                  const dx=p.x-cx, dy=p.y-cy;
-                  const norm=Math.sqrt(dx*dx+dy*dy)||1;
-                  const lx=p.x+dx/norm*36;
-                  const ly=p.y+dy/norm*36+4;
-                  const anchor=i===0||i===2?'middle':i===1?'start':'end';
                   return(
-                    <text key={'l'+i} x={lx} y={ly} textAnchor={anchor} fontSize="12" fontWeight="700" fill="#1F2933">{ph.label}</text>
+                    <text key={'l'+i} x={p.x} y={labelY(i)} textAnchor="middle" fontSize="12" fontWeight="700" fill="#1F2933">{ph.label}</text>
                   );
                 })}
               </svg>
               {/* Legend */}
-              <div style={{display:'flex',justifyContent:'center',gap:16,marginTop:6,fontSize:11,color:'#5C6A80'}}>
+              <div style={{display:'flex',justifyContent:'center',gap:16,marginTop:4,fontSize:11,color:'#5C6A80'}}>
                 <div style={{display:'flex',alignItems:'center',gap:5}}>
                   <span style={{display:'inline-block',width:10,height:10,borderRadius:'50%',background:'#FBEFD3',border:'2px solid #E8A52B'}}/>
                   <span>держится</span>
