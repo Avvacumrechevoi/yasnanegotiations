@@ -4928,28 +4928,15 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
     },120);
   };
 
-  // Auto-unlock the current active gate when all prerequisite exercises
-  // are complete. The user's "answer" IS their continue action — no need
-  // to tap the gate button separately after a correct answer.
+  // Gate progression is ALWAYS manual — user must tap the gate button
+  // to move to the next section. Answering a question (even correctly)
+  // only unlocks the gate button; it does NOT advance automatically.
   //
-  // IMPORTANT: only auto-unlock when the section actually HAD at least one
-  // interactive exercise. Sections that are pure reading (explanations,
-  // speakers, stars) have empty requirements array — those stay manual
-  // so the user taps the gate when they've finished reading.
-  useEffect(()=>{
-    if(fullyDone)return;
-    const activeGateNum=unlockedGates;
-    if(activeGateNum>totalGates)return;
-    const requirements=gateRequirements[activeGateNum-1]||[];
-    // No interactive blocks in this section — leave gate manual
-    if(requirements.length===0)return;
-    // All interactive blocks done? Auto-unlock after short delay to let
-    // user see success feedback of the last answered exercise.
-    if(canUnlockGate(activeGateNum)){
-      const t=setTimeout(()=>unlockGate(activeGateNum),800);
-      return()=>clearTimeout(t);
-    }
-  },[completedBlocks,unlockedGates,fullyDone,totalGates,gateRequirements]);
+  // Rationale: auto-advance surprises the user and removes control. The
+  // answer+feedback moment is when the user is still absorbing what they
+  // got right or wrong; if the gate jumps on its own 800ms later, they
+  // feel like the lesson is running past them. Let them reread, retry,
+  // or linger as long as they want — the transition is their decision.
 
   const repeat=()=>{
     setUnlockedGates(1);
