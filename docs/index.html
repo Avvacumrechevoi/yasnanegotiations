@@ -4265,6 +4265,7 @@ function PillarsPickerBlock({block,onComplete}){
   const numCorrect=block.numCorrect||4;
   const[selected,setSelected]=useState(()=>new Set());
   const[submitted,setSubmitted]=useState(false);
+  const[hintOpen,setHintOpen]=useState(false);
   const correct=new Set(block.correct||[]);
   const isCorrect=selected.size===numCorrect
     && [...selected].every(id=>correct.has(id))
@@ -4305,10 +4306,31 @@ function PillarsPickerBlock({block,onComplete}){
           {block.question&&<div style={{fontSize:15,color:'#1F2933',lineHeight:1.55,fontWeight:400}}>{renderRichText(block.question)}</div>}
         </div>
 
-        {/* Hint (guided only) */}
+        {/* Hint (guided only) — collapsed by default so users try
+            themselves first before peeking. */}
         {block.mode==='guided'&&block.hint&&(
-          <div style={{padding:'12px 14px',background:'#FFF8EC',borderLeft:'3px solid #E8A52B',borderRadius:'0 4px 4px 0',marginBottom:16,fontSize:13.5,color:'#6B4E15',lineHeight:1.55}}>
-            💡 <b>Подсказка.</b> {renderRichText(block.hint)}
+          <div style={{marginBottom:16}}>
+            <button onClick={()=>setHintOpen(!hintOpen)}
+              style={{
+                display:'flex',alignItems:'center',gap:8,
+                width:'100%',padding:'10px 14px',
+                background:hintOpen?'#FFF8EC':'#FAFBFC',
+                borderLeft:`3px solid ${hintOpen?'#E8A52B':'#D1D5DB'}`,
+                borderTop:'none',borderRight:'none',borderBottom:'none',
+                borderRadius:'0 4px 4px 0',
+                cursor:'pointer',fontFamily:'inherit',textAlign:'left',
+                fontSize:13,color:hintOpen?'#6B4E15':'#5C6A80',fontWeight:600,
+                transition:'all .15s'
+              }}>
+              <span style={{fontSize:14}}>💡</span>
+              <span style={{flex:1}}>{hintOpen?'Подсказка':'Показать подсказку'}</span>
+              <span style={{fontSize:11,color:hintOpen?'#B8852A':'#8A95A5',transition:'transform .2s',transform:hintOpen?'rotate(90deg)':'none'}}>▶</span>
+            </button>
+            {hintOpen&&(
+              <div style={{padding:'10px 14px 12px 17px',background:'#FFF8EC',borderLeft:'3px solid #E8A52B',borderRadius:'0 0 4px 0',fontSize:13.5,color:'#6B4E15',lineHeight:1.55,marginTop:-1}}>
+                {renderRichText(block.hint)}
+              </div>
+            )}
           </div>
         )}
 
