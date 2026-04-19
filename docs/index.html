@@ -3918,11 +3918,19 @@ function SciencePopupSheet({science,onClose}){
     }
   };
 
-  return(
+  // Render the popup via Portal into document.body. Reason: any ancestor
+  // using `transform`, `filter`, `perspective` or `will-change` creates
+  // a new containing block for position:fixed. Our lesson blocks use
+  // `transform: translateY(...)` animation (scroll-lesson-block-appear)
+  // which would trap fixed positioning inside the block container,
+  // leaving the popup covering only part of the viewport.
+  // Portal guarantees the popup is always a direct child of <body>.
+
+  const popupElement=(
     <div
       onClick={handleOverlayClick}
       style={{
-        position:'fixed',inset:0,zIndex:200,
+        position:'fixed',inset:0,zIndex:9999,
         background:'rgba(15,27,42,.55)',
         display:'flex',alignItems:'flex-end',justifyContent:'center',
         animation:'scienceFade .2s ease-out',
@@ -3988,6 +3996,8 @@ function SciencePopupSheet({science,onClose}){
       </div>
     </div>
   );
+
+  return ReactDOM.createPortal(popupElement,document.body);
 }
 
 function SpeakerBlock({block}){
