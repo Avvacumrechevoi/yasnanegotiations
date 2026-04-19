@@ -4282,9 +4282,10 @@ function PillarsPickerBlock({block,onComplete}){
   };
   const check=()=>{
     setSubmitted(true);
-    if(selected.size===numCorrect && [...selected].every(id=>correct.has(id)) && [...correct].every(id=>selected.has(id))){
-      if(onComplete)onComplete();
-    }
+    // Call onComplete regardless of correctness — user can advance with
+    // a wrong answer. Feedback will still show the right one; retry is
+    // optional. This avoids the trap of forcing retries to unlock a gate.
+    if(onComplete)onComplete();
   };
   const reset=()=>{
     setSelected(new Set());
