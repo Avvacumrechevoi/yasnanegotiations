@@ -56,11 +56,7 @@ const CURRICULUM={
           lessons:[
             {id:'l1_intro',status:'ready'},
             {id:'b2_four_pillars',status:'ready'},
-            {id:'b3_two_lines',status:'planned',
-              title:'Две главные линии',
-              subtitle:'Линия Борьбы и Линия Единства',
-              duration:'~18 мин',
-              mechanics:['Линия Борьбы (горизонт 3↔9)','Линия Единства (вертикаль 0↔6)']},
+            {id:'b3_two_lines',status:'ready'},
             {id:'b4_events',status:'planned',
               title:'Война, Мир и Союзы',
               subtitle:'Содержание четырёх опор Креста',
