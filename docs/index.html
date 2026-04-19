@@ -4086,9 +4086,9 @@ function YasnaStarBlock({block}){
   const focusType=block.focusType!==undefined?block.focusType:(mode==='full'?'longs':null);
   return(
     <div style={{padding:'20px 16px',maxWidth:680,margin:'0 auto'}}>
-      <div style={{background:'#F8FAFC',borderRadius:16,padding:'20px 12px',border:'1px solid #E5E9EF',textAlign:'center'}}>
+      <div style={{background:'#F8FAFC',borderRadius:16,padding:'20px 8px',border:'1px solid #E5E9EF',textAlign:'center'}}>
         {block.title&&<div style={{fontSize:14,fontWeight:700,color:'#0D1B2A',marginBottom:12}}>{block.title}</div>}
-        <div style={{width:'100%',maxWidth:440,margin:'0 auto',aspectRatio:'1/1'}}>
+        <div style={{width:'100%',maxWidth:600,margin:'0 auto',aspectRatio:'740/440'}}>
           <div className="yasna-star-pulse" style={{width:'100%',height:'100%'}}>
             <LessonStar mode={mode} highlighted={highlighted} labels={labels} focusType={focusType}/>
           </div>
