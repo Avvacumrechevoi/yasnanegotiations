@@ -240,12 +240,14 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
       {af.includes('mb_scorpio_spider')&&<>
         <path d={`M${pts[3].x},${pts[3].y} A${R},${R} 0 0,1 ${pts[9].x},${pts[9].y} L${pts[3].x},${pts[3].y} Z`}
               fill="rgba(37,99,235,.08)" stroke="rgba(37,99,235,.4)" strokeWidth="1.2" strokeDasharray="6 4"/>
-        <text x={cx} y={cy-R+22} textAnchor="middle" fontSize="13" fill="#1d4ed8" fontWeight="700">Головной Паук · Сам</text>
-        <text x={cx} y={cy-R+38} textAnchor="middle" fontSize="10.5" fill="#1e3a8a" opacity=".75">верх · идея · мозг</text>
+        {/* Подписи глубже в верхней полусфере — не касаются полки 6 (y=112..158) */}
+        <text x={cx} y={cy-R+58} textAnchor="middle" fontSize="13" fill="#1d4ed8" fontWeight="700" stroke="#fff" strokeWidth="3" paintOrder="stroke">Головной Паук · Сам</text>
+        <text x={cx} y={cy-R+76} textAnchor="middle" fontSize="10.5" fill="#1e3a8a" opacity=".85" stroke="#fff" strokeWidth="2.5" paintOrder="stroke">верх · идея · мозг</text>
         <path d={`M${pts[3].x},${pts[3].y} A${R},${R} 0 0,0 ${pts[9].x},${pts[9].y} L${pts[3].x},${pts[3].y} Z`}
               fill="rgba(220,38,38,.08)" stroke="rgba(220,38,38,.4)" strokeWidth="1.2" strokeDasharray="6 4"/>
-        <text x={cx} y={cy+R-30} textAnchor="middle" fontSize="13" fill="#b91c1c" fontWeight="700">Грудной Скорпион · Особа</text>
-        <text x={cx} y={cy+R-14} textAnchor="middle" fontSize="10.5" fill="#7f1d1d" opacity=".75">низ · тело · импульс</text>
+        {/* Подписи глубже в нижней полусфере — не касаются полки 0 (y=542..588) */}
+        <text x={cx} y={cy+R-76} textAnchor="middle" fontSize="13" fill="#b91c1c" fontWeight="700" stroke="#fff" strokeWidth="3" paintOrder="stroke">Грудной Скорпион · Особа</text>
+        <text x={cx} y={cy+R-58} textAnchor="middle" fontSize="10.5" fill="#7f1d1d" opacity=".85" stroke="#fff" strokeWidth="2.5" paintOrder="stroke">низ · тело · импульс</text>
         <line x1={pts[3].x-26} y1={pts[3].y} x2={pts[9].x+26} y2={pts[9].y} stroke="#7c2d12" strokeWidth="2" strokeDasharray="3 4" opacity=".55"/>
         {/* Плашка-маркер «Поле Боя» смещена правее центра, чтобы не накрывать имя Ясны (r=22) */}
         <rect x={cx+34} y={cy-11} width="118" height="22" rx="11" fill="#fff" stroke="#7c2d12" strokeWidth="1.2"/>
@@ -260,11 +262,11 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
         <path d={`M${pts[11].x},${pts[11].y} A${R},${R} 0 0,1 ${pts[1].x},${pts[1].y}`}
               fill="none" stroke="#67e8f9" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="6 6" opacity=".9"
               style={{animation:'dashFlow 3s linear infinite'}}/>
-        {/* ∞ — внутри круга над полкой 0, белая обводка для читаемости поверх луча и дуги */}
-        <text x={cx} y={cy+R-22} textAnchor="middle" fontSize="20" fill="#0891b2" fontWeight="700"
+        {/* ∞ — внутри круга над полкой 0, белая обводка чтобы читаться поверх луча и дуги */}
+        <text x={cx} y={cy+R-35} textAnchor="middle" fontSize="20" fill="#0891b2" fontWeight="700"
               stroke="#fff" strokeWidth="4" paintOrder="stroke" style={{pointerEvents:'none'}}>∞</text>
-        {/* Tiny подпись 0=12 ещё чуть выше — однозначно читается */}
-        <text x={cx} y={cy+R-44} textAnchor="middle" fontSize="10" fill="#0e7490" fontWeight="700"
+        {/* Tiny подпись 0=12 ещё чуть выше */}
+        <text x={cx} y={cy+R-56} textAnchor="middle" fontSize="10" fill="#0e7490" fontWeight="700"
               stroke="#fff" strokeWidth="3" paintOrder="stroke" letterSpacing="0.5"
               style={{pointerEvents:'none'}}>0 = 12</text>
       </g>}
