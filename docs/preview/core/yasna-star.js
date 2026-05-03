@@ -732,7 +732,7 @@ function OverlayPicker({currentName,overlay,onSelect,onClose}){
         fontWeight:active?600:400,
         fontStyle:active?'italic':'normal',
         transition:'all .12s',cursor:'pointer',overflow:'hidden'}}>
-      {t.rubrik&&<span style={{position:'absolute',left:0,top:0,bottom:0,width:3,background:'#30A060'}} title="Верифицирована"/>}
+      {t.rubrik&&<span style={{position:'absolute',left:0,top:0,bottom:0,width:3,background:'#30A060'}} title="Проверена"/>}
       {t.n}
       {active&&<span style={{position:'absolute',right:10,top:'50%',transform:'translateY(-50%)',color:'#af52de',fontSize:15,fontWeight:700}}>✓</span>}
     </button>);};
@@ -772,7 +772,7 @@ function OverlayPicker({currentName,overlay,onSelect,onClose}){
           {filtered.length===0?
             <div style={{textAlign:'center',padding:'60px 20px',color:'#aeaeb2',fontSize:13}}>Ничего не найдено по запросу «{q}»</div>
             :<>
-              <Section title="Верифицированные" items={rubrikList}/>
+              <Section title="Проверенные" items={rubrikList}/>
               <Section title="Встречи (кастомные)" items={customList}/>
               <Section title="Прочие" items={otherList}/>
             </>}
@@ -1111,7 +1111,7 @@ function Verification({y,vs,setVs,onClose}){
       q:'Один параметр для всех 12 полок (например, свет, тепло, возраст)?',
       info:'**Ясна Года №3:** «Закон устройства всех явлений природы.» Один параметр — то, что нарастает к Полке 6 и убывает к Полке 0.'},
     {id:'ex_unique',w:'ВАЖ',
-      q:'Эта Ясна не дублирует другую верифицированную в той же области?',
+      q:'Эта Ясна не дублирует другую проверенную в той же области?',
       info:'**Ясна Года №5:** «внутреннее устройство всех вещей одинаково» — но каждая Ясна должна давать новую проекцию, не повторяя существующую.'}
   ];
 
@@ -1220,8 +1220,8 @@ function Verification({y,vs,setVs,onClose}){
       info:'**Ясна Года №3:** Ясна как закон устройства одного явления. Параметр должен называться одним словом (свет, тепло, возраст, температура и т.д.).',
       hint:'Если параметр «гуляет» от полки к полке — Ясна построена по двум разным шкалам сразу.'},
     {id:'w_no_dup',w:'ВАЖ',
-      q:'Эта Ясна не дублирует существующую верифицированную в той же области?',
-      info:'Каждая Ясна должна давать уникальную проекцию явления. Сравните через «+ ещё» с уже верифицированными.'},
+      q:'Эта Ясна не дублирует существующую проверенную в той же области?',
+      info:'Каждая Ясна должна давать уникальную проекцию явления. Сравните через «+ ещё» с уже проверенными.'},
     {id:'w_coherent',w:'ВАЖ',
       q:'Прочитав 12 полок подряд — получаю цельный образ явления?',
       info:'Прагматическая проверка целостности. Если после 12 полок остаётся ощущение разрозненности — не все полки на своих местах.'},
@@ -1257,14 +1257,14 @@ function Verification({y,vs,setVs,onClose}){
     statusDesc='Быстрая проверка пройдена. Для глубокой — пройдите Шаги 1–4.';
   }
   if(critS.failed>0){
-    status='Не верифицирована';statusColor='#E8364F';
+    status='Не пройдена';statusColor='#E8364F';
     statusDesc=`Провалено ${critS.failed} критических. Структура Ясны не соответствует канону.`;
   }else if(vazhS.failed>0&&allCritDone){
     status='С оговорками';statusColor='#E8A834';
-    statusDesc=`Все КРИТ пройдены, но ${vazhS.failed} ВАЖ нарушений. Безупречной верификации нет.`;
+    statusDesc=`Все КРИТ пройдены, но ${vazhS.failed} ВАЖ нарушений. Безупречной проверки нет.`;
   }
   if(allCritDone&&allCritPassed&&vazhS.failed===0&&vazhS.done>0){
-    status='Верифицирована ✓';statusColor='#30A060';
+    status='Проверена ✓';statusColor='#30A060';
     statusDesc='Все критические и важные пройдены. Безупречно.';
   }
 
@@ -1274,7 +1274,7 @@ function Verification({y,vs,setVs,onClose}){
 
   // Export
   const exportReport=()=>{
-    const lines=[`# Верификация Ясны «${y.name}»`,'',`Статус: **${status}**`,`Прогресс: ${totalDone}/${totalCount} (${totalCount>0?Math.round(totalDone/totalCount*100):0}%)`,'',`КРИТ: ${critS.pass}/${critChecks.length}` + (critS.failed?` (провал ${critS.failed})`:''),`ВАЖ: ${vazhS.pass}/${vazhChecks.length}` + (vazhS.failed?` (провал ${vazhS.failed})`:''),`ЖЕЛ: ${zhelS.pass}/${zhelChecks.length}`,''];
+    const lines=[`# Проверка Ясны «${y.name}»`,'',`Статус: **${status}**`,`Прогресс: ${totalDone}/${totalCount} (${totalCount>0?Math.round(totalDone/totalCount*100):0}%)`,'',`КРИТ: ${critS.pass}/${critChecks.length}` + (critS.failed?` (провал ${critS.failed})`:''),`ВАЖ: ${vazhS.pass}/${vazhChecks.length}` + (vazhS.failed?` (провал ${vazhS.failed})`:''),`ЖЕЛ: ${zhelS.pass}/${zhelChecks.length}`,''];
     [['Шаг 0. Быстрая проверка',expressChecks],['Шаг 1. Опорный Крест',krestChecks],['Шаг 2. 12 Полок',polkiChecks],['Шаг 3. Кресты + Праны',krestyAndPranChecks],['Шаг 4. Целое',wholeChecks]].forEach(([name,checks])=>{
       lines.push(`## ${name}`);checks.forEach(c=>{const v=get(c.id);const m=v===true?'✓':v===false?'✗':v==='na'?'—':'·';lines.push(`- ${m} [${c.w||'—'}] ${c.q}`);});lines.push('');
     });
@@ -1311,13 +1311,13 @@ function Verification({y,vs,setVs,onClose}){
       <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#fff',zIndex:70,display:'flex',flexDirection:'column'}}>
         <div style={{padding:'12px 20px',borderBottom:'1px solid #f0f0f2',display:'flex',alignItems:'center',gap:10,flexShrink:0}}>
           <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:10,color:'#86868b',textTransform:'uppercase',letterSpacing:0.8,fontWeight:600,marginBottom:2}}>Верификация</div>
+            <div style={{fontSize:10,color:'#86868b',textTransform:'uppercase',letterSpacing:0.8,fontWeight:600,marginBottom:2}}>Проверка</div>
             <h2 style={{fontSize:18,fontWeight:700,color:'#1d1d1f',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{y.name}</h2>
           </div>
           <button onClick={onClose} style={{width:36,height:36,borderRadius:10,border:'1px solid #e5e5ea',background:'#fff',fontSize:16,color:'#424245',cursor:'pointer',flexShrink:0}}>✕</button>
         </div>
         <div className='fullpage-content' style={{flex:1,overflowY:'auto',padding:'24px 20px',maxWidth:680,margin:'0 auto',width:'100%'}}>
-          <div style={{fontSize:24,fontWeight:700,color:'#1d1d1f',marginBottom:10,lineHeight:1.25}}>Верификация Ясны — по канону Дианоме</div>
+          <div style={{fontSize:24,fontWeight:700,color:'#1d1d1f',marginBottom:10,lineHeight:1.25}}>Проверка Ясны — по канону Дианоме</div>
           <div style={{fontSize:14,color:'#6e6e73',lineHeight:1.6,marginBottom:16}}>
             Универсальный инструмент: каждая проверка снабжена прямой цитатой из книг «Ясна Суток / Ясна Года / Ясна Жизни». <b>Шаг 0 — Быстрая проверка</b>: 7 пунктов ядра, ~3 минуты. <b>Шаги 1–4</b> — глубокая проверка по 4 разделам авторского алгоритма.
           </div>
@@ -1371,7 +1371,7 @@ function Verification({y,vs,setVs,onClose}){
           <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:24}}>
             <div style={{display:'flex',alignItems:'center',gap:10,padding:'8px 12px',background:'#fff5f5',borderRadius:8,border:'1px solid #E8364F20'}}>
               <span style={{fontSize:10,fontWeight:700,color:'#E8364F',padding:'2px 6px',border:'1px solid #E8364F40',borderRadius:4,flexShrink:0}}>КРИТ</span>
-              <span style={{fontSize:13,color:'#424245'}}>Без неё Ясна не верифицируется. Опора в книге всегда указана.</span>
+              <span style={{fontSize:13,color:'#424245'}}>Без неё Ясна не считается прошедшей проверку. Опора в книге всегда указана.</span>
             </div>
             <div style={{display:'flex',alignItems:'center',gap:10,padding:'8px 12px',background:'#fff8e8',borderRadius:8,border:'1px solid #E8A83420'}}>
               <span style={{fontSize:10,fontWeight:700,color:'#E8A834',padding:'2px 6px',border:'1px solid #E8A83440',borderRadius:4,flexShrink:0}}>ВАЖ</span>
@@ -1405,7 +1405,7 @@ function Verification({y,vs,setVs,onClose}){
       {/* HEADER */}
       <div className="verif-header" style={{display:'flex',alignItems:'center',padding:'12px 20px',borderBottom:'1px solid #f0f0f2',flexShrink:0,gap:10}}>
         <div style={{flex:1,minWidth:0}}>
-          <div style={{fontSize:10,color:'#86868b',textTransform:'uppercase',letterSpacing:0.8,fontWeight:600,marginBottom:2}}>Верификация</div>
+          <div style={{fontSize:10,color:'#86868b',textTransform:'uppercase',letterSpacing:0.8,fontWeight:600,marginBottom:2}}>Проверка</div>
           <h2 className="verif-title" style={{fontSize:18,fontWeight:700,color:'#1d1d1f',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{y.name}</h2>
         </div>
         <button onClick={()=>setShowIntro(true)} className="verif-help" title="Показать инструкцию" style={{width:36,height:36,borderRadius:10,border:'1px solid #e5e5ea',background:'#fff',fontSize:15,color:'#424245',cursor:'pointer',flexShrink:0,fontFamily:'Georgia,serif',fontStyle:'italic',fontWeight:700}}>?</button>
@@ -1454,7 +1454,7 @@ function Verification({y,vs,setVs,onClose}){
       <div className='fullpage-content' style={{flex:1,overflowY:'auto',padding:'16px 20px',maxWidth:820,margin:'0 auto',width:'100%'}}>
         {hasEmpties&&<div style={{padding:'10px 14px',background:'#fff8e8',border:'1px solid #E8A83440',borderRadius:10,marginBottom:14,fontSize:12,color:'#424245',lineHeight:1.55}}>
           <div style={{fontWeight:700,color:'#c07800',marginBottom:4}}>⚠ Не заполнены позиции: {emptyPos.join(', ')}</div>
-          Верификация достоверна только на полной Ясне. Сначала заполните все 12 позиций в Редакторе.
+          Проверка достоверна только на полной Ясне. Сначала заполните все 12 позиций в Редакторе.
         </div>}
 
         <div style={{display:'flex',alignItems:'center',gap:10,padding:'8px 12px',background:'#f5f5f7',borderRadius:10,marginBottom:14,fontSize:11,color:'#6e6e73',flexWrap:'wrap'}}>

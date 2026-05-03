@@ -492,7 +492,7 @@ function Instruction({onClose}){
         </Step>
 
         <Step n="11" title="Сверьтесь с рубрикатором">
-          Каждая полочка проверяется на соответствие с другими верифицированными Яснами. Откройте вкладку «+ ещё» и посмотрите, что стоит на вашей позиции в других ясн:
+          Каждая полочка проверяется на соответствие с другими проверенными Яснами. Откройте вкладку «+ ещё» и посмотрите, что стоит на вашей позиции в других ясн:
           <div style={{padding:'10px 14px',background:'#f0f5ff',borderRadius:8,marginTop:8,fontSize:12,color:'#424245',lineHeight:1.6}}>
             <b>Эталонные Ясны для сверки:</b> Суток, Круговорот Воды, Цветов радуги, Животных двора, Дома, Кухни, Атмосферы, Облачности, Осадков, Примет погоды.<br/><br/>
             Для каждой позиции: «Есть ли смысловая связь между моим элементом и элементами на этой же полочке в других Яснах?»
@@ -761,7 +761,7 @@ function App(){
           <span style={{fontSize:14}}>🎓</span>
           <span>Уроки</span>
         </button>
-        <button onClick={()=>setVerif(true)} style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 16px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>Верификация</button>
+        <button onClick={()=>setVerif(true)} style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 16px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>Проверка</button>
         <button onClick={()=>setInstr(true)} style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 16px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>Инструкция</button>
         <button onClick={()=>setGlossary(true)} style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 16px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>Глоссарий</button>
         <button onClick={()=>setFullStar(true)} title="Во весь экран" style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 11px',borderRadius:8,fontSize:15,background:'#fff',cursor:'pointer',minWidth:36}}>⤢</button>
@@ -788,7 +788,7 @@ function App(){
               <span style={{flex:1}}>Уроки</span>
               <span style={{fontSize:10,padding:'2px 7px',background:'#0071e3',color:'#fff',borderRadius:8,fontWeight:600,letterSpacing:0.3,textTransform:'uppercase'}}>new</span>
             </button>
-            <button onClick={()=>{setVerif(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Верификация</button>
+            <button onClick={()=>{setVerif(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Проверка</button>
             <button onClick={()=>{setInstr(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Инструкция</button>
             <button onClick={()=>{setGlossary(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Глоссарий</button>
             <button onClick={()=>{if(overlay){setOverlay(null)}else{setShowOverlayPicker(true)};setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:overlay?'#af52de':'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>{overlay?'⊗ Снять совмещение':'⊕ Совместить ясны'}</button>
@@ -801,7 +801,7 @@ function App(){
         <div style={{flex:1,display:'flex',alignItems:'center',gap:4,overflowX:'auto',minWidth:0,scrollbarWidth:'none',msOverflowStyle:'none'}} className="hide-scroll">
         {pinnedTemplates.length===0
           ?<span className="nav-empty" style={{fontSize:13,color:'#aeaeb2',padding:'6px 14px',whiteSpace:'nowrap',fontStyle:'italic'}}>Нет выбранных ясн — нажмите «+ ещё»</span>
-          :pinnedTemplates.map(t=><button key={t.id} onClick={()=>load(t)} style={{position:'relative',padding:t.rubrik?'6px 14px 6px 18px':'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:y.name===t.n?'rgba(0,122,255,.08)':'transparent',color:y.name===t.n?'#0071e3':'var(--txt2)',border:`1px solid ${y.name===t.n?'rgba(0,122,255,.35)':'transparent'}`,flexShrink:0,fontWeight:y.name===t.n?600:400,cursor:'pointer',overflow:'hidden'}}>{t.rubrik&&<span style={{position:'absolute',left:0,top:0,bottom:0,width:3,background:'#30A060'}} title="Верифицирована"/>}{t.n}</button>)}
+          :pinnedTemplates.map(t=><button key={t.id} onClick={()=>load(t)} style={{position:'relative',padding:t.rubrik?'6px 14px 6px 18px':'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:y.name===t.n?'rgba(0,122,255,.08)':'transparent',color:y.name===t.n?'#0071e3':'var(--txt2)',border:`1px solid ${y.name===t.n?'rgba(0,122,255,.35)':'transparent'}`,flexShrink:0,fontWeight:y.name===t.n?600:400,cursor:'pointer',overflow:'hidden'}}>{t.rubrik&&<span style={{position:'absolute',left:0,top:0,bottom:0,width:3,background:'#30A060'}} title="Проверена"/>}{t.n}</button>)}
         </div>
         <div className='nav-right' style={{display:'flex',alignItems:'center',gap:5,paddingRight:20,paddingLeft:10,flexShrink:0,background:'var(--bg2)',borderLeft:'1px solid #e5e5ea'}}>
         <button onClick={()=>setPicker(true)} style={{padding:'6px 14px',borderRadius:16,fontSize:13,color:'#6e6e73',border:'1px dashed var(--border)',whiteSpace:'nowrap',background:'transparent',cursor:'pointer'}}><span className='desk-only'>+ ещё</span><span className='mob-only'>☰</span></button>
