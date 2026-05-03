@@ -220,20 +220,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
         <line x1={(pts[8].x+pts[9].x)/2} y1={(pts[8].y+pts[9].y)/2} x2={(pts[2].x+pts[3].x)/2} y2={(pts[2].y+pts[3].y)/2} stroke="#D946EF" strokeWidth="1.5" opacity=".25" strokeDasharray="4 6"/>
       </>}
 
-      {/* M-К-005 Зодиак: символы между полкой (R=215) и её ярлыком (lr=275).
-         Многострочные ярлыки полок 2/3/8/9 уходили далеко наружу — поэтому
-         Зодиак рисуется ВНУТРИ их радиуса, на R+30=245. */}
-      {af.includes('mb_zodiac')&&(()=>{
-        const ZS=['♑','♒','♓','♈','♉','♊','♋','♌','♍','♎','♏','♐'];
-        const lr_z = R + 30;
-        return<g>
-          {ZS.map((s,i)=>{const p=xy(i,cx,cy,lr_z);
-            return<g key={`z${i}`}>
-              <circle cx={p.x} cy={p.y} r="11" fill="rgba(124,58,237,.10)" stroke="rgba(124,58,237,.45)" strokeWidth=".9"/>
-              <text x={p.x} y={p.y+5} textAnchor="middle" fontSize="14" fontWeight="600" fill="#7c3aed">{s}</text>
-            </g>;})}
-        </g>;
-      })()}
+      {/* M-К-005 Зодиак: знаки рендерятся НА полке (вместо цифры) — см. код полок ниже. */}
 
       {/* M-Ж-118 Скорпион↔Паук: верх=Сам, низ=Особа, ось 3↔9 = Поле Боя */}
       {af.includes('mb_scorpio_spider')&&<>
@@ -308,7 +295,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
           <circle cx={pt.x} cy={pt.y} r={nr+14} fill="transparent" stroke="none"/>
           {isSel&&<circle cx={pt.x} cy={pt.y} r={nr+8} fill={c} opacity=".06" filter="url(#gw)"/>}
           <circle cx={pt.x} cy={pt.y} r={nr} fill="#fff" stroke={c} strokeWidth={isSel?2.5:1.8} opacity={o} filter="url(#ns)" style={{pointerEvents:'none'}}/>
-          <text x={pt.x} y={pt.y+6} textAnchor="middle" fill={c} fontSize={isMob?(isSel?"22":"20"):(isSel?"16":"15")} fontWeight="700" fontFamily="var(--sans)" opacity={o} style={{pointerEvents:'none'}}>{i}</text>
+          <text x={pt.x} y={pt.y+(af.includes('mb_zodiac')?7:6)} textAnchor="middle" fill={af.includes('mb_zodiac')?'#7c3aed':c} fontSize={af.includes('mb_zodiac')?(isMob?(isSel?"24":"22"):(isSel?"20":"19")):(isMob?(isSel?"22":"20"):(isSel?"16":"15"))} fontWeight={af.includes('mb_zodiac')?"600":"700"} fontFamily="var(--sans)" opacity={o} style={{pointerEvents:'none'}}>{af.includes('mb_zodiac')?['♑','♒','♓','♈','♉','♊','♋','♌','♍','♎','♏','♐'][i]:i}</text>
         </g>);})}
       {!overlay&&lps.map((pt,i)=>{const lOrig=p[i]||'';if(!lOrig)return null;let dy=5;if(i===0)dy=16;if(i===6)dy=-7;
         // Trim incomplete trailing tokens (e.g. '("кита' or '(без свинст') — likely data-import artifacts
