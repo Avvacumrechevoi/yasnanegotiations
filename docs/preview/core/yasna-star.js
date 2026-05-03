@@ -252,18 +252,22 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
         <text x={cx+93} y={cy+5} textAnchor="middle" fontSize="10.5" fill="#7c2d12" fontWeight="700" letterSpacing="1.2">↑ ПОЛЕ БОЯ ↓</text>
       </>}
 
-      {/* M-Г-050 Лента Мёбиуса: одна гладкая C-кривая 11→0=12→1, ∞ под полкой 0 */}
-      {af.includes('mb_mobius')&&(()=>{
-        const p11=pts[11],p1=pts[1];
-        // C-кривая с управляющими точками за viewBox — рисуется только сама кривая, дипом до y≈685
-        const arcD=`M${p11.x},${p11.y} C ${p11.x-15},${cy+R+165} ${p1.x+15},${cy+R+165} ${p1.x},${p1.y}`;
-        return<g>
-          <path d={arcD} fill="none" stroke="#0891b2" strokeWidth="3" strokeLinecap="round" opacity=".82"/>
-          <path d={arcD} fill="none" stroke="#67e8f9" strokeWidth="1.4" strokeLinecap="round" strokeDasharray="6 6" opacity=".75" style={{animation:'dashFlow 3s linear infinite'}}/>
-          {/* ∞ — единственный лейбл, чисто под полкой 0, с белой обводкой чтобы не сливаться с дугой */}
-          <text x={cx} y={cy+R+85} textAnchor="middle" fontSize="22" fill="#0891b2" fontWeight="700" stroke="#fff" strokeWidth="4" paintOrder="stroke" style={{pointerEvents:'none'}}>∞</text>
-        </g>;
-      })()}
+      {/* M-Г-050 Лента Мёбиуса: подсвечиваем нижнюю дугу единичной окружности 11→0=12→1.
+         Никакого дипа ниже viewBox — путь точно лежит на R=215, ∞ внутри круга над полкой 0. */}
+      {af.includes('mb_mobius')&&<g>
+        <path d={`M${pts[11].x},${pts[11].y} A${R},${R} 0 0,1 ${pts[1].x},${pts[1].y}`}
+              fill="none" stroke="#0891b2" strokeWidth="4" strokeLinecap="round" opacity=".75"/>
+        <path d={`M${pts[11].x},${pts[11].y} A${R},${R} 0 0,1 ${pts[1].x},${pts[1].y}`}
+              fill="none" stroke="#67e8f9" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="6 6" opacity=".9"
+              style={{animation:'dashFlow 3s linear infinite'}}/>
+        {/* ∞ — внутри круга над полкой 0, белая обводка для читаемости поверх луча и дуги */}
+        <text x={cx} y={cy+R-22} textAnchor="middle" fontSize="20" fill="#0891b2" fontWeight="700"
+              stroke="#fff" strokeWidth="4" paintOrder="stroke" style={{pointerEvents:'none'}}>∞</text>
+        {/* Tiny подпись 0=12 ещё чуть выше — однозначно читается */}
+        <text x={cx} y={cy+R-44} textAnchor="middle" fontSize="10" fill="#0e7490" fontWeight="700"
+              stroke="#fff" strokeWidth="3" paintOrder="stroke" letterSpacing="0.5"
+              style={{pointerEvents:'none'}}>0 = 12</text>
+      </g>}
 
       {/* M-К-007 Накопление→Переход: длинные копят, короткие — точки перелива */}
       {af.includes('mb_accumulation')&&(()=>{
