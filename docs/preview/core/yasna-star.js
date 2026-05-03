@@ -247,20 +247,21 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
         <text x={cx} y={cy+R-30} textAnchor="middle" fontSize="13" fill="#b91c1c" fontWeight="700">Грудной Скорпион · Особа</text>
         <text x={cx} y={cy+R-14} textAnchor="middle" fontSize="10.5" fill="#7f1d1d" opacity=".75">низ · тело · импульс</text>
         <line x1={pts[3].x-26} y1={pts[3].y} x2={pts[9].x+26} y2={pts[9].y} stroke="#7c2d12" strokeWidth="2" strokeDasharray="3 4" opacity=".55"/>
-        <rect x={cx-72} y={cy-12} width="144" height="24" rx="12" fill="#fff" stroke="#7c2d12" strokeWidth="1.4"/>
-        <text x={cx} y={cy+5} textAnchor="middle" fontSize="11" fill="#7c2d12" fontWeight="700" letterSpacing="1.5">⟵ ПОЛЕ БОЯ ⟶</text>
+        {/* Плашка-маркер «Поле Боя» смещена правее центра, чтобы не накрывать имя Ясны (r=22) */}
+        <rect x={cx+34} y={cy-11} width="118" height="22" rx="11" fill="#fff" stroke="#7c2d12" strokeWidth="1.2"/>
+        <text x={cx+93} y={cy+5} textAnchor="middle" fontSize="10.5" fill="#7c2d12" fontWeight="700" letterSpacing="1.2">↑ ПОЛЕ БОЯ ↓</text>
       </>}
 
-      {/* M-Г-050 Лента Мёбиуса: дуга 11→0=12→1, замыкание */}
+      {/* M-Г-050 Лента Мёбиуса: одна гладкая C-кривая 11→0=12→1, ∞ под полкой 0 */}
       {af.includes('mb_mobius')&&(()=>{
-        const arcD=`M${pts[11].x},${pts[11].y} Q${cx-100},${cy+R+90} ${cx},${cy+R+95} Q${cx+100},${cy+R+90} ${pts[1].x},${pts[1].y}`;
+        const p11=pts[11],p1=pts[1];
+        // C-кривая с управляющими точками за viewBox — рисуется только сама кривая, дипом до y≈685
+        const arcD=`M${p11.x},${p11.y} C ${p11.x-15},${cy+R+165} ${p1.x+15},${cy+R+165} ${p1.x},${p1.y}`;
         return<g>
-          <path d={arcD} fill="none" stroke="#0891b2" strokeWidth="3.5" strokeLinecap="round" opacity=".85"/>
-          <path d={arcD} fill="none" stroke="#67e8f9" strokeWidth="1.4" strokeLinecap="round" strokeDasharray="6 6" opacity=".7"/>
-          <circle cx={pts[0].x} cy={pts[0].y+44} r="22" fill="#fff" stroke="#0891b2" strokeWidth="2"/>
-          <text x={pts[0].x} y={pts[0].y+50} textAnchor="middle" fontSize="13" fill="#0891b2" fontWeight="800">0=12</text>
-          <text x={cx-44} y={cy+R+72} fontSize="26" fill="#0891b2" fontWeight="600">∞</text>
-          <text x={cx-22} y={cy+R+74} fontSize="11" fill="#0e7490" fontWeight="700">конец = новое начало</text>
+          <path d={arcD} fill="none" stroke="#0891b2" strokeWidth="3" strokeLinecap="round" opacity=".82"/>
+          <path d={arcD} fill="none" stroke="#67e8f9" strokeWidth="1.4" strokeLinecap="round" strokeDasharray="6 6" opacity=".75" style={{animation:'dashFlow 3s linear infinite'}}/>
+          {/* ∞ — единственный лейбл, чисто под полкой 0, с белой обводкой чтобы не сливаться с дугой */}
+          <text x={cx} y={cy+R+85} textAnchor="middle" fontSize="22" fill="#0891b2" fontWeight="700" stroke="#fff" strokeWidth="4" paintOrder="stroke" style={{pointerEvents:'none'}}>∞</text>
         </g>;
       })()}
 
@@ -276,7 +277,6 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
               <line x1={p.x} y1={p.y} x2={np1.x} y2={np1.y} stroke="#16a34a" strokeWidth="2" markerEnd="url(#acc-arr-pv)" opacity=".7" strokeDasharray="4 3"/>
               <line x1={p.x} y1={p.y} x2={np2.x} y2={np2.y} stroke="#16a34a" strokeWidth="2" markerEnd="url(#acc-arr-pv)" opacity=".7" strokeDasharray="4 3"/>
             </g>;})}
-          <text x={cx} y={cy+R+72} textAnchor="middle" fontSize="11" fill="#15803d" fontWeight="700" letterSpacing=".5">Длинная копит → перелив в соседние короткие</text>
         </g>;
       })()}
 
