@@ -15,7 +15,12 @@
 html,body{overflow:visible !important;height:auto !important;min-height:100vh !important}
 body{background:var(--bg)}
 .preview-shell{display:flex;flex-direction:column;min-height:100vh}
-.star-area-pv{flex:0 0 auto !important;height:min(72vh,720px) !important;min-height:560px}
+.star-area-pv{flex:0 0 auto !important;height:min(72vh,720px) !important;min-height:560px;padding:0 !important}
+/* ЖЁСТКИЙ замок пропорций: контейнер всегда 9:7 — точно как viewBox 900x700 у <Star>.
+   Аналог по логике: prod<Star> внутри maxWidth:900,maxHeight:700, но без явного aspect-ratio
+   контейнер мог быть, например, 900x600 и SVG масштабировался с пустыми полями. Здесь — нет. */
+.pv-star-wrap{aspect-ratio:9/7;height:100%;width:auto;max-width:100%;position:relative;margin:0 auto}
+.pv-star-wrap > svg{position:absolute !important;inset:0;width:100% !important;height:100% !important}
 .pv-newmark{position:absolute;top:8px;left:14px;z-index:6;display:flex;align-items:center;gap:6px;
   background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.3);color:#7c3aed;
   padding:5px 10px;border-radius:14px;font-size:11px;font-weight:600;letter-spacing:.4px}
@@ -116,19 +121,17 @@ function ScorpioSpider(){
   const fillBlue = "rgba(37,99,235,.08)";
   return (
     <g>
-      {/* Голова — верхняя дуга */}
-      <path d={`M${p3.x},${p3.y} A${R},${R} 0 0,1 ${p9.x},${p9.y} L${p9.x},${CY-R-50} L${p3.x},${CY-R-50} Z`}
-            fill={fillBlue} stroke="rgba(37,99,235,.4)" strokeWidth="1.4" strokeDasharray="6 4"/>
-      <text x={CX} y={CY-R-22} textAnchor="middle" fontSize="22" opacity=".55">🕷</text>
-      <text x={CX} y={CY-R+8} textAnchor="middle" fontSize="13" fill="#1d4ed8" fontWeight="700">Головной Паук · Сам</text>
-      <text x={CX} y={CY-R+24} textAnchor="middle" fontSize="10.5" fill="#1e3a8a" opacity=".75">Полки 4–8 · идея, контроль, мозг</text>
+      {/* Голова — заштриховка верхнего полукруга, ВНУТРИ круга, чтобы не закрывать ярлыки Полок */}
+      <path d={`M${p3.x},${p3.y} A${R},${R} 0 0,1 ${p9.x},${p9.y} L${p3.x},${p3.y} Z`}
+            fill={fillBlue} stroke="rgba(37,99,235,.4)" strokeWidth="1.2" strokeDasharray="6 4"/>
+      <text x={CX} y={CY-R+22} textAnchor="middle" fontSize="13" fill="#1d4ed8" fontWeight="700">Головной Паук · Сам</text>
+      <text x={CX} y={CY-R+38} textAnchor="middle" fontSize="10.5" fill="#1e3a8a" opacity=".75">верх · идея · мозг</text>
 
-      {/* Грудь/Таз — нижняя дуга */}
-      <path d={`M${p3.x},${p3.y} A${R},${R} 0 0,0 ${p9.x},${p9.y} L${p9.x},${CY+R+50} L${p3.x},${CY+R+50} Z`}
-            fill={fillRed} stroke="rgba(220,38,38,.4)" strokeWidth="1.4" strokeDasharray="6 4"/>
-      <text x={CX} y={CY+R+28} textAnchor="middle" fontSize="22" opacity=".55">🦂</text>
-      <text x={CX} y={CY+R+8} textAnchor="middle" fontSize="13" fill="#b91c1c" fontWeight="700">Грудной Скорпион · Особа</text>
-      <text x={CX} y={CY+R+24} textAnchor="middle" fontSize="10.5" fill="#7f1d1d" opacity=".75">Полки 10–2 · тело, импульс, чакры</text>
+      {/* Грудь/Таз — заштриховка нижнего полукруга */}
+      <path d={`M${p3.x},${p3.y} A${R},${R} 0 0,0 ${p9.x},${p9.y} L${p3.x},${p3.y} Z`}
+            fill={fillRed} stroke="rgba(220,38,38,.4)" strokeWidth="1.2" strokeDasharray="6 4"/>
+      <text x={CX} y={CY+R-30} textAnchor="middle" fontSize="13" fill="#b91c1c" fontWeight="700">Грудной Скорпион · Особа</text>
+      <text x={CX} y={CY+R-14} textAnchor="middle" fontSize="10.5" fill="#7f1d1d" opacity=".75">низ · тело · импульс</text>
 
       {/* Поле Боя — линия 3↔9 */}
       <line x1={p3.x-26} y1={p3.y} x2={p9.x+26} y2={p9.y}
@@ -159,9 +162,9 @@ function MobiusArc(){
       <text x={CX-96} y={CY+R+86} fontSize="22" fill="#0891b2" fontWeight="700">›</text>
       <text x={CX+85}  y={CY+R+86} fontSize="22" fill="#0891b2" fontWeight="700">›</text>
 
-      {/* Знак ∞ под аркой */}
-      <text x={CX} y={CY+R+125} textAnchor="middle" fontSize="34" fill="#0891b2" fontWeight="600">∞</text>
-      <text x={CX} y={CY+R+148} textAnchor="middle" fontSize="11" fill="#0e7490" fontWeight="700">конец = новое начало</text>
+      {/* Знак ∞ — внутри viewBox 700 */}
+      <text x={CX-44} y={CY+R+72} fontSize="26" fill="#0891b2" fontWeight="600">∞</text>
+      <text x={CX-22} y={CY+R+74} fontSize="11" fill="#0e7490" fontWeight="700">конец = новое начало</text>
     </g>
   );
 }
@@ -189,8 +192,9 @@ function AccumulationBars(){
           </g>
         );
       })}
-      <text x={CX} y={CY+R+170} textAnchor="middle" fontSize="11" fill="#15803d" fontWeight="700" letterSpacing=".5">
-        Длинная копит → перелив в соседние короткие (закон § Сутки)
+      {/* Подпись внутри viewBox */}
+      <text x={CX} y={CY+R+72} textAnchor="middle" fontSize="11" fill="#15803d" fontWeight="700" letterSpacing=".5">
+        Длинная копит → перелив в соседние короткие
       </text>
     </g>
   );
@@ -375,7 +379,7 @@ function App(){
            style={{display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}}
            onClick={e=>{if(e.target===e.currentTarget) setSel(null)}}>
         {newCount>0 && <div className="pv-newmark">{newCount} новых наложений активно</div>}
-        <div style={{width:'100%',height:'100%',maxWidth:900,maxHeight:700,position:'relative'}}>
+        <div className="pv-star-wrap">
           <Star yy={y} sel={sel} onSel={setSel} hl={null} af={standardAf}
                 showOpp={standardAf.includes('opp')} overlay={null} mob={false}/>
           <NewMechOverlay af={af}/>
