@@ -1317,7 +1317,7 @@ function Verification({y,vs,setVs,onClose}){
           <button onClick={onClose} style={{width:36,height:36,borderRadius:10,border:'1px solid #e5e5ea',background:'#fff',fontSize:16,color:'#424245',cursor:'pointer',flexShrink:0}}>✕</button>
         </div>
         <div className='fullpage-content' style={{flex:1,overflowY:'auto',padding:'24px 20px',maxWidth:680,margin:'0 auto',width:'100%'}}>
-          <div style={{fontSize:24,fontWeight:700,color:'#1d1d1f',marginBottom:10,lineHeight:1.25}}>Проверка Ясны — по канону Дианоме</div>
+          <div style={{fontSize:24,fontWeight:700,color:'#1d1d1f',marginBottom:10,lineHeight:1.25}}>Проверка Ясны</div>
           <div style={{fontSize:14,color:'#6e6e73',lineHeight:1.6,marginBottom:16}}>
             Универсальный инструмент: каждая проверка снабжена прямой цитатой из книг «Ясна Суток / Ясна Года / Ясна Жизни». <b>Шаг 0 — Быстрая проверка</b>: 7 пунктов ядра, ~3 минуты. <b>Шаги 1–4</b> — глубокая проверка по 4 разделам авторского алгоритма.
           </div>
