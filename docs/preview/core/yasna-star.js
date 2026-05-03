@@ -220,18 +220,17 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
         <line x1={(pts[8].x+pts[9].x)/2} y1={(pts[8].y+pts[9].y)/2} x2={(pts[2].x+pts[3].x)/2} y2={(pts[2].y+pts[3].y)/2} stroke="#D946EF" strokeWidth="1.5" opacity=".25" strokeDasharray="4 6"/>
       </>}
 
-      {/* M-К-005 Зодиак: 12 знаков как внешнее кольцо. Символы ♈..♓ универсальны,
-         русские названия удалены, чтобы не пересекались с ярлыками полок (на lr=R+60). */}
+      {/* M-К-005 Зодиак: символы между полкой (R=215) и её ярлыком (lr=275).
+         Многострочные ярлыки полок 2/3/8/9 уходили далеко наружу — поэтому
+         Зодиак рисуется ВНУТРИ их радиуса, на R+30=245. */}
       {af.includes('mb_zodiac')&&(()=>{
         const ZS=['♑','♒','♓','♈','♉','♊','♋','♌','♍','♎','♏','♐'];
-        // Дальше от центра, чем ярлыки полок: lr+45 = R+105 = 320 — гарантированный зазор
-        const lr2=lr+45;
+        const lr_z = R + 30;
         return<g>
-          <circle cx={cx} cy={cy} r={lr2+22} fill="none" stroke="#7c3aed" strokeWidth=".7" strokeDasharray="2 5" opacity=".55"/>
-          {ZS.map((s,i)=>{const p=xy(i,cx,cy,lr2);
+          {ZS.map((s,i)=>{const p=xy(i,cx,cy,lr_z);
             return<g key={`z${i}`}>
-              <circle cx={p.x} cy={p.y} r="15" fill="rgba(124,58,237,.08)" stroke="rgba(124,58,237,.4)" strokeWidth="1"/>
-              <text x={p.x} y={p.y+7} textAnchor="middle" fontSize="20" fontWeight="600" fill="#7c3aed">{s}</text>
+              <circle cx={p.x} cy={p.y} r="11" fill="rgba(124,58,237,.10)" stroke="rgba(124,58,237,.45)" strokeWidth=".9"/>
+              <text x={p.x} y={p.y+5} textAnchor="middle" fontSize="14" fontWeight="600" fill="#7c3aed">{s}</text>
             </g>;})}
         </g>;
       })()}
