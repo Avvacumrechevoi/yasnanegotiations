@@ -220,18 +220,18 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
         <line x1={(pts[8].x+pts[9].x)/2} y1={(pts[8].y+pts[9].y)/2} x2={(pts[2].x+pts[3].x)/2} y2={(pts[2].y+pts[3].y)/2} stroke="#D946EF" strokeWidth="1.5" opacity=".25" strokeDasharray="4 6"/>
       </>}
 
-      {/* M-К-005 Зодиак: 12 знаков по Полкам как внешнее кольцо */}
+      {/* M-К-005 Зодиак: 12 знаков как внешнее кольцо. Символы ♈..♓ универсальны,
+         русские названия удалены, чтобы не пересекались с ярлыками полок (на lr=R+60). */}
       {af.includes('mb_zodiac')&&(()=>{
         const ZS=['♑','♒','♓','♈','♉','♊','♋','♌','♍','♎','♏','♐'];
-        const ZN=['Козерог','Водолей','Рыбы','Овен','Телец','Близнецы','Рак','Лев','Дева','Весы','Скорпион','Стрелец'];
-        const lr2=lr+30;
+        // Дальше от центра, чем ярлыки полок: lr+45 = R+105 = 320 — гарантированный зазор
+        const lr2=lr+45;
         return<g>
-          <circle cx={cx} cy={cy} r={lr2+18} fill="none" stroke="#7c3aed" strokeWidth=".7" strokeDasharray="2 5" opacity=".55"/>
-          {ZS.map((s,i)=>{const p=xy(i,cx,cy,lr2);const np=xy(i,cx,cy,lr2-30);
+          <circle cx={cx} cy={cy} r={lr2+22} fill="none" stroke="#7c3aed" strokeWidth=".7" strokeDasharray="2 5" opacity=".55"/>
+          {ZS.map((s,i)=>{const p=xy(i,cx,cy,lr2);
             return<g key={`z${i}`}>
-              <circle cx={p.x} cy={p.y} r="14" fill="rgba(124,58,237,.07)" stroke="rgba(124,58,237,.35)" strokeWidth=".8"/>
-              <text x={p.x} y={p.y+6.5} textAnchor="middle" fontSize="19" fontWeight="600" fill="#7c3aed">{s}</text>
-              <text x={np.x} y={np.y} textAnchor="middle" fontSize="9" fill="#581c87" opacity=".75" fontWeight="500">{ZN[i]}</text>
+              <circle cx={p.x} cy={p.y} r="15" fill="rgba(124,58,237,.08)" stroke="rgba(124,58,237,.4)" strokeWidth="1"/>
+              <text x={p.x} y={p.y+7} textAnchor="middle" fontSize="20" fontWeight="600" fill="#7c3aed">{s}</text>
             </g>;})}
         </g>;
       })()}
