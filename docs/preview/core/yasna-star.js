@@ -262,13 +262,9 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
         <path d={`M${pts[11].x},${pts[11].y} A${R},${R} 0 0,1 ${pts[1].x},${pts[1].y}`}
               fill="none" stroke="#67e8f9" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="6 6" opacity=".9"
               style={{animation:'dashFlow 3s linear infinite'}}/>
-        {/* ∞ — внутри круга над полкой 0, белая обводка чтобы читаться поверх луча и дуги */}
-        <text x={cx} y={cy+R-35} textAnchor="middle" fontSize="20" fill="#0891b2" fontWeight="700"
+        {/* ∞ — у самого верха полки 0, чисто между подписями Скорпиона и самой полкой */}
+        <text x={cx} y={cy+R-25} textAnchor="middle" fontSize="18" fill="#0891b2" fontWeight="700"
               stroke="#fff" strokeWidth="4" paintOrder="stroke" style={{pointerEvents:'none'}}>∞</text>
-        {/* Tiny подпись 0=12 ещё чуть выше */}
-        <text x={cx} y={cy+R-56} textAnchor="middle" fontSize="10" fill="#0e7490" fontWeight="700"
-              stroke="#fff" strokeWidth="3" paintOrder="stroke" letterSpacing="0.5"
-              style={{pointerEvents:'none'}}>0 = 12</text>
       </g>}
 
       {/* M-К-007 Накопление→Переход: длинные копят, короткие — точки перелива */}
