@@ -240,18 +240,18 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
       {af.includes('mb_scorpio_spider')&&<>
         <path d={`M${pts[3].x},${pts[3].y} A${R},${R} 0 0,1 ${pts[9].x},${pts[9].y} L${pts[3].x},${pts[3].y} Z`}
               fill="rgba(37,99,235,.08)" stroke="rgba(37,99,235,.4)" strokeWidth="1.2" strokeDasharray="6 4"/>
-        {/* Подписи глубже в верхней полусфере — не касаются полки 6 (y=112..158) */}
-        <text x={cx} y={cy-R+58} textAnchor="middle" fontSize="13" fill="#1d4ed8" fontWeight="700" stroke="#fff" strokeWidth="3" paintOrder="stroke">Головной Паук · Сам</text>
-        <text x={cx} y={cy-R+76} textAnchor="middle" fontSize="10.5" fill="#1e3a8a" opacity=".85" stroke="#fff" strokeWidth="2.5" paintOrder="stroke">верх · идея · мозг</text>
+        {/* Подписи в верхне-центральной зоне — далеко от полки 6 и от ПОЛЕ БОЯ */}
+        <text x={cx} y={cy-90} textAnchor="middle" fontSize="14" fill="#1d4ed8" fontWeight="700" stroke="#fff" strokeWidth="3" paintOrder="stroke">Головной Паук · Сам</text>
+        <text x={cx} y={cy-72} textAnchor="middle" fontSize="11" fill="#1e3a8a" opacity=".85" stroke="#fff" strokeWidth="2.5" paintOrder="stroke">верх · идея · мозг</text>
         <path d={`M${pts[3].x},${pts[3].y} A${R},${R} 0 0,0 ${pts[9].x},${pts[9].y} L${pts[3].x},${pts[3].y} Z`}
               fill="rgba(220,38,38,.08)" stroke="rgba(220,38,38,.4)" strokeWidth="1.2" strokeDasharray="6 4"/>
-        {/* Подписи глубже в нижней полусфере — не касаются полки 0 (y=542..588) */}
-        <text x={cx} y={cy+R-76} textAnchor="middle" fontSize="13" fill="#b91c1c" fontWeight="700" stroke="#fff" strokeWidth="3" paintOrder="stroke">Грудной Скорпион · Особа</text>
-        <text x={cx} y={cy+R-58} textAnchor="middle" fontSize="10.5" fill="#7f1d1d" opacity=".85" stroke="#fff" strokeWidth="2.5" paintOrder="stroke">низ · тело · импульс</text>
+        {/* Подписи в нижне-центральной зоне — далеко от полки 0 и от ПОЛЕ БОЯ */}
+        <text x={cx} y={cy+72} textAnchor="middle" fontSize="14" fill="#b91c1c" fontWeight="700" stroke="#fff" strokeWidth="3" paintOrder="stroke">Грудной Скорпион · Особа</text>
+        <text x={cx} y={cy+90} textAnchor="middle" fontSize="11" fill="#7f1d1d" opacity=".85" stroke="#fff" strokeWidth="2.5" paintOrder="stroke">низ · тело · импульс</text>
         <line x1={pts[3].x-26} y1={pts[3].y} x2={pts[9].x+26} y2={pts[9].y} stroke="#7c2d12" strokeWidth="2" strokeDasharray="3 4" opacity=".55"/>
-        {/* Плашка-маркер «Поле Боя» смещена правее центра, чтобы не накрывать имя Ясны (r=22) */}
-        <rect x={cx+34} y={cy-11} width="118" height="22" rx="11" fill="#fff" stroke="#7c2d12" strokeWidth="1.2"/>
-        <text x={cx+93} y={cy+5} textAnchor="middle" fontSize="10.5" fill="#7c2d12" fontWeight="700" letterSpacing="1.2">↑ ПОЛЕ БОЯ ↓</text>
+        {/* ПОЛЕ БОЯ — теперь в дед-центре, на месте удалённого центрального кружка */}
+        <rect x={cx-78} y={cy-12} width="156" height="24" rx="12" fill="#fff" stroke="#7c2d12" strokeWidth="1.4"/>
+        <text x={cx} y={cy+5} textAnchor="middle" fontSize="11" fill="#7c2d12" fontWeight="700" letterSpacing="1.5">↑ ПОЛЕ БОЯ ↓</text>
       </>}
 
       {/* M-Г-050 Лента Мёбиуса: подсвечиваем нижнюю дугу единичной окружности 11→0=12→1.
@@ -299,10 +299,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
           </g>)}
         </g>);});})()}
       
-      <circle cx={cx} cy={cy} r={22} fill="#fff" stroke="#d2d2d7" strokeWidth="1.2"/>
-      <circle cx={cx} cy={cy} r={3} fill="#d2d2d7"/>
-      <text x={cx} y={cy-2} textAnchor="middle" fill="rgba(0,0,0,.3)" fontSize="7" fontFamily="var(--sans)" fontWeight="600" letterSpacing="2">{(()=>{const n=(yy.name||'').toUpperCase();return n.length<=12?n:n.slice(0,11)+'…';})()}</text>
-      <text x={cx} y={cy+7} textAnchor="middle" fill="rgba(0,0,0,.15)" fontSize="6" fontFamily="var(--sans)" letterSpacing="2">ЯСНА</text>
+      {/* Центр Звезды освобождён — название Ясны дублирует хедер. Здесь рабочая зона для overlay-механик (Поле Боя, ∞ и т.д.). */}
       {af.includes('halves')&&yy.th&&<text x={cx} y={34} textAnchor="middle" fill="rgba(0,0,0,.5)" fontSize="13" fontFamily="var(--sans)" fontWeight="600">{yy.th}</text>}
       {af.includes('halves')&&yy.bh&&<text x={cx} y={W-22} textAnchor="middle" fill="rgba(0,0,0,.5)" fontSize="13" fontFamily="var(--sans)" fontWeight="600">{yy.bh}</text>}
       {af.includes('halves')&&yy.lh&&<text x={20} y={cy} textAnchor="middle" fill="rgba(0,0,0,.5)" fontSize="13" fontFamily="var(--sans)" fontWeight="600" transform={`rotate(-90 20 ${cy})`}>{yy.lh}</text>}
