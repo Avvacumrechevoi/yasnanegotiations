@@ -1,639 +1,394 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
-<title>Ясна · Прототип новых механик</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<title>Ясна · Прототип 4 новых механик</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>"/>
+<link rel="stylesheet" href="styles.css"/>
 <style>
-:root{
-  --bg:#fafafa; --bg2:#f5f5f7; --txt:#1d1d1f; --mute:#86868b; --line:#e5e5ea;
-  --blue:#0071e3; --red:#E8364F; --gold:#E8A834; --water:#5B9CF6;
-  --green:#30A060; --purple:#9060D0; --orange:#ff9500; --magenta:#D946EF;
-  --indigo:#6366f1; --earth:#C0943A; --fo:#4090D8; --tsi:#70B8F0; --ha:#F06838;
+/* Этот превью-лист — единственное место, где разрешаем вертикальный скролл.
+   В проде body{overflow:hidden;height:100vh}, у нас есть документация под Звездой. */
+html,body{overflow:visible !important;height:auto !important;min-height:100vh !important}
+body{background:var(--bg)}
+.preview-shell{display:flex;flex-direction:column;min-height:100vh}
+.star-area-pv{flex:0 0 auto !important;height:min(72vh,720px) !important;min-height:560px}
+.pv-newmark{position:absolute;top:8px;left:14px;z-index:6;display:flex;align-items:center;gap:6px;
+  background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.3);color:#7c3aed;
+  padding:5px 10px;border-radius:14px;font-size:11px;font-weight:600;letter-spacing:.4px}
+.pv-newmark::before{content:'●';font-size:8px}
+.pv-docs{padding:48px 24px 80px;max-width:1100px;margin:0 auto;width:100%}
+.pv-docs h2{font-family:var(--serif);font-size:26px;color:#1d1d1f;margin-bottom:8px;font-weight:700;letter-spacing:-.3px}
+.pv-docs .lead{font-size:14px;color:#6e6e73;margin-bottom:32px;line-height:1.65;max-width:780px}
+.pv-card{margin-bottom:50px;background:#fff;border:1px solid #e5e5ea;border-radius:14px;
+  padding:24px 28px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.pv-card-h{display:flex;align-items:flex-start;gap:14px;margin-bottom:6px}
+.pv-card-icon{font-size:30px;line-height:1;width:40px;text-align:center;flex-shrink:0;margin-top:2px}
+.pv-card-h h3{font-size:19px;font-family:var(--serif);font-weight:700;margin-bottom:3px;letter-spacing:-.2px}
+.pv-card-h .pv-sub{font-size:11px;color:#86868b;letter-spacing:.6px;text-transform:uppercase;font-weight:600}
+.pv-card-body{padding-left:54px}
+.pv-card-body p{font-size:14px;color:#424245;line-height:1.7;margin-top:10px}
+.pv-card-body p b{color:#1d1d1f}
+.pv-footer-note{margin-top:20px;padding:18px 22px;background:rgba(124,58,237,.05);
+  border:1px dashed rgba(124,58,237,.3);border-radius:12px;font-size:13px;
+  color:#581c87;line-height:1.6}
+.pv-footer-note code{background:#fff;padding:2px 6px;border-radius:4px;font-size:12px;color:#7c3aed}
+.pv-bridge{padding:14px 20px;background:linear-gradient(90deg,rgba(124,58,237,.05),rgba(124,58,237,.02));
+  border-bottom:1px solid #e5e5ea;font-size:12.5px;color:#5b21b6;text-align:center;font-weight:500}
+.pv-bridge b{color:#7c3aed}
+@media(max-width:768px){
+  .pv-docs{padding:24px 16px 60px}
+  .pv-card{padding:18px 18px}
+  .pv-card-body{padding-left:0;margin-top:14px}
+  .pv-card-h h3{font-size:17px}
+  .star-area-pv{height:min(60vh,560px) !important;min-height:420px}
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
-body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;
-  background:var(--bg);color:var(--txt);line-height:1.5}
-header{padding:14px 24px;border-bottom:1px solid var(--line);background:#fff;
-  display:flex;align-items:center;gap:16px;flex-wrap:wrap;position:sticky;top:0;z-index:50}
-.logo{font-size:18px;font-weight:700;display:flex;align-items:center;gap:8px}
-.logo span:first-child{color:var(--blue);font-size:22px}
-.subtitle{font-size:13px;color:var(--mute)}
-.theme-pick{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
-.theme-pick button{font-size:12px;padding:6px 12px;border:1px solid var(--line);
-  background:#fff;border-radius:8px;cursor:pointer;color:var(--mute)}
-.theme-pick button.active{background:var(--blue);color:#fff;border-color:var(--blue)}
-main{padding:20px 24px;max-width:1400px;margin:0 auto}
-.intro{padding:14px 18px;background:#fff;border:1px solid var(--line);
-  border-radius:12px;margin-bottom:18px;font-size:13px;color:#424245;line-height:1.65}
-.intro b{color:var(--txt)}
-.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:24px;
-  padding:14px;background:#fff;border:1px solid var(--line);border-radius:12px}
-.filters span.lbl{font-size:12px;color:var(--mute);font-weight:600;margin-right:4px}
-.filters .sep{width:1px;height:18px;background:var(--line);margin:0 4px}
-.fbtn{font-size:12px;padding:7px 14px;border:1px solid var(--line);background:#fff;
-  border-radius:18px;cursor:pointer;color:#424245;transition:all .15s;white-space:nowrap}
-.fbtn:hover{border-color:var(--blue);color:var(--blue)}
-.fbtn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
-.fbtn.new{border-color:var(--magenta);color:var(--magenta);font-weight:600;
-  position:relative}
-.fbtn.new::after{content:'NEW';font-size:8px;background:var(--magenta);color:#fff;
-  padding:1px 4px;border-radius:6px;margin-left:5px;letter-spacing:0.5px;font-weight:700}
-.fbtn.new.on{background:var(--magenta);color:#fff}
-.fbtn.new.on::after{background:#fff;color:var(--magenta)}
-.stage{display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start}
-@media(max-width:900px){.stage{grid-template-columns:1fr}}
-.svg-box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;
-  min-height:680px;display:flex;align-items:center;justify-content:center}
-svg{width:100%;height:auto;max-width:680px}
-.legend{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px}
-.legend h3{font-size:14px;margin-bottom:12px;color:var(--txt)}
-.legend .item{padding:10px 0;border-top:1px solid var(--line);font-size:12px;
-  line-height:1.6;color:#424245}
-.legend .item:first-of-type{border-top:none}
-.legend .item b{color:var(--txt);display:block;margin-bottom:4px;font-size:13px}
-.legend .item .swatch{display:inline-block;width:10px;height:10px;border-radius:50%;
-  margin-right:6px;vertical-align:middle}
-.tooltip{position:fixed;pointer-events:none;background:#1d1d1f;color:#fff;
-  padding:6px 10px;border-radius:6px;font-size:12px;opacity:0;transition:opacity .15s;
-  z-index:100;max-width:280px;line-height:1.4}
-.tooltip.on{opacity:1}
-footer{padding:14px 24px;text-align:center;font-size:11px;color:var(--mute);
-  border-top:1px solid var(--line);margin-top:30px}
-.preset-block{margin-bottom:20px}
-.preset-block h4{font-size:11px;color:var(--mute);text-transform:uppercase;
-  letter-spacing:1px;margin-bottom:8px}
-.preset-buttons{display:flex;flex-wrap:wrap;gap:6px}
-.preset-buttons button{font-size:12px;padding:6px 12px;border:1px solid var(--line);
-  background:#fff;border-radius:14px;cursor:pointer;color:#424245}
-.preset-buttons button.active{background:var(--blue);color:#fff;border-color:var(--blue)}
 </style>
 </head>
 <body>
+<div id="root"></div>
 
-<header>
-  <div class="logo"><span>✦</span><span>Ясна · Прототип новых механик</span></div>
-  <div class="subtitle">наложения, которых пока нет в основном проекте</div>
-  <div class="theme-pick">
-    <button id="reset">Сброс</button>
-    <button id="select-new">Только новые</button>
-    <button id="select-all">Все 16</button>
-  </div>
-</header>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script type="text/babel" src="core/yasna-star.js"></script>
 
-<main>
+<script type="text/babel">
+const {useState, useMemo, useEffect} = React;
+const {Star, T, FL} = window.YasnaCore;
 
-<div class="intro">
-  <b>Что здесь.</b> Те же 12 базовых механик-фильтров, что в Ясна-Конструкторе, плюс
-  <b>4 новые механики</b>, отмеченные значком <span style="color:var(--magenta);font-weight:700">NEW</span>:
-  <b>Скорпион ↔ Паук</b> (главный мифо-биологический образ Жизни),
-  <b>Зодиак</b> (12 знаков на Полках),
-  <b>Замыкание ∞</b> (Лента Мёбиуса 11→0),
-  <b>Накопление → Переход</b> (Закон §290).
-  Включайте по одной или нажмите «Только новые», чтобы посмотреть только их.
-</div>
+// ─────────────────────────────────────────────────────────────────
+// 4 новые механики (расширение FL). g='newmech' → отрисовка только
+// в overlay поверх Star, не передаём в стандартный af.
+// ─────────────────────────────────────────────────────────────────
+const NEW_MECH = [
+  {id:'mb_zodiac',         l:'Зодиак',               c:'#7c3aed', g:'newmech', short:'12 знаков на Полках'},
+  {id:'mb_scorpio_spider', l:'Скорпион↔Паук',        c:'#dc2626', g:'newmech', short:'верх/низ + Поле Боя'},
+  {id:'mb_mobius',         l:'Замыкание ∞',          c:'#0891b2', g:'newmech', short:'Лента Мёбиуса 11→0=12'},
+  {id:'mb_accumulation',   l:'Накопление→Переход',   c:'#16a34a', g:'newmech', short:'Закон § Сутки'},
+];
 
-<div class="preset-block">
-  <h4>Шаблон Ясны</h4>
-  <div class="preset-buttons" id="presets"></div>
-</div>
+const ALL_FL = [...FL, ...NEW_MECH];
 
-<div class="filters">
-  <span class="lbl">Базовые:</span>
-  <button class="fbtn" data-m="support">Опорный</button>
-  <button class="fbtn" data-m="right">Управления</button>
-  <button class="fbtn" data-m="left">Веры</button>
-  <span class="sep"></span>
-  <button class="fbtn" data-m="ha">Огонь</button>
-  <button class="fbtn" data-m="fo">Вода</button>
-  <button class="fbtn" data-m="tsi">Воздух</button>
-  <button class="fbtn" data-m="she">Земля</button>
-  <span class="sep"></span>
-  <button class="fbtn" data-m="opp">Противоположности</button>
-  <button class="fbtn" data-m="rhythm">Ритм В→Б→П</button>
-  <button class="fbtn" data-m="arcs">Три дуги</button>
-  <button class="fbtn" data-m="halves">Половины</button>
-  <button class="fbtn" data-m="error">Ошибка</button>
-  <span class="sep"></span>
-  <span class="lbl">Новые:</span>
-  <button class="fbtn new" data-m="scorp">Скорпион↔Паук</button>
-  <button class="fbtn new" data-m="zodiac">Зодиак</button>
-  <button class="fbtn new" data-m="loop">Замыкание ∞</button>
-  <button class="fbtn new" data-m="accum">Накопление→Переход</button>
-</div>
+// Шаблоны, которые «закрепим» во вкладках (превью — 4 ясны на разных книгах).
+const PREVIEW_TIDS = ['суток','знаки_з.','двора_животных','тела'];
 
-<div class="stage">
-  <div class="svg-box">
-    <svg id="star" viewBox="0 0 800 800" preserveAspectRatio="xMidYMid meet"></svg>
-  </div>
-  <div class="legend" id="legend">
-    <h3>Подсказки</h3>
-    <div id="legend-content">
-      <div class="item">Наведите на номер Полки или включите механики слева для пояснений.</div>
+// ─────────────────────────────────────────────────────────────────
+// Геометрия Звезды — точно как в core/yasna-star.js (viewBox 0 0 900 700).
+// ─────────────────────────────────────────────────────────────────
+const CX=450, CY=350, R=215;
+const xy = (i,r)=>{const a=(270-i*30)*Math.PI/180; return {x:CX+r*Math.cos(a), y:CY-r*Math.sin(a)};};
+
+// ═════════════ OVERLAY: ЗОДИАК ═════════════════════════════════
+function ZodiacRing(){
+  const lr = R + 88;
+  const symbols = ['♑','♒','♓','♈','♉','♊','♋','♌','♍','♎','♏','♐'];
+  const names   = ['Козерог','Водолей','Рыбы','Овен','Телец','Близнецы','Рак','Лев','Дева','Весы','Скорпион','Стрелец'];
+  return (
+    <g>
+      <circle cx={CX} cy={CY} r={lr+22} fill="none" stroke="#7c3aed" strokeWidth=".7" strokeDasharray="2 5" opacity=".55"/>
+      <circle cx={CX} cy={CY} r={lr-18} fill="none" stroke="#7c3aed" strokeWidth=".5" opacity=".25"/>
+      {symbols.map((s,i)=>{
+        const p  = xy(i, lr);
+        const np = xy(i, lr-32);
+        return (
+          <g key={i}>
+            <circle cx={p.x} cy={p.y} r="14" fill="rgba(124,58,237,.07)" stroke="rgba(124,58,237,.35)" strokeWidth=".8"/>
+            <text x={p.x} y={p.y+6.5} textAnchor="middle" fontSize="19" fontWeight="600" fill="#7c3aed">{s}</text>
+            <text x={np.x} y={np.y} textAnchor="middle" fontSize="9" fill="#581c87" opacity=".75" fontWeight="500">{names[i]}</text>
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
+// ═════════════ OVERLAY: СКОРПИОН ↔ ПАУК ═══════════════════════
+function ScorpioSpider(){
+  // Верхняя половина (Полки 4-8, голова) = Паук = «Сам».
+  // Нижняя половина (Полки 10-2, грудь/таз) = Скорпион = «Особа».
+  // Граница 3↔9 (Утро↔Закат) — Поле Боя.
+  const p3 = xy(3, R), p9 = xy(9, R);
+  const fillRed  = "rgba(220,38,38,.08)";
+  const fillBlue = "rgba(37,99,235,.08)";
+  return (
+    <g>
+      {/* Голова — верхняя дуга */}
+      <path d={`M${p3.x},${p3.y} A${R},${R} 0 0,1 ${p9.x},${p9.y} L${p9.x},${CY-R-50} L${p3.x},${CY-R-50} Z`}
+            fill={fillBlue} stroke="rgba(37,99,235,.4)" strokeWidth="1.4" strokeDasharray="6 4"/>
+      <text x={CX} y={CY-R-22} textAnchor="middle" fontSize="22" opacity=".55">🕷</text>
+      <text x={CX} y={CY-R+8} textAnchor="middle" fontSize="13" fill="#1d4ed8" fontWeight="700">Головной Паук · Сам</text>
+      <text x={CX} y={CY-R+24} textAnchor="middle" fontSize="10.5" fill="#1e3a8a" opacity=".75">Полки 4–8 · идея, контроль, мозг</text>
+
+      {/* Грудь/Таз — нижняя дуга */}
+      <path d={`M${p3.x},${p3.y} A${R},${R} 0 0,0 ${p9.x},${p9.y} L${p9.x},${CY+R+50} L${p3.x},${CY+R+50} Z`}
+            fill={fillRed} stroke="rgba(220,38,38,.4)" strokeWidth="1.4" strokeDasharray="6 4"/>
+      <text x={CX} y={CY+R+28} textAnchor="middle" fontSize="22" opacity=".55">🦂</text>
+      <text x={CX} y={CY+R+8} textAnchor="middle" fontSize="13" fill="#b91c1c" fontWeight="700">Грудной Скорпион · Особа</text>
+      <text x={CX} y={CY+R+24} textAnchor="middle" fontSize="10.5" fill="#7f1d1d" opacity=".75">Полки 10–2 · тело, импульс, чакры</text>
+
+      {/* Поле Боя — линия 3↔9 */}
+      <line x1={p3.x-26} y1={p3.y} x2={p9.x+26} y2={p9.y}
+            stroke="#7c2d12" strokeWidth="2" strokeDasharray="3 4" opacity=".55"/>
+      <rect x={CX-72} y={CY-12} width="144" height="24" rx="12"
+            fill="#fff" stroke="#7c2d12" strokeWidth="1.4"/>
+      <text x={CX} y={CY+5} textAnchor="middle" fontSize="11" fill="#7c2d12" fontWeight="700" letterSpacing="1.5">⟵ ПОЛЕ БОЯ ⟶</text>
+    </g>
+  );
+}
+
+// ═════════════ OVERLAY: ЛЕНТА МЁБИУСА (ЗАМЫКАНИЕ ∞) ═══════════
+function MobiusArc(){
+  const p11 = xy(11, R);
+  const p0  = xy(0, R);
+  const p1  = xy(1, R);
+  const arcD = `M${p11.x},${p11.y} Q${CX-100},${CY+R+90} ${CX},${CY+R+95} Q${CX+100},${CY+R+90} ${p1.x},${p1.y}`;
+  return (
+    <g>
+      <path d={arcD} fill="none" stroke="#0891b2" strokeWidth="3.5" strokeLinecap="round" opacity=".85"/>
+      <path d={arcD} fill="none" stroke="#67e8f9" strokeWidth="1.4" strokeLinecap="round" strokeDasharray="6 6" opacity=".7"/>
+
+      {/* Маркер 0 = 12 на нижней Полке */}
+      <circle cx={p0.x} cy={p0.y+44} r="22" fill="#fff" stroke="#0891b2" strokeWidth="2"/>
+      <text x={p0.x} y={p0.y+50} textAnchor="middle" fontSize="13" fill="#0891b2" fontWeight="800">0=12</text>
+
+      {/* Стрелочки направления */}
+      <text x={CX-96} y={CY+R+86} fontSize="22" fill="#0891b2" fontWeight="700">›</text>
+      <text x={CX+85}  y={CY+R+86} fontSize="22" fill="#0891b2" fontWeight="700">›</text>
+
+      {/* Знак ∞ под аркой */}
+      <text x={CX} y={CY+R+125} textAnchor="middle" fontSize="34" fill="#0891b2" fontWeight="600">∞</text>
+      <text x={CX} y={CY+R+148} textAnchor="middle" fontSize="11" fill="#0e7490" fontWeight="700">конец = новое начало</text>
+    </g>
+  );
+}
+
+// ═════════════ OVERLAY: НАКОПЛЕНИЕ → ПЕРЕХОД ══════════════════
+function AccumulationBars(){
+  const longs = [0,3,6,9];
+  return (
+    <g>
+      <defs>
+        <marker id="acc-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#16a34a"/>
+        </marker>
+      </defs>
+      {longs.map(i=>{
+        const p   = xy(i, R);
+        const np1 = xy((i+1)%12, R);
+        const np2 = xy((i+11)%12, R);
+        return (
+          <g key={i}>
+            <circle cx={p.x} cy={p.y} r="42" fill="rgba(22,163,74,.16)" stroke="#16a34a" strokeWidth="1.6" strokeDasharray="3 3"/>
+            <circle cx={p.x} cy={p.y} r="62" fill="none" stroke="#16a34a" strokeWidth=".8" opacity=".4"/>
+            <line x1={p.x} y1={p.y} x2={np1.x} y2={np1.y} stroke="#16a34a" strokeWidth="2" markerEnd="url(#acc-arr)" opacity=".7" strokeDasharray="4 3"/>
+            <line x1={p.x} y1={p.y} x2={np2.x} y2={np2.y} stroke="#16a34a" strokeWidth="2" markerEnd="url(#acc-arr)" opacity=".7" strokeDasharray="4 3"/>
+          </g>
+        );
+      })}
+      <text x={CX} y={CY+R+170} textAnchor="middle" fontSize="11" fill="#15803d" fontWeight="700" letterSpacing=".5">
+        Длинная копит → перелив в соседние короткие (закон § Сутки)
+      </text>
+    </g>
+  );
+}
+
+function NewMechOverlay({af}){
+  const active = af.filter(a => NEW_MECH.find(m=>m.id===a));
+  if(active.length===0) return null;
+  return (
+    <svg viewBox="0 0 900 700"
+         preserveAspectRatio="xMidYMid meet"
+         style={{position:'absolute',inset:0,width:'100%',height:'100%',pointerEvents:'none'}}>
+      {af.includes('mb_zodiac')         && <ZodiacRing/>}
+      {af.includes('mb_scorpio_spider') && <ScorpioSpider/>}
+      {af.includes('mb_mobius')         && <MobiusArc/>}
+      {af.includes('mb_accumulation')   && <AccumulationBars/>}
+    </svg>
+  );
+}
+
+// ═════════════ ОПИСАНИЯ ДЛЯ ДОК-СЕКЦИИ ═══════════════════════
+const DOC_BLOCKS = [
+  {id:'mb_zodiac', icon:'♑', color:'#7c3aed',
+   title:'Зодиак', subtitle:'M-Г-040 / M-К-005 · универсальная',
+   text:[
+    'Все 12 Полок любой Ясны можно соотнести со знаками Зодиака. Это **универсальный круг времени**, доказывающий изоморфию Сутки↔Год↔Жизнь.',
+    'Ключевые точки: Полка 0 = ♑ Козерог · Полка 3 = ♈ Овен · Полка 6 = ♋ Рак · Полка 9 = ♎ Весы. На каждой Полке тот же знак отвечает за тот же режим во всех трёх Яснах.',
+    '**Источник:** «Ясна Года», узел 8, пп. 491–570 — формула созвездий + тело Змея Питона из 12 Зодиак-Мифов.'
+   ]},
+  {id:'mb_scorpio_spider', icon:'🦂', color:'#dc2626',
+   title:'Скорпион ↔ Паук', subtitle:'M-Ж-118 · главный образ Жизни',
+   text:[
+    'Тело человека — и любая 12-Полочная Ясна — делятся по горизонтали на **Грудного Скорпиона** (низ, тело, импульс, «Особа») и **Головного Паука** (верх, голова, идея, «Сам»).',
+    'Между ними — **Поле Боя** на оси 3↔9. Здесь решается, кто управляет циклом: телесный импульс снизу или контроль сверху.',
+    'Перенос на любую Ясну: верхняя половина круга — про разум/намерение/проект, нижняя — про тело/материю/реализацию.',
+    '**Источник:** «Ясна Жизни», узлы 7–8, пп. ~342–530 (анатомия 7 чакр + Манипула + Скхват + Стан + Гужи).'
+   ]},
+  {id:'mb_mobius', icon:'∞', color:'#0891b2',
+   title:'Замыкание ∞ (Лента Мёбиуса)', subtitle:'M-Г-050 · структурный закон',
+   text:[
+    'Полка 11 переходит в Полку 0 = Полку 12. **Конец = новое начало.** Цикл не рассыпается в линию, а замыкается в круг через парадокс «0=12».',
+    'В Сутках: Полночь → Утро. В Году: Зима → Весна. В Жизни: Смерть → Зачатие нового цикла. **Принцип универсален**, его нельзя пропустить ни в одной Ясне.',
+    'Конкретный мифологический образ Змея Питона со звёздным телом — частная иконография «Ясны Года» (узел 8, пп. 569–570). В других книгах тот же закон одет в свои образы.'
+   ]},
+  {id:'mb_accumulation', icon:'⤴', color:'#16a34a',
+   title:'Накопление → Переход', subtitle:'§ Ясна Суток · M-К-007',
+   text:[
+    'На длинных Полках (0, 3, 6, 9) накапливается материал/энергия. По достижении лимита накопление **переливается в соседние короткие Полки** (1, 2, 4, 5, 7, 8, 10, 11).',
+    'Это **Закон Перехода Количества в Качество**, привязанный к 12-Полочной структуре. Длинные Полки — резервуары; короткие — точки перехода (искры, заслонки, переломы).',
+    'В Сутках: Ночь (Полка 0) копит тьму → Искра (1) и Заря (2) — точки перелива. В Жизни: Полка 0 = Зачатие копит до Рождения (Полка 1) и Имени (Полка 2).',
+    '**Источник:** «Ясна Суток», узел 5, базовый закон скоростей света/тьмы.'
+   ]}
+];
+
+function DocSection(){
+  return (
+    <div className="pv-docs">
+      <h2>Что добавляют 4 новые механики</h2>
+      <p className="lead">
+        Эти механики отсутствуют в текущем фильтре Ясна-Конструктора, но встречаются во всех трёх книгах
+        корпуса (Сутки · Год · Жизнь) и являются <b>универсальными для любой 12-Полочной Ясны</b>.
+        Включите их в верхней панели «Механики» — наложение появится прямо на Звезде.
+      </p>
+
+      {DOC_BLOCKS.map(m=>(
+        <div key={m.id} className="pv-card">
+          <div className="pv-card-h">
+            <span className="pv-card-icon" style={{color:m.color}}>{m.icon}</span>
+            <div style={{flex:1}}>
+              <h3 style={{color:m.color}}>{m.title}</h3>
+              <div className="pv-sub">{m.subtitle}</div>
+            </div>
+          </div>
+          <div className="pv-card-body">
+            {m.text.map((t,i)=>(
+              <p key={i} dangerouslySetInnerHTML={{__html: t.replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>')}}/>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      <div className="pv-footer-note">
+        <b>Что дальше.</b> Если предложение принимается — эти 4 механики добавляются в массив <code>FL</code>
+        в файле <code>core/yasna-star.js</code>, а их SVG-наложения переносятся в компонент <code>Star</code>.
+        Глоссарий, Инструкция и Верификация — расширяются записями для каждой новой механики.
+      </div>
     </div>
-  </div>
-</div>
-
-</main>
-
-<div id="tooltip" class="tooltip"></div>
-
-<footer>
-  Прототип для проекта <b>yasnanegotiations</b>. Все 16 механик отрисованы автономно (без backend).<br/>
-  <span style="opacity:0.7">Файл self-contained: один HTML, никаких зависимостей.
-  Можно положить как <code>docs/preview/proposed-mechanics.html</code> и получить URL через GitHub Pages.</span>
-</footer>
-
-<script>
-// ====== ДАННЫЕ ======
-
-// Шаблоны Ясн (для демонстрации)
-const TEMPLATES = {
-  sutok: { n:'Сутки', p:[
-    'Ночь','Первый свет','Утренняя заря','Восход (Война)','Подъём','Последняя тьма',
-    'День (Полдень)','Первая тьма','Вечерняя заря','Закат (Мир)','Сумерки','Последний свет'
-  ]},
-  zhizn: { n:'Жизнь', p:[
-    'Половой Акт','Зачатие','Беременность','Рождение','Молодость',
-    'Самоопределение','Зрелость','Конец работы','Учитель','СМЕРТЬ',
-    'Скорбь','Памятник'
-  ]},
-  god: { n:'Год', p:[
-    'Зимнее солнцестояние','Январь','Февраль','Весеннее равноденствие','Апрель','Май',
-    'Летнее солнцестояние','Июль','Август','Осеннее равноденствие','Октябрь','Ноябрь'
-  ]},
-  udochki: { n:'Удочки', p:[
-    'Поводок','Торец удочки','Бедро удочки','Первая рука','Спина удочки',
-    'Вторая рука','Дуга','—','Струна / Нерв','Поплавок','Отвес','Грузило / Дробина'
-  ]}
-};
-
-// Цвета для механик
-const COL = {
-  // позиции
-  red:'#E8364F', gold:'#E8A834', water:'#5B9CF6',
-  earth:'#C0943A', fo:'#4090D8', tsi:'#70B8F0', ha:'#F06838',
-  green:'#30A060', purple:'#9060D0', orange:'#ff9500',
-  magenta:'#D946EF', indigo:'#6366f1', blue:'#0071e3', mute:'#86868b'
-};
-
-// Тип позиции по индексу: 0=опорный, 1=управления, 2=веры
-const KIND = i => i%3===0 ? 'support' : (i%3===1 ? 'right' : 'left');
-const KIND_COL = { support: COL.red, right: COL.gold, left: COL.water };
-
-// Прана по позиции: 0,4,8=she; 1,5,9=fo; 2,6,10=tsi; 3,7,11=ha
-const PRANA = i => ['she','fo','tsi','ha'][i%4];
-const PRANA_COL = { she: COL.earth, fo: COL.fo, tsi: COL.tsi, ha: COL.ha };
-
-// Знаки Зодиака (для Полок 0..11)
-const ZODIAC = ['♑','♒','♓','♈','♉','♊','♋','♌','♍','♎','♏','♐'];
-const ZODIAC_NAMES = ['Козерог','Водолей','Рыбы','Овен','Телец','Близнецы',
-                     'Рак','Лев','Дева','Весы','Скорпион','Стрелец'];
-
-// ====== ГЕОМЕТРИЯ ======
-// Полка 0 = низ; идёт против часовой
-const CX = 400, CY = 400, R = 250, RR = 290; // радиус кольца знаков чуть дальше
-function pos(i){
-  const a = Math.PI/2 + (i * Math.PI/6);
-  return { x: CX + R*Math.cos(a), y: CY + R*Math.sin(a), a };
-}
-function posR(i, r){
-  const a = Math.PI/2 + (i * Math.PI/6);
-  return { x: CX + r*Math.cos(a), y: CY + r*Math.sin(a), a };
+  );
 }
 
-// ====== СОСТОЯНИЕ ======
-let activeMechs = new Set();
-let template = 'sutok';
+// ═════════════ ПРИЛОЖЕНИЕ ════════════════════════════════════
+function App(){
+  const ptT = useMemo(()=>PREVIEW_TIDS.map(id=>T.find(t=>t.id===id)).filter(Boolean), []);
+  const [yId, setYId] = useState(ptT[0]?.id || T[0].id);
+  const y = useMemo(()=>T.find(t=>t.id===yId) || T[0], [yId]);
+  const [af, setAf] = useState([]);
+  const [sel, setSel] = useState(null);
 
-// ====== РЕНДЕР ======
-function el(tag, attrs={}, parent){
-  const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
-  for(const k in attrs) e.setAttribute(k, attrs[k]);
-  if(parent) parent.appendChild(e);
-  return e;
+  const tog = (id)=> setAf(prev => prev.includes(id) ? prev.filter(x=>x!==id) : [...prev, id]);
+
+  // Только стандартные FL передаём в Star — новые рисует overlay сверху.
+  const standardAf = af.filter(a => FL.find(f=>f.id===a));
+  const newCount = af.filter(a => NEW_MECH.find(m=>m.id===a)).length;
+
+  return (
+    <div className="preview-shell">
+      {/* ═══════ HEADER (1:1 как в проде) ═══════ */}
+      <div className='hdr' style={{display:'flex',alignItems:'center',padding:'10px 20px',background:'var(--bg2)',borderBottom:'1px solid rgba(0,0,0,.06)',flexShrink:0,minHeight:56}}>
+        <span style={{fontSize:20,color:'#0071e3',marginRight:6}}>✦</span>
+        <span className='hdr-brand-desk' style={{fontFamily:'var(--serif)',fontSize:17,color:'#1d1d1f',fontWeight:700,marginRight:12,letterSpacing:-0.3}}>Ясна</span>
+        <span className='hdr-title hdr-title-desk' style={{fontFamily:'var(--serif)',fontSize:18,color:'#6e6e73',fontWeight:500,marginRight:6,paddingLeft:12,borderLeft:'1px solid #d2d2d7'}}>Прототип · 4 новые механики</span>
+        <span className='hdr-title-mob' style={{display:'none',fontFamily:'var(--serif)',fontSize:18,color:'#1d1d1f',fontWeight:700,marginRight:6,letterSpacing:-0.2}}>Прототип</span>
+
+        <div style={{flex:1}}/>
+        <div className='hdr-btns' style={{display:'flex',gap:6,alignItems:'center'}}>
+          <a href="../" style={{textDecoration:'none'}}>
+            <button style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 14px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>← Конструктор</button>
+          </a>
+          <button onClick={()=>setAf(NEW_MECH.map(m=>m.id))} style={{border:'1px solid rgba(124,58,237,.4)',color:'#7c3aed',padding:'7px 14px',borderRadius:8,fontSize:13,background:'rgba(124,58,237,.06)',cursor:'pointer',fontWeight:600}}>Только новые</button>
+          <button onClick={()=>setAf([])} style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 14px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>Сброс</button>
+        </div>
+      </div>
+
+      {/* ═══════ Бейдж-мостик ═══════ */}
+      <div className="pv-bridge">
+        Это <b>превью-страница</b> с предложением 4 новых универсальных механик. Внешний вид и логика — идентичны
+        проду; новое — это 4 кнопки в фильтре справа и их SVG-наложения на Звезду.
+      </div>
+
+      {/* ═══════ NAV TABS (1:1 как в проде) ═══════ */}
+      <div className='nav-tabs' style={{display:'flex',alignItems:'center',padding:'8px 0 8px 20px',background:'var(--bg2)',borderBottom:'1px solid #d2d2d7',flexShrink:0}}>
+        <div style={{flex:1,display:'flex',alignItems:'center',gap:4,overflowX:'auto',minWidth:0,scrollbarWidth:'none',msOverflowStyle:'none'}} className="hide-scroll">
+          {ptT.map(t=>(
+            <button key={t.id} onClick={()=>{setYId(t.id);setSel(null)}}
+              style={{position:'relative',padding:t.rubrik?'6px 14px 6px 18px':'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',
+                background:y.id===t.id?'rgba(0,122,255,.08)':'transparent',
+                color:y.id===t.id?'#0071e3':'var(--txt2)',
+                border:`1px solid ${y.id===t.id?'rgba(0,122,255,.35)':'transparent'}`,
+                fontWeight:y.id===t.id?600:400,cursor:'pointer',overflow:'hidden'}}>
+              {t.rubrik && <span style={{position:'absolute',left:0,top:0,bottom:0,width:3,background:'#30A060'}} title="Верифицирована"/>}
+              {t.n}
+            </button>
+          ))}
+        </div>
+        <div className='nav-right' style={{display:'flex',alignItems:'center',gap:5,paddingRight:20,paddingLeft:10,flexShrink:0,background:'var(--bg2)',borderLeft:'1px solid #e5e5ea'}}>
+          <span style={{fontSize:12,color:'#86868b',fontStyle:'italic',whiteSpace:'nowrap'}}>превью · 4 ясны</span>
+        </div>
+      </div>
+
+      {/* ═══════ FILTERS — 12 прод + 4 NEW ═══════ */}
+      <div className='filters hide-scroll' style={{display:'flex',gap:5,padding:'10px 20px',flexWrap:'wrap',flexShrink:0,alignItems:'center'}}>
+        <span style={{fontSize:12,color:'#6e6e73',padding:'4px 0',whiteSpace:'nowrap',marginRight:4,fontWeight:500}}>Механики:</span>
+        {af.length===ALL_FL.length
+          ? <button onClick={()=>setAf([])} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:'#0071e322',color:'#0071e3',border:'1px solid #0071e355',fontWeight:600,cursor:'pointer'}}>Все</button>
+          : <button onClick={()=>setAf(ALL_FL.map(f=>f.id))} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:'transparent',color:'#86868b',border:'1px solid #d2d2d7',cursor:'pointer'}}>Все</button>
+        }
+        {ALL_FL.map((f,fi)=>{
+          const a = af.includes(f.id);
+          const prevG = fi>0 ? ALL_FL[fi-1].g : '';
+          const showSep = f.g!==prevG && fi>0;
+          const isNew = f.g==='newmech';
+          return <React.Fragment key={f.id}>
+            {showSep && <div className='sep' style={{width:1,height:18,background:'#d2d2d7',margin:'0 4px',flexShrink:0}}/>}
+            {showSep && isNew && <span style={{fontSize:9,color:'#7c3aed',fontWeight:800,letterSpacing:1.5,padding:'0 6px',whiteSpace:'nowrap'}}>NEW</span>}
+            <button onClick={()=>tog(f.id)}
+              title={isNew?f.short:''}
+              style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',
+                background:a?`${f.c}22`:'transparent',
+                color:a?f.c:(isNew?f.c+'cc':'#86868b'),
+                border:`1px solid ${a?f.c+'55':(isNew?f.c+'55':'#d2d2d7')}`,
+                cursor:'pointer',fontWeight:a?600:(isNew?500:400),
+                position:'relative'}}>
+              {f.l}
+              {isNew && !a && <span style={{position:'absolute',top:-3,right:-3,width:6,height:6,borderRadius:'50%',background:f.c,border:'1.5px solid #fff'}}/>}
+            </button>
+          </React.Fragment>;
+        })}
+      </div>
+
+      {/* ═══════ STAR + новый OVERLAY ═══════ */}
+      <div className='star-area star-area-pv'
+           style={{display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}}
+           onClick={e=>{if(e.target===e.currentTarget) setSel(null)}}>
+        {newCount>0 && <div className="pv-newmark">{newCount} новых наложений активно</div>}
+        <div style={{width:'100%',height:'100%',maxWidth:900,maxHeight:700,position:'relative'}}>
+          <Star yy={y} sel={sel} onSel={setSel} hl={null} af={standardAf}
+                showOpp={standardAf.includes('opp')} overlay={null} mob={false}/>
+          <NewMechOverlay af={af}/>
+        </div>
+      </div>
+
+      {/* ═══════ DOC секция под Звездой ═══════ */}
+      <DocSection/>
+    </div>
+  );
 }
 
-function render(){
-  const svg = document.getElementById('star');
-  svg.innerHTML = '';
-
-  // ---- Слой "Зодиак" — внешнее кольцо ----
-  if(activeMechs.has('zodiac')){
-    for(let i=0;i<12;i++){
-      const p = posR(i, RR);
-      const t = el('text', {x:p.x, y:p.y+8, 'text-anchor':'middle',
-        'font-size':22, 'font-weight':600,
-        fill: PRANA_COL[PRANA(i)]}, svg);
-      t.textContent = ZODIAC[i];
-    }
-  }
-
-  // ---- Half-сектора (Половины: Чаша Света/Тьмы + Нарастание/Спад) ----
-  if(activeMechs.has('halves')){
-    // Чаша Света (4-5-6-7-8) - сверху
-    const upPath = sectorPath([4,5,6,7,8]);
-    el('path', {d: upPath, fill: '#fff8d6', 'fill-opacity': 0.5, stroke:'none'}, svg);
-    el('text', {x: CX, y: CY-100, 'text-anchor':'middle', 'font-size':12,
-      fill: COL.mute, 'font-style':'italic'}, svg).textContent = 'Чаша Света';
-    // Чаша Тьмы (10-11-0-1-2) - снизу
-    const dnPath = sectorPath([10,11,0,1,2]);
-    el('path', {d: dnPath, fill: '#ffe8e8', 'fill-opacity': 0.4, stroke:'none'}, svg);
-    el('text', {x: CX, y: CY+115, 'text-anchor':'middle', 'font-size':12,
-      fill: COL.mute, 'font-style':'italic'}, svg).textContent = 'Чаша Тьмы';
-    // Нарастание (1-5) - лево
-    el('text', {x: CX-110, y: CY+5, 'text-anchor':'middle', 'font-size':11,
-      fill: '#22A040', 'font-style':'italic'}, svg).textContent = '↑ Нарастание';
-    // Спад (7-11) - право
-    el('text', {x: CX+110, y: CY+5, 'text-anchor':'middle', 'font-size':11,
-      fill: '#A04040', 'font-style':'italic'}, svg).textContent = 'Спад ↓';
-  }
-
-  // ---- Скорпион vs Паук (НОВАЯ механика) ----
-  if(activeMechs.has('scorp')){
-    // Зона Скорпиона (низ): 11, 0, 1, 2 — брюхо, жало
-    const scorpPath = sectorPath([11,0,1,2]);
-    el('path', {d: scorpPath, fill: '#E8364F', 'fill-opacity': 0.18,
-      stroke:'#E8364F', 'stroke-width':2, 'stroke-dasharray':'6 3'}, svg);
-    el('text', {x: CX, y: CY+R-40, 'text-anchor':'middle', 'font-size':14,
-      'font-weight':700, fill: '#C03040'}, svg).textContent = '🦂 СКОРПИОН';
-    el('text', {x: CX, y: CY+R-22, 'text-anchor':'middle', 'font-size':10,
-      fill: '#C03040', 'font-style':'italic'}, svg)
-      .textContent = 'жало · брюхо · страсть · инициатива';
-
-    // Зона Паука (верх): 5, 6, 7
-    const spiderPath = sectorPath([5,6,7]);
-    el('path', {d: spiderPath, fill: '#5B9CF6', 'fill-opacity': 0.18,
-      stroke:'#5B9CF6', 'stroke-width':2, 'stroke-dasharray':'6 3'}, svg);
-    el('text', {x: CX, y: CY-R+40, 'text-anchor':'middle', 'font-size':14,
-      'font-weight':700, fill: '#3060B0'}, svg).textContent = '🕷 ПАУК';
-    el('text', {x: CX, y: CY-R+58, 'text-anchor':'middle', 'font-size':10,
-      fill: '#3060B0', 'font-style':'italic'}, svg)
-      .textContent = 'темя · паутина · контроль · план';
-
-    // Поле Боя — Полка 4 (Анахата). Подсветка крупным кругом.
-    const p4 = pos(4);
-    el('circle', {cx: p4.x, cy: p4.y, r: 28, fill: 'none',
-      stroke: COL.magenta, 'stroke-width': 2.5, 'stroke-dasharray':'4 3'}, svg);
-    el('text', {x: p4.x-46, y: p4.y-32, 'font-size':11,
-      'font-weight':700, fill: COL.magenta}, svg).textContent = '⚔ Поле Боя';
-    el('text', {x: p4.x-46, y: p4.y-18, 'font-size':10, fill: COL.magenta,
-      'font-style':'italic'}, svg).textContent = 'Анахата';
-
-    // Линия фронта (3 ↔ 9 = горизонт сражения)
-    const p3 = pos(3), p9 = pos(9);
-    el('line', {x1:p3.x, y1:p3.y, x2:p9.x, y2:p9.y, stroke: COL.magenta,
-      'stroke-width':1, 'stroke-dasharray':'3 3', 'stroke-opacity':0.5}, svg);
-  }
-
-  // ---- Замыкание / Лента Мёбиуса (НОВАЯ) ----
-  if(activeMechs.has('loop')){
-    // Дуга от 11 к 0 через внешнюю сторону
-    const p11 = pos(11), p0 = pos(0);
-    // Снаружи: дуга радиуса R+30
-    const a11 = 11*Math.PI/6 + Math.PI/2;
-    const a0 = 0*Math.PI/6 + Math.PI/2;
-    const r2 = R + 35;
-    const x1o = CX + r2*Math.cos(a11), y1o = CY + r2*Math.sin(a11);
-    const x0o = CX + r2*Math.cos(a0), y0o = CY + r2*Math.sin(a0);
-    const d = `M ${p11.x} ${p11.y} Q ${x1o} ${y1o} ${(x1o+x0o)/2} ${(y1o+y0o)/2} T ${p0.x} ${p0.y}`;
-    // упрощённая дуга:
-    const d2 = `M ${p11.x} ${p11.y} A 50 50 0 0 1 ${p0.x} ${p0.y}`;
-    el('path', {d: d2, fill:'none', stroke: COL.purple,
-      'stroke-width': 4, 'stroke-linecap':'round'}, svg);
-    // Знак ∞
-    const midX = (p11.x + p0.x)/2;
-    const midY = (p11.y + p0.y)/2 + 30;
-    el('text', {x: midX, y: midY, 'text-anchor':'middle', 'font-size':28,
-      'font-weight':700, fill: COL.purple}, svg).textContent = '∞';
-    el('text', {x: midX, y: midY+18, 'text-anchor':'middle', 'font-size':10,
-      fill: COL.purple, 'font-style':'italic'}, svg).textContent = 'Лента Мёбиуса';
-    // Подсветка точки 0 = 12
-    el('circle', {cx:p0.x, cy:p0.y, r:24, fill:'none', stroke: COL.purple,
-      'stroke-width':2, 'stroke-dasharray':'3 2'}, svg);
-    el('text', {x:p0.x, y:p0.y+R-180, 'text-anchor':'middle', 'font-size':9,
-      fill: COL.purple, 'font-style':'italic'}, svg).textContent = '0 = 12';
-  }
-
-  // ---- Опорный крест (0,3,6,9) ----
-  if(activeMechs.has('support')){
-    [0,3,6,9].forEach(i=>{
-      const a = pos(i), b = pos((i+6)%12);
-      el('line', {x1:a.x, y1:a.y, x2:b.x, y2:b.y,
-        stroke: COL.red, 'stroke-width':1.5, 'stroke-opacity':0.5}, svg);
-    });
-  }
-  // ---- Правый крест (1,4,7,10) ----
-  if(activeMechs.has('right')){
-    [1,4,7,10].forEach(i=>{
-      const a = pos(i), b = pos((i+6)%12);
-      el('line', {x1:a.x, y1:a.y, x2:b.x, y2:b.y,
-        stroke: COL.gold, 'stroke-width':1.5, 'stroke-opacity':0.5}, svg);
-    });
-  }
-  // ---- Левый крест (2,5,8,11) ----
-  if(activeMechs.has('left')){
-    [2,5,8,11].forEach(i=>{
-      const a = pos(i), b = pos((i+6)%12);
-      el('line', {x1:a.x, y1:a.y, x2:b.x, y2:b.y,
-        stroke: COL.water, 'stroke-width':1.5, 'stroke-opacity':0.5}, svg);
-    });
-  }
-  // ---- Стихии (треугольники) ----
-  ['ha','fo','tsi','she'].forEach(s=>{
-    if(!activeMechs.has(s))return;
-    const positions = [];
-    for(let i=0;i<12;i++)if(PRANA(i)===s)positions.push(i);
-    const pts = positions.map(i=>pos(i));
-    el('polygon', {
-      points: pts.map(p=>`${p.x},${p.y}`).join(' '),
-      fill: PRANA_COL[s], 'fill-opacity':0.12,
-      stroke: PRANA_COL[s], 'stroke-width':2, 'stroke-opacity':0.7
-    }, svg);
-  });
-  // ---- Противоположности ----
-  if(activeMechs.has('opp')){
-    for(let i=0;i<6;i++){
-      const a = pos(i), b = pos(i+6);
-      el('line', {x1:a.x, y1:a.y, x2:b.x, y2:b.y,
-        stroke: COL.orange, 'stroke-width':1.5, 'stroke-dasharray':'4 3',
-        'stroke-opacity':0.6}, svg);
-    }
-  }
-  // ---- Ритм В→Б→П (4 тройки: 11-0-1, 2-3-4, 5-6-7, 8-9-10) ----
-  if(activeMechs.has('rhythm')){
-    const triples = [[11,0,1],[2,3,4],[5,6,7],[8,9,10]];
-    const labels = ['В','Б','П'];
-    triples.forEach(t=>{
-      for(let k=0;k<2;k++){
-        const a = pos(t[k]), b = pos(t[k+1]);
-        el('line', {x1:a.x, y1:a.y, x2:b.x, y2:b.y,
-          stroke: COL.green, 'stroke-width':3, 'stroke-opacity':0.7}, svg);
-      }
-      t.forEach((idx, k)=>{
-        const p = posR(idx, R+15);
-        el('text', {x:p.x, y:p.y+4, 'text-anchor':'middle', 'font-size':10,
-          'font-weight':700, fill: COL.green}, svg).textContent = labels[k];
-      });
-    });
-  }
-  // ---- Три дуги (1-5, 5-9, 9-1 через 11,0) ----
-  if(activeMechs.has('arcs')){
-    const arcs = [
-      {points:[1,2,3,4,5], color: COL.water},
-      {points:[5,6,7,8,9], color: COL.purple},
-      {points:[9,10,11,0,1], color: COL.green}
-    ];
-    arcs.forEach(arc=>{
-      for(let k=0;k<arc.points.length-1;k++){
-        const a = pos(arc.points[k]), b = pos(arc.points[k+1]);
-        el('line', {x1:a.x, y1:a.y, x2:b.x, y2:b.y,
-          stroke: arc.color, 'stroke-width':3.5, 'stroke-opacity':0.8,
-          'stroke-linecap':'round'}, svg);
-      }
-    });
-  }
-  // ---- Системная ошибка (8↔9, 4 типа) ----
-  if(activeMechs.has('error')){
-    // 8-9 связь (зеркальная путаница)
-    const p8 = pos(8), p9 = pos(9);
-    el('line', {x1:p8.x, y1:p8.y, x2:p9.x, y2:p9.y,
-      stroke: COL.magenta, 'stroke-width':2, 'stroke-dasharray':'5 4'}, svg);
-    // 2-3 зеркальная
-    const p2 = pos(2), p3 = pos(3);
-    el('line', {x1:p2.x, y1:p2.y, x2:p3.x, y2:p3.y,
-      stroke: COL.magenta, 'stroke-width':2, 'stroke-dasharray':'5 4',
-      'stroke-opacity':0.5}, svg);
-    // Подписи 4 типа ошибок
-    const errs = [[0,'Ошибка во сне', 0, R+45],
-                  [3,'Просмотрел', -50, 5],
-                  [6,'Мираж', 0, -45],
-                  [9,'Ошибка измерения', 60, 5]];
-    errs.forEach(([i,txt,dx,dy])=>{
-      const p = pos(i);
-      el('text', {x: p.x+dx, y: p.y+dy, 'font-size':10,
-        'font-weight':600, fill: COL.magenta, 'text-anchor': dx===0?'middle':(dx<0?'end':'start')}, svg)
-        .textContent = txt;
-    });
-  }
-
-  // ---- Накопление → Переход (НОВАЯ) ----
-  if(activeMechs.has('accum')){
-    // Стрелочки от чётной к нечётной (0→1, 2→3, 4→5, 6→7, 8→9, 10→11)
-    for(let i=0;i<12;i+=2){
-      const a = pos(i), b = pos(i+1);
-      // короткая стрелочка вдоль кольца
-      const arr = arrow(a, b, 3);
-      el('path', {d: arr, fill: COL.indigo, 'fill-opacity':0.7}, svg);
-    }
-    // Подпись 0=Накопление, 1=Переход на одной из позиций
-    const ex = pos(2);
-    el('text', {x: ex.x-80, y: ex.y+30, 'font-size':10, 'font-weight':600,
-      fill: COL.indigo}, svg).textContent = 'копит →';
-    const ex3 = pos(3);
-    el('text', {x: ex3.x-90, y: ex3.y+45, 'font-size':10, 'font-weight':600,
-      fill: '#C03A8B'}, svg).textContent = '↯ переход';
-  }
-
-  // ---- Контурное кольцо ----
-  el('circle', {cx:CX, cy:CY, r:R, fill:'none',
-    stroke:'#d8d8e0', 'stroke-width':1}, svg);
-  // Внутреннее кольцо
-  el('circle', {cx:CX, cy:CY, r:R*0.6, fill:'none',
-    stroke:'#e8e8ec', 'stroke-width':0.5}, svg);
-
-  // ---- Сами 12 точек ----
-  const tpl = TEMPLATES[template];
-  for(let i=0;i<12;i++){
-    const p = pos(i);
-    const k = KIND(i);
-    const fill = '#fff';
-    const stroke = KIND_COL[k];
-    el('circle', {cx:p.x, cy:p.y, r:18, fill:fill,
-      stroke:stroke, 'stroke-width':2.2, class:'pos', 'data-i':i}, svg);
-    const t = el('text', {x:p.x, y:p.y+5, 'text-anchor':'middle', 'font-size':14,
-      'font-weight':700, fill: stroke}, svg);
-    t.textContent = i;
-    // Подпись у точки
-    const lbl = tpl.p[i];
-    if(lbl && lbl !== '—'){
-      const labelP = posR(i, R+55);
-      const tt = el('text', {x: labelP.x, y: labelP.y+3, 'text-anchor':'middle',
-        'font-size':11, fill:'#1d1d1f'}, svg);
-      // оборачиваем длинные слова
-      const words = lbl.split(' ');
-      if(words.length > 1 && lbl.length > 10){
-        const half = Math.ceil(words.length/2);
-        const tspan1 = el('tspan', {x: labelP.x, dy: -6}, tt);
-        tspan1.textContent = words.slice(0, half).join(' ');
-        const tspan2 = el('tspan', {x: labelP.x, dy: 13}, tt);
-        tspan2.textContent = words.slice(half).join(' ');
-      } else {
-        tt.textContent = lbl;
-      }
-    }
-  }
-
-  // Центр - имя Ясны
-  el('text', {x:CX, y:CY-2, 'text-anchor':'middle', 'font-size':10,
-    fill: COL.mute, 'font-weight':600}, svg).textContent = tpl.n.toUpperCase();
-  el('text', {x:CX, y:CY+12, 'text-anchor':'middle', 'font-size':9,
-    fill: COL.mute, 'letter-spacing':'1px'}, svg).textContent = 'ЯСНА';
-}
-
-function arrow(from, to, w){
-  // короткая стрелочка от точки к точке (1/3 длины)
-  const dx = to.x - from.x, dy = to.y - from.y;
-  const len = Math.sqrt(dx*dx + dy*dy);
-  const ux = dx/len, uy = dy/len;
-  const x1 = from.x + ux*22, y1 = from.y + uy*22;
-  const x2 = from.x + ux*(len*0.7), y2 = from.y + uy*(len*0.7);
-  // тело + наконечник
-  const px = -uy*w, py = ux*w;
-  const headBack = w*2;
-  const tx = x2 - ux*headBack, ty = y2 - uy*headBack;
-  return `M ${x1+px} ${y1+py} L ${tx+px} ${ty+py} L ${tx+px*2} ${ty+py*2} L ${x2} ${y2} L ${tx-px*2} ${ty-py*2} L ${tx-px} ${ty-py} L ${x1-px} ${y1-py} Z`;
-}
-
-function sectorPath(positions){
-  // путь через центр + дугу через все позиции + назад в центр
-  const pts = positions.map(i=>pos(i));
-  let d = `M ${CX} ${CY} L ${pts[0].x} ${pts[0].y}`;
-  for(let i=1;i<pts.length;i++){
-    d += ` A ${R} ${R} 0 0 1 ${pts[i].x} ${pts[i].y}`;
-  }
-  d += ` Z`;
-  return d;
-}
-
-// ====== ЛЕГЕНДА ======
-const LEGEND = {
-  support: {col: COL.red, t:'Опорный Крест (Бытия)',
-    d:'4 главные точки 0-3-6-9 — скелет Ясны. Без них явление рассыпется.'},
-  right: {col: COL.gold, t:'Крест Управления (Исхода)',
-    d:'1, 4, 7, 10 — результаты после опорных точек.'},
-  left: {col: COL.water, t:'Крест Веры (Левит)',
-    d:'2, 5, 8, 11 — подготовка перед опорными точками.'},
-  ha: {col: COL.ha, t:'Огонь ХА',
-    d:'3, 7, 11 — яркие, острые, переломные. Стихия рывков.'},
-  fo: {col: COL.fo, t:'Вода ФО',
-    d:'1, 5, 9 — текучие, спадающие. Стихия перемен.'},
-  tsi: {col: COL.tsi, t:'Воздух ЦИ',
-    d:'2, 6, 10 — переходные, мостовые. Стихия каналов.'},
-  she: {col: COL.earth, t:'Земля ШЕ',
-    d:'0, 4, 8 — устойчивые, фундамент. Стихия покоя.'},
-  opp: {col: COL.orange, t:'6 Противоположностей',
-    d:'Зеркальные пары через центр: 0↔6, 1↔7, 2↔8, 3↔9, 4↔10, 5↔11.'},
-  rhythm: {col: COL.green, t:'Ритм Вера→Бой→Победа',
-    d:'4 тройки 11-0-1, 2-3-4, 5-6-7, 8-9-10 — мини-истории внутри цикла.'},
-  arcs: {col: COL.purple, t:'Три дуги Тепла',
-    d:'Цикл делится на 3 дуги по 5 точек: 1-5, 5-9, 9-1.'},
-  halves: {col: COL.indigo, t:'Половины (Чаши + Нарастание/Спад)',
-    d:'Чаша Света 4-8 (явное), Чаша Тьмы 10-2 (скрытое). 3 и 9 — горизонт.'},
-  error: {col: COL.magenta, t:'Системная ошибка 8↔9',
-    d:'4 типа ошибок: 0=во сне, 3=просмотрел, 6=мираж, 9=измерения. Зеркало 2↔3.'},
-  scorp: {col: COL.red, t:'⭐ Скорпион↔Паук (новая)',
-    d:'Главный мифо-биологический образ Жизни (M-Ж-118). Скорпион (низ, страсть) ↔ Паук (верх, контроль). Поле Боя — Полка 4 (Анахата). Жизнь = их битва.'},
-  zodiac: {col: COL.blue, t:'⭐ Зодиак (новая)',
-    d:'12 знаков на Полках. Цвет — по стихии. Эталон для астрономических Ясн (M-Г-040).'},
-  loop: {col: COL.purple, t:'⭐ Замыкание ∞ (новая)',
-    d:'Лента Мёбиуса (M-Г-050): 11→0 — парадоксальное соединение, конец = новое начало. Полки 0 и 12 — одна точка.'},
-  accum: {col: COL.indigo, t:'⭐ Накопление→Переход (новая)',
-    d:'Главный закон Ясны (§290): чётные копят, нечётные срываются в новое качество. Стрелочки 0→1, 2→3 и т.д.'}
-};
-
-function renderLegend(){
-  const c = document.getElementById('legend-content');
-  if(activeMechs.size === 0){
-    c.innerHTML = '<div class="item">Включите механики слева, чтобы посмотреть подсказки.</div>';
-    return;
-  }
-  c.innerHTML = '';
-  activeMechs.forEach(m=>{
-    const L = LEGEND[m];
-    if(!L)return;
-    const div = document.createElement('div');
-    div.className = 'item';
-    div.innerHTML = `<b><span class="swatch" style="background:${L.col}"></span>${L.t}</b>${L.d}`;
-    c.appendChild(div);
-  });
-}
-
-// ====== СОБЫТИЯ ======
-document.querySelectorAll('.fbtn').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    const m = btn.dataset.m;
-    if(activeMechs.has(m)){activeMechs.delete(m); btn.classList.remove('on');}
-    else {activeMechs.add(m); btn.classList.add('on');}
-    render(); renderLegend();
-  });
-});
-
-document.getElementById('reset').onclick = ()=>{
-  activeMechs.clear();
-  document.querySelectorAll('.fbtn.on').forEach(b=>b.classList.remove('on'));
-  render(); renderLegend();
-};
-document.getElementById('select-all').onclick = ()=>{
-  activeMechs = new Set(['support','right','left','ha','fo','tsi','she',
-    'opp','rhythm','arcs','halves','error','scorp','zodiac','loop','accum']);
-  document.querySelectorAll('.fbtn').forEach(b=>b.classList.add('on'));
-  render(); renderLegend();
-};
-document.getElementById('select-new').onclick = ()=>{
-  activeMechs = new Set(['scorp','zodiac','loop','accum']);
-  document.querySelectorAll('.fbtn').forEach(b=>{
-    if(['scorp','zodiac','loop','accum'].includes(b.dataset.m))b.classList.add('on');
-    else b.classList.remove('on');
-  });
-  render(); renderLegend();
-};
-
-// Шаблоны
-const presetsBox = document.getElementById('presets');
-Object.entries(TEMPLATES).forEach(([id, t])=>{
-  const b = document.createElement('button');
-  b.textContent = t.n;
-  if(id===template)b.classList.add('active');
-  b.onclick = ()=>{
-    template = id;
-    presetsBox.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');
-    render();
-  };
-  presetsBox.appendChild(b);
-});
-
-// Подсказки на точках
-const tip = document.getElementById('tooltip');
-document.addEventListener('mouseover', e=>{
-  if(e.target.classList && e.target.classList.contains('pos')){
-    const i = parseInt(e.target.dataset.i);
-    const tpl = TEMPLATES[template];
-    tip.textContent = `Полка ${i}: ${tpl.p[i]||'—'} (${ZODIAC[i]} ${ZODIAC_NAMES[i]})`;
-    tip.classList.add('on');
-  }
-});
-document.addEventListener('mousemove', e=>{
-  if(tip.classList.contains('on')){
-    tip.style.left = (e.clientX+10) + 'px';
-    tip.style.top = (e.clientY+10) + 'px';
-  }
-});
-document.addEventListener('mouseout', e=>{
-  if(e.target.classList && e.target.classList.contains('pos')){
-    tip.classList.remove('on');
-  }
-});
-
-// Старт — включаем 4 новые
-activeMechs = new Set(['scorp','zodiac','loop','accum']);
-['scorp','zodiac','loop','accum'].forEach(m=>{
-  document.querySelector(`[data-m="${m}"]`)?.classList.add('on');
-});
-render();
-renderLegend();
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
 </script>
-
 </body>
 </html>
