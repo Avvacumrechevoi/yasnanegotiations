@@ -741,7 +741,15 @@ function App(){
   const[activeLesson,setActiveLesson]=useState(null);
   const[completedLessons,setCompletedLessons]=useState([]);
   // Auto-close burger menu when any modal/panel opens
-  useEffect(()=>{if(ed||glossary||instr||verif||fullStar||picker||showOverlayPicker||lessonPicker||activeLesson)setMenu(false);},[ed,glossary,instr,verif,fullStar,picker,showOverlayPicker,lessonPicker,activeLesson]);
+  useEffect(()=>{
+    if(ed||glossary||instr||verif||fullStar||picker||showOverlayPicker||lessonPicker||activeLesson){
+      setMenu(false);
+      // Закрываем Info-карточку (FI), чтобы её состояние fi-full не оставалось
+      // под модалкой и не держало body:has(.fi-full) → .hdr{max-height:0} активным.
+      // Без этого после возврата из модалки шапка остаётся свёрнутой и некликабельной.
+      setSel(null);
+    }
+  },[ed,glossary,instr,verif,fullStar,picker,showOverlayPicker,lessonPicker,activeLesson]);
   const load=t=>{setY({name:t.n,p:[...t.p],th:t.th||'',bh:t.bh||'',lh:t.lh||'',rh:t.rh||'',custom:!!t.custom});setSel(null);setAf([]);};
   const tog=f=>setAf(p=>p.includes(f)?p.filter(x=>x!==f):[...p,f]);
   const togglePin=id=>setPinned(p=>p.includes(id)?p.filter(x=>x!==id):[...p,id]);
