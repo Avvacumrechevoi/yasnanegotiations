@@ -1625,12 +1625,12 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
     if(!canvas) return;
 
     const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:false, powerPreference:'high-performance' });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 3));
     if(THREE.sRGBEncoding) renderer.outputEncoding = THREE.sRGBEncoding;
     // Кинематографический tone mapping
     if(THREE.ACESFilmicToneMapping !== undefined){
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.15;
+      renderer.toneMappingExposure = 0.92;
     }
 
     const scene = new THREE.Scene();
@@ -1677,20 +1677,20 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
     }
 
     // ──────────────── Освещение (премиум-качество) ────────────────
-    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.25);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.32));
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.05);
     keyLight.position.set(3, 5, 4); scene.add(keyLight);
-    const fillLight = new THREE.DirectionalLight(0x80a0ff, 0.55);
+    const fillLight = new THREE.DirectionalLight(0x6088ee, 0.38);
     fillLight.position.set(-4, 2, -2); scene.add(fillLight);
-    const rimLight = new THREE.DirectionalLight(0xffd4a8, 0.85);
+    const rimLight = new THREE.DirectionalLight(0xffba88, 0.55);
     rimLight.position.set(0, -3, -5); scene.add(rimLight);
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x303040, 0.25));
+    scene.add(new THREE.HemisphereLight(0xc0d0ff, 0x202032, 0.18));
     // Простой env-map для качественных металлических отражений (без зависимостей)
     try {
       const pmremGenerator = new THREE.PMREMGenerator(renderer);
       const skyScene = new THREE.Scene();
-      skyScene.background = new THREE.Color(0x202840);
-      const envMap = pmremGenerator.fromScene(skyScene, 0.04).texture;
+      skyScene.background = new THREE.Color(0x141828);
+      const envMap = pmremGenerator.fromScene(skyScene, 0.02).texture;
       scene.environment = envMap;
       pmremGenerator.dispose();
     } catch(e) { /* env-map опционален */ }
@@ -1727,14 +1727,14 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
     };
 
     // ──────────────── Каркасная сфера-обёртка ────────────────
-    const cageGeom = new THREE.SphereGeometry(R+polkaR*1.5, 24, 16);
-    const cageMat = new THREE.MeshBasicMaterial({ color:0x8888aa, wireframe:true, transparent:true, opacity:0.10 });
+    const cageGeom = new THREE.SphereGeometry(R+polkaR*1.5, 40, 28);
+    const cageMat = new THREE.MeshBasicMaterial({ color:0x6068a0, wireframe:true, transparent:true, opacity:0.07 });
     const cageMesh = new THREE.Mesh(cageGeom, cageMat);
     wheelGroup.add(cageMesh);
 
     const equatorTube = new THREE.Mesh(
-      new THREE.TorusGeometry(R, 0.7, 12, 96),
-      new THREE.MeshStandardMaterial({ color:0xb8a8d8, opacity:0.75, transparent:true, metalness:0.7, roughness:0.3, emissive:0x4030a0, emissiveIntensity:0.15 })
+      new THREE.TorusGeometry(R, 0.7, 16, 144),
+      new THREE.MeshStandardMaterial({ color:0xb8a8d8, opacity:0.75, transparent:true, metalness:0.7, roughness:0.25, emissive:0x4030a0, emissiveIntensity:0.10 })
     );
     equatorTube.rotation.x = Math.PI/2;
     wheelGroup.add(equatorTube);
@@ -1752,15 +1752,15 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       new THREE.Vector3(0, POLE_Y*1.05, 0),
       new THREE.Vector3(0, -POLE_Y*1.05, 0),
       0.9,
-      new THREE.MeshStandardMaterial({ color:0x8a4dad, opacity:0.55, transparent:true, metalness:0.55, roughness:0.25, emissive:0x6c3a8e, emissiveIntensity:0.28 })
+      new THREE.MeshStandardMaterial({ color:0x8a4dad, opacity:0.55, transparent:true, metalness:0.6, roughness:0.2, emissive:0x6c3a8e, emissiveIntensity:0.16 })
     );
     if(pillar) wheelGroup.add(pillar);
 
     const poleMat = new THREE.MeshStandardMaterial({
-      color:0x8a4dad, roughness:0.22, metalness:0.6,
-      emissive:0x8a4dad, emissiveIntensity:0.32,
+      color:0x8a4dad, roughness:0.18, metalness:0.7,
+      emissive:0x8a4dad, emissiveIntensity:0.18,
     });
-    const poleGeom = new THREE.SphereGeometry(polkaR*0.7, 32, 24);
+    const poleGeom = new THREE.SphereGeometry(polkaR*0.7, 48, 36);
     const northBall = new THREE.Mesh(poleGeom, poleMat);
     northBall.position.copy(NORTH); wheelGroup.add(northBall);
     const southBall = new THREE.Mesh(poleGeom, poleMat);
@@ -1789,18 +1789,18 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       const pos = equatorPos(i);
       const baseColor = polkaColor(i);
       const planetMat = new THREE.MeshStandardMaterial({
-        color: baseColor, roughness: 0.42, metalness: 0.40,
-        emissive: baseColor, emissiveIntensity: 0.32,
+        color: baseColor, roughness: 0.32, metalness: 0.55,
+        emissive: baseColor, emissiveIntensity: 0.15,
       });
-      const planet = new THREE.Mesh(new THREE.SphereGeometry(polkaR, 64, 48), planetMat);
+      const planet = new THREE.Mesh(new THREE.SphereGeometry(polkaR, 96, 64), planetMat);
       planet.position.copy(pos);
       planet.userData.polkaIdx = i;
       wheelGroup.add(planet);
 
       const auraMat = new THREE.MeshBasicMaterial({
-        color: baseColor, transparent:true, opacity:0.32, side:THREE.BackSide
+        color: baseColor, transparent:true, opacity:0.16, side:THREE.BackSide
       });
-      const aura = new THREE.Mesh(new THREE.SphereGeometry(polkaR*1.45, 24, 18), auraMat);
+      const aura = new THREE.Mesh(new THREE.SphereGeometry(polkaR*1.22, 32, 24), auraMat);
       planet.add(aura);
 
       const num = makeTextSprite(String(i), '#ffffff', 96, 'bold');
@@ -1985,7 +1985,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       mechGroup.userData.zodiacCoinsAnim = false;
       // Адаптивная видимость каркаса — приглушаем при многих активных механиках
       const N = (active||[]).length;
-      cageMat.opacity = N === 0 ? 0.10 : N <= 2 ? 0.05 : 0.02;
+      cageMat.opacity = N === 0 ? 0.07 : N <= 2 ? 0.04 : 0.02;
       equatorTube.material.opacity = N === 0 ? 0.75 : N <= 2 ? 0.6 : 0.35;
 
       const crossDefs = [
@@ -2312,12 +2312,12 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
           // остальные приглушаются
           if(i === live.drill){
             p.scale.lerp(new THREE.Vector3(0.4,0.4,0.4), 0.12);
-            p.material.emissiveIntensity = 0.15;
+            p.material.emissiveIntensity = 0.08;
             p.material.opacity = 0.4;
             p.material.transparent = true;
           } else {
             p.scale.lerp(new THREE.Vector3(0.7,0.7,0.7), 0.12);
-            p.material.emissiveIntensity = 0.18;
+            p.material.emissiveIntensity = 0.10;
             p.material.opacity = 0.55;
             p.material.transparent = true;
           }
@@ -2327,7 +2327,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
             p.material.emissiveIntensity = pulse;
             p.scale.lerp(new THREE.Vector3(1.4,1.4,1.4), 0.1);
           } else {
-            p.material.emissiveIntensity = 0.32;
+            p.material.emissiveIntensity = 0.15;
             p.scale.lerp(new THREE.Vector3(1,1,1), 0.1);
           }
           p.material.opacity = 1;
