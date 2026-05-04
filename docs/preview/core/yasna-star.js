@@ -1603,149 +1603,210 @@ function Verification({y,vs,setVs,onClose}){
 
 // ═══════════════════════════════════════════════════════════════════
 // Yasna3DView — настоящий 3D через Three.js (preview-only)
-// Шары для полок, drag-rotate (OrbitControls-like), 3D mechanics.
+// Премиум-сфера: 12 полок-планет на экваторе, N/S полюса,
+// механики как платоновы тела (октаэдр, бипирамида, тетраэдр)
 // ═══════════════════════════════════════════════════════════════════
 
 function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
   const canvasRef = React.useRef(null);
   const stateRef = React.useRef({
-    camAzim: 0,         // 0° = front view (looking from -Z toward 0)
-    camElev: 25,        // tilt up by default
-    camDist: 620,
-    isDragging: false,
-    lastX: 0, lastY: 0,
-    rotZ: 0,            // current wheel auto-rotation angle
+    camAzim: 0, camElev: 18, camDist: 540,
+    isDragging: false, lastX: 0, lastY: 0,
   });
   const sceneRefs = React.useRef(null);
 
-  // (Re)build scene when y or af changes
   React.useEffect(()=>{
-    if(typeof window==='undefined' || !window.THREE) { return; }
+    if(typeof window==='undefined' || !window.THREE) return;
     const THREE = window.THREE;
     const canvas = canvasRef.current;
     if(!canvas) return;
 
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true, powerPreference:'high-performance' });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
     renderer.setClearColor(0x000000, 0);
+    if(THREE.sRGBEncoding) renderer.outputEncoding = THREE.sRGBEncoding;
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(40, 1, 1, 5000);
+    const camera = new THREE.PerspectiveCamera(38, 1, 1, 5000);
 
-    // ─ Lighting ─
-    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-    const key = new THREE.DirectionalLight(0xffffff, 0.85);
-    key.position.set(2, 4, 3); scene.add(key);
-    const rim = new THREE.DirectionalLight(0xa080ff, 0.35);
-    rim.position.set(-3, 2, -2); scene.add(rim);
+    // ──────────────── Освещение (премиум-качество) ────────────────
+    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+    const keyLight = new THREE.DirectionalLight(0xffffff, 0.95);
+    keyLight.position.set(3, 5, 4); scene.add(keyLight);
+    const fillLight = new THREE.DirectionalLight(0xa0c0ff, 0.35);
+    fillLight.position.set(-4, 2, -2); scene.add(fillLight);
+    const rimLight = new THREE.DirectionalLight(0xffd4a8, 0.55);
+    rimLight.position.set(0, -3, -5); scene.add(rimLight);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x303040, 0.25));
 
-    // ─ Конфигурация ясны ─
-    const R = 220;          // radius for polki
-    const polkaR = 22;       // sphere radius
+    // ──────────────── Геометрия конструкции ────────────────
+    const R = 200;
+    const polkaR = 11;
+    const POLE_Y = R * 0.65;
     const wheelGroup = new THREE.Group();
     scene.add(wheelGroup);
 
-    // Базовая «тарелочка» (semi-transparent disc)
-    const disc = new THREE.Mesh(
-      new THREE.CircleGeometry(R+15, 64),
-      new THREE.MeshStandardMaterial({ color:0xf4f4f7, opacity:0.5, transparent:true, roughness:0.9, metalness:0.1, side:THREE.DoubleSide })
-    );
-    disc.rotation.x = -Math.PI/2;
-    disc.position.y = -2;
-    wheelGroup.add(disc);
+    const equatorPos = (i) => {
+      const a = (270 - i*30) * Math.PI/180;
+      return new THREE.Vector3(R*Math.cos(a), 0, -R*Math.sin(a));
+    };
+    const NORTH = new THREE.Vector3(0, POLE_Y, 0);
+    const SOUTH = new THREE.Vector3(0, -POLE_Y, 0);
 
-    // Ободок
-    const ringTube = new THREE.Mesh(
-      new THREE.TorusGeometry(R, 1.5, 12, 96),
-      new THREE.MeshStandardMaterial({ color:0xa21caf, opacity:0.5, transparent:true, roughness:0.4, metalness:0.5 })
-    );
-    ringTube.rotation.x = Math.PI/2;
-    wheelGroup.add(ringTube);
-
-    // Внутренние орбиты
-    [R*0.7, R*0.4].forEach(r=>{
-      const inner = new THREE.Mesh(
-        new THREE.TorusGeometry(r, 0.5, 8, 64),
-        new THREE.MeshBasicMaterial({ color:0xd0d0d8, opacity:0.35, transparent:true })
-      );
-      inner.rotation.x = Math.PI/2;
-      wheelGroup.add(inner);
-    });
-
-    // Столп Ясны (вертикальная ось через центр)
-    const pillar = new THREE.Mesh(
-      new THREE.CylinderGeometry(1, 1, R*1.4, 8),
-      new THREE.MeshBasicMaterial({ color:0xa21caf, opacity:0.4, transparent:true })
-    );
-    pillar.position.y = 0;
-    wheelGroup.add(pillar);
-
-    // Цвета крестов (как в FL)
-    const polkaColor = (i)=>{
-      if([0,3,6,9].includes(i)) return 0xE8364F;       // Опорный
-      if([1,4,7,10].includes(i)) return 0xE8A834;      // Управления
-      return 0x5B9CF6;                                  // Веры
+    const makeTube = (a, b, radius, material) => {
+      const dir = new THREE.Vector3().subVectors(b, a);
+      const len = dir.length();
+      if(len < 0.1) return null;
+      const mid = new THREE.Vector3().addVectors(a, b).multiplyScalar(0.5);
+      const geom = new THREE.CylinderGeometry(radius, radius, len, 10, 1, false);
+      const mesh = new THREE.Mesh(geom, material);
+      mesh.position.copy(mid);
+      const axis = new THREE.Vector3(0,1,0);
+      const norm = dir.clone().normalize();
+      const cross = new THREE.Vector3().crossVectors(axis, norm);
+      const dot = axis.dot(norm);
+      const angle = Math.acos(Math.max(-1, Math.min(1, dot)));
+      if(cross.lengthSq() > 0.0001) mesh.setRotationFromAxisAngle(cross.normalize(), angle);
+      return mesh;
     };
 
-    // 12 шаров-полок
-    const polki = [];
-    for(let i=0; i<12; i++){
-      const angle = (270 - i*30) * Math.PI/180;
-      const x = R * Math.cos(angle);
-      const z = -R * Math.sin(angle);
-      const sphereMat = new THREE.MeshStandardMaterial({
-        color: polkaColor(i),
-        roughness: 0.35,
-        metalness: 0.15,
-        emissive: polkaColor(i),
-        emissiveIntensity: 0.05,
-      });
-      const sphere = new THREE.Mesh(new THREE.SphereGeometry(polkaR, 32, 24), sphereMat);
-      sphere.position.set(x, 0, z);
-      sphere.userData.polkaIdx = i;
-      wheelGroup.add(sphere);
+    // ──────────────── Каркасная сфера-обёртка ────────────────
+    const cageGeom = new THREE.SphereGeometry(R+polkaR*1.5, 24, 16);
+    const cageMat = new THREE.MeshBasicMaterial({ color:0x6a5a8a, wireframe:true, transparent:true, opacity:0.07 });
+    wheelGroup.add(new THREE.Mesh(cageGeom, cageMat));
 
-      // Цифра внутри шара (sprite)
-      const num = makeTextSprite(String(i), '#ffffff', 84, 'bold');
-      num.position.set(0, 0, polkaR+0.5);
-      num.scale.set(20, 20, 1);
-      sphere.add(num);
+    const equatorTube = new THREE.Mesh(
+      new THREE.TorusGeometry(R, 0.7, 12, 96),
+      new THREE.MeshStandardMaterial({ color:0x9a8ab5, opacity:0.55, transparent:true, metalness:0.7, roughness:0.3 })
+    );
+    equatorTube.rotation.x = Math.PI/2;
+    wheelGroup.add(equatorTube);
 
-      // Подпись снаружи
-      const label = (y && y.p && y.p[i]) || '';
-      if(label){
-        const lbl = makeTextSprite(label.length>16?label.slice(0,15)+'…':label, '#1d1d1f', 56, 'normal');
-        const lx = (R+85) * Math.cos(angle);
-        const lz = -(R+85) * Math.sin(angle);
-        lbl.position.set(lx, 25, lz);
-        lbl.scale.set(120, 28, 1);
-        wheelGroup.add(lbl);
-      }
-      polki.push(sphere);
+    for(let i=0; i<12; i+=3){
+      const p = equatorPos(i);
+      const meridianMat = new THREE.MeshBasicMaterial({ color:0x9a8ab5, transparent:true, opacity:0.12 });
+      const t1 = makeTube(NORTH, p, 0.35, meridianMat); if(t1) wheelGroup.add(t1);
+      const t2 = makeTube(p, SOUTH, 0.35, meridianMat); if(t2) wheelGroup.add(t2);
     }
 
-    // ─ Mechanics rendering ─
+    const pillar = makeTube(
+      new THREE.Vector3(0, POLE_Y*1.05, 0),
+      new THREE.Vector3(0, -POLE_Y*1.05, 0),
+      0.9,
+      new THREE.MeshStandardMaterial({ color:0xa21caf, opacity:0.55, transparent:true, metalness:0.4, roughness:0.3, emissive:0xa21caf, emissiveIntensity:0.2 })
+    );
+    if(pillar) wheelGroup.add(pillar);
+
+    const poleMat = new THREE.MeshPhysicalMaterial({
+      color:0xa21caf, roughness:0.2, metalness:0.3, clearcoat:1.0, clearcoatRoughness:0.05,
+      emissive:0xa21caf, emissiveIntensity:0.18,
+    });
+    const poleGeom = new THREE.SphereGeometry(polkaR*0.7, 32, 24);
+    const northBall = new THREE.Mesh(poleGeom, poleMat);
+    northBall.position.copy(NORTH); wheelGroup.add(northBall);
+    const southBall = new THREE.Mesh(poleGeom, poleMat);
+    southBall.position.copy(SOUTH); wheelGroup.add(southBall);
+
+    const npLabel = makeTextSprite('Зенит', '#7c3aed', 56, '600');
+    npLabel.position.set(0, POLE_Y + polkaR*1.8, 0);
+    npLabel.scale.set(80, 20, 1); wheelGroup.add(npLabel);
+    const spLabel = makeTextSprite('Надир', '#7c3aed', 56, '600');
+    spLabel.position.set(0, -POLE_Y - polkaR*1.8, 0);
+    spLabel.scale.set(80, 20, 1); wheelGroup.add(spLabel);
+
+    // ──────────────── 12 шаров-полок ────────────────
+    const polkaColor = (i) => {
+      if([0,3,6,9].includes(i)) return 0xE8364F;
+      if([1,4,7,10].includes(i)) return 0xE8A834;
+      return 0x5B9CF6;
+    };
+
+    const polki = [];
+    for(let i=0; i<12; i++){
+      const pos = equatorPos(i);
+      const baseColor = polkaColor(i);
+      const planetMat = new THREE.MeshPhysicalMaterial({
+        color: baseColor, roughness: 0.28, metalness: 0.15,
+        clearcoat: 1.0, clearcoatRoughness: 0.08,
+        sheen: 0.3, sheenColor: new THREE.Color(0xffffff),
+        emissive: baseColor, emissiveIntensity: 0.06,
+      });
+      const planet = new THREE.Mesh(new THREE.SphereGeometry(polkaR, 64, 48), planetMat);
+      planet.position.copy(pos);
+      planet.userData.polkaIdx = i;
+      wheelGroup.add(planet);
+
+      const auraMat = new THREE.MeshBasicMaterial({
+        color: baseColor, transparent:true, opacity:0.18, side:THREE.BackSide
+      });
+      const aura = new THREE.Mesh(new THREE.SphereGeometry(polkaR*1.45, 24, 18), auraMat);
+      planet.add(aura);
+
+      const num = makeTextSprite(String(i), '#ffffff', 96, 'bold');
+      num.position.set(0, 0, polkaR+0.3);
+      num.scale.set(11, 11, 1);
+      planet.add(num);
+
+      const label = (y && y.p && y.p[i]) || '';
+      if(label){
+        const lblText = label.length>14 ? label.slice(0,13)+'…' : label;
+        const lbl = makeTextSprite(lblText, '#1d1d1f', 44, '500');
+        const direction = pos.clone().normalize();
+        const lblPos = pos.clone().add(direction.multiplyScalar(polkaR*3.5));
+        lbl.position.copy(lblPos);
+        lbl.position.y = 18;
+        lbl.scale.set(85, 20, 1);
+        wheelGroup.add(lbl);
+      }
+      polki.push(planet);
+    }
+
+    // ──────────────── Mechanics — 3D-полиэдры ────────────────
     const mechGroup = new THREE.Group();
     wheelGroup.add(mechGroup);
-    
-    function rebuildMechanics(activeFilters){
-      while(mechGroup.children.length) mechGroup.remove(mechGroup.children[0]);
-      const pp = (i)=>{const a=(270-i*30)*Math.PI/180; return new THREE.Vector3(R*Math.cos(a), 0, -R*Math.sin(a));};
 
-      // Кресты — closed paths из 4 точек
+    const tubeMat = (color, opacity) => new THREE.MeshStandardMaterial({
+      color, transparent:true, opacity, metalness:0.5, roughness:0.25,
+      emissive:color, emissiveIntensity:0.08,
+    });
+
+    function makeBipyramid(indices, color, opacity){
+      const grp = new THREE.Group();
+      const pts = indices.map(i => equatorPos(i));
+      const mat = tubeMat(color, opacity);
+      for(let k=0; k<pts.length; k++){
+        const next = pts[(k+1) % pts.length];
+        const t = makeTube(pts[k], next, 0.8, mat); if(t) grp.add(t);
+        const tN = makeTube(pts[k], NORTH, 0.6, mat); if(tN) grp.add(tN);
+        const tS = makeTube(pts[k], SOUTH, 0.6, mat); if(tS) grp.add(tS);
+      }
+      const apexGeom = new THREE.SphereGeometry(2.2, 16, 12);
+      const apexMat = tubeMat(color, Math.min(opacity*1.5, 1));
+      const apexN = new THREE.Mesh(apexGeom, apexMat); apexN.position.copy(NORTH); grp.add(apexN);
+      const apexS = new THREE.Mesh(apexGeom.clone(), apexMat); apexS.position.copy(SOUTH); grp.add(apexS);
+      return grp;
+    }
+
+    function makeTetrahedron(p1, p2, p3, p4, color, opacity){
+      const grp = new THREE.Group();
+      const mat = tubeMat(color, opacity);
+      const edges = [[p1,p2],[p2,p3],[p3,p1],[p1,p4],[p2,p4],[p3,p4]];
+      edges.forEach(([a,b])=>{ const t=makeTube(a,b,0.55,mat); if(t)grp.add(t); });
+      return grp;
+    }
+
+    function rebuildMechanics(active){
+      while(mechGroup.children.length) mechGroup.remove(mechGroup.children[0]);
+
       const crossDefs = [
         {id:'support', col:0xE8364F, idx:[0,3,6,9]},
-        {id:'right', col:0xE8A834, idx:[1,4,7,10]},
-        {id:'left', col:0x5B9CF6, idx:[2,5,8,11]},
+        {id:'right',   col:0xE8A834, idx:[1,4,7,10]},
+        {id:'left',    col:0x5B9CF6, idx:[2,5,8,11]},
       ];
       crossDefs.forEach(c=>{
-        if(!activeFilters.includes(c.id)) return;
-        const pts = [...c.idx, c.idx[0]].map(pp);
-        const geom = new THREE.BufferGeometry().setFromPoints(pts);
-        mechGroup.add(new THREE.Line(geom, new THREE.LineBasicMaterial({ color:c.col, linewidth:2, transparent:true, opacity:0.7 })));
+        if(active.includes(c.id)) mechGroup.add(makeBipyramid(c.idx, c.col, 0.65));
       });
 
-      // Праны — треугольники
       const pranaDefs = [
         {id:'she', col:0xC0943A, idx:[0,4,8]},
         {id:'fo',  col:0x4090D8, idx:[1,5,9]},
@@ -1753,110 +1814,142 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
         {id:'ha',  col:0xF06838, idx:[3,7,11]},
       ];
       pranaDefs.forEach(p=>{
-        if(!activeFilters.includes(p.id)) return;
-        const pts = [...p.idx, p.idx[0]].map(pp);
-        const geom = new THREE.BufferGeometry().setFromPoints(pts);
-        mechGroup.add(new THREE.Line(geom, new THREE.LineBasicMaterial({ color:p.col, linewidth:2.5, transparent:true, opacity:0.75 })));
-        // Заливка треугольника
-        const triGeom = new THREE.BufferGeometry();
-        const verts = new Float32Array([
-          pp(p.idx[0]).x, pp(p.idx[0]).y, pp(p.idx[0]).z,
-          pp(p.idx[1]).x, pp(p.idx[1]).y, pp(p.idx[1]).z,
-          pp(p.idx[2]).x, pp(p.idx[2]).y, pp(p.idx[2]).z,
-        ]);
-        triGeom.setAttribute('position', new THREE.BufferAttribute(verts, 3));
-        triGeom.computeVertexNormals();
-        mechGroup.add(new THREE.Mesh(triGeom, new THREE.MeshBasicMaterial({ color:p.col, transparent:true, opacity:0.07, side:THREE.DoubleSide })));
+        if(active.includes(p.id)) mechGroup.add(makeBipyramid(p.idx, p.col, 0.6));
       });
 
-      // Противоположности
-      if(activeFilters.includes('opp')){
+      if(active.includes('opp')){
+        const grp = new THREE.Group();
+        const mat = tubeMat(0xff9500, 0.35);
         for(let i=0;i<6;i++){
-          const a = pp(i), b = pp(i+6);
-          const g = new THREE.BufferGeometry().setFromPoints([a,b]);
-          mechGroup.add(new THREE.Line(g, new THREE.LineBasicMaterial({ color:0xff9500, transparent:true, opacity:0.35 })));
+          const t = makeTube(equatorPos(i), equatorPos(i+6), 0.4, mat);
+          if(t) grp.add(t);
         }
+        mechGroup.add(grp);
       }
 
-      // Замыкание ∞ — нижняя дуга 11→0→1, проходящая ПОД диском
-      if(activeFilters.includes('mb_mobius')){
-        const curve = new THREE.CatmullRomCurve3([
-          pp(11),
-          new THREE.Vector3(R*0.5, -R*0.4, R*0.4),
-          new THREE.Vector3(0, -R*0.55, R*0.6),
-          new THREE.Vector3(-R*0.5, -R*0.4, R*0.4),
-          pp(1),
-        ]);
-        const tubeGeom = new THREE.TubeGeometry(curve, 64, 2.5, 8, false);
-        mechGroup.add(new THREE.Mesh(tubeGeom, new THREE.MeshStandardMaterial({ color:0x0891b2, opacity:0.85, transparent:true, roughness:0.3, metalness:0.4 })));
-      }
-
-      // Накопление: пульсы на длинных полках
-      if(activeFilters.includes('mb_accumulation')){
-        [0,3,6,9].forEach(i=>{
-          const ring = new THREE.Mesh(
-            new THREE.TorusGeometry(polkaR*1.8, 1.2, 8, 32),
-            new THREE.MeshBasicMaterial({ color:0x16a34a, transparent:true, opacity:0.6 })
-          );
-          const a = (270-i*30)*Math.PI/180;
-          ring.position.set(R*Math.cos(a), 0, -R*Math.sin(a));
-          ring.rotation.x = Math.PI/2;
-          mechGroup.add(ring);
+      if(active.includes('rhythm')){
+        const triples = [[2,3,4],[5,6,7],[8,9,10],[11,0,1]];
+        const center = new THREE.Vector3(0,0,0);
+        triples.forEach(tr=>{
+          const [a,b,c] = tr.map(i=>equatorPos(i));
+          mechGroup.add(makeTetrahedron(a,b,c,center, 0x30A060, 0.55));
         });
       }
 
-      // Скорпион↔Паук: верх синяя плоскость, низ красная
-      if(activeFilters.includes('mb_scorpio_spider')){
-        const top = new THREE.Mesh(
-          new THREE.CircleGeometry(R, 32, 0, Math.PI),
-          new THREE.MeshBasicMaterial({ color:0x2563eb, opacity:0.15, transparent:true, side:THREE.DoubleSide })
-        );
-        top.rotation.x = -Math.PI/2;
-        top.rotation.z = Math.PI/2;
-        mechGroup.add(top);
-        const bot = new THREE.Mesh(
-          new THREE.CircleGeometry(R, 32, Math.PI, Math.PI),
-          new THREE.MeshBasicMaterial({ color:0xdc2626, opacity:0.15, transparent:true, side:THREE.DoubleSide })
-        );
-        bot.rotation.x = -Math.PI/2;
-        bot.rotation.z = Math.PI/2;
-        mechGroup.add(bot);
+      if(active.includes('arcs')){
+        const arcsList = [[1,3,5],[5,7,9],[9,11,1]];
+        const cols = [0x4090D8, 0x9060D0, 0x30A060];
+        arcsList.forEach((arc,ai)=>{
+          const [a,b,c] = arc.map(i=>equatorPos(i));
+          const mid = b.clone(); mid.y = R * 0.18;
+          const curve = new THREE.CatmullRomCurve3([a, mid, c]);
+          const tubeGeom = new THREE.TubeGeometry(curve, 32, 0.9, 8, false);
+          const m = new THREE.Mesh(tubeGeom, tubeMat(cols[ai], 0.7));
+          mechGroup.add(m);
+        });
       }
 
-      // Зодиак: над каждым шаром sprite-знак
-      if(activeFilters.includes('mb_zodiac')){
+      if(active.includes('halves')){
+        const upper = new THREE.Mesh(
+          new THREE.SphereGeometry(R*1.02, 24, 12, 0, Math.PI*2, 0, Math.PI/2),
+          new THREE.MeshBasicMaterial({ color:0xC9A030, wireframe:true, transparent:true, opacity:0.18 })
+        );
+        const lower = new THREE.Mesh(
+          new THREE.SphereGeometry(R*1.02, 24, 12, 0, Math.PI*2, Math.PI/2, Math.PI/2),
+          new THREE.MeshBasicMaterial({ color:0x6450C8, wireframe:true, transparent:true, opacity:0.18 })
+        );
+        mechGroup.add(upper); mechGroup.add(lower);
+      }
+
+      if(active.includes('error89')){
+        const ringMat = new THREE.MeshBasicMaterial({ color:0xD946EF, transparent:true, opacity:0.7 });
+        [8,9,2,3].forEach(i=>{
+          const ring = new THREE.Mesh(new THREE.TorusGeometry(polkaR*1.7, 1.0, 8, 24), ringMat);
+          ring.position.copy(equatorPos(i));
+          ring.rotation.x = Math.PI/2;
+          mechGroup.add(ring);
+        });
+        const cMat = tubeMat(0xD946EF, 0.45);
+        const mid89 = equatorPos(8).clone().lerp(equatorPos(9), 0.5);
+        const mid23 = equatorPos(2).clone().lerp(equatorPos(3), 0.5);
+        const t = makeTube(mid89, mid23, 0.5, cMat); if(t) mechGroup.add(t);
+      }
+
+      if(active.includes('mb_zodiac')){
         const ZS=['♑','♒','♓','♈','♉','♊','♋','♌','♍','♎','♏','♐'];
         ZS.forEach((s,i)=>{
-          const a=(270-i*30)*Math.PI/180;
-          const sp = makeTextSprite(s, '#7c3aed', 90, 'bold');
-          sp.position.set((R+50)*Math.cos(a), 50, -(R+50)*Math.sin(a));
-          sp.scale.set(40, 40, 1);
+          const sp = makeTextSprite(s, '#7c3aed', 96, 'bold');
+          const dir = equatorPos(i).clone().normalize();
+          const pos = equatorPos(i).clone().add(dir.multiplyScalar(polkaR*1.8));
+          pos.y = polkaR*1.2;
+          sp.position.copy(pos);
+          sp.scale.set(28, 28, 1);
           mechGroup.add(sp);
         });
       }
 
-      // Ясна² — мини-кольца над каждой полкой
-      if(activeFilters.includes('mb_yasna2')){
+      if(active.includes('mb_scorpio_spider')){
+        const top = new THREE.Mesh(
+          new THREE.SphereGeometry(R*1.02, 32, 16, 0, Math.PI*2, 0, Math.PI/2),
+          new THREE.MeshStandardMaterial({ color:0x2563eb, transparent:true, opacity:0.18, roughness:0.5, metalness:0.2, side:THREE.DoubleSide })
+        );
+        mechGroup.add(top);
+        const bot = new THREE.Mesh(
+          new THREE.SphereGeometry(R*1.02, 32, 16, 0, Math.PI*2, Math.PI/2, Math.PI/2),
+          new THREE.MeshStandardMaterial({ color:0xdc2626, transparent:true, opacity:0.18, roughness:0.5, metalness:0.2, side:THREE.DoubleSide })
+        );
+        mechGroup.add(bot);
+      }
+
+      if(active.includes('mb_mobius')){
+        const curve = new THREE.CatmullRomCurve3([
+          equatorPos(11),
+          new THREE.Vector3(R*0.5, -R*0.45, R*0.45),
+          new THREE.Vector3(0, -R*0.6, R*0.65),
+          new THREE.Vector3(-R*0.5, -R*0.45, R*0.45),
+          equatorPos(1),
+        ], false, 'catmullrom', 0.5);
+        const tubeGeom = new THREE.TubeGeometry(curve, 80, 1.6, 12, false);
+        const mat = new THREE.MeshPhysicalMaterial({
+          color:0x0891b2, transparent:true, opacity:0.85,
+          roughness:0.3, metalness:0.4, clearcoat:0.8,
+          emissive:0x0891b2, emissiveIntensity:0.15,
+        });
+        mechGroup.add(new THREE.Mesh(tubeGeom, mat));
+      }
+
+      if(active.includes('mb_accumulation')){
+        [0,3,6,9].forEach(i=>{
+          const base = equatorPos(i);
+          const apex = base.clone(); apex.y = R*0.35;
+          const t = makeTube(base, apex, 1.2, tubeMat(0x16a34a, 0.7)); if(t) mechGroup.add(t);
+          const ring = new THREE.Mesh(
+            new THREE.TorusGeometry(polkaR*1.4, 0.7, 8, 32),
+            new THREE.MeshStandardMaterial({ color:0x16a34a, transparent:true, opacity:0.6, metalness:0.4, roughness:0.3 })
+          );
+          ring.position.copy(base); ring.rotation.x = Math.PI/2;
+          mechGroup.add(ring);
+        });
+      }
+
+      if(active.includes('mb_yasna2')){
+        const microMat = new THREE.MeshStandardMaterial({ color:0xa21caf, transparent:true, opacity:0.7, metalness:0.4, roughness:0.3, emissive:0xa21caf, emissiveIntensity:0.1 });
         for(let i=0;i<12;i++){
-          const a=(270-i*30)*Math.PI/180;
-          const px = R*Math.cos(a), pz = -R*Math.sin(a);
+          const center = equatorPos(i);
           for(let j=0;j<12;j++){
-            const sa=(270-j*30)*Math.PI/180;
-            const sx = px + (polkaR+8)*Math.cos(sa);
-            const sz = pz - (polkaR+8)*Math.sin(sa);
-            const dot = new THREE.Mesh(
-              new THREE.SphereGeometry(1.6, 8, 6),
-              new THREE.MeshBasicMaterial({ color:0xa21caf, transparent:true, opacity:0.7 })
-            );
-            dot.position.set(sx, 0, sz);
-            mechGroup.add(dot);
+            const a = (270-j*30)*Math.PI/180;
+            const localPos = new THREE.Vector3((polkaR+5)*Math.cos(a), 0, -(polkaR+5)*Math.sin(a));
+            const microPos = center.clone().add(localPos);
+            const micro = new THREE.Mesh(new THREE.SphereGeometry(1.4, 12, 8), microMat);
+            micro.position.copy(microPos);
+            mechGroup.add(micro);
           }
         }
       }
     }
     rebuildMechanics(af||[]);
 
-    // ─ Drag controls ─
+    // ──────────────── Контролы ────────────────
     const updateCamera = () => {
       const { camAzim, camElev, camDist } = stateRef.current;
       const azR = camAzim*Math.PI/180, elR = camElev*Math.PI/180;
@@ -1866,12 +1959,11 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
       camera.up.set(0,1,0);
       camera.lookAt(0,0,0);
     };
-    
+
     const onPointerDown = (e)=>{
       stateRef.current.isDragging = true;
       stateRef.current.lastX = e.clientX; stateRef.current.lastY = e.clientY;
-      canvas.style.cursor = 'grabbing';
-      e.preventDefault();
+      canvas.style.cursor = 'grabbing'; e.preventDefault();
     };
     const onPointerMove = (e)=>{
       if(!stateRef.current.isDragging) return;
@@ -1884,7 +1976,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
     const onPointerUp = ()=>{ stateRef.current.isDragging = false; canvas.style.cursor = 'grab'; };
     const onWheel = (e)=>{
       e.preventDefault();
-      stateRef.current.camDist = Math.max(300, Math.min(1500, stateRef.current.camDist + e.deltaY*0.5));
+      stateRef.current.camDist = Math.max(280, Math.min(1400, stateRef.current.camDist + e.deltaY*0.5));
     };
 
     canvas.addEventListener('pointerdown', onPointerDown);
@@ -1892,7 +1984,6 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
     window.addEventListener('pointerup', onPointerUp);
     canvas.addEventListener('wheel', onWheel, {passive:false});
 
-    // Sphere click → onSel
     const raycaster = new THREE.Raycaster();
     const ndc = new THREE.Vector2();
     const onClick = (e)=>{
@@ -1909,7 +2000,6 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
     };
     canvas.addEventListener('click', onClick);
 
-    // Resize
     const resize = () => {
       const w = canvas.clientWidth, h = canvas.clientHeight;
       if(!w || !h) return;
@@ -1921,7 +2011,6 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
     const ro = new ResizeObserver(resize);
     ro.observe(canvas.parentElement || canvas);
 
-    // Animation loop
     let raf, lastT = performance.now();
     const animate = (now)=>{
       const dt = now - lastT; lastT = now;
@@ -1936,9 +2025,8 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
     };
     raf = requestAnimationFrame(animate);
 
-    sceneRefs.current = { scene, camera, renderer, polki, mechGroup, wheelGroup, rebuildMechanics };
+    sceneRefs.current = { rebuildMechanics };
 
-    // Cleanup
     return ()=>{
       cancelAnimationFrame(raf);
       ro.disconnect();
@@ -1948,7 +2036,6 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
       canvas.removeEventListener('wheel', onWheel);
       canvas.removeEventListener('click', onClick);
       renderer.dispose();
-      // Чистим геометрии
       scene.traverse(o=>{
         if(o.geometry) o.geometry.dispose();
         if(o.material){ if(Array.isArray(o.material)) o.material.forEach(m=>m.dispose()); else o.material.dispose(); }
@@ -1956,7 +2043,6 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
     };
   }, [y]);
 
-  // На лету обновляем механики при изменении af
   React.useEffect(()=>{
     if(sceneRefs.current && sceneRefs.current.rebuildMechanics){
       sceneRefs.current.rebuildMechanics(af||[]);
@@ -1966,23 +2052,23 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
   return <canvas ref={canvasRef} style={{width:'100%',height:'100%',display:'block',cursor:'grab',outline:'none',touchAction:'none'}}/>;
 }
 
-// Helper: создать sprite с текстом
 function makeTextSprite(text, color, fontSize, weight){
   const THREE = window.THREE;
-  const canvas = document.createElement('canvas');
-  canvas.width = 512; canvas.height = 128;
-  const ctx = canvas.getContext('2d');
+  const c = document.createElement('canvas');
+  c.width = 512; c.height = 128;
+  const ctx = c.getContext('2d');
   ctx.font = `${weight||'normal'} ${fontSize||64}px -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif`;
   ctx.fillStyle = color;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(text, 256, 64);
-  const tex = new THREE.CanvasTexture(canvas);
+  const tex = new THREE.CanvasTexture(c);
   tex.minFilter = THREE.LinearFilter;
   tex.magFilter = THREE.LinearFilter;
-  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true });
+  const mat = new THREE.SpriteMaterial({ map:tex, transparent:true });
   return new THREE.Sprite(mat);
 }
+
 
 // Expose to global namespace for lessons + app to use
 window.YasnaCore = {
