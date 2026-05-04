@@ -140,40 +140,35 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
   const isMob=typeof window!=="undefined"&&window.innerWidth<=768;
   const p=yy.p||[];
   const S=900,W=700,cx=S/2,cy=W/2,R=215,nr=isMob?26:23,lr=R+60;
-  // Rotation: via ref + JS rAF, чтобы избежать querySelector race и React reconciliation
-  const wheelRef = React.useRef(null);
-  // Refs для накопленного угла и текущей скорости — позволяют менять speed на лету без сброса угла
-  const angleRef = React.useRef(0);
+  // ВРАЩЕНИЕ ЧЕРЕЗ ПЕРЕРЕНДЕР ПОЗИЦИЙ — никакого SVG transform, только React state.
+  // Каждые 16мс пересчитываем координаты полок и React заново рендерит их в новых местах.
+  // Полностью обходит iOS Safari баги с SVGTransformList composite transforms.
+  const [rotAngle, setRotAngle] = React.useState(0);
   const speedRef = React.useRef(rotationSpeed||24);
   React.useEffect(()=>{ speedRef.current = rotationSpeed||24; }, [rotationSpeed]);
   React.useEffect(()=>{
-    const w = wheelRef.current;
-    if(!w) return;
-    if(!starRotation){
-      w.removeAttribute('transform');
-      angleRef.current = 0;
-      return;
-    }
+    if(!starRotation){ setRotAngle(0); return; }
     let raf, lastT = null;
     const animate = (now)=>{
       if(lastT === null) lastT = now;
       const dt = (now - lastT) / 1000;
       lastT = now;
-      const dir = starRotation === 'cw' ? -1 : 1;
-      // Накапливаем угол через delta — изменение speedRef влияет с этого момента, а не с начала
-      angleRef.current += dir * (dt / Math.max(1, speedRef.current)) * 360;
-      // Простой rotate(angle) вокруг (0,0) — внешние <g> уже сместили origin к (cx,cy)
-      // Это самая базовая SVG-операция, без регрессий ни в одном браузере
-      w.setAttribute('transform', `rotate(${angleRef.current.toFixed(2)})`);
+      const dir = starRotation === 'cw' ? 1 : -1;
+      setRotAngle(a => a + dir * (dt / Math.max(1, speedRef.current)) * 360);
       raf = requestAnimationFrame(animate);
     };
     raf = requestAnimationFrame(animate);
-    return ()=>{ cancelAnimationFrame(raf); if(w) w.removeAttribute('transform'); };
-  }, [starRotation, cx, cy]);
-  const pts=Array.from({length:12},(_,i)=>xy(i,cx,cy,R))
-  const lps=Array.from({length:12},(_,i)=>xy(i,cx,cy,lr))
-  const olps=Array.from({length:12},(_,i)=>xy(i,cx,cy,lr+24))
-  const ilps=Array.from({length:12},(_,i)=>xy(i,cx,cy,lr-16))
+    return ()=> cancelAnimationFrame(raf);
+  }, [starRotation]);
+  // xy с поворотом: каждая полка стоит на угле angDeg(i) - rotAngle
+  const xyRot = (i, c1, c2, r) => {
+    const deg = angDeg(i) - rotAngle;
+    return { x: c1 + r*Math.cos(rad(deg)), y: c2 - r*Math.sin(rad(deg)) };
+  };
+  const pts = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,R))
+  const lps = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,lr))
+  const olps = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,lr+24))
+  const ilps = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,lr-16))
   const hasMech=af.length>0;
   const nc=i=>(hl&&!hl.includes(i))?'#e0e0e8':CR[gc(i)].c;
   const no=i=>(hl&&!hl.includes(i))?.15:1;
@@ -185,7 +180,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
         <filter id="ns"><feDropShadow dx="0" dy="1" stdDeviation="2.5" floodOpacity=".07"/></filter>
       </defs>
       <rect width={S} height={W} fill="#fff"/>
-      <g className="yasna-wheel"><g className="yasna-rotor" transform={`translate(${cx},${cy})`}><g ref={wheelRef}><g transform={`translate(${-cx},${-cy})`}>
+      <g className="yasna-wheel">
       {/* Decorative outer ring */}
       <circle cx={cx} cy={cy} r={R+10} fill="none" stroke="#ececee" strokeWidth=".5"/>
       {/* Main orbit */}
@@ -416,7 +411,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
 
         </g>;
       })()}
-    </g></g></g></g>
+    </g>
     </svg>);
 }
 

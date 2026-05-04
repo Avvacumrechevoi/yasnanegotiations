@@ -213,20 +213,8 @@ input{font-family:var(--sans)}
 /* Wheel-rotation НЕ через CSS — JS rAF выставляет transform-атрибут с явным
    центром rotate(angle 450 350). CSS transform-box несовместим с мобильным Safari. */
 
-/* Все <text> внутри wheel контр-вращаются вокруг своего собственного центра.
-   Идеально синхронизированы с outer (та же длительность, противоположное направление) */
-.star-rotating-cw .yasna-wheel text:not([transform]) {
-  animation: yasnaSpinCW var(--rotation-speed, 24s) linear infinite;
-  transform-box: fill-box;
-  transform-origin: center center;
-  will-change: transform;
-}
-.star-rotating-ccw .yasna-wheel text:not([transform]) {
-  animation: yasnaSpinCCW var(--rotation-speed, 24s) linear infinite;
-  transform-box: fill-box;
-  transform-origin: center center;
-  will-change: transform;
-}
+/* Counter-rotation на тексте больше не нужна — Star рендерит позиции
+   полок заново при каждом кадре, текст сам по себе остаётся upright */
 
 
 /* Disabled state для rotation кнопок (когда drill активен) */
