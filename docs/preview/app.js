@@ -782,7 +782,7 @@ function App(){
     const animate = (now)=>{
       if(start === null) start = now;
       const elapsed = (now - start) / 1000;
-      const dir = starRotation === 'cw' ? 1 : -1;
+      const dir = starRotation === 'cw' ? -1 : 1;
       const angle = (dir * elapsed / Math.max(1, rotationSpeed)) * 360;
       wheels.forEach(w=> w.setAttribute('transform', `rotate(${angle.toFixed(2)} 450 350)`));
       raf = requestAnimationFrame(animate);
