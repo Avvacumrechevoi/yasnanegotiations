@@ -159,11 +159,12 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
       if(lastT === null) lastT = now;
       const dt = (now - lastT) / 1000;
       lastT = now;
-      const dir = starRotation === 'cw' ? 1 : -1;
+      const dir = starRotation === 'cw' ? -1 : 1;
       // Накапливаем угол через delta — изменение speedRef влияет с этого момента, а не с начала
       angleRef.current += dir * (dt / Math.max(1, speedRef.current)) * 360;
-      // 3-step transform — гарантированная совместимость с iOS Safari
-      w.setAttribute('transform', `translate(${cx},${cy}) rotate(${angleRef.current.toFixed(2)}) translate(${-cx},${-cy})`);
+      // Простой rotate(angle) вокруг (0,0) — внешние <g> уже сместили origin к (cx,cy)
+      // Это самая базовая SVG-операция, без регрессий ни в одном браузере
+      w.setAttribute('transform', `rotate(${angleRef.current.toFixed(2)})`);
       raf = requestAnimationFrame(animate);
     };
     raf = requestAnimationFrame(animate);
@@ -184,7 +185,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
         <filter id="ns"><feDropShadow dx="0" dy="1" stdDeviation="2.5" floodOpacity=".07"/></filter>
       </defs>
       <rect width={S} height={W} fill="#fff"/>
-      <g className="yasna-wheel" ref={wheelRef}>
+      <g className="yasna-wheel"><g className="yasna-rotor" transform={`translate(${cx},${cy})`}><g ref={wheelRef}><g transform={`translate(${-cx},${-cy})`}>
       {/* Decorative outer ring */}
       <circle cx={cx} cy={cy} r={R+10} fill="none" stroke="#ececee" strokeWidth=".5"/>
       {/* Main orbit */}
@@ -415,7 +416,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
 
         </g>;
       })()}
-    </g>
+    </g></g></g></g>
     </svg>);
 }
 
