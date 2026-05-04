@@ -770,6 +770,29 @@ function App(){
   // Auto-close burger menu when any modal/panel opens
   useEffect(()=>{ if(!af.includes('mb_yasna2')){setYasna2Drill(null);setDrillEditing(false);} },[af]);
   useEffect(()=>{ if(yasna2Drill!=null) setStarRotation(null); },[yasna2Drill]);
+
+  // SVG wheel rotation — JS rAF вместо CSS (CSS transform-box ломается на iOS Safari)
+  // Применяет SVG transform="rotate(angle 450 350)" — явный центр, работает везде
+  useEffect(()=>{
+    if(!starRotation || is3D) return;
+    const wheels = document.querySelectorAll('.yasna-wheel');
+    if(!wheels.length) return;
+    let raf;
+    let start = null;
+    const animate = (now)=>{
+      if(start === null) start = now;
+      const elapsed = (now - start) / 1000;
+      const dir = starRotation === 'cw' ? 1 : -1;
+      const angle = (dir * elapsed / Math.max(1, rotationSpeed)) * 360;
+      wheels.forEach(w=> w.setAttribute('transform', `rotate(${angle.toFixed(2)} 450 350)`));
+      raf = requestAnimationFrame(animate);
+    };
+    raf = requestAnimationFrame(animate);
+    return ()=>{
+      cancelAnimationFrame(raf);
+      wheels.forEach(w=> w.removeAttribute('transform'));
+    };
+  }, [starRotation, rotationSpeed, is3D, y]);
   useEffect(()=>{
     if(ed||glossary||instr||verif||fullStar||picker||showOverlayPicker||lessonPicker||activeLesson){
       setMenu(false);

@@ -210,20 +210,8 @@ input{font-family:var(--sans)}
 @keyframes yasnaSpinCW { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes yasnaSpinCCW { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
 
-/* Внешняя группа SVG крутится вокруг своего bbox-центра.
-   fill-box работает в iOS Safari ≥14, view-box — нет (мобильный баг). */
-.star-rotating-cw .yasna-wheel {
-  animation: yasnaSpinCW var(--rotation-speed, 24s) linear infinite;
-  transform-origin: 50% 50%;
-  transform-box: fill-box;
-  will-change: transform;
-}
-.star-rotating-ccw .yasna-wheel {
-  animation: yasnaSpinCCW var(--rotation-speed, 24s) linear infinite;
-  transform-origin: 50% 50%;
-  transform-box: fill-box;
-  will-change: transform;
-}
+/* Wheel-rotation НЕ через CSS — JS rAF выставляет transform-атрибут с явным
+   центром rotate(angle 450 350). CSS transform-box несовместим с мобильным Safari. */
 
 /* Все <text> внутри wheel контр-вращаются вокруг своего собственного центра.
    Идеально синхронизированы с outer (та же длительность, противоположное направление) */
