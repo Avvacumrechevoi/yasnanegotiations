@@ -182,26 +182,6 @@ input{font-family:var(--sans)}
 }
 
 /* ─── Ясна Rotation (preview-only, до синка с прод) ─── */
-@keyframes yasnaSpinCW {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-@keyframes yasnaSpinCCW {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(-360deg); }
-}
-.star-rotating-cw svg,
-.star-rotating-cw > div > svg {
-  animation: yasnaSpinCW 24s linear infinite;
-  transform-origin: 50% 50%;
-  transform-box: view-box;
-}
-.star-rotating-ccw svg,
-.star-rotating-ccw > div > svg {
-  animation: yasnaSpinCCW 24s linear infinite;
-  transform-origin: 50% 50%;
-  transform-box: view-box;
-}
 .rotation-controls {
   position: absolute;
   top: 8px;
