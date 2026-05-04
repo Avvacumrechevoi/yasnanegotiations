@@ -1635,8 +1635,8 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
 
     const scene = new THREE.Scene();
     // Тёмно-сине-фиолетовый космический фон с лёгким градиентом
-    scene.background = new THREE.Color(0x080a1a);
-    scene.fog = new THREE.Fog(0x080a1a, 700, 2200);
+    scene.background = new THREE.Color(0x040614);
+    scene.fog = new THREE.Fog(0x040614, 600, 2000);
     const camera = new THREE.PerspectiveCamera(38, 1, 1, 5000);
 
     // ──────────────── Звёздное поле (1500 звёзд на дальней сфере) ────────────────
@@ -1729,7 +1729,8 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
     // ──────────────── Каркасная сфера-обёртка ────────────────
     const cageGeom = new THREE.SphereGeometry(R+polkaR*1.5, 24, 16);
     const cageMat = new THREE.MeshBasicMaterial({ color:0x8888aa, wireframe:true, transparent:true, opacity:0.10 });
-    wheelGroup.add(new THREE.Mesh(cageGeom, cageMat));
+    const cageMesh = new THREE.Mesh(cageGeom, cageMat);
+    wheelGroup.add(cageMesh);
 
     const equatorTube = new THREE.Mesh(
       new THREE.TorusGeometry(R, 0.7, 12, 96),
@@ -1737,6 +1738,8 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
     );
     equatorTube.rotation.x = Math.PI/2;
     wheelGroup.add(equatorTube);
+    // Сохраняем ссылку для adaptive opacity (при многих активных механиках — приглушаем)
+
 
     for(let i=0; i<12; i+=3){
       const p = equatorPos(i);
@@ -1824,8 +1827,9 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
     wheelGroup.add(mechGroup);
 
     const tubeMat = (color, opacity) => new THREE.MeshStandardMaterial({
-      color, transparent:true, opacity, metalness:0.5, roughness:0.25,
-      emissive:color, emissiveIntensity:0.08,
+      color, transparent:true, opacity, metalness:0.7, roughness:0.15,
+      emissive:color, emissiveIntensity:0.45,
+      depthWrite: false,  // избегаем z-fighting между прозрачными трубками
     });
 
     function makeBipyramid(indices, color, opacity){
@@ -1834,9 +1838,9 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
       const mat = tubeMat(color, opacity);
       for(let k=0; k<pts.length; k++){
         const next = pts[(k+1) % pts.length];
-        const t = makeTube(pts[k], next, 0.8, mat); if(t) grp.add(t);
-        const tN = makeTube(pts[k], NORTH, 0.6, mat); if(tN) grp.add(tN);
-        const tS = makeTube(pts[k], SOUTH, 0.6, mat); if(tS) grp.add(tS);
+        const t = makeTube(pts[k], next, 1.1, mat); if(t) grp.add(t);
+        const tN = makeTube(pts[k], NORTH, 0.9, mat); if(tN) grp.add(tN);
+        const tS = makeTube(pts[k], SOUTH, 0.9, mat); if(tS) grp.add(tS);
       }
       const apexGeom = new THREE.SphereGeometry(2.2, 16, 12);
       const apexMat = tubeMat(color, Math.min(opacity*1.5, 1));
@@ -1859,21 +1863,25 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
 
     function rebuildMechanics(active){
       while(mechGroup.children.length) mechGroup.remove(mechGroup.children[0]);
+      // Адаптивная видимость каркаса — приглушаем при многих активных механиках
+      const N = (active||[]).length;
+      cageMat.opacity = N === 0 ? 0.10 : N <= 2 ? 0.05 : 0.02;
+      equatorTube.material.opacity = N === 0 ? 0.75 : N <= 2 ? 0.6 : 0.35;
 
       const crossDefs = [
-        {id:'support', col:0xE8364F, idx:[0,3,6,9]},
-        {id:'right',   col:0xE8A834, idx:[1,4,7,10]},
-        {id:'left',    col:0x5B9CF6, idx:[2,5,8,11]},
+        {id:'support', col:0xff3554, idx:[0,3,6,9]},
+        {id:'right',   col:0xffc040, idx:[1,4,7,10]},
+        {id:'left',    col:0x60aafc, idx:[2,5,8,11]},
       ];
       crossDefs.forEach(c=>{
         if(active.includes(c.id)) mechGroup.add(makeBipyramid(c.idx, c.col, 0.65));
       });
 
       const pranaDefs = [
-        {id:'she', col:0xC0943A, idx:[0,4,8]},
-        {id:'fo',  col:0x4090D8, idx:[1,5,9]},
-        {id:'tsi', col:0x70B8F0, idx:[2,6,10]},
-        {id:'ha',  col:0xF06838, idx:[3,7,11]},
+        {id:'she', col:0xe0b048, idx:[0,4,8]},
+        {id:'fo',  col:0x4ab0ff, idx:[1,5,9]},
+        {id:'tsi', col:0x80d0ff, idx:[2,6,10]},
+        {id:'ha',  col:0xff7848, idx:[3,7,11]},
       ];
       pranaDefs.forEach(p=>{
         if(active.includes(p.id)) mechGroup.add(makeBipyramid(p.idx, p.col, 0.6));
@@ -1881,7 +1889,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
 
       if(active.includes('opp')){
         const grp = new THREE.Group();
-        const mat = tubeMat(0xff9500, 0.35);
+        const mat = tubeMat(0xffb030, 0.55);
         for(let i=0;i<6;i++){
           const t = makeTube(equatorPos(i), equatorPos(i+6), 0.4, mat);
           if(t) grp.add(t);
@@ -1973,9 +1981,9 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
         ], false, 'catmullrom', 0.5);
         const tubeGeom = new THREE.TubeGeometry(curve, 80, 1.6, 12, false);
         const mat = new THREE.MeshStandardMaterial({
-          color:0x0891b2, transparent:true, opacity:0.9,
-          roughness:0.25, metalness:0.55,
-          emissive:0x0891b2, emissiveIntensity:0.2,
+          color:0x14b8d4, transparent:true, opacity:0.95,
+          roughness:0.18, metalness:0.65,
+          emissive:0x14b8d4, emissiveIntensity:0.55,
         });
         mechGroup.add(new THREE.Mesh(tubeGeom, mat));
       }
@@ -1984,10 +1992,10 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
         [0,3,6,9].forEach(i=>{
           const base = equatorPos(i);
           const apex = base.clone(); apex.y = R*0.35;
-          const t = makeTube(base, apex, 1.2, tubeMat(0x16a34a, 0.7)); if(t) mechGroup.add(t);
+          const t = makeTube(base, apex, 1.2, tubeMat(0x22c850, 0.85)); if(t) mechGroup.add(t);
           const ring = new THREE.Mesh(
             new THREE.TorusGeometry(polkaR*1.4, 0.7, 8, 32),
-            new THREE.MeshStandardMaterial({ color:0x16a34a, transparent:true, opacity:0.6, metalness:0.4, roughness:0.3 })
+            new THREE.MeshStandardMaterial({ color:0x22c850, transparent:true, opacity:0.85, metalness:0.6, roughness:0.2, emissive:0x22c850, emissiveIntensity:0.4 })
           );
           ring.position.copy(base); ring.rotation.x = Math.PI/2;
           mechGroup.add(ring);
