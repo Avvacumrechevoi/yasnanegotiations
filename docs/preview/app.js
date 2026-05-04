@@ -724,6 +724,7 @@ function App(){
   const initT=T.find(t=>t.id==='суток')||T[0];
   const[y,setY]=useState({name:initT.n,p:[...initT.p],th:initT.th||'',bh:initT.bh||'',lh:initT.lh||'',rh:initT.rh||'',custom:!!initT.custom});
   const[sel,setSel]=useState(null);
+  const[yasna2Drill,setYasna2Drill]=useState(null);
   const[af,setAf]=useState([]);
   const[ed,setEd]=useState(false);
   const[glossary,setGlossary]=useState(false);
@@ -741,6 +742,7 @@ function App(){
   const[activeLesson,setActiveLesson]=useState(null);
   const[completedLessons,setCompletedLessons]=useState([]);
   // Auto-close burger menu when any modal/panel opens
+  useEffect(()=>{ if(!af.includes('mb_yasna2')) setYasna2Drill(null); },[af]);
   useEffect(()=>{
     if(ed||glossary||instr||verif||fullStar||picker||showOverlayPicker||lessonPicker||activeLesson){
       setMenu(false);
@@ -750,7 +752,7 @@ function App(){
       setSel(null);
     }
   },[ed,glossary,instr,verif,fullStar,picker,showOverlayPicker,lessonPicker,activeLesson]);
-  const load=t=>{setY({name:t.n,p:[...t.p],th:t.th||'',bh:t.bh||'',lh:t.lh||'',rh:t.rh||'',custom:!!t.custom});setSel(null);setAf([]);};
+  const load=t=>{setY({name:t.n,p:[...t.p],th:t.th||'',bh:t.bh||'',lh:t.lh||'',rh:t.rh||'',custom:!!t.custom});setSel(null);setAf([]);setYasna2Drill(null);};
   const tog=f=>setAf(p=>p.includes(f)?p.filter(x=>x!==f):[...p,f]);
   const togglePin=id=>setPinned(p=>p.includes(id)?p.filter(x=>x!==id):[...p,id]);
   const hl=useMemo(()=>{if(!af.length)return null;const all=new Set();af.forEach(id=>{const f=FL.find(x=>x.id===id);if(f?.p)f.p.forEach(x=>all.add(x));});return all.size?[...all]:null;},[af]);
@@ -834,13 +836,13 @@ function App(){
       </div>
       <div className={'star-area'+(sel!==null?' star-shift':'')} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}} onClick={e=>{if(e.target===e.currentTarget)setSel(null)}}>
         <button className='fullstar-btn' onClick={()=>setFullStar(true)} style={{display:'none',position:'absolute',top:8,right:8,width:32,height:32,borderRadius:8,border:'1px solid #e5e5ea',background:'rgba(255,255,255,.8)',fontSize:16,zIndex:5,alignItems:'center',justifyContent:'center'}}>⤢</button>
-        <div style={{width:'100%',height:'100%',maxWidth:900,maxHeight:700}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768}/></div>
+        <div style={{width:'100%',height:'100%',maxWidth:900,maxHeight:700}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill}/></div>
         <Info i={sel} p={y.p} af={af} y={y} overlay={overlay} onEdit={()=>setEd(true)} onClose={()=>setSel(null)}/>
         <OverlayLegend y={y} overlay={overlay} onClear={()=>setOverlay(null)}/>
       </div>
       {fullStar&&<>
         <div className='fullstar' style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
-          <div style={{width:'100%',height:'100%',maxWidth:'100vw',maxHeight:'100vh'}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768}/></div>
+          <div style={{width:'100%',height:'100%',maxWidth:'100vw',maxHeight:'100vh'}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill}/></div>
         </div>
         <button className='fullstar-close' onClick={()=>setFullStar(false)}>✕</button>
       </>}

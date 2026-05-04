@@ -136,7 +136,7 @@ const FL=[
    related:['support','rhythm','mb_zodiac']},
 ];
 
-function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
+function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill}){
   const isMob=typeof window!=="undefined"&&window.innerWidth<=768;
   const p=yy.p||[];
   const S=900,W=700,cx=S/2,cy=W/2,R=215,nr=isMob?26:23,lr=R+60;
@@ -323,7 +323,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
       {af.includes('halves')&&yy.lh&&<text x={20} y={cy} textAnchor="middle" fill="rgba(0,0,0,.5)" fontSize="13" fontFamily="var(--sans)" fontWeight="600" transform={`rotate(-90 20 ${cy})`}>{yy.lh}</text>}
       {af.includes('halves')&&yy.rh&&<text x={S-20} y={cy} textAnchor="middle" fill="rgba(0,0,0,.5)" fontSize="13" fontFamily="var(--sans)" fontWeight="600" transform={`rotate(90 ${S-20} ${cy})`}>{yy.rh}</text>}
       {pts.map((pt,i)=>{const isSel=sel===i,c=nc(i),o=no(i);return(
-        <g key={i} onClick={()=>onSel(sel===i?null:i)} style={{cursor:'pointer'}}>
+        <g key={i} onClick={()=>{if(af.includes('mb_yasna2')&&drill==null&&onDrill){onDrill(i);}else{onSel(sel===i?null:i);}}} style={{cursor:'pointer'}}>
           <circle cx={pt.x} cy={pt.y} r={nr+14} fill="transparent" stroke="none"/>
           {isSel&&<circle cx={pt.x} cy={pt.y} r={nr+8} fill={c} opacity=".06" filter="url(#gw)"/>}
           <circle cx={pt.x} cy={pt.y} r={nr} fill="#fff" stroke={c} strokeWidth={isSel?2.5:1.8} opacity={o} filter="url(#ns)" style={{pointerEvents:'none'}}/>
@@ -357,6 +357,35 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
         {/* Overlay Yasna labels - outer ring */}
         {olps.map((pt,i)=>{const l=(overlay.p||[])[i]||'';if(!l)return null;let dy=22;if(i===0)dy=34;if(i===6)dy=-22;if([3,9].includes(i))dy=26;if([2,10].includes(i))dy=26;if([4,8].includes(i))dy=34;if([1,11].includes(i))dy=28;if([5,7].includes(i))dy=24;return<text key={`o${i}`} x={pt.x} y={pt.y+dy} textAnchor={anch(i)} fill={sel===i?'#7c3aed':'#9333ea'} fontSize={sel===i?"17":"15"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'500'} fontStyle="italic" style={{pointerEvents:'none'}}>{l}</text>;})}
       </>}
+      {/* M-Г-066 Ясна² Drill-down: клик по полке открывает её внутреннюю Ясну */}
+      {drill!=null&&(()=>{
+        const dpt=pts[drill];
+        const dCol='#a21caf';
+        const subR=R*0.55;
+        const subNr=18;
+        return<g style={{animation:'fadeIn .55s cubic-bezier(.16,1,.3,1)'}}>
+          <rect x="0" y="0" width="900" height="700" fill="rgba(255,255,255,.7)"/>
+          <line x1={dpt.x} y1={dpt.y} x2={cx} y2={cy} stroke={dCol} strokeWidth="1.5" strokeDasharray="4 4" opacity=".5"/>
+          <circle cx={cx} cy={cy} r={subR+18} fill="none" stroke={dCol} strokeWidth=".8" strokeDasharray="3 4" opacity=".6"/>
+          <circle cx={cx} cy={cy} r={subR} fill="rgba(162,28,175,.04)" stroke={dCol} strokeWidth="1.4"/>
+          {Array.from({length:12},(_,j)=>{
+            const sa=(270-j*30)*Math.PI/180;
+            const sx=cx+subR*Math.cos(sa);
+            const sy=cy-subR*Math.sin(sa);
+            return<g key={`sub${j}`}>
+              <circle cx={sx} cy={sy} r={subNr} fill="#fff" stroke={dCol} strokeWidth="1.6"/>
+              <text x={sx} y={sy+5} textAnchor="middle" fontSize="13" fontWeight="700" fill={dCol}>{j}</text>
+            </g>;
+          })}
+          <rect x={cx-95} y={cy-22} width="190" height="44" rx="10" fill="#fff" stroke={dCol} strokeWidth="1.4"/>
+          <text x={cx} y={cy-6} textAnchor="middle" fontSize="10" fontWeight="700" fill={dCol} letterSpacing="1.5">ПОЛКА {drill}</text>
+          <text x={cx} y={cy+13} textAnchor="middle" fontSize="13" fontWeight="700" fill="#581c87">{(p[drill]||'—').slice(0,22)}</text>
+          <g onClick={()=>onDrill(null)} style={{cursor:'pointer'}}>
+            <rect x="14" y="14" width="118" height="32" rx="16" fill="#fff" stroke={dCol} strokeWidth="1.4"/>
+            <text x="73" y="34" textAnchor="middle" fontSize="13" fontWeight="600" fill={dCol}>← Назад</text>
+          </g>
+        </g>;
+      })()}
     </svg>);
 }
 
