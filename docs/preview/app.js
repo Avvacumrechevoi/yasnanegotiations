@@ -730,6 +730,9 @@ function App(){
   const[starRotation,setStarRotation]=useState(null);
   const[rotationSpeed,setRotationSpeed]=useState(24);
   const[rotPanelOpen,setRotPanelOpen]=useState(false);
+  const[is3D,setIs3D]=useState(false);
+  // Авто-выключение 3D при открытии drill (для удобства редактирования sub-Ясны)
+  useEffect(()=>{ if(yasna2Drill!=null) setIs3D(false); },[yasna2Drill]);
   const impulseTimerRef=useRef(null);
   const impulseRotation=(dir)=>{
     if(yasna2Drill!=null)return;
@@ -874,7 +877,7 @@ function App(){
         <button onClick={()=>{if(confirm('Очистить sub-полки этой Полки?'))clearSub(y.name,yasna2Drill);}} title="Очистить" style={{padding:'6px 10px',borderRadius:9,border:'1px solid #d2d2d7',background:'#fff',cursor:'pointer',fontSize:13}}>🧹 Очистить</button>
         <button onClick={()=>setDrillEditing(v=>!v)} style={{padding:'6px 14px',borderRadius:9,border:`1px solid ${drillEditing?'#a21caf':'#a21caf66'}`,background:drillEditing?'#a21caf':'#fff',color:drillEditing?'#fff':'#a21caf',fontWeight:600,fontSize:12.5,cursor:'pointer',display:'flex',alignItems:'center',gap:5}}>{drillEditing?'✓ Готово':'✏️ Редактировать'}</button>
       </div>}
-            <div className={'star-area'+(sel!==null?' star-shift':'')+(starRotation?' star-rotating-'+starRotation:'')} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden','--rotation-speed':rotationSpeed+'s'}} onClick={e=>{if(e.target===e.currentTarget)setSel(null)}}>
+            <div className={'star-area'+(sel!==null?' star-shift':'')+(starRotation?' star-rotating-'+starRotation:'')+(is3D?' star-3d':'')} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden','--rotation-speed':rotationSpeed+'s'}} onClick={e=>{if(e.target===e.currentTarget)setSel(null)}}>
         {/* Кнопки вращения (preview-only) */}
         <div className="rotation-controls">
           <button disabled={yasna2Drill!=null} className={'rotation-btn'+(starRotation==='ccw'?' active':'')+(yasna2Drill!=null?' disabled':'')} onClick={()=>setStarRotation(r=>r==='ccw'?null:'ccw')} title={yasna2Drill!=null?'Недоступно при открытой sub-Ясне':(starRotation==='ccw'?'Остановить':'Против часовой')} style={{border:'1px solid '+(starRotation==='ccw'?'#a21caf':'#e5e5ea'),color:starRotation==='ccw'?'#fff':'#86868b'}}>↺</button>
@@ -895,9 +898,16 @@ function App(){
             <button disabled={yasna2Drill!=null||starRotation!==null} onClick={()=>impulseRotation('ccw')}>⟲ Против часовой</button>
             <button disabled={yasna2Drill!=null||starRotation!==null} onClick={()=>impulseRotation('cw')}>⟳ По часовой</button>
           </div>
+          <div style={{fontWeight:600,fontSize:11,color:'#581c87',letterSpacing:.5,textTransform:'uppercase',marginTop:12,marginBottom:6}}>Объёмный режим</div>
+          <div className="rotation-panel-row">
+            <button disabled={yasna2Drill!=null} onClick={()=>setIs3D(v=>!v)} className={is3D?'btn-3d-active':''}>{is3D?'📐 Плоская проекция':'🔮 3D Алмаз'}</button>
+          </div>
+          {is3D&&<div style={{marginTop:8,padding:'7px 9px',background:'rgba(162,28,175,.06)',borderRadius:7,fontSize:10.5,color:'#581c87',lineHeight:1.45}}>
+            Звезда наклонена на 55°, перспектива 1500px. Видны Столп Ясны и теневая плита под диском. Все механики, включая Замыкание и Накопление, работают в наклонной плоскости.
+          </div>}
         </div>}
         <button className='fullstar-btn' onClick={()=>setFullStar(true)} style={{display:'none',position:'absolute',top:8,right:8,width:32,height:32,borderRadius:8,border:'1px solid #e5e5ea',background:'rgba(255,255,255,.8)',fontSize:16,zIndex:5,alignItems:'center',justifyContent:'center'}}>⤢</button>
-        <div style={{width:'100%',height:'100%',maxWidth:900,maxHeight:700}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/></div>
+        <div className="star-svg-wrap" style={{width:'100%',height:'100%',maxWidth:900,maxHeight:700}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/></div>
         <Info i={sel} p={y.p} af={af} y={y} overlay={overlay} onEdit={()=>setEd(true)} onClose={()=>setSel(null)}/>
         <OverlayLegend y={y} overlay={overlay} onClear={()=>setOverlay(null)}/>
       </div>
@@ -917,7 +927,7 @@ function App(){
         </div>
       </div>}
       {fullStar&&<>
-        <div className={'fullstar'+(starRotation?' star-rotating-'+starRotation:'')} style={{display:'flex',alignItems:'center',justifyContent:'center','--rotation-speed':rotationSpeed+'s'}}>
+        <div className={'fullstar'+(starRotation?' star-rotating-'+starRotation:'')+(is3D?' star-3d':'')} style={{display:'flex',alignItems:'center',justifyContent:'center','--rotation-speed':rotationSpeed+'s'}}>
           <div style={{width:'100%',height:'100%',maxWidth:'100vw',maxHeight:'100vh'}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/></div>
         </div>
         <button className='fullstar-close' onClick={()=>setFullStar(false)}>✕</button>
