@@ -181,16 +181,6 @@ input{font-family:var(--sans)}
   animation: gateHint 2.2s ease-in-out infinite;
 }
 
-/* ─── Ясна Rotation (preview-only, до синка с прод) ─── */
-.rotation-controls {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  display: flex;
-  gap: 4px;
-  z-index: 5;
-  align-items: center;
-}
 .rotation-btn {
   width: 34px;
   height: 34px;
@@ -212,4 +202,36 @@ input{font-family:var(--sans)}
   background: #a21caf;
   color: #fff;
   border-color: #a21caf;
+}
+/* ─── Ясна-clock rotation (preview-only) — плавно, GPU, текст остаётся вертикально ─── */
+@keyframes yasnaSpinCW { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes yasnaSpinCCW { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+
+/* Внешняя группа SVG крутится вокруг геометрического центра viewBox 900×700 */
+.star-rotating-cw .yasna-wheel {
+  animation: yasnaSpinCW 24s linear infinite;
+  transform-origin: 450px 350px;
+  transform-box: view-box;
+  will-change: transform;
+}
+.star-rotating-ccw .yasna-wheel {
+  animation: yasnaSpinCCW 24s linear infinite;
+  transform-origin: 450px 350px;
+  transform-box: view-box;
+  will-change: transform;
+}
+
+/* Все <text> внутри wheel контр-вращаются вокруг своего собственного центра.
+   Идеально синхронизированы с outer (та же длительность, противоположное направление) */
+.star-rotating-cw .yasna-wheel text {
+  animation: yasnaSpinCCW 24s linear infinite;
+  transform-box: fill-box;
+  transform-origin: center center;
+  will-change: transform;
+}
+.star-rotating-ccw .yasna-wheel text {
+  animation: yasnaSpinCW 24s linear infinite;
+  transform-box: fill-box;
+  transform-origin: center center;
+  will-change: transform;
 }
