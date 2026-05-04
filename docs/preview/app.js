@@ -784,7 +784,10 @@ function App(){
       const elapsed = (now - start) / 1000;
       const dir = starRotation === 'cw' ? -1 : 1;
       const angle = (dir * elapsed / Math.max(1, rotationSpeed)) * 360;
-      wheels.forEach(w=> w.setAttribute('transform', `rotate(${angle.toFixed(2)} 450 350)`));
+      // 3-шаговый transform — translate(c) rotate(a) translate(-c)
+      // Эквивалент rotate(a c.x c.y) но без iOS Safari регрессий
+      const tx = `translate(450,350) rotate(${angle.toFixed(2)}) translate(-450,-350)`;
+      wheels.forEach(w=> w.setAttribute('transform', tx));
       raf = requestAnimationFrame(animate);
     };
     raf = requestAnimationFrame(animate);
