@@ -1697,9 +1697,9 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
     );
     if(pillar) wheelGroup.add(pillar);
 
-    const poleMat = new THREE.MeshPhysicalMaterial({
-      color:0xa21caf, roughness:0.2, metalness:0.3, clearcoat:1.0, clearcoatRoughness:0.05,
-      emissive:0xa21caf, emissiveIntensity:0.18,
+    const poleMat = new THREE.MeshStandardMaterial({
+      color:0xa21caf, roughness:0.25, metalness:0.55,
+      emissive:0xa21caf, emissiveIntensity:0.25,
     });
     const poleGeom = new THREE.SphereGeometry(polkaR*0.7, 32, 24);
     const northBall = new THREE.Mesh(poleGeom, poleMat);
@@ -1725,11 +1725,9 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
     for(let i=0; i<12; i++){
       const pos = equatorPos(i);
       const baseColor = polkaColor(i);
-      const planetMat = new THREE.MeshPhysicalMaterial({
-        color: baseColor, roughness: 0.28, metalness: 0.15,
-        clearcoat: 1.0, clearcoatRoughness: 0.08,
-        sheen: 0.3, sheenColor: new THREE.Color(0xffffff),
-        emissive: baseColor, emissiveIntensity: 0.06,
+      const planetMat = new THREE.MeshStandardMaterial({
+        color: baseColor, roughness: 0.32, metalness: 0.45,
+        emissive: baseColor, emissiveIntensity: 0.10,
       });
       const planet = new THREE.Mesh(new THREE.SphereGeometry(polkaR, 64, 48), planetMat);
       planet.position.copy(pos);
@@ -1910,10 +1908,10 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
           equatorPos(1),
         ], false, 'catmullrom', 0.5);
         const tubeGeom = new THREE.TubeGeometry(curve, 80, 1.6, 12, false);
-        const mat = new THREE.MeshPhysicalMaterial({
-          color:0x0891b2, transparent:true, opacity:0.85,
-          roughness:0.3, metalness:0.4, clearcoat:0.8,
-          emissive:0x0891b2, emissiveIntensity:0.15,
+        const mat = new THREE.MeshStandardMaterial({
+          color:0x0891b2, transparent:true, opacity:0.9,
+          roughness:0.25, metalness:0.55,
+          emissive:0x0891b2, emissiveIntensity:0.2,
         });
         mechGroup.add(new THREE.Mesh(tubeGeom, mat));
       }
