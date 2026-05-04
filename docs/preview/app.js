@@ -882,6 +882,7 @@ function App(){
         <div className="rotation-controls">
           <button disabled={yasna2Drill!=null} className={'rotation-btn'+(starRotation==='ccw'?' active':'')+(yasna2Drill!=null?' disabled':'')} onClick={()=>setStarRotation(r=>r==='ccw'?null:'ccw')} title={yasna2Drill!=null?'Недоступно при открытой sub-Ясне':(starRotation==='ccw'?'Остановить':'Против часовой')} style={{border:'1px solid '+(starRotation==='ccw'?'#a21caf':'#e5e5ea'),color:starRotation==='ccw'?'#fff':'#86868b'}}>↺</button>
           <button disabled={yasna2Drill!=null} className={'rotation-btn'+(starRotation==='cw'?' active':'')+(yasna2Drill!=null?' disabled':'')} onClick={()=>setStarRotation(r=>r==='cw'?null:'cw')} title={yasna2Drill!=null?'Недоступно при открытой sub-Ясне':(starRotation==='cw'?'Остановить':'По часовой')} style={{border:'1px solid '+(starRotation==='cw'?'#a21caf':'#e5e5ea'),color:starRotation==='cw'?'#fff':'#86868b'}}>↻</button>
+          <button disabled={yasna2Drill!=null} className={'rotation-btn'+(is3D?' active':'')+(yasna2Drill!=null?' disabled':'')} onClick={()=>setIs3D(v=>!v)} title={yasna2Drill!=null?'Недоступно при открытой sub-Ясне':(is3D?'Плоская проекция':'Объёмный режим')} style={{border:'1px solid '+(is3D?'#a21caf':'#e5e5ea'),color:is3D?'#fff':'#86868b',fontSize:11,fontWeight:700,letterSpacing:0.5}}>3D</button>
           <button className={'rotation-btn'+(rotPanelOpen?' active':'')} onClick={()=>setRotPanelOpen(o=>!o)} title="Скорость и режим" style={{border:'1px solid '+(rotPanelOpen?'#a21caf':'#e5e5ea'),color:rotPanelOpen?'#fff':'#86868b'}}>⋯</button>
         </div>
         {rotPanelOpen&&<div className="rotation-panel" onClick={e=>e.stopPropagation()}>
@@ -898,12 +899,8 @@ function App(){
             <button disabled={yasna2Drill!=null||starRotation!==null} onClick={()=>impulseRotation('ccw')}>⟲ Против часовой</button>
             <button disabled={yasna2Drill!=null||starRotation!==null} onClick={()=>impulseRotation('cw')}>⟳ По часовой</button>
           </div>
-          <div style={{fontWeight:600,fontSize:11,color:'#581c87',letterSpacing:.5,textTransform:'uppercase',marginTop:12,marginBottom:6}}>Объёмный режим</div>
-          <div className="rotation-panel-row">
-            <button disabled={yasna2Drill!=null} onClick={()=>setIs3D(v=>!v)} className={is3D?'btn-3d-active':''}>{is3D?'📐 Плоская проекция':'🔮 3D Алмаз'}</button>
-          </div>
-          {is3D&&<div style={{marginTop:8,padding:'7px 9px',background:'rgba(162,28,175,.06)',borderRadius:7,fontSize:10.5,color:'#581c87',lineHeight:1.45}}>
-            Звезда наклонена на 55°, перспектива 1500px. Видны Столп Ясны и теневая плита под диском. Все механики, включая Замыкание и Накопление, работают в наклонной плоскости.
+          {is3D&&<div style={{marginTop:12,padding:'8px 10px',background:'rgba(162,28,175,.08)',borderRadius:8,fontSize:10.5,color:'#581c87',lineHeight:1.5}}>
+            <b style={{color:'#a21caf'}}>3D режим активен.</b> Drag мышью — вращение в любой плоскости. Колесо мыши — zoom. Клик по шару — выбор полки.
           </div>}
         </div>}
         <button className='fullstar-btn' onClick={()=>setFullStar(true)} style={{display:'none',position:'absolute',top:8,right:8,width:32,height:32,borderRadius:8,border:'1px solid #e5e5ea',background:'rgba(255,255,255,.8)',fontSize:16,zIndex:5,alignItems:'center',justifyContent:'center'}}>⤢</button>
