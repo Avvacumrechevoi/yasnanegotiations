@@ -728,7 +728,7 @@ function App(){
   const[subData,setSubData]=useState(()=>{try{return JSON.parse(localStorage.getItem('yasna2_subdata')||'{}');}catch{return{};}});
   const[drillEditing,setDrillEditing]=useState(false);
   const[starRotation,setStarRotation]=useState(null);
-  const[rotationSpeed,setRotationSpeed]=useState(24);
+  const[rotationSpeed,setRotationSpeed]=useState(48);
   const[rotPanelOpen,setRotPanelOpen]=useState(false);
   const[is3D,setIs3D]=useState(false);
   // Авто-выключение 3D при открытии drill (для удобства редактирования sub-Ясны)
@@ -871,9 +871,9 @@ function App(){
             <span style={{fontWeight:600,fontSize:11,color:'#581c87',letterSpacing:.5,textTransform:'uppercase'}}>Скорость</span>
             <span style={{color:'#a21caf',fontWeight:700,fontVariantNumeric:'tabular-nums'}}>{rotationSpeed}s/оборот</span>
           </div>
-          <input type="range" min="5" max="60" value={rotationSpeed} onChange={e=>setRotationSpeed(+e.target.value)}/>
+          <input type="range" min="5" max="120" value={rotationSpeed} onChange={e=>setRotationSpeed(+e.target.value)}/>
           <div style={{display:'flex',justifyContent:'space-between',fontSize:9.5,color:'#86868b',marginTop:-4,marginBottom:8}}>
-            <span>быстро (5s)</span><span>медитативно (60s)</span>
+            <span>быстро (5s)</span><span>медитативно (120s)</span>
           </div>
           <div style={{fontWeight:600,fontSize:11,color:'#581c87',letterSpacing:.5,textTransform:'uppercase',marginTop:4,marginBottom:6}}>Один оборот</div>
           <div className="rotation-panel-row">

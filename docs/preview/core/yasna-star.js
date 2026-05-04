@@ -1982,6 +1982,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
 
     function rebuildMechanics(active){
       while(mechGroup.children.length) mechGroup.remove(mechGroup.children[0]);
+      mechGroup.userData.zodiacCoinsAnim = false;
       // Адаптивная видимость каркаса — приглушаем при многих активных механиках
       const N = (active||[]).length;
       cageMat.opacity = N === 0 ? 0.10 : N <= 2 ? 0.05 : 0.02;
@@ -2066,15 +2067,74 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
 
       if(active.includes('mb_zodiac')){
         const ZS=['♑','♒','♓','♈','♉','♊','♋','♌','♍','♎','♏','♐'];
-        ZS.forEach((s,i)=>{
-          const sp = makeTextSprite(s, '#e8d4ff', 96, 'bold');
-          const dir = equatorPos(i).clone().normalize();
-          const pos = equatorPos(i).clone().add(dir.multiplyScalar(polkaR*1.8));
-          pos.y = polkaR*1.2;
-          sp.position.copy(pos);
-          sp.scale.set(28, 28, 1);
-          mechGroup.add(sp);
+        // 3D-монеты с гравированным знаком: цилиндр с малой толщиной,
+        // металлический ободок + текстурированная грань (CanvasTexture с глифом)
+        // Ориентируем ось цилиндра радиально наружу, чтобы лицевая грань смотрела на наблюдателя
+        const coinR = polkaR*0.85;
+        const coinThick = polkaR*0.28;
+        const sideMat = new THREE.MeshStandardMaterial({
+          color:0x6b21a8, metalness:0.85, roughness:0.22,
+          emissive:0x4c1d95, emissiveIntensity:0.32,
         });
+        ZS.forEach((sym, i)=>{
+          // Текстура с глифом — рисуем на canvas
+          const cv = document.createElement('canvas');
+          cv.width = 256; cv.height = 256;
+          const ctx = cv.getContext('2d');
+          // Фон с радиальным градиентом (золото-фиолет)
+          const grad = ctx.createRadialGradient(128,128,20, 128,128,140);
+          grad.addColorStop(0, '#f5e9ff');
+          grad.addColorStop(0.55, '#c5a8e8');
+          grad.addColorStop(1, '#5b21a8');
+          ctx.fillStyle = grad;
+          ctx.beginPath(); ctx.arc(128,128,128,0,Math.PI*2); ctx.fill();
+          // Тонкий ободок
+          ctx.strokeStyle = 'rgba(255,255,255,.55)';
+          ctx.lineWidth = 6;
+          ctx.beginPath(); ctx.arc(128,128,118,0,Math.PI*2); ctx.stroke();
+          // Глиф
+          ctx.font = 'bold 168px -apple-system, BlinkMacSystemFont, "SF Pro Display", "Apple Color Emoji", sans-serif';
+          ctx.fillStyle = '#3a0d6e';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          // Лёгкая тень для объёма
+          ctx.shadowColor = 'rgba(255,255,255,0.6)';
+          ctx.shadowBlur = 4;
+          ctx.shadowOffsetY = -2;
+          ctx.fillText(sym, 128, 138);
+          ctx.shadowColor = 'transparent';
+          const tex = new THREE.CanvasTexture(cv);
+          tex.minFilter = THREE.LinearFilter;
+          tex.magFilter = THREE.LinearFilter;
+          if(THREE.sRGBEncoding) tex.encoding = THREE.sRGBEncoding;
+          const faceMat = new THREE.MeshStandardMaterial({
+            map: tex, metalness: 0.3, roughness: 0.5,
+            emissive: 0x6c3aad, emissiveIntensity: 0.38,
+          });
+          // Cylinder: [side, top(+Y), bottom(-Y)]
+          const coinGeom = new THREE.CylinderGeometry(coinR, coinR, coinThick, 40, 1, false);
+          const coin = new THREE.Mesh(coinGeom, [sideMat, faceMat, faceMat.clone()]);
+
+          // Позиция: на радиусе чуть дальше полки, поднята над экватором
+          const dir = equatorPos(i).clone().normalize();
+          const pos = equatorPos(i).clone().add(dir.clone().multiplyScalar(polkaR*2.0));
+          pos.y = polkaR*1.6;
+          coin.position.copy(pos);
+
+          // Ориентируем ось цилиндра по радиальному вектору (наружу),
+          // чтобы лицевая грань смотрела от центра — её будет видно с любой стороны drag-камеры
+          const axisFrom = new THREE.Vector3(0,1,0);
+          const q = new THREE.Quaternion().setFromUnitVectors(axisFrom, dir);
+          coin.setRotationFromQuaternion(q);
+
+          // Лёгкое самовращение каждой монеты вокруг радиальной оси даёт «живой» 3D-эффект
+          coin.userData.spinAxis = dir.clone();
+          coin.userData.spinSpeed = 0.0004 + (i%3)*0.0001;
+
+          mechGroup.add(coin);
+        });
+        // Регистрируем callback для самовращения монет в animate-loop
+        mechGroup.userData.zodiacCoinsAnim = true;
       }
 
       if(active.includes('mb_scorpio_spider')){
@@ -2274,6 +2334,15 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
           p.material.transparent = false;
         }
       });
+
+      // Самовращение зодиакальных монет (если активны)
+      if(mechGroup.userData.zodiacCoinsAnim){
+        mechGroup.children.forEach(ch=>{
+          if(ch.userData && ch.userData.spinAxis){
+            ch.rotateOnAxis(ch.userData.spinAxis, ch.userData.spinSpeed * dt);
+          }
+        });
+      }
 
       // Анимация drillGroup: появление/исчезновение через scale-lerp
       if(drilling){
