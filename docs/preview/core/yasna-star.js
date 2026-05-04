@@ -1607,16 +1607,16 @@ function Verification({y,vs,setVs,onClose}){
 // механики как платоновы тела (октаэдр, бипирамида, тетраэдр)
 // ═══════════════════════════════════════════════════════════════════
 
-function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
+function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki }){
   const canvasRef = React.useRef(null);
   const stateRef = React.useRef({
     camAzim: 0, camElev: 24, camDist: 560,
     isDragging: false, lastX: 0, lastY: 0,
   });
   const sceneRefs = React.useRef(null);
-  // Свежие props для animate-loop (избегаем stale closure при изменении rotationOn/speedSec)
-  const liveRef = React.useRef({ rotationOn, speedSec, sel });
-  React.useEffect(()=>{ liveRef.current = { rotationOn, speedSec, sel }; }, [rotationOn, speedSec, sel]);
+  // Свежие props для animate-loop (избегаем stale closure)
+  const liveRef = React.useRef({ rotationOn, speedSec, sel, drill, af });
+  React.useEffect(()=>{ liveRef.current = { rotationOn, speedSec, sel, drill, af }; }, [rotationOn, speedSec, sel, drill, JSON.stringify(af||[])]);
 
   React.useEffect(()=>{
     if(typeof window==='undefined' || !window.THREE) return;
@@ -1857,6 +1857,125 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
       return grp;
     }
 
+    // ──────────────── Sub-Yasna (drill-down 3D) ────────────────
+    // Группа вложенной мини-Ясны, появляется при drill !== null у позиции выбранной полки.
+    const drillGroup = new THREE.Group();
+    drillGroup.visible = false;
+    drillGroup.scale.set(0.001, 0.001, 0.001);
+    wheelGroup.add(drillGroup);
+
+    const subPolkiArr = []; // sub-шары для raycasting
+    const subPolkiLabels = [];
+
+    // Палитра sub-полок — мягче основных, чтобы был контраст
+    const subPolkaColor = (i) => {
+      if([0,3,6,9].includes(i)) return 0xff6478;
+      if([1,4,7,10].includes(i)) return 0xfac266;
+      return 0x80aae0;
+    };
+
+    function buildDrillGroup(drillIdx, subData){
+      // Очищаем старое
+      while(drillGroup.children.length){
+        const c = drillGroup.children[0];
+        drillGroup.remove(c);
+        if(c.geometry) c.geometry.dispose();
+        if(c.material){ if(Array.isArray(c.material)) c.material.forEach(m=>m.dispose()); else c.material.dispose(); }
+      }
+      subPolkiArr.length = 0;
+      subPolkiLabels.length = 0;
+      if(drillIdx == null) return;
+
+      // Размер мини-Ясны: полусфера в полку
+      const subR = polkaR * 4.2;
+      const subPolkaR = polkaR * 0.55;
+
+      // Каркасная сфера (тонкая, для глубины)
+      const subCage = new THREE.Mesh(
+        new THREE.SphereGeometry(subR + subPolkaR*1.2, 18, 12),
+        new THREE.MeshBasicMaterial({ color:0xa388e0, wireframe:true, transparent:true, opacity:0.18 })
+      );
+      drillGroup.add(subCage);
+
+      // Экватор
+      const subEquator = new THREE.Mesh(
+        new THREE.TorusGeometry(subR, 0.4, 10, 64),
+        new THREE.MeshStandardMaterial({ color:0xa388e0, opacity:0.7, transparent:true, metalness:0.6, roughness:0.3, emissive:0x6c4dad, emissiveIntensity:0.3 })
+      );
+      subEquator.rotation.x = Math.PI/2;
+      drillGroup.add(subEquator);
+
+      // Маленький столп вверх-вниз
+      const subPoleY = subR * 0.65;
+      const pillarMat = new THREE.MeshStandardMaterial({ color:0xb88de0, opacity:0.5, transparent:true, metalness:0.55, roughness:0.25, emissive:0x6c3a8e, emissiveIntensity:0.3 });
+      const pillarGeom = new THREE.CylinderGeometry(0.4, 0.4, subPoleY*2.2, 8, 1, false);
+      const subPillar = new THREE.Mesh(pillarGeom, pillarMat);
+      drillGroup.add(subPillar);
+
+      // 12 sub-полок-шариков на экваторе
+      for(let i=0; i<12; i++){
+        const a = (270 - i*30) * Math.PI/180;
+        const px = subR*Math.cos(a), pz = -subR*Math.sin(a);
+        const baseColor = subPolkaColor(i);
+        const subMat = new THREE.MeshStandardMaterial({
+          color: baseColor, roughness: 0.4, metalness: 0.45,
+          emissive: baseColor, emissiveIntensity: 0.45,
+        });
+        const subBall = new THREE.Mesh(new THREE.SphereGeometry(subPolkaR, 32, 24), subMat);
+        subBall.position.set(px, 0, pz);
+        subBall.userData.subIdx = i;
+        drillGroup.add(subBall);
+        subPolkiArr.push(subBall);
+
+        // Аура
+        const subAura = new THREE.Mesh(
+          new THREE.SphereGeometry(subPolkaR*1.4, 16, 12),
+          new THREE.MeshBasicMaterial({ color: baseColor, transparent:true, opacity:0.32, side:THREE.BackSide })
+        );
+        subBall.add(subAura);
+
+        // Номер
+        const num = makeTextSprite(String(i), '#ffffff', 84, 'bold');
+        num.position.set(0, 0, subPolkaR + 0.2);
+        num.scale.set(subPolkaR*1.0, subPolkaR*1.0, 1);
+        subBall.add(num);
+
+        // Подпись sub-полки (если есть)
+        const subLabel = subData && subData[i] ? subData[i] : '';
+        if(subLabel){
+          const txt = subLabel.length > 12 ? subLabel.slice(0,11)+'…' : subLabel;
+          const lbl = makeTextSprite(txt, '#f0e8ff', 38, '500');
+          const dir = new THREE.Vector3(px, 0, pz).normalize();
+          const lblPos = new THREE.Vector3(px, 0, pz).add(dir.multiplyScalar(subPolkaR*3.0));
+          lblPos.y = 5;
+          lbl.position.copy(lblPos);
+          lbl.scale.set(subPolkaR*5.5, subPolkaR*1.3, 1);
+          drillGroup.add(lbl);
+          subPolkiLabels.push(lbl);
+        }
+      }
+
+      // Полюса
+      const subPoleMat = new THREE.MeshStandardMaterial({ color:0xb88de0, roughness:0.22, metalness:0.6, emissive:0xb88de0, emissiveIntensity:0.4 });
+      const subPoleGeom = new THREE.SphereGeometry(subPolkaR*0.6, 24, 18);
+      const subN = new THREE.Mesh(subPoleGeom, subPoleMat); subN.position.set(0, subPoleY, 0); drillGroup.add(subN);
+      const subS = new THREE.Mesh(subPoleGeom.clone(), subPoleMat); subS.position.set(0, -subPoleY, 0); drillGroup.add(subS);
+
+      // Заголовок полки сверху
+      const titleText = (y && y.p && y.p[drillIdx]) ? `Полка ${drillIdx}: ${y.p[drillIdx].slice(0,18)}` : `Полка ${drillIdx}`;
+      const title = makeTextSprite(titleText, '#e8d8ff', 60, '700');
+      title.position.set(0, subPoleY + subPolkaR*2.6, 0);
+      title.scale.set(180, 30, 1);
+      drillGroup.add(title);
+
+      // Позиционируем drillGroup в позиции выбранной полки
+      const a0 = (270 - drillIdx*30) * Math.PI/180;
+      drillGroup.position.set(R*Math.cos(a0), 0, -R*Math.sin(a0));
+      // Отодвигаем чуть наружу, чтобы не сливаться с самой полкой
+      const dirOut = new THREE.Vector3(drillGroup.position.x, 0, drillGroup.position.z).normalize();
+      drillGroup.position.add(dirOut.multiplyScalar(subR*0.55));
+    }
+
     // Raycaster для hover-detect и click
     const raycaster = new THREE.Raycaster();
     const ndc = new THREE.Vector2();
@@ -2079,10 +2198,25 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
       ndc_local.x = ((e.clientX-rect.left)/rect.width)*2 - 1;
       ndc_local.y = -((e.clientY-rect.top)/rect.height)*2 + 1;
       raycaster_local.setFromCamera(ndc_local, camera);
+      const live = liveRef.current;
+      // Если drill открыт — клики обрабатывает sub-полки
+      if(live.drill != null && sceneRefs.current && sceneRefs.current.subPolki){
+        const subHits = raycaster_local.intersectObjects(sceneRefs.current.subPolki);
+        if(subHits.length){
+          const subIdx = subHits[0].object.userData.subIdx;
+          if(typeof onSel === 'function') onSel(subIdx);
+        }
+        return;
+      }
       const hits = raycaster_local.intersectObjects(polki);
       if(hits.length){
         const idx = hits[0].object.userData.polkaIdx;
-        if(typeof onSel === 'function') onSel(idx);
+        // Если активна mb_yasna2 — вместо выбора открываем drill
+        if((live.af||[]).includes('mb_yasna2') && typeof onDrill === 'function'){
+          onDrill(idx);
+        } else if(typeof onSel === 'function'){
+          onSel(idx);
+        }
       }
     };
     canvas.addEventListener('click', onClick);
@@ -2111,24 +2245,67 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
       }
       // Selected polka — пульсация emissive + лёгкое увеличение
       pulsePhase += dt * 0.003;
+      const drilling = live.drill != null;
       polki.forEach((p, i) => {
-        if(i === live.sel){
-          const pulse = 0.5 + 0.4 * Math.sin(pulsePhase * 2);
-          p.material.emissiveIntensity = pulse;
-          const tgt = 1.4;
-          p.scale.lerp(new THREE.Vector3(tgt,tgt,tgt), 0.1);
+        if(drilling){
+          // Если drill активен — выбранная полка скрывается (внутрь неё разворачивается мини-Ясна),
+          // остальные приглушаются
+          if(i === live.drill){
+            p.scale.lerp(new THREE.Vector3(0.4,0.4,0.4), 0.12);
+            p.material.emissiveIntensity = 0.15;
+            p.material.opacity = 0.4;
+            p.material.transparent = true;
+          } else {
+            p.scale.lerp(new THREE.Vector3(0.7,0.7,0.7), 0.12);
+            p.material.emissiveIntensity = 0.18;
+            p.material.opacity = 0.55;
+            p.material.transparent = true;
+          }
         } else {
-          p.material.emissiveIntensity = 0.32;
-          p.scale.lerp(new THREE.Vector3(1,1,1), 0.1);
+          if(i === live.sel){
+            const pulse = 0.5 + 0.4 * Math.sin(pulsePhase * 2);
+            p.material.emissiveIntensity = pulse;
+            p.scale.lerp(new THREE.Vector3(1.4,1.4,1.4), 0.1);
+          } else {
+            p.material.emissiveIntensity = 0.32;
+            p.scale.lerp(new THREE.Vector3(1,1,1), 0.1);
+          }
+          p.material.opacity = 1;
+          p.material.transparent = false;
         }
       });
+
+      // Анимация drillGroup: появление/исчезновение через scale-lerp
+      if(drilling){
+        if(!drillGroup.visible) drillGroup.visible = true;
+        drillGroup.scale.lerp(new THREE.Vector3(1,1,1), 0.12);
+        drillGroup.rotation.y += dt * 0.0001; // лёгкое самовращение
+        // Пульсация sub-sel
+        subPolkiArr.forEach((sb, i)=>{
+          if(i === live.sel){
+            const pulse = 0.5 + 0.4 * Math.sin(pulsePhase * 2);
+            sb.material.emissiveIntensity = pulse;
+            sb.scale.lerp(new THREE.Vector3(1.4,1.4,1.4), 0.1);
+          } else {
+            sb.material.emissiveIntensity = 0.45;
+            sb.scale.lerp(new THREE.Vector3(1,1,1), 0.1);
+          }
+        });
+      } else {
+        if(drillGroup.scale.x > 0.05){
+          drillGroup.scale.lerp(new THREE.Vector3(0.001,0.001,0.001), 0.18);
+        } else if(drillGroup.visible){
+          drillGroup.visible = false;
+        }
+      }
+
       updateCamera();
       renderer.render(scene, camera);
       raf = requestAnimationFrame(animate);
     };
     raf = requestAnimationFrame(animate);
 
-    sceneRefs.current = { rebuildMechanics };
+    sceneRefs.current = { rebuildMechanics, buildDrillGroup, subPolki: subPolkiArr };
 
     return ()=>{
       cancelAnimationFrame(raf);
@@ -2151,6 +2328,13 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
       sceneRefs.current.rebuildMechanics(af||[]);
     }
   }, [JSON.stringify(af||[])]);
+
+  // Перестроение drillGroup при смене drill / subPolki
+  React.useEffect(()=>{
+    if(sceneRefs.current && sceneRefs.current.buildDrillGroup){
+      sceneRefs.current.buildDrillGroup(drill, subPolki);
+    }
+  }, [drill, JSON.stringify(subPolki||[])]);
 
   return <canvas ref={canvasRef} style={{width:'100%',height:'100%',display:'block',cursor:'grab',outline:'none',touchAction:'none'}}/>;
 }
