@@ -222,6 +222,20 @@ input{font-family:var(--sans)}
 .star-rotating-cw .star-svg-wrap *, .star-rotating-ccw .star-svg-wrap * {
   transition: none !important;
 }
+
+/* Плавность текста при вращении: GPU-композиция + точная отрисовка глифов */
+.star-rotating-cw .yasna-wheel text,
+.star-rotating-ccw .yasna-wheel text {
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  shape-rendering: geometricPrecision;
+}
+/* Поднимаем колесо в собственный compositing layer — отрисовка идёт через GPU */
+.star-rotating-cw .yasna-wheel,
+.star-rotating-ccw .yasna-wheel {
+  will-change: contents;
+  transform: translateZ(0);  /* hack для force-create композиционного слоя */
+}
 /* Также не должно быть transform на SVG элементе, когда крутимся через render */
 .star-rotating-cw .star-area > .star-svg-wrap > svg,
 .star-rotating-ccw .star-area > .star-svg-wrap > svg {

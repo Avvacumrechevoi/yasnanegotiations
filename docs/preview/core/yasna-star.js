@@ -140,30 +140,36 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
   const isMob=typeof window!=="undefined"&&window.innerWidth<=768;
   const p=yy.p||[];
   const S=900,W=700,cx=S/2,cy=W/2,R=215,nr=isMob?26:23,lr=R+60;
-  // ВРАЩЕНИЕ ЧЕРЕЗ ПЕРЕРЕНДЕР ПОЗИЦИЙ — никакого SVG transform, только React state.
-  // Каждые 16мс пересчитываем координаты полок и React заново рендерит их в новых местах.
-  // Полностью обходит iOS Safari баги с SVGTransformList composite transforms.
+  // ВРАЩЕНИЕ ЧЕРЕЗ ПЕРЕРЕНДЕР ПОЗИЦИЙ — Star рендерит координаты заново.
+  // Throttle до 30fps + округление до 0.1px чтобы исключить sub-pixel jitter
+  // на тексте (iOS Safari пере-растрирует glyph при каждом дробном смещении).
   const [rotAngle, setRotAngle] = React.useState(0);
   const speedRef = React.useRef(rotationSpeed||24);
   React.useEffect(()=>{ speedRef.current = rotationSpeed||24; }, [rotationSpeed]);
   React.useEffect(()=>{
     if(!starRotation){ setRotAngle(0); return; }
-    let raf, lastT = null;
+    let raf, lastT = null, lastUpd = 0;
+    const FRAME_MS = 33.3; // ~30fps — достаточно для плавности, в 2× меньше нагрузки на текст
     const animate = (now)=>{
       if(lastT === null) lastT = now;
       const dt = (now - lastT) / 1000;
       lastT = now;
-      const dir = starRotation === 'cw' ? 1 : -1;
-      setRotAngle(a => a + dir * (dt / Math.max(1, speedRef.current)) * 360);
+      if(now - lastUpd >= FRAME_MS){
+        const dir = starRotation === 'cw' ? 1 : -1;
+        setRotAngle(a => a + dir * ((now - lastUpd + dt*1000)/1000 / Math.max(1, speedRef.current)) * 360);
+        lastUpd = now;
+      }
       raf = requestAnimationFrame(animate);
     };
     raf = requestAnimationFrame(animate);
     return ()=> cancelAnimationFrame(raf);
   }, [starRotation]);
-  // xy с поворотом: каждая полка стоит на угле angDeg(i) - rotAngle
+  // xy с поворотом + округление до 0.1px (sub-pixel позиции вызывают text glyph wobble)
   const xyRot = (i, c1, c2, r) => {
     const deg = angDeg(i) - rotAngle;
-    return { x: c1 + r*Math.cos(rad(deg)), y: c2 - r*Math.sin(rad(deg)) };
+    const x = c1 + r*Math.cos(rad(deg));
+    const y = c2 - r*Math.sin(rad(deg));
+    return { x: Math.round(x*10)/10, y: Math.round(y*10)/10 };
   };
   const pts = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,R))
   const lps = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,lr))
