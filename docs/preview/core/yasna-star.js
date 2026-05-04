@@ -1621,28 +1621,67 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
     const canvas = canvasRef.current;
     if(!canvas) return;
 
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true, powerPreference:'high-performance' });
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:false, powerPreference:'high-performance' });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
-    renderer.setClearColor(0x000000, 0);
     if(THREE.sRGBEncoding) renderer.outputEncoding = THREE.sRGBEncoding;
 
     const scene = new THREE.Scene();
+    // Тёмно-сине-фиолетовый космический фон с лёгким градиентом
+    scene.background = new THREE.Color(0x080a1a);
+    scene.fog = new THREE.Fog(0x080a1a, 700, 2200);
     const camera = new THREE.PerspectiveCamera(38, 1, 1, 5000);
 
+    // ──────────────── Звёздное поле (1500 звёзд на дальней сфере) ────────────────
+    {
+      const starsGeom = new THREE.BufferGeometry();
+      const positions = [];
+      const colors = [];
+      for(let i = 0; i < 1500; i++){
+        const r = 1400 + Math.random() * 800;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(Math.random() * 2 - 1);
+        positions.push(
+          r * Math.sin(phi) * Math.cos(theta),
+          r * Math.sin(phi) * Math.sin(theta),
+          r * Math.cos(phi)
+        );
+        // Лёгкий разброс по цвету: голубоватые/белые/тёплые звёзды
+        const t = Math.random();
+        if(t < 0.1){ colors.push(0.9, 0.85, 1.0); }      // голубые
+        else if(t < 0.25){ colors.push(1.0, 0.95, 0.85); } // тёплые
+        else { colors.push(1.0, 1.0, 1.0); }              // белые
+      }
+      starsGeom.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      starsGeom.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+      const starsMat = new THREE.PointsMaterial({
+        size: 2.8, sizeAttenuation: true, transparent: true, opacity: 0.92,
+        vertexColors: true,
+      });
+      scene.add(new THREE.Points(starsGeom, starsMat));
+    }
+    // Туманность — лёгкое свечение на дальнем плане
+    {
+      const nebulaGeom = new THREE.SphereGeometry(1800, 32, 24);
+      const nebulaMat = new THREE.MeshBasicMaterial({
+        color: 0x2a1a4a, transparent: true, opacity: 0.18, side: THREE.BackSide,
+      });
+      scene.add(new THREE.Mesh(nebulaGeom, nebulaMat));
+    }
+
     // ──────────────── Освещение (премиум-качество) ────────────────
-    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-    const keyLight = new THREE.DirectionalLight(0xffffff, 0.95);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.25);
     keyLight.position.set(3, 5, 4); scene.add(keyLight);
-    const fillLight = new THREE.DirectionalLight(0xa0c0ff, 0.35);
+    const fillLight = new THREE.DirectionalLight(0x80a0ff, 0.55);
     fillLight.position.set(-4, 2, -2); scene.add(fillLight);
-    const rimLight = new THREE.DirectionalLight(0xffd4a8, 0.55);
+    const rimLight = new THREE.DirectionalLight(0xffd4a8, 0.85);
     rimLight.position.set(0, -3, -5); scene.add(rimLight);
     scene.add(new THREE.HemisphereLight(0xffffff, 0x303040, 0.25));
     // Простой env-map для качественных металлических отражений (без зависимостей)
     try {
       const pmremGenerator = new THREE.PMREMGenerator(renderer);
       const skyScene = new THREE.Scene();
-      skyScene.background = new THREE.Color(0xe8eaf0);
+      skyScene.background = new THREE.Color(0x202840);
       const envMap = pmremGenerator.fromScene(skyScene, 0.04).texture;
       scene.environment = envMap;
       pmremGenerator.dispose();
@@ -1681,19 +1720,19 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
 
     // ──────────────── Каркасная сфера-обёртка ────────────────
     const cageGeom = new THREE.SphereGeometry(R+polkaR*1.5, 24, 16);
-    const cageMat = new THREE.MeshBasicMaterial({ color:0x6a5a8a, wireframe:true, transparent:true, opacity:0.07 });
+    const cageMat = new THREE.MeshBasicMaterial({ color:0x8888aa, wireframe:true, transparent:true, opacity:0.10 });
     wheelGroup.add(new THREE.Mesh(cageGeom, cageMat));
 
     const equatorTube = new THREE.Mesh(
       new THREE.TorusGeometry(R, 0.7, 12, 96),
-      new THREE.MeshStandardMaterial({ color:0x9a8ab5, opacity:0.55, transparent:true, metalness:0.7, roughness:0.3 })
+      new THREE.MeshStandardMaterial({ color:0xb8a8d8, opacity:0.75, transparent:true, metalness:0.7, roughness:0.3, emissive:0x4030a0, emissiveIntensity:0.15 })
     );
     equatorTube.rotation.x = Math.PI/2;
     wheelGroup.add(equatorTube);
 
     for(let i=0; i<12; i+=3){
       const p = equatorPos(i);
-      const meridianMat = new THREE.MeshBasicMaterial({ color:0x9a8ab5, transparent:true, opacity:0.12 });
+      const meridianMat = new THREE.MeshBasicMaterial({ color:0xb8a8d8, transparent:true, opacity:0.20 });
       const t1 = makeTube(NORTH, p, 0.35, meridianMat); if(t1) wheelGroup.add(t1);
       const t2 = makeTube(p, SOUTH, 0.35, meridianMat); if(t2) wheelGroup.add(t2);
     }
@@ -1716,10 +1755,10 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
     const southBall = new THREE.Mesh(poleGeom, poleMat);
     southBall.position.copy(SOUTH); wheelGroup.add(southBall);
 
-    const npLabel = makeTextSprite('Зенит', '#7c3aed', 56, '600');
+    const npLabel = makeTextSprite('Зенит', '#d8b8ff', 56, '600');
     npLabel.position.set(0, POLE_Y + polkaR*1.8, 0);
     npLabel.scale.set(80, 20, 1); wheelGroup.add(npLabel);
-    const spLabel = makeTextSprite('Надир', '#7c3aed', 56, '600');
+    const spLabel = makeTextSprite('Надир', '#d8b8ff', 56, '600');
     spLabel.position.set(0, -POLE_Y - polkaR*1.8, 0);
     spLabel.scale.set(80, 20, 1); wheelGroup.add(spLabel);
 
@@ -1735,8 +1774,8 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
       const pos = equatorPos(i);
       const baseColor = polkaColor(i);
       const planetMat = new THREE.MeshStandardMaterial({
-        color: baseColor, roughness: 0.32, metalness: 0.45,
-        emissive: baseColor, emissiveIntensity: 0.10,
+        color: baseColor, roughness: 0.32, metalness: 0.55,
+        emissive: baseColor, emissiveIntensity: 0.35,
       });
       const planet = new THREE.Mesh(new THREE.SphereGeometry(polkaR, 64, 48), planetMat);
       planet.position.copy(pos);
@@ -1744,7 +1783,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
       wheelGroup.add(planet);
 
       const auraMat = new THREE.MeshBasicMaterial({
-        color: baseColor, transparent:true, opacity:0.18, side:THREE.BackSide
+        color: baseColor, transparent:true, opacity:0.32, side:THREE.BackSide
       });
       const aura = new THREE.Mesh(new THREE.SphereGeometry(polkaR*1.45, 24, 18), auraMat);
       planet.add(aura);
@@ -1757,7 +1796,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
       const label = (y && y.p && y.p[i]) || '';
       if(label){
         const lblText = label.length>14 ? label.slice(0,13)+'…' : label;
-        const lbl = makeTextSprite(lblText, '#1d1d1f', 44, '500');
+        const lbl = makeTextSprite(lblText, '#e8e8f0', 44, '500');
         const direction = pos.clone().normalize();
         const lblPos = pos.clone().add(direction.multiplyScalar(polkaR*3.5));
         lbl.position.copy(lblPos);
@@ -1885,7 +1924,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
       if(active.includes('mb_zodiac')){
         const ZS=['♑','♒','♓','♈','♉','♊','♋','♌','♍','♎','♏','♐'];
         ZS.forEach((s,i)=>{
-          const sp = makeTextSprite(s, '#7c3aed', 96, 'bold');
+          const sp = makeTextSprite(s, '#e8d4ff', 96, 'bold');
           const dir = equatorPos(i).clone().normalize();
           const pos = equatorPos(i).clone().add(dir.multiplyScalar(polkaR*1.8));
           pos.y = polkaR*1.2;
