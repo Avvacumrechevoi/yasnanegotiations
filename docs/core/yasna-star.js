@@ -307,11 +307,15 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
          12 главных × 12 вложенных = 144 ячейки. Источник: Ясна Года узел 9. */}
       {af.includes('mb_yasna2')&&(()=>{
         const subR = nr + 14;
+        // Перформанс: при вращении 144 микро-точки дают огромную нагрузку на React
+        // reconciliation (SVG re-render всех cx/cy 60 раз в сек). Скрываем точки во
+        // время вращения, оставляем только 12 dashed-rings — визуальный маркер сохраняется
+        const showMicro = !starRotation;
         return<g>
           {pts.map((p,i)=>(
             <g key={`y2_${i}`}>
               <circle cx={p.x} cy={p.y} r={subR+2} fill="none" stroke="#a21caf" strokeWidth=".9" strokeDasharray="2 3" opacity=".55"/>
-              {Array.from({length:12},(_,j)=>{
+              {showMicro&&Array.from({length:12},(_,j)=>{
                 const a=(270-j*30)*Math.PI/180;
                 const sx=p.x+subR*Math.cos(a);
                 const sy=p.y-subR*Math.sin(a);
@@ -2272,18 +2276,27 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       }
 
       if(active.includes('mb_yasna2')){
+        // Перформанс: 144 отдельных Mesh = 144 draw calls. Заменяем на InstancedMesh —
+        // одна геометрия, один материал, 144 instance matrix = 1 draw call.
         const microMat = new THREE.MeshStandardMaterial({ color:0xa21caf, transparent:true, opacity:0.7, metalness:0.4, roughness:0.3, emissive:0xa21caf, emissiveIntensity:0.1 });
+        const microGeom = new THREE.SphereGeometry(1.4, 10, 6); // меньше сегментов — у этих микро-шаров не нужна высокая детализация
+        const instCount = 144;
+        const instMesh = new THREE.InstancedMesh(microGeom, microMat, instCount);
+        const dummy = new THREE.Object3D();
+        let idx = 0;
         for(let i=0;i<12;i++){
           const center = equatorPos(i);
           for(let j=0;j<12;j++){
             const a = (270-j*30)*Math.PI/180;
             const localPos = new THREE.Vector3((polkaR+5)*Math.cos(a), 0, -(polkaR+5)*Math.sin(a));
             const microPos = center.clone().add(localPos);
-            const micro = new THREE.Mesh(new THREE.SphereGeometry(1.4, 12, 8), microMat);
-            micro.position.copy(microPos);
-            mechGroup.add(micro);
+            dummy.position.copy(microPos);
+            dummy.updateMatrix();
+            instMesh.setMatrixAt(idx++, dummy.matrix);
           }
         }
+        instMesh.instanceMatrix.needsUpdate = true;
+        mechGroup.add(instMesh);
       }
     }
     rebuildMechanics(af||[]);
