@@ -180,3 +180,56 @@ input{font-family:var(--sans)}
 .gate-active {
   animation: gateHint 2.2s ease-in-out infinite;
 }
+
+/* ─── Ясна Rotation (preview-only, до синка с прод) ─── */
+@keyframes yasnaSpinCW {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes yasnaSpinCCW {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+.star-rotating-cw svg,
+.star-rotating-cw > div > svg {
+  animation: yasnaSpinCW 24s linear infinite;
+  transform-origin: 50% 50%;
+  transform-box: view-box;
+}
+.star-rotating-ccw svg,
+.star-rotating-ccw > div > svg {
+  animation: yasnaSpinCCW 24s linear infinite;
+  transform-origin: 50% 50%;
+  transform-box: view-box;
+}
+.rotation-controls {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  z-index: 5;
+  align-items: center;
+}
+.rotation-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(255,255,255,.92);
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .2s;
+  backdrop-filter: blur(6px);
+}
+.rotation-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(162,28,175,.18);
+}
+.rotation-btn.active {
+  background: #a21caf;
+  color: #fff;
+  border-color: #a21caf;
+}
