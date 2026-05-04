@@ -130,9 +130,13 @@ const FL=[
    questions:['На длинных Полках (0,3,6,9) что-то накапливается — материал, энергия, состояние?','Соседние короткие Полки служат точками перелива (искрой, заслонкой, переломом)?'],
    mistakes:['Лишить длинные Полки накопительной функции — поставить туда мгновенные события.','Не отметить, что короткая Полка следует за длинной как разрядка.'],
    related:['type','rhythm']},
+  {id:'mb_yasna2',l:'Ясна² (144)',c:'#a21caf',p:null,g:'newmech',
+   questions:['Каждую Полку этой Ясны можно раскрыть в свою отдельную 12-Полочную Ясну?','12 главных × 12 вложенных = 144 ячейки — это структурно работает на твоём явлении?'],
+   mistakes:['Считать, что 12 Полок — предел. Это только первый уровень; каждая раскрывается в свою Ясну.','Игнорировать вложенность: одно явление можно описать через 144 ячейки одновременно.'],
+   related:['support','rhythm','mb_zodiac']},
 ];
 
-function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
+function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki}){
   const isMob=typeof window!=="undefined"&&window.innerWidth<=768;
   const p=yy.p||[];
   const S=900,W=700,cx=S/2,cy=W/2,R=215,nr=isMob?26:23,lr=R+60;
@@ -270,6 +274,32 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
         </g>;
       })()}
 
+      {/* M-Г-066 Ясна² (144 Полки): вокруг каждой полки — мини-кольцо из 12 точек.
+         12 главных × 12 вложенных = 144 ячейки. Источник: Ясна Года узел 9. */}
+      {af.includes('mb_yasna2')&&(()=>{
+        const subR = nr + 14;
+        return<g>
+          {pts.map((p,i)=>(
+            <g key={`y2_${i}`}>
+              <circle cx={p.x} cy={p.y} r={subR+2} fill="none" stroke="#a21caf" strokeWidth=".9" strokeDasharray="2 3" opacity=".55"/>
+              {Array.from({length:12},(_,j)=>{
+                const a=(270-j*30)*Math.PI/180;
+                const sx=p.x+subR*Math.cos(a);
+                const sy=p.y-subR*Math.sin(a);
+                return <circle key={j} cx={sx} cy={sy} r="2.2" fill="#a21caf" opacity=".7"/>;
+              })}
+            </g>
+          ))}
+          {/* Подпись по центру (если ПОЛЕ БОЯ Скорпиона не активно — иначе уйдёт ниже) */}
+          {!af.includes('mb_scorpio_spider')&&<>
+            <text x={cx} y={cy-6} textAnchor="middle" fontSize="14" fontWeight="700" fill="#a21caf"
+                  stroke="#fff" strokeWidth="3.5" paintOrder="stroke">Ясна² = 144</text>
+            <text x={cx} y={cy+12} textAnchor="middle" fontSize="10.5" fill="#86198f"
+                  stroke="#fff" strokeWidth="2.5" paintOrder="stroke">12 × 12 — каждая Полка раскрывается в свою Ясну</text>
+          </>}
+        </g>;
+      })()}
+
       {sel!==null&&<line x1={pts[sel].x} y1={pts[sel].y} x2={pts[opp(sel)].x} y2={pts[opp(sel)].y} stroke="#ff9500" strokeWidth="1.2" opacity=".2" strokeDasharray="5 3"/>}
       {/* Multi-mechanic layers */}
       {(()=>{const activeLayers=af.filter(id=>!['opp','axes'].includes(id)).length;
@@ -293,7 +323,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
       {af.includes('halves')&&yy.lh&&<text x={20} y={cy} textAnchor="middle" fill="rgba(0,0,0,.5)" fontSize="13" fontFamily="var(--sans)" fontWeight="600" transform={`rotate(-90 20 ${cy})`}>{yy.lh}</text>}
       {af.includes('halves')&&yy.rh&&<text x={S-20} y={cy} textAnchor="middle" fill="rgba(0,0,0,.5)" fontSize="13" fontFamily="var(--sans)" fontWeight="600" transform={`rotate(90 ${S-20} ${cy})`}>{yy.rh}</text>}
       {pts.map((pt,i)=>{const isSel=sel===i,c=nc(i),o=no(i);return(
-        <g key={i} onClick={()=>onSel(sel===i?null:i)} style={{cursor:'pointer'}}>
+        <g key={i} onClick={()=>{if(af.includes('mb_yasna2')&&drill==null&&onDrill){onDrill(i);}else{onSel(sel===i?null:i);}}} style={{cursor:'pointer'}}>
           <circle cx={pt.x} cy={pt.y} r={nr+14} fill="transparent" stroke="none"/>
           {isSel&&<circle cx={pt.x} cy={pt.y} r={nr+8} fill={c} opacity=".06" filter="url(#gw)"/>}
           <circle cx={pt.x} cy={pt.y} r={nr} fill="#fff" stroke={c} strokeWidth={isSel?2.5:1.8} opacity={o} filter="url(#ns)" style={{pointerEvents:'none'}}/>
@@ -327,6 +357,34 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob}){
         {/* Overlay Yasna labels - outer ring */}
         {olps.map((pt,i)=>{const l=(overlay.p||[])[i]||'';if(!l)return null;let dy=22;if(i===0)dy=34;if(i===6)dy=-22;if([3,9].includes(i))dy=26;if([2,10].includes(i))dy=26;if([4,8].includes(i))dy=34;if([1,11].includes(i))dy=28;if([5,7].includes(i))dy=24;return<text key={`o${i}`} x={pt.x} y={pt.y+dy} textAnchor={anch(i)} fill={sel===i?'#7c3aed':'#9333ea'} fontSize={sel===i?"17":"15"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'500'} fontStyle="italic" style={{pointerEvents:'none'}}>{l}</text>;})}
       </>}
+      {/* M-Г-066 Ясна² Drill-down: клик по полке открывает её внутреннюю Ясну */}
+      {drill!=null&&(()=>{
+        const dpt=pts[drill];
+        const dCol='#a21caf';
+        const subR=R*0.55;
+        const subNr=18;
+        return<g style={{animation:'fadeIn .55s cubic-bezier(.16,1,.3,1)'}}>
+          <rect x="0" y="0" width="900" height="700" fill="rgba(255,255,255,.7)"/>
+          <line x1={dpt.x} y1={dpt.y} x2={cx} y2={cy} stroke={dCol} strokeWidth="1.5" strokeDasharray="4 4" opacity=".5"/>
+          <circle cx={cx} cy={cy} r={subR+18} fill="none" stroke={dCol} strokeWidth=".8" strokeDasharray="3 4" opacity=".6"/>
+          <circle cx={cx} cy={cy} r={subR} fill="rgba(162,28,175,.04)" stroke={dCol} strokeWidth="1.4"/>
+          {Array.from({length:12},(_,j)=>{
+            const sa=(270-j*30)*Math.PI/180;
+            const sx=cx+subR*Math.cos(sa);
+            const sy=cy-subR*Math.sin(sa);
+            const subName=(subPolki&&subPolki[j])||'';
+            return<g key={`sub${j}`}>
+              <circle cx={sx} cy={sy} r={subNr} fill="#fff" stroke={dCol} strokeWidth="1.6"/>
+              <text x={sx} y={sy+(subName?-2:5)} textAnchor="middle" fontSize="12" fontWeight="700" fill={dCol}>{j}</text>
+              {subName&&<text x={sx} y={sy+24} textAnchor="middle" fontSize="9.5" fill="#581c87" fontWeight="500">{subName.length>14?subName.slice(0,13)+'…':subName}</text>}
+            </g>;
+          })}
+          <rect x={cx-95} y={cy-22} width="190" height="44" rx="10" fill="#fff" stroke={dCol} strokeWidth="1.4"/>
+          <text x={cx} y={cy-6} textAnchor="middle" fontSize="10" fontWeight="700" fill={dCol} letterSpacing="1.5">ПОЛКА {drill}</text>
+          <text x={cx} y={cy+13} textAnchor="middle" fontSize="13" fontWeight="700" fill="#581c87">{(p[drill]||'—').slice(0,22)}</text>
+
+        </g>;
+      })()}
     </svg>);
 }
 
@@ -1036,6 +1094,15 @@ const GLOSS=[
    questions:['На длинной Полке копится материал?','На короткой соседней — точка перелива?'],
    mistakes:['Длинная Полка без накопительной функции.','Короткая Полка без эффекта перелома.'],
    related:['type','rhythm']},
+  {id:'mb_yasna2',title:'Ясна² — 144 Полки',color:'#a21caf',positions:'12 главных × 12 вложенных = 144',
+   what:'Закон двойной вложенности. Каждая из 12 Полок Ясны может быть раскрыта в свою отдельную 12-Полочную Ясну. Итого получается 12×12 = 144 ячейки описания одного явления.',
+   why:'Если 12 Полок недостаточно для описания явления — каждая Полка разворачивается в свою Ясну. Это даёт 144 «координаты» для разметки тонких подразделений. Подтверждается в Ясне Жизни через 144 Линии Тела (M-Ж-146): тело человека имеет ровно 144 разных названий складок и границ, что и есть Ясна² для тела.',
+   how:'Возьмите конкретную Полку (например, Полку 6 = День в Сутках). Задайте: «А внутри Дня — какие 12 микро-фаз?» (Утро Дня, Полдень Дня, Полудень Дня, и т.д.). Каждая внешняя Полка получает свой внутренний цикл из 12 — структурно изоморфный главному.',
+   apply:'Используется, когда явление слишком богатое для 12 Полок. Например, для тела человека: 12 главных Линий + у каждой 12 подразделений = 144 уникальных названия.',
+   example:'Ясна Суток × Ясна Года = Ясна Жизни (12 Полок Сутoк × 12 Полок Года = 144 Полки Жизни). Тело: 12 главных Линий × 12 микро-Линий = 144 Линий Тела (M-Ж-146).',
+   questions:['Можно ли каждую Полку этой Ясны развернуть в свою 12-Полочную Ясну?','Получится ли 144 осмысленных ячейки?'],
+   mistakes:['Считать, что 12 Полок — предел описания.','Не различать главные и вложенные циклы.'],
+   related:['support','rhythm','mb_zodiac']},
 
 
 ];
