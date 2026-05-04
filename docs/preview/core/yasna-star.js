@@ -1638,6 +1638,15 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
     const rimLight = new THREE.DirectionalLight(0xffd4a8, 0.55);
     rimLight.position.set(0, -3, -5); scene.add(rimLight);
     scene.add(new THREE.HemisphereLight(0xffffff, 0x303040, 0.25));
+    // Простой env-map для качественных металлических отражений (без зависимостей)
+    try {
+      const pmremGenerator = new THREE.PMREMGenerator(renderer);
+      const skyScene = new THREE.Scene();
+      skyScene.background = new THREE.Color(0xe8eaf0);
+      const envMap = pmremGenerator.fromScene(skyScene, 0.04).texture;
+      scene.environment = envMap;
+      pmremGenerator.dispose();
+    } catch(e) { /* env-map опционален */ }
 
     // ──────────────── Геометрия конструкции ────────────────
     const R = 200;
