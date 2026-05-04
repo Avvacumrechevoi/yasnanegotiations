@@ -61,7 +61,7 @@ input{font-family:var(--sans)}
   .star-area{min-height:0!important;flex:1!important;padding-bottom:52px!important}
   .star-area>div{max-height:none!important;max-width:none!important}
   .star-area svg{transition:transform .42s cubic-bezier(.32,.72,0,1), opacity .42s cubic-bezier(.32,.72,0,1)}
-  .star-shift svg{transform:translateY(-18vh) scale(0.85)!important;transform-origin:center center!important}
+  .star-shift:not(.star-rotating-cw):not(.star-rotating-ccw) svg{transform:translateY(-18vh) scale(0.85)!important;transform-origin:center center!important}
   /* When card is mid — shift star more up and shrink */
   body:has(.fi-mid) .star-shift svg{transform:translateY(-32vh) scale(0.55)!important;opacity:.35!important}
   body:has(.fi-full) .star-shift svg{transform:translateY(-42vh) scale(0.30)!important;opacity:.15!important}
@@ -215,6 +215,18 @@ input{font-family:var(--sans)}
 
 /* Counter-rotation на тексте больше не нужна — Star рендерит позиции
    полок заново при каждом кадре, текст сам по себе остаётся upright */
+
+/* Когда вращение активно — никаких CSS transition на SVG/wheel children.
+   Транзишены могут интерполировать обновляемые в rAF cx/cy, искажая позиции */
+.star-rotating-cw .star-svg-wrap, .star-rotating-ccw .star-svg-wrap,
+.star-rotating-cw .star-svg-wrap *, .star-rotating-ccw .star-svg-wrap * {
+  transition: none !important;
+}
+/* Также не должно быть transform на SVG элементе, когда крутимся через render */
+.star-rotating-cw .star-area > .star-svg-wrap > svg,
+.star-rotating-ccw .star-area > .star-svg-wrap > svg {
+  transform: none !important;
+}
 
 
 /* Disabled state для rotation кнопок (когда drill активен) */
