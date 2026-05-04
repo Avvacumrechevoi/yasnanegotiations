@@ -1643,8 +1643,10 @@ function Verification({y,vs,setVs,onClose}){
 
 function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki }){
   const canvasRef = React.useRef(null);
+  // На мобиле стартовый camDist больше — чтобы весь шар помещался в узкую portrait-область
+  const initCamDist = (typeof window!=='undefined' && window.innerWidth <= 768) ? 820 : 560;
   const stateRef = React.useRef({
-    camAzim: 0, camElev: 24, camDist: 560,
+    camAzim: 0, camElev: 24, camDist: initCamDist,
     isDragging: false, lastX: 0, lastY: 0,
   });
   const sceneRefs = React.useRef(null);
@@ -2333,7 +2335,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
     };
     const onWheel = (e)=>{
       e.preventDefault();
-      stateRef.current.camDist = Math.max(280, Math.min(1400, stateRef.current.camDist + e.deltaY*0.5));
+      stateRef.current.camDist = Math.max(280, Math.min(1600, stateRef.current.camDist + e.deltaY*0.5));
     };
 
     // Touch pinch-to-zoom — отслеживаем 2 пальца
@@ -2356,7 +2358,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       if(pinchActive && e.touches.length === 2){
         const d = touchDist(e.touches);
         const dz = (lastPinchDist - d) * 1.8; // знак: расхождение = zoom in
-        stateRef.current.camDist = Math.max(280, Math.min(1400, stateRef.current.camDist + dz));
+        stateRef.current.camDist = Math.max(280, Math.min(1600, stateRef.current.camDist + dz));
         lastPinchDist = d;
         e.preventDefault();
       }
