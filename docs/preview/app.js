@@ -725,6 +725,14 @@ function App(){
   const[y,setY]=useState({name:initT.n,p:[...initT.p],th:initT.th||'',bh:initT.bh||'',lh:initT.lh||'',rh:initT.rh||'',custom:!!initT.custom});
   const[sel,setSel]=useState(null);
   const[yasna2Drill,setYasna2Drill]=useState(null);
+  const[subData,setSubData]=useState(()=>{try{return JSON.parse(localStorage.getItem('yasna2_subdata')||'{}');}catch{return{};}});
+  const[drillEditing,setDrillEditing]=useState(false);
+  useEffect(()=>{try{localStorage.setItem('yasna2_subdata',JSON.stringify(subData));}catch{}},[subData]);
+  const subKey=(name,idx)=>name+'_'+idx;
+  const getSubPolki=(name,idx)=>(subData[subKey(name,idx)]||Array(12).fill(''));
+  const setSubPolkaAt=(name,idx,j,val)=>{const k=subKey(name,idx);setSubData(prev=>{const cur=[...(prev[k]||Array(12).fill(''))];cur[j]=val;return{...prev,[k]:cur};});};
+  const setSubPolkiAll=(name,idx,arr)=>{setSubData(prev=>({...prev,[subKey(name,idx)]:[...arr]}));};
+  const clearSub=(name,idx)=>{setSubData(prev=>{const next={...prev};delete next[subKey(name,idx)];return next;});};
   const[af,setAf]=useState([]);
   const[ed,setEd]=useState(false);
   const[glossary,setGlossary]=useState(false);
@@ -742,7 +750,7 @@ function App(){
   const[activeLesson,setActiveLesson]=useState(null);
   const[completedLessons,setCompletedLessons]=useState([]);
   // Auto-close burger menu when any modal/panel opens
-  useEffect(()=>{ if(!af.includes('mb_yasna2')) setYasna2Drill(null); },[af]);
+  useEffect(()=>{ if(!af.includes('mb_yasna2')){setYasna2Drill(null);setDrillEditing(false);} },[af]);
   useEffect(()=>{
     if(ed||glossary||instr||verif||fullStar||picker||showOverlayPicker||lessonPicker||activeLesson){
       setMenu(false);
@@ -836,13 +844,41 @@ function App(){
       </div>
       <div className={'star-area'+(sel!==null?' star-shift':'')} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}} onClick={e=>{if(e.target===e.currentTarget)setSel(null)}}>
         <button className='fullstar-btn' onClick={()=>setFullStar(true)} style={{display:'none',position:'absolute',top:8,right:8,width:32,height:32,borderRadius:8,border:'1px solid #e5e5ea',background:'rgba(255,255,255,.8)',fontSize:16,zIndex:5,alignItems:'center',justifyContent:'center'}}>⤢</button>
-        <div style={{width:'100%',height:'100%',maxWidth:900,maxHeight:700}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill}/></div>
+        <div style={{width:'100%',height:'100%',maxWidth:900,maxHeight:700}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/></div>
+        {/* Drill-down: верхняя панель управления + боковой редактор sub-полок (только preview) */}
+        {yasna2Drill!=null&&<div style={{position:'absolute',top:0,left:0,right:0,padding:'8px 14px',background:'rgba(255,255,255,.96)',borderBottom:'1px solid #a21caf33',display:'flex',gap:8,alignItems:'center',zIndex:6,backdropFilter:'blur(6px)',flexWrap:'wrap'}}>
+          <button onClick={()=>{setYasna2Drill(null);setDrillEditing(false);}} style={{padding:'5px 12px',borderRadius:8,border:'1px solid #a21caf66',background:'#fff',color:'#a21caf',fontWeight:600,fontSize:12,cursor:'pointer'}}>← Назад</button>
+          <div style={{flex:1,fontSize:12.5,color:'#581c87',fontWeight:500,minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+            <span style={{color:'#86868b'}}>{y.name}</span>
+            <span style={{color:'#a21caf',margin:'0 6px'}}>→</span>
+            <span style={{fontWeight:700}}>Полка {yasna2Drill}</span>
+            {y.p[yasna2Drill]&&<span style={{color:'#86868b'}}>: {y.p[yasna2Drill]}</span>}
+          </div>
+          <select value="" onChange={e=>{const tpl=T.find(t=>t.id===e.target.value);if(tpl){setSubPolkiAll(y.name,yasna2Drill,tpl.p);}e.target.value="";}} style={{padding:'5px 8px',fontSize:12,border:'1px solid #a21caf66',borderRadius:8,background:'#fff',color:'#581c87',cursor:'pointer'}}>
+            <option value="">📥 Импорт из шаблона…</option>
+            {T.filter(t=>t.p&&t.p.length===12).map(t=><option key={t.id} value={t.id}>{t.n}</option>)}
+          </select>
+          <button onClick={()=>{if(confirm('Очистить все sub-полки этой Полки?'))clearSub(y.name,yasna2Drill);}} title="Очистить sub-полки" style={{padding:'5px 10px',borderRadius:8,border:'1px solid #d2d2d7',background:'#fff',cursor:'pointer',fontSize:12}}>🧹</button>
+          <button onClick={()=>setDrillEditing(v=>!v)} style={{padding:'5px 12px',borderRadius:8,border:`1px solid ${drillEditing?'#a21caf':'#d2d2d7'}`,background:drillEditing?'#a21caf':'#fff',color:drillEditing?'#fff':'#581c87',fontWeight:600,fontSize:12,cursor:'pointer'}}>{drillEditing?'✓ Готово':'✏️ Редактировать'}</button>
+        </div>}
+        {yasna2Drill!=null&&drillEditing&&<div style={{position:'absolute',right:8,top:54,bottom:8,width:280,background:'rgba(255,255,255,.97)',border:'1px solid #a21caf66',borderRadius:12,padding:'12px 14px',overflowY:'auto',zIndex:6,boxShadow:'0 4px 16px rgba(162,28,175,.15)'}} onClick={e=>e.stopPropagation()}>
+          <div style={{fontSize:10,color:'#a21caf',fontWeight:700,letterSpacing:1.5,marginBottom:10,textTransform:'uppercase'}}>Sub-Полки внутренней Ясны</div>
+          {Array.from({length:12},(_,j)=>{const v=getSubPolki(y.name,yasna2Drill)[j]||'';return(
+            <div key={j} style={{display:'flex',gap:8,marginBottom:7,alignItems:'center'}}>
+              <span style={{width:22,height:22,borderRadius:'50%',border:'1.5px solid #a21caf',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'#a21caf',flexShrink:0}}>{j}</span>
+              <input value={v} onChange={e=>setSubPolkaAt(y.name,yasna2Drill,j,e.target.value)} placeholder="—" style={{flex:1,padding:'5px 9px',border:'1px solid #d2d2d7',borderRadius:6,fontSize:12,fontFamily:'inherit',outline:'none'}} onFocus={e=>e.target.style.borderColor='#a21caf'} onBlur={e=>e.target.style.borderColor='#d2d2d7'}/>
+            </div>
+          );})}
+          <div style={{marginTop:10,padding:'8px 10px',background:'rgba(162,28,175,.06)',borderRadius:8,fontSize:11,color:'#581c87',lineHeight:1.5}}>
+            Изменения сохраняются автоматически в этом браузере.
+          </div>
+        </div>}
         <Info i={sel} p={y.p} af={af} y={y} overlay={overlay} onEdit={()=>setEd(true)} onClose={()=>setSel(null)}/>
         <OverlayLegend y={y} overlay={overlay} onClear={()=>setOverlay(null)}/>
       </div>
       {fullStar&&<>
         <div className='fullstar' style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
-          <div style={{width:'100%',height:'100%',maxWidth:'100vw',maxHeight:'100vh'}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill}/></div>
+          <div style={{width:'100%',height:'100%',maxWidth:'100vw',maxHeight:'100vh'}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/></div>
         </div>
         <button className='fullstar-close' onClick={()=>setFullStar(false)}>✕</button>
       </>}

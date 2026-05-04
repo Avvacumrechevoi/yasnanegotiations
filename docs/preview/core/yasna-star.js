@@ -136,7 +136,7 @@ const FL=[
    related:['support','rhythm','mb_zodiac']},
 ];
 
-function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill}){
+function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki}){
   const isMob=typeof window!=="undefined"&&window.innerWidth<=768;
   const p=yy.p||[];
   const S=900,W=700,cx=S/2,cy=W/2,R=215,nr=isMob?26:23,lr=R+60;
@@ -372,18 +372,17 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill}){
             const sa=(270-j*30)*Math.PI/180;
             const sx=cx+subR*Math.cos(sa);
             const sy=cy-subR*Math.sin(sa);
+            const subName=(subPolki&&subPolki[j])||'';
             return<g key={`sub${j}`}>
               <circle cx={sx} cy={sy} r={subNr} fill="#fff" stroke={dCol} strokeWidth="1.6"/>
-              <text x={sx} y={sy+5} textAnchor="middle" fontSize="13" fontWeight="700" fill={dCol}>{j}</text>
+              <text x={sx} y={sy+(subName?-2:5)} textAnchor="middle" fontSize="12" fontWeight="700" fill={dCol}>{j}</text>
+              {subName&&<text x={sx} y={sy+24} textAnchor="middle" fontSize="9.5" fill="#581c87" fontWeight="500">{subName.length>14?subName.slice(0,13)+'…':subName}</text>}
             </g>;
           })}
           <rect x={cx-95} y={cy-22} width="190" height="44" rx="10" fill="#fff" stroke={dCol} strokeWidth="1.4"/>
           <text x={cx} y={cy-6} textAnchor="middle" fontSize="10" fontWeight="700" fill={dCol} letterSpacing="1.5">ПОЛКА {drill}</text>
           <text x={cx} y={cy+13} textAnchor="middle" fontSize="13" fontWeight="700" fill="#581c87">{(p[drill]||'—').slice(0,22)}</text>
-          <g onClick={()=>onDrill(null)} style={{cursor:'pointer'}}>
-            <rect x="14" y="14" width="118" height="32" rx="16" fill="#fff" stroke={dCol} strokeWidth="1.4"/>
-            <text x="73" y="34" textAnchor="middle" fontSize="13" fontWeight="600" fill={dCol}>← Назад</text>
-          </g>
+
         </g>;
       })()}
     </svg>);
