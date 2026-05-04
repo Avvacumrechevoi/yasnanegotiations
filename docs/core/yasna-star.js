@@ -220,29 +220,33 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
         return<path key={`arc${ai}`} d={d} fill="none" stroke={col} strokeWidth="4" opacity=".6" strokeLinecap="round"/>;
       })}
       {/* Halves */}
-      {af.includes('halves')&&!starRotation&&<>
-        {/* Top/Bottom: Чаша Света / Чаша Тьмы */}
-        <path d={`M${pts[3].x},${pts[3].y} A${R},${R} 0 0,0 ${pts[9].x},${pts[9].y}`} fill="rgba(255,180,0,.08)" stroke="rgba(200,150,0,.45)" strokeWidth="2.5"/>
-        <path d={`M${pts[9].x},${pts[9].y} A${R},${R} 0 0,0 ${pts[3].x},${pts[3].y}`} fill="rgba(80,100,200,.08)" stroke="rgba(80,100,200,.4)" strokeWidth="2.5"/>
-        {/* Left/Right: Нарастание / Спад */}
-        <path d={`M${pts[0].x},${pts[0].y} A${R},${R} 0 0,0 ${pts[6].x},${pts[6].y}`} fill="rgba(40,180,100,.05)" stroke="rgba(40,160,90,.25)" strokeWidth="1.2"/>
-        <path d={`M${pts[6].x},${pts[6].y} A${R},${R} 0 0,0 ${pts[0].x},${pts[0].y}`} fill="rgba(180,80,180,.05)" stroke="rgba(160,70,160,.25)" strokeWidth="1.2"/>
-        {/* Axes */}
-        <line x1={pts[3].x} y1={pts[3].y} x2={pts[9].x} y2={pts[9].y} stroke="#86868b" strokeWidth="1" strokeDasharray="6 4" opacity=".25"/>
-        <line x1={pts[0].x} y1={pts[0].y} x2={pts[6].x} y2={pts[6].y} stroke="#86868b" strokeWidth="1" strokeDasharray="6 4" opacity=".25"/>
-        {/* Labels - darker */}
-        <text x={cx} y={cy-R*.5} textAnchor="middle" fill="rgba(170,130,0,.6)" fontSize="11" fontFamily="var(--sans)" fontWeight="600">Чаша Света</text>
-        <text x={cx} y={cy+R*.55} textAnchor="middle" fill="rgba(70,80,170,.5)" fontSize="11" fontFamily="var(--sans)" fontWeight="600">Чаша Тьмы</text>
-        <text x={cx-R*.5} y={cy+6} textAnchor="middle" fill="rgba(40,140,80,.45)" fontSize="10" fontFamily="var(--sans)" fontWeight="500" transform={`rotate(-90 ${cx-R*.5} ${cy})`}>Нарастание ↑</text>
-        <text x={cx+R*.5} y={cy+6} textAnchor="middle" fill="rgba(140,60,140,.4)" fontSize="10" fontFamily="var(--sans)" fontWeight="500" transform={`rotate(90 ${cx+R*.5} ${cy})`}>Спад ↓</text>
-      </>}
-      {/* При вращении halves — лёгкая версия: только статичные оси + лейблы (без heavy arc paths) */}
-      {af.includes('halves')&&starRotation&&<>
-        <line x1={cx} y1={cy-R} x2={cx} y2={cy+R} stroke="#86868b" strokeWidth="1" strokeDasharray="6 4" opacity=".25"/>
-        <line x1={cx-R} y1={cy} x2={cx+R} y2={cy} stroke="#86868b" strokeWidth="1" strokeDasharray="6 4" opacity=".25"/>
-        <text x={cx} y={cy-R*.5} textAnchor="middle" fill="rgba(170,130,0,.5)" fontSize="11" fontFamily="var(--sans)" fontWeight="600">Чаша Света</text>
-        <text x={cx} y={cy+R*.55} textAnchor="middle" fill="rgba(70,80,170,.4)" fontSize="11" fontFamily="var(--sans)" fontWeight="600">Чаша Тьмы</text>
-      </>}
+      {af.includes('halves')&&(()=>{
+        // Halves теперь рендерятся через wrap-g с rotate-transform.
+        // Path-d вычисляются от статичных позиций (cx-R, cy) и т.п.,
+        // а rotation применяется ОДНИМ атрибутом на wrap <g>. iOS Safari не
+        // пересоздаёт растровый кеш path при изменении только transform на родителе.
+        // Плюс: подписи внутри wrap тоже rotate'ятся, но мы хотим чтобы они
+        // оставались upright — counter-rotate обратно через inner <g>.
+        // Полки в xyRot используют (angDeg - rotAngle), что в SVG y-down даёт CW визуально
+        // для положительного rotAngle. SVG rotate(positive) тоже CW. Без инверсии.
+        return<g transform={`rotate(${rotAngle.toFixed(2)},${cx},${cy})`}>
+          {/* Top: Чаша Света — arc от static(cx-R,cy) до static(cx+R,cy) через верх */}
+          <path d={`M${cx-R},${cy} A${R},${R} 0 0,0 ${cx+R},${cy}`} fill="rgba(255,180,0,.08)" stroke="rgba(200,150,0,.45)" strokeWidth="2.5"/>
+          {/* Bottom: Чаша Тьмы — arc от static(cx+R,cy) до static(cx-R,cy) через низ */}
+          <path d={`M${cx+R},${cy} A${R},${R} 0 0,0 ${cx-R},${cy}`} fill="rgba(80,100,200,.08)" stroke="rgba(80,100,200,.4)" strokeWidth="2.5"/>
+          {/* Left/Right: Нарастание — arc от static(cx,cy+R) до static(cx,cy-R) через лево */}
+          <path d={`M${cx},${cy+R} A${R},${R} 0 0,0 ${cx},${cy-R}`} fill="rgba(40,180,100,.05)" stroke="rgba(40,160,90,.25)" strokeWidth="1.2"/>
+          <path d={`M${cx},${cy-R} A${R},${R} 0 0,0 ${cx},${cy+R}`} fill="rgba(180,80,180,.05)" stroke="rgba(160,70,160,.25)" strokeWidth="1.2"/>
+          {/* Axes — статичные линии */}
+          <line x1={cx-R} y1={cy} x2={cx+R} y2={cy} stroke="#86868b" strokeWidth="1" strokeDasharray="6 4" opacity=".25"/>
+          <line x1={cx} y1={cy-R} x2={cx} y2={cy+R} stroke="#86868b" strokeWidth="1" strokeDasharray="6 4" opacity=".25"/>
+          {/* Подписи: counter-rotate чтобы оставались upright при вращении wrap-g */}
+          <g transform={`rotate(${(-rotAngle).toFixed(2)},${cx},${cy-R*.5})`}><text x={cx} y={cy-R*.5} textAnchor="middle" fill="rgba(170,130,0,.6)" fontSize="11" fontFamily="var(--sans)" fontWeight="600">Чаша Света</text></g>
+          <g transform={`rotate(${(-rotAngle).toFixed(2)},${cx},${cy+R*.55})`}><text x={cx} y={cy+R*.55} textAnchor="middle" fill="rgba(70,80,170,.5)" fontSize="11" fontFamily="var(--sans)" fontWeight="600">Чаша Тьмы</text></g>
+          <g transform={`rotate(${(-rotAngle).toFixed(2)},${cx-R*.5},${cy})`}><text x={cx-R*.5} y={cy+6} textAnchor="middle" fill="rgba(40,140,80,.45)" fontSize="10" fontFamily="var(--sans)" fontWeight="500" transform={`rotate(-90 ${cx-R*.5} ${cy})`}>Нарастание ↑</text></g>
+          <g transform={`rotate(${(-rotAngle).toFixed(2)},${cx+R*.5},${cy})`}><text x={cx+R*.5} y={cy+6} textAnchor="middle" fill="rgba(140,60,140,.4)" fontSize="10" fontFamily="var(--sans)" fontWeight="500" transform={`rotate(90 ${cx+R*.5} ${cy})`}>Спад ↓</text></g>
+        </g>;
+      })()}
       {/* Error 8↔9: zone of confusion */}
       {af.includes('error89')&&!starRotation&&<>
         {/* Primary zone 8↔9 */}
