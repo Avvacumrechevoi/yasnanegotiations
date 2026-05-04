@@ -118,8 +118,9 @@ input{font-family:var(--sans)}
 
 /* ═══ LANDSCAPE MOBILE ═══ */
 @media(max-height:600px) and (min-aspect-ratio:4/3){
-  /* Filters скрыты — но кнопки вращения/3D остаются доступны через всплывающую панель */
-  .filters{display:flex!important;padding:2px 8px!important;max-height:36px!important;overflow:hidden!important}
+  /* Filters скрыты — но кнопки вращения/3D остаются доступны через всплывающую панель.
+     overflow:visible нужен чтобы dropdown rotation-panel не клипался. */
+  .filters{display:flex!important;padding:2px 8px!important;max-height:36px!important;overflow:visible!important;position:relative!important;z-index:6!important}
   .filters > *:not(.rotation-controls){display:none!important}
   .filters .rotation-controls{margin-left:auto!important}
   
@@ -209,17 +210,18 @@ input{font-family:var(--sans)}
 @keyframes yasnaSpinCW { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes yasnaSpinCCW { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
 
-/* Внешняя группа SVG крутится вокруг геометрического центра viewBox 900×700 */
+/* Внешняя группа SVG крутится вокруг своего bbox-центра.
+   fill-box работает в iOS Safari ≥14, view-box — нет (мобильный баг). */
 .star-rotating-cw .yasna-wheel {
   animation: yasnaSpinCW var(--rotation-speed, 24s) linear infinite;
-  transform-origin: 450px 350px;
-  transform-box: view-box;
+  transform-origin: 50% 50%;
+  transform-box: fill-box;
   will-change: transform;
 }
 .star-rotating-ccw .yasna-wheel {
   animation: yasnaSpinCCW var(--rotation-speed, 24s) linear infinite;
-  transform-origin: 450px 350px;
-  transform-box: view-box;
+  transform-origin: 50% 50%;
+  transform-box: fill-box;
   will-change: transform;
 }
 
