@@ -209,13 +209,13 @@ input{font-family:var(--sans)}
 
 /* Внешняя группа SVG крутится вокруг геометрического центра viewBox 900×700 */
 .star-rotating-cw .yasna-wheel {
-  animation: yasnaSpinCW 24s linear infinite;
+  animation: yasnaSpinCW var(--rotation-speed, 24s) linear infinite;
   transform-origin: 450px 350px;
   transform-box: view-box;
   will-change: transform;
 }
 .star-rotating-ccw .yasna-wheel {
-  animation: yasnaSpinCCW 24s linear infinite;
+  animation: yasnaSpinCCW var(--rotation-speed, 24s) linear infinite;
   transform-origin: 450px 350px;
   transform-box: view-box;
   will-change: transform;
@@ -224,13 +224,13 @@ input{font-family:var(--sans)}
 /* Все <text> внутри wheel контр-вращаются вокруг своего собственного центра.
    Идеально синхронизированы с outer (та же длительность, противоположное направление) */
 .star-rotating-cw .yasna-wheel text:not([transform]) {
-  animation: yasnaSpinCCW 24s linear infinite;
+  animation: yasnaSpinCCW var(--rotation-speed, 24s) linear infinite;
   transform-box: fill-box;
   transform-origin: center center;
   will-change: transform;
 }
 .star-rotating-ccw .yasna-wheel text:not([transform]) {
-  animation: yasnaSpinCW 24s linear infinite;
+  animation: yasnaSpinCW var(--rotation-speed, 24s) linear infinite;
   transform-box: fill-box;
   transform-origin: center center;
   will-change: transform;
@@ -243,4 +243,52 @@ input{font-family:var(--sans)}
   opacity: .3;
   cursor: not-allowed;
   pointer-events: none;
+}
+
+
+/* Расширенная панель управления вращением */
+.rotation-panel {
+  position: absolute;
+  top: 50px;
+  right: 8px;
+  width: 220px;
+  background: rgba(255,255,255,.97);
+  border: 1px solid #a21caf66;
+  border-radius: 12px;
+  padding: 12px 14px;
+  z-index: 5;
+  box-shadow: 0 4px 16px rgba(162,28,175,.12);
+  backdrop-filter: blur(8px);
+  font-size: 12px;
+  color: #581c87;
+}
+.rotation-panel input[type="range"] {
+  width: 100%;
+  accent-color: #a21caf;
+  margin: 4px 0 8px;
+}
+.rotation-panel-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.rotation-panel-row button {
+  flex: 1;
+  padding: 6px 0;
+  font-size: 12px;
+  border: 1px solid #a21caf66;
+  border-radius: 7px;
+  background: #fff;
+  color: #581c87;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all .15s;
+}
+.rotation-panel-row button:hover:not(:disabled) {
+  background: #a21caf;
+  color: #fff;
+}
+.rotation-panel-row button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
 }
