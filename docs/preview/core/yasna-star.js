@@ -1610,10 +1610,13 @@ function Verification({y,vs,setVs,onClose}){
 function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
   const canvasRef = React.useRef(null);
   const stateRef = React.useRef({
-    camAzim: 0, camElev: 18, camDist: 540,
+    camAzim: 0, camElev: 24, camDist: 560,
     isDragging: false, lastX: 0, lastY: 0,
   });
   const sceneRefs = React.useRef(null);
+  // Свежие props для animate-loop (избегаем stale closure при изменении rotationOn/speedSec)
+  const liveRef = React.useRef({ rotationOn, speedSec, sel });
+  React.useEffect(()=>{ liveRef.current = { rotationOn, speedSec, sel }; }, [rotationOn, speedSec, sel]);
 
   React.useEffect(()=>{
     if(typeof window==='undefined' || !window.THREE) return;
@@ -1624,6 +1627,11 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
     const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:false, powerPreference:'high-performance' });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
     if(THREE.sRGBEncoding) renderer.outputEncoding = THREE.sRGBEncoding;
+    // Кинематографический tone mapping
+    if(THREE.ACESFilmicToneMapping !== undefined){
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.15;
+    }
 
     const scene = new THREE.Scene();
     // Тёмно-сине-фиолетовый космический фон с лёгким градиентом
@@ -1741,13 +1749,13 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
       new THREE.Vector3(0, POLE_Y*1.05, 0),
       new THREE.Vector3(0, -POLE_Y*1.05, 0),
       0.9,
-      new THREE.MeshStandardMaterial({ color:0xa21caf, opacity:0.55, transparent:true, metalness:0.4, roughness:0.3, emissive:0xa21caf, emissiveIntensity:0.2 })
+      new THREE.MeshStandardMaterial({ color:0x8a4dad, opacity:0.55, transparent:true, metalness:0.55, roughness:0.25, emissive:0x6c3a8e, emissiveIntensity:0.28 })
     );
     if(pillar) wheelGroup.add(pillar);
 
     const poleMat = new THREE.MeshStandardMaterial({
-      color:0xa21caf, roughness:0.25, metalness:0.55,
-      emissive:0xa21caf, emissiveIntensity:0.25,
+      color:0x8a4dad, roughness:0.22, metalness:0.6,
+      emissive:0x8a4dad, emissiveIntensity:0.32,
     });
     const poleGeom = new THREE.SphereGeometry(polkaR*0.7, 32, 24);
     const northBall = new THREE.Mesh(poleGeom, poleMat);
@@ -1763,10 +1771,14 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
     spLabel.scale.set(80, 20, 1); wheelGroup.add(spLabel);
 
     // ──────────────── 12 шаров-полок ────────────────
+    // Премиум-палитра планетных цветов:
+    //   Опорный  — глубокий карминовый (как Марс)
+    //   Управления — янтарь / золото (как Сатурн)
+    //   Веры     — глубокий кобальт (как Нептун)
     const polkaColor = (i) => {
-      if([0,3,6,9].includes(i)) return 0xE8364F;
-      if([1,4,7,10].includes(i)) return 0xE8A834;
-      return 0x5B9CF6;
+      if([0,3,6,9].includes(i)) return 0xb83547;       // Crimson Mars
+      if([1,4,7,10].includes(i)) return 0xd4a23c;      // Saturn Amber
+      return 0x4a7ec0;                                  // Neptune Cobalt
     };
 
     const polki = [];
@@ -1774,8 +1786,8 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
       const pos = equatorPos(i);
       const baseColor = polkaColor(i);
       const planetMat = new THREE.MeshStandardMaterial({
-        color: baseColor, roughness: 0.32, metalness: 0.55,
-        emissive: baseColor, emissiveIntensity: 0.35,
+        color: baseColor, roughness: 0.42, metalness: 0.40,
+        emissive: baseColor, emissiveIntensity: 0.32,
       });
       const planet = new THREE.Mesh(new THREE.SphereGeometry(polkaR, 64, 48), planetMat);
       planet.position.copy(pos);
@@ -1840,6 +1852,10 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
       edges.forEach(([a,b])=>{ const t=makeTube(a,b,0.55,mat); if(t)grp.add(t); });
       return grp;
     }
+
+    // Raycaster для hover-detect и click
+    const raycaster = new THREE.Raycaster();
+    const ndc = new THREE.Vector2();
 
     function rebuildMechanics(active){
       while(mechGroup.children.length) mechGroup.remove(mechGroup.children[0]);
@@ -2008,18 +2024,34 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
 
     const onPointerDown = (e)=>{
       stateRef.current.isDragging = true;
+      stateRef.current.dragStartT = performance.now();
+      stateRef.current.dragMoved = 0;
       stateRef.current.lastX = e.clientX; stateRef.current.lastY = e.clientY;
       canvas.style.cursor = 'grabbing'; e.preventDefault();
     };
     const onPointerMove = (e)=>{
-      if(!stateRef.current.isDragging) return;
-      const dx = e.clientX - stateRef.current.lastX;
-      const dy = e.clientY - stateRef.current.lastY;
-      stateRef.current.camAzim -= dx*0.4;
-      stateRef.current.camElev = Math.max(-89, Math.min(89, stateRef.current.camElev - dy*0.35));
-      stateRef.current.lastX = e.clientX; stateRef.current.lastY = e.clientY;
+      if(stateRef.current.isDragging){
+        const dx = e.clientX - stateRef.current.lastX;
+        const dy = e.clientY - stateRef.current.lastY;
+        stateRef.current.dragMoved += Math.abs(dx) + Math.abs(dy);
+        stateRef.current.camAzim -= dx*0.4;
+        stateRef.current.camElev = Math.max(-89, Math.min(89, stateRef.current.camElev - dy*0.35));
+        stateRef.current.lastX = e.clientX; stateRef.current.lastY = e.clientY;
+      } else {
+        // Hover-detect: меняем курсор на pointer когда наводимся на шар
+        const rect = canvas.getBoundingClientRect();
+        ndc.x = ((e.clientX-rect.left)/rect.width)*2 - 1;
+        ndc.y = -((e.clientY-rect.top)/rect.height)*2 + 1;
+        raycaster.setFromCamera(ndc, camera);
+        const hits = raycaster.intersectObjects(polki);
+        canvas.style.cursor = hits.length ? 'pointer' : 'grab';
+      }
     };
-    const onPointerUp = ()=>{ stateRef.current.isDragging = false; canvas.style.cursor = 'grab'; };
+    const onPointerUp = ()=>{
+      stateRef.current.isDragging = false;
+      canvas.style.cursor = 'grab';
+      // dragMoved оставляем — onClick его проверит и сбросит
+    };
     const onWheel = (e)=>{
       e.preventDefault();
       stateRef.current.camDist = Math.max(280, Math.min(1400, stateRef.current.camDist + e.deltaY*0.5));
@@ -2030,15 +2062,16 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
     window.addEventListener('pointerup', onPointerUp);
     canvas.addEventListener('wheel', onWheel, {passive:false});
 
-    const raycaster = new THREE.Raycaster();
-    const ndc = new THREE.Vector2();
+    const raycaster_local = new THREE.Raycaster();
+    const ndc_local = new THREE.Vector2();
     const onClick = (e)=>{
-      if(stateRef.current.isDragging) return;
+      if(stateRef.current.dragMoved > 5) return; // считаем что было drag — игнор
+
       const rect = canvas.getBoundingClientRect();
-      ndc.x = ((e.clientX-rect.left)/rect.width)*2 - 1;
-      ndc.y = -((e.clientY-rect.top)/rect.height)*2 + 1;
-      raycaster.setFromCamera(ndc, camera);
-      const hits = raycaster.intersectObjects(polki);
+      ndc_local.x = ((e.clientX-rect.left)/rect.width)*2 - 1;
+      ndc_local.y = -((e.clientY-rect.top)/rect.height)*2 + 1;
+      raycaster_local.setFromCamera(ndc_local, camera);
+      const hits = raycaster_local.intersectObjects(polki);
       if(hits.length){
         const idx = hits[0].object.userData.polkaIdx;
         if(typeof onSel === 'function') onSel(idx);
@@ -2058,13 +2091,29 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
     ro.observe(canvas.parentElement || canvas);
 
     let raf, lastT = performance.now();
+    let pulsePhase = 0;
     const animate = (now)=>{
       const dt = now - lastT; lastT = now;
-      if(rotationOn){
-        const dir = rotationOn==='cw' ? -1 : 1;
-        const speedDeg = 360 / ((speedSec||24) * 1000);
+      const live = liveRef.current;
+      // Вращение колеса (читаем свежие props через ref)
+      if(live.rotationOn){
+        const dir = live.rotationOn==='cw' ? -1 : 1;
+        const speedDeg = 360 / ((live.speedSec||24) * 1000);
         wheelGroup.rotation.y += dir * dt * speedDeg * Math.PI/180;
       }
+      // Selected polka — пульсация emissive + лёгкое увеличение
+      pulsePhase += dt * 0.003;
+      polki.forEach((p, i) => {
+        if(i === live.sel){
+          const pulse = 0.5 + 0.4 * Math.sin(pulsePhase * 2);
+          p.material.emissiveIntensity = pulse;
+          const tgt = 1.4;
+          p.scale.lerp(new THREE.Vector3(tgt,tgt,tgt), 0.1);
+        } else {
+          p.material.emissiveIntensity = 0.32;
+          p.scale.lerp(new THREE.Vector3(1,1,1), 0.1);
+        }
+      });
       updateCamera();
       renderer.render(scene, camera);
       raf = requestAnimationFrame(animate);
