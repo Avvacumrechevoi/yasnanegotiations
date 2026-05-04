@@ -1624,8 +1624,30 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
     const canvas = canvasRef.current;
     if(!canvas) return;
 
+    // Адаптация под устройство — экономим ресурсы на мобильных и слабых машинах
+    const isMobile = window.innerWidth <= 768;
+    const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    const lowPerf = isMobile || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+    const Q = lowPerf ? {
+      pxRatio: 2,
+      polkaSegW: 56, polkaSegH: 40,
+      auraSegW: 20, auraSegH: 14,
+      poleSegW: 32, poleSegH: 24,
+      cageSegW: 28, cageSegH: 18,
+      torusTubeSegs: 80, torusTube: 12,
+      stars: 700,
+    } : {
+      pxRatio: 3,
+      polkaSegW: 96, polkaSegH: 64,
+      auraSegW: 32, auraSegH: 24,
+      poleSegW: 48, poleSegH: 36,
+      cageSegW: 40, cageSegH: 28,
+      torusTubeSegs: 144, torusTube: 16,
+      stars: 1500,
+    };
+
     const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:false, powerPreference:'high-performance' });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 3));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, Q.pxRatio));
     if(THREE.sRGBEncoding) renderer.outputEncoding = THREE.sRGBEncoding;
     // Кинематографический tone mapping
     if(THREE.ACESFilmicToneMapping !== undefined){
@@ -1644,7 +1666,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       const starsGeom = new THREE.BufferGeometry();
       const positions = [];
       const colors = [];
-      for(let i = 0; i < 1500; i++){
+      for(let i = 0; i < Q.stars; i++){
         const r = 1400 + Math.random() * 800;
         const theta = Math.random() * Math.PI * 2;
         const phi = Math.acos(Math.random() * 2 - 1);
@@ -1727,13 +1749,13 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
     };
 
     // ──────────────── Каркасная сфера-обёртка ────────────────
-    const cageGeom = new THREE.SphereGeometry(R+polkaR*1.5, 40, 28);
+    const cageGeom = new THREE.SphereGeometry(R+polkaR*1.5, Q.cageSegW, Q.cageSegH);
     const cageMat = new THREE.MeshBasicMaterial({ color:0x6068a0, wireframe:true, transparent:true, opacity:0.07 });
     const cageMesh = new THREE.Mesh(cageGeom, cageMat);
     wheelGroup.add(cageMesh);
 
     const equatorTube = new THREE.Mesh(
-      new THREE.TorusGeometry(R, 0.7, 16, 144),
+      new THREE.TorusGeometry(R, 0.7, Q.torusTube, Q.torusTubeSegs),
       new THREE.MeshStandardMaterial({ color:0xb8a8d8, opacity:0.75, transparent:true, metalness:0.7, roughness:0.25, emissive:0x4030a0, emissiveIntensity:0.10 })
     );
     equatorTube.rotation.x = Math.PI/2;
@@ -1760,7 +1782,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       color:0x8a4dad, roughness:0.18, metalness:0.7,
       emissive:0x8a4dad, emissiveIntensity:0.18,
     });
-    const poleGeom = new THREE.SphereGeometry(polkaR*0.7, 48, 36);
+    const poleGeom = new THREE.SphereGeometry(polkaR*0.7, Q.poleSegW, Q.poleSegH);
     const northBall = new THREE.Mesh(poleGeom, poleMat);
     northBall.position.copy(NORTH); wheelGroup.add(northBall);
     const southBall = new THREE.Mesh(poleGeom, poleMat);
@@ -1792,7 +1814,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
         color: baseColor, roughness: 0.32, metalness: 0.55,
         emissive: baseColor, emissiveIntensity: 0.15,
       });
-      const planet = new THREE.Mesh(new THREE.SphereGeometry(polkaR, 96, 64), planetMat);
+      const planet = new THREE.Mesh(new THREE.SphereGeometry(polkaR, Q.polkaSegW, Q.polkaSegH), planetMat);
       planet.position.copy(pos);
       planet.userData.polkaIdx = i;
       wheelGroup.add(planet);
@@ -1800,7 +1822,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       const auraMat = new THREE.MeshBasicMaterial({
         color: baseColor, transparent:true, opacity:0.16, side:THREE.BackSide
       });
-      const aura = new THREE.Mesh(new THREE.SphereGeometry(polkaR*1.22, 32, 24), auraMat);
+      const aura = new THREE.Mesh(new THREE.SphereGeometry(polkaR*1.22, Q.auraSegW, Q.auraSegH), auraMat);
       planet.add(aura);
 
       // Цифра полки — высококонтрастная, читается с любого ракурса
@@ -1811,13 +1833,16 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
 
       const label = (y && y.p && y.p[i]) || '';
       if(label){
-        const lblText = label.length>14 ? label.slice(0,13)+'…' : label;
+        const maxLen = isMobile ? 10 : 14;
+        const lblText = label.length>maxLen ? label.slice(0,maxLen-1)+'…' : label;
         const lbl = makeTextSprite(lblText, '#e8e8f0', 44, '500');
         const direction = pos.clone().normalize();
-        const lblPos = pos.clone().add(direction.multiplyScalar(polkaR*3.5));
+        const offsetMul = isMobile ? 4.0 : 3.5;
+        const lblPos = pos.clone().add(direction.multiplyScalar(polkaR*offsetMul));
         lbl.position.copy(lblPos);
-        lbl.position.y = 18;
-        lbl.scale.set(85, 20, 1);
+        lbl.position.y = isMobile ? 22 : 18;
+        const lblScale = isMobile ? 70 : 85;
+        lbl.scale.set(lblScale, lblScale*0.235, 1);
         wheelGroup.add(lbl);
       }
       polki.push(planet);
@@ -2271,15 +2296,47 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       stateRef.current.camDist = Math.max(280, Math.min(1400, stateRef.current.camDist + e.deltaY*0.5));
     };
 
+    // Touch pinch-to-zoom — отслеживаем 2 пальца
+    let pinchActive = false, lastPinchDist = 0;
+    const touchDist = (touches)=>{
+      if(touches.length < 2) return 0;
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.sqrt(dx*dx + dy*dy);
+    };
+    const onTouchStart = (e)=>{
+      if(e.touches.length === 2){
+        pinchActive = true;
+        lastPinchDist = touchDist(e.touches);
+        stateRef.current.isDragging = false; // отменяем drag во время pinch
+        e.preventDefault();
+      }
+    };
+    const onTouchMove = (e)=>{
+      if(pinchActive && e.touches.length === 2){
+        const d = touchDist(e.touches);
+        const dz = (lastPinchDist - d) * 1.8; // знак: расхождение = zoom in
+        stateRef.current.camDist = Math.max(280, Math.min(1400, stateRef.current.camDist + dz));
+        lastPinchDist = d;
+        e.preventDefault();
+      }
+    };
+    const onTouchEnd = (e)=>{
+      if(e.touches.length < 2){ pinchActive = false; }
+    };
+
     canvas.addEventListener('pointerdown', onPointerDown);
     window.addEventListener('pointermove', onPointerMove);
     window.addEventListener('pointerup', onPointerUp);
     canvas.addEventListener('wheel', onWheel, {passive:false});
+    canvas.addEventListener('touchstart', onTouchStart, {passive:false});
+    canvas.addEventListener('touchmove', onTouchMove, {passive:false});
+    canvas.addEventListener('touchend', onTouchEnd);
 
     const raycaster_local = new THREE.Raycaster();
     const ndc_local = new THREE.Vector2();
     const onClick = (e)=>{
-      if(stateRef.current.dragMoved > 5){
+      if(stateRef.current.dragMoved > (isTouch ? 12 : 5)){
         stateRef.current.dragMoved = 0;
         return; // считаем что было drag — игнор
       }
@@ -2413,6 +2470,9 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);
       canvas.removeEventListener('wheel', onWheel);
+      canvas.removeEventListener('touchstart', onTouchStart);
+      canvas.removeEventListener('touchmove', onTouchMove);
+      canvas.removeEventListener('touchend', onTouchEnd);
       canvas.removeEventListener('click', onClick);
       renderer.dispose();
       scene.traverse(o=>{
