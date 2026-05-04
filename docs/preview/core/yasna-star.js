@@ -1833,16 +1833,22 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
 
       const label = (y && y.p && y.p[i]) || '';
       if(label){
-        const maxLen = isMobile ? 10 : 14;
-        const lblText = label.length>maxLen ? label.slice(0,maxLen-1)+'…' : label;
-        const lbl = makeTextSprite(lblText, '#e8e8f0', 44, '500');
+        // Полное название — без обрезки. Шрифт крупный + обводка + halo для контраста
+        const lbl = makeLabelSprite(label, {
+          fontSize: isMobile ? 72 : 64,
+          weight: '700',
+          color: '#ffffff',
+          depthTest: false,  // всегда поверх — не скрывается за каркасом или полкой
+        });
         const direction = pos.clone().normalize();
-        const offsetMul = isMobile ? 4.0 : 3.5;
+        const offsetMul = isMobile ? 4.4 : 3.8;
         const lblPos = pos.clone().add(direction.multiplyScalar(polkaR*offsetMul));
         lbl.position.copy(lblPos);
-        lbl.position.y = isMobile ? 22 : 18;
-        const lblScale = isMobile ? 70 : 85;
-        lbl.scale.set(lblScale, lblScale*0.235, 1);
+        lbl.position.y = isMobile ? 26 : 20;
+        // World-height пропорциональна полке, ширина — по aspect-ratio canvas
+        const lblH = isMobile ? 18 : 16;
+        const lblW = lblH * lbl.userData.aspect;
+        lbl.scale.set(lblW, lblH, 1);
         wheelGroup.add(lbl);
       }
       polki.push(planet);
@@ -1974,16 +1980,16 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
         num.scale.set(subPolkaR*1.7, subPolkaR*1.7, 1);
         subBall.add(num);
 
-        // Подпись sub-полки (если есть)
+        // Подпись sub-полки (если есть) — полный текст, обводка, всегда поверх
         const subLabel = subData && subData[i] ? subData[i] : '';
         if(subLabel){
-          const txt = subLabel.length > 12 ? subLabel.slice(0,11)+'…' : subLabel;
-          const lbl = makeTextSprite(txt, '#f0e8ff', 38, '500');
+          const lbl = makeLabelSprite(subLabel, { fontSize: 52, weight: '700', color: '#ffffff', depthTest: false });
           const dir = new THREE.Vector3(px, 0, pz).normalize();
-          const lblPos = new THREE.Vector3(px, 0, pz).add(dir.multiplyScalar(subPolkaR*3.0));
+          const lblPos = new THREE.Vector3(px, 0, pz).add(dir.multiplyScalar(subPolkaR*3.4));
           lblPos.y = 5;
           lbl.position.copy(lblPos);
-          lbl.scale.set(subPolkaR*5.5, subPolkaR*1.3, 1);
+          const subH = subPolkaR*1.4;
+          lbl.scale.set(subH * lbl.userData.aspect, subH, 1);
           drillGroup.add(lbl);
           subPolkiLabels.push(lbl);
         }
@@ -2528,6 +2534,55 @@ function makeTextSprite(text, color, fontSize, weight){
   tex.magFilter = THREE.LinearFilter;
   const mat = new THREE.SpriteMaterial({ map:tex, transparent:true });
   return new THREE.Sprite(mat);
+}
+
+// Универсальный label-sprite: автоматически подбирает ширину canvas под текст,
+// рендерит обводку + halo для контраста на любом фоне, всегда поверх (depthTest:false).
+// Возвращает Sprite вместе с aspect ratio для корректного world-scale.
+function makeLabelSprite(text, opts){
+  const THREE = window.THREE;
+  const o = opts || {};
+  const fontSize = o.fontSize || 64;
+  const padding = Math.floor(fontSize * 0.6);
+  const weight = o.weight || '700';
+  const font = `${weight} ${fontSize}px -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif`;
+  // Меряем ширину
+  const meas = document.createElement('canvas').getContext('2d');
+  meas.font = font;
+  const tw = Math.ceil(meas.measureText(text).width);
+  const c = document.createElement('canvas');
+  c.width = tw + padding*2;
+  c.height = Math.floor(fontSize * 1.6) + padding;
+  const ctx = c.getContext('2d');
+  // Halo (тёмный градиент за текстом — для контраста на белых бликах сфер)
+  if(o.halo !== false){
+    const hg = ctx.createRadialGradient(c.width/2, c.height/2, fontSize*0.3, c.width/2, c.height/2, c.width/2);
+    hg.addColorStop(0, 'rgba(8,4,20,0.62)');
+    hg.addColorStop(0.55, 'rgba(8,4,20,0.30)');
+    hg.addColorStop(1, 'rgba(8,4,20,0.0)');
+    ctx.fillStyle = hg;
+    ctx.fillRect(0, 0, c.width, c.height);
+  }
+  ctx.font = font;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  // Обводка
+  ctx.lineWidth = Math.max(4, Math.floor(fontSize*0.10));
+  ctx.strokeStyle = o.stroke || 'rgba(10,5,25,0.95)';
+  ctx.lineJoin = 'round';
+  ctx.miterLimit = 2;
+  ctx.strokeText(text, c.width/2, c.height/2);
+  // Заливка
+  ctx.fillStyle = o.color || '#ffffff';
+  ctx.fillText(text, c.width/2, c.height/2);
+  const tex = new THREE.CanvasTexture(c);
+  tex.minFilter = THREE.LinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  if(THREE.sRGBEncoding) tex.encoding = THREE.sRGBEncoding;
+  const mat = new THREE.SpriteMaterial({ map:tex, transparent:true, depthTest: o.depthTest !== false, depthWrite: false });
+  const sp = new THREE.Sprite(mat);
+  sp.userData.aspect = c.width / c.height; // для корректного scale
+  return sp;
 }
 
 // Спрайт цифры с обводкой — высокий контраст на любом фоне (для шаров-полок)
