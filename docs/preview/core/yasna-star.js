@@ -2392,7 +2392,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       const live = liveRef.current;
       // Вращение колеса (читаем свежие props через ref)
       if(live.rotationOn){
-        const dir = live.rotationOn==='cw' ? -1 : 1;
+        const dir = live.rotationOn==='cw' ? 1 : -1;
         const speedDeg = 360 / ((live.speedSec||24) * 1000);
         wheelGroup.rotation.y += dir * dt * speedDeg * Math.PI/180;
       }
