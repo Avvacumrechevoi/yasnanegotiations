@@ -1803,9 +1803,10 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       const aura = new THREE.Mesh(new THREE.SphereGeometry(polkaR*1.22, 32, 24), auraMat);
       planet.add(aura);
 
-      const num = makeTextSprite(String(i), '#ffffff', 96, 'bold');
-      num.position.set(0, 0, polkaR+0.3);
-      num.scale.set(11, 11, 1);
+      // Цифра полки — высококонтрастная, читается с любого ракурса
+      const num = makeDigitSprite(i, { size: 256, color: '#ffffff', stroke: 'rgba(15,8,30,0.95)', depthTest: false });
+      num.position.set(0, 0, polkaR*0.05);  // прямо в центре, sprite всегда повёрнут к камере
+      num.scale.set(polkaR*1.7, polkaR*1.7, 1);
       planet.add(num);
 
       const label = (y && y.p && y.p[i]) || '';
@@ -1935,9 +1936,9 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
         subBall.add(subAura);
 
         // Номер
-        const num = makeTextSprite(String(i), '#ffffff', 84, 'bold');
-        num.position.set(0, 0, subPolkaR + 0.2);
-        num.scale.set(subPolkaR*1.0, subPolkaR*1.0, 1);
+        const num = makeDigitSprite(i, { size: 192, color: '#ffffff', stroke: 'rgba(15,8,30,0.95)', depthTest: false });
+        num.position.set(0, 0, subPolkaR*0.05);
+        num.scale.set(subPolkaR*1.7, subPolkaR*1.7, 1);
         subBall.add(num);
 
         // Подпись sub-полки (если есть)
@@ -2423,6 +2424,47 @@ function makeTextSprite(text, color, fontSize, weight){
   tex.magFilter = THREE.LinearFilter;
   const mat = new THREE.SpriteMaterial({ map:tex, transparent:true });
   return new THREE.Sprite(mat);
+}
+
+// Спрайт цифры с обводкой — высокий контраст на любом фоне (для шаров-полок)
+// Квадратный canvas, не растягивается, читается с любого ракурса
+function makeDigitSprite(digit, opts){
+  const THREE = window.THREE;
+  const o = opts || {};
+  const size = o.size || 256;
+  const c = document.createElement('canvas');
+  c.width = size; c.height = size;
+  const ctx = c.getContext('2d');
+  // Лёгкое svечение/halo за цифрой (повышает контраст на ярких сферах)
+  if(o.halo !== false){
+    const halo = ctx.createRadialGradient(size/2, size/2, size*0.05, size/2, size/2, size*0.45);
+    halo.addColorStop(0, 'rgba(0,0,0,0.55)');
+    halo.addColorStop(0.6, 'rgba(0,0,0,0.18)');
+    halo.addColorStop(1, 'rgba(0,0,0,0.0)');
+    ctx.fillStyle = halo;
+    ctx.beginPath(); ctx.arc(size/2, size/2, size*0.5, 0, Math.PI*2); ctx.fill();
+  }
+  const fontSize = o.fontSize || Math.floor(size*0.78);
+  ctx.font = `900 ${fontSize}px -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  // Тёмная обводка снаружи (контраст с белым шаром)
+  ctx.lineWidth = Math.max(8, Math.floor(fontSize*0.12));
+  ctx.strokeStyle = o.stroke || 'rgba(20,10,38,0.92)';
+  ctx.lineJoin = 'round';
+  ctx.miterLimit = 2;
+  ctx.strokeText(String(digit), size/2, size/2 + size*0.02);
+  // Заливка — белый/тёплый цвет
+  ctx.fillStyle = o.color || '#ffffff';
+  ctx.fillText(String(digit), size/2, size/2 + size*0.02);
+  const tex = new THREE.CanvasTexture(c);
+  tex.minFilter = THREE.LinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  if(THREE.sRGBEncoding) tex.encoding = THREE.sRGBEncoding;
+  // depthTest: false — цифра всегда поверх шара (не уйдёт за поверхность)
+  const mat = new THREE.SpriteMaterial({ map:tex, transparent:true, depthTest: o.depthTest !== false, depthWrite:false });
+  const spr = new THREE.Sprite(mat);
+  return spr;
 }
 
 
