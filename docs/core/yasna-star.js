@@ -220,7 +220,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
         return<path key={`arc${ai}`} d={d} fill="none" stroke={col} strokeWidth="4" opacity=".6" strokeLinecap="round"/>;
       })}
       {/* Halves */}
-      {af.includes('halves')&&<>
+      {af.includes('halves')&&!starRotation&&<>
         {/* Top/Bottom: Чаша Света / Чаша Тьмы */}
         <path d={`M${pts[3].x},${pts[3].y} A${R},${R} 0 0,0 ${pts[9].x},${pts[9].y}`} fill="rgba(255,180,0,.08)" stroke="rgba(200,150,0,.45)" strokeWidth="2.5"/>
         <path d={`M${pts[9].x},${pts[9].y} A${R},${R} 0 0,0 ${pts[3].x},${pts[3].y}`} fill="rgba(80,100,200,.08)" stroke="rgba(80,100,200,.4)" strokeWidth="2.5"/>
@@ -236,8 +236,15 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
         <text x={cx-R*.5} y={cy+6} textAnchor="middle" fill="rgba(40,140,80,.45)" fontSize="10" fontFamily="var(--sans)" fontWeight="500" transform={`rotate(-90 ${cx-R*.5} ${cy})`}>Нарастание ↑</text>
         <text x={cx+R*.5} y={cy+6} textAnchor="middle" fill="rgba(140,60,140,.4)" fontSize="10" fontFamily="var(--sans)" fontWeight="500" transform={`rotate(90 ${cx+R*.5} ${cy})`}>Спад ↓</text>
       </>}
+      {/* При вращении halves — лёгкая версия: только статичные оси + лейблы (без heavy arc paths) */}
+      {af.includes('halves')&&starRotation&&<>
+        <line x1={cx} y1={cy-R} x2={cx} y2={cy+R} stroke="#86868b" strokeWidth="1" strokeDasharray="6 4" opacity=".25"/>
+        <line x1={cx-R} y1={cy} x2={cx+R} y2={cy} stroke="#86868b" strokeWidth="1" strokeDasharray="6 4" opacity=".25"/>
+        <text x={cx} y={cy-R*.5} textAnchor="middle" fill="rgba(170,130,0,.5)" fontSize="11" fontFamily="var(--sans)" fontWeight="600">Чаша Света</text>
+        <text x={cx} y={cy+R*.55} textAnchor="middle" fill="rgba(70,80,170,.4)" fontSize="11" fontFamily="var(--sans)" fontWeight="600">Чаша Тьмы</text>
+      </>}
       {/* Error 8↔9: zone of confusion */}
-      {af.includes('error89')&&<>
+      {af.includes('error89')&&!starRotation&&<>
         {/* Primary zone 8↔9 */}
         <path d={`M${pts[8].x},${pts[8].y} A${R},${R} 0 0,1 ${pts[9].x},${pts[9].y}`} fill="rgba(217,70,239,.06)" stroke="#D946EF" strokeWidth="4" strokeDasharray="8 4"/>
         <line x1={pts[8].x} y1={pts[8].y} x2={pts[9].x} y2={pts[9].y} stroke="#D946EF" strokeWidth="3" opacity=".5" strokeDasharray="6 4"/>
@@ -258,7 +265,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
       {/* M-К-005 Зодиак: знаки рендерятся НА полке (вместо цифры) — см. код полок ниже. */}
 
       {/* M-Ж-118 Скорпион↔Паук: верх=Сам, низ=Особа, ось 3↔9 = Поле Боя */}
-      {af.includes('mb_scorpio_spider')&&<>
+      {af.includes('mb_scorpio_spider')&&!starRotation&&<>
         <path d={`M${pts[3].x},${pts[3].y} A${R},${R} 0 0,1 ${pts[9].x},${pts[9].y} L${pts[3].x},${pts[3].y} Z`}
               fill="rgba(37,99,235,.08)" stroke="rgba(37,99,235,.4)" strokeWidth="1.2" strokeDasharray="6 4"/>
         {/* Подписи в верхне-центральной зоне — далеко от полки 6 и от ПОЛЕ БОЯ */}
@@ -277,7 +284,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
 
       {/* M-Г-050 Лента Мёбиуса: подсвечиваем нижнюю дугу единичной окружности 11→0=12→1.
          Никакого дипа ниже viewBox — путь точно лежит на R=215, ∞ внутри круга над полкой 0. */}
-      {af.includes('mb_mobius')&&<g>
+      {af.includes('mb_mobius')&&!starRotation&&<g>
         <path d={`M${pts[11].x},${pts[11].y} A${R},${R} 0 0,1 ${pts[1].x},${pts[1].y}`}
               fill="none" stroke="#0891b2" strokeWidth="4" strokeLinecap="round" opacity=".75"/>
         <path d={`M${pts[11].x},${pts[11].y} A${R},${R} 0 0,1 ${pts[1].x},${pts[1].y}`}
