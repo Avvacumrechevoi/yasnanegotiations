@@ -1876,20 +1876,28 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
     };
 
     function buildDrillGroup(drillIdx, subData){
-      // Очищаем старое
+      // Очищаем старое — disposeм рекурсивно (защита от утечки текстур цифр)
       while(drillGroup.children.length){
         const c = drillGroup.children[0];
+        c.traverse(node=>{
+          if(node.geometry) node.geometry.dispose();
+          if(node.material){
+            const disp = (m)=>{
+              if(m.map && typeof m.map.dispose === 'function') m.map.dispose();
+              m.dispose();
+            };
+            if(Array.isArray(node.material)) node.material.forEach(disp); else disp(node.material);
+          }
+        });
         drillGroup.remove(c);
-        if(c.geometry) c.geometry.dispose();
-        if(c.material){ if(Array.isArray(c.material)) c.material.forEach(m=>m.dispose()); else c.material.dispose(); }
       }
       subPolkiArr.length = 0;
       subPolkiLabels.length = 0;
       if(drillIdx == null) return;
 
-      // Размер мини-Ясны: полусфера в полку
-      const subR = polkaR * 4.2;
-      const subPolkaR = polkaR * 0.55;
+      // Размер мини-Ясны: компактный, не пересекается с основным экватором
+      const subR = polkaR * 2.8;
+      const subPolkaR = polkaR * 0.40;
 
       // Каркасная сфера (тонкая, для глубины)
       const subCage = new THREE.Mesh(
@@ -1972,9 +1980,9 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       // Позиционируем drillGroup в позиции выбранной полки
       const a0 = (270 - drillIdx*30) * Math.PI/180;
       drillGroup.position.set(R*Math.cos(a0), 0, -R*Math.sin(a0));
-      // Отодвигаем чуть наружу, чтобы не сливаться с самой полкой
+      // Отодвигаем наружу так, чтобы внутренний край мини-Ясны был СНАРУЖИ от экватора
       const dirOut = new THREE.Vector3(drillGroup.position.x, 0, drillGroup.position.z).normalize();
-      drillGroup.position.add(dirOut.multiplyScalar(subR*0.55));
+      drillGroup.position.add(dirOut.multiplyScalar(subR*1.1));
     }
 
     // Raycaster для hover-detect и click
@@ -1982,7 +1990,21 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
     const ndc = new THREE.Vector2();
 
     function rebuildMechanics(active){
-      while(mechGroup.children.length) mechGroup.remove(mechGroup.children[0]);
+      // Disposeм геометрии и текстуры старых children (защита от утечки CanvasTexture)
+      while(mechGroup.children.length){
+        const ch = mechGroup.children[0];
+        ch.traverse(node=>{
+          if(node.geometry) node.geometry.dispose();
+          if(node.material){
+            const disp = (m)=>{
+              if(m.map && typeof m.map.dispose === 'function') m.map.dispose();
+              m.dispose();
+            };
+            if(Array.isArray(node.material)) node.material.forEach(disp); else disp(node.material);
+          }
+        });
+        mechGroup.remove(ch);
+      }
       mechGroup.userData.zodiacCoinsAnim = false;
       // Адаптивная видимость каркаса — приглушаем при многих активных механиках
       const N = (active||[]).length;
@@ -2216,6 +2238,10 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       stateRef.current.dragMoved = 0;
       stateRef.current.lastX = e.clientX; stateRef.current.lastY = e.clientY;
       canvas.style.cursor = 'grabbing'; e.preventDefault();
+      // Pointer capture — drag не залипает если отпустить кнопку вне канваса
+      if(e.pointerId != null && canvas.setPointerCapture){
+        try { canvas.setPointerCapture(e.pointerId); } catch(_){}
+      }
     };
     const onPointerMove = (e)=>{
       if(stateRef.current.isDragging){
@@ -2253,7 +2279,10 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
     const raycaster_local = new THREE.Raycaster();
     const ndc_local = new THREE.Vector2();
     const onClick = (e)=>{
-      if(stateRef.current.dragMoved > 5) return; // считаем что было drag — игнор
+      if(stateRef.current.dragMoved > 5){
+        stateRef.current.dragMoved = 0;
+        return; // считаем что было drag — игнор
+      }
 
       const rect = canvas.getBoundingClientRect();
       ndc_local.x = ((e.clientX-rect.left)/rect.width)*2 - 1;
@@ -2388,8 +2417,21 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       renderer.dispose();
       scene.traverse(o=>{
         if(o.geometry) o.geometry.dispose();
-        if(o.material){ if(Array.isArray(o.material)) o.material.forEach(m=>m.dispose()); else o.material.dispose(); }
+        if(o.material){
+          const disposeMat = (m)=>{
+            if(!m) return;
+            // Disposem связанные текстуры (CanvasTexture от зодиак-монет, цифр, sprite-меток)
+            if(m.map && typeof m.map.dispose === 'function') m.map.dispose();
+            if(m.envMap && typeof m.envMap.dispose === 'function') m.envMap.dispose();
+            m.dispose();
+          };
+          if(Array.isArray(o.material)) o.material.forEach(disposeMat); else disposeMat(o.material);
+        }
       });
+      // env-map не входит в scene-graph — disposeим вручную
+      if(scene.environment && typeof scene.environment.dispose === 'function'){
+        scene.environment.dispose();
+      }
     };
   }, [y]);
 
@@ -2400,11 +2442,13 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
   }, [JSON.stringify(af||[])]);
 
   // Перестроение drillGroup при смене drill / subPolki
+  // Используем стабильный signature вместо JSON.stringify на каждый render
+  const subPolkiSig = (subPolki||[]).join('|');
   React.useEffect(()=>{
     if(sceneRefs.current && sceneRefs.current.buildDrillGroup){
       sceneRefs.current.buildDrillGroup(drill, subPolki);
     }
-  }, [drill, JSON.stringify(subPolki||[])]);
+  }, [drill, subPolkiSig]);
 
   return <canvas ref={canvasRef} style={{width:'100%',height:'100%',display:'block',cursor:'grab',outline:'none',touchAction:'none'}}/>;
 }
