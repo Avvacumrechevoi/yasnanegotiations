@@ -136,10 +136,39 @@ const FL=[
    related:['support','rhythm','mb_zodiac']},
 ];
 
-function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki}){
+function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,starRotation,rotationSpeed}){
   const isMob=typeof window!=="undefined"&&window.innerWidth<=768;
   const p=yy.p||[];
   const S=900,W=700,cx=S/2,cy=W/2,R=215,nr=isMob?26:23,lr=R+60;
+  // Rotation: via ref + JS rAF, чтобы избежать querySelector race и React reconciliation
+  const wheelRef = React.useRef(null);
+  // Refs для накопленного угла и текущей скорости — позволяют менять speed на лету без сброса угла
+  const angleRef = React.useRef(0);
+  const speedRef = React.useRef(rotationSpeed||24);
+  React.useEffect(()=>{ speedRef.current = rotationSpeed||24; }, [rotationSpeed]);
+  React.useEffect(()=>{
+    const w = wheelRef.current;
+    if(!w) return;
+    if(!starRotation){
+      w.removeAttribute('transform');
+      angleRef.current = 0;
+      return;
+    }
+    let raf, lastT = null;
+    const animate = (now)=>{
+      if(lastT === null) lastT = now;
+      const dt = (now - lastT) / 1000;
+      lastT = now;
+      const dir = starRotation === 'cw' ? 1 : -1;
+      // Накапливаем угол через delta — изменение speedRef влияет с этого момента, а не с начала
+      angleRef.current += dir * (dt / Math.max(1, speedRef.current)) * 360;
+      // 3-step transform — гарантированная совместимость с iOS Safari
+      w.setAttribute('transform', `translate(${cx},${cy}) rotate(${angleRef.current.toFixed(2)}) translate(${-cx},${-cy})`);
+      raf = requestAnimationFrame(animate);
+    };
+    raf = requestAnimationFrame(animate);
+    return ()=>{ cancelAnimationFrame(raf); if(w) w.removeAttribute('transform'); };
+  }, [starRotation, cx, cy]);
   const pts=Array.from({length:12},(_,i)=>xy(i,cx,cy,R))
   const lps=Array.from({length:12},(_,i)=>xy(i,cx,cy,lr))
   const olps=Array.from({length:12},(_,i)=>xy(i,cx,cy,lr+24))
@@ -155,7 +184,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki}
         <filter id="ns"><feDropShadow dx="0" dy="1" stdDeviation="2.5" floodOpacity=".07"/></filter>
       </defs>
       <rect width={S} height={W} fill="#fff"/>
-      <g className="yasna-wheel">
+      <g className="yasna-wheel" ref={wheelRef}>
       {/* Decorative outer ring */}
       <circle cx={cx} cy={cy} r={R+10} fill="none" stroke="#ececee" strokeWidth=".5"/>
       {/* Main orbit */}

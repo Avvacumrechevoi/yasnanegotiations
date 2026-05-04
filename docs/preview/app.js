@@ -771,31 +771,7 @@ function App(){
   useEffect(()=>{ if(!af.includes('mb_yasna2')){setYasna2Drill(null);setDrillEditing(false);} },[af]);
   useEffect(()=>{ if(yasna2Drill!=null) setStarRotation(null); },[yasna2Drill]);
 
-  // SVG wheel rotation — JS rAF вместо CSS (CSS transform-box ломается на iOS Safari)
-  // Применяет SVG transform="rotate(angle 450 350)" — явный центр, работает везде
-  useEffect(()=>{
-    if(!starRotation || is3D) return;
-    const wheels = document.querySelectorAll('.yasna-wheel');
-    if(!wheels.length) return;
-    let raf;
-    let start = null;
-    const animate = (now)=>{
-      if(start === null) start = now;
-      const elapsed = (now - start) / 1000;
-      const dir = starRotation === 'cw' ? -1 : 1;
-      const angle = (dir * elapsed / Math.max(1, rotationSpeed)) * 360;
-      // 3-шаговый transform — translate(c) rotate(a) translate(-c)
-      // Эквивалент rotate(a c.x c.y) но без iOS Safari регрессий
-      const tx = `translate(450,350) rotate(${angle.toFixed(2)}) translate(-450,-350)`;
-      wheels.forEach(w=> w.setAttribute('transform', tx));
-      raf = requestAnimationFrame(animate);
-    };
-    raf = requestAnimationFrame(animate);
-    return ()=>{
-      cancelAnimationFrame(raf);
-      wheels.forEach(w=> w.removeAttribute('transform'));
-    };
-  }, [starRotation, rotationSpeed, is3D, y]);
+  // Rotation теперь управляется внутри Star через ref + rAF (см. yasna-star.js)
   useEffect(()=>{
     if(ed||glossary||instr||verif||fullStar||picker||showOverlayPicker||lessonPicker||activeLesson){
       setMenu(false);
@@ -929,7 +905,7 @@ function App(){
       </div>}
             <div className={'star-area'+(sel!==null?' star-shift':'')+(starRotation?' star-rotating-'+starRotation:'')+(is3D?' star-3d-active':'')} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden','--rotation-speed':rotationSpeed+'s'}} onClick={e=>{if(e.target===e.currentTarget)setSel(null)}}>
         <button className='fullstar-btn' onClick={()=>setFullStar(true)} style={{display:'none',position:'absolute',top:8,right:8,width:32,height:32,borderRadius:8,border:'1px solid #e5e5ea',background:'rgba(255,255,255,.8)',fontSize:16,zIndex:5,alignItems:'center',justifyContent:'center'}}>⤢</button>
-        <div className="star-svg-wrap" style={{width:'100%',height:'100%',maxWidth:900,maxHeight:700}}>{is3D ? <Yasna3DView y={y} af={af} sel={sel} onSel={setSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/> : <Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/>}</div>
+        <div className="star-svg-wrap" style={{width:'100%',height:'100%',maxWidth:900,maxHeight:700}}>{is3D ? <Yasna3DView y={y} af={af} sel={sel} onSel={setSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/> : <Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} starRotation={starRotation} rotationSpeed={rotationSpeed}/>}</div>
         <Info i={sel} p={y.p} af={af} y={y} overlay={overlay} onEdit={()=>setEd(true)} onClose={()=>setSel(null)}/>
         <OverlayLegend y={y} overlay={overlay} onClear={()=>setOverlay(null)}/>
       </div>
@@ -950,7 +926,7 @@ function App(){
       </div>}
       {fullStar&&<>
         <div className={'fullstar'+(starRotation?' star-rotating-'+starRotation:'')+(is3D?' star-3d-active':'')} style={{display:'flex',alignItems:'center',justifyContent:'center','--rotation-speed':rotationSpeed+'s'}}>
-          <div style={{width:'100%',height:'100%',maxWidth:'100vw',maxHeight:'100vh'}}>{is3D ? <Yasna3DView y={y} af={af} sel={sel} onSel={setSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/> : <Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/>}</div>
+          <div style={{width:'100%',height:'100%',maxWidth:'100vw',maxHeight:'100vh'}}>{is3D ? <Yasna3DView y={y} af={af} sel={sel} onSel={setSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/> : <Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} starRotation={starRotation} rotationSpeed={rotationSpeed}/>}</div>
         </div>
         <button className='fullstar-close' onClick={()=>setFullStar(false)}>✕</button>
       </>}

@@ -216,13 +216,13 @@ input{font-family:var(--sans)}
 /* Все <text> внутри wheel контр-вращаются вокруг своего собственного центра.
    Идеально синхронизированы с outer (та же длительность, противоположное направление) */
 .star-rotating-cw .yasna-wheel text:not([transform]) {
-  animation: yasnaSpinCW var(--rotation-speed, 24s) linear infinite;
+  animation: yasnaSpinCCW var(--rotation-speed, 24s) linear infinite;
   transform-box: fill-box;
   transform-origin: center center;
   will-change: transform;
 }
 .star-rotating-ccw .yasna-wheel text:not([transform]) {
-  animation: yasnaSpinCCW var(--rotation-speed, 24s) linear infinite;
+  animation: yasnaSpinCW var(--rotation-speed, 24s) linear infinite;
   transform-box: fill-box;
   transform-origin: center center;
   will-change: transform;
