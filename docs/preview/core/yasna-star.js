@@ -1600,9 +1600,393 @@ function Verification({y,vs,setVs,onClose}){
 
 
 
+
+// ═══════════════════════════════════════════════════════════════════
+// Yasna3DView — настоящий 3D через Three.js (preview-only)
+// Шары для полок, drag-rotate (OrbitControls-like), 3D mechanics.
+// ═══════════════════════════════════════════════════════════════════
+
+function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec }){
+  const canvasRef = React.useRef(null);
+  const stateRef = React.useRef({
+    camAzim: 0,         // 0° = front view (looking from -Z toward 0)
+    camElev: 25,        // tilt up by default
+    camDist: 620,
+    isDragging: false,
+    lastX: 0, lastY: 0,
+    rotZ: 0,            // current wheel auto-rotation angle
+  });
+  const sceneRefs = React.useRef(null);
+
+  // (Re)build scene when y or af changes
+  React.useEffect(()=>{
+    if(typeof window==='undefined' || !window.THREE) { return; }
+    const THREE = window.THREE;
+    const canvas = canvasRef.current;
+    if(!canvas) return;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+    renderer.setClearColor(0x000000, 0);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(40, 1, 1, 5000);
+
+    // ─ Lighting ─
+    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+    const key = new THREE.DirectionalLight(0xffffff, 0.85);
+    key.position.set(2, 4, 3); scene.add(key);
+    const rim = new THREE.DirectionalLight(0xa080ff, 0.35);
+    rim.position.set(-3, 2, -2); scene.add(rim);
+
+    // ─ Конфигурация ясны ─
+    const R = 220;          // radius for polki
+    const polkaR = 22;       // sphere radius
+    const wheelGroup = new THREE.Group();
+    scene.add(wheelGroup);
+
+    // Базовая «тарелочка» (semi-transparent disc)
+    const disc = new THREE.Mesh(
+      new THREE.CircleGeometry(R+15, 64),
+      new THREE.MeshStandardMaterial({ color:0xf4f4f7, opacity:0.5, transparent:true, roughness:0.9, metalness:0.1, side:THREE.DoubleSide })
+    );
+    disc.rotation.x = -Math.PI/2;
+    disc.position.y = -2;
+    wheelGroup.add(disc);
+
+    // Ободок
+    const ringTube = new THREE.Mesh(
+      new THREE.TorusGeometry(R, 1.5, 12, 96),
+      new THREE.MeshStandardMaterial({ color:0xa21caf, opacity:0.5, transparent:true, roughness:0.4, metalness:0.5 })
+    );
+    ringTube.rotation.x = Math.PI/2;
+    wheelGroup.add(ringTube);
+
+    // Внутренние орбиты
+    [R*0.7, R*0.4].forEach(r=>{
+      const inner = new THREE.Mesh(
+        new THREE.TorusGeometry(r, 0.5, 8, 64),
+        new THREE.MeshBasicMaterial({ color:0xd0d0d8, opacity:0.35, transparent:true })
+      );
+      inner.rotation.x = Math.PI/2;
+      wheelGroup.add(inner);
+    });
+
+    // Столп Ясны (вертикальная ось через центр)
+    const pillar = new THREE.Mesh(
+      new THREE.CylinderGeometry(1, 1, R*1.4, 8),
+      new THREE.MeshBasicMaterial({ color:0xa21caf, opacity:0.4, transparent:true })
+    );
+    pillar.position.y = 0;
+    wheelGroup.add(pillar);
+
+    // Цвета крестов (как в FL)
+    const polkaColor = (i)=>{
+      if([0,3,6,9].includes(i)) return 0xE8364F;       // Опорный
+      if([1,4,7,10].includes(i)) return 0xE8A834;      // Управления
+      return 0x5B9CF6;                                  // Веры
+    };
+
+    // 12 шаров-полок
+    const polki = [];
+    for(let i=0; i<12; i++){
+      const angle = (270 - i*30) * Math.PI/180;
+      const x = R * Math.cos(angle);
+      const z = -R * Math.sin(angle);
+      const sphereMat = new THREE.MeshStandardMaterial({
+        color: polkaColor(i),
+        roughness: 0.35,
+        metalness: 0.15,
+        emissive: polkaColor(i),
+        emissiveIntensity: 0.05,
+      });
+      const sphere = new THREE.Mesh(new THREE.SphereGeometry(polkaR, 32, 24), sphereMat);
+      sphere.position.set(x, 0, z);
+      sphere.userData.polkaIdx = i;
+      wheelGroup.add(sphere);
+
+      // Цифра внутри шара (sprite)
+      const num = makeTextSprite(String(i), '#ffffff', 84, 'bold');
+      num.position.set(0, 0, polkaR+0.5);
+      num.scale.set(20, 20, 1);
+      sphere.add(num);
+
+      // Подпись снаружи
+      const label = (y && y.p && y.p[i]) || '';
+      if(label){
+        const lbl = makeTextSprite(label.length>16?label.slice(0,15)+'…':label, '#1d1d1f', 56, 'normal');
+        const lx = (R+85) * Math.cos(angle);
+        const lz = -(R+85) * Math.sin(angle);
+        lbl.position.set(lx, 25, lz);
+        lbl.scale.set(120, 28, 1);
+        wheelGroup.add(lbl);
+      }
+      polki.push(sphere);
+    }
+
+    // ─ Mechanics rendering ─
+    const mechGroup = new THREE.Group();
+    wheelGroup.add(mechGroup);
+    
+    function rebuildMechanics(activeFilters){
+      while(mechGroup.children.length) mechGroup.remove(mechGroup.children[0]);
+      const pp = (i)=>{const a=(270-i*30)*Math.PI/180; return new THREE.Vector3(R*Math.cos(a), 0, -R*Math.sin(a));};
+
+      // Кресты — closed paths из 4 точек
+      const crossDefs = [
+        {id:'support', col:0xE8364F, idx:[0,3,6,9]},
+        {id:'right', col:0xE8A834, idx:[1,4,7,10]},
+        {id:'left', col:0x5B9CF6, idx:[2,5,8,11]},
+      ];
+      crossDefs.forEach(c=>{
+        if(!activeFilters.includes(c.id)) return;
+        const pts = [...c.idx, c.idx[0]].map(pp);
+        const geom = new THREE.BufferGeometry().setFromPoints(pts);
+        mechGroup.add(new THREE.Line(geom, new THREE.LineBasicMaterial({ color:c.col, linewidth:2, transparent:true, opacity:0.7 })));
+      });
+
+      // Праны — треугольники
+      const pranaDefs = [
+        {id:'she', col:0xC0943A, idx:[0,4,8]},
+        {id:'fo',  col:0x4090D8, idx:[1,5,9]},
+        {id:'tsi', col:0x70B8F0, idx:[2,6,10]},
+        {id:'ha',  col:0xF06838, idx:[3,7,11]},
+      ];
+      pranaDefs.forEach(p=>{
+        if(!activeFilters.includes(p.id)) return;
+        const pts = [...p.idx, p.idx[0]].map(pp);
+        const geom = new THREE.BufferGeometry().setFromPoints(pts);
+        mechGroup.add(new THREE.Line(geom, new THREE.LineBasicMaterial({ color:p.col, linewidth:2.5, transparent:true, opacity:0.75 })));
+        // Заливка треугольника
+        const triGeom = new THREE.BufferGeometry();
+        const verts = new Float32Array([
+          pp(p.idx[0]).x, pp(p.idx[0]).y, pp(p.idx[0]).z,
+          pp(p.idx[1]).x, pp(p.idx[1]).y, pp(p.idx[1]).z,
+          pp(p.idx[2]).x, pp(p.idx[2]).y, pp(p.idx[2]).z,
+        ]);
+        triGeom.setAttribute('position', new THREE.BufferAttribute(verts, 3));
+        triGeom.computeVertexNormals();
+        mechGroup.add(new THREE.Mesh(triGeom, new THREE.MeshBasicMaterial({ color:p.col, transparent:true, opacity:0.07, side:THREE.DoubleSide })));
+      });
+
+      // Противоположности
+      if(activeFilters.includes('opp')){
+        for(let i=0;i<6;i++){
+          const a = pp(i), b = pp(i+6);
+          const g = new THREE.BufferGeometry().setFromPoints([a,b]);
+          mechGroup.add(new THREE.Line(g, new THREE.LineBasicMaterial({ color:0xff9500, transparent:true, opacity:0.35 })));
+        }
+      }
+
+      // Замыкание ∞ — нижняя дуга 11→0→1, проходящая ПОД диском
+      if(activeFilters.includes('mb_mobius')){
+        const curve = new THREE.CatmullRomCurve3([
+          pp(11),
+          new THREE.Vector3(R*0.5, -R*0.4, R*0.4),
+          new THREE.Vector3(0, -R*0.55, R*0.6),
+          new THREE.Vector3(-R*0.5, -R*0.4, R*0.4),
+          pp(1),
+        ]);
+        const tubeGeom = new THREE.TubeGeometry(curve, 64, 2.5, 8, false);
+        mechGroup.add(new THREE.Mesh(tubeGeom, new THREE.MeshStandardMaterial({ color:0x0891b2, opacity:0.85, transparent:true, roughness:0.3, metalness:0.4 })));
+      }
+
+      // Накопление: пульсы на длинных полках
+      if(activeFilters.includes('mb_accumulation')){
+        [0,3,6,9].forEach(i=>{
+          const ring = new THREE.Mesh(
+            new THREE.TorusGeometry(polkaR*1.8, 1.2, 8, 32),
+            new THREE.MeshBasicMaterial({ color:0x16a34a, transparent:true, opacity:0.6 })
+          );
+          const a = (270-i*30)*Math.PI/180;
+          ring.position.set(R*Math.cos(a), 0, -R*Math.sin(a));
+          ring.rotation.x = Math.PI/2;
+          mechGroup.add(ring);
+        });
+      }
+
+      // Скорпион↔Паук: верх синяя плоскость, низ красная
+      if(activeFilters.includes('mb_scorpio_spider')){
+        const top = new THREE.Mesh(
+          new THREE.CircleGeometry(R, 32, 0, Math.PI),
+          new THREE.MeshBasicMaterial({ color:0x2563eb, opacity:0.15, transparent:true, side:THREE.DoubleSide })
+        );
+        top.rotation.x = -Math.PI/2;
+        top.rotation.z = Math.PI/2;
+        mechGroup.add(top);
+        const bot = new THREE.Mesh(
+          new THREE.CircleGeometry(R, 32, Math.PI, Math.PI),
+          new THREE.MeshBasicMaterial({ color:0xdc2626, opacity:0.15, transparent:true, side:THREE.DoubleSide })
+        );
+        bot.rotation.x = -Math.PI/2;
+        bot.rotation.z = Math.PI/2;
+        mechGroup.add(bot);
+      }
+
+      // Зодиак: над каждым шаром sprite-знак
+      if(activeFilters.includes('mb_zodiac')){
+        const ZS=['♑','♒','♓','♈','♉','♊','♋','♌','♍','♎','♏','♐'];
+        ZS.forEach((s,i)=>{
+          const a=(270-i*30)*Math.PI/180;
+          const sp = makeTextSprite(s, '#7c3aed', 90, 'bold');
+          sp.position.set((R+50)*Math.cos(a), 50, -(R+50)*Math.sin(a));
+          sp.scale.set(40, 40, 1);
+          mechGroup.add(sp);
+        });
+      }
+
+      // Ясна² — мини-кольца над каждой полкой
+      if(activeFilters.includes('mb_yasna2')){
+        for(let i=0;i<12;i++){
+          const a=(270-i*30)*Math.PI/180;
+          const px = R*Math.cos(a), pz = -R*Math.sin(a);
+          for(let j=0;j<12;j++){
+            const sa=(270-j*30)*Math.PI/180;
+            const sx = px + (polkaR+8)*Math.cos(sa);
+            const sz = pz - (polkaR+8)*Math.sin(sa);
+            const dot = new THREE.Mesh(
+              new THREE.SphereGeometry(1.6, 8, 6),
+              new THREE.MeshBasicMaterial({ color:0xa21caf, transparent:true, opacity:0.7 })
+            );
+            dot.position.set(sx, 0, sz);
+            mechGroup.add(dot);
+          }
+        }
+      }
+    }
+    rebuildMechanics(af||[]);
+
+    // ─ Drag controls ─
+    const updateCamera = () => {
+      const { camAzim, camElev, camDist } = stateRef.current;
+      const azR = camAzim*Math.PI/180, elR = camElev*Math.PI/180;
+      camera.position.x = camDist*Math.cos(elR)*Math.sin(azR);
+      camera.position.y = camDist*Math.sin(elR);
+      camera.position.z = camDist*Math.cos(elR)*Math.cos(azR);
+      camera.up.set(0,1,0);
+      camera.lookAt(0,0,0);
+    };
+    
+    const onPointerDown = (e)=>{
+      stateRef.current.isDragging = true;
+      stateRef.current.lastX = e.clientX; stateRef.current.lastY = e.clientY;
+      canvas.style.cursor = 'grabbing';
+      e.preventDefault();
+    };
+    const onPointerMove = (e)=>{
+      if(!stateRef.current.isDragging) return;
+      const dx = e.clientX - stateRef.current.lastX;
+      const dy = e.clientY - stateRef.current.lastY;
+      stateRef.current.camAzim -= dx*0.4;
+      stateRef.current.camElev = Math.max(-89, Math.min(89, stateRef.current.camElev - dy*0.35));
+      stateRef.current.lastX = e.clientX; stateRef.current.lastY = e.clientY;
+    };
+    const onPointerUp = ()=>{ stateRef.current.isDragging = false; canvas.style.cursor = 'grab'; };
+    const onWheel = (e)=>{
+      e.preventDefault();
+      stateRef.current.camDist = Math.max(300, Math.min(1500, stateRef.current.camDist + e.deltaY*0.5));
+    };
+
+    canvas.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+    canvas.addEventListener('wheel', onWheel, {passive:false});
+
+    // Sphere click → onSel
+    const raycaster = new THREE.Raycaster();
+    const ndc = new THREE.Vector2();
+    const onClick = (e)=>{
+      if(stateRef.current.isDragging) return;
+      const rect = canvas.getBoundingClientRect();
+      ndc.x = ((e.clientX-rect.left)/rect.width)*2 - 1;
+      ndc.y = -((e.clientY-rect.top)/rect.height)*2 + 1;
+      raycaster.setFromCamera(ndc, camera);
+      const hits = raycaster.intersectObjects(polki);
+      if(hits.length){
+        const idx = hits[0].object.userData.polkaIdx;
+        if(typeof onSel === 'function') onSel(idx);
+      }
+    };
+    canvas.addEventListener('click', onClick);
+
+    // Resize
+    const resize = () => {
+      const w = canvas.clientWidth, h = canvas.clientHeight;
+      if(!w || !h) return;
+      renderer.setSize(w, h, false);
+      camera.aspect = w/h;
+      camera.updateProjectionMatrix();
+    };
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas.parentElement || canvas);
+
+    // Animation loop
+    let raf, lastT = performance.now();
+    const animate = (now)=>{
+      const dt = now - lastT; lastT = now;
+      if(rotationOn){
+        const dir = rotationOn==='cw' ? -1 : 1;
+        const speedDeg = 360 / ((speedSec||24) * 1000);
+        wheelGroup.rotation.y += dir * dt * speedDeg * Math.PI/180;
+      }
+      updateCamera();
+      renderer.render(scene, camera);
+      raf = requestAnimationFrame(animate);
+    };
+    raf = requestAnimationFrame(animate);
+
+    sceneRefs.current = { scene, camera, renderer, polki, mechGroup, wheelGroup, rebuildMechanics };
+
+    // Cleanup
+    return ()=>{
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      canvas.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+      canvas.removeEventListener('wheel', onWheel);
+      canvas.removeEventListener('click', onClick);
+      renderer.dispose();
+      // Чистим геометрии
+      scene.traverse(o=>{
+        if(o.geometry) o.geometry.dispose();
+        if(o.material){ if(Array.isArray(o.material)) o.material.forEach(m=>m.dispose()); else o.material.dispose(); }
+      });
+    };
+  }, [y]);
+
+  // На лету обновляем механики при изменении af
+  React.useEffect(()=>{
+    if(sceneRefs.current && sceneRefs.current.rebuildMechanics){
+      sceneRefs.current.rebuildMechanics(af||[]);
+    }
+  }, [JSON.stringify(af||[])]);
+
+  return <canvas ref={canvasRef} style={{width:'100%',height:'100%',display:'block',cursor:'grab',outline:'none',touchAction:'none'}}/>;
+}
+
+// Helper: создать sprite с текстом
+function makeTextSprite(text, color, fontSize, weight){
+  const THREE = window.THREE;
+  const canvas = document.createElement('canvas');
+  canvas.width = 512; canvas.height = 128;
+  const ctx = canvas.getContext('2d');
+  ctx.font = `${weight||'normal'} ${fontSize||64}px -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif`;
+  ctx.fillStyle = color;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, 256, 64);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.minFilter = THREE.LinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true });
+  return new THREE.Sprite(mat);
+}
+
 // Expose to global namespace for lessons + app to use
 window.YasnaCore = {
   CR, PR, REF, T, FL,
-  Star, Info, OverlayLegend, Editor, OverlayPicker, Picker, Verification,
+  Star, Yasna3DView, Info, OverlayLegend, Editor, OverlayPicker, Picker, Verification,
   POS_DESC, CROSS_CTX, PRANA_CTX, OPP_DESC, GLOSS
 };

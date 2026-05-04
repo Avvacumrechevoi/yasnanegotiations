@@ -294,18 +294,18 @@ input{font-family:var(--sans)}
 }
 
 /* ─── 3D «Алмаз» режим (preview-only) ─── */
-.star-area.star-3d {
+.star-area.star-3d-disabled-css {
   perspective: 1500px;
   perspective-origin: 50% 35%;
 }
-.star-area.star-3d .star-svg-wrap {
+.star-area.star-3d-disabled-css .star-svg-wrap {
   transform-style: preserve-3d;
   transform: rotateX(55deg);
   transition: transform .85s cubic-bezier(.16, 1, .3, 1);
   position: relative;
   z-index: 2;
 }
-.star-area:not(.star-3d) .star-svg-wrap {
+.star-area:not(.star-3d-disabled-css) .star-svg-wrap {
   transform: rotateX(0deg);
   transition: transform .85s cubic-bezier(.16, 1, .3, 1);
   position: relative;
@@ -313,7 +313,7 @@ input{font-family:var(--sans)}
 }
 
 /* Floor shadow — теневая плита-«тарелка» под Звездой */
-.star-area.star-3d::before {
+.star-area.star-3d-disabled-css::before {
   content: '';
   position: absolute;
   left: 50%;
@@ -330,12 +330,12 @@ input{font-family:var(--sans)}
   z-index: 1;
   transition: opacity .85s;
 }
-.star-area:not(.star-3d)::before {
+.star-area:not(.star-3d-disabled-css)::before {
   opacity: 0;
 }
 
 /* «Столп Ясны» — вертикальная ось через центр в 3D */
-.star-area.star-3d::after {
+.star-area.star-3d-disabled-css::after {
   content: '';
   position: absolute;
   left: 50%;
@@ -353,7 +353,7 @@ input{font-family:var(--sans)}
   z-index: 0;
   box-shadow: 0 0 8px rgba(162,28,175,.3);
 }
-.star-area:not(.star-3d)::after {
+.star-area:not(.star-3d-disabled-css)::after {
   opacity: 0;
   transition: opacity .85s;
 }
@@ -369,4 +369,17 @@ input{font-family:var(--sans)}
   background: #a21caf !important;
   color: #fff !important;
   border-color: #a21caf !important;
+}
+
+/* В режиме реального 3D (Three.js): canvas заменяет SVG, CSS-анимация не применяется */
+.star-area.star-3d-active .star-svg-wrap {
+  transform: none !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 900px;
+  max-height: 700px;
+}
+.star-area.star-3d-active::before,
+.star-area.star-3d-active::after {
+  display: none;
 }
