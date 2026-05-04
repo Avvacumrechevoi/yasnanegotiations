@@ -223,15 +223,24 @@ input{font-family:var(--sans)}
 
 /* Все <text> внутри wheel контр-вращаются вокруг своего собственного центра.
    Идеально синхронизированы с outer (та же длительность, противоположное направление) */
-.star-rotating-cw .yasna-wheel text {
+.star-rotating-cw .yasna-wheel text:not([transform]) {
   animation: yasnaSpinCCW 24s linear infinite;
   transform-box: fill-box;
   transform-origin: center center;
   will-change: transform;
 }
-.star-rotating-ccw .yasna-wheel text {
+.star-rotating-ccw .yasna-wheel text:not([transform]) {
   animation: yasnaSpinCW 24s linear infinite;
   transform-box: fill-box;
   transform-origin: center center;
   will-change: transform;
+}
+
+
+/* Disabled state для rotation кнопок (когда drill активен) */
+.rotation-btn:disabled,
+.rotation-btn.disabled {
+  opacity: .3;
+  cursor: not-allowed;
+  pointer-events: none;
 }

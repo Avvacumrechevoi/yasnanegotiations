@@ -727,6 +727,8 @@ function App(){
   const[yasna2Drill,setYasna2Drill]=useState(null);
   const[subData,setSubData]=useState(()=>{try{return JSON.parse(localStorage.getItem('yasna2_subdata')||'{}');}catch{return{};}});
   const[drillEditing,setDrillEditing]=useState(false);
+  const[starRotation,setStarRotation]=useState(null);
+
   useEffect(()=>{try{localStorage.setItem('yasna2_subdata',JSON.stringify(subData));}catch{}},[subData]);
   const subKey=(name,idx)=>name+'_'+idx;
   const getSubPolki=(name,idx)=>(subData[subKey(name,idx)]||Array(12).fill(''));
@@ -751,6 +753,7 @@ function App(){
   const[completedLessons,setCompletedLessons]=useState([]);
   // Auto-close burger menu when any modal/panel opens
   useEffect(()=>{ if(!af.includes('mb_yasna2')){setYasna2Drill(null);setDrillEditing(false);} },[af]);
+  useEffect(()=>{ if(yasna2Drill!=null) setStarRotation(null); },[yasna2Drill]);
   useEffect(()=>{
     if(ed||glossary||instr||verif||fullStar||picker||showOverlayPicker||lessonPicker||activeLesson){
       setMenu(false);
@@ -858,7 +861,12 @@ function App(){
         <button onClick={()=>{if(confirm('Очистить sub-полки этой Полки?'))clearSub(y.name,yasna2Drill);}} title="Очистить" style={{padding:'6px 10px',borderRadius:9,border:'1px solid #d2d2d7',background:'#fff',cursor:'pointer',fontSize:13}}>🧹 Очистить</button>
         <button onClick={()=>setDrillEditing(v=>!v)} style={{padding:'6px 14px',borderRadius:9,border:`1px solid ${drillEditing?'#a21caf':'#a21caf66'}`,background:drillEditing?'#a21caf':'#fff',color:drillEditing?'#fff':'#a21caf',fontWeight:600,fontSize:12.5,cursor:'pointer',display:'flex',alignItems:'center',gap:5}}>{drillEditing?'✓ Готово':'✏️ Редактировать'}</button>
       </div>}
-            <div className={'star-area'+(sel!==null?' star-shift':'')} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}} onClick={e=>{if(e.target===e.currentTarget)setSel(null)}}>
+            <div className={'star-area'+(sel!==null?' star-shift':'')+(starRotation?' star-rotating-'+starRotation:'')} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}} onClick={e=>{if(e.target===e.currentTarget)setSel(null)}}>
+        {/* Кнопки вращения (preview-only) */}
+        <div className="rotation-controls">
+          <button disabled={yasna2Drill!=null} className={'rotation-btn'+(starRotation==='ccw'?' active':'')+(yasna2Drill!=null?' disabled':'')} onClick={()=>setStarRotation(r=>r==='ccw'?null:'ccw')} title={yasna2Drill!=null?'Недоступно при открытой sub-Ясне':(starRotation==='ccw'?'Остановить':'Против часовой')} style={{border:'1px solid '+(starRotation==='ccw'?'#a21caf':'#e5e5ea'),color:starRotation==='ccw'?'#fff':'#86868b'}}>↺</button>
+          <button disabled={yasna2Drill!=null} className={'rotation-btn'+(starRotation==='cw'?' active':'')+(yasna2Drill!=null?' disabled':'')} onClick={()=>setStarRotation(r=>r==='cw'?null:'cw')} title={yasna2Drill!=null?'Недоступно при открытой sub-Ясне':(starRotation==='cw'?'Остановить':'По часовой')} style={{border:'1px solid '+(starRotation==='cw'?'#a21caf':'#e5e5ea'),color:starRotation==='cw'?'#fff':'#86868b'}}>↻</button>
+        </div>
         <button className='fullstar-btn' onClick={()=>setFullStar(true)} style={{display:'none',position:'absolute',top:8,right:8,width:32,height:32,borderRadius:8,border:'1px solid #e5e5ea',background:'rgba(255,255,255,.8)',fontSize:16,zIndex:5,alignItems:'center',justifyContent:'center'}}>⤢</button>
         <div style={{width:'100%',height:'100%',maxWidth:900,maxHeight:700}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/></div>
         <Info i={sel} p={y.p} af={af} y={y} overlay={overlay} onEdit={()=>setEd(true)} onClose={()=>setSel(null)}/>
@@ -880,7 +888,7 @@ function App(){
         </div>
       </div>}
       {fullStar&&<>
-        <div className='fullstar' style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
+        <div className={'fullstar'+(starRotation?' star-rotating-'+starRotation:'')} style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
           <div style={{width:'100%',height:'100%',maxWidth:'100vw',maxHeight:'100vh'}}><Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/></div>
         </div>
         <button className='fullstar-close' onClick={()=>setFullStar(false)}>✕</button>

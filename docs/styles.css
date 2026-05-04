@@ -180,3 +180,67 @@ input{font-family:var(--sans)}
 .gate-active {
   animation: gateHint 2.2s ease-in-out infinite;
 }
+
+.rotation-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(255,255,255,.92);
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .2s;
+  backdrop-filter: blur(6px);
+}
+.rotation-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(162,28,175,.18);
+}
+.rotation-btn.active {
+  background: #a21caf;
+  color: #fff;
+  border-color: #a21caf;
+}
+/* ─── Ясна-clock rotation (preview-only) — плавно, GPU, текст остаётся вертикально ─── */
+@keyframes yasnaSpinCW { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes yasnaSpinCCW { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+
+/* Внешняя группа SVG крутится вокруг геометрического центра viewBox 900×700 */
+.star-rotating-cw .yasna-wheel {
+  animation: yasnaSpinCW 24s linear infinite;
+  transform-origin: 450px 350px;
+  transform-box: view-box;
+  will-change: transform;
+}
+.star-rotating-ccw .yasna-wheel {
+  animation: yasnaSpinCCW 24s linear infinite;
+  transform-origin: 450px 350px;
+  transform-box: view-box;
+  will-change: transform;
+}
+
+/* Все <text> внутри wheel контр-вращаются вокруг своего собственного центра.
+   Идеально синхронизированы с outer (та же длительность, противоположное направление) */
+.star-rotating-cw .yasna-wheel text:not([transform]) {
+  animation: yasnaSpinCCW 24s linear infinite;
+  transform-box: fill-box;
+  transform-origin: center center;
+  will-change: transform;
+}
+.star-rotating-ccw .yasna-wheel text:not([transform]) {
+  animation: yasnaSpinCW 24s linear infinite;
+  transform-box: fill-box;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+
+/* Disabled state для rotation кнопок (когда drill активен) */
+.rotation-btn:disabled,
+.rotation-btn.disabled {
+  opacity: .3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
