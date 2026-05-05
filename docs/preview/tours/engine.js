@@ -102,15 +102,58 @@
       return ()=>{ if(rafRef.current){ cancelAnimationFrame(rafRef.current); rafRef.current=null; } };
     }, [playing, stepIdx]);
 
+    // Helpers: advance forward через sub-stages, потом next step
+    const advanceForward = ()=>{
+      const curStep = (stepIdx>=0 && stepIdx<total) ? tour.steps[stepIdx] : null;
+      if(curStep && curStep.stages && curStep.stages.length>1){
+        const t = stageT;
+        // Найти следующую stage с at > t
+        const nextStage = curStep.stages.find(st => (st.at||0) > t + 50);
+        if(nextStage){
+          stepStartRef.current = performance.now() - (nextStage.at||0);
+          setStageT(nextStage.at||0);
+          setPlaying(false);
+          return;
+        }
+        // Все stages пройдены, но текстовый контент мог не успеть — добежим до конца шага если ещё рано
+        const stepDur = curStep.totalDuration || 13000;
+        if(t < stepDur * 0.9){
+          stepStartRef.current = performance.now() - stepDur;
+          setStageT(stepDur);
+          setPlaying(false);
+          return;
+        }
+      }
+      setStepIdx(i=>Math.min(total, i+1));
+      setPlaying(false);
+    };
+    const advanceBack = ()=>{
+      const curStep = (stepIdx>=0 && stepIdx<total) ? tour.steps[stepIdx] : null;
+      if(curStep && curStep.stages && curStep.stages.length>1){
+        const t = stageT;
+        // Найти предыдущую stage
+        let prevAt = -1;
+        for(const st of curStep.stages){ if((st.at||0) < t - 50){ prevAt = st.at||0; } else break; }
+        if(prevAt >= 0){
+          stepStartRef.current = performance.now() - prevAt;
+          setStageT(prevAt);
+          setPlaying(false);
+          return;
+        }
+      }
+      setStepIdx(i=>Math.max(-1, i-1));
+      setPlaying(false);
+    };
+
     useEffect(()=>{
       const onKey = (e)=>{
-        if(e.key==='ArrowRight'||e.key===' '){ e.preventDefault(); setStepIdx(i=>Math.min(total,i+1)); setPlaying(false); }
-        if(e.key==='ArrowLeft'){ e.preventDefault(); setStepIdx(i=>Math.max(-1,i-1)); setPlaying(false); }
+        if(e.key==='ArrowRight'||e.key===' '){ e.preventDefault(); advanceForward(); }
+        if(e.key==='ArrowLeft'){ e.preventDefault(); advanceBack(); }
         if(e.key==='Escape'){ onClose(); }
       };
       window.addEventListener('keydown', onKey);
       return ()=> window.removeEventListener('keydown', onKey);
-    }, []);
+    }, [stepIdx, stageT]);
 
     if(!y) return null;
 
@@ -307,12 +350,12 @@
 
         {/* BOTTOM */}
         <div style={{padding:'14px 22px',background:'rgba(0,0,0,.4)',borderTop:'1px solid rgba(255,255,255,.08)',display:'flex',gap:10,alignItems:'center',flexShrink:0,backdropFilter:'blur(10px)'}}>
-          <button disabled={isIntro} onClick={()=>{ setStepIdx(i=>Math.max(-1,i-1)); setPlaying(false); }} style={{padding:'10px 16px',borderRadius:14,border:'1px solid rgba(255,255,255,.18)',background:'rgba(255,255,255,.05)',color:'#fff',cursor:isIntro?'not-allowed':'pointer',opacity:isIntro?.35:1,fontSize:13,fontWeight:500,display:'flex',alignItems:'center',gap:6}}>{ICONS.arrowLeft}<span>Назад</span></button>
+          <button disabled={isIntro} onClick={advanceBack} style={{padding:'10px 16px',borderRadius:14,border:'1px solid rgba(255,255,255,.18)',background:'rgba(255,255,255,.05)',color:'#fff',cursor:isIntro?'not-allowed':'pointer',opacity:isIntro?.35:1,fontSize:13,fontWeight:500,display:'flex',alignItems:'center',gap:6}}>{ICONS.arrowLeft}<span>Назад</span></button>
           <button onClick={()=>setPlaying(p=>!p)} style={{padding:'10px 16px',borderRadius:14,border:'1px solid rgba(255,255,255,.18)',background:'rgba(255,255,255,.05)',color:'#fff',cursor:'pointer',fontSize:13,fontWeight:500,display:'flex',alignItems:'center',gap:6}}>{playing?ICONS.pause:ICONS.play}<span>{playing?'Пауза':'Авто'}</span></button>
           <div style={{flex:1,fontSize:11,opacity:.5,textAlign:'center'}}>
-            <span style={{display:typeof window!=='undefined'&&window.innerWidth<=600?'none':'inline'}}>← →  Пробел — дальше · Esc — закрыть</span>
+            <span style={{display:typeof window!=='undefined'&&window.innerWidth<=600?'none':'inline'}}>← →  Пробел — следующий шаг анимации · Esc — закрыть</span>
           </div>
-          {!isOutro && <button onClick={()=>{ setStepIdx(i=>Math.min(total,i+1)); setPlaying(false); }} style={{padding:'10px 20px',borderRadius:14,border:'none',background:`linear-gradient(135deg,${accent},${accent}cc)`,color:'#fff',cursor:'pointer',fontSize:13,fontWeight:700,display:'flex',alignItems:'center',gap:6,boxShadow:`0 4px 14px ${accent}44`}}><span>Дальше</span>{ICONS.arrowRight}</button>}
+          {!isOutro && <button onClick={advanceForward} style={{padding:'10px 20px',borderRadius:14,border:'none',background:`linear-gradient(135deg,${accent},${accent}cc)`,color:'#fff',cursor:'pointer',fontSize:13,fontWeight:700,display:'flex',alignItems:'center',gap:6,boxShadow:`0 4px 14px ${accent}44`}}><span>Дальше</span>{ICONS.arrowRight}</button>}
           {isOutro && tour.outro?.cta && <button onClick={()=>{ if(onLoadYasna) onLoadYasna(); onClose(); }} style={{padding:'10px 20px',borderRadius:14,border:'none',background:'linear-gradient(135deg,#3b82f6,#a21caf)',color:'#fff',cursor:'pointer',fontSize:13,fontWeight:700,display:'flex',alignItems:'center',gap:6}}>{ICONS.check}<span>Перейти</span></button>}
         </div>
 
