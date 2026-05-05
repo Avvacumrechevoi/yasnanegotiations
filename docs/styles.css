@@ -206,7 +206,7 @@ input{font-family:var(--sans)}
   color: #fff;
   border-color: #a21caf;
 }
-/* ─── Ясна-clock rotation (preview-only) — плавно, GPU, текст остаётся вертикально ─── */
+/* ─── Ясна-clock rotation (prod) — плавно, GPU, текст остаётся вертикально ─── */
 @keyframes yasnaSpinCW { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes yasnaSpinCCW { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
 
@@ -324,7 +324,7 @@ input{font-family:var(--sans)}
   cursor: not-allowed;
 }
 
-/* ─── 3D «Алмаз» режим (preview-only) ─── */
+/* ─── 3D «Алмаз» режим (prod) ─── */
 .star-area.star-3d-disabled-css {
   perspective: 1500px;
   perspective-origin: 50% 35%;
