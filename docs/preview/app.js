@@ -797,13 +797,18 @@ function App(){
         
         <div style={{flex:1}}/>
         <div className='hdr-btns' style={{display:'flex',gap:6,alignItems:'center'}}>
-        <button onClick={()=>setLessonPicker(true)} style={{border:'1px solid rgba(0,122,255,.35)',color:'#0071e3',padding:'7px 14px',borderRadius:8,fontSize:13,background:'rgba(0,122,255,.06)',cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:5}}>
+        {/* Уроки — secondary outline */}
+        <button onClick={()=>setLessonPicker(true)} title='Уроки по методу Ясны' style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 14px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:5}}>
           <span style={{fontSize:14}}>🎓</span>
           <span>Уроки</span>
         </button>
-        <button onClick={()=>setVerif(true)} style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 16px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>Проверка</button>
-        <button onClick={()=>setInstr(true)} style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 16px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>Инструкция</button>
-        <button onClick={()=>setGlossary(true)} style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 16px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>Глоссарий</button>
+        {/* Гид по Ясне — secondary outline (если зарегистрирован для текущей Ясны) */}
+        {y && window.YasnaTours && window.YasnaTours.has(y.name) && <button onClick={()=>setShowTour(true)} title='Интерактивный гид с пояснением каждой механики' style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 14px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:5}}><span style={{fontSize:11,color:'#a21caf'}}>✦</span><span>Гид</span></button>}
+        <button onClick={()=>setVerif(true)} style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 14px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>Проверка</button>
+        <button onClick={()=>setInstr(true)} style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 14px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>Инструкция</button>
+        <button onClick={()=>setGlossary(true)} style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 14px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>Глоссарий</button>
+        {/* Совместить — компактная иконка */}
+        <button onClick={()=>overlay?setOverlay(null):setShowOverlayPicker(true)} title={overlay?'Снять совмещение':'Совместить две Ясны'} style={{border:`1px solid ${overlay?'rgba(175,82,222,.4)':'#d2d2d7'}`,color:overlay?'#af52de':'#424245',padding:'7px 11px',borderRadius:8,fontSize:15,background:overlay?'rgba(175,82,222,.06)':'#fff',cursor:'pointer',minWidth:36}}>{overlay?'⊗':'⊕'}</button>
         <button onClick={()=>setFullStar(true)} title="Во весь экран" style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 11px',borderRadius:8,fontSize:15,background:'#fff',cursor:'pointer',minWidth:36}}>⤢</button>
         </div>
         <div className='hdr-mob-tools' style={{display:'none',gap:6,alignItems:'center',marginRight:8}}>
@@ -844,11 +849,9 @@ function App(){
           :pinnedTemplates.map(t=>{const active=y.name===t.n;return<button key={t.id} onClick={()=>load(t)} style={{position:'relative',padding:t.rubrik?'7px 14px 7px 18px':'7px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:active?'rgba(0,113,227,.14)':'transparent',color:active?'#0058b8':'var(--txt2)',border:active?'1.5px solid rgba(0,113,227,.55)':'1px solid transparent',flexShrink:0,fontWeight:active?700:400,cursor:'pointer',overflow:'hidden',transition:'background .15s, border-color .15s, color .15s',boxShadow:active?'0 1px 3px rgba(0,113,227,.12)':'none'}}>{t.rubrik&&<span style={{position:'absolute',left:0,top:0,bottom:0,width:3,background:'#30A060'}} title="Проверена"/>}{t.n}</button>;})}
         </div>
         <div className='nav-right' style={{display:'flex',alignItems:'center',gap:5,paddingRight:20,paddingLeft:10,flexShrink:0,background:'var(--bg2)',borderLeft:'1px solid #e5e5ea'}}>
-        {/* Кнопка онбординга — только для Ясны Атмосферных явлений */}
-        {y && window.YasnaTours && window.YasnaTours.has(y.name) && <button onClick={()=>setShowTour(true)} title='Открыть интерактивный гид по этой Ясне с пояснениями каждой механики' style={{padding:'7px 16px',borderRadius:22,fontSize:13,whiteSpace:'nowrap',background:'linear-gradient(135deg,#3b82f6,#a21caf)',color:'#fff',border:'none',cursor:'pointer',fontWeight:600,boxShadow:'0 2px 10px rgba(162,28,175,.3), inset 0 1px 0 rgba(255,255,255,.18)',display:'flex',alignItems:'center',gap:6,transition:'transform .15s'}} onMouseDown={e=>e.currentTarget.style.transform='scale(.96)'} onMouseUp={e=>e.currentTarget.style.transform='scale(1)'}><span style={{fontSize:11}}>✦</span><span className='desk-only'>Гид по Ясне</span><span className='mob-only'>Гид</span></button>}
-        <button onClick={()=>setPicker(true)} style={{padding:'6px 14px',borderRadius:16,fontSize:13,color:'#6e6e73',border:'1px dashed var(--border)',whiteSpace:'nowrap',background:'transparent',cursor:'pointer'}} title='Все доступные Ясны'><span className='desk-only'>+ ещё ({Math.max(0, T.length - pinnedTemplates.length)})</span><span className='mob-only'>☰</span></button>
-        <button className='combine-btn' onClick={()=>overlay?setOverlay(null):setShowOverlayPicker(true)} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:overlay?'rgba(175,82,222,.08)':'transparent',color:overlay?'#af52de':'var(--txt3)',border:`1px solid ${overlay?'rgba(175,82,222,.3)':'var(--border)'}`,cursor:'pointer'}}><span className='desk-only'>{overlay?'⊗ Снять':'⊕ Совместить'}</span><span className='mob-only'>{overlay?'⊗':'⊕'}</span></button>
-        <button className='desk-only' onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);}} style={{padding:'6px 14px',borderRadius:16,fontSize:13,color:'#0071e3',border:'1px dashed rgba(0,122,255,.35)',whiteSpace:'nowrap',background:'transparent',cursor:'pointer',fontWeight:500}}>+ Создать</button>
+        {/* Только + ещё и + Создать остаются в nav-right (компактнее) */}
+        <button onClick={()=>setPicker(true)} style={{padding:'6px 12px',borderRadius:16,fontSize:13,color:'#6e6e73',border:'1px dashed var(--border)',whiteSpace:'nowrap',background:'transparent',cursor:'pointer'}} title='Все доступные Ясны'><span className='desk-only'>+ ещё ({Math.max(0, T.length - pinnedTemplates.length)})</span><span className='mob-only'>☰</span></button>
+        <button className='desk-only' onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);}} style={{padding:'7px 16px',borderRadius:16,fontSize:13,color:'#fff',border:'none',whiteSpace:'nowrap',background:'#0071e3',cursor:'pointer',fontWeight:600,boxShadow:'0 1px 3px rgba(0,113,227,.25)'}} title='Создать новую Ясну'>+ Создать</button>
         </div>
       </div>
       <div className='filters-toggle' style={{display:'none',padding:'4px 10px',borderBottom:'1px solid #e5e5ea',flexShrink:0}}>
