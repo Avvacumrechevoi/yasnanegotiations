@@ -291,12 +291,7 @@
     return (
       <div style={{position:'fixed',inset:0,background:BG,zIndex:200,display:'flex',flexDirection:'column',color:FG,fontFamily:'inherit',animation:'tourFadeIn .5s ease'}} onClick={e=>{ if(e.target===e.currentTarget) handleClose(); }}>
 
-        {/* PROGRESS BAR — sliver at very top showing % */}
-        <div style={{height:3,background:'rgba(255,255,255,.06)',flexShrink:0,position:'relative'}}>
-          <div style={{height:'100%',background:`linear-gradient(90deg,${accent},${accent}cc)`,width:`${overallPercent}%`,transition:'width .35s ease'}}/>
-        </div>
-
-        {/* TOP — minimal */}
+        {/* TOP — minimal (bar заменяет точки) */}
         <div style={{padding:'14px 24px',display:'flex',alignItems:'center',gap:14,borderBottom:'1px solid '+BORDER,flexShrink:0,background:BG}}>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
             <div style={{width:26,height:26,borderRadius:7,background:accent,display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,color:'#0e1019',fontWeight:700}}>✦</div>
@@ -305,14 +300,28 @@
               <div style={{fontSize:11,color:FG_DIM,marginTop:1}}>{y.name}</div>
             </div>
           </div>
-          <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:5,minWidth:0,overflow:'hidden'}}>
-            {dots.map((d,i)=>(
-              <button key={i} onClick={()=>{ setStepIdx(d.idx); setPlaying(false); }}
-                style={{padding:0,border:'none',cursor:'pointer',height:6,width:d.active?22:6,borderRadius:3,
-                       background:d.active?accent:(d.completed?'rgba(255,255,255,.32)':'rgba(255,255,255,.12)'),
-                       transition:'all .35s ease'}}
-                title={d.idx===-1?'Вступление':d.idx===total?'Завершение':`${d.idx+1}. ${tour.steps[d.idx]?.title||''}`}/>
-            ))}
+          {/* Progress bar with step segments — кликабельный для прыжка */}
+          <div style={{flex:1,minWidth:0,position:'relative',height:10,margin:'0 8px'}} onClick={(e)=>{
+            const rect = e.currentTarget.getBoundingClientRect();
+            const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            const seg = pct * (total + 2);
+            const targetIdx = Math.max(-1, Math.min(total, Math.floor(seg) - 1));
+            setStepIdx(targetIdx);
+            setPlaying(false);
+          }}>
+            {/* track */}
+            <div style={{position:'absolute',inset:0,background:'rgba(255,255,255,.08)',borderRadius:5,overflow:'hidden',cursor:'pointer'}}>
+              {/* fill */}
+              <div style={{height:'100%',background:`linear-gradient(90deg,${accent}aa,${accent})`,width:`${overallPercent}%`,transition:'width .4s cubic-bezier(.4,0,.2,1)',borderRadius:5}}/>
+            </div>
+            {/* segment dividers (тонкие вертикальные линии между шагами) */}
+            {Array.from({length: total + 1}).map((_, i) => {
+              const segPos = ((i + 1) / (total + 2)) * 100;
+              const passed = (i + 1) <= (stepIdx + 1);
+              return <div key={i} style={{position:'absolute',top:1,bottom:1,left:`${segPos}%`,width:1,background:passed?'rgba(255,255,255,.4)':'rgba(255,255,255,.18)',pointerEvents:'none',transition:'background .35s ease'}}/>;
+            })}
+            {/* current step indicator (small dot above active segment) */}
+            <div style={{position:'absolute',top:-3,left:`${overallPercent}%`,width:8,height:16,marginLeft:-4,background:accent,borderRadius:2,boxShadow:`0 0 8px ${accent}`,transition:'left .4s cubic-bezier(.4,0,.2,1)',pointerEvents:'none'}}/>
           </div>
           <div style={{fontSize:11.5,color:FG_DIM,fontVariantNumeric:'tabular-nums',whiteSpace:'nowrap',display:'flex',alignItems:'center',gap:8}}><span>{stepIdx+2} / {total+2}</span><span style={{color:accent,fontWeight:700}}>{overallPercent}%</span></div>
           <button onClick={handleClose} style={{display:'flex',alignItems:'center',gap:5,background:'transparent',border:'1px solid '+BORDER,color:FG_MUTED,padding:'6px 11px',borderRadius:8,fontSize:12,cursor:'pointer',fontWeight:500}}>{ICONS.close}<span style={{display:typeof window!=='undefined'&&window.innerWidth<=600?'none':'inline'}}>Закрыть</span></button>
