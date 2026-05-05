@@ -706,13 +706,13 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose}){
   useEffect(()=>{setCardSize('compact');},[i]);
 
   return(
-    <div className={"fi fi-"+cardSize} style={{position:'fixed',bottom:14,right:14,width:420,maxHeight:hasMech?'75vh':'55vh',background:'rgba(255,255,255,.97)',border:'1px solid #e5e5ea',borderRadius:16,backdropFilter:'blur(16px)',boxShadow:'0 4px 24px rgba(0,0,0,.08)',display:'flex',flexDirection:'column'}}>
+    <div className={"fi fi-"+cardSize} style={{position:'fixed',bottom:14,right:14,width:420,maxWidth:'calc(100vw - 28px)',maxHeight:hasMech?'75vh':'55vh',background:'rgba(255,255,255,.97)',border:'1px solid #e5e5ea',borderRadius:16,backdropFilter:'blur(16px)',boxShadow:'0 4px 24px rgba(0,0,0,.08)',display:'flex',flexDirection:'column',overflow:'hidden',boxSizing:'border-box',contain:'layout'}}>
       <div className="fi-handle" style={{display:'flex',justifyContent:'center',flexShrink:0}}>
         <div className="fi-handle-bar" style={{width:36,height:4,borderRadius:2,background:'#d2d2d7'}}/>
       </div>
       <div className="fi-header-zone" style={{padding:'4px 18px 8px',flexShrink:0,position:'relative'}}>
         <button onClick={onClose} style={{position:'absolute',top:2,right:12,width:28,height:28,borderRadius:'50%',border:'1px solid #e5e5ea',background:'#f5f5f7',fontSize:14,color:'#86868b',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:1}}>✕</button>
-        <div style={{display:'flex',alignItems:'center',gap:12,paddingRight:34}}>
+        <div style={{display:'flex',alignItems:'center',gap:12,paddingRight:34,minWidth:0,maxWidth:'100%'}}>
           <div style={{width:36,height:36,borderRadius:'50%',border:`2px solid ${cr.c}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:700,color:cr.c,flexShrink:0}}>{i}</div>
           <div style={{flex:1,minWidth:0}}>
             <div style={{fontSize:16,color:'#1d1d1f',fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{label||<span style={{color:'#aeaeb2'}}>Не заполнено</span>}</div>
