@@ -765,7 +765,7 @@ function App(){
   const[picker,setPicker]=useState(false);
   const[pinned,setPinned]=useState(defPinned);
   const[lessonPicker,setLessonPicker]=useState(false);
-  const[showAtmOnboarding,setShowAtmOnboarding]=useState(false);
+  const[showTour,setShowTour]=useState(false);
   const[activeLesson,setActiveLesson]=useState(null);
   const[completedLessons,setCompletedLessons]=useState([]);
   // Auto-close burger menu when any modal/panel opens
@@ -845,7 +845,7 @@ function App(){
         </div>
         <div className='nav-right' style={{display:'flex',alignItems:'center',gap:5,paddingRight:20,paddingLeft:10,flexShrink:0,background:'var(--bg2)',borderLeft:'1px solid #e5e5ea'}}>
         {/* Кнопка онбординга — только для Ясны Атмосферных явлений */}
-        {y && y.name === 'Атмосферных явлений' && <button onClick={()=>setShowAtmOnboarding(true)} title="Запустить интерактивный онбординг с анимацией каждой механики" style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:'linear-gradient(90deg,#3b82f6,#a21caf)',color:'#fff',border:'none',cursor:'pointer',fontWeight:600,boxShadow:'0 1px 4px rgba(162,28,175,.25)'}}><span className='desk-only'>▶ Онбординг</span><span className='mob-only'>▶</span></button>}
+        {y && window.YasnaTours && window.YasnaTours.has(y.name) && <button onClick={()=>setShowTour(true)} title='Открыть интерактивный гид по этой Ясне с пояснениями каждой механики' style={{padding:'7px 16px',borderRadius:22,fontSize:13,whiteSpace:'nowrap',background:'linear-gradient(135deg,#3b82f6,#a21caf)',color:'#fff',border:'none',cursor:'pointer',fontWeight:600,boxShadow:'0 2px 10px rgba(162,28,175,.3), inset 0 1px 0 rgba(255,255,255,.18)',display:'flex',alignItems:'center',gap:6,transition:'transform .15s'}} onMouseDown={e=>e.currentTarget.style.transform='scale(.96)'} onMouseUp={e=>e.currentTarget.style.transform='scale(1)'}><span style={{fontSize:11}}>✦</span><span className='desk-only'>Гид по Ясне</span><span className='mob-only'>Гид</span></button>}
         <button onClick={()=>setPicker(true)} style={{padding:'6px 14px',borderRadius:16,fontSize:13,color:'#6e6e73',border:'1px dashed var(--border)',whiteSpace:'nowrap',background:'transparent',cursor:'pointer'}}><span className='desk-only'>+ ещё</span><span className='mob-only'>☰</span></button>
         <button className='combine-btn' onClick={()=>overlay?setOverlay(null):setShowOverlayPicker(true)} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:overlay?'rgba(175,82,222,.08)':'transparent',color:overlay?'#af52de':'var(--txt3)',border:`1px solid ${overlay?'rgba(175,82,222,.3)':'var(--border)'}`,cursor:'pointer'}}><span className='desk-only'>{overlay?'⊗ Снять':'⊕ Совместить'}</span><span className='mob-only'>{overlay?'⊗':'⊕'}</span></button>
         <button className='desk-only' onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);}} style={{padding:'6px 14px',borderRadius:16,fontSize:13,color:'#0071e3',border:'1px dashed rgba(0,122,255,.35)',whiteSpace:'nowrap',background:'transparent',cursor:'pointer',fontWeight:500}}>+ Создать</button>
@@ -938,7 +938,11 @@ function App(){
       {verif&&<Verification y={y} vs={vState} setVs={setVState} onClose={()=>setVerif(false)}/>}
       {instr&&<Instruction onClose={()=>setInstr(false)}/>}
       {lessonPicker&&<LessonPicker onSelectLesson={(id)=>{setActiveLesson(id);setLessonPicker(false);}} onClose={()=>setLessonPicker(false)} completedLessons={completedLessons}/>}
-      {showAtmOnboarding&&window.YasnaOnboardingAtm&&React.createElement(window.YasnaOnboardingAtm,{onClose:()=>setShowAtmOnboarding(false),onLoadAtm:()=>{const tpl=T.find(t=>t.id==='atm_yavl');if(tpl)load(tpl);}})}
+      {showTour&&window.YasnaTours&&window.YasnaTours.has(y.name)&&(()=>{
+        const tour=window.YasnaTours.get(y.name);
+        const tpl=T.find(t=>t.n===y.name);
+        return React.createElement(window.YasnaTours.GuideRunner,{tour,yasnaTpl:tpl,onClose:()=>setShowTour(false),onLoadYasna:()=>{if(tpl)load(tpl);}});
+      })()}
       {activeLesson&&<Lesson lessonId={activeLesson} onClose={()=>setActiveLesson(null)} onComplete={(id)=>setCompletedLessons(prev=>prev.includes(id)?prev:[...prev,id])} onPickAnother={()=>{setActiveLesson(null);setLessonPicker(true);}} onOpenLesson={(id)=>setActiveLesson(id)}/>}
       {glossary&&<Glossary onClose={()=>setGlossary(false)}/>}
       {picker&&<Picker pinned={pinned} onTogglePin={togglePin} onClear={()=>setPinned([])} onClose={()=>setPicker(false)}/>}
