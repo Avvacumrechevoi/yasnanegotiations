@@ -18,11 +18,36 @@
 (function(){
   const {useState, useEffect, useRef} = React;
 
+  // ───── Public API ─────
   window.YasnaTours = window.YasnaTours || {
+    version: '2.0.0',
     registry: new Map(),
-    register(name, config){ this.registry.set(name, config); },
+    speed: 2.0, // глобальный множитель авто-прокрутки
+    register(name, config){
+      const errors = this.validate(config);
+      if(errors.length){ console.warn('[YasnaTours] Invalid config for', name, errors); return false; }
+      this.registry.set(name, config);
+      return true;
+    },
     get(name){ return this.registry.get(name); },
     has(name){ return this.registry.has(name); },
+    list(){ return Array.from(this.registry.keys()); },
+    // Sanity-check tour config
+    validate(c){
+      const e = [];
+      if(!c) return ['config required'];
+      if(!c.id) e.push('id required');
+      if(!c.intro) e.push('intro required');
+      if(!Array.isArray(c.steps) || !c.steps.length) e.push('steps[] required');
+      if(c.steps){
+        c.steps.forEach((st, i) => {
+          if(!st.id) e.push(`steps[${i}].id required`);
+          if(!st.title) e.push(`steps[${i}].title required`);
+          if(st.narrative && !Array.isArray(st.narrative)) e.push(`steps[${i}].narrative must be array`);
+        });
+      }
+      return e;
+    },
   };
 
   // Минимум иконок — большинство выдержано в тексте
@@ -55,8 +80,8 @@
     return { tour: m[1], step: m[2] != null ? parseInt(m[2], 10) : -1 };
   }
 
-  // SPEED — глобальный множитель авто-прокрутки (2× медленнее по умолчанию)
-  const SPEED = 2.0;
+  // getSpeed() берётся из YasnaTours.speed (можно переопределить через window.YasnaTours.speed = ...)
+  const getSpeed = () => (window.YasnaTours && window.YasnaTours.speed) || 2.0;
 
   function GuideRunner({ tour, yasnaTpl, onClose, onLoadYasna }){
     const {Star} = window.YasnaCore;
@@ -78,6 +103,22 @@
     const rafRef = useRef(null);
     const panelRef = useRef(null);
     const [revealedCount, setRevealedCount] = useState(0);
+
+    // Чистый close: очищает URL hash + cancels RAF + reset state
+    const handleClose = ()=>{
+      if(rafRef.current){ cancelAnimationFrame(rafRef.current); rafRef.current=null; }
+      // Clear URL hash чтобы при повторном открытии не восстанавливался шаг
+      if(typeof window !== 'undefined' && window.history){
+        const cleanUrl = window.location.pathname + window.location.search;
+        try { window.history.replaceState(null, '', cleanUrl); } catch(_){}
+      }
+      // Reset internal state на случай если компонент будет переиспользован
+      setStepIdx(-1);
+      setStageT(0);
+      setRevealedCount(0);
+      setPlaying(true);
+      onClose();
+    };
 
     const [y] = useState(()=> yasnaTpl ? {
       name: yasnaTpl.n, p:[...yasnaTpl.p],
@@ -111,7 +152,7 @@
         const elapsed = now - stepStartRef.current;
         setStageT(elapsed);
         const baseDur = isIntro ? (tour.intro?.duration||5500) : (step?.totalDuration||13000);
-        const totalDur = isOutro ? Infinity : baseDur * SPEED;
+        const totalDur = isOutro ? Infinity : baseDur * getSpeed();
         if(elapsed >= totalDur && stepIdx < total){ setStepIdx(i=>Math.min(total, i+1)); return; }
         rafRef.current = requestAnimationFrame(tick);
       };
@@ -129,7 +170,7 @@
         }
         return e;
       });
-      const visible = resolved.filter(e => stageT >= (e.at||0) * SPEED).length;
+      const visible = resolved.filter(e => stageT >= (e.at||0) * getSpeed()).length;
       if(visible > revealedCount){
         setRevealedCount(visible);
         // 2 frame'а чтобы React успел рендер + animation
@@ -158,9 +199,9 @@
     const advanceForward = ()=>{
       const cs = (stepIdx>=0 && stepIdx<total) ? tour.steps[stepIdx] : null;
       if(cs && cs.stages && cs.stages.length>1){
-        const next = cs.stages.find(st => (st.at||0)*SPEED > stageT + 50);
+        const next = cs.stages.find(st => (st.at||0)*getSpeed() > stageT + 50);
         if(next){
-          const target = (next.at||0)*SPEED;
+          const target = (next.at||0)*getSpeed();
           stepStartRef.current = performance.now() - target;
           setStageT(target);
           setPlaying(false);
@@ -168,16 +209,16 @@
         }
         // also check narrative
         if(cs.narrative){
-          const nextNarr = cs.narrative.find(e => (e.at||0)*SPEED > stageT + 50);
+          const nextNarr = cs.narrative.find(e => (e.at||0)*getSpeed() > stageT + 50);
           if(nextNarr){
-            const target = (nextNarr.at||0)*SPEED;
+            const target = (nextNarr.at||0)*getSpeed();
             stepStartRef.current = performance.now() - target;
             setStageT(target);
             setPlaying(false);
             return;
           }
         }
-        const stepDurEff = (cs.totalDuration || 13000) * SPEED;
+        const stepDurEff = (cs.totalDuration || 13000) * getSpeed();
         if(stageT < stepDurEff * 0.95){
           stepStartRef.current = performance.now() - stepDurEff;
           setStageT(stepDurEff);
@@ -192,8 +233,8 @@
       const cs = (stepIdx>=0 && stepIdx<total) ? tour.steps[stepIdx] : null;
       if(cs){
         const allTimes = [];
-        if(cs.stages) cs.stages.forEach(s => allTimes.push((s.at||0)*SPEED));
-        if(cs.narrative) cs.narrative.forEach(s => allTimes.push((s.at||0)*SPEED));
+        if(cs.stages) cs.stages.forEach(s => allTimes.push((s.at||0)*getSpeed()));
+        if(cs.narrative) cs.narrative.forEach(s => allTimes.push((s.at||0)*getSpeed()));
         allTimes.sort((a,b)=>a-b);
         let prev = -1;
         for(const t of allTimes){ if(t < stageT - 50) prev = t; else break; }
@@ -212,7 +253,7 @@
       const onKey = (e)=>{
         if(e.key==='ArrowRight'||e.key===' '){ e.preventDefault(); advanceForward(); }
         if(e.key==='ArrowLeft'){ e.preventDefault(); advanceBack(); }
-        if(e.key==='Escape'){ onClose(); }
+        if(e.key==='Escape'){ handleClose(); }
       };
       window.addEventListener('keydown', onKey);
       return ()=> window.removeEventListener('keydown', onKey);
@@ -221,16 +262,22 @@
     if(!y) return null;
 
     const stageState = step?.stages
-      ? resolveStage(step.stages, stageT/SPEED)
+      ? resolveStage(step.stages, stageT/getSpeed())
       : { hl:step?.highlight||null, af:step?.af||[], stageIdx:0, totalStages:1, note:null };
     const af = isOutro ? (tour.outro?.af||[]) : stageState.af;
     const highlight = stageState.hl;
 
-    const stepDur = (step?.totalDuration||13000) * SPEED;
+    const stepDur = (step?.totalDuration||13000) * getSpeed();
     const sp = Math.min(1, stageT / stepDur);
 
     const dots = [];
     for(let i=-1; i<=total; i++) dots.push({idx:i, active:i===stepIdx, completed:i<stepIdx});
+
+    // Общий прогресс по туру (0-100%): intro + steps + outro
+    const totalUnits = total + 2;
+    const baseUnit = stepIdx + 1; // -1→0, 0..total-1→1..total, total→total+1
+    const stepFraction = isStep ? Math.min(1, stageT / ((step?.totalDuration||13000)*getSpeed())) : (isIntro ? Math.min(1, stageT / ((tour.intro?.duration||5500)*getSpeed())) : 1);
+    const overallPercent = Math.min(100, Math.round(((baseUnit + stepFraction) / totalUnits) * 100));
 
     // Минималистичная палитра — neutral базовая, accent для активного
     const BG = '#0e1019';
@@ -242,7 +289,12 @@
     const SURFACE_RAISED = 'rgba(255,255,255,.04)';
 
     return (
-      <div style={{position:'fixed',inset:0,background:BG,zIndex:200,display:'flex',flexDirection:'column',color:FG,fontFamily:'inherit',animation:'tourFadeIn .5s ease'}} onClick={e=>{ if(e.target===e.currentTarget) onClose(); }}>
+      <div style={{position:'fixed',inset:0,background:BG,zIndex:200,display:'flex',flexDirection:'column',color:FG,fontFamily:'inherit',animation:'tourFadeIn .5s ease'}} onClick={e=>{ if(e.target===e.currentTarget) handleClose(); }}>
+
+        {/* PROGRESS BAR — sliver at very top showing % */}
+        <div style={{height:3,background:'rgba(255,255,255,.06)',flexShrink:0,position:'relative'}}>
+          <div style={{height:'100%',background:`linear-gradient(90deg,${accent},${accent}cc)`,width:`${overallPercent}%`,transition:'width .35s ease'}}/>
+        </div>
 
         {/* TOP — minimal */}
         <div style={{padding:'14px 24px',display:'flex',alignItems:'center',gap:14,borderBottom:'1px solid '+BORDER,flexShrink:0,background:BG}}>
@@ -262,8 +314,8 @@
                 title={d.idx===-1?'Вступление':d.idx===total?'Завершение':`${d.idx+1}. ${tour.steps[d.idx]?.title||''}`}/>
             ))}
           </div>
-          <div style={{fontSize:11.5,color:FG_DIM,fontVariantNumeric:'tabular-nums',whiteSpace:'nowrap'}}>{stepIdx+2} / {total+2}</div>
-          <button onClick={onClose} style={{display:'flex',alignItems:'center',gap:5,background:'transparent',border:'1px solid '+BORDER,color:FG_MUTED,padding:'6px 11px',borderRadius:8,fontSize:12,cursor:'pointer',fontWeight:500}}>{ICONS.close}<span style={{display:typeof window!=='undefined'&&window.innerWidth<=600?'none':'inline'}}>Закрыть</span></button>
+          <div style={{fontSize:11.5,color:FG_DIM,fontVariantNumeric:'tabular-nums',whiteSpace:'nowrap',display:'flex',alignItems:'center',gap:8}}><span>{stepIdx+2} / {total+2}</span><span style={{color:accent,fontWeight:700}}>{overallPercent}%</span></div>
+          <button onClick={handleClose} style={{display:'flex',alignItems:'center',gap:5,background:'transparent',border:'1px solid '+BORDER,color:FG_MUTED,padding:'6px 11px',borderRadius:8,fontSize:12,cursor:'pointer',fontWeight:500}}>{ICONS.close}<span style={{display:typeof window!=='undefined'&&window.innerWidth<=600?'none':'inline'}}>Закрыть</span></button>
         </div>
 
         {/* BODY split */}
@@ -376,7 +428,7 @@
                   return (
                     <div style={{display:'flex',flexDirection:'column',gap:18}}>
                       {arr.map((entry,i)=>{
-                        const visible = stageT >= (entry.at||0) * SPEED;
+                        const visible = stageT >= (entry.at||0) * getSpeed();
                         if(!visible) return null;
                         const kind = entry.kind || 'default';
                         let style = { fontSize:15.5, lineHeight:1.7, color:FG };
@@ -404,7 +456,7 @@
                   return (
                   <div style={{display:'flex',flexDirection:'column',gap:18}}>
                     {resolved.map((entry, i)=>{
-                      const visible = stageT >= (entry.at||0) * SPEED;
+                      const visible = stageT >= (entry.at||0) * getSpeed();
                       if(!visible) return null;
                       const kind = entry.kind || 'default';
                       let style = { fontSize:15.5, lineHeight:1.7, color:FG };
@@ -470,7 +522,7 @@
                   </ol>
                 )}
                 {tour.outro.cta && (
-                  <button onClick={()=>{ if(onLoadYasna) onLoadYasna(); onClose(); }} style={{padding:'14px 22px',borderRadius:12,border:'none',background:accent,color:'#0e1019',cursor:'pointer',fontSize:14,fontWeight:700,display:'flex',alignItems:'center',gap:8,transition:'transform .15s'}} onMouseDown={e=>e.currentTarget.style.transform='scale(.97)'} onMouseUp={e=>e.currentTarget.style.transform='scale(1)'}>{ICONS.check}<span>{tour.outro.cta}</span></button>
+                  <button onClick={()=>{ if(onLoadYasna) onLoadYasna(); handleClose(); }} style={{padding:'14px 22px',borderRadius:12,border:'none',background:accent,color:'#0e1019',cursor:'pointer',fontSize:14,fontWeight:700,display:'flex',alignItems:'center',gap:8,transition:'transform .15s'}} onMouseDown={e=>e.currentTarget.style.transform='scale(.97)'} onMouseUp={e=>e.currentTarget.style.transform='scale(1)'}>{ICONS.check}<span>{tour.outro.cta}</span></button>
                 )}
               </div>
             )}
@@ -485,7 +537,7 @@
             <span style={{display:typeof window!=='undefined'&&window.innerWidth<=600?'none':'inline'}}>← →  Пробел — следующий шаг анимации · Esc — закрыть</span>
           </div>
           {!isOutro && <button onClick={advanceForward} style={{padding:'9px 18px',borderRadius:10,border:'none',background:accent,color:'#0e1019',cursor:'pointer',fontSize:12.5,fontWeight:700,display:'flex',alignItems:'center',gap:6}}><span>Дальше</span>{ICONS.arrowRight}</button>}
-          {isOutro && tour.outro?.cta && <button onClick={()=>{ if(onLoadYasna) onLoadYasna(); onClose(); }} style={{padding:'9px 18px',borderRadius:10,border:'none',background:accent,color:'#0e1019',cursor:'pointer',fontSize:12.5,fontWeight:700,display:'flex',alignItems:'center',gap:6}}>{ICONS.check}<span>Перейти</span></button>}
+          {isOutro && tour.outro?.cta && <button onClick={()=>{ if(onLoadYasna) onLoadYasna(); handleClose(); }} style={{padding:'9px 18px',borderRadius:10,border:'none',background:accent,color:'#0e1019',cursor:'pointer',fontSize:12.5,fontWeight:700,display:'flex',alignItems:'center',gap:6}}>{ICONS.check}<span>Перейти</span></button>}
         </div>
 
         <style>{`
