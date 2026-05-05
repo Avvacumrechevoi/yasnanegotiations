@@ -941,6 +941,10 @@ function App(){
       {showTour&&window.YasnaTours&&window.YasnaTours.has(y.name)&&(()=>{
         const tour=window.YasnaTours.get(y.name);
         const tpl=T.find(t=>t.n===y.name);
+        // Авто-загрузка шаблона: если текущая Ясна — кастомная или другая, грузим эталон тура
+        if(tpl && y.name===tpl.n && (!y.p || y.p.length!==12 || !y.p[0])){
+          load(tpl);
+        }
         return React.createElement(window.YasnaTours.GuideRunner,{tour,yasnaTpl:tpl,onClose:()=>setShowTour(false),onLoadYasna:()=>{if(tpl)load(tpl);}});
       })()}
       {activeLesson&&<Lesson lessonId={activeLesson} onClose={()=>setActiveLesson(null)} onComplete={(id)=>setCompletedLessons(prev=>prev.includes(id)?prev:[...prev,id])} onPickAnother={()=>{setActiveLesson(null);setLessonPicker(true);}} onOpenLesson={(id)=>setActiveLesson(id)}/>}

@@ -56,6 +56,12 @@
     close:      I(<path d="M6 6 L18 18 M18 6 L6 18"/>, {size:16, sw:2.2}),
     question:   I(<g><circle cx="12" cy="12" r="9"/><path d="M9 9 Q9 6 12 6 Q15 6 15 9 Q15 11 12 12 V14 M12 17 H12.01"/></g>),
     bridge:     I(<path d="M3 18 H21 M5 18 V12 Q12 6 19 12 V18 M9 14 V18 M15 14 V18"/>),
+    quote:      I(<path d="M7 7 H10 V11 H6 V14 Q6 17 9 17 M14 7 H17 V11 H13 V14 Q13 17 16 17"/>),
+    book:       I(<path d="M4 4 H11 V20 H4 Z M11 4 V20 M11 4 H20 V20 H11 M7 8 H8 M7 12 H8 M14 8 H17 M14 12 H17"/>),
+    paradox:    I(<g><circle cx="12" cy="12" r="9"/><path d="M3 12 Q12 6 21 12 Q12 18 3 12 Z M12 7 V17"/></g>),
+    mnemonic:   I(<path d="M5 5 H19 V19 H5 Z M5 9 H19 M9 5 V19 M5 14 H13"/>),
+    crossRef:   I(<path d="M3 12 H21 M16 7 L21 12 L16 17 M9 7 L4 12 L9 17"/>),
+    eye:        I(<g><circle cx="12" cy="12" r="3"/><path d="M2 12 Q6 5 12 5 Q18 5 22 12 Q18 19 12 19 Q6 19 2 12"/></g>),
   };
   window.YasnaTours.ICONS = ICONS;
 
@@ -72,9 +78,24 @@
   // stages[at] и totalDuration не трогаем — engine применяет SPEED при resolve и tick.
   const SPEED = 2.0;
 
+  // Deep-link: парсим URL hash вида #tour=sutki&step=5
+  function parseHash(){
+    if(typeof window === 'undefined') return null;
+    const h = window.location.hash || '';
+    const m = h.match(/tour=([\w-]+)(?:&step=(-?\d+))?/);
+    if(!m) return null;
+    return { tour: m[1], step: m[2] != null ? parseInt(m[2], 10) : -1 };
+  }
+
   function GuideRunner({ tour, yasnaTpl, onClose, onLoadYasna }){
     const {Star} = window.YasnaCore;
-    const [stepIdx, setStepIdx] = useState(-1);
+    // Init step from URL hash if present and matches this tour
+    const initialStep = (()=>{
+      const h = parseHash();
+      if(h && h.tour === tour.id) return h.step;
+      return -1;
+    })();
+    const [stepIdx, setStepIdx] = useState(initialStep);
     const [stageT, setStageT] = useState(0);
     const [playing, setPlaying] = useState(true);
     const stepStartRef = useRef(performance.now());
@@ -91,7 +112,17 @@
     const isStep  = stepIdx >= 0 && stepIdx < total;
     const step    = isStep ? tour.steps[stepIdx] : null;
 
-    useEffect(()=>{ stepStartRef.current = performance.now(); setStageT(0); }, [stepIdx]);
+    useEffect(()=>{
+      stepStartRef.current = performance.now();
+      setStageT(0);
+      // Update URL hash for deep-link
+      if(typeof window !== 'undefined' && window.history){
+        const newHash = `#tour=${tour.id}&step=${stepIdx}`;
+        if(window.location.hash !== newHash){
+          window.history.replaceState(null, '', newHash);
+        }
+      }
+    }, [stepIdx]);
 
     useEffect(()=>{
       if(!playing){ if(rafRef.current){ cancelAnimationFrame(rafRef.current); rafRef.current=null; } return; }
@@ -212,6 +243,22 @@
                 <span style={{fontSize:13,fontWeight:700,letterSpacing:.3,color:'#fff'}}>Шаг {stepIdx+1}</span>
               </div>
             )}
+
+            {/* ILLUSTRATION — авторская SVG-схема понятия в верхнем правом углу */}
+            {step && step.illustration && (
+              <div style={{position:'absolute',top:32,right:32,padding:'12px',borderRadius:16,background:'rgba(0,0,0,.5)',backdropFilter:'blur(10px)',border:`1px solid ${accent}55`,boxShadow:'0 6px 22px rgba(0,0,0,.4)',animation:'badgeIn .6s ease',width:130,height:130,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
+                <div style={{width:90,height:90,display:'flex',alignItems:'center',justifyContent:'center',color:accent}} dangerouslySetInnerHTML={{__html: step.illustration.svg}}/>
+                {step.illustration.label && <div style={{fontSize:10,fontWeight:600,letterSpacing:.4,color:'#fff',marginTop:4,textAlign:'center',lineHeight:1.3}}>{step.illustration.label}</div>}
+              </div>
+            )}
+
+            {/* УЗЕЛ — указатель на главу/узел книги */}
+            {step && step.node && (
+              <div style={{position:'absolute',top:32,right:32,padding:'8px 12px',borderRadius:14,background:'rgba(0,0,0,.5)',backdropFilter:'blur(10px)',border:'1px solid rgba(255,255,255,.15)',display: step.illustration ? 'none' : 'flex',alignItems:'center',gap:7,boxShadow:'0 4px 12px rgba(0,0,0,.35)'}}>
+                <span style={{color:'#93c5fd',display:'flex'}}>{ICONS.book}</span>
+                <span style={{fontSize:11,fontWeight:600,opacity:.85}}>{step.node}</span>
+              </div>
+            )}
             {step && step.stages && step.stages.length>1 && (
               <div style={{position:'absolute',bottom:32,left:'50%',transform:'translateX(-50%)',display:'flex',gap:5,padding:'6px 10px',borderRadius:20,background:'rgba(0,0,0,.4)',backdropFilter:'blur(10px)',border:'1px solid rgba(255,255,255,.08)'}}>
                 {step.stages.map((_,i)=>(
@@ -312,6 +359,54 @@
                       <span>Ловушка</span>
                     </div>
                     <div style={{fontSize:13,lineHeight:1.5,opacity:.92}}>{step.pitfall}</div>
+                  </div>
+                )}
+
+                {/* QUOTE — прямая цитата автора */}
+                {step.quote && showInsight && (
+                  <div style={{padding:'14px 16px',borderRadius:12,background:'rgba(255,255,255,.04)',border:'1px solid rgba(255,255,255,.12)',marginBottom:14,animation:'fadeUp .4s ease',position:'relative'}}>
+                    <span style={{position:'absolute',top:-2,left:10,fontSize:32,color:`${accent}88`,lineHeight:1,fontFamily:'Georgia,serif'}}>"</span>
+                    <div style={{fontSize:13.5,lineHeight:1.6,fontStyle:'italic',opacity:.92,paddingLeft:12,marginBottom:6}}>{step.quote.text}</div>
+                    {step.quote.ref && <div style={{fontSize:11,opacity:.55,paddingLeft:12,letterSpacing:.3}}>— {step.quote.ref}</div>}
+                  </div>
+                )}
+
+                {/* MNEMONIC — школьная фраза для запоминания */}
+                {step.mnemonic && showPitfall && (
+                  <div style={{padding:'10px 14px',borderRadius:10,background:'rgba(34,197,94,.08)',border:'1px dashed rgba(34,197,94,.35)',marginBottom:14,animation:'fadeUp .4s ease',display:'flex',gap:8,alignItems:'flex-start'}}>
+                    <span style={{flexShrink:0,marginTop:1,color:'#86efac',display:'flex'}}>{ICONS.mnemonic}</span>
+                    <div>
+                      <div style={{fontSize:10,letterSpacing:1.5,textTransform:'uppercase',color:'#86efac',fontWeight:700,marginBottom:3,opacity:.95}}>Запомни</div>
+                      <div style={{fontSize:13,lineHeight:1.45,fontWeight:500}}>{step.mnemonic}</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* PARADOX — кажущееся противоречие */}
+                {step.paradox && showInsight && (
+                  <div style={{padding:'12px 14px',borderRadius:12,background:'rgba(168,85,247,.08)',border:'1px solid rgba(168,85,247,.25)',marginBottom:14,animation:'fadeUp .4s ease'}}>
+                    <div style={{fontSize:10,letterSpacing:1.5,textTransform:'uppercase',color:'#c4b5fd',fontWeight:700,marginBottom:4,display:'flex',alignItems:'center',gap:6}}>
+                      <span style={{color:'#c4b5fd',display:'flex'}}>{ICONS.paradox}</span>
+                      <span>Парадокс</span>
+                    </div>
+                    <div style={{fontSize:13,lineHeight:1.5,opacity:.92}}>{step.paradox}</div>
+                  </div>
+                )}
+
+                {/* CROSS-REFERENCES — связи с другими шагами */}
+                {step.crossRefs && step.crossRefs.length > 0 && showBridge && (
+                  <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:14,animation:'fadeUp .4s ease'}}>
+                    {step.crossRefs.map((cr,i)=>{
+                      const targetIdx = tour.steps.findIndex(s=>s.id===cr.id);
+                      if(targetIdx<0) return null;
+                      return (
+                        <button key={i} onClick={()=>{ setStepIdx(targetIdx); setPlaying(false); }} style={{padding:'6px 12px',borderRadius:14,background:'rgba(255,255,255,.06)',border:'1px solid rgba(255,255,255,.15)',color:'#fff',fontSize:11.5,cursor:'pointer',display:'flex',alignItems:'center',gap:5,fontWeight:500}} title={cr.note}>
+                          <span style={{color:'#93c5fd',display:'flex'}}>{ICONS.crossRef}</span>
+                          <span style={{opacity:.8}}>см. </span>
+                          <span style={{fontWeight:600}}>«{tour.steps[targetIdx].title}»</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
 
