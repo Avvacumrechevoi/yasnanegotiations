@@ -256,8 +256,28 @@
 
           {/* CANVAS */}
           <div style={{flex:'1.5 1 0',display:'flex',alignItems:'center',justifyContent:'center',padding:'30px 24px',minWidth:0,position:'relative'}}>
-            <div style={{width:'100%',maxWidth:680,aspectRatio:'900/700',background:SURFACE,borderRadius:18,border:'1px solid '+BORDER,overflow:'hidden',transition:'all .8s cubic-bezier(.4,0,.2,1)'}}>
+            <div style={{position:'relative',width:'100%',maxWidth:680,aspectRatio:'900/700',background:SURFACE,borderRadius:18,border:'1px solid '+BORDER,overflow:'hidden',transition:'all .8s cubic-bezier(.4,0,.2,1)'}}>
               <Star yy={y} sel={null} onSel={()=>{}} hl={highlight} af={af} showOpp={(af||[]).includes('opp')} overlay={null} mob={typeof window!=='undefined'&&window.innerWidth<=768}/>
+              {/* SPOTLIGHT — затемняем фон, оставляем «окна» на подсвеченных полках */}
+              {highlight && highlight.length > 0 && highlight.length < 12 && (
+                <svg style={{position:'absolute',inset:0,width:'100%',height:'100%',pointerEvents:'none',transition:'opacity .5s ease'}} viewBox="0 0 900 700" preserveAspectRatio="xMidYMid meet">
+                  <defs>
+                    <mask id={`spot-${stepIdx}-${(highlight||[]).join(',')}`}>
+                      <rect width="900" height="700" fill="white"/>
+                      {highlight.map((idx,k)=>{
+                        const a = (270 - idx*30) * Math.PI / 180;
+                        const x = 450 + 215 * Math.cos(a);
+                        const yc = 350 - 215 * Math.sin(a);
+                        return <g key={k}>
+                          <circle cx={x} cy={yc} r="58" fill="black"/>
+                          <circle cx={x} cy={yc} r="80" fill="rgba(0,0,0,.4)"/>
+                        </g>;
+                      })}
+                    </mask>
+                  </defs>
+                  <rect width="900" height="700" fill="rgba(8,10,18,.45)" mask={`url(#spot-${stepIdx}-${(highlight||[]).join(',')})`} style={{transition:'all .5s ease',animation:'spotFade .5s ease'}}/>
+                </svg>
+              )}
             </div>
 
             {/* Stage progress dots — над канвасом, минимально */}
@@ -358,10 +378,17 @@
                   );
                 })()}
 
-                {/* NARRATIVE — flowing storytelling */}
-                {step.narrative && (
+                {/* NARRATIVE — flowing storytelling. Resolve at via stageIdx if specified */}
+                {step.narrative && (()=>{
+                  const resolved = step.narrative.map(e => {
+                    if(e.stageIdx != null && step.stages && step.stages[e.stageIdx]){
+                      return { ...e, at: (step.stages[e.stageIdx].at||0) + (e.offset||0) };
+                    }
+                    return e;
+                  });
+                  return (
                   <div style={{display:'flex',flexDirection:'column',gap:18}}>
-                    {step.narrative.map((entry, i)=>{
+                    {resolved.map((entry, i)=>{
                       const visible = stageT >= (entry.at||0) * SPEED;
                       if(!visible) return null;
                       const kind = entry.kind || 'default';
@@ -392,7 +419,8 @@
                       );
                     })}
                   </div>
-                )}
+                  );
+                })()}
 
                 {/* Cross-references — minimal chips */}
                 {step.crossRefs && step.crossRefs.length > 0 && stageT >= stepDur * 0.7 && (
@@ -450,6 +478,7 @@
           @keyframes cardIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
           @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
           @keyframes noteIn { from { opacity:0; transform:translate(-50%,4px); } to { opacity:1; transform:translate(-50%,0); } }
+          @keyframes spotFade { from { opacity:0; } to { opacity:1; } }
           .tour-panel::-webkit-scrollbar { width: 6px; }
           .tour-panel::-webkit-scrollbar-track { background: transparent; }
           .tour-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 3px; }
