@@ -708,7 +708,7 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose}){
   useEffect(()=>{setCardSize('compact');},[i]);
 
   return(
-    <div className={"fi fi-"+cardSize+" fi-sidepanel"} style={{position:'fixed',top:72,right:0,bottom:16,width:340,maxHeight:'calc(100vh - 88px)',background:'rgba(255,255,255,.97)',border:'1px solid #e5e5ea',borderLeft:'1px solid #e5e5ea',borderRadius:'14px 0 0 14px',backdropFilter:'blur(16px)',boxShadow:'-6px 0 28px rgba(0,0,0,.08)',display:'flex',flexDirection:'column',zIndex:50}}>
+    <div className={"fi fi-"+cardSize+" fi-sidepanel"} style={{width:'100%',height:'100%',background:'rgba(255,255,255,.98)',display:'flex',flexDirection:'column'}}>
       <div className="fi-handle" style={{display:'flex',justifyContent:'center',flexShrink:0}}>
         <div className="fi-handle-bar" style={{width:36,height:4,borderRadius:2,background:'#d2d2d7'}}/>
       </div>
