@@ -766,6 +766,7 @@ function App(){
   const[pinned,setPinned]=useState(defPinned);
   const[lessonPicker,setLessonPicker]=useState(false);
   const[showTour,setShowTour]=useState(false);
+  const[helpOpen,setHelpOpen]=useState(false);
   const[activeLesson,setActiveLesson]=useState(null);
   const[completedLessons,setCompletedLessons]=useState([]);
   // Auto-close burger menu when any modal/panel opens
@@ -805,8 +806,20 @@ function App(){
         {/* Гид по Ясне — secondary outline (если зарегистрирован для текущей Ясны) */}
         {y && window.YasnaTours && window.YasnaTours.has(y.name) && <button onClick={()=>setShowTour(true)} title='Интерактивный гид с пояснением каждой механики' style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 14px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:5}}><span style={{fontSize:11,color:'#a21caf'}}>✦</span><span>Гид</span></button>}
         <button onClick={()=>setVerif(true)} style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 14px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>Проверка</button>
-        <button onClick={()=>setInstr(true)} style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 14px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>Инструкция</button>
-        <button onClick={()=>setGlossary(true)} style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 14px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>Глоссарий</button>
+        {/* Справка ▾ — объединяет Инструкция + Глоссарий */}
+        <div style={{position:'relative'}}>
+          <button onClick={()=>setHelpOpen(o=>!o)} title='Инструкция и Глоссарий' style={{border:`1px solid ${helpOpen?'rgba(0,113,227,.4)':'#d2d2d7'}`,color:helpOpen?'#0058b8':'#424245',padding:'7px 12px',borderRadius:8,fontSize:13,background:helpOpen?'rgba(0,113,227,.06)':'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:5}}>
+            <span>Справка</span>
+            <span style={{fontSize:9,display:'inline-block',transform:helpOpen?'rotate(180deg)':'none',transition:'transform .2s'}}>▼</span>
+          </button>
+          {helpOpen && <>
+            <div onClick={()=>setHelpOpen(false)} style={{position:'fixed',inset:0,zIndex:99}}/>
+            <div style={{position:'absolute',top:'calc(100% + 4px)',right:0,minWidth:160,background:'#fff',border:'1px solid #d2d2d7',borderRadius:10,boxShadow:'0 6px 24px rgba(0,0,0,.12)',zIndex:100,overflow:'hidden'}}>
+              <button onClick={()=>{setInstr(true);setHelpOpen(false)}} style={{display:'block',width:'100%',padding:'10px 14px',fontSize:13,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left',cursor:'pointer'}}>📖 Инструкция</button>
+              <button onClick={()=>{setGlossary(true);setHelpOpen(false)}} style={{display:'block',width:'100%',padding:'10px 14px',fontSize:13,color:'#1d1d1f',border:'none',background:'#fff',textAlign:'left',cursor:'pointer'}}>📚 Глоссарий</button>
+            </div>
+          </>}
+        </div>
         {/* Совместить — компактная иконка */}
         <button onClick={()=>overlay?setOverlay(null):setShowOverlayPicker(true)} title={overlay?'Снять совмещение':'Совместить две Ясны'} style={{border:`1px solid ${overlay?'rgba(175,82,222,.4)':'#d2d2d7'}`,color:overlay?'#af52de':'#424245',padding:'7px 11px',borderRadius:8,fontSize:15,background:overlay?'rgba(175,82,222,.06)':'#fff',cursor:'pointer',minWidth:36}}>{overlay?'⊗':'⊕'}</button>
         <button onClick={()=>setFullStar(true)} title="Во весь экран" style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 11px',borderRadius:8,fontSize:15,background:'#fff',cursor:'pointer',minWidth:36}}>⤢</button>
@@ -875,36 +888,12 @@ function App(){
             {af.map(id=>{const f=FL.find(x=>x.id===id);if(!f)return null;return<button key={id} onClick={()=>tog(id)} title='Снять фильтр' style={{padding:'4px 10px',borderRadius:14,fontSize:12,whiteSpace:'nowrap',background:`${f.c}22`,color:f.c,border:`1px solid ${f.c}55`,cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:4}}>{f.l}<span style={{fontSize:10,opacity:.6}}>×</span></button>;})}
           </div>}
           {!filtersOpen && af.length===FL.length && <span style={{fontSize:12,color:'#0058b8',fontWeight:600,padding:'4px 10px',background:'rgba(0,113,227,.10)',borderRadius:14}}>Все механики ({FL.length})</span>}
-          {/* Spacer pushes toolbar right */}
+          {/* Spacer (toolbar переехал в угол диаграммы — Спринт 3) */}
           {(filtersOpen || af.length===0) && <div style={{flex:1}}/>}
-          {/* Rotation toolbar — always visible */}
-          <div className="rotation-controls rotation-controls-inline rotation-toolbar" style={{marginLeft:'auto',display:'flex',gap:4,alignItems:'center',flexShrink:0,background:'#fff',border:'1px solid #e5e5ea',borderRadius:14,padding:'3px 5px',boxShadow:'0 1px 3px rgba(0,0,0,.04)'}}>
-          <button disabled={yasna2Drill!=null} className={'rotation-btn'+(starRotation==='ccw'?' active':'')+(yasna2Drill!=null?' disabled':'')} onClick={()=>setStarRotation(r=>r==='ccw'?null:'ccw')} title={yasna2Drill!=null?'Недоступно при открытой sub-Ясне':(starRotation==='ccw'?'Остановить':'Против часовой')} style={{border:'1px solid '+(starRotation==='ccw'?'#a21caf':'#e5e5ea'),color:starRotation==='ccw'?'#fff':'#86868b'}}>↺</button>
-          <button disabled={yasna2Drill!=null} className={'rotation-btn'+(starRotation==='cw'?' active':'')+(yasna2Drill!=null?' disabled':'')} onClick={()=>setStarRotation(r=>r==='cw'?null:'cw')} title={yasna2Drill!=null?'Недоступно при открытой sub-Ясне':(starRotation==='cw'?'Остановить':'По часовой')} style={{border:'1px solid '+(starRotation==='cw'?'#a21caf':'#e5e5ea'),color:starRotation==='cw'?'#fff':'#86868b'}}>↻</button>
-          <button className={'rotation-btn'+(is3D?' active':'')} onClick={()=>setIs3D(v=>!v)} title={is3D?'Плоская проекция':'Объёмный режим'} style={{border:'1px solid '+(is3D?'#a21caf':'#e5e5ea'),color:is3D?'#fff':'#86868b',fontSize:11,fontWeight:700,letterSpacing:0.5}}>3D</button>
-          <button className={'rotation-btn'+(rotPanelOpen?' active':'')} onClick={()=>setRotPanelOpen(o=>!o)} title="Скорость и режим" style={{border:'1px solid '+(rotPanelOpen?'#a21caf':'#e5e5ea'),color:rotPanelOpen?'#fff':'#86868b'}}>⋯</button>
-        </div>
-        {rotPanelOpen&&<div className="rotation-panel rotation-panel-inline" onClick={e=>e.stopPropagation()}>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
-            <span style={{fontWeight:600,fontSize:11,color:'#581c87',letterSpacing:.5,textTransform:'uppercase'}}>Скорость</span>
-            <span style={{color:'#a21caf',fontWeight:700,fontVariantNumeric:'tabular-nums'}}>{rotationSpeed}s/оборот</span>
-          </div>
-          <input type="range" min="5" max="120" value={rotationSpeed} onChange={e=>setRotationSpeed(+e.target.value)}/>
-          <div style={{display:'flex',justifyContent:'space-between',fontSize:9.5,color:'#86868b',marginTop:-4,marginBottom:8}}>
-            <span>быстро (5s)</span><span>медитативно (120s)</span>
-          </div>
-          <div style={{fontWeight:600,fontSize:11,color:'#581c87',letterSpacing:.5,textTransform:'uppercase',marginTop:4,marginBottom:6}}>Один оборот</div>
-          <div className="rotation-panel-row">
-            <button disabled={yasna2Drill!=null||starRotation!==null} onClick={()=>impulseRotation('ccw')}>⟲ Против часовой</button>
-            <button disabled={yasna2Drill!=null||starRotation!==null} onClick={()=>impulseRotation('cw')}>⟳ По часовой</button>
-          </div>
-          {is3D&&<div style={{marginTop:12,padding:'8px 10px',background:'rgba(162,28,175,.08)',borderRadius:8,fontSize:10.5,color:'#581c87',lineHeight:1.5}}>
-            <b style={{color:'#a21caf'}}>3D режим активен.</b> Drag мышью — вращение в любой плоскости. Колесо мыши — zoom. Клик по шару — выбор полки.
-          </div>}
-        </div>}
         </div>
         {/* Collapsible chips body */}
-        {filtersOpen && <div className='filters hide-scroll' style={{display:'flex',gap:5,padding:'4px 20px 12px',flexWrap:'wrap',alignItems:'center',animation:'slideDown .25s ease'}}>
+        {filtersOpen && <div className='filters-mobile-backdrop' onClick={()=>setFiltersOpen(false)} style={{display:'none'}}/>}
+        {filtersOpen && <div className='filters filters-collapsible hide-scroll' style={{display:'flex',gap:5,padding:'4px 20px 12px',flexWrap:'wrap',alignItems:'center',animation:'slideDown .25s ease'}}>
           {af.length===FL.length?
             <button onClick={()=>setAf([])} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:'#0071e322',color:'#0071e3',border:'1px solid #0071e355',fontWeight:600,cursor:'pointer'}}>Все</button>
             :<button onClick={()=>setAf(FL.map(f=>f.id))} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:'transparent',color:'#86868b',border:'1px solid #d2d2d7',cursor:'pointer'}}>Все</button>
@@ -930,7 +919,32 @@ function App(){
       </div>}
             <div className={'star-area'+(sel!==null?' star-shift':'')+(starRotation?' star-rotating-'+starRotation:'')+(is3D?' star-3d-active':'')} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden','--rotation-speed':rotationSpeed+'s'}} onClick={e=>{if(e.target===e.currentTarget)setSel(null)}}>
         <button className='fullstar-btn' onClick={()=>setFullStar(true)} style={{display:'none',position:'absolute',top:8,right:8,width:32,height:32,borderRadius:8,border:'1px solid #e5e5ea',background:'rgba(255,255,255,.8)',fontSize:16,zIndex:5,alignItems:'center',justifyContent:'center'}}>⤢</button>
-        <div className="star-svg-wrap" style={{width:'100%',height:'100%',maxWidth:900,maxHeight:700}}>{is3D ? <Yasna3DView y={y} af={af} sel={sel} onSel={setSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/> : <Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} starRotation={starRotation} rotationSpeed={rotationSpeed}/>}</div>
+        {/* Floating mini-toolbar в углу диаграммы (Спринт 3) */}
+        <div className='diag-corner-toolbar' style={{position:'absolute',top:10,right:10,display:'flex',gap:4,zIndex:6,background:'rgba(255,255,255,.94)',backdropFilter:'blur(8px)',border:'1px solid #e5e5ea',borderRadius:12,padding:'4px 5px',boxShadow:'0 2px 10px rgba(0,0,0,.06)'}}>
+          <button disabled={yasna2Drill!=null} onClick={()=>setStarRotation(r=>r==='ccw'?null:'ccw')} title={yasna2Drill!=null?'Недоступно при открытой sub-Ясне':(starRotation==='ccw'?'Остановить вращение':'Вращать против часовой')} style={{width:30,height:30,borderRadius:8,border:'1px solid '+(starRotation==='ccw'?'#a21caf':'#e5e5ea'),background:starRotation==='ccw'?'#a21caf':'#fff',color:starRotation==='ccw'?'#fff':'#86868b',fontSize:15,cursor:yasna2Drill!=null?'not-allowed':'pointer',opacity:yasna2Drill!=null?.4:1,display:'flex',alignItems:'center',justifyContent:'center'}}>↺</button>
+          <button disabled={yasna2Drill!=null} onClick={()=>setStarRotation(r=>r==='cw'?null:'cw')} title={yasna2Drill!=null?'Недоступно при открытой sub-Ясне':(starRotation==='cw'?'Остановить вращение':'Вращать по часовой')} style={{width:30,height:30,borderRadius:8,border:'1px solid '+(starRotation==='cw'?'#a21caf':'#e5e5ea'),background:starRotation==='cw'?'#a21caf':'#fff',color:starRotation==='cw'?'#fff':'#86868b',fontSize:15,cursor:yasna2Drill!=null?'not-allowed':'pointer',opacity:yasna2Drill!=null?.4:1,display:'flex',alignItems:'center',justifyContent:'center'}}>↻</button>
+          <button onClick={()=>setIs3D(v=>!v)} title={is3D?'Плоская проекция':'Объёмный режим (3D)'} style={{width:30,height:30,borderRadius:8,border:'1px solid '+(is3D?'#a21caf':'#e5e5ea'),background:is3D?'#a21caf':'#fff',color:is3D?'#fff':'#86868b',fontSize:10.5,fontWeight:700,letterSpacing:.5,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>3D</button>
+          <button onClick={()=>setRotPanelOpen(o=>!o)} title='Скорость вращения и режимы' style={{width:30,height:30,borderRadius:8,border:'1px solid '+(rotPanelOpen?'#a21caf':'#e5e5ea'),background:rotPanelOpen?'#a21caf':'#fff',color:rotPanelOpen?'#fff':'#86868b',fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>⋯</button>
+        </div>
+        {rotPanelOpen && <div onClick={e=>e.stopPropagation()} style={{position:'absolute',top:50,right:10,width:240,zIndex:7,background:'#fff',border:'1px solid #d2d2d7',borderRadius:12,boxShadow:'0 6px 24px rgba(0,0,0,.12)',padding:'12px 14px'}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+            <span style={{fontWeight:600,fontSize:11,color:'#581c87',letterSpacing:.5,textTransform:'uppercase'}}>Скорость</span>
+            <span style={{color:'#a21caf',fontWeight:700,fontVariantNumeric:'tabular-nums',fontSize:12}}>{rotationSpeed}s/оборот</span>
+          </div>
+          <input type='range' min='5' max='120' value={rotationSpeed} onChange={e=>setRotationSpeed(+e.target.value)} style={{width:'100%'}}/>
+          <div style={{display:'flex',justifyContent:'space-between',fontSize:9.5,color:'#86868b',marginTop:-2,marginBottom:8}}>
+            <span>быстро</span><span>медитативно</span>
+          </div>
+          <div style={{fontWeight:600,fontSize:11,color:'#581c87',letterSpacing:.5,textTransform:'uppercase',marginBottom:6}}>Один оборот</div>
+          <div style={{display:'flex',gap:6}}>
+            <button disabled={yasna2Drill!=null||starRotation!==null} onClick={()=>impulseRotation('ccw')} style={{flex:1,padding:'7px',borderRadius:8,border:'1px solid #e5e5ea',background:'#fff',color:'#581c87',fontSize:11.5,cursor:'pointer'}}>⟲ Против</button>
+            <button disabled={yasna2Drill!=null||starRotation!==null} onClick={()=>impulseRotation('cw')} style={{flex:1,padding:'7px',borderRadius:8,border:'1px solid #e5e5ea',background:'#fff',color:'#581c87',fontSize:11.5,cursor:'pointer'}}>⟳ По часовой</button>
+          </div>
+          {is3D && <div style={{marginTop:10,padding:'7px 9px',background:'rgba(162,28,175,.08)',borderRadius:8,fontSize:10.5,color:'#581c87',lineHeight:1.45}}>
+            <b style={{color:'#a21caf'}}>3D режим.</b> Drag — вращение, колесо — zoom, клик по шару — выбор.
+          </div>}
+        </div>}
+        <div className="star-svg-wrap" style={{width:'100%',height:'100%',maxWidth:1100,maxHeight:"78vh"}}>{is3D ? <Yasna3DView y={y} af={af} sel={sel} onSel={setSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/> : <Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} starRotation={starRotation} rotationSpeed={rotationSpeed}/>}</div>
         <Info i={sel} p={y.p} af={af} y={y} overlay={overlay} onEdit={()=>setEd(true)} onClose={()=>setSel(null)}/>
         <OverlayLegend y={y} overlay={overlay} onClear={()=>setOverlay(null)}/>
       </div>

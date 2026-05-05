@@ -381,11 +381,12 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
       {af.includes('halves')&&yy.bh&&<text x={cx} y={W-22} textAnchor="middle" fill="rgba(0,0,0,.5)" fontSize="13" fontFamily="var(--sans)" fontWeight="600">{yy.bh}</text>}
       {af.includes('halves')&&yy.lh&&<text x={20} y={cy} textAnchor="middle" fill="rgba(0,0,0,.5)" fontSize="13" fontFamily="var(--sans)" fontWeight="600" transform={`rotate(-90 20 ${cy})`}>{yy.lh}</text>}
       {af.includes('halves')&&yy.rh&&<text x={S-20} y={cy} textAnchor="middle" fill="rgba(0,0,0,.5)" fontSize="13" fontFamily="var(--sans)" fontWeight="600" transform={`rotate(90 ${S-20} ${cy})`}>{yy.rh}</text>}
-      {pts.map((pt,i)=>{const isSel=sel===i,c=nc(i),o=no(i);return(
+      {pts.map((pt,i)=>{const isSel=sel===i,c=nc(i),o=no(i);const lbl=p[i]||'';const tipText=lbl?`Полка ${i}: ${lbl}`:`Полка ${i}`;return(
         <g key={i} onClick={()=>{if(af.includes('mb_yasna2')&&drill==null&&onDrill){onDrill(i);}else{onSel(sel===i?null:i);}}} style={{cursor:'pointer'}}>
+          <title>{tipText}</title>
           <circle cx={pt.x} cy={pt.y} r={nr+14} fill="transparent" stroke="none"/>
           {isSel&&<circle cx={pt.x} cy={pt.y} r={nr+8} fill={c} opacity=".06" filter="url(#gw)"/>}
-          <circle cx={pt.x} cy={pt.y} r={nr} fill="#fff" stroke={c} strokeWidth={isSel?2.5:1.8} opacity={o} filter="url(#ns)" style={{pointerEvents:'none'}}/>
+          <circle cx={pt.x} cy={pt.y} r={nr} fill="#fff" stroke={c} strokeWidth={isSel?2.8:2.2} opacity={o} filter="url(#ns)" style={{pointerEvents:'none'}}/>
           <text x={pt.x} y={pt.y+(af.includes('mb_zodiac')?7:6)} textAnchor="middle" fill={af.includes('mb_zodiac')?'#7c3aed':c} fontSize={af.includes('mb_zodiac')?(isMob?(isSel?"24":"22"):(isSel?"20":"19")):(isMob?(isSel?"22":"20"):(isSel?"16":"15"))} fontWeight={af.includes('mb_zodiac')?"600":"700"} fontFamily="var(--sans)" opacity={o} style={{pointerEvents:'none'}}>{af.includes('mb_zodiac')?['♑','♒','♓','♈','♉','♊','♋','♌','♍','♎','♏','♐'][i]:i}</text>
         </g>);})}
       {!overlay&&lps.map((pt,i)=>{const lOrig=p[i]||'';if(!lOrig)return null;let dy=5;if(!starRotation){if(i===0)dy=16;if(i===6)dy=-7;}
@@ -706,7 +707,7 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose}){
   useEffect(()=>{setCardSize('compact');},[i]);
 
   return(
-    <div className={"fi fi-"+cardSize} style={{position:'fixed',bottom:14,right:14,width:420,maxHeight:hasMech?'75vh':'55vh',background:'rgba(255,255,255,.97)',border:'1px solid #e5e5ea',borderRadius:16,backdropFilter:'blur(16px)',boxShadow:'0 4px 24px rgba(0,0,0,.08)',display:'flex',flexDirection:'column',zIndex:50}}>
+    <div className={"fi fi-"+cardSize+" fi-sidepanel"} style={{position:'fixed',top:72,right:0,bottom:16,width:340,maxHeight:'calc(100vh - 88px)',background:'rgba(255,255,255,.97)',border:'1px solid #e5e5ea',borderLeft:'1px solid #e5e5ea',borderRadius:'14px 0 0 14px',backdropFilter:'blur(16px)',boxShadow:'-6px 0 28px rgba(0,0,0,.08)',display:'flex',flexDirection:'column',zIndex:50}}>
       <div className="fi-handle" style={{display:'flex',justifyContent:'center',flexShrink:0}}>
         <div className="fi-handle-bar" style={{width:36,height:4,borderRadius:2,background:'#d2d2d7'}}/>
       </div>
