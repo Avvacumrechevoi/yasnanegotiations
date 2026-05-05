@@ -68,6 +68,10 @@
     return { hl:cur.hl||null, af:cur.af||[], note:cur.note||null, stageIdx:idx, totalStages:stages.length };
   }
 
+  // Множитель скорости авто-прокрутки. 1.0 = базовая, 2.0 = в 2× медленнее.
+  // stages[at] и totalDuration не трогаем — engine применяет SPEED при resolve и tick.
+  const SPEED = 2.0;
+
   function GuideRunner({ tour, yasnaTpl, onClose, onLoadYasna }){
     const {Star} = window.YasnaCore;
     const [stepIdx, setStepIdx] = useState(-1);
@@ -94,7 +98,8 @@
       const tick = (now)=>{
         const elapsed = now - stepStartRef.current;
         setStageT(elapsed);
-        const totalDur = isIntro ? (tour.intro?.duration||5500) : (isOutro ? Infinity : (step?.totalDuration||13000));
+        const baseDur = isIntro ? (tour.intro?.duration||5500) : (step?.totalDuration||13000);
+        const totalDur = isOutro ? Infinity : baseDur * SPEED;
         if(elapsed >= totalDur && stepIdx < total){ setStepIdx(i=>Math.min(total, i+1)); return; }
         rafRef.current = requestAnimationFrame(tick);
       };
@@ -107,19 +112,19 @@
       const curStep = (stepIdx>=0 && stepIdx<total) ? tour.steps[stepIdx] : null;
       if(curStep && curStep.stages && curStep.stages.length>1){
         const t = stageT;
-        // Найти следующую stage с at > t
-        const nextStage = curStep.stages.find(st => (st.at||0) > t + 50);
-        if(nextStage){
-          stepStartRef.current = performance.now() - (nextStage.at||0);
-          setStageT(nextStage.at||0);
+        // stages.at scaled by SPEED — ищем следующий triggered at*SPEED > t
+        const next = curStep.stages.find(st => (st.at||0)*SPEED > t + 50);
+        if(next){
+          const target = (next.at||0)*SPEED;
+          stepStartRef.current = performance.now() - target;
+          setStageT(target);
           setPlaying(false);
           return;
         }
-        // Все stages пройдены, но текстовый контент мог не успеть — добежим до конца шага если ещё рано
-        const stepDur = curStep.totalDuration || 13000;
-        if(t < stepDur * 0.9){
-          stepStartRef.current = performance.now() - stepDur;
-          setStageT(stepDur);
+        const stepDurEff = (curStep.totalDuration || 13000) * SPEED;
+        if(t < stepDurEff * 0.9){
+          stepStartRef.current = performance.now() - stepDurEff;
+          setStageT(stepDurEff);
           setPlaying(false);
           return;
         }
@@ -131,9 +136,8 @@
       const curStep = (stepIdx>=0 && stepIdx<total) ? tour.steps[stepIdx] : null;
       if(curStep && curStep.stages && curStep.stages.length>1){
         const t = stageT;
-        // Найти предыдущую stage
         let prevAt = -1;
-        for(const st of curStep.stages){ if((st.at||0) < t - 50){ prevAt = st.at||0; } else break; }
+        for(const st of curStep.stages){ const sc=(st.at||0)*SPEED; if(sc < t - 50){ prevAt = sc; } else break; }
         if(prevAt >= 0){
           stepStartRef.current = performance.now() - prevAt;
           setStageT(prevAt);
@@ -157,14 +161,15 @@
 
     if(!y) return null;
 
+    const effectiveT = stageT / SPEED; // в 2× медленнее: stages fire at at*SPEED
     const stageState = step?.stages
-      ? resolveStage(step.stages, stageT)
+      ? resolveStage(step.stages, effectiveT)
       : { hl:step?.highlight||null, af:step?.af||[], stageIdx:0, totalStages:1, note:null };
     const af = isOutro ? (tour.outro?.af||[]) : stageState.af;
     const highlight = stageState.hl;
     const accent = step?.accent || tour.intro?.accent || '#a21caf';
 
-    const stepDur = step?.totalDuration||13000;
+    const stepDur = (step?.totalDuration||13000) * SPEED;
     const sp = Math.min(1, stageT / stepDur);
     const showHook=true, showBody=sp>=0.12, showBullets=sp>=0.28, showInsight=sp>=0.45, showPitfall=sp>=0.65, showBridge=sp>=0.82;
 
