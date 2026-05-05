@@ -40,7 +40,7 @@ const xy=(i,cx,cy,r)=>({x:cx+r*Math.cos(rad(angDeg(i))),y:cy-r*Math.sin(rad(angD
 const REF=[{f:'ВХОД / ОСНОВА',ex:'Ночь · Прихожая · Свинья'},{f:'ПЕРВЫЙ РЕЗУЛЬТАТ',ex:'Первый свет · Гостиная · Мойка'},{f:'КАНАЛ / ПОТОК',ex:'Заря · Столовая · Река'},{f:'ГЛАВНОЕ СОБЫТИЕ',ex:'Выход Солнца · Кухня · Плита'},{f:'ПОДЪЁМ / КУЛЬТУРА',ex:'Подъём · Веранда · Пар'},{f:'НАКОПИТЕЛЬ',ex:'Последняя тьма · Амбар · Облако'},{f:'ВЕРШИНА / ЦЕНТР',ex:'День · Чулан · Перенос'},{f:'ПИК / НАБЛЮДЕНИЕ',ex:'Первая тьма · Детская · Гроза'},{f:'ЗАЩИТА / СПУСК',ex:'Спуск · Женская · Дождь'},{f:'ОЦЕНКА / ВЕСЫ',ex:'Заход · Спальня · Касание'},{f:'УГАСАНИЕ',ex:'Сумерки · Кабинет · Стекание'},{f:'КОНЕЦ / ВЫХОД',ex:'Последний свет · Санблок · Лужа'}];
 const T=[
   {id:'цветов',verified:true,starter:true,n:'Цветов радуги',rubrik:true,p:['Желтый','Оранжевый','Алый','Красный','Черный / Золотой','Фиолетовый','Синий','Голубой','Ультрамарин','Зеленый','Изумрудный','Салатовый']},
-  {id:'суток',verified:true,starter:true,n:'Суток',rubrik:true,p:['Ночь','Искра','Утр.Заря, Рассвет','Утро','Восход','Утренний Салют','День','Первая тьма','Закат / Вечерняя Заря','Запад / Вечер Сутки','Сумерки','Вечерний Салют'],th:'День',bh:'Ночь'},
+  {id:'суток',verified:true,starter:true,n:'Суток',rubrik:true,p:['Ночь','Искра','Утренняя Заря / Рассвет','Утро','Восход','Утренний Салют','День','Первая Тьма','Закат / Вечерняя Заря','Запад / Вечер Сутки','Сумерки','Вечерний Салют'],th:'День',bh:'Ночь'},
   {id:'знаки_з.',verified:true,starter:true,n:'Зодиака',rubrik:true,p:['Козерог','Водолей','Рыбы','Овен','Телец','Близнецы','Рак','Лев','Дева','Весы','Скорпион','Стрелец']},
   {id:'двора_животных',verified:true,n:'Животных',rubrik:true,p:['Свинья','Грызуны','Лошадь','Козлы / Бараны','Корова / Бык','Верблюд','Человек','Кошка / Дети','Собака','Птицы','Дракон','Змея']},
   {id:'двора',verified:true,n:'Двора (Постройки)',rubrik:true,p:['Ворота','Калитка','Конюшня','Козлы / бараны','Коровник','Амбар','Веранда','Лавка хозяина','Баня / дровник','Голубятник','Пчелы / мед','Туалет / Навозная куча']},
@@ -140,7 +140,9 @@ const FL=[
 function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,starRotation,rotationSpeed}){
   const isMob=typeof window!=="undefined"&&window.innerWidth<=768;
   const p=yy.p||[];
+  // Block 1.1: viewBox с padding под длинные подписи (50px каждой стороны)
   const S=900,W=700,cx=S/2,cy=W/2,R=215,nr=isMob?26:23,lr=R+60;
+  const padX=80,padY=40; // padding для подписей (учитывается в viewBox)
   // ВРАЩЕНИЕ ЧЕРЕЗ ПЕРЕРЕНДЕР ПОЗИЦИЙ — Star обновляет угол через rAF на 60fps.
   // Округление до 0.5px — резко уменьшает sub-pixel re-rasterization текста
   // (на 0.5px шаге глиф закрепляется на той же raster-grid, не плавает).
@@ -180,7 +182,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
   const no=i=>(hl&&!hl.includes(i))?.15:1;
   const anch=i=>{const x=lps[i].x;return Math.abs(x-cx)<25?'middle':x<cx?'end':'start';};
   return(
-    <svg viewBox={mob?`40 -10 820 720`:`0 0 ${S} ${W}`} style={{width:'100%',height:'100%'}}>
+    <svg viewBox={mob?`40 -10 820 720`:`${-padX} ${-padY} ${S+padX*2} ${W+padY*2}`} preserveAspectRatio="xMidYMid meet" style={{width:'100%',height:'100%',display:'block'}}>
       <defs>
         <filter id="gw"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
         <filter id="ns"><feDropShadow dx="0" dy="1" stdDeviation="2.5" floodOpacity=".07"/></filter>
@@ -387,8 +389,8 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
           <title>{tipText}</title>
           <circle cx={pt.x} cy={pt.y} r={nr+14} fill="transparent" stroke="none"/>
           {isSel&&<circle cx={pt.x} cy={pt.y} r={nr+8} fill={c} opacity=".06" filter="url(#gw)"/>}
-          <circle cx={pt.x} cy={pt.y} r={nr} fill="#fff" stroke={c} strokeWidth={isSel?2.8:2.2} opacity={o} filter="url(#ns)" style={{pointerEvents:'none'}}/>
-          <text x={pt.x} y={pt.y+(af.includes('mb_zodiac')?7:6)} textAnchor="middle" fill={af.includes('mb_zodiac')?'#7c3aed':c} fontSize={af.includes('mb_zodiac')?(isMob?(isSel?"24":"22"):(isSel?"20":"19")):(isMob?(isSel?"22":"20"):(isSel?"16":"15"))} fontWeight={af.includes('mb_zodiac')?"600":"700"} fontFamily="var(--sans)" opacity={o} style={{pointerEvents:'none'}}>{af.includes('mb_zodiac')?['♑','♒','♓','♈','♉','♊','♋','♌','♍','♎','♏','♐'][i]:i}</text>
+          <circle cx={pt.x} cy={pt.y} r={isSel?nr+3:nr} fill="#fff" stroke={c} strokeWidth={isSel?3.2:2.2} opacity={o} filter={isSel?"url(#gw)":"url(#ns)"} style={{pointerEvents:'none',transition:'r 150ms ease'}}/>
+          <text x={pt.x} y={pt.y+(af.includes('mb_zodiac')?7:6)} textAnchor="middle" fill={af.includes('mb_zodiac')?'#7c3aed':(hl&&!hl.includes(i))?'#c0c0c5':'#1f2937'} fontSize={af.includes('mb_zodiac')?(isMob?(isSel?"24":"22"):(isSel?"20":"19")):(isMob?(isSel?"22":"20"):(isSel?"16":"15"))} fontWeight={af.includes('mb_zodiac')?"600":"700"} fontFamily="var(--sans)" opacity={o} style={{pointerEvents:'none'}}>{af.includes('mb_zodiac')?['♑','♒','♓','♈','♉','♊','♋','♌','♍','♎','♏','♐'][i]:i}</text>
         </g>);})}
       {!overlay&&lps.map((pt,i)=>{const lOrig=p[i]||'';if(!lOrig)return null;let dy=5;if(!starRotation){if(i===0)dy=16;if(i===6)dy=-7;}
         // Trim incomplete trailing tokens (e.g. '("кита' or '(без свинст') — likely data-import artifacts
@@ -509,7 +511,7 @@ const OPP_DESC={
   5:'Последняя Тьма ↔ Последний Свет. Конец сомнений перед трудом ↔ Вера в завтра после поражения.',
 };
 
-function Info({i,p,af=[],y={},overlay=null,onEdit,onClose}){
+function Info({i,p,af=[],y={},overlay=null,onEdit,onClose,onSel}){
   if(i===null)return null;
   const cr=CR[gc(i)],pr=PR[gp(i)],ref=REF[i],label=p[i]||'',oppLabel=p[opp(i)]||'';
   const prevL=p[(i+11)%12]||'',nextL=p[(i+1)%12]||'';
@@ -728,22 +730,23 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose}){
         </div>
       </div>
       <div ref={scrollRef} style={{flex:1,overflowY:'auto',padding:'0 18px 16px',position:'relative'}}>
-        {/* Context strip moved into scroll area */}
-        <div style={{display:'flex',flexDirection:'column',gap:4,marginBottom:10,paddingBottom:8,borderBottom:'1px solid #f0f0f2'}}>
-          <div style={{display:'flex',alignItems:'center',gap:5,fontSize:11,color:'#6e6e73',flexWrap:'wrap',minHeight:16}}>
-            <span style={{color:'#aeaeb2',fontSize:10,fontWeight:600}}>[{(i+11)%12}]</span>
-            <span style={{color:prevL?'#424245':'#c0c0c5'}}>{prevL||<span style={{fontStyle:'italic'}}>—</span>}</span>
-            <span style={{color:'#d2d2d7'}}>→</span>
-            <span style={{color:'#1d1d1f',fontWeight:600}}>{label||'·'}</span>
-            <span style={{color:'#d2d2d7'}}>→</span>
-            <span style={{color:nextL?'#424245':'#c0c0c5'}}>{nextL||<span style={{fontStyle:'italic'}}>—</span>}</span>
-            <span style={{color:'#aeaeb2',fontSize:10,fontWeight:600}}>[{(i+1)%12}]</span>
-          </div>
-          <div style={{display:'flex',alignItems:'center',gap:5,fontSize:11,color:'#6e6e73',flexWrap:'wrap'}}>
-            <span style={{color:'#ff9500',fontWeight:600}}>↔</span>
-            <span style={{color:'#aeaeb2',fontSize:10,fontWeight:600}}>[{opp(i)}]</span>
-            <span style={{color:oppLabel?'#424245':'#c0c0c5',fontStyle:oppLabel?'normal':'italic'}}>{oppLabel||'—'}</span>
-          </div>
+        {/* Соседи — 3 кликабельных строки (Block 2.4) */}
+        <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:12,paddingBottom:10,borderBottom:'1px solid #f0f0f2'}}>
+          <button onClick={()=>onSel&&onSel((i+11)%12)} title='Перейти к предыдущей полке' style={{display:'flex',alignItems:'center',gap:8,fontSize:12,color:'#424245',background:'transparent',border:'none',padding:'4px 6px',borderRadius:6,cursor:'pointer',textAlign:'left',width:'100%'}} onMouseEnter={e=>e.currentTarget.style.background='#f5f5f7'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+            <span style={{color:'#86868b',fontSize:14,fontWeight:600,minWidth:14}}>←</span>
+            <span style={{color:'#aeaeb2',fontSize:10,fontWeight:600,minWidth:14}}>{(i+11)%12}</span>
+            <span style={{color:prevL?'#1d1d1f':'#c0c0c5',fontStyle:prevL?'normal':'italic'}}>{prevL||'—'}</span>
+          </button>
+          <button onClick={()=>onSel&&onSel((i+1)%12)} title='Перейти к следующей полке' style={{display:'flex',alignItems:'center',gap:8,fontSize:12,color:'#424245',background:'transparent',border:'none',padding:'4px 6px',borderRadius:6,cursor:'pointer',textAlign:'left',width:'100%'}} onMouseEnter={e=>e.currentTarget.style.background='#f5f5f7'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+            <span style={{color:'#86868b',fontSize:14,fontWeight:600,minWidth:14}}>→</span>
+            <span style={{color:'#aeaeb2',fontSize:10,fontWeight:600,minWidth:14}}>{(i+1)%12}</span>
+            <span style={{color:nextL?'#1d1d1f':'#c0c0c5',fontStyle:nextL?'normal':'italic'}}>{nextL||'—'}</span>
+          </button>
+          <button onClick={()=>onSel&&onSel(opp(i))} title='Перейти к противоположной полке' style={{display:'flex',alignItems:'center',gap:8,fontSize:12,color:'#424245',background:'transparent',border:'none',padding:'4px 6px',borderRadius:6,cursor:'pointer',textAlign:'left',width:'100%'}} onMouseEnter={e=>e.currentTarget.style.background='#fef8e7'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+            <span style={{color:'#ff9500',fontSize:14,fontWeight:600,minWidth:14}}>↔</span>
+            <span style={{color:'#aeaeb2',fontSize:10,fontWeight:600,minWidth:14}}>{opp(i)}</span>
+            <span style={{color:oppLabel?'#1d1d1f':'#c0c0c5',fontStyle:oppLabel?'normal':'italic'}}>{oppLabel||'—'}</span>
+          </button>
           {overlay&&<div style={{display:'flex',alignItems:'center',gap:5,fontSize:11,color:'#af52de',flexWrap:'wrap'}}>
             <span style={{fontWeight:600}}>⊕</span>
             <span style={{color:'#aeaeb2',fontSize:10,fontWeight:600,fontStyle:'italic'}}>{overlay.name||overlay.n||'наложение'}:</span>
@@ -758,7 +761,7 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose}){
         <span>Заполнить позицию {i}</span>
       </button>}
       {(poleVert||poleHoriz)&&(y.th||y.bh||y.lh||y.rh)&&<div style={{display:'flex',flexDirection:'column',gap:4,marginBottom:10,padding:'8px 10px',background:'#faf7ff',borderRadius:8,border:'1px solid #ece3f7'}}>
-        <div style={{fontSize:9,fontWeight:600,color:'#9060D0',textTransform:'uppercase',letterSpacing:0.5,marginBottom:2}}>В этой ясне «{y.name}»</div>
+        <div style={{fontSize:12,fontWeight:600,color:'#0058b8',marginBottom:4}}>Открыть в Ясне «{y.name}» →</div>
         {poleVert==='th'&&y.th&&<div style={{fontSize:11,color:'#424245'}}><span style={{color:'#86868b'}}>▲ ближе к верху:</span> <b>{y.th}</b></div>}
         {poleVert==='bh'&&y.bh&&<div style={{fontSize:11,color:'#424245'}}><span style={{color:'#86868b'}}>▼ ближе к низу:</span> <b>{y.bh}</b></div>}
         {poleHoriz==='lh'&&y.lh&&<div style={{fontSize:11,color:'#424245'}}><span style={{color:'#86868b'}}>◀ ближе к лево:</span> <b>{y.lh}</b></div>}

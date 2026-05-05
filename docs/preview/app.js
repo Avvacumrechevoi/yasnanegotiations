@@ -767,11 +767,13 @@ function App(){
   const[lessonPicker,setLessonPicker]=useState(false);
   const[showTour,setShowTour]=useState(false);
   const[helpOpen,setHelpOpen]=useState(false);
+  const[panelCollapsed,setPanelCollapsed]=useState(false);
   const[activeLesson,setActiveLesson]=useState(null);
   const[completedLessons,setCompletedLessons]=useState([]);
   // Auto-close burger menu when any modal/panel opens
   useEffect(()=>{ if(!af.includes('mb_yasna2')){setYasna2Drill(null);setDrillEditing(false);} },[af]);
   useEffect(()=>{ if(yasna2Drill!=null) setStarRotation(null); },[yasna2Drill]);
+  useEffect(()=>{ setPanelCollapsed(false); },[sel]);
 
   // Rotation теперь управляется внутри Star через ref + rAF (см. yasna-star.js)
   useEffect(()=>{
@@ -821,7 +823,7 @@ function App(){
           </>}
         </div>
         {/* Совместить — компактная иконка */}
-        <button onClick={()=>overlay?setOverlay(null):setShowOverlayPicker(true)} title={overlay?'Снять совмещение':'Совместить две Ясны'} style={{border:`1px solid ${overlay?'rgba(175,82,222,.4)':'#d2d2d7'}`,color:overlay?'#af52de':'#424245',padding:'7px 11px',borderRadius:8,fontSize:15,background:overlay?'rgba(175,82,222,.06)':'#fff',cursor:'pointer',minWidth:36}}>{overlay?'⊗':'⊕'}</button>
+        <button onClick={()=>overlay?setOverlay(null):setShowOverlayPicker(true)} aria-label={overlay?'Снять совмещение':'Совместить две Ясны'} title={overlay?'Снять совмещение':'Совместить две Ясны'} style={{border:`1px solid ${overlay?'rgba(175,82,222,.4)':'#d2d2d7'}`,color:overlay?'#af52de':'#424245',padding:'7px 11px',borderRadius:8,fontSize:15,background:overlay?'rgba(175,82,222,.06)':'#fff',cursor:'pointer',minWidth:36}}>{overlay?'⊗':'⊕'}</button>
         <button onClick={()=>setFullStar(true)} title="Во весь экран" style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 11px',borderRadius:8,fontSize:15,background:'#fff',cursor:'pointer',minWidth:36}}>⤢</button>
         </div>
         <div className='hdr-mob-tools' style={{display:'none',gap:6,alignItems:'center',marginRight:8}}>
@@ -864,7 +866,9 @@ function App(){
         <div className='nav-right' style={{display:'flex',alignItems:'center',gap:5,paddingRight:20,paddingLeft:10,flexShrink:0,background:'var(--bg2)',borderLeft:'1px solid #e5e5ea'}}>
         {/* Только + ещё и + Создать остаются в nav-right (компактнее) */}
         <button onClick={()=>setPicker(true)} style={{padding:'6px 12px',borderRadius:16,fontSize:13,color:'#6e6e73',border:'1px dashed var(--border)',whiteSpace:'nowrap',background:'transparent',cursor:'pointer'}} title='Все доступные Ясны'><span className='desk-only'>+ ещё ({Math.max(0, T.length - pinnedTemplates.length)})</span><span className='mob-only'>☰</span></button>
-        <button className='desk-only' onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);}} style={{padding:'7px 16px',borderRadius:16,fontSize:13,color:'#fff',border:'none',whiteSpace:'nowrap',background:'#0071e3',cursor:'pointer',fontWeight:600,boxShadow:'0 1px 3px rgba(0,113,227,.25)'}} title='Создать новую Ясну'>+ Создать</button>
+        <button className='desk-only' onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);}} style={{padding:'7px 16px',borderRadius:16,fontSize:13,color:'#fff',border:'none',whiteSpace:'nowrap',background:'#0071e3',cursor:'pointer',fontWeight:600,boxShadow:'0 1px 3px rgba(0,113,227,.25)'}} title='Создать новую Ясну' aria-label='Создать новую Ясну'>+ Создать</button>
+        {/* FAB для mobile (Block 4.6) */}
+        <button className='fab-create mob-only' onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);}} title='Создать новую Ясну' aria-label='Создать новую Ясну' style={{display:'none'}}>+</button>
         </div>
       </div>
       <div className='filters-toggle' style={{display:'none',padding:'4px 10px',borderBottom:'1px solid #e5e5ea',flexShrink:0}}>
@@ -952,8 +956,9 @@ function App(){
             </div>
         </div>
         {/* side-panel: flex-сосед workspace на десктопе, overlay на планшете, скрыт на мобильном (там bottom-sheet) */}
-        {sel!==null && <aside className='side-panel' aria-label='Карточка полки'>
-          <Info i={sel} p={y.p} af={af} y={y} overlay={overlay} onEdit={()=>setEd(true)} onClose={()=>setSel(null)}/>
+        {sel!==null && <aside className={'side-panel'+(panelCollapsed?' collapsed':'')} aria-label='Карточка полки'>
+          <button className='side-panel-toggle' onClick={()=>setPanelCollapsed(c=>!c)} title={panelCollapsed?'Развернуть панель':'Свернуть панель'} aria-label={panelCollapsed?'Развернуть панель':'Свернуть панель'}>{panelCollapsed?'‹':'›'}</button>
+          {!panelCollapsed && <Info i={sel} p={y.p} af={af} y={y} overlay={overlay} onEdit={()=>setEd(true)} onClose={()=>setSel(null)} onSel={setSel}/>}
         </aside>}
       </div>
       {/* Ясна² Drill Editor: bottom-panel с 12 inputs для sub-полок */}

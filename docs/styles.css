@@ -497,3 +497,59 @@ input{font-family:var(--sans)}
 @media(min-width:1024px) and (max-width:1279px){
   .side-panel{transition:width .22s cubic-bezier(.32,.72,0,1)}
 }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   BLOCK 1 — критичные layout-фиксы
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 1.1+1.3: диаграмма центрирована во flex и шрэнчится по высоте */
+.workspace .star-area{min-height:0;align-items:center;justify-content:center}
+.star-svg-wrap{margin:0 auto;display:flex;align-items:center;justify-content:center}
+
+/* 1.2: SVG плавная анимация transform при resize (для smooth shrink) */
+.star-area svg{transition:none}
+
+/* 1.5: side-panel header/footer pinned, content scrolls */
+.side-panel .fi{display:flex;flex-direction:column;height:100%}
+.side-panel .fi-handle,
+.side-panel .fi-header-zone{flex-shrink:0}
+.side-panel .fi > div:last-child{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#c7c7cc transparent}
+.side-panel .fi > div:last-child::-webkit-scrollbar{width:6px}
+.side-panel .fi > div:last-child::-webkit-scrollbar-thumb{background:#c7c7cc;border-radius:3px}
+.side-panel .fi > div:last-child::-webkit-scrollbar-track{background:transparent}
+
+/* 2.2: убрать drag-handle на десктопе — серый артефакт сверху */
+@media(min-width:1024px){
+  .side-panel .fi-handle{display:none!important}
+}
+
+/* 4.4: mobile tabs fade-края для индикации scroll */
+@media(max-width:767px){
+  .nav-tabs{position:relative}
+  .nav-tabs::before,.nav-tabs::after{content:'';position:absolute;top:0;bottom:0;width:24px;pointer-events:none;z-index:2}
+  .nav-tabs::before{left:0;background:linear-gradient(to right,var(--bg2),transparent)}
+  .nav-tabs::after{right:140px;background:linear-gradient(to left,var(--bg2),transparent)}
+}
+
+/* 4.6: FAB «+ Создать» на mobile */
+@media(max-width:767px){
+  .fab-create{position:fixed!important;bottom:18px;right:18px;width:56px;height:56px;border-radius:50%!important;box-shadow:0 4px 14px rgba(37,99,235,.32)!important;z-index:25;background:#0071e3!important;color:#fff!important;font-size:24px!important;padding:0!important;border:none!important;display:flex!important;align-items:center;justify-content:center}
+}
+
+/* 3.4: ⊕ кнопка чёткий aria-fallback (через title уже есть, дополнительная обводка фокуса) */
+button:focus-visible{outline:2px solid #0071e3;outline-offset:2px}
+
+/* 3.2: collapsible side-panel — узкая полоска 48px */
+.side-panel.collapsed{width:48px!important;overflow:hidden}
+.side-panel.collapsed .fi-handle,
+.side-panel.collapsed .fi-header-zone > div > div:not(:first-child),
+.side-panel.collapsed .fi > div:last-child{display:none!important}
+.side-panel-toggle{position:absolute;top:8px;left:8px;width:28px;height:28px;border-radius:8px;background:#fff;border:1px solid #d2d2d7;color:#86868b;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;z-index:2}
+.side-panel-toggle:hover{background:#f5f5f7;color:#1d1d1f}
+
+/* 4.3: mobile-burger drawer полировка — drop-shadow и smoother slide */
+@media(max-width:767px){
+  .hdr-burger > div[role='menu']{box-shadow:-8px 0 32px rgba(0,0,0,.15)!important;animation:slideInLeft .22s cubic-bezier(.32,.72,0,1)}
+}
+@keyframes slideInLeft{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
