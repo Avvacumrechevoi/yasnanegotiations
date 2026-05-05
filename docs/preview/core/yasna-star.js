@@ -359,7 +359,8 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
         </g>;
       })()}
 
-      {sel!==null&&<line x1={pts[sel].x} y1={pts[sel].y} x2={pts[opp(sel)].x} y2={pts[opp(sel)].y} stroke="#ea580c" strokeWidth="1.8" opacity=".5" strokeDasharray="6 4" strokeLinecap="round"/>}
+      {/* Opposition line на выбранной полке — только при активной механике "opp" */}
+      {sel!==null && af.includes('opp') && <line x1={pts[sel].x} y1={pts[sel].y} x2={pts[opp(sel)].x} y2={pts[opp(sel)].y} stroke="#ea580c" strokeWidth="2.2" opacity=".75" strokeDasharray="6 4" strokeLinecap="round"/>}
       {/* Multi-mechanic layers */}
       {(()=>{const activeLayers=af.filter(id=>!['opp','axes'].includes(id)).length;
         const opaScale=activeLayers<=1?1:activeLayers<=2?.85:activeLayers<=4?.7:.55;
