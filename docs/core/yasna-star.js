@@ -172,6 +172,8 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
   const lps = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,lr))
   const olps = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,lr+24))
   const ilps = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,lr-16))
+  // Static (без rotation) — для wrap-g механик: error89, scorpio_spider, mobius
+  const staticPts = Array.from({length:12},(_,i)=>xy(i,cx,cy,R))
   const hasMech=af.length>0;
   const nc=i=>(hl&&!hl.includes(i))?'#e0e0e8':CR[gc(i)].c;
   const no=i=>(hl&&!hl.includes(i))?.15:1;
@@ -247,57 +249,69 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
           <g transform={`rotate(${(-rotAngle).toFixed(2)},${cx+R*.5},${cy})`}><text x={cx+R*.5} y={cy+6} textAnchor="middle" fill="rgba(140,60,140,.4)" fontSize="10" fontFamily="var(--sans)" fontWeight="500" transform={`rotate(90 ${cx+R*.5} ${cy})`}>Спад ↓</text></g>
         </g>;
       })()}
-      {/* Error 8↔9: zone of confusion */}
-      {af.includes('error89')&&!starRotation&&<>
-        {/* Primary zone 8↔9 */}
-        <path d={`M${pts[8].x},${pts[8].y} A${R},${R} 0 0,1 ${pts[9].x},${pts[9].y}`} fill="rgba(217,70,239,.06)" stroke="#D946EF" strokeWidth="4" strokeDasharray="8 4"/>
-        <line x1={pts[8].x} y1={pts[8].y} x2={pts[9].x} y2={pts[9].y} stroke="#D946EF" strokeWidth="3" opacity=".5" strokeDasharray="6 4"/>
-
-        {/* Mirror zone 2↔3 */}
-        <path d={`M${pts[2].x},${pts[2].y} A${R},${R} 0 0,0 ${pts[3].x},${pts[3].y}`} fill="rgba(217,70,239,.03)" stroke="#D946EF" strokeWidth="2.5" strokeDasharray="6 4" opacity=".6"/>
-        <line x1={pts[2].x} y1={pts[2].y} x2={pts[3].x} y2={pts[3].y} stroke="#D946EF" strokeWidth="2" opacity=".4" strokeDasharray="6 4"/>
-
-        {/* 4 error types on support cross */}
-        {[[0,'Ошибка во сне',0,nr+30],[3,'Просмотрел',(pts[2].x-pts[3].x)/2-70,(pts[2].y-pts[3].y)/2-12],[6,'Мираж',0,-nr-22],[9,'Ошибка измерения',(pts[8].x-pts[9].x)/2+70,(pts[8].y-pts[9].y)/2-12]].map(([idx,label,dx,dy])=>{
-          const p=pts[idx];
-          return<text key={`e${idx}`} x={p.x+dx} y={p.y+dy} textAnchor="middle" fill="#D946EF" fontSize="10" fontWeight="700" fontFamily="var(--sans)" opacity=".85" style={{pointerEvents:'none'}}>{label}</text>;
-        })}
-        {/* Connection line 8↔9 to 2↔3 showing mirror */}
-        <line x1={(pts[8].x+pts[9].x)/2} y1={(pts[8].y+pts[9].y)/2} x2={(pts[2].x+pts[3].x)/2} y2={(pts[2].y+pts[3].y)/2} stroke="#D946EF" strokeWidth="1.5" opacity=".25" strokeDasharray="4 6"/>
-      </>}
+      {/* Error 8↔9: zone of confusion. Wrap-g + static d — корректно вращается без re-raster */}
+      {af.includes('error89')&&(()=>{
+        const sp=staticPts;
+        return<g transform={`rotate(${rotAngle.toFixed(2)},${cx},${cy})`}>
+          {/* Primary zone 8↔9 */}
+          <path d={`M${sp[8].x},${sp[8].y} A${R},${R} 0 0,1 ${sp[9].x},${sp[9].y}`} fill="rgba(217,70,239,.06)" stroke="#D946EF" strokeWidth="4" strokeDasharray="8 4"/>
+          <line x1={sp[8].x} y1={sp[8].y} x2={sp[9].x} y2={sp[9].y} stroke="#D946EF" strokeWidth="3" opacity=".5" strokeDasharray="6 4"/>
+          {/* Mirror zone 2↔3 */}
+          <path d={`M${sp[2].x},${sp[2].y} A${R},${R} 0 0,0 ${sp[3].x},${sp[3].y}`} fill="rgba(217,70,239,.03)" stroke="#D946EF" strokeWidth="2.5" strokeDasharray="6 4" opacity=".6"/>
+          <line x1={sp[2].x} y1={sp[2].y} x2={sp[3].x} y2={sp[3].y} stroke="#D946EF" strokeWidth="2" opacity=".4" strokeDasharray="6 4"/>
+          {/* 4 error types: counter-rotate чтобы оставались upright */}
+          {[[0,'Ошибка во сне',0,nr+30],[3,'Просмотрел',(sp[2].x-sp[3].x)/2-70,(sp[2].y-sp[3].y)/2-12],[6,'Мираж',0,-nr-22],[9,'Ошибка измерения',(sp[8].x-sp[9].x)/2+70,(sp[8].y-sp[9].y)/2-12]].map(([idx,label,dx,dy])=>{
+            const p=sp[idx];
+            const tx=p.x+dx, ty=p.y+dy;
+            return<g key={`e${idx}`} transform={`rotate(${(-rotAngle).toFixed(2)},${tx},${ty})`}><text x={tx} y={ty} textAnchor="middle" fill="#D946EF" fontSize="10" fontWeight="700" fontFamily="var(--sans)" opacity=".85" style={{pointerEvents:'none'}}>{label}</text></g>;
+          })}
+          {/* Connection line 8↔9 → 2↔3 */}
+          <line x1={(sp[8].x+sp[9].x)/2} y1={(sp[8].y+sp[9].y)/2} x2={(sp[2].x+sp[3].x)/2} y2={(sp[2].y+sp[3].y)/2} stroke="#D946EF" strokeWidth="1.5" opacity=".25" strokeDasharray="4 6"/>
+        </g>;
+      })()}
 
       {/* M-К-005 Зодиак: знаки рендерятся НА полке (вместо цифры) — см. код полок ниже. */}
 
-      {/* M-Ж-118 Скорпион↔Паук: верх=Сам, низ=Особа, ось 3↔9 = Поле Боя */}
-      {af.includes('mb_scorpio_spider')&&!starRotation&&<>
-        <path d={`M${pts[3].x},${pts[3].y} A${R},${R} 0 0,1 ${pts[9].x},${pts[9].y} L${pts[3].x},${pts[3].y} Z`}
-              fill="rgba(37,99,235,.08)" stroke="rgba(37,99,235,.4)" strokeWidth="1.2" strokeDasharray="6 4"/>
-        {/* Подписи в верхне-центральной зоне — далеко от полки 6 и от ПОЛЕ БОЯ */}
-        <text x={cx} y={cy-90} textAnchor="middle" fontSize="14" fill="#1d4ed8" fontWeight="700" stroke="#fff" strokeWidth="3" paintOrder="stroke">Головной Паук · Сам</text>
-        <text x={cx} y={cy-72} textAnchor="middle" fontSize="11" fill="#1e3a8a" opacity=".85" stroke="#fff" strokeWidth="2.5" paintOrder="stroke">верх · идея · мозг</text>
-        <path d={`M${pts[3].x},${pts[3].y} A${R},${R} 0 0,0 ${pts[9].x},${pts[9].y} L${pts[3].x},${pts[3].y} Z`}
-              fill="rgba(220,38,38,.08)" stroke="rgba(220,38,38,.4)" strokeWidth="1.2" strokeDasharray="6 4"/>
-        {/* Подписи в нижне-центральной зоне — далеко от полки 0 и от ПОЛЕ БОЯ */}
-        <text x={cx} y={cy+72} textAnchor="middle" fontSize="14" fill="#b91c1c" fontWeight="700" stroke="#fff" strokeWidth="3" paintOrder="stroke">Грудной Скорпион · Особа</text>
-        <text x={cx} y={cy+90} textAnchor="middle" fontSize="11" fill="#7f1d1d" opacity=".85" stroke="#fff" strokeWidth="2.5" paintOrder="stroke">низ · тело · импульс</text>
-        <line x1={pts[3].x-26} y1={pts[3].y} x2={pts[9].x+26} y2={pts[9].y} stroke="#7c2d12" strokeWidth="2" strokeDasharray="3 4" opacity=".55"/>
-        {/* ПОЛЕ БОЯ — теперь в дед-центре, на месте удалённого центрального кружка */}
-        <rect x={cx-78} y={cy-12} width="156" height="24" rx="12" fill="#fff" stroke="#7c2d12" strokeWidth="1.4"/>
-        <text x={cx} y={cy+5} textAnchor="middle" fontSize="11" fill="#7c2d12" fontWeight="700" letterSpacing="1.5">↑ ПОЛЕ БОЯ ↓</text>
-      </>}
+      {/* M-Ж-118 Скорпион↔Паук — wrap-g + static d, плавно вращается с колесом */}
+      {af.includes('mb_scorpio_spider')&&(()=>{
+        const sp=staticPts;
+        const cr=`${(-rotAngle).toFixed(2)}`; // counter-rotation для подписей
+        return<g transform={`rotate(${rotAngle.toFixed(2)},${cx},${cy})`}>
+          <path d={`M${sp[3].x},${sp[3].y} A${R},${R} 0 0,1 ${sp[9].x},${sp[9].y} L${sp[3].x},${sp[3].y} Z`}
+                fill="rgba(37,99,235,.08)" stroke="rgba(37,99,235,.4)" strokeWidth="1.2" strokeDasharray="6 4"/>
+          {/* Подписи top: counter-rotate индивидуально вокруг своего якоря */}
+          <g transform={`rotate(${cr},${cx},${cy-90})`}><text x={cx} y={cy-90} textAnchor="middle" fontSize="14" fill="#1d4ed8" fontWeight="700" stroke="#fff" strokeWidth="3" paintOrder="stroke">Головной Паук · Сам</text></g>
+          <g transform={`rotate(${cr},${cx},${cy-72})`}><text x={cx} y={cy-72} textAnchor="middle" fontSize="11" fill="#1e3a8a" opacity=".85" stroke="#fff" strokeWidth="2.5" paintOrder="stroke">верх · идея · мозг</text></g>
+          <path d={`M${sp[3].x},${sp[3].y} A${R},${R} 0 0,0 ${sp[9].x},${sp[9].y} L${sp[3].x},${sp[3].y} Z`}
+                fill="rgba(220,38,38,.08)" stroke="rgba(220,38,38,.4)" strokeWidth="1.2" strokeDasharray="6 4"/>
+          <g transform={`rotate(${cr},${cx},${cy+72})`}><text x={cx} y={cy+72} textAnchor="middle" fontSize="14" fill="#b91c1c" fontWeight="700" stroke="#fff" strokeWidth="3" paintOrder="stroke">Грудной Скорпион · Особа</text></g>
+          <g transform={`rotate(${cr},${cx},${cy+90})`}><text x={cx} y={cy+90} textAnchor="middle" fontSize="11" fill="#7f1d1d" opacity=".85" stroke="#fff" strokeWidth="2.5" paintOrder="stroke">низ · тело · импульс</text></g>
+          <line x1={sp[3].x-26} y1={sp[3].y} x2={sp[9].x+26} y2={sp[9].y} stroke="#7c2d12" strokeWidth="2" strokeDasharray="3 4" opacity=".55"/>
+          {/* ПОЛЕ БОЯ rect+text — counter-rotate */}
+          <g transform={`rotate(${cr},${cx},${cy})`}>
+            <rect x={cx-78} y={cy-12} width="156" height="24" rx="12" fill="#fff" stroke="#7c2d12" strokeWidth="1.4"/>
+            <text x={cx} y={cy+5} textAnchor="middle" fontSize="11" fill="#7c2d12" fontWeight="700" letterSpacing="1.5">↑ ПОЛЕ БОЯ ↓</text>
+          </g>
+        </g>;
+      })()}
 
-      {/* M-Г-050 Лента Мёбиуса: подсвечиваем нижнюю дугу единичной окружности 11→0=12→1.
-         Никакого дипа ниже viewBox — путь точно лежит на R=215, ∞ внутри круга над полкой 0. */}
-      {af.includes('mb_mobius')&&!starRotation&&<g>
-        <path d={`M${pts[11].x},${pts[11].y} A${R},${R} 0 0,1 ${pts[1].x},${pts[1].y}`}
-              fill="none" stroke="#0891b2" strokeWidth="4" strokeLinecap="round" opacity=".75"/>
-        <path d={`M${pts[11].x},${pts[11].y} A${R},${R} 0 0,1 ${pts[1].x},${pts[1].y}`}
-              fill="none" stroke="#67e8f9" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="6 6" opacity=".9"
-              style={{animation:'dashFlow 3s linear infinite'}}/>
-        {/* ∞ — у самого верха полки 0, чисто между подписями Скорпиона и самой полкой */}
-        <text x={cx} y={cy+R-25} textAnchor="middle" fontSize="18" fill="#0891b2" fontWeight="700"
-              stroke="#fff" strokeWidth="4" paintOrder="stroke" style={{pointerEvents:'none'}}>∞</text>
-      </g>}
+      {/* M-Г-050 Лента Мёбиуса — wrap-g + static d, орбитирует с полкой 0 */}
+      {af.includes('mb_mobius')&&(()=>{
+        const sp=staticPts;
+        const infY=cy+R-25;
+        return<g transform={`rotate(${rotAngle.toFixed(2)},${cx},${cy})`}>
+          <path d={`M${sp[11].x},${sp[11].y} A${R},${R} 0 0,1 ${sp[1].x},${sp[1].y}`}
+                fill="none" stroke="#0891b2" strokeWidth="4" strokeLinecap="round" opacity=".75"/>
+          <path d={`M${sp[11].x},${sp[11].y} A${R},${R} 0 0,1 ${sp[1].x},${sp[1].y}`}
+                fill="none" stroke="#67e8f9" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="6 6" opacity=".9"
+                style={{animation:'dashFlow 3s linear infinite'}}/>
+          {/* ∞ counter-rotate чтобы оставался upright */}
+          <g transform={`rotate(${(-rotAngle).toFixed(2)},${cx},${infY})`}>
+            <text x={cx} y={infY} textAnchor="middle" fontSize="18" fill="#0891b2" fontWeight="700"
+                  stroke="#fff" strokeWidth="4" paintOrder="stroke" style={{pointerEvents:'none'}}>∞</text>
+          </g>
+        </g>;
+      })()}
 
       {/* M-К-007 Накопление→Переход: длинные копят, короткие — точки перелива */}
       {af.includes('mb_accumulation')&&(()=>{
