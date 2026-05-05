@@ -1,20 +1,18 @@
 // ═══════════════════════════════════════════════════════════════════
-// TOUR ENGINE — generic runner для интерактивных гидов по Яснам.
+// TOUR ENGINE — minimal · storytelling · auto-scroll
 //
-// Методологический каркас (по образцу подачи в «Ясна Суток»):
-//   1. HOOK     — провокация: вопрос, а не ответ
-//   2. GROUND   — связка с прожитым опытом
-//   3. REVEAL   — последовательное раскрытие через stages[]
-//   4. NAME     — формальное имя закона/механики
-//   5. INSIGHT  — главное в одну строку
-//   6. PITFALL  — антипаттерн
-//   7. BRIDGE   — связка к следующему шагу
+// Principles:
+//   1. ОДИН accent на весь тур (не на каждый шаг) — глаз не утомляется
+//   2. Narrative-first — сторителлинг вместо callout-каскада
+//   3. Auto-scroll — панель сама подъезжает к новому контенту
+//   4. Discrete reveal — каждый narrative-абзац появляется в свой момент
 //
-// stages[]: [{ at: ms, hl: [polki], af: [mechanics], note? }]
-//   Engine последовательно применяет состояния, давая визуальный пульс.
+// Step.narrative[] — массив абзацев истории:
+//   [{ at: ms, text: '...', kind: 'default'|'key'|'note'|'caveat'|'quote'|'bridge' }]
+// kind влияет на тонкое визуальное выделение (без пёстрых цветов).
 //
-// API:
-//   window.YasnaTours.register(yasnaName, tourConfig)
+// Stages[] (визуальная анимация Ясны) — без изменений.
+// Опциональные блоки intro/outro/illustration/node — поддерживаются.
 // ═══════════════════════════════════════════════════════════════════
 
 (function(){
@@ -27,41 +25,16 @@
     has(name){ return this.registry.has(name); },
   };
 
-  // ───────── Outline SVG-иконки ─────────
-  const I = (path, opts) => { opts = opts||{}; return <svg viewBox="0 0 24 24" width={opts.size||22} height={opts.size||22} fill={opts.fill||'none'} stroke="currentColor" strokeWidth={opts.sw||1.6} strokeLinecap="round" strokeLinejoin="round">{path}</svg>; };
+  // Минимум иконок — большинство выдержано в тексте
+  const I = (path, opts) => { opts = opts||{}; return <svg viewBox="0 0 24 24" width={opts.size||16} height={opts.size||16} fill="none" stroke="currentColor" strokeWidth={opts.sw||1.6} strokeLinecap="round" strokeLinejoin="round">{path}</svg>; };
   const ICONS = {
-    star:       I(<path d="M12 2 L14.5 9 L22 9 L16 14 L18.5 22 L12 17 L5.5 22 L8 14 L2 9 L9.5 9 Z"/>),
-    cross:      I(<path d="M12 3 V21 M3 12 H21"/>, {sw:1.8}),
-    diamond:    I(<path d="M12 3 L21 12 L12 21 L3 12 Z"/>, {sw:1.8}),
-    triangle:   I(<path d="M12 3 L21 19 L3 19 Z"/>, {sw:1.8}),
-    flame:      I(<path d="M12 3 C 9 8 7 11 7 14 C 7 18 9 21 12 21 C 15 21 17 18 17 14 C 17 11 15 9 13 7 C 13 9 12 11 11 11 C 11 9 12 6 12 3 Z"/>),
-    drop:       I(<path d="M12 3 C 8 9 5 13 5 16 C 5 19 8 21 12 21 C 16 21 19 19 19 16 C 19 13 16 9 12 3 Z"/>),
-    wind:       I(<path d="M3 8 H14 M3 12 H19 M3 16 H11"/>),
-    earth:      I(<g><circle cx="12" cy="12" r="9"/><path d="M3 12 H21 M12 3 V21 M5 7 Q12 11 19 7 M5 17 Q12 13 19 17"/></g>),
-    arrows:     I(<path d="M3 12 H21 M5 8 L3 12 L5 16 M19 8 L21 12 L19 16"/>, {sw:1.8}),
-    halves:     I(<g><circle cx="12" cy="12" r="9"/><path d="M3 12 H21" strokeWidth="2.4"/></g>),
-    zodiac:     I(<g><circle cx="12" cy="12" r="9"/><path d="M12 3 V21 M3 12 H21 M5.6 5.6 L18.4 18.4 M18.4 5.6 L5.6 18.4"/></g>, {sw:1.4}),
-    scorpio:    I(<path d="M3 12 Q12 3 21 12 M3 12 Q12 21 21 12 M12 12 H17 L20 9"/>),
-    infinity:   I(<path d="M6 12 Q3 8 6 8 Q9 8 12 12 Q15 16 18 16 Q21 16 18 12 Q15 8 12 12 Q9 16 6 16 Q3 16 6 12 Z"/>, {sw:1.8}),
-    accumulate: I(<path d="M5 19 V13 M5 13 L8 16 M5 13 L2 16 M12 19 V9 M12 9 L15 12 M12 9 L9 12 M19 19 V5 M19 5 L22 8 M19 5 L16 8"/>),
-    rhythm:     I(<path d="M4 17 L9 7 L14 17 L19 7"/>),
-    warning:    I(<path d="M12 3 L21 19 L3 19 Z M12 10 V14 M12 17 H12.01"/>),
-    grid:       I(<g><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="9" y="3" width="6" height="6" rx="1"/><rect x="15" y="3" width="6" height="6" rx="1"/><rect x="3" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/><rect x="15" y="9" width="6" height="6" rx="1"/><rect x="3" y="15" width="6" height="6" rx="1"/><rect x="9" y="15" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/></g>, {sw:1.4}),
-    sparkle:    I(<path d="M12 3 V8 M12 16 V21 M3 12 H8 M16 12 H21 M5.6 5.6 L8 8 M16 16 L18.4 18.4 M18.4 5.6 L16 8 M5.6 18.4 L8 16"/>),
-    play:       I(<path d="M8 5 V19 L19 12 Z" fill="currentColor"/>, {size:14}),
-    pause:      I(<g><path d="M7 5 H10 V19 H7 Z" fill="currentColor"/><path d="M14 5 H17 V19 H14 Z" fill="currentColor"/></g>, {size:14}),
-    arrowLeft:  I(<path d="M15 6 L9 12 L15 18"/>, {size:16, sw:2.2}),
-    arrowRight: I(<path d="M9 6 L15 12 L9 18"/>, {size:16, sw:2.2}),
-    check:      I(<path d="M5 12 L10 17 L19 7"/>, {size:16, sw:2.4}),
-    close:      I(<path d="M6 6 L18 18 M18 6 L6 18"/>, {size:16, sw:2.2}),
-    question:   I(<g><circle cx="12" cy="12" r="9"/><path d="M9 9 Q9 6 12 6 Q15 6 15 9 Q15 11 12 12 V14 M12 17 H12.01"/></g>),
-    bridge:     I(<path d="M3 18 H21 M5 18 V12 Q12 6 19 12 V18 M9 14 V18 M15 14 V18"/>),
-    quote:      I(<path d="M7 7 H10 V11 H6 V14 Q6 17 9 17 M14 7 H17 V11 H13 V14 Q13 17 16 17"/>),
-    book:       I(<path d="M4 4 H11 V20 H4 Z M11 4 V20 M11 4 H20 V20 H11 M7 8 H8 M7 12 H8 M14 8 H17 M14 12 H17"/>),
-    paradox:    I(<g><circle cx="12" cy="12" r="9"/><path d="M3 12 Q12 6 21 12 Q12 18 3 12 Z M12 7 V17"/></g>),
-    mnemonic:   I(<path d="M5 5 H19 V19 H5 Z M5 9 H19 M9 5 V19 M5 14 H13"/>),
-    crossRef:   I(<path d="M3 12 H21 M16 7 L21 12 L16 17 M9 7 L4 12 L9 17"/>),
-    eye:        I(<g><circle cx="12" cy="12" r="3"/><path d="M2 12 Q6 5 12 5 Q18 5 22 12 Q18 19 12 19 Q6 19 2 12"/></g>),
+    play:       I(<path d="M8 5 V19 L19 12 Z" fill="currentColor"/>, {size:13}),
+    pause:      I(<g><path d="M7 5 H10 V19 H7 Z" fill="currentColor"/><path d="M14 5 H17 V19 H14 Z" fill="currentColor"/></g>, {size:13}),
+    arrowLeft:  I(<path d="M15 6 L9 12 L15 18"/>, {size:14, sw:2}),
+    arrowRight: I(<path d="M9 6 L15 12 L9 18"/>, {size:14, sw:2}),
+    check:      I(<path d="M5 12 L10 17 L19 7"/>, {size:14, sw:2.4}),
+    close:      I(<path d="M6 6 L18 18 M18 6 L6 18"/>, {size:14, sw:2}),
+    book:       I(<path d="M4 4 H20 V20 H4 Z M4 4 H11 V20 M7 8 H8 M7 12 H8 M14 8 H17 M14 12 H17"/>, {size:13, sw:1.4}),
   };
   window.YasnaTours.ICONS = ICONS;
 
@@ -74,11 +47,6 @@
     return { hl:cur.hl||null, af:cur.af||[], note:cur.note||null, stageIdx:idx, totalStages:stages.length };
   }
 
-  // Множитель скорости авто-прокрутки. 1.0 = базовая, 2.0 = в 2× медленнее.
-  // stages[at] и totalDuration не трогаем — engine применяет SPEED при resolve и tick.
-  const SPEED = 2.0;
-
-  // Deep-link: парсим URL hash вида #tour=sutki&step=5
   function parseHash(){
     if(typeof window === 'undefined') return null;
     const h = window.location.hash || '';
@@ -87,9 +55,17 @@
     return { tour: m[1], step: m[2] != null ? parseInt(m[2], 10) : -1 };
   }
 
+  // SPEED — глобальный множитель авто-прокрутки (2× медленнее по умолчанию)
+  const SPEED = 2.0;
+
   function GuideRunner({ tour, yasnaTpl, onClose, onLoadYasna }){
     const {Star} = window.YasnaCore;
-    // Init step from URL hash if present and matches this tour
+
+    // ОДИН accent на весь тур (warm gold для Sutki, blue для Atm)
+    const ACCENT = tour.accent || tour.intro?.accent || '#d4a574';
+    // Производные оттенки одного цвета (без новых hue) — RGBA с разной opacity
+    const accent = ACCENT;
+
     const initialStep = (()=>{
       const h = parseHash();
       if(h && h.tour === tour.id) return h.step;
@@ -100,6 +76,8 @@
     const [playing, setPlaying] = useState(true);
     const stepStartRef = useRef(performance.now());
     const rafRef = useRef(null);
+    const panelRef = useRef(null);
+    const [revealedCount, setRevealedCount] = useState(0);
 
     const [y] = useState(()=> yasnaTpl ? {
       name: yasnaTpl.n, p:[...yasnaTpl.p],
@@ -115,7 +93,10 @@
     useEffect(()=>{
       stepStartRef.current = performance.now();
       setStageT(0);
-      // Update URL hash for deep-link
+      setRevealedCount(0);
+      // scroll panel to top на новом шаге
+      if(panelRef.current) panelRef.current.scrollTop = 0;
+      // Update URL hash
       if(typeof window !== 'undefined' && window.history){
         const newHash = `#tour=${tour.id}&step=${stepIdx}`;
         if(window.location.hash !== newHash){
@@ -138,13 +119,31 @@
       return ()=>{ if(rafRef.current){ cancelAnimationFrame(rafRef.current); rafRef.current=null; } };
     }, [playing, stepIdx]);
 
-    // Helpers: advance forward через sub-stages, потом next step
+    // Автопрокрутка панели к новому narrative-абзацу
+    useEffect(()=>{
+      if(!step?.narrative) return;
+      const visible = step.narrative.filter(e => stageT >= (e.at||0) * SPEED).length;
+      if(visible > revealedCount){
+        setRevealedCount(visible);
+        // дать React-у дорисовать, потом скроллить
+        requestAnimationFrame(()=>{
+          if(!panelRef.current) return;
+          const entries = panelRef.current.querySelectorAll('.narrative-entry');
+          const last = entries[entries.length-1];
+          if(last){
+            // мягкий скролл к концу абзаца с отступом
+            const targetTop = last.offsetTop - 80;
+            panelRef.current.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
+          }
+        });
+      }
+    }, [stageT, stepIdx]);
+
+    // Smart navigation: stage→stage внутри шага, потом step→step
     const advanceForward = ()=>{
-      const curStep = (stepIdx>=0 && stepIdx<total) ? tour.steps[stepIdx] : null;
-      if(curStep && curStep.stages && curStep.stages.length>1){
-        const t = stageT;
-        // stages.at scaled by SPEED — ищем следующий triggered at*SPEED > t
-        const next = curStep.stages.find(st => (st.at||0)*SPEED > t + 50);
+      const cs = (stepIdx>=0 && stepIdx<total) ? tour.steps[stepIdx] : null;
+      if(cs && cs.stages && cs.stages.length>1){
+        const next = cs.stages.find(st => (st.at||0)*SPEED > stageT + 50);
         if(next){
           const target = (next.at||0)*SPEED;
           stepStartRef.current = performance.now() - target;
@@ -152,8 +151,19 @@
           setPlaying(false);
           return;
         }
-        const stepDurEff = (curStep.totalDuration || 13000) * SPEED;
-        if(t < stepDurEff * 0.9){
+        // also check narrative
+        if(cs.narrative){
+          const nextNarr = cs.narrative.find(e => (e.at||0)*SPEED > stageT + 50);
+          if(nextNarr){
+            const target = (nextNarr.at||0)*SPEED;
+            stepStartRef.current = performance.now() - target;
+            setStageT(target);
+            setPlaying(false);
+            return;
+          }
+        }
+        const stepDurEff = (cs.totalDuration || 13000) * SPEED;
+        if(stageT < stepDurEff * 0.95){
           stepStartRef.current = performance.now() - stepDurEff;
           setStageT(stepDurEff);
           setPlaying(false);
@@ -164,14 +174,17 @@
       setPlaying(false);
     };
     const advanceBack = ()=>{
-      const curStep = (stepIdx>=0 && stepIdx<total) ? tour.steps[stepIdx] : null;
-      if(curStep && curStep.stages && curStep.stages.length>1){
-        const t = stageT;
-        let prevAt = -1;
-        for(const st of curStep.stages){ const sc=(st.at||0)*SPEED; if(sc < t - 50){ prevAt = sc; } else break; }
-        if(prevAt >= 0){
-          stepStartRef.current = performance.now() - prevAt;
-          setStageT(prevAt);
+      const cs = (stepIdx>=0 && stepIdx<total) ? tour.steps[stepIdx] : null;
+      if(cs){
+        const allTimes = [];
+        if(cs.stages) cs.stages.forEach(s => allTimes.push((s.at||0)*SPEED));
+        if(cs.narrative) cs.narrative.forEach(s => allTimes.push((s.at||0)*SPEED));
+        allTimes.sort((a,b)=>a-b);
+        let prev = -1;
+        for(const t of allTimes){ if(t < stageT - 50) prev = t; else break; }
+        if(prev >= 0){
+          stepStartRef.current = performance.now() - prev;
+          setStageT(prev);
           setPlaying(false);
           return;
         }
@@ -192,256 +205,229 @@
 
     if(!y) return null;
 
-    const effectiveT = stageT / SPEED; // в 2× медленнее: stages fire at at*SPEED
     const stageState = step?.stages
-      ? resolveStage(step.stages, effectiveT)
+      ? resolveStage(step.stages, stageT/SPEED)
       : { hl:step?.highlight||null, af:step?.af||[], stageIdx:0, totalStages:1, note:null };
     const af = isOutro ? (tour.outro?.af||[]) : stageState.af;
     const highlight = stageState.hl;
-    const accent = step?.accent || tour.intro?.accent || '#a21caf';
 
     const stepDur = (step?.totalDuration||13000) * SPEED;
     const sp = Math.min(1, stageT / stepDur);
-    const showHook=true, showBody=sp>=0.12, showBullets=sp>=0.28, showInsight=sp>=0.45, showPitfall=sp>=0.65, showBridge=sp>=0.82;
 
     const dots = [];
     for(let i=-1; i<=total; i++) dots.push({idx:i, active:i===stepIdx, completed:i<stepIdx});
 
-    return (
-      <div style={{position:'fixed',inset:0,background:'radial-gradient(ellipse at top, #1a1a3a 0%, #08081a 60%, #050510 100%)',zIndex:200,display:'flex',flexDirection:'column',color:'#fff',fontFamily:'inherit',animation:'tourFadeIn .5s ease'}} onClick={e=>{ if(e.target===e.currentTarget) onClose(); }}>
+    // Минималистичная палитра — neutral базовая, accent для активного
+    const BG = '#0e1019';
+    const FG = 'rgba(255,255,255,.94)';
+    const FG_MUTED = 'rgba(255,255,255,.62)';
+    const FG_DIM = 'rgba(255,255,255,.38)';
+    const BORDER = 'rgba(255,255,255,.08)';
+    const SURFACE = 'rgba(255,255,255,.025)';
+    const SURFACE_RAISED = 'rgba(255,255,255,.04)';
 
-        {/* TOP */}
-        <div style={{padding:'14px 22px',display:'flex',alignItems:'center',gap:14,borderBottom:'1px solid rgba(255,255,255,.08)',flexShrink:0,background:'rgba(0,0,0,.25)',backdropFilter:'blur(10px)'}}>
+    return (
+      <div style={{position:'fixed',inset:0,background:BG,zIndex:200,display:'flex',flexDirection:'column',color:FG,fontFamily:'inherit',animation:'tourFadeIn .5s ease'}} onClick={e=>{ if(e.target===e.currentTarget) onClose(); }}>
+
+        {/* TOP — minimal */}
+        <div style={{padding:'14px 24px',display:'flex',alignItems:'center',gap:14,borderBottom:'1px solid '+BORDER,flexShrink:0,background:BG}}>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
-            <div style={{width:32,height:32,borderRadius:10,background:`linear-gradient(135deg,${accent},#3b82f6)`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>✦</div>
+            <div style={{width:26,height:26,borderRadius:7,background:accent,display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,color:'#0e1019',fontWeight:700}}>✦</div>
             <div>
-              <div style={{fontSize:13,fontWeight:700,letterSpacing:.3}}>Гид по Ясне</div>
-              <div style={{fontSize:11,opacity:.65,marginTop:1}}>{y.name}</div>
+              <div style={{fontSize:12.5,fontWeight:600,letterSpacing:.2,color:FG}}>Гид по Ясне</div>
+              <div style={{fontSize:11,color:FG_DIM,marginTop:1}}>{y.name}</div>
             </div>
           </div>
-          <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:6,minWidth:0,overflow:'hidden'}}>
+          <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:5,minWidth:0,overflow:'hidden'}}>
             {dots.map((d,i)=>(
               <button key={i} onClick={()=>{ setStepIdx(d.idx); setPlaying(false); }}
-                style={{padding:0,border:'none',cursor:'pointer',height:8,width:d.active?28:8,borderRadius:4,background:d.active?`linear-gradient(90deg,#60a5fa,${accent})`:(d.completed?'rgba(255,255,255,.5)':'rgba(255,255,255,.18)'),transition:'all .35s ease'}}
-                title={d.idx===-1?'Вступление':d.idx===total?'Завершение':`Шаг ${d.idx+1}: ${tour.steps[d.idx]?.title||''}`}/>
+                style={{padding:0,border:'none',cursor:'pointer',height:6,width:d.active?22:6,borderRadius:3,
+                       background:d.active?accent:(d.completed?'rgba(255,255,255,.32)':'rgba(255,255,255,.12)'),
+                       transition:'all .35s ease'}}
+                title={d.idx===-1?'Вступление':d.idx===total?'Завершение':`${d.idx+1}. ${tour.steps[d.idx]?.title||''}`}/>
             ))}
           </div>
-          <div style={{fontSize:12,opacity:.65,fontVariantNumeric:'tabular-nums',whiteSpace:'nowrap'}}>{stepIdx+2} / {total+2}</div>
-          <button onClick={onClose} style={{display:'flex',alignItems:'center',gap:5,background:'rgba(255,255,255,.08)',border:'1px solid rgba(255,255,255,.16)',color:'#fff',padding:'7px 12px',borderRadius:14,fontSize:12,cursor:'pointer',fontWeight:500}}>{ICONS.close}<span style={{display:typeof window!=='undefined'&&window.innerWidth<=600?'none':'inline'}}>Закрыть</span></button>
+          <div style={{fontSize:11.5,color:FG_DIM,fontVariantNumeric:'tabular-nums',whiteSpace:'nowrap'}}>{stepIdx+2} / {total+2}</div>
+          <button onClick={onClose} style={{display:'flex',alignItems:'center',gap:5,background:'transparent',border:'1px solid '+BORDER,color:FG_MUTED,padding:'6px 11px',borderRadius:8,fontSize:12,cursor:'pointer',fontWeight:500}}>{ICONS.close}<span style={{display:typeof window!=='undefined'&&window.innerWidth<=600?'none':'inline'}}>Закрыть</span></button>
         </div>
 
-        {/* BODY */}
+        {/* BODY split */}
         <div style={{flex:1,display:'flex',minHeight:0,overflow:'hidden'}} className="tour-body">
-          {/* Canvas */}
-          <div style={{flex:'1.4 1 0',display:'flex',alignItems:'center',justifyContent:'center',padding:'24px 20px',minWidth:0,position:'relative'}}>
-            <div style={{width:'100%',maxWidth:680,aspectRatio:'900/700',background:'rgba(255,255,255,.02)',borderRadius:24,border:'1px solid rgba(255,255,255,.06)',overflow:'hidden',transition:'all .8s cubic-bezier(.4,0,.2,1)',boxShadow:'0 20px 60px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.05)'}}>
+
+          {/* CANVAS */}
+          <div style={{flex:'1.5 1 0',display:'flex',alignItems:'center',justifyContent:'center',padding:'30px 24px',minWidth:0,position:'relative'}}>
+            <div style={{width:'100%',maxWidth:680,aspectRatio:'900/700',background:SURFACE,borderRadius:18,border:'1px solid '+BORDER,overflow:'hidden',transition:'all .8s cubic-bezier(.4,0,.2,1)'}}>
               <Star yy={y} sel={null} onSel={()=>{}} hl={highlight} af={af} showOpp={(af||[]).includes('opp')} overlay={null} mob={typeof window!=='undefined'&&window.innerWidth<=768}/>
             </div>
-            {step && step.icon && ICONS[step.icon] && (
-              <div className="tour-badge" style={{position:'absolute',top:32,left:32,padding:'10px 14px',borderRadius:20,background:`linear-gradient(135deg,${accent}cc,${accent}88)`,backdropFilter:'blur(10px)',border:'1px solid rgba(255,255,255,.2)',display:'flex',alignItems:'center',gap:8,boxShadow:'0 4px 16px rgba(0,0,0,.3)',animation:'badgeIn .5s ease'}}>
-                <span style={{display:'flex',alignItems:'center',color:'#fff'}}>{ICONS[step.icon]}</span>
-                <span style={{fontSize:13,fontWeight:700,letterSpacing:.3,color:'#fff'}}>Шаг {stepIdx+1}</span>
-              </div>
-            )}
 
-            {/* ILLUSTRATION — авторская SVG-схема понятия в верхнем правом углу */}
-            {step && step.illustration && (
-              <div style={{position:'absolute',top:32,right:32,padding:'12px',borderRadius:16,background:'rgba(0,0,0,.5)',backdropFilter:'blur(10px)',border:`1px solid ${accent}55`,boxShadow:'0 6px 22px rgba(0,0,0,.4)',animation:'badgeIn .6s ease',width:130,height:130,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
-                <div style={{width:90,height:90,display:'flex',alignItems:'center',justifyContent:'center',color:accent}} dangerouslySetInnerHTML={{__html: step.illustration.svg}}/>
-                {step.illustration.label && <div style={{fontSize:10,fontWeight:600,letterSpacing:.4,color:'#fff',marginTop:4,textAlign:'center',lineHeight:1.3}}>{step.illustration.label}</div>}
-              </div>
-            )}
-
-            {/* УЗЕЛ — указатель на главу/узел книги */}
-            {step && step.node && (
-              <div style={{position:'absolute',top:32,right:32,padding:'8px 12px',borderRadius:14,background:'rgba(0,0,0,.5)',backdropFilter:'blur(10px)',border:'1px solid rgba(255,255,255,.15)',display: step.illustration ? 'none' : 'flex',alignItems:'center',gap:7,boxShadow:'0 4px 12px rgba(0,0,0,.35)'}}>
-                <span style={{color:'#93c5fd',display:'flex'}}>{ICONS.book}</span>
-                <span style={{fontSize:11,fontWeight:600,opacity:.85}}>{step.node}</span>
-              </div>
-            )}
+            {/* Stage progress dots — над канвасом, минимально */}
             {step && step.stages && step.stages.length>1 && (
-              <div style={{position:'absolute',bottom:32,left:'50%',transform:'translateX(-50%)',display:'flex',gap:5,padding:'6px 10px',borderRadius:20,background:'rgba(0,0,0,.4)',backdropFilter:'blur(10px)',border:'1px solid rgba(255,255,255,.08)'}}>
+              <div style={{position:'absolute',bottom:30,left:'50%',transform:'translateX(-50%)',display:'flex',gap:5,padding:'5px 9px',borderRadius:14,background:SURFACE_RAISED,border:'1px solid '+BORDER}}>
                 {step.stages.map((_,i)=>(
-                  <div key={i} style={{width:i<=stageState.stageIdx?22:12,height:4,borderRadius:2,background:i<=stageState.stageIdx?accent:'rgba(255,255,255,.18)',transition:'all .4s ease'}}/>
+                  <div key={i} style={{width:i<=stageState.stageIdx?16:8,height:3,borderRadius:2,background:i<=stageState.stageIdx?accent:'rgba(255,255,255,.18)',transition:'all .35s ease'}}/>
                 ))}
               </div>
             )}
+
+            {/* Stage caption — минимальный */}
             {stageState.note && (
-              <div key={`${stepIdx}-${stageState.stageIdx}`} style={{position:'absolute',bottom:64,left:'50%',transform:'translateX(-50%)',padding:'8px 16px',borderRadius:14,background:'rgba(0,0,0,.6)',backdropFilter:'blur(8px)',border:`1px solid ${accent}55`,fontSize:12.5,fontWeight:600,color:'#fff',animation:'noteIn .4s ease',maxWidth:'90%',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+              <div key={`${stepIdx}-${stageState.stageIdx}`} style={{position:'absolute',bottom:60,left:'50%',transform:'translateX(-50%)',padding:'7px 14px',borderRadius:10,background:'rgba(0,0,0,.55)',backdropFilter:'blur(6px)',border:'1px solid '+BORDER,fontSize:12,fontWeight:500,color:FG,animation:'noteIn .35s ease',maxWidth:'80%',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
                 {stageState.note}
               </div>
             )}
           </div>
 
-          {/* Side panel */}
-          <div className="tour-panel" style={{flex:'1 1 0',maxWidth:480,padding:'30px 28px',overflowY:'auto',background:'rgba(0,0,0,.32)',borderLeft:'1px solid rgba(255,255,255,.08)',display:'flex',flexDirection:'column'}}>
+          {/* SIDE PANEL — narrative storytelling */}
+          <div ref={panelRef} className="tour-panel" style={{flex:'1 1 0',maxWidth:520,padding:'40px 36px 60px',overflowY:'auto',background:SURFACE,borderLeft:'1px solid '+BORDER,scrollBehavior:'smooth'}}>
 
             {isIntro && tour.intro && (
-              <div className="tour-card" style={{animation:'cardIn .55s cubic-bezier(.16,1,.3,1)'}}>
-                <div style={{fontSize:11,letterSpacing:2,textTransform:'uppercase',opacity:.5,marginBottom:12}}>Вступление</div>
-                <h1 style={{fontSize:32,fontWeight:800,lineHeight:1.18,marginBottom:12,letterSpacing:-.5}}>{tour.intro.title}</h1>
-                <div style={{fontSize:15,opacity:.75,fontStyle:'italic',marginBottom:18,lineHeight:1.4}}>{tour.intro.subtitle}</div>
-                <div style={{fontSize:14.5,lineHeight:1.65,opacity:.92,marginBottom:18}}>{tour.intro.lead}</div>
+              <div className="tour-card" style={{animation:'cardIn .6s cubic-bezier(.16,1,.3,1)',maxWidth:440}}>
+                <div style={{fontSize:11,letterSpacing:1.8,textTransform:'uppercase',color:FG_DIM,marginBottom:14,fontWeight:600}}>Вступление</div>
+                <h1 style={{fontSize:30,fontWeight:700,lineHeight:1.18,marginBottom:14,letterSpacing:-.5,color:FG}}>{tour.intro.title}</h1>
+                <div style={{fontSize:14.5,color:FG_MUTED,fontStyle:'italic',marginBottom:22,lineHeight:1.5}}>{tour.intro.subtitle}</div>
+                <div style={{fontSize:15,lineHeight:1.7,color:FG,marginBottom:24}}>{tour.intro.lead}</div>
                 {tour.source && (
-                  <div style={{padding:'12px 14px',borderRadius:14,background:'rgba(255,255,255,.05)',border:'1px solid rgba(255,255,255,.08)',marginBottom:20}}>
-                    <div style={{fontSize:10,letterSpacing:1.5,textTransform:'uppercase',opacity:.55,marginBottom:4}}>Источник</div>
-                    <div style={{fontSize:13,fontWeight:600,marginBottom:2}}>{tour.source.ref}</div>
-                    <div style={{fontSize:12,opacity:.7,lineHeight:1.4}}>{tour.source.desc}</div>
+                  <div style={{padding:'14px 16px',borderLeft:'2px solid '+accent,background:SURFACE_RAISED,marginBottom:24,borderRadius:'2px 8px 8px 2px'}}>
+                    <div style={{fontSize:11,color:FG_DIM,marginBottom:4,letterSpacing:.5,fontWeight:600,textTransform:'uppercase'}}>Источник</div>
+                    <div style={{fontSize:13.5,fontWeight:600,marginBottom:4,color:FG}}>{tour.source.ref}</div>
+                    <div style={{fontSize:12.5,color:FG_MUTED,lineHeight:1.45}}>{tour.source.desc}</div>
                   </div>
                 )}
                 {tour.intro.checkpoints && (
                   <div>
-                    <div style={{fontSize:11,letterSpacing:1.5,textTransform:'uppercase',opacity:.55,marginBottom:10}}>Что увидим</div>
-                    <ul style={{listStyle:'none',padding:0,margin:0,display:'flex',flexDirection:'column',gap:8}}>
+                    <div style={{fontSize:11,letterSpacing:1.8,textTransform:'uppercase',color:FG_DIM,marginBottom:12,fontWeight:600}}>Что увидим</div>
+                    <ol style={{listStyle:'none',padding:0,margin:0,display:'flex',flexDirection:'column',gap:10}}>
                       {tour.intro.checkpoints.map((c,i)=>(
-                        <li key={i} style={{fontSize:13,opacity:.85,display:'flex',gap:10,alignItems:'flex-start'}}>
-                          <span style={{flexShrink:0,width:22,height:22,borderRadius:'50%',background:'rgba(255,255,255,.08)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:accent}}>{i+1}</span>
-                          <span style={{lineHeight:1.45}}>{c}</span>
+                        <li key={i} style={{fontSize:13.5,color:FG,display:'flex',gap:14,alignItems:'flex-start',lineHeight:1.5}}>
+                          <span style={{flexShrink:0,fontSize:11,fontVariantNumeric:'tabular-nums',color:accent,fontWeight:700,minWidth:14,marginTop:2}}>{String(i+1).padStart(2,'0')}</span>
+                          <span>{c}</span>
                         </li>
                       ))}
-                    </ul>
+                    </ol>
                   </div>
                 )}
               </div>
             )}
 
             {isStep && step && (
-              <div className="tour-card" key={stepIdx} style={{animation:'cardIn .5s cubic-bezier(.16,1,.3,1)'}}>
-                <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:14}}>
-                  <div style={{display:'flex',alignItems:'center',justifyContent:'center',width:42,height:42,borderRadius:14,background:`linear-gradient(135deg,${accent},${accent}99)`,color:'#fff',boxShadow:`0 4px 14px ${accent}66`}}>
-                    {ICONS[step.icon] || ICONS.sparkle}
-                  </div>
-                  <div>
-                    <div style={{fontSize:11,letterSpacing:1.5,textTransform:'uppercase',opacity:.55}}>Механика {stepIdx+1} из {total}</div>
-                    {step.lawNum && <div style={{fontSize:11,opacity:.5,fontStyle:'italic'}}>Закон №{step.lawNum}</div>}
-                  </div>
+              <div className="tour-card" key={stepIdx} style={{animation:'cardIn .5s cubic-bezier(.16,1,.3,1)',maxWidth:440}}>
+                {/* Header — minimal */}
+                <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:18,fontSize:11,letterSpacing:1.5,textTransform:'uppercase',color:FG_DIM,fontWeight:600}}>
+                  <span>Глава {stepIdx+1}</span>
+                  <span style={{color:'rgba(255,255,255,.18)'}}>·</span>
+                  <span>{stepIdx+1} из {total}</span>
+                  {step.node && <>
+                    <span style={{color:'rgba(255,255,255,.18)'}}>·</span>
+                    <span style={{display:'inline-flex',alignItems:'center',gap:5,color:FG_MUTED}}>{ICONS.book}<span>{step.node}</span></span>
+                  </>}
                 </div>
 
-                <h2 style={{fontSize:25,fontWeight:800,lineHeight:1.2,marginBottom:8,letterSpacing:-.3}}>{step.title}</h2>
-                <div style={{fontSize:14,opacity:.7,fontStyle:'italic',marginBottom:18,lineHeight:1.45}}>{step.subtitle}</div>
+                <h2 style={{fontSize:28,fontWeight:700,lineHeight:1.2,marginBottom:8,letterSpacing:-.4,color:FG}}>{step.title}</h2>
+                <div style={{fontSize:14,color:FG_MUTED,fontStyle:'italic',marginBottom:28,lineHeight:1.45}}>{step.subtitle}</div>
 
-                {step.hook && showHook && (
-                  <div style={{padding:'14px 16px',borderRadius:14,background:`linear-gradient(135deg,${accent}26,${accent}10)`,border:`1px solid ${accent}55`,marginBottom:16,display:'flex',gap:10,alignItems:'flex-start',animation:'fadeUp .4s ease'}}>
-                    <div style={{flexShrink:0,marginTop:1,color:accent}}>{ICONS.question}</div>
-                    <div style={{fontSize:14,fontWeight:600,lineHeight:1.5,fontStyle:'italic'}}>{step.hook}</div>
-                  </div>
-                )}
-
-                {step.body && showBody && (
-                  <div style={{fontSize:14,lineHeight:1.65,opacity:.92,marginBottom:14,animation:'fadeUp .4s ease'}}>{step.body}</div>
-                )}
-
-                {step.bullets && showBullets && (
-                  <ul style={{listStyle:'none',padding:0,margin:'10px 0 16px',display:'flex',flexDirection:'column',gap:8,animation:'fadeUp .4s ease'}}>
-                    {step.bullets.map((b,i)=>(
-                      <li key={i} style={{fontSize:13.5,opacity:.88,display:'flex',gap:10,alignItems:'flex-start',lineHeight:1.5}}>
-                        <span style={{flexShrink:0,width:6,height:6,borderRadius:'50%',background:accent,marginTop:8}}/>
-                        <span dangerouslySetInnerHTML={{__html: b}}/>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-
-                {step.insight && showInsight && (
-                  <div style={{padding:'14px 16px',borderRadius:14,background:`linear-gradient(135deg,${accent}1f,${accent}0a)`,border:`1px solid ${accent}40`,marginBottom:14,animation:'fadeUp .4s ease'}}>
-                    <div style={{fontSize:10,letterSpacing:1.8,textTransform:'uppercase',color:accent,fontWeight:700,marginBottom:5,opacity:.95,display:'flex',alignItems:'center',gap:6}}>
-                      <span style={{color:accent,display:'flex'}}>{ICONS.sparkle}</span>
-                      <span>Главное</span>
+                {/* LEGACY FALLBACK: если у шага нет narrative но есть старые поля — собираем их в narrative динамически */}
+                {!step.narrative && (step.hook || step.body) && (()=>{
+                  const arr = [];
+                  let t = 0;
+                  if(step.hook){ arr.push({at:t, text:step.hook, kind:'note'}); t += 2500; }
+                  if(step.body){ arr.push({at:t, text:step.body}); t += 4000; }
+                  if(step.bullets){ arr.push({at:t, text: step.bullets.map(b=>'• '+b).join('<br/><br/>')}); t += 4000; }
+                  if(step.quote){ arr.push({at:t, text:step.quote.text||step.quote, kind:'quote', ref:step.quote.ref}); t += 3000; }
+                  if(step.insight){ arr.push({at:t, text:step.insight, kind:'key'}); t += 3500; }
+                  if(step.paradox){ arr.push({at:t, text: step.paradox, kind:'note'}); t += 3000; }
+                  if(step.pitfall){ arr.push({at:t, text:step.pitfall, kind:'caveat'}); t += 3000; }
+                  if(step.mnemonic){ arr.push({at:t, text:step.mnemonic, kind:'mnemonic'}); t += 2500; }
+                  if(step.bridge){ arr.push({at:t, text:step.bridge, kind:'bridge'}); }
+                  return (
+                    <div style={{display:'flex',flexDirection:'column',gap:18}}>
+                      {arr.map((entry,i)=>{
+                        const visible = stageT >= (entry.at||0) * SPEED;
+                        if(!visible) return null;
+                        const kind = entry.kind || 'default';
+                        let style = { fontSize:15.5, lineHeight:1.7, color:FG };
+                        let prefix = null;
+                        if(kind === 'key'){ style = { ...style, fontWeight:600, fontSize:16.5, padding:'18px 0 18px 20px', borderLeft:'3px solid '+accent, marginLeft:-2 }; }
+                        else if(kind === 'note'){ style = { ...style, fontSize:14.5, color:FG_MUTED, fontStyle:'italic' }; }
+                        else if(kind === 'caveat'){ style = { ...style, fontSize:14, color:FG_MUTED, padding:'10px 0 10px 16px', borderLeft:'2px solid rgba(255,255,255,.18)' }; prefix = <span style={{display:'block',fontSize:10.5,letterSpacing:1.5,textTransform:'uppercase',color:FG_DIM,marginBottom:5,fontWeight:600}}>Важно не путать</span>; }
+                        else if(kind === 'quote'){ style = { ...style, fontSize:15, fontStyle:'italic', padding:'18px 22px',background:SURFACE_RAISED,borderRadius:8,borderLeft:'2px solid '+accent }; prefix = entry.ref ? <span style={{display:'block',fontSize:10.5,letterSpacing:1.5,textTransform:'uppercase',color:FG_DIM,marginBottom:8,fontWeight:600}}>{entry.ref}</span> : null; }
+                        else if(kind === 'mnemonic'){ style = { ...style, fontSize:14, fontWeight:500, padding:'12px 16px',background:'rgba(212,165,116,.06)',borderRadius:8,border:'1px dashed rgba(212,165,116,.3)' }; prefix = <span style={{display:'block',fontSize:10,letterSpacing:1.8,textTransform:'uppercase',color:accent,marginBottom:5,fontWeight:700,opacity:.8}}>Запомни</span>; }
+                        else if(kind === 'bridge'){ style = { ...style, fontSize:14, color:FG_DIM, fontStyle:'italic', marginTop:8, paddingTop:18, borderTop:'1px dashed '+BORDER }; }
+                        return (<div key={i} className="narrative-entry" style={{...style, animation:'fadeUp .55s cubic-bezier(.16,1,.3,1)'}}>{prefix}<span dangerouslySetInnerHTML={{__html: entry.text}}/></div>);
+                      })}
                     </div>
-                    <div style={{fontSize:14,lineHeight:1.5,opacity:.95,fontWeight:500}}>{step.insight}</div>
-                  </div>
-                )}
+                  );
+                })()}
 
-                {step.pitfall && showPitfall && (
-                  <div style={{padding:'12px 14px',borderRadius:12,background:'rgba(220,38,38,.08)',border:'1px solid rgba(220,38,38,.25)',marginBottom:14,animation:'fadeUp .4s ease'}}>
-                    <div style={{fontSize:10,letterSpacing:1.5,textTransform:'uppercase',color:'#fca5a5',fontWeight:700,marginBottom:4,display:'flex',alignItems:'center',gap:6}}>
-                      <span style={{color:'#fca5a5',display:'flex'}}>{ICONS.warning}</span>
-                      <span>Ловушка</span>
-                    </div>
-                    <div style={{fontSize:13,lineHeight:1.5,opacity:.92}}>{step.pitfall}</div>
-                  </div>
-                )}
-
-                {/* QUOTE — прямая цитата автора */}
-                {step.quote && showInsight && (
-                  <div style={{padding:'14px 16px',borderRadius:12,background:'rgba(255,255,255,.04)',border:'1px solid rgba(255,255,255,.12)',marginBottom:14,animation:'fadeUp .4s ease',position:'relative'}}>
-                    <span style={{position:'absolute',top:-2,left:10,fontSize:32,color:`${accent}88`,lineHeight:1,fontFamily:'Georgia,serif'}}>"</span>
-                    <div style={{fontSize:13.5,lineHeight:1.6,fontStyle:'italic',opacity:.92,paddingLeft:12,marginBottom:6}}>{step.quote.text}</div>
-                    {step.quote.ref && <div style={{fontSize:11,opacity:.55,paddingLeft:12,letterSpacing:.3}}>— {step.quote.ref}</div>}
-                  </div>
-                )}
-
-                {/* MNEMONIC — школьная фраза для запоминания */}
-                {step.mnemonic && showPitfall && (
-                  <div style={{padding:'10px 14px',borderRadius:10,background:'rgba(34,197,94,.08)',border:'1px dashed rgba(34,197,94,.35)',marginBottom:14,animation:'fadeUp .4s ease',display:'flex',gap:8,alignItems:'flex-start'}}>
-                    <span style={{flexShrink:0,marginTop:1,color:'#86efac',display:'flex'}}>{ICONS.mnemonic}</span>
-                    <div>
-                      <div style={{fontSize:10,letterSpacing:1.5,textTransform:'uppercase',color:'#86efac',fontWeight:700,marginBottom:3,opacity:.95}}>Запомни</div>
-                      <div style={{fontSize:13,lineHeight:1.45,fontWeight:500}}>{step.mnemonic}</div>
-                    </div>
-                  </div>
-                )}
-
-                {/* PARADOX — кажущееся противоречие */}
-                {step.paradox && showInsight && (
-                  <div style={{padding:'12px 14px',borderRadius:12,background:'rgba(168,85,247,.08)',border:'1px solid rgba(168,85,247,.25)',marginBottom:14,animation:'fadeUp .4s ease'}}>
-                    <div style={{fontSize:10,letterSpacing:1.5,textTransform:'uppercase',color:'#c4b5fd',fontWeight:700,marginBottom:4,display:'flex',alignItems:'center',gap:6}}>
-                      <span style={{color:'#c4b5fd',display:'flex'}}>{ICONS.paradox}</span>
-                      <span>Парадокс</span>
-                    </div>
-                    <div style={{fontSize:13,lineHeight:1.5,opacity:.92}}>{step.paradox}</div>
-                  </div>
-                )}
-
-                {/* CROSS-REFERENCES — связи с другими шагами */}
-                {step.crossRefs && step.crossRefs.length > 0 && showBridge && (
-                  <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:14,animation:'fadeUp .4s ease'}}>
-                    {step.crossRefs.map((cr,i)=>{
-                      const targetIdx = tour.steps.findIndex(s=>s.id===cr.id);
-                      if(targetIdx<0) return null;
+                {/* NARRATIVE — flowing storytelling */}
+                {step.narrative && (
+                  <div style={{display:'flex',flexDirection:'column',gap:18}}>
+                    {step.narrative.map((entry, i)=>{
+                      const visible = stageT >= (entry.at||0) * SPEED;
+                      if(!visible) return null;
+                      const kind = entry.kind || 'default';
+                      let style = { fontSize:15.5, lineHeight:1.7, color:FG };
+                      let inner = entry.text;
+                      let prefix = null;
+                      if(kind === 'key'){
+                        style = { ...style, fontWeight:600, fontSize:16.5, padding:'18px 0 18px 20px', borderLeft:'3px solid '+accent, marginLeft:-2 };
+                      } else if(kind === 'note'){
+                        style = { ...style, fontSize:14.5, color:FG_MUTED, fontStyle:'italic' };
+                      } else if(kind === 'caveat'){
+                        style = { ...style, fontSize:14, color:FG_MUTED, padding:'10px 0 10px 16px', borderLeft:'2px solid rgba(255,255,255,.18)' };
+                        prefix = <span style={{display:'block',fontSize:10.5,letterSpacing:1.5,textTransform:'uppercase',color:FG_DIM,marginBottom:5,fontWeight:600}}>Важно не путать</span>;
+                      } else if(kind === 'quote'){
+                        style = { ...style, fontSize:15, fontStyle:'italic', padding:'18px 22px',background:SURFACE_RAISED,borderRadius:8,borderLeft:'2px solid '+accent };
+                        prefix = entry.ref ? <span style={{display:'block',fontSize:10.5,letterSpacing:1.5,textTransform:'uppercase',color:FG_DIM,marginBottom:8,fontWeight:600}}>{entry.ref}</span> : null;
+                      } else if(kind === 'mnemonic'){
+                        style = { ...style, fontSize:14, fontWeight:500, padding:'12px 16px',background:'rgba(212,165,116,.06)',borderRadius:8,border:'1px dashed rgba(212,165,116,.3)' };
+                        prefix = <span style={{display:'block',fontSize:10,letterSpacing:1.8,textTransform:'uppercase',color:accent,marginBottom:5,fontWeight:700,opacity:.8}}>Запомни</span>;
+                      } else if(kind === 'bridge'){
+                        style = { ...style, fontSize:14, color:FG_DIM, fontStyle:'italic', marginTop:8, paddingTop:18, borderTop:'1px dashed '+BORDER };
+                      }
                       return (
-                        <button key={i} onClick={()=>{ setStepIdx(targetIdx); setPlaying(false); }} style={{padding:'6px 12px',borderRadius:14,background:'rgba(255,255,255,.06)',border:'1px solid rgba(255,255,255,.15)',color:'#fff',fontSize:11.5,cursor:'pointer',display:'flex',alignItems:'center',gap:5,fontWeight:500}} title={cr.note}>
-                          <span style={{color:'#93c5fd',display:'flex'}}>{ICONS.crossRef}</span>
-                          <span style={{opacity:.8}}>см. </span>
-                          <span style={{fontWeight:600}}>«{tour.steps[targetIdx].title}»</span>
-                        </button>
+                        <div key={i} className="narrative-entry" style={{...style, animation:'fadeUp .55s cubic-bezier(.16,1,.3,1)'}}>
+                          {prefix}
+                          <span dangerouslySetInnerHTML={{__html: inner}}/>
+                        </div>
                       );
                     })}
                   </div>
                 )}
 
-                {step.bridge && showBridge && (
-                  <div style={{padding:'10px 14px',borderRadius:12,background:'rgba(96,165,250,.08)',border:'1px solid rgba(96,165,250,.25)',marginBottom:8,animation:'fadeUp .4s ease',display:'flex',gap:8,alignItems:'flex-start'}}>
-                    <span style={{flexShrink:0,marginTop:1,color:'#93c5fd',display:'flex'}}>{ICONS.bridge}</span>
-                    <div style={{fontSize:12.5,lineHeight:1.5,opacity:.85,fontStyle:'italic'}}>{step.bridge}</div>
-                  </div>
-                )}
-
-                {step.hint && showBridge && (
-                  <div style={{fontSize:11.5,opacity:.5,fontStyle:'italic',display:'flex',gap:6,alignItems:'flex-start',marginTop:8,animation:'fadeUp .4s ease'}}>
-                    <span>💡</span><span>{step.hint}</span>
+                {/* Cross-references — minimal chips */}
+                {step.crossRefs && step.crossRefs.length > 0 && stageT >= stepDur * 0.7 && (
+                  <div style={{display:'flex',flexWrap:'wrap',gap:6,marginTop:22,paddingTop:18,borderTop:'1px solid '+BORDER,animation:'fadeUp .5s ease'}}>
+                    {step.crossRefs.map((cr,i)=>{
+                      const targetIdx = tour.steps.findIndex(s=>s.id===cr.id);
+                      if(targetIdx<0) return null;
+                      return (
+                        <button key={i} onClick={()=>{ setStepIdx(targetIdx); setPlaying(false); }} style={{padding:'5px 10px',borderRadius:14,background:'transparent',border:'1px solid '+BORDER,color:FG_MUTED,fontSize:11.5,cursor:'pointer',fontWeight:500,transition:'all .2s'}} onMouseEnter={e=>{e.currentTarget.style.borderColor=accent; e.currentTarget.style.color=FG;}} onMouseLeave={e=>{e.currentTarget.style.borderColor=BORDER; e.currentTarget.style.color=FG_MUTED;}}>
+                          → {tour.steps[targetIdx].title}
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>
             )}
 
             {isOutro && tour.outro && (
-              <div className="tour-card" style={{animation:'cardIn .55s cubic-bezier(.16,1,.3,1)'}}>
-                <div style={{fontSize:11,letterSpacing:2,textTransform:'uppercase',opacity:.5,marginBottom:12}}>Завершение</div>
-                <h1 style={{fontSize:30,fontWeight:800,lineHeight:1.2,marginBottom:14,letterSpacing:-.3}}>{tour.outro.title}</h1>
-                <div style={{fontSize:14.5,lineHeight:1.65,opacity:.92,marginBottom:20}}>{tour.outro.body}</div>
+              <div className="tour-card" style={{animation:'cardIn .6s cubic-bezier(.16,1,.3,1)',maxWidth:440}}>
+                <div style={{fontSize:11,letterSpacing:1.8,textTransform:'uppercase',color:FG_DIM,marginBottom:14,fontWeight:600}}>Завершение</div>
+                <h1 style={{fontSize:28,fontWeight:700,lineHeight:1.22,marginBottom:18,letterSpacing:-.4,color:FG}}>{tour.outro.title}</h1>
+                <div style={{fontSize:15,lineHeight:1.7,color:FG,marginBottom:26}}>{tour.outro.body}</div>
                 {tour.outro.summary && (
-                  <ul style={{listStyle:'none',padding:0,margin:'12px 0 18px',display:'flex',flexDirection:'column',gap:8}}>
+                  <ol style={{listStyle:'none',padding:0,margin:'18px 0 28px',display:'flex',flexDirection:'column',gap:10}}>
                     {tour.outro.summary.map((s,i)=>(
-                      <li key={i} style={{fontSize:13,opacity:.88,display:'flex',gap:10,alignItems:'flex-start',lineHeight:1.5}}>
-                        <span style={{flexShrink:0,color:'#22c55e',display:'flex',marginTop:1}}>{ICONS.check}</span>
+                      <li key={i} style={{fontSize:13.5,color:FG,display:'flex',gap:12,alignItems:'flex-start',lineHeight:1.55}}>
+                        <span style={{flexShrink:0,color:accent,marginTop:2}}>{ICONS.check}</span>
                         <span>{s}</span>
                       </li>
                     ))}
-                  </ul>
+                  </ol>
                 )}
                 {tour.outro.cta && (
-                  <button onClick={()=>{ if(onLoadYasna) onLoadYasna(); onClose(); }} style={{padding:'14px 24px',borderRadius:18,border:'none',background:`linear-gradient(135deg,${accent},#3b82f6)`,color:'#fff',cursor:'pointer',fontSize:14,fontWeight:700,display:'flex',alignItems:'center',gap:8,boxShadow:`0 6px 22px ${accent}55`,transition:'transform .2s'}} onMouseDown={e=>e.currentTarget.style.transform='scale(.97)'} onMouseUp={e=>e.currentTarget.style.transform='scale(1)'}>{ICONS.check}<span>{tour.outro.cta}</span></button>
+                  <button onClick={()=>{ if(onLoadYasna) onLoadYasna(); onClose(); }} style={{padding:'14px 22px',borderRadius:12,border:'none',background:accent,color:'#0e1019',cursor:'pointer',fontSize:14,fontWeight:700,display:'flex',alignItems:'center',gap:8,transition:'transform .15s'}} onMouseDown={e=>e.currentTarget.style.transform='scale(.97)'} onMouseUp={e=>e.currentTarget.style.transform='scale(1)'}>{ICONS.check}<span>{tour.outro.cta}</span></button>
                 )}
               </div>
             )}
@@ -449,25 +435,27 @@
         </div>
 
         {/* BOTTOM */}
-        <div style={{padding:'14px 22px',background:'rgba(0,0,0,.4)',borderTop:'1px solid rgba(255,255,255,.08)',display:'flex',gap:10,alignItems:'center',flexShrink:0,backdropFilter:'blur(10px)'}}>
-          <button disabled={isIntro} onClick={advanceBack} style={{padding:'10px 16px',borderRadius:14,border:'1px solid rgba(255,255,255,.18)',background:'rgba(255,255,255,.05)',color:'#fff',cursor:isIntro?'not-allowed':'pointer',opacity:isIntro?.35:1,fontSize:13,fontWeight:500,display:'flex',alignItems:'center',gap:6}}>{ICONS.arrowLeft}<span>Назад</span></button>
-          <button onClick={()=>setPlaying(p=>!p)} style={{padding:'10px 16px',borderRadius:14,border:'1px solid rgba(255,255,255,.18)',background:'rgba(255,255,255,.05)',color:'#fff',cursor:'pointer',fontSize:13,fontWeight:500,display:'flex',alignItems:'center',gap:6}}>{playing?ICONS.pause:ICONS.play}<span>{playing?'Пауза':'Авто'}</span></button>
-          <div style={{flex:1,fontSize:11,opacity:.5,textAlign:'center'}}>
+        <div style={{padding:'14px 24px',background:BG,borderTop:'1px solid '+BORDER,display:'flex',gap:10,alignItems:'center',flexShrink:0}}>
+          <button disabled={isIntro} onClick={advanceBack} style={{padding:'9px 14px',borderRadius:10,border:'1px solid '+BORDER,background:'transparent',color:isIntro?FG_DIM:FG_MUTED,cursor:isIntro?'not-allowed':'pointer',opacity:isIntro?.4:1,fontSize:12.5,fontWeight:500,display:'flex',alignItems:'center',gap:6}}>{ICONS.arrowLeft}<span>Назад</span></button>
+          <button onClick={()=>setPlaying(p=>!p)} style={{padding:'9px 14px',borderRadius:10,border:'1px solid '+BORDER,background:'transparent',color:FG_MUTED,cursor:'pointer',fontSize:12.5,fontWeight:500,display:'flex',alignItems:'center',gap:6}}>{playing?ICONS.pause:ICONS.play}<span>{playing?'Пауза':'Авто'}</span></button>
+          <div style={{flex:1,fontSize:11,color:FG_DIM,textAlign:'center'}}>
             <span style={{display:typeof window!=='undefined'&&window.innerWidth<=600?'none':'inline'}}>← →  Пробел — следующий шаг анимации · Esc — закрыть</span>
           </div>
-          {!isOutro && <button onClick={advanceForward} style={{padding:'10px 20px',borderRadius:14,border:'none',background:`linear-gradient(135deg,${accent},${accent}cc)`,color:'#fff',cursor:'pointer',fontSize:13,fontWeight:700,display:'flex',alignItems:'center',gap:6,boxShadow:`0 4px 14px ${accent}44`}}><span>Дальше</span>{ICONS.arrowRight}</button>}
-          {isOutro && tour.outro?.cta && <button onClick={()=>{ if(onLoadYasna) onLoadYasna(); onClose(); }} style={{padding:'10px 20px',borderRadius:14,border:'none',background:'linear-gradient(135deg,#3b82f6,#a21caf)',color:'#fff',cursor:'pointer',fontSize:13,fontWeight:700,display:'flex',alignItems:'center',gap:6}}>{ICONS.check}<span>Перейти</span></button>}
+          {!isOutro && <button onClick={advanceForward} style={{padding:'9px 18px',borderRadius:10,border:'none',background:accent,color:'#0e1019',cursor:'pointer',fontSize:12.5,fontWeight:700,display:'flex',alignItems:'center',gap:6}}><span>Дальше</span>{ICONS.arrowRight}</button>}
+          {isOutro && tour.outro?.cta && <button onClick={()=>{ if(onLoadYasna) onLoadYasna(); onClose(); }} style={{padding:'9px 18px',borderRadius:10,border:'none',background:accent,color:'#0e1019',cursor:'pointer',fontSize:12.5,fontWeight:700,display:'flex',alignItems:'center',gap:6}}>{ICONS.check}<span>Перейти</span></button>}
         </div>
 
         <style>{`
           @keyframes tourFadeIn { from { opacity:0; } to { opacity:1; } }
-          @keyframes cardIn { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+          @keyframes cardIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
           @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-          @keyframes badgeIn { from { opacity:0; transform:scale(.7); } to { opacity:1; transform:scale(1); } }
-          @keyframes noteIn { from { opacity:0; transform:translate(-50%,6px); } to { opacity:1; transform:translate(-50%,0); } }
+          @keyframes noteIn { from { opacity:0; transform:translate(-50%,4px); } to { opacity:1; transform:translate(-50%,0); } }
+          .tour-panel::-webkit-scrollbar { width: 6px; }
+          .tour-panel::-webkit-scrollbar-track { background: transparent; }
+          .tour-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 3px; }
           @media (max-width: 768px) {
             .tour-body { flex-direction: column !important; }
-            .tour-panel { max-width: none !important; max-height: 50vh; padding: 22px 18px !important; border-left: none !important; border-top: 1px solid rgba(255,255,255,.08); }
+            .tour-panel { max-width: none !important; max-height: 50vh; padding: 24px 20px !important; border-left: none !important; border-top: 1px solid rgba(255,255,255,.08); }
           }
         `}</style>
       </div>
