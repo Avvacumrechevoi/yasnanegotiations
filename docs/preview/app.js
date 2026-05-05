@@ -860,15 +860,25 @@ function App(){
           Механики{af.length>0?` (${af.length})`:''} 
         </button>
       </div>
-      <div className={'filters hide-scroll'+(filtersOpen?'':' filters-closed')} style={{display:'flex',gap:5,padding:'10px 20px',flexWrap:'wrap',flexShrink:0,alignItems:'center',position:'relative'}}>
-        <span style={{fontSize:12,color:'#6e6e73',padding:'4px 0',whiteSpace:'nowrap',marginRight:4,fontWeight:500}}>Механики:</span>
-        {af.length===FL.length?
-          <button onClick={()=>setAf([])} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:'#0071e322',color:'#0071e3',border:'1px solid #0071e355',fontWeight:600,cursor:'pointer'}}>Все</button>
-          :<button onClick={()=>setAf(FL.map(f=>f.id))} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:'transparent',color:'#86868b',border:'1px solid #d2d2d7',cursor:'pointer'}}>Все</button>
-        }
-        {FL.map((f,fi)=>{const a=af.includes(f.id);const prevG=fi>0?FL[fi-1].g:'';const showSep=f.g!==prevG&&fi>0;return<React.Fragment key={f.id}>{showSep&&<div className='sep' style={{width:1,height:18,background:'#d2d2d7',margin:'0 4px',flexShrink:0}}/>}<button onClick={()=>tog(f.id)} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:a?`${f.c}22`:'transparent',color:a?f.c:'#86868b',border:`1px solid ${a?f.c+'55':'#d2d2d7'}`,cursor:'pointer',fontWeight:a?600:400}}>{f.l}</button></React.Fragment>;})}
-        {/* Inline-кнопки вращения/3D — справа от фильтров (prod) */}
-        <div className="rotation-controls rotation-controls-inline rotation-toolbar" style={{marginLeft:'auto',display:'flex',gap:4,alignItems:'center',flexShrink:0,background:'var(--bg2)',border:'1px solid #e5e5ea',borderRadius:14,padding:'3px 5px',boxShadow:'0 1px 3px rgba(0,0,0,.04)'}}>
+      {/* МЕХАНИКИ — двухуровневая структура: header (toggle + active chips + toolbar) + collapsible body */}
+      <div style={{display:'flex',flexDirection:'column',flexShrink:0,position:'relative',background:'var(--bg2)',borderBottom:'1px solid rgba(0,0,0,.04)'}}>
+        {/* Header — always visible */}
+        <div style={{display:'flex',alignItems:'center',gap:6,padding:'8px 20px',flexWrap:'wrap'}}>
+          <button onClick={()=>setFiltersOpen(o=>!o)} title='Развернуть/свернуть список механик' style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:filtersOpen?'rgba(0,113,227,.10)':'#fff',color:filtersOpen?'#0058b8':'#424245',border:`1px solid ${filtersOpen?'rgba(0,113,227,.4)':'#d2d2d7'}`,cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:6}}>
+            <span style={{fontSize:14,lineHeight:1}}>⊞</span>
+            <span>Механики</span>
+            {af.length>0&&<span style={{fontSize:11,padding:'1px 7px',background:'#0071e3',color:'#fff',borderRadius:8,fontWeight:700,minWidth:18,textAlign:'center'}}>{af.length}</span>}
+            <span style={{fontSize:9,display:'inline-block',transform:filtersOpen?'rotate(180deg)':'none',transition:'transform .2s'}}>▼</span>
+          </button>
+          {/* Active chips inline (when collapsed) */}
+          {!filtersOpen && af.length>0 && af.length<FL.length && <div style={{display:'flex',gap:4,flexWrap:'wrap',alignItems:'center',minWidth:0,flex:'1 1 auto'}}>
+            {af.map(id=>{const f=FL.find(x=>x.id===id);if(!f)return null;return<button key={id} onClick={()=>tog(id)} title='Снять фильтр' style={{padding:'4px 10px',borderRadius:14,fontSize:12,whiteSpace:'nowrap',background:`${f.c}22`,color:f.c,border:`1px solid ${f.c}55`,cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:4}}>{f.l}<span style={{fontSize:10,opacity:.6}}>×</span></button>;})}
+          </div>}
+          {!filtersOpen && af.length===FL.length && <span style={{fontSize:12,color:'#0058b8',fontWeight:600,padding:'4px 10px',background:'rgba(0,113,227,.10)',borderRadius:14}}>Все механики ({FL.length})</span>}
+          {/* Spacer pushes toolbar right */}
+          {(filtersOpen || af.length===0) && <div style={{flex:1}}/>}
+          {/* Rotation toolbar — always visible */}
+          <div className="rotation-controls rotation-controls-inline rotation-toolbar" style={{marginLeft:'auto',display:'flex',gap:4,alignItems:'center',flexShrink:0,background:'#fff',border:'1px solid #e5e5ea',borderRadius:14,padding:'3px 5px',boxShadow:'0 1px 3px rgba(0,0,0,.04)'}}>
           <button disabled={yasna2Drill!=null} className={'rotation-btn'+(starRotation==='ccw'?' active':'')+(yasna2Drill!=null?' disabled':'')} onClick={()=>setStarRotation(r=>r==='ccw'?null:'ccw')} title={yasna2Drill!=null?'Недоступно при открытой sub-Ясне':(starRotation==='ccw'?'Остановить':'Против часовой')} style={{border:'1px solid '+(starRotation==='ccw'?'#a21caf':'#e5e5ea'),color:starRotation==='ccw'?'#fff':'#86868b'}}>↺</button>
           <button disabled={yasna2Drill!=null} className={'rotation-btn'+(starRotation==='cw'?' active':'')+(yasna2Drill!=null?' disabled':'')} onClick={()=>setStarRotation(r=>r==='cw'?null:'cw')} title={yasna2Drill!=null?'Недоступно при открытой sub-Ясне':(starRotation==='cw'?'Остановить':'По часовой')} style={{border:'1px solid '+(starRotation==='cw'?'#a21caf':'#e5e5ea'),color:starRotation==='cw'?'#fff':'#86868b'}}>↻</button>
           <button className={'rotation-btn'+(is3D?' active':'')} onClick={()=>setIs3D(v=>!v)} title={is3D?'Плоская проекция':'Объёмный режим'} style={{border:'1px solid '+(is3D?'#a21caf':'#e5e5ea'),color:is3D?'#fff':'#86868b',fontSize:11,fontWeight:700,letterSpacing:0.5}}>3D</button>
@@ -891,6 +901,15 @@ function App(){
           {is3D&&<div style={{marginTop:12,padding:'8px 10px',background:'rgba(162,28,175,.08)',borderRadius:8,fontSize:10.5,color:'#581c87',lineHeight:1.5}}>
             <b style={{color:'#a21caf'}}>3D режим активен.</b> Drag мышью — вращение в любой плоскости. Колесо мыши — zoom. Клик по шару — выбор полки.
           </div>}
+        </div>}
+        </div>
+        {/* Collapsible chips body */}
+        {filtersOpen && <div className='filters hide-scroll' style={{display:'flex',gap:5,padding:'4px 20px 12px',flexWrap:'wrap',alignItems:'center',animation:'slideDown .25s ease'}}>
+          {af.length===FL.length?
+            <button onClick={()=>setAf([])} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:'#0071e322',color:'#0071e3',border:'1px solid #0071e355',fontWeight:600,cursor:'pointer'}}>Все</button>
+            :<button onClick={()=>setAf(FL.map(f=>f.id))} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:'transparent',color:'#86868b',border:'1px solid #d2d2d7',cursor:'pointer'}}>Все</button>
+          }
+          {FL.map((f,fi)=>{const a=af.includes(f.id);const prevG=fi>0?FL[fi-1].g:'';const showSep=f.g!==prevG&&fi>0;return<React.Fragment key={f.id}>{showSep&&<div className='sep' style={{width:1,height:18,background:'#d2d2d7',margin:'0 4px',flexShrink:0}}/>}<button onClick={()=>tog(f.id)} title={'Применить фильтр: '+f.l} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:a?`${f.c}22`:'transparent',color:a?f.c:'#86868b',border:`1px solid ${a?f.c+'55':'#d2d2d7'}`,cursor:'pointer',fontWeight:a?600:400,transition:'background .15s, color .15s'}}>{f.l}</button></React.Fragment>;})}
         </div>}
       </div>
       {/* Ясна² Drill: панель управления внутренней Ясной (только когда mb_yasna2 + клик по полке) */}
