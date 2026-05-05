@@ -119,22 +119,37 @@
       return ()=>{ if(rafRef.current){ cancelAnimationFrame(rafRef.current); rafRef.current=null; } };
     }, [playing, stepIdx]);
 
-    // Автопрокрутка панели к новому narrative-абзацу
+    // Автопрокрутка панели к новому narrative-абзацу.
+    // Резолвим stageIdx → at чтобы visible-count считался корректно.
     useEffect(()=>{
       if(!step?.narrative) return;
-      const visible = step.narrative.filter(e => stageT >= (e.at||0) * SPEED).length;
+      const resolved = step.narrative.map(e => {
+        if(e.stageIdx != null && step.stages && step.stages[e.stageIdx]){
+          return { ...e, at: (step.stages[e.stageIdx].at||0) + (e.offset||0) };
+        }
+        return e;
+      });
+      const visible = resolved.filter(e => stageT >= (e.at||0) * SPEED).length;
       if(visible > revealedCount){
         setRevealedCount(visible);
-        // дать React-у дорисовать, потом скроллить
+        // 2 frame'а чтобы React успел рендер + animation
         requestAnimationFrame(()=>{
-          if(!panelRef.current) return;
-          const entries = panelRef.current.querySelectorAll('.narrative-entry');
-          const last = entries[entries.length-1];
-          if(last){
-            // мягкий скролл к концу абзаца с отступом
-            const targetTop = last.offsetTop - 80;
-            panelRef.current.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
-          }
+          requestAnimationFrame(()=>{
+            const panel = panelRef.current;
+            if(!panel) return;
+            const entries = panel.querySelectorAll('.narrative-entry');
+            if(!entries.length) return;
+            const last = entries[entries.length-1];
+            // Считаем абсолютную позицию bottom элемента в скролл-контейнере
+            const panelRect = panel.getBoundingClientRect();
+            const elRect = last.getBoundingClientRect();
+            const elBottomInScroll = (elRect.bottom - panelRect.top) + panel.scrollTop;
+            // Хотим чтобы bottom элемента был видим с отступом 80px от низа панели
+            const targetScroll = Math.max(0, elBottomInScroll - panel.clientHeight + 80);
+            if(Math.abs(targetScroll - panel.scrollTop) > 4){
+              panel.scrollTo({ top: targetScroll, behavior: 'smooth' });
+            }
+          });
         });
       }
     }, [stageT, stepIdx]);
@@ -298,7 +313,7 @@
           </div>
 
           {/* SIDE PANEL — narrative storytelling */}
-          <div ref={panelRef} className="tour-panel" style={{flex:'1 1 0',maxWidth:520,padding:'40px 36px 60px',overflowY:'auto',background:SURFACE,borderLeft:'1px solid '+BORDER,scrollBehavior:'smooth'}}>
+          <div ref={panelRef} className="tour-panel" style={{flex:'1 1 0',maxWidth:520,padding:'40px 36px 60px',overflowY:'auto',background:SURFACE,borderLeft:'1px solid '+BORDER,scrollBehavior:'smooth',position:'relative'}}>
 
             {isIntro && tour.intro && (
               <div className="tour-card" style={{animation:'cardIn .6s cubic-bezier(.16,1,.3,1)',maxWidth:440}}>
