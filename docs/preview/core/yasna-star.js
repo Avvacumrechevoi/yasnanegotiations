@@ -140,9 +140,7 @@ const FL=[
 function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,starRotation,rotationSpeed}){
   const isMob=typeof window!=="undefined"&&window.innerWidth<=768;
   const p=yy.p||[];
-  // Block 1.1: viewBox с padding под длинные подписи (50px каждой стороны)
   const S=900,W=700,cx=S/2,cy=W/2,R=215,nr=isMob?26:23,lr=R+60;
-  const padX=80,padY=40; // padding для подписей (учитывается в viewBox)
   // ВРАЩЕНИЕ ЧЕРЕЗ ПЕРЕРЕНДЕР ПОЗИЦИЙ — Star обновляет угол через rAF на 60fps.
   // Округление до 0.5px — резко уменьшает sub-pixel re-rasterization текста
   // (на 0.5px шаге глиф закрепляется на той же raster-grid, не плавает).
@@ -182,7 +180,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
   const no=i=>(hl&&!hl.includes(i))?.15:1;
   const anch=i=>{const x=lps[i].x;return Math.abs(x-cx)<25?'middle':x<cx?'end':'start';};
   return(
-    <svg viewBox={mob?`40 -10 820 720`:`${-padX} ${-padY} ${S+padX*2} ${W+padY*2}`} preserveAspectRatio="xMidYMid meet" style={{width:'100%',height:'100%',display:'block'}}>
+    <svg viewBox={mob?`40 -10 820 720`:`0 0 ${S} ${W}`} preserveAspectRatio="xMidYMid meet" style={{width:'100%',height:'100%',display:'block',overflow:'visible'}}>
       <defs>
         <filter id="gw"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
         <filter id="ns"><feDropShadow dx="0" dy="1" stdDeviation="2.5" floodOpacity=".07"/></filter>
