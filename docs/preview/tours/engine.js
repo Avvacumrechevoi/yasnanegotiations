@@ -367,7 +367,7 @@
 
             {/* Stage progress dots — над канвасом, минимально */}
             {step && step.stages && step.stages.length>1 && (
-              <div style={{position:'absolute',bottom:30,left:'50%',transform:'translateX(-50%)',display:'flex',gap:5,padding:'5px 9px',borderRadius:14,background:SURFACE_RAISED,border:'1px solid '+BORDER}}>
+              <div style={{position:'absolute',bottom:4,left:'50%',transform:'translateX(-50%)',display:'flex',gap:5,padding:'5px 9px',borderRadius:14,background:SURFACE_RAISED,border:'1px solid '+BORDER,zIndex:5}}>
                 {step.stages.map((_,i)=>(
                   <div key={i} style={{width:i<=stageState.stageIdx?16:8,height:3,borderRadius:2,background:i<=stageState.stageIdx?accent:'rgba(255,255,255,.18)',transition:'all .35s ease'}}/>
                 ))}
@@ -376,7 +376,7 @@
 
             {/* Stage caption — минимальный */}
             {stageState.note && (
-              <div key={`${stepIdx}-${stageState.stageIdx}`} style={{position:'absolute',bottom:60,left:'50%',transform:'translateX(-50%)',padding:'7px 14px',borderRadius:10,background:'rgba(0,0,0,.55)',backdropFilter:'blur(6px)',border:'1px solid '+BORDER,fontSize:12,fontWeight:500,color:FG,animation:'noteIn .35s ease',maxWidth:'80%',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+              <div key={`${stepIdx}-${stageState.stageIdx}`} style={{position:'absolute',top:14,left:'50%',transform:'translateX(-50%)',padding:'7px 14px',borderRadius:10,background:'rgba(0,0,0,.65)',backdropFilter:'blur(6px)',border:'1px solid '+BORDER,fontSize:12,fontWeight:500,color:FG,animation:'noteIn .35s ease',maxWidth:'80%',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',zIndex:5}}>
                 {stageState.note}
               </div>
             )}
@@ -562,7 +562,7 @@
           @keyframes tourFadeIn { from { opacity:0; } to { opacity:1; } }
           @keyframes cardIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
           @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-          @keyframes noteIn { from { opacity:0; transform:translate(-50%,4px); } to { opacity:1; transform:translate(-50%,0); } }
+          @keyframes noteIn { from { opacity:0; transform:translate(-50%,-4px); } to { opacity:1; transform:translate(-50%,0); } }
           @keyframes spotFade { from { opacity:0; } to { opacity:1; } }
           .tour-panel::-webkit-scrollbar { width: 6px; }
           .tour-panel::-webkit-scrollbar-track { background: transparent; }
