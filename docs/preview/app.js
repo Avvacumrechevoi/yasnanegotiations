@@ -1029,7 +1029,7 @@ function App(){
       {ed&&<Editor y={y} setY={setY} onClose={()=>setEd(false)}/>}
       {showOverlayPicker&&<OverlayPicker currentName={y.name} overlay={overlay} onSelect={setOverlay} onClose={()=>setShowOverlayPicker(false)}/>}
       {verif&&<Verification y={y} vs={vState} setVs={setVState} onClose={()=>setVerif(false)}/>}
-      {showDuel&&window.DuelApp&&<window.DuelApp onClose={()=>setShowDuel(false)}/>}
+      {showDuel&&window.DuelApp&&(()=>{const DuelComp=window.DuelApp;return <DuelComp onClose={()=>setShowDuel(false)}/>;})()}
       {instr&&<Instruction onClose={()=>setInstr(false)}/>}
       {lessonPicker&&<LessonPicker onSelectLesson={(id)=>{setActiveLesson(id);setLessonPicker(false);}} onClose={()=>setLessonPicker(false)} completedLessons={completedLessons}/>}
       {showTour&&window.YasnaTours&&window.YasnaTours.has(y.name)&&(()=>{
