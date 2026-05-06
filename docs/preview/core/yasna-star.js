@@ -409,20 +409,40 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
       {af.includes('halves')&&yy.bh&&<text x={cx} y={W-22} textAnchor="middle" fill="rgba(0,0,0,.5)" fontSize="13" fontFamily="var(--sans)" fontWeight="600">{yy.bh}</text>}
       {af.includes('halves')&&yy.lh&&<text x={20} y={cy} textAnchor="middle" fill="rgba(0,0,0,.5)" fontSize="13" fontFamily="var(--sans)" fontWeight="600" transform={`rotate(-90 20 ${cy})`}>{yy.lh}</text>}
       {af.includes('halves')&&yy.rh&&<text x={S-20} y={cy} textAnchor="middle" fill="rgba(0,0,0,.5)" fontSize="13" fontFamily="var(--sans)" fontWeight="600" transform={`rotate(90 ${S-20} ${cy})`}>{yy.rh}</text>}
-      {/* Composition — мини-стопка 4 пран при showComposition */}
+      {/* Composition — мини-пироги внутри круга при showComposition */}
       {showComposition && pts.map((pt,i)=>{
-        const r=COMP[i]; const total=100; const barW=70, barH=8; const x0=pt.x-barW/2, y0=pt.y+nr+18;
-        let acc=0;
-        return <g key={`c${i}`} style={{pointerEvents:'none',opacity: hl&&!hl.includes(i)?.15:1}}>
-          <rect x={x0-1} y={y0-1} width={barW+2} height={barH+2} fill="#fff" rx="2.5" stroke="rgba(0,0,0,.08)" strokeWidth=".5"/>
-          {r.map((pct,j)=>{
-            const w = (pct/total)*barW;
-            const seg = <rect key={j} x={x0+acc} y={y0} width={w} height={barH} fill={COMP_COLORS[j]} rx="0">
-              <title>{`${COMP_NAMES[j]}: ${pct}%`}</title>
-            </rect>;
-            acc += w;
-            return seg;
-          })}
+        const r=COMP[i]; const total=100;
+        // Pie center: между центром и Полкой на радиусе 0.62R
+        const dx=(pt.x-cx)/R, dy=(pt.y-cy)/R;
+        const px=Math.round((cx+dx*R*0.62)*2)/2;
+        const py=Math.round((cy+dy*R*0.62)*2)/2;
+        const pr=26;        // радиус пирога
+        const ph=pr*0.46;   // дырка по центру (donut hole)
+        const dim = hl&&!hl.includes(i)?.18:1;
+        let aStart=-Math.PI/2; // старт сверху
+        const segs=r.map((pct,j)=>{
+          const aSeg=(pct/total)*2*Math.PI;
+          const x1=px+pr*Math.cos(aStart), y1=py+pr*Math.sin(aStart);
+          const aEnd=aStart+aSeg;
+          const x2=px+pr*Math.cos(aEnd), y2=py+pr*Math.sin(aEnd);
+          const large=aSeg>Math.PI?1:0;
+          const d=`M ${px} ${py} L ${x1} ${y1} A ${pr} ${pr} 0 ${large} 1 ${x2} ${y2} Z`;
+          const seg=<path key={j} d={d} fill={COMP_COLORS[j]} stroke="#fff" strokeWidth="1.5" opacity={pct>=50?1:.85}>
+            <title>{`${COMP_NAMES[j]}: ${pct}%`}</title>
+          </path>;
+          aStart=aEnd;
+          return seg;
+        });
+        // Find dominant prana for label color
+        const maxIdx=r.indexOf(Math.max(...r));
+        return <g key={`comp${i}`} style={{pointerEvents:'none',opacity:dim,transition:'opacity .25s'}}>
+          {segs}
+          {/* центральный круг (donut hole) */}
+          <circle cx={px} cy={py} r={ph} fill="#fff" stroke="rgba(0,0,0,.08)" strokeWidth=".8"/>
+          {/* номер Полки в центре пирога */}
+          <text x={px} y={py+1.5} textAnchor="middle" dominantBaseline="middle" fontSize="13" fontWeight="700" fill={COMP_COLORS[maxIdx]} fontFamily="var(--sans)">{i}</text>
+          {/* доминирующая прана % под номером */}
+          <text x={px} y={py+ph+8} textAnchor="middle" fontSize="9" fontWeight="600" fill={COMP_COLORS[maxIdx]} fontFamily="var(--sans)">{r[maxIdx]}%</text>
         </g>;
       })}
       {pts.map((pt,i)=>{const isSel=sel===i,c=nc(i),o=no(i);const lbl=p[i]||'';const tipText=lbl?`Полка ${i}: ${lbl}`:`Полка ${i}`;return(
