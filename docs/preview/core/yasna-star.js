@@ -49,7 +49,8 @@ const T=[
   {id:'спальни',verified:true,n:'Спальни',rubrik:true,p:['Халат','Гантели / Вода','Зарядка','Одеяло или Сундук','Окно / Гобилен','шкаф с книгами','Бельевой Шкаф','Красный угол','Прикроват. Тумбочка','Кровать','Прикроват.Тумбочка','Светильник']},
   {id:'кухни',verified:true,starter:true,n:'Кухни',rubrik:true,p:['Вход / Фартук','Мойка','Разделочный стол','Плита','Стол полуфабрикатов','Шкаф специй / Книга рецептов','Стол для готовки','Готовое блюдо','Делим на порции','Оценочный стол','Шведский стол','Вынос блюд / Меню']},
   {id:'круговорота_воды',verified:true,starter:true,n:'Круговорота воды',rubrik:true,p:['Вода с землей-грязь','Болото / Ключ / Родник','Река','Поверхность водоема','Пар','Облако','Холод / переход-перенос','Гроза / Молния','Дождь','Касание воды','Стекание','Лужа (брызгает-стреляет)']},
-  {id:'atm_yavl',verified:true,starter:true,n:'Атмосферных явлений',rubrik:true,th:'Активная атмосфера (свет, гром, осадки)',bh:'Тихие отложения и приземные явления',lh:'Влага и осадки (нарастание)',rh:'Свет, ветер и электричество (спад)',p:['Роса','Иней','Изморозь / Гололёд','Дождь / Морось','Снег','Град','Гроза','Радуга','Гало / Мираж','Буря / Ураган','Смерч / Шквал','Полярное сияние']},
+  {id:'atm_yavl',verified:true,starter:true,n:'Видимых атмосферных явлений',rubrik:true,th:'Активная атмосфера (свет, гром, осадки)',bh:'Тихие отложения и приземные явления',lh:'Влага и осадки (нарастание)',rh:'Свет, ветер и электричество (спад)',p:['Роса','Иней','Изморозь / Гололёд','Дождь / Морось','Снег','Град','Гроза','Радуга','Гало / Мираж','Буря / Ураган','Смерч / Шквал','Полярное сияние']},
+  {id:'atm_skrytyh',verified:true,starter:true,n:'Скрытых атмосферных явлений',rubrik:true,th:'Активные процессы (электричество, оптика, циркуляция)',bh:'Фоновые процессы (охлаждение, давление)',lh:'Нарастание плотности и накопления',rh:'Спад через излучение и магнитное поле',p:['Радиационное Охлаждение','Сублимация','Адгезия Влаги','Конденсация','Кристаллизация','Конвекция','Электрический Разряд','Преломление Света','Атмосферное Давление','Циклогенез','Торнадогенез','Магнитосферное Возбуждение']},
   {id:'переговоров',verified:true,starter:true,n:'Переговоров',rubrik:true,th:'Игра А↔В (резонанс или десонанс)',bh:'Информационное поле и итог',lh:'Нарастание контакта (Хочу → Контр)',rh:'Спад через понимание или срыв',p:['Информационное Поле','Хочу / Не Хочу','Привлечь и Заинтересовать','Открытие Позиции','Резонирование','Ограничения и Контр','Противостояние А↔В','Обоюдное Понимание','Недопонимание','Десонанс / Срыв','Точечный Удар','Итог: Успех / Неудача']},
   {id:'печи',verified:true,n:'Печи',rubrik:true,p:['Каналы подачи','Колосники','Объем топки (духовой шкаф)','огнеупорная пластина','Лабиринт (воздуховоды в печи)','Камора (расшир.камера)','Труба','Догорел','Отапливаемый объем','Теплоупор','Кондиционер','Дверцы-заслоник / форточки']},
   {id:'дерева',verified:true,n:'Дерева',rubrik:true,p:['Корни','Косточка','Плод','Клетка (Рыльце)','Домен (Столбик)','Бахрома (Пестик)','Лепесток','Билет','Лист','Ветка','Ствол','Пень']},
@@ -825,9 +826,9 @@ function OverlayLegend({y,overlay,onClear}){
 function Editor({y,setY,onClose}){
   return(
     <div className='editor-panel' style={{position:'fixed',top:0,right:0,width:370,height:'100vh',background:'rgba(255,255,255,.98)',borderLeft:'1px solid rgba(0,0,0,.08)',zIndex:50,display:'flex',flexDirection:'column'}}>
-      <div style={{padding:'14px 18px',borderBottom:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+      <div style={{padding:'14px 18px',borderBottom:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center',flexShrink:0}}>
         <h3 style={{fontFamily:'var(--serif)',fontSize:18,color:'#1d1d1f',fontWeight:600}}>Редактор</h3>
-        <button onClick={onClose} style={{fontSize:18,padding:'4px 8px'}}>✕</button>
+        <span style={{fontSize:11,color:'#34c759',fontWeight:500,letterSpacing:.3}}>● автосохранение</span>
       </div>
       <div style={{padding:'12px 18px',overflowY:'auto',flex:1}}>
         <input value={y.name} onChange={e=>setY({...y,name:e.target.value})} placeholder="Название"
@@ -845,6 +846,9 @@ function Editor({y,setY,onClose}){
               style={{flex:1,background:'var(--bg)',border:'1px solid var(--border)',color:'#1d1d1f',padding:'7px 10px',borderRadius:5,fontSize:12,outline:'none'}}
               onFocus={e=>e.target.style.borderColor=c} onBlur={e=>e.target.style.borderColor='var(--border)'}/>
           </div>);})}
+      </div>
+      <div style={{padding:'12px 18px',borderTop:'1px solid var(--border)',display:'flex',gap:8,flexShrink:0,background:'#fafafa'}}>
+        <button onClick={onClose} style={{flex:1,padding:'11px 14px',borderRadius:9,fontSize:14,fontWeight:600,background:'#0071e3',color:'#fff',border:'none',cursor:'pointer',boxShadow:'0 1px 3px rgba(0,113,227,.2)'}}>✓ Сохранить и закрыть</button>
       </div>
     </div>);
 }
