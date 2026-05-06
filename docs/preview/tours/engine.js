@@ -332,7 +332,7 @@
 
           {/* CANVAS */}
           <div style={{flex:'1.5 1 0',display:'flex',alignItems:'center',justifyContent:'center',padding:'30px 24px',minWidth:0,position:'relative'}}>
-            <div style={{position:'relative',width:'100%',maxWidth:720,aspectRatio:'900/780',background:SURFACE,borderRadius:18,border:'1px solid '+BORDER,overflow:'hidden',transition:'all .8s cubic-bezier(.4,0,.2,1)',padding:'70px 50px',boxSizing:'border-box'}}>
+            <div style={{position:'relative',width:'100%',maxWidth:760,aspectRatio:'900/740',background:SURFACE,borderRadius:18,border:'1px solid '+BORDER,overflow:'hidden',transition:'all .8s cubic-bezier(.4,0,.2,1)',padding:'100px 60px',boxSizing:'border-box'}}>
               <div style={{position:'relative',width:'100%',height:'100%',overflow:'visible'}}>
                 <Star yy={y} sel={null} onSel={()=>{}} hl={highlight} af={af} showOpp={(af||[]).includes('opp')} overlay={null} mob={typeof window!=='undefined'&&window.innerWidth<=768}/>
               {/* SPOTLIGHT — затемняем фон, оставляем «окна» на подсвеченных полках */}
