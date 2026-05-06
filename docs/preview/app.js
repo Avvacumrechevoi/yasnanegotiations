@@ -928,7 +928,7 @@ function App(){
       {/* app-body: flex row с workspace и side-panel — Решение 1+3 */}
       <div className={'app-body'+(sel!==null?' app-body-with-panel':'')} style={{display:'flex',flex:1,minHeight:0,position:'relative'}}>
         <div className='workspace' style={{flex:1,display:'flex',flexDirection:'column',minWidth:0,position:'relative'}}>
-            <div className={'star-area'+(starRotation?' star-rotating-'+starRotation:'')+(is3D?' star-3d-active':'')} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden','--rotation-speed':rotationSpeed+'s'}} onClick={e=>{if(e.target===e.currentTarget)setSel(null)}}>
+            <div className={'star-area'+(starRotation?' star-rotating-'+starRotation:'')+(is3D?' star-3d-active':'')} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'visible','--rotation-speed':rotationSpeed+'s'}} onClick={e=>{if(e.target===e.currentTarget)setSel(null)}}>
         <button className='fullstar-btn' onClick={()=>setFullStar(true)} style={{display:'none',position:'absolute',top:8,right:8,width:32,height:32,borderRadius:8,border:'1px solid #e5e5ea',background:'rgba(255,255,255,.8)',fontSize:16,zIndex:5,alignItems:'center',justifyContent:'center'}}>⤢</button>
         {/* Floating mini-toolbar в углу диаграммы (Спринт 3) */}
         <div className='diag-corner-toolbar' style={{position:'absolute',top:10,right:10,display:'flex',gap:4,zIndex:6,background:'rgba(255,255,255,.94)',backdropFilter:'blur(8px)',border:'1px solid #e5e5ea',borderRadius:12,padding:'4px 5px',boxShadow:'0 2px 10px rgba(0,0,0,.06)'}}>

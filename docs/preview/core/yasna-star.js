@@ -173,7 +173,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
   const pts = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,R))
   const lps = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,lr))
   // При вращении подписи отодвигаем дальше — иначе наезжают на полки при динамичных переходах
-  const lpsRot = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,lr+30))
+  const lpsRot = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,lr+15))
   const olps = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,lr+24))
   const ilps = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,lr-16))
   // Static (без rotation) — для wrap-g механик: error89, scorpio_spider, mobius
