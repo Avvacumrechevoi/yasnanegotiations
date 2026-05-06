@@ -494,10 +494,11 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
         const cardH=isMob?660:880;
         const cardX=cx-cardW/2;
         const cardY=cy-cardH/2;
-        const subCenterY=cy+50; // sub-Ясна смещена вниз чтобы был зазор под заголовок
-        const subR=isMob?260:340;
-        const subNr=isMob?34:42;
-        const subLr=subR+(isMob?68:80);
+        // Safe-zone: header сверху ~150px, sub-Ясна — ниже
+        const subCenterY=cy+(isMob?80:120);
+        const subR=isMob?240:300;
+        const subNr=isMob?32:38;
+        const subLr=subR+(isMob?56:64);
         const SUB_PRANA_COLOR=['#C0943A','#4090D8','#06B6D4','#F06838','#C0943A','#4090D8','#06B6D4','#F06838','#C0943A','#4090D8','#06B6D4','#F06838'];
         return<g className="drill-popup" style={{animation:'drillPopup .42s cubic-bezier(.16,1,.3,1)',transformOrigin:`${cx}px ${cy}px`}}>
           {/* Backdrop — полностью затемняет фон */}
@@ -521,7 +522,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
           {/* Главный заголовок попапа крупный */}
           <text x={cx} y={cardY+96} textAnchor="middle" fontSize={isMob?32:38} fontWeight="700" fill="#1d1d1f" fontFamily="var(--serif)">{(p[drill]||`Полка ${drill}`)}</text>
           {/* Подзаголовок-путь */}
-          <text x={cx} y={cardY+128} textAnchor="middle" fontSize="14" fill="#86868b" fontFamily="var(--sans)">{yy.name} · Полка {drill} · 12 подвидов</text>
+          <text x={cx} y={cardY+128} textAnchor="middle" fontSize="13" fill="#86868b" fontFamily="var(--sans)">{(yy.name.length>26?yy.name.slice(0,24)+'…':yy.name)} · Полка {drill}</text>
           {/* Декоративный разделитель */}
           <line x1={cx-120} y1={cardY+148} x2={cx+120} y2={cardY+148} stroke="rgba(162,28,175,.22)" strokeWidth="1.2"/>
           {/* Внешнее кольцо sub-Ясны */}
@@ -533,17 +534,26 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
             const sa=(270-j*30)*Math.PI/180;
             const sx=Math.round((cx+subR*Math.cos(sa))*2)/2;
             const sy=Math.round((subCenterY-subR*Math.sin(sa))*2)/2;
-            const lx=Math.round((cx+subLr*Math.cos(sa))*2)/2;
-            const ly=Math.round((subCenterY-subLr*Math.sin(sa))*2)/2;
             const subName=(subPolki&&subPolki[j])||'';
             const pranaColor=SUB_PRANA_COLOR[j];
-            // Текст-подпись разбиваем по словам/слешу на 2 строки если длинно
+            // Top (j=6) и Bottom (j=0) sub-полки: лейбл ВНУТРИ ring (safe-zone от шапки и от низа карточки)
+            const isTop=j===6, isBot=j===0;
+            let lx, ly, anchor;
+            if(isTop){
+              lx=sx; ly=sy+subNr+(isMob?22:26); anchor='middle';
+            } else if(isBot){
+              lx=sx; ly=sy-subNr-(isMob?14:18); anchor='middle';
+            } else {
+              lx=Math.round((cx+subLr*Math.cos(sa))*2)/2;
+              ly=Math.round((subCenterY-subLr*Math.sin(sa))*2)/2;
+              anchor=Math.abs(lx-cx)<25?'middle':lx<cx?'end':'start';
+            }
+            // Длинные подписи разбиваем на 2 строки
             let parts=null;
             if(subName.length>13){
               if(subName.includes(' ')){const w=subName.split(' ');const m=Math.ceil(w.length/2);parts=[w.slice(0,m).join(' '),w.slice(m).join(' ')];}
               else if(subName.includes('/')){const si=subName.indexOf('/');parts=[subName.slice(0,si).trim(),subName.slice(si+1).trim()];}
             }
-            const anchor=Math.abs(lx-cx)<25?'middle':lx<cx?'end':'start';
             return<g key={`sub${j}`}>
               {/* Кружок sub-полки */}
               <circle cx={sx} cy={sy} r={subNr+3} fill="rgba(255,255,255,.95)" stroke="rgba(162,28,175,.15)" strokeWidth="0.8"/>
