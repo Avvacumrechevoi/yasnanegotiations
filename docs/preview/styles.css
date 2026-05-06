@@ -555,3 +555,11 @@ button:focus-visible{outline:2px solid #0071e3;outline-offset:2px}
   .hdr-burger > div[role='menu']{box-shadow:-8px 0 32px rgba(0,0,0,.15)!important;animation:slideInLeft .22s cubic-bezier(.32,.72,0,1)}
 }
 @keyframes slideInLeft{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* ─── Drill-down Ясна² popup animation ─── */
+@keyframes drillPopup {
+  0%   { opacity: 0; transform: scale(.85); }
+  60%  { opacity: 1; transform: scale(1.02); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.drill-popup { transform-box: fill-box; }

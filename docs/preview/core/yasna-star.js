@@ -490,25 +490,47 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
       {/* M-Г-066 Ясна² Drill-down: клик по полке открывает её внутреннюю Ясну */}
       {drill!=null&&(()=>{
         const dCol='#a21caf';
-        const subR=Math.min(R*0.95, 280);
-        const subNr=isMob?28:36;
-        const subLr=subR+(isMob?56:72);
-        // Цвета пран для sub-цифр (sub-0/4/8 = Земля и т.д.)
+        const subR=Math.min(R*0.78, 240);
+        const subNr=isMob?26:32;
+        const subLr=subR+(isMob?52:64);
+        // Цвета пран для sub-цифр
         const SUB_PRANA_COLOR=['#C0943A','#4090D8','#06B6D4','#F06838','#C0943A','#4090D8','#06B6D4','#F06838','#C0943A','#4090D8','#06B6D4','#F06838'];
-        return<g style={{animation:'fadeIn .55s cubic-bezier(.16,1,.3,1)'}}>
-          {/* Затемнение всего фона — выводит drill-down на передний план */}
-          <rect x="-300" y="-300" width="1500" height="1300" fill="#ffffff"/>
-          {/* Внешнее кольцо */}
-          <circle cx={cx} cy={cy} r={subR} fill="none" stroke={dCol} strokeWidth="1" strokeDasharray="4 6" opacity=".5"/>
+        return<g className="drill-popup" style={{animation:'drillPopup .42s cubic-bezier(.16,1,.3,1)',transformOrigin:`${cx}px ${cy}px`}}>
+          {/* Полупрозрачный backdrop */}
+          <rect x="-300" y="-300" width="1500" height="1300" fill="rgba(15,23,42,.42)"/>
+          {/* Карточка попапа — белая с фиолетовой рамкой и скруглением */}
+          <rect x="30" y="50" width="840" height="620" rx="28" ry="28"
+                fill="#ffffff" stroke="rgba(162,28,175,.18)" strokeWidth="1.5"
+                style={{filter:'drop-shadow(0 18px 48px rgba(15,23,42,.22))'}}/>
+          {/* Декоративная верхняя полоса (фиолетовый градиент) */}
+          <defs>
+            <linearGradient id="drillHdrGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stopColor="#fdf4ff"/>
+              <stop offset="0.5" stopColor="#f5e8fb"/>
+              <stop offset="1" stopColor="#fdf4ff"/>
+            </linearGradient>
+          </defs>
+          <path d="M 30 78 A 28 28 0 0 1 58 50 L 842 50 A 28 28 0 0 1 870 78 L 870 110 L 30 110 Z" fill="url(#drillHdrGrad)"/>
+          {/* Маленький ярлык-бэйдж сверху */}
+          <rect x={cx-78} y={62} width="156" height="22" rx="11" fill="#a21caf"/>
+          <text x={cx} y="77" textAnchor="middle" fontSize="11" fontWeight="700" letterSpacing="2.4" fill="#fff" fontFamily="var(--sans)">ВЛОЖЕННАЯ ЯСНА²</text>
+          {/* Главный заголовок попапа */}
+          <text x={cx} y="138" textAnchor="middle" fontSize={isMob?22:26} fontWeight="700" fill="#1d1d1f" fontFamily="var(--serif)">{(p[drill]||`Полка ${drill}`)}</text>
+          {/* Подзаголовок: путь */}
+          <text x={cx} y="162" textAnchor="middle" fontSize="12" fill="#86868b" fontFamily="var(--sans)">{yy.name} · Полка {drill} · 12 подвидов</text>
+          {/* Декоративный разделитель */}
+          <line x1={cx-100} y1="178" x2={cx+100} y2="178" stroke="rgba(162,28,175,.18)" strokeWidth="1"/>
+          {/* Внешнее кольцо sub-Ясны */}
+          <circle cx={cx} cy={cy+30} r={subR} fill="none" stroke={dCol} strokeWidth="1" strokeDasharray="4 6" opacity=".4"/>
           {/* Внутреннее декоративное кольцо */}
-          <circle cx={cx} cy={cy} r={subR*0.6} fill="rgba(162,28,175,.025)" stroke={dCol} strokeWidth=".6" strokeDasharray="2 5" opacity=".4"/>
+          <circle cx={cx} cy={cy+30} r={subR*0.55} fill="rgba(162,28,175,.025)" stroke={dCol} strokeWidth=".6" strokeDasharray="2 5" opacity=".35"/>
           {/* Sub-полки */}
           {Array.from({length:12},(_,j)=>{
             const sa=(270-j*30)*Math.PI/180;
             const sx=Math.round((cx+subR*Math.cos(sa))*2)/2;
-            const sy=Math.round((cy-subR*Math.sin(sa))*2)/2;
+            const sy=Math.round(((cy+30)-subR*Math.sin(sa))*2)/2;
             const lx=Math.round((cx+subLr*Math.cos(sa))*2)/2;
-            const ly=Math.round((cy-subLr*Math.sin(sa))*2)/2;
+            const ly=Math.round(((cy+30)-subLr*Math.sin(sa))*2)/2;
             const subName=(subPolki&&subPolki[j])||'';
             const pranaColor=SUB_PRANA_COLOR[j];
             // Текст-подпись разбиваем по словам/слешу на 2 строки если длинно
@@ -535,11 +557,9 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
               ) : null}
             </g>;
           })}
-          {/* Центральная карточка-заголовок Ясны² */}
-          <rect x={cx-130} y={cy-40} width="260" height="80" rx="18" fill="#fff" stroke={dCol} strokeWidth="2" filter="url(#ns)"/>
-          <text x={cx} y={cy-15} textAnchor="middle" fontSize="11" fontWeight="700" fill={dCol} letterSpacing="2.5" fontFamily="var(--sans)">ЯСНА² · ПОЛКА {drill}</text>
-          <text x={cx} y={cy+10} textAnchor="middle" fontSize={isMob?17:19} fontWeight="700" fill="#1d1d1f" fontFamily="var(--serif)">{(p[drill]||'—').slice(0,24)}</text>
-          <text x={cx} y={cy+28} textAnchor="middle" fontSize="10" fill="#86868b" fontFamily="var(--sans)">12 подвидов · клик для редактирования</text>
+          {/* Центральный декор: маленький круглый якорь */}
+          <circle cx={cx} cy={cy+30} r="6" fill={dCol} opacity=".18"/>
+          <circle cx={cx} cy={cy+30} r="3" fill={dCol}/>
         </g>;
       })()}
     </g>
