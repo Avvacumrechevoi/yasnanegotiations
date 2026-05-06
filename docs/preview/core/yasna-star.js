@@ -2561,13 +2561,28 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       ndc_local.y = -((e.clientY-rect.top)/rect.height)*2 + 1;
       raycaster_local.setFromCamera(ndc_local, camera);
       const live = liveRef.current;
-      // Если drill открыт — клики обрабатывает sub-полки
+      // Если drill открыт — обработка кликов с приоритетом sub-полок
       if(live.drill != null && sceneRefs.current && sceneRefs.current.subPolki){
+        // 1. Клик по sub-полке — визуальный pulse (без изменения state)
         const subHits = raycaster_local.intersectObjects(sceneRefs.current.subPolki);
         if(subHits.length){
-          const subIdx = subHits[0].object.userData.subIdx;
-          if(typeof onSel === 'function') onSel(subIdx);
+          const ball = subHits[0].object;
+          const origScale = ball.scale.x;
+          ball.scale.set(origScale*1.4, origScale*1.4, origScale*1.4);
+          setTimeout(()=>{ try{ ball.scale.set(origScale,origScale,origScale);}catch(e){} },280);
+          return;
         }
+        // 2. Клик по внешней полке — переключиться на её sub-Ясну
+        const outerHits = raycaster_local.intersectObjects(polki);
+        if(outerHits.length){
+          const idx = outerHits[0].object.userData.polkaIdx;
+          if(idx !== live.drill && typeof onDrill === 'function'){
+            onDrill(idx);
+          }
+          return;
+        }
+        // 3. Клик по пустому фону — закрыть drill
+        if(typeof onDrill === 'function') onDrill(null);
         return;
       }
       const hits = raycaster_local.intersectObjects(polki);
