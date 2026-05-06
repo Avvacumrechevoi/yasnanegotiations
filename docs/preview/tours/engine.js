@@ -331,8 +331,8 @@
         <div style={{flex:1,display:'flex',minHeight:0,overflow:'hidden'}} className="tour-body">
 
           {/* CANVAS */}
-          <div style={{flex:'1.5 1 0',display:'flex',alignItems:'center',justifyContent:'center',padding:'30px 24px',minWidth:0,position:'relative'}}>
-            <div style={{position:'relative',width:'100%',maxWidth:760,aspectRatio:'900/740',background:SURFACE,borderRadius:18,border:'1px solid '+BORDER,overflow:'hidden',transition:'all .8s cubic-bezier(.4,0,.2,1)',padding:'100px 60px',boxSizing:'border-box'}}>
+          <div style={{flex:'2.2 1 0',display:'flex',alignItems:'center',justifyContent:'center',padding:'24px 18px',minWidth:0,position:'relative'}}>
+            <div style={{position:'relative',width:'100%',maxWidth:1100,aspectRatio:'900/740',background:SURFACE,borderRadius:18,border:'1px solid '+BORDER,overflow:'hidden',transition:'all .8s cubic-bezier(.4,0,.2,1)',padding:'90px 60px',boxSizing:'border-box'}}>
               <div style={{position:'relative',width:'100%',height:'100%',overflow:'visible'}}>
                 <Star yy={y} sel={null} onSel={()=>{}} hl={highlight} af={af} showOpp={(af||[]).includes('opp')} overlay={null} mob={typeof window!=='undefined'&&window.innerWidth<=768}/>
               {/* SPOTLIGHT — затемняем фон, оставляем «окна» на подсвеченных полках */}
@@ -383,7 +383,7 @@
           </div>
 
           {/* SIDE PANEL — narrative storytelling */}
-          <div ref={panelRef} className="tour-panel" style={{flex:'1 1 0',maxWidth:520,padding:'40px 36px 60px',overflowY:'auto',background:SURFACE,borderLeft:'1px solid '+BORDER,scrollBehavior:'smooth',position:'relative'}}>
+          <div ref={panelRef} className="tour-panel" style={{flex:'1 1 0',maxWidth:460,padding:'40px 32px 60px',overflowY:'auto',background:SURFACE,borderLeft:'1px solid '+BORDER,scrollBehavior:'smooth',position:'relative'}}>
 
             {isIntro && tour.intro && (
               <div className="tour-card" style={{animation:'cardIn .6s cubic-bezier(.16,1,.3,1)',maxWidth:440}}>
