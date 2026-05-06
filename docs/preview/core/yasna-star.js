@@ -494,9 +494,10 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
         const cardX=10, cardY=8, cardW=S-20, cardH=W-16;
         // Центрируем sub-Ясну между низом шапки (cardY+135) и низом карточки
         const subCenterY=Math.round((cardY+135+cardY+cardH-20)/2);
-        const subR=isMob?215:255;
-        const subNr=isMob?30:36;
-        const subLr=subR+(isMob?56:62);
+        // Размеры подобраны так, чтобы длинные подписи (subLr+labelWidth) умещались внутри карточки cardX..cardX+cardW
+        const subR=isMob?170:200;
+        const subNr=isMob?28:32;
+        const subLr=subR+(isMob?52:58);
         const SUB_PRANA_COLOR=['#C0943A','#4090D8','#06B6D4','#F06838','#C0943A','#4090D8','#06B6D4','#F06838','#C0943A','#4090D8','#06B6D4','#F06838'];
         return<g className="drill-popup" style={{animation:'drillPopup .42s cubic-bezier(.16,1,.3,1)',transformOrigin:`${cx}px ${cy}px`}}>
           {/* Карточка-попап — занимает почти весь viewBox, без backdrop */}
