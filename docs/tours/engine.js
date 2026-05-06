@@ -589,49 +589,61 @@
           .tour-panel::-webkit-scrollbar { width: 6px; }
           .tour-panel::-webkit-scrollbar-track { background: transparent; }
           .tour-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 3px; }
-          /* ─── Mobile optimization (≤768px) ─── */
+          /* ─── Mobile optimization (≤768px) — один сквозной scroll, без вложенных ─── */
           @media (max-width: 768px) {
-            .tour-body { flex-direction: column !important; }
+            /* Body становится одним scroll-контейнером (без двух independent scrolls) */
+            .tour-body { flex-direction: column !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
 
-            /* Канвас сверху, панель снизу. Канвас ~45vh, панель занимает остаток */
-            .tour-canvas-mobile { flex: 0 0 38vh !important; padding: 8px 10px 4px !important; }
-            .tour-diagram-card { aspect-ratio: auto !important; width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100% !important; border-radius: 12px !important; }
+            /* Канвас в normal flow, не flex-fixed. Sticky сверху чтобы при scroll текста диаграмма оставалась видимой. */
+            .tour-canvas-mobile {
+              flex: 0 0 auto !important;
+              padding: 8px 10px 4px !important;
+              position: sticky !important;
+              top: 0 !important;
+              z-index: 2;
+              background: rgba(14,16,25,.96) !important;
+              backdrop-filter: blur(8px);
+            }
+            .tour-diagram-card {
+              aspect-ratio: 1 / 0.85 !important;
+              width: 100% !important;
+              height: auto !important;
+              max-height: 42dvh !important;
+              max-width: 100% !important;
+              border-radius: 12px !important;
+            }
 
-            /* Текстовая панель: full-width, занимает остаток высоты, scroll */
+            /* Текстовая панель: НЕ имеет своего scroll — весь контент просто в потоке */
             .tour-panel {
+              flex: 0 0 auto !important;
               max-width: none !important;
               max-height: none !important;
-              flex: 1 1 auto !important;
-              padding: 20px 18px 110px !important;
+              min-height: 35dvh;
+              padding: 20px 16px 130px !important;
               border-left: none !important;
               border-top: 1px solid rgba(255,255,255,.08);
+              overflow: visible !important;
+              overflow-y: visible !important;
             }
-
-            /* Fade-out у нижнего края — индикатор «есть ещё контент» */
-            .tour-panel::after {
-              content: '';
-              position: sticky;
-              bottom: 0; left: 0; right: 0;
-              display: block;
-              height: 60px;
-              margin-top: -60px;
-              background: linear-gradient(to bottom, rgba(14,16,25,0), rgba(14,16,25,.95));
-              pointer-events: none;
-            }
+            .tour-panel::after { display: none !important; }
 
             /* H1/H2 — компактнее */
-            .tour-panel h1 { font-size: 20px !important; line-height: 1.2 !important; word-break: keep-all; hyphens: none; margin-bottom: 8px !important; }
-            .tour-panel h2 { font-size: 18px !important; line-height: 1.22 !important; word-break: keep-all; hyphens: none; margin-bottom: 6px !important; }
-            .tour-panel p, .tour-panel div { font-size: 14px !important; line-height: 1.45 !important; }
-            .tour-panel { padding: 16px 14px 100px !important; }
+            .tour-panel h1 { font-size: 22px !important; line-height: 1.22 !important; word-break: keep-all; hyphens: none; margin-bottom: 10px !important; }
+            .tour-panel h2 { font-size: 19px !important; line-height: 1.25 !important; word-break: keep-all; hyphens: none; margin-bottom: 8px !important; }
+            .tour-panel p, .tour-panel div { font-size: 15px !important; line-height: 1.5 !important; }
 
             /* Шапка гида: убрать лишние элементы */
             .tour-header-brand-text { display: none !important; }
             .tour-header-progress { flex: 1 !important; }
             .tour-header-counter-percent { display: none !important; }
 
-            /* Навигация снизу: safe-area + крупнее кнопки */
+            /* Навигация снизу — STICKY к нижнему краю модалки, всегда видна */
             .tour-nav {
+              position: sticky !important;
+              bottom: 0 !important;
+              z-index: 3;
+              background: rgba(14,16,25,.97) !important;
+              backdrop-filter: blur(8px);
               padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
               padding-top: 10px !important;
               padding-left: 12px !important;
@@ -643,14 +655,13 @@
               font-size: 14px !important;
             }
 
-            /* Подсказка-пузырь занимает почти всю ширину карточки и многострочная */
+            /* Подсказка-пузырь */
             .tour-note-bubble {
               max-width: 90% !important;
               white-space: normal !important;
               line-height: 1.35 !important;
             }
 
-            /* Скрыть hint о клавиатурных хоткеях */
             .tour-hotkeys-hint { display: none !important; }
           }
           @media (hover: none) and (pointer: coarse) {
