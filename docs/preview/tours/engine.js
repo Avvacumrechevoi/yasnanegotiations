@@ -332,8 +332,9 @@
 
           {/* CANVAS */}
           <div style={{flex:'1.5 1 0',display:'flex',alignItems:'center',justifyContent:'center',padding:'30px 24px',minWidth:0,position:'relative'}}>
-            <div style={{position:'relative',width:'100%',maxWidth:680,aspectRatio:'900/700',background:SURFACE,borderRadius:18,border:'1px solid '+BORDER,overflow:'visible',transition:'all .8s cubic-bezier(.4,0,.2,1)'}}>
-              <Star yy={y} sel={null} onSel={()=>{}} hl={highlight} af={af} showOpp={(af||[]).includes('opp')} overlay={null} mob={typeof window!=='undefined'&&window.innerWidth<=768}/>
+            <div style={{position:'relative',width:'100%',maxWidth:680,aspectRatio:'900/800',background:SURFACE,borderRadius:18,border:'1px solid '+BORDER,overflow:'visible',transition:'all .8s cubic-bezier(.4,0,.2,1)',padding:'40px 30px'}}>
+              <div style={{position:'relative',width:'100%',height:'100%'}}>
+                <Star yy={y} sel={null} onSel={()=>{}} hl={highlight} af={af} showOpp={(af||[]).includes('opp')} overlay={null} mob={typeof window!=='undefined'&&window.innerWidth<=768}/>
               {/* SPOTLIGHT — затемняем фон, оставляем «окна» на подсвеченных полках */}
               {highlight && highlight.length > 0 && highlight.length < 12 && (() => {
                 const isMobile = typeof window!=='undefined' && window.innerWidth<=768;
@@ -361,6 +362,7 @@
                   </svg>
                 );
               })()}
+              </div>
             </div>
 
             {/* Stage progress dots — над канвасом, минимально */}
