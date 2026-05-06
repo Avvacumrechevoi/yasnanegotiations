@@ -368,7 +368,7 @@
                   <svg style={{position:'absolute',inset:0,width:'100%',height:'100%',pointerEvents:'none',transition:'opacity .5s ease'}} viewBox={isMobile?"40 -10 820 720":"-80 -50 1060 800"} preserveAspectRatio="xMidYMid meet">
                     <defs>
                       <mask id={maskId}>
-                        <rect x={isMobile?40:-80} y={isMobile?-10:-50} width={isMobile?820:1060} height={isMobile?720:800} fill="white"/>
+                        <rect x="-2000" y="-2000" width="5000" height="5000" fill="white"/>
                         {highlight.map((idx,k)=>{
                           const a = (270 - idx*30) * Math.PI / 180;
                           const x = 450 + R * Math.cos(a);
@@ -380,7 +380,7 @@
                         })}
                       </mask>
                     </defs>
-                    <rect x={isMobile?40:-80} y={isMobile?-10:-50} width={isMobile?820:1060} height={isMobile?720:800} fill="rgba(8,10,18,.45)" mask={`url(#${maskId})`} style={{transition:'all .5s ease',animation:'spotFade .5s ease'}}/>
+                    <rect x="-2000" y="-2000" width="5000" height="5000" fill="rgba(8,10,18,.45)" mask={`url(#${maskId})`} style={{transition:'all .5s ease',animation:'spotFade .5s ease'}}/>
                   </svg>
                 );
               })()}
@@ -630,6 +630,8 @@
             /* H1/H2 — компактнее */
             .tour-panel h1 { font-size: 22px !important; line-height: 1.22 !important; word-break: keep-all; hyphens: none; margin-bottom: 10px !important; }
             .tour-panel h2 { font-size: 19px !important; line-height: 1.25 !important; word-break: keep-all; hyphens: none; margin-bottom: 8px !important; }
+            /* Meta-row (Глава N · N из M · ЗАКОН) — компактнее, в одну линию */
+            .tour-card > div:first-of-type { font-size: 9.5px !important; gap: 6px !important; flex-wrap: wrap !important; margin-bottom: 10px !important; letter-spacing: 1px !important; }
             .tour-panel p, .tour-panel div { font-size: 15px !important; line-height: 1.5 !important; }
 
             /* Шапка гида: убрать лишние элементы */
