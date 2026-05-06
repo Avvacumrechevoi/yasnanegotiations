@@ -137,6 +137,10 @@
       setRevealedCount(0);
       // scroll panel to top на новом шаге
       if(panelRef.current) panelRef.current.scrollTop = 0;
+      // Mobile: основной scroll живёт на .tour-body. Если его не сбросить,
+      // при переходе на следующий шаг заголовок (h2) уходит под sticky-диаграмму.
+      const bodyEl = panelRef.current && panelRef.current.closest('.tour-body');
+      if(bodyEl) bodyEl.scrollTop = 0;
       // Update URL hash
       if(typeof window !== 'undefined' && window.history){
         const newHash = `#tour=${tour.id}&step=${stepIdx}`;
@@ -188,22 +192,39 @@
                 const parentRect = scrollParent.getBoundingClientRect();
                 const canvas = scrollParent.querySelector('.tour-canvas-mobile');
                 const stickyOffsetTop = canvas ? canvas.getBoundingClientRect().height : 0;
-                const navEl = scrollParent.querySelector('.tour-nav');
-                const stickyOffsetBottom = navEl ? navEl.getBoundingClientRect().height : 0;
+                // .tour-nav живёт ВНЕ .tour-body (на уровне модалки), поэтому
+                // его высоту он внутрь scroll-зоны не съедает. stickyOffsetBottom = 0.
+                const stickyOffsetBottom = 0;
                 // Координаты элемента в scroll-системе
                 const elTop = (elRect.top - parentRect.top) + scrollParent.scrollTop;
                 const elBottom = elTop + elRect.height;
-                // Видимая зона (между sticky-диаграммой и sticky-навигацией)
+                // Видимая зона (между sticky-диаграммой и нижним краем body)
                 const visibleTop = scrollParent.scrollTop + stickyOffsetTop;
                 const visibleBottom = scrollParent.scrollTop + scrollParent.clientHeight - stickyOffsetBottom;
-                // Если элемент уже полностью виден — не скроллим
+                // Если элемент уже полностью виден — не скроллим (главный кейс короткого текста)
                 if(elTop >= visibleTop - 4 && elBottom <= visibleBottom + 4) return;
+                // Если можно показать ВСЁ от заголовка карточки до текущего абзаца — делаем именно это.
+                // Так заголовок не уезжает под sticky-диаграмму при коротких шагах.
+                const cardEl = panel.querySelector('.tour-card');
                 let targetScroll;
-                if(elBottom > visibleBottom){
-                  // Элемент ниже видимой зоны — поднимаем чтобы его bottom оказался у нижней границы
+                if(cardEl){
+                  const cardRect = cardEl.getBoundingClientRect();
+                  const cardTop = (cardRect.top - parentRect.top) + scrollParent.scrollTop;
+                  const blockHeight = elBottom - cardTop;
+                  const visibleH = scrollParent.clientHeight - stickyOffsetTop - stickyOffsetBottom;
+                  if(blockHeight <= visibleH - 24){
+                    // Весь блок (заголовок + читаемый текст) умещается — показываем сверху
+                    targetScroll = cardTop - stickyOffsetTop - 16;
+                  } else if(elBottom > visibleBottom){
+                    // Не умещается, новый абзац ниже видимого — двигаем минимально
+                    targetScroll = elBottom - (scrollParent.clientHeight - stickyOffsetBottom) + 16;
+                  } else {
+                    // Случай выше видимой зоны — двигаем абзац под sticky
+                    targetScroll = elTop - stickyOffsetTop - 16;
+                  }
+                } else if(elBottom > visibleBottom){
                   targetScroll = elBottom - (scrollParent.clientHeight - stickyOffsetBottom) + 16;
                 } else {
-                  // Элемент выше — опускаем под sticky-диаграмму
                   targetScroll = elTop - stickyOffsetTop - 16;
                 }
                 targetScroll = Math.max(0, Math.min(targetScroll, scrollParent.scrollHeight - scrollParent.clientHeight));
@@ -627,10 +648,13 @@
             /* Body становится одним scroll-контейнером (без двух independent scrolls) */
             .tour-body { flex-direction: column !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
 
-            /* Канвас в normal flow, не flex-fixed. Sticky сверху чтобы при scroll текста диаграмма оставалась видимой. */
+            /* Канвас в normal flow, не flex-fixed. Sticky сверху чтобы при scroll текста диаграмма оставалась видимой.
+               Сверху резервируем зону под note-bubble (≈50px) — чтобы подпись не наезжала на верхние полки круга.
+               align-items: flex-end → диаграмма прижата к низу канваса, bubble — в зоне сверху. */
             .tour-canvas-mobile {
               flex: 0 0 auto !important;
-              padding: 8px 10px 4px !important;
+              padding: 56px 10px 6px !important;
+              align-items: flex-end !important;
               position: sticky !important;
               top: 0 !important;
               z-index: 2;
@@ -641,18 +665,34 @@
               aspect-ratio: 1 / 0.85 !important;
               width: 100% !important;
               height: auto !important;
-              max-height: 42dvh !important;
+              max-height: 36dvh !important;
               max-width: 100% !important;
               border-radius: 12px !important;
             }
 
-            /* Текстовая панель: НЕ имеет своего scroll — весь контент просто в потоке */
+            /* Note-bubble — над диаграммой, аккуратно вписан в верхнюю зону канваса */
+            .tour-note-bubble {
+              top: 8px !important;
+              max-width: 92% !important;
+              white-space: normal !important;
+              line-height: 1.3 !important;
+              font-size: 12px !important;
+              padding: 6px 11px !important;
+              display: -webkit-box !important;
+              -webkit-line-clamp: 2 !important;
+              -webkit-box-orient: vertical !important;
+              overflow: hidden !important;
+              text-overflow: ellipsis !important;
+            }
+
+            /* Текстовая панель: растягивается на остаток body (нет пустой зоны под коротким текстом).
+               НЕ имеет своего scroll — весь контент просто в потоке. */
             .tour-panel {
-              flex: 0 0 auto !important;
+              flex: 1 1 auto !important;
               max-width: none !important;
               max-height: none !important;
-              min-height: 35dvh;
-              padding: 20px 16px 130px !important;
+              min-height: 0 !important;
+              padding: 18px 16px 28px !important;
               border-left: none !important;
               border-top: 1px solid rgba(255,255,255,.08);
               overflow: visible !important;
