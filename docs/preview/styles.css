@@ -503,7 +503,7 @@ input{font-family:var(--sans)}
    ═══════════════════════════════════════════════════════════════ */
 
 /* 1.1+1.3: диаграмма центрирована, padding для overflow-подписей */
-.workspace .star-area{min-height:0;align-items:center;justify-content:center;padding:20px 60px 30px}
+.workspace .star-area{min-height:0;align-items:center;justify-content:center;padding:50px 60px 30px}
 .star-svg-wrap{margin:0 auto;display:flex;align-items:center;justify-content:center;overflow:visible}
 .star-area svg{overflow:visible}
 

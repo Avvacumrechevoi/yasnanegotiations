@@ -832,11 +832,11 @@ function App(){
             <span className="lesson-label" style={{fontSize:13,fontWeight:600}}>Уроки</span>
             <span style={{position:'absolute',top:-3,right:-3,width:8,height:8,borderRadius:'50%',background:'#E8364F',border:'1.5px solid #fff'}}/>
           </button>
-          <button onClick={()=>setFiltersOpen(!filtersOpen)} title="Механики" style={{fontSize:15,padding:'8px 11px',border:`1px solid ${filtersOpen||af.length>0?'rgba(0,122,255,.35)':'#d2d2d7'}`,borderRadius:10,background:filtersOpen||af.length>0?'rgba(0,122,255,.06)':'#fff',color:filtersOpen||af.length>0?'#0071e3':'#6e6e73',whiteSpace:'nowrap',fontWeight:af.length>0?600:500,minHeight:36,display:'flex',alignItems:'center',gap:4}}>
-            <span style={{fontSize:16,lineHeight:1}}>⊞</span>
-            {af.length>0&&<span style={{fontSize:13,fontWeight:600}}>{af.length}</span>}
-            <span style={{fontSize:9,display:'inline-block',transform:filtersOpen?'rotate(180deg)':'none',transition:'transform .2s',marginLeft:1}}>▼</span>
-          </button>
+          {/* Гид — показывается на мобильном если зарегистрирован для текущей Ясны */}
+          {y && window.YasnaTours && window.YasnaTours.has(y.name) && <button onClick={()=>setShowTour(true)} title="Гид по Ясне" style={{fontSize:15,padding:'8px 11px',border:'1px solid rgba(162,28,175,.35)',borderRadius:10,background:'rgba(162,28,175,.06)',color:'#a21caf',whiteSpace:'nowrap',fontWeight:600,minHeight:36,display:'flex',alignItems:'center',gap:5}}>
+            <span style={{fontSize:13,lineHeight:1}}>✦</span>
+            <span style={{fontSize:13,fontWeight:600}}>Гид</span>
+          </button>}
           <button onClick={()=>setFullStar(true)} style={{fontSize:16,padding:'8px 11px',border:'1px solid #d2d2d7',borderRadius:10,background:'#fff',color:'#6e6e73',minHeight:36,minWidth:36}}>⤢</button>
         </div>
         <div className='hdr-burger' style={{position:'relative'}}>
@@ -848,6 +848,10 @@ function App(){
               <span style={{flex:1}}>Уроки</span>
               <span style={{fontSize:10,padding:'2px 7px',background:'#0071e3',color:'#fff',borderRadius:8,fontWeight:600,letterSpacing:0.3,textTransform:'uppercase'}}>new</span>
             </button>
+            {y && window.YasnaTours && window.YasnaTours.has(y.name) && <button onClick={()=>{setShowTour(true);setMenu(false)}} style={{display:'flex',width:'100%',padding:'12px 16px',fontSize:14,color:'#a21caf',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left',alignItems:'center',gap:8,cursor:'pointer',fontWeight:500}}>
+              <span style={{fontSize:13}}>✦</span>
+              <span style={{flex:1}}>Гид по Ясне</span>
+            </button>}
             <button onClick={()=>{setVerif(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Проверка</button>
             <button onClick={()=>{setInstr(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Инструкция</button>
             <button onClick={()=>{setGlossary(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Глоссарий</button>
