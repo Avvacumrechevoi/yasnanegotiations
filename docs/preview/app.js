@@ -789,6 +789,13 @@ function App(){
   // Auto-close burger menu when any modal/panel opens
   useEffect(()=>{ if(!af.includes('mb_yasna2')){setYasna2Drill(null);setDrillEditing(false);} },[af]);
   useEffect(()=>{ if(yasna2Drill!=null) setStarRotation(null); },[yasna2Drill]);
+  // ESC закрывает drill-down popup
+  useEffect(()=>{
+    if(yasna2Drill==null) return;
+    const onKey=e=>{ if(e.key==='Escape'){setYasna2Drill(null);setDrillEditing(false);} };
+    window.addEventListener('keydown',onKey);
+    return ()=>window.removeEventListener('keydown',onKey);
+  },[yasna2Drill]);
   useEffect(()=>{ setPanelCollapsed(false); },[sel]);
 
   // Rotation теперь управляется внутри Star через ref + rAF (см. yasna-star.js)

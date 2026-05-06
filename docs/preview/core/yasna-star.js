@@ -490,22 +490,20 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
       {/* M-Г-066 Ясна² Drill-down: клик по полке открывает её внутреннюю Ясну */}
       {drill!=null&&(()=>{
         const dCol='#a21caf';
-        // Карточка вписана в viewBox 900×700 — не вылезает за границы SVG
-        const cardX=20, cardY=15, cardW=S-40, cardH=W-30;
-        // Центрируем sub-Ясну между низом шапки (cardY+118) и низом карточки (cardY+cardH)
-        const subCenterY=Math.round((cardY+118+cardY+cardH)/2); // = середина свободной зоны
-        const subR=isMob?180:215;
-        const subNr=isMob?28:32;
-        const subLr=subR+(isMob?52:60);
+        // Карточка занимает почти весь viewBox 900×700
+        const cardX=10, cardY=8, cardW=S-20, cardH=W-16;
+        // Центрируем sub-Ясну между низом шапки (cardY+135) и низом карточки
+        const subCenterY=Math.round((cardY+135+cardY+cardH-20)/2);
+        const subR=isMob?215:255;
+        const subNr=isMob?30:36;
+        const subLr=subR+(isMob?56:62);
         const SUB_PRANA_COLOR=['#C0943A','#4090D8','#06B6D4','#F06838','#C0943A','#4090D8','#06B6D4','#F06838','#C0943A','#4090D8','#06B6D4','#F06838'];
         return<g className="drill-popup" style={{animation:'drillPopup .42s cubic-bezier(.16,1,.3,1)',transformOrigin:`${cx}px ${cy}px`}}>
-          {/* Backdrop — кликабельный, закрывает попап */}
-          <rect x="-500" y="-500" width="1900" height="1700" fill="rgba(15,23,42,.55)" style={{cursor:'pointer'}} onClick={()=>onDrill&&onDrill(null)}/>
-          {/* Карточка-попап — вписана в viewBox */}
+          {/* Карточка-попап — занимает почти весь viewBox, без backdrop */}
           <rect x={cardX} y={cardY} width={cardW} height={cardH} rx="24" ry="24"
                 fill="#ffffff" stroke="rgba(162,28,175,.22)" strokeWidth="2"
                 style={{filter:'drop-shadow(0 24px 56px rgba(15,23,42,.32))'}}
-                onClick={e=>e.stopPropagation()}/>
+                />
           {/* Декоративная верхняя полоса с градиентом */}
           <defs>
             <linearGradient id="drillHdrGrad" x1="0" y1="0" x2="1" y2="0">
@@ -526,8 +524,8 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
           <line x1={cx-100} y1={cardY+118} x2={cx+100} y2={cardY+118} stroke="rgba(162,28,175,.22)" strokeWidth="1"/>
           {/* Close-кнопка ✕ в правом верхнем углу */}
           <g style={{cursor:'pointer'}} onClick={()=>onDrill&&onDrill(null)}>
-            <circle cx={cardX+cardW-30} cy={cardY+30} r="18" fill="#fff" stroke="rgba(162,28,175,.3)" strokeWidth="1.5"/>
-            <text x={cardX+cardW-30} y={cardY+36} textAnchor="middle" fontSize="20" fontWeight="500" fill="#a21caf" fontFamily="var(--sans)" style={{userSelect:'none'}}>×</text>
+            <circle cx={cardX+cardW-32} cy={cardY+32} r="22" fill="#fff" stroke="rgba(162,28,175,.35)" strokeWidth="1.5"/>
+            <text x={cardX+cardW-32} y={cardY+39} textAnchor="middle" fontSize="22" fontWeight="500" fill="#a21caf" fontFamily="var(--sans)" style={{userSelect:'none'}}>×</text>
           </g>
           {/* Внешнее кольцо sub-Ясны */}
           <circle cx={cx} cy={subCenterY} r={subR} fill="none" stroke={dCol} strokeWidth="1.2" strokeDasharray="5 7" opacity=".35"/>
