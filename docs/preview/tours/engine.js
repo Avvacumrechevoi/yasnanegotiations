@@ -649,11 +649,10 @@
             .tour-body { flex-direction: column !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
 
             /* Канвас в normal flow, не flex-fixed. Sticky сверху чтобы при scroll текста диаграмма оставалась видимой.
-               Сверху резервируем зону под note-bubble (≈50px) — чтобы подпись не наезжала на верхние полки круга.
-               align-items: flex-end → диаграмма прижата к низу канваса, bubble — в зоне сверху. */
+               Сверху резервируем минимальную зону под однострочный note-bubble (≈30px). */
             .tour-canvas-mobile {
               flex: 0 0 auto !important;
-              padding: 56px 10px 6px !important;
+              padding: 34px 10px 6px !important;
               align-items: flex-end !important;
               position: sticky !important;
               top: 0 !important;
@@ -665,24 +664,23 @@
               aspect-ratio: 1 / 0.85 !important;
               width: 100% !important;
               height: auto !important;
-              max-height: 36dvh !important;
+              max-height: 40dvh !important;
               max-width: 100% !important;
               border-radius: 12px !important;
             }
 
-            /* Note-bubble — над диаграммой, аккуратно вписан в верхнюю зону канваса */
+            /* Note-bubble — pill в одну строчку с многоточием, скруглённые края */
             .tour-note-bubble {
-              top: 8px !important;
+              top: 6px !important;
               max-width: 92% !important;
-              white-space: normal !important;
-              line-height: 1.3 !important;
+              white-space: nowrap !important;
+              line-height: 1.25 !important;
               font-size: 12px !important;
-              padding: 6px 11px !important;
-              display: -webkit-box !important;
-              -webkit-line-clamp: 2 !important;
-              -webkit-box-orient: vertical !important;
+              padding: 5px 14px !important;
+              border-radius: 999px !important;
               overflow: hidden !important;
               text-overflow: ellipsis !important;
+              display: block !important;
             }
 
             /* Текстовая панель: растягивается на остаток body (нет пустой зоны под коротким текстом).
