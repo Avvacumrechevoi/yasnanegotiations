@@ -332,28 +332,35 @@
 
           {/* CANVAS */}
           <div style={{flex:'1.5 1 0',display:'flex',alignItems:'center',justifyContent:'center',padding:'30px 24px',minWidth:0,position:'relative'}}>
-            <div style={{position:'relative',width:'100%',maxWidth:680,aspectRatio:'900/700',background:SURFACE,borderRadius:18,border:'1px solid '+BORDER,overflow:'hidden',transition:'all .8s cubic-bezier(.4,0,.2,1)'}}>
+            <div style={{position:'relative',width:'100%',maxWidth:680,aspectRatio:'900/700',background:SURFACE,borderRadius:18,border:'1px solid '+BORDER,overflow:'visible',transition:'all .8s cubic-bezier(.4,0,.2,1)'}}>
               <Star yy={y} sel={null} onSel={()=>{}} hl={highlight} af={af} showOpp={(af||[]).includes('opp')} overlay={null} mob={typeof window!=='undefined'&&window.innerWidth<=768}/>
               {/* SPOTLIGHT — затемняем фон, оставляем «окна» на подсвеченных полках */}
-              {highlight && highlight.length > 0 && highlight.length < 12 && (
-                <svg style={{position:'absolute',inset:0,width:'100%',height:'100%',pointerEvents:'none',transition:'opacity .5s ease'}} viewBox="0 0 900 700" preserveAspectRatio="xMidYMid meet">
-                  <defs>
-                    <mask id={`spot-${stepIdx}-${(highlight||[]).join(',')}`}>
-                      <rect width="900" height="700" fill="white"/>
-                      {highlight.map((idx,k)=>{
-                        const a = (270 - idx*30) * Math.PI / 180;
-                        const x = 450 + 215 * Math.cos(a);
-                        const yc = 350 - 215 * Math.sin(a);
-                        return <g key={k}>
-                          <circle cx={x} cy={yc} r="58" fill="black"/>
-                          <circle cx={x} cy={yc} r="80" fill="rgba(0,0,0,.4)"/>
-                        </g>;
-                      })}
-                    </mask>
-                  </defs>
-                  <rect width="900" height="700" fill="rgba(8,10,18,.45)" mask={`url(#spot-${stepIdx}-${(highlight||[]).join(',')})`} style={{transition:'all .5s ease',animation:'spotFade .5s ease'}}/>
-                </svg>
-              )}
+              {highlight && highlight.length > 0 && highlight.length < 12 && (() => {
+                const isMobile = typeof window!=='undefined' && window.innerWidth<=768;
+                const R = isMobile ? 215 : 280; // совпадает со Star
+                const innerR = isMobile ? 56 : 72; // прозрачная зона
+                const glowR  = isMobile ? 78 : 95; // полупрозрачная зона свечения
+                const maskId = `spot-${stepIdx}-${(highlight||[]).join(',')}`;
+                return (
+                  <svg style={{position:'absolute',inset:0,width:'100%',height:'100%',pointerEvents:'none',transition:'opacity .5s ease',overflow:'visible'}} viewBox="0 0 900 700" preserveAspectRatio="xMidYMid meet">
+                    <defs>
+                      <mask id={maskId}>
+                        <rect width="900" height="700" fill="white"/>
+                        {highlight.map((idx,k)=>{
+                          const a = (270 - idx*30) * Math.PI / 180;
+                          const x = 450 + R * Math.cos(a);
+                          const yc = 350 - R * Math.sin(a);
+                          return <g key={k}>
+                            <circle cx={x} cy={yc} r={innerR} fill="black"/>
+                            <circle cx={x} cy={yc} r={glowR} fill="rgba(0,0,0,.4)"/>
+                          </g>;
+                        })}
+                      </mask>
+                    </defs>
+                    <rect width="900" height="700" fill="rgba(8,10,18,.45)" mask={`url(#${maskId})`} style={{transition:'all .5s ease',animation:'spotFade .5s ease'}}/>
+                  </svg>
+                );
+              })()}
             </div>
 
             {/* Stage progress dots — над канвасом, минимально */}
