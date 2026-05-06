@@ -720,11 +720,26 @@ function Glossary({onClose}){
 }
 
 function App(){
-  const defPinned=['суток','круговорота_воды','цветов','знаки_з.','дома','кухни'];
+  const defPinned=['суток','года','фаз_жизни','переговоров','atm_yavl','atm_skrytyh','круговорота_воды','цветов'];
   const initT=T.find(t=>t.id==='суток')||T[0];
   const[y,setY]=useState({name:initT.n,p:[...initT.p],th:initT.th||'',bh:initT.bh||'',lh:initT.lh||'',rh:initT.rh||'',custom:!!initT.custom});
   const[sel,setSel]=useState(null);
   const[yasna2Drill,setYasna2Drill]=useState(null);
+  // Preset 144 ячеек для Видимых атмосферных явлений (Ясна²)
+  const PRESET_ATM_144 = {
+    'Видимых атмосферных явлений_0': ['Соляная','Серебряная','Туманная','Утренняя','Травяная','Виноградная','Горная','Радужная','Каменная','Болотная','Лесная','Закатная'],
+    'Видимых атмосферных явлений_1': ['Тонкий приземный','Кристаллический','Туманный','Радиационный','Полевой','Сахарный','Высотный','Лучевой','Каменный','Лесной','Ветровой','Цветочный'],
+    'Видимых атмосферных явлений_2': ['Зернистая изморозь','Игольчатая','Лёгкая','Прозрачный гололёд','Налипающий снег','Чёрный лёд','Высотный обледенелый','Преломляющий','Каменный гололёд','Морской','Древесный','Электрический'],
+    'Видимых атмосферных явлений_3': ['Морось','Грибной','Слепой','Утренний весенний','Ситный обложной','Ливневой','Грозовой','Радужный','Косой','Затяжной осенний','Ветровой','Ледяной'],
+    'Видимых атмосферных явлений_4': ['Сухая пороша','Хлопья','Метель','Первый снег','Полевой','Лавинный','Высотный','Серебристый','Слежавшийся','Снегопад','Поземка','Алмазная пыль'],
+    'Видимых атмосферных явлений_5': ['Снежная крупа','Ледяной горошек','Воздушный шарик','Весенний град','Полевой','Ливневой','Шквальный','Радиальный','Каменный','Тропический','Спиральный','Светящийся'],
+    'Видимых атмосферных явлений_6': ['Тихая','Грибная','Шквальная','Утренняя','Затяжная фронтальная','Многоячеистая','Сильнейшая центральная','С радугой после','Горная каменная','Морская','Шаровая молния','Сухая'],
+    'Видимых атмосферных явлений_7': ['Двойная','Молочная','Туманная','Утренняя восточная','Полевая','Брызговая','Высотная горная','Спектральная','Каменная','Морская','Лесная','Лунная'],
+    'Видимых атмосферных явлений_8': ['Соляное гало','Цветной мираж','Туманный мираж','Утреннее гало','Полевой мираж','Ложное солнце','Высотное гало','Лучистое гало','Каменный мираж','Морской мираж','Лесное гало','Лунный нимб'],
+    'Видимых атмосферных явлений_9': ['Затишье перед бурей','Ливневой шторм','Ветровой шквал','Шторм рождающийся','Полевая пыльная буря','Тропический ливень','Тропический ураган','Светящаяся буря','Каменная горная буря','Морской шторм','Воздушный циклон','Снежная буря'],
+    'Видимых атмосферных явлений_10': ['Пыльный вихрь','Водяной смерч','Туманный смерч','Утренний','Полевой торнадо','Шквальная воронка','Высотный мезоциклон','Светящийся','Каменный горный шквал','Морской торнадо','Множественный','Огненный смерч'],
+    'Видимых атмосферных явлений_11': ['Дугообразное','Корональное','Лучистое','Утреннее','Спокойное','Активное','Высотное яркое','Радужное','Огненное красное','Грозовое','Спиральное','Финальное'],
+  };
   const[subData,setSubData]=useState(()=>{try{return JSON.parse(localStorage.getItem('yasna2_subdata')||'{}');}catch{return{};}});
   const[drillEditing,setDrillEditing]=useState(false);
   const[starRotation,setStarRotation]=useState(null);
@@ -747,7 +762,7 @@ function App(){
 
   useEffect(()=>{try{localStorage.setItem('yasna2_subdata',JSON.stringify(subData));}catch{}},[subData]);
   const subKey=(name,idx)=>name+'_'+idx;
-  const getSubPolki=(name,idx)=>(subData[subKey(name,idx)]||Array(12).fill(''));
+  const getSubPolki=(name,idx)=>{const k=subKey(name,idx);return subData[k]||PRESET_ATM_144[k]||Array(12).fill('');};
   const setSubPolkaAt=(name,idx,j,val)=>{const k=subKey(name,idx);setSubData(prev=>{const cur=[...(prev[k]||Array(12).fill(''))];cur[j]=val;return{...prev,[k]:cur};});};
   const setSubPolkiAll=(name,idx,arr)=>{setSubData(prev=>({...prev,[subKey(name,idx)]:[...arr]}));};
   const clearSub=(name,idx)=>{setSubData(prev=>{const next={...prev};delete next[subKey(name,idx)];return next;});};
@@ -767,12 +782,20 @@ function App(){
   const[lessonPicker,setLessonPicker]=useState(false);
   const[showTour,setShowTour]=useState(false);
   const[helpOpen,setHelpOpen]=useState(false);
+  const[showComposition,setShowComposition]=useState(false);
   const[panelCollapsed,setPanelCollapsed]=useState(false);
   const[activeLesson,setActiveLesson]=useState(null);
   const[completedLessons,setCompletedLessons]=useState([]);
   // Auto-close burger menu when any modal/panel opens
   useEffect(()=>{ if(!af.includes('mb_yasna2')){setYasna2Drill(null);setDrillEditing(false);} },[af]);
   useEffect(()=>{ if(yasna2Drill!=null) setStarRotation(null); },[yasna2Drill]);
+  // ESC закрывает drill-down popup
+  useEffect(()=>{
+    if(yasna2Drill==null) return;
+    const onKey=e=>{ if(e.key==='Escape'){setYasna2Drill(null);setDrillEditing(false);} };
+    window.addEventListener('keydown',onKey);
+    return ()=>window.removeEventListener('keydown',onKey);
+  },[yasna2Drill]);
   useEffect(()=>{ setPanelCollapsed(false); },[sel]);
 
   // Rotation теперь управляется внутри Star через ref + rAF (см. yasna-star.js)
@@ -807,6 +830,16 @@ function App(){
         </button>
         {/* Гид по Ясне — secondary outline (если зарегистрирован для текущей Ясны) */}
         {y && window.YasnaTours && window.YasnaTours.has(y.name) && <button onClick={()=>setShowTour(true)} title='Интерактивный гид с пояснением каждой механики' style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 14px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:5}}><span style={{fontSize:11,color:'#a21caf'}}>✦</span><span>Гид</span></button>}
+        {/* Стихии — режим показа пранных долей */}
+        <button onClick={()=>setShowComposition(c=>!c)} title='Состав 4 пран в каждой Полке (идеальное соотношение)' style={{border:`1px solid ${showComposition?'rgba(192,148,58,.5)':'#d2d2d7'}`,color:showComposition?'#7a5e25':'#424245',padding:'7px 12px',borderRadius:8,fontSize:13,background:showComposition?'rgba(192,148,58,.10)':'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:5}}>
+          <span style={{display:'inline-flex',gap:1,alignItems:'center'}}>
+            <span style={{width:3,height:11,background:'#C0943A',borderRadius:1}}/>
+            <span style={{width:3,height:11,background:'#4090D8',borderRadius:1}}/>
+            <span style={{width:3,height:11,background:'#06B6D4',borderRadius:1}}/>
+            <span style={{width:3,height:11,background:'#F06838',borderRadius:1}}/>
+          </span>
+          <span>Стихии</span>
+        </button>
         <button onClick={()=>setVerif(true)} style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 14px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>Проверка</button>
         {/* Справка ▾ — объединяет Инструкция + Глоссарий */}
         <div style={{position:'relative'}}>
@@ -832,11 +865,11 @@ function App(){
             <span className="lesson-label" style={{fontSize:13,fontWeight:600}}>Уроки</span>
             <span style={{position:'absolute',top:-3,right:-3,width:8,height:8,borderRadius:'50%',background:'#E8364F',border:'1.5px solid #fff'}}/>
           </button>
-          <button onClick={()=>setFiltersOpen(!filtersOpen)} title="Механики" style={{fontSize:15,padding:'8px 11px',border:`1px solid ${filtersOpen||af.length>0?'rgba(0,122,255,.35)':'#d2d2d7'}`,borderRadius:10,background:filtersOpen||af.length>0?'rgba(0,122,255,.06)':'#fff',color:filtersOpen||af.length>0?'#0071e3':'#6e6e73',whiteSpace:'nowrap',fontWeight:af.length>0?600:500,minHeight:36,display:'flex',alignItems:'center',gap:4}}>
-            <span style={{fontSize:16,lineHeight:1}}>⊞</span>
-            {af.length>0&&<span style={{fontSize:13,fontWeight:600}}>{af.length}</span>}
-            <span style={{fontSize:9,display:'inline-block',transform:filtersOpen?'rotate(180deg)':'none',transition:'transform .2s',marginLeft:1}}>▼</span>
-          </button>
+          {/* Гид — показывается на мобильном если зарегистрирован для текущей Ясны */}
+          {y && window.YasnaTours && window.YasnaTours.has(y.name) && <button onClick={()=>setShowTour(true)} title="Гид по Ясне" style={{fontSize:15,padding:'8px 11px',border:'1px solid rgba(162,28,175,.35)',borderRadius:10,background:'rgba(162,28,175,.06)',color:'#a21caf',whiteSpace:'nowrap',fontWeight:600,minHeight:36,display:'flex',alignItems:'center',gap:5}}>
+            <span style={{fontSize:13,lineHeight:1}}>✦</span>
+            <span style={{fontSize:13,fontWeight:600}}>Гид</span>
+          </button>}
           <button onClick={()=>setFullStar(true)} style={{fontSize:16,padding:'8px 11px',border:'1px solid #d2d2d7',borderRadius:10,background:'#fff',color:'#6e6e73',minHeight:36,minWidth:36}}>⤢</button>
         </div>
         <div className='hdr-burger' style={{position:'relative'}}>
@@ -848,6 +881,10 @@ function App(){
               <span style={{flex:1}}>Уроки</span>
               <span style={{fontSize:10,padding:'2px 7px',background:'#0071e3',color:'#fff',borderRadius:8,fontWeight:600,letterSpacing:0.3,textTransform:'uppercase'}}>new</span>
             </button>
+            {y && window.YasnaTours && window.YasnaTours.has(y.name) && <button onClick={()=>{setShowTour(true);setMenu(false)}} style={{display:'flex',width:'100%',padding:'12px 16px',fontSize:14,color:'#a21caf',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left',alignItems:'center',gap:8,cursor:'pointer',fontWeight:500}}>
+              <span style={{fontSize:13}}>✦</span>
+              <span style={{flex:1}}>Гид по Ясне</span>
+            </button>}
             <button onClick={()=>{setVerif(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Проверка</button>
             <button onClick={()=>{setInstr(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Инструкция</button>
             <button onClick={()=>{setGlossary(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'12px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Глоссарий</button>
@@ -924,7 +961,7 @@ function App(){
       {/* app-body: flex row с workspace и side-panel — Решение 1+3 */}
       <div className={'app-body'+(sel!==null?' app-body-with-panel':'')} style={{display:'flex',flex:1,minHeight:0,position:'relative'}}>
         <div className='workspace' style={{flex:1,display:'flex',flexDirection:'column',minWidth:0,position:'relative'}}>
-            <div className={'star-area'+(starRotation?' star-rotating-'+starRotation:'')+(is3D?' star-3d-active':'')} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden','--rotation-speed':rotationSpeed+'s'}} onClick={e=>{if(e.target===e.currentTarget)setSel(null)}}>
+            <div className={'star-area'+(starRotation?' star-rotating-'+starRotation:'')+(is3D?' star-3d-active':'')} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'visible','--rotation-speed':rotationSpeed+'s'}} onClick={e=>{if(e.target===e.currentTarget)setSel(null)}}>
         <button className='fullstar-btn' onClick={()=>setFullStar(true)} style={{display:'none',position:'absolute',top:8,right:8,width:32,height:32,borderRadius:8,border:'1px solid #e5e5ea',background:'rgba(255,255,255,.8)',fontSize:16,zIndex:5,alignItems:'center',justifyContent:'center'}}>⤢</button>
         {/* Floating mini-toolbar в углу диаграммы (Спринт 3) */}
         <div className='diag-corner-toolbar' style={{position:'absolute',top:10,right:10,display:'flex',gap:4,zIndex:6,background:'rgba(255,255,255,.94)',backdropFilter:'blur(8px)',border:'1px solid #e5e5ea',borderRadius:12,padding:'4px 5px',boxShadow:'0 2px 10px rgba(0,0,0,.06)'}}>
@@ -951,7 +988,7 @@ function App(){
             <b style={{color:'#a21caf'}}>3D режим.</b> Drag — вращение, колесо — zoom, клик по шару — выбор.
           </div>}
         </div>}
-        <div className="star-svg-wrap" style={{width:'100%',height:'100%',maxWidth:'none',maxHeight:'none',flex:1}}>{is3D ? <Yasna3DView y={y} af={af} sel={sel} onSel={setSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/> : <Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} starRotation={starRotation} rotationSpeed={rotationSpeed}/>}</div>
+        <div className="star-svg-wrap" style={{width:'100%',height:'100%',maxWidth:'none',maxHeight:'none',flex:1}}>{is3D ? <Yasna3DView y={y} af={af} sel={sel} onSel={setSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/> : <Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} starRotation={starRotation} rotationSpeed={rotationSpeed} showComposition={showComposition}/>}</div>
         <OverlayLegend y={y} overlay={overlay} onClear={()=>setOverlay(null)}/>
             </div>
         </div>
@@ -978,7 +1015,7 @@ function App(){
       </div>}
       {fullStar&&<>
         <div className={'fullstar'+(starRotation?' star-rotating-'+starRotation:'')+(is3D?' star-3d-active':'')} style={{display:'flex',alignItems:'center',justifyContent:'center','--rotation-speed':rotationSpeed+'s'}}>
-          <div style={{width:'100%',height:'100%',maxWidth:'100vw',maxHeight:'100vh'}}>{is3D ? <Yasna3DView y={y} af={af} sel={sel} onSel={setSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/> : <Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} starRotation={starRotation} rotationSpeed={rotationSpeed}/>}</div>
+          <div style={{width:'100%',height:'100%',maxWidth:'100vw',maxHeight:'100vh'}}>{is3D ? <Yasna3DView y={y} af={af} sel={sel} onSel={setSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/> : <Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} starRotation={starRotation} rotationSpeed={rotationSpeed} showComposition={showComposition}/>}</div>
         </div>
         <button className='fullstar-close' onClick={()=>setFullStar(false)}>✕</button>
       </>}

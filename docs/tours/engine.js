@@ -331,34 +331,43 @@
         <div style={{flex:1,display:'flex',minHeight:0,overflow:'hidden'}} className="tour-body">
 
           {/* CANVAS */}
-          <div style={{flex:'1.5 1 0',display:'flex',alignItems:'center',justifyContent:'center',padding:'30px 24px',minWidth:0,position:'relative'}}>
-            <div style={{position:'relative',width:'100%',maxWidth:680,aspectRatio:'900/700',background:SURFACE,borderRadius:18,border:'1px solid '+BORDER,overflow:'hidden',transition:'all .8s cubic-bezier(.4,0,.2,1)'}}>
-              <Star yy={y} sel={null} onSel={()=>{}} hl={highlight} af={af} showOpp={(af||[]).includes('opp')} overlay={null} mob={typeof window!=='undefined'&&window.innerWidth<=768}/>
+          <div style={{flex:'2.2 1 0',display:'flex',alignItems:'center',justifyContent:'center',padding:'24px 18px',minWidth:0,position:'relative'}}>
+            <div className="tour-diagram-card" style={{position:'relative',width:'100%',height:'100%',maxWidth:1200,maxHeight:'100%',aspectRatio:'1060/800',background:SURFACE,borderRadius:18,border:'1px solid '+BORDER,overflow:'hidden',transition:'all .8s cubic-bezier(.4,0,.2,1)',boxSizing:'border-box',display:'flex',alignItems:'center',justifyContent:'center'}}>
+              <div style={{position:'relative',width:'100%',height:'100%'}}>
+                <Star yy={y} sel={null} onSel={()=>{}} hl={highlight} af={af} showOpp={(af||[]).includes('opp')} overlay={null} mob={typeof window!=='undefined'&&window.innerWidth<=768}/>
               {/* SPOTLIGHT — затемняем фон, оставляем «окна» на подсвеченных полках */}
-              {highlight && highlight.length > 0 && highlight.length < 12 && (
-                <svg style={{position:'absolute',inset:0,width:'100%',height:'100%',pointerEvents:'none',transition:'opacity .5s ease'}} viewBox="0 0 900 700" preserveAspectRatio="xMidYMid meet">
-                  <defs>
-                    <mask id={`spot-${stepIdx}-${(highlight||[]).join(',')}`}>
-                      <rect width="900" height="700" fill="white"/>
-                      {highlight.map((idx,k)=>{
-                        const a = (270 - idx*30) * Math.PI / 180;
-                        const x = 450 + 215 * Math.cos(a);
-                        const yc = 350 - 215 * Math.sin(a);
-                        return <g key={k}>
-                          <circle cx={x} cy={yc} r="58" fill="black"/>
-                          <circle cx={x} cy={yc} r="80" fill="rgba(0,0,0,.4)"/>
-                        </g>;
-                      })}
-                    </mask>
-                  </defs>
-                  <rect width="900" height="700" fill="rgba(8,10,18,.45)" mask={`url(#spot-${stepIdx}-${(highlight||[]).join(',')})`} style={{transition:'all .5s ease',animation:'spotFade .5s ease'}}/>
-                </svg>
-              )}
+              {highlight && highlight.length > 0 && highlight.length < 12 && (() => {
+                const isMobile = typeof window!=='undefined' && window.innerWidth<=768;
+                const R = isMobile ? 215 : 280; // совпадает со Star
+                const innerR = isMobile ? 56 : 72; // прозрачная зона
+                const glowR  = isMobile ? 78 : 95; // полупрозрачная зона свечения
+                const maskId = `spot-${stepIdx}-${(highlight||[]).join(',')}`;
+                return (
+                  <svg style={{position:'absolute',inset:0,width:'100%',height:'100%',pointerEvents:'none',transition:'opacity .5s ease'}} viewBox="-80 -50 1060 800" preserveAspectRatio="xMidYMid meet">
+                    <defs>
+                      <mask id={maskId}>
+                        <rect x="-80" y="-50" width="1060" height="800" fill="white"/>
+                        {highlight.map((idx,k)=>{
+                          const a = (270 - idx*30) * Math.PI / 180;
+                          const x = 450 + R * Math.cos(a);
+                          const yc = 350 - R * Math.sin(a);
+                          return <g key={k}>
+                            <circle cx={x} cy={yc} r={innerR} fill="black"/>
+                            <circle cx={x} cy={yc} r={glowR} fill="rgba(0,0,0,.4)"/>
+                          </g>;
+                        })}
+                      </mask>
+                    </defs>
+                    <rect x="-80" y="-50" width="1060" height="800" fill="rgba(8,10,18,.45)" mask={`url(#${maskId})`} style={{transition:'all .5s ease',animation:'spotFade .5s ease'}}/>
+                  </svg>
+                );
+              })()}
+              </div>
             </div>
 
             {/* Stage progress dots — над канвасом, минимально */}
             {step && step.stages && step.stages.length>1 && (
-              <div style={{position:'absolute',bottom:30,left:'50%',transform:'translateX(-50%)',display:'flex',gap:5,padding:'5px 9px',borderRadius:14,background:SURFACE_RAISED,border:'1px solid '+BORDER}}>
+              <div style={{position:'absolute',bottom:4,left:'50%',transform:'translateX(-50%)',display:'flex',gap:5,padding:'5px 9px',borderRadius:14,background:SURFACE_RAISED,border:'1px solid '+BORDER,zIndex:5}}>
                 {step.stages.map((_,i)=>(
                   <div key={i} style={{width:i<=stageState.stageIdx?16:8,height:3,borderRadius:2,background:i<=stageState.stageIdx?accent:'rgba(255,255,255,.18)',transition:'all .35s ease'}}/>
                 ))}
@@ -367,14 +376,14 @@
 
             {/* Stage caption — минимальный */}
             {stageState.note && (
-              <div key={`${stepIdx}-${stageState.stageIdx}`} style={{position:'absolute',bottom:60,left:'50%',transform:'translateX(-50%)',padding:'7px 14px',borderRadius:10,background:'rgba(0,0,0,.55)',backdropFilter:'blur(6px)',border:'1px solid '+BORDER,fontSize:12,fontWeight:500,color:FG,animation:'noteIn .35s ease',maxWidth:'80%',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+              <div key={`${stepIdx}-${stageState.stageIdx}`} style={{position:'absolute',top:14,left:'50%',transform:'translateX(-50%)',padding:'7px 14px',borderRadius:10,background:'rgba(0,0,0,.65)',backdropFilter:'blur(6px)',border:'1px solid '+BORDER,fontSize:12,fontWeight:500,color:FG,animation:'noteIn .35s ease',maxWidth:'80%',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',zIndex:5}}>
                 {stageState.note}
               </div>
             )}
           </div>
 
           {/* SIDE PANEL — narrative storytelling */}
-          <div ref={panelRef} className="tour-panel" style={{flex:'1 1 0',maxWidth:520,padding:'40px 36px 60px',overflowY:'auto',background:SURFACE,borderLeft:'1px solid '+BORDER,scrollBehavior:'smooth',position:'relative'}}>
+          <div ref={panelRef} className="tour-panel" style={{flex:'1 1 0',maxWidth:460,padding:'40px 32px 60px',overflowY:'auto',background:SURFACE,borderLeft:'1px solid '+BORDER,scrollBehavior:'smooth',position:'relative'}}>
 
             {isIntro && tour.intro && (
               <div className="tour-card" style={{animation:'cardIn .6s cubic-bezier(.16,1,.3,1)',maxWidth:440}}>
@@ -553,7 +562,7 @@
           @keyframes tourFadeIn { from { opacity:0; } to { opacity:1; } }
           @keyframes cardIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
           @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-          @keyframes noteIn { from { opacity:0; transform:translate(-50%,4px); } to { opacity:1; transform:translate(-50%,0); } }
+          @keyframes noteIn { from { opacity:0; transform:translate(-50%,-4px); } to { opacity:1; transform:translate(-50%,0); } }
           @keyframes spotFade { from { opacity:0; } to { opacity:1; } }
           .tour-panel::-webkit-scrollbar { width: 6px; }
           .tour-panel::-webkit-scrollbar-track { background: transparent; }

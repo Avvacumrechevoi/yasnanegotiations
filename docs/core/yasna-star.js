@@ -34,6 +34,28 @@ const PR={she:{id:'she',n:'Земля ШЭ',p:[0,4,8],c:'#C0943A',el:'Земля
 const gc=i=>[0,3,6,9].includes(i)?'support':[1,4,7,10].includes(i)?'right':'left';
 const gp=i=>['she','fo','tsi','ha'][i%4];
 const opp=i=>(i+6)%12;
+
+// COMPOSITION — идеальное соотношение 4 пран в каждой Полке.
+// Сумма всегда = 100. На опорах (0/3/6/9) доминирующая прана = 60%,
+// у зеркальной — 10% (минимум). На коротких — 50/25/15/10.
+const COMP = [
+  // [Земля, Вода, Воздух, Огонь]
+  [60, 20, 10, 10], // 0 — Земля чистая (опора)
+  [25, 50, 15, 10], // 1 — Вода с Землёй
+  [10, 20, 50, 20], // 2 — Воздух с Огнём
+  [10, 10, 20, 60], // 3 — Огонь чистый (опора)
+  [50, 15, 10, 25], // 4 — Земля с Огнём
+  [10, 50, 25, 15], // 5 — Вода с Воздухом
+  [10, 10, 60, 20], // 6 — Воздух чистый (опора)
+  [15, 10, 25, 50], // 7 — Огонь с Воздухом
+  [50, 10, 15, 25], // 8 — Земля с Огнём (зеркало 4)
+  [20, 60, 10, 10], // 9 — Вода чистая (опора)
+  [15, 25, 50, 10], // 10 — Воздух с Водой
+  [25, 15, 10, 50], // 11 — Огонь с Землёй
+];
+const COMP_COLORS = ['#C0943A','#4090D8','#06B6D4','#F06838']; // Земля, Вода, Воздух, Огонь
+const COMP_NAMES  = ['Земля','Вода','Воздух','Огонь'];
+
 const angDeg=i=>270-i*30;
 const rad=d=>d*Math.PI/180;
 const xy=(i,cx,cy,r)=>({x:cx+r*Math.cos(rad(angDeg(i))),y:cy-r*Math.sin(rad(angDeg(i)))});
@@ -41,6 +63,7 @@ const REF=[{f:'ВХОД / ОСНОВА',ex:'Ночь · Прихожая · Св
 const T=[
   {id:'цветов',verified:true,starter:true,n:'Цветов радуги',rubrik:true,p:['Желтый','Оранжевый','Алый','Красный','Черный / Золотой','Фиолетовый','Синий','Голубой','Ультрамарин','Зеленый','Изумрудный','Салатовый']},
   {id:'суток',verified:true,starter:true,n:'Суток',rubrik:true,p:['Ночь','Искра','Утренняя Заря / Рассвет','Утро','Восход','Утренний Салют','День','Первая Тьма','Закат / Вечерняя Заря','Запад / Вечер Сутки','Сумерки','Вечерний Салют'],th:'День',bh:'Ночь'},
+  {id:'года',verified:true,starter:true,n:'Года',rubrik:true,p:['Зима','Начало Весны','Тают снега','Весеннее Равноденствие','Появляются листья','Конец Весны','Лето','Начало Осени','Желтеют листья','Осеннее Равноденствие','Опадают листья','Конец Осени'],th:'Лето',bh:'Зима',lh:'Весна',rh:'Осень'},
   {id:'знаки_з.',verified:true,starter:true,n:'Зодиака',rubrik:true,p:['Козерог','Водолей','Рыбы','Овен','Телец','Близнецы','Рак','Лев','Дева','Весы','Скорпион','Стрелец']},
   {id:'двора_животных',verified:true,n:'Животных',rubrik:true,p:['Свинья','Грызуны','Лошадь','Козлы / Бараны','Корова / Бык','Верблюд','Человек','Кошка / Дети','Собака','Птицы','Дракон','Змея']},
   {id:'двора',verified:true,n:'Двора (Постройки)',rubrik:true,p:['Ворота','Калитка','Конюшня','Козлы / бараны','Коровник','Амбар','Веранда','Лавка хозяина','Баня / дровник','Голубятник','Пчелы / мед','Туалет / Навозная куча']},
@@ -48,7 +71,9 @@ const T=[
   {id:'спальни',verified:true,n:'Спальни',rubrik:true,p:['Халат','Гантели / Вода','Зарядка','Одеяло или Сундук','Окно / Гобилен','шкаф с книгами','Бельевой Шкаф','Красный угол','Прикроват. Тумбочка','Кровать','Прикроват.Тумбочка','Светильник']},
   {id:'кухни',verified:true,starter:true,n:'Кухни',rubrik:true,p:['Вход / Фартук','Мойка','Разделочный стол','Плита','Стол полуфабрикатов','Шкаф специй / Книга рецептов','Стол для готовки','Готовое блюдо','Делим на порции','Оценочный стол','Шведский стол','Вынос блюд / Меню']},
   {id:'круговорота_воды',verified:true,starter:true,n:'Круговорота воды',rubrik:true,p:['Вода с землей-грязь','Болото / Ключ / Родник','Река','Поверхность водоема','Пар','Облако','Холод / переход-перенос','Гроза / Молния','Дождь','Касание воды','Стекание','Лужа (брызгает-стреляет)']},
-  {id:'atm_yavl',verified:true,starter:true,n:'Атмосферных явлений',rubrik:true,th:'Активная атмосфера (свет, гром, осадки)',bh:'Тихие отложения и приземные явления',lh:'Влага и осадки (нарастание)',rh:'Свет, ветер и электричество (спад)',p:['Роса','Иней','Изморозь / Гололёд','Дождь / Морось','Снег','Град','Гроза','Радуга','Гало / Мираж','Буря / Ураган','Смерч / Шквал','Полярное сияние']},
+  {id:'atm_yavl',verified:true,starter:true,n:'Видимых атмосферных явлений',rubrik:true,th:'Активная атмосфера (свет, гром, осадки)',bh:'Тихие отложения и приземные явления',lh:'Влага и осадки (нарастание)',rh:'Свет, ветер и электричество (спад)',p:['Роса','Иней','Изморозь / Гололёд','Дождь / Морось','Снег','Град','Гроза','Радуга','Гало / Мираж','Буря / Ураган','Смерч / Шквал','Полярное сияние']},
+  {id:'atm_skrytyh',verified:true,starter:true,n:'Скрытых атмосферных явлений',rubrik:true,th:'Активные процессы (электричество, оптика, циркуляция)',bh:'Фоновые процессы (охлаждение, давление)',lh:'Нарастание плотности и накопления',rh:'Спад через излучение и магнитное поле',p:['Радиационное Охлаждение','Сублимация','Адгезия Влаги','Конденсация','Кристаллизация','Конвекция','Электрический Разряд','Преломление Света','Атмосферное Давление','Циклогенез','Торнадогенез','Магнитосферное Возбуждение']},
+  {id:'переговоров',verified:true,starter:true,n:'Переговоров',rubrik:true,th:'Игра А↔В (резонанс или десонанс)',bh:'Информационное поле и итог',lh:'Нарастание контакта (Хочу → Контр)',rh:'Спад через понимание или срыв',p:['Информационное Поле','Хочу / Не Хочу','Привлечь и Заинтересовать','Открытие Позиции','Резонирование','Ограничения и Контр','Противостояние А↔В','Обоюдное Понимание','Недопонимание','Десонанс / Срыв','Точечный Удар','Итог: Успех / Неудача']},
   {id:'печи',verified:true,n:'Печи',rubrik:true,p:['Каналы подачи','Колосники','Объем топки (духовой шкаф)','огнеупорная пластина','Лабиринт (воздуховоды в печи)','Камора (расшир.камера)','Труба','Догорел','Отапливаемый объем','Теплоупор','Кондиционер','Дверцы-заслоник / форточки']},
   {id:'дерева',verified:true,n:'Дерева',rubrik:true,p:['Корни','Косточка','Плод','Клетка (Рыльце)','Домен (Столбик)','Бахрома (Пестик)','Лепесток','Билет','Лист','Ветка','Ствол','Пень']},
   {id:'заода_предприятия',verified:true,n:'Завода',rubrik:true,p:['Рекламный отдел','Отдел Кадров / Закупок / Снабжения','Рабочие','Плановый отдел (Нач.Цеха)','Констр.Бюро / Изобретатели / Чертежники','Главный инж. / Склад / Транспортный отдел','Директор / Управа / Администрация','Хозяин / ОТК / СБ','Охрана Предприятия','Бухгалтерия','Юр. ОТдел','Готовая продукция / Отд.Сбыта']},
@@ -60,7 +85,7 @@ const T=[
   {id:'месяцев',verified:true,n:'Месяцев',rubrik:true,p:['Январь / Стужень','Февраль / Лютый','Март / березень','Апрель / Квитень','Май / Маженья','Июнь / Травень','Июль / Червень-Липень','Август','Сентябрь / Вересень','Октябрь / Ружник / Кострижник','Ноябрь / Листопад','Декабрь / Грудень / Грубжень']},
   {id:'головы',verified:true,n:'Головы',rubrik:true,p:['Шея','Грызло','Рот','Нос','Глаза','Лоб','Темя','Макушка','Коса','Ухо','Загивок','Задняя часть шеи']},
   {id:'тела',verified:true,n:'Тела',rubrik:true,p:['Ступни','Половые органы','Живот','Грудь','Лицо','Лоб','Волосы','Макушка / Внеш. коса','Внутр.сторона косы','Шея плечи','Спина','Ягодицы']},
-  {id:'фаз_жизни',verified:true,starter:true,n:'12 Фаз Жизни',rubrik:true,p:['Половой Акт','Зачатие','Беременность','Рождение','Обучение','Определение','Работа и семья','Конец работы','Учитель','Смерть','Скорбь','Памятник'],th:'Зрелость',bh:'Память / Зачатие нового'},
+  {id:'фаз_жизни',verified:true,starter:true,n:'Жизни',rubrik:true,p:['Половой Акт','Зачатие','Беременность','Рождение','Обучение','Определение','Работа и семья','Конец работы','Учитель','Смерть','Скорбь','Памятник'],th:'Зрелость',bh:'Память / Зачатие нового'},
   {id:'линий_руки',verified:true,n:'13 Линий Руки',rubrik:true,p:['Печь','Кольцо','Цепь','Луч','Запястье','Пройма / Ноготь','Костыка','Печатка','Колечко','Цепочка','Лучик','Рука']},
   {id:'внут.органов',verified:true,n:'Внутренних органов',rubrik:true,p:['Под носом / Нюхаем','Между губами и зубами','Ротовая полость','Полость глотки','Пищевод','Желудок','12-перстная кишка','Тонкий кишечник','Слепая кишка','Ободочная кишка','Сигм.кишка','Прямая кишка']},
     {id:'kostra',n:'Костра',p:['Стопка дров','Искра / Идея','Первый огонь','Шатун','Разгорается','Разгорелся','Горит','Догорел','Тухнет','Последний огонь','Раскалённые угли','Зола']},
@@ -137,7 +162,7 @@ const FL=[
    related:['support','rhythm','mb_zodiac']},
 ];
 
-function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,starRotation,rotationSpeed}){
+function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,starRotation,rotationSpeed,showComposition}){
   const isMob=typeof window!=="undefined"&&window.innerWidth<=768;
   const p=yy.p||[];
   const S=900,W=700,cx=S/2,cy=W/2,R=isMob?215:280,nr=isMob?28:32,lr=(isMob?215:280)+(isMob?62:70);
@@ -171,6 +196,8 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
   };
   const pts = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,R))
   const lps = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,lr))
+  // При вращении подписи отодвигаем дальше — иначе наезжают на полки при динамичных переходах
+  const lpsRot = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,lr+15))
   const olps = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,lr+24))
   const ilps = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,lr-16))
   // Static (без rotation) — для wrap-g механик: error89, scorpio_spider, mobius
@@ -180,12 +207,12 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
   const no=i=>(hl&&!hl.includes(i))?.15:1;
   const anch=i=>{const x=lps[i].x;return Math.abs(x-cx)<25?'middle':x<cx?'end':'start';};
   return(
-    <svg viewBox={mob?`40 -10 820 720`:`0 0 ${S} ${W}`} preserveAspectRatio="xMidYMid meet" style={{width:'100%',height:'100%',display:'block',overflow:'visible'}}>
+    <svg viewBox={mob?`40 -10 820 720`:`-80 -50 1060 800`} preserveAspectRatio="xMidYMid meet" style={{width:'100%',height:'100%',display:'block'}}>
       <defs>
         <filter id="gw"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
         <filter id="ns"><feDropShadow dx="0" dy="1" stdDeviation="2.5" floodOpacity=".07"/></filter>
       </defs>
-      <rect width={S} height={W} fill="#fff"/>
+      <rect x="-80" y="-50" width="1060" height="800" fill="#fff"/>
       <g className="yasna-wheel">
       {/* Decorative outer ring */}
       <circle cx={cx} cy={cy} r={R+10} fill="none" stroke="#ececee" strokeWidth=".5"/>
@@ -382,6 +409,42 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
       {af.includes('halves')&&yy.bh&&<text x={cx} y={W-22} textAnchor="middle" fill="rgba(0,0,0,.5)" fontSize="13" fontFamily="var(--sans)" fontWeight="600">{yy.bh}</text>}
       {af.includes('halves')&&yy.lh&&<text x={20} y={cy} textAnchor="middle" fill="rgba(0,0,0,.5)" fontSize="13" fontFamily="var(--sans)" fontWeight="600" transform={`rotate(-90 20 ${cy})`}>{yy.lh}</text>}
       {af.includes('halves')&&yy.rh&&<text x={S-20} y={cy} textAnchor="middle" fill="rgba(0,0,0,.5)" fontSize="13" fontFamily="var(--sans)" fontWeight="600" transform={`rotate(90 ${S-20} ${cy})`}>{yy.rh}</text>}
+      {/* Composition — мини-пироги внутри круга при showComposition */}
+      {showComposition && pts.map((pt,i)=>{
+        const r=COMP[i]; const total=100;
+        // Pie center: между центром и Полкой на радиусе 0.62R
+        const dx=(pt.x-cx)/R, dy=(pt.y-cy)/R;
+        const px=Math.round((cx+dx*R*0.62)*2)/2;
+        const py=Math.round((cy+dy*R*0.62)*2)/2;
+        const pr=26;        // радиус пирога
+        const ph=pr*0.46;   // дырка по центру (donut hole)
+        const dim = hl&&!hl.includes(i)?.18:1;
+        let aStart=-Math.PI/2; // старт сверху
+        const segs=r.map((pct,j)=>{
+          const aSeg=(pct/total)*2*Math.PI;
+          const x1=px+pr*Math.cos(aStart), y1=py+pr*Math.sin(aStart);
+          const aEnd=aStart+aSeg;
+          const x2=px+pr*Math.cos(aEnd), y2=py+pr*Math.sin(aEnd);
+          const large=aSeg>Math.PI?1:0;
+          const d=`M ${px} ${py} L ${x1} ${y1} A ${pr} ${pr} 0 ${large} 1 ${x2} ${y2} Z`;
+          const seg=<path key={j} d={d} fill={COMP_COLORS[j]} stroke="#fff" strokeWidth="1.5" opacity={pct>=50?1:.85}>
+            <title>{`${COMP_NAMES[j]}: ${pct}%`}</title>
+          </path>;
+          aStart=aEnd;
+          return seg;
+        });
+        // Find dominant prana for label color
+        const maxIdx=r.indexOf(Math.max(...r));
+        return <g key={`comp${i}`} style={{pointerEvents:'none',opacity:dim,transition:'opacity .25s'}}>
+          {segs}
+          {/* центральный круг (donut hole) */}
+          <circle cx={px} cy={py} r={ph} fill="#fff" stroke="rgba(0,0,0,.08)" strokeWidth=".8"/>
+          {/* номер Полки в центре пирога */}
+          <text x={px} y={py+1.5} textAnchor="middle" dominantBaseline="middle" fontSize="13" fontWeight="700" fill={COMP_COLORS[maxIdx]} fontFamily="var(--sans)">{i}</text>
+          {/* доминирующая прана % под номером */}
+          <text x={px} y={py+ph+8} textAnchor="middle" fontSize="9" fontWeight="600" fill={COMP_COLORS[maxIdx]} fontFamily="var(--sans)">{r[maxIdx]}%</text>
+        </g>;
+      })}
       {pts.map((pt,i)=>{const isSel=sel===i,c=nc(i),o=no(i);const lbl=p[i]||'';const tipText=lbl?`Полка ${i}: ${lbl}`:`Полка ${i}`;return(
         <g key={i} onClick={()=>{if(af.includes('mb_yasna2')&&drill==null&&onDrill){onDrill(i);}else{onSel(sel===i?null:i);}}} style={{cursor:'pointer'}}>
           <title>{tipText}</title>
@@ -390,7 +453,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
           <circle cx={pt.x} cy={pt.y} r={isSel?nr+3:nr} fill="#fff" stroke={c} strokeWidth={isSel?3.2:2.2} opacity={o} filter={isSel?"url(#gw)":"url(#ns)"} style={{pointerEvents:'none',transition:'r 150ms ease'}}/>
           <text x={pt.x} y={pt.y+(af.includes('mb_zodiac')?7:6)} textAnchor="middle" fill={af.includes('mb_zodiac')?'#7c3aed':(hl&&!hl.includes(i))?'#c0c0c5':'#1f2937'} fontSize={af.includes('mb_zodiac')?(isMob?(isSel?"24":"22"):(isSel?"28":"26")):(isMob?(isSel?"22":"20"):(isSel?"26":"24"))} fontWeight={af.includes('mb_zodiac')?"600":"700"} fontFamily="var(--sans)" opacity={o} style={{pointerEvents:'none'}}>{af.includes('mb_zodiac')?['♑','♒','♓','♈','♉','♊','♋','♌','♍','♎','♏','♐'][i]:i}</text>
         </g>);})}
-      {!overlay&&lps.map((pt,i)=>{const lOrig=p[i]||'';if(!lOrig)return null;let dy=5;if(!starRotation){if(i===0)dy=16;if(i===6)dy=-7;}
+      {!overlay&&(starRotation?lpsRot:lps).map((pt,i)=>{const lOrig=p[i]||'';if(!lOrig)return null;let dy=5;if(!starRotation){if(i===0)dy=16;if(i===6)dy=-7;}
         // Trim incomplete trailing tokens (e.g. '("кита' or '(без свинст') — likely data-import artifacts
         let l=lOrig.replace(/\s*\([^)]*$/,'').replace(/\s*\/\s*$/,'').trim();
         // Cap each line to fit the canvas
@@ -426,30 +489,95 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
       </>}
       {/* M-Г-066 Ясна² Drill-down: клик по полке открывает её внутреннюю Ясну */}
       {drill!=null&&(()=>{
-        const dpt=pts[drill];
         const dCol='#a21caf';
-        const subR=R*0.55;
-        const subNr=18;
-        return<g style={{animation:'fadeIn .55s cubic-bezier(.16,1,.3,1)'}}>
-          <rect x="0" y="0" width="900" height="700" fill="rgba(255,255,255,.7)"/>
-          <line x1={dpt.x} y1={dpt.y} x2={cx} y2={cy} stroke={dCol} strokeWidth="1.5" strokeDasharray="4 4" opacity=".5"/>
-          <circle cx={cx} cy={cy} r={subR+18} fill="none" stroke={dCol} strokeWidth=".8" strokeDasharray="3 4" opacity=".6"/>
-          <circle cx={cx} cy={cy} r={subR} fill="rgba(162,28,175,.04)" stroke={dCol} strokeWidth="1.4"/>
+        // Карточка занимает почти весь viewBox 900×700
+        const cardX=10, cardY=8, cardW=S-20, cardH=W-16;
+        // Центрируем sub-Ясну между низом шапки (cardY+135) и низом карточки
+        const subCenterY=Math.round((cardY+135+cardY+cardH-20)/2);
+        // Размеры подобраны так, чтобы длинные подписи (subLr+labelWidth) умещались внутри карточки cardX..cardX+cardW
+        const subR=isMob?170:200;
+        const subNr=isMob?28:32;
+        const subLr=subR+(isMob?52:58);
+        const SUB_PRANA_COLOR=['#C0943A','#4090D8','#06B6D4','#F06838','#C0943A','#4090D8','#06B6D4','#F06838','#C0943A','#4090D8','#06B6D4','#F06838'];
+        return<g className="drill-popup" style={{animation:'drillPopup .42s cubic-bezier(.16,1,.3,1)',transformOrigin:`${cx}px ${cy}px`}}>
+          {/* Карточка-попап — занимает почти весь viewBox, без backdrop */}
+          <rect x={cardX} y={cardY} width={cardW} height={cardH} rx="24" ry="24"
+                fill="#ffffff" stroke="rgba(162,28,175,.22)" strokeWidth="2"
+                style={{filter:'drop-shadow(0 24px 56px rgba(15,23,42,.32))'}}
+                />
+          {/* Декоративная верхняя полоса с градиентом */}
+          <defs>
+            <linearGradient id="drillHdrGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stopColor="#fdf4ff"/>
+              <stop offset="0.5" stopColor="#ede1f8"/>
+              <stop offset="1" stopColor="#fdf4ff"/>
+            </linearGradient>
+          </defs>
+          <path d={`M ${cardX} ${cardY+24} A 24 24 0 0 1 ${cardX+24} ${cardY} L ${cardX+cardW-24} ${cardY} A 24 24 0 0 1 ${cardX+cardW} ${cardY+24} L ${cardX+cardW} ${cardY+92} L ${cardX} ${cardY+92} Z`} fill="url(#drillHdrGrad)"/>
+          {/* Бэйдж */}
+          <rect x={cx-100} y={cardY+22} width="200" height="26" rx="13" fill="#a21caf"/>
+          <text x={cx} y={cardY+39} textAnchor="middle" fontSize="11" fontWeight="700" letterSpacing="2.4" fill="#fff" fontFamily="var(--sans)">ВЛОЖЕННАЯ ЯСНА²</text>
+          {/* Главный заголовок попапа */}
+          <text x={cx} y={cardY+76} textAnchor="middle" fontSize={isMob?26:32} fontWeight="700" fill="#1d1d1f" fontFamily="var(--serif)">{(p[drill]||`Полка ${drill}`)}</text>
+          {/* Подзаголовок-путь */}
+          <text x={cx} y={cardY+102} textAnchor="middle" fontSize="12" fill="#86868b" fontFamily="var(--sans)">{(yy.name.length>26?yy.name.slice(0,24)+'…':yy.name)} · Полка {drill}</text>
+          {/* Декоративный разделитель */}
+          <line x1={cx-100} y1={cardY+118} x2={cx+100} y2={cardY+118} stroke="rgba(162,28,175,.22)" strokeWidth="1"/>
+          {/* Close-кнопка ✕ в правом верхнем углу */}
+          <g style={{cursor:'pointer'}} onClick={()=>onDrill&&onDrill(null)}>
+            <circle cx={cardX+cardW-32} cy={cardY+32} r="22" fill="#fff" stroke="rgba(162,28,175,.35)" strokeWidth="1.5"/>
+            <text x={cardX+cardW-32} y={cardY+39} textAnchor="middle" fontSize="22" fontWeight="500" fill="#a21caf" fontFamily="var(--sans)" style={{userSelect:'none'}}>×</text>
+          </g>
+          {/* Внешнее кольцо sub-Ясны */}
+          <circle cx={cx} cy={subCenterY} r={subR} fill="none" stroke={dCol} strokeWidth="1.2" strokeDasharray="5 7" opacity=".35"/>
+          {/* Внутреннее декоративное кольцо */}
+          <circle cx={cx} cy={subCenterY} r={subR*0.55} fill="rgba(162,28,175,.03)" stroke={dCol} strokeWidth=".8" strokeDasharray="2 6" opacity=".35"/>
+          {/* Sub-полки */}
           {Array.from({length:12},(_,j)=>{
             const sa=(270-j*30)*Math.PI/180;
-            const sx=cx+subR*Math.cos(sa);
-            const sy=cy-subR*Math.sin(sa);
+            const sx=Math.round((cx+subR*Math.cos(sa))*2)/2;
+            const sy=Math.round((subCenterY-subR*Math.sin(sa))*2)/2;
             const subName=(subPolki&&subPolki[j])||'';
+            const pranaColor=SUB_PRANA_COLOR[j];
+            // Top (j=6) и Bottom (j=0) sub-полки: лейбл ВНУТРИ ring (safe-zone от шапки и от низа карточки)
+            const isTop=j===6, isBot=j===0;
+            let lx, ly, anchor;
+            if(isTop){
+              lx=sx; ly=sy+subNr+(isMob?22:26); anchor='middle';
+            } else if(isBot){
+              lx=sx; ly=sy-subNr-(isMob?14:18); anchor='middle';
+            } else {
+              lx=Math.round((cx+subLr*Math.cos(sa))*2)/2;
+              ly=Math.round((subCenterY-subLr*Math.sin(sa))*2)/2;
+              anchor=Math.abs(lx-cx)<25?'middle':lx<cx?'end':'start';
+            }
+            // Длинные подписи разбиваем на 2 строки
+            let parts=null;
+            if(subName.length>13){
+              if(subName.includes(' ')){const w=subName.split(' ');const m=Math.ceil(w.length/2);parts=[w.slice(0,m).join(' '),w.slice(m).join(' ')];}
+              else if(subName.includes('/')){const si=subName.indexOf('/');parts=[subName.slice(0,si).trim(),subName.slice(si+1).trim()];}
+            }
             return<g key={`sub${j}`}>
-              <circle cx={sx} cy={sy} r={subNr} fill="#fff" stroke={dCol} strokeWidth="1.6"/>
-              <text x={sx} y={sy+(subName?-2:5)} textAnchor="middle" fontSize="12" fontWeight="700" fill={dCol}>{j}</text>
-              {subName&&<text x={sx} y={sy+24} textAnchor="middle" fontSize="9.5" fill="#581c87" fontWeight="500">{subName.length>14?subName.slice(0,13)+'…':subName}</text>}
+              {/* Кружок sub-полки */}
+              <circle cx={sx} cy={sy} r={subNr+3} fill="rgba(255,255,255,.95)" stroke="rgba(162,28,175,.15)" strokeWidth="0.8"/>
+              <circle cx={sx} cy={sy} r={subNr} fill="#fff" stroke={pranaColor} strokeWidth={isMob?2.8:3}/>
+              {/* Цифра sub-полки */}
+              <text x={sx} y={sy+(isMob?8:9)} textAnchor="middle" fontSize={isMob?28:32} fontWeight="700" fill="#1f2937" fontFamily="var(--sans)">{j}</text>
+              {/* Подпись sub-полки — снаружи кольца */}
+              {subName && parts ? (
+                <text x={lx} y={ly-9} textAnchor={anchor} fontSize={isMob?17:20} fill="#1d1d1f" fontWeight="600" fontFamily="var(--serif)">
+                  <tspan x={lx} dy="0">{parts[0]}</tspan>
+                  <tspan x={lx} dy={isMob?20:24}>{parts[1]}</tspan>
+                </text>
+              ) : subName ? (
+                <text x={lx} y={ly+7} textAnchor={anchor} fontSize={isMob?17:20} fill="#1d1d1f" fontWeight="600" fontFamily="var(--serif)">{subName}</text>
+              ) : null}
             </g>;
           })}
-          <rect x={cx-95} y={cy-22} width="190" height="44" rx="10" fill="#fff" stroke={dCol} strokeWidth="1.4"/>
-          <text x={cx} y={cy-6} textAnchor="middle" fontSize="10" fontWeight="700" fill={dCol} letterSpacing="1.5">ПОЛКА {drill}</text>
-          <text x={cx} y={cy+13} textAnchor="middle" fontSize="13" fontWeight="700" fill="#581c87">{(p[drill]||'—').slice(0,22)}</text>
-
+          {/* Центральный декор: круглый якорь */}
+          <circle cx={cx} cy={subCenterY} r="14" fill="#fff" stroke={dCol} strokeWidth="1.5" opacity=".4"/>
+          <circle cx={cx} cy={subCenterY} r="6" fill={dCol} opacity=".25"/>
+          <circle cx={cx} cy={subCenterY} r="3" fill={dCol}/>
         </g>;
       })()}
     </g>
@@ -821,9 +949,9 @@ function OverlayLegend({y,overlay,onClear}){
 function Editor({y,setY,onClose}){
   return(
     <div className='editor-panel' style={{position:'fixed',top:0,right:0,width:370,height:'100vh',background:'rgba(255,255,255,.98)',borderLeft:'1px solid rgba(0,0,0,.08)',zIndex:50,display:'flex',flexDirection:'column'}}>
-      <div style={{padding:'14px 18px',borderBottom:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+      <div style={{padding:'14px 18px',borderBottom:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center',flexShrink:0}}>
         <h3 style={{fontFamily:'var(--serif)',fontSize:18,color:'#1d1d1f',fontWeight:600}}>Редактор</h3>
-        <button onClick={onClose} style={{fontSize:18,padding:'4px 8px'}}>✕</button>
+        <span style={{fontSize:11,color:'#34c759',fontWeight:500,letterSpacing:.3}}>● автосохранение</span>
       </div>
       <div style={{padding:'12px 18px',overflowY:'auto',flex:1}}>
         <input value={y.name} onChange={e=>setY({...y,name:e.target.value})} placeholder="Название"
@@ -841,6 +969,9 @@ function Editor({y,setY,onClose}){
               style={{flex:1,background:'var(--bg)',border:'1px solid var(--border)',color:'#1d1d1f',padding:'7px 10px',borderRadius:5,fontSize:12,outline:'none'}}
               onFocus={e=>e.target.style.borderColor=c} onBlur={e=>e.target.style.borderColor='var(--border)'}/>
           </div>);})}
+      </div>
+      <div style={{padding:'12px 18px',borderTop:'1px solid var(--border)',display:'flex',gap:8,flexShrink:0,background:'#fafafa'}}>
+        <button onClick={onClose} style={{flex:1,padding:'11px 14px',borderRadius:9,fontSize:14,fontWeight:600,background:'#0071e3',color:'#fff',border:'none',cursor:'pointer',boxShadow:'0 1px 3px rgba(0,113,227,.2)'}}>✓ Сохранить и закрыть</button>
       </div>
     </div>);
 }
