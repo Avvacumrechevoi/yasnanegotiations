@@ -783,6 +783,7 @@ function App(){
   const[showTour,setShowTour]=useState(false);
   const[helpOpen,setHelpOpen]=useState(false);
   const[showComposition,setShowComposition]=useState(false);
+  const[showDuel,setShowDuel]=useState(false);
   const[panelCollapsed,setPanelCollapsed]=useState(false);
   const[activeLesson,setActiveLesson]=useState(null);
   const[completedLessons,setCompletedLessons]=useState([]);
@@ -827,6 +828,12 @@ function App(){
         <button onClick={()=>setLessonPicker(true)} title='Уроки по методу Ясны' style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 14px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:5}}>
           <span style={{fontSize:14}}>🎓</span>
           <span>Уроки</span>
+        </button>
+        {/* Дуэль — 1v1 онлайн (P0 preview) */}
+        <button onClick={()=>setShowDuel(true)} title='Дуэль 1v1: гонка за Опорным Крестом' style={{border:'1px solid rgba(212,165,116,.45)',color:'#7a5e25',padding:'7px 14px',borderRadius:8,fontSize:13,background:'rgba(212,165,116,.08)',cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:5}}>
+          <span style={{fontSize:14}}>⚔️</span>
+          <span>Дуэль</span>
+          <span style={{fontSize:9,padding:'1px 5px',background:'#d4a574',color:'#fff',borderRadius:4,letterSpacing:.5,marginLeft:2}}>NEW</span>
         </button>
         {/* Гид по Ясне — secondary outline (если зарегистрирован для текущей Ясны) */}
         {y && window.YasnaTours && window.YasnaTours.has(y.name) && <button onClick={()=>setShowTour(true)} title='Интерактивный гид с пояснением каждой механики' style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 14px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:5}}><span style={{fontSize:11,color:'#a21caf'}}>✦</span><span>Гид</span></button>}
@@ -1022,6 +1029,7 @@ function App(){
       {ed&&<Editor y={y} setY={setY} onClose={()=>setEd(false)}/>}
       {showOverlayPicker&&<OverlayPicker currentName={y.name} overlay={overlay} onSelect={setOverlay} onClose={()=>setShowOverlayPicker(false)}/>}
       {verif&&<Verification y={y} vs={vState} setVs={setVState} onClose={()=>setVerif(false)}/>}
+      {showDuel&&window.DuelApp&&<window.DuelApp onClose={()=>setShowDuel(false)}/>}
       {instr&&<Instruction onClose={()=>setInstr(false)}/>}
       {lessonPicker&&<LessonPicker onSelectLesson={(id)=>{setActiveLesson(id);setLessonPicker(false);}} onClose={()=>setLessonPicker(false)} completedLessons={completedLessons}/>}
       {showTour&&window.YasnaTours&&window.YasnaTours.has(y.name)&&(()=>{
