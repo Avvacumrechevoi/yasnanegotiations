@@ -361,14 +361,14 @@
               {highlight && highlight.length > 0 && highlight.length < 12 && (() => {
                 const isMobile = typeof window!=='undefined' && window.innerWidth<=768;
                 const R = isMobile ? 215 : 280; // совпадает со Star
-                const innerR = isMobile ? 56 : 72; // прозрачная зона
-                const glowR  = isMobile ? 78 : 95; // полупрозрачная зона свечения
+                const innerR = isMobile ? 40 : 60; // прозрачная зона (~1.4× полки)
+                const glowR  = isMobile ? 58 : 80; // полупрозрачная зона свечения
                 const maskId = `spot-${stepIdx}-${(highlight||[]).join(',')}`;
                 return (
-                  <svg style={{position:'absolute',inset:0,width:'100%',height:'100%',pointerEvents:'none',transition:'opacity .5s ease'}} viewBox="-80 -50 1060 800" preserveAspectRatio="xMidYMid meet">
+                  <svg style={{position:'absolute',inset:0,width:'100%',height:'100%',pointerEvents:'none',transition:'opacity .5s ease'}} viewBox={isMobile?"40 -10 820 720":"-80 -50 1060 800"} preserveAspectRatio="xMidYMid meet">
                     <defs>
                       <mask id={maskId}>
-                        <rect x="-80" y="-50" width="1060" height="800" fill="white"/>
+                        <rect x={isMobile?40:-80} y={isMobile?-10:-50} width={isMobile?820:1060} height={isMobile?720:800} fill="white"/>
                         {highlight.map((idx,k)=>{
                           const a = (270 - idx*30) * Math.PI / 180;
                           const x = 450 + R * Math.cos(a);
@@ -380,7 +380,7 @@
                         })}
                       </mask>
                     </defs>
-                    <rect x="-80" y="-50" width="1060" height="800" fill="rgba(8,10,18,.45)" mask={`url(#${maskId})`} style={{transition:'all .5s ease',animation:'spotFade .5s ease'}}/>
+                    <rect x={isMobile?40:-80} y={isMobile?-10:-50} width={isMobile?820:1060} height={isMobile?720:800} fill="rgba(8,10,18,.45)" mask={`url(#${maskId})`} style={{transition:'all .5s ease',animation:'spotFade .5s ease'}}/>
                   </svg>
                 );
               })()}
@@ -620,8 +620,10 @@
             }
 
             /* H1/H2 — компактнее */
-            .tour-panel h1 { font-size: 24px !important; line-height: 1.2 !important; word-break: keep-all; hyphens: none; }
-            .tour-panel h2 { font-size: 22px !important; line-height: 1.22 !important; word-break: keep-all; hyphens: none; }
+            .tour-panel h1 { font-size: 20px !important; line-height: 1.2 !important; word-break: keep-all; hyphens: none; margin-bottom: 8px !important; }
+            .tour-panel h2 { font-size: 18px !important; line-height: 1.22 !important; word-break: keep-all; hyphens: none; margin-bottom: 6px !important; }
+            .tour-panel p, .tour-panel div { font-size: 14px !important; line-height: 1.45 !important; }
+            .tour-panel { padding: 16px 14px 100px !important; }
 
             /* Шапка гида: убрать лишние элементы */
             .tour-header-brand-text { display: none !important; }
