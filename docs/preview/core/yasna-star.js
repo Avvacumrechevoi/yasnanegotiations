@@ -497,7 +497,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
         const SUB_PRANA_COLOR=['#C0943A','#4090D8','#06B6D4','#F06838','#C0943A','#4090D8','#06B6D4','#F06838','#C0943A','#4090D8','#06B6D4','#F06838'];
         return<g style={{animation:'fadeIn .55s cubic-bezier(.16,1,.3,1)'}}>
           {/* Затемнение всего фона — выводит drill-down на передний план */}
-          <rect x="-200" y="-200" width="1300" height="1100" fill="rgba(255,255,255,.92)"/>
+          <rect x="-300" y="-300" width="1500" height="1300" fill="#ffffff"/>
           {/* Внешнее кольцо */}
           <circle cx={cx} cy={cy} r={subR} fill="none" stroke={dCol} strokeWidth="1" strokeDasharray="4 6" opacity=".5"/>
           {/* Внутреннее декоративное кольцо */}
