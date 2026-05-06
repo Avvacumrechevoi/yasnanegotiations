@@ -594,8 +594,8 @@
             .tour-body { flex-direction: column !important; }
 
             /* Канвас сверху, панель снизу. Канвас ~45vh, панель занимает остаток */
-            .tour-canvas-mobile { flex: 0 0 45vh !important; padding: 12px 12px 6px !important; }
-            .tour-diagram-card { aspect-ratio: 1 / 1 !important; max-width: 100% !important; max-height: 100% !important; border-radius: 14px !important; }
+            .tour-canvas-mobile { flex: 0 0 38vh !important; padding: 8px 10px 4px !important; }
+            .tour-diagram-card { aspect-ratio: auto !important; width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100% !important; border-radius: 12px !important; }
 
             /* Текстовая панель: full-width, занимает остаток высоты, scroll */
             .tour-panel {
