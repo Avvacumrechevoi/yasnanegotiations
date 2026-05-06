@@ -182,20 +182,22 @@
             const last = entries[entries.length-1];
             const isMobile = window.innerWidth <= 768;
             if(isMobile){
-              // Mobile: вся .tour-body - один скролл-контейнер
+              // Mobile: вся .tour-body - один скролл-контейнер с sticky-диаграммой сверху
               const scrollParent = panel.closest('.tour-body') || document.scrollingElement;
               if(scrollParent && scrollParent.scrollHeight > scrollParent.clientHeight){
                 const elRect = last.getBoundingClientRect();
                 const parentRect = scrollParent.getBoundingClientRect();
-                // Подскроллим так, чтобы bottom элемента был с отступом 100px от низа viewport
-                const elBottomInScroll = (elRect.bottom - parentRect.top) + scrollParent.scrollTop;
-                const targetScroll = Math.max(0, elBottomInScroll - scrollParent.clientHeight + 100);
+                // Высота sticky-диаграммы (.tour-canvas-mobile)
+                const canvas = scrollParent.querySelector('.tour-canvas-mobile');
+                const stickyOffset = canvas ? canvas.getBoundingClientRect().height : 0;
+                // Цель: top нового элемента под sticky-диаграмму с зазором 16px
+                const elTopInScroll = (elRect.top - parentRect.top) + scrollParent.scrollTop;
+                const targetScroll = Math.max(0, elTopInScroll - stickyOffset - 16);
                 if(Math.abs(targetScroll - scrollParent.scrollTop) > 4){
                   scrollParent.scrollTo({ top: targetScroll, behavior: 'smooth' });
                 }
               } else {
-                // Фолбэк через scrollIntoView если контейнер не скроллится
-                last.scrollIntoView({ behavior:'smooth', block:'center' });
+                last.scrollIntoView({ behavior:'smooth', block:'start' });
               }
             } else {
               // Desktop: панель имеет свой scroll
