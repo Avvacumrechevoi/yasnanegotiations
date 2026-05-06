@@ -172,6 +172,8 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
   };
   const pts = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,R))
   const lps = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,lr))
+  // При вращении подписи отодвигаем дальше — иначе наезжают на полки при динамичных переходах
+  const lpsRot = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,lr+30))
   const olps = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,lr+24))
   const ilps = Array.from({length:12},(_,i)=>xyRot(i,cx,cy,lr-16))
   // Static (без rotation) — для wrap-g механик: error89, scorpio_spider, mobius
@@ -391,7 +393,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
           <circle cx={pt.x} cy={pt.y} r={isSel?nr+3:nr} fill="#fff" stroke={c} strokeWidth={isSel?3.2:2.2} opacity={o} filter={isSel?"url(#gw)":"url(#ns)"} style={{pointerEvents:'none',transition:'r 150ms ease'}}/>
           <text x={pt.x} y={pt.y+(af.includes('mb_zodiac')?7:6)} textAnchor="middle" fill={af.includes('mb_zodiac')?'#7c3aed':(hl&&!hl.includes(i))?'#c0c0c5':'#1f2937'} fontSize={af.includes('mb_zodiac')?(isMob?(isSel?"24":"22"):(isSel?"28":"26")):(isMob?(isSel?"22":"20"):(isSel?"26":"24"))} fontWeight={af.includes('mb_zodiac')?"600":"700"} fontFamily="var(--sans)" opacity={o} style={{pointerEvents:'none'}}>{af.includes('mb_zodiac')?['♑','♒','♓','♈','♉','♊','♋','♌','♍','♎','♏','♐'][i]:i}</text>
         </g>);})}
-      {!overlay&&lps.map((pt,i)=>{const lOrig=p[i]||'';if(!lOrig)return null;let dy=5;if(!starRotation){if(i===0)dy=16;if(i===6)dy=-7;}
+      {!overlay&&(starRotation?lpsRot:lps).map((pt,i)=>{const lOrig=p[i]||'';if(!lOrig)return null;let dy=5;if(!starRotation){if(i===0)dy=16;if(i===6)dy=-7;}
         // Trim incomplete trailing tokens (e.g. '("кита' or '(без свинст') — likely data-import artifacts
         let l=lOrig.replace(/\s*\([^)]*$/,'').replace(/\s*\/\s*$/,'').trim();
         // Cap each line to fit the canvas
