@@ -490,23 +490,22 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
       {/* M-Г-066 Ясна² Drill-down: клик по полке открывает её внутреннюю Ясну */}
       {drill!=null&&(()=>{
         const dCol='#a21caf';
-        const cardW=isMob?880:1180;
-        const cardH=isMob?660:880;
-        const cardX=cx-cardW/2;
-        const cardY=cy-cardH/2;
-        // Safe-zone: header сверху ~150px, sub-Ясна — ниже
-        const subCenterY=cy+(isMob?80:120);
-        const subR=isMob?240:300;
-        const subNr=isMob?32:38;
-        const subLr=subR+(isMob?56:64);
+        // Карточка вписана в viewBox 900×700 — не вылезает за границы SVG
+        const cardX=20, cardY=15, cardW=S-40, cardH=W-30;
+        // Центрируем sub-Ясну между низом шапки (cardY+118) и низом карточки (cardY+cardH)
+        const subCenterY=Math.round((cardY+118+cardY+cardH)/2); // = середина свободной зоны
+        const subR=isMob?180:215;
+        const subNr=isMob?28:32;
+        const subLr=subR+(isMob?52:60);
         const SUB_PRANA_COLOR=['#C0943A','#4090D8','#06B6D4','#F06838','#C0943A','#4090D8','#06B6D4','#F06838','#C0943A','#4090D8','#06B6D4','#F06838'];
         return<g className="drill-popup" style={{animation:'drillPopup .42s cubic-bezier(.16,1,.3,1)',transformOrigin:`${cx}px ${cy}px`}}>
-          {/* Backdrop — полностью затемняет фон */}
-          <rect x="-500" y="-500" width="1900" height="1700" fill="rgba(15,23,42,.55)"/>
-          {/* Карточка-попап — БОЛЬШАЯ, на всю канву */}
-          <rect x={cardX} y={cardY} width={cardW} height={cardH} rx="32" ry="32"
+          {/* Backdrop — кликабельный, закрывает попап */}
+          <rect x="-500" y="-500" width="1900" height="1700" fill="rgba(15,23,42,.55)" style={{cursor:'pointer'}} onClick={()=>onDrill&&onDrill(null)}/>
+          {/* Карточка-попап — вписана в viewBox */}
+          <rect x={cardX} y={cardY} width={cardW} height={cardH} rx="24" ry="24"
                 fill="#ffffff" stroke="rgba(162,28,175,.22)" strokeWidth="2"
-                style={{filter:'drop-shadow(0 28px 64px rgba(15,23,42,.32))'}}/>
+                style={{filter:'drop-shadow(0 24px 56px rgba(15,23,42,.32))'}}
+                onClick={e=>e.stopPropagation()}/>
           {/* Декоративная верхняя полоса с градиентом */}
           <defs>
             <linearGradient id="drillHdrGrad" x1="0" y1="0" x2="1" y2="0">
@@ -515,16 +514,21 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
               <stop offset="1" stopColor="#fdf4ff"/>
             </linearGradient>
           </defs>
-          <path d={`M ${cardX} ${cardY+32} A 32 32 0 0 1 ${cardX+32} ${cardY} L ${cardX+cardW-32} ${cardY} A 32 32 0 0 1 ${cardX+cardW} ${cardY+32} L ${cardX+cardW} ${cardY+110} L ${cardX} ${cardY+110} Z`} fill="url(#drillHdrGrad)"/>
+          <path d={`M ${cardX} ${cardY+24} A 24 24 0 0 1 ${cardX+24} ${cardY} L ${cardX+cardW-24} ${cardY} A 24 24 0 0 1 ${cardX+cardW} ${cardY+24} L ${cardX+cardW} ${cardY+92} L ${cardX} ${cardY+92} Z`} fill="url(#drillHdrGrad)"/>
           {/* Бэйдж */}
-          <rect x={cx-110} y={cardY+30} width="220" height="32" rx="16" fill="#a21caf"/>
-          <text x={cx} y={cardY+50} textAnchor="middle" fontSize="13" fontWeight="700" letterSpacing="3" fill="#fff" fontFamily="var(--sans)">ВЛОЖЕННАЯ ЯСНА²</text>
-          {/* Главный заголовок попапа крупный */}
-          <text x={cx} y={cardY+96} textAnchor="middle" fontSize={isMob?32:38} fontWeight="700" fill="#1d1d1f" fontFamily="var(--serif)">{(p[drill]||`Полка ${drill}`)}</text>
+          <rect x={cx-100} y={cardY+22} width="200" height="26" rx="13" fill="#a21caf"/>
+          <text x={cx} y={cardY+39} textAnchor="middle" fontSize="11" fontWeight="700" letterSpacing="2.4" fill="#fff" fontFamily="var(--sans)">ВЛОЖЕННАЯ ЯСНА²</text>
+          {/* Главный заголовок попапа */}
+          <text x={cx} y={cardY+76} textAnchor="middle" fontSize={isMob?26:32} fontWeight="700" fill="#1d1d1f" fontFamily="var(--serif)">{(p[drill]||`Полка ${drill}`)}</text>
           {/* Подзаголовок-путь */}
-          <text x={cx} y={cardY+128} textAnchor="middle" fontSize="13" fill="#86868b" fontFamily="var(--sans)">{(yy.name.length>26?yy.name.slice(0,24)+'…':yy.name)} · Полка {drill}</text>
+          <text x={cx} y={cardY+102} textAnchor="middle" fontSize="12" fill="#86868b" fontFamily="var(--sans)">{(yy.name.length>26?yy.name.slice(0,24)+'…':yy.name)} · Полка {drill}</text>
           {/* Декоративный разделитель */}
-          <line x1={cx-120} y1={cardY+148} x2={cx+120} y2={cardY+148} stroke="rgba(162,28,175,.22)" strokeWidth="1.2"/>
+          <line x1={cx-100} y1={cardY+118} x2={cx+100} y2={cardY+118} stroke="rgba(162,28,175,.22)" strokeWidth="1"/>
+          {/* Close-кнопка ✕ в правом верхнем углу */}
+          <g style={{cursor:'pointer'}} onClick={()=>onDrill&&onDrill(null)}>
+            <circle cx={cardX+cardW-30} cy={cardY+30} r="18" fill="#fff" stroke="rgba(162,28,175,.3)" strokeWidth="1.5"/>
+            <text x={cardX+cardW-30} y={cardY+36} textAnchor="middle" fontSize="20" fontWeight="500" fill="#a21caf" fontFamily="var(--sans)" style={{userSelect:'none'}}>×</text>
+          </g>
           {/* Внешнее кольцо sub-Ясны */}
           <circle cx={cx} cy={subCenterY} r={subR} fill="none" stroke={dCol} strokeWidth="1.2" strokeDasharray="5 7" opacity=".35"/>
           {/* Внутреннее декоративное кольцо */}
