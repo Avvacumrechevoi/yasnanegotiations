@@ -259,6 +259,28 @@
       return ()=> window.removeEventListener('keydown', onKey);
     }, [stepIdx, stageT]);
 
+    // Mobile: горизонтальный свайп по канвасу переключает шаги
+    useEffect(()=>{
+      const isTouch = typeof window !== 'undefined' && ('ontouchstart' in window);
+      if(!isTouch) return;
+      let startX=null, startY=null, t0=0;
+      const onTS=(e)=>{ if(e.touches.length===1){ startX=e.touches[0].clientX; startY=e.touches[0].clientY; t0=Date.now(); } };
+      const onTE=(e)=>{
+        if(startX==null) return;
+        const t = e.changedTouches[0];
+        const dx = t.clientX-startX, dy = t.clientY-startY, dt=Date.now()-t0;
+        startX=null;
+        if(Math.abs(dx)>60 && Math.abs(dy)<40 && dt<500){
+          if(dx<0) advanceForward(); else advanceBack();
+        }
+      };
+      const target = document.querySelector('.tour-canvas-mobile');
+      if(!target) return;
+      target.addEventListener('touchstart',onTS,{passive:true});
+      target.addEventListener('touchend',onTE,{passive:true});
+      return ()=>{ target.removeEventListener('touchstart',onTS); target.removeEventListener('touchend',onTE); };
+    }, [stepIdx]);
+
     if(!y) return null;
 
     const stageState = step?.stages
@@ -331,7 +353,7 @@
         <div style={{flex:1,display:'flex',minHeight:0,overflow:'hidden'}} className="tour-body">
 
           {/* CANVAS */}
-          <div style={{flex:'2.2 1 0',display:'flex',alignItems:'center',justifyContent:'center',padding:'24px 18px',minWidth:0,position:'relative'}}>
+          <div className="tour-canvas-mobile" style={{flex:'2.2 1 0',display:'flex',alignItems:'center',justifyContent:'center',padding:'24px 18px',minWidth:0,position:'relative'}}>
             <div className="tour-diagram-card" style={{position:'relative',width:'100%',height:'100%',maxWidth:1200,maxHeight:'100%',aspectRatio:'1060/800',background:SURFACE,borderRadius:18,border:'1px solid '+BORDER,overflow:'hidden',transition:'all .8s cubic-bezier(.4,0,.2,1)',boxSizing:'border-box',display:'flex',alignItems:'center',justifyContent:'center'}}>
               <div style={{position:'relative',width:'100%',height:'100%'}}>
                 <Star yy={y} sel={null} onSel={()=>{}} hl={highlight} af={af} showOpp={(af||[]).includes('opp')} overlay={null} mob={typeof window!=='undefined'&&window.innerWidth<=768}/>
@@ -376,7 +398,7 @@
 
             {/* Stage caption — минимальный */}
             {stageState.note && (
-              <div key={`${stepIdx}-${stageState.stageIdx}`} style={{position:'absolute',top:14,left:'50%',transform:'translateX(-50%)',padding:'7px 14px',borderRadius:10,background:'rgba(0,0,0,.65)',backdropFilter:'blur(6px)',border:'1px solid '+BORDER,fontSize:12,fontWeight:500,color:FG,animation:'noteIn .35s ease',maxWidth:'80%',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',zIndex:5}}>
+              <div key={`${stepIdx}-${stageState.stageIdx}`} className="tour-note-bubble" style={{position:'absolute',top:14,left:'50%',transform:'translateX(-50%)',padding:'7px 14px',borderRadius:10,background:'rgba(0,0,0,.65)',backdropFilter:'blur(6px)',border:'1px solid '+BORDER,fontSize:12,fontWeight:500,color:FG,animation:'noteIn .35s ease',maxWidth:'80%',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',zIndex:5}}>
                 {stageState.note}
               </div>
             )}
@@ -552,7 +574,7 @@
           <button disabled={isIntro} onClick={advanceBack} style={{padding:'9px 14px',borderRadius:10,border:'1px solid '+BORDER,background:'transparent',color:isIntro?FG_DIM:FG_MUTED,cursor:isIntro?'not-allowed':'pointer',opacity:isIntro?.4:1,fontSize:12.5,fontWeight:500,display:'flex',alignItems:'center',gap:6}}>{ICONS.arrowLeft}<span>Назад</span></button>
           <button onClick={()=>setPlaying(p=>!p)} style={{padding:'9px 14px',borderRadius:10,border:'1px solid '+BORDER,background:'transparent',color:FG_MUTED,cursor:'pointer',fontSize:12.5,fontWeight:500,display:'flex',alignItems:'center',gap:6}}>{playing?ICONS.pause:ICONS.play}<span>{playing?'Пауза':'Авто'}</span></button>
           <div style={{flex:1,fontSize:11,color:FG_DIM,textAlign:'center'}}>
-            <span style={{display:typeof window!=='undefined'&&window.innerWidth<=600?'none':'inline'}}>← →  Пробел — следующий шаг анимации · Esc — закрыть</span>
+            <span className="tour-hotkeys-hint" style={{display:typeof window!=='undefined'&&window.innerWidth<=600?'none':'inline'}}>← →  Пробел — следующий шаг анимации · Esc — закрыть</span>
           </div>
           {!isOutro && <button onClick={advanceForward} style={{padding:'9px 18px',borderRadius:10,border:'none',background:accent,color:'#0e1019',cursor:'pointer',fontSize:12.5,fontWeight:700,display:'flex',alignItems:'center',gap:6}}><span>Дальше</span>{ICONS.arrowRight}</button>}
           {isOutro && tour.outro?.cta && <button onClick={()=>{ if(onLoadYasna) onLoadYasna(); handleClose(); }} style={{padding:'9px 18px',borderRadius:10,border:'none',background:accent,color:'#0e1019',cursor:'pointer',fontSize:12.5,fontWeight:700,display:'flex',alignItems:'center',gap:6}}>{ICONS.check}<span>Перейти</span></button>}
@@ -567,9 +589,70 @@
           .tour-panel::-webkit-scrollbar { width: 6px; }
           .tour-panel::-webkit-scrollbar-track { background: transparent; }
           .tour-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 3px; }
+          /* ─── Mobile optimization (≤768px) ─── */
           @media (max-width: 768px) {
             .tour-body { flex-direction: column !important; }
-            .tour-panel { max-width: none !important; max-height: 50vh; padding: 24px 20px !important; border-left: none !important; border-top: 1px solid rgba(255,255,255,.08); }
+
+            /* Канвас сверху, панель снизу. Канвас ~45vh, панель занимает остаток */
+            .tour-canvas-mobile { flex: 0 0 45vh !important; padding: 12px 12px 6px !important; }
+            .tour-diagram-card { aspect-ratio: 1 / 1 !important; max-width: 100% !important; max-height: 100% !important; border-radius: 14px !important; }
+
+            /* Текстовая панель: full-width, занимает остаток высоты, scroll */
+            .tour-panel {
+              max-width: none !important;
+              max-height: none !important;
+              flex: 1 1 auto !important;
+              padding: 20px 18px 110px !important;
+              border-left: none !important;
+              border-top: 1px solid rgba(255,255,255,.08);
+            }
+
+            /* Fade-out у нижнего края — индикатор «есть ещё контент» */
+            .tour-panel::after {
+              content: '';
+              position: sticky;
+              bottom: 0; left: 0; right: 0;
+              display: block;
+              height: 60px;
+              margin-top: -60px;
+              background: linear-gradient(to bottom, rgba(14,16,25,0), rgba(14,16,25,.95));
+              pointer-events: none;
+            }
+
+            /* H1/H2 — компактнее */
+            .tour-panel h1 { font-size: 24px !important; line-height: 1.2 !important; word-break: keep-all; hyphens: none; }
+            .tour-panel h2 { font-size: 22px !important; line-height: 1.22 !important; word-break: keep-all; hyphens: none; }
+
+            /* Шапка гида: убрать лишние элементы */
+            .tour-header-brand-text { display: none !important; }
+            .tour-header-progress { flex: 1 !important; }
+            .tour-header-counter-percent { display: none !important; }
+
+            /* Навигация снизу: safe-area + крупнее кнопки */
+            .tour-nav {
+              padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+              padding-top: 10px !important;
+              padding-left: 12px !important;
+              padding-right: 12px !important;
+            }
+            .tour-nav button {
+              min-height: 48px !important;
+              padding: 12px 16px !important;
+              font-size: 14px !important;
+            }
+
+            /* Подсказка-пузырь занимает почти всю ширину карточки и многострочная */
+            .tour-note-bubble {
+              max-width: 90% !important;
+              white-space: normal !important;
+              line-height: 1.35 !important;
+            }
+
+            /* Скрыть hint о клавиатурных хоткеях */
+            .tour-hotkeys-hint { display: none !important; }
+          }
+          @media (hover: none) and (pointer: coarse) {
+            .tour-hotkeys-hint { display: none !important; }
           }
         `}</style>
       </div>
