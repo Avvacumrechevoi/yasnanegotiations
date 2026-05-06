@@ -490,47 +490,51 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
       {/* M-Г-066 Ясна² Drill-down: клик по полке открывает её внутреннюю Ясну */}
       {drill!=null&&(()=>{
         const dCol='#a21caf';
-        const subR=Math.min(R*0.78, 240);
-        const subNr=isMob?26:32;
-        const subLr=subR+(isMob?52:64);
-        // Цвета пран для sub-цифр
+        const cardW=isMob?880:1180;
+        const cardH=isMob?660:880;
+        const cardX=cx-cardW/2;
+        const cardY=cy-cardH/2;
+        const subCenterY=cy+50; // sub-Ясна смещена вниз чтобы был зазор под заголовок
+        const subR=isMob?260:340;
+        const subNr=isMob?34:42;
+        const subLr=subR+(isMob?68:80);
         const SUB_PRANA_COLOR=['#C0943A','#4090D8','#06B6D4','#F06838','#C0943A','#4090D8','#06B6D4','#F06838','#C0943A','#4090D8','#06B6D4','#F06838'];
         return<g className="drill-popup" style={{animation:'drillPopup .42s cubic-bezier(.16,1,.3,1)',transformOrigin:`${cx}px ${cy}px`}}>
-          {/* Полупрозрачный backdrop */}
-          <rect x="-300" y="-300" width="1500" height="1300" fill="rgba(15,23,42,.42)"/>
-          {/* Карточка попапа — белая с фиолетовой рамкой и скруглением */}
-          <rect x="30" y="50" width="840" height="620" rx="28" ry="28"
-                fill="#ffffff" stroke="rgba(162,28,175,.18)" strokeWidth="1.5"
-                style={{filter:'drop-shadow(0 18px 48px rgba(15,23,42,.22))'}}/>
-          {/* Декоративная верхняя полоса (фиолетовый градиент) */}
+          {/* Backdrop — полностью затемняет фон */}
+          <rect x="-500" y="-500" width="1900" height="1700" fill="rgba(15,23,42,.55)"/>
+          {/* Карточка-попап — БОЛЬШАЯ, на всю канву */}
+          <rect x={cardX} y={cardY} width={cardW} height={cardH} rx="32" ry="32"
+                fill="#ffffff" stroke="rgba(162,28,175,.22)" strokeWidth="2"
+                style={{filter:'drop-shadow(0 28px 64px rgba(15,23,42,.32))'}}/>
+          {/* Декоративная верхняя полоса с градиентом */}
           <defs>
             <linearGradient id="drillHdrGrad" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0" stopColor="#fdf4ff"/>
-              <stop offset="0.5" stopColor="#f5e8fb"/>
+              <stop offset="0.5" stopColor="#ede1f8"/>
               <stop offset="1" stopColor="#fdf4ff"/>
             </linearGradient>
           </defs>
-          <path d="M 30 78 A 28 28 0 0 1 58 50 L 842 50 A 28 28 0 0 1 870 78 L 870 110 L 30 110 Z" fill="url(#drillHdrGrad)"/>
-          {/* Маленький ярлык-бэйдж сверху */}
-          <rect x={cx-78} y={62} width="156" height="22" rx="11" fill="#a21caf"/>
-          <text x={cx} y="77" textAnchor="middle" fontSize="11" fontWeight="700" letterSpacing="2.4" fill="#fff" fontFamily="var(--sans)">ВЛОЖЕННАЯ ЯСНА²</text>
-          {/* Главный заголовок попапа */}
-          <text x={cx} y="138" textAnchor="middle" fontSize={isMob?22:26} fontWeight="700" fill="#1d1d1f" fontFamily="var(--serif)">{(p[drill]||`Полка ${drill}`)}</text>
-          {/* Подзаголовок: путь */}
-          <text x={cx} y="162" textAnchor="middle" fontSize="12" fill="#86868b" fontFamily="var(--sans)">{yy.name} · Полка {drill} · 12 подвидов</text>
+          <path d={`M ${cardX} ${cardY+32} A 32 32 0 0 1 ${cardX+32} ${cardY} L ${cardX+cardW-32} ${cardY} A 32 32 0 0 1 ${cardX+cardW} ${cardY+32} L ${cardX+cardW} ${cardY+110} L ${cardX} ${cardY+110} Z`} fill="url(#drillHdrGrad)"/>
+          {/* Бэйдж */}
+          <rect x={cx-110} y={cardY+30} width="220" height="32" rx="16" fill="#a21caf"/>
+          <text x={cx} y={cardY+50} textAnchor="middle" fontSize="13" fontWeight="700" letterSpacing="3" fill="#fff" fontFamily="var(--sans)">ВЛОЖЕННАЯ ЯСНА²</text>
+          {/* Главный заголовок попапа крупный */}
+          <text x={cx} y={cardY+96} textAnchor="middle" fontSize={isMob?32:38} fontWeight="700" fill="#1d1d1f" fontFamily="var(--serif)">{(p[drill]||`Полка ${drill}`)}</text>
+          {/* Подзаголовок-путь */}
+          <text x={cx} y={cardY+128} textAnchor="middle" fontSize="14" fill="#86868b" fontFamily="var(--sans)">{yy.name} · Полка {drill} · 12 подвидов</text>
           {/* Декоративный разделитель */}
-          <line x1={cx-100} y1="178" x2={cx+100} y2="178" stroke="rgba(162,28,175,.18)" strokeWidth="1"/>
+          <line x1={cx-120} y1={cardY+148} x2={cx+120} y2={cardY+148} stroke="rgba(162,28,175,.22)" strokeWidth="1.2"/>
           {/* Внешнее кольцо sub-Ясны */}
-          <circle cx={cx} cy={cy+30} r={subR} fill="none" stroke={dCol} strokeWidth="1" strokeDasharray="4 6" opacity=".4"/>
+          <circle cx={cx} cy={subCenterY} r={subR} fill="none" stroke={dCol} strokeWidth="1.2" strokeDasharray="5 7" opacity=".35"/>
           {/* Внутреннее декоративное кольцо */}
-          <circle cx={cx} cy={cy+30} r={subR*0.55} fill="rgba(162,28,175,.025)" stroke={dCol} strokeWidth=".6" strokeDasharray="2 5" opacity=".35"/>
+          <circle cx={cx} cy={subCenterY} r={subR*0.55} fill="rgba(162,28,175,.03)" stroke={dCol} strokeWidth=".8" strokeDasharray="2 6" opacity=".35"/>
           {/* Sub-полки */}
           {Array.from({length:12},(_,j)=>{
             const sa=(270-j*30)*Math.PI/180;
             const sx=Math.round((cx+subR*Math.cos(sa))*2)/2;
-            const sy=Math.round(((cy+30)-subR*Math.sin(sa))*2)/2;
+            const sy=Math.round((subCenterY-subR*Math.sin(sa))*2)/2;
             const lx=Math.round((cx+subLr*Math.cos(sa))*2)/2;
-            const ly=Math.round(((cy+30)-subLr*Math.sin(sa))*2)/2;
+            const ly=Math.round((subCenterY-subLr*Math.sin(sa))*2)/2;
             const subName=(subPolki&&subPolki[j])||'';
             const pranaColor=SUB_PRANA_COLOR[j];
             // Текст-подпись разбиваем по словам/слешу на 2 строки если длинно
@@ -542,24 +546,25 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
             const anchor=Math.abs(lx-cx)<25?'middle':lx<cx?'end':'start';
             return<g key={`sub${j}`}>
               {/* Кружок sub-полки */}
-              <circle cx={sx} cy={sy} r={subNr+2} fill="rgba(255,255,255,.95)" stroke="rgba(162,28,175,.15)" strokeWidth="0.8"/>
-              <circle cx={sx} cy={sy} r={subNr} fill="#fff" stroke={pranaColor} strokeWidth={isMob?2.6:2.4}/>
+              <circle cx={sx} cy={sy} r={subNr+3} fill="rgba(255,255,255,.95)" stroke="rgba(162,28,175,.15)" strokeWidth="0.8"/>
+              <circle cx={sx} cy={sy} r={subNr} fill="#fff" stroke={pranaColor} strokeWidth={isMob?2.8:3}/>
               {/* Цифра sub-полки */}
-              <text x={sx} y={sy+(isMob?7:6)} textAnchor="middle" fontSize={isMob?22:24} fontWeight="700" fill="#1f2937" fontFamily="var(--sans)">{j}</text>
+              <text x={sx} y={sy+(isMob?8:9)} textAnchor="middle" fontSize={isMob?28:32} fontWeight="700" fill="#1f2937" fontFamily="var(--sans)">{j}</text>
               {/* Подпись sub-полки — снаружи кольца */}
               {subName && parts ? (
-                <text x={lx} y={ly-7} textAnchor={anchor} fontSize={isMob?15:16} fill="#1d1d1f" fontWeight="600" fontFamily="var(--serif)">
+                <text x={lx} y={ly-9} textAnchor={anchor} fontSize={isMob?17:20} fill="#1d1d1f" fontWeight="600" fontFamily="var(--serif)">
                   <tspan x={lx} dy="0">{parts[0]}</tspan>
-                  <tspan x={lx} dy={isMob?18:18}>{parts[1]}</tspan>
+                  <tspan x={lx} dy={isMob?20:24}>{parts[1]}</tspan>
                 </text>
               ) : subName ? (
-                <text x={lx} y={ly+5} textAnchor={anchor} fontSize={isMob?15:16} fill="#1d1d1f" fontWeight="600" fontFamily="var(--serif)">{subName}</text>
+                <text x={lx} y={ly+7} textAnchor={anchor} fontSize={isMob?17:20} fill="#1d1d1f" fontWeight="600" fontFamily="var(--serif)">{subName}</text>
               ) : null}
             </g>;
           })}
-          {/* Центральный декор: маленький круглый якорь */}
-          <circle cx={cx} cy={cy+30} r="6" fill={dCol} opacity=".18"/>
-          <circle cx={cx} cy={cy+30} r="3" fill={dCol}/>
+          {/* Центральный декор: круглый якорь */}
+          <circle cx={cx} cy={subCenterY} r="14" fill="#fff" stroke={dCol} strokeWidth="1.5" opacity=".4"/>
+          <circle cx={cx} cy={subCenterY} r="6" fill={dCol} opacity=".25"/>
+          <circle cx={cx} cy={subCenterY} r="3" fill={dCol}/>
         </g>;
       })()}
     </g>
