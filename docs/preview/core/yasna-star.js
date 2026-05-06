@@ -212,7 +212,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
         <filter id="gw"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
         <filter id="ns"><feDropShadow dx="0" dy="1" stdDeviation="2.5" floodOpacity=".07"/></filter>
       </defs>
-      <rect width={S} height={W} fill="#fff"/>
+      <rect x="-80" y="-50" width="1060" height="800" fill="#fff"/>
       <g className="yasna-wheel">
       {/* Decorative outer ring */}
       <circle cx={cx} cy={cy} r={R+10} fill="none" stroke="#ececee" strokeWidth=".5"/>
