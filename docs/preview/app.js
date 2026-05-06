@@ -784,6 +784,17 @@ function App(){
   const[helpOpen,setHelpOpen]=useState(false);
   const[showComposition,setShowComposition]=useState(false);
   const[showDuel,setShowDuel]=useState(false);
+  // Императивный рендер DuelApp в отдельный root — обходит JSX-парсинг window.DuelApp
+  useEffect(()=>{
+    if(!showDuel||!window.DuelApp) return;
+    const div=document.createElement('div');
+    div.id='duel-portal';
+    document.body.appendChild(div);
+    const root=ReactDOM.createRoot(div);
+    const close=()=>{ try{root.unmount();}catch(_){} div.remove(); setShowDuel(false); };
+    root.render(React.createElement(window.DuelApp,{onClose:close}));
+    return ()=>{ try{root.unmount();}catch(_){} div.remove(); };
+  },[showDuel]);
   const[panelCollapsed,setPanelCollapsed]=useState(false);
   const[activeLesson,setActiveLesson]=useState(null);
   const[completedLessons,setCompletedLessons]=useState([]);
@@ -1029,7 +1040,6 @@ function App(){
       {ed&&<Editor y={y} setY={setY} onClose={()=>setEd(false)}/>}
       {showOverlayPicker&&<OverlayPicker currentName={y.name} overlay={overlay} onSelect={setOverlay} onClose={()=>setShowOverlayPicker(false)}/>}
       {verif&&<Verification y={y} vs={vState} setVs={setVState} onClose={()=>setVerif(false)}/>}
-      {showDuel&&window.DuelApp&&(()=>{const DuelComp=window.DuelApp;return <DuelComp onClose={()=>setShowDuel(false)}/>;})()}
       {instr&&<Instruction onClose={()=>setInstr(false)}/>}
       {lessonPicker&&<LessonPicker onSelectLesson={(id)=>{setActiveLesson(id);setLessonPicker(false);}} onClose={()=>setLessonPicker(false)} completedLessons={completedLessons}/>}
       {showTour&&window.YasnaTours&&window.YasnaTours.has(y.name)&&(()=>{
