@@ -173,7 +173,6 @@
       const visible = resolved.filter(e => stageT >= (e.at||0) * getSpeed()).length;
       if(visible > revealedCount){
         setRevealedCount(visible);
-        // 2 frame'а чтобы React успел рендер + animation
         requestAnimationFrame(()=>{
           requestAnimationFrame(()=>{
             const panel = panelRef.current;
@@ -181,14 +180,32 @@
             const entries = panel.querySelectorAll('.narrative-entry');
             if(!entries.length) return;
             const last = entries[entries.length-1];
-            // Считаем абсолютную позицию bottom элемента в скролл-контейнере
-            const panelRect = panel.getBoundingClientRect();
-            const elRect = last.getBoundingClientRect();
-            const elBottomInScroll = (elRect.bottom - panelRect.top) + panel.scrollTop;
-            // Хотим чтобы bottom элемента был видим с отступом 80px от низа панели
-            const targetScroll = Math.max(0, elBottomInScroll - panel.clientHeight + 80);
-            if(Math.abs(targetScroll - panel.scrollTop) > 4){
-              panel.scrollTo({ top: targetScroll, behavior: 'smooth' });
+            const isMobile = window.innerWidth <= 768;
+            if(isMobile){
+              // Mobile: вся .tour-body - один скролл-контейнер
+              const scrollParent = panel.closest('.tour-body') || document.scrollingElement;
+              if(scrollParent && scrollParent.scrollHeight > scrollParent.clientHeight){
+                const elRect = last.getBoundingClientRect();
+                const parentRect = scrollParent.getBoundingClientRect();
+                // Подскроллим так, чтобы bottom элемента был с отступом 100px от низа viewport
+                const elBottomInScroll = (elRect.bottom - parentRect.top) + scrollParent.scrollTop;
+                const targetScroll = Math.max(0, elBottomInScroll - scrollParent.clientHeight + 100);
+                if(Math.abs(targetScroll - scrollParent.scrollTop) > 4){
+                  scrollParent.scrollTo({ top: targetScroll, behavior: 'smooth' });
+                }
+              } else {
+                // Фолбэк через scrollIntoView если контейнер не скроллится
+                last.scrollIntoView({ behavior:'smooth', block:'center' });
+              }
+            } else {
+              // Desktop: панель имеет свой scroll
+              const panelRect = panel.getBoundingClientRect();
+              const elRect = last.getBoundingClientRect();
+              const elBottomInScroll = (elRect.bottom - panelRect.top) + panel.scrollTop;
+              const targetScroll = Math.max(0, elBottomInScroll - panel.clientHeight + 80);
+              if(Math.abs(targetScroll - panel.scrollTop) > 4){
+                panel.scrollTo({ top: targetScroll, behavior: 'smooth' });
+              }
             }
           });
         });
