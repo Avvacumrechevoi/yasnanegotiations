@@ -332,8 +332,8 @@
 
           {/* CANVAS */}
           <div style={{flex:'2.2 1 0',display:'flex',alignItems:'center',justifyContent:'center',padding:'24px 18px',minWidth:0,position:'relative'}}>
-            <div style={{position:'relative',width:'100%',maxWidth:1100,aspectRatio:'900/740',background:SURFACE,borderRadius:18,border:'1px solid '+BORDER,overflow:'hidden',transition:'all .8s cubic-bezier(.4,0,.2,1)',padding:'90px 60px',boxSizing:'border-box'}}>
-              <div style={{position:'relative',width:'100%',height:'100%',overflow:'visible'}}>
+            <div style={{position:'relative',width:'100%',maxWidth:1100,aspectRatio:'900/720',background:SURFACE,borderRadius:18,border:'1px solid '+BORDER,overflow:'hidden',transition:'all .8s cubic-bezier(.4,0,.2,1)',boxSizing:'border-box',display:'flex',alignItems:'center',justifyContent:'center'}}>
+              <div style={{position:'relative',width:'78%',height:'78%',overflow:'visible'}}>
                 <Star yy={y} sel={null} onSel={()=>{}} hl={highlight} af={af} showOpp={(af||[]).includes('opp')} overlay={null} mob={typeof window!=='undefined'&&window.innerWidth<=768}/>
               {/* SPOTLIGHT — затемняем фон, оставляем «окна» на подсвеченных полках */}
               {highlight && highlight.length > 0 && highlight.length < 12 && (() => {
