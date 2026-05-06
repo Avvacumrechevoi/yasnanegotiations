@@ -720,7 +720,7 @@ function Glossary({onClose}){
 }
 
 function App(){
-  const defPinned=['суток','года','круговорота_воды','цветов','знаки_з.','дома','кухни'];
+  const defPinned=['суток','года','переговоров','круговорота_воды','цветов','знаки_з.','дома','кухни'];
   const initT=T.find(t=>t.id==='суток')||T[0];
   const[y,setY]=useState({name:initT.n,p:[...initT.p],th:initT.th||'',bh:initT.bh||'',lh:initT.lh||'',rh:initT.rh||'',custom:!!initT.custom});
   const[sel,setSel]=useState(null);
