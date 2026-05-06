@@ -767,6 +767,7 @@ function App(){
   const[lessonPicker,setLessonPicker]=useState(false);
   const[showTour,setShowTour]=useState(false);
   const[helpOpen,setHelpOpen]=useState(false);
+  const[showComposition,setShowComposition]=useState(false);
   const[panelCollapsed,setPanelCollapsed]=useState(false);
   const[activeLesson,setActiveLesson]=useState(null);
   const[completedLessons,setCompletedLessons]=useState([]);
@@ -807,6 +808,16 @@ function App(){
         </button>
         {/* Гид по Ясне — secondary outline (если зарегистрирован для текущей Ясны) */}
         {y && window.YasnaTours && window.YasnaTours.has(y.name) && <button onClick={()=>setShowTour(true)} title='Интерактивный гид с пояснением каждой механики' style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 14px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:5}}><span style={{fontSize:11,color:'#a21caf'}}>✦</span><span>Гид</span></button>}
+        {/* Стихии — режим показа пранных долей */}
+        <button onClick={()=>setShowComposition(c=>!c)} title='Состав 4 пран в каждой Полке (идеальное соотношение)' style={{border:`1px solid ${showComposition?'rgba(192,148,58,.5)':'#d2d2d7'}`,color:showComposition?'#7a5e25':'#424245',padding:'7px 12px',borderRadius:8,fontSize:13,background:showComposition?'rgba(192,148,58,.10)':'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:5}}>
+          <span style={{display:'inline-flex',gap:1,alignItems:'center'}}>
+            <span style={{width:3,height:11,background:'#C0943A',borderRadius:1}}/>
+            <span style={{width:3,height:11,background:'#4090D8',borderRadius:1}}/>
+            <span style={{width:3,height:11,background:'#06B6D4',borderRadius:1}}/>
+            <span style={{width:3,height:11,background:'#F06838',borderRadius:1}}/>
+          </span>
+          <span>Стихии</span>
+        </button>
         <button onClick={()=>setVerif(true)} style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 14px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>Проверка</button>
         {/* Справка ▾ — объединяет Инструкция + Глоссарий */}
         <div style={{position:'relative'}}>
@@ -955,7 +966,7 @@ function App(){
             <b style={{color:'#a21caf'}}>3D режим.</b> Drag — вращение, колесо — zoom, клик по шару — выбор.
           </div>}
         </div>}
-        <div className="star-svg-wrap" style={{width:'100%',height:'100%',maxWidth:'none',maxHeight:'none',flex:1}}>{is3D ? <Yasna3DView y={y} af={af} sel={sel} onSel={setSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/> : <Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} starRotation={starRotation} rotationSpeed={rotationSpeed}/>}</div>
+        <div className="star-svg-wrap" style={{width:'100%',height:'100%',maxWidth:'none',maxHeight:'none',flex:1}}>{is3D ? <Yasna3DView y={y} af={af} sel={sel} onSel={setSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/> : <Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} starRotation={starRotation} rotationSpeed={rotationSpeed} showComposition={showComposition}/>}</div>
         <OverlayLegend y={y} overlay={overlay} onClear={()=>setOverlay(null)}/>
             </div>
         </div>
@@ -982,7 +993,7 @@ function App(){
       </div>}
       {fullStar&&<>
         <div className={'fullstar'+(starRotation?' star-rotating-'+starRotation:'')+(is3D?' star-3d-active':'')} style={{display:'flex',alignItems:'center',justifyContent:'center','--rotation-speed':rotationSpeed+'s'}}>
-          <div style={{width:'100%',height:'100%',maxWidth:'100vw',maxHeight:'100vh'}}>{is3D ? <Yasna3DView y={y} af={af} sel={sel} onSel={setSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/> : <Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} starRotation={starRotation} rotationSpeed={rotationSpeed}/>}</div>
+          <div style={{width:'100%',height:'100%',maxWidth:'100vw',maxHeight:'100vh'}}>{is3D ? <Yasna3DView y={y} af={af} sel={sel} onSel={setSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/> : <Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} starRotation={starRotation} rotationSpeed={rotationSpeed} showComposition={showComposition}/>}</div>
         </div>
         <button className='fullstar-close' onClick={()=>setFullStar(false)}>✕</button>
       </>}

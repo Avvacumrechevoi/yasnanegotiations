@@ -34,6 +34,28 @@ const PR={she:{id:'she',n:'Земля ШЭ',p:[0,4,8],c:'#C0943A',el:'Земля
 const gc=i=>[0,3,6,9].includes(i)?'support':[1,4,7,10].includes(i)?'right':'left';
 const gp=i=>['she','fo','tsi','ha'][i%4];
 const opp=i=>(i+6)%12;
+
+// COMPOSITION — идеальное соотношение 4 пран в каждой Полке.
+// Сумма всегда = 100. На опорах (0/3/6/9) доминирующая прана = 60%,
+// у зеркальной — 10% (минимум). На коротких — 50/25/15/10.
+const COMP = [
+  // [Земля, Вода, Воздух, Огонь]
+  [60, 20, 10, 10], // 0 — Земля чистая (опора)
+  [25, 50, 15, 10], // 1 — Вода с Землёй
+  [10, 20, 50, 20], // 2 — Воздух с Огнём
+  [10, 10, 20, 60], // 3 — Огонь чистый (опора)
+  [50, 15, 10, 25], // 4 — Земля с Огнём
+  [10, 50, 25, 15], // 5 — Вода с Воздухом
+  [10, 10, 60, 20], // 6 — Воздух чистый (опора)
+  [15, 10, 25, 50], // 7 — Огонь с Воздухом
+  [50, 10, 15, 25], // 8 — Земля с Огнём (зеркало 4)
+  [20, 60, 10, 10], // 9 — Вода чистая (опора)
+  [15, 25, 50, 10], // 10 — Воздух с Водой
+  [25, 15, 10, 50], // 11 — Огонь с Землёй
+];
+const COMP_COLORS = ['#C0943A','#4090D8','#06B6D4','#F06838']; // Земля, Вода, Воздух, Огонь
+const COMP_NAMES  = ['Земля','Вода','Воздух','Огонь'];
+
 const angDeg=i=>270-i*30;
 const rad=d=>d*Math.PI/180;
 const xy=(i,cx,cy,r)=>({x:cx+r*Math.cos(rad(angDeg(i))),y:cy-r*Math.sin(rad(angDeg(i)))});
@@ -140,7 +162,7 @@ const FL=[
    related:['support','rhythm','mb_zodiac']},
 ];
 
-function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,starRotation,rotationSpeed}){
+function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,starRotation,rotationSpeed,showComposition}){
   const isMob=typeof window!=="undefined"&&window.innerWidth<=768;
   const p=yy.p||[];
   const S=900,W=700,cx=S/2,cy=W/2,R=isMob?215:280,nr=isMob?28:32,lr=(isMob?215:280)+(isMob?62:70);
@@ -387,6 +409,22 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
       {af.includes('halves')&&yy.bh&&<text x={cx} y={W-22} textAnchor="middle" fill="rgba(0,0,0,.5)" fontSize="13" fontFamily="var(--sans)" fontWeight="600">{yy.bh}</text>}
       {af.includes('halves')&&yy.lh&&<text x={20} y={cy} textAnchor="middle" fill="rgba(0,0,0,.5)" fontSize="13" fontFamily="var(--sans)" fontWeight="600" transform={`rotate(-90 20 ${cy})`}>{yy.lh}</text>}
       {af.includes('halves')&&yy.rh&&<text x={S-20} y={cy} textAnchor="middle" fill="rgba(0,0,0,.5)" fontSize="13" fontFamily="var(--sans)" fontWeight="600" transform={`rotate(90 ${S-20} ${cy})`}>{yy.rh}</text>}
+      {/* Composition — мини-стопка 4 пран при showComposition */}
+      {showComposition && pts.map((pt,i)=>{
+        const r=COMP[i]; const total=100; const barW=70, barH=8; const x0=pt.x-barW/2, y0=pt.y+nr+18;
+        let acc=0;
+        return <g key={`c${i}`} style={{pointerEvents:'none',opacity: hl&&!hl.includes(i)?.15:1}}>
+          <rect x={x0-1} y={y0-1} width={barW+2} height={barH+2} fill="#fff" rx="2.5" stroke="rgba(0,0,0,.08)" strokeWidth=".5"/>
+          {r.map((pct,j)=>{
+            const w = (pct/total)*barW;
+            const seg = <rect key={j} x={x0+acc} y={y0} width={w} height={barH} fill={COMP_COLORS[j]} rx="0">
+              <title>{`${COMP_NAMES[j]}: ${pct}%`}</title>
+            </rect>;
+            acc += w;
+            return seg;
+          })}
+        </g>;
+      })}
       {pts.map((pt,i)=>{const isSel=sel===i,c=nc(i),o=no(i);const lbl=p[i]||'';const tipText=lbl?`Полка ${i}: ${lbl}`:`Полка ${i}`;return(
         <g key={i} onClick={()=>{if(af.includes('mb_yasna2')&&drill==null&&onDrill){onDrill(i);}else{onSel(sel===i?null:i);}}} style={{cursor:'pointer'}}>
           <title>{tipText}</title>
