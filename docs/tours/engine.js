@@ -182,22 +182,36 @@
             const last = entries[entries.length-1];
             const isMobile = window.innerWidth <= 768;
             if(isMobile){
-              // Mobile: вся .tour-body - один скролл-контейнер с sticky-диаграммой сверху
               const scrollParent = panel.closest('.tour-body') || document.scrollingElement;
               if(scrollParent && scrollParent.scrollHeight > scrollParent.clientHeight){
                 const elRect = last.getBoundingClientRect();
                 const parentRect = scrollParent.getBoundingClientRect();
-                // Высота sticky-диаграммы (.tour-canvas-mobile)
                 const canvas = scrollParent.querySelector('.tour-canvas-mobile');
-                const stickyOffset = canvas ? canvas.getBoundingClientRect().height : 0;
-                // Цель: top нового элемента под sticky-диаграмму с зазором 16px
-                const elTopInScroll = (elRect.top - parentRect.top) + scrollParent.scrollTop;
-                const targetScroll = Math.max(0, elTopInScroll - stickyOffset - 16);
+                const stickyOffsetTop = canvas ? canvas.getBoundingClientRect().height : 0;
+                const navEl = scrollParent.querySelector('.tour-nav');
+                const stickyOffsetBottom = navEl ? navEl.getBoundingClientRect().height : 0;
+                // Координаты элемента в scroll-системе
+                const elTop = (elRect.top - parentRect.top) + scrollParent.scrollTop;
+                const elBottom = elTop + elRect.height;
+                // Видимая зона (между sticky-диаграммой и sticky-навигацией)
+                const visibleTop = scrollParent.scrollTop + stickyOffsetTop;
+                const visibleBottom = scrollParent.scrollTop + scrollParent.clientHeight - stickyOffsetBottom;
+                // Если элемент уже полностью виден — не скроллим
+                if(elTop >= visibleTop - 4 && elBottom <= visibleBottom + 4) return;
+                let targetScroll;
+                if(elBottom > visibleBottom){
+                  // Элемент ниже видимой зоны — поднимаем чтобы его bottom оказался у нижней границы
+                  targetScroll = elBottom - (scrollParent.clientHeight - stickyOffsetBottom) + 16;
+                } else {
+                  // Элемент выше — опускаем под sticky-диаграмму
+                  targetScroll = elTop - stickyOffsetTop - 16;
+                }
+                targetScroll = Math.max(0, Math.min(targetScroll, scrollParent.scrollHeight - scrollParent.clientHeight));
                 if(Math.abs(targetScroll - scrollParent.scrollTop) > 4){
                   scrollParent.scrollTo({ top: targetScroll, behavior: 'smooth' });
                 }
               } else {
-                last.scrollIntoView({ behavior:'smooth', block:'start' });
+                last.scrollIntoView({ behavior:'smooth', block:'nearest' });
               }
             } else {
               // Desktop: панель имеет свой scroll
