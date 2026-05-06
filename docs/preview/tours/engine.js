@@ -332,8 +332,8 @@
 
           {/* CANVAS */}
           <div style={{flex:'2.2 1 0',display:'flex',alignItems:'center',justifyContent:'center',padding:'24px 18px',minWidth:0,position:'relative'}}>
-            <div className="tour-diagram-card" style={{position:'relative',width:'100%',maxWidth:1100,aspectRatio:'1040/780',background:SURFACE,borderRadius:18,border:'1px solid '+BORDER,overflow:'visible',transition:'all .8s cubic-bezier(.4,0,.2,1)',boxSizing:'border-box',display:'flex',alignItems:'center',justifyContent:'center'}}>
-              <div style={{position:'relative',width:'82%',height:'82%',overflow:'visible',transform:'scale(0.78)',transformOrigin:'center'}}>
+            <div className="tour-diagram-card" style={{position:'relative',width:'100%',height:'100%',maxWidth:1200,maxHeight:'100%',aspectRatio:'1060/800',background:SURFACE,borderRadius:18,border:'1px solid '+BORDER,overflow:'hidden',transition:'all .8s cubic-bezier(.4,0,.2,1)',boxSizing:'border-box',display:'flex',alignItems:'center',justifyContent:'center'}}>
+              <div style={{position:'relative',width:'100%',height:'100%'}}>
                 <Star yy={y} sel={null} onSel={()=>{}} hl={highlight} af={af} showOpp={(af||[]).includes('opp')} overlay={null} mob={typeof window!=='undefined'&&window.innerWidth<=768}/>
               {/* SPOTLIGHT — затемняем фон, оставляем «окна» на подсвеченных полках */}
               {highlight && highlight.length > 0 && highlight.length < 12 && (() => {
@@ -343,10 +343,10 @@
                 const glowR  = isMobile ? 78 : 95; // полупрозрачная зона свечения
                 const maskId = `spot-${stepIdx}-${(highlight||[]).join(',')}`;
                 return (
-                  <svg style={{position:'absolute',inset:0,width:'100%',height:'100%',pointerEvents:'none',transition:'opacity .5s ease',overflow:'visible'}} viewBox="0 0 900 700" preserveAspectRatio="xMidYMid meet">
+                  <svg style={{position:'absolute',inset:0,width:'100%',height:'100%',pointerEvents:'none',transition:'opacity .5s ease'}} viewBox="-80 -50 1060 800" preserveAspectRatio="xMidYMid meet">
                     <defs>
                       <mask id={maskId}>
-                        <rect width="900" height="700" fill="white"/>
+                        <rect x="-80" y="-50" width="1060" height="800" fill="white"/>
                         {highlight.map((idx,k)=>{
                           const a = (270 - idx*30) * Math.PI / 180;
                           const x = 450 + R * Math.cos(a);
@@ -358,7 +358,7 @@
                         })}
                       </mask>
                     </defs>
-                    <rect width="900" height="700" fill="rgba(8,10,18,.45)" mask={`url(#${maskId})`} style={{transition:'all .5s ease',animation:'spotFade .5s ease'}}/>
+                    <rect x="-80" y="-50" width="1060" height="800" fill="rgba(8,10,18,.45)" mask={`url(#${maskId})`} style={{transition:'all .5s ease',animation:'spotFade .5s ease'}}/>
                   </svg>
                 );
               })()}
@@ -563,19 +563,6 @@
           @keyframes cardIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
           @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
           @keyframes noteIn { from { opacity:0; transform:translate(-50%,-4px); } to { opacity:1; transform:translate(-50%,0); } }
-          /* Подписи Star в гиде: белая обводка для контраста на тёмном фоне */
-          .tour-diagram-card svg text {
-            paint-order: stroke fill;
-            stroke: rgba(255,255,255,.92);
-            stroke-width: 3.5px;
-            stroke-linejoin: round;
-            stroke-linecap: round;
-          }
-          /* Цифры внутри полок и пран-долей не должны иметь обводку — у них уже контрастный фон */
-          .tour-diagram-card svg circle + text,
-          .tour-diagram-card svg .composition-label {
-            stroke: none;
-          }
           @keyframes spotFade { from { opacity:0; } to { opacity:1; } }
           .tour-panel::-webkit-scrollbar { width: 6px; }
           .tour-panel::-webkit-scrollbar-track { background: transparent; }
