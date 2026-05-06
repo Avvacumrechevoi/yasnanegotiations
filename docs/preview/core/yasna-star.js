@@ -489,30 +489,57 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
       </>}
       {/* M-Г-066 Ясна² Drill-down: клик по полке открывает её внутреннюю Ясну */}
       {drill!=null&&(()=>{
-        const dpt=pts[drill];
         const dCol='#a21caf';
-        const subR=R*0.55;
-        const subNr=18;
+        const subR=Math.min(R*0.95, 280);
+        const subNr=isMob?28:36;
+        const subLr=subR+(isMob?56:72);
+        // Цвета пран для sub-цифр (sub-0/4/8 = Земля и т.д.)
+        const SUB_PRANA_COLOR=['#C0943A','#4090D8','#06B6D4','#F06838','#C0943A','#4090D8','#06B6D4','#F06838','#C0943A','#4090D8','#06B6D4','#F06838'];
         return<g style={{animation:'fadeIn .55s cubic-bezier(.16,1,.3,1)'}}>
-          <rect x="0" y="0" width="900" height="700" fill="rgba(255,255,255,.7)"/>
-          <line x1={dpt.x} y1={dpt.y} x2={cx} y2={cy} stroke={dCol} strokeWidth="1.5" strokeDasharray="4 4" opacity=".5"/>
-          <circle cx={cx} cy={cy} r={subR+18} fill="none" stroke={dCol} strokeWidth=".8" strokeDasharray="3 4" opacity=".6"/>
-          <circle cx={cx} cy={cy} r={subR} fill="rgba(162,28,175,.04)" stroke={dCol} strokeWidth="1.4"/>
+          {/* Затемнение всего фона — выводит drill-down на передний план */}
+          <rect x="-200" y="-200" width="1300" height="1100" fill="rgba(255,255,255,.92)"/>
+          {/* Внешнее кольцо */}
+          <circle cx={cx} cy={cy} r={subR} fill="none" stroke={dCol} strokeWidth="1" strokeDasharray="4 6" opacity=".5"/>
+          {/* Внутреннее декоративное кольцо */}
+          <circle cx={cx} cy={cy} r={subR*0.6} fill="rgba(162,28,175,.025)" stroke={dCol} strokeWidth=".6" strokeDasharray="2 5" opacity=".4"/>
+          {/* Sub-полки */}
           {Array.from({length:12},(_,j)=>{
             const sa=(270-j*30)*Math.PI/180;
-            const sx=cx+subR*Math.cos(sa);
-            const sy=cy-subR*Math.sin(sa);
+            const sx=Math.round((cx+subR*Math.cos(sa))*2)/2;
+            const sy=Math.round((cy-subR*Math.sin(sa))*2)/2;
+            const lx=Math.round((cx+subLr*Math.cos(sa))*2)/2;
+            const ly=Math.round((cy-subLr*Math.sin(sa))*2)/2;
             const subName=(subPolki&&subPolki[j])||'';
+            const pranaColor=SUB_PRANA_COLOR[j];
+            // Текст-подпись разбиваем по словам/слешу на 2 строки если длинно
+            let parts=null;
+            if(subName.length>13){
+              if(subName.includes(' ')){const w=subName.split(' ');const m=Math.ceil(w.length/2);parts=[w.slice(0,m).join(' '),w.slice(m).join(' ')];}
+              else if(subName.includes('/')){const si=subName.indexOf('/');parts=[subName.slice(0,si).trim(),subName.slice(si+1).trim()];}
+            }
+            const anchor=Math.abs(lx-cx)<25?'middle':lx<cx?'end':'start';
             return<g key={`sub${j}`}>
-              <circle cx={sx} cy={sy} r={subNr} fill="#fff" stroke={dCol} strokeWidth="1.6"/>
-              <text x={sx} y={sy+(subName?-2:5)} textAnchor="middle" fontSize="12" fontWeight="700" fill={dCol}>{j}</text>
-              {subName&&<text x={sx} y={sy+24} textAnchor="middle" fontSize="9.5" fill="#581c87" fontWeight="500">{subName.length>14?subName.slice(0,13)+'…':subName}</text>}
+              {/* Кружок sub-полки */}
+              <circle cx={sx} cy={sy} r={subNr+2} fill="rgba(255,255,255,.95)" stroke="rgba(162,28,175,.15)" strokeWidth="0.8"/>
+              <circle cx={sx} cy={sy} r={subNr} fill="#fff" stroke={pranaColor} strokeWidth={isMob?2.6:2.4}/>
+              {/* Цифра sub-полки */}
+              <text x={sx} y={sy+(isMob?7:6)} textAnchor="middle" fontSize={isMob?22:24} fontWeight="700" fill="#1f2937" fontFamily="var(--sans)">{j}</text>
+              {/* Подпись sub-полки — снаружи кольца */}
+              {subName && parts ? (
+                <text x={lx} y={ly-7} textAnchor={anchor} fontSize={isMob?15:16} fill="#1d1d1f" fontWeight="600" fontFamily="var(--serif)">
+                  <tspan x={lx} dy="0">{parts[0]}</tspan>
+                  <tspan x={lx} dy={isMob?18:18}>{parts[1]}</tspan>
+                </text>
+              ) : subName ? (
+                <text x={lx} y={ly+5} textAnchor={anchor} fontSize={isMob?15:16} fill="#1d1d1f" fontWeight="600" fontFamily="var(--serif)">{subName}</text>
+              ) : null}
             </g>;
           })}
-          <rect x={cx-95} y={cy-22} width="190" height="44" rx="10" fill="#fff" stroke={dCol} strokeWidth="1.4"/>
-          <text x={cx} y={cy-6} textAnchor="middle" fontSize="10" fontWeight="700" fill={dCol} letterSpacing="1.5">ПОЛКА {drill}</text>
-          <text x={cx} y={cy+13} textAnchor="middle" fontSize="13" fontWeight="700" fill="#581c87">{(p[drill]||'—').slice(0,22)}</text>
-
+          {/* Центральная карточка-заголовок Ясны² */}
+          <rect x={cx-130} y={cy-40} width="260" height="80" rx="18" fill="#fff" stroke={dCol} strokeWidth="2" filter="url(#ns)"/>
+          <text x={cx} y={cy-15} textAnchor="middle" fontSize="11" fontWeight="700" fill={dCol} letterSpacing="2.5" fontFamily="var(--sans)">ЯСНА² · ПОЛКА {drill}</text>
+          <text x={cx} y={cy+10} textAnchor="middle" fontSize={isMob?17:19} fontWeight="700" fill="#1d1d1f" fontFamily="var(--serif)">{(p[drill]||'—').slice(0,24)}</text>
+          <text x={cx} y={cy+28} textAnchor="middle" fontSize="10" fill="#86868b" fontFamily="var(--sans)">12 подвидов · клик для редактирования</text>
         </g>;
       })()}
     </g>
