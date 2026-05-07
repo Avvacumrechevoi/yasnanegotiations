@@ -3,8 +3,32 @@
 // Welcome / Profile-Hero / Quests / CTA / Партитура / Архив + Знаки
 // ═══════════════════════════════════════════════════════════════════
 (function(){
-  const { useState, useEffect } = React;
+  const { useState, useEffect, useRef } = React;
   const _g = (n) => window[n];
+
+  // ─── Inline SVG icons (стрики 14×14) ─────────────────────
+  const Icon = (path) => (props) => React.createElement('svg', {
+    className: 'dp-icon ' + (props?.cls || ''),
+    width: 14, height: 14, viewBox: '0 0 16 16',
+    fill: 'none', stroke: 'currentColor', strokeWidth: 1.4,
+    strokeLinecap: 'round', strokeLinejoin: 'round'
+  }, React.createElement('path', { d: path }));
+
+  const IconCalendar = Icon('M3 5h10v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5Zm0 0V4a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v1M5 2v3M11 2v3M3 8h10');
+  const IconGrid     = Icon('M3 3h4v4H3zM9 3h4v4H9zM3 9h4v4H3zM9 9h4v4H9z');
+  const IconList     = Icon('M3 4h10M3 8h10M3 12h10');
+  const IconStar     = Icon('M8 2.5l1.7 3.5 3.8.5-2.7 2.7.7 3.8L8 11.2 4.5 13l.7-3.8L2.5 6.5l3.8-.5L8 2.5Z');
+  const IconBolt     = Icon('M9 2L4 9h3l-1 5 5-7H8l1-5Z');
+  const IconBead     = Icon('M8 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12ZM8 5v2M8 9v2');
+  const IconDrop     = Icon('M8 2c-2.5 3-4.5 5-4.5 7.5a4.5 4.5 0 0 0 9 0C12.5 7 10.5 5 8 2Z');
+  const IconUsers    = Icon('M5 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM2 13c0-2 1.3-3 3-3s3 1 3 3M8 13c0-2 1.3-3 3-3s3 1 3 3');
+  const IconShield   = Icon('M8 2L3 4v4c0 3 2 5 5 6 3-1 5-3 5-6V4L8 2Z');
+  const IconQuestion = Icon('M6 6a2 2 0 1 1 4 0c0 1-1 1.5-1.5 2V9M8 12v.01');
+
+  // ─── Тултип-терм: short helper ───────────────────────────
+  const Term = (label, tip) => React.createElement('span', {
+    className: 'dp-term', tabIndex: 0, 'data-tip': tip
+  }, label);
 
   function renderAvatar(av, size){
     size = size || 24;
@@ -53,19 +77,73 @@
 
   // ─── Header ──────────────────────────────────────────────
   function DPHeader({ user, onLoginClick, onLogout }){
+    const [helpOpen, setHelpOpen] = useState(false);
+    const helpRef = useRef(null);
+    useEffect(() => {
+      const onDoc = (e) => {
+        if(helpRef.current && !helpRef.current.contains(e.target)) setHelpOpen(false);
+      };
+      if(helpOpen) document.addEventListener('mousedown', onDoc);
+      return () => document.removeEventListener('mousedown', onDoc);
+    }, [helpOpen]);
+
+    const onAnchorClick = (id) => (e) => {
+      e.preventDefault();
+      const el = document.getElementById(id);
+      if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
     return React.createElement('header', { className: 'dp-header' },
-      React.createElement('a', { href: 'index.html', className: 'dp-header-back' },
+      React.createElement('a', { href: 'index.html', className: 'dp-header-back', title: 'Вернуться к Ясне' },
         React.createElement('span', { className: 'dp-header-back-arrow' }, '←'),
         React.createElement('span', null, 'Ясна')
       ),
       React.createElement('div', { className: 'dp-header-spacer' }),
       React.createElement('nav', { className: 'dp-header-nav' },
-        React.createElement('a', { href: '#archive' }, 'Архив'),
-        React.createElement('a', { href: '#znaki' }, 'Знаки'),
-        user
-          ? React.createElement('button', { className: 'dp-btn-text', onClick: onLogout }, 'Выйти')
-          : React.createElement('button', { className: 'dp-btn dp-btn-primary', onClick: onLoginClick, style: { padding: '7px 14px', fontSize: 13 } }, 'Войти')
+        React.createElement('a', { href: '#archive', onClick: onAnchorClick('archive') }, 'Архив'),
+        React.createElement('a', { href: '#znaki', onClick: onAnchorClick('znaki') }, 'Знаки'),
+        React.createElement('div', { className: 'dp-header-auth', ref: helpRef },
+          React.createElement('button', {
+            className: 'dp-help-btn',
+            onClick: () => setHelpOpen(v => !v),
+            title: 'Что это за страница?'
+          }, '?'),
+          helpOpen && React.createElement('div', { className: 'dp-help-popover' },
+            React.createElement('h4', null, 'Игра по Ясне'),
+            React.createElement('div', null, 'Тренажёр памяти по корпусу Ясны. Партия — 18 вопросов из 6 случайных тем. Соперник — Тень.'),
+            React.createElement('ul', null,
+              React.createElement('li', null, React.createElement('strong', null, 'Бусины'), ' — твои очки. Накапливаются за верные ответы.'),
+              React.createElement('li', null, React.createElement('strong', null, 'Ступень'), ' — от Послушника до Магистра, зависит от бусин.'),
+              React.createElement('li', null, React.createElement('strong', null, 'Партитура'), ' — 9 тем с твоим прогрессом по каждой.'),
+              React.createElement('li', null, React.createElement('strong', null, 'Архив'), ' — лидерборд недели среди всех игроков.')
+            )
+          ),
+          user
+            ? React.createElement('button', { className: 'dp-btn-text', onClick: onLogout, style: { marginLeft: 6 } }, 'Выйти')
+            : React.createElement('button', {
+                className: 'dp-btn dp-btn-primary',
+                onClick: onLoginClick,
+                style: { padding: '7px 14px', fontSize: 13, marginLeft: 6 }
+              }, 'Войти')
+        )
       )
+    );
+  }
+
+  // ─── Orientation banner (для залогиненного, dismissible) ─
+  function DPOrient({ onClose }){
+    return React.createElement('div', { className: 'dp-orient' },
+      React.createElement('div', { className: 'dp-orient-icon' }, 'i'),
+      React.createElement('div', { className: 'dp-orient-text' },
+        'Ты в ', React.createElement('strong', null, 'Кабинете игрока'),
+        '. Ниже — твой профиль, ', Term('Партии', 'Партия — игровая сессия из 18 вопросов по 6 темам, ≈6 минут.'),
+        ' дня и Архив. Главное — нажать ', React.createElement('strong', null, 'Новая Партия'), '.'
+      ),
+      React.createElement('button', {
+        className: 'dp-orient-close',
+        onClick: onClose,
+        title: 'Скрыть подсказку'
+      }, '×')
     );
   }
 
@@ -83,15 +161,15 @@
       ),
       React.createElement('div', { className: 'dp-welcome-pillars' },
         React.createElement('div', { className: 'dp-welcome-pillar' },
-          React.createElement('div', { className: 'dp-welcome-pillar-label' }, 'Партия'),
+          React.createElement('div', { className: 'dp-welcome-pillar-label' }, '◷  Партия'),
           React.createElement('div', { className: 'dp-welcome-pillar-text' }, '18 вопросов · 6 тем · 5–7 минут')
         ),
         React.createElement('div', { className: 'dp-welcome-pillar' },
-          React.createElement('div', { className: 'dp-welcome-pillar-label' }, 'Тень'),
+          React.createElement('div', { className: 'dp-welcome-pillar-label' }, '◐  Тень'),
           React.createElement('div', { className: 'dp-welcome-pillar-text' }, 'Бот-соперник с тремя ритмами')
         ),
         React.createElement('div', { className: 'dp-welcome-pillar' },
-          React.createElement('div', { className: 'dp-welcome-pillar-label' }, 'Ступени'),
+          React.createElement('div', { className: 'dp-welcome-pillar-label' }, '◇  Ступени'),
           React.createElement('div', { className: 'dp-welcome-pillar-text' }, 'Послушник → Магистр')
         )
       )
@@ -127,12 +205,17 @@
           isGuest && React.createElement('span', { className: 'dp-hero-guest-tag' }, '· Гость')
         ),
         React.createElement('div', { className: 'dp-hero-stats' },
-          React.createElement('span', null, busey, ' бусин'),
+          React.createElement('span', null,
+            busey, ' ', Term('бусин', 'Бусины — главная валюта Игры. Начисляются за верные ответы (10 базовых + бонус за скорость).')
+          ),
           React.createElement('span', { className: 'dp-hero-stats-sep' }, '·'),
-          React.createElement('span', null, games, ' партий'),
+          React.createElement('span', null, games, ' ', Term('партий', 'Партия — одна игровая сессия из 18 вопросов.')),
           streak > 0 && React.createElement(React.Fragment, null,
             React.createElement('span', { className: 'dp-hero-stats-sep' }, '·'),
-            React.createElement('span', { className: 'dp-hero-streak' }, 'серия ', streak)
+            React.createElement('span', { className: 'dp-hero-streak' },
+              Term('серия', 'Серия — сколько дней подряд ты играешь без пропуска.'),
+              ' ', streak
+            )
           )
         ),
         React.createElement('div', { className: 'dp-hero-progress' },
@@ -196,8 +279,11 @@
 
     return React.createElement('section', { className: 'dp-section' },
       React.createElement('div', { className: 'dp-section-h-row' },
-        React.createElement('h2', { className: 'dp-section-h' }, 'Сегодня'),
+        React.createElement('h2', { className: 'dp-section-h' }, IconCalendar(), ' Сегодня'),
         React.createElement('span', { className: 'dp-section-h-sub' }, quests.length, ' задания')
+      ),
+      React.createElement('p', { className: 'dp-section-desc' },
+        'Быстрые форматы, чтобы поддержать ритм. Каждое задание — короче полной Партии.'
       ),
       React.createElement('div', { className: 'dp-quests' },
         quests.map(q =>
@@ -221,7 +307,10 @@
       React.createElement('div', null,
         React.createElement('div', { className: 'dp-cta-text-eyebrow' }, 'Главное действие'),
         React.createElement('div', { className: 'dp-cta-title' }, 'Новая Партия'),
-        React.createElement('div', { className: 'dp-cta-sub' }, '6 тем · 18 вопросов · соперник Тень')
+        React.createElement('div', { className: 'dp-cta-sub' },
+          '6 тем · 18 вопросов · соперник ',
+          Term('Тень', 'Тень — бот-соперник. Отвечает с заданной точностью (Лёгкая 55%, Средняя 75%, Сильная 92%) и реальной задержкой.')
+        )
       ),
       React.createElement('button', { className: 'dp-btn dp-btn-cta', onClick: onPlay },
         'Начать ', React.createElement('span', { style: { marginLeft: 4 } }, '→')
@@ -240,8 +329,11 @@
 
     return React.createElement('section', { className: 'dp-section' },
       React.createElement('div', { className: 'dp-section-h-row' },
-        React.createElement('h2', { className: 'dp-section-h' }, 'Партитура · 9 тем'),
+        React.createElement('h2', { className: 'dp-section-h' }, IconGrid(), ' Партитура'),
         React.createElement('span', { className: 'dp-section-h-sub' }, 'Освоено ', opened, ' из ', themes.length)
+      ),
+      React.createElement('p', { className: 'dp-section-desc' },
+        '9 тем мира «Сутки». Процент — твоё освоение. Темы открываются по мере того, как они выпадают в Партиях.'
       ),
       React.createElement('div', { className: 'dp-partitura' },
         themes.map(t => {
@@ -285,8 +377,8 @@
 
     return React.createElement('div', { className: 'dp-card', id: 'archive' },
       React.createElement('div', { className: 'dp-card-h' },
-        React.createElement('h3', null, 'Архив недели'),
-        React.createElement('span', { className: 'dp-card-meta' }, 'Сб 23:59')
+        React.createElement('h3', { style: { display: 'flex', alignItems: 'center', gap: 6 } }, IconList(), ' Архив недели'),
+        React.createElement('span', { className: 'dp-card-meta', title: 'Лидерборд обнуляется в субботу 23:59' }, 'Сб 23:59')
       ),
       items === null
         ? React.createElement('div', { className: 'dp-lb-empty' }, 'Загрузка…')
@@ -313,7 +405,7 @@
     const Ach = _g('YasnaDuelAchievements');
     if(!Ach?.list || !Ach?.getUnlocked) return React.createElement('div', { className: 'dp-card', id: 'znaki' },
       React.createElement('div', { className: 'dp-card-h' },
-        React.createElement('h3', null, 'Знаки'),
+        React.createElement('h3', { style: { display: 'flex', alignItems: 'center', gap: 6 } }, IconStar(), ' Знаки'),
         React.createElement('span', { className: 'dp-card-meta' }, '0 / 0')
       ),
       React.createElement('div', { className: 'dp-znaki-foot' }, 'Загрузка…')
@@ -327,7 +419,9 @@
 
     return React.createElement('div', { className: 'dp-card', id: 'znaki' },
       React.createElement('div', { className: 'dp-card-h' },
-        React.createElement('h3', null, 'Знаки'),
+        React.createElement('h3', { style: { display: 'flex', alignItems: 'center', gap: 6 } }, IconStar(),
+          ' ', Term('Знаки', 'Знаки — достижения. Открываются за упорство, серии и результаты Партий.')
+        ),
         React.createElement('span', { className: 'dp-card-meta' }, unlocked.length, ' / ', all.length)
       ),
       React.createElement('div', { className: 'dp-znaki-row' },
@@ -453,6 +547,13 @@
     const [anonModal, setAnonModal] = useState(false);
     const [turnirOpen, setTurnirOpen] = useState(false);
     const [, setTick] = useState(0);
+    const [orientHidden, setOrientHidden] = useState(() => {
+      try { return localStorage.getItem('yasna_dp_orient_hidden') === '1'; } catch(_){ return false; }
+    });
+    const dismissOrient = () => {
+      setOrientHidden(true);
+      try { localStorage.setItem('yasna_dp_orient_hidden', '1'); } catch(_){}
+    };
 
     const isFirstTime = !user && !profile;
     const onLoginClick = () => setAuthModal(true);
@@ -504,6 +605,7 @@
       isFirstTime
         ? React.createElement(DPWelcome, { onLoginClick, onAnonStart: () => setAnonModal(true) })
         : React.createElement(React.Fragment, null,
+            !orientHidden && React.createElement(DPOrient, { onClose: dismissOrient }),
             React.createElement(DPProfileHero, { user, profile, onLoginClick }),
             React.createElement(DPQuestsRow, { onPlay: startTurnir }),
             React.createElement(DPMainCTA, { onPlay: startTurnir }),

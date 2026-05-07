@@ -5,6 +5,16 @@
 
 * { box-sizing: border-box; }
 
+/* Override global styles.css body lock — на этой странице нужен скролл */
+html, body {
+  overflow: visible !important;
+  height: auto !important;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
 :root {
   --bg-page: #f7f4ee;
   --bg-surface: #ffffff;
@@ -659,6 +669,185 @@ a { color: inherit; }
   border-color: var(--accent);
   background: var(--accent-soft);
 }
+
+/* ─── Orientation banner (куда попал) ────────────────────── */
+.dp-orient {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--info-soft);
+  border: 0.5px solid rgba(34, 158, 217, 0.2);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin: 16px 0 0;
+  font-size: 13px;
+  color: var(--info-text);
+  line-height: 1.5;
+}
+.dp-orient-icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--info);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 500;
+  margin-top: 1px;
+}
+.dp-orient-text strong {
+  font-weight: 500;
+  color: var(--info-text);
+}
+.dp-orient-close {
+  margin-left: auto;
+  background: transparent;
+  border: 0;
+  color: var(--info-text);
+  font-size: 16px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+.dp-orient-close:hover { opacity: 1; background: rgba(34, 158, 217, 0.1); }
+
+/* ─── Section description (под заголовком секции) ────────── */
+.dp-section-desc {
+  font-size: 12px;
+  color: var(--text-3);
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+
+/* ─── Section header with icon ───────────────────────────── */
+.dp-section-h {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dp-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--text-3);
+  display: inline-flex;
+}
+
+/* ─── Tooltip term (hover/focus подсказка) ───────────────── */
+.dp-term {
+  position: relative;
+  border-bottom: 0.5px dashed var(--text-3);
+  cursor: help;
+}
+.dp-term::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: var(--text-1);
+  color: var(--bg-surface);
+  font-size: 12px;
+  padding: 7px 11px;
+  border-radius: var(--radius-sm);
+  white-space: normal;
+  width: max-content;
+  max-width: 240px;
+  text-align: center;
+  line-height: 1.45;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .15s, transform .15s;
+  z-index: 20;
+  box-shadow: var(--shadow-md);
+}
+.dp-term::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 0px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border: 5px solid transparent;
+  border-top-color: var(--text-1);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .15s;
+  z-index: 20;
+}
+.dp-term:hover::after,
+.dp-term:focus::after,
+.dp-term:active::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.dp-term:hover::before,
+.dp-term:focus::before,
+.dp-term:active::before { opacity: 1; }
+
+/* ─── Help button in header ──────────────────────────────── */
+.dp-help-btn {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--bg-soft);
+  border: 0.5px solid var(--border-2);
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dp-help-btn:hover { background: var(--accent-soft); color: var(--accent-strong); border-color: var(--accent); }
+
+/* ─── Quest icon ─────────────────────────────────────────── */
+.dp-quest-icon {
+  display: inline-flex;
+  width: 14px; height: 14px;
+  margin-right: 6px;
+  vertical-align: -2px;
+  color: var(--accent);
+}
+
+/* ─── Help-popover (что это за страница) ─────────────────── */
+.dp-help-popover {
+  position: absolute;
+  top: 44px;
+  right: 0;
+  background: var(--bg-surface);
+  border: 0.5px solid var(--border-1);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  width: 280px;
+  z-index: 30;
+  box-shadow: var(--shadow-md);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+.dp-help-popover h4 {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0 0 6px;
+  color: var(--text-1);
+}
+.dp-help-popover ul {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.dp-help-popover li {
+  padding: 4px 0;
+  font-size: 12px;
+}
+.dp-help-popover li strong { font-weight: 500; color: var(--text-1); }
+
+/* ─── Wrapper для positioning help-popover ───────────────── */
+.dp-header-auth { position: relative; }
 
 /* ─── Responsive ─────────────────────────────────────────── */
 @media (max-width: 720px) {
