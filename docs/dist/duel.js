@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-07T22:19:30.459Z */
+/* Yasna bundle: duel.js — собран 2026-05-07T22:30:46.494Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -7021,6 +7021,409 @@ window.YasnaCore = {
       )
     );
   }
+  function makePollingTransport({ roomId, deviceId, role, apiUrl }) {
+    const handlers = /* @__PURE__ */ new Set();
+    let lastTs = 0;
+    let pollTimer = null;
+    let stopped = false;
+    async function poll() {
+      var _a;
+      if (stopped) return;
+      try {
+        const url = apiUrl + "/rooms/poll?roomId=" + encodeURIComponent(roomId) + "&deviceId=" + encodeURIComponent(deviceId) + "&since=" + lastTs;
+        const r = await fetch(url, { method: "GET" });
+        if (!r.ok) {
+          console.warn("[polling] poll failed", r.status);
+        } else {
+          const data = await r.json();
+          const msgs = (data == null ? void 0 : data.messages) || [];
+          for (const m of msgs) {
+            if (m.ts > lastTs) lastTs = m.ts;
+            const reconstructed = Object.assign({ t: m.type }, m.payload || {});
+            handlers.forEach((fn) => {
+              try {
+                fn(reconstructed);
+              } catch (_) {
+              }
+            });
+          }
+          if (((_a = data == null ? void 0 : data.room) == null ? void 0 : _a.status) === "closed") {
+            handlers.forEach((fn) => {
+              try {
+                fn({ t: "opp-leave" });
+              } catch (_) {
+              }
+            });
+            stopped = true;
+          }
+        }
+      } catch (e) {
+        console.warn("[polling] poll error", (e == null ? void 0 : e.message) || e);
+      }
+      if (!stopped) {
+        pollTimer = setTimeout(poll, 500);
+      }
+    }
+    poll();
+    return {
+      role,
+      async send(msg) {
+        if (stopped) return;
+        const { t, ...rest } = msg || {};
+        try {
+          await fetch(apiUrl + "/rooms/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              roomId,
+              deviceId,
+              type: t || "unknown",
+              payload: Object.keys(rest).length > 0 ? rest : null
+            })
+          });
+        } catch (e) {
+          console.warn("[polling] send error", (e == null ? void 0 : e.message) || e);
+        }
+      },
+      on(fn) {
+        handlers.add(fn);
+        return () => handlers.delete(fn);
+      },
+      close() {
+        stopped = true;
+        if (pollTimer) {
+          clearTimeout(pollTimer);
+          pollTimer = null;
+        }
+        try {
+          fetch(apiUrl + "/rooms/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ roomId, deviceId, type: "leave", payload: null }),
+            keepalive: true
+          });
+        } catch (_) {
+        }
+      },
+      startHeartbeat() {
+      }
+    };
+  }
+  function DPLobbyV2({ onClose, profile, onConnected, initialMode, initialCode }) {
+    const [mode, setMode] = useState(initialMode || "choose");
+    const [roomCode, setRoomCode] = useState("");
+    const [roomId, setRoomId] = useState("");
+    const [inputCode, setInputCode] = useState(initialCode || "");
+    const [error, setError] = useState(null);
+    const [statusText, setStatusText] = useState("\u0416\u0434\u0443 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430\u2026");
+    const transportRef = useRef(null);
+    const waitingPollTimer = useRef(null);
+    const me = profile;
+    const apiUrl = window.YASNA_LEADERBOARD_API || "";
+    function cleanup() {
+      var _a, _b;
+      if (waitingPollTimer.current) {
+        clearTimeout(waitingPollTimer.current);
+        waitingPollTimer.current = null;
+      }
+      try {
+        (_b = (_a = transportRef.current) == null ? void 0 : _a.close) == null ? void 0 : _b.call(_a);
+      } catch (_) {
+      }
+      transportRef.current = null;
+    }
+    useEffect(() => () => cleanup(), []);
+    useEffect(() => {
+      if (initialMode === "guest" && initialCode) {
+        setTimeout(() => doJoin(initialCode), 100);
+      }
+    }, []);
+    async function doCreate() {
+      if (!apiUrl) {
+        setError("\u0421\u0435\u0440\u0432\u0435\u0440 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D \u2014 \u043F\u0440\u043E\u0432\u0435\u0440\u044C \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438.");
+        setMode("error");
+        return;
+      }
+      if (!(me == null ? void 0 : me.deviceId) || !(me == null ? void 0 : me.nickname)) {
+        setError("\u0421\u043D\u0430\u0447\u0430\u043B\u0430 \u0443\u043A\u0430\u0436\u0438 \u043D\u0438\u043A\u043D\u0435\u0439\u043C.");
+        setMode("error");
+        return;
+      }
+      setMode("host");
+      setStatusText("\u0421\u043E\u0437\u0434\u0430\u044E \u043A\u043E\u043C\u043D\u0430\u0442\u0443\u2026");
+      setError(null);
+      console.log("[lobby/create] requesting...");
+      try {
+        const r = await fetch(apiUrl + "/rooms/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            deviceId: me.deviceId,
+            nickname: me.nickname,
+            avatar: me.avatar || null
+          })
+        });
+        if (!r.ok) {
+          const errBody = await r.json().catch(() => ({}));
+          setError("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u043A\u043E\u043C\u043D\u0430\u0442\u0443: " + ((errBody == null ? void 0 : errBody.error) || r.statusText));
+          setMode("error");
+          return;
+        }
+        const data = await r.json();
+        console.log("[lobby/create] room created", data);
+        setRoomCode(data.code);
+        setRoomId(data.roomId);
+        setStatusText("\u0416\u0434\u0443 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430\u2026");
+        const checkRoom = async () => {
+          var _a, _b;
+          try {
+            const pr = await fetch(apiUrl + "/rooms/poll?roomId=" + encodeURIComponent(data.roomId) + "&deviceId=" + encodeURIComponent(me.deviceId) + "&since=0&limit=10", { method: "GET" });
+            if (pr.ok) {
+              const pd = await pr.json();
+              if (((_a = pd == null ? void 0 : pd.room) == null ? void 0 : _a.status) === "playing" && ((_b = pd == null ? void 0 : pd.room) == null ? void 0 : _b.opp)) {
+                console.log("[lobby/create] guest joined", pd.room.opp);
+                const transport = makePollingTransport({
+                  roomId: data.roomId,
+                  deviceId: me.deviceId,
+                  role: "host",
+                  apiUrl
+                });
+                transportRef.current = transport;
+                onConnected({
+                  transport,
+                  role: "host",
+                  roomCode: data.code,
+                  opponent: { nickname: pd.room.opp.nickname, avatar: pd.room.opp.avatar || "\u25D0", isPvP: true }
+                });
+                return;
+              }
+            }
+          } catch (e) {
+            console.warn("[lobby/create] poll error", e == null ? void 0 : e.message);
+          }
+          waitingPollTimer.current = setTimeout(checkRoom, 1500);
+        };
+        waitingPollTimer.current = setTimeout(checkRoom, 1500);
+        setTimeout(() => {
+          if (waitingPollTimer.current) {
+            clearTimeout(waitingPollTimer.current);
+            waitingPollTimer.current = null;
+            if (mode !== "error") {
+              setError("\u041D\u0438\u043A\u0442\u043E \u043D\u0435 \u043F\u0440\u0438\u0448\u0451\u043B \u0437\u0430 5 \u043C\u0438\u043D\u0443\u0442. \u0421\u043E\u0437\u0434\u0430\u0439 \u043D\u043E\u0432\u0443\u044E \u043A\u043E\u043C\u043D\u0430\u0442\u0443.");
+              setMode("error");
+            }
+          }
+        }, 5 * 60 * 1e3);
+      } catch (e) {
+        console.error("[lobby/create] exception", e);
+        setError("\u041E\u0448\u0438\u0431\u043A\u0430 \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u044F \u043A\u043E\u043C\u043D\u0430\u0442\u044B: " + e.message);
+        setMode("error");
+      }
+    }
+    async function doJoin(codeOverride) {
+      var _a, _b;
+      const code = (codeOverride || inputCode).trim().toUpperCase();
+      if (!/^KASTA-[A-Z0-9]{4}$/.test(code)) {
+        setError("\u041A\u043E\u0434 \u0434\u043E\u043B\u0436\u0435\u043D \u0431\u044B\u0442\u044C \u0432 \u0444\u043E\u0440\u043C\u0430\u0442\u0435 KASTA-XXXX");
+        return;
+      }
+      if (!apiUrl) {
+        setError("\u0421\u0435\u0440\u0432\u0435\u0440 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D \u2014 \u043F\u0440\u043E\u0432\u0435\u0440\u044C \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438.");
+        setMode("error");
+        return;
+      }
+      if (!(me == null ? void 0 : me.deviceId) || !(me == null ? void 0 : me.nickname)) {
+        setError("\u0421\u043D\u0430\u0447\u0430\u043B\u0430 \u0443\u043A\u0430\u0436\u0438 \u043D\u0438\u043A\u043D\u0435\u0439\u043C.");
+        setMode("error");
+        return;
+      }
+      setInputCode(code);
+      setMode("waiting");
+      setStatusText("\u041F\u043E\u0434\u043A\u043B\u044E\u0447\u0430\u044E\u0441\u044C \u043A " + code + "\u2026");
+      setError(null);
+      console.log("[lobby/join] requesting", code);
+      try {
+        const r = await fetch(apiUrl + "/rooms/join", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            code,
+            deviceId: me.deviceId,
+            nickname: me.nickname,
+            avatar: me.avatar || null
+          })
+        });
+        if (r.status === 404) {
+          setError("\u041A\u043E\u043C\u043D\u0430\u0442\u0430 \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u0430. \u041F\u0440\u043E\u0432\u0435\u0440\u044C \u043A\u043E\u0434 \u0438\u043B\u0438 \u043F\u043E\u043F\u0440\u043E\u0441\u0438 \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u043D\u043E\u0432\u0443\u044E.");
+          setMode("error");
+          return;
+        }
+        if (r.status === 409) {
+          setError("\u0412 \u043A\u043E\u043C\u043D\u0430\u0442\u0435 \u0443\u0436\u0435 \u0434\u0432\u0430 \u0438\u0433\u0440\u043E\u043A\u0430. \u041F\u043E\u043F\u0440\u043E\u0441\u0438 \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u043D\u043E\u0432\u0443\u044E.");
+          setMode("error");
+          return;
+        }
+        if (r.status === 410) {
+          setError("\u041A\u043E\u043C\u043D\u0430\u0442\u0430 \u0437\u0430\u043A\u0440\u044B\u0442\u0430. \u041F\u043E\u043F\u0440\u043E\u0441\u0438 \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u043D\u043E\u0432\u0443\u044E.");
+          setMode("error");
+          return;
+        }
+        if (!r.ok) {
+          const errBody = await r.json().catch(() => ({}));
+          setError("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0438\u0442\u044C\u0441\u044F: " + ((errBody == null ? void 0 : errBody.error) || r.statusText));
+          setMode("error");
+          return;
+        }
+        const data = await r.json();
+        console.log("[lobby/join] joined", data);
+        const transport = makePollingTransport({
+          roomId: data.roomId,
+          deviceId: me.deviceId,
+          role: "guest",
+          apiUrl
+        });
+        transportRef.current = transport;
+        onConnected({
+          transport,
+          role: "guest",
+          roomCode: code,
+          opponent: { nickname: ((_a = data.host) == null ? void 0 : _a.nickname) || "\u0425\u043E\u0437\u044F\u0438\u043D", avatar: ((_b = data.host) == null ? void 0 : _b.avatar) || "\u25D1", isPvP: true }
+        });
+      } catch (e) {
+        console.error("[lobby/join] exception", e);
+        setError("\u041E\u0448\u0438\u0431\u043A\u0430 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F: " + e.message);
+        setMode("error");
+      }
+    }
+    function copyLink() {
+      const link = window.location.origin + window.location.pathname + "?room=" + roomCode;
+      try {
+        navigator.clipboard.writeText(link);
+        setStatusText("\u2713 \u0421\u0441\u044B\u043B\u043A\u0430 \u0441\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0430 \xB7 \u0436\u0434\u0443 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430\u2026");
+        setTimeout(() => setStatusText("\u0416\u0434\u0443 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430\u2026"), 2500);
+      } catch (_) {
+        prompt("\u0421\u043A\u043E\u043F\u0438\u0440\u0443\u0439 \u0441\u0441\u044B\u043B\u043A\u0443:", link);
+      }
+    }
+    return React.createElement(
+      "div",
+      { className: "dp-lobby-overlay", onClick: (e) => {
+        if (e.target === e.currentTarget) onClose();
+      } },
+      React.createElement(
+        "div",
+        { className: "dp-lobby", role: "dialog", "aria-modal": "true", "aria-labelledby": "lobby-h" },
+        React.createElement("button", { className: "dp-lobby-x", onClick: onClose, "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C" }, "\xD7"),
+        React.createElement("div", { className: "dp-lobby-eyebrow" }, "\u2726  \u041F\u0430\u0440\u0442\u0438\u044F \u0432\u0434\u0432\u043E\u0451\u043C"),
+        React.createElement("h2", { id: "lobby-h" }, "\u041A\u0430\u0441\u0442\u0430\u043B\u0438\u044F \u0437\u043E\u0432\u0451\u0442 \u0434\u0432\u043E\u0438\u0445"),
+        mode === "choose" && React.createElement(
+          React.Fragment,
+          null,
+          React.createElement(
+            "p",
+            { className: "dp-lobby-sub" },
+            "\u0421\u043E\u0437\u0434\u0430\u0439 \u043A\u043E\u043C\u043D\u0430\u0442\u0443 \u0438 \u043F\u043E\u0434\u0435\u043B\u0438\u0441\u044C \u043A\u043E\u0434\u043E\u043C \xB7 \u0438\u043B\u0438 \u0432\u043E\u0439\u0434\u0438 \u043F\u043E \u043A\u043E\u0434\u0443 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430."
+          ),
+          React.createElement(
+            "div",
+            { className: "dp-lobby-options" },
+            React.createElement(
+              "button",
+              { className: "dp-lobby-opt", onClick: doCreate },
+              React.createElement("div", { className: "dp-lobby-opt-icon" }, "\u25EF"),
+              React.createElement("div", { className: "dp-lobby-opt-title" }, "\u0421\u043E\u0437\u0434\u0430\u0442\u044C"),
+              React.createElement("div", { className: "dp-lobby-opt-sub" }, "\u041F\u043E\u043B\u0443\u0447\u0438\u0448\u044C \u043A\u043E\u0434. \u041F\u043E\u043A\u0430\u0436\u0438 \u0435\u0433\u043E \u0434\u0440\u0443\u0433\u0443.")
+            ),
+            React.createElement(
+              "button",
+              { className: "dp-lobby-opt", onClick: () => setMode("guest") },
+              React.createElement("div", { className: "dp-lobby-opt-icon" }, "\u25D0"),
+              React.createElement("div", { className: "dp-lobby-opt-title" }, "\u0412\u043E\u0439\u0442\u0438 \u043F\u043E \u043A\u043E\u0434\u0443"),
+              React.createElement("div", { className: "dp-lobby-opt-sub" }, "\u0412\u0432\u0435\u0434\u0438 \u043A\u043E\u0434, \u0447\u0442\u043E \u043F\u0440\u0438\u0441\u043B\u0430\u043B \u0434\u0440\u0443\u0433.")
+            )
+          ),
+          error && React.createElement("div", { className: "dp-lobby-error" }, error)
+        ),
+        mode === "host" && React.createElement(
+          React.Fragment,
+          null,
+          roomCode ? React.createElement(
+            React.Fragment,
+            null,
+            React.createElement(
+              "div",
+              { className: "dp-lobby-code-block" },
+              React.createElement("div", { className: "dp-lobby-code-label" }, "\u041A\u043E\u0434 \u043A\u043E\u043C\u043D\u0430\u0442\u044B"),
+              React.createElement("div", { className: "dp-lobby-code" }, roomCode),
+              React.createElement("div", { className: "dp-lobby-code-hint" }, "\u041F\u043E\u043A\u0430\u0436\u0438 \u044D\u0442\u043E\u0442 \u043A\u043E\u0434 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0443 \u0438\u043B\u0438 \u0441\u043A\u043E\u043F\u0438\u0440\u0443\u0439 \u0441\u0441\u044B\u043B\u043A\u0443"),
+              React.createElement("button", { className: "dp-lobby-code-link", onClick: copyLink }, "\u0421\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0441\u0441\u044B\u043B\u043A\u0443")
+            ),
+            React.createElement(
+              "div",
+              { className: "dp-lobby-status" },
+              React.createElement("div", { className: "dp-lobby-status-icon" }, "\u25F7"),
+              React.createElement("div", { className: "dp-lobby-status-title" }, statusText)
+            )
+          ) : React.createElement(
+            "div",
+            { className: "dp-lobby-status" },
+            React.createElement("div", { className: "dp-lobby-status-icon" }, "\u25F7"),
+            React.createElement("div", { className: "dp-lobby-status-title" }, statusText)
+          )
+        ),
+        mode === "guest" && React.createElement(
+          React.Fragment,
+          null,
+          React.createElement("p", { className: "dp-lobby-sub" }, "\u0412\u0432\u0435\u0434\u0438 \u043A\u043E\u0434 \u043E\u0442 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430"),
+          React.createElement("input", {
+            className: "dp-lobby-input",
+            placeholder: "KASTA-XXXX",
+            value: inputCode,
+            maxLength: 10,
+            autoFocus: true,
+            onChange: (e) => setInputCode(e.target.value),
+            onKeyDown: (e) => {
+              if (e.key === "Enter") doJoin();
+            }
+          }),
+          React.createElement("button", {
+            className: "dp-btn dp-btn-cta",
+            onClick: () => doJoin(),
+            disabled: !inputCode.trim(),
+            style: { width: "100%" }
+          }, "\u0412\u043E\u0439\u0442\u0438 \u2192"),
+          error && React.createElement("div", { className: "dp-lobby-error" }, error)
+        ),
+        mode === "waiting" && React.createElement(
+          "div",
+          { className: "dp-lobby-status" },
+          React.createElement("div", { className: "dp-lobby-status-icon" }, "\u25F7"),
+          React.createElement("div", { className: "dp-lobby-status-title" }, statusText),
+          React.createElement("div", { className: "dp-lobby-status-sub" }, "\u042D\u0442\u043E \u0437\u0430\u043D\u0438\u043C\u0430\u0435\u0442 \u043D\u0435\u0441\u043A\u043E\u043B\u044C\u043A\u043E \u0441\u0435\u043A\u0443\u043D\u0434")
+        ),
+        mode === "error" && React.createElement(
+          React.Fragment,
+          null,
+          React.createElement(
+            "div",
+            { className: "dp-lobby-status" },
+            React.createElement("div", { className: "dp-lobby-status-icon", style: { color: "var(--danger)" } }, "\u25CB"),
+            React.createElement("div", { className: "dp-lobby-status-title" }, "\u041D\u0435 \u043F\u043E\u043B\u0443\u0447\u0438\u043B\u043E\u0441\u044C"),
+            React.createElement("div", { className: "dp-lobby-status-sub" }, error || "\u041F\u043E\u043F\u0440\u043E\u0431\u0443\u0439 \u0435\u0449\u0451 \u0440\u0430\u0437")
+          ),
+          React.createElement("button", {
+            className: "dp-btn",
+            onClick: () => {
+              cleanup();
+              setMode("choose");
+              setError(null);
+            },
+            style: { width: "100%" }
+          }, "\u041D\u0430\u0437\u0430\u0434")
+        )
+      )
+    );
+  }
   const ICE_SERVERS = [
     { urls: "stun:stun.l.google.com:19302" },
     { urls: "stun:stun1.l.google.com:19302" },
@@ -7812,8 +8215,8 @@ window.YasnaCore = {
           )
         )
       ),
-      // ─── Lobby для PvP ───
-      lobby && React.createElement(DPLobby, {
+      // ─── Lobby для PvP (polling-relay через Yandex Cloud) ───
+      lobby && React.createElement(DPLobbyV2, {
         initialMode: lobby.mode || null,
         initialCode: lobby.code || null,
         onClose: () => setLobby(null),

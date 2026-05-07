@@ -560,15 +560,393 @@
   }
 
   // ═══════════════════════════════════════════════════════════════════
-  // REAL-TIME LOBBY · PvP через PeerJS + TURN
+  // REAL-TIME LOBBY · PvP через Yandex Cloud Polling-relay
   //
-  // Архитектура:
-  // - Public PeerJS broker (peerjs.com/peer) — даёт signaling
-  // - STUN-серверы Google (для NAT-discovery)
-  // - TURN от Open Relay Project (free, без регистрации) — relay когда STUN не помогает
+  // Архитектура (надёжная — работает через любой NAT, corp WiFi, VPN):
+  // 1. POST /rooms/create  → получить roomId + code
+  // 2. POST /rooms/join    → присоединиться по code
+  // 3. POST /rooms/send    → отправить сообщение
+  // 4. GET  /rooms/poll    → получить сообщения соперника (раз в ~500ms)
   //
-  // Без TURN ~30-50% соединений не проходят (симметричный NAT, corporate WiFi).
-  // С Open Relay TURN — ~95%.
+  // Latency ~500-700ms — достаточно для пошаговой Партии (feedback 1500ms).
+  //
+  // Существующий PeerJS-код оставлен ниже (не используется в production)
+  // как референс для будущей P2P-оптимизации Узора.
+  // ═══════════════════════════════════════════════════════════════════
+
+  // ─── Polling Transport — основной транспорт ─────────────────────
+  // Совместим по API с PeerJS-transport (send / on / close).
+  function makePollingTransport({ roomId, deviceId, role, apiUrl }){
+    const handlers = new Set();
+    let lastTs = 0;
+    let pollTimer = null;
+    let stopped = false;
+
+    async function poll(){
+      if(stopped) return;
+      try {
+        const url = apiUrl + '/rooms/poll?roomId=' + encodeURIComponent(roomId)
+                  + '&deviceId=' + encodeURIComponent(deviceId)
+                  + '&since=' + lastTs;
+        const r = await fetch(url, { method: 'GET' });
+        if(!r.ok){
+          console.warn('[polling] poll failed', r.status);
+        } else {
+          const data = await r.json();
+          const msgs = data?.messages || [];
+          for(const m of msgs){
+            if(m.ts > lastTs) lastTs = m.ts;
+            // Воссоздаём «PeerJS-style» сообщение: type + payload поля
+            const reconstructed = Object.assign({ t: m.type }, m.payload || {});
+            handlers.forEach(fn => { try { fn(reconstructed); } catch(_){} });
+          }
+          // Если room.status === 'closed' — уведомляем
+          if(data?.room?.status === 'closed'){
+            handlers.forEach(fn => { try { fn({ t: 'opp-leave' }); } catch(_){} });
+            stopped = true;
+          }
+        }
+      } catch(e){
+        console.warn('[polling] poll error', e?.message || e);
+      }
+      if(!stopped){
+        pollTimer = setTimeout(poll, 500);
+      }
+    }
+
+    // Старт цикла polling
+    poll();
+
+    return {
+      role,
+      async send(msg){
+        if(stopped) return;
+        // PeerJS-style msg = { t: 'partiya-init', ...payload }.
+        // Преобразуем в формат сервера: { type, payload }
+        const { t, ...rest } = msg || {};
+        try {
+          await fetch(apiUrl + '/rooms/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              roomId, deviceId,
+              type: t || 'unknown',
+              payload: Object.keys(rest).length > 0 ? rest : null,
+            }),
+          });
+        } catch(e){
+          console.warn('[polling] send error', e?.message || e);
+        }
+      },
+      on(fn){ handlers.add(fn); return () => handlers.delete(fn); },
+      close(){
+        stopped = true;
+        if(pollTimer){ clearTimeout(pollTimer); pollTimer = null; }
+        // Уведомить сервер что мы вышли
+        try {
+          fetch(apiUrl + '/rooms/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ roomId, deviceId, type: 'leave', payload: null }),
+            keepalive: true,
+          });
+        } catch(_){}
+      },
+      startHeartbeat(){ /* polling сам и есть heartbeat */ },
+    };
+  }
+
+  // ─── Lobby UI · использует polling-transport ─────────────────────
+  function DPLobbyV2({ onClose, profile, onConnected, initialMode, initialCode }){
+    const [mode, setMode] = useState(initialMode || 'choose');
+    const [roomCode, setRoomCode] = useState('');
+    const [roomId, setRoomId] = useState('');
+    const [inputCode, setInputCode] = useState(initialCode || '');
+    const [error, setError] = useState(null);
+    const [statusText, setStatusText] = useState('Жду собеседника…');
+    const transportRef = useRef(null);
+    const waitingPollTimer = useRef(null);
+    const me = profile;
+
+    const apiUrl = window.YASNA_LEADERBOARD_API || '';
+
+    function cleanup(){
+      if(waitingPollTimer.current){ clearTimeout(waitingPollTimer.current); waitingPollTimer.current = null; }
+      try { transportRef.current?.close?.(); } catch(_){}
+      transportRef.current = null;
+    }
+    useEffect(() => () => cleanup(), []);
+
+    useEffect(() => {
+      if(initialMode === 'guest' && initialCode){
+        setTimeout(() => doJoin(initialCode), 100);
+      }
+    }, []);
+
+    // Хост: создать комнату, потом ждать гостя через polling
+    async function doCreate(){
+      if(!apiUrl){
+        setError('Сервер недоступен — проверь настройки.');
+        setMode('error');
+        return;
+      }
+      if(!me?.deviceId || !me?.nickname){
+        setError('Сначала укажи никнейм.');
+        setMode('error');
+        return;
+      }
+      setMode('host');
+      setStatusText('Создаю комнату…');
+      setError(null);
+      console.log('[lobby/create] requesting...');
+
+      try {
+        const r = await fetch(apiUrl + '/rooms/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            deviceId: me.deviceId,
+            nickname: me.nickname,
+            avatar: me.avatar || null,
+          }),
+        });
+        if(!r.ok){
+          const errBody = await r.json().catch(() => ({}));
+          setError('Не удалось создать комнату: ' + (errBody?.error || r.statusText));
+          setMode('error');
+          return;
+        }
+        const data = await r.json();
+        console.log('[lobby/create] room created', data);
+        setRoomCode(data.code);
+        setRoomId(data.roomId);
+        setStatusText('Жду собеседника…');
+
+        // Опрашиваем room каждые 1500ms — как только status=playing → начинаем игру
+        const checkRoom = async () => {
+          try {
+            const pr = await fetch(apiUrl + '/rooms/poll?roomId=' + encodeURIComponent(data.roomId)
+                                + '&deviceId=' + encodeURIComponent(me.deviceId)
+                                + '&since=0&limit=10', { method: 'GET' });
+            if(pr.ok){
+              const pd = await pr.json();
+              if(pd?.room?.status === 'playing' && pd?.room?.opp){
+                // Гость присоединился! Стартуем игру.
+                console.log('[lobby/create] guest joined', pd.room.opp);
+                const transport = makePollingTransport({
+                  roomId: data.roomId,
+                  deviceId: me.deviceId,
+                  role: 'host',
+                  apiUrl,
+                });
+                transportRef.current = transport;
+                onConnected({
+                  transport, role: 'host', roomCode: data.code,
+                  opponent: { nickname: pd.room.opp.nickname, avatar: pd.room.opp.avatar || '◐', isPvP: true }
+                });
+                return;
+              }
+            }
+          } catch(e){
+            console.warn('[lobby/create] poll error', e?.message);
+          }
+          waitingPollTimer.current = setTimeout(checkRoom, 1500);
+        };
+        waitingPollTimer.current = setTimeout(checkRoom, 1500);
+
+        // Master timeout — если за 5 минут никто не пришёл
+        setTimeout(() => {
+          if(waitingPollTimer.current){
+            clearTimeout(waitingPollTimer.current);
+            waitingPollTimer.current = null;
+            if(mode !== 'error'){
+              setError('Никто не пришёл за 5 минут. Создай новую комнату.');
+              setMode('error');
+            }
+          }
+        }, 5 * 60 * 1000);
+
+      } catch(e){
+        console.error('[lobby/create] exception', e);
+        setError('Ошибка создания комнаты: ' + e.message);
+        setMode('error');
+      }
+    }
+
+    async function doJoin(codeOverride){
+      const code = (codeOverride || inputCode).trim().toUpperCase();
+      if(!/^KASTA-[A-Z0-9]{4}$/.test(code)){
+        setError('Код должен быть в формате KASTA-XXXX');
+        return;
+      }
+      if(!apiUrl){
+        setError('Сервер недоступен — проверь настройки.');
+        setMode('error');
+        return;
+      }
+      if(!me?.deviceId || !me?.nickname){
+        setError('Сначала укажи никнейм.');
+        setMode('error');
+        return;
+      }
+      setInputCode(code);
+      setMode('waiting');
+      setStatusText('Подключаюсь к ' + code + '…');
+      setError(null);
+      console.log('[lobby/join] requesting', code);
+
+      try {
+        const r = await fetch(apiUrl + '/rooms/join', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code,
+            deviceId: me.deviceId,
+            nickname: me.nickname,
+            avatar: me.avatar || null,
+          }),
+        });
+        if(r.status === 404){
+          setError('Комната не найдена. Проверь код или попроси создать новую.');
+          setMode('error');
+          return;
+        }
+        if(r.status === 409){
+          setError('В комнате уже два игрока. Попроси создать новую.');
+          setMode('error');
+          return;
+        }
+        if(r.status === 410){
+          setError('Комната закрыта. Попроси создать новую.');
+          setMode('error');
+          return;
+        }
+        if(!r.ok){
+          const errBody = await r.json().catch(() => ({}));
+          setError('Не удалось подключиться: ' + (errBody?.error || r.statusText));
+          setMode('error');
+          return;
+        }
+        const data = await r.json();
+        console.log('[lobby/join] joined', data);
+        const transport = makePollingTransport({
+          roomId: data.roomId,
+          deviceId: me.deviceId,
+          role: 'guest',
+          apiUrl,
+        });
+        transportRef.current = transport;
+        onConnected({
+          transport, role: 'guest', roomCode: code,
+          opponent: { nickname: data.host?.nickname || 'Хозяин', avatar: data.host?.avatar || '◑', isPvP: true }
+        });
+      } catch(e){
+        console.error('[lobby/join] exception', e);
+        setError('Ошибка подключения: ' + e.message);
+        setMode('error');
+      }
+    }
+
+    function copyLink(){
+      const link = window.location.origin + window.location.pathname + '?room=' + roomCode;
+      try {
+        navigator.clipboard.writeText(link);
+        setStatusText('✓ Ссылка скопирована · жду собеседника…');
+        setTimeout(() => setStatusText('Жду собеседника…'), 2500);
+      } catch(_){
+        prompt('Скопируй ссылку:', link);
+      }
+    }
+
+    return React.createElement('div', { className: 'dp-lobby-overlay', onClick: e => { if(e.target === e.currentTarget) onClose(); } },
+      React.createElement('div', { className: 'dp-lobby', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'lobby-h' },
+        React.createElement('button', { className: 'dp-lobby-x', onClick: onClose, 'aria-label': 'Закрыть' }, '×'),
+        React.createElement('div', { className: 'dp-lobby-eyebrow' }, '✦  Партия вдвоём'),
+        React.createElement('h2', { id: 'lobby-h' }, 'Касталия зовёт двоих'),
+
+        mode === 'choose' && React.createElement(React.Fragment, null,
+          React.createElement('p', { className: 'dp-lobby-sub' },
+            'Создай комнату и поделись кодом · или войди по коду собеседника.'
+          ),
+          React.createElement('div', { className: 'dp-lobby-options' },
+            React.createElement('button', { className: 'dp-lobby-opt', onClick: doCreate },
+              React.createElement('div', { className: 'dp-lobby-opt-icon' }, '◯'),
+              React.createElement('div', { className: 'dp-lobby-opt-title' }, 'Создать'),
+              React.createElement('div', { className: 'dp-lobby-opt-sub' }, 'Получишь код. Покажи его другу.')
+            ),
+            React.createElement('button', { className: 'dp-lobby-opt', onClick: () => setMode('guest') },
+              React.createElement('div', { className: 'dp-lobby-opt-icon' }, '◐'),
+              React.createElement('div', { className: 'dp-lobby-opt-title' }, 'Войти по коду'),
+              React.createElement('div', { className: 'dp-lobby-opt-sub' }, 'Введи код, что прислал друг.')
+            )
+          ),
+          error && React.createElement('div', { className: 'dp-lobby-error' }, error)
+        ),
+
+        mode === 'host' && React.createElement(React.Fragment, null,
+          roomCode ? React.createElement(React.Fragment, null,
+            React.createElement('div', { className: 'dp-lobby-code-block' },
+              React.createElement('div', { className: 'dp-lobby-code-label' }, 'Код комнаты'),
+              React.createElement('div', { className: 'dp-lobby-code' }, roomCode),
+              React.createElement('div', { className: 'dp-lobby-code-hint' }, 'Покажи этот код собеседнику или скопируй ссылку'),
+              React.createElement('button', { className: 'dp-lobby-code-link', onClick: copyLink }, 'Скопировать ссылку')
+            ),
+            React.createElement('div', { className: 'dp-lobby-status' },
+              React.createElement('div', { className: 'dp-lobby-status-icon' }, '◷'),
+              React.createElement('div', { className: 'dp-lobby-status-title' }, statusText)
+            )
+          ) : React.createElement('div', { className: 'dp-lobby-status' },
+            React.createElement('div', { className: 'dp-lobby-status-icon' }, '◷'),
+            React.createElement('div', { className: 'dp-lobby-status-title' }, statusText)
+          )
+        ),
+
+        mode === 'guest' && React.createElement(React.Fragment, null,
+          React.createElement('p', { className: 'dp-lobby-sub' }, 'Введи код от собеседника'),
+          React.createElement('input', {
+            className: 'dp-lobby-input',
+            placeholder: 'KASTA-XXXX',
+            value: inputCode,
+            maxLength: 10,
+            autoFocus: true,
+            onChange: e => setInputCode(e.target.value),
+            onKeyDown: e => { if(e.key === 'Enter') doJoin(); }
+          }),
+          React.createElement('button', {
+            className: 'dp-btn dp-btn-cta',
+            onClick: () => doJoin(),
+            disabled: !inputCode.trim(),
+            style: { width: '100%' }
+          }, 'Войти →'),
+          error && React.createElement('div', { className: 'dp-lobby-error' }, error)
+        ),
+
+        mode === 'waiting' && React.createElement('div', { className: 'dp-lobby-status' },
+          React.createElement('div', { className: 'dp-lobby-status-icon' }, '◷'),
+          React.createElement('div', { className: 'dp-lobby-status-title' }, statusText),
+          React.createElement('div', { className: 'dp-lobby-status-sub' }, 'Это занимает несколько секунд')
+        ),
+
+        mode === 'error' && React.createElement(React.Fragment, null,
+          React.createElement('div', { className: 'dp-lobby-status' },
+            React.createElement('div', { className: 'dp-lobby-status-icon', style: { color: 'var(--danger)' } }, '○'),
+            React.createElement('div', { className: 'dp-lobby-status-title' }, 'Не получилось'),
+            React.createElement('div', { className: 'dp-lobby-status-sub' }, error || 'Попробуй ещё раз')
+          ),
+          React.createElement('button', {
+            className: 'dp-btn',
+            onClick: () => { cleanup(); setMode('choose'); setError(null); },
+            style: { width: '100%' }
+          }, 'Назад')
+        )
+      )
+    );
+  }
+
+
+  // ═══════════════════════════════════════════════════════════════════
+  // ─── DEPRECATED · PeerJS Lobby (оставлен как референс)
+  // Не используется в production — слишком много NAT-ошибок.
   // ═══════════════════════════════════════════════════════════════════
 
   // ICE servers — stun + turn
@@ -1209,8 +1587,8 @@
         )
       ),
 
-      // ─── Lobby для PvP ───
-      lobby && React.createElement(DPLobby, {
+      // ─── Lobby для PvP (polling-relay через Yandex Cloud) ───
+      lobby && React.createElement(DPLobbyV2, {
         initialMode: lobby.mode || null,
         initialCode: lobby.code || null,
         onClose: () => setLobby(null),
