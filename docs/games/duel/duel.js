@@ -139,6 +139,10 @@
     data.totals.played = (data.totals.played || 0) + 1;
     if(match.result === 'win') data.totals.wins = (data.totals.wins || 0) + 1;
     else if(match.result === 'loss') data.totals.losses = (data.totals.losses || 0) + 1;
+    // Копим cumulative score (бусины) — duel-page показывает в Hero
+    if(typeof match.score === 'number'){
+      data.totalScore = (data.totalScore || 0) + match.score;
+    }
 
     // Updates per-game/yasna records (только не-бот матчи учитываются как «личные рекорды»)
     if(!match.isBot){
@@ -207,10 +211,22 @@
 
   function getOverallStats(){
     const d = _loadData();
+    // duel-page ожидает totals.matches и totals.score (выводит «N партий», бусины),
+    // streaks.daily.current (стрик дня), masteryByTheme (Партитура).
+    // recordMatch их не пишет — возвращаем безопасные алиасы/дефолты.
+    const totals = Object.assign({}, d.totals || {});
+    if(totals.matches == null) totals.matches = totals.played || 0;
+    if(totals.score == null){
+      // Score копится отдельным ключом raw.totalScore при finishPartiya, см. turnir-engine.js
+      totals.score = (d.totalScore || (totals.wins || 0) * 50 + (totals.losses || 0) * 5);
+    }
+    const streaks = Object.assign({}, d.streaks || {});
+    streaks.daily = streaks.daily || { current: 0, best: 0, lastDay: null };
     return {
-      totals: d.totals,
-      streaks: d.streaks,
-      records: d.records,
+      totals,
+      streaks,
+      records: d.records || {},
+      masteryByTheme: d.masteryByTheme || {},
     };
   }
 

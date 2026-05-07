@@ -352,6 +352,20 @@ a { color: inherit; }
 }
 .dp-quest:hover { border-color: var(--text-3); background: var(--bg-surface); }
 .dp-quest:active { transform: scale(0.985); }
+.dp-quest:disabled,
+.dp-quest-locked {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: var(--bg-soft);
+}
+.dp-quest-locked:hover { border-color: var(--border-2); background: var(--bg-soft); }
+.dp-quest-locked:active { transform: none; }
+.dp-quest-locked .dp-quest-tag::after {
+  content: ' · скоро';
+  font-size: 9px;
+  color: var(--text-3);
+  letter-spacing: 0;
+}
 .dp-quest-tag {
   font-size: 11px;
   color: var(--text-3);
@@ -481,53 +495,86 @@ a { color: inherit; }
   color: var(--text-3);
 }
 
-/* Leaderboard rows */
-.dp-lb-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 0;
-  border-bottom: 0.5px solid var(--border-2);
+/* Leaderboard table (Турнирная таблица) */
+.dp-table {
+  width: 100%;
+  border-collapse: collapse;
   font-size: 13px;
 }
-.dp-lb-row:last-child { border-bottom: 0; }
-.dp-lb-row-me {
-  background: var(--bg-soft);
-  margin: 0 -10px;
-  padding: 6px 10px;
-  border-radius: var(--radius-md);
-  border-bottom: 0;
+.dp-table thead th {
+  font-size: 11px;
   font-weight: 500;
+  color: var(--text-3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 6px 8px 8px;
+  border-bottom: 0.5px solid var(--border-1);
 }
-.dp-lb-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
+.dp-table thead th.dp-th-num { text-align: right; width: 56px; }
+.dp-table thead th.dp-th-rank { width: 36px; text-align: center; }
+.dp-table tbody td {
+  padding: 8px 8px;
+  border-bottom: 0.5px solid var(--border-2);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-1);
 }
-.dp-lb-rank {
+.dp-table tbody tr:last-child td { border-bottom: 0; }
+.dp-table .dp-td-rank {
+  text-align: center;
   font-size: 12px;
   color: var(--text-3);
-  width: 16px;
-  text-align: center;
+  font-weight: 500;
 }
-.dp-lb-name {
-  font-size: 13px;
+.dp-table .dp-td-rank-1 { color: var(--accent-strong); }
+.dp-table .dp-td-rank-2 { color: var(--text-2); }
+.dp-table .dp-td-rank-3 { color: var(--text-2); }
+.dp-table .dp-td-name {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 1px;
+  width: 100%;
 }
-.dp-lb-score {
-  font-size: 13px;
+.dp-table .dp-td-num {
+  text-align: right;
   color: var(--text-2);
-  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
+.dp-table .dp-td-num-strong {
+  text-align: right;
+  color: var(--text-1);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.dp-table tbody tr.dp-tr-me td {
+  background: var(--accent-soft);
+  font-weight: 500;
+}
+.dp-table tbody tr.dp-tr-me td:first-child { border-top-left-radius: var(--radius-sm); border-bottom-left-radius: var(--radius-sm); }
+.dp-table tbody tr.dp-tr-me td:last-child { border-top-right-radius: var(--radius-sm); border-bottom-right-radius: var(--radius-sm); }
+.dp-table tbody tr.dp-tr-me .dp-td-rank { color: var(--accent-strong); }
 .dp-lb-empty {
   font-size: 12px;
   color: var(--text-3);
   text-align: center;
-  padding: 14px 0;
+  padding: 16px 0;
 }
+.dp-table-foot {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 0.5px dashed var(--border-2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.dp-table-foot a {
+  color: var(--text-2);
+  text-decoration: none;
+}
+.dp-table-foot a:hover { color: var(--text-1); }
 
 /* Знаки grid */
 .dp-znaki-row {
@@ -861,6 +908,7 @@ a { color: inherit; }
   .dp-welcome-actions { flex-direction: column; }
   .dp-welcome-actions .dp-btn { width: 100%; }
   .dp-header-nav { gap: 12px; }
+  .dp-table .dp-th-games, .dp-table .dp-td-games { display: none; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════

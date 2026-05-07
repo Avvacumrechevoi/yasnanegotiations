@@ -6,52 +6,49 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
-<title>Ясна-Конструктор</title>
+<meta name="theme-color" content="#0071e3"/>
+<title>Ясна — интерактивный тренажёр</title>
+<meta name="description" content="Метод Ясны — увидеть устройство любого явления в 12-частной структуре. Уроки, гид, проверка, дуэль с ботом."/>
+
+<!-- Open Graph / shared link previews -->
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Ясна — интерактивный тренажёр"/>
+<meta property="og:description" content="Метод Ясны: увидеть устройство любого явления в 12-частной структуре. Уроки · гид · проверка · дуэль."/>
+<meta property="og:url" content="https://avvacumrechevoi.github.io/yasnanegotiations/"/>
+<meta name="twitter:card" content="summary"/>
+
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>"/>
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230071e3' rx='20'/><text y='.85em' x='50' text-anchor='middle' font-size='80' fill='white'>✦</text></svg>"/>
+<link rel="manifest" href="manifest.webmanifest"/>
+
+<!-- API endpoints (читаются клиентом из meta — позволяет инжектить через CI без правки исходников). -->
+<!-- При деплое replace тегов через sed/envsubst, либо настройка через GitHub Actions secrets. -->
+<meta name="yasna:api"    content="https://d5dmdje8c5mk8811il5j.iwzqm34r.apigw.yandexcloud.net"/>
+<meta name="yasna:tg-bot" content="YasnaDuelBot"/>
 
 <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
 <div id="root"></div>
+
+<!-- React + Three.js + PeerJS из CDN — внешние библиотеки -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script>
-  /* Leaderboard backend URL — заменить когда поднимешь Yandex Cloud Function. */
-  /* Пример: window.YASNA_LEADERBOARD_API = "https://d5dXXXXXXXX.apigw.yandexcloud.net"; */
-  window.YASNA_LEADERBOARD_API = "https://d5dmdje8c5mk8811il5j.iwzqm34r.apigw.yandexcloud.net";
-  /* Telegram Bot username (без @). Создай бота через @BotFather, выполни /setdomain → твой домен. */
-  /* Пример: window.YASNA_TG_BOT = "YasnaDuelBot"; */
-  window.YASNA_TG_BOT = "YasnaDuelBot";
-</script>
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<script src="core/data.js"></script>
-<script type="text/babel" src="core/yasna-3d.js"></script>
-<script type="text/babel" src="core/verification.js"></script>
-<script type="text/babel" src="core/dialogs.js"></script>
-<script type="text/babel" src="core/info-card.js"></script>
-<script type="text/babel" src="core/yasna-star.js"></script>
-<script type="text/babel" src="lessons/engine.js"></script>
-<script type="text/babel" src="lessons/lesson-1-what-is-yasna.js"></script>
-<script type="text/babel" src="lessons/lesson-2-four-pillars.js"></script>
-<script type="text/babel" src="lessons/lesson-3-two-lines.js"></script>
-<script type="text/babel" src="lessons/lesson-4-line-names.js"></script>
-<script type="text/babel" src="lessons/lesson-l2-night.js"></script>
-<script type="text/babel" src="lessons/lesson-l3-morning.js"></script>
-<script type="text/babel" src="lessons/lessons-index.js"></script>
-<script type="text/babel" src="tours/engine.js"></script>
-<script type="text/babel" src="tours/tour-atm.js"></script>
-<script type="text/babel" src="tours/tour-sutok.js"></script>
-<script type="text/babel" src="tours/tour-goda.js"></script>
-<script type="text/babel" src="tours/tour-peregovorov.js"></script>
-<script type="text/babel" src="tours/tour-atm-skrytyh.js"></script>
-<script type="text/babel" src="tours/tour-zhizni.js"></script>
-<script type="text/babel" src="games/duel/duel.js"></script>
-<script type="text/babel" src="games/duel/duel-games.js"></script>
-<script type="text/babel" src="games/duel/duel-game-quiz.js"></script>
-<script type="text/babel" src="games/duel/duel-game-mirror.js"></script>
-<script type="text/babel" src="games/duel/duel-game-speed.js"></script>
-<script type="text/babel" src="app.js"></script>
+
+<!-- Читаем API config из meta-тегов в окно (для backward-compat с window.YASNA_*) -->
+<script>
+  (function(){
+    var m = function(n){ var el = document.querySelector('meta[name="yasna:'+n+'"]'); return el ? el.getAttribute('content') : ''; };
+    window.YASNA_LEADERBOARD_API = m('api') || '';
+    window.YASNA_TG_BOT = m('tg-bot') || '';
+  })();
+</script>
+
+<!-- Pre-built bundle (см. scripts/build.mjs · npm run build) -->
+<!-- Включает: core/* + lessons/* + tours/* + games/duel/* + app.js -->
+<!-- Без bundle браузер качал бы babel-standalone ~3MB и компилировал JSX в рантайме. -->
+<script src="dist/app.min.js"></script>
 </body>
 </html>

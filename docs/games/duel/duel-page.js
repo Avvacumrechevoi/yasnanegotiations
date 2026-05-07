@@ -6,6 +6,45 @@
   const { useState, useEffect, useRef } = React;
   const _g = (n) => window[n];
 
+  // ─── Error Boundary ───────────────────────────────────────
+  // Чтобы один сломавшийся компонент не клал всю страницу.
+  // Без этого typo в данных = белый экран дуэли.
+  class DPErrorBoundary extends React.Component {
+    constructor(p){ super(p); this.state = { err: null }; }
+    static getDerivedStateFromError(err){ return { err }; }
+    componentDidCatch(err, info){ try{ console.error('[Duel]', err, info); }catch(_){} }
+    render(){
+      if(this.state.err){
+        return React.createElement('div', {
+          style: { padding: '40px 20px', maxWidth: 480, margin: '40px auto', textAlign: 'center', fontFamily: 'inherit' }
+        },
+          React.createElement('div', { style: { fontSize: 32, marginBottom: 12 } }, '⚠️'),
+          React.createElement('h2', { style: { fontSize: 18, marginBottom: 8 } }, 'Что-то сломалось'),
+          React.createElement('p', { style: { fontSize: 13, color: '#6e6e73', lineHeight: 1.6, marginBottom: 16 } },
+            'Дуэль не смогла отрисоваться. Попробуй перезагрузить страницу или вернись на главную.'
+          ),
+          React.createElement('div', { style: { display: 'flex', gap: 8, justifyContent: 'center' } },
+            React.createElement('button', {
+              onClick: () => window.location.reload(),
+              style: { padding: '8px 18px', borderRadius: 8, border: '1px solid #d2d2d7', background: '#fff', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13 }
+            }, 'Перезагрузить'),
+            React.createElement('a', {
+              href: 'index.html',
+              style: { padding: '8px 18px', borderRadius: 8, border: '1px solid #0071e3', background: '#0071e3', color: '#fff', textDecoration: 'none', fontFamily: 'inherit', fontSize: 13 }
+            }, 'На главную')
+          ),
+          this.state.err && React.createElement('details', { style: { marginTop: 24, fontSize: 11, color: '#86868b', textAlign: 'left' } },
+            React.createElement('summary', null, 'Подробности'),
+            React.createElement('pre', { style: { whiteSpace: 'pre-wrap', wordBreak: 'break-word', marginTop: 6, fontSize: 10 } },
+              String(this.state.err.stack || this.state.err.message || this.state.err)
+            )
+          )
+        );
+      }
+      return this.props.children;
+    }
+  }
+
   // ─── Inline SVG icons (стрики 14×14) ─────────────────────
   const Icon = (path) => (props) => React.createElement('svg', {
     className: 'dp-icon ' + (props?.cls || ''),
@@ -100,7 +139,7 @@
       ),
       React.createElement('div', { className: 'dp-header-spacer' }),
       React.createElement('nav', { className: 'dp-header-nav' },
-        React.createElement('a', { href: '#archive', onClick: onAnchorClick('archive') }, 'Архив'),
+        React.createElement('a', { href: '#archive', onClick: onAnchorClick('archive') }, 'Таблица'),
         React.createElement('a', { href: '#znaki', onClick: onAnchorClick('znaki') }, 'Знаки'),
         React.createElement('div', { className: 'dp-header-auth', ref: helpRef },
           React.createElement('button', {
@@ -115,7 +154,7 @@
               React.createElement('li', null, React.createElement('strong', null, 'Бусины'), ' — твои очки. Накапливаются за верные ответы.'),
               React.createElement('li', null, React.createElement('strong', null, 'Ступень'), ' — от Послушника до Магистра, зависит от бусин.'),
               React.createElement('li', null, React.createElement('strong', null, 'Партитура'), ' — 9 тем с твоим прогрессом по каждой.'),
-              React.createElement('li', null, React.createElement('strong', null, 'Архив'), ' — лидерборд недели среди всех игроков.')
+              React.createElement('li', null, React.createElement('strong', null, 'Турнирная таблица'), ' — топ игроков недели по бусинам, обнуляется Сб 23:59.')
             )
           ),
           user
@@ -150,7 +189,7 @@
   // ─── Welcome (только для первого визита) ────────────────
   function DPWelcome({ onLoginClick, onAnonStart }){
     return React.createElement('section', { className: 'dp-welcome' },
-      React.createElement('div', { className: 'dp-welcome-eyebrow' }, 'Касталия Ясны'),
+      React.createElement('div', { className: 'dp-welcome-eyebrow' }, 'Тренажёр памяти'),
       React.createElement('h1', { className: 'dp-welcome-title' }, 'Игра по Ясне'),
       React.createElement('p', { className: 'dp-welcome-sub' },
         'Партия из 18 вопросов. Шесть тем, три уровня глубины. Тренируй память — собирай бусины — поднимайся по ступеням.'
@@ -223,7 +262,12 @@
         ),
         React.createElement('div', { className: 'dp-hero-progress-meta' },
           React.createElement('span', null, stupen.name, ' ', toRoman(stupen.subLevel)),
-          React.createElement('span', null, stupen.to === Infinity ? 'высшая ступень' : 'до ' + STUPENI[STUPENI.indexOf(STUPENI.find(x => x.name === stupen.name)) + 1]?.name + ' · ' + toNext + ' бусин')
+          React.createElement('span', null, (function(){
+            if(stupen.to === Infinity) return 'высшая ступень';
+            const curIdx = STUPENI.findIndex(x => x.name === stupen.name);
+            const next = STUPENI[curIdx + 1];
+            return next ? ('до ' + next.name + ' · ' + toNext + ' бусин') : ('+' + toNext + ' бусин');
+          })())
         ),
         isGuest && React.createElement('button', {
           className: 'dp-hero-upsell',
@@ -246,51 +290,65 @@
     const data = Daily?.load?.() || {};
     const todayPlayed = today && data.byDate?.[today.date];
 
+    // Только «Этюд» сейчас реально работает — он запускает обычную Партию.
+    // Остальные форматы (Гимн/Молния/Гость) пока в разработке —
+    // показываем «скоро», чтобы не вводить в заблуждение, как было раньше:
+    // 4 одинаково ведущие кнопки = ощущение, что страница ломается.
     const quests = [
       {
         id: 'etude',
         tag: 'Этюд',
         title: 'Один шанс\nв день',
         foot: todayPlayed ? 'Сыграно: ' + todayPlayed.score : '+30 бусин',
-        footMute: !!todayPlayed
+        footMute: !!todayPlayed,
+        ready: true
       },
       {
         id: 'gimn',
         tag: 'Гимн',
         title: 'Тема\n' + (todayTheme?.name || 'дня'),
-        foot: '+15 бусин',
-        footMute: false
+        foot: 'скоро',
+        footMute: true,
+        ready: false
       },
       {
         id: 'flash',
         tag: 'Молния',
         title: '9 вопросов\nна скорость',
-        foot: '+20 бусин',
-        footMute: false
+        foot: 'скоро',
+        footMute: true,
+        ready: false
       },
       {
         id: 'guest',
         tag: 'Гость',
         title: 'Партия\nс другом',
-        foot: 'по коду',
-        footMute: true
+        foot: 'скоро',
+        footMute: true,
+        ready: false
       },
     ];
 
     return React.createElement('section', { className: 'dp-section' },
       React.createElement('div', { className: 'dp-section-h-row' },
         React.createElement('h2', { className: 'dp-section-h' }, IconCalendar(), ' Сегодня'),
-        React.createElement('span', { className: 'dp-section-h-sub' }, quests.length, ' задания')
+        React.createElement('span', { className: 'dp-section-h-sub' }, quests.filter(q => q.ready).length, ' доступно из ', quests.length)
       ),
       React.createElement('p', { className: 'dp-section-desc' },
         'Быстрые форматы, чтобы поддержать ритм. Каждое задание — короче полной Партии.'
       ),
       React.createElement('div', { className: 'dp-quests' },
         quests.map(q =>
-          React.createElement('button', { key: q.id, className: 'dp-quest', onClick: onPlay },
+          React.createElement('button', {
+            key: q.id,
+            className: 'dp-quest' + (q.ready ? '' : ' dp-quest-locked'),
+            onClick: q.ready ? onPlay : undefined,
+            disabled: !q.ready,
+            title: q.ready ? '' : 'Этот формат скоро появится'
+          },
             React.createElement('div', { className: 'dp-quest-tag' }, q.tag),
             React.createElement('div', { className: 'dp-quest-title' }, q.title.split('\n').map((l, i) =>
-              React.createElement('span', { key: i }, l, i === 0 && q.title.includes('\n') ? React.createElement('br') : null)
+              React.createElement('span', { key: i }, l, i === 0 && q.title.includes('\n') ? React.createElement('br', { key: 'br' + i }) : null)
             )),
             React.createElement('div', {
               className: 'dp-quest-foot' + (q.footMute ? ' dp-quest-foot-mute' : '')
@@ -362,41 +420,67 @@
     );
   }
 
-  // ─── Архив (лидерборд) ───────────────────────────────────
+  // ─── Турнирная таблица (бывш. Архив) ─────────────────────
   function DPArchive({ user }){
     const [items, setItems] = useState(null);
     useEffect(() => {
       const LB = _g('YasnaLeaderboardClient');
       if(!LB?.isEnabled?.()){ setItems([]); return; }
-      LB.fetchLeaderboard({ gameId: 'turnir', yasnaId: 'суток', period: 'all', limit: 6 })
+      LB.fetchLeaderboard({ gameId: 'turnir', yasnaId: 'суток', period: 'week', limit: 8 })
         .then(res => setItems(res?.items || []))
         .catch(() => setItems([]));
     }, []);
 
     const myDeviceId = user?.deviceId || _g('YasnaDuelProfile')?.load?.()?.deviceId;
+    const myInTop = items && myDeviceId && items.find(r => r.deviceId === myDeviceId);
+    const myRank = myInTop ? items.findIndex(r => r.deviceId === myDeviceId) + 1 : null;
 
     return React.createElement('div', { className: 'dp-card', id: 'archive' },
       React.createElement('div', { className: 'dp-card-h' },
-        React.createElement('h3', { style: { display: 'flex', alignItems: 'center', gap: 6 } }, IconList(), ' Архив недели'),
-        React.createElement('span', { className: 'dp-card-meta', title: 'Лидерборд обнуляется в субботу 23:59' }, 'Сб 23:59')
+        React.createElement('h3', { style: { display: 'flex', alignItems: 'center', gap: 6 } },
+          IconList(), ' ',
+          Term('Турнирная таблица', 'Турнирная таблица — топ игроков недели по сумме бусин. Обновляется в субботу 23:59.')
+        ),
+        React.createElement('span', { className: 'dp-card-meta' }, 'Неделя')
       ),
       items === null
         ? React.createElement('div', { className: 'dp-lb-empty' }, 'Загрузка…')
         : items.length === 0
-          ? React.createElement('div', { className: 'dp-lb-empty' }, 'Сыграй Партию — попади в Архив')
-          : items.slice(0, 5).map((row, idx) => {
-              const isMe = myDeviceId && row.deviceId === myDeviceId;
-              return React.createElement('div', {
-                key: row.deviceId || idx,
-                className: 'dp-lb-row' + (isMe ? ' dp-lb-row-me' : '')
-              },
-                React.createElement('div', { className: 'dp-lb-left' },
-                  React.createElement('span', { className: 'dp-lb-rank' }, idx + 1),
-                  React.createElement('span', { className: 'dp-lb-name' }, row.nickname || 'Игрок')
+          ? React.createElement('div', { className: 'dp-lb-empty' }, 'Пока пусто. Сыграй Партию — попади в таблицу.')
+          : React.createElement(React.Fragment, null,
+              React.createElement('table', { className: 'dp-table' },
+                React.createElement('thead', null,
+                  React.createElement('tr', null,
+                    React.createElement('th', { className: 'dp-th-rank' }, '#'),
+                    React.createElement('th', null, 'Игрок'),
+                    React.createElement('th', { className: 'dp-th-num dp-th-games' }, 'Партий'),
+                    React.createElement('th', { className: 'dp-th-num' }, 'Бусины')
+                  )
                 ),
-                React.createElement('span', { className: 'dp-lb-score' }, row.score != null ? row.score : '—')
-              );
-            })
+                React.createElement('tbody', null,
+                  items.slice(0, 5).map((row, idx) => {
+                    const isMe = myDeviceId && row.deviceId === myDeviceId;
+                    const rankCls = idx === 0 ? 'dp-td-rank-1' : idx === 1 ? 'dp-td-rank-2' : idx === 2 ? 'dp-td-rank-3' : '';
+                    return React.createElement('tr', {
+                      key: row.deviceId || idx,
+                      className: isMe ? 'dp-tr-me' : ''
+                    },
+                      React.createElement('td', { className: 'dp-td-rank ' + rankCls }, idx + 1),
+                      React.createElement('td', { className: 'dp-td-name' }, row.nickname || 'Игрок'),
+                      React.createElement('td', { className: 'dp-td-num dp-td-games' }, row.matches || row.games || '—'),
+                      React.createElement('td', { className: 'dp-td-num-strong' }, row.score != null ? row.score : '—')
+                    );
+                  })
+                )
+              ),
+              React.createElement('div', { className: 'dp-table-foot' },
+                React.createElement('span', null,
+                  myInTop ? 'Ты на ' + myRank + '-й позиции'
+                          : (myDeviceId ? 'Ты пока вне топ-5' : 'Сыграй, чтобы попасть в таблицу')
+                ),
+                React.createElement('span', null, 'обновляется Сб 23:59')
+              )
+            )
     );
   }
 
@@ -592,11 +676,13 @@
         rank: user ? 'Игрок' : 'Гость',
         deviceId: me.deviceId
       };
-      return React.createElement(Turnir.TurnirGame, {
-        player: playerData,
-        opponentLevel: 'medium',
-        onClose: () => { setTurnirOpen(false); setTick(t => t + 1); }
-      });
+      return React.createElement(DPErrorBoundary, null,
+        React.createElement(Turnir.TurnirGame, {
+          player: playerData,
+          opponentLevel: 'medium',
+          onClose: () => { setTurnirOpen(false); setTick(t => t + 1); }
+        })
+      );
     }
 
     return React.createElement('div', { className: 'dp-root' },
@@ -638,7 +724,13 @@
       const ready = window.YasnaDuelAuth && window.YasnaTrivia && window.YasnaTurnir;
       if(ready || attempts++ > 50){
         const root = document.getElementById('duel-page-root');
-        if(root) ReactDOM.createRoot(root).render(React.createElement(DuelPageApp));
+        if(root){
+          ReactDOM.createRoot(root).render(
+            React.createElement(DPErrorBoundary, null,
+              React.createElement(DuelPageApp)
+            )
+          );
+        }
       } else {
         setTimeout(check, 100);
       }

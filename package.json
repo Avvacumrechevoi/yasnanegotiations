@@ -1,0 +1,23 @@
+{
+  "name": "yasnanegotiations",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Ясна — интерактивный тренажёр (12-полочная звёздная диаграмма)",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:watch": "node scripts/build.mjs --watch",
+    "build:dev": "node scripts/build.mjs --dev",
+    "sync": "bash scripts/sync-prod.sh",
+    "serve": "node scripts/serve.mjs",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "@playwright/test": "^1.48.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,5 +1,14 @@
 node_modules/
 .env
 *.log
+
+# Билд-артефакты в корне проекта — игнорируем,
+# но docs/dist/ И docs/preview/dist/ оставляем в git:
+# GitHub Pages деплоит docs/, поэтому bundle должен быть закоммичен.
 dist/
+!docs/dist/
+!docs/dist/**
+!docs/preview/dist/
+!docs/preview/dist/**
+
 .DS_Store

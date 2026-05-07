@@ -35,6 +35,10 @@
     const [oppCorrect, setOppCorrect] = useState(0);
     const [feedback, setFeedback] = useState(null); // 'right' | 'wrong'
     const submittedRef = useRef(false);
+    // Refs на correct/wrong — чтобы таймер не пересоздавался при каждом ответе.
+    // Без этого setInterval(100ms) пересоздаётся на каждое изменение score → лаги.
+    const correctRef = useRef(0);
+    const wrongRef = useRef(0);
 
     // Init
     useEffect(() => {
@@ -63,7 +67,8 @@
       return off;
     }, [matchId, role, transport]);
 
-    // Countdown timer
+    // Countdown timer — НЕ зависит от correct/wrong (читаем из refs),
+    // иначе setInterval пересоздаётся на каждый ответ.
     useEffect(() => {
       if(!isPlaying || !seed || submittedRef.current) return;
       const tm = setInterval(() => {
@@ -73,14 +78,14 @@
         if(left <= 0 && !submittedRef.current){
           submittedRef.current = true;
           onSubmitResult({
-            score: correct - Math.floor(wrong / 2), // штраф за неправильные
+            score: Math.max(0, correctRef.current - Math.floor(wrongRef.current / 2)),
             maxScore: 30,
-            payload: { correct, wrong },
+            payload: { correct: correctRef.current, wrong: wrongRef.current },
           });
         }
       }, 100);
       return () => clearInterval(tm);
-    }, [isPlaying, seed, startTime, correct, wrong]);
+    }, [isPlaying, seed, startTime]);
 
     const answer = (yes) => {
       if(!isPlaying || submittedRef.current || feedback) return;
@@ -90,6 +95,8 @@
       const isCorrect = (yes === isTarget);
       const newCorrect = correct + (isCorrect ? 1 : 0);
       const newWrong = wrong + (isCorrect ? 0 : 1);
+      correctRef.current = newCorrect;
+      wrongRef.current = newWrong;
       setCorrect(newCorrect);
       setWrong(newWrong);
       setFeedback(isCorrect ? 'right' : 'wrong');
@@ -130,6 +137,9 @@
             <div className="duel-player-stats">
               <span className="duel-stat-correct">✓ {correct}</span>
               {wrong > 0 && <span className="duel-stat-errors">✗ {wrong}</span>}
+              <span style={{fontSize:11,color:'#86868b',marginLeft:6}} title="Очки = верных − ошибки/2">
+                = {Math.max(0, correct - Math.floor(wrong / 2))}
+              </span>
             </div>
           </div>
           <div className="duel-timer" style={{minWidth:100}}>

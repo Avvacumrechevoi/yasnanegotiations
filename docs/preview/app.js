@@ -199,7 +199,9 @@ function LessonPicker({onSelectLesson,onClose,completedLessons=[]}){
     const readyLessons=course.lessons.filter(cl=>cl.status==='ready').map(cl=>({...cl,...lessonsMap[cl.id]}));
     const plannedLessons=course.lessons.filter(cl=>cl.status==='planned');
     const completedCount=readyLessons.filter(l=>completedLessons.includes(l.id)).length;
-    const total=course.lessons.length;
+    // total — только реально доступные уроки. Planned не учитываем —
+    // иначе шкала прогресса показывает 0/6, хотя пользователь прошёл 4/4 готовых.
+    const total=readyLessons.length;
     const isLocked=course.status==='planned'||pathLocked;
 
     const accent=course.level===4?'#0071E3':course.level===8?'#8B60D3':'#D6502B';

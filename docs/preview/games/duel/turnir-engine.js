@@ -114,6 +114,19 @@
     const [chosen, setChosen] = useState(null);
     const startedAt = useRef(Date.now());
     const oppFinishedRef = useRef(null);
+    const answeredRef = useRef(false); // защита от двойного onAnswer (race timer vs click)
+
+    // Сброс состояния при смене вопроса (родитель не передаёт key, поэтому
+    // компонент переиспользуется между q1 → q2 → q3 одного раунда).
+    // Без этого после первого клика остаётся chosen!=null и пользователь
+    // не может ответить на следующий вопрос.
+    useEffect(() => {
+      setTimeLeft(QUESTION_TIME);
+      setChosen(null);
+      startedAt.current = Date.now();
+      oppFinishedRef.current = null;
+      answeredRef.current = false;
+    }, [q?.id]);
 
     useEffect(() => {
       const t = TEN_LEVELS[opponent.level] || TEN_LEVELS.medium;
@@ -123,7 +136,7 @@
         oppFinishedRef.current = { correct: oppCorrect, time: oppTime };
       }, oppTime);
       return () => clearTimeout(tm);
-    }, []);
+    }, [q?.id, opponent.level]);
 
     useEffect(() => {
       if(chosen != null) return;
@@ -140,10 +153,16 @@
       return () => clearInterval(interval);
     }, [chosen]);
 
+    function safeAnswer(payload){
+      if(answeredRef.current) return;
+      answeredRef.current = true;
+      onAnswer(payload);
+    }
+
     function handleTimeout(){
-      if(chosen != null) return;
+      if(chosen != null || answeredRef.current) return;
       setChosen(-1);
-      setTimeout(() => onAnswer({
+      setTimeout(() => safeAnswer({
         playerCorrect: false, playerTime: QUESTION_TIME * 1000,
         oppCorrect: oppFinishedRef.current?.correct ?? false,
         oppTime: oppFinishedRef.current?.time ?? QUESTION_TIME * 1000,
@@ -151,11 +170,11 @@
     }
 
     function pick(idx){
-      if(chosen != null) return;
+      if(chosen != null || answeredRef.current) return;
       setChosen(idx);
       const playerTime = Date.now() - startedAt.current;
       const playerCorrect = idx === q.correct;
-      setTimeout(() => onAnswer({
+      setTimeout(() => safeAnswer({
         playerCorrect, playerTime,
         oppCorrect: oppFinishedRef.current?.correct ?? false,
         oppTime: oppFinishedRef.current?.time ?? playerTime + 500,
@@ -300,16 +319,19 @@
       const newScoreO = scoreO + doO;
       const newBusey = totalBusey + dB;
 
-      setScoreP(newScoreP);
-      setScoreO(newScoreO);
-      setTotalBusey(newBusey);
-      setPartiyaLog(log => [...log, {
+      const logEntry = {
         themeId: currentRound.theme.id,
         qId: currentQ.id,
         playerCorrect: result.playerCorrect,
         oppCorrect: result.oppCorrect,
         playerTime: result.playerTime,
-      }]);
+      };
+      const newLog = [...partiyaLog, logEntry];
+
+      setScoreP(newScoreP);
+      setScoreO(newScoreO);
+      setTotalBusey(newBusey);
+      setPartiyaLog(newLog);
 
       if(qIdx < currentRound.questions.length - 1){
         setQIdx(qIdx + 1);
@@ -318,31 +340,45 @@
         setQIdx(0);
         setPhase('intro');
       } else {
-        finishPartiya(newScoreP, newScoreO, newBusey);
+        // newLog содержит ВСЕ записи включая последнюю (state ещё не обновился)
+        finishPartiya(newScoreP, newScoreO, newBusey, newLog);
       }
     }
 
-    function finishPartiya(finalP, finalO, finalB){
+    function finishPartiya(finalP, finalO, finalB, finalLog){
+      const log = finalLog || partiyaLog;
+      const totalTime = log.reduce((s, r) => s + (r.playerTime || 0), 0);
+      const sharedMatchId = 'turnir-' + Date.now();
       const Storage = window.YasnaDuelStorage;
       if(Storage?.recordMatch){
         const matchData = {
-          matchId: 'turnir-' + Date.now(),
+          matchId: sharedMatchId,
           gameId: 'turnir',
           yasnaId: 'суток',
           result: finalP > finalO ? 'win' : (finalP === finalO ? 'draw' : 'loss'),
           score: finalP,
           maxScore: 18 * 15,
-          time: partiyaLog.reduce((s, r) => s + r.playerTime, 0),
+          time: totalTime,
           transport: 'bot',
           isBot: true,
           bySurrender: false,
+          themesPlayed: log.map(r => r.themeId),
+          correctByTheme: log.reduce((acc, r) => {
+            acc[r.themeId] = acc[r.themeId] || { correct:0, total:0 };
+            acc[r.themeId].total++;
+            if(r.playerCorrect) acc[r.themeId].correct++;
+            return acc;
+          }, {}),
         };
         try { Storage.recordMatch(matchData); } catch(_){}
       }
+      // Обновим masteryByTheme и daily-streak (отдельно от recordMatch)
+      try { updateMasteryAndDaily(log); } catch(_){}
+
       const LB = window.YasnaLeaderboardClient;
       if(LB?.submitMatch){
         LB.submitMatch({
-          matchId: 'turnir-' + Date.now(),
+          matchId: sharedMatchId,
           deviceId: window.YasnaDuelProfile?.load?.()?.deviceId,
           nickname: player.nickname,
           avatar: typeof player.avatar === 'string' ? player.avatar : '·',
@@ -351,12 +387,52 @@
           result: finalP > finalO ? 'win' : 'loss',
           score: finalP,
           maxScore: 270,
-          time: partiyaLog.reduce((s, r) => s + r.playerTime, 0),
+          time: totalTime,
           transport: 'bot',
           isBot: true,
         }).catch(() => {});
       }
       setPhase('final');
+    }
+
+    // Обновляем мастерство по темам и daily-стрик прямо в localStorage.
+    // recordMatch их не трогает, а duel-page читает их в Партитуре и Hero.
+    function updateMasteryAndDaily(log){
+      const KEY = 'yasna_duel_data';
+      let raw;
+      try { raw = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(_){ raw = {}; }
+      raw.masteryByTheme = raw.masteryByTheme || {};
+      // counter: сколько было верных по теме / сколько было всего
+      const counter = log.reduce((acc, r) => {
+        acc[r.themeId] = acc[r.themeId] || { c:0, t:0 };
+        acc[r.themeId].t++;
+        if(r.playerCorrect) acc[r.themeId].c++;
+        return acc;
+      }, {});
+      // EMA: новое значение = 0.6 * старое + 0.4 * текущее_в_партии (в %).
+      Object.keys(counter).forEach(tid => {
+        const cur = counter[tid].t > 0 ? Math.round(counter[tid].c / counter[tid].t * 100) : 0;
+        const prev = raw.masteryByTheme[tid] || 0;
+        raw.masteryByTheme[tid] = Math.round(prev * 0.6 + cur * 0.4);
+      });
+      // Daily streak — если играл вчера или сегодня, продолжаем; если разрыв — обнуляем.
+      raw.streaks = raw.streaks || {};
+      raw.streaks.daily = raw.streaks.daily || { current: 0, best: 0, lastDay: null };
+      const today = new Date().toISOString().slice(0, 10);
+      const yest = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      const last = raw.streaks.daily.lastDay;
+      if(last === today){
+        // уже считали сегодня — ничего
+      } else if(last === yest){
+        raw.streaks.daily.current = (raw.streaks.daily.current || 0) + 1;
+      } else {
+        raw.streaks.daily.current = 1;
+      }
+      raw.streaks.daily.lastDay = today;
+      if(raw.streaks.daily.current > (raw.streaks.daily.best || 0)){
+        raw.streaks.daily.best = raw.streaks.daily.current;
+      }
+      try { localStorage.setItem(KEY, JSON.stringify(raw)); } catch(_){}
     }
 
     function startAgain(){ onClose(); }
@@ -371,13 +447,18 @@
     }
     if(phase === 'intro'){
       return React.createElement(RoundIntro, {
+        key: 'intro-' + roundIdx,
         roundNum: roundIdx + 1,
         theme: currentRound.theme,
         onReady: () => setPhase('question')
       });
     }
     if(phase === 'question'){
+      // КРИТИЧНО: key на основе вопроса — React гарантированно пересоздаёт
+      // компонент при смене вопроса. Без этого state (chosen/timer) переносится
+      // между вопросами и игра ломается после первого клика.
       return React.createElement(Question, {
+        key: 'q-' + roundIdx + '-' + qIdx,
         q: currentQ, theme: currentRound.theme,
         qIndex: qIdx, totalInRound: currentRound.questions.length,
         qOverall, totalOverall, roundNum: roundIdx + 1,
