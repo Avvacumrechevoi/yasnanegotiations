@@ -77,12 +77,10 @@
       if(!data.token || !data.user) return { ok:false, error:'Невалидный ответ сервера' };
       saveToken(data.token);
       saveUser(data.user);
-      // Обновляем локальный профиль — синхронизация ника/аватара
-      if(profile){
-        profile.nickname = data.user.nickname || profile.nickname;
-        profile.avatar = data.user.avatar || profile.avatar;
-        saveProfile(profile);
-      }
+      // Profile остаётся НЕТРОНУТЫМ — он независимый анонимный профиль.
+      // При залогиненном состоянии UI отображает user.nickname/avatar напрямую.
+      // После logout если profile был — вернёмся к нему как анону;
+      // если не было — вернёмся к Welcome screen.
       return { ok:true, user: data.user };
     } catch(e){
       return { ok:false, error: e?.message || 'Сеть недоступна' };

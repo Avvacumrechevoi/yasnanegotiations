@@ -460,14 +460,10 @@
     const onLogout = () => {
       _g('YasnaDuelAuth')?.logout?.();
       setUser(null);
-      // Сбросить URL-аватар в профиле обратно на эмодзи (URL потеряет смысл без user.avatar)
-      const Profile2 = _g('YasnaDuelProfile');
-      const p = Profile2?.load?.();
-      if(p && typeof p.avatar === 'string' && p.avatar.startsWith('http')){
-        p.avatar = '🦊';
-        Profile2?.save?.(p);
-        setProfile(p);
-      }
+      // Полностью удалить профиль — после logout юзер начинает с чистого листа.
+      // Возврат к Welcome screen с выбором «Telegram / Анонимно».
+      try { localStorage.removeItem('yasna_duel_profile'); } catch(_){}
+      setProfile(null);
       setTick(t => t + 1);
     };
     const requireProfile = (cb) => {
