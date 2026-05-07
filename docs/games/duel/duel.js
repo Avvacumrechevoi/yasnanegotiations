@@ -46,6 +46,51 @@
   }
   window.YasnaDuelProfile = { load: loadProfile, save: saveProfile, AVATAR_OPTIONS };
 
+  // ─── AUTH (JWT token + logged-in user) ────────────────────────────
+  const TOKEN_KEY = 'yasna_duel_token';
+  const USER_KEY = 'yasna_duel_user';
+  function loadToken(){ try { return localStorage.getItem(TOKEN_KEY) || null; } catch(_){ return null; } }
+  function saveToken(t){ try { if(t) localStorage.setItem(TOKEN_KEY, t); else localStorage.removeItem(TOKEN_KEY); } catch(_){} }
+  function loadUser(){
+    try { const raw = localStorage.getItem(USER_KEY); return raw ? JSON.parse(raw) : null; }
+    catch(_){ return null; }
+  }
+  function saveUser(u){
+    try { if(u) localStorage.setItem(USER_KEY, JSON.stringify(u)); else localStorage.removeItem(USER_KEY); }
+    catch(_){}
+  }
+  function logout(){ saveToken(null); saveUser(null); }
+  function isLoggedIn(){ return !!loadToken(); }
+
+  async function loginWithTelegram(tgUser){
+    const baseUrl = window.YASNA_LEADERBOARD_API;
+    if(!baseUrl) return { ok:false, error:'Сервер не настроен' };
+    const profile = loadProfile();
+    try {
+      const res = await fetch(baseUrl + '/auth/telegram', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ ...tgUser, device_id: profile?.deviceId, local_nickname: profile?.nickname, local_avatar: profile?.avatar }),
+      });
+      if(!res.ok) return { ok:false, error:'Ошибка авторизации (' + res.status + ')' };
+      const data = await res.json();
+      if(!data.token || !data.user) return { ok:false, error:'Невалидный ответ сервера' };
+      saveToken(data.token);
+      saveUser(data.user);
+      // Обновляем локальный профиль — синхронизация ника/аватара
+      if(profile){
+        profile.nickname = data.user.nickname || profile.nickname;
+        profile.avatar = data.user.avatar || profile.avatar;
+        saveProfile(profile);
+      }
+      return { ok:true, user: data.user };
+    } catch(e){
+      return { ok:false, error: e?.message || 'Сеть недоступна' };
+    }
+  }
+
+  window.YasnaDuelAuth = { loadToken, loadUser, logout, isLoggedIn, loginWithTelegram };
+
   // ─── PERSISTENCE (P3 — история, рекорды, статистика) ──────────────
   // Локально в localStorage без сервера. Лимит 200 матчей.
   const STORAGE_KEY = 'yasna_duel_data';
@@ -207,11 +252,17 @@
       if(!this.baseUrl) return null;
       const ctrl = new AbortController();
       const timer = setTimeout(() => ctrl.abort(), LB_TIMEOUT_MS);
+      const headers = { ...(opts?.headers || {}) };
+      // Прикладываем JWT если игрок залогинен
+      const token = loadToken();
+      if(token) headers['Authorization'] = 'Bearer ' + token;
       try {
-        const res = await fetch(this.baseUrl + path, { ...opts, signal: ctrl.signal });
+        const res = await fetch(this.baseUrl + path, { ...opts, headers, signal: ctrl.signal });
         clearTimeout(timer);
         if(!res.ok){
           this.lastError = 'http-' + res.status;
+          // 401 → токен невалидный, очищаем
+          if(res.status === 401){ logout(); }
           return null;
         }
         try { return await res.json(); } catch(_){ return null; }
@@ -1590,6 +1641,8 @@
           {isEnabled && pendingCount > 0 && <p style={{color:'#7a5e25'}}>В очереди отправки: {pendingCount}</p>}
         </div>
 
+        <AuthBlock/>
+
         {/* Фильтры */}
         <div style={{display:'flex',flexDirection:'column',gap:8,margin:'16px 0'}}>
           <div className="duel-yasna-pick">
@@ -1694,6 +1747,97 @@
     );
   }
 
+  // ─── AUTH BLOCK (Telegram Login + статус) ─────────────────────────
+  function AuthBlock(){
+    const [user, setUser] = useState(loadUser());
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const widgetRef = useRef(null);
+    const baseUrl = window.YASNA_LEADERBOARD_API;
+    const botUsername = window.YASNA_TG_BOT || null; // из index.html
+
+    // Глобальный callback для Telegram Widget
+    useEffect(() => {
+      window.onTelegramAuth = async (tgUser) => {
+        setLoading(true);
+        setError(null);
+        const res = await loginWithTelegram(tgUser);
+        setLoading(false);
+        if(res.ok){
+          setUser(res.user);
+        } else {
+          setError(res.error || 'Не удалось войти');
+        }
+      };
+      return () => { delete window.onTelegramAuth; };
+    }, []);
+
+    // Если залогинен — статус + кнопка выйти
+    if(user){
+      return (
+        <div style={{padding:'12px 16px',background:'linear-gradient(135deg, rgba(33,150,243,.06), rgba(212,165,116,.04))',border:'1px solid rgba(33,150,243,.2)',borderRadius:12,marginBottom:16,display:'flex',alignItems:'center',gap:12}}>
+          <div style={{fontSize:32}}>{user.avatar?.startsWith('http') ? <img src={user.avatar} alt="" style={{width:36,height:36,borderRadius:18,objectFit:'cover'}}/> : (user.avatar || '🦊')}</div>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontWeight:700,fontSize:14}}>{user.nickname}</div>
+            <div style={{fontSize:11,color:'#6e6e73'}}>
+              {user.tg_user_id && '📱 Telegram · '}
+              {user.yandex_user_id && '🌐 Yandex ID · '}
+              Прогресс синхронизирован
+            </div>
+          </div>
+          <button className="duel-btn duel-btn-text" onClick={() => { logout(); setUser(null); }} style={{fontSize:12}}>Выйти</button>
+        </div>
+      );
+    }
+
+    // Не залогинен — показываем варианты входа
+    return (
+      <div style={{padding:'14px 16px',background:'#fef8e7',border:'1px solid rgba(212,165,116,.3)',borderRadius:12,marginBottom:16}}>
+        <div style={{fontSize:13,color:'#7a5e25',marginBottom:8}}>
+          ⚠️ Вы играете <strong>анонимно</strong>. Прогресс доступен только на этом устройстве. Войдите для:
+        </div>
+        <ul style={{fontSize:12,color:'#6e6e73',margin:'0 0 12px 16px',padding:0,lineHeight:1.6}}>
+          <li>попадания в глобальный лидерборд</li>
+          <li>синхронизации между устройствами</li>
+          <li>сохранения прогресса при очистке браузера</li>
+        </ul>
+
+        {!baseUrl && (
+          <div style={{padding:'8px 12px',background:'#fff',borderRadius:8,fontSize:12,color:'#dc2626'}}>
+            Сервер не настроен. Регистрация будет доступна после подключения backend.
+          </div>
+        )}
+
+        {baseUrl && !botUsername && (
+          <div style={{padding:'8px 12px',background:'#fff',borderRadius:8,fontSize:12,color:'#dc2626'}}>
+            Telegram Bot не настроен. Добавь <code style={{fontSize:11}}>window.YASNA_TG_BOT = "YourBotName"</code> в index.html.
+          </div>
+        )}
+
+        {baseUrl && botUsername && (
+          <>
+            <div style={{display:'flex',justifyContent:'center',marginBottom:8}}>
+              {/* Telegram Widget — рендерится здесь через innerHTML после mount */}
+              <div ref={(el) => {
+                if(!el || el.children.length) return;
+                const s = document.createElement('script');
+                s.async = true;
+                s.src = 'https://telegram.org/js/telegram-widget.js?22';
+                s.setAttribute('data-telegram-login', botUsername);
+                s.setAttribute('data-size', 'large');
+                s.setAttribute('data-onauth', 'onTelegramAuth(user)');
+                s.setAttribute('data-request-access', 'write');
+                el.appendChild(s);
+              }}/>
+            </div>
+            {loading && <div style={{textAlign:'center',fontSize:12,color:'#6e6e73'}}>Авторизация…</div>}
+            {error && <div style={{textAlign:'center',fontSize:12,color:'#dc2626'}}>❌ {error}</div>}
+          </>
+        )}
+      </div>
+    );
+  }
+
   // ─── STATS SCREEN ──────────────────────────────────────────────────
   function StatsScreen({ onClose }){
     const data = window.YasnaDuelStorage.getOverallStats();
@@ -1716,6 +1860,8 @@
           <span className="duel-emoji">📊</span>
           <h1>Ваша статистика</h1>
         </div>
+
+        <AuthBlock/>
 
         {/* Общие итоги */}
         <div className="duel-stats-totals">

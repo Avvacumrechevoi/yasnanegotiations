@@ -1,0 +1,81 @@
+openapi: 3.0.0
+info:
+  title: Yasna Duel API
+  version: 1.0.0
+servers:
+  - url: https://d5d{YOUR_GW_ID}.apigw.yandexcloud.net
+paths:
+  /auth/telegram:
+    post:
+      summary: Telegram Login
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  /submit:
+    post:
+      summary: Submit match result
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {SUBMIT_FUNCTION_ID}
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {SUBMIT_FUNCTION_ID}
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  /leaderboard:
+    get:
+      summary: Get leaderboard
+      parameters:
+        - name: gameId
+          in: query
+          required: true
+          schema: { type: string }
+        - name: yasnaId
+          in: query
+          required: true
+          schema: { type: string }
+        - name: period
+          in: query
+          schema: { type: string, enum: [daily, weekly, all] }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50, maximum: 100 }
+        - name: deviceId
+          in: query
+          schema: { type: string }
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {LEADERBOARD_FUNCTION_ID}
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {LEADERBOARD_FUNCTION_ID}
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
