@@ -22,12 +22,22 @@
   // соперник видит твоё имя в player-card во время дуэли.
   const PROFILE_KEY = 'yasna_duel_profile';
   const AVATAR_OPTIONS = ['🦊','🐺','🦁','🐯','🐻','🐼','🦉','🦅','🐉','🦄','⚔️','🎯'];
+  function _genDeviceId(){
+    if(typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+    return 'dev-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+  }
   function loadProfile(){
     try {
       const raw = localStorage.getItem(PROFILE_KEY);
       if(!raw) return null;
       const p = JSON.parse(raw);
-      if(p && p.nickname) return p;
+      if(!p || !p.nickname) return null;
+      // Backward-compat: добавляем deviceId если его не было
+      if(!p.deviceId){
+        p.deviceId = _genDeviceId();
+        saveProfile(p);
+      }
+      return p;
     } catch(_){}
     return null;
   }
@@ -132,6 +142,12 @@
     }
 
     _saveData(data);
+
+    // ★ Server sync (Scenario A — пока без сервера, кладёт в queue)
+    if(window.YasnaLeaderboardClient){
+      window.YasnaLeaderboardClient.submitMatch(match).catch(() => {});
+    }
+
     return match;
   }
 
@@ -167,6 +183,151 @@
   function resetData(){ _saveData(_emptyData()); }
 
   window.YasnaDuelStorage = { recordMatch, getStats, getMatchHistory, getOverallStats, exportJSON, importJSON, reset: resetData, _load: _loadData };
+
+  // ─── LEADERBOARD CLIENT (Scenario A — клиент без сервера) ──────────
+  // baseUrl указывается через window.YASNA_LEADERBOARD_API в index.html.
+  // Если null/пусто — все методы тихо возвращают null/false без ошибок,
+  // дуэль продолжает работать локально как обычно.
+  // Когда сервер появится (Yandex Cloud Function) — заменяешь baseUrl,
+  // и leaderboard автоматически наполняется отложенными матчами через flush().
+  const LB_QUEUE_KEY = 'yasna_duel_pending';
+  const LB_TIMEOUT_MS = 6000; // не ждём дольше 6 секунд
+
+  class YasnaLeaderboardClient {
+    constructor(){
+      this.baseUrl = (typeof window !== 'undefined' && window.YASNA_LEADERBOARD_API) || null;
+      this.lastError = null;
+    }
+
+    isEnabled(){ return !!this.baseUrl; }
+
+    _profile(){ return loadProfile(); }
+
+    async _fetch(path, opts){
+      if(!this.baseUrl) return null;
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), LB_TIMEOUT_MS);
+      try {
+        const res = await fetch(this.baseUrl + path, { ...opts, signal: ctrl.signal });
+        clearTimeout(timer);
+        if(!res.ok){
+          this.lastError = 'http-' + res.status;
+          return null;
+        }
+        try { return await res.json(); } catch(_){ return null; }
+      } catch(e){
+        clearTimeout(timer);
+        this.lastError = e?.name === 'AbortError' ? 'timeout' : (e?.message || 'network');
+        return null;
+      }
+    }
+
+    // Только peerjs-матчи попадают в leaderboard
+    _shouldSubmit(match){
+      if(!match || match.isBot) return false;
+      if(match.transport !== 'peerjs') return false;
+      // Sanity: time >= 1 секунды (match too short would be cheating)
+      if((match.time || 0) < 1000) return false;
+      return true;
+    }
+
+    _payload(match){
+      const profile = this._profile();
+      return {
+        matchId: match.id || match.matchId,
+        deviceId: profile?.deviceId || 'anon',
+        nickname: profile?.nickname || 'Гость',
+        avatar: profile?.avatar || '🦊',
+        gameId: match.gameId,
+        yasnaId: match.yasnaId,
+        result: match.result,
+        score: match.score != null ? match.score : null,
+        maxScore: match.maxScore != null ? match.maxScore : null,
+        time: match.time || 0,
+        transport: match.transport,
+        isBot: !!match.isBot,
+        bySurrender: !!match.bySurrender,
+        byDisconnect: !!match.byDisconnect,
+        clientVersion: '1.0.0',
+        createdAt: match.date || Date.now(),
+      };
+    }
+
+    // Try send, on failure → enqueue
+    async submitMatch(match){
+      if(!this._shouldSubmit(match)) return false;
+      const payload = this._payload(match);
+      if(!this.baseUrl){
+        this._enqueue(payload);
+        return false; // server not configured yet — queued
+      }
+      const ok = await this._sendOne(payload);
+      if(!ok) this._enqueue(payload);
+      return ok;
+    }
+
+    async _sendOne(payload){
+      const res = await this._fetch('/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      return !!(res && res.ok);
+    }
+
+    _enqueue(payload){
+      try {
+        const q = JSON.parse(localStorage.getItem(LB_QUEUE_KEY) || '[]');
+        // Дедуп по matchId
+        if(q.find(x => x.matchId === payload.matchId)) return;
+        q.push(payload);
+        if(q.length > 200) q.splice(0, q.length - 200); // оставляем 200 последних
+        localStorage.setItem(LB_QUEUE_KEY, JSON.stringify(q));
+      } catch(_){}
+    }
+
+    queueLength(){
+      try { return JSON.parse(localStorage.getItem(LB_QUEUE_KEY) || '[]').length; }
+      catch(_){ return 0; }
+    }
+
+    // Отправить накопленные матчи. Вызывается на старте + после каждого нового матча.
+    async flush(){
+      if(!this.baseUrl) return { sent:0, remaining: this.queueLength() };
+      let q;
+      try { q = JSON.parse(localStorage.getItem(LB_QUEUE_KEY) || '[]'); }
+      catch(_){ return { sent:0, remaining:0 }; }
+      if(!q.length) return { sent:0, remaining:0 };
+      const remaining = [];
+      let sent = 0;
+      for(const p of q){
+        const ok = await this._sendOne(p);
+        if(ok) sent++;
+        else remaining.push(p);
+      }
+      try { localStorage.setItem(LB_QUEUE_KEY, JSON.stringify(remaining)); } catch(_){}
+      return { sent, remaining: remaining.length };
+    }
+
+    async fetchLeaderboard({ gameId, yasnaId, period = 'all', limit = 50 } = {}){
+      if(!this.baseUrl) return { items:[], myEntry:null, error:'not-configured' };
+      const profile = this._profile();
+      const qs = new URLSearchParams({ gameId, yasnaId, period, limit, deviceId: profile?.deviceId || '' });
+      const data = await this._fetch('/leaderboard?' + qs.toString());
+      if(!data) return { items:[], myEntry:null, error:this.lastError };
+      return { items: data.items || [], myEntry: data.myEntry || null, error:null };
+    }
+  }
+
+  const leaderboardClient = new YasnaLeaderboardClient();
+  window.YasnaLeaderboardClient = leaderboardClient;
+
+  // Auto-flush при загрузке (вдруг сервер уже доступен и есть pending матчи)
+  if(typeof window !== 'undefined'){
+    window.addEventListener('load', () => {
+      setTimeout(() => leaderboardClient.flush().catch(() => {}), 1500);
+    });
+  }
 
   // ─── ACHIEVEMENTS (P6.1 — 30+ значков) ─────────────────────────────
   // Условия проверяются по match-history после каждого матча.
@@ -724,7 +885,7 @@
     const submit = () => {
       const trimmed = nickname.trim().slice(0, 20);
       if(!trimmed) return;
-      const profile = { nickname: trimmed, avatar, createdAt: Date.now() };
+      const profile = { nickname: trimmed, avatar, deviceId: _genDeviceId(), createdAt: Date.now() };
       saveProfile(profile);
       onSave(profile);
     };
@@ -970,9 +1131,10 @@
                   </div>
                 </button>
               ))}
-              <div style={{display:'flex',gap:8,marginTop:6}}>
-                <button className="duel-btn duel-btn-text" onClick={() => setStep('join-only')} style={{flex:1}}>📥 У меня есть код</button>
-                <button className="duel-btn duel-btn-text" onClick={() => setStep('stats')} style={{flex:1}}>📊 Моя статистика</button>
+              <div style={{display:'flex',gap:8,marginTop:6,flexWrap:'wrap'}}>
+                <button className="duel-btn duel-btn-text" onClick={() => setStep('join-only')} style={{flex:'1 1 33%'}}>📥 Код</button>
+                <button className="duel-btn duel-btn-text" onClick={() => setStep('stats')} style={{flex:'1 1 33%'}}>📊 Статистика</button>
+                <button className="duel-btn duel-btn-text" onClick={() => setStep('leaderboard')} style={{flex:'1 1 33%'}}>🏆 Лидерборд</button>
               </div>
             </div>
           );
@@ -980,6 +1142,10 @@
 
         {step === 'stats' && (
           <StatsScreen onClose={() => setStep('pick-game')}/>
+        )}
+
+        {step === 'leaderboard' && (
+          <LeaderboardScreen onClose={() => setStep('pick-game')}/>
         )}
 
         {step === 'join-only' && (
@@ -1384,6 +1550,145 @@
         <div className="duel-actions">
           <button className="duel-btn duel-btn-primary" onClick={onPlayAgain}>Сыграть ещё</button>
           <button className="duel-btn duel-btn-text" onClick={onClose}>Закрыть</button>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── LEADERBOARD SCREEN ────────────────────────────────────────────
+  function LeaderboardScreen({ onClose }){
+    const [gameId, setGameId] = useState('race-cross');
+    const [yasnaId, setYasnaId] = useState('суток');
+    const [period, setPeriod] = useState('all');
+    const [data, setData] = useState({ items:[], myEntry:null, error:null });
+    const [loading, setLoading] = useState(false);
+    const [pendingCount, setPendingCount] = useState(0);
+
+    const games = window.YasnaDuels.list();
+    const Tlist = window.YasnaData?.T || [];
+    const yName = (id) => Tlist.find(t => t.id === id)?.n || id;
+
+    const load = async () => {
+      setLoading(true);
+      const res = await window.YasnaLeaderboardClient.fetchLeaderboard({ gameId, yasnaId, period, limit: 50 });
+      setData(res);
+      setPendingCount(window.YasnaLeaderboardClient.queueLength());
+      setLoading(false);
+    };
+
+    useEffect(() => { load(); }, [gameId, yasnaId, period]);
+
+    const isEnabled = window.YasnaLeaderboardClient.isEnabled();
+    const fmtTime = (ms) => ms ? (ms/1000).toFixed(1) + 's' : '—';
+
+    return (
+      <div className="duel-stats" style={{padding:'40px 24px',overflowY:'auto'}}>
+        <div className="duel-title">
+          <span className="duel-emoji">🏆</span>
+          <h1>Лидерборд</h1>
+          {!isEnabled && <p style={{color:'#dc2626'}}>Сервер не настроен — пока копится локально</p>}
+          {isEnabled && pendingCount > 0 && <p style={{color:'#7a5e25'}}>В очереди отправки: {pendingCount}</p>}
+        </div>
+
+        {/* Фильтры */}
+        <div style={{display:'flex',flexDirection:'column',gap:8,margin:'16px 0'}}>
+          <div className="duel-yasna-pick">
+            <div className="duel-label">Режим:</div>
+            <div className="duel-yasna-options">
+              {games.map(g => (
+                <button key={g.id} className={'duel-pill ' + (gameId === g.id ? 'duel-pill-active' : '')}
+                  onClick={() => setGameId(g.id)}>{g.title}</button>
+              ))}
+            </div>
+          </div>
+          <div className="duel-yasna-pick">
+            <div className="duel-label">Ясна:</div>
+            <div className="duel-yasna-options">
+              {['суток', 'года', 'фаз_жизни'].map(yid => (
+                <button key={yid} className={'duel-pill ' + (yasnaId === yid ? 'duel-pill-active' : '')}
+                  onClick={() => setYasnaId(yid)}>{yName(yid)}</button>
+              ))}
+            </div>
+          </div>
+          <div className="duel-yasna-pick">
+            <div className="duel-label">Период:</div>
+            <div className="duel-yasna-options">
+              {[['daily','Сегодня'],['weekly','Неделя'],['all','Всё время']].map(([p, l]) => (
+                <button key={p} className={'duel-pill ' + (period === p ? 'duel-pill-active' : '')}
+                  onClick={() => setPeriod(p)}>{l}</button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Состояния */}
+        {!isEnabled && (
+          <div style={{padding:'24px',background:'#f5f5f7',borderRadius:12,textAlign:'center'}}>
+            <div style={{fontSize:48,marginBottom:8}}>⚙️</div>
+            <div style={{fontWeight:600,marginBottom:6}}>Лидерборд скоро появится</div>
+            <div style={{fontSize:13,color:'#6e6e73',lineHeight:1.5}}>
+              Сейчас все онлайн-матчи копятся в очереди ({pendingCount} pending).<br/>
+              Когда подключим серверный backend (Yandex Cloud) — лидерборд автоматически наполнится из накопленной истории.
+            </div>
+          </div>
+        )}
+
+        {isEnabled && loading && (
+          <div style={{padding:32,textAlign:'center',color:'#6e6e73'}}>Загрузка…</div>
+        )}
+
+        {isEnabled && !loading && data.error && (
+          <div style={{padding:'16px 20px',background:'rgba(220,38,38,.06)',border:'1px solid rgba(220,38,38,.2)',borderRadius:10,textAlign:'center'}}>
+            <div style={{color:'#dc2626',fontWeight:600}}>Сервер недоступен</div>
+            <div style={{fontSize:12,color:'#6e6e73',marginTop:4}}>{data.error}</div>
+            <button className="duel-btn duel-btn-text" onClick={load} style={{marginTop:8}}>Повторить</button>
+          </div>
+        )}
+
+        {isEnabled && !loading && !data.error && data.items.length === 0 && (
+          <div style={{padding:32,textAlign:'center',color:'#6e6e73'}}>
+            Пока нет результатов. Сыграйте первым!
+          </div>
+        )}
+
+        {isEnabled && !loading && data.items.length > 0 && (
+          <div style={{display:'flex',flexDirection:'column',gap:6}}>
+            {data.items.map((row, i) => {
+              const isMe = data.myEntry && row.deviceId === data.myEntry.deviceId;
+              const rank = row.rank || (i + 1);
+              const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
+              return (
+                <div key={i} style={{
+                  display:'flex',alignItems:'center',gap:10,padding:'10px 12px',
+                  borderRadius:10,
+                  background: isMe ? 'rgba(212,165,116,.1)' : '#fff',
+                  border: '1.5px solid ' + (isMe ? '#d4a574' : '#e5e5ea'),
+                }}>
+                  <div style={{minWidth:32,fontWeight:700,color:'#6e6e73',textAlign:'right'}}>{medal || '#' + rank}</div>
+                  <div style={{fontSize:20}}>{row.avatar || '🦊'}</div>
+                  <div style={{flex:1,fontWeight:600,fontSize:14}}>{row.nickname || 'аноним'} {isMe && <span style={{fontSize:11,color:'#7a5e25',fontWeight:500}}>· вы</span>}</div>
+                  {row.score != null && <div style={{fontWeight:600}}>{row.score}/{row.maxScore}</div>}
+                  <div style={{color:'#6e6e73',fontSize:13,fontFamily:'ui-monospace,monospace'}}>{fmtTime(row.time)}</div>
+                </div>
+              );
+            })}
+            {data.myEntry && !data.items.find(r => r.deviceId === data.myEntry.deviceId) && (
+              <>
+                <div style={{textAlign:'center',color:'#a1a1a6',fontSize:11,padding:'4px 0'}}>...</div>
+                <div style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:10,background:'rgba(212,165,116,.1)',border:'1.5px solid #d4a574'}}>
+                  <div style={{minWidth:32,fontWeight:700,color:'#7a5e25',textAlign:'right'}}>#{data.myEntry.rank}</div>
+                  <div style={{fontSize:20}}>{data.myEntry.avatar}</div>
+                  <div style={{flex:1,fontWeight:600,fontSize:14}}>{data.myEntry.nickname} <span style={{fontSize:11,color:'#7a5e25',fontWeight:500}}>· вы</span></div>
+                  {data.myEntry.score != null && <div style={{fontWeight:600}}>{data.myEntry.score}/{data.myEntry.maxScore}</div>}
+                  <div style={{color:'#6e6e73',fontSize:13,fontFamily:'ui-monospace,monospace'}}>{fmtTime(data.myEntry.time)}</div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        <div style={{display:'flex',justifyContent:'center',marginTop:24}}>
+          <button className="duel-btn duel-btn-primary" onClick={onClose}>Назад в лобби</button>
         </div>
       </div>
     );
