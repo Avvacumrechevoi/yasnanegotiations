@@ -125,7 +125,12 @@
     const [status, setStatus] = useState('');
     const transportRef = useRef(null);
 
-    const games = window.YasnaDuels.list();
+    // Сортировка: по сложности → по estimatedSec
+    const games = window.YasnaDuels.list().slice().sort((a, b) => {
+      const da = (a.difficulty || 1) - (b.difficulty || 1);
+      if(da) return da;
+      return (a.estimatedSec || 0) - (b.estimatedSec || 0);
+    });
     const game = gameId ? window.YasnaDuels.get(gameId) : null;
 
     const generateCode = () => {
@@ -565,7 +570,27 @@
       .duel-modal { position: fixed; inset: 0; z-index: 250; background: rgba(14,16,25,.86); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; animation: duelFadeIn .3s ease; }
       @keyframes duelFadeIn { from { opacity:0; } to { opacity:1; } }
       .duel-frame { position: relative; width: 100%; max-width: 760px; max-height: 92vh; background: #fff; border-radius: 18px; box-shadow: 0 24px 80px rgba(0,0,0,.4); overflow: hidden; display: flex; flex-direction: column; }
-      @media (max-width: 768px) { .duel-frame { max-width: 100%; max-height: 100dvh; border-radius: 0; } }
+      @media (max-width: 768px) {
+        .duel-frame { max-width: 100%; max-height: 100dvh; border-radius: 0; }
+        .duel-lobby { padding: 36px 16px 24px; gap: 18px; }
+        .duel-title h1 { font-size: 20px; }
+        .duel-emoji { font-size: 40px; }
+        .duel-game-card { padding: 12px 14px; }
+        .duel-game-title { font-size: 15px; }
+        .duel-runner-body { padding: 10px 12px; gap: 8px; }
+        .duel-status-bar { gap: 8px; }
+        .duel-player-card { padding: 8px 10px; }
+        .duel-player-stats { font-size: 14px; }
+        .duel-timer { font-size: 22px; min-width: 60px; }
+        .duel-task { font-size: 12px; padding: 6px 10px; }
+        .duel-star-wrap { min-height: 280px; }
+        .duel-star-wrap > div { max-height: 50dvh; }
+        .duel-code { font-size: 38px; letter-spacing: 5px; padding: 16px 20px; }
+        .duel-result { padding: 32px 20px; }
+        .duel-result-emoji { font-size: 72px; }
+        .duel-result-title { font-size: 24px; }
+        .duel-mirror-canvas svg { max-height: 38dvh; }
+      }
       .duel-x { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 16px; background: rgba(0,0,0,.05); border: none; color: #424245; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; z-index: 10; }
       .duel-x:hover { background: rgba(0,0,0,.1); }
 
