@@ -309,6 +309,83 @@
     reset: () => { try { localStorage.removeItem(ACHIEVEMENTS_KEY); } catch(_){} },
   };
 
+  // ─── DAILY CHALLENGE (P4-lite — без сервера) ───────────────────────
+  // Каждый день фиксированный режим + Ясна по детерминированному сиду от даты.
+  // Solo-проход (нет соперника). Результат сохраняется в storage.
+  // Streak — число дней подряд, в которые играли.
+  const DAILY_KEY = 'yasna_duel_daily';
+  const DAILY_GAMES = ['race-cross', 'race-mngmt', 'race-faith', 'quiz-antipodes', 'mirror-fill', 'speed-cross-yesno'];
+  const DAILY_YASNAS = ['суток', 'года', 'фаз_жизни'];
+
+  function todayKey(){
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+  function todaySeed(){
+    const dk = todayKey();
+    return parseInt(dk.replace(/-/g,''), 10);
+  }
+  function getTodayChallenge(){
+    const seed = todaySeed();
+    const gameId = DAILY_GAMES[seed % DAILY_GAMES.length];
+    const yasnaId = DAILY_YASNAS[Math.floor(seed / 100) % DAILY_YASNAS.length];
+    return { date: todayKey(), seed, gameId, yasnaId };
+  }
+  function loadDailyData(){
+    try { return JSON.parse(localStorage.getItem(DAILY_KEY) || '{}'); }
+    catch(_){ return {}; }
+  }
+  function saveDailyData(d){
+    try { localStorage.setItem(DAILY_KEY, JSON.stringify(d)); } catch(_){}
+  }
+  function recordDaily({ date, gameId, yasnaId, score, maxScore, time }){
+    const d = loadDailyData();
+    d.byDate = d.byDate || {};
+    const prev = d.byDate[date];
+    // Берём лучший результат за день: больший score, при равенстве — меньшее время
+    const isBetter = !prev
+      || (score > prev.score)
+      || (score === prev.score && time < prev.time);
+    if(isBetter){
+      d.byDate[date] = { gameId, yasnaId, score, maxScore, time, ts: Date.now() };
+    }
+    // Обновляем streak
+    d.streak = d.streak || { current:0, best:0, lastDate:null };
+    if(d.streak.lastDate !== date){
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yKey = yesterday.getFullYear() + '-' + String(yesterday.getMonth()+1).padStart(2,'0') + '-' + String(yesterday.getDate()).padStart(2,'0');
+      if(d.streak.lastDate === yKey){
+        d.streak.current = (d.streak.current || 0) + 1;
+      } else {
+        d.streak.current = 1;
+      }
+      d.streak.lastDate = date;
+      if(d.streak.current > (d.streak.best || 0)) d.streak.best = d.streak.current;
+    }
+    saveDailyData(d);
+    return d;
+  }
+  window.YasnaDailyChallenge = {
+    today: getTodayChallenge,
+    load: loadDailyData,
+    record: recordDaily,
+    reset: () => { try { localStorage.removeItem(DAILY_KEY); } catch(_){} },
+  };
+
+  // ─── SOLO TRANSPORT (для daily challenge — без соперника) ──────────
+  class SoloTransport {
+    constructor(){
+      this.handlers = new Set();
+      this.closed = false;
+    }
+    on(fn){ this.handlers.add(fn); return () => this.handlers.delete(fn); }
+    startHeartbeat(){ /* no-op */ }
+    send(msg){ /* discard — никого нет */ }
+    close(){ this.closed = true; }
+  }
+  window.SoloTransport = SoloTransport;
+
   // ─── REGISTRY ──────────────────────────────────────────────────────
   const _registry = new Map();
   window.YasnaDuels = {
@@ -816,6 +893,22 @@
       });
     };
 
+    const startDaily = () => {
+      const today = window.YasnaDailyChallenge.today();
+      const todayGame = window.YasnaDuels.get(today.gameId);
+      if(!todayGame) { setStatus('Челлендж дня недоступен (нет режима ' + today.gameId + ')'); return; }
+      const transport = new SoloTransport();
+      transportRef.current = transport;
+      onConnected({
+        transport, role: 'host', game: todayGame, yasnaId: today.yasnaId,
+        matchId: 'daily-' + today.date,
+        isSolo: true,
+        dailyChallenge: today,
+        myProfile: profile,
+        oppProfile: { nickname: '⏱ Челлендж дня', avatar: '🌅', isSolo: true },
+      });
+    };
+
     const cancel = () => {
       cleanup();
       setStep('pick-game');
@@ -838,27 +931,52 @@
           {(step === 'hosting' || step === 'joining') && <p>{game?.title}</p>}
         </div>
 
-        {step === 'pick-game' && (
-          <div className="duel-game-list">
-            {games.length === 0 && <div className="duel-empty">Нет зарегистрированных игр</div>}
-            {games.map(g => (
-              <button key={g.id} className="duel-game-card" onClick={() => { setGameId(g.id); setStep('configure'); }}>
-                <div className="duel-game-cat">{g.category}</div>
-                <div className="duel-game-title">{g.title}</div>
-                <div className="duel-game-sub">{g.subtitle || ''}</div>
-                <div className="duel-game-meta">
-                  <span>≈{g.estimatedSec}s</span>
-                  <span>•</span>
-                  <span>{'★'.repeat(g.difficulty || 1)}</span>
-                </div>
-              </button>
-            ))}
-            <div style={{display:'flex',gap:8,marginTop:6}}>
-              <button className="duel-btn duel-btn-text" onClick={() => setStep('join-only')} style={{flex:1}}>📥 У меня есть код</button>
-              <button className="duel-btn duel-btn-text" onClick={() => setStep('stats')} style={{flex:1}}>📊 Моя статистика</button>
+        {step === 'pick-game' && (() => {
+          const today = window.YasnaDailyChallenge?.today();
+          const todayGame = today ? window.YasnaDuels.get(today.gameId) : null;
+          const dailyData = window.YasnaDailyChallenge?.load() || {};
+          const todayPlayed = dailyData.byDate?.[today?.date];
+          const Tlist = window.YasnaData?.T || [];
+          const yName = (id) => Tlist.find(t => t.id === id)?.n || id;
+          return (
+            <div className="duel-game-list">
+              {/* Daily Challenge — featured */}
+              {today && todayGame && (
+                <button onClick={startDaily} className="duel-game-card duel-daily-card">
+                  <div className="duel-game-cat" style={{color:'#7c3aed'}}>🌅 ЧЕЛЛЕНДЖ ДНЯ</div>
+                  <div className="duel-game-title">{todayGame.title} · {yName(today.yasnaId)}</div>
+                  <div className="duel-game-sub">
+                    Один день — один режим у всех. {todayPlayed ? `Сегодня уже играли: ${todayPlayed.score}/${todayPlayed.maxScore}` : 'Сегодня ещё не играли'}
+                    {dailyData.streak?.current > 0 && <span style={{color:'#dc2626'}}> · 🔥 {dailyData.streak.current} дн.</span>}
+                  </div>
+                  <div className="duel-game-meta">
+                    <span>solo</span>
+                    <span>•</span>
+                    <span>{'★'.repeat(todayGame.difficulty || 1)}</span>
+                  </div>
+                </button>
+              )}
+
+              {games.length === 0 && <div className="duel-empty">Нет зарегистрированных игр</div>}
+              {games.map(g => (
+                <button key={g.id} className="duel-game-card" onClick={() => { setGameId(g.id); setStep('configure'); }}>
+                  <div className="duel-game-cat">{g.category}</div>
+                  <div className="duel-game-title">{g.title}</div>
+                  <div className="duel-game-sub">{g.subtitle || ''}</div>
+                  <div className="duel-game-meta">
+                    <span>≈{g.estimatedSec}s</span>
+                    <span>•</span>
+                    <span>{'★'.repeat(g.difficulty || 1)}</span>
+                  </div>
+                </button>
+              ))}
+              <div style={{display:'flex',gap:8,marginTop:6}}>
+                <button className="duel-btn duel-btn-text" onClick={() => setStep('join-only')} style={{flex:1}}>📥 У меня есть код</button>
+                <button className="duel-btn duel-btn-text" onClick={() => setStep('stats')} style={{flex:1}}>📊 Моя статистика</button>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {step === 'stats' && (
           <StatsScreen onClose={() => setStep('pick-game')}/>
@@ -974,7 +1092,7 @@
   }
 
   // ─── RUNNER (countdown → game → result) ────────────────────────────
-  function DuelRunner({ transport, role, game, yasnaId, matchId, myProfile, oppProfile, onPlayAgain, onClose }){
+  function DuelRunner({ transport, role, game, yasnaId, matchId, myProfile, oppProfile, isSolo, dailyChallenge, onPlayAgain, onClose }){
     const [phase, setPhase] = useState('countdown'); // countdown | playing | result
     const [countdown, setCountdown] = useState(3);
     const [result, setResult] = useState(null);
@@ -1064,12 +1182,13 @@
     const submitFinish = (payload) => {
       if(phase !== 'playing') return;
       const time = performance.now() - startRef.current;
-      transport.send({ t:'finish', matchId, time, payload });
+      if(!isSolo) transport.send({ t:'finish', matchId, time, payload });
       setResult({
         winner: role,
         time,
         iAmWinner: true,
         byDisconnect: false,
+        isSolo,
       });
       setPhase('result');
     };
@@ -1080,8 +1199,21 @@
       if(myResultMsg) return; // уже отправлен
       const time = performance.now() - startRef.current;
       const msg = { t:'result', matchId, score, maxScore, time, payload };
-      transport.send(msg);
-      setMyResultMsg(msg);
+      if(isSolo){
+        // Solo-режим: никакого соперника, сразу формируем result
+        setResult({
+          winner: role,
+          iAmWinner: true,
+          time,
+          myScore: score,
+          myMaxScore: maxScore,
+          isSolo,
+        });
+        setPhase('result');
+      } else {
+        transport.send(msg);
+        setMyResultMsg(msg);
+      }
     };
 
     // Поражение по сдаче
@@ -1126,6 +1258,18 @@
       if(recorded && window.YasnaDuelAchievements){
         const unlocked = window.YasnaDuelAchievements.check(recorded);
         if(unlocked.length) result.newAchievements = unlocked;
+      }
+      // Daily Challenge — отдельная запись
+      if(dailyChallenge && window.YasnaDailyChallenge){
+        const dailyData = window.YasnaDailyChallenge.record({
+          date: dailyChallenge.date,
+          gameId: dailyChallenge.gameId,
+          yasnaId: dailyChallenge.yasnaId,
+          score: result.myScore || 0,
+          maxScore: result.myMaxScore || 1,
+          time: result.time || 0,
+        });
+        result.dailyStreak = dailyData.streak?.current;
       }
     }, [phase, result]);
 
@@ -1449,6 +1593,8 @@
               matchId={match.matchId}
               myProfile={match.myProfile}
               oppProfile={match.oppProfile}
+              isSolo={match.isSolo}
+              dailyChallenge={match.dailyChallenge}
               onPlayAgain={handlePlayAgain}
               onClose={handleClose}
             />
@@ -1510,6 +1656,8 @@
       .duel-label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: #6e6e73; font-weight: 700; }
       .duel-yasna-options { display: flex; flex-wrap: wrap; gap: 6px; }
       .duel-bot-section { padding: 12px 14px; background: linear-gradient(135deg, rgba(124,58,237,.06), rgba(212,165,116,.06)); border-radius: 12px; border: 1px dashed rgba(124,58,237,.25); }
+      .duel-daily-card { background: linear-gradient(135deg, rgba(124,58,237,.10), rgba(255,215,0,.08)) !important; border: 1.5px solid rgba(124,58,237,.35) !important; }
+      .duel-daily-card:hover { border-color: #7c3aed !important; }
       .duel-transport-toggle { padding: 10px 14px; border-radius: 10px; background: #f5f5f7; }
       .duel-stats-totals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 16px 0; }
       .duel-stat-card { padding: 12px 8px; border: 1.5px solid #e5e5ea; border-radius: 10px; text-align: center; background: #fff; }
