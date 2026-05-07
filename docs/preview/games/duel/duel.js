@@ -115,6 +115,119 @@
 
   window.DuelTransport = DuelTransport;
 
+  // ─── BOT TRANSPORT (одиночная тренировка vs ИИ) ────────────────────
+  // Имитирует противника. Не использует BroadcastChannel —
+  // эмитит сообщения по таймерам, вызывая обработчики локально.
+  // Поддерживает все 6 режимов через распознавание gameId.
+  class BotTransport {
+    constructor(gameId, level){
+      this.gameId = gameId;
+      this.level = level || 'easy';
+      this.handlers = new Set();
+      this.timers = [];
+      this.closed = false;
+      this.scheduled = false;
+    }
+    on(fn){ this.handlers.add(fn); return () => this.handlers.delete(fn); }
+    startHeartbeat(){ /* no-op */ }
+
+    send(msg){
+      if(this.closed || msg.t === '__hb' || msg.t === '__leave') return;
+      // При первом сообщении хоста (host-ack от lobby) — стартуем бота.
+      // Но lobby при vs-bot мы скипаем, поэтому первый send будет от игры —
+      // именно с него и считаем "матч начался".
+      if(!this.scheduled){
+        this.scheduled = true;
+        // Получаем matchId из первого сообщения (любого), либо генерируем сами
+        const matchId = msg.matchId || ('bot-' + Date.now());
+        this._scheduleBotActions(matchId);
+      }
+      // Если игра прислала mirror-init — нужно отзеркалить (бот же гость, должен бы получить от хоста)
+      // На самом деле с ботом всё локально, можно ничего не делать.
+    }
+
+    _emit(msg, delay){
+      if(this.closed) return;
+      const id = setTimeout(() => {
+        if(!this.closed){
+          this.handlers.forEach(fn => { try { fn(msg); } catch(_){} });
+        }
+      }, delay);
+      this.timers.push(id);
+    }
+
+    _scheduleBotActions(matchId){
+      // Профили сложности: время до финиша + точность (0..1)
+      const profiles = {
+        easy:   { time: 22000, acc: 0.55, jitter: 0.4 },
+        medium: { time: 13000, acc: 0.85, jitter: 0.2 },
+        hard:   { time: 7000,  acc: 0.95, jitter: 0.1 },
+      };
+      const p = profiles[this.level] || profiles.easy;
+      const T = p.time;
+
+      // ── RACE games ───────────────────────────────────────
+      const raceTargets = {
+        'race-cross':  [0, 3, 6, 9],
+        'race-mngmt':  [1, 4, 7, 10],
+        'race-faith':  [2, 5, 8, 11],
+      };
+      if(raceTargets[this.gameId]){
+        const target = raceTargets[this.gameId];
+        // Постепенно отмечаем правильные полки
+        target.forEach((idx, i) => {
+          const t = T * (i + 1) / 4 * (1 + (Math.random() - 0.5) * p.jitter);
+          this._emit({ t:'progress', matchId, solved: target.slice(0, i + 1) }, t);
+        });
+        // Финиш — бот побеждает (если игрок не успел раньше)
+        this._emit({ t:'finish', matchId, time: T }, T + 200);
+        return;
+      }
+
+      // ── QUIZ ANTIPODES ───────────────────────────────────
+      if(this.gameId === 'quiz-antipodes'){
+        const score = Math.round(5 * p.acc);
+        for(let q = 1; q <= 5; q++){
+          this._emit({ t:'quiz-progress', matchId, done: q }, T * q / 5);
+        }
+        this._emit({ t:'result', matchId, score, maxScore: 5, time: T, payload: {} }, T + 200);
+        return;
+      }
+
+      // ── MIRROR FILL ──────────────────────────────────────
+      if(this.gameId === 'mirror-fill'){
+        const score = Math.round(12 * p.acc);
+        for(let pl = 1; pl <= 12; pl++){
+          this._emit({ t:'mirror-progress', matchId, placed: pl }, T * pl / 12);
+        }
+        this._emit({ t:'result', matchId, score, maxScore: 12, time: T, payload: {} }, T + 300);
+        return;
+      }
+
+      // ── SPEED CROSS YES/NO ───────────────────────────────
+      if(this.gameId === 'speed-cross-yesno'){
+        // 30 секунд фиксированных
+        const finalCorrect = Math.round(20 * p.acc);
+        for(let c = 1; c <= finalCorrect; c++){
+          this._emit({ t:'speed-progress', matchId, correct: c }, c * (28000 / finalCorrect));
+        }
+        this._emit({ t:'result', matchId, score: finalCorrect, maxScore: 30, time: 30000, payload: {} }, 30200);
+        return;
+      }
+
+      // Fallback — ничего не делаем (для незнакомых режимов бот молчит)
+    }
+
+    close(){
+      if(this.closed) return;
+      this.closed = true;
+      this.timers.forEach(t => clearTimeout(t));
+      this.timers = [];
+    }
+  }
+
+  window.BotTransport = BotTransport;
+
   // ─── LOBBY ─────────────────────────────────────────────────────────
   function Lobby({ onConnected }){
     const [step, setStep] = useState('pick-game'); // pick-game | configure | hosting | joining
@@ -194,6 +307,16 @@
         }
       });
       t.send({ t:'guest-hello' });
+    };
+
+    const startVsBot = (level) => {
+      if(!game) return;
+      const ya = yasnaId || game.defaultYasna || game.yasnaIds[0];
+      setYasnaId(ya);
+      const bot = new BotTransport(game.id, level);
+      transportRef.current = bot;
+      const matchId = 'bot-' + Math.random().toString(36).slice(2, 10);
+      onConnected({ transport: bot, role: 'host', game, yasnaId: ya, matchId });
     };
 
     const cancel = () => {
@@ -283,6 +406,16 @@
             )}
 
             <button className="duel-btn duel-btn-primary" onClick={create}>＋ Создать комнату</button>
+
+            <div className="duel-bot-section">
+              <div className="duel-label" style={{textAlign:'center',marginBottom:6}}>🤖 Тренировка с ботом</div>
+              <div style={{display:'flex',gap:6,justifyContent:'center'}}>
+                <button className="duel-btn duel-pill" onClick={() => startVsBot('easy')} title="Лёгкий бот">😊 Лёгкий</button>
+                <button className="duel-btn duel-pill" onClick={() => startVsBot('medium')} title="Средний бот">🙂 Средний</button>
+                <button className="duel-btn duel-pill" onClick={() => startVsBot('hard')} title="Сложный бот">😈 Сложный</button>
+              </div>
+            </div>
+
             <div className="duel-or">— или —</div>
             <div className="duel-join">
               <input
@@ -298,7 +431,7 @@
             </div>
             <button className="duel-btn duel-btn-text" onClick={() => setStep('pick-game')}>← Другой режим</button>
             <div className="duel-hint">
-              💡 Для превью — открой страницу в двух вкладках одного браузера. В одной создай комнату, во второй введи код.
+              💡 Для превью с реальным соперником — открой страницу в двух вкладках одного браузера. В одной создай комнату, во второй введи код.
               В продакшене будет реальный online через WebRTC.
             </div>
           </div>
@@ -614,6 +747,7 @@
       .duel-yasna-pick { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
       .duel-label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: #6e6e73; font-weight: 700; }
       .duel-yasna-options { display: flex; flex-wrap: wrap; gap: 6px; }
+      .duel-bot-section { padding: 12px 14px; background: linear-gradient(135deg, rgba(124,58,237,.06), rgba(212,165,116,.06)); border-radius: 12px; border: 1px dashed rgba(124,58,237,.25); }
       .duel-pill { padding: 6px 12px; font-size: 13px; border: 1.5px solid #e5e5ea; background: #fff; border-radius: 999px; cursor: pointer; transition: all .15s; }
       .duel-pill:hover { border-color: #d4a574; }
       .duel-pill-active { background: #d4a574; color: #fff; border-color: #d4a574; }
