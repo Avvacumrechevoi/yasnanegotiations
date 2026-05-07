@@ -135,6 +135,125 @@
 
   window.DuelTransport = DuelTransport;
 
+  // ─── PEERJS TRANSPORT (реальный online через WebRTC) ──────────────
+  // Тот же интерфейс что у DuelTransport (on/send/close/startHeartbeat),
+  // но соединяется через WebRTC peer-to-peer. Signaling через
+  // публичный peerjs.com broker (бесплатный free-tier, ~99% uptime).
+  // Если NAT не пропускает — TURN-relay не делается на P0; падаем с ошибкой.
+  class PeerJsTransport {
+    constructor(roomCode, role){
+      this.roomCode = roomCode;
+      this.role = role; // 'host' | 'guest'
+      this.handlers = new Set();
+      this.peer = null;
+      this.conn = null;
+      this.closed = false;
+      this.hbInterval = null;
+      this.lastSeenPeer = 0;
+      this.connectedFired = false;
+      this._init();
+    }
+
+    _init(){
+      if(typeof window.Peer === 'undefined'){
+        console.error('[PeerJsTransport] window.Peer отсутствует — подключите CDN script');
+        // Эмитим ошибку асинхронно чтобы handlers успели подписаться
+        setTimeout(() => {
+          this.handlers.forEach(fn => fn({ t:'__error', message:'PeerJS не загрузился' }));
+        }, 0);
+        return;
+      }
+      const hostPeerId = 'yasna-d-' + this.roomCode;
+      const myPeerId = this.role === 'host'
+        ? hostPeerId
+        : 'yasna-d-' + this.roomCode + '-g-' + Math.random().toString(36).slice(2, 8);
+
+      try {
+        this.peer = new window.Peer(myPeerId);
+      } catch(e){
+        setTimeout(() => this.handlers.forEach(fn => fn({ t:'__error', message:'Peer init failed' })), 0);
+        return;
+      }
+
+      this.peer.on('open', () => {
+        if(this.role === 'host'){
+          this.peer.on('connection', (conn) => {
+            if(this.conn) return; // только первый гость
+            this.conn = conn;
+            conn.on('open', () => this._wireConn());
+          });
+        } else {
+          const conn = this.peer.connect(hostPeerId, { reliable: true, serialization:'json' });
+          conn.on('open', () => {
+            this.conn = conn;
+            this._wireConn();
+          });
+          conn.on('error', (e) => {
+            this.handlers.forEach(fn => fn({ t:'__error', message: e?.message || 'Не удалось подключиться к хосту' }));
+          });
+        }
+      });
+
+      this.peer.on('error', (e) => {
+        let msg = e?.type || 'unknown';
+        if(e?.type === 'unavailable-id') msg = 'Эта комната уже занята другим хостом';
+        else if(e?.type === 'peer-unavailable') msg = 'Комната не найдена. Проверьте код или попросите создать заново.';
+        else if(e?.type === 'network') msg = 'Нет связи с сервером сигналинга PeerJS';
+        else if(e?.type === 'browser-incompatible') msg = 'Браузер не поддерживает WebRTC';
+        else if(e?.type === 'disconnected') msg = 'Соединение прервано';
+        else if(e?.type === 'webrtc') msg = 'Ошибка WebRTC: NAT/firewall блокирует подключение';
+        this.handlers.forEach(fn => fn({ t:'__error', message: msg }));
+      });
+    }
+
+    _wireConn(){
+      if(!this.conn) return;
+      this.lastSeenPeer = Date.now();
+      this.conn.on('data', (data) => {
+        if(!data || typeof data !== 'object') return;
+        if(data.t === '__hb'){ this.lastSeenPeer = Date.now(); return; }
+        this.lastSeenPeer = Date.now();
+        this.handlers.forEach(fn => { try { fn(data); } catch(e){ console.error(e); } });
+      });
+      this.conn.on('close', () => {
+        this.handlers.forEach(fn => fn({ t:'__leave' }));
+      });
+      // Сразу шлём служебный 'hello' — соперник узнает что коннект жив (для UI лобби)
+      // Ничего не делаем — application-level guest-hello/host-ack пройдут поверху как раньше.
+    }
+
+    startHeartbeat(){
+      if(this.hbInterval) return;
+      const HB_MS = 2000, TIMEOUT_MS = 8000;
+      this.hbInterval = setInterval(() => {
+        if(this.closed) return;
+        if(this.conn && this.conn.open){
+          try { this.conn.send({ t:'__hb', from:this.peer?.id, ts:Date.now() }); } catch(_){}
+        }
+        if(this.lastSeenPeer && (Date.now() - this.lastSeenPeer > TIMEOUT_MS)){
+          this.handlers.forEach(fn => fn({ t:'__disconnect', reason:'timeout' }));
+        }
+      }, HB_MS);
+    }
+
+    send(msg){
+      if(this.closed || !this.conn || !this.conn.open) return;
+      try { this.conn.send({ ...msg, ts: Date.now() }); } catch(e){ console.warn('[peerjs send]', e); }
+    }
+
+    on(fn){ this.handlers.add(fn); return () => this.handlers.delete(fn); }
+
+    close(){
+      if(this.closed) return;
+      this.closed = true;
+      if(this.hbInterval){ clearInterval(this.hbInterval); this.hbInterval = null; }
+      try { this.send({ t:'__leave' }); } catch(_){}
+      try { this.conn?.close(); } catch(_){}
+      try { this.peer?.destroy(); } catch(_){}
+    }
+  }
+  window.PeerJsTransport = PeerJsTransport;
+
   // ─── BOT TRANSPORT (одиночная тренировка vs ИИ) ────────────────────
   // Имитирует противника. Не использует BroadcastChannel —
   // эмитит сообщения по таймерам, вызывая обработчики локально.
@@ -307,7 +426,11 @@
     const [code, setCode] = useState('');
     const [joinCode, setJoinCode] = useState('');
     const [status, setStatus] = useState('');
+    // Транспорт: 'peerjs' (реальный online) | 'broadcast' (две вкладки одного браузера)
+    const peerjsAvailable = typeof window.Peer !== 'undefined';
+    const [transportType, setTransportType] = useState(peerjsAvailable ? 'peerjs' : 'broadcast');
     const transportRef = useRef(null);
+    const TransportClass = (transportType === 'peerjs' && peerjsAvailable) ? window.PeerJsTransport : DuelTransport;
 
     // Если профиля нет — сначала онбординг
     if(!profile){
@@ -338,16 +461,19 @@
       const newCode = generateCode();
       setCode(newCode);
       setStep('hosting');
-      setStatus('Жду подключения соперника...');
-      const t = new DuelTransport(newCode);
+      setStatus(transportType === 'peerjs' ? 'Открываю канал PeerJS…' : 'Жду подключения соперника...');
+      const t = new TransportClass(newCode, 'host');
       transportRef.current = t;
       t.startHeartbeat();
       const matchId = Math.random().toString(36).slice(2, 10);
       let opponentProfile = null;
       const off = t.on(msg => {
+        if(msg.t === '__error'){
+          setStatus('❌ ' + msg.message);
+          return;
+        }
         if(msg.t === 'guest-hello'){
           opponentProfile = msg.profile || null;
-          // Принимаем только первого гостя (peerSessionId уже зафиксирован транспортом)
           t.send({ t:'host-ack', matchId, gameId, yasnaId: ya, profile });
           setStatus('Соперник подключился: ' + (opponentProfile ? opponentProfile.avatar + ' ' + opponentProfile.nickname : '...'));
           setTimeout(() => {
@@ -356,6 +482,16 @@
           }, 800);
         }
       });
+      // Для PeerJS обновим статус когда канал откроется (но соперник ещё не пришёл)
+      if(transportType === 'peerjs'){
+        const interval = setInterval(() => {
+          if(t.closed){ clearInterval(interval); return; }
+          if(t.peer && t.peer.id){
+            setStatus('Канал открыт. Жду подключения соперника...');
+            clearInterval(interval);
+          }
+        }, 200);
+      }
     };
 
     const startJoin = () => {
@@ -364,15 +500,20 @@
       setCode(cleanCode);
       setStep('joining');
       setStatus('Подключаюсь к комнате ' + cleanCode + '...');
-      const t = new DuelTransport(cleanCode);
+      const t = new TransportClass(cleanCode, 'guest');
       transportRef.current = t;
       t.startHeartbeat();
       let timedOut = false;
       const timeout = setTimeout(() => {
         timedOut = true;
         setStatus('Хост не отвечает. Проверьте код или попросите создать заново.');
-      }, 8000);
+      }, 12000);
       const off = t.on(msg => {
+        if(msg.t === '__error'){
+          clearTimeout(timeout);
+          setStatus('❌ ' + msg.message);
+          return;
+        }
         if(msg.t === 'host-ack'){
           if(timedOut) return;
           clearTimeout(timeout);
@@ -488,6 +629,16 @@
               </div>
             )}
 
+            {peerjsAvailable && (
+              <div className="duel-transport-toggle">
+                <div className="duel-label" style={{textAlign:'center',marginBottom:6}}>Тип соединения</div>
+                <div style={{display:'flex',gap:6,justifyContent:'center'}}>
+                  <button className={'duel-btn duel-pill ' + (transportType === 'peerjs' ? 'duel-pill-active' : '')} onClick={() => setTransportType('peerjs')} title="Реальный online через WebRTC">🌐 Online</button>
+                  <button className={'duel-btn duel-pill ' + (transportType === 'broadcast' ? 'duel-pill-active' : '')} onClick={() => setTransportType('broadcast')} title="Только в одном браузере (две вкладки)">🖥 Эта вкладка</button>
+                </div>
+              </div>
+            )}
+
             <button className="duel-btn duel-btn-primary" onClick={create}>＋ Создать комнату</button>
 
             <div className="duel-bot-section">
@@ -514,8 +665,11 @@
             </div>
             <button className="duel-btn duel-btn-text" onClick={() => setStep('pick-game')}>← Другой режим</button>
             <div className="duel-hint">
-              💡 Для превью с реальным соперником — открой страницу в двух вкладках одного браузера. В одной создай комнату, во второй введи код.
-              В продакшене будет реальный online через WebRTC.
+              {transportType === 'peerjs' ? (
+                <>🌐 Реальный online через WebRTC. Дай другу 6-значный код — он сможет подключиться с любого устройства, любой страны.</>
+              ) : (
+                <>🖥 Демо-режим: соединение работает только между вкладками одного браузера. Открой страницу в двух вкладках, в одной создай, во второй введи код.</>
+              )}
             </div>
           </div>
         )}
