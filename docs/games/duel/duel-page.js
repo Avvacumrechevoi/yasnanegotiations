@@ -8,6 +8,16 @@
   // не готов на момент top-level execution. Получаем при каждом render.
   const _g = (n) => window[n];
 
+  function renderAvatar(av, size){
+    size = size || 24;
+    if(typeof av === 'string' && av.startsWith('http')){
+      return React.createElement('img', { src: av, alt: '',
+        style: { width: size, height: size, borderRadius: size/2, objectFit: 'cover', display:'inline-block', verticalAlign:'middle' }
+      });
+    }
+    return av || '🦊';
+  }
+
   function getYasnaName(id){
     const T = window.YasnaData?.T || [];
     return T.find(t => t.id === id)?.n || id;
@@ -27,11 +37,7 @@
       React.createElement('div', { className: 'dp-header-auth' },
         user
           ? React.createElement('div', { className: 'dp-auth-chip' },
-              React.createElement('span', { className: 'dp-auth-chip-avatar' },
-                user.avatar?.startsWith('http')
-                  ? React.createElement('img', { src: user.avatar, alt: '' })
-                  : (user.avatar || '🦊')
-              ),
+              React.createElement('span', { className: 'dp-auth-chip-avatar' }, renderAvatar(user.avatar, 24)),
               React.createElement('span', null, user.nickname),
               React.createElement('span', { className: 'dp-auth-chip-source' }, '· Telegram'),
               React.createElement('button', { className: 'dp-auth-btn-small', onClick: onLogout }, 'Выйти')
@@ -70,7 +76,7 @@
 
   function DPUpsell({ profile, onLoginClick }){
     return React.createElement('div', { className: 'dp-upsell' },
-      React.createElement('span', { className: 'dp-upsell-icon' }, profile?.avatar || '🦊'),
+      React.createElement('span', { className: 'dp-upsell-icon' }, renderAvatar(profile?.avatar, 28)),
       React.createElement('div', { className: 'dp-upsell-text' },
         React.createElement('div', { className: 'dp-upsell-title' },
           'Вы играете анонимно как ', React.createElement('strong', null, profile?.nickname || 'Игрок')
@@ -451,7 +457,19 @@
     const isFirstTime = !user && !profile;
     const onLoginClick = () => setAuthModal(true);
     const onLoggedIn = (u) => { setUser(u); setProfile(_g('YasnaDuelProfile')?.load?.()); setAuthModal(false); };
-    const onLogout = () => { _g('YasnaDuelAuth')?.logout?.(); setUser(null); setTick(t => t + 1); };
+    const onLogout = () => {
+      _g('YasnaDuelAuth')?.logout?.();
+      setUser(null);
+      // Сбросить URL-аватар в профиле обратно на эмодзи (URL потеряет смысл без user.avatar)
+      const Profile2 = _g('YasnaDuelProfile');
+      const p = Profile2?.load?.();
+      if(p && typeof p.avatar === 'string' && p.avatar.startsWith('http')){
+        p.avatar = '🦊';
+        Profile2?.save?.(p);
+        setProfile(p);
+      }
+      setTick(t => t + 1);
+    };
     const requireProfile = (cb) => {
       if(user || profile){ cb(); return; }
       setAnonModal(true);
