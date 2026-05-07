@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-07T21:59:17.181Z */
+/* Yasna bundle: duel.js — собран 2026-05-07T22:19:30.459Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -7021,21 +7021,54 @@ window.YasnaCore = {
       )
     );
   }
+  const ICE_SERVERS = [
+    { urls: "stun:stun.l.google.com:19302" },
+    { urls: "stun:stun1.l.google.com:19302" },
+    // Open Relay Project — бесплатный публичный TURN (https://www.metered.ca/tools/openrelay/)
+    {
+      urls: "turn:openrelay.metered.ca:80",
+      username: "openrelayproject",
+      credential: "openrelayproject"
+    },
+    {
+      urls: "turn:openrelay.metered.ca:443",
+      username: "openrelayproject",
+      credential: "openrelayproject"
+    },
+    {
+      urls: "turn:openrelay.metered.ca:443?transport=tcp",
+      username: "openrelayproject",
+      credential: "openrelayproject"
+    }
+  ];
+  const PEER_OPTIONS = {
+    debug: 2,
+    config: { iceServers: ICE_SERVERS }
+  };
+  const CONNECT_TIMEOUT_MS = 3e4;
   function genRoomCode() {
     const c = "BCDFGHJKLMNPQRSTVWXZ23456789";
     let suffix = "";
     for (let i = 0; i < 4; i++) suffix += c[Math.floor(Math.random() * c.length)];
     return "KASTA-" + suffix;
   }
-  function DPLobby({ onClose, profile, onConnected }) {
-    const [mode, setMode] = useState("choose");
+  function peerIdFromCode(code) {
+    return "yasna-" + code.toLowerCase();
+  }
+  function DPLobby({ onClose, profile, onConnected, initialMode, initialCode }) {
+    const [mode, setMode] = useState(initialMode || "choose");
     const [roomCode, setRoomCode] = useState("");
-    const [inputCode, setInputCode] = useState("");
+    const [inputCode, setInputCode] = useState(initialCode || "");
     const [error, setError] = useState(null);
-    const [statusText, setStatusText] = useState("\u0417\u043E\u0432\u0443 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430\u2026");
+    const [statusText, setStatusText] = useState("\u0416\u0434\u0443 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430\u2026");
     const transportRef = useRef(null);
+    const timeoutRef = useRef(null);
     function cleanup() {
       var _a, _b;
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
       try {
         (_b = (_a = transportRef.current) == null ? void 0 : _a.close) == null ? void 0 : _b.call(_a);
       } catch (_) {
@@ -7043,6 +7076,11 @@ window.YasnaCore = {
       transportRef.current = null;
     }
     useEffect(() => () => cleanup(), []);
+    useEffect(() => {
+      if (initialMode === "guest" && initialCode) {
+        setTimeout(() => startGuest(initialCode), 100);
+      }
+    }, []);
     function startHost() {
       if (!window.Peer) {
         setError("\u0421\u0435\u0440\u0432\u0438\u0441 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D. \u041F\u0440\u043E\u0432\u0435\u0440\u044C \u0438\u043D\u0442\u0435\u0440\u043D\u0435\u0442.");
@@ -7051,16 +7089,51 @@ window.YasnaCore = {
       const code = genRoomCode();
       setRoomCode(code);
       setMode("host");
-      setStatusText("\u0416\u0434\u0443 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430\u2026");
+      setStatusText("\u0421\u043E\u0437\u0434\u0430\u044E \u043A\u043E\u043C\u043D\u0430\u0442\u0443\u2026");
+      setError(null);
+      console.log("[lobby/host] starting, code=" + code);
       try {
-        const PeerJsTransport = _g("PeerJsTransport") || window.PeerJsTransport;
-        const peerId = "kasta-" + code.toLowerCase();
-        const peer = new window.Peer(peerId, { debug: 1 });
+        const peerId = peerIdFromCode(code);
+        const peer = new window.Peer(peerId, PEER_OPTIONS);
+        let openCalled = false;
+        timeoutRef.current = setTimeout(() => {
+          if (!openCalled) {
+            console.error("[lobby/host] timeout creating peer");
+            setError("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u043A\u043E\u043C\u043D\u0430\u0442\u0443 \u0437\u0430 30\u0441. \u041F\u0440\u043E\u0432\u0435\u0440\u044C \u0438\u043D\u0442\u0435\u0440\u043D\u0435\u0442 \u0438\u043B\u0438 \u043F\u043E\u043F\u0440\u043E\u0431\u0443\u0439 \u043F\u043E\u0437\u0436\u0435.");
+            setMode("error");
+            try {
+              peer.destroy();
+            } catch (_) {
+            }
+          }
+        }, CONNECT_TIMEOUT_MS);
         peer.on("open", (id) => {
+          openCalled = true;
+          if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+          }
+          console.log("[lobby/host] peer open, id=" + id);
           setStatusText("\u0416\u0434\u0443 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430\u2026");
         });
         peer.on("connection", (conn) => {
+          console.log("[lobby/host] connection request from " + conn.peer);
+          let connOpened = false;
+          const connTimer = setTimeout(() => {
+            if (!connOpened) {
+              console.error("[lobby/host] conn open timeout (NAT issue?)");
+              setError("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C P2P-\u0441\u043E\u0435\u0434\u0438\u043D\u0435\u043D\u0438\u0435 (\u0432\u043E\u0437\u043C\u043E\u0436\u043D\u043E, NAT/firewall). \u041F\u043E\u043F\u0440\u043E\u0431\u0443\u0439 \u0434\u0440\u0443\u0433\u043E\u0439 Wi-Fi.");
+              setMode("error");
+              try {
+                conn.close();
+              } catch (_) {
+              }
+            }
+          }, 2e4);
           conn.on("open", () => {
+            connOpened = true;
+            clearTimeout(connTimer);
+            console.log("[lobby/host] conn opened, going to game");
             transportRef.current = { peer, conn, role: "host", close: () => {
               try {
                 conn.close();
@@ -7072,8 +7145,7 @@ window.YasnaCore = {
               } catch (_) {
               }
             } };
-            const transport = makeTransport(conn, "host", () => {
-            });
+            const transport = makeTransport(conn, "host");
             onConnected({
               transport,
               role: "host",
@@ -7081,19 +7153,29 @@ window.YasnaCore = {
               opponent: { nickname: "\u0421\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A", avatar: "\u25D0", isPvP: true }
             });
           });
+          conn.on("error", (err) => {
+            console.error("[lobby/host] conn error", err);
+          });
         });
         peer.on("error", (err) => {
-          console.error("[lobby/host]", err);
-          setError("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u043A\u043E\u043C\u043D\u0430\u0442\u0443. " + ((err == null ? void 0 : err.type) || ""));
+          console.error("[lobby/host] peer error", err == null ? void 0 : err.type, err);
+          if ((err == null ? void 0 : err.type) === "unavailable-id") {
+            setError("\u042D\u0442\u043E\u0442 \u043A\u043E\u0434 \u0443\u0436\u0435 \u0437\u0430\u043D\u044F\u0442. \u0417\u0430\u043A\u0440\u043E\u0439 \u0438 \u043F\u043E\u043F\u0440\u043E\u0431\u0443\u0439 \u0441\u043D\u043E\u0432\u0430.");
+          } else if ((err == null ? void 0 : err.type) === "network" || (err == null ? void 0 : err.type) === "server-error" || (err == null ? void 0 : err.type) === "socket-error") {
+            setError("\u0421\u0435\u0440\u0432\u0438\u0441 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D. \u041F\u0440\u043E\u0432\u0435\u0440\u044C \u0438\u043D\u0442\u0435\u0440\u043D\u0435\u0442.");
+          } else {
+            setError("\u041E\u0448\u0438\u0431\u043A\u0430 \u043A\u043E\u043C\u043D\u0430\u0442\u044B: " + ((err == null ? void 0 : err.type) || (err == null ? void 0 : err.message) || "\u043D\u0435\u0438\u0437\u0432\u0435\u0441\u0442\u043D\u0430\u044F"));
+          }
           setMode("error");
         });
       } catch (e) {
+        console.error("[lobby/host] exception", e);
         setError("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u043A\u043E\u043C\u043D\u0430\u0442\u0443. " + e.message);
         setMode("error");
       }
     }
-    function startGuest() {
-      const code = inputCode.trim().toUpperCase();
+    function startGuest(codeOverride) {
+      const code = (codeOverride || inputCode).trim().toUpperCase();
       if (!/^KASTA-[A-Z0-9]{4}$/.test(code)) {
         setError("\u041A\u043E\u0434 \u0434\u043E\u043B\u0436\u0435\u043D \u0431\u044B\u0442\u044C \u0432 \u0444\u043E\u0440\u043C\u0430\u0442\u0435 KASTA-XXXX");
         return;
@@ -7102,16 +7184,55 @@ window.YasnaCore = {
         setError("\u0421\u0435\u0440\u0432\u0438\u0441 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D.");
         return;
       }
+      setInputCode(code);
       setMode("waiting");
-      setStatusText("\u041F\u043E\u0434\u043A\u043B\u044E\u0447\u0430\u044E\u0441\u044C\u2026");
+      setStatusText("\u041F\u043E\u0434\u043A\u043B\u044E\u0447\u0430\u044E\u0441\u044C \u043A " + code + "\u2026");
       setError(null);
+      console.log("[lobby/guest] starting, target=" + code);
       try {
-        const myPeerId = "kasta-guest-" + Math.random().toString(36).slice(2, 8);
-        const peer = new window.Peer(myPeerId, { debug: 1 });
-        const hostId = "kasta-" + code.toLowerCase();
-        peer.on("open", () => {
-          const conn = peer.connect(hostId);
+        const myPeerId = "yasna-guest-" + Math.random().toString(36).slice(2, 8);
+        const peer = new window.Peer(myPeerId, PEER_OPTIONS);
+        const hostId = peerIdFromCode(code);
+        let connectAttempted = false;
+        timeoutRef.current = setTimeout(() => {
+          if (!connectAttempted) {
+            console.error("[lobby/guest] master timeout \u2014 peer not opened");
+            setError("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0438\u0442\u044C\u0441\u044F \u043A \u0441\u0435\u0440\u0432\u0435\u0440\u0443. \u041F\u0440\u043E\u0432\u0435\u0440\u044C \u0438\u043D\u0442\u0435\u0440\u043D\u0435\u0442.");
+            setMode("error");
+            try {
+              peer.destroy();
+            } catch (_) {
+            }
+          }
+        }, CONNECT_TIMEOUT_MS);
+        peer.on("open", (id) => {
+          connectAttempted = true;
+          if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+          }
+          console.log("[lobby/guest] peer open, id=" + id + ", connecting to " + hostId);
+          const conn = peer.connect(hostId, { reliable: true });
+          let connOpened = false;
+          const connTimer = setTimeout(() => {
+            if (!connOpened) {
+              console.error("[lobby/guest] conn open timeout");
+              setError("\u0425\u043E\u0437\u044F\u0438\u043D \u043D\u0435 \u043E\u0442\u0432\u0435\u0447\u0430\u0435\u0442. \u041F\u0440\u043E\u0432\u0435\u0440\u044C \u043A\u043E\u0434 \u0438\u043B\u0438 \u043F\u043E\u043F\u0440\u043E\u0441\u0438 \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u043D\u043E\u0432\u0443\u044E \u043A\u043E\u043C\u043D\u0430\u0442\u0443.");
+              setMode("error");
+              try {
+                conn.close();
+              } catch (_) {
+              }
+              try {
+                peer.destroy();
+              } catch (_) {
+              }
+            }
+          }, 25e3);
           conn.on("open", () => {
+            connOpened = true;
+            clearTimeout(connTimer);
+            console.log("[lobby/guest] conn opened, going to game");
             transportRef.current = { peer, conn, role: "guest", close: () => {
               try {
                 conn.close();
@@ -7123,26 +7244,36 @@ window.YasnaCore = {
               } catch (_) {
               }
             } };
-            const transport = makeTransport(conn, "guest", () => {
-            });
+            const transport = makeTransport(conn, "guest");
             onConnected({
               transport,
               role: "guest",
               roomCode: code,
-              opponent: { nickname: "\u0425\u043E\u0437\u044F\u0438\u043D \u043A\u043E\u043C\u043D\u0430\u0442\u044B", avatar: "\u25D1", isPvP: true }
+              opponent: { nickname: "\u0425\u043E\u0437\u044F\u0438\u043D", avatar: "\u25D1", isPvP: true }
             });
           });
-          conn.on("error", () => {
-            setError("\u041A\u043E\u043C\u043D\u0430\u0442\u0430 \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u0430. \u041F\u0440\u043E\u0432\u0435\u0440\u044C \u043A\u043E\u0434 \u0438\u043B\u0438 \u043F\u043E\u043F\u0440\u043E\u0441\u0438 \u0445\u043E\u0437\u044F\u0438\u043D\u0430 \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u0437\u0430\u043D\u043E\u0432\u043E.");
-            setMode("error");
+          conn.on("error", (err) => {
+            console.error("[lobby/guest] conn error", err);
+            clearTimeout(connTimer);
+            if (!connOpened) {
+              setError("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C P2P-\u0441\u043E\u0435\u0434\u0438\u043D\u0435\u043D\u0438\u0435. " + ((err == null ? void 0 : err.type) || (err == null ? void 0 : err.message) || ""));
+              setMode("error");
+            }
           });
         });
         peer.on("error", (err) => {
-          console.error("[lobby/guest]", err);
-          setError("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0438\u0442\u044C\u0441\u044F. " + ((err == null ? void 0 : err.type) || ""));
+          console.error("[lobby/guest] peer error", err == null ? void 0 : err.type, err);
+          if ((err == null ? void 0 : err.type) === "peer-unavailable") {
+            setError("\u041A\u043E\u043C\u043D\u0430\u0442\u0430 \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u0430. \u041F\u0440\u043E\u0432\u0435\u0440\u044C \u043A\u043E\u0434 \u2014 \u0432\u043E\u0437\u043C\u043E\u0436\u043D\u043E, \u043E\u043F\u0435\u0447\u0430\u0442\u043A\u0430 \u0438\u043B\u0438 \u0445\u043E\u0437\u044F\u0438\u043D \u0437\u0430\u043A\u0440\u044B\u043B \u0432\u043A\u043B\u0430\u0434\u043A\u0443.");
+          } else if ((err == null ? void 0 : err.type) === "network" || (err == null ? void 0 : err.type) === "server-error") {
+            setError("\u0421\u0435\u0440\u0432\u0438\u0441 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D. \u041F\u0440\u043E\u0432\u0435\u0440\u044C \u0438\u043D\u0442\u0435\u0440\u043D\u0435\u0442.");
+          } else {
+            setError("\u041E\u0448\u0438\u0431\u043A\u0430 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F: " + ((err == null ? void 0 : err.type) || (err == null ? void 0 : err.message) || "\u043D\u0435\u0438\u0437\u0432\u0435\u0441\u0442\u043D\u0430\u044F"));
+          }
           setMode("error");
         });
       } catch (e) {
+        console.error("[lobby/guest] exception", e);
         setError("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0438\u0442\u044C\u0441\u044F. " + e.message);
         setMode("error");
       }
@@ -7151,9 +7282,10 @@ window.YasnaCore = {
       const link = window.location.origin + window.location.pathname + "?room=" + roomCode;
       try {
         navigator.clipboard.writeText(link);
-        setStatusText("\u0421\u0441\u044B\u043B\u043A\u0430 \u0441\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0430 \xB7 \u0436\u0434\u0443 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430\u2026");
+        setStatusText("\u2713 \u0421\u0441\u044B\u043B\u043A\u0430 \u0441\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0430 \xB7 \u0436\u0434\u0443 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430\u2026");
         setTimeout(() => setStatusText("\u0416\u0434\u0443 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430\u2026"), 2500);
       } catch (_) {
+        prompt("\u0421\u043A\u043E\u043F\u0438\u0440\u0443\u0439 \u0441\u0441\u044B\u043B\u043A\u0443:", link);
       }
     }
     return React.createElement(
@@ -7427,7 +7559,16 @@ window.YasnaCore = {
     const [authModal, setAuthModal] = useState(false);
     const [anonModal, setAnonModal] = useState(false);
     const [game, setGame] = useState(null);
-    const [lobby, setLobby] = useState(null);
+    const urlRoom = useMemo(() => {
+      try {
+        const p = new URLSearchParams(window.location.search);
+        const r = (p.get("room") || "").trim().toUpperCase();
+        return /^KASTA-[A-Z0-9]{4}$/.test(r) ? r : null;
+      } catch (_) {
+        return null;
+      }
+    }, []);
+    const [lobby, setLobby] = useState(urlRoom ? { game: "turnir", mode: "guest", code: urlRoom } : null);
     const [, setTick] = useState(0);
     const [orientHidden, setOrientHidden] = useState(() => {
       try {
@@ -7486,15 +7627,25 @@ window.YasnaCore = {
     };
     const startPartiyaPvP = () => {
       setPartiyaPicker(false);
-      setLobby("turnir");
+      setLobby({ game: "turnir" });
     };
     const startUzorPvP = () => {
-      requireProfile(() => setLobby("uzor"));
+      requireProfile(() => setLobby({ game: "uzor" }));
     };
     const onLobbyConnected = ({ transport, role, opponent }) => {
       setLobby(null);
+      try {
+        window.history.replaceState({}, "", window.location.pathname);
+      } catch (_) {
+      }
       setGame({ type: "turnir", opponent: "pvp", transport, role, opp: opponent });
     };
+    useEffect(() => {
+      if (urlRoom && !user && !profile) {
+        setAnonModal(true);
+        window.__dpPendingPlay = () => setLobby({ game: "turnir", mode: "guest", code: urlRoom });
+      }
+    }, [urlRoom]);
     if (game) {
       const Turnir = _g("YasnaTurnir");
       if (!Turnir) {
@@ -7663,6 +7814,8 @@ window.YasnaCore = {
       ),
       // ─── Lobby для PvP ───
       lobby && React.createElement(DPLobby, {
+        initialMode: lobby.mode || null,
+        initialCode: lobby.code || null,
         onClose: () => setLobby(null),
         profile: profile || user,
         onConnected: onLobbyConnected

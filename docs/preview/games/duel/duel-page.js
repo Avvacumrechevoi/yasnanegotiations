@@ -560,108 +560,244 @@
   }
 
   // ═══════════════════════════════════════════════════════════════════
-  // REAL-TIME LOBBY · PvP через PeerJS
+  // REAL-TIME LOBBY · PvP через PeerJS + TURN
+  //
+  // Архитектура:
+  // - Public PeerJS broker (peerjs.com/peer) — даёт signaling
+  // - STUN-серверы Google (для NAT-discovery)
+  // - TURN от Open Relay Project (free, без регистрации) — relay когда STUN не помогает
+  //
+  // Без TURN ~30-50% соединений не проходят (симметричный NAT, corporate WiFi).
+  // С Open Relay TURN — ~95%.
   // ═══════════════════════════════════════════════════════════════════
+
+  // ICE servers — stun + turn
+  const ICE_SERVERS = [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
+    // Open Relay Project — бесплатный публичный TURN (https://www.metered.ca/tools/openrelay/)
+    {
+      urls: 'turn:openrelay.metered.ca:80',
+      username: 'openrelayproject',
+      credential: 'openrelayproject'
+    },
+    {
+      urls: 'turn:openrelay.metered.ca:443',
+      username: 'openrelayproject',
+      credential: 'openrelayproject'
+    },
+    {
+      urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+      username: 'openrelayproject',
+      credential: 'openrelayproject'
+    },
+  ];
+
+  const PEER_OPTIONS = {
+    debug: 2,
+    config: { iceServers: ICE_SERVERS },
+  };
+
+  const CONNECT_TIMEOUT_MS = 30000;
+
   function genRoomCode(){
     const c = 'BCDFGHJKLMNPQRSTVWXZ23456789';
     let suffix = '';
     for(let i = 0; i < 4; i++) suffix += c[Math.floor(Math.random() * c.length)];
     return 'KASTA-' + suffix;
   }
+  function peerIdFromCode(code){
+    // 'KASTA-XWQ6' → 'yasna-kasta-xwq6'
+    // префикс 'yasna-' чтобы не пересекаться с другими PeerJS-приложениями
+    return 'yasna-' + code.toLowerCase();
+  }
 
-  function DPLobby({ onClose, profile, onConnected }){
-    const [mode, setMode] = useState('choose'); // choose | host | guest | waiting | error
+  function DPLobby({ onClose, profile, onConnected, initialMode, initialCode }){
+    const [mode, setMode] = useState(initialMode || 'choose'); // choose | host | guest | waiting | error
     const [roomCode, setRoomCode] = useState('');
-    const [inputCode, setInputCode] = useState('');
+    const [inputCode, setInputCode] = useState(initialCode || '');
     const [error, setError] = useState(null);
-    const [statusText, setStatusText] = useState('Зову собеседника…');
+    const [statusText, setStatusText] = useState('Жду собеседника…');
     const transportRef = useRef(null);
+    const timeoutRef = useRef(null);
 
     function cleanup(){
+      if(timeoutRef.current){ clearTimeout(timeoutRef.current); timeoutRef.current = null; }
       try { transportRef.current?.close?.(); } catch(_){}
       transportRef.current = null;
     }
     useEffect(() => () => cleanup(), []);
+
+    // Авто-старт guest-mode если код пришёл из URL
+    useEffect(() => {
+      if(initialMode === 'guest' && initialCode){
+        // дать React mount, потом jstart
+        setTimeout(() => startGuest(initialCode), 100);
+      }
+    }, []);
 
     function startHost(){
       if(!window.Peer){ setError('Сервис подключения недоступен. Проверь интернет.'); return; }
       const code = genRoomCode();
       setRoomCode(code);
       setMode('host');
-      setStatusText('Жду собеседника…');
+      setStatusText('Создаю комнату…');
+      setError(null);
+      console.log('[lobby/host] starting, code=' + code);
 
       try {
-        const PeerJsTransport = _g('PeerJsTransport') || window.PeerJsTransport;
-        // Используем существующий PeerJsTransport если есть, иначе свой простой
-        const peerId = 'kasta-' + code.toLowerCase();
-        const peer = new window.Peer(peerId, { debug: 1 });
+        const peerId = peerIdFromCode(code);
+        const peer = new window.Peer(peerId, PEER_OPTIONS);
+
+        // Timeout: если за CONNECT_TIMEOUT_MS никто не подключился — error
+        // (только timeout на первичное peer.open и connection)
+        let openCalled = false;
+        timeoutRef.current = setTimeout(() => {
+          if(!openCalled){
+            console.error('[lobby/host] timeout creating peer');
+            setError('Не удалось создать комнату за 30с. Проверь интернет или попробуй позже.');
+            setMode('error');
+            try { peer.destroy(); } catch(_){}
+          }
+        }, CONNECT_TIMEOUT_MS);
 
         peer.on('open', (id) => {
+          openCalled = true;
+          if(timeoutRef.current){ clearTimeout(timeoutRef.current); timeoutRef.current = null; }
+          console.log('[lobby/host] peer open, id=' + id);
           setStatusText('Жду собеседника…');
         });
+
         peer.on('connection', (conn) => {
+          console.log('[lobby/host] connection request from ' + conn.peer);
+          let connOpened = false;
+          // Timeout для самого conn.open — если NAT/firewall
+          const connTimer = setTimeout(() => {
+            if(!connOpened){
+              console.error('[lobby/host] conn open timeout (NAT issue?)');
+              setError('Не удалось установить P2P-соединение (возможно, NAT/firewall). Попробуй другой Wi-Fi.');
+              setMode('error');
+              try { conn.close(); } catch(_){}
+            }
+          }, 20000);
+
           conn.on('open', () => {
-            // Соперник присоединился — переходим к игре
+            connOpened = true;
+            clearTimeout(connTimer);
+            console.log('[lobby/host] conn opened, going to game');
             transportRef.current = { peer, conn, role: 'host', close: () => { try{conn.close()}catch(_){}; try{peer.destroy()}catch(_){} } };
-            const transport = makeTransport(conn, 'host', () => {});
+            const transport = makeTransport(conn, 'host');
             onConnected({
-              transport,
-              role: 'host',
-              roomCode: code,
+              transport, role: 'host', roomCode: code,
               opponent: { nickname: 'Собеседник', avatar: '◐', isPvP: true }
             });
           });
+          conn.on('error', (err) => {
+            console.error('[lobby/host] conn error', err);
+          });
         });
+
         peer.on('error', (err) => {
-          console.error('[lobby/host]', err);
-          setError('Не удалось создать комнату. ' + (err?.type || ''));
+          console.error('[lobby/host] peer error', err?.type, err);
+          if(err?.type === 'unavailable-id'){
+            setError('Этот код уже занят. Закрой и попробуй снова.');
+          } else if(err?.type === 'network' || err?.type === 'server-error' || err?.type === 'socket-error') {
+            setError('Сервис подключения недоступен. Проверь интернет.');
+          } else {
+            setError('Ошибка комнаты: ' + (err?.type || err?.message || 'неизвестная'));
+          }
           setMode('error');
         });
       } catch(e) {
+        console.error('[lobby/host] exception', e);
         setError('Не удалось создать комнату. ' + e.message);
         setMode('error');
       }
     }
 
-    function startGuest(){
-      const code = inputCode.trim().toUpperCase();
+    function startGuest(codeOverride){
+      const code = (codeOverride || inputCode).trim().toUpperCase();
       if(!/^KASTA-[A-Z0-9]{4}$/.test(code)){
         setError('Код должен быть в формате KASTA-XXXX');
         return;
       }
       if(!window.Peer){ setError('Сервис подключения недоступен.'); return; }
+      setInputCode(code);
       setMode('waiting');
-      setStatusText('Подключаюсь…');
+      setStatusText('Подключаюсь к ' + code + '…');
       setError(null);
+      console.log('[lobby/guest] starting, target=' + code);
 
       try {
-        const myPeerId = 'kasta-guest-' + Math.random().toString(36).slice(2, 8);
-        const peer = new window.Peer(myPeerId, { debug: 1 });
-        const hostId = 'kasta-' + code.toLowerCase();
+        const myPeerId = 'yasna-guest-' + Math.random().toString(36).slice(2, 8);
+        const peer = new window.Peer(myPeerId, PEER_OPTIONS);
+        const hostId = peerIdFromCode(code);
 
-        peer.on('open', () => {
-          const conn = peer.connect(hostId);
+        let connectAttempted = false;
+
+        // Master timeout
+        timeoutRef.current = setTimeout(() => {
+          if(!connectAttempted){
+            console.error('[lobby/guest] master timeout — peer not opened');
+            setError('Не удалось подключиться к серверу. Проверь интернет.');
+            setMode('error');
+            try { peer.destroy(); } catch(_){}
+          }
+        }, CONNECT_TIMEOUT_MS);
+
+        peer.on('open', (id) => {
+          connectAttempted = true;
+          if(timeoutRef.current){ clearTimeout(timeoutRef.current); timeoutRef.current = null; }
+          console.log('[lobby/guest] peer open, id=' + id + ', connecting to ' + hostId);
+
+          const conn = peer.connect(hostId, { reliable: true });
+
+          // Timeout для conn.open
+          let connOpened = false;
+          const connTimer = setTimeout(() => {
+            if(!connOpened){
+              console.error('[lobby/guest] conn open timeout');
+              setError('Хозяин не отвечает. Проверь код или попроси создать новую комнату.');
+              setMode('error');
+              try { conn.close(); } catch(_){}
+              try { peer.destroy(); } catch(_){}
+            }
+          }, 25000);
+
           conn.on('open', () => {
+            connOpened = true;
+            clearTimeout(connTimer);
+            console.log('[lobby/guest] conn opened, going to game');
             transportRef.current = { peer, conn, role: 'guest', close: () => { try{conn.close()}catch(_){}; try{peer.destroy()}catch(_){} } };
-            const transport = makeTransport(conn, 'guest', () => {});
+            const transport = makeTransport(conn, 'guest');
             onConnected({
-              transport,
-              role: 'guest',
-              roomCode: code,
-              opponent: { nickname: 'Хозяин комнаты', avatar: '◑', isPvP: true }
+              transport, role: 'guest', roomCode: code,
+              opponent: { nickname: 'Хозяин', avatar: '◑', isPvP: true }
             });
           });
-          conn.on('error', () => {
-            setError('Комната не найдена. Проверь код или попроси хозяина создать заново.');
-            setMode('error');
+          conn.on('error', (err) => {
+            console.error('[lobby/guest] conn error', err);
+            clearTimeout(connTimer);
+            if(!connOpened){
+              setError('Не удалось установить P2P-соединение. ' + (err?.type || err?.message || ''));
+              setMode('error');
+            }
           });
         });
+
         peer.on('error', (err) => {
-          console.error('[lobby/guest]', err);
-          setError('Не удалось подключиться. ' + (err?.type || ''));
+          console.error('[lobby/guest] peer error', err?.type, err);
+          if(err?.type === 'peer-unavailable'){
+            setError('Комната не найдена. Проверь код — возможно, опечатка или хозяин закрыл вкладку.');
+          } else if(err?.type === 'network' || err?.type === 'server-error') {
+            setError('Сервис подключения недоступен. Проверь интернет.');
+          } else {
+            setError('Ошибка подключения: ' + (err?.type || err?.message || 'неизвестная'));
+          }
           setMode('error');
         });
       } catch(e){
+        console.error('[lobby/guest] exception', e);
         setError('Не удалось подключиться. ' + e.message);
         setMode('error');
       }
@@ -671,9 +807,12 @@
       const link = window.location.origin + window.location.pathname + '?room=' + roomCode;
       try {
         navigator.clipboard.writeText(link);
-        setStatusText('Ссылка скопирована · жду собеседника…');
+        setStatusText('✓ Ссылка скопирована · жду собеседника…');
         setTimeout(() => setStatusText('Жду собеседника…'), 2500);
-      } catch(_){}
+      } catch(_){
+        // Fallback — выделить текст пользователю
+        prompt('Скопируй ссылку:', link);
+      }
     }
 
     return React.createElement('div', { className: 'dp-lobby-overlay', onClick: e => { if(e.target === e.currentTarget) onClose(); } },
@@ -881,7 +1020,16 @@
     const [authModal, setAuthModal] = useState(false);
     const [anonModal, setAnonModal] = useState(false);
     const [game, setGame] = useState(null); // { type: 'turnir', opponent: 'shadow'|'pvp', shadowLevel?, transport?, role?, opponent? }
-    const [lobby, setLobby] = useState(null); // null | 'turnir' | 'uzor'
+
+    // Auto-detect ?room= в URL — открываем сразу как guest
+    const urlRoom = useMemo(() => {
+      try {
+        const p = new URLSearchParams(window.location.search);
+        const r = (p.get('room') || '').trim().toUpperCase();
+        return /^KASTA-[A-Z0-9]{4}$/.test(r) ? r : null;
+      } catch(_){ return null; }
+    }, []);
+    const [lobby, setLobby] = useState(urlRoom ? { game: 'turnir', mode: 'guest', code: urlRoom } : null); // null | { game, mode?, code? }
     const [, setTick] = useState(0);
     const [orientHidden, setOrientHidden] = useState(() => {
       try { return localStorage.getItem('yasna_dp_orient_hidden') === '1'; } catch(_){ return false; }
@@ -928,17 +1076,28 @@
 
     const startPartiyaPvP = () => {
       setPartiyaPicker(false);
-      setLobby('turnir');
+      setLobby({ game: 'turnir' });
     };
 
     const startUzorPvP = () => {
-      requireProfile(() => setLobby('uzor'));
+      requireProfile(() => setLobby({ game: 'uzor' }));
     };
 
     const onLobbyConnected = ({ transport, role, opponent }) => {
       setLobby(null);
+      // Очистим ?room= из URL чтобы при перезагрузке страницы не зайти повторно
+      try { window.history.replaceState({}, '', window.location.pathname); } catch(_){}
       setGame({ type: 'turnir', opponent: 'pvp', transport, role, opp: opponent });
     };
+
+    // Если есть room в URL — нужно убедиться что профиль есть
+    useEffect(() => {
+      if(urlRoom && !user && !profile){
+        // Просим анонимный onboarding
+        setAnonModal(true);
+        window.__dpPendingPlay = () => setLobby({ game: 'turnir', mode: 'guest', code: urlRoom });
+      }
+    }, [urlRoom]);
 
     // ─── Если игра запущена — отображаем её ───
     if(game){
@@ -1052,6 +1211,8 @@
 
       // ─── Lobby для PvP ───
       lobby && React.createElement(DPLobby, {
+        initialMode: lobby.mode || null,
+        initialCode: lobby.code || null,
         onClose: () => setLobby(null),
         profile: profile || user,
         onConnected: onLobbyConnected
