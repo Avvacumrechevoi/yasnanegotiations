@@ -324,7 +324,10 @@
     const [countdown, setCountdown] = useState(3);
     const [result, setResult] = useState(null);
     const [disconnected, setDisconnected] = useState(false);
+    const [myResultMsg, setMyResultMsg] = useState(null); // для score-based режимов
+    const [oppResultMsg, setOppResultMsg] = useState(null);
     const startRef = useRef(0);
+    const matchMode = game.mode || 'race'; // 'race' (first wins) | 'score' (compare scores)
 
     // Countdown 3 → 2 → 1 → playing
     useEffect(() => {
@@ -337,19 +340,24 @@
       setPhase('playing');
     }, [phase, countdown]);
 
-    // Слушаем глобальные события: finish, disconnect, leave
+    // Слушаем глобальные события: finish, result, disconnect, leave
     useEffect(() => {
       const off = transport.on(msg => {
         if(msg.matchId && msg.matchId !== matchId) return; // защита от стейл-сообщений
         if(msg.t === 'finish' && phase !== 'result'){
-          // Соперник завершил
+          // Race: соперник завершил первым → проигрыш
           setResult({
             winner: role === 'host' ? 'guest' : 'host',
             time: msg.time,
             iAmWinner: false,
             byDisconnect: false,
+            bySurrender: !!msg.surrender,
           });
           setPhase('result');
+        }
+        if(msg.t === 'result' && phase !== 'result'){
+          // Score: соперник сдал результат, ждём пока я тоже
+          setOppResultMsg(msg);
         }
         if(msg.t === '__disconnect' || msg.t === '__leave'){
           if(phase === 'playing'){
@@ -371,7 +379,33 @@
       return off;
     }, [phase, role, matchId, transport, onClose]);
 
-    // Колбэк, который игра вызывает когда игрок победил
+    // Для score-based: когда оба прислали result — считаем победителя
+    useEffect(() => {
+      if(phase !== 'playing') return;
+      if(!myResultMsg || !oppResultMsg) return;
+      // Сравниваем по score, при равенстве — по времени (меньше=лучше)
+      let iWin;
+      if(myResultMsg.score !== oppResultMsg.score){
+        iWin = myResultMsg.score > oppResultMsg.score;
+      } else if(myResultMsg.time !== oppResultMsg.time){
+        iWin = myResultMsg.time < oppResultMsg.time;
+      } else {
+        // Полный паритет — host выигрывает по правилу tiebreaker
+        iWin = role === 'host';
+      }
+      setResult({
+        winner: iWin ? role : (role === 'host' ? 'guest' : 'host'),
+        iAmWinner: iWin,
+        time: myResultMsg.time,
+        myScore: myResultMsg.score,
+        oppScore: oppResultMsg.score,
+        myMaxScore: myResultMsg.maxScore,
+        byDisconnect: false,
+      });
+      setPhase('result');
+    }, [myResultMsg, oppResultMsg, phase, role]);
+
+    // Колбэк для race-mode: первый прислал = победитель
     const submitFinish = (payload) => {
       if(phase !== 'playing') return;
       const time = performance.now() - startRef.current;
@@ -383,6 +417,16 @@
         byDisconnect: false,
       });
       setPhase('result');
+    };
+
+    // Колбэк для score-mode: оба заканчивают, потом сравниваем
+    const submitResult = ({ score, maxScore, payload }) => {
+      if(phase !== 'playing') return;
+      if(myResultMsg) return; // уже отправлен
+      const time = performance.now() - startRef.current;
+      const msg = { t:'result', matchId, score, maxScore, time, payload };
+      transport.send(msg);
+      setMyResultMsg(msg);
     };
 
     // Поражение по сдаче
@@ -430,7 +474,10 @@
               matchId={matchId}
               isPlaying={isPlaying}
               startTime={startRef.current}
+              matchMode={matchMode}
               onSubmitFinish={submitFinish}
+              onSubmitResult={submitResult}
+              waitingForOpponent={!!myResultMsg && !oppResultMsg}
             />
           )}
         </div>
