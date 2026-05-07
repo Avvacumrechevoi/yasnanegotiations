@@ -22,6 +22,17 @@
     return baseScore + speedBonus;
   }
 
+  // ─── Кнопка «Сдаться» (всегда вверху-слева в турнире) ──────────
+  function TnQuitButton({ onQuit }){
+    const handle = () => {
+      if(!onQuit) return;
+      if(confirm('Закончить эту Партию досрочно?')) onQuit();
+    };
+    return React.createElement('button', { className: 'tn-quit', onClick: handle },
+      '✕', React.createElement('span', null, ' Сдаться')
+    );
+  }
+
   // ─── Vs-экран ───────────────────────────────────────────────────
   function VsScreen({ player, opponent, themes, onReady }){
     useEffect(() => {
@@ -29,6 +40,7 @@
       return () => clearTimeout(t);
     }, []);
     return React.createElement('div', { className: 'tn-fullscreen' },
+      React.createElement(TnQuitButton, { onQuit: window.__tnOnClose }),
       React.createElement('div', { className: 'tn-vs' },
         React.createElement('div', { className: 'tn-vs-title' }, 'Готовимся к Партии…'),
         React.createElement('div', { className: 'tn-vs-row' },
@@ -65,6 +77,7 @@
       return () => clearTimeout(t);
     }, []);
     return React.createElement('div', { className: 'tn-fullscreen' },
+      React.createElement(TnQuitButton, { onQuit: window.__tnOnClose }),
       React.createElement('div', { className: 'tn-round-intro' },
         React.createElement('div', { className: 'tn-round-num' }, 'Раунд ', roundNum, ' / 6'),
         React.createElement('div', { className: 'tn-round-emoji' }, theme.emoji),
@@ -139,6 +152,7 @@
 
     const showFeedback = chosen != null;
     return React.createElement('div', { className: 'tn-fullscreen tn-question-screen' },
+      React.createElement(TnQuitButton, { onQuit: window.__tnOnClose }),
       // Header
       React.createElement('div', { className: 'tn-q-header' },
         React.createElement('div', { className: 'tn-q-counter' },
@@ -228,6 +242,9 @@
 
   // ─── Main Engine ────────────────────────────────────────────────
   function TurnirGame({ player, opponentLevel, onClose }){
+    // глобально пробрасываем onClose для TnQuitButton
+    React.useEffect(() => { window.__tnOnClose = onClose; return () => { delete window.__tnOnClose; }; }, [onClose]);
+
     const opponent = TEN_LEVELS[opponentLevel || 'medium'];
     const [phase, setPhase] = useState('vs'); // vs | intro | question | round-end | final
     const [partiya] = useState(() => window.YasnaTrivia.generatePartiya(Date.now()));

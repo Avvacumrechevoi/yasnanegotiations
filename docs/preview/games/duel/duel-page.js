@@ -43,8 +43,8 @@
   function DPHeader({ user, onLoginClick, onLogout }){
     const stupen = user ? getStupen(totalBusey()) : null;
     return React.createElement('header', { className: 'dp-header' },
-      React.createElement('a', { href: 'index.html', className: 'dp-header-brand' },
-        React.createElement('span', { className: 'dp-header-brand-icon' }, '✦'), 'Ясна'
+      React.createElement('a', { href: 'index.html', className: 'dp-header-back', title: 'Вернуться к Ясне' },
+        '←', React.createElement('span', null, ' Ясна')
       ),
       React.createElement('div', { className: 'dp-header-bread' },
         React.createElement('span', { className: 'dp-header-bread-sep' }, '/'),
