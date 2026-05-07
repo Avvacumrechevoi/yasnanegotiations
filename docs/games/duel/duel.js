@@ -168,6 +168,147 @@
 
   window.YasnaDuelStorage = { recordMatch, getStats, getMatchHistory, getOverallStats, exportJSON, importJSON, reset: resetData, _load: _loadData };
 
+  // ─── ACHIEVEMENTS (P6.1 — 30+ значков) ─────────────────────────────
+  // Условия проверяются по match-history после каждого матча.
+  // Каждое: { id, icon, title, desc, check(data, lastMatch), goal, progress(data) }
+  const ACHIEVEMENTS = [
+    // Foundational
+    { id:'first-duel', icon:'🎯', title:'Первая дуэль', desc:'Сыграйте свой первый матч',
+      check:d => d.totals.played >= 1 },
+    { id:'first-win', icon:'🏆', title:'Первая победа', desc:'Выиграйте первый матч',
+      check:d => d.totals.wins >= 1 },
+    { id:'matches-5', icon:'🎮', title:'Игрок', desc:'Сыграйте 5 матчей',
+      check:d => d.totals.played >= 5, goal:5, progress:d => d.totals.played },
+    { id:'matches-25', icon:'🥉', title:'Постоянный', desc:'25 матчей',
+      check:d => d.totals.played >= 25, goal:25, progress:d => d.totals.played },
+    { id:'matches-100', icon:'🥇', title:'Ветеран', desc:'100 матчей',
+      check:d => d.totals.played >= 100, goal:100, progress:d => d.totals.played },
+    { id:'wins-5', icon:'⭐', title:'Победитель', desc:'5 побед',
+      check:d => d.totals.wins >= 5, goal:5, progress:d => d.totals.wins },
+    { id:'wins-25', icon:'🌟', title:'Чемпион', desc:'25 побед',
+      check:d => d.totals.wins >= 25, goal:25, progress:d => d.totals.wins },
+    { id:'wins-100', icon:'💫', title:'Мастер', desc:'100 побед',
+      check:d => d.totals.wins >= 100, goal:100, progress:d => d.totals.wins },
+
+    // Streaks
+    { id:'streak-3', icon:'🔥', title:'Разгорается', desc:'3 победы подряд',
+      check:d => (d.streaks?.overall?.best || 0) >= 3 },
+    { id:'streak-5', icon:'🔥', title:'Триумф', desc:'5 побед подряд',
+      check:d => (d.streaks?.overall?.best || 0) >= 5 },
+    { id:'streak-10', icon:'🔥', title:'Легенда', desc:'10 побед подряд',
+      check:d => (d.streaks?.overall?.best || 0) >= 10 },
+    { id:'streak-20', icon:'⚡', title:'Непобедимый', desc:'20 побед подряд',
+      check:d => (d.streaks?.overall?.best || 0) >= 20 },
+
+    // Race-specific
+    { id:'sprinter', icon:'💨', title:'Спринтер', desc:'Race быстрее 6 секунд',
+      check:(d, m) => m && m.gameId.startsWith('race-') && m.result === 'win' && m.time < 6000 },
+    { id:'lightning', icon:'⚡', title:'Молниеносный', desc:'Race быстрее 4 секунд',
+      check:(d, m) => m && m.gameId.startsWith('race-') && m.result === 'win' && m.time < 4000 },
+    { id:'race-master-cross', icon:'✚', title:'Мастер опорных', desc:'10 побед в Race-Cross',
+      check:d => (d.records?.['race-cross']?.['суток']?.wins || 0) + (d.records?.['race-cross']?.['года']?.wins || 0) + (d.records?.['race-cross']?.['фаз_жизни']?.wins || 0) >= 10 },
+    { id:'race-master-mngmt', icon:'⚙', title:'Мастер управления', desc:'10 побед в Race-Mngmt',
+      check:d => (d.records?.['race-mngmt']?.['суток']?.wins || 0) + (d.records?.['race-mngmt']?.['года']?.wins || 0) + (d.records?.['race-mngmt']?.['фаз_жизни']?.wins || 0) >= 10 },
+    { id:'race-master-faith', icon:'🕊', title:'Мастер веры', desc:'10 побед в Race-Faith',
+      check:d => (d.records?.['race-faith']?.['суток']?.wins || 0) + (d.records?.['race-faith']?.['года']?.wins || 0) + (d.records?.['race-faith']?.['фаз_жизни']?.wins || 0) >= 10 },
+    { id:'three-crosses', icon:'👑', title:'Три креста', desc:'Победите хотя бы раз в каждом из трёх Race-режимов',
+      check:d => ['race-cross','race-mngmt','race-faith'].every(g => Object.values(d.records?.[g] || {}).some(r => (r.wins || 0) > 0)) },
+
+    // Quiz / Mirror / Speed
+    { id:'quiz-perfect', icon:'💯', title:'Идеальная пятёрка', desc:'Все 5 правильных в Quiz',
+      check:(d, m) => m && m.gameId === 'quiz-antipodes' && m.score === 5 },
+    { id:'mirror-perfect', icon:'🧩', title:'Точная копия', desc:'Все 12 меток на местах',
+      check:(d, m) => m && m.gameId === 'mirror-fill' && m.score === 12 },
+    { id:'speed-master', icon:'🚀', title:'Скорость света', desc:'≥20 правильных в Speed за 30 сек',
+      check:(d, m) => m && m.gameId === 'speed-cross-yesno' && m.score >= 20 },
+
+    // Yasna mastery
+    { id:'sutok-win', icon:'🌅', title:'Знаток Суток', desc:'Победите на Ясне Суток',
+      check:d => Object.entries(d.records || {}).some(([g, byY]) => (byY?.['суток']?.wins || 0) > 0) },
+    { id:'goda-win', icon:'🌗', title:'Знаток Года', desc:'Победите на Ясне Года',
+      check:d => Object.entries(d.records || {}).some(([g, byY]) => (byY?.['года']?.wins || 0) > 0) },
+    { id:'zhizni-win', icon:'🧬', title:'Знаток Жизни', desc:'Победите на Ясне Жизни',
+      check:d => Object.entries(d.records || {}).some(([g, byY]) => (byY?.['фаз_жизни']?.wins || 0) > 0) },
+    { id:'all-yasnas', icon:'🌌', title:'Все три Ясны', desc:'Победите на каждой из трёх Ясн',
+      check:d => ['суток','года','фаз_жизни'].every(y => Object.values(d.records || {}).some(byY => (byY?.[y]?.wins || 0) > 0)) },
+
+    // Mode mastery
+    { id:'all-modes', icon:'🎨', title:'Универсал', desc:'Выиграйте во всех 6 режимах',
+      check:d => ['race-cross','race-mngmt','race-faith','quiz-antipodes','mirror-fill','speed-cross-yesno']
+        .every(g => Object.values(d.records?.[g] || {}).some(r => (r.wins || 0) > 0)) },
+
+    // Bot challenges
+    { id:'beat-easy-bot', icon:'😊', title:'Лёгкий — пройден', desc:'Победить лёгкого бота',
+      check:(d, m) => m && m.isBot && m.botLevel === 'easy' && m.result === 'win' },
+    { id:'beat-medium-bot', icon:'🙂', title:'Средний — пройден', desc:'Победить среднего бота',
+      check:(d, m) => m && m.isBot && m.botLevel === 'medium' && m.result === 'win' },
+    { id:'beat-hard-bot', icon:'😈', title:'Магистр повержен', desc:'Победить сложного бота',
+      check:(d, m) => m && m.isBot && m.botLevel === 'hard' && m.result === 'win' },
+
+    // Social
+    { id:'first-online', icon:'🌐', title:'Свобода', desc:'Сыграйте первый онлайн-матч',
+      check:(d, m) => m && m.transport === 'peerjs' },
+    { id:'online-win', icon:'🎖', title:'Онлайн-чемпион', desc:'Выиграйте онлайн',
+      check:(d, m) => m && m.transport === 'peerjs' && m.result === 'win' },
+
+    // Comeback
+    { id:'comeback', icon:'🔄', title:'Возвращение', desc:'Победить после 3 поражений подряд',
+      check:(d, m) => {
+        if(!m || m.result !== 'win') return false;
+        const recent = d.matches?.slice(0, 4) || [];
+        return recent.length >= 4 && recent[0].result === 'win' && recent[1].result === 'loss' && recent[2].result === 'loss' && recent[3].result === 'loss';
+      }
+    },
+  ];
+
+  const ACHIEVEMENTS_KEY = 'yasna_duel_achievements';
+
+  function loadUnlocked(){
+    try { return new Set(JSON.parse(localStorage.getItem(ACHIEVEMENTS_KEY) || '[]')); }
+    catch(_){ return new Set(); }
+  }
+  function saveUnlocked(set){
+    try { localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(Array.from(set))); } catch(_){}
+  }
+
+  function checkAchievements(lastMatch){
+    const data = window.YasnaDuelStorage.getOverallStats();
+    data.matches = window.YasnaDuelStorage.getMatchHistory(50);
+    const unlocked = loadUnlocked();
+    const newlyUnlocked = [];
+    for(const ach of ACHIEVEMENTS){
+      if(unlocked.has(ach.id)) continue;
+      try {
+        if(ach.check(data, lastMatch)){
+          unlocked.add(ach.id);
+          newlyUnlocked.push(ach);
+        }
+      } catch(_){}
+    }
+    if(newlyUnlocked.length){
+      saveUnlocked(unlocked);
+    }
+    return newlyUnlocked;
+  }
+
+  function getAchievementsList(){
+    const data = window.YasnaDuelStorage.getOverallStats();
+    data.matches = window.YasnaDuelStorage.getMatchHistory(50);
+    const unlocked = loadUnlocked();
+    return ACHIEVEMENTS.map(a => ({
+      ...a,
+      unlocked: unlocked.has(a.id),
+      progress: a.progress ? Math.min(a.goal, a.progress(data)) : null,
+    }));
+  }
+
+  window.YasnaDuelAchievements = {
+    DEFINITIONS: ACHIEVEMENTS,
+    check: checkAchievements,
+    list: getAchievementsList,
+    reset: () => { try { localStorage.removeItem(ACHIEVEMENTS_KEY); } catch(_){} },
+  };
+
   // ─── REGISTRY ──────────────────────────────────────────────────────
   const _registry = new Map();
   window.YasnaDuels = {
@@ -981,6 +1122,11 @@
       if(recorded && recorded.isNewRecord){
         result.isNewRecord = true;
       }
+      // Проверяем ачивки на основе записанного матча
+      if(recorded && window.YasnaDuelAchievements){
+        const unlocked = window.YasnaDuelAchievements.check(recorded);
+        if(unlocked.length) result.newAchievements = unlocked;
+      }
     }, [phase, result]);
 
     if(phase === 'result' && result){
@@ -1071,6 +1217,25 @@
             color:'#7a5e25',
             marginTop:8,
           }}>⭐ Новый рекорд!</div>
+        )}
+        {result.newAchievements && result.newAchievements.length > 0 && (
+          <div style={{display:'flex',flexDirection:'column',gap:8,marginTop:12,maxWidth:360}}>
+            <div style={{fontSize:11,letterSpacing:1,textTransform:'uppercase',color:'#7a5e25',fontWeight:700,textAlign:'center'}}>🏅 Получено достижений:</div>
+            {result.newAchievements.map(a => (
+              <div key={a.id} style={{
+                display:'flex',alignItems:'center',gap:10,padding:'8px 12px',
+                background:'linear-gradient(135deg, rgba(212,165,116,.15), rgba(124,58,237,.08))',
+                border:'1px solid rgba(212,165,116,.4)', borderRadius:10,
+                animation:'duelAchievementIn .5s ease',
+              }}>
+                <div style={{fontSize:24}}>{a.icon}</div>
+                <div style={{flex:1,textAlign:'left'}}>
+                  <div style={{fontWeight:700,fontSize:13}}>{a.title}</div>
+                  <div style={{fontSize:11,color:'#6e6e73'}}>{a.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
         <div className="duel-actions">
           <button className="duel-btn duel-btn-primary" onClick={onPlayAgain}>Сыграть ещё</button>
@@ -1197,6 +1362,41 @@
             Сыграйте свой первый матч — статистика появится здесь.
           </div>
         )}
+
+        {/* Достижения */}
+        {(() => {
+          const achievements = window.YasnaDuelAchievements?.list() || [];
+          const unlockedCount = achievements.filter(a => a.unlocked).length;
+          return (
+            <div className="duel-stats-section">
+              <div className="duel-label">🏅 Достижения · {unlockedCount} / {achievements.length}</div>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(140px,1fr))',gap:8,marginTop:6}}>
+                {achievements.map(a => (
+                  <div key={a.id} style={{
+                    padding:'10px 8px',
+                    border: '1.5px solid '+(a.unlocked ? '#d4a574' : '#e5e5ea'),
+                    background: a.unlocked ? 'linear-gradient(135deg, rgba(212,165,116,.12), rgba(124,58,237,.05))' : '#fafafa',
+                    borderRadius:10, textAlign:'center', position:'relative',
+                    opacity: a.unlocked ? 1 : 0.55,
+                  }} title={a.desc}>
+                    <div style={{fontSize:24,filter: a.unlocked ? 'none' : 'grayscale(1)'}}>{a.icon}</div>
+                    <div style={{fontSize:11,fontWeight:700,color:a.unlocked?'#1d1d1f':'#6e6e73',marginTop:4,lineHeight:1.2}}>{a.title}</div>
+                    <div style={{fontSize:10,color:'#6e6e73',marginTop:2,lineHeight:1.3}}>{a.desc}</div>
+                    {a.progress != null && a.goal && !a.unlocked && (
+                      <div style={{marginTop:6,height:3,background:'#e5e5ea',borderRadius:2,overflow:'hidden'}}>
+                        <div style={{height:'100%',width:Math.round(a.progress/a.goal*100)+'%',background:'#d4a574'}}/>
+                      </div>
+                    )}
+                    {a.progress != null && a.goal && !a.unlocked && (
+                      <div style={{fontSize:10,color:'#6e6e73',marginTop:3}}>{a.progress} / {a.goal}</div>
+                    )}
+                    {a.unlocked && <div style={{position:'absolute',top:4,right:4,fontSize:10,color:'#16a34a'}}>✓</div>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
         <div style={{display:'flex',gap:10,justifyContent:'center',marginTop:24,flexWrap:'wrap'}}>
           <button className="duel-btn duel-btn-text" onClick={() => {
@@ -1370,6 +1570,7 @@
       .duel-overlay-countdown { position: absolute; inset: 0; background: rgba(255,255,255,.92); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5; color: #424245; pointer-events: none; }
       .duel-countdown-big { font-size: 144px; font-weight: 700; color: #d4a574; font-family: ui-monospace, monospace; line-height: 1; animation: duelPulse .9s ease-out; }
       @keyframes duelPulse { 0% { transform: scale(.5); opacity: 0; } 50% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+      @keyframes duelAchievementIn { 0% { transform: scale(.7) translateY(20px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
 
       .duel-result { padding: 56px 32px 40px; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; flex: 1; justify-content: center; }
       .duel-result-emoji { font-size: 96px; }
