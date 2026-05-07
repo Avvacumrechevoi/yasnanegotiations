@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════
-// Игра по Ясне · главная страница
-// Касталийский Орден стиль (Гессе): Партия, Бусины, Темы, Архив, Этюд
+// Игра по Ясне · главная страница (Касталия / Гессе)
+// Layout v3: центральный Profile-Hero + карусель квестов + CTA
 // ═══════════════════════════════════════════════════════════════════
 (function(){
   const { useState, useEffect } = React;
@@ -10,13 +10,13 @@
     size = size || 24;
     if(typeof av === 'string' && av.startsWith('http')){
       return React.createElement('img', { src: av, alt: '',
-        style: { width: size, height: size, borderRadius: size/2, objectFit: 'cover', display:'inline-block', verticalAlign:'middle' }
+        style: { width: size, height: size, borderRadius: size/2, objectFit: 'cover', display:'block' }
       });
     }
-    return av || '🦊';
+    return React.createElement('span', { style: { fontSize: size * 0.7 } }, av || '🦊');
   }
 
-  // ─── Прогрессия (ступени Ордена) ────────────────────────────────
+  // ─── Прогрессия ──────────────────────────────────────────
   const STUPENI = [
     { name: 'Послушник', emoji: '🌱', from: 0,      to: 1000 },
     { name: 'Студент',   emoji: '📜', from: 1000,   to: 3000 },
@@ -35,13 +35,15 @@
   function totalBusey(){
     const s = _g('YasnaDuelStorage')?.getOverallStats?.();
     if(!s) return 0;
-    // Считаем как сумму очков по всем матчам
     return s.totals?.score || (s.totals?.wins || 0) * 50 + (s.totals?.losses || 0) * 5;
   }
+  function toRoman(n){
+    const r = ['','I','II','III','IV','V','VI','VII','VIII','IX','X'];
+    return r[n] || (n + '');
+  }
 
-  // ─── Header ────────────────────────────────────────────────────
+  // ─── Header ────────────────────────────────────────────
   function DPHeader({ user, onLoginClick, onLogout }){
-    const stupen = user ? getStupen(totalBusey()) : null;
     return React.createElement('header', { className: 'dp-header' },
       React.createElement('a', { href: 'index.html', className: 'dp-header-back', title: 'Вернуться к Ясне' },
         '←', React.createElement('span', null, ' Ясна')
@@ -53,61 +55,45 @@
       React.createElement('div', { className: 'dp-header-spacer' }),
       React.createElement('div', { className: 'dp-header-auth' },
         user
-          ? React.createElement('div', { className: 'dp-auth-chip' },
-              React.createElement('span', { className: 'dp-auth-chip-avatar' }, renderAvatar(user.avatar, 24)),
-              React.createElement('span', null, user.nickname),
-              stupen && React.createElement('span', { className: 'dp-auth-chip-source' },
-                '· ', stupen.emoji, ' ', stupen.name, ' ', toRoman(stupen.subLevel)
-              ),
-              React.createElement('button', { className: 'dp-auth-btn-small', onClick: onLogout }, 'Выйти')
+          ? React.createElement('button', { className: 'dp-auth-btn-small', onClick: onLogout, style:{padding:'8px 14px',fontSize:13} },
+              'Выйти'
             )
-          : React.createElement('button', { className: 'dp-btn dp-btn-secondary', onClick: onLoginClick, style: {padding:'8px 16px',fontSize:13} }, 'Войти')
+          : React.createElement('button', { className: 'dp-btn dp-btn-secondary', onClick: onLoginClick, style: {padding:'8px 16px',fontSize:13} },
+              'Войти'
+            )
       )
     );
   }
 
-  function toRoman(n){
-    const r = ['','I','II','III','IV','V','VI','VII','VIII','IX','X'];
-    return r[n] || (n + '');
-  }
-
-  // ─── Hero ──────────────────────────────────────────────────────
-  function DPHero({ isFirstTime, onLoginClick, onAnonStart }){
-    if(isFirstTime){
-      return React.createElement('section', { className: 'dp-hero' },
-        React.createElement('span', { className: 'dp-hero-emoji' }, '🎼'),
-        React.createElement('h1', null, 'Игра по Ясне'),
-        React.createElement('p', { className: 'dp-hero-sub' },
-          '18 вопросов из 9 тем · одна Партия ≈ 6 минут · Орден из десятков игроков'
-        ),
-        React.createElement('div', { className: 'dp-hero-cta' },
-          React.createElement('button', { className: 'dp-btn dp-btn-primary dp-btn-large', onClick: onLoginClick },
-            '🌱 Войти в Орден'
-          ),
-          React.createElement('ul', { className: 'dp-hero-perks' },
-            React.createElement('li', null, 'Полный Архив'),
-            React.createElement('li', null, 'Прогресс между устройствами'),
-            React.createElement('li', null, 'Аватар из Telegram')
-          ),
-          React.createElement('button', { className: 'dp-btn dp-btn-text', onClick: onAnonStart, style: {marginTop:4} },
-            'или сыграть Гостем →'
-          ),
-          React.createElement('p', { className: 'dp-hero-anon-note' },
-            'Гость не остаётся в Архиве. Вступить в Орден можно потом.'
-          )
-        )
-      );
-    }
-    return React.createElement('section', { className: 'dp-hero dp-hero-compact' },
-      React.createElement('h1', null, '🎼 Игра по Ясне'),
-      React.createElement('p', { className: 'dp-hero-sub' },
-        'Партия из 9 тем. Темы из мира «Сутки».'
+  // ─── Welcome (только для первого визита) ───────────────
+  function DPWelcome({ onLoginClick, onAnonStart }){
+    return React.createElement('section', { className: 'dp-welcome' },
+      React.createElement('div', { className: 'dp-welcome-emoji' }, '🎼'),
+      React.createElement('h1', { className: 'dp-welcome-title' }, 'Игра по Ясне'),
+      React.createElement('p', { className: 'dp-welcome-sub' },
+        '18 вопросов из 9 тем · одна Партия ≈ 6 минут · вход в Орден игроков'
+      ),
+      React.createElement('button', { className: 'dp-welcome-cta-primary', onClick: onLoginClick },
+        '🌱 Войти в Орден'
+      ),
+      React.createElement('ul', { className: 'dp-welcome-perks' },
+        React.createElement('li', null, 'Полный Архив'),
+        React.createElement('li', null, 'Прогресс между устройствами'),
+        React.createElement('li', null, 'Аватар из Telegram')
+      ),
+      React.createElement('button', { className: 'dp-welcome-cta-secondary', onClick: onAnonStart },
+        'или сыграть Гостем →'
+      ),
+      React.createElement('p', { className: 'dp-welcome-note' },
+        'Гость не остаётся в Архиве. Вступить в Орден можно потом.'
       )
     );
   }
 
-  // ─── Профиль (компактная карточка вверху для залогиненного) ────
-  function DPProfileBar({ user, profile }){
+  // ─── Центральный Profile-Hero (для залогиненного/гостя) ──
+  function DPProfileHero({ user, profile, onLoginClick }){
+    const me = user || profile;
+    const isGuest = !user;
     const busey = totalBusey();
     const stupen = getStupen(busey);
     const pct = stupen.toNext === Infinity ? 100 :
@@ -116,112 +102,134 @@
     const data = Storage?.getOverallStats?.() || {};
     const streak = data.streaks?.daily?.current || 0;
 
-    return React.createElement('div', { className: 'dp-profile-bar' },
-      React.createElement('div', { className: 'dp-profile-avatar' },
-        renderAvatar(user?.avatar || profile?.avatar || '🦊', 40)
+    return React.createElement('section', { className: 'dp-hero' },
+      React.createElement('div', { className: 'dp-hero-avatar-wrap' },
+        React.createElement('div', { className: 'dp-hero-avatar' },
+          renderAvatar(me.avatar, 80)
+        ),
+        React.createElement('div', { className: 'dp-hero-rank-badge' },
+          stupen.emoji, ' ', toRoman(stupen.subLevel)
+        )
       ),
-      React.createElement('div', { className: 'dp-profile-main' },
-        React.createElement('div', { className: 'dp-profile-name' },
-          user?.nickname || profile?.nickname || 'Гость',
-          React.createElement('span', { className: 'dp-profile-stupen' },
-            ' · ', stupen.emoji, ' ', stupen.name, ' ', toRoman(stupen.subLevel)
-          )
+      React.createElement('div', { className: 'dp-hero-name' },
+        me.nickname,
+        isGuest && React.createElement('span', { className: 'dp-hero-guest-tag' }, ' · Гость')
+      ),
+      React.createElement('div', { className: 'dp-hero-stupen' },
+        stupen.name, ' ', toRoman(stupen.subLevel)
+      ),
+      // Прогресс-бар
+      React.createElement('div', { className: 'dp-hero-progress' },
+        React.createElement('div', { className: 'dp-hero-progress-bar' },
+          React.createElement('div', { className: 'dp-hero-progress-fill', style: { width: pct + '%' } })
         ),
-        React.createElement('div', { className: 'dp-profile-progress' },
-          React.createElement('div', { className: 'dp-profile-progress-bar' },
-            React.createElement('div', { className: 'dp-profile-progress-fill', style: { width: pct + '%' } })
-          ),
-          React.createElement('div', { className: 'dp-profile-progress-text' },
-            busey, ' бусин',
-            stupen.toNext !== Infinity && ['  ·  до ', stupen.name, ' ', toRoman(stupen.subLevel + 1), ': ', stupen.toNext, ' бусин']
+        React.createElement('div', { className: 'dp-hero-progress-text' },
+          busey, ' / ', stupen.to === Infinity ? '∞' : stupen.to, ' бусин'
+        )
+      ),
+      // Метки
+      streak > 0 && React.createElement('div', { className: 'dp-hero-meta' },
+        React.createElement('span', { className: 'dp-hero-meta-pill' }, '🎼 Ритм ', streak, ' дн.')
+      ),
+      // Гость → CTA войти
+      isGuest && React.createElement('button', {
+        className: 'dp-hero-guest-upsell',
+        onClick: onLoginClick
+      }, 'Войти через Telegram, чтобы попасть в Архив →')
+    );
+  }
+
+  // ─── Карусель квестов ──────────────────────────────────
+  function DPQuestsRow({ onPlay }){
+    const Daily = _g('YasnaDailyChallenge');
+    const today = Daily?.today?.();
+    const themes = window.YasnaTrivia?.THEMES || [];
+    const themeIdx = today ? parseInt(today.date.replace(/-/g, ''), 10) % themes.length : 0;
+    const todayTheme = themes[themeIdx];
+    const data = Daily?.load?.() || {};
+    const todayPlayed = today && data.byDate?.[today.date];
+
+    const quests = [
+      {
+        id: 'etude',
+        emoji: '🌅',
+        tag: 'Этюд дня',
+        title: todayTheme ? todayTheme.name : 'Тема дня',
+        sub: todayPlayed ? `Сыграно: ${todayPlayed.score}/${todayPlayed.maxScore}` : '1 попытка',
+        accent: '#fef3c7', accentBorder: '#fde68a'
+      },
+      {
+        id: 'gimn',
+        emoji: '🎵',
+        tag: 'Гимн',
+        title: 'Каденция ×10',
+        sub: '10 правильных подряд',
+        accent: '#dbeafe', accentBorder: '#bfdbfe'
+      },
+      {
+        id: 'fest',
+        emoji: '💎',
+        tag: 'Праздничная',
+        title: 'Партия недели',
+        sub: 'Особый режим',
+        accent: '#ede9fe', accentBorder: '#ddd6fe'
+      },
+      {
+        id: 'flash',
+        emoji: '⚡',
+        tag: 'Молния',
+        title: 'Блиц 30 сек',
+        sub: 'Скорость и точность',
+        accent: '#fee2e2', accentBorder: '#fecaca'
+      },
+    ];
+
+    return React.createElement('section', { className: 'dp-quests' },
+      React.createElement('div', { className: 'dp-quests-row' },
+        quests.map(q =>
+          React.createElement('button', {
+            key: q.id, className: 'dp-quest-card', onClick: onPlay,
+            style: { background: q.accent, borderColor: q.accentBorder }
+          },
+            React.createElement('div', { className: 'dp-quest-tag' }, q.emoji, ' ', q.tag),
+            React.createElement('div', { className: 'dp-quest-title' }, q.title),
+            React.createElement('div', { className: 'dp-quest-sub' }, q.sub),
+            React.createElement('div', { className: 'dp-quest-arrow' }, '→')
           )
-        ),
-        React.createElement('div', { className: 'dp-profile-meta' },
-          streak > 0 && React.createElement('span', null, '🎼 Ритм ', streak, ' дн.'),
         )
       )
     );
   }
 
-  // ─── Upsell для гостя ──────────────────────────────────────────
-  function DPUpsell({ profile, onLoginClick }){
-    return React.createElement('div', { className: 'dp-upsell' },
-      React.createElement('span', { className: 'dp-upsell-icon' }, renderAvatar(profile?.avatar, 28)),
-      React.createElement('div', { className: 'dp-upsell-text' },
-        React.createElement('div', { className: 'dp-upsell-title' },
-          'Ты пока Гость · ', React.createElement('strong', null, profile?.nickname || 'без имени')
-        ),
-        React.createElement('div', { className: 'dp-upsell-sub' },
-          'Войди в Орден через Telegram, чтобы попасть в Архив и сохранять Партитуру между устройствами.'
-        )
-      ),
-      React.createElement('button', { className: 'dp-btn dp-btn-primary', onClick: onLoginClick, style: {flexShrink:0} },
-        'Войти в Орден'
-      )
-    );
-  }
-
-  // ─── Главная кнопка «Новая Партия» ────────────────────────────
+  // ─── Главная кнопка «Новая Партия» ─────────────────────
   function DPMainCTA({ onPlay }){
     return React.createElement('div', { className: 'dp-main-cta' },
       React.createElement('button', { className: 'dp-cta-button', onClick: onPlay },
         React.createElement('span', { className: 'dp-cta-emoji' }, '🎼'),
-        React.createElement('span', { className: 'dp-cta-title' }, 'Новая Партия'),
-        React.createElement('span', { className: 'dp-cta-sub' }, 'Тень · ~6 минут')
+        React.createElement('div', { className: 'dp-cta-textwrap' },
+          React.createElement('div', { className: 'dp-cta-title' }, 'Новая Партия'),
+          React.createElement('div', { className: 'dp-cta-sub' }, 'Тень · 6 минут · 18 вопросов')
+        ),
+        React.createElement('span', { className: 'dp-cta-arrow' }, '→')
       )
     );
   }
 
-  // ─── Этюд дня ──────────────────────────────────────────────────
-  function DPEtude({ onPlay }){
-    const Daily = _g('YasnaDailyChallenge');
-    const today = Daily?.today?.();
-    if(!today) return null;
-    const data = Daily.load?.() || {};
-    const todayPlayed = data.byDate?.[today.date];
-    const themes = window.YasnaTrivia?.THEMES || [];
-    // Выбираем тему дня (по дате)
-    const themeIdx = parseInt(today.date.replace(/-/g, ''), 10) % themes.length;
-    const theme = themes[themeIdx];
-    if(!theme) return null;
-
-    return React.createElement('section', { className: 'dp-section dp-section-narrow' },
-      React.createElement('div', { className: 'dp-etude' },
-        React.createElement('div', { className: 'dp-etude-content' },
-          React.createElement('div', { className: 'dp-etude-tag' }, '🌅 Этюд дня'),
-          React.createElement('h2', { className: 'dp-etude-title' },
-            'Сегодня в Этюде: ', theme.name
-          ),
-          React.createElement('p', { className: 'dp-etude-sub' },
-            'У тебя одна попытка в день. Постарайся сделать рекорд.'
-          ),
-          React.createElement('div', { className: 'dp-etude-meta' },
-            data.streak?.current > 0 && React.createElement('span', { className: 'dp-etude-streak' },
-              '🎼 Ритм: ', data.streak.current, ' дн.'),
-            todayPlayed
-              ? React.createElement('span', { className: 'dp-etude-played' }, '✓ Сыграно: ', todayPlayed.score, '/', todayPlayed.maxScore)
-              : React.createElement('span', null, 'Не сыграно')
-          ),
-          React.createElement('button', { className: 'dp-btn dp-btn-primary', onClick: onPlay },
-            todayPlayed ? 'Сыграть ещё раз →' : 'Сыграть Этюд →'
-          )
-        )
-      )
-    );
-  }
-
-  // ─── Партитура (карта мастерства по темам) ────────────────────
+  // ─── Партитура (карта тем) ─────────────────────────────
   function DPPartitura(){
     const themes = window.YasnaTrivia?.THEMES || [];
     if(themes.length === 0) return null;
     const Storage = _g('YasnaDuelStorage');
     const data = Storage?.getOverallStats?.() || {};
-    // На MVP просто показываем темы с 0% (потом добавим расчёт по матчам)
     const masteryByTheme = data.masteryByTheme || {};
 
     return React.createElement('section', { className: 'dp-section' },
-      React.createElement('div', { className: 'dp-section-title' }, '🎵 Твоя Партитура'),
-      React.createElement('h2', { className: 'dp-section-h' }, '9 тем мира «Сутки»'),
+      React.createElement('div', { className: 'dp-section-h-row' },
+        React.createElement('h2', { className: 'dp-section-h' }, '🎵 Партитура'),
+        React.createElement('span', { className: 'dp-section-h-sub' },
+          '9 тем мира «Сутки»'
+        )
+      ),
       React.createElement('div', { className: 'dp-partitura' },
         themes.map(t => {
           const pct = masteryByTheme[t.id] || 0;
@@ -232,7 +240,7 @@
               React.createElement('div', { className: 'dp-theme-bar-fill', style: { width: pct + '%' } })
             ),
             React.createElement('div', { className: 'dp-theme-pct' },
-              pct > 0 ? 'Освоение: ' + pct + '%' : 'Не сыграна'
+              pct > 0 ? pct + '%' : '—'
             )
           );
         })
@@ -240,7 +248,7 @@
     );
   }
 
-  // ─── Архив (лидерборд) ────────────────────────────────────────
+  // ─── Архив (лидерборд) ─────────────────────────────────
   function DPArchive({ onOpen }){
     const [items, setItems] = useState(null);
     useEffect(() => {
@@ -259,17 +267,16 @@
 
     return React.createElement('div', { className: 'dp-card' },
       React.createElement('div', { className: 'dp-card-h' },
-        React.createElement('h3', null, '📚 Архив недели'),
-        items?.length > 0 && React.createElement('button', { className: 'dp-card-link', onClick: onOpen }, 'Полный →')
+        React.createElement('h3', null, '📚 Архив недели')
       ),
       items === null
-        ? React.createElement('p', { style: {fontSize:13, color:'#999', textAlign:'center', padding:'24px 0'} }, 'Загрузка…')
+        ? React.createElement('div', { style: {fontSize:13, color:'#9b938a', textAlign:'center', padding:'16px 0'} }, 'Загрузка…')
         : items.length === 0
           ? React.createElement('div', null,
-              React.createElement('div', { className: 'dp-lb-list', style: {opacity:0.45} },
+              React.createElement('div', { className: 'dp-lb-list', style: {opacity:0.5} },
                 placeholder.map((row, idx) =>
                   React.createElement('div', { key: idx, className: 'dp-lb-row' },
-                    React.createElement('span', { className: 'dp-lb-rank' },
+                    React.createElement('span', { className: 'dp-lb-rank ' + (idx === 0 ? 'dp-lb-rank-1' : idx === 1 ? 'dp-lb-rank-2' : 'dp-lb-rank-3') },
                       idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'),
                     React.createElement('span', null, row.avatar),
                     React.createElement('span', { className: 'dp-lb-name' }, row.nickname),
@@ -277,8 +284,8 @@
                   )
                 )
               ),
-              React.createElement('p', { style: {fontSize:12, color:'#666', textAlign:'center', marginTop:12, marginBottom:0} },
-                'Пока пусто. Сыграй Партию и стань первым в Архиве.'
+              React.createElement('p', { style: {fontSize:12, color:'#9b938a', textAlign:'center', marginTop:14, marginBottom:0} },
+                'Сыграй Партию — попади в Архив'
               )
             )
           : React.createElement('div', { className: 'dp-lb-list' },
@@ -295,8 +302,8 @@
     );
   }
 
-  // ─── Знаки (Достижения) ───────────────────────────────────────
-  function DPZnaki({ onOpen }){
+  // ─── Знаки ─────────────────────────────────────────────
+  function DPZnaki(){
     const Ach = _g('YasnaDuelAchievements');
     if(!Ach?.list || !Ach?.getUnlocked) return null;
     const all = Ach.list();
@@ -305,29 +312,25 @@
     return React.createElement('div', { className: 'dp-card' },
       React.createElement('div', { className: 'dp-card-h' },
         React.createElement('h3', null, '🏅 Знаки Ордена'),
-        React.createElement('span', { style: {color:'#6e6e73', fontSize:13} },
+        React.createElement('span', { style: {color:'#9b938a', fontSize:13} },
           unlocked.length, ' / ', all.length
         )
       ),
       React.createElement('div', { className: 'dp-znaki-row' },
-        all.slice(0, 4).map(a => {
+        all.slice(0, 6).map(a => {
           const got = unlocked.includes(a.id);
           return React.createElement('div', {
             key: a.id, className: 'dp-znak' + (got ? '' : ' dp-znak-locked')
           },
-            React.createElement('span', { style: {fontSize:24} }, a.emoji || '🏅'),
-            React.createElement('div', { style: {fontSize:11, marginTop:4} }, a.title)
+            React.createElement('span', { style: {fontSize:22} }, a.emoji || '🏅'),
+            React.createElement('div', { style: {fontSize:10, marginTop:4, lineHeight:1.2} }, a.title)
           );
         })
-      ),
-      React.createElement('button', { className: 'dp-card-link', onClick: onOpen,
-        style: {marginTop:12, alignSelf:'flex-start'} },
-        'Все Знаки →'
       )
     );
   }
 
-  // ─── Auth Modal ────────────────────────────────────────────────
+  // ─── Auth Modal ───────────────────────────────────────
   function DPAuthModal({ onClose, onLoggedIn }){
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -376,7 +379,7 @@
     );
   }
 
-  // ─── Anon Onboarding ──────────────────────────────────────────
+  // ─── Anon Onboarding ──────────────────────────────────
   function DPAnonOnboard({ onSave, onCancel }){
     const [nickname, setNickname] = useState('');
     const [avatar, setAvatar] = useState('🦊');
@@ -421,7 +424,7 @@
     );
   }
 
-  // ─── Main App ──────────────────────────────────────────────────
+  // ─── Main App ─────────────────────────────────────────
   function DuelPageApp(){
     const Auth = _g('YasnaDuelAuth');
     const Profile = _g('YasnaDuelProfile');
@@ -442,7 +445,6 @@
       setProfile(null);
       setTick(t => t + 1);
     };
-
     const requireProfile = (cb) => {
       if(user || profile){ cb(); return; }
       setAnonModal(true);
@@ -456,12 +458,11 @@
     };
     const startTurnir = () => requireProfile(() => setTurnirOpen(true));
 
-    // Render Turnir as fullscreen
     if(turnirOpen){
       const Turnir = _g('YasnaTurnir');
       if(!Turnir){
         return React.createElement('div', { className: 'dp-root' },
-          React.createElement('div', { style: {textAlign:'center', padding:60} }, 'Загрузка движка Партии…')
+          React.createElement('div', { style: {textAlign:'center', padding:60, color:'#6e6e73'} }, 'Загрузка…')
         );
       }
       const playerData = user
@@ -476,28 +477,21 @@
 
     return React.createElement('div', { className: 'dp-root' },
       React.createElement(DPHeader, { user, onLoginClick, onLogout }),
-      React.createElement(DPHero, { isFirstTime, onLoginClick, onAnonStart: () => setAnonModal(true) }),
 
-      (user || profile) && React.createElement('div', { style: {padding:'0 24px', maxWidth: 920, margin:'0 auto', width:'100%'} },
-        React.createElement(DPProfileBar, { user, profile })
-      ),
-
-      (user || profile) && React.createElement(DPMainCTA, { onPlay: startTurnir }),
-
-      !user && profile && React.createElement('div', { style: {padding:'0 24px'} },
-        React.createElement(DPUpsell, { profile, onLoginClick })
-      ),
-
-      (user || profile) && React.createElement(DPEtude, { onPlay: startTurnir }),
-
-      (user || profile) && React.createElement(DPPartitura, null),
-
-      (user || profile) && React.createElement('section', { className: 'dp-section' },
-        React.createElement('div', { className: 'dp-two-col' },
-          React.createElement(DPArchive, { onOpen: startTurnir }),
-          React.createElement(DPZnaki, { onOpen: startTurnir })
-        )
-      ),
+      isFirstTime
+        ? React.createElement(DPWelcome, { onLoginClick, onAnonStart: () => setAnonModal(true) })
+        : React.createElement(React.Fragment, null,
+            React.createElement(DPProfileHero, { user, profile, onLoginClick }),
+            React.createElement(DPQuestsRow, { onPlay: startTurnir }),
+            React.createElement(DPMainCTA, { onPlay: startTurnir }),
+            React.createElement(DPPartitura, null),
+            React.createElement('section', { className: 'dp-section' },
+              React.createElement('div', { className: 'dp-two-col' },
+                React.createElement(DPArchive, { onOpen: startTurnir }),
+                React.createElement(DPZnaki, null)
+              )
+            )
+          ),
 
       React.createElement('footer', { className: 'dp-footer' },
         React.createElement('a', { href: 'index.html' }, '← Вернуться к Ясне'),
@@ -517,14 +511,11 @@
     let attempts = 0;
     const check = () => {
       const ready = window.YasnaDuelAuth && window.YasnaTrivia && window.YasnaTurnir;
-      if(ready){
+      if(ready || attempts++ > 50){
         const root = document.getElementById('duel-page-root');
         if(root) ReactDOM.createRoot(root).render(React.createElement(DuelPageApp));
-      } else if(attempts++ < 50){
-        setTimeout(check, 100);
       } else {
-        const root = document.getElementById('duel-page-root');
-        if(root) ReactDOM.createRoot(root).render(React.createElement(DuelPageApp));
+        setTimeout(check, 100);
       }
     };
     check();
