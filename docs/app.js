@@ -6,8 +6,12 @@
 const{useState,useMemo,useEffect,useRef,useCallback}=React;
 
 
-// Pull what App needs from core + lessons
-const {Star, Yasna3DView, Info, OverlayLegend, Editor, OverlayPicker, Picker, Verification, GLOSS} = window.YasnaCore;
+// Pull what App needs from core + lessons.
+// ВАЖНО: bundle оборачивает каждый файл в IIFE, поэтому top-level const'ы
+// из yasna-star.js (T, FL, GLOSS, и т.д.) НЕ видны здесь автоматически —
+// в отличие от babel-standalone, где они случайно "протекали" между скриптами.
+// Достаём всё что app.js использует из window.YasnaCore / YasnaData.
+const {Star, Yasna3DView, Info, OverlayLegend, Editor, OverlayPicker, Picker, Verification, GLOSS, T, FL} = window.YasnaCore;
 const {Lesson, LESSONS} = window.YasnaLessons;
 
 

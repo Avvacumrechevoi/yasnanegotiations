@@ -1,4 +1,4 @@
-/* Yasna bundle: app.js — собран 2026-05-07T20:00:41.704Z */
+/* Yasna bundle: app.js — собран 2026-05-07T20:21:10.884Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -10170,7 +10170,7 @@ window.YasnaLessons.LESSONS = LESSONS;
 /* ─── app.js ─── */
 ;(function(){
 const { useState, useMemo, useEffect, useRef, useCallback } = React;
-const { Star, Yasna3DView, Info, OverlayLegend, Editor, OverlayPicker, Picker, Verification, GLOSS } = window.YasnaCore;
+const { Star, Yasna3DView, Info, OverlayLegend, Editor, OverlayPicker, Picker, Verification, GLOSS, T, FL } = window.YasnaCore;
 const { Lesson, LESSONS } = window.YasnaLessons;
 const CURRICULUM = {
   paths: [
