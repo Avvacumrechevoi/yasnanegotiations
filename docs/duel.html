@@ -5,29 +5,44 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <title>Дуэль · Ясна</title>
-<meta name="description" content="Дуэль по Ясне — играй с другом онлайн, тренируйся с ботом, участвуй в челлендже дня. Глобальный лидерборд через Telegram."/>
+<meta name="description" content="Дуэль по Ясне — играй с другом онлайн, тренируйся с ботом, участвуй в челлендже дня."/>
 <meta property="og:title" content="Дуэль по Ясне"/>
 <meta property="og:description" content="Проверь, насколько хорошо ты знаешь Ясну. 6 режимов, лидерборд, челлендж дня."/>
-<meta property="og:type" content="website"/>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>"/>
+<link rel="stylesheet" href="styles.css"/>
 <link rel="stylesheet" href="games/duel/duel-page.css"/>
 </head>
 <body>
 <div id="duel-page-root"></div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
 <script>
   window.YASNA_LEADERBOARD_API = "https://d5dmdje8c5mk8811il5j.iwzqm34r.apigw.yandexcloud.net";
   window.YASNA_TG_BOT = "YasnaDuelBot";
 </script>
+
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
+<!-- Все зависимости для Star-компонента и дуэлей -->
 <script src="core/data.js"></script>
+<script type="text/babel" src="core/yasna-3d.js"></script>
+<script type="text/babel" src="core/verification.js"></script>
+<script type="text/babel" src="core/dialogs.js"></script>
+<script type="text/babel" src="core/info-card.js"></script>
+<script type="text/babel" src="core/yasna-star.js"></script>
+
+<!-- Дуэли -->
 <script type="text/babel" src="games/duel/duel.js"></script>
 <script type="text/babel" src="games/duel/duel-games.js"></script>
 <script type="text/babel" src="games/duel/duel-game-quiz.js"></script>
 <script type="text/babel" src="games/duel/duel-game-mirror.js"></script>
 <script type="text/babel" src="games/duel/duel-game-speed.js"></script>
+
+<!-- Page-level UI -->
 <script src="games/duel/duel-page.js"></script>
 </body>
 </html>
