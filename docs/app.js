@@ -841,11 +841,11 @@ function App(){
           <span>Уроки</span>
         </button>
         {/* Дуэль — 1v1 онлайн (P0 preview) */}
-        <button onClick={()=>setShowDuel(true)} title='Дуэль 1v1: гонка за Опорным Крестом' style={{border:'1px solid rgba(212,165,116,.45)',color:'#7a5e25',padding:'7px 14px',borderRadius:8,fontSize:13,background:'rgba(212,165,116,.08)',cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:5}}>
+        <a href='duel.html' title='Дуэль 1v1: режимы, лидерборд, челлендж дня' style={{border:'1px solid rgba(212,165,116,.45)',color:'#7a5e25',padding:'7px 14px',borderRadius:8,fontSize:13,background:'rgba(212,165,116,.08)',cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:5,textDecoration:'none'}}>
           <span style={{fontSize:14}}>⚔️</span>
           <span>Дуэль</span>
           <span style={{fontSize:9,padding:'1px 5px',background:'#d4a574',color:'#fff',borderRadius:4,letterSpacing:.5,marginLeft:2}}>NEW</span>
-        </button>
+        </a>
         {/* Гид по Ясне — secondary outline (если зарегистрирован для текущей Ясны) */}
         {y && window.YasnaTours && window.YasnaTours.has(y.name) && <button onClick={()=>setShowTour(true)} title='Интерактивный гид с пояснением каждой механики' style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 14px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:5}}><span style={{fontSize:11,color:'#a21caf'}}>✦</span><span>Гид</span></button>}
         {/* Стихии — режим показа пранных долей */}
