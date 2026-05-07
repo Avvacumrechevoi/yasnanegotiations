@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-07T20:21:10.718Z */
+/* Yasna bundle: duel.js — собран 2026-05-07T21:59:17.181Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5748,12 +5748,36 @@ window.YasnaCore = {
   const { useState, useEffect, useRef } = React;
   const QUESTION_TIME = 15;
   const SHOW_FEEDBACK_MS = 1500;
-  const SHOW_VS_MS = 1400;
-  const SHOW_ROUND_INTRO_MS = 1300;
+  const SHOW_VS_MS = 2200;
+  const SHOW_ROUND_INTRO_MS = 1800;
   const TEN_LEVELS = {
-    easy: { name: "\u041B\u0451\u0433\u043A\u0430\u044F \u0422\u0435\u043D\u044C", accuracy: 0.55, minTime: 4, maxTime: 8, level: "easy" },
-    medium: { name: "\u0422\u0435\u043D\u044C", accuracy: 0.75, minTime: 3, maxTime: 6, level: "medium" },
-    hard: { name: "\u0421\u0442\u0430\u0440\u0448\u0430\u044F \u0422\u0435\u043D\u044C", accuracy: 0.92, minTime: 1, maxTime: 3, level: "hard" }
+    easy: {
+      name: "\u0422\u0435\u043D\u044C \u041F\u043E\u0441\u043B\u0443\u0448\u043D\u0438\u043A\u0430",
+      subtitle: "\u043B\u0435\u0433\u043A\u043E",
+      glyph: "\u{1F305}",
+      accuracy: 0.55,
+      minTime: 4,
+      maxTime: 8,
+      level: "easy"
+    },
+    medium: {
+      name: "\u0422\u0435\u043D\u044C \u0418\u0433\u0440\u043E\u043A\u0430",
+      subtitle: "\u0441\u0440\u0435\u0434\u043D\u0435",
+      glyph: "\u{1F317}",
+      accuracy: 0.75,
+      minTime: 3,
+      maxTime: 6,
+      level: "medium"
+    },
+    hard: {
+      name: "\u0422\u0435\u043D\u044C \u041C\u0430\u0433\u0438\u0441\u0442\u0440\u0430",
+      subtitle: "\u0441\u0438\u043B\u044C\u043D\u043E",
+      glyph: "\u{1F311}",
+      accuracy: 0.92,
+      minTime: 1,
+      maxTime: 3,
+      level: "hard"
+    }
   };
   function buseyForCorrect(timeMs) {
     const baseScore = 10;
@@ -5800,14 +5824,14 @@ window.YasnaCore = {
       React.createElement(
         "div",
         { className: "tn-container" },
-        React.createElement(TnTopBar, { eyebrow: "\u041F\u0430\u0440\u0442\u0438\u044F \u043D\u0430\u0447\u0438\u043D\u0430\u0435\u0442\u0441\u044F" }),
+        React.createElement(TnTopBar, { eyebrow: "\u2726 \u041F\u0430\u0440\u0442\u0438\u044F \u043D\u0430\u0447\u0438\u043D\u0430\u0435\u0442\u0441\u044F" }),
         React.createElement(
           "div",
           { className: "tn-round-intro" },
-          React.createElement("div", { className: "tn-round-eyebrow" }, "\u0421\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u0438"),
+          React.createElement("div", { className: "tn-round-eyebrow" }, "\u041A\u0430\u0441\u0442\u0430\u043B\u0438\u044F \u0437\u043E\u0432\u0451\u0442 \u0434\u0432\u043E\u0438\u0445"),
           React.createElement(
             "div",
-            { className: "tn-versus", style: { justifyContent: "center", gap: 32, margin: "8px 0 32px" } },
+            { className: "tn-versus", style: { justifyContent: "center", gap: 48, margin: "16px 0 40px" } },
             React.createElement(
               "div",
               { className: "tn-player" },
@@ -5816,14 +5840,14 @@ window.YasnaCore = {
                 "div",
                 null,
                 React.createElement("div", { className: "tn-player-name" }, player.nickname),
-                React.createElement("div", { className: "tn-player-stats" }, player.rank || "\u0418\u0433\u0440\u043E\u043A")
+                React.createElement("div", { className: "tn-player-stats" }, player.rank || "\u041F\u043E\u0441\u043B\u0443\u0448\u043D\u0438\u043A")
               )
             ),
-            React.createElement("span", { className: "tn-vs" }, "vs"),
+            React.createElement("span", { className: "tn-vs", style: { fontFamily: "ui-serif, Georgia, serif", fontStyle: "italic", fontSize: 22, opacity: 0.6 } }, "\u043F\u0440\u043E\u0442\u0438\u0432"),
             React.createElement(
               "div",
               { className: "tn-player tn-player-right" },
-              React.createElement("div", { className: "tn-avatar" }, "\u25D0"),
+              React.createElement("div", { className: "tn-avatar" }, opponent.glyph || "\u25D0"),
               React.createElement(
                 "div",
                 null,
@@ -5832,8 +5856,8 @@ window.YasnaCore = {
               )
             )
           ),
-          React.createElement("div", { className: "tn-round-eyebrow", style: { marginTop: 24 } }, "6 \u0442\u0435\u043C \xB7 18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432"),
-          React.createElement("div", { style: { fontSize: 13, color: "#8a8470", maxWidth: 480, margin: "4px auto 0", lineHeight: 1.6 } }, themeNames)
+          React.createElement("div", { className: "tn-round-eyebrow", style: { marginTop: 32, fontSize: 11, letterSpacing: "0.16em" } }, "\u2637 \u0428\u0435\u0441\u0442\u044C \u0442\u0435\u043C \xB7 \u0432\u043E\u0441\u0435\u043C\u043D\u0430\u0434\u0446\u0430\u0442\u044C \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432"),
+          React.createElement("div", { style: { fontSize: 13, color: "#8a8470", maxWidth: 520, margin: "6px auto 0", lineHeight: 1.7, fontStyle: "italic" } }, themeNames)
         )
       )
     );
@@ -5849,18 +5873,18 @@ window.YasnaCore = {
       React.createElement(
         "div",
         { className: "tn-container" },
-        React.createElement(TnTopBar, { eyebrow: "\u041F\u0430\u0440\u0442\u0438\u044F \xB7 \u0420\u0430\u0443\u043D\u0434 " + roundNum + " / 6" }),
+        React.createElement(TnTopBar, { eyebrow: "\u2726 \u0420\u0430\u0443\u043D\u0434 " + roundNum + " \u0438\u0437 6" }),
         React.createElement(
           "div",
           { className: "tn-round-intro" },
-          React.createElement("div", { className: "tn-round-eyebrow" }, "\u0420\u0430\u0443\u043D\u0434 ", roundNum, " \u0438\u0437 6"),
-          React.createElement("h1", { className: "tn-round-title" }, theme.name),
-          React.createElement("div", { className: "tn-round-sub" }, "3 \u0432\u043E\u043F\u0440\u043E\u0441\u0430 \u043F\u043E \u0442\u0435\u043C\u0435")
+          React.createElement("div", { className: "tn-round-eyebrow", style: { letterSpacing: "0.16em", opacity: 0.7 } }, "\u0413\u0438\u043C\u043D ", roundNum, "-\u0439"),
+          React.createElement("h1", { className: "tn-round-title", style: { fontFamily: "ui-serif, Georgia, serif", fontWeight: 500, letterSpacing: "-0.01em" } }, theme.name),
+          React.createElement("div", { className: "tn-round-sub", style: { fontStyle: "italic", opacity: 0.7 } }, "\u0442\u0440\u0438 \u0432\u043E\u043F\u0440\u043E\u0441\u0430 \u043F\u043E \u0442\u0435\u043C\u0435")
         )
       )
     );
   }
-  function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, scoreP, scoreO, player, opponent, onAnswer }) {
+  function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswerRef }) {
     const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
     const [chosen, setChosen] = useState(null);
     const startedAt = useRef(Date.now());
@@ -5872,8 +5896,10 @@ window.YasnaCore = {
       startedAt.current = Date.now();
       oppFinishedRef.current = null;
       answeredRef.current = false;
+      if (oppAnswerRef) oppAnswerRef.current = null;
     }, [q == null ? void 0 : q.id]);
     useEffect(() => {
+      if (isPvP) return;
       const t = TEN_LEVELS[opponent.level] || TEN_LEVELS.medium;
       const oppTime = (t.minTime + Math.random() * (t.maxTime - t.minTime)) * 1e3;
       const oppCorrect = Math.random() < t.accuracy;
@@ -5881,7 +5907,7 @@ window.YasnaCore = {
         oppFinishedRef.current = { correct: oppCorrect, time: oppTime };
       }, oppTime);
       return () => clearTimeout(tm);
-    }, [q == null ? void 0 : q.id, opponent.level]);
+    }, [q == null ? void 0 : q.id, opponent.level, isPvP]);
     useEffect(() => {
       if (chosen != null) return;
       const interval = setInterval(() => {
@@ -5919,13 +5945,19 @@ window.YasnaCore = {
       setChosen(idx);
       const playerTime = Date.now() - startedAt.current;
       const playerCorrect = idx === q.correct;
+      if (isPvP && transport) {
+        try {
+          transport.send({ t: "opp-answer", correct: playerCorrect, time: playerTime, qId: q.id });
+        } catch (_) {
+        }
+      }
       setTimeout(() => {
-        var _a, _b, _c, _d;
-        return safeAnswer({
+        const oppData = isPvP ? (oppAnswerRef == null ? void 0 : oppAnswerRef.current) || { correct: false, time: QUESTION_TIME * 1e3 } : oppFinishedRef.current || { correct: false, time: playerTime + 500 };
+        safeAnswer({
           playerCorrect,
           playerTime,
-          oppCorrect: (_b = (_a = oppFinishedRef.current) == null ? void 0 : _a.correct) != null ? _b : false,
-          oppTime: (_d = (_c = oppFinishedRef.current) == null ? void 0 : _c.time) != null ? _d : playerTime + 500
+          oppCorrect: oppData.correct,
+          oppTime: oppData.time
         });
       }, SHOW_FEEDBACK_MS);
     }
@@ -6013,26 +6045,38 @@ window.YasnaCore = {
       )
     );
   }
-  function FinalResult({ partiyaLog, scoreP, scoreO, totalBusey, player, opponent, onClose, onAgain }) {
+  function FinalResult({ partiyaLog, scoreP, scoreO, totalBusey, player, opponent, isPvP, oppDisconnected, onClose, onAgain }) {
     const won = scoreP > scoreO;
     const draw = scoreP === scoreO;
     const correctCount = partiyaLog.filter((r) => r.playerCorrect).length;
     const totalQ = partiyaLog.length;
-    const headline = won ? "\u041F\u0430\u0440\u0442\u0438\u044F \u043F\u0440\u043E\u0439\u0434\u0435\u043D\u0430" : draw ? "\u041D\u0438\u0447\u044C\u044F" : "\u0411\u043B\u0438\u0437\u043A\u0430\u044F \u043F\u0430\u0440\u0442\u0438\u044F";
-    const sub = won ? "\u0422\u044B \u043E\u043F\u0435\u0440\u0435\u0434\u0438\u043B \u0422\u0435\u043D\u044C. \u0411\u0443\u0441\u0438\u043D\u044B \u0437\u0430\u0447\u0442\u0435\u043D\u044B \u0432 \u0410\u0440\u0445\u0438\u0432." : draw ? "\u0420\u0430\u0432\u043D\u0430\u044F \u043F\u0430\u0440\u0442\u0438\u044F. \u041F\u043E\u043F\u0440\u043E\u0431\u0443\u0439 \u0435\u0449\u0451 \u0440\u0430\u0437." : "\u0422\u0435\u043D\u044C \u043E\u043A\u0430\u0437\u0430\u043B\u0430\u0441\u044C \u0431\u044B\u0441\u0442\u0440\u0435\u0435. \u0421\u044B\u0433\u0440\u0430\u0439 \u0435\u0449\u0451.";
+    let headline, sub;
+    if (oppDisconnected) {
+      headline = "\u0421\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A \u0432\u044B\u0448\u0435\u043B";
+      sub = "\u041F\u0430\u0440\u0442\u0438\u044F \u043D\u0435 \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u0430. \u0411\u0443\u0441\u0438\u043D\u044B \u043D\u0435 \u0443\u0447\u0442\u0435\u043D\u044B.";
+    } else if (won) {
+      headline = "\u041F\u0430\u0440\u0442\u0438\u044F \u0442\u0432\u043E\u044F.";
+      sub = isPvP ? "\u0422\u044B \u043E\u043F\u0435\u0440\u0435\u0434\u0438\u043B \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430. \u0411\u0443\u0441\u0438\u043D\u044B \u0437\u0430\u0447\u0442\u0435\u043D\u044B \u0432 \u0425\u0440\u043E\u043D\u0438\u043A\u0443. \u041C\u0430\u0433\u0438\u0441\u0442\u0440 \u0418\u0433\u0440\u044B \u0437\u0430\u043F\u043E\u043C\u043D\u0438\u0442 \u044D\u0442\u043E\u0442 \u0443\u0437\u043E\u0440." : "\u0422\u044B \u043E\u043F\u0435\u0440\u0435\u0434\u0438\u043B \u0422\u0435\u043D\u044C. \u0411\u0443\u0441\u0438\u043D\u044B \u0437\u0430\u0447\u0442\u0435\u043D\u044B \u0432 \u0425\u0440\u043E\u043D\u0438\u043A\u0443.";
+    } else if (draw) {
+      headline = "\u0420\u0430\u0432\u043D\u0430\u044F \u041F\u0430\u0440\u0442\u0438\u044F.";
+      sub = "\u0423\u0437\u043E\u0440 \u0441\u043B\u043E\u0436\u0438\u043B\u0441\u044F \u0441\u0438\u043C\u043C\u0435\u0442\u0440\u0438\u0447\u043D\u043E. \u0421\u044B\u0433\u0440\u0430\u0439 \u0435\u0449\u0451.";
+    } else {
+      headline = isPvP ? "\u0421\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A \u043E\u0431\u043E\u0433\u043D\u0430\u043B." : "\u0422\u0435\u043D\u044C \u043E\u0431\u043E\u0433\u043D\u0430\u043B\u0430.";
+      sub = "\u0412 \u0438\u0433\u0440\u0435 \u043D\u0435\u0442 \u043F\u0440\u043E\u0438\u0433\u0440\u0430\u0432\u0448\u0438\u0445 \u2014 \u0435\u0441\u0442\u044C \u0442\u0435, \u043A\u0442\u043E \u0437\u043D\u0430\u0435\u0442 \u0447\u0443\u0442\u044C \u043C\u0435\u043D\u044C\u0448\u0435. \u0417\u043D\u0430\u043A\u0438 \u043F\u043E\u043C\u043D\u044F\u0442 \u0442\u0432\u043E\u0439 \u043F\u0443\u0442\u044C. \u0417\u0430\u0432\u0442\u0440\u0430 \u2014 \u043D\u043E\u0432\u0430\u044F \u041F\u0430\u0440\u0442\u0438\u044F.";
+    }
     return React.createElement(
       "div",
       { className: "tn-fullscreen" },
       React.createElement(
         "div",
         { className: "tn-container" },
-        React.createElement(TnTopBar, { eyebrow: "\u041F\u0430\u0440\u0442\u0438\u044F \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u0430" }),
+        React.createElement(TnTopBar, { eyebrow: "\u2726 \u041F\u0430\u0440\u0442\u0438\u044F \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u0430" }),
         React.createElement(
           "div",
           { className: "tn-final" },
-          React.createElement("div", { className: "tn-final-eyebrow" }, "\u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442"),
-          React.createElement("h1", { className: "tn-final-headline" }, headline),
-          React.createElement("div", { className: "tn-final-sub" }, sub),
+          React.createElement("div", { className: "tn-final-eyebrow", style: { letterSpacing: "0.16em" } }, won ? "\u041F\u043E\u0431\u0435\u0434\u0430" : draw ? "\u041D\u0438\u0447\u044C\u044F" : "\u041F\u043E\u0440\u0430\u0436\u0435\u043D\u0438\u0435"),
+          React.createElement("h1", { className: "tn-final-headline", style: { fontFamily: "ui-serif, Georgia, serif", fontWeight: 500, fontSize: 38, letterSpacing: "-0.01em" } }, headline),
+          React.createElement("div", { className: "tn-final-sub", style: { maxWidth: 540, margin: "0 auto", lineHeight: 1.7, fontStyle: "italic", opacity: 0.85 } }, sub),
           React.createElement(
             "div",
             { className: "tn-final-score-row" },
@@ -6046,13 +6090,13 @@ window.YasnaCore = {
               "div",
               { className: "tn-final-score" },
               React.createElement("div", { className: "tn-final-score-num" }, scoreO),
-              React.createElement("div", { className: "tn-final-score-label" }, "\u0422\u0435\u043D\u044C")
+              React.createElement("div", { className: "tn-final-score-label" }, opponent.name || "\u0422\u0435\u043D\u044C")
             ),
             React.createElement(
               "div",
               { className: "tn-final-score" },
               React.createElement("div", { className: "tn-final-score-num" }, "+" + totalBusey),
-              React.createElement("div", { className: "tn-final-score-label" }, "\u0431\u0443\u0441\u0438\u043D")
+              React.createElement("div", { className: "tn-final-score-label" }, "\u0431\u0443\u0441\u0438\u043D \u2726")
             ),
             React.createElement(
               "div",
@@ -6065,28 +6109,73 @@ window.YasnaCore = {
             "div",
             { className: "tn-final-actions" },
             React.createElement("button", { className: "tn-final-btn tn-final-btn-primary", onClick: onAgain }, "\u041D\u043E\u0432\u0430\u044F \u041F\u0430\u0440\u0442\u0438\u044F"),
-            React.createElement("button", { className: "tn-final-btn", onClick: onClose }, "\u0412 \u041F\u0430\u0440\u0442\u0438\u0442\u0443\u0440\u0443")
+            React.createElement("button", { className: "tn-final-btn", onClick: onClose }, "\u0412 \u041A\u0430\u0441\u0442\u0430\u043B\u0438\u044E")
           )
         )
       )
     );
   }
-  function TurnirGame({ player, opponentLevel, onClose }) {
+  function TurnirGame({ player, opponentLevel, onClose, opponentMode, transport, role, oppData }) {
     React.useEffect(() => {
       window.__tnOnClose = onClose;
       return () => {
         delete window.__tnOnClose;
       };
     }, [onClose]);
-    const opp = TEN_LEVELS[opponentLevel || "medium"];
+    const isPvP = opponentMode === "pvp" && transport;
+    const opp = isPvP ? {
+      name: (oppData == null ? void 0 : oppData.nickname) || "\u0421\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A",
+      subtitle: "real-time",
+      glyph: (oppData == null ? void 0 : oppData.avatar) || "\u25D0",
+      level: "pvp"
+    } : TEN_LEVELS[opponentLevel || "medium"];
     const [phase, setPhase] = useState("vs");
-    const [partiya] = useState(() => window.YasnaTrivia.generatePartiya(Date.now()));
+    const [partiya, setPartiya] = useState(() => {
+      if (!isPvP || role === "host") {
+        return window.YasnaTrivia.generatePartiya(Date.now());
+      }
+      return null;
+    });
     const [roundIdx, setRoundIdx] = useState(0);
     const [qIdx, setQIdx] = useState(0);
     const [scoreP, setScoreP] = useState(0);
     const [scoreO, setScoreO] = useState(0);
     const [totalBusey, setTotalBusey] = useState(0);
     const [partiyaLog, setPartiyaLog] = useState([]);
+    const [oppDisconnected, setOppDisconnected] = useState(false);
+    const oppAnswerRef = useRef(null);
+    useEffect(() => {
+      if (!isPvP || !transport) return;
+      if (role === "host" && partiya) {
+        const seed = Date.now();
+        const newPartiya = window.YasnaTrivia.generatePartiya(seed);
+        setPartiya(newPartiya);
+        setTimeout(() => {
+          transport.send({ t: "partiya-init", seed, partiya: newPartiya.map((r) => ({
+            theme: { id: r.theme.id, name: r.theme.name },
+            questions: r.questions.map((q) => q.id)
+          })) });
+        }, 500);
+      }
+      const off = transport.on((msg) => {
+        if (msg.t === "partiya-init" && role === "guest") {
+          const restored = msg.partiya.map((r) => {
+            const theme = window.YasnaTrivia.getTheme(r.theme.id) || r.theme;
+            const allQs = window.YasnaTrivia.getQuestionsForTheme(r.theme.id);
+            const questions = r.questions.map((qid) => allQs.find((q) => q.id === qid)).filter(Boolean);
+            return { theme, questions };
+          });
+          setPartiya(restored);
+        }
+        if (msg.t === "opp-answer") {
+          oppAnswerRef.current = { correct: msg.correct, time: msg.time };
+        }
+        if (msg.t === "opp-leave") {
+          setOppDisconnected(true);
+        }
+      });
+      return off;
+    }, [isPvP, transport, role]);
     const currentRound = partiya[roundIdx];
     const currentQ = currentRound == null ? void 0 : currentRound.questions[qIdx];
     const totalOverall = partiya.reduce((sum, r) => sum + r.questions.length, 0);
@@ -6254,7 +6343,10 @@ window.YasnaCore = {
         scoreO,
         player,
         opponent: { name: opp.name, level: opponentLevel || "medium" },
-        onAnswer
+        onAnswer,
+        isPvP,
+        transport,
+        oppAnswerRef
       });
     }
     if (phase === "final") {
@@ -6265,6 +6357,8 @@ window.YasnaCore = {
         totalBusey,
         player,
         opponent: { name: opp.name },
+        isPvP,
+        oppDisconnected,
         onClose,
         onAgain: startAgain
       });
@@ -6278,7 +6372,7 @@ window.YasnaCore = {
 /* ─── games/duel/duel-page.js ─── */
 ;(function(){
 (function() {
-  const { useState, useEffect, useRef } = React;
+  const { useState, useEffect, useRef, useMemo } = React;
   const _g = (n) => window[n];
   class DPErrorBoundary extends React.Component {
     constructor(p) {
@@ -6290,7 +6384,7 @@ window.YasnaCore = {
     }
     componentDidCatch(err, info) {
       try {
-        console.error("[Duel]", err, info);
+        console.error("[\u041A\u0430\u0441\u0442\u0430\u043B\u0438\u044F]", err, info);
       } catch (_) {
       }
     }
@@ -6299,34 +6393,35 @@ window.YasnaCore = {
         return React.createElement(
           "div",
           {
-            style: { padding: "40px 20px", maxWidth: 480, margin: "40px auto", textAlign: "center", fontFamily: "inherit" }
+            style: { padding: "60px 24px", maxWidth: 480, margin: "60px auto", textAlign: "center", fontFamily: "inherit" }
           },
-          React.createElement("div", { style: { fontSize: 32, marginBottom: 12 } }, "\u26A0\uFE0F"),
-          React.createElement("h2", { style: { fontSize: 18, marginBottom: 8 } }, "\u0427\u0442\u043E-\u0442\u043E \u0441\u043B\u043E\u043C\u0430\u043B\u043E\u0441\u044C"),
+          React.createElement("div", { style: { fontSize: 32, marginBottom: 16, fontFamily: "ui-serif, Georgia, serif" } }, "\u2637"),
+          React.createElement("h2", { style: { fontSize: 22, marginBottom: 12, fontFamily: "ui-serif, Georgia, serif", fontWeight: 500 } }, "\u0427\u0442\u043E-\u0442\u043E \u0443\u0441\u043A\u043E\u043B\u044C\u0437\u043D\u0443\u043B\u043E"),
           React.createElement(
             "p",
-            { style: { fontSize: 13, color: "#6e6e73", lineHeight: 1.6, marginBottom: 16 } },
-            "\u0414\u0443\u044D\u043B\u044C \u043D\u0435 \u0441\u043C\u043E\u0433\u043B\u0430 \u043E\u0442\u0440\u0438\u0441\u043E\u0432\u0430\u0442\u044C\u0441\u044F. \u041F\u043E\u043F\u0440\u043E\u0431\u0443\u0439 \u043F\u0435\u0440\u0435\u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0443 \u0438\u043B\u0438 \u0432\u0435\u0440\u043D\u0438\u0441\u044C \u043D\u0430 \u0433\u043B\u0430\u0432\u043D\u0443\u044E."
+            { style: { fontSize: 14, color: "#5f5d57", lineHeight: 1.6, marginBottom: 24 } },
+            "\u0421\u0442\u0440\u0430\u043D\u0438\u0446\u0430 \u043D\u0435 \u0441\u043C\u043E\u0433\u043B\u0430 \u043E\u0442\u0440\u0438\u0441\u043E\u0432\u0430\u0442\u044C\u0441\u044F. \u041F\u043E\u043F\u0440\u043E\u0431\u0443\u0439 \u043F\u0435\u0440\u0435\u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u0438\u043B\u0438 \u0432\u0435\u0440\u043D\u0438\u0441\u044C \u043A \u042F\u0441\u043D\u0435."
           ),
           React.createElement(
             "div",
-            { style: { display: "flex", gap: 8, justifyContent: "center" } },
+            { style: { display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" } },
             React.createElement("button", {
               onClick: () => window.location.reload(),
-              style: { padding: "8px 18px", borderRadius: 8, border: "1px solid #d2d2d7", background: "#fff", cursor: "pointer", fontFamily: "inherit", fontSize: 13 }
+              className: "dp-btn"
             }, "\u041F\u0435\u0440\u0435\u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C"),
             React.createElement("a", {
               href: "index.html",
-              style: { padding: "8px 18px", borderRadius: 8, border: "1px solid #0071e3", background: "#0071e3", color: "#fff", textDecoration: "none", fontFamily: "inherit", fontSize: 13 }
-            }, "\u041D\u0430 \u0433\u043B\u0430\u0432\u043D\u0443\u044E")
+              className: "dp-btn dp-btn-primary",
+              style: { textDecoration: "none" }
+            }, "\u041A \u042F\u0441\u043D\u0435")
           ),
           this.state.err && React.createElement(
             "details",
-            { style: { marginTop: 24, fontSize: 11, color: "#86868b", textAlign: "left" } },
+            { style: { marginTop: 32, fontSize: 11, color: "#6e6e73", textAlign: "left" } },
             React.createElement("summary", null, "\u041F\u043E\u0434\u0440\u043E\u0431\u043D\u043E\u0441\u0442\u0438"),
             React.createElement(
               "pre",
-              { style: { whiteSpace: "pre-wrap", wordBreak: "break-word", marginTop: 6, fontSize: 10 } },
+              { style: { whiteSpace: "pre-wrap", wordBreak: "break-word", marginTop: 8, fontSize: 10 } },
               String(this.state.err.stack || this.state.err.message || this.state.err)
             )
           )
@@ -6335,8 +6430,8 @@ window.YasnaCore = {
       return this.props.children;
     }
   }
-  const Icon = (path) => (props) => React.createElement("svg", {
-    className: "dp-icon " + ((props == null ? void 0 : props.cls) || ""),
+  const Icon = (path) => () => React.createElement("svg", {
+    className: "dp-icon",
     width: 14,
     height: 14,
     viewBox: "0 0 16 16",
@@ -6348,34 +6443,28 @@ window.YasnaCore = {
   }, React.createElement("path", { d: path }));
   const IconCalendar = Icon("M3 5h10v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5Zm0 0V4a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v1M5 2v3M11 2v3M3 8h10");
   const IconGrid = Icon("M3 3h4v4H3zM9 3h4v4H9zM3 9h4v4H3zM9 9h4v4H9z");
-  const IconList = Icon("M3 4h10M3 8h10M3 12h10");
+  const IconScroll = Icon("M3 4h10M3 8h10M3 12h10");
   const IconStar = Icon("M8 2.5l1.7 3.5 3.8.5-2.7 2.7.7 3.8L8 11.2 4.5 13l.7-3.8L2.5 6.5l3.8-.5L8 2.5Z");
-  const IconBolt = Icon("M9 2L4 9h3l-1 5 5-7H8l1-5Z");
-  const IconBead = Icon("M8 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12ZM8 5v2M8 9v2");
-  const IconDrop = Icon("M8 2c-2.5 3-4.5 5-4.5 7.5a4.5 4.5 0 0 0 9 0C12.5 7 10.5 5 8 2Z");
-  const IconUsers = Icon("M5 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM2 13c0-2 1.3-3 3-3s3 1 3 3M8 13c0-2 1.3-3 3-3s3 1 3 3");
-  const IconShield = Icon("M8 2L3 4v4c0 3 2 5 5 6 3-1 5-3 5-6V4L8 2Z");
-  const IconQuestion = Icon("M6 6a2 2 0 1 1 4 0c0 1-1 1.5-1.5 2V9M8 12v.01");
+  const IconJournal = Icon("M3 3h10v10H3zM3 6h10M6 3v10");
   const Term = (label, tip) => React.createElement("span", {
     className: "dp-term",
     tabIndex: 0,
     "data-tip": tip
   }, label);
-  function renderAvatar(av, size) {
-    size = size || 24;
-    if (typeof av === "string" && av.startsWith("http")) {
-      return React.createElement("img", { src: av, alt: "" });
-    }
-    if (typeof av === "string" && av.length > 0 && av.length <= 4) {
-      return React.createElement("span", { style: { fontSize: size * 0.6, lineHeight: 1 } }, av);
-    }
-    return React.createElement("span", { style: { fontSize: size * 0.6 } }, av || "\xB7");
-  }
   function avatarInitials(name) {
     if (!name) return "\xB7";
     const t = String(name).trim();
     if (!t) return "\xB7";
     return t.slice(0, 1).toUpperCase();
+  }
+  function renderAvatar(av, name) {
+    if (typeof av === "string" && av.startsWith("http")) {
+      return React.createElement("img", { src: av, alt: "" });
+    }
+    if (typeof av === "string" && av.length > 0 && av.length <= 4) {
+      return av;
+    }
+    return avatarInitials(name);
   }
   const STUPENI = [
     { name: "\u041F\u043E\u0441\u043B\u0443\u0448\u043D\u0438\u043A", from: 0, to: 1e3 },
@@ -6422,86 +6511,79 @@ window.YasnaCore = {
       { className: "dp-header" },
       React.createElement(
         "a",
-        { href: "index.html", className: "dp-header-back", title: "\u0412\u0435\u0440\u043D\u0443\u0442\u044C\u0441\u044F \u043A \u042F\u0441\u043D\u0435" },
-        React.createElement("span", { className: "dp-header-back-arrow" }, "\u2190"),
+        { href: "index.html", className: "dp-header-back", title: "\u041A \u042F\u0441\u043D\u0435", "aria-label": "\u0412\u0435\u0440\u043D\u0443\u0442\u044C\u0441\u044F \u043A \u042F\u0441\u043D\u0435" },
+        React.createElement("span", { className: "dp-header-back-arrow", "aria-hidden": "true" }, "\u2190"),
         React.createElement("span", null, "\u042F\u0441\u043D\u0430")
       ),
       React.createElement("div", { className: "dp-header-spacer" }),
       React.createElement(
         "nav",
         { className: "dp-header-nav" },
-        React.createElement("a", { href: "#archive", onClick: onAnchorClick("archive") }, "\u0422\u0430\u0431\u043B\u0438\u0446\u0430"),
+        React.createElement("a", { href: "#hronika", onClick: onAnchorClick("hronika") }, "\u0425\u0440\u043E\u043D\u0438\u043A\u0430"),
+        React.createElement("a", { href: "#zhurnal", onClick: onAnchorClick("zhurnal") }, "\u0416\u0443\u0440\u043D\u0430\u043B"),
         React.createElement("a", { href: "#znaki", onClick: onAnchorClick("znaki") }, "\u0417\u043D\u0430\u043A\u0438"),
         React.createElement(
           "div",
-          { className: "dp-header-auth", ref: helpRef },
+          { className: "dp-header-auth", ref: helpRef, style: { position: "relative" } },
           React.createElement("button", {
             className: "dp-help-btn",
             onClick: () => setHelpOpen((v) => !v),
-            title: "\u0427\u0442\u043E \u044D\u0442\u043E \u0437\u0430 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0430?"
+            "aria-label": "\u0427\u0442\u043E \u044D\u0442\u043E \u0437\u0430 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0430?",
+            "aria-expanded": helpOpen
           }, "?"),
           helpOpen && React.createElement(
             "div",
             { className: "dp-help-popover" },
-            React.createElement("h4", null, "\u0418\u0433\u0440\u0430 \u043F\u043E \u042F\u0441\u043D\u0435"),
-            React.createElement("div", null, "\u0422\u0440\u0435\u043D\u0430\u0436\u0451\u0440 \u043F\u0430\u043C\u044F\u0442\u0438 \u043F\u043E \u043A\u043E\u0440\u043F\u0443\u0441\u0443 \u042F\u0441\u043D\u044B. \u041F\u0430\u0440\u0442\u0438\u044F \u2014 18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u0438\u0437 6 \u0441\u043B\u0443\u0447\u0430\u0439\u043D\u044B\u0445 \u0442\u0435\u043C. \u0421\u043E\u043F\u0435\u0440\u043D\u0438\u043A \u2014 \u0422\u0435\u043D\u044C."),
+            React.createElement("h4", null, "\u041A\u0430\u0441\u0442\u0430\u043B\u0438\u044F \u042F\u0441\u043D\u044B"),
+            React.createElement("div", null, "\u0422\u0438\u0445\u043E\u0435 \u043C\u0435\u0441\u0442\u043E, \u0433\u0434\u0435 \u0438\u0433\u0440\u0430\u044E\u0442 \u0432 \u0431\u0438\u0441\u0435\u0440. \u041F\u0430\u0440\u0442\u0438\u044F \u2014 \u0432\u043E\u0441\u0435\u043C\u043D\u0430\u0434\u0446\u0430\u0442\u044C \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u0438\u0437 \u0448\u0435\u0441\u0442\u0438 \u0441\u043B\u0443\u0447\u0430\u0439\u043D\u044B\u0445 \u0442\u0435\u043C. \u0421\u043E\u043F\u0435\u0440\u043D\u0438\u043A \u2014 \u0422\u0435\u043D\u044C \u0438\u043B\u0438 \u0436\u0438\u0432\u043E\u0439 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A."),
             React.createElement(
               "ul",
               null,
-              React.createElement("li", null, React.createElement("strong", null, "\u0411\u0443\u0441\u0438\u043D\u044B"), " \u2014 \u0442\u0432\u043E\u0438 \u043E\u0447\u043A\u0438. \u041D\u0430\u043A\u0430\u043F\u043B\u0438\u0432\u0430\u044E\u0442\u0441\u044F \u0437\u0430 \u0432\u0435\u0440\u043D\u044B\u0435 \u043E\u0442\u0432\u0435\u0442\u044B."),
-              React.createElement("li", null, React.createElement("strong", null, "\u0421\u0442\u0443\u043F\u0435\u043D\u044C"), " \u2014 \u043E\u0442 \u041F\u043E\u0441\u043B\u0443\u0448\u043D\u0438\u043A\u0430 \u0434\u043E \u041C\u0430\u0433\u0438\u0441\u0442\u0440\u0430, \u0437\u0430\u0432\u0438\u0441\u0438\u0442 \u043E\u0442 \u0431\u0443\u0441\u0438\u043D."),
-              React.createElement("li", null, React.createElement("strong", null, "\u041F\u0430\u0440\u0442\u0438\u0442\u0443\u0440\u0430"), " \u2014 9 \u0442\u0435\u043C \u0441 \u0442\u0432\u043E\u0438\u043C \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441\u043E\u043C \u043F\u043E \u043A\u0430\u0436\u0434\u043E\u0439."),
-              React.createElement("li", null, React.createElement("strong", null, "\u0422\u0443\u0440\u043D\u0438\u0440\u043D\u0430\u044F \u0442\u0430\u0431\u043B\u0438\u0446\u0430"), " \u2014 \u0442\u043E\u043F \u0438\u0433\u0440\u043E\u043A\u043E\u0432 \u043D\u0435\u0434\u0435\u043B\u0438 \u043F\u043E \u0431\u0443\u0441\u0438\u043D\u0430\u043C, \u043E\u0431\u043D\u0443\u043B\u044F\u0435\u0442\u0441\u044F \u0421\u0431 23:59.")
+              React.createElement("li", null, React.createElement("strong", null, "\u0411\u0443\u0441\u0438\u043D\u044B \u2726"), " \u2014 \u0442\u0432\u043E\u0438 \u043E\u0447\u043A\u0438. \u0417\u0430 \u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 + \u0431\u043E\u043D\u0443\u0441 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438."),
+              React.createElement("li", null, React.createElement("strong", null, "\u0421\u0442\u0443\u043F\u0435\u043D\u044C"), " \u2014 \u043E\u0442 \u041F\u043E\u0441\u043B\u0443\u0448\u043D\u0438\u043A\u0430 \u0434\u043E \u041C\u0430\u0433\u0438\u0441\u0442\u0440\u0430."),
+              React.createElement("li", null, React.createElement("strong", null, "\u041F\u0430\u0440\u0442\u0438\u0442\u0443\u0440\u0430"), " \u2014 \u043A\u0430\u0440\u0442\u0430 \u0434\u0435\u0432\u044F\u0442\u0438 \u0442\u0435\u043C \u043C\u0438\u0440\u0430."),
+              React.createElement("li", null, React.createElement("strong", null, "\u0425\u0440\u043E\u043D\u0438\u043A\u0430"), " \u2014 \u043B\u0435\u0442\u043E\u043F\u0438\u0441\u044C \u041C\u0430\u0433\u0438\u0441\u0442\u0440\u043E\u0432 \u043D\u0435\u0434\u0435\u043B\u0438.")
             )
           ),
           user ? React.createElement("button", { className: "dp-btn-text", onClick: onLogout, style: { marginLeft: 6 } }, "\u0412\u044B\u0439\u0442\u0438") : React.createElement("button", {
             className: "dp-btn dp-btn-primary",
             onClick: onLoginClick,
-            style: { padding: "7px 14px", fontSize: 13, marginLeft: 6 }
+            style: { padding: "8px 16px", fontSize: 13, marginLeft: 6 }
           }, "\u0412\u043E\u0439\u0442\u0438")
         )
       )
     );
   }
-  function DPOrient({ onClose }) {
+  function DPCastaliaTitle() {
     return React.createElement(
       "div",
-      { className: "dp-orient" },
-      React.createElement("div", { className: "dp-orient-icon" }, "i"),
+      { className: "dp-castalia-title" },
+      React.createElement("div", { className: "dp-castalia-eyebrow" }, "\u2726  \u041A\u0430\u0441\u0442\u0430\u043B\u0438\u044F \u042F\u0441\u043D\u044B"),
       React.createElement(
-        "div",
-        { className: "dp-orient-text" },
-        "\u0422\u044B \u0432 ",
-        React.createElement("strong", null, "\u041A\u0430\u0431\u0438\u043D\u0435\u0442\u0435 \u0438\u0433\u0440\u043E\u043A\u0430"),
-        ". \u041D\u0438\u0436\u0435 \u2014 \u0442\u0432\u043E\u0439 \u043F\u0440\u043E\u0444\u0438\u043B\u044C, ",
-        Term("\u041F\u0430\u0440\u0442\u0438\u0438", "\u041F\u0430\u0440\u0442\u0438\u044F \u2014 \u0438\u0433\u0440\u043E\u0432\u0430\u044F \u0441\u0435\u0441\u0441\u0438\u044F \u0438\u0437 18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u043F\u043E 6 \u0442\u0435\u043C\u0430\u043C, \u22486 \u043C\u0438\u043D\u0443\u0442."),
-        " \u0434\u043D\u044F \u0438 \u0410\u0440\u0445\u0438\u0432. \u0413\u043B\u0430\u0432\u043D\u043E\u0435 \u2014 \u043D\u0430\u0436\u0430\u0442\u044C ",
-        React.createElement("strong", null, "\u041D\u043E\u0432\u0430\u044F \u041F\u0430\u0440\u0442\u0438\u044F"),
-        "."
-      ),
-      React.createElement("button", {
-        className: "dp-orient-close",
-        onClick: onClose,
-        title: "\u0421\u043A\u0440\u044B\u0442\u044C \u043F\u043E\u0434\u0441\u043A\u0430\u0437\u043A\u0443"
-      }, "\xD7")
+        "h1",
+        { className: "dp-castalia-h1" },
+        React.createElement("span", null, "\u0418\u0433\u0440\u0430 \u0432 \u0431\u0438\u0441\u0435\u0440,"),
+        React.createElement("br"),
+        React.createElement("span", null, "\u043F\u043E-\u0440\u0443\u0441\u0441\u043A\u0438.")
+      )
     );
   }
   function DPWelcome({ onLoginClick, onAnonStart }) {
     return React.createElement(
       "section",
-      { className: "dp-welcome" },
-      React.createElement("div", { className: "dp-welcome-eyebrow" }, "\u0422\u0440\u0435\u043D\u0430\u0436\u0451\u0440 \u043F\u0430\u043C\u044F\u0442\u0438"),
-      React.createElement("h1", { className: "dp-welcome-title" }, "\u0418\u0433\u0440\u0430 \u043F\u043E \u042F\u0441\u043D\u0435"),
+      { className: "dp-welcome", role: "region", "aria-label": "\u041F\u0440\u0438\u0432\u0435\u0442\u0441\u0442\u0432\u0438\u0435" },
+      React.createElement("div", { className: "dp-welcome-eyebrow" }, "\u2726  \u041A\u0430\u0441\u0442\u0430\u043B\u0438\u044F \u042F\u0441\u043D\u044B"),
+      React.createElement("h1", { className: "dp-welcome-title" }, "\u0418\u0433\u0440\u0430 \u0432 \u0431\u0438\u0441\u0435\u0440,", React.createElement("br"), "\u043F\u043E-\u0440\u0443\u0441\u0441\u043A\u0438."),
       React.createElement(
         "p",
         { className: "dp-welcome-sub" },
-        "\u041F\u0430\u0440\u0442\u0438\u044F \u0438\u0437 18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432. \u0428\u0435\u0441\u0442\u044C \u0442\u0435\u043C, \u0442\u0440\u0438 \u0443\u0440\u043E\u0432\u043D\u044F \u0433\u043B\u0443\u0431\u0438\u043D\u044B. \u0422\u0440\u0435\u043D\u0438\u0440\u0443\u0439 \u043F\u0430\u043C\u044F\u0442\u044C \u2014 \u0441\u043E\u0431\u0438\u0440\u0430\u0439 \u0431\u0443\u0441\u0438\u043D\u044B \u2014 \u043F\u043E\u0434\u043D\u0438\u043C\u0430\u0439\u0441\u044F \u043F\u043E \u0441\u0442\u0443\u043F\u0435\u043D\u044F\u043C."
+        "\u041F\u0430\u0440\u0442\u0438\u044F \u0438\u0437 \u0432\u043E\u0441\u0435\u043C\u043D\u0430\u0434\u0446\u0430\u0442\u0438 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432. \u0428\u0435\u0441\u0442\u044C \u0442\u0435\u043C \u043C\u0438\u0440\u0430. \u0421\u043E\u043F\u0435\u0440\u043D\u0438\u043A \u2014 \u0422\u0435\u043D\u044C \u0438\u043B\u0438 \u0436\u0438\u0432\u043E\u0439 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A. \u0422\u0440\u0435\u043D\u0438\u0440\u0443\u0439 \u043F\u0430\u043C\u044F\u0442\u044C, \u0441\u043E\u0431\u0438\u0440\u0430\u0439 \u0431\u0443\u0441\u0438\u043D\u044B, \u043F\u043E\u0434\u043D\u0438\u043C\u0430\u0439\u0441\u044F \u043F\u043E \u0441\u0442\u0443\u043F\u0435\u043D\u044F\u043C \u041E\u0440\u0434\u0435\u043D\u0430."
       ),
       React.createElement(
         "div",
         { className: "dp-welcome-actions" },
-        React.createElement("button", { className: "dp-btn dp-btn-primary", onClick: onLoginClick }, "\u0412\u043E\u0439\u0442\u0438 \u0447\u0435\u0440\u0435\u0437 Telegram"),
-        React.createElement("button", { className: "dp-btn dp-btn-ghost", onClick: onAnonStart }, "\u0421\u044B\u0433\u0440\u0430\u0442\u044C \u0430\u043D\u043E\u043D\u0438\u043C\u043D\u043E")
+        React.createElement("button", { className: "dp-btn dp-btn-cta", onClick: onLoginClick }, "\u0412\u043E\u0439\u0442\u0438 \u0447\u0435\u0440\u0435\u0437 Telegram"),
+        React.createElement("button", { className: "dp-btn dp-btn-ghost", onClick: onAnonStart }, "\u0421\u044B\u0433\u0440\u0430\u0442\u044C \u0433\u043E\u0441\u0442\u0435\u043C")
       ),
       React.createElement(
         "div",
@@ -6510,25 +6592,25 @@ window.YasnaCore = {
           "div",
           { className: "dp-welcome-pillar" },
           React.createElement("div", { className: "dp-welcome-pillar-label" }, "\u25F7  \u041F\u0430\u0440\u0442\u0438\u044F"),
-          React.createElement("div", { className: "dp-welcome-pillar-text" }, "18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \xB7 6 \u0442\u0435\u043C \xB7 5\u20137 \u043C\u0438\u043D\u0443\u0442")
+          React.createElement("div", { className: "dp-welcome-pillar-text" }, "\u0412\u043E\u0441\u0435\u043C\u043D\u0430\u0434\u0446\u0430\u0442\u044C \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \xB7 \u0448\u0435\u0441\u0442\u044C \u0442\u0435\u043C \xB7 \u043F\u044F\u0442\u044C \u043C\u0438\u043D\u0443\u0442")
         ),
         React.createElement(
           "div",
           { className: "dp-welcome-pillar" },
           React.createElement("div", { className: "dp-welcome-pillar-label" }, "\u25D0  \u0422\u0435\u043D\u044C"),
-          React.createElement("div", { className: "dp-welcome-pillar-text" }, "\u0411\u043E\u0442-\u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A \u0441 \u0442\u0440\u0435\u043C\u044F \u0440\u0438\u0442\u043C\u0430\u043C\u0438")
+          React.createElement("div", { className: "dp-welcome-pillar-text" }, "\u0411\u043E\u0442 \u0442\u0440\u0451\u0445 \u043B\u0438\u043A\u043E\u0432: \u041F\u043E\u0441\u043B\u0443\u0448\u043D\u0438\u043A, \u0418\u0433\u0440\u043E\u043A, \u041C\u0430\u0433\u0438\u0441\u0442\u0440")
         ),
         React.createElement(
           "div",
           { className: "dp-welcome-pillar" },
-          React.createElement("div", { className: "dp-welcome-pillar-label" }, "\u25C7  \u0421\u0442\u0443\u043F\u0435\u043D\u0438"),
-          React.createElement("div", { className: "dp-welcome-pillar-text" }, "\u041F\u043E\u0441\u043B\u0443\u0448\u043D\u0438\u043A \u2192 \u041C\u0430\u0433\u0438\u0441\u0442\u0440")
+          React.createElement("div", { className: "dp-welcome-pillar-label" }, "\u2726  \u0411\u0443\u0441\u0438\u043D\u044B"),
+          React.createElement("div", { className: "dp-welcome-pillar-text" }, "\u041E\u0447\u043A\u0438 \u0438\u0433\u0440\u044B. \u0425\u0440\u043E\u043D\u0438\u043A\u0430 \u043D\u0435\u0434\u0435\u043B\u0438 \u2014 \u0442\u043E\u043F \u041C\u0430\u0433\u0438\u0441\u0442\u0440\u043E\u0432")
         )
       )
     );
   }
   function DPProfileHero({ user, profile, onLoginClick }) {
-    var _a, _b, _c, _d;
+    var _a, _b, _c;
     const me = user || profile;
     const isGuest = !user;
     const busey = totalBusey();
@@ -6536,13 +6618,17 @@ window.YasnaCore = {
     const pct = stupen.to === Infinity ? 100 : Math.min(100, (busey - stupen.from) / (stupen.to - stupen.from) * 100);
     const Storage = _g("YasnaDuelStorage");
     const data = ((_a = Storage == null ? void 0 : Storage.getOverallStats) == null ? void 0 : _a.call(Storage)) || {};
-    const streak = ((_c = (_b = data.streaks) == null ? void 0 : _b.daily) == null ? void 0 : _c.current) || 0;
-    const games = ((_d = data.totals) == null ? void 0 : _d.matches) || 0;
-    const toNext = stupen.to === Infinity ? 0 : Math.max(0, stupen.to - busey);
+    const games = ((_b = data.totals) == null ? void 0 : _b.matches) || ((_c = data.totals) == null ? void 0 : _c.played) || 0;
     const avatarContent = typeof me.avatar === "string" && me.avatar.startsWith("http") ? React.createElement("img", { src: me.avatar, alt: "" }) : typeof me.avatar === "string" && me.avatar.length > 0 && me.avatar.length <= 4 ? me.avatar : avatarInitials(me.nickname);
+    const nextStupenLabel = (() => {
+      if (stupen.to === Infinity) return "\u0432\u044B\u0441\u0448\u0430\u044F \u0441\u0442\u0443\u043F\u0435\u043D\u044C";
+      const curIdx = STUPENI.findIndex((x) => x.name === stupen.name);
+      const next = STUPENI[curIdx + 1];
+      return next ? "\u0434\u043E " + next.name + " \xB7 " + stupen.toNext + " \u2726" : "";
+    })();
     return React.createElement(
       "section",
-      { className: "dp-hero" },
+      { className: "dp-hero", role: "region", "aria-label": "\u041F\u0440\u043E\u0444\u0438\u043B\u044C \u0438\u0433\u0440\u043E\u043A\u0430" },
       React.createElement("div", { className: "dp-hero-avatar" }, avatarContent),
       React.createElement(
         "div",
@@ -6551,63 +6637,81 @@ window.YasnaCore = {
           "div",
           { className: "dp-hero-name-row" },
           React.createElement("span", { className: "dp-hero-name" }, me.nickname),
-          React.createElement("span", { className: "dp-hero-rank-pill" }, stupen.name, " ", toRoman(stupen.subLevel)),
-          isGuest && React.createElement("span", { className: "dp-hero-guest-tag" }, "\xB7 \u0413\u043E\u0441\u0442\u044C")
+          React.createElement("span", { className: "dp-hero-rank-pill" }, stupen.name, " ", toRoman(stupen.subLevel))
         ),
         React.createElement(
           "div",
           { className: "dp-hero-stats" },
-          React.createElement(
-            "span",
-            null,
-            busey,
-            " ",
-            Term("\u0431\u0443\u0441\u0438\u043D", "\u0411\u0443\u0441\u0438\u043D\u044B \u2014 \u0433\u043B\u0430\u0432\u043D\u0430\u044F \u0432\u0430\u043B\u044E\u0442\u0430 \u0418\u0433\u0440\u044B. \u041D\u0430\u0447\u0438\u0441\u043B\u044F\u044E\u0442\u0441\u044F \u0437\u0430 \u0432\u0435\u0440\u043D\u044B\u0435 \u043E\u0442\u0432\u0435\u0442\u044B (10 \u0431\u0430\u0437\u043E\u0432\u044B\u0445 + \u0431\u043E\u043D\u0443\u0441 \u0437\u0430 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u044C).")
-          ),
+          React.createElement("span", { className: "dp-hero-bead" }, "\u2726 ", busey),
           React.createElement("span", { className: "dp-hero-stats-sep" }, "\xB7"),
-          React.createElement("span", null, games, " ", Term("\u043F\u0430\u0440\u0442\u0438\u0439", "\u041F\u0430\u0440\u0442\u0438\u044F \u2014 \u043E\u0434\u043D\u0430 \u0438\u0433\u0440\u043E\u0432\u0430\u044F \u0441\u0435\u0441\u0441\u0438\u044F \u0438\u0437 18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432.")),
-          streak > 0 && React.createElement(
-            React.Fragment,
-            null,
-            React.createElement("span", { className: "dp-hero-stats-sep" }, "\xB7"),
-            React.createElement(
-              "span",
-              { className: "dp-hero-streak" },
-              Term("\u0441\u0435\u0440\u0438\u044F", "\u0421\u0435\u0440\u0438\u044F \u2014 \u0441\u043A\u043E\u043B\u044C\u043A\u043E \u0434\u043D\u0435\u0439 \u043F\u043E\u0434\u0440\u044F\u0434 \u0442\u044B \u0438\u0433\u0440\u0430\u0435\u0448\u044C \u0431\u0435\u0437 \u043F\u0440\u043E\u043F\u0443\u0441\u043A\u0430."),
-              " ",
-              streak
-            )
+          React.createElement("span", null, games, " ", Term("\u043F\u0430\u0440\u0442\u0438\u0439", "\u041F\u0430\u0440\u0442\u0438\u044F \u2014 \u0438\u0433\u0440\u043E\u0432\u0430\u044F \u0441\u0435\u0441\u0441\u0438\u044F \u0438\u0437 \u0432\u043E\u0441\u0435\u043C\u043D\u0430\u0434\u0446\u0430\u0442\u0438 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u043F\u043E \u0448\u0435\u0441\u0442\u0438 \u0442\u0435\u043C\u0430\u043C."))
+        ),
+        React.createElement(
+          "div",
+          { className: "dp-hero-progress", "aria-label": "\u041F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u0441\u0442\u0443\u043F\u0435\u043D\u0438" },
+          React.createElement("div", { className: "dp-hero-progress-fill", style: { width: pct + "%" } })
+        ),
+        nextStupenLabel && React.createElement("div", { style: { fontSize: 11, color: "var(--text-3)", marginTop: 4, fontVariantNumeric: "tabular-nums" } }, nextStupenLabel)
+      ),
+      isGuest && React.createElement("button", { className: "dp-hero-cta", onClick: onLoginClick, title: "\u0412\u043E\u0439\u0434\u0438 \u2014 \u043F\u043E\u043F\u0430\u0434\u0451\u0448\u044C \u0432 \u0425\u0440\u043E\u043D\u0438\u043A\u0443" }, "\u0412\u043E\u0439\u0442\u0438 \u2192")
+    );
+  }
+  function DPMainGames({ onPartiya, onUzor }) {
+    return React.createElement(
+      "section",
+      { className: "dp-section", role: "region", "aria-label": "\u0413\u043B\u0430\u0432\u043D\u044B\u0439 \u0440\u0438\u0442\u0443\u0430\u043B" },
+      React.createElement(
+        "div",
+        { style: { marginBottom: "var(--space-5)" } },
+        React.createElement("div", { className: "dp-eyebrow" }, "\u0413\u043B\u0430\u0432\u043D\u044B\u0439 \u0440\u0438\u0442\u0443\u0430\u043B"),
+        React.createElement(
+          "h2",
+          { className: "dp-section-h", style: { fontFamily: "var(--font-serif)", fontWeight: 500, fontSize: 22, letterSpacing: "-0.005em" } },
+          "\u041F\u0430\u0440\u0442\u0438\u044F \u0438 \u0423\u0437\u043E\u0440"
+        ),
+        React.createElement(
+          "p",
+          { className: "dp-section-desc", style: { marginTop: 6 } },
+          "\u0414\u0432\u0435 \u0438\u0433\u0440\u044B \u043C\u0438\u0440\u0430 \u041A\u0430\u0441\u0442\u0430\u043B\u0438\u0438. ",
+          React.createElement("strong", { style: { color: "var(--text-1)", fontWeight: 500 } }, "\u041F\u0430\u0440\u0442\u0438\u044F"),
+          " \u2014 \u0434\u043B\u0438\u043D\u043D\u0430\u044F, \u0440\u0430\u0437\u043C\u044B\u0448\u043B\u0435\u043D\u0438\u0435. ",
+          React.createElement("strong", { style: { color: "var(--text-1)", fontWeight: 500 } }, "\u0423\u0437\u043E\u0440"),
+          " \u2014 \u043A\u043E\u0440\u043E\u0442\u043A\u0430\u044F, \u0441\u0445\u0432\u0430\u0442\u044B\u0432\u0430\u043D\u0438\u0435."
+        )
+      ),
+      React.createElement(
+        "div",
+        { className: "dp-games-grid" },
+        React.createElement(
+          "button",
+          { className: "dp-game-card dp-game-primary", onClick: onPartiya },
+          React.createElement("div", { className: "dp-game-eyebrow" }, "\u041F\u0430\u0440\u0442\u0438\u044F \xB7 \u22485 \u043C\u0438\u043D\u0443\u0442"),
+          React.createElement("div", { className: "dp-game-title" }, "\u041F\u0430\u0440\u0442\u0438\u044F"),
+          React.createElement("div", { className: "dp-game-sub" }, "\u0428\u0435\u0441\u0442\u044C \u0442\u0435\u043C, \u0432\u043E\u0441\u0435\u043C\u043D\u0430\u0434\u0446\u0430\u0442\u044C \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432. \u0421\u043E\u043F\u0435\u0440\u043D\u0438\u043A \u2014 \u0422\u0435\u043D\u044C \u0442\u0440\u0451\u0445 \u043B\u0438\u043A\u043E\u0432 \u0438\u043B\u0438 \u0436\u0438\u0432\u043E\u0439 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A."),
+          React.createElement(
+            "div",
+            { className: "dp-game-meta" },
+            React.createElement("span", null, "\u0441 \u0422\u0435\u043D\u044C\u044E"),
+            React.createElement("span", null, "\xB7"),
+            React.createElement("span", { className: "dp-game-meta-pvp" }, "\u0432\u0434\u0432\u043E\u0451\u043C \u2726")
           )
         ),
         React.createElement(
-          "div",
-          { className: "dp-hero-progress" },
-          React.createElement("div", { className: "dp-hero-progress-fill", style: { width: pct + "%" } })
-        ),
-        React.createElement(
-          "div",
-          { className: "dp-hero-progress-meta" },
-          React.createElement("span", null, stupen.name, " ", toRoman(stupen.subLevel)),
-          React.createElement("span", null, function() {
-            if (stupen.to === Infinity) return "\u0432\u044B\u0441\u0448\u0430\u044F \u0441\u0442\u0443\u043F\u0435\u043D\u044C";
-            const curIdx = STUPENI.findIndex((x) => x.name === stupen.name);
-            const next = STUPENI[curIdx + 1];
-            return next ? "\u0434\u043E " + next.name + " \xB7 " + toNext + " \u0431\u0443\u0441\u0438\u043D" : "+" + toNext + " \u0431\u0443\u0441\u0438\u043D";
-          }())
-        ),
-        isGuest && React.createElement(
           "button",
-          {
-            className: "dp-hero-upsell",
-            onClick: onLoginClick
-          },
-          React.createElement("span", null, "\u0412\u043E\u0439\u0434\u0438 \u0447\u0435\u0440\u0435\u0437 Telegram, \u0447\u0442\u043E\u0431\u044B \u043F\u043E\u043F\u0430\u0441\u0442\u044C \u0432 \u0410\u0440\u0445\u0438\u0432"),
-          React.createElement("span", null, "\u2192")
+          { className: "dp-game-card", onClick: onUzor },
+          React.createElement("div", { className: "dp-game-eyebrow" }, "\u0423\u0437\u043E\u0440 \xB7 \u224890 \u0441\u0435\u043A\u0443\u043D\u0434"),
+          React.createElement("div", { className: "dp-game-title" }, "\u0423\u0437\u043E\u0440"),
+          React.createElement("div", { className: "dp-game-sub" }, "\u0420\u0430\u0441\u0441\u0442\u0430\u0432\u0438\u0442\u044C \u0434\u0432\u0435\u043D\u0430\u0434\u0446\u0430\u0442\u044C \u044D\u043B\u0435\u043C\u0435\u043D\u0442\u043E\u0432 \u043F\u043E \u043F\u043E\u043B\u043E\u0447\u043A\u0430\u043C \u042F\u0441\u043D\u044B \u0431\u044B\u0441\u0442\u0440\u0435\u0435 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u0430. \u0422\u043E\u043B\u044C\u043A\u043E \u0436\u0438\u0432\u043E\u0439 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A."),
+          React.createElement(
+            "div",
+            { className: "dp-game-meta" },
+            React.createElement("span", { className: "dp-game-meta-pvp" }, "\u0442\u043E\u043B\u044C\u043A\u043E \u0432\u0434\u0432\u043E\u0451\u043C \u2726")
+          )
         )
       )
     );
   }
-  function DPQuestsRow({ onPlay }) {
+  function DPQuestsRow({ onEtude }) {
     var _a, _b, _c, _d;
     const Daily = _g("YasnaDailyChallenge");
     const today = (_a = Daily == null ? void 0 : Daily.today) == null ? void 0 : _a.call(Daily);
@@ -6620,32 +6724,16 @@ window.YasnaCore = {
       {
         id: "etude",
         tag: "\u042D\u0442\u044E\u0434",
-        title: "\u041E\u0434\u0438\u043D \u0448\u0430\u043D\u0441\n\u0432 \u0434\u0435\u043D\u044C",
-        foot: todayPlayed ? "\u0421\u044B\u0433\u0440\u0430\u043D\u043E: " + todayPlayed.score : "+30 \u0431\u0443\u0441\u0438\u043D",
+        title: "\u041E\u0434\u0438\u043D \u0448\u0430\u043D\u0441 \u0432 \u0434\u0435\u043D\u044C",
+        foot: todayPlayed ? "\u0421\u044B\u0433\u0440\u0430\u043D\u043E: " + todayPlayed.score + " \u2726" : "+30 \u2726 \xB7 \u043F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u044C \u043D\u0435\u043B\u044C\u0437\u044F",
         footMute: !!todayPlayed,
         ready: true
       },
       {
         id: "gimn",
         tag: "\u0413\u0438\u043C\u043D",
-        title: "\u0422\u0435\u043C\u0430\n" + ((todayTheme == null ? void 0 : todayTheme.name) || "\u0434\u043D\u044F"),
-        foot: "\u0441\u043A\u043E\u0440\u043E",
-        footMute: true,
-        ready: false
-      },
-      {
-        id: "flash",
-        tag: "\u041C\u043E\u043B\u043D\u0438\u044F",
-        title: "9 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432\n\u043D\u0430 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u044C",
-        foot: "\u0441\u043A\u043E\u0440\u043E",
-        footMute: true,
-        ready: false
-      },
-      {
-        id: "guest",
-        tag: "\u0413\u043E\u0441\u0442\u044C",
-        title: "\u041F\u0430\u0440\u0442\u0438\u044F\n\u0441 \u0434\u0440\u0443\u0433\u043E\u043C",
-        foot: "\u0441\u043A\u043E\u0440\u043E",
+        title: "\u0422\u0435\u043C\u0430: " + ((todayTheme == null ? void 0 : todayTheme.name) || "\u0434\u043D\u044F"),
+        foot: "\u0433\u043E\u0442\u043E\u0432\u0438\u0442\u0441\u044F",
         footMute: true,
         ready: false
       }
@@ -6657,12 +6745,12 @@ window.YasnaCore = {
         "div",
         { className: "dp-section-h-row" },
         React.createElement("h2", { className: "dp-section-h" }, IconCalendar(), " \u0421\u0435\u0433\u043E\u0434\u043D\u044F"),
-        React.createElement("span", { className: "dp-section-h-sub" }, quests.filter((q) => q.ready).length, " \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u0438\u0437 ", quests.length)
+        React.createElement("span", { className: "dp-section-h-sub" }, quests.filter((q) => q.ready).length + " \u0433\u043E\u0442\u043E\u0432 \xB7 " + (quests.length - quests.filter((q) => q.ready).length) + " \u0432 \u043F\u043E\u0434\u0433\u043E\u0442\u043E\u0432\u043A\u0435")
       ),
       React.createElement(
         "p",
         { className: "dp-section-desc" },
-        "\u0411\u044B\u0441\u0442\u0440\u044B\u0435 \u0444\u043E\u0440\u043C\u0430\u0442\u044B, \u0447\u0442\u043E\u0431\u044B \u043F\u043E\u0434\u0434\u0435\u0440\u0436\u0430\u0442\u044C \u0440\u0438\u0442\u043C. \u041A\u0430\u0436\u0434\u043E\u0435 \u0437\u0430\u0434\u0430\u043D\u0438\u0435 \u2014 \u043A\u043E\u0440\u043E\u0447\u0435 \u043F\u043E\u043B\u043D\u043E\u0439 \u041F\u0430\u0440\u0442\u0438\u0438."
+        "\u041A\u043E\u0440\u043E\u0442\u043A\u0438\u0435 \u043F\u0440\u0430\u043A\u0442\u0438\u043A\u0438. \u041A\u0430\u0436\u0434\u0430\u044F \u2014 \u043A\u043E\u0440\u043E\u0447\u0435 \u043F\u043E\u043B\u043D\u043E\u0439 \u041F\u0430\u0440\u0442\u0438\u0438."
       ),
       React.createElement(
         "div",
@@ -6673,43 +6761,18 @@ window.YasnaCore = {
             {
               key: q.id,
               className: "dp-quest" + (q.ready ? "" : " dp-quest-locked"),
-              onClick: q.ready ? onPlay : void 0,
+              onClick: q.ready ? onEtude : void 0,
               disabled: !q.ready,
+              "aria-disabled": !q.ready,
               title: q.ready ? "" : "\u042D\u0442\u043E\u0442 \u0444\u043E\u0440\u043C\u0430\u0442 \u0441\u043A\u043E\u0440\u043E \u043F\u043E\u044F\u0432\u0438\u0442\u0441\u044F"
             },
             React.createElement("div", { className: "dp-quest-tag" }, q.tag),
-            React.createElement("div", { className: "dp-quest-title" }, q.title.split("\n").map(
-              (l, i) => React.createElement("span", { key: i }, l, i === 0 && q.title.includes("\n") ? React.createElement("br", { key: "br" + i }) : null)
-            )),
+            React.createElement("div", { className: "dp-quest-title" }, q.title),
             React.createElement("div", {
               className: "dp-quest-foot" + (q.footMute ? " dp-quest-foot-mute" : "")
             }, q.foot)
           )
         )
-      )
-    );
-  }
-  function DPMainCTA({ onPlay }) {
-    return React.createElement(
-      "section",
-      { className: "dp-cta-block" },
-      React.createElement(
-        "div",
-        null,
-        React.createElement("div", { className: "dp-cta-text-eyebrow" }, "\u0413\u043B\u0430\u0432\u043D\u043E\u0435 \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435"),
-        React.createElement("div", { className: "dp-cta-title" }, "\u041D\u043E\u0432\u0430\u044F \u041F\u0430\u0440\u0442\u0438\u044F"),
-        React.createElement(
-          "div",
-          { className: "dp-cta-sub" },
-          "6 \u0442\u0435\u043C \xB7 18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \xB7 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A ",
-          Term("\u0422\u0435\u043D\u044C", "\u0422\u0435\u043D\u044C \u2014 \u0431\u043E\u0442-\u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A. \u041E\u0442\u0432\u0435\u0447\u0430\u0435\u0442 \u0441 \u0437\u0430\u0434\u0430\u043D\u043D\u043E\u0439 \u0442\u043E\u0447\u043D\u043E\u0441\u0442\u044C\u044E (\u041B\u0451\u0433\u043A\u0430\u044F 55%, \u0421\u0440\u0435\u0434\u043D\u044F\u044F 75%, \u0421\u0438\u043B\u044C\u043D\u0430\u044F 92%) \u0438 \u0440\u0435\u0430\u043B\u044C\u043D\u043E\u0439 \u0437\u0430\u0434\u0435\u0440\u0436\u043A\u043E\u0439.")
-        )
-      ),
-      React.createElement(
-        "button",
-        { className: "dp-btn dp-btn-cta", onClick: onPlay },
-        "\u041D\u0430\u0447\u0430\u0442\u044C ",
-        React.createElement("span", { style: { marginLeft: 4 } }, "\u2192")
       )
     );
   }
@@ -6721,9 +6784,11 @@ window.YasnaCore = {
     const data = ((_b = Storage == null ? void 0 : Storage.getOverallStats) == null ? void 0 : _b.call(Storage)) || {};
     const masteryByTheme = data.masteryByTheme || {};
     const opened = themes.filter((t) => (masteryByTheme[t.id] || 0) > 0).length;
+    const sortedByMastery = themes.map((t) => ({ ...t, pct: masteryByTheme[t.id] || 0 })).sort((a, b) => b.pct - a.pct);
+    const currentTheme = sortedByMastery.find((t) => t.pct > 0 && t.pct < 100) || sortedByMastery[0];
     return React.createElement(
       "section",
-      { className: "dp-section" },
+      { className: "dp-section", role: "region", "aria-label": "\u041F\u0430\u0440\u0442\u0438\u0442\u0443\u0440\u0430 \u2014 \u043A\u0430\u0440\u0442\u0430 \u0442\u0435\u043C" },
       React.createElement(
         "div",
         { className: "dp-section-h-row" },
@@ -6733,7 +6798,7 @@ window.YasnaCore = {
       React.createElement(
         "p",
         { className: "dp-section-desc" },
-        "9 \u0442\u0435\u043C \u043C\u0438\u0440\u0430 \xAB\u0421\u0443\u0442\u043A\u0438\xBB. \u041F\u0440\u043E\u0446\u0435\u043D\u0442 \u2014 \u0442\u0432\u043E\u0451 \u043E\u0441\u0432\u043E\u0435\u043D\u0438\u0435. \u0422\u0435\u043C\u044B \u043E\u0442\u043A\u0440\u044B\u0432\u0430\u044E\u0442\u0441\u044F \u043F\u043E \u043C\u0435\u0440\u0435 \u0442\u043E\u0433\u043E, \u043A\u0430\u043A \u043E\u043D\u0438 \u0432\u044B\u043F\u0430\u0434\u0430\u044E\u0442 \u0432 \u041F\u0430\u0440\u0442\u0438\u044F\u0445."
+        "\u0414\u0435\u0432\u044F\u0442\u044C \u0442\u0435\u043C \u043C\u0438\u0440\u0430 \xAB\u0421\u0443\u0442\u043A\u0438\xBB. \u0422\u0435\u043C\u044B \u043E\u0442\u043A\u0440\u044B\u0432\u0430\u044E\u0442\u0441\u044F \u043F\u043E \u043C\u0435\u0440\u0435 \u0442\u043E\u0433\u043E, \u043A\u0430\u043A \u043E\u043D\u0438 \u0432\u044B\u043F\u0430\u0434\u0430\u044E\u0442 \u0432 \u041F\u0430\u0440\u0442\u0438\u0438."
       ),
       React.createElement(
         "div",
@@ -6741,33 +6806,35 @@ window.YasnaCore = {
         themes.map((t) => {
           const pct = masteryByTheme[t.id] || 0;
           const isLocked = pct === 0;
-          const fillCls = pct >= 60 ? "" : pct >= 25 ? " dp-theme-bar-fill-mid" : " dp-theme-bar-fill-low";
+          const isCurrent = currentTheme && currentTheme.id === t.id && pct > 0;
           return React.createElement(
             "div",
             {
               key: t.id,
-              className: "dp-theme" + (isLocked ? " dp-theme-locked" : "")
+              className: "dp-theme" + (isLocked ? " dp-theme-locked" : "") + (isCurrent ? " dp-theme-current" : "")
             },
-            React.createElement("div", { className: "dp-theme-name" }, t.name),
-            isLocked ? React.createElement("div", { style: { fontSize: 11, color: "var(--text-3)" } }, "\u043D\u0435 \u043E\u0442\u043A\u0440\u044B\u0442\u043E") : React.createElement(
+            React.createElement(
               "div",
-              { className: "dp-theme-bar-row" },
-              React.createElement(
-                "div",
-                { className: "dp-theme-bar" },
-                React.createElement("div", {
-                  className: "dp-theme-bar-fill" + fillCls,
-                  style: { width: pct + "%" }
-                })
-              ),
-              React.createElement("span", { className: "dp-theme-pct" }, pct + "%")
+              { className: "dp-theme-name" },
+              React.createElement("span", null, t.name),
+              isCurrent ? React.createElement("span", { className: "dp-theme-current-badge" }, "\u0441\u0435\u0439\u0447\u0430\u0441") : isLocked && React.createElement("span", { className: "dp-theme-locked-icon" }, "\u{1F512}")
+            ),
+            !isLocked && React.createElement(
+              "div",
+              { className: "dp-theme-bar" },
+              React.createElement("div", { className: "dp-theme-bar-fill", style: { width: pct + "%" } })
+            ),
+            React.createElement(
+              "div",
+              { className: "dp-theme-meta" },
+              React.createElement("span", null, isLocked ? "\u043D\u0435 \u043E\u0442\u043A\u0440\u044B\u0442\u043E" : pct + "%")
             )
           );
         })
       )
     );
   }
-  function DPArchive({ user }) {
+  function DPHronika({ user }) {
     var _a, _b, _c;
     const [items, setItems] = useState(null);
     useEffect(() => {
@@ -6784,20 +6851,20 @@ window.YasnaCore = {
     const myRank = myInTop ? items.findIndex((r) => r.deviceId === myDeviceId) + 1 : null;
     return React.createElement(
       "div",
-      { className: "dp-card", id: "archive" },
+      { className: "dp-card", id: "hronika" },
       React.createElement(
         "div",
         { className: "dp-card-h" },
         React.createElement(
           "h3",
-          { style: { display: "flex", alignItems: "center", gap: 6 } },
-          IconList(),
+          null,
+          IconScroll(),
           " ",
-          Term("\u0422\u0443\u0440\u043D\u0438\u0440\u043D\u0430\u044F \u0442\u0430\u0431\u043B\u0438\u0446\u0430", "\u0422\u0443\u0440\u043D\u0438\u0440\u043D\u0430\u044F \u0442\u0430\u0431\u043B\u0438\u0446\u0430 \u2014 \u0442\u043E\u043F \u0438\u0433\u0440\u043E\u043A\u043E\u0432 \u043D\u0435\u0434\u0435\u043B\u0438 \u043F\u043E \u0441\u0443\u043C\u043C\u0435 \u0431\u0443\u0441\u0438\u043D. \u041E\u0431\u043D\u043E\u0432\u043B\u044F\u0435\u0442\u0441\u044F \u0432 \u0441\u0443\u0431\u0431\u043E\u0442\u0443 23:59.")
+          Term("\u0425\u0440\u043E\u043D\u0438\u043A\u0430 \u043D\u0435\u0434\u0435\u043B\u0438", "\u0425\u0440\u043E\u043D\u0438\u043A\u0430 \u2014 \u043B\u0435\u0442\u043E\u043F\u0438\u0441\u044C \u041C\u0430\u0433\u0438\u0441\u0442\u0440\u043E\u0432 \u043D\u0435\u0434\u0435\u043B\u0438 \u043F\u043E \u0431\u0443\u0441\u0438\u043D\u0430\u043C. \u041E\u0431\u043D\u0443\u043B\u044F\u0435\u0442\u0441\u044F \u0432 \u0441\u0443\u0431\u0431\u043E\u0442\u0443 23:59.")
         ),
-        React.createElement("span", { className: "dp-card-meta" }, "\u041D\u0435\u0434\u0435\u043B\u044F")
+        React.createElement("span", { className: "dp-card-meta" }, "\u0421\u0431 23:59")
       ),
-      items === null ? React.createElement("div", { className: "dp-lb-empty" }, "\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430\u2026") : items.length === 0 ? React.createElement("div", { className: "dp-lb-empty" }, "\u041F\u043E\u043A\u0430 \u043F\u0443\u0441\u0442\u043E. \u0421\u044B\u0433\u0440\u0430\u0439 \u041F\u0430\u0440\u0442\u0438\u044E \u2014 \u043F\u043E\u043F\u0430\u0434\u0438 \u0432 \u0442\u0430\u0431\u043B\u0438\u0446\u0443.") : React.createElement(
+      items === null ? React.createElement("div", { className: "dp-card-empty" }, "\u041A\u0430\u0441\u0442\u0430\u043B\u0438\u044F \u043E\u0442\u043A\u0440\u044B\u0432\u0430\u0435\u0442 \u0432\u0440\u0430\u0442\u0430\u2026") : items.length === 0 ? React.createElement("div", { className: "dp-card-empty" }, "\u0425\u0440\u043E\u043D\u0438\u043A\u0430 \u0436\u0434\u0451\u0442 \u043F\u0435\u0440\u0432\u043E\u0439 \u0437\u0430\u043F\u0438\u0441\u0438.", React.createElement("br"), "\u0421\u044B\u0433\u0440\u0430\u0439 \u041F\u0430\u0440\u0442\u0438\u044E.") : React.createElement(
         React.Fragment,
         null,
         React.createElement(
@@ -6830,7 +6897,7 @@ window.YasnaCore = {
                 React.createElement("td", { className: "dp-td-rank " + rankCls }, idx + 1),
                 React.createElement("td", { className: "dp-td-name" }, row.nickname || "\u0418\u0433\u0440\u043E\u043A"),
                 React.createElement("td", { className: "dp-td-num dp-td-games" }, row.matches || row.games || "\u2014"),
-                React.createElement("td", { className: "dp-td-num-strong" }, row.score != null ? row.score : "\u2014")
+                React.createElement("td", { className: "dp-td-num-strong" }, row.score != null ? "\u2726 " + row.score : "\u2014")
               );
             })
           )
@@ -6841,9 +6908,9 @@ window.YasnaCore = {
           React.createElement(
             "span",
             null,
-            myInTop ? "\u0422\u044B \u043D\u0430 " + myRank + "-\u0439 \u043F\u043E\u0437\u0438\u0446\u0438\u0438" : myDeviceId ? "\u0422\u044B \u043F\u043E\u043A\u0430 \u0432\u043D\u0435 \u0442\u043E\u043F-5" : "\u0421\u044B\u0433\u0440\u0430\u0439, \u0447\u0442\u043E\u0431\u044B \u043F\u043E\u043F\u0430\u0441\u0442\u044C \u0432 \u0442\u0430\u0431\u043B\u0438\u0446\u0443"
+            myInTop ? "\u0422\u044B \u043D\u0430 " + myRank + "-\u0439 \u043F\u043E\u0437\u0438\u0446\u0438\u0438" : myDeviceId ? "\u0422\u044B \u043F\u043E\u043A\u0430 \u0432\u043D\u0435 \u0442\u043E\u043F-5" : "\u0421\u044B\u0433\u0440\u0430\u0439, \u0447\u0442\u043E\u0431\u044B \u043F\u043E\u043F\u0430\u0441\u0442\u044C \u0432 \u0425\u0440\u043E\u043D\u0438\u043A\u0443"
           ),
-          React.createElement("span", null, "\u043E\u0431\u043D\u043E\u0432\u043B\u044F\u0435\u0442\u0441\u044F \u0421\u0431 23:59")
+          myDeviceId && !myInTop && React.createElement("a", { href: "#", style: { color: "var(--info)", textDecoration: "none" }, onClick: (e) => e.preventDefault() }, "\u0432\u0441\u0435 \u2192")
         )
       )
     );
@@ -6856,14 +6923,14 @@ window.YasnaCore = {
       React.createElement(
         "div",
         { className: "dp-card-h" },
-        React.createElement("h3", { style: { display: "flex", alignItems: "center", gap: 6 } }, IconStar(), " \u0417\u043D\u0430\u043A\u0438"),
+        React.createElement("h3", null, IconStar(), " \u0417\u043D\u0430\u043A\u0438 \u041C\u0430\u0433\u0438\u0441\u0442\u0440\u0430"),
         React.createElement("span", { className: "dp-card-meta" }, "0 / 0")
       ),
-      React.createElement("div", { className: "dp-znaki-foot" }, "\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430\u2026")
+      React.createElement("div", { className: "dp-card-empty" }, "\u041A\u0430\u0441\u0442\u0430\u043B\u0438\u044F \u043E\u0442\u043A\u0440\u044B\u0432\u0430\u0435\u0442 \u0432\u0440\u0430\u0442\u0430\u2026")
     );
     const all = Ach.list();
     const unlocked = Ach.getUnlocked() || [];
-    const items = all.slice(0, 6).map((a) => ({
+    const items = all.slice(0, 8).map((a) => ({
       a,
       got: unlocked.includes(a.id)
     }));
@@ -6876,30 +6943,360 @@ window.YasnaCore = {
         { className: "dp-card-h" },
         React.createElement(
           "h3",
-          { style: { display: "flex", alignItems: "center", gap: 6 } },
+          null,
           IconStar(),
           " ",
-          Term("\u0417\u043D\u0430\u043A\u0438", "\u0417\u043D\u0430\u043A\u0438 \u2014 \u0434\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F. \u041E\u0442\u043A\u0440\u044B\u0432\u0430\u044E\u0442\u0441\u044F \u0437\u0430 \u0443\u043F\u043E\u0440\u0441\u0442\u0432\u043E, \u0441\u0435\u0440\u0438\u0438 \u0438 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u044B \u041F\u0430\u0440\u0442\u0438\u0439.")
+          Term("\u0417\u043D\u0430\u043A\u0438 \u041C\u0430\u0433\u0438\u0441\u0442\u0440\u0430", "\u0417\u043D\u0430\u043A\u0438 \u2014 \u0446\u0435\u0440\u0435\u043C\u043E\u043D\u0438\u0430\u043B\u044C\u043D\u044B\u0435 \u0442\u0438\u0442\u0443\u043B\u044B. \u041E\u0442\u043A\u0440\u044B\u0432\u0430\u044E\u0442\u0441\u044F \u0437\u0430 \u0443\u043F\u043E\u0440\u0441\u0442\u0432\u043E, \u0441\u0435\u0440\u0438\u0438 \u0438 \u043F\u043E\u0431\u0435\u0434\u044B.")
         ),
         React.createElement("span", { className: "dp-card-meta" }, unlocked.length, " / ", all.length)
       ),
       React.createElement(
         "div",
-        { className: "dp-znaki-row" },
+        { className: "dp-znaki-grid" },
         items.map(
           ({ a, got }, i) => React.createElement("div", {
             key: a.id,
-            className: "dp-znak" + (got ? "" : " dp-znak-locked"),
-            title: a.title || ""
+            className: "dp-znak" + (got ? " dp-znak-on" : ""),
+            title: got ? a.title : "\u041D\u0435 \u043E\u0442\u043A\u0440\u044B\u0442\u043E",
+            "aria-label": got ? "\u0417\u043D\u0430\u043A: " + a.title : "\u0417\u043D\u0430\u043A \u043D\u0435 \u043E\u0442\u043A\u0440\u044B\u0442"
           }, got ? toRoman(i + 1) : "\xB7")
         )
       ),
       React.createElement(
         "div",
         { className: "dp-znaki-foot" },
-        lastUnlocked ? "\u041F\u043E\u0441\u043B\u0435\u0434\u043D\u0438\u0439: " + lastUnlocked.title : "\u0421\u044B\u0433\u0440\u0430\u0439 \u043F\u0435\u0440\u0432\u0443\u044E \u043F\u0430\u0440\u0442\u0438\u044E"
+        unlocked.length === 0 ? "\u0417\u043D\u0430\u043A \u0436\u0434\u0451\u0442 \u043F\u0435\u0440\u0432\u043E\u0439 \u041F\u0430\u0440\u0442\u0438\u0438." : lastUnlocked ? React.createElement(React.Fragment, null, React.createElement("strong", null, "\u041F\u043E\u0441\u043B\u0435\u0434\u043D\u0438\u0439:"), " ", lastUnlocked.title) : "\u0421\u044B\u0433\u0440\u0430\u0439 \u043F\u0435\u0440\u0432\u0443\u044E \u043F\u0430\u0440\u0442\u0438\u044E"
       )
     );
+  }
+  function DPJournal() {
+    var _a;
+    const Storage = _g("YasnaDuelStorage");
+    const matches = ((_a = Storage == null ? void 0 : Storage.getMatchHistory) == null ? void 0 : _a.call(Storage, 5)) || [];
+    function fmtWhen(date) {
+      const now = Date.now();
+      const diff = now - date;
+      const dayMs = 864e5;
+      if (diff < dayMs && new Date(now).getDate() === new Date(date).getDate()) return "\u0441\u0435\u0433\u043E\u0434\u043D\u044F";
+      if (diff < dayMs * 2) return "\u0432\u0447\u0435\u0440\u0430";
+      const daysAgo = Math.floor(diff / dayMs);
+      if (daysAgo < 7) return daysAgo + " \u0434\u043D \u043D\u0430\u0437\u0430\u0434";
+      const d = new Date(date);
+      return d.getDate() + "." + (d.getMonth() + 1).toString().padStart(2, "0");
+    }
+    function fmtMatchName(m) {
+      var _a2;
+      if (m.gameId === "turnir") {
+        const lvl = m.botLevel || "\u0422\u0435\u043D\u044C";
+        const tNames = { easy: "\u0422\u0435\u043D\u044C\u044E \u041F\u043E\u0441\u043B\u0443\u0448\u043D\u0438\u043A\u0430", medium: "\u0422\u0435\u043D\u044C\u044E \u0418\u0433\u0440\u043E\u043A\u0430", hard: "\u0422\u0435\u043D\u044C\u044E \u041C\u0430\u0433\u0438\u0441\u0442\u0440\u0430" };
+        return "\u041F\u0430\u0440\u0442\u0438\u044F \u0441 " + (tNames[lvl] || (m.opponentName || "\u0422\u0435\u043D\u044C\u044E"));
+      }
+      if ((_a2 = m.gameId) == null ? void 0 : _a2.startsWith("race-")) return "Race " + m.gameId.replace("race-", "");
+      if (m.gameId === "mirror-fill") return "\u0423\u0437\u043E\u0440";
+      return m.gameId || "\u0418\u0433\u0440\u0430";
+    }
+    return React.createElement(
+      "div",
+      { className: "dp-card", id: "zhurnal" },
+      React.createElement(
+        "div",
+        { className: "dp-card-h" },
+        React.createElement("h3", null, IconJournal(), " ", Term("\u0416\u0443\u0440\u043D\u0430\u043B", "\u0416\u0443\u0440\u043D\u0430\u043B \u2014 \u0442\u0432\u043E\u044F \u043B\u0438\u0447\u043D\u0430\u044F \u043B\u0435\u0442\u043E\u043F\u0438\u0441\u044C \u043F\u043E\u0441\u043B\u0435\u0434\u043D\u0438\u0445 \u043F\u0430\u0440\u0442\u0438\u0439.")),
+        React.createElement("span", { className: "dp-card-meta" }, matches.length > 0 ? matches.length + " \u043F\u043E\u0441\u043B\u0435\u0434\u043D\u0438\u0445" : "")
+      ),
+      matches.length === 0 ? React.createElement("div", { className: "dp-card-empty" }, "\u041F\u0430\u0440\u0442\u0438\u0439 \u0435\u0449\u0451 \u043D\u0435 \u0431\u044B\u043B\u043E.", React.createElement("br"), "\u041D\u0430\u0447\u043D\u0438 \u2014 \u0437\u0434\u0435\u0441\u044C \u043F\u043E\u044F\u0432\u0438\u0442\u0441\u044F \u043F\u0435\u0440\u0432\u0430\u044F \u0437\u0430\u043F\u0438\u0441\u044C.") : React.createElement(
+        React.Fragment,
+        null,
+        matches.map(
+          (m, i) => React.createElement(
+            "div",
+            { key: m.id || i, className: "dp-journal-row" },
+            React.createElement("span", { className: "dp-journal-when" }, fmtWhen(m.date)),
+            React.createElement("span", { className: "dp-journal-name" }, fmtMatchName(m)),
+            React.createElement("span", {
+              className: "dp-journal-result " + (m.result === "win" ? "dp-journal-win" : "dp-journal-loss")
+            }, m.result === "win" ? "+ " : "", m.score != null ? m.score + " \u2726" : "\u2014")
+          )
+        )
+      )
+    );
+  }
+  function genRoomCode() {
+    const c = "BCDFGHJKLMNPQRSTVWXZ23456789";
+    let suffix = "";
+    for (let i = 0; i < 4; i++) suffix += c[Math.floor(Math.random() * c.length)];
+    return "KASTA-" + suffix;
+  }
+  function DPLobby({ onClose, profile, onConnected }) {
+    const [mode, setMode] = useState("choose");
+    const [roomCode, setRoomCode] = useState("");
+    const [inputCode, setInputCode] = useState("");
+    const [error, setError] = useState(null);
+    const [statusText, setStatusText] = useState("\u0417\u043E\u0432\u0443 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430\u2026");
+    const transportRef = useRef(null);
+    function cleanup() {
+      var _a, _b;
+      try {
+        (_b = (_a = transportRef.current) == null ? void 0 : _a.close) == null ? void 0 : _b.call(_a);
+      } catch (_) {
+      }
+      transportRef.current = null;
+    }
+    useEffect(() => () => cleanup(), []);
+    function startHost() {
+      if (!window.Peer) {
+        setError("\u0421\u0435\u0440\u0432\u0438\u0441 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D. \u041F\u0440\u043E\u0432\u0435\u0440\u044C \u0438\u043D\u0442\u0435\u0440\u043D\u0435\u0442.");
+        return;
+      }
+      const code = genRoomCode();
+      setRoomCode(code);
+      setMode("host");
+      setStatusText("\u0416\u0434\u0443 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430\u2026");
+      try {
+        const PeerJsTransport = _g("PeerJsTransport") || window.PeerJsTransport;
+        const peerId = "kasta-" + code.toLowerCase();
+        const peer = new window.Peer(peerId, { debug: 1 });
+        peer.on("open", (id) => {
+          setStatusText("\u0416\u0434\u0443 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430\u2026");
+        });
+        peer.on("connection", (conn) => {
+          conn.on("open", () => {
+            transportRef.current = { peer, conn, role: "host", close: () => {
+              try {
+                conn.close();
+              } catch (_) {
+              }
+              ;
+              try {
+                peer.destroy();
+              } catch (_) {
+              }
+            } };
+            const transport = makeTransport(conn, "host", () => {
+            });
+            onConnected({
+              transport,
+              role: "host",
+              roomCode: code,
+              opponent: { nickname: "\u0421\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A", avatar: "\u25D0", isPvP: true }
+            });
+          });
+        });
+        peer.on("error", (err) => {
+          console.error("[lobby/host]", err);
+          setError("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u043A\u043E\u043C\u043D\u0430\u0442\u0443. " + ((err == null ? void 0 : err.type) || ""));
+          setMode("error");
+        });
+      } catch (e) {
+        setError("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u043A\u043E\u043C\u043D\u0430\u0442\u0443. " + e.message);
+        setMode("error");
+      }
+    }
+    function startGuest() {
+      const code = inputCode.trim().toUpperCase();
+      if (!/^KASTA-[A-Z0-9]{4}$/.test(code)) {
+        setError("\u041A\u043E\u0434 \u0434\u043E\u043B\u0436\u0435\u043D \u0431\u044B\u0442\u044C \u0432 \u0444\u043E\u0440\u043C\u0430\u0442\u0435 KASTA-XXXX");
+        return;
+      }
+      if (!window.Peer) {
+        setError("\u0421\u0435\u0440\u0432\u0438\u0441 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D.");
+        return;
+      }
+      setMode("waiting");
+      setStatusText("\u041F\u043E\u0434\u043A\u043B\u044E\u0447\u0430\u044E\u0441\u044C\u2026");
+      setError(null);
+      try {
+        const myPeerId = "kasta-guest-" + Math.random().toString(36).slice(2, 8);
+        const peer = new window.Peer(myPeerId, { debug: 1 });
+        const hostId = "kasta-" + code.toLowerCase();
+        peer.on("open", () => {
+          const conn = peer.connect(hostId);
+          conn.on("open", () => {
+            transportRef.current = { peer, conn, role: "guest", close: () => {
+              try {
+                conn.close();
+              } catch (_) {
+              }
+              ;
+              try {
+                peer.destroy();
+              } catch (_) {
+              }
+            } };
+            const transport = makeTransport(conn, "guest", () => {
+            });
+            onConnected({
+              transport,
+              role: "guest",
+              roomCode: code,
+              opponent: { nickname: "\u0425\u043E\u0437\u044F\u0438\u043D \u043A\u043E\u043C\u043D\u0430\u0442\u044B", avatar: "\u25D1", isPvP: true }
+            });
+          });
+          conn.on("error", () => {
+            setError("\u041A\u043E\u043C\u043D\u0430\u0442\u0430 \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u0430. \u041F\u0440\u043E\u0432\u0435\u0440\u044C \u043A\u043E\u0434 \u0438\u043B\u0438 \u043F\u043E\u043F\u0440\u043E\u0441\u0438 \u0445\u043E\u0437\u044F\u0438\u043D\u0430 \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u0437\u0430\u043D\u043E\u0432\u043E.");
+            setMode("error");
+          });
+        });
+        peer.on("error", (err) => {
+          console.error("[lobby/guest]", err);
+          setError("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0438\u0442\u044C\u0441\u044F. " + ((err == null ? void 0 : err.type) || ""));
+          setMode("error");
+        });
+      } catch (e) {
+        setError("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0438\u0442\u044C\u0441\u044F. " + e.message);
+        setMode("error");
+      }
+    }
+    function copyLink() {
+      const link = window.location.origin + window.location.pathname + "?room=" + roomCode;
+      try {
+        navigator.clipboard.writeText(link);
+        setStatusText("\u0421\u0441\u044B\u043B\u043A\u0430 \u0441\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0430 \xB7 \u0436\u0434\u0443 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430\u2026");
+        setTimeout(() => setStatusText("\u0416\u0434\u0443 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430\u2026"), 2500);
+      } catch (_) {
+      }
+    }
+    return React.createElement(
+      "div",
+      { className: "dp-lobby-overlay", onClick: (e) => {
+        if (e.target === e.currentTarget) onClose();
+      } },
+      React.createElement(
+        "div",
+        { className: "dp-lobby", role: "dialog", "aria-modal": "true", "aria-labelledby": "lobby-h" },
+        React.createElement("button", { className: "dp-lobby-x", onClick: onClose, "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C" }, "\xD7"),
+        React.createElement("div", { className: "dp-lobby-eyebrow" }, "\u2726  \u041F\u0430\u0440\u0442\u0438\u044F \u0432\u0434\u0432\u043E\u0451\u043C"),
+        React.createElement("h2", { id: "lobby-h" }, "\u041A\u0430\u0441\u0442\u0430\u043B\u0438\u044F \u0437\u043E\u0432\u0451\u0442 \u0434\u0432\u043E\u0438\u0445"),
+        mode === "choose" && React.createElement(
+          React.Fragment,
+          null,
+          React.createElement(
+            "p",
+            { className: "dp-lobby-sub" },
+            "\u0421\u043E\u0437\u0434\u0430\u0439 \u043A\u043E\u043C\u043D\u0430\u0442\u0443 \u0438 \u043F\u043E\u0434\u0435\u043B\u0438\u0441\u044C \u043A\u043E\u0434\u043E\u043C \xB7 \u0438\u043B\u0438 \u0432\u043E\u0439\u0434\u0438 \u043F\u043E \u043A\u043E\u0434\u0443 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430."
+          ),
+          React.createElement(
+            "div",
+            { className: "dp-lobby-options" },
+            React.createElement(
+              "button",
+              { className: "dp-lobby-opt", onClick: startHost },
+              React.createElement("div", { className: "dp-lobby-opt-icon" }, "\u25EF"),
+              React.createElement("div", { className: "dp-lobby-opt-title" }, "\u0421\u043E\u0437\u0434\u0430\u0442\u044C"),
+              React.createElement("div", { className: "dp-lobby-opt-sub" }, "\u041F\u043E\u043B\u0443\u0447\u0438\u0448\u044C \u043A\u043E\u0434. \u041F\u043E\u043A\u0430\u0436\u0438 \u0435\u0433\u043E \u0434\u0440\u0443\u0433\u0443.")
+            ),
+            React.createElement(
+              "button",
+              { className: "dp-lobby-opt", onClick: () => setMode("guest") },
+              React.createElement("div", { className: "dp-lobby-opt-icon" }, "\u25D0"),
+              React.createElement("div", { className: "dp-lobby-opt-title" }, "\u0412\u043E\u0439\u0442\u0438 \u043F\u043E \u043A\u043E\u0434\u0443"),
+              React.createElement("div", { className: "dp-lobby-opt-sub" }, "\u0412\u0432\u0435\u0434\u0438 \u043A\u043E\u0434, \u0447\u0442\u043E \u043F\u0440\u0438\u0441\u043B\u0430\u043B \u0434\u0440\u0443\u0433.")
+            )
+          ),
+          error && React.createElement("div", { className: "dp-lobby-error" }, error)
+        ),
+        mode === "host" && React.createElement(
+          React.Fragment,
+          null,
+          React.createElement(
+            "div",
+            { className: "dp-lobby-code-block" },
+            React.createElement("div", { className: "dp-lobby-code-label" }, "\u041A\u043E\u0434 \u043A\u043E\u043C\u043D\u0430\u0442\u044B"),
+            React.createElement("div", { className: "dp-lobby-code" }, roomCode),
+            React.createElement("div", { className: "dp-lobby-code-hint" }, "\u041F\u043E\u043A\u0430\u0436\u0438 \u044D\u0442\u043E\u0442 \u043A\u043E\u0434 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0443 \u0438\u043B\u0438 \u0441\u043A\u043E\u043F\u0438\u0440\u0443\u0439 \u0441\u0441\u044B\u043B\u043A\u0443"),
+            React.createElement("button", { className: "dp-lobby-code-link", onClick: copyLink }, "\u0421\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0441\u0441\u044B\u043B\u043A\u0443")
+          ),
+          React.createElement(
+            "div",
+            { className: "dp-lobby-status" },
+            React.createElement("div", { className: "dp-lobby-status-icon" }, "\u25F7"),
+            React.createElement("div", { className: "dp-lobby-status-title" }, statusText)
+          )
+        ),
+        mode === "guest" && React.createElement(
+          React.Fragment,
+          null,
+          React.createElement("p", { className: "dp-lobby-sub" }, "\u0412\u0432\u0435\u0434\u0438 \u043A\u043E\u0434 \u043E\u0442 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430"),
+          React.createElement("input", {
+            className: "dp-lobby-input",
+            placeholder: "KASTA-XXXX",
+            value: inputCode,
+            maxLength: 10,
+            autoFocus: true,
+            onChange: (e) => setInputCode(e.target.value),
+            onKeyDown: (e) => {
+              if (e.key === "Enter") startGuest();
+            }
+          }),
+          React.createElement("button", {
+            className: "dp-btn dp-btn-cta",
+            onClick: startGuest,
+            disabled: !inputCode.trim(),
+            style: { width: "100%" }
+          }, "\u0412\u043E\u0439\u0442\u0438 \u2192"),
+          error && React.createElement("div", { className: "dp-lobby-error" }, error)
+        ),
+        mode === "waiting" && React.createElement(
+          "div",
+          { className: "dp-lobby-status" },
+          React.createElement("div", { className: "dp-lobby-status-icon" }, "\u25F7"),
+          React.createElement("div", { className: "dp-lobby-status-title" }, statusText),
+          React.createElement("div", { className: "dp-lobby-status-sub" }, "\u042D\u0442\u043E \u0437\u0430\u043D\u0438\u043C\u0430\u0435\u0442 \u043D\u0435\u0441\u043A\u043E\u043B\u044C\u043A\u043E \u0441\u0435\u043A\u0443\u043D\u0434")
+        ),
+        mode === "error" && React.createElement(
+          React.Fragment,
+          null,
+          React.createElement(
+            "div",
+            { className: "dp-lobby-status" },
+            React.createElement("div", { className: "dp-lobby-status-icon", style: { color: "var(--danger)" } }, "\u25CB"),
+            React.createElement("div", { className: "dp-lobby-status-title" }, "\u041D\u0435 \u043F\u043E\u043B\u0443\u0447\u0438\u043B\u043E\u0441\u044C"),
+            React.createElement("div", { className: "dp-lobby-status-sub" }, error || "\u041F\u043E\u043F\u0440\u043E\u0431\u0443\u0439 \u0435\u0449\u0451 \u0440\u0430\u0437")
+          ),
+          React.createElement("button", {
+            className: "dp-btn",
+            onClick: () => {
+              cleanup();
+              setMode("choose");
+              setError(null);
+            },
+            style: { width: "100%" }
+          }, "\u041D\u0430\u0437\u0430\u0434")
+        )
+      )
+    );
+  }
+  function makeTransport(conn, role) {
+    const handlers = /* @__PURE__ */ new Set();
+    conn.on("data", (data) => {
+      handlers.forEach((fn) => {
+        try {
+          fn(data);
+        } catch (_) {
+        }
+      });
+    });
+    return {
+      role,
+      send(msg) {
+        try {
+          conn.send(msg);
+        } catch (_) {
+        }
+      },
+      on(fn) {
+        handlers.add(fn);
+        return () => handlers.delete(fn);
+      },
+      close() {
+        try {
+          conn.close();
+        } catch (_) {
+        }
+      },
+      startHeartbeat() {
+      }
+    };
   }
   function DPAuthModal({ onClose, onLoggedIn }) {
     const [loading, setLoading] = useState(false);
@@ -6929,12 +7326,12 @@ window.YasnaCore = {
       },
       React.createElement(
         "div",
-        { className: "dp-auth-modal" },
+        { className: "dp-auth-modal", role: "dialog", "aria-modal": "true" },
         React.createElement("button", { className: "dp-auth-x", onClick: onClose, "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C" }, "\xD7"),
-        React.createElement("div", { className: "dp-auth-eyebrow" }, "\u041A\u0430\u0441\u0442\u0430\u043B\u0438\u044F \u042F\u0441\u043D\u044B"),
+        React.createElement("div", { className: "dp-auth-eyebrow" }, "\u2726  \u0412\u043E\u0439\u0442\u0438 \u0432 \u041E\u0440\u0434\u0435\u043D"),
         React.createElement("h2", null, "\u0412\u043E\u0439\u0442\u0438"),
         React.createElement("p", null, "\u0427\u0435\u0440\u0435\u0437 Telegram. \u0411\u0435\u0437 \u043F\u0430\u0440\u043E\u043B\u0435\u0439. \u0422\u043E\u043B\u044C\u043A\u043E \u0438\u043C\u044F \u0438 \u0430\u0432\u0430\u0442\u0430\u0440."),
-        !baseUrl ? React.createElement("div", { style: { color: "var(--danger)", fontSize: 13 } }, "\u0410\u0440\u0445\u0438\u0432 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D") : !botUsername ? React.createElement("div", { style: { color: "var(--danger)", fontSize: 13 } }, "\u0411\u043E\u0442 \u043D\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043D") : React.createElement("div", {
+        !baseUrl ? React.createElement("div", { style: { color: "var(--danger)", fontSize: 13 } }, "\u0425\u0440\u043E\u043D\u0438\u043A\u0430 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0430") : !botUsername ? React.createElement("div", { style: { color: "var(--danger)", fontSize: 13 } }, "\u0411\u043E\u0442 \u043D\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043D") : React.createElement("div", {
           className: "dp-auth-tg-widget",
           ref: (el) => {
             if (!el || el.children.length) return;
@@ -6980,9 +7377,9 @@ window.YasnaCore = {
       },
       React.createElement(
         "div",
-        { className: "dp-auth-modal" },
+        { className: "dp-auth-modal", role: "dialog", "aria-modal": "true" },
         React.createElement("button", { className: "dp-auth-x", onClick: onCancel, "aria-label": "\u041E\u0442\u043C\u0435\u043D\u0430" }, "\xD7"),
-        React.createElement("div", { className: "dp-auth-eyebrow" }, "\u0413\u043E\u0441\u0442\u044C"),
+        React.createElement("div", { className: "dp-auth-eyebrow" }, "\u2726  \u041F\u043E\u0441\u043B\u0443\u0448\u043D\u0438\u043A"),
         React.createElement("h2", null, "\u041A\u0430\u043A \u0442\u0435\u0431\u044F \u043D\u0430\u0437\u044B\u0432\u0430\u0442\u044C?"),
         React.createElement("p", null, "\u042D\u0442\u043E \u0438\u043C\u044F \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A \u0443\u0432\u0438\u0434\u0438\u0442 \u0432 \u041F\u0430\u0440\u0442\u0438\u0438."),
         React.createElement("input", {
@@ -7008,11 +7405,11 @@ window.YasnaCore = {
           )
         ),
         React.createElement("button", {
-          className: "dp-btn dp-btn-primary",
+          className: "dp-btn dp-btn-cta",
           onClick: submit,
           disabled: !nickname.trim(),
           style: { width: "100%" }
-        }, "\u0413\u043E\u0442\u043E\u0432\u043E")
+        }, "\u0413\u043E\u0442\u043E\u0432\u043E \u2192")
       )
     );
   }
@@ -7029,7 +7426,8 @@ window.YasnaCore = {
     });
     const [authModal, setAuthModal] = useState(false);
     const [anonModal, setAnonModal] = useState(false);
-    const [turnirOpen, setTurnirOpen] = useState(false);
+    const [game, setGame] = useState(null);
+    const [lobby, setLobby] = useState(null);
     const [, setTick] = useState(0);
     const [orientHidden, setOrientHidden] = useState(() => {
       try {
@@ -7079,14 +7477,31 @@ window.YasnaCore = {
       delete window.__dpPendingPlay;
       if (pending) pending();
     };
-    const startTurnir = () => requireProfile(() => setTurnirOpen(true));
-    if (turnirOpen) {
+    const startPartiyaWithShadow = (level) => {
+      requireProfile(() => setGame({ type: "turnir", opponent: "shadow", shadowLevel: level || "medium" }));
+    };
+    const [partiyaPicker, setPartiyaPicker] = useState(false);
+    const askPartiyaMode = () => {
+      requireProfile(() => setPartiyaPicker(true));
+    };
+    const startPartiyaPvP = () => {
+      setPartiyaPicker(false);
+      setLobby("turnir");
+    };
+    const startUzorPvP = () => {
+      requireProfile(() => setLobby("uzor"));
+    };
+    const onLobbyConnected = ({ transport, role, opponent }) => {
+      setLobby(null);
+      setGame({ type: "turnir", opponent: "pvp", transport, role, opp: opponent });
+    };
+    if (game) {
       const Turnir = _g("YasnaTurnir");
       if (!Turnir) {
         return React.createElement(
           "div",
           { className: "dp-root" },
-          React.createElement("div", { style: { textAlign: "center", padding: 60, color: "var(--text-3)" } }, "\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430\u2026")
+          React.createElement("div", { style: { textAlign: "center", padding: 60, color: "var(--text-3)" } }, "\u041A\u0430\u0441\u0442\u0430\u043B\u0438\u044F \u043E\u0442\u043A\u0440\u044B\u0432\u0430\u0435\u0442 \u0432\u0440\u0430\u0442\u0430\u2026")
         );
       }
       const me = user || profile;
@@ -7101,9 +7516,14 @@ window.YasnaCore = {
         null,
         React.createElement(Turnir.TurnirGame, {
           player: playerData,
-          opponentLevel: "medium",
+          opponentLevel: game.shadowLevel || "medium",
+          opponentMode: game.opponent,
+          // 'shadow' or 'pvp'
+          transport: game.transport,
+          role: game.role,
+          oppData: game.opp,
           onClose: () => {
-            setTurnirOpen(false);
+            setGame(null);
             setTick((t) => t + 1);
           }
         })
@@ -7112,14 +7532,15 @@ window.YasnaCore = {
     return React.createElement(
       "div",
       { className: "dp-root" },
+      React.createElement("a", { href: "#main", className: "dp-skip" }, "\u041F\u0440\u043E\u043F\u0443\u0441\u0442\u0438\u0442\u044C \u043A \u0433\u043B\u0430\u0432\u043D\u043E\u043C\u0443"),
       React.createElement(DPHeader, { user, onLoginClick, onLogout }),
       isFirstTime ? React.createElement(DPWelcome, { onLoginClick, onAnonStart: () => setAnonModal(true) }) : React.createElement(
-        React.Fragment,
-        null,
-        !orientHidden && React.createElement(DPOrient, { onClose: dismissOrient }),
+        "main",
+        { id: "main" },
+        React.createElement(DPCastaliaTitle, null),
         React.createElement(DPProfileHero, { user, profile, onLoginClick }),
-        React.createElement(DPQuestsRow, { onPlay: startTurnir }),
-        React.createElement(DPMainCTA, { onPlay: startTurnir }),
+        React.createElement(DPMainGames, { onPartiya: askPartiyaMode, onUzor: startUzorPvP }),
+        React.createElement(DPQuestsRow, { onEtude: () => startPartiyaWithShadow("easy") }),
         React.createElement(DPPartitura, null),
         React.createElement(
           "section",
@@ -7127,17 +7548,34 @@ window.YasnaCore = {
           React.createElement(
             "div",
             { className: "dp-two-col" },
-            React.createElement(DPArchive, { user }),
+            React.createElement(DPHronika, { user }),
             React.createElement(DPZnaki, null)
           )
+        ),
+        React.createElement(
+          "section",
+          { className: "dp-section" },
+          React.createElement(DPJournal, null)
         )
       ),
       React.createElement(
         "footer",
         { className: "dp-footer" },
-        React.createElement("a", { href: "index.html" }, "\u0412\u0435\u0440\u043D\u0443\u0442\u044C\u0441\u044F \u043A \u042F\u0441\u043D\u0435"),
-        " \xB7 ",
-        React.createElement("a", { href: "https://github.com/Avvacumrechevoi/yasnanegotiations", target: "_blank", rel: "noopener" }, "GitHub")
+        React.createElement(
+          "div",
+          { className: "dp-footer-quote" },
+          "\xAB\u0412 \u041A\u0430\u0441\u0442\u0430\u043B\u0438\u0438 \u043D\u0435 \u0432\u044B\u0438\u0433\u0440\u044B\u0432\u0430\u044E\u0442 \u0438 \u043D\u0435 \u043F\u0440\u043E\u0438\u0433\u0440\u044B\u0432\u0430\u044E\u0442.",
+          React.createElement("br"),
+          "\u0417\u0434\u0435\u0441\u044C \u0438\u0433\u0440\u0430\u044E\u0442 \u2014 \u044D\u0442\u043E \u0438 \u0435\u0441\u0442\u044C \u0441\u043C\u044B\u0441\u043B.\xBB"
+        ),
+        React.createElement(
+          "div",
+          null,
+          React.createElement("a", { href: "index.html" }, "\u041A \u042F\u0441\u043D\u0435"),
+          " \xB7 ",
+          React.createElement("a", { href: "https://github.com/Avvacumrechevoi/yasnanegotiations", target: "_blank", rel: "noopener" }, "GitHub")
+        ),
+        React.createElement("div", { className: "dp-footer-version" }, "\u041A\u0430\u0441\u0442\u0430\u043B\u0438\u044F \u042F\u0441\u043D\u044B \xB7 v2.0 \xB7 \u043C\u0430\u044F 2026")
       ),
       authModal && React.createElement(DPAuthModal, { onClose: () => setAuthModal(false), onLoggedIn }),
       anonModal && React.createElement(DPAnonOnboard, {
@@ -7146,6 +7584,88 @@ window.YasnaCore = {
           setAnonModal(false);
           delete window.__dpPendingPlay;
         }
+      }),
+      // ─── Диалог выбора режима Партии (с Тенью / вдвоём) ───
+      partiyaPicker && React.createElement(
+        "div",
+        {
+          className: "dp-auth-overlay",
+          onClick: (e) => {
+            if (e.target === e.currentTarget) setPartiyaPicker(false);
+          }
+        },
+        React.createElement(
+          "div",
+          { className: "dp-auth-modal", role: "dialog", "aria-modal": "true" },
+          React.createElement("button", { className: "dp-auth-x", onClick: () => setPartiyaPicker(false), "aria-label": "\u041E\u0442\u043C\u0435\u043D\u0430" }, "\xD7"),
+          React.createElement("div", { className: "dp-auth-eyebrow" }, "\u2726  \u041F\u0430\u0440\u0442\u0438\u044F"),
+          React.createElement("h2", null, "\u0421 \u043A\u0435\u043C \u0438\u0433\u0440\u0430\u0435\u0448\u044C?"),
+          React.createElement("p", null, "\u0422\u0435\u043D\u044C \u2014 \u0431\u043E\u0442 \u0442\u0440\u0451\u0445 \u043B\u0438\u043A\u043E\u0432. \u0421\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A \u2014 \u0436\u0438\u0432\u043E\u0439 \u0438\u0433\u0440\u043E\u043A \u0432 \u0440\u0435\u0430\u043B\u044C\u043D\u043E\u043C \u0432\u0440\u0435\u043C\u0435\u043D\u0438."),
+          React.createElement(
+            "div",
+            { style: { display: "grid", gap: 8, marginTop: 16 } },
+            React.createElement(
+              "button",
+              {
+                className: "dp-btn",
+                onClick: () => {
+                  setPartiyaPicker(false);
+                  startPartiyaWithShadow("easy");
+                },
+                style: { padding: "14px 18px", justifyContent: "flex-start", textAlign: "left" }
+              },
+              "\u{1F305}  ",
+              React.createElement("span", { style: { fontWeight: 500, marginLeft: 4 } }, "\u0422\u0435\u043D\u044C \u041F\u043E\u0441\u043B\u0443\u0448\u043D\u0438\u043A\u0430"),
+              React.createElement("span", { style: { fontSize: 12, color: "var(--text-3)", marginLeft: "auto" } }, "\xB7 \u043B\u0435\u0433\u043A\u043E")
+            ),
+            React.createElement(
+              "button",
+              {
+                className: "dp-btn",
+                onClick: () => {
+                  setPartiyaPicker(false);
+                  startPartiyaWithShadow("medium");
+                },
+                style: { padding: "14px 18px", justifyContent: "flex-start", textAlign: "left" }
+              },
+              "\u{1F317}  ",
+              React.createElement("span", { style: { fontWeight: 500, marginLeft: 4 } }, "\u0422\u0435\u043D\u044C \u0418\u0433\u0440\u043E\u043A\u0430"),
+              React.createElement("span", { style: { fontSize: 12, color: "var(--text-3)", marginLeft: "auto" } }, "\xB7 \u0441\u0440\u0435\u0434\u043D\u0435")
+            ),
+            React.createElement(
+              "button",
+              {
+                className: "dp-btn",
+                onClick: () => {
+                  setPartiyaPicker(false);
+                  startPartiyaWithShadow("hard");
+                },
+                style: { padding: "14px 18px", justifyContent: "flex-start", textAlign: "left" }
+              },
+              "\u{1F311}  ",
+              React.createElement("span", { style: { fontWeight: 500, marginLeft: 4 } }, "\u0422\u0435\u043D\u044C \u041C\u0430\u0433\u0438\u0441\u0442\u0440\u0430"),
+              React.createElement("span", { style: { fontSize: 12, color: "var(--text-3)", marginLeft: "auto" } }, "\xB7 \u0441\u0438\u043B\u044C\u043D\u043E")
+            ),
+            React.createElement("div", { style: { borderTop: "0.5px solid var(--border-2)", marginTop: 8, paddingTop: 8 } }),
+            React.createElement(
+              "button",
+              {
+                className: "dp-btn dp-btn-primary",
+                onClick: startPartiyaPvP,
+                style: { padding: "14px 18px", justifyContent: "flex-start", textAlign: "left" }
+              },
+              "\u25D0\u25D1  ",
+              React.createElement("span", { style: { fontWeight: 500, marginLeft: 4 } }, "\u0416\u0438\u0432\u043E\u0439 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A"),
+              React.createElement("span", { style: { fontSize: 12, opacity: 0.85, marginLeft: "auto" } }, "\xB7 real-time")
+            )
+          )
+        )
+      ),
+      // ─── Lobby для PvP ───
+      lobby && React.createElement(DPLobby, {
+        onClose: () => setLobby(null),
+        profile: profile || user,
+        onConnected: onLobbyConnected
       })
     );
   }

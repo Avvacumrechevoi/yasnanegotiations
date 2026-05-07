@@ -1,19 +1,24 @@
 // ═══════════════════════════════════════════════════════════════════
-// Движок Партии (Турнир) · Игра по Ясне · v2 (тёмный fullscreen)
-// 6 Тем × 3 вопроса = 18 вопросов · Игрок vs Тень
+// Движок Партии · Касталия Ясны · v3
+// 6 Тем × 3 вопроса = 18 вопросов
+// Соперник: Тень трёх ликов (бот) или живой собеседник (PvP через transport)
 // ═══════════════════════════════════════════════════════════════════
 (function(){
   const { useState, useEffect, useRef } = React;
 
   const QUESTION_TIME = 15;
   const SHOW_FEEDBACK_MS = 1500;
-  const SHOW_VS_MS = 1400;
-  const SHOW_ROUND_INTRO_MS = 1300;
+  const SHOW_VS_MS = 2200;
+  const SHOW_ROUND_INTRO_MS = 1800;
 
+  // Три именованных лика Тени (плюс PvP — режим живого собеседника)
   const TEN_LEVELS = {
-    easy:   { name: 'Лёгкая Тень',  accuracy: 0.55, minTime: 4, maxTime: 8, level: 'easy' },
-    medium: { name: 'Тень',         accuracy: 0.75, minTime: 3, maxTime: 6, level: 'medium' },
-    hard:   { name: 'Старшая Тень', accuracy: 0.92, minTime: 1, maxTime: 3, level: 'hard' },
+    easy:   { name: 'Тень Послушника',  subtitle: 'легко',  glyph: '🌅',
+              accuracy: 0.55, minTime: 4, maxTime: 8, level: 'easy' },
+    medium: { name: 'Тень Игрока',      subtitle: 'средне', glyph: '🌗',
+              accuracy: 0.75, minTime: 3, maxTime: 6, level: 'medium' },
+    hard:   { name: 'Тень Магистра',    subtitle: 'сильно', glyph: '🌑',
+              accuracy: 0.92, minTime: 1, maxTime: 3, level: 'hard' },
   };
 
   function buseyForCorrect(timeMs){
@@ -63,28 +68,28 @@
     const themeNames = themes.map(t => t.theme.name).join(' · ');
     return React.createElement('div', { className: 'tn-fullscreen' },
       React.createElement('div', { className: 'tn-container' },
-        React.createElement(TnTopBar, { eyebrow: 'Партия начинается' }),
+        React.createElement(TnTopBar, { eyebrow: '✦ Партия начинается' }),
         React.createElement('div', { className: 'tn-round-intro' },
-          React.createElement('div', { className: 'tn-round-eyebrow' }, 'Соперники'),
-          React.createElement('div', { className: 'tn-versus', style: { justifyContent: 'center', gap: 32, margin: '8px 0 32px' } },
+          React.createElement('div', { className: 'tn-round-eyebrow' }, 'Касталия зовёт двоих'),
+          React.createElement('div', { className: 'tn-versus', style: { justifyContent: 'center', gap: 48, margin: '16px 0 40px' } },
             React.createElement('div', { className: 'tn-player' },
               React.createElement('div', { className: 'tn-avatar' }, renderTnAvatar(player.avatar, player.nickname)),
               React.createElement('div', null,
                 React.createElement('div', { className: 'tn-player-name' }, player.nickname),
-                React.createElement('div', { className: 'tn-player-stats' }, player.rank || 'Игрок')
+                React.createElement('div', { className: 'tn-player-stats' }, player.rank || 'Послушник')
               )
             ),
-            React.createElement('span', { className: 'tn-vs' }, 'vs'),
+            React.createElement('span', { className: 'tn-vs', style: { fontFamily: 'ui-serif, Georgia, serif', fontStyle: 'italic', fontSize: 22, opacity: 0.6 } }, 'против'),
             React.createElement('div', { className: 'tn-player tn-player-right' },
-              React.createElement('div', { className: 'tn-avatar' }, '◐'),
+              React.createElement('div', { className: 'tn-avatar' }, opponent.glyph || '◐'),
               React.createElement('div', null,
                 React.createElement('div', { className: 'tn-player-name' }, opponent.name),
                 React.createElement('div', { className: 'tn-player-stats' }, opponent.subtitle || '')
               )
             )
           ),
-          React.createElement('div', { className: 'tn-round-eyebrow', style: { marginTop: 24 } }, '6 тем · 18 вопросов'),
-          React.createElement('div', { style: { fontSize: 13, color: '#8a8470', maxWidth: 480, margin: '4px auto 0', lineHeight: 1.6 } }, themeNames)
+          React.createElement('div', { className: 'tn-round-eyebrow', style: { marginTop: 32, fontSize: 11, letterSpacing: '0.16em' } }, '☷ Шесть тем · восемнадцать вопросов'),
+          React.createElement('div', { style: { fontSize: 13, color: '#8a8470', maxWidth: 520, margin: '6px auto 0', lineHeight: 1.7, fontStyle: 'italic' } }, themeNames)
         )
       )
     );
@@ -98,37 +103,38 @@
     }, []);
     return React.createElement('div', { className: 'tn-fullscreen' },
       React.createElement('div', { className: 'tn-container' },
-        React.createElement(TnTopBar, { eyebrow: 'Партия · Раунд ' + roundNum + ' / 6' }),
+        React.createElement(TnTopBar, { eyebrow: '✦ Раунд ' + roundNum + ' из 6' }),
         React.createElement('div', { className: 'tn-round-intro' },
-          React.createElement('div', { className: 'tn-round-eyebrow' }, 'Раунд ', roundNum, ' из 6'),
-          React.createElement('h1', { className: 'tn-round-title' }, theme.name),
-          React.createElement('div', { className: 'tn-round-sub' }, '3 вопроса по теме')
+          React.createElement('div', { className: 'tn-round-eyebrow', style: { letterSpacing: '0.16em', opacity: 0.7 } }, 'Гимн ', roundNum, '-й'),
+          React.createElement('h1', { className: 'tn-round-title', style: { fontFamily: 'ui-serif, Georgia, serif', fontWeight: 500, letterSpacing: '-0.01em' } }, theme.name),
+          React.createElement('div', { className: 'tn-round-sub', style: { fontStyle: 'italic', opacity: 0.7 } }, 'три вопроса по теме')
         )
       )
     );
   }
 
   // ─── Question ────────────────────────────────────────────────────
-  function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, scoreP, scoreO, player, opponent, onAnswer }){
+  function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswerRef }){
     const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
     const [chosen, setChosen] = useState(null);
     const startedAt = useRef(Date.now());
     const oppFinishedRef = useRef(null);
     const answeredRef = useRef(false); // защита от двойного onAnswer (race timer vs click)
 
-    // Сброс состояния при смене вопроса (родитель не передаёт key, поэтому
-    // компонент переиспользуется между q1 → q2 → q3 одного раунда).
-    // Без этого после первого клика остаётся chosen!=null и пользователь
-    // не может ответить на следующий вопрос.
     useEffect(() => {
       setTimeLeft(QUESTION_TIME);
       setChosen(null);
       startedAt.current = Date.now();
       oppFinishedRef.current = null;
       answeredRef.current = false;
+      if(oppAnswerRef) oppAnswerRef.current = null;
     }, [q?.id]);
 
+    // Бот-Тень: симулируем ответ соперника через таймер
+    // PvP: ждём реальный ответ соперника через transport
     useEffect(() => {
+      if(isPvP) return; // ничего не делаем — ответ соперника прилетит через transport
+
       const t = TEN_LEVELS[opponent.level] || TEN_LEVELS.medium;
       const oppTime = (t.minTime + Math.random() * (t.maxTime - t.minTime)) * 1000;
       const oppCorrect = Math.random() < t.accuracy;
@@ -136,7 +142,7 @@
         oppFinishedRef.current = { correct: oppCorrect, time: oppTime };
       }, oppTime);
       return () => clearTimeout(tm);
-    }, [q?.id, opponent.level]);
+    }, [q?.id, opponent.level, isPvP]);
 
     useEffect(() => {
       if(chosen != null) return;
@@ -174,11 +180,25 @@
       setChosen(idx);
       const playerTime = Date.now() - startedAt.current;
       const playerCorrect = idx === q.correct;
-      setTimeout(() => safeAnswer({
-        playerCorrect, playerTime,
-        oppCorrect: oppFinishedRef.current?.correct ?? false,
-        oppTime: oppFinishedRef.current?.time ?? playerTime + 500,
-      }), SHOW_FEEDBACK_MS);
+
+      // PvP: отправляем свой ответ сопернику
+      if(isPvP && transport){
+        try {
+          transport.send({ t: 'opp-answer', correct: playerCorrect, time: playerTime, qId: q.id });
+        } catch(_){}
+      }
+
+      setTimeout(() => {
+        // Для PvP: используем реальный ответ соперника (если пришёл) или fallback
+        const oppData = isPvP
+          ? (oppAnswerRef?.current || { correct: false, time: QUESTION_TIME * 1000 })
+          : (oppFinishedRef.current || { correct: false, time: playerTime + 500 });
+        safeAnswer({
+          playerCorrect, playerTime,
+          oppCorrect: oppData.correct,
+          oppTime: oppData.time,
+        });
+      }, SHOW_FEEDBACK_MS);
     }
 
     const showFeedback = chosen != null;
@@ -240,25 +260,37 @@
   }
 
   // ─── Final Result ────────────────────────────────────────────────
-  function FinalResult({ partiyaLog, scoreP, scoreO, totalBusey, player, opponent, onClose, onAgain }){
+  function FinalResult({ partiyaLog, scoreP, scoreO, totalBusey, player, opponent, isPvP, oppDisconnected, onClose, onAgain }){
     const won = scoreP > scoreO;
     const draw = scoreP === scoreO;
     const correctCount = partiyaLog.filter(r => r.playerCorrect).length;
     const totalQ = partiyaLog.length;
-    const headline = won ? 'Партия пройдена' : draw ? 'Ничья' : 'Близкая партия';
-    const sub = won
-      ? 'Ты опередил Тень. Бусины зачтены в Архив.'
-      : draw
-        ? 'Равная партия. Попробуй ещё раз.'
-        : 'Тень оказалась быстрее. Сыграй ещё.';
+
+    // Церемониальный copy в духе Гессе
+    let headline, sub;
+    if(oppDisconnected){
+      headline = 'Собеседник вышел';
+      sub = 'Партия не завершена. Бусины не учтены.';
+    } else if(won){
+      headline = 'Партия твоя.';
+      sub = isPvP
+        ? 'Ты опередил собеседника. Бусины зачтены в Хронику. Магистр Игры запомнит этот узор.'
+        : 'Ты опередил Тень. Бусины зачтены в Хронику.';
+    } else if(draw){
+      headline = 'Равная Партия.';
+      sub = 'Узор сложился симметрично. Сыграй ещё.';
+    } else {
+      headline = isPvP ? 'Собеседник обогнал.' : 'Тень обогнала.';
+      sub = 'В игре нет проигравших — есть те, кто знает чуть меньше. Знаки помнят твой путь. Завтра — новая Партия.';
+    }
 
     return React.createElement('div', { className: 'tn-fullscreen' },
       React.createElement('div', { className: 'tn-container' },
-        React.createElement(TnTopBar, { eyebrow: 'Партия завершена' }),
+        React.createElement(TnTopBar, { eyebrow: '✦ Партия завершена' }),
         React.createElement('div', { className: 'tn-final' },
-          React.createElement('div', { className: 'tn-final-eyebrow' }, 'Результат'),
-          React.createElement('h1', { className: 'tn-final-headline' }, headline),
-          React.createElement('div', { className: 'tn-final-sub' }, sub),
+          React.createElement('div', { className: 'tn-final-eyebrow', style: { letterSpacing: '0.16em' } }, won ? 'Победа' : draw ? 'Ничья' : 'Поражение'),
+          React.createElement('h1', { className: 'tn-final-headline', style: { fontFamily: 'ui-serif, Georgia, serif', fontWeight: 500, fontSize: 38, letterSpacing: '-0.01em' } }, headline),
+          React.createElement('div', { className: 'tn-final-sub', style: { maxWidth: 540, margin: '0 auto', lineHeight: 1.7, fontStyle: 'italic', opacity: 0.85 } }, sub),
           React.createElement('div', { className: 'tn-final-score-row' },
             React.createElement('div', { className: 'tn-final-score' },
               React.createElement('div', { className: 'tn-final-score-num' }, scoreP),
@@ -266,11 +298,11 @@
             ),
             React.createElement('div', { className: 'tn-final-score' },
               React.createElement('div', { className: 'tn-final-score-num' }, scoreO),
-              React.createElement('div', { className: 'tn-final-score-label' }, 'Тень')
+              React.createElement('div', { className: 'tn-final-score-label' }, opponent.name || 'Тень')
             ),
             React.createElement('div', { className: 'tn-final-score' },
               React.createElement('div', { className: 'tn-final-score-num' }, '+' + totalBusey),
-              React.createElement('div', { className: 'tn-final-score-label' }, 'бусин')
+              React.createElement('div', { className: 'tn-final-score-label' }, 'бусин ✦')
             ),
             React.createElement('div', { className: 'tn-final-score' },
               React.createElement('div', { className: 'tn-final-score-num' }, correctCount + ' / ' + totalQ),
@@ -279,7 +311,7 @@
           ),
           React.createElement('div', { className: 'tn-final-actions' },
             React.createElement('button', { className: 'tn-final-btn tn-final-btn-primary', onClick: onAgain }, 'Новая Партия'),
-            React.createElement('button', { className: 'tn-final-btn', onClick: onClose }, 'В Партитуру')
+            React.createElement('button', { className: 'tn-final-btn', onClick: onClose }, 'В Касталию')
           )
         )
       )
@@ -287,18 +319,79 @@
   }
 
   // ─── Main Engine ─────────────────────────────────────────────────
-  function TurnirGame({ player, opponentLevel, onClose }){
+  function TurnirGame({ player, opponentLevel, onClose, opponentMode, transport, role, oppData }){
     React.useEffect(() => { window.__tnOnClose = onClose; return () => { delete window.__tnOnClose; }; }, [onClose]);
 
-    const opp = TEN_LEVELS[opponentLevel || 'medium'];
+    const isPvP = opponentMode === 'pvp' && transport;
+
+    // Для PvP: opponent — это живой игрок; для shadow — Тень
+    const opp = isPvP
+      ? {
+          name: oppData?.nickname || 'Собеседник',
+          subtitle: 'real-time',
+          glyph: oppData?.avatar || '◐',
+          level: 'pvp',
+        }
+      : TEN_LEVELS[opponentLevel || 'medium'];
+
     const [phase, setPhase] = useState('vs');
-    const [partiya] = useState(() => window.YasnaTrivia.generatePartiya(Date.now()));
+
+    // Для PvP: хост генерирует Партию, шлёт её гостю; гость ждёт.
+    // Для shadow: каждый раз новый seed.
+    const [partiya, setPartiya] = useState(() => {
+      if(!isPvP || role === 'host') {
+        return window.YasnaTrivia.generatePartiya(Date.now());
+      }
+      return null; // гость ждёт от хоста
+    });
+
     const [roundIdx, setRoundIdx] = useState(0);
     const [qIdx, setQIdx] = useState(0);
     const [scoreP, setScoreP] = useState(0);
     const [scoreO, setScoreO] = useState(0);
     const [totalBusey, setTotalBusey] = useState(0);
     const [partiyaLog, setPartiyaLog] = useState([]);
+    const [oppDisconnected, setOppDisconnected] = useState(false);
+
+    // ─── PvP: Sync Партии и обмен ответами ───
+    const oppAnswerRef = useRef(null);
+    useEffect(() => {
+      if(!isPvP || !transport) return;
+
+      // Хост отправляет Партию гостю как только подключение готово
+      if(role === 'host' && partiya){
+        // Отправим seed-партии: gen её на основе seed для повтора
+        const seed = Date.now();
+        const newPartiya = window.YasnaTrivia.generatePartiya(seed);
+        setPartiya(newPartiya);
+        setTimeout(() => {
+          transport.send({ t: 'partiya-init', seed, partiya: newPartiya.map(r => ({
+            theme: { id: r.theme.id, name: r.theme.name },
+            questions: r.questions.map(q => q.id),
+          })) });
+        }, 500);
+      }
+
+      const off = transport.on(msg => {
+        if(msg.t === 'partiya-init' && role === 'guest'){
+          // Восстанавливаем Партию из seed
+          const restored = msg.partiya.map(r => {
+            const theme = window.YasnaTrivia.getTheme(r.theme.id) || r.theme;
+            const allQs = window.YasnaTrivia.getQuestionsForTheme(r.theme.id);
+            const questions = r.questions.map(qid => allQs.find(q => q.id === qid)).filter(Boolean);
+            return { theme, questions };
+          });
+          setPartiya(restored);
+        }
+        if(msg.t === 'opp-answer'){
+          oppAnswerRef.current = { correct: msg.correct, time: msg.time };
+        }
+        if(msg.t === 'opp-leave'){
+          setOppDisconnected(true);
+        }
+      });
+      return off;
+    }, [isPvP, transport, role]);
 
     const currentRound = partiya[roundIdx];
     const currentQ = currentRound?.questions[qIdx];
@@ -465,7 +558,8 @@
         scoreP, scoreO,
         player,
         opponent: { name: opp.name, level: opponentLevel || 'medium' },
-        onAnswer
+        onAnswer,
+        isPvP, transport, oppAnswerRef,
       });
     }
     if(phase === 'final'){
@@ -473,6 +567,8 @@
         partiyaLog, scoreP, scoreO, totalBusey,
         player,
         opponent: { name: opp.name },
+        isPvP,
+        oppDisconnected,
         onClose, onAgain: startAgain
       });
     }
