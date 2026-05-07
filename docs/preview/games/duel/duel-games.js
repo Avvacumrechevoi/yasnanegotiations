@@ -30,7 +30,7 @@
     const TOTAL = target.length;
     const TARGET_SET = new Set(target);
 
-    return function RaceGame({ transport, role, yasnaId, matchId, isPlaying, startTime, onSubmitFinish }){
+    return function RaceGame({ transport, role, yasnaId, matchId, isPlaying, startTime, onSubmitFinish, myProfile, oppProfile }){
       const Star = window.YasnaCore && window.YasnaCore.Star;
       const Tdata = window.YasnaData && window.YasnaData.T;
       const yasna = Tdata && (Tdata.find(t => t.id === yasnaId) || Tdata.find(t => t.n === yasnaId));
@@ -89,9 +89,9 @@
       return (
         <>
           <div className="duel-status-bar">
-            <PlayerCard label="Вы" correct={myCorrect} errors={myErrors} total={TOTAL} accent="#d4a574" you/>
+            <PlayerCard label={myProfile?.avatar+" "+myProfile?.nickname || "Вы"} correct={myCorrect} errors={myErrors} total={TOTAL} accent="#d4a574" you/>
             <div className="duel-timer">{(time/1000).toFixed(1)}<span style={{fontSize:14,opacity:.6}}>s</span></div>
-            <PlayerCard label="Соперник" correct={oppCorrect} errors={oppErrors} total={TOTAL} accent="#7c3aed"/>
+            <PlayerCard label={oppProfile?.avatar+" "+oppProfile?.nickname || "Соперник"} correct={oppCorrect} errors={oppErrors} total={TOTAL} accent="#7c3aed"/>
           </div>
           <div className="duel-task">{hint}</div>
           <div className="duel-star-wrap">

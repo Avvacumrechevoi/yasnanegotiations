@@ -16,6 +16,26 @@
 (function(){
   const { useState, useEffect, useRef, useMemo } = React;
 
+  // ─── PROFILE ───────────────────────────────────────────────────────
+  // Локальный профиль гостя — никнейм + emoji-аватар. Хранится в localStorage.
+  // Первый вход → онбординг с выбором ника. Передаётся в hello/host-ack —
+  // соперник видит твоё имя в player-card во время дуэли.
+  const PROFILE_KEY = 'yasna_duel_profile';
+  const AVATAR_OPTIONS = ['🦊','🐺','🦁','🐯','🐻','🐼','🦉','🦅','🐉','🦄','⚔️','🎯'];
+  function loadProfile(){
+    try {
+      const raw = localStorage.getItem(PROFILE_KEY);
+      if(!raw) return null;
+      const p = JSON.parse(raw);
+      if(p && p.nickname) return p;
+    } catch(_){}
+    return null;
+  }
+  function saveProfile(profile){
+    try { localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); } catch(_){}
+  }
+  window.YasnaDuelProfile = { load: loadProfile, save: saveProfile, AVATAR_OPTIONS };
+
   // ─── REGISTRY ──────────────────────────────────────────────────────
   const _registry = new Map();
   window.YasnaDuels = {
@@ -228,8 +248,59 @@
 
   window.BotTransport = BotTransport;
 
+  // ─── ONBOARDING (первый вход — выбор ника + аватара) ───────────────
+  function ProfileOnboarding({ onSave }){
+    const [nickname, setNickname] = useState('');
+    const [avatar, setAvatar] = useState(AVATAR_OPTIONS[0]);
+    const submit = () => {
+      const trimmed = nickname.trim().slice(0, 20);
+      if(!trimmed) return;
+      const profile = { nickname: trimmed, avatar, createdAt: Date.now() };
+      saveProfile(profile);
+      onSave(profile);
+    };
+    return (
+      <div className="duel-lobby">
+        <div className="duel-title">
+          <span className="duel-emoji">⚔️</span>
+          <h1>Добро пожаловать!</h1>
+          <p>Выбери имя и аватар — соперник увидит их в дуэли</p>
+        </div>
+        <div className="duel-choose">
+          <input
+            placeholder="Никнейм (1-20 символов)"
+            value={nickname}
+            onChange={e => setNickname(e.target.value.slice(0, 20))}
+            maxLength={20}
+            autoFocus
+            style={{padding:'12px 14px',fontSize:16,border:'1.5px solid #d2d2d7',borderRadius:10,outline:'none',width:'100%',boxSizing:'border-box'}}
+          />
+          <div>
+            <div className="duel-label" style={{marginBottom:8}}>Аватар:</div>
+            <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
+              {AVATAR_OPTIONS.map(em => (
+                <button key={em}
+                  onClick={() => setAvatar(em)}
+                  style={{
+                    width:48, height:48, fontSize:24,
+                    border: '1.5px solid ' + (avatar === em ? '#d4a574' : '#e5e5ea'),
+                    background: avatar === em ? 'rgba(212,165,116,.15)' : '#fff',
+                    borderRadius:12, cursor:'pointer',
+                  }}>{em}</button>
+              ))}
+            </div>
+          </div>
+          <button className="duel-btn duel-btn-primary" onClick={submit} disabled={!nickname.trim()}>
+            Готово
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // ─── LOBBY ─────────────────────────────────────────────────────────
   function Lobby({ onConnected }){
+    const [profile, setProfile] = useState(() => loadProfile());
     const [step, setStep] = useState('pick-game'); // pick-game | configure | hosting | joining
     const [gameId, setGameId] = useState(null);
     const [yasnaId, setYasnaId] = useState(null);
@@ -237,6 +308,11 @@
     const [joinCode, setJoinCode] = useState('');
     const [status, setStatus] = useState('');
     const transportRef = useRef(null);
+
+    // Если профиля нет — сначала онбординг
+    if(!profile){
+      return <ProfileOnboarding onSave={setProfile}/>;
+    }
 
     // Сортировка: по сложности → по estimatedSec
     const games = window.YasnaDuels.list().slice().sort((a, b) => {
@@ -267,15 +343,17 @@
       transportRef.current = t;
       t.startHeartbeat();
       const matchId = Math.random().toString(36).slice(2, 10);
+      let opponentProfile = null;
       const off = t.on(msg => {
         if(msg.t === 'guest-hello'){
+          opponentProfile = msg.profile || null;
           // Принимаем только первого гостя (peerSessionId уже зафиксирован транспортом)
-          t.send({ t:'host-ack', matchId, gameId, yasnaId: ya });
-          setStatus('Соперник подключился!');
+          t.send({ t:'host-ack', matchId, gameId, yasnaId: ya, profile });
+          setStatus('Соперник подключился: ' + (opponentProfile ? opponentProfile.avatar + ' ' + opponentProfile.nickname : '...'));
           setTimeout(() => {
             off();
-            onConnected({ transport: t, role: 'host', game, yasnaId: ya, matchId });
-          }, 600);
+            onConnected({ transport: t, role: 'host', game, yasnaId: ya, matchId, myProfile: profile, oppProfile: opponentProfile });
+          }, 800);
         }
       });
     };
@@ -299,14 +377,14 @@
           if(timedOut) return;
           clearTimeout(timeout);
           const ackGame = window.YasnaDuels.get(msg.gameId);
-          setStatus('Подключено! Готовимся...');
+          setStatus('Подключено: ' + (msg.profile ? msg.profile.avatar + ' ' + msg.profile.nickname : 'хост') + '. Готовимся...');
           setTimeout(() => {
             off();
-            onConnected({ transport: t, role: 'guest', game: ackGame || game, yasnaId: msg.yasnaId, matchId: msg.matchId });
-          }, 600);
+            onConnected({ transport: t, role: 'guest', game: ackGame || game, yasnaId: msg.yasnaId, matchId: msg.matchId, myProfile: profile, oppProfile: msg.profile || null });
+          }, 800);
         }
       });
-      t.send({ t:'guest-hello' });
+      t.send({ t:'guest-hello', profile });
     };
 
     const startVsBot = (level) => {
@@ -316,7 +394,12 @@
       const bot = new BotTransport(game.id, level);
       transportRef.current = bot;
       const matchId = 'bot-' + Math.random().toString(36).slice(2, 10);
-      onConnected({ transport: bot, role: 'host', game, yasnaId: ya, matchId });
+      const botNames = { easy: '😊 Андрей', medium: '🙂 Катя', hard: '😈 Магистр' };
+      onConnected({
+        transport: bot, role: 'host', game, yasnaId: ya, matchId,
+        myProfile: profile,
+        oppProfile: { nickname: botNames[level] || '🤖 Бот', avatar: '🤖', isBot: true },
+      });
     };
 
     const cancel = () => {
@@ -457,7 +540,7 @@
   }
 
   // ─── RUNNER (countdown → game → result) ────────────────────────────
-  function DuelRunner({ transport, role, game, yasnaId, matchId, onPlayAgain, onClose }){
+  function DuelRunner({ transport, role, game, yasnaId, matchId, myProfile, oppProfile, onPlayAgain, onClose }){
     const [phase, setPhase] = useState('countdown'); // countdown | playing | result
     const [countdown, setCountdown] = useState(3);
     const [result, setResult] = useState(null);
@@ -613,6 +696,8 @@
               isPlaying={isPlaying}
               startTime={startRef.current}
               matchMode={matchMode}
+              myProfile={myProfile}
+              oppProfile={oppProfile}
               onSubmitFinish={submitFinish}
               onSubmitResult={submitResult}
               waitingForOpponent={!!myResultMsg && !oppResultMsg}
@@ -687,6 +772,8 @@
               game={match.game}
               yasnaId={match.yasnaId}
               matchId={match.matchId}
+              myProfile={match.myProfile}
+              oppProfile={match.oppProfile}
               onPlayAgain={handlePlayAgain}
               onClose={handleClose}
             />
