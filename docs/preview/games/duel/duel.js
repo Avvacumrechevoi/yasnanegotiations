@@ -36,6 +36,138 @@
   }
   window.YasnaDuelProfile = { load: loadProfile, save: saveProfile, AVATAR_OPTIONS };
 
+  // ─── PERSISTENCE (P3 — история, рекорды, статистика) ──────────────
+  // Локально в localStorage без сервера. Лимит 200 матчей.
+  const STORAGE_KEY = 'yasna_duel_data';
+  const MAX_MATCHES = 200;
+  const STORAGE_VERSION = 1;
+
+  function _emptyData(){
+    return { version: STORAGE_VERSION, matches: [], records: {}, streaks: {}, totals: { played:0, wins:0, losses:0 } };
+  }
+  function _loadData(){
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return _emptyData();
+      const d = JSON.parse(raw);
+      if(d.version !== STORAGE_VERSION) return _emptyData();
+      return Object.assign(_emptyData(), d);
+    } catch(_){ return _emptyData(); }
+  }
+  function _saveData(d){
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); } catch(e){ console.warn('[storage] save failed', e); }
+  }
+
+  function recordMatch(m){
+    const data = _loadData();
+    const match = {
+      id: m.matchId || ('m-' + Date.now()),
+      date: Date.now(),
+      gameId: m.gameId,
+      yasnaId: m.yasnaId,
+      role: m.role,
+      transport: m.transport || 'unknown',
+      result: m.result, // 'win' | 'loss'
+      time: m.time || 0,
+      score: m.score != null ? m.score : null,
+      maxScore: m.maxScore != null ? m.maxScore : null,
+      opponentName: m.opponentName || '',
+      isBot: !!m.isBot,
+      botLevel: m.botLevel || null,
+      bySurrender: !!m.bySurrender,
+      byDisconnect: !!m.byDisconnect,
+    };
+    // Анти-мусор: матч короче 1с не считаем
+    if(match.time && match.time < 1000) return null;
+    data.matches.unshift(match);
+    if(data.matches.length > MAX_MATCHES) data.matches = data.matches.slice(0, MAX_MATCHES);
+
+    // Updates totals
+    data.totals.played = (data.totals.played || 0) + 1;
+    if(match.result === 'win') data.totals.wins = (data.totals.wins || 0) + 1;
+    else if(match.result === 'loss') data.totals.losses = (data.totals.losses || 0) + 1;
+
+    // Updates per-game/yasna records (только не-бот матчи учитываются как «личные рекорды»)
+    if(!match.isBot){
+      data.records[match.gameId] = data.records[match.gameId] || {};
+      data.records[match.gameId][match.yasnaId] = data.records[match.gameId][match.yasnaId] || { played:0, wins:0, losses:0 };
+      const rec = data.records[match.gameId][match.yasnaId];
+      rec.played = (rec.played || 0) + 1;
+      if(match.result === 'win') rec.wins = (rec.wins || 0) + 1;
+      else if(match.result === 'loss') rec.losses = (rec.losses || 0) + 1;
+      // Best time (только для побед)
+      if(match.result === 'win' && match.time > 0 && (!rec.bestTime || match.time < rec.bestTime)){
+        rec.bestTime = match.time;
+        rec.bestTimeDate = match.date;
+        match.isNewRecord = true;
+      }
+      // Best score (для score-mode)
+      if(match.score != null && (rec.bestScore == null || match.score > rec.bestScore)){
+        rec.bestScore = match.score;
+        rec.maxScore = match.maxScore;
+        rec.bestScoreDate = match.date;
+        match.isNewRecord = true;
+      }
+    }
+
+    // Streaks (общая, не зависит от gameId — серия побед подряд)
+    data.streaks.overall = data.streaks.overall || { current:0, best:0 };
+    if(match.result === 'win'){
+      data.streaks.overall.current = (data.streaks.overall.current || 0) + 1;
+      if(data.streaks.overall.current > (data.streaks.overall.best || 0)){
+        data.streaks.overall.best = data.streaks.overall.current;
+      }
+    } else if(match.result === 'loss'){
+      data.streaks.overall.current = 0;
+    }
+    // Per-game streak
+    data.streaks[match.gameId] = data.streaks[match.gameId] || { current:0, best:0 };
+    if(match.result === 'win'){
+      data.streaks[match.gameId].current = (data.streaks[match.gameId].current || 0) + 1;
+      if(data.streaks[match.gameId].current > (data.streaks[match.gameId].best || 0)){
+        data.streaks[match.gameId].best = data.streaks[match.gameId].current;
+      }
+    } else if(match.result === 'loss'){
+      data.streaks[match.gameId].current = 0;
+    }
+
+    _saveData(data);
+    return match;
+  }
+
+  function getStats(gameId, yasnaId){
+    const data = _loadData();
+    const rec = data.records[gameId]?.[yasnaId];
+    return rec || null;
+  }
+
+  function getMatchHistory(limit){
+    const data = _loadData();
+    return data.matches.slice(0, limit || 50);
+  }
+
+  function getOverallStats(){
+    const d = _loadData();
+    return {
+      totals: d.totals,
+      streaks: d.streaks,
+      records: d.records,
+    };
+  }
+
+  function exportJSON(){ return JSON.stringify(_loadData(), null, 2); }
+  function importJSON(json){
+    try {
+      const d = JSON.parse(json);
+      if(d.version !== STORAGE_VERSION) throw new Error('Несовместимая версия данных');
+      _saveData(d);
+      return true;
+    } catch(e){ return false; }
+  }
+  function resetData(){ _saveData(_emptyData()); }
+
+  window.YasnaDuelStorage = { recordMatch, getStats, getMatchHistory, getOverallStats, exportJSON, importJSON, reset: resetData, _load: _loadData };
+
   // ─── REGISTRY ──────────────────────────────────────────────────────
   const _registry = new Map();
   window.YasnaDuels = {
@@ -580,8 +712,15 @@
                 </div>
               </button>
             ))}
-            <button className="duel-btn duel-btn-text" onClick={() => setStep('join-only')}>У меня есть код →</button>
+            <div style={{display:'flex',gap:8,marginTop:6}}>
+              <button className="duel-btn duel-btn-text" onClick={() => setStep('join-only')} style={{flex:1}}>📥 У меня есть код</button>
+              <button className="duel-btn duel-btn-text" onClick={() => setStep('stats')} style={{flex:1}}>📊 Моя статистика</button>
+            </div>
           </div>
+        )}
+
+        {step === 'stats' && (
+          <StatsScreen onClose={() => setStep('pick-game')}/>
         )}
 
         {step === 'join-only' && (
@@ -816,6 +955,34 @@
       setPhase('result');
     };
 
+    // Запись матча в storage когда переходим в result-фазу
+    const recordedRef = useRef(false);
+    useEffect(() => {
+      if(phase !== 'result' || !result || recordedRef.current) return;
+      recordedRef.current = true;
+      const isBot = !!(oppProfile && oppProfile.isBot);
+      const transportName = (transport && transport.constructor && transport.constructor.name) || 'unknown';
+      const transport_t = transportName === 'PeerJsTransport' ? 'peerjs'
+                        : transportName === 'BotTransport' ? 'bot'
+                        : transportName === 'DuelTransport' ? 'broadcast' : 'unknown';
+      const recorded = window.YasnaDuelStorage.recordMatch({
+        matchId, gameId: game.id, yasnaId, role,
+        transport: transport_t,
+        result: result.iAmWinner ? 'win' : 'loss',
+        time: result.time || 0,
+        score: result.myScore != null ? result.myScore : null,
+        maxScore: result.myMaxScore != null ? result.myMaxScore : null,
+        opponentName: oppProfile ? oppProfile.nickname : '',
+        isBot,
+        botLevel: isBot ? (oppProfile.nickname.includes('Андрей') ? 'easy' : oppProfile.nickname.includes('Катя') ? 'medium' : 'hard') : null,
+        bySurrender: result.bySurrender,
+        byDisconnect: result.byDisconnect,
+      });
+      if(recorded && recorded.isNewRecord){
+        result.isNewRecord = true;
+      }
+    }, [phase, result]);
+
     if(phase === 'result' && result){
       return (
         <ResultScreen
@@ -887,9 +1054,163 @@
             {won ? 'Ваше время' : 'Время соперника'}: <strong>{(result.time/1000).toFixed(1)}s</strong>
           </div>
         )}
+        {result.myScore != null && (
+          <div className="duel-result-time">
+            Счёт: <strong>{result.myScore}/{result.myMaxScore}</strong>
+            {result.oppScore != null && <span style={{color:'#6e6e73'}}> · Соперник: {result.oppScore}/{result.myMaxScore}</span>}
+          </div>
+        )}
+        {result.isNewRecord && won && (
+          <div style={{
+            padding:'8px 14px',
+            background:'linear-gradient(135deg, rgba(255,215,0,.2), rgba(212,165,116,.2))',
+            border:'1.5px solid #d4a574',
+            borderRadius:999,
+            fontSize:14,
+            fontWeight:700,
+            color:'#7a5e25',
+            marginTop:8,
+          }}>⭐ Новый рекорд!</div>
+        )}
         <div className="duel-actions">
           <button className="duel-btn duel-btn-primary" onClick={onPlayAgain}>Сыграть ещё</button>
           <button className="duel-btn duel-btn-text" onClick={onClose}>Закрыть</button>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── STATS SCREEN ──────────────────────────────────────────────────
+  function StatsScreen({ onClose }){
+    const data = window.YasnaDuelStorage.getOverallStats();
+    const matches = window.YasnaDuelStorage.getMatchHistory(20);
+    const totals = data.totals;
+    const winRate = totals.played ? Math.round((totals.wins / totals.played) * 100) : 0;
+    const Tdata = window.YasnaData?.T || [];
+    const yasnaName = (id) => Tdata.find(t => t.id === id)?.n || id;
+    const gameTitle = (id) => window.YasnaDuels?.get(id)?.title || id;
+
+    const fmtTime = (ms) => ms ? (ms/1000).toFixed(1) + 's' : '—';
+    const fmtDate = (ts) => {
+      const d = new Date(ts);
+      return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+    };
+
+    return (
+      <div className="duel-stats" style={{padding:'40px 24px',overflowY:'auto'}}>
+        <div className="duel-title">
+          <span className="duel-emoji">📊</span>
+          <h1>Ваша статистика</h1>
+        </div>
+
+        {/* Общие итоги */}
+        <div className="duel-stats-totals">
+          <div className="duel-stat-card">
+            <div className="duel-stat-num">{totals.played || 0}</div>
+            <div className="duel-stat-label">Матчей</div>
+          </div>
+          <div className="duel-stat-card">
+            <div className="duel-stat-num" style={{color:'#16a34a'}}>{totals.wins || 0}</div>
+            <div className="duel-stat-label">Побед</div>
+          </div>
+          <div className="duel-stat-card">
+            <div className="duel-stat-num" style={{color:'#dc2626'}}>{totals.losses || 0}</div>
+            <div className="duel-stat-label">Поражений</div>
+          </div>
+          <div className="duel-stat-card">
+            <div className="duel-stat-num">{winRate}%</div>
+            <div className="duel-stat-label">Винрейт</div>
+          </div>
+        </div>
+
+        {/* Серия побед */}
+        {data.streaks?.overall && (
+          <div className="duel-stats-section">
+            <div className="duel-label">🔥 Серия побед</div>
+            <div style={{display:'flex',gap:10,marginTop:6}}>
+              <div className="duel-stat-card" style={{flex:1}}>
+                <div className="duel-stat-num">{data.streaks.overall.current || 0}</div>
+                <div className="duel-stat-label">Текущая</div>
+              </div>
+              <div className="duel-stat-card" style={{flex:1}}>
+                <div className="duel-stat-num" style={{color:'#d4a574'}}>{data.streaks.overall.best || 0}</div>
+                <div className="duel-stat-label">Лучшая</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Личные рекорды по режимам */}
+        {Object.keys(data.records || {}).length > 0 && (
+          <div className="duel-stats-section">
+            <div className="duel-label">🏆 Личные рекорды</div>
+            <div style={{display:'flex',flexDirection:'column',gap:8,marginTop:6}}>
+              {Object.entries(data.records).map(([gid, byYasna]) => (
+                Object.entries(byYasna).map(([yid, rec]) => (
+                  <div key={gid+'-'+yid} className="duel-record-row">
+                    <div>
+                      <div style={{fontWeight:600,fontSize:13}}>{gameTitle(gid)} · {yasnaName(yid)}</div>
+                      <div style={{fontSize:11,color:'#6e6e73'}}>{rec.played} матчей · {rec.wins || 0}🏆 · {rec.losses || 0}💔</div>
+                    </div>
+                    <div style={{textAlign:'right',fontSize:13}}>
+                      {rec.bestTime && <div>⏱ <strong>{fmtTime(rec.bestTime)}</strong></div>}
+                      {rec.bestScore != null && <div>⭐ <strong>{rec.bestScore}/{rec.maxScore}</strong></div>}
+                    </div>
+                  </div>
+                ))
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* История матчей */}
+        {matches.length > 0 && (
+          <div className="duel-stats-section">
+            <div className="duel-label">📜 Последние матчи (топ 20)</div>
+            <div style={{display:'flex',flexDirection:'column',gap:6,marginTop:6,maxHeight:280,overflowY:'auto'}}>
+              {matches.map((m, idx) => (
+                <div key={m.id+idx} style={{
+                  display:'flex',justifyContent:'space-between',alignItems:'center',
+                  padding:'8px 12px',borderRadius:8,
+                  background: m.result === 'win' ? 'rgba(22,163,74,.06)' : 'rgba(220,38,38,.04)',
+                  borderLeft:'3px solid '+(m.result === 'win' ? '#16a34a' : '#dc2626'),
+                  fontSize:12,
+                }}>
+                  <div>
+                    <span style={{fontWeight:600}}>{m.result === 'win' ? '🏆' : '💔'} {gameTitle(m.gameId)}</span>
+                    <span style={{color:'#6e6e73'}}> · {yasnaName(m.yasnaId)}</span>
+                    {m.isBot && <span style={{fontSize:10,color:'#7c3aed',marginLeft:4}}>🤖{m.botLevel}</span>}
+                    {m.bySurrender && <span style={{color:'#dc2626',marginLeft:4}}>(сдача)</span>}
+                    {m.byDisconnect && <span style={{color:'#dc2626',marginLeft:4}}>(дисконнект)</span>}
+                  </div>
+                  <div style={{color:'#6e6e73',fontSize:11}}>
+                    {m.score != null ? `${m.score}/${m.maxScore} · ` : ''}{m.time ? fmtTime(m.time) : ''} · {fmtDate(m.date)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {totals.played === 0 && (
+          <div style={{textAlign:'center',padding:32,color:'#6e6e73'}}>
+            Сыграйте свой первый матч — статистика появится здесь.
+          </div>
+        )}
+
+        <div style={{display:'flex',gap:10,justifyContent:'center',marginTop:24,flexWrap:'wrap'}}>
+          <button className="duel-btn duel-btn-text" onClick={() => {
+            const json = window.YasnaDuelStorage.exportJSON();
+            navigator.clipboard?.writeText(json);
+            alert('Статистика скопирована в буфер обмена. Сохраните файл .json для бэкапа.');
+          }}>📋 Экспорт</button>
+          <button className="duel-btn duel-btn-text" onClick={() => {
+            if(confirm('Очистить всю статистику и историю? Действие необратимо.')){
+              window.YasnaDuelStorage.reset();
+              onClose();
+            }
+          }} style={{color:'#dc2626'}}>🗑 Сбросить</button>
+          <button className="duel-btn duel-btn-primary" onClick={onClose}>Назад в лобби</button>
         </div>
       </div>
     );
@@ -989,6 +1310,17 @@
       .duel-label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: #6e6e73; font-weight: 700; }
       .duel-yasna-options { display: flex; flex-wrap: wrap; gap: 6px; }
       .duel-bot-section { padding: 12px 14px; background: linear-gradient(135deg, rgba(124,58,237,.06), rgba(212,165,116,.06)); border-radius: 12px; border: 1px dashed rgba(124,58,237,.25); }
+      .duel-transport-toggle { padding: 10px 14px; border-radius: 10px; background: #f5f5f7; }
+      .duel-stats-totals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 16px 0; }
+      .duel-stat-card { padding: 12px 8px; border: 1.5px solid #e5e5ea; border-radius: 10px; text-align: center; background: #fff; }
+      .duel-stat-num { font-size: 22px; font-weight: 700; color: #1d1d1f; line-height: 1; }
+      .duel-stat-label { font-size: 11px; color: #6e6e73; margin-top: 4px; }
+      .duel-stats-section { margin: 18px 0; }
+      .duel-record-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #fff; border: 1.5px solid #e5e5ea; border-radius: 10px; }
+      @media (max-width: 768px) {
+        .duel-stats-totals { grid-template-columns: repeat(2, 1fr); }
+        .duel-stat-num { font-size: 20px; }
+      }
       .duel-pill { padding: 6px 12px; font-size: 13px; border: 1.5px solid #e5e5ea; background: #fff; border-radius: 999px; cursor: pointer; transition: all .15s; }
       .duel-pill:hover { border-color: #d4a574; }
       .duel-pill-active { background: #d4a574; color: #fff; border-color: #d4a574; }
