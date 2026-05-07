@@ -40,28 +40,28 @@ body {
 .dp-auth-btn-small:hover { background: rgba(0, 0, 0, 0.04); }
 
 /* HERO */
-.dp-hero { text-align: center; padding: 64px 24px 48px; max-width: 720px; margin: 0 auto; }
-.dp-hero-emoji { font-size: 72px; margin-bottom: 16px; display: block; }
-.dp-hero h1 { font-size: 44px; font-weight: 700; letter-spacing: -1px; margin: 0 0 12px; background: linear-gradient(135deg, #1d1d1f 0%, #d4a574 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-.dp-hero-sub { font-size: 18px; color: #6e6e73; margin: 0 0 32px; line-height: 1.5; }
-.dp-hero-cta { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.dp-hero { text-align: center; padding: 28px 24px 20px; max-width: 720px; margin: 0 auto; }
+.dp-hero-emoji { font-size: 48px; margin-bottom: 8px; display: block; }
+.dp-hero h1 { font-size: 32px; font-weight: 700; letter-spacing: -0.6px; margin: 0 0 8px; color: #1d1d1f; }
+.dp-hero-sub { font-size: 15px; color: #6e6e73; margin: 0 0 18px; line-height: 1.45; max-width: 540px; margin-left: auto; margin-right: auto; }
+.dp-hero-cta { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 
 /* BUTTONS */
 .dp-btn { font-family: inherit; font-weight: 600; border-radius: 10px; cursor: pointer; transition: transform 0.1s, background 0.15s, border-color 0.15s; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
 .dp-btn:active { transform: scale(0.98); }
-.dp-btn-primary { background: linear-gradient(135deg, #229ED9 0%, #1B85B8 100%); color: #fff; padding: 14px 28px; font-size: 15px; box-shadow: 0 4px 14px rgba(34, 158, 217, 0.3); }
+.dp-btn-primary { background: linear-gradient(135deg, #229ED9 0%, #1B85B8 100%); color: #fff; padding: 12px 24px; font-size: 14px; box-shadow: 0 4px 14px rgba(34, 158, 217, 0.25); }
 .dp-btn-primary:hover { box-shadow: 0 6px 20px rgba(34, 158, 217, 0.45); }
 .dp-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 .dp-btn-secondary { background: #fff; color: #1d1d1f; padding: 12px 24px; font-size: 14px; border: 1px solid #d2d2d7; }
 .dp-btn-secondary:hover { border-color: #1d1d1f; }
 .dp-btn-text { background: none; color: #6e6e73; padding: 8px 16px; font-size: 14px; font-weight: 500; }
 .dp-btn-text:hover { color: #1d1d1f; }
-.dp-btn-large { padding: 16px 32px; font-size: 16px; }
+.dp-btn-large { padding: 14px 28px; font-size: 15px; }
 
-.dp-hero-perks { list-style: none; padding: 0; margin: 8px 0 0; font-size: 13px; color: #6e6e73; display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+.dp-hero-perks { list-style: none; padding: 0; margin: 4px 0 0; font-size: 12px; color: #6e6e73; display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
 .dp-hero-perks li { display: flex; align-items: center; gap: 4px; }
 .dp-hero-perks li::before { content: "✓"; color: #16a34a; font-weight: 700; }
-.dp-hero-anon-note { font-size: 12px; color: #999; margin: 4px 0 0; }
+.dp-hero-anon-note { font-size: 11px; color: #aaa; margin: 0; }
 
 /* UPSELL */
 .dp-upsell { max-width: 720px; margin: 0 auto 32px; padding: 14px 20px; background: linear-gradient(135deg, rgba(34, 158, 217, 0.08), rgba(212, 165, 116, 0.05)); border: 1px solid rgba(34, 158, 217, 0.2); border-radius: 14px; display: flex; align-items: center; gap: 16px; font-size: 14px; }
@@ -71,17 +71,17 @@ body {
 .dp-upsell-sub { font-size: 12px; color: #6e6e73; }
 
 /* SECTIONS */
-.dp-section { max-width: 1080px; margin: 0 auto; padding: 48px 24px; }
+.dp-section { max-width: 1080px; margin: 0 auto; padding: 28px 24px; }
 .dp-section-narrow { max-width: 720px; }
-.dp-section-title { font-size: 13px; font-weight: 700; color: #d4a574; letter-spacing: 1.5px; text-transform: uppercase; margin: 0 0 16px; }
-.dp-section-h { font-size: 28px; font-weight: 700; margin: 0 0 24px; letter-spacing: -0.5px; color: #1d1d1f; }
+.dp-section-title { font-size: 11px; font-weight: 700; color: #d4a574; letter-spacing: 1.3px; text-transform: uppercase; margin: 0 0 8px; }
+.dp-section-h { font-size: 22px; font-weight: 700; margin: 0 0 18px; letter-spacing: -0.4px; color: #1d1d1f; }
 
 /* DAILY */
-.dp-daily { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 1px solid rgba(212, 165, 116, 0.35); border-radius: 20px; padding: 28px 32px; display: flex; align-items: center; gap: 24px; position: relative; overflow: hidden; }
+.dp-daily { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 1px solid rgba(212, 165, 116, 0.35); border-radius: 18px; padding: 22px 26px; display: flex; align-items: center; gap: 24px; position: relative; overflow: hidden; }
 .dp-daily::before { content: "🌅"; position: absolute; font-size: 240px; right: -40px; top: -40px; opacity: 0.08; pointer-events: none; }
 .dp-daily-content { flex: 1; position: relative; z-index: 1; }
 .dp-daily-tag { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #7c3aed; margin-bottom: 8px; }
-.dp-daily-title { font-size: 24px; font-weight: 700; margin: 0 0 6px; }
+.dp-daily-title { font-size: 20px; font-weight: 700; margin: 0 0 4px; }
 .dp-daily-sub { font-size: 14px; color: #7a5e25; margin: 0 0 14px; }
 .dp-daily-meta { display: flex; gap: 16px; font-size: 13px; color: #6e6e73; margin-bottom: 18px; }
 .dp-daily-streak { color: #dc2626; font-weight: 600; }
@@ -167,12 +167,12 @@ body {
   .dp-header { padding: 10px 16px; gap: 8px; }
   .dp-header-bread { display: none; }
   .dp-auth-chip-source { display: none; }
-  .dp-hero { padding: 36px 20px 28px; }
-  .dp-hero-emoji { font-size: 56px; }
-  .dp-hero h1 { font-size: 30px; }
-  .dp-hero-sub { font-size: 15px; }
-  .dp-section { padding: 32px 16px; }
-  .dp-section-h { font-size: 22px; }
+  .dp-hero { padding: 20px 20px 16px; }
+  .dp-hero-emoji { font-size: 44px; }
+  .dp-hero h1 { font-size: 26px; }
+  .dp-hero-sub { font-size: 14px; }
+  .dp-section { padding: 20px 16px; }
+  .dp-section-h { font-size: 19px; }
   .dp-daily { flex-direction: column; align-items: stretch; text-align: left; padding: 20px; }
   .dp-daily-title { font-size: 18px; }
   .dp-games { grid-template-columns: 1fr; }
