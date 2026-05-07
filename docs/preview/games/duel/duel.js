@@ -147,7 +147,7 @@
   function RaceA1({ transport, role, onFinish }){
     const Star = window.YasnaCore && window.YasnaCore.Star;
     const T = window.YasnaData && window.YasnaData.T;
-    const yasna = T && T.find(t => t.id === 'sutok');
+    const yasna = T && (T.find(t => t.id === 'суток') || T.find(t => t.n === 'Суток'));
 
     const [mySolved, setMySolved] = useState([]);
     const [oppSolved, setOppSolved] = useState([]);
