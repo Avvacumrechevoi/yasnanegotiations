@@ -1715,28 +1715,34 @@
 
     // ─── Старт игры с Тенью (бот) ───
     // mode: 'blitz' | 'standard' | 'expert' — определяет длину партии
-    const startPartiyaWithShadow = (level, mode) => {
+    // selectedThemes: null (все) или массив theme.id для кастом-выбора
+    const startPartiyaWithShadow = (level, mode, selectedThemes) => {
       requireProfile(() => setGame({
         type: 'turnir',
         opponent: 'shadow',
         shadowLevel: level || 'medium',
-        mode: mode || 'standard'
+        mode: mode || 'standard',
+        selectedThemes: selectedThemes || null
       }));
     };
 
-    // ─── Старт Партии · диалог выбора (длительность + соперник) ───
-    // partiyaPicker = null | { mode: 'blitz'|'standard'|'expert' }
-    // Шаг 1: выбор длительности → шаг 2: выбор соперника
+    // ─── Старт Партии · диалог выбора (длительность + темы + соперник) ───
+    // partiyaPicker = null | { mode, expanded: bool, selectedThemes: Set<id>|null }
     const [partiyaPicker, setPartiyaPicker] = useState(null);
 
     const askPartiyaMode = () => {
-      requireProfile(() => setPartiyaPicker({ mode: 'standard' }));
+      requireProfile(() => setPartiyaPicker({
+        mode: 'standard',
+        expanded: false,
+        selectedThemes: null  // null = все темы по умолчанию
+      }));
     };
 
     const startPartiyaPvP = () => {
       const mode = partiyaPicker?.mode || 'standard';
+      const selectedThemes = partiyaPicker?.selectedThemes || null;
       setPartiyaPicker(null);
-      setLobby({ game: 'turnir', mode });
+      setLobby({ game: 'turnir', mode, selectedThemes });
     };
 
     const startUzorPvP = () => {
@@ -1780,6 +1786,7 @@
           opponentLevel: game.shadowLevel || 'medium',
           opponentMode: game.opponent, // 'shadow' or 'pvp'
           mode: game.mode || 'standard', // 'blitz' | 'standard' | 'expert'
+          selectedThemes: game.selectedThemes || null, // null = все темы
           transport: game.transport,
           role: game.role,
           oppData: game.opp,
@@ -1832,16 +1839,45 @@
         onCancel: () => { setAnonModal(false); delete window.__dpPendingPlay; }
       }),
 
-      // ─── Диалог выбора режима Партии (длительность + соперник) ───
+      // ─── Диалог выбора режима Партии (длительность + темы + соперник) ───
       partiyaPicker && (() => {
         const mode = partiyaPicker.mode;
+        const expanded = partiyaPicker.expanded;
+        const selectedThemes = partiyaPicker.selectedThemes; // null = все
         const setMode = (m) => setPartiyaPicker({ ...partiyaPicker, mode: m });
+        const setExpanded = (v) => setPartiyaPicker({ ...partiyaPicker, expanded: v });
+        const setSelectedThemes = (s) => setPartiyaPicker({ ...partiyaPicker, selectedThemes: s });
+
+        const allThemes = (window.YasnaTrivia && window.YasnaTrivia.getThemes()) || [];
+        const isAllSelected = !selectedThemes;
+        const selectedSet = selectedThemes ? new Set(selectedThemes) : null;
+        const selectedCount = isAllSelected ? allThemes.length : selectedThemes.length;
+
+        const toggleTheme = (themeId) => {
+          if(isAllSelected){
+            // первый клик в кастоме — снимаем выделение со всех кроме клика-оппонента
+            const ns = new Set(allThemes.map(t => t.id));
+            ns.delete(themeId);
+            setSelectedThemes([...ns]);
+          } else {
+            const ns = new Set(selectedThemes);
+            if(ns.has(themeId)) ns.delete(themeId); else ns.add(themeId);
+            setSelectedThemes([...ns]);
+          }
+        };
+        const resetThemes = () => setSelectedThemes(null);
+
         const modes = [
           { id: 'blitz',    label: 'Блиц',     count: 10, time: '~2 мин', sub: 'разогрев' },
           { id: 'standard', label: 'Стандарт', count: 18, time: '~5 мин', sub: 'основной' },
           { id: 'expert',   label: 'Эксперт',  count: 30, time: '~9 мин', sub: 'глубокий' }
         ];
         const cur = modes.find(m => m.id === mode);
+
+        // Предупреждение если выбранных тем недостаточно для режима
+        const minThemesForMode = { blitz: 5, standard: 6, expert: 6 };
+        const enoughThemes = selectedCount >= minThemesForMode[mode];
+
         return React.createElement('div', {
           className: 'dp-auth-overlay',
           onClick: e => { if(e.target === e.currentTarget) setPartiyaPicker(null); }
@@ -1874,18 +1910,63 @@
                                        '6 тем по 3 вопроса'
             ),
 
+            // ─── Шаг 1.5: темы (раскрывающаяся) ───
+            React.createElement('button', {
+              className: 'dp-themes-toggle',
+              onClick: () => setExpanded(!expanded),
+              type: 'button',
+              'aria-expanded': expanded
+            },
+              React.createElement('span', { className: 'dp-themes-toggle-icon' }, expanded ? '▾' : '▸'),
+              React.createElement('span', { className: 'dp-themes-toggle-label' },
+                isAllSelected ? 'Темы: все (' + allThemes.length + ')' : 'Темы: ' + selectedCount + ' из ' + allThemes.length
+              ),
+              !isAllSelected && React.createElement('span', {
+                className: 'dp-themes-reset',
+                onClick: (e) => { e.stopPropagation(); resetThemes(); }
+              }, 'сбросить')
+            ),
+
+            expanded && React.createElement('div', { className: 'dp-themes-list' },
+              allThemes.map(t => {
+                const checked = isAllSelected || selectedSet.has(t.id);
+                return React.createElement('label', {
+                  key: t.id,
+                  className: 'dp-theme-item' + (checked ? ' dp-theme-item-checked' : '')
+                },
+                  React.createElement('input', {
+                    type: 'checkbox',
+                    checked: checked,
+                    onChange: () => toggleTheme(t.id)
+                  }),
+                  React.createElement('span', { className: 'dp-theme-emoji', 'aria-hidden': 'true' }, t.emoji || '◇'),
+                  React.createElement('span', { className: 'dp-theme-name' }, t.short || t.name)
+                );
+              })
+            ),
+
+            !enoughThemes && expanded && React.createElement('div', { className: 'dp-themes-warn' },
+              '⚠  Для режима ', cur.label, ' нужно минимум ', minThemesForMode[mode], ' тем. Сейчас: ', selectedCount, '.'
+            ),
+
             // ─── Шаг 2: соперник ───
             React.createElement('div', { className: 'dp-mode-eyebrow' }, '◐  С кем'),
             React.createElement('div', { style: { display: 'grid', gap: 8, marginTop: 8 } },
               React.createElement('button', {
                 className: 'dp-btn',
-                onClick: () => { setPartiyaPicker(null); startPartiyaWithShadow('medium', mode); },
+                onClick: () => {
+                  if(!enoughThemes) return;
+                  setPartiyaPicker(null);
+                  startPartiyaWithShadow('medium', mode, selectedThemes);
+                },
+                disabled: !enoughThemes,
                 style: { padding: '14px 18px', justifyContent: 'flex-start', textAlign: 'left' }
               }, '🌗  ', React.createElement('span', { style: { fontWeight: 500, marginLeft: 4 } }, 'Соло против Тени'),
                 React.createElement('span', { style: { fontSize: 12, color: 'var(--text-3)', marginLeft: 'auto' } }, '· бот')),
               React.createElement('button', {
                 className: 'dp-btn dp-btn-primary',
                 onClick: startPartiyaPvP,
+                disabled: !enoughThemes,
                 style: { padding: '14px 18px', justifyContent: 'flex-start', textAlign: 'left' }
               }, '◐◑  ', React.createElement('span', { style: { fontWeight: 500, marginLeft: 4 } }, 'Вдвоём с другом'),
                 React.createElement('span', { style: { fontSize: 12, opacity: 0.85, marginLeft: 'auto' } }, '· real-time'))

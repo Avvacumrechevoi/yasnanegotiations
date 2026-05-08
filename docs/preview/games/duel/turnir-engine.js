@@ -495,6 +495,76 @@
     );
   }
 
+  // ─── Mid-partiya recap — заставка на середине партии ─────────────
+  // Показывает: прогресс N/total · текущий счёт · топ темы · слабая тема.
+  // Авто-продвижение через 4 сек или по клику «Дальше».
+  function TnMidRecap({ qOverall, totalOverall, scoreP, scoreO, totalBusey, streakPeak, partiyaLog, opponent, player, onContinue }){
+    // Авто-продвижение через 4 сек
+    useEffect(() => {
+      const t = setTimeout(() => onContinue(), 4500);
+      return () => clearTimeout(t);
+    }, []);
+
+    // Подсчёт по темам — найти лучшую и худшую
+    const byTheme = {};
+    for(const r of partiyaLog){
+      if(!byTheme[r.themeId]) byTheme[r.themeId] = { name: r.themeName, c: 0, t: 0 };
+      byTheme[r.themeId].t++;
+      if(r.playerCorrect) byTheme[r.themeId].c++;
+    }
+    const themesArr = Object.values(byTheme).map(t => ({ ...t, pct: t.t > 0 ? t.c / t.t : 0 }));
+    themesArr.sort((a, b) => b.pct - a.pct);
+    const bestTheme = themesArr[0];
+    const worstTheme = themesArr[themesArr.length - 1];
+
+    const lead = scoreP - scoreO;
+    const leadText = lead > 0 ? 'Ты впереди на ' + lead + ' ✦'
+                   : lead < 0 ? 'Соперник опережает на ' + Math.abs(lead) + ' ✦'
+                   : 'Идёшь вровень';
+
+    return React.createElement('div', { className: 'tn-fullscreen tn-midrecap' },
+      React.createElement('div', { className: 'tn-container' },
+        React.createElement('div', { className: 'tn-midrecap-card' },
+          React.createElement('div', { className: 'tn-midrecap-eyebrow' }, '◐  Половина партии'),
+          React.createElement('div', { className: 'tn-midrecap-progress' }, qOverall, ' / ', totalOverall),
+          React.createElement('div', { className: 'tn-midrecap-lead' }, leadText),
+
+          React.createElement('div', { className: 'tn-midrecap-row' },
+            React.createElement('div', { className: 'tn-midrecap-stat' },
+              React.createElement('div', { className: 'tn-midrecap-stat-label' }, '✦ Бусины'),
+              React.createElement('div', { className: 'tn-midrecap-stat-value' }, '+', totalBusey)
+            ),
+            streakPeak >= 3 && React.createElement('div', { className: 'tn-midrecap-stat' },
+              React.createElement('div', { className: 'tn-midrecap-stat-label' }, '🔥 Серия'),
+              React.createElement('div', { className: 'tn-midrecap-stat-value' }, streakPeak, ' подряд')
+            )
+          ),
+
+          themesArr.length >= 2 && React.createElement('div', { className: 'tn-midrecap-themes' },
+            bestTheme && bestTheme.c > 0 && React.createElement('div', { className: 'tn-midrecap-theme tn-midrecap-theme-best' },
+              React.createElement('span', { className: 'tn-midrecap-theme-icon' }, '🟢'),
+              React.createElement('span', { className: 'tn-midrecap-theme-name' }, bestTheme.name),
+              React.createElement('span', { className: 'tn-midrecap-theme-stat' }, bestTheme.c, '/', bestTheme.t)
+            ),
+            worstTheme && worstTheme.pct < 1 && worstTheme !== bestTheme && React.createElement('div', { className: 'tn-midrecap-theme tn-midrecap-theme-worst' },
+              React.createElement('span', { className: 'tn-midrecap-theme-icon' }, worstTheme.c === 0 ? '🔴' : '🟡'),
+              React.createElement('span', { className: 'tn-midrecap-theme-name' }, worstTheme.name),
+              React.createElement('span', { className: 'tn-midrecap-theme-stat' }, worstTheme.c, '/', worstTheme.t)
+            )
+          ),
+
+          React.createElement('button', {
+            className: 'tn-midrecap-btn',
+            onClick: onContinue,
+            type: 'button',
+            autoFocus: true
+          }, 'Дальше →'),
+          React.createElement('div', { className: 'tn-midrecap-hint' }, 'или подожди 4 сек')
+        )
+      )
+    );
+  }
+
   // ─── Question — основной компонент игрового вопроса ─────────────
   function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswersRef, streak, streakMultiplier }){
     const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
@@ -997,11 +1067,12 @@
   }
 
   // ─── Main Engine ─────────────────────────────────────────────────
-  function TurnirGame({ player, opponentLevel, onClose, opponentMode, transport, role, oppData, mode }){
+  function TurnirGame({ player, opponentLevel, onClose, opponentMode, transport, role, oppData, mode, selectedThemes }){
     React.useEffect(() => { window.__tnOnClose = onClose; return () => { delete window.__tnOnClose; }; }, [onClose]);
 
     const isPvP = opponentMode === 'pvp' && transport;
     const partiyaMode = mode || 'standard';  // 'blitz' | 'standard' | 'expert'
+    const themesFilter = selectedThemes || null;  // null = все темы
 
     // Для PvP: opponent — это живой игрок; для shadow — Тень
     const opp = isPvP
@@ -1019,7 +1090,7 @@
     // Для shadow: каждый раз новый seed.
     const [partiya, setPartiya] = useState(() => {
       if(!isPvP || role === 'host') {
-        return window.YasnaTrivia.generatePartiya(Date.now(), partiyaMode);
+        return window.YasnaTrivia.generatePartiya(Date.now(), partiyaMode, themesFilter);
       }
       return null; // гость ждёт от хоста
     });
@@ -1043,6 +1114,9 @@
       if(s >= 3) return 1.2;
       return 1.0;
     }
+
+    // Mid-partiya recap — показывается один раз за партию
+    const [midRecapShown, setMidRecapShown] = useState(false);
 
     // ─── PvP: Sync Партии и обмен ответами ───
     // Map по qId — каждый ответ соперника привязан к конкретному вопросу.
@@ -1078,7 +1152,7 @@
       // Хост отправляет Партию гостю
       if(role === 'host' && partiya){
         const seed = Date.now();
-        const newPartiya = window.YasnaTrivia.generatePartiya(seed, partiyaMode);
+        const newPartiya = window.YasnaTrivia.generatePartiya(seed, partiyaMode, themesFilter);
         setPartiya(newPartiya);
         // Пушим сразу, без setTimeout — буфер на гостя поймает если он ещё не готов
         transport.send({ t: 'partiya-init', seed, mode: partiyaMode, partiya: newPartiya.map(r => ({
@@ -1148,7 +1222,18 @@
       setTotalBusey(newBusey);
       setPartiyaLog(newLog);
 
-      if(qIdx < currentRound.questions.length - 1){
+      // ─── Mid-partiya recap — на середине партии ───
+      // Показываем краткую заставку с прогрессом после половины вопросов.
+      // Один раз за партию. Игрок жмёт «Дальше» или ждёт ~4 сек.
+      const halfMark = Math.floor(totalOverall / 2);
+      const needMidRecap = !midRecapShown
+        && newLog.length === halfMark
+        && newLog.length < totalOverall
+        && totalOverall >= 10; // не показываем на коротких партиях
+      if(needMidRecap){
+        setMidRecapShown(true);
+        setPhase('midrecap');
+      } else if(qIdx < currentRound.questions.length - 1){
         setQIdx(qIdx + 1);
       } else if(roundIdx < partiya.length - 1){
         setRoundIdx(roundIdx + 1);
@@ -1283,6 +1368,28 @@
         onAnswer,
         isPvP, transport, oppAnswersRef,
         streak, streakMultiplier
+      });
+    }
+    if(phase === 'midrecap'){
+      // После клика «Дальше» или таймера — продвигаемся к следующему вопросу
+      const handleContinue = () => {
+        if(qIdx < currentRound.questions.length - 1){
+          setQIdx(qIdx + 1);
+          setPhase('question');
+        } else if(roundIdx < partiya.length - 1){
+          setRoundIdx(roundIdx + 1);
+          setQIdx(0);
+          setPhase('intro');
+        } else {
+          // На самом краю партии (теоретически невозможно — half-mark < total)
+          setPhase('question');
+        }
+      };
+      return React.createElement(TnMidRecap, {
+        qOverall: partiyaLog.length,
+        totalOverall, scoreP, scoreO, totalBusey, streakPeak,
+        partiyaLog, player, opponent: opp,
+        onContinue: handleContinue
       });
     }
     if(phase === 'final'){

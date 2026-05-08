@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-08T17:00:25.761Z */
+/* Yasna bundle: duel.js — собран 2026-05-08T17:06:56.839Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5292,7 +5292,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-08T17:00:24.647Z", "contentVersion": "1.1.0", "files": 1, "themes": 1, "atomsTotal": 32, "questionsTotal": 10, "questionsLegacy": 5 };
+  const BUILD_INFO = { "builtAt": "2026-05-08T17:06:55.572Z", "contentVersion": "1.1.0", "files": 1, "themes": 1, "atomsTotal": 32, "questionsTotal": 10, "questionsLegacy": 5 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -6876,14 +6876,15 @@ window.YasnaCore = {
     } catch (_) {
     }
   }
-  function generatePartiya(seed, mode) {
+  function generatePartiya(seed, mode, themesFilter) {
     const cfg = MODE_CONFIG[mode] || MODE_CONFIG.standard;
     const seen = loadSeen();
-    const window2 = ANTI_REPEAT_WINDOW_MS[mode] || ANTI_REPEAT_WINDOW_MS.standard;
-    const cutoff = Date.now() - window2;
+    const win = ANTI_REPEAT_WINDOW_MS[mode] || ANTI_REPEAT_WINDOW_MS.standard;
+    const cutoff = Date.now() - win;
     const isFresh = (qId) => !seen[qId] || seen[qId] < cutoff;
     const rng = seedRandom(seed || Date.now());
-    const shuffled = [...ACTIVE_THEMES].sort(() => rng() - 0.5);
+    const eligibleThemes = themesFilter ? ACTIVE_THEMES.filter((t) => themesFilter.includes(t.id)) : ACTIVE_THEMES;
+    const shuffled = [...eligibleThemes].sort(() => rng() - 0.5);
     const chosen = shuffled.slice(0, cfg.themes);
     const partiya = chosen.map((theme) => {
       const themeQs = ACTIVE_QUESTIONS.filter((q) => q.theme === theme.id);
@@ -7467,6 +7468,80 @@ window.YasnaCore = {
       React.createElement("span", { className: "tn-feedback-text" }, "\u0412\u0440\u0435\u043C\u044F \u0432\u044B\u0448\u043B\u043E")
     );
   }
+  function TnMidRecap({ qOverall, totalOverall, scoreP, scoreO, totalBusey, streakPeak, partiyaLog, opponent, player, onContinue }) {
+    useEffect(() => {
+      const t = setTimeout(() => onContinue(), 4500);
+      return () => clearTimeout(t);
+    }, []);
+    const byTheme = {};
+    for (const r of partiyaLog) {
+      if (!byTheme[r.themeId]) byTheme[r.themeId] = { name: r.themeName, c: 0, t: 0 };
+      byTheme[r.themeId].t++;
+      if (r.playerCorrect) byTheme[r.themeId].c++;
+    }
+    const themesArr = Object.values(byTheme).map((t) => ({ ...t, pct: t.t > 0 ? t.c / t.t : 0 }));
+    themesArr.sort((a, b) => b.pct - a.pct);
+    const bestTheme = themesArr[0];
+    const worstTheme = themesArr[themesArr.length - 1];
+    const lead = scoreP - scoreO;
+    const leadText = lead > 0 ? "\u0422\u044B \u0432\u043F\u0435\u0440\u0435\u0434\u0438 \u043D\u0430 " + lead + " \u2726" : lead < 0 ? "\u0421\u043E\u043F\u0435\u0440\u043D\u0438\u043A \u043E\u043F\u0435\u0440\u0435\u0436\u0430\u0435\u0442 \u043D\u0430 " + Math.abs(lead) + " \u2726" : "\u0418\u0434\u0451\u0448\u044C \u0432\u0440\u043E\u0432\u0435\u043D\u044C";
+    return React.createElement(
+      "div",
+      { className: "tn-fullscreen tn-midrecap" },
+      React.createElement(
+        "div",
+        { className: "tn-container" },
+        React.createElement(
+          "div",
+          { className: "tn-midrecap-card" },
+          React.createElement("div", { className: "tn-midrecap-eyebrow" }, "\u25D0  \u041F\u043E\u043B\u043E\u0432\u0438\u043D\u0430 \u043F\u0430\u0440\u0442\u0438\u0438"),
+          React.createElement("div", { className: "tn-midrecap-progress" }, qOverall, " / ", totalOverall),
+          React.createElement("div", { className: "tn-midrecap-lead" }, leadText),
+          React.createElement(
+            "div",
+            { className: "tn-midrecap-row" },
+            React.createElement(
+              "div",
+              { className: "tn-midrecap-stat" },
+              React.createElement("div", { className: "tn-midrecap-stat-label" }, "\u2726 \u0411\u0443\u0441\u0438\u043D\u044B"),
+              React.createElement("div", { className: "tn-midrecap-stat-value" }, "+", totalBusey)
+            ),
+            streakPeak >= 3 && React.createElement(
+              "div",
+              { className: "tn-midrecap-stat" },
+              React.createElement("div", { className: "tn-midrecap-stat-label" }, "\u{1F525} \u0421\u0435\u0440\u0438\u044F"),
+              React.createElement("div", { className: "tn-midrecap-stat-value" }, streakPeak, " \u043F\u043E\u0434\u0440\u044F\u0434")
+            )
+          ),
+          themesArr.length >= 2 && React.createElement(
+            "div",
+            { className: "tn-midrecap-themes" },
+            bestTheme && bestTheme.c > 0 && React.createElement(
+              "div",
+              { className: "tn-midrecap-theme tn-midrecap-theme-best" },
+              React.createElement("span", { className: "tn-midrecap-theme-icon" }, "\u{1F7E2}"),
+              React.createElement("span", { className: "tn-midrecap-theme-name" }, bestTheme.name),
+              React.createElement("span", { className: "tn-midrecap-theme-stat" }, bestTheme.c, "/", bestTheme.t)
+            ),
+            worstTheme && worstTheme.pct < 1 && worstTheme !== bestTheme && React.createElement(
+              "div",
+              { className: "tn-midrecap-theme tn-midrecap-theme-worst" },
+              React.createElement("span", { className: "tn-midrecap-theme-icon" }, worstTheme.c === 0 ? "\u{1F534}" : "\u{1F7E1}"),
+              React.createElement("span", { className: "tn-midrecap-theme-name" }, worstTheme.name),
+              React.createElement("span", { className: "tn-midrecap-theme-stat" }, worstTheme.c, "/", worstTheme.t)
+            )
+          ),
+          React.createElement("button", {
+            className: "tn-midrecap-btn",
+            onClick: onContinue,
+            type: "button",
+            autoFocus: true
+          }, "\u0414\u0430\u043B\u044C\u0448\u0435 \u2192"),
+          React.createElement("div", { className: "tn-midrecap-hint" }, "\u0438\u043B\u0438 \u043F\u043E\u0434\u043E\u0436\u0434\u0438 4 \u0441\u0435\u043A")
+        )
+      )
+    );
+  }
   function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswersRef, streak, streakMultiplier }) {
     const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
     const [chosen, setChosen] = useState(null);
@@ -8019,7 +8094,7 @@ window.YasnaCore = {
       )
     );
   }
-  function TurnirGame({ player, opponentLevel, onClose, opponentMode, transport, role, oppData, mode }) {
+  function TurnirGame({ player, opponentLevel, onClose, opponentMode, transport, role, oppData, mode, selectedThemes }) {
     React.useEffect(() => {
       window.__tnOnClose = onClose;
       return () => {
@@ -8028,6 +8103,7 @@ window.YasnaCore = {
     }, [onClose]);
     const isPvP = opponentMode === "pvp" && transport;
     const partiyaMode = mode || "standard";
+    const themesFilter = selectedThemes || null;
     const opp = isPvP ? {
       name: (oppData == null ? void 0 : oppData.nickname) || "\u0421\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A",
       subtitle: "real-time",
@@ -8037,7 +8113,7 @@ window.YasnaCore = {
     const [phase, setPhase] = useState("vs");
     const [partiya, setPartiya] = useState(() => {
       if (!isPvP || role === "host") {
-        return window.YasnaTrivia.generatePartiya(Date.now(), partiyaMode);
+        return window.YasnaTrivia.generatePartiya(Date.now(), partiyaMode, themesFilter);
       }
       return null;
     });
@@ -8056,6 +8132,7 @@ window.YasnaCore = {
       if (s >= 3) return 1.2;
       return 1;
     }
+    const [midRecapShown, setMidRecapShown] = useState(false);
     const oppAnswersRef = useRef({});
     useEffect(() => {
       if (!isPvP || !transport) return;
@@ -8080,7 +8157,7 @@ window.YasnaCore = {
       });
       if (role === "host" && partiya) {
         const seed = Date.now();
-        const newPartiya = window.YasnaTrivia.generatePartiya(seed, partiyaMode);
+        const newPartiya = window.YasnaTrivia.generatePartiya(seed, partiyaMode, themesFilter);
         setPartiya(newPartiya);
         transport.send({ t: "partiya-init", seed, mode: partiyaMode, partiya: newPartiya.map((r) => ({
           theme: { id: r.theme.id, name: r.theme.name },
@@ -8147,7 +8224,12 @@ window.YasnaCore = {
       setScoreO(newScoreO);
       setTotalBusey(newBusey);
       setPartiyaLog(newLog);
-      if (qIdx < currentRound.questions.length - 1) {
+      const halfMark = Math.floor(totalOverall / 2);
+      const needMidRecap = !midRecapShown && newLog.length === halfMark && newLog.length < totalOverall && totalOverall >= 10;
+      if (needMidRecap) {
+        setMidRecapShown(true);
+        setPhase("midrecap");
+      } else if (qIdx < currentRound.questions.length - 1) {
         setQIdx(qIdx + 1);
       } else if (roundIdx < partiya.length - 1) {
         setRoundIdx(roundIdx + 1);
@@ -8291,6 +8373,32 @@ window.YasnaCore = {
         oppAnswersRef,
         streak,
         streakMultiplier
+      });
+    }
+    if (phase === "midrecap") {
+      const handleContinue = () => {
+        if (qIdx < currentRound.questions.length - 1) {
+          setQIdx(qIdx + 1);
+          setPhase("question");
+        } else if (roundIdx < partiya.length - 1) {
+          setRoundIdx(roundIdx + 1);
+          setQIdx(0);
+          setPhase("intro");
+        } else {
+          setPhase("question");
+        }
+      };
+      return React.createElement(TnMidRecap, {
+        qOverall: partiyaLog.length,
+        totalOverall,
+        scoreP,
+        scoreO,
+        totalBusey,
+        streakPeak,
+        partiyaLog,
+        player,
+        opponent: opp,
+        onContinue: handleContinue
       });
     }
     if (phase === "final") {
@@ -10594,22 +10702,29 @@ window.YasnaCore = {
       delete window.__dpPendingPlay;
       if (pending) pending();
     };
-    const startPartiyaWithShadow = (level, mode) => {
+    const startPartiyaWithShadow = (level, mode, selectedThemes) => {
       requireProfile(() => setGame({
         type: "turnir",
         opponent: "shadow",
         shadowLevel: level || "medium",
-        mode: mode || "standard"
+        mode: mode || "standard",
+        selectedThemes: selectedThemes || null
       }));
     };
     const [partiyaPicker, setPartiyaPicker] = useState(null);
     const askPartiyaMode = () => {
-      requireProfile(() => setPartiyaPicker({ mode: "standard" }));
+      requireProfile(() => setPartiyaPicker({
+        mode: "standard",
+        expanded: false,
+        selectedThemes: null
+        // null = все темы по умолчанию
+      }));
     };
     const startPartiyaPvP = () => {
       const mode = (partiyaPicker == null ? void 0 : partiyaPicker.mode) || "standard";
+      const selectedThemes = (partiyaPicker == null ? void 0 : partiyaPicker.selectedThemes) || null;
       setPartiyaPicker(null);
-      setLobby({ game: "turnir", mode });
+      setLobby({ game: "turnir", mode, selectedThemes });
     };
     const startUzorPvP = () => {
       requireProfile(() => setLobby({ game: "uzor" }));
@@ -10654,6 +10769,8 @@ window.YasnaCore = {
           // 'shadow' or 'pvp'
           mode: game.mode || "standard",
           // 'blitz' | 'standard' | 'expert'
+          selectedThemes: game.selectedThemes || null,
+          // null = все темы
           transport: game.transport,
           role: game.role,
           oppData: game.opp,
@@ -10722,16 +10839,39 @@ window.YasnaCore = {
           delete window.__dpPendingPlay;
         }
       }),
-      // ─── Диалог выбора режима Партии (длительность + соперник) ───
+      // ─── Диалог выбора режима Партии (длительность + темы + соперник) ───
       partiyaPicker && (() => {
         const mode = partiyaPicker.mode;
+        const expanded = partiyaPicker.expanded;
+        const selectedThemes = partiyaPicker.selectedThemes;
         const setMode = (m) => setPartiyaPicker({ ...partiyaPicker, mode: m });
+        const setExpanded = (v) => setPartiyaPicker({ ...partiyaPicker, expanded: v });
+        const setSelectedThemes = (s) => setPartiyaPicker({ ...partiyaPicker, selectedThemes: s });
+        const allThemes = window.YasnaTrivia && window.YasnaTrivia.getThemes() || [];
+        const isAllSelected = !selectedThemes;
+        const selectedSet = selectedThemes ? new Set(selectedThemes) : null;
+        const selectedCount = isAllSelected ? allThemes.length : selectedThemes.length;
+        const toggleTheme = (themeId) => {
+          if (isAllSelected) {
+            const ns = new Set(allThemes.map((t) => t.id));
+            ns.delete(themeId);
+            setSelectedThemes([...ns]);
+          } else {
+            const ns = new Set(selectedThemes);
+            if (ns.has(themeId)) ns.delete(themeId);
+            else ns.add(themeId);
+            setSelectedThemes([...ns]);
+          }
+        };
+        const resetThemes = () => setSelectedThemes(null);
         const modes = [
           { id: "blitz", label: "\u0411\u043B\u0438\u0446", count: 10, time: "~2 \u043C\u0438\u043D", sub: "\u0440\u0430\u0437\u043E\u0433\u0440\u0435\u0432" },
           { id: "standard", label: "\u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442", count: 18, time: "~5 \u043C\u0438\u043D", sub: "\u043E\u0441\u043D\u043E\u0432\u043D\u043E\u0439" },
           { id: "expert", label: "\u042D\u043A\u0441\u043F\u0435\u0440\u0442", count: 30, time: "~9 \u043C\u0438\u043D", sub: "\u0433\u043B\u0443\u0431\u043E\u043A\u0438\u0439" }
         ];
         const cur = modes.find((m) => m.id === mode);
+        const minThemesForMode = { blitz: 5, standard: 6, expert: 6 };
+        const enoughThemes = selectedCount >= minThemesForMode[mode];
         return React.createElement(
           "div",
           {
@@ -10774,6 +10914,61 @@ window.YasnaCore = {
               " \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \xB7 ",
               cur.id === "blitz" ? "\u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0440\u0430\u0437\u043E\u0433\u0440\u0435\u0432" : cur.id === "expert" ? "\u0433\u043B\u0443\u0431\u043E\u043A\u0438\u0439 \u0437\u0430\u0445\u043E\u0434, 6 \u0442\u0435\u043C \u043F\u043E 5 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432" : "6 \u0442\u0435\u043C \u043F\u043E 3 \u0432\u043E\u043F\u0440\u043E\u0441\u0430"
             ),
+            // ─── Шаг 1.5: темы (раскрывающаяся) ───
+            React.createElement(
+              "button",
+              {
+                className: "dp-themes-toggle",
+                onClick: () => setExpanded(!expanded),
+                type: "button",
+                "aria-expanded": expanded
+              },
+              React.createElement("span", { className: "dp-themes-toggle-icon" }, expanded ? "\u25BE" : "\u25B8"),
+              React.createElement(
+                "span",
+                { className: "dp-themes-toggle-label" },
+                isAllSelected ? "\u0422\u0435\u043C\u044B: \u0432\u0441\u0435 (" + allThemes.length + ")" : "\u0422\u0435\u043C\u044B: " + selectedCount + " \u0438\u0437 " + allThemes.length
+              ),
+              !isAllSelected && React.createElement("span", {
+                className: "dp-themes-reset",
+                onClick: (e) => {
+                  e.stopPropagation();
+                  resetThemes();
+                }
+              }, "\u0441\u0431\u0440\u043E\u0441\u0438\u0442\u044C")
+            ),
+            expanded && React.createElement(
+              "div",
+              { className: "dp-themes-list" },
+              allThemes.map((t) => {
+                const checked = isAllSelected || selectedSet.has(t.id);
+                return React.createElement(
+                  "label",
+                  {
+                    key: t.id,
+                    className: "dp-theme-item" + (checked ? " dp-theme-item-checked" : "")
+                  },
+                  React.createElement("input", {
+                    type: "checkbox",
+                    checked,
+                    onChange: () => toggleTheme(t.id)
+                  }),
+                  React.createElement("span", { className: "dp-theme-emoji", "aria-hidden": "true" }, t.emoji || "\u25C7"),
+                  React.createElement("span", { className: "dp-theme-name" }, t.short || t.name)
+                );
+              })
+            ),
+            !enoughThemes && expanded && React.createElement(
+              "div",
+              { className: "dp-themes-warn" },
+              "\u26A0  \u0414\u043B\u044F \u0440\u0435\u0436\u0438\u043C\u0430 ",
+              cur.label,
+              " \u043D\u0443\u0436\u043D\u043E \u043C\u0438\u043D\u0438\u043C\u0443\u043C ",
+              minThemesForMode[mode],
+              " \u0442\u0435\u043C. \u0421\u0435\u0439\u0447\u0430\u0441: ",
+              selectedCount,
+              "."
+            ),
             // ─── Шаг 2: соперник ───
             React.createElement("div", { className: "dp-mode-eyebrow" }, "\u25D0  \u0421 \u043A\u0435\u043C"),
             React.createElement(
@@ -10784,9 +10979,11 @@ window.YasnaCore = {
                 {
                   className: "dp-btn",
                   onClick: () => {
+                    if (!enoughThemes) return;
                     setPartiyaPicker(null);
-                    startPartiyaWithShadow("medium", mode);
+                    startPartiyaWithShadow("medium", mode, selectedThemes);
                   },
+                  disabled: !enoughThemes,
                   style: { padding: "14px 18px", justifyContent: "flex-start", textAlign: "left" }
                 },
                 "\u{1F317}  ",
@@ -10798,6 +10995,7 @@ window.YasnaCore = {
                 {
                   className: "dp-btn dp-btn-primary",
                   onClick: startPartiyaPvP,
+                  disabled: !enoughThemes,
                   style: { padding: "14px 18px", justifyContent: "flex-start", textAlign: "left" }
                 },
                 "\u25D0\u25D1  ",

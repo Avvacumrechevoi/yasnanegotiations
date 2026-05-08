@@ -369,16 +369,22 @@
     } catch(_){}
   }
 
-  // Случайный набор для партии. mode: 'blitz' | 'standard' | 'expert'
-  function generatePartiya(seed, mode){
+  // Случайный набор для партии.
+  // mode: 'blitz' | 'standard' | 'expert' — длительность
+  // themesFilter: null (все) или массив theme.id (кастомный набор)
+  function generatePartiya(seed, mode, themesFilter){
     const cfg = MODE_CONFIG[mode] || MODE_CONFIG.standard;
     const seen = loadSeen();
-    const window = ANTI_REPEAT_WINDOW_MS[mode] || ANTI_REPEAT_WINDOW_MS.standard;
-    const cutoff = Date.now() - window;
+    const win = ANTI_REPEAT_WINDOW_MS[mode] || ANTI_REPEAT_WINDOW_MS.standard;
+    const cutoff = Date.now() - win;
     const isFresh = (qId) => !seen[qId] || seen[qId] < cutoff;
 
     const rng = seedRandom(seed || Date.now());
-    const shuffled = [...ACTIVE_THEMES].sort(() => rng() - 0.5);
+    // Если задан кастомный набор тем — фильтруем
+    const eligibleThemes = themesFilter
+      ? ACTIVE_THEMES.filter(t => themesFilter.includes(t.id))
+      : ACTIVE_THEMES;
+    const shuffled = [...eligibleThemes].sort(() => rng() - 0.5);
     const chosen = shuffled.slice(0, cfg.themes);
 
     const partiya = chosen.map(theme => {
