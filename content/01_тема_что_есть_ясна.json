@@ -1,6 +1,6 @@
 {
   "$schema": "./00_СПЕЦИФИКАЦИЯ.md",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "book": "sutki",
   "theme": {
     "id": "T1",
@@ -27,6 +27,7 @@
           "term": "Ясна",
           "quote": "Ясна есть способ описания природы.",
           "source": { "items": [1], "pdf_page": 5 },
+          "meta": { "is_keystone": true },
           "supports_questions": ["single-choice", "fill-blank", "true-false"]
         },
         {
@@ -102,6 +103,7 @@
           "term": "Веда",
           "quote": "Изложение Ясны есть Веда.",
           "source": { "items": [10], "pdf_page": 5 },
+          "meta": { "is_keystone": true },
           "supports_questions": ["single-choice", "fill-blank", "match-pair"]
         },
         {
@@ -158,7 +160,7 @@
           "quote": "В настоящее время Веду со всеми её приложениями наука изучает только как литературное явление. И Веду она называет «Памятник».",
           "source": { "items": [17], "pdf_page": 5 },
           "meta": { "links": { "contrasts": ["T1.K2.A1"] } },
-          "supports_questions": ["single-choice", "match-pair"]
+          "supports_questions": ["single-choice"]
         }
       ]
     },
@@ -227,7 +229,7 @@
           "kind": "postulate",
           "quote": "Язык, на котором изложена Веда, сам является Ведой.",
           "source": { "items": [29], "pdf_page": 6 },
-          "meta": { "is_keystone": true, "links": { "leads_to": ["T3.K3.A1"] } },
+          "meta": { "is_keystone": true },
           "supports_questions": ["fill-blank", "true-false"]
         }
       ]
@@ -367,23 +369,41 @@
         "source": { "items": [37], "pdf_page": 6 }
       },
       "source_atoms": ["T1.K5.A5"],
-      "tags": ["fact", "count"]
+      "tags": ["number", "count"]
     },
     {
       "id": "T1.Q3",
+      "type": "single-choice",
+      "difficulty": "medium",
+      "stem": "Каким словом современная наука называет Веду, изучая её только как литературное явление?",
+      "correct": "Памятник",
+      "options": [
+        "Памятник",
+        "Гимн",
+        "Песня",
+        "Повесть"
+      ],
+      "explanation": {
+        "quote": "В настоящее время Веду со всеми её приложениями наука изучает только как литературное явление. И Веду она называет «Памятник».",
+        "source": { "items": [17], "pdf_page": 5 }
+      },
+      "source_atoms": ["T1.K2.A8"],
+      "tags": ["name", "language"]
+    },
+    {
+      "id": "T1.Q3b",
       "type": "match-pair",
       "difficulty": "medium",
       "stem": "Соотнесите древнее слово и его современный синоним",
       "correct": [
         ["Веда", "Гимн"],
-        ["Повесть", "Песня"],
-        ["Веда (для науки)", "Памятник"]
+        ["Повесть", "Песня"]
       ],
       "explanation": {
-        "quote": "Веда — древнее слово. В настоящее время в этом же значении славяне пользуются словом «Гимн». Пояснением к Ведам являются Повести или Песни. И Веду она [наука] называет «Памятник».",
-        "source": { "items": [13, 14, 17], "pdf_page": 5 }
+        "quote": "Веда — древнее слово. В настоящее время в этом же значении славяне пользуются словом «Гимн». Пояснением к Ведам являются Повести или Песни.",
+        "source": { "items": [13, 14], "pdf_page": 5 }
       },
-      "source_atoms": ["T1.K2.A4", "T1.K2.A5", "T1.K2.A8"],
+      "source_atoms": ["T1.K2.A4", "T1.K2.A5"],
       "tags": ["pairing", "synonyms"]
     },
     {
@@ -392,6 +412,7 @@
       "difficulty": "medium",
       "stem": "Внутреннее устройство всех без исключения явлений природы, всех вещей в природе и всех природных сущностей _____.",
       "correct": "одинаково",
+      "correct_alternatives": ["одинаковое"],
       "explanation": {
         "quote": "Ясна есть учение о том, что внутреннее устройство всех без исключения явлений природы, всех вещей в природе и всех природных сущностей одинаково.",
         "source": { "items": [7], "pdf_page": 5 }
@@ -456,6 +477,7 @@
       "difficulty": "hard",
       "stem": "В Веде у каждого слова есть своё собственное место, и покинуть своё место оно _____.",
       "correct": "не может",
+      "correct_alternatives": ["не способно", "нельзя"],
       "explanation": {
         "quote": "В Веде у каждого слова есть своё собственное место, и покинуть своё место оно не может.",
         "source": { "items": [28], "pdf_page": 6 }
@@ -512,7 +534,7 @@
   ],
 
   "rejected": [
-    { "item": 5,  "reason": "Повтор/перефразировка №4 («Ясна есть закон устройства природы»). Семантически эквивалентно А4." },
+    { "item": 5,  "reason": "Повтор/перефразировка №4 («Ясна есть закон устройства природы»). Семантически эквивалентно T1.K1.A4." },
     { "item": 20, "reason": "Мета-комментарий о современном непонимании пословиц, без отдельного testable-факта." },
     { "item": 21, "reason": "Мета-комментарий: «У народа принято считать, что пословицы сочинил народ» — рамочное наблюдение." },
     { "item": 22, "reason": "Мета-комментарий о слове «народ»; нет проверяемого факта о Ясне." },
@@ -527,13 +549,24 @@
     "atoms_count": 32,
     "items_covered_count": 33,
     "categories_count": 5,
-    "questions_count": 10,
+    "questions_count": 11,
     "illustrations_count": 0,
     "rejected_count": 8,
     "coverage_pct": 80,
+    "keystone_count": 5,
     "kind_distribution": {
       "definition": 9, "fact": 6, "rule": 6, "postulate": 4,
       "name": 2, "pairing": 2, "etymology": 1, "list": 1, "number": 1
     }
-  }
+  },
+
+  "changelog": [
+    { "version": "1.1.1", "changes": [
+      "Q3 переписан с match-pair на чистый single-choice (избавлен от костыльного квалификатора «Веда (для науки)»)",
+      "Q3b добавлен — match-pair с однозначными словами (Веда↔Гимн, Повесть↔Песня)",
+      "is_keystone расширен: T1.K1.A1 (главная дефиниция Ясны), T1.K2.A1 (Веда), T1.K3.A7 (язык как Веда), T1.K5.A5 (12 учебников). Итого 5 keystone-атомов на тему.",
+      "T1.Q4 fill-blank: добавлен correct_alternatives ['одинаковое'] для грамматических вариантов",
+      "T1.Q8 fill-blank: добавлен correct_alternatives ['не способно', 'нельзя'] для синонимов"
+    ]}
+  ]
 }

@@ -274,7 +274,11 @@
   const NEW_QUESTIONS_FULL = NEW?.QUESTIONS_FULL || [];
   const NEW_ATOMS = NEW?.ATOMS || [];
 
-  const useNew = NEW_THEMES.length >= 6 && NEW_QUESTIONS.length >= 18;
+  // Фильтруем темы: T10 «Сутки Рыболова» помечена themes_in_partia=false
+  // (финальный обзор, не самостоятельная тема для партии).
+  const NEW_THEMES_FOR_PARTIYA = NEW_THEMES.filter(t => t.includeInPartiya !== false);
+
+  const useNew = NEW_THEMES_FOR_PARTIYA.length >= 6 && NEW_QUESTIONS.length >= 18;
 
   // ─── Гибрид: новые вопросы подмешиваются к legacy-темам по slug ───
   // Цель: пока банк маленький, не терять новые типы вопросов (true-false,
@@ -300,7 +304,9 @@
     }
   }
 
-  const ACTIVE_THEMES = useNew ? NEW_THEMES : THEMES;
+  // Для партии используем фильтрованный список (без T10).
+  // Все темы доступны через getAllThemes() для UI / Партитуры.
+  const ACTIVE_THEMES = useNew ? NEW_THEMES_FOR_PARTIYA : THEMES;
   const ACTIVE_QUESTIONS = useNew ? NEW_QUESTIONS : MERGED_QUESTIONS;
 
   if(NEW){

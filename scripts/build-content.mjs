@@ -44,9 +44,10 @@ const THEME_META = {
 const DIFF_MAP = { easy: 1, medium: 2, hard: 3 };
 
 async function main(){
-  // 1) Читаем тематические файлы
+  // 1) Читаем тематические файлы (99_СВОДКА — отдельный сводный, не тема)
   const files = (await readdir(CONTENT_DIR))
     .filter(f => f.endsWith('.json') && /^\d{2}_/.test(f))
+    .filter(f => !/^99_/.test(f))
     .sort();
 
   if(!files.length){

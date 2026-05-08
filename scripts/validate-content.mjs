@@ -50,6 +50,8 @@ async function main(){
   try {
     files = (await readdir(CONTENT_DIR))
       .filter(f => f.endsWith('.json') && /^\d{2}_/.test(f))
+      // 99_СВОДКА.json — это глобальный словарь, не тема. Не валидируется как theme.
+      .filter(f => !/^99_/.test(f))
       .sort();
   } catch(e){
     console.error('❌ Cannot read content dir:', CONTENT_DIR);
@@ -180,10 +182,12 @@ async function main(){
     }
 
     // ─── rejected items audit ───
+    // item: number (одиночный пункт) или string (диапазон "536-540" / "544-конец")
     if(Array.isArray(data.rejected)){
       for(const r of data.rejected){
-        if(typeof r.item !== 'number' || !r.reason){
-          errors.push(`[${file}] rejected item must have {item: number, reason: string}`);
+        const itemValid = typeof r.item === 'number' || typeof r.item === 'string';
+        if(!itemValid || !r.reason){
+          errors.push(`[${file}] rejected item must have {item: number|string, reason: string}, got: ${JSON.stringify(r)}`);
         }
       }
     }
