@@ -660,3 +660,399 @@ body.theme-vk-dark .dp-auth-eyebrow {
     line-height: var(--vk-body-s-line);
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   VK Components — Tags, Badges, Cards, Dividers
+   Источник: cfX0idPjpMd6Eb2J9LTaeB · SectionHead (3:3305) + Card (3:31422)
+   ═══════════════════════════════════════════════════════════════════ */
+
+body.theme-vk-dark {
+  /* ─── Радиусы из VK ─── */
+  --vk-radius-tag:        6px;   /* Components/Tag/M/Border Radius */
+  --vk-radius-pill:       999px; /* dimension-border-radius-full */
+  --vk-radius-x2:         8px;
+  --vk-radius-x3:         12px;
+  --vk-radius-x4:         16px;
+  --vk-radius-x5:         20px;
+  --vk-radius-x6:         24px;  /* Radius/Component Frame */
+  --vk-radius-card:       20px;
+  --vk-radius-component:  24px;
+
+  /* ─── Tag tokens ─── */
+  --vk-tag-height:    28px;  /* Components/Tag/M/Size */
+  --vk-tag-padding-x: 12px;
+  --vk-tag-gap:       4px;
+  --vk-tag-font-size: 15px;
+  --vk-tag-line:      20px;
+  --vk-tag-weight:    500;
+
+  /* ─── Badge tokens ─── */
+  --vk-badge-info-bg:  #0187f6;
+  --vk-badge-info-fg:  #ffffff;
+  --vk-badge-success-bg: rgba(0, 211, 230, 0.15);
+  --vk-badge-success-fg: #00D3E6;
+  --vk-badge-danger-bg:  rgba(248, 80, 80, 0.15);
+  --vk-badge-danger-fg:  #F85050;
+  --vk-badge-warn-bg:    rgba(255, 181, 70, 0.15);
+  --vk-badge-warn-fg:    #FFB546;
+  --vk-badge-neutral-bg: var(--bg-tonal);
+  --vk-badge-neutral-fg: var(--text-2);
+
+  /* ─── Дивайдер ─── */
+  --vk-divider:       #3c3d40;
+  --vk-border-thin:   1px;
+}
+
+/* ═══ TAG — переопределяем eyebrow в темной теме как пилюли ═══ */
+body.theme-vk-dark .dp-game-eyebrow,
+body.theme-vk-dark .dp-castalia-eyebrow,
+body.theme-vk-dark .dp-welcome-eyebrow,
+body.theme-vk-dark .dp-eyebrow,
+body.theme-vk-dark .dp-section-h-sub,
+body.theme-vk-dark .dp-quest .dp-quest-tag,
+body.theme-vk-dark .tn-final-archive-eyebrow,
+body.theme-vk-dark .tn-final-scoring-eyebrow,
+body.theme-vk-dark .dp-sync-notice-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--vk-tag-gap);
+  height: var(--vk-tag-height);
+  padding: 0 var(--vk-tag-padding-x);
+  background: var(--bg-tonal);
+  color: var(--text-2);
+  border-radius: var(--vk-radius-tag);
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-tag-font-size);
+  line-height: var(--vk-tag-line);
+  font-weight: var(--vk-tag-weight);
+  text-transform: none;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+/* tn-eyebrow в TopBar — компактнее, без фона (просто capson UPPERCASE) */
+body.theme-vk-dark .tn-eyebrow,
+body.theme-vk-dark .tn-final-eyebrow,
+body.theme-vk-dark .tn-round-eyebrow {
+  display: inline-block;
+  height: auto;
+  padding: 0;
+  background: transparent;
+  color: var(--text-3);
+  font-family: var(--vk-font-title);
+  font-size: var(--vk-title-s-size);
+  line-height: var(--vk-title-s-line);
+  font-weight: var(--vk-title-s-weight);
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  border-radius: 0;
+}
+body.theme-vk-dark .tn-final-eyebrow-win  { color: var(--primary); }
+body.theme-vk-dark .tn-final-eyebrow-lose { color: var(--text-3); }
+body.theme-vk-dark .tn-final-eyebrow-draw { color: var(--accent); }
+
+/* tn-q-meta-num и meta-time — VK-tag-стиль */
+body.theme-vk-dark .tn-q-meta-num,
+body.theme-vk-dark .tn-q-meta-time {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: var(--vk-radius-tag);
+  font-family: var(--vk-font-body);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+body.theme-vk-dark .tn-q-meta-num   { background: rgba(1, 135, 246, 0.18); color: var(--accent); }
+body.theme-vk-dark .tn-q-meta-time  { background: var(--bg-tonal); color: var(--text-2); }
+body.theme-vk-dark .tn-q-meta-theme { color: var(--text-2); padding: 0; background: transparent; }
+body.theme-vk-dark .tn-q-meta-dot   { color: var(--text-3); }
+
+/* ═══ BADGE — статусы в финале ═══ */
+body.theme-vk-dark .tn-final-vs-side-winner .tn-final-vs-unit {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  background: var(--vk-badge-success-bg);
+  color: var(--vk-badge-success-fg);
+  border-radius: var(--vk-radius-tag);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 600;
+}
+body.theme-vk-dark .tn-final-stat-accent {
+  background: var(--vk-badge-success-bg);
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+body.theme-vk-dark .tn-final-stat-accent .tn-final-stat-label,
+body.theme-vk-dark .tn-final-stat-accent .tn-final-stat-value,
+body.theme-vk-dark .tn-final-stat-accent .tn-final-stat-sub {
+  color: var(--primary);
+}
+
+/* ═══ CARDS — увеличенные радиусы, дивайдер ═══ */
+body.theme-vk-dark .dp-card,
+body.theme-vk-dark .dp-game-card,
+body.theme-vk-dark .tn-q-card,
+body.theme-vk-dark .tn-final-vs,
+body.theme-vk-dark .dp-hero,
+body.theme-vk-dark .dp-quest,
+body.theme-vk-dark .dp-theme {
+  border-radius: var(--vk-radius-component);  /* 24px единый */
+  border-width: var(--vk-border-thin);
+  border-style: solid;
+}
+
+/* Маленькие карточки (статы) — радиус поменьше */
+body.theme-vk-dark .tn-final-stat,
+body.theme-vk-dark .tn-final-archive,
+body.theme-vk-dark .tn-final-scoring {
+  border-radius: var(--vk-radius-x4);   /* 16px */
+}
+
+/* Кнопки финала — pill-форма как у VK CTA */
+body.theme-vk-dark .tn-final-btn {
+  border-radius: var(--vk-radius-pill);
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-body-s-size);
+  font-weight: 500;
+  height: 56px;
+}
+body.theme-vk-dark .tn-final-btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* Theme toggle FAB — pill в VK-стиле */
+body.theme-vk-dark .dp-theme-toggle {
+  border-radius: var(--vk-radius-pill);
+  border-color: var(--border-1);
+}
+
+/* Кнопка-дискорд "Сдаться" — pill */
+body.theme-vk-dark .tn-quit {
+  border-radius: var(--vk-radius-pill);
+  height: 32px;
+  padding: 0 14px;
+}
+
+/* Опции ответа — увеличенный радиус */
+body.theme-vk-dark .tn-option {
+  border-radius: var(--vk-radius-x4);  /* 16px */
+}
+
+/* ═══ DIVIDERS ═══ */
+body.theme-vk-dark hr,
+body.theme-vk-dark .dp-divider {
+  border: 0;
+  border-top: 1px solid var(--vk-divider);
+  margin: var(--vk-spacing-x6) 0;
+}
+
+/* Разделитель между секциями карточек */
+body.theme-vk-dark .dp-card-h {
+  border-bottom: 1px solid var(--vk-divider);
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+
+/* ═══ SYNC NOTICE — VK Info Card ═══ */
+body.theme-vk-dark .dp-sync-notice {
+  border-radius: var(--vk-radius-x4);
+  background: rgba(1, 135, 246, 0.10);
+  border: 1px solid var(--accent);
+  color: var(--text-1);
+}
+body.theme-vk-dark .dp-sync-notice-title {
+  color: var(--accent);
+  display: block;
+  background: transparent;
+  padding: 0;
+  height: auto;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 600;
+}
+
+/* ═══ HERO — VK Profile Card ═══ */
+body.theme-vk-dark .dp-hero {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-1);
+  border-radius: var(--vk-radius-component);
+}
+body.theme-vk-dark .dp-hero-rank-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  background: rgba(1, 135, 246, 0.18);
+  color: var(--accent);
+  border-radius: var(--vk-radius-tag);
+  font-family: var(--vk-font-body);
+  font-size: 13px;
+  font-weight: 500;
+  margin-left: 8px;
+}
+body.theme-vk-dark .dp-hero-bead {
+  font-family: var(--vk-font-body);
+  font-weight: 600;
+  color: var(--primary);    /* mint cyan для бусин */
+}
+body.theme-vk-dark .dp-hero-progress {
+  background: var(--bg-tonal);
+  border-radius: var(--vk-radius-pill);
+  height: 8px;
+}
+body.theme-vk-dark .dp-hero-progress-fill {
+  background: var(--accent);
+  border-radius: var(--vk-radius-pill);
+}
+body.theme-vk-dark .dp-hero-cta {
+  background: var(--accent);
+  color: #fff;
+  border-radius: var(--vk-radius-pill);
+  padding: 0 16px;
+  height: 36px;
+  font-weight: 500;
+}
+body.theme-vk-dark .dp-hero-cta:hover {
+  background: var(--accent-strong);
+}
+body.theme-vk-dark .dp-hero-synced {
+  background: var(--vk-badge-success-bg);
+  color: var(--vk-badge-success-fg);
+  border-radius: var(--vk-radius-tag);
+  padding: 0 10px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--vk-font-body);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ═══ Game cards (Партия / Расклад) — VK-style ═══ */
+body.theme-vk-dark .dp-game-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-1);
+  border-radius: var(--vk-radius-component);
+  padding: 24px;
+  transition: all var(--duration-fast);
+}
+body.theme-vk-dark .dp-game-card:hover {
+  background: var(--bg-tonal);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+body.theme-vk-dark .dp-game-primary {
+  background: linear-gradient(135deg, rgba(1, 135, 246, 0.10), transparent);
+  border-color: var(--accent);
+}
+body.theme-vk-dark .dp-game-soon {
+  opacity: 0.5;
+  pointer-events: none;
+}
+body.theme-vk-dark .dp-game-meta {
+  font-family: var(--vk-font-body);
+  font-size: 13px;
+  color: var(--text-2);
+}
+body.theme-vk-dark .dp-game-meta-pvp {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* ═══ Quest cards (Вызов дня / Тема дня) ═══ */
+body.theme-vk-dark .dp-quest {
+  border-radius: var(--vk-radius-x4);
+}
+body.theme-vk-dark .dp-quest-locked {
+  opacity: 0.6;
+}
+
+/* ═══ Theme cards (Партитура → Освоение тем) ═══ */
+body.theme-vk-dark .dp-theme {
+  border-radius: var(--vk-radius-x4);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-1);
+}
+body.theme-vk-dark .dp-theme-current {
+  background: rgba(1, 135, 246, 0.10);
+  border-color: var(--accent);
+}
+body.theme-vk-dark .dp-theme-locked {
+  opacity: 0.5;
+  background: var(--bg-tonal);
+}
+
+/* ═══ Auth modal ═══ */
+body.theme-vk-dark .dp-auth-overlay {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+}
+body.theme-vk-dark .dp-auth-modal {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-1);
+  border-radius: var(--vk-radius-component);
+}
+body.theme-vk-dark .dp-auth-perks li::before {
+  color: var(--primary);
+}
+body.theme-vk-dark .dp-auth-foot {
+  color: var(--text-3);
+  font-family: var(--vk-font-body);
+}
+
+/* Top header (если он показывается) */
+body.theme-vk-dark .dp-header {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--vk-divider);
+}
+
+/* Section headers — увеличенный отступ x10 как в VK */
+body.theme-vk-dark .dp-section {
+  margin-bottom: var(--vk-spacing-x10);
+}
+
+/* ═══ Game progress (1 / 18) ═══ */
+body.theme-vk-dark .tn-game-progress {
+  background: var(--bg-soft);
+}
+body.theme-vk-dark .tn-game-progress-fill {
+  background: var(--accent);
+}
+
+/* ═══ Final VS card ═══ */
+body.theme-vk-dark .tn-final-vs {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-1);
+  border-radius: var(--vk-radius-component);
+}
+body.theme-vk-dark .tn-final-vs-side-winner .tn-final-vs-num {
+  color: var(--primary);
+}
+body.theme-vk-dark .tn-final-vs-side-loser .tn-final-vs-num {
+  color: var(--text-3);
+}
+body.theme-vk-dark .tn-final-vs-divider {
+  color: var(--text-3);
+  font-weight: 300;
+}
+
+/* ═══ Footer ═══ */
+body.theme-vk-dark .dp-footer {
+  border-top: 1px solid var(--vk-divider);
+  background: transparent;
+  color: var(--text-3);
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-caption-m-size);
+  line-height: var(--vk-caption-m-line);
+}
