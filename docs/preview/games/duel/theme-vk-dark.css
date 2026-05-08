@@ -22,12 +22,12 @@ body.theme-vk-dark {
   --text-on-dark: #FEFEFE;
 
   /* ─── Акценты ─── */
-  --accent:        #0187F6;  /* Content Accent VK (dark) */
-  --accent-soft:   #0077FF33; /* Background System Info Alpha */
-  --accent-strong: #439BFB;  /* Content System Info (dark) */
-  --primary:       #00D3E6;  /* Content Other Accent Themed (dark — мор / cyan) */
-  --primary-strong:#00B8C8;
-  --primary-soft:  rgba(0, 211, 230, 0.15);
+  --accent:        #0077FF;  /* VK Play Blue — единый акцент дизайн-системы */
+  --accent-soft:   rgba(0, 119, 255, 0.20); /* Background System Info Alpha */
+  --accent-strong: #16A7FF;  /* VK Play Light Blue — hover */
+  --primary:       #0077FF;  /* VK Play Blue — все CTA-кнопки в дуэли */
+  --primary-strong:#16A7FF;  /* hover */
+  --primary-soft:  rgba(0, 119, 255, 0.15);
   --info:          #439BFB;
   --info-soft:     rgba(67, 155, 251, 0.15);
   --info-text:     #439BFB;

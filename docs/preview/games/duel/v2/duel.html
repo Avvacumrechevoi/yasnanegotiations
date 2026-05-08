@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<title>Дуэль · Ясна · v2 (preview)</title>
+<meta name="description" content="Дуэль по Ясне (v2 preview): подключён реальный контентный фундамент — 324 атома, 126 вопросов с цитатами и иллюстрациями."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>"/>
+<link rel="stylesheet" href="../../../styles.css"/>
+<link rel="stylesheet" href="../duel-page.css"/>
+<style>
+  /* v2-бейдж в углу для отличия от v1 */
+  .v2-badge {
+    position: fixed;
+    top: 8px;
+    right: 8px;
+    z-index: 9999;
+    background: #BA7517;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    pointer-events: none;
+    opacity: 0.85;
+  }
+</style>
+</head>
+<body>
+<div id="duel-page-root"></div>
+<div class="v2-badge">v2 · контент из дерева</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+  window.YASNA_LEADERBOARD_API = "https://d5dmdje8c5mk8811il5j.iwzqm34r.apigw.yandexcloud.net";
+  window.YASNA_TG_BOT = "YasnaDuelBot";
+</script>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
+<!-- Все зависимости для Star-компонента и дуэлей (от v1) -->
+<script src="../../../core/data.js"></script>
+<script type="text/babel" src="../../../core/yasna-3d.js"></script>
+<script type="text/babel" src="../../../core/verification.js"></script>
+<script type="text/babel" src="../../../core/dialogs.js"></script>
+<script type="text/babel" src="../../../core/info-card.js"></script>
+<script type="text/babel" src="../../../core/yasna-star.js"></script>
+
+<!-- Дуэли (от v1, не трогаем) -->
+<script type="text/babel" src="../duel.js"></script>
+<script type="text/babel" src="../duel-games.js"></script>
+<script type="text/babel" src="../duel-game-quiz.js"></script>
+<script type="text/babel" src="../duel-game-mirror.js"></script>
+<script type="text/babel" src="../duel-game-speed.js"></script>
+
+<!-- 🆕 Trivia-bank v2: контент из дерева вместо хардкода -->
+<script src="./trivia-bank.js"></script>
+
+<!-- Turnir engine (от v1; ждёт window.YasnaTrivia, теперь от v2) -->
+<script src="../turnir-engine.js"></script>
+
+<!-- Page-level UI (от v1) -->
+<script src="../duel-page.js"></script>
+</body>
+</html>

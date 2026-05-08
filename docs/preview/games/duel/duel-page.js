@@ -362,50 +362,6 @@
           React.createElement('button', { className: 'dp-sync-notice-cta', onClick: onLoginClick, type: 'button' }, 'Войти'),
           React.createElement('button', { className: 'dp-sync-notice-x', onClick: dismiss, type: 'button', 'aria-label': 'Закрыть' }, '×')
         )
-      ),
-      // ─── Dark: VK-Scheme — где живут бусины ───
-      React.createElement('div', { className: 'vk-scheme-block', role: 'note' },
-        React.createElement('div', { className: 'vk-scheme' },
-          React.createElement('div', { className: 'vk-scheme-canvas' },
-            React.createElement('div', { className: 'vk-scheme-header' },
-              React.createElement('h3', { className: 'vk-scheme-header-title' }, 'Где сейчас живут твои бусины'),
-              React.createElement('button', {
-                className: 'vk-scheme-tag vk-scheme-tag--mute',
-                onClick: dismiss,
-                type: 'button',
-                'aria-label': 'Закрыть',
-                style: { border: 'none', cursor: 'pointer' }
-              }, '×  скрыть')
-            ),
-            React.createElement('div', { className: 'vk-scheme-entities' },
-              React.createElement('div', { className: 'vk-scheme-entity' },
-                React.createElement('div', { className: 'vk-scheme-entity-label' }, '◷  В этом браузере'),
-                React.createElement('div', { className: 'vk-scheme-chips' },
-                  React.createElement('span', { className: 'vk-scheme-chip' }, '✦  бусины'),
-                  React.createElement('span', { className: 'vk-scheme-chip' }, '◷  серии'),
-                  React.createElement('span', { className: 'vk-scheme-chip' }, '☷  история')
-                )
-              ),
-              React.createElement('div', { className: 'vk-scheme-entity' },
-                React.createElement('span', { className: 'vk-scheme-entity-badge' }, 'после входа'),
-                React.createElement('div', { className: 'vk-scheme-entity-label' }, '✓  В Telegram-аккаунте'),
-                React.createElement('div', { className: 'vk-scheme-chips' },
-                  React.createElement('span', { className: 'vk-scheme-chip' }, '↺  любое устройство'),
-                  React.createElement('span', { className: 'vk-scheme-chip' }, '↺  не теряется')
-                )
-              )
-            ),
-            React.createElement('div', { className: 'vk-scheme-foot', style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, fontStyle: 'normal' } },
-              React.createElement('span', null, 'Очистишь кеш или сменишь устройство — локальный прогресс уйдёт.'),
-              React.createElement('button', {
-                className: 'vk-scheme-tag vk-scheme-tag--accent',
-                onClick: onLoginClick,
-                type: 'button',
-                style: { border: 'none', cursor: 'pointer' }
-              }, 'Войти →')
-            )
-          )
-        )
       )
     );
   }
@@ -413,14 +369,14 @@
   // ─── Главный ритуал · 2 игры ─────────────────────────────────────
   function DPMainGames({ onPartiya, onUzor }){
     return React.createElement('section', { className: 'dp-section', role: 'region', 'aria-label': 'Главный ритуал' },
-      React.createElement('div', { style: { marginBottom: 'var(--space-5)' } },
+      React.createElement('div', { style: { marginBottom: 'var(--space-3)' } },
         React.createElement('div', { className: 'dp-eyebrow' }, 'Игры Ясны'),
         React.createElement('h2', { className: 'dp-section-h', style: { fontFamily: 'var(--font-serif)', fontWeight: 500, fontSize: 22, letterSpacing: '-0.005em' } },
           'Две игровые практики'
         ),
-        React.createElement('p', { className: 'dp-section-desc', style: { marginTop: 6 } },
-          React.createElement('strong', { style: { color: 'var(--text-1)', fontWeight: 500 } }, 'Партия'), ' — викторина по модели Ясны Суток (9 тем, 124 вопроса). Выбираешь длительность от 10 до 30 вопросов и соперника. ',
-          React.createElement('strong', { style: { color: 'var(--text-1)', fontWeight: 500 } }, 'Расклад'), ' — гонка: расставить 12 элементов по местам быстрее соперника.'
+        React.createElement('p', { className: 'dp-section-desc', style: { marginTop: 4 } },
+          React.createElement('strong', { style: { color: 'var(--text-1)', fontWeight: 500 } }, 'Партия'), ' — викторина 10/18/30 вопросов с Тенью или другом. ',
+          React.createElement('strong', { style: { color: 'var(--text-1)', fontWeight: 500 } }, 'Расклад'), ' — гонка по 12 полкам против соперника.'
         )
       ),
       // ─── Dark: VK-Scheme — как устроена Партия (5 шагов) ───

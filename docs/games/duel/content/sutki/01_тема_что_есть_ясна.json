@@ -1,0 +1,572 @@
+{
+  "$schema": "./00_СПЕЦИФИКАЦИЯ.md",
+  "version": "1.1.1",
+  "book": "sutki",
+  "theme": {
+    "id": "T1",
+    "slug": "chto-est-yasna",
+    "title": "Что есть Ясна",
+    "alt_titles": ["Веда. Гимны"],
+    "items_range": "1-41",
+    "pdf_pages": "5-6",
+    "source_file": "Сутки/02_узел_01_что_есть_ясна.md",
+    "summary": "Узел задаёт, что есть Ясна, как она исторически изложена (Веда / Гимн / Повесть / Памятник), вводит различение «знать ↔ ведать», утверждает тезис о единообразии устройства всех явлений и обосновывает, почему изучать удобно с суток и почему «учебников Ясны — двенадцать».",
+    "themes_in_partia": true
+  },
+
+  "categories": [
+    {
+      "id": "T1.K1",
+      "slug": "sushchnost-yasny",
+      "title": "Сущность Ясны",
+      "items_range": "1-8",
+      "atoms": [
+        {
+          "id": "T1.K1.A1",
+          "kind": "definition",
+          "term": "Ясна",
+          "quote": "Ясна есть способ описания природы.",
+          "source": { "items": [1], "pdf_page": 5 },
+          "meta": { "is_keystone": true },
+          "supports_questions": ["single-choice", "fill-blank", "true-false"]
+        },
+        {
+          "id": "T1.K1.A2",
+          "kind": "etymology",
+          "term": "Ясна",
+          "quote": "Ясна — русское слово, родственное словам «ясный», «ясность».",
+          "source": { "items": [2], "pdf_page": 5 },
+          "meta": { "related_words": ["ясный", "ясность"] },
+          "supports_questions": ["single-choice", "match-pair"]
+        },
+        {
+          "id": "T1.K1.A3",
+          "kind": "definition",
+          "term": "Ясна",
+          "quote": "Ясна есть всеобщее и всеобъемлющее учение о природе.",
+          "source": { "items": [3], "pdf_page": 5 },
+          "supports_questions": ["single-choice", "fill-blank"]
+        },
+        {
+          "id": "T1.K1.A4",
+          "kind": "definition",
+          "term": "Ясна",
+          "quote": "Ясна есть всеобщий закон природы, открытый древними славянами.",
+          "source": { "items": [4], "pdf_page": 5 },
+          "supports_questions": ["single-choice", "fill-blank", "true-false"]
+        },
+        {
+          "id": "T1.K1.A5",
+          "kind": "definition",
+          "term": "Ясна",
+          "quote": "Ясна есть закон устройства любой вещи и любой сущности.",
+          "source": { "items": [6], "pdf_page": 5 },
+          "supports_questions": ["fill-blank", "true-false"]
+        },
+        {
+          "id": "T1.K1.A6",
+          "kind": "postulate",
+          "term": "Единообразие устройства",
+          "quote": "Ясна есть учение о том, что внутреннее устройство всех без исключения явлений природы, всех вещей в природе и всех природных сущностей одинаково.",
+          "source": { "items": [7], "pdf_page": 5 },
+          "meta": { "is_keystone": true, "links": { "leads_to": ["T1.K5.A1"] } },
+          "supports_questions": ["fill-blank", "true-false"]
+        },
+        {
+          "id": "T1.K1.A7",
+          "kind": "name",
+          "term": "Ясна",
+          "alt_name": "Всеобщий Структурный Закон Мира",
+          "quote": "На языке современной науки, Ясна есть Всеобщий Структурный Закон Мира.",
+          "source": { "items": [8], "pdf_page": 5 },
+          "supports_questions": ["single-choice", "match-pair"]
+        },
+        {
+          "id": "T1.K1.A8",
+          "kind": "fact",
+          "quote": "В настоящее время Ясна наукой не изучается.",
+          "source": { "items": [9], "pdf_page": 5 },
+          "supports_questions": ["true-false"]
+        }
+      ]
+    },
+
+    {
+      "id": "T1.K2",
+      "slug": "veda-gimn-povest-pamyatnik",
+      "title": "Веда. Гимн. Повесть. Памятник",
+      "items_range": "10-17",
+      "atoms": [
+        {
+          "id": "T1.K2.A1",
+          "kind": "definition",
+          "term": "Веда",
+          "quote": "Изложение Ясны есть Веда.",
+          "source": { "items": [10], "pdf_page": 5 },
+          "meta": { "is_keystone": true },
+          "supports_questions": ["single-choice", "fill-blank", "match-pair"]
+        },
+        {
+          "id": "T1.K2.A2",
+          "kind": "rule",
+          "quote": "Изложение Ясны не может быть таким, каким является изложение математики, физики или химии в современных учебниках.",
+          "source": { "items": [11], "pdf_page": 5 },
+          "supports_questions": ["true-false"]
+        },
+        {
+          "id": "T1.K2.A3",
+          "kind": "rule",
+          "quote": "Ясна всегда изложена в виде гимнов Богам.",
+          "source": { "items": [12], "pdf_page": 5 },
+          "supports_questions": ["fill-blank", "true-false"]
+        },
+        {
+          "id": "T1.K2.A4",
+          "kind": "name",
+          "term": "Веда",
+          "alt_name": "Гимн",
+          "quote": "Веда — древнее слово. В настоящее время в этом же значении славяне пользуются словом «Гимн».",
+          "source": { "items": [13], "pdf_page": 5 },
+          "supports_questions": ["match-pair", "single-choice"]
+        },
+        {
+          "id": "T1.K2.A5",
+          "kind": "definition",
+          "term": "Повесть",
+          "quote": "Пояснением к Ведам являются Повести или Песни.",
+          "source": { "items": [14], "pdf_page": 5 },
+          "meta": { "synonyms": ["Песня"] },
+          "supports_questions": ["single-choice", "match-pair"]
+        },
+        {
+          "id": "T1.K2.A6",
+          "kind": "definition",
+          "term": "Повесть",
+          "quote": "Повести есть рассказы о деяниях людей, их Героев или Богов.",
+          "source": { "items": [15], "pdf_page": 5 },
+          "supports_questions": ["fill-blank", "single-choice"]
+        },
+        {
+          "id": "T1.K2.A7",
+          "kind": "fact",
+          "quote": "Повесть несёт в себе Веду в скрытом, неявном виде.",
+          "source": { "items": [16], "pdf_page": 5 },
+          "supports_questions": ["true-false", "fill-blank"]
+        },
+        {
+          "id": "T1.K2.A8",
+          "kind": "definition",
+          "term": "Памятник",
+          "quote": "В настоящее время Веду со всеми её приложениями наука изучает только как литературное явление. И Веду она называет «Памятник».",
+          "source": { "items": [17], "pdf_page": 5 },
+          "meta": { "links": { "contrasts": ["T1.K2.A1"] } },
+          "supports_questions": ["single-choice"]
+        }
+      ]
+    },
+
+    {
+      "id": "T1.K3",
+      "slug": "yazyk-vedy",
+      "title": "Язык Веды. «Знать ↔ Ведать», «Делать ↔ Творить»",
+      "items_range": "18-30",
+      "atoms": [
+        {
+          "id": "T1.K3.A1",
+          "kind": "fact",
+          "quote": "Сейчас значение слова и понятия «Веда» не такое, каким оно было в древности.",
+          "source": { "items": [18], "pdf_page": 6 },
+          "supports_questions": ["true-false"]
+        },
+        {
+          "id": "T1.K3.A2",
+          "kind": "fact",
+          "quote": "Былая разница значений слов «знать» и «ведать» — видна в древних песнях, в древних пословицах.",
+          "source": { "items": [19], "pdf_page": 6 },
+          "supports_questions": ["fill-blank"]
+        },
+        {
+          "id": "T1.K3.A3",
+          "kind": "pairing",
+          "term_a": "знать",
+          "term_b": "ведать",
+          "quote": "Знают, что делают, и не ведают, что творят.",
+          "context_quote": "В этой пословице древние различали понятия «знать» и «ведать».",
+          "source": { "items": [23, 24], "pdf_page": 6 },
+          "meta": {
+            "kind_a": "уметь действовать, выполнять, применять",
+            "kind_b": "понимать суть, видеть Ясну вещи",
+            "links": { "see_also": ["T1.K3.A4"], "leads_to": ["T3.K4.A1"] }
+          },
+          "supports_questions": ["match-pair", "fill-blank", "single-choice"]
+        },
+        {
+          "id": "T1.K3.A4",
+          "kind": "pairing",
+          "term_a": "делать",
+          "term_b": "творить",
+          "quote": "У этой пословицы видно также и то, что есть изначальная разница в значениях слов «делать» и «творить».",
+          "source": { "items": [26], "pdf_page": 6 },
+          "meta": { "links": { "see_also": ["T1.K3.A3"] } },
+          "supports_questions": ["match-pair", "true-false"]
+        },
+        {
+          "id": "T1.K3.A5",
+          "kind": "rule",
+          "quote": "Чтобы изучать Веду, нужно знать и язык, на котором она изложена.",
+          "source": { "items": [27], "pdf_page": 6 },
+          "supports_questions": ["true-false", "fill-blank"]
+        },
+        {
+          "id": "T1.K3.A6",
+          "kind": "rule",
+          "quote": "В Веде у каждого слова есть своё собственное место, и покинуть своё место оно не может.",
+          "source": { "items": [28], "pdf_page": 6 },
+          "supports_questions": ["fill-blank", "true-false"]
+        },
+        {
+          "id": "T1.K3.A7",
+          "kind": "postulate",
+          "quote": "Язык, на котором изложена Веда, сам является Ведой.",
+          "source": { "items": [29], "pdf_page": 6 },
+          "meta": { "is_keystone": true },
+          "supports_questions": ["fill-blank", "true-false"]
+        }
+      ]
+    },
+
+    {
+      "id": "T1.K4",
+      "slug": "sledy-yasny-v-russkom",
+      "title": "Следы Ясны в русском языке",
+      "items_range": "31",
+      "atoms": [
+        {
+          "id": "T1.K4.A1",
+          "kind": "list",
+          "term": "Следы Ясны в русском языке",
+          "quote": "В настоящее время в русском языке остались только следы Ясны в словах и выражениях, например, таких: «мне всё ясно», «спросить ясности», «разъяснение», «внести ясность в значение о чём-либо».",
+          "source": { "items": [31], "pdf_page": 6 },
+          "items_list": [
+            "мне всё ясно",
+            "спросить ясности",
+            "разъяснение",
+            "внести ясность в значение о чём-либо"
+          ],
+          "supports_questions": ["multi-choice", "single-choice"]
+        }
+      ]
+    },
+
+    {
+      "id": "T1.K5",
+      "slug": "korpus-i-metod",
+      "title": "Корпус Ясны и метод обучения",
+      "items_range": "32-41",
+      "atoms": [
+        {
+          "id": "T1.K5.A1",
+          "kind": "postulate",
+          "quote": "Ясна говорит о том, что всё в мире устроено единообразно.",
+          "source": { "items": [32], "pdf_page": 6 },
+          "meta": { "links": { "see_also": ["T1.K1.A6"] } },
+          "supports_questions": ["fill-blank", "true-false"]
+        },
+        {
+          "id": "T1.K5.A2",
+          "kind": "fact",
+          "quote": "Единообразно устроены и все вещи, имеющие размеры в пространстве, и все вещи, имеющие размеры во времени.",
+          "source": { "items": [33], "pdf_page": 6 },
+          "supports_questions": ["fill-blank", "true-false"]
+        },
+        {
+          "id": "T1.K5.A3",
+          "kind": "postulate",
+          "quote": "Ясна говорит: так как всё в мире устроено единообразно, знания, полученные при изучении какой-либо вещи, можно считать знанием о любой другой вещи.",
+          "source": { "items": [34], "pdf_page": 6 },
+          "meta": { "is_keystone": true, "links": { "leads_to": ["T10.K2.A1"] } },
+          "supports_questions": ["fill-blank", "true-false"]
+        },
+        {
+          "id": "T1.K5.A4",
+          "kind": "rule",
+          "quote": "Ясну удобно начать изучать на таких вещах, внутреннее устройство которых легко наблюдать.",
+          "source": { "items": [35], "pdf_page": 6 },
+          "supports_questions": ["true-false"]
+        },
+        {
+          "id": "T1.K5.A5",
+          "kind": "number",
+          "term": "Основной Учебник",
+          "quote": "Основных учебников Ясны — двенадцать.",
+          "value": 12,
+          "unit": "учебников Ясны",
+          "source": { "items": [37], "pdf_page": 6 },
+          "meta": {
+            "is_keystone": true,
+            "defines_term": "Основной Учебник",
+            "links": { "applies_in": ["T10.K3.A1"] }
+          },
+          "supports_questions": ["single-choice", "fill-blank"]
+        },
+        {
+          "id": "T1.K5.A6",
+          "kind": "fact",
+          "quote": "В число основных учебников Ясны входит «Ясна Суток».",
+          "source": { "items": [38], "pdf_page": 6 },
+          "supports_questions": ["true-false"]
+        },
+        {
+          "id": "T1.K5.A7",
+          "kind": "rule",
+          "quote": "Ясну удобно начать изучать с изучения световых суток.",
+          "source": { "items": [39], "pdf_page": 6 },
+          "supports_questions": ["true-false", "single-choice"]
+        },
+        {
+          "id": "T1.K5.A8",
+          "kind": "definition",
+          "term": "Сутки",
+          "quote": "Сутки есть вещь, имеющая размеры во времени.",
+          "source": { "items": [40], "pdf_page": 6 },
+          "supports_questions": ["fill-blank", "single-choice", "true-false"]
+        }
+      ]
+    }
+  ],
+
+  "illustrations": [],
+
+  "questions": [
+    {
+      "id": "T1.Q1",
+      "type": "single-choice",
+      "difficulty": "easy",
+      "stem": "Что такое Ясна по первому пункту книги?",
+      "correct": "Способ описания природы",
+      "options": [
+        "Способ описания природы",
+        "Древнее искусство гадания",
+        "Свод обрядов славянских жрецов",
+        "Раздел физики XX века"
+      ],
+      "explanation": {
+        "quote": "Ясна есть способ описания природы.",
+        "source": { "items": [1], "pdf_page": 5 }
+      },
+      "source_atoms": ["T1.K1.A1"],
+      "tags": ["definition", "core"]
+    },
+    {
+      "id": "T1.Q2",
+      "type": "single-choice",
+      "difficulty": "easy",
+      "stem": "Сколько Основных Учебников Ясны?",
+      "correct": "12",
+      "options": ["7", "12", "21", "144"],
+      "explanation": {
+        "quote": "Основных учебников Ясны — двенадцать.",
+        "source": { "items": [37], "pdf_page": 6 }
+      },
+      "source_atoms": ["T1.K5.A5"],
+      "tags": ["number", "count"]
+    },
+    {
+      "id": "T1.Q3",
+      "type": "single-choice",
+      "difficulty": "medium",
+      "stem": "Каким словом современная наука называет Веду, изучая её только как литературное явление?",
+      "correct": "Памятник",
+      "options": [
+        "Памятник",
+        "Гимн",
+        "Песня",
+        "Повесть"
+      ],
+      "explanation": {
+        "quote": "В настоящее время Веду со всеми её приложениями наука изучает только как литературное явление. И Веду она называет «Памятник».",
+        "source": { "items": [17], "pdf_page": 5 }
+      },
+      "source_atoms": ["T1.K2.A8"],
+      "tags": ["name", "language"]
+    },
+    {
+      "id": "T1.Q3b",
+      "type": "match-pair",
+      "difficulty": "medium",
+      "stem": "Соотнесите древнее слово и его современный синоним",
+      "correct": [
+        ["Веда", "Гимн"],
+        ["Повесть", "Песня"]
+      ],
+      "explanation": {
+        "quote": "Веда — древнее слово. В настоящее время в этом же значении славяне пользуются словом «Гимн». Пояснением к Ведам являются Повести или Песни.",
+        "source": { "items": [13, 14], "pdf_page": 5 }
+      },
+      "source_atoms": ["T1.K2.A4", "T1.K2.A5"],
+      "tags": ["pairing", "synonyms"]
+    },
+    {
+      "id": "T1.Q4",
+      "type": "fill-blank",
+      "difficulty": "medium",
+      "stem": "Внутреннее устройство всех без исключения явлений природы, всех вещей в природе и всех природных сущностей _____.",
+      "correct": "одинаково",
+      "correct_alternatives": ["одинаковое"],
+      "explanation": {
+        "quote": "Ясна есть учение о том, что внутреннее устройство всех без исключения явлений природы, всех вещей в природе и всех природных сущностей одинаково.",
+        "source": { "items": [7], "pdf_page": 5 }
+      },
+      "source_atoms": ["T1.K1.A6"],
+      "tags": ["postulate", "keystone"]
+    },
+    {
+      "id": "T1.Q5",
+      "type": "single-choice",
+      "difficulty": "medium",
+      "stem": "Какое слово на языке современной науки соответствует Ясне?",
+      "correct": "Всеобщий Структурный Закон Мира",
+      "options": [
+        "Всеобщий Структурный Закон Мира",
+        "Теория относительности",
+        "Универсальная Грамматика",
+        "Единая Теория Поля"
+      ],
+      "explanation": {
+        "quote": "На языке современной науки, Ясна есть Всеобщий Структурный Закон Мира.",
+        "source": { "items": [8], "pdf_page": 5 }
+      },
+      "source_atoms": ["T1.K1.A7"],
+      "tags": ["name", "synonym"]
+    },
+    {
+      "id": "T1.Q6",
+      "type": "true-false",
+      "difficulty": "easy",
+      "stem": "Ясна всегда изложена в виде гимнов Богам.",
+      "correct": true,
+      "explanation": {
+        "quote": "Ясна всегда изложена в виде гимнов Богам.",
+        "source": { "items": [12], "pdf_page": 5 }
+      },
+      "source_atoms": ["T1.K2.A3"],
+      "tags": ["rule"]
+    },
+    {
+      "id": "T1.Q7",
+      "type": "single-choice",
+      "difficulty": "medium",
+      "stem": "В пословице «Знают, что делают, и не ведают, что творят» древние различали:",
+      "correct": "«знать» и «ведать»",
+      "options": [
+        "«знать» и «ведать»",
+        "«видеть» и «думать»",
+        "«помнить» и «забывать»",
+        "«учиться» и «учить»"
+      ],
+      "explanation": {
+        "quote": "В этой пословице древние различали понятия «знать» и «ведать».",
+        "source": { "items": [23, 24], "pdf_page": 6 }
+      },
+      "source_atoms": ["T1.K3.A3"],
+      "tags": ["pairing"]
+    },
+    {
+      "id": "T1.Q8",
+      "type": "fill-blank",
+      "difficulty": "hard",
+      "stem": "В Веде у каждого слова есть своё собственное место, и покинуть своё место оно _____.",
+      "correct": "не может",
+      "correct_alternatives": ["не способно", "нельзя"],
+      "explanation": {
+        "quote": "В Веде у каждого слова есть своё собственное место, и покинуть своё место оно не может.",
+        "source": { "items": [28], "pdf_page": 6 }
+      },
+      "source_atoms": ["T1.K3.A6"],
+      "tags": ["rule", "language"]
+    },
+    {
+      "id": "T1.Q9",
+      "type": "single-choice",
+      "difficulty": "easy",
+      "stem": "С чего удобно начать изучать Ясну?",
+      "correct": "С изучения световых суток",
+      "options": [
+        "С изучения световых суток",
+        "С изучения года",
+        "С изучения человеческой жизни",
+        "С изучения зодиака"
+      ],
+      "explanation": {
+        "quote": "Ясну удобно начать изучать с изучения световых суток.",
+        "source": { "items": [39], "pdf_page": 6 }
+      },
+      "source_atoms": ["T1.K5.A7"],
+      "tags": ["rule", "method"]
+    },
+    {
+      "id": "T1.Q10",
+      "type": "multi-choice",
+      "difficulty": "medium",
+      "stem": "Какие выражения, по книге, остались следами Ясны в русском языке?",
+      "correct": [
+        "мне всё ясно",
+        "спросить ясности",
+        "разъяснение",
+        "внести ясность в значение о чём-либо"
+      ],
+      "options": [
+        "мне всё ясно",
+        "спросить ясности",
+        "разъяснение",
+        "внести ясность в значение о чём-либо",
+        "тёмное дело",
+        "светлая голова",
+        "разобрать по полочкам"
+      ],
+      "explanation": {
+        "quote": "В настоящее время в русском языке остались только следы Ясны в словах и выражениях, например, таких: «мне всё ясно», «спросить ясности», «разъяснение», «внести ясность в значение о чём-либо».",
+        "source": { "items": [31], "pdf_page": 6 }
+      },
+      "source_atoms": ["T1.K4.A1"],
+      "tags": ["list", "language"]
+    }
+  ],
+
+  "rejected": [
+    { "item": 5,  "reason": "Повтор/перефразировка №4 («Ясна есть закон устройства природы»). Семантически эквивалентно T1.K1.A4." },
+    { "item": 20, "reason": "Мета-комментарий о современном непонимании пословиц, без отдельного testable-факта." },
+    { "item": 21, "reason": "Мета-комментарий: «У народа принято считать, что пословицы сочинил народ» — рамочное наблюдение." },
+    { "item": 22, "reason": "Мета-комментарий о слове «народ»; нет проверяемого факта о Ясне." },
+    { "item": 25, "reason": "Реcap различения «знать ↔ ведать» (см. атом T1.K3.A3 на пп. 23-24)." },
+    { "item": 30, "reason": "Резюмирующий вывод узла («чтобы говорить о пословицах, нужно знать и Ясну, и Веду»). Перекрывается атомами T1.K3.A5 и T1.K3.A7." },
+    { "item": 36, "reason": "Грамматически неровная фраза в скане («у древних времён принят их Основными Учебниками»). Содержательно покрыта атомом T1.K5.A5 (счёт учебников)." },
+    { "item": 41, "reason": "Переходный анонс к узлу 2: «В наши знания о световых сутках и внесём сейчас ясность.» Не содержит факта, только обещание." }
+  ],
+
+  "stats": {
+    "items_in_range": 41,
+    "atoms_count": 32,
+    "items_covered_count": 33,
+    "categories_count": 5,
+    "questions_count": 11,
+    "illustrations_count": 0,
+    "rejected_count": 8,
+    "coverage_pct": 80,
+    "keystone_count": 5,
+    "kind_distribution": {
+      "definition": 9, "fact": 6, "rule": 6, "postulate": 4,
+      "name": 2, "pairing": 2, "etymology": 1, "list": 1, "number": 1
+    }
+  },
+
+  "changelog": [
+    { "version": "1.1.1", "changes": [
+      "Q3 переписан с match-pair на чистый single-choice (избавлен от костыльного квалификатора «Веда (для науки)»)",
+      "Q3b добавлен — match-pair с однозначными словами (Веда↔Гимн, Повесть↔Песня)",
+      "is_keystone расширен: T1.K1.A1 (главная дефиниция Ясны), T1.K2.A1 (Веда), T1.K3.A7 (язык как Веда), T1.K5.A5 (12 учебников). Итого 5 keystone-атомов на тему.",
+      "T1.Q4 fill-blank: добавлен correct_alternatives ['одинаковое'] для грамматических вариантов",
+      "T1.Q8 fill-blank: добавлен correct_alternatives ['не способно', 'нельзя'] для синонимов"
+    ]}
+  ]
+}

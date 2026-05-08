@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-08T22:39:44.605Z */
+/* Yasna bundle: duel.js — собран 2026-05-08T22:47:12.158Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5292,7 +5292,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-08T22:39:42.644Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
+  const BUILD_INFO = { "builtAt": "2026-05-08T22:47:10.649Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -20192,70 +20192,6 @@ window.YasnaCore = {
           React.createElement("button", { className: "dp-sync-notice-cta", onClick: onLoginClick, type: "button" }, "\u0412\u043E\u0439\u0442\u0438"),
           React.createElement("button", { className: "dp-sync-notice-x", onClick: dismiss, type: "button", "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C" }, "\xD7")
         )
-      ),
-      // ─── Dark: VK-Scheme — где живут бусины ───
-      React.createElement(
-        "div",
-        { className: "vk-scheme-block", role: "note" },
-        React.createElement(
-          "div",
-          { className: "vk-scheme" },
-          React.createElement(
-            "div",
-            { className: "vk-scheme-canvas" },
-            React.createElement(
-              "div",
-              { className: "vk-scheme-header" },
-              React.createElement("h3", { className: "vk-scheme-header-title" }, "\u0413\u0434\u0435 \u0441\u0435\u0439\u0447\u0430\u0441 \u0436\u0438\u0432\u0443\u0442 \u0442\u0432\u043E\u0438 \u0431\u0443\u0441\u0438\u043D\u044B"),
-              React.createElement("button", {
-                className: "vk-scheme-tag vk-scheme-tag--mute",
-                onClick: dismiss,
-                type: "button",
-                "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C",
-                style: { border: "none", cursor: "pointer" }
-              }, "\xD7  \u0441\u043A\u0440\u044B\u0442\u044C")
-            ),
-            React.createElement(
-              "div",
-              { className: "vk-scheme-entities" },
-              React.createElement(
-                "div",
-                { className: "vk-scheme-entity" },
-                React.createElement("div", { className: "vk-scheme-entity-label" }, "\u25F7  \u0412 \u044D\u0442\u043E\u043C \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0435"),
-                React.createElement(
-                  "div",
-                  { className: "vk-scheme-chips" },
-                  React.createElement("span", { className: "vk-scheme-chip" }, "\u2726  \u0431\u0443\u0441\u0438\u043D\u044B"),
-                  React.createElement("span", { className: "vk-scheme-chip" }, "\u25F7  \u0441\u0435\u0440\u0438\u0438"),
-                  React.createElement("span", { className: "vk-scheme-chip" }, "\u2637  \u0438\u0441\u0442\u043E\u0440\u0438\u044F")
-                )
-              ),
-              React.createElement(
-                "div",
-                { className: "vk-scheme-entity" },
-                React.createElement("span", { className: "vk-scheme-entity-badge" }, "\u043F\u043E\u0441\u043B\u0435 \u0432\u0445\u043E\u0434\u0430"),
-                React.createElement("div", { className: "vk-scheme-entity-label" }, "\u2713  \u0412 Telegram-\u0430\u043A\u043A\u0430\u0443\u043D\u0442\u0435"),
-                React.createElement(
-                  "div",
-                  { className: "vk-scheme-chips" },
-                  React.createElement("span", { className: "vk-scheme-chip" }, "\u21BA  \u043B\u044E\u0431\u043E\u0435 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E"),
-                  React.createElement("span", { className: "vk-scheme-chip" }, "\u21BA  \u043D\u0435 \u0442\u0435\u0440\u044F\u0435\u0442\u0441\u044F")
-                )
-              )
-            ),
-            React.createElement(
-              "div",
-              { className: "vk-scheme-foot", style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, fontStyle: "normal" } },
-              React.createElement("span", null, "\u041E\u0447\u0438\u0441\u0442\u0438\u0448\u044C \u043A\u0435\u0448 \u0438\u043B\u0438 \u0441\u043C\u0435\u043D\u0438\u0448\u044C \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E \u2014 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u044B\u0439 \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u0443\u0439\u0434\u0451\u0442."),
-              React.createElement("button", {
-                className: "vk-scheme-tag vk-scheme-tag--accent",
-                onClick: onLoginClick,
-                type: "button",
-                style: { border: "none", cursor: "pointer" }
-              }, "\u0412\u043E\u0439\u0442\u0438 \u2192")
-            )
-          )
-        )
       )
     );
   }
@@ -20265,7 +20201,7 @@ window.YasnaCore = {
       { className: "dp-section", role: "region", "aria-label": "\u0413\u043B\u0430\u0432\u043D\u044B\u0439 \u0440\u0438\u0442\u0443\u0430\u043B" },
       React.createElement(
         "div",
-        { style: { marginBottom: "var(--space-5)" } },
+        { style: { marginBottom: "var(--space-3)" } },
         React.createElement("div", { className: "dp-eyebrow" }, "\u0418\u0433\u0440\u044B \u042F\u0441\u043D\u044B"),
         React.createElement(
           "h2",
@@ -20274,11 +20210,11 @@ window.YasnaCore = {
         ),
         React.createElement(
           "p",
-          { className: "dp-section-desc", style: { marginTop: 6 } },
+          { className: "dp-section-desc", style: { marginTop: 4 } },
           React.createElement("strong", { style: { color: "var(--text-1)", fontWeight: 500 } }, "\u041F\u0430\u0440\u0442\u0438\u044F"),
-          " \u2014 \u0432\u0438\u043A\u0442\u043E\u0440\u0438\u043D\u0430 \u043F\u043E \u043C\u043E\u0434\u0435\u043B\u0438 \u042F\u0441\u043D\u044B \u0421\u0443\u0442\u043E\u043A (9 \u0442\u0435\u043C, 124 \u0432\u043E\u043F\u0440\u043E\u0441\u0430). \u0412\u044B\u0431\u0438\u0440\u0430\u0435\u0448\u044C \u0434\u043B\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u044C \u043E\u0442 10 \u0434\u043E 30 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u0438 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u0430. ",
+          " \u2014 \u0432\u0438\u043A\u0442\u043E\u0440\u0438\u043D\u0430 10/18/30 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u0441 \u0422\u0435\u043D\u044C\u044E \u0438\u043B\u0438 \u0434\u0440\u0443\u0433\u043E\u043C. ",
           React.createElement("strong", { style: { color: "var(--text-1)", fontWeight: 500 } }, "\u0420\u0430\u0441\u043A\u043B\u0430\u0434"),
-          " \u2014 \u0433\u043E\u043D\u043A\u0430: \u0440\u0430\u0441\u0441\u0442\u0430\u0432\u0438\u0442\u044C 12 \u044D\u043B\u0435\u043C\u0435\u043D\u0442\u043E\u0432 \u043F\u043E \u043C\u0435\u0441\u0442\u0430\u043C \u0431\u044B\u0441\u0442\u0440\u0435\u0435 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u0430."
+          " \u2014 \u0433\u043E\u043D\u043A\u0430 \u043F\u043E 12 \u043F\u043E\u043B\u043A\u0430\u043C \u043F\u0440\u043E\u0442\u0438\u0432 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u0430."
         )
       ),
       // ─── Dark: VK-Scheme — как устроена Партия (5 шагов) ───
