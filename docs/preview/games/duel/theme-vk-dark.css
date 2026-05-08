@@ -1056,3 +1056,291 @@ body.theme-vk-dark .dp-footer {
   font-size: var(--vk-caption-m-size);
   line-height: var(--vk-caption-m-line);
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   VK Adaptive — точные брейкпоинты Desktop / Tablet / Mobile
+   Источник: cfX0idPjpMd6Eb2J9LTaeB · SectionGrid (3:102747)
+   • Desktop:  ≥1280px · padding 60 · gap 24 · max-width 1280
+   • Tablet:   768–1279 · padding 32 · gap 20 · max-width 768
+   • Mobile:   ≤767px · padding 20 · gap 16 · 1 колонка
+   ═══════════════════════════════════════════════════════════════════ */
+
+body.theme-vk-dark {
+  /* Брейкпоинты */
+  --vk-bp-mobile-max:   767px;
+  --vk-bp-tablet-min:   768px;
+  --vk-bp-tablet-max:   1279px;
+  --vk-bp-desktop-min:  1280px;
+
+  /* Контейнеры */
+  --vk-container-max-desktop: 1280px;
+  --vk-container-max-tablet:  768px;
+
+  /* Padding контейнеров */
+  --vk-container-pad-desktop: 60px;
+  --vk-container-pad-tablet:  32px;
+  --vk-container-pad-mobile:  20px;
+
+  /* Gaps между карточками */
+  --vk-grid-gap-desktop: 24px;
+  --vk-grid-gap-tablet:  20px;
+  --vk-grid-gap-mobile:  16px;
+
+  /* Section vertical spacing (margin-m из VK = 120, делим для нашего масштаба) */
+  --vk-section-gap-desktop: 80px;
+  --vk-section-gap-tablet:  56px;
+  --vk-section-gap-mobile:  40px;
+
+  /* Карточки внутренний padding */
+  --vk-card-pad-desktop: 32px;
+  --vk-card-pad-tablet:  24px;
+  --vk-card-pad-mobile:  20px;
+}
+
+/* ─── Главный контейнер страницы (Hero + секции) ──────────────────── */
+body.theme-vk-dark main,
+body.theme-vk-dark .dp-root > main {
+  max-width: var(--vk-container-max-desktop);
+  margin: 0 auto;
+  padding-left: var(--vk-container-pad-desktop);
+  padding-right: var(--vk-container-pad-desktop);
+}
+
+/* ─── Сетка карточек игр (Партия + Расклад) ───────────────────────── */
+body.theme-vk-dark .dp-games-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--vk-grid-gap-desktop);
+}
+
+/* Партитура (Освоение тем) — 3 колонки на десктопе, 2 на планшете, 1 на мобиле */
+body.theme-vk-dark .dp-partitura {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--vk-grid-gap-desktop);
+}
+
+/* Quest cards (Сегодня) — 2 колонки */
+body.theme-vk-dark .dp-quests {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--vk-grid-gap-desktop);
+}
+
+/* Two-col секция (Хроника + Достижения) */
+body.theme-vk-dark .dp-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--vk-grid-gap-desktop);
+}
+
+/* Финал — 3 stat карточки в ряд */
+body.theme-vk-dark .tn-final-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--vk-grid-gap-mobile);
+}
+
+/* ─── Section vertical spacing ────────────────────────────────────── */
+body.theme-vk-dark .dp-section {
+  margin-bottom: var(--vk-section-gap-desktop);
+}
+
+/* ─── Карточки игр padding ────────────────────────────────────────── */
+body.theme-vk-dark .dp-game-card {
+  padding: var(--vk-card-pad-desktop);
+}
+
+/* ─── Hero ────────────────────────────────────────────────────────── */
+body.theme-vk-dark .dp-hero {
+  padding: var(--vk-card-pad-desktop);
+}
+
+/* ─── Игровой экран Партии ────────────────────────────────────────── */
+/* Внутри Партии оставляем узкий контейнер 720px — текст вопроса
+   читается лучше в одной короткой колонке, не растягиваясь на 1280 */
+body.theme-vk-dark .tn-container {
+  max-width: 720px;
+  padding: 32px 24px 48px;
+}
+body.theme-vk-dark .tn-container-final {
+  max-width: 720px;
+  padding: 32px 24px 80px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   TABLET · 768–1279px
+   ═══════════════════════════════════════════════════════════════════ */
+@media (min-width: 768px) and (max-width: 1279px) {
+  body.theme-vk-dark main,
+  body.theme-vk-dark .dp-root > main {
+    max-width: var(--vk-container-max-tablet);
+    padding-left: var(--vk-container-pad-tablet);
+    padding-right: var(--vk-container-pad-tablet);
+  }
+  body.theme-vk-dark .dp-games-grid,
+  body.theme-vk-dark .dp-quests,
+  body.theme-vk-dark .dp-two-col {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--vk-grid-gap-tablet);
+  }
+  body.theme-vk-dark .dp-partitura {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--vk-grid-gap-tablet);
+  }
+  body.theme-vk-dark .dp-section {
+    margin-bottom: var(--vk-section-gap-tablet);
+  }
+  body.theme-vk-dark .dp-game-card,
+  body.theme-vk-dark .dp-hero {
+    padding: var(--vk-card-pad-tablet);
+  }
+  /* Display L → M на планшете */
+  body.theme-vk-dark .dp-welcome-title,
+  body.theme-vk-dark .tn-final-vs-num {
+    font-size: var(--vk-display-m-size);
+    line-height: var(--vk-display-m-line);
+  }
+  body.theme-vk-dark .dp-castalia-h1,
+  body.theme-vk-dark .tn-round-title,
+  body.theme-vk-dark .tn-final-headline {
+    font-size: var(--vk-display-s-size);
+    line-height: var(--vk-display-s-line);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   MOBILE · ≤767px — одна колонка, минимальные паддинги
+   ═══════════════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  body.theme-vk-dark main,
+  body.theme-vk-dark .dp-root > main {
+    max-width: 100%;
+    padding-left: var(--vk-container-pad-mobile);
+    padding-right: var(--vk-container-pad-mobile);
+  }
+  body.theme-vk-dark .dp-games-grid,
+  body.theme-vk-dark .dp-quests,
+  body.theme-vk-dark .dp-two-col,
+  body.theme-vk-dark .dp-partitura {
+    grid-template-columns: 1fr;
+    gap: var(--vk-grid-gap-mobile);
+  }
+  body.theme-vk-dark .tn-final-stats {
+    grid-template-columns: 1fr;
+    gap: var(--vk-grid-gap-mobile);
+  }
+  /* Mobile stat — горизонтальная раскладка */
+  body.theme-vk-dark .tn-final-stat {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+    padding: 16px 20px;
+    flex-wrap: nowrap;
+  }
+  body.theme-vk-dark .tn-final-stat-label {
+    margin-bottom: 0;
+    flex: 0 0 auto;
+  }
+  body.theme-vk-dark .tn-final-stat-value {
+    font-size: 24px;
+    line-height: 32px;
+    text-align: right;
+    margin-left: auto;
+  }
+  body.theme-vk-dark .tn-final-stat-sub {
+    margin-top: 0;
+    margin-left: 12px;
+    flex: 0 0 auto;
+  }
+  body.theme-vk-dark .dp-section {
+    margin-bottom: var(--vk-section-gap-mobile);
+  }
+  body.theme-vk-dark .dp-game-card,
+  body.theme-vk-dark .dp-hero {
+    padding: var(--vk-card-pad-mobile);
+  }
+  /* Display: всё уменьшается на step */
+  body.theme-vk-dark .dp-welcome-title {
+    font-size: var(--vk-display-m-size);
+    line-height: var(--vk-display-m-line);
+    letter-spacing: -0.01em;
+  }
+  body.theme-vk-dark .dp-castalia-h1 {
+    font-size: var(--vk-display-s-size);
+    line-height: var(--vk-display-s-line);
+  }
+  body.theme-vk-dark .tn-final-vs-num {
+    font-size: 40px;
+    line-height: 48px;
+  }
+  body.theme-vk-dark .tn-final-headline {
+    font-size: 28px;
+    line-height: 36px;
+  }
+  body.theme-vk-dark .tn-round-title {
+    font-size: 28px;
+    line-height: 36px;
+  }
+  body.theme-vk-dark .tn-q-text {
+    font-size: 22px;
+    line-height: 30px;
+  }
+  body.theme-vk-dark .tn-option {
+    font-size: var(--vk-body-s-size);
+    line-height: var(--vk-body-s-line);
+    padding: 14px 16px;
+    min-height: 56px;
+    border-radius: 14px;
+  }
+  body.theme-vk-dark .tn-option-letter {
+    width: 28px;
+    height: 28px;
+    font-size: 13px;
+  }
+  body.theme-vk-dark .tn-container,
+  body.theme-vk-dark .tn-container-final {
+    padding: 16px 16px 40px;
+  }
+  body.theme-vk-dark .tn-q-card {
+    padding: 20px;
+  }
+  body.theme-vk-dark .tn-final-vs {
+    padding: 24px 20px;
+  }
+  /* Tag-кнопки на мобиле — компактнее */
+  body.theme-vk-dark .dp-game-eyebrow,
+  body.theme-vk-dark .dp-castalia-eyebrow {
+    height: 24px;
+    padding: 0 10px;
+    font-size: 13px;
+    line-height: 18px;
+  }
+  /* FAB-переключатель чуть меньше */
+  body.theme-vk-dark .dp-theme-toggle {
+    right: 16px;
+    bottom: 16px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  /* Sync notice стопка */
+  body.theme-vk-dark .dp-sync-notice {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  body.theme-vk-dark .dp-sync-notice-actions {
+    justify-content: flex-end;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   DESKTOP LARGE · ≥1280px — финальные правки для широких экранов
+   ═══════════════════════════════════════════════════════════════════ */
+@media (min-width: 1280px) {
+  /* На больших экранах FAB чуть отступает от края */
+  body.theme-vk-dark .dp-theme-toggle {
+    right: 32px;
+    bottom: 32px;
+  }
+}
