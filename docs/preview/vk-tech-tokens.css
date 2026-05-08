@@ -1,0 +1,368 @@
+/* ════════════════════════════════════════════════════════════════════
+   VK Tech Design Tokens · Single source of truth для тёмной темы
+   ──────────────────────────────────────────────────────────────────
+   Источник: Figma file cfX0idPjpMd6Eb2J9LTaeB · node 19:92826
+   («Spaces Colors Buttons Inputs»)
+   ──────────────────────────────────────────────────────────────────
+   Все токены вынесены в CSS-переменные. Активируются под
+   `body.theme-vk-dark`. В светлой теме — переменные не определены,
+   и связанные классы (.vk-btn, .vk-input) не активны.
+   ════════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+body.theme-vk-dark {
+  /* ─── ПАЛИТРА (DarkMode) ─── */
+  --vk-bg-base:        #111111;   /* Dark Background — body */
+  --vk-bg-surface:     #191919;   /* Background — основной surface */
+  --vk-bg-elevated:    #262626;   /* Dark — приподнятые элементы */
+  --vk-bg-tonal:       #303030;   /* Gray — кнопки secondary, инпуты */
+  --vk-bg-strong:      #4A4A4A;   /* Light Gray — divider/border-strong */
+
+  --vk-text-primary:   #F1F1F1;   /* Bright — основной текст */
+  --vk-text-secondary: #838383;   /* Additional — приглушённый */
+  --vk-text-tertiary:  #7C7C7C;   /* Brand Gray — самый тихий */
+
+  --vk-border:         rgba(255, 255, 255, 0.08);
+  --vk-border-strong:  #4A4A4A;
+
+  /* ─── АКЦЕНТЫ ─── */
+  --vk-accent:         #0077FF;   /* VK Play Blue — primary action */
+  --vk-accent-hover:   #16A7FF;   /* Light Blue — hover */
+  --vk-accent-soft:    rgba(0, 119, 255, 0.16);
+
+  --vk-warn:           #FFCA4D;   /* VK Play Yellow */
+  --vk-success:        #59A840;
+  --vk-error:          #CD3544;
+
+  /* ─── ТИПОГРАФИКА ─── */
+  --vk-font: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Размеры (font-size / line-height / weight) */
+  --vk-fs-xxs: 12px;   --vk-lh-xxs: 16px;   /* Description */
+  --vk-fs-xs:  13px;   --vk-lh-xs:  16px;   /* Helper / Small Label */
+  --vk-fs-s:   14px;   --vk-lh-s:   22px;   /* Text / Paragraph / Label */
+  --vk-fs-m:   16px;   --vk-lh-m:   22px;   /* Big Text / Big Label */
+  --vk-fs-l:   18px;   --vk-lh-l:   22px;   /* Subtitle */
+  --vk-fs-xl:  20px;   --vk-lh-xl:  24px;   /* Popup Title / Title */
+  --vk-fs-xxl: 24px;   --vk-lh-xxl: 30px;   /* Heading */
+
+  /* ─── SPACING (модуль 2px) ─── */
+  --vk-sp-1:  4px;   --vk-sp-2:  6px;   --vk-sp-3:  8px;
+  --vk-sp-4: 12px;   --vk-sp-5: 16px;   --vk-sp-6: 20px;
+  --vk-sp-7: 24px;   --vk-sp-8: 32px;
+
+  /* ─── РАДИУСЫ ─── */
+  --vk-radius-xs:  4px;
+  --vk-radius-s:   8px;
+  --vk-radius-m:  10px;
+  --vk-radius-l:  12px;
+  --vk-radius-xl: 16px;
+
+  /* ─── ВЫСОТЫ КОНТРОЛОВ (по Figma) ─── */
+  --vk-h-button-s: 32px;
+  --vk-h-button-m: 40px;
+  --vk-h-button-l: 46px;
+  --vk-h-input-s:  46px;
+  --vk-h-input-m:  56px;
+
+  /* ─── ТЕНИ (Elevation) ─── */
+  --vk-elevation-4: 0 2px 4px rgba(0, 0, 0, 0.08);
+  --vk-elevation-8: 0 4px 12px rgba(0, 0, 0, 0.20);
+  --vk-elevation-16: 0 8px 24px rgba(0, 0, 0, 0.30);
+  --vk-elevation-modal: 0 16px 48px rgba(0, 0, 0, 0.50);
+
+  /* ─── ТРАНЗИЦИИ ─── */
+  --vk-trans-fast: 120ms ease;
+  --vk-trans-base: 180ms ease;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   КОМПОНЕНТЫ · единая система использует токены выше
+   ──────────────────────────────────────────────────────────────────
+   .vk-btn / .vk-input / .vk-select / .vk-card
+   Все только под body.theme-vk-dark, изолированы от light-темы.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ─── КНОПКА ─── */
+body.theme-vk-dark .vk-btn,
+body.theme-vk-dark button.vk-btn {
+  font-family: var(--vk-font);
+  font-size: var(--vk-fs-s);
+  line-height: var(--vk-lh-s);
+  font-weight: 500;
+  height: var(--vk-h-button-m);
+  padding: 0 var(--vk-sp-5);
+  border-radius: var(--vk-radius-m);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vk-sp-3);
+  transition: background var(--vk-trans-fast), color var(--vk-trans-fast), transform 80ms;
+  white-space: nowrap;
+}
+body.theme-vk-dark .vk-btn:active { transform: scale(0.98); }
+
+/* Primary — VK Play Blue */
+body.theme-vk-dark .vk-btn--primary {
+  background: var(--vk-accent);
+  color: #fff;
+}
+body.theme-vk-dark .vk-btn--primary:hover { background: var(--vk-accent-hover); }
+body.theme-vk-dark .vk-btn--primary:disabled,
+body.theme-vk-dark .vk-btn--primary[aria-disabled='true'] {
+  background: var(--vk-bg-tonal);
+  color: var(--vk-text-tertiary);
+  cursor: not-allowed;
+}
+
+/* Secondary — tonal */
+body.theme-vk-dark .vk-btn--secondary {
+  background: var(--vk-bg-tonal);
+  color: var(--vk-text-primary);
+}
+body.theme-vk-dark .vk-btn--secondary:hover { background: var(--vk-bg-strong); }
+body.theme-vk-dark .vk-btn--secondary:disabled {
+  color: var(--vk-text-tertiary);
+  cursor: not-allowed;
+}
+
+/* Размеры */
+body.theme-vk-dark .vk-btn--s {
+  height: var(--vk-h-button-s);
+  font-size: var(--vk-fs-s);
+  padding: 0 var(--vk-sp-4);
+  border-radius: var(--vk-radius-s);
+}
+body.theme-vk-dark .vk-btn--icon-only {
+  width: var(--vk-h-button-m);
+  padding: 0;
+}
+
+/* ─── ИНПУТ ─── */
+body.theme-vk-dark .vk-input,
+body.theme-vk-dark input.vk-input,
+body.theme-vk-dark textarea.vk-input {
+  font-family: var(--vk-font);
+  font-size: var(--vk-fs-s);
+  line-height: var(--vk-lh-s);
+  height: var(--vk-h-input-s);
+  padding: 0 var(--vk-sp-5);
+  background: var(--vk-bg-tonal);
+  color: var(--vk-text-primary);
+  border: 1px solid transparent;
+  border-radius: var(--vk-radius-l);
+  outline: none;
+  transition: border-color var(--vk-trans-fast), background var(--vk-trans-fast);
+  width: 100%;
+}
+body.theme-vk-dark .vk-input::placeholder { color: var(--vk-text-secondary); }
+body.theme-vk-dark .vk-input:hover { background: var(--vk-bg-strong); }
+body.theme-vk-dark .vk-input:focus {
+  background: var(--vk-bg-tonal);
+  border-color: var(--vk-accent);
+}
+body.theme-vk-dark .vk-input:disabled {
+  color: var(--vk-text-tertiary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+body.theme-vk-dark .vk-input--error {
+  border-color: var(--vk-error);
+}
+
+/* Title + helper для инпута */
+body.theme-vk-dark .vk-input-group { display: flex; flex-direction: column; gap: var(--vk-sp-2); }
+body.theme-vk-dark .vk-input-title {
+  font-size: var(--vk-fs-xs); line-height: var(--vk-lh-xs);
+  font-weight: 500; color: var(--vk-text-secondary);
+}
+body.theme-vk-dark .vk-input-helper {
+  font-size: var(--vk-fs-xxs); line-height: var(--vk-lh-xxs);
+  color: var(--vk-text-secondary);
+}
+body.theme-vk-dark .vk-input-helper--error { color: var(--vk-error); }
+
+/* ─── SELECT / DROPDOWN ─── */
+body.theme-vk-dark .vk-select,
+body.theme-vk-dark select.vk-select {
+  font-family: var(--vk-font);
+  font-size: var(--vk-fs-s);
+  height: var(--vk-h-input-s);
+  padding: 0 var(--vk-sp-7) 0 var(--vk-sp-5);
+  background: var(--vk-bg-tonal)
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'><path fill='%23838383' d='M1 1l5 5 5-5'/></svg>")
+    no-repeat right var(--vk-sp-5) center / 12px 8px;
+  color: var(--vk-text-primary);
+  border: 1px solid transparent;
+  border-radius: var(--vk-radius-l);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color var(--vk-trans-fast), background-color var(--vk-trans-fast);
+}
+body.theme-vk-dark .vk-select:hover { background-color: var(--vk-bg-strong); }
+body.theme-vk-dark .vk-select:focus { border-color: var(--vk-accent); }
+
+/* ─── КАРТОЧКА ─── */
+body.theme-vk-dark .vk-card {
+  background: var(--vk-bg-elevated);
+  border: 1px solid var(--vk-border);
+  border-radius: var(--vk-radius-xl);
+  padding: var(--vk-sp-7);
+  color: var(--vk-text-primary);
+}
+
+/* ─── ТИПОГРАФИЯ-классы ─── */
+body.theme-vk-dark .vk-text--xxs   { font-family: var(--vk-font); font-size: var(--vk-fs-xxs); line-height: var(--vk-lh-xxs); font-weight: 400; }
+body.theme-vk-dark .vk-text--xs    { font-family: var(--vk-font); font-size: var(--vk-fs-xs);  line-height: var(--vk-lh-xs);  font-weight: 400; }
+body.theme-vk-dark .vk-text--xs-m  { font-family: var(--vk-font); font-size: var(--vk-fs-xs);  line-height: var(--vk-lh-xs);  font-weight: 500; }
+body.theme-vk-dark .vk-text--s     { font-family: var(--vk-font); font-size: var(--vk-fs-s);   line-height: var(--vk-lh-s);   font-weight: 400; }
+body.theme-vk-dark .vk-text--s-m   { font-family: var(--vk-font); font-size: var(--vk-fs-s);   line-height: var(--vk-lh-s);   font-weight: 500; }
+body.theme-vk-dark .vk-text--s-sb  { font-family: var(--vk-font); font-size: var(--vk-fs-s);   line-height: var(--vk-lh-s);   font-weight: 600; }
+body.theme-vk-dark .vk-text--m-m   { font-family: var(--vk-font); font-size: var(--vk-fs-m);   line-height: var(--vk-lh-m);   font-weight: 500; }
+body.theme-vk-dark .vk-text--m-sb  { font-family: var(--vk-font); font-size: var(--vk-fs-m);   line-height: var(--vk-lh-m);   font-weight: 600; }
+body.theme-vk-dark .vk-text--l     { font-family: var(--vk-font); font-size: var(--vk-fs-l);   line-height: var(--vk-lh-l);   font-weight: 600; }
+body.theme-vk-dark .vk-text--xl-m  { font-family: var(--vk-font); font-size: var(--vk-fs-xl);  line-height: 1; font-weight: 500; }
+body.theme-vk-dark .vk-text--xl-sb { font-family: var(--vk-font); font-size: var(--vk-fs-xl);  line-height: 1; font-weight: 600; }
+body.theme-vk-dark .vk-text--xxl-m { font-family: var(--vk-font); font-size: var(--vk-fs-xxl); line-height: var(--vk-lh-xxl); font-weight: 500; }
+
+body.theme-vk-dark .vk-color--primary   { color: var(--vk-text-primary); }
+body.theme-vk-dark .vk-color--secondary { color: var(--vk-text-secondary); }
+body.theme-vk-dark .vk-color--accent    { color: var(--vk-accent); }
+body.theme-vk-dark .vk-color--success   { color: var(--vk-success); }
+body.theme-vk-dark .vk-color--error     { color: var(--vk-error); }
+
+/* ════════════════════════════════════════════════════════════════════
+   AUTO-MAPPING · применение токенов к существующим элементам гида
+   без необходимости добавлять class в JSX. Перебивает inline-стили.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* body — основной фон */
+body.theme-vk-dark { background: var(--vk-bg-base) !important; color: var(--vk-text-primary) !important; }
+
+/* Хедер */
+body.theme-vk-dark .hdr,
+body.theme-vk-dark header[class*='hdr'] {
+  background: var(--vk-bg-surface) !important;
+  border-color: var(--vk-border) !important;
+  color: var(--vk-text-primary) !important;
+}
+
+/* Все кнопки внутри .hdr-btns / .hdr-burger получают VK-стилизацию */
+body.theme-vk-dark .hdr-btns > button,
+body.theme-vk-dark .hdr-burger > button {
+  background: var(--vk-bg-tonal) !important;
+  color: var(--vk-text-primary) !important;
+  border: 1px solid var(--vk-border) !important;
+  border-radius: var(--vk-radius-m) !important;
+  height: var(--vk-h-button-m) !important;
+  min-height: var(--vk-h-button-m) !important;
+  font-family: var(--vk-font) !important;
+  font-size: var(--vk-fs-s) !important;
+  font-weight: 500 !important;
+  transition: background var(--vk-trans-fast) !important;
+}
+body.theme-vk-dark .hdr-btns > button:hover,
+body.theme-vk-dark .hdr-burger > button:hover {
+  background: var(--vk-bg-strong) !important;
+}
+
+/* Burger menu dropdown */
+body.theme-vk-dark .hdr-burger > div[style*='position:absolute'] {
+  background: var(--vk-bg-elevated) !important;
+  border-color: var(--vk-border) !important;
+  box-shadow: var(--vk-elevation-modal) !important;
+  border-radius: var(--vk-radius-l) !important;
+}
+body.theme-vk-dark .hdr-burger > div[style*='position:absolute'] button {
+  background: transparent !important;
+  color: var(--vk-text-primary) !important;
+  border-bottom: 1px solid var(--vk-border) !important;
+  font-family: var(--vk-font) !important;
+}
+body.theme-vk-dark .hdr-burger > div[style*='position:absolute'] button:hover {
+  background: var(--vk-bg-tonal) !important;
+}
+
+/* Nav-tabs */
+body.theme-vk-dark .nav-tabs {
+  background: var(--vk-bg-surface) !important;
+  border-color: var(--vk-border) !important;
+}
+body.theme-vk-dark .nav-tabs button {
+  font-family: var(--vk-font);
+  font-size: var(--vk-fs-s);
+  font-weight: 500;
+}
+
+/* Filters bar */
+body.theme-vk-dark .filters,
+body.theme-vk-dark .filters-collapsible {
+  background: var(--vk-bg-surface) !important;
+  border-color: var(--vk-border) !important;
+}
+body.theme-vk-dark .filters button {
+  background: var(--vk-bg-tonal) !important;
+  color: var(--vk-text-primary) !important;
+  border-color: var(--vk-border) !important;
+  border-radius: var(--vk-radius-l) !important;
+  font-family: var(--vk-font);
+  font-size: var(--vk-fs-s);
+}
+body.theme-vk-dark .filters button:hover {
+  background: var(--vk-bg-strong) !important;
+}
+
+/* Inputs / textareas / selects везде в гиде */
+body.theme-vk-dark input:not([type='checkbox']):not([type='radio']):not(.dp-theme-toggle):not([type='range']),
+body.theme-vk-dark textarea,
+body.theme-vk-dark select {
+  background: var(--vk-bg-tonal) !important;
+  color: var(--vk-text-primary) !important;
+  border: 1px solid transparent !important;
+  border-radius: var(--vk-radius-l) !important;
+  font-family: var(--vk-font) !important;
+}
+body.theme-vk-dark input:focus,
+body.theme-vk-dark textarea:focus,
+body.theme-vk-dark select:focus {
+  outline: none;
+  border-color: var(--vk-accent) !important;
+}
+body.theme-vk-dark input::placeholder,
+body.theme-vk-dark textarea::placeholder {
+  color: var(--vk-text-secondary);
+}
+
+/* Цифры / числовые блоки — чёткий моноширинный + tabular */
+body.theme-vk-dark [style*='font-variant-numeric:tabular'],
+body.theme-vk-dark [style*='font-variant-numeric: tabular'] {
+  font-feature-settings: 'tnum' 1;
+}
+
+/* Карточки / контентные блоки — VK elevated */
+body.theme-vk-dark [class*='card']:not(.vk-card),
+body.theme-vk-dark [class*='Card']:not(.vk-card) {
+  background: var(--vk-bg-elevated) !important;
+  border-color: var(--vk-border) !important;
+  color: var(--vk-text-primary) !important;
+}
+
+/* Popup — строго по spec */
+body.theme-vk-dark .popup-overlay > div {
+  background: var(--vk-bg-elevated) !important;
+  border: 1px solid var(--vk-border) !important;
+  box-shadow: var(--vk-elevation-modal) !important;
+  border-radius: var(--vk-radius-xl) !important;
+}
+
+/* Info-card */
+body.theme-vk-dark .fi {
+  background: var(--vk-bg-elevated) !important;
+  border-color: var(--vk-border) !important;
+  box-shadow: var(--vk-elevation-modal);
+}
