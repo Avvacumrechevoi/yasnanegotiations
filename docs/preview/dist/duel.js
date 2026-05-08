@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-08T08:36:09.110Z */
+/* Yasna bundle: duel.js — собран 2026-05-08T09:04:40.301Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -6146,18 +6146,8 @@ window.YasnaCore = {
     const oppAnswerRef = useRef(null);
     useEffect(() => {
       if (!isPvP || !transport) return;
-      if (role === "host" && partiya) {
-        const seed = Date.now();
-        const newPartiya = window.YasnaTrivia.generatePartiya(seed);
-        setPartiya(newPartiya);
-        setTimeout(() => {
-          transport.send({ t: "partiya-init", seed, partiya: newPartiya.map((r) => ({
-            theme: { id: r.theme.id, name: r.theme.name },
-            questions: r.questions.map((q) => q.id)
-          })) });
-        }, 500);
-      }
       const off = transport.on((msg) => {
+        console.log("[turnir/recv] type=" + msg.t + " role=" + role);
         if (msg.t === "partiya-init" && role === "guest") {
           const restored = msg.partiya.map((r) => {
             const theme = window.YasnaTrivia.getTheme(r.theme.id) || r.theme;
@@ -6165,6 +6155,7 @@ window.YasnaCore = {
             const questions = r.questions.map((qid) => allQs.find((q) => q.id === qid)).filter(Boolean);
             return { theme, questions };
           });
+          console.log("[turnir/recv] restored " + restored.length + " rounds");
           setPartiya(restored);
         }
         if (msg.t === "opp-answer") {
@@ -6174,6 +6165,15 @@ window.YasnaCore = {
           setOppDisconnected(true);
         }
       });
+      if (role === "host" && partiya) {
+        const seed = Date.now();
+        const newPartiya = window.YasnaTrivia.generatePartiya(seed);
+        setPartiya(newPartiya);
+        transport.send({ t: "partiya-init", seed, partiya: newPartiya.map((r) => ({
+          theme: { id: r.theme.id, name: r.theme.name },
+          questions: r.questions.map((q) => q.id)
+        })) });
+      }
       return off;
     }, [isPvP, transport, role]);
     if (isPvP && role === "guest" && !partiya) {
@@ -6545,15 +6545,25 @@ window.YasnaCore = {
     function onMsg(snap) {
       if (stopped) return;
       const m = snap.val();
-      if (!m || m.from === deviceId) return;
+      if (!m) {
+        console.log("[firebase/recv] empty snap");
+        return;
+      }
+      if (m.from === deviceId) {
+        console.log("[firebase/recv] own msg type=" + m.type + " (filtered)");
+        return;
+      }
+      console.log("[firebase/recv] from=opp type=" + m.type + " handlers=" + handlers.size);
       const reconstructed = Object.assign({ t: m.type }, m.payload || {});
       if (handlers.size === 0) {
+        console.log("[firebase/recv] buffering (no handlers yet)");
         buffer.push(reconstructed);
       } else {
         handlers.forEach((fn) => {
           try {
             fn(reconstructed);
-          } catch (_) {
+          } catch (e) {
+            console.error("[firebase/recv] handler threw:", e);
           }
         });
       }
@@ -6580,15 +6590,18 @@ window.YasnaCore = {
       async send(msg) {
         if (stopped) return;
         const { t, ...rest } = msg || {};
+        const payload = Object.keys(rest).length > 0 ? rest : null;
+        console.log("[firebase/send] type=" + (t || "unknown") + " payload=" + (payload ? "yes" : "null"));
         try {
           await messagesRef.push({
             from: String(deviceId),
             type: t || "unknown",
-            payload: Object.keys(rest).length > 0 ? rest : null,
+            payload,
             ts: firebase.database.ServerValue.TIMESTAMP
           });
+          console.log("[firebase/send] ok type=" + (t || "unknown"));
         } catch (e) {
-          console.warn("[firebase] send error", (e == null ? void 0 : e.message) || e);
+          console.error("[firebase/send] error", (e == null ? void 0 : e.message) || e);
         }
       },
       on(fn) {

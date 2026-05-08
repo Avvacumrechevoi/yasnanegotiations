@@ -358,29 +358,19 @@
     useEffect(() => {
       if(!isPvP || !transport) return;
 
-      // Хост отправляет Партию гостю как только подключение готово
-      if(role === 'host' && partiya){
-        // Отправим seed-партии: gen её на основе seed для повтора
-        const seed = Date.now();
-        const newPartiya = window.YasnaTrivia.generatePartiya(seed);
-        setPartiya(newPartiya);
-        setTimeout(() => {
-          transport.send({ t: 'partiya-init', seed, partiya: newPartiya.map(r => ({
-            theme: { id: r.theme.id, name: r.theme.name },
-            questions: r.questions.map(q => q.id),
-          })) });
-        }, 500);
-      }
-
+      // Сначала регистрируем listener (чтобы хост получал opp-answer от гостя),
+      // ПОТОМ хост шлёт partiya-init. На гостя буфер в rt-firebase.js поймает
+      // partiya-init, если он пришёл до transport.on().
       const off = transport.on(msg => {
+        console.log('[turnir/recv] type=' + msg.t + ' role=' + role);
         if(msg.t === 'partiya-init' && role === 'guest'){
-          // Восстанавливаем Партию из seed
           const restored = msg.partiya.map(r => {
             const theme = window.YasnaTrivia.getTheme(r.theme.id) || r.theme;
             const allQs = window.YasnaTrivia.getQuestionsForTheme(r.theme.id);
             const questions = r.questions.map(qid => allQs.find(q => q.id === qid)).filter(Boolean);
             return { theme, questions };
           });
+          console.log('[turnir/recv] restored ' + restored.length + ' rounds');
           setPartiya(restored);
         }
         if(msg.t === 'opp-answer'){
@@ -390,6 +380,19 @@
           setOppDisconnected(true);
         }
       });
+
+      // Хост отправляет Партию гостю
+      if(role === 'host' && partiya){
+        const seed = Date.now();
+        const newPartiya = window.YasnaTrivia.generatePartiya(seed);
+        setPartiya(newPartiya);
+        // Пушим сразу, без setTimeout — буфер на гостя поймает если он ещё не готов
+        transport.send({ t: 'partiya-init', seed, partiya: newPartiya.map(r => ({
+          theme: { id: r.theme.id, name: r.theme.name },
+          questions: r.questions.map(q => q.id),
+        })) });
+      }
+
       return off;
     }, [isPvP, transport, role]);
 
