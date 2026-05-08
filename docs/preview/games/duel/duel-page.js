@@ -69,6 +69,29 @@
     className: 'dp-term', tabIndex: 0, 'data-tip': tip
   }, label);
 
+  // ─── VK System Message — компонент-плашка из VK DS ────────────────
+  // kind: 'info' | 'success' | 'warn' | 'error' (default: 'info')
+  // size: 'm' | 's' (default: 'm' — с заголовком; 's' — компактный без)
+  // icon: символ или emoji в круглой иконке (default: '⚙')
+  // title, text — содержимое
+  // action: { label, onClick, variant: 'accent'|'ghost' } — опц. кнопка справа
+  function VkSysMsg({ kind = 'info', size = 'm', icon = '⚙', title, text, action }){
+    const cls = ['vk-sysmsg', 'vk-sysmsg--' + kind];
+    if(size === 's') cls.push('vk-sysmsg--s');
+    return React.createElement('div', { className: cls.join(' '), role: 'status' },
+      React.createElement('div', { className: 'vk-sysmsg-icon', 'aria-hidden': 'true' }, icon),
+      React.createElement('div', { className: 'vk-sysmsg-body' },
+        title && React.createElement('div', { className: 'vk-sysmsg-title' }, title),
+        text && React.createElement('div', { className: 'vk-sysmsg-text' }, text)
+      ),
+      action && React.createElement('button', {
+        type: 'button',
+        onClick: action.onClick,
+        className: 'vk-sysmsg-action' + (action.variant === 'accent' ? ' vk-sysmsg-action--accent' : '')
+      }, action.label)
+    );
+  }
+
   // ─── Аватары ──────────────────────────────────────────────────────
   function avatarInitials(name){
     if(!name) return '·';
@@ -178,9 +201,9 @@
     return React.createElement('div', { className: 'dp-castalia-title' },
       React.createElement('div', { className: 'dp-castalia-eyebrow' }, '✦  Тренажёр Ясны'),
       React.createElement('h1', { className: 'dp-castalia-h1' },
-        React.createElement('span', null, 'Ясна.'),
+        React.createElement('span', null, 'Ясна —'),
         React.createElement('br'),
-        React.createElement('span', null, 'Партия за партией.')
+        React.createElement('span', null, 'мастерство в игре.')
       )
     );
   }
@@ -189,9 +212,9 @@
   function DPWelcome({ onLoginClick, onAnonStart }){
     return React.createElement('section', { className: 'dp-welcome', role: 'region', 'aria-label': 'Приветствие' },
       React.createElement('div', { className: 'dp-welcome-eyebrow' }, '✦  Тренажёр Ясны'),
-      React.createElement('h1', { className: 'dp-welcome-title' }, 'Ясна.', React.createElement('br'), 'Партия за партией.'),
+      React.createElement('h1', { className: 'dp-welcome-title' }, 'Ясна —', React.createElement('br'), 'мастерство в игре.'),
       React.createElement('p', { className: 'dp-welcome-sub' },
-        'Тренируй знание модели Ясны через короткие партии. 18 вопросов с 4 вариантами ответа. Шесть тем по три вопроса. Соперник — бот или живой друг. За верный ответ +10 бусин, за быстрый — бонус +5.'
+        'Учись модели Ясны через короткие партии-викторины. 18 вопросов на 6 тем, по 4 варианта ответа. Соперник — Тень-бот или живой друг по ссылке. За верный ответ — 10 бусин, за быстрый — до 5 бонусных.'
       ),
       React.createElement('div', { className: 'dp-welcome-actions' },
         React.createElement('button', { className: 'dp-btn dp-btn-cta', onClick: onLoginClick }, 'Войти через Telegram'),
@@ -352,14 +375,13 @@
   function DPMainGames({ onPartiya, onUzor }){
     return React.createElement('section', { className: 'dp-section', role: 'region', 'aria-label': 'Главный ритуал' },
       React.createElement('div', { style: { marginBottom: 'var(--space-5)' } },
-        React.createElement('div', { className: 'dp-eyebrow' }, 'Главный ритуал'),
+        React.createElement('div', { className: 'dp-eyebrow' }, 'Игры Ясны'),
         React.createElement('h2', { className: 'dp-section-h', style: { fontFamily: 'var(--font-serif)', fontWeight: 500, fontSize: 22, letterSpacing: '-0.005em' } },
-          'Партия и Расклад'
+          'Две игровые практики'
         ),
         React.createElement('p', { className: 'dp-section-desc', style: { marginTop: 6 } },
-          'Две практики Ясны. ',
-          React.createElement('strong', { style: { color: 'var(--text-1)', fontWeight: 500 } }, 'Партия'), ' — 18 вопросов с вариантами ответа. ',
-          React.createElement('strong', { style: { color: 'var(--text-1)', fontWeight: 500 } }, 'Расклад'), ' — расставить элементы по местам быстрее соперника.'
+          React.createElement('strong', { style: { color: 'var(--text-1)', fontWeight: 500 } }, 'Партия'), ' — викторина из 18 вопросов на 6 тем. Соло против Тени или вдвоём по ссылке. ',
+          React.createElement('strong', { style: { color: 'var(--text-1)', fontWeight: 500 } }, 'Расклад'), ' — гонка: расставить 12 элементов по местам быстрее соперника.'
         )
       ),
       // ─── Dark: VK-Scheme — как устроена Партия (4 шага) ───
@@ -413,21 +435,29 @@
       ),
       React.createElement('div', { className: 'dp-games-grid' },
         React.createElement('button', { className: 'dp-game-card dp-game-primary', onClick: onPartiya },
-          React.createElement('div', { className: 'dp-game-eyebrow' }, 'Партия · ~5 минут'),
+          React.createElement('div', { className: 'dp-game-eyebrow' }, '✦  Доступна · ~5 минут'),
           React.createElement('div', { className: 'dp-game-title' }, 'Партия'),
-          React.createElement('div', { className: 'dp-game-sub' }, '18 вопросов с 4 вариантами ответа. 6 тем по 3 вопроса. Точность важнее скорости — за верный ответ +10 бусин, за быстрый бонус +5.'),
+          React.createElement('div', { className: 'dp-game-sub' },
+            '18 вопросов на 6 тем. 4 варианта ответа на каждом шаге.',
+            React.createElement('br'),
+            'Верный ответ — 10 бусин, быстрый — до 5 бонусных. Точность ценнее темпа.'
+          ),
           React.createElement('div', { className: 'dp-game-meta' },
-            React.createElement('span', null, 'Соло против бота'),
+            React.createElement('span', null, 'Соло с Тенью'),
             React.createElement('span', null, '·'),
-            React.createElement('span', { className: 'dp-game-meta-pvp' }, 'Вдвоём с другом ✦')
+            React.createElement('span', { className: 'dp-game-meta-pvp' }, 'Вдвоём по ссылке ✦')
           )
         ),
         React.createElement('button', { className: 'dp-game-card dp-game-soon', onClick: onUzor, disabled: true, style: { opacity: 0.6, cursor: 'not-allowed' } },
-          React.createElement('div', { className: 'dp-game-eyebrow' }, 'Расклад · скоро'),
+          React.createElement('div', { className: 'dp-game-eyebrow' }, '◷  В разработке'),
           React.createElement('div', { className: 'dp-game-title' }, 'Расклад'),
-          React.createElement('div', { className: 'dp-game-sub' }, 'Расставить 12 элементов по местам быстрее соперника. Игра в разработке — пока недоступна.'),
+          React.createElement('div', { className: 'dp-game-sub' },
+            'Гонка на двоих: разложить 12 элементов по своим местам раньше второго игрока.',
+            React.createElement('br'),
+            'Скоро — следи за обновлениями.'
+          ),
           React.createElement('div', { className: 'dp-game-meta' },
-            React.createElement('span', { className: 'dp-game-meta-pvp' }, 'в разработке')
+            React.createElement('span', { className: 'dp-game-meta-pvp' }, 'PvP · скоро')
           )
         )
       )
@@ -1494,9 +1524,9 @@
           ),
 
           !baseUrl
-            ? React.createElement('div', { className: 'dp-auth-msg-error' }, 'Сервер временно недоступен')
+            ? VkSysMsg({ kind: 'error', icon: '⚠', title: 'Сервер временно недоступен', text: 'Зайди через несколько минут — мы уже чиним.' })
             : !botUsername
-              ? React.createElement('div', { className: 'dp-auth-msg-error' }, 'Бот не настроен')
+              ? VkSysMsg({ kind: 'error', icon: '⚙', title: 'Бот не настроен', text: 'Это превью-сборка. Авторизация через Telegram отключена.' })
               : React.createElement('div', {
                   className: 'dp-auth-tg-widget',
                   ref: el => {
@@ -1511,8 +1541,8 @@
                     el.appendChild(s);
                   }
                 }),
-          phase === 'loading' && React.createElement('div', { className: 'dp-auth-msg-loading' }, '◷  Авторизация…'),
-          error && React.createElement('div', { className: 'dp-auth-msg-error' }, error),
+          phase === 'loading' && VkSysMsg({ kind: 'info', icon: '◷', size: 's', text: 'Авторизация в Telegram…' }),
+          error && VkSysMsg({ kind: 'error', icon: '⚠', title: 'Не получилось войти', text: error }),
           React.createElement('div', { className: 'dp-auth-foot' },
             'Передаём только Telegram-имя и фото. Личные сообщения нам недоступны.')
         )

@@ -1344,3 +1344,325 @@ body.theme-vk-dark .tn-container-final {
     bottom: 32px;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   LAYOUT v2 — VK DS-grid · десктоп 1200px · карточки больше
+   Источник: VK Tech UI Kit — Avatars (3:185834), Section Slider Grid.
+   Применяется ТОЛЬКО под body.theme-vk-dark, не трогает прод.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Корневой контейнер — 1200 на десктопе, 1024 на ноуте, 768 на планшете */
+body.theme-vk-dark .dp-root {
+  max-width: 1200px;
+  padding: 16px 32px 80px;
+}
+@media (max-width: 1279px) {
+  body.theme-vk-dark .dp-root { max-width: 1024px; padding: 16px 24px 64px; }
+}
+@media (max-width: 767px) {
+  body.theme-vk-dark .dp-root { padding: 12px 16px 64px; }
+}
+
+/* Хедер — на всю ширину контейнера, обводка как у VK-card */
+body.theme-vk-dark .dp-header {
+  padding: 12px 20px;
+  border-radius: 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-2);
+  margin-bottom: 32px;
+  gap: 16px;
+}
+body.theme-vk-dark .dp-header-back {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-1);
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+body.theme-vk-dark .dp-header-nav {
+  font-size: 14px;
+  gap: 24px;
+}
+body.theme-vk-dark .dp-header-nav a,
+body.theme-vk-dark .dp-header-nav button {
+  color: var(--text-2);
+  transition: color 150ms ease;
+}
+body.theme-vk-dark .dp-header-nav a:hover,
+body.theme-vk-dark .dp-header-nav button:hover {
+  color: var(--text-1);
+}
+@media (max-width: 767px) {
+  body.theme-vk-dark .dp-header { padding: 8px 12px; margin-bottom: 20px; }
+  body.theme-vk-dark .dp-header-nav { gap: 12px; font-size: 13px; }
+}
+
+/* Касталия headline — VK Display L: 56px, line-height 1.04 */
+body.theme-vk-dark .dp-castalia-h1 {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 56px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+@media (max-width: 1279px) {
+  body.theme-vk-dark .dp-castalia-h1 { font-size: 44px; }
+}
+@media (max-width: 767px) {
+  body.theme-vk-dark .dp-castalia-h1 { font-size: 32px; line-height: 1.1; }
+}
+
+/* Hero-блок — больше padding, аватар по VK Size=56 + рамка */
+body.theme-vk-dark .dp-hero {
+  padding: 24px;
+  border-radius: 20px;
+  gap: 20px;
+}
+body.theme-vk-dark .dp-hero-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--bg-tonal);
+  border: 1px solid var(--border-1);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--text-1);
+}
+body.theme-vk-dark .dp-hero-name {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--text-1);
+}
+body.theme-vk-dark .dp-hero-rank-pill {
+  background: var(--accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  padding: 4px 10px;
+  border-radius: 8px;
+  text-transform: none;
+}
+body.theme-vk-dark .dp-hero-bead {
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 15px;
+}
+body.theme-vk-dark .dp-hero-progress {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg-tonal);
+}
+body.theme-vk-dark .dp-hero-progress-fill {
+  background: var(--accent);
+  border-radius: 3px;
+}
+@media (max-width: 767px) {
+  body.theme-vk-dark .dp-hero { padding: 16px; gap: 12px; }
+  body.theme-vk-dark .dp-hero-avatar { width: 48px; height: 48px; font-size: 18px; }
+  body.theme-vk-dark .dp-hero-name { font-size: 17px; line-height: 24px; }
+}
+
+/* Сетка двух игр — на десктопе 2 равных, без сжатия текста */
+body.theme-vk-dark .dp-games-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+@media (max-width: 767px) {
+  body.theme-vk-dark .dp-games-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* Карточки игр — VK card 24px padding, radius 20 */
+body.theme-vk-dark .dp-game-card {
+  padding: 24px;
+  border-radius: 20px;
+  min-height: 240px;
+  border: 1px solid var(--border-1);
+  background: var(--bg-surface);
+}
+body.theme-vk-dark .dp-game-card.dp-game-primary {
+  background: var(--bg-surface);
+  color: var(--text-1);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 4px 14px rgba(1, 135, 246, 0.15);
+}
+body.theme-vk-dark .dp-game-card.dp-game-primary:hover {
+  background: var(--bg-tonal);
+}
+body.theme-vk-dark .dp-game-primary .dp-game-eyebrow {
+  background: var(--accent);
+  color: #fff;
+}
+body.theme-vk-dark .dp-game-title {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 28px;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+body.theme-vk-dark .dp-game-sub {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+@media (max-width: 767px) {
+  body.theme-vk-dark .dp-game-card { padding: 20px; min-height: 0; }
+  body.theme-vk-dark .dp-game-title { font-size: 24px; }
+}
+
+/* Section heading — крупнее на десктопе */
+body.theme-vk-dark .dp-section-h {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+body.theme-vk-dark .dp-section-desc {
+  font-size: 15px;
+  line-height: 1.6;
+  max-width: 720px;
+  color: var(--text-2);
+}
+@media (max-width: 767px) {
+  body.theme-vk-dark .dp-section-h { font-size: 20px; line-height: 28px; }
+  body.theme-vk-dark .dp-section-desc { font-size: 14px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   System Message — VK component (S и M размеры)
+   ⚙ icon + text + опц. action, четыре статуса (info/success/warn/error)
+   ═══════════════════════════════════════════════════════════════════ */
+
+body.theme-vk-dark .vk-sysmsg {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-2);
+  border-radius: 16px;
+  padding: 16px;
+  margin: 12px 0;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+body.theme-vk-dark .vk-sysmsg-icon {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--bg-tonal);
+  color: var(--text-1);
+  font-size: 16px;
+}
+
+body.theme-vk-dark .vk-sysmsg-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+body.theme-vk-dark .vk-sysmsg-title {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--text-1);
+}
+
+body.theme-vk-dark .vk-sysmsg-text {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text-2);
+}
+
+/* Размер S — компактный, без заголовка, для inline-подсказок */
+body.theme-vk-dark .vk-sysmsg--s {
+  padding: 10px 12px;
+  border-radius: 12px;
+  gap: 8px;
+  margin: 8px 0;
+}
+body.theme-vk-dark .vk-sysmsg--s .vk-sysmsg-icon {
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+}
+body.theme-vk-dark .vk-sysmsg--s .vk-sysmsg-text {
+  font-size: 12px;
+  line-height: 16px;
+}
+
+/* Статусы — VK accent palette */
+body.theme-vk-dark .vk-sysmsg--info .vk-sysmsg-icon {
+  background: rgba(67, 155, 251, 0.15);
+  color: var(--info);
+}
+body.theme-vk-dark .vk-sysmsg--success .vk-sysmsg-icon {
+  background: rgba(0, 211, 230, 0.15);
+  color: var(--primary);
+}
+body.theme-vk-dark .vk-sysmsg--warn .vk-sysmsg-icon {
+  background: rgba(255, 181, 70, 0.18);
+  color: var(--gold-1);
+}
+body.theme-vk-dark .vk-sysmsg--error {
+  border-color: rgba(248, 80, 80, 0.45);
+}
+body.theme-vk-dark .vk-sysmsg--error .vk-sysmsg-icon {
+  background: rgba(248, 80, 80, 0.15);
+  color: var(--danger);
+}
+body.theme-vk-dark .vk-sysmsg--error .vk-sysmsg-title {
+  color: var(--danger);
+}
+
+/* Кнопка-действие в правом углу плашки */
+body.theme-vk-dark .vk-sysmsg-action {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid var(--border-1);
+  color: var(--text-1);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease;
+  white-space: nowrap;
+}
+body.theme-vk-dark .vk-sysmsg-action:hover {
+  background: var(--bg-tonal);
+}
+body.theme-vk-dark .vk-sysmsg-action--accent {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+body.theme-vk-dark .vk-sysmsg-action--accent:hover {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+
+@media (max-width: 767px) {
+  body.theme-vk-dark .vk-sysmsg {
+    padding: 12px;
+    border-radius: 12px;
+    gap: 10px;
+  }
+  body.theme-vk-dark .vk-sysmsg-icon {
+    width: 24px;
+    height: 24px;
+  }
+}

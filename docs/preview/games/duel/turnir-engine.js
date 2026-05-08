@@ -549,11 +549,25 @@
       sub = 'В игре нет проигравших — есть те, кто знает чуть меньше. Знаки помнят твой путь. Завтра — новая Партия.';
     }
 
+    // System Message при PvP-disconnect — заменяет привычный финал на пояснение
+    var disconnectMsg = oppDisconnected && React.createElement('div', { className: 'vk-scheme-block' },
+      React.createElement('div', { className: 'vk-sysmsg vk-sysmsg--warn' },
+        React.createElement('div', { className: 'vk-sysmsg-icon', 'aria-hidden': 'true' }, '↯'),
+        React.createElement('div', { className: 'vk-sysmsg-body' },
+          React.createElement('div', { className: 'vk-sysmsg-title' }, 'Связь с собеседником прервана'),
+          React.createElement('div', { className: 'vk-sysmsg-text' },
+            'Партия не засчитывается, бусины не начисляются. Открой комнату заново или сыграй с Тенью.'
+          )
+        )
+      )
+    );
+
     return React.createElement('div', { className: 'tn-fullscreen' },
       React.createElement('div', { className: 'tn-container tn-container-final' },
         React.createElement(TnTopBar, { eyebrow: 'Партия завершена' }),
         React.createElement('div', { className: 'tn-final' },
           React.createElement(TnFinalHeadline, { kind, headline, sub }),
+          disconnectMsg,
           !oppDisconnected && React.createElement(TnFinalVs, {
             playerName: player.nickname,
             scoreP,
