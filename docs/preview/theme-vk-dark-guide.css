@@ -1,9 +1,35 @@
 /* ════════════════════════════════════════════════════════════════════
    VK Dark Theme · Гид (index.html)
-   Применяется только когда на body класс `theme-vk-dark`.
-   Переопределяет CSS-переменные гида + точечно бьёт hardcoded `!important`.
+   ──────────────────────────────────────────────────────────────────
+   АРХИТЕКТУРА ИЗОЛЯЦИИ:
+   ─────────────────────
+   ВСЕ правила обёрнуты в `body.theme-vk-dark` — корневой переключатель.
+   Без класса — ровно ноль изменений в светлой теме (production safe).
+   Удаление класса = мгновенный откат, никаких остаточных стилей.
    Тот же localStorage key (`yasna_theme_vk_dark`) что в дуэли —
    тема синхронизирована между страницами.
+   ──────────────────────────────────────────────────────────────────
+   КАРТА ПОКРЫТИЯ КОМПОНЕНТОВ:
+   ─────────────────────
+   1. ПЕРЕМЕННЫЕ — все CSS-vars гида перебиты под dark
+   2. БАЗА — body, scroll, links
+   3. ЛЕЙАУТ — header, navigation, filters, mobile-tools
+   4. ОВЕРЛЕИ — popup, fullstar, info-card, modals
+   5. ФОРМЫ — input, textarea, button, select
+   6. ЗВЕЗДА (SVG) — все hardcoded fill/stroke цвета
+   7. CANVAS (3D) — фон GL-контейнера
+   8. INLINE-СТИЛИ JSX — точечно через [style*='...'] для самых частых
+   9. ТИПОГРАФИКА — Inter+Manrope (как в дуэли)
+   10. TOGGLE — header-style кнопка top-right
+   ──────────────────────────────────────────────────────────────────
+   ЧТО НЕ ПОКРЫТО (намеренно):
+   ─────────────────────
+   • Семантические акцент-цвета (red/green/blue/purple/orange) в SVG —
+     они хорошо читаются на тёмном без правок (это смыслы, не оформление).
+   • Three.js GL-сцена clearColor — это требует JS-хука (вне CSS).
+     Сейчас CSS даёт тёмный wrap вокруг canvas, GL остаётся со своим bg.
+   • Динамические template-string фоны (`${c.bg}` etc) — невозможно
+     перебить через CSS. Будут такими как задумал автор JSX.
    ════════════════════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
@@ -275,17 +301,140 @@ body.theme-vk-dark [class*='tour-step'] {
   border-color: var(--border) !important;
 }
 
-/* ─── Hardcoded #fff backgrounds — общая ловушка ─── */
+/* ════════════════════════════════════════════════════════════════════
+   8. INLINE-СТИЛИ JSX · точечный override через [style*='...']
+   ──────────────────────────────────────────────────────────────────
+   В app.js / lessons / tours много хардкод-цветов внутри React inline
+   styles. Эти селекторы их ловят. Каждое правило — узкий фильтр на
+   конкретный hex.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* === БЕЛЫЕ ФОНЫ #fff/#ffffff/white → bg-surface === */
 body.theme-vk-dark [style*='background:#fff'],
 body.theme-vk-dark [style*='background: #fff'],
+body.theme-vk-dark [style*='background:#FFF'],
+body.theme-vk-dark [style*='background: #FFF'],
+body.theme-vk-dark [style*='background:#ffffff'],
+body.theme-vk-dark [style*='background: #ffffff'],
+body.theme-vk-dark [style*='background:#FFFFFF'],
+body.theme-vk-dark [style*='background:white'],
+body.theme-vk-dark [style*='background: white'],
 body.theme-vk-dark [style*='background-color:#fff'],
-body.theme-vk-dark [style*='background-color: #fff'] {
+body.theme-vk-dark [style*='background-color: #fff'],
+body.theme-vk-dark [style*='background-color:#ffffff'],
+body.theme-vk-dark [style*='background-color:white'] {
   background: var(--bg2) !important;
 }
+
+/* === СВЕТЛО-СЕРЫЕ ФОНЫ → bg-tonal === */
+body.theme-vk-dark [style*='background:#f5f5f7'],
+body.theme-vk-dark [style*='background: #f5f5f7'],
+body.theme-vk-dark [style*='background:#fafafa'],
+body.theme-vk-dark [style*='background: #fafafa'],
+body.theme-vk-dark [style*='background:#F8F8F9'],
+body.theme-vk-dark [style*='background: #F8F8F9'],
+body.theme-vk-dark [style*='background:#e8e8ed'],
+body.theme-vk-dark [style*='background: #e8e8ed'] {
+  background: var(--bg3) !important;
+}
+
+/* === ОЧЕНЬ СВЕТЛЫЕ АКЦЕНТНЫЕ ФОНЫ → soft tint === */
+body.theme-vk-dark [style*='background:#f0f5ff'],
+body.theme-vk-dark [style*='background: #f0f5ff'] {
+  background: rgba(67, 155, 251, 0.15) !important;
+}
+body.theme-vk-dark [style*='background:#fff5f5'],
+body.theme-vk-dark [style*='background: #fff5f5'] {
+  background: rgba(248, 80, 80, 0.12) !important;
+}
+body.theme-vk-dark [style*='background:#fff8e8'],
+body.theme-vk-dark [style*='background: #fff8e8'] {
+  background: rgba(255, 181, 70, 0.12) !important;
+}
+
+/* === ТЁМНЫЕ ТЕКСТЫ #1d1d1f/#000 → text-primary === */
 body.theme-vk-dark [style*='color:#1d1d1f'],
-body.theme-vk-dark [style*='color: #1d1d1f'] {
+body.theme-vk-dark [style*='color: #1d1d1f'],
+body.theme-vk-dark [style*='color:#000'],
+body.theme-vk-dark [style*='color: #000'],
+body.theme-vk-dark [style*='color:#0e1019'],
+body.theme-vk-dark [style*='color: #0e1019'],
+body.theme-vk-dark [style*='color:#0D1B2A'],
+body.theme-vk-dark [style*='color: #0D1B2A'],
+body.theme-vk-dark [style*='color:#1F2933'],
+body.theme-vk-dark [style*='color: #1F2933'] {
   color: var(--txt) !important;
 }
+
+/* === СРЕДНИЕ СЕРЫЕ ТЕКСТЫ → text-secondary === */
+body.theme-vk-dark [style*='color:#6e6e73'],
+body.theme-vk-dark [style*='color: #6e6e73'],
+body.theme-vk-dark [style*='color:#86868b'],
+body.theme-vk-dark [style*='color: #86868b'],
+body.theme-vk-dark [style*='color:#86868B'],
+body.theme-vk-dark [style*='color: #86868B'],
+body.theme-vk-dark [style*='color:#424245'],
+body.theme-vk-dark [style*='color: #424245'],
+body.theme-vk-dark [style*='color:#3D4852'],
+body.theme-vk-dark [style*='color: #3D4852'],
+body.theme-vk-dark [style*='color:#5C6A80'],
+body.theme-vk-dark [style*='color: #5C6A80'],
+body.theme-vk-dark [style*='color:#6E7781'],
+body.theme-vk-dark [style*='color: #6E7781'] {
+  color: var(--txt2) !important;
+}
+
+/* === СВЕТЛО-СЕРЫЕ ТЕКСТЫ → text-tertiary === */
+body.theme-vk-dark [style*='color:#aeaeb2'],
+body.theme-vk-dark [style*='color: #aeaeb2'],
+body.theme-vk-dark [style*='color:#AEAEB2'],
+body.theme-vk-dark [style*='color: #AEAEB2'],
+body.theme-vk-dark [style*='color:#A8A8B0'],
+body.theme-vk-dark [style*='color: #A8A8B0'],
+body.theme-vk-dark [style*='color:#8A8A8F'],
+body.theme-vk-dark [style*='color: #8A8A8F'],
+body.theme-vk-dark [style*='color:#5C5C63'],
+body.theme-vk-dark [style*='color: #5C5C63'] {
+  color: var(--txt3) !important;
+}
+
+/* === APPLE-BLUE ACCENT #0071e3 → VK accent === */
+body.theme-vk-dark [style*='color:#0071e3'],
+body.theme-vk-dark [style*='color: #0071e3'],
+body.theme-vk-dark [style*='color:#0058b8'],
+body.theme-vk-dark [style*='color: #0058b8'],
+body.theme-vk-dark [style*='color:#0060C0'],
+body.theme-vk-dark [style*='color: #0060C0'] {
+  color: var(--accent) !important;
+}
+body.theme-vk-dark [style*='background:#0071e3'],
+body.theme-vk-dark [style*='background: #0071e3'] {
+  background: var(--accent) !important;
+}
+
+/* === БОРДЕРЫ светлые → border-1 === */
+body.theme-vk-dark [style*='border:1px solid #e5e5ea'],
+body.theme-vk-dark [style*='border: 1px solid #e5e5ea'],
+body.theme-vk-dark [style*='border:1px solid #d2d2d7'],
+body.theme-vk-dark [style*='border: 1px solid #d2d2d7'],
+body.theme-vk-dark [style*='border-color:#e5e5ea'],
+body.theme-vk-dark [style*='border-color: #e5e5ea'],
+body.theme-vk-dark [style*='border-color:#d2d2d7'],
+body.theme-vk-dark [style*='border-color: #d2d2d7'] {
+  border-color: var(--border) !important;
+}
+
+/* === RGBA(0,0,0,...) тени остаются как есть — они хорошо работают на тёмном === */
+
+/* === ИТОГ: что не покрыто после этих правил === */
+/* 1. Динамические шаблонные строки (`${color}+'12'`) — они в JSX-логике
+       и не имеют статичного hex для CSS-селектора. Большинство — акценты
+       которые хорошо смотрятся на тёмном.
+   2. Тёмно-синие акценты #0D1B2A / #1F2933 как ФОНЫ (не текст) — они уже
+       тёмные, специально оставляем как есть.
+   3. Семантические цвета (зелёный #30A060, красный #E8364F, оранж и т.д.)
+       — это смыслы (success/danger/warning), читаются на тёмном корректно.
+*/
 
 /* ─── Типографика — VK feel для заголовков ─── */
 body.theme-vk-dark h1,
