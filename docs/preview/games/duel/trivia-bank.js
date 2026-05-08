@@ -324,15 +324,25 @@
   function getAtoms(){ return NEW_ATOMS; }
   function getQuestionsFull(){ return NEW_QUESTIONS_FULL; }
 
-  // Случайный набор для партии: 6 тем × 3 вопроса = 18 вопросов
-  function generatePartiya(seed){
+  // Конфигурация по режимам — длительность партии
+  const MODE_CONFIG = {
+    blitz:    { themes: 5, qPerTheme: 2 },  // 10 вопросов · ~2 мин
+    standard: { themes: 6, qPerTheme: 3 },  // 18 вопросов · ~5 мин
+    expert:   { themes: 6, qPerTheme: 5 }   // 30 вопросов · ~9 мин
+  };
+
+  // Случайный набор для партии. mode: 'blitz' | 'standard' | 'expert'
+  function generatePartiya(seed, mode){
+    const cfg = MODE_CONFIG[mode] || MODE_CONFIG.standard;
     const rng = seedRandom(seed || Date.now());
     const shuffled = [...ACTIVE_THEMES].sort(() => rng() - 0.5);
-    const chosen = shuffled.slice(0, 6);
+    const chosen = shuffled.slice(0, cfg.themes);
     return chosen.map(theme => {
       const themeQs = ACTIVE_QUESTIONS.filter(q => q.theme === theme.id);
       const shQ = [...themeQs].sort(() => rng() - 0.5);
-      return { theme, questions: shQ.slice(0, 3) };
+      // Если тема не имеет достаточно вопросов — берём сколько есть.
+      // Эксперт-режим (5/тема) при пустом банке деградирует к Стандарту.
+      return { theme, questions: shQ.slice(0, cfg.qPerTheme) };
     });
   }
 
@@ -347,6 +357,7 @@
     getThemes, getTheme, getQuestionsForTheme, getAllQuestions, generatePartiya,
     // расширенный API (новый контент)
     getAtoms, getQuestionsFull,
+    MODE_CONFIG,
     // флаг для UI: показывать ли «Атомизированный контент» индикатор
     isUsingNewBank: useNew,
     contentVersion: NEW?.version || 'legacy-1.0'

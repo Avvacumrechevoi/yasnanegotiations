@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-08T16:38:06.961Z */
+/* Yasna bundle: duel.js — собран 2026-05-08T16:53:18.094Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5292,7 +5292,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-08T16:38:06.107Z", "contentVersion": "1.1.0", "files": 1, "themes": 1, "atomsTotal": 32, "questionsTotal": 10, "questionsLegacy": 5 };
+  const BUILD_INFO = { "builtAt": "2026-05-08T16:53:17.263Z", "contentVersion": "1.1.0", "files": 1, "themes": 1, "atomsTotal": 32, "questionsTotal": 10, "questionsLegacy": 5 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -6768,14 +6768,23 @@ window.YasnaCore = {
   function getQuestionsFull() {
     return NEW_QUESTIONS_FULL;
   }
-  function generatePartiya(seed) {
+  const MODE_CONFIG = {
+    blitz: { themes: 5, qPerTheme: 2 },
+    // 10 вопросов · ~2 мин
+    standard: { themes: 6, qPerTheme: 3 },
+    // 18 вопросов · ~5 мин
+    expert: { themes: 6, qPerTheme: 5 }
+    // 30 вопросов · ~9 мин
+  };
+  function generatePartiya(seed, mode) {
+    const cfg = MODE_CONFIG[mode] || MODE_CONFIG.standard;
     const rng = seedRandom(seed || Date.now());
     const shuffled = [...ACTIVE_THEMES].sort(() => rng() - 0.5);
-    const chosen = shuffled.slice(0, 6);
+    const chosen = shuffled.slice(0, cfg.themes);
     return chosen.map((theme) => {
       const themeQs = ACTIVE_QUESTIONS.filter((q) => q.theme === theme.id);
       const shQ = [...themeQs].sort(() => rng() - 0.5);
-      return { theme, questions: shQ.slice(0, 3) };
+      return { theme, questions: shQ.slice(0, cfg.qPerTheme) };
     });
   }
   function seedRandom(seed) {
@@ -6796,6 +6805,7 @@ window.YasnaCore = {
     // расширенный API (новый контент)
     getAtoms,
     getQuestionsFull,
+    MODE_CONFIG,
     // флаг для UI: показывать ли «Атомизированный контент» индикатор
     isUsingNewBank: useNew,
     contentVersion: (NEW == null ? void 0 : NEW.version) || "legacy-1.0"
@@ -7657,7 +7667,7 @@ window.YasnaCore = {
       )
     );
   }
-  function TurnirGame({ player, opponentLevel, onClose, opponentMode, transport, role, oppData }) {
+  function TurnirGame({ player, opponentLevel, onClose, opponentMode, transport, role, oppData, mode }) {
     React.useEffect(() => {
       window.__tnOnClose = onClose;
       return () => {
@@ -7665,6 +7675,7 @@ window.YasnaCore = {
       };
     }, [onClose]);
     const isPvP = opponentMode === "pvp" && transport;
+    const partiyaMode = mode || "standard";
     const opp = isPvP ? {
       name: (oppData == null ? void 0 : oppData.nickname) || "\u0421\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A",
       subtitle: "real-time",
@@ -7674,7 +7685,7 @@ window.YasnaCore = {
     const [phase, setPhase] = useState("vs");
     const [partiya, setPartiya] = useState(() => {
       if (!isPvP || role === "host") {
-        return window.YasnaTrivia.generatePartiya(Date.now());
+        return window.YasnaTrivia.generatePartiya(Date.now(), partiyaMode);
       }
       return null;
     });
@@ -7709,9 +7720,9 @@ window.YasnaCore = {
       });
       if (role === "host" && partiya) {
         const seed = Date.now();
-        const newPartiya = window.YasnaTrivia.generatePartiya(seed);
+        const newPartiya = window.YasnaTrivia.generatePartiya(seed, partiyaMode);
         setPartiya(newPartiya);
-        transport.send({ t: "partiya-init", seed, partiya: newPartiya.map((r) => ({
+        transport.send({ t: "partiya-init", seed, mode: partiyaMode, partiya: newPartiya.map((r) => ({
           theme: { id: r.theme.id, name: r.theme.name },
           questions: r.questions.map((q) => q.id)
         })) });
@@ -8414,7 +8425,7 @@ window.YasnaCore = {
           "span",
           { className: "dp-hero-cta-body" },
           React.createElement("span", { className: "dp-hero-cta-title" }, "\u0418\u0433\u0440\u0430\u0442\u044C \u041F\u0430\u0440\u0442\u0438\u044E"),
-          React.createElement("span", { className: "dp-hero-cta-sub" }, "18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \xB7 ~5 \u043C\u0438\u043D\u0443\u0442 \xB7 \u0422\u0435\u043D\u044C \u0438\u043B\u0438 \u0434\u0440\u0443\u0433")
+          React.createElement("span", { className: "dp-hero-cta-sub" }, "\u0412\u044B\u0431\u043E\u0440: \u0411\u043B\u0438\u0446 10 \xB7 \u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442 18 \xB7 \u042D\u043A\u0441\u043F\u0435\u0440\u0442 30")
         )
       ),
       React.createElement(
@@ -8778,9 +8789,10 @@ window.YasnaCore = {
           React.createElement(
             "div",
             { className: "dp-game-sub" },
-            "18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u043D\u0430 6 \u0442\u0435\u043C. 4 \u0432\u0430\u0440\u0438\u0430\u043D\u0442\u0430 \u043E\u0442\u0432\u0435\u0442\u0430 \u043D\u0430 \u043A\u0430\u0436\u0434\u043E\u043C \u0448\u0430\u0433\u0435.",
+            React.createElement("strong", { style: { color: "inherit", fontWeight: 500 } }, "\u0411\u043B\u0438\u0446 10 \xB7 \u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442 18 \xB7 \u042D\u043A\u0441\u043F\u0435\u0440\u0442 30"),
+            " \u2014 \u0432\u044B\u0431\u0438\u0440\u0430\u0435\u0448\u044C \u0434\u043B\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u044C.",
             React.createElement("br"),
-            "\u0412\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 \u2014 10 \u0431\u0443\u0441\u0438\u043D, \u0431\u044B\u0441\u0442\u0440\u044B\u0439 \u2014 \u0434\u043E 5 \u0431\u043E\u043D\u0443\u0441\u043D\u044B\u0445. \u0422\u043E\u0447\u043D\u043E\u0441\u0442\u044C \u0446\u0435\u043D\u043D\u0435\u0435 \u0442\u0435\u043C\u043F\u0430."
+            "\u0412\u044B\u0431\u043E\u0440 \u0438\u0437 4, \xAB\u0432\u0435\u0440\u043D\u043E/\u043D\u0435\u0442\xBB, \u0437\u0430\u043F\u043E\u043B\u043D\u0438 \u043F\u0440\u043E\u043F\u0443\u0441\u043A. \u0412 \u0444\u0438\u043D\u0430\u043B\u0435 \u2014 \u0440\u0430\u0437\u0431\u043E\u0440 \u043E\u0448\u0438\u0431\u043E\u043A \u0441 \u0446\u0438\u0442\u0430\u0442\u0430\u043C\u0438 \u0438\u0437 \u043A\u043D\u0438\u0433\u0438."
           ),
           React.createElement(
             "div",
@@ -10216,16 +10228,22 @@ window.YasnaCore = {
       delete window.__dpPendingPlay;
       if (pending) pending();
     };
-    const startPartiyaWithShadow = (level) => {
-      requireProfile(() => setGame({ type: "turnir", opponent: "shadow", shadowLevel: level || "medium" }));
+    const startPartiyaWithShadow = (level, mode) => {
+      requireProfile(() => setGame({
+        type: "turnir",
+        opponent: "shadow",
+        shadowLevel: level || "medium",
+        mode: mode || "standard"
+      }));
     };
-    const [partiyaPicker, setPartiyaPicker] = useState(false);
+    const [partiyaPicker, setPartiyaPicker] = useState(null);
     const askPartiyaMode = () => {
-      requireProfile(() => setPartiyaPicker(true));
+      requireProfile(() => setPartiyaPicker({ mode: "standard" }));
     };
     const startPartiyaPvP = () => {
-      setPartiyaPicker(false);
-      setLobby({ game: "turnir" });
+      const mode = (partiyaPicker == null ? void 0 : partiyaPicker.mode) || "standard";
+      setPartiyaPicker(null);
+      setLobby({ game: "turnir", mode });
     };
     const startUzorPvP = () => {
       requireProfile(() => setLobby({ game: "uzor" }));
@@ -10268,6 +10286,8 @@ window.YasnaCore = {
           opponentLevel: game.shadowLevel || "medium",
           opponentMode: game.opponent,
           // 'shadow' or 'pvp'
+          mode: game.mode || "standard",
+          // 'blitz' | 'standard' | 'expert'
           transport: game.transport,
           role: game.role,
           oppData: game.opp,
@@ -10336,53 +10356,92 @@ window.YasnaCore = {
           delete window.__dpPendingPlay;
         }
       }),
-      // ─── Диалог выбора режима Партии (соло / вдвоём) ───
-      partiyaPicker && React.createElement(
-        "div",
-        {
-          className: "dp-auth-overlay",
-          onClick: (e) => {
-            if (e.target === e.currentTarget) setPartiyaPicker(false);
-          }
-        },
-        React.createElement(
+      // ─── Диалог выбора режима Партии (длительность + соперник) ───
+      partiyaPicker && (() => {
+        const mode = partiyaPicker.mode;
+        const setMode = (m) => setPartiyaPicker({ ...partiyaPicker, mode: m });
+        const modes = [
+          { id: "blitz", label: "\u0411\u043B\u0438\u0446", count: 10, time: "~2 \u043C\u0438\u043D", sub: "\u0440\u0430\u0437\u043E\u0433\u0440\u0435\u0432" },
+          { id: "standard", label: "\u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442", count: 18, time: "~5 \u043C\u0438\u043D", sub: "\u043E\u0441\u043D\u043E\u0432\u043D\u043E\u0439" },
+          { id: "expert", label: "\u042D\u043A\u0441\u043F\u0435\u0440\u0442", count: 30, time: "~9 \u043C\u0438\u043D", sub: "\u0433\u043B\u0443\u0431\u043E\u043A\u0438\u0439" }
+        ];
+        const cur = modes.find((m) => m.id === mode);
+        return React.createElement(
           "div",
-          { className: "dp-auth-modal", role: "dialog", "aria-modal": "true" },
-          React.createElement("button", { className: "dp-auth-x", onClick: () => setPartiyaPicker(false), "aria-label": "\u041E\u0442\u043C\u0435\u043D\u0430" }, "\xD7"),
-          React.createElement("div", { className: "dp-auth-eyebrow" }, "\u2726  \u041F\u0430\u0440\u0442\u0438\u044F"),
-          React.createElement("h2", null, "\u0421 \u043A\u0435\u043C \u0438\u0433\u0440\u0430\u0435\u0448\u044C?"),
-          React.createElement("p", null, "18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u0441 4 \u0432\u0430\u0440\u0438\u0430\u043D\u0442\u0430\u043C\u0438 \u043E\u0442\u0432\u0435\u0442\u0430. \u0422\u043E\u0447\u043D\u043E\u0441\u0442\u044C \u0432\u0430\u0436\u043D\u0435\u0435 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438."),
+          {
+            className: "dp-auth-overlay",
+            onClick: (e) => {
+              if (e.target === e.currentTarget) setPartiyaPicker(null);
+            }
+          },
           React.createElement(
             "div",
-            { style: { display: "grid", gap: 8, marginTop: 16 } },
+            { className: "dp-auth-modal dp-partiya-picker", role: "dialog", "aria-modal": "true" },
+            React.createElement("button", { className: "dp-auth-x", onClick: () => setPartiyaPicker(null), "aria-label": "\u041E\u0442\u043C\u0435\u043D\u0430" }, "\xD7"),
+            React.createElement("div", { className: "dp-auth-eyebrow" }, "\u2726  \u041F\u0430\u0440\u0442\u0438\u044F"),
+            React.createElement("h2", null, "\u041A\u0430\u043A\u0430\u044F \u043F\u0430\u0440\u0442\u0438\u044F?"),
+            // ─── Шаг 1: длительность ───
             React.createElement(
-              "button",
-              {
-                className: "dp-btn",
-                onClick: () => {
-                  setPartiyaPicker(false);
-                  startPartiyaWithShadow("medium");
-                },
-                style: { padding: "14px 18px", justifyContent: "flex-start", textAlign: "left" }
-              },
-              "\u{1F317}  ",
-              React.createElement("span", { style: { fontWeight: 500, marginLeft: 4 } }, "\u0421\u043E\u043B\u043E \u043F\u0440\u043E\u0442\u0438\u0432 \u0422\u0435\u043D\u0438"),
-              React.createElement("span", { style: { fontSize: 12, color: "var(--text-3)", marginLeft: "auto" } }, "\xB7 \u0431\u043E\u0442")
+              "div",
+              { className: "dp-mode-grid" },
+              modes.map(
+                (m) => React.createElement(
+                  "button",
+                  {
+                    key: m.id,
+                    className: "dp-mode-btn" + (mode === m.id ? " dp-mode-btn-active" : ""),
+                    onClick: () => setMode(m.id),
+                    type: "button"
+                  },
+                  React.createElement("div", { className: "dp-mode-btn-count" }, m.count),
+                  React.createElement("div", { className: "dp-mode-btn-label" }, m.label),
+                  React.createElement("div", { className: "dp-mode-btn-time" }, m.time)
+                )
+              )
             ),
             React.createElement(
-              "button",
-              {
-                className: "dp-btn dp-btn-primary",
-                onClick: startPartiyaPvP,
-                style: { padding: "14px 18px", justifyContent: "flex-start", textAlign: "left" }
-              },
-              "\u25D0\u25D1  ",
-              React.createElement("span", { style: { fontWeight: 500, marginLeft: 4 } }, "\u0412\u0434\u0432\u043E\u0451\u043C \u0441 \u0434\u0440\u0443\u0433\u043E\u043C"),
-              React.createElement("span", { style: { fontSize: 12, opacity: 0.85, marginLeft: "auto" } }, "\xB7 real-time")
+              "p",
+              { className: "dp-mode-desc" },
+              cur.label,
+              " \u2014 ",
+              cur.count,
+              " \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \xB7 ",
+              cur.id === "blitz" ? "\u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0440\u0430\u0437\u043E\u0433\u0440\u0435\u0432" : cur.id === "expert" ? "\u0433\u043B\u0443\u0431\u043E\u043A\u0438\u0439 \u0437\u0430\u0445\u043E\u0434, 6 \u0442\u0435\u043C \u043F\u043E 5 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432" : "6 \u0442\u0435\u043C \u043F\u043E 3 \u0432\u043E\u043F\u0440\u043E\u0441\u0430"
+            ),
+            // ─── Шаг 2: соперник ───
+            React.createElement("div", { className: "dp-mode-eyebrow" }, "\u25D0  \u0421 \u043A\u0435\u043C"),
+            React.createElement(
+              "div",
+              { style: { display: "grid", gap: 8, marginTop: 8 } },
+              React.createElement(
+                "button",
+                {
+                  className: "dp-btn",
+                  onClick: () => {
+                    setPartiyaPicker(null);
+                    startPartiyaWithShadow("medium", mode);
+                  },
+                  style: { padding: "14px 18px", justifyContent: "flex-start", textAlign: "left" }
+                },
+                "\u{1F317}  ",
+                React.createElement("span", { style: { fontWeight: 500, marginLeft: 4 } }, "\u0421\u043E\u043B\u043E \u043F\u0440\u043E\u0442\u0438\u0432 \u0422\u0435\u043D\u0438"),
+                React.createElement("span", { style: { fontSize: 12, color: "var(--text-3)", marginLeft: "auto" } }, "\xB7 \u0431\u043E\u0442")
+              ),
+              React.createElement(
+                "button",
+                {
+                  className: "dp-btn dp-btn-primary",
+                  onClick: startPartiyaPvP,
+                  style: { padding: "14px 18px", justifyContent: "flex-start", textAlign: "left" }
+                },
+                "\u25D0\u25D1  ",
+                React.createElement("span", { style: { fontWeight: 500, marginLeft: 4 } }, "\u0412\u0434\u0432\u043E\u0451\u043C \u0441 \u0434\u0440\u0443\u0433\u043E\u043C"),
+                React.createElement("span", { style: { fontSize: 12, opacity: 0.85, marginLeft: "auto" } }, "\xB7 real-time")
+              )
             )
           )
-        )
-      ),
+        );
+      })(),
       // ─── Lobby для PvP (polling-relay через Yandex Cloud) ───
       lobby && React.createElement(DPLobbyV2, {
         initialMode: lobby.mode || null,

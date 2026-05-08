@@ -210,7 +210,7 @@
         React.createElement('span', { className: 'dp-hero-cta-icon', 'aria-hidden': 'true' }, '▶'),
         React.createElement('span', { className: 'dp-hero-cta-body' },
           React.createElement('span', { className: 'dp-hero-cta-title' }, 'Играть Партию'),
-          React.createElement('span', { className: 'dp-hero-cta-sub' }, '18 вопросов · ~5 минут · Тень или друг')
+          React.createElement('span', { className: 'dp-hero-cta-sub' }, 'Выбор: Блиц 10 · Стандарт 18 · Эксперт 30')
         )
       ),
       React.createElement('button', {
@@ -477,9 +477,10 @@
           React.createElement('div', { className: 'dp-game-eyebrow' }, '✦  Доступна · ~5 минут'),
           React.createElement('div', { className: 'dp-game-title' }, 'Партия'),
           React.createElement('div', { className: 'dp-game-sub' },
-            '18 вопросов на 6 тем. 4 варианта ответа на каждом шаге.',
+            React.createElement('strong', { style: { color: 'inherit', fontWeight: 500 } }, 'Блиц 10 · Стандарт 18 · Эксперт 30'),
+            ' — выбираешь длительность.',
             React.createElement('br'),
-            'Верный ответ — 10 бусин, быстрый — до 5 бонусных. Точность ценнее темпа.'
+            'Выбор из 4, «верно/нет», заполни пропуск. В финале — разбор ошибок с цитатами из книги.'
           ),
           React.createElement('div', { className: 'dp-game-meta' },
             React.createElement('span', null, 'Соло с Тенью'),
@@ -1713,20 +1714,29 @@
     };
 
     // ─── Старт игры с Тенью (бот) ───
-    const startPartiyaWithShadow = (level) => {
-      requireProfile(() => setGame({ type: 'turnir', opponent: 'shadow', shadowLevel: level || 'medium' }));
+    // mode: 'blitz' | 'standard' | 'expert' — определяет длину партии
+    const startPartiyaWithShadow = (level, mode) => {
+      requireProfile(() => setGame({
+        type: 'turnir',
+        opponent: 'shadow',
+        shadowLevel: level || 'medium',
+        mode: mode || 'standard'
+      }));
     };
 
-    // ─── Старт Партии · диалог выбора (Тень или вдвоём) ───
-    const [partiyaPicker, setPartiyaPicker] = useState(false);
+    // ─── Старт Партии · диалог выбора (длительность + соперник) ───
+    // partiyaPicker = null | { mode: 'blitz'|'standard'|'expert' }
+    // Шаг 1: выбор длительности → шаг 2: выбор соперника
+    const [partiyaPicker, setPartiyaPicker] = useState(null);
 
     const askPartiyaMode = () => {
-      requireProfile(() => setPartiyaPicker(true));
+      requireProfile(() => setPartiyaPicker({ mode: 'standard' }));
     };
 
     const startPartiyaPvP = () => {
-      setPartiyaPicker(false);
-      setLobby({ game: 'turnir' });
+      const mode = partiyaPicker?.mode || 'standard';
+      setPartiyaPicker(null);
+      setLobby({ game: 'turnir', mode });
     };
 
     const startUzorPvP = () => {
@@ -1769,6 +1779,7 @@
           player: playerData,
           opponentLevel: game.shadowLevel || 'medium',
           opponentMode: game.opponent, // 'shadow' or 'pvp'
+          mode: game.mode || 'standard', // 'blitz' | 'standard' | 'expert'
           transport: game.transport,
           role: game.role,
           oppData: game.opp,
@@ -1821,32 +1832,67 @@
         onCancel: () => { setAnonModal(false); delete window.__dpPendingPlay; }
       }),
 
-      // ─── Диалог выбора режима Партии (соло / вдвоём) ───
-      partiyaPicker && React.createElement('div', {
-        className: 'dp-auth-overlay',
-        onClick: e => { if(e.target === e.currentTarget) setPartiyaPicker(false); }
-      },
-        React.createElement('div', { className: 'dp-auth-modal', role: 'dialog', 'aria-modal': 'true' },
-          React.createElement('button', { className: 'dp-auth-x', onClick: () => setPartiyaPicker(false), 'aria-label': 'Отмена' }, '×'),
-          React.createElement('div', { className: 'dp-auth-eyebrow' }, '✦  Партия'),
-          React.createElement('h2', null, 'С кем играешь?'),
-          React.createElement('p', null, '18 вопросов с 4 вариантами ответа. Точность важнее скорости.'),
-          React.createElement('div', { style: { display: 'grid', gap: 8, marginTop: 16 } },
-            React.createElement('button', {
-              className: 'dp-btn',
-              onClick: () => { setPartiyaPicker(false); startPartiyaWithShadow('medium'); },
-              style: { padding: '14px 18px', justifyContent: 'flex-start', textAlign: 'left' }
-            }, '🌗  ', React.createElement('span', { style: { fontWeight: 500, marginLeft: 4 } }, 'Соло против Тени'),
-              React.createElement('span', { style: { fontSize: 12, color: 'var(--text-3)', marginLeft: 'auto' } }, '· бот')),
-            React.createElement('button', {
-              className: 'dp-btn dp-btn-primary',
-              onClick: startPartiyaPvP,
-              style: { padding: '14px 18px', justifyContent: 'flex-start', textAlign: 'left' }
-            }, '◐◑  ', React.createElement('span', { style: { fontWeight: 500, marginLeft: 4 } }, 'Вдвоём с другом'),
-              React.createElement('span', { style: { fontSize: 12, opacity: 0.85, marginLeft: 'auto' } }, '· real-time'))
+      // ─── Диалог выбора режима Партии (длительность + соперник) ───
+      partiyaPicker && (() => {
+        const mode = partiyaPicker.mode;
+        const setMode = (m) => setPartiyaPicker({ ...partiyaPicker, mode: m });
+        const modes = [
+          { id: 'blitz',    label: 'Блиц',     count: 10, time: '~2 мин', sub: 'разогрев' },
+          { id: 'standard', label: 'Стандарт', count: 18, time: '~5 мин', sub: 'основной' },
+          { id: 'expert',   label: 'Эксперт',  count: 30, time: '~9 мин', sub: 'глубокий' }
+        ];
+        const cur = modes.find(m => m.id === mode);
+        return React.createElement('div', {
+          className: 'dp-auth-overlay',
+          onClick: e => { if(e.target === e.currentTarget) setPartiyaPicker(null); }
+        },
+          React.createElement('div', { className: 'dp-auth-modal dp-partiya-picker', role: 'dialog', 'aria-modal': 'true' },
+            React.createElement('button', { className: 'dp-auth-x', onClick: () => setPartiyaPicker(null), 'aria-label': 'Отмена' }, '×'),
+            React.createElement('div', { className: 'dp-auth-eyebrow' }, '✦  Партия'),
+            React.createElement('h2', null, 'Какая партия?'),
+
+            // ─── Шаг 1: длительность ───
+            React.createElement('div', { className: 'dp-mode-grid' },
+              modes.map(m =>
+                React.createElement('button', {
+                  key: m.id,
+                  className: 'dp-mode-btn' + (mode === m.id ? ' dp-mode-btn-active' : ''),
+                  onClick: () => setMode(m.id),
+                  type: 'button'
+                },
+                  React.createElement('div', { className: 'dp-mode-btn-count' }, m.count),
+                  React.createElement('div', { className: 'dp-mode-btn-label' }, m.label),
+                  React.createElement('div', { className: 'dp-mode-btn-time' }, m.time)
+                )
+              )
+            ),
+
+            React.createElement('p', { className: 'dp-mode-desc' },
+              cur.label, ' — ', cur.count, ' вопросов · ',
+              cur.id === 'blitz'    ? 'короткий разогрев' :
+              cur.id === 'expert'   ? 'глубокий заход, 6 тем по 5 вопросов' :
+                                       '6 тем по 3 вопроса'
+            ),
+
+            // ─── Шаг 2: соперник ───
+            React.createElement('div', { className: 'dp-mode-eyebrow' }, '◐  С кем'),
+            React.createElement('div', { style: { display: 'grid', gap: 8, marginTop: 8 } },
+              React.createElement('button', {
+                className: 'dp-btn',
+                onClick: () => { setPartiyaPicker(null); startPartiyaWithShadow('medium', mode); },
+                style: { padding: '14px 18px', justifyContent: 'flex-start', textAlign: 'left' }
+              }, '🌗  ', React.createElement('span', { style: { fontWeight: 500, marginLeft: 4 } }, 'Соло против Тени'),
+                React.createElement('span', { style: { fontSize: 12, color: 'var(--text-3)', marginLeft: 'auto' } }, '· бот')),
+              React.createElement('button', {
+                className: 'dp-btn dp-btn-primary',
+                onClick: startPartiyaPvP,
+                style: { padding: '14px 18px', justifyContent: 'flex-start', textAlign: 'left' }
+              }, '◐◑  ', React.createElement('span', { style: { fontWeight: 500, marginLeft: 4 } }, 'Вдвоём с другом'),
+                React.createElement('span', { style: { fontSize: 12, opacity: 0.85, marginLeft: 'auto' } }, '· real-time'))
+            )
           )
-        )
-      ),
+        );
+      })(),
 
       // ─── Lobby для PvP (polling-relay через Yandex Cloud) ───
       lobby && React.createElement(DPLobbyV2, {

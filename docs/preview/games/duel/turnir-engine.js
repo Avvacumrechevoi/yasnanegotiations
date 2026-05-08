@@ -772,10 +772,11 @@
   }
 
   // ─── Main Engine ─────────────────────────────────────────────────
-  function TurnirGame({ player, opponentLevel, onClose, opponentMode, transport, role, oppData }){
+  function TurnirGame({ player, opponentLevel, onClose, opponentMode, transport, role, oppData, mode }){
     React.useEffect(() => { window.__tnOnClose = onClose; return () => { delete window.__tnOnClose; }; }, [onClose]);
 
     const isPvP = opponentMode === 'pvp' && transport;
+    const partiyaMode = mode || 'standard';  // 'blitz' | 'standard' | 'expert'
 
     // Для PvP: opponent — это живой игрок; для shadow — Тень
     const opp = isPvP
@@ -793,7 +794,7 @@
     // Для shadow: каждый раз новый seed.
     const [partiya, setPartiya] = useState(() => {
       if(!isPvP || role === 'host') {
-        return window.YasnaTrivia.generatePartiya(Date.now());
+        return window.YasnaTrivia.generatePartiya(Date.now(), partiyaMode);
       }
       return null; // гость ждёт от хоста
     });
@@ -840,10 +841,10 @@
       // Хост отправляет Партию гостю
       if(role === 'host' && partiya){
         const seed = Date.now();
-        const newPartiya = window.YasnaTrivia.generatePartiya(seed);
+        const newPartiya = window.YasnaTrivia.generatePartiya(seed, partiyaMode);
         setPartiya(newPartiya);
         // Пушим сразу, без setTimeout — буфер на гостя поймает если он ещё не готов
-        transport.send({ t: 'partiya-init', seed, partiya: newPartiya.map(r => ({
+        transport.send({ t: 'partiya-init', seed, mode: partiyaMode, partiya: newPartiya.map(r => ({
           theme: { id: r.theme.id, name: r.theme.name },
           questions: r.questions.map(q => q.id),
         })) });

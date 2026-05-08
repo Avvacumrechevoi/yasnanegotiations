@@ -767,3 +767,115 @@ body.theme-vk-dark .tn-final-recap-quote {
   .tn-final-recap-item { padding: 14px; }
   .tn-final-recap-q-text { font-size: 14px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Партия picker — выбор длительности (Блиц / Стандарт / Эксперт)
+   ═══════════════════════════════════════════════════════════════════ */
+.dp-partiya-picker {
+  max-width: 460px;
+}
+
+.dp-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 16px 0 12px;
+}
+
+.dp-mode-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 16px 8px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border-2);
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 150ms ease, background 150ms ease, transform 100ms;
+  text-align: center;
+}
+.dp-mode-btn:hover {
+  border-color: var(--text-3);
+  background: var(--bg-tonal);
+}
+.dp-mode-btn:active {
+  transform: scale(0.98);
+}
+
+.dp-mode-btn-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.dp-mode-btn-active:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.dp-mode-btn-count {
+  font-family: var(--font-serif, 'Manrope'), serif;
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 600;
+  color: var(--text-1);
+  font-variant-numeric: tabular-nums;
+}
+.dp-mode-btn-active .dp-mode-btn-count {
+  color: var(--accent);
+}
+
+.dp-mode-btn-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-1);
+}
+.dp-mode-btn-time {
+  font-size: 11px;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.dp-mode-desc {
+  font-size: 13px;
+  color: var(--text-2);
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+
+.dp-mode-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-3);
+  margin-top: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-2);
+}
+
+/* ─── Dark theme overrides ─── */
+body.theme-vk-dark .dp-mode-btn {
+  background: var(--bg-tonal);
+  border-color: var(--border-1);
+}
+body.theme-vk-dark .dp-mode-btn:hover {
+  background: var(--bg-soft);
+  border-color: var(--text-3);
+}
+body.theme-vk-dark .dp-mode-btn-active {
+  background: rgba(1, 135, 246, 0.12);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 4px 14px rgba(1, 135, 246, 0.20);
+}
+body.theme-vk-dark .dp-mode-btn-count {
+  font-family: 'Manrope', system-ui, sans-serif;
+}
+
+@media (max-width: 480px) {
+  .dp-mode-btn-count { font-size: 22px; }
+  .dp-mode-btn-label { font-size: 12px; }
+  .dp-mode-btn { padding: 12px 6px; }
+}
