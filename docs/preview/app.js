@@ -919,6 +919,27 @@ function App(){
       </div>
       <div className='nav-tabs' style={{display:'flex',alignItems:'center',padding:'8px 0 8px 20px',background:'var(--bg2)',borderBottom:'1px solid #d2d2d7',flexShrink:0}}>
         <div style={{flex:1,display:'flex',alignItems:'center',gap:4,overflowX:'auto',minWidth:0,scrollbarWidth:'none',msOverflowStyle:'none'}} className="hide-scroll">
+        {/* Механики — закреплённая первая «таблетка» с выпадашкой */}
+        <div style={{position:'relative',flexShrink:0,display:'flex',alignItems:'center'}}>
+          <button onClick={()=>setFiltersOpen(o=>!o)} title='Развернуть/свернуть список механик' className='mech-trigger' style={{padding:'7px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:filtersOpen?'rgba(0,113,227,.12)':'transparent',color:filtersOpen||af.length>0?'#0058b8':'var(--txt2)',border:`1px solid ${filtersOpen?'rgba(0,113,227,.45)':'#d2d2d7'}`,cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:6}}>
+            <span style={{fontSize:13,lineHeight:1}}>⊞</span>
+            <span>Механики</span>
+            {af.length>0&&<span style={{fontSize:11,padding:'1px 7px',background:'#0071e3',color:'#fff',borderRadius:8,fontWeight:700,minWidth:18,textAlign:'center'}}>{af.length}</span>}
+            <span style={{fontSize:9,display:'inline-block',transform:filtersOpen?'rotate(180deg)':'none',transition:'transform .2s',opacity:.7}}>▼</span>
+          </button>
+          {filtersOpen && <>
+            <div onClick={()=>setFiltersOpen(false)} style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:55,background:'transparent'}}/>
+            <div className='mech-dropdown' onClick={e=>e.stopPropagation()} style={{position:'absolute',top:'calc(100% + 6px)',left:0,zIndex:56,background:'var(--bg2,#fff)',border:'1px solid var(--border,#d2d2d7)',borderRadius:14,boxShadow:'0 12px 36px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.06)',padding:'10px 12px',minWidth:520,maxWidth:'min(720px, calc(100vw - 40px))',display:'flex',gap:5,flexWrap:'wrap',alignItems:'center',animation:'slideDown .22s ease'}}>
+              {af.length===FL.length?
+                <button onClick={()=>setAf([])} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:'#0071e322',color:'#0071e3',border:'1px solid #0071e355',fontWeight:600,cursor:'pointer'}}>Все</button>
+                :<button onClick={()=>setAf(FL.map(f=>f.id))} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:'transparent',color:'#86868b',border:'1px solid #d2d2d7',cursor:'pointer'}}>Все</button>
+              }
+              {FL.map((f,fi)=>{const a=af.includes(f.id);const prevG=fi>0?FL[fi-1].g:'';const showSep=f.g!==prevG&&fi>0;return<React.Fragment key={f.id}>{showSep&&<div className='sep' style={{width:1,height:18,background:'#d2d2d7',margin:'0 4px',flexShrink:0}}/>}<button onClick={()=>tog(f.id)} title={'Применить фильтр: '+f.l} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:a?`${f.c}22`:'transparent',color:a?f.c:'#86868b',border:`1px solid ${a?f.c+'55':'#d2d2d7'}`,cursor:'pointer',fontWeight:a?600:400,transition:'background .15s, color .15s'}}>{f.l}</button></React.Fragment>;})}
+            </div>
+          </>}
+        </div>
+        {/* Разделитель между Механиками и списком Ясн */}
+        <div style={{width:1,height:20,background:'var(--border,#d2d2d7)',margin:'0 6px 0 4px',flexShrink:0}}/>
         {pinnedTemplates.length===0
           ?<span className="nav-empty" style={{fontSize:13,color:'#aeaeb2',padding:'6px 14px',whiteSpace:'nowrap',fontStyle:'italic'}}>Нет выбранных ясн — нажмите «+ ещё»</span>
           :pinnedTemplates.map(t=>{const active=y.name===t.n;return<button key={t.id} onClick={()=>load(t)} style={{position:'relative',padding:t.rubrik?'7px 14px 7px 18px':'7px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:active?'rgba(0,113,227,.14)':'transparent',color:active?'#0058b8':'var(--txt2)',border:active?'1.5px solid rgba(0,113,227,.55)':'1px solid transparent',flexShrink:0,fontWeight:active?700:400,cursor:'pointer',overflow:'hidden',transition:'background .15s, border-color .15s, color .15s',boxShadow:active?'0 1px 3px rgba(0,113,227,.12)':'none'}}>{t.rubrik&&<span style={{position:'absolute',left:0,top:0,bottom:0,width:3,background:'#30A060'}} title="Проверена"/>}{t.n}</button>;})}
@@ -931,40 +952,7 @@ function App(){
         <button className='fab-create mob-only' onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);}} title='Создать новую Ясну' aria-label='Создать новую Ясну' style={{display:'none'}}>+</button>
         </div>
       </div>
-      <div className='filters-toggle' style={{display:'none',padding:'4px 10px',borderBottom:'1px solid #e5e5ea',flexShrink:0}}>
-        <button onClick={()=>setFiltersOpen(!filtersOpen)} style={{display:'flex',alignItems:'center',gap:6,fontSize:13,color:'#6e6e73',border:'none',background:'none',padding:'4px 0'}}>
-          <span style={{transform:filtersOpen?'rotate(90deg)':'none',transition:'transform .2s',display:'inline-block'}}>▶</span>
-          Механики{af.length>0?` (${af.length})`:''} 
-        </button>
-      </div>
-      {/* МЕХАНИКИ — двухуровневая структура: header (toggle + active chips + toolbar) + collapsible body */}
-      <div style={{display:'flex',flexDirection:'column',flexShrink:0,position:'relative',background:'var(--bg2)',borderBottom:'1px solid rgba(0,0,0,.04)'}}>
-        {/* Header — always visible */}
-        <div style={{display:'flex',alignItems:'center',gap:6,padding:'8px 20px',flexWrap:'wrap'}}>
-          <button onClick={()=>setFiltersOpen(o=>!o)} title='Развернуть/свернуть список механик' style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:filtersOpen?'rgba(0,113,227,.10)':'#fff',color:filtersOpen?'#0058b8':'#424245',border:`1px solid ${filtersOpen?'rgba(0,113,227,.4)':'#d2d2d7'}`,cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:6}}>
-            <span style={{fontSize:14,lineHeight:1}}>⊞</span>
-            <span>Механики</span>
-            {af.length>0&&<span style={{fontSize:11,padding:'1px 7px',background:'#0071e3',color:'#fff',borderRadius:8,fontWeight:700,minWidth:18,textAlign:'center'}}>{af.length}</span>}
-            <span style={{fontSize:9,display:'inline-block',transform:filtersOpen?'rotate(180deg)':'none',transition:'transform .2s'}}>▼</span>
-          </button>
-          {/* Active chips inline (when collapsed) */}
-          {!filtersOpen && af.length>0 && af.length<FL.length && <div style={{display:'flex',gap:4,flexWrap:'wrap',alignItems:'center',minWidth:0,flex:'1 1 auto'}}>
-            {af.map(id=>{const f=FL.find(x=>x.id===id);if(!f)return null;return<button key={id} onClick={()=>tog(id)} title='Снять фильтр' style={{padding:'4px 10px',borderRadius:14,fontSize:12,whiteSpace:'nowrap',background:`${f.c}22`,color:f.c,border:`1px solid ${f.c}55`,cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:4}}>{f.l}<span style={{fontSize:10,opacity:.6}}>×</span></button>;})}
-          </div>}
-          {!filtersOpen && af.length===FL.length && <span style={{fontSize:12,color:'#0058b8',fontWeight:600,padding:'4px 10px',background:'rgba(0,113,227,.10)',borderRadius:14}}>Все механики ({FL.length})</span>}
-          {/* Spacer (toolbar переехал в угол диаграммы — Спринт 3) */}
-          {(filtersOpen || af.length===0) && <div style={{flex:1}}/>}
-        </div>
-        {/* Collapsible chips body */}
-        {filtersOpen && <div className='filters-mobile-backdrop' onClick={()=>setFiltersOpen(false)} style={{display:'none'}}/>}
-        {filtersOpen && <div className='filters filters-collapsible hide-scroll' style={{display:'flex',gap:5,padding:'4px 20px 12px',flexWrap:'wrap',alignItems:'center',animation:'slideDown .25s ease'}}>
-          {af.length===FL.length?
-            <button onClick={()=>setAf([])} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:'#0071e322',color:'#0071e3',border:'1px solid #0071e355',fontWeight:600,cursor:'pointer'}}>Все</button>
-            :<button onClick={()=>setAf(FL.map(f=>f.id))} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:'transparent',color:'#86868b',border:'1px solid #d2d2d7',cursor:'pointer'}}>Все</button>
-          }
-          {FL.map((f,fi)=>{const a=af.includes(f.id);const prevG=fi>0?FL[fi-1].g:'';const showSep=f.g!==prevG&&fi>0;return<React.Fragment key={f.id}>{showSep&&<div className='sep' style={{width:1,height:18,background:'#d2d2d7',margin:'0 4px',flexShrink:0}}/>}<button onClick={()=>tog(f.id)} title={'Применить фильтр: '+f.l} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:a?`${f.c}22`:'transparent',color:a?f.c:'#86868b',border:`1px solid ${a?f.c+'55':'#d2d2d7'}`,cursor:'pointer',fontWeight:a?600:400,transition:'background .15s, color .15s'}}>{f.l}</button></React.Fragment>;})}
-        </div>}
-      </div>
+      {/* МЕХАНИКИ — теперь живут в .nav-tabs первой таблеткой с dropdown'ом (см. выше) */}
       {/* Ясна² Drill: панель управления внутренней Ясной (только когда mb_yasna2 + клик по полке) */}
       {yasna2Drill!=null&&<div className='drill-bar' style={{padding:'10px 16px',background:'linear-gradient(90deg,rgba(162,28,175,.06),rgba(162,28,175,.02))',borderBottom:'1px solid rgba(162,28,175,.25)',display:'flex',gap:8,alignItems:'center',flexShrink:0,flexWrap:'wrap'}}>
         <button onClick={()=>{setYasna2Drill(null);setDrillEditing(false);}} style={{padding:'6px 14px',borderRadius:9,border:'1px solid #a21caf',background:'#fff',color:'#a21caf',fontWeight:600,fontSize:12.5,cursor:'pointer',display:'flex',alignItems:'center',gap:4}}>← Назад</button>

@@ -1095,9 +1095,30 @@ body.theme-vk-dark .nav-tabs button {
 
 /* Filters bar */
 body.theme-vk-dark .filters,
-body.theme-vk-dark .filters-collapsible {
-  background: var(--vk-bg-surface) !important;
+body.theme-vk-dark .filters-collapsible,
+body.theme-vk-dark .mech-dropdown {
+  background: var(--vk-bg-elevated) !important;
   border-color: var(--vk-border) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.20) !important;
+}
+
+/* Mech-trigger таблетка (закреплённая первой в nav-tabs) */
+body.theme-vk-dark .mech-trigger {
+  background: var(--vk-bg-tonal) !important;
+  color: var(--vk-text-secondary) !important;
+  border: 1px solid var(--vk-border) !important;
+  font-family: var(--vk-font);
+}
+body.theme-vk-dark .mech-trigger:hover {
+  background: var(--vk-bg-strong) !important;
+  color: var(--vk-text-primary) !important;
+}
+/* Активный mech-trigger (filtersOpen=true OR af.length>0) — детект через rgba(0,113,227,.12) */
+body.theme-vk-dark .mech-trigger[style*='rgba(0, 113, 227'] {
+  background: var(--vk-accent-soft) !important;
+  color: var(--vk-accent-hover) !important;
+  border-color: var(--vk-accent) !important;
+  box-shadow: 0 0 0 1px rgba(0, 119, 255, 0.20), 0 2px 8px rgba(0, 119, 255, 0.18) !important;
 }
 /* Default = inactive pill (transparent inline bg, font-weight 400) */
 body.theme-vk-dark .filters button {
