@@ -4,39 +4,43 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
 <meta http-equiv="Cache-Control" content="no-cache"/>
-<meta name="theme-color" content="#151515"/>
-<title>Ясна — стартовый экран</title>
-<meta name="description" content="Ясна — метод видеть в любом явлении одну 12-полочную структуру. Учить · Играть · Изучать."/>
+<meta name="theme-color" content="#0a0b0d"/>
+<title>Ясна — интерактивный тренажёр</title>
+<meta name="description" content="Видеть устройство любого явления по методу Ясны. Учить · Играть · Изучать звезду из 36 Ясн."/>
 <meta property="og:type" content="website"/>
-<meta property="og:title" content="Ясна — стартовый экран"/>
-<meta property="og:description" content="Учить с нуля · Играть Партию · Изучать звезду."/>
+<meta property="og:title" content="Ясна — интерактивный тренажёр"/>
+<meta property="og:description" content="Видеть устройство любого явления по методу Ясны."/>
 
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet"/>
 
 <style>
-/* ─── VK Tech tokens (inline, чтобы start.html был автономным) ─── */
+/* ─── VK Tech tokens (inline) ─── */
 :root {
-  --bg-base:        #151515;
-  --bg-surface:     #212121;
-  --bg-elevated:    #262626;
-  --bg-tonal:       #3C3D40;
-  --bg-strong:      #4A4A4A;
+  --bg-base:        #0a0b0d;
+  --bg-surface:     #131517;
+  --bg-elevated:    #1A1D20;
+  --bg-card:        #16191C;
+  --bg-tonal:       #262A2E;
 
   --text-primary:   #FEFEFE;
   --text-secondary: #A8B1BE;
   --text-tertiary:  #626D7A;
 
-  --border:         rgba(136, 137, 141, 0.20);
-  --accent:         #0077FF;
-  --accent-hover:   #16A7FF;
-  --accent-soft:    rgba(0, 119, 255, 0.12);
-  --warn:           #FFCA4D;
+  --border:         rgba(255, 255, 255, 0.06);
+  --border-strong:  rgba(255, 255, 255, 0.10);
+
+  /* Mint/Cyan accent — VK Tech accent-secondary #00D3E6 */
+  --accent:         #00D3E6;
+  --accent-soft:    rgba(0, 211, 230, 0.12);
+  --accent-glow:    rgba(0, 211, 230, 0.20);
+  --accent-text:    #5EEFFB;
 
   --font-sans:      'Inter', system-ui, -apple-system, sans-serif;
   --font-display:   'Manrope', system-ui, sans-serif;
+  --font-serif:     'Cormorant Garamond', Georgia, serif;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -51,386 +55,499 @@ html, body {
 }
 
 body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  padding: 24px;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 30%, rgba(0, 211, 230, 0.06) 0%, transparent 60%),
+    var(--bg-base);
+  background-attachment: fixed;
 }
 
-/* ─── Header ─── */
-.start-header {
+/* ═══════════════════════════════════════════════════════════════════
+   HEADER · pill-карточка с лого, навигацией и CTA
+   ═══════════════════════════════════════════════════════════════════ */
+
+.s-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-}
-.start-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-primary);
-  text-decoration: none;
-}
-.start-brand-mark {
-  color: var(--accent-hover);
-  font-size: 16px;
-}
-
-/* ─── Main ─── */
-.start-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 40px 0;
-  gap: 56px;
-}
-
-/* ─── Hero ─── */
-.start-hero {
-  text-align: center;
-  max-width: 720px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-.start-hero-mark {
-  font-family: var(--font-display);
-  font-size: 96px;
-  line-height: 1;
-  font-weight: 600;
-  letter-spacing: -0.04em;
-  color: var(--text-primary);
-}
-.start-hero-mark::before {
-  content: '✦';
-  display: inline-block;
-  margin-right: 12px;
-  color: var(--accent-hover);
-  font-size: 64px;
-  vertical-align: middle;
-  transform: translateY(-6px);
-}
-.start-hero-tagline {
-  font-family: var(--font-display);
-  font-size: 22px;
-  line-height: 1.4;
-  font-weight: 400;
-  color: var(--text-secondary);
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-/* ─── Three paths ─── */
-.start-paths {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  width: 100%;
-  max-width: 980px;
-}
-
-.start-card {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 28px 24px;
-  background: var(--bg-elevated);
+  margin: 24px auto 0;
+  padding: 8px 8px 8px 16px;
+  background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 100px;
+  position: sticky;
+  top: 16px;
+  z-index: 10;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.s-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
   text-decoration: none;
   color: var(--text-primary);
-  cursor: pointer;
-  transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease, background 200ms ease;
-  position: relative;
-  overflow: hidden;
+  flex-shrink: 0;
 }
-
-.start-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--accent);
-  box-shadow: 0 12px 32px rgba(0, 119, 255, 0.20),
-              inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  background: var(--bg-tonal);
-}
-
-.start-card-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
+.s-brand-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   background: var(--bg-tonal);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
+  color: var(--accent);
+  font-size: 18px;
+  border: 1px solid var(--border-strong);
   flex-shrink: 0;
-  transition: background 200ms ease;
 }
-.start-card:hover .start-card-icon {
-  background: var(--accent-soft);
-}
-
-.start-card-title {
-  font-family: var(--font-display);
-  font-size: 24px;
-  line-height: 1.15;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--text-primary);
-}
-
-.start-card-meta {
-  font-size: 13px;
-  line-height: 18px;
-  color: var(--text-secondary);
-  font-weight: 500;
-  font-feature-settings: 'tnum' 1;
-}
-
-.start-card-desc {
-  font-size: 14px;
-  line-height: 22px;
-  color: var(--text-primary);
-  flex: 1 1 auto;
-}
-
-.start-card-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.s-brand-text { display: flex; flex-direction: column; line-height: 1; }
+.s-brand-name {
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 600;
-  color: var(--accent-hover);
-  margin-top: 4px;
-  transition: gap 200ms ease;
-}
-.start-card:hover .start-card-cta {
-  gap: 10px;
-}
-.start-card-cta::after {
-  content: '→';
-  font-weight: 500;
-}
-
-/* Primary card — recommended (Учить) */
-.start-card--primary {
-  background: linear-gradient(135deg, rgba(0, 119, 255, 0.12) 0%, rgba(0, 119, 255, 0.04) 100%);
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent), 0 8px 24px rgba(0, 119, 255, 0.12);
-}
-.start-card--primary:hover {
-  background: linear-gradient(135deg, rgba(0, 119, 255, 0.20) 0%, rgba(0, 119, 255, 0.08) 100%);
-}
-.start-card--primary .start-card-icon {
-  background: rgba(0, 119, 255, 0.22);
-}
-.start-card--primary .start-recommended {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  background: var(--warn);
-  color: #111;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  padding: 2px 8px;
-  border-radius: 4px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.s-brand-sub {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-top: 4px;
 }
 
-/* ─── Footer ─── */
-.start-footer {
-  text-align: center;
-  margin-top: 40px;
+.s-nav {
+  display: flex;
+  gap: 4px;
 }
-.start-divider {
-  width: 64px;
-  height: 1px;
-  background: var(--border);
-  margin: 0 auto 24px;
-}
-.start-shortcut {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-sans);
+.s-nav-link {
+  padding: 10px 18px;
   font-size: 14px;
   font-weight: 500;
   color: var(--text-secondary);
   text-decoration: none;
-  padding: 10px 18px;
   border-radius: 100px;
   transition: color 150ms ease, background 150ms ease;
 }
-.start-shortcut:hover {
+.s-nav-link:hover { color: var(--text-primary); background: var(--bg-tonal); }
+.s-nav-link.is-active { color: var(--text-primary); background: var(--bg-tonal); }
+
+.s-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--accent);
+  color: #0a0b0d;
+  border: none;
+  border-radius: 100px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 150ms ease, transform 100ms ease;
+}
+.s-cta:hover { background: var(--accent-text); transform: translateY(-1px); }
+.s-cta:active { transform: translateY(0); }
+
+/* ═══════════════════════════════════════════════════════════════════
+   HERO · большой заголовок + 2 CTA
+   ═══════════════════════════════════════════════════════════════════ */
+
+.s-hero {
+  position: relative;
+  margin: 64px auto 0;
+  max-width: 1200px;
+  padding: 80px 24px;
+  background: linear-gradient(180deg, rgba(0, 211, 230, 0.04) 0%, transparent 100%);
+  border: 1px solid var(--border);
+  border-radius: 32px;
+  text-align: center;
+}
+
+.s-hero-eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 32px;
+}
+
+.s-hero-title {
+  font-family: var(--font-serif);
+  font-size: clamp(40px, 7vw, 88px);
+  line-height: 1.05;
+  font-weight: 500;
+  letter-spacing: -0.01em;
   color: var(--text-primary);
+  margin: 0 auto 32px;
+  max-width: 1000px;
+}
+.s-hero-title-accent {
+  color: var(--accent);
+  font-style: italic;
+  font-weight: 600;
+}
+
+.s-hero-desc {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.6;
+  font-weight: 400;
+  color: var(--text-secondary);
+  max-width: 640px;
+  margin: 0 auto 40px;
+}
+
+.s-hero-cta-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.s-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 28px;
+  border-radius: 100px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 180ms ease;
+  border: 1px solid transparent;
+}
+.s-btn-primary {
+  background: var(--accent);
+  color: #0a0b0d;
+  box-shadow: 0 8px 32px rgba(0, 211, 230, 0.30);
+}
+.s-btn-primary:hover {
+  background: var(--accent-text);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 211, 230, 0.45);
+}
+.s-btn-secondary {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+.s-btn-secondary:hover {
+  background: var(--bg-tonal);
+  border-color: var(--text-tertiary);
+}
+.s-btn-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.20);
+  font-size: 14px;
+  margin-left: 4px;
+}
+.s-btn-secondary .s-btn-arrow {
   background: var(--bg-tonal);
 }
-.start-shortcut::after {
-  content: '→';
-  font-weight: 500;
-  transition: transform 150ms ease;
-}
-.start-shortcut:hover::after {
-  transform: translateX(2px);
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURES · 5 карточек с иконками
+   ═══════════════════════════════════════════════════════════════════ */
+
+.s-features {
+  max-width: 1200px;
+  margin: 56px auto 80px;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
 }
 
-.start-bottom {
+.s-feature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  margin-top: 12px;
-  font-size: 12px;
-  color: var(--text-tertiary);
+  padding: 28px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+.s-feature:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  background: var(--bg-elevated);
+  box-shadow: 0 16px 40px rgba(0, 211, 230, 0.10);
 }
 
-/* ═══ Mobile ═══ */
+.s-feature-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(0, 211, 230, 0.20) 0%, rgba(0, 211, 230, 0.05) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  border: 1px solid rgba(0, 211, 230, 0.20);
+  position: relative;
+}
+.s-feature-icon::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(0, 211, 230, 0.40) 0%, transparent 50%);
+  z-index: -1;
+  filter: blur(8px);
+  opacity: 0.5;
+  transition: opacity 200ms ease;
+}
+.s-feature:hover .s-feature-icon::before { opacity: 1; }
+
+.s-feature-icon svg {
+  width: 32px;
+  height: 32px;
+  color: var(--accent);
+}
+
+.s-feature-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.s-feature-title {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+.s-feature-desc {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  flex: 1 1 auto;
+}
+.s-feature-link {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-top: auto;
+}
+
+/* ─── Mobile ─── */
+@media (max-width: 1024px) {
+  .s-features { grid-template-columns: repeat(2, 1fr); }
+  .s-features > :nth-child(5) { grid-column: span 2; }
+}
 @media (max-width: 767px) {
-  body { padding: 16px; }
-  .start-main { padding: 20px 0 0; gap: 32px; }
-  .start-hero-mark { font-size: 64px; }
-  .start-hero-mark::before { font-size: 44px; transform: translateY(-4px); }
-  .start-hero-tagline { font-size: 17px; line-height: 1.45; }
-  .start-paths { grid-template-columns: 1fr; gap: 12px; }
-  .start-card { padding: 22px 20px; }
-  .start-card-title { font-size: 20px; }
-  .start-card-icon { width: 48px; height: 48px; font-size: 24px; border-radius: 12px; }
-  .start-card--primary .start-recommended { top: 10px; right: 10px; }
+  .s-header {
+    margin: 12px;
+    padding: 8px 8px 8px 14px;
+    border-radius: 100px;
+  }
+  .s-nav { display: none; }
+  .s-brand-name { font-size: 10px; }
+  .s-brand-sub { font-size: 12px; }
+  .s-brand-mark { width: 36px; height: 36px; font-size: 16px; }
+  .s-cta { padding: 10px 18px; font-size: 13px; }
+
+  .s-hero {
+    margin: 24px 12px 0;
+    padding: 48px 20px;
+    border-radius: 24px;
+  }
+  .s-hero-title { font-size: 36px; }
+  .s-hero-desc { font-size: 15px; }
+  .s-btn { padding: 14px 20px; font-size: 14px; }
+
+  .s-features { margin: 32px 12px 32px; gap: 10px; grid-template-columns: 1fr; padding: 0; }
+  .s-features > :nth-child(5) { grid-column: span 1; }
+  .s-feature { padding: 20px 16px; flex-direction: row; align-items: flex-start; text-align: left; }
+  .s-feature-icon { margin-bottom: 0; margin-right: 16px; flex-shrink: 0; width: 52px; height: 52px; }
+  .s-feature-eyebrow { margin-bottom: 6px; }
+  .s-feature-title { font-size: 18px; margin-bottom: 6px; }
+  .s-feature-desc { margin-bottom: 8px; font-size: 13px; }
+  .s-feature-link { font-size: 10px; }
 }
 
-/* Уменьшаем для очень маленьких */
-@media (max-width: 380px) {
-  .start-hero-mark { font-size: 52px; }
-  .start-hero-mark::before { font-size: 36px; }
-}
-
-/* Reduce motion */
 @media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; animation: none !important; }
+  *, *::before, *::after { transition: none !important; animation: none !important; }
 }
 </style>
 </head>
 <body>
 
-<!-- Хедер -->
-<header class="start-header">
-  <a href="#" class="start-brand" aria-label="Ясна">
-    <span class="start-brand-mark" aria-hidden="true">✦</span>
-    <span>Ясна</span>
+<!-- ═══ HEADER ═══ -->
+<header class="s-header">
+  <a href="#" class="s-brand">
+    <span class="s-brand-mark" aria-hidden="true">✦</span>
+    <span class="s-brand-text">
+      <span class="s-brand-name">YASNA</span>
+      <span class="s-brand-sub">Интерактивный тренажёр</span>
+    </span>
   </a>
+  <nav class="s-nav" aria-label="Навигация">
+    <a href="#" class="s-nav-link is-active">Главная</a>
+    <a href="index.html" class="s-nav-link" data-path="explore">Звезда</a>
+    <a href="duel.html" class="s-nav-link" data-path="play">Партия</a>
+  </nav>
+  <a href="index.html" class="s-cta" data-path="explore">Открыть звезду</a>
 </header>
 
-<!-- Main -->
-<main class="start-main">
-
-  <!-- Hero -->
-  <section class="start-hero">
-    <h1 class="start-hero-mark">Ясна</h1>
-    <p class="start-hero-tagline">
-      Метод видеть в любом явлении<br/>одну 12-полочную структуру.
-    </p>
-  </section>
-
-  <!-- Три пути -->
-  <section class="start-paths" role="navigation" aria-label="Выбор пути">
-
-    <a href="index.html" class="start-card start-card--primary" data-path="learn" aria-label="Учить с нуля">
-      <span class="start-recommended">Старт</span>
-      <div class="start-card-icon" aria-hidden="true">🎓</div>
-      <h2 class="start-card-title">Учить</h2>
-      <div class="start-card-meta">С нуля · 4 урока · 20 минут</div>
-      <p class="start-card-desc">
-        Введу в метод Ясны через короткие шаги. Поймёшь, что такое 12 полок и как читать звезду.
-      </p>
-      <span class="start-card-cta">Начать обучение</span>
+<!-- ═══ HERO ═══ -->
+<section class="s-hero">
+  <div class="s-hero-eyebrow">Метод Ясны · 12 полок · 36 Ясн</div>
+  <h1 class="s-hero-title">
+    Видеть устройство любого явления<br/>
+    <span class="s-hero-title-accent">по методу Ясны</span>
+  </h1>
+  <p class="s-hero-desc">
+    Учитесь читать структуру дня, года, жизни через 12-полочную звезду. Играйте партии-викторины. Изучайте 9 тем Ясны Суток с дословными цитатами из книги.
+  </p>
+  <div class="s-hero-cta-row">
+    <a href="index.html" class="s-btn s-btn-primary" data-path="learn">
+      Начать обучение
+      <span class="s-btn-arrow" aria-hidden="true">→</span>
     </a>
-
-    <a href="duel.html" class="start-card" data-path="play" aria-label="Играть Партию">
-      <div class="start-card-icon" aria-hidden="true">♟</div>
-      <h2 class="start-card-title">Играть</h2>
-      <div class="start-card-meta">Партия · 18 вопросов · ~5 мин</div>
-      <p class="start-card-desc">
-        Проверка через игру. Соло против Тени или вдвоём по ссылке. 5 типов заданий, разбор с цитатами в финале.
-      </p>
-      <span class="start-card-cta">Играть Партию</span>
+    <a href="duel.html" class="s-btn s-btn-secondary" data-path="play">
+      Сыграть партию
+      <span class="s-btn-arrow" aria-hidden="true">→</span>
     </a>
+  </div>
+</section>
 
-    <a href="index.html" class="start-card" data-path="explore" aria-label="Изучать звезду">
-      <div class="start-card-icon" aria-hidden="true">✦</div>
-      <h2 class="start-card-title">Изучать</h2>
-      <div class="start-card-meta">36 Ясн · 18 механик · 3D</div>
-      <p class="start-card-desc">
-        Свободное исследование. Полная звезда с механиками и переключением Ясн (Сутки / Года / Жизни и других).
-      </p>
-      <span class="start-card-cta">Открыть звезду</span>
-    </a>
+<!-- ═══ FEATURES ═══ -->
+<section class="s-features" aria-label="Что внутри">
 
-  </section>
-
-  <!-- Footer shortcut -->
-  <footer class="start-footer">
-    <div class="start-divider"></div>
-    <a href="index.html" class="start-shortcut" data-path="explore" aria-label="Уже бывали — перейти к звезде">
-      Уже бывали?<span aria-hidden="true">·</span>перейти к звезде
-    </a>
-    <div class="start-bottom">
-      Тёмная тема включится автоматически по выбору
+  <a href="index.html" class="s-feature" data-path="learn">
+    <div class="s-feature-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M12 4v16M4 12h16" stroke-linecap="round"/>
+        <circle cx="12" cy="12" r="9"/>
+      </svg>
     </div>
-  </footer>
+    <div class="s-feature-eyebrow">Уроки</div>
+    <h3 class="s-feature-title">Учить с нуля</h3>
+    <p class="s-feature-desc">4 урока по 5 минут. Поймёшь, что такое 12 полок и как читать звезду.</p>
+    <span class="s-feature-link">Открыть уроки →</span>
+  </a>
 
-</main>
+  <a href="duel.html" class="s-feature" data-path="play">
+    <div class="s-feature-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <rect x="3" y="6" width="18" height="14" rx="2"/>
+        <path d="M8 10h8M8 14h5" stroke-linecap="round"/>
+        <path d="M8 2v4M16 2v4" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="s-feature-eyebrow">Партия</div>
+    <h3 class="s-feature-title">Играть викторину</h3>
+    <p class="s-feature-desc">18 вопросов · 5 минут · соло с Тенью или вдвоём по ссылке.</p>
+    <span class="s-feature-link">Сыграть →</span>
+  </a>
+
+  <a href="index.html" class="s-feature" data-path="explore">
+    <div class="s-feature-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 3v18M3 12h18M5.5 5.5l13 13M18.5 5.5l-13 13" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="s-feature-eyebrow">Звезда</div>
+    <h3 class="s-feature-title">Изучать структуру</h3>
+    <p class="s-feature-desc">Полная 12-полочная звезда с механиками и переключением Ясн.</p>
+    <span class="s-feature-link">Открыть звезду →</span>
+  </a>
+
+  <a href="index.html" class="s-feature" data-path="catalog">
+    <div class="s-feature-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <rect x="3" y="3" width="8" height="8" rx="1.5"/>
+        <rect x="13" y="3" width="8" height="8" rx="1.5"/>
+        <rect x="3" y="13" width="8" height="8" rx="1.5"/>
+        <rect x="13" y="13" width="8" height="8" rx="1.5"/>
+      </svg>
+    </div>
+    <div class="s-feature-eyebrow">Каталог</div>
+    <h3 class="s-feature-title">36 Ясн в подборке</h3>
+    <p class="s-feature-desc">Сутки, Года, Жизни, Переговоры, Атмосферные явления и ещё 32.</p>
+    <span class="s-feature-link">Смотреть все →</span>
+  </a>
+
+  <a href="index.html" class="s-feature" data-path="create">
+    <div class="s-feature-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M3 12l3 3 6-6 6 6 3-3" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="6" cy="12" r="1.5" fill="currentColor"/>
+        <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+        <circle cx="18" cy="12" r="1.5" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="s-feature-eyebrow">Конструктор</div>
+    <h3 class="s-feature-title">Создать свою Ясну</h3>
+    <p class="s-feature-desc">Опиши собственное явление в 12-полочной структуре. Сохрани в коллекцию.</p>
+    <span class="s-feature-link">Открыть редактор →</span>
+  </a>
+
+</section>
 
 <script>
 (function(){
   'use strict';
-
   var VISITED_KEY = 'yasna_visited';
   var THEME_KEY = 'yasna_theme_vk_dark';
 
-  // ─── Skip-логика ───
-  // Если пользователь уже бывал — пропускаем стартовый экран,
-  // сразу на главную (изучение). Можно сбросить через ?reset=1
+  // Skip-логика — если бывал, мгновенно на главную
   try {
     var params = new URLSearchParams(window.location.search);
     if(params.get('reset') === '1'){
       localStorage.removeItem(VISITED_KEY);
-    }
-    if(localStorage.getItem(VISITED_KEY) === '1'){
-      // Уже бывал — сразу на главную, без показа лендинга
-      window.location.replace('index.html');
+    } else if(localStorage.getItem(VISITED_KEY) === '1'){
+      window.location.replace('index.html?skip-start=1');
       return;
     }
   } catch(_){}
 
-  // ─── Включаем тёмную тему по умолчанию для нового пользователя ───
-  // (можно потом выключить переключателем в основном UI)
+  // Включаем тёмную тему по умолчанию
   try {
     if(localStorage.getItem(THEME_KEY) === null){
       localStorage.setItem(THEME_KEY, '1');
     }
   } catch(_){}
 
-  // ─── Mark visited при клике на любой путь ───
-  var cards = document.querySelectorAll('[data-path]');
-  cards.forEach(function(card){
-    card.addEventListener('click', function(){
+  // Mark visited на любой клик-путь
+  document.querySelectorAll('[data-path]').forEach(function(el){
+    el.addEventListener('click', function(){
       try {
         localStorage.setItem(VISITED_KEY, '1');
-        // Можно потом анализировать какой путь выбирают
-        var path = card.getAttribute('data-path');
+        var path = el.getAttribute('data-path');
         var stat = JSON.parse(localStorage.getItem('yasna_path_stats') || '{}');
         stat[path] = (stat[path] || 0) + 1;
         localStorage.setItem('yasna_path_stats', JSON.stringify(stat));
       } catch(_){}
-      // навигация произойдёт через href — не блокируем
     });
   });
 })();
