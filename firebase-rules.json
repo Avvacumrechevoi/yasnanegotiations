@@ -1,0 +1,38 @@
+{
+  "rules": {
+    "rooms": {
+      "$code": {
+        ".read": "auth != null",
+
+        "meta": {
+          ".write": "auth != null && (
+            !data.exists() ||
+            (data.parent().child('host/deviceId').exists() && data.parent().child('host/deviceId').val() != null) ||
+            (data.parent().child('guest/deviceId').exists() && data.parent().child('guest/deviceId').val() != null)
+          )",
+          ".validate": "newData.hasChildren(['status', 'createdAt'])"
+        },
+
+        "host": {
+          ".write": "auth != null && (!data.exists() || data.child('deviceId').val() == newData.child('deviceId').val())",
+          ".validate": "newData.hasChild('deviceId') && newData.hasChild('nickname')"
+        },
+
+        "guest": {
+          ".write": "auth != null && (!data.exists() || data.child('deviceId').val() == newData.child('deviceId').val())",
+          ".validate": "newData.hasChild('deviceId') && newData.hasChild('nickname')"
+        },
+
+        "messages": {
+          "$msgId": {
+            ".write": "auth != null && newData.exists() && (
+              newData.child('from').val() == root.child('rooms').child($code).child('host/deviceId').val() ||
+              newData.child('from').val() == root.child('rooms').child($code).child('guest/deviceId').val()
+            )",
+            ".validate": "newData.hasChildren(['from', 'type', 'ts'])"
+          }
+        }
+      }
+    }
+  }
+}

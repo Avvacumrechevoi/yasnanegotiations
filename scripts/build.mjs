@@ -71,6 +71,7 @@ const DUEL_FILES = [
   'games/duel/duel-game-speed.js',
   'games/duel/trivia-bank.js',
   'games/duel/turnir-engine.js',
+  'games/duel/rt-firebase.js',
   'games/duel/duel-page.js',
 ];
 

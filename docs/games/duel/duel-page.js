@@ -683,10 +683,10 @@
       }
     }, []);
 
-    // Хост: создать комнату, потом ждать гостя через polling
+    // Хост: создать комнату через Firebase RTDB и ждать гостя
     async function doCreate(){
-      if(!apiUrl){
-        setError('Сервер недоступен — проверь настройки.');
+      if(!window.YasnaRT){
+        setError('Real-time транспорт не загрузился. Обнови страницу.');
         setMode('error');
         return;
       }
@@ -701,71 +701,38 @@
       console.log('[lobby/create] requesting...');
 
       try {
-        const r = await fetch(apiUrl + '/rooms/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            deviceId: me.deviceId,
-            nickname: me.nickname,
-            avatar: me.avatar || null,
-          }),
+        const { code } = await window.YasnaRT.createRoom({
+          deviceId: me.deviceId,
+          nickname: me.nickname,
+          avatar: me.avatar || null,
         });
-        if(!r.ok){
-          const errBody = await r.json().catch(() => ({}));
-          setError('Не удалось создать комнату: ' + (errBody?.error || r.statusText));
-          setMode('error');
-          return;
-        }
-        const data = await r.json();
-        console.log('[lobby/create] room created', data);
-        setRoomCode(data.code);
-        setRoomId(data.roomId);
+        console.log('[lobby/create] room created', code);
+        setRoomCode(code);
+        setRoomId(code);
         setStatusText('Жду собеседника…');
 
-        // Опрашиваем room каждые 1500ms — как только status=playing → начинаем игру
-        const checkRoom = async () => {
-          try {
-            const pr = await fetch(apiUrl + '/rooms/poll?roomId=' + encodeURIComponent(data.roomId)
-                                + '&deviceId=' + encodeURIComponent(me.deviceId)
-                                + '&since=0&limit=10', { method: 'GET' });
-            if(pr.ok){
-              const pd = await pr.json();
-              if(pd?.room?.status === 'playing' && pd?.room?.opp){
-                // Гость присоединился! Стартуем игру.
-                console.log('[lobby/create] guest joined', pd.room.opp);
-                const transport = makePollingTransport({
-                  roomId: data.roomId,
-                  deviceId: me.deviceId,
-                  role: 'host',
-                  apiUrl,
-                });
-                transportRef.current = transport;
-                onConnected({
-                  transport, role: 'host', roomCode: data.code,
-                  opponent: { nickname: pd.room.opp.nickname, avatar: pd.room.opp.avatar || '◐', isPvP: true }
-                });
-                return;
-              }
-            }
-          } catch(e){
-            console.warn('[lobby/create] poll error', e?.message);
+        // Ждём гостя — Firebase сам пушнёт когда guest появится
+        try {
+          const guest = await window.YasnaRT.waitForGuest(code, { timeoutMs: 5 * 60 * 1000 });
+          console.log('[lobby/create] guest joined', guest);
+          const transport = window.YasnaRT.makeTransport({
+            code, deviceId: me.deviceId, role: 'host',
+          });
+          transportRef.current = transport;
+          onConnected({
+            transport, role: 'host', roomCode: code,
+            opponent: { nickname: guest.nickname, avatar: guest.avatar || '◐', isPvP: true }
+          });
+        } catch(e){
+          if(e.message === 'timeout'){
+            setError('Никто не пришёл за 5 минут. Создай новую комнату.');
+          } else if(e.message === 'closed'){
+            setError('Комната закрыта.');
+          } else {
+            setError('Ошибка ожидания: ' + e.message);
           }
-          waitingPollTimer.current = setTimeout(checkRoom, 1500);
-        };
-        waitingPollTimer.current = setTimeout(checkRoom, 1500);
-
-        // Master timeout — если за 5 минут никто не пришёл
-        setTimeout(() => {
-          if(waitingPollTimer.current){
-            clearTimeout(waitingPollTimer.current);
-            waitingPollTimer.current = null;
-            if(mode !== 'error'){
-              setError('Никто не пришёл за 5 минут. Создай новую комнату.');
-              setMode('error');
-            }
-          }
-        }, 5 * 60 * 1000);
-
+          setMode('error');
+        }
       } catch(e){
         console.error('[lobby/create] exception', e);
         setError('Ошибка создания комнаты: ' + e.message);
@@ -779,8 +746,8 @@
         setError('Код должен быть в формате KASTA-XXXX');
         return;
       }
-      if(!apiUrl){
-        setError('Сервер недоступен — проверь настройки.');
+      if(!window.YasnaRT){
+        setError('Real-time транспорт не загрузился. Обнови страницу.');
         setMode('error');
         return;
       }
@@ -796,53 +763,35 @@
       console.log('[lobby/join] requesting', code);
 
       try {
-        const r = await fetch(apiUrl + '/rooms/join', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            code,
-            deviceId: me.deviceId,
-            nickname: me.nickname,
-            avatar: me.avatar || null,
-          }),
-        });
-        if(r.status === 404){
-          setError('Комната не найдена. Проверь код или попроси создать новую.');
-          setMode('error');
-          return;
-        }
-        if(r.status === 409){
-          setError('В комнате уже два игрока. Попроси создать новую.');
-          setMode('error');
-          return;
-        }
-        if(r.status === 410){
-          setError('Комната закрыта. Попроси создать новую.');
-          setMode('error');
-          return;
-        }
-        if(!r.ok){
-          const errBody = await r.json().catch(() => ({}));
-          setError('Не удалось подключиться: ' + (errBody?.error || r.statusText));
-          setMode('error');
-          return;
-        }
-        const data = await r.json();
-        console.log('[lobby/join] joined', data);
-        const transport = makePollingTransport({
-          roomId: data.roomId,
+        const { host } = await window.YasnaRT.joinRoom(code, {
           deviceId: me.deviceId,
-          role: 'guest',
-          apiUrl,
+          nickname: me.nickname,
+          avatar: me.avatar || null,
+        });
+        console.log('[lobby/join] joined', code, 'host:', host);
+        const transport = window.YasnaRT.makeTransport({
+          code, deviceId: me.deviceId, role: 'guest',
         });
         transportRef.current = transport;
         onConnected({
           transport, role: 'guest', roomCode: code,
-          opponent: { nickname: data.host?.nickname || 'Хозяин', avatar: data.host?.avatar || '◑', isPvP: true }
+          opponent: { nickname: host?.nickname || 'Хозяин', avatar: host?.avatar || '◑', isPvP: true }
         });
       } catch(e){
         console.error('[lobby/join] exception', e);
-        setError('Ошибка подключения: ' + e.message);
+        if(e.message === 'not_found'){
+          setError('Комната не найдена. Проверь код или попроси создать новую.');
+        } else if(e.message === 'room_full'){
+          setError('В комнате уже два игрока. Попроси создать новую.');
+        } else if(e.message === 'closed'){
+          setError('Комната закрыта. Попроси создать новую.');
+        } else if(e.message === 'cant_join_own_room'){
+          setError('Нельзя войти в свою же комнату. Открой ссылку с другого устройства.');
+        } else if(e.message === 'invalid_code_format'){
+          setError('Код должен быть в формате KASTA-XXXX');
+        } else {
+          setError('Ошибка подключения: ' + e.message);
+        }
         setMode('error');
       }
     }

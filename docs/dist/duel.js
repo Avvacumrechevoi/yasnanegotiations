@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-07T22:30:46.494Z */
+/* Yasna bundle: duel.js — собран 2026-05-08T00:55:49.927Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -6369,6 +6369,240 @@ window.YasnaCore = {
 })();
 
 })();
+/* ─── games/duel/rt-firebase.js ─── */
+;(function(){
+(function() {
+  "use strict";
+  const firebaseConfig = {
+    apiKey: "AIzaSyDQzZ2yrMkWGCAKi_zHoOWcgmoHWtlkIEc",
+    authDomain: "yasna-rt.firebaseapp.com",
+    databaseURL: "https://yasna-rt-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "yasna-rt",
+    storageBucket: "yasna-rt.firebasestorage.app",
+    messagingSenderId: "790612199351",
+    appId: "1:790612199351:web:4c42d8facfe1c582fcca32"
+  };
+  let app = null;
+  let db = null;
+  let auth = null;
+  let authPromise = null;
+  function init() {
+    if (app) return;
+    if (typeof firebase === "undefined") {
+      throw new Error("Firebase SDK \u043D\u0435 \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043D. \u041F\u0440\u043E\u0432\u0435\u0440\u044C script-\u0442\u0435\u0433\u0438 \u0432 duel.html.");
+    }
+    app = firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+    auth = firebase.auth();
+  }
+  function ensureAuth() {
+    if (authPromise) return authPromise;
+    init();
+    authPromise = new Promise((resolve, reject) => {
+      const unsub = auth.onAuthStateChanged((user) => {
+        if (user) {
+          unsub();
+          resolve(user);
+        }
+      });
+      auth.signInAnonymously().catch((err) => {
+        console.error("[firebase] anon auth failed", err);
+        reject(err);
+      });
+      setTimeout(() => reject(new Error("auth timeout")), 1e4);
+    });
+    return authPromise;
+  }
+  const ROOM_CODE_CHARS = "BCDFGHJKLMNPQRSTVWXZ23456789";
+  function genRoomCode() {
+    let s = "KASTA-";
+    for (let i = 0; i < 4; i++) s += ROOM_CODE_CHARS[Math.floor(Math.random() * ROOM_CODE_CHARS.length)];
+    return s;
+  }
+  function validCode(code) {
+    return /^KASTA-[A-Z0-9]{4}$/.test(String(code || "").toUpperCase());
+  }
+  async function createRoom({ deviceId, nickname, avatar }) {
+    if (!deviceId || !nickname) throw new Error("deviceId \u0438 nickname \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B");
+    await ensureAuth();
+    let code = null;
+    for (let i = 0; i < 5; i++) {
+      const candidate = genRoomCode();
+      const snap = await db.ref("rooms/" + candidate + "/meta").get();
+      if (!snap.exists()) {
+        code = candidate;
+        break;
+      }
+    }
+    if (!code) throw new Error("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u0433\u0435\u043D\u0435\u0440\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0443\u043D\u0438\u043A\u0430\u043B\u044C\u043D\u044B\u0439 \u043A\u043E\u0434");
+    const TS = firebase.database.ServerValue.TIMESTAMP;
+    await db.ref("rooms/" + code).set({
+      meta: {
+        status: "waiting",
+        createdAt: TS,
+        version: 2
+      },
+      host: {
+        deviceId: String(deviceId),
+        nickname: String(nickname).slice(0, 40),
+        avatar: avatar ? String(avatar).slice(0, 200) : null,
+        lastSeen: TS
+      }
+    });
+    db.ref("rooms/" + code + "/meta/status").onDisconnect().set("closed");
+    console.log("[firebase] room created", code);
+    return { code };
+  }
+  function waitForGuest(code, { timeoutMs = 5 * 60 * 1e3 } = {}) {
+    return new Promise((resolve, reject) => {
+      init();
+      const guestRef = db.ref("rooms/" + code + "/guest");
+      const statusRef = db.ref("rooms/" + code + "/meta/status");
+      let done = false;
+      const timer = setTimeout(() => {
+        if (done) return;
+        done = true;
+        guestRef.off();
+        statusRef.off();
+        reject(new Error("timeout"));
+      }, timeoutMs);
+      const onGuest = guestRef.on("value", (snap) => {
+        if (done) return;
+        if (snap.exists()) {
+          done = true;
+          clearTimeout(timer);
+          guestRef.off("value", onGuest);
+          statusRef.off("value", onStatus);
+          resolve(snap.val());
+        }
+      });
+      const onStatus = statusRef.on("value", (snap) => {
+        if (done) return;
+        if (snap.val() === "closed") {
+          done = true;
+          clearTimeout(timer);
+          guestRef.off("value", onGuest);
+          statusRef.off("value", onStatus);
+          reject(new Error("closed"));
+        }
+      });
+    });
+  }
+  async function joinRoom(rawCode, { deviceId, nickname, avatar }) {
+    var _a, _b;
+    if (!deviceId || !nickname) throw new Error("deviceId \u0438 nickname \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B");
+    const code = String(rawCode || "").trim().toUpperCase();
+    if (!validCode(code)) throw new Error("invalid_code_format");
+    await ensureAuth();
+    const roomRef = db.ref("rooms/" + code);
+    const snap = await roomRef.get();
+    if (!snap.exists()) throw new Error("not_found");
+    const room = snap.val();
+    if (((_a = room.meta) == null ? void 0 : _a.status) === "closed") throw new Error("closed");
+    if (room.guest && room.guest.deviceId && room.guest.deviceId !== String(deviceId)) {
+      throw new Error("room_full");
+    }
+    if (((_b = room.host) == null ? void 0 : _b.deviceId) === String(deviceId)) {
+      throw new Error("cant_join_own_room");
+    }
+    const TS = firebase.database.ServerValue.TIMESTAMP;
+    await roomRef.update({
+      "guest/deviceId": String(deviceId),
+      "guest/nickname": String(nickname).slice(0, 40),
+      "guest/avatar": avatar ? String(avatar).slice(0, 200) : null,
+      "guest/lastSeen": TS,
+      "meta/status": "playing"
+    });
+    db.ref("rooms/" + code + "/meta/status").onDisconnect().set("closed");
+    console.log("[firebase] joined room", code);
+    return { host: room.host };
+  }
+  function makeTransport({ code, deviceId, role }) {
+    init();
+    const handlers = /* @__PURE__ */ new Set();
+    let stopped = false;
+    const messagesRef = db.ref("rooms/" + code + "/messages");
+    const statusRef = db.ref("rooms/" + code + "/meta/status");
+    function onMsg(snap) {
+      if (stopped) return;
+      const m = snap.val();
+      if (!m || m.from === deviceId) return;
+      const reconstructed = Object.assign({ t: m.type }, m.payload || {});
+      handlers.forEach((fn) => {
+        try {
+          fn(reconstructed);
+        } catch (_) {
+        }
+      });
+    }
+    messagesRef.on("child_added", onMsg);
+    function onStatus(snap) {
+      if (stopped) return;
+      if (snap.val() === "closed") {
+        handlers.forEach((fn) => {
+          try {
+            fn({ t: "opp-leave" });
+          } catch (_) {
+          }
+        });
+      }
+    }
+    statusRef.on("value", onStatus);
+    const presenceRef = db.ref("rooms/" + code + "/" + role + "/lastSeen");
+    const heartbeat = setInterval(() => {
+      if (!stopped) presenceRef.set(firebase.database.ServerValue.TIMESTAMP);
+    }, 1e4);
+    return {
+      role,
+      async send(msg) {
+        if (stopped) return;
+        const { t, ...rest } = msg || {};
+        try {
+          await messagesRef.push({
+            from: String(deviceId),
+            type: t || "unknown",
+            payload: Object.keys(rest).length > 0 ? rest : null,
+            ts: firebase.database.ServerValue.TIMESTAMP
+          });
+        } catch (e) {
+          console.warn("[firebase] send error", (e == null ? void 0 : e.message) || e);
+        }
+      },
+      on(fn) {
+        handlers.add(fn);
+        return () => handlers.delete(fn);
+      },
+      close() {
+        stopped = true;
+        clearInterval(heartbeat);
+        try {
+          messagesRef.off("child_added", onMsg);
+        } catch (_) {
+        }
+        try {
+          statusRef.off("value", onStatus);
+        } catch (_) {
+        }
+        try {
+          statusRef.set("closed");
+        } catch (_) {
+        }
+      },
+      startHeartbeat() {
+      }
+    };
+  }
+  window.YasnaRT = {
+    createRoom,
+    joinRoom,
+    waitForGuest,
+    makeTransport,
+    validCode
+  };
+  console.log("[YasnaRT] Firebase real-time transport loaded");
+})();
+
+})();
 /* ─── games/duel/duel-page.js ─── */
 ;(function(){
 (function() {
@@ -7139,8 +7373,8 @@ window.YasnaCore = {
       }
     }, []);
     async function doCreate() {
-      if (!apiUrl) {
-        setError("\u0421\u0435\u0440\u0432\u0435\u0440 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D \u2014 \u043F\u0440\u043E\u0432\u0435\u0440\u044C \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438.");
+      if (!window.YasnaRT) {
+        setError("Real-time \u0442\u0440\u0430\u043D\u0441\u043F\u043E\u0440\u0442 \u043D\u0435 \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u043B\u0441\u044F. \u041E\u0431\u043D\u043E\u0432\u0438 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0443.");
         setMode("error");
         return;
       }
@@ -7154,66 +7388,40 @@ window.YasnaCore = {
       setError(null);
       console.log("[lobby/create] requesting...");
       try {
-        const r = await fetch(apiUrl + "/rooms/create", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            deviceId: me.deviceId,
-            nickname: me.nickname,
-            avatar: me.avatar || null
-          })
+        const { code } = await window.YasnaRT.createRoom({
+          deviceId: me.deviceId,
+          nickname: me.nickname,
+          avatar: me.avatar || null
         });
-        if (!r.ok) {
-          const errBody = await r.json().catch(() => ({}));
-          setError("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u043A\u043E\u043C\u043D\u0430\u0442\u0443: " + ((errBody == null ? void 0 : errBody.error) || r.statusText));
-          setMode("error");
-          return;
-        }
-        const data = await r.json();
-        console.log("[lobby/create] room created", data);
-        setRoomCode(data.code);
-        setRoomId(data.roomId);
+        console.log("[lobby/create] room created", code);
+        setRoomCode(code);
+        setRoomId(code);
         setStatusText("\u0416\u0434\u0443 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430\u2026");
-        const checkRoom = async () => {
-          var _a, _b;
-          try {
-            const pr = await fetch(apiUrl + "/rooms/poll?roomId=" + encodeURIComponent(data.roomId) + "&deviceId=" + encodeURIComponent(me.deviceId) + "&since=0&limit=10", { method: "GET" });
-            if (pr.ok) {
-              const pd = await pr.json();
-              if (((_a = pd == null ? void 0 : pd.room) == null ? void 0 : _a.status) === "playing" && ((_b = pd == null ? void 0 : pd.room) == null ? void 0 : _b.opp)) {
-                console.log("[lobby/create] guest joined", pd.room.opp);
-                const transport = makePollingTransport({
-                  roomId: data.roomId,
-                  deviceId: me.deviceId,
-                  role: "host",
-                  apiUrl
-                });
-                transportRef.current = transport;
-                onConnected({
-                  transport,
-                  role: "host",
-                  roomCode: data.code,
-                  opponent: { nickname: pd.room.opp.nickname, avatar: pd.room.opp.avatar || "\u25D0", isPvP: true }
-                });
-                return;
-              }
-            }
-          } catch (e) {
-            console.warn("[lobby/create] poll error", e == null ? void 0 : e.message);
+        try {
+          const guest = await window.YasnaRT.waitForGuest(code, { timeoutMs: 5 * 60 * 1e3 });
+          console.log("[lobby/create] guest joined", guest);
+          const transport = window.YasnaRT.makeTransport({
+            code,
+            deviceId: me.deviceId,
+            role: "host"
+          });
+          transportRef.current = transport;
+          onConnected({
+            transport,
+            role: "host",
+            roomCode: code,
+            opponent: { nickname: guest.nickname, avatar: guest.avatar || "\u25D0", isPvP: true }
+          });
+        } catch (e) {
+          if (e.message === "timeout") {
+            setError("\u041D\u0438\u043A\u0442\u043E \u043D\u0435 \u043F\u0440\u0438\u0448\u0451\u043B \u0437\u0430 5 \u043C\u0438\u043D\u0443\u0442. \u0421\u043E\u0437\u0434\u0430\u0439 \u043D\u043E\u0432\u0443\u044E \u043A\u043E\u043C\u043D\u0430\u0442\u0443.");
+          } else if (e.message === "closed") {
+            setError("\u041A\u043E\u043C\u043D\u0430\u0442\u0430 \u0437\u0430\u043A\u0440\u044B\u0442\u0430.");
+          } else {
+            setError("\u041E\u0448\u0438\u0431\u043A\u0430 \u043E\u0436\u0438\u0434\u0430\u043D\u0438\u044F: " + e.message);
           }
-          waitingPollTimer.current = setTimeout(checkRoom, 1500);
-        };
-        waitingPollTimer.current = setTimeout(checkRoom, 1500);
-        setTimeout(() => {
-          if (waitingPollTimer.current) {
-            clearTimeout(waitingPollTimer.current);
-            waitingPollTimer.current = null;
-            if (mode !== "error") {
-              setError("\u041D\u0438\u043A\u0442\u043E \u043D\u0435 \u043F\u0440\u0438\u0448\u0451\u043B \u0437\u0430 5 \u043C\u0438\u043D\u0443\u0442. \u0421\u043E\u0437\u0434\u0430\u0439 \u043D\u043E\u0432\u0443\u044E \u043A\u043E\u043C\u043D\u0430\u0442\u0443.");
-              setMode("error");
-            }
-          }
-        }, 5 * 60 * 1e3);
+          setMode("error");
+        }
       } catch (e) {
         console.error("[lobby/create] exception", e);
         setError("\u041E\u0448\u0438\u0431\u043A\u0430 \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u044F \u043A\u043E\u043C\u043D\u0430\u0442\u044B: " + e.message);
@@ -7221,14 +7429,13 @@ window.YasnaCore = {
       }
     }
     async function doJoin(codeOverride) {
-      var _a, _b;
       const code = (codeOverride || inputCode).trim().toUpperCase();
       if (!/^KASTA-[A-Z0-9]{4}$/.test(code)) {
         setError("\u041A\u043E\u0434 \u0434\u043E\u043B\u0436\u0435\u043D \u0431\u044B\u0442\u044C \u0432 \u0444\u043E\u0440\u043C\u0430\u0442\u0435 KASTA-XXXX");
         return;
       }
-      if (!apiUrl) {
-        setError("\u0421\u0435\u0440\u0432\u0435\u0440 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D \u2014 \u043F\u0440\u043E\u0432\u0435\u0440\u044C \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438.");
+      if (!window.YasnaRT) {
+        setError("Real-time \u0442\u0440\u0430\u043D\u0441\u043F\u043E\u0440\u0442 \u043D\u0435 \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u043B\u0441\u044F. \u041E\u0431\u043D\u043E\u0432\u0438 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0443.");
         setMode("error");
         return;
       }
@@ -7243,55 +7450,39 @@ window.YasnaCore = {
       setError(null);
       console.log("[lobby/join] requesting", code);
       try {
-        const r = await fetch(apiUrl + "/rooms/join", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            code,
-            deviceId: me.deviceId,
-            nickname: me.nickname,
-            avatar: me.avatar || null
-          })
-        });
-        if (r.status === 404) {
-          setError("\u041A\u043E\u043C\u043D\u0430\u0442\u0430 \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u0430. \u041F\u0440\u043E\u0432\u0435\u0440\u044C \u043A\u043E\u0434 \u0438\u043B\u0438 \u043F\u043E\u043F\u0440\u043E\u0441\u0438 \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u043D\u043E\u0432\u0443\u044E.");
-          setMode("error");
-          return;
-        }
-        if (r.status === 409) {
-          setError("\u0412 \u043A\u043E\u043C\u043D\u0430\u0442\u0435 \u0443\u0436\u0435 \u0434\u0432\u0430 \u0438\u0433\u0440\u043E\u043A\u0430. \u041F\u043E\u043F\u0440\u043E\u0441\u0438 \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u043D\u043E\u0432\u0443\u044E.");
-          setMode("error");
-          return;
-        }
-        if (r.status === 410) {
-          setError("\u041A\u043E\u043C\u043D\u0430\u0442\u0430 \u0437\u0430\u043A\u0440\u044B\u0442\u0430. \u041F\u043E\u043F\u0440\u043E\u0441\u0438 \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u043D\u043E\u0432\u0443\u044E.");
-          setMode("error");
-          return;
-        }
-        if (!r.ok) {
-          const errBody = await r.json().catch(() => ({}));
-          setError("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0438\u0442\u044C\u0441\u044F: " + ((errBody == null ? void 0 : errBody.error) || r.statusText));
-          setMode("error");
-          return;
-        }
-        const data = await r.json();
-        console.log("[lobby/join] joined", data);
-        const transport = makePollingTransport({
-          roomId: data.roomId,
+        const { host } = await window.YasnaRT.joinRoom(code, {
           deviceId: me.deviceId,
-          role: "guest",
-          apiUrl
+          nickname: me.nickname,
+          avatar: me.avatar || null
+        });
+        console.log("[lobby/join] joined", code, "host:", host);
+        const transport = window.YasnaRT.makeTransport({
+          code,
+          deviceId: me.deviceId,
+          role: "guest"
         });
         transportRef.current = transport;
         onConnected({
           transport,
           role: "guest",
           roomCode: code,
-          opponent: { nickname: ((_a = data.host) == null ? void 0 : _a.nickname) || "\u0425\u043E\u0437\u044F\u0438\u043D", avatar: ((_b = data.host) == null ? void 0 : _b.avatar) || "\u25D1", isPvP: true }
+          opponent: { nickname: (host == null ? void 0 : host.nickname) || "\u0425\u043E\u0437\u044F\u0438\u043D", avatar: (host == null ? void 0 : host.avatar) || "\u25D1", isPvP: true }
         });
       } catch (e) {
         console.error("[lobby/join] exception", e);
-        setError("\u041E\u0448\u0438\u0431\u043A\u0430 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F: " + e.message);
+        if (e.message === "not_found") {
+          setError("\u041A\u043E\u043C\u043D\u0430\u0442\u0430 \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u0430. \u041F\u0440\u043E\u0432\u0435\u0440\u044C \u043A\u043E\u0434 \u0438\u043B\u0438 \u043F\u043E\u043F\u0440\u043E\u0441\u0438 \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u043D\u043E\u0432\u0443\u044E.");
+        } else if (e.message === "room_full") {
+          setError("\u0412 \u043A\u043E\u043C\u043D\u0430\u0442\u0435 \u0443\u0436\u0435 \u0434\u0432\u0430 \u0438\u0433\u0440\u043E\u043A\u0430. \u041F\u043E\u043F\u0440\u043E\u0441\u0438 \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u043D\u043E\u0432\u0443\u044E.");
+        } else if (e.message === "closed") {
+          setError("\u041A\u043E\u043C\u043D\u0430\u0442\u0430 \u0437\u0430\u043A\u0440\u044B\u0442\u0430. \u041F\u043E\u043F\u0440\u043E\u0441\u0438 \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u043D\u043E\u0432\u0443\u044E.");
+        } else if (e.message === "cant_join_own_room") {
+          setError("\u041D\u0435\u043B\u044C\u0437\u044F \u0432\u043E\u0439\u0442\u0438 \u0432 \u0441\u0432\u043E\u044E \u0436\u0435 \u043A\u043E\u043C\u043D\u0430\u0442\u0443. \u041E\u0442\u043A\u0440\u043E\u0439 \u0441\u0441\u044B\u043B\u043A\u0443 \u0441 \u0434\u0440\u0443\u0433\u043E\u0433\u043E \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430.");
+        } else if (e.message === "invalid_code_format") {
+          setError("\u041A\u043E\u0434 \u0434\u043E\u043B\u0436\u0435\u043D \u0431\u044B\u0442\u044C \u0432 \u0444\u043E\u0440\u043C\u0430\u0442\u0435 KASTA-XXXX");
+        } else {
+          setError("\u041E\u0448\u0438\u0431\u043A\u0430 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F: " + e.message);
+        }
         setMode("error");
       }
     }
