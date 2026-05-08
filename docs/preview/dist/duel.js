@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-08T17:30:33.975Z */
+/* Yasna bundle: duel.js — собран 2026-05-08T17:46:11.027Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5292,7 +5292,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-08T17:30:33.121Z", "contentVersion": "1.1.0", "files": 1, "themes": 1, "atomsTotal": 32, "questionsTotal": 10, "questionsLegacy": 5 };
+  const BUILD_INFO = { "builtAt": "2026-05-08T17:46:10.159Z", "contentVersion": "1.1.0", "files": 1, "themes": 1, "atomsTotal": 32, "questionsTotal": 10, "questionsLegacy": 5 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -7468,7 +7468,7 @@ window.YasnaCore = {
       React.createElement("span", { className: "tn-feedback-text" }, "\u0412\u0440\u0435\u043C\u044F \u0432\u044B\u0448\u043B\u043E")
     );
   }
-  function TnPreMatch({ player, opponent, partiya, mode, playerReady, oppReady, onReady }) {
+  function TnPreMatch({ player, opponent, partiya, mode, playerReady, oppReady, onReady, onForceStart, transport, isPvP }) {
     const totalQ = partiya.reduce((s, r) => s + r.questions.length, 0);
     const themesList = partiya.map((r) => r.theme);
     const modeLabel = mode === "blitz" ? "\u0411\u043B\u0438\u0446" : mode === "expert" ? "\u042D\u043A\u0441\u043F\u0435\u0440\u0442" : "\u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442";
@@ -7479,8 +7479,23 @@ window.YasnaCore = {
       return () => clearInterval(i);
     }, []);
     useEffect(() => {
-      if (countdown === 0 && !playerReady) onReady();
-    }, [countdown, playerReady, onReady]);
+      if (countdown !== 0) return;
+      if (!playerReady) {
+        onReady();
+        return;
+      }
+      if (onForceStart) onForceStart();
+    }, [countdown, playerReady, onReady, onForceStart]);
+    useEffect(() => {
+      if (!isPvP || !transport || !playerReady || oppReady) return;
+      const i = setInterval(() => {
+        try {
+          transport.send({ t: "ready" });
+        } catch (_) {
+        }
+      }, 2e3);
+      return () => clearInterval(i);
+    }, [isPvP, transport, playerReady, oppReady]);
     return React.createElement(
       "div",
       { className: "tn-fullscreen tn-prematch" },
@@ -7543,10 +7558,21 @@ window.YasnaCore = {
             autoFocus: true
           }, "\u2713 \u0413\u043E\u0442\u043E\u0432"),
           playerReady && !oppReady && React.createElement(
-            "div",
-            { className: "tn-prematch-waiting" },
-            React.createElement("span", { className: "tn-prematch-waiting-spinner" }, "\u25F7"),
-            React.createElement("span", null, "\u0416\u0434\u0451\u043C \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430\u2026 (", countdown, " \u0441\u0435\u043A)")
+            React.Fragment,
+            null,
+            React.createElement(
+              "div",
+              { className: "tn-prematch-waiting" },
+              React.createElement("span", { className: "tn-prematch-waiting-spinner" }, "\u25F7"),
+              React.createElement("span", null, "\u0416\u0434\u0451\u043C \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430\u2026 (", countdown, " \u0441\u0435\u043A)")
+            ),
+            // Принудительный старт — не дожидаясь opp
+            countdown < 50 && onForceStart && React.createElement("button", {
+              className: "tn-prematch-btn",
+              style: { background: "transparent", color: "var(--text-2)", border: "1px solid var(--border-1)", marginTop: 8, fontSize: 14 },
+              onClick: onForceStart,
+              type: "button"
+            }, "\u041D\u0430\u0447\u0430\u0442\u044C \u0441\u0435\u0439\u0447\u0430\u0441 \u2192")
           ),
           playerReady && oppReady && React.createElement(
             "div",
@@ -7697,7 +7723,9 @@ window.YasnaCore = {
             playerCorrect: playerCorrect2,
             playerTime,
             oppCorrect: oppData.correct,
-            oppTime: oppData.time
+            oppTime: oppData.time,
+            oppBusey: oppData.busey
+            // ← пересчитанный соперником на его стороне
           });
         } else {
           setTimeout(tryAdvance, 150);
@@ -7705,15 +7733,30 @@ window.YasnaCore = {
       }
       setTimeout(tryAdvance, SHOW_FEEDBACK_MS);
     }
+    function computeMyBusey(playerCorrect2, playerTime) {
+      if (!playerCorrect2) return 0;
+      const newStreak = streak + 1;
+      const mult = streakMultiplier(newStreak);
+      return Math.round(buseyForCorrect(playerTime) * mult);
+    }
+    function sendOppAnswer(correct, time) {
+      if (!isPvP || !transport) return;
+      try {
+        transport.send({
+          t: "opp-answer",
+          correct,
+          time,
+          qId: q.id,
+          busey: computeMyBusey(correct, time)
+          // ← пересчитанный с моим streak
+        });
+      } catch (_) {
+      }
+    }
     function handleTimeout() {
       if (chosen != null || answeredRef.current) return;
       setChosen(-1);
-      if (isPvP && transport) {
-        try {
-          transport.send({ t: "opp-answer", correct: false, time: QUESTION_TIME * 1e3, qId: q.id });
-        } catch (_) {
-        }
-      }
+      sendOppAnswer(false, QUESTION_TIME * 1e3);
       waitForOppAndAdvance(false, QUESTION_TIME * 1e3, true);
     }
     function pick(idx) {
@@ -7721,12 +7764,7 @@ window.YasnaCore = {
       setChosen(idx);
       const playerTime = Date.now() - startedAt.current;
       const playerCorrect2 = idx === q.correct;
-      if (isPvP && transport) {
-        try {
-          transport.send({ t: "opp-answer", correct: playerCorrect2, time: playerTime, qId: q.id });
-        } catch (_) {
-        }
-      }
+      sendOppAnswer(playerCorrect2, playerTime);
       waitForOppAndAdvance(playerCorrect2, playerTime, false);
     }
     function pickFill(text) {
@@ -7738,12 +7776,7 @@ window.YasnaCore = {
       const playerCorrect2 = acceptable.includes(normalized);
       setChosen(text);
       const playerTime = Date.now() - startedAt.current;
-      if (isPvP && transport) {
-        try {
-          transport.send({ t: "opp-answer", correct: playerCorrect2, time: playerTime, qId: q.id });
-        } catch (_) {
-        }
-      }
+      sendOppAnswer(playerCorrect2, playerTime);
       waitForOppAndAdvance(playerCorrect2, playerTime, false);
     }
     function pickMulti(idxs) {
@@ -7753,12 +7786,7 @@ window.YasnaCore = {
       const playerCorrect2 = correctSorted.length === pickedSorted.length && correctSorted.every((v, i) => v === pickedSorted[i]);
       setChosen(idxs);
       const playerTime = Date.now() - startedAt.current;
-      if (isPvP && transport) {
-        try {
-          transport.send({ t: "opp-answer", correct: playerCorrect2, time: playerTime, qId: q.id });
-        } catch (_) {
-        }
-      }
+      sendOppAnswer(playerCorrect2, playerTime);
       waitForOppAndAdvance(playerCorrect2, playerTime, false);
     }
     function pickMatch(matches) {
@@ -7771,12 +7799,7 @@ window.YasnaCore = {
       const playerCorrect2 = correctCount === total;
       setChosen(matches);
       const playerTime = Date.now() - startedAt.current;
-      if (isPvP && transport) {
-        try {
-          transport.send({ t: "opp-answer", correct: playerCorrect2, time: playerTime, qId: q.id });
-        } catch (_) {
-        }
-      }
+      sendOppAnswer(playerCorrect2, playerTime);
       waitForOppAndAdvance(playerCorrect2, playerTime, false);
     }
     const showFeedback = chosen != null;
@@ -8246,7 +8269,12 @@ window.YasnaCore = {
         }
         if (msg.t === "opp-answer") {
           if (msg.qId) {
-            oppAnswersRef.current[msg.qId] = { correct: msg.correct, time: msg.time };
+            oppAnswersRef.current[msg.qId] = {
+              correct: msg.correct,
+              time: msg.time,
+              busey: msg.busey
+              // может быть undefined для старых клиентов
+            };
           }
         }
         if (msg.t === "opp-leave") {
@@ -8305,7 +8333,7 @@ window.YasnaCore = {
         dB = Math.round((5 + Math.floor(b / 4)) * mult);
       }
       if (result.oppCorrect) {
-        doO = buseyForCorrect(result.oppTime);
+        doO = result.oppBusey != null ? result.oppBusey : buseyForCorrect(result.oppTime);
       }
       const newScoreP = scoreP + dp;
       const newScoreO = scoreO + doO;
@@ -8484,7 +8512,11 @@ window.YasnaCore = {
         mode: partiyaMode,
         playerReady,
         oppReady,
-        onReady: onPlayerReady
+        onReady: onPlayerReady,
+        onForceStart: () => setPhase("intro"),
+        // на 60-сек если opp не отвечает
+        transport,
+        isPvP
       });
     }
     if (phase === "intro") {

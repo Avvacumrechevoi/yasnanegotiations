@@ -497,22 +497,39 @@
 
   // ─── Pre-match preview — список тем перед стартом PvP ───────────
   // Оба игрока видят темы, режим, аватары. Каждый жмёт «Готов».
-  // Как только оба готовы (или истёк 30-сек таймер) — стартует партия.
-  function TnPreMatch({ player, opponent, partiya, mode, playerReady, oppReady, onReady }){
+  // Как только оба готовы (или истёк 60-сек таймер) — стартует партия.
+  // ВАЖНО: ready-сообщения могут теряться (Firebase reconnect / race-condition).
+  // Защита: (1) переотправляем ready каждые 2 сек пока ждём, (2) при countdown=0
+  // принудительно стартуем независимо от opp.
+  function TnPreMatch({ player, opponent, partiya, mode, playerReady, oppReady, onReady, onForceStart, transport, isPvP }){
     const totalQ = partiya.reduce((s, r) => s + r.questions.length, 0);
     const themesList = partiya.map(r => r.theme);
     const modeLabel = mode === 'blitz' ? 'Блиц' : mode === 'expert' ? 'Эксперт' : 'Стандарт';
     const modeMeta  = mode === 'blitz' ? '~2 мин' : mode === 'expert' ? '~9 мин' : '~5 мин';
 
-    // Авто-старт через 30 сек если оба готовы — и через 60 сек принудительно
+    // Countdown 60 сек. На 0: если ещё не готов — авто-готов; если уже готов
+    // и opp нет — force-start (не блокируем партию навсегда).
     const [countdown, setCountdown] = useState(60);
     useEffect(() => {
       const i = setInterval(() => setCountdown(c => Math.max(0, c - 1)), 1000);
       return () => clearInterval(i);
     }, []);
     useEffect(() => {
-      if(countdown === 0 && !playerReady) onReady(); // авто-готов по таймауту
-    }, [countdown, playerReady, onReady]);
+      if(countdown !== 0) return;
+      if(!playerReady){ onReady(); return; }
+      if(onForceStart) onForceStart();
+    }, [countdown, playerReady, onReady, onForceStart]);
+
+    // Re-broadcast: пока я готов и жду opp — переотправляю ready каждые 2 сек.
+    // Если первое сообщение потерялось, повторное дойдёт. Останавливается
+    // когда oppReady=true.
+    useEffect(() => {
+      if(!isPvP || !transport || !playerReady || oppReady) return;
+      const i = setInterval(() => {
+        try { transport.send({ t: 'ready' }); } catch(_){}
+      }, 2000);
+      return () => clearInterval(i);
+    }, [isPvP, transport, playerReady, oppReady]);
 
     return React.createElement('div', { className: 'tn-fullscreen tn-prematch' },
       React.createElement('div', { className: 'tn-container' },
@@ -558,9 +575,18 @@
             type: 'button',
             autoFocus: true
           }, '✓ Готов'),
-          playerReady && !oppReady && React.createElement('div', { className: 'tn-prematch-waiting' },
-            React.createElement('span', { className: 'tn-prematch-waiting-spinner' }, '◷'),
-            React.createElement('span', null, 'Ждём собеседника… (', countdown, ' сек)')
+          playerReady && !oppReady && React.createElement(React.Fragment, null,
+            React.createElement('div', { className: 'tn-prematch-waiting' },
+              React.createElement('span', { className: 'tn-prematch-waiting-spinner' }, '◷'),
+              React.createElement('span', null, 'Ждём собеседника… (', countdown, ' сек)')
+            ),
+            // Принудительный старт — не дожидаясь opp
+            countdown < 50 && onForceStart && React.createElement('button', {
+              className: 'tn-prematch-btn',
+              style: { background: 'transparent', color: 'var(--text-2)', border: '1px solid var(--border-1)', marginTop: 8, fontSize: 14 },
+              onClick: onForceStart,
+              type: 'button'
+            }, 'Начать сейчас →')
           ),
           playerReady && oppReady && React.createElement('div', { className: 'tn-prematch-go' },
             '✦ Все готовы — старт через мгновение'
@@ -726,6 +752,7 @@
             playerCorrect, playerTime,
             oppCorrect: oppData.correct,
             oppTime: oppData.time,
+            oppBusey: oppData.busey,  // ← пересчитанный соперником на его стороне
           });
         } else {
           setTimeout(tryAdvance, 150);
@@ -735,15 +762,32 @@
       setTimeout(tryAdvance, SHOW_FEEDBACK_MS);
     }
 
+    // ─── Helper: посчитать busey игрока с учётом streak ─────────────
+    // Используется и локально для счёта, и для передачи opp в PvP.
+    // Это решает асимметрию счёта между клиентами: opp получает уже
+    // готовую цифру с уплыжённой streak-надбавкой.
+    function computeMyBusey(playerCorrect, playerTime){
+      if(!playerCorrect) return 0;
+      const newStreak = streak + 1;
+      const mult = streakMultiplier(newStreak);
+      return Math.round(buseyForCorrect(playerTime) * mult);
+    }
+
+    function sendOppAnswer(correct, time){
+      if(!isPvP || !transport) return;
+      try {
+        transport.send({
+          t: 'opp-answer',
+          correct, time, qId: q.id,
+          busey: computeMyBusey(correct, time)  // ← пересчитанный с моим streak
+        });
+      } catch(_){}
+    }
+
     function handleTimeout(){
       if(chosen != null || answeredRef.current) return;
       setChosen(-1);
-      // При timeout тоже шлём opp-answer чтобы соперник знал
-      if(isPvP && transport){
-        try {
-          transport.send({ t: 'opp-answer', correct: false, time: QUESTION_TIME * 1000, qId: q.id });
-        } catch(_){}
-      }
+      sendOppAnswer(false, QUESTION_TIME * 1000);
       waitForOppAndAdvance(false, QUESTION_TIME * 1000, true);
     }
 
@@ -752,13 +796,7 @@
       setChosen(idx);
       const playerTime = Date.now() - startedAt.current;
       const playerCorrect = idx === q.correct;
-
-      if(isPvP && transport){
-        try {
-          transport.send({ t: 'opp-answer', correct: playerCorrect, time: playerTime, qId: q.id });
-        } catch(_){}
-      }
-
+      sendOppAnswer(playerCorrect, playerTime);
       waitForOppAndAdvance(playerCorrect, playerTime, false);
     }
 
@@ -778,9 +816,7 @@
       const playerCorrect = acceptable.includes(normalized);
       setChosen(text);
       const playerTime = Date.now() - startedAt.current;
-      if(isPvP && transport){
-        try { transport.send({ t: 'opp-answer', correct: playerCorrect, time: playerTime, qId: q.id }); } catch(_){}
-      }
+      sendOppAnswer(playerCorrect, playerTime);
       waitForOppAndAdvance(playerCorrect, playerTime, false);
     }
 
@@ -793,9 +829,7 @@
         correctSorted.every((v, i) => v === pickedSorted[i]);
       setChosen(idxs);
       const playerTime = Date.now() - startedAt.current;
-      if(isPvP && transport){
-        try { transport.send({ t: 'opp-answer', correct: playerCorrect, time: playerTime, qId: q.id }); } catch(_){}
-      }
+      sendOppAnswer(playerCorrect, playerTime);
       waitForOppAndAdvance(playerCorrect, playerTime, false);
     }
 
@@ -810,9 +844,7 @@
       const playerCorrect = correctCount === total;
       setChosen(matches);
       const playerTime = Date.now() - startedAt.current;
-      if(isPvP && transport){
-        try { transport.send({ t: 'opp-answer', correct: playerCorrect, time: playerTime, qId: q.id }); } catch(_){}
-      }
+      sendOppAnswer(playerCorrect, playerTime);
       waitForOppAndAdvance(playerCorrect, playerTime, false);
     }
 
@@ -1224,8 +1256,13 @@
         }
         if(msg.t === 'opp-answer'){
           // Пишем в map по qId. Никогда не перезаписываем чужие.
+          // busey приходит уже посчитанный на стороне opp (включая его streak).
           if(msg.qId){
-            oppAnswersRef.current[msg.qId] = { correct: msg.correct, time: msg.time };
+            oppAnswersRef.current[msg.qId] = {
+              correct: msg.correct,
+              time: msg.time,
+              busey: msg.busey  // может быть undefined для старых клиентов
+            };
           }
         }
         if(msg.t === 'opp-leave'){
@@ -1292,7 +1329,12 @@
         dB = Math.round((5 + Math.floor(b / 4)) * mult); // и в общие бусины
       }
       if(result.oppCorrect){
-        doO = buseyForCorrect(result.oppTime);
+        // PvP: opp присылает уже пересчитанный busey включая свой streak.
+        // Это решает асимметрию: A видит B-счёт так же как B видит свой.
+        // Shadow: opp.busey не передаётся → fallback на raw buseyForCorrect.
+        doO = result.oppBusey != null
+          ? result.oppBusey
+          : buseyForCorrect(result.oppTime);
       }
       const newScoreP = scoreP + dp;
       const newScoreO = scoreO + doO;
@@ -1463,7 +1505,10 @@
       );
       return React.createElement(TnPreMatch, {
         player, opponent: opp, partiya, mode: partiyaMode,
-        playerReady, oppReady, onReady: onPlayerReady
+        playerReady, oppReady,
+        onReady: onPlayerReady,
+        onForceStart: () => setPhase('intro'),  // на 60-сек если opp не отвечает
+        transport, isPvP
       });
     }
     if(phase === 'intro'){
