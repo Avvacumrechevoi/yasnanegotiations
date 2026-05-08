@@ -944,7 +944,7 @@ function App(){
           Триггер живёт в .nav-tabs (см. выше). Группы по полю g. */}
       {filtersOpen && <>
         <div onClick={()=>setFiltersOpen(false)} className='mech-overlay-backdrop' style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:55,background:'transparent'}}/>
-        <div onClick={e=>e.stopPropagation()} className='mech-overlay' style={{position:'fixed',top:106,left:16,zIndex:56,width:'min(34vw, 460px)',minWidth:300,maxHeight:'calc(100vh - 130px)',overflowY:'auto',background:'var(--bg2,#fff)',border:'1px solid var(--border,#d2d2d7)',borderRadius:16,boxShadow:'0 18px 56px rgba(0,0,0,.36), 0 4px 16px rgba(0,0,0,.14)',padding:'14px 16px 16px',animation:'slideDown .2s cubic-bezier(.16,1,.3,1)'}}>
+        <div onClick={e=>e.stopPropagation()} className='mech-overlay' style={{position:'fixed',top:106,left:16,zIndex:56,width:'min(26vw, 340px)',minWidth:280,maxHeight:'calc(100vh - 130px)',overflowY:'auto',background:'var(--bg2,#fff)',border:'1px solid var(--border,#d2d2d7)',borderRadius:14,boxShadow:'0 18px 56px rgba(0,0,0,.40), 0 4px 16px rgba(0,0,0,.18)',padding:'12px 14px 14px',animation:'slideDown .2s cubic-bezier(.16,1,.3,1)'}}>
           {/* Top-bar */}
           <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14,flexWrap:'wrap'}}>
             {af.length===FL.length?
