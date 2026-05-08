@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta name="theme-color" content="#0a0b0d"/>
+<title>Путь по Руси — карта курса · Ясна</title>
+<meta name="description" content="Курс по методу Ясны как путь странника от Москвы до Тихого океана — 8 остановок, 8 явлений, 8 граней русского мировоззрения."/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Путь по Руси — курс по методу Ясны"/>
+<meta property="og:description" content="8 остановок от Москвы до Тихого океана — собери русское мировоззрение по 12 полкам."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet"/>
+
+<style>
+:root {
+  --bg-base:        #0a0b0d;
+  --bg-card:        #16191c;
+  --bg-elevated:    #1d2127;
+  --bg-overlay:     rgba(10, 11, 13, 0.85);
+  --text-primary:   #FEFEFE;
+  --text-secondary: #A8B1BE;
+  --text-muted:     #6b7382;
+  --border:         rgba(255, 255, 255, 0.06);
+  --border-strong:  rgba(255, 255, 255, 0.12);
+
+  --accent:         #0077FF;
+  --accent-hover:   #16A7FF;
+  --accent-soft:    rgba(0, 119, 255, 0.12);
+  --accent-glow:    rgba(0, 119, 255, 0.30);
+  --accent-on:      #FFFFFF;
+
+  --gold:           #f6c64a;
+  --gold-soft:      rgba(246, 198, 74, 0.12);
+  --crimson:        #c23a3a;
+
+  --font-sans:      'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display:   'Manrope', 'Inter', sans-serif;
+  --font-serif:     'Cormorant Garamond', Georgia, serif;
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+body {
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 20%, rgba(0, 119, 255, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 70%, rgba(246, 198, 74, 0.04) 0%, transparent 60%),
+    var(--bg-base);
+}
+a { color: inherit; text-decoration: none; }
+
+/* ─── HEADER ─── */
+.l-header {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  margin: 12px 16px;
+  padding: 8px 12px 8px 18px;
+  background: rgba(22, 25, 28, 0.85);
+  backdrop-filter: saturate(140%) blur(14px);
+  -webkit-backdrop-filter: saturate(140%) blur(14px);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+}
+.l-brand { display: flex; align-items: center; gap: 10px; }
+.l-brand-mark {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+  border: 1px solid rgba(0, 119, 255, 0.25);
+  border-radius: 50%;
+  font-size: 14px;
+}
+.l-brand-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+.l-back {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 14px;
+  border-radius: 100px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 180ms ease;
+}
+.l-back:hover { color: var(--text-primary); border-color: var(--text-secondary); }
+.l-back-arrow { font-size: 14px; }
+
+/* ─── HERO ─── */
+.l-hero {
+  max-width: 920px;
+  margin: 32px auto 16px;
+  padding: 0 24px;
+  text-align: center;
+}
+.l-hero-eyebrow {
+  display: inline-block;
+  padding: 6px 14px;
+  margin-bottom: 18px;
+  background: var(--accent-soft);
+  border: 1px solid rgba(0, 119, 255, 0.20);
+  border-radius: 100px;
+  color: var(--accent-hover);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.l-hero-title {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: clamp(40px, 6vw, 64px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: 0 0 16px;
+}
+.l-hero-title em {
+  font-style: italic;
+  color: var(--accent-hover);
+}
+.l-hero-desc {
+  font-size: clamp(15px, 1.6vw, 18px);
+  line-height: 1.55;
+  color: var(--text-secondary);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* ─── PROGRESS RIBBON ─── */
+.l-progress {
+  max-width: 920px;
+  margin: 28px auto 0;
+  padding: 0 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.l-progress-track {
+  flex: 1;
+  height: 4px;
+  background: var(--border-strong);
+  border-radius: 100px;
+  overflow: hidden;
+}
+.l-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--gold) 100%);
+  width: 0%;
+  transition: width 320ms ease;
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+.l-progress-count { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text-primary); }
+
+/* ─── MAP ─── */
+.l-map-wrap {
+  max-width: 1320px;
+  margin: 32px auto 0;
+  padding: 0 16px;
+  position: relative;
+}
+.l-map-card {
+  background:
+    radial-gradient(ellipse 50% 70% at 30% 50%, rgba(0, 119, 255, 0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 80% at 80% 50%, rgba(246, 198, 74, 0.04) 0%, transparent 70%),
+    var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  padding: 32px 24px 40px;
+  position: relative;
+  overflow: hidden;
+}
+.l-map-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 620px;
+}
+
+/* outline */
+.l-map-svg .country-outline {
+  fill: rgba(255, 255, 255, 0.015);
+  stroke: rgba(255, 255, 255, 0.10);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 4;
+}
+.l-map-svg .country-mass {
+  fill: rgba(255, 255, 255, 0.025);
+  stroke: rgba(255, 255, 255, 0.07);
+  stroke-width: 1;
+}
+.l-map-svg .water {
+  fill: rgba(0, 119, 255, 0.06);
+  stroke: rgba(0, 119, 255, 0.20);
+  stroke-width: 1;
+}
+.l-map-svg .route {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.18);
+  stroke-width: 1.4;
+  stroke-dasharray: 2 6;
+  stroke-linecap: round;
+}
+.l-map-svg .route-done {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px rgba(246, 198, 74, 0.4));
+}
+
+/* city pin */
+.l-pin { cursor: pointer; transition: all 220ms ease; }
+.l-pin-bg { fill: var(--bg-elevated); stroke: var(--text-muted); stroke-width: 1.6; transition: all 220ms ease; }
+.l-pin-num { fill: var(--text-secondary); font-family: var(--font-display); font-weight: 700; font-size: 13px; text-anchor: middle; dominant-baseline: central; transition: fill 220ms ease; user-select: none; pointer-events: none; }
+.l-pin-label {
+  fill: var(--text-secondary);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.01em;
+  pointer-events: none;
+  transition: fill 220ms ease;
+}
+.l-pin-sublabel {
+  fill: var(--text-muted);
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+/* status: locked */
+.l-pin[data-status="locked"] .l-pin-bg { fill: var(--bg-elevated); stroke: var(--text-muted); opacity: 0.55; }
+.l-pin[data-status="locked"] .l-pin-num { fill: var(--text-muted); opacity: 0.55; }
+.l-pin[data-status="locked"] .l-pin-label { opacity: 0.55; }
+
+/* status: active (current) */
+.l-pin[data-status="active"] .l-pin-bg { fill: var(--accent); stroke: var(--accent-hover); filter: drop-shadow(0 0 14px var(--accent-glow)); }
+.l-pin[data-status="active"] .l-pin-num { fill: white; }
+.l-pin[data-status="active"] .l-pin-label { fill: var(--text-primary); font-weight: 700; }
+.l-pin[data-status="active"] .l-pin-pulse {
+  fill: none; stroke: var(--accent); stroke-width: 1.5; opacity: 0.5;
+  transform-origin: center;
+  animation: pulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* status: done */
+.l-pin[data-status="done"] .l-pin-bg { fill: var(--gold-soft); stroke: var(--gold); }
+.l-pin[data-status="done"] .l-pin-num { fill: var(--gold); }
+.l-pin[data-status="done"] .l-pin-label { fill: var(--gold); }
+
+/* hover */
+.l-pin:hover .l-pin-bg { transform: scale(1.18); transform-origin: center; }
+.l-pin:hover .l-pin-label { fill: var(--text-primary); }
+
+@keyframes pulse {
+  0%   { r: 16; opacity: 0.5; }
+  100% { r: 32; opacity: 0; }
+}
+
+/* legend */
+.l-legend {
+  display: flex; flex-wrap: wrap; gap: 24px; justify-content: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.l-legend-item { display: flex; align-items: center; gap: 8px; }
+.l-legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+.l-legend-dot.locked { background: var(--text-muted); opacity: 0.5; }
+.l-legend-dot.active { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+.l-legend-dot.done   { background: var(--gold); box-shadow: 0 0 8px rgba(246, 198, 74, 0.4); }
+
+/* ─── ACTIVE STATION PANEL ─── */
+.l-active {
+  max-width: 920px;
+  margin: 32px auto 80px;
+  padding: 28px 28px 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 20px 32px;
+  align-items: end;
+}
+.l-active-text { display: flex; flex-direction: column; gap: 8px; }
+.l-active-eyebrow {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--accent-hover);
+}
+.l-active-title {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 32px;
+  letter-spacing: -0.005em;
+  margin: 0;
+  line-height: 1.1;
+}
+.l-active-title em { font-style: italic; color: var(--text-secondary); font-weight: 400; }
+.l-active-desc {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin: 4px 0 0;
+  max-width: 540px;
+}
+.l-active-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 24px;
+  background: var(--accent);
+  color: var(--accent-on);
+  border: none;
+  border-radius: 100px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px var(--accent-glow);
+  transition: all 180ms ease;
+}
+.l-active-cta:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 6px 20px var(--accent-glow); }
+.l-active-cta:disabled { background: var(--bg-elevated); color: var(--text-muted); box-shadow: none; cursor: not-allowed; }
+.l-active-cta-arrow { font-size: 16px; }
+
+/* ─── MODAL ─── */
+.l-modal-bg {
+  position: fixed; inset: 0;
+  background: var(--bg-overlay);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: none;
+  align-items: center; justify-content: center;
+  z-index: 100;
+  padding: 20px;
+  animation: fadeIn 180ms ease;
+}
+.l-modal-bg[data-open="1"] { display: flex; }
+.l-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: 24px;
+  max-width: 540px;
+  width: 100%;
+  padding: 32px 28px 28px;
+  position: relative;
+  animation: slideUp 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.l-modal-close {
+  position: absolute; top: 14px; right: 14px;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--text-secondary);
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+.l-modal-close:hover { background: var(--bg-elevated); color: var(--text-primary); }
+.l-modal-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 56px; height: 56px;
+  background: var(--accent-soft);
+  border: 1px solid rgba(0, 119, 255, 0.22);
+  border-radius: 18px;
+  color: var(--accent-hover);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 22px;
+  margin-bottom: 16px;
+}
+.l-modal-eyebrow {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--accent-hover);
+  margin-bottom: 8px;
+}
+.l-modal-title {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 30px;
+  letter-spacing: -0.005em;
+  margin: 0 0 8px;
+}
+.l-modal-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0 0 18px;
+  font-style: italic;
+}
+.l-modal-body {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0 0 20px;
+}
+.l-modal-meta {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  margin: 0 0 24px;
+  padding: 14px 16px;
+  background: var(--bg-elevated);
+  border-radius: 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.l-modal-meta-item { display: flex; align-items: center; gap: 6px; }
+.l-modal-meta-key { color: var(--text-muted); }
+.l-modal-meta-val { color: var(--text-primary); font-weight: 600; }
+.l-modal-actions { display: flex; gap: 10px; }
+.l-modal-cta {
+  flex: 1;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 14px 20px;
+  background: var(--accent);
+  color: var(--accent-on);
+  border: none;
+  border-radius: 100px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px var(--accent-glow);
+  transition: all 180ms ease;
+}
+.l-modal-cta:hover { background: var(--accent-hover); }
+.l-modal-cta[data-locked="1"] { background: var(--bg-elevated); color: var(--text-muted); box-shadow: none; cursor: not-allowed; }
+.l-modal-cta[data-locked="1"]:hover { background: var(--bg-elevated); transform: none; }
+.l-modal-secondary {
+  padding: 14px 20px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: 100px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+.l-modal-secondary:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  .l-hero { margin: 24px auto 8px; }
+  .l-hero-title { font-size: 36px; }
+  .l-progress { padding: 0 16px; }
+  .l-map-card { padding: 16px 8px 20px; border-radius: 18px; }
+  .l-pin-label, .l-pin-sublabel { font-size: 10px; }
+  .l-active {
+    grid-template-columns: 1fr;
+    margin: 20px 16px 60px;
+    padding: 20px 18px;
+    border-radius: 18px;
+  }
+  .l-active-title { font-size: 24px; }
+  .l-active-cta { width: 100%; justify-content: center; }
+}
+@media (max-width: 600px) {
+  .l-header { margin: 8px; }
+  .l-back-text { display: none; }
+  .l-hero { padding: 0 16px; }
+  .l-hero-title { font-size: 30px; }
+  .l-pin-label { display: none; }
+  .l-pin-sublabel { display: none; }
+}
+
+/* ─── A11y ─── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+:focus-visible { outline: 2px solid var(--accent-hover); outline-offset: 2px; }
+</style>
+</head>
+<body>
+
+<header class="l-header">
+  <a href="start.html" class="l-brand">
+    <span class="l-brand-mark">✦</span>
+    <span class="l-brand-name">Ясна</span>
+  </a>
+  <a href="start.html" class="l-back">
+    <span class="l-back-arrow">←</span>
+    <span class="l-back-text">На главную</span>
+  </a>
+</header>
+
+<section class="l-hero">
+  <div class="l-hero-eyebrow">Карта пути</div>
+  <h1 class="l-hero-title">Путь по <em>Руси</em></h1>
+  <p class="l-hero-desc">
+    Восемь остановок от Москвы до Тихого океана. На каждой — одно явление мира,
+    разобранное по 12 полкам. Пройди весь путь — и научишься смотреть на мир
+    глазами человека, выросшего на этой земле.
+  </p>
+</section>
+
+<div class="l-progress" aria-label="Прогресс прохождения">
+  <span>Пройдено</span>
+  <div class="l-progress-track"><div class="l-progress-fill" id="progressFill"></div></div>
+  <span class="l-progress-count" id="progressCount">0 из 8</span>
+</div>
+
+<div class="l-map-wrap">
+  <div class="l-map-card">
+    <svg class="l-map-svg" viewBox="0 0 1280 620" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Карта России со станциями курса">
+
+      <!-- Очень условный контур России — суша как мягкая лента -->
+      <path class="country-mass" d="
+        M 130 240
+        C 200 220, 280 230, 340 240
+        C 380 220, 420 215, 470 195
+        C 520 180, 560 200, 600 215
+        C 660 200, 720 230, 780 235
+        C 840 220, 900 240, 960 245
+        C 1020 235, 1080 250, 1140 270
+        C 1190 285, 1230 305, 1240 350
+        C 1240 410, 1210 460, 1180 490
+        C 1140 510, 1080 510, 1020 495
+        C 960 500, 900 480, 840 475
+        C 780 480, 720 460, 660 460
+        C 600 470, 540 460, 480 450
+        C 420 460, 360 450, 300 430
+        C 240 420, 180 400, 140 360
+        C 110 320, 110 270, 130 240 Z
+      "/>
+
+      <!-- Чёрное море (юг-запад) -->
+      <ellipse class="water" cx="280" cy="430" rx="60" ry="22"/>
+      <!-- Каспий (юг) -->
+      <ellipse class="water" cx="500" cy="460" rx="32" ry="48"/>
+      <!-- Байкал (центр-восток) — продолговатый -->
+      <path class="water" d="M 905 380 C 920 380, 935 415, 928 445 C 920 460, 905 455, 895 440 C 888 415, 895 388, 905 380 Z"/>
+
+      <!-- Маршрут — пунктир соединяющий все 8 точек -->
+      <path id="routeBase" class="route" d="
+        M 405 235
+        L 415 270
+        L 430 320
+        L 470 200
+        L 555 320
+        L 670 318
+        L 920 395
+        L 1175 460
+      "/>
+
+      <!-- Пройденный кусок маршрута (динамически) -->
+      <path id="routeDone" class="route-done" d="" />
+
+      <!-- ═══ ПИНЫ ═══ -->
+      <!-- 1 Москва -->
+      <g class="l-pin" data-id="moscow" data-num="1" tabindex="0" role="button" aria-label="Москва — Корень" transform="translate(430, 320)">
+        <circle class="l-pin-pulse" r="16" cx="0" cy="0"/>
+        <circle class="l-pin-bg" r="16" cx="0" cy="0"/>
+        <text class="l-pin-num" x="0" y="0">1</text>
+        <text class="l-pin-label" x="22" y="2">Москва</text>
+        <text class="l-pin-sublabel" x="22" y="18">Корень</text>
+      </g>
+
+      <!-- 2 Великий Новгород -->
+      <g class="l-pin" data-id="novgorod" data-num="2" tabindex="0" role="button" aria-label="Великий Новгород — Время" transform="translate(415, 270)">
+        <circle class="l-pin-bg" r="16" cx="0" cy="0"/>
+        <text class="l-pin-num" x="0" y="0">2</text>
+        <text class="l-pin-label" x="22" y="2">В. Новгород</text>
+        <text class="l-pin-sublabel" x="22" y="18">Время</text>
+      </g>
+
+      <!-- 3 Санкт-Петербург -->
+      <g class="l-pin" data-id="spb" data-num="3" tabindex="0" role="button" aria-label="Санкт-Петербург — Слово" transform="translate(405, 235)">
+        <circle class="l-pin-bg" r="16" cx="0" cy="0"/>
+        <text class="l-pin-num" x="0" y="0">3</text>
+        <text class="l-pin-label" x="-72" y="2" text-anchor="end">Петербург</text>
+        <text class="l-pin-sublabel" x="-72" y="18" text-anchor="end">Слово</text>
+      </g>
+
+      <!-- 4 Архангельск -->
+      <g class="l-pin" data-id="arkhangelsk" data-num="4" tabindex="0" role="button" aria-label="Архангельск — Небо" transform="translate(470, 200)">
+        <circle class="l-pin-bg" r="16" cx="0" cy="0"/>
+        <text class="l-pin-num" x="0" y="0">4</text>
+        <text class="l-pin-label" x="22" y="2">Архангельск</text>
+        <text class="l-pin-sublabel" x="22" y="18">Небо</text>
+      </g>
+
+      <!-- 5 Казань -->
+      <g class="l-pin" data-id="kazan" data-num="5" tabindex="0" role="button" aria-label="Казань — Круг" transform="translate(555, 320)">
+        <circle class="l-pin-bg" r="16" cx="0" cy="0"/>
+        <text class="l-pin-num" x="0" y="0">5</text>
+        <text class="l-pin-label" x="22" y="2">Казань</text>
+        <text class="l-pin-sublabel" x="22" y="18">Круг</text>
+      </g>
+
+      <!-- 6 Урал / Екатеринбург -->
+      <g class="l-pin" data-id="ural" data-num="6" tabindex="0" role="button" aria-label="Урал — Камень" transform="translate(670, 318)">
+        <circle class="l-pin-bg" r="16" cx="0" cy="0"/>
+        <text class="l-pin-num" x="0" y="0">6</text>
+        <text class="l-pin-label" x="22" y="2">Урал</text>
+        <text class="l-pin-sublabel" x="22" y="18">Камень</text>
+      </g>
+
+      <!-- 7 Байкал / Иркутск -->
+      <g class="l-pin" data-id="baikal" data-num="7" tabindex="0" role="button" aria-label="Байкал — Вода" transform="translate(920, 395)">
+        <circle class="l-pin-bg" r="16" cx="0" cy="0"/>
+        <text class="l-pin-num" x="0" y="0">7</text>
+        <text class="l-pin-label" x="22" y="2">Байкал</text>
+        <text class="l-pin-sublabel" x="22" y="18">Вода</text>
+      </g>
+
+      <!-- 8 Владивосток -->
+      <g class="l-pin" data-id="vladivostok" data-num="8" tabindex="0" role="button" aria-label="Владивосток — Горизонт" transform="translate(1175, 460)">
+        <circle class="l-pin-bg" r="16" cx="0" cy="0"/>
+        <text class="l-pin-num" x="0" y="0">8</text>
+        <text class="l-pin-label" x="-22" y="2" text-anchor="end">Владивосток</text>
+        <text class="l-pin-sublabel" x="-22" y="18" text-anchor="end">Горизонт</text>
+      </g>
+
+    </svg>
+
+    <div class="l-legend">
+      <div class="l-legend-item"><span class="l-legend-dot active"></span><span>Текущая остановка</span></div>
+      <div class="l-legend-item"><span class="l-legend-dot done"></span><span>Пройдено</span></div>
+      <div class="l-legend-item"><span class="l-legend-dot locked"></span><span>Заблокировано</span></div>
+    </div>
+  </div>
+</div>
+
+<section class="l-active" id="activePanel">
+  <div class="l-active-text">
+    <div class="l-active-eyebrow" id="activeEyebrow">Корень · Остановка 1 из 8</div>
+    <h2 class="l-active-title" id="activeTitle">Москва</h2>
+    <p class="l-active-desc" id="activeDesc">Что такое Ясна и 12 полок — основа метода. С неё начинается любой путь.</p>
+  </div>
+  <button class="l-active-cta" id="activeCta">
+    <span id="activeCtaLabel">Начать главу</span>
+    <span class="l-active-cta-arrow">→</span>
+  </button>
+</section>
+
+<!-- ═══ MODAL ═══ -->
+<div class="l-modal-bg" id="modalBg" role="dialog" aria-modal="true">
+  <div class="l-modal" id="modal">
+    <button class="l-modal-close" id="modalClose" aria-label="Закрыть">×</button>
+    <div class="l-modal-num" id="modalNum">1</div>
+    <div class="l-modal-eyebrow" id="modalEyebrow">КОРЕНЬ · ОСТАНОВКА 1</div>
+    <h3 class="l-modal-title" id="modalTitle">Москва</h3>
+    <p class="l-modal-subtitle" id="modalSubtitle">Что такое Ясна — основа метода</p>
+    <p class="l-modal-body" id="modalBody">…</p>
+    <div class="l-modal-meta">
+      <div class="l-modal-meta-item"><span class="l-modal-meta-key">Длительность:</span><span class="l-modal-meta-val" id="modalDuration">5 минут</span></div>
+      <div class="l-modal-meta-item"><span class="l-modal-meta-key">Формат:</span><span class="l-modal-meta-val" id="modalFormat">Урок + 5 вопросов</span></div>
+      <div class="l-modal-meta-item"><span class="l-modal-meta-key">Статус:</span><span class="l-modal-meta-val" id="modalStatus">Доступна</span></div>
+    </div>
+    <div class="l-modal-actions">
+      <button class="l-modal-cta" id="modalCta">Начать главу →</button>
+      <button class="l-modal-secondary" id="modalSecondary">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+(function(){
+
+  // ═══ КОНТЕНТ — 8 СТАНЦИЙ ═══
+  const STATIONS = [
+    {
+      id: 'moscow',
+      num: 1,
+      city: 'Москва',
+      theme: 'Корень',
+      title: 'Что такое Ясна',
+      subtitle: 'Основа метода — 12 полок',
+      body: 'Москва — сердце. Здесь начинается всё. Узнаешь, что такое Ясна, как устроены 12 полок и почему любое явление — от чашки чая до целой жизни — раскладывается по этой структуре.',
+      duration: '5 минут',
+      format: 'Урок + 5 вопросов',
+      action: { label: 'Начать главу', href: 'index.html?lesson=1', available: true }
+    },
+    {
+      id: 'novgorod',
+      num: 2,
+      city: 'Великий Новгород',
+      theme: 'Время',
+      title: 'Ясна Суток',
+      subtitle: 'День и ночь — первый цикл',
+      body: 'В Новгороде били вечевой колокол — здесь рождалось чувство времени общины. На станции — Ясна Суток: рассвет, полдень, закат, полночь и переходы между ними.',
+      duration: '6 минут',
+      format: 'Разбор Ясны + квиз',
+      action: { label: 'Скоро', href: '', available: false }
+    },
+    {
+      id: 'spb',
+      num: 3,
+      city: 'Санкт-Петербург',
+      theme: 'Слово',
+      title: 'Ясна Переговоров',
+      subtitle: 'Имперский этикет разговора',
+      body: 'Петербург — окно в Европу и школа дипломатии. На этой станции — структура переговоров: как открывают разговор, как ведут к развязке, что считается победой и проигрышем в русской традиции.',
+      duration: '7 минут',
+      format: 'Разбор Ясны + кейсы',
+      action: { label: 'Скоро', href: '', available: false }
+    },
+    {
+      id: 'arkhangelsk',
+      num: 4,
+      city: 'Архангельск',
+      theme: 'Небо',
+      title: 'Ясна Атмосферных явлений',
+      subtitle: 'Северное сияние, вьюга, гром',
+      body: 'На Севере небо ближе к человеку. Ясна Атмосферных явлений учит читать небо как страницу: с какого знака начинается буря, чем заканчивается затишье.',
+      duration: '6 минут',
+      format: 'Наблюдение + квиз',
+      action: { label: 'Скоро', href: '', available: false }
+    },
+    {
+      id: 'kazan',
+      num: 5,
+      city: 'Казань',
+      theme: 'Круг',
+      title: 'Ясна Года',
+      subtitle: 'Зима, весна, лето, осень',
+      body: 'Казань — перекрёсток земледельческих культур. Здесь встречаются полевые ритмы. Ясна Года показывает, как один и тот же круг повторяется на разных уровнях — от пашни до планеты.',
+      duration: '6 минут',
+      format: 'Сезоны + квиз',
+      action: { label: 'Скоро', href: '', available: false }
+    },
+    {
+      id: 'ural',
+      num: 6,
+      city: 'Урал',
+      theme: 'Камень',
+      title: 'Ясна Жизни',
+      subtitle: 'Рождение, зрелость, уход',
+      body: 'Урал — каменный пояс, граница миров. На этой станции — Ясна Жизни: 12 этапов человеческого пути от младенчества до прощания, без приукрашивания и без страха.',
+      duration: '8 минут',
+      format: 'Биография + квиз',
+      action: { label: 'Скоро', href: '', available: false }
+    },
+    {
+      id: 'baikal',
+      num: 7,
+      city: 'Байкал',
+      theme: 'Вода',
+      title: 'Ясна Круговорота воды',
+      subtitle: 'Капля, ручей, океан, облако',
+      body: 'Байкал — самое глубокое озеро мира. Здесь вода молчит и помнит. Ясна Круговорота воды показывает, как одно вещество проходит все полки — от ледника до пара и обратно.',
+      duration: '6 минут',
+      format: 'Природный цикл + квиз',
+      action: { label: 'Скоро', href: '', available: false }
+    },
+    {
+      id: 'vladivostok',
+      num: 8,
+      city: 'Владивосток',
+      theme: 'Горизонт',
+      title: 'Собери свою Ясну',
+      subtitle: 'Финал — выйди к океану',
+      body: 'Владивосток — край земли и начало океана. Здесь странник складывает всё узнанное в одну собственную Ясну: явление из своей жизни, разобранное по 12 полкам. Сохрани её и поделись.',
+      duration: '15 минут',
+      format: 'Конструктор + защита',
+      action: { label: 'Скоро', href: 'index.html?path=create', available: false }
+    }
+  ];
+
+  // ═══ ПРОГРЕСС ═══
+  const PROGRESS_KEY = 'yasna_course_progress';
+
+  function getProgress(){
+    try { return JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}'); }
+    catch(_){ return {}; }
+  }
+  function setStationDone(id){
+    const p = getProgress();
+    p[id] = { done: true, ts: Date.now() };
+    try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)); } catch(_){}
+    renderAll();
+  }
+
+  // ═══ СТАТУС СТАНЦИИ ═══
+  // 1) Всё пройденное → done
+  // 2) Первая непройденная → active
+  // 3) Остальные → locked
+  function getStatus(idx){
+    const p = getProgress();
+    const station = STATIONS[idx];
+    if(p[station.id] && p[station.id].done) return 'done';
+    // активна если все предыдущие пройдены (или это первая)
+    for(let i = 0; i < idx; i++){
+      if(!p[STATIONS[i].id] || !p[STATIONS[i].id].done) return 'locked';
+    }
+    return 'active';
+  }
+
+  function findActiveIdx(){
+    for(let i = 0; i < STATIONS.length; i++){
+      if(getStatus(i) === 'active') return i;
+    }
+    // всё пройдено — последняя как «следующая»
+    return STATIONS.length - 1;
+  }
+
+  // ═══ РЕНДЕР ПИНОВ ═══
+  function renderPins(){
+    document.querySelectorAll('.l-pin').forEach((el, i) => {
+      el.dataset.status = getStatus(i);
+    });
+  }
+
+  // ═══ РЕНДЕР МАРШРУТА (пройденный кусок) ═══
+  function renderRoute(){
+    const points = [
+      [430, 320], [415, 270], [405, 235], [470, 200],
+      [555, 320], [670, 318], [920, 395], [1175, 460]
+    ];
+    const p = getProgress();
+    let lastDoneIdx = -1;
+    for(let i = 0; i < STATIONS.length; i++){
+      if(p[STATIONS[i].id] && p[STATIONS[i].id].done) lastDoneIdx = i;
+    }
+    const doneEl = document.getElementById('routeDone');
+    if(lastDoneIdx < 1){ doneEl.setAttribute('d', ''); return; }
+    let d = `M ${points[0][0]} ${points[0][1]}`;
+    for(let i = 1; i <= lastDoneIdx; i++){
+      d += ` L ${points[i][0]} ${points[i][1]}`;
+    }
+    doneEl.setAttribute('d', d);
+  }
+
+  // ═══ РЕНДЕР АКТИВНОЙ ПАНЕЛИ ═══
+  function renderActive(){
+    const idx = findActiveIdx();
+    const s = STATIONS[idx];
+    const status = getStatus(idx);
+    const isDoneAll = STATIONS.every((st, i) => getStatus(i) === 'done');
+
+    document.getElementById('activeEyebrow').textContent =
+      isDoneAll ? `Курс пройден целиком · 8 из 8` :
+      `${s.theme} · Остановка ${s.num} из 8`;
+    document.getElementById('activeTitle').textContent = s.city;
+    document.getElementById('activeDesc').textContent = s.body;
+
+    const cta = document.getElementById('activeCta');
+    const ctaLabel = document.getElementById('activeCtaLabel');
+    if(isDoneAll){
+      ctaLabel.textContent = 'Перепройти финал';
+      cta.disabled = false;
+    } else if(s.action.available){
+      ctaLabel.textContent = s.action.label;
+      cta.disabled = false;
+    } else {
+      ctaLabel.textContent = s.action.label;
+      cta.disabled = true;
+    }
+    cta.onclick = () => openStation(idx);
+  }
+
+  function renderProgress(){
+    const p = getProgress();
+    const done = STATIONS.filter(s => p[s.id] && p[s.id].done).length;
+    const pct = (done / STATIONS.length) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressCount').textContent = `${done} из ${STATIONS.length}`;
+  }
+
+  function renderAll(){
+    renderPins();
+    renderRoute();
+    renderActive();
+    renderProgress();
+  }
+
+  // ═══ МОДАЛКА ═══
+  function openStation(idx){
+    const s = STATIONS[idx];
+    const status = getStatus(idx);
+    document.getElementById('modalNum').textContent = s.num;
+    document.getElementById('modalEyebrow').textContent = `${s.theme.toUpperCase()} · ОСТАНОВКА ${s.num}`;
+    document.getElementById('modalTitle').textContent = s.city;
+    document.getElementById('modalSubtitle').textContent = s.title + ' — ' + s.subtitle;
+    document.getElementById('modalBody').textContent = s.body;
+    document.getElementById('modalDuration').textContent = s.duration;
+    document.getElementById('modalFormat').textContent = s.format;
+    document.getElementById('modalStatus').textContent =
+      status === 'done' ? 'Пройдена' :
+      status === 'active' ? 'Доступна' :
+      'Заблокирована — пройди предыдущие';
+
+    const cta = document.getElementById('modalCta');
+    if(status === 'locked'){
+      cta.textContent = 'Откроется после предыдущих';
+      cta.dataset.locked = '1';
+      cta.onclick = null;
+    } else if(s.action.available){
+      cta.textContent = status === 'done' ? 'Пройти заново →' : (s.action.label + ' →');
+      cta.dataset.locked = '';
+      cta.onclick = () => {
+        setStationDone(s.id);
+        if(s.action.href) window.location.href = s.action.href;
+      };
+    } else {
+      cta.textContent = 'Глава готовится';
+      cta.dataset.locked = '1';
+      cta.onclick = null;
+    }
+
+    document.getElementById('modalBg').dataset.open = '1';
+  }
+
+  function closeModal(){
+    document.getElementById('modalBg').dataset.open = '';
+  }
+
+  // ═══ СОБЫТИЯ ═══
+  document.querySelectorAll('.l-pin').forEach((el, i) => {
+    el.addEventListener('click', () => openStation(i));
+    el.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openStation(i); }
+    });
+  });
+
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  document.getElementById('modalSecondary').addEventListener('click', closeModal);
+  document.getElementById('modalBg').addEventListener('click', (e) => {
+    if(e.target === document.getElementById('modalBg')) closeModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape') closeModal();
+  });
+
+  // ═══ DEBUG: ?reset=1 чистит прогресс ═══
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if(params.get('reset') === '1') localStorage.removeItem(PROGRESS_KEY);
+  } catch(_){}
+
+  // ═══ INIT ═══
+  renderAll();
+
+})();
+</script>
+</body>
+</html>
