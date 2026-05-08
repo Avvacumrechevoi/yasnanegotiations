@@ -260,6 +260,37 @@
     );
   }
 
+  // ─── Sync Notice — где хранится прогресс ─────────────────────────
+  // Видна только гостям (без Telegram-логина) и пока не закрыта.
+  // Объясняет где хранится прогресс и зачем входить через Telegram.
+  function DPSyncNotice({ user, onLoginClick }){
+    const [dismissed, setDismissed] = useState(() => {
+      try { return localStorage.getItem('yasna_sync_notice_dismissed') === '1'; }
+      catch(_){ return false; }
+    });
+    if(user) return null;       // авторизованным не нужно
+    if(dismissed) return null;  // закрыли вручную
+    const dismiss = () => {
+      try { localStorage.setItem('yasna_sync_notice_dismissed', '1'); } catch(_){}
+      setDismissed(true);
+    };
+    return React.createElement('div', { className: 'dp-sync-notice', role: 'note' },
+      React.createElement('div', { className: 'dp-sync-notice-icon', 'aria-hidden': 'true' }, '◷'),
+      React.createElement('div', { className: 'dp-sync-notice-body' },
+        React.createElement('div', { className: 'dp-sync-notice-title' }, 'Прогресс хранится в этом браузере'),
+        React.createElement('div', { className: 'dp-sync-notice-text' },
+          'Бусины, серии и история партий — здесь, локально. Очистишь кеш или сменишь устройство — потеряешь.',
+          React.createElement('br'),
+          'Войди через Telegram, чтобы прогресс жил между устройствами.'
+        )
+      ),
+      React.createElement('div', { className: 'dp-sync-notice-actions' },
+        React.createElement('button', { className: 'dp-sync-notice-cta', onClick: onLoginClick, type: 'button' }, 'Войти'),
+        React.createElement('button', { className: 'dp-sync-notice-x', onClick: dismiss, type: 'button', 'aria-label': 'Закрыть' }, '×')
+      )
+    );
+  }
+
   // ─── Главный ритуал · 2 игры ─────────────────────────────────────
   function DPMainGames({ onPartiya, onUzor }){
     return React.createElement('section', { className: 'dp-section', role: 'region', 'aria-label': 'Главный ритуал' },
@@ -1489,6 +1520,7 @@
         : React.createElement('main', { id: 'main' },
             React.createElement(DPCastaliaTitle, null),
             React.createElement(DPProfileHero, { user, profile, onLoginClick }),
+            React.createElement(DPSyncNotice, { user, onLoginClick }),
             React.createElement(DPMainGames, { onPartiya: askPartiyaMode, onUzor: startUzorPvP }),
             React.createElement(DPQuestsRow, { onEtude: () => startPartiyaWithShadow('easy') }),
             React.createElement(DPPartitura, null),
