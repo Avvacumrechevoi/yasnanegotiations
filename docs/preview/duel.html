@@ -43,6 +43,7 @@
 </script>
 
 <!-- Pre-built bundle: core/* + games/duel/* + duel-page (см. scripts/build.mjs) -->
-<script src="dist/duel.min.js"></script>
+<!-- Cache-busting: меняй версию при каждом релизе чтобы CDN отдавал свежий файл -->
+<script src="dist/duel.min.js?v=8ada6f7"></script>
 </body>
 </html>
