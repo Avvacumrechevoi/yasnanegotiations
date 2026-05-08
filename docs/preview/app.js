@@ -917,10 +917,10 @@ function App(){
           </div>}
         </div>
       </div>
-      <div className='nav-tabs' style={{display:'flex',alignItems:'center',padding:'8px 0 8px 20px',background:'var(--bg2)',borderBottom:'1px solid #d2d2d7',flexShrink:0}}>
-        <div style={{flex:1,display:'flex',alignItems:'center',gap:4,overflowX:'auto',minWidth:0,scrollbarWidth:'none',msOverflowStyle:'none'}} className="hide-scroll">
-        {/* Механики — закреплённая первая «таблетка» с выпадашкой */}
-        <div style={{position:'relative',flexShrink:0,display:'flex',alignItems:'center'}}>
+      <div className='nav-tabs' style={{display:'flex',alignItems:'center',padding:'8px 0 8px 20px',background:'var(--bg2)',borderBottom:'1px solid #d2d2d7',flexShrink:0,position:'relative'}}>
+        {/* Механики — закреплённая первая «таблетка» с выпадашкой ВНЕ scroll-контейнера,
+            иначе overflow:auto клипает абсолютный popup. */}
+        <div style={{position:'relative',flexShrink:0,display:'flex',alignItems:'center',marginRight:6}}>
           <button onClick={()=>setFiltersOpen(o=>!o)} title='Развернуть/свернуть список механик' className='mech-trigger' style={{padding:'7px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:filtersOpen?'rgba(0,113,227,.12)':'transparent',color:filtersOpen||af.length>0?'#0058b8':'var(--txt2)',border:`1px solid ${filtersOpen?'rgba(0,113,227,.45)':'#d2d2d7'}`,cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:6}}>
             <span style={{fontSize:13,lineHeight:1}}>⊞</span>
             <span>Механики</span>
@@ -938,8 +938,9 @@ function App(){
             </div>
           </>}
         </div>
-        {/* Разделитель между Механиками и списком Ясн */}
-        <div style={{width:1,height:20,background:'var(--border,#d2d2d7)',margin:'0 6px 0 4px',flexShrink:0}}/>
+        {/* Разделитель между Механиками и списком Ясн (вне scroll) */}
+        <div style={{width:1,height:20,background:'var(--border,#d2d2d7)',marginRight:6,flexShrink:0}}/>
+        <div style={{flex:1,display:'flex',alignItems:'center',gap:4,overflowX:'auto',minWidth:0,scrollbarWidth:'none',msOverflowStyle:'none'}} className="hide-scroll">
         {pinnedTemplates.length===0
           ?<span className="nav-empty" style={{fontSize:13,color:'#aeaeb2',padding:'6px 14px',whiteSpace:'nowrap',fontStyle:'italic'}}>Нет выбранных ясн — нажмите «+ ещё»</span>
           :pinnedTemplates.map(t=>{const active=y.name===t.n;return<button key={t.id} onClick={()=>load(t)} style={{position:'relative',padding:t.rubrik?'7px 14px 7px 18px':'7px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:active?'rgba(0,113,227,.14)':'transparent',color:active?'#0058b8':'var(--txt2)',border:active?'1.5px solid rgba(0,113,227,.55)':'1px solid transparent',flexShrink:0,fontWeight:active?700:400,cursor:'pointer',overflow:'hidden',transition:'background .15s, border-color .15s, color .15s',boxShadow:active?'0 1px 3px rgba(0,113,227,.12)':'none'}}>{t.rubrik&&<span style={{position:'absolute',left:0,top:0,bottom:0,width:3,background:'#30A060'}} title="Проверена"/>}{t.n}</button>;})}
