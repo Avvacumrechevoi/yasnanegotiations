@@ -198,6 +198,36 @@ body.theme-vk-dark svg [style*='stroke: #fff'] {
   stroke: rgba(255, 255, 255, 0.16) !important;
 }
 
+/* ─── Подписи механик внутри звезды (Скорпион↔Паук, Чаша Света/Тьмы и т.д.) ───
+   Тёмные цвета (синий/красный/коричневый/пурпурный) в светлой теме читаются
+   на белом, в тёмной превращаются в нечитаемые пятна. Поднимаем светлоту. */
+/* Тёмно-синие (#1d4ed8 / #1e3a8a) → светло-синие */
+body.theme-vk-dark svg [fill="#1d4ed8"] { fill: #60a5fa; }
+body.theme-vk-dark svg [fill="#1e3a8a"] { fill: #93c5fd; }
+/* Тёмно-красные (#b91c1c / #7f1d1d) → светлый red */
+body.theme-vk-dark svg [fill="#b91c1c"] { fill: #fca5a5; }
+body.theme-vk-dark svg [fill="#7f1d1d"] { fill: #fda4af; }
+/* Тёмные оттенки коричневого/охры (#7c2d12) → янтарные */
+body.theme-vk-dark svg [fill="#7c2d12"] { fill: #fbbf24; }
+body.theme-vk-dark svg [stroke="#7c2d12"] { stroke: rgba(251, 191, 36, 0.45); }
+/* Пурпур/маджента (#86198f / #a21caf) → светлый pink */
+body.theme-vk-dark svg [fill="#86198f"] { fill: #e879f9; }
+body.theme-vk-dark svg [fill="#a21caf"] { fill: #d8b4fe; }
+/* Циан (#0891b2) → светлый cyan */
+body.theme-vk-dark svg [fill="#0891b2"] { fill: #67e8f9; }
+/* Зелёный (#16a34a) → ярче для контраста */
+body.theme-vk-dark svg [fill="#16a34a"] { fill: #6ee7b7; }
+/* Тёмный графитовый (#1f2937) → light text */
+body.theme-vk-dark svg [fill="#1f2937"] { fill: var(--txt); }
+/* Оранжевый акцент (#ea580c) — оставляем, уже хорошо виден */
+
+/* paint-order: stroke с белой обводкой создаёт нечитаемое гало на тёмном.
+   Делаем обводку очень слабой — почти как полупрозрачный нимб для отделения. */
+body.theme-vk-dark svg text[stroke="#fff"],
+body.theme-vk-dark svg text[stroke="#ffffff"] {
+  stroke: rgba(0, 0, 0, 0.55) !important;
+}
+
 /* Canvas (Three.js 3D-звезда) — фон вокруг GL-области делаем тёмным.
    Сама GL-сцена может иметь свой clearColor — это вне CSS. */
 body.theme-vk-dark canvas {

@@ -1099,16 +1099,48 @@ body.theme-vk-dark .filters-collapsible {
   background: var(--vk-bg-surface) !important;
   border-color: var(--vk-border) !important;
 }
+/* Default = inactive pill (transparent inline bg, font-weight 400) */
 body.theme-vk-dark .filters button {
   background: var(--vk-bg-tonal) !important;
-  color: var(--vk-text-primary) !important;
-  border-color: var(--vk-border) !important;
+  color: var(--vk-text-secondary) !important;
+  border: 1px solid var(--vk-border) !important;
   border-radius: var(--vk-radius-l) !important;
   font-family: var(--vk-font);
   font-size: var(--vk-fs-s);
+  font-weight: 500 !important;
+  transition: background 160ms, color 160ms, border-color 160ms, box-shadow 160ms !important;
 }
 body.theme-vk-dark .filters button:hover {
   background: var(--vk-bg-strong) !important;
+  color: var(--vk-text-primary) !important;
+}
+
+/* ── Активный pill (механика выбрана) ── React оставляет в inline-style
+   `font-weight: 600` ИЛИ полупрозрачный rgba background. По любому
+   из двух признаков считаем pill активным и красим в VK Blue. */
+body.theme-vk-dark .filters button[style*='font-weight: 600'],
+body.theme-vk-dark .filters button[style*='font-weight:600'],
+body.theme-vk-dark .filters button[style*='rgba(0, 113, 227'],
+body.theme-vk-dark .filters button[style*='rgba(0,113,227'] {
+  background: var(--vk-accent-soft) !important;
+  color: var(--vk-accent-hover) !important;
+  border-color: var(--vk-accent) !important;
+  font-weight: 700 !important;
+  box-shadow: 0 0 0 1px rgba(0, 119, 255, 0.30), 0 4px 14px rgba(0, 119, 255, 0.18) !important;
+}
+body.theme-vk-dark .filters button[style*='font-weight: 600']:hover,
+body.theme-vk-dark .filters button[style*='font-weight:600']:hover,
+body.theme-vk-dark .filters button[style*='rgba(0, 113, 227']:hover,
+body.theme-vk-dark .filters button[style*='rgba(0,113,227']:hover {
+  background: rgba(0, 119, 255, 0.24) !important;
+  border-color: var(--vk-accent-hover) !important;
+}
+
+/* Разделители групп между Опорным/Стихиями/Архетипами/… */
+body.theme-vk-dark .filters .sep,
+body.theme-vk-dark .filters > div[style*='rgb(210, 210, 215)'] {
+  background: var(--vk-border) !important;
+  opacity: 1 !important;
 }
 
 /* Inputs / textareas / selects везде в гиде */
