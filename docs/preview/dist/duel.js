@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-08T12:24:15.260Z */
+/* Yasna bundle: duel.js — собран 2026-05-08T14:50:51.763Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -6249,13 +6249,91 @@ window.YasnaCore = {
     return React.createElement(
       "div",
       { className: "tn-final-archive" },
-      React.createElement("div", { className: "tn-final-archive-eyebrow" }, "\u2637  \u041F\u0430\u0440\u0442\u0438\u044F \u0437\u0430\u043F\u0438\u0441\u0430\u043D\u0430 \u0432"),
+      // ─── Light: оригинальный список, скрыт в Dark ───
       React.createElement(
-        "ul",
-        { className: "tn-final-archive-list" },
-        React.createElement("li", null, React.createElement("strong", null, "\u0425\u0440\u043E\u043D\u0438\u043A\u0443"), " \u2014 \u0441\u043F\u0438\u0441\u043E\u043A \u0442\u0432\u043E\u0438\u0445 \u043F\u0430\u0440\u0442\u0438\u0439"),
-        React.createElement("li", null, React.createElement("strong", null, "\u0414\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F"), " \u2014 \u043E\u0442\u043A\u0440\u044B\u0442\u044B \u0437\u0432\u0430\u043D\u0438\u044F \u0438 \u0441\u0435\u0440\u0438\u0438"),
-        React.createElement("li", null, React.createElement("strong", null, "\u041F\u0430\u0440\u0442\u0438\u0442\u0443\u0440\u0443"), " \u2014 \u043C\u0430\u0441\u0442\u0435\u0440\u0441\u0442\u0432\u043E \u043F\u043E \u0442\u0435\u043C\u0430\u043C \u042F\u0441\u043D\u044B")
+        "div",
+        { className: "vk-light-only" },
+        React.createElement("div", { className: "tn-final-archive-eyebrow" }, "\u2637  \u041F\u0430\u0440\u0442\u0438\u044F \u0437\u0430\u043F\u0438\u0441\u0430\u043D\u0430 \u0432"),
+        React.createElement(
+          "ul",
+          { className: "tn-final-archive-list" },
+          React.createElement("li", null, React.createElement("strong", null, "\u0425\u0440\u043E\u043D\u0438\u043A\u0443"), " \u2014 \u0441\u043F\u0438\u0441\u043E\u043A \u0442\u0432\u043E\u0438\u0445 \u043F\u0430\u0440\u0442\u0438\u0439"),
+          React.createElement("li", null, React.createElement("strong", null, "\u0414\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F"), " \u2014 \u043E\u0442\u043A\u0440\u044B\u0442\u044B \u0437\u0432\u0430\u043D\u0438\u044F \u0438 \u0441\u0435\u0440\u0438\u0438"),
+          React.createElement("li", null, React.createElement("strong", null, "\u041F\u0430\u0440\u0442\u0438\u0442\u0443\u0440\u0443"), " \u2014 \u043C\u0430\u0441\u0442\u0435\u0440\u0441\u0442\u0432\u043E \u043F\u043E \u0442\u0435\u043C\u0430\u043C \u042F\u0441\u043D\u044B")
+        )
+      ),
+      // ─── Dark: VK-Scheme — куда уходит партия ───
+      React.createElement(
+        "div",
+        { className: "vk-scheme-block" },
+        React.createElement(
+          "div",
+          { className: "vk-scheme" },
+          React.createElement(
+            "div",
+            { className: "vk-scheme-canvas" },
+            React.createElement(
+              "div",
+              { className: "vk-scheme-header" },
+              React.createElement("h3", { className: "vk-scheme-header-title" }, "\u041F\u0430\u0440\u0442\u0438\u044F \u0437\u0430\u043F\u0438\u0441\u0430\u043D\u0430 \u0432 \u0442\u0440\u0438 \u043C\u0435\u0441\u0442\u0430"),
+              React.createElement("span", { className: "vk-scheme-tag vk-scheme-tag--mute" }, "\u2726  \u0438\u0442\u043E\u0433")
+            ),
+            React.createElement(
+              "ol",
+              { className: "vk-scheme-steps" },
+              React.createElement(
+                "li",
+                { className: "vk-scheme-step" },
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-num" },
+                  React.createElement("div", { className: "vk-scheme-num-inner" }, "01")
+                ),
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-desc" },
+                  React.createElement("div", { className: "vk-scheme-desc-title" }, "\u0425\u0440\u043E\u043D\u0438\u043A\u0430"),
+                  React.createElement("div", { className: "vk-scheme-desc-text" }, "\u0421\u043F\u0438\u0441\u043E\u043A \u0432\u0441\u0435\u0445 \u0442\u0432\u043E\u0438\u0445 \u043F\u0430\u0440\u0442\u0438\u0439 \u2014 \u043A\u0442\u043E, \u043A\u043E\u0433\u0434\u0430, \u0441\u043E \u0441\u0447\u0451\u0442\u043E\u043C")
+                )
+              ),
+              React.createElement(
+                "li",
+                { className: "vk-scheme-step" },
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-num" },
+                  React.createElement("div", { className: "vk-scheme-num-inner" }, "02")
+                ),
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-desc" },
+                  React.createElement("div", { className: "vk-scheme-desc-title" }, "\u0414\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F"),
+                  React.createElement("div", { className: "vk-scheme-desc-text" }, "\u041E\u0442\u043A\u0440\u044B\u0432\u0430\u044E\u0442\u0441\u044F \u0437\u0432\u0430\u043D\u0438\u044F \u0438 \u0441\u0435\u0440\u0438\u0438 \u2014 \u043E\u0442\u043C\u0435\u0442\u043A\u0438 \u0442\u0432\u043E\u0435\u0433\u043E \u043F\u0443\u0442\u0438")
+                )
+              ),
+              React.createElement(
+                "li",
+                { className: "vk-scheme-step" },
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-num" },
+                  React.createElement("div", { className: "vk-scheme-num-inner" }, "03")
+                ),
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-desc" },
+                  React.createElement("div", { className: "vk-scheme-desc-title" }, "\u041F\u0430\u0440\u0442\u0438\u0442\u0443\u0440\u0430"),
+                  React.createElement("div", { className: "vk-scheme-desc-text" }, "\u0420\u0430\u0441\u0442\u0451\u0442 \u043C\u0430\u0441\u0442\u0435\u0440\u0441\u0442\u0432\u043E \u043F\u043E \u0448\u0435\u0441\u0442\u0438 \u0442\u0435\u043C\u0430\u043C \u042F\u0441\u043D\u044B")
+                )
+              )
+            ),
+            React.createElement(
+              "div",
+              { className: "vk-scheme-foot" },
+              "\u041F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u0437\u0430\u0447\u0438\u0442\u044B\u0432\u0430\u0435\u0442\u0441\u044F \u0441\u0440\u0430\u0437\u0443 \u043F\u043E\u0441\u043B\u0435 \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u0438\u044F \u043F\u0430\u0440\u0442\u0438\u0438."
+            )
+          )
+        )
       )
     );
   }
@@ -6300,6 +6378,25 @@ window.YasnaCore = {
       headline = isPvP ? "\u0421\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A \u043E\u0431\u043E\u0433\u043D\u0430\u043B." : "\u0422\u0435\u043D\u044C \u043E\u0431\u043E\u0433\u043D\u0430\u043B\u0430.";
       sub = "\u0412 \u0438\u0433\u0440\u0435 \u043D\u0435\u0442 \u043F\u0440\u043E\u0438\u0433\u0440\u0430\u0432\u0448\u0438\u0445 \u2014 \u0435\u0441\u0442\u044C \u0442\u0435, \u043A\u0442\u043E \u0437\u043D\u0430\u0435\u0442 \u0447\u0443\u0442\u044C \u043C\u0435\u043D\u044C\u0448\u0435. \u0417\u043D\u0430\u043A\u0438 \u043F\u043E\u043C\u043D\u044F\u0442 \u0442\u0432\u043E\u0439 \u043F\u0443\u0442\u044C. \u0417\u0430\u0432\u0442\u0440\u0430 \u2014 \u043D\u043E\u0432\u0430\u044F \u041F\u0430\u0440\u0442\u0438\u044F.";
     }
+    var disconnectMsg = oppDisconnected && React.createElement(
+      "div",
+      { className: "vk-scheme-block" },
+      React.createElement(
+        "div",
+        { className: "vk-sysmsg vk-sysmsg--warn" },
+        React.createElement("div", { className: "vk-sysmsg-icon", "aria-hidden": "true" }, "\u21AF"),
+        React.createElement(
+          "div",
+          { className: "vk-sysmsg-body" },
+          React.createElement("div", { className: "vk-sysmsg-title" }, "\u0421\u0432\u044F\u0437\u044C \u0441 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u043E\u043C \u043F\u0440\u0435\u0440\u0432\u0430\u043D\u0430"),
+          React.createElement(
+            "div",
+            { className: "vk-sysmsg-text" },
+            "\u041F\u0430\u0440\u0442\u0438\u044F \u043D\u0435 \u0437\u0430\u0441\u0447\u0438\u0442\u044B\u0432\u0430\u0435\u0442\u0441\u044F, \u0431\u0443\u0441\u0438\u043D\u044B \u043D\u0435 \u043D\u0430\u0447\u0438\u0441\u043B\u044F\u044E\u0442\u0441\u044F. \u041E\u0442\u043A\u0440\u043E\u0439 \u043A\u043E\u043C\u043D\u0430\u0442\u0443 \u0437\u0430\u043D\u043E\u0432\u043E \u0438\u043B\u0438 \u0441\u044B\u0433\u0440\u0430\u0439 \u0441 \u0422\u0435\u043D\u044C\u044E."
+          )
+        )
+      )
+    );
     return React.createElement(
       "div",
       { className: "tn-fullscreen" },
@@ -6311,6 +6408,7 @@ window.YasnaCore = {
           "div",
           { className: "tn-final" },
           React.createElement(TnFinalHeadline, { kind, headline, sub }),
+          disconnectMsg,
           !oppDisconnected && React.createElement(TnFinalVs, {
             playerName: player.nickname,
             scoreP,
@@ -6941,6 +7039,26 @@ window.YasnaCore = {
     tabIndex: 0,
     "data-tip": tip
   }, label);
+  function VkSysMsg({ kind = "info", size = "m", icon = "\u2699", title, text, action }) {
+    const cls = ["vk-sysmsg", "vk-sysmsg--" + kind];
+    if (size === "s") cls.push("vk-sysmsg--s");
+    return React.createElement(
+      "div",
+      { className: cls.join(" "), role: "status" },
+      React.createElement("div", { className: "vk-sysmsg-icon", "aria-hidden": "true" }, icon),
+      React.createElement(
+        "div",
+        { className: "vk-sysmsg-body" },
+        title && React.createElement("div", { className: "vk-sysmsg-title" }, title),
+        text && React.createElement("div", { className: "vk-sysmsg-text" }, text)
+      ),
+      action && React.createElement("button", {
+        type: "button",
+        onClick: action.onClick,
+        className: "vk-sysmsg-action" + (action.variant === "accent" ? " vk-sysmsg-action--accent" : "")
+      }, action.label)
+    );
+  }
   function avatarInitials(name) {
     if (!name) return "\xB7";
     const t = String(name).trim();
@@ -7052,9 +7170,9 @@ window.YasnaCore = {
       React.createElement(
         "h1",
         { className: "dp-castalia-h1" },
-        React.createElement("span", null, "\u042F\u0441\u043D\u0430."),
+        React.createElement("span", null, "\u042F\u0441\u043D\u0430 \u2014"),
         React.createElement("br"),
-        React.createElement("span", null, "\u041F\u0430\u0440\u0442\u0438\u044F \u0437\u0430 \u043F\u0430\u0440\u0442\u0438\u0435\u0439.")
+        React.createElement("span", null, "\u043C\u0430\u0441\u0442\u0435\u0440\u0441\u0442\u0432\u043E \u0432 \u0438\u0433\u0440\u0435.")
       )
     );
   }
@@ -7063,11 +7181,11 @@ window.YasnaCore = {
       "section",
       { className: "dp-welcome", role: "region", "aria-label": "\u041F\u0440\u0438\u0432\u0435\u0442\u0441\u0442\u0432\u0438\u0435" },
       React.createElement("div", { className: "dp-welcome-eyebrow" }, "\u2726  \u0422\u0440\u0435\u043D\u0430\u0436\u0451\u0440 \u042F\u0441\u043D\u044B"),
-      React.createElement("h1", { className: "dp-welcome-title" }, "\u042F\u0441\u043D\u0430.", React.createElement("br"), "\u041F\u0430\u0440\u0442\u0438\u044F \u0437\u0430 \u043F\u0430\u0440\u0442\u0438\u0435\u0439."),
+      React.createElement("h1", { className: "dp-welcome-title" }, "\u042F\u0441\u043D\u0430 \u2014", React.createElement("br"), "\u043C\u0430\u0441\u0442\u0435\u0440\u0441\u0442\u0432\u043E \u0432 \u0438\u0433\u0440\u0435."),
       React.createElement(
         "p",
         { className: "dp-welcome-sub" },
-        "\u0422\u0440\u0435\u043D\u0438\u0440\u0443\u0439 \u0437\u043D\u0430\u043D\u0438\u0435 \u043C\u043E\u0434\u0435\u043B\u0438 \u042F\u0441\u043D\u044B \u0447\u0435\u0440\u0435\u0437 \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0435 \u043F\u0430\u0440\u0442\u0438\u0438. 18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u0441 4 \u0432\u0430\u0440\u0438\u0430\u043D\u0442\u0430\u043C\u0438 \u043E\u0442\u0432\u0435\u0442\u0430. \u0428\u0435\u0441\u0442\u044C \u0442\u0435\u043C \u043F\u043E \u0442\u0440\u0438 \u0432\u043E\u043F\u0440\u043E\u0441\u0430. \u0421\u043E\u043F\u0435\u0440\u043D\u0438\u043A \u2014 \u0431\u043E\u0442 \u0438\u043B\u0438 \u0436\u0438\u0432\u043E\u0439 \u0434\u0440\u0443\u0433. \u0417\u0430 \u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 +10 \u0431\u0443\u0441\u0438\u043D, \u0437\u0430 \u0431\u044B\u0441\u0442\u0440\u044B\u0439 \u2014 \u0431\u043E\u043D\u0443\u0441 +5."
+        "\u0423\u0447\u0438\u0441\u044C \u043C\u043E\u0434\u0435\u043B\u0438 \u042F\u0441\u043D\u044B \u0447\u0435\u0440\u0435\u0437 \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0435 \u043F\u0430\u0440\u0442\u0438\u0438-\u0432\u0438\u043A\u0442\u043E\u0440\u0438\u043D\u044B. 18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u043D\u0430 6 \u0442\u0435\u043C, \u043F\u043E 4 \u0432\u0430\u0440\u0438\u0430\u043D\u0442\u0430 \u043E\u0442\u0432\u0435\u0442\u0430. \u0421\u043E\u043F\u0435\u0440\u043D\u0438\u043A \u2014 \u0422\u0435\u043D\u044C-\u0431\u043E\u0442 \u0438\u043B\u0438 \u0436\u0438\u0432\u043E\u0439 \u0434\u0440\u0443\u0433 \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435. \u0417\u0430 \u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 \u2014 10 \u0431\u0443\u0441\u0438\u043D, \u0437\u0430 \u0431\u044B\u0441\u0442\u0440\u044B\u0439 \u2014 \u0434\u043E 5 \u0431\u043E\u043D\u0443\u0441\u043D\u044B\u0445."
       ),
       React.createElement(
         "div",
@@ -7172,26 +7290,95 @@ window.YasnaCore = {
       setDismissed(true);
     };
     return React.createElement(
-      "div",
-      { className: "dp-sync-notice", role: "note" },
-      React.createElement("div", { className: "dp-sync-notice-icon", "aria-hidden": "true" }, "\u25F7"),
+      React.Fragment,
+      null,
+      // ─── Light: оригинальный плашка-уведомление ───
       React.createElement(
         "div",
-        { className: "dp-sync-notice-body" },
-        React.createElement("div", { className: "dp-sync-notice-title" }, "\u041F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u0445\u0440\u0430\u043D\u0438\u0442\u0441\u044F \u0432 \u044D\u0442\u043E\u043C \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0435"),
+        { className: "dp-sync-notice vk-light-only", role: "note" },
+        React.createElement("div", { className: "dp-sync-notice-icon", "aria-hidden": "true" }, "\u25F7"),
         React.createElement(
           "div",
-          { className: "dp-sync-notice-text" },
-          "\u0411\u0443\u0441\u0438\u043D\u044B, \u0441\u0435\u0440\u0438\u0438 \u0438 \u0438\u0441\u0442\u043E\u0440\u0438\u044F \u043F\u0430\u0440\u0442\u0438\u0439 \u2014 \u0437\u0434\u0435\u0441\u044C, \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u043E. \u041E\u0447\u0438\u0441\u0442\u0438\u0448\u044C \u043A\u0435\u0448 \u0438\u043B\u0438 \u0441\u043C\u0435\u043D\u0438\u0448\u044C \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E \u2014 \u043F\u043E\u0442\u0435\u0440\u044F\u0435\u0448\u044C.",
-          React.createElement("br"),
-          "\u0412\u043E\u0439\u0434\u0438 \u0447\u0435\u0440\u0435\u0437 Telegram, \u0447\u0442\u043E\u0431\u044B \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u0436\u0438\u043B \u043C\u0435\u0436\u0434\u0443 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430\u043C\u0438."
+          { className: "dp-sync-notice-body" },
+          React.createElement("div", { className: "dp-sync-notice-title" }, "\u041F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u0445\u0440\u0430\u043D\u0438\u0442\u0441\u044F \u0432 \u044D\u0442\u043E\u043C \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0435"),
+          React.createElement(
+            "div",
+            { className: "dp-sync-notice-text" },
+            "\u0411\u0443\u0441\u0438\u043D\u044B, \u0441\u0435\u0440\u0438\u0438 \u0438 \u0438\u0441\u0442\u043E\u0440\u0438\u044F \u043F\u0430\u0440\u0442\u0438\u0439 \u2014 \u0437\u0434\u0435\u0441\u044C, \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u043E. \u041E\u0447\u0438\u0441\u0442\u0438\u0448\u044C \u043A\u0435\u0448 \u0438\u043B\u0438 \u0441\u043C\u0435\u043D\u0438\u0448\u044C \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E \u2014 \u043F\u043E\u0442\u0435\u0440\u044F\u0435\u0448\u044C.",
+            React.createElement("br"),
+            "\u0412\u043E\u0439\u0434\u0438 \u0447\u0435\u0440\u0435\u0437 Telegram, \u0447\u0442\u043E\u0431\u044B \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u0436\u0438\u043B \u043C\u0435\u0436\u0434\u0443 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430\u043C\u0438."
+          )
+        ),
+        React.createElement(
+          "div",
+          { className: "dp-sync-notice-actions" },
+          React.createElement("button", { className: "dp-sync-notice-cta", onClick: onLoginClick, type: "button" }, "\u0412\u043E\u0439\u0442\u0438"),
+          React.createElement("button", { className: "dp-sync-notice-x", onClick: dismiss, type: "button", "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C" }, "\xD7")
         )
       ),
+      // ─── Dark: VK-Scheme — где живут бусины ───
       React.createElement(
         "div",
-        { className: "dp-sync-notice-actions" },
-        React.createElement("button", { className: "dp-sync-notice-cta", onClick: onLoginClick, type: "button" }, "\u0412\u043E\u0439\u0442\u0438"),
-        React.createElement("button", { className: "dp-sync-notice-x", onClick: dismiss, type: "button", "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C" }, "\xD7")
+        { className: "vk-scheme-block", role: "note" },
+        React.createElement(
+          "div",
+          { className: "vk-scheme" },
+          React.createElement(
+            "div",
+            { className: "vk-scheme-canvas" },
+            React.createElement(
+              "div",
+              { className: "vk-scheme-header" },
+              React.createElement("h3", { className: "vk-scheme-header-title" }, "\u0413\u0434\u0435 \u0441\u0435\u0439\u0447\u0430\u0441 \u0436\u0438\u0432\u0443\u0442 \u0442\u0432\u043E\u0438 \u0431\u0443\u0441\u0438\u043D\u044B"),
+              React.createElement("button", {
+                className: "vk-scheme-tag vk-scheme-tag--mute",
+                onClick: dismiss,
+                type: "button",
+                "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C",
+                style: { border: "none", cursor: "pointer" }
+              }, "\xD7  \u0441\u043A\u0440\u044B\u0442\u044C")
+            ),
+            React.createElement(
+              "div",
+              { className: "vk-scheme-entities" },
+              React.createElement(
+                "div",
+                { className: "vk-scheme-entity" },
+                React.createElement("div", { className: "vk-scheme-entity-label" }, "\u25F7  \u0412 \u044D\u0442\u043E\u043C \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0435"),
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-chips" },
+                  React.createElement("span", { className: "vk-scheme-chip" }, "\u2726  \u0431\u0443\u0441\u0438\u043D\u044B"),
+                  React.createElement("span", { className: "vk-scheme-chip" }, "\u25F7  \u0441\u0435\u0440\u0438\u0438"),
+                  React.createElement("span", { className: "vk-scheme-chip" }, "\u2637  \u0438\u0441\u0442\u043E\u0440\u0438\u044F")
+                )
+              ),
+              React.createElement(
+                "div",
+                { className: "vk-scheme-entity" },
+                React.createElement("span", { className: "vk-scheme-entity-badge" }, "\u043F\u043E\u0441\u043B\u0435 \u0432\u0445\u043E\u0434\u0430"),
+                React.createElement("div", { className: "vk-scheme-entity-label" }, "\u2713  \u0412 Telegram-\u0430\u043A\u043A\u0430\u0443\u043D\u0442\u0435"),
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-chips" },
+                  React.createElement("span", { className: "vk-scheme-chip" }, "\u21BA  \u043B\u044E\u0431\u043E\u0435 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E"),
+                  React.createElement("span", { className: "vk-scheme-chip" }, "\u21BA  \u043D\u0435 \u0442\u0435\u0440\u044F\u0435\u0442\u0441\u044F")
+                )
+              )
+            ),
+            React.createElement(
+              "div",
+              { className: "vk-scheme-foot", style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, fontStyle: "normal" } },
+              React.createElement("span", null, "\u041E\u0447\u0438\u0441\u0442\u0438\u0448\u044C \u043A\u0435\u0448 \u0438\u043B\u0438 \u0441\u043C\u0435\u043D\u0438\u0448\u044C \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E \u2014 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u044B\u0439 \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u0443\u0439\u0434\u0451\u0442."),
+              React.createElement("button", {
+                className: "vk-scheme-tag vk-scheme-tag--accent",
+                onClick: onLoginClick,
+                type: "button",
+                style: { border: "none", cursor: "pointer" }
+              }, "\u0412\u043E\u0439\u0442\u0438 \u2192")
+            )
+          )
+        )
       )
     );
   }
@@ -7202,20 +7389,102 @@ window.YasnaCore = {
       React.createElement(
         "div",
         { style: { marginBottom: "var(--space-5)" } },
-        React.createElement("div", { className: "dp-eyebrow" }, "\u0413\u043B\u0430\u0432\u043D\u044B\u0439 \u0440\u0438\u0442\u0443\u0430\u043B"),
+        React.createElement("div", { className: "dp-eyebrow" }, "\u0418\u0433\u0440\u044B \u042F\u0441\u043D\u044B"),
         React.createElement(
           "h2",
           { className: "dp-section-h", style: { fontFamily: "var(--font-serif)", fontWeight: 500, fontSize: 22, letterSpacing: "-0.005em" } },
-          "\u041F\u0430\u0440\u0442\u0438\u044F \u0438 \u0420\u0430\u0441\u043A\u043B\u0430\u0434"
+          "\u0414\u0432\u0435 \u0438\u0433\u0440\u043E\u0432\u044B\u0435 \u043F\u0440\u0430\u043A\u0442\u0438\u043A\u0438"
         ),
         React.createElement(
           "p",
           { className: "dp-section-desc", style: { marginTop: 6 } },
-          "\u0414\u0432\u0435 \u043F\u0440\u0430\u043A\u0442\u0438\u043A\u0438 \u042F\u0441\u043D\u044B. ",
           React.createElement("strong", { style: { color: "var(--text-1)", fontWeight: 500 } }, "\u041F\u0430\u0440\u0442\u0438\u044F"),
-          " \u2014 18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u0441 \u0432\u0430\u0440\u0438\u0430\u043D\u0442\u0430\u043C\u0438 \u043E\u0442\u0432\u0435\u0442\u0430. ",
+          " \u2014 \u0432\u0438\u043A\u0442\u043E\u0440\u0438\u043D\u0430 \u0438\u0437 18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u043D\u0430 6 \u0442\u0435\u043C. \u0421\u043E\u043B\u043E \u043F\u0440\u043E\u0442\u0438\u0432 \u0422\u0435\u043D\u0438 \u0438\u043B\u0438 \u0432\u0434\u0432\u043E\u0451\u043C \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435. ",
           React.createElement("strong", { style: { color: "var(--text-1)", fontWeight: 500 } }, "\u0420\u0430\u0441\u043A\u043B\u0430\u0434"),
-          " \u2014 \u0440\u0430\u0441\u0441\u0442\u0430\u0432\u0438\u0442\u044C \u044D\u043B\u0435\u043C\u0435\u043D\u0442\u044B \u043F\u043E \u043C\u0435\u0441\u0442\u0430\u043C \u0431\u044B\u0441\u0442\u0440\u0435\u0435 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u0430."
+          " \u2014 \u0433\u043E\u043D\u043A\u0430: \u0440\u0430\u0441\u0441\u0442\u0430\u0432\u0438\u0442\u044C 12 \u044D\u043B\u0435\u043C\u0435\u043D\u0442\u043E\u0432 \u043F\u043E \u043C\u0435\u0441\u0442\u0430\u043C \u0431\u044B\u0441\u0442\u0440\u0435\u0435 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u0430."
+        )
+      ),
+      // ─── Dark: VK-Scheme — как устроена Партия (4 шага) ───
+      React.createElement(
+        "div",
+        { className: "vk-scheme-block", style: { marginBottom: "var(--space-5)" } },
+        React.createElement(
+          "div",
+          { className: "vk-scheme" },
+          React.createElement(
+            "div",
+            { className: "vk-scheme-canvas" },
+            React.createElement(
+              "div",
+              { className: "vk-scheme-header" },
+              React.createElement("h3", { className: "vk-scheme-header-title" }, "\u041A\u0430\u043A \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442 \u043E\u0434\u043D\u0430 \u041F\u0430\u0440\u0442\u0438\u044F"),
+              React.createElement("span", { className: "vk-scheme-tag vk-scheme-tag--accent" }, "~5 \u043C\u0438\u043D\u0443\u0442")
+            ),
+            React.createElement(
+              "ol",
+              { className: "vk-scheme-steps" },
+              React.createElement(
+                "li",
+                { className: "vk-scheme-step" },
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-num" },
+                  React.createElement("div", { className: "vk-scheme-num-inner" }, "01")
+                ),
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-desc" },
+                  React.createElement("div", { className: "vk-scheme-desc-title" }, "\u0412\u044B\u0431\u043E\u0440 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u0430"),
+                  React.createElement("div", { className: "vk-scheme-desc-text" }, "\u0422\u0435\u043D\u044C (\u0431\u043E\u0442) \u0438\u043B\u0438 \u0436\u0438\u0432\u043E\u0439 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435-\u043A\u043E\u043C\u043D\u0430\u0442\u0435")
+                )
+              ),
+              React.createElement(
+                "li",
+                { className: "vk-scheme-step" },
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-num" },
+                  React.createElement("div", { className: "vk-scheme-num-inner" }, "02")
+                ),
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-desc" },
+                  React.createElement("div", { className: "vk-scheme-desc-title" }, "18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \xB7 6 \u0442\u0435\u043C \u043F\u043E 3"),
+                  React.createElement("div", { className: "vk-scheme-desc-text" }, "4 \u0432\u0430\u0440\u0438\u0430\u043D\u0442\u0430 \u043E\u0442\u0432\u0435\u0442\u0430 \u043D\u0430 \u043A\u0430\u0436\u0434\u043E\u043C \u0448\u0430\u0433\u0435, \u0442\u0430\u0439\u043C\u0435\u0440 \u0431\u0435\u0436\u0438\u0442")
+                )
+              ),
+              React.createElement(
+                "li",
+                { className: "vk-scheme-step" },
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-num" },
+                  React.createElement("div", { className: "vk-scheme-num-inner" }, "03")
+                ),
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-desc" },
+                  React.createElement("div", { className: "vk-scheme-desc-title" }, "\u0411\u0443\u0441\u0438\u043D\u044B: +10 \u0437\u0430 \u0432\u0435\u0440\u043D\u044B\u0439 \xB7 \u0434\u043E +5 \u0437\u0430 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u044C"),
+                  React.createElement("div", { className: "vk-scheme-desc-text" }, "\u0422\u043E\u0447\u043D\u043E\u0441\u0442\u044C \u0432\u0430\u0436\u043D\u0435\u0435 \u0442\u0435\u043C\u043F\u0430: \u043F\u0440\u0430\u0432\u0438\u043B\u044C\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 \u0432\u0441\u0435\u0433\u0434\u0430 \u0434\u043E\u0440\u043E\u0436\u0435 \u0431\u044B\u0441\u0442\u0440\u043E\u0433\u043E")
+                )
+              ),
+              React.createElement(
+                "li",
+                { className: "vk-scheme-step" },
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-num" },
+                  React.createElement("div", { className: "vk-scheme-num-inner" }, "04")
+                ),
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-desc" },
+                  React.createElement("div", { className: "vk-scheme-desc-title" }, "\u0417\u0430\u043F\u0438\u0441\u044C \u0432 \u0425\u0440\u043E\u043D\u0438\u043A\u0443 \u0438 \u041F\u0430\u0440\u0442\u0438\u0442\u0443\u0440\u0443"),
+                  React.createElement("div", { className: "vk-scheme-desc-text" }, "\u041F\u0430\u0440\u0442\u0438\u044F \u043F\u043E\u043F\u0430\u0434\u0430\u0435\u0442 \u0432 \u0442\u0432\u043E\u044E \u0438\u0441\u0442\u043E\u0440\u0438\u044E, \u043C\u0430\u0441\u0442\u0435\u0440\u0441\u0442\u0432\u043E \u043F\u043E \u0442\u0435\u043C\u0430\u043C \u0440\u0430\u0441\u0442\u0451\u0442")
+                )
+              )
+            )
+          )
         )
       ),
       React.createElement(
@@ -7224,27 +7493,39 @@ window.YasnaCore = {
         React.createElement(
           "button",
           { className: "dp-game-card dp-game-primary", onClick: onPartiya },
-          React.createElement("div", { className: "dp-game-eyebrow" }, "\u041F\u0430\u0440\u0442\u0438\u044F \xB7 ~5 \u043C\u0438\u043D\u0443\u0442"),
+          React.createElement("div", { className: "dp-game-eyebrow" }, "\u2726  \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0430 \xB7 ~5 \u043C\u0438\u043D\u0443\u0442"),
           React.createElement("div", { className: "dp-game-title" }, "\u041F\u0430\u0440\u0442\u0438\u044F"),
-          React.createElement("div", { className: "dp-game-sub" }, "18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u0441 4 \u0432\u0430\u0440\u0438\u0430\u043D\u0442\u0430\u043C\u0438 \u043E\u0442\u0432\u0435\u0442\u0430. 6 \u0442\u0435\u043C \u043F\u043E 3 \u0432\u043E\u043F\u0440\u043E\u0441\u0430. \u0422\u043E\u0447\u043D\u043E\u0441\u0442\u044C \u0432\u0430\u0436\u043D\u0435\u0435 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u2014 \u0437\u0430 \u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 +10 \u0431\u0443\u0441\u0438\u043D, \u0437\u0430 \u0431\u044B\u0441\u0442\u0440\u044B\u0439 \u0431\u043E\u043D\u0443\u0441 +5."),
+          React.createElement(
+            "div",
+            { className: "dp-game-sub" },
+            "18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u043D\u0430 6 \u0442\u0435\u043C. 4 \u0432\u0430\u0440\u0438\u0430\u043D\u0442\u0430 \u043E\u0442\u0432\u0435\u0442\u0430 \u043D\u0430 \u043A\u0430\u0436\u0434\u043E\u043C \u0448\u0430\u0433\u0435.",
+            React.createElement("br"),
+            "\u0412\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 \u2014 10 \u0431\u0443\u0441\u0438\u043D, \u0431\u044B\u0441\u0442\u0440\u044B\u0439 \u2014 \u0434\u043E 5 \u0431\u043E\u043D\u0443\u0441\u043D\u044B\u0445. \u0422\u043E\u0447\u043D\u043E\u0441\u0442\u044C \u0446\u0435\u043D\u043D\u0435\u0435 \u0442\u0435\u043C\u043F\u0430."
+          ),
           React.createElement(
             "div",
             { className: "dp-game-meta" },
-            React.createElement("span", null, "\u0421\u043E\u043B\u043E \u043F\u0440\u043E\u0442\u0438\u0432 \u0431\u043E\u0442\u0430"),
+            React.createElement("span", null, "\u0421\u043E\u043B\u043E \u0441 \u0422\u0435\u043D\u044C\u044E"),
             React.createElement("span", null, "\xB7"),
-            React.createElement("span", { className: "dp-game-meta-pvp" }, "\u0412\u0434\u0432\u043E\u0451\u043C \u0441 \u0434\u0440\u0443\u0433\u043E\u043C \u2726")
+            React.createElement("span", { className: "dp-game-meta-pvp" }, "\u0412\u0434\u0432\u043E\u0451\u043C \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435 \u2726")
           )
         ),
         React.createElement(
           "button",
           { className: "dp-game-card dp-game-soon", onClick: onUzor, disabled: true, style: { opacity: 0.6, cursor: "not-allowed" } },
-          React.createElement("div", { className: "dp-game-eyebrow" }, "\u0420\u0430\u0441\u043A\u043B\u0430\u0434 \xB7 \u0441\u043A\u043E\u0440\u043E"),
+          React.createElement("div", { className: "dp-game-eyebrow" }, "\u25F7  \u0412 \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0435"),
           React.createElement("div", { className: "dp-game-title" }, "\u0420\u0430\u0441\u043A\u043B\u0430\u0434"),
-          React.createElement("div", { className: "dp-game-sub" }, "\u0420\u0430\u0441\u0441\u0442\u0430\u0432\u0438\u0442\u044C 12 \u044D\u043B\u0435\u043C\u0435\u043D\u0442\u043E\u0432 \u043F\u043E \u043C\u0435\u0441\u0442\u0430\u043C \u0431\u044B\u0441\u0442\u0440\u0435\u0435 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u0430. \u0418\u0433\u0440\u0430 \u0432 \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0435 \u2014 \u043F\u043E\u043A\u0430 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0430."),
+          React.createElement(
+            "div",
+            { className: "dp-game-sub" },
+            "\u0413\u043E\u043D\u043A\u0430 \u043D\u0430 \u0434\u0432\u043E\u0438\u0445: \u0440\u0430\u0437\u043B\u043E\u0436\u0438\u0442\u044C 12 \u044D\u043B\u0435\u043C\u0435\u043D\u0442\u043E\u0432 \u043F\u043E \u0441\u0432\u043E\u0438\u043C \u043C\u0435\u0441\u0442\u0430\u043C \u0440\u0430\u043D\u044C\u0448\u0435 \u0432\u0442\u043E\u0440\u043E\u0433\u043E \u0438\u0433\u0440\u043E\u043A\u0430.",
+            React.createElement("br"),
+            "\u0421\u043A\u043E\u0440\u043E \u2014 \u0441\u043B\u0435\u0434\u0438 \u0437\u0430 \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u044F\u043C\u0438."
+          ),
           React.createElement(
             "div",
             { className: "dp-game-meta" },
-            React.createElement("span", { className: "dp-game-meta-pvp" }, "\u0432 \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0435")
+            React.createElement("span", { className: "dp-game-meta-pvp" }, "PvP \xB7 \u0441\u043A\u043E\u0440\u043E")
           )
         )
       )
@@ -8402,14 +8683,82 @@ window.YasnaCore = {
             null,
             "\u0412\u043E\u0439\u0434\u0438 \u0447\u0435\u0440\u0435\u0437 Telegram. \u0411\u0443\u0441\u0438\u043D\u044B, \u0441\u0435\u0440\u0438\u0438 \u0438 \u0438\u0441\u0442\u043E\u0440\u0438\u044F \u043F\u0430\u0440\u0442\u0438\u0439 \u0431\u0443\u0434\u0443\u0442 \u0436\u0438\u0442\u044C \u0441 \u0442\u0432\u043E\u0438\u043C \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u043E\u043C."
           ),
+          // ─── Light: оригинальный список перков ───
           React.createElement(
             "ul",
-            { className: "dp-auth-perks" },
+            { className: "dp-auth-perks vk-light-only" },
             React.createElement("li", null, "\u041F\u0430\u0440\u0442\u0438\u0438 \u0441 \u043B\u044E\u0431\u043E\u0433\u043E \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430 \u2014 \u043E\u0431\u0449\u0438\u0439 \u0441\u0447\u0451\u0442"),
             React.createElement("li", null, "\u0411\u0435\u0437 \u043F\u0430\u0440\u043E\u043B\u0435\u0439. \u0422\u043E\u043B\u044C\u043A\u043E \u0438\u043C\u044F \u0438 \u0430\u0432\u0430\u0442\u0430\u0440 \u0438\u0437 Telegram"),
             React.createElement("li", null, "\u0413\u043E\u0441\u0442\u0435\u0432\u043E\u0439 \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u0441\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u0441\u044F \u2014 \u043F\u0440\u0438 \u043B\u043E\u0433\u0438\u043D\u0435 \u043E\u043D \u0434\u043E\u0431\u0430\u0432\u0438\u0442\u0441\u044F \u043A \u0442\u0432\u043E\u0435\u043C\u0443")
           ),
-          !baseUrl ? React.createElement("div", { className: "dp-auth-msg-error" }, "\u0421\u0435\u0440\u0432\u0435\u0440 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D") : !botUsername ? React.createElement("div", { className: "dp-auth-msg-error" }, "\u0411\u043E\u0442 \u043D\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043D") : React.createElement("div", {
+          // ─── Dark: VK-Scheme — как работает синхронизация ───
+          React.createElement(
+            "div",
+            { className: "vk-scheme-block" },
+            React.createElement(
+              "div",
+              { className: "vk-scheme" },
+              React.createElement(
+                "div",
+                { className: "vk-scheme-canvas" },
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-header" },
+                  React.createElement("h3", { className: "vk-scheme-header-title" }, "\u0427\u0442\u043E \u0434\u0430\u0451\u0442 \u0432\u0445\u043E\u0434 \u0447\u0435\u0440\u0435\u0437 Telegram")
+                ),
+                React.createElement(
+                  "ol",
+                  { className: "vk-scheme-steps" },
+                  React.createElement(
+                    "li",
+                    { className: "vk-scheme-step" },
+                    React.createElement(
+                      "div",
+                      { className: "vk-scheme-num" },
+                      React.createElement("div", { className: "vk-scheme-num-inner" }, "01")
+                    ),
+                    React.createElement(
+                      "div",
+                      { className: "vk-scheme-desc" },
+                      React.createElement("div", { className: "vk-scheme-desc-title" }, "\u041E\u0431\u0449\u0438\u0439 \u0441\u0447\u0451\u0442 \u043C\u0435\u0436\u0434\u0443 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430\u043C\u0438"),
+                      React.createElement("div", { className: "vk-scheme-desc-text" }, "\u0411\u0443\u0441\u0438\u043D\u044B \u0438 \u0441\u0435\u0440\u0438\u0438 \u0436\u0438\u0432\u0443\u0442 \u0441 \u0442\u0432\u043E\u0438\u043C \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u043E\u043C, \u0430 \u043D\u0435 \u0441 \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u043E\u043C")
+                    )
+                  ),
+                  React.createElement(
+                    "li",
+                    { className: "vk-scheme-step" },
+                    React.createElement(
+                      "div",
+                      { className: "vk-scheme-num" },
+                      React.createElement("div", { className: "vk-scheme-num-inner" }, "02")
+                    ),
+                    React.createElement(
+                      "div",
+                      { className: "vk-scheme-desc" },
+                      React.createElement("div", { className: "vk-scheme-desc-title" }, "\u0411\u0435\u0437 \u043F\u0430\u0440\u043E\u043B\u0435\u0439"),
+                      React.createElement("div", { className: "vk-scheme-desc-text" }, "\u0411\u0435\u0440\u0451\u043C \u0442\u043E\u043B\u044C\u043A\u043E \u0438\u043C\u044F \u0438 \u0430\u0432\u0430\u0442\u0430\u0440 \u0438\u0437 Telegram. \u0421\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u044F \u043D\u0430\u043C \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u044B")
+                    )
+                  ),
+                  React.createElement(
+                    "li",
+                    { className: "vk-scheme-step" },
+                    React.createElement(
+                      "div",
+                      { className: "vk-scheme-num" },
+                      React.createElement("div", { className: "vk-scheme-num-inner" }, "03")
+                    ),
+                    React.createElement(
+                      "div",
+                      { className: "vk-scheme-desc" },
+                      React.createElement("div", { className: "vk-scheme-desc-title" }, "\u0413\u043E\u0441\u0442\u0435\u0432\u043E\u0439 \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u043D\u0435 \u0442\u0435\u0440\u044F\u0435\u0442\u0441\u044F"),
+                      React.createElement("div", { className: "vk-scheme-desc-text" }, "\u041F\u0440\u0438 \u043B\u043E\u0433\u0438\u043D\u0435 \u0431\u0443\u0441\u0438\u043D\u044B \u0438\u0437 \u044D\u0442\u043E\u0439 \u0441\u0435\u0441\u0441\u0438\u0438 \u0434\u043E\u0431\u0430\u0432\u044F\u0442\u0441\u044F \u043A \u0442\u0432\u043E\u0435\u043C\u0443 \u0441\u0447\u0451\u0442\u0443")
+                    )
+                  )
+                )
+              )
+            )
+          ),
+          !baseUrl ? VkSysMsg({ kind: "error", icon: "\u26A0", title: "\u0421\u0435\u0440\u0432\u0435\u0440 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D", text: "\u0417\u0430\u0439\u0434\u0438 \u0447\u0435\u0440\u0435\u0437 \u043D\u0435\u0441\u043A\u043E\u043B\u044C\u043A\u043E \u043C\u0438\u043D\u0443\u0442 \u2014 \u043C\u044B \u0443\u0436\u0435 \u0447\u0438\u043D\u0438\u043C." }) : !botUsername ? VkSysMsg({ kind: "error", icon: "\u2699", title: "\u0411\u043E\u0442 \u043D\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043D", text: "\u042D\u0442\u043E \u043F\u0440\u0435\u0432\u044C\u044E-\u0441\u0431\u043E\u0440\u043A\u0430. \u0410\u0432\u0442\u043E\u0440\u0438\u0437\u0430\u0446\u0438\u044F \u0447\u0435\u0440\u0435\u0437 Telegram \u043E\u0442\u043A\u043B\u044E\u0447\u0435\u043D\u0430." }) : React.createElement("div", {
             className: "dp-auth-tg-widget",
             ref: (el) => {
               if (!el || el.children.length) return;
@@ -8423,8 +8772,8 @@ window.YasnaCore = {
               el.appendChild(s);
             }
           }),
-          phase === "loading" && React.createElement("div", { className: "dp-auth-msg-loading" }, "\u25F7  \u0410\u0432\u0442\u043E\u0440\u0438\u0437\u0430\u0446\u0438\u044F\u2026"),
-          error && React.createElement("div", { className: "dp-auth-msg-error" }, error),
+          phase === "loading" && VkSysMsg({ kind: "info", icon: "\u25F7", size: "s", text: "\u0410\u0432\u0442\u043E\u0440\u0438\u0437\u0430\u0446\u0438\u044F \u0432 Telegram\u2026" }),
+          error && VkSysMsg({ kind: "error", icon: "\u26A0", title: "\u041D\u0435 \u043F\u043E\u043B\u0443\u0447\u0438\u043B\u043E\u0441\u044C \u0432\u043E\u0439\u0442\u0438", text: error }),
           React.createElement(
             "div",
             { className: "dp-auth-foot" },
