@@ -129,17 +129,64 @@ body.theme-vk-dark .vk-btn--secondary:disabled {
   cursor: not-allowed;
 }
 
-/* Размеры */
+/* Размеры (по Figma 9:96286 «Button / ButtonIcon»):
+   28h — extra small (chips/inline)
+   32h — small (compact toolbar)
+   36h — medium (forms / cards)
+   40h — large (primary CTA)  */
+body.theme-vk-dark .vk-btn--xs {
+  height: 28px;
+  font-size: var(--vk-fs-xs);            /* 13 */
+  font-weight: 500;
+  padding: 0 var(--vk-sp-4);
+  border-radius: var(--vk-radius-s);
+  gap: var(--vk-sp-2);
+}
 body.theme-vk-dark .vk-btn--s {
-  height: var(--vk-h-button-s);
-  font-size: var(--vk-fs-s);
+  height: var(--vk-h-button-s);          /* 32 */
+  font-size: var(--vk-fs-s);             /* 14 */
   padding: 0 var(--vk-sp-4);
   border-radius: var(--vk-radius-s);
 }
+body.theme-vk-dark .vk-btn--md {
+  height: 36px;
+  font-size: var(--vk-fs-s);             /* 14 */
+  padding: 0 var(--vk-sp-5);
+  border-radius: var(--vk-radius-s);
+}
+
+/* Icon-only кнопки (квадратные) */
 body.theme-vk-dark .vk-btn--icon-only {
-  width: var(--vk-h-button-m);
+  width: var(--vk-h-button-m);           /* 40 */
   padding: 0;
 }
+body.theme-vk-dark .vk-btn--icon-only.vk-btn--xs { width: 28px; }
+body.theme-vk-dark .vk-btn--icon-only.vk-btn--s  { width: 32px; }
+body.theme-vk-dark .vk-btn--icon-only.vk-btn--md { width: 36px; }
+
+/* Status-варианты кнопок (по Figma 19:92827) */
+body.theme-vk-dark .vk-btn--success {
+  background: var(--vk-success);         /* #59A840 */
+  color: #fff;
+}
+body.theme-vk-dark .vk-btn--success:hover { background: #4A9033; }
+body.theme-vk-dark .vk-btn--danger {
+  background: var(--vk-error);           /* #CD3544 */
+  color: #fff;
+}
+body.theme-vk-dark .vk-btn--danger:hover { background: #B4303D; }
+
+/* Icons (квадрат) внутри кнопок — берём 16/20px по правилам Figma */
+body.theme-vk-dark .vk-btn-icon {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+body.theme-vk-dark .vk-btn--xs .vk-btn-icon,
+body.theme-vk-dark .vk-btn--s  .vk-btn-icon { width: 16px; height: 16px; }
 
 /* ─── ИНПУТ ─── */
 body.theme-vk-dark .vk-input,
@@ -252,23 +299,129 @@ body.theme-vk-dark header[class*='hdr'] {
   color: var(--vk-text-primary) !important;
 }
 
-/* Все кнопки внутри .hdr-btns / .hdr-burger получают VK-стилизацию */
+/* ─── HEADER ЛОГО — повышенная контрастность ─── */
+body.theme-vk-dark .hdr-brand,
+body.theme-vk-dark [class*='hdr-brand'],
+body.theme-vk-dark .hdr-title-desk,
+body.theme-vk-dark .hdr-title-mob,
+body.theme-vk-dark .hdr-sub {
+  color: var(--vk-text-primary) !important;
+}
+
+/* Eyebrow «✦ Ясна» в верхнем-левом углу — поднимем контрастность */
+body.theme-vk-dark .hdr [style*='color:#0071e3'],
+body.theme-vk-dark .hdr [style*='color: #0071e3'] {
+  color: var(--vk-accent-hover) !important;  /* #16A7FF — VK Play Light Blue */
+}
+
+/* ─── Все кнопки внутри .hdr-btns / .hdr-burger ─── */
+/* Точно по Figma 19:92827 «UI / DarkMode / Button»:
+   Secondary Default: bg #303030, text #F1F1F1, h 40, padding 0/20, radius 8
+   Hover: bg #4A4A4A
+   Font: Inter 14 Semibold (label) или Medium (для compact 32) */
 body.theme-vk-dark .hdr-btns > button,
 body.theme-vk-dark .hdr-burger > button {
-  background: var(--vk-bg-tonal) !important;
-  color: var(--vk-text-primary) !important;
+  background: var(--vk-bg-tonal) !important;     /* #303030 */
+  color: var(--vk-text-primary) !important;       /* #F1F1F1 */
   border: 1px solid var(--vk-border) !important;
-  border-radius: var(--vk-radius-m) !important;
-  height: var(--vk-h-button-m) !important;
+  border-radius: var(--vk-radius-s) !important;   /* 8px по spec */
+  height: var(--vk-h-button-m) !important;        /* 40px */
   min-height: var(--vk-h-button-m) !important;
+  padding: 0 var(--vk-sp-6) !important;           /* 20px */
   font-family: var(--vk-font) !important;
-  font-size: var(--vk-fs-s) !important;
-  font-weight: 500 !important;
-  transition: background var(--vk-trans-fast) !important;
+  font-size: var(--vk-fs-s) !important;           /* 14 */
+  font-weight: 600 !important;                    /* Semibold по Label spec */
+  line-height: var(--vk-lh-s) !important;
+  transition: background var(--vk-trans-fast), border-color var(--vk-trans-fast) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: var(--vk-sp-3) !important;
 }
 body.theme-vk-dark .hdr-btns > button:hover,
 body.theme-vk-dark .hdr-burger > button:hover {
+  background: var(--vk-bg-strong) !important;     /* #4A4A4A */
+}
+body.theme-vk-dark .hdr-btns > button:disabled,
+body.theme-vk-dark .hdr-btns > button[aria-disabled='true'] {
+  color: var(--vk-bg-strong) !important;          /* #4A4A4A — disabled text */
+  cursor: not-allowed !important;
+}
+
+/* Активная (открытая) кнопка в хедере — Primary стиль из Figma:
+   bg rgba(0,119,255,0.1), color #07F (но мы хотим яркий текст для контраста) */
+body.theme-vk-dark .hdr-btns > button[style*='background:#f5f5f7'],
+body.theme-vk-dark .hdr-burger > button[style*='background:#f5f5f7'] {
+  background: var(--vk-accent-soft) !important;
+  color: var(--vk-accent-hover) !important;
+  border-color: var(--vk-accent) !important;
+}
+
+/* ─── Кнопка «Игра» с бейджем NEW (особый style) ─── */
+/* В оригинале — кнопка с оранжевой обводкой и бейджем «NEW».
+   В Dark делаем accent-tint фон, accent-hover текст, accent border — VK Primary Activated */
+body.theme-vk-dark .hdr-btns > button[style*='border:1.5px solid'],
+body.theme-vk-dark .hdr-btns > button[title*='Игра'],
+body.theme-vk-dark .hdr-btns > button[aria-label*='Игра'] {
+  background: var(--vk-accent-soft) !important;   /* rgba(0,119,255,0.1) */
+  color: var(--vk-accent-hover) !important;
+  border: 1px solid var(--vk-accent) !important;
+}
+body.theme-vk-dark .hdr-btns > button[style*='border:1.5px solid']:hover {
+  background: var(--vk-accent) !important;
+  color: #fff !important;
+}
+
+/* Бейдж NEW внутри кнопки игра — VK Play Yellow */
+body.theme-vk-dark .hdr-btns > button [style*='background:#ff9500'],
+body.theme-vk-dark .hdr-btns > button [style*='background: #ff9500'],
+body.theme-vk-dark [style*='NEW'] {
+  background: var(--vk-warn) !important;          /* #FFCA4D */
+  color: #111 !important;
+  font-weight: 700 !important;
+}
+
+/* ─── nav-tabs (под хедером) — pill chips в VK-стиле ─── */
+body.theme-vk-dark .nav-tabs > div:first-child > button {
+  background: var(--vk-bg-tonal) !important;
+  color: var(--vk-text-primary) !important;
+  border: 1px solid transparent !important;
+  border-radius: 100px !important;            /* pill chip как в Figma */
+  height: 32px !important;
+  padding: 0 var(--vk-sp-5) !important;
+  font-size: var(--vk-fs-s) !important;
+  font-weight: 500 !important;
+  font-family: var(--vk-font) !important;
+}
+body.theme-vk-dark .nav-tabs > div:first-child > button:hover {
   background: var(--vk-bg-strong) !important;
+}
+
+/* Активный tab — VK Play Light Blue accent (по аналогии с активным чипом «Все» из Figma) */
+body.theme-vk-dark .nav-tabs > div:first-child > button[style*='rgba(0,113,227'] {
+  background: rgba(0, 119, 255, 0.10) !important;
+  color: var(--vk-accent-hover) !important;
+  border: 1px solid var(--vk-accent-hover) !important;
+  font-weight: 600 !important;
+}
+
+/* «+ Создать» — VK Primary */
+body.theme-vk-dark .nav-tabs button[style*='background:#0071e3'],
+body.theme-vk-dark .nav-tabs button[style*='background: #0071e3'] {
+  background: var(--vk-accent) !important;        /* #0077FF */
+  color: #fff !important;
+  border-radius: 100px !important;
+  height: 32px !important;
+  font-weight: 600 !important;
+}
+body.theme-vk-dark .nav-tabs button[style*='background:#0071e3']:hover {
+  background: var(--vk-accent-hover) !important;  /* #16A7FF */
+}
+
+/* «+ ещё (N)» — Secondary стиль */
+body.theme-vk-dark .nav-tabs button[style*='border:1px dashed'] {
+  background: transparent !important;
+  color: var(--vk-text-secondary) !important;
+  border: 1px dashed var(--vk-border-strong) !important;
 }
 
 /* Burger menu dropdown */
