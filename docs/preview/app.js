@@ -918,26 +918,13 @@ function App(){
         </div>
       </div>
       <div className='nav-tabs' style={{display:'flex',alignItems:'center',padding:'8px 0 8px 20px',background:'var(--bg2)',borderBottom:'1px solid #d2d2d7',flexShrink:0,position:'relative'}}>
-        {/* Механики — закреплённая первая «таблетка» с выпадашкой ВНЕ scroll-контейнера,
-            иначе overflow:auto клипает абсолютный popup. */}
-        <div style={{position:'relative',flexShrink:0,display:'flex',alignItems:'center',marginRight:6}}>
-          <button onClick={()=>setFiltersOpen(o=>!o)} title='Развернуть/свернуть список механик' className='mech-trigger' style={{padding:'7px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:filtersOpen?'rgba(0,113,227,.12)':'transparent',color:filtersOpen||af.length>0?'#0058b8':'var(--txt2)',border:`1px solid ${filtersOpen?'rgba(0,113,227,.45)':'#d2d2d7'}`,cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:6}}>
-            <span style={{fontSize:13,lineHeight:1}}>⊞</span>
-            <span>Механики</span>
-            {af.length>0&&<span style={{fontSize:11,padding:'1px 7px',background:'#0071e3',color:'#fff',borderRadius:8,fontWeight:700,minWidth:18,textAlign:'center'}}>{af.length}</span>}
-            <span style={{fontSize:9,display:'inline-block',transform:filtersOpen?'rotate(180deg)':'none',transition:'transform .2s',opacity:.7}}>▼</span>
-          </button>
-          {filtersOpen && <>
-            <div onClick={()=>setFiltersOpen(false)} style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:55,background:'transparent'}}/>
-            <div className='mech-dropdown' onClick={e=>e.stopPropagation()} style={{position:'absolute',top:'calc(100% + 6px)',left:0,zIndex:56,background:'var(--bg2,#fff)',border:'1px solid var(--border,#d2d2d7)',borderRadius:14,boxShadow:'0 12px 36px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.06)',padding:'10px 12px',minWidth:520,maxWidth:'min(720px, calc(100vw - 40px))',display:'flex',gap:5,flexWrap:'wrap',alignItems:'center',animation:'slideDown .22s ease'}}>
-              {af.length===FL.length?
-                <button onClick={()=>setAf([])} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:'#0071e322',color:'#0071e3',border:'1px solid #0071e355',fontWeight:600,cursor:'pointer'}}>Все</button>
-                :<button onClick={()=>setAf(FL.map(f=>f.id))} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:'transparent',color:'#86868b',border:'1px solid #d2d2d7',cursor:'pointer'}}>Все</button>
-              }
-              {FL.map((f,fi)=>{const a=af.includes(f.id);const prevG=fi>0?FL[fi-1].g:'';const showSep=f.g!==prevG&&fi>0;return<React.Fragment key={f.id}>{showSep&&<div className='sep' style={{width:1,height:18,background:'#d2d2d7',margin:'0 4px',flexShrink:0}}/>}<button onClick={()=>tog(f.id)} title={'Применить фильтр: '+f.l} style={{padding:'6px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:a?`${f.c}22`:'transparent',color:a?f.c:'#86868b',border:`1px solid ${a?f.c+'55':'#d2d2d7'}`,cursor:'pointer',fontWeight:a?600:400,transition:'background .15s, color .15s'}}>{f.l}</button></React.Fragment>;})}
-            </div>
-          </>}
-        </div>
+        {/* Механики — закреплённая первая «таблетка», открывает inline-аккордеон ниже nav-tabs */}
+        <button onClick={()=>setFiltersOpen(o=>!o)} title='Развернуть/свернуть список механик' className='mech-trigger' aria-expanded={filtersOpen} style={{padding:'8px 16px',borderRadius:18,fontSize:14,whiteSpace:'nowrap',background:filtersOpen?'rgba(0,113,227,.12)':'transparent',color:filtersOpen||af.length>0?'#0058b8':'var(--txt2)',border:`1px solid ${filtersOpen?'rgba(0,113,227,.45)':'#d2d2d7'}`,cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:8,flexShrink:0,marginRight:8,fontFamily:'var(--vk-font, var(--sans))'}}>
+          <span style={{fontSize:15,lineHeight:1}}>⊞</span>
+          <span>Механики</span>
+          {af.length>0&&<span style={{fontSize:12,padding:'2px 8px',background:'#0071e3',color:'#fff',borderRadius:9,fontWeight:700,minWidth:20,textAlign:'center',lineHeight:1.2}}>{af.length}</span>}
+          <span style={{fontSize:10,display:'inline-block',transform:filtersOpen?'rotate(180deg)':'none',transition:'transform .25s ease',opacity:.7}}>▼</span>
+        </button>
         {/* Разделитель между Механиками и списком Ясн (вне scroll) */}
         <div style={{width:1,height:20,background:'var(--border,#d2d2d7)',marginRight:6,flexShrink:0}}/>
         <div style={{flex:1,display:'flex',alignItems:'center',gap:4,overflowX:'auto',minWidth:0,scrollbarWidth:'none',msOverflowStyle:'none'}} className="hide-scroll">
@@ -953,7 +940,36 @@ function App(){
         <button className='fab-create mob-only' onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);}} title='Создать новую Ясну' aria-label='Создать новую Ясну' style={{display:'none'}}>+</button>
         </div>
       </div>
-      {/* МЕХАНИКИ — теперь живут в .nav-tabs первой таблеткой с dropdown'ом (см. выше) */}
+      {/* МЕХАНИКИ — inline аккордеон, разворачивается под nav-tabs.
+          Триггер живёт в .nav-tabs (см. выше). Группы по полю g: crosses/pranas/struct/newmech. */}
+      <div className={'mech-accordion'+(filtersOpen?' is-open':'')} aria-hidden={!filtersOpen} style={{flexShrink:0,overflow:'hidden',transition:'max-height .28s cubic-bezier(.16,1,.3,1), opacity .2s ease, padding .2s ease',maxHeight:filtersOpen?'520px':'0px',opacity:filtersOpen?1:0,padding:filtersOpen?'14px 20px 18px':'0 20px',background:'var(--bg2)',borderBottom:filtersOpen?'1px solid var(--border,#e5e5ea)':'1px solid transparent'}}>
+        {/* Top-bar: Все / Сбросить + close */}
+        <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14,flexWrap:'wrap'}}>
+          {af.length===FL.length?
+            <button onClick={()=>setAf([])} className='mech-action' style={{padding:'7px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:'rgba(0,113,227,.14)',color:'#0058b8',border:'1px solid rgba(0,113,227,.45)',fontWeight:600,cursor:'pointer'}}>✓ Все выбраны — снять</button>
+            :<button onClick={()=>setAf(FL.map(f=>f.id))} className='mech-action' style={{padding:'7px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:'transparent',color:'var(--txt2)',border:'1px solid var(--border,#d2d2d7)',cursor:'pointer',fontWeight:500}}>+ Выбрать все ({FL.length})</button>
+          }
+          {af.length>0&&af.length<FL.length&&<button onClick={()=>setAf([])} className='mech-action' style={{padding:'7px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:'transparent',color:'#E8364F',border:'1px solid rgba(232,54,79,.30)',cursor:'pointer',fontWeight:500}}>Сбросить</button>}
+          <div style={{flex:1}}/>
+          <button onClick={()=>setFiltersOpen(false)} aria-label='Свернуть' className='mech-close' style={{width:32,height:32,borderRadius:'50%',background:'transparent',border:'1px solid var(--border,#d2d2d7)',color:'var(--txt2)',fontSize:16,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>×</button>
+        </div>
+        {/* Группы механик */}
+        {[
+          {id:'crosses',label:'Кресты'},
+          {id:'pranas',label:'Стихии · Праны'},
+          {id:'struct',label:'Структурные'},
+          {id:'newmech',label:'Углублённые'}
+        ].map(group=>{
+          const items=FL.filter(f=>f.g===group.id);
+          if(items.length===0)return null;
+          return<div key={group.id} className='mech-group' style={{marginBottom:14}}>
+            <div className='mech-group-eyebrow' style={{fontSize:11,fontWeight:600,letterSpacing:'1.6px',textTransform:'uppercase',color:'var(--txt3, #86868b)',marginBottom:8,fontFamily:'var(--vk-font, var(--sans))'}}>{group.label} <span style={{opacity:.55,fontWeight:500}}>· {items.length}</span></div>
+            <div className='mech-group-chips' style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+              {items.map(f=>{const a=af.includes(f.id);return<button key={f.id} onClick={()=>tog(f.id)} title={'Применить фильтр: '+f.l} className={'mech-chip'+(a?' is-active':'')} style={{padding:'7px 14px',borderRadius:18,fontSize:14,whiteSpace:'nowrap',background:a?`${f.c}22`:'transparent',color:a?f.c:'var(--txt2)',border:`1px solid ${a?f.c+'66':'var(--border, #d2d2d7)'}`,cursor:'pointer',fontWeight:a?600:500,transition:'all .14s ease',fontFamily:'var(--vk-font, var(--sans))'}}>{f.l}</button>;})}
+            </div>
+          </div>;
+        })}
+      </div>
       {/* Ясна² Drill: панель управления внутренней Ясной (только когда mb_yasna2 + клик по полке) */}
       {yasna2Drill!=null&&<div className='drill-bar' style={{padding:'10px 16px',background:'linear-gradient(90deg,rgba(162,28,175,.06),rgba(162,28,175,.02))',borderBottom:'1px solid rgba(162,28,175,.25)',display:'flex',gap:8,alignItems:'center',flexShrink:0,flexWrap:'wrap'}}>
         <button onClick={()=>{setYasna2Drill(null);setDrillEditing(false);}} style={{padding:'6px 14px',borderRadius:9,border:'1px solid #a21caf',background:'#fff',color:'#a21caf',fontWeight:600,fontSize:12.5,cursor:'pointer',display:'flex',alignItems:'center',gap:4}}>← Назад</button>

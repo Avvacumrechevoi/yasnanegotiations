@@ -1093,16 +1093,14 @@ body.theme-vk-dark .nav-tabs button {
   font-weight: 500;
 }
 
-/* Filters bar */
+/* Filters bar (legacy + accordion фон) */
 body.theme-vk-dark .filters,
-body.theme-vk-dark .filters-collapsible,
-body.theme-vk-dark .mech-dropdown {
-  background: var(--vk-bg-elevated) !important;
+body.theme-vk-dark .filters-collapsible {
+  background: var(--vk-bg-surface) !important;
   border-color: var(--vk-border) !important;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.20) !important;
 }
 
-/* Mech-trigger таблетка (закреплённая первой в nav-tabs) */
+/* ─── Mech-trigger таблетка (первая в nav-tabs) ─── */
 body.theme-vk-dark .mech-trigger {
   background: var(--vk-bg-tonal) !important;
   color: var(--vk-text-secondary) !important;
@@ -1113,12 +1111,77 @@ body.theme-vk-dark .mech-trigger:hover {
   background: var(--vk-bg-strong) !important;
   color: var(--vk-text-primary) !important;
 }
-/* Активный mech-trigger (filtersOpen=true OR af.length>0) — детект через rgba(0,113,227,.12) */
+/* Активный mech-trigger — детект через accent rgba */
 body.theme-vk-dark .mech-trigger[style*='rgba(0, 113, 227'] {
   background: var(--vk-accent-soft) !important;
   color: var(--vk-accent-hover) !important;
   border-color: var(--vk-accent) !important;
   box-shadow: 0 0 0 1px rgba(0, 119, 255, 0.20), 0 2px 8px rgba(0, 119, 255, 0.18) !important;
+}
+
+/* ─── Mech accordion (inline expand под nav-tabs) ─── */
+body.theme-vk-dark .mech-accordion {
+  background: var(--vk-bg-surface) !important;
+  border-bottom-color: var(--vk-border) !important;
+}
+body.theme-vk-dark .mech-accordion .mech-group-eyebrow {
+  color: var(--vk-text-tertiary) !important;
+}
+/* Кнопка-действие «Выбрать все / Сбросить» в шапке */
+body.theme-vk-dark .mech-action {
+  background: var(--vk-bg-tonal) !important;
+  color: var(--vk-text-primary) !important;
+  border-color: var(--vk-border) !important;
+  font-family: var(--vk-font);
+}
+body.theme-vk-dark .mech-action:hover {
+  background: var(--vk-bg-strong) !important;
+  border-color: var(--vk-text-tertiary) !important;
+}
+/* Состояние «Все выбраны» — accent-soft */
+body.theme-vk-dark .mech-action[style*='rgba(0, 113, 227'] {
+  background: var(--vk-accent-soft) !important;
+  color: var(--vk-accent-hover) !important;
+  border-color: var(--vk-accent) !important;
+}
+/* Кнопка close × */
+body.theme-vk-dark .mech-close {
+  background: var(--vk-bg-tonal) !important;
+  color: var(--vk-text-secondary) !important;
+  border-color: var(--vk-border) !important;
+}
+body.theme-vk-dark .mech-close:hover {
+  background: var(--vk-bg-strong) !important;
+  color: var(--vk-text-primary) !important;
+}
+/* Чипы внутри групп */
+body.theme-vk-dark .mech-chip {
+  background: var(--vk-bg-tonal) !important;
+  color: var(--vk-text-secondary) !important;
+  border-color: var(--vk-border) !important;
+  font-family: var(--vk-font);
+}
+body.theme-vk-dark .mech-chip:hover {
+  background: var(--vk-bg-strong) !important;
+  color: var(--vk-text-primary) !important;
+}
+/* Активный чип — детект через is-active class */
+body.theme-vk-dark .mech-chip.is-active {
+  font-weight: 700 !important;
+  box-shadow: 0 0 0 1px currentColor, 0 2px 10px rgba(0, 0, 0, 0.30) !important;
+}
+
+/* ─── Mobile (≤768px) — компактнее ─── */
+@media (max-width: 768px) {
+  body.theme-vk-dark .mech-accordion {
+    padding: 12px 14px !important;
+  }
+  body.theme-vk-dark .mech-accordion .mech-group { margin-bottom: 12px; }
+  body.theme-vk-dark .mech-accordion .mech-chip {
+    padding: 6px 12px !important;
+    font-size: 13px !important;
+  }
+  body.theme-vk-dark .mech-trigger { padding: 7px 14px !important; font-size: 13px !important; }
 }
 /* Default = inactive pill (transparent inline bg, font-weight 400) */
 body.theme-vk-dark .filters button {
