@@ -1,4 +1,4 @@
-/* Yasna bundle: app.js — собран 2026-05-08T11:28:54.742Z */
+/* Yasna bundle: app.js — собран 2026-05-08T12:09:55.982Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -8044,6 +8044,23 @@ window.YasnaLessons.LESSONS = LESSONS;
       const data = await this._fetch("/leaderboard?" + qs.toString());
       if (!data) return { items: [], myEntry: null, error: this.lastError };
       return { items: data.items || [], myEntry: data.myEntry || null, error: null };
+    }
+    // GET /profile — агрегация прогресса с сервера. Источник истины,
+    // когда есть user_id (Telegram-логин). Для гостей — fallback на deviceId.
+    // Возвращает { totalBusey, totalMatches, wins, losses, draws, winRate, recentMatches, lastPlayedAt }.
+    async fetchProfile({ userId, deviceId, limit = 20 } = {}) {
+      if (!this.baseUrl) return null;
+      const profile = this._profile();
+      const u = userId || this._userId();
+      const d = deviceId || (profile == null ? void 0 : profile.deviceId);
+      if (!u && !d) return null;
+      const qs = new URLSearchParams();
+      if (u) qs.set("userId", u);
+      else if (d) qs.set("deviceId", d);
+      qs.set("limit", String(limit));
+      const data = await this._fetch("/profile?" + qs.toString());
+      if (!data) return null;
+      return data;
     }
   }
   const leaderboardClient = new YasnaLeaderboardClient();

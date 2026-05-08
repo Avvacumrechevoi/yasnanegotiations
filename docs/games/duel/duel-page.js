@@ -215,16 +215,22 @@
   }
 
   // ─── Profile-Hero (упрощённый — 4 блока) ─────────────────────────
-  function DPProfileHero({ user, profile, onLoginClick }){
+  function DPProfileHero({ user, profile, onLoginClick, remoteProfile }){
     const me = user || profile;
     const isGuest = !user;
-    const busey = totalBusey();
+    const localBusey = totalBusey();
+    // Серверные данные перекрывают локальные если их больше
+    // (например, пользователь играл с другого устройства).
+    const remoteBusey = remoteProfile?.totalBusey || 0;
+    const busey = Math.max(localBusey, remoteBusey);
     const stupen = getStupen(busey);
     const pct = stupen.to === Infinity ? 100 :
       Math.min(100, ((busey - stupen.from) / (stupen.to - stupen.from)) * 100);
     const Storage = _g('YasnaDuelStorage');
     const data = Storage?.getOverallStats?.() || {};
-    const games = data.totals?.matches || data.totals?.played || 0;
+    const localGames = data.totals?.matches || data.totals?.played || 0;
+    const remoteGames = remoteProfile?.totalMatches || 0;
+    const games = Math.max(localGames, remoteGames);
 
     const avatarContent = (typeof me.avatar === 'string' && me.avatar.startsWith('http'))
       ? React.createElement('img', { src: me.avatar, alt: '' })
@@ -1426,6 +1432,28 @@
     const isFirstTime = !user && !profile;
     const onLoginClick = () => setAuthModal(true);
     const onLoggedIn = (u) => { setUser(u); setProfile(_g('YasnaDuelProfile')?.load?.()); setAuthModal(false); };
+
+    // ─── Remote profile sync ───────────────────────────────────────
+    // При логине через Telegram (или при наличии deviceId для гостя)
+    // дёргаем /profile и подмешиваем серверные данные в UI.
+    // Если серверные значения больше — они становятся источником истины
+    // (например пользователь играл с другого устройства).
+    // НЕ перетираем localStorage агрессивно — UI берёт max(local, remote).
+    const [remoteProfile, setRemoteProfile] = useState(null);
+    useEffect(() => {
+      const LB = _g('YasnaLeaderboardClient');
+      if(!LB?.fetchProfile) return;
+      const userId = user?.userId || user?.id || null;
+      const deviceId = profile?.deviceId || null;
+      if(!userId && !deviceId) return;
+      let cancelled = false;
+      LB.fetchProfile({ userId, deviceId, limit: 20 }).then(data => {
+        if(cancelled || !data || data.ok === false) return;
+        setRemoteProfile(data);
+      }).catch(() => {});
+      return () => { cancelled = true; };
+    }, [user, profile?.deviceId]);
+
     const onLogout = () => {
       _g('YasnaDuelAuth')?.logout?.();
       setUser(null);
@@ -1519,7 +1547,7 @@
         ? React.createElement(DPWelcome, { onLoginClick, onAnonStart: () => setAnonModal(true) })
         : React.createElement('main', { id: 'main' },
             React.createElement(DPCastaliaTitle, null),
-            React.createElement(DPProfileHero, { user, profile, onLoginClick }),
+            React.createElement(DPProfileHero, { user, profile, onLoginClick, remoteProfile }),
             React.createElement(DPSyncNotice, { user, onLoginClick }),
             React.createElement(DPMainGames, { onPartiya: askPartiyaMode, onUzor: startUzorPvP }),
             React.createElement(DPQuestsRow, { onEtude: () => startPartiyaWithShadow('easy') }),

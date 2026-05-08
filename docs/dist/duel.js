@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-08T11:28:54.526Z */
+/* Yasna bundle: duel.js — собран 2026-05-08T12:09:55.728Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -3148,6 +3148,23 @@ window.YasnaCore = {
       const data = await this._fetch("/leaderboard?" + qs.toString());
       if (!data) return { items: [], myEntry: null, error: this.lastError };
       return { items: data.items || [], myEntry: data.myEntry || null, error: null };
+    }
+    // GET /profile — агрегация прогресса с сервера. Источник истины,
+    // когда есть user_id (Telegram-логин). Для гостей — fallback на deviceId.
+    // Возвращает { totalBusey, totalMatches, wins, losses, draws, winRate, recentMatches, lastPlayedAt }.
+    async fetchProfile({ userId, deviceId, limit = 20 } = {}) {
+      if (!this.baseUrl) return null;
+      const profile = this._profile();
+      const u = userId || this._userId();
+      const d = deviceId || (profile == null ? void 0 : profile.deviceId);
+      if (!u && !d) return null;
+      const qs = new URLSearchParams();
+      if (u) qs.set("userId", u);
+      else if (d) qs.set("deviceId", d);
+      qs.set("limit", String(limit));
+      const data = await this._fetch("/profile?" + qs.toString());
+      if (!data) return null;
+      return data;
     }
   }
   const leaderboardClient = new YasnaLeaderboardClient();
@@ -7082,16 +7099,20 @@ window.YasnaCore = {
       )
     );
   }
-  function DPProfileHero({ user, profile, onLoginClick }) {
+  function DPProfileHero({ user, profile, onLoginClick, remoteProfile }) {
     var _a, _b, _c;
     const me = user || profile;
     const isGuest = !user;
-    const busey = totalBusey();
+    const localBusey = totalBusey();
+    const remoteBusey = (remoteProfile == null ? void 0 : remoteProfile.totalBusey) || 0;
+    const busey = Math.max(localBusey, remoteBusey);
     const stupen = getStupen(busey);
     const pct = stupen.to === Infinity ? 100 : Math.min(100, (busey - stupen.from) / (stupen.to - stupen.from) * 100);
     const Storage = _g("YasnaDuelStorage");
     const data = ((_a = Storage == null ? void 0 : Storage.getOverallStats) == null ? void 0 : _a.call(Storage)) || {};
-    const games = ((_b = data.totals) == null ? void 0 : _b.matches) || ((_c = data.totals) == null ? void 0 : _c.played) || 0;
+    const localGames = ((_b = data.totals) == null ? void 0 : _b.matches) || ((_c = data.totals) == null ? void 0 : _c.played) || 0;
+    const remoteGames = (remoteProfile == null ? void 0 : remoteProfile.totalMatches) || 0;
+    const games = Math.max(localGames, remoteGames);
     const avatarContent = typeof me.avatar === "string" && me.avatar.startsWith("http") ? React.createElement("img", { src: me.avatar, alt: "" }) : typeof me.avatar === "string" && me.avatar.length > 0 && me.avatar.length <= 4 ? me.avatar : avatarInitials(me.nickname);
     const nextStupenLabel = (() => {
       if (stupen.to === Infinity) return "\u0432\u044B\u0441\u0448\u0430\u044F \u0441\u0442\u0443\u043F\u0435\u043D\u044C";
@@ -8483,6 +8504,23 @@ window.YasnaCore = {
       setProfile((_b = (_a = _g("YasnaDuelProfile")) == null ? void 0 : _a.load) == null ? void 0 : _b.call(_a));
       setAuthModal(false);
     };
+    const [remoteProfile, setRemoteProfile] = useState(null);
+    useEffect(() => {
+      const LB = _g("YasnaLeaderboardClient");
+      if (!(LB == null ? void 0 : LB.fetchProfile)) return;
+      const userId = (user == null ? void 0 : user.userId) || (user == null ? void 0 : user.id) || null;
+      const deviceId = (profile == null ? void 0 : profile.deviceId) || null;
+      if (!userId && !deviceId) return;
+      let cancelled = false;
+      LB.fetchProfile({ userId, deviceId, limit: 20 }).then((data) => {
+        if (cancelled || !data || data.ok === false) return;
+        setRemoteProfile(data);
+      }).catch(() => {
+      });
+      return () => {
+        cancelled = true;
+      };
+    }, [user, profile == null ? void 0 : profile.deviceId]);
     const onLogout = () => {
       var _a, _b;
       (_b = (_a = _g("YasnaDuelAuth")) == null ? void 0 : _a.logout) == null ? void 0 : _b.call(_a);
@@ -8580,7 +8618,7 @@ window.YasnaCore = {
         "main",
         { id: "main" },
         React.createElement(DPCastaliaTitle, null),
-        React.createElement(DPProfileHero, { user, profile, onLoginClick }),
+        React.createElement(DPProfileHero, { user, profile, onLoginClick, remoteProfile }),
         React.createElement(DPSyncNotice, { user, onLoginClick }),
         React.createElement(DPMainGames, { onPartiya: askPartiyaMode, onUzor: startUzorPvP }),
         React.createElement(DPQuestsRow, { onEtude: () => startPartiyaWithShadow("easy") }),
