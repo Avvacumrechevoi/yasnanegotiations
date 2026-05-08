@@ -449,68 +449,110 @@ body.theme-vk-dark h3 {
 }
 
 /* ════════════════════════════════════════════════════════════════════
-   Header Toggle — кнопка переключения темы (правый-верхний угол)
-   Стиль под header-кнопку, на всех страницах. Floating fixed,
-   чтобы не зависеть от React-структуры хедера и не ломать reconciliation.
-   Тот же localStorage key (`yasna_theme_vk_dark`) переиспользуется.
+   10. THEME TOGGLE — два варианта в зависимости от контекста
+   ──────────────────────────────────────────────────────────────────
+   • .dp-theme-toggle--header   — инжектится скриптом в .hdr-btns
+                                  как обычная header-кнопка (рядом с «⤢»)
+   • .dp-theme-toggle--floating — fixed top-right, для mobile / fullstar
+                                  где хедер скрыт. Только иконка на mobile.
    ════════════════════════════════════════════════════════════════════ */
+
+/* Базовый стиль обоих вариантов */
 .dp-theme-toggle {
-  position: fixed;
-  top: 12px;
-  right: 16px;
-  z-index: 1000;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: rgba(255, 255, 255, 0.92);
+  background: #fff;
   color: #1d1d1f;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 8px;
+  border: 1px solid #d2d2d7;
+  border-radius: 10px;
   font-family: 'Inter', system-ui, sans-serif;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
   transition: background 150ms ease, transform 100ms ease, box-shadow 150ms ease;
   white-space: nowrap;
   user-select: none;
+  min-height: 36px;
 }
 .dp-theme-toggle:hover {
-  background: rgba(245, 245, 247, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  background: #f5f5f7;
 }
-.dp-theme-toggle:active {
-  transform: scale(0.97);
-}
-.dp-theme-toggle-icon { font-size: 13px; line-height: 1; }
+.dp-theme-toggle:active { transform: scale(0.97); }
+.dp-theme-toggle-icon { font-size: 14px; line-height: 1; }
 .dp-theme-toggle-label { letter-spacing: 0; }
 
-/* В Dark-теме toggle становится тёмным с лёгкой обводкой */
+/* ─── Header-вариант (внутри .hdr-btns) ─── */
+.dp-theme-toggle--header {
+  /* стили выше уже подходят к header-кнопкам гида */
+}
+
+/* ─── Floating-вариант (top-right, только когда нужен) ─── */
+.dp-theme-toggle--floating {
+  position: fixed;
+  top: 12px;
+  right: 16px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+}
+
+/* На desktop, когда есть header-вариант, floating лучше скрыть
+   (он дублирует функцию). Делаем это через CSS — если в DOM есть
+   .dp-theme-toggle--header, прячем floating через :has() или просто
+   на desktop. Поскольку :has() поддерживается не везде — используем
+   media-query: floating видна только когда header-кнопка скрыта (mobile).
+   На desktop floating ещё нужна для fullstar — но fullstar полностью
+   перекрывает экран, так что toggle поверх остаётся актуален. */
+
+/* Default desktop: показываем обе. Header в шапке, floating слегка
+   правее для дополнительного быстрого доступа на fullstar. */
+
+/* На mobile: header скрыт (через .hdr-btns display:none на mobile),
+   так что floating становится единственным toggle. Сжимаем в иконку. */
+@media (max-width: 767px) {
+  .dp-theme-toggle--floating {
+    top: 8px;
+    right: 8px;
+    padding: 6px 8px;
+    min-height: 32px;
+  }
+  /* Иконка-only на mobile (label скрыт) */
+  .dp-theme-toggle--floating .dp-theme-toggle-label {
+    display: none;
+  }
+  .dp-theme-toggle--floating .dp-theme-toggle-icon {
+    font-size: 16px;
+  }
+  /* Header-вариант на mobile нерелевантен (.hdr-btns display:none) */
+  .dp-theme-toggle--header { display: none; }
+}
+
+/* Desktop: floating дублирует, иногда мешает — спрячем на desktop
+   и оставим только в header. Floating появится снова на mobile через
+   media-query выше. */
+@media (min-width: 768px) {
+  .dp-theme-toggle--floating { display: none; }
+}
+
+/* ─── Dark-вариант для обоих ─── */
 body.theme-vk-dark .dp-theme-toggle {
+  background: var(--bg3);
+  color: var(--txt);
+  border-color: var(--border);
+}
+body.theme-vk-dark .dp-theme-toggle:hover {
+  background: var(--vk-tonal);
+}
+body.theme-vk-dark .dp-theme-toggle--floating {
   background: rgba(33, 33, 33, 0.92);
-  color: #FEFEFE;
   border-color: rgba(255, 255, 255, 0.16);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.30);
 }
-body.theme-vk-dark .dp-theme-toggle:hover {
+body.theme-vk-dark .dp-theme-toggle--floating:hover {
   background: rgba(60, 61, 64, 0.95);
 }
-
-/* Mobile: компактнее, но всё ещё в верхнем-правом углу.
-   На мобильных хедер сжимается, и наш toggle логично туда же. */
-@media (max-width: 767px) {
-  .dp-theme-toggle {
-    top: 8px;
-    right: 8px;
-    padding: 5px 10px;
-    font-size: 11px;
-    border-radius: 6px;
-  }
-  .dp-theme-toggle-icon { font-size: 12px; }
-}
-
-/* На fullstar (полноэкранная звезда) переключатель остаётся видимым,
-   z-index уже 1000 — поверх .fullstar (z:65) и .fullstar-close (z:66) */
