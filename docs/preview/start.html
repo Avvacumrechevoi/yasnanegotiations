@@ -17,7 +17,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet"/>
 
 <style>
-/* ─── VK Tech tokens (inline) ─── */
+/* ─── VK Tech tokens (inline) — единая палитра с дуэлью ─── */
 :root {
   --bg-base:        #0a0b0d;
   --bg-surface:     #131517;
@@ -32,11 +32,16 @@
   --border:         rgba(255, 255, 255, 0.06);
   --border-strong:  rgba(255, 255, 255, 0.10);
 
-  /* Mint/Cyan accent — VK Tech accent-secondary #00D3E6 */
-  --accent:         #00D3E6;
-  --accent-soft:    rgba(0, 211, 230, 0.12);
-  --accent-glow:    rgba(0, 211, 230, 0.20);
-  --accent-text:    #5EEFFB;
+  /* PRIMARY ACCENT — VK Play Blue #0077FF (как в дуэли) */
+  --accent:         #0077FF;
+  --accent-hover:   #16A7FF;          /* VK Play Light Blue */
+  --accent-soft:    rgba(0, 119, 255, 0.12);
+  --accent-glow:    rgba(0, 119, 255, 0.30);
+  --accent-on:      #FFFFFF;          /* текст на синей кнопке */
+
+  /* SECONDARY ACCENT — VK Cyan #00D3E6, только для декоративных glow */
+  --accent-2:       #00D3E6;
+  --accent-2-soft:  rgba(0, 211, 230, 0.10);
 
   --font-sans:      'Inter', system-ui, -apple-system, sans-serif;
   --font-display:   'Manrope', system-ui, sans-serif;
@@ -56,7 +61,7 @@ html, body {
 
 body {
   background:
-    radial-gradient(ellipse 80% 60% at 50% 30%, rgba(0, 211, 230, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 60% at 50% 30%, rgba(0, 119, 255, 0.07) 0%, transparent 60%),
     var(--bg-base);
   background-attachment: fixed;
 }
@@ -94,13 +99,13 @@ body {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--bg-tonal);
+  background: var(--accent-soft);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--accent);
+  color: var(--accent-hover);
   font-size: 18px;
-  border: 1px solid var(--border-strong);
+  border: 1px solid rgba(0, 119, 255, 0.25);
   flex-shrink: 0;
 }
 .s-brand-text { display: flex; flex-direction: column; line-height: 1; }
@@ -142,7 +147,7 @@ body {
   gap: 8px;
   padding: 12px 24px;
   background: var(--accent);
-  color: #0a0b0d;
+  color: var(--accent-on);
   border: none;
   border-radius: 100px;
   font-family: var(--font-sans);
@@ -150,9 +155,14 @@ body {
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
-  transition: background 150ms ease, transform 100ms ease;
+  box-shadow: 0 4px 16px var(--accent-glow);
+  transition: background 150ms ease, transform 100ms ease, box-shadow 150ms ease;
 }
-.s-cta:hover { background: var(--accent-text); transform: translateY(-1px); }
+.s-cta:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px var(--accent-glow);
+}
 .s-cta:active { transform: translateY(0); }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -164,7 +174,7 @@ body {
   margin: 64px auto 0;
   max-width: 1200px;
   padding: 80px 24px;
-  background: linear-gradient(180deg, rgba(0, 211, 230, 0.04) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgba(0, 119, 255, 0.05) 0%, transparent 100%);
   border: 1px solid var(--border);
   border-radius: 32px;
   text-align: center;
@@ -228,13 +238,15 @@ body {
 }
 .s-btn-primary {
   background: var(--accent);
-  color: #0a0b0d;
-  box-shadow: 0 8px 32px rgba(0, 211, 230, 0.30);
+  color: var(--accent-on);
+  box-shadow: 0 8px 32px var(--accent-glow),
+              inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 .s-btn-primary:hover {
-  background: var(--accent-text);
+  background: var(--accent-hover);
   transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(0, 211, 230, 0.45);
+  box-shadow: 0 12px 40px rgba(0, 119, 255, 0.45),
+              inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 .s-btn-secondary {
   background: transparent;
@@ -290,19 +302,19 @@ body {
   transform: translateY(-4px);
   border-color: var(--accent);
   background: var(--bg-elevated);
-  box-shadow: 0 16px 40px rgba(0, 211, 230, 0.10);
+  box-shadow: 0 16px 40px rgba(0, 119, 255, 0.15);
 }
 
 .s-feature-icon {
   width: 64px;
   height: 64px;
   border-radius: 16px;
-  background: linear-gradient(135deg, rgba(0, 211, 230, 0.20) 0%, rgba(0, 211, 230, 0.05) 100%);
+  background: linear-gradient(135deg, rgba(0, 119, 255, 0.22) 0%, rgba(0, 119, 255, 0.06) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 24px;
-  border: 1px solid rgba(0, 211, 230, 0.20);
+  border: 1px solid rgba(0, 119, 255, 0.22);
   position: relative;
 }
 .s-feature-icon::before {
@@ -310,9 +322,9 @@ body {
   position: absolute;
   inset: -1px;
   border-radius: inherit;
-  background: linear-gradient(135deg, rgba(0, 211, 230, 0.40) 0%, transparent 50%);
+  background: linear-gradient(135deg, rgba(0, 119, 255, 0.40) 0%, transparent 50%);
   z-index: -1;
-  filter: blur(8px);
+  filter: blur(10px);
   opacity: 0.5;
   transition: opacity 200ms ease;
 }
