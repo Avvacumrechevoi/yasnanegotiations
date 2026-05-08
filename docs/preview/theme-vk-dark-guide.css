@@ -146,6 +146,16 @@ body.theme-vk-dark svg [fill="#fefefe"] {
   fill: var(--bg2);
 }
 
+/* Фоновая «подложка» SVG-звезды — большой rect на всю canvas — должен
+   быть полностью прозрачным, чтобы звезда сидела прямо на body-фоне
+   и не выделялась тёмным прямоугольником на ещё более тёмном фоне. */
+body.theme-vk-dark .star-svg-wrap svg > rect[fill="#fff"],
+body.theme-vk-dark .star-svg-wrap svg > rect[fill="#ffffff"],
+body.theme-vk-dark .star-area svg > rect[fill="#fff"]:first-of-type,
+body.theme-vk-dark .star-area svg > rect[fill="#ffffff"]:first-of-type {
+  fill: transparent !important;
+}
+
 /* Тёмный текст внутри звезды → светлый */
 body.theme-vk-dark svg [fill="#1d1d1f"],
 body.theme-vk-dark svg [fill="#1f2937"],
