@@ -479,6 +479,179 @@ body.theme-vk-dark [style*='rgb(0,113,227)'] {
   color: var(--vk-accent-hover) !important;
 }
 
+/* Purple toolbar (тоже устарел) → text-secondary / accent */
+/* #a21caf=rgb(162,28,175), #581c87=rgb(88,28,135), #7c3aed=rgb(124,58,237),
+   #9060d0=rgb(144,96,208), #a855f7=rgb(168,85,247), #af52de=rgb(175,82,222) */
+body.theme-vk-dark [style*='rgb(162, 28, 175)'],
+body.theme-vk-dark [style*='rgb(124, 58, 237)'],
+body.theme-vk-dark [style*='rgb(144, 96, 208)'],
+body.theme-vk-dark [style*='rgb(168, 85, 247)'],
+body.theme-vk-dark [style*='rgb(175, 82, 222)'] {
+  color: var(--vk-accent-hover) !important;
+}
+body.theme-vk-dark [style*='rgb(88, 28, 135)'] {
+  color: var(--vk-text-secondary) !important;
+}
+/* Purple borders → accent */
+body.theme-vk-dark [style*='border: 1px solid rgb(162, 28, 175)'],
+body.theme-vk-dark [style*='border:1px solid rgb(162, 28, 175)'],
+body.theme-vk-dark [style*='border-color: rgb(162, 28, 175)'],
+body.theme-vk-dark [style*='border: 1px solid rgb(124, 58, 237)'] {
+  border-color: var(--vk-accent) !important;
+}
+
+/* Range slider — VK accent */
+body.theme-vk-dark input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: var(--vk-bg-tonal) !important;
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  border: none !important;
+}
+body.theme-vk-dark input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--vk-accent);
+  border: 2px solid var(--vk-text-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 119, 255, 0.40);
+}
+body.theme-vk-dark input[type='range']::-moz-range-thumb {
+  width: 18px; height: 18px;
+  background: var(--vk-accent);
+  border: 2px solid var(--vk-text-primary);
+  border-radius: 50%;
+  cursor: pointer;
+}
+body.theme-vk-dark input[type='range']::-moz-range-track {
+  background: var(--vk-bg-tonal);
+  height: 4px;
+  border-radius: 4px;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   Toolbar «Три точки» (settings panel) — над звездой, правый край
+   ────────────────────────────────────────────────────────────────────
+   Открывается по клику на «⋯» в right-toolbar. Содержит slider
+   скорости + 2 кнопки направления (Против / По часовой).
+   Раньше — фиолетовая палитра; теперь VK.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Контейнер панели */
+body.theme-vk-dark [class*='settings-panel'],
+body.theme-vk-dark [class*='SettingsPanel'],
+body.theme-vk-dark [class*='options-panel'] {
+  background: var(--vk-bg-elevated) !important;
+  border: 1px solid var(--vk-border) !important;
+  border-radius: var(--vk-radius-l) !important;
+  box-shadow: var(--vk-elevation-modal) !important;
+  color: var(--vk-text-primary) !important;
+}
+
+/* Eyebrow «СКОРОСТЬ» / «ОДИН ОБОРОТ» — text-secondary, не purple */
+body.theme-vk-dark [class*='settings-panel'] [style*='color:'][style*='font-size'][style*='uppercase'],
+body.theme-vk-dark [class*='SettingsPanel'] [style*='color:'][style*='font-size'][style*='uppercase'] {
+  color: var(--vk-text-secondary) !important;
+}
+
+/* Кнопки направления (Против / По часовой) — secondary tonal */
+body.theme-vk-dark [class*='settings-panel'] button,
+body.theme-vk-dark [class*='SettingsPanel'] button,
+body.theme-vk-dark [class*='options-panel'] button {
+  background: var(--vk-bg-tonal) !important;
+  color: var(--vk-text-primary) !important;
+  border: 1px solid var(--vk-border) !important;
+  border-radius: var(--vk-radius-s) !important;
+  padding: 6px 14px !important;
+  font-family: var(--vk-font) !important;
+  font-size: var(--vk-fs-xs) !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+}
+body.theme-vk-dark [class*='settings-panel'] button:hover,
+body.theme-vk-dark [class*='SettingsPanel'] button:hover {
+  background: var(--vk-bg-strong) !important;
+}
+
+/* «48s/оборот» (значение справа) — accent */
+body.theme-vk-dark [class*='settings-panel'] [style*='font-weight: 600'],
+body.theme-vk-dark [class*='SettingsPanel'] [style*='font-weight: 600'] {
+  color: var(--vk-accent-hover) !important;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   Справка ▼ dropdown menu — открывается по клику в header
+   ────────────────────────────────────────────────────────────────────
+   Это <select> или custom-dropdown с inline стилями. Перебиваем
+   через universal атрибут-селектор.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Открытое выпадающее меню (как правило absolute-позиционированный div) */
+body.theme-vk-dark [class*='dropdown'] [class*='menu'],
+body.theme-vk-dark [class*='Dropdown'] [class*='Menu'],
+body.theme-vk-dark [class*='popover'],
+body.theme-vk-dark [class*='popup'][style*='position: absolute'],
+body.theme-vk-dark [class*='popup'][style*='position:absolute'] {
+  background: var(--vk-bg-elevated) !important;
+  border: 1px solid var(--vk-border) !important;
+  border-radius: var(--vk-radius-l) !important;
+  box-shadow: var(--vk-elevation-modal) !important;
+  color: var(--vk-text-primary) !important;
+}
+
+/* Пункты меню — hover на bg-tonal */
+body.theme-vk-dark [class*='dropdown'] [class*='menu'] button,
+body.theme-vk-dark [class*='dropdown'] [class*='menu'] a,
+body.theme-vk-dark [class*='Dropdown'] [class*='Menu'] button,
+body.theme-vk-dark [class*='Dropdown'] [class*='Menu'] a,
+body.theme-vk-dark [class*='popover'] button,
+body.theme-vk-dark [class*='popover'] a,
+body.theme-vk-dark [class*='popup'][style*='position: absolute'] button,
+body.theme-vk-dark [class*='popup'][style*='position: absolute'] a {
+  background: transparent !important;
+  color: var(--vk-text-primary) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--vk-border) !important;
+  border-radius: 0 !important;
+  height: auto !important;
+  padding: 12px 16px !important;
+  font-family: var(--vk-font) !important;
+  font-size: var(--vk-fs-s) !important;
+  text-align: left !important;
+  width: 100% !important;
+  display: block !important;
+}
+body.theme-vk-dark [class*='dropdown'] [class*='menu'] button:hover,
+body.theme-vk-dark [class*='popup'][style*='position: absolute'] button:hover {
+  background: var(--vk-bg-tonal) !important;
+}
+
+/* Native select — VK стиль (на случай если Справка это <select>) */
+body.theme-vk-dark .hdr select,
+body.theme-vk-dark .hdr-btns select,
+body.theme-vk-dark .hdr select[style*='rgb(255, 255, 255)'] {
+  background: var(--vk-bg-tonal) !important;
+  color: var(--vk-text-primary) !important;
+  border: 1px solid var(--vk-border) !important;
+  border-radius: var(--vk-radius-s) !important;
+  height: var(--vk-h-button-m) !important;
+  padding: 0 var(--vk-sp-7) 0 var(--vk-sp-5) !important;
+  font-family: var(--vk-font) !important;
+  font-size: var(--vk-fs-s) !important;
+  font-weight: 600 !important;
+}
+body.theme-vk-dark .hdr select option,
+body.theme-vk-dark .hdr-btns select option {
+  background: var(--vk-bg-elevated) !important;
+  color: var(--vk-text-primary) !important;
+}
+
 /* ════════════════════════════════════════════════════════════════════
    ТОЧЕЧНЫЕ ПРАВКИ ПО СКРИНШОТУ (сейчас белые)
    ────────────────────────────────────────────────────────────────────
