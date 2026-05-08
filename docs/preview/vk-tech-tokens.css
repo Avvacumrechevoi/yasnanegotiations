@@ -1160,3 +1160,172 @@ body.theme-vk-dark .fi {
   border-color: var(--vk-border) !important;
   box-shadow: var(--vk-elevation-modal);
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   PICKER «Все Ясны» / OverlayPicker — полная тёмная пересборка
+   ────────────────────────────────────────────────────────────────────
+   Скрытые в inline-style цвета React нормализует в rgb()-форму,
+   поэтому селекторы [style*='rgb(...)'] обязательны. Все правила
+   скоупим под .popup-overlay чтобы не задеть остальные модалки.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Внешний оверлей */
+body.theme-vk-dark .popup-overlay {
+  background: rgba(5, 6, 8, 0.72) !important;
+  backdrop-filter: saturate(140%) blur(8px) !important;
+  -webkit-backdrop-filter: saturate(140%) blur(8px) !important;
+}
+
+/* Контейнер picker'а (.picker-inner или > div) */
+body.theme-vk-dark .popup-overlay .picker-inner,
+body.theme-vk-dark .popup-overlay > div {
+  background: var(--vk-bg-surface) !important;
+  border: 1px solid var(--vk-border) !important;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255,255,255,0.02) !important;
+  color: var(--vk-text-primary) !important;
+}
+
+/* HEADER — divider snake-color #f0f0f2 → rgb(240,240,242) */
+body.theme-vk-dark .popup-overlay [style*='border-bottom: 1px solid rgb(240, 240, 242)'],
+body.theme-vk-dark .popup-overlay [style*='border-bottom:1px solid rgb(240, 240, 242)'] {
+  border-bottom-color: var(--vk-border) !important;
+}
+
+/* Заголовок «Все Ясны» (#1d1d1f → rgb(29,29,31)) */
+body.theme-vk-dark .popup-overlay [style*='rgb(29, 29, 31)'] {
+  color: var(--vk-text-primary) !important;
+}
+/* Подзаголовок «Выбрано N из 44» (#86868b → rgb(134,134,139)) */
+body.theme-vk-dark .popup-overlay [style*='rgb(134, 134, 139)'] {
+  color: var(--vk-text-secondary) !important;
+}
+/* Серый «· 11 / · 16» (#aeaeb2 → rgb(174,174,178)) */
+body.theme-vk-dark .popup-overlay [style*='rgb(174, 174, 178)'] {
+  color: var(--vk-text-tertiary) !important;
+}
+
+/* Кнопка-крестик — серый круг */
+body.theme-vk-dark .popup-overlay button[style*='rgb(245, 245, 247)'] {
+  background: var(--vk-bg-tonal) !important;
+  color: var(--vk-text-primary) !important;
+  border: 1px solid var(--vk-border) !important;
+}
+body.theme-vk-dark .popup-overlay button[style*='rgb(245, 245, 247)']:hover {
+  background: var(--vk-bg-strong) !important;
+}
+
+/* SEARCH input — rgb(255,255,255) фон + rgb(210,210,215) бордер */
+body.theme-vk-dark .popup-overlay input[type='text'],
+body.theme-vk-dark .popup-overlay input:not([type]),
+body.theme-vk-dark .popup-overlay input[style*='rgb(255, 255, 255)'] {
+  background: var(--vk-bg-tonal) !important;
+  color: var(--vk-text-primary) !important;
+  border-color: var(--vk-border) !important;
+  caret-color: var(--vk-accent) !important;
+}
+body.theme-vk-dark .popup-overlay input::placeholder {
+  color: var(--vk-text-tertiary) !important;
+}
+body.theme-vk-dark .popup-overlay input:focus {
+  border-color: var(--vk-accent) !important;
+  background: var(--vk-bg-elevated) !important;
+}
+
+/* Search clear-button «✕» круг (#e5e5ea → rgb(229,229,234)) */
+body.theme-vk-dark .popup-overlay button[style*='rgb(229, 229, 234)'] {
+  background: var(--vk-bg-strong) !important;
+  color: var(--vk-text-secondary) !important;
+}
+
+/* ─── ACTION BUTTONS ─── «Выбрать все» / «Только стартовые» / «Снять все» */
+/* Голубой бэкграунд активного состояния (rgba(0,122,255,.08) → rgba(0, 122, 255, 0.08)) */
+body.theme-vk-dark .popup-overlay button[style*='rgba(0, 122, 255, 0.08)'] {
+  background: var(--vk-accent-soft) !important;
+  border-color: rgba(0, 119, 255, 0.40) !important;
+  color: var(--vk-accent-hover) !important;
+}
+/* Голубой бордер (rgba(0,122,255,.3) → rgba(0, 122, 255, 0.3)) — все action кнопки */
+body.theme-vk-dark .popup-overlay button[style*='rgba(0, 122, 255, 0.3)'] {
+  border-color: rgba(0, 119, 255, 0.40) !important;
+  color: var(--vk-accent-hover) !important;
+}
+body.theme-vk-dark .popup-overlay button[style*='rgba(0, 122, 255, 0.3)']:hover {
+  background: var(--vk-accent-soft) !important;
+}
+
+/* Красная «Снять все» (#E8364F → rgba(232,54,79,.3)) — оставляем красной */
+body.theme-vk-dark .popup-overlay button[style*='rgb(232, 54, 79)'],
+body.theme-vk-dark .popup-overlay button[style*='rgba(232, 54, 79, 0.3)'] {
+  color: var(--vk-accent-3, #FF3985) !important;
+  border-color: rgba(255, 57, 133, 0.40) !important;
+}
+body.theme-vk-dark .popup-overlay button[style*='rgba(232, 54, 79, 0.3)']:hover {
+  background: rgba(255, 57, 133, 0.10) !important;
+}
+
+/* ─── CARD-таблетки в гриде ─── */
+
+/* Неактивная карточка-Ясна: фон #f5f5f7 + текст #1d1d1f */
+body.theme-vk-dark .popup-overlay .picker-grid button {
+  background: var(--vk-bg-tonal) !important;
+  color: var(--vk-text-primary) !important;
+  border-color: transparent !important;
+  transition: all 160ms ease !important;
+}
+body.theme-vk-dark .popup-overlay .picker-grid button:hover {
+  background: var(--vk-bg-strong) !important;
+  transform: translateY(-1px);
+}
+
+/* Активная (выбранная) карточка: bg #e6f0fa → rgb(230,240,250) */
+body.theme-vk-dark .popup-overlay .picker-grid button[style*='rgb(230, 240, 250)'] {
+  background: var(--vk-accent-soft) !important;
+  color: var(--vk-accent-hover) !important;
+  border-color: var(--vk-accent) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 0 0 1px var(--vk-accent), 0 4px 14px rgba(0, 119, 255, 0.20) !important;
+}
+
+/* Голубой ✓ маркер на активной карточке (#0071e3 → rgb(0,113,227)) */
+body.theme-vk-dark .popup-overlay .picker-grid button [style*='rgb(0, 113, 227)'] {
+  color: var(--vk-accent-hover) !important;
+}
+
+/* Левая полоска маркер «стартовая» (#0071e3) — синий VK */
+body.theme-vk-dark .popup-overlay .picker-grid button > span:first-child[style*='rgb(0, 113, 227)'] {
+  background: var(--vk-accent) !important;
+  width: 3px !important;
+}
+/* Левая полоска маркер «из рубрикатора» (#30A060 → rgb(48,160,96)) */
+body.theme-vk-dark .popup-overlay [style*='rgb(48, 160, 96)'] {
+  background: #4FC78A !important;
+}
+
+/* ─── LEGEND внизу ─── */
+body.theme-vk-dark .popup-overlay .picker-legend {
+  color: var(--vk-text-tertiary) !important;
+}
+body.theme-vk-dark .popup-overlay .picker-legend [style*='rgb(0, 113, 227)'] {
+  background: var(--vk-accent) !important;
+}
+
+/* «Ничего не найдено» empty state */
+body.theme-vk-dark .popup-overlay [style*='rgb(174, 174, 178)'][style*='center'] {
+  color: var(--vk-text-tertiary) !important;
+}
+
+/* Section eyebrow «СТАРТОВЫЕ · 11» — uppercase счётчик */
+body.theme-vk-dark .popup-overlay [style*='rgb(110, 110, 115)'] {
+  color: var(--vk-text-secondary) !important;
+}
+
+/* Скроллбар внутри списка */
+body.theme-vk-dark .popup-overlay > div > div::-webkit-scrollbar { width: 8px; }
+body.theme-vk-dark .popup-overlay > div > div::-webkit-scrollbar-track { background: transparent; }
+body.theme-vk-dark .popup-overlay > div > div::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+body.theme-vk-dark .popup-overlay > div > div::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.20);
+}
