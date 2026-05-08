@@ -532,14 +532,12 @@ body {
   var VISITED_KEY = 'yasna_visited';
   var THEME_KEY = 'yasna_theme_vk_dark';
 
-  // Skip-логика — если бывал, мгновенно на главную
+  // Авто-скип отключён — лендинг всегда показывается при прямом заходе.
+  // ?reset=1 всё ещё чистит флаг yasna_visited (для отладки).
   try {
     var params = new URLSearchParams(window.location.search);
     if(params.get('reset') === '1'){
       localStorage.removeItem(VISITED_KEY);
-    } else if(localStorage.getItem(VISITED_KEY) === '1'){
-      window.location.replace('index.html?skip-start=1');
-      return;
     }
   } catch(_){}
 
