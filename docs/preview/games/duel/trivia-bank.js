@@ -260,19 +260,51 @@
       hint:'«Сутки Рыболова» — финальная глава, где все темы сходятся в единую картину.' },
   ];
 
+  // ═══ ИСТОЧНИК КОНТЕНТА ═════════════════════════════════════════════
+  // Если подгружен content.bundle.js (window.YasnaContent) и в нём ≥6 тем
+  // и ≥18 single-choice вопросов — переключаемся полностью на новый банк.
+  // Иначе работает legacy-хардкод выше (back-compat пока банк наполняется).
+  //
+  // Это даёт плавный переход: по мере добавления тем T2…T10 в content/,
+  // движок автоматически перейдёт на атомизированный контент.
+  // ───────────────────────────────────────────────────────────────────
+  const NEW = (typeof window !== 'undefined' && window.YasnaContent) || null;
+  const NEW_THEMES = NEW?.THEMES || [];
+  const NEW_QUESTIONS = NEW?.QUESTIONS || [];
+  const NEW_QUESTIONS_FULL = NEW?.QUESTIONS_FULL || [];
+  const NEW_ATOMS = NEW?.ATOMS || [];
+
+  const useNew = NEW_THEMES.length >= 6 && NEW_QUESTIONS.length >= 18;
+
+  const ACTIVE_THEMES = useNew ? NEW_THEMES : THEMES;
+  const ACTIVE_QUESTIONS = useNew ? NEW_QUESTIONS : QUESTIONS;
+
+  if(NEW){
+    console.log('[YasnaTrivia] Контент-bundle:',
+      NEW.buildInfo?.themes, 'тем,',
+      NEW.buildInfo?.questionsTotal, 'вопросов (single-choice:',
+      NEW.buildInfo?.questionsLegacy + ').',
+      useNew ? 'Используется новый банк.' : 'Банк ещё мал — fallback на legacy.'
+    );
+  }
+
   // ─── API ────────────────────────────────────────────────────
-  function getThemes(){ return THEMES; }
-  function getTheme(id){ return THEMES.find(t => t.id === id); }
-  function getQuestionsForTheme(themeId){ return QUESTIONS.filter(q => q.theme === themeId); }
-  function getAllQuestions(){ return QUESTIONS; }
+  function getThemes(){ return ACTIVE_THEMES; }
+  function getTheme(id){ return ACTIVE_THEMES.find(t => t.id === id); }
+  function getQuestionsForTheme(themeId){ return ACTIVE_QUESTIONS.filter(q => q.theme === themeId); }
+  function getAllQuestions(){ return ACTIVE_QUESTIONS; }
+
+  // Атомы и расширенный банк — только из нового контента, для будущего движка
+  function getAtoms(){ return NEW_ATOMS; }
+  function getQuestionsFull(){ return NEW_QUESTIONS_FULL; }
 
   // Случайный набор для партии: 6 тем × 3 вопроса = 18 вопросов
   function generatePartiya(seed){
     const rng = seedRandom(seed || Date.now());
-    const shuffled = [...THEMES].sort(() => rng() - 0.5);
+    const shuffled = [...ACTIVE_THEMES].sort(() => rng() - 0.5);
     const chosen = shuffled.slice(0, 6);
     return chosen.map(theme => {
-      const themeQs = QUESTIONS.filter(q => q.theme === theme.id);
+      const themeQs = ACTIVE_QUESTIONS.filter(q => q.theme === theme.id);
       const shQ = [...themeQs].sort(() => rng() - 0.5);
       return { theme, questions: shQ.slice(0, 3) };
     });
@@ -284,7 +316,13 @@
   }
 
   window.YasnaTrivia = {
-    THEMES, QUESTIONS,
-    getThemes, getTheme, getQuestionsForTheme, getAllQuestions, generatePartiya
+    THEMES: ACTIVE_THEMES,
+    QUESTIONS: ACTIVE_QUESTIONS,
+    getThemes, getTheme, getQuestionsForTheme, getAllQuestions, generatePartiya,
+    // расширенный API (новый контент)
+    getAtoms, getQuestionsFull,
+    // флаг для UI: показывать ли «Атомизированный контент» индикатор
+    isUsingNewBank: useNew,
+    contentVersion: NEW?.version || 'legacy-1.0'
   };
 })();

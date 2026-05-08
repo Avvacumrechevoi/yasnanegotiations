@@ -69,6 +69,7 @@ const DUEL_FILES = [
   'games/duel/duel-game-quiz.js',
   'games/duel/duel-game-mirror.js',
   'games/duel/duel-game-speed.js',
+  'games/duel/content.bundle.js',  // ← АВТОГЕН из content/*.json (build-content.mjs)
   'games/duel/trivia-bank.js',
   'games/duel/turnir-engine.js',
   'games/duel/rt-firebase.js',
