@@ -176,9 +176,9 @@
           }, '?'),
           helpOpen && React.createElement('div', { className: 'dp-help-popover' },
             React.createElement('h4', null, 'Как это работает'),
-            React.createElement('div', null, 'Партия — игровая викторина из 18 вопросов на 6 тем модели Ясны. Соперник — Тень-бот или живой собеседник по ссылке.'),
+            React.createElement('div', null, 'Партия — игровая викторина по модели Ясны Суток. Выбираешь длину (Блиц 10 / Стандарт 18 / Эксперт 30) и соперника (Тень-бот или живой друг). 5 типов заданий, разбор ошибок с цитатами из книги в финале.'),
             React.createElement('ul', null,
-              React.createElement('li', null, React.createElement('strong', null, 'Бусины ✦'), ' — очки за партии. +10 за верный ответ, +5 бонус за скорость.'),
+              React.createElement('li', null, React.createElement('strong', null, 'Бусины ✦'), ' — очки за партии. +10 за верный ответ, +5 бонус за скорость, ×1.2…×2.0 множитель за серию.'),
               React.createElement('li', null, React.createElement('strong', null, 'Ступень'), ' — твой уровень. Растёт по бусинам: от Послушника до Магистра.'),
               React.createElement('li', null, React.createElement('strong', null, 'Освоение тем'), ' — карта 9 тем «Ясны Суток» с твоим прогрессом.'),
               React.createElement('li', null, React.createElement('strong', null, 'Топ недели'), ' — лидерборд по бусинам, обнуляется в субботу 23:59.')
@@ -247,7 +247,7 @@
       React.createElement('div', { className: 'dp-welcome-eyebrow' }, '✦  Тренажёр Ясны'),
       React.createElement('h1', { className: 'dp-welcome-title' }, 'Ясна —', React.createElement('br'), 'мастерство в игре.'),
       React.createElement('p', { className: 'dp-welcome-sub' },
-        'Учись модели Ясны через короткие партии-викторины. 18 вопросов на 6 тем, по 4 варианта ответа. Соперник — Тень-бот или живой друг по ссылке. За верный ответ — 10 бусин, за быстрый — до 5 бонусных.'
+        'Учись модели Ясны Суток через игровые партии. 9 тем · 124 вопроса · 5 типов заданий. Выбираешь длину (Блиц 10 / Стандарт 18 / Эксперт 30) и соперника — Тень-бот или живой друг по ссылке. За верный ответ — 10 бусин, до +5 за скорость, серия из 3+ верных даёт множитель.'
       ),
       React.createElement('div', { className: 'dp-welcome-actions' },
         React.createElement('button', { className: 'dp-btn dp-btn-cta', onClick: onLoginClick }, 'Войти через Telegram'),
@@ -419,17 +419,17 @@
           'Две игровые практики'
         ),
         React.createElement('p', { className: 'dp-section-desc', style: { marginTop: 6 } },
-          React.createElement('strong', { style: { color: 'var(--text-1)', fontWeight: 500 } }, 'Партия'), ' — викторина из 18 вопросов на 6 тем. Соло против Тени или вдвоём по ссылке. ',
+          React.createElement('strong', { style: { color: 'var(--text-1)', fontWeight: 500 } }, 'Партия'), ' — викторина по модели Ясны Суток (9 тем, 124 вопроса). Выбираешь длительность от 10 до 30 вопросов и соперника. ',
           React.createElement('strong', { style: { color: 'var(--text-1)', fontWeight: 500 } }, 'Расклад'), ' — гонка: расставить 12 элементов по местам быстрее соперника.'
         )
       ),
-      // ─── Dark: VK-Scheme — как устроена Партия (4 шага) ───
+      // ─── Dark: VK-Scheme — как устроена Партия (5 шагов) ───
       React.createElement('div', { className: 'vk-scheme-block', style: { marginBottom: 'var(--space-5)' } },
         React.createElement('div', { className: 'vk-scheme' },
           React.createElement('div', { className: 'vk-scheme-canvas' },
             React.createElement('div', { className: 'vk-scheme-header' },
               React.createElement('h3', { className: 'vk-scheme-header-title' }, 'Как проходит одна Партия'),
-              React.createElement('span', { className: 'vk-scheme-tag vk-scheme-tag--accent' }, '~5 минут')
+              React.createElement('span', { className: 'vk-scheme-tag vk-scheme-tag--accent' }, 'Блиц / Стандарт / Эксперт')
             ),
             React.createElement('ol', { className: 'vk-scheme-steps' },
               React.createElement('li', { className: 'vk-scheme-step' },
@@ -437,8 +437,8 @@
                   React.createElement('div', { className: 'vk-scheme-num-inner' }, '01')
                 ),
                 React.createElement('div', { className: 'vk-scheme-desc' },
-                  React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Выбор соперника'),
-                  React.createElement('div', { className: 'vk-scheme-desc-text' }, 'Тень (бот) или живой собеседник по ссылке-комнате')
+                  React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Выбор длительности и тем'),
+                  React.createElement('div', { className: 'vk-scheme-desc-text' }, '10 / 18 / 30 вопросов · можно оставить все темы или выбрать узко')
                 )
               ),
               React.createElement('li', { className: 'vk-scheme-step' },
@@ -446,8 +446,8 @@
                   React.createElement('div', { className: 'vk-scheme-num-inner' }, '02')
                 ),
                 React.createElement('div', { className: 'vk-scheme-desc' },
-                  React.createElement('div', { className: 'vk-scheme-desc-title' }, '18 вопросов · 6 тем по 3'),
-                  React.createElement('div', { className: 'vk-scheme-desc-text' }, '4 варианта ответа на каждом шаге, таймер бежит')
+                  React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Соперник — Тень или друг'),
+                  React.createElement('div', { className: 'vk-scheme-desc-text' }, 'Бот разной силы или живой собеседник по ссылке-комнате')
                 )
               ),
               React.createElement('li', { className: 'vk-scheme-step' },
@@ -455,8 +455,8 @@
                   React.createElement('div', { className: 'vk-scheme-num-inner' }, '03')
                 ),
                 React.createElement('div', { className: 'vk-scheme-desc' },
-                  React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Бусины: +10 за верный · до +5 за скорость'),
-                  React.createElement('div', { className: 'vk-scheme-desc-text' }, 'Точность важнее темпа: правильный ответ всегда дороже быстрого')
+                  React.createElement('div', { className: 'vk-scheme-desc-title' }, '5 типов вопросов · таймер'),
+                  React.createElement('div', { className: 'vk-scheme-desc-text' }, 'Выбор из 4 · «верно/нет» · впиши слово · несколько верных · соедини пары')
                 )
               ),
               React.createElement('li', { className: 'vk-scheme-step' },
@@ -464,8 +464,17 @@
                   React.createElement('div', { className: 'vk-scheme-num-inner' }, '04')
                 ),
                 React.createElement('div', { className: 'vk-scheme-desc' },
-                  React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Запись в Хронику и Партитуру'),
-                  React.createElement('div', { className: 'vk-scheme-desc-text' }, 'Партия попадает в твою историю, мастерство по темам растёт')
+                  React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Бусины · streak ×1.2…×2.0'),
+                  React.createElement('div', { className: 'vk-scheme-desc-text' }, '+10 за верный, до +5 за скорость. 3/5/7 верных подряд — множитель')
+                )
+              ),
+              React.createElement('li', { className: 'vk-scheme-step' },
+                React.createElement('div', { className: 'vk-scheme-num' },
+                  React.createElement('div', { className: 'vk-scheme-num-inner' }, '05')
+                ),
+                React.createElement('div', { className: 'vk-scheme-desc' },
+                  React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Финал · разбор с цитатами'),
+                  React.createElement('div', { className: 'vk-scheme-desc-text' }, 'Каждая ошибка — с дословной цитатой из книги. Партитура освоения растёт')
                 )
               )
             )
@@ -570,6 +579,7 @@
     const data = Storage?.getOverallStats?.() || {};
     const masteryByTheme = data.masteryByTheme || {};
     const opened = themes.filter(t => (masteryByTheme[t.id] || 0) > 0).length;
+    const isFresh = opened === 0;
 
     // Текущая тема — та, что максимально освоена но < 100, либо первая открытая.
     const sortedByMastery = themes.map(t => ({ ...t, pct: masteryByTheme[t.id] || 0 })).sort((a, b) => b.pct - a.pct);
@@ -578,10 +588,13 @@
     return React.createElement('section', { className: 'dp-section', role: 'region', 'aria-label': 'Освоение тем' },
       React.createElement('div', { className: 'dp-section-h-row' },
         React.createElement('h2', { className: 'dp-section-h' }, IconGrid(), ' Освоение тем'),
-        React.createElement('span', { className: 'dp-section-h-sub' }, 'Открыто ', opened, ' из ', themes.length)
+        React.createElement('span', { className: 'dp-section-h-sub' },
+          isFresh ? 'Сыграй первую Партию' : ('Открыто ' + opened + ' из ' + themes.length))
       ),
       React.createElement('p', { className: 'dp-section-desc' },
-        '9 тем модели «Сутки». Мастерство по теме растёт от верных ответов в Партиях. Чем чаще тема выпадала — тем шире прогресс.'
+        isFresh
+          ? 'Карта 9 тем модели Ясны Суток. Темы открываются по мере того, как ты отвечаешь на их вопросы в Партиях. Чем чаще тема выпадает и чем больше верных ответов — тем выше мастерство.'
+          : '9 тем модели «Сутки». Мастерство по теме растёт от верных ответов в Партиях. Чем чаще тема выпадала — тем шире прогресс.'
       ),
       React.createElement('div', { className: 'dp-partitura' },
         themes.map(t => {
