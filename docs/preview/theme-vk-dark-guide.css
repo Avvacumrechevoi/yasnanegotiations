@@ -105,18 +105,77 @@ body.theme-vk-dark .fullstar-close:hover {
   background: var(--vk-tonal) !important;
 }
 
-/* ─── Звезда / SVG ─── */
-body.theme-vk-dark svg path[fill="#fff"],
-body.theme-vk-dark svg path[fill="#ffffff"],
-body.theme-vk-dark svg circle[fill="#fff"],
-body.theme-vk-dark svg circle[fill="#ffffff"],
-body.theme-vk-dark svg rect[fill="#fff"],
-body.theme-vk-dark svg rect[fill="#ffffff"] {
-  fill: var(--bg);
+/* ═══════════════════════════════════════════════════════════════════
+   Звезда (SVG) · полная dark-палитра
+   Источник: core/yasna-star.js — много hardcoded fill/stroke цветов.
+   Стратегия: белые/светлые → bg-surface, тёмные → text-primary.
+   Семантические (red/green/blue/purple) оставляем — они видны на тёмном.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Светлые fill (фон ячеек) → тёмный surface */
+body.theme-vk-dark svg [fill="#fff"],
+body.theme-vk-dark svg [fill="#ffffff"],
+body.theme-vk-dark svg [fill="#FFFFFF"],
+body.theme-vk-dark svg [fill="#fefefe"] {
+  fill: var(--bg2);
 }
+
+/* Тёмный текст внутри звезды → светлый */
+body.theme-vk-dark svg [fill="#1d1d1f"],
+body.theme-vk-dark svg [fill="#1f2937"],
+body.theme-vk-dark svg [fill="#000"],
+body.theme-vk-dark svg [fill="#000000"] {
+  fill: var(--txt);
+}
+
+/* Серые fill (нейтральные подписи) → middle-tone */
+body.theme-vk-dark svg [fill="#86868b"],
+body.theme-vk-dark svg [fill="#6e6e73"] {
+  fill: var(--txt2);
+}
+
+/* Светлые stroke (сетка) → почти прозрачный белый */
+body.theme-vk-dark svg [stroke="#fff"],
+body.theme-vk-dark svg [stroke="#ffffff"],
+body.theme-vk-dark svg [stroke="#eee"],
+body.theme-vk-dark svg [stroke="#ececee"],
+body.theme-vk-dark svg [stroke="#e4e4e8"],
+body.theme-vk-dark svg [stroke="#d8d8dd"],
+body.theme-vk-dark svg [stroke="#d2d2d7"],
+body.theme-vk-dark svg [stroke="#d0d0d5"],
+body.theme-vk-dark svg [stroke="#c8c8cd"],
+body.theme-vk-dark svg [stroke="#b8b8be"] {
+  stroke: rgba(255, 255, 255, 0.16);
+}
+
+/* Серые stroke (нейтральные) → text-tertiary */
+body.theme-vk-dark svg [stroke="#86868b"],
 body.theme-vk-dark svg [stroke="#1d1d1f"],
 body.theme-vk-dark svg [stroke="#000"] {
-  stroke: var(--txt);
+  stroke: var(--txt2);
+}
+
+/* Полупрозрачные акценты на тёмном — повысим яркость для контраста */
+body.theme-vk-dark svg path[opacity],
+body.theme-vk-dark svg circle[opacity],
+body.theme-vk-dark svg rect[opacity] {
+  /* fill уже на месте; даём чуть больше яркости через mix-blend на тёмном */
+}
+
+/* SVG-элементы с inline `style="fill:#fff"` ловятся через атрибут-селектор */
+body.theme-vk-dark svg [style*='fill:#fff'],
+body.theme-vk-dark svg [style*='fill: #fff'] {
+  fill: var(--bg2) !important;
+}
+body.theme-vk-dark svg [style*='stroke:#fff'],
+body.theme-vk-dark svg [style*='stroke: #fff'] {
+  stroke: rgba(255, 255, 255, 0.16) !important;
+}
+
+/* Canvas (Three.js 3D-звезда) — фон вокруг GL-области делаем тёмным.
+   Сама GL-сцена может иметь свой clearColor — это вне CSS. */
+body.theme-vk-dark canvas {
+  background: var(--bg) !important;
 }
 
 /* ─── Popup overlays / modals ─── */
@@ -241,53 +300,68 @@ body.theme-vk-dark h3 {
 }
 
 /* ════════════════════════════════════════════════════════════════════
-   FAB Toggle — кнопка переключения темы (правый-нижний угол)
-   Тот же стиль что в дуэли, переиспользует тот же localStorage key.
+   Header Toggle — кнопка переключения темы (правый-верхний угол)
+   Стиль под header-кнопку, на всех страницах. Floating fixed,
+   чтобы не зависеть от React-структуры хедера и не ломать reconciliation.
+   Тот же localStorage key (`yasna_theme_vk_dark`) переиспользуется.
    ════════════════════════════════════════════════════════════════════ */
 .dp-theme-toggle {
   position: fixed;
-  right: 24px;
-  bottom: 24px;
+  top: 12px;
+  right: 16px;
   z-index: 1000;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  background: rgba(33, 33, 33, 0.92);
-  color: #FEFEFE;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 999px;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #1d1d1f;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
   font-family: 'Inter', system-ui, sans-serif;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.30);
-  transition: transform 150ms ease, background 150ms ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+  transition: background 150ms ease, transform 100ms ease, box-shadow 150ms ease;
+  white-space: nowrap;
+  user-select: none;
 }
 .dp-theme-toggle:hover {
-  transform: translateY(-2px);
-  background: rgba(60, 61, 64, 0.95);
+  background: rgba(245, 245, 247, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 .dp-theme-toggle:active {
-  transform: translateY(0);
+  transform: scale(0.97);
 }
-.dp-theme-toggle-icon { font-size: 14px; }
+.dp-theme-toggle-icon { font-size: 13px; line-height: 1; }
 .dp-theme-toggle-label { letter-spacing: 0; }
 
-/* В Light-теме toggle светлее */
-body:not(.theme-vk-dark) .dp-theme-toggle {
-  background: rgba(255, 255, 255, 0.95);
-  color: #1d1d1f;
-  border-color: rgba(0, 0, 0, 0.12);
+/* В Dark-теме toggle становится тёмным с лёгкой обводкой */
+body.theme-vk-dark .dp-theme-toggle {
+  background: rgba(33, 33, 33, 0.92);
+  color: #FEFEFE;
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.30);
+}
+body.theme-vk-dark .dp-theme-toggle:hover {
+  background: rgba(60, 61, 64, 0.95);
 }
 
+/* Mobile: компактнее, но всё ещё в верхнем-правом углу.
+   На мобильных хедер сжимается, и наш toggle логично туда же. */
 @media (max-width: 767px) {
   .dp-theme-toggle {
-    right: 12px;
-    bottom: 78px; /* выше чем mobile nav-tabs (54px + safe-area) */
-    padding: 8px 12px;
-    font-size: 12px;
+    top: 8px;
+    right: 8px;
+    padding: 5px 10px;
+    font-size: 11px;
+    border-radius: 6px;
   }
+  .dp-theme-toggle-icon { font-size: 12px; }
 }
+
+/* На fullstar (полноэкранная звезда) переключатель остаётся видимым,
+   z-index уже 1000 — поверх .fullstar (z:65) и .fullstar-close (z:66) */

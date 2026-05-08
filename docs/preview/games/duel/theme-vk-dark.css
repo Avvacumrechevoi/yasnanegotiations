@@ -218,41 +218,56 @@ body.theme-vk-dark .tn-final-stat {
               color var(--duration-base) ease-out;
 }
 
-/* ═══ Кнопка-переключатель темы (видна только в preview) ═══ */
+/* ═══ Кнопка-переключатель темы — header-стиль (top-right) ═══
+   Унифицировано с гидом (theme-vk-dark-guide.css). Позиция top-right
+   чтобы выглядеть как header-кнопка, единая на всех страницах. */
 .dp-theme-toggle {
   position: fixed;
-  right: var(--space-4);
-  bottom: var(--space-4);
-  z-index: 9999;
+  top: 12px;
+  right: 16px;
+  z-index: 1000;
   display: inline-flex; align-items: center; gap: 6px;
-  padding: 8px 12px;
-  background: var(--bg-surface);
-  border: 0.5px solid var(--border-1);
-  border-radius: 100px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
   font: inherit; font-size: 12px; font-weight: 500;
-  color: var(--text-2);
+  color: #1d1d1f;
   cursor: pointer;
-  box-shadow: var(--shadow-md);
-  transition: all var(--duration-fast);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+  transition: background 150ms ease, transform 100ms ease, box-shadow 150ms ease;
+  white-space: nowrap;
+  user-select: none;
 }
 .dp-theme-toggle:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-lg);
-  color: var(--text-1);
+  background: rgba(245, 245, 247, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
-.dp-theme-toggle-icon {
-  font-size: 14px;
-  line-height: 1;
+.dp-theme-toggle:active { transform: scale(0.97); }
+.dp-theme-toggle-icon { font-size: 13px; line-height: 1; }
+.dp-theme-toggle-label { letter-spacing: 0; }
+
+/* В Dark-теме toggle становится тёмным */
+body.theme-vk-dark .dp-theme-toggle {
+  background: rgba(33, 33, 33, 0.92);
+  color: #FEFEFE;
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.30);
 }
-.dp-theme-toggle-label {
-  letter-spacing: 0.02em;
+body.theme-vk-dark .dp-theme-toggle:hover {
+  background: rgba(60, 61, 64, 0.95);
 }
+
 @media (max-width: 600px) {
   .dp-theme-toggle {
-    right: 12px; bottom: 12px;
-    padding: 6px 10px;
+    top: 8px; right: 8px;
+    padding: 5px 10px;
     font-size: 11px;
+    border-radius: 6px;
   }
+  .dp-theme-toggle-icon { font-size: 12px; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -829,11 +844,8 @@ body.theme-vk-dark .tn-final-btn-primary {
   border-color: var(--accent);
 }
 
-/* Theme toggle FAB — pill в VK-стиле */
-body.theme-vk-dark .dp-theme-toggle {
-  border-radius: var(--vk-radius-pill);
-  border-color: var(--border-1);
-}
+/* Theme toggle — основные стили в начале файла (line 222),
+   здесь только VK font-family унификация (если уже подключены VK-fonts) */
 
 /* Кнопка-дискорд "Сдаться" — pill */
 body.theme-vk-dark .tn-quit {
@@ -1317,13 +1329,8 @@ body.theme-vk-dark .tn-container-final {
     font-size: 13px;
     line-height: 18px;
   }
-  /* FAB-переключатель чуть меньше */
-  body.theme-vk-dark .dp-theme-toggle {
-    right: 16px;
-    bottom: 16px;
-    padding: 8px 12px;
-    font-size: 12px;
-  }
+  /* Toggle — позиция теперь в основном правиле .dp-theme-toggle (top-right),
+     mobile-override без bottom/right (они уже в основном правиле). */
   /* Sync notice стопка */
   body.theme-vk-dark .dp-sync-notice {
     flex-direction: column;
@@ -1338,10 +1345,10 @@ body.theme-vk-dark .tn-container-final {
    DESKTOP LARGE · ≥1280px — финальные правки для широких экранов
    ═══════════════════════════════════════════════════════════════════ */
 @media (min-width: 1280px) {
-  /* На больших экранах FAB чуть отступает от края */
+  /* На больших экранах toggle чуть отступает от края (top-right) */
   body.theme-vk-dark .dp-theme-toggle {
-    right: 32px;
-    bottom: 32px;
+    top: 16px;
+    right: 24px;
   }
 }
 
