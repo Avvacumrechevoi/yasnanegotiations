@@ -113,14 +113,135 @@
     );
   }
 
-  // ─── Question ────────────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════
+  // Question — декомпозиция UI на компоненты
+  // ═══════════════════════════════════════════════════════════════════
+
+  // ─── Прогресс по партии (1/18) ──────────────────────────────────
+  function TnGameProgress({ qOverall, totalOverall }){
+    const pct = ((qOverall + 1) / totalOverall) * 100;
+    return React.createElement('div', { className: 'tn-game-progress', role: 'progressbar', 'aria-valuenow': qOverall + 1, 'aria-valuemax': totalOverall },
+      React.createElement('div', { className: 'tn-game-progress-fill', style: { width: pct + '%' } })
+    );
+  }
+
+  // ─── Шапка с двумя сторонами и счётом ───────────────────────────
+  function TnVsHeader({ player, scoreP, opponent, scoreO }){
+    return React.createElement('div', { className: 'tn-vs-header' },
+      React.createElement('div', { className: 'tn-vs-side' },
+        React.createElement('div', { className: 'tn-vs-avatar' }, renderTnAvatar(player.avatar, player.nickname)),
+        React.createElement('div', { className: 'tn-vs-info' },
+          React.createElement('div', { className: 'tn-vs-name' }, player.nickname),
+          React.createElement('div', { className: 'tn-vs-score' }, scoreP, ' бусин')
+        )
+      ),
+      React.createElement('div', { className: 'tn-vs-divider' }, 'vs'),
+      React.createElement('div', { className: 'tn-vs-side tn-vs-side-right' },
+        React.createElement('div', { className: 'tn-vs-avatar' }, opponent.glyph || renderTnAvatar(opponent.avatar, opponent.name) || '◐'),
+        React.createElement('div', { className: 'tn-vs-info' },
+          React.createElement('div', { className: 'tn-vs-name' }, opponent.name || 'Тень'),
+          React.createElement('div', { className: 'tn-vs-score' }, scoreO, ' бусин')
+        )
+      )
+    );
+  }
+
+  // ─── Прогресс-бар обратного отсчёта по времени ──────────────────
+  // Заполняется на 100% в начале, уменьшается до 0% за QUESTION_TIME сек.
+  // Цвет меняется: зелёный → оранжевый → красный (последние секунды).
+  function TnTimerBar({ timeLeft, paused }){
+    const pct = (timeLeft / QUESTION_TIME) * 100;
+    let cls = 'tn-timer-fill';
+    if(timeLeft <= 5) cls += ' tn-timer-warn';
+    if(timeLeft <= 2) cls += ' tn-timer-danger';
+    if(paused) cls += ' tn-timer-paused';
+    return React.createElement('div', { className: 'tn-timer-bar', role: 'timer', 'aria-label': 'Осталось ' + timeLeft + ' секунд' },
+      React.createElement('div', { className: cls, style: { width: pct + '%' } })
+    );
+  }
+
+  // ─── Карточка вопроса (тема + текст) ────────────────────────────
+  function TnQuestionCard({ qOverall, totalOverall, themeName, text, timeLeft, showFeedback }){
+    return React.createElement('article', { className: 'tn-q-card' },
+      React.createElement('div', { className: 'tn-q-meta' },
+        React.createElement('span', { className: 'tn-q-meta-num' }, 'Вопрос ', qOverall + 1, ' / ', totalOverall),
+        React.createElement('span', { className: 'tn-q-meta-dot' }, '·'),
+        React.createElement('span', { className: 'tn-q-meta-theme' }, themeName),
+        !showFeedback && React.createElement('span', { className: 'tn-q-meta-time' },
+          React.createElement('span', { 'aria-hidden': 'true' }, '◷ '), timeLeft, ' с'
+        )
+      ),
+      React.createElement('h2', { className: 'tn-q-text' }, text)
+    );
+  }
+
+  // ─── Кнопка варианта ответа ─────────────────────────────────────
+  // Состояния: default / hover / chosen-correct / chosen-wrong / not-chosen-correct / disabled
+  function TnOption({ index, label, text, state, onClick }){
+    let cls = 'tn-option tn-option-' + state;
+    const isClickable = state === 'default';
+    return React.createElement('button', {
+      className: cls,
+      disabled: !isClickable,
+      onClick: isClickable ? onClick : undefined,
+      'aria-label': label + '. ' + text + (state === 'correct' ? '. Правильный ответ' : '') + (state === 'wrong' ? '. Ваш неверный ответ' : ''),
+    },
+      React.createElement('span', { className: 'tn-option-letter', 'aria-hidden': 'true' }, label),
+      React.createElement('span', { className: 'tn-option-text' }, text),
+      (state === 'correct' || state === 'shown-correct') && React.createElement('span', { className: 'tn-option-mark', 'aria-hidden': 'true' }, '✓'),
+      state === 'wrong' && React.createElement('span', { className: 'tn-option-mark tn-option-mark-wrong', 'aria-hidden': 'true' }, '✕')
+    );
+  }
+
+  function TnOptions({ options, chosen, correctIdx, showFeedback, onPick }){
+    const labels = ['A','B','C','D','E','F'];
+    return React.createElement('div', { className: 'tn-options', role: 'group' },
+      options.map((opt, i) => {
+        let state = 'default';
+        if(showFeedback){
+          if(i === correctIdx && i === chosen) state = 'correct';
+          else if(i === correctIdx) state = 'shown-correct';
+          else if(i === chosen) state = 'wrong';
+          else state = 'disabled';
+        }
+        return React.createElement(TnOption, {
+          key: i, index: i, label: labels[i] || (i+1), text: opt,
+          state, onClick: () => onPick(i),
+        });
+      })
+    );
+  }
+
+  // ─── Баннер обратной связи (после ответа) ───────────────────────
+  function TnFeedbackBanner({ kind, busey }){
+    if(kind === 'correct'){
+      return React.createElement('div', { className: 'tn-feedback tn-feedback-correct' },
+        React.createElement('span', { className: 'tn-feedback-icon', 'aria-hidden': 'true' }, '✦'),
+        React.createElement('span', { className: 'tn-feedback-text' }, 'Верно'),
+        busey > 0 && React.createElement('span', { className: 'tn-feedback-busey' }, '+', busey, ' бусин')
+      );
+    }
+    if(kind === 'wrong'){
+      return React.createElement('div', { className: 'tn-feedback tn-feedback-wrong' },
+        React.createElement('span', { className: 'tn-feedback-icon', 'aria-hidden': 'true' }, '◯'),
+        React.createElement('span', { className: 'tn-feedback-text' }, 'Не верно')
+      );
+    }
+    return React.createElement('div', { className: 'tn-feedback tn-feedback-timeout' },
+      React.createElement('span', { className: 'tn-feedback-icon', 'aria-hidden': 'true' }, '◷'),
+      React.createElement('span', { className: 'tn-feedback-text' }, 'Время вышло')
+    );
+  }
+
+  // ─── Question — основной компонент игрового вопроса ─────────────
   function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswerRef }){
     const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
     const [chosen, setChosen] = useState(null);
     const startedAt = useRef(Date.now());
     const oppFinishedRef = useRef(null);
-    const answeredRef = useRef(false); // защита от двойного onAnswer (race timer vs click)
+    const answeredRef = useRef(false);
 
+    // Пересоздание состояния при смене вопроса
     useEffect(() => {
       setTimeLeft(QUESTION_TIME);
       setChosen(null);
@@ -130,11 +251,9 @@
       if(oppAnswerRef) oppAnswerRef.current = null;
     }, [q?.id]);
 
-    // Бот-Тень: симулируем ответ соперника через таймер
-    // PvP: ждём реальный ответ соперника через transport
+    // Бот-Тень в shadow-режиме: симулируем ответ соперника таймером
     useEffect(() => {
-      if(isPvP) return; // ничего не делаем — ответ соперника прилетит через transport
-
+      if(isPvP) return;
       const t = TEN_LEVELS[opponent.level] || TEN_LEVELS.medium;
       const oppTime = (t.minTime + Math.random() * (t.maxTime - t.minTime)) * 1000;
       const oppCorrect = Math.random() < t.accuracy;
@@ -144,6 +263,7 @@
       return () => clearTimeout(tm);
     }, [q?.id, opponent.level, isPvP]);
 
+    // Таймер обратного отсчёта
     useEffect(() => {
       if(chosen != null) return;
       const interval = setInterval(() => {
@@ -181,7 +301,6 @@
       const playerTime = Date.now() - startedAt.current;
       const playerCorrect = idx === q.correct;
 
-      // PvP: отправляем свой ответ сопернику
       if(isPvP && transport){
         try {
           transport.send({ t: 'opp-answer', correct: playerCorrect, time: playerTime, qId: q.id });
@@ -189,7 +308,6 @@
       }
 
       setTimeout(() => {
-        // Для PvP: используем реальный ответ соперника (если пришёл) или fallback
         const oppData = isPvP
           ? (oppAnswerRef?.current || { correct: false, time: QUESTION_TIME * 1000 })
           : (oppFinishedRef.current || { correct: false, time: playerTime + 500 });
@@ -202,58 +320,26 @@
     }
 
     const showFeedback = chosen != null;
-    const optLabels = ['A','B','C','D'];
-    const progressPct = ((qOverall + 1) / totalOverall) * 100;
+    const playerCorrect = chosen === q.correct;
+    const feedbackKind = chosen === -1 ? 'timeout' : (playerCorrect ? 'correct' : 'wrong');
+    const playerBusey = playerCorrect ? buseyForCorrect(Date.now() - startedAt.current) : 0;
 
     return React.createElement('div', { className: 'tn-fullscreen' },
       React.createElement('div', { className: 'tn-container' },
         React.createElement(TnTopBar, { eyebrow: 'Партия · Раунд ' + roundNum + ' / 6' }),
-        React.createElement('div', { className: 'tn-progress-bar' },
-          React.createElement('div', { className: 'tn-progress-fill', style: { width: progressPct + '%' } })
-        ),
-        React.createElement('div', { className: 'tn-versus' },
-          React.createElement('div', { className: 'tn-player' },
-            React.createElement('div', { className: 'tn-avatar' }, renderTnAvatar(player.avatar, player.nickname)),
-            React.createElement('div', null,
-              React.createElement('div', { className: 'tn-player-name' }, player.nickname),
-              React.createElement('div', { className: 'tn-player-stats' }, scoreP, ' очков')
-            )
-          ),
-          React.createElement('span', { className: 'tn-vs' }, 'vs'),
-          React.createElement('div', { className: 'tn-player tn-player-right' },
-            React.createElement('div', { className: 'tn-avatar' }, '◐'),
-            React.createElement('div', null,
-              React.createElement('div', { className: 'tn-player-name' }, opponent.name || 'Тень'),
-              React.createElement('div', { className: 'tn-player-stats' }, scoreO, ' очков')
-            )
-          )
-        ),
-        React.createElement('div', { className: 'tn-question-num' },
-          'Вопрос ', qOverall + 1, ' из ', totalOverall, ' · ', theme.name
-        ),
-        React.createElement('div', { className: 'tn-question-text' }, q.text),
-        React.createElement('div', { className: 'tn-options' },
-          q.options.map((opt, i) => {
-            let cls = 'tn-option';
-            if(showFeedback){
-              if(i === q.correct) cls += ' tn-option-correct';
-              else if(i === chosen && i !== q.correct) cls += ' tn-option-wrong';
-              else cls += ' tn-option-disabled';
-            }
-            return React.createElement('button', {
-              key: i, className: cls,
-              disabled: showFeedback,
-              onClick: () => pick(i)
-            }, optLabels[i] || (i+1), ' · ', opt, showFeedback && i === q.correct ? '  ✓' : '');
-          })
-        ),
-        React.createElement('div', { className: 'tn-foot' },
-          React.createElement('span', null,
-            showFeedback
-              ? (chosen === q.correct ? 'Верно' : (chosen === -1 ? 'Время вышло' : 'Не верно'))
-              : 'Бусины: +10 базовых · бонус за скорость'
-          ),
-          React.createElement('span', null, showFeedback ? '' : 'Время: ' + timeLeft + ' с')
+        React.createElement(TnGameProgress, { qOverall, totalOverall }),
+        React.createElement(TnVsHeader, { player, scoreP, opponent, scoreO }),
+        React.createElement(TnTimerBar, { timeLeft, paused: showFeedback }),
+        React.createElement(TnQuestionCard, {
+          qOverall, totalOverall, themeName: theme.name,
+          text: q.text, timeLeft, showFeedback,
+        }),
+        React.createElement(TnOptions, {
+          options: q.options, chosen, correctIdx: q.correct, showFeedback, onPick: pick,
+        }),
+        showFeedback && React.createElement(TnFeedbackBanner, { kind: feedbackKind, busey: playerBusey }),
+        !showFeedback && React.createElement('div', { className: 'tn-foot' },
+          React.createElement('span', { className: 'tn-foot-hint' }, 'Чем быстрее верный ответ — тем больше бусин')
         )
       )
     );

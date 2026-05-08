@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-08T09:33:33.587Z */
+/* Yasna bundle: duel.js — собран 2026-05-08T09:56:24.848Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5884,6 +5884,142 @@ window.YasnaCore = {
       )
     );
   }
+  function TnGameProgress({ qOverall, totalOverall }) {
+    const pct = (qOverall + 1) / totalOverall * 100;
+    return React.createElement(
+      "div",
+      { className: "tn-game-progress", role: "progressbar", "aria-valuenow": qOverall + 1, "aria-valuemax": totalOverall },
+      React.createElement("div", { className: "tn-game-progress-fill", style: { width: pct + "%" } })
+    );
+  }
+  function TnVsHeader({ player, scoreP, opponent, scoreO }) {
+    return React.createElement(
+      "div",
+      { className: "tn-vs-header" },
+      React.createElement(
+        "div",
+        { className: "tn-vs-side" },
+        React.createElement("div", { className: "tn-vs-avatar" }, renderTnAvatar(player.avatar, player.nickname)),
+        React.createElement(
+          "div",
+          { className: "tn-vs-info" },
+          React.createElement("div", { className: "tn-vs-name" }, player.nickname),
+          React.createElement("div", { className: "tn-vs-score" }, scoreP, " \u0431\u0443\u0441\u0438\u043D")
+        )
+      ),
+      React.createElement("div", { className: "tn-vs-divider" }, "vs"),
+      React.createElement(
+        "div",
+        { className: "tn-vs-side tn-vs-side-right" },
+        React.createElement("div", { className: "tn-vs-avatar" }, opponent.glyph || renderTnAvatar(opponent.avatar, opponent.name) || "\u25D0"),
+        React.createElement(
+          "div",
+          { className: "tn-vs-info" },
+          React.createElement("div", { className: "tn-vs-name" }, opponent.name || "\u0422\u0435\u043D\u044C"),
+          React.createElement("div", { className: "tn-vs-score" }, scoreO, " \u0431\u0443\u0441\u0438\u043D")
+        )
+      )
+    );
+  }
+  function TnTimerBar({ timeLeft, paused }) {
+    const pct = timeLeft / QUESTION_TIME * 100;
+    let cls = "tn-timer-fill";
+    if (timeLeft <= 5) cls += " tn-timer-warn";
+    if (timeLeft <= 2) cls += " tn-timer-danger";
+    if (paused) cls += " tn-timer-paused";
+    return React.createElement(
+      "div",
+      { className: "tn-timer-bar", role: "timer", "aria-label": "\u041E\u0441\u0442\u0430\u043B\u043E\u0441\u044C " + timeLeft + " \u0441\u0435\u043A\u0443\u043D\u0434" },
+      React.createElement("div", { className: cls, style: { width: pct + "%" } })
+    );
+  }
+  function TnQuestionCard({ qOverall, totalOverall, themeName, text, timeLeft, showFeedback }) {
+    return React.createElement(
+      "article",
+      { className: "tn-q-card" },
+      React.createElement(
+        "div",
+        { className: "tn-q-meta" },
+        React.createElement("span", { className: "tn-q-meta-num" }, "\u0412\u043E\u043F\u0440\u043E\u0441 ", qOverall + 1, " / ", totalOverall),
+        React.createElement("span", { className: "tn-q-meta-dot" }, "\xB7"),
+        React.createElement("span", { className: "tn-q-meta-theme" }, themeName),
+        !showFeedback && React.createElement(
+          "span",
+          { className: "tn-q-meta-time" },
+          React.createElement("span", { "aria-hidden": "true" }, "\u25F7 "),
+          timeLeft,
+          " \u0441"
+        )
+      ),
+      React.createElement("h2", { className: "tn-q-text" }, text)
+    );
+  }
+  function TnOption({ index, label, text, state, onClick }) {
+    let cls = "tn-option tn-option-" + state;
+    const isClickable = state === "default";
+    return React.createElement(
+      "button",
+      {
+        className: cls,
+        disabled: !isClickable,
+        onClick: isClickable ? onClick : void 0,
+        "aria-label": label + ". " + text + (state === "correct" ? ". \u041F\u0440\u0430\u0432\u0438\u043B\u044C\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442" : "") + (state === "wrong" ? ". \u0412\u0430\u0448 \u043D\u0435\u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442" : "")
+      },
+      React.createElement("span", { className: "tn-option-letter", "aria-hidden": "true" }, label),
+      React.createElement("span", { className: "tn-option-text" }, text),
+      (state === "correct" || state === "shown-correct") && React.createElement("span", { className: "tn-option-mark", "aria-hidden": "true" }, "\u2713"),
+      state === "wrong" && React.createElement("span", { className: "tn-option-mark tn-option-mark-wrong", "aria-hidden": "true" }, "\u2715")
+    );
+  }
+  function TnOptions({ options, chosen, correctIdx, showFeedback, onPick }) {
+    const labels = ["A", "B", "C", "D", "E", "F"];
+    return React.createElement(
+      "div",
+      { className: "tn-options", role: "group" },
+      options.map((opt, i) => {
+        let state = "default";
+        if (showFeedback) {
+          if (i === correctIdx && i === chosen) state = "correct";
+          else if (i === correctIdx) state = "shown-correct";
+          else if (i === chosen) state = "wrong";
+          else state = "disabled";
+        }
+        return React.createElement(TnOption, {
+          key: i,
+          index: i,
+          label: labels[i] || i + 1,
+          text: opt,
+          state,
+          onClick: () => onPick(i)
+        });
+      })
+    );
+  }
+  function TnFeedbackBanner({ kind, busey }) {
+    if (kind === "correct") {
+      return React.createElement(
+        "div",
+        { className: "tn-feedback tn-feedback-correct" },
+        React.createElement("span", { className: "tn-feedback-icon", "aria-hidden": "true" }, "\u2726"),
+        React.createElement("span", { className: "tn-feedback-text" }, "\u0412\u0435\u0440\u043D\u043E"),
+        busey > 0 && React.createElement("span", { className: "tn-feedback-busey" }, "+", busey, " \u0431\u0443\u0441\u0438\u043D")
+      );
+    }
+    if (kind === "wrong") {
+      return React.createElement(
+        "div",
+        { className: "tn-feedback tn-feedback-wrong" },
+        React.createElement("span", { className: "tn-feedback-icon", "aria-hidden": "true" }, "\u25EF"),
+        React.createElement("span", { className: "tn-feedback-text" }, "\u041D\u0435 \u0432\u0435\u0440\u043D\u043E")
+      );
+    }
+    return React.createElement(
+      "div",
+      { className: "tn-feedback tn-feedback-timeout" },
+      React.createElement("span", { className: "tn-feedback-icon", "aria-hidden": "true" }, "\u25F7"),
+      React.createElement("span", { className: "tn-feedback-text" }, "\u0412\u0440\u0435\u043C\u044F \u0432\u044B\u0448\u043B\u043E")
+    );
+  }
   function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswerRef }) {
     const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
     const [chosen, setChosen] = useState(null);
@@ -5944,17 +6080,17 @@ window.YasnaCore = {
       if (chosen != null || answeredRef.current) return;
       setChosen(idx);
       const playerTime = Date.now() - startedAt.current;
-      const playerCorrect = idx === q.correct;
+      const playerCorrect2 = idx === q.correct;
       if (isPvP && transport) {
         try {
-          transport.send({ t: "opp-answer", correct: playerCorrect, time: playerTime, qId: q.id });
+          transport.send({ t: "opp-answer", correct: playerCorrect2, time: playerTime, qId: q.id });
         } catch (_) {
         }
       }
       setTimeout(() => {
         const oppData = isPvP ? (oppAnswerRef == null ? void 0 : oppAnswerRef.current) || { correct: false, time: QUESTION_TIME * 1e3 } : oppFinishedRef.current || { correct: false, time: playerTime + 500 };
         safeAnswer({
-          playerCorrect,
+          playerCorrect: playerCorrect2,
           playerTime,
           oppCorrect: oppData.correct,
           oppTime: oppData.time
@@ -5962,8 +6098,9 @@ window.YasnaCore = {
       }, SHOW_FEEDBACK_MS);
     }
     const showFeedback = chosen != null;
-    const optLabels = ["A", "B", "C", "D"];
-    const progressPct = (qOverall + 1) / totalOverall * 100;
+    const playerCorrect = chosen === q.correct;
+    const feedbackKind = chosen === -1 ? "timeout" : playerCorrect ? "correct" : "wrong";
+    const playerBusey = playerCorrect ? buseyForCorrect(Date.now() - startedAt.current) : 0;
     return React.createElement(
       "div",
       { className: "tn-fullscreen" },
@@ -5971,76 +6108,29 @@ window.YasnaCore = {
         "div",
         { className: "tn-container" },
         React.createElement(TnTopBar, { eyebrow: "\u041F\u0430\u0440\u0442\u0438\u044F \xB7 \u0420\u0430\u0443\u043D\u0434 " + roundNum + " / 6" }),
-        React.createElement(
-          "div",
-          { className: "tn-progress-bar" },
-          React.createElement("div", { className: "tn-progress-fill", style: { width: progressPct + "%" } })
-        ),
-        React.createElement(
-          "div",
-          { className: "tn-versus" },
-          React.createElement(
-            "div",
-            { className: "tn-player" },
-            React.createElement("div", { className: "tn-avatar" }, renderTnAvatar(player.avatar, player.nickname)),
-            React.createElement(
-              "div",
-              null,
-              React.createElement("div", { className: "tn-player-name" }, player.nickname),
-              React.createElement("div", { className: "tn-player-stats" }, scoreP, " \u043E\u0447\u043A\u043E\u0432")
-            )
-          ),
-          React.createElement("span", { className: "tn-vs" }, "vs"),
-          React.createElement(
-            "div",
-            { className: "tn-player tn-player-right" },
-            React.createElement("div", { className: "tn-avatar" }, "\u25D0"),
-            React.createElement(
-              "div",
-              null,
-              React.createElement("div", { className: "tn-player-name" }, opponent.name || "\u0422\u0435\u043D\u044C"),
-              React.createElement("div", { className: "tn-player-stats" }, scoreO, " \u043E\u0447\u043A\u043E\u0432")
-            )
-          )
-        ),
-        React.createElement(
-          "div",
-          { className: "tn-question-num" },
-          "\u0412\u043E\u043F\u0440\u043E\u0441 ",
-          qOverall + 1,
-          " \u0438\u0437 ",
+        React.createElement(TnGameProgress, { qOverall, totalOverall }),
+        React.createElement(TnVsHeader, { player, scoreP, opponent, scoreO }),
+        React.createElement(TnTimerBar, { timeLeft, paused: showFeedback }),
+        React.createElement(TnQuestionCard, {
+          qOverall,
           totalOverall,
-          " \xB7 ",
-          theme.name
-        ),
-        React.createElement("div", { className: "tn-question-text" }, q.text),
-        React.createElement(
-          "div",
-          { className: "tn-options" },
-          q.options.map((opt, i) => {
-            let cls = "tn-option";
-            if (showFeedback) {
-              if (i === q.correct) cls += " tn-option-correct";
-              else if (i === chosen && i !== q.correct) cls += " tn-option-wrong";
-              else cls += " tn-option-disabled";
-            }
-            return React.createElement("button", {
-              key: i,
-              className: cls,
-              disabled: showFeedback,
-              onClick: () => pick(i)
-            }, optLabels[i] || i + 1, " \xB7 ", opt, showFeedback && i === q.correct ? "  \u2713" : "");
-          })
-        ),
-        React.createElement(
+          themeName: theme.name,
+          text: q.text,
+          timeLeft,
+          showFeedback
+        }),
+        React.createElement(TnOptions, {
+          options: q.options,
+          chosen,
+          correctIdx: q.correct,
+          showFeedback,
+          onPick: pick
+        }),
+        showFeedback && React.createElement(TnFeedbackBanner, { kind: feedbackKind, busey: playerBusey }),
+        !showFeedback && React.createElement(
           "div",
           { className: "tn-foot" },
-          React.createElement(
-            "span",
-            null,
-            showFeedback ? chosen === q.correct ? "\u0412\u0435\u0440\u043D\u043E" : chosen === -1 ? "\u0412\u0440\u0435\u043C\u044F \u0432\u044B\u0448\u043B\u043E" : "\u041D\u0435 \u0432\u0435\u0440\u043D\u043E" : "\u0411\u0443\u0441\u0438\u043D\u044B: +10 \u0431\u0430\u0437\u043E\u0432\u044B\u0445 \xB7 \u0431\u043E\u043D\u0443\u0441 \u0437\u0430 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u044C"
-          ),
-          React.createElement("span", null, showFeedback ? "" : "\u0412\u0440\u0435\u043C\u044F: " + timeLeft + " \u0441")
+          React.createElement("span", { className: "tn-foot-hint" }, "\u0427\u0435\u043C \u0431\u044B\u0441\u0442\u0440\u0435\u0435 \u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 \u2014 \u0442\u0435\u043C \u0431\u043E\u043B\u044C\u0448\u0435 \u0431\u0443\u0441\u0438\u043D")
         )
       )
     );
