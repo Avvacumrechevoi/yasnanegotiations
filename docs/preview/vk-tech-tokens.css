@@ -630,23 +630,65 @@ body.theme-vk-dark .fi [style*='line-height: 1.5'] {
   line-height: var(--vk-lh-s) !important;   /* 22 */
 }
 
-/* Кнопка «Открыть в Ясне Суток» внутри .fi — VK Primary */
-body.theme-vk-dark .fi button[style*='rgb(255, 255, 255)'],
+/* ─── Кнопки внутри .fi — иерархия ───
+   По умолчанию все .fi button — secondary ghost стиль
+   (соседи полочек ← 2 / → 4 / ↔ 9)
+   CTA «Открыть в Ясне» — primary (отдельным правилом ниже) */
 body.theme-vk-dark .fi button {
-  background: var(--vk-accent) !important;       /* #0077FF */
-  color: #fff !important;
-  border: none !important;
+  background: var(--vk-bg-tonal) !important;     /* #3C3D40 */
+  color: var(--vk-text-primary) !important;
+  border: 1px solid var(--vk-border) !important;
   border-radius: var(--vk-radius-s) !important;
-  height: var(--vk-h-button-m) !important;
-  padding: 0 var(--vk-sp-6) !important;
   font-family: var(--vk-font) !important;
-  font-size: var(--vk-fs-s) !important;
-  font-weight: 600 !important;
+  font-size: var(--vk-fs-xs) !important;          /* 13 — компактнее */
+  font-weight: 500 !important;
+  height: 32px !important;                        /* было 40 — теперь компактнее */
+  padding: 0 var(--vk-sp-4) !important;
   cursor: pointer !important;
   transition: background var(--vk-trans-fast) !important;
+  text-align: left !important;
+  justify-content: flex-start !important;
 }
 body.theme-vk-dark .fi button:hover {
-  background: var(--vk-accent-hover) !important;  /* #16A7FF */
+  background: var(--vk-bg-strong) !important;
+}
+
+/* CTA «Открыть в Ясне Суток» — Primary VK Blue */
+body.theme-vk-dark .fi button[aria-label*='Открыть в Ясне'],
+body.theme-vk-dark .fi button[title*='Открыть в Ясне'],
+body.theme-vk-dark .fi button[style*='rgb(255, 255, 255)'][style*='font-weight'] {
+  background: var(--vk-accent) !important;
+  color: #fff !important;
+  border: none !important;
+  height: var(--vk-h-button-m) !important;        /* 40 */
+  padding: 0 var(--vk-sp-6) !important;
+  font-size: var(--vk-fs-s) !important;
+  font-weight: 600 !important;
+  text-align: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  margin-top: var(--vk-sp-5) !important;
+  box-shadow: 0 4px 12px rgba(0, 119, 255, 0.20) !important;
+}
+body.theme-vk-dark .fi button[aria-label*='Открыть в Ясне']:hover,
+body.theme-vk-dark .fi button[title*='Открыть в Ясне']:hover,
+body.theme-vk-dark .fi button[style*='rgb(255, 255, 255)'][style*='font-weight']:hover {
+  background: var(--vk-accent-hover) !important;
+}
+
+/* Соседние полочки (← 2 / → 4 / ↔ N) — inline-чипы в одну строку */
+body.theme-vk-dark .fi [class*='neighbor'],
+body.theme-vk-dark .fi [class*='Neighbor'],
+body.theme-vk-dark .fi [class*='neighbours'] {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: var(--vk-sp-2) !important;
+}
+
+/* Если кнопки соседей идут в .fi последовательно (3 подряд),
+   и НЕ являются «Открыть в Ясне» — собираем их в горизонтальный ряд */
+body.theme-vk-dark .fi button + button {
+  margin-top: var(--vk-sp-2) !important;
 }
 
 /* Крестик закрытия (×) — text-secondary, hover → primary */
