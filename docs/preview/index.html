@@ -27,6 +27,8 @@
 <meta name="yasna:tg-bot" content="YasnaDuelBot"/>
 
 <link rel="stylesheet" href="styles.css"/>
+<!-- VK Dark Theme — экспериментальная альтернатива (только preview) -->
+<link rel="stylesheet" href="theme-vk-dark-guide.css?v=1"/>
 </head>
 <body>
 <div id="root"></div>
@@ -49,6 +51,62 @@
 <!-- Pre-built bundle (см. scripts/build.mjs · npm run build) -->
 <!-- Включает: core/* + lessons/* + tours/* + games/duel/* + app.js -->
 <!-- Без bundle браузер качал бы babel-standalone ~3MB и компилировал JSX в рантайме. -->
-<script src="dist/app.min.js"></script>
+<script src="dist/app.min.js?v=darkguide1"></script>
+
+<!-- ═══ VK Dark Theme Toggle (только preview) ═══════════════════════
+     Переключатель тёмной темы. Тот же localStorage key что в дуэли —
+     тема синхронизирована между страницами.
+     ─────────────────────────────────────────────────────────────── -->
+<script>
+(function(){
+  'use strict';
+  var STORAGE_KEY = 'yasna_theme_vk_dark';
+  var BODY_CLASS = 'theme-vk-dark';
+
+  function isOn(){
+    try { return localStorage.getItem(STORAGE_KEY) === '1'; }
+    catch(_){ return false; }
+  }
+  function apply(on){
+    if(on) document.body.classList.add(BODY_CLASS);
+    else document.body.classList.remove(BODY_CLASS);
+    var btn = document.getElementById('dp-theme-toggle');
+    if(btn){
+      var icon = btn.querySelector('.dp-theme-toggle-icon');
+      var label = btn.querySelector('.dp-theme-toggle-label');
+      if(icon)  icon.textContent  = on ? '☀' : '🌑';
+      if(label) label.textContent = on ? 'Светлая' : 'Тёмная (β)';
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.title = on
+        ? 'Выключить экспериментальную тёмную тему'
+        : 'Включить экспериментальную тёмную тему (только preview)';
+    }
+  }
+  function toggle(){
+    var next = !isOn();
+    try { localStorage.setItem(STORAGE_KEY, next ? '1' : '0'); } catch(_){}
+    apply(next);
+  }
+
+  apply(isOn());
+
+  function mountButton(){
+    if(document.getElementById('dp-theme-toggle')) return;
+    var btn = document.createElement('button');
+    btn.id = 'dp-theme-toggle';
+    btn.className = 'dp-theme-toggle';
+    btn.type = 'button';
+    btn.innerHTML = '<span class="dp-theme-toggle-icon" aria-hidden="true">🌑</span><span class="dp-theme-toggle-label">Тёмная (β)</span>';
+    btn.addEventListener('click', toggle);
+    document.body.appendChild(btn);
+    apply(isOn());
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', mountButton);
+  } else {
+    mountButton();
+  }
+})();
+</script>
 </body>
 </html>

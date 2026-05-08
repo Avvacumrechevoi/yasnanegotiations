@@ -1,0 +1,293 @@
+/* ════════════════════════════════════════════════════════════════════
+   VK Dark Theme · Гид (index.html)
+   Применяется только когда на body класс `theme-vk-dark`.
+   Переопределяет CSS-переменные гида + точечно бьёт hardcoded `!important`.
+   Тот же localStorage key (`yasna_theme_vk_dark`) что в дуэли —
+   тема синхронизирована между страницами.
+   ════════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+/* ─── Переменные (наследуют логику VK Dark) ─── */
+body.theme-vk-dark {
+  --bg:      #212121;            /* было #ffffff */
+  --bg2:     #151515;            /* было #f5f5f7 */
+  --bg3:     #2A2A2D;            /* было #e8e8ed */
+  --border:  rgba(255, 255, 255, 0.16);
+  --accent:  #0187F6;            /* VK accent (dark) */
+  --txt:     #FEFEFE;
+  --txt2:    #A8B1BE;
+  --txt3:    #626D7A;
+
+  --vk-deep: #000000;
+  --vk-tonal: #3C3D40;
+  --vk-soft: rgba(255, 255, 255, 0.08);
+  --vk-info: #439BFB;
+  --vk-success: #00D3E6;
+  --vk-danger: #F85050;
+  --vk-warn: #FFB546;
+
+  --sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --serif: 'Manrope', system-ui, sans-serif;
+}
+
+/* ─── Базовый body фон + текст ─── */
+body.theme-vk-dark { background: var(--bg) !important; color: var(--txt) !important; }
+body.theme-vk-dark a { color: var(--accent); }
+
+/* ─── Скроллбар ─── */
+body.theme-vk-dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18) !important; }
+body.theme-vk-dark ::-webkit-scrollbar { background: transparent; }
+
+/* ─── Хедер ─── */
+body.theme-vk-dark .hdr,
+body.theme-vk-dark header[class*='hdr'] {
+  background: var(--bg2) !important;
+  border-color: var(--border) !important;
+  color: var(--txt) !important;
+}
+body.theme-vk-dark .hdr * { color: inherit; }
+body.theme-vk-dark .hdr button { color: var(--txt2); }
+body.theme-vk-dark .hdr button:hover { color: var(--txt); background: var(--vk-soft); }
+
+/* ─── Навигационные табы ─── */
+body.theme-vk-dark .nav-tabs {
+  background: var(--bg2) !important;
+  border-color: var(--border) !important;
+  border-top-color: var(--border) !important;
+  border-bottom-color: var(--border) !important;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.40) !important;
+}
+body.theme-vk-dark .nav-tabs button {
+  color: var(--txt2) !important;
+}
+body.theme-vk-dark .nav-tabs button:hover {
+  color: var(--txt) !important;
+  background: var(--vk-soft) !important;
+}
+body.theme-vk-dark .nav-empty { color: var(--txt3) !important; }
+body.theme-vk-dark .nav-right {
+  background: var(--bg2) !important;
+  border-left-color: var(--border) !important;
+}
+
+/* ─── Фильтры (top bar / collapsible) ─── */
+body.theme-vk-dark .filters {
+  background: var(--bg2) !important;
+  border-bottom-color: var(--border) !important;
+  border-top-color: var(--border) !important;
+}
+body.theme-vk-dark .filters-collapsible {
+  background: var(--bg2) !important;
+  border-top-color: var(--border) !important;
+  box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.50) !important;
+}
+body.theme-vk-dark .filters button {
+  background: var(--bg3) !important;
+  border-color: var(--border) !important;
+  color: var(--txt) !important;
+}
+body.theme-vk-dark .filters button:hover {
+  background: var(--vk-tonal) !important;
+}
+
+/* ─── Fullscreen звезда (была белым background!important) ─── */
+body.theme-vk-dark .fullstar {
+  background: var(--bg) !important;
+}
+body.theme-vk-dark .fullstar-close {
+  background: rgba(60, 61, 64, 0.85) !important;
+  color: var(--txt) !important;
+  border-color: var(--border) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.40) !important;
+}
+body.theme-vk-dark .fullstar-close:hover {
+  background: var(--vk-tonal) !important;
+}
+
+/* ─── Звезда / SVG ─── */
+body.theme-vk-dark svg path[fill="#fff"],
+body.theme-vk-dark svg path[fill="#ffffff"],
+body.theme-vk-dark svg circle[fill="#fff"],
+body.theme-vk-dark svg circle[fill="#ffffff"],
+body.theme-vk-dark svg rect[fill="#fff"],
+body.theme-vk-dark svg rect[fill="#ffffff"] {
+  fill: var(--bg);
+}
+body.theme-vk-dark svg [stroke="#1d1d1f"],
+body.theme-vk-dark svg [stroke="#000"] {
+  stroke: var(--txt);
+}
+
+/* ─── Popup overlays / modals ─── */
+body.theme-vk-dark .popup-overlay {
+  background: rgba(0, 0, 0, 0.65) !important;
+  backdrop-filter: blur(6px);
+}
+body.theme-vk-dark .popup-overlay > div,
+body.theme-vk-dark [class*='popup']:not(.popup-overlay) {
+  background: var(--bg2) !important;
+  color: var(--txt) !important;
+  border-color: var(--border) !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.50) !important;
+}
+
+/* ─── Info card ─── */
+body.theme-vk-dark .fi {
+  background: var(--bg2) !important;
+  color: var(--txt) !important;
+  border-color: var(--border) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.40);
+}
+body.theme-vk-dark .fi-handle-bar { background: var(--txt3) !important; }
+body.theme-vk-dark .fi-handle:active .fi-handle-bar { background: var(--txt2) !important; }
+body.theme-vk-dark .fi > div:last-child::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.20) !important;
+}
+body.theme-vk-dark .fi > div:last-child {
+  scrollbar-color: rgba(255, 255, 255, 0.20) transparent !important;
+}
+
+/* ─── Mobile hdr-mob-tools ─── */
+body.theme-vk-dark .hdr-mob-tools button,
+body.theme-vk-dark .hdr-burger {
+  background: var(--bg3) !important;
+  color: var(--txt) !important;
+  border-color: var(--border) !important;
+}
+
+/* ─── Кнопки общего вида ─── */
+body.theme-vk-dark button:not(.dp-theme-toggle):not([class*='accent']):not([class*='primary']) {
+  color: var(--txt2);
+}
+body.theme-vk-dark button:not(.dp-theme-toggle):not([class*='accent']):not([class*='primary']):hover {
+  color: var(--txt);
+}
+
+/* ─── Inputs (если используются для поиска / фильтров) ─── */
+body.theme-vk-dark input,
+body.theme-vk-dark textarea,
+body.theme-vk-dark select {
+  background: var(--bg3);
+  color: var(--txt);
+  border-color: var(--border);
+  caret-color: var(--accent);
+}
+body.theme-vk-dark input::placeholder,
+body.theme-vk-dark textarea::placeholder {
+  color: var(--txt3);
+}
+body.theme-vk-dark input:focus,
+body.theme-vk-dark textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(1, 135, 246, 0.15);
+}
+
+/* ─── Карточки / контентные блоки общие ─── */
+body.theme-vk-dark [class*='card'],
+body.theme-vk-dark [class*='Card'] {
+  background: var(--bg2);
+  border-color: var(--border);
+  color: var(--txt);
+}
+
+/* ─── Уроки ─── */
+body.theme-vk-dark [class*='lesson'] {
+  color: var(--txt);
+}
+body.theme-vk-dark [class*='lesson-card'],
+body.theme-vk-dark [class*='lesson-item'] {
+  background: var(--bg2) !important;
+  border-color: var(--border) !important;
+}
+body.theme-vk-dark [class*='lesson-progress'] {
+  background: var(--bg3);
+}
+
+/* ─── Туры (Tours) ─── */
+body.theme-vk-dark [class*='tour-overlay'] {
+  background: rgba(0, 0, 0, 0.75) !important;
+}
+body.theme-vk-dark [class*='tour-card'],
+body.theme-vk-dark [class*='tour-step'] {
+  background: var(--bg2) !important;
+  color: var(--txt) !important;
+  border-color: var(--border) !important;
+}
+
+/* ─── Hardcoded #fff backgrounds — общая ловушка ─── */
+body.theme-vk-dark [style*='background:#fff'],
+body.theme-vk-dark [style*='background: #fff'],
+body.theme-vk-dark [style*='background-color:#fff'],
+body.theme-vk-dark [style*='background-color: #fff'] {
+  background: var(--bg2) !important;
+}
+body.theme-vk-dark [style*='color:#1d1d1f'],
+body.theme-vk-dark [style*='color: #1d1d1f'] {
+  color: var(--txt) !important;
+}
+
+/* ─── Типографика — VK feel для заголовков ─── */
+body.theme-vk-dark h1,
+body.theme-vk-dark h2 {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+body.theme-vk-dark h3 {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-weight: 500;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   FAB Toggle — кнопка переключения темы (правый-нижний угол)
+   Тот же стиль что в дуэли, переиспользует тот же localStorage key.
+   ════════════════════════════════════════════════════════════════════ */
+.dp-theme-toggle {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1000;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(33, 33, 33, 0.92);
+  color: #FEFEFE;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.30);
+  transition: transform 150ms ease, background 150ms ease;
+}
+.dp-theme-toggle:hover {
+  transform: translateY(-2px);
+  background: rgba(60, 61, 64, 0.95);
+}
+.dp-theme-toggle:active {
+  transform: translateY(0);
+}
+.dp-theme-toggle-icon { font-size: 14px; }
+.dp-theme-toggle-label { letter-spacing: 0; }
+
+/* В Light-теме toggle светлее */
+body:not(.theme-vk-dark) .dp-theme-toggle {
+  background: rgba(255, 255, 255, 0.95);
+  color: #1d1d1f;
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+@media (max-width: 767px) {
+  .dp-theme-toggle {
+    right: 12px;
+    bottom: 78px; /* выше чем mobile nav-tabs (54px + safe-area) */
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}
