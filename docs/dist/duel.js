@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-08T09:04:39.864Z */
+/* Yasna bundle: duel.js — собран 2026-05-08T09:33:33.587Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -7452,7 +7452,6 @@ window.YasnaCore = {
             deviceId: me.deviceId,
             role: "host"
           });
-          transportRef.current = transport;
           onConnected({
             transport,
             role: "host",
@@ -7508,7 +7507,6 @@ window.YasnaCore = {
           deviceId: me.deviceId,
           role: "guest"
         });
-        transportRef.current = transport;
         onConnected({
           transport,
           role: "guest",

@@ -718,7 +718,9 @@
           const transport = window.YasnaRT.makeTransport({
             code, deviceId: me.deviceId, role: 'host',
           });
-          transportRef.current = transport;
+          // ВАЖНО: НЕ кладём в transportRef — иначе cleanup() при unmount
+          // закроет Firebase listener до того как TurnirGame успеет
+          // зарегистрировать handler. Транспорт теперь принадлежит TurnirGame.
           onConnected({
             transport, role: 'host', roomCode: code,
             opponent: { nickname: guest.nickname, avatar: guest.avatar || '◐', isPvP: true }
@@ -772,7 +774,9 @@
         const transport = window.YasnaRT.makeTransport({
           code, deviceId: me.deviceId, role: 'guest',
         });
-        transportRef.current = transport;
+        // ВАЖНО: НЕ кладём в transportRef — иначе cleanup() при unmount
+        // закроет Firebase listener до того как TurnirGame успеет
+        // зарегистрировать handler. Транспорт теперь принадлежит TurnirGame.
         onConnected({
           transport, role: 'guest', roomCode: code,
           opponent: { nickname: host?.nickname || 'Хозяин', avatar: host?.avatar || '◑', isPvP: true }

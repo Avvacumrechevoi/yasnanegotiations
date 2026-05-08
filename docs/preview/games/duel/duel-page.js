@@ -717,7 +717,7 @@
           const transport = window.YasnaRT.makeTransport({
             code, deviceId: me.deviceId, role: 'host',
           });
-          transportRef.current = transport;
+          // НЕ кладём в transportRef — cleanup() закроет listener до handoff
           onConnected({
             transport, role: 'host', roomCode: code,
             opponent: { nickname: guest.nickname, avatar: guest.avatar || '◐', isPvP: true }
@@ -771,7 +771,7 @@
         const transport = window.YasnaRT.makeTransport({
           code, deviceId: me.deviceId, role: 'guest',
         });
-        transportRef.current = transport;
+        // НЕ кладём в transportRef — cleanup() закроет listener до handoff
         onConnected({
           transport, role: 'guest', roomCode: code,
           opponent: { nickname: host?.nickname || 'Хозяин', avatar: host?.avatar || '◑', isPvP: true }
