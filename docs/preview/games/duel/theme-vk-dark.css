@@ -254,3 +254,409 @@ body.theme-vk-dark .tn-final-stat {
     font-size: 11px;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   VK Typography System — полностью из Figma file cfX0idPjpMd6Eb2J9LTaeB
+   node 3:184744 (Fonts). Шкалы Display / Title / Body / Caption / Mono.
+   ═══════════════════════════════════════════════════════════════════ */
+
+body.theme-vk-dark {
+  /* ─── Шрифтовые семейства (Inter / Manrope как лицензионная замена) ─── */
+  --vk-font-display: 'Manrope', 'Inter', 'SF Pro Display', system-ui, sans-serif;  /* VK Sans Display Expanded */
+  --vk-font-title:   'Manrope', 'Inter', 'SF Pro Display', system-ui, sans-serif;  /* VK Sans Display Expanded */
+  --vk-font-body:    'Inter', 'SF Pro Text', system-ui, sans-serif;                /* VK Sans Display */
+  --vk-font-text:    'Inter', 'SF Pro Text', system-ui, sans-serif;                /* VK Sans Text */
+  --vk-font-mono:    'PT Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* ─── Display ─── */
+  --vk-display-l-size: 64px;   --vk-display-l-line: 68px;   --vk-display-l-weight: 500;
+  --vk-display-m-size: 40px;   --vk-display-m-line: 48px;   --vk-display-m-weight: 500;
+  --vk-display-s-size: 32px;   --vk-display-s-line: 40px;   --vk-display-s-weight: 500;
+
+  /* ─── Title ─── */
+  --vk-title-xl-size: 26px;    --vk-title-xl-line: 32px;    --vk-title-xl-weight: 500;
+  --vk-title-l-size:  20px;    --vk-title-l-line:  28px;    --vk-title-l-weight:  500;
+  --vk-title-m-size:  16px;    --vk-title-m-line:  24px;    --vk-title-m-weight:  500;
+  --vk-title-s-size:  10px;    --vk-title-s-line:  16px;    --vk-title-s-weight:  500;
+
+  /* ─── Body ─── */
+  --vk-body-xl-size: 26px;     --vk-body-xl-line: 36px;     --vk-body-xl-line-paragraph: 40px;
+  --vk-body-l-size:  26px;     --vk-body-l-line:  36px;     --vk-body-l-line-paragraph:  40px;
+  --vk-body-m-size:  20px;     --vk-body-m-line:  28px;     --vk-body-m-line-paragraph:  32px;
+  --vk-body-s-size:  17px;     --vk-body-s-line:  28px;     --vk-body-s-line-paragraph:  32px;
+
+  /* ─── Caption ─── */
+  --vk-caption-m-size: 15px;   --vk-caption-m-line: 20px;
+  --vk-caption-s-size: 12px;   --vk-caption-s-line: 16px;
+
+  /* ─── Mono ─── */
+  --vk-mono-s-size: 14px;      --vk-mono-s-line: 20px;
+
+  /* ─── Spacing (из Figma) ─── */
+  --vk-spacing-x1:  4px;
+  --vk-spacing-x2:  8px;
+  --vk-spacing-x3:  12px;
+  --vk-spacing-x4:  16px;   /* core/16 */
+  --vk-spacing-x5:  20px;   /* spacing-x5 + gutter */
+  --vk-spacing-x6:  24px;   /* core/24 */
+  --vk-spacing-x8:  32px;   /* core/32 */
+  --vk-spacing-x10: 40px;   /* spacing-x10 */
+  --vk-spacing-x12: 48px;   /* layout-margin */
+  --vk-spacing-x30: 120px;  /* margin-m */
+
+  /* ─── Layout ─── */
+  --vk-layout-width-min: 1280px;
+  --vk-layout-width-max: 1920px;
+  --vk-layout-radius-card: 32px;  /* core/32 */
+}
+
+/* ─── Utility-классы для прямого применения ─── */
+body.theme-vk-dark .vk-display-l { font-family: var(--vk-font-display); font-size: var(--vk-display-l-size); line-height: var(--vk-display-l-line); font-weight: var(--vk-display-l-weight); letter-spacing: -0.01em; }
+body.theme-vk-dark .vk-display-m { font-family: var(--vk-font-display); font-size: var(--vk-display-m-size); line-height: var(--vk-display-m-line); font-weight: var(--vk-display-m-weight); letter-spacing: -0.01em; }
+body.theme-vk-dark .vk-display-s { font-family: var(--vk-font-display); font-size: var(--vk-display-s-size); line-height: var(--vk-display-s-line); font-weight: var(--vk-display-s-weight); letter-spacing: -0.005em; }
+
+body.theme-vk-dark .vk-title-xl  { font-family: var(--vk-font-title); font-size: var(--vk-title-xl-size); line-height: var(--vk-title-xl-line); font-weight: var(--vk-title-xl-weight); }
+body.theme-vk-dark .vk-title-l   { font-family: var(--vk-font-title); font-size: var(--vk-title-l-size);  line-height: var(--vk-title-l-line);  font-weight: var(--vk-title-l-weight); }
+body.theme-vk-dark .vk-title-m   { font-family: var(--vk-font-title); font-size: var(--vk-title-m-size);  line-height: var(--vk-title-m-line);  font-weight: var(--vk-title-m-weight); }
+body.theme-vk-dark .vk-title-s   { font-family: var(--vk-font-title); font-size: var(--vk-title-s-size);  line-height: var(--vk-title-s-line);  font-weight: var(--vk-title-s-weight); text-transform: uppercase; letter-spacing: 0.08em; }
+
+body.theme-vk-dark .vk-body-xl   { font-family: var(--vk-font-body); font-size: var(--vk-body-xl-size); line-height: var(--vk-body-xl-line); font-weight: 400; }
+body.theme-vk-dark .vk-body-l    { font-family: var(--vk-font-body); font-size: var(--vk-body-l-size);  line-height: var(--vk-body-l-line);  font-weight: 400; }
+body.theme-vk-dark .vk-body-m    { font-family: var(--vk-font-body); font-size: var(--vk-body-m-size);  line-height: var(--vk-body-m-line);  font-weight: 400; }
+body.theme-vk-dark .vk-body-s    { font-family: var(--vk-font-body); font-size: var(--vk-body-s-size);  line-height: var(--vk-body-s-line);  font-weight: 400; }
+body.theme-vk-dark .vk-body-l-alt { font-weight: 500 !important; }
+body.theme-vk-dark .vk-body-m-alt { font-weight: 500 !important; }
+
+body.theme-vk-dark .vk-caption-m { font-family: var(--vk-font-body); font-size: var(--vk-caption-m-size); line-height: var(--vk-caption-m-line); font-weight: 400; }
+body.theme-vk-dark .vk-caption-s { font-family: var(--vk-font-body); font-size: var(--vk-caption-s-size); line-height: var(--vk-caption-s-line); font-weight: 400; }
+
+body.theme-vk-dark .vk-mono-s    { font-family: var(--vk-font-mono); font-size: var(--vk-mono-s-size); line-height: var(--vk-mono-s-line); }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Применение типографики к существующему UI в темной теме
+   ═══════════════════════════════════════════════════════════════════ */
+
+body.theme-vk-dark {
+  font-family: var(--vk-font-text);
+}
+
+/* ─── Глобально текст ─── */
+body.theme-vk-dark p,
+body.theme-vk-dark li,
+body.theme-vk-dark span,
+body.theme-vk-dark div {
+  font-family: inherit;
+}
+
+/* ─── Hero — главный заголовок страницы ─── */
+body.theme-vk-dark .dp-castalia-h1 {
+  font-family: var(--vk-font-display);
+  font-size: var(--vk-display-m-size);
+  line-height: var(--vk-display-m-line);
+  font-weight: var(--vk-display-m-weight);
+  letter-spacing: -0.01em;
+}
+body.theme-vk-dark .dp-castalia-eyebrow,
+body.theme-vk-dark .dp-welcome-eyebrow,
+body.theme-vk-dark .dp-eyebrow,
+body.theme-vk-dark .tn-eyebrow {
+  font-family: var(--vk-font-title);
+  font-size: var(--vk-title-s-size);
+  line-height: var(--vk-title-s-line);
+  font-weight: var(--vk-title-s-weight);
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+}
+
+body.theme-vk-dark .dp-welcome-title {
+  font-family: var(--vk-font-display);
+  font-size: var(--vk-display-l-size);
+  line-height: var(--vk-display-l-line);
+  font-weight: var(--vk-display-l-weight);
+  letter-spacing: -0.015em;
+}
+
+/* ─── Hero (профиль) ─── */
+body.theme-vk-dark .dp-hero-name {
+  font-family: var(--vk-font-title);
+  font-size: var(--vk-title-l-size);
+  line-height: var(--vk-title-l-line);
+  font-weight: 600;
+}
+body.theme-vk-dark .dp-hero-stats,
+body.theme-vk-dark .dp-hero-bead {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-body-s-size);
+  line-height: var(--vk-body-s-line);
+}
+
+/* ─── Section headings ─── */
+body.theme-vk-dark .dp-section-h {
+  font-family: var(--vk-font-title);
+  font-size: var(--vk-title-xl-size);
+  line-height: var(--vk-title-xl-line);
+  font-weight: var(--vk-title-xl-weight);
+}
+body.theme-vk-dark .dp-section-desc {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-body-s-size);
+  line-height: var(--vk-body-s-line);
+}
+
+/* ─── Карточки игр — заголовки и описания ─── */
+body.theme-vk-dark .dp-game-title {
+  font-family: var(--vk-font-display);
+  font-size: var(--vk-display-s-size);
+  line-height: var(--vk-display-s-line);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+body.theme-vk-dark .dp-game-eyebrow {
+  font-family: var(--vk-font-title);
+  font-size: var(--vk-title-s-size);
+  line-height: var(--vk-title-s-line);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+}
+body.theme-vk-dark .dp-game-sub {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-body-s-size);
+  line-height: var(--vk-body-s-line);
+}
+
+/* ─── Партия — Round / Question ─── */
+body.theme-vk-dark .tn-round-title {
+  font-family: var(--vk-font-display);
+  font-size: var(--vk-display-m-size);
+  line-height: var(--vk-display-m-line);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+body.theme-vk-dark .tn-q-text {
+  font-family: var(--vk-font-display);
+  font-size: var(--vk-display-s-size);
+  line-height: var(--vk-display-s-line);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+body.theme-vk-dark .tn-q-meta,
+body.theme-vk-dark .tn-q-meta-num,
+body.theme-vk-dark .tn-q-meta-theme,
+body.theme-vk-dark .tn-q-meta-time {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-caption-m-size);
+  line-height: var(--vk-caption-m-line);
+}
+
+/* ─── VS-блок (имя игрока, очки) ─── */
+body.theme-vk-dark .tn-vs-name {
+  font-family: var(--vk-font-title);
+  font-size: var(--vk-title-m-size);
+  line-height: var(--vk-title-m-line);
+  font-weight: 600;
+}
+body.theme-vk-dark .tn-vs-score {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-caption-m-size);
+  line-height: var(--vk-caption-m-line);
+}
+
+/* ─── Опции ответа ─── */
+body.theme-vk-dark .tn-option,
+body.theme-vk-dark .tn-option-text {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-body-m-size);
+  line-height: var(--vk-body-m-line);
+  font-weight: 500;
+}
+body.theme-vk-dark .tn-option-letter {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-caption-m-size);
+  font-weight: 600;
+}
+
+/* ─── Финал партии ─── */
+body.theme-vk-dark .tn-final-eyebrow {
+  font-family: var(--vk-font-title);
+  font-size: var(--vk-title-s-size);
+  line-height: var(--vk-title-s-line);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+body.theme-vk-dark .tn-final-headline {
+  font-family: var(--vk-font-display);
+  font-size: var(--vk-display-m-size);
+  line-height: var(--vk-display-m-line);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+body.theme-vk-dark .tn-final-sub {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-body-s-size);
+  line-height: var(--vk-body-s-line-paragraph);
+  font-style: normal;       /* убираем italic — VK не использует */
+}
+body.theme-vk-dark .tn-final-vs-num {
+  font-family: var(--vk-font-display);
+  font-size: var(--vk-display-l-size);
+  line-height: var(--vk-display-l-line);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+body.theme-vk-dark .tn-final-vs-name {
+  font-family: var(--vk-font-title);
+  font-size: var(--vk-title-m-size);
+  line-height: var(--vk-title-m-line);
+  font-weight: 500;
+}
+body.theme-vk-dark .tn-final-vs-unit {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-caption-s-size);
+  line-height: var(--vk-caption-s-line);
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+}
+body.theme-vk-dark .tn-final-stat-label {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-caption-s-size);
+  line-height: var(--vk-caption-s-line);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+}
+body.theme-vk-dark .tn-final-stat-value {
+  font-family: var(--vk-font-display);
+  font-size: var(--vk-display-s-size);
+  line-height: var(--vk-display-s-line);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.005em;
+}
+body.theme-vk-dark .tn-final-stat-sub {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-caption-s-size);
+  line-height: var(--vk-caption-s-line);
+}
+body.theme-vk-dark .tn-final-scoring-eyebrow,
+body.theme-vk-dark .tn-final-archive-eyebrow {
+  font-family: var(--vk-font-title);
+  font-size: var(--vk-title-s-size);
+  line-height: var(--vk-title-s-line);
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  font-weight: 600;
+}
+body.theme-vk-dark .tn-final-scoring-text,
+body.theme-vk-dark .tn-final-archive-list {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-caption-m-size);
+  line-height: var(--vk-caption-m-line);
+}
+body.theme-vk-dark .tn-final-btn {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-body-m-size);
+  line-height: var(--vk-body-m-line);
+  font-weight: 500;
+}
+
+/* ─── Feedback после ответа ─── */
+body.theme-vk-dark .tn-feedback,
+body.theme-vk-dark .tn-feedback-text {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-body-s-size);
+  line-height: var(--vk-body-s-line);
+  font-weight: 500;
+}
+body.theme-vk-dark .tn-feedback-busey {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-caption-m-size);
+  font-weight: 600;
+}
+
+/* ─── Quit / Sync ─── */
+body.theme-vk-dark .tn-quit,
+body.theme-vk-dark .dp-sync-notice-cta,
+body.theme-vk-dark .dp-theme-toggle {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-caption-m-size);
+  font-weight: 500;
+}
+body.theme-vk-dark .dp-sync-notice-title {
+  font-family: var(--vk-font-title);
+  font-size: var(--vk-title-m-size);
+  line-height: var(--vk-title-m-line);
+  font-weight: 600;
+}
+body.theme-vk-dark .dp-sync-notice-text {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-caption-m-size);
+  line-height: var(--vk-caption-m-line);
+}
+
+/* ─── Партитура / Освоение тем ─── */
+body.theme-vk-dark .dp-theme-name {
+  font-family: var(--vk-font-title);
+  font-size: var(--vk-title-m-size);
+  font-weight: 500;
+}
+
+/* ─── Радиусы карточек VK-шире ─── */
+body.theme-vk-dark .dp-card,
+body.theme-vk-dark .dp-game-card,
+body.theme-vk-dark .tn-q-card,
+body.theme-vk-dark .tn-final-vs,
+body.theme-vk-dark .tn-final-stat,
+body.theme-vk-dark .dp-hero {
+  border-radius: var(--vk-spacing-x6);  /* 24px у VK для карточек */
+}
+
+/* ─── Auth modal в VK-стиле ─── */
+body.theme-vk-dark .dp-auth-modal {
+  background: var(--bg-surface);
+  border: 0.5px solid var(--border-1);
+  border-radius: var(--vk-spacing-x6);
+}
+body.theme-vk-dark .dp-auth-modal h2 {
+  font-family: var(--vk-font-display);
+  font-size: var(--vk-display-s-size);
+  line-height: var(--vk-display-s-line);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+body.theme-vk-dark .dp-auth-modal p {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-body-s-size);
+  line-height: var(--vk-body-s-line);
+}
+body.theme-vk-dark .dp-auth-eyebrow {
+  font-family: var(--vk-font-title);
+  font-size: var(--vk-title-s-size);
+  line-height: var(--vk-title-s-line);
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+}
+
+/* ─── Мобильная адаптация: Display L → M ─── */
+@media (max-width: 600px) {
+  body.theme-vk-dark .dp-welcome-title,
+  body.theme-vk-dark .tn-final-vs-num {
+    font-size: var(--vk-display-m-size);
+    line-height: var(--vk-display-m-line);
+  }
+  body.theme-vk-dark .dp-castalia-h1,
+  body.theme-vk-dark .tn-final-headline,
+  body.theme-vk-dark .tn-round-title {
+    font-size: var(--vk-display-s-size);
+    line-height: var(--vk-display-s-line);
+  }
+  body.theme-vk-dark .tn-q-text {
+    font-size: var(--vk-title-xl-size);
+    line-height: var(--vk-title-xl-line);
+  }
+  body.theme-vk-dark .tn-option {
+    font-size: var(--vk-body-s-size);
+    line-height: var(--vk-body-s-line);
+  }
+}
