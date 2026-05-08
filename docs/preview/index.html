@@ -31,6 +31,24 @@
 <link rel="stylesheet" href="vk-tech-tokens.css?v=7"/>
 <!-- VK Dark Theme — точечные правки гида (только preview) -->
 <link rel="stylesheet" href="theme-vk-dark-guide.css?v=5"/>
+
+<!-- ═══ Стартовый экран — редирект для первого визита ═══════════════
+     Если пользователь ещё не выбрал путь (Учить / Играть / Изучать) —
+     перенаправляем на стартовую разводку. Опытные не теряют доступ:
+     start.html сам редиректит обратно если флаг yasna_visited установлен.
+     ─────────────────────────────────────────────────────────────── -->
+<script>
+(function(){
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var skip = params.get('skip-start') === '1';
+    if(skip || params.get('reset') === '1') return;
+    if(localStorage.getItem('yasna_visited') !== '1'){
+      window.location.replace('start.html');
+    }
+  } catch(_){}
+})();
+</script>
 </head>
 <body>
 <div id="root"></div>
