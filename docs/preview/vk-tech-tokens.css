@@ -553,6 +553,152 @@ body.theme-vk-dark .hdr > a:first-child * {
   color: var(--vk-text-primary) !important;
 }
 
+/* ════════════════════════════════════════════════════════════════════
+   INFO-CARD (.fi) · карточка полочки в правой панели
+   ────────────────────────────────────────────────────────────────────
+   Header карточки имеет белый фон (`background:#fff` inline), нужно
+   принудительно перевести в Dark. Все тексты — VK text scale.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Сама карточка — всегда elevated dark */
+body.theme-vk-dark .fi {
+  background: var(--vk-bg-elevated) !important;   /* #262626 */
+  color: var(--vk-text-primary) !important;
+  border: 1px solid var(--vk-border) !important;
+  font-family: var(--vk-font) !important;
+  box-shadow: var(--vk-elevation-modal) !important;
+}
+
+/* Все вложенные элементы — наследуют dark, но мы явно перебиваем
+   inline-стили (которые могут стоять на shells/headers внутри) */
+body.theme-vk-dark .fi *,
+body.theme-vk-dark .fi *::before,
+body.theme-vk-dark .fi *::after {
+  font-family: var(--vk-font) !important;
+}
+
+/* Header / divider внутри .fi с белым фоном → dark */
+body.theme-vk-dark .fi [style*='rgb(255, 255, 255)'],
+body.theme-vk-dark .fi [style*='rgb(255,255,255)'],
+body.theme-vk-dark .fi [style*='rgb(245, 245, 247)'],
+body.theme-vk-dark .fi [style*='rgb(248, 248, 249)'] {
+  background: var(--vk-bg-elevated) !important;
+}
+
+/* Заголовки-крупные (название полочки) — text-primary */
+body.theme-vk-dark .fi h1,
+body.theme-vk-dark .fi h2,
+body.theme-vk-dark .fi h3,
+body.theme-vk-dark .fi [style*='font-size:20'],
+body.theme-vk-dark .fi [style*='font-size: 20'],
+body.theme-vk-dark .fi [style*='font-size:18'],
+body.theme-vk-dark .fi [style*='font-size: 18'],
+body.theme-vk-dark .fi [style*='font-size:24'],
+body.theme-vk-dark .fi [style*='font-size: 24'],
+body.theme-vk-dark .fi [style*='font-weight:600'],
+body.theme-vk-dark .fi [style*='font-weight: 600'],
+body.theme-vk-dark .fi [style*='font-weight:700'],
+body.theme-vk-dark .fi [style*='font-weight: 700'] {
+  color: var(--vk-text-primary) !important;
+}
+
+/* Серые тексты внутри .fi (#86868b, #6e6e73, #424245, #aeaeb2) → secondary */
+body.theme-vk-dark .fi [style*='rgb(134, 134, 139)'],
+body.theme-vk-dark .fi [style*='rgb(110, 110, 115)'],
+body.theme-vk-dark .fi [style*='rgb(66, 66, 69)'],
+body.theme-vk-dark .fi [style*='rgb(174, 174, 178)'],
+body.theme-vk-dark .fi [style*='rgb(168, 168, 176)'],
+body.theme-vk-dark .fi [style*='rgb(125, 125, 132)'] {
+  color: var(--vk-text-secondary) !important;
+}
+
+/* Описание полочки (большой параграф) — primary, не secondary */
+body.theme-vk-dark .fi p,
+body.theme-vk-dark .fi [style*='line-height:1.6'],
+body.theme-vk-dark .fi [style*='line-height: 1.6'],
+body.theme-vk-dark .fi [style*='line-height:1.5'],
+body.theme-vk-dark .fi [style*='line-height: 1.5'] {
+  color: var(--vk-text-primary) !important;
+  font-size: var(--vk-fs-s) !important;     /* 14 */
+  line-height: var(--vk-lh-s) !important;   /* 22 */
+}
+
+/* Кнопка «Открыть в Ясне Суток» внутри .fi — VK Primary */
+body.theme-vk-dark .fi button[style*='rgb(255, 255, 255)'],
+body.theme-vk-dark .fi button {
+  background: var(--vk-accent) !important;       /* #0077FF */
+  color: #fff !important;
+  border: none !important;
+  border-radius: var(--vk-radius-s) !important;
+  height: var(--vk-h-button-m) !important;
+  padding: 0 var(--vk-sp-6) !important;
+  font-family: var(--vk-font) !important;
+  font-size: var(--vk-fs-s) !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: background var(--vk-trans-fast) !important;
+}
+body.theme-vk-dark .fi button:hover {
+  background: var(--vk-accent-hover) !important;  /* #16A7FF */
+}
+
+/* Крестик закрытия (×) — text-secondary, hover → primary */
+body.theme-vk-dark .fi button[aria-label*='акрыт'],
+body.theme-vk-dark .fi button[title*='акрыт'],
+body.theme-vk-dark .fi [class*='close'] {
+  background: transparent !important;
+  color: var(--vk-text-secondary) !important;
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  border-radius: var(--vk-radius-s) !important;
+  font-size: 20px !important;
+}
+body.theme-vk-dark .fi button[aria-label*='акрыт']:hover,
+body.theme-vk-dark .fi [class*='close']:hover {
+  background: var(--vk-bg-tonal) !important;
+  color: var(--vk-text-primary) !important;
+}
+
+/* Цветные пиллы-теги (Надежда, Вода, Короткое, ОЦЕНКА/ВЕСЫ) — оставляем
+   их semantic-цвета, но улучшаем читаемость на тёмном через тонкий border */
+body.theme-vk-dark .fi [style*='border-radius:100'],
+body.theme-vk-dark .fi [style*='border-radius: 100'] {
+  font-size: var(--vk-fs-xs) !important;
+  font-weight: 500 !important;
+  font-family: var(--vk-font) !important;
+}
+
+/* Боковые ссылки на соседние полочки (← 8, → 10, ↔ 3) — text-secondary */
+body.theme-vk-dark .fi [style*='display:flex'][style*='gap:'] {
+  color: var(--vk-text-secondary) !important;
+}
+
+/* Стрелка-разворачиватель ">" слева сверху (drawer toggle) */
+body.theme-vk-dark [class*='drawer'],
+body.theme-vk-dark [class*='Drawer'],
+body.theme-vk-dark .fi-drawer-toggle,
+body.theme-vk-dark button[aria-label*='Развернуть'] {
+  background: var(--vk-bg-elevated) !important;
+  color: var(--vk-text-primary) !important;
+  border: 1px solid var(--vk-border) !important;
+}
+
+/* Divider line внутри .fi — тоньше и темнее */
+body.theme-vk-dark .fi hr,
+body.theme-vk-dark .fi [style*='border-top:1px solid'],
+body.theme-vk-dark .fi [style*='border-bottom:1px solid'] {
+  border-color: var(--vk-border) !important;
+}
+
+/* Числовая «9» (большая цифра полочки в header карточки) — accent semantic.
+   На скриншоте — красный круг с цифрой. Оставляем как есть (semantic),
+   но добавляем читаемое свечение через CSS-glow. */
+body.theme-vk-dark .fi [style*='border:2px solid rgb(2'],
+body.theme-vk-dark .fi [style*='border: 2px solid rgb(2'] {
+  box-shadow: 0 0 12px rgba(255, 80, 80, 0.30);
+}
+
 /* Burger menu dropdown */
 body.theme-vk-dark .hdr-burger > div[style*='position:absolute'] {
   background: var(--vk-bg-elevated) !important;
