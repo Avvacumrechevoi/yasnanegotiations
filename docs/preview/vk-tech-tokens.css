@@ -424,6 +424,135 @@ body.theme-vk-dark .nav-tabs button[style*='border:1px dashed'] {
   border: 1px dashed var(--vk-border-strong) !important;
 }
 
+/* ════════════════════════════════════════════════════════════════════
+   КРИТИЧНО: React нормализует inline-style → `rgb(255, 255, 255)`
+   ────────────────────────────────────────────────────────────────────
+   В DOM атрибут получается `style="background: rgb(255, 255, 255);"`,
+   поэтому селекторы `[style*='#fff']` НЕ срабатывают.
+   Ловим через rgb(255,255,255) и rgb(245,245,247) — частые случаи.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Белый фон (rgb форма) → bg-elevated */
+body.theme-vk-dark [style*='rgb(255, 255, 255)'],
+body.theme-vk-dark [style*='rgb(255,255,255)'] {
+  background: var(--vk-bg-elevated) !important;
+}
+
+/* Светло-серый фон (#f5f5f7 → rgb(245,245,247)) */
+body.theme-vk-dark [style*='rgb(245, 245, 247)'],
+body.theme-vk-dark [style*='rgb(245,245,247)'] {
+  background: var(--vk-bg-tonal) !important;
+}
+
+/* Светлый стандартный border (#d2d2d7 → rgb(210,210,215)) */
+body.theme-vk-dark [style*='rgb(210, 210, 215)'],
+body.theme-vk-dark [style*='rgb(210,210,215)'] {
+  border-color: var(--vk-border) !important;
+}
+
+/* Светло-серый бордер (#e5e5ea → rgb(229,229,234)) */
+body.theme-vk-dark [style*='rgb(229, 229, 234)'],
+body.theme-vk-dark [style*='rgb(229,229,234)'] {
+  border-color: var(--vk-border) !important;
+}
+
+/* Серый текст (#6e6e73 → rgb(110,110,115)) */
+body.theme-vk-dark [style*='rgb(110, 110, 115)'] {
+  color: var(--vk-text-secondary) !important;
+}
+
+/* Apple-серый средний (#424245 → rgb(66,66,69)) */
+body.theme-vk-dark [style*='rgb(66, 66, 69)'] {
+  color: var(--vk-text-primary) !important;
+}
+
+/* Apple-Blue (#0071e3 → rgb(0,113,227)) → VK Play Light Blue */
+body.theme-vk-dark [style*='rgb(0, 113, 227)'],
+body.theme-vk-dark [style*='rgb(0,113,227)'] {
+  color: var(--vk-accent-hover) !important;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   ТОЧЕЧНЫЕ ПРАВКИ ПО СКРИНШОТУ (сейчас белые)
+   ────────────────────────────────────────────────────────────────────
+   1. Кнопка «Механики ▼» (.filters-toggle button)
+   2. Dropdown «Справка ▼» (имеет ▼ + select-стиль)
+   3. Star toolbar (3D / ↺ / ↻ / ⋯) справа над звездой
+   4. Кнопка «Игра» — улучшение контраста
+   ════════════════════════════════════════════════════════════════════ */
+
+/* 1. «Механики ▼» — это .filters > button с inline style. Ловим через
+      селектор по contents («Механики») и через filters-toggle */
+body.theme-vk-dark .filters > div > button,
+body.theme-vk-dark .filters-toggle > button,
+body.theme-vk-dark [class*='filters'] > button,
+body.theme-vk-dark button[title*='Развернуть'] {
+  background: var(--vk-bg-tonal) !important;
+  color: var(--vk-text-primary) !important;
+  border: 1px solid var(--vk-border) !important;
+  border-radius: var(--vk-radius-l) !important;
+  font-family: var(--vk-font) !important;
+  font-weight: 600 !important;
+}
+body.theme-vk-dark button[title*='Развернуть']:hover {
+  background: var(--vk-bg-strong) !important;
+}
+
+/* 2. «Справка ▼» — выпадашка в хедере. Видится как button с inline
+      bg:#fff. Ловим всё что в .hdr-btns и имеет белый фон. */
+body.theme-vk-dark .hdr-btns > button[style*='rgb(255, 255, 255)'],
+body.theme-vk-dark .hdr-btns > button[style*='rgb(255,255,255)'] {
+  background: var(--vk-bg-tonal) !important;
+  color: var(--vk-text-primary) !important;
+  border: 1px solid var(--vk-border) !important;
+}
+
+/* 3. Star toolbar — обычно position:absolute группа кнопок над звездой.
+      Хедер этой панели по скриншоту в правом-верхнем. Мы видим что у
+      них белая обводка/фон. Ловим через class+inline. */
+body.theme-vk-dark [class*='star-toolbar'],
+body.theme-vk-dark [class*='Toolbar'],
+body.theme-vk-dark [style*='position: absolute'][style*='rgb(255, 255, 255)'] {
+  background: var(--vk-bg-elevated) !important;
+  border-color: var(--vk-border) !important;
+  color: var(--vk-text-primary) !important;
+}
+body.theme-vk-dark [class*='star-toolbar'] button,
+body.theme-vk-dark [class*='Toolbar'] button {
+  background: transparent !important;
+  color: var(--vk-text-primary) !important;
+}
+body.theme-vk-dark [class*='star-toolbar'] button:hover,
+body.theme-vk-dark [class*='Toolbar'] button:hover {
+  background: var(--vk-bg-tonal) !important;
+}
+
+/* 4. Кнопка «Игра» — улучшаю контраст */
+body.theme-vk-dark .hdr-btns > button[style*='rgb(255, 248, 232)'],  /* #fff8e8 */
+body.theme-vk-dark .hdr-btns > button[style*='rgb(255,248,232)'] {
+  background: var(--vk-accent-soft) !important;
+  color: var(--vk-accent-hover) !important;
+  border: 1px solid var(--vk-accent) !important;
+}
+
+/* Любые элементы которые рисуются как pill toolbar (например,
+   3D-controls группа справа сверху) — кетит обводку */
+body.theme-vk-dark [style*='border-radius: 100px'][style*='rgb(255, 255, 255)'],
+body.theme-vk-dark [style*='border-radius:100px'][style*='rgb(255, 255, 255)'] {
+  background: var(--vk-bg-elevated) !important;
+  border-color: var(--vk-border) !important;
+}
+
+/* Логотип «Ясна» в левом верхнем углу — крупное лого должно быть видно */
+body.theme-vk-dark .hdr > a:first-child,
+body.theme-vk-dark .hdr-brand-desk,
+body.theme-vk-dark .hdr-brand-mob {
+  color: var(--vk-text-primary) !important;
+}
+body.theme-vk-dark .hdr > a:first-child * {
+  color: var(--vk-text-primary) !important;
+}
+
 /* Burger menu dropdown */
 body.theme-vk-dark .hdr-burger > div[style*='position:absolute'] {
   background: var(--vk-bg-elevated) !important;
