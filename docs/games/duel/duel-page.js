@@ -152,13 +152,13 @@
             'aria-expanded': helpOpen
           }, '?'),
           helpOpen && React.createElement('div', { className: 'dp-help-popover' },
-            React.createElement('h4', null, 'Касталия Ясны'),
+            React.createElement('h4', null, 'Тренажёр Ясны'),
             React.createElement('div', null, 'Тихое место, где играют в бисер. Партия — восемнадцать вопросов из шести случайных тем. Соперник — Тень или живой собеседник.'),
             React.createElement('ul', null,
               React.createElement('li', null, React.createElement('strong', null, 'Бусины ✦'), ' — твои очки. За верный ответ + бонус скорости.'),
               React.createElement('li', null, React.createElement('strong', null, 'Ступень'), ' — от Послушника до Магистра.'),
               React.createElement('li', null, React.createElement('strong', null, 'Партитура'), ' — карта девяти тем мира.'),
-              React.createElement('li', null, React.createElement('strong', null, 'Хроника'), ' — летопись Магистров недели.')
+              React.createElement('li', null, React.createElement('strong', null, 'Хроника'), ' — топ игроков недели.')
             )
           ),
           user
@@ -173,14 +173,14 @@
     );
   }
 
-  // ─── Касталия headline ───────────────────────────────────────────
+  // ─── Headline на главной ─────────────────────────────────────────
   function DPCastaliaTitle(){
     return React.createElement('div', { className: 'dp-castalia-title' },
-      React.createElement('div', { className: 'dp-castalia-eyebrow' }, '✦  Касталия Ясны'),
+      React.createElement('div', { className: 'dp-castalia-eyebrow' }, '✦  Тренажёр Ясны'),
       React.createElement('h1', { className: 'dp-castalia-h1' },
-        React.createElement('span', null, 'Игра в бисер,'),
+        React.createElement('span', null, 'Ясна.'),
         React.createElement('br'),
-        React.createElement('span', null, 'по-русски.')
+        React.createElement('span', null, 'Партия за партией.')
       )
     );
   }
@@ -188,10 +188,10 @@
   // ─── Welcome (первый визит) ──────────────────────────────────────
   function DPWelcome({ onLoginClick, onAnonStart }){
     return React.createElement('section', { className: 'dp-welcome', role: 'region', 'aria-label': 'Приветствие' },
-      React.createElement('div', { className: 'dp-welcome-eyebrow' }, '✦  Касталия Ясны'),
-      React.createElement('h1', { className: 'dp-welcome-title' }, 'Игра в бисер,', React.createElement('br'), 'по-русски.'),
+      React.createElement('div', { className: 'dp-welcome-eyebrow' }, '✦  Тренажёр Ясны'),
+      React.createElement('h1', { className: 'dp-welcome-title' }, 'Ясна.', React.createElement('br'), 'Партия за партией.'),
       React.createElement('p', { className: 'dp-welcome-sub' },
-        'Партия из восемнадцати вопросов. Шесть тем мира. Соперник — Тень или живой собеседник. Тренируй память, собирай бусины, поднимайся по ступеням Ордена.'
+        'Тренируй знание модели Ясны через короткие партии. 18 вопросов с 4 вариантами ответа. Шесть тем по три вопроса. Соперник — бот или живой друг. За верный ответ +10 бусин, за быстрый — бонус +5.'
       ),
       React.createElement('div', { className: 'dp-welcome-actions' },
         React.createElement('button', { className: 'dp-btn dp-btn-cta', onClick: onLoginClick }, 'Войти через Telegram'),
@@ -200,15 +200,15 @@
       React.createElement('div', { className: 'dp-welcome-pillars' },
         React.createElement('div', { className: 'dp-welcome-pillar' },
           React.createElement('div', { className: 'dp-welcome-pillar-label' }, '◷  Партия'),
-          React.createElement('div', { className: 'dp-welcome-pillar-text' }, 'Восемнадцать вопросов · шесть тем · пять минут')
+          React.createElement('div', { className: 'dp-welcome-pillar-text' }, '18 вопросов · 6 тем · около 5 минут')
         ),
         React.createElement('div', { className: 'dp-welcome-pillar' },
-          React.createElement('div', { className: 'dp-welcome-pillar-label' }, '◐  Тень'),
-          React.createElement('div', { className: 'dp-welcome-pillar-text' }, 'Бот трёх ликов: Послушник, Игрок, Магистр')
+          React.createElement('div', { className: 'dp-welcome-pillar-label' }, '◐  Соперник'),
+          React.createElement('div', { className: 'dp-welcome-pillar-text' }, 'Бот-соперник или живой друг в реальном времени')
         ),
         React.createElement('div', { className: 'dp-welcome-pillar' },
           React.createElement('div', { className: 'dp-welcome-pillar-label' }, '✦  Бусины'),
-          React.createElement('div', { className: 'dp-welcome-pillar-text' }, 'Очки игры. Хроника недели — топ Магистров')
+          React.createElement('div', { className: 'dp-welcome-pillar-text' }, '10 за верный ответ, +5 за быстрый. Хроника недели — топ игроков')
         )
       )
     );
@@ -266,31 +266,31 @@
       React.createElement('div', { style: { marginBottom: 'var(--space-5)' } },
         React.createElement('div', { className: 'dp-eyebrow' }, 'Главный ритуал'),
         React.createElement('h2', { className: 'dp-section-h', style: { fontFamily: 'var(--font-serif)', fontWeight: 500, fontSize: 22, letterSpacing: '-0.005em' } },
-          'Партия и Узор'
+          'Партия и Расклад'
         ),
         React.createElement('p', { className: 'dp-section-desc', style: { marginTop: 6 } },
-          'Две игры мира Касталии. ',
-          React.createElement('strong', { style: { color: 'var(--text-1)', fontWeight: 500 } }, 'Партия'), ' — длинная, размышление. ',
-          React.createElement('strong', { style: { color: 'var(--text-1)', fontWeight: 500 } }, 'Узор'), ' — короткая, схватывание.'
+          'Две практики Ясны. ',
+          React.createElement('strong', { style: { color: 'var(--text-1)', fontWeight: 500 } }, 'Партия'), ' — 18 вопросов с вариантами ответа. ',
+          React.createElement('strong', { style: { color: 'var(--text-1)', fontWeight: 500 } }, 'Расклад'), ' — расставить элементы по местам быстрее соперника.'
         )
       ),
       React.createElement('div', { className: 'dp-games-grid' },
         React.createElement('button', { className: 'dp-game-card dp-game-primary', onClick: onPartiya },
-          React.createElement('div', { className: 'dp-game-eyebrow' }, 'Партия · ≈5 минут'),
+          React.createElement('div', { className: 'dp-game-eyebrow' }, 'Партия · ~5 минут'),
           React.createElement('div', { className: 'dp-game-title' }, 'Партия'),
-          React.createElement('div', { className: 'dp-game-sub' }, 'Шесть тем, восемнадцать вопросов. Соперник — Тень трёх ликов или живой собеседник.'),
+          React.createElement('div', { className: 'dp-game-sub' }, '18 вопросов с 4 вариантами ответа. 6 тем по 3 вопроса. Точность важнее скорости — за верный ответ +10 бусин, за быстрый бонус +5.'),
           React.createElement('div', { className: 'dp-game-meta' },
-            React.createElement('span', null, 'с Тенью'),
+            React.createElement('span', null, 'Соло против бота'),
             React.createElement('span', null, '·'),
-            React.createElement('span', { className: 'dp-game-meta-pvp' }, 'вдвоём ✦')
+            React.createElement('span', { className: 'dp-game-meta-pvp' }, 'Вдвоём с другом ✦')
           )
         ),
-        React.createElement('button', { className: 'dp-game-card', onClick: onUzor },
-          React.createElement('div', { className: 'dp-game-eyebrow' }, 'Узор · ≈90 секунд'),
-          React.createElement('div', { className: 'dp-game-title' }, 'Узор'),
-          React.createElement('div', { className: 'dp-game-sub' }, 'Расставить двенадцать элементов по полочкам Ясны быстрее соперника. Только живой соперник.'),
+        React.createElement('button', { className: 'dp-game-card dp-game-soon', onClick: onUzor, disabled: true, style: { opacity: 0.6, cursor: 'not-allowed' } },
+          React.createElement('div', { className: 'dp-game-eyebrow' }, 'Расклад · скоро'),
+          React.createElement('div', { className: 'dp-game-title' }, 'Расклад'),
+          React.createElement('div', { className: 'dp-game-sub' }, 'Расставить 12 элементов по местам быстрее соперника. Игра в разработке — пока недоступна.'),
           React.createElement('div', { className: 'dp-game-meta' },
-            React.createElement('span', { className: 'dp-game-meta-pvp' }, 'только вдвоём ✦')
+            React.createElement('span', { className: 'dp-game-meta-pvp' }, 'в разработке')
           )
         )
       )
@@ -421,12 +421,12 @@
     return React.createElement('div', { className: 'dp-card', id: 'hronika' },
       React.createElement('div', { className: 'dp-card-h' },
         React.createElement('h3', null, IconScroll(), ' ',
-          Term('Хроника недели', 'Хроника — летопись Магистров недели по бусинам. Обнуляется в субботу 23:59.')
+          Term('Хроника недели', 'Хроника — топ игроков недели по бусинам. Обнуляется в субботу 23:59.')
         ),
         React.createElement('span', { className: 'dp-card-meta' }, 'Сб 23:59')
       ),
       items === null
-        ? React.createElement('div', { className: 'dp-card-empty' }, 'Касталия открывает врата…')
+        ? React.createElement('div', { className: 'dp-card-empty' }, 'Пока пусто. Сыграй Партию.')
         : items.length === 0
           ? React.createElement('div', { className: 'dp-card-empty' }, 'Хроника ждёт первой записи.', React.createElement('br'), 'Сыграй Партию.')
           : React.createElement(React.Fragment, null,
@@ -471,10 +471,10 @@
     const Ach = _g('YasnaDuelAchievements');
     if(!Ach?.list || !Ach?.getUnlocked) return React.createElement('div', { className: 'dp-card', id: 'znaki' },
       React.createElement('div', { className: 'dp-card-h' },
-        React.createElement('h3', null, IconStar(), ' Знаки Магистра'),
+        React.createElement('h3', null, IconStar(), ' Достижения'),
         React.createElement('span', { className: 'dp-card-meta' }, '0 / 0')
       ),
-      React.createElement('div', { className: 'dp-card-empty' }, 'Касталия открывает врата…')
+      React.createElement('div', { className: 'dp-card-empty' }, 'Пока пусто. Сыграй Партию.')
     );
     const all = Ach.list();
     const unlocked = Ach.getUnlocked() || [];
@@ -486,7 +486,7 @@
     return React.createElement('div', { className: 'dp-card', id: 'znaki' },
       React.createElement('div', { className: 'dp-card-h' },
         React.createElement('h3', null, IconStar(), ' ',
-          Term('Знаки Магистра', 'Знаки — церемониальные титулы. Открываются за упорство, серии и победы.')
+          Term('Достижения', 'Достижения — открываются за упорство, серии и победы.')
         ),
         React.createElement('span', { className: 'dp-card-meta' }, unlocked.length, ' / ', all.length)
       ),
@@ -529,13 +529,29 @@
 
     function fmtMatchName(m){
       if(m.gameId === 'turnir') {
-        const lvl = m.botLevel || 'Тень';
-        const tNames = { easy: 'Тенью Послушника', medium: 'Тенью Игрока', hard: 'Тенью Магистра' };
-        return 'Партия с ' + (tNames[lvl] || (m.opponentName || 'Тенью'));
+        const opp = m.transport === 'peerjs' || m.transport === 'broadcast' ? 'другом' : 'Тенью';
+        return 'Партия с ' + opp;
       }
-      if(m.gameId?.startsWith('race-')) return 'Race ' + m.gameId.replace('race-', '');
-      if(m.gameId === 'mirror-fill') return 'Узор';
+      if(m.gameId?.startsWith('race-')) return 'Тренировка · ' + m.gameId.replace('race-', '');
+      if(m.gameId === 'mirror-fill') return 'Расклад';
       return m.gameId || 'Игра';
+    }
+
+    function fmtAccuracy(m){
+      // Если score есть и это turnir — попробуем оценить точность
+      if(m.gameId !== 'turnir' || m.score == null || m.maxScore == null) return null;
+      // 18 вопросов × 15 max = 270. Точность примерно: правильных = score / ~12.5
+      // Грубая оценка: правильных ≈ score / 12 (10-15 бусин за верный)
+      const approxCorrect = Math.round(m.score / 12);
+      const totalQ = 18;
+      return Math.min(approxCorrect, totalQ) + '/' + totalQ + ' верных';
+    }
+
+    function fmtResult(m){
+      if(m.result === 'win')  return 'Победа';
+      if(m.result === 'loss') return 'Поражение';
+      if(m.result === 'draw') return 'Ничья';
+      return null;
     }
 
     return React.createElement('div', { className: 'dp-card', id: 'zhurnal' },
@@ -546,15 +562,21 @@
       matches.length === 0
         ? React.createElement('div', { className: 'dp-card-empty' }, 'Партий ещё не было.', React.createElement('br'), 'Начни — здесь появится первая запись.')
         : React.createElement(React.Fragment, null,
-            matches.map((m, i) =>
-              React.createElement('div', { key: m.id || i, className: 'dp-journal-row' },
+            matches.map((m, i) => {
+              const acc = fmtAccuracy(m);
+              const res = fmtResult(m);
+              return React.createElement('div', { key: m.id || i, className: 'dp-journal-row' },
                 React.createElement('span', { className: 'dp-journal-when' }, fmtWhen(m.date)),
-                React.createElement('span', { className: 'dp-journal-name' }, fmtMatchName(m)),
+                React.createElement('span', { className: 'dp-journal-name' },
+                  fmtMatchName(m),
+                  acc && React.createElement('span', { className: 'dp-journal-acc' }, ' · ', acc),
+                  res && React.createElement('span', { className: 'dp-journal-res ' + (m.result === 'win' ? 'dp-journal-res-win' : m.result === 'draw' ? 'dp-journal-res-draw' : 'dp-journal-res-loss') }, ' · ', res)
+                ),
                 React.createElement('span', {
                   className: 'dp-journal-result ' + (m.result === 'win' ? 'dp-journal-win' : 'dp-journal-loss')
                 }, m.result === 'win' ? '+ ' : '', m.score != null ? m.score + ' ✦' : '—')
-              )
-            )
+              );
+            })
           )
     );
   }
@@ -815,7 +837,7 @@
       React.createElement('div', { className: 'dp-lobby', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'lobby-h' },
         React.createElement('button', { className: 'dp-lobby-x', onClick: onClose, 'aria-label': 'Закрыть' }, '×'),
         React.createElement('div', { className: 'dp-lobby-eyebrow' }, '✦  Партия вдвоём'),
-        React.createElement('h2', { id: 'lobby-h' }, 'Касталия зовёт двоих'),
+        React.createElement('h2', { id: 'lobby-h' }, 'Партия для двоих'),
 
         mode === 'choose' && React.createElement(React.Fragment, null,
           React.createElement('p', { className: 'dp-lobby-sub' },
@@ -1150,7 +1172,7 @@
       React.createElement('div', { className: 'dp-lobby', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'lobby-h' },
         React.createElement('button', { className: 'dp-lobby-x', onClick: onClose, 'aria-label': 'Закрыть' }, '×'),
         React.createElement('div', { className: 'dp-lobby-eyebrow' }, '✦  Партия вдвоём'),
-        React.createElement('h2', { id: 'lobby-h' }, 'Касталия зовёт двоих'),
+        React.createElement('h2', { id: 'lobby-h' }, 'Партия для двоих'),
 
         mode === 'choose' && React.createElement(React.Fragment, null,
           React.createElement('p', { className: 'dp-lobby-sub' },
@@ -1435,7 +1457,7 @@
       const Turnir = _g('YasnaTurnir');
       if(!Turnir){
         return React.createElement('div', { className: 'dp-root' },
-          React.createElement('div', { style: { textAlign: 'center', padding: 60, color: 'var(--text-3)' } }, 'Касталия открывает врата…')
+          React.createElement('div', { style: { textAlign: 'center', padding: 60, color: 'var(--text-3)' } }, 'Пока пусто. Сыграй Партию.')
         );
       }
       const me = user || profile;
@@ -1483,7 +1505,7 @@
 
       React.createElement('footer', { className: 'dp-footer' },
         React.createElement('div', { className: 'dp-footer-quote' },
-          '«В Касталии не выигрывают и не проигрывают.', React.createElement('br'),
+          '«В Ясне не выигрывают и не проигрывают.', React.createElement('br'),
           'Здесь играют — это и есть смысл.»'
         ),
         React.createElement('div', null,
@@ -1491,7 +1513,7 @@
           ' · ',
           React.createElement('a', { href: 'https://github.com/Avvacumrechevoi/yasnanegotiations', target: '_blank', rel: 'noopener' }, 'GitHub')
         ),
-        React.createElement('div', { className: 'dp-footer-version' }, 'Касталия Ясны · v2.0 · мая 2026')
+        React.createElement('div', { className: 'dp-footer-version' }, 'Ясна · v2.0 · мая 2026')
       ),
 
       authModal && React.createElement(DPAuthModal, { onClose: () => setAuthModal(false), onLoggedIn }),
@@ -1500,7 +1522,7 @@
         onCancel: () => { setAnonModal(false); delete window.__dpPendingPlay; }
       }),
 
-      // ─── Диалог выбора режима Партии (с Тенью / вдвоём) ───
+      // ─── Диалог выбора режима Партии (соло / вдвоём) ───
       partiyaPicker && React.createElement('div', {
         className: 'dp-auth-overlay',
         onClick: e => { if(e.target === e.currentTarget) setPartiyaPicker(false); }
@@ -1509,32 +1531,19 @@
           React.createElement('button', { className: 'dp-auth-x', onClick: () => setPartiyaPicker(false), 'aria-label': 'Отмена' }, '×'),
           React.createElement('div', { className: 'dp-auth-eyebrow' }, '✦  Партия'),
           React.createElement('h2', null, 'С кем играешь?'),
-          React.createElement('p', null, 'Тень — бот трёх ликов. Собеседник — живой игрок в реальном времени.'),
+          React.createElement('p', null, '18 вопросов с 4 вариантами ответа. Точность важнее скорости.'),
           React.createElement('div', { style: { display: 'grid', gap: 8, marginTop: 16 } },
-            React.createElement('button', {
-              className: 'dp-btn',
-              onClick: () => { setPartiyaPicker(false); startPartiyaWithShadow('easy'); },
-              style: { padding: '14px 18px', justifyContent: 'flex-start', textAlign: 'left' }
-            }, '🌅  ', React.createElement('span', { style: { fontWeight: 500, marginLeft: 4 } }, 'Тень Послушника'),
-              React.createElement('span', { style: { fontSize: 12, color: 'var(--text-3)', marginLeft: 'auto' } }, '· легко')),
             React.createElement('button', {
               className: 'dp-btn',
               onClick: () => { setPartiyaPicker(false); startPartiyaWithShadow('medium'); },
               style: { padding: '14px 18px', justifyContent: 'flex-start', textAlign: 'left' }
-            }, '🌗  ', React.createElement('span', { style: { fontWeight: 500, marginLeft: 4 } }, 'Тень Игрока'),
-              React.createElement('span', { style: { fontSize: 12, color: 'var(--text-3)', marginLeft: 'auto' } }, '· средне')),
-            React.createElement('button', {
-              className: 'dp-btn',
-              onClick: () => { setPartiyaPicker(false); startPartiyaWithShadow('hard'); },
-              style: { padding: '14px 18px', justifyContent: 'flex-start', textAlign: 'left' }
-            }, '🌑  ', React.createElement('span', { style: { fontWeight: 500, marginLeft: 4 } }, 'Тень Магистра'),
-              React.createElement('span', { style: { fontSize: 12, color: 'var(--text-3)', marginLeft: 'auto' } }, '· сильно')),
-            React.createElement('div', { style: { borderTop: '0.5px solid var(--border-2)', marginTop: 8, paddingTop: 8 } }),
+            }, '🌗  ', React.createElement('span', { style: { fontWeight: 500, marginLeft: 4 } }, 'Соло против Тени'),
+              React.createElement('span', { style: { fontSize: 12, color: 'var(--text-3)', marginLeft: 'auto' } }, '· бот')),
             React.createElement('button', {
               className: 'dp-btn dp-btn-primary',
               onClick: startPartiyaPvP,
               style: { padding: '14px 18px', justifyContent: 'flex-start', textAlign: 'left' }
-            }, '◐◑  ', React.createElement('span', { style: { fontWeight: 500, marginLeft: 4 } }, 'Живой собеседник'),
+            }, '◐◑  ', React.createElement('span', { style: { fontWeight: 500, marginLeft: 4 } }, 'Вдвоём с другом'),
               React.createElement('span', { style: { fontSize: 12, opacity: 0.85, marginLeft: 'auto' } }, '· real-time'))
           )
         )

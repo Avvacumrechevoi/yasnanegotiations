@@ -70,7 +70,7 @@
       React.createElement('div', { className: 'tn-container' },
         React.createElement(TnTopBar, { eyebrow: '✦ Партия начинается' }),
         React.createElement('div', { className: 'tn-round-intro' },
-          React.createElement('div', { className: 'tn-round-eyebrow' }, 'Касталия зовёт двоих'),
+          React.createElement('div', { className: 'tn-round-eyebrow' }, 'Партия для двоих'),
           React.createElement('div', { className: 'tn-versus', style: { justifyContent: 'center', gap: 48, margin: '16px 0 40px' } },
             React.createElement('div', { className: 'tn-player' },
               React.createElement('div', { className: 'tn-avatar' }, renderTnAvatar(player.avatar, player.nickname)),
@@ -419,7 +419,7 @@
       React.createElement('div', { className: 'tn-final-archive-eyebrow' }, '☷  Партия записана в'),
       React.createElement('ul', { className: 'tn-final-archive-list' },
         React.createElement('li', null, React.createElement('strong', null, 'Хронику'), ' — список твоих партий'),
-        React.createElement('li', null, React.createElement('strong', null, 'Знаки Магистра'), ' — достижения и серии'),
+        React.createElement('li', null, React.createElement('strong', null, 'Достижения'), ' — открыты звания и серии'),
         React.createElement('li', null, React.createElement('strong', null, 'Партитуру'), ' — мастерство по темам Ясны')
       )
     );
@@ -437,7 +437,7 @@
         className: 'tn-final-btn',
         onClick: onClose,
         type: 'button',
-      }, 'Вернуться в Касталию')
+      }, 'На главную')
     );
   }
 
@@ -459,12 +459,12 @@
       kind = 'win';
       headline = 'Партия твоя.';
       sub = isPvP
-        ? 'Ты опередил собеседника. Бусины зачтены в Хронику. Магистр Игры запомнит этот узор.'
-        : 'Ты опередил Тень. Бусины зачтены в Хронику. Узор сложился твой.';
+        ? 'Ты опередил собеседника. Бусины зачтены в Хронику.'
+        : 'Ты опередил Тень. Бусины зачтены в Хронику.';
     } else if(draw){
       kind = 'draw';
       headline = 'Равная Партия.';
-      sub = 'Узор сложился симметрично. Сыграй ещё — следующий ход за тобой.';
+      sub = 'Партия равная. Сыграй ещё — следующий ход за тобой.';
     } else {
       kind = 'lose';
       headline = isPvP ? 'Собеседник обогнал.' : 'Тень обогнала.';

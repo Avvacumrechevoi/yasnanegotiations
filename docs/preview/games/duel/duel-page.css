@@ -1898,3 +1898,25 @@ a { color: inherit; }
   .tn-final-scoring-text { font-size: 12px; }
   .tn-final-archive-list { font-size: 12px; }
 }
+
+/* ═══ Карточка «в разработке» (Расклад / будущее) ═══ */
+.dp-game-soon { pointer-events: none; }
+.dp-game-soon .dp-game-eyebrow { color: var(--text-3); }
+.dp-game-soon .dp-game-title { color: var(--text-3); font-style: italic; }
+
+/* ═══ Журнал — точность и результат ═══ */
+.dp-journal-acc {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-left: 4px;
+}
+.dp-journal-res {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  margin-left: 6px;
+}
+.dp-journal-res-win  { color: var(--primary); }
+.dp-journal-res-loss { color: var(--text-3); }
+.dp-journal-res-draw { color: var(--accent); }
