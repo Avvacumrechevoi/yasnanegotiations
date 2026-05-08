@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-08T11:13:36.920Z */
+/* Yasna bundle: duel.js — собран 2026-05-08T11:21:04.888Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -6020,7 +6020,7 @@ window.YasnaCore = {
       React.createElement("span", { className: "tn-feedback-text" }, "\u0412\u0440\u0435\u043C\u044F \u0432\u044B\u0448\u043B\u043E")
     );
   }
-  function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswerRef }) {
+  function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswersRef }) {
     const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
     const [chosen, setChosen] = useState(null);
     const startedAt = useRef(Date.now());
@@ -6032,7 +6032,6 @@ window.YasnaCore = {
       startedAt.current = Date.now();
       oppFinishedRef.current = null;
       answeredRef.current = false;
-      if (oppAnswerRef) oppAnswerRef.current = null;
     }, [q == null ? void 0 : q.id]);
     useEffect(() => {
       if (isPvP) return;
@@ -6068,13 +6067,14 @@ window.YasnaCore = {
       const MAX_WAIT_MS = 5e3;
       function tryAdvance() {
         if (answeredRef.current) return;
-        const oppRef = isPvP ? oppAnswerRef : { current: oppFinishedRef.current };
-        const oppHasAnswered = (oppRef == null ? void 0 : oppRef.current) != null;
+        const oppPvP = isPvP && (oppAnswersRef == null ? void 0 : oppAnswersRef.current) ? oppAnswersRef.current[q.id] : null;
+        const oppShadow = oppFinishedRef.current;
+        const oppHasAnswered = isPvP ? oppPvP != null : oppShadow != null;
         const elapsed = Date.now() - waitStartedAt;
         const minFeedbackElapsed = elapsed >= SHOW_FEEDBACK_MS;
         const maxWaitElapsed = elapsed >= MAX_WAIT_MS;
         if (oppHasAnswered && minFeedbackElapsed || maxWaitElapsed) {
-          const oppData = isPvP ? (oppAnswerRef == null ? void 0 : oppAnswerRef.current) || { correct: false, time: QUESTION_TIME * 1e3 } : oppFinishedRef.current || { correct: false, time: isTimeout ? QUESTION_TIME * 1e3 : playerTime + 500 };
+          const oppData = isPvP ? oppPvP || { correct: false, time: QUESTION_TIME * 1e3 } : oppShadow || { correct: false, time: isTimeout ? QUESTION_TIME * 1e3 : playerTime + 500 };
           safeAnswer({
             playerCorrect: playerCorrect2,
             playerTime,
@@ -6342,11 +6342,11 @@ window.YasnaCore = {
     const [totalBusey, setTotalBusey] = useState(0);
     const [partiyaLog, setPartiyaLog] = useState([]);
     const [oppDisconnected, setOppDisconnected] = useState(false);
-    const oppAnswerRef = useRef(null);
+    const oppAnswersRef = useRef({});
     useEffect(() => {
       if (!isPvP || !transport) return;
       const off = transport.on((msg) => {
-        console.log("[turnir/recv] type=" + msg.t + " role=" + role);
+        console.log("[turnir/recv] type=" + msg.t + " role=" + role + (msg.qId ? " qId=" + msg.qId : ""));
         if (msg.t === "partiya-init" && role === "guest") {
           const restored = msg.partiya.map((r) => {
             const theme = window.YasnaTrivia.getTheme(r.theme.id) || r.theme;
@@ -6358,7 +6358,9 @@ window.YasnaCore = {
           setPartiya(restored);
         }
         if (msg.t === "opp-answer") {
-          oppAnswerRef.current = { correct: msg.correct, time: msg.time };
+          if (msg.qId) {
+            oppAnswersRef.current[msg.qId] = { correct: msg.correct, time: msg.time };
+          }
         }
         if (msg.t === "opp-leave") {
           setOppDisconnected(true);
@@ -6563,7 +6565,7 @@ window.YasnaCore = {
         onAnswer,
         isPvP,
         transport,
-        oppAnswerRef
+        oppAnswersRef
       });
     }
     if (phase === "final") {

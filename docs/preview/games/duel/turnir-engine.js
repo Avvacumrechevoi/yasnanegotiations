@@ -234,7 +234,7 @@
   }
 
   // ─── Question — основной компонент игрового вопроса ─────────────
-  function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswerRef }){
+  function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswersRef }){
     const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
     const [chosen, setChosen] = useState(null);
     const startedAt = useRef(Date.now());
@@ -248,7 +248,9 @@
       startedAt.current = Date.now();
       oppFinishedRef.current = null;
       answeredRef.current = false;
-      if(oppAnswerRef) oppAnswerRef.current = null;
+      // НЕ сбрасываем oppAnswersRef — это map per-qId, ответ соперника
+      // на текущий вопрос мог уже прилететь раньше (Firebase push быстрее).
+      // Лежит под ключом q.id, никогда не путается с другими вопросами.
     }, [q?.id]);
 
     // Бот-Тень в shadow-режиме: симулируем ответ соперника таймером
@@ -296,16 +298,18 @@
 
       function tryAdvance(){
         if(answeredRef.current) return;
-        const oppRef = isPvP ? oppAnswerRef : { current: oppFinishedRef.current };
-        const oppHasAnswered = oppRef?.current != null;
+        // PvP: ищем ответ соперника по qId — изоляция между вопросами.
+        const oppPvP = isPvP && oppAnswersRef?.current ? oppAnswersRef.current[q.id] : null;
+        const oppShadow = oppFinishedRef.current;
+        const oppHasAnswered = isPvP ? (oppPvP != null) : (oppShadow != null);
         const elapsed = Date.now() - waitStartedAt;
         const minFeedbackElapsed = elapsed >= SHOW_FEEDBACK_MS;
         const maxWaitElapsed = elapsed >= MAX_WAIT_MS;
 
         if((oppHasAnswered && minFeedbackElapsed) || maxWaitElapsed){
           const oppData = isPvP
-            ? (oppAnswerRef?.current || { correct: false, time: QUESTION_TIME * 1000 })
-            : (oppFinishedRef.current || { correct: false, time: isTimeout ? QUESTION_TIME * 1000 : playerTime + 500 });
+            ? (oppPvP || { correct: false, time: QUESTION_TIME * 1000 })
+            : (oppShadow || { correct: false, time: isTimeout ? QUESTION_TIME * 1000 : playerTime + 500 });
           safeAnswer({
             playerCorrect, playerTime,
             oppCorrect: oppData.correct,
@@ -557,15 +561,15 @@
     const [oppDisconnected, setOppDisconnected] = useState(false);
 
     // ─── PvP: Sync Партии и обмен ответами ───
-    const oppAnswerRef = useRef(null);
+    // Map по qId — каждый ответ соперника привязан к конкретному вопросу.
+    // Это решает race-condition: если ответ на вопрос N приходит когда мы
+    // уже на N+1, он не попадает в "не тот вопрос".
+    const oppAnswersRef = useRef({});
     useEffect(() => {
       if(!isPvP || !transport) return;
 
-      // Сначала регистрируем listener (чтобы хост получал opp-answer от гостя),
-      // ПОТОМ хост шлёт partiya-init. На гостя буфер в rt-firebase.js поймает
-      // partiya-init, если он пришёл до transport.on().
       const off = transport.on(msg => {
-        console.log('[turnir/recv] type=' + msg.t + ' role=' + role);
+        console.log('[turnir/recv] type=' + msg.t + ' role=' + role + (msg.qId ? ' qId=' + msg.qId : ''));
         if(msg.t === 'partiya-init' && role === 'guest'){
           const restored = msg.partiya.map(r => {
             const theme = window.YasnaTrivia.getTheme(r.theme.id) || r.theme;
@@ -577,7 +581,10 @@
           setPartiya(restored);
         }
         if(msg.t === 'opp-answer'){
-          oppAnswerRef.current = { correct: msg.correct, time: msg.time };
+          // Пишем в map по qId. Никогда не перезаписываем чужие.
+          if(msg.qId){
+            oppAnswersRef.current[msg.qId] = { correct: msg.correct, time: msg.time };
+          }
         }
         if(msg.t === 'opp-leave'){
           setOppDisconnected(true);
@@ -780,7 +787,7 @@
         player,
         opponent: { name: opp.name, level: opponentLevel || 'medium' },
         onAnswer,
-        isPvP, transport, oppAnswerRef,
+        isPvP, transport, oppAnswersRef,
       });
     }
     if(phase === 'final'){
