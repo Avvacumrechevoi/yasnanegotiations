@@ -1658,7 +1658,10 @@
         return /^KASTA-[A-Z0-9]{4}$/.test(r) ? r : null;
       } catch(_){ return null; }
     }, []);
-    const [lobby, setLobby] = useState(urlRoom ? { game: 'turnir', mode: 'guest', code: urlRoom } : null); // null | { game, mode?, code? }
+    // lobby = { game, lobbyMode?: 'guest'|'host', code?, partiyaMode?: 'blitz'|'standard'|'expert', selectedThemes? }
+    // lobbyMode — внутреннее состояние лобби (для url-room автогостем)
+    // partiyaMode — длительность партии, передаётся в TurnirGame после connected
+    const [lobby, setLobby] = useState(urlRoom ? { game: 'turnir', lobbyMode: 'guest', code: urlRoom } : null);
     const [, setTick] = useState(0);
     const [orientHidden, setOrientHidden] = useState(() => {
       try { return localStorage.getItem('yasna_dp_orient_hidden') === '1'; } catch(_){ return false; }
@@ -1739,10 +1742,11 @@
     };
 
     const startPartiyaPvP = () => {
-      const mode = partiyaPicker?.mode || 'standard';
+      const partiyaMode = partiyaPicker?.mode || 'standard';
       const selectedThemes = partiyaPicker?.selectedThemes || null;
       setPartiyaPicker(null);
-      setLobby({ game: 'turnir', mode, selectedThemes });
+      // partiyaMode (не mode!) — иначе конфликт с lobbyMode внутри DPLobbyV2
+      setLobby({ game: 'turnir', partiyaMode, selectedThemes });
     };
 
     const startUzorPvP = () => {
@@ -1750,10 +1754,18 @@
     };
 
     const onLobbyConnected = ({ transport, role, opponent }) => {
+      // Перенесём partiyaMode/selectedThemes из lobby в game,
+      // чтобы TurnirGame знал длину партии и набор тем
+      const partiyaMode = lobby?.partiyaMode || 'standard';
+      const selectedThemes = lobby?.selectedThemes || null;
       setLobby(null);
       // Очистим ?room= из URL чтобы при перезагрузке страницы не зайти повторно
       try { window.history.replaceState({}, '', window.location.pathname); } catch(_){}
-      setGame({ type: 'turnir', opponent: 'pvp', transport, role, opp: opponent });
+      setGame({
+        type: 'turnir', opponent: 'pvp', transport, role, opp: opponent,
+        mode: partiyaMode,
+        selectedThemes
+      });
     };
 
     // Если есть room в URL — нужно убедиться что профиль есть
@@ -1761,7 +1773,7 @@
       if(urlRoom && !user && !profile){
         // Просим анонимный onboarding
         setAnonModal(true);
-        window.__dpPendingPlay = () => setLobby({ game: 'turnir', mode: 'guest', code: urlRoom });
+        window.__dpPendingPlay = () => setLobby({ game: 'turnir', lobbyMode: 'guest', code: urlRoom });
       }
     }, [urlRoom]);
 
@@ -1977,7 +1989,7 @@
 
       // ─── Lobby для PvP (polling-relay через Yandex Cloud) ───
       lobby && React.createElement(DPLobbyV2, {
-        initialMode: lobby.mode || null,
+        initialMode: lobby.lobbyMode || null,    // 'guest'/'host' — внутреннее состояние лобби
         initialCode: lobby.code || null,
         onClose: () => setLobby(null),
         profile: profile || user,

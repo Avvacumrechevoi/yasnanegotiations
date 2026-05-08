@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-08T17:18:38.579Z */
+/* Yasna bundle: duel.js — собран 2026-05-08T17:24:22.312Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5292,7 +5292,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-08T17:18:37.653Z", "contentVersion": "1.1.0", "files": 1, "themes": 1, "atomsTotal": 32, "questionsTotal": 10, "questionsLegacy": 5 };
+  const BUILD_INFO = { "builtAt": "2026-05-08T17:24:21.543Z", "contentVersion": "1.1.0", "files": 1, "themes": 1, "atomsTotal": 32, "questionsTotal": 10, "questionsLegacy": 5 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -10777,7 +10777,7 @@ window.YasnaCore = {
         return null;
       }
     }, []);
-    const [lobby, setLobby] = useState(urlRoom ? { game: "turnir", mode: "guest", code: urlRoom } : null);
+    const [lobby, setLobby] = useState(urlRoom ? { game: "turnir", lobbyMode: "guest", code: urlRoom } : null);
     const [, setTick] = useState(0);
     const [orientHidden, setOrientHidden] = useState(() => {
       try {
@@ -10863,26 +10863,36 @@ window.YasnaCore = {
       }));
     };
     const startPartiyaPvP = () => {
-      const mode = (partiyaPicker == null ? void 0 : partiyaPicker.mode) || "standard";
+      const partiyaMode = (partiyaPicker == null ? void 0 : partiyaPicker.mode) || "standard";
       const selectedThemes = (partiyaPicker == null ? void 0 : partiyaPicker.selectedThemes) || null;
       setPartiyaPicker(null);
-      setLobby({ game: "turnir", mode, selectedThemes });
+      setLobby({ game: "turnir", partiyaMode, selectedThemes });
     };
     const startUzorPvP = () => {
       requireProfile(() => setLobby({ game: "uzor" }));
     };
     const onLobbyConnected = ({ transport, role, opponent }) => {
+      const partiyaMode = (lobby == null ? void 0 : lobby.partiyaMode) || "standard";
+      const selectedThemes = (lobby == null ? void 0 : lobby.selectedThemes) || null;
       setLobby(null);
       try {
         window.history.replaceState({}, "", window.location.pathname);
       } catch (_) {
       }
-      setGame({ type: "turnir", opponent: "pvp", transport, role, opp: opponent });
+      setGame({
+        type: "turnir",
+        opponent: "pvp",
+        transport,
+        role,
+        opp: opponent,
+        mode: partiyaMode,
+        selectedThemes
+      });
     };
     useEffect(() => {
       if (urlRoom && !user && !profile) {
         setAnonModal(true);
-        window.__dpPendingPlay = () => setLobby({ game: "turnir", mode: "guest", code: urlRoom });
+        window.__dpPendingPlay = () => setLobby({ game: "turnir", lobbyMode: "guest", code: urlRoom });
       }
     }, [urlRoom]);
     if (game) {
@@ -11150,7 +11160,8 @@ window.YasnaCore = {
       })(),
       // ─── Lobby для PvP (polling-relay через Yandex Cloud) ───
       lobby && React.createElement(DPLobbyV2, {
-        initialMode: lobby.mode || null,
+        initialMode: lobby.lobbyMode || null,
+        // 'guest'/'host' — внутреннее состояние лобби
         initialCode: lobby.code || null,
         onClose: () => setLobby(null),
         profile: profile || user,
