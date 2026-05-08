@@ -281,7 +281,7 @@ body {
   margin: 56px auto 80px;
   padding: 0 24px;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
 }
 
@@ -372,7 +372,6 @@ body {
 /* ─── Mobile ─── */
 @media (max-width: 1024px) {
   .s-features { grid-template-columns: repeat(2, 1fr); }
-  .s-features > :nth-child(5) { grid-column: span 2; }
 }
 @media (max-width: 767px) {
   .s-header {
@@ -396,7 +395,6 @@ body {
   .s-btn { padding: 14px 20px; font-size: 14px; }
 
   .s-features { margin: 32px 12px 32px; gap: 10px; grid-template-columns: 1fr; padding: 0; }
-  .s-features > :nth-child(5) { grid-column: span 1; }
   .s-feature { padding: 20px 16px; flex-direction: row; align-items: flex-start; text-align: left; }
   .s-feature-icon { margin-bottom: 0; margin-right: 16px; flex-shrink: 0; width: 52px; height: 52px; }
   .s-feature-eyebrow { margin-bottom: 6px; }
@@ -457,27 +455,27 @@ body {
   <a href="index.html" class="s-feature" data-path="learn">
     <div class="s-feature-icon" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-        <path d="M12 4v16M4 12h16" stroke-linecap="round"/>
-        <circle cx="12" cy="12" r="9"/>
+        <path d="M4 5h11a3 3 0 0 1 3 3v12" stroke-linecap="round"/>
+        <path d="M4 5v14h11a3 3 0 0 1 3-3" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8 9h6M8 13h4" stroke-linecap="round"/>
       </svg>
     </div>
     <div class="s-feature-eyebrow">Уроки</div>
-    <h3 class="s-feature-title">Учить с нуля</h3>
-    <p class="s-feature-desc">4 урока по 5 минут. Поймёшь, что такое 12 полок и как читать звезду.</p>
-    <span class="s-feature-link">Открыть уроки →</span>
+    <h3 class="s-feature-title">Освоить метод</h3>
+    <p class="s-feature-desc">Четыре урока по 5 минут — поймёшь 12 полок и научишься читать звезду.</p>
+    <span class="s-feature-link">Начать с первого →</span>
   </a>
 
   <a href="duel.html" class="s-feature" data-path="play">
     <div class="s-feature-icon" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-        <rect x="3" y="6" width="18" height="14" rx="2"/>
-        <path d="M8 10h8M8 14h5" stroke-linecap="round"/>
-        <path d="M8 2v4M16 2v4" stroke-linecap="round"/>
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 7v5l3 2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </div>
     <div class="s-feature-eyebrow">Партия</div>
-    <h3 class="s-feature-title">Играть викторину</h3>
-    <p class="s-feature-desc">18 вопросов · 5 минут · соло с Тенью или вдвоём по ссылке.</p>
+    <h3 class="s-feature-title">Сыграть викторину</h3>
+    <p class="s-feature-desc">18 вопросов · соло с Тенью или вдвоём по ссылке. Бусины, ступени, разбор в финале.</p>
     <span class="s-feature-link">Сыграть →</span>
   </a>
 
@@ -488,39 +486,22 @@ body {
         <path d="M12 3v18M3 12h18M5.5 5.5l13 13M18.5 5.5l-13 13" stroke-linecap="round"/>
       </svg>
     </div>
-    <div class="s-feature-eyebrow">Звезда</div>
-    <h3 class="s-feature-title">Изучать структуру</h3>
-    <p class="s-feature-desc">Полная 12-полочная звезда с механиками и переключением Ясн.</p>
-    <span class="s-feature-link">Открыть звезду →</span>
-  </a>
-
-  <a href="index.html" class="s-feature" data-path="catalog">
-    <div class="s-feature-icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-        <rect x="3" y="3" width="8" height="8" rx="1.5"/>
-        <rect x="13" y="3" width="8" height="8" rx="1.5"/>
-        <rect x="3" y="13" width="8" height="8" rx="1.5"/>
-        <rect x="13" y="13" width="8" height="8" rx="1.5"/>
-      </svg>
-    </div>
-    <div class="s-feature-eyebrow">Каталог</div>
-    <h3 class="s-feature-title">36 Ясн в подборке</h3>
-    <p class="s-feature-desc">Сутки, Года, Жизни, Переговоры, Атмосферные явления и ещё 32.</p>
-    <span class="s-feature-link">Смотреть все →</span>
+    <div class="s-feature-eyebrow">Библиотека</div>
+    <h3 class="s-feature-title">36 готовых Ясн</h3>
+    <p class="s-feature-desc">Сутки, Года, Жизни, Переговоры — переключай явления на одной 12-полочной звезде.</p>
+    <span class="s-feature-link">Открыть библиотеку →</span>
   </a>
 
   <a href="index.html" class="s-feature" data-path="create">
     <div class="s-feature-icon" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-        <path d="M3 12l3 3 6-6 6 6 3-3" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="6" cy="12" r="1.5" fill="currentColor"/>
-        <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
-        <circle cx="18" cy="12" r="1.5" fill="currentColor"/>
+        <path d="M16.5 4.5l3 3-11 11H5.5v-3l11-11z" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M14 7l3 3" stroke-linecap="round"/>
       </svg>
     </div>
     <div class="s-feature-eyebrow">Конструктор</div>
-    <h3 class="s-feature-title">Создать свою Ясну</h3>
-    <p class="s-feature-desc">Опиши собственное явление в 12-полочной структуре. Сохрани в коллекцию.</p>
+    <h3 class="s-feature-title">Собрать свою Ясну</h3>
+    <p class="s-feature-desc">Опиши явление по 12 полкам — сохрани в личную коллекцию и поделись ссылкой.</p>
     <span class="s-feature-link">Открыть редактор →</span>
   </a>
 
