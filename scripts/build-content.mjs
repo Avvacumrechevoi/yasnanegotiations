@@ -130,7 +130,10 @@ async function main(){
       };
       QUESTIONS_FULL.push(baseQ);
 
-      // Legacy-формат — только single-choice (текущий движок других не умеет)
+      // Legacy-формат — single-choice / true-false / fill-blank
+      // Movok поддерживает их через q.type. Multi-choice и match-pair — позже.
+      const hint = q.explanation?.quote || '';
+
       if(q.type === 'single-choice' && Array.isArray(q.options) && q.options.length === 4){
         const correctIdx = q.options.indexOf(q.correct);
         if(correctIdx === -1){
@@ -138,16 +141,36 @@ async function main(){
           continue;
         }
         QUESTIONS.push({
-          id: q.id,
-          theme: themeShortId,
+          id: q.id, theme: themeShortId, type: 'single-choice',
           diff: DIFF_MAP[q.difficulty] || 2,
-          text: q.stem,
-          options: q.options,
-          correct: correctIdx,
-          hint: q.explanation?.quote || ''
+          text: q.stem, options: q.options, correct: correctIdx, hint
         });
         totalSingleChoice++;
+      } else if(q.type === 'true-false' && typeof q.correct === 'boolean'){
+        // 2-кнопка «Верно / Не верно» — рендерится отдельным шаблоном.
+        // В legacy совмещаем с single-choice через options=['Верно','Не верно']
+        // и correct=0|1, чтобы движок работал без правок.
+        QUESTIONS.push({
+          id: q.id, theme: themeShortId, type: 'true-false',
+          diff: DIFF_MAP[q.difficulty] || 2,
+          text: q.stem,
+          options: ['Верно', 'Не верно'],
+          correct: q.correct ? 0 : 1,
+          hint
+        });
+      } else if(q.type === 'fill-blank' && typeof q.correct === 'string'){
+        // Текстовый ввод. Сравнение через нормализованный correct.
+        // В options кладём принимаемые синонимы (если будут), пока — только основной.
+        QUESTIONS.push({
+          id: q.id, theme: themeShortId, type: 'fill-blank',
+          diff: DIFF_MAP[q.difficulty] || 2,
+          text: q.stem,
+          correct: q.correct,
+          alternatives: q.correct_alternatives || [],
+          hint
+        });
       }
+      // multi-choice и match-pair — пока пропускаем, отдельный заход.
     }
   }
 

@@ -161,12 +161,17 @@
   }
 
   // ─── Карточка вопроса (тема + текст) ────────────────────────────
-  function TnQuestionCard({ qOverall, totalOverall, themeName, text, timeLeft, showFeedback }){
+  function TnQuestionCard({ qOverall, totalOverall, themeName, text, timeLeft, showFeedback, qType }){
+    const typeLabel =
+      qType === 'true-false' ? 'Верно или нет?' :
+      qType === 'fill-blank' ? 'Заполни пропуск' : null;
     return React.createElement('article', { className: 'tn-q-card' },
       React.createElement('div', { className: 'tn-q-meta' },
         React.createElement('span', { className: 'tn-q-meta-num' }, 'Вопрос ', qOverall + 1, ' / ', totalOverall),
         React.createElement('span', { className: 'tn-q-meta-dot' }, '·'),
         React.createElement('span', { className: 'tn-q-meta-theme' }, themeName),
+        typeLabel && React.createElement('span', { className: 'tn-q-meta-dot' }, '·'),
+        typeLabel && React.createElement('span', { className: 'tn-q-meta-type' }, typeLabel),
         !showFeedback && React.createElement('span', { className: 'tn-q-meta-time' },
           React.createElement('span', { 'aria-hidden': 'true' }, '◷ '), timeLeft, ' с'
         )
@@ -209,6 +214,96 @@
           state, onClick: () => onPick(i),
         });
       })
+    );
+  }
+
+  // ─── True/False — две большие кнопки «Верно / Не верно» ─────────
+  function TnTrueFalse({ chosen, correctIdx, showFeedback, onPick }){
+    const items = [
+      { idx: 0, label: 'Верно', sym: '✓' },
+      { idx: 1, label: 'Не верно', sym: '✕' }
+    ];
+    return React.createElement('div', { className: 'tn-options tn-options-tf', role: 'group' },
+      items.map(it => {
+        let state = 'default';
+        if(showFeedback){
+          if(it.idx === correctIdx && it.idx === chosen) state = 'correct';
+          else if(it.idx === correctIdx) state = 'shown-correct';
+          else if(it.idx === chosen) state = 'wrong';
+          else state = 'disabled';
+        }
+        const isClickable = state === 'default';
+        return React.createElement('button', {
+          key: it.idx,
+          className: 'tn-option tn-option-tf tn-option-' + state,
+          disabled: !isClickable,
+          onClick: isClickable ? () => onPick(it.idx) : undefined,
+          'aria-label': it.label
+        },
+          React.createElement('span', { className: 'tn-option-tf-sym', 'aria-hidden': 'true' }, it.sym),
+          React.createElement('span', { className: 'tn-option-tf-text' }, it.label)
+        );
+      })
+    );
+  }
+
+  // ─── Fill-blank — текстовое поле + кнопка отправить ─────────────
+  // Нормализация ответа: lowercase, trim, ё→е, убираем знаки препинания.
+  // correct может быть строкой, может быть {correct, alternatives[]}.
+  function normalizeFillAnswer(s){
+    return String(s || '')
+      .toLowerCase()
+      .trim()
+      .replace(/ё/g, 'е')
+      .replace(/[.,!?;:"'()\[\]]/g, '')
+      .replace(/\s+/g, ' ');
+  }
+
+  function TnFillBlank({ correct, alternatives, chosen, showFeedback, onSubmit }){
+    const [val, setVal] = useState('');
+    useEffect(() => { setVal(''); }, [correct]);
+
+    const acceptable = [correct, ...(alternatives || [])].map(normalizeFillAnswer);
+    const isCorrect = chosen != null && acceptable.includes(normalizeFillAnswer(chosen));
+
+    function submit(){
+      const trimmed = val.trim();
+      if(!trimmed || showFeedback) return;
+      onSubmit(trimmed);
+    }
+
+    if(showFeedback){
+      // После ответа — показать что ввёл игрок и что было правильно
+      return React.createElement('div', { className: 'tn-fill', role: 'group' },
+        React.createElement('div', {
+          className: 'tn-fill-result tn-fill-' + (isCorrect ? 'correct' : 'wrong')
+        },
+          React.createElement('div', { className: 'tn-fill-result-label' }, 'Твой ответ:'),
+          React.createElement('div', { className: 'tn-fill-result-text' }, chosen || '—'),
+          !isCorrect && React.createElement(React.Fragment, null,
+            React.createElement('div', { className: 'tn-fill-result-label', style: { marginTop: 8 } }, 'Правильный ответ:'),
+            React.createElement('div', { className: 'tn-fill-result-text tn-fill-result-correct' }, correct)
+          )
+        )
+      );
+    }
+
+    return React.createElement('div', { className: 'tn-fill', role: 'group' },
+      React.createElement('input', {
+        type: 'text',
+        className: 'tn-fill-input',
+        value: val,
+        onChange: e => setVal(e.target.value),
+        onKeyDown: e => { if(e.key === 'Enter') submit(); },
+        autoFocus: true,
+        placeholder: 'Введи слово или фразу',
+        'aria-label': 'Ваш ответ'
+      }),
+      React.createElement('button', {
+        className: 'tn-fill-submit',
+        onClick: submit,
+        disabled: !val.trim()
+      }, 'Ответить →')
     );
   }
 
@@ -350,9 +445,45 @@
       waitForOppAndAdvance(playerCorrect, playerTime, false);
     }
 
+    // pick для fill-blank — принимает строку, проверяет нормализованно
+    function pickFill(text){
+      if(chosen != null || answeredRef.current) return;
+      const acceptable = [q.correct, ...(q.alternatives || [])].map(s =>
+        String(s || '').toLowerCase().trim()
+          .replace(/ё/g, 'е')
+          .replace(/[.,!?;:"'()\[\]]/g, '')
+          .replace(/\s+/g, ' ')
+      );
+      const normalized = String(text || '').toLowerCase().trim()
+        .replace(/ё/g, 'е')
+        .replace(/[.,!?;:"'()\[\]]/g, '')
+        .replace(/\s+/g, ' ');
+      const playerCorrect = acceptable.includes(normalized);
+      setChosen(text);
+      const playerTime = Date.now() - startedAt.current;
+      if(isPvP && transport){
+        try { transport.send({ t: 'opp-answer', correct: playerCorrect, time: playerTime, qId: q.id }); } catch(_){}
+      }
+      waitForOppAndAdvance(playerCorrect, playerTime, false);
+    }
+
     const showFeedback = chosen != null;
-    const playerCorrect = chosen === q.correct;
-    const feedbackKind = chosen === -1 ? 'timeout' : (playerCorrect ? 'correct' : 'wrong');
+    const qType = q.type || 'single-choice';
+    let playerCorrect, feedbackKind;
+
+    if(qType === 'fill-blank'){
+      const acceptable = [q.correct, ...(q.alternatives || [])].map(s =>
+        String(s || '').toLowerCase().trim()
+          .replace(/ё/g, 'е').replace(/[.,!?;:"'()\[\]]/g, '').replace(/\s+/g, ' ')
+      );
+      const normalized = String(chosen || '').toLowerCase().trim()
+        .replace(/ё/g, 'е').replace(/[.,!?;:"'()\[\]]/g, '').replace(/\s+/g, ' ');
+      playerCorrect = chosen != null && acceptable.includes(normalized);
+      feedbackKind = chosen == null ? 'timeout' : (playerCorrect ? 'correct' : 'wrong');
+    } else {
+      playerCorrect = chosen === q.correct;
+      feedbackKind = chosen === -1 ? 'timeout' : (playerCorrect ? 'correct' : 'wrong');
+    }
     const playerBusey = playerCorrect ? buseyForCorrect(Date.now() - startedAt.current) : 0;
 
     return React.createElement('div', { className: 'tn-fullscreen' },
@@ -364,8 +495,17 @@
         React.createElement(TnQuestionCard, {
           qOverall, totalOverall, themeName: theme.name,
           text: q.text, timeLeft, showFeedback,
+          qType
         }),
-        React.createElement(TnOptions, {
+        // ─── Роутер по типу вопроса ───
+        qType === 'true-false' && React.createElement(TnTrueFalse, {
+          chosen, correctIdx: q.correct, showFeedback, onPick: pick,
+        }),
+        qType === 'fill-blank' && React.createElement(TnFillBlank, {
+          correct: q.correct, alternatives: q.alternatives,
+          chosen, showFeedback, onSubmit: pickFill,
+        }),
+        (qType === 'single-choice' || !qType) && React.createElement(TnOptions, {
           options: q.options, chosen, correctIdx: q.correct, showFeedback, onPick: pick,
         }),
         showFeedback && React.createElement(TnFeedbackBanner, { kind: feedbackKind, busey: playerBusey }),
@@ -503,6 +643,50 @@
     );
   }
 
+  // ─── Разбор ошибок с цитатами из книги ────────────────────────
+  // Каждая ошибка раскрывается отдельной карточкой: вопрос + правильный
+  // ответ + дословная цитата из источника (атома). Если ошибок > 0 —
+  // блок появляется в финале, иначе — поздравительная плашка.
+  function TnFinalRecap({ partiyaLog }){
+    const wrongs = partiyaLog.filter(r => !r.playerCorrect);
+    const total = partiyaLog.length;
+
+    if(wrongs.length === 0){
+      // Все верно — поздравительная плашка вместо разбора
+      return React.createElement('div', { className: 'tn-final-recap tn-final-recap-perfect' },
+        React.createElement('div', { className: 'tn-final-recap-eyebrow' }, '✦  Безупречно'),
+        React.createElement('div', { className: 'tn-final-recap-title' }, 'Все ', total, ' вопросов верно'),
+        React.createElement('div', { className: 'tn-final-recap-text' },
+          'Ты прошёл партию без единой ошибки. Это редкость — Тень оценила.'
+        )
+      );
+    }
+
+    return React.createElement('div', { className: 'tn-final-recap' },
+      React.createElement('div', { className: 'tn-final-recap-eyebrow' }, '☷  Разбор · ', wrongs.length, ' ошиб', wrongs.length === 1 ? 'ка' : (wrongs.length < 5 ? 'ки' : 'ок')),
+      React.createElement('div', { className: 'tn-final-recap-title' }, 'Что говорит книга'),
+      React.createElement('ul', { className: 'tn-final-recap-list' },
+        wrongs.map((r, i) => {
+          const correctText = (r.qOptions && typeof r.qCorrect === 'number')
+            ? r.qOptions[r.qCorrect]
+            : (typeof r.qCorrect === 'string' ? r.qCorrect : '—');
+          return React.createElement('li', { key: i, className: 'tn-final-recap-item' },
+            React.createElement('div', { className: 'tn-final-recap-q' },
+              React.createElement('span', { className: 'tn-final-recap-q-num' }, '№', i + 1),
+              React.createElement('span', { className: 'tn-final-recap-q-theme' }, r.themeName || r.themeId),
+              React.createElement('span', { className: 'tn-final-recap-q-text' }, r.qText)
+            ),
+            React.createElement('div', { className: 'tn-final-recap-answer' },
+              React.createElement('span', { className: 'tn-final-recap-answer-label' }, 'Правильно: '),
+              React.createElement('strong', null, correctText)
+            ),
+            r.qHint && React.createElement('blockquote', { className: 'tn-final-recap-quote' }, r.qHint)
+          );
+        })
+      )
+    );
+  }
+
   // ─── Кнопки действий ───────────────────────────────────────────
   function TnFinalActions({ onAgain, onClose }){
     return React.createElement('div', { className: 'tn-final-actions' },
@@ -578,6 +762,7 @@
           !oppDisconnected && React.createElement(TnFinalStats, {
             correctCount, totalQ, avgTimeMs, totalBusey,
           }),
+          !oppDisconnected && React.createElement(TnFinalRecap, { partiyaLog }),
           !oppDisconnected && React.createElement(TnFinalScoring, null),
           !oppDisconnected && React.createElement(TnFinalArchive, null),
           React.createElement(TnFinalActions, { onAgain, onClose })
@@ -703,7 +888,13 @@
 
       const logEntry = {
         themeId: currentRound.theme.id,
+        themeName: currentRound.theme.name,
         qId: currentQ.id,
+        qText: currentQ.text,
+        qOptions: currentQ.options,
+        qCorrect: currentQ.correct,
+        qHint: currentQ.hint,                // explanation.quote из контента
+        qType: currentQ.type || 'single-choice',
         playerCorrect: result.playerCorrect,
         oppCorrect: result.oppCorrect,
         playerTime: result.playerTime,

@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-08T16:28:15.366Z */
+/* Yasna bundle: duel.js — собран 2026-05-08T16:38:06.961Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5292,7 +5292,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-08T16:28:13.712Z", "contentVersion": "1.1.0", "files": 1, "themes": 1, "atomsTotal": 32, "questionsTotal": 10, "questionsLegacy": 5 };
+  const BUILD_INFO = { "builtAt": "2026-05-08T16:38:06.107Z", "contentVersion": "1.1.0", "files": 1, "themes": 1, "atomsTotal": 32, "questionsTotal": 10, "questionsLegacy": 5 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -5313,6 +5313,7 @@ window.YasnaCore = {
     {
       "id": "T1.Q1",
       "theme": "chto-est-yasna",
+      "type": "single-choice",
       "diff": 1,
       "text": "\u0427\u0442\u043E \u0442\u0430\u043A\u043E\u0435 \u042F\u0441\u043D\u0430 \u043F\u043E \u043F\u0435\u0440\u0432\u043E\u043C\u0443 \u043F\u0443\u043D\u043A\u0442\u0443 \u043A\u043D\u0438\u0433\u0438?",
       "options": [
@@ -5327,6 +5328,7 @@ window.YasnaCore = {
     {
       "id": "T1.Q2",
       "theme": "chto-est-yasna",
+      "type": "single-choice",
       "diff": 1,
       "text": "\u0421\u043A\u043E\u043B\u044C\u043A\u043E \u041E\u0441\u043D\u043E\u0432\u043D\u044B\u0445 \u0423\u0447\u0435\u0431\u043D\u0438\u043A\u043E\u0432 \u042F\u0441\u043D\u044B?",
       "options": [
@@ -5339,8 +5341,19 @@ window.YasnaCore = {
       "hint": "\u041E\u0441\u043D\u043E\u0432\u043D\u044B\u0445 \u0443\u0447\u0435\u0431\u043D\u0438\u043A\u043E\u0432 \u042F\u0441\u043D\u044B \u2014 \u0434\u0432\u0435\u043D\u0430\u0434\u0446\u0430\u0442\u044C."
     },
     {
+      "id": "T1.Q4",
+      "theme": "chto-est-yasna",
+      "type": "fill-blank",
+      "diff": 2,
+      "text": "\u0412\u043D\u0443\u0442\u0440\u0435\u043D\u043D\u0435\u0435 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E \u0432\u0441\u0435\u0445 \u0431\u0435\u0437 \u0438\u0441\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F \u044F\u0432\u043B\u0435\u043D\u0438\u0439 \u043F\u0440\u0438\u0440\u043E\u0434\u044B, \u0432\u0441\u0435\u0445 \u0432\u0435\u0449\u0435\u0439 \u0432 \u043F\u0440\u0438\u0440\u043E\u0434\u0435 \u0438 \u0432\u0441\u0435\u0445 \u043F\u0440\u0438\u0440\u043E\u0434\u043D\u044B\u0445 \u0441\u0443\u0449\u043D\u043E\u0441\u0442\u0435\u0439 _____.",
+      "correct": "\u043E\u0434\u0438\u043D\u0430\u043A\u043E\u0432\u043E",
+      "alternatives": [],
+      "hint": "\u042F\u0441\u043D\u0430 \u0435\u0441\u0442\u044C \u0443\u0447\u0435\u043D\u0438\u0435 \u043E \u0442\u043E\u043C, \u0447\u0442\u043E \u0432\u043D\u0443\u0442\u0440\u0435\u043D\u043D\u0435\u0435 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E \u0432\u0441\u0435\u0445 \u0431\u0435\u0437 \u0438\u0441\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F \u044F\u0432\u043B\u0435\u043D\u0438\u0439 \u043F\u0440\u0438\u0440\u043E\u0434\u044B, \u0432\u0441\u0435\u0445 \u0432\u0435\u0449\u0435\u0439 \u0432 \u043F\u0440\u0438\u0440\u043E\u0434\u0435 \u0438 \u0432\u0441\u0435\u0445 \u043F\u0440\u0438\u0440\u043E\u0434\u043D\u044B\u0445 \u0441\u0443\u0449\u043D\u043E\u0441\u0442\u0435\u0439 \u043E\u0434\u0438\u043D\u0430\u043A\u043E\u0432\u043E."
+    },
+    {
       "id": "T1.Q5",
       "theme": "chto-est-yasna",
+      "type": "single-choice",
       "diff": 2,
       "text": "\u041A\u0430\u043A\u043E\u0435 \u0441\u043B\u043E\u0432\u043E \u043D\u0430 \u044F\u0437\u044B\u043A\u0435 \u0441\u043E\u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E\u0439 \u043D\u0430\u0443\u043A\u0438 \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u0443\u0435\u0442 \u042F\u0441\u043D\u0435?",
       "options": [
@@ -5353,8 +5366,22 @@ window.YasnaCore = {
       "hint": "\u041D\u0430 \u044F\u0437\u044B\u043A\u0435 \u0441\u043E\u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E\u0439 \u043D\u0430\u0443\u043A\u0438, \u042F\u0441\u043D\u0430 \u0435\u0441\u0442\u044C \u0412\u0441\u0435\u043E\u0431\u0449\u0438\u0439 \u0421\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u043D\u044B\u0439 \u0417\u0430\u043A\u043E\u043D \u041C\u0438\u0440\u0430."
     },
     {
+      "id": "T1.Q6",
+      "theme": "chto-est-yasna",
+      "type": "true-false",
+      "diff": 1,
+      "text": "\u042F\u0441\u043D\u0430 \u0432\u0441\u0435\u0433\u0434\u0430 \u0438\u0437\u043B\u043E\u0436\u0435\u043D\u0430 \u0432 \u0432\u0438\u0434\u0435 \u0433\u0438\u043C\u043D\u043E\u0432 \u0411\u043E\u0433\u0430\u043C.",
+      "options": [
+        "\u0412\u0435\u0440\u043D\u043E",
+        "\u041D\u0435 \u0432\u0435\u0440\u043D\u043E"
+      ],
+      "correct": 0,
+      "hint": "\u042F\u0441\u043D\u0430 \u0432\u0441\u0435\u0433\u0434\u0430 \u0438\u0437\u043B\u043E\u0436\u0435\u043D\u0430 \u0432 \u0432\u0438\u0434\u0435 \u0433\u0438\u043C\u043D\u043E\u0432 \u0411\u043E\u0433\u0430\u043C."
+    },
+    {
       "id": "T1.Q7",
       "theme": "chto-est-yasna",
+      "type": "single-choice",
       "diff": 2,
       "text": "\u0412 \u043F\u043E\u0441\u043B\u043E\u0432\u0438\u0446\u0435 \xAB\u0417\u043D\u0430\u044E\u0442, \u0447\u0442\u043E \u0434\u0435\u043B\u0430\u044E\u0442, \u0438 \u043D\u0435 \u0432\u0435\u0434\u0430\u044E\u0442, \u0447\u0442\u043E \u0442\u0432\u043E\u0440\u044F\u0442\xBB \u0434\u0440\u0435\u0432\u043D\u0438\u0435 \u0440\u0430\u0437\u043B\u0438\u0447\u0430\u043B\u0438:",
       "options": [
@@ -5367,8 +5394,19 @@ window.YasnaCore = {
       "hint": "\u0412 \u044D\u0442\u043E\u0439 \u043F\u043E\u0441\u043B\u043E\u0432\u0438\u0446\u0435 \u0434\u0440\u0435\u0432\u043D\u0438\u0435 \u0440\u0430\u0437\u043B\u0438\u0447\u0430\u043B\u0438 \u043F\u043E\u043D\u044F\u0442\u0438\u044F \xAB\u0437\u043D\u0430\u0442\u044C\xBB \u0438 \xAB\u0432\u0435\u0434\u0430\u0442\u044C\xBB."
     },
     {
+      "id": "T1.Q8",
+      "theme": "chto-est-yasna",
+      "type": "fill-blank",
+      "diff": 3,
+      "text": "\u0412 \u0412\u0435\u0434\u0435 \u0443 \u043A\u0430\u0436\u0434\u043E\u0433\u043E \u0441\u043B\u043E\u0432\u0430 \u0435\u0441\u0442\u044C \u0441\u0432\u043E\u0451 \u0441\u043E\u0431\u0441\u0442\u0432\u0435\u043D\u043D\u043E\u0435 \u043C\u0435\u0441\u0442\u043E, \u0438 \u043F\u043E\u043A\u0438\u043D\u0443\u0442\u044C \u0441\u0432\u043E\u0451 \u043C\u0435\u0441\u0442\u043E \u043E\u043D\u043E _____.",
+      "correct": "\u043D\u0435 \u043C\u043E\u0436\u0435\u0442",
+      "alternatives": [],
+      "hint": "\u0412 \u0412\u0435\u0434\u0435 \u0443 \u043A\u0430\u0436\u0434\u043E\u0433\u043E \u0441\u043B\u043E\u0432\u0430 \u0435\u0441\u0442\u044C \u0441\u0432\u043E\u0451 \u0441\u043E\u0431\u0441\u0442\u0432\u0435\u043D\u043D\u043E\u0435 \u043C\u0435\u0441\u0442\u043E, \u0438 \u043F\u043E\u043A\u0438\u043D\u0443\u0442\u044C \u0441\u0432\u043E\u0451 \u043C\u0435\u0441\u0442\u043E \u043E\u043D\u043E \u043D\u0435 \u043C\u043E\u0436\u0435\u0442."
+    },
+    {
       "id": "T1.Q9",
       "theme": "chto-est-yasna",
+      "type": "single-choice",
       "diff": 1,
       "text": "\u0421 \u0447\u0435\u0433\u043E \u0443\u0434\u043E\u0431\u043D\u043E \u043D\u0430\u0447\u0430\u0442\u044C \u0438\u0437\u0443\u0447\u0430\u0442\u044C \u042F\u0441\u043D\u0443?",
       "options": [
@@ -6682,17 +6720,34 @@ window.YasnaCore = {
   const NEW_QUESTIONS_FULL = (NEW == null ? void 0 : NEW.QUESTIONS_FULL) || [];
   const NEW_ATOMS = (NEW == null ? void 0 : NEW.ATOMS) || [];
   const useNew = NEW_THEMES.length >= 6 && NEW_QUESTIONS.length >= 18;
+  const SLUG_TO_LEGACY = {
+    "chto-est-yasna": "gimny",
+    // следующие пустые — заполнить когда T2-T10 наполнятся:
+    "opisanie-sutok": "sutki",
+    "granit-nauki": "zerno",
+    "osi-kresty": "antipody"
+  };
+  let MERGED_QUESTIONS = QUESTIONS;
+  if (!useNew && NEW_QUESTIONS.length > 0) {
+    const remapped = NEW_QUESTIONS.map((q) => {
+      const legacyTheme = SLUG_TO_LEGACY[q.theme];
+      return legacyTheme ? { ...q, theme: legacyTheme } : null;
+    }).filter(Boolean);
+    if (remapped.length > 0) {
+      MERGED_QUESTIONS = [...QUESTIONS, ...remapped];
+    }
+  }
   const ACTIVE_THEMES = useNew ? NEW_THEMES : THEMES;
-  const ACTIVE_QUESTIONS = useNew ? NEW_QUESTIONS : QUESTIONS;
+  const ACTIVE_QUESTIONS = useNew ? NEW_QUESTIONS : MERGED_QUESTIONS;
   if (NEW) {
     console.log(
       "[YasnaTrivia] \u041A\u043E\u043D\u0442\u0435\u043D\u0442-bundle:",
       (_a = NEW.buildInfo) == null ? void 0 : _a.themes,
       "\u0442\u0435\u043C,",
       (_b = NEW.buildInfo) == null ? void 0 : _b.questionsTotal,
-      "\u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 (single-choice:",
+      "\u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 (legacy-conv:",
       ((_c = NEW.buildInfo) == null ? void 0 : _c.questionsLegacy) + ").",
-      useNew ? "\u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0435\u0442\u0441\u044F \u043D\u043E\u0432\u044B\u0439 \u0431\u0430\u043D\u043A." : "\u0411\u0430\u043D\u043A \u0435\u0449\u0451 \u043C\u0430\u043B \u2014 fallback \u043D\u0430 legacy."
+      useNew ? "\u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0435\u0442\u0441\u044F \u043D\u043E\u0432\u044B\u0439 \u0431\u0430\u043D\u043A \u043F\u043E\u043B\u043D\u043E\u0441\u0442\u044C\u044E." : "Hybrid: legacy + " + (MERGED_QUESTIONS.length - QUESTIONS.length) + " \u043D\u043E\u0432\u044B\u0445 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432."
     );
   }
   function getThemes() {
@@ -6939,7 +6994,8 @@ window.YasnaCore = {
       React.createElement("div", { className: cls, style: { width: pct + "%" } })
     );
   }
-  function TnQuestionCard({ qOverall, totalOverall, themeName, text, timeLeft, showFeedback }) {
+  function TnQuestionCard({ qOverall, totalOverall, themeName, text, timeLeft, showFeedback, qType }) {
+    const typeLabel = qType === "true-false" ? "\u0412\u0435\u0440\u043D\u043E \u0438\u043B\u0438 \u043D\u0435\u0442?" : qType === "fill-blank" ? "\u0417\u0430\u043F\u043E\u043B\u043D\u0438 \u043F\u0440\u043E\u043F\u0443\u0441\u043A" : null;
     return React.createElement(
       "article",
       { className: "tn-q-card" },
@@ -6949,6 +7005,8 @@ window.YasnaCore = {
         React.createElement("span", { className: "tn-q-meta-num" }, "\u0412\u043E\u043F\u0440\u043E\u0441 ", qOverall + 1, " / ", totalOverall),
         React.createElement("span", { className: "tn-q-meta-dot" }, "\xB7"),
         React.createElement("span", { className: "tn-q-meta-theme" }, themeName),
+        typeLabel && React.createElement("span", { className: "tn-q-meta-dot" }, "\xB7"),
+        typeLabel && React.createElement("span", { className: "tn-q-meta-type" }, typeLabel),
         !showFeedback && React.createElement(
           "span",
           { className: "tn-q-meta-time" },
@@ -6999,6 +7057,95 @@ window.YasnaCore = {
           onClick: () => onPick(i)
         });
       })
+    );
+  }
+  function TnTrueFalse({ chosen, correctIdx, showFeedback, onPick }) {
+    const items = [
+      { idx: 0, label: "\u0412\u0435\u0440\u043D\u043E", sym: "\u2713" },
+      { idx: 1, label: "\u041D\u0435 \u0432\u0435\u0440\u043D\u043E", sym: "\u2715" }
+    ];
+    return React.createElement(
+      "div",
+      { className: "tn-options tn-options-tf", role: "group" },
+      items.map((it) => {
+        let state = "default";
+        if (showFeedback) {
+          if (it.idx === correctIdx && it.idx === chosen) state = "correct";
+          else if (it.idx === correctIdx) state = "shown-correct";
+          else if (it.idx === chosen) state = "wrong";
+          else state = "disabled";
+        }
+        const isClickable = state === "default";
+        return React.createElement(
+          "button",
+          {
+            key: it.idx,
+            className: "tn-option tn-option-tf tn-option-" + state,
+            disabled: !isClickable,
+            onClick: isClickable ? () => onPick(it.idx) : void 0,
+            "aria-label": it.label
+          },
+          React.createElement("span", { className: "tn-option-tf-sym", "aria-hidden": "true" }, it.sym),
+          React.createElement("span", { className: "tn-option-tf-text" }, it.label)
+        );
+      })
+    );
+  }
+  function normalizeFillAnswer(s) {
+    return String(s || "").toLowerCase().trim().replace(/ё/g, "\u0435").replace(/[.,!?;:"'()\[\]]/g, "").replace(/\s+/g, " ");
+  }
+  function TnFillBlank({ correct, alternatives, chosen, showFeedback, onSubmit }) {
+    const [val, setVal] = useState("");
+    useEffect(() => {
+      setVal("");
+    }, [correct]);
+    const acceptable = [correct, ...alternatives || []].map(normalizeFillAnswer);
+    const isCorrect = chosen != null && acceptable.includes(normalizeFillAnswer(chosen));
+    function submit() {
+      const trimmed = val.trim();
+      if (!trimmed || showFeedback) return;
+      onSubmit(trimmed);
+    }
+    if (showFeedback) {
+      return React.createElement(
+        "div",
+        { className: "tn-fill", role: "group" },
+        React.createElement(
+          "div",
+          {
+            className: "tn-fill-result tn-fill-" + (isCorrect ? "correct" : "wrong")
+          },
+          React.createElement("div", { className: "tn-fill-result-label" }, "\u0422\u0432\u043E\u0439 \u043E\u0442\u0432\u0435\u0442:"),
+          React.createElement("div", { className: "tn-fill-result-text" }, chosen || "\u2014"),
+          !isCorrect && React.createElement(
+            React.Fragment,
+            null,
+            React.createElement("div", { className: "tn-fill-result-label", style: { marginTop: 8 } }, "\u041F\u0440\u0430\u0432\u0438\u043B\u044C\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442:"),
+            React.createElement("div", { className: "tn-fill-result-text tn-fill-result-correct" }, correct)
+          )
+        )
+      );
+    }
+    return React.createElement(
+      "div",
+      { className: "tn-fill", role: "group" },
+      React.createElement("input", {
+        type: "text",
+        className: "tn-fill-input",
+        value: val,
+        onChange: (e) => setVal(e.target.value),
+        onKeyDown: (e) => {
+          if (e.key === "Enter") submit();
+        },
+        autoFocus: true,
+        placeholder: "\u0412\u0432\u0435\u0434\u0438 \u0441\u043B\u043E\u0432\u043E \u0438\u043B\u0438 \u0444\u0440\u0430\u0437\u0443",
+        "aria-label": "\u0412\u0430\u0448 \u043E\u0442\u0432\u0435\u0442"
+      }),
+      React.createElement("button", {
+        className: "tn-fill-submit",
+        onClick: submit,
+        disabled: !val.trim()
+      }, "\u041E\u0442\u0432\u0435\u0442\u0438\u0442\u044C \u2192")
     );
   }
   function TnFeedbackBanner({ kind, busey }) {
@@ -7117,9 +7264,37 @@ window.YasnaCore = {
       }
       waitForOppAndAdvance(playerCorrect2, playerTime, false);
     }
+    function pickFill(text) {
+      if (chosen != null || answeredRef.current) return;
+      const acceptable = [q.correct, ...q.alternatives || []].map(
+        (s) => String(s || "").toLowerCase().trim().replace(/ё/g, "\u0435").replace(/[.,!?;:"'()\[\]]/g, "").replace(/\s+/g, " ")
+      );
+      const normalized = String(text || "").toLowerCase().trim().replace(/ё/g, "\u0435").replace(/[.,!?;:"'()\[\]]/g, "").replace(/\s+/g, " ");
+      const playerCorrect2 = acceptable.includes(normalized);
+      setChosen(text);
+      const playerTime = Date.now() - startedAt.current;
+      if (isPvP && transport) {
+        try {
+          transport.send({ t: "opp-answer", correct: playerCorrect2, time: playerTime, qId: q.id });
+        } catch (_) {
+        }
+      }
+      waitForOppAndAdvance(playerCorrect2, playerTime, false);
+    }
     const showFeedback = chosen != null;
-    const playerCorrect = chosen === q.correct;
-    const feedbackKind = chosen === -1 ? "timeout" : playerCorrect ? "correct" : "wrong";
+    const qType = q.type || "single-choice";
+    let playerCorrect, feedbackKind;
+    if (qType === "fill-blank") {
+      const acceptable = [q.correct, ...q.alternatives || []].map(
+        (s) => String(s || "").toLowerCase().trim().replace(/ё/g, "\u0435").replace(/[.,!?;:"'()\[\]]/g, "").replace(/\s+/g, " ")
+      );
+      const normalized = String(chosen || "").toLowerCase().trim().replace(/ё/g, "\u0435").replace(/[.,!?;:"'()\[\]]/g, "").replace(/\s+/g, " ");
+      playerCorrect = chosen != null && acceptable.includes(normalized);
+      feedbackKind = chosen == null ? "timeout" : playerCorrect ? "correct" : "wrong";
+    } else {
+      playerCorrect = chosen === q.correct;
+      feedbackKind = chosen === -1 ? "timeout" : playerCorrect ? "correct" : "wrong";
+    }
     const playerBusey = playerCorrect ? buseyForCorrect(Date.now() - startedAt.current) : 0;
     return React.createElement(
       "div",
@@ -7137,9 +7312,24 @@ window.YasnaCore = {
           themeName: theme.name,
           text: q.text,
           timeLeft,
-          showFeedback
+          showFeedback,
+          qType
         }),
-        React.createElement(TnOptions, {
+        // ─── Роутер по типу вопроса ───
+        qType === "true-false" && React.createElement(TnTrueFalse, {
+          chosen,
+          correctIdx: q.correct,
+          showFeedback,
+          onPick: pick
+        }),
+        qType === "fill-blank" && React.createElement(TnFillBlank, {
+          correct: q.correct,
+          alternatives: q.alternatives,
+          chosen,
+          showFeedback,
+          onSubmit: pickFill
+        }),
+        (qType === "single-choice" || !qType) && React.createElement(TnOptions, {
           options: q.options,
           chosen,
           correctIdx: q.correct,
@@ -7326,6 +7516,54 @@ window.YasnaCore = {
       )
     );
   }
+  function TnFinalRecap({ partiyaLog }) {
+    const wrongs = partiyaLog.filter((r) => !r.playerCorrect);
+    const total = partiyaLog.length;
+    if (wrongs.length === 0) {
+      return React.createElement(
+        "div",
+        { className: "tn-final-recap tn-final-recap-perfect" },
+        React.createElement("div", { className: "tn-final-recap-eyebrow" }, "\u2726  \u0411\u0435\u0437\u0443\u043F\u0440\u0435\u0447\u043D\u043E"),
+        React.createElement("div", { className: "tn-final-recap-title" }, "\u0412\u0441\u0435 ", total, " \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u0432\u0435\u0440\u043D\u043E"),
+        React.createElement(
+          "div",
+          { className: "tn-final-recap-text" },
+          "\u0422\u044B \u043F\u0440\u043E\u0448\u0451\u043B \u043F\u0430\u0440\u0442\u0438\u044E \u0431\u0435\u0437 \u0435\u0434\u0438\u043D\u043E\u0439 \u043E\u0448\u0438\u0431\u043A\u0438. \u042D\u0442\u043E \u0440\u0435\u0434\u043A\u043E\u0441\u0442\u044C \u2014 \u0422\u0435\u043D\u044C \u043E\u0446\u0435\u043D\u0438\u043B\u0430."
+        )
+      );
+    }
+    return React.createElement(
+      "div",
+      { className: "tn-final-recap" },
+      React.createElement("div", { className: "tn-final-recap-eyebrow" }, "\u2637  \u0420\u0430\u0437\u0431\u043E\u0440 \xB7 ", wrongs.length, " \u043E\u0448\u0438\u0431", wrongs.length === 1 ? "\u043A\u0430" : wrongs.length < 5 ? "\u043A\u0438" : "\u043E\u043A"),
+      React.createElement("div", { className: "tn-final-recap-title" }, "\u0427\u0442\u043E \u0433\u043E\u0432\u043E\u0440\u0438\u0442 \u043A\u043D\u0438\u0433\u0430"),
+      React.createElement(
+        "ul",
+        { className: "tn-final-recap-list" },
+        wrongs.map((r, i) => {
+          const correctText = r.qOptions && typeof r.qCorrect === "number" ? r.qOptions[r.qCorrect] : typeof r.qCorrect === "string" ? r.qCorrect : "\u2014";
+          return React.createElement(
+            "li",
+            { key: i, className: "tn-final-recap-item" },
+            React.createElement(
+              "div",
+              { className: "tn-final-recap-q" },
+              React.createElement("span", { className: "tn-final-recap-q-num" }, "\u2116", i + 1),
+              React.createElement("span", { className: "tn-final-recap-q-theme" }, r.themeName || r.themeId),
+              React.createElement("span", { className: "tn-final-recap-q-text" }, r.qText)
+            ),
+            React.createElement(
+              "div",
+              { className: "tn-final-recap-answer" },
+              React.createElement("span", { className: "tn-final-recap-answer-label" }, "\u041F\u0440\u0430\u0432\u0438\u043B\u044C\u043D\u043E: "),
+              React.createElement("strong", null, correctText)
+            ),
+            r.qHint && React.createElement("blockquote", { className: "tn-final-recap-quote" }, r.qHint)
+          );
+        })
+      )
+    );
+  }
   function TnFinalActions({ onAgain, onClose }) {
     return React.createElement(
       "div",
@@ -7411,6 +7649,7 @@ window.YasnaCore = {
             avgTimeMs,
             totalBusey
           }),
+          !oppDisconnected && React.createElement(TnFinalRecap, { partiyaLog }),
           !oppDisconnected && React.createElement(TnFinalScoring, null),
           !oppDisconnected && React.createElement(TnFinalArchive, null),
           React.createElement(TnFinalActions, { onAgain, onClose })
@@ -7516,7 +7755,14 @@ window.YasnaCore = {
       const newBusey = totalBusey + dB;
       const logEntry = {
         themeId: currentRound.theme.id,
+        themeName: currentRound.theme.name,
         qId: currentQ.id,
+        qText: currentQ.text,
+        qOptions: currentQ.options,
+        qCorrect: currentQ.correct,
+        qHint: currentQ.hint,
+        // explanation.quote из контента
+        qType: currentQ.type || "single-choice",
         playerCorrect: result.playerCorrect,
         oppCorrect: result.oppCorrect,
         playerTime: result.playerTime

@@ -276,15 +276,41 @@
 
   const useNew = NEW_THEMES.length >= 6 && NEW_QUESTIONS.length >= 18;
 
+  // ─── Гибрид: новые вопросы подмешиваются к legacy-темам по slug ───
+  // Цель: пока банк маленький, не терять новые типы вопросов (true-false,
+  // fill-blank). Они мерджатся в legacy QUESTIONS под legacy theme id, если
+  // совпадают слаги (например, T1 «chto-est-yasna» → legacy 'gimny' через
+  // дополнительный мап). Это временно, пока useNew=false.
+  const SLUG_TO_LEGACY = {
+    'chto-est-yasna': 'gimny',
+    // следующие пустые — заполнить когда T2-T10 наполнятся:
+    'opisanie-sutok': 'sutki',
+    'granit-nauki': 'zerno',
+    'osi-kresty': 'antipody'
+  };
+
+  let MERGED_QUESTIONS = QUESTIONS;
+  if(!useNew && NEW_QUESTIONS.length > 0){
+    const remapped = NEW_QUESTIONS.map(q => {
+      const legacyTheme = SLUG_TO_LEGACY[q.theme];
+      return legacyTheme ? { ...q, theme: legacyTheme } : null;
+    }).filter(Boolean);
+    if(remapped.length > 0){
+      MERGED_QUESTIONS = [...QUESTIONS, ...remapped];
+    }
+  }
+
   const ACTIVE_THEMES = useNew ? NEW_THEMES : THEMES;
-  const ACTIVE_QUESTIONS = useNew ? NEW_QUESTIONS : QUESTIONS;
+  const ACTIVE_QUESTIONS = useNew ? NEW_QUESTIONS : MERGED_QUESTIONS;
 
   if(NEW){
     console.log('[YasnaTrivia] Контент-bundle:',
       NEW.buildInfo?.themes, 'тем,',
-      NEW.buildInfo?.questionsTotal, 'вопросов (single-choice:',
+      NEW.buildInfo?.questionsTotal, 'вопросов (legacy-conv:',
       NEW.buildInfo?.questionsLegacy + ').',
-      useNew ? 'Используется новый банк.' : 'Банк ещё мал — fallback на legacy.'
+      useNew
+        ? 'Используется новый банк полностью.'
+        : 'Hybrid: legacy + ' + (MERGED_QUESTIONS.length - QUESTIONS.length) + ' новых вопросов.'
     );
   }
 

@@ -1,11 +1,11 @@
 // АВТОГЕНЕРИРОВАННЫЙ ФАЙЛ — НЕ РЕДАКТИРОВАТЬ
 // Источник: content/*.json
 // Сборщик: scripts/build-content.mjs
-// Build: 2026-05-08T16:28:13.712Z
+// Build: 2026-05-08T16:38:06.107Z
 // Themes: 1 · Atoms: 32 · Questions: 10 (single-choice: 5)
 
 ;(function(){
-  const BUILD_INFO = {"builtAt":"2026-05-08T16:28:13.712Z","contentVersion":"1.1.0","files":1,"themes":1,"atomsTotal":32,"questionsTotal":10,"questionsLegacy":5};
+  const BUILD_INFO = {"builtAt":"2026-05-08T16:38:06.107Z","contentVersion":"1.1.0","files":1,"themes":1,"atomsTotal":32,"questionsTotal":10,"questionsLegacy":5};
   const THEMES = [
   {
     "id": "chto-est-yasna",
@@ -26,6 +26,7 @@
   {
     "id": "T1.Q1",
     "theme": "chto-est-yasna",
+    "type": "single-choice",
     "diff": 1,
     "text": "Что такое Ясна по первому пункту книги?",
     "options": [
@@ -40,6 +41,7 @@
   {
     "id": "T1.Q2",
     "theme": "chto-est-yasna",
+    "type": "single-choice",
     "diff": 1,
     "text": "Сколько Основных Учебников Ясны?",
     "options": [
@@ -52,8 +54,19 @@
     "hint": "Основных учебников Ясны — двенадцать."
   },
   {
+    "id": "T1.Q4",
+    "theme": "chto-est-yasna",
+    "type": "fill-blank",
+    "diff": 2,
+    "text": "Внутреннее устройство всех без исключения явлений природы, всех вещей в природе и всех природных сущностей _____.",
+    "correct": "одинаково",
+    "alternatives": [],
+    "hint": "Ясна есть учение о том, что внутреннее устройство всех без исключения явлений природы, всех вещей в природе и всех природных сущностей одинаково."
+  },
+  {
     "id": "T1.Q5",
     "theme": "chto-est-yasna",
+    "type": "single-choice",
     "diff": 2,
     "text": "Какое слово на языке современной науки соответствует Ясне?",
     "options": [
@@ -66,8 +79,22 @@
     "hint": "На языке современной науки, Ясна есть Всеобщий Структурный Закон Мира."
   },
   {
+    "id": "T1.Q6",
+    "theme": "chto-est-yasna",
+    "type": "true-false",
+    "diff": 1,
+    "text": "Ясна всегда изложена в виде гимнов Богам.",
+    "options": [
+      "Верно",
+      "Не верно"
+    ],
+    "correct": 0,
+    "hint": "Ясна всегда изложена в виде гимнов Богам."
+  },
+  {
     "id": "T1.Q7",
     "theme": "chto-est-yasna",
+    "type": "single-choice",
     "diff": 2,
     "text": "В пословице «Знают, что делают, и не ведают, что творят» древние различали:",
     "options": [
@@ -80,8 +107,19 @@
     "hint": "В этой пословице древние различали понятия «знать» и «ведать»."
   },
   {
+    "id": "T1.Q8",
+    "theme": "chto-est-yasna",
+    "type": "fill-blank",
+    "diff": 3,
+    "text": "В Веде у каждого слова есть своё собственное место, и покинуть своё место оно _____.",
+    "correct": "не может",
+    "alternatives": [],
+    "hint": "В Веде у каждого слова есть своё собственное место, и покинуть своё место оно не может."
+  },
+  {
     "id": "T1.Q9",
     "theme": "chto-est-yasna",
+    "type": "single-choice",
     "diff": 1,
     "text": "С чего удобно начать изучать Ясну?",
     "options": [
