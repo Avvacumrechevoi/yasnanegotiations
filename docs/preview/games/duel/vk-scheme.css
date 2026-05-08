@@ -879,3 +879,194 @@ body.theme-vk-dark .dp-mode-btn-count {
   .dp-mode-btn-label { font-size: 12px; }
   .dp-mode-btn { padding: 12px 6px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Multi-choice — несколько верных вариантов
+   ═══════════════════════════════════════════════════════════════════ */
+.tn-options-multi {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.tn-multi-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tn-option-multi {
+  position: relative;
+  padding-right: 48px !important;
+}
+.tn-option-multi.tn-option-picked {
+  background: var(--accent-soft, rgba(1, 135, 246, 0.15));
+  border-color: var(--accent);
+}
+body.theme-vk-dark .tn-option-multi.tn-option-picked {
+  background: rgba(1, 135, 246, 0.18);
+  border-color: var(--accent);
+}
+.tn-option-check {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid var(--border-1);
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: transparent;
+  background: var(--bg-page);
+  transition: all 150ms ease;
+}
+.tn-option-multi.tn-option-picked .tn-option-check {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.tn-option-multi.tn-option-correct .tn-option-check {
+  background: var(--primary, #00D3E6);
+  border-color: var(--primary);
+  color: #000;
+}
+.tn-option-multi.tn-option-wrong .tn-option-check {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+.tn-option-multi.tn-option-shown-correct .tn-option-check {
+  background: transparent;
+  border-color: var(--primary, #00D3E6);
+  color: var(--primary, #00D3E6);
+}
+
+.tn-multi-submit {
+  align-self: stretch;
+  padding: 14px 20px;
+  border-radius: 12px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease, transform 100ms;
+}
+.tn-multi-submit:hover:not(:disabled) {
+  background: var(--accent-strong, #0066d9);
+}
+.tn-multi-submit:active:not(:disabled) { transform: scale(0.99); }
+.tn-multi-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--bg-tonal);
+  color: var(--text-3);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Match-pair — соединить пары
+   ═══════════════════════════════════════════════════════════════════ */
+.tn-options-match {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.tn-match-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.tn-match-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tn-match-item {
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-1);
+  background: var(--bg-surface);
+  color: var(--text-1);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  transition: all 150ms ease;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tn-match-item:hover:not(:disabled) {
+  border-color: var(--text-3);
+}
+.tn-match-default { /* default */ }
+.tn-match-selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent);
+  background: var(--accent-soft, rgba(1, 135, 246, 0.10));
+}
+.tn-match-matched {
+  background: var(--bg-tonal);
+  opacity: 0.7;
+  border-color: var(--accent);
+  border-style: dashed;
+}
+.tn-match-correct {
+  background: rgba(0, 211, 230, 0.15);
+  border-color: var(--primary, #00D3E6);
+  border-style: solid;
+  opacity: 1;
+}
+.tn-match-wrong {
+  background: rgba(248, 80, 80, 0.12);
+  border-color: var(--danger);
+  border-style: solid;
+  opacity: 1;
+}
+@media (max-width: 480px) {
+  .tn-match-item { font-size: 13px; padding: 12px 10px; min-height: 44px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Streak indicator в feedback banner
+   ═══════════════════════════════════════════════════════════════════ */
+.tn-feedback-streak {
+  margin-left: 12px;
+  padding: 4px 10px;
+  background: linear-gradient(90deg, #FFB546, #FF6F2C);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  animation: streakPulse 600ms ease-out;
+}
+@keyframes streakPulse {
+  0%   { transform: scale(0.6); opacity: 0; }
+  70%  { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1.0); opacity: 1; }
+}
+.tn-feedback-streak-broken {
+  margin-left: 12px;
+  font-size: 12px;
+  color: var(--text-3);
+  opacity: 0.8;
+}
+body.theme-vk-dark .tn-feedback-streak {
+  box-shadow: 0 4px 12px rgba(255, 111, 44, 0.30);
+}
+@media (max-width: 480px) {
+  .tn-feedback-streak {
+    margin-left: 0;
+    margin-top: 8px;
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+}

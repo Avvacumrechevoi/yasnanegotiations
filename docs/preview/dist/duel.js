@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-08T16:53:18.094Z */
+/* Yasna bundle: duel.js — собран 2026-05-08T17:00:25.761Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5292,7 +5292,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-08T16:53:17.263Z", "contentVersion": "1.1.0", "files": 1, "themes": 1, "atomsTotal": 32, "questionsTotal": 10, "questionsLegacy": 5 };
+  const BUILD_INFO = { "builtAt": "2026-05-08T17:00:24.647Z", "contentVersion": "1.1.0", "files": 1, "themes": 1, "atomsTotal": 32, "questionsTotal": 10, "questionsLegacy": 5 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -5339,6 +5339,38 @@ window.YasnaCore = {
       ],
       "correct": 1,
       "hint": "\u041E\u0441\u043D\u043E\u0432\u043D\u044B\u0445 \u0443\u0447\u0435\u0431\u043D\u0438\u043A\u043E\u0432 \u042F\u0441\u043D\u044B \u2014 \u0434\u0432\u0435\u043D\u0430\u0434\u0446\u0430\u0442\u044C."
+    },
+    {
+      "id": "T1.Q3",
+      "theme": "chto-est-yasna",
+      "type": "match-pair",
+      "diff": 2,
+      "text": "\u0421\u043E\u043E\u0442\u043D\u0435\u0441\u0438\u0442\u0435 \u0434\u0440\u0435\u0432\u043D\u0435\u0435 \u0441\u043B\u043E\u0432\u043E \u0438 \u0435\u0433\u043E \u0441\u043E\u0432\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0439 \u0441\u0438\u043D\u043E\u043D\u0438\u043C",
+      "pairsLeft": [
+        "\u0412\u0435\u0434\u0430",
+        "\u041F\u043E\u0432\u0435\u0441\u0442\u044C",
+        "\u0412\u0435\u0434\u0430 (\u0434\u043B\u044F \u043D\u0430\u0443\u043A\u0438)"
+      ],
+      "pairsRight": [
+        "\u0413\u0438\u043C\u043D",
+        "\u041F\u0435\u0441\u043D\u044F",
+        "\u041F\u0430\u043C\u044F\u0442\u043D\u0438\u043A"
+      ],
+      "correct": [
+        [
+          "\u0412\u0435\u0434\u0430",
+          "\u0413\u0438\u043C\u043D"
+        ],
+        [
+          "\u041F\u043E\u0432\u0435\u0441\u0442\u044C",
+          "\u041F\u0435\u0441\u043D\u044F"
+        ],
+        [
+          "\u0412\u0435\u0434\u0430 (\u0434\u043B\u044F \u043D\u0430\u0443\u043A\u0438)",
+          "\u041F\u0430\u043C\u044F\u0442\u043D\u0438\u043A"
+        ]
+      ],
+      "hint": "\u0412\u0435\u0434\u0430 \u2014 \u0434\u0440\u0435\u0432\u043D\u0435\u0435 \u0441\u043B\u043E\u0432\u043E. \u0412 \u043D\u0430\u0441\u0442\u043E\u044F\u0449\u0435\u0435 \u0432\u0440\u0435\u043C\u044F \u0432 \u044D\u0442\u043E\u043C \u0436\u0435 \u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0438 \u0441\u043B\u0430\u0432\u044F\u043D\u0435 \u043F\u043E\u043B\u044C\u0437\u0443\u044E\u0442\u0441\u044F \u0441\u043B\u043E\u0432\u043E\u043C \xAB\u0413\u0438\u043C\u043D\xBB. \u041F\u043E\u044F\u0441\u043D\u0435\u043D\u0438\u0435\u043C \u043A \u0412\u0435\u0434\u0430\u043C \u044F\u0432\u043B\u044F\u044E\u0442\u0441\u044F \u041F\u043E\u0432\u0435\u0441\u0442\u0438 \u0438\u043B\u0438 \u041F\u0435\u0441\u043D\u0438. \u0418 \u0412\u0435\u0434\u0443 \u043E\u043D\u0430 [\u043D\u0430\u0443\u043A\u0430] \u043D\u0430\u0437\u044B\u0432\u0430\u0435\u0442 \xAB\u041F\u0430\u043C\u044F\u0442\u043D\u0438\u043A\xBB."
     },
     {
       "id": "T1.Q4",
@@ -5417,6 +5449,29 @@ window.YasnaCore = {
       ],
       "correct": 0,
       "hint": "\u042F\u0441\u043D\u0443 \u0443\u0434\u043E\u0431\u043D\u043E \u043D\u0430\u0447\u0430\u0442\u044C \u0438\u0437\u0443\u0447\u0430\u0442\u044C \u0441 \u0438\u0437\u0443\u0447\u0435\u043D\u0438\u044F \u0441\u0432\u0435\u0442\u043E\u0432\u044B\u0445 \u0441\u0443\u0442\u043E\u043A."
+    },
+    {
+      "id": "T1.Q10",
+      "theme": "chto-est-yasna",
+      "type": "multi-choice",
+      "diff": 2,
+      "text": "\u041A\u0430\u043A\u0438\u0435 \u0432\u044B\u0440\u0430\u0436\u0435\u043D\u0438\u044F, \u043F\u043E \u043A\u043D\u0438\u0433\u0435, \u043E\u0441\u0442\u0430\u043B\u0438\u0441\u044C \u0441\u043B\u0435\u0434\u0430\u043C\u0438 \u042F\u0441\u043D\u044B \u0432 \u0440\u0443\u0441\u0441\u043A\u043E\u043C \u044F\u0437\u044B\u043A\u0435?",
+      "options": [
+        "\u043C\u043D\u0435 \u0432\u0441\u0451 \u044F\u0441\u043D\u043E",
+        "\u0441\u043F\u0440\u043E\u0441\u0438\u0442\u044C \u044F\u0441\u043D\u043E\u0441\u0442\u0438",
+        "\u0440\u0430\u0437\u044A\u044F\u0441\u043D\u0435\u043D\u0438\u0435",
+        "\u0432\u043D\u0435\u0441\u0442\u0438 \u044F\u0441\u043D\u043E\u0441\u0442\u044C \u0432 \u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435 \u043E \u0447\u0451\u043C-\u043B\u0438\u0431\u043E",
+        "\u0442\u0451\u043C\u043D\u043E\u0435 \u0434\u0435\u043B\u043E",
+        "\u0441\u0432\u0435\u0442\u043B\u0430\u044F \u0433\u043E\u043B\u043E\u0432\u0430",
+        "\u0440\u0430\u0437\u043E\u0431\u0440\u0430\u0442\u044C \u043F\u043E \u043F\u043E\u043B\u043E\u0447\u043A\u0430\u043C"
+      ],
+      "correct": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "hint": "\u0412 \u043D\u0430\u0441\u0442\u043E\u044F\u0449\u0435\u0435 \u0432\u0440\u0435\u043C\u044F \u0432 \u0440\u0443\u0441\u0441\u043A\u043E\u043C \u044F\u0437\u044B\u043A\u0435 \u043E\u0441\u0442\u0430\u043B\u0438\u0441\u044C \u0442\u043E\u043B\u044C\u043A\u043E \u0441\u043B\u0435\u0434\u044B \u042F\u0441\u043D\u044B \u0432 \u0441\u043B\u043E\u0432\u0430\u0445 \u0438 \u0432\u044B\u0440\u0430\u0436\u0435\u043D\u0438\u044F\u0445, \u043D\u0430\u043F\u0440\u0438\u043C\u0435\u0440, \u0442\u0430\u043A\u0438\u0445: \xAB\u043C\u043D\u0435 \u0432\u0441\u0451 \u044F\u0441\u043D\u043E\xBB, \xAB\u0441\u043F\u0440\u043E\u0441\u0438\u0442\u044C \u044F\u0441\u043D\u043E\u0441\u0442\u0438\xBB, \xAB\u0440\u0430\u0437\u044A\u044F\u0441\u043D\u0435\u043D\u0438\u0435\xBB, \xAB\u0432\u043D\u0435\u0441\u0442\u0438 \u044F\u0441\u043D\u043E\u0441\u0442\u044C \u0432 \u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435 \u043E \u0447\u0451\u043C-\u043B\u0438\u0431\u043E\xBB."
     }
   ];
   const QUESTIONS_FULL = [
@@ -6776,16 +6831,75 @@ window.YasnaCore = {
     expert: { themes: 6, qPerTheme: 5 }
     // 30 вопросов · ~9 мин
   };
+  const SEEN_KEY = "yasna_seen_questions";
+  const SEEN_TTL_MS = 30 * 24 * 60 * 60 * 1e3;
+  const ANTI_REPEAT_WINDOW_MS = {
+    blitz: 2 * 60 * 60 * 1e3,
+    // 2 часа — Блиц короткий, ок повторам быстрее
+    standard: 12 * 60 * 60 * 1e3,
+    // 12 часов
+    expert: 24 * 60 * 60 * 1e3
+    // 24 часа — Эксперт хочет максимум разнообразия
+  };
+  function loadSeen() {
+    try {
+      const raw = localStorage.getItem(SEEN_KEY);
+      if (!raw) return {};
+      const parsed = JSON.parse(raw);
+      const now = Date.now();
+      let dirty = false;
+      for (const k in parsed) {
+        if (now - parsed[k] > SEEN_TTL_MS) {
+          delete parsed[k];
+          dirty = true;
+        }
+      }
+      if (dirty) {
+        try {
+          localStorage.setItem(SEEN_KEY, JSON.stringify(parsed));
+        } catch (_) {
+        }
+      }
+      return parsed;
+    } catch (_) {
+      return {};
+    }
+  }
+  function markSeen(qIds) {
+    try {
+      const seen = loadSeen();
+      const now = Date.now();
+      for (const id of qIds) {
+        if (id) seen[id] = now;
+      }
+      localStorage.setItem(SEEN_KEY, JSON.stringify(seen));
+    } catch (_) {
+    }
+  }
   function generatePartiya(seed, mode) {
     const cfg = MODE_CONFIG[mode] || MODE_CONFIG.standard;
+    const seen = loadSeen();
+    const window2 = ANTI_REPEAT_WINDOW_MS[mode] || ANTI_REPEAT_WINDOW_MS.standard;
+    const cutoff = Date.now() - window2;
+    const isFresh = (qId) => !seen[qId] || seen[qId] < cutoff;
     const rng = seedRandom(seed || Date.now());
     const shuffled = [...ACTIVE_THEMES].sort(() => rng() - 0.5);
     const chosen = shuffled.slice(0, cfg.themes);
-    return chosen.map((theme) => {
+    const partiya = chosen.map((theme) => {
       const themeQs = ACTIVE_QUESTIONS.filter((q) => q.theme === theme.id);
-      const shQ = [...themeQs].sort(() => rng() - 0.5);
-      return { theme, questions: shQ.slice(0, cfg.qPerTheme) };
+      const fresh = themeQs.filter((q) => isFresh(q.id));
+      const shFresh = [...fresh].sort(() => rng() - 0.5);
+      let picked = shFresh.slice(0, cfg.qPerTheme);
+      if (picked.length < cfg.qPerTheme) {
+        const fallback = themeQs.filter((q) => !picked.find((p) => p.id === q.id));
+        const shAll = [...fallback].sort(() => rng() - 0.5);
+        picked = [...picked, ...shAll.slice(0, cfg.qPerTheme - picked.length)];
+      }
+      return { theme, questions: picked };
     });
+    const allIds = partiya.flatMap((r) => r.questions.map((q) => q.id));
+    markSeen(allIds);
+    return partiya;
   }
   function seedRandom(seed) {
     let x = seed;
@@ -7005,7 +7119,7 @@ window.YasnaCore = {
     );
   }
   function TnQuestionCard({ qOverall, totalOverall, themeName, text, timeLeft, showFeedback, qType }) {
-    const typeLabel = qType === "true-false" ? "\u0412\u0435\u0440\u043D\u043E \u0438\u043B\u0438 \u043D\u0435\u0442?" : qType === "fill-blank" ? "\u0417\u0430\u043F\u043E\u043B\u043D\u0438 \u043F\u0440\u043E\u043F\u0443\u0441\u043A" : null;
+    const typeLabel = qType === "true-false" ? "\u0412\u0435\u0440\u043D\u043E \u0438\u043B\u0438 \u043D\u0435\u0442?" : qType === "fill-blank" ? "\u0417\u0430\u043F\u043E\u043B\u043D\u0438 \u043F\u0440\u043E\u043F\u0443\u0441\u043A" : qType === "multi-choice" ? "\u0412\u044B\u0431\u0435\u0440\u0438 \u0432\u0441\u0435 \u0432\u0435\u0440\u043D\u044B\u0435" : qType === "match-pair" ? "\u0421\u043E\u0435\u0434\u0438\u043D\u0438 \u043F\u0430\u0440\u044B" : null;
     return React.createElement(
       "article",
       { className: "tn-q-card" },
@@ -7104,6 +7218,166 @@ window.YasnaCore = {
   function normalizeFillAnswer(s) {
     return String(s || "").toLowerCase().trim().replace(/ё/g, "\u0435").replace(/[.,!?;:"'()\[\]]/g, "").replace(/\s+/g, " ");
   }
+  function TnMultiChoice({ options, correctIdxs, chosen, showFeedback, onSubmit }) {
+    const [picks, setPicks] = useState(/* @__PURE__ */ new Set());
+    useEffect(() => {
+      setPicks(/* @__PURE__ */ new Set());
+    }, [options]);
+    const labels = ["A", "B", "C", "D", "E", "F", "G", "H"];
+    const correctSet = new Set(correctIdxs || []);
+    function toggle(i) {
+      if (showFeedback) return;
+      const ns = new Set(picks);
+      if (ns.has(i)) ns.delete(i);
+      else ns.add(i);
+      setPicks(ns);
+    }
+    function submit() {
+      if (showFeedback || picks.size === 0) return;
+      onSubmit([...picks].sort());
+    }
+    const chosenSet = chosen ? new Set(chosen) : null;
+    return React.createElement(
+      "div",
+      { className: "tn-options tn-options-multi", role: "group" },
+      React.createElement(
+        "div",
+        { className: "tn-multi-list" },
+        options.map((opt, i) => {
+          const isPicked = (chosenSet || picks).has(i);
+          const isCorrect = correctSet.has(i);
+          let state = isPicked ? "picked" : "default";
+          if (showFeedback) {
+            if (isPicked && isCorrect) state = "correct";
+            else if (isPicked && !isCorrect) state = "wrong";
+            else if (!isPicked && isCorrect) state = "shown-correct";
+            else state = "disabled";
+          }
+          return React.createElement(
+            "button",
+            {
+              key: i,
+              type: "button",
+              className: "tn-option tn-option-multi tn-option-" + state,
+              disabled: showFeedback,
+              onClick: () => toggle(i),
+              "aria-pressed": isPicked
+            },
+            React.createElement("span", { className: "tn-option-letter", "aria-hidden": "true" }, labels[i] || i + 1),
+            React.createElement("span", { className: "tn-option-text" }, opt),
+            React.createElement(
+              "span",
+              { className: "tn-option-check", "aria-hidden": "true" },
+              showFeedback ? isCorrect && isPicked ? "\u2713" : isCorrect ? "\u2713" : isPicked ? "\u2715" : "" : isPicked ? "\u2713" : ""
+            )
+          );
+        })
+      ),
+      !showFeedback && React.createElement("button", {
+        className: "tn-multi-submit",
+        onClick: submit,
+        disabled: picks.size === 0
+      }, "\u041E\u0442\u0432\u0435\u0442\u0438\u0442\u044C \u2192 (", picks.size, ")")
+    );
+  }
+  function TnMatchPair({ pairsLeft, pairsRight, correct, chosen, showFeedback, onSubmit }) {
+    const rightShuffled = useMemo(() => {
+      const arr = pairsRight.map((r, i) => ({ text: r, origIdx: i }));
+      const seed = pairsRight.join("|").length;
+      let x = seed;
+      arr.sort(() => {
+        x = (x * 9301 + 49297) % 233280;
+        return x / 233280 - 0.5;
+      });
+      return arr;
+    }, [pairsRight]);
+    const [matches, setMatches] = useState({});
+    const [selectedLeft, setSelectedLeft] = useState(null);
+    useEffect(() => {
+      setMatches({});
+      setSelectedLeft(null);
+    }, [pairsLeft]);
+    function clickLeft(i) {
+      if (showFeedback || matches[i] != null) return;
+      setSelectedLeft(selectedLeft === i ? null : i);
+    }
+    function clickRight(rightOrigIdx) {
+      if (showFeedback) return;
+      const usedBy = Object.entries(matches).find(([k, v]) => v === rightOrigIdx);
+      if (usedBy) {
+        const upd = { ...matches };
+        delete upd[usedBy[0]];
+        setMatches(upd);
+        return;
+      }
+      if (selectedLeft == null) return;
+      setMatches({ ...matches, [selectedLeft]: rightOrigIdx });
+      setSelectedLeft(null);
+    }
+    function submit() {
+      if (showFeedback) return;
+      if (Object.keys(matches).length !== pairsLeft.length) return;
+      onSubmit(matches);
+    }
+    const allMatched = Object.keys(matches).length === pairsLeft.length;
+    function pairCorrect(leftIdx, rightOrigIdx) {
+      return rightOrigIdx === leftIdx;
+    }
+    return React.createElement(
+      "div",
+      { className: "tn-options tn-options-match", role: "group" },
+      React.createElement(
+        "div",
+        { className: "tn-match-grid" },
+        // Левая колонка
+        React.createElement(
+          "div",
+          { className: "tn-match-col tn-match-col-left" },
+          pairsLeft.map((txt, i) => {
+            const matched = matches[i] != null;
+            const isSel = selectedLeft === i;
+            let state = matched ? "matched" : isSel ? "selected" : "default";
+            if (showFeedback && matched) {
+              state = pairCorrect(i, matches[i]) ? "correct" : "wrong";
+            }
+            return React.createElement("button", {
+              key: i,
+              type: "button",
+              className: "tn-match-item tn-match-" + state,
+              onClick: () => clickLeft(i),
+              disabled: showFeedback
+            }, txt);
+          })
+        ),
+        // Правая колонка (перемешанная)
+        React.createElement(
+          "div",
+          { className: "tn-match-col tn-match-col-right" },
+          rightShuffled.map(({ text, origIdx }) => {
+            const usedBy = Object.entries(matches).find(([k, v]) => v === origIdx);
+            const isUsed = !!usedBy;
+            let state = isUsed ? "matched" : "default";
+            if (showFeedback && isUsed) {
+              const leftIdx = parseInt(usedBy[0], 10);
+              state = pairCorrect(leftIdx, origIdx) ? "correct" : "wrong";
+            }
+            return React.createElement("button", {
+              key: origIdx,
+              type: "button",
+              className: "tn-match-item tn-match-" + state,
+              onClick: () => clickRight(origIdx),
+              disabled: showFeedback
+            }, text);
+          })
+        )
+      ),
+      !showFeedback && React.createElement("button", {
+        className: "tn-multi-submit",
+        onClick: submit,
+        disabled: !allMatched
+      }, allMatched ? "\u041E\u0442\u0432\u0435\u0442\u0438\u0442\u044C \u2192" : "\u0421\u043E\u0435\u0434\u0438\u043D\u0438 \u0432\u0441\u0435 \u043F\u0430\u0440\u044B (" + Object.keys(matches).length + " / " + pairsLeft.length + ")")
+    );
+  }
   function TnFillBlank({ correct, alternatives, chosen, showFeedback, onSubmit }) {
     const [val, setVal] = useState("");
     useEffect(() => {
@@ -7158,13 +7432,22 @@ window.YasnaCore = {
       }, "\u041E\u0442\u0432\u0435\u0442\u0438\u0442\u044C \u2192")
     );
   }
-  function TnFeedbackBanner({ kind, busey }) {
+  function TnFeedbackBanner({ kind, busey, streak, mult }) {
     if (kind === "correct") {
       return React.createElement(
         "div",
         { className: "tn-feedback tn-feedback-correct" },
         React.createElement("span", { className: "tn-feedback-icon", "aria-hidden": "true" }, "\u2726"),
         React.createElement("span", { className: "tn-feedback-text" }, "\u0412\u0435\u0440\u043D\u043E"),
+        // Серия — показывается при 3+ верных
+        streak >= 3 && React.createElement(
+          "span",
+          { className: "tn-feedback-streak" },
+          "\u{1F525} ",
+          streak,
+          " \u043F\u043E\u0434\u0440\u044F\u0434 \xB7 \xD7",
+          mult.toFixed(1)
+        ),
         busey > 0 && React.createElement("span", { className: "tn-feedback-busey" }, "+", busey, " \u0431\u0443\u0441\u0438\u043D")
       );
     }
@@ -7173,7 +7456,8 @@ window.YasnaCore = {
         "div",
         { className: "tn-feedback tn-feedback-wrong" },
         React.createElement("span", { className: "tn-feedback-icon", "aria-hidden": "true" }, "\u25EF"),
-        React.createElement("span", { className: "tn-feedback-text" }, "\u041D\u0435 \u0432\u0435\u0440\u043D\u043E")
+        React.createElement("span", { className: "tn-feedback-text" }, "\u041D\u0435 \u0432\u0435\u0440\u043D\u043E"),
+        streak === 0 && React.createElement("span", { className: "tn-feedback-streak-broken" }, "\u0441\u0435\u0440\u0438\u044F \u0441\u0431\u0440\u043E\u0448\u0435\u043D\u0430")
       );
     }
     return React.createElement(
@@ -7183,7 +7467,7 @@ window.YasnaCore = {
       React.createElement("span", { className: "tn-feedback-text" }, "\u0412\u0440\u0435\u043C\u044F \u0432\u044B\u0448\u043B\u043E")
     );
   }
-  function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswersRef }) {
+  function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswersRef, streak, streakMultiplier }) {
     const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
     const [chosen, setChosen] = useState(null);
     const startedAt = useRef(Date.now());
@@ -7291,6 +7575,39 @@ window.YasnaCore = {
       }
       waitForOppAndAdvance(playerCorrect2, playerTime, false);
     }
+    function pickMulti(idxs) {
+      if (chosen != null || answeredRef.current) return;
+      const correctSorted = [...q.correct || []].sort();
+      const pickedSorted = [...idxs].sort();
+      const playerCorrect2 = correctSorted.length === pickedSorted.length && correctSorted.every((v, i) => v === pickedSorted[i]);
+      setChosen(idxs);
+      const playerTime = Date.now() - startedAt.current;
+      if (isPvP && transport) {
+        try {
+          transport.send({ t: "opp-answer", correct: playerCorrect2, time: playerTime, qId: q.id });
+        } catch (_) {
+        }
+      }
+      waitForOppAndAdvance(playerCorrect2, playerTime, false);
+    }
+    function pickMatch(matches) {
+      if (chosen != null || answeredRef.current) return;
+      const total = (q.pairsLeft || []).length;
+      let correctCount = 0;
+      for (let i = 0; i < total; i++) {
+        if (matches[i] === i) correctCount++;
+      }
+      const playerCorrect2 = correctCount === total;
+      setChosen(matches);
+      const playerTime = Date.now() - startedAt.current;
+      if (isPvP && transport) {
+        try {
+          transport.send({ t: "opp-answer", correct: playerCorrect2, time: playerTime, qId: q.id });
+        } catch (_) {
+        }
+      }
+      waitForOppAndAdvance(playerCorrect2, playerTime, false);
+    }
     const showFeedback = chosen != null;
     const qType = q.type || "single-choice";
     let playerCorrect, feedbackKind;
@@ -7300,6 +7617,21 @@ window.YasnaCore = {
       );
       const normalized = String(chosen || "").toLowerCase().trim().replace(/ё/g, "\u0435").replace(/[.,!?;:"'()\[\]]/g, "").replace(/\s+/g, " ");
       playerCorrect = chosen != null && acceptable.includes(normalized);
+      feedbackKind = chosen == null ? "timeout" : playerCorrect ? "correct" : "wrong";
+    } else if (qType === "multi-choice") {
+      const correctSorted = [...q.correct || []].sort();
+      const pickedSorted = chosen ? [...chosen].sort() : [];
+      playerCorrect = chosen != null && correctSorted.length === pickedSorted.length && correctSorted.every((v, i) => v === pickedSorted[i]);
+      feedbackKind = chosen == null ? "timeout" : playerCorrect ? "correct" : "wrong";
+    } else if (qType === "match-pair") {
+      const total = (q.pairsLeft || []).length;
+      let cc = 0;
+      if (chosen) {
+        for (let i = 0; i < total; i++) {
+          if (chosen[i] === i) cc++;
+        }
+      }
+      playerCorrect = cc === total && chosen != null;
       feedbackKind = chosen == null ? "timeout" : playerCorrect ? "correct" : "wrong";
     } else {
       playerCorrect = chosen === q.correct;
@@ -7339,6 +7671,21 @@ window.YasnaCore = {
           showFeedback,
           onSubmit: pickFill
         }),
+        qType === "multi-choice" && React.createElement(TnMultiChoice, {
+          options: q.options,
+          correctIdxs: q.correct,
+          chosen,
+          showFeedback,
+          onSubmit: pickMulti
+        }),
+        qType === "match-pair" && React.createElement(TnMatchPair, {
+          pairsLeft: q.pairsLeft,
+          pairsRight: q.pairsRight,
+          correct: q.correct,
+          chosen,
+          showFeedback,
+          onSubmit: pickMatch
+        }),
         (qType === "single-choice" || !qType) && React.createElement(TnOptions, {
           options: q.options,
           chosen,
@@ -7346,7 +7693,12 @@ window.YasnaCore = {
           showFeedback,
           onPick: pick
         }),
-        showFeedback && React.createElement(TnFeedbackBanner, { kind: feedbackKind, busey: playerBusey }),
+        showFeedback && React.createElement(TnFeedbackBanner, {
+          kind: feedbackKind,
+          busey: playerBusey,
+          streak: feedbackKind === "correct" ? (streak || 0) + 1 : feedbackKind === "wrong" ? 0 : streak || 0,
+          mult: streakMultiplier ? streakMultiplier((streak || 0) + 1) : 1
+        }),
         !showFeedback && React.createElement(
           "div",
           { className: "tn-foot" },
@@ -7696,6 +8048,14 @@ window.YasnaCore = {
     const [totalBusey, setTotalBusey] = useState(0);
     const [partiyaLog, setPartiyaLog] = useState([]);
     const [oppDisconnected, setOppDisconnected] = useState(false);
+    const [streak, setStreak] = useState(0);
+    const [streakPeak, setStreakPeak] = useState(0);
+    function streakMultiplier(s) {
+      if (s >= 7) return 2;
+      if (s >= 5) return 1.5;
+      if (s >= 3) return 1.2;
+      return 1;
+    }
     const oppAnswersRef = useRef({});
     useEffect(() => {
       if (!isPvP || !transport) return;
@@ -7753,10 +8113,12 @@ window.YasnaCore = {
     const qOverall = partiya.slice(0, roundIdx).reduce((sum, r) => sum + r.questions.length, 0) + qIdx;
     function onAnswer(result) {
       let dp = 0, doO = 0, dB = 0;
+      const newStreak = result.playerCorrect ? streak + 1 : 0;
+      const mult = streakMultiplier(newStreak);
       if (result.playerCorrect) {
         const b = buseyForCorrect(result.playerTime);
-        dp = b;
-        dB = 5 + Math.floor(b / 4);
+        dp = Math.round(b * mult);
+        dB = Math.round((5 + Math.floor(b / 4)) * mult);
       }
       if (result.oppCorrect) {
         doO = buseyForCorrect(result.oppTime);
@@ -7764,6 +8126,8 @@ window.YasnaCore = {
       const newScoreP = scoreP + dp;
       const newScoreO = scoreO + doO;
       const newBusey = totalBusey + dB;
+      setStreak(newStreak);
+      if (newStreak > streakPeak) setStreakPeak(newStreak);
       const logEntry = {
         themeId: currentRound.theme.id,
         themeName: currentRound.theme.name,
@@ -7924,7 +8288,9 @@ window.YasnaCore = {
         onAnswer,
         isPvP,
         transport,
-        oppAnswersRef
+        oppAnswersRef,
+        streak,
+        streakMultiplier
       });
     }
     if (phase === "final") {

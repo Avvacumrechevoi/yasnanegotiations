@@ -163,8 +163,10 @@
   // ─── Карточка вопроса (тема + текст) ────────────────────────────
   function TnQuestionCard({ qOverall, totalOverall, themeName, text, timeLeft, showFeedback, qType }){
     const typeLabel =
-      qType === 'true-false' ? 'Верно или нет?' :
-      qType === 'fill-blank' ? 'Заполни пропуск' : null;
+      qType === 'true-false'  ? 'Верно или нет?' :
+      qType === 'fill-blank'  ? 'Заполни пропуск' :
+      qType === 'multi-choice'? 'Выбери все верные' :
+      qType === 'match-pair'  ? 'Соедини пары' : null;
     return React.createElement('article', { className: 'tn-q-card' },
       React.createElement('div', { className: 'tn-q-meta' },
         React.createElement('span', { className: 'tn-q-meta-num' }, 'Вопрос ', qOverall + 1, ' / ', totalOverall),
@@ -259,6 +261,166 @@
       .replace(/\s+/g, ' ');
   }
 
+  // ─── Multi-choice — несколько правильных вариантов ──────────────
+  // Игрок отмечает чекбоксами, побеждает если ВСЕ верные отмечены и ни одного лишнего.
+  function TnMultiChoice({ options, correctIdxs, chosen, showFeedback, onSubmit }){
+    const [picks, setPicks] = useState(new Set());
+    useEffect(() => { setPicks(new Set()); }, [options]);
+    const labels = ['A','B','C','D','E','F','G','H'];
+    const correctSet = new Set(correctIdxs || []);
+
+    function toggle(i){
+      if(showFeedback) return;
+      const ns = new Set(picks);
+      if(ns.has(i)) ns.delete(i); else ns.add(i);
+      setPicks(ns);
+    }
+
+    function submit(){
+      if(showFeedback || picks.size === 0) return;
+      onSubmit([...picks].sort());
+    }
+
+    const chosenSet = chosen ? new Set(chosen) : null;
+
+    return React.createElement('div', { className: 'tn-options tn-options-multi', role: 'group' },
+      React.createElement('div', { className: 'tn-multi-list' },
+        options.map((opt, i) => {
+          const isPicked = (chosenSet || picks).has(i);
+          const isCorrect = correctSet.has(i);
+          let state = isPicked ? 'picked' : 'default';
+          if(showFeedback){
+            if(isPicked && isCorrect) state = 'correct';
+            else if(isPicked && !isCorrect) state = 'wrong';
+            else if(!isPicked && isCorrect) state = 'shown-correct';
+            else state = 'disabled';
+          }
+          return React.createElement('button', {
+            key: i,
+            type: 'button',
+            className: 'tn-option tn-option-multi tn-option-' + state,
+            disabled: showFeedback,
+            onClick: () => toggle(i),
+            'aria-pressed': isPicked
+          },
+            React.createElement('span', { className: 'tn-option-letter', 'aria-hidden': 'true' }, labels[i] || (i+1)),
+            React.createElement('span', { className: 'tn-option-text' }, opt),
+            React.createElement('span', { className: 'tn-option-check', 'aria-hidden': 'true' },
+              showFeedback
+                ? (isCorrect && isPicked ? '✓' : (isCorrect ? '✓' : (isPicked ? '✕' : '')))
+                : (isPicked ? '✓' : '')
+            )
+          );
+        })
+      ),
+      !showFeedback && React.createElement('button', {
+        className: 'tn-multi-submit',
+        onClick: submit,
+        disabled: picks.size === 0
+      }, 'Ответить → (', picks.size, ')')
+    );
+  }
+
+  // ─── Match-pair — соединить пары tap-to-pair ────────────────────
+  // Сначала тап на левый элемент, потом на правый — пара формируется.
+  // Уже соединённые элементы «гасятся». Кнопка submit активна когда
+  // все пары соединены.
+  function TnMatchPair({ pairsLeft, pairsRight, correct, chosen, showFeedback, onSubmit }){
+    // pairsLeft и pairsRight приходят в правильном порядке (correct[i] = [left[i], right[i]]).
+    // Перемешиваем правую колонку для UI.
+    const rightShuffled = useMemo(() => {
+      const arr = pairsRight.map((r, i) => ({ text: r, origIdx: i }));
+      // детерминированный шафл по pairsRight (для PvP консистентности)
+      const seed = pairsRight.join('|').length;
+      let x = seed;
+      arr.sort(() => { x = (x * 9301 + 49297) % 233280; return x / 233280 - 0.5; });
+      return arr;
+    }, [pairsRight]);
+
+    const [matches, setMatches] = useState({});  // { leftIdx: rightOrigIdx }
+    const [selectedLeft, setSelectedLeft] = useState(null);
+    useEffect(() => { setMatches({}); setSelectedLeft(null); }, [pairsLeft]);
+
+    function clickLeft(i){
+      if(showFeedback || matches[i] != null) return;
+      setSelectedLeft(selectedLeft === i ? null : i);
+    }
+    function clickRight(rightOrigIdx){
+      if(showFeedback) return;
+      // отменить если уже использован
+      const usedBy = Object.entries(matches).find(([k, v]) => v === rightOrigIdx);
+      if(usedBy){
+        const upd = { ...matches };
+        delete upd[usedBy[0]];
+        setMatches(upd);
+        return;
+      }
+      if(selectedLeft == null) return;
+      setMatches({ ...matches, [selectedLeft]: rightOrigIdx });
+      setSelectedLeft(null);
+    }
+    function submit(){
+      if(showFeedback) return;
+      if(Object.keys(matches).length !== pairsLeft.length) return;
+      // matches: { leftIdx: rightOrigIdx } → играем с этой структурой
+      onSubmit(matches);
+    }
+
+    const allMatched = Object.keys(matches).length === pairsLeft.length;
+
+    // Для feedback — какие пары верные
+    function pairCorrect(leftIdx, rightOrigIdx){
+      // Правильная пара: pairsLeft[leftIdx] ↔ pairsRight[leftIdx]
+      // (исходный порядок без шафла)
+      return rightOrigIdx === leftIdx;
+    }
+
+    return React.createElement('div', { className: 'tn-options tn-options-match', role: 'group' },
+      React.createElement('div', { className: 'tn-match-grid' },
+        // Левая колонка
+        React.createElement('div', { className: 'tn-match-col tn-match-col-left' },
+          pairsLeft.map((txt, i) => {
+            const matched = matches[i] != null;
+            const isSel = selectedLeft === i;
+            let state = matched ? 'matched' : (isSel ? 'selected' : 'default');
+            if(showFeedback && matched){
+              state = pairCorrect(i, matches[i]) ? 'correct' : 'wrong';
+            }
+            return React.createElement('button', {
+              key: i, type: 'button',
+              className: 'tn-match-item tn-match-' + state,
+              onClick: () => clickLeft(i),
+              disabled: showFeedback
+            }, txt);
+          })
+        ),
+        // Правая колонка (перемешанная)
+        React.createElement('div', { className: 'tn-match-col tn-match-col-right' },
+          rightShuffled.map(({ text, origIdx }) => {
+            const usedBy = Object.entries(matches).find(([k, v]) => v === origIdx);
+            const isUsed = !!usedBy;
+            let state = isUsed ? 'matched' : 'default';
+            if(showFeedback && isUsed){
+              const leftIdx = parseInt(usedBy[0], 10);
+              state = pairCorrect(leftIdx, origIdx) ? 'correct' : 'wrong';
+            }
+            return React.createElement('button', {
+              key: origIdx, type: 'button',
+              className: 'tn-match-item tn-match-' + state,
+              onClick: () => clickRight(origIdx),
+              disabled: showFeedback
+            }, text);
+          })
+        )
+      ),
+      !showFeedback && React.createElement('button', {
+        className: 'tn-multi-submit',
+        onClick: submit,
+        disabled: !allMatched
+      }, allMatched ? 'Ответить →' : 'Соедини все пары (' + Object.keys(matches).length + ' / ' + pairsLeft.length + ')')
+    );
+  }
+
   function TnFillBlank({ correct, alternatives, chosen, showFeedback, onSubmit }){
     const [val, setVal] = useState('');
     useEffect(() => { setVal(''); }, [correct]);
@@ -308,18 +470,23 @@
   }
 
   // ─── Баннер обратной связи (после ответа) ───────────────────────
-  function TnFeedbackBanner({ kind, busey }){
+  function TnFeedbackBanner({ kind, busey, streak, mult }){
     if(kind === 'correct'){
       return React.createElement('div', { className: 'tn-feedback tn-feedback-correct' },
         React.createElement('span', { className: 'tn-feedback-icon', 'aria-hidden': 'true' }, '✦'),
         React.createElement('span', { className: 'tn-feedback-text' }, 'Верно'),
+        // Серия — показывается при 3+ верных
+        streak >= 3 && React.createElement('span', { className: 'tn-feedback-streak' },
+          '🔥 ', streak, ' подряд · ×', mult.toFixed(1)
+        ),
         busey > 0 && React.createElement('span', { className: 'tn-feedback-busey' }, '+', busey, ' бусин')
       );
     }
     if(kind === 'wrong'){
       return React.createElement('div', { className: 'tn-feedback tn-feedback-wrong' },
         React.createElement('span', { className: 'tn-feedback-icon', 'aria-hidden': 'true' }, '◯'),
-        React.createElement('span', { className: 'tn-feedback-text' }, 'Не верно')
+        React.createElement('span', { className: 'tn-feedback-text' }, 'Не верно'),
+        streak === 0 && React.createElement('span', { className: 'tn-feedback-streak-broken' }, 'серия сброшена')
       );
     }
     return React.createElement('div', { className: 'tn-feedback tn-feedback-timeout' },
@@ -329,7 +496,7 @@
   }
 
   // ─── Question — основной компонент игрового вопроса ─────────────
-  function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswersRef }){
+  function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswersRef, streak, streakMultiplier }){
     const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
     const [chosen, setChosen] = useState(null);
     const startedAt = useRef(Date.now());
@@ -467,6 +634,38 @@
       waitForOppAndAdvance(playerCorrect, playerTime, false);
     }
 
+    // pick для multi-choice — массив индексов, верно если совпадает с correct
+    function pickMulti(idxs){
+      if(chosen != null || answeredRef.current) return;
+      const correctSorted = [...(q.correct || [])].sort();
+      const pickedSorted  = [...idxs].sort();
+      const playerCorrect = correctSorted.length === pickedSorted.length &&
+        correctSorted.every((v, i) => v === pickedSorted[i]);
+      setChosen(idxs);
+      const playerTime = Date.now() - startedAt.current;
+      if(isPvP && transport){
+        try { transport.send({ t: 'opp-answer', correct: playerCorrect, time: playerTime, qId: q.id }); } catch(_){}
+      }
+      waitForOppAndAdvance(playerCorrect, playerTime, false);
+    }
+
+    // pick для match-pair — { leftIdx: rightOrigIdx }, верно если все пары совпадают по индексу
+    function pickMatch(matches){
+      if(chosen != null || answeredRef.current) return;
+      const total = (q.pairsLeft || []).length;
+      let correctCount = 0;
+      for(let i = 0; i < total; i++){
+        if(matches[i] === i) correctCount++;
+      }
+      const playerCorrect = correctCount === total;
+      setChosen(matches);
+      const playerTime = Date.now() - startedAt.current;
+      if(isPvP && transport){
+        try { transport.send({ t: 'opp-answer', correct: playerCorrect, time: playerTime, qId: q.id }); } catch(_){}
+      }
+      waitForOppAndAdvance(playerCorrect, playerTime, false);
+    }
+
     const showFeedback = chosen != null;
     const qType = q.type || 'single-choice';
     let playerCorrect, feedbackKind;
@@ -479,6 +678,19 @@
       const normalized = String(chosen || '').toLowerCase().trim()
         .replace(/ё/g, 'е').replace(/[.,!?;:"'()\[\]]/g, '').replace(/\s+/g, ' ');
       playerCorrect = chosen != null && acceptable.includes(normalized);
+      feedbackKind = chosen == null ? 'timeout' : (playerCorrect ? 'correct' : 'wrong');
+    } else if(qType === 'multi-choice'){
+      const correctSorted = [...(q.correct || [])].sort();
+      const pickedSorted  = chosen ? [...chosen].sort() : [];
+      playerCorrect = chosen != null &&
+        correctSorted.length === pickedSorted.length &&
+        correctSorted.every((v, i) => v === pickedSorted[i]);
+      feedbackKind = chosen == null ? 'timeout' : (playerCorrect ? 'correct' : 'wrong');
+    } else if(qType === 'match-pair'){
+      const total = (q.pairsLeft || []).length;
+      let cc = 0;
+      if(chosen){ for(let i = 0; i < total; i++){ if(chosen[i] === i) cc++; } }
+      playerCorrect = cc === total && chosen != null;
       feedbackKind = chosen == null ? 'timeout' : (playerCorrect ? 'correct' : 'wrong');
     } else {
       playerCorrect = chosen === q.correct;
@@ -505,10 +717,23 @@
           correct: q.correct, alternatives: q.alternatives,
           chosen, showFeedback, onSubmit: pickFill,
         }),
+        qType === 'multi-choice' && React.createElement(TnMultiChoice, {
+          options: q.options, correctIdxs: q.correct,
+          chosen, showFeedback, onSubmit: pickMulti,
+        }),
+        qType === 'match-pair' && React.createElement(TnMatchPair, {
+          pairsLeft: q.pairsLeft, pairsRight: q.pairsRight, correct: q.correct,
+          chosen, showFeedback, onSubmit: pickMatch,
+        }),
         (qType === 'single-choice' || !qType) && React.createElement(TnOptions, {
           options: q.options, chosen, correctIdx: q.correct, showFeedback, onPick: pick,
         }),
-        showFeedback && React.createElement(TnFeedbackBanner, { kind: feedbackKind, busey: playerBusey }),
+        showFeedback && React.createElement(TnFeedbackBanner, {
+          kind: feedbackKind,
+          busey: playerBusey,
+          streak: feedbackKind === 'correct' ? (streak || 0) + 1 : (feedbackKind === 'wrong' ? 0 : (streak || 0)),
+          mult: streakMultiplier ? streakMultiplier((streak || 0) + 1) : 1.0
+        }),
         !showFeedback && React.createElement('div', { className: 'tn-foot' },
           React.createElement('span', { className: 'tn-foot-hint' }, 'Чем быстрее верный ответ — тем больше бусин')
         )
@@ -807,6 +1032,18 @@
     const [partiyaLog, setPartiyaLog] = useState([]);
     const [oppDisconnected, setOppDisconnected] = useState(false);
 
+    // ─── Streak — серия верных ответов ──────────────────────────
+    // 3 верных подряд → ×1.2, 5 → ×1.5, 7+ → ×2.0
+    // Промах сбрасывает на 0. Множитель применяется к бусинам за вопрос.
+    const [streak, setStreak] = useState(0);
+    const [streakPeak, setStreakPeak] = useState(0);
+    function streakMultiplier(s){
+      if(s >= 7) return 2.0;
+      if(s >= 5) return 1.5;
+      if(s >= 3) return 1.2;
+      return 1.0;
+    }
+
     // ─── PvP: Sync Партии и обмен ответами ───
     // Map по qId — каждый ответ соперника привязан к конкретному вопросу.
     // Это решает race-condition: если ответ на вопрос N приходит когда мы
@@ -875,10 +1112,12 @@
 
     function onAnswer(result){
       let dp = 0, doO = 0, dB = 0;
+      const newStreak = result.playerCorrect ? streak + 1 : 0;
+      const mult = streakMultiplier(newStreak);
       if(result.playerCorrect){
         const b = buseyForCorrect(result.playerTime);
-        dp = b;
-        dB = 5 + Math.floor(b / 4);
+        dp = Math.round(b * mult);                    // streak-усиление в счёт партии
+        dB = Math.round((5 + Math.floor(b / 4)) * mult); // и в общие бусины
       }
       if(result.oppCorrect){
         doO = buseyForCorrect(result.oppTime);
@@ -886,6 +1125,8 @@
       const newScoreP = scoreP + dp;
       const newScoreO = scoreO + doO;
       const newBusey = totalBusey + dB;
+      setStreak(newStreak);
+      if(newStreak > streakPeak) setStreakPeak(newStreak);
 
       const logEntry = {
         themeId: currentRound.theme.id,
@@ -1041,6 +1282,7 @@
         opponent: { name: opp.name, level: opponentLevel || 'medium' },
         onAnswer,
         isPvP, transport, oppAnswersRef,
+        streak, streakMultiplier
       });
     }
     if(phase === 'final'){

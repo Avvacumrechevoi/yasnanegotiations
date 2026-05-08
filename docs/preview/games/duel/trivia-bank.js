@@ -331,19 +331,76 @@
     expert:   { themes: 6, qPerTheme: 5 }   // 30 вопросов · ~9 мин
   };
 
+  // ─── Anti-repeat: история показанных вопросов ────────────────────
+  // localStorage key: yasna_seen_questions = { qId: timestampMs }
+  // TTL: 30 дней. Окно anti-repeat — последние ~3 партии × ~18 = 50 qId.
+  // При построении партии исключаем qId которые видели за последние N часов
+  // (mode-зависимо). Если после фильтра пул < нужного — расширяем окно.
+  const SEEN_KEY = 'yasna_seen_questions';
+  const SEEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;          // 30 дней
+  const ANTI_REPEAT_WINDOW_MS = {
+    blitz:    2 * 60 * 60 * 1000,    // 2 часа — Блиц короткий, ок повторам быстрее
+    standard: 12 * 60 * 60 * 1000,   // 12 часов
+    expert:   24 * 60 * 60 * 1000    // 24 часа — Эксперт хочет максимум разнообразия
+  };
+
+  function loadSeen(){
+    try {
+      const raw = localStorage.getItem(SEEN_KEY);
+      if(!raw) return {};
+      const parsed = JSON.parse(raw);
+      // Чистим устаревшие записи
+      const now = Date.now();
+      let dirty = false;
+      for(const k in parsed){
+        if(now - parsed[k] > SEEN_TTL_MS){ delete parsed[k]; dirty = true; }
+      }
+      if(dirty){ try { localStorage.setItem(SEEN_KEY, JSON.stringify(parsed)); } catch(_){} }
+      return parsed;
+    } catch(_){ return {}; }
+  }
+
+  function markSeen(qIds){
+    try {
+      const seen = loadSeen();
+      const now = Date.now();
+      for(const id of qIds){ if(id) seen[id] = now; }
+      localStorage.setItem(SEEN_KEY, JSON.stringify(seen));
+    } catch(_){}
+  }
+
   // Случайный набор для партии. mode: 'blitz' | 'standard' | 'expert'
   function generatePartiya(seed, mode){
     const cfg = MODE_CONFIG[mode] || MODE_CONFIG.standard;
+    const seen = loadSeen();
+    const window = ANTI_REPEAT_WINDOW_MS[mode] || ANTI_REPEAT_WINDOW_MS.standard;
+    const cutoff = Date.now() - window;
+    const isFresh = (qId) => !seen[qId] || seen[qId] < cutoff;
+
     const rng = seedRandom(seed || Date.now());
     const shuffled = [...ACTIVE_THEMES].sort(() => rng() - 0.5);
     const chosen = shuffled.slice(0, cfg.themes);
-    return chosen.map(theme => {
+
+    const partiya = chosen.map(theme => {
       const themeQs = ACTIVE_QUESTIONS.filter(q => q.theme === theme.id);
-      const shQ = [...themeQs].sort(() => rng() - 0.5);
-      // Если тема не имеет достаточно вопросов — берём сколько есть.
-      // Эксперт-режим (5/тема) при пустом банке деградирует к Стандарту.
-      return { theme, questions: shQ.slice(0, cfg.qPerTheme) };
+      // Сначала берём только свежие, если их достаточно
+      const fresh = themeQs.filter(q => isFresh(q.id));
+      const shFresh = [...fresh].sort(() => rng() - 0.5);
+      let picked = shFresh.slice(0, cfg.qPerTheme);
+      // Если свежих мало — добиваем из всего пула (исключая уже выбранные)
+      if(picked.length < cfg.qPerTheme){
+        const fallback = themeQs.filter(q => !picked.find(p => p.id === q.id));
+        const shAll = [...fallback].sort(() => rng() - 0.5);
+        picked = [...picked, ...shAll.slice(0, cfg.qPerTheme - picked.length)];
+      }
+      return { theme, questions: picked };
     });
+
+    // Помечаем все выбранные qId как «показанные»
+    const allIds = partiya.flatMap(r => r.questions.map(q => q.id));
+    markSeen(allIds);
+
+    return partiya;
   }
 
   function seedRandom(seed){

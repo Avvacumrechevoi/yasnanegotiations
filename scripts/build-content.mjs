@@ -169,8 +169,38 @@ async function main(){
           alternatives: q.correct_alternatives || [],
           hint
         });
+      } else if(q.type === 'multi-choice' && Array.isArray(q.options) && Array.isArray(q.correct)){
+        // Несколько правильных вариантов. correct — массив строк, options — массив всех.
+        // Игрок выбирает чекбоксами, побеждает если выбрал ВСЕ верные и ни одного лишнего.
+        const correctIdxs = q.correct.map(c => q.options.indexOf(c)).filter(i => i >= 0);
+        if(correctIdxs.length !== q.correct.length){
+          console.warn(`⚠  ${q.id}: некоторые correct не найдены в options, пропускаю`);
+          continue;
+        }
+        QUESTIONS.push({
+          id: q.id, theme: themeShortId, type: 'multi-choice',
+          diff: DIFF_MAP[q.difficulty] || 2,
+          text: q.stem,
+          options: q.options,
+          correct: correctIdxs,    // массив индексов
+          hint
+        });
+      } else if(q.type === 'match-pair' && Array.isArray(q.correct)){
+        // Пары [A, B] — игрок соединяет элементы левой колонки с правой.
+        // correct = [['Веда','Гимн'], ['Повесть','Песня'], ...]
+        // pairsLeft = ['Веда','Повесть',...] · pairsRight = ['Гимн','Песня',...] (перемешаны)
+        const left  = q.correct.map(p => p[0]);
+        const right = q.correct.map(p => p[1]);
+        QUESTIONS.push({
+          id: q.id, theme: themeShortId, type: 'match-pair',
+          diff: DIFF_MAP[q.difficulty] || 2,
+          text: q.stem,
+          pairsLeft: left,
+          pairsRight: right,
+          correct: q.correct,
+          hint
+        });
       }
-      // multi-choice и match-pair — пока пропускаем, отдельный заход.
     }
   }
 
