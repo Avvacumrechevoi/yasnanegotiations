@@ -1252,6 +1252,16 @@
       return off;
     }, [isPvP, transport, role]);
 
+    // ─── Авто-переход из preview в intro когда оба готовы ───
+    // ВАЖНО: этот хук должен быть ДО early-return для гостя без partiya,
+    // иначе при загрузке partiya у гостя меняется счётчик хуков → React error #310.
+    React.useEffect(() => {
+      if(phase === 'preview' && playerReady && oppReady){
+        const t = setTimeout(() => setPhase('intro'), 800);
+        return () => clearTimeout(t);
+      }
+    }, [phase, playerReady, oppReady]);
+
     // ─── Guard: гость в PvP может ещё не получить partiya-init от хоста.
     // partiya === null → показываем loading и ждём хоста.
     // Без этого падает `partiya[roundIdx]` → TypeError reading '0'.
@@ -1424,14 +1434,6 @@
     }
 
     function startAgain(){ onClose(); }
-
-    // Авто-переход из preview в intro когда оба готовы
-    React.useEffect(() => {
-      if(phase === 'preview' && playerReady && oppReady){
-        const t = setTimeout(() => setPhase('intro'), 800);
-        return () => clearTimeout(t);
-      }
-    }, [phase, playerReady, oppReady]);
 
     function onPlayerReady(){
       setPlayerReady(true);
