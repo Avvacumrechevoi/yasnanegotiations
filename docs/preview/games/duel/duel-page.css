@@ -1620,3 +1620,281 @@ a { color: inherit; }
   .tn-feedback { font-size: 13px; }
   .tn-round-title { font-size: 28px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   FINAL RESULT · экран завершения Партии
+   ═══════════════════════════════════════════════════════════════════ */
+
+.tn-container-final {
+  max-width: 720px;
+  padding-bottom: var(--space-12);
+}
+.tn-final {
+  text-align: center;
+  padding: var(--space-4) 0;
+}
+
+/* ─── Headline ──────────────────────────────────────────────────── */
+.tn-final-head {
+  margin-bottom: var(--space-6);
+  padding: var(--space-6) var(--space-4);
+}
+.tn-final-eyebrow {
+  font-size: 11px; text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--text-3);
+  font-weight: 600;
+  margin-bottom: var(--space-3);
+}
+.tn-final-eyebrow-win  { color: var(--primary); }
+.tn-final-eyebrow-lose { color: var(--accent-strong); }
+.tn-final-eyebrow-draw { color: var(--accent); }
+.tn-final-eyebrow-leave { color: var(--text-3); }
+.tn-final-headline {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 38px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--text-1);
+  margin: 0 0 var(--space-3);
+}
+.tn-final-sub {
+  max-width: 540px;
+  margin: 0 auto;
+  line-height: 1.7;
+  font-style: italic;
+  color: var(--text-2);
+  font-size: 16px;
+}
+
+/* ─── VS — большие цифры счёта ──────────────────────────────────── */
+.tn-final-vs {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: var(--space-4);
+  align-items: center;
+  background: var(--bg-surface);
+  border: 0.5px solid var(--border-1);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6) var(--space-5);
+  margin-bottom: var(--space-5);
+  box-shadow: var(--shadow-sm);
+}
+.tn-final-vs-side {
+  display: flex; flex-direction: column;
+  gap: var(--space-1); align-items: center;
+}
+.tn-final-vs-name {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-2);
+  margin-bottom: var(--space-1);
+  white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+  max-width: 100%;
+}
+.tn-final-vs-num {
+  font-family: var(--font-serif);
+  font-size: 56px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--text-1);
+  font-variant-numeric: tabular-nums;
+}
+.tn-final-vs-unit {
+  margin-top: var(--space-1);
+  font-size: 11px; text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: var(--text-3);
+}
+.tn-final-vs-side-winner .tn-final-vs-num {
+  color: var(--primary);
+}
+.tn-final-vs-side-winner .tn-final-vs-unit {
+  color: var(--primary-strong);
+  font-weight: 600;
+}
+.tn-final-vs-side-loser .tn-final-vs-num {
+  color: var(--text-3);
+  opacity: 0.7;
+}
+.tn-final-vs-divider {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  color: var(--text-3);
+  font-weight: 300;
+  line-height: 1;
+}
+
+/* ─── Stats — точность · скорость · бусины ─────────────────────── */
+.tn-final-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+.tn-final-stat {
+  background: var(--bg-surface);
+  border: 0.5px solid var(--border-2);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-3);
+  text-align: center;
+}
+.tn-final-stat-label {
+  font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-3);
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+}
+.tn-final-stat-value {
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--text-1);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+.tn-final-stat-sub {
+  margin-top: var(--space-2);
+  font-size: 11px;
+  color: var(--text-3);
+}
+.tn-final-stat-accent {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.tn-final-stat-accent .tn-final-stat-label { color: var(--accent-strong); }
+.tn-final-stat-accent .tn-final-stat-value { color: var(--accent-strong); }
+.tn-final-stat-accent .tn-final-stat-sub   { color: var(--accent-strong); opacity: 0.7; }
+
+/* ─── Scoring — пояснение «как считаются бусины» ────────────────── */
+.tn-final-scoring {
+  background: var(--bg-soft);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-3);
+  text-align: left;
+}
+.tn-final-scoring-eyebrow {
+  font-size: 11px; text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: var(--text-3);
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+}
+.tn-final-scoring-text {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-2);
+}
+.tn-final-scoring-text strong {
+  color: var(--text-1);
+  font-weight: 600;
+}
+.tn-final-scoring-text em {
+  color: var(--accent-strong);
+  font-style: italic;
+}
+
+/* ─── Archive — где сохранён результат ──────────────────────────── */
+.tn-final-archive {
+  background: var(--bg-soft);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-6);
+  text-align: left;
+}
+.tn-final-archive-eyebrow {
+  font-size: 11px; text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: var(--text-3);
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+}
+.tn-final-archive-list {
+  list-style: none;
+  padding: 0; margin: 0;
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.7;
+}
+.tn-final-archive-list li {
+  padding-left: var(--space-3);
+  position: relative;
+}
+.tn-final-archive-list li::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+.tn-final-archive-list strong {
+  color: var(--text-1);
+  font-weight: 600;
+}
+
+/* ─── Actions — видимые кнопки ──────────────────────────────────── */
+.tn-final-actions {
+  display: flex; flex-direction: column;
+  gap: var(--space-3);
+  align-items: center;
+  padding: 0 var(--space-2);
+}
+.tn-final-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 100%; max-width: 320px;
+  min-height: 48px;
+  padding: var(--space-3) var(--space-5);
+  background: var(--bg-surface);
+  border: 0.5px solid var(--border-1);
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: 15px; font-weight: 500;
+  color: var(--text-1);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  box-shadow: var(--shadow-sm);
+}
+.tn-final-btn:hover {
+  background: var(--bg-soft);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+.tn-final-btn:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+.tn-final-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.tn-final-btn-primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+.tn-final-btn-primary:hover {
+  background: var(--primary-strong);
+  border-color: var(--primary-strong);
+  color: white;
+}
+
+/* ─── Mobile ────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .tn-final-headline { font-size: 28px; }
+  .tn-final-sub { font-size: 14px; }
+  .tn-final-vs { padding: var(--space-5) var(--space-4); }
+  .tn-final-vs-num { font-size: 42px; }
+  .tn-final-vs-divider { font-size: 24px; }
+  .tn-final-stats { grid-template-columns: 1fr; gap: var(--space-2); }
+  .tn-final-stat { display: flex; align-items: center; justify-content: space-between; text-align: left; padding: var(--space-3) var(--space-4); }
+  .tn-final-stat-label { margin-bottom: 0; flex: 1; }
+  .tn-final-stat-value { font-size: 20px; }
+  .tn-final-stat-sub { margin-top: 0; margin-left: var(--space-3); }
+  .tn-final-scoring-text { font-size: 12px; }
+  .tn-final-archive-list { font-size: 12px; }
+}

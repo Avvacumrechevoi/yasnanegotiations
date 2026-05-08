@@ -345,60 +345,150 @@
     );
   }
 
-  // ─── Final Result ────────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════════════════
+  // Final Result — экран завершения Партии (декомпозиция)
+  // ═══════════════════════════════════════════════════════════════════
+
+  // ─── Заголовок и церемониальная подпись ─────────────────────────
+  function TnFinalHeadline({ kind, headline, sub }){
+    const eyebrowLabel = kind === 'win' ? 'Победа' : kind === 'draw' ? 'Ничья' : kind === 'leave' ? 'Партия прервана' : 'Поражение';
+    return React.createElement('header', { className: 'tn-final-head' },
+      React.createElement('div', { className: 'tn-final-eyebrow tn-final-eyebrow-' + kind }, '✦  ', eyebrowLabel),
+      React.createElement('h1', { className: 'tn-final-headline' }, headline),
+      React.createElement('p', { className: 'tn-final-sub' }, sub)
+    );
+  }
+
+  // ─── Большие цифры счёта (ты vs соперник) ──────────────────────
+  function TnFinalVs({ playerName, scoreP, opponentName, scoreO, kind }){
+    const playerWin = kind === 'win';
+    const oppWin = kind === 'lose';
+    return React.createElement('div', { className: 'tn-final-vs' },
+      React.createElement('div', { className: 'tn-final-vs-side ' + (playerWin ? 'tn-final-vs-side-winner' : oppWin ? 'tn-final-vs-side-loser' : '') },
+        React.createElement('div', { className: 'tn-final-vs-name' }, playerName || 'Игрок'),
+        React.createElement('div', { className: 'tn-final-vs-num' }, scoreP),
+        React.createElement('div', { className: 'tn-final-vs-unit' }, 'бусин ✦')
+      ),
+      React.createElement('div', { className: 'tn-final-vs-divider' }, ':'),
+      React.createElement('div', { className: 'tn-final-vs-side ' + (oppWin ? 'tn-final-vs-side-winner' : playerWin ? 'tn-final-vs-side-loser' : '') },
+        React.createElement('div', { className: 'tn-final-vs-name' }, opponentName || 'Тень'),
+        React.createElement('div', { className: 'tn-final-vs-num' }, scoreO),
+        React.createElement('div', { className: 'tn-final-vs-unit' }, 'бусин ✦')
+      )
+    );
+  }
+
+  // ─── Статистика партии (точность · скорость · бусины) ──────────
+  function TnFinalStats({ correctCount, totalQ, avgTimeMs, totalBusey }){
+    const accuracyPct = totalQ > 0 ? Math.round(correctCount / totalQ * 100) : 0;
+    const avgSec = avgTimeMs > 0 ? (avgTimeMs / 1000).toFixed(1) : '—';
+    return React.createElement('div', { className: 'tn-final-stats' },
+      React.createElement('div', { className: 'tn-final-stat' },
+        React.createElement('div', { className: 'tn-final-stat-label' }, 'Точность'),
+        React.createElement('div', { className: 'tn-final-stat-value' }, correctCount, ' / ', totalQ),
+        React.createElement('div', { className: 'tn-final-stat-sub' }, accuracyPct, '% верных')
+      ),
+      React.createElement('div', { className: 'tn-final-stat' },
+        React.createElement('div', { className: 'tn-final-stat-label' }, 'Скорость'),
+        React.createElement('div', { className: 'tn-final-stat-value' }, avgSec, ' с'),
+        React.createElement('div', { className: 'tn-final-stat-sub' }, 'средний ответ')
+      ),
+      React.createElement('div', { className: 'tn-final-stat tn-final-stat-accent' },
+        React.createElement('div', { className: 'tn-final-stat-label' }, 'Бусины'),
+        React.createElement('div', { className: 'tn-final-stat-value' }, '+', totalBusey),
+        React.createElement('div', { className: 'tn-final-stat-sub' }, 'в Хронику')
+      )
+    );
+  }
+
+  // ─── Объяснение скоринга (помогает понять смысл игры) ──────────
+  function TnFinalScoring(){
+    return React.createElement('div', { className: 'tn-final-scoring' },
+      React.createElement('div', { className: 'tn-final-scoring-eyebrow' }, '◷  Как считаются бусины'),
+      React.createElement('div', { className: 'tn-final-scoring-text' },
+        React.createElement('strong', null, '10 бусин'), ' за верный ответ. ',
+        '+ до ', React.createElement('strong', null, '5 бусин'), ' за быстрый ответ. ',
+        React.createElement('em', null, 'Точность важнее скорости.')
+      )
+    );
+  }
+
+  // ─── «Где увидеть результат» ───────────────────────────────────
+  function TnFinalArchive(){
+    return React.createElement('div', { className: 'tn-final-archive' },
+      React.createElement('div', { className: 'tn-final-archive-eyebrow' }, '☷  Партия записана в'),
+      React.createElement('ul', { className: 'tn-final-archive-list' },
+        React.createElement('li', null, React.createElement('strong', null, 'Хронику'), ' — список твоих партий'),
+        React.createElement('li', null, React.createElement('strong', null, 'Знаки Магистра'), ' — достижения и серии'),
+        React.createElement('li', null, React.createElement('strong', null, 'Партитуру'), ' — мастерство по темам Ясны')
+      )
+    );
+  }
+
+  // ─── Кнопки действий ───────────────────────────────────────────
+  function TnFinalActions({ onAgain, onClose }){
+    return React.createElement('div', { className: 'tn-final-actions' },
+      React.createElement('button', {
+        className: 'tn-final-btn tn-final-btn-primary',
+        onClick: onAgain,
+        type: 'button',
+      }, 'Новая Партия'),
+      React.createElement('button', {
+        className: 'tn-final-btn',
+        onClick: onClose,
+        type: 'button',
+      }, 'Вернуться в Касталию')
+    );
+  }
+
+  // ─── Final Result ──────────────────────────────────────────────
   function FinalResult({ partiyaLog, scoreP, scoreO, totalBusey, player, opponent, isPvP, oppDisconnected, onClose, onAgain }){
     const won = scoreP > scoreO;
     const draw = scoreP === scoreO;
     const correctCount = partiyaLog.filter(r => r.playerCorrect).length;
     const totalQ = partiyaLog.length;
+    const totalTime = partiyaLog.reduce((s, r) => s + (r.playerTime || 0), 0);
+    const avgTimeMs = totalQ > 0 ? totalTime / totalQ : 0;
 
-    // Церемониальный copy в духе Гессе
-    let headline, sub;
+    let kind, headline, sub;
     if(oppDisconnected){
+      kind = 'leave';
       headline = 'Собеседник вышел';
-      sub = 'Партия не завершена. Бусины не учтены.';
+      sub = 'Партия не завершена. Бусины не зачтены — сыграй заново.';
     } else if(won){
+      kind = 'win';
       headline = 'Партия твоя.';
       sub = isPvP
         ? 'Ты опередил собеседника. Бусины зачтены в Хронику. Магистр Игры запомнит этот узор.'
-        : 'Ты опередил Тень. Бусины зачтены в Хронику.';
+        : 'Ты опередил Тень. Бусины зачтены в Хронику. Узор сложился твой.';
     } else if(draw){
+      kind = 'draw';
       headline = 'Равная Партия.';
-      sub = 'Узор сложился симметрично. Сыграй ещё.';
+      sub = 'Узор сложился симметрично. Сыграй ещё — следующий ход за тобой.';
     } else {
+      kind = 'lose';
       headline = isPvP ? 'Собеседник обогнал.' : 'Тень обогнала.';
       sub = 'В игре нет проигравших — есть те, кто знает чуть меньше. Знаки помнят твой путь. Завтра — новая Партия.';
     }
 
     return React.createElement('div', { className: 'tn-fullscreen' },
-      React.createElement('div', { className: 'tn-container' },
-        React.createElement(TnTopBar, { eyebrow: '✦ Партия завершена' }),
+      React.createElement('div', { className: 'tn-container tn-container-final' },
+        React.createElement(TnTopBar, { eyebrow: 'Партия завершена' }),
         React.createElement('div', { className: 'tn-final' },
-          React.createElement('div', { className: 'tn-final-eyebrow', style: { letterSpacing: '0.16em' } }, won ? 'Победа' : draw ? 'Ничья' : 'Поражение'),
-          React.createElement('h1', { className: 'tn-final-headline', style: { fontFamily: 'ui-serif, Georgia, serif', fontWeight: 500, fontSize: 38, letterSpacing: '-0.01em' } }, headline),
-          React.createElement('div', { className: 'tn-final-sub', style: { maxWidth: 540, margin: '0 auto', lineHeight: 1.7, fontStyle: 'italic', opacity: 0.85 } }, sub),
-          React.createElement('div', { className: 'tn-final-score-row' },
-            React.createElement('div', { className: 'tn-final-score' },
-              React.createElement('div', { className: 'tn-final-score-num' }, scoreP),
-              React.createElement('div', { className: 'tn-final-score-label' }, player.nickname || 'Игрок')
-            ),
-            React.createElement('div', { className: 'tn-final-score' },
-              React.createElement('div', { className: 'tn-final-score-num' }, scoreO),
-              React.createElement('div', { className: 'tn-final-score-label' }, opponent.name || 'Тень')
-            ),
-            React.createElement('div', { className: 'tn-final-score' },
-              React.createElement('div', { className: 'tn-final-score-num' }, '+' + totalBusey),
-              React.createElement('div', { className: 'tn-final-score-label' }, 'бусин ✦')
-            ),
-            React.createElement('div', { className: 'tn-final-score' },
-              React.createElement('div', { className: 'tn-final-score-num' }, correctCount + ' / ' + totalQ),
-              React.createElement('div', { className: 'tn-final-score-label' }, 'верных')
-            )
-          ),
-          React.createElement('div', { className: 'tn-final-actions' },
-            React.createElement('button', { className: 'tn-final-btn tn-final-btn-primary', onClick: onAgain }, 'Новая Партия'),
-            React.createElement('button', { className: 'tn-final-btn', onClick: onClose }, 'В Касталию')
-          )
+          React.createElement(TnFinalHeadline, { kind, headline, sub }),
+          !oppDisconnected && React.createElement(TnFinalVs, {
+            playerName: player.nickname,
+            scoreP,
+            opponentName: opponent.name,
+            scoreO,
+            kind,
+          }),
+          !oppDisconnected && React.createElement(TnFinalStats, {
+            correctCount, totalQ, avgTimeMs, totalBusey,
+          }),
+          !oppDisconnected && React.createElement(TnFinalScoring, null),
+          !oppDisconnected && React.createElement(TnFinalArchive, null),
+          React.createElement(TnFinalActions, { onAgain, onClose })
         )
       )
     );

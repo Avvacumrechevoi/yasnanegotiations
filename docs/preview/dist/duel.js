@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-08T09:56:25.240Z */
+/* Yasna bundle: duel.js — собран 2026-05-08T10:14:03.144Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -6135,22 +6135,137 @@ window.YasnaCore = {
       )
     );
   }
+  function TnFinalHeadline({ kind, headline, sub }) {
+    const eyebrowLabel = kind === "win" ? "\u041F\u043E\u0431\u0435\u0434\u0430" : kind === "draw" ? "\u041D\u0438\u0447\u044C\u044F" : kind === "leave" ? "\u041F\u0430\u0440\u0442\u0438\u044F \u043F\u0440\u0435\u0440\u0432\u0430\u043D\u0430" : "\u041F\u043E\u0440\u0430\u0436\u0435\u043D\u0438\u0435";
+    return React.createElement(
+      "header",
+      { className: "tn-final-head" },
+      React.createElement("div", { className: "tn-final-eyebrow tn-final-eyebrow-" + kind }, "\u2726  ", eyebrowLabel),
+      React.createElement("h1", { className: "tn-final-headline" }, headline),
+      React.createElement("p", { className: "tn-final-sub" }, sub)
+    );
+  }
+  function TnFinalVs({ playerName, scoreP, opponentName, scoreO, kind }) {
+    const playerWin = kind === "win";
+    const oppWin = kind === "lose";
+    return React.createElement(
+      "div",
+      { className: "tn-final-vs" },
+      React.createElement(
+        "div",
+        { className: "tn-final-vs-side " + (playerWin ? "tn-final-vs-side-winner" : oppWin ? "tn-final-vs-side-loser" : "") },
+        React.createElement("div", { className: "tn-final-vs-name" }, playerName || "\u0418\u0433\u0440\u043E\u043A"),
+        React.createElement("div", { className: "tn-final-vs-num" }, scoreP),
+        React.createElement("div", { className: "tn-final-vs-unit" }, "\u0431\u0443\u0441\u0438\u043D \u2726")
+      ),
+      React.createElement("div", { className: "tn-final-vs-divider" }, ":"),
+      React.createElement(
+        "div",
+        { className: "tn-final-vs-side " + (oppWin ? "tn-final-vs-side-winner" : playerWin ? "tn-final-vs-side-loser" : "") },
+        React.createElement("div", { className: "tn-final-vs-name" }, opponentName || "\u0422\u0435\u043D\u044C"),
+        React.createElement("div", { className: "tn-final-vs-num" }, scoreO),
+        React.createElement("div", { className: "tn-final-vs-unit" }, "\u0431\u0443\u0441\u0438\u043D \u2726")
+      )
+    );
+  }
+  function TnFinalStats({ correctCount, totalQ, avgTimeMs, totalBusey }) {
+    const accuracyPct = totalQ > 0 ? Math.round(correctCount / totalQ * 100) : 0;
+    const avgSec = avgTimeMs > 0 ? (avgTimeMs / 1e3).toFixed(1) : "\u2014";
+    return React.createElement(
+      "div",
+      { className: "tn-final-stats" },
+      React.createElement(
+        "div",
+        { className: "tn-final-stat" },
+        React.createElement("div", { className: "tn-final-stat-label" }, "\u0422\u043E\u0447\u043D\u043E\u0441\u0442\u044C"),
+        React.createElement("div", { className: "tn-final-stat-value" }, correctCount, " / ", totalQ),
+        React.createElement("div", { className: "tn-final-stat-sub" }, accuracyPct, "% \u0432\u0435\u0440\u043D\u044B\u0445")
+      ),
+      React.createElement(
+        "div",
+        { className: "tn-final-stat" },
+        React.createElement("div", { className: "tn-final-stat-label" }, "\u0421\u043A\u043E\u0440\u043E\u0441\u0442\u044C"),
+        React.createElement("div", { className: "tn-final-stat-value" }, avgSec, " \u0441"),
+        React.createElement("div", { className: "tn-final-stat-sub" }, "\u0441\u0440\u0435\u0434\u043D\u0438\u0439 \u043E\u0442\u0432\u0435\u0442")
+      ),
+      React.createElement(
+        "div",
+        { className: "tn-final-stat tn-final-stat-accent" },
+        React.createElement("div", { className: "tn-final-stat-label" }, "\u0411\u0443\u0441\u0438\u043D\u044B"),
+        React.createElement("div", { className: "tn-final-stat-value" }, "+", totalBusey),
+        React.createElement("div", { className: "tn-final-stat-sub" }, "\u0432 \u0425\u0440\u043E\u043D\u0438\u043A\u0443")
+      )
+    );
+  }
+  function TnFinalScoring() {
+    return React.createElement(
+      "div",
+      { className: "tn-final-scoring" },
+      React.createElement("div", { className: "tn-final-scoring-eyebrow" }, "\u25F7  \u041A\u0430\u043A \u0441\u0447\u0438\u0442\u0430\u044E\u0442\u0441\u044F \u0431\u0443\u0441\u0438\u043D\u044B"),
+      React.createElement(
+        "div",
+        { className: "tn-final-scoring-text" },
+        React.createElement("strong", null, "10 \u0431\u0443\u0441\u0438\u043D"),
+        " \u0437\u0430 \u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442. ",
+        "+ \u0434\u043E ",
+        React.createElement("strong", null, "5 \u0431\u0443\u0441\u0438\u043D"),
+        " \u0437\u0430 \u0431\u044B\u0441\u0442\u0440\u044B\u0439 \u043E\u0442\u0432\u0435\u0442. ",
+        React.createElement("em", null, "\u0422\u043E\u0447\u043D\u043E\u0441\u0442\u044C \u0432\u0430\u0436\u043D\u0435\u0435 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438.")
+      )
+    );
+  }
+  function TnFinalArchive() {
+    return React.createElement(
+      "div",
+      { className: "tn-final-archive" },
+      React.createElement("div", { className: "tn-final-archive-eyebrow" }, "\u2637  \u041F\u0430\u0440\u0442\u0438\u044F \u0437\u0430\u043F\u0438\u0441\u0430\u043D\u0430 \u0432"),
+      React.createElement(
+        "ul",
+        { className: "tn-final-archive-list" },
+        React.createElement("li", null, React.createElement("strong", null, "\u0425\u0440\u043E\u043D\u0438\u043A\u0443"), " \u2014 \u0441\u043F\u0438\u0441\u043E\u043A \u0442\u0432\u043E\u0438\u0445 \u043F\u0430\u0440\u0442\u0438\u0439"),
+        React.createElement("li", null, React.createElement("strong", null, "\u0417\u043D\u0430\u043A\u0438 \u041C\u0430\u0433\u0438\u0441\u0442\u0440\u0430"), " \u2014 \u0434\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F \u0438 \u0441\u0435\u0440\u0438\u0438"),
+        React.createElement("li", null, React.createElement("strong", null, "\u041F\u0430\u0440\u0442\u0438\u0442\u0443\u0440\u0443"), " \u2014 \u043C\u0430\u0441\u0442\u0435\u0440\u0441\u0442\u0432\u043E \u043F\u043E \u0442\u0435\u043C\u0430\u043C \u042F\u0441\u043D\u044B")
+      )
+    );
+  }
+  function TnFinalActions({ onAgain, onClose }) {
+    return React.createElement(
+      "div",
+      { className: "tn-final-actions" },
+      React.createElement("button", {
+        className: "tn-final-btn tn-final-btn-primary",
+        onClick: onAgain,
+        type: "button"
+      }, "\u041D\u043E\u0432\u0430\u044F \u041F\u0430\u0440\u0442\u0438\u044F"),
+      React.createElement("button", {
+        className: "tn-final-btn",
+        onClick: onClose,
+        type: "button"
+      }, "\u0412\u0435\u0440\u043D\u0443\u0442\u044C\u0441\u044F \u0432 \u041A\u0430\u0441\u0442\u0430\u043B\u0438\u044E")
+    );
+  }
   function FinalResult({ partiyaLog, scoreP, scoreO, totalBusey, player, opponent, isPvP, oppDisconnected, onClose, onAgain }) {
     const won = scoreP > scoreO;
     const draw = scoreP === scoreO;
     const correctCount = partiyaLog.filter((r) => r.playerCorrect).length;
     const totalQ = partiyaLog.length;
-    let headline, sub;
+    const totalTime = partiyaLog.reduce((s, r) => s + (r.playerTime || 0), 0);
+    const avgTimeMs = totalQ > 0 ? totalTime / totalQ : 0;
+    let kind, headline, sub;
     if (oppDisconnected) {
+      kind = "leave";
       headline = "\u0421\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A \u0432\u044B\u0448\u0435\u043B";
-      sub = "\u041F\u0430\u0440\u0442\u0438\u044F \u043D\u0435 \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u0430. \u0411\u0443\u0441\u0438\u043D\u044B \u043D\u0435 \u0443\u0447\u0442\u0435\u043D\u044B.";
+      sub = "\u041F\u0430\u0440\u0442\u0438\u044F \u043D\u0435 \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u0430. \u0411\u0443\u0441\u0438\u043D\u044B \u043D\u0435 \u0437\u0430\u0447\u0442\u0435\u043D\u044B \u2014 \u0441\u044B\u0433\u0440\u0430\u0439 \u0437\u0430\u043D\u043E\u0432\u043E.";
     } else if (won) {
+      kind = "win";
       headline = "\u041F\u0430\u0440\u0442\u0438\u044F \u0442\u0432\u043E\u044F.";
-      sub = isPvP ? "\u0422\u044B \u043E\u043F\u0435\u0440\u0435\u0434\u0438\u043B \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430. \u0411\u0443\u0441\u0438\u043D\u044B \u0437\u0430\u0447\u0442\u0435\u043D\u044B \u0432 \u0425\u0440\u043E\u043D\u0438\u043A\u0443. \u041C\u0430\u0433\u0438\u0441\u0442\u0440 \u0418\u0433\u0440\u044B \u0437\u0430\u043F\u043E\u043C\u043D\u0438\u0442 \u044D\u0442\u043E\u0442 \u0443\u0437\u043E\u0440." : "\u0422\u044B \u043E\u043F\u0435\u0440\u0435\u0434\u0438\u043B \u0422\u0435\u043D\u044C. \u0411\u0443\u0441\u0438\u043D\u044B \u0437\u0430\u0447\u0442\u0435\u043D\u044B \u0432 \u0425\u0440\u043E\u043D\u0438\u043A\u0443.";
+      sub = isPvP ? "\u0422\u044B \u043E\u043F\u0435\u0440\u0435\u0434\u0438\u043B \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430. \u0411\u0443\u0441\u0438\u043D\u044B \u0437\u0430\u0447\u0442\u0435\u043D\u044B \u0432 \u0425\u0440\u043E\u043D\u0438\u043A\u0443. \u041C\u0430\u0433\u0438\u0441\u0442\u0440 \u0418\u0433\u0440\u044B \u0437\u0430\u043F\u043E\u043C\u043D\u0438\u0442 \u044D\u0442\u043E\u0442 \u0443\u0437\u043E\u0440." : "\u0422\u044B \u043E\u043F\u0435\u0440\u0435\u0434\u0438\u043B \u0422\u0435\u043D\u044C. \u0411\u0443\u0441\u0438\u043D\u044B \u0437\u0430\u0447\u0442\u0435\u043D\u044B \u0432 \u0425\u0440\u043E\u043D\u0438\u043A\u0443. \u0423\u0437\u043E\u0440 \u0441\u043B\u043E\u0436\u0438\u043B\u0441\u044F \u0442\u0432\u043E\u0439.";
     } else if (draw) {
+      kind = "draw";
       headline = "\u0420\u0430\u0432\u043D\u0430\u044F \u041F\u0430\u0440\u0442\u0438\u044F.";
-      sub = "\u0423\u0437\u043E\u0440 \u0441\u043B\u043E\u0436\u0438\u043B\u0441\u044F \u0441\u0438\u043C\u043C\u0435\u0442\u0440\u0438\u0447\u043D\u043E. \u0421\u044B\u0433\u0440\u0430\u0439 \u0435\u0449\u0451.";
+      sub = "\u0423\u0437\u043E\u0440 \u0441\u043B\u043E\u0436\u0438\u043B\u0441\u044F \u0441\u0438\u043C\u043C\u0435\u0442\u0440\u0438\u0447\u043D\u043E. \u0421\u044B\u0433\u0440\u0430\u0439 \u0435\u0449\u0451 \u2014 \u0441\u043B\u0435\u0434\u0443\u044E\u0449\u0438\u0439 \u0445\u043E\u0434 \u0437\u0430 \u0442\u043E\u0431\u043E\u0439.";
     } else {
+      kind = "lose";
       headline = isPvP ? "\u0421\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A \u043E\u0431\u043E\u0433\u043D\u0430\u043B." : "\u0422\u0435\u043D\u044C \u043E\u0431\u043E\u0433\u043D\u0430\u043B\u0430.";
       sub = "\u0412 \u0438\u0433\u0440\u0435 \u043D\u0435\u0442 \u043F\u0440\u043E\u0438\u0433\u0440\u0430\u0432\u0448\u0438\u0445 \u2014 \u0435\u0441\u0442\u044C \u0442\u0435, \u043A\u0442\u043E \u0437\u043D\u0430\u0435\u0442 \u0447\u0443\u0442\u044C \u043C\u0435\u043D\u044C\u0448\u0435. \u0417\u043D\u0430\u043A\u0438 \u043F\u043E\u043C\u043D\u044F\u0442 \u0442\u0432\u043E\u0439 \u043F\u0443\u0442\u044C. \u0417\u0430\u0432\u0442\u0440\u0430 \u2014 \u043D\u043E\u0432\u0430\u044F \u041F\u0430\u0440\u0442\u0438\u044F.";
     }
@@ -6159,48 +6274,28 @@ window.YasnaCore = {
       { className: "tn-fullscreen" },
       React.createElement(
         "div",
-        { className: "tn-container" },
-        React.createElement(TnTopBar, { eyebrow: "\u2726 \u041F\u0430\u0440\u0442\u0438\u044F \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u0430" }),
+        { className: "tn-container tn-container-final" },
+        React.createElement(TnTopBar, { eyebrow: "\u041F\u0430\u0440\u0442\u0438\u044F \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u0430" }),
         React.createElement(
           "div",
           { className: "tn-final" },
-          React.createElement("div", { className: "tn-final-eyebrow", style: { letterSpacing: "0.16em" } }, won ? "\u041F\u043E\u0431\u0435\u0434\u0430" : draw ? "\u041D\u0438\u0447\u044C\u044F" : "\u041F\u043E\u0440\u0430\u0436\u0435\u043D\u0438\u0435"),
-          React.createElement("h1", { className: "tn-final-headline", style: { fontFamily: "ui-serif, Georgia, serif", fontWeight: 500, fontSize: 38, letterSpacing: "-0.01em" } }, headline),
-          React.createElement("div", { className: "tn-final-sub", style: { maxWidth: 540, margin: "0 auto", lineHeight: 1.7, fontStyle: "italic", opacity: 0.85 } }, sub),
-          React.createElement(
-            "div",
-            { className: "tn-final-score-row" },
-            React.createElement(
-              "div",
-              { className: "tn-final-score" },
-              React.createElement("div", { className: "tn-final-score-num" }, scoreP),
-              React.createElement("div", { className: "tn-final-score-label" }, player.nickname || "\u0418\u0433\u0440\u043E\u043A")
-            ),
-            React.createElement(
-              "div",
-              { className: "tn-final-score" },
-              React.createElement("div", { className: "tn-final-score-num" }, scoreO),
-              React.createElement("div", { className: "tn-final-score-label" }, opponent.name || "\u0422\u0435\u043D\u044C")
-            ),
-            React.createElement(
-              "div",
-              { className: "tn-final-score" },
-              React.createElement("div", { className: "tn-final-score-num" }, "+" + totalBusey),
-              React.createElement("div", { className: "tn-final-score-label" }, "\u0431\u0443\u0441\u0438\u043D \u2726")
-            ),
-            React.createElement(
-              "div",
-              { className: "tn-final-score" },
-              React.createElement("div", { className: "tn-final-score-num" }, correctCount + " / " + totalQ),
-              React.createElement("div", { className: "tn-final-score-label" }, "\u0432\u0435\u0440\u043D\u044B\u0445")
-            )
-          ),
-          React.createElement(
-            "div",
-            { className: "tn-final-actions" },
-            React.createElement("button", { className: "tn-final-btn tn-final-btn-primary", onClick: onAgain }, "\u041D\u043E\u0432\u0430\u044F \u041F\u0430\u0440\u0442\u0438\u044F"),
-            React.createElement("button", { className: "tn-final-btn", onClick: onClose }, "\u0412 \u041A\u0430\u0441\u0442\u0430\u043B\u0438\u044E")
-          )
+          React.createElement(TnFinalHeadline, { kind, headline, sub }),
+          !oppDisconnected && React.createElement(TnFinalVs, {
+            playerName: player.nickname,
+            scoreP,
+            opponentName: opponent.name,
+            scoreO,
+            kind
+          }),
+          !oppDisconnected && React.createElement(TnFinalStats, {
+            correctCount,
+            totalQ,
+            avgTimeMs,
+            totalBusey
+          }),
+          !oppDisconnected && React.createElement(TnFinalScoring, null),
+          !oppDisconnected && React.createElement(TnFinalArchive, null),
+          React.createElement(TnFinalActions, { onAgain, onClose })
         )
       )
     );
