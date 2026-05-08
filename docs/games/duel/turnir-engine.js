@@ -393,6 +393,21 @@
       return off;
     }, [isPvP, transport, role]);
 
+    // ─── Guard: гость в PvP может ещё не получить partiya-init от хоста.
+    // partiya === null → показываем loading и ждём хоста.
+    // Без этого падает `partiya[roundIdx]` → TypeError reading '0'.
+    if(isPvP && role === 'guest' && !partiya){
+      return React.createElement('div', { className: 'tn-overlay' },
+        React.createElement('div', { className: 'tn-card', style: { textAlign: 'center', padding: '40px 24px' } },
+          React.createElement('div', { className: 'tn-eyebrow' }, '✦  Ожидаем хозяина'),
+          React.createElement('h2', { style: { margin: '12px 0 8px' } }, 'Хозяин готовит Партию…'),
+          React.createElement('p', { style: { color: 'var(--ts-muted, #888)' } },
+            'Сейчас он отправит начальную раскладку, и мы стартуем.'),
+          React.createElement('div', { style: { marginTop: 24, fontSize: 32, opacity: 0.6 } }, '◐  ◑'),
+        )
+      );
+    }
+
     const currentRound = partiya[roundIdx];
     const currentQ = currentRound?.questions[qIdx];
     const totalOverall = partiya.reduce((sum, r) => sum + r.questions.length, 0);

@@ -218,22 +218,25 @@
   function makeTransport({ code, deviceId, role }){
     init();
     const handlers = new Set();
+    // Буфер — сообщения, пришедшие до того как TurnirGame.useEffect
+    // зарегистрировал свой transport.on(...). Без буфера partiya-init
+    // от хоста теряется (race между Firebase WebSocket и React-кадрами).
+    const buffer = [];
     let stopped = false;
 
     const messagesRef = db.ref('rooms/' + code + '/messages');
     const statusRef   = db.ref('rooms/' + code + '/meta/status');
 
-    // Слушаем НОВЫЕ сообщения от соперника (child_added пришлёт также
-    // существующие при подключении — но т.к. фильтруем по from !== me,
-    // свои сообщения отфильтрованы). Сообщения от соперника, написанные
-    // ДО нашего подключения, мы получим — это нужно (например partiya-init
-    // от хоста до того как гость приконнектил транспорт).
     function onMsg(snap){
       if(stopped) return;
       const m = snap.val();
       if(!m || m.from === deviceId) return;
       const reconstructed = Object.assign({ t: m.type }, m.payload || {});
-      handlers.forEach(fn => { try { fn(reconstructed); } catch(_){} });
+      if(handlers.size === 0){
+        buffer.push(reconstructed);
+      } else {
+        handlers.forEach(fn => { try { fn(reconstructed); } catch(_){} });
+      }
     }
     messagesRef.on('child_added', onMsg);
 
@@ -270,6 +273,16 @@
       },
       on(fn){
         handlers.add(fn);
+        // Слить буфер при первом подключении handler'а — иначе пропустим
+        // сообщения, пришедшие за время монтирования React-компонента.
+        if(buffer.length > 0){
+          const toFlush = buffer.splice(0, buffer.length);
+          // Используем setTimeout(0) чтобы handler не вызвался синхронно
+          // во время рендера (это сломало бы React).
+          setTimeout(() => {
+            toFlush.forEach(msg => { try { fn(msg); } catch(_){} });
+          }, 0);
+        }
         return () => handlers.delete(fn);
       },
       close(){

@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-08T00:55:50.512Z */
+/* Yasna bundle: duel.js — собран 2026-05-08T08:36:09.110Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -6176,6 +6176,24 @@ window.YasnaCore = {
       });
       return off;
     }, [isPvP, transport, role]);
+    if (isPvP && role === "guest" && !partiya) {
+      return React.createElement(
+        "div",
+        { className: "tn-overlay" },
+        React.createElement(
+          "div",
+          { className: "tn-card", style: { textAlign: "center", padding: "40px 24px" } },
+          React.createElement("div", { className: "tn-eyebrow" }, "\u2726  \u041E\u0436\u0438\u0434\u0430\u0435\u043C \u0445\u043E\u0437\u044F\u0438\u043D\u0430"),
+          React.createElement("h2", { style: { margin: "12px 0 8px" } }, "\u0425\u043E\u0437\u044F\u0438\u043D \u0433\u043E\u0442\u043E\u0432\u0438\u0442 \u041F\u0430\u0440\u0442\u0438\u044E\u2026"),
+          React.createElement(
+            "p",
+            { style: { color: "var(--ts-muted, #888)" } },
+            "\u0421\u0435\u0439\u0447\u0430\u0441 \u043E\u043D \u043E\u0442\u043F\u0440\u0430\u0432\u0438\u0442 \u043D\u0430\u0447\u0430\u043B\u044C\u043D\u0443\u044E \u0440\u0430\u0441\u043A\u043B\u0430\u0434\u043A\u0443, \u0438 \u043C\u044B \u0441\u0442\u0430\u0440\u0442\u0443\u0435\u043C."
+          ),
+          React.createElement("div", { style: { marginTop: 24, fontSize: 32, opacity: 0.6 } }, "\u25D0  \u25D1")
+        )
+      );
+    }
     const currentRound = partiya[roundIdx];
     const currentQ = currentRound == null ? void 0 : currentRound.questions[qIdx];
     const totalOverall = partiya.reduce((sum, r) => sum + r.questions.length, 0);
@@ -6520,6 +6538,7 @@ window.YasnaCore = {
   function makeTransport({ code, deviceId, role }) {
     init();
     const handlers = /* @__PURE__ */ new Set();
+    const buffer = [];
     let stopped = false;
     const messagesRef = db.ref("rooms/" + code + "/messages");
     const statusRef = db.ref("rooms/" + code + "/meta/status");
@@ -6528,12 +6547,16 @@ window.YasnaCore = {
       const m = snap.val();
       if (!m || m.from === deviceId) return;
       const reconstructed = Object.assign({ t: m.type }, m.payload || {});
-      handlers.forEach((fn) => {
-        try {
-          fn(reconstructed);
-        } catch (_) {
-        }
-      });
+      if (handlers.size === 0) {
+        buffer.push(reconstructed);
+      } else {
+        handlers.forEach((fn) => {
+          try {
+            fn(reconstructed);
+          } catch (_) {
+          }
+        });
+      }
     }
     messagesRef.on("child_added", onMsg);
     function onStatus(snap) {
@@ -6570,6 +6593,17 @@ window.YasnaCore = {
       },
       on(fn) {
         handlers.add(fn);
+        if (buffer.length > 0) {
+          const toFlush = buffer.splice(0, buffer.length);
+          setTimeout(() => {
+            toFlush.forEach((msg) => {
+              try {
+                fn(msg);
+              } catch (_) {
+              }
+            });
+          }, 0);
+        }
         return () => handlers.delete(fn);
       },
       close() {

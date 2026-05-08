@@ -198,6 +198,10 @@
   function makeTransport({ code, deviceId, role }){
     init();
     const handlers = new Set();
+    // Буфер — сообщения, пришедшие до того как TurnirGame.useEffect
+    // зарегистрировал свой transport.on(...). Без буфера partiya-init
+    // от хоста теряется (race между Firebase WebSocket и React-кадрами).
+    const buffer = [];
     let stopped = false;
 
     const messagesRef = db.ref('rooms/' + code + '/messages');
@@ -208,7 +212,11 @@
       const m = snap.val();
       if(!m || m.from === deviceId) return;
       const reconstructed = Object.assign({ t: m.type }, m.payload || {});
-      handlers.forEach(fn => { try { fn(reconstructed); } catch(_){} });
+      if(handlers.size === 0){
+        buffer.push(reconstructed);
+      } else {
+        handlers.forEach(fn => { try { fn(reconstructed); } catch(_){} });
+      }
     }
     messagesRef.on('child_added', onMsg);
 
@@ -243,6 +251,12 @@
       },
       on(fn){
         handlers.add(fn);
+        if(buffer.length > 0){
+          const toFlush = buffer.splice(0, buffer.length);
+          setTimeout(() => {
+            toFlush.forEach(msg => { try { fn(msg); } catch(_){} });
+          }, 0);
+        }
         return () => handlers.delete(fn);
       },
       close(){
