@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-08T12:09:56.211Z */
+/* Yasna bundle: duel.js — собран 2026-05-08T12:24:15.260Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -7147,7 +7147,11 @@ window.YasnaCore = {
         ),
         nextStupenLabel && React.createElement("div", { style: { fontSize: 11, color: "var(--text-3)", marginTop: 4, fontVariantNumeric: "tabular-nums" } }, nextStupenLabel)
       ),
-      isGuest && React.createElement("button", { className: "dp-hero-cta", onClick: onLoginClick, title: "\u0412\u043E\u0439\u0434\u0438 \u2014 \u043F\u043E\u043F\u0430\u0434\u0451\u0448\u044C \u0432 \u0425\u0440\u043E\u043D\u0438\u043A\u0443" }, "\u0412\u043E\u0439\u0442\u0438 \u2192")
+      isGuest && React.createElement("button", { className: "dp-hero-cta", onClick: onLoginClick, title: "\u0412\u043E\u0439\u0434\u0438 \u2014 \u043F\u043E\u043F\u0430\u0434\u0451\u0448\u044C \u0432 \u0425\u0440\u043E\u043D\u0438\u043A\u0443" }, "\u0412\u043E\u0439\u0442\u0438 \u2192"),
+      !isGuest && remoteProfile && React.createElement("div", {
+        className: "dp-hero-synced",
+        title: "\u041F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u0441\u0438\u043D\u0445\u0440\u043E\u043D\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D \u0447\u0435\u0440\u0435\u0437 Telegram-\u0430\u043A\u043A\u0430\u0443\u043D\u0442"
+      }, "\u2713 \u0441\u0438\u043D\u0445\u0440.")
     );
   }
   function DPSyncNotice({ user, onLoginClick }) {
@@ -8343,18 +8347,25 @@ window.YasnaCore = {
     };
   }
   function DPAuthModal({ onClose, onLoggedIn }) {
-    const [loading, setLoading] = useState(false);
+    const [phase, setPhase] = useState("idle");
     const [error, setError] = useState(null);
+    const [welcomeName, setWelcomeName] = useState("");
     const baseUrl = window.YASNA_LEADERBOARD_API;
     const botUsername = window.YASNA_TG_BOT;
     useEffect(() => {
       window.onTelegramAuth = async (tgUser) => {
-        setLoading(true);
+        var _a, _b;
+        setPhase("loading");
         setError(null);
         const res = await _g("YasnaDuelAuth").loginWithTelegram(tgUser);
-        setLoading(false);
-        if (res.ok) onLoggedIn(res.user);
-        else setError(res.error || "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0432\u043E\u0439\u0442\u0438");
+        if (res.ok) {
+          setWelcomeName(((_a = res.user) == null ? void 0 : _a.nickname) || ((_b = res.user) == null ? void 0 : _b.first_name) || "\u0438\u0433\u0440\u043E\u043A");
+          setPhase("success");
+          setTimeout(() => onLoggedIn(res.user), 1400);
+        } else {
+          setPhase("error");
+          setError(res.error || "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0432\u043E\u0439\u0442\u0438");
+        }
       };
       return () => {
         delete window.onTelegramAuth;
@@ -8365,32 +8376,61 @@ window.YasnaCore = {
       {
         className: "dp-auth-overlay",
         onClick: (e) => {
-          if (e.target === e.currentTarget) onClose();
+          if (e.target === e.currentTarget && phase !== "loading" && phase !== "success") onClose();
         }
       },
       React.createElement(
         "div",
         { className: "dp-auth-modal", role: "dialog", "aria-modal": "true" },
-        React.createElement("button", { className: "dp-auth-x", onClick: onClose, "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C" }, "\xD7"),
-        React.createElement("div", { className: "dp-auth-eyebrow" }, "\u2726  \u0412\u043E\u0439\u0442\u0438 \u0432 \u041E\u0440\u0434\u0435\u043D"),
-        React.createElement("h2", null, "\u0412\u043E\u0439\u0442\u0438"),
-        React.createElement("p", null, "\u0427\u0435\u0440\u0435\u0437 Telegram. \u0411\u0435\u0437 \u043F\u0430\u0440\u043E\u043B\u0435\u0439. \u0422\u043E\u043B\u044C\u043A\u043E \u0438\u043C\u044F \u0438 \u0430\u0432\u0430\u0442\u0430\u0440."),
-        !baseUrl ? React.createElement("div", { style: { color: "var(--danger)", fontSize: 13 } }, "\u0425\u0440\u043E\u043D\u0438\u043A\u0430 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0430") : !botUsername ? React.createElement("div", { style: { color: "var(--danger)", fontSize: 13 } }, "\u0411\u043E\u0442 \u043D\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043D") : React.createElement("div", {
-          className: "dp-auth-tg-widget",
-          ref: (el) => {
-            if (!el || el.children.length) return;
-            const s = document.createElement("script");
-            s.async = true;
-            s.src = "https://telegram.org/js/telegram-widget.js?22";
-            s.setAttribute("data-telegram-login", botUsername);
-            s.setAttribute("data-size", "large");
-            s.setAttribute("data-onauth", "onTelegramAuth(user)");
-            s.setAttribute("data-request-access", "write");
-            el.appendChild(s);
-          }
-        }),
-        loading && React.createElement("div", { style: { fontSize: 13, color: "var(--text-2)", marginTop: 8 } }, "\u0410\u0432\u0442\u043E\u0440\u0438\u0437\u0430\u0446\u0438\u044F\u2026"),
-        error && React.createElement("div", { style: { fontSize: 13, color: "var(--danger)", marginTop: 8 } }, error)
+        phase !== "success" && phase !== "loading" && React.createElement("button", { className: "dp-auth-x", onClick: onClose, "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C" }, "\xD7"),
+        // ─── Состояние успеха: «Привет, X. Прогресс синхронизирован.» ───
+        phase === "success" && React.createElement(
+          React.Fragment,
+          null,
+          React.createElement("div", { className: "dp-auth-success-icon", "aria-hidden": "true" }, "\u2726"),
+          React.createElement("h2", { className: "dp-auth-success-title" }, "\u041F\u0440\u0438\u0432\u0435\u0442, ", welcomeName, "."),
+          React.createElement("p", { className: "dp-auth-success-text" }, "\u041F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u0441\u0438\u043D\u0445\u0440\u043E\u043D\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D. \u041F\u0430\u0440\u0442\u0438\u0438 \u0441 \u0434\u0440\u0443\u0433\u0438\u0445 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432 \u043F\u043E\u0434\u0442\u044F\u043D\u0443\u0442\u0441\u044F \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438.")
+        ),
+        // ─── Idle / loading / error ───
+        phase !== "success" && React.createElement(
+          React.Fragment,
+          null,
+          React.createElement("div", { className: "dp-auth-eyebrow" }, "\u2726  \u0412\u043E\u0439\u0442\u0438"),
+          React.createElement("h2", null, "\u0421\u043E\u0445\u0440\u0430\u043D\u0438 \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u043C\u0435\u0436\u0434\u0443 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430\u043C\u0438"),
+          React.createElement(
+            "p",
+            null,
+            "\u0412\u043E\u0439\u0434\u0438 \u0447\u0435\u0440\u0435\u0437 Telegram. \u0411\u0443\u0441\u0438\u043D\u044B, \u0441\u0435\u0440\u0438\u0438 \u0438 \u0438\u0441\u0442\u043E\u0440\u0438\u044F \u043F\u0430\u0440\u0442\u0438\u0439 \u0431\u0443\u0434\u0443\u0442 \u0436\u0438\u0442\u044C \u0441 \u0442\u0432\u043E\u0438\u043C \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u043E\u043C."
+          ),
+          React.createElement(
+            "ul",
+            { className: "dp-auth-perks" },
+            React.createElement("li", null, "\u041F\u0430\u0440\u0442\u0438\u0438 \u0441 \u043B\u044E\u0431\u043E\u0433\u043E \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430 \u2014 \u043E\u0431\u0449\u0438\u0439 \u0441\u0447\u0451\u0442"),
+            React.createElement("li", null, "\u0411\u0435\u0437 \u043F\u0430\u0440\u043E\u043B\u0435\u0439. \u0422\u043E\u043B\u044C\u043A\u043E \u0438\u043C\u044F \u0438 \u0430\u0432\u0430\u0442\u0430\u0440 \u0438\u0437 Telegram"),
+            React.createElement("li", null, "\u0413\u043E\u0441\u0442\u0435\u0432\u043E\u0439 \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u0441\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u0441\u044F \u2014 \u043F\u0440\u0438 \u043B\u043E\u0433\u0438\u043D\u0435 \u043E\u043D \u0434\u043E\u0431\u0430\u0432\u0438\u0442\u0441\u044F \u043A \u0442\u0432\u043E\u0435\u043C\u0443")
+          ),
+          !baseUrl ? React.createElement("div", { className: "dp-auth-msg-error" }, "\u0421\u0435\u0440\u0432\u0435\u0440 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D") : !botUsername ? React.createElement("div", { className: "dp-auth-msg-error" }, "\u0411\u043E\u0442 \u043D\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043D") : React.createElement("div", {
+            className: "dp-auth-tg-widget",
+            ref: (el) => {
+              if (!el || el.children.length) return;
+              const s = document.createElement("script");
+              s.async = true;
+              s.src = "https://telegram.org/js/telegram-widget.js?22";
+              s.setAttribute("data-telegram-login", botUsername);
+              s.setAttribute("data-size", "large");
+              s.setAttribute("data-onauth", "onTelegramAuth(user)");
+              s.setAttribute("data-request-access", "write");
+              el.appendChild(s);
+            }
+          }),
+          phase === "loading" && React.createElement("div", { className: "dp-auth-msg-loading" }, "\u25F7  \u0410\u0432\u0442\u043E\u0440\u0438\u0437\u0430\u0446\u0438\u044F\u2026"),
+          error && React.createElement("div", { className: "dp-auth-msg-error" }, error),
+          React.createElement(
+            "div",
+            { className: "dp-auth-foot" },
+            "\u041F\u0435\u0440\u0435\u0434\u0430\u0451\u043C \u0442\u043E\u043B\u044C\u043A\u043E Telegram-\u0438\u043C\u044F \u0438 \u0444\u043E\u0442\u043E. \u041B\u0438\u0447\u043D\u044B\u0435 \u0441\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u044F \u043D\u0430\u043C \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u044B."
+          )
+        )
       )
     );
   }

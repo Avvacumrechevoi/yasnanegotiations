@@ -1,0 +1,256 @@
+/* ═══════════════════════════════════════════════════════════════════
+   VK Dark Theme — экспериментальная альтернативная палитра
+   ИЗОЛИРОВАННАЯ ОТ ОСНОВНЫХ СТИЛЕЙ. Активируется через
+   body.theme-vk-dark — переопределяет CSS-переменные.
+   Загружается ТОЛЬКО в preview.
+   Источник цветов: Figma file FkqWikBzYpKnEcFJTpdwPw, frame Colors/Dark.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Активная только когда на body есть класс theme-vk-dark */
+body.theme-vk-dark {
+  /* ─── Поверхности ─── */
+  --bg-page:    #212121;  /* Background Base Primary */
+  --bg-surface: #151515;  /* Background Base Secondary */
+  --bg-soft:    #3C3D40;  /* Background Base Tertiary */
+  --bg-tonal:   #2A2A2D;  /* промежуточный (Tertiary darkened) */
+  --bg-deep:    #000000;  /* Background Base Static Dark */
+
+  /* ─── Текст ─── */
+  --text-1: #FEFEFE;        /* Content Base Primary */
+  --text-2: #A8B1BE;        /* Content Base Secondary */
+  --text-3: #626D7A;        /* Content Base Tertiary */
+  --text-on-dark: #FEFEFE;
+
+  /* ─── Акценты ─── */
+  --accent:        #0187F6;  /* Content Accent VK (dark) */
+  --accent-soft:   #0077FF33; /* Background System Info Alpha */
+  --accent-strong: #439BFB;  /* Content System Info (dark) */
+  --primary:       #00D3E6;  /* Content Other Accent Themed (dark — мор / cyan) */
+  --primary-strong:#00B8C8;
+  --primary-soft:  rgba(0, 211, 230, 0.15);
+  --info:          #439BFB;
+  --info-soft:     rgba(67, 155, 251, 0.15);
+  --info-text:     #439BFB;
+  --danger:        #F85050;  /* Content System Negative (dark) */
+  --gold-1:        #FFB546;
+  --gold-2:        #C0C0C8;
+  --gold-3:        #E89A40;
+
+  /* ─── Линии и тени ─── */
+  --border-1: rgba(255, 255, 255, 0.16);
+  --border-2: rgba(255, 255, 255, 0.08);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.20);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.30);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.40);
+  --shadow-deep: 0 12px 60px rgba(0, 0, 0, 0.55);
+}
+
+/* ─── Дополнительные правки контраста для тёмной темы ─── */
+
+/* Аватары/Avatar — внутренний фон должен быть темнее общего */
+body.theme-vk-dark .tn-vs-avatar,
+body.theme-vk-dark .dp-hero-avatar {
+  background: var(--bg-tonal);
+  border-color: var(--border-1);
+}
+
+/* Кнопки выбора ответа — подсветка hover в тёмной теме */
+body.theme-vk-dark .tn-option {
+  background: var(--bg-surface);
+  color: var(--text-1);
+}
+body.theme-vk-dark .tn-option:not([disabled]):hover {
+  background: var(--bg-tonal);
+  border-color: var(--accent);
+}
+body.theme-vk-dark .tn-option-letter {
+  background: var(--bg-tonal);
+  color: var(--text-2);
+}
+body.theme-vk-dark .tn-option:not([disabled]):hover .tn-option-letter {
+  background: rgba(1, 135, 246, 0.20);
+  color: var(--accent);
+}
+
+/* Состояния ответа (correct/wrong) в Dark — приглушённые */
+body.theme-vk-dark .tn-option-correct,
+body.theme-vk-dark .tn-option-shown-correct {
+  background: rgba(0, 211, 230, 0.12);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+body.theme-vk-dark .tn-option-correct .tn-option-letter,
+body.theme-vk-dark .tn-option-shown-correct .tn-option-letter {
+  background: var(--primary);
+  color: #000;
+}
+body.theme-vk-dark .tn-option-wrong {
+  background: rgba(248, 80, 80, 0.12);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+body.theme-vk-dark .tn-option-wrong .tn-option-letter {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* Таймер бар */
+body.theme-vk-dark .tn-timer-bar { background: var(--bg-soft); }
+body.theme-vk-dark .tn-timer-fill { background: var(--primary); }
+body.theme-vk-dark .tn-timer-fill.tn-timer-warn { background: #FFB546; }
+body.theme-vk-dark .tn-timer-fill.tn-timer-danger { background: var(--danger); }
+
+/* Игровой фон фуллскрин */
+body.theme-vk-dark .tn-fullscreen,
+body.theme-vk-dark .tn-overlay {
+  background: var(--bg-page);
+  color: var(--text-1);
+}
+
+/* Карточки в духе VK */
+body.theme-vk-dark .tn-q-card,
+body.theme-vk-dark .tn-final-vs,
+body.theme-vk-dark .tn-final-stat,
+body.theme-vk-dark .dp-card,
+body.theme-vk-dark .dp-game-card,
+body.theme-vk-dark .dp-quest,
+body.theme-vk-dark .dp-theme,
+body.theme-vk-dark .dp-hero {
+  background: var(--bg-surface);
+  border-color: var(--border-1);
+  color: var(--text-1);
+}
+
+body.theme-vk-dark .tn-q-text,
+body.theme-vk-dark .tn-final-headline,
+body.theme-vk-dark .tn-final-vs-num,
+body.theme-vk-dark .tn-final-stat-value,
+body.theme-vk-dark .tn-round-title,
+body.theme-vk-dark .dp-castalia-h1 {
+  color: var(--text-1);
+}
+
+body.theme-vk-dark .tn-q-meta-time {
+  background: var(--bg-tonal);
+  color: var(--text-2);
+}
+
+/* Final accent stat — bg-soft вместо accent-soft (контраст) */
+body.theme-vk-dark .tn-final-stat-accent {
+  background: rgba(1, 135, 246, 0.12);
+  border-color: var(--accent);
+}
+body.theme-vk-dark .tn-final-stat-accent .tn-final-stat-label,
+body.theme-vk-dark .tn-final-stat-accent .tn-final-stat-value {
+  color: var(--accent);
+}
+
+/* Feedback banners */
+body.theme-vk-dark .tn-feedback-correct {
+  background: rgba(0, 211, 230, 0.15);
+  color: var(--primary);
+}
+body.theme-vk-dark .tn-feedback-wrong {
+  background: rgba(248, 80, 80, 0.15);
+  color: var(--danger);
+}
+body.theme-vk-dark .tn-feedback-timeout {
+  background: var(--bg-soft);
+  color: var(--text-2);
+}
+
+/* Кнопки */
+body.theme-vk-dark .tn-final-btn {
+  background: var(--bg-surface);
+  border-color: var(--border-1);
+  color: var(--text-1);
+}
+body.theme-vk-dark .tn-final-btn:hover {
+  background: var(--bg-tonal);
+}
+body.theme-vk-dark .tn-final-btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+body.theme-vk-dark .tn-final-btn-primary:hover {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+
+body.theme-vk-dark .tn-quit {
+  background: var(--bg-tonal);
+  border-color: var(--border-1);
+  color: var(--text-2);
+}
+body.theme-vk-dark .tn-quit:hover {
+  background: var(--bg-soft);
+  color: var(--text-1);
+}
+
+/* Sync notice / архив */
+body.theme-vk-dark .dp-sync-notice {
+  background: rgba(1, 135, 246, 0.10);
+  border-color: var(--accent);
+}
+body.theme-vk-dark .tn-final-archive,
+body.theme-vk-dark .tn-final-scoring {
+  background: var(--bg-soft);
+  color: var(--text-2);
+}
+
+/* Скроллбар */
+body.theme-vk-dark::-webkit-scrollbar { background: var(--bg-page); width: 10px; }
+body.theme-vk-dark::-webkit-scrollbar-thumb { background: var(--bg-soft); border-radius: 5px; }
+body.theme-vk-dark::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
+
+/* Плавный transition при переключении темы */
+body.theme-vk-dark,
+body.theme-vk-dark .tn-fullscreen,
+body.theme-vk-dark .dp-card,
+body.theme-vk-dark .dp-hero,
+body.theme-vk-dark .dp-game-card,
+body.theme-vk-dark .tn-q-card,
+body.theme-vk-dark .tn-final-vs,
+body.theme-vk-dark .tn-final-stat {
+  transition: background-color var(--duration-base) ease-out,
+              border-color var(--duration-base) ease-out,
+              color var(--duration-base) ease-out;
+}
+
+/* ═══ Кнопка-переключатель темы (видна только в preview) ═══ */
+.dp-theme-toggle {
+  position: fixed;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  z-index: 9999;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 12px;
+  background: var(--bg-surface);
+  border: 0.5px solid var(--border-1);
+  border-radius: 100px;
+  font: inherit; font-size: 12px; font-weight: 500;
+  color: var(--text-2);
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: all var(--duration-fast);
+}
+.dp-theme-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+  color: var(--text-1);
+}
+.dp-theme-toggle-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+.dp-theme-toggle-label {
+  letter-spacing: 0.02em;
+}
+@media (max-width: 600px) {
+  .dp-theme-toggle {
+    right: 12px; bottom: 12px;
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+}

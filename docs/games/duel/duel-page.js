@@ -262,7 +262,11 @@
         ),
         nextStupenLabel && React.createElement('div', { style: { fontSize: 11, color: 'var(--text-3)', marginTop: 4, fontVariantNumeric: 'tabular-nums' } }, nextStupenLabel)
       ),
-      isGuest && React.createElement('button', { className: 'dp-hero-cta', onClick: onLoginClick, title: 'Войди — попадёшь в Хронику' }, 'Войти →')
+      isGuest && React.createElement('button', { className: 'dp-hero-cta', onClick: onLoginClick, title: 'Войди — попадёшь в Хронику' }, 'Войти →'),
+      !isGuest && remoteProfile && React.createElement('div', {
+        className: 'dp-hero-synced',
+        title: 'Прогресс синхронизирован через Telegram-аккаунт'
+      }, '✓ синхр.')
     );
   }
 
@@ -1304,49 +1308,78 @@
   // MODALS · Auth + Anon Onboarding
   // ═══════════════════════════════════════════════════════════════════
   function DPAuthModal({ onClose, onLoggedIn }){
-    const [loading, setLoading] = useState(false);
+    const [phase, setPhase] = useState('idle'); // idle | loading | success | error
     const [error, setError] = useState(null);
+    const [welcomeName, setWelcomeName] = useState('');
     const baseUrl = window.YASNA_LEADERBOARD_API;
     const botUsername = window.YASNA_TG_BOT;
     useEffect(() => {
       window.onTelegramAuth = async (tgUser) => {
-        setLoading(true); setError(null);
+        setPhase('loading'); setError(null);
         const res = await _g('YasnaDuelAuth').loginWithTelegram(tgUser);
-        setLoading(false);
-        if(res.ok) onLoggedIn(res.user);
-        else setError(res.error || 'Не удалось войти');
+        if(res.ok){
+          setWelcomeName(res.user?.nickname || res.user?.first_name || 'игрок');
+          setPhase('success');
+          // Закрываем после короткой "приветственной" паузы
+          setTimeout(() => onLoggedIn(res.user), 1400);
+        } else {
+          setPhase('error');
+          setError(res.error || 'Не удалось войти');
+        }
       };
       return () => { delete window.onTelegramAuth; };
     }, []);
+
     return React.createElement('div', {
       className: 'dp-auth-overlay',
-      onClick: e => { if(e.target === e.currentTarget) onClose(); }
+      onClick: e => { if(e.target === e.currentTarget && phase !== 'loading' && phase !== 'success') onClose(); }
     },
       React.createElement('div', { className: 'dp-auth-modal', role: 'dialog', 'aria-modal': 'true' },
-        React.createElement('button', { className: 'dp-auth-x', onClick: onClose, 'aria-label': 'Закрыть' }, '×'),
-        React.createElement('div', { className: 'dp-auth-eyebrow' }, '✦  Войти в Орден'),
-        React.createElement('h2', null, 'Войти'),
-        React.createElement('p', null, 'Через Telegram. Без паролей. Только имя и аватар.'),
-        !baseUrl
-          ? React.createElement('div', { style: { color: 'var(--danger)', fontSize: 13 } }, 'Хроника временно недоступна')
-          : !botUsername
-            ? React.createElement('div', { style: { color: 'var(--danger)', fontSize: 13 } }, 'Бот не настроен')
-            : React.createElement('div', {
-                className: 'dp-auth-tg-widget',
-                ref: el => {
-                  if(!el || el.children.length) return;
-                  const s = document.createElement('script');
-                  s.async = true;
-                  s.src = 'https://telegram.org/js/telegram-widget.js?22';
-                  s.setAttribute('data-telegram-login', botUsername);
-                  s.setAttribute('data-size', 'large');
-                  s.setAttribute('data-onauth', 'onTelegramAuth(user)');
-                  s.setAttribute('data-request-access', 'write');
-                  el.appendChild(s);
-                }
-              }),
-        loading && React.createElement('div', { style: { fontSize: 13, color: 'var(--text-2)', marginTop: 8 } }, 'Авторизация…'),
-        error && React.createElement('div', { style: { fontSize: 13, color: 'var(--danger)', marginTop: 8 } }, error)
+        phase !== 'success' && phase !== 'loading' && React.createElement('button', { className: 'dp-auth-x', onClick: onClose, 'aria-label': 'Закрыть' }, '×'),
+
+        // ─── Состояние успеха: «Привет, X. Прогресс синхронизирован.» ───
+        phase === 'success' && React.createElement(React.Fragment, null,
+          React.createElement('div', { className: 'dp-auth-success-icon', 'aria-hidden': 'true' }, '✦'),
+          React.createElement('h2', { className: 'dp-auth-success-title' }, 'Привет, ', welcomeName, '.'),
+          React.createElement('p', { className: 'dp-auth-success-text' }, 'Прогресс синхронизирован. Партии с других устройств подтянутся автоматически.')
+        ),
+
+        // ─── Idle / loading / error ───
+        phase !== 'success' && React.createElement(React.Fragment, null,
+          React.createElement('div', { className: 'dp-auth-eyebrow' }, '✦  Войти'),
+          React.createElement('h2', null, 'Сохрани прогресс между устройствами'),
+          React.createElement('p', null,
+            'Войди через Telegram. Бусины, серии и история партий будут жить с твоим аккаунтом.'),
+
+          React.createElement('ul', { className: 'dp-auth-perks' },
+            React.createElement('li', null, 'Партии с любого устройства — общий счёт'),
+            React.createElement('li', null, 'Без паролей. Только имя и аватар из Telegram'),
+            React.createElement('li', null, 'Гостевой прогресс сохранится — при логине он добавится к твоему')
+          ),
+
+          !baseUrl
+            ? React.createElement('div', { className: 'dp-auth-msg-error' }, 'Сервер временно недоступен')
+            : !botUsername
+              ? React.createElement('div', { className: 'dp-auth-msg-error' }, 'Бот не настроен')
+              : React.createElement('div', {
+                  className: 'dp-auth-tg-widget',
+                  ref: el => {
+                    if(!el || el.children.length) return;
+                    const s = document.createElement('script');
+                    s.async = true;
+                    s.src = 'https://telegram.org/js/telegram-widget.js?22';
+                    s.setAttribute('data-telegram-login', botUsername);
+                    s.setAttribute('data-size', 'large');
+                    s.setAttribute('data-onauth', 'onTelegramAuth(user)');
+                    s.setAttribute('data-request-access', 'write');
+                    el.appendChild(s);
+                  }
+                }),
+          phase === 'loading' && React.createElement('div', { className: 'dp-auth-msg-loading' }, '◷  Авторизация…'),
+          error && React.createElement('div', { className: 'dp-auth-msg-error' }, error),
+          React.createElement('div', { className: 'dp-auth-foot' },
+            'Передаём только Telegram-имя и фото. Личные сообщения нам недоступны.')
+        )
       )
     );
   }

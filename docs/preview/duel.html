@@ -21,6 +21,8 @@
 
 <link rel="stylesheet" href="styles.css"/>
 <link rel="stylesheet" href="games/duel/duel-page.css"/>
+<!-- VK Dark Theme — экспериментальная альтернатива (только preview) -->
+<link rel="stylesheet" href="games/duel/theme-vk-dark.css?v=1"/>
 </head>
 <body>
 <div id="duel-page-root"></div>
@@ -44,6 +46,64 @@
 
 <!-- Pre-built bundle: core/* + games/duel/* + duel-page (см. scripts/build.mjs) -->
 <!-- Cache-busting: меняй версию при каждом релизе чтобы CDN отдавал свежий файл -->
-<script src="dist/duel.min.js?v=profile1"></script>
+<script src="dist/duel.min.js?v=auth1"></script>
+
+<!-- ═══ Theme Toggle — только в preview ═══════════════════════
+     Переключатель экспериментальной темной темы. Применяет/снимает
+     класс `theme-vk-dark` на body. Состояние в localStorage.
+     ─────────────────────────────────────────────────────────── -->
+<script>
+(function(){
+  'use strict';
+  var STORAGE_KEY = 'yasna_theme_vk_dark';
+  var BODY_CLASS = 'theme-vk-dark';
+
+  function isOn(){
+    try { return localStorage.getItem(STORAGE_KEY) === '1'; }
+    catch(_){ return false; }
+  }
+  function apply(on){
+    if(on) document.body.classList.add(BODY_CLASS);
+    else document.body.classList.remove(BODY_CLASS);
+    var btn = document.getElementById('dp-theme-toggle');
+    if(btn){
+      var icon = btn.querySelector('.dp-theme-toggle-icon');
+      var label = btn.querySelector('.dp-theme-toggle-label');
+      if(icon)  icon.textContent  = on ? '☀' : '🌑';
+      if(label) label.textContent = on ? 'Светлая' : 'Тёмная (β)';
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.title = on
+        ? 'Выключить экспериментальную тёмную тему'
+        : 'Включить экспериментальную тёмную тему (только preview)';
+    }
+  }
+  function toggle(){
+    var next = !isOn();
+    try { localStorage.setItem(STORAGE_KEY, next ? '1' : '0'); } catch(_){}
+    apply(next);
+  }
+
+  // Применяем при загрузке (до первой отрисовки если возможно)
+  apply(isOn());
+
+  // Создаём FAB-кнопку
+  function mountButton(){
+    if(document.getElementById('dp-theme-toggle')) return;
+    var btn = document.createElement('button');
+    btn.id = 'dp-theme-toggle';
+    btn.className = 'dp-theme-toggle';
+    btn.type = 'button';
+    btn.innerHTML = '<span class="dp-theme-toggle-icon" aria-hidden="true">🌑</span><span class="dp-theme-toggle-label">Тёмная (β)</span>';
+    btn.addEventListener('click', toggle);
+    document.body.appendChild(btn);
+    apply(isOn()); // обновить лейбл
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', mountButton);
+  } else {
+    mountButton();
+  }
+})();
+</script>
 </body>
 </html>
