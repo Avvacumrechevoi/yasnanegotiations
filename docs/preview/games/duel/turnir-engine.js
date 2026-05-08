@@ -285,14 +285,50 @@
       onAnswer(payload);
     }
 
+    // ─── Ожидание ответа соперника + продвижение ────────────────
+    // Ключевая логика синхронизации PvP: оба клиента ждут ответ
+    // друг друга перед переходом к следующему вопросу. Без этого
+    // тот кто отвечает быстрее не учитывает бусины соперника
+    // (рассинхрон счёта на N бусин в каждом раунде).
+    function waitForOppAndAdvance(playerCorrect, playerTime, isTimeout){
+      const waitStartedAt = Date.now();
+      const MAX_WAIT_MS = 5000; // максимум ждём ответ соперника 5 секунд
+
+      function tryAdvance(){
+        if(answeredRef.current) return;
+        const oppRef = isPvP ? oppAnswerRef : { current: oppFinishedRef.current };
+        const oppHasAnswered = oppRef?.current != null;
+        const elapsed = Date.now() - waitStartedAt;
+        const minFeedbackElapsed = elapsed >= SHOW_FEEDBACK_MS;
+        const maxWaitElapsed = elapsed >= MAX_WAIT_MS;
+
+        if((oppHasAnswered && minFeedbackElapsed) || maxWaitElapsed){
+          const oppData = isPvP
+            ? (oppAnswerRef?.current || { correct: false, time: QUESTION_TIME * 1000 })
+            : (oppFinishedRef.current || { correct: false, time: isTimeout ? QUESTION_TIME * 1000 : playerTime + 500 });
+          safeAnswer({
+            playerCorrect, playerTime,
+            oppCorrect: oppData.correct,
+            oppTime: oppData.time,
+          });
+        } else {
+          setTimeout(tryAdvance, 150);
+        }
+      }
+      // Первая попытка через SHOW_FEEDBACK_MS (минимум показать feedback)
+      setTimeout(tryAdvance, SHOW_FEEDBACK_MS);
+    }
+
     function handleTimeout(){
       if(chosen != null || answeredRef.current) return;
       setChosen(-1);
-      setTimeout(() => safeAnswer({
-        playerCorrect: false, playerTime: QUESTION_TIME * 1000,
-        oppCorrect: oppFinishedRef.current?.correct ?? false,
-        oppTime: oppFinishedRef.current?.time ?? QUESTION_TIME * 1000,
-      }), SHOW_FEEDBACK_MS);
+      // При timeout тоже шлём opp-answer чтобы соперник знал
+      if(isPvP && transport){
+        try {
+          transport.send({ t: 'opp-answer', correct: false, time: QUESTION_TIME * 1000, qId: q.id });
+        } catch(_){}
+      }
+      waitForOppAndAdvance(false, QUESTION_TIME * 1000, true);
     }
 
     function pick(idx){
@@ -307,16 +343,7 @@
         } catch(_){}
       }
 
-      setTimeout(() => {
-        const oppData = isPvP
-          ? (oppAnswerRef?.current || { correct: false, time: QUESTION_TIME * 1000 })
-          : (oppFinishedRef.current || { correct: false, time: playerTime + 500 });
-        safeAnswer({
-          playerCorrect, playerTime,
-          oppCorrect: oppData.correct,
-          oppTime: oppData.time,
-        });
-      }, SHOW_FEEDBACK_MS);
+      waitForOppAndAdvance(playerCorrect, playerTime, false);
     }
 
     const showFeedback = chosen != null;

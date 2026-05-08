@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-08T11:01:26.639Z */
+/* Yasna bundle: duel.js — собран 2026-05-08T11:13:36.504Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -6063,18 +6063,40 @@ window.YasnaCore = {
       answeredRef.current = true;
       onAnswer(payload);
     }
+    function waitForOppAndAdvance(playerCorrect2, playerTime, isTimeout) {
+      const waitStartedAt = Date.now();
+      const MAX_WAIT_MS = 5e3;
+      function tryAdvance() {
+        if (answeredRef.current) return;
+        const oppRef = isPvP ? oppAnswerRef : { current: oppFinishedRef.current };
+        const oppHasAnswered = (oppRef == null ? void 0 : oppRef.current) != null;
+        const elapsed = Date.now() - waitStartedAt;
+        const minFeedbackElapsed = elapsed >= SHOW_FEEDBACK_MS;
+        const maxWaitElapsed = elapsed >= MAX_WAIT_MS;
+        if (oppHasAnswered && minFeedbackElapsed || maxWaitElapsed) {
+          const oppData = isPvP ? (oppAnswerRef == null ? void 0 : oppAnswerRef.current) || { correct: false, time: QUESTION_TIME * 1e3 } : oppFinishedRef.current || { correct: false, time: isTimeout ? QUESTION_TIME * 1e3 : playerTime + 500 };
+          safeAnswer({
+            playerCorrect: playerCorrect2,
+            playerTime,
+            oppCorrect: oppData.correct,
+            oppTime: oppData.time
+          });
+        } else {
+          setTimeout(tryAdvance, 150);
+        }
+      }
+      setTimeout(tryAdvance, SHOW_FEEDBACK_MS);
+    }
     function handleTimeout() {
       if (chosen != null || answeredRef.current) return;
       setChosen(-1);
-      setTimeout(() => {
-        var _a, _b, _c, _d;
-        return safeAnswer({
-          playerCorrect: false,
-          playerTime: QUESTION_TIME * 1e3,
-          oppCorrect: (_b = (_a = oppFinishedRef.current) == null ? void 0 : _a.correct) != null ? _b : false,
-          oppTime: (_d = (_c = oppFinishedRef.current) == null ? void 0 : _c.time) != null ? _d : QUESTION_TIME * 1e3
-        });
-      }, SHOW_FEEDBACK_MS);
+      if (isPvP && transport) {
+        try {
+          transport.send({ t: "opp-answer", correct: false, time: QUESTION_TIME * 1e3, qId: q.id });
+        } catch (_) {
+        }
+      }
+      waitForOppAndAdvance(false, QUESTION_TIME * 1e3, true);
     }
     function pick(idx) {
       if (chosen != null || answeredRef.current) return;
@@ -6087,15 +6109,7 @@ window.YasnaCore = {
         } catch (_) {
         }
       }
-      setTimeout(() => {
-        const oppData = isPvP ? (oppAnswerRef == null ? void 0 : oppAnswerRef.current) || { correct: false, time: QUESTION_TIME * 1e3 } : oppFinishedRef.current || { correct: false, time: playerTime + 500 };
-        safeAnswer({
-          playerCorrect: playerCorrect2,
-          playerTime,
-          oppCorrect: oppData.correct,
-          oppTime: oppData.time
-        });
-      }, SHOW_FEEDBACK_MS);
+      waitForOppAndAdvance(playerCorrect2, playerTime, false);
     }
     const showFeedback = chosen != null;
     const playerCorrect = chosen === q.correct;
