@@ -445,13 +445,60 @@
   }
 
   // ─── «Где увидеть результат» ───────────────────────────────────
+  // Light theme: классический список с буллитами.
+  // Dark theme (theme-vk-dark): VK-Scheme — 3 пронумерованных шага.
   function TnFinalArchive(){
     return React.createElement('div', { className: 'tn-final-archive' },
-      React.createElement('div', { className: 'tn-final-archive-eyebrow' }, '☷  Партия записана в'),
-      React.createElement('ul', { className: 'tn-final-archive-list' },
-        React.createElement('li', null, React.createElement('strong', null, 'Хронику'), ' — список твоих партий'),
-        React.createElement('li', null, React.createElement('strong', null, 'Достижения'), ' — открыты звания и серии'),
-        React.createElement('li', null, React.createElement('strong', null, 'Партитуру'), ' — мастерство по темам Ясны')
+      // ─── Light: оригинальный список, скрыт в Dark ───
+      React.createElement('div', { className: 'vk-light-only' },
+        React.createElement('div', { className: 'tn-final-archive-eyebrow' }, '☷  Партия записана в'),
+        React.createElement('ul', { className: 'tn-final-archive-list' },
+          React.createElement('li', null, React.createElement('strong', null, 'Хронику'), ' — список твоих партий'),
+          React.createElement('li', null, React.createElement('strong', null, 'Достижения'), ' — открыты звания и серии'),
+          React.createElement('li', null, React.createElement('strong', null, 'Партитуру'), ' — мастерство по темам Ясны')
+        )
+      ),
+      // ─── Dark: VK-Scheme — куда уходит партия ───
+      React.createElement('div', { className: 'vk-scheme-block' },
+        React.createElement('div', { className: 'vk-scheme' },
+          React.createElement('div', { className: 'vk-scheme-canvas' },
+            React.createElement('div', { className: 'vk-scheme-header' },
+              React.createElement('h3', { className: 'vk-scheme-header-title' }, 'Партия записана в три места'),
+              React.createElement('span', { className: 'vk-scheme-tag vk-scheme-tag--mute' }, '✦  итог')
+            ),
+            React.createElement('ol', { className: 'vk-scheme-steps' },
+              React.createElement('li', { className: 'vk-scheme-step' },
+                React.createElement('div', { className: 'vk-scheme-num' },
+                  React.createElement('div', { className: 'vk-scheme-num-inner' }, '01')
+                ),
+                React.createElement('div', { className: 'vk-scheme-desc' },
+                  React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Хроника'),
+                  React.createElement('div', { className: 'vk-scheme-desc-text' }, 'Список всех твоих партий — кто, когда, со счётом')
+                )
+              ),
+              React.createElement('li', { className: 'vk-scheme-step' },
+                React.createElement('div', { className: 'vk-scheme-num' },
+                  React.createElement('div', { className: 'vk-scheme-num-inner' }, '02')
+                ),
+                React.createElement('div', { className: 'vk-scheme-desc' },
+                  React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Достижения'),
+                  React.createElement('div', { className: 'vk-scheme-desc-text' }, 'Открываются звания и серии — отметки твоего пути')
+                )
+              ),
+              React.createElement('li', { className: 'vk-scheme-step' },
+                React.createElement('div', { className: 'vk-scheme-num' },
+                  React.createElement('div', { className: 'vk-scheme-num-inner' }, '03')
+                ),
+                React.createElement('div', { className: 'vk-scheme-desc' },
+                  React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Партитура'),
+                  React.createElement('div', { className: 'vk-scheme-desc-text' }, 'Растёт мастерство по шести темам Ясны')
+                )
+              )
+            ),
+            React.createElement('div', { className: 'vk-scheme-foot' },
+              'Прогресс зачитывается сразу после завершения партии.')
+          )
+        )
       )
     );
   }

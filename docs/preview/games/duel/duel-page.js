@@ -284,19 +284,66 @@
       try { localStorage.setItem('yasna_sync_notice_dismissed', '1'); } catch(_){}
       setDismissed(true);
     };
-    return React.createElement('div', { className: 'dp-sync-notice', role: 'note' },
-      React.createElement('div', { className: 'dp-sync-notice-icon', 'aria-hidden': 'true' }, '◷'),
-      React.createElement('div', { className: 'dp-sync-notice-body' },
-        React.createElement('div', { className: 'dp-sync-notice-title' }, 'Прогресс хранится в этом браузере'),
-        React.createElement('div', { className: 'dp-sync-notice-text' },
-          'Бусины, серии и история партий — здесь, локально. Очистишь кеш или сменишь устройство — потеряешь.',
-          React.createElement('br'),
-          'Войди через Telegram, чтобы прогресс жил между устройствами.'
+    return React.createElement(React.Fragment, null,
+      // ─── Light: оригинальный плашка-уведомление ───
+      React.createElement('div', { className: 'dp-sync-notice vk-light-only', role: 'note' },
+        React.createElement('div', { className: 'dp-sync-notice-icon', 'aria-hidden': 'true' }, '◷'),
+        React.createElement('div', { className: 'dp-sync-notice-body' },
+          React.createElement('div', { className: 'dp-sync-notice-title' }, 'Прогресс хранится в этом браузере'),
+          React.createElement('div', { className: 'dp-sync-notice-text' },
+            'Бусины, серии и история партий — здесь, локально. Очистишь кеш или сменишь устройство — потеряешь.',
+            React.createElement('br'),
+            'Войди через Telegram, чтобы прогресс жил между устройствами.'
+          )
+        ),
+        React.createElement('div', { className: 'dp-sync-notice-actions' },
+          React.createElement('button', { className: 'dp-sync-notice-cta', onClick: onLoginClick, type: 'button' }, 'Войти'),
+          React.createElement('button', { className: 'dp-sync-notice-x', onClick: dismiss, type: 'button', 'aria-label': 'Закрыть' }, '×')
         )
       ),
-      React.createElement('div', { className: 'dp-sync-notice-actions' },
-        React.createElement('button', { className: 'dp-sync-notice-cta', onClick: onLoginClick, type: 'button' }, 'Войти'),
-        React.createElement('button', { className: 'dp-sync-notice-x', onClick: dismiss, type: 'button', 'aria-label': 'Закрыть' }, '×')
+      // ─── Dark: VK-Scheme — где живут бусины ───
+      React.createElement('div', { className: 'vk-scheme-block', role: 'note' },
+        React.createElement('div', { className: 'vk-scheme' },
+          React.createElement('div', { className: 'vk-scheme-canvas' },
+            React.createElement('div', { className: 'vk-scheme-header' },
+              React.createElement('h3', { className: 'vk-scheme-header-title' }, 'Где сейчас живут твои бусины'),
+              React.createElement('button', {
+                className: 'vk-scheme-tag vk-scheme-tag--mute',
+                onClick: dismiss,
+                type: 'button',
+                'aria-label': 'Закрыть',
+                style: { border: 'none', cursor: 'pointer' }
+              }, '×  скрыть')
+            ),
+            React.createElement('div', { className: 'vk-scheme-entities' },
+              React.createElement('div', { className: 'vk-scheme-entity' },
+                React.createElement('div', { className: 'vk-scheme-entity-label' }, '◷  В этом браузере'),
+                React.createElement('div', { className: 'vk-scheme-chips' },
+                  React.createElement('span', { className: 'vk-scheme-chip' }, '✦  бусины'),
+                  React.createElement('span', { className: 'vk-scheme-chip' }, '◷  серии'),
+                  React.createElement('span', { className: 'vk-scheme-chip' }, '☷  история')
+                )
+              ),
+              React.createElement('div', { className: 'vk-scheme-entity' },
+                React.createElement('span', { className: 'vk-scheme-entity-badge' }, 'после входа'),
+                React.createElement('div', { className: 'vk-scheme-entity-label' }, '✓  В Telegram-аккаунте'),
+                React.createElement('div', { className: 'vk-scheme-chips' },
+                  React.createElement('span', { className: 'vk-scheme-chip' }, '↺  любое устройство'),
+                  React.createElement('span', { className: 'vk-scheme-chip' }, '↺  не теряется')
+                )
+              )
+            ),
+            React.createElement('div', { className: 'vk-scheme-foot', style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, fontStyle: 'normal' } },
+              React.createElement('span', null, 'Очистишь кеш или сменишь устройство — локальный прогресс уйдёт.'),
+              React.createElement('button', {
+                className: 'vk-scheme-tag vk-scheme-tag--accent',
+                onClick: onLoginClick,
+                type: 'button',
+                style: { border: 'none', cursor: 'pointer' }
+              }, 'Войти →')
+            )
+          )
+        )
       )
     );
   }
@@ -313,6 +360,55 @@
           'Две практики Ясны. ',
           React.createElement('strong', { style: { color: 'var(--text-1)', fontWeight: 500 } }, 'Партия'), ' — 18 вопросов с вариантами ответа. ',
           React.createElement('strong', { style: { color: 'var(--text-1)', fontWeight: 500 } }, 'Расклад'), ' — расставить элементы по местам быстрее соперника.'
+        )
+      ),
+      // ─── Dark: VK-Scheme — как устроена Партия (4 шага) ───
+      React.createElement('div', { className: 'vk-scheme-block', style: { marginBottom: 'var(--space-5)' } },
+        React.createElement('div', { className: 'vk-scheme' },
+          React.createElement('div', { className: 'vk-scheme-canvas' },
+            React.createElement('div', { className: 'vk-scheme-header' },
+              React.createElement('h3', { className: 'vk-scheme-header-title' }, 'Как проходит одна Партия'),
+              React.createElement('span', { className: 'vk-scheme-tag vk-scheme-tag--accent' }, '~5 минут')
+            ),
+            React.createElement('ol', { className: 'vk-scheme-steps' },
+              React.createElement('li', { className: 'vk-scheme-step' },
+                React.createElement('div', { className: 'vk-scheme-num' },
+                  React.createElement('div', { className: 'vk-scheme-num-inner' }, '01')
+                ),
+                React.createElement('div', { className: 'vk-scheme-desc' },
+                  React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Выбор соперника'),
+                  React.createElement('div', { className: 'vk-scheme-desc-text' }, 'Тень (бот) или живой собеседник по ссылке-комнате')
+                )
+              ),
+              React.createElement('li', { className: 'vk-scheme-step' },
+                React.createElement('div', { className: 'vk-scheme-num' },
+                  React.createElement('div', { className: 'vk-scheme-num-inner' }, '02')
+                ),
+                React.createElement('div', { className: 'vk-scheme-desc' },
+                  React.createElement('div', { className: 'vk-scheme-desc-title' }, '18 вопросов · 6 тем по 3'),
+                  React.createElement('div', { className: 'vk-scheme-desc-text' }, '4 варианта ответа на каждом шаге, таймер бежит')
+                )
+              ),
+              React.createElement('li', { className: 'vk-scheme-step' },
+                React.createElement('div', { className: 'vk-scheme-num' },
+                  React.createElement('div', { className: 'vk-scheme-num-inner' }, '03')
+                ),
+                React.createElement('div', { className: 'vk-scheme-desc' },
+                  React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Бусины: +10 за верный · до +5 за скорость'),
+                  React.createElement('div', { className: 'vk-scheme-desc-text' }, 'Точность важнее темпа: правильный ответ всегда дороже быстрого')
+                )
+              ),
+              React.createElement('li', { className: 'vk-scheme-step' },
+                React.createElement('div', { className: 'vk-scheme-num' },
+                  React.createElement('div', { className: 'vk-scheme-num-inner' }, '04')
+                ),
+                React.createElement('div', { className: 'vk-scheme-desc' },
+                  React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Запись в Хронику и Партитуру'),
+                  React.createElement('div', { className: 'vk-scheme-desc-text' }, 'Партия попадает в твою историю, мастерство по темам растёт')
+                )
+              )
+            )
+          )
         )
       ),
       React.createElement('div', { className: 'dp-games-grid' },
@@ -1351,10 +1447,50 @@
           React.createElement('p', null,
             'Войди через Telegram. Бусины, серии и история партий будут жить с твоим аккаунтом.'),
 
-          React.createElement('ul', { className: 'dp-auth-perks' },
+          // ─── Light: оригинальный список перков ───
+          React.createElement('ul', { className: 'dp-auth-perks vk-light-only' },
             React.createElement('li', null, 'Партии с любого устройства — общий счёт'),
             React.createElement('li', null, 'Без паролей. Только имя и аватар из Telegram'),
             React.createElement('li', null, 'Гостевой прогресс сохранится — при логине он добавится к твоему')
+          ),
+          // ─── Dark: VK-Scheme — как работает синхронизация ───
+          React.createElement('div', { className: 'vk-scheme-block' },
+            React.createElement('div', { className: 'vk-scheme' },
+              React.createElement('div', { className: 'vk-scheme-canvas' },
+                React.createElement('div', { className: 'vk-scheme-header' },
+                  React.createElement('h3', { className: 'vk-scheme-header-title' }, 'Что даёт вход через Telegram')
+                ),
+                React.createElement('ol', { className: 'vk-scheme-steps' },
+                  React.createElement('li', { className: 'vk-scheme-step' },
+                    React.createElement('div', { className: 'vk-scheme-num' },
+                      React.createElement('div', { className: 'vk-scheme-num-inner' }, '01')
+                    ),
+                    React.createElement('div', { className: 'vk-scheme-desc' },
+                      React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Общий счёт между устройствами'),
+                      React.createElement('div', { className: 'vk-scheme-desc-text' }, 'Бусины и серии живут с твоим аккаунтом, а не с браузером')
+                    )
+                  ),
+                  React.createElement('li', { className: 'vk-scheme-step' },
+                    React.createElement('div', { className: 'vk-scheme-num' },
+                      React.createElement('div', { className: 'vk-scheme-num-inner' }, '02')
+                    ),
+                    React.createElement('div', { className: 'vk-scheme-desc' },
+                      React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Без паролей'),
+                      React.createElement('div', { className: 'vk-scheme-desc-text' }, 'Берём только имя и аватар из Telegram. Сообщения нам недоступны')
+                    )
+                  ),
+                  React.createElement('li', { className: 'vk-scheme-step' },
+                    React.createElement('div', { className: 'vk-scheme-num' },
+                      React.createElement('div', { className: 'vk-scheme-num-inner' }, '03')
+                    ),
+                    React.createElement('div', { className: 'vk-scheme-desc' },
+                      React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Гостевой прогресс не теряется'),
+                      React.createElement('div', { className: 'vk-scheme-desc-text' }, 'При логине бусины из этой сессии добавятся к твоему счёту')
+                    )
+                  )
+                )
+              )
+            )
           ),
 
           !baseUrl
