@@ -495,6 +495,86 @@
     );
   }
 
+  // ─── Pre-match preview — список тем перед стартом PvP ───────────
+  // Оба игрока видят темы, режим, аватары. Каждый жмёт «Готов».
+  // Как только оба готовы (или истёк 30-сек таймер) — стартует партия.
+  function TnPreMatch({ player, opponent, partiya, mode, playerReady, oppReady, onReady }){
+    const totalQ = partiya.reduce((s, r) => s + r.questions.length, 0);
+    const themesList = partiya.map(r => r.theme);
+    const modeLabel = mode === 'blitz' ? 'Блиц' : mode === 'expert' ? 'Эксперт' : 'Стандарт';
+    const modeMeta  = mode === 'blitz' ? '~2 мин' : mode === 'expert' ? '~9 мин' : '~5 мин';
+
+    // Авто-старт через 30 сек если оба готовы — и через 60 сек принудительно
+    const [countdown, setCountdown] = useState(60);
+    useEffect(() => {
+      const i = setInterval(() => setCountdown(c => Math.max(0, c - 1)), 1000);
+      return () => clearInterval(i);
+    }, []);
+    useEffect(() => {
+      if(countdown === 0 && !playerReady) onReady(); // авто-готов по таймауту
+    }, [countdown, playerReady, onReady]);
+
+    return React.createElement('div', { className: 'tn-fullscreen tn-prematch' },
+      React.createElement('div', { className: 'tn-container' },
+        React.createElement(TnTopBar, { eyebrow: '◐  Партия для двоих' }),
+        React.createElement('div', { className: 'tn-prematch-card' },
+          React.createElement('div', { className: 'tn-prematch-eyebrow' }, modeLabel, ' · ', totalQ, ' вопросов · ', modeMeta),
+          React.createElement('h1', { className: 'tn-prematch-title' }, 'Готовы?'),
+
+          // Аватары + ready-state
+          React.createElement('div', { className: 'tn-prematch-players' },
+            React.createElement('div', { className: 'tn-prematch-player' + (playerReady ? ' tn-prematch-player-ready' : '') },
+              React.createElement('div', { className: 'tn-prematch-avatar' }, renderTnAvatar(player.avatar, player.nickname)),
+              React.createElement('div', { className: 'tn-prematch-name' }, player.nickname),
+              React.createElement('div', { className: 'tn-prematch-status' },
+                playerReady ? '✓ Готов' : '◷ Не готов'
+              )
+            ),
+            React.createElement('div', { className: 'tn-prematch-vs' }, 'против'),
+            React.createElement('div', { className: 'tn-prematch-player' + (oppReady ? ' tn-prematch-player-ready' : '') },
+              React.createElement('div', { className: 'tn-prematch-avatar' }, opponent.glyph || renderTnAvatar(opponent.avatar, opponent.name) || '◐'),
+              React.createElement('div', { className: 'tn-prematch-name' }, opponent.name || 'Собеседник'),
+              React.createElement('div', { className: 'tn-prematch-status' },
+                oppReady ? '✓ Готов' : '◷ Думает…'
+              )
+            )
+          ),
+
+          // Список тем партии
+          React.createElement('div', { className: 'tn-prematch-themes-eyebrow' }, '☷  Темы партии'),
+          React.createElement('div', { className: 'tn-prematch-themes' },
+            themesList.map((t, i) =>
+              React.createElement('div', { key: i, className: 'tn-prematch-theme' },
+                React.createElement('span', { className: 'tn-prematch-theme-num' }, i + 1),
+                React.createElement('span', { className: 'tn-prematch-theme-name' }, t.name)
+              )
+            )
+          ),
+
+          // Кнопка «Готов» / «Жду собеседника»
+          !playerReady && React.createElement('button', {
+            className: 'tn-prematch-btn tn-prematch-btn-primary',
+            onClick: onReady,
+            type: 'button',
+            autoFocus: true
+          }, '✓ Готов'),
+          playerReady && !oppReady && React.createElement('div', { className: 'tn-prematch-waiting' },
+            React.createElement('span', { className: 'tn-prematch-waiting-spinner' }, '◷'),
+            React.createElement('span', null, 'Ждём собеседника… (', countdown, ' сек)')
+          ),
+          playerReady && oppReady && React.createElement('div', { className: 'tn-prematch-go' },
+            '✦ Все готовы — старт через мгновение'
+          ),
+
+          React.createElement('div', { className: 'tn-prematch-hint' },
+            'Оба видят одни вопросы в одном порядке.', React.createElement('br'),
+            'Если соперник не отвечает — авто-старт через 60 сек.'
+          )
+        )
+      )
+    );
+  }
+
   // ─── Mid-partiya recap — заставка на середине партии ─────────────
   // Показывает: прогресс N/total · текущий счёт · топ темы · слабая тема.
   // Авто-продвижение через 4 сек или по клику «Дальше».
@@ -1118,6 +1198,10 @@
     // Mid-partiya recap — показывается один раз за партию
     const [midRecapShown, setMidRecapShown] = useState(false);
 
+    // Pre-match preview ready-states (только для PvP)
+    const [playerReady, setPlayerReady] = useState(false);
+    const [oppReady, setOppReady] = useState(false);
+
     // ─── PvP: Sync Партии и обмен ответами ───
     // Map по qId — каждый ответ соперника привязан к конкретному вопросу.
     // Это решает race-condition: если ответ на вопрос N приходит когда мы
@@ -1146,6 +1230,10 @@
         }
         if(msg.t === 'opp-leave'){
           setOppDisconnected(true);
+        }
+        // Pre-match preview: «соперник готов» сигнал
+        if(msg.t === 'ready'){
+          setOppReady(true);
         }
       });
 
@@ -1337,12 +1425,43 @@
 
     function startAgain(){ onClose(); }
 
+    // Авто-переход из preview в intro когда оба готовы
+    React.useEffect(() => {
+      if(phase === 'preview' && playerReady && oppReady){
+        const t = setTimeout(() => setPhase('intro'), 800);
+        return () => clearTimeout(t);
+      }
+    }, [phase, playerReady, oppReady]);
+
+    function onPlayerReady(){
+      setPlayerReady(true);
+      if(isPvP && transport){
+        try { transport.send({ t: 'ready' }); } catch(_){}
+      }
+    }
+
     if(phase === 'vs'){
       return React.createElement(VsScreen, {
         player,
         opponent: { name: opp.name, subtitle: opp.level === 'easy' ? 'Лёгкая' : (opp.level === 'hard' ? 'Сильная' : 'Средняя') },
         themes: partiya,
-        onReady: () => setPhase('intro')
+        // Для PvP идём в preview (оба нажмут «Готов»). Для shadow — сразу в intro.
+        onReady: () => setPhase(isPvP && partiya ? 'preview' : 'intro')
+      });
+    }
+    if(phase === 'preview'){
+      // На случай если у гостя partiya ещё не подгрузилась — заглушка
+      if(!partiya) return React.createElement('div', { className: 'tn-fullscreen' },
+        React.createElement('div', { className: 'tn-container' },
+          React.createElement('div', { className: 'tn-prematch-card', style: { textAlign: 'center', padding: '40px 24px' } },
+            React.createElement('div', { style: { fontSize: 32, marginBottom: 16, opacity: 0.6 } }, '◷'),
+            React.createElement('div', null, 'Ждём настройку партии от собеседника…')
+          )
+        )
+      );
+      return React.createElement(TnPreMatch, {
+        player, opponent: opp, partiya, mode: partiyaMode,
+        playerReady, oppReady, onReady: onPlayerReady
       });
     }
     if(phase === 'intro'){

@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-08T17:06:56.435Z */
+/* Yasna bundle: duel.js — собран 2026-05-08T17:18:38.053Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5292,7 +5292,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-08T17:06:55.572Z", "contentVersion": "1.1.0", "files": 1, "themes": 1, "atomsTotal": 32, "questionsTotal": 10, "questionsLegacy": 5 };
+  const BUILD_INFO = { "builtAt": "2026-05-08T17:18:37.653Z", "contentVersion": "1.1.0", "files": 1, "themes": 1, "atomsTotal": 32, "questionsTotal": 10, "questionsLegacy": 5 };
   const THEMES = [
     {
       "id": "chto-est-yasna",

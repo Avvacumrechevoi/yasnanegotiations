@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-08T17:06:56.839Z */
+/* Yasna bundle: duel.js — собран 2026-05-08T17:18:38.579Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5292,7 +5292,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-08T17:06:55.572Z", "contentVersion": "1.1.0", "files": 1, "themes": 1, "atomsTotal": 32, "questionsTotal": 10, "questionsLegacy": 5 };
+  const BUILD_INFO = { "builtAt": "2026-05-08T17:18:37.653Z", "contentVersion": "1.1.0", "files": 1, "themes": 1, "atomsTotal": 32, "questionsTotal": 10, "questionsLegacy": 5 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -7468,6 +7468,102 @@ window.YasnaCore = {
       React.createElement("span", { className: "tn-feedback-text" }, "\u0412\u0440\u0435\u043C\u044F \u0432\u044B\u0448\u043B\u043E")
     );
   }
+  function TnPreMatch({ player, opponent, partiya, mode, playerReady, oppReady, onReady }) {
+    const totalQ = partiya.reduce((s, r) => s + r.questions.length, 0);
+    const themesList = partiya.map((r) => r.theme);
+    const modeLabel = mode === "blitz" ? "\u0411\u043B\u0438\u0446" : mode === "expert" ? "\u042D\u043A\u0441\u043F\u0435\u0440\u0442" : "\u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442";
+    const modeMeta = mode === "blitz" ? "~2 \u043C\u0438\u043D" : mode === "expert" ? "~9 \u043C\u0438\u043D" : "~5 \u043C\u0438\u043D";
+    const [countdown, setCountdown] = useState(60);
+    useEffect(() => {
+      const i = setInterval(() => setCountdown((c) => Math.max(0, c - 1)), 1e3);
+      return () => clearInterval(i);
+    }, []);
+    useEffect(() => {
+      if (countdown === 0 && !playerReady) onReady();
+    }, [countdown, playerReady, onReady]);
+    return React.createElement(
+      "div",
+      { className: "tn-fullscreen tn-prematch" },
+      React.createElement(
+        "div",
+        { className: "tn-container" },
+        React.createElement(TnTopBar, { eyebrow: "\u25D0  \u041F\u0430\u0440\u0442\u0438\u044F \u0434\u043B\u044F \u0434\u0432\u043E\u0438\u0445" }),
+        React.createElement(
+          "div",
+          { className: "tn-prematch-card" },
+          React.createElement("div", { className: "tn-prematch-eyebrow" }, modeLabel, " \xB7 ", totalQ, " \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \xB7 ", modeMeta),
+          React.createElement("h1", { className: "tn-prematch-title" }, "\u0413\u043E\u0442\u043E\u0432\u044B?"),
+          // Аватары + ready-state
+          React.createElement(
+            "div",
+            { className: "tn-prematch-players" },
+            React.createElement(
+              "div",
+              { className: "tn-prematch-player" + (playerReady ? " tn-prematch-player-ready" : "") },
+              React.createElement("div", { className: "tn-prematch-avatar" }, renderTnAvatar(player.avatar, player.nickname)),
+              React.createElement("div", { className: "tn-prematch-name" }, player.nickname),
+              React.createElement(
+                "div",
+                { className: "tn-prematch-status" },
+                playerReady ? "\u2713 \u0413\u043E\u0442\u043E\u0432" : "\u25F7 \u041D\u0435 \u0433\u043E\u0442\u043E\u0432"
+              )
+            ),
+            React.createElement("div", { className: "tn-prematch-vs" }, "\u043F\u0440\u043E\u0442\u0438\u0432"),
+            React.createElement(
+              "div",
+              { className: "tn-prematch-player" + (oppReady ? " tn-prematch-player-ready" : "") },
+              React.createElement("div", { className: "tn-prematch-avatar" }, opponent.glyph || renderTnAvatar(opponent.avatar, opponent.name) || "\u25D0"),
+              React.createElement("div", { className: "tn-prematch-name" }, opponent.name || "\u0421\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A"),
+              React.createElement(
+                "div",
+                { className: "tn-prematch-status" },
+                oppReady ? "\u2713 \u0413\u043E\u0442\u043E\u0432" : "\u25F7 \u0414\u0443\u043C\u0430\u0435\u0442\u2026"
+              )
+            )
+          ),
+          // Список тем партии
+          React.createElement("div", { className: "tn-prematch-themes-eyebrow" }, "\u2637  \u0422\u0435\u043C\u044B \u043F\u0430\u0440\u0442\u0438\u0438"),
+          React.createElement(
+            "div",
+            { className: "tn-prematch-themes" },
+            themesList.map(
+              (t, i) => React.createElement(
+                "div",
+                { key: i, className: "tn-prematch-theme" },
+                React.createElement("span", { className: "tn-prematch-theme-num" }, i + 1),
+                React.createElement("span", { className: "tn-prematch-theme-name" }, t.name)
+              )
+            )
+          ),
+          // Кнопка «Готов» / «Жду собеседника»
+          !playerReady && React.createElement("button", {
+            className: "tn-prematch-btn tn-prematch-btn-primary",
+            onClick: onReady,
+            type: "button",
+            autoFocus: true
+          }, "\u2713 \u0413\u043E\u0442\u043E\u0432"),
+          playerReady && !oppReady && React.createElement(
+            "div",
+            { className: "tn-prematch-waiting" },
+            React.createElement("span", { className: "tn-prematch-waiting-spinner" }, "\u25F7"),
+            React.createElement("span", null, "\u0416\u0434\u0451\u043C \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430\u2026 (", countdown, " \u0441\u0435\u043A)")
+          ),
+          playerReady && oppReady && React.createElement(
+            "div",
+            { className: "tn-prematch-go" },
+            "\u2726 \u0412\u0441\u0435 \u0433\u043E\u0442\u043E\u0432\u044B \u2014 \u0441\u0442\u0430\u0440\u0442 \u0447\u0435\u0440\u0435\u0437 \u043C\u0433\u043D\u043E\u0432\u0435\u043D\u0438\u0435"
+          ),
+          React.createElement(
+            "div",
+            { className: "tn-prematch-hint" },
+            "\u041E\u0431\u0430 \u0432\u0438\u0434\u044F\u0442 \u043E\u0434\u043D\u0438 \u0432\u043E\u043F\u0440\u043E\u0441\u044B \u0432 \u043E\u0434\u043D\u043E\u043C \u043F\u043E\u0440\u044F\u0434\u043A\u0435.",
+            React.createElement("br"),
+            "\u0415\u0441\u043B\u0438 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A \u043D\u0435 \u043E\u0442\u0432\u0435\u0447\u0430\u0435\u0442 \u2014 \u0430\u0432\u0442\u043E-\u0441\u0442\u0430\u0440\u0442 \u0447\u0435\u0440\u0435\u0437 60 \u0441\u0435\u043A."
+          )
+        )
+      )
+    );
+  }
   function TnMidRecap({ qOverall, totalOverall, scoreP, scoreO, totalBusey, streakPeak, partiyaLog, opponent, player, onContinue }) {
     useEffect(() => {
       const t = setTimeout(() => onContinue(), 4500);
@@ -8133,6 +8229,8 @@ window.YasnaCore = {
       return 1;
     }
     const [midRecapShown, setMidRecapShown] = useState(false);
+    const [playerReady, setPlayerReady] = useState(false);
+    const [oppReady, setOppReady] = useState(false);
     const oppAnswersRef = useRef({});
     useEffect(() => {
       if (!isPvP || !transport) return;
@@ -8153,6 +8251,9 @@ window.YasnaCore = {
         }
         if (msg.t === "opp-leave") {
           setOppDisconnected(true);
+        }
+        if (msg.t === "ready") {
+          setOppReady(true);
         }
       });
       if (role === "host" && partiya) {
@@ -8337,12 +8438,53 @@ window.YasnaCore = {
     function startAgain() {
       onClose();
     }
+    React.useEffect(() => {
+      if (phase === "preview" && playerReady && oppReady) {
+        const t = setTimeout(() => setPhase("intro"), 800);
+        return () => clearTimeout(t);
+      }
+    }, [phase, playerReady, oppReady]);
+    function onPlayerReady() {
+      setPlayerReady(true);
+      if (isPvP && transport) {
+        try {
+          transport.send({ t: "ready" });
+        } catch (_) {
+        }
+      }
+    }
     if (phase === "vs") {
       return React.createElement(VsScreen, {
         player,
         opponent: { name: opp.name, subtitle: opp.level === "easy" ? "\u041B\u0451\u0433\u043A\u0430\u044F" : opp.level === "hard" ? "\u0421\u0438\u043B\u044C\u043D\u0430\u044F" : "\u0421\u0440\u0435\u0434\u043D\u044F\u044F" },
         themes: partiya,
-        onReady: () => setPhase("intro")
+        // Для PvP идём в preview (оба нажмут «Готов»). Для shadow — сразу в intro.
+        onReady: () => setPhase(isPvP && partiya ? "preview" : "intro")
+      });
+    }
+    if (phase === "preview") {
+      if (!partiya) return React.createElement(
+        "div",
+        { className: "tn-fullscreen" },
+        React.createElement(
+          "div",
+          { className: "tn-container" },
+          React.createElement(
+            "div",
+            { className: "tn-prematch-card", style: { textAlign: "center", padding: "40px 24px" } },
+            React.createElement("div", { style: { fontSize: 32, marginBottom: 16, opacity: 0.6 } }, "\u25F7"),
+            React.createElement("div", null, "\u0416\u0434\u0451\u043C \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0443 \u043F\u0430\u0440\u0442\u0438\u0438 \u043E\u0442 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430\u2026")
+          )
+        )
+      );
+      return React.createElement(TnPreMatch, {
+        player,
+        opponent: opp,
+        partiya,
+        mode: partiyaMode,
+        playerReady,
+        oppReady,
+        onReady: onPlayerReady
       });
     }
     if (phase === "intro") {
