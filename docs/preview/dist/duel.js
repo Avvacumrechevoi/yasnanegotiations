@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-08T15:17:52.610Z */
+/* Yasna bundle: duel.js — собран 2026-05-08T15:30:57.054Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -7127,9 +7127,9 @@ window.YasnaCore = {
       React.createElement(
         "nav",
         { className: "dp-header-nav" },
-        React.createElement("a", { href: "#hronika", onClick: onAnchorClick("hronika") }, "\u0425\u0440\u043E\u043D\u0438\u043A\u0430"),
+        React.createElement("a", { href: "#hronika", onClick: onAnchorClick("hronika") }, "\u0422\u043E\u043F \u043D\u0435\u0434\u0435\u043B\u0438"),
         React.createElement("a", { href: "#zhurnal", onClick: onAnchorClick("zhurnal") }, "\u0416\u0443\u0440\u043D\u0430\u043B"),
-        React.createElement("a", { href: "#znaki", onClick: onAnchorClick("znaki") }, "\u0417\u043D\u0430\u043A\u0438"),
+        React.createElement("a", { href: "#znaki", onClick: onAnchorClick("znaki") }, "\u0414\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F"),
         React.createElement(
           "div",
           { className: "dp-header-auth", ref: helpRef, style: { position: "relative" } },
@@ -7142,15 +7142,15 @@ window.YasnaCore = {
           helpOpen && React.createElement(
             "div",
             { className: "dp-help-popover" },
-            React.createElement("h4", null, "\u0422\u0440\u0435\u043D\u0430\u0436\u0451\u0440 \u042F\u0441\u043D\u044B"),
-            React.createElement("div", null, "\u0422\u0438\u0445\u043E\u0435 \u043C\u0435\u0441\u0442\u043E, \u0433\u0434\u0435 \u0438\u0433\u0440\u0430\u044E\u0442 \u0432 \u0431\u0438\u0441\u0435\u0440. \u041F\u0430\u0440\u0442\u0438\u044F \u2014 \u0432\u043E\u0441\u0435\u043C\u043D\u0430\u0434\u0446\u0430\u0442\u044C \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u0438\u0437 \u0448\u0435\u0441\u0442\u0438 \u0441\u043B\u0443\u0447\u0430\u0439\u043D\u044B\u0445 \u0442\u0435\u043C. \u0421\u043E\u043F\u0435\u0440\u043D\u0438\u043A \u2014 \u0422\u0435\u043D\u044C \u0438\u043B\u0438 \u0436\u0438\u0432\u043E\u0439 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A."),
+            React.createElement("h4", null, "\u041A\u0430\u043A \u044D\u0442\u043E \u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442"),
+            React.createElement("div", null, "\u041F\u0430\u0440\u0442\u0438\u044F \u2014 \u0438\u0433\u0440\u043E\u0432\u0430\u044F \u0432\u0438\u043A\u0442\u043E\u0440\u0438\u043D\u0430 \u0438\u0437 18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u043D\u0430 6 \u0442\u0435\u043C \u043C\u043E\u0434\u0435\u043B\u0438 \u042F\u0441\u043D\u044B. \u0421\u043E\u043F\u0435\u0440\u043D\u0438\u043A \u2014 \u0422\u0435\u043D\u044C-\u0431\u043E\u0442 \u0438\u043B\u0438 \u0436\u0438\u0432\u043E\u0439 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435."),
             React.createElement(
               "ul",
               null,
-              React.createElement("li", null, React.createElement("strong", null, "\u0411\u0443\u0441\u0438\u043D\u044B \u2726"), " \u2014 \u0442\u0432\u043E\u0438 \u043E\u0447\u043A\u0438. \u0417\u0430 \u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 + \u0431\u043E\u043D\u0443\u0441 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438."),
-              React.createElement("li", null, React.createElement("strong", null, "\u0421\u0442\u0443\u043F\u0435\u043D\u044C"), " \u2014 \u043E\u0442 \u041F\u043E\u0441\u043B\u0443\u0448\u043D\u0438\u043A\u0430 \u0434\u043E \u041C\u0430\u0433\u0438\u0441\u0442\u0440\u0430."),
-              React.createElement("li", null, React.createElement("strong", null, "\u041E\u0441\u0432\u043E\u0435\u043D\u0438\u0435 \u0442\u0435\u043C"), " \u2014 \u043A\u0430\u0440\u0442\u0430 9 \u0442\u0435\u043C \u043C\u043E\u0434\u0435\u043B\u0438 \xAB\u0421\u0443\u0442\u043A\u0438\xBB \u0441 \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441\u043E\u043C."),
-              React.createElement("li", null, React.createElement("strong", null, "\u0425\u0440\u043E\u043D\u0438\u043A\u0430"), " \u2014 \u0442\u043E\u043F \u0438\u0433\u0440\u043E\u043A\u043E\u0432 \u043D\u0435\u0434\u0435\u043B\u0438.")
+              React.createElement("li", null, React.createElement("strong", null, "\u0411\u0443\u0441\u0438\u043D\u044B \u2726"), " \u2014 \u043E\u0447\u043A\u0438 \u0437\u0430 \u043F\u0430\u0440\u0442\u0438\u0438. +10 \u0437\u0430 \u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442, +5 \u0431\u043E\u043D\u0443\u0441 \u0437\u0430 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u044C."),
+              React.createElement("li", null, React.createElement("strong", null, "\u0421\u0442\u0443\u043F\u0435\u043D\u044C"), " \u2014 \u0442\u0432\u043E\u0439 \u0443\u0440\u043E\u0432\u0435\u043D\u044C. \u0420\u0430\u0441\u0442\u0451\u0442 \u043F\u043E \u0431\u0443\u0441\u0438\u043D\u0430\u043C: \u043E\u0442 \u041F\u043E\u0441\u043B\u0443\u0448\u043D\u0438\u043A\u0430 \u0434\u043E \u041C\u0430\u0433\u0438\u0441\u0442\u0440\u0430."),
+              React.createElement("li", null, React.createElement("strong", null, "\u041E\u0441\u0432\u043E\u0435\u043D\u0438\u0435 \u0442\u0435\u043C"), " \u2014 \u043A\u0430\u0440\u0442\u0430 9 \u0442\u0435\u043C \xAB\u042F\u0441\u043D\u044B \u0421\u0443\u0442\u043E\u043A\xBB \u0441 \u0442\u0432\u043E\u0438\u043C \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441\u043E\u043C."),
+              React.createElement("li", null, React.createElement("strong", null, "\u0422\u043E\u043F \u043D\u0435\u0434\u0435\u043B\u0438"), " \u2014 \u043B\u0438\u0434\u0435\u0440\u0431\u043E\u0440\u0434 \u043F\u043E \u0431\u0443\u0441\u0438\u043D\u0430\u043C, \u043E\u0431\u043D\u0443\u043B\u044F\u0435\u0442\u0441\u044F \u0432 \u0441\u0443\u0431\u0431\u043E\u0442\u0443 23:59.")
             )
           ),
           user ? React.createElement("button", { className: "dp-btn-text", onClick: onLogout, style: { marginLeft: 6 } }, "\u0412\u044B\u0439\u0442\u0438") : React.createElement("button", {
@@ -7158,6 +7158,45 @@ window.YasnaCore = {
             onClick: onLoginClick,
             style: { padding: "8px 16px", fontSize: 13, marginLeft: 6 }
           }, "\u0412\u043E\u0439\u0442\u0438")
+        )
+      )
+    );
+  }
+  function DPHeroCTA({ onPartiya, onUzor }) {
+    return React.createElement(
+      "div",
+      { className: "vk-scheme-block dp-hero-cta-row" },
+      React.createElement(
+        "button",
+        {
+          className: "dp-hero-cta-btn dp-hero-cta-btn--primary",
+          onClick: onPartiya,
+          type: "button",
+          "aria-label": "\u041D\u0430\u0447\u0430\u0442\u044C \u043F\u0430\u0440\u0442\u0438\u044E"
+        },
+        React.createElement("span", { className: "dp-hero-cta-icon", "aria-hidden": "true" }, "\u25B6"),
+        React.createElement(
+          "span",
+          { className: "dp-hero-cta-body" },
+          React.createElement("span", { className: "dp-hero-cta-title" }, "\u0418\u0433\u0440\u0430\u0442\u044C \u041F\u0430\u0440\u0442\u0438\u044E"),
+          React.createElement("span", { className: "dp-hero-cta-sub" }, "18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \xB7 ~5 \u043C\u0438\u043D\u0443\u0442 \xB7 \u0422\u0435\u043D\u044C \u0438\u043B\u0438 \u0434\u0440\u0443\u0433")
+        )
+      ),
+      React.createElement(
+        "button",
+        {
+          className: "dp-hero-cta-btn dp-hero-cta-btn--ghost",
+          onClick: onUzor,
+          type: "button",
+          disabled: true,
+          title: "\u0418\u0433\u0440\u0430 \u0432 \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0435"
+        },
+        React.createElement("span", { className: "dp-hero-cta-icon", "aria-hidden": "true" }, "\u25F7"),
+        React.createElement(
+          "span",
+          { className: "dp-hero-cta-body" },
+          React.createElement("span", { className: "dp-hero-cta-title" }, "\u0420\u0430\u0441\u043A\u043B\u0430\u0434"),
+          React.createElement("span", { className: "dp-hero-cta-sub" }, "PvP \xB7 \u0441\u043A\u043E\u0440\u043E")
         )
       )
     );
@@ -7251,7 +7290,7 @@ window.YasnaCore = {
           React.createElement("span", { className: "dp-hero-name" }, me.nickname),
           React.createElement("span", {
             className: "dp-hero-rank-pill dp-tip",
-            "data-tip": "\u0421\u0442\u0443\u043F\u0435\u043D\u044C \u2014 \u0442\u0432\u043E\u0439 \u0443\u0440\u043E\u0432\u0435\u043D\u044C \u0432 \u041A\u0430\u0441\u0442\u0430\u043B\u0438\u0438. \u0420\u0430\u0441\u0442\u0451\u0442 \u043F\u043E \u0431\u0443\u0441\u0438\u043D\u0430\u043C. \u0412\u044B\u0448\u0435 \u0441\u0442\u0443\u043F\u0435\u043D\u044C \u2014 \u0433\u043B\u0443\u0431\u0436\u0435 \u043F\u0443\u0442\u044C."
+            "data-tip": "\u0421\u0442\u0443\u043F\u0435\u043D\u044C \u2014 \u0442\u0432\u043E\u0439 \u0443\u0440\u043E\u0432\u0435\u043D\u044C. \u0427\u0435\u043C \u0431\u043E\u043B\u044C\u0448\u0435 \u043F\u0430\u0440\u0442\u0438\u0439 \u0438 \u0442\u043E\u0447\u043D\u0435\u0435 \u043E\u0442\u0432\u0435\u0442\u044B \u2014 \u0442\u0435\u043C \u0432\u044B\u0448\u0435: \u041F\u043E\u0441\u043B\u0443\u0448\u043D\u0438\u043A \u2192 \u0421\u0442\u0443\u0434\u0435\u043D\u0442 \u2192 \u041C\u0430\u0433\u0438\u0441\u0442\u0440."
           }, stupen.name, " ", toRoman(stupen.subLevel))
         ),
         React.createElement(
@@ -7259,10 +7298,10 @@ window.YasnaCore = {
           { className: "dp-hero-stats" },
           React.createElement("span", {
             className: "dp-hero-bead dp-tip",
-            "data-tip": "\u0411\u0443\u0441\u0438\u043D\u044B \u2726 \u2014 \u043E\u0447\u043A\u0438 \u043E\u043F\u044B\u0442\u0430. +10 \u0437\u0430 \u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442, +5 \u0431\u043E\u043D\u0443\u0441 \u0437\u0430 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u044C. \u0418\u0437 \u0431\u0443\u0441\u0438\u043D \u0441\u043A\u043B\u0430\u0434\u044B\u0432\u0430\u0435\u0442\u0441\u044F \u0441\u0442\u0443\u043F\u0435\u043D\u044C."
+            "data-tip": "\u0411\u0443\u0441\u0438\u043D\u044B \u2726 \u2014 \u043E\u0447\u043A\u0438 \u0437\u0430 \u043F\u0430\u0440\u0442\u0438\u0438. 10 \u0437\u0430 \u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 + \u0434\u043E 5 \u0431\u043E\u043D\u0443\u0441\u043D\u044B\u0445 \u0437\u0430 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u044C. \u0418\u0437 \u0431\u0443\u0441\u0438\u043D \u0441\u043A\u043B\u0430\u0434\u044B\u0432\u0430\u0435\u0442\u0441\u044F \u0441\u0442\u0443\u043F\u0435\u043D\u044C."
           }, "\u2726 ", busey),
           React.createElement("span", { className: "dp-hero-stats-sep" }, "\xB7"),
-          React.createElement("span", null, games, " ", Term("\u043F\u0430\u0440\u0442\u0438\u0439", "\u041F\u0430\u0440\u0442\u0438\u044F \u2014 \u0438\u0433\u0440\u043E\u0432\u0430\u044F \u0441\u0435\u0441\u0441\u0438\u044F \u0438\u0437 18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u043F\u043E 6 \u0442\u0435\u043C\u0430\u043C \u042F\u0441\u043D\u044B. \u0414\u043B\u0438\u0442\u0441\u044F \u043E\u043A\u043E\u043B\u043E 5 \u043C\u0438\u043D\u0443\u0442."))
+          React.createElement("span", null, games, " ", Term("\u043F\u0430\u0440\u0442\u0438\u0439", "\u041F\u0430\u0440\u0442\u0438\u044F \u2014 \u0432\u0438\u043A\u0442\u043E\u0440\u0438\u043D\u0430 \u0438\u0437 18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u043D\u0430 6 \u0442\u0435\u043C \u043C\u043E\u0434\u0435\u043B\u0438 \u042F\u0441\u043D\u044B. \u0418\u0434\u0451\u0442 \u043E\u043A\u043E\u043B\u043E 5 \u043C\u0438\u043D\u0443\u0442."))
         ),
         React.createElement(
           "div",
@@ -7686,7 +7725,7 @@ window.YasnaCore = {
           null,
           IconScroll(),
           " ",
-          Term("\u0425\u0440\u043E\u043D\u0438\u043A\u0430 \u043D\u0435\u0434\u0435\u043B\u0438", "\u0425\u0440\u043E\u043D\u0438\u043A\u0430 \u2014 \u0442\u043E\u043F \u0438\u0433\u0440\u043E\u043A\u043E\u0432 \u043D\u0435\u0434\u0435\u043B\u0438 \u043F\u043E \u0431\u0443\u0441\u0438\u043D\u0430\u043C. \u041E\u0431\u043D\u0443\u043B\u044F\u0435\u0442\u0441\u044F \u0432 \u0441\u0443\u0431\u0431\u043E\u0442\u0443 23:59.")
+          Term("\u0422\u043E\u043F \u043D\u0435\u0434\u0435\u043B\u0438", "\u041B\u0438\u0434\u0435\u0440\u0431\u043E\u0440\u0434 \u2014 \u043A\u0442\u043E \u0437\u0430\u0440\u0430\u0431\u043E\u0442\u0430\u043B \u0431\u043E\u043B\u044C\u0448\u0435 \u0431\u0443\u0441\u0438\u043D \u0437\u0430 \u044D\u0442\u0443 \u043D\u0435\u0434\u0435\u043B\u044E. \u041E\u0431\u043D\u0443\u043B\u044F\u0435\u0442\u0441\u044F \u0432 \u0441\u0443\u0431\u0431\u043E\u0442\u0443 23:59.")
         ),
         React.createElement("span", { className: "dp-card-meta" }, "\u0421\u0431 23:59")
       ),
@@ -7772,7 +7811,7 @@ window.YasnaCore = {
           null,
           IconStar(),
           " ",
-          Term("\u0414\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F", "\u0414\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F \u2014 \u043E\u0442\u043A\u0440\u044B\u0432\u0430\u044E\u0442\u0441\u044F \u0437\u0430 \u0443\u043F\u043E\u0440\u0441\u0442\u0432\u043E, \u0441\u0435\u0440\u0438\u0438 \u0438 \u043F\u043E\u0431\u0435\u0434\u044B.")
+          Term("\u0414\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F", "\u0417\u043D\u0430\u043A\u0438 \u0437\u0430 \u0443\u043F\u043E\u0440\u0441\u0442\u0432\u043E \u2014 \u0441\u0435\u0440\u0438\u0438 \u043F\u0430\u0440\u0442\u0438\u0439, \u0442\u043E\u0447\u043D\u044B\u0435 \u043E\u0442\u0432\u0435\u0442\u044B, \u043F\u043E\u0431\u0435\u0434\u044B \u043D\u0430\u0434 \u0422\u0435\u043D\u044C\u044E \u0440\u0430\u0437\u043D\u043E\u0439 \u0441\u043B\u043E\u0436\u043D\u043E\u0441\u0442\u0438.")
         ),
         React.createElement("span", { className: "dp-card-meta" }, unlocked.length, " / ", all.length)
       ),
@@ -7838,7 +7877,7 @@ window.YasnaCore = {
       React.createElement(
         "div",
         { className: "dp-card-h" },
-        React.createElement("h3", null, IconJournal(), " ", Term("\u0416\u0443\u0440\u043D\u0430\u043B", "\u0416\u0443\u0440\u043D\u0430\u043B \u2014 \u0442\u0432\u043E\u044F \u043B\u0438\u0447\u043D\u0430\u044F \u043B\u0435\u0442\u043E\u043F\u0438\u0441\u044C \u043F\u043E\u0441\u043B\u0435\u0434\u043D\u0438\u0445 \u043F\u0430\u0440\u0442\u0438\u0439.")),
+        React.createElement("h3", null, IconJournal(), " ", Term("\u0416\u0443\u0440\u043D\u0430\u043B", "\u0418\u0441\u0442\u043E\u0440\u0438\u044F \u0442\u0432\u043E\u0438\u0445 \u043F\u043E\u0441\u043B\u0435\u0434\u043D\u0438\u0445 \u043F\u0430\u0440\u0442\u0438\u0439 \u2014 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A, \u0441\u0447\u0451\u0442, \u0442\u043E\u0447\u043D\u043E\u0441\u0442\u044C.")),
         React.createElement("span", { className: "dp-card-meta" }, matches.length > 0 ? matches.length + " \u043F\u043E\u0441\u043B\u0435\u0434\u043D\u0438\u0445" : "")
       ),
       matches.length === 0 ? React.createElement("div", { className: "dp-card-empty" }, "\u041F\u0430\u0440\u0442\u0438\u0439 \u0435\u0449\u0451 \u043D\u0435 \u0431\u044B\u043B\u043E.", React.createElement("br"), "\u041D\u0430\u0447\u043D\u0438 \u2014 \u0437\u0434\u0435\u0441\u044C \u043F\u043E\u044F\u0432\u0438\u0442\u0441\u044F \u043F\u0435\u0440\u0432\u0430\u044F \u0437\u0430\u043F\u0438\u0441\u044C.") : React.createElement(
@@ -9013,6 +9052,7 @@ window.YasnaCore = {
         "main",
         { id: "main" },
         React.createElement(DPCastaliaTitle, null),
+        React.createElement(DPHeroCTA, { onPartiya: askPartiyaMode, onUzor: startUzorPvP }),
         React.createElement(DPProfileHero, { user, profile, onLoginClick, remoteProfile }),
         React.createElement(DPSyncNotice, { user, onLoginClick }),
         React.createElement(DPMainGames, { onPartiya: askPartiyaMode, onUzor: startUzorPvP }),

@@ -340,3 +340,173 @@ body.theme-vk-dark .vk-light-only { display: none !important; }
     padding: 20px;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   DPHeroCTA — крупные «play now» кнопки сразу под H1
+   Большая primary с акцентом + ghost-вторая. Цель: первое намерение
+   игрока решается одним кликом без скроллинга.
+   ═══════════════════════════════════════════════════════════════════ */
+body.theme-vk-dark .dp-hero-cta-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin: 24px 0 32px;
+}
+
+@media (max-width: 767px) {
+  body.theme-vk-dark .dp-hero-cta-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin: 20px 0 24px;
+  }
+}
+
+body.theme-vk-dark .dp-hero-cta-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  border-radius: 20px;
+  border: 1px solid var(--border-1);
+  background: var(--bg-surface);
+  color: var(--text-1);
+  font-family: 'Manrope', system-ui, sans-serif;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 200ms ease, box-shadow 200ms ease, background 200ms ease, border-color 200ms ease;
+  position: relative;
+  overflow: hidden;
+}
+
+body.theme-vk-dark .dp-hero-cta-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.40);
+}
+
+body.theme-vk-dark .dp-hero-cta-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+body.theme-vk-dark .dp-hero-cta-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Primary вариант — акцентная заливка, лёгкий glow */
+body.theme-vk-dark .dp-hero-cta-btn--primary {
+  background: linear-gradient(135deg, var(--accent) 0%, #0066d9 100%);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow:
+    0 0 0 1px rgba(1, 135, 246, 0.4),
+    0 8px 24px rgba(1, 135, 246, 0.25);
+}
+body.theme-vk-dark .dp-hero-cta-btn--primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2199ff 0%, var(--accent) 100%);
+  box-shadow:
+    0 0 0 1px rgba(1, 135, 246, 0.6),
+    0 16px 40px rgba(1, 135, 246, 0.40);
+}
+
+/* Анимация пульсации иконки play */
+body.theme-vk-dark .dp-hero-cta-btn--primary .dp-hero-cta-icon {
+  animation: pulsePlay 2.4s ease-in-out infinite;
+}
+@keyframes pulsePlay {
+  0%, 70%, 100% { transform: scale(1); opacity: 1; }
+  35% { transform: scale(1.12); opacity: 0.85; }
+}
+
+/* Иконка слева — крупная */
+body.theme-vk-dark .dp-hero-cta-icon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 600;
+}
+body.theme-vk-dark .dp-hero-cta-btn--ghost .dp-hero-cta-icon {
+  background: var(--bg-tonal);
+  color: var(--text-2);
+}
+
+/* Текст справа от иконки */
+body.theme-vk-dark .dp-hero-cta-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+body.theme-vk-dark .dp-hero-cta-title {
+  font-size: 20px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+body.theme-vk-dark .dp-hero-cta-sub {
+  font-size: 13px;
+  line-height: 18px;
+  opacity: 0.80;
+  font-weight: 400;
+}
+body.theme-vk-dark .dp-hero-cta-btn--ghost .dp-hero-cta-sub {
+  color: var(--text-3);
+  opacity: 1;
+}
+
+/* Декоративный shine — пробежка по primary при загрузке */
+body.theme-vk-dark .dp-hero-cta-btn--primary::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  animation: shineSweep 4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes shineSweep {
+  0%, 80%, 100% { left: -100%; }
+  35% { left: 150%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.theme-vk-dark .dp-hero-cta-btn--primary::after,
+  body.theme-vk-dark .dp-hero-cta-btn--primary .dp-hero-cta-icon {
+    animation: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Карточки игр — больше ИГРОВОГО feel: свечение под primary,
+   крупная иконка-эмодзи слева, разделитель внизу карточки.
+   ═══════════════════════════════════════════════════════════════════ */
+body.theme-vk-dark .dp-game-card.dp-game-primary::before {
+  content: '✦';
+  position: absolute;
+  top: 16px;
+  right: 24px;
+  font-size: 56px;
+  line-height: 1;
+  opacity: 0.08;
+  color: var(--accent);
+  pointer-events: none;
+  transition: transform 400ms ease, opacity 400ms ease;
+}
+body.theme-vk-dark .dp-game-card.dp-game-primary:hover::before {
+  transform: scale(1.15) rotate(15deg);
+  opacity: 0.18;
+}
+body.theme-vk-dark .dp-game-card {
+  position: relative;
+  overflow: hidden;
+}
+/* Под dp-game-meta — отступ, подчёркивающий что это карточка действия */
+body.theme-vk-dark .dp-game-card .dp-game-meta {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-2);
+}

@@ -164,9 +164,9 @@
       ),
       React.createElement('div', { className: 'dp-header-spacer' }),
       React.createElement('nav', { className: 'dp-header-nav' },
-        React.createElement('a', { href: '#hronika', onClick: onAnchorClick('hronika') }, 'Хроника'),
+        React.createElement('a', { href: '#hronika', onClick: onAnchorClick('hronika') }, 'Топ недели'),
         React.createElement('a', { href: '#zhurnal', onClick: onAnchorClick('zhurnal') }, 'Журнал'),
-        React.createElement('a', { href: '#znaki', onClick: onAnchorClick('znaki') }, 'Знаки'),
+        React.createElement('a', { href: '#znaki', onClick: onAnchorClick('znaki') }, 'Достижения'),
         React.createElement('div', { className: 'dp-header-auth', ref: helpRef, style: { position: 'relative' } },
           React.createElement('button', {
             className: 'dp-help-btn',
@@ -175,13 +175,13 @@
             'aria-expanded': helpOpen
           }, '?'),
           helpOpen && React.createElement('div', { className: 'dp-help-popover' },
-            React.createElement('h4', null, 'Тренажёр Ясны'),
-            React.createElement('div', null, 'Тихое место, где играют в бисер. Партия — восемнадцать вопросов из шести случайных тем. Соперник — Тень или живой собеседник.'),
+            React.createElement('h4', null, 'Как это работает'),
+            React.createElement('div', null, 'Партия — игровая викторина из 18 вопросов на 6 тем модели Ясны. Соперник — Тень-бот или живой собеседник по ссылке.'),
             React.createElement('ul', null,
-              React.createElement('li', null, React.createElement('strong', null, 'Бусины ✦'), ' — твои очки. За верный ответ + бонус скорости.'),
-              React.createElement('li', null, React.createElement('strong', null, 'Ступень'), ' — от Послушника до Магистра.'),
-              React.createElement('li', null, React.createElement('strong', null, 'Освоение тем'), ' — карта 9 тем модели «Сутки» с прогрессом.'),
-              React.createElement('li', null, React.createElement('strong', null, 'Хроника'), ' — топ игроков недели.')
+              React.createElement('li', null, React.createElement('strong', null, 'Бусины ✦'), ' — очки за партии. +10 за верный ответ, +5 бонус за скорость.'),
+              React.createElement('li', null, React.createElement('strong', null, 'Ступень'), ' — твой уровень. Растёт по бусинам: от Послушника до Магистра.'),
+              React.createElement('li', null, React.createElement('strong', null, 'Освоение тем'), ' — карта 9 тем «Ясны Суток» с твоим прогрессом.'),
+              React.createElement('li', null, React.createElement('strong', null, 'Топ недели'), ' — лидерборд по бусинам, обнуляется в субботу 23:59.')
             )
           ),
           user
@@ -191,6 +191,39 @@
                 onClick: onLoginClick,
                 style: { padding: '8px 16px', fontSize: 13, marginLeft: 6 }
               }, 'Войти')
+        )
+      )
+    );
+  }
+
+  // ─── Hero CTA — крупные кнопки «играть прямо сейчас» (только Dark) ─
+  // Видно сразу под H1, до карточки профиля. Цель — чтобы первое
+  // намерение «как сыграть» решалось одним кликом.
+  function DPHeroCTA({ onPartiya, onUzor }){
+    return React.createElement('div', { className: 'vk-scheme-block dp-hero-cta-row' },
+      React.createElement('button', {
+        className: 'dp-hero-cta-btn dp-hero-cta-btn--primary',
+        onClick: onPartiya,
+        type: 'button',
+        'aria-label': 'Начать партию'
+      },
+        React.createElement('span', { className: 'dp-hero-cta-icon', 'aria-hidden': 'true' }, '▶'),
+        React.createElement('span', { className: 'dp-hero-cta-body' },
+          React.createElement('span', { className: 'dp-hero-cta-title' }, 'Играть Партию'),
+          React.createElement('span', { className: 'dp-hero-cta-sub' }, '18 вопросов · ~5 минут · Тень или друг')
+        )
+      ),
+      React.createElement('button', {
+        className: 'dp-hero-cta-btn dp-hero-cta-btn--ghost',
+        onClick: onUzor,
+        type: 'button',
+        disabled: true,
+        title: 'Игра в разработке'
+      },
+        React.createElement('span', { className: 'dp-hero-cta-icon', 'aria-hidden': 'true' }, '◷'),
+        React.createElement('span', { className: 'dp-hero-cta-body' },
+          React.createElement('span', { className: 'dp-hero-cta-title' }, 'Расклад'),
+          React.createElement('span', { className: 'dp-hero-cta-sub' }, 'PvP · скоро')
         )
       )
     );
@@ -275,16 +308,16 @@
           React.createElement('span', { className: 'dp-hero-name' }, me.nickname),
           React.createElement('span', {
             className: 'dp-hero-rank-pill dp-tip',
-            'data-tip': 'Ступень — твой уровень в Касталии. Растёт по бусинам. Выше ступень — глубже путь.'
+            'data-tip': 'Ступень — твой уровень. Чем больше партий и точнее ответы — тем выше: Послушник → Студент → Магистр.'
           }, stupen.name, ' ', toRoman(stupen.subLevel))
         ),
         React.createElement('div', { className: 'dp-hero-stats' },
           React.createElement('span', {
             className: 'dp-hero-bead dp-tip',
-            'data-tip': 'Бусины ✦ — очки опыта. +10 за верный ответ, +5 бонус за скорость. Из бусин складывается ступень.'
+            'data-tip': 'Бусины ✦ — очки за партии. 10 за верный ответ + до 5 бонусных за скорость. Из бусин складывается ступень.'
           }, '✦ ', busey),
           React.createElement('span', { className: 'dp-hero-stats-sep' }, '·'),
-          React.createElement('span', null, games, ' ', Term('партий', 'Партия — игровая сессия из 18 вопросов по 6 темам Ясны. Длится около 5 минут.'))
+          React.createElement('span', null, games, ' ', Term('партий', 'Партия — викторина из 18 вопросов на 6 тем модели Ясны. Идёт около 5 минут.'))
         ),
         React.createElement('div', { className: 'dp-hero-progress', 'aria-label': 'Прогресс ступени' },
           React.createElement('div', { className: 'dp-hero-progress-fill', style: { width: pct + '%' } })
@@ -594,7 +627,7 @@
     return React.createElement('div', { className: 'dp-card', id: 'hronika' },
       React.createElement('div', { className: 'dp-card-h' },
         React.createElement('h3', null, IconScroll(), ' ',
-          Term('Хроника недели', 'Хроника — топ игроков недели по бусинам. Обнуляется в субботу 23:59.')
+          Term('Топ недели', 'Лидерборд — кто заработал больше бусин за эту неделю. Обнуляется в субботу 23:59.')
         ),
         React.createElement('span', { className: 'dp-card-meta' }, 'Сб 23:59')
       ),
@@ -659,7 +692,7 @@
     return React.createElement('div', { className: 'dp-card', id: 'znaki' },
       React.createElement('div', { className: 'dp-card-h' },
         React.createElement('h3', null, IconStar(), ' ',
-          Term('Достижения', 'Достижения — открываются за упорство, серии и победы.')
+          Term('Достижения', 'Знаки за упорство — серии партий, точные ответы, победы над Тенью разной сложности.')
         ),
         React.createElement('span', { className: 'dp-card-meta' }, unlocked.length, ' / ', all.length)
       ),
@@ -729,7 +762,7 @@
 
     return React.createElement('div', { className: 'dp-card', id: 'zhurnal' },
       React.createElement('div', { className: 'dp-card-h' },
-        React.createElement('h3', null, IconJournal(), ' ', Term('Журнал', 'Журнал — твоя личная летопись последних партий.')),
+        React.createElement('h3', null, IconJournal(), ' ', Term('Журнал', 'История твоих последних партий — соперник, счёт, точность.')),
         React.createElement('span', { className: 'dp-card-meta' }, matches.length > 0 ? matches.length + ' последних' : '')
       ),
       matches.length === 0
@@ -1752,6 +1785,7 @@
         ? React.createElement(DPWelcome, { onLoginClick, onAnonStart: () => setAnonModal(true) })
         : React.createElement('main', { id: 'main' },
             React.createElement(DPCastaliaTitle, null),
+            React.createElement(DPHeroCTA, { onPartiya: askPartiyaMode, onUzor: startUzorPvP }),
             React.createElement(DPProfileHero, { user, profile, onLoginClick, remoteProfile }),
             React.createElement(DPSyncNotice, { user, onLoginClick }),
             React.createElement(DPMainGames, { onPartiya: askPartiyaMode, onUzor: startUzorPvP }),
