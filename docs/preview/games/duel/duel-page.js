@@ -273,12 +273,18 @@
       React.createElement('div', { className: 'dp-hero-body' },
         React.createElement('div', { className: 'dp-hero-name-row' },
           React.createElement('span', { className: 'dp-hero-name' }, me.nickname),
-          React.createElement('span', { className: 'dp-hero-rank-pill' }, stupen.name, ' ', toRoman(stupen.subLevel))
+          React.createElement('span', {
+            className: 'dp-hero-rank-pill dp-tip',
+            'data-tip': 'Ступень — твой уровень в Касталии. Растёт по бусинам. Выше ступень — глубже путь.'
+          }, stupen.name, ' ', toRoman(stupen.subLevel))
         ),
         React.createElement('div', { className: 'dp-hero-stats' },
-          React.createElement('span', { className: 'dp-hero-bead' }, '✦ ', busey),
+          React.createElement('span', {
+            className: 'dp-hero-bead dp-tip',
+            'data-tip': 'Бусины ✦ — очки опыта. +10 за верный ответ, +5 бонус за скорость. Из бусин складывается ступень.'
+          }, '✦ ', busey),
           React.createElement('span', { className: 'dp-hero-stats-sep' }, '·'),
-          React.createElement('span', null, games, ' ', Term('партий', 'Партия — игровая сессия из восемнадцати вопросов по шести темам.'))
+          React.createElement('span', null, games, ' ', Term('партий', 'Партия — игровая сессия из 18 вопросов по 6 темам Ясны. Длится около 5 минут.'))
         ),
         React.createElement('div', { className: 'dp-hero-progress', 'aria-label': 'Прогресс ступени' },
           React.createElement('div', { className: 'dp-hero-progress-fill', style: { width: pct + '%' } })

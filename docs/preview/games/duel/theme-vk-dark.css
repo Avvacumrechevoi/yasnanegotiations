@@ -1666,3 +1666,188 @@ body.theme-vk-dark .vk-sysmsg-action--accent:hover {
     height: 24px;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   ADAPTIVE HEADLINE — заголовок Касталии в одну строку на десктопе
+   На широких экранах (≥900) скрываем явный <br>, текст течёт сам.
+   На узких — оставляем перенос как есть.
+   ═══════════════════════════════════════════════════════════════════ */
+@media (min-width: 900px) {
+  body.theme-vk-dark .dp-castalia-h1 br,
+  body.theme-vk-dark .dp-welcome-title br {
+    display: none;
+  }
+  body.theme-vk-dark .dp-castalia-h1 span:first-child::after {
+    content: ' ';
+  }
+  body.theme-vk-dark .dp-castalia-h1 {
+    white-space: normal;
+    word-break: keep-all;
+    overflow-wrap: normal;
+  }
+}
+
+/* На очень больших экранах — чуть меньше шрифт чтобы влезло гарантированно */
+@media (min-width: 1280px) {
+  body.theme-vk-dark .dp-castalia-h1 {
+    font-size: 64px;
+    line-height: 1.04;
+  }
+}
+@media (min-width: 900px) and (max-width: 1279px) {
+  body.theme-vk-dark .dp-castalia-h1 {
+    font-size: 48px;
+    line-height: 1.08;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   VK Tooltip — Figma node 3:191264
+   Tokens: Background #151515 · Padding 16/16 · Radius 12
+            Title 17/28 Regular · Text 15/20 Regular · Content gap 12
+   ─────────────────────────────────────────────────────────────────
+   Перекрывает .dp-term::after (раньше использовал --text-1 как фон,
+   что в Dark было #FEFEFE → белый на белом → пустое окошко).
+   ═══════════════════════════════════════════════════════════════════ */
+body.theme-vk-dark .dp-term {
+  border-bottom: 1px dotted var(--text-3);
+  cursor: help;
+}
+body.theme-vk-dark .dp-term:hover::after,
+body.theme-vk-dark .dp-term:focus-visible::after {
+  /* VK Tooltip background: Components/Tooltip/Background Default */
+  background: #151515;
+  /* VK Tooltip text colors */
+  color: #fefefe;
+  /* VK Tooltip padding 16/16 */
+  padding: 12px 16px;
+  /* VK Tooltip border radius 12 */
+  border-radius: 12px;
+  /* VK Tooltip Text: 15/20 Regular */
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: 0;
+  /* Размеры */
+  max-width: 320px;
+  width: max-content;
+  white-space: normal;
+  /* Тень — VK use no shadow but soft glow на тёмном фоне */
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 8px 24px rgba(0, 0, 0, 0.50);
+  /* Анимация появления */
+  animation: vkTooltipIn 150ms ease-out;
+}
+@keyframes vkTooltipIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-2px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+}
+
+/* Маленькая стрелочка снизу tooltip — направление вниз */
+body.theme-vk-dark .dp-term:hover::before,
+body.theme-vk-dark .dp-term:focus-visible::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-1px);
+  border: 5px solid transparent;
+  border-top-color: #151515;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* Если data-tip пустой — не показываем tooltip вообще */
+body.theme-vk-dark .dp-term[data-tip=""]::after,
+body.theme-vk-dark .dp-term:not([data-tip])::after {
+  display: none;
+}
+
+/* Расширенный tooltip с заголовком (data-tip-title="" + data-tip="") */
+body.theme-vk-dark .dp-term[data-tip-title]:hover::after,
+body.theme-vk-dark .dp-term[data-tip-title]:focus-visible::after {
+  content: attr(data-tip-title) "\A" attr(data-tip);
+  white-space: pre-line;
+  padding: 16px;
+  max-width: 360px;
+}
+body.theme-vk-dark .dp-term[data-tip-title]:hover::after::first-line,
+body.theme-vk-dark .dp-term[data-tip-title]:focus-visible::after::first-line {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+}
+
+/* Mobile — увеличиваем тач-зону и сдвигаем чтобы не вылетал за край */
+@media (max-width: 767px) {
+  body.theme-vk-dark .dp-term:hover::after,
+  body.theme-vk-dark .dp-term:focus-visible::after {
+    max-width: calc(100vw - 32px);
+    font-size: 13px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   .dp-tip — quiet tooltip, без визуального индикатора у родителя.
+   Применяется к pill-ам, badge-ам, иконкам, где dotted-underline
+   ломал бы оформление. Tooltip показывается по hover/focus так же,
+   как у .dp-term, но в той же VK-стилистике.
+   Работает ТОЛЬКО в Dark — в Light осторожно с tooltip-ами на pill.
+   ═══════════════════════════════════════════════════════════════════ */
+body.theme-vk-dark .dp-tip {
+  position: relative;
+  cursor: help;
+}
+body.theme-vk-dark .dp-tip:hover::after,
+body.theme-vk-dark .dp-tip:focus-visible::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  background: #151515;
+  color: #fefefe;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: 0;
+  max-width: 320px;
+  width: max-content;
+  white-space: normal;
+  z-index: 100;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 8px 24px rgba(0, 0, 0, 0.50);
+  animation: vkTooltipIn 150ms ease-out;
+}
+/* Стрелочка вниз */
+body.theme-vk-dark .dp-tip:hover::before,
+body.theme-vk-dark .dp-tip:focus-visible::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-3px);
+  border: 5px solid transparent;
+  border-top-color: #151515;
+  pointer-events: none;
+  z-index: 100;
+}
+body.theme-vk-dark .dp-tip[data-tip=""]::after,
+body.theme-vk-dark .dp-tip:not([data-tip])::after {
+  display: none;
+}
+@media (max-width: 767px) {
+  body.theme-vk-dark .dp-tip:hover::after,
+  body.theme-vk-dark .dp-tip:focus-visible::after {
+    max-width: calc(100vw - 32px);
+    font-size: 13px;
+  }
+}
