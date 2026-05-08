@@ -1907,94 +1907,110 @@
           className: 'dp-auth-overlay',
           onClick: e => { if(e.target === e.currentTarget) setPartiyaPicker(null); }
         },
-          React.createElement('div', { className: 'dp-auth-modal dp-partiya-picker', role: 'dialog', 'aria-modal': 'true' },
+          React.createElement('div', { className: 'dp-auth-modal dp-partiya-picker dp-partiya-picker--v2', role: 'dialog', 'aria-modal': 'true' },
             React.createElement('button', { className: 'dp-auth-x', onClick: () => setPartiyaPicker(null), 'aria-label': 'Отмена' }, '×'),
-            React.createElement('div', { className: 'dp-auth-eyebrow' }, '✦  Партия'),
-            React.createElement('h2', null, 'Какая партия?'),
 
-            // ─── Шаг 1: длительность ───
-            React.createElement('div', { className: 'dp-mode-grid' },
-              modes.map(m =>
-                React.createElement('button', {
-                  key: m.id,
-                  className: 'dp-mode-btn' + (mode === m.id ? ' dp-mode-btn-active' : ''),
-                  onClick: () => setMode(m.id),
-                  type: 'button'
-                },
-                  React.createElement('div', { className: 'dp-mode-btn-count' }, m.count),
-                  React.createElement('div', { className: 'dp-mode-btn-label' }, m.label),
-                  React.createElement('div', { className: 'dp-mode-btn-time' }, m.time)
+            // ─── Heading ───
+            React.createElement('div', { className: 'dp-picker-head' },
+              React.createElement('div', { className: 'dp-auth-eyebrow' }, '✦  Партия'),
+              React.createElement('h2', null, 'Какая партия?')
+            ),
+
+            // ═════ СЕКЦИЯ 1: Длительность ═════
+            React.createElement('section', { className: 'dp-picker-section' },
+              React.createElement('div', { className: 'dp-picker-section-eyebrow' }, '◷  Длительность'),
+              React.createElement('div', { className: 'dp-mode-grid' },
+                modes.map(m =>
+                  React.createElement('button', {
+                    key: m.id,
+                    className: 'dp-mode-btn' + (mode === m.id ? ' dp-mode-btn-active' : ''),
+                    onClick: () => setMode(m.id),
+                    type: 'button'
+                  },
+                    React.createElement('div', { className: 'dp-mode-btn-count' }, m.count),
+                    React.createElement('div', { className: 'dp-mode-btn-label' }, m.label),
+                    React.createElement('div', { className: 'dp-mode-btn-time' }, m.time)
+                  )
                 )
+              ),
+              React.createElement('p', { className: 'dp-mode-desc' },
+                cur.id === 'blitz'    ? 'Короткий разогрев. 5 тем по 2 вопроса.' :
+                cur.id === 'expert'   ? 'Глубокий заход. 6 тем по 5 вопросов.' :
+                                         'Основной режим. 6 тем по 3 вопроса.'
               )
             ),
 
-            React.createElement('p', { className: 'dp-mode-desc' },
-              cur.label, ' — ', cur.count, ' вопросов · ',
-              cur.id === 'blitz'    ? 'короткий разогрев' :
-              cur.id === 'expert'   ? 'глубокий заход, 6 тем по 5 вопросов' :
-                                       '6 тем по 3 вопроса'
-            ),
-
-            // ─── Шаг 1.5: темы (раскрывающаяся) ───
-            React.createElement('button', {
-              className: 'dp-themes-toggle',
-              onClick: () => setExpanded(!expanded),
-              type: 'button',
-              'aria-expanded': expanded
-            },
-              React.createElement('span', { className: 'dp-themes-toggle-icon' }, expanded ? '▾' : '▸'),
-              React.createElement('span', { className: 'dp-themes-toggle-label' },
-                isAllSelected ? 'Темы: все (' + allThemes.length + ')' : 'Темы: ' + selectedCount + ' из ' + allThemes.length
+            // ═════ СЕКЦИЯ 2: Темы ═════
+            React.createElement('section', { className: 'dp-picker-section' },
+              React.createElement('div', { className: 'dp-picker-section-head' },
+                React.createElement('div', { className: 'dp-picker-section-eyebrow' }, '☷  Темы'),
+                React.createElement('div', { className: 'dp-picker-section-meta' },
+                  isAllSelected
+                    ? 'все ' + allThemes.length
+                    : selectedCount + ' из ' + allThemes.length,
+                  !isAllSelected && React.createElement('button', {
+                    className: 'dp-themes-reset',
+                    onClick: resetThemes,
+                    type: 'button'
+                  }, '↺ сбросить')
+                )
               ),
-              !isAllSelected && React.createElement('span', {
-                className: 'dp-themes-reset',
-                onClick: (e) => { e.stopPropagation(); resetThemes(); }
-              }, 'сбросить')
+              // Темы как чипы — всегда видны
+              React.createElement('div', { className: 'dp-themes-list dp-themes-list--chips' },
+                allThemes.map(t => {
+                  const checked = isAllSelected || selectedSet.has(t.id);
+                  return React.createElement('button', {
+                    key: t.id,
+                    type: 'button',
+                    onClick: () => toggleTheme(t.id),
+                    className: 'dp-theme-chip' + (checked ? ' dp-theme-chip-checked' : ''),
+                    'aria-pressed': checked
+                  },
+                    React.createElement('span', { className: 'dp-theme-chip-icon', 'aria-hidden': 'true' },
+                      checked ? '✓' : ''
+                    ),
+                    React.createElement('span', { className: 'dp-theme-chip-name' }, t.short || t.name)
+                  );
+                })
+              ),
+              !enoughThemes && React.createElement('div', { className: 'dp-themes-warn' },
+                '⚠  Для режима ', cur.label, ' нужно минимум ', minThemesForMode[mode], '. Сейчас: ', selectedCount, '.'
+              )
             ),
 
-            expanded && React.createElement('div', { className: 'dp-themes-list' },
-              allThemes.map(t => {
-                const checked = isAllSelected || selectedSet.has(t.id);
-                return React.createElement('label', {
-                  key: t.id,
-                  className: 'dp-theme-item' + (checked ? ' dp-theme-item-checked' : '')
+            // ═════ СЕКЦИЯ 3: С кем играешь ═════
+            React.createElement('section', { className: 'dp-picker-section' },
+              React.createElement('div', { className: 'dp-picker-section-eyebrow' }, '◐  Соперник'),
+              React.createElement('div', { className: 'dp-opponent-grid' },
+                React.createElement('button', {
+                  className: 'dp-opponent-btn',
+                  onClick: () => {
+                    if(!enoughThemes) return;
+                    setPartiyaPicker(null);
+                    startPartiyaWithShadow('medium', mode, selectedThemes);
+                  },
+                  disabled: !enoughThemes,
+                  type: 'button'
                 },
-                  React.createElement('input', {
-                    type: 'checkbox',
-                    checked: checked,
-                    onChange: () => toggleTheme(t.id)
-                  }),
-                  React.createElement('span', { className: 'dp-theme-emoji', 'aria-hidden': 'true' }, t.emoji || '◇'),
-                  React.createElement('span', { className: 'dp-theme-name' }, t.short || t.name)
-                );
-              })
-            ),
-
-            !enoughThemes && expanded && React.createElement('div', { className: 'dp-themes-warn' },
-              '⚠  Для режима ', cur.label, ' нужно минимум ', minThemesForMode[mode], ' тем. Сейчас: ', selectedCount, '.'
-            ),
-
-            // ─── Шаг 2: соперник ───
-            React.createElement('div', { className: 'dp-mode-eyebrow' }, '◐  С кем'),
-            React.createElement('div', { style: { display: 'grid', gap: 8, marginTop: 8 } },
-              React.createElement('button', {
-                className: 'dp-btn',
-                onClick: () => {
-                  if(!enoughThemes) return;
-                  setPartiyaPicker(null);
-                  startPartiyaWithShadow('medium', mode, selectedThemes);
+                  React.createElement('div', { className: 'dp-opponent-icon', 'aria-hidden': 'true' }, '🌗'),
+                  React.createElement('div', { className: 'dp-opponent-body' },
+                    React.createElement('div', { className: 'dp-opponent-title' }, 'Соло'),
+                    React.createElement('div', { className: 'dp-opponent-sub' }, 'Против Тени-бота')
+                  )
+                ),
+                React.createElement('button', {
+                  className: 'dp-opponent-btn dp-opponent-btn--accent',
+                  onClick: startPartiyaPvP,
+                  disabled: !enoughThemes,
+                  type: 'button'
                 },
-                disabled: !enoughThemes,
-                style: { padding: '14px 18px', justifyContent: 'flex-start', textAlign: 'left' }
-              }, '🌗  ', React.createElement('span', { style: { fontWeight: 500, marginLeft: 4 } }, 'Соло против Тени'),
-                React.createElement('span', { style: { fontSize: 12, color: 'var(--text-3)', marginLeft: 'auto' } }, '· бот')),
-              React.createElement('button', {
-                className: 'dp-btn dp-btn-primary',
-                onClick: startPartiyaPvP,
-                disabled: !enoughThemes,
-                style: { padding: '14px 18px', justifyContent: 'flex-start', textAlign: 'left' }
-              }, '◐◑  ', React.createElement('span', { style: { fontWeight: 500, marginLeft: 4 } }, 'Вдвоём с другом'),
-                React.createElement('span', { style: { fontSize: 12, opacity: 0.85, marginLeft: 'auto' } }, '· real-time'))
+                  React.createElement('div', { className: 'dp-opponent-icon', 'aria-hidden': 'true' }, '◐◑'),
+                  React.createElement('div', { className: 'dp-opponent-body' },
+                    React.createElement('div', { className: 'dp-opponent-title' }, 'Вдвоём'),
+                    React.createElement('div', { className: 'dp-opponent-sub' }, 'С другом по ссылке')
+                  )
+                )
+              )
             )
           )
         );

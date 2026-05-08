@@ -1584,3 +1584,256 @@ body.theme-vk-dark .tn-prematch-waiting {
   .tn-prematch-vs { font-size: 13px; }
   .tn-prematch-theme { font-size: 12px; padding: 6px 10px; }
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   PARTIYA PICKER v2 — секционный layout с eyebrow и разделителями
+   ════════════════════════════════════════════════════════════════════ */
+.dp-partiya-picker--v2 {
+  max-width: 520px;
+  padding: 0;
+  overflow: hidden;
+}
+.dp-picker-head {
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid var(--border-2);
+}
+body.theme-vk-dark .dp-picker-head {
+  border-bottom-color: var(--vk-border);
+}
+.dp-picker-head h2 {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 4px 0 0;
+}
+
+/* Секции — каждая с padding и нижним divider */
+.dp-picker-section {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-2);
+}
+.dp-picker-section:last-of-type {
+  border-bottom: none;
+}
+body.theme-vk-dark .dp-picker-section {
+  border-bottom-color: var(--vk-border);
+}
+
+.dp-picker-section-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--text-3);
+  margin-bottom: 14px;
+}
+body.theme-vk-dark .dp-picker-section-eyebrow {
+  color: var(--vk-text-secondary);
+}
+
+.dp-picker-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.dp-picker-section-head .dp-picker-section-eyebrow {
+  margin-bottom: 0;
+}
+.dp-picker-section-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+body.theme-vk-dark .dp-picker-section-meta {
+  color: var(--vk-text-secondary);
+}
+.dp-picker-section-meta .dp-themes-reset {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+body.theme-vk-dark .dp-picker-section-meta .dp-themes-reset {
+  color: var(--vk-accent-hover);
+}
+.dp-picker-section-meta .dp-themes-reset:hover {
+  background: var(--accent-soft);
+}
+body.theme-vk-dark .dp-picker-section-meta .dp-themes-reset:hover {
+  background: rgba(0, 119, 255, 0.10);
+}
+
+/* Тема как чип */
+.dp-themes-list--chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  grid-template-columns: none;
+  max-height: none;
+  overflow: visible;
+  padding: 0;
+}
+.dp-theme-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  background: transparent;
+  border: 1px solid var(--border-1);
+  border-radius: 100px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all 150ms ease;
+  user-select: none;
+}
+.dp-theme-chip:hover {
+  border-color: var(--text-3);
+  color: var(--text-1);
+}
+.dp-theme-chip-checked {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.dp-theme-chip-checked:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+body.theme-vk-dark .dp-theme-chip {
+  background: var(--vk-bg-tonal);
+  border-color: var(--vk-border);
+  color: var(--vk-text-secondary);
+}
+body.theme-vk-dark .dp-theme-chip:hover {
+  background: var(--vk-bg-strong);
+  color: var(--vk-text-primary);
+}
+body.theme-vk-dark .dp-theme-chip-checked {
+  background: rgba(0, 119, 255, 0.16);
+  border-color: var(--vk-accent-hover);
+  color: var(--vk-accent-hover);
+}
+body.theme-vk-dark .dp-theme-chip-checked:hover {
+  background: rgba(0, 119, 255, 0.20);
+  color: var(--vk-accent-hover);
+}
+.dp-theme-chip-icon {
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  line-height: 1;
+}
+.dp-theme-chip-checked .dp-theme-chip-icon::before {
+  /* галочка отрисована текстом */
+}
+
+/* Соперник — две равные карточки */
+.dp-opponent-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.dp-opponent-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border-1);
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: all 150ms ease;
+}
+.dp-opponent-btn:hover:not(:disabled) {
+  border-color: var(--text-3);
+  background: var(--bg-tonal);
+}
+.dp-opponent-btn:active { transform: scale(0.99); }
+.dp-opponent-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+body.theme-vk-dark .dp-opponent-btn {
+  background: var(--vk-bg-tonal);
+  border-color: var(--vk-border);
+  color: var(--vk-text-primary);
+}
+body.theme-vk-dark .dp-opponent-btn:hover:not(:disabled) {
+  background: var(--vk-bg-strong);
+  border-color: var(--vk-text-tertiary);
+}
+
+/* Accent-вариант (Вдвоём с другом) */
+.dp-opponent-btn--accent {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.dp-opponent-btn--accent:hover:not(:disabled) {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+body.theme-vk-dark .dp-opponent-btn--accent {
+  background: rgba(0, 119, 255, 0.12);
+  border-color: var(--vk-accent);
+  color: var(--vk-accent-hover);
+  box-shadow: 0 0 0 1px var(--vk-accent), 0 4px 12px rgba(0, 119, 255, 0.20);
+}
+body.theme-vk-dark .dp-opponent-btn--accent:hover:not(:disabled) {
+  background: rgba(0, 119, 255, 0.20);
+  color: var(--vk-accent-hover);
+}
+
+.dp-opponent-icon {
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.dp-opponent-body {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.dp-opponent-title {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 22px;
+  letter-spacing: -0.005em;
+  color: inherit;
+}
+.dp-opponent-sub {
+  font-size: 12px;
+  color: var(--text-3);
+  line-height: 16px;
+}
+body.theme-vk-dark .dp-opponent-sub {
+  color: var(--vk-text-secondary);
+  opacity: 0.85;
+}
+
+@media (max-width: 480px) {
+  .dp-partiya-picker--v2 { max-width: 100%; }
+  .dp-picker-section { padding: 16px 16px; }
+  .dp-picker-head { padding: 20px 16px 12px; }
+  .dp-picker-head h2 { font-size: 24px; }
+  .dp-opponent-grid { grid-template-columns: 1fr; }
+  .dp-theme-chip { font-size: 12px; padding: 6px 11px; }
+}

@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-08T20:16:38.427Z */
+/* Yasna bundle: duel.js — собран 2026-05-08T20:25:05.139Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5292,7 +5292,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-08T20:16:36.724Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
+  const BUILD_INFO = { "builtAt": "2026-05-08T20:25:03.983Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -22024,125 +22024,143 @@ window.YasnaCore = {
           },
           React.createElement(
             "div",
-            { className: "dp-auth-modal dp-partiya-picker", role: "dialog", "aria-modal": "true" },
+            { className: "dp-auth-modal dp-partiya-picker dp-partiya-picker--v2", role: "dialog", "aria-modal": "true" },
             React.createElement("button", { className: "dp-auth-x", onClick: () => setPartiyaPicker(null), "aria-label": "\u041E\u0442\u043C\u0435\u043D\u0430" }, "\xD7"),
-            React.createElement("div", { className: "dp-auth-eyebrow" }, "\u2726  \u041F\u0430\u0440\u0442\u0438\u044F"),
-            React.createElement("h2", null, "\u041A\u0430\u043A\u0430\u044F \u043F\u0430\u0440\u0442\u0438\u044F?"),
-            // ─── Шаг 1: длительность ───
+            // ─── Heading ───
             React.createElement(
               "div",
-              { className: "dp-mode-grid" },
-              modes.map(
-                (m) => React.createElement(
-                  "button",
-                  {
-                    key: m.id,
-                    className: "dp-mode-btn" + (mode === m.id ? " dp-mode-btn-active" : ""),
-                    onClick: () => setMode(m.id),
-                    type: "button"
-                  },
-                  React.createElement("div", { className: "dp-mode-btn-count" }, m.count),
-                  React.createElement("div", { className: "dp-mode-btn-label" }, m.label),
-                  React.createElement("div", { className: "dp-mode-btn-time" }, m.time)
+              { className: "dp-picker-head" },
+              React.createElement("div", { className: "dp-auth-eyebrow" }, "\u2726  \u041F\u0430\u0440\u0442\u0438\u044F"),
+              React.createElement("h2", null, "\u041A\u0430\u043A\u0430\u044F \u043F\u0430\u0440\u0442\u0438\u044F?")
+            ),
+            // ═════ СЕКЦИЯ 1: Длительность ═════
+            React.createElement(
+              "section",
+              { className: "dp-picker-section" },
+              React.createElement("div", { className: "dp-picker-section-eyebrow" }, "\u25F7  \u0414\u043B\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u044C"),
+              React.createElement(
+                "div",
+                { className: "dp-mode-grid" },
+                modes.map(
+                  (m) => React.createElement(
+                    "button",
+                    {
+                      key: m.id,
+                      className: "dp-mode-btn" + (mode === m.id ? " dp-mode-btn-active" : ""),
+                      onClick: () => setMode(m.id),
+                      type: "button"
+                    },
+                    React.createElement("div", { className: "dp-mode-btn-count" }, m.count),
+                    React.createElement("div", { className: "dp-mode-btn-label" }, m.label),
+                    React.createElement("div", { className: "dp-mode-btn-time" }, m.time)
+                  )
                 )
+              ),
+              React.createElement(
+                "p",
+                { className: "dp-mode-desc" },
+                cur.id === "blitz" ? "\u041A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0440\u0430\u0437\u043E\u0433\u0440\u0435\u0432. 5 \u0442\u0435\u043C \u043F\u043E 2 \u0432\u043E\u043F\u0440\u043E\u0441\u0430." : cur.id === "expert" ? "\u0413\u043B\u0443\u0431\u043E\u043A\u0438\u0439 \u0437\u0430\u0445\u043E\u0434. 6 \u0442\u0435\u043C \u043F\u043E 5 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432." : "\u041E\u0441\u043D\u043E\u0432\u043D\u043E\u0439 \u0440\u0435\u0436\u0438\u043C. 6 \u0442\u0435\u043C \u043F\u043E 3 \u0432\u043E\u043F\u0440\u043E\u0441\u0430."
               )
             ),
+            // ═════ СЕКЦИЯ 2: Темы ═════
             React.createElement(
-              "p",
-              { className: "dp-mode-desc" },
-              cur.label,
-              " \u2014 ",
-              cur.count,
-              " \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \xB7 ",
-              cur.id === "blitz" ? "\u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0440\u0430\u0437\u043E\u0433\u0440\u0435\u0432" : cur.id === "expert" ? "\u0433\u043B\u0443\u0431\u043E\u043A\u0438\u0439 \u0437\u0430\u0445\u043E\u0434, 6 \u0442\u0435\u043C \u043F\u043E 5 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432" : "6 \u0442\u0435\u043C \u043F\u043E 3 \u0432\u043E\u043F\u0440\u043E\u0441\u0430"
-            ),
-            // ─── Шаг 1.5: темы (раскрывающаяся) ───
-            React.createElement(
-              "button",
-              {
-                className: "dp-themes-toggle",
-                onClick: () => setExpanded(!expanded),
-                type: "button",
-                "aria-expanded": expanded
-              },
-              React.createElement("span", { className: "dp-themes-toggle-icon" }, expanded ? "\u25BE" : "\u25B8"),
+              "section",
+              { className: "dp-picker-section" },
               React.createElement(
-                "span",
-                { className: "dp-themes-toggle-label" },
-                isAllSelected ? "\u0422\u0435\u043C\u044B: \u0432\u0441\u0435 (" + allThemes.length + ")" : "\u0422\u0435\u043C\u044B: " + selectedCount + " \u0438\u0437 " + allThemes.length
+                "div",
+                { className: "dp-picker-section-head" },
+                React.createElement("div", { className: "dp-picker-section-eyebrow" }, "\u2637  \u0422\u0435\u043C\u044B"),
+                React.createElement(
+                  "div",
+                  { className: "dp-picker-section-meta" },
+                  isAllSelected ? "\u0432\u0441\u0435 " + allThemes.length : selectedCount + " \u0438\u0437 " + allThemes.length,
+                  !isAllSelected && React.createElement("button", {
+                    className: "dp-themes-reset",
+                    onClick: resetThemes,
+                    type: "button"
+                  }, "\u21BA \u0441\u0431\u0440\u043E\u0441\u0438\u0442\u044C")
+                )
               ),
-              !isAllSelected && React.createElement("span", {
-                className: "dp-themes-reset",
-                onClick: (e) => {
-                  e.stopPropagation();
-                  resetThemes();
-                }
-              }, "\u0441\u0431\u0440\u043E\u0441\u0438\u0442\u044C")
+              // Темы как чипы — всегда видны
+              React.createElement(
+                "div",
+                { className: "dp-themes-list dp-themes-list--chips" },
+                allThemes.map((t) => {
+                  const checked = isAllSelected || selectedSet.has(t.id);
+                  return React.createElement(
+                    "button",
+                    {
+                      key: t.id,
+                      type: "button",
+                      onClick: () => toggleTheme(t.id),
+                      className: "dp-theme-chip" + (checked ? " dp-theme-chip-checked" : ""),
+                      "aria-pressed": checked
+                    },
+                    React.createElement(
+                      "span",
+                      { className: "dp-theme-chip-icon", "aria-hidden": "true" },
+                      checked ? "\u2713" : ""
+                    ),
+                    React.createElement("span", { className: "dp-theme-chip-name" }, t.short || t.name)
+                  );
+                })
+              ),
+              !enoughThemes && React.createElement(
+                "div",
+                { className: "dp-themes-warn" },
+                "\u26A0  \u0414\u043B\u044F \u0440\u0435\u0436\u0438\u043C\u0430 ",
+                cur.label,
+                " \u043D\u0443\u0436\u043D\u043E \u043C\u0438\u043D\u0438\u043C\u0443\u043C ",
+                minThemesForMode[mode],
+                ". \u0421\u0435\u0439\u0447\u0430\u0441: ",
+                selectedCount,
+                "."
+              )
             ),
-            expanded && React.createElement(
-              "div",
-              { className: "dp-themes-list" },
-              allThemes.map((t) => {
-                const checked = isAllSelected || selectedSet.has(t.id);
-                return React.createElement(
-                  "label",
+            // ═════ СЕКЦИЯ 3: С кем играешь ═════
+            React.createElement(
+              "section",
+              { className: "dp-picker-section" },
+              React.createElement("div", { className: "dp-picker-section-eyebrow" }, "\u25D0  \u0421\u043E\u043F\u0435\u0440\u043D\u0438\u043A"),
+              React.createElement(
+                "div",
+                { className: "dp-opponent-grid" },
+                React.createElement(
+                  "button",
                   {
-                    key: t.id,
-                    className: "dp-theme-item" + (checked ? " dp-theme-item-checked" : "")
+                    className: "dp-opponent-btn",
+                    onClick: () => {
+                      if (!enoughThemes) return;
+                      setPartiyaPicker(null);
+                      startPartiyaWithShadow("medium", mode, selectedThemes);
+                    },
+                    disabled: !enoughThemes,
+                    type: "button"
                   },
-                  React.createElement("input", {
-                    type: "checkbox",
-                    checked,
-                    onChange: () => toggleTheme(t.id)
-                  }),
-                  React.createElement("span", { className: "dp-theme-emoji", "aria-hidden": "true" }, t.emoji || "\u25C7"),
-                  React.createElement("span", { className: "dp-theme-name" }, t.short || t.name)
-                );
-              })
-            ),
-            !enoughThemes && expanded && React.createElement(
-              "div",
-              { className: "dp-themes-warn" },
-              "\u26A0  \u0414\u043B\u044F \u0440\u0435\u0436\u0438\u043C\u0430 ",
-              cur.label,
-              " \u043D\u0443\u0436\u043D\u043E \u043C\u0438\u043D\u0438\u043C\u0443\u043C ",
-              minThemesForMode[mode],
-              " \u0442\u0435\u043C. \u0421\u0435\u0439\u0447\u0430\u0441: ",
-              selectedCount,
-              "."
-            ),
-            // ─── Шаг 2: соперник ───
-            React.createElement("div", { className: "dp-mode-eyebrow" }, "\u25D0  \u0421 \u043A\u0435\u043C"),
-            React.createElement(
-              "div",
-              { style: { display: "grid", gap: 8, marginTop: 8 } },
-              React.createElement(
-                "button",
-                {
-                  className: "dp-btn",
-                  onClick: () => {
-                    if (!enoughThemes) return;
-                    setPartiyaPicker(null);
-                    startPartiyaWithShadow("medium", mode, selectedThemes);
+                  React.createElement("div", { className: "dp-opponent-icon", "aria-hidden": "true" }, "\u{1F317}"),
+                  React.createElement(
+                    "div",
+                    { className: "dp-opponent-body" },
+                    React.createElement("div", { className: "dp-opponent-title" }, "\u0421\u043E\u043B\u043E"),
+                    React.createElement("div", { className: "dp-opponent-sub" }, "\u041F\u0440\u043E\u0442\u0438\u0432 \u0422\u0435\u043D\u0438-\u0431\u043E\u0442\u0430")
+                  )
+                ),
+                React.createElement(
+                  "button",
+                  {
+                    className: "dp-opponent-btn dp-opponent-btn--accent",
+                    onClick: startPartiyaPvP,
+                    disabled: !enoughThemes,
+                    type: "button"
                   },
-                  disabled: !enoughThemes,
-                  style: { padding: "14px 18px", justifyContent: "flex-start", textAlign: "left" }
-                },
-                "\u{1F317}  ",
-                React.createElement("span", { style: { fontWeight: 500, marginLeft: 4 } }, "\u0421\u043E\u043B\u043E \u043F\u0440\u043E\u0442\u0438\u0432 \u0422\u0435\u043D\u0438"),
-                React.createElement("span", { style: { fontSize: 12, color: "var(--text-3)", marginLeft: "auto" } }, "\xB7 \u0431\u043E\u0442")
-              ),
-              React.createElement(
-                "button",
-                {
-                  className: "dp-btn dp-btn-primary",
-                  onClick: startPartiyaPvP,
-                  disabled: !enoughThemes,
-                  style: { padding: "14px 18px", justifyContent: "flex-start", textAlign: "left" }
-                },
-                "\u25D0\u25D1  ",
-                React.createElement("span", { style: { fontWeight: 500, marginLeft: 4 } }, "\u0412\u0434\u0432\u043E\u0451\u043C \u0441 \u0434\u0440\u0443\u0433\u043E\u043C"),
-                React.createElement("span", { style: { fontSize: 12, opacity: 0.85, marginLeft: "auto" } }, "\xB7 real-time")
+                  React.createElement("div", { className: "dp-opponent-icon", "aria-hidden": "true" }, "\u25D0\u25D1"),
+                  React.createElement(
+                    "div",
+                    { className: "dp-opponent-body" },
+                    React.createElement("div", { className: "dp-opponent-title" }, "\u0412\u0434\u0432\u043E\u0451\u043C"),
+                    React.createElement("div", { className: "dp-opponent-sub" }, "\u0421 \u0434\u0440\u0443\u0433\u043E\u043C \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435")
+                  )
+                )
               )
             )
           )
