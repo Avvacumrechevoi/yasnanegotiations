@@ -210,9 +210,95 @@ body.theme-vk-dark svg [fill="#7f1d1d"] { fill: #fda4af; }
 /* Тёмные оттенки коричневого/охры (#7c2d12) → янтарные */
 body.theme-vk-dark svg [fill="#7c2d12"] { fill: #fbbf24; }
 body.theme-vk-dark svg [stroke="#7c2d12"] { stroke: rgba(251, 191, 36, 0.45); }
-/* Пурпур/маджента (#86198f / #a21caf) → светлый pink */
+/* Пурпур/маджента (#86198f / #a21caf) → светлый pink (для текстовых лейблов) */
 body.theme-vk-dark svg [fill="#86198f"] { fill: #e879f9; }
-body.theme-vk-dark svg [fill="#a21caf"] { fill: #d8b4fe; }
+body.theme-vk-dark svg text[fill="#a21caf"] { fill: #d8b4fe; }
+
+/* ─── Drill-popup «Вложенная Ясна²» — особый случай ───
+   Пурпурная палитра → VK Blue + dark surface. Скоупим под .drill-popup
+   чтобы не конфликтовать с общими правилами выше. */
+body.theme-vk-dark svg .drill-popup rect[fill="#ffffff"],
+body.theme-vk-dark svg .drill-popup rect[fill="#fff"] {
+  fill: var(--bg2) !important;
+  stroke: var(--border) !important;
+}
+body.theme-vk-dark svg .drill-popup circle[fill="#fff"],
+body.theme-vk-dark svg .drill-popup circle[fill="#ffffff"] {
+  fill: var(--bg3) !important;
+}
+/* Бэйдж "ВЛОЖЕННАЯ ЯСНА²" — оставляем заполненную плашку, но в VK accent */
+body.theme-vk-dark svg .drill-popup rect[fill="#a21caf"] {
+  fill: var(--accent) !important;
+}
+/* Белый текст внутри бэйджа должен ОСТАТЬСЯ белым (исключение из общего правила) */
+body.theme-vk-dark svg .drill-popup text[fill="#fff"],
+body.theme-vk-dark svg .drill-popup text[fill="#ffffff"] {
+  fill: #ffffff !important;
+}
+/* × кнопка close — пурпурный текст → VK accent */
+body.theme-vk-dark svg .drill-popup text[fill="#a21caf"] {
+  fill: var(--accent) !important;
+}
+/* Заголовок «День» / другие — был #1d1d1f, перекрашиваем на основной */
+body.theme-vk-dark svg .drill-popup text[fill="#1d1d1f"] {
+  fill: var(--txt) !important;
+}
+/* Подзаголовок «Суток · Полка 6» */
+body.theme-vk-dark svg .drill-popup text[fill="#86868b"] {
+  fill: var(--txt2) !important;
+}
+/* Градиент шапки — два светлых оттенка → один тёмный elevated */
+body.theme-vk-dark svg #drillHdrGrad stop,
+body.theme-vk-dark svg .drill-popup stop[stop-color="#fdf4ff"],
+body.theme-vk-dark svg .drill-popup stop[stop-color="#ede1f8"] {
+  stop-color: var(--bg3) !important;
+}
+/* Декоративные пурпурные strokes (rgba 162,28,175 разных альфа) → VK Blue */
+body.theme-vk-dark svg .drill-popup [stroke="rgba(162,28,175,.22)"],
+body.theme-vk-dark svg .drill-popup [stroke="rgba(162, 28, 175, 0.22)"] {
+  stroke: rgba(0, 119, 255, 0.25) !important;
+}
+body.theme-vk-dark svg .drill-popup [stroke="rgba(162,28,175,.35)"],
+body.theme-vk-dark svg .drill-popup [stroke="rgba(162, 28, 175, 0.35)"] {
+  stroke: rgba(0, 119, 255, 0.40) !important;
+}
+body.theme-vk-dark svg .drill-popup [stroke="#a21caf"] {
+  stroke: var(--accent) !important;
+}
+/* Декоративная заливка-фон внутри ring (rgba 162,28,175,.03) — едва-едва усиливаем */
+body.theme-vk-dark svg .drill-popup [fill="rgba(162,28,175,.03)"],
+body.theme-vk-dark svg .drill-popup [fill="rgba(162, 28, 175, 0.03)"] {
+  fill: rgba(0, 119, 255, 0.05) !important;
+}
+
+/* ─── Drill-bar (HTML toolbar над звездой при открытой sub-Ясне) ───
+   Inline-style имеет linear-gradient + 1px solid rgba(162,28,175,.25). */
+body.theme-vk-dark .drill-bar {
+  background: var(--bg2) !important;
+  border-bottom: 1px solid rgba(0, 119, 255, 0.25) !important;
+}
+body.theme-vk-dark .drill-bar > button,
+body.theme-vk-dark .drill-bar > select {
+  background: var(--bg3) !important;
+  color: var(--txt) !important;
+  border-color: var(--border) !important;
+}
+body.theme-vk-dark .drill-bar > button:hover,
+body.theme-vk-dark .drill-bar > select:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: var(--accent) !important;
+}
+/* Primary кнопка "✏️ Редактировать" / "✓ Готово" в режиме edit (bg #a21caf, color #fff) */
+body.theme-vk-dark .drill-bar > button[style*='rgb(162, 28, 175)'][style*='rgb(255, 255, 255)'] {
+  background: var(--accent) !important;
+  color: #ffffff !important;
+  border-color: var(--accent) !important;
+}
+/* Подписи в drill-bar — пурпурные тексты → светлые на тёмном */
+body.theme-vk-dark .drill-bar [style*='rgb(88, 28, 135)'],
+body.theme-vk-dark .drill-bar [style*='rgb(162, 28, 175)']:not(button):not(select) {
+  color: var(--txt2) !important;
+}
 /* Циан (#0891b2) → светлый cyan */
 body.theme-vk-dark svg [fill="#0891b2"] { fill: #67e8f9; }
 /* Зелёный (#16a34a) → ярче для контраста */
