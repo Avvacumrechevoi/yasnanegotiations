@@ -157,7 +157,7 @@
             React.createElement('ul', null,
               React.createElement('li', null, React.createElement('strong', null, 'Бусины ✦'), ' — твои очки. За верный ответ + бонус скорости.'),
               React.createElement('li', null, React.createElement('strong', null, 'Ступень'), ' — от Послушника до Магистра.'),
-              React.createElement('li', null, React.createElement('strong', null, 'Партитура'), ' — карта девяти тем мира.'),
+              React.createElement('li', null, React.createElement('strong', null, 'Освоение тем'), ' — карта 9 тем модели «Сутки» с прогрессом.'),
               React.createElement('li', null, React.createElement('strong', null, 'Хроника'), ' — топ игроков недели.')
             )
           ),
@@ -341,17 +341,17 @@
     const quests = [
       {
         id: 'etude',
-        tag: 'Этюд',
-        title: 'Один шанс в день',
-        foot: todayPlayed ? 'Сыграно: ' + todayPlayed.score + ' ✦' : '+30 ✦ · повторить нельзя',
+        tag: 'Вызов дня',
+        title: 'Один шанс в сутки',
+        foot: todayPlayed ? 'Сыграно: ' + todayPlayed.score + ' ✦' : '+30 ✦ если справишься. Одна ошибка — проигрыш',
         footMute: !!todayPlayed,
         ready: true
       },
       {
         id: 'gimn',
-        tag: 'Гимн',
-        title: 'Тема: ' + (todayTheme?.name || 'дня'),
-        foot: 'готовится',
+        tag: 'Тема дня',
+        title: (todayTheme?.name || 'Тема готовится'),
+        foot: '3 вопроса по этой теме · откроется в полночь',
         footMute: true,
         ready: false
       },
@@ -360,10 +360,10 @@
     return React.createElement('section', { className: 'dp-section' },
       React.createElement('div', { className: 'dp-section-h-row' },
         React.createElement('h2', { className: 'dp-section-h' }, IconCalendar(), ' Сегодня'),
-        React.createElement('span', { className: 'dp-section-h-sub' }, quests.filter(q => q.ready).length + ' готов · ' + (quests.length - quests.filter(q => q.ready).length) + ' в подготовке')
+        React.createElement('span', { className: 'dp-section-h-sub' }, quests.filter(q => q.ready).length + ' доступно · ' + (quests.length - quests.filter(q => q.ready).length) + ' в подготовке')
       ),
       React.createElement('p', { className: 'dp-section-desc' },
-        'Короткие практики. Каждая — короче полной Партии.'
+        'Ежедневные короткие практики (3 вопроса, не больше минуты).'
       ),
       React.createElement('div', { className: 'dp-quests' },
         quests.map(q =>
@@ -399,13 +399,13 @@
     const sortedByMastery = themes.map(t => ({ ...t, pct: masteryByTheme[t.id] || 0 })).sort((a, b) => b.pct - a.pct);
     const currentTheme = sortedByMastery.find(t => t.pct > 0 && t.pct < 100) || sortedByMastery[0];
 
-    return React.createElement('section', { className: 'dp-section', role: 'region', 'aria-label': 'Партитура — карта тем' },
+    return React.createElement('section', { className: 'dp-section', role: 'region', 'aria-label': 'Освоение тем' },
       React.createElement('div', { className: 'dp-section-h-row' },
-        React.createElement('h2', { className: 'dp-section-h' }, IconGrid(), ' Партитура'),
-        React.createElement('span', { className: 'dp-section-h-sub' }, 'Освоено ', opened, ' из ', themes.length)
+        React.createElement('h2', { className: 'dp-section-h' }, IconGrid(), ' Освоение тем'),
+        React.createElement('span', { className: 'dp-section-h-sub' }, 'Открыто ', opened, ' из ', themes.length)
       ),
       React.createElement('p', { className: 'dp-section-desc' },
-        'Девять тем мира «Сутки». Темы открываются по мере того, как они выпадают в Партии.'
+        '9 тем модели «Сутки». Мастерство по теме растёт от верных ответов в Партиях. Чем чаще тема выпадала — тем шире прогресс.'
       ),
       React.createElement('div', { className: 'dp-partitura' },
         themes.map(t => {

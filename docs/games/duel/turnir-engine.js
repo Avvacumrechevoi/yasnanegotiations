@@ -569,7 +569,7 @@
       if(!isPvP || !transport) return;
 
       const off = transport.on(msg => {
-        console.log('[turnir/recv] type=' + msg.t + ' role=' + role + (msg.qId ? ' qId=' + msg.qId : ''));
+        // debug: console.log('[turnir/recv] type=' + msg.t + ' role=' + role);
         if(msg.t === 'partiya-init' && role === 'guest'){
           const restored = msg.partiya.map(r => {
             const theme = window.YasnaTrivia.getTheme(r.theme.id) || r.theme;
@@ -577,7 +577,7 @@
             const questions = r.questions.map(qid => allQs.find(q => q.id === qid)).filter(Boolean);
             return { theme, questions };
           });
-          console.log('[turnir/recv] restored ' + restored.length + ' rounds');
+          // debug: console.log('[turnir/recv] restored ' + restored.length + ' rounds');
           setPartiya(restored);
         }
         if(msg.t === 'opp-answer'){

@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-08T11:21:04.048Z */
+/* Yasna bundle: duel.js — собран 2026-05-08T11:28:54.526Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -6346,7 +6346,6 @@ window.YasnaCore = {
     useEffect(() => {
       if (!isPvP || !transport) return;
       const off = transport.on((msg) => {
-        console.log("[turnir/recv] type=" + msg.t + " role=" + role + (msg.qId ? " qId=" + msg.qId : ""));
         if (msg.t === "partiya-init" && role === "guest") {
           const restored = msg.partiya.map((r) => {
             const theme = window.YasnaTrivia.getTheme(r.theme.id) || r.theme;
@@ -6354,7 +6353,6 @@ window.YasnaCore = {
             const questions = r.questions.map((qid) => allQs.find((q) => q.id === qid)).filter(Boolean);
             return { theme, questions };
           });
-          console.log("[turnir/recv] restored " + restored.length + " rounds");
           setPartiya(restored);
         }
         if (msg.t === "opp-answer") {
@@ -6747,17 +6745,13 @@ window.YasnaCore = {
       if (stopped) return;
       const m = snap.val();
       if (!m) {
-        console.log("[firebase/recv] empty snap");
         return;
       }
       if (m.from === deviceId) {
-        console.log("[firebase/recv] own msg type=" + m.type + " (filtered)");
         return;
       }
-      console.log("[firebase/recv] from=opp type=" + m.type + " handlers=" + handlers.size);
       const reconstructed = Object.assign({ t: m.type }, m.payload || {});
       if (handlers.size === 0) {
-        console.log("[firebase/recv] buffering (no handlers yet)");
         buffer.push(reconstructed);
       } else {
         handlers.forEach((fn) => {
@@ -6792,7 +6786,6 @@ window.YasnaCore = {
         if (stopped) return;
         const { t, ...rest } = msg || {};
         const payload = Object.keys(rest).length > 0 ? rest : null;
-        console.log("[firebase/send] type=" + (t || "unknown") + " payload=" + (payload ? "yes" : "null"));
         try {
           await messagesRef.push({
             from: String(deviceId),
@@ -6800,7 +6793,6 @@ window.YasnaCore = {
             payload,
             ts: firebase.database.ServerValue.TIMESTAMP
           });
-          console.log("[firebase/send] ok type=" + (t || "unknown"));
         } catch (e) {
           console.error("[firebase/send] error", (e == null ? void 0 : e.message) || e);
         }
@@ -6847,7 +6839,6 @@ window.YasnaCore = {
     makeTransport,
     validCode
   };
-  console.log("[YasnaRT] Firebase real-time transport loaded");
 })();
 
 })();
@@ -7023,7 +7014,7 @@ window.YasnaCore = {
               null,
               React.createElement("li", null, React.createElement("strong", null, "\u0411\u0443\u0441\u0438\u043D\u044B \u2726"), " \u2014 \u0442\u0432\u043E\u0438 \u043E\u0447\u043A\u0438. \u0417\u0430 \u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 + \u0431\u043E\u043D\u0443\u0441 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438."),
               React.createElement("li", null, React.createElement("strong", null, "\u0421\u0442\u0443\u043F\u0435\u043D\u044C"), " \u2014 \u043E\u0442 \u041F\u043E\u0441\u043B\u0443\u0448\u043D\u0438\u043A\u0430 \u0434\u043E \u041C\u0430\u0433\u0438\u0441\u0442\u0440\u0430."),
-              React.createElement("li", null, React.createElement("strong", null, "\u041F\u0430\u0440\u0442\u0438\u0442\u0443\u0440\u0430"), " \u2014 \u043A\u0430\u0440\u0442\u0430 \u0434\u0435\u0432\u044F\u0442\u0438 \u0442\u0435\u043C \u043C\u0438\u0440\u0430."),
+              React.createElement("li", null, React.createElement("strong", null, "\u041E\u0441\u0432\u043E\u0435\u043D\u0438\u0435 \u0442\u0435\u043C"), " \u2014 \u043A\u0430\u0440\u0442\u0430 9 \u0442\u0435\u043C \u043C\u043E\u0434\u0435\u043B\u0438 \xAB\u0421\u0443\u0442\u043A\u0438\xBB \u0441 \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441\u043E\u043C."),
               React.createElement("li", null, React.createElement("strong", null, "\u0425\u0440\u043E\u043D\u0438\u043A\u0430"), " \u2014 \u0442\u043E\u043F \u0438\u0433\u0440\u043E\u043A\u043E\u0432 \u043D\u0435\u0434\u0435\u043B\u0438.")
             )
           ),
@@ -7246,17 +7237,17 @@ window.YasnaCore = {
     const quests = [
       {
         id: "etude",
-        tag: "\u042D\u0442\u044E\u0434",
-        title: "\u041E\u0434\u0438\u043D \u0448\u0430\u043D\u0441 \u0432 \u0434\u0435\u043D\u044C",
-        foot: todayPlayed ? "\u0421\u044B\u0433\u0440\u0430\u043D\u043E: " + todayPlayed.score + " \u2726" : "+30 \u2726 \xB7 \u043F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u044C \u043D\u0435\u043B\u044C\u0437\u044F",
+        tag: "\u0412\u044B\u0437\u043E\u0432 \u0434\u043D\u044F",
+        title: "\u041E\u0434\u0438\u043D \u0448\u0430\u043D\u0441 \u0432 \u0441\u0443\u0442\u043A\u0438",
+        foot: todayPlayed ? "\u0421\u044B\u0433\u0440\u0430\u043D\u043E: " + todayPlayed.score + " \u2726" : "+30 \u2726 \u0435\u0441\u043B\u0438 \u0441\u043F\u0440\u0430\u0432\u0438\u0448\u044C\u0441\u044F. \u041E\u0434\u043D\u0430 \u043E\u0448\u0438\u0431\u043A\u0430 \u2014 \u043F\u0440\u043E\u0438\u0433\u0440\u044B\u0448",
         footMute: !!todayPlayed,
         ready: true
       },
       {
         id: "gimn",
-        tag: "\u0413\u0438\u043C\u043D",
-        title: "\u0422\u0435\u043C\u0430: " + ((todayTheme == null ? void 0 : todayTheme.name) || "\u0434\u043D\u044F"),
-        foot: "\u0433\u043E\u0442\u043E\u0432\u0438\u0442\u0441\u044F",
+        tag: "\u0422\u0435\u043C\u0430 \u0434\u043D\u044F",
+        title: (todayTheme == null ? void 0 : todayTheme.name) || "\u0422\u0435\u043C\u0430 \u0433\u043E\u0442\u043E\u0432\u0438\u0442\u0441\u044F",
+        foot: "3 \u0432\u043E\u043F\u0440\u043E\u0441\u0430 \u043F\u043E \u044D\u0442\u043E\u0439 \u0442\u0435\u043C\u0435 \xB7 \u043E\u0442\u043A\u0440\u043E\u0435\u0442\u0441\u044F \u0432 \u043F\u043E\u043B\u043D\u043E\u0447\u044C",
         footMute: true,
         ready: false
       }
@@ -7268,12 +7259,12 @@ window.YasnaCore = {
         "div",
         { className: "dp-section-h-row" },
         React.createElement("h2", { className: "dp-section-h" }, IconCalendar(), " \u0421\u0435\u0433\u043E\u0434\u043D\u044F"),
-        React.createElement("span", { className: "dp-section-h-sub" }, quests.filter((q) => q.ready).length + " \u0433\u043E\u0442\u043E\u0432 \xB7 " + (quests.length - quests.filter((q) => q.ready).length) + " \u0432 \u043F\u043E\u0434\u0433\u043E\u0442\u043E\u0432\u043A\u0435")
+        React.createElement("span", { className: "dp-section-h-sub" }, quests.filter((q) => q.ready).length + " \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E \xB7 " + (quests.length - quests.filter((q) => q.ready).length) + " \u0432 \u043F\u043E\u0434\u0433\u043E\u0442\u043E\u0432\u043A\u0435")
       ),
       React.createElement(
         "p",
         { className: "dp-section-desc" },
-        "\u041A\u043E\u0440\u043E\u0442\u043A\u0438\u0435 \u043F\u0440\u0430\u043A\u0442\u0438\u043A\u0438. \u041A\u0430\u0436\u0434\u0430\u044F \u2014 \u043A\u043E\u0440\u043E\u0447\u0435 \u043F\u043E\u043B\u043D\u043E\u0439 \u041F\u0430\u0440\u0442\u0438\u0438."
+        "\u0415\u0436\u0435\u0434\u043D\u0435\u0432\u043D\u044B\u0435 \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0435 \u043F\u0440\u0430\u043A\u0442\u0438\u043A\u0438 (3 \u0432\u043E\u043F\u0440\u043E\u0441\u0430, \u043D\u0435 \u0431\u043E\u043B\u044C\u0448\u0435 \u043C\u0438\u043D\u0443\u0442\u044B)."
       ),
       React.createElement(
         "div",
@@ -7311,17 +7302,17 @@ window.YasnaCore = {
     const currentTheme = sortedByMastery.find((t) => t.pct > 0 && t.pct < 100) || sortedByMastery[0];
     return React.createElement(
       "section",
-      { className: "dp-section", role: "region", "aria-label": "\u041F\u0430\u0440\u0442\u0438\u0442\u0443\u0440\u0430 \u2014 \u043A\u0430\u0440\u0442\u0430 \u0442\u0435\u043C" },
+      { className: "dp-section", role: "region", "aria-label": "\u041E\u0441\u0432\u043E\u0435\u043D\u0438\u0435 \u0442\u0435\u043C" },
       React.createElement(
         "div",
         { className: "dp-section-h-row" },
-        React.createElement("h2", { className: "dp-section-h" }, IconGrid(), " \u041F\u0430\u0440\u0442\u0438\u0442\u0443\u0440\u0430"),
-        React.createElement("span", { className: "dp-section-h-sub" }, "\u041E\u0441\u0432\u043E\u0435\u043D\u043E ", opened, " \u0438\u0437 ", themes.length)
+        React.createElement("h2", { className: "dp-section-h" }, IconGrid(), " \u041E\u0441\u0432\u043E\u0435\u043D\u0438\u0435 \u0442\u0435\u043C"),
+        React.createElement("span", { className: "dp-section-h-sub" }, "\u041E\u0442\u043A\u0440\u044B\u0442\u043E ", opened, " \u0438\u0437 ", themes.length)
       ),
       React.createElement(
         "p",
         { className: "dp-section-desc" },
-        "\u0414\u0435\u0432\u044F\u0442\u044C \u0442\u0435\u043C \u043C\u0438\u0440\u0430 \xAB\u0421\u0443\u0442\u043A\u0438\xBB. \u0422\u0435\u043C\u044B \u043E\u0442\u043A\u0440\u044B\u0432\u0430\u044E\u0442\u0441\u044F \u043F\u043E \u043C\u0435\u0440\u0435 \u0442\u043E\u0433\u043E, \u043A\u0430\u043A \u043E\u043D\u0438 \u0432\u044B\u043F\u0430\u0434\u0430\u044E\u0442 \u0432 \u041F\u0430\u0440\u0442\u0438\u0438."
+        "9 \u0442\u0435\u043C \u043C\u043E\u0434\u0435\u043B\u0438 \xAB\u0421\u0443\u0442\u043A\u0438\xBB. \u041C\u0430\u0441\u0442\u0435\u0440\u0441\u0442\u0432\u043E \u043F\u043E \u0442\u0435\u043C\u0435 \u0440\u0430\u0441\u0442\u0451\u0442 \u043E\u0442 \u0432\u0435\u0440\u043D\u044B\u0445 \u043E\u0442\u0432\u0435\u0442\u043E\u0432 \u0432 \u041F\u0430\u0440\u0442\u0438\u044F\u0445. \u0427\u0435\u043C \u0447\u0430\u0449\u0435 \u0442\u0435\u043C\u0430 \u0432\u044B\u043F\u0430\u0434\u0430\u043B\u0430 \u2014 \u0442\u0435\u043C \u0448\u0438\u0440\u0435 \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441."
       ),
       React.createElement(
         "div",

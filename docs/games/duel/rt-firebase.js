@@ -230,15 +230,15 @@
     function onMsg(snap){
       if(stopped) return;
       const m = snap.val();
-      if(!m){ console.log('[firebase/recv] empty snap'); return; }
+      if(!m){ return; }
       if(m.from === deviceId){
-        console.log('[firebase/recv] own msg type=' + m.type + ' (filtered)');
+        // console.log('[firebase/recv] own msg type=' + m.type + ' (filtered)');
         return;
       }
-      console.log('[firebase/recv] from=opp type=' + m.type + ' handlers=' + handlers.size);
+      // console.log('[firebase/recv] from=opp type=' + m.type + ' handlers=' + handlers.size);
       const reconstructed = Object.assign({ t: m.type }, m.payload || {});
       if(handlers.size === 0){
-        console.log('[firebase/recv] buffering (no handlers yet)');
+        // debug: buffering;
         buffer.push(reconstructed);
       } else {
         handlers.forEach(fn => {
@@ -270,7 +270,7 @@
         if(stopped) return;
         const { t, ...rest } = msg || {};
         const payload = Object.keys(rest).length > 0 ? rest : null;
-        console.log('[firebase/send] type=' + (t || 'unknown') + ' payload=' + (payload ? 'yes' : 'null'));
+        // console.log('[firebase/send] type=' + (t || 'unknown') + ' payload=' + (payload ? 'yes' : 'null'));
         try {
           await messagesRef.push({
             from: String(deviceId),
@@ -278,7 +278,7 @@
             payload: payload,
             ts: firebase.database.ServerValue.TIMESTAMP,
           });
-          console.log('[firebase/send] ok type=' + (t || 'unknown'));
+          // console.log('[firebase/send] ok type=' + (t || 'unknown'));
         } catch(e){
           console.error('[firebase/send] error', e?.message || e);
         }
@@ -318,5 +318,5 @@
     validCode,
   };
 
-  console.log('[YasnaRT] Firebase real-time transport loaded');
+  // console.log('[YasnaRT] Firebase real-time transport loaded');
 })();

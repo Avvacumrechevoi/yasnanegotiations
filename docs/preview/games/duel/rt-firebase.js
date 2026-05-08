@@ -66,11 +66,13 @@
         console.error('[firebase] anon auth failed', err);
         reject(err);
       });
+      // Защита от вечного зависания
       setTimeout(() => reject(new Error('auth timeout')), 10000);
     });
     return authPromise;
   }
 
+  // ─── Генерация KASTA-кода ────────────────────────────────────────
   const ROOM_CODE_CHARS = 'BCDFGHJKLMNPQRSTVWXZ23456789';
   function genRoomCode(){
     let s = 'KASTA-';
@@ -82,10 +84,12 @@
     return /^KASTA-[A-Z0-9]{4}$/.test(String(code || '').toUpperCase());
   }
 
+  // ─── HOST: создание комнаты ──────────────────────────────────────
   async function createRoom({ deviceId, nickname, avatar }){
     if(!deviceId || !nickname) throw new Error('deviceId и nickname обязательны');
     await ensureAuth();
 
+    // Подбираем уникальный код (до 5 попыток)
     let code = null;
     for(let i = 0; i < 5; i++){
       const candidate = genRoomCode();
@@ -99,6 +103,7 @@
 
     const TS = firebase.database.ServerValue.TIMESTAMP;
 
+    // Атомарная запись комнаты
     await db.ref('rooms/' + code).set({
       meta: {
         status: 'waiting',
@@ -113,12 +118,16 @@
       },
     });
 
+    // Если хост закроет вкладку — статус автоматически станет 'closed'
     db.ref('rooms/' + code + '/meta/status').onDisconnect().set('closed');
 
     console.log('[firebase] room created', code);
     return { code };
   }
 
+  // ─── HOST: ожидание прихода гостя ────────────────────────────────
+  // Возвращает promise, резолвится когда guest появится в /rooms/<code>/guest.
+  // На таймауте — reject('timeout'). На закрытии комнаты — reject('closed').
   function waitForGuest(code, { timeoutMs = 5 * 60 * 1000 } = {}){
     return new Promise((resolve, reject) => {
       init();
@@ -158,6 +167,7 @@
     });
   }
 
+  // ─── GUEST: вход в комнату ───────────────────────────────────────
   async function joinRoom(rawCode, { deviceId, nickname, avatar }){
     if(!deviceId || !nickname) throw new Error('deviceId и nickname обязательны');
     const code = String(rawCode || '').trim().toUpperCase();
@@ -172,15 +182,18 @@
     const room = snap.val();
     if(room.meta?.status === 'closed') throw new Error('closed');
 
+    // Если гость уже занят и это не мы (re-join) — отказ
     if(room.guest && room.guest.deviceId && room.guest.deviceId !== String(deviceId)){
       throw new Error('room_full');
     }
+    // Если хост — это тот же deviceId (создавал и сразу пытается войти) — отказ
     if(room.host?.deviceId === String(deviceId)){
       throw new Error('cant_join_own_room');
     }
 
     const TS = firebase.database.ServerValue.TIMESTAMP;
 
+    // Записываем guest + переключаем статус
     await roomRef.update({
       'guest/deviceId':  String(deviceId),
       'guest/nickname':  String(nickname).slice(0, 40),
@@ -189,12 +202,19 @@
       'meta/status':     'playing',
     });
 
+    // На дисконнект — закрываем комнату
     db.ref('rooms/' + code + '/meta/status').onDisconnect().set('closed');
 
     console.log('[firebase] joined room', code);
     return { host: room.host };
   }
 
+  // ─── Транспорт (общий для host и guest) ──────────────────────────
+  // API совместим со старым makePollingTransport:
+  //   send(msg)         — msg = {t: 'partiya-init', ...payload}
+  //   on(fn)            — fn получает {t: 'partiya-init', ...payload}
+  //   close()
+  //   startHeartbeat()  — no-op (Firebase сам держит соединение)
   function makeTransport({ code, deviceId, role }){
     init();
     const handlers = new Set();
@@ -210,15 +230,15 @@
     function onMsg(snap){
       if(stopped) return;
       const m = snap.val();
-      if(!m){ console.log('[firebase/recv] empty snap'); return; }
+      if(!m){ return; }
       if(m.from === deviceId){
-        console.log('[firebase/recv] own msg type=' + m.type + ' (filtered)');
+        // console.log('[firebase/recv] own msg type=' + m.type + ' (filtered)');
         return;
       }
-      console.log('[firebase/recv] from=opp type=' + m.type + ' handlers=' + handlers.size);
+      // console.log('[firebase/recv] from=opp type=' + m.type + ' handlers=' + handlers.size);
       const reconstructed = Object.assign({ t: m.type }, m.payload || {});
       if(handlers.size === 0){
-        console.log('[firebase/recv] buffering (no handlers yet)');
+        // debug: buffering;
         buffer.push(reconstructed);
       } else {
         handlers.forEach(fn => {
@@ -229,6 +249,7 @@
     }
     messagesRef.on('child_added', onMsg);
 
+    // Слушаем закрытие комнаты — отправляем opp-leave
     function onStatus(snap){
       if(stopped) return;
       if(snap.val() === 'closed'){
@@ -237,6 +258,7 @@
     }
     statusRef.on('value', onStatus);
 
+    // Heartbeat: обновляем lastSeen каждые 10 секунд (видно сопернику)
     const presenceRef = db.ref('rooms/' + code + '/' + role + '/lastSeen');
     const heartbeat = setInterval(() => {
       if(!stopped) presenceRef.set(firebase.database.ServerValue.TIMESTAMP);
@@ -248,7 +270,7 @@
         if(stopped) return;
         const { t, ...rest } = msg || {};
         const payload = Object.keys(rest).length > 0 ? rest : null;
-        console.log('[firebase/send] type=' + (t || 'unknown') + ' payload=' + (payload ? 'yes' : 'null'));
+        // console.log('[firebase/send] type=' + (t || 'unknown') + ' payload=' + (payload ? 'yes' : 'null'));
         try {
           await messagesRef.push({
             from: String(deviceId),
@@ -256,15 +278,19 @@
             payload: payload,
             ts: firebase.database.ServerValue.TIMESTAMP,
           });
-          console.log('[firebase/send] ok type=' + (t || 'unknown'));
+          // console.log('[firebase/send] ok type=' + (t || 'unknown'));
         } catch(e){
           console.error('[firebase/send] error', e?.message || e);
         }
       },
       on(fn){
         handlers.add(fn);
+        // Слить буфер при первом подключении handler'а — иначе пропустим
+        // сообщения, пришедшие за время монтирования React-компонента.
         if(buffer.length > 0){
           const toFlush = buffer.splice(0, buffer.length);
+          // Используем setTimeout(0) чтобы handler не вызвался синхронно
+          // во время рендера (это сломало бы React).
           setTimeout(() => {
             toFlush.forEach(msg => { try { fn(msg); } catch(_){} });
           }, 0);
@@ -276,12 +302,14 @@
         clearInterval(heartbeat);
         try { messagesRef.off('child_added', onMsg); } catch(_){}
         try { statusRef.off('value', onStatus); } catch(_){}
+        // Помечаем комнату закрытой — соперник получит opp-leave
         try { statusRef.set('closed'); } catch(_){}
       },
-      startHeartbeat(){ },
+      startHeartbeat(){ /* интервал уже запущен в makeTransport */ },
     };
   }
 
+  // ─── Экспорт ─────────────────────────────────────────────────────
   window.YasnaRT = {
     createRoom,
     joinRoom,
@@ -290,5 +318,5 @@
     validCode,
   };
 
-  console.log('[YasnaRT] Firebase real-time transport loaded');
+  // console.log('[YasnaRT] Firebase real-time transport loaded');
 })();
