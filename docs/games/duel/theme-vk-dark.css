@@ -102,18 +102,22 @@ body.theme-vk-dark .tn-option-shown-correct .tn-option-letter {
 }
 body.theme-vk-dark .tn-option-shown-correct .tn-option-mark { color: var(--vk-success); }
 
+/* Wrong — приглушённый красный (как shown-correct у зелёного).
+   Тинтованный bg + красный текст + красный letter — НЕ solid white-on-red,
+   потому что тогда визуально сильнее перевешивает зелёный. Ошибка должна
+   быть видна, но не «кричать» громче чем правильный ответ. */
 body.theme-vk-dark .tn-option-wrong {
-  background: var(--vk-danger);
+  background: rgba(242, 55, 65, 0.18);
   border-color: var(--vk-danger);
-  color: #ffffff;
+  color: #F2949C;  /* lighter red for readability on dark */
 }
-body.theme-vk-dark .tn-option-wrong .tn-option-text { color: #ffffff; }
+body.theme-vk-dark .tn-option-wrong .tn-option-text { color: #F2949C; font-weight: 600; }
 body.theme-vk-dark .tn-option-wrong .tn-option-letter {
-  background: rgba(255,255,255,0.22);
+  background: var(--vk-danger);
   color: #ffffff;
 }
 body.theme-vk-dark .tn-option-wrong .tn-option-mark,
-body.theme-vk-dark .tn-option-wrong .tn-option-mark-wrong { color: #ffffff; }
+body.theme-vk-dark .tn-option-wrong .tn-option-mark-wrong { color: var(--vk-danger); }
 
 /* Таймер бар */
 body.theme-vk-dark .tn-timer-bar { background: var(--bg-soft); }
@@ -218,48 +222,65 @@ body.theme-vk-dark .dp-sync-notice {
 }
 body.theme-vk-dark .tn-final-archive,
 body.theme-vk-dark .tn-final-scoring {
-  background: var(--bg-soft);
-  color: var(--text-2);
+  background: var(--bg-tonal, rgba(255,255,255,.04));
+  border: 1px solid var(--border-1, rgba(255,255,255,.08));
+  color: var(--text-1, #fff);
 }
 
-/* Scoring — табличный layout с числом и подписью на каждой строке */
+/* Scoring — карточка со звездой VK-accent slim banner. Отдельные строки
+   с числом-в-круге слева + подпись. Высокий контраст: yellow-tinted
+   numbers и понятный белый текст подписи. */
 body.theme-vk-dark .tn-final-scoring {
-  padding: 14px 16px;
-  border-radius: var(--vk-radius-component);
+  padding: 16px 18px;
+  border-radius: 14px;
+  margin-top: 16px;
 }
 body.theme-vk-dark .tn-final-scoring-eyebrow {
+  display: inline-block;
   font-family: var(--vk-font-title);
-  font-size: 11px;
-  line-height: 1.2;
-  letter-spacing: 0.12em;
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--text-3);
-  margin-bottom: 10px;
-  font-weight: 600;
+  color: var(--vk-accent-hover, #5B9CF6);
+  background: rgba(0, 119, 255, 0.12);
+  border: 1px solid rgba(0, 119, 255, 0.22);
+  padding: 5px 10px;
+  border-radius: 999px;
+  margin-bottom: 14px;
+  font-weight: 700;
 }
 body.theme-vk-dark .tn-final-scoring-rows {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
 }
 body.theme-vk-dark .tn-final-scoring-row {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
+  align-items: center;
+  gap: 14px;
   font-family: var(--vk-font-body);
 }
 body.theme-vk-dark .tn-final-scoring-num {
   font-family: var(--vk-font-display);
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   color: var(--vk-accent, #0077FF);
   font-variant-numeric: tabular-nums;
-  min-width: 32px;
+  min-width: 44px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 119, 255, 0.14);
+  border: 1px solid rgba(0, 119, 255, 0.24);
+  border-radius: 8px;
 }
 body.theme-vk-dark .tn-final-scoring-desc {
-  font-size: 13px;
-  color: var(--text-2);
+  font-size: 13.5px;
+  color: var(--text-1, #fff);
   line-height: 1.5;
+  font-weight: 500;
 }
 
 /* Скроллбар */

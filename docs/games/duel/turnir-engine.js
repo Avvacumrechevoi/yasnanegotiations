@@ -1310,6 +1310,9 @@
       )
     );
 
+    // Порядок блоков: heading → vs → stats → ACTIONS → recap → scoring.
+    // Actions выше разбора ошибок: кому интересно — почитают разбор ниже,
+    // а главные кнопки «Новая партия / На главную» под рукой.
     return React.createElement('div', { className: 'tn-fullscreen' },
       React.createElement('div', { className: 'tn-container tn-container-final' },
         React.createElement(TnTopBar, { eyebrow: 'Партия завершена' }),
@@ -1326,11 +1329,10 @@
           !oppDisconnected && React.createElement(TnFinalStats, {
             correctCount, totalQ, avgTimeMs, totalBusey,
           }),
+          // Главные действия — сразу под итогами, до разбора ошибок
+          React.createElement(TnFinalActions, { onAgain, onClose }),
           !oppDisconnected && React.createElement(TnFinalRecap, { partiyaLog }),
-          !oppDisconnected && React.createElement(TnFinalScoring, null),
-          // Блок «записана в три места» удалён — это техническая инфа, не нужна пользователю.
-          // Прогресс и так зачитывается автоматически (Хроника, Достижения, Партитура).
-          React.createElement(TnFinalActions, { onAgain, onClose })
+          !oppDisconnected && React.createElement(TnFinalScoring, null)
         )
       )
     );

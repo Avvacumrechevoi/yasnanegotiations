@@ -1526,19 +1526,20 @@ a { color: inherit; }
 }
 .tn-option-shown-correct .tn-option-mark { color: var(--vk-success, #59A840); }
 
-/* Wrong — игрок выбрал неверный (этот) */
+/* Wrong — приглушённый красный, симметрично shown-correct (зелёный).
+   Bg тинтованный, текст красный, letter solid — ошибка видна но не кричит. */
 .tn-option-wrong {
-  background: var(--vk-danger, #E1334E);
-  border-color: var(--vk-danger, #E1334E);
-  color: #ffffff;
+  background: rgba(242, 55, 65, 0.10);
+  border-color: var(--vk-danger, #F23741);
+  color: #B92D3A;
 }
-.tn-option-wrong .tn-option-text { color: #ffffff; font-weight: 600; }
+.tn-option-wrong .tn-option-text { color: #B92D3A; font-weight: 600; }
 .tn-option-wrong .tn-option-letter {
-  background: rgba(255,255,255,0.22);
+  background: var(--vk-danger, #F23741);
   color: #ffffff;
 }
 .tn-option-wrong .tn-option-mark,
-.tn-option-wrong .tn-option-mark-wrong { color: #ffffff; }
+.tn-option-wrong .tn-option-mark-wrong { color: var(--vk-danger, #F23741); }
 
 /* Disabled — нейтральные варианты которые игрок не выбирал и не правильные */
 .tn-option-disabled {
