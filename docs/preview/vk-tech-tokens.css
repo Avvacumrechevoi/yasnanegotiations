@@ -1469,12 +1469,25 @@ body.theme-vk-dark .popup-overlay .picker-grid button:hover {
 }
 
 /* Активная (выбранная) карточка: bg #e6f0fa → rgb(230,240,250) */
+/* Selected state по VK Tech: solid accent fill + БЕЛЫЙ текст для контраста.
+   Раньше был accent-soft + accent-hover — синее на синем, плохо читалось. */
 body.theme-vk-dark .popup-overlay .picker-grid button[style*='rgb(230, 240, 250)'] {
-  background: var(--vk-accent-soft) !important;
-  color: var(--vk-accent-hover) !important;
+  background: var(--vk-accent) !important;
+  color: #FFFFFF !important;
   border-color: var(--vk-accent) !important;
   font-weight: 600 !important;
-  box-shadow: 0 0 0 1px var(--vk-accent), 0 4px 14px rgba(0, 119, 255, 0.20) !important;
+  box-shadow: 0 4px 14px rgba(0, 119, 255, 0.30), inset 0 1px 0 rgba(255,255,255,0.10) !important;
+}
+/* ✓ маркер на выбранной карточке — белый */
+body.theme-vk-dark .popup-overlay .picker-grid button[style*='rgb(230, 240, 250)'] [style*='rgb(0, 113, 227)'] {
+  color: #FFFFFF !important;
+}
+/* Левый индикатор «стартовая» (#0071e3 strip) на выбранной — белая полоска */
+body.theme-vk-dark .popup-overlay .picker-grid button[style*='rgb(230, 240, 250)'] > span:first-child[style*='rgb(0, 113, 227)'] {
+  background: rgba(255, 255, 255, 0.6) !important;
+}
+body.theme-vk-dark .popup-overlay .picker-grid button[style*='rgb(230, 240, 250)']:hover {
+  background: var(--vk-accent-hover) !important;
 }
 
 /* Голубой ✓ маркер на активной карточке (#0071e3 → rgb(0,113,227)) */
