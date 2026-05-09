@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T11:27:59.673Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T11:41:49.201Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -803,16 +803,44 @@
           sun.position.set(0, R * sinT, R * cosT);
           astroGroup.add(sun);
         }
+        [15, 30, 45, 60].forEach((deg) => {
+          const rad2 = deg * Math.PI / 180;
+          const y2 = R * Math.sin(rad2);
+          const r = R * Math.cos(rad2);
+          astroGroup.add(makeParallel2(y2, r, 7041922, 0.22));
+          astroGroup.add(makeParallel2(-y2, r, 7041922, 0.22));
+        });
+        for (let i = 0; i < 12; i++) {
+          const p = equatorPos(i);
+          const segs = 32;
+          const pts = [];
+          for (let s = 0; s <= segs; s++) {
+            const t = s / segs;
+            const theta = t * Math.PI;
+            const x = p.x * Math.sin(theta);
+            const y2 = NORTH.y * Math.cos(theta);
+            const z = p.z * Math.sin(theta);
+            pts.push(new THREE.Vector3(x, y2, z));
+          }
+          const geom = new THREE.BufferGeometry().setFromPoints(pts);
+          const isCardinal = i % 3 === 0;
+          const mat = new THREE.LineBasicMaterial({
+            color: isCardinal ? 11055550 : 4868693,
+            transparent: true,
+            opacity: isCardinal ? 0.42 : 0.18
+          });
+          astroGroup.add(new THREE.Line(geom, mat));
+        }
         if (window.YasnaSprites && window.YasnaSprites.makeTextSprite) {
           const cardinals = [
             { idx: 6, label: "\u0417\u0415\u041D\u0418\u0422 \u2600", color: 16172618 },
             // полдень / лето
             { idx: 9, label: "\u0417\u0410\u041F\u0410\u0414 \u2193", color: 15218255 },
-            // закат
+            // закат / осень
             { idx: 0, label: "\u041D\u0410\u0414\u0418\u0420 \u263E", color: 6003958 },
             // полночь / зима
             { idx: 3, label: "\u0412\u041E\u0421\u0422\u041E\u041A \u2191", color: 15247412 }
-            // восход
+            // восход / весна
           ];
           cardinals.forEach((c) => {
             const p = equatorPos(c.idx);
@@ -828,6 +856,43 @@
               astroGroup.add(sprite);
             }
           });
+          const cosT = Math.cos(AXIAL_TILT), sinT = Math.sin(AXIAL_TILT);
+          const seasons = [
+            { ang: 0, label: "\u0412\u0415\u0421\u041D\u0410", color: 7268279 },
+            // зелёный
+            { ang: Math.PI / 2, label: "\u041B\u0415\u0422\u041E", color: 16172618 },
+            // золото
+            { ang: Math.PI, label: "\u041E\u0421\u0415\u041D\u042C", color: 15247412 },
+            // янтарь
+            { ang: 3 * Math.PI / 2, label: "\u0417\u0418\u041C\u0410", color: 6003958 }
+            // VK Light Blue
+          ];
+          seasons.forEach((s) => {
+            const x = R * Math.cos(s.ang);
+            const z = R * Math.sin(s.ang);
+            const pt = new THREE.Vector3(x, z * sinT, z * cosT);
+            const sprite = window.YasnaSprites.makeTextSprite(s.label, {
+              color: "#" + s.color.toString(16).padStart(6, "0"),
+              fontSize: 16,
+              stroke: "#000",
+              strokeWidth: 3
+            });
+            if (sprite) {
+              const dir = pt.clone().normalize();
+              sprite.position.copy(pt).addScaledVector(dir, 16);
+              astroGroup.add(sprite);
+            }
+          });
+          const polarisSprite = window.YasnaSprites.makeTextSprite("\u2606 \u041F\u043E\u043B\u044F\u0440\u043D\u0430\u044F", {
+            color: "#A8B1BE",
+            fontSize: 14,
+            stroke: "#000",
+            strokeWidth: 3
+          });
+          if (polarisSprite) {
+            polarisSprite.position.set(0, NORTH.y + 18, 0);
+            astroGroup.add(polarisSprite);
+          }
         }
       }
       for (let i = 0; i < 12; i += 3) {
@@ -5434,7 +5499,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T11:27:58.707Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T11:41:48.263Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
   const THEMES = [
     {
       "id": "chto-est-yasna",

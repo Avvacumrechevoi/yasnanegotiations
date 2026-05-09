@@ -240,14 +240,54 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
         astroGroup.add(sun);
       }
 
-      // Подписи кардинальных точек на экваторе (только для Yasna Суток / Года).
-      // Используем sprite-метки если YasnaSprites доступен.
+      // ─── Дополнительные параллели — географическая сетка ─────────
+      // Слабые тонкие линии на широтах ±15°, ±30°, ±45°, ±60°.
+      // Это создаёт ощущение глобуса с координатной сеткой.
+      [15, 30, 45, 60].forEach(deg=>{
+        const rad = deg * Math.PI / 180;
+        const y = R * Math.sin(rad);
+        const r = R * Math.cos(rad);
+        astroGroup.add(makeParallel( y, r, 0x6B7382, 0.22));
+        astroGroup.add(makeParallel(-y, r, 0x6B7382, 0.22));
+      });
+
+      // ─── 12 меридианов — вертикальные полудуги через апексы ──────
+      // Каждый меридиан проходит через апекс (полюс) и одну из 12 полок.
+      // В Ясне Суток это 12 двухчасовых поясов суточного цикла.
+      for(let i=0; i<12; i++){
+        const p = equatorPos(i);
+        const segs = 32;
+        const pts = [];
+        // Полуокружность от NORTH к SOUTH через точку p на экваторе
+        for(let s=0; s<=segs; s++){
+          const t = s / segs;
+          // Параметрическая полудуга: угол от 0 (NORTH) до π (SOUTH)
+          // Точка (x,y,z) = NORTH·cos(θ) + p·sin(θ)
+          const theta = t * Math.PI;
+          const x = p.x * Math.sin(theta);
+          const y = NORTH.y * Math.cos(theta);
+          const z = p.z * Math.sin(theta);
+          pts.push(new THREE.Vector3(x, y, z));
+        }
+        const geom = new THREE.BufferGeometry().setFromPoints(pts);
+        // Кардинальные меридианы (0/3/6/9) — ярче (это «опорные» направления)
+        const isCardinal = (i % 3 === 0);
+        const mat = new THREE.LineBasicMaterial({
+          color: isCardinal ? 0xA8B1BE : 0x4A4A55,
+          transparent: true,
+          opacity: isCardinal ? 0.42 : 0.18,
+        });
+        astroGroup.add(new THREE.Line(geom, mat));
+      }
+
+      // ─── Подписи кардинальных точек на экваторе ──────────────────
+      // Sprite-метки если YasnaSprites доступен.
       if(window.YasnaSprites && window.YasnaSprites.makeTextSprite){
         const cardinals = [
           { idx: 6,  label: 'ЗЕНИТ ☀',     color: 0xF6C64A },  // полдень / лето
-          { idx: 9,  label: 'ЗАПАД ↓',      color: 0xE8364F },  // закат
+          { idx: 9,  label: 'ЗАПАД ↓',      color: 0xE8364F },  // закат / осень
           { idx: 0,  label: 'НАДИР ☾',      color: 0x5B9CF6 },  // полночь / зима
-          { idx: 3,  label: 'ВОСТОК ↑',     color: 0xE8A834 },  // восход
+          { idx: 3,  label: 'ВОСТОК ↑',     color: 0xE8A834 },  // восход / весна
         ];
         cardinals.forEach(c => {
           const p = equatorPos(c.idx);
@@ -258,12 +298,55 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
             strokeWidth: 4,
           });
           if(sprite){
-            // Слегка вынести наружу сферы
             const dir = p.clone().normalize();
             sprite.position.copy(p).addScaledVector(dir, 8);
             astroGroup.add(sprite);
           }
         });
+
+        // ─── Сезонные метки на эклиптике ────────────────────────
+        // 4 точки эклиптики, соответствующие солнцестояниям и равноденствиям.
+        // В декартовой системе эклиптика — окружность в плоскости xz, повёрнутой на 23.5°.
+        const cosT = Math.cos(AXIAL_TILT), sinT = Math.sin(AXIAL_TILT);
+        // Эклиптические точки: parametr ang. y'=z·sinT, z'=z·cosT
+        // ang=0   (x=R, y=0, z=0)        — точка весеннего равноденствия (внутр.)
+        // ang=π/2 (x=0, y=R·sinT, z=R·cosT) — летнее солнцестояние (макс.высота)
+        // ang=π   (x=-R, y=0, z=0)       — осеннее равноденствие
+        // ang=3π/2 (x=0, y=-R·sinT, z=-R·cosT) — зимнее солнцестояние
+        const seasons = [
+          { ang: 0,            label: 'ВЕСНА',  color: 0x6EE7B7 },   // зелёный
+          { ang: Math.PI/2,    label: 'ЛЕТО',   color: 0xF6C64A },   // золото
+          { ang: Math.PI,      label: 'ОСЕНЬ',  color: 0xE8A834 },   // янтарь
+          { ang: 3*Math.PI/2,  label: 'ЗИМА',   color: 0x5B9CF6 },   // VK Light Blue
+        ];
+        seasons.forEach(s => {
+          const x = R * Math.cos(s.ang);
+          const z = R * Math.sin(s.ang);
+          const pt = new THREE.Vector3(x, z * sinT, z * cosT);
+          const sprite = window.YasnaSprites.makeTextSprite(s.label, {
+            color: '#' + s.color.toString(16).padStart(6, '0'),
+            fontSize: 16,
+            stroke: '#000',
+            strokeWidth: 3,
+          });
+          if(sprite){
+            const dir = pt.clone().normalize();
+            sprite.position.copy(pt).addScaledVector(dir, 16);
+            astroGroup.add(sprite);
+          }
+        });
+
+        // ─── Подпись Полярной Звезды у Зенита ─────────────────────
+        const polarisSprite = window.YasnaSprites.makeTextSprite('☆ Полярная', {
+          color: '#A8B1BE',
+          fontSize: 14,
+          stroke: '#000',
+          strokeWidth: 3,
+        });
+        if(polarisSprite){
+          polarisSprite.position.set(0, NORTH.y + 18, 0);
+          astroGroup.add(polarisSprite);
+        }
       }
     }
     // ─────────────── /конец астрономического слоя ─────────────────────
