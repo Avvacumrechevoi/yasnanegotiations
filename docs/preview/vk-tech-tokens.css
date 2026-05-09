@@ -1428,30 +1428,83 @@ body.theme-vk-dark .popup-overlay button[style*='rgb(229, 229, 234)'] {
   color: var(--vk-text-secondary) !important;
 }
 
-/* ─── ACTION BUTTONS ─── «Выбрать все» / «Только стартовые» / «Снять все» */
-/* Голубой бэкграунд активного состояния (rgba(0,122,255,.08) → rgba(0, 122, 255, 0.08)) */
-body.theme-vk-dark .popup-overlay button[style*='rgba(0, 122, 255, 0.08)'] {
-  background: var(--vk-accent-soft) !important;
-  border-color: rgba(0, 119, 255, 0.40) !important;
-  color: var(--vk-accent-hover) !important;
+/* ═══ ACTION BUTTONS под search-bar ═══════════════════════════════
+   Иерархия по VK Tech:
+   • Default (inactive)  → tonal bg + текст primary, тонкий border —
+                           нейтральный, не конкурирует с акцентом
+   • Activated (engaged) → solid VK Blue + БЕЛЫЙ текст — ясно видно «включено»
+   • Destructive         → outlined VK Pink (#FF3985)
+   ════════════════════════════════════════════════════════════════ */
+
+/* DEFAULT — выпадает на любую кнопку с border rgba(0,122,255,.3)
+   (т.е. «Выбрать все» / «Только стартовые» в неактивном состоянии).
+   Делаем нейтральной плашкой, без акцента. */
+body.theme-vk-dark .popup-overlay button[style*='rgba(0, 122, 255, 0.3)']:not([style*='rgba(0, 122, 255, 0.08)']) {
+  background: var(--vk-bg-tonal) !important;
+  border: 1px solid var(--vk-border) !important;
+  color: var(--vk-text-primary) !important;
+  font-weight: 500 !important;
 }
-/* Голубой бордер (rgba(0,122,255,.3) → rgba(0, 122, 255, 0.3)) — все action кнопки */
-body.theme-vk-dark .popup-overlay button[style*='rgba(0, 122, 255, 0.3)'] {
-  border-color: rgba(0, 119, 255, 0.40) !important;
-  color: var(--vk-accent-hover) !important;
-}
-body.theme-vk-dark .popup-overlay button[style*='rgba(0, 122, 255, 0.3)']:hover {
-  background: var(--vk-accent-soft) !important;
+body.theme-vk-dark .popup-overlay button[style*='rgba(0, 122, 255, 0.3)']:not([style*='rgba(0, 122, 255, 0.08)']):hover {
+  background: var(--vk-bg-strong) !important;
+  border-color: var(--vk-text-tertiary) !important;
 }
 
-/* Красная «Снять все» (#E8364F → rgba(232,54,79,.3)) — оставляем красной */
+/* ACTIVATED — кнопки с inline rgba(0,122,255,.08) фоном
+   (т.е. «✓ Все выбраны — снять» / «★ Стартовые — снять»).
+   Solid VK Blue + белый текст для ясности «engaged» состояния. */
+body.theme-vk-dark .popup-overlay button[style*='rgba(0, 122, 255, 0.08)'] {
+  background: var(--vk-accent) !important;
+  border: 1px solid var(--vk-accent) !important;
+  color: #FFFFFF !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 10px rgba(0, 119, 255, 0.30) !important;
+}
+body.theme-vk-dark .popup-overlay button[style*='rgba(0, 122, 255, 0.08)']:hover {
+  background: var(--vk-accent-hover) !important;
+  border-color: var(--vk-accent-hover) !important;
+}
+
+/* DESTRUCTIVE — «Снять все» (E8364F).
+   Outlined VK Pink, на hover — мягкая заливка. */
 body.theme-vk-dark .popup-overlay button[style*='rgb(232, 54, 79)'],
 body.theme-vk-dark .popup-overlay button[style*='rgba(232, 54, 79, 0.3)'] {
-  color: var(--vk-accent-3, #FF3985) !important;
-  border-color: rgba(255, 57, 133, 0.40) !important;
+  background: var(--vk-bg-tonal) !important;
+  color: #FF3985 !important;
+  border: 1px solid rgba(255, 57, 133, 0.40) !important;
+  font-weight: 500 !important;
 }
 body.theme-vk-dark .popup-overlay button[style*='rgba(232, 54, 79, 0.3)']:hover {
-  background: rgba(255, 57, 133, 0.10) !important;
+  background: rgba(255, 57, 133, 0.14) !important;
+  border-color: #FF3985 !important;
+  color: #FF3985 !important;
+}
+
+/* ═══ SEARCH BAR ═══════════════════════════════════════════════════
+   Тёмный tonal-фон, без жёсткого бордера, с focus-ring в VK Blue.
+   ════════════════════════════════════════════════════════════════ */
+body.theme-vk-dark .popup-overlay input[type='text'],
+body.theme-vk-dark .popup-overlay input:not([type]) {
+  background: var(--vk-bg-tonal) !important;
+  border: 1px solid transparent !important;
+  color: var(--vk-text-primary) !important;
+  font-size: 15px !important;
+  height: 44px !important;
+  padding: 0 14px 0 38px !important;
+  border-radius: 12px !important;
+  transition: background 160ms, border-color 160ms, box-shadow 160ms !important;
+}
+body.theme-vk-dark .popup-overlay input::placeholder {
+  color: var(--vk-text-tertiary) !important;
+}
+body.theme-vk-dark .popup-overlay input:hover {
+  background: var(--vk-bg-strong) !important;
+}
+body.theme-vk-dark .popup-overlay input:focus {
+  background: var(--vk-bg-elevated) !important;
+  border-color: var(--vk-accent) !important;
+  box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.18) !important;
+  outline: none !important;
 }
 
 /* ─── CARD-таблетки в гриде ─── */
