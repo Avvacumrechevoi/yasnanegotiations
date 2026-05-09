@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T22:45:05.356Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T22:52:31.500Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5861,7 +5861,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T22:45:04.720Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T22:52:30.949Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -19060,47 +19060,97 @@ window.YasnaCore = {
       const t = setTimeout(onReady, SHOW_VS_MS);
       return () => clearTimeout(t);
     }, []);
-    const themeNames = themes.map((t) => t.theme.name).join(" \xB7 ");
+    const totalQ = themes.reduce((s, r) => {
+      var _a;
+      return s + (((_a = r.questions) == null ? void 0 : _a.length) || 0);
+    }, 0);
+    const themeCount = themes.length;
+    const themeChips = themes.slice(0, 6);
     return React.createElement(
       "div",
-      { className: "tn-fullscreen" },
+      { className: "tn-fullscreen tn-vs-screen" },
       React.createElement(
         "div",
         { className: "tn-container" },
         React.createElement(TnTopBar, { eyebrow: "\u2726 \u041F\u0430\u0440\u0442\u0438\u044F \u043D\u0430\u0447\u0438\u043D\u0430\u0435\u0442\u0441\u044F" }),
         React.createElement(
           "div",
-          { className: "tn-round-intro" },
-          React.createElement("div", { className: "tn-round-eyebrow" }, "\u041F\u0430\u0440\u0442\u0438\u044F \u0434\u043B\u044F \u0434\u0432\u043E\u0438\u0445"),
+          { className: "tn-vs-stage" },
+          React.createElement("div", { className: "tn-vs-stage__eyebrow" }, "\u041F\u0430\u0440\u0442\u0438\u044F \u0434\u043B\u044F \u0434\u0432\u043E\u0438\u0445"),
+          // Главный VS-блок: две стороны + центр
           React.createElement(
             "div",
-            { className: "tn-versus", style: { justifyContent: "center", gap: 48, margin: "16px 0 40px" } },
+            { className: "tn-vs-stage__row" },
+            // Игрок (слева)
             React.createElement(
               "div",
-              { className: "tn-player" },
-              React.createElement("div", { className: "tn-avatar" }, renderTnAvatar(player.avatar, player.nickname)),
+              { className: "tn-vs-stage__side tn-vs-stage__side--player" },
               React.createElement(
                 "div",
-                null,
-                React.createElement("div", { className: "tn-player-name" }, player.nickname),
-                React.createElement("div", { className: "tn-player-stats" }, player.rank || "\u041F\u043E\u0441\u043B\u0443\u0448\u043D\u0438\u043A")
-              )
+                { className: "tn-vs-stage__avatar" },
+                React.createElement("span", { className: "tn-vs-stage__avatar-glyph" }, renderTnAvatar(player.avatar, player.nickname))
+              ),
+              React.createElement("div", { className: "tn-vs-stage__name" }, player.nickname),
+              React.createElement("div", { className: "tn-vs-stage__rank" }, player.rank || "\u041F\u043E\u0441\u043B\u0443\u0448\u043D\u0438\u043A")
             ),
-            React.createElement("span", { className: "tn-vs", style: { fontFamily: "ui-serif, Georgia, serif", fontStyle: "italic", fontSize: 22, opacity: 0.6 } }, "\u043F\u0440\u043E\u0442\u0438\u0432"),
+            // Центр — большой VS
             React.createElement(
               "div",
-              { className: "tn-player tn-player-right" },
-              React.createElement("div", { className: "tn-avatar" }, opponent.glyph || "\u25D0"),
+              { className: "tn-vs-stage__center" },
+              React.createElement("span", { className: "tn-vs-stage__vs" }, "VS"),
+              React.createElement("span", { className: "tn-vs-stage__divider", "aria-hidden": "true" })
+            ),
+            // Соперник (справа)
+            React.createElement(
+              "div",
+              { className: "tn-vs-stage__side tn-vs-stage__side--opp" },
               React.createElement(
                 "div",
-                null,
-                React.createElement("div", { className: "tn-player-name" }, opponent.name),
-                React.createElement("div", { className: "tn-player-stats" }, opponent.subtitle || "")
-              )
+                { className: "tn-vs-stage__avatar tn-vs-stage__avatar--opp" },
+                React.createElement("span", { className: "tn-vs-stage__avatar-glyph" }, opponent.glyph || renderTnAvatar(opponent.avatar, opponent.name) || "\u25D0")
+              ),
+              React.createElement("div", { className: "tn-vs-stage__name" }, opponent.name),
+              React.createElement("div", { className: "tn-vs-stage__rank" }, opponent.subtitle || "")
             )
           ),
-          React.createElement("div", { className: "tn-round-eyebrow", style: { marginTop: 32, fontSize: 11, letterSpacing: "0.16em" } }, "\u2637 \u0428\u0435\u0441\u0442\u044C \u0442\u0435\u043C \xB7 \u0432\u043E\u0441\u0435\u043C\u043D\u0430\u0434\u0446\u0430\u0442\u044C \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432"),
-          React.createElement("div", { style: { fontSize: 13, color: "#8a8470", maxWidth: 520, margin: "6px auto 0", lineHeight: 1.7, fontStyle: "italic" } }, themeNames)
+          // Информационная плашка снизу
+          React.createElement(
+            "div",
+            { className: "tn-vs-stage__brief" },
+            React.createElement(
+              "div",
+              { className: "tn-vs-stage__brief-row" },
+              React.createElement(
+                "div",
+                { className: "tn-vs-stage__brief-stat" },
+                React.createElement("div", { className: "tn-vs-stage__brief-num" }, totalQ),
+                React.createElement("div", { className: "tn-vs-stage__brief-label" }, "\u0432\u043E\u043F\u0440\u043E\u0441", totalQ === 1 ? "" : totalQ < 5 ? "\u0430" : "\u043E\u0432")
+              ),
+              React.createElement(
+                "div",
+                { className: "tn-vs-stage__brief-stat" },
+                React.createElement("div", { className: "tn-vs-stage__brief-num" }, themeCount),
+                React.createElement("div", { className: "tn-vs-stage__brief-label" }, themeCount === 1 ? "\u0442\u0435\u043C\u0430" : themeCount < 5 ? "\u0442\u0435\u043C\u044B" : "\u0442\u0435\u043C")
+              ),
+              React.createElement(
+                "div",
+                { className: "tn-vs-stage__brief-stat" },
+                React.createElement("div", { className: "tn-vs-stage__brief-num" }, "15"),
+                React.createElement("div", { className: "tn-vs-stage__brief-label" }, "\u0441\u0435\u043A \u043D\u0430 \u043E\u0442\u0432\u0435\u0442")
+              )
+            ),
+            themeChips.length > 0 && React.createElement(
+              "div",
+              { className: "tn-vs-stage__themes" },
+              themeChips.map(
+                (r, i) => React.createElement(
+                  "span",
+                  { key: i, className: "tn-vs-stage__theme-chip" },
+                  r.theme.name || r.theme.id
+                )
+              )
+            )
+          )
         )
       )
     );

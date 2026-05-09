@@ -95,36 +95,73 @@
   }
 
   // ─── Vs-screen ───────────────────────────────────────────────────
+  // Стартовый экран Партии: крупные аватары + большой «VS» в центре +
+  // плашка с темами. Дизайн-токены VK Tech.
   function VsScreen({ player, opponent, themes, onReady }){
     useEffect(() => {
       const t = setTimeout(onReady, SHOW_VS_MS);
       return () => clearTimeout(t);
     }, []);
-    const themeNames = themes.map(t => t.theme.name).join(' · ');
-    return React.createElement('div', { className: 'tn-fullscreen' },
+    const totalQ = themes.reduce((s, r) => s + (r.questions?.length || 0), 0);
+    const themeCount = themes.length;
+    const themeChips = themes.slice(0, 6); // кап на 6 чтобы не разъезжалось
+    return React.createElement('div', { className: 'tn-fullscreen tn-vs-screen' },
       React.createElement('div', { className: 'tn-container' },
         React.createElement(TnTopBar, { eyebrow: '✦ Партия начинается' }),
-        React.createElement('div', { className: 'tn-round-intro' },
-          React.createElement('div', { className: 'tn-round-eyebrow' }, 'Партия для двоих'),
-          React.createElement('div', { className: 'tn-versus', style: { justifyContent: 'center', gap: 48, margin: '16px 0 40px' } },
-            React.createElement('div', { className: 'tn-player' },
-              React.createElement('div', { className: 'tn-avatar' }, renderTnAvatar(player.avatar, player.nickname)),
-              React.createElement('div', null,
-                React.createElement('div', { className: 'tn-player-name' }, player.nickname),
-                React.createElement('div', { className: 'tn-player-stats' }, player.rank || 'Послушник')
-              )
+        React.createElement('div', { className: 'tn-vs-stage' },
+          React.createElement('div', { className: 'tn-vs-stage__eyebrow' }, 'Партия для двоих'),
+
+          // Главный VS-блок: две стороны + центр
+          React.createElement('div', { className: 'tn-vs-stage__row' },
+            // Игрок (слева)
+            React.createElement('div', { className: 'tn-vs-stage__side tn-vs-stage__side--player' },
+              React.createElement('div', { className: 'tn-vs-stage__avatar' },
+                React.createElement('span', { className: 'tn-vs-stage__avatar-glyph' }, renderTnAvatar(player.avatar, player.nickname))
+              ),
+              React.createElement('div', { className: 'tn-vs-stage__name' }, player.nickname),
+              React.createElement('div', { className: 'tn-vs-stage__rank' }, player.rank || 'Послушник')
             ),
-            React.createElement('span', { className: 'tn-vs', style: { fontFamily: 'ui-serif, Georgia, serif', fontStyle: 'italic', fontSize: 22, opacity: 0.6 } }, 'против'),
-            React.createElement('div', { className: 'tn-player tn-player-right' },
-              React.createElement('div', { className: 'tn-avatar' }, opponent.glyph || '◐'),
-              React.createElement('div', null,
-                React.createElement('div', { className: 'tn-player-name' }, opponent.name),
-                React.createElement('div', { className: 'tn-player-stats' }, opponent.subtitle || '')
-              )
+
+            // Центр — большой VS
+            React.createElement('div', { className: 'tn-vs-stage__center' },
+              React.createElement('span', { className: 'tn-vs-stage__vs' }, 'VS'),
+              React.createElement('span', { className: 'tn-vs-stage__divider', 'aria-hidden': 'true' })
+            ),
+
+            // Соперник (справа)
+            React.createElement('div', { className: 'tn-vs-stage__side tn-vs-stage__side--opp' },
+              React.createElement('div', { className: 'tn-vs-stage__avatar tn-vs-stage__avatar--opp' },
+                React.createElement('span', { className: 'tn-vs-stage__avatar-glyph' }, opponent.glyph || renderTnAvatar(opponent.avatar, opponent.name) || '◐')
+              ),
+              React.createElement('div', { className: 'tn-vs-stage__name' }, opponent.name),
+              React.createElement('div', { className: 'tn-vs-stage__rank' }, opponent.subtitle || '')
             )
           ),
-          React.createElement('div', { className: 'tn-round-eyebrow', style: { marginTop: 32, fontSize: 11, letterSpacing: '0.16em' } }, '☷ Шесть тем · восемнадцать вопросов'),
-          React.createElement('div', { style: { fontSize: 13, color: '#8a8470', maxWidth: 520, margin: '6px auto 0', lineHeight: 1.7, fontStyle: 'italic' } }, themeNames)
+
+          // Информационная плашка снизу
+          React.createElement('div', { className: 'tn-vs-stage__brief' },
+            React.createElement('div', { className: 'tn-vs-stage__brief-row' },
+              React.createElement('div', { className: 'tn-vs-stage__brief-stat' },
+                React.createElement('div', { className: 'tn-vs-stage__brief-num' }, totalQ),
+                React.createElement('div', { className: 'tn-vs-stage__brief-label' }, 'вопрос', totalQ === 1 ? '' : (totalQ < 5 ? 'а' : 'ов'))
+              ),
+              React.createElement('div', { className: 'tn-vs-stage__brief-stat' },
+                React.createElement('div', { className: 'tn-vs-stage__brief-num' }, themeCount),
+                React.createElement('div', { className: 'tn-vs-stage__brief-label' }, themeCount === 1 ? 'тема' : (themeCount < 5 ? 'темы' : 'тем'))
+              ),
+              React.createElement('div', { className: 'tn-vs-stage__brief-stat' },
+                React.createElement('div', { className: 'tn-vs-stage__brief-num' }, '15'),
+                React.createElement('div', { className: 'tn-vs-stage__brief-label' }, 'сек на ответ')
+              )
+            ),
+            themeChips.length > 0 && React.createElement('div', { className: 'tn-vs-stage__themes' },
+              themeChips.map((r, i) =>
+                React.createElement('span', { key: i, className: 'tn-vs-stage__theme-chip' },
+                  r.theme.name || r.theme.id
+                )
+              )
+            )
+          )
         )
       )
     );

@@ -2630,3 +2630,242 @@ body.theme-vk-dark .dp-theme-banner__count { color: var(--text-2, #aeaeb2); }
 }
 
 body:not(.theme-vk-dark) .dp-picker-footer { border-top-color: #f0f0f2; }
+
+/* ════════════════════════════════════════════════════════════════
+   VS-screen — стартовый экран Партии
+   Дизайн: крупные аватары + большое «VS» по центру + статистика снизу.
+   Токены VK Tech (--vk-accent, --vk-font-display, --bg-tonal).
+   ════════════════════════════════════════════════════════════════ */
+
+.tn-vs-screen { background: var(--bg-page, #0a0a0a); }
+
+.tn-vs-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 80px);
+  padding: 40px 24px 60px;
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.tn-vs-stage__eyebrow {
+  font-family: var(--vk-font-title, ui-serif, Georgia, serif);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-3, #6e6e73);
+  margin-bottom: 48px;
+  font-weight: 600;
+}
+
+/* Main row: side · center · side */
+.tn-vs-stage__row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 24px;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 56px;
+}
+
+.tn-vs-stage__side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ─── Аватар: круг с градиентом, крупный ─── */
+.tn-vs-stage__avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(0,119,255,0.20) 0%, rgba(0,119,255,0.05) 100%);
+  border: 2px solid rgba(0,119,255,0.30);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 32px rgba(0,119,255,0.15);
+  position: relative;
+  overflow: hidden;
+}
+.tn-vs-stage__avatar::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent, rgba(0,119,255,0.40), transparent);
+  z-index: 0;
+  animation: tnVsRing 4s linear infinite;
+}
+.tn-vs-stage__avatar-glyph {
+  position: relative;
+  z-index: 1;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: var(--bg-surface, #1c1c1e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 56px;
+  line-height: 1;
+  color: var(--text-1, #fff);
+  font-family: var(--vk-font-display, system-ui);
+  font-weight: 600;
+}
+.tn-vs-stage__avatar-glyph img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+@keyframes tnVsRing {
+  to { transform: rotate(360deg); }
+}
+
+/* Аватар соперника — другой hue (warm) */
+.tn-vs-stage__avatar--opp {
+  background: linear-gradient(135deg, rgba(225,51,78,0.20) 0%, rgba(225,51,78,0.05) 100%);
+  border-color: rgba(225,51,78,0.30);
+  box-shadow: 0 8px 32px rgba(225,51,78,0.15);
+}
+.tn-vs-stage__avatar--opp::before {
+  background: conic-gradient(from 180deg, transparent, rgba(225,51,78,0.40), transparent);
+}
+
+/* Имя + ранг */
+.tn-vs-stage__name {
+  font-family: var(--vk-font-title, ui-serif, Georgia, serif);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-1, #fff);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.tn-vs-stage__rank {
+  font-family: var(--vk-font-body, system-ui);
+  font-size: 12px;
+  color: var(--text-2, #aeaeb2);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* ─── Центр: большое VS + декоративная линия ─── */
+.tn-vs-stage__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+}
+.tn-vs-stage__vs {
+  font-family: var(--vk-font-display, ui-serif, Georgia, serif);
+  font-size: 64px;
+  font-weight: 800;
+  color: var(--text-1, #fff);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  background: linear-gradient(135deg, #0077FF 0%, #16A7FF 50%, #E1334E 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 24px rgba(0, 119, 255, 0.20);
+}
+.tn-vs-stage__divider {
+  width: 1px;
+  height: 28px;
+  background: linear-gradient(180deg, transparent, var(--border-1, #444) 50%, transparent);
+  display: none;  /* пока скрыт — VS уже акцент */
+}
+
+/* ─── Информационная плашка ─── */
+.tn-vs-stage__brief {
+  background: var(--bg-tonal, rgba(255,255,255,.04));
+  border: 1px solid var(--border-1, rgba(255,255,255,.08));
+  border-radius: 18px;
+  padding: 20px 24px;
+  width: 100%;
+  max-width: 480px;
+}
+.tn-vs-stage__brief-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-1, rgba(255,255,255,.06));
+}
+.tn-vs-stage__brief-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.tn-vs-stage__brief-num {
+  font-family: var(--vk-font-display, system-ui);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--vk-accent, #0077FF);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.tn-vs-stage__brief-label {
+  font-family: var(--vk-font-body, system-ui);
+  font-size: 11px;
+  color: var(--text-2, #aeaeb2);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.tn-vs-stage__themes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+.tn-vs-stage__theme-chip {
+  display: inline-block;
+  padding: 5px 11px;
+  font-size: 11.5px;
+  font-weight: 500;
+  background: rgba(0, 119, 255, 0.12);
+  color: var(--vk-accent-hover, #5B9CF6);
+  border-radius: 999px;
+  border: 1px solid rgba(0, 119, 255, 0.20);
+  white-space: nowrap;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .tn-vs-stage { padding: 24px 16px 40px; min-height: calc(100vh - 60px); }
+  .tn-vs-stage__row { gap: 12px; margin-bottom: 36px; }
+  .tn-vs-stage__avatar { width: 84px; height: 84px; }
+  .tn-vs-stage__avatar-glyph { width: 76px; height: 76px; font-size: 38px; }
+  .tn-vs-stage__name { font-size: 16px; }
+  .tn-vs-stage__rank { font-size: 10px; }
+  .tn-vs-stage__vs { font-size: 38px; }
+  .tn-vs-stage__brief { padding: 16px; border-radius: 14px; }
+  .tn-vs-stage__brief-num { font-size: 20px; }
+  .tn-vs-stage__eyebrow { margin-bottom: 28px; }
+}
+
+/* Light theme overrides */
+body:not(.theme-vk-dark) .tn-vs-screen { background: #f5f5f7; }
+body:not(.theme-vk-dark) .tn-vs-stage__avatar-glyph {
+  background: #ffffff;
+  color: #1d1d1f;
+}
+body:not(.theme-vk-dark) .tn-vs-stage__name { color: #1d1d1f; }
+body:not(.theme-vk-dark) .tn-vs-stage__rank { color: #6e6e73; }
+body:not(.theme-vk-dark) .tn-vs-stage__brief {
+  background: #ffffff;
+  border-color: #e5e5ea;
+}
+body:not(.theme-vk-dark) .tn-vs-stage__brief-row { border-bottom-color: #f0f0f2; }
+body:not(.theme-vk-dark) .tn-vs-stage__brief-label,
+body:not(.theme-vk-dark) .tn-vs-stage__eyebrow { color: #86868b; }
