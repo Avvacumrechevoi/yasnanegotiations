@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T11:54:19.532Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T11:58:09.884Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -910,6 +910,59 @@
             polarisSprite.position.set(0, NORTH.y + 18, 0);
             astroGroup.add(polarisSprite);
           }
+          const zodiac = [
+            { glyph: "\u2648", name: "\u041E\u0432\u0435\u043D", elem: "fire" },
+            // 0°
+            { glyph: "\u2649", name: "\u0422\u0435\u043B\u0435\u0446", elem: "earth" },
+            // 30°
+            { glyph: "\u264A", name: "\u0411\u043B\u0438\u0437\u043D\u0435\u0446\u044B", elem: "air" },
+            // 60°
+            { glyph: "\u264B", name: "\u0420\u0430\u043A", elem: "water" },
+            // 90° — летнее солнцестояние
+            { glyph: "\u264C", name: "\u041B\u0435\u0432", elem: "fire" },
+            // 120°
+            { glyph: "\u264D", name: "\u0414\u0435\u0432\u0430", elem: "earth" },
+            // 150°
+            { glyph: "\u264E", name: "\u0412\u0435\u0441\u044B", elem: "air" },
+            // 180° — осеннее равноденствие
+            { glyph: "\u264F", name: "\u0421\u043A\u043E\u0440\u043F\u0438\u043E\u043D", elem: "water" },
+            // 210°
+            { glyph: "\u2650", name: "\u0421\u0442\u0440\u0435\u043B\u0435\u0446", elem: "fire" },
+            // 240°
+            { glyph: "\u2651", name: "\u041A\u043E\u0437\u0435\u0440\u043E\u0433", elem: "earth" },
+            // 270° — зимнее солнцестояние
+            { glyph: "\u2652", name: "\u0412\u043E\u0434\u043E\u043B\u0435\u0439", elem: "air" },
+            // 300°
+            { glyph: "\u2653", name: "\u0420\u044B\u0431\u044B", elem: "water" }
+            // 330°
+          ];
+          const elemColor = {
+            fire: "#F06838",
+            // VK Orange-red
+            earth: "#C0943A",
+            // VK Gold
+            air: "#06B6D4",
+            // VK Cyan
+            water: "#2563EB"
+            // VK Blue
+          };
+          zodiac.forEach((z, i) => {
+            const ang = i / 12 * Math.PI * 2;
+            const x = R * Math.cos(ang);
+            const zCoord = R * Math.sin(ang);
+            const pt = new THREE.Vector3(x, zCoord * sinT, zCoord * cosT);
+            const sprite = window.YasnaSprites.makeTextSprite(z.glyph, {
+              color: elemColor[z.elem],
+              fontSize: 26,
+              stroke: "#000",
+              strokeWidth: 4
+            });
+            if (sprite) {
+              const dir = pt.clone().normalize();
+              sprite.position.copy(pt).addScaledVector(dir, 10);
+              astroGroup.add(sprite);
+            }
+          });
         }
       }
       for (let i = 0; i < 12; i += 3) {
@@ -5575,7 +5628,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T11:54:18.660Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T11:58:08.995Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
   const THEMES = [
     {
       "id": "chto-est-yasna",

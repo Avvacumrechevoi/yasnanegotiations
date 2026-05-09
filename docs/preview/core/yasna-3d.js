@@ -368,6 +368,53 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
           polarisSprite.position.set(0, NORTH.y + 18, 0);
           astroGroup.add(polarisSprite);
         }
+
+        // ─── 12 знаков Зодиака на эклиптике ───────────────────────
+        // Каждый знак занимает 30° эклиптики. Расположение исторически
+        // привязано к точкам равноденствия и солнцестояний:
+        //   ang=0   → Овен ♈ (весеннее равноденствие)
+        //   ang=π/2 → Рак ♋ (летнее солнцестояние)
+        //   ang=π   → Весы ♎ (осеннее равноденствие)
+        //   ang=3π/2→ Козерог ♑ (зимнее солнцестояние)
+        // Цвета — по стихии знака (Огонь/Земля/Воздух/Вода).
+        const zodiac = [
+          { glyph:'♈', name:'Овен',       elem:'fire'  }, // 0°
+          { glyph:'♉', name:'Телец',      elem:'earth' }, // 30°
+          { glyph:'♊', name:'Близнецы',   elem:'air'   }, // 60°
+          { glyph:'♋', name:'Рак',        elem:'water' }, // 90° — летнее солнцестояние
+          { glyph:'♌', name:'Лев',        elem:'fire'  }, // 120°
+          { glyph:'♍', name:'Дева',       elem:'earth' }, // 150°
+          { glyph:'♎', name:'Весы',       elem:'air'   }, // 180° — осеннее равноденствие
+          { glyph:'♏', name:'Скорпион',   elem:'water' }, // 210°
+          { glyph:'♐', name:'Стрелец',    elem:'fire'  }, // 240°
+          { glyph:'♑', name:'Козерог',    elem:'earth' }, // 270° — зимнее солнцестояние
+          { glyph:'♒', name:'Водолей',    elem:'air'   }, // 300°
+          { glyph:'♓', name:'Рыбы',       elem:'water' }, // 330°
+        ];
+        const elemColor = {
+          fire:  '#F06838',  // VK Orange-red
+          earth: '#C0943A',  // VK Gold
+          air:   '#06B6D4',  // VK Cyan
+          water: '#2563EB',  // VK Blue
+        };
+        zodiac.forEach((z, i) => {
+          const ang = (i / 12) * Math.PI * 2;
+          const x = R * Math.cos(ang);
+          const zCoord = R * Math.sin(ang);
+          const pt = new THREE.Vector3(x, zCoord * sinT, zCoord * cosT);
+          const sprite = window.YasnaSprites.makeTextSprite(z.glyph, {
+            color: elemColor[z.elem],
+            fontSize: 26,
+            stroke: '#000',
+            strokeWidth: 4,
+          });
+          if(sprite){
+            // Вынести немного наружу эклиптики
+            const dir = pt.clone().normalize();
+            sprite.position.copy(pt).addScaledVector(dir, 10);
+            astroGroup.add(sprite);
+          }
+        });
       }
     }
     // ─────────────── /конец астрономического слоя ─────────────────────
