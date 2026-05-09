@@ -1998,7 +1998,7 @@
                   }, '↺ сбросить')
                 )
               ),
-              // Темы как банеры с иконками — визуально насыщеннее чем chips
+              // Темы как компактные банеры в сетке 3×3 — все 9 видны без скролла
               React.createElement('div', { className: 'dp-themes-list dp-themes-list--banners' },
                 allThemes.map(t => {
                   const checked = isAllSelected || selectedSet.has(t.id);
@@ -2016,12 +2016,7 @@
                       'aria-hidden': 'true',
                       dangerouslySetInnerHTML: { __html: meta.svg }
                     }),
-                    React.createElement('span', { className: 'dp-theme-banner__body' },
-                      React.createElement('span', { className: 'dp-theme-banner__name' }, t.short || t.name),
-                      React.createElement('span', { className: 'dp-theme-banner__count' },
-                        ((window.YasnaTrivia?.getQuestionsForTheme?.(t.id)?.length) || 0), ' вопросов'
-                      )
-                    ),
+                    React.createElement('span', { className: 'dp-theme-banner__name' }, t.short || t.name),
                     checked && React.createElement('span', { className: 'dp-theme-banner__check', 'aria-hidden': 'true' }, '✓')
                   );
                 })

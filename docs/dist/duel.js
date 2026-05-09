@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T22:08:17.352Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T22:17:13.116Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5861,7 +5861,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T22:08:16.919Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T22:17:12.642Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -23270,12 +23270,11 @@ window.YasnaCore = {
                   }, "\u21BA \u0441\u0431\u0440\u043E\u0441\u0438\u0442\u044C")
                 )
               ),
-              // Темы как банеры с иконками — визуально насыщеннее чем chips
+              // Темы как компактные банеры в сетке 3×3 — все 9 видны без скролла
               React.createElement(
                 "div",
                 { className: "dp-themes-list dp-themes-list--banners" },
                 allThemes.map((t) => {
-                  var _a, _b, _c;
                   const checked = isAllSelected || selectedSet.has(t.id);
                   const meta = THEME_VISUALS[t.id] || THEME_VISUALS.__default;
                   return React.createElement(
@@ -23293,17 +23292,7 @@ window.YasnaCore = {
                       "aria-hidden": "true",
                       dangerouslySetInnerHTML: { __html: meta.svg }
                     }),
-                    React.createElement(
-                      "span",
-                      { className: "dp-theme-banner__body" },
-                      React.createElement("span", { className: "dp-theme-banner__name" }, t.short || t.name),
-                      React.createElement(
-                        "span",
-                        { className: "dp-theme-banner__count" },
-                        ((_c = (_b = (_a = window.YasnaTrivia) == null ? void 0 : _a.getQuestionsForTheme) == null ? void 0 : _b.call(_a, t.id)) == null ? void 0 : _c.length) || 0,
-                        " \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432"
-                      )
-                    ),
+                    React.createElement("span", { className: "dp-theme-banner__name" }, t.short || t.name),
                     checked && React.createElement("span", { className: "dp-theme-banner__check", "aria-hidden": "true" }, "\u2713")
                   );
                 })
