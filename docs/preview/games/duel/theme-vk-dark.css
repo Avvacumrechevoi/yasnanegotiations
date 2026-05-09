@@ -218,10 +218,34 @@ body.theme-vk-dark .tn-final-stat {
               color var(--duration-base) ease-out;
 }
 
-/* ═══ Кнопка-переключатель темы — header-стиль (top-right) ═══
-   Унифицировано с гидом (theme-vk-dark-guide.css). Позиция top-right
-   чтобы выглядеть как header-кнопка, единая на всех страницах. */
-.dp-theme-toggle {
+/* ═══ Кнопка-переключатель темы — теперь icon-only В хедере ═══
+   Раньше была floating top-right — теперь живёт внутри .dp-header-auth
+   рядом с «?» и «Войти». Единый стиль с index.html. */
+.dp-theme-toggle--header {
+  position: static;
+  width: 32px;
+  height: 32px;
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 50%;
+  font: inherit; font-size: 14px;
+  color: #1d1d1f;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
+  user-select: none;
+  margin-right: 6px;
+}
+.dp-theme-toggle--header:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.16);
+}
+.dp-theme-toggle--header .dp-theme-toggle-icon { font-size: 14px; line-height: 1; }
+.dp-theme-toggle--header .dp-theme-toggle-label { display: none; }
+
+/* Fallback для старых страниц где кнопка ещё на body — оставляем floating */
+.dp-theme-toggle:not(.dp-theme-toggle--header) {
   position: fixed;
   top: 12px;
   right: 16px;
@@ -241,7 +265,7 @@ body.theme-vk-dark .tn-final-stat {
   white-space: nowrap;
   user-select: none;
 }
-.dp-theme-toggle:hover {
+.dp-theme-toggle:not(.dp-theme-toggle--header):hover {
   background: rgba(245, 245, 247, 1);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
@@ -249,14 +273,26 @@ body.theme-vk-dark .tn-final-stat {
 .dp-theme-toggle-icon { font-size: 13px; line-height: 1; }
 .dp-theme-toggle-label { letter-spacing: 0; }
 
-/* В Dark-теме toggle становится тёмным */
-body.theme-vk-dark .dp-theme-toggle {
+/* В Dark-теме header-вариант — tonal круг */
+body.theme-vk-dark .dp-theme-toggle--header {
+  background: var(--bg-soft, rgba(255,255,255,.06)) !important;
+  color: var(--text-1, #FEFEFE) !important;
+  border-color: var(--border-1, rgba(255,255,255,.10)) !important;
+  box-shadow: none !important;
+}
+body.theme-vk-dark .dp-theme-toggle--header:hover {
+  background: var(--bg-strong, rgba(255,255,255,.12)) !important;
+  border-color: var(--text-3, rgba(255,255,255,.20)) !important;
+}
+
+/* В Dark-теме floating-вариант (fallback) становится тёмным */
+body.theme-vk-dark .dp-theme-toggle:not(.dp-theme-toggle--header) {
   background: rgba(33, 33, 33, 0.92);
   color: #FEFEFE;
   border-color: rgba(255, 255, 255, 0.16);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.30);
 }
-body.theme-vk-dark .dp-theme-toggle:hover {
+body.theme-vk-dark .dp-theme-toggle:not(.dp-theme-toggle--header):hover {
   background: rgba(60, 61, 64, 0.95);
 }
 

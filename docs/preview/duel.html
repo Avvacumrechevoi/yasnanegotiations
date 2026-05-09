@@ -27,7 +27,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=PT+Mono&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../vk-tech-tokens.css?v=9"/>
-<link rel="stylesheet" href="games/duel/theme-vk-dark.css?v=10"/>
+<link rel="stylesheet" href="games/duel/theme-vk-dark.css?v=11"/>
 <link rel="stylesheet" href="games/duel/vk-scheme.css?v=9"/>
 </head>
 <body>
@@ -74,13 +74,9 @@
     var btn = document.getElementById('dp-theme-toggle');
     if(btn){
       var icon = btn.querySelector('.dp-theme-toggle-icon');
-      var label = btn.querySelector('.dp-theme-toggle-label');
-      if(icon)  icon.textContent  = on ? '☀' : '🌑';
-      if(label) label.textContent = on ? 'Светлая' : 'Тёмная (β)';
+      if(icon) icon.textContent = on ? '☀' : '🌑';
       btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-      btn.title = on
-        ? 'Выключить экспериментальную тёмную тему'
-        : 'Включить экспериментальную тёмную тему (только preview)';
+      btn.title = on ? 'Светлая тема' : 'Тёмная тема';
     }
   }
   function toggle(){
@@ -92,22 +88,60 @@
   // Применяем при загрузке (до первой отрисовки если возможно)
   apply(isOn());
 
-  // Создаём FAB-кнопку
-  function mountButton(){
-    if(document.getElementById('dp-theme-toggle')) return;
+  // ─── Кнопка теперь icon-only 32×32, инжектится В header (.dp-header-auth)
+  //     перед кнопкой «Войти/?». MutationObserver re-инжектит если React
+  //     пере-смонтировал хедер. ───
+  function makeButton(){
     var btn = document.createElement('button');
     btn.id = 'dp-theme-toggle';
-    btn.className = 'dp-theme-toggle';
+    btn.className = 'dp-theme-toggle dp-theme-toggle--header';
     btn.type = 'button';
-    btn.innerHTML = '<span class="dp-theme-toggle-icon" aria-hidden="true">🌑</span><span class="dp-theme-toggle-label">Тёмная (β)</span>';
+    // Icon only — никаких label-span'ов
+    btn.innerHTML = '<span class="dp-theme-toggle-icon" aria-hidden="true">🌑</span>';
     btn.addEventListener('click', toggle);
-    document.body.appendChild(btn);
-    apply(isOn()); // обновить лейбл
+    return btn;
+  }
+  function mountButton(){
+    if(document.getElementById('dp-theme-toggle')) return;
+    var auth = document.querySelector('.dp-header-auth');
+    var btn = makeButton();
+    if(auth){
+      // Вставляем ПЕРЕД help-btn (?) если есть, иначе в начало auth
+      var helpBtn = auth.querySelector('.dp-help-btn');
+      if(helpBtn){
+        auth.insertBefore(btn, helpBtn);
+      } else {
+        auth.insertBefore(btn, auth.firstChild);
+      }
+    } else {
+      // Fallback: если хедер ещё не отрендерен — кладём на body как раньше
+      document.body.appendChild(btn);
+    }
+    apply(isOn());
+  }
+  function startObserver(){
+    mountButton();
+    var obs = new MutationObserver(function(){
+      // Если кнопка пропала (React re-mount) — инжектим заново
+      if(!document.getElementById('dp-theme-toggle')){
+        mountButton();
+      } else {
+        // Если кнопка осталась на body, а .dp-header-auth уже появился — переносим внутрь
+        var btn = document.getElementById('dp-theme-toggle');
+        var auth = document.querySelector('.dp-header-auth');
+        if(btn && auth && btn.parentElement === document.body){
+          var helpBtn = auth.querySelector('.dp-help-btn');
+          if(helpBtn) auth.insertBefore(btn, helpBtn);
+          else auth.insertBefore(btn, auth.firstChild);
+        }
+      }
+    });
+    obs.observe(document.body, { childList: true, subtree: true });
   }
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', mountButton);
+    document.addEventListener('DOMContentLoaded', startObserver);
   } else {
-    mountButton();
+    startObserver();
   }
 })();
 </script>
