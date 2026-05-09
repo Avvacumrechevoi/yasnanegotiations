@@ -1012,7 +1012,14 @@ function App(){
         {/* Floating mini-toolbar в углу диаграммы (Спринт 3) */}
         <div className='diag-corner-toolbar' style={{position:'absolute',top:10,right:10,display:'flex',gap:4,zIndex:6,background:'rgba(255,255,255,.94)',backdropFilter:'blur(8px)',border:'1px solid #e5e5ea',borderRadius:14,padding:'5px 6px',boxShadow:'0 2px 10px rgba(0,0,0,.06)'}}>
           {/* 1. Во весь экран */}
-          <button onClick={()=>setFullStar(true)} title="Во весь экран" style={{width:36,height:36,borderRadius:10,border:'1px solid #e5e5ea',background:'#fff',color:'#424245',fontSize:18,lineHeight:1,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>⤢</button>
+          <button onClick={()=>setFullStar(true)} title="Во весь экран" style={{width:36,height:36,borderRadius:10,border:'1px solid #e5e5ea',background:'#fff',color:'#424245',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',padding:0}}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 9V4h5"/>
+              <path d="M20 9V4h-5"/>
+              <path d="M4 15v5h5"/>
+              <path d="M20 15v5h-5"/>
+            </svg>
+          </button>
           {/* 2. 3D режим */}
           <button onClick={()=>setIs3D(v=>!v)} title={is3D?'Плоская проекция':'Объёмный режим (3D)'} style={{width:36,height:36,borderRadius:10,border:'1px solid '+(is3D?'#a21caf':'#e5e5ea'),background:is3D?'#a21caf':'#fff',color:is3D?'#fff':'#424245',fontSize:12,fontWeight:700,letterSpacing:.5,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>3D</button>
           {/* 3. Вращение против часовой */}
