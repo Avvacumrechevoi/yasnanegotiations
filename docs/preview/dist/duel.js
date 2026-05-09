@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T09:06:43.429Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T09:41:20.061Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5308,7 +5308,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T09:06:42.432Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T09:41:18.994Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -19629,7 +19629,7 @@ window.YasnaCore = {
         lastSeen: TS
       }
     });
-    db.ref("rooms/" + code + "/meta/status").onDisconnect().set("closed");
+    db.ref("rooms/" + code + "/host/online").onDisconnect().set(false);
     console.log("[firebase] room created", code);
     return { code };
   }
@@ -19669,7 +19669,7 @@ window.YasnaCore = {
     });
   }
   async function joinRoom(rawCode, { deviceId, nickname, avatar }) {
-    var _a, _b;
+    var _a, _b, _c, _d;
     if (!deviceId || !nickname) throw new Error("deviceId \u0438 nickname \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B");
     const code = String(rawCode || "").trim().toUpperCase();
     if (!validCode(code)) throw new Error("invalid_code_format");
@@ -19679,10 +19679,14 @@ window.YasnaCore = {
     if (!snap.exists()) throw new Error("not_found");
     const room = snap.val();
     if (((_a = room.meta) == null ? void 0 : _a.status) === "closed") throw new Error("closed");
+    if (((_b = room.meta) == null ? void 0 : _b.status) === "waiting" && ((_c = room.meta) == null ? void 0 : _c.createdAt)) {
+      const ageMs = Date.now() - room.meta.createdAt;
+      if (ageMs > 30 * 60 * 1e3) throw new Error("closed");
+    }
     if (room.guest && room.guest.deviceId && room.guest.deviceId !== String(deviceId)) {
       throw new Error("room_full");
     }
-    if (((_b = room.host) == null ? void 0 : _b.deviceId) === String(deviceId)) {
+    if (((_d = room.host) == null ? void 0 : _d.deviceId) === String(deviceId)) {
       throw new Error("cant_join_own_room");
     }
     const TS = firebase.database.ServerValue.TIMESTAMP;
