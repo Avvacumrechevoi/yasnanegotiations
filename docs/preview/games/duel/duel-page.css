@@ -178,10 +178,12 @@ a { color: inherit; }
 .dp-btn:active { transform: scale(0.98); }
 .dp-btn-primary {
   background: var(--primary);
-  color: var(--bg-surface);
+  color: #ffffff;
   border-color: var(--primary);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 119, 255, 0.20);
 }
-.dp-btn-primary:hover { background: var(--primary-strong); border-color: var(--primary-strong); }
+.dp-btn-primary:hover { background: var(--primary-strong); border-color: var(--primary-strong); color: #ffffff; }
 .dp-btn-cta {
   background: var(--primary);
   color: #fff;

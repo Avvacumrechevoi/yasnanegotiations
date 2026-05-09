@@ -1404,6 +1404,64 @@ body.theme-vk-dark .dp-header-nav button:hover {
   body.theme-vk-dark .dp-header-nav { gap: 12px; font-size: 13px; }
 }
 
+/* ─── Войти Primary CTA — solid VK Blue + БЕЛЫЙ текст по дизайн-системе ─── */
+body.theme-vk-dark .dp-header .dp-btn-primary,
+body.theme-vk-dark .dp-btn-primary {
+  background: var(--primary) !important;
+  color: #FFFFFF !important;
+  border-color: var(--primary) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 3px rgba(0, 119, 255, 0.30) !important;
+}
+body.theme-vk-dark .dp-header .dp-btn-primary:hover,
+body.theme-vk-dark .dp-btn-primary:hover {
+  background: var(--primary-strong) !important;
+  border-color: var(--primary-strong) !important;
+  color: #FFFFFF !important;
+}
+
+/* Кнопка-помощь «?» — icon-only круг, нейтральный tonal */
+body.theme-vk-dark .dp-help-btn {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  background: var(--bg-soft, #2A2A2D) !important;
+  color: var(--text-2) !important;
+  border: 1px solid var(--border-1, rgba(255,255,255,.08)) !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer;
+  transition: background 160ms, color 160ms;
+}
+body.theme-vk-dark .dp-help-btn:hover {
+  background: var(--bg-strong, #3C3D40) !important;
+  color: var(--text-1) !important;
+}
+
+/* Back-кнопка ← Ясна — tonal hover */
+body.theme-vk-dark .dp-header-back:hover {
+  background: var(--bg-soft, rgba(255,255,255,.04)) !important;
+  color: var(--text-1) !important;
+}
+
+/* Выйти text-button (когда залогинен) — accent text */
+body.theme-vk-dark .dp-btn-text {
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-2) !important;
+  font-size: 13px !important;
+  cursor: pointer;
+  padding: 6px 10px !important;
+  border-radius: 6px !important;
+}
+body.theme-vk-dark .dp-btn-text:hover {
+  color: var(--text-1) !important;
+  background: var(--bg-soft, rgba(255,255,255,.04)) !important;
+}
+
 /* Касталия headline — VK Display L: 56px, line-height 1.04 */
 body.theme-vk-dark .dp-castalia-h1 {
   font-family: 'Manrope', system-ui, sans-serif;
