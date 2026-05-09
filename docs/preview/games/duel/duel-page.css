@@ -2869,3 +2869,44 @@ body:not(.theme-vk-dark) .tn-vs-stage__brief {
 body:not(.theme-vk-dark) .tn-vs-stage__brief-row { border-bottom-color: #f0f0f2; }
 body:not(.theme-vk-dark) .tn-vs-stage__brief-label,
 body:not(.theme-vk-dark) .tn-vs-stage__eyebrow { color: #86868b; }
+
+/* ─── Final Recap groups — заголовок темы один раз сверху группы ─── */
+.tn-final-recap-group {
+  margin-top: 20px;
+}
+.tn-final-recap-group:first-child { margin-top: 16px; }
+
+.tn-final-recap-group-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 4px 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border-1, rgba(255,255,255,.08));
+}
+.tn-final-recap-group-name {
+  font-family: var(--vk-font-title, ui-serif, Georgia, serif);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-1, #fff);
+  letter-spacing: -0.005em;
+}
+.tn-final-recap-group-count {
+  font-size: 11px;
+  color: var(--text-3, #6e6e73);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Скрыть тему на самой карточке вопроса — она уже в заголовке группы */
+.tn-final-recap-q-theme { display: none !important; }
+
+body:not(.theme-vk-dark) .tn-final-recap-group-head {
+  border-bottom-color: #f0f0f2;
+}
+body:not(.theme-vk-dark) .tn-final-recap-group-name { color: #1d1d1f; }
+body:not(.theme-vk-dark) .tn-final-recap-group-count { color: #86868b; }

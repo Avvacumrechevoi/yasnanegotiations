@@ -1174,28 +1174,54 @@
       );
     }
 
+    // Группируем ошибки по темам — чтобы название темы не повторялось
+    // на каждой карточке. Каждая тема становится подзаголовком, под ним
+    // её ошибочные вопросы. Сохраняет порядок появления тем.
+    const grouped = [];
+    const seen = new Map();
+    for(const r of wrongs){
+      const key = r.themeId || r.themeName || '__';
+      let g = seen.get(key);
+      if(!g){
+        g = { themeId: r.themeId, themeName: r.themeName || r.themeId, items: [] };
+        seen.set(key, g);
+        grouped.push(g);
+      }
+      g.items.push(r);
+    }
+    let qNum = 0;  // сквозная нумерация ошибок
+
     return React.createElement('div', { className: 'tn-final-recap' },
       React.createElement('div', { className: 'tn-final-recap-eyebrow' }, '☷  Разбор · ', wrongs.length, ' ошиб', wrongs.length === 1 ? 'ка' : (wrongs.length < 5 ? 'ки' : 'ок')),
       React.createElement('div', { className: 'tn-final-recap-title' }, 'Что говорит книга'),
-      React.createElement('ul', { className: 'tn-final-recap-list' },
-        wrongs.map((r, i) => {
-          const correctText = (r.qOptions && typeof r.qCorrect === 'number')
-            ? r.qOptions[r.qCorrect]
-            : (typeof r.qCorrect === 'string' ? r.qCorrect : '—');
-          return React.createElement('li', { key: i, className: 'tn-final-recap-item' },
-            React.createElement('div', { className: 'tn-final-recap-q' },
-              React.createElement('span', { className: 'tn-final-recap-q-num' }, '№', i + 1),
-              React.createElement('span', { className: 'tn-final-recap-q-theme' }, r.themeName || r.themeId),
-              React.createElement('span', { className: 'tn-final-recap-q-text' }, r.qText)
-            ),
-            React.createElement('div', { className: 'tn-final-recap-answer' },
-              React.createElement('span', { className: 'tn-final-recap-answer-label' }, 'Правильно: '),
-              React.createElement('strong', null, correctText)
-            ),
-            r.qHint && React.createElement('blockquote', { className: 'tn-final-recap-quote' }, r.qHint)
-          );
-        })
-      )
+      grouped.map((group, gi) => React.createElement('div', { key: gi, className: 'tn-final-recap-group' },
+        // Заголовок темы — один раз для всей группы её ошибок
+        React.createElement('div', { className: 'tn-final-recap-group-head' },
+          React.createElement('span', { className: 'tn-final-recap-group-name' }, group.themeName),
+          React.createElement('span', { className: 'tn-final-recap-group-count' },
+            group.items.length, ' ошиб', group.items.length === 1 ? 'ка' : (group.items.length < 5 ? 'ки' : 'ок')
+          )
+        ),
+        React.createElement('ul', { className: 'tn-final-recap-list' },
+          group.items.map((r, i) => {
+            qNum++;
+            const correctText = (r.qOptions && typeof r.qCorrect === 'number')
+              ? r.qOptions[r.qCorrect]
+              : (typeof r.qCorrect === 'string' ? r.qCorrect : '—');
+            return React.createElement('li', { key: i, className: 'tn-final-recap-item' },
+              React.createElement('div', { className: 'tn-final-recap-q' },
+                React.createElement('span', { className: 'tn-final-recap-q-num' }, '№', qNum),
+                React.createElement('span', { className: 'tn-final-recap-q-text' }, r.qText)
+              ),
+              React.createElement('div', { className: 'tn-final-recap-answer' },
+                React.createElement('span', { className: 'tn-final-recap-answer-label' }, 'Правильно: '),
+                React.createElement('strong', null, correctText)
+              ),
+              r.qHint && React.createElement('blockquote', { className: 'tn-final-recap-quote' }, r.qHint)
+            );
+          })
+        )
+      ))
     );
   }
 

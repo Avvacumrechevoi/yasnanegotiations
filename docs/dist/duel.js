@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T22:52:31.500Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T23:00:27.064Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5861,7 +5861,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T22:52:30.949Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T23:00:26.484Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -20226,36 +20226,66 @@ window.YasnaCore = {
         )
       );
     }
+    const grouped = [];
+    const seen = /* @__PURE__ */ new Map();
+    for (const r of wrongs) {
+      const key = r.themeId || r.themeName || "__";
+      let g = seen.get(key);
+      if (!g) {
+        g = { themeId: r.themeId, themeName: r.themeName || r.themeId, items: [] };
+        seen.set(key, g);
+        grouped.push(g);
+      }
+      g.items.push(r);
+    }
+    let qNum = 0;
     return React.createElement(
       "div",
       { className: "tn-final-recap" },
       React.createElement("div", { className: "tn-final-recap-eyebrow" }, "\u2637  \u0420\u0430\u0437\u0431\u043E\u0440 \xB7 ", wrongs.length, " \u043E\u0448\u0438\u0431", wrongs.length === 1 ? "\u043A\u0430" : wrongs.length < 5 ? "\u043A\u0438" : "\u043E\u043A"),
       React.createElement("div", { className: "tn-final-recap-title" }, "\u0427\u0442\u043E \u0433\u043E\u0432\u043E\u0440\u0438\u0442 \u043A\u043D\u0438\u0433\u0430"),
-      React.createElement(
-        "ul",
-        { className: "tn-final-recap-list" },
-        wrongs.map((r, i) => {
-          const correctText = r.qOptions && typeof r.qCorrect === "number" ? r.qOptions[r.qCorrect] : typeof r.qCorrect === "string" ? r.qCorrect : "\u2014";
-          return React.createElement(
-            "li",
-            { key: i, className: "tn-final-recap-item" },
-            React.createElement(
-              "div",
-              { className: "tn-final-recap-q" },
-              React.createElement("span", { className: "tn-final-recap-q-num" }, "\u2116", i + 1),
-              React.createElement("span", { className: "tn-final-recap-q-theme" }, r.themeName || r.themeId),
-              React.createElement("span", { className: "tn-final-recap-q-text" }, r.qText)
-            ),
-            React.createElement(
-              "div",
-              { className: "tn-final-recap-answer" },
-              React.createElement("span", { className: "tn-final-recap-answer-label" }, "\u041F\u0440\u0430\u0432\u0438\u043B\u044C\u043D\u043E: "),
-              React.createElement("strong", null, correctText)
-            ),
-            r.qHint && React.createElement("blockquote", { className: "tn-final-recap-quote" }, r.qHint)
-          );
-        })
-      )
+      grouped.map((group, gi) => React.createElement(
+        "div",
+        { key: gi, className: "tn-final-recap-group" },
+        // Заголовок темы — один раз для всей группы её ошибок
+        React.createElement(
+          "div",
+          { className: "tn-final-recap-group-head" },
+          React.createElement("span", { className: "tn-final-recap-group-name" }, group.themeName),
+          React.createElement(
+            "span",
+            { className: "tn-final-recap-group-count" },
+            group.items.length,
+            " \u043E\u0448\u0438\u0431",
+            group.items.length === 1 ? "\u043A\u0430" : group.items.length < 5 ? "\u043A\u0438" : "\u043E\u043A"
+          )
+        ),
+        React.createElement(
+          "ul",
+          { className: "tn-final-recap-list" },
+          group.items.map((r, i) => {
+            qNum++;
+            const correctText = r.qOptions && typeof r.qCorrect === "number" ? r.qOptions[r.qCorrect] : typeof r.qCorrect === "string" ? r.qCorrect : "\u2014";
+            return React.createElement(
+              "li",
+              { key: i, className: "tn-final-recap-item" },
+              React.createElement(
+                "div",
+                { className: "tn-final-recap-q" },
+                React.createElement("span", { className: "tn-final-recap-q-num" }, "\u2116", qNum),
+                React.createElement("span", { className: "tn-final-recap-q-text" }, r.qText)
+              ),
+              React.createElement(
+                "div",
+                { className: "tn-final-recap-answer" },
+                React.createElement("span", { className: "tn-final-recap-answer-label" }, "\u041F\u0440\u0430\u0432\u0438\u043B\u044C\u043D\u043E: "),
+                React.createElement("strong", null, correctText)
+              ),
+              r.qHint && React.createElement("blockquote", { className: "tn-final-recap-quote" }, r.qHint)
+            );
+          })
+        )
+      ))
     );
   }
   function TnFinalActions({ onAgain, onClose }) {
