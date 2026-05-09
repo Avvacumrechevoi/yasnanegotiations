@@ -10,7 +10,7 @@
 
 const { opp, rad } = window.YasnaData;
 
-function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki, solidMech }){
+function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki, solidMech, showCage }){
   const canvasRef = React.useRef(null);
   // На мобиле стартовый camDist больше — чтобы весь шар помещался в узкую portrait-область
   const initCamDist = (typeof window!=='undefined' && window.innerWidth <= 768) ? 820 : 560;
@@ -20,8 +20,8 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
   });
   const sceneRefs = React.useRef(null);
   // Свежие props для animate-loop (избегаем stale closure)
-  const liveRef = React.useRef({ rotationOn, speedSec, sel, drill, af, solidMech });
-  React.useEffect(()=>{ liveRef.current = { rotationOn, speedSec, sel, drill, af, solidMech }; }, [rotationOn, speedSec, sel, drill, solidMech, JSON.stringify(af||[])]);
+  const liveRef = React.useRef({ rotationOn, speedSec, sel, drill, af, solidMech, showCage });
+  React.useEffect(()=>{ liveRef.current = { rotationOn, speedSec, sel, drill, af, solidMech, showCage }; }, [rotationOn, speedSec, sel, drill, solidMech, showCage, JSON.stringify(af||[])]);
 
   React.useEffect(()=>{
     if(typeof window==='undefined' || !window.THREE) return;
@@ -937,7 +937,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
     };
     raf = requestAnimationFrame(animate);
 
-    sceneRefs.current = { rebuildMechanics, buildDrillGroup, subPolki: subPolkiArr };
+    sceneRefs.current = { rebuildMechanics, buildDrillGroup, subPolki: subPolkiArr, cageMesh, equatorTube };
 
     return ()=>{
       cancelAnimationFrame(raf);
@@ -976,6 +976,13 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       sceneRefs.current.rebuildMechanics(af||[]);
     }
   }, [JSON.stringify(af||[]), solidMech]);
+
+  // Каркас-купол (wireframe sphere) — показ/скрытие
+  React.useEffect(()=>{
+    if(sceneRefs.current && sceneRefs.current.cageMesh){
+      sceneRefs.current.cageMesh.visible = !!showCage;
+    }
+  }, [showCage]);
 
   // Перестроение drillGroup при смене drill / subPolki
   // Используем стабильный signature вместо JSON.stringify на каждый render

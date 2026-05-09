@@ -806,6 +806,9 @@ function App(){
   // Сплошной режим механик в 3D — сохраняется в localStorage
   const[solidMech,setSolidMech]=useState(()=>{ try{return localStorage.getItem('yasna_solid_mech')==='1'}catch(_){return false} });
   useEffect(()=>{ try{localStorage.setItem('yasna_solid_mech', solidMech?'1':'0')}catch(_){} },[solidMech]);
+  // Каркас-купол в 3D (wireframe sphere) — по умолчанию показан
+  const[showCage,setShowCage]=useState(()=>{ try{return localStorage.getItem('yasna_show_cage')!=='0'}catch(_){return true} });
+  useEffect(()=>{ try{localStorage.setItem('yasna_show_cage', showCage?'1':'0')}catch(_){} },[showCage]);
   const[activeLesson,setActiveLesson]=useState(null);
   const[completedLessons,setCompletedLessons]=useState([]);
   // Auto-close burger menu when any modal/panel opens
@@ -1099,12 +1102,24 @@ function App(){
             </button>
             {/* Сплошной режим — только в 3D, заполняет геометрические фигуры механик.
                 Активный стейт по VK Tech: solid accent fill + БЕЛЫЙ текст (не синее на синем). */}
-            {is3D && <button onClick={()=>setSolidMech(s=>!s)} title='Заполнить геометрические фигуры механик сплошной заливкой' style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1px solid ${solidMech?'#0071e3':'#e5e5ea'}`,background:solidMech?'#0071e3':'#fff',color:solidMech?'#fff':'#424245',fontSize:12.5,cursor:'pointer',fontWeight:solidMech?600:500,boxShadow:solidMech?'0 2px 8px rgba(0,113,227,.25)':'none'}}>
+            {is3D && <button onClick={()=>setSolidMech(s=>!s)} title='Заполнить геометрические фигуры механик сплошной заливкой' style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1px solid ${solidMech?'#0071e3':'#e5e5ea'}`,background:solidMech?'#0071e3':'#fff',color:solidMech?'#fff':'#424245',fontSize:12.5,cursor:'pointer',fontWeight:solidMech?600:500,boxShadow:solidMech?'0 2px 8px rgba(0,113,227,.25)':'none',marginBottom:6}}>
               <span style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:18,height:18,flexShrink:0}}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill={solidMech?'currentColor':'none'} stroke="currentColor" strokeWidth="1.8"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/></svg>
               </span>
               <span style={{flex:1,textAlign:'left'}}>Сплошной режим</span>
               <span style={{fontSize:10,color:solidMech?'rgba(255,255,255,.85)':'#aeaeb2',fontWeight:700}}>{solidMech?'Вкл':'Выкл'}</span>
+            </button>}
+            {/* Каркас-купол — только в 3D, можно скрыть для чистого вида */}
+            {is3D && <button onClick={()=>setShowCage(c=>!c)} title='Показать или скрыть каркасную сферу-купол вокруг звезды' style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1px solid ${showCage?'#0071e3':'#e5e5ea'}`,background:showCage?'#0071e3':'#fff',color:showCage?'#fff':'#424245',fontSize:12.5,cursor:'pointer',fontWeight:showCage?600:500,boxShadow:showCage?'0 2px 8px rgba(0,113,227,.25)':'none'}}>
+              <span style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:18,height:18,flexShrink:0}}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <circle cx="12" cy="12" r="9"/>
+                  <ellipse cx="12" cy="12" rx="9" ry="3.5"/>
+                  <ellipse cx="12" cy="12" rx="3.5" ry="9"/>
+                </svg>
+              </span>
+              <span style={{flex:1,textAlign:'left'}}>Каркас-купол</span>
+              <span style={{fontSize:10,color:showCage?'rgba(255,255,255,.85)':'#aeaeb2',fontWeight:700}}>{showCage?'Вкл':'Выкл'}</span>
             </button>}
           </div>
         </div>}
@@ -1120,7 +1135,7 @@ function App(){
             setSel(next);
           };
           return is3D
-            ? <Yasna3DView y={y} af={af} sel={sel} onSel={onStarSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} solidMech={solidMech}/>
+            ? <Yasna3DView y={y} af={af} sel={sel} onSel={onStarSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} solidMech={solidMech} showCage={showCage}/>
             : <Star yy={y} sel={sel} onSel={onStarSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} starRotation={starRotation} rotationSpeed={rotationSpeed} showComposition={showComposition}/>;
         })()}</div>
         <OverlayLegend y={y} overlay={overlay} onClear={()=>setOverlay(null)}/>

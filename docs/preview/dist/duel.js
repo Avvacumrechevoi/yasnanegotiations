@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T11:03:48.304Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T11:12:16.240Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -593,7 +593,7 @@
 ;(function(){
 (function() {
   const { opp, rad } = window.YasnaData;
-  function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki, solidMech }) {
+  function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki, solidMech, showCage }) {
     const canvasRef = React.useRef(null);
     const initCamDist = typeof window !== "undefined" && window.innerWidth <= 768 ? 820 : 560;
     const stateRef = React.useRef({
@@ -605,10 +605,10 @@
       lastY: 0
     });
     const sceneRefs = React.useRef(null);
-    const liveRef = React.useRef({ rotationOn, speedSec, sel, drill, af, solidMech });
+    const liveRef = React.useRef({ rotationOn, speedSec, sel, drill, af, solidMech, showCage });
     React.useEffect(() => {
-      liveRef.current = { rotationOn, speedSec, sel, drill, af, solidMech };
-    }, [rotationOn, speedSec, sel, drill, solidMech, JSON.stringify(af || [])]);
+      liveRef.current = { rotationOn, speedSec, sel, drill, af, solidMech, showCage };
+    }, [rotationOn, speedSec, sel, drill, solidMech, showCage, JSON.stringify(af || [])]);
     React.useEffect(() => {
       if (typeof window === "undefined" || !window.THREE) return;
       const THREE = window.THREE;
@@ -1482,7 +1482,7 @@
         raf = requestAnimationFrame(animate);
       };
       raf = requestAnimationFrame(animate);
-      sceneRefs.current = { rebuildMechanics, buildDrillGroup, subPolki: subPolkiArr };
+      sceneRefs.current = { rebuildMechanics, buildDrillGroup, subPolki: subPolkiArr, cageMesh, equatorTube };
       return () => {
         cancelAnimationFrame(raf);
         ro.disconnect();
@@ -1518,6 +1518,11 @@
         sceneRefs.current.rebuildMechanics(af || []);
       }
     }, [JSON.stringify(af || []), solidMech]);
+    React.useEffect(() => {
+      if (sceneRefs.current && sceneRefs.current.cageMesh) {
+        sceneRefs.current.cageMesh.visible = !!showCage;
+      }
+    }, [showCage]);
     const subPolkiSig = (subPolki || []).join("|");
     React.useEffect(() => {
       if (sceneRefs.current && sceneRefs.current.buildDrillGroup) {
@@ -5349,7 +5354,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T11:03:47.287Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T11:12:15.341Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
