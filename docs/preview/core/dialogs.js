@@ -33,35 +33,39 @@ function Editor({y,setY,onClose}){
   return(
     <div className='editor-panel' style={{position:'fixed',top:0,right:0,width:'min(370px, 100vw)',height:'100vh',background:'rgba(255,255,255,.98)',borderLeft:'1px solid rgba(0,0,0,.08)',zIndex:50,display:'flex',flexDirection:'column'}}>
       {/* Header — компактный с close-кнопкой на мобильном */}
-      <div className='editor-hdr' style={{padding:'12px 16px',borderBottom:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center',flexShrink:0,gap:8}}>
-        <div style={{display:'flex',alignItems:'center',gap:8,minWidth:0,flex:1}}>
-          <h3 style={{fontFamily:'var(--serif)',fontSize:18,color:'#1d1d1f',fontWeight:600,whiteSpace:'nowrap'}}>Редактор</h3>
-          <span className='editor-autosave' style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:11,color:'#34c759',fontWeight:500,letterSpacing:.3,whiteSpace:'nowrap'}}>
+      <div className='editor-hdr' style={{padding:'14px 18px',borderBottom:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center',flexShrink:0,gap:8}}>
+        <div style={{display:'flex',alignItems:'center',gap:10,minWidth:0,flex:1}}>
+          <h3 style={{fontFamily:'var(--serif)',fontSize:19,color:'#1d1d1f',fontWeight:600,whiteSpace:'nowrap',letterSpacing:'-0.005em'}}>Редактор</h3>
+          <span className='editor-autosave' style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:12,color:'#34c759',fontWeight:500,whiteSpace:'nowrap'}}>
             <span style={{width:6,height:6,borderRadius:'50%',background:'#34c759',flexShrink:0}}/>
-            <span className='editor-autosave-label'>автосохранение</span>
+            <span className='editor-autosave-label'>Сохранено</span>
           </span>
         </div>
-        <button onClick={onClose} className='editor-close' aria-label='Закрыть редактор' style={{width:32,height:32,borderRadius:'50%',background:'transparent',border:'1px solid var(--border)',color:'var(--txt2,#6e6e73)',fontSize:16,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>×</button>
+        <button onClick={onClose} className='editor-close' aria-label='Закрыть редактор' title='Закрыть' style={{width:32,height:32,borderRadius:'50%',background:'transparent',border:'1px solid var(--border)',color:'var(--txt2,#6e6e73)',fontSize:18,lineHeight:1,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>×</button>
       </div>
-      <div style={{padding:'12px 16px',overflowY:'auto',flex:1}}>
-        <input value={y.name} onChange={e=>setY({...y,name:e.target.value})} placeholder="Название"
-          style={{width:'100%',background:'var(--bg3)',border:'1px solid var(--border)',color:'#1d1d1f',padding:'10px 12px',borderRadius:8,fontFamily:'var(--serif)',fontSize:17,fontWeight:700,marginBottom:10,outline:'none',boxSizing:'border-box'}}/>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6,marginBottom:14}}>
+      <div style={{padding:'16px 18px',overflowY:'auto',flex:1}}>
+        {/* Название Ясны — крупное, серифом */}
+        <label style={{display:'block',fontSize:11,fontWeight:600,letterSpacing:1.4,textTransform:'uppercase',color:'#86868b',marginBottom:6}}>Название</label>
+        <input value={y.name} onChange={e=>setY({...y,name:e.target.value})} placeholder="Например, Утренний ритуал"
+          style={{width:'100%',background:'var(--bg3)',border:'1px solid var(--border)',color:'#1d1d1f',padding:'11px 14px',borderRadius:10,fontFamily:'var(--serif)',fontSize:18,fontWeight:600,marginBottom:18,outline:'none',boxSizing:'border-box'}}/>
+        <label style={{display:'block',fontSize:11,fontWeight:600,letterSpacing:1.4,textTransform:'uppercase',color:'#86868b',marginBottom:6}}>Подписи осей</label>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6,marginBottom:18}}>
           {[['th','▲ Верх'],['bh','▼ Низ'],['lh','◀ Лево'],['rh','▶ Право']].map(([k,ph])=>
             <input key={k} placeholder={ph} value={y[k]||''} onChange={e=>setY({...y,[k]:e.target.value})}
-              style={{background:'var(--bg3)',border:'1px solid var(--border)',color:'var(--txt)',padding:'8px 10px',borderRadius:7,fontSize:12,outline:'none',boxSizing:'border-box'}}/>
+              style={{background:'var(--bg3)',border:'1px solid var(--border)',color:'var(--txt)',padding:'9px 12px',borderRadius:8,fontSize:13,outline:'none',boxSizing:'border-box'}}/>
           )}
         </div>
+        <label style={{display:'block',fontSize:11,fontWeight:600,letterSpacing:1.4,textTransform:'uppercase',color:'#86868b',marginBottom:8}}>12 полок · по часовой стрелке</label>
         {y.p.map((l,i)=>{const c=CR[gc(i)].c;return(
-          <div key={i} style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
-            <div style={{width:28,height:28,borderRadius:'50%',border:`2px solid ${c}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:c,flexShrink:0}}>{i}</div>
+          <div key={i} style={{display:'flex',alignItems:'center',gap:10,marginBottom:7}}>
+            <div style={{width:30,height:30,borderRadius:'50%',border:`2px solid ${c}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:c,flexShrink:0}}>{i}</div>
             <input value={l} onChange={e=>{const np=[...y.p];np[i]=e.target.value;setY({...y,p:np});}} placeholder={(REF[i]||{}).f||''}
-              style={{flex:1,minWidth:0,background:'var(--bg)',border:'1px solid var(--border)',color:'#1d1d1f',padding:'8px 10px',borderRadius:6,fontSize:13,outline:'none',boxSizing:'border-box'}}
+              style={{flex:1,minWidth:0,background:'var(--bg)',border:'1px solid var(--border)',color:'#1d1d1f',padding:'9px 12px',borderRadius:8,fontSize:13,outline:'none',boxSizing:'border-box'}}
               onFocus={e=>e.target.style.borderColor=c} onBlur={e=>e.target.style.borderColor='var(--border)'}/>
           </div>);})}
       </div>
-      <div style={{padding:'12px 16px',borderTop:'1px solid var(--border)',display:'flex',gap:8,flexShrink:0,background:'#fafafa'}}>
-        <button onClick={onClose} style={{flex:1,padding:'12px 14px',borderRadius:10,fontSize:14,fontWeight:600,background:'#0071e3',color:'#fff',border:'none',cursor:'pointer',boxShadow:'0 1px 3px rgba(0,113,227,.2)'}}>✓ Сохранить и закрыть</button>
+      <div style={{padding:'14px 18px',borderTop:'1px solid var(--border)',display:'flex',gap:8,flexShrink:0,background:'#fafafa'}}>
+        <button onClick={onClose} style={{flex:1,padding:'13px 14px',borderRadius:10,fontSize:14,fontWeight:600,background:'#0071e3',color:'#fff',border:'none',cursor:'pointer',boxShadow:'0 2px 8px rgba(0,113,227,.25)'}}>Готово</button>
       </div>
     </div>);
 }
@@ -110,7 +114,7 @@ function OverlayPicker({currentName,overlay,onSelect,onClose}){
           {/* SEARCH */}
           <div style={{position:'relative'}}>
             <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:'#aeaeb2',fontSize:14,pointerEvents:'none'}}>🔍</span>
-            <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Поиск по названию..."
+            <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Найти Ясну…"
               style={{width:'100%',padding:'9px 14px 9px 36px',borderRadius:10,border:'1px solid #d2d2d7',fontSize:16,fontFamily:'var(--sans)',outline:'none',background:'#fff',color:'#1d1d1f',boxSizing:'border-box'}}
               onFocus={e=>e.target.style.borderColor='#af52de'}
               onBlur={e=>e.target.style.borderColor='#d2d2d7'}/>
@@ -120,7 +124,10 @@ function OverlayPicker({currentName,overlay,onSelect,onClose}){
         {/* LIST */}
         <div style={{flex:1,overflowY:'auto',padding:'14px 22px 18px'}}>
           {filtered.length===0?
-            <div style={{textAlign:'center',padding:'60px 20px',color:'#aeaeb2',fontSize:13}}>Ничего не найдено по запросу «{q}»</div>
+            <div style={{textAlign:'center',padding:'72px 20px',color:'#aeaeb2',fontSize:14,lineHeight:1.5}}>
+              <div>По запросу «{q}» ничего не нашлось</div>
+              <button onClick={()=>setQ('')} style={{marginTop:12,padding:'7px 14px',borderRadius:14,fontSize:12,color:'#0071e3',background:'transparent',border:'1px solid rgba(0,122,255,.3)',cursor:'pointer'}}>Очистить поиск</button>
+            </div>
             :<>
               <Section title="Проверенные" items={rubrikList}/>
               <Section title="Встречи (кастомные)" items={customList}/>
@@ -178,17 +185,17 @@ function Picker({pinned,onTogglePin,onClear,onClose}){
       <div className='picker-inner' style={{background:'rgba(255,255,255,.99)',border:'1px solid rgba(0,0,0,.08)',borderRadius:20,boxShadow:'0 20px 60px rgba(0,0,0,.15)',padding:0,width:'100%',maxWidth:600,height:'82vh',maxHeight:720,display:'flex',flexDirection:'column',overflow:'hidden'}} onClick={e=>e.stopPropagation()}>
         {/* HEADER */}
         <div style={{padding:'18px 22px 14px',borderBottom:'1px solid #f0f0f2',flexShrink:0}}>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:10}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:12}}>
             <div>
-              <h3 style={{fontFamily:'var(--serif)',fontSize:20,color:'#1d1d1f',fontWeight:700,marginBottom:2}}>Все Ясны</h3>
-              <div style={{fontSize:12,color:'#86868b'}}>Выбрано <b style={{color:'#0071e3'}}>{pinnedCount}</b> из {total} · показываются во вкладках</div>
+              <h3 style={{fontFamily:'var(--serif)',fontSize:22,color:'#1d1d1f',fontWeight:600,marginBottom:3,letterSpacing:'-0.005em'}}>Каталог Ясн</h3>
+              <div style={{fontSize:13,color:'#86868b'}}>Выбрано <b style={{color:'#0071e3',fontWeight:600}}>{pinnedCount}</b> из {total} — закрепятся во вкладках</div>
             </div>
-            <button onClick={onClose} style={{width:32,height:32,borderRadius:'50%',background:'#f5f5f7',border:'none',fontSize:16,color:'#6e6e73',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+            <button onClick={onClose} aria-label='Закрыть' title='Закрыть' style={{width:32,height:32,borderRadius:'50%',background:'#f5f5f7',border:'none',fontSize:18,lineHeight:1,color:'#6e6e73',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>×</button>
           </div>
           {/* SEARCH */}
           <div style={{position:'relative',marginBottom:10}}>
             <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:'#aeaeb2',fontSize:14,pointerEvents:'none'}}>🔍</span>
-            <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Поиск по названию..."
+            <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Найти Ясну…"
               style={{width:'100%',padding:'9px 14px 9px 36px',borderRadius:10,border:'1px solid #d2d2d7',fontSize:16,fontFamily:'var(--sans)',outline:'none',background:'#fff',color:'#1d1d1f'}}
               onFocus={e=>e.target.style.borderColor='#0071e3'}
               onBlur={e=>e.target.style.borderColor='#d2d2d7'}/>
@@ -197,30 +204,33 @@ function Picker({pinned,onTogglePin,onClear,onClose}){
           {/* ACTIONS */}
           <div className="picker-actions" style={{display:'flex',gap:6,alignItems:'center'}}>
             {pinnedCount===total?
-              <button onClick={onClear} style={{fontSize:11,color:'#0071e3',border:'1px solid rgba(0,122,255,.3)',padding:'4px 12px',borderRadius:12,background:'rgba(0,122,255,.08)',cursor:'pointer',fontWeight:600}}>✓ Все выбраны — снять</button>
-              :<button onClick={()=>{T.forEach(t=>{if(!pinned.includes(t.id))onTogglePin(t.id);});}} style={{fontSize:11,color:'#0071e3',border:'1px solid rgba(0,122,255,.3)',padding:'4px 12px',borderRadius:12,background:'transparent',cursor:'pointer'}}>✓ Выбрать все</button>}
+              <button onClick={onClear} style={{fontSize:12,color:'#0071e3',border:'1px solid rgba(0,122,255,.3)',padding:'6px 12px',borderRadius:14,background:'rgba(0,122,255,.08)',cursor:'pointer',fontWeight:600}}>✓ Снять выбор</button>
+              :<button onClick={()=>{T.forEach(t=>{if(!pinned.includes(t.id))onTogglePin(t.id);});}} style={{fontSize:12,color:'#0071e3',border:'1px solid rgba(0,122,255,.3)',padding:'6px 12px',borderRadius:14,background:'transparent',cursor:'pointer'}}>Выбрать все</button>}
             {(()=>{const starterIds=T.filter(t=>t.starter).map(t=>t.id);const allStarterSelected=starterIds.every(id=>pinned.includes(id));return allStarterSelected?
-              <button onClick={()=>{starterIds.forEach(id=>{if(pinned.includes(id))onTogglePin(id);});}} style={{fontSize:11,color:'#0071e3',border:'1px solid rgba(0,122,255,.3)',padding:'4px 12px',borderRadius:12,background:'rgba(0,122,255,.08)',cursor:'pointer',fontWeight:600}}>★ Стартовые — снять</button>
-              :<button onClick={()=>{starterIds.forEach(id=>{if(!pinned.includes(id))onTogglePin(id);});}} style={{fontSize:11,color:'#0071e3',border:'1px solid rgba(0,122,255,.3)',padding:'4px 12px',borderRadius:12,background:'transparent',cursor:'pointer'}}>★ Только стартовые</button>;})()}
+              <button onClick={()=>{starterIds.forEach(id=>{if(pinned.includes(id))onTogglePin(id);});}} style={{fontSize:12,color:'#0071e3',border:'1px solid rgba(0,122,255,.3)',padding:'6px 12px',borderRadius:14,background:'rgba(0,122,255,.08)',cursor:'pointer',fontWeight:600}}>★ Стартовые ✓</button>
+              :<button onClick={()=>{starterIds.forEach(id=>{if(!pinned.includes(id))onTogglePin(id);});}} style={{fontSize:12,color:'#0071e3',border:'1px solid rgba(0,122,255,.3)',padding:'6px 12px',borderRadius:14,background:'transparent',cursor:'pointer'}}>★ Стартовые</button>;})()}
             {(()=>{const rubIds=T.filter(t=>t.rubrik).map(t=>t.id);const allRubSelected=rubIds.every(id=>pinned.includes(id));return allRubSelected?
-              <button onClick={()=>{rubIds.forEach(id=>{if(pinned.includes(id))onTogglePin(id);});}} style={{fontSize:11,color:'#0071e3',border:'1px solid rgba(0,122,255,.3)',padding:'4px 12px',borderRadius:12,background:'rgba(0,122,255,.08)',cursor:'pointer',fontWeight:600}}>✦ Дополнительные — снять</button>
-              :<button onClick={()=>{rubIds.forEach(id=>{if(!pinned.includes(id))onTogglePin(id);});}} style={{fontSize:11,color:'#0071e3',border:'1px solid rgba(0,122,255,.3)',padding:'4px 12px',borderRadius:12,background:'transparent',cursor:'pointer'}}>✦ Дополнительные</button>;})()}
-            {pinnedCount>0&&pinnedCount<total&&<button onClick={onClear} style={{fontSize:11,color:'#E8364F',border:'1px solid rgba(232,54,79,.3)',padding:'4px 12px',borderRadius:12,background:'transparent',cursor:'pointer'}}>Снять все</button>}
+              <button onClick={()=>{rubIds.forEach(id=>{if(pinned.includes(id))onTogglePin(id);});}} style={{fontSize:12,color:'#0071e3',border:'1px solid rgba(0,122,255,.3)',padding:'6px 12px',borderRadius:14,background:'rgba(0,122,255,.08)',cursor:'pointer',fontWeight:600}}>✦ Дополнительные ✓</button>
+              :<button onClick={()=>{rubIds.forEach(id=>{if(!pinned.includes(id))onTogglePin(id);});}} style={{fontSize:12,color:'#0071e3',border:'1px solid rgba(0,122,255,.3)',padding:'6px 12px',borderRadius:14,background:'transparent',cursor:'pointer'}}>✦ Дополнительные</button>;})()}
+            {pinnedCount>0&&pinnedCount<total&&<button onClick={onClear} style={{fontSize:12,color:'#E8364F',border:'1px solid rgba(232,54,79,.3)',padding:'6px 12px',borderRadius:14,background:'transparent',cursor:'pointer'}}>Очистить</button>}
             <div style={{flex:1}}/>
-            <span className="picker-legend" style={{fontSize:10,color:'#aeaeb2',display:'flex',alignItems:'center',gap:10}}>
-              <span style={{display:'flex',alignItems:'center',gap:4}}><span style={{width:3,height:14,background:'#0071e3',display:'inline-block',borderRadius:1}}/> стартовая</span>
-              <span style={{display:'flex',alignItems:'center',gap:4}}><span style={{width:3,height:14,background:'#30A060',display:'inline-block',borderRadius:1}}/> из рубрикатора</span>
+            <span className="picker-legend" style={{fontSize:11,color:'#aeaeb2',display:'flex',alignItems:'center',gap:12}}>
+              <span style={{display:'flex',alignItems:'center',gap:5}}><span style={{width:3,height:14,background:'#0071e3',display:'inline-block',borderRadius:2}}/> стартовая</span>
+              <span style={{display:'flex',alignItems:'center',gap:5}}><span style={{width:3,height:14,background:'#30A060',display:'inline-block',borderRadius:2}}/> дополнительная</span>
             </span>
           </div>
         </div>
         {/* LIST */}
         <div style={{flex:1,overflowY:'auto',padding:'14px 22px 18px'}}>
           {filtered.length===0?
-            <div style={{textAlign:'center',padding:'60px 20px',color:'#aeaeb2',fontSize:13}}>Ничего не найдено по запросу «{q}»</div>
+            <div style={{textAlign:'center',padding:'72px 20px',color:'#aeaeb2',fontSize:14,lineHeight:1.5}}>
+              <div>По запросу «{q}» ничего не нашлось</div>
+              <button onClick={()=>setQ('')} style={{marginTop:12,padding:'7px 14px',borderRadius:14,fontSize:12,color:'#0071e3',background:'transparent',border:'1px solid rgba(0,122,255,.3)',cursor:'pointer'}}>Очистить поиск</button>
+            </div>
             :<>
-              <Section title="Стартовые" subtitle="Шесть Ясн для первого знакомства — самые наглядные и связанные с опытом" items={starterList}/>
-              <Section title="Дополнительные" subtitle="Остальные Ясны для углубления" items={additionalList}/>
-              <Section title="Встречи (кастомные)" items={customList}/>
+              <Section title="Стартовые" subtitle="Самые наглядные — для первого знакомства" items={starterList}/>
+              <Section title="Дополнительные" subtitle="Для углубления, после стартовых" items={additionalList}/>
+              <Section title="Встречи" subtitle="Кастомные сценарии" items={customList}/>
               <Section title="Прочие" items={otherList}/>
             </>}
         </div>

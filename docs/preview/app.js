@@ -850,13 +850,13 @@ function App(){
            • Войти                 — Tonal с аватаром (единственная иконка)
            ────────────────────────────────────────────────────────────── */}
         {/* 1. Игра NEW — Primary CTA */}
-        <a href='duel.html' title='Игра по Ясне: викторина, Архив, Этюд дня' className='hdr-btn-game' style={{border:'1px solid #0071e3',color:'#fff',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:'#0071e3',cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:6,textDecoration:'none',boxSizing:'border-box',boxShadow:'0 1px 3px rgba(0,113,227,.20)'}}>
+        <a href='duel.html' title='Сыграть Партию' className='hdr-btn-game' style={{border:'1px solid #0071e3',color:'#fff',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:'#0071e3',cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:6,textDecoration:'none',boxSizing:'border-box',boxShadow:'0 1px 3px rgba(0,113,227,.20)'}}>
           <span>Игра</span>
           <span style={{fontSize:9,padding:'1px 5px',background:'rgba(255,255,255,.22)',color:'#fff',borderRadius:4,letterSpacing:.5,fontWeight:700}}>NEW</span>
         </a>
         {/* 2. Обучение ▼ */}
         <div style={{position:'relative'}}>
-          <button onClick={()=>setLearnOpen(o=>!o)} title='Уроки и Гид' className='hdr-btn' style={{border:`1px solid ${learnOpen?'rgba(0,113,227,.4)':'#d2d2d7'}`,color:learnOpen?'#0058b8':'#424245',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:learnOpen?'rgba(0,113,227,.06)':'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:6,boxSizing:'border-box'}}>
+          <button onClick={()=>setLearnOpen(o=>!o)} title='Уроки и гиды по Яснам' className='hdr-btn' style={{border:`1px solid ${learnOpen?'rgba(0,113,227,.4)':'#d2d2d7'}`,color:learnOpen?'#0058b8':'#424245',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:learnOpen?'rgba(0,113,227,.06)':'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:6,boxSizing:'border-box'}}>
             <span>Обучение</span>
             <span style={{fontSize:9,display:'inline-block',transform:learnOpen?'rotate(180deg)':'none',transition:'transform .2s',opacity:.7}}>▼</span>
           </button>
@@ -880,7 +880,7 @@ function App(){
         {/* Игра переехала влево, рядом с лого — см. начало .hdr */}
         {/* 3. Справка ▼ (Стихии переехала в "..." настройки над звездой) */}
         <div style={{position:'relative'}}>
-          <button onClick={()=>setHelpOpen(o=>!o)} title='Инструкция, Глоссарий, Проверка' className='hdr-btn' style={{border:`1px solid ${helpOpen?'rgba(0,113,227,.4)':'#d2d2d7'}`,color:helpOpen?'#0058b8':'#424245',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:helpOpen?'rgba(0,113,227,.06)':'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:6,boxSizing:'border-box'}}>
+          <button onClick={()=>setHelpOpen(o=>!o)} title='Инструкция · Глоссарий · Проверка' className='hdr-btn' style={{border:`1px solid ${helpOpen?'rgba(0,113,227,.4)':'#d2d2d7'}`,color:helpOpen?'#0058b8':'#424245',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:helpOpen?'rgba(0,113,227,.06)':'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:6,boxSizing:'border-box'}}>
             <span>Справка</span>
             <span style={{fontSize:9,display:'inline-block',transform:helpOpen?'rotate(180deg)':'none',transition:'transform .2s',opacity:.7}}>▼</span>
           </button>
@@ -895,7 +895,7 @@ function App(){
         </div>
         {/* Theme toggle injects сюда (см. index.html) — icon-only 36×36 */}
         {/* 5. Войти — единственная кнопка с иконкой-аватаром */}
-        <a href='duel.html#login' title='Войти через Telegram — прогресс между устройствами' className='hdr-btn-profile' style={{border:'1px solid #d2d2d7',color:'#1d1d1f',padding:'7px 14px 7px 10px',height:36,borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:8,textDecoration:'none',boxSizing:'border-box'}}>
+        <a href='duel.html#login' title='Войти через Telegram — прогресс на любом устройстве' className='hdr-btn-profile' style={{border:'1px solid #d2d2d7',color:'#1d1d1f',padding:'7px 14px 7px 10px',height:36,borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:8,textDecoration:'none',boxSizing:'border-box'}}>
           <span style={{width:22,height:22,borderRadius:'50%',background:'linear-gradient(135deg,#0071e3,#16A7FF)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="8" r="3.5"/>
@@ -975,7 +975,7 @@ function App(){
         <div style={{width:1,height:20,background:'var(--border,#d2d2d7)',marginRight:6,flexShrink:0}}/>
         <div style={{flex:1,display:'flex',alignItems:'center',gap:4,overflowX:'auto',minWidth:0,scrollbarWidth:'none',msOverflowStyle:'none'}} className="hide-scroll">
         {pinnedTemplates.length===0
-          ?<span className="nav-empty" style={{fontSize:13,color:'#aeaeb2',padding:'6px 14px',whiteSpace:'nowrap',fontStyle:'italic'}}>Нет выбранных ясн — нажмите «+ ещё»</span>
+          ?<span className="nav-empty" style={{fontSize:13,color:'#aeaeb2',padding:'6px 14px',whiteSpace:'nowrap',fontStyle:'italic'}}>Выберите Ясны → «+ ещё»</span>
           :pinnedTemplates.map(t=>{const active=y.name===t.n;return<button key={t.id} onClick={()=>load(t)} style={{position:'relative',padding:t.rubrik?'7px 14px 7px 18px':'7px 14px',borderRadius:16,fontSize:13,whiteSpace:'nowrap',background:active?'rgba(0,113,227,.14)':'transparent',color:active?'#0058b8':'var(--txt2)',border:active?'1.5px solid rgba(0,113,227,.55)':'1px solid transparent',flexShrink:0,fontWeight:active?700:400,cursor:'pointer',overflow:'hidden',transition:'background .15s, border-color .15s, color .15s',boxShadow:active?'0 1px 3px rgba(0,113,227,.12)':'none'}}>{t.rubrik&&<span style={{position:'absolute',left:0,top:0,bottom:0,width:3,background:'#30A060'}} title="Проверена"/>}{t.n}</button>;})}
         </div>
         <div className='nav-right' style={{display:'flex',alignItems:'center',gap:5,paddingRight:20,paddingLeft:10,flexShrink:0,background:'var(--bg2)',borderLeft:'1px solid #e5e5ea'}}>
