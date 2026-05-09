@@ -871,16 +871,7 @@ function App(){
           <span>Игра</span>
           <span style={{fontSize:9,padding:'1px 5px',background:'rgba(255,255,255,.22)',color:'#fff',borderRadius:4,letterSpacing:.5,fontWeight:700}}>NEW</span>
         </a>
-        {/* 3. Стихии — icon-only toggle (4 цветные полоски ЕСТЬ иконка) */}
-        <button onClick={()=>setShowComposition(c=>!c)} title={showComposition?'Скрыть состав пран':'Показать состав 4 пран в Полках'} aria-label='Стихии' className='hdr-btn-icon' style={{border:`1px solid ${showComposition?'rgba(192,148,58,.5)':'#d2d2d7'}`,color:showComposition?'#7a5e25':'#424245',width:36,height:36,padding:0,borderRadius:8,background:showComposition?'rgba(192,148,58,.10)':'#fff',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',boxSizing:'border-box'}}>
-          <span style={{display:'inline-flex',gap:1.5,alignItems:'center'}}>
-            <span style={{width:3,height:14,background:'#C0943A',borderRadius:1}}/>
-            <span style={{width:3,height:14,background:'#4090D8',borderRadius:1}}/>
-            <span style={{width:3,height:14,background:'#06B6D4',borderRadius:1}}/>
-            <span style={{width:3,height:14,background:'#F06838',borderRadius:1}}/>
-          </span>
-        </button>
-        {/* 4. Справка ▼ */}
+        {/* 3. Справка ▼ (Стихии переехала в "..." настройки над звездой) */}
         <div style={{position:'relative'}}>
           <button onClick={()=>setHelpOpen(o=>!o)} title='Инструкция, Глоссарий, Проверка' className='hdr-btn' style={{border:`1px solid ${helpOpen?'rgba(0,113,227,.4)':'#d2d2d7'}`,color:helpOpen?'#0058b8':'#424245',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:helpOpen?'rgba(0,113,227,.06)':'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:6,boxSizing:'border-box'}}>
             <span>Справка</span>
@@ -1058,6 +1049,20 @@ function App(){
           {is3D && <div style={{marginTop:10,padding:'7px 9px',background:'rgba(162,28,175,.08)',borderRadius:8,fontSize:10.5,color:'#581c87',lineHeight:1.45}}>
             <b style={{color:'#a21caf'}}>3D режим.</b> Drag — вращение, колесо — zoom, клик по шару — выбор.
           </div>}
+          {/* Стихии — переехала из хедера сюда */}
+          <div style={{marginTop:12,paddingTop:12,borderTop:'1px solid #e5e5ea'}}>
+            <div style={{fontWeight:600,fontSize:11,color:'#581c87',letterSpacing:.5,textTransform:'uppercase',marginBottom:6}}>Отображение</div>
+            <button onClick={()=>setShowComposition(c=>!c)} title='Состав 4 пран в каждой Полке' style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1px solid ${showComposition?'rgba(192,148,58,.5)':'#e5e5ea'}`,background:showComposition?'rgba(192,148,58,.10)':'#fff',color:showComposition?'#7a5e25':'#424245',fontSize:12.5,cursor:'pointer',fontWeight:500}}>
+              <span style={{display:'inline-flex',gap:1.5,alignItems:'center',flexShrink:0}}>
+                <span style={{width:3,height:14,background:'#C0943A',borderRadius:1}}/>
+                <span style={{width:3,height:14,background:'#4090D8',borderRadius:1}}/>
+                <span style={{width:3,height:14,background:'#06B6D4',borderRadius:1}}/>
+                <span style={{width:3,height:14,background:'#F06838',borderRadius:1}}/>
+              </span>
+              <span style={{flex:1,textAlign:'left'}}>Стихии</span>
+              <span style={{fontSize:10,color:showComposition?'#7a5e25':'#aeaeb2',fontWeight:600}}>{showComposition?'Вкл':'Выкл'}</span>
+            </button>
+          </div>
         </div>}
         <div className="star-svg-wrap" style={{width:'100%',height:'100%',maxWidth:'none',maxHeight:'none',flex:1}}>{is3D ? <Yasna3DView y={y} af={af} sel={sel} onSel={setSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/> : <Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} starRotation={starRotation} rotationSpeed={rotationSpeed} showComposition={showComposition}/>}</div>
         <OverlayLegend y={y} overlay={overlay} onClear={()=>setOverlay(null)}/>
