@@ -63,22 +63,27 @@ function getMergedQuestions(){
   const publishedAddedIds = new Set((storeOv.added || []).map(q => q.id));
   const publishedEditedIds = new Set(Object.keys(storeOv.edited || {}));
 
+  // Скрываем неподдерживаемые типы (fill-blank, order) — игра их игнорирует,
+  // и редактор админки не умеет с ними работать. Чтобы избежать путаницы —
+  // не показываем в списке вообще.
+  const SUPPORTED_TYPES = new Set(['single-choice', 'true-false', 'multi-choice', 'match-pair']);
+  const isSupported = (q) => SUPPORTED_TYPES.has(q.type || 'single-choice');
+
   const ov = loadOverrides();
   const deletedSet = new Set(ov.deleted);
   // Resolved.QUESTIONS уже содержит baseline + published.added; deleted уже исключены.
   // Здесь применяем ЛОКАЛЬНЫЕ edited и фильтруем ЛОКАЛЬНО deleted.
   const base = (resolved.QUESTIONS || [])
     .filter(q => !deletedSet.has(q.id))
+    .filter(isSupported)
     .map(q => {
       const localEdit = ov.edited[q.id];
       const tagged = localEdit ? { ...q, ...localEdit, _localEdited: true } : q;
-      // Помечаем «опубликованные» (есть в overrides текущей ревизии)
       if(publishedAddedIds.has(q.id)) tagged._publishedNew = true;
       else if(publishedEditedIds.has(q.id)) tagged._publishedEdited = true;
       return tagged;
     });
-  // Локально-добавленные (ещё не опубликованные)
-  const localAdded = (ov.added || []).map(q => ({ ...q, _isNew: true }));
+  const localAdded = (ov.added || []).filter(isSupported).map(q => ({ ...q, _isNew: true }));
   return [...base, ...localAdded];
 }
 
