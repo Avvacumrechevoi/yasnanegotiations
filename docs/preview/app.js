@@ -854,35 +854,12 @@ function App(){
           <span>Игра</span>
           <span style={{fontSize:9,padding:'1px 5px',background:'rgba(255,255,255,.22)',color:'#fff',borderRadius:4,letterSpacing:.5,fontWeight:700}}>NEW</span>
         </a>
-        {/* 2. Обучение ▼ */}
-        <div style={{position:'relative'}}>
-          <button onClick={()=>setLearnOpen(o=>!o)} title='Уроки и гиды по Яснам' className='hdr-btn' style={{border:`1px solid ${learnOpen?'rgba(0,113,227,.4)':'#d2d2d7'}`,color:learnOpen?'#0058b8':'#424245',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:learnOpen?'rgba(0,113,227,.06)':'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:6,boxSizing:'border-box'}}>
-            <span>Обучение</span>
-            <span style={{fontSize:9,display:'inline-block',transform:learnOpen?'rotate(180deg)':'none',transition:'transform .2s',opacity:.7}}>▼</span>
-          </button>
-          {learnOpen && <>
-            <div onClick={()=>setLearnOpen(false)} style={{position:'fixed',inset:0,zIndex:99}}/>
-            <div style={{position:'absolute',top:'calc(100% + 4px)',right:0,minWidth:240,maxHeight:'calc(100vh - 80px)',overflowY:'auto',background:'#fff',border:'1px solid #d2d2d7',borderRadius:10,boxShadow:'0 6px 24px rgba(0,0,0,.12)',zIndex:100}}>
-              {/* Уроки — отдельный пункт, общие для всех Ясн */}
-              <button onClick={()=>{setLessonPicker(true);setLearnOpen(false)}} style={{display:'flex',width:'100%',padding:'11px 14px',fontSize:13,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left',cursor:'pointer'}}>Уроки <span style={{color:'#86868b',fontSize:11,marginLeft:6}}>· 4 шага</span></button>
-              {/* Все зарегистрированные гиды — auto-list через YasnaTours.list().
-                  Приоритет: Суток / Года / Жизни первыми, остальные — после. */}
-              {(()=>{
-                const allTours=(window.YasnaTours&&window.YasnaTours.list?window.YasnaTours.list():[]);
-                if(allTours.length===0)return <div style={{padding:'11px 14px',fontSize:12,color:'#aeaeb2',fontStyle:'italic'}}>Гиды появятся скоро</div>;
-                const PRIORITY=['Суток','Года','Жизни'];
-                const tours=[...allTours].sort((a,b)=>{
-                  const ai=PRIORITY.indexOf(a),bi=PRIORITY.indexOf(b);
-                  return (ai===-1?999:ai)-(bi===-1?999:bi);
-                });
-                return <>
-                  <div style={{padding:'10px 14px 6px',fontSize:11,fontWeight:600,letterSpacing:1.4,textTransform:'uppercase',color:'#86868b'}}>Гиды по Яснам <span style={{color:'#aeaeb2',fontWeight:500}}>· {tours.length}</span></div>
-                  {tours.map(name=>{const isCurrent=y&&y.name===name;return <button key={name} onClick={()=>{const t=T.find(tt=>tt.n===name);if(t&&!isCurrent)load(t);setShowTour(true);setLearnOpen(false);}} className={'hdr-learn-item'+(isCurrent?' is-current':'')} style={{display:'flex',alignItems:'center',gap:8,width:'100%',padding:'11px 14px',fontSize:13,color:isCurrent?'#fff':'#1d1d1f',border:'none',borderLeft:`3px solid ${isCurrent?'#0071e3':'transparent'}`,borderBottom:'1px solid #f5f5f7',background:isCurrent?'#0071e3':'#fff',textAlign:'left',cursor:'pointer',fontWeight:isCurrent?600:500}}><span style={{flex:1}}>{name}</span>{isCurrent && <span style={{fontSize:10,padding:'2px 7px',background:'rgba(255,255,255,.22)',color:'#fff',borderRadius:8,fontWeight:700,letterSpacing:.4}}>сейчас</span>}</button>;})}
-                </>;
-              })()}
-            </div>
-          </>}
-        </div>
+        {/* 2. Обучение ▼ — dropdown рендерится после всего хедера (см. ниже),
+            чтобы работало и на десктопе, и на мобильном. */}
+        <button onClick={()=>setLearnOpen(o=>!o)} title='Уроки и гиды по Яснам' className='hdr-btn' style={{border:`1px solid ${learnOpen?'rgba(0,113,227,.4)':'#d2d2d7'}`,color:learnOpen?'#0058b8':'#424245',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:learnOpen?'rgba(0,113,227,.06)':'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:6,boxSizing:'border-box'}}>
+          <span>Обучение</span>
+          <span style={{fontSize:9,display:'inline-block',transform:learnOpen?'rotate(180deg)':'none',transition:'transform .2s',opacity:.7}}>▼</span>
+        </button>
         {/* Игра переехала влево, рядом с лого — см. начало .hdr */}
         {/* 3. Справка ▼ (Стихии переехала в "..." настройки над звездой) */}
         <div style={{position:'relative'}}>
@@ -912,22 +889,29 @@ function App(){
         </a>
         </div>
         <div className='hdr-mob-tools' style={{display:'none',gap:5,alignItems:'center',marginRight:6}}>
-          {/* Все кнопки на мобильном — единый размер 36×36, icon-only по VK Tech */}
-          {/* 1. Игра — Primary CTA */}
-          <a href='duel.html' title='Игра по Ясне' aria-label='Игра' style={{position:'relative',width:36,height:36,padding:0,border:'1px solid #0071e3',borderRadius:10,background:'#0071e3',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',textDecoration:'none',boxSizing:'border-box',boxShadow:'0 1px 3px rgba(0,113,227,.20)'}}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          {/* На мобильном — те же группы что на десктопе, ничего не дублируем:
+              Обучение ▼ (с Уроки + все Гиды) → Игра → Войти → ☰ Burger.
+              Полный экран только в diag-toolbar, тема — в бургере. */}
+          {/* 1. Обучение ▼ — тот же dropdown что на десктопе */}
+          <div style={{position:'relative'}}>
+            <button onClick={()=>setLearnOpen(o=>!o)} title='Уроки и гиды по Яснам' aria-label='Обучение' style={{height:36,padding:'0 12px',border:`1px solid ${learnOpen?'rgba(0,113,227,.4)':'var(--border,#d2d2d7)'}`,borderRadius:10,background:learnOpen?'rgba(0,113,227,.06)':'var(--bg3,#fff)',color:learnOpen?'#0058b8':'var(--txt,#424245)',display:'flex',alignItems:'center',gap:5,fontSize:13,fontWeight:600,cursor:'pointer',boxSizing:'border-box'}}>
+              <span>Обуч.</span>
+              <span style={{fontSize:9,opacity:.7,transform:learnOpen?'rotate(180deg)':'none',transition:'transform .2s'}}>▼</span>
+            </button>
+            {/* dropdown — рендерим его же в общем JSX, не дублируем */}
+          </div>
+          {/* 2. Игра — Primary CTA текстовая */}
+          <a href='duel.html' title='Сыграть Партию' style={{position:'relative',height:36,padding:'0 14px',border:'1px solid #0071e3',borderRadius:10,background:'#0071e3',color:'#fff',display:'flex',alignItems:'center',gap:4,textDecoration:'none',fontSize:13,fontWeight:600,boxSizing:'border-box',boxShadow:'0 1px 3px rgba(0,113,227,.20)'}}>
+            <span>Игра</span>
             <span style={{position:'absolute',top:-3,right:-3,width:8,height:8,borderRadius:'50%',background:'#FF3985',border:'1.5px solid var(--bg2,#fff)'}} title='NEW'/>
           </a>
-          {/* 2. Уроки */}
-          <button onClick={()=>setLessonPicker(true)} title='Уроки' aria-label='Уроки' style={{position:'relative',width:36,height:36,padding:0,border:'1px solid var(--border,#d2d2d7)',borderRadius:10,background:'var(--bg3,#fff)',color:'var(--txt,#424245)',display:'flex',alignItems:'center',justifyContent:'center',boxSizing:'border-box'}}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8.5l9-5 9 5-9 5-9-5z"/><path d="M7 11v4.5c0 1.5 2.5 2.5 5 2.5s5-1 5-2.5V11"/></svg>
-          </button>
-          {/* 3. Гид — только если зарегистрирован для текущей Ясны */}
-          {y && window.YasnaTours && window.YasnaTours.has(y.name) && <button onClick={()=>setShowTour(true)} title={'Гид по «'+y.name+'»'} aria-label='Гид' style={{width:36,height:36,padding:0,border:'1px solid rgba(162,28,175,.35)',borderRadius:10,background:'rgba(162,28,175,.10)',color:'#a21caf',display:'flex',alignItems:'center',justifyContent:'center',boxSizing:'border-box',fontSize:14,fontWeight:700}}>✦</button>}
-          {/* 4. Полный экран */}
-          <button onClick={()=>setFullStar(true)} title='Во весь экран' aria-label='Во весь экран' style={{width:36,height:36,padding:0,border:'1px solid var(--border,#d2d2d7)',borderRadius:10,background:'var(--bg3,#fff)',color:'var(--txt,#424245)',display:'flex',alignItems:'center',justifyContent:'center',boxSizing:'border-box'}}>
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/></svg>
-          </button>
+          {/* 3. Войти — с аватаром */}
+          <a href='duel.html#login' title='Войти через Telegram' style={{height:36,padding:'0 12px 0 8px',border:'1px solid var(--border,#d2d2d7)',borderRadius:10,background:'var(--bg3,#fff)',color:'var(--txt,#1d1d1f)',display:'flex',alignItems:'center',gap:7,textDecoration:'none',fontSize:13,fontWeight:500,boxSizing:'border-box'}}>
+            <span style={{width:22,height:22,borderRadius:'50%',background:'linear-gradient(135deg,#0071e3,#16A7FF)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.5-3.5 4.5-5 7-5s5.5 1.5 7 5"/></svg>
+            </span>
+            <span className='hdr-mob-login-label'>Войти</span>
+          </a>
         </div>
         <div className='hdr-burger' style={{position:'relative'}}>
           <button onClick={()=>setMenu(!menu)} style={{fontSize:20,padding:'6px 12px',border:'1px solid #d2d2d7',borderRadius:10,background:menu?'#f5f5f7':'#fff',color:'#424245',minHeight:36,minWidth:40}}>☰</button>
@@ -972,10 +956,41 @@ function App(){
             <button onClick={()=>{if(overlay){setOverlay(null)}else{setShowOverlayPicker(true)};setMenu(false)}} style={{display:'block',width:'100%',padding:'10px 16px',fontSize:14,color:overlay?'#af52de':'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>{overlay?'⊗ Снять совмещение':'⊕ Совместить ясны'}</button>
             <button onClick={()=>{setShowComposition(c=>!c);setMenu(false)}} style={{display:'block',width:'100%',padding:'10px 16px',fontSize:14,color:showComposition?'#7a5e25':'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>▌▌▌▌ Стихии {showComposition?'· Вкл':''}</button>
             <button onClick={()=>{setEd(!ed);setMenu(false)}} style={{display:'block',width:'100%',padding:'10px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Редактировать текущую</button>
-            <button onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);setMenu(false);}} style={{display:'block',width:'100%',padding:'10px 16px',fontSize:14,color:'#6e6e73',border:'none',background:'#fafafa',textAlign:'left'}}>+ Создать новую Ясну</button>
+            <button onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);setMenu(false);}} style={{display:'block',width:'100%',padding:'10px 16px',fontSize:14,color:'#6e6e73',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fafafa',textAlign:'left'}}>+ Создать новую Ясну</button>
+            {/* ТЕМА */}
+            <div style={{padding:'10px 16px 4px',fontSize:10,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',color:'#86868b',borderTop:'1px solid #f5f5f7'}}>Тема</div>
+            <button onClick={()=>{
+              try{var k='yasna_theme_vk_dark';var on=localStorage.getItem(k)==='1';localStorage.setItem(k,on?'0':'1');document.body.classList.toggle('theme-vk-dark',!on);}catch(_){}
+              setMenu(false);
+            }} style={{display:'flex',alignItems:'center',gap:10,width:'100%',padding:'10px 16px',fontSize:14,color:'#1d1d1f',border:'none',background:'#fff',textAlign:'left'}}>
+              <span style={{fontSize:15}}>{(typeof localStorage!=='undefined'&&localStorage.getItem('yasna_theme_vk_dark')==='1')?'☀':'🌑'}</span>
+              <span style={{flex:1}}>{(typeof localStorage!=='undefined'&&localStorage.getItem('yasna_theme_vk_dark')==='1')?'Светлая тема':'Тёмная тема'}</span>
+            </button>
           </div>}
         </div>
       </div>
+      {/* ═══ Standalone Обучение dropdown (работает и на десктопе, и на мобильном) ═══
+          Position fixed top-right под хедером — единое поведение независимо от того
+          где находится триггер (.hdr-btns или .hdr-mob-tools). */}
+      {learnOpen && <>
+        <div onClick={()=>setLearnOpen(false)} style={{position:'fixed',inset:0,zIndex:99,background:'transparent'}}/>
+        <div className='hdr-learn-dropdown' style={{position:'fixed',top:60,right:16,minWidth:240,maxWidth:'min(320px, calc(100vw - 32px))',maxHeight:'calc(100vh - 80px)',overflowY:'auto',background:'#fff',border:'1px solid #d2d2d7',borderRadius:12,boxShadow:'0 12px 36px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.06)',zIndex:100,animation:'slideDown .2s cubic-bezier(.16,1,.3,1)'}}>
+          <button onClick={()=>{setLessonPicker(true);setLearnOpen(false)}} style={{display:'flex',width:'100%',padding:'12px 16px',fontSize:13,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left',cursor:'pointer',fontWeight:500}}>Уроки <span style={{color:'#86868b',fontSize:11,marginLeft:6,fontWeight:400}}>· 4 шага</span></button>
+          {(()=>{
+            const allTours=(window.YasnaTours&&window.YasnaTours.list?window.YasnaTours.list():[]);
+            if(allTours.length===0)return <div style={{padding:'12px 16px',fontSize:12,color:'#aeaeb2',fontStyle:'italic'}}>Гиды появятся скоро</div>;
+            const PRIORITY=['Суток','Года','Жизни'];
+            const tours=[...allTours].sort((a,b)=>{
+              const ai=PRIORITY.indexOf(a),bi=PRIORITY.indexOf(b);
+              return (ai===-1?999:ai)-(bi===-1?999:bi);
+            });
+            return <>
+              <div style={{padding:'10px 16px 6px',fontSize:11,fontWeight:600,letterSpacing:1.4,textTransform:'uppercase',color:'#86868b'}}>Гиды по Яснам <span style={{color:'#aeaeb2',fontWeight:500}}>· {tours.length}</span></div>
+              {tours.map(name=>{const isCurrent=y&&y.name===name;return <button key={name} onClick={()=>{const t=T.find(tt=>tt.n===name);if(t&&!isCurrent)load(t);setShowTour(true);setLearnOpen(false);}} className={'hdr-learn-item'+(isCurrent?' is-current':'')} style={{display:'flex',alignItems:'center',gap:8,width:'100%',padding:'11px 16px',fontSize:13,color:isCurrent?'#fff':'#1d1d1f',border:'none',borderLeft:`3px solid ${isCurrent?'#0071e3':'transparent'}`,borderBottom:'1px solid #f5f5f7',background:isCurrent?'#0071e3':'#fff',textAlign:'left',cursor:'pointer',fontWeight:isCurrent?600:500}}><span style={{flex:1}}>{name}</span>{isCurrent && <span style={{fontSize:10,padding:'2px 7px',background:'rgba(255,255,255,.22)',color:'#fff',borderRadius:8,fontWeight:700,letterSpacing:.4}}>сейчас</span>}</button>;})}
+            </>;
+          })()}
+        </div>
+      </>}
       <div className='nav-tabs' style={{display:'flex',alignItems:'center',padding:'8px 0 8px 20px',background:'var(--bg2)',borderBottom:'1px solid #d2d2d7',flexShrink:0,position:'relative'}}>
         {/* Механики — закреплённая первая «таблетка», открывает inline-аккордеон ниже nav-tabs */}
         <button onClick={()=>setFiltersOpen(o=>!o)} title='Развернуть/свернуть список механик' className='mech-trigger' aria-expanded={filtersOpen} style={{padding:'8px 16px',borderRadius:18,fontSize:14,whiteSpace:'nowrap',background:filtersOpen?'rgba(0,113,227,.12)':'transparent',color:filtersOpen||af.length>0?'#0058b8':'var(--txt2)',border:`1px solid ${filtersOpen?'rgba(0,113,227,.45)':'#d2d2d7'}`,cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:8,flexShrink:0,marginRight:8,fontFamily:'var(--vk-font, var(--sans))'}}>

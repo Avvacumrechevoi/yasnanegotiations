@@ -134,7 +134,8 @@
         hdrBtns.appendChild(btn);
       }
     }
-    // Mobile: floating top-right (всегда видна, даже когда .hdr-btns скрыт)
+    // Mobile: floating уже не нужен — тема живёт внутри бургера.
+    // Оставляем код для обратной совместимости, но скрыт через CSS @media.
     if(!document.querySelector('body > .dp-theme-toggle--floating')){
       var fbtn = makeButton('floating');
       document.body.appendChild(fbtn);

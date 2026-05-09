@@ -47,10 +47,18 @@ input{font-family:var(--sans)}
   .filters-toggle{display:none!important}
   .fullstar-btn{display:none!important}
   .hdr-mob-tools{display:flex!important}
+  /* Floating theme toggle на мобильном скрыт — тема живёт в бургере */
+  body > .dp-theme-toggle--floating{display:none!important}
+  /* Текст «Войти» прячется на узких <400px — остаётся только аватар */
+  .hdr-mob-login-label{display:inline}
   /* Editor — full width на узких viewport'ах */
   .editor-panel{width:100vw!important;max-width:100vw!important;border-left:none!important}
   /* Скрываем «автосохранение» текст на узких — оставляем только зелёную точку */
   .editor-autosave-label{display:none!important}
+}
+@media(max-width:400px){
+  .hdr-mob-login-label{display:none!important}
+  .hdr-mob-tools > a[href="duel.html"] > span:first-child{padding-right:2px}
   .filters{padding:6px 10px!important;gap:4px!important;flex-wrap:wrap!important;overflow:visible!important;background:#fafafa!important;border-bottom:1px solid #e5e5ea!important;transition:padding .42s cubic-bezier(.32,.72,0,1), max-height .42s cubic-bezier(.32,.72,0,1), opacity .42s cubic-bezier(.32,.72,0,1)!important}
   .filters-closed{display:none!important}
   .filters button{padding:5px 10px!important;font-size:12px!important;flex-shrink:0!important;line-height:1.3!important;min-height:26px!important;border-radius:7px!important;transition:padding .42s cubic-bezier(.32,.72,0,1), font-size .42s cubic-bezier(.32,.72,0,1)!important}
