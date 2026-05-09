@@ -51,8 +51,11 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       stars: 1500,
     };
 
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:false, powerPreference:'high-performance' });
+    // alpha: true — canvas прозрачный, фон страницы виден сквозь него.
+    // Это устраняет «прямоугольник» более тёмного цвета внутри тёмной страницы.
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true, powerPreference:'high-performance' });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, Q.pxRatio));
+    renderer.setClearColor(0x000000, 0);  // прозрачный clear color
     if(THREE.sRGBEncoding) renderer.outputEncoding = THREE.sRGBEncoding;
     // Кинематографический tone mapping
     if(THREE.ACESFilmicToneMapping !== undefined){
@@ -61,9 +64,9 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
     }
 
     const scene = new THREE.Scene();
-    // Тёмно-сине-фиолетовый космический фон с лёгким градиентом
-    scene.background = new THREE.Color(0x040614);
-    scene.fog = new THREE.Fog(0x040614, 600, 2000);
+    // НЕ ставим scene.background — пусть фон страницы (body) просвечивает.
+    // Туман оставляем — он работает на дальние объекты (звёзды) для глубины.
+    scene.fog = new THREE.Fog(0x0a0b0d, 600, 2000);
     const camera = new THREE.PerspectiveCamera(38, 1, 1, 5000);
 
     // ──────────────── Звёздное поле (1500 звёзд на дальней сфере) ────────────────

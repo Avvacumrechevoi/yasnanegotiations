@@ -1,4 +1,4 @@
-/* Yasna bundle: app.js — собран 2026-05-09T10:59:48.254Z */
+/* Yasna bundle: app.js — собран 2026-05-09T11:03:47.947Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -644,16 +644,16 @@
         torusTube: 16,
         stars: 1500
       };
-      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: "high-performance" });
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, Q.pxRatio));
+      renderer.setClearColor(0, 0);
       if (THREE.sRGBEncoding) renderer.outputEncoding = THREE.sRGBEncoding;
       if (THREE.ACESFilmicToneMapping !== void 0) {
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 0.92;
       }
       const scene = new THREE.Scene();
-      scene.background = new THREE.Color(263700);
-      scene.fog = new THREE.Fog(263700, 600, 2e3);
+      scene.fog = new THREE.Fog(658189, 600, 2e3);
       const camera = new THREE.PerspectiveCamera(38, 1, 1, 5e3);
       {
         const starsGeom = new THREE.BufferGeometry();
