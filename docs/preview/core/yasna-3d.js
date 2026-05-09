@@ -330,15 +330,20 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
         ];
         cardinals.forEach(c => {
           const p = equatorPos(c.idx);
-          const sprite = window.YasnaSprites.makeTextSprite(c.label, {
+          // makeLabelSprite — поддерживает options + ставит обводку + halo;
+          // makeTextSprite принимает positional args и игнорировал бы fontSize/color.
+          const sprite = window.YasnaSprites.makeLabelSprite(c.label, {
             color: '#' + c.color.toString(16).padStart(6, '0'),
-            fontSize: 22,
-            stroke: '#000',
-            strokeWidth: 4,
+            fontSize: 56,
+            weight: '700',
+            depthTest: false,
           });
           if(sprite){
             const dir = p.clone().normalize();
-            sprite.position.copy(p).addScaledVector(dir, 8);
+            sprite.position.copy(p).addScaledVector(dir, 12);
+            // World-scale: высота 14 единиц, ширина по aspect canvas
+            const h = 14;
+            sprite.scale.set(h * (sprite.userData.aspect||4), h, 1);
             astroSubs.cardinals.add(sprite);
           }
         });
@@ -362,28 +367,34 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
           const x = R * Math.cos(s.ang);
           const z = R * Math.sin(s.ang);
           const pt = new THREE.Vector3(x, z * sinT, z * cosT);
-          const sprite = window.YasnaSprites.makeTextSprite(s.label, {
+          // Используем makeLabelSprite (options-объект + halo + world-scale)
+          const sprite = window.YasnaSprites.makeLabelSprite(s.label, {
             color: '#' + s.color.toString(16).padStart(6, '0'),
-            fontSize: 16,
-            stroke: '#000',
-            strokeWidth: 3,
+            fontSize: 56,
+            weight: '700',
+            depthTest: false,
           });
           if(sprite){
             const dir = pt.clone().normalize();
-            sprite.position.copy(pt).addScaledVector(dir, 16);
+            sprite.position.copy(pt).addScaledVector(dir, 18);
+            // Сезоны крупнее зодиака — это «верхний» слой ясны года
+            const h = 12;
+            sprite.scale.set(h * (sprite.userData.aspect||4), h, 1);
             astroSubs.seasons.add(sprite);
           }
         });
 
         // ─── Подпись Полярной Звезды у Зенита ─────────────────────
-        const polarisSprite = window.YasnaSprites.makeTextSprite('☆ Полярная', {
-          color: '#A8B1BE',
-          fontSize: 14,
-          stroke: '#000',
-          strokeWidth: 3,
+        const polarisSprite = window.YasnaSprites.makeLabelSprite('☆ Полярная', {
+          color: '#E5E7EB',
+          fontSize: 48,
+          weight: '600',
+          depthTest: false,
         });
         if(polarisSprite){
-          polarisSprite.position.set(0, NORTH.y + 18, 0);
+          polarisSprite.position.set(0, NORTH.y + 22, 0);
+          const h = 9;
+          polarisSprite.scale.set(h * (polarisSprite.userData.aspect||4), h, 1);
           astroSubs.polaris.add(polarisSprite);
         }
 
@@ -420,16 +431,20 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
           const x = R * Math.cos(ang);
           const zCoord = R * Math.sin(ang);
           const pt = new THREE.Vector3(x, zCoord * sinT, zCoord * cosT);
-          const sprite = window.YasnaSprites.makeTextSprite(z.glyph, {
+          // makeLabelSprite — поддерживает options-объект (makeTextSprite — нет!)
+          const sprite = window.YasnaSprites.makeLabelSprite(z.glyph, {
             color: elemColor[z.elem],
-            fontSize: 26,
-            stroke: '#000',
-            strokeWidth: 4,
+            fontSize: 96,           // глифы крупные — это символы, не текст
+            weight: '700',
+            depthTest: false,       // всегда поверх — не уходят за сферу
           });
           if(sprite){
-            // Вынести немного наружу эклиптики
+            // Вынести наружу эклиптики, чтобы глифы не сливались с линией
             const dir = pt.clone().normalize();
-            sprite.position.copy(pt).addScaledVector(dir, 10);
+            sprite.position.copy(pt).addScaledVector(dir, 16);
+            // World-scale: глиф 16 единиц по высоте (vs полка ~25)
+            const h = 16;
+            sprite.scale.set(h * (sprite.userData.aspect||1), h, 1);
             astroSubs.zodiac.add(sprite);
           }
         });

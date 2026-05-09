@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T12:13:58.584Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T12:30:37.148Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -876,15 +876,17 @@
           ];
           cardinals.forEach((c) => {
             const p = equatorPos(c.idx);
-            const sprite = window.YasnaSprites.makeTextSprite(c.label, {
+            const sprite = window.YasnaSprites.makeLabelSprite(c.label, {
               color: "#" + c.color.toString(16).padStart(6, "0"),
-              fontSize: 22,
-              stroke: "#000",
-              strokeWidth: 4
+              fontSize: 56,
+              weight: "700",
+              depthTest: false
             });
             if (sprite) {
               const dir = p.clone().normalize();
-              sprite.position.copy(p).addScaledVector(dir, 8);
+              sprite.position.copy(p).addScaledVector(dir, 12);
+              const h = 14;
+              sprite.scale.set(h * (sprite.userData.aspect || 4), h, 1);
               astroSubs.cardinals.add(sprite);
             }
           });
@@ -903,26 +905,30 @@
             const x = R * Math.cos(s.ang);
             const z = R * Math.sin(s.ang);
             const pt = new THREE.Vector3(x, z * sinT, z * cosT);
-            const sprite = window.YasnaSprites.makeTextSprite(s.label, {
+            const sprite = window.YasnaSprites.makeLabelSprite(s.label, {
               color: "#" + s.color.toString(16).padStart(6, "0"),
-              fontSize: 16,
-              stroke: "#000",
-              strokeWidth: 3
+              fontSize: 56,
+              weight: "700",
+              depthTest: false
             });
             if (sprite) {
               const dir = pt.clone().normalize();
-              sprite.position.copy(pt).addScaledVector(dir, 16);
+              sprite.position.copy(pt).addScaledVector(dir, 18);
+              const h = 12;
+              sprite.scale.set(h * (sprite.userData.aspect || 4), h, 1);
               astroSubs.seasons.add(sprite);
             }
           });
-          const polarisSprite = window.YasnaSprites.makeTextSprite("\u2606 \u041F\u043E\u043B\u044F\u0440\u043D\u0430\u044F", {
-            color: "#A8B1BE",
-            fontSize: 14,
-            stroke: "#000",
-            strokeWidth: 3
+          const polarisSprite = window.YasnaSprites.makeLabelSprite("\u2606 \u041F\u043E\u043B\u044F\u0440\u043D\u0430\u044F", {
+            color: "#E5E7EB",
+            fontSize: 48,
+            weight: "600",
+            depthTest: false
           });
           if (polarisSprite) {
-            polarisSprite.position.set(0, NORTH.y + 18, 0);
+            polarisSprite.position.set(0, NORTH.y + 22, 0);
+            const h = 9;
+            polarisSprite.scale.set(h * (polarisSprite.userData.aspect || 4), h, 1);
             astroSubs.polaris.add(polarisSprite);
           }
           const zodiac = [
@@ -966,15 +972,19 @@
             const x = R * Math.cos(ang);
             const zCoord = R * Math.sin(ang);
             const pt = new THREE.Vector3(x, zCoord * sinT, zCoord * cosT);
-            const sprite = window.YasnaSprites.makeTextSprite(z.glyph, {
+            const sprite = window.YasnaSprites.makeLabelSprite(z.glyph, {
               color: elemColor[z.elem],
-              fontSize: 26,
-              stroke: "#000",
-              strokeWidth: 4
+              fontSize: 96,
+              // глифы крупные — это символы, не текст
+              weight: "700",
+              depthTest: false
+              // всегда поверх — не уходят за сферу
             });
             if (sprite) {
               const dir = pt.clone().normalize();
-              sprite.position.copy(pt).addScaledVector(dir, 10);
+              sprite.position.copy(pt).addScaledVector(dir, 16);
+              const h = 16;
+              sprite.scale.set(h * (sprite.userData.aspect || 1), h, 1);
               astroSubs.zodiac.add(sprite);
             }
           });
@@ -5652,7 +5662,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T12:13:57.539Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T12:30:36.292Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
   const THEMES = [
     {
       "id": "chto-est-yasna",

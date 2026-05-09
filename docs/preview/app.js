@@ -1169,11 +1169,28 @@ function App(){
             Появляется когда Астро-режим включён. Каждый элемент включается
             отдельно — для образовательного режима. Position: top-left. */}
         {is3D && astroMode && (()=>{
+          // Toggle: ON — яркое выделение (#0071e3 фон+белый текст), OFF — приглушённый серый
+          // (низкая opacity + муть). Так глазу сразу видно «что включено vs что нет».
           const Toggle = ({k, label, sub})=>{
             const on = !!astroLayers[k];
-            return <button onClick={()=>toggleAstroLayer(k)} style={{width:'100%',display:'flex',alignItems:'center',gap:9,padding:'7px 10px',borderRadius:7,border:`1px solid ${on?'rgba(0,113,227,.45)':'#e5e5ea'}`,background:on?'rgba(0,113,227,.10)':'#fff',color:on?'#0058b8':'#424245',fontSize:12,cursor:'pointer',fontWeight:on?600:500,marginBottom:4,textAlign:'left'}}>
-              <span style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:14,height:14,flexShrink:0,fontSize:10,color:on?'#0071e3':'#aeaeb2'}}>{on?'●':'○'}</span>
-              <span style={{flex:1}}>{label}{sub&&<span style={{fontSize:10,opacity:.6,fontWeight:500,marginLeft:4}}>· {sub}</span>}</span>
+            return <button onClick={()=>toggleAstroLayer(k)} style={{
+              width:'100%', display:'flex', alignItems:'center', gap:9,
+              padding:'7px 10px', borderRadius:8,
+              border: on ? '1px solid #0071e3' : '1px solid rgba(0,0,0,.06)',
+              background: on ? 'rgba(0,113,227,.14)' : 'transparent',
+              color: on ? '#003d80' : '#86868b',
+              fontSize:12, cursor:'pointer',
+              fontWeight: on ? 600 : 500,
+              marginBottom:4, textAlign:'left',
+              opacity: on ? 1 : 0.62,
+              transition:'all .15s ease',
+            }}>
+              <span style={{
+                display:'inline-flex', alignItems:'center', justifyContent:'center',
+                width:14, height:14, flexShrink:0, fontSize: on ? 11 : 10,
+                color: on ? '#0071e3' : '#c0c0c5',
+              }}>{on?'●':'○'}</span>
+              <span style={{flex:1}}>{label}{sub&&<span style={{fontSize:10,opacity:.55,fontWeight:500,marginLeft:4}}>· {sub}</span>}</span>
             </button>;
           };
           const Section = ({title, children})=>(
