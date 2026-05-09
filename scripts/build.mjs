@@ -30,6 +30,7 @@ const isWatch = process.argv.includes('--watch');
 const APP_FILES = [
   'core/data.js',
   'core/yasna-3d.js',
+  'core/astro-panel.js',  // ← независимый модуль «Астрономия» (UI + хуки)
   'core/verification.js',
   'core/dialogs.js',
   'core/info-card.js',

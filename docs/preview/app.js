@@ -809,36 +809,12 @@ function App(){
   // Каркас-купол в 3D (wireframe sphere) — по умолчанию показан
   const[showCage,setShowCage]=useState(()=>{ try{return localStorage.getItem('yasna_show_cage')!=='0'}catch(_){return true} });
   useEffect(()=>{ try{localStorage.setItem('yasna_show_cage', showCage?'1':'0')}catch(_){} },[showCage]);
-  // Астрономический режим — Ясна как модель небесной сферы / Земли.
-  // Master toggle: открывает отдельную панель «Астрономия» с пословоной настройкой слоёв.
-  const[astroMode,setAstroMode]=useState(()=>{ try{return localStorage.getItem('yasna_astro_mode')==='1'}catch(_){return false} });
-  useEffect(()=>{ try{localStorage.setItem('yasna_astro_mode', astroMode?'1':'0')}catch(_){} },[astroMode]);
-  // Отдельные слои астро-модели — каждый можно включать/выключать чтобы понять
-  // что именно представляет каждый элемент. Сохраняются в localStorage целиком как объект.
-  const[astroLayers,setAstroLayers]=useState(()=>{
-    try {
-      const s = localStorage.getItem('yasna_astro_layers');
-      if(s) return JSON.parse(s);
-    } catch(_){}
-    return {
-      tropics: true,        // Тропики Рака и Козерога ±23.5°
-      arctics: true,        // Полярные круги ±66.5°
-      parallels: false,     // Сетка параллелей (15/30/45/60°)
-      ecliptic: true,       // Эклиптика — большой круг 23.5°
-      zodiac: true,         // 12 знаков зодиака
-      seasons: true,        // Метки Весна/Лето/Осень/Зима
-      meridians: false,     // 12 вертикальных дуг через апексы
-      cardinals: true,      // Зенит/Восток/Надир/Запад
-      polaris: true,        // Полярная Звезда
-      sun: true,            // Солнце-маркер
-      sunCycle: false,      // Анимация Солнца по эклиптике
-      terminator: false,    // Граница день/ночь (требует sunCycle)
-      dayNight: false,      // Подсветка полок по освещённости
-      tiltAxis: false,      // Наклон оси на 23.5°
-    };
-  });
-  useEffect(()=>{ try{localStorage.setItem('yasna_astro_layers', JSON.stringify(astroLayers))}catch(_){} },[astroLayers]);
-  const toggleAstroLayer=(k)=>setAstroLayers(s=>({...s,[k]:!s[k]}));
+  // ═══ Астрономический режим ═══════════════════════════════════════
+  // Вынесен в core/astro-panel.js — независимый модуль с конфигом, хуками
+  // и UI-компонентом. Здесь только подключаем хуки и пробрасываем state.
+  // Чтобы добавить новый слой — правь только core/astro-panel.js.
+  const[astroMode,setAstroMode] = window.YasnaAstro.useAstroMode();
+  const[astroLayers,toggleAstroLayer] = window.YasnaAstro.useAstroLayers();
   const[activeLesson,setActiveLesson]=useState(null);
   const[completedLessons,setCompletedLessons]=useState([]);
   // Auto-close burger menu when any modal/panel opens
@@ -1165,75 +1141,15 @@ function App(){
             </button>}
           </div>
         </div>}
-        {/* ═══ Астрономическая панель — отдельная вкладка с под-тогглами ═══
-            Появляется когда Астро-режим включён. Каждый элемент включается
-            отдельно — для образовательного режима. Position: top-left. */}
-        {is3D && astroMode && (()=>{
-          // Toggle: ON — яркое выделение (#0071e3 фон+белый текст), OFF — приглушённый серый
-          // (низкая opacity + муть). Так глазу сразу видно «что включено vs что нет».
-          const Toggle = ({k, label, sub})=>{
-            const on = !!astroLayers[k];
-            return <button onClick={()=>toggleAstroLayer(k)} style={{
-              width:'100%', display:'flex', alignItems:'center', gap:9,
-              padding:'7px 10px', borderRadius:8,
-              border: on ? '1px solid #0071e3' : '1px solid rgba(0,0,0,.06)',
-              background: on ? 'rgba(0,113,227,.14)' : 'transparent',
-              color: on ? '#003d80' : '#86868b',
-              fontSize:12, cursor:'pointer',
-              fontWeight: on ? 600 : 500,
-              marginBottom:4, textAlign:'left',
-              opacity: on ? 1 : 0.62,
-              transition:'all .15s ease',
-            }}>
-              <span style={{
-                display:'inline-flex', alignItems:'center', justifyContent:'center',
-                width:14, height:14, flexShrink:0, fontSize: on ? 11 : 10,
-                color: on ? '#0071e3' : '#c0c0c5',
-              }}>{on?'●':'○'}</span>
-              <span style={{flex:1}}>{label}{sub&&<span style={{fontSize:10,opacity:.55,fontWeight:500,marginLeft:4}}>· {sub}</span>}</span>
-            </button>;
-          };
-          const Section = ({title, children})=>(
-            <div style={{marginBottom:12}}>
-              <div style={{fontSize:10,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',color:'#86868b',marginBottom:6,paddingLeft:2}}>{title}</div>
-              {children}
-            </div>
-          );
-          return <div className='astro-panel' style={{position:'absolute',top:10,left:10,width:260,maxHeight:'calc(100% - 20px)',overflowY:'auto',zIndex:6,background:'rgba(255,255,255,.96)',backdropFilter:'blur(10px)',border:'1px solid #e5e5ea',borderRadius:14,padding:'14px 14px 12px',boxShadow:'0 8px 28px rgba(0,0,0,.12)'}}>
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:14,paddingBottom:10,borderBottom:'1px solid #f0f0f2'}}>
-              <div style={{display:'flex',alignItems:'center',gap:8}}>
-                <span style={{fontSize:18,lineHeight:1}}>🌍</span>
-                <h4 style={{margin:0,fontFamily:'var(--serif)',fontSize:16,fontWeight:600,color:'#1d1d1f',letterSpacing:'-0.005em'}}>Астрономия</h4>
-              </div>
-              <button onClick={()=>setAstroMode(false)} aria-label='Закрыть' style={{width:24,height:24,borderRadius:'50%',border:'1px solid #e5e5ea',background:'#f5f5f7',color:'#86868b',fontSize:14,lineHeight:1,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',padding:0}}>×</button>
-            </div>
-            <Section title='Геометрия Земли'>
-              <Toggle k='tropics' label='Тропики' sub='±23.5°'/>
-              <Toggle k='arctics' label='Полярные круги' sub='±66.5°'/>
-              <Toggle k='parallels' label='Сетка параллелей'/>
-            </Section>
-            <Section title='Небесная сфера'>
-              <Toggle k='ecliptic' label='Эклиптика'/>
-              <Toggle k='zodiac' label='Зодиак' sub='12 знаков'/>
-              <Toggle k='seasons' label='Сезоны'/>
-            </Section>
-            <Section title='Координаты'>
-              <Toggle k='meridians' label='12 меридианов'/>
-              <Toggle k='cardinals' label='Кардинальные точки'/>
-              <Toggle k='polaris' label='Полярная звезда'/>
-            </Section>
-            <Section title='Солнце и динамика'>
-              <Toggle k='sun' label='Солнце'/>
-              <Toggle k='sunCycle' label='Цикл Солнца' sub='анимация'/>
-              <Toggle k='terminator' label='Терминатор · день/ночь'/>
-              <Toggle k='dayNight' label='Освещённость полок'/>
-              <Toggle k='tiltAxis' label='Наклон оси Земли' sub='23.5°'/>
-            </Section>
-            <div style={{fontSize:10,color:'#aeaeb2',lineHeight:1.5,paddingTop:8,borderTop:'1px solid #f0f0f2',marginTop:4}}>
-              Включай слои по одному, чтобы понять что значит каждый элемент.
-            </div>
-          </div>;
-        })()}
+        {/* ═══ Астрономическая панель ═══════════════════════════════════
+            UI вынесен в core/astro-panel.js (window.YasnaAstro.Panel).
+            Desktop: floating top-left. Mobile: bottom-sheet + chip.
+            Стили scoped в .astro-* — изолированы от остальных разделов. */}
+        {is3D && astroMode && window.YasnaAstro && React.createElement(window.YasnaAstro.Panel, {
+          astroLayers,
+          onToggle: toggleAstroLayer,
+          onClose: ()=>setAstroMode(false),
+        })}
         <div className="star-svg-wrap" style={{width:'100%',height:'100%',maxWidth:'none',maxHeight:'none',flex:1}}>{(()=>{
           /* Если карточка свёрнута и кликнули по ТОЙ ЖЕ полке — раскрываем
              панель вместо снятия выделения. Это нужно мобильному, чтобы

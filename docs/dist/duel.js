@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T12:30:36.693Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T12:43:27.863Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -593,7 +593,8 @@
 ;(function(){
 (function() {
   const { opp, rad } = window.YasnaData;
-  function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki }) {
+  function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki, solidMech, showCage, astroMode, astroLayers }) {
+    const AL = astroLayers || {};
     const canvasRef = React.useRef(null);
     const initCamDist = typeof window !== "undefined" && window.innerWidth <= 768 ? 820 : 560;
     const stateRef = React.useRef({
@@ -605,10 +606,10 @@
       lastY: 0
     });
     const sceneRefs = React.useRef(null);
-    const liveRef = React.useRef({ rotationOn, speedSec, sel, drill, af });
+    const liveRef = React.useRef({ rotationOn, speedSec, sel, drill, af, solidMech, showCage, astroMode, astroLayers });
     React.useEffect(() => {
-      liveRef.current = { rotationOn, speedSec, sel, drill, af };
-    }, [rotationOn, speedSec, sel, drill, JSON.stringify(af || [])]);
+      liveRef.current = { rotationOn, speedSec, sel, drill, af, solidMech, showCage, astroMode, astroLayers };
+    }, [rotationOn, speedSec, sel, drill, solidMech, showCage, astroMode, JSON.stringify(astroLayers || {}), JSON.stringify(af || [])]);
     React.useEffect(() => {
       if (typeof window === "undefined" || !window.THREE) return;
       const THREE = window.THREE;
@@ -644,16 +645,16 @@
         torusTube: 16,
         stars: 1500
       };
-      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: "high-performance" });
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, Q.pxRatio));
+      renderer.setClearColor(0, 0);
       if (THREE.sRGBEncoding) renderer.outputEncoding = THREE.sRGBEncoding;
       if (THREE.ACESFilmicToneMapping !== void 0) {
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 0.92;
       }
       const scene = new THREE.Scene();
-      scene.background = new THREE.Color(263700);
-      scene.fog = new THREE.Fog(263700, 600, 2e3);
+      scene.fog = new THREE.Fog(658189, 600, 2e3);
       const camera = new THREE.PerspectiveCamera(38, 1, 1, 5e3);
       {
         const starsGeom = new THREE.BufferGeometry();
@@ -755,6 +756,240 @@
       );
       equatorTube.rotation.x = Math.PI / 2;
       wheelGroup.add(equatorTube);
+      const astroGroup = new THREE.Group();
+      astroGroup.visible = false;
+      wheelGroup.add(astroGroup);
+      let astroSun = null;
+      const astroSubs = {
+        tropics: new THREE.Group(),
+        arctics: new THREE.Group(),
+        parallels: new THREE.Group(),
+        ecliptic: new THREE.Group(),
+        zodiac: new THREE.Group(),
+        seasons: new THREE.Group(),
+        meridians: new THREE.Group(),
+        cardinals: new THREE.Group(),
+        polaris: new THREE.Group(),
+        sun: new THREE.Group(),
+        terminator: new THREE.Group()
+      };
+      Object.values(astroSubs).forEach((g) => astroGroup.add(g));
+      {
+        let makeParallel2 = function(y2, r, color, opacity, dashed) {
+          const segs = 96;
+          const pts = [];
+          for (let i = 0; i <= segs; i++) {
+            const ang = i / segs * Math.PI * 2;
+            pts.push(new THREE.Vector3(r * Math.cos(ang), y2, r * Math.sin(ang)));
+          }
+          const geom = new THREE.BufferGeometry().setFromPoints(pts);
+          const mat = dashed ? new THREE.LineDashedMaterial({ color, transparent: true, opacity, dashSize: 3, gapSize: 2, linewidth: 1 }) : new THREE.LineBasicMaterial({ color, transparent: true, opacity, linewidth: 1 });
+          const line = new THREE.Line(geom, mat);
+          if (dashed) line.computeLineDistances();
+          return line;
+        };
+        var makeParallel = makeParallel2;
+        const AXIAL_TILT = 23.5 * Math.PI / 180;
+        const ARCTIC = 66.5 * Math.PI / 180;
+        astroSubs.tropics.add(makeParallel2(R * Math.sin(AXIAL_TILT), R * Math.cos(AXIAL_TILT), 12620858, 0.65));
+        astroSubs.tropics.add(makeParallel2(-R * Math.sin(AXIAL_TILT), R * Math.cos(AXIAL_TILT), 12620858, 0.65));
+        astroSubs.arctics.add(makeParallel2(R * Math.sin(ARCTIC), R * Math.cos(ARCTIC), 6003958, 0.55, true));
+        astroSubs.arctics.add(makeParallel2(-R * Math.sin(ARCTIC), R * Math.cos(ARCTIC), 6003958, 0.55, true));
+        {
+          const segs = 128;
+          const pts = [];
+          const cosT = Math.cos(AXIAL_TILT), sinT = Math.sin(AXIAL_TILT);
+          for (let i = 0; i <= segs; i++) {
+            const ang = i / segs * Math.PI * 2;
+            const x = R * Math.cos(ang);
+            const z = R * Math.sin(ang);
+            pts.push(new THREE.Vector3(x, z * sinT, z * cosT));
+          }
+          const geom = new THREE.BufferGeometry().setFromPoints(pts);
+          const mat = new THREE.LineBasicMaterial({ color: 15755320, transparent: true, opacity: 0.75, linewidth: 1.5 });
+          astroSubs.ecliptic.add(new THREE.Line(geom, mat));
+          const sunMat = new THREE.MeshStandardMaterial({
+            color: 16172618,
+            emissive: 16172618,
+            emissiveIntensity: 0.7,
+            metalness: 0.3,
+            roughness: 0.4
+          });
+          const sun = new THREE.Mesh(new THREE.SphereGeometry(2.8, 24, 16), sunMat);
+          sun.position.set(0, R * sinT, R * cosT);
+          astroSubs.sun.add(sun);
+          astroSun = sun;
+        }
+        {
+          const segs = 96;
+          const positions = new Float32Array((segs + 1) * 3);
+          const geom = new THREE.BufferGeometry();
+          geom.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+          const mat = new THREE.LineBasicMaterial({
+            color: 16172618,
+            transparent: true,
+            opacity: 0.45,
+            linewidth: 1.5
+          });
+          const terminator = new THREE.LineLoop(geom, mat);
+          astroSubs.terminator.add(terminator);
+          astroGroup.userData.terminator = terminator;
+        }
+        [15, 30, 45, 60].forEach((deg) => {
+          const rad2 = deg * Math.PI / 180;
+          const y2 = R * Math.sin(rad2);
+          const r = R * Math.cos(rad2);
+          astroSubs.parallels.add(makeParallel2(y2, r, 7041922, 0.22));
+          astroSubs.parallels.add(makeParallel2(-y2, r, 7041922, 0.22));
+        });
+        for (let i = 0; i < 12; i++) {
+          const p = equatorPos(i);
+          const segs = 32;
+          const pts = [];
+          for (let s = 0; s <= segs; s++) {
+            const t = s / segs;
+            const theta = t * Math.PI;
+            const x = p.x * Math.sin(theta);
+            const y2 = NORTH.y * Math.cos(theta);
+            const z = p.z * Math.sin(theta);
+            pts.push(new THREE.Vector3(x, y2, z));
+          }
+          const geom = new THREE.BufferGeometry().setFromPoints(pts);
+          const isCardinal = i % 3 === 0;
+          const mat = new THREE.LineBasicMaterial({
+            color: isCardinal ? 11055550 : 4868693,
+            transparent: true,
+            opacity: isCardinal ? 0.42 : 0.18
+          });
+          astroSubs.meridians.add(new THREE.Line(geom, mat));
+        }
+        if (window.YasnaSprites && window.YasnaSprites.makeTextSprite) {
+          const cardinals = [
+            { idx: 6, label: "\u0417\u0415\u041D\u0418\u0422 \u2600", color: 16172618 },
+            // полдень / лето
+            { idx: 9, label: "\u0417\u0410\u041F\u0410\u0414 \u2193", color: 15218255 },
+            // закат / осень
+            { idx: 0, label: "\u041D\u0410\u0414\u0418\u0420 \u263E", color: 6003958 },
+            // полночь / зима
+            { idx: 3, label: "\u0412\u041E\u0421\u0422\u041E\u041A \u2191", color: 15247412 }
+            // восход / весна
+          ];
+          cardinals.forEach((c) => {
+            const p = equatorPos(c.idx);
+            const sprite = window.YasnaSprites.makeLabelSprite(c.label, {
+              color: "#" + c.color.toString(16).padStart(6, "0"),
+              fontSize: 56,
+              weight: "700",
+              depthTest: false
+            });
+            if (sprite) {
+              const dir = p.clone().normalize();
+              sprite.position.copy(p).addScaledVector(dir, 12);
+              const h = 14;
+              sprite.scale.set(h * (sprite.userData.aspect || 4), h, 1);
+              astroSubs.cardinals.add(sprite);
+            }
+          });
+          const cosT = Math.cos(AXIAL_TILT), sinT = Math.sin(AXIAL_TILT);
+          const seasons = [
+            { ang: 0, label: "\u0412\u0415\u0421\u041D\u0410", color: 7268279 },
+            // зелёный
+            { ang: Math.PI / 2, label: "\u041B\u0415\u0422\u041E", color: 16172618 },
+            // золото
+            { ang: Math.PI, label: "\u041E\u0421\u0415\u041D\u042C", color: 15247412 },
+            // янтарь
+            { ang: 3 * Math.PI / 2, label: "\u0417\u0418\u041C\u0410", color: 6003958 }
+            // VK Light Blue
+          ];
+          seasons.forEach((s) => {
+            const x = R * Math.cos(s.ang);
+            const z = R * Math.sin(s.ang);
+            const pt = new THREE.Vector3(x, z * sinT, z * cosT);
+            const sprite = window.YasnaSprites.makeLabelSprite(s.label, {
+              color: "#" + s.color.toString(16).padStart(6, "0"),
+              fontSize: 56,
+              weight: "700",
+              depthTest: false
+            });
+            if (sprite) {
+              const dir = pt.clone().normalize();
+              sprite.position.copy(pt).addScaledVector(dir, 18);
+              const h = 12;
+              sprite.scale.set(h * (sprite.userData.aspect || 4), h, 1);
+              astroSubs.seasons.add(sprite);
+            }
+          });
+          const polarisSprite = window.YasnaSprites.makeLabelSprite("\u2606 \u041F\u043E\u043B\u044F\u0440\u043D\u0430\u044F", {
+            color: "#E5E7EB",
+            fontSize: 48,
+            weight: "600",
+            depthTest: false
+          });
+          if (polarisSprite) {
+            polarisSprite.position.set(0, NORTH.y + 22, 0);
+            const h = 9;
+            polarisSprite.scale.set(h * (polarisSprite.userData.aspect || 4), h, 1);
+            astroSubs.polaris.add(polarisSprite);
+          }
+          const zodiac = [
+            { glyph: "\u2648", name: "\u041E\u0432\u0435\u043D", elem: "fire" },
+            // 0°
+            { glyph: "\u2649", name: "\u0422\u0435\u043B\u0435\u0446", elem: "earth" },
+            // 30°
+            { glyph: "\u264A", name: "\u0411\u043B\u0438\u0437\u043D\u0435\u0446\u044B", elem: "air" },
+            // 60°
+            { glyph: "\u264B", name: "\u0420\u0430\u043A", elem: "water" },
+            // 90° — летнее солнцестояние
+            { glyph: "\u264C", name: "\u041B\u0435\u0432", elem: "fire" },
+            // 120°
+            { glyph: "\u264D", name: "\u0414\u0435\u0432\u0430", elem: "earth" },
+            // 150°
+            { glyph: "\u264E", name: "\u0412\u0435\u0441\u044B", elem: "air" },
+            // 180° — осеннее равноденствие
+            { glyph: "\u264F", name: "\u0421\u043A\u043E\u0440\u043F\u0438\u043E\u043D", elem: "water" },
+            // 210°
+            { glyph: "\u2650", name: "\u0421\u0442\u0440\u0435\u043B\u0435\u0446", elem: "fire" },
+            // 240°
+            { glyph: "\u2651", name: "\u041A\u043E\u0437\u0435\u0440\u043E\u0433", elem: "earth" },
+            // 270° — зимнее солнцестояние
+            { glyph: "\u2652", name: "\u0412\u043E\u0434\u043E\u043B\u0435\u0439", elem: "air" },
+            // 300°
+            { glyph: "\u2653", name: "\u0420\u044B\u0431\u044B", elem: "water" }
+            // 330°
+          ];
+          const elemColor = {
+            fire: "#F06838",
+            // VK Orange-red
+            earth: "#C0943A",
+            // VK Gold
+            air: "#06B6D4",
+            // VK Cyan
+            water: "#2563EB"
+            // VK Blue
+          };
+          zodiac.forEach((z, i) => {
+            const ang = i / 12 * Math.PI * 2;
+            const x = R * Math.cos(ang);
+            const zCoord = R * Math.sin(ang);
+            const pt = new THREE.Vector3(x, zCoord * sinT, zCoord * cosT);
+            const sprite = window.YasnaSprites.makeLabelSprite(z.glyph, {
+              color: elemColor[z.elem],
+              fontSize: 96,
+              // глифы крупные — это символы, не текст
+              weight: "700",
+              depthTest: false
+              // всегда поверх — не уходят за сферу
+            });
+            if (sprite) {
+              const dir = pt.clone().normalize();
+              sprite.position.copy(pt).addScaledVector(dir, 16);
+              const h = 16;
+              sprite.scale.set(h * (sprite.userData.aspect || 1), h, 1);
+              astroSubs.zodiac.add(sprite);
+            }
+          });
+        }
+      }
       for (let i = 0; i < 12; i += 3) {
         const p = equatorPos(i);
         const meridianMat = new THREE.MeshBasicMaterial({ color: 12101848, transparent: true, opacity: 0.2 });
@@ -858,17 +1093,17 @@
         depthWrite: false
         // избегаем z-fighting между прозрачными трубками
       });
-      function makeBipyramid(indices, color, opacity) {
+      function makeBipyramid(indices, color, opacity, solid) {
         const grp = new THREE.Group();
         const pts = indices.map((i) => equatorPos(i));
         const mat = tubeMat(color, opacity);
         for (let k = 0; k < pts.length; k++) {
           const next = pts[(k + 1) % pts.length];
-          const t = makeTube(pts[k], next, 1.1, mat);
+          const t = makeTube(pts[k], next, solid ? 0.6 : 1.1, mat);
           if (t) grp.add(t);
-          const tN = makeTube(pts[k], NORTH, 0.9, mat);
+          const tN = makeTube(pts[k], NORTH, solid ? 0.5 : 0.9, mat);
           if (tN) grp.add(tN);
-          const tS = makeTube(pts[k], SOUTH, 0.9, mat);
+          const tS = makeTube(pts[k], SOUTH, solid ? 0.5 : 0.9, mat);
           if (tS) grp.add(tS);
         }
         const apexGeom = new THREE.SphereGeometry(2.2, 16, 12);
@@ -879,6 +1114,36 @@
         const apexS = new THREE.Mesh(apexGeom.clone(), apexMat);
         apexS.position.copy(SOUTH);
         grp.add(apexS);
+        if (solid) {
+          const positions = [];
+          const N = pts.length;
+          for (let k = 0; k < N; k++) {
+            const a = pts[k];
+            const b = pts[(k + 1) % N];
+            positions.push(NORTH.x, NORTH.y, NORTH.z);
+            positions.push(a.x, a.y, a.z);
+            positions.push(b.x, b.y, b.z);
+            positions.push(SOUTH.x, SOUTH.y, SOUTH.z);
+            positions.push(b.x, b.y, b.z);
+            positions.push(a.x, a.y, a.z);
+          }
+          const geom = new THREE.BufferGeometry();
+          geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+          geom.computeVertexNormals();
+          const fillMat = new THREE.MeshStandardMaterial({
+            color,
+            transparent: true,
+            opacity: 0.55,
+            metalness: 0.55,
+            roughness: 0.3,
+            emissive: color,
+            emissiveIntensity: 0.2,
+            side: THREE.DoubleSide,
+            depthWrite: false
+          });
+          const fillMesh = new THREE.Mesh(geom, fillMat);
+          grp.add(fillMesh);
+        }
         return grp;
       }
       function makeTetrahedron(p1, p2, p3, p4, color, opacity) {
@@ -1017,22 +1282,31 @@
         const N = (active || []).length;
         cageMat.opacity = N === 0 ? 0.07 : N <= 2 ? 0.04 : 0.02;
         equatorTube.material.opacity = N === 0 ? 0.75 : N <= 2 ? 0.6 : 0.35;
+        const solidMode = !!(liveRef.current && liveRef.current.solidMech);
+        const baseOp = solidMode ? 0.92 : 0.65;
         const crossDefs = [
-          { id: "support", col: 16725332, idx: [0, 3, 6, 9] },
-          { id: "right", col: 16760896, idx: [1, 4, 7, 10] },
-          { id: "left", col: 6335228, idx: [2, 5, 8, 11] }
+          { id: "support", col: 15218255, idx: [0, 3, 6, 9] },
+          // VK Crimson
+          { id: "right", col: 15247412, idx: [1, 4, 7, 10] },
+          // VK Yellow
+          { id: "left", col: 6003958, idx: [2, 5, 8, 11] }
+          // VK Light Blue
         ];
         crossDefs.forEach((c) => {
-          if (active.includes(c.id)) mechGroup.add(makeBipyramid(c.idx, c.col, 0.65));
+          if (active.includes(c.id)) mechGroup.add(makeBipyramid(c.idx, c.col, baseOp, solidMode));
         });
         const pranaDefs = [
-          { id: "she", col: 14725192, idx: [0, 4, 8] },
-          { id: "fo", col: 4894975, idx: [1, 5, 9] },
-          { id: "tsi", col: 8442111, idx: [2, 6, 10] },
-          { id: "ha", col: 16742472, idx: [3, 7, 11] }
+          { id: "she", col: 12620858, idx: [0, 4, 8] },
+          // Земля
+          { id: "fo", col: 2450411, idx: [1, 5, 9] },
+          // Вода
+          { id: "tsi", col: 440020, idx: [2, 6, 10] },
+          // Воздух
+          { id: "ha", col: 15755320, idx: [3, 7, 11] }
+          // Огонь
         ];
         pranaDefs.forEach((p) => {
-          if (active.includes(p.id)) mechGroup.add(makeBipyramid(p.idx, p.col, 0.6));
+          if (active.includes(p.id)) mechGroup.add(makeBipyramid(p.idx, p.col, solidMode ? 0.88 : 0.6, solidMode));
         });
         if (active.includes("opp")) {
           const grp = new THREE.Group();
@@ -1065,13 +1339,15 @@
           });
         }
         if (active.includes("halves")) {
+          const wf = !solidMode;
+          const op = solidMode ? 0.32 : 0.18;
           const upper = new THREE.Mesh(
-            new THREE.SphereGeometry(R * 1.02, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2),
-            new THREE.MeshBasicMaterial({ color: 13213744, wireframe: true, transparent: true, opacity: 0.18 })
+            new THREE.SphereGeometry(R * 1.02, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2),
+            new THREE.MeshBasicMaterial({ color: 12620858, wireframe: wf, transparent: true, opacity: op, side: THREE.DoubleSide })
           );
           const lower = new THREE.Mesh(
-            new THREE.SphereGeometry(R * 1.02, 24, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
-            new THREE.MeshBasicMaterial({ color: 6574280, wireframe: true, transparent: true, opacity: 0.18 })
+            new THREE.SphereGeometry(R * 1.02, 32, 16, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
+            new THREE.MeshBasicMaterial({ color: 2450411, wireframe: wf, transparent: true, opacity: op, side: THREE.DoubleSide })
           );
           mechGroup.add(upper);
           mechGroup.add(lower);
@@ -1371,6 +1647,7 @@
       ro.observe(canvas.parentElement || canvas);
       let raf, lastT = performance.now();
       let pulsePhase = 0;
+      let sunAng = Math.PI / 2;
       const animate = (now) => {
         const dt = now - lastT;
         lastT = now;
@@ -1379,6 +1656,45 @@
           const dir = live.rotationOn === "cw" ? -1 : 1;
           const speedDeg = 360 / ((live.speedSec || 24) * 1e3);
           wheelGroup.rotation.y += dir * dt * speedDeg * Math.PI / 180;
+        }
+        const L = live.astroLayers || {};
+        const sunCycleOn = !!(astroSun && live.astroMode && L.sunCycle);
+        const dayCycleOn = sunCycleOn;
+        if (sunCycleOn) {
+          const cycleMs = (live.speedSec || 24) * 1e3;
+          sunAng += dt / cycleMs * Math.PI * 2;
+          if (sunAng > Math.PI * 2) sunAng -= Math.PI * 2;
+          const cosT = Math.cos(23.5 * Math.PI / 180);
+          const sinT = Math.sin(23.5 * Math.PI / 180);
+          const sx = R * Math.cos(sunAng);
+          const sz = R * Math.sin(sunAng);
+          const sy = sz * sinT;
+          const sZ = sz * cosT;
+          astroSun.position.set(sx, sy, sZ);
+          const pulse = 0.6 + 0.2 * Math.sin(now * 2e-3);
+          if (astroSun.material) astroSun.material.emissiveIntensity = pulse;
+          const term = astroGroup.userData.terminator;
+          if (term) {
+            const sunDir = new THREE.Vector3(sx, sy, sZ).normalize();
+            const helper = Math.abs(sunDir.y) < 0.9 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0);
+            const e1 = new THREE.Vector3().crossVectors(sunDir, helper).normalize();
+            const e2 = new THREE.Vector3().crossVectors(sunDir, e1).normalize();
+            const positions = term.geometry.attributes.position.array;
+            const segs = positions.length / 3 - 1;
+            for (let i = 0; i <= segs; i++) {
+              const ang = i / segs * Math.PI * 2;
+              const cx = e1.x * Math.cos(ang) + e2.x * Math.sin(ang);
+              const cy = e1.y * Math.cos(ang) + e2.y * Math.sin(ang);
+              const cz = e1.z * Math.cos(ang) + e2.z * Math.sin(ang);
+              positions[i * 3] = cx * R;
+              positions[i * 3 + 1] = cy * R;
+              positions[i * 3 + 2] = cz * R;
+            }
+            term.geometry.attributes.position.needsUpdate = true;
+            term.visible = !!(live.astroMode && L.terminator);
+          }
+        } else if (astroSun) {
+          astroSun.material && (astroSun.material.emissiveIntensity = 0.7);
         }
         pulsePhase += dt * 3e-3;
         const drilling = live.drill != null;
@@ -1408,6 +1724,19 @@
             p.material.transparent = false;
           }
         });
+        if (astroSun && live.astroMode && L.dayNight && L.sunCycle && !drilling) {
+          const sunDir = astroSun.position.clone().normalize();
+          polki.forEach((p, i) => {
+            if (i === live.sel) return;
+            const polkaDir = p.position.clone().normalize();
+            const dot = polkaDir.dot(sunDir);
+            const dayFactor = (dot + 1) / 2;
+            const intensity = 0.04 + dayFactor * 0.41;
+            p.material.emissiveIntensity = intensity;
+            const targetScale = 0.85 + dayFactor * 0.15;
+            p.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.08);
+          });
+        }
         if (mechGroup.userData.zodiacCoinsAnim) {
           mechGroup.children.forEach((ch) => {
             if (ch.userData && ch.userData.spinAxis) {
@@ -1441,7 +1770,7 @@
         raf = requestAnimationFrame(animate);
       };
       raf = requestAnimationFrame(animate);
-      sceneRefs.current = { rebuildMechanics, buildDrillGroup, subPolki: subPolkiArr };
+      sceneRefs.current = { rebuildMechanics, buildDrillGroup, subPolki: subPolkiArr, cageMesh, equatorTube, astroGroup, wheelGroup, astroSun, astroSubs };
       return () => {
         cancelAnimationFrame(raf);
         ro.disconnect();
@@ -1476,7 +1805,32 @@
       if (sceneRefs.current && sceneRefs.current.rebuildMechanics) {
         sceneRefs.current.rebuildMechanics(af || []);
       }
-    }, [JSON.stringify(af || [])]);
+    }, [JSON.stringify(af || []), solidMech]);
+    React.useEffect(() => {
+      if (sceneRefs.current && sceneRefs.current.cageMesh) {
+        sceneRefs.current.cageMesh.visible = !!showCage;
+      }
+    }, [showCage]);
+    React.useEffect(() => {
+      if (sceneRefs.current && sceneRefs.current.astroGroup) {
+        sceneRefs.current.astroGroup.visible = !!astroMode;
+      }
+    }, [astroMode]);
+    React.useEffect(() => {
+      if (!sceneRefs.current || !sceneRefs.current.astroSubs) return;
+      const subs = sceneRefs.current.astroSubs;
+      const L = astroLayers || {};
+      Object.keys(subs).forEach((key) => {
+        subs[key].visible = !!L[key];
+      });
+    }, [JSON.stringify(astroLayers || {})]);
+    React.useEffect(() => {
+      if (sceneRefs.current && sceneRefs.current.wheelGroup) {
+        const tilt = !!(astroLayers && astroLayers.tiltAxis) && !!astroMode;
+        const target = tilt ? 23.5 * Math.PI / 180 : 0;
+        sceneRefs.current.wheelGroup.rotation.z = target;
+      }
+    }, [astroMode, astroLayers && astroLayers.tiltAxis]);
     const subPolkiSig = (subPolki || []).join("|");
     React.useEffect(() => {
       if (sceneRefs.current && sceneRefs.current.buildDrillGroup) {
@@ -5292,7 +5646,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T12:30:36.292Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T12:43:27.363Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
