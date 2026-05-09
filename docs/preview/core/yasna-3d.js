@@ -448,7 +448,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       equatorTube.material.opacity = N === 0 ? 0.75 : N <= 2 ? 0.6 : 0.35;
 
       // Палитра по VK Tech — синхронизирована с data.js / yasna-star.js
-      const solidMode = !!live.solidMech;
+      const solidMode = !!(liveRef.current && liveRef.current.solidMech);
       const baseOp = solidMode ? 0.92 : 0.65;
       const crossDefs = [
         {id:'support', col:0xE8364F, idx:[0,3,6,9]},   // VK Crimson

@@ -1,4 +1,4 @@
-/* Yasna bundle: app.js — собран 2026-05-09T10:00:34.489Z */
+/* Yasna bundle: app.js — собран 2026-05-09T10:39:15.812Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -1017,7 +1017,7 @@
         const N = (active || []).length;
         cageMat.opacity = N === 0 ? 0.07 : N <= 2 ? 0.04 : 0.02;
         equatorTube.material.opacity = N === 0 ? 0.75 : N <= 2 ? 0.6 : 0.35;
-        const solidMode = !!live.solidMech;
+        const solidMode = !!(liveRef.current && liveRef.current.solidMech);
         const baseOp = solidMode ? 0.92 : 0.65;
         const crossDefs = [
           { id: "support", col: 15218255, idx: [0, 3, 6, 9] },
@@ -1333,8 +1333,8 @@
         ndc_local.x = (e.clientX - rect.left) / rect.width * 2 - 1;
         ndc_local.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
         raycaster_local.setFromCamera(ndc_local, camera);
-        const live2 = liveRef.current;
-        if (live2.drill != null && sceneRefs.current && sceneRefs.current.subPolki) {
+        const live = liveRef.current;
+        if (live.drill != null && sceneRefs.current && sceneRefs.current.subPolki) {
           const subHits = raycaster_local.intersectObjects(sceneRefs.current.subPolki);
           if (subHits.length) {
             const ball = subHits[0].object;
@@ -1351,7 +1351,7 @@
           const outerHits = raycaster_local.intersectObjects(polki);
           if (outerHits.length) {
             const idx = outerHits[0].object.userData.polkaIdx;
-            if (idx !== live2.drill && typeof onDrill === "function") {
+            if (idx !== live.drill && typeof onDrill === "function") {
               onDrill(idx);
             }
             return;
@@ -1362,7 +1362,7 @@
         const hits = raycaster_local.intersectObjects(polki);
         if (hits.length) {
           const idx = hits[0].object.userData.polkaIdx;
-          if ((live2.af || []).includes("mb_yasna2") && typeof onDrill === "function") {
+          if ((live.af || []).includes("mb_yasna2") && typeof onDrill === "function") {
             onDrill(idx);
           } else if (typeof onSel === "function") {
             onSel(idx);
@@ -1385,17 +1385,17 @@
       const animate = (now) => {
         const dt = now - lastT;
         lastT = now;
-        const live2 = liveRef.current;
-        if (live2.rotationOn) {
-          const dir = live2.rotationOn === "cw" ? -1 : 1;
-          const speedDeg = 360 / ((live2.speedSec || 24) * 1e3);
+        const live = liveRef.current;
+        if (live.rotationOn) {
+          const dir = live.rotationOn === "cw" ? -1 : 1;
+          const speedDeg = 360 / ((live.speedSec || 24) * 1e3);
           wheelGroup.rotation.y += dir * dt * speedDeg * Math.PI / 180;
         }
         pulsePhase += dt * 3e-3;
-        const drilling = live2.drill != null;
+        const drilling = live.drill != null;
         polki.forEach((p, i) => {
           if (drilling) {
-            if (i === live2.drill) {
+            if (i === live.drill) {
               p.scale.lerp(new THREE.Vector3(0.4, 0.4, 0.4), 0.12);
               p.material.emissiveIntensity = 0.08;
               p.material.opacity = 0.4;
@@ -1407,7 +1407,7 @@
               p.material.transparent = true;
             }
           } else {
-            if (i === live2.sel) {
+            if (i === live.sel) {
               const pulse = 0.5 + 0.4 * Math.sin(pulsePhase * 2);
               p.material.emissiveIntensity = pulse;
               p.scale.lerp(new THREE.Vector3(1.4, 1.4, 1.4), 0.1);
@@ -1431,7 +1431,7 @@
           drillGroup.scale.lerp(new THREE.Vector3(1, 1, 1), 0.12);
           drillGroup.rotation.y += dt * 1e-4;
           subPolkiArr.forEach((sb, i) => {
-            if (i === live2.sel) {
+            if (i === live.sel) {
               const pulse = 0.5 + 0.4 * Math.sin(pulsePhase * 2);
               sb.material.emissiveIntensity = pulse;
               sb.scale.lerp(new THREE.Vector3(1.4, 1.4, 1.4), 0.1);
