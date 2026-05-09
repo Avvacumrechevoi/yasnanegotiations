@@ -1057,15 +1057,20 @@ body.theme-vk-dark .hdr-mob-tools > a[href*='duel.html'] [style*='rgba(255, 255,
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.20) !important;
 }
 
-/* ═══ Burger menu dropdown — все стейты по VK Tech ═══════════════ */
+/* ═══ Burger menu dropdown — все стейты по VK Tech ═══════════════
+   Внимание: React рендерит inline-style как `position: absolute`
+   (с пробелом после двоеточия). Селектор должен использовать ту же
+   форму. Поэтому для надёжности — даём и без пробела, и с пробелом. */
+body.theme-vk-dark .hdr-burger > div[style*='position: absolute'],
 body.theme-vk-dark .hdr-burger > div[style*='position:absolute'] {
   background: var(--vk-bg-elevated) !important;
   border-color: var(--vk-border) !important;
   box-shadow: var(--vk-elevation-modal) !important;
   border-radius: var(--vk-radius-l) !important;
 }
-/* Пункты меню — кнопки И ссылки. Раньше было только button → у <a> Войти
-   не применялось, текст оставался тёмным на тёмном. */
+/* Пункты меню — кнопки И ссылки. */
+body.theme-vk-dark .hdr-burger > div[style*='position: absolute'] button,
+body.theme-vk-dark .hdr-burger > div[style*='position: absolute'] a,
 body.theme-vk-dark .hdr-burger > div[style*='position:absolute'] button,
 body.theme-vk-dark .hdr-burger > div[style*='position:absolute'] a {
   background: transparent !important;
@@ -1073,23 +1078,42 @@ body.theme-vk-dark .hdr-burger > div[style*='position:absolute'] a {
   border-bottom: 1px solid var(--vk-border) !important;
   font-family: var(--vk-font) !important;
 }
-body.theme-vk-dark .hdr-burger > div[style*='position:absolute'] button:hover,
-body.theme-vk-dark .hdr-burger > div[style*='position:absolute'] a:hover {
+body.theme-vk-dark .hdr-burger > div[style*='position: absolute'] button:hover,
+body.theme-vk-dark .hdr-burger > div[style*='position: absolute'] a:hover {
   background: var(--vk-bg-tonal) !important;
 }
-/* Eyebrow секций (СПРАВКА / ТЕМА) — uppercase текст серого цвета */
+/* Принудительно белый цвет для вложенных span'ов — на случай если кнопка
+   составная (как «Войти» с заголовком + подписью внутри). */
+body.theme-vk-dark .hdr-burger > div[style*='position: absolute'] button > *,
+body.theme-vk-dark .hdr-burger > div[style*='position: absolute'] a > * {
+  color: inherit !important;
+}
+/* Eyebrow секций (СПРАВКА / ТЕМА) — uppercase текст серого */
+body.theme-vk-dark .hdr-burger > div[style*='position: absolute'] > div[style*='uppercase'],
 body.theme-vk-dark .hdr-burger > div[style*='position:absolute'] > div[style*='uppercase'] {
   background: transparent !important;
   color: var(--vk-text-secondary) !important;
   border-top: 1px solid var(--vk-border) !important;
 }
-/* Подпись «Через Telegram · прогресс…» внутри Войти — secondary */
+/* Подпись «Через Telegram · прогресс…» внутри Войти (rgb(134,134,139) = #86868b) */
+body.theme-vk-dark .hdr-burger > div[style*='position: absolute'] a span[style*='rgb(134, 134, 139)'],
 body.theme-vk-dark .hdr-burger > div[style*='position:absolute'] a span[style*='rgb(134, 134, 139)'] {
   color: var(--vk-text-tertiary) !important;
 }
-/* Внутренние span'ы (флекс-обёртки, заголовок Войти) — primary */
+/* Заголовок «Войти» (rgb(29,29,31) = #1d1d1f) — primary */
+body.theme-vk-dark .hdr-burger > div[style*='position: absolute'] a span[style*='rgb(29, 29, 31)'],
 body.theme-vk-dark .hdr-burger > div[style*='position:absolute'] a span[style*='rgb(29, 29, 31)'] {
   color: var(--vk-text-primary) !important;
+}
+/* Универсальный fallback — все элементы с inline rgb(29,29,31) внутри бургера */
+body.theme-vk-dark .hdr-burger [style*='rgb(29, 29, 31)'] {
+  color: var(--vk-text-primary) !important;
+}
+body.theme-vk-dark .hdr-burger [style*='rgb(134, 134, 139)'] {
+  color: var(--vk-text-tertiary) !important;
+}
+body.theme-vk-dark .hdr-burger [style*='rgb(110, 110, 115)'] {
+  color: var(--vk-text-secondary) !important;
 }
 
 /* ═══ Обучение dropdown — те же правила (рендерится на body уровне) ═══ */
