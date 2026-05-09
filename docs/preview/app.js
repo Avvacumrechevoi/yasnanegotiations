@@ -1027,9 +1027,7 @@ function App(){
           <button disabled={yasna2Drill!=null} onClick={()=>setStarRotation(r=>r==='ccw'?null:'ccw')} title={yasna2Drill!=null?'Недоступно при открытой sub-Ясне':(starRotation==='ccw'?'Остановить вращение':'Вращать против часовой')} style={{width:36,height:36,borderRadius:10,border:'1px solid '+(starRotation==='ccw'?'#a21caf':'#e5e5ea'),background:starRotation==='ccw'?'#a21caf':'#fff',color:starRotation==='ccw'?'#fff':'#424245',fontSize:21,lineHeight:1,cursor:yasna2Drill!=null?'not-allowed':'pointer',opacity:yasna2Drill!=null?.4:1,display:'flex',alignItems:'center',justifyContent:'center'}}>↺</button>
           {/* 4. Вращение по часовой */}
           <button disabled={yasna2Drill!=null} onClick={()=>setStarRotation(r=>r==='cw'?null:'cw')} title={yasna2Drill!=null?'Недоступно при открытой sub-Ясне':(starRotation==='cw'?'Остановить вращение':'Вращать по часовой')} style={{width:36,height:36,borderRadius:10,border:'1px solid '+(starRotation==='cw'?'#a21caf':'#e5e5ea'),background:starRotation==='cw'?'#a21caf':'#fff',color:starRotation==='cw'?'#fff':'#424245',fontSize:21,lineHeight:1,cursor:yasna2Drill!=null?'not-allowed':'pointer',opacity:yasna2Drill!=null?.4:1,display:'flex',alignItems:'center',justifyContent:'center'}}>↻</button>
-          {/* 5. Совместить (⊕) */}
-          <button onClick={()=>overlay?setOverlay(null):setShowOverlayPicker(true)} aria-label={overlay?'Снять совмещение':'Совместить две Ясны'} title={overlay?'Снять совмещение':'Совместить две Ясны'} style={{width:36,height:36,borderRadius:10,border:'1px solid '+(overlay?'#af52de':'#e5e5ea'),background:overlay?'#af52de':'#fff',color:overlay?'#fff':'#424245',fontSize:18,lineHeight:1,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>{overlay?'⊗':'⊕'}</button>
-          {/* 6. Настройки (⋯) */}
+          {/* 5. Настройки (⋯) — внутри: скорость, направление, отображение, совместить */}
           <button onClick={()=>setRotPanelOpen(o=>!o)} title='Скорость вращения и режимы' style={{width:36,height:36,borderRadius:10,border:'1px solid '+(rotPanelOpen?'#a21caf':'#e5e5ea'),background:rotPanelOpen?'#a21caf':'#fff',color:rotPanelOpen?'#fff':'#424245',fontSize:18,lineHeight:1,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>⋯</button>
         </div>
         {rotPanelOpen && <div onClick={e=>e.stopPropagation()} style={{position:'absolute',top:50,right:10,width:240,zIndex:7,background:'#fff',border:'1px solid #d2d2d7',borderRadius:12,boxShadow:'0 6px 24px rgba(0,0,0,.12)',padding:'12px 14px'}}>
@@ -1049,10 +1047,10 @@ function App(){
           {is3D && <div style={{marginTop:10,padding:'7px 9px',background:'rgba(162,28,175,.08)',borderRadius:8,fontSize:10.5,color:'#581c87',lineHeight:1.45}}>
             <b style={{color:'#a21caf'}}>3D режим.</b> Drag — вращение, колесо — zoom, клик по шару — выбор.
           </div>}
-          {/* Стихии — переехала из хедера сюда */}
+          {/* Отображение — Стихии + Совместить */}
           <div style={{marginTop:12,paddingTop:12,borderTop:'1px solid #e5e5ea'}}>
             <div style={{fontWeight:600,fontSize:11,color:'#581c87',letterSpacing:.5,textTransform:'uppercase',marginBottom:6}}>Отображение</div>
-            <button onClick={()=>setShowComposition(c=>!c)} title='Состав 4 пран в каждой Полке' style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1px solid ${showComposition?'rgba(192,148,58,.5)':'#e5e5ea'}`,background:showComposition?'rgba(192,148,58,.10)':'#fff',color:showComposition?'#7a5e25':'#424245',fontSize:12.5,cursor:'pointer',fontWeight:500}}>
+            <button onClick={()=>setShowComposition(c=>!c)} title='Состав 4 пран в каждой Полке' style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1px solid ${showComposition?'rgba(192,148,58,.5)':'#e5e5ea'}`,background:showComposition?'rgba(192,148,58,.10)':'#fff',color:showComposition?'#7a5e25':'#424245',fontSize:12.5,cursor:'pointer',fontWeight:500,marginBottom:6}}>
               <span style={{display:'inline-flex',gap:1.5,alignItems:'center',flexShrink:0}}>
                 <span style={{width:3,height:14,background:'#C0943A',borderRadius:1}}/>
                 <span style={{width:3,height:14,background:'#4090D8',borderRadius:1}}/>
@@ -1061,6 +1059,12 @@ function App(){
               </span>
               <span style={{flex:1,textAlign:'left'}}>Стихии</span>
               <span style={{fontSize:10,color:showComposition?'#7a5e25':'#aeaeb2',fontWeight:600}}>{showComposition?'Вкл':'Выкл'}</span>
+            </button>
+            {/* Совместить — переехала из тулбара */}
+            <button onClick={()=>overlay?setOverlay(null):setShowOverlayPicker(true)} title={overlay?'Снять совмещение':'Совместить две Ясны для сравнения'} style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1px solid ${overlay?'rgba(175,82,222,.5)':'#e5e5ea'}`,background:overlay?'rgba(175,82,222,.10)':'#fff',color:overlay?'#a21caf':'#424245',fontSize:12.5,cursor:'pointer',fontWeight:500}}>
+              <span style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:18,height:18,flexShrink:0,fontSize:14,fontWeight:600}}>{overlay?'⊗':'⊕'}</span>
+              <span style={{flex:1,textAlign:'left'}}>Совместить</span>
+              <span style={{fontSize:10,color:overlay?'#a21caf':'#aeaeb2',fontWeight:600}}>{overlay?'Вкл':'Выкл'}</span>
             </button>
           </div>
         </div>}
