@@ -473,6 +473,114 @@ function PublishedModal({ result, onClose }){
   );
 }
 
+// ─── Drafts View ────────────────────────────────────────────────────
+// Показывает только локальные неопубликованные правки админа:
+//   • Added — новые вопросы которые ещё не в БД
+//   • Edited — изменённые baseline-вопросы
+//   • Deleted — помеченные удалёнными (но в БД ещё есть)
+//
+// Для каждой правки — кнопки «Править» и «↺ Отменить».
+// Сверху — большая кнопка «Опубликовать всё».
+function DraftsView({ overrides, themes, contentBaseline, onEdit, onRevertAdded, onRevertEdited, onRevertDeleted, onPublish, onClearAll }){
+  const themeName = (themeId) => {
+    const t = themes.find(x => x.id === themeId);
+    return t ? (t.name || t.title || themeId) : themeId;
+  };
+
+  const added = overrides.added || [];
+  const editedIds = Object.keys(overrides.edited || {});
+  const deletedIds = overrides.deleted || [];
+  const total = added.length + editedIds.length + deletedIds.length;
+
+  if(total === 0){
+    return React.createElement('div', { className:'ad-questions', style: { textAlign:'center', padding:'60px 24px' } },
+      React.createElement('div', { style: { fontSize:32, opacity:0.4, marginBottom:12 } }, '✦'),
+      React.createElement('div', { style: { fontSize:15, color:'#1d1d1f', marginBottom:6 } },
+        'Нет черновиков'),
+      React.createElement('div', { style: { fontSize:12, color:'#86868b', lineHeight:1.5, maxWidth:380, margin:'0 auto' } },
+        'Все локальные изменения опубликованы или их пока нет. ',
+        'Создавай или редактируй вопросы во вкладке «Все темы и вопросы» — они появятся здесь до публикации.'
+      )
+    );
+  }
+
+  // Helper для рендера одного драфта
+  const renderItem = (kind, q, themeId, onRevert) => {
+    const type = TYPES.find(t => t.id === (q.type || 'single-choice'));
+    const kindMeta = {
+      added:   { icon:'✦', label:'Новый',          color:'#0058b8' },
+      edited:  { icon:'✎', label:'Изменён',        color:'#c0943a' },
+      deleted: { icon:'🗑', label:'Помечен на удаление', color:'#d70015' },
+    }[kind];
+    return React.createElement('div', { key: kind + '-' + q.id, className:'ad-q' },
+      React.createElement('div', { className:'ad-q-type', style: { color: kindMeta.color } },
+        kindMeta.icon, ' ', kindMeta.label),
+      React.createElement('div', { className:'ad-q-text' },
+        React.createElement('strong', null, q.text || q.stem || '(без текста)'),
+        React.createElement('small', null, themeName(themeId), ' · ', type ? type.label : (q.type || '?'))
+      ),
+      React.createElement('div', { className:'ad-q-actions' },
+        kind !== 'deleted' && React.createElement('button', {
+          className:'ad-q-action', onClick: () => onEdit(q),
+        }, 'Править'),
+        React.createElement('button', {
+          className:'ad-q-action',
+          style: { color:'#d70015' },
+          onClick: onRevert,
+          title:'Отменить эту локальную правку',
+        }, '↺ Отменить')
+      )
+    );
+  };
+
+  return React.createElement('div', { className:'ad-questions' },
+    // ─── Toolbar ─────────────────────────────────────────────────
+    React.createElement('div', { className:'ad-q-toolbar', style: { justifyContent:'space-between' } },
+      React.createElement('div', { style: { fontSize:13, color:'#1d1d1f' } },
+        React.createElement('strong', null, total, ' изменени', total === 1 ? 'е' : 'й'),
+        ' · готовы к публикации'
+      ),
+      React.createElement('div', { style: { display:'flex', gap:8 } },
+        React.createElement('button', {
+          className:'ad-btn',
+          onClick: () => { if(confirm('Отменить ВСЕ локальные правки?')) onClearAll(); },
+        }, '↺ Отменить всё'),
+        React.createElement('button', {
+          className:'ad-btn ad-btn-primary',
+          onClick: onPublish,
+        }, '⬆ Опубликовать в БД')
+      )
+    ),
+
+    // ─── Сводка по типам ─────────────────────────────────────────
+    React.createElement('div', { className:'ad-stats' },
+      added.length > 0 && React.createElement('span', { className:'ad-stat' },
+        '✦ Новые: ', React.createElement('strong', null, added.length)),
+      editedIds.length > 0 && React.createElement('span', { className:'ad-stat' },
+        '✎ Изменённые: ', React.createElement('strong', null, editedIds.length)),
+      deletedIds.length > 0 && React.createElement('span', { className:'ad-stat' },
+        '🗑 Удалённые: ', React.createElement('strong', null, deletedIds.length))
+    ),
+
+    // ─── Added ──────────────────────────────────────────────────
+    added.map(q => renderItem('added', q, q.theme, () => onRevertAdded(q.id))),
+
+    // ─── Edited ─────────────────────────────────────────────────
+    editedIds.map(id => {
+      const baseQ = (contentBaseline.QUESTIONS || []).find(b => b.id === id);
+      const merged = { id, ...baseQ, ...overrides.edited[id] };
+      return renderItem('edited', merged, merged.theme, () => onRevertEdited(id));
+    }),
+
+    // ─── Deleted ────────────────────────────────────────────────
+    deletedIds.map(id => {
+      const baseQ = (contentBaseline.QUESTIONS || []).find(b => b.id === id);
+      if(!baseQ) return null;
+      return renderItem('deleted', baseQ, baseQ.theme, () => onRevertDeleted(id));
+    }).filter(Boolean)
+  );
+}
+
 // ─── Main App ───────────────────────────────────────────────────────
 function AdminApp(){
   const content = window.YasnaContent;
@@ -490,6 +598,8 @@ function AdminApp(){
   const [editingQ, setEditingQ] = useState(null);
   const [showPublish, setShowPublish] = useState(false);
   const [publishedResult, setPublishedResult] = useState(null);
+  // Активная вкладка: 'all' = все темы и вопросы | 'drafts' = только локальные правки
+  const [activeView, setActiveView] = useState('all');
 
   // ─── Tick для триггера re-render когда ContentStore обновляется ───
   // Когда приходит новая ревизия из API (после publish или периодического
@@ -590,7 +700,39 @@ function AdminApp(){
       'Публикация атомарна и идёт в YDB, занимает <1 сек.'
     ),
 
-    React.createElement('div', { className:'ad-grid' },
+    // ─── Tabs: Все темы / Черновики ───
+    React.createElement('div', { className:'ad-tabs' },
+      React.createElement('button', {
+        className: 'ad-tab' + (activeView === 'all' ? ' is-active' : ''),
+        onClick: () => setActiveView('all'),
+      }, 'Все темы и вопросы'),
+      React.createElement('button', {
+        className: 'ad-tab' + (activeView === 'drafts' ? ' is-active' : ''),
+        onClick: () => setActiveView('drafts'),
+      }, 'Черновики', totalChanges > 0 && React.createElement('span', {
+        style: {
+          marginLeft: 6, padding: '1px 6px', borderRadius: 999,
+          background: '#0071e3', color: '#fff', fontSize: 10, fontWeight: 700,
+        }
+      }, totalChanges))
+    ),
+
+    // ─── View: Drafts ───
+    activeView === 'drafts' && React.createElement(DraftsView, {
+      overrides, themes,
+      contentBaseline: content,
+      onEdit: (q) => setEditingQ(q),
+      onRevertAdded: (id) => setOverrides({ ...overrides, added: overrides.added.filter(a => a.id !== id) }),
+      onRevertEdited: (id) => {
+        const ne = { ...overrides.edited }; delete ne[id];
+        setOverrides({ ...overrides, edited: ne });
+      },
+      onRevertDeleted: (id) => setOverrides({ ...overrides, deleted: overrides.deleted.filter(x => x !== id) }),
+      onPublish: () => setShowPublish(true),
+      onClearAll: clearOverrides,
+    }),
+
+    activeView === 'all' && React.createElement('div', { className:'ad-grid' },
       // ─── Список тем ───
       React.createElement('aside', { className:'ad-themes' },
         themes.map(t => {
