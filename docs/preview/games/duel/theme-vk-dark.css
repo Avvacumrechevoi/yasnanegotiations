@@ -1436,8 +1436,35 @@ body.theme-vk-dark .dp-header-nav button:hover {
   color: var(--text-1);
 }
 @media (max-width: 767px) {
-  body.theme-vk-dark .dp-header { padding: 8px 12px; margin-bottom: 20px; }
-  body.theme-vk-dark .dp-header-nav { gap: 12px; font-size: 13px; }
+  body.theme-vk-dark .dp-header { padding: 8px 12px; margin-bottom: 20px; gap: 6px; }
+  body.theme-vk-dark .dp-header-nav { gap: 8px; font-size: 13px; }
+  /* Скрываем якорные ссылки секций — они дублируют скролл,
+     контент тех же блоков и так доступен прокруткой ниже */
+  body.theme-vk-dark .dp-header-nav > a[href^='#'] { display: none !important; }
+  /* Spacer не должен раздуваться — даём auth-группе прижаться вправо */
+  body.theme-vk-dark .dp-header-spacer { flex: 1 !important; }
+  /* Кнопка Войти компактнее на мобильном */
+  body.theme-vk-dark .dp-header-auth .dp-btn-primary {
+    padding: 7px 14px !important;
+    font-size: 13px !important;
+    height: 32px !important;
+  }
+  /* Help button — поменьше на мобильном */
+  body.theme-vk-dark .dp-help-btn {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 14px !important;
+  }
+  /* Theme toggle — те же 28px чтобы выровнялся с help */
+  body.theme-vk-dark .dp-theme-toggle--header {
+    width: 28px !important;
+    height: 28px !important;
+  }
+  body.theme-vk-dark .dp-theme-toggle--header .dp-theme-toggle-icon { font-size: 13px !important; }
+  /* Back-кнопка — компактнее, но видна */
+  body.theme-vk-dark .dp-header-back { font-size: 13px !important; padding: 6px 8px !important; gap: 4px !important; }
+  /* Auth-группа — флекс с гэпом, без переносов */
+  body.theme-vk-dark .dp-header-auth { gap: 4px !important; flex-wrap: nowrap !important; }
 }
 
 /* ─── Войти Primary CTA — solid VK Blue + БЕЛЫЙ текст по дизайн-системе ─── */
