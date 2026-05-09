@@ -1880,23 +1880,29 @@ a { color: inherit; }
   font-weight: 600;
 }
 
-/* ─── Actions — видимые кнопки ──────────────────────────────────── */
+/* ─── Actions — две кнопки в РЯД ────────────────────────────────
+   Primary CTA «Новая Партия» + secondary «На главную» — равноценные
+   действия, ведут на разные страницы → бок о бок. */
 .tn-final-actions {
-  display: flex; flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: var(--space-3);
-  align-items: center;
   padding: 0 var(--space-2);
+  margin: 8px 0 24px;
+}
+@media (max-width: 480px) {
+  .tn-final-actions { grid-template-columns: 1fr; }
 }
 .tn-final-btn {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 100%; max-width: 320px;
-  min-height: 48px;
+  width: 100%;
+  min-height: 52px;
   padding: var(--space-3) var(--space-5);
   background: var(--bg-surface);
   border: 0.5px solid var(--border-1);
   border-radius: var(--radius-md);
   font: inherit;
-  font-size: 15px; font-weight: 500;
+  font-size: 15px; font-weight: 600;
   color: var(--text-1);
   cursor: pointer;
   transition: all var(--duration-fast);
