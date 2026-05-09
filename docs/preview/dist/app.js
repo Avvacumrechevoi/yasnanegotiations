@@ -1,4 +1,4 @@
-/* Yasna bundle: app.js — собран 2026-05-09T11:58:09.646Z */
+/* Yasna bundle: app.js — собран 2026-05-09T12:13:58.244Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -593,7 +593,8 @@
 ;(function(){
 (function() {
   const { opp, rad } = window.YasnaData;
-  function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki, solidMech, showCage, astroMode, tiltAxis, dayCycle }) {
+  function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki, solidMech, showCage, astroMode, astroLayers }) {
+    const AL = astroLayers || {};
     const canvasRef = React.useRef(null);
     const initCamDist = typeof window !== "undefined" && window.innerWidth <= 768 ? 820 : 560;
     const stateRef = React.useRef({
@@ -605,10 +606,10 @@
       lastY: 0
     });
     const sceneRefs = React.useRef(null);
-    const liveRef = React.useRef({ rotationOn, speedSec, sel, drill, af, solidMech, showCage, astroMode, tiltAxis, dayCycle });
+    const liveRef = React.useRef({ rotationOn, speedSec, sel, drill, af, solidMech, showCage, astroMode, astroLayers });
     React.useEffect(() => {
-      liveRef.current = { rotationOn, speedSec, sel, drill, af, solidMech, showCage, astroMode, tiltAxis, dayCycle };
-    }, [rotationOn, speedSec, sel, drill, solidMech, showCage, astroMode, tiltAxis, dayCycle, JSON.stringify(af || [])]);
+      liveRef.current = { rotationOn, speedSec, sel, drill, af, solidMech, showCage, astroMode, astroLayers };
+    }, [rotationOn, speedSec, sel, drill, solidMech, showCage, astroMode, JSON.stringify(astroLayers || {}), JSON.stringify(af || [])]);
     React.useEffect(() => {
       if (typeof window === "undefined" || !window.THREE) return;
       const THREE = window.THREE;
@@ -759,6 +760,20 @@
       astroGroup.visible = false;
       wheelGroup.add(astroGroup);
       let astroSun = null;
+      const astroSubs = {
+        tropics: new THREE.Group(),
+        arctics: new THREE.Group(),
+        parallels: new THREE.Group(),
+        ecliptic: new THREE.Group(),
+        zodiac: new THREE.Group(),
+        seasons: new THREE.Group(),
+        meridians: new THREE.Group(),
+        cardinals: new THREE.Group(),
+        polaris: new THREE.Group(),
+        sun: new THREE.Group(),
+        terminator: new THREE.Group()
+      };
+      Object.values(astroSubs).forEach((g) => astroGroup.add(g));
       {
         let makeParallel2 = function(y2, r, color, opacity, dashed) {
           const segs = 96;
@@ -776,10 +791,10 @@
         var makeParallel = makeParallel2;
         const AXIAL_TILT = 23.5 * Math.PI / 180;
         const ARCTIC = 66.5 * Math.PI / 180;
-        astroGroup.add(makeParallel2(R * Math.sin(AXIAL_TILT), R * Math.cos(AXIAL_TILT), 12620858, 0.65));
-        astroGroup.add(makeParallel2(-R * Math.sin(AXIAL_TILT), R * Math.cos(AXIAL_TILT), 12620858, 0.65));
-        astroGroup.add(makeParallel2(R * Math.sin(ARCTIC), R * Math.cos(ARCTIC), 6003958, 0.55, true));
-        astroGroup.add(makeParallel2(-R * Math.sin(ARCTIC), R * Math.cos(ARCTIC), 6003958, 0.55, true));
+        astroSubs.tropics.add(makeParallel2(R * Math.sin(AXIAL_TILT), R * Math.cos(AXIAL_TILT), 12620858, 0.65));
+        astroSubs.tropics.add(makeParallel2(-R * Math.sin(AXIAL_TILT), R * Math.cos(AXIAL_TILT), 12620858, 0.65));
+        astroSubs.arctics.add(makeParallel2(R * Math.sin(ARCTIC), R * Math.cos(ARCTIC), 6003958, 0.55, true));
+        astroSubs.arctics.add(makeParallel2(-R * Math.sin(ARCTIC), R * Math.cos(ARCTIC), 6003958, 0.55, true));
         {
           const segs = 128;
           const pts = [];
@@ -792,7 +807,7 @@
           }
           const geom = new THREE.BufferGeometry().setFromPoints(pts);
           const mat = new THREE.LineBasicMaterial({ color: 15755320, transparent: true, opacity: 0.75, linewidth: 1.5 });
-          astroGroup.add(new THREE.Line(geom, mat));
+          astroSubs.ecliptic.add(new THREE.Line(geom, mat));
           const sunMat = new THREE.MeshStandardMaterial({
             color: 16172618,
             emissive: 16172618,
@@ -802,7 +817,7 @@
           });
           const sun = new THREE.Mesh(new THREE.SphereGeometry(2.8, 24, 16), sunMat);
           sun.position.set(0, R * sinT, R * cosT);
-          astroGroup.add(sun);
+          astroSubs.sun.add(sun);
           astroSun = sun;
         }
         {
@@ -817,15 +832,15 @@
             linewidth: 1.5
           });
           const terminator = new THREE.LineLoop(geom, mat);
-          astroGroup.add(terminator);
+          astroSubs.terminator.add(terminator);
           astroGroup.userData.terminator = terminator;
         }
         [15, 30, 45, 60].forEach((deg) => {
           const rad2 = deg * Math.PI / 180;
           const y2 = R * Math.sin(rad2);
           const r = R * Math.cos(rad2);
-          astroGroup.add(makeParallel2(y2, r, 7041922, 0.22));
-          astroGroup.add(makeParallel2(-y2, r, 7041922, 0.22));
+          astroSubs.parallels.add(makeParallel2(y2, r, 7041922, 0.22));
+          astroSubs.parallels.add(makeParallel2(-y2, r, 7041922, 0.22));
         });
         for (let i = 0; i < 12; i++) {
           const p = equatorPos(i);
@@ -846,7 +861,7 @@
             transparent: true,
             opacity: isCardinal ? 0.42 : 0.18
           });
-          astroGroup.add(new THREE.Line(geom, mat));
+          astroSubs.meridians.add(new THREE.Line(geom, mat));
         }
         if (window.YasnaSprites && window.YasnaSprites.makeTextSprite) {
           const cardinals = [
@@ -870,7 +885,7 @@
             if (sprite) {
               const dir = p.clone().normalize();
               sprite.position.copy(p).addScaledVector(dir, 8);
-              astroGroup.add(sprite);
+              astroSubs.cardinals.add(sprite);
             }
           });
           const cosT = Math.cos(AXIAL_TILT), sinT = Math.sin(AXIAL_TILT);
@@ -897,7 +912,7 @@
             if (sprite) {
               const dir = pt.clone().normalize();
               sprite.position.copy(pt).addScaledVector(dir, 16);
-              astroGroup.add(sprite);
+              astroSubs.seasons.add(sprite);
             }
           });
           const polarisSprite = window.YasnaSprites.makeTextSprite("\u2606 \u041F\u043E\u043B\u044F\u0440\u043D\u0430\u044F", {
@@ -908,7 +923,7 @@
           });
           if (polarisSprite) {
             polarisSprite.position.set(0, NORTH.y + 18, 0);
-            astroGroup.add(polarisSprite);
+            astroSubs.polaris.add(polarisSprite);
           }
           const zodiac = [
             { glyph: "\u2648", name: "\u041E\u0432\u0435\u043D", elem: "fire" },
@@ -960,7 +975,7 @@
             if (sprite) {
               const dir = pt.clone().normalize();
               sprite.position.copy(pt).addScaledVector(dir, 10);
-              astroGroup.add(sprite);
+              astroSubs.zodiac.add(sprite);
             }
           });
         }
@@ -1632,8 +1647,10 @@
           const speedDeg = 360 / ((live.speedSec || 24) * 1e3);
           wheelGroup.rotation.y += dir * dt * speedDeg * Math.PI / 180;
         }
-        const dayCycleOn = !!(astroSun && live.astroMode && live.dayCycle);
-        if (dayCycleOn) {
+        const L = live.astroLayers || {};
+        const sunCycleOn = !!(astroSun && live.astroMode && L.sunCycle);
+        const dayCycleOn = sunCycleOn;
+        if (sunCycleOn) {
           const cycleMs = (live.speedSec || 24) * 1e3;
           sunAng += dt / cycleMs * Math.PI * 2;
           if (sunAng > Math.PI * 2) sunAng -= Math.PI * 2;
@@ -1664,12 +1681,10 @@
               positions[i * 3 + 2] = cz * R;
             }
             term.geometry.attributes.position.needsUpdate = true;
-            term.visible = true;
+            term.visible = !!(live.astroMode && L.terminator);
           }
         } else if (astroSun) {
           astroSun.material && (astroSun.material.emissiveIntensity = 0.7);
-          const term = astroGroup.userData.terminator;
-          if (term) term.visible = false;
         }
         pulsePhase += dt * 3e-3;
         const drilling = live.drill != null;
@@ -1699,7 +1714,7 @@
             p.material.transparent = false;
           }
         });
-        if (dayCycleOn && astroSun && !drilling) {
+        if (astroSun && live.astroMode && L.dayNight && L.sunCycle && !drilling) {
           const sunDir = astroSun.position.clone().normalize();
           polki.forEach((p, i) => {
             if (i === live.sel) return;
@@ -1745,7 +1760,7 @@
         raf = requestAnimationFrame(animate);
       };
       raf = requestAnimationFrame(animate);
-      sceneRefs.current = { rebuildMechanics, buildDrillGroup, subPolki: subPolkiArr, cageMesh, equatorTube, astroGroup, wheelGroup, astroSun };
+      sceneRefs.current = { rebuildMechanics, buildDrillGroup, subPolki: subPolkiArr, cageMesh, equatorTube, astroGroup, wheelGroup, astroSun, astroSubs };
       return () => {
         cancelAnimationFrame(raf);
         ro.disconnect();
@@ -1792,11 +1807,20 @@
       }
     }, [astroMode]);
     React.useEffect(() => {
+      if (!sceneRefs.current || !sceneRefs.current.astroSubs) return;
+      const subs = sceneRefs.current.astroSubs;
+      const L = astroLayers || {};
+      Object.keys(subs).forEach((key) => {
+        subs[key].visible = !!L[key];
+      });
+    }, [JSON.stringify(astroLayers || {})]);
+    React.useEffect(() => {
       if (sceneRefs.current && sceneRefs.current.wheelGroup) {
-        const target = tiltAxis ? 23.5 * Math.PI / 180 : 0;
+        const tilt = !!(astroLayers && astroLayers.tiltAxis) && !!astroMode;
+        const target = tilt ? 23.5 * Math.PI / 180 : 0;
         sceneRefs.current.wheelGroup.rotation.z = target;
       }
-    }, [tiltAxis]);
+    }, [astroMode, astroLayers && astroLayers.tiltAxis]);
     const subPolkiSig = (subPolki || []).join("|");
     React.useEffect(() => {
       if (sceneRefs.current && sceneRefs.current.buildDrillGroup) {
@@ -10881,32 +10905,50 @@ function App() {
     } catch (_) {
     }
   }, [astroMode]);
-  const [tiltAxis, setTiltAxis] = useState(() => {
+  const [astroLayers, setAstroLayers] = useState(() => {
     try {
-      return localStorage.getItem("yasna_tilt_axis") === "1";
+      const s = localStorage.getItem("yasna_astro_layers");
+      if (s) return JSON.parse(s);
     } catch (_) {
-      return false;
     }
+    return {
+      tropics: true,
+      // Тропики Рака и Козерога ±23.5°
+      arctics: true,
+      // Полярные круги ±66.5°
+      parallels: false,
+      // Сетка параллелей (15/30/45/60°)
+      ecliptic: true,
+      // Эклиптика — большой круг 23.5°
+      zodiac: true,
+      // 12 знаков зодиака
+      seasons: true,
+      // Метки Весна/Лето/Осень/Зима
+      meridians: false,
+      // 12 вертикальных дуг через апексы
+      cardinals: true,
+      // Зенит/Восток/Надир/Запад
+      polaris: true,
+      // Полярная Звезда
+      sun: true,
+      // Солнце-маркер
+      sunCycle: false,
+      // Анимация Солнца по эклиптике
+      terminator: false,
+      // Граница день/ночь (требует sunCycle)
+      dayNight: false,
+      // Подсветка полок по освещённости
+      tiltAxis: false
+      // Наклон оси на 23.5°
+    };
   });
   useEffect(() => {
     try {
-      localStorage.setItem("yasna_tilt_axis", tiltAxis ? "1" : "0");
+      localStorage.setItem("yasna_astro_layers", JSON.stringify(astroLayers));
     } catch (_) {
     }
-  }, [tiltAxis]);
-  const [dayCycle, setDayCycle] = useState(() => {
-    try {
-      return localStorage.getItem("yasna_day_cycle") === "1";
-    } catch (_) {
-      return false;
-    }
-  });
-  useEffect(() => {
-    try {
-      localStorage.setItem("yasna_day_cycle", dayCycle ? "1" : "0");
-    } catch (_) {
-    }
-  }, [dayCycle]);
+  }, [astroLayers]);
+  const toggleAstroLayer = (k) => setAstroLayers((s) => ({ ...s, [k]: !s[k] }));
   const [activeLesson, setActiveLesson] = useState(null);
   const [completedLessons, setCompletedLessons] = useState([]);
   useEffect(() => {
@@ -11039,7 +11081,14 @@ function App() {
     if (confirm("\u041E\u0447\u0438\u0441\u0442\u0438\u0442\u044C sub-\u043F\u043E\u043B\u043A\u0438 \u044D\u0442\u043E\u0439 \u041F\u043E\u043B\u043A\u0438?")) clearSub(y.name, yasna2Drill);
   }, title: "\u041E\u0447\u0438\u0441\u0442\u0438\u0442\u044C", style: { padding: "6px 10px", borderRadius: 9, border: "1px solid #d2d2d7", background: "#fff", cursor: "pointer", fontSize: 13 } }, "\u{1F9F9} \u041E\u0447\u0438\u0441\u0442\u0438\u0442\u044C"), /* @__PURE__ */ React.createElement("button", { onClick: () => setDrillEditing((v) => !v), style: { padding: "6px 14px", borderRadius: 9, border: `1px solid ${drillEditing ? "#a21caf" : "#a21caf66"}`, background: drillEditing ? "#a21caf" : "#fff", color: drillEditing ? "#fff" : "#a21caf", fontWeight: 600, fontSize: 12.5, cursor: "pointer", display: "flex", alignItems: "center", gap: 5 } }, drillEditing ? "\u2713 \u0413\u043E\u0442\u043E\u0432\u043E" : "\u270F\uFE0F \u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C")), /* @__PURE__ */ React.createElement("div", { className: "app-body" + (sel !== null ? " app-body-with-panel" : ""), style: { display: "flex", flex: 1, minHeight: 0, position: "relative" } }, /* @__PURE__ */ React.createElement("div", { className: "workspace", style: { flex: 1, display: "flex", flexDirection: "column", minWidth: 0, position: "relative" } }, /* @__PURE__ */ React.createElement("div", { className: "star-area" + (starRotation ? " star-rotating-" + starRotation : "") + (is3D ? " star-3d-active" : ""), style: { flex: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "visible", "--rotation-speed": rotationSpeed + "s" }, onClick: (e) => {
     if (e.target === e.currentTarget) setSel(null);
-  } }, /* @__PURE__ */ React.createElement("button", { className: "fullstar-btn", onClick: () => setFullStar(true), style: { display: "none", position: "absolute", top: 8, right: 8, width: 32, height: 32, borderRadius: 8, border: "1px solid #e5e5ea", background: "rgba(255,255,255,.8)", fontSize: 16, zIndex: 5, alignItems: "center", justifyContent: "center" } }, "\u2922"), /* @__PURE__ */ React.createElement("div", { className: "diag-corner-toolbar", style: { position: "absolute", top: 10, right: 10, display: "flex", gap: 4, zIndex: 6, background: "rgba(255,255,255,.94)", backdropFilter: "blur(8px)", border: "1px solid #e5e5ea", borderRadius: 14, padding: "5px 6px", boxShadow: "0 2px 10px rgba(0,0,0,.06)" } }, /* @__PURE__ */ React.createElement("button", { onClick: () => setFullStar(true), title: "\u0412\u043E \u0432\u0435\u0441\u044C \u044D\u043A\u0440\u0430\u043D", style: { width: 36, height: 36, borderRadius: 10, border: "1px solid #e5e5ea", background: "#fff", color: "#424245", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 } }, /* @__PURE__ */ React.createElement("svg", { width: "22", height: "22", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.2", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("path", { d: "M4 9V4h5" }), /* @__PURE__ */ React.createElement("path", { d: "M20 9V4h-5" }), /* @__PURE__ */ React.createElement("path", { d: "M4 15v5h5" }), /* @__PURE__ */ React.createElement("path", { d: "M20 15v5h-5" }))), /* @__PURE__ */ React.createElement("button", { onClick: () => setIs3D((v) => !v), title: is3D ? "\u041F\u043B\u043E\u0441\u043A\u0430\u044F \u043F\u0440\u043E\u0435\u043A\u0446\u0438\u044F" : "\u041E\u0431\u044A\u0451\u043C\u043D\u044B\u0439 \u0440\u0435\u0436\u0438\u043C (3D)", style: { width: 36, height: 36, borderRadius: 10, border: "1px solid " + (is3D ? "#a21caf" : "#e5e5ea"), background: is3D ? "#a21caf" : "#fff", color: is3D ? "#fff" : "#424245", fontSize: 12, fontWeight: 700, letterSpacing: 0.5, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" } }, "3D"), /* @__PURE__ */ React.createElement("button", { disabled: yasna2Drill != null, onClick: () => setStarRotation((r) => r === "ccw" ? null : "ccw"), title: yasna2Drill != null ? "\u041D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u043F\u0440\u0438 \u043E\u0442\u043A\u0440\u044B\u0442\u043E\u0439 sub-\u042F\u0441\u043D\u0435" : starRotation === "ccw" ? "\u041E\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C \u0432\u0440\u0430\u0449\u0435\u043D\u0438\u0435" : "\u0412\u0440\u0430\u0449\u0430\u0442\u044C \u043F\u0440\u043E\u0442\u0438\u0432 \u0447\u0430\u0441\u043E\u0432\u043E\u0439", style: { width: 36, height: 36, borderRadius: 10, border: "1px solid " + (starRotation === "ccw" ? "#a21caf" : "#e5e5ea"), background: starRotation === "ccw" ? "#a21caf" : "#fff", color: starRotation === "ccw" ? "#fff" : "#424245", fontSize: 21, lineHeight: 1, cursor: yasna2Drill != null ? "not-allowed" : "pointer", opacity: yasna2Drill != null ? 0.4 : 1, display: "flex", alignItems: "center", justifyContent: "center" } }, "\u21BA"), /* @__PURE__ */ React.createElement("button", { disabled: yasna2Drill != null, onClick: () => setStarRotation((r) => r === "cw" ? null : "cw"), title: yasna2Drill != null ? "\u041D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u043F\u0440\u0438 \u043E\u0442\u043A\u0440\u044B\u0442\u043E\u0439 sub-\u042F\u0441\u043D\u0435" : starRotation === "cw" ? "\u041E\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C \u0432\u0440\u0430\u0449\u0435\u043D\u0438\u0435" : "\u0412\u0440\u0430\u0449\u0430\u0442\u044C \u043F\u043E \u0447\u0430\u0441\u043E\u0432\u043E\u0439", style: { width: 36, height: 36, borderRadius: 10, border: "1px solid " + (starRotation === "cw" ? "#a21caf" : "#e5e5ea"), background: starRotation === "cw" ? "#a21caf" : "#fff", color: starRotation === "cw" ? "#fff" : "#424245", fontSize: 21, lineHeight: 1, cursor: yasna2Drill != null ? "not-allowed" : "pointer", opacity: yasna2Drill != null ? 0.4 : 1, display: "flex", alignItems: "center", justifyContent: "center" } }, "\u21BB"), /* @__PURE__ */ React.createElement("button", { onClick: () => setRotPanelOpen((o) => !o), title: "\u0421\u043A\u043E\u0440\u043E\u0441\u0442\u044C \u0432\u0440\u0430\u0449\u0435\u043D\u0438\u044F \u0438 \u0440\u0435\u0436\u0438\u043C\u044B", style: { width: 36, height: 36, borderRadius: 10, border: "1px solid " + (rotPanelOpen ? "#a21caf" : "#e5e5ea"), background: rotPanelOpen ? "#a21caf" : "#fff", color: rotPanelOpen ? "#fff" : "#424245", fontSize: 18, lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" } }, "\u22EF")), rotPanelOpen && /* @__PURE__ */ React.createElement("div", { onClick: (e) => e.stopPropagation(), style: { position: "absolute", top: 50, right: 10, width: 240, zIndex: 7, background: "#fff", border: "1px solid #d2d2d7", borderRadius: 12, boxShadow: "0 6px 24px rgba(0,0,0,.12)", padding: "12px 14px" } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 } }, /* @__PURE__ */ React.createElement("span", { style: { fontWeight: 600, fontSize: 11, color: "#581c87", letterSpacing: 0.5, textTransform: "uppercase" } }, "\u0421\u043A\u043E\u0440\u043E\u0441\u0442\u044C"), /* @__PURE__ */ React.createElement("span", { style: { color: "#a21caf", fontWeight: 700, fontVariantNumeric: "tabular-nums", fontSize: 12 } }, rotationSpeed, "s/\u043E\u0431\u043E\u0440\u043E\u0442")), /* @__PURE__ */ React.createElement("input", { type: "range", min: "5", max: "120", value: rotationSpeed, onChange: (e) => setRotationSpeed(+e.target.value), style: { width: "100%" } }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", fontSize: 9.5, color: "#86868b", marginTop: -2, marginBottom: 8 } }, /* @__PURE__ */ React.createElement("span", null, "\u0431\u044B\u0441\u0442\u0440\u043E"), /* @__PURE__ */ React.createElement("span", null, "\u043C\u0435\u0434\u0438\u0442\u0430\u0442\u0438\u0432\u043D\u043E")), /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600, fontSize: 11, color: "#581c87", letterSpacing: 0.5, textTransform: "uppercase", marginBottom: 6 } }, "\u041E\u0434\u0438\u043D \u043E\u0431\u043E\u0440\u043E\u0442"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6 } }, /* @__PURE__ */ React.createElement("button", { disabled: yasna2Drill != null || starRotation !== null, onClick: () => impulseRotation("ccw"), style: { flex: 1, padding: "7px", borderRadius: 8, border: "1px solid #e5e5ea", background: "#fff", color: "#581c87", fontSize: 11.5, cursor: "pointer" } }, "\u27F2 \u041F\u0440\u043E\u0442\u0438\u0432"), /* @__PURE__ */ React.createElement("button", { disabled: yasna2Drill != null || starRotation !== null, onClick: () => impulseRotation("cw"), style: { flex: 1, padding: "7px", borderRadius: 8, border: "1px solid #e5e5ea", background: "#fff", color: "#581c87", fontSize: 11.5, cursor: "pointer" } }, "\u27F3 \u041F\u043E \u0447\u0430\u0441\u043E\u0432\u043E\u0439")), is3D && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 10, padding: "7px 9px", background: "rgba(162,28,175,.08)", borderRadius: 8, fontSize: 10.5, color: "#581c87", lineHeight: 1.45 } }, /* @__PURE__ */ React.createElement("b", { style: { color: "#a21caf" } }, "3D \u0440\u0435\u0436\u0438\u043C."), " Drag \u2014 \u0432\u0440\u0430\u0449\u0435\u043D\u0438\u0435, \u043A\u043E\u043B\u0435\u0441\u043E \u2014 zoom, \u043A\u043B\u0438\u043A \u043F\u043E \u0448\u0430\u0440\u0443 \u2014 \u0432\u044B\u0431\u043E\u0440."), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 12, paddingTop: 12, borderTop: "1px solid #e5e5ea" } }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600, fontSize: 11, color: "#581c87", letterSpacing: 0.5, textTransform: "uppercase", marginBottom: 6 } }, "\u041E\u0442\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0435"), /* @__PURE__ */ React.createElement("button", { onClick: () => setShowComposition((c) => !c), title: "\u0421\u043E\u0441\u0442\u0430\u0432 4 \u043F\u0440\u0430\u043D \u0432 \u043A\u0430\u0436\u0434\u043E\u0439 \u041F\u043E\u043B\u043A\u0435", style: { width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 8, border: `1px solid ${showComposition ? "rgba(192,148,58,.5)" : "#e5e5ea"}`, background: showComposition ? "rgba(192,148,58,.10)" : "#fff", color: showComposition ? "#7a5e25" : "#424245", fontSize: 12.5, cursor: "pointer", fontWeight: 500, marginBottom: 6 } }, /* @__PURE__ */ React.createElement("span", { style: { display: "inline-flex", gap: 1.5, alignItems: "center", flexShrink: 0 } }, /* @__PURE__ */ React.createElement("span", { style: { width: 3, height: 14, background: "#C0943A", borderRadius: 1 } }), /* @__PURE__ */ React.createElement("span", { style: { width: 3, height: 14, background: "#4090D8", borderRadius: 1 } }), /* @__PURE__ */ React.createElement("span", { style: { width: 3, height: 14, background: "#06B6D4", borderRadius: 1 } }), /* @__PURE__ */ React.createElement("span", { style: { width: 3, height: 14, background: "#F06838", borderRadius: 1 } })), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, textAlign: "left" } }, "\u0421\u0442\u0438\u0445\u0438\u0438"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: showComposition ? "#7a5e25" : "#aeaeb2", fontWeight: 600 } }, showComposition ? "\u0412\u043A\u043B" : "\u0412\u044B\u043A\u043B")), /* @__PURE__ */ React.createElement("button", { onClick: () => overlay ? setOverlay(null) : setShowOverlayPicker(true), title: overlay ? "\u0421\u043D\u044F\u0442\u044C \u0441\u043E\u0432\u043C\u0435\u0449\u0435\u043D\u0438\u0435" : "\u0421\u043E\u0432\u043C\u0435\u0441\u0442\u0438\u0442\u044C \u0434\u0432\u0435 \u042F\u0441\u043D\u044B \u0434\u043B\u044F \u0441\u0440\u0430\u0432\u043D\u0435\u043D\u0438\u044F", style: { width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 8, border: `1px solid ${overlay ? "rgba(175,82,222,.5)" : "#e5e5ea"}`, background: overlay ? "rgba(175,82,222,.10)" : "#fff", color: overlay ? "#a21caf" : "#424245", fontSize: 12.5, cursor: "pointer", fontWeight: 500, marginBottom: is3D ? 6 : 0 } }, /* @__PURE__ */ React.createElement("span", { style: { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 18, height: 18, flexShrink: 0, fontSize: 14, fontWeight: 600 } }, overlay ? "\u2297" : "\u2295"), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, textAlign: "left" } }, "\u0421\u043E\u0432\u043C\u0435\u0441\u0442\u0438\u0442\u044C"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: overlay ? "#a21caf" : "#aeaeb2", fontWeight: 600 } }, overlay ? "\u0412\u043A\u043B" : "\u0412\u044B\u043A\u043B")), is3D && /* @__PURE__ */ React.createElement("button", { onClick: () => setSolidMech((s) => !s), title: "\u0417\u0430\u043F\u043E\u043B\u043D\u0438\u0442\u044C \u0433\u0435\u043E\u043C\u0435\u0442\u0440\u0438\u0447\u0435\u0441\u043A\u0438\u0435 \u0444\u0438\u0433\u0443\u0440\u044B \u043C\u0435\u0445\u0430\u043D\u0438\u043A \u0441\u043F\u043B\u043E\u0448\u043D\u043E\u0439 \u0437\u0430\u043B\u0438\u0432\u043A\u043E\u0439", style: { width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 8, border: `1px solid ${solidMech ? "#0071e3" : "#e5e5ea"}`, background: solidMech ? "#0071e3" : "#fff", color: solidMech ? "#fff" : "#424245", fontSize: 12.5, cursor: "pointer", fontWeight: solidMech ? 600 : 500, boxShadow: solidMech ? "0 2px 8px rgba(0,113,227,.25)" : "none", marginBottom: 6 } }, /* @__PURE__ */ React.createElement("span", { style: { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 18, height: 18, flexShrink: 0 } }, /* @__PURE__ */ React.createElement("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: solidMech ? "currentColor" : "none", stroke: "currentColor", strokeWidth: "1.8" }, /* @__PURE__ */ React.createElement("polygon", { points: "12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2" }))), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, textAlign: "left" } }, "\u0421\u043F\u043B\u043E\u0448\u043D\u043E\u0439 \u0440\u0435\u0436\u0438\u043C"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: solidMech ? "rgba(255,255,255,.85)" : "#aeaeb2", fontWeight: 700 } }, solidMech ? "\u0412\u043A\u043B" : "\u0412\u044B\u043A\u043B")), is3D && /* @__PURE__ */ React.createElement("button", { onClick: () => setShowCage((c) => !c), title: "\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C \u0438\u043B\u0438 \u0441\u043A\u0440\u044B\u0442\u044C \u043A\u0430\u0440\u043A\u0430\u0441\u043D\u0443\u044E \u0441\u0444\u0435\u0440\u0443-\u043A\u0443\u043F\u043E\u043B \u0432\u043E\u043A\u0440\u0443\u0433 \u0437\u0432\u0435\u0437\u0434\u044B", style: { width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 8, border: `1px solid ${showCage ? "#0071e3" : "#e5e5ea"}`, background: showCage ? "#0071e3" : "#fff", color: showCage ? "#fff" : "#424245", fontSize: 12.5, cursor: "pointer", fontWeight: showCage ? 600 : 500, boxShadow: showCage ? "0 2px 8px rgba(0,113,227,.25)" : "none", marginBottom: 6 } }, /* @__PURE__ */ React.createElement("span", { style: { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 18, height: 18, flexShrink: 0 } }, /* @__PURE__ */ React.createElement("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.6" }, /* @__PURE__ */ React.createElement("circle", { cx: "12", cy: "12", r: "9" }), /* @__PURE__ */ React.createElement("ellipse", { cx: "12", cy: "12", rx: "9", ry: "3.5" }), /* @__PURE__ */ React.createElement("ellipse", { cx: "12", cy: "12", rx: "3.5", ry: "9" }))), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, textAlign: "left" } }, "\u041A\u0430\u0440\u043A\u0430\u0441-\u043A\u0443\u043F\u043E\u043B"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: showCage ? "rgba(255,255,255,.85)" : "#aeaeb2", fontWeight: 700 } }, showCage ? "\u0412\u043A\u043B" : "\u0412\u044B\u043A\u043B")), is3D && /* @__PURE__ */ React.createElement("button", { onClick: () => setAstroMode((a) => !a), title: "\u0422\u0440\u043E\u043F\u0438\u043A\u0438, \u043F\u043E\u043B\u044F\u0440\u043D\u044B\u0435 \u043A\u0440\u0443\u0433\u0438, \u044D\u043A\u043B\u0438\u043F\u0442\u0438\u043A\u0430, \u043D\u0430\u043A\u043B\u043E\u043D \u043E\u0441\u0438 \u0417\u0435\u043C\u043B\u0438 \u2014 \u042F\u0441\u043D\u0430 \u043A\u0430\u043A \u043C\u043E\u0434\u0435\u043B\u044C \u043D\u0435\u0431\u0430", style: { width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 8, border: `1px solid ${astroMode ? "#0071e3" : "#e5e5ea"}`, background: astroMode ? "#0071e3" : "#fff", color: astroMode ? "#fff" : "#424245", fontSize: 12.5, cursor: "pointer", fontWeight: astroMode ? 600 : 500, boxShadow: astroMode ? "0 2px 8px rgba(0,113,227,.25)" : "none", marginBottom: astroMode ? 6 : 0 } }, /* @__PURE__ */ React.createElement("span", { style: { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 18, height: 18, flexShrink: 0 } }, /* @__PURE__ */ React.createElement("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.6" }, /* @__PURE__ */ React.createElement("circle", { cx: "12", cy: "12", r: "9" }), /* @__PURE__ */ React.createElement("ellipse", { cx: "12", cy: "12", rx: "9", ry: "3" }), /* @__PURE__ */ React.createElement("line", { x1: "12", y1: "3", x2: "12", y2: "21", transform: "rotate(23.5 12 12)", strokeLinecap: "round" }))), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, textAlign: "left" } }, "\u0410\u0441\u0442\u0440\u043E-\u0440\u0435\u0436\u0438\u043C"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: astroMode ? "rgba(255,255,255,.85)" : "#aeaeb2", fontWeight: 700 } }, astroMode ? "\u0412\u043A\u043B" : "\u0412\u044B\u043A\u043B")), is3D && astroMode && /* @__PURE__ */ React.createElement("button", { onClick: () => setTiltAxis((t) => !t), title: "\u041D\u0430\u043A\u043B\u043E\u043D\u0438\u0442\u044C \u043E\u0441\u044C \u0432\u0440\u0430\u0449\u0435\u043D\u0438\u044F \u043D\u0430 23.5\xB0 \u2014 \u043A\u0430\u043A \u0443 \u0417\u0435\u043C\u043B\u0438. \u0414\u0435\u043C\u043E\u043D\u0441\u0442\u0440\u0438\u0440\u0443\u0435\u0442 \u043F\u043E\u0447\u0435\u043C\u0443 \u0435\u0441\u0442\u044C \u0441\u043C\u0435\u043D\u0430 \u0441\u0435\u0437\u043E\u043D\u043E\u0432.", style: { width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "7px 10px 7px 22px", borderRadius: 8, border: `1px solid ${tiltAxis ? "rgba(0,113,227,.45)" : "#e5e5ea"}`, background: tiltAxis ? "rgba(0,113,227,.10)" : "#fff", color: tiltAxis ? "#0058b8" : "#6e6e73", fontSize: 12, cursor: "pointer", fontWeight: tiltAxis ? 600 : 500, marginBottom: 6 } }, /* @__PURE__ */ React.createElement("span", { style: { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 14, height: 14, flexShrink: 0, fontSize: 10, opacity: 0.7 } }, "\u2198"), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, textAlign: "left" } }, "\u041D\u0430\u043A\u043B\u043E\u043D \u043E\u0441\u0438 ", /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, opacity: 0.6, fontWeight: 500 } }, "\xB7 23.5\xB0")), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: tiltAxis ? "#0058b8" : "#aeaeb2", fontWeight: 700 } }, tiltAxis ? "\u0412\u043A\u043B" : "\u0412\u044B\u043A\u043B")), is3D && astroMode && /* @__PURE__ */ React.createElement("button", { onClick: () => setDayCycle((d) => !d), title: "\u0410\u043D\u0438\u043C\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u043E\u0435 \u0434\u0432\u0438\u0436\u0435\u043D\u0438\u0435 \u0421\u043E\u043B\u043D\u0446\u0430 \u043F\u043E \u044D\u043A\u043B\u0438\u043F\u0442\u0438\u043A\u0435 + \u043D\u043E\u0447\u043D\u0430\u044F \u0441\u0442\u043E\u0440\u043E\u043D\u0430 \u0437\u0430\u0442\u0435\u043C\u043D\u044F\u0435\u0442\u0441\u044F", style: { width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "7px 10px 7px 22px", borderRadius: 8, border: `1px solid ${dayCycle ? "rgba(0,113,227,.45)" : "#e5e5ea"}`, background: dayCycle ? "rgba(0,113,227,.10)" : "#fff", color: dayCycle ? "#0058b8" : "#6e6e73", fontSize: 12, cursor: "pointer", fontWeight: dayCycle ? 600 : 500 } }, /* @__PURE__ */ React.createElement("span", { style: { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 14, height: 14, flexShrink: 0, fontSize: 10, opacity: 0.7 } }, "\u2600"), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, textAlign: "left" } }, "\u0426\u0438\u043A\u043B \u0421\u043E\u043B\u043D\u0446\u0430"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: dayCycle ? "#0058b8" : "#aeaeb2", fontWeight: 700 } }, dayCycle ? "\u0412\u043A\u043B" : "\u0412\u044B\u043A\u043B")))), /* @__PURE__ */ React.createElement("div", { className: "star-svg-wrap", style: { width: "100%", height: "100%", maxWidth: "none", maxHeight: "none", flex: 1 } }, (() => {
+  } }, /* @__PURE__ */ React.createElement("button", { className: "fullstar-btn", onClick: () => setFullStar(true), style: { display: "none", position: "absolute", top: 8, right: 8, width: 32, height: 32, borderRadius: 8, border: "1px solid #e5e5ea", background: "rgba(255,255,255,.8)", fontSize: 16, zIndex: 5, alignItems: "center", justifyContent: "center" } }, "\u2922"), /* @__PURE__ */ React.createElement("div", { className: "diag-corner-toolbar", style: { position: "absolute", top: 10, right: 10, display: "flex", gap: 4, zIndex: 6, background: "rgba(255,255,255,.94)", backdropFilter: "blur(8px)", border: "1px solid #e5e5ea", borderRadius: 14, padding: "5px 6px", boxShadow: "0 2px 10px rgba(0,0,0,.06)" } }, /* @__PURE__ */ React.createElement("button", { onClick: () => setFullStar(true), title: "\u0412\u043E \u0432\u0435\u0441\u044C \u044D\u043A\u0440\u0430\u043D", style: { width: 36, height: 36, borderRadius: 10, border: "1px solid #e5e5ea", background: "#fff", color: "#424245", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 } }, /* @__PURE__ */ React.createElement("svg", { width: "22", height: "22", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.2", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("path", { d: "M4 9V4h5" }), /* @__PURE__ */ React.createElement("path", { d: "M20 9V4h-5" }), /* @__PURE__ */ React.createElement("path", { d: "M4 15v5h5" }), /* @__PURE__ */ React.createElement("path", { d: "M20 15v5h-5" }))), /* @__PURE__ */ React.createElement("button", { onClick: () => setIs3D((v) => !v), title: is3D ? "\u041F\u043B\u043E\u0441\u043A\u0430\u044F \u043F\u0440\u043E\u0435\u043A\u0446\u0438\u044F" : "\u041E\u0431\u044A\u0451\u043C\u043D\u044B\u0439 \u0440\u0435\u0436\u0438\u043C (3D)", style: { width: 36, height: 36, borderRadius: 10, border: "1px solid " + (is3D ? "#a21caf" : "#e5e5ea"), background: is3D ? "#a21caf" : "#fff", color: is3D ? "#fff" : "#424245", fontSize: 12, fontWeight: 700, letterSpacing: 0.5, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" } }, "3D"), /* @__PURE__ */ React.createElement("button", { disabled: yasna2Drill != null, onClick: () => setStarRotation((r) => r === "ccw" ? null : "ccw"), title: yasna2Drill != null ? "\u041D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u043F\u0440\u0438 \u043E\u0442\u043A\u0440\u044B\u0442\u043E\u0439 sub-\u042F\u0441\u043D\u0435" : starRotation === "ccw" ? "\u041E\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C \u0432\u0440\u0430\u0449\u0435\u043D\u0438\u0435" : "\u0412\u0440\u0430\u0449\u0430\u0442\u044C \u043F\u0440\u043E\u0442\u0438\u0432 \u0447\u0430\u0441\u043E\u0432\u043E\u0439", style: { width: 36, height: 36, borderRadius: 10, border: "1px solid " + (starRotation === "ccw" ? "#a21caf" : "#e5e5ea"), background: starRotation === "ccw" ? "#a21caf" : "#fff", color: starRotation === "ccw" ? "#fff" : "#424245", fontSize: 21, lineHeight: 1, cursor: yasna2Drill != null ? "not-allowed" : "pointer", opacity: yasna2Drill != null ? 0.4 : 1, display: "flex", alignItems: "center", justifyContent: "center" } }, "\u21BA"), /* @__PURE__ */ React.createElement("button", { disabled: yasna2Drill != null, onClick: () => setStarRotation((r) => r === "cw" ? null : "cw"), title: yasna2Drill != null ? "\u041D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u043F\u0440\u0438 \u043E\u0442\u043A\u0440\u044B\u0442\u043E\u0439 sub-\u042F\u0441\u043D\u0435" : starRotation === "cw" ? "\u041E\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C \u0432\u0440\u0430\u0449\u0435\u043D\u0438\u0435" : "\u0412\u0440\u0430\u0449\u0430\u0442\u044C \u043F\u043E \u0447\u0430\u0441\u043E\u0432\u043E\u0439", style: { width: 36, height: 36, borderRadius: 10, border: "1px solid " + (starRotation === "cw" ? "#a21caf" : "#e5e5ea"), background: starRotation === "cw" ? "#a21caf" : "#fff", color: starRotation === "cw" ? "#fff" : "#424245", fontSize: 21, lineHeight: 1, cursor: yasna2Drill != null ? "not-allowed" : "pointer", opacity: yasna2Drill != null ? 0.4 : 1, display: "flex", alignItems: "center", justifyContent: "center" } }, "\u21BB"), /* @__PURE__ */ React.createElement("button", { onClick: () => setRotPanelOpen((o) => !o), title: "\u0421\u043A\u043E\u0440\u043E\u0441\u0442\u044C \u0432\u0440\u0430\u0449\u0435\u043D\u0438\u044F \u0438 \u0440\u0435\u0436\u0438\u043C\u044B", style: { width: 36, height: 36, borderRadius: 10, border: "1px solid " + (rotPanelOpen ? "#a21caf" : "#e5e5ea"), background: rotPanelOpen ? "#a21caf" : "#fff", color: rotPanelOpen ? "#fff" : "#424245", fontSize: 18, lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" } }, "\u22EF")), rotPanelOpen && /* @__PURE__ */ React.createElement("div", { onClick: (e) => e.stopPropagation(), style: { position: "absolute", top: 50, right: 10, width: 240, zIndex: 7, background: "#fff", border: "1px solid #d2d2d7", borderRadius: 12, boxShadow: "0 6px 24px rgba(0,0,0,.12)", padding: "12px 14px" } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 } }, /* @__PURE__ */ React.createElement("span", { style: { fontWeight: 600, fontSize: 11, color: "#581c87", letterSpacing: 0.5, textTransform: "uppercase" } }, "\u0421\u043A\u043E\u0440\u043E\u0441\u0442\u044C"), /* @__PURE__ */ React.createElement("span", { style: { color: "#a21caf", fontWeight: 700, fontVariantNumeric: "tabular-nums", fontSize: 12 } }, rotationSpeed, "s/\u043E\u0431\u043E\u0440\u043E\u0442")), /* @__PURE__ */ React.createElement("input", { type: "range", min: "5", max: "120", value: rotationSpeed, onChange: (e) => setRotationSpeed(+e.target.value), style: { width: "100%" } }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", fontSize: 9.5, color: "#86868b", marginTop: -2, marginBottom: 8 } }, /* @__PURE__ */ React.createElement("span", null, "\u0431\u044B\u0441\u0442\u0440\u043E"), /* @__PURE__ */ React.createElement("span", null, "\u043C\u0435\u0434\u0438\u0442\u0430\u0442\u0438\u0432\u043D\u043E")), /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600, fontSize: 11, color: "#581c87", letterSpacing: 0.5, textTransform: "uppercase", marginBottom: 6 } }, "\u041E\u0434\u0438\u043D \u043E\u0431\u043E\u0440\u043E\u0442"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6 } }, /* @__PURE__ */ React.createElement("button", { disabled: yasna2Drill != null || starRotation !== null, onClick: () => impulseRotation("ccw"), style: { flex: 1, padding: "7px", borderRadius: 8, border: "1px solid #e5e5ea", background: "#fff", color: "#581c87", fontSize: 11.5, cursor: "pointer" } }, "\u27F2 \u041F\u0440\u043E\u0442\u0438\u0432"), /* @__PURE__ */ React.createElement("button", { disabled: yasna2Drill != null || starRotation !== null, onClick: () => impulseRotation("cw"), style: { flex: 1, padding: "7px", borderRadius: 8, border: "1px solid #e5e5ea", background: "#fff", color: "#581c87", fontSize: 11.5, cursor: "pointer" } }, "\u27F3 \u041F\u043E \u0447\u0430\u0441\u043E\u0432\u043E\u0439")), is3D && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 10, padding: "7px 9px", background: "rgba(162,28,175,.08)", borderRadius: 8, fontSize: 10.5, color: "#581c87", lineHeight: 1.45 } }, /* @__PURE__ */ React.createElement("b", { style: { color: "#a21caf" } }, "3D \u0440\u0435\u0436\u0438\u043C."), " Drag \u2014 \u0432\u0440\u0430\u0449\u0435\u043D\u0438\u0435, \u043A\u043E\u043B\u0435\u0441\u043E \u2014 zoom, \u043A\u043B\u0438\u043A \u043F\u043E \u0448\u0430\u0440\u0443 \u2014 \u0432\u044B\u0431\u043E\u0440."), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 12, paddingTop: 12, borderTop: "1px solid #e5e5ea" } }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600, fontSize: 11, color: "#581c87", letterSpacing: 0.5, textTransform: "uppercase", marginBottom: 6 } }, "\u041E\u0442\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0435"), /* @__PURE__ */ React.createElement("button", { onClick: () => setShowComposition((c) => !c), title: "\u0421\u043E\u0441\u0442\u0430\u0432 4 \u043F\u0440\u0430\u043D \u0432 \u043A\u0430\u0436\u0434\u043E\u0439 \u041F\u043E\u043B\u043A\u0435", style: { width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 8, border: `1px solid ${showComposition ? "rgba(192,148,58,.5)" : "#e5e5ea"}`, background: showComposition ? "rgba(192,148,58,.10)" : "#fff", color: showComposition ? "#7a5e25" : "#424245", fontSize: 12.5, cursor: "pointer", fontWeight: 500, marginBottom: 6 } }, /* @__PURE__ */ React.createElement("span", { style: { display: "inline-flex", gap: 1.5, alignItems: "center", flexShrink: 0 } }, /* @__PURE__ */ React.createElement("span", { style: { width: 3, height: 14, background: "#C0943A", borderRadius: 1 } }), /* @__PURE__ */ React.createElement("span", { style: { width: 3, height: 14, background: "#4090D8", borderRadius: 1 } }), /* @__PURE__ */ React.createElement("span", { style: { width: 3, height: 14, background: "#06B6D4", borderRadius: 1 } }), /* @__PURE__ */ React.createElement("span", { style: { width: 3, height: 14, background: "#F06838", borderRadius: 1 } })), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, textAlign: "left" } }, "\u0421\u0442\u0438\u0445\u0438\u0438"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: showComposition ? "#7a5e25" : "#aeaeb2", fontWeight: 600 } }, showComposition ? "\u0412\u043A\u043B" : "\u0412\u044B\u043A\u043B")), /* @__PURE__ */ React.createElement("button", { onClick: () => overlay ? setOverlay(null) : setShowOverlayPicker(true), title: overlay ? "\u0421\u043D\u044F\u0442\u044C \u0441\u043E\u0432\u043C\u0435\u0449\u0435\u043D\u0438\u0435" : "\u0421\u043E\u0432\u043C\u0435\u0441\u0442\u0438\u0442\u044C \u0434\u0432\u0435 \u042F\u0441\u043D\u044B \u0434\u043B\u044F \u0441\u0440\u0430\u0432\u043D\u0435\u043D\u0438\u044F", style: { width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 8, border: `1px solid ${overlay ? "rgba(175,82,222,.5)" : "#e5e5ea"}`, background: overlay ? "rgba(175,82,222,.10)" : "#fff", color: overlay ? "#a21caf" : "#424245", fontSize: 12.5, cursor: "pointer", fontWeight: 500, marginBottom: is3D ? 6 : 0 } }, /* @__PURE__ */ React.createElement("span", { style: { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 18, height: 18, flexShrink: 0, fontSize: 14, fontWeight: 600 } }, overlay ? "\u2297" : "\u2295"), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, textAlign: "left" } }, "\u0421\u043E\u0432\u043C\u0435\u0441\u0442\u0438\u0442\u044C"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: overlay ? "#a21caf" : "#aeaeb2", fontWeight: 600 } }, overlay ? "\u0412\u043A\u043B" : "\u0412\u044B\u043A\u043B")), is3D && /* @__PURE__ */ React.createElement("button", { onClick: () => setSolidMech((s) => !s), title: "\u0417\u0430\u043F\u043E\u043B\u043D\u0438\u0442\u044C \u0433\u0435\u043E\u043C\u0435\u0442\u0440\u0438\u0447\u0435\u0441\u043A\u0438\u0435 \u0444\u0438\u0433\u0443\u0440\u044B \u043C\u0435\u0445\u0430\u043D\u0438\u043A \u0441\u043F\u043B\u043E\u0448\u043D\u043E\u0439 \u0437\u0430\u043B\u0438\u0432\u043A\u043E\u0439", style: { width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 8, border: `1px solid ${solidMech ? "#0071e3" : "#e5e5ea"}`, background: solidMech ? "#0071e3" : "#fff", color: solidMech ? "#fff" : "#424245", fontSize: 12.5, cursor: "pointer", fontWeight: solidMech ? 600 : 500, boxShadow: solidMech ? "0 2px 8px rgba(0,113,227,.25)" : "none", marginBottom: 6 } }, /* @__PURE__ */ React.createElement("span", { style: { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 18, height: 18, flexShrink: 0 } }, /* @__PURE__ */ React.createElement("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: solidMech ? "currentColor" : "none", stroke: "currentColor", strokeWidth: "1.8" }, /* @__PURE__ */ React.createElement("polygon", { points: "12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2" }))), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, textAlign: "left" } }, "\u0421\u043F\u043B\u043E\u0448\u043D\u043E\u0439 \u0440\u0435\u0436\u0438\u043C"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: solidMech ? "rgba(255,255,255,.85)" : "#aeaeb2", fontWeight: 700 } }, solidMech ? "\u0412\u043A\u043B" : "\u0412\u044B\u043A\u043B")), is3D && /* @__PURE__ */ React.createElement("button", { onClick: () => setShowCage((c) => !c), title: "\u041F\u043E\u043A\u0430\u0437\u0430\u0442\u044C \u0438\u043B\u0438 \u0441\u043A\u0440\u044B\u0442\u044C \u043A\u0430\u0440\u043A\u0430\u0441\u043D\u0443\u044E \u0441\u0444\u0435\u0440\u0443-\u043A\u0443\u043F\u043E\u043B \u0432\u043E\u043A\u0440\u0443\u0433 \u0437\u0432\u0435\u0437\u0434\u044B", style: { width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 8, border: `1px solid ${showCage ? "#0071e3" : "#e5e5ea"}`, background: showCage ? "#0071e3" : "#fff", color: showCage ? "#fff" : "#424245", fontSize: 12.5, cursor: "pointer", fontWeight: showCage ? 600 : 500, boxShadow: showCage ? "0 2px 8px rgba(0,113,227,.25)" : "none", marginBottom: 6 } }, /* @__PURE__ */ React.createElement("span", { style: { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 18, height: 18, flexShrink: 0 } }, /* @__PURE__ */ React.createElement("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.6" }, /* @__PURE__ */ React.createElement("circle", { cx: "12", cy: "12", r: "9" }), /* @__PURE__ */ React.createElement("ellipse", { cx: "12", cy: "12", rx: "9", ry: "3.5" }), /* @__PURE__ */ React.createElement("ellipse", { cx: "12", cy: "12", rx: "3.5", ry: "9" }))), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, textAlign: "left" } }, "\u041A\u0430\u0440\u043A\u0430\u0441-\u043A\u0443\u043F\u043E\u043B"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: showCage ? "rgba(255,255,255,.85)" : "#aeaeb2", fontWeight: 700 } }, showCage ? "\u0412\u043A\u043B" : "\u0412\u044B\u043A\u043B")), is3D && /* @__PURE__ */ React.createElement("button", { onClick: () => setAstroMode((a) => !a), title: "\u041E\u0442\u043A\u0440\u044B\u0442\u044C \u043F\u0430\u043D\u0435\u043B\u044C \u0430\u0441\u0442\u0440\u043E\u043D\u043E\u043C\u0438\u0447\u0435\u0441\u043A\u0438\u0445 \u0441\u043B\u043E\u0451\u0432 \u2014 \u043A\u0430\u0436\u0434\u044B\u0439 \u044D\u043B\u0435\u043C\u0435\u043D\u0442 \u0432\u043A\u043B\u044E\u0447\u0430\u0435\u0442\u0441\u044F \u043E\u0442\u0434\u0435\u043B\u044C\u043D\u043E", style: { width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 8, border: `1px solid ${astroMode ? "#0071e3" : "#e5e5ea"}`, background: astroMode ? "#0071e3" : "#fff", color: astroMode ? "#fff" : "#424245", fontSize: 12.5, cursor: "pointer", fontWeight: astroMode ? 600 : 500, boxShadow: astroMode ? "0 2px 8px rgba(0,113,227,.25)" : "none" } }, /* @__PURE__ */ React.createElement("span", { style: { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 18, height: 18, flexShrink: 0 } }, /* @__PURE__ */ React.createElement("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.6" }, /* @__PURE__ */ React.createElement("circle", { cx: "12", cy: "12", r: "9" }), /* @__PURE__ */ React.createElement("ellipse", { cx: "12", cy: "12", rx: "9", ry: "3" }), /* @__PURE__ */ React.createElement("line", { x1: "12", y1: "3", x2: "12", y2: "21", transform: "rotate(23.5 12 12)", strokeLinecap: "round" }))), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, textAlign: "left" } }, "\u0410\u0441\u0442\u0440\u043E\u043D\u043E\u043C\u0438\u044F\u2026"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: astroMode ? "rgba(255,255,255,.85)" : "#aeaeb2", fontWeight: 700 } }, astroMode ? "\u0412\u043A\u043B" : "\u0412\u044B\u043A\u043B")))), is3D && astroMode && /* @__PURE__ */ (() => {
+    const Toggle = ({ k, label, sub }) => {
+      const on = !!astroLayers[k];
+      return /* @__PURE__ */ React.createElement("button", { onClick: () => toggleAstroLayer(k), style: { width: "100%", display: "flex", alignItems: "center", gap: 9, padding: "7px 10px", borderRadius: 7, border: `1px solid ${on ? "rgba(0,113,227,.45)" : "#e5e5ea"}`, background: on ? "rgba(0,113,227,.10)" : "#fff", color: on ? "#0058b8" : "#424245", fontSize: 12, cursor: "pointer", fontWeight: on ? 600 : 500, marginBottom: 4, textAlign: "left" } }, /* @__PURE__ */ React.createElement("span", { style: { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 14, height: 14, flexShrink: 0, fontSize: 10, color: on ? "#0071e3" : "#aeaeb2" } }, on ? "\u25CF" : "\u25CB"), /* @__PURE__ */ React.createElement("span", { style: { flex: 1 } }, label, sub && /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, opacity: 0.6, fontWeight: 500, marginLeft: 4 } }, "\xB7 ", sub)));
+    };
+    const Section = ({ title, children }) => /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 12 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, fontWeight: 700, letterSpacing: 1.4, textTransform: "uppercase", color: "#86868b", marginBottom: 6, paddingLeft: 2 } }, title), children);
+    return /* @__PURE__ */ React.createElement("div", { className: "astro-panel", style: { position: "absolute", top: 10, left: 10, width: 260, maxHeight: "calc(100% - 20px)", overflowY: "auto", zIndex: 6, background: "rgba(255,255,255,.96)", backdropFilter: "blur(10px)", border: "1px solid #e5e5ea", borderRadius: 14, padding: "14px 14px 12px", boxShadow: "0 8px 28px rgba(0,0,0,.12)" } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, paddingBottom: 10, borderBottom: "1px solid #f0f0f2" } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8 } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 18, lineHeight: 1 } }, "\u{1F30D}"), /* @__PURE__ */ React.createElement("h4", { style: { margin: 0, fontFamily: "var(--serif)", fontSize: 16, fontWeight: 600, color: "#1d1d1f", letterSpacing: "-0.005em" } }, "\u0410\u0441\u0442\u0440\u043E\u043D\u043E\u043C\u0438\u044F")), /* @__PURE__ */ React.createElement("button", { onClick: () => setAstroMode(false), "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C", style: { width: 24, height: 24, borderRadius: "50%", border: "1px solid #e5e5ea", background: "#f5f5f7", color: "#86868b", fontSize: 14, lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 } }, "\xD7")), /* @__PURE__ */ React.createElement(Section, { title: "\u0413\u0435\u043E\u043C\u0435\u0442\u0440\u0438\u044F \u0417\u0435\u043C\u043B\u0438" }, /* @__PURE__ */ React.createElement(Toggle, { k: "tropics", label: "\u0422\u0440\u043E\u043F\u0438\u043A\u0438", sub: "\xB123.5\xB0" }), /* @__PURE__ */ React.createElement(Toggle, { k: "arctics", label: "\u041F\u043E\u043B\u044F\u0440\u043D\u044B\u0435 \u043A\u0440\u0443\u0433\u0438", sub: "\xB166.5\xB0" }), /* @__PURE__ */ React.createElement(Toggle, { k: "parallels", label: "\u0421\u0435\u0442\u043A\u0430 \u043F\u0430\u0440\u0430\u043B\u043B\u0435\u043B\u0435\u0439" })), /* @__PURE__ */ React.createElement(Section, { title: "\u041D\u0435\u0431\u0435\u0441\u043D\u0430\u044F \u0441\u0444\u0435\u0440\u0430" }, /* @__PURE__ */ React.createElement(Toggle, { k: "ecliptic", label: "\u042D\u043A\u043B\u0438\u043F\u0442\u0438\u043A\u0430" }), /* @__PURE__ */ React.createElement(Toggle, { k: "zodiac", label: "\u0417\u043E\u0434\u0438\u0430\u043A", sub: "12 \u0437\u043D\u0430\u043A\u043E\u0432" }), /* @__PURE__ */ React.createElement(Toggle, { k: "seasons", label: "\u0421\u0435\u0437\u043E\u043D\u044B" })), /* @__PURE__ */ React.createElement(Section, { title: "\u041A\u043E\u043E\u0440\u0434\u0438\u043D\u0430\u0442\u044B" }, /* @__PURE__ */ React.createElement(Toggle, { k: "meridians", label: "12 \u043C\u0435\u0440\u0438\u0434\u0438\u0430\u043D\u043E\u0432" }), /* @__PURE__ */ React.createElement(Toggle, { k: "cardinals", label: "\u041A\u0430\u0440\u0434\u0438\u043D\u0430\u043B\u044C\u043D\u044B\u0435 \u0442\u043E\u0447\u043A\u0438" }), /* @__PURE__ */ React.createElement(Toggle, { k: "polaris", label: "\u041F\u043E\u043B\u044F\u0440\u043D\u0430\u044F \u0437\u0432\u0435\u0437\u0434\u0430" })), /* @__PURE__ */ React.createElement(Section, { title: "\u0421\u043E\u043B\u043D\u0446\u0435 \u0438 \u0434\u0438\u043D\u0430\u043C\u0438\u043A\u0430" }, /* @__PURE__ */ React.createElement(Toggle, { k: "sun", label: "\u0421\u043E\u043B\u043D\u0446\u0435" }), /* @__PURE__ */ React.createElement(Toggle, { k: "sunCycle", label: "\u0426\u0438\u043A\u043B \u0421\u043E\u043B\u043D\u0446\u0430", sub: "\u0430\u043D\u0438\u043C\u0430\u0446\u0438\u044F" }), /* @__PURE__ */ React.createElement(Toggle, { k: "terminator", label: "\u0422\u0435\u0440\u043C\u0438\u043D\u0430\u0442\u043E\u0440 \xB7 \u0434\u0435\u043D\u044C/\u043D\u043E\u0447\u044C" }), /* @__PURE__ */ React.createElement(Toggle, { k: "dayNight", label: "\u041E\u0441\u0432\u0435\u0449\u0451\u043D\u043D\u043E\u0441\u0442\u044C \u043F\u043E\u043B\u043E\u043A" }), /* @__PURE__ */ React.createElement(Toggle, { k: "tiltAxis", label: "\u041D\u0430\u043A\u043B\u043E\u043D \u043E\u0441\u0438 \u0417\u0435\u043C\u043B\u0438", sub: "23.5\xB0" })), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, color: "#aeaeb2", lineHeight: 1.5, paddingTop: 8, borderTop: "1px solid #f0f0f2", marginTop: 4 } }, "\u0412\u043A\u043B\u044E\u0447\u0430\u0439 \u0441\u043B\u043E\u0438 \u043F\u043E \u043E\u0434\u043D\u043E\u043C\u0443, \u0447\u0442\u043E\u0431\u044B \u043F\u043E\u043D\u044F\u0442\u044C \u0447\u0442\u043E \u0437\u043D\u0430\u0447\u0438\u0442 \u043A\u0430\u0436\u0434\u044B\u0439 \u044D\u043B\u0435\u043C\u0435\u043D\u0442."));
+  })(), /* @__PURE__ */ React.createElement("div", { className: "star-svg-wrap", style: { width: "100%", height: "100%", maxWidth: "none", maxHeight: "none", flex: 1 } }, (() => {
     const onStarSel = (next) => {
       if (next === null && sel !== null && panelCollapsed) {
         setPanelCollapsed(false);
@@ -11047,7 +11096,7 @@ function App() {
       }
       setSel(next);
     };
-    return is3D ? /* @__PURE__ */ React.createElement(Yasna3DView, { y, af, sel, onSel: onStarSel, rotationOn: starRotation, speedSec: rotationSpeed, drill: yasna2Drill, onDrill: setYasna2Drill, subPolki: yasna2Drill != null ? getSubPolki(y.name, yasna2Drill) : null, solidMech, showCage, astroMode, tiltAxis, dayCycle }) : /* @__PURE__ */ React.createElement(Star, { yy: y, sel, onSel: onStarSel, hl, af, showOpp: af.includes("opp"), overlay, mob: typeof window !== "undefined" && window.innerWidth <= 768, drill: yasna2Drill, onDrill: setYasna2Drill, subPolki: yasna2Drill != null ? getSubPolki(y.name, yasna2Drill) : null, starRotation, rotationSpeed, showComposition });
+    return is3D ? /* @__PURE__ */ React.createElement(Yasna3DView, { y, af, sel, onSel: onStarSel, rotationOn: starRotation, speedSec: rotationSpeed, drill: yasna2Drill, onDrill: setYasna2Drill, subPolki: yasna2Drill != null ? getSubPolki(y.name, yasna2Drill) : null, solidMech, showCage, astroMode, astroLayers }) : /* @__PURE__ */ React.createElement(Star, { yy: y, sel, onSel: onStarSel, hl, af, showOpp: af.includes("opp"), overlay, mob: typeof window !== "undefined" && window.innerWidth <= 768, drill: yasna2Drill, onDrill: setYasna2Drill, subPolki: yasna2Drill != null ? getSubPolki(y.name, yasna2Drill) : null, starRotation, rotationSpeed, showComposition });
   })()), /* @__PURE__ */ React.createElement(OverlayLegend, { y, overlay, onClear: () => setOverlay(null) }))), sel !== null && /* @__PURE__ */ React.createElement("aside", { className: "side-panel" + (panelCollapsed ? " collapsed" : ""), "aria-label": "\u041A\u0430\u0440\u0442\u043E\u0447\u043A\u0430 \u043F\u043E\u043B\u043A\u0438" }, /* @__PURE__ */ React.createElement("button", { className: "side-panel-toggle", onClick: () => setPanelCollapsed((c) => !c), title: panelCollapsed ? "\u0420\u0430\u0437\u0432\u0435\u0440\u043D\u0443\u0442\u044C \u043F\u0430\u043D\u0435\u043B\u044C" : "\u0421\u0432\u0435\u0440\u043D\u0443\u0442\u044C \u043F\u0430\u043D\u0435\u043B\u044C", "aria-label": panelCollapsed ? "\u0420\u0430\u0437\u0432\u0435\u0440\u043D\u0443\u0442\u044C \u043F\u0430\u043D\u0435\u043B\u044C" : "\u0421\u0432\u0435\u0440\u043D\u0443\u0442\u044C \u043F\u0430\u043D\u0435\u043B\u044C" }, panelCollapsed ? "\u2039" : "\u203A"), !panelCollapsed && /* @__PURE__ */ React.createElement(Info, { i: sel, p: y.p, af, y, overlay, onEdit: () => setEd(true), onClose: () => setPanelCollapsed(true), onSel: setSel }))), yasna2Drill != null && drillEditing && /* @__PURE__ */ React.createElement("div", { style: { flexShrink: 0, padding: "14px 18px", background: "linear-gradient(180deg,rgba(162,28,175,.04),rgba(162,28,175,.08))", borderTop: "1px solid rgba(162,28,175,.25)", maxHeight: "40vh", overflowY: "auto" } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10, marginBottom: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, color: "#a21caf", fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" } }, "Sub-\u041F\u043E\u043B\u043A\u0438 \u0432\u043D\u0443\u0442\u0440\u0435\u043D\u043D\u0435\u0439 \u042F\u0441\u043D\u044B \u041F\u043E\u043B\u043A\u0438 ", yasna2Drill), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#86868b" } }, "\xB7 \u0441\u043E\u0445\u0440\u0430\u043D\u044F\u0435\u0442\u0441\u044F \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438")), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 8 } }, Array.from({ length: 12 }, (_, j) => {
     const v = getSubPolki(y.name, yasna2Drill)[j] || "";
     return /* @__PURE__ */ React.createElement("div", { key: j, style: { display: "flex", gap: 8, alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { width: 24, height: 24, borderRadius: "50%", border: "1.5px solid #a21caf", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "#a21caf", flexShrink: 0, background: "#fff" } }, j), /* @__PURE__ */ React.createElement("input", { value: v, onChange: (e) => setSubPolkaAt(y.name, yasna2Drill, j, e.target.value), placeholder: "\u043D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 sub-\u043F\u043E\u043B\u043A\u0438", style: { flex: 1, padding: "6px 10px", border: "1px solid #d2d2d7", borderRadius: 7, fontSize: 12.5, fontFamily: "inherit", outline: "none", background: "#fff" }, onFocus: (e) => {

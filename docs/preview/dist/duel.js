@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T11:58:09.884Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T12:13:58.584Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -593,7 +593,8 @@
 ;(function(){
 (function() {
   const { opp, rad } = window.YasnaData;
-  function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki, solidMech, showCage, astroMode, tiltAxis, dayCycle }) {
+  function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki, solidMech, showCage, astroMode, astroLayers }) {
+    const AL = astroLayers || {};
     const canvasRef = React.useRef(null);
     const initCamDist = typeof window !== "undefined" && window.innerWidth <= 768 ? 820 : 560;
     const stateRef = React.useRef({
@@ -605,10 +606,10 @@
       lastY: 0
     });
     const sceneRefs = React.useRef(null);
-    const liveRef = React.useRef({ rotationOn, speedSec, sel, drill, af, solidMech, showCage, astroMode, tiltAxis, dayCycle });
+    const liveRef = React.useRef({ rotationOn, speedSec, sel, drill, af, solidMech, showCage, astroMode, astroLayers });
     React.useEffect(() => {
-      liveRef.current = { rotationOn, speedSec, sel, drill, af, solidMech, showCage, astroMode, tiltAxis, dayCycle };
-    }, [rotationOn, speedSec, sel, drill, solidMech, showCage, astroMode, tiltAxis, dayCycle, JSON.stringify(af || [])]);
+      liveRef.current = { rotationOn, speedSec, sel, drill, af, solidMech, showCage, astroMode, astroLayers };
+    }, [rotationOn, speedSec, sel, drill, solidMech, showCage, astroMode, JSON.stringify(astroLayers || {}), JSON.stringify(af || [])]);
     React.useEffect(() => {
       if (typeof window === "undefined" || !window.THREE) return;
       const THREE = window.THREE;
@@ -759,6 +760,20 @@
       astroGroup.visible = false;
       wheelGroup.add(astroGroup);
       let astroSun = null;
+      const astroSubs = {
+        tropics: new THREE.Group(),
+        arctics: new THREE.Group(),
+        parallels: new THREE.Group(),
+        ecliptic: new THREE.Group(),
+        zodiac: new THREE.Group(),
+        seasons: new THREE.Group(),
+        meridians: new THREE.Group(),
+        cardinals: new THREE.Group(),
+        polaris: new THREE.Group(),
+        sun: new THREE.Group(),
+        terminator: new THREE.Group()
+      };
+      Object.values(astroSubs).forEach((g) => astroGroup.add(g));
       {
         let makeParallel2 = function(y2, r, color, opacity, dashed) {
           const segs = 96;
@@ -776,10 +791,10 @@
         var makeParallel = makeParallel2;
         const AXIAL_TILT = 23.5 * Math.PI / 180;
         const ARCTIC = 66.5 * Math.PI / 180;
-        astroGroup.add(makeParallel2(R * Math.sin(AXIAL_TILT), R * Math.cos(AXIAL_TILT), 12620858, 0.65));
-        astroGroup.add(makeParallel2(-R * Math.sin(AXIAL_TILT), R * Math.cos(AXIAL_TILT), 12620858, 0.65));
-        astroGroup.add(makeParallel2(R * Math.sin(ARCTIC), R * Math.cos(ARCTIC), 6003958, 0.55, true));
-        astroGroup.add(makeParallel2(-R * Math.sin(ARCTIC), R * Math.cos(ARCTIC), 6003958, 0.55, true));
+        astroSubs.tropics.add(makeParallel2(R * Math.sin(AXIAL_TILT), R * Math.cos(AXIAL_TILT), 12620858, 0.65));
+        astroSubs.tropics.add(makeParallel2(-R * Math.sin(AXIAL_TILT), R * Math.cos(AXIAL_TILT), 12620858, 0.65));
+        astroSubs.arctics.add(makeParallel2(R * Math.sin(ARCTIC), R * Math.cos(ARCTIC), 6003958, 0.55, true));
+        astroSubs.arctics.add(makeParallel2(-R * Math.sin(ARCTIC), R * Math.cos(ARCTIC), 6003958, 0.55, true));
         {
           const segs = 128;
           const pts = [];
@@ -792,7 +807,7 @@
           }
           const geom = new THREE.BufferGeometry().setFromPoints(pts);
           const mat = new THREE.LineBasicMaterial({ color: 15755320, transparent: true, opacity: 0.75, linewidth: 1.5 });
-          astroGroup.add(new THREE.Line(geom, mat));
+          astroSubs.ecliptic.add(new THREE.Line(geom, mat));
           const sunMat = new THREE.MeshStandardMaterial({
             color: 16172618,
             emissive: 16172618,
@@ -802,7 +817,7 @@
           });
           const sun = new THREE.Mesh(new THREE.SphereGeometry(2.8, 24, 16), sunMat);
           sun.position.set(0, R * sinT, R * cosT);
-          astroGroup.add(sun);
+          astroSubs.sun.add(sun);
           astroSun = sun;
         }
         {
@@ -817,15 +832,15 @@
             linewidth: 1.5
           });
           const terminator = new THREE.LineLoop(geom, mat);
-          astroGroup.add(terminator);
+          astroSubs.terminator.add(terminator);
           astroGroup.userData.terminator = terminator;
         }
         [15, 30, 45, 60].forEach((deg) => {
           const rad2 = deg * Math.PI / 180;
           const y2 = R * Math.sin(rad2);
           const r = R * Math.cos(rad2);
-          astroGroup.add(makeParallel2(y2, r, 7041922, 0.22));
-          astroGroup.add(makeParallel2(-y2, r, 7041922, 0.22));
+          astroSubs.parallels.add(makeParallel2(y2, r, 7041922, 0.22));
+          astroSubs.parallels.add(makeParallel2(-y2, r, 7041922, 0.22));
         });
         for (let i = 0; i < 12; i++) {
           const p = equatorPos(i);
@@ -846,7 +861,7 @@
             transparent: true,
             opacity: isCardinal ? 0.42 : 0.18
           });
-          astroGroup.add(new THREE.Line(geom, mat));
+          astroSubs.meridians.add(new THREE.Line(geom, mat));
         }
         if (window.YasnaSprites && window.YasnaSprites.makeTextSprite) {
           const cardinals = [
@@ -870,7 +885,7 @@
             if (sprite) {
               const dir = p.clone().normalize();
               sprite.position.copy(p).addScaledVector(dir, 8);
-              astroGroup.add(sprite);
+              astroSubs.cardinals.add(sprite);
             }
           });
           const cosT = Math.cos(AXIAL_TILT), sinT = Math.sin(AXIAL_TILT);
@@ -897,7 +912,7 @@
             if (sprite) {
               const dir = pt.clone().normalize();
               sprite.position.copy(pt).addScaledVector(dir, 16);
-              astroGroup.add(sprite);
+              astroSubs.seasons.add(sprite);
             }
           });
           const polarisSprite = window.YasnaSprites.makeTextSprite("\u2606 \u041F\u043E\u043B\u044F\u0440\u043D\u0430\u044F", {
@@ -908,7 +923,7 @@
           });
           if (polarisSprite) {
             polarisSprite.position.set(0, NORTH.y + 18, 0);
-            astroGroup.add(polarisSprite);
+            astroSubs.polaris.add(polarisSprite);
           }
           const zodiac = [
             { glyph: "\u2648", name: "\u041E\u0432\u0435\u043D", elem: "fire" },
@@ -960,7 +975,7 @@
             if (sprite) {
               const dir = pt.clone().normalize();
               sprite.position.copy(pt).addScaledVector(dir, 10);
-              astroGroup.add(sprite);
+              astroSubs.zodiac.add(sprite);
             }
           });
         }
@@ -1632,8 +1647,10 @@
           const speedDeg = 360 / ((live.speedSec || 24) * 1e3);
           wheelGroup.rotation.y += dir * dt * speedDeg * Math.PI / 180;
         }
-        const dayCycleOn = !!(astroSun && live.astroMode && live.dayCycle);
-        if (dayCycleOn) {
+        const L = live.astroLayers || {};
+        const sunCycleOn = !!(astroSun && live.astroMode && L.sunCycle);
+        const dayCycleOn = sunCycleOn;
+        if (sunCycleOn) {
           const cycleMs = (live.speedSec || 24) * 1e3;
           sunAng += dt / cycleMs * Math.PI * 2;
           if (sunAng > Math.PI * 2) sunAng -= Math.PI * 2;
@@ -1664,12 +1681,10 @@
               positions[i * 3 + 2] = cz * R;
             }
             term.geometry.attributes.position.needsUpdate = true;
-            term.visible = true;
+            term.visible = !!(live.astroMode && L.terminator);
           }
         } else if (astroSun) {
           astroSun.material && (astroSun.material.emissiveIntensity = 0.7);
-          const term = astroGroup.userData.terminator;
-          if (term) term.visible = false;
         }
         pulsePhase += dt * 3e-3;
         const drilling = live.drill != null;
@@ -1699,7 +1714,7 @@
             p.material.transparent = false;
           }
         });
-        if (dayCycleOn && astroSun && !drilling) {
+        if (astroSun && live.astroMode && L.dayNight && L.sunCycle && !drilling) {
           const sunDir = astroSun.position.clone().normalize();
           polki.forEach((p, i) => {
             if (i === live.sel) return;
@@ -1745,7 +1760,7 @@
         raf = requestAnimationFrame(animate);
       };
       raf = requestAnimationFrame(animate);
-      sceneRefs.current = { rebuildMechanics, buildDrillGroup, subPolki: subPolkiArr, cageMesh, equatorTube, astroGroup, wheelGroup, astroSun };
+      sceneRefs.current = { rebuildMechanics, buildDrillGroup, subPolki: subPolkiArr, cageMesh, equatorTube, astroGroup, wheelGroup, astroSun, astroSubs };
       return () => {
         cancelAnimationFrame(raf);
         ro.disconnect();
@@ -1792,11 +1807,20 @@
       }
     }, [astroMode]);
     React.useEffect(() => {
+      if (!sceneRefs.current || !sceneRefs.current.astroSubs) return;
+      const subs = sceneRefs.current.astroSubs;
+      const L = astroLayers || {};
+      Object.keys(subs).forEach((key) => {
+        subs[key].visible = !!L[key];
+      });
+    }, [JSON.stringify(astroLayers || {})]);
+    React.useEffect(() => {
       if (sceneRefs.current && sceneRefs.current.wheelGroup) {
-        const target = tiltAxis ? 23.5 * Math.PI / 180 : 0;
+        const tilt = !!(astroLayers && astroLayers.tiltAxis) && !!astroMode;
+        const target = tilt ? 23.5 * Math.PI / 180 : 0;
         sceneRefs.current.wheelGroup.rotation.z = target;
       }
-    }, [tiltAxis]);
+    }, [astroMode, astroLayers && astroLayers.tiltAxis]);
     const subPolkiSig = (subPolki || []).join("|");
     React.useEffect(() => {
       if (sceneRefs.current && sceneRefs.current.buildDrillGroup) {
@@ -5628,7 +5652,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T11:58:08.995Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T12:13:57.539Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
   const THEMES = [
     {
       "id": "chto-est-yasna",

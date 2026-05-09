@@ -10,7 +10,10 @@
 
 const { opp, rad } = window.YasnaData;
 
-function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki, solidMech, showCage, astroMode, tiltAxis, dayCycle }){
+function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki, solidMech, showCage, astroMode, astroLayers }){
+  // astroLayers — объект { tropics, arctics, parallels, ecliptic, zodiac, seasons,
+  //   meridians, cardinals, polaris, sun, sunCycle, terminator, dayNight, tiltAxis }
+  const AL = astroLayers || {};
   const canvasRef = React.useRef(null);
   // На мобиле стартовый camDist больше — чтобы весь шар помещался в узкую portrait-область
   const initCamDist = (typeof window!=='undefined' && window.innerWidth <= 768) ? 820 : 560;
@@ -20,8 +23,8 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
   });
   const sceneRefs = React.useRef(null);
   // Свежие props для animate-loop (избегаем stale closure)
-  const liveRef = React.useRef({ rotationOn, speedSec, sel, drill, af, solidMech, showCage, astroMode, tiltAxis, dayCycle });
-  React.useEffect(()=>{ liveRef.current = { rotationOn, speedSec, sel, drill, af, solidMech, showCage, astroMode, tiltAxis, dayCycle }; }, [rotationOn, speedSec, sel, drill, solidMech, showCage, astroMode, tiltAxis, dayCycle, JSON.stringify(af||[])]);
+  const liveRef = React.useRef({ rotationOn, speedSec, sel, drill, af, solidMech, showCage, astroMode, astroLayers });
+  React.useEffect(()=>{ liveRef.current = { rotationOn, speedSec, sel, drill, af, solidMech, showCage, astroMode, astroLayers }; }, [rotationOn, speedSec, sel, drill, solidMech, showCage, astroMode, JSON.stringify(astroLayers||{}), JSON.stringify(af||[])]);
 
   React.useEffect(()=>{
     if(typeof window==='undefined' || !window.THREE) return;
@@ -182,6 +185,21 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
     astroGroup.visible = false;  // инициально скрыт, useEffect синхронизирует с prop
     wheelGroup.add(astroGroup);
     let astroSun = null;  // ссылка на Солнце-маркер для анимации в loop'е
+    // Под-группы — каждая включается/отключается отдельно через astroLayers
+    const astroSubs = {
+      tropics:    new THREE.Group(),
+      arctics:    new THREE.Group(),
+      parallels:  new THREE.Group(),
+      ecliptic:   new THREE.Group(),
+      zodiac:     new THREE.Group(),
+      seasons:    new THREE.Group(),
+      meridians:  new THREE.Group(),
+      cardinals:  new THREE.Group(),
+      polaris:    new THREE.Group(),
+      sun:        new THREE.Group(),
+      terminator: new THREE.Group(),
+    };
+    Object.values(astroSubs).forEach(g => astroGroup.add(g));
     {
       const AXIAL_TILT = 23.5 * Math.PI / 180;  // 23.5° наклон оси Земли
       const ARCTIC = 66.5 * Math.PI / 180;       // 66.5° полярный круг (90 − 23.5)
@@ -204,13 +222,13 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       }
 
       // Тропик Рака (+23.5° широты) — золото
-      astroGroup.add(makeParallel(R * Math.sin(AXIAL_TILT), R * Math.cos(AXIAL_TILT), 0xC0943A, 0.65));
+      astroSubs.tropics.add(makeParallel(R * Math.sin(AXIAL_TILT), R * Math.cos(AXIAL_TILT), 0xC0943A, 0.65));
       // Тропик Козерога (−23.5° широты) — золото
-      astroGroup.add(makeParallel(-R * Math.sin(AXIAL_TILT), R * Math.cos(AXIAL_TILT), 0xC0943A, 0.65));
+      astroSubs.tropics.add(makeParallel(-R * Math.sin(AXIAL_TILT), R * Math.cos(AXIAL_TILT), 0xC0943A, 0.65));
       // Северный полярный круг (+66.5°) — VK Light Blue
-      astroGroup.add(makeParallel(R * Math.sin(ARCTIC), R * Math.cos(ARCTIC), 0x5B9CF6, 0.55, true));
+      astroSubs.arctics.add(makeParallel(R * Math.sin(ARCTIC), R * Math.cos(ARCTIC), 0x5B9CF6, 0.55, true));
       // Южный полярный круг (−66.5°) — VK Light Blue
-      astroGroup.add(makeParallel(-R * Math.sin(ARCTIC), R * Math.cos(ARCTIC), 0x5B9CF6, 0.55, true));
+      astroSubs.arctics.add(makeParallel(-R * Math.sin(ARCTIC), R * Math.cos(ARCTIC), 0x5B9CF6, 0.55, true));
 
       // Эклиптика — большой круг, наклонённый на 23.5° относительно экватора.
       // В невёрнутом мире плоскость экватора = XZ; эклиптика = XZ повёрнутый на 23.5° вокруг X.
@@ -228,7 +246,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
         }
         const geom = new THREE.BufferGeometry().setFromPoints(pts);
         const mat = new THREE.LineBasicMaterial({ color:0xF06838, transparent:true, opacity:0.75, linewidth:1.5 });
-        astroGroup.add(new THREE.Line(geom, mat));
+        astroSubs.ecliptic.add(new THREE.Line(geom, mat));
 
         // Sphere indicator on ecliptic plane — небольшой Sun marker в точке солнцестояния
         // (летнее: x=0, z=R, тогда y=R·sinT, z'=R·cosT)
@@ -238,7 +256,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
         });
         const sun = new THREE.Mesh(new THREE.SphereGeometry(2.8, 24, 16), sunMat);
         sun.position.set(0, R * sinT, R * cosT);
-        astroGroup.add(sun);
+        astroSubs.sun.add(sun);
         astroSun = sun;  // сохраняем для анимации в animate loop'е
       }
 
@@ -257,7 +275,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
           linewidth: 1.5,
         });
         const terminator = new THREE.LineLoop(geom, mat);
-        astroGroup.add(terminator);
+        astroSubs.terminator.add(terminator);
         astroGroup.userData.terminator = terminator;
       }
 
@@ -268,8 +286,8 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
         const rad = deg * Math.PI / 180;
         const y = R * Math.sin(rad);
         const r = R * Math.cos(rad);
-        astroGroup.add(makeParallel( y, r, 0x6B7382, 0.22));
-        astroGroup.add(makeParallel(-y, r, 0x6B7382, 0.22));
+        astroSubs.parallels.add(makeParallel( y, r, 0x6B7382, 0.22));
+        astroSubs.parallels.add(makeParallel(-y, r, 0x6B7382, 0.22));
       });
 
       // ─── 12 меридианов — вертикальные полудуги через апексы ──────
@@ -298,7 +316,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
           transparent: true,
           opacity: isCardinal ? 0.42 : 0.18,
         });
-        astroGroup.add(new THREE.Line(geom, mat));
+        astroSubs.meridians.add(new THREE.Line(geom, mat));
       }
 
       // ─── Подписи кардинальных точек на экваторе ──────────────────
@@ -321,7 +339,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
           if(sprite){
             const dir = p.clone().normalize();
             sprite.position.copy(p).addScaledVector(dir, 8);
-            astroGroup.add(sprite);
+            astroSubs.cardinals.add(sprite);
           }
         });
 
@@ -353,7 +371,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
           if(sprite){
             const dir = pt.clone().normalize();
             sprite.position.copy(pt).addScaledVector(dir, 16);
-            astroGroup.add(sprite);
+            astroSubs.seasons.add(sprite);
           }
         });
 
@@ -366,7 +384,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
         });
         if(polarisSprite){
           polarisSprite.position.set(0, NORTH.y + 18, 0);
-          astroGroup.add(polarisSprite);
+          astroSubs.polaris.add(polarisSprite);
         }
 
         // ─── 12 знаков Зодиака на эклиптике ───────────────────────
@@ -412,7 +430,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
             // Вынести немного наружу эклиптики
             const dir = pt.clone().normalize();
             sprite.position.copy(pt).addScaledVector(dir, 10);
-            astroGroup.add(sprite);
+            astroSubs.zodiac.add(sprite);
           }
         });
       }
@@ -1116,10 +1134,12 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
         const speedDeg = 360 / ((live.speedSec||24) * 1000);
         wheelGroup.rotation.y += dir * dt * speedDeg * Math.PI/180;
       }
-      // Цикл Солнца — движение по эклиптике + пульсация + терминатор + день/ночь.
-      // Активно только когда астро-режим включён И dayCycle включён.
-      const dayCycleOn = !!(astroSun && live.astroMode && live.dayCycle);
-      if(dayCycleOn){
+      // Цикл Солнца — движение по эклиптике + пульсация. Управляется
+      // флагами astroLayers.sunCycle и astroLayers.terminator/dayNight.
+      const L = (live.astroLayers||{});
+      const sunCycleOn = !!(astroSun && live.astroMode && L.sunCycle);
+      const dayCycleOn = sunCycleOn;  // alias для совместимости с дальнейшим кодом
+      if(sunCycleOn){
         // Один полный обход эклиптики за live.speedSec секунд
         const cycleMs = (live.speedSec||24) * 1000;
         sunAng += (dt / cycleMs) * Math.PI * 2;
@@ -1157,13 +1177,11 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
             positions[i*3+2] = cz * R;
           }
           term.geometry.attributes.position.needsUpdate = true;
-          term.visible = true;
+          // Видимость терминатора управляется отдельным флагом + астро-режимом
+          term.visible = !!(live.astroMode && L.terminator);
         }
       } else if(astroSun){
         astroSun.material && (astroSun.material.emissiveIntensity = 0.7);
-        // Скрыть терминатор когда цикл выключен
-        const term = astroGroup.userData.terminator;
-        if(term) term.visible = false;
       }
       // Selected polka — пульсация emissive + лёгкое увеличение
       pulsePhase += dt * 0.003;
@@ -1199,8 +1217,8 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
 
       // День/ночь подсветка полок — модулирует яркость каждой полки в зависимости
       // от dot product между направлением на полку и направлением на Солнце.
-      // Только когда астро-режим + цикл Солнца активны, и полка не выбрана/в drill.
-      if(dayCycleOn && astroSun && !drilling){
+      // Активно когда астро-режим + dayNight + sunCycle включены.
+      if(astroSun && live.astroMode && L.dayNight && L.sunCycle && !drilling){
         const sunDir = astroSun.position.clone().normalize();
         polki.forEach((p, i) => {
           if(i === live.sel) return;  // выбранная полка имеет свою пульсацию
@@ -1255,7 +1273,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
     };
     raf = requestAnimationFrame(animate);
 
-    sceneRefs.current = { rebuildMechanics, buildDrillGroup, subPolki: subPolkiArr, cageMesh, equatorTube, astroGroup, wheelGroup, astroSun };
+    sceneRefs.current = { rebuildMechanics, buildDrillGroup, subPolki: subPolkiArr, cageMesh, equatorTube, astroGroup, wheelGroup, astroSun, astroSubs };
 
     return ()=>{
       cancelAnimationFrame(raf);
@@ -1302,22 +1320,32 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
     }
   }, [showCage]);
 
-  // Астрономический режим — показ/скрытие astroGroup (тропики, эклиптика, кардинальные подписи)
+  // Астрономический режим — мастер-toggle всей astroGroup
   React.useEffect(()=>{
     if(sceneRefs.current && sceneRefs.current.astroGroup){
       sceneRefs.current.astroGroup.visible = !!astroMode;
     }
   }, [astroMode]);
 
+  // Под-слои — каждый управляется индивидуально через astroLayers
+  React.useEffect(()=>{
+    if(!sceneRefs.current || !sceneRefs.current.astroSubs) return;
+    const subs = sceneRefs.current.astroSubs;
+    const L = astroLayers || {};
+    Object.keys(subs).forEach(key=>{
+      subs[key].visible = !!L[key];
+    });
+  }, [JSON.stringify(astroLayers||{})]);
+
   // Наклон оси Земли — поворот wheelGroup на 23.5° вокруг оси Z.
-  // Когда выключен — ось вертикальна (стандартный вид Ясны).
-  // Когда включён — модель становится «как настоящая Земля» с наклонной осью.
+  // Управляется через astroLayers.tiltAxis.
   React.useEffect(()=>{
     if(sceneRefs.current && sceneRefs.current.wheelGroup){
-      const target = tiltAxis ? (23.5 * Math.PI / 180) : 0;
+      const tilt = !!(astroLayers && astroLayers.tiltAxis) && !!astroMode;
+      const target = tilt ? (23.5 * Math.PI / 180) : 0;
       sceneRefs.current.wheelGroup.rotation.z = target;
     }
-  }, [tiltAxis]);
+  }, [astroMode, astroLayers && astroLayers.tiltAxis]);
 
   // Перестроение drillGroup при смене drill / subPolki
   // Используем стабильный signature вместо JSON.stringify на каждый render
