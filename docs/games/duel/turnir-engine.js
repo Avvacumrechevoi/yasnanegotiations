@@ -379,7 +379,8 @@
       onSubmit([...picks].sort());
     }
 
-    const chosenSet = chosen ? new Set(chosen) : null;
+    // Защита: chosen может быть -1 (timeout) — не итерируется, Set бросит.
+    const chosenSet = Array.isArray(chosen) ? new Set(chosen) : null;
 
     return React.createElement('div', { className: 'tn-options tn-options-multi', role: 'group' },
       React.createElement('div', { className: 'tn-multi-list' },
@@ -975,17 +976,26 @@
       feedbackKind = chosen == null ? 'timeout' : (playerCorrect ? 'correct' : 'wrong');
     } else if(qType === 'multi-choice'){
       const correctSorted = [...(q.correct || [])].sort();
-      const pickedSorted  = chosen ? [...chosen].sort() : [];
-      playerCorrect = chosen != null &&
+      // Защита: chosen может быть -1 (timeout) — НЕ массивом. Проверяем тип.
+      const pickedSorted = Array.isArray(chosen) ? [...chosen].sort() : [];
+      playerCorrect = Array.isArray(chosen) &&
         correctSorted.length === pickedSorted.length &&
         correctSorted.every((v, i) => v === pickedSorted[i]);
-      feedbackKind = chosen == null ? 'timeout' : (playerCorrect ? 'correct' : 'wrong');
+      feedbackKind = chosen == null ? 'timeout' :
+                     (chosen === -1 ? 'timeout' :
+                     (playerCorrect ? 'correct' : 'wrong'));
     } else if(qType === 'match-pair'){
       const total = (q.pairsLeft || []).length;
       let cc = 0;
-      if(chosen){ for(let i = 0; i < total; i++){ if(chosen[i] === i) cc++; } }
-      playerCorrect = cc === total && chosen != null;
-      feedbackKind = chosen == null ? 'timeout' : (playerCorrect ? 'correct' : 'wrong');
+      // Защита: chosen для match-pair это объект {leftIdx: rightOrigIdx}.
+      // На timeout будет -1 (число) — пропускаем подсчёт.
+      if(chosen && typeof chosen === 'object'){
+        for(let i = 0; i < total; i++){ if(chosen[i] === i) cc++; }
+      }
+      playerCorrect = cc === total && chosen && typeof chosen === 'object';
+      feedbackKind = chosen == null ? 'timeout' :
+                     (chosen === -1 ? 'timeout' :
+                     (playerCorrect ? 'correct' : 'wrong'));
     } else {
       playerCorrect = chosen === q.correct;
       feedbackKind = chosen === -1 ? 'timeout' : (playerCorrect ? 'correct' : 'wrong');

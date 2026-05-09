@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T23:13:54.325Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T23:23:33.795Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5877,7 +5877,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T23:13:53.401Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T23:23:32.749Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -19392,7 +19392,7 @@ window.YasnaCore = {
       if (showFeedback || picks.size === 0) return;
       onSubmit([...picks].sort());
     }
-    const chosenSet = chosen ? new Set(chosen) : null;
+    const chosenSet = Array.isArray(chosen) ? new Set(chosen) : null;
     return React.createElement(
       "div",
       { className: "tn-options tn-options-multi", role: "group" },
@@ -19978,19 +19978,19 @@ window.YasnaCore = {
       feedbackKind = chosen == null ? "timeout" : playerCorrect ? "correct" : "wrong";
     } else if (qType === "multi-choice") {
       const correctSorted = [...q.correct || []].sort();
-      const pickedSorted = chosen ? [...chosen].sort() : [];
-      playerCorrect = chosen != null && correctSorted.length === pickedSorted.length && correctSorted.every((v, i) => v === pickedSorted[i]);
-      feedbackKind = chosen == null ? "timeout" : playerCorrect ? "correct" : "wrong";
+      const pickedSorted = Array.isArray(chosen) ? [...chosen].sort() : [];
+      playerCorrect = Array.isArray(chosen) && correctSorted.length === pickedSorted.length && correctSorted.every((v, i) => v === pickedSorted[i]);
+      feedbackKind = chosen == null ? "timeout" : chosen === -1 ? "timeout" : playerCorrect ? "correct" : "wrong";
     } else if (qType === "match-pair") {
       const total = (q.pairsLeft || []).length;
       let cc = 0;
-      if (chosen) {
+      if (chosen && typeof chosen === "object") {
         for (let i = 0; i < total; i++) {
           if (chosen[i] === i) cc++;
         }
       }
-      playerCorrect = cc === total && chosen != null;
-      feedbackKind = chosen == null ? "timeout" : playerCorrect ? "correct" : "wrong";
+      playerCorrect = cc === total && chosen && typeof chosen === "object";
+      feedbackKind = chosen == null ? "timeout" : chosen === -1 ? "timeout" : playerCorrect ? "correct" : "wrong";
     } else {
       playerCorrect = chosen === q.correct;
       feedbackKind = chosen === -1 ? "timeout" : playerCorrect ? "correct" : "wrong";
