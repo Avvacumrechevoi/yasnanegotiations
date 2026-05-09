@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,viewport-fit=cover"/>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <title>Как устроен рейтинг · Ясна</title>
-<meta name="description" content="Две шкалы прогресса в Ясне: личное Освоение (бусины) и Турнирная Каста (PvP-ранг). Как считается, как растёт, как соотносится."/>
+<meta name="description" content="Две шкалы прогресса в Ясне: личное Освоение (бусины) и Турнирная Каста (PvP-ранг)."/>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>"/>
 
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -13,10 +13,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 
 <link rel="stylesheet" href="../vk-tech-tokens.css?v=14"/>
-<link rel="stylesheet" href="games/duel/duel-page.css"/>
-<link rel="stylesheet" href="games/duel/theme-vk-dark.css?v=14"/>
 
 <style>
+  * { box-sizing: border-box; }
   body {
     margin: 0;
     background: #0a0a0a;
@@ -26,7 +25,7 @@
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
   }
-  .rt-shell { max-width: 880px; margin: 0 auto; padding: 32px 24px 80px; }
+  .rt-shell { max-width: 880px; margin: 0 auto; padding: 32px 24px 96px; }
 
   .rt-back {
     display: inline-flex; align-items: center; gap: 6px;
@@ -37,6 +36,7 @@
   }
   .rt-back:hover { background: rgba(255,255,255,.04); color: #fff; }
 
+  /* ─── Hero ─────────────────────────────────────────────────────── */
   .rt-eyebrow {
     display: inline-block;
     font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
@@ -46,94 +46,223 @@
   }
   .rt-h1 {
     font-family: 'Manrope', ui-serif, Georgia, serif;
-    font-size: 40px; font-weight: 600; line-height: 1.1;
+    font-size: clamp(32px, 5vw, 44px); font-weight: 600; line-height: 1.08;
     letter-spacing: -0.02em;
-    margin: 0 0 14px;
+    margin: 0 0 16px;
   }
   .rt-lead {
     font-size: 17px; color: #aeaeb2; max-width: 640px;
-    margin: 0 0 48px; line-height: 1.55;
+    margin: 0 0 56px; line-height: 1.55;
   }
+  .rt-lead strong { color: #fff; font-weight: 500; }
 
-  .rt-tracks {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
-    margin-bottom: 48px;
-  }
-  @media (max-width: 720px) { .rt-tracks { grid-template-columns: 1fr; } }
-
+  /* ─── Track section ────────────────────────────────────────────── */
   .rt-track {
+    margin-bottom: 80px;
+  }
+  .rt-track-head {
+    display: flex; align-items: center; gap: 16px;
+    margin-bottom: 24px;
+  }
+  .rt-track-icon {
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .rt-track-icon svg { width: 28px; height: 28px; }
+  .rt-track-icon--mastery {
+    background: rgba(89,168,64,.16);
+    border: 1px solid rgba(89,168,64,.32);
+    color: #A4D480;
+  }
+  .rt-track-icon--caste {
+    background: rgba(0,119,255,.16);
+    border: 1px solid rgba(0,119,255,.32);
+    color: #5B9CF6;
+  }
+  .rt-track-titles { flex: 1; min-width: 0; }
+  .rt-track-eyebrow {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: #6e6e73;
+    margin-bottom: 4px;
+  }
+  .rt-track-h2 {
+    font-family: 'Manrope', ui-serif, Georgia, serif;
+    font-size: 28px; font-weight: 600; line-height: 1.15;
+    letter-spacing: -0.012em; margin: 0;
+  }
+
+  .rt-track-lead {
+    font-size: 15.5px; color: #d2d2d7; line-height: 1.6;
+    margin: 0 0 28px; max-width: 640px;
+  }
+  .rt-track-lead strong { color: #fff; font-weight: 600; }
+
+  /* ─── Formula stat-cards (заменяет green code block) ──────────── */
+  .rt-formula {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+  @media (max-width: 640px) { .rt-formula { grid-template-columns: 1fr 1fr; } }
+
+  .rt-formula__card {
     background: rgba(255,255,255,.04);
     border: 1px solid rgba(255,255,255,.08);
-    border-radius: 18px;
-    padding: 24px;
+    border-radius: 14px;
+    padding: 18px 16px;
+    text-align: center;
+  }
+  .rt-formula__card--accent {
+    background: var(--accent-bg, rgba(89,168,64,.10));
+    border-color: var(--accent-border, rgba(89,168,64,.25));
+  }
+  .rt-formula__big {
+    font-family: 'Manrope', ui-serif, Georgia, serif;
+    font-size: 34px; font-weight: 700; line-height: 1;
+    color: var(--accent, #A4D480);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.015em;
+    margin-bottom: 6px;
+  }
+  .rt-formula__label {
+    font-size: 11.5px; color: #aeaeb2; line-height: 1.4;
+    font-weight: 500;
+  }
+
+  /* ─── Level progress bar (визуальная шкала уровней) ────────────── */
+  .rt-levels-bar {
+    margin-bottom: 32px;
+  }
+  .rt-levels-bar-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: #6e6e73;
+    margin-bottom: 14px;
+  }
+  .rt-levels-track {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+    height: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .rt-levels-track__seg {
+    background: var(--seg-bg, rgba(255,255,255,.06));
+    transition: opacity .2s ease;
+  }
+  .rt-track--mastery .rt-levels-track__seg { background: var(--seg-bg, rgba(89,168,64,.12)); }
+  .rt-track--mastery .rt-levels-track__seg:nth-child(1) { background: rgba(89,168,64,.30); }
+  .rt-track--mastery .rt-levels-track__seg:nth-child(2) { background: rgba(89,168,64,.45); }
+  .rt-track--mastery .rt-levels-track__seg:nth-child(3) { background: rgba(89,168,64,.60); }
+  .rt-track--mastery .rt-levels-track__seg:nth-child(4) { background: rgba(89,168,64,.78); }
+  .rt-track--mastery .rt-levels-track__seg:nth-child(5) { background: rgba(89,168,64,1); }
+
+  .rt-track--caste .rt-levels-track__seg:nth-child(1) { background: rgba(0,119,255,.26); }
+  .rt-track--caste .rt-levels-track__seg:nth-child(2) { background: rgba(0,119,255,.42); }
+  .rt-track--caste .rt-levels-track__seg:nth-child(3) { background: rgba(0,119,255,.58); }
+  .rt-track--caste .rt-levels-track__seg:nth-child(4) { background: rgba(0,119,255,.78); }
+  .rt-track--caste .rt-levels-track__seg:nth-child(5) { background: rgba(0,119,255,1); }
+
+  /* Level cards under the bar */
+  .rt-levels-cards {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+  @media (max-width: 720px) {
+    .rt-levels-cards { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 420px) {
+    .rt-levels-cards { grid-template-columns: 1fr; }
+  }
+
+  .rt-level-card {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 12px;
+    padding: 14px 12px;
+    text-align: center;
     position: relative;
   }
-  .rt-track--mastery { --hue: #59A840; }
-  .rt-track--caste   { --hue: #0077FF; }
-
-  .rt-track__icon {
-    width: 44px; height: 44px;
-    border-radius: 12px;
-    background: color-mix(in srgb, var(--hue) 16%, transparent);
-    border: 1px solid color-mix(in srgb, var(--hue) 30%, transparent);
-    display: inline-flex; align-items: center; justify-content: center;
-    color: var(--hue);
-    margin-bottom: 16px;
+  .rt-level-card__name {
+    font-size: 13px; font-weight: 600; color: #fff;
+    margin-bottom: 6px; line-height: 1.2;
   }
-  .rt-track__icon svg { width: 24px; height: 24px; }
-  .rt-track__title {
-    font-family: 'Manrope', ui-serif, Georgia, serif;
-    font-size: 22px; font-weight: 600; margin: 0 0 4px;
-    letter-spacing: -0.01em;
-  }
-  .rt-track__sub {
-    font-size: 13px; color: #aeaeb2; margin: 0 0 18px;
-    text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600;
-  }
-  .rt-track__lead {
-    font-size: 14.5px; line-height: 1.55; color: #d2d2d7;
-    margin: 0 0 20px;
-  }
-  .rt-track__formula {
-    background: rgba(0,0,0,.30);
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 10px;
-    padding: 12px 14px;
+  .rt-level-card__range {
+    font-size: 11px; color: #aeaeb2;
+    font-variant-numeric: tabular-nums;
     font-family: 'SF Mono', ui-monospace, Menlo, monospace;
-    font-size: 12px;
-    color: var(--hue);
-    margin-bottom: 18px;
-    line-height: 1.6;
+    line-height: 1.4;
   }
-  .rt-track__levels {
-    display: flex; flex-direction: column; gap: 4px;
-    margin: 0; padding: 0; list-style: none;
+  .rt-level-card__dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    margin: 0 auto 8px;
   }
-  .rt-track__levels li {
-    display: flex; justify-content: space-between; align-items: baseline;
-    gap: 12px; padding: 6px 0;
-    font-size: 13px;
+  .rt-track--mastery .rt-level-card:nth-child(1) .rt-level-card__dot { background: rgba(89,168,64,.35); }
+  .rt-track--mastery .rt-level-card:nth-child(2) .rt-level-card__dot { background: rgba(89,168,64,.55); }
+  .rt-track--mastery .rt-level-card:nth-child(3) .rt-level-card__dot { background: rgba(89,168,64,.72); }
+  .rt-track--mastery .rt-level-card:nth-child(4) .rt-level-card__dot { background: rgba(89,168,64,.90); }
+  .rt-track--mastery .rt-level-card:nth-child(5) .rt-level-card__dot { background: #59A840; box-shadow: 0 0 10px rgba(89,168,64,0.5); }
+
+  .rt-track--caste .rt-level-card:nth-child(1) .rt-level-card__dot { background: rgba(0,119,255,.32); }
+  .rt-track--caste .rt-level-card:nth-child(2) .rt-level-card__dot { background: rgba(0,119,255,.50); }
+  .rt-track--caste .rt-level-card:nth-child(3) .rt-level-card__dot { background: rgba(0,119,255,.68); }
+  .rt-track--caste .rt-level-card:nth-child(4) .rt-level-card__dot { background: rgba(0,119,255,.86); }
+  .rt-track--caste .rt-level-card:nth-child(5) .rt-level-card__dot { background: #0077FF; box-shadow: 0 0 10px rgba(0,119,255,0.5); }
+
+  /* ─── PR Delta example (визуальная иллюстрация ELO) ────────────── */
+  .rt-delta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 32px 0;
+  }
+  @media (max-width: 640px) { .rt-delta-grid { grid-template-columns: 1fr; } }
+
+  .rt-delta-card {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 14px;
+    padding: 18px 20px;
+  }
+  .rt-delta-card__title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: #aeaeb2;
+    margin-bottom: 14px;
+  }
+  .rt-delta-card__row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px;
+    font-size: 13.5px;
+    padding: 8px 0;
     border-bottom: 1px dashed rgba(255,255,255,.06);
   }
-  .rt-track__levels li:last-child { border-bottom: 0; }
-  .rt-track__level-name { color: #fff; font-weight: 500; }
-  .rt-track__level-range {
-    color: #aeaeb2; font-variant-numeric: tabular-nums;
-    font-size: 11.5px; font-family: 'SF Mono', ui-monospace, monospace;
+  .rt-delta-card__row:last-child { border-bottom: 0; }
+  .rt-delta-card__row span:first-child { color: #d2d2d7; }
+  .rt-delta-card__delta {
+    font-weight: 700; font-variant-numeric: tabular-nums;
+    font-family: 'SF Mono', ui-monospace, Menlo, monospace;
   }
+  .rt-delta-card__delta--win { color: #A4D480; }
+  .rt-delta-card__delta--lose { color: #F2949C; }
 
-  .rt-section { margin-top: 48px; }
+  /* ─── Comparison section ───────────────────────────────────────── */
+  .rt-section { margin-top: 64px; }
   .rt-section-title {
     font-family: 'Manrope', ui-serif, Georgia, serif;
-    font-size: 24px; font-weight: 600; margin: 0 0 16px;
-    letter-spacing: -0.01em;
+    font-size: 24px; font-weight: 600; margin: 0 0 20px;
+    letter-spacing: -0.012em;
   }
   .rt-section-text {
     font-size: 15px; color: #d2d2d7; line-height: 1.65;
     margin: 0 0 12px; max-width: 640px;
   }
+  .rt-section-text strong { color: #fff; font-weight: 600; }
 
-  /* Сравнительная таблица */
   .rt-compare {
     background: rgba(255,255,255,.04);
     border: 1px solid rgba(255,255,255,.08);
@@ -143,7 +272,7 @@
   }
   .rt-compare table { width: 100%; border-collapse: collapse; }
   .rt-compare th, .rt-compare td {
-    padding: 12px 16px; text-align: left;
+    padding: 14px 18px; text-align: left;
     border-bottom: 1px solid rgba(255,255,255,.06);
     font-size: 13.5px;
   }
@@ -156,37 +285,43 @@
   .rt-compare td:first-child { color: #fff; font-weight: 500; }
   .rt-tag {
     display: inline-flex; align-items: center; gap: 4px;
-    padding: 2px 8px; border-radius: 999px; font-size: 11px;
-    font-weight: 600;
+    padding: 3px 9px; border-radius: 999px; font-size: 11px;
+    font-weight: 600; white-space: nowrap;
   }
-  .rt-tag--mastery { background: rgba(89,168,64,.16); color: #A4D480; }
-  .rt-tag--caste { background: rgba(0,119,255,.14); color: #5B9CF6; }
-  .rt-tag--neutral { background: rgba(255,255,255,.06); color: #aeaeb2; }
+  .rt-tag--mastery { background: rgba(89,168,64,.18); color: #A4D480; border: 1px solid rgba(89,168,64,.30); }
+  .rt-tag--caste { background: rgba(0,119,255,.16); color: #5B9CF6; border: 1px solid rgba(0,119,255,.30); }
+  .rt-tag--neutral { background: rgba(255,255,255,.06); color: #aeaeb2; border: 1px solid rgba(255,255,255,.10); }
 
-  /* FAQ */
+  /* ─── FAQ ──────────────────────────────────────────────────────── */
   .rt-faq { display: flex; flex-direction: column; gap: 10px; }
   .rt-faq details {
     background: rgba(255,255,255,.04);
     border: 1px solid rgba(255,255,255,.08);
     border-radius: 12px;
     padding: 14px 18px;
+    transition: background .15s ease;
   }
+  .rt-faq details:hover { background: rgba(255,255,255,.06); }
+  .rt-faq details[open] { background: rgba(255,255,255,.06); }
   .rt-faq summary {
     font-size: 15px; font-weight: 600; color: #fff;
     cursor: pointer; list-style: none;
     display: flex; justify-content: space-between; align-items: center;
   }
-  .rt-faq summary::after { content: '+'; font-size: 20px; color: #aeaeb2; }
+  .rt-faq summary::after {
+    content: '+'; font-size: 22px; color: #aeaeb2;
+    line-height: 1; transition: transform .2s ease;
+  }
   .rt-faq details[open] summary::after { content: '−'; }
   .rt-faq details p {
     margin: 12px 0 0; color: #d2d2d7; font-size: 14px; line-height: 1.6;
   }
 
-  /* Сноска */
+  /* ─── Foot ─────────────────────────────────────────────────────── */
   .rt-foot {
     margin-top: 64px; padding-top: 32px;
     border-top: 1px solid rgba(255,255,255,.08);
-    color: #6e6e73; font-size: 13px; font-style: italic;
+    color: #6e6e73; font-size: 12.5px; font-style: italic;
     line-height: 1.6;
   }
   .rt-foot strong { color: #aeaeb2; font-style: normal; }
@@ -197,46 +332,96 @@
 
   <a href="duel.html" class="rt-back">← к Ясне</a>
 
+  <!-- ═══ Hero ═══ -->
   <div class="rt-eyebrow">✦ Рейтинг</div>
   <h1 class="rt-h1">Две шкалы прогресса</h1>
   <p class="rt-lead">
     В Ясне твой путь измеряется по двум независимым шкалам.
-    <strong style="color:#fff">Освоение</strong> — личный накопительный опыт, который не теряется.
-    <strong style="color:#fff">Каста</strong> — соревновательный ранг в играх с другими людьми.
-    Каждая шкала отвечает на разный вопрос: «сколько знаешь» и «как играешь».
+    <strong>Освоение</strong> — личный накопительный опыт, который не теряется.
+    <strong>Каста</strong> — соревновательный ранг в играх с другими людьми.
+    Каждая отвечает на свой вопрос: «сколько знаешь» и «как играешь».
   </p>
 
-  <!-- Две карточки шкал -->
-  <div class="rt-tracks">
-
-    <div class="rt-track rt-track--mastery">
-      <div class="rt-track__icon" aria-hidden="true">
+  <!-- ═══ Track 1: Освоение ═══════════════════════════════════════ -->
+  <section class="rt-track rt-track--mastery">
+    <div class="rt-track-head">
+      <div class="rt-track-icon rt-track-icon--mastery" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 2l2.4 6.8 7.1.4-5.5 4.6 1.9 6.9L12 17.3 6.1 20.7l1.9-6.9L2.5 9.2l7.1-.4z"/>
         </svg>
       </div>
-      <h2 class="rt-track__title">Освоение</h2>
-      <div class="rt-track__sub">Личный путь · ✦ Бусины</div>
-      <p class="rt-track__lead">
-        Сколько ты знаешь Ясну и как часто играешь.
-        Растёт от каждой партии — соло или PvP. <strong style="color:#fff">Никогда не падает.</strong>
-      </p>
-      <div class="rt-track__formula">
-        ✦ за верный ответ: 10<br>
-        ✦ за скорость: до +5<br>
-        × 1.2 / 1.5 / 2.0 при серии 3 / 5 / 7+
+      <div class="rt-track-titles">
+        <div class="rt-track-eyebrow">Личный путь · ✦ Бусины</div>
+        <h2 class="rt-track-h2">Освоение</h2>
       </div>
-      <ul class="rt-track__levels">
-        <li><span class="rt-track__level-name">Послушник</span><span class="rt-track__level-range">0 — 999 ✦</span></li>
-        <li><span class="rt-track__level-name">Студент</span><span class="rt-track__level-range">1 000 — 4 999 ✦</span></li>
-        <li><span class="rt-track__level-name">Бакалавр</span><span class="rt-track__level-range">5 000 — 14 999 ✦</span></li>
-        <li><span class="rt-track__level-name">Магистр</span><span class="rt-track__level-range">15 000 — 49 999 ✦</span></li>
-        <li><span class="rt-track__level-name">Адепт</span><span class="rt-track__level-range">50 000 + ✦</span></li>
-      </ul>
     </div>
 
-    <div class="rt-track rt-track--caste">
-      <div class="rt-track__icon" aria-hidden="true">
+    <p class="rt-track-lead">
+      Сколько ты знаешь Ясну и как часто играешь.
+      Растёт от каждой партии — соло или PvP. <strong>Никогда не падает.</strong>
+      Это шкала «сколько знаешь».
+    </p>
+
+    <!-- Formula stat-cards -->
+    <div class="rt-formula" style="--accent: #A4D480; --accent-bg: rgba(89,168,64,.10); --accent-border: rgba(89,168,64,.25);">
+      <div class="rt-formula__card rt-formula__card--accent">
+        <div class="rt-formula__big">10 ✦</div>
+        <div class="rt-formula__label">за верный ответ</div>
+      </div>
+      <div class="rt-formula__card rt-formula__card--accent">
+        <div class="rt-formula__big">+5 ✦</div>
+        <div class="rt-formula__label">бонус за скорость</div>
+      </div>
+      <div class="rt-formula__card rt-formula__card--accent">
+        <div class="rt-formula__big">×2.0</div>
+        <div class="rt-formula__label">множитель при серии 7+</div>
+      </div>
+    </div>
+
+    <!-- Level progress bar -->
+    <div class="rt-levels-bar">
+      <div class="rt-levels-bar-title">Ступени · от Послушника до Адепта</div>
+      <div class="rt-levels-track">
+        <div class="rt-levels-track__seg" title="Послушник"></div>
+        <div class="rt-levels-track__seg" title="Студент"></div>
+        <div class="rt-levels-track__seg" title="Бакалавр"></div>
+        <div class="rt-levels-track__seg" title="Магистр"></div>
+        <div class="rt-levels-track__seg" title="Адепт"></div>
+      </div>
+      <div class="rt-levels-cards">
+        <div class="rt-level-card">
+          <div class="rt-level-card__dot"></div>
+          <div class="rt-level-card__name">Послушник</div>
+          <div class="rt-level-card__range">0 — 999 ✦</div>
+        </div>
+        <div class="rt-level-card">
+          <div class="rt-level-card__dot"></div>
+          <div class="rt-level-card__name">Студент</div>
+          <div class="rt-level-card__range">1k — 4.9k ✦</div>
+        </div>
+        <div class="rt-level-card">
+          <div class="rt-level-card__dot"></div>
+          <div class="rt-level-card__name">Бакалавр</div>
+          <div class="rt-level-card__range">5k — 14.9k ✦</div>
+        </div>
+        <div class="rt-level-card">
+          <div class="rt-level-card__dot"></div>
+          <div class="rt-level-card__name">Магистр</div>
+          <div class="rt-level-card__range">15k — 49.9k ✦</div>
+        </div>
+        <div class="rt-level-card">
+          <div class="rt-level-card__dot"></div>
+          <div class="rt-level-card__name">Адепт</div>
+          <div class="rt-level-card__range">50k+ ✦</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Track 2: Каста ═════════════════════════════════════════ -->
+  <section class="rt-track rt-track--caste">
+    <div class="rt-track-head">
+      <div class="rt-track-icon rt-track-icon--caste" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="8" cy="9" r="3"/>
           <circle cx="17" cy="10" r="2.5"/>
@@ -244,35 +429,114 @@
           <path d="M14 20c.4-2.4 2.4-4.2 4.8-4.2s4.4 1.8 4.8 4.2"/>
         </svg>
       </div>
-      <h2 class="rt-track__title">Каста</h2>
-      <div class="rt-track__sub">Турнирный ранг · PR (Player Rank)</div>
-      <p class="rt-track__lead">
-        Твоё место среди живых игроков. Меняется <strong style="color:#fff">только в PvP</strong> —
-        с ботами эта шкала не растёт. Может расти и падать.
-      </p>
-      <div class="rt-track__formula">
-        Старт: PR 1200<br>
-        Победа над сильным: +большое ΔPR<br>
-        Поражение от слабого: −большое ΔPR<br>
-        Формула: упрощённая ELO (K = 32)
+      <div class="rt-track-titles">
+        <div class="rt-track-eyebrow">Турнирный ранг · PR (Player Rank)</div>
+        <h2 class="rt-track-h2">Каста</h2>
       </div>
-      <ul class="rt-track__levels">
-        <li><span class="rt-track__level-name">Странник</span><span class="rt-track__level-range">< 1100</span></li>
-        <li><span class="rt-track__level-name">Юнкер</span><span class="rt-track__level-range">1 100 — 1 399</span></li>
-        <li><span class="rt-track__level-name">Игрок</span><span class="rt-track__level-range">1 400 — 1 699</span></li>
-        <li><span class="rt-track__level-name">Магистр Игры</span><span class="rt-track__level-range">1 700 — 1 999</span></li>
-        <li><span class="rt-track__level-name">Великий Магистр</span><span class="rt-track__level-range">2 000 +</span></li>
-      </ul>
     </div>
 
-  </div>
+    <p class="rt-track-lead">
+      Твоё место среди живых игроков. Меняется <strong>только в PvP</strong> —
+      с ботами эта шкала не растёт. Может расти и падать — это здоровый соревновательный сигнал.
+      Старт — <strong>PR 1200</strong>.
+    </p>
 
-  <!-- Сравнительная таблица -->
+    <!-- Formula -->
+    <div class="rt-formula" style="--accent: #5B9CF6; --accent-bg: rgba(0,119,255,.10); --accent-border: rgba(0,119,255,.25);">
+      <div class="rt-formula__card rt-formula__card--accent">
+        <div class="rt-formula__big">1200</div>
+        <div class="rt-formula__label">старт PR</div>
+      </div>
+      <div class="rt-formula__card rt-formula__card--accent">
+        <div class="rt-formula__big">±32</div>
+        <div class="rt-formula__label">K-фактор ELO</div>
+      </div>
+      <div class="rt-formula__card rt-formula__card--accent">
+        <div class="rt-formula__big">800</div>
+        <div class="rt-formula__label">пол — ниже не упасть</div>
+      </div>
+    </div>
+
+    <!-- Delta examples (визуальная иллюстрация ELO) -->
+    <div class="rt-delta-grid">
+      <div class="rt-delta-card">
+        <div class="rt-delta-card__title">↑ Победа</div>
+        <div class="rt-delta-card__row">
+          <span>над сильнее (1400)</span>
+          <span class="rt-delta-card__delta rt-delta-card__delta--win">+24</span>
+        </div>
+        <div class="rt-delta-card__row">
+          <span>над равным (1200)</span>
+          <span class="rt-delta-card__delta rt-delta-card__delta--win">+16</span>
+        </div>
+        <div class="rt-delta-card__row">
+          <span>над слабее (1000)</span>
+          <span class="rt-delta-card__delta rt-delta-card__delta--win">+8</span>
+        </div>
+      </div>
+      <div class="rt-delta-card">
+        <div class="rt-delta-card__title">↓ Поражение</div>
+        <div class="rt-delta-card__row">
+          <span>от сильнее (1400)</span>
+          <span class="rt-delta-card__delta rt-delta-card__delta--lose">−8</span>
+        </div>
+        <div class="rt-delta-card__row">
+          <span>от равного (1200)</span>
+          <span class="rt-delta-card__delta rt-delta-card__delta--lose">−16</span>
+        </div>
+        <div class="rt-delta-card__row">
+          <span>от слабее (1000)</span>
+          <span class="rt-delta-card__delta rt-delta-card__delta--lose">−24</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Caste levels bar -->
+    <div class="rt-levels-bar">
+      <div class="rt-levels-bar-title">Касты · от Странника до Великого Магистра</div>
+      <div class="rt-levels-track">
+        <div class="rt-levels-track__seg" title="Странник"></div>
+        <div class="rt-levels-track__seg" title="Юнкер"></div>
+        <div class="rt-levels-track__seg" title="Игрок"></div>
+        <div class="rt-levels-track__seg" title="Магистр Игры"></div>
+        <div class="rt-levels-track__seg" title="Великий Магистр"></div>
+      </div>
+      <div class="rt-levels-cards">
+        <div class="rt-level-card">
+          <div class="rt-level-card__dot"></div>
+          <div class="rt-level-card__name">Странник</div>
+          <div class="rt-level-card__range">< 1100</div>
+        </div>
+        <div class="rt-level-card">
+          <div class="rt-level-card__dot"></div>
+          <div class="rt-level-card__name">Юнкер</div>
+          <div class="rt-level-card__range">1100—1399</div>
+        </div>
+        <div class="rt-level-card">
+          <div class="rt-level-card__dot"></div>
+          <div class="rt-level-card__name">Игрок</div>
+          <div class="rt-level-card__range">1400—1699</div>
+        </div>
+        <div class="rt-level-card">
+          <div class="rt-level-card__dot"></div>
+          <div class="rt-level-card__name">Магистр Игры</div>
+          <div class="rt-level-card__range">1700—1999</div>
+        </div>
+        <div class="rt-level-card">
+          <div class="rt-level-card__dot"></div>
+          <div class="rt-level-card__name">Великий Магистр</div>
+          <div class="rt-level-card__range">2000+</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Comparison ═══ -->
   <section class="rt-section">
     <h2 class="rt-section-title">Что меняется когда</h2>
     <p class="rt-section-text">
-      Каждое действие в игре по-разному влияет на обе шкалы. Соло — копит бусины и не трогает ранг.
-      PvP — копит бусины и двигает ранг.
+      Каждое действие в игре по-разному влияет на обе шкалы. Соло копит бусины, не трогает ранг.
+      PvP двигает обе.
     </p>
     <div class="rt-compare">
       <table>
@@ -314,7 +578,7 @@
     </div>
   </section>
 
-  <!-- Принцип -->
+  <!-- ═══ Why split ═══ -->
   <section class="rt-section">
     <h2 class="rt-section-title">Зачем разделили</h2>
     <p class="rt-section-text">
@@ -323,20 +587,20 @@
       разные шкалы.
     </p>
     <p class="rt-section-text">
-      <strong style="color:#fff">Освоение</strong> — твой личный путь, он не падает. Можешь спокойно играть со слабой Тенью —
-      бусины капают, ступень растёт. Это шкала «сколько ты знаешь».
+      <strong>Освоение</strong> — твой личный путь, не падает. Хочешь только изучать —
+      играй с Тенью, копи бусины, расти по ступеням.
     </p>
     <p class="rt-section-text">
-      <strong style="color:#fff">Каста</strong> — соревновательная картина. Растёт когда побеждаешь равных или сильных людей.
+      <strong>Каста</strong> — соревновательная картина. Растёт когда побеждаешь равных или сильных.
       Падает при поражении. Это шкала «как ты играешь против других».
     </p>
-    <p class="rt-section-text" style="color:#aeaeb2; font-size:13.5px; font-style:italic;">
-      Названия — отсылка к Hesse: Касталия как образ образовательной иерархии,
+    <p class="rt-section-text" style="color:#aeaeb2; font-size:13.5px; font-style:italic; margin-top:18px;">
+      Названия — отсылка к Hesse: Касталия как образовательная иерархия,
       Магистр Игры (Magister Ludi) — глава ордена в «Игре в бисер».
     </p>
   </section>
 
-  <!-- FAQ -->
+  <!-- ═══ FAQ ═══ -->
   <section class="rt-section">
     <h2 class="rt-section-title">Часто спрашивают</h2>
     <div class="rt-faq">
@@ -346,7 +610,7 @@
       </details>
       <details>
         <summary>Почему мой PR упал? Я ведь правильно отвечал!</summary>
-        <p>В PvP важно не только насколько ты прав, но и кто соперник. Если ты проиграл сильному игроку — потеря небольшая. Если слабому — больше. Это нормальная ELO-логика. Бусины при этом продолжают начисляться за верные ответы.</p>
+        <p>В PvP важно не только насколько ты прав, но и кто соперник. Если ты проиграл сильному игроку — потеря небольшая (−8). Если слабому — больше (−24). Это нормальная ELO-логика. Бусины при этом продолжают начисляться за верные ответы.</p>
       </details>
       <details>
         <summary>Нужно ли играть в PvP?</summary>
@@ -358,7 +622,7 @@
       </details>
       <details>
         <summary>Можно ли стать Великим Магистром только играя с Тенью?</summary>
-        <p>Нет — Великий Магистр это <strong>только PvP</strong>-каста, она требует побед над живыми игроками. Но ты можешь стать <strong>Адептом</strong> по линии Освоения, играя только соло — это путь знания, а не состязания.</p>
+        <p>Нет — Великий Магистр это <strong style="color:#fff">только PvP</strong>-каста, она требует побед над живыми игроками. Но ты можешь стать <strong style="color:#fff">Адептом</strong> по линии Освоения, играя только соло — это путь знания, а не состязания.</p>
       </details>
       <details>
         <summary>Я сильный по Освоению (Магистр), но слабый по Касте (Странник). Это нормально?</summary>
