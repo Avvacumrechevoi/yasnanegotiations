@@ -198,13 +198,21 @@
   }
 
   // ─── Шапка с двумя сторонами и счётом ───────────────────────────
-  function TnVsHeader({ player, scoreP, opponent, scoreO }){
+  // bonusP / bonusO — анимированный «+N бусин» бэйдж рядом со счётом,
+  // появляется при ответе и исчезает через 1.5 сек.
+  function TnVsHeader({ player, scoreP, opponent, scoreO, bonusP, bonusO }){
     return React.createElement('div', { className: 'tn-vs-header' },
       React.createElement('div', { className: 'tn-vs-side' },
         React.createElement('div', { className: 'tn-vs-avatar' }, renderTnAvatar(player.avatar, player.nickname)),
         React.createElement('div', { className: 'tn-vs-info' },
           React.createElement('div', { className: 'tn-vs-name' }, player.nickname),
-          React.createElement('div', { className: 'tn-vs-score' }, scoreP, ' бусин')
+          React.createElement('div', { className: 'tn-vs-score-row' },
+            React.createElement('span', { className: 'tn-vs-score' }, scoreP, ' бусин'),
+            bonusP > 0 && React.createElement('span', {
+              key: 'bonus-' + scoreP,
+              className: 'tn-vs-bonus',
+            }, '+', bonusP)
+          )
         )
       ),
       React.createElement('div', { className: 'tn-vs-divider' }, 'vs'),
@@ -212,7 +220,13 @@
         React.createElement('div', { className: 'tn-vs-avatar' }, opponent.glyph || renderTnAvatar(opponent.avatar, opponent.name) || '◐'),
         React.createElement('div', { className: 'tn-vs-info' },
           React.createElement('div', { className: 'tn-vs-name' }, opponent.name || 'Тень'),
-          React.createElement('div', { className: 'tn-vs-score' }, scoreO, ' бусин')
+          React.createElement('div', { className: 'tn-vs-score-row tn-vs-score-row--right' },
+            bonusO > 0 && React.createElement('span', {
+              key: 'bonus-' + scoreO,
+              className: 'tn-vs-bonus',
+            }, '+', bonusO),
+            React.createElement('span', { className: 'tn-vs-score' }, scoreO, ' бусин')
+          )
         )
       )
     );
@@ -977,12 +991,16 @@
       feedbackKind = chosen === -1 ? 'timeout' : (playerCorrect ? 'correct' : 'wrong');
     }
     const playerBusey = playerCorrect ? buseyForCorrect(Date.now() - startedAt.current) : 0;
+    // Бонус «+N бусин» для отображения в шапке. Считаем с учётом streak.
+    const myBonus = (showFeedback && playerCorrect) ? computeMyBusey(true, Date.now() - startedAt.current) : 0;
+    // Соперник: если PvP — берём его бусины из oppAnswers, иначе для shadow посчитаем при advance.
+    const oppBonus = 0;  // отображается только при настоящем PvP — расширим потом
 
     return React.createElement('div', { className: 'tn-fullscreen' },
       React.createElement('div', { className: 'tn-container' },
         React.createElement(TnTopBar, { eyebrow: 'Партия · Раунд ' + roundNum + ' / ' + (roundsTotal || 6) }),
         React.createElement(TnGameProgress, { qOverall, totalOverall }),
-        React.createElement(TnVsHeader, { player, scoreP, opponent, scoreO }),
+        React.createElement(TnVsHeader, { player, scoreP, opponent, scoreO, bonusP: myBonus, bonusO: oppBonus }),
         React.createElement(TnTimerBar, { timeLeft, paused: showFeedback }),
         React.createElement(TnQuestionCard, {
           qOverall, totalOverall, themeName: theme.name,
@@ -1008,14 +1026,12 @@
         (qType === 'single-choice' || !qType) && React.createElement(TnOptions, {
           options: q.options, chosen, correctIdx: q.correct, showFeedback, onPick: pick,
         }),
-        showFeedback && React.createElement(TnFeedbackBanner, {
-          kind: feedbackKind,
-          busey: playerBusey,
-          streak: feedbackKind === 'correct' ? (streak || 0) + 1 : (feedbackKind === 'wrong' ? 0 : (streak || 0)),
-          mult: streakMultiplier ? streakMultiplier((streak || 0) + 1) : 1.0
-        }),
-        !showFeedback && React.createElement('div', { className: 'tn-foot' },
-          React.createElement('span', { className: 'tn-foot-hint' }, 'Чем быстрее верный ответ — тем больше бусин')
+        // Banner снизу удалён — фидбэк показывается:
+        //   • цветом подсветки варианта (зелёный/красный)
+        //   • бэйджем «+N бусин» в шапке рядом со счётом
+        //   • timeout-плашкой только если время вышло (особый случай)
+        showFeedback && feedbackKind === 'timeout' && React.createElement('div', { className: 'tn-foot' },
+          React.createElement('span', { className: 'tn-foot-timeout' }, '◷ Время вышло')
         )
       )
     );
@@ -1494,25 +1510,15 @@
       setTotalBusey(newBusey);
       setPartiyaLog(newLog);
 
-      // ─── Mid-partiya recap — на середине партии ───
-      // Показываем краткую заставку с прогрессом после половины вопросов.
-      // Один раз за партию. Игрок жмёт «Дальше» или ждёт ~4 сек.
-      const halfMark = Math.floor(totalOverall / 2);
-      const needMidRecap = !midRecapShown
-        && newLog.length === halfMark
-        && newLog.length < totalOverall
-        && totalOverall >= 10; // не показываем на коротких партиях
-      if(needMidRecap){
-        setMidRecapShown(true);
-        setPhase('midrecap');
-      } else if(qIdx < currentRound.questions.length - 1){
+      // Mid-recap удалён — прогресс-бар сверху и так показывает где мы.
+      // Промежуточные экраны на 50% сбивают с ритма.
+      if(qIdx < currentRound.questions.length - 1){
         setQIdx(qIdx + 1);
       } else if(roundIdx < partiya.length - 1){
         setRoundIdx(roundIdx + 1);
         setQIdx(0);
         setPhase('intro');
       } else {
-        // newLog содержит ВСЕ записи включая последнюю (state ещё не обновился)
         finishPartiya(newScoreP, newScoreO, newBusey, newLog);
       }
     }

@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T23:00:27.542Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T23:13:54.325Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5877,7 +5877,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T23:00:26.484Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T23:13:53.401Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -19201,7 +19201,7 @@ window.YasnaCore = {
       React.createElement("div", { className: "tn-game-progress-fill", style: { width: pct + "%" } })
     );
   }
-  function TnVsHeader({ player, scoreP, opponent, scoreO }) {
+  function TnVsHeader({ player, scoreP, opponent, scoreO, bonusP, bonusO }) {
     return React.createElement(
       "div",
       { className: "tn-vs-header" },
@@ -19213,7 +19213,15 @@ window.YasnaCore = {
           "div",
           { className: "tn-vs-info" },
           React.createElement("div", { className: "tn-vs-name" }, player.nickname),
-          React.createElement("div", { className: "tn-vs-score" }, scoreP, " \u0431\u0443\u0441\u0438\u043D")
+          React.createElement(
+            "div",
+            { className: "tn-vs-score-row" },
+            React.createElement("span", { className: "tn-vs-score" }, scoreP, " \u0431\u0443\u0441\u0438\u043D"),
+            bonusP > 0 && React.createElement("span", {
+              key: "bonus-" + scoreP,
+              className: "tn-vs-bonus"
+            }, "+", bonusP)
+          )
         )
       ),
       React.createElement("div", { className: "tn-vs-divider" }, "vs"),
@@ -19225,7 +19233,15 @@ window.YasnaCore = {
           "div",
           { className: "tn-vs-info" },
           React.createElement("div", { className: "tn-vs-name" }, opponent.name || "\u0422\u0435\u043D\u044C"),
-          React.createElement("div", { className: "tn-vs-score" }, scoreO, " \u0431\u0443\u0441\u0438\u043D")
+          React.createElement(
+            "div",
+            { className: "tn-vs-score-row tn-vs-score-row--right" },
+            bonusO > 0 && React.createElement("span", {
+              key: "bonus-" + scoreO,
+              className: "tn-vs-bonus"
+            }, "+", bonusO),
+            React.createElement("span", { className: "tn-vs-score" }, scoreO, " \u0431\u0443\u0441\u0438\u043D")
+          )
         )
       )
     );
@@ -19980,6 +19996,8 @@ window.YasnaCore = {
       feedbackKind = chosen === -1 ? "timeout" : playerCorrect ? "correct" : "wrong";
     }
     const playerBusey = playerCorrect ? buseyForCorrect(Date.now() - startedAt.current) : 0;
+    const myBonus = showFeedback && playerCorrect ? computeMyBusey(true, Date.now() - startedAt.current) : 0;
+    const oppBonus = 0;
     return React.createElement(
       "div",
       { className: "tn-fullscreen" },
@@ -19988,7 +20006,7 @@ window.YasnaCore = {
         { className: "tn-container" },
         React.createElement(TnTopBar, { eyebrow: "\u041F\u0430\u0440\u0442\u0438\u044F \xB7 \u0420\u0430\u0443\u043D\u0434 " + roundNum + " / " + (roundsTotal || 6) }),
         React.createElement(TnGameProgress, { qOverall, totalOverall }),
-        React.createElement(TnVsHeader, { player, scoreP, opponent, scoreO }),
+        React.createElement(TnVsHeader, { player, scoreP, opponent, scoreO, bonusP: myBonus, bonusO: oppBonus }),
         React.createElement(TnTimerBar, { timeLeft, paused: showFeedback }),
         React.createElement(TnQuestionCard, {
           qOverall,
@@ -20035,16 +20053,14 @@ window.YasnaCore = {
           showFeedback,
           onPick: pick
         }),
-        showFeedback && React.createElement(TnFeedbackBanner, {
-          kind: feedbackKind,
-          busey: playerBusey,
-          streak: feedbackKind === "correct" ? (streak || 0) + 1 : feedbackKind === "wrong" ? 0 : streak || 0,
-          mult: streakMultiplier ? streakMultiplier((streak || 0) + 1) : 1
-        }),
-        !showFeedback && React.createElement(
+        // Banner снизу удалён — фидбэк показывается:
+        //   • цветом подсветки варианта (зелёный/красный)
+        //   • бэйджем «+N бусин» в шапке рядом со счётом
+        //   • timeout-плашкой только если время вышло (особый случай)
+        showFeedback && feedbackKind === "timeout" && React.createElement(
           "div",
           { className: "tn-foot" },
-          React.createElement("span", { className: "tn-foot-hint" }, "\u0427\u0435\u043C \u0431\u044B\u0441\u0442\u0440\u0435\u0435 \u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 \u2014 \u0442\u0435\u043C \u0431\u043E\u043B\u044C\u0448\u0435 \u0431\u0443\u0441\u0438\u043D")
+          React.createElement("span", { className: "tn-foot-timeout" }, "\u25F7 \u0412\u0440\u0435\u043C\u044F \u0432\u044B\u0448\u043B\u043E")
         )
       )
     );
@@ -20544,12 +20560,7 @@ window.YasnaCore = {
       setScoreO(newScoreO);
       setTotalBusey(newBusey);
       setPartiyaLog(newLog);
-      const halfMark = Math.floor(totalOverall / 2);
-      const needMidRecap = !midRecapShown && newLog.length === halfMark && newLog.length < totalOverall && totalOverall >= 10;
-      if (needMidRecap) {
-        setMidRecapShown(true);
-        setPhase("midrecap");
-      } else if (qIdx < currentRound.questions.length - 1) {
+      if (qIdx < currentRound.questions.length - 1) {
         setQIdx(qIdx + 1);
       } else if (roundIdx < partiya.length - 1) {
         setRoundIdx(roundIdx + 1);
