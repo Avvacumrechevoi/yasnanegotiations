@@ -788,6 +788,7 @@ function App(){
   const[lessonPicker,setLessonPicker]=useState(false);
   const[showTour,setShowTour]=useState(false);
   const[helpOpen,setHelpOpen]=useState(false);
+  const[learnOpen,setLearnOpen]=useState(false);
   const[showComposition,setShowComposition]=useState(false);
   const[showDuel,setShowDuel]=useState(false);
   // Императивный рендер DuelApp в отдельный root — обходит JSX-парсинг window.DuelApp
@@ -841,46 +842,60 @@ function App(){
         
         <div style={{flex:1}}/>
         <div className='hdr-btns' style={{display:'flex',gap:6,alignItems:'center'}}>
-        {/* Уроки — secondary outline */}
-        <button onClick={()=>setLessonPicker(true)} title='Уроки по методу Ясны' style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 14px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:5}}>
-          <span style={{fontSize:14}}>🎓</span>
-          <span>Уроки</span>
-        </button>
-        {/* Дуэль — 1v1 онлайн (P0 preview) */}
-        <a href='duel.html' title='Игра по Ясне: викторина, Архив, Этюд дня' style={{border:'1px solid rgba(212,165,116,.45)',color:'#7a5e25',padding:'7px 14px',borderRadius:8,fontSize:13,background:'rgba(212,165,116,.08)',cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:5,textDecoration:'none'}}>
-          <span style={{fontSize:14}}>🎼</span>
+        {/* 1. Обучение ▼ — Уроки + Гид (объединены в один dropdown) */}
+        <div style={{position:'relative'}}>
+          <button onClick={()=>setLearnOpen(o=>!o)} title='Уроки и Гид' className='hdr-btn' style={{border:`1px solid ${learnOpen?'rgba(0,113,227,.4)':'#d2d2d7'}`,color:learnOpen?'#0058b8':'#424245',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:learnOpen?'rgba(0,113,227,.06)':'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:6}}>
+            <span style={{fontSize:14,lineHeight:1}}>🎓</span>
+            <span>Обучение</span>
+            <span style={{fontSize:9,display:'inline-block',transform:learnOpen?'rotate(180deg)':'none',transition:'transform .2s'}}>▼</span>
+          </button>
+          {learnOpen && <>
+            <div onClick={()=>setLearnOpen(false)} style={{position:'fixed',inset:0,zIndex:99}}/>
+            <div style={{position:'absolute',top:'calc(100% + 4px)',right:0,minWidth:200,background:'#fff',border:'1px solid #d2d2d7',borderRadius:10,boxShadow:'0 6px 24px rgba(0,0,0,.12)',zIndex:100,overflow:'hidden'}}>
+              <button onClick={()=>{setLessonPicker(true);setLearnOpen(false)}} style={{display:'flex',alignItems:'center',gap:10,width:'100%',padding:'11px 14px',fontSize:13,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left',cursor:'pointer'}}><span style={{fontSize:14}}>🎓</span><span>Уроки <span style={{color:'#86868b',fontSize:11}}>· 4 шага</span></span></button>
+              {y && window.YasnaTours && window.YasnaTours.has(y.name)
+                ?<button onClick={()=>{setShowTour(true);setLearnOpen(false)}} style={{display:'flex',alignItems:'center',gap:10,width:'100%',padding:'11px 14px',fontSize:13,color:'#1d1d1f',border:'none',background:'#fff',textAlign:'left',cursor:'pointer'}}><span style={{fontSize:11,color:'#a21caf'}}>✦</span><span>Гид по «{y.name}»</span></button>
+                :<div style={{padding:'11px 14px',fontSize:12,color:'#aeaeb2',fontStyle:'italic'}}>Гид появится для отдельных Ясн</div>
+              }
+            </div>
+          </>}
+        </div>
+        {/* 2. Игра NEW */}
+        <a href='duel.html' title='Игра по Ясне: викторина, Архив, Этюд дня' className='hdr-btn-game' style={{border:'1px solid rgba(212,165,116,.45)',color:'#7a5e25',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:'rgba(212,165,116,.08)',cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:5,textDecoration:'none',boxSizing:'border-box'}}>
+          <span style={{fontSize:14,lineHeight:1}}>🎼</span>
           <span>Игра</span>
           <span style={{fontSize:9,padding:'1px 5px',background:'#d4a574',color:'#fff',borderRadius:4,letterSpacing:.5,marginLeft:2}}>NEW</span>
         </a>
-        {/* Гид по Ясне — secondary outline (если зарегистрирован для текущей Ясны) */}
-        {y && window.YasnaTours && window.YasnaTours.has(y.name) && <button onClick={()=>setShowTour(true)} title='Интерактивный гид с пояснением каждой механики' style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 14px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:5}}><span style={{fontSize:11,color:'#a21caf'}}>✦</span><span>Гид</span></button>}
-        {/* Стихии — режим показа пранных долей */}
-        <button onClick={()=>setShowComposition(c=>!c)} title='Состав 4 пран в каждой Полке (идеальное соотношение)' style={{border:`1px solid ${showComposition?'rgba(192,148,58,.5)':'#d2d2d7'}`,color:showComposition?'#7a5e25':'#424245',padding:'7px 12px',borderRadius:8,fontSize:13,background:showComposition?'rgba(192,148,58,.10)':'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:5}}>
-          <span style={{display:'inline-flex',gap:1,alignItems:'center'}}>
-            <span style={{width:3,height:11,background:'#C0943A',borderRadius:1}}/>
-            <span style={{width:3,height:11,background:'#4090D8',borderRadius:1}}/>
-            <span style={{width:3,height:11,background:'#06B6D4',borderRadius:1}}/>
-            <span style={{width:3,height:11,background:'#F06838',borderRadius:1}}/>
+        {/* 3. Стихии — icon-only toggle */}
+        <button onClick={()=>setShowComposition(c=>!c)} title={showComposition?'Скрыть состав пран':'Показать состав 4 пран в Полках'} aria-label='Стихии' className='hdr-btn-icon' style={{border:`1px solid ${showComposition?'rgba(192,148,58,.5)':'#d2d2d7'}`,color:showComposition?'#7a5e25':'#424245',width:36,height:36,padding:0,borderRadius:8,background:showComposition?'rgba(192,148,58,.10)':'#fff',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>
+          <span style={{display:'inline-flex',gap:1.5,alignItems:'center'}}>
+            <span style={{width:3,height:14,background:'#C0943A',borderRadius:1}}/>
+            <span style={{width:3,height:14,background:'#4090D8',borderRadius:1}}/>
+            <span style={{width:3,height:14,background:'#06B6D4',borderRadius:1}}/>
+            <span style={{width:3,height:14,background:'#F06838',borderRadius:1}}/>
           </span>
-          <span>Стихии</span>
         </button>
-        <button onClick={()=>setVerif(true)} style={{border:'1px solid #d2d2d7',color:'#424245',padding:'7px 14px',borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500}}>Проверка</button>
-        {/* Справка ▾ — объединяет Инструкция + Глоссарий */}
+        {/* 4. Справка ▼ — Инструкция + Глоссарий + Проверка (объединено) */}
         <div style={{position:'relative'}}>
-          <button onClick={()=>setHelpOpen(o=>!o)} title='Инструкция и Глоссарий' style={{border:`1px solid ${helpOpen?'rgba(0,113,227,.4)':'#d2d2d7'}`,color:helpOpen?'#0058b8':'#424245',padding:'7px 12px',borderRadius:8,fontSize:13,background:helpOpen?'rgba(0,113,227,.06)':'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:5}}>
+          <button onClick={()=>setHelpOpen(o=>!o)} title='Инструкция, Глоссарий, Проверка' className='hdr-btn' style={{border:`1px solid ${helpOpen?'rgba(0,113,227,.4)':'#d2d2d7'}`,color:helpOpen?'#0058b8':'#424245',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:helpOpen?'rgba(0,113,227,.06)':'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:6}}>
             <span>Справка</span>
             <span style={{fontSize:9,display:'inline-block',transform:helpOpen?'rotate(180deg)':'none',transition:'transform .2s'}}>▼</span>
           </button>
           {helpOpen && <>
             <div onClick={()=>setHelpOpen(false)} style={{position:'fixed',inset:0,zIndex:99}}/>
-            <div style={{position:'absolute',top:'calc(100% + 4px)',right:0,minWidth:160,background:'#fff',border:'1px solid #d2d2d7',borderRadius:10,boxShadow:'0 6px 24px rgba(0,0,0,.12)',zIndex:100,overflow:'hidden'}}>
-              <button onClick={()=>{setInstr(true);setHelpOpen(false)}} style={{display:'block',width:'100%',padding:'10px 14px',fontSize:13,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left',cursor:'pointer'}}>📖 Инструкция</button>
-              <button onClick={()=>{setGlossary(true);setHelpOpen(false)}} style={{display:'block',width:'100%',padding:'10px 14px',fontSize:13,color:'#1d1d1f',border:'none',background:'#fff',textAlign:'left',cursor:'pointer'}}>📚 Глоссарий</button>
+            <div style={{position:'absolute',top:'calc(100% + 4px)',right:0,minWidth:200,background:'#fff',border:'1px solid #d2d2d7',borderRadius:10,boxShadow:'0 6px 24px rgba(0,0,0,.12)',zIndex:100,overflow:'hidden'}}>
+              <button onClick={()=>{setInstr(true);setHelpOpen(false)}} style={{display:'flex',alignItems:'center',gap:10,width:'100%',padding:'11px 14px',fontSize:13,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left',cursor:'pointer'}}><span>📖</span><span>Инструкция</span></button>
+              <button onClick={()=>{setGlossary(true);setHelpOpen(false)}} style={{display:'flex',alignItems:'center',gap:10,width:'100%',padding:'11px 14px',fontSize:13,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left',cursor:'pointer'}}><span>📚</span><span>Глоссарий</span></button>
+              <button onClick={()=>{setVerif(true);setHelpOpen(false)}} style={{display:'flex',alignItems:'center',gap:10,width:'100%',padding:'11px 14px',fontSize:13,color:'#1d1d1f',border:'none',background:'#fff',textAlign:'left',cursor:'pointer'}}><span>🛡️</span><span>Проверка Ясны</span></button>
             </div>
           </>}
         </div>
-        {/* Совместить — компактная иконка */}
-        <button onClick={()=>overlay?setOverlay(null):setShowOverlayPicker(true)} aria-label={overlay?'Снять совмещение':'Совместить две Ясны'} title={overlay?'Снять совмещение':'Совместить две Ясны'} style={{border:`1px solid ${overlay?'rgba(175,82,222,.4)':'#d2d2d7'}`,color:overlay?'#af52de':'#424245',padding:'7px 11px',borderRadius:8,fontSize:15,background:overlay?'rgba(175,82,222,.06)':'#fff',cursor:'pointer',minWidth:36}}>{overlay?'⊗':'⊕'}</button>
+        {/* 5. Профиль / Войти (плейсхолдер — пока ведёт на /duel.html где есть auth-flow) */}
+        <a href='duel.html#login' title='Войти через Telegram — прогресс между устройствами' className='hdr-btn-profile' style={{border:'1px solid rgba(0,113,227,.35)',color:'#0058b8',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:'rgba(0,113,227,.06)',cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:6,textDecoration:'none',boxSizing:'border-box'}}>
+          <span style={{fontSize:14,lineHeight:1}}>👤</span>
+          <span>Войти</span>
+        </a>
+        {/* Theme toggle injects сюда (см. index.html) — будет icon-only */}
         </div>
         <div className='hdr-mob-tools' style={{display:'none',gap:6,alignItems:'center',marginRight:8}}>
           <button onClick={()=>setLessonPicker(true)} title="Уроки" style={{position:'relative',fontSize:15,padding:'8px 11px',border:'1px solid rgba(0,122,255,.35)',borderRadius:10,background:'rgba(0,122,255,.06)',color:'#0071e3',whiteSpace:'nowrap',fontWeight:600,minHeight:36,display:'flex',alignItems:'center',gap:5}}>
@@ -999,6 +1014,8 @@ function App(){
           <button disabled={yasna2Drill!=null} onClick={()=>setStarRotation(r=>r==='ccw'?null:'ccw')} title={yasna2Drill!=null?'Недоступно при открытой sub-Ясне':(starRotation==='ccw'?'Остановить вращение':'Вращать против часовой')} style={{width:36,height:36,borderRadius:10,border:'1px solid '+(starRotation==='ccw'?'#a21caf':'#e5e5ea'),background:starRotation==='ccw'?'#a21caf':'#fff',color:starRotation==='ccw'?'#fff':'#424245',fontSize:21,lineHeight:1,cursor:yasna2Drill!=null?'not-allowed':'pointer',opacity:yasna2Drill!=null?.4:1,display:'flex',alignItems:'center',justifyContent:'center'}}>↺</button>
           <button disabled={yasna2Drill!=null} onClick={()=>setStarRotation(r=>r==='cw'?null:'cw')} title={yasna2Drill!=null?'Недоступно при открытой sub-Ясне':(starRotation==='cw'?'Остановить вращение':'Вращать по часовой')} style={{width:36,height:36,borderRadius:10,border:'1px solid '+(starRotation==='cw'?'#a21caf':'#e5e5ea'),background:starRotation==='cw'?'#a21caf':'#fff',color:starRotation==='cw'?'#fff':'#424245',fontSize:21,lineHeight:1,cursor:yasna2Drill!=null?'not-allowed':'pointer',opacity:yasna2Drill!=null?.4:1,display:'flex',alignItems:'center',justifyContent:'center'}}>↻</button>
           <button onClick={()=>setIs3D(v=>!v)} title={is3D?'Плоская проекция':'Объёмный режим (3D)'} style={{width:36,height:36,borderRadius:10,border:'1px solid '+(is3D?'#a21caf':'#e5e5ea'),background:is3D?'#a21caf':'#fff',color:is3D?'#fff':'#424245',fontSize:12,fontWeight:700,letterSpacing:.5,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>3D</button>
+          {/* Совместить — переехала из хедера сюда (логично рядом с 3D/⤢/⋯) */}
+          <button onClick={()=>overlay?setOverlay(null):setShowOverlayPicker(true)} aria-label={overlay?'Снять совмещение':'Совместить две Ясны'} title={overlay?'Снять совмещение':'Совместить две Ясны'} style={{width:36,height:36,borderRadius:10,border:'1px solid '+(overlay?'#af52de':'#e5e5ea'),background:overlay?'#af52de':'#fff',color:overlay?'#fff':'#424245',fontSize:18,lineHeight:1,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>{overlay?'⊗':'⊕'}</button>
           <button onClick={()=>setFullStar(true)} title="Во весь экран" style={{width:36,height:36,borderRadius:10,border:'1px solid #e5e5ea',background:'#fff',color:'#424245',fontSize:18,lineHeight:1,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>⤢</button>
           <button onClick={()=>setRotPanelOpen(o=>!o)} title='Скорость вращения и режимы' style={{width:36,height:36,borderRadius:10,border:'1px solid '+(rotPanelOpen?'#a21caf':'#e5e5ea'),background:rotPanelOpen?'#a21caf':'#fff',color:rotPanelOpen?'#fff':'#424245',fontSize:18,lineHeight:1,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>⋯</button>
         </div>
