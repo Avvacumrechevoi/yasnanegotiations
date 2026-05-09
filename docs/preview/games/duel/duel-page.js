@@ -317,7 +317,7 @@
             'data-tip': 'Бусины ✦ — очки за партии. 10 за верный ответ + до 5 бонусных за скорость. Из бусин складывается ступень.'
           }, '✦ ', busey),
           React.createElement('span', { className: 'dp-hero-stats-sep' }, '·'),
-          React.createElement('span', null, games, ' ', Term('партий', 'Партия — викторина из 18 вопросов на 6 тем модели Ясны. Идёт около 5 минут.'))
+          React.createElement('span', null, games, ' ', Term('партий', 'Партия — викторина из 10/18/30 вопросов на темы Ясны. Блиц ~2 мин · Стандарт ~5 мин · Эксперт ~9 мин.'))
         ),
         React.createElement('div', { className: 'dp-hero-progress', 'aria-label': 'Прогресс ступени' },
           React.createElement('div', { className: 'dp-hero-progress-fill', style: { width: pct + '%' } })
@@ -426,30 +426,30 @@
   }
 
   // ─── Главный ритуал · 2 игры ─────────────────────────────────────
+  // Header: только заголовок (без eyebrow «Игры Ясны» — мы уже на странице
+  // /duel, это контекст). Описание убрано из header'а — оно теперь в
+  // tooltip'ах внутри каждой карточки рядом с её названием.
   function DPMainGames({ onPartiya, onUzor }){
-    return React.createElement('section', { className: 'dp-section', role: 'region', 'aria-label': 'Главный ритуал' },
+    return React.createElement('section', { className: 'dp-section', role: 'region', 'aria-label': 'Игровые практики' },
       React.createElement('div', { style: { marginBottom: 'var(--space-5)' } },
-        React.createElement('div', { className: 'dp-eyebrow' }, 'Игры Ясны'),
         React.createElement('h2', { className: 'dp-section-h', style: { fontFamily: 'var(--font-serif)', fontWeight: 500, fontSize: 22, letterSpacing: '-0.005em' } },
-          'Две игровые практики'
-        ),
-        React.createElement('p', { className: 'dp-section-desc', style: { marginTop: 4 } },
-          React.createElement('strong', { style: { color: 'var(--text-1)', fontWeight: 500 } }, 'Партия'),
-          ' ',
-          React.createElement(DPPartiyaHowTooltip, null),
-          ' — викторина 10/18/30 вопросов с Тенью или другом. ',
-          React.createElement('strong', { style: { color: 'var(--text-1)', fontWeight: 500 } }, 'Расклад'), ' — гонка по 12 полкам против соперника.'
+          'Игровые практики'
         )
       ),
       React.createElement('div', { className: 'dp-games-grid' },
         React.createElement('button', { className: 'dp-game-card dp-game-primary', onClick: onPartiya },
           React.createElement('div', { className: 'dp-game-eyebrow' }, '✦  Доступна · ~5 минут'),
-          React.createElement('div', { className: 'dp-game-title' }, 'Партия'),
+          React.createElement('div', { className: 'dp-game-title-row' },
+            React.createElement('div', { className: 'dp-game-title' }, 'Партия'),
+            React.createElement(DPPartiyaHowTooltip, null)
+          ),
           React.createElement('div', { className: 'dp-game-sub' },
-            React.createElement('strong', { style: { color: 'inherit', fontWeight: 500 } }, 'Блиц 10 · Стандарт 18 · Эксперт 30'),
-            ' — выбираешь длительность.',
-            React.createElement('br'),
-            'Выбор из 4, «верно/нет», заполни пропуск. В финале — разбор ошибок с цитатами из книги.'
+            'Викторина по темам Ясны. Выбираешь длительность и темы — играешь против Тени или с другом.'
+          ),
+          React.createElement('ul', { className: 'dp-game-bullets' },
+            React.createElement('li', null, '10 · 18 · 30 вопросов на выбор'),
+            React.createElement('li', null, '4 формата: выбор из 4 · верно/нет · несколько верных · соедини пары'),
+            React.createElement('li', null, 'В финале — разбор ошибок с цитатами из книги')
           ),
           React.createElement('div', { className: 'dp-game-meta' },
             React.createElement('span', null, 'Соло с Тенью'),
@@ -459,11 +459,16 @@
         ),
         React.createElement('button', { className: 'dp-game-card dp-game-soon', onClick: onUzor, disabled: true, style: { opacity: 0.6, cursor: 'not-allowed' } },
           React.createElement('div', { className: 'dp-game-eyebrow' }, '◷  В разработке'),
-          React.createElement('div', { className: 'dp-game-title' }, 'Расклад'),
+          React.createElement('div', { className: 'dp-game-title-row' },
+            React.createElement('div', { className: 'dp-game-title' }, 'Расклад')
+          ),
           React.createElement('div', { className: 'dp-game-sub' },
-            'Гонка на двоих: разложить 12 элементов по своим местам раньше второго игрока.',
-            React.createElement('br'),
-            'Скоро — следи за обновлениями.'
+            'Гонка против соперника: разложить 12 элементов по своим местам быстрее.'
+          ),
+          React.createElement('ul', { className: 'dp-game-bullets' },
+            React.createElement('li', null, '12 полок Ясны — твоё игровое поле'),
+            React.createElement('li', null, 'Кто первый правильно соберёт — победил'),
+            React.createElement('li', null, 'Только PvP · скоро')
           ),
           React.createElement('div', { className: 'dp-game-meta' },
             React.createElement('span', { className: 'dp-game-meta-pvp' }, 'PvP · скоро')

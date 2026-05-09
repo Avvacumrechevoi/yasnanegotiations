@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T20:47:43.797Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T21:12:16.865Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5877,7 +5877,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T20:47:42.830Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T21:12:15.816Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -21342,7 +21342,7 @@ window.YasnaCore = {
             "data-tip": "\u0411\u0443\u0441\u0438\u043D\u044B \u2726 \u2014 \u043E\u0447\u043A\u0438 \u0437\u0430 \u043F\u0430\u0440\u0442\u0438\u0438. 10 \u0437\u0430 \u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 + \u0434\u043E 5 \u0431\u043E\u043D\u0443\u0441\u043D\u044B\u0445 \u0437\u0430 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u044C. \u0418\u0437 \u0431\u0443\u0441\u0438\u043D \u0441\u043A\u043B\u0430\u0434\u044B\u0432\u0430\u0435\u0442\u0441\u044F \u0441\u0442\u0443\u043F\u0435\u043D\u044C."
           }, "\u2726 ", busey),
           React.createElement("span", { className: "dp-hero-stats-sep" }, "\xB7"),
-          React.createElement("span", null, games, " ", Term("\u043F\u0430\u0440\u0442\u0438\u0439", "\u041F\u0430\u0440\u0442\u0438\u044F \u2014 \u0432\u0438\u043A\u0442\u043E\u0440\u0438\u043D\u0430 \u0438\u0437 18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u043D\u0430 6 \u0442\u0435\u043C \u043C\u043E\u0434\u0435\u043B\u0438 \u042F\u0441\u043D\u044B. \u0418\u0434\u0451\u0442 \u043E\u043A\u043E\u043B\u043E 5 \u043C\u0438\u043D\u0443\u0442."))
+          React.createElement("span", null, games, " ", Term("\u043F\u0430\u0440\u0442\u0438\u0439", "\u041F\u0430\u0440\u0442\u0438\u044F \u2014 \u0432\u0438\u043A\u0442\u043E\u0440\u0438\u043D\u0430 \u0438\u0437 10/18/30 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u043D\u0430 \u0442\u0435\u043C\u044B \u042F\u0441\u043D\u044B. \u0411\u043B\u0438\u0446 ~2 \u043C\u0438\u043D \xB7 \u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442 ~5 \u043C\u0438\u043D \xB7 \u042D\u043A\u0441\u043F\u0435\u0440\u0442 ~9 \u043C\u0438\u043D."))
         ),
         React.createElement(
           "div",
@@ -21473,25 +21473,14 @@ window.YasnaCore = {
   function DPMainGames({ onPartiya, onUzor }) {
     return React.createElement(
       "section",
-      { className: "dp-section", role: "region", "aria-label": "\u0413\u043B\u0430\u0432\u043D\u044B\u0439 \u0440\u0438\u0442\u0443\u0430\u043B" },
+      { className: "dp-section", role: "region", "aria-label": "\u0418\u0433\u0440\u043E\u0432\u044B\u0435 \u043F\u0440\u0430\u043A\u0442\u0438\u043A\u0438" },
       React.createElement(
         "div",
         { style: { marginBottom: "var(--space-5)" } },
-        React.createElement("div", { className: "dp-eyebrow" }, "\u0418\u0433\u0440\u044B \u042F\u0441\u043D\u044B"),
         React.createElement(
           "h2",
           { className: "dp-section-h", style: { fontFamily: "var(--font-serif)", fontWeight: 500, fontSize: 22, letterSpacing: "-0.005em" } },
-          "\u0414\u0432\u0435 \u0438\u0433\u0440\u043E\u0432\u044B\u0435 \u043F\u0440\u0430\u043A\u0442\u0438\u043A\u0438"
-        ),
-        React.createElement(
-          "p",
-          { className: "dp-section-desc", style: { marginTop: 4 } },
-          React.createElement("strong", { style: { color: "var(--text-1)", fontWeight: 500 } }, "\u041F\u0430\u0440\u0442\u0438\u044F"),
-          " ",
-          React.createElement(DPPartiyaHowTooltip, null),
-          " \u2014 \u0432\u0438\u043A\u0442\u043E\u0440\u0438\u043D\u0430 10/18/30 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u0441 \u0422\u0435\u043D\u044C\u044E \u0438\u043B\u0438 \u0434\u0440\u0443\u0433\u043E\u043C. ",
-          React.createElement("strong", { style: { color: "var(--text-1)", fontWeight: 500 } }, "\u0420\u0430\u0441\u043A\u043B\u0430\u0434"),
-          " \u2014 \u0433\u043E\u043D\u043A\u0430 \u043F\u043E 12 \u043F\u043E\u043B\u043A\u0430\u043C \u043F\u0440\u043E\u0442\u0438\u0432 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u0430."
+          "\u0418\u0433\u0440\u043E\u0432\u044B\u0435 \u043F\u0440\u0430\u043A\u0442\u0438\u043A\u0438"
         )
       ),
       React.createElement(
@@ -21501,14 +21490,23 @@ window.YasnaCore = {
           "button",
           { className: "dp-game-card dp-game-primary", onClick: onPartiya },
           React.createElement("div", { className: "dp-game-eyebrow" }, "\u2726  \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0430 \xB7 ~5 \u043C\u0438\u043D\u0443\u0442"),
-          React.createElement("div", { className: "dp-game-title" }, "\u041F\u0430\u0440\u0442\u0438\u044F"),
+          React.createElement(
+            "div",
+            { className: "dp-game-title-row" },
+            React.createElement("div", { className: "dp-game-title" }, "\u041F\u0430\u0440\u0442\u0438\u044F"),
+            React.createElement(DPPartiyaHowTooltip, null)
+          ),
           React.createElement(
             "div",
             { className: "dp-game-sub" },
-            React.createElement("strong", { style: { color: "inherit", fontWeight: 500 } }, "\u0411\u043B\u0438\u0446 10 \xB7 \u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442 18 \xB7 \u042D\u043A\u0441\u043F\u0435\u0440\u0442 30"),
-            " \u2014 \u0432\u044B\u0431\u0438\u0440\u0430\u0435\u0448\u044C \u0434\u043B\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u044C.",
-            React.createElement("br"),
-            "\u0412\u044B\u0431\u043E\u0440 \u0438\u0437 4, \xAB\u0432\u0435\u0440\u043D\u043E/\u043D\u0435\u0442\xBB, \u0437\u0430\u043F\u043E\u043B\u043D\u0438 \u043F\u0440\u043E\u043F\u0443\u0441\u043A. \u0412 \u0444\u0438\u043D\u0430\u043B\u0435 \u2014 \u0440\u0430\u0437\u0431\u043E\u0440 \u043E\u0448\u0438\u0431\u043E\u043A \u0441 \u0446\u0438\u0442\u0430\u0442\u0430\u043C\u0438 \u0438\u0437 \u043A\u043D\u0438\u0433\u0438."
+            "\u0412\u0438\u043A\u0442\u043E\u0440\u0438\u043D\u0430 \u043F\u043E \u0442\u0435\u043C\u0430\u043C \u042F\u0441\u043D\u044B. \u0412\u044B\u0431\u0438\u0440\u0430\u0435\u0448\u044C \u0434\u043B\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u044C \u0438 \u0442\u0435\u043C\u044B \u2014 \u0438\u0433\u0440\u0430\u0435\u0448\u044C \u043F\u0440\u043E\u0442\u0438\u0432 \u0422\u0435\u043D\u0438 \u0438\u043B\u0438 \u0441 \u0434\u0440\u0443\u0433\u043E\u043C."
+          ),
+          React.createElement(
+            "ul",
+            { className: "dp-game-bullets" },
+            React.createElement("li", null, "10 \xB7 18 \xB7 30 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u043D\u0430 \u0432\u044B\u0431\u043E\u0440"),
+            React.createElement("li", null, "4 \u0444\u043E\u0440\u043C\u0430\u0442\u0430: \u0432\u044B\u0431\u043E\u0440 \u0438\u0437 4 \xB7 \u0432\u0435\u0440\u043D\u043E/\u043D\u0435\u0442 \xB7 \u043D\u0435\u0441\u043A\u043E\u043B\u044C\u043A\u043E \u0432\u0435\u0440\u043D\u044B\u0445 \xB7 \u0441\u043E\u0435\u0434\u0438\u043D\u0438 \u043F\u0430\u0440\u044B"),
+            React.createElement("li", null, "\u0412 \u0444\u0438\u043D\u0430\u043B\u0435 \u2014 \u0440\u0430\u0437\u0431\u043E\u0440 \u043E\u0448\u0438\u0431\u043E\u043A \u0441 \u0446\u0438\u0442\u0430\u0442\u0430\u043C\u0438 \u0438\u0437 \u043A\u043D\u0438\u0433\u0438")
           ),
           React.createElement(
             "div",
@@ -21522,13 +21520,22 @@ window.YasnaCore = {
           "button",
           { className: "dp-game-card dp-game-soon", onClick: onUzor, disabled: true, style: { opacity: 0.6, cursor: "not-allowed" } },
           React.createElement("div", { className: "dp-game-eyebrow" }, "\u25F7  \u0412 \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0435"),
-          React.createElement("div", { className: "dp-game-title" }, "\u0420\u0430\u0441\u043A\u043B\u0430\u0434"),
+          React.createElement(
+            "div",
+            { className: "dp-game-title-row" },
+            React.createElement("div", { className: "dp-game-title" }, "\u0420\u0430\u0441\u043A\u043B\u0430\u0434")
+          ),
           React.createElement(
             "div",
             { className: "dp-game-sub" },
-            "\u0413\u043E\u043D\u043A\u0430 \u043D\u0430 \u0434\u0432\u043E\u0438\u0445: \u0440\u0430\u0437\u043B\u043E\u0436\u0438\u0442\u044C 12 \u044D\u043B\u0435\u043C\u0435\u043D\u0442\u043E\u0432 \u043F\u043E \u0441\u0432\u043E\u0438\u043C \u043C\u0435\u0441\u0442\u0430\u043C \u0440\u0430\u043D\u044C\u0448\u0435 \u0432\u0442\u043E\u0440\u043E\u0433\u043E \u0438\u0433\u0440\u043E\u043A\u0430.",
-            React.createElement("br"),
-            "\u0421\u043A\u043E\u0440\u043E \u2014 \u0441\u043B\u0435\u0434\u0438 \u0437\u0430 \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u044F\u043C\u0438."
+            "\u0413\u043E\u043D\u043A\u0430 \u043F\u0440\u043E\u0442\u0438\u0432 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u0430: \u0440\u0430\u0437\u043B\u043E\u0436\u0438\u0442\u044C 12 \u044D\u043B\u0435\u043C\u0435\u043D\u0442\u043E\u0432 \u043F\u043E \u0441\u0432\u043E\u0438\u043C \u043C\u0435\u0441\u0442\u0430\u043C \u0431\u044B\u0441\u0442\u0440\u0435\u0435."
+          ),
+          React.createElement(
+            "ul",
+            { className: "dp-game-bullets" },
+            React.createElement("li", null, "12 \u043F\u043E\u043B\u043E\u043A \u042F\u0441\u043D\u044B \u2014 \u0442\u0432\u043E\u0451 \u0438\u0433\u0440\u043E\u0432\u043E\u0435 \u043F\u043E\u043B\u0435"),
+            React.createElement("li", null, "\u041A\u0442\u043E \u043F\u0435\u0440\u0432\u044B\u0439 \u043F\u0440\u0430\u0432\u0438\u043B\u044C\u043D\u043E \u0441\u043E\u0431\u0435\u0440\u0451\u0442 \u2014 \u043F\u043E\u0431\u0435\u0434\u0438\u043B"),
+            React.createElement("li", null, "\u0422\u043E\u043B\u044C\u043A\u043E PvP \xB7 \u0441\u043A\u043E\u0440\u043E")
           ),
           React.createElement(
             "div",

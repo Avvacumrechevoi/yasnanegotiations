@@ -2299,3 +2299,50 @@ body:not(.theme-vk-dark) .dp-howto-desc-text { color: #6e6e73; }
   }
   .dp-howto-arrow { display: none; }
 }
+
+/* ─── Game card refactor: title row + bullets ────────────────────
+   Заголовок + (i) tooltip в одной строке. Описание — короткое.
+   Затем bullet-list с конкретикой. Чище чем blob-параграф. */
+
+.dp-game-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.dp-game-title-row .dp-game-title { margin: 0; }
+
+.dp-game-bullets {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.dp-game-bullets li {
+  position: relative;
+  padding-left: 14px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-2, #aeaeb2);
+}
+.dp-game-bullets li::before {
+  content: '·';
+  position: absolute;
+  left: 4px;
+  top: 0;
+  font-weight: 700;
+  color: var(--vk-accent, #0077FF);
+  opacity: 0.6;
+}
+
+/* Tooltip trigger inside card title — крупнее (легче нажать на тач) */
+.dp-game-title-row .dp-howto-trigger {
+  width: 20px; height: 20px;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+/* Light theme bullet color */
+body:not(.theme-vk-dark) .dp-game-bullets li { color: #6e6e73; }
