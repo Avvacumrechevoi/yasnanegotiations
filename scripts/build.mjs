@@ -29,8 +29,9 @@ const isWatch = process.argv.includes('--watch');
 
 const APP_FILES = [
   'core/data.js',
+  'core/content-store.js', // ← Tier-1 + Tier-2 merge layer (должен быть ДО trivia-bank)
   'core/yasna-3d.js',
-  'core/astro-panel.js',  // ← независимый модуль «Астрономия» (UI + хуки)
+  'core/astro-panel.js',
   'core/verification.js',
   'core/dialogs.js',
   'core/info-card.js',
@@ -60,6 +61,7 @@ const APP_FILES = [
 
 const DUEL_FILES = [
   'core/data.js',
+  'core/content-store.js',  // ← Tier-1+Tier-2 merge (для duel-page тоже)
   'core/yasna-3d.js',
   'core/verification.js',
   'core/dialogs.js',

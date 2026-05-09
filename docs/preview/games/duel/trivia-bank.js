@@ -268,7 +268,17 @@
   // Это даёт плавный переход: по мере добавления тем T2…T10 в content/,
   // движок автоматически перейдёт на атомизированный контент.
   // ───────────────────────────────────────────────────────────────────
-  const NEW = (typeof window !== 'undefined' && window.YasnaContent) || null;
+  // Читаем РАЗРЕШЁННЫЙ контент (Tier-1 + Tier-2 merge), если есть.
+  // Если ContentStore не успел инициализироваться — fallback на raw bundle.
+  // На событие 'yasna-content-updated' банк перезагружается автоматически.
+  function getNewContent(){
+    if(typeof window === 'undefined') return null;
+    return (window.YasnaContentStore && window.YasnaContentStore.getResolved())
+      || window.YasnaContentResolved
+      || window.YasnaContent
+      || null;
+  }
+  const NEW = getNewContent();
   const NEW_THEMES = NEW?.THEMES || [];
   const NEW_QUESTIONS = NEW?.QUESTIONS || [];
   const NEW_QUESTIONS_FULL = NEW?.QUESTIONS_FULL || [];
@@ -293,21 +303,42 @@
     'osi-kresty': 'antipody'
   };
 
-  let MERGED_QUESTIONS = QUESTIONS;
-  if(!useNew && NEW_QUESTIONS.length > 0){
-    const remapped = NEW_QUESTIONS.map(q => {
-      const legacyTheme = SLUG_TO_LEGACY[q.theme];
-      return legacyTheme ? { ...q, theme: legacyTheme } : null;
-    }).filter(Boolean);
-    if(remapped.length > 0){
-      MERGED_QUESTIONS = [...QUESTIONS, ...remapped];
+  // ─── Re-resolve content на каждое обновление ContentStore ────────
+  // Раньше эти константы вычислялись один раз при загрузке скрипта.
+  // Теперь — пересобираем когда приходит событие 'yasna-content-updated'
+  // (после успешного fetch overrides из YDB).
+  let ACTIVE_THEMES = [];
+  let ACTIVE_QUESTIONS = [];
+
+  function rebuild(){
+    const fresh = getNewContent() || NEW;
+    const themes = (fresh?.THEMES || NEW_THEMES);
+    const questions = (fresh?.QUESTIONS || NEW_QUESTIONS);
+
+    const themesForPartiya = themes.filter(t => t.includeInPartiya !== false);
+    const useNewLocal = themesForPartiya.length >= 6 && questions.length >= 18;
+
+    let merged = QUESTIONS;  // legacy hardcoded
+    if(!useNewLocal && questions.length > 0){
+      const remapped = questions.map(q => {
+        const legacyTheme = SLUG_TO_LEGACY[q.theme];
+        return legacyTheme ? { ...q, theme: legacyTheme } : null;
+      }).filter(Boolean);
+      if(remapped.length > 0){
+        merged = [...QUESTIONS, ...remapped];
+      }
+    }
+
+    ACTIVE_THEMES = useNewLocal ? themesForPartiya : THEMES;
+    const raw = useNewLocal ? questions : merged;
+    ACTIVE_QUESTIONS = raw.filter(isQuestionValid);
+
+    const skipped = raw.length - ACTIVE_QUESTIONS.length;
+    if(skipped > 0){
+      console.log('[YasnaTrivia] Отфильтровано', skipped,
+        'вопросов (битые / отключённые типы:', [...DISABLED_TYPES].join(', '), ')');
     }
   }
-
-  // Для партии используем фильтрованный список (без T10).
-  // Все темы доступны через getAllThemes() для UI / Партитуры.
-  const ACTIVE_THEMES = useNew ? NEW_THEMES_FOR_PARTIYA : THEMES;
-  const ACTIVE_QUESTIONS_RAW = useNew ? NEW_QUESTIONS : MERGED_QUESTIONS;
 
   // ─── Валидация и фильтрация вопросов ────────────────────────────────
   // Защита от двух типов проблем:
@@ -323,7 +354,6 @@
     if(!text || typeof text !== 'string') return false;
     const type = q.type || 'single-choice';
     if(DISABLED_TYPES.has(type)) return false;
-    // Per-type checks
     if(type === 'single-choice'){
       return Array.isArray(q.options) && q.options.length >= 2
         && (typeof q.correct === 'number' || typeof q.correct === 'string');
@@ -341,15 +371,18 @@
         && q.pairsLeft.length === q.pairsRight.length
         && q.pairsLeft.length >= 2;
     }
-    return false;  // Неизвестный тип — не пропускаем
+    return false;
   }
 
-  // Применяем фильтр + считаем статистику (для дев-консоли)
-  const ACTIVE_QUESTIONS = ACTIVE_QUESTIONS_RAW.filter(isQuestionValid);
-  const SKIPPED_COUNT = ACTIVE_QUESTIONS_RAW.length - ACTIVE_QUESTIONS.length;
-  if(SKIPPED_COUNT > 0){
-    console.log('[YasnaTrivia] Отфильтровано', SKIPPED_COUNT,
-      'вопросов (битые / отключённые типы:', [...DISABLED_TYPES].join(', '), ')');
+  // Первичный билд (с тем что есть на момент загрузки)
+  rebuild();
+  // Подписка на обновления контента — пересобираем когда YasnaContentStore
+  // подтянет свежие overrides из бэкенда.
+  if(typeof window !== 'undefined'){
+    window.addEventListener('yasna-content-updated', () => {
+      rebuild();
+      console.log('[YasnaTrivia] Контент перерезолвлен:', ACTIVE_QUESTIONS.length, 'вопросов');
+    });
   }
 
   if(NEW){
@@ -484,15 +517,24 @@
     return () => { x = (x * 9301 + 49297) % 233280; return x / 233280; };
   }
 
+  // Глобальный API: getter-свойства чтобы THEMES/QUESTIONS всегда отдавали
+  // АКТУАЛЬНЫЕ значения после rebuild() (а не snapshot на момент load).
   window.YasnaTrivia = {
-    THEMES: ACTIVE_THEMES,
-    QUESTIONS: ACTIVE_QUESTIONS,
+    get THEMES(){ return ACTIVE_THEMES; },
+    get QUESTIONS(){ return ACTIVE_QUESTIONS; },
     getThemes, getTheme, getQuestionsForTheme, getAllQuestions, generatePartiya,
-    // расширенный API (новый контент)
     getAtoms, getQuestionsFull,
     MODE_CONFIG,
-    // флаг для UI: показывать ли «Атомизированный контент» индикатор
-    isUsingNewBank: useNew,
-    contentVersion: NEW?.version || 'legacy-1.0'
+    rebuild,  // ← можно вызвать вручную из консоли для дебага
+    get isUsingNewBank(){
+      const fresh = getNewContent() || NEW;
+      return (fresh?.THEMES || []).filter(t => t.includeInPartiya !== false).length >= 6
+        && (fresh?.QUESTIONS || []).length >= 18;
+    },
+    get contentVersion(){
+      const fresh = getNewContent() || NEW;
+      const meta = fresh?._meta?.revision;
+      return (fresh?.version || 'legacy-1.0') + (meta?.revisionId ? ' · ' + meta.revisionId : '');
+    },
   };
 })();
