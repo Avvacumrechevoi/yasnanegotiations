@@ -525,25 +525,31 @@
   }
 
   // ─── Баннер обратной связи (после ответа) ───────────────────────
+  // Не дублируем «Верно» / «Не верно» — это уже видно по подсветке варианта
+  // (зелёный SOLID = правильный, красный SOLID = ошибочный). Здесь показываем
+  // только дополнительную инфу: streak-бонус, заработанные бусины, timeout.
   function TnFeedbackBanner({ kind, busey, streak, mult }){
     if(kind === 'correct'){
+      const showStreak = streak >= 3;
+      const showBusey  = busey > 0;
+      // Если нет ни streak, ни бусин — банер не нужен (одной зелёной кнопки хватит)
+      if(!showStreak && !showBusey) return null;
       return React.createElement('div', { className: 'tn-feedback tn-feedback-correct' },
-        React.createElement('span', { className: 'tn-feedback-icon', 'aria-hidden': 'true' }, '✦'),
-        React.createElement('span', { className: 'tn-feedback-text' }, 'Верно'),
-        // Серия — показывается при 3+ верных
-        streak >= 3 && React.createElement('span', { className: 'tn-feedback-streak' },
+        showStreak && React.createElement('span', { className: 'tn-feedback-streak' },
           '🔥 ', streak, ' подряд · ×', mult.toFixed(1)
         ),
-        busey > 0 && React.createElement('span', { className: 'tn-feedback-busey' }, '+', busey, ' бусин')
+        showBusey && React.createElement('span', { className: 'tn-feedback-busey' }, '+', busey, ' бусин')
       );
     }
     if(kind === 'wrong'){
+      // Для wrong: показываем только если серия только что сброшена.
+      // Иначе — пусто (красная кнопка уже всё сказала).
+      if(streak !== 0) return null;
       return React.createElement('div', { className: 'tn-feedback tn-feedback-wrong' },
-        React.createElement('span', { className: 'tn-feedback-icon', 'aria-hidden': 'true' }, '◯'),
-        React.createElement('span', { className: 'tn-feedback-text' }, 'Не верно'),
-        streak === 0 && React.createElement('span', { className: 'tn-feedback-streak-broken' }, 'серия сброшена')
+        React.createElement('span', { className: 'tn-feedback-streak-broken' }, '🔥 серия сброшена')
       );
     }
+    // Timeout — особый случай: ни одна опция не выделена, поэтому нужен текст
     return React.createElement('div', { className: 'tn-feedback tn-feedback-timeout' },
       React.createElement('span', { className: 'tn-feedback-icon', 'aria-hidden': 'true' }, '◷'),
       React.createElement('span', { className: 'tn-feedback-text' }, 'Время вышло')

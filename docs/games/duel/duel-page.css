@@ -1493,36 +1493,56 @@ a { color: inherit; }
 }
 .tn-option-mark-wrong { color: var(--danger); }
 
-/* Состояния после ответа */
+/* ─── Состояния после ответа ─────────────────────────────────────
+   Дизайн: SOLID-filled статусы с БЕЛЫМ текстом — максимальный контраст
+   и читабельность. Цвета — токены VK design system (--vk-success,
+   --vk-danger). Светлая и тёмная темы используют тот же подход. */
+
+/* Correct — игрок выбрал верный вариант */
 .tn-option-correct {
-  background: var(--primary-soft);
-  border-color: var(--primary);
-  color: var(--primary-strong);
+  background: var(--vk-success, #59A840);
+  border-color: var(--vk-success, #59A840);
+  color: #ffffff;
 }
+.tn-option-correct .tn-option-text { color: #ffffff; font-weight: 600; }
 .tn-option-correct .tn-option-letter {
-  background: var(--primary);
-  color: white;
+  background: rgba(255,255,255,0.22);
+  color: #ffffff;
 }
+.tn-option-correct .tn-option-mark { color: #ffffff; }
+
+/* Shown-correct — игрок выбрал НЕправильный, а это была верная.
+   Чуть менее насыщенный: рамка зелёная + полупрозрачный фон + ✓.
+   Это «вот как было правильно», а не «ты ответил верно». */
 .tn-option-shown-correct {
-  background: var(--primary-soft);
-  border-color: var(--primary);
-  color: var(--primary-strong);
+  background: rgba(89, 168, 64, 0.18);
+  border-color: var(--vk-success, #59A840);
+  color: var(--vk-success, #59A840);
 }
+.tn-option-shown-correct .tn-option-text { color: #2C7A1F; font-weight: 600; }
 .tn-option-shown-correct .tn-option-letter {
-  background: var(--primary);
-  color: white;
+  background: var(--vk-success, #59A840);
+  color: #ffffff;
 }
+.tn-option-shown-correct .tn-option-mark { color: var(--vk-success, #59A840); }
+
+/* Wrong — игрок выбрал неверный (этот) */
 .tn-option-wrong {
-  background: #fef2f2;
-  border-color: var(--danger);
-  color: var(--danger);
+  background: var(--vk-danger, #E1334E);
+  border-color: var(--vk-danger, #E1334E);
+  color: #ffffff;
 }
+.tn-option-wrong .tn-option-text { color: #ffffff; font-weight: 600; }
 .tn-option-wrong .tn-option-letter {
-  background: var(--danger);
-  color: white;
+  background: rgba(255,255,255,0.22);
+  color: #ffffff;
 }
+.tn-option-wrong .tn-option-mark,
+.tn-option-wrong .tn-option-mark-wrong { color: #ffffff; }
+
+/* Disabled — нейтральные варианты которые игрок не выбирал и не правильные */
 .tn-option-disabled {
-  opacity: 0.45;
+  opacity: 0.42;
   cursor: default;
 }
 

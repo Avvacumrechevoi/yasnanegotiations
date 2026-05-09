@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T19:44:39.081Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T20:03:23.780Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5877,7 +5877,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T19:44:37.359Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T20:03:22.526Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -19534,13 +19534,13 @@ window.YasnaCore = {
   }
   function TnFeedbackBanner({ kind, busey, streak, mult }) {
     if (kind === "correct") {
+      const showStreak = streak >= 3;
+      const showBusey = busey > 0;
+      if (!showStreak && !showBusey) return null;
       return React.createElement(
         "div",
         { className: "tn-feedback tn-feedback-correct" },
-        React.createElement("span", { className: "tn-feedback-icon", "aria-hidden": "true" }, "\u2726"),
-        React.createElement("span", { className: "tn-feedback-text" }, "\u0412\u0435\u0440\u043D\u043E"),
-        // Серия — показывается при 3+ верных
-        streak >= 3 && React.createElement(
+        showStreak && React.createElement(
           "span",
           { className: "tn-feedback-streak" },
           "\u{1F525} ",
@@ -19548,16 +19548,15 @@ window.YasnaCore = {
           " \u043F\u043E\u0434\u0440\u044F\u0434 \xB7 \xD7",
           mult.toFixed(1)
         ),
-        busey > 0 && React.createElement("span", { className: "tn-feedback-busey" }, "+", busey, " \u0431\u0443\u0441\u0438\u043D")
+        showBusey && React.createElement("span", { className: "tn-feedback-busey" }, "+", busey, " \u0431\u0443\u0441\u0438\u043D")
       );
     }
     if (kind === "wrong") {
+      if (streak !== 0) return null;
       return React.createElement(
         "div",
         { className: "tn-feedback tn-feedback-wrong" },
-        React.createElement("span", { className: "tn-feedback-icon", "aria-hidden": "true" }, "\u25EF"),
-        React.createElement("span", { className: "tn-feedback-text" }, "\u041D\u0435 \u0432\u0435\u0440\u043D\u043E"),
-        streak === 0 && React.createElement("span", { className: "tn-feedback-streak-broken" }, "\u0441\u0435\u0440\u0438\u044F \u0441\u0431\u0440\u043E\u0448\u0435\u043D\u0430")
+        React.createElement("span", { className: "tn-feedback-streak-broken" }, "\u{1F525} \u0441\u0435\u0440\u0438\u044F \u0441\u0431\u0440\u043E\u0448\u0435\u043D\u0430")
       );
     }
     return React.createElement(
