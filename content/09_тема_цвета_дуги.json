@@ -879,7 +879,7 @@
       "id": "T9.Q4",
       "type": "single-choice",
       "difficulty": "easy",
-      "stem": "Из _____ разгорается Пламя.",
+      "stem": "Из … разгорается Пламя.",
       "correct": "Искры",
       "correct_alternatives": [
         "искры"
@@ -977,7 +977,7 @@
       "id": "T9.Q7",
       "type": "single-choice",
       "difficulty": "medium",
-      "stem": "Всякая _____ есть вместилище Искры.",
+      "stem": "Всякая … есть вместилище Искры.",
       "correct": "вода",
       "correct_alternatives": [
         "Вода",

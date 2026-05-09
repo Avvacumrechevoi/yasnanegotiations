@@ -1040,14 +1040,21 @@
     );
   }
 
-  // ─── Объяснение скоринга (помогает понять смысл игры) ──────────
+  // ─── Объяснение скоринга — компактные карточки ──────────────────
+  // Дизайн: две строки в табличном виде «число — за что».
+  // Без италика и смешивания bold/regular в одной строке.
   function TnFinalScoring(){
     return React.createElement('div', { className: 'tn-final-scoring' },
-      React.createElement('div', { className: 'tn-final-scoring-eyebrow' }, '◷  Как считаются бусины'),
-      React.createElement('div', { className: 'tn-final-scoring-text' },
-        React.createElement('strong', null, '10 бусин'), ' за верный ответ. ',
-        '+ до ', React.createElement('strong', null, '5 бусин'), ' за быстрый ответ. ',
-        React.createElement('em', null, 'Точность важнее скорости.')
+      React.createElement('div', { className: 'tn-final-scoring-eyebrow' }, 'Как считаются бусины'),
+      React.createElement('div', { className: 'tn-final-scoring-rows' },
+        React.createElement('div', { className: 'tn-final-scoring-row' },
+          React.createElement('span', { className: 'tn-final-scoring-num' }, '10'),
+          React.createElement('span', { className: 'tn-final-scoring-desc' }, 'за верный ответ')
+        ),
+        React.createElement('div', { className: 'tn-final-scoring-row' },
+          React.createElement('span', { className: 'tn-final-scoring-num' }, '+5'),
+          React.createElement('span', { className: 'tn-final-scoring-desc' }, 'за скорость · точность важнее')
+        )
       )
     );
   }
@@ -1232,7 +1239,8 @@
           }),
           !oppDisconnected && React.createElement(TnFinalRecap, { partiyaLog }),
           !oppDisconnected && React.createElement(TnFinalScoring, null),
-          !oppDisconnected && React.createElement(TnFinalArchive, null),
+          // Блок «записана в три места» удалён — это техническая инфа, не нужна пользователю.
+          // Прогресс и так зачитывается автоматически (Хроника, Достижения, Партитура).
           React.createElement(TnFinalActions, { onAgain, onClose })
         )
       )
