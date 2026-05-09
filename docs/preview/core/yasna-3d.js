@@ -269,20 +269,52 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       depthWrite: false,  // избегаем z-fighting между прозрачными трубками
     });
 
-    function makeBipyramid(indices, color, opacity){
+    function makeBipyramid(indices, color, opacity, solid){
       const grp = new THREE.Group();
       const pts = indices.map(i => equatorPos(i));
       const mat = tubeMat(color, opacity);
+      // Каркас рёбер
       for(let k=0; k<pts.length; k++){
         const next = pts[(k+1) % pts.length];
-        const t = makeTube(pts[k], next, 1.1, mat); if(t) grp.add(t);
-        const tN = makeTube(pts[k], NORTH, 0.9, mat); if(tN) grp.add(tN);
-        const tS = makeTube(pts[k], SOUTH, 0.9, mat); if(tS) grp.add(tS);
+        const t = makeTube(pts[k], next, solid?0.6:1.1, mat); if(t) grp.add(t);
+        const tN = makeTube(pts[k], NORTH, solid?0.5:0.9, mat); if(tN) grp.add(tN);
+        const tS = makeTube(pts[k], SOUTH, solid?0.5:0.9, mat); if(tS) grp.add(tS);
       }
       const apexGeom = new THREE.SphereGeometry(2.2, 16, 12);
       const apexMat = tubeMat(color, Math.min(opacity*1.5, 1));
       const apexN = new THREE.Mesh(apexGeom, apexMat); apexN.position.copy(NORTH); grp.add(apexN);
       const apexS = new THREE.Mesh(apexGeom.clone(), apexMat); apexS.position.copy(SOUTH); grp.add(apexS);
+      // ── Сплошная заливка: треугольные грани бипирамиды ──
+      // Бипирамида имеет 2N треугольников: N верхних (NORTH-a-b) + N нижних (SOUTH-b-a).
+      // Геометрия строится через BufferGeometry с авто-нормалями.
+      if(solid){
+        const positions = [];
+        const N = pts.length;
+        for(let k=0; k<N; k++){
+          const a = pts[k];
+          const b = pts[(k+1) % N];
+          // Верхний треугольник: NORTH → a → b (CCW снаружи)
+          positions.push(NORTH.x, NORTH.y, NORTH.z);
+          positions.push(a.x,     a.y,     a.z);
+          positions.push(b.x,     b.y,     b.z);
+          // Нижний треугольник: SOUTH → b → a (CCW снаружи, обратный порядок)
+          positions.push(SOUTH.x, SOUTH.y, SOUTH.z);
+          positions.push(b.x,     b.y,     b.z);
+          positions.push(a.x,     a.y,     a.z);
+        }
+        const geom = new THREE.BufferGeometry();
+        geom.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        geom.computeVertexNormals();
+        const fillMat = new THREE.MeshStandardMaterial({
+          color, transparent:true, opacity: 0.55,
+          metalness: 0.55, roughness: 0.30,
+          emissive: color, emissiveIntensity: 0.20,
+          side: THREE.DoubleSide,
+          depthWrite: false,
+        });
+        const fillMesh = new THREE.Mesh(geom, fillMat);
+        grp.add(fillMesh);
+      }
       return grp;
     }
 
@@ -456,7 +488,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
         {id:'left',    col:0x5B9CF6, idx:[2,5,8,11]},  // VK Light Blue
       ];
       crossDefs.forEach(c=>{
-        if(active.includes(c.id)) mechGroup.add(makeBipyramid(c.idx, c.col, baseOp));
+        if(active.includes(c.id)) mechGroup.add(makeBipyramid(c.idx, c.col, baseOp, solidMode));
       });
 
       const pranaDefs = [
@@ -466,7 +498,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
         {id:'ha',  col:0xF06838, idx:[3,7,11]},  // Огонь
       ];
       pranaDefs.forEach(p=>{
-        if(active.includes(p.id)) mechGroup.add(makeBipyramid(p.idx, p.col, solidMode?0.88:0.6));
+        if(active.includes(p.id)) mechGroup.add(makeBipyramid(p.idx, p.col, solidMode?0.88:0.6, solidMode));
       });
 
       if(active.includes('opp')){

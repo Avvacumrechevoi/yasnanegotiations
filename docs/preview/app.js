@@ -1097,13 +1097,14 @@ function App(){
               <span style={{flex:1,textAlign:'left'}}>Совместить</span>
               <span style={{fontSize:10,color:overlay?'#a21caf':'#aeaeb2',fontWeight:600}}>{overlay?'Вкл':'Выкл'}</span>
             </button>
-            {/* Сплошной режим — только в 3D, заполняет геометрические фигуры механик */}
-            {is3D && <button onClick={()=>setSolidMech(s=>!s)} title='Заполнить геометрические фигуры механик сплошной заливкой' style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1px solid ${solidMech?'rgba(0,113,227,.5)':'#e5e5ea'}`,background:solidMech?'rgba(0,113,227,.10)':'#fff',color:solidMech?'#0058b8':'#424245',fontSize:12.5,cursor:'pointer',fontWeight:500}}>
+            {/* Сплошной режим — только в 3D, заполняет геометрические фигуры механик.
+                Активный стейт по VK Tech: solid accent fill + БЕЛЫЙ текст (не синее на синем). */}
+            {is3D && <button onClick={()=>setSolidMech(s=>!s)} title='Заполнить геометрические фигуры механик сплошной заливкой' style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1px solid ${solidMech?'#0071e3':'#e5e5ea'}`,background:solidMech?'#0071e3':'#fff',color:solidMech?'#fff':'#424245',fontSize:12.5,cursor:'pointer',fontWeight:solidMech?600:500,boxShadow:solidMech?'0 2px 8px rgba(0,113,227,.25)':'none'}}>
               <span style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:18,height:18,flexShrink:0}}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill={solidMech?'currentColor':'none'} stroke="currentColor" strokeWidth="1.8"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/></svg>
               </span>
               <span style={{flex:1,textAlign:'left'}}>Сплошной режим</span>
-              <span style={{fontSize:10,color:solidMech?'#0058b8':'#aeaeb2',fontWeight:600}}>{solidMech?'Вкл':'Выкл'}</span>
+              <span style={{fontSize:10,color:solidMech?'rgba(255,255,255,.85)':'#aeaeb2',fontWeight:700}}>{solidMech?'Вкл':'Выкл'}</span>
             </button>}
           </div>
         </div>}

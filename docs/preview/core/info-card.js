@@ -219,8 +219,9 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose,onSel}){
         <div className="fi-handle-bar" style={{width:36,height:4,borderRadius:2,background:'#d2d2d7'}}/>
       </div>
       <div className="fi-header-zone" style={{padding:'4px 18px 8px',flexShrink:0,position:'relative'}}>
-        <button onClick={onClose} style={{position:'absolute',top:2,right:12,width:28,height:28,borderRadius:'50%',border:'1px solid #e5e5ea',background:'#f5f5f7',fontSize:14,color:'#86868b',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:1}}>✕</button>
-        <div style={{display:'flex',alignItems:'center',gap:12,paddingRight:34}}>
+        {/* Close — выровнен по вертикальной середине ряда заголовка через top:50% / translateY */}
+        <button onClick={onClose} aria-label='Закрыть' title='Закрыть' style={{position:'absolute',top:'50%',right:12,transform:'translateY(-50%)',width:30,height:30,borderRadius:'50%',border:'1px solid #e5e5ea',background:'#f5f5f7',fontSize:18,lineHeight:1,color:'#86868b',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:1,padding:0}}>×</button>
+        <div style={{display:'flex',alignItems:'center',gap:12,paddingRight:38}}>
           <div style={{width:36,height:36,borderRadius:'50%',border:`2px solid ${cr.c}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:700,color:cr.c,flexShrink:0}}>{i}</div>
           <div style={{flex:1,minWidth:0}}>
             <div style={{fontSize:16,color:'#1d1d1f',fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{label||<span style={{color:'#aeaeb2'}}>Не заполнено</span>}</div>
