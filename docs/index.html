@@ -8,7 +8,7 @@
 <meta http-equiv="Expires" content="0"/>
 <meta name="theme-color" content="#0071e3"/>
 <title>Ясна — интерактивный тренажёр</title>
-<meta name="description" content="Метод Ясны — увидеть устройство любого явления в 12-частной структуре. Уроки, гид, проверка, дуэль с ботом."/>
+<meta name="description" content="Метод Ясны — увидеть устройство любого явления в 12-частной структуре. Уроки, гид, проверка, дуэль с Тенью."/>
 
 <!-- Open Graph / shared link previews -->
 <meta property="og:type" content="website"/>
@@ -27,6 +27,14 @@
 <meta name="yasna:tg-bot" content="YasnaDuelBot"/>
 
 <link rel="stylesheet" href="styles.css"/>
+<!-- VK Tech Design System — токены (Figma 19:92826) -->
+<link rel="stylesheet" href="vk-tech-tokens.css?v=20"/>
+<!-- VK Dark Theme — точечные правки гида (только preview) -->
+<link rel="stylesheet" href="theme-vk-dark-guide.css?v=8"/>
+
+<!-- Авто-редирект на start.html отключён — index.html всегда грузится напрямую.
+     Лендинг доступен по прямой ссылке /preview/start.html. -->
+
 </head>
 <body>
 <div id="root"></div>
@@ -49,6 +57,109 @@
 <!-- Pre-built bundle (см. scripts/build.mjs · npm run build) -->
 <!-- Включает: core/* + lessons/* + tours/* + games/duel/* + app.js -->
 <!-- Без bundle браузер качал бы babel-standalone ~3MB и компилировал JSX в рантайме. -->
-<script src="dist/app.min.js"></script>
+<script src="dist/app.min.js?v=vktokens7"></script>
+
+<!-- ═══ VK Dark Theme Toggle (только preview) ═══════════════════════
+     Переключатель тёмной темы — инжектится прямо в .hdr-btns
+     (где соседствуют другие хедер-кнопки: «Гид», «⤢ полноэкран»).
+     React не управляет нашей кнопкой — мы её добавляем через DOM.
+     MutationObserver re-инжектит если React пере-смонтирует .hdr-btns.
+     На мобиле кнопка живёт в свободном top-right (иконка-only).
+     ─────────────────────────────────────────────────────────────── -->
+<script>
+(function(){
+  'use strict';
+  var STORAGE_KEY = 'yasna_theme_vk_dark';
+  var BODY_CLASS = 'theme-vk-dark';
+
+  function isOn(){
+    try { return localStorage.getItem(STORAGE_KEY) === '1'; }
+    catch(_){ return false; }
+  }
+  function applyClass(on){
+    if(on) document.body.classList.add(BODY_CLASS);
+    else document.body.classList.remove(BODY_CLASS);
+  }
+  function updateButton(btn, on){
+    if(!btn) return;
+    var icon = btn.querySelector('.dp-theme-toggle-icon');
+    var label = btn.querySelector('.dp-theme-toggle-label');
+    if(icon)  icon.textContent  = on ? '☀' : '🌑';
+    if(label) label.textContent = on ? 'Светлая' : 'Тёмная';
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.title = on
+      ? 'Выключить экспериментальную тёмную тему'
+      : 'Включить экспериментальную тёмную тему';
+  }
+  function applyAll(on){
+    applyClass(on);
+    document.querySelectorAll('.dp-theme-toggle').forEach(function(b){ updateButton(b, on); });
+  }
+  function toggle(){
+    var next = !isOn();
+    try { localStorage.setItem(STORAGE_KEY, next ? '1' : '0'); } catch(_){}
+    applyAll(next);
+  }
+
+  // Применяем СРАЗУ (до первой отрисовки если возможно)
+  applyClass(isOn());
+
+  function makeButton(variant){
+    var btn = document.createElement('button');
+    btn.className = 'dp-theme-toggle' + (variant ? ' dp-theme-toggle--' + variant : '');
+    btn.type = 'button';
+    // Header-вариант — только иконка (экономим место). Floating mobile — иконка тоже.
+    var iconOnly = (variant === 'header' || variant === 'floating');
+    btn.innerHTML = iconOnly
+      ? '<span class="dp-theme-toggle-icon" aria-hidden="true">🌑</span>'
+      : '<span class="dp-theme-toggle-icon" aria-hidden="true">🌑</span>' +
+        '<span class="dp-theme-toggle-label">Тёмная</span>';
+    btn.addEventListener('click', toggle);
+    updateButton(btn, isOn());
+    return btn;
+  }
+
+  // ─── Инжект в .hdr-btns (desktop хедер) ───
+  // Кнопка вставляется ПОСЛЕДНИМ ребёнком, рядом с «⤢». MutationObserver
+  // следит — если React пере-смонтировал хедер, инжектим заново.
+  function injectIntoHeader(){
+    var hdrBtns = document.querySelector('.hdr-btns');
+    if(hdrBtns && !hdrBtns.querySelector(':scope > .dp-theme-toggle')){
+      var btn = makeButton('header');
+      // Вставляем ПЕРЕД кнопкой «Войти» (если есть) — иначе в конец.
+      var profileBtn = hdrBtns.querySelector(':scope > .hdr-btn-profile');
+      if(profileBtn){
+        hdrBtns.insertBefore(btn, profileBtn);
+      } else {
+        hdrBtns.appendChild(btn);
+      }
+    }
+    // Mobile: floating уже не нужен — тема живёт внутри бургера.
+    // Оставляем код для обратной совместимости, но скрыт через CSS @media.
+    if(!document.querySelector('body > .dp-theme-toggle--floating')){
+      var fbtn = makeButton('floating');
+      document.body.appendChild(fbtn);
+    }
+  }
+
+  function startObserver(){
+    injectIntoHeader();
+    var obs = new MutationObserver(function(mutations){
+      // Если кнопки пропали (React re-mount) — инжектим заново.
+      if(!document.querySelector('.hdr-btns > .dp-theme-toggle--header') ||
+         !document.querySelector('body > .dp-theme-toggle--floating')){
+        injectIntoHeader();
+      }
+    });
+    obs.observe(document.body, { childList: true, subtree: true });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', startObserver);
+  } else {
+    startObserver();
+  }
+})();
+</script>
 </body>
 </html>

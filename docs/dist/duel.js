@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T22:02:11.418Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T22:08:17.352Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -4747,7 +4747,7 @@ window.YasnaCore = {
         },
         t.n
       );
-    }))), peerjsAvailable && /* @__PURE__ */ React.createElement("div", { className: "duel-transport-toggle" }, /* @__PURE__ */ React.createElement("div", { className: "duel-label", style: { textAlign: "center", marginBottom: 6 } }, "\u0422\u0438\u043F \u0441\u043E\u0435\u0434\u0438\u043D\u0435\u043D\u0438\u044F"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, justifyContent: "center" } }, /* @__PURE__ */ React.createElement("button", { className: "duel-btn duel-pill " + (transportType === "peerjs" ? "duel-pill-active" : ""), onClick: () => setTransportType("peerjs"), title: "\u0420\u0435\u0430\u043B\u044C\u043D\u044B\u0439 online \u0447\u0435\u0440\u0435\u0437 WebRTC" }, "\u{1F310} Online"), /* @__PURE__ */ React.createElement("button", { className: "duel-btn duel-pill " + (transportType === "broadcast" ? "duel-pill-active" : ""), onClick: () => setTransportType("broadcast"), title: "\u0422\u043E\u043B\u044C\u043A\u043E \u0432 \u043E\u0434\u043D\u043E\u043C \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0435 (\u0434\u0432\u0435 \u0432\u043A\u043B\u0430\u0434\u043A\u0438)" }, "\u{1F5A5} \u042D\u0442\u0430 \u0432\u043A\u043B\u0430\u0434\u043A\u0430"))), /* @__PURE__ */ React.createElement("button", { className: "duel-btn duel-btn-primary", onClick: create }, "\uFF0B \u0421\u043E\u0437\u0434\u0430\u0442\u044C \u043A\u043E\u043C\u043D\u0430\u0442\u0443"), /* @__PURE__ */ React.createElement("div", { className: "duel-bot-section" }, /* @__PURE__ */ React.createElement("div", { className: "duel-label", style: { textAlign: "center", marginBottom: 6 } }, "\u{1F916} \u0422\u0440\u0435\u043D\u0438\u0440\u043E\u0432\u043A\u0430 \u0441 \u0431\u043E\u0442\u043E\u043C"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, justifyContent: "center" } }, /* @__PURE__ */ React.createElement("button", { className: "duel-btn duel-pill", onClick: () => startVsBot("easy"), title: "\u041B\u0451\u0433\u043A\u0438\u0439 \u0431\u043E\u0442" }, "\u{1F60A} \u041B\u0451\u0433\u043A\u0438\u0439"), /* @__PURE__ */ React.createElement("button", { className: "duel-btn duel-pill", onClick: () => startVsBot("medium"), title: "\u0421\u0440\u0435\u0434\u043D\u0438\u0439 \u0431\u043E\u0442" }, "\u{1F642} \u0421\u0440\u0435\u0434\u043D\u0438\u0439"), /* @__PURE__ */ React.createElement("button", { className: "duel-btn duel-pill", onClick: () => startVsBot("hard"), title: "\u0421\u043B\u043E\u0436\u043D\u044B\u0439 \u0431\u043E\u0442" }, "\u{1F608} \u0421\u043B\u043E\u0436\u043D\u044B\u0439"))), /* @__PURE__ */ React.createElement("div", { className: "duel-or" }, "\u2014 \u0438\u043B\u0438 \u2014"), /* @__PURE__ */ React.createElement("div", { className: "duel-join" }, /* @__PURE__ */ React.createElement(
+    }))), peerjsAvailable && /* @__PURE__ */ React.createElement("div", { className: "duel-transport-toggle" }, /* @__PURE__ */ React.createElement("div", { className: "duel-label", style: { textAlign: "center", marginBottom: 6 } }, "\u0422\u0438\u043F \u0441\u043E\u0435\u0434\u0438\u043D\u0435\u043D\u0438\u044F"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, justifyContent: "center" } }, /* @__PURE__ */ React.createElement("button", { className: "duel-btn duel-pill " + (transportType === "peerjs" ? "duel-pill-active" : ""), onClick: () => setTransportType("peerjs"), title: "\u0420\u0435\u0430\u043B\u044C\u043D\u044B\u0439 online \u0447\u0435\u0440\u0435\u0437 WebRTC" }, "\u{1F310} Online"), /* @__PURE__ */ React.createElement("button", { className: "duel-btn duel-pill " + (transportType === "broadcast" ? "duel-pill-active" : ""), onClick: () => setTransportType("broadcast"), title: "\u0422\u043E\u043B\u044C\u043A\u043E \u0432 \u043E\u0434\u043D\u043E\u043C \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0435 (\u0434\u0432\u0435 \u0432\u043A\u043B\u0430\u0434\u043A\u0438)" }, "\u{1F5A5} \u042D\u0442\u0430 \u0432\u043A\u043B\u0430\u0434\u043A\u0430"))), /* @__PURE__ */ React.createElement("button", { className: "duel-btn duel-btn-primary", onClick: create }, "\uFF0B \u0421\u043E\u0437\u0434\u0430\u0442\u044C \u043A\u043E\u043C\u043D\u0430\u0442\u0443"), /* @__PURE__ */ React.createElement("div", { className: "duel-bot-section" }, /* @__PURE__ */ React.createElement("div", { className: "duel-label", style: { textAlign: "center", marginBottom: 6 } }, "\u{1F916} \u0422\u0440\u0435\u043D\u0438\u0440\u043E\u0432\u043A\u0430 \u0441 \u0422\u0435\u043D\u044C\u044E"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6, justifyContent: "center" } }, /* @__PURE__ */ React.createElement("button", { className: "duel-btn duel-pill", onClick: () => startVsBot("easy"), title: "\u041B\u0451\u0433\u043A\u0438\u0439 \u0431\u043E\u0442" }, "\u{1F60A} \u041B\u0451\u0433\u043A\u0438\u0439"), /* @__PURE__ */ React.createElement("button", { className: "duel-btn duel-pill", onClick: () => startVsBot("medium"), title: "\u0421\u0440\u0435\u0434\u043D\u0438\u0439 \u0431\u043E\u0442" }, "\u{1F642} \u0421\u0440\u0435\u0434\u043D\u0438\u0439"), /* @__PURE__ */ React.createElement("button", { className: "duel-btn duel-pill", onClick: () => startVsBot("hard"), title: "\u0421\u043B\u043E\u0436\u043D\u044B\u0439 \u0431\u043E\u0442" }, "\u{1F608} \u0421\u043B\u043E\u0436\u043D\u044B\u0439"))), /* @__PURE__ */ React.createElement("div", { className: "duel-or" }, "\u2014 \u0438\u043B\u0438 \u2014"), /* @__PURE__ */ React.createElement("div", { className: "duel-join" }, /* @__PURE__ */ React.createElement(
       "input",
       {
         placeholder: "\u041A\u043E\u0434 \u0434\u0440\u0443\u0433\u0430",
@@ -5861,7 +5861,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T22:02:11.001Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T22:08:16.919Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -21188,7 +21188,7 @@ window.YasnaCore = {
             "div",
             { className: "dp-help-popover" },
             React.createElement("h4", null, "\u041A\u0430\u043A \u044D\u0442\u043E \u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442"),
-            React.createElement("div", null, "\u041F\u0430\u0440\u0442\u0438\u044F \u2014 \u0438\u0433\u0440\u043E\u0432\u0430\u044F \u0432\u0438\u043A\u0442\u043E\u0440\u0438\u043D\u0430 \u043F\u043E \u043C\u043E\u0434\u0435\u043B\u0438 \u042F\u0441\u043D\u044B \u0421\u0443\u0442\u043E\u043A. \u0412\u044B\u0431\u0438\u0440\u0430\u0435\u0448\u044C \u0434\u043B\u0438\u043D\u0443 (\u0411\u043B\u0438\u0446 10 / \u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442 18 / \u042D\u043A\u0441\u043F\u0435\u0440\u0442 30) \u0438 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u0430 (\u0422\u0435\u043D\u044C-\u0431\u043E\u0442 \u0438\u043B\u0438 \u0436\u0438\u0432\u043E\u0439 \u0434\u0440\u0443\u0433). 5 \u0442\u0438\u043F\u043E\u0432 \u0437\u0430\u0434\u0430\u043D\u0438\u0439, \u0440\u0430\u0437\u0431\u043E\u0440 \u043E\u0448\u0438\u0431\u043E\u043A \u0441 \u0446\u0438\u0442\u0430\u0442\u0430\u043C\u0438 \u0438\u0437 \u043A\u043D\u0438\u0433\u0438 \u0432 \u0444\u0438\u043D\u0430\u043B\u0435."),
+            React.createElement("div", null, "\u041F\u0430\u0440\u0442\u0438\u044F \u2014 \u0438\u0433\u0440\u043E\u0432\u0430\u044F \u0432\u0438\u043A\u0442\u043E\u0440\u0438\u043D\u0430 \u043F\u043E \u043C\u043E\u0434\u0435\u043B\u0438 \u042F\u0441\u043D\u044B \u0421\u0443\u0442\u043E\u043A. \u0412\u044B\u0431\u0438\u0440\u0430\u0435\u0448\u044C \u0434\u043B\u0438\u043D\u0443 (\u0411\u043B\u0438\u0446 10 / \u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442 18 / \u042D\u043A\u0441\u043F\u0435\u0440\u0442 30) \u0438 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u0430 (\u0422\u0435\u043D\u044C \u0438\u043B\u0438 \u0436\u0438\u0432\u043E\u0439 \u0434\u0440\u0443\u0433). 5 \u0442\u0438\u043F\u043E\u0432 \u0437\u0430\u0434\u0430\u043D\u0438\u0439, \u0440\u0430\u0437\u0431\u043E\u0440 \u043E\u0448\u0438\u0431\u043E\u043A \u0441 \u0446\u0438\u0442\u0430\u0442\u0430\u043C\u0438 \u0438\u0437 \u043A\u043D\u0438\u0433\u0438 \u0432 \u0444\u0438\u043D\u0430\u043B\u0435."),
             React.createElement(
               "ul",
               null,
@@ -21269,7 +21269,7 @@ window.YasnaCore = {
       React.createElement(
         "p",
         { className: "dp-welcome-sub" },
-        "\u0423\u0447\u0438\u0441\u044C \u043C\u043E\u0434\u0435\u043B\u0438 \u042F\u0441\u043D\u044B \u0421\u0443\u0442\u043E\u043A \u0447\u0435\u0440\u0435\u0437 \u0438\u0433\u0440\u043E\u0432\u044B\u0435 \u043F\u0430\u0440\u0442\u0438\u0438. 9 \u0442\u0435\u043C \xB7 124 \u0432\u043E\u043F\u0440\u043E\u0441\u0430 \xB7 5 \u0442\u0438\u043F\u043E\u0432 \u0437\u0430\u0434\u0430\u043D\u0438\u0439. \u0412\u044B\u0431\u0438\u0440\u0430\u0435\u0448\u044C \u0434\u043B\u0438\u043D\u0443 (\u0411\u043B\u0438\u0446 10 / \u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442 18 / \u042D\u043A\u0441\u043F\u0435\u0440\u0442 30) \u0438 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u0430 \u2014 \u0422\u0435\u043D\u044C-\u0431\u043E\u0442 \u0438\u043B\u0438 \u0436\u0438\u0432\u043E\u0439 \u0434\u0440\u0443\u0433 \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435. \u0417\u0430 \u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 \u2014 10 \u0431\u0443\u0441\u0438\u043D, \u0434\u043E +5 \u0437\u0430 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u044C, \u0441\u0435\u0440\u0438\u044F \u0438\u0437 3+ \u0432\u0435\u0440\u043D\u044B\u0445 \u0434\u0430\u0451\u0442 \u043C\u043D\u043E\u0436\u0438\u0442\u0435\u043B\u044C."
+        "\u0423\u0447\u0438\u0441\u044C \u043C\u043E\u0434\u0435\u043B\u0438 \u042F\u0441\u043D\u044B \u0421\u0443\u0442\u043E\u043A \u0447\u0435\u0440\u0435\u0437 \u0438\u0433\u0440\u043E\u0432\u044B\u0435 \u043F\u0430\u0440\u0442\u0438\u0438. 9 \u0442\u0435\u043C \xB7 124 \u0432\u043E\u043F\u0440\u043E\u0441\u0430 \xB7 5 \u0442\u0438\u043F\u043E\u0432 \u0437\u0430\u0434\u0430\u043D\u0438\u0439. \u0412\u044B\u0431\u0438\u0440\u0430\u0435\u0448\u044C \u0434\u043B\u0438\u043D\u0443 (\u0411\u043B\u0438\u0446 10 / \u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442 18 / \u042D\u043A\u0441\u043F\u0435\u0440\u0442 30) \u0438 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u0430 \u2014 \u0422\u0435\u043D\u044C \u0438\u043B\u0438 \u0436\u0438\u0432\u043E\u0439 \u0434\u0440\u0443\u0433 \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435. \u0417\u0430 \u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 \u2014 10 \u0431\u0443\u0441\u0438\u043D, \u0434\u043E +5 \u0437\u0430 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u044C, \u0441\u0435\u0440\u0438\u044F \u0438\u0437 3+ \u0432\u0435\u0440\u043D\u044B\u0445 \u0434\u0430\u0451\u0442 \u043C\u043D\u043E\u0436\u0438\u0442\u0435\u043B\u044C."
       ),
       React.createElement(
         "div",
@@ -21512,7 +21512,7 @@ window.YasnaCore = {
             React.createElement("li", null, "4 \u0444\u043E\u0440\u043C\u0430\u0442\u0430: \u0432\u044B\u0431\u043E\u0440 \u0438\u0437 4 \xB7 \u0432\u0435\u0440\u043D\u043E/\u043D\u0435\u0442 \xB7 \u043D\u0435\u0441\u043A\u043E\u043B\u044C\u043A\u043E \u0432\u0435\u0440\u043D\u044B\u0445 \xB7 \u0441\u043E\u0435\u0434\u0438\u043D\u0438 \u043F\u0430\u0440\u044B"),
             React.createElement("li", null, "\u0412 \u0444\u0438\u043D\u0430\u043B\u0435 \u2014 \u0440\u0430\u0437\u0431\u043E\u0440 \u043E\u0448\u0438\u0431\u043E\u043A \u0441 \u0446\u0438\u0442\u0430\u0442\u0430\u043C\u0438 \u0438\u0437 \u043A\u043D\u0438\u0433\u0438")
           ),
-          // ─── Две CTA-кнопки: Соло (с Тенью-ботом) или PvP (с другом по ссылке) ───
+          // ─── Две CTA-кнопки: Соло (с Тенью) или PvP (с другом по ссылке) ───
           React.createElement(
             "div",
             { className: "dp-cta-row" },
@@ -21541,7 +21541,7 @@ window.YasnaCore = {
                 "span",
                 { className: "dp-cta__body" },
                 React.createElement("span", { className: "dp-cta__title" }, "\u0418\u0433\u0440\u0430\u0442\u044C \u0441\u043E\u043B\u043E"),
-                React.createElement("span", { className: "dp-cta__sub" }, "\u043F\u0440\u043E\u0442\u0438\u0432 \u0422\u0435\u043D\u0438-\u0431\u043E\u0442\u0430")
+                React.createElement("span", { className: "dp-cta__sub" }, "\u043F\u0440\u043E\u0442\u0438\u0432 \u0422\u0435\u043D\u0438")
               )
             ),
             React.createElement(
@@ -23329,9 +23329,8 @@ window.YasnaCore = {
                 " \u0442\u0435\u043C."
               )
             ),
-            // ═════ Footer: Главная CTA ═════
-            // Соперник уже выбран на карточке (Solo/PvP), здесь только запуск.
-            // preferredOpponent → определяет какой start-handler вызывать.
+            // ═════ Footer: одна большая CTA-кнопка ═════
+            // Соперник выбран на карточке (Solo/PvP), здесь только запуск.
             (() => {
               const opp = partiyaPicker.preferredOpponent || "shadow";
               const isPvp = opp === "pvp";
@@ -23347,12 +23346,6 @@ window.YasnaCore = {
               return React.createElement(
                 "section",
                 { className: "dp-picker-footer" },
-                React.createElement(
-                  "div",
-                  { className: "dp-picker-footer-meta" },
-                  React.createElement("span", { className: "dp-picker-footer-icon", "aria-hidden": "true" }, isPvp ? "\u25D0\u25D1" : "\u{1F317}"),
-                  React.createElement("span", null, isPvp ? "\u0418\u0433\u0440\u0430\u0435\u0448\u044C \u0441 \u0434\u0440\u0443\u0433\u043E\u043C \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435" : "\u0418\u0433\u0440\u0430\u0435\u0448\u044C \u0441\u043E\u043B\u043E \u043F\u0440\u043E\u0442\u0438\u0432 \u0422\u0435\u043D\u0438-\u0431\u043E\u0442\u0430")
-                ),
                 React.createElement("button", {
                   className: "dp-picker-footer-cta",
                   onClick: handleStart,

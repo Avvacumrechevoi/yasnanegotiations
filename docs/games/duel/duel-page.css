@@ -2588,43 +2588,38 @@ body.theme-vk-dark .dp-theme-banner {
 body.theme-vk-dark .dp-theme-banner__name { color: var(--text-1, #fff); }
 body.theme-vk-dark .dp-theme-banner__count { color: var(--text-2, #aeaeb2); }
 
-/* ─── Picker footer: meta + main CTA ───────────────────────────
-   Соперник уже выбран на карточке — в footer'е только напоминание
-   («играешь соло» / «играешь с другом») + одна большая кнопка start. */
+/* ─── Picker — шире чем стандартная auth-modal ─────────────────
+   Picker содержит сетку тем 2-3 колонки, нужно больше места. */
+.dp-partiya-picker--v2 {
+  max-width: 580px !important;
+}
+
+/* ─── Picker footer: одна большая CTA на всю ширину ───────────
+   Соперник уже выбран на карточке — здесь только запуск.
+   Одна крупная кнопка во всю ширину, чёткие отступы. */
 .dp-picker-footer {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding-top: 16px;
+  margin-top: 8px;
+  padding-top: 20px;
   border-top: 1px solid var(--border-1, #e5e5ea);
 }
-.dp-picker-footer-meta {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12.5px;
-  color: var(--text-2, #6e6e73);
-  line-height: 1.4;
-}
-.dp-picker-footer-icon { font-size: 14px; opacity: 0.7; }
-
 .dp-picker-footer-cta {
+  width: 100%;
   background: var(--vk-accent, #0077FF);
   border: none;
   color: #ffffff;
   font-family: inherit;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
-  padding: 12px 20px;
-  border-radius: 10px;
+  padding: 16px 24px;
+  border-radius: 12px;
   cursor: pointer;
   transition: all .15s ease;
-  white-space: nowrap;
+  letter-spacing: -0.005em;
 }
 .dp-picker-footer-cta:hover:not(:disabled) {
   background: #16A7FF;
   transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 119, 255, 0.30);
 }
 .dp-picker-footer-cta:active:not(:disabled) { transform: translateY(0); }
 .dp-picker-footer-cta:disabled {
@@ -2633,12 +2628,7 @@ body.theme-vk-dark .dp-theme-banner__count { color: var(--text-2, #aeaeb2); }
 }
 .dp-picker-footer-cta:focus-visible {
   outline: 2px solid var(--vk-accent, #0077FF);
-  outline-offset: 2px;
-}
-
-@media (max-width: 480px) {
-  .dp-picker-footer { flex-direction: column; align-items: stretch; }
-  .dp-picker-footer-cta { width: 100%; }
+  outline-offset: 3px;
 }
 
 body:not(.theme-vk-dark) .dp-picker-footer { border-top-color: #f0f0f2; }

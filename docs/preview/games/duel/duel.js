@@ -876,7 +876,7 @@
         this._scheduleBotActions(matchId);
       }
       // Если игра прислала mirror-init — нужно отзеркалить (бот же гость, должен бы получить от хоста)
-      // На самом деле с ботом всё локально, можно ничего не делать.
+      // На самом деле с Тенью всё локально, можно ничего не делать.
     }
 
     _emit(msg, delay){
@@ -1289,7 +1289,7 @@
             <button className="duel-btn duel-btn-primary" onClick={create}>＋ Создать комнату</button>
 
             <div className="duel-bot-section">
-              <div className="duel-label" style={{textAlign:'center',marginBottom:6}}>🤖 Тренировка с ботом</div>
+              <div className="duel-label" style={{textAlign:'center',marginBottom:6}}>🤖 Тренировка с Тенью</div>
               <div style={{display:'flex',gap:6,justifyContent:'center'}}>
                 <button className="duel-btn duel-pill" onClick={() => startVsBot('easy')} title="Лёгкий бот">😊 Лёгкий</button>
                 <button className="duel-btn duel-pill" onClick={() => startVsBot('medium')} title="Средний бот">🙂 Средний</button>

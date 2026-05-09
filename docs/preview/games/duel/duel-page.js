@@ -204,7 +204,7 @@
           }, '?'),
           helpOpen && React.createElement('div', { className: 'dp-help-popover' },
             React.createElement('h4', null, 'Как это работает'),
-            React.createElement('div', null, 'Партия — игровая викторина по модели Ясны Суток. Выбираешь длину (Блиц 10 / Стандарт 18 / Эксперт 30) и соперника (Тень-бот или живой друг). 5 типов заданий, разбор ошибок с цитатами из книги в финале.'),
+            React.createElement('div', null, 'Партия — игровая викторина по модели Ясны Суток. Выбираешь длину (Блиц 10 / Стандарт 18 / Эксперт 30) и соперника (Тень или живой друг). 5 типов заданий, разбор ошибок с цитатами из книги в финале.'),
             React.createElement('ul', null,
               React.createElement('li', null, React.createElement('strong', null, 'Бусины ✦'), ' — очки за партии. +10 за верный ответ, +5 бонус за скорость, ×1.2…×2.0 множитель за серию.'),
               React.createElement('li', null, React.createElement('strong', null, 'Ступень'), ' — твой уровень. Растёт по бусинам: от Послушника до Магистра.'),
@@ -275,7 +275,7 @@
       React.createElement('div', { className: 'dp-welcome-eyebrow' }, '✦  Тренажёр Ясны'),
       React.createElement('h1', { className: 'dp-welcome-title' }, 'Ясна —', React.createElement('br'), 'мастерство в игре.'),
       React.createElement('p', { className: 'dp-welcome-sub' },
-        'Учись модели Ясны Суток через игровые партии. 9 тем · 124 вопроса · 5 типов заданий. Выбираешь длину (Блиц 10 / Стандарт 18 / Эксперт 30) и соперника — Тень-бот или живой друг по ссылке. За верный ответ — 10 бусин, до +5 за скорость, серия из 3+ верных даёт множитель.'
+        'Учись модели Ясны Суток через игровые партии. 9 тем · 124 вопроса · 5 типов заданий. Выбираешь длину (Блиц 10 / Стандарт 18 / Эксперт 30) и соперника — Тень или живой друг по ссылке. За верный ответ — 10 бусин, до +5 за скорость, серия из 3+ верных даёт множитель.'
       ),
       React.createElement('div', { className: 'dp-welcome-actions' },
         React.createElement('button', { className: 'dp-btn dp-btn-cta', onClick: onLoginClick }, 'Войти через Telegram'),
@@ -479,7 +479,7 @@
             React.createElement('li', null, '4 формата: выбор из 4 · верно/нет · несколько верных · соедини пары'),
             React.createElement('li', null, 'В финале — разбор ошибок с цитатами из книги')
           ),
-          // ─── Две CTA-кнопки: Соло (с Тенью-ботом) или PvP (с другом по ссылке) ───
+          // ─── Две CTA-кнопки: Соло (с Тенью) или PvP (с другом по ссылке) ───
           React.createElement('div', { className: 'dp-cta-row' },
             React.createElement('button', {
               type: 'button',
@@ -495,7 +495,7 @@
               ),
               React.createElement('span', { className: 'dp-cta__body' },
                 React.createElement('span', { className: 'dp-cta__title' }, 'Играть соло'),
-                React.createElement('span', { className: 'dp-cta__sub' }, 'против Тени-бота')
+                React.createElement('span', { className: 'dp-cta__sub' }, 'против Тени')
               )
             ),
             React.createElement('button', {
@@ -2036,9 +2036,8 @@
               )
             ),
 
-            // ═════ Footer: Главная CTA ═════
-            // Соперник уже выбран на карточке (Solo/PvP), здесь только запуск.
-            // preferredOpponent → определяет какой start-handler вызывать.
+            // ═════ Footer: одна большая CTA-кнопка ═════
+            // Соперник выбран на карточке (Solo/PvP), здесь только запуск.
             (() => {
               const opp = partiyaPicker.preferredOpponent || 'shadow';
               const isPvp = opp === 'pvp';
@@ -2052,10 +2051,6 @@
                 }
               };
               return React.createElement('section', { className: 'dp-picker-footer' },
-                React.createElement('div', { className: 'dp-picker-footer-meta' },
-                  React.createElement('span', { className: 'dp-picker-footer-icon', 'aria-hidden': 'true' }, isPvp ? '◐◑' : '🌗'),
-                  React.createElement('span', null, isPvp ? 'Играешь с другом по ссылке' : 'Играешь соло против Тени-бота')
-                ),
                 React.createElement('button', {
                   className: 'dp-picker-footer-cta',
                   onClick: handleStart,
