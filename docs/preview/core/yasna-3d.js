@@ -242,6 +242,25 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
         astroSun = sun;  // сохраняем для анимации в animate loop'е
       }
 
+      // Терминатор — большой круг перпендикулярно направлению на Солнце.
+      // Делит сферу на освещённую (день) и тёмную (ночь) половины.
+      // Геометрия — Line с 96 точками, координаты обновляются в animate loop'е.
+      {
+        const segs = 96;
+        const positions = new Float32Array((segs + 1) * 3);
+        const geom = new THREE.BufferGeometry();
+        geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const mat = new THREE.LineBasicMaterial({
+          color: 0xF6C64A,
+          transparent: true,
+          opacity: 0.45,
+          linewidth: 1.5,
+        });
+        const terminator = new THREE.LineLoop(geom, mat);
+        astroGroup.add(terminator);
+        astroGroup.userData.terminator = terminator;
+      }
+
       // ─── Дополнительные параллели — географическая сетка ─────────
       // Слабые тонкие линии на широтах ±15°, ±30°, ±45°, ±60°.
       // Это создаёт ощущение глобуса с координатной сеткой.
@@ -1050,25 +1069,54 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
         const speedDeg = 360 / ((live.speedSec||24) * 1000);
         wheelGroup.rotation.y += dir * dt * speedDeg * Math.PI/180;
       }
-      // Цикл Солнца — движение по эклиптике + пульсация. Активно только когда
-      // астро-режим включён И dayCycle включён (под-toggle Цикл Солнца).
-      if(astroSun && live.astroMode && live.dayCycle){
-        // Скорость: один полный обход эклиптики за live.speedSec секунд
-        // (синхронизировано с скоростью вращения колеса для гармонии)
+      // Цикл Солнца — движение по эклиптике + пульсация + терминатор + день/ночь.
+      // Активно только когда астро-режим включён И dayCycle включён.
+      const dayCycleOn = !!(astroSun && live.astroMode && live.dayCycle);
+      if(dayCycleOn){
+        // Один полный обход эклиптики за live.speedSec секунд
         const cycleMs = (live.speedSec||24) * 1000;
         sunAng += (dt / cycleMs) * Math.PI * 2;
         if(sunAng > Math.PI*2) sunAng -= Math.PI*2;
         const cosT = Math.cos(23.5 * Math.PI / 180);
         const sinT = Math.sin(23.5 * Math.PI / 180);
-        const x = R * Math.cos(sunAng);
-        const z = R * Math.sin(sunAng);
-        astroSun.position.set(x, z * sinT, z * cosT);
-        // Пульсация интенсивности — Солнце «дышит»
+        const sx = R * Math.cos(sunAng);
+        const sz = R * Math.sin(sunAng);
+        const sy = sz * sinT;
+        const sZ = sz * cosT;
+        astroSun.position.set(sx, sy, sZ);
+        // Пульсация интенсивности
         const pulse = 0.6 + 0.2 * Math.sin(now * 0.002);
         if(astroSun.material) astroSun.material.emissiveIntensity = pulse;
+
+        // Обновление терминатора: большой круг перпендикулярно направлению на Солнце.
+        // Берём ось на Солнце (нормализованную), строим базис (e1, e2) в плоскости
+        // перпендикулярно ей, и параметрически обходим круг радиуса R.
+        const term = astroGroup.userData.terminator;
+        if(term){
+          const sunDir = new THREE.Vector3(sx, sy, sZ).normalize();
+          // Произвольный вектор не параллельный sunDir → e1
+          const helper = Math.abs(sunDir.y) < 0.9 ? new THREE.Vector3(0,1,0) : new THREE.Vector3(1,0,0);
+          const e1 = new THREE.Vector3().crossVectors(sunDir, helper).normalize();
+          const e2 = new THREE.Vector3().crossVectors(sunDir, e1).normalize();
+          const positions = term.geometry.attributes.position.array;
+          const segs = positions.length / 3 - 1;
+          for(let i=0; i<=segs; i++){
+            const ang = (i / segs) * Math.PI * 2;
+            const cx = e1.x*Math.cos(ang) + e2.x*Math.sin(ang);
+            const cy = e1.y*Math.cos(ang) + e2.y*Math.sin(ang);
+            const cz = e1.z*Math.cos(ang) + e2.z*Math.sin(ang);
+            positions[i*3]   = cx * R;
+            positions[i*3+1] = cy * R;
+            positions[i*3+2] = cz * R;
+          }
+          term.geometry.attributes.position.needsUpdate = true;
+          term.visible = true;
+        }
       } else if(astroSun){
-        // Когда dayCycle выключен — Солнце фиксировано в точке летнего солнцестояния
         astroSun.material && (astroSun.material.emissiveIntensity = 0.7);
+        // Скрыть терминатор когда цикл выключен
+        const term = astroGroup.userData.terminator;
+        if(term) term.visible = false;
       }
       // Selected polka — пульсация emissive + лёгкое увеличение
       pulsePhase += dt * 0.003;
@@ -1101,6 +1149,25 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
           p.material.transparent = false;
         }
       });
+
+      // День/ночь подсветка полок — модулирует яркость каждой полки в зависимости
+      // от dot product между направлением на полку и направлением на Солнце.
+      // Только когда астро-режим + цикл Солнца активны, и полка не выбрана/в drill.
+      if(dayCycleOn && astroSun && !drilling){
+        const sunDir = astroSun.position.clone().normalize();
+        polki.forEach((p, i) => {
+          if(i === live.sel) return;  // выбранная полка имеет свою пульсацию
+          const polkaDir = p.position.clone().normalize();
+          const dot = polkaDir.dot(sunDir);  // [-1, 1]: 1=прямо под Солнцем, -1=противоположно
+          // Сглаженная карта: dot=1 → 0.45 (день), dot=-1 → 0.04 (глубокая ночь)
+          const dayFactor = (dot + 1) / 2;  // [0, 1]
+          const intensity = 0.04 + dayFactor * 0.41;
+          p.material.emissiveIntensity = intensity;
+          // Полки на ночной стороне немного мельче (чтобы тёмная половина «уходила» оптически)
+          const targetScale = 0.85 + dayFactor * 0.15;
+          p.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.08);
+        });
+      }
 
       // Самовращение зодиакальных монет (если активны)
       if(mechGroup.userData.zodiacCoinsAnim){

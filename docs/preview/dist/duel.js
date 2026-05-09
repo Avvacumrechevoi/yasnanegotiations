@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T11:49:46.083Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T11:54:19.532Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -805,6 +805,21 @@
           astroGroup.add(sun);
           astroSun = sun;
         }
+        {
+          const segs = 96;
+          const positions = new Float32Array((segs + 1) * 3);
+          const geom = new THREE.BufferGeometry();
+          geom.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+          const mat = new THREE.LineBasicMaterial({
+            color: 16172618,
+            transparent: true,
+            opacity: 0.45,
+            linewidth: 1.5
+          });
+          const terminator = new THREE.LineLoop(geom, mat);
+          astroGroup.add(terminator);
+          astroGroup.userData.terminator = terminator;
+        }
         [15, 30, 45, 60].forEach((deg) => {
           const rad2 = deg * Math.PI / 180;
           const y2 = R * Math.sin(rad2);
@@ -1564,19 +1579,44 @@
           const speedDeg = 360 / ((live.speedSec || 24) * 1e3);
           wheelGroup.rotation.y += dir * dt * speedDeg * Math.PI / 180;
         }
-        if (astroSun && live.astroMode && live.dayCycle) {
+        const dayCycleOn = !!(astroSun && live.astroMode && live.dayCycle);
+        if (dayCycleOn) {
           const cycleMs = (live.speedSec || 24) * 1e3;
           sunAng += dt / cycleMs * Math.PI * 2;
           if (sunAng > Math.PI * 2) sunAng -= Math.PI * 2;
           const cosT = Math.cos(23.5 * Math.PI / 180);
           const sinT = Math.sin(23.5 * Math.PI / 180);
-          const x = R * Math.cos(sunAng);
-          const z = R * Math.sin(sunAng);
-          astroSun.position.set(x, z * sinT, z * cosT);
+          const sx = R * Math.cos(sunAng);
+          const sz = R * Math.sin(sunAng);
+          const sy = sz * sinT;
+          const sZ = sz * cosT;
+          astroSun.position.set(sx, sy, sZ);
           const pulse = 0.6 + 0.2 * Math.sin(now * 2e-3);
           if (astroSun.material) astroSun.material.emissiveIntensity = pulse;
+          const term = astroGroup.userData.terminator;
+          if (term) {
+            const sunDir = new THREE.Vector3(sx, sy, sZ).normalize();
+            const helper = Math.abs(sunDir.y) < 0.9 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0);
+            const e1 = new THREE.Vector3().crossVectors(sunDir, helper).normalize();
+            const e2 = new THREE.Vector3().crossVectors(sunDir, e1).normalize();
+            const positions = term.geometry.attributes.position.array;
+            const segs = positions.length / 3 - 1;
+            for (let i = 0; i <= segs; i++) {
+              const ang = i / segs * Math.PI * 2;
+              const cx = e1.x * Math.cos(ang) + e2.x * Math.sin(ang);
+              const cy = e1.y * Math.cos(ang) + e2.y * Math.sin(ang);
+              const cz = e1.z * Math.cos(ang) + e2.z * Math.sin(ang);
+              positions[i * 3] = cx * R;
+              positions[i * 3 + 1] = cy * R;
+              positions[i * 3 + 2] = cz * R;
+            }
+            term.geometry.attributes.position.needsUpdate = true;
+            term.visible = true;
+          }
         } else if (astroSun) {
           astroSun.material && (astroSun.material.emissiveIntensity = 0.7);
+          const term = astroGroup.userData.terminator;
+          if (term) term.visible = false;
         }
         pulsePhase += dt * 3e-3;
         const drilling = live.drill != null;
@@ -1606,6 +1646,19 @@
             p.material.transparent = false;
           }
         });
+        if (dayCycleOn && astroSun && !drilling) {
+          const sunDir = astroSun.position.clone().normalize();
+          polki.forEach((p, i) => {
+            if (i === live.sel) return;
+            const polkaDir = p.position.clone().normalize();
+            const dot = polkaDir.dot(sunDir);
+            const dayFactor = (dot + 1) / 2;
+            const intensity = 0.04 + dayFactor * 0.41;
+            p.material.emissiveIntensity = intensity;
+            const targetScale = 0.85 + dayFactor * 0.15;
+            p.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.08);
+          });
+        }
         if (mechGroup.userData.zodiacCoinsAnim) {
           mechGroup.children.forEach((ch) => {
             if (ch.userData && ch.userData.spinAxis) {
@@ -5522,7 +5575,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T11:49:45.180Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T11:54:18.660Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
