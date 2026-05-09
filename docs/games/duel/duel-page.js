@@ -1831,7 +1831,9 @@
         ? React.createElement(DPWelcome, { onLoginClick, onAnonStart: () => setAnonModal(true) })
         : React.createElement('main', { id: 'main' },
             React.createElement(DPCastaliaTitle, null),
-            React.createElement(DPHeroCTA, { onPartiya: askPartiyaMode, onUzor: startUzorPvP }),
+            // DPHeroCTA удалён — дублировал карточки в DPMainGames с собственными
+            // CTA кнопками («Играть соло» / «С другом»). Карточки богаче по
+            // содержимому, чем shortcut-кнопки сверху, и видны без скролла.
             React.createElement(DPProfileHero, { user, profile, onLoginClick, remoteProfile }),
             React.createElement(DPSyncNotice, { user, onLoginClick }),
             React.createElement(DPMainGames, { onPartiya: askPartiyaMode, onUzor: startUzorPvP }),

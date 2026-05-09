@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T21:31:52.779Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T21:38:23.987Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5861,7 +5861,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T21:31:52.335Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T21:38:23.357Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -23091,7 +23091,9 @@ window.YasnaCore = {
         "main",
         { id: "main" },
         React.createElement(DPCastaliaTitle, null),
-        React.createElement(DPHeroCTA, { onPartiya: askPartiyaMode, onUzor: startUzorPvP }),
+        // DPHeroCTA удалён — дублировал карточки в DPMainGames с собственными
+        // CTA кнопками («Играть соло» / «С другом»). Карточки богаче по
+        // содержимому, чем shortcut-кнопки сверху, и видны без скролла.
         React.createElement(DPProfileHero, { user, profile, onLoginClick, remoteProfile }),
         React.createElement(DPSyncNotice, { user, onLoginClick }),
         React.createElement(DPMainGames, { onPartiya: askPartiyaMode, onUzor: startUzorPvP }),
