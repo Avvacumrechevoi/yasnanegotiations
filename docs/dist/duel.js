@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T22:17:13.116Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T22:45:05.356Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5861,7 +5861,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T22:17:12.642Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T22:45:04.720Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -23177,23 +23177,27 @@ window.YasnaCore = {
         const setMode = (m) => setPartiyaPicker({ ...partiyaPicker, mode: m });
         const setExpanded = (v) => setPartiyaPicker({ ...partiyaPicker, expanded: v });
         const setSelectedThemes = (s) => setPartiyaPicker({ ...partiyaPicker, selectedThemes: s });
-        const allThemes = window.YasnaTrivia && window.YasnaTrivia.getThemes() || [];
-        const isAllSelected = !selectedThemes;
-        const selectedSet = selectedThemes ? new Set(selectedThemes) : null;
-        const selectedCount = isAllSelected ? allThemes.length : selectedThemes.length;
+        const allThemesRaw = window.YasnaTrivia && window.YasnaTrivia.getThemes() || [];
+        const allThemes = allThemesRaw.filter((t) => {
+          var _a, _b;
+          const qs = ((_b = (_a = window.YasnaTrivia) == null ? void 0 : _a.getQuestionsForTheme) == null ? void 0 : _b.call(_a, t.id)) || [];
+          return qs.length > 0;
+        });
+        const isAllSelected = selectedThemes === null;
+        const isEmpty = Array.isArray(selectedThemes) && selectedThemes.length === 0;
+        const selectedSet = selectedThemes && Array.isArray(selectedThemes) ? new Set(selectedThemes) : null;
+        const selectedCount = isAllSelected ? allThemes.length : (selectedThemes == null ? void 0 : selectedThemes.length) || 0;
         const toggleTheme = (themeId) => {
           if (isAllSelected) {
-            const ns = new Set(allThemes.map((t) => t.id));
-            ns.delete(themeId);
-            setSelectedThemes([...ns]);
+            setSelectedThemes([themeId]);
           } else {
-            const ns = new Set(selectedThemes);
+            const ns = new Set(selectedThemes || []);
             if (ns.has(themeId)) ns.delete(themeId);
             else ns.add(themeId);
             setSelectedThemes([...ns]);
           }
         };
-        const resetThemes = () => setSelectedThemes(null);
+        const resetThemes = () => setSelectedThemes([]);
         const modes = [
           { id: "blitz", label: "\u0411\u043B\u0438\u0446", count: 10, time: "~2 \u043C\u0438\u043D", sub: "\u0440\u0430\u0437\u043E\u0433\u0440\u0435\u0432" },
           { id: "standard", label: "\u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442", count: 18, time: "~5 \u043C\u0438\u043D", sub: "\u043E\u0441\u043D\u043E\u0432\u043D\u043E\u0439" },
@@ -23244,12 +23248,9 @@ window.YasnaCore = {
                     React.createElement("div", { className: "dp-mode-btn-time" }, m.time)
                   )
                 )
-              ),
-              React.createElement(
-                "p",
-                { className: "dp-mode-desc" },
-                cur.id === "blitz" ? "\u041A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0440\u0430\u0437\u043E\u0433\u0440\u0435\u0432. 5 \u0442\u0435\u043C \u043F\u043E 2 \u0432\u043E\u043F\u0440\u043E\u0441\u0430." : cur.id === "expert" ? "\u0413\u043B\u0443\u0431\u043E\u043A\u0438\u0439 \u0437\u0430\u0445\u043E\u0434. 6 \u0442\u0435\u043C \u043F\u043E 5 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432." : "\u041E\u0441\u043D\u043E\u0432\u043D\u043E\u0439 \u0440\u0435\u0436\u0438\u043C. 6 \u0442\u0435\u043C \u043F\u043E 3 \u0432\u043E\u043F\u0440\u043E\u0441\u0430."
               )
+              // Подпись «Основной режим. 6 тем по 3 вопроса» удалена —
+              // избыточна, цифры режима уже видно на самой кнопке.
             ),
             // ═════ СЕКЦИЯ 2: Темы ═════
             React.createElement(
@@ -23263,10 +23264,12 @@ window.YasnaCore = {
                   "div",
                   { className: "dp-picker-section-meta" },
                   isAllSelected ? "\u0432\u0441\u0435 " + allThemes.length : selectedCount + " \u0438\u0437 " + allThemes.length,
-                  !isAllSelected && React.createElement("button", {
+                  // Сбросить — только если что-то выбрано (selectedCount > 0)
+                  selectedCount > 0 && React.createElement("button", {
                     className: "dp-themes-reset",
                     onClick: resetThemes,
-                    type: "button"
+                    type: "button",
+                    title: "\u041E\u0447\u0438\u0441\u0442\u0438\u0442\u044C \u0432\u044B\u0431\u043E\u0440"
                   }, "\u21BA \u0441\u0431\u0440\u043E\u0441\u0438\u0442\u044C")
                 )
               ),
@@ -23302,20 +23305,17 @@ window.YasnaCore = {
                 { className: "dp-themes-warn" },
                 "\u26A0  \u0412\u044B\u0431\u0435\u0440\u0438 \u0445\u043E\u0442\u044F \u0431\u044B \u043E\u0434\u043D\u0443 \u0442\u0435\u043C\u0443."
               ),
-              fewThemes && React.createElement(
+              // Hint когда выбрана только 1 тема — показываем что все вопросы
+              // будут из неё. Это норм поведение, не ограничение.
+              selectedCount === 1 && React.createElement(
                 "div",
                 {
                   className: "dp-themes-hint",
                   style: { fontSize: 11, color: "#86868b", marginTop: 6, lineHeight: 1.5 }
                 },
-                "\u0412\u044B\u0431\u0440\u0430\u043D\u0430 ",
-                selectedCount,
-                " \u0442\u0435\u043C\u0430 \u2014 \u0432\u0441\u0435 ",
+                "\u0412\u0441\u0435 ",
                 cur.count,
-                " \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u0431\u0443\u0434\u0443\u0442 \u0438\u0437 \u043D\u0435\u0451. ",
-                "\u041F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E \u0440\u0435\u0436\u0438\u043C \u0440\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u044F\u0435\u0442\u0441\u044F \u043D\u0430 ",
-                idealThemesCount,
-                " \u0442\u0435\u043C."
+                " \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u0431\u0443\u0434\u0443\u0442 \u0438\u0437 \u0432\u044B\u0431\u0440\u0430\u043D\u043D\u043E\u0439 \u0442\u0435\u043C\u044B."
               )
             ),
             // ═════ Footer: одна большая CTA-кнопка ═════

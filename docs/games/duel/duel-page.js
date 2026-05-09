@@ -1911,24 +1911,41 @@
         const setExpanded = (v) => setPartiyaPicker({ ...partiyaPicker, expanded: v });
         const setSelectedThemes = (s) => setPartiyaPicker({ ...partiyaPicker, selectedThemes: s });
 
-        const allThemes = (window.YasnaTrivia && window.YasnaTrivia.getThemes()) || [];
-        const isAllSelected = !selectedThemes;
-        const selectedSet = selectedThemes ? new Set(selectedThemes) : null;
-        const selectedCount = isAllSelected ? allThemes.length : selectedThemes.length;
+        // ─── Источник тем ────────────────────────────────────────
+        // window.YasnaTrivia.getThemes() возвращает getter-свойство ACTIVE_THEMES
+        // из trivia-bank.js. trivia-bank подписан на 'yasna-content-updated' →
+        // при публикации правок в админке (Tier-2 overrides из YDB) ACTIVE_THEMES
+        // пересобирается. Темы баседайн (фиксированы в content/*.json), но если
+        // у темы 0 вопросов после правок — отфильтровываем здесь, чтобы игрок
+        // не мог выбрать пустую тему. См. docs/CONTENT_ARCHITECTURE.md.
+        const allThemesRaw = (window.YasnaTrivia && window.YasnaTrivia.getThemes()) || [];
+        const allThemes = allThemesRaw.filter(t => {
+          const qs = window.YasnaTrivia?.getQuestionsForTheme?.(t.id) || [];
+          return qs.length > 0;
+        });
+
+        // selectedThemes:
+        //   null  — backward-compat «все темы»
+        //   []    — сброшено пользователем, ничего не выбрано (требует выбор)
+        //   [...] — выбранные id
+        const isAllSelected = selectedThemes === null;
+        const isEmpty = Array.isArray(selectedThemes) && selectedThemes.length === 0;
+        const selectedSet = (selectedThemes && Array.isArray(selectedThemes)) ? new Set(selectedThemes) : null;
+        const selectedCount = isAllSelected ? allThemes.length : (selectedThemes?.length || 0);
 
         const toggleTheme = (themeId) => {
           if(isAllSelected){
-            // первый клик в кастоме — снимаем выделение со всех кроме клика-оппонента
-            const ns = new Set(allThemes.map(t => t.id));
-            ns.delete(themeId);
-            setSelectedThemes([...ns]);
+            // первый клик в кастоме — оставляем выбранной только эту тему
+            setSelectedThemes([themeId]);
           } else {
-            const ns = new Set(selectedThemes);
+            const ns = new Set(selectedThemes || []);
             if(ns.has(themeId)) ns.delete(themeId); else ns.add(themeId);
             setSelectedThemes([...ns]);
           }
         };
-        const resetThemes = () => setSelectedThemes(null);
+        // Сбросить — очищает выбор (а не выбирает все). Логичнее: жмёшь reset,
+        // получаешь чистое состояние, а не «выбраны все 9».
+        const resetThemes = () => setSelectedThemes([]);
 
         const modes = [
           { id: 'blitz',    label: 'Блиц',     count: 10, time: '~2 мин', sub: 'разогрев' },
@@ -1976,11 +1993,8 @@
                   )
                 )
               ),
-              React.createElement('p', { className: 'dp-mode-desc' },
-                cur.id === 'blitz'    ? 'Короткий разогрев. 5 тем по 2 вопроса.' :
-                cur.id === 'expert'   ? 'Глубокий заход. 6 тем по 5 вопросов.' :
-                                         'Основной режим. 6 тем по 3 вопроса.'
-              )
+              // Подпись «Основной режим. 6 тем по 3 вопроса» удалена —
+              // избыточна, цифры режима уже видно на самой кнопке.
             ),
 
             // ═════ СЕКЦИЯ 2: Темы ═════
@@ -1991,10 +2005,12 @@
                   isAllSelected
                     ? 'все ' + allThemes.length
                     : selectedCount + ' из ' + allThemes.length,
-                  !isAllSelected && React.createElement('button', {
+                  // Сбросить — только если что-то выбрано (selectedCount > 0)
+                  selectedCount > 0 && React.createElement('button', {
                     className: 'dp-themes-reset',
                     onClick: resetThemes,
-                    type: 'button'
+                    type: 'button',
+                    title: 'Очистить выбор',
                   }, '↺ сбросить')
                 )
               ),
@@ -2024,10 +2040,11 @@
               !enoughThemes && React.createElement('div', { className: 'dp-themes-warn' },
                 '⚠  Выбери хотя бы одну тему.'
               ),
-              fewThemes && React.createElement('div', { className: 'dp-themes-hint',
+              // Hint когда выбрана только 1 тема — показываем что все вопросы
+              // будут из неё. Это норм поведение, не ограничение.
+              selectedCount === 1 && React.createElement('div', { className: 'dp-themes-hint',
                 style: { fontSize:11, color:'#86868b', marginTop:6, lineHeight:1.5 } },
-                'Выбрана ', selectedCount, ' тема — все ', cur.count, ' вопросов будут из неё. ',
-                'По умолчанию режим распределяется на ', idealThemesCount, ' тем.'
+                'Все ', cur.count, ' вопросов будут из выбранной темы.'
               )
             ),
 
