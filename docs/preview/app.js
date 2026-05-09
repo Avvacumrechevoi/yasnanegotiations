@@ -889,81 +889,51 @@ function App(){
         </a>
         </div>
         <div className='hdr-mob-tools' style={{display:'none',gap:5,alignItems:'center',marginRight:6}}>
-          {/* На мобильном — те же группы что на десктопе, ничего не дублируем:
-              Обучение ▼ (с Уроки + все Гиды) → Игра → Войти → ☰ Burger.
-              Полный экран только в diag-toolbar, тема — в бургере. */}
-          {/* 1. Обучение ▼ — тот же dropdown что на десктопе */}
-          <div style={{position:'relative'}}>
-            <button onClick={()=>setLearnOpen(o=>!o)} title='Уроки и гиды по Яснам' aria-label='Обучение' style={{height:36,padding:'0 12px',border:`1px solid ${learnOpen?'rgba(0,113,227,.4)':'var(--border,#d2d2d7)'}`,borderRadius:10,background:learnOpen?'rgba(0,113,227,.06)':'var(--bg3,#fff)',color:learnOpen?'#0058b8':'var(--txt,#424245)',display:'flex',alignItems:'center',gap:5,fontSize:13,fontWeight:600,cursor:'pointer',boxSizing:'border-box'}}>
-              <span>Обуч.</span>
-              <span style={{fontSize:9,opacity:.7,transform:learnOpen?'rotate(180deg)':'none',transition:'transform .2s'}}>▼</span>
-            </button>
-            {/* dropdown — рендерим его же в общем JSX, не дублируем */}
-          </div>
-          {/* 2. Игра — Primary CTA текстовая */}
+          {/* Мобильный хедер: [Игра] [📚 Обучение icon] [☰ Burger]
+              Войти — в бургер. Обучение dropdown — открывается по иконке. */}
+          {/* 1. Игра — Primary CTA текстовая */}
           <a href='duel.html' title='Сыграть Партию' style={{position:'relative',height:36,padding:'0 14px',border:'1px solid #0071e3',borderRadius:10,background:'#0071e3',color:'#fff',display:'flex',alignItems:'center',gap:4,textDecoration:'none',fontSize:13,fontWeight:600,boxSizing:'border-box',boxShadow:'0 1px 3px rgba(0,113,227,.20)'}}>
             <span>Игра</span>
             <span style={{position:'absolute',top:-3,right:-3,width:8,height:8,borderRadius:'50%',background:'#FF3985',border:'1.5px solid var(--bg2,#fff)'}} title='NEW'/>
           </a>
-          {/* 3. Войти — с аватаром */}
-          <a href='duel.html#login' title='Войти через Telegram' style={{height:36,padding:'0 12px 0 8px',border:'1px solid var(--border,#d2d2d7)',borderRadius:10,background:'var(--bg3,#fff)',color:'var(--txt,#1d1d1f)',display:'flex',alignItems:'center',gap:7,textDecoration:'none',fontSize:13,fontWeight:500,boxSizing:'border-box'}}>
-            <span style={{width:22,height:22,borderRadius:'50%',background:'linear-gradient(135deg,#0071e3,#16A7FF)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.5-3.5 4.5-5 7-5s5.5 1.5 7 5"/></svg>
-            </span>
-            <span className='hdr-mob-login-label'>Войти</span>
-          </a>
+          {/* 2. Обучение — icon-only кнопка с дропдауном (Уроки + все гиды) */}
+          <button onClick={()=>setLearnOpen(o=>!o)} title='Уроки и гиды по Яснам' aria-label='Обучение' style={{width:36,height:36,padding:0,border:`1px solid ${learnOpen?'rgba(0,113,227,.4)':'var(--border,#d2d2d7)'}`,borderRadius:10,background:learnOpen?'rgba(0,113,227,.06)':'var(--bg3,#fff)',color:learnOpen?'#0058b8':'var(--txt,#424245)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',boxSizing:'border-box'}}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 8.5l9-5 9 5-9 5-9-5z"/>
+              <path d="M7 11v4.5c0 1.5 2.5 2.5 5 2.5s5-1 5-2.5V11"/>
+              <path d="M21 8.5v6"/>
+            </svg>
+          </button>
         </div>
         <div className='hdr-burger' style={{position:'relative'}}>
           <button onClick={()=>setMenu(!menu)} style={{fontSize:20,padding:'6px 12px',border:'1px solid #d2d2d7',borderRadius:10,background:menu?'#f5f5f7':'#fff',color:'#424245',minHeight:36,minWidth:40}}>☰</button>
           {menu&&<div onClick={()=>setMenu(false)} style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:79}}/>}
-          {menu&&<div style={{position:'absolute',top:'100%',right:0,marginTop:4,background:'#fff',border:'1px solid #e5e5ea',borderRadius:12,boxShadow:'0 8px 30px rgba(0,0,0,.12)',zIndex:80,minWidth:240,maxWidth:'calc(100vw - 24px)',maxHeight:'calc(100vh - 80px)',overflowY:'auto'}}>
-            {/* Игра — Primary CTA первой */}
-            <a href='duel.html' style={{display:'flex',width:'100%',padding:'12px 16px',fontSize:14,color:'#fff',border:'none',borderBottom:'1px solid #f5f5f7',background:'#0071e3',textDecoration:'none',alignItems:'center',gap:8,fontWeight:600,boxSizing:'border-box'}}>
-              <span style={{flex:1}}>Игра</span>
-              <span style={{fontSize:9,padding:'1px 5px',background:'rgba(255,255,255,.22)',color:'#fff',borderRadius:4,letterSpacing:.5,fontWeight:700}}>NEW</span>
-            </a>
-            {/* Войти — профиль */}
-            <a href='duel.html#login' style={{display:'flex',width:'100%',padding:'12px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textDecoration:'none',alignItems:'center',gap:10,fontWeight:500,boxSizing:'border-box'}}>
-              <span style={{width:22,height:22,borderRadius:'50%',background:'linear-gradient(135deg,#0071e3,#16A7FF)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+          {menu&&<div style={{position:'absolute',top:'100%',right:0,marginTop:4,background:'#fff',border:'1px solid #e5e5ea',borderRadius:12,boxShadow:'0 8px 30px rgba(0,0,0,.12)',zIndex:80,minWidth:260,maxWidth:'calc(100vw - 24px)',maxHeight:'calc(100vh - 80px)',overflowY:'auto'}}>
+            {/* Войти — профиль с аватаром, первой кнопкой */}
+            <a href='duel.html#login' style={{display:'flex',width:'100%',padding:'14px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textDecoration:'none',alignItems:'center',gap:12,fontWeight:600,boxSizing:'border-box'}}>
+              <span style={{width:32,height:32,borderRadius:'50%',background:'linear-gradient(135deg,#0071e3,#16A7FF)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="8" r="3.5"/>
                   <path d="M5 20c1.5-3.5 4.5-5 7-5s5.5 1.5 7 5"/>
                 </svg>
               </span>
-              <span style={{flex:1}}>Войти</span>
+              <span style={{display:'flex',flexDirection:'column',gap:2,flex:1}}>
+                <span style={{fontSize:14,fontWeight:600,color:'#1d1d1f'}}>Войти</span>
+                <span style={{fontSize:11,color:'#86868b',fontWeight:400}}>Через Telegram · прогресс на любом устройстве</span>
+              </span>
             </a>
-            {/* ОБУЧЕНИЕ */}
-            <div style={{padding:'10px 16px 4px',fontSize:10,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',color:'#86868b'}}>Обучение</div>
-            <button onClick={()=>{setLessonPicker(true);setMenu(false)}} style={{display:'flex',width:'100%',padding:'10px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left',alignItems:'center',gap:8,fontWeight:500}}>
-              <span style={{flex:1}}>Уроки</span>
-              <span style={{color:'#86868b',fontSize:11}}>4 шага</span>
-            </button>
-            {(()=>{
-              const allTours=(window.YasnaTours&&window.YasnaTours.list?window.YasnaTours.list():[]);
-              const PRIORITY=['Суток','Года','Жизни'];
-              const tours=[...allTours].sort((a,b)=>{
-                const ai=PRIORITY.indexOf(a),bi=PRIORITY.indexOf(b);
-                return (ai===-1?999:ai)-(bi===-1?999:bi);
-              });
-              return tours.map(name=>{const isCurrent=y&&y.name===name;return <button key={'tour-'+name} onClick={()=>{const t=T.find(tt=>tt.n===name);if(t&&!isCurrent)load(t);setShowTour(true);setMenu(false);}} style={{display:'flex',width:'100%',padding:'11px 16px',fontSize:14,color:isCurrent?'#fff':'#1d1d1f',border:'none',borderLeft:`3px solid ${isCurrent?'#0071e3':'transparent'}`,borderBottom:'1px solid #f5f5f7',background:isCurrent?'#0071e3':'#fff',textAlign:'left',alignItems:'center',gap:8,fontWeight:isCurrent?600:500}}><span style={{flex:1}}>Гид · {name}</span>{isCurrent && <span style={{fontSize:10,padding:'2px 7px',background:'rgba(255,255,255,.22)',color:'#fff',borderRadius:8,fontWeight:700,letterSpacing:.4}}>сейчас</span>}</button>;});})()}
-            {/* СПРАВКА */}
-            <div style={{padding:'10px 16px 4px',fontSize:10,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',color:'#86868b',borderTop:'1px solid #f5f5f7'}}>Справка</div>
-            <button onClick={()=>{setInstr(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'10px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Инструкция</button>
-            <button onClick={()=>{setGlossary(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'10px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Глоссарий</button>
-            <button onClick={()=>{setVerif(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'10px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Проверка Ясны</button>
-            {/* ИНСТРУМЕНТЫ */}
-            <div style={{padding:'10px 16px 4px',fontSize:10,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',color:'#86868b',borderTop:'1px solid #f5f5f7'}}>Инструменты</div>
-            <button onClick={()=>{if(overlay){setOverlay(null)}else{setShowOverlayPicker(true)};setMenu(false)}} style={{display:'block',width:'100%',padding:'10px 16px',fontSize:14,color:overlay?'#af52de':'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>{overlay?'⊗ Снять совмещение':'⊕ Совместить ясны'}</button>
-            <button onClick={()=>{setShowComposition(c=>!c);setMenu(false)}} style={{display:'block',width:'100%',padding:'10px 16px',fontSize:14,color:showComposition?'#7a5e25':'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>▌▌▌▌ Стихии {showComposition?'· Вкл':''}</button>
-            <button onClick={()=>{setEd(!ed);setMenu(false)}} style={{display:'block',width:'100%',padding:'10px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Редактировать текущую</button>
-            <button onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);setMenu(false);}} style={{display:'block',width:'100%',padding:'10px 16px',fontSize:14,color:'#6e6e73',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fafafa',textAlign:'left'}}>+ Создать новую Ясну</button>
+            {/* СПРАВКА — только это и тема в бургере; Обучение в хедере, Инструменты в "..." */}
+            <div style={{padding:'12px 16px 6px',fontSize:11,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',color:'#86868b'}}>Справка</div>
+            <button onClick={()=>{setInstr(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'11px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left',cursor:'pointer'}}>Инструкция</button>
+            <button onClick={()=>{setGlossary(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'11px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left',cursor:'pointer'}}>Глоссарий</button>
+            <button onClick={()=>{setVerif(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'11px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left',cursor:'pointer'}}>Проверка Ясны</button>
             {/* ТЕМА */}
-            <div style={{padding:'10px 16px 4px',fontSize:10,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',color:'#86868b',borderTop:'1px solid #f5f5f7'}}>Тема</div>
+            <div style={{padding:'12px 16px 6px',fontSize:11,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',color:'#86868b',borderTop:'1px solid #f5f5f7'}}>Тема</div>
             <button onClick={()=>{
               try{var k='yasna_theme_vk_dark';var on=localStorage.getItem(k)==='1';localStorage.setItem(k,on?'0':'1');document.body.classList.toggle('theme-vk-dark',!on);}catch(_){}
               setMenu(false);
-            }} style={{display:'flex',alignItems:'center',gap:10,width:'100%',padding:'10px 16px',fontSize:14,color:'#1d1d1f',border:'none',background:'#fff',textAlign:'left'}}>
-              <span style={{fontSize:15}}>{(typeof localStorage!=='undefined'&&localStorage.getItem('yasna_theme_vk_dark')==='1')?'☀':'🌑'}</span>
+            }} style={{display:'flex',alignItems:'center',gap:10,width:'100%',padding:'11px 16px',fontSize:14,color:'#1d1d1f',border:'none',background:'#fff',textAlign:'left',cursor:'pointer'}}>
+              <span style={{fontSize:15,lineHeight:1}}>{(typeof localStorage!=='undefined'&&localStorage.getItem('yasna_theme_vk_dark')==='1')?'☀':'🌑'}</span>
               <span style={{flex:1}}>{(typeof localStorage!=='undefined'&&localStorage.getItem('yasna_theme_vk_dark')==='1')?'Светлая тема':'Тёмная тема'}</span>
             </button>
           </div>}
