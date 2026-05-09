@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T11:12:16.240Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T11:27:59.673Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -593,7 +593,7 @@
 ;(function(){
 (function() {
   const { opp, rad } = window.YasnaData;
-  function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki, solidMech, showCage }) {
+  function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki, solidMech, showCage, astroMode }) {
     const canvasRef = React.useRef(null);
     const initCamDist = typeof window !== "undefined" && window.innerWidth <= 768 ? 820 : 560;
     const stateRef = React.useRef({
@@ -755,6 +755,81 @@
       );
       equatorTube.rotation.x = Math.PI / 2;
       wheelGroup.add(equatorTube);
+      const astroGroup = new THREE.Group();
+      astroGroup.visible = false;
+      wheelGroup.add(astroGroup);
+      {
+        let makeParallel2 = function(y2, r, color, opacity, dashed) {
+          const segs = 96;
+          const pts = [];
+          for (let i = 0; i <= segs; i++) {
+            const ang = i / segs * Math.PI * 2;
+            pts.push(new THREE.Vector3(r * Math.cos(ang), y2, r * Math.sin(ang)));
+          }
+          const geom = new THREE.BufferGeometry().setFromPoints(pts);
+          const mat = dashed ? new THREE.LineDashedMaterial({ color, transparent: true, opacity, dashSize: 3, gapSize: 2, linewidth: 1 }) : new THREE.LineBasicMaterial({ color, transparent: true, opacity, linewidth: 1 });
+          const line = new THREE.Line(geom, mat);
+          if (dashed) line.computeLineDistances();
+          return line;
+        };
+        var makeParallel = makeParallel2;
+        const AXIAL_TILT = 23.5 * Math.PI / 180;
+        const ARCTIC = 66.5 * Math.PI / 180;
+        astroGroup.add(makeParallel2(R * Math.sin(AXIAL_TILT), R * Math.cos(AXIAL_TILT), 12620858, 0.65));
+        astroGroup.add(makeParallel2(-R * Math.sin(AXIAL_TILT), R * Math.cos(AXIAL_TILT), 12620858, 0.65));
+        astroGroup.add(makeParallel2(R * Math.sin(ARCTIC), R * Math.cos(ARCTIC), 6003958, 0.55, true));
+        astroGroup.add(makeParallel2(-R * Math.sin(ARCTIC), R * Math.cos(ARCTIC), 6003958, 0.55, true));
+        {
+          const segs = 128;
+          const pts = [];
+          const cosT = Math.cos(AXIAL_TILT), sinT = Math.sin(AXIAL_TILT);
+          for (let i = 0; i <= segs; i++) {
+            const ang = i / segs * Math.PI * 2;
+            const x = R * Math.cos(ang);
+            const z = R * Math.sin(ang);
+            pts.push(new THREE.Vector3(x, z * sinT, z * cosT));
+          }
+          const geom = new THREE.BufferGeometry().setFromPoints(pts);
+          const mat = new THREE.LineBasicMaterial({ color: 15755320, transparent: true, opacity: 0.75, linewidth: 1.5 });
+          astroGroup.add(new THREE.Line(geom, mat));
+          const sunMat = new THREE.MeshStandardMaterial({
+            color: 16172618,
+            emissive: 16172618,
+            emissiveIntensity: 0.7,
+            metalness: 0.3,
+            roughness: 0.4
+          });
+          const sun = new THREE.Mesh(new THREE.SphereGeometry(2.4, 24, 16), sunMat);
+          sun.position.set(0, R * sinT, R * cosT);
+          astroGroup.add(sun);
+        }
+        if (window.YasnaSprites && window.YasnaSprites.makeTextSprite) {
+          const cardinals = [
+            { idx: 6, label: "\u0417\u0415\u041D\u0418\u0422 \u2600", color: 16172618 },
+            // полдень / лето
+            { idx: 9, label: "\u0417\u0410\u041F\u0410\u0414 \u2193", color: 15218255 },
+            // закат
+            { idx: 0, label: "\u041D\u0410\u0414\u0418\u0420 \u263E", color: 6003958 },
+            // полночь / зима
+            { idx: 3, label: "\u0412\u041E\u0421\u0422\u041E\u041A \u2191", color: 15247412 }
+            // восход
+          ];
+          cardinals.forEach((c) => {
+            const p = equatorPos(c.idx);
+            const sprite = window.YasnaSprites.makeTextSprite(c.label, {
+              color: "#" + c.color.toString(16).padStart(6, "0"),
+              fontSize: 22,
+              stroke: "#000",
+              strokeWidth: 4
+            });
+            if (sprite) {
+              const dir = p.clone().normalize();
+              sprite.position.copy(p).addScaledVector(dir, 8);
+              astroGroup.add(sprite);
+            }
+          });
+        }
+      }
       for (let i = 0; i < 12; i += 3) {
         const p = equatorPos(i);
         const meridianMat = new THREE.MeshBasicMaterial({ color: 12101848, transparent: true, opacity: 0.2 });
@@ -1482,7 +1557,7 @@
         raf = requestAnimationFrame(animate);
       };
       raf = requestAnimationFrame(animate);
-      sceneRefs.current = { rebuildMechanics, buildDrillGroup, subPolki: subPolkiArr, cageMesh, equatorTube };
+      sceneRefs.current = { rebuildMechanics, buildDrillGroup, subPolki: subPolkiArr, cageMesh, equatorTube, astroGroup };
       return () => {
         cancelAnimationFrame(raf);
         ro.disconnect();
@@ -1523,6 +1598,11 @@
         sceneRefs.current.cageMesh.visible = !!showCage;
       }
     }, [showCage]);
+    React.useEffect(() => {
+      if (sceneRefs.current && sceneRefs.current.astroGroup) {
+        sceneRefs.current.astroGroup.visible = !!astroMode;
+      }
+    }, [astroMode]);
     const subPolkiSig = (subPolki || []).join("|");
     React.useEffect(() => {
       if (sceneRefs.current && sceneRefs.current.buildDrillGroup) {
@@ -5354,7 +5434,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T11:12:15.341Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T11:27:58.707Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
   const THEMES = [
     {
       "id": "chto-est-yasna",

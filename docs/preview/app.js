@@ -809,6 +809,11 @@ function App(){
   // Каркас-купол в 3D (wireframe sphere) — по умолчанию показан
   const[showCage,setShowCage]=useState(()=>{ try{return localStorage.getItem('yasna_show_cage')!=='0'}catch(_){return true} });
   useEffect(()=>{ try{localStorage.setItem('yasna_show_cage', showCage?'1':'0')}catch(_){} },[showCage]);
+  // Астрономический режим — Ясна как модель небесной сферы / Земли.
+  // Накладывает: тропики (±23.5°), полярные круги (±66.5°), эклиптику,
+  // подписи кардинальных точек, наклон оси Земли.
+  const[astroMode,setAstroMode]=useState(()=>{ try{return localStorage.getItem('yasna_astro_mode')==='1'}catch(_){return false} });
+  useEffect(()=>{ try{localStorage.setItem('yasna_astro_mode', astroMode?'1':'0')}catch(_){} },[astroMode]);
   const[activeLesson,setActiveLesson]=useState(null);
   const[completedLessons,setCompletedLessons]=useState([]);
   // Auto-close burger menu when any modal/panel opens
@@ -1110,7 +1115,7 @@ function App(){
               <span style={{fontSize:10,color:solidMech?'rgba(255,255,255,.85)':'#aeaeb2',fontWeight:700}}>{solidMech?'Вкл':'Выкл'}</span>
             </button>}
             {/* Каркас-купол — только в 3D, можно скрыть для чистого вида */}
-            {is3D && <button onClick={()=>setShowCage(c=>!c)} title='Показать или скрыть каркасную сферу-купол вокруг звезды' style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1px solid ${showCage?'#0071e3':'#e5e5ea'}`,background:showCage?'#0071e3':'#fff',color:showCage?'#fff':'#424245',fontSize:12.5,cursor:'pointer',fontWeight:showCage?600:500,boxShadow:showCage?'0 2px 8px rgba(0,113,227,.25)':'none'}}>
+            {is3D && <button onClick={()=>setShowCage(c=>!c)} title='Показать или скрыть каркасную сферу-купол вокруг звезды' style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1px solid ${showCage?'#0071e3':'#e5e5ea'}`,background:showCage?'#0071e3':'#fff',color:showCage?'#fff':'#424245',fontSize:12.5,cursor:'pointer',fontWeight:showCage?600:500,boxShadow:showCage?'0 2px 8px rgba(0,113,227,.25)':'none',marginBottom:6}}>
               <span style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:18,height:18,flexShrink:0}}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
                   <circle cx="12" cy="12" r="9"/>
@@ -1120,6 +1125,18 @@ function App(){
               </span>
               <span style={{flex:1,textAlign:'left'}}>Каркас-купол</span>
               <span style={{fontSize:10,color:showCage?'rgba(255,255,255,.85)':'#aeaeb2',fontWeight:700}}>{showCage?'Вкл':'Выкл'}</span>
+            </button>}
+            {/* Астрономический режим — Ясна как модель Земли/небесной сферы */}
+            {is3D && <button onClick={()=>setAstroMode(a=>!a)} title='Тропики, полярные круги, эклиптика, наклон оси Земли — Ясна как модель неба' style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1px solid ${astroMode?'#0071e3':'#e5e5ea'}`,background:astroMode?'#0071e3':'#fff',color:astroMode?'#fff':'#424245',fontSize:12.5,cursor:'pointer',fontWeight:astroMode?600:500,boxShadow:astroMode?'0 2px 8px rgba(0,113,227,.25)':'none'}}>
+              <span style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:18,height:18,flexShrink:0}}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <circle cx="12" cy="12" r="9"/>
+                  <ellipse cx="12" cy="12" rx="9" ry="3"/>
+                  <line x1="12" y1="3" x2="12" y2="21" transform="rotate(23.5 12 12)" strokeLinecap="round"/>
+                </svg>
+              </span>
+              <span style={{flex:1,textAlign:'left'}}>Астро-режим</span>
+              <span style={{fontSize:10,color:astroMode?'rgba(255,255,255,.85)':'#aeaeb2',fontWeight:700}}>{astroMode?'Вкл':'Выкл'}</span>
             </button>}
           </div>
         </div>}
@@ -1135,7 +1152,7 @@ function App(){
             setSel(next);
           };
           return is3D
-            ? <Yasna3DView y={y} af={af} sel={sel} onSel={onStarSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} solidMech={solidMech} showCage={showCage}/>
+            ? <Yasna3DView y={y} af={af} sel={sel} onSel={onStarSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} solidMech={solidMech} showCage={showCage} astroMode={astroMode}/>
             : <Star yy={y} sel={sel} onSel={onStarSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} starRotation={starRotation} rotationSpeed={rotationSpeed} showComposition={showComposition}/>;
         })()}</div>
         <OverlayLegend y={y} overlay={overlay} onClear={()=>setOverlay(null)}/>

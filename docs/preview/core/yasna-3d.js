@@ -10,7 +10,7 @@
 
 const { opp, rad } = window.YasnaData;
 
-function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki, solidMech, showCage }){
+function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki, solidMech, showCage, astroMode }){
   const canvasRef = React.useRef(null);
   // На мобиле стартовый camDist больше — чтобы весь шар помещался в узкую portrait-область
   const initCamDist = (typeof window!=='undefined' && window.innerWidth <= 768) ? 820 : 560;
@@ -169,6 +169,104 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
     equatorTube.rotation.x = Math.PI/2;
     wheelGroup.add(equatorTube);
     // Сохраняем ссылку для adaptive opacity (при многих активных механиках — приглушаем)
+
+    // ─────────────── АСТРОНОМИЧЕСКИЙ СЛОЙ ────────────────────────────
+    // Накладывает на сферу геометрию небесной сферы / Земли:
+    //  • тропики (±23.5° широты — параллели Рака и Козерога)
+    //  • полярные круги (±66.5°)
+    //  • эклиптика — большой круг наклонённый на 23.5° к экватору
+    //  • метки кардинальных точек (полки 0/3/6/9 = полночь/восход/полдень/закат)
+    //  • метки сезонов на эклиптике (зима/весна/лето/осень)
+    // Группа целиком переключается через astroMode toggle.
+    const astroGroup = new THREE.Group();
+    astroGroup.visible = false;  // инициально скрыт, useEffect синхронизирует с prop
+    wheelGroup.add(astroGroup);
+    {
+      const AXIAL_TILT = 23.5 * Math.PI / 180;  // 23.5° наклон оси Земли
+      const ARCTIC = 66.5 * Math.PI / 180;       // 66.5° полярный круг (90 − 23.5)
+
+      // Helper: tonkoe круг-параллель на высоте y, радиусом r
+      function makeParallel(y, r, color, opacity, dashed){
+        const segs = 96;
+        const pts = [];
+        for(let i=0; i<=segs; i++){
+          const ang = (i / segs) * Math.PI * 2;
+          pts.push(new THREE.Vector3(r * Math.cos(ang), y, r * Math.sin(ang)));
+        }
+        const geom = new THREE.BufferGeometry().setFromPoints(pts);
+        const mat = dashed
+          ? new THREE.LineDashedMaterial({ color, transparent:true, opacity, dashSize:3, gapSize:2, linewidth:1 })
+          : new THREE.LineBasicMaterial({ color, transparent:true, opacity, linewidth:1 });
+        const line = new THREE.Line(geom, mat);
+        if(dashed) line.computeLineDistances();
+        return line;
+      }
+
+      // Тропик Рака (+23.5° широты) — золото
+      astroGroup.add(makeParallel(R * Math.sin(AXIAL_TILT), R * Math.cos(AXIAL_TILT), 0xC0943A, 0.65));
+      // Тропик Козерога (−23.5° широты) — золото
+      astroGroup.add(makeParallel(-R * Math.sin(AXIAL_TILT), R * Math.cos(AXIAL_TILT), 0xC0943A, 0.65));
+      // Северный полярный круг (+66.5°) — VK Light Blue
+      astroGroup.add(makeParallel(R * Math.sin(ARCTIC), R * Math.cos(ARCTIC), 0x5B9CF6, 0.55, true));
+      // Южный полярный круг (−66.5°) — VK Light Blue
+      astroGroup.add(makeParallel(-R * Math.sin(ARCTIC), R * Math.cos(ARCTIC), 0x5B9CF6, 0.55, true));
+
+      // Эклиптика — большой круг, наклонённый на 23.5° относительно экватора.
+      // В невёрнутом мире плоскость экватора = XZ; эклиптика = XZ повёрнутый на 23.5° вокруг X.
+      {
+        const segs = 128;
+        const pts = [];
+        const cosT = Math.cos(AXIAL_TILT), sinT = Math.sin(AXIAL_TILT);
+        for(let i=0; i<=segs; i++){
+          const ang = (i / segs) * Math.PI * 2;
+          // Точка на экваторе
+          const x = R * Math.cos(ang);
+          const z = R * Math.sin(ang);
+          // Поворот вокруг оси X на AXIAL_TILT — y' = z·sinT, z' = z·cosT
+          pts.push(new THREE.Vector3(x, z * sinT, z * cosT));
+        }
+        const geom = new THREE.BufferGeometry().setFromPoints(pts);
+        const mat = new THREE.LineBasicMaterial({ color:0xF06838, transparent:true, opacity:0.75, linewidth:1.5 });
+        astroGroup.add(new THREE.Line(geom, mat));
+
+        // Sphere indicator on ecliptic plane — небольшой Sun marker в точке солнцестояния
+        // (летнее: x=0, z=R, тогда y=R·sinT, z'=R·cosT)
+        const sunMat = new THREE.MeshStandardMaterial({
+          color:0xF6C64A, emissive:0xF6C64A, emissiveIntensity:0.7,
+          metalness:0.3, roughness:0.4
+        });
+        const sun = new THREE.Mesh(new THREE.SphereGeometry(2.4, 24, 16), sunMat);
+        sun.position.set(0, R * sinT, R * cosT);
+        astroGroup.add(sun);
+      }
+
+      // Подписи кардинальных точек на экваторе (только для Yasna Суток / Года).
+      // Используем sprite-метки если YasnaSprites доступен.
+      if(window.YasnaSprites && window.YasnaSprites.makeTextSprite){
+        const cardinals = [
+          { idx: 6,  label: 'ЗЕНИТ ☀',     color: 0xF6C64A },  // полдень / лето
+          { idx: 9,  label: 'ЗАПАД ↓',      color: 0xE8364F },  // закат
+          { idx: 0,  label: 'НАДИР ☾',      color: 0x5B9CF6 },  // полночь / зима
+          { idx: 3,  label: 'ВОСТОК ↑',     color: 0xE8A834 },  // восход
+        ];
+        cardinals.forEach(c => {
+          const p = equatorPos(c.idx);
+          const sprite = window.YasnaSprites.makeTextSprite(c.label, {
+            color: '#' + c.color.toString(16).padStart(6, '0'),
+            fontSize: 22,
+            stroke: '#000',
+            strokeWidth: 4,
+          });
+          if(sprite){
+            // Слегка вынести наружу сферы
+            const dir = p.clone().normalize();
+            sprite.position.copy(p).addScaledVector(dir, 8);
+            astroGroup.add(sprite);
+          }
+        });
+      }
+    }
+    // ─────────────── /конец астрономического слоя ─────────────────────
 
 
     for(let i=0; i<12; i+=3){
@@ -937,7 +1035,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
     };
     raf = requestAnimationFrame(animate);
 
-    sceneRefs.current = { rebuildMechanics, buildDrillGroup, subPolki: subPolkiArr, cageMesh, equatorTube };
+    sceneRefs.current = { rebuildMechanics, buildDrillGroup, subPolki: subPolkiArr, cageMesh, equatorTube, astroGroup };
 
     return ()=>{
       cancelAnimationFrame(raf);
@@ -983,6 +1081,13 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       sceneRefs.current.cageMesh.visible = !!showCage;
     }
   }, [showCage]);
+
+  // Астрономический режим — показ/скрытие astroGroup (тропики, эклиптика, кардинальные подписи)
+  React.useEffect(()=>{
+    if(sceneRefs.current && sceneRefs.current.astroGroup){
+      sceneRefs.current.astroGroup.visible = !!astroMode;
+    }
+  }, [astroMode]);
 
   // Перестроение drillGroup при смене drill / subPolki
   // Используем стабильный signature вместо JSON.stringify на каждый render
