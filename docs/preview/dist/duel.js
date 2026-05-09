@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T11:41:49.201Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T11:49:46.083Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -593,7 +593,7 @@
 ;(function(){
 (function() {
   const { opp, rad } = window.YasnaData;
-  function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki, solidMech, showCage, astroMode }) {
+  function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki, solidMech, showCage, astroMode, tiltAxis, dayCycle }) {
     const canvasRef = React.useRef(null);
     const initCamDist = typeof window !== "undefined" && window.innerWidth <= 768 ? 820 : 560;
     const stateRef = React.useRef({
@@ -605,10 +605,10 @@
       lastY: 0
     });
     const sceneRefs = React.useRef(null);
-    const liveRef = React.useRef({ rotationOn, speedSec, sel, drill, af, solidMech, showCage });
+    const liveRef = React.useRef({ rotationOn, speedSec, sel, drill, af, solidMech, showCage, astroMode, tiltAxis, dayCycle });
     React.useEffect(() => {
-      liveRef.current = { rotationOn, speedSec, sel, drill, af, solidMech, showCage };
-    }, [rotationOn, speedSec, sel, drill, solidMech, showCage, JSON.stringify(af || [])]);
+      liveRef.current = { rotationOn, speedSec, sel, drill, af, solidMech, showCage, astroMode, tiltAxis, dayCycle };
+    }, [rotationOn, speedSec, sel, drill, solidMech, showCage, astroMode, tiltAxis, dayCycle, JSON.stringify(af || [])]);
     React.useEffect(() => {
       if (typeof window === "undefined" || !window.THREE) return;
       const THREE = window.THREE;
@@ -758,6 +758,7 @@
       const astroGroup = new THREE.Group();
       astroGroup.visible = false;
       wheelGroup.add(astroGroup);
+      let astroSun = null;
       {
         let makeParallel2 = function(y2, r, color, opacity, dashed) {
           const segs = 96;
@@ -799,9 +800,10 @@
             metalness: 0.3,
             roughness: 0.4
           });
-          const sun = new THREE.Mesh(new THREE.SphereGeometry(2.4, 24, 16), sunMat);
+          const sun = new THREE.Mesh(new THREE.SphereGeometry(2.8, 24, 16), sunMat);
           sun.position.set(0, R * sinT, R * cosT);
           astroGroup.add(sun);
+          astroSun = sun;
         }
         [15, 30, 45, 60].forEach((deg) => {
           const rad2 = deg * Math.PI / 180;
@@ -1552,6 +1554,7 @@
       ro.observe(canvas.parentElement || canvas);
       let raf, lastT = performance.now();
       let pulsePhase = 0;
+      let sunAng = Math.PI / 2;
       const animate = (now) => {
         const dt = now - lastT;
         lastT = now;
@@ -1560,6 +1563,20 @@
           const dir = live.rotationOn === "cw" ? -1 : 1;
           const speedDeg = 360 / ((live.speedSec || 24) * 1e3);
           wheelGroup.rotation.y += dir * dt * speedDeg * Math.PI / 180;
+        }
+        if (astroSun && live.astroMode && live.dayCycle) {
+          const cycleMs = (live.speedSec || 24) * 1e3;
+          sunAng += dt / cycleMs * Math.PI * 2;
+          if (sunAng > Math.PI * 2) sunAng -= Math.PI * 2;
+          const cosT = Math.cos(23.5 * Math.PI / 180);
+          const sinT = Math.sin(23.5 * Math.PI / 180);
+          const x = R * Math.cos(sunAng);
+          const z = R * Math.sin(sunAng);
+          astroSun.position.set(x, z * sinT, z * cosT);
+          const pulse = 0.6 + 0.2 * Math.sin(now * 2e-3);
+          if (astroSun.material) astroSun.material.emissiveIntensity = pulse;
+        } else if (astroSun) {
+          astroSun.material && (astroSun.material.emissiveIntensity = 0.7);
         }
         pulsePhase += dt * 3e-3;
         const drilling = live.drill != null;
@@ -1622,7 +1639,7 @@
         raf = requestAnimationFrame(animate);
       };
       raf = requestAnimationFrame(animate);
-      sceneRefs.current = { rebuildMechanics, buildDrillGroup, subPolki: subPolkiArr, cageMesh, equatorTube, astroGroup };
+      sceneRefs.current = { rebuildMechanics, buildDrillGroup, subPolki: subPolkiArr, cageMesh, equatorTube, astroGroup, wheelGroup, astroSun };
       return () => {
         cancelAnimationFrame(raf);
         ro.disconnect();
@@ -1668,6 +1685,12 @@
         sceneRefs.current.astroGroup.visible = !!astroMode;
       }
     }, [astroMode]);
+    React.useEffect(() => {
+      if (sceneRefs.current && sceneRefs.current.wheelGroup) {
+        const target = tiltAxis ? 23.5 * Math.PI / 180 : 0;
+        sceneRefs.current.wheelGroup.rotation.z = target;
+      }
+    }, [tiltAxis]);
     const subPolkiSig = (subPolki || []).join("|");
     React.useEffect(() => {
       if (sceneRefs.current && sceneRefs.current.buildDrillGroup) {
@@ -5499,7 +5522,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T11:41:48.263Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T11:49:45.180Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
   const THEMES = [
     {
       "id": "chto-est-yasna",

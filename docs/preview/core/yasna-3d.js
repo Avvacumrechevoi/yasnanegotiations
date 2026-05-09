@@ -10,7 +10,7 @@
 
 const { opp, rad } = window.YasnaData;
 
-function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki, solidMech, showCage, astroMode }){
+function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki, solidMech, showCage, astroMode, tiltAxis, dayCycle }){
   const canvasRef = React.useRef(null);
   // На мобиле стартовый camDist больше — чтобы весь шар помещался в узкую portrait-область
   const initCamDist = (typeof window!=='undefined' && window.innerWidth <= 768) ? 820 : 560;
@@ -20,8 +20,8 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
   });
   const sceneRefs = React.useRef(null);
   // Свежие props для animate-loop (избегаем stale closure)
-  const liveRef = React.useRef({ rotationOn, speedSec, sel, drill, af, solidMech, showCage });
-  React.useEffect(()=>{ liveRef.current = { rotationOn, speedSec, sel, drill, af, solidMech, showCage }; }, [rotationOn, speedSec, sel, drill, solidMech, showCage, JSON.stringify(af||[])]);
+  const liveRef = React.useRef({ rotationOn, speedSec, sel, drill, af, solidMech, showCage, astroMode, tiltAxis, dayCycle });
+  React.useEffect(()=>{ liveRef.current = { rotationOn, speedSec, sel, drill, af, solidMech, showCage, astroMode, tiltAxis, dayCycle }; }, [rotationOn, speedSec, sel, drill, solidMech, showCage, astroMode, tiltAxis, dayCycle, JSON.stringify(af||[])]);
 
   React.useEffect(()=>{
     if(typeof window==='undefined' || !window.THREE) return;
@@ -181,6 +181,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
     const astroGroup = new THREE.Group();
     astroGroup.visible = false;  // инициально скрыт, useEffect синхронизирует с prop
     wheelGroup.add(astroGroup);
+    let astroSun = null;  // ссылка на Солнце-маркер для анимации в loop'е
     {
       const AXIAL_TILT = 23.5 * Math.PI / 180;  // 23.5° наклон оси Земли
       const ARCTIC = 66.5 * Math.PI / 180;       // 66.5° полярный круг (90 − 23.5)
@@ -235,9 +236,10 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
           color:0xF6C64A, emissive:0xF6C64A, emissiveIntensity:0.7,
           metalness:0.3, roughness:0.4
         });
-        const sun = new THREE.Mesh(new THREE.SphereGeometry(2.4, 24, 16), sunMat);
+        const sun = new THREE.Mesh(new THREE.SphereGeometry(2.8, 24, 16), sunMat);
         sun.position.set(0, R * sinT, R * cosT);
         astroGroup.add(sun);
+        astroSun = sun;  // сохраняем для анимации в animate loop'е
       }
 
       // ─── Дополнительные параллели — географическая сетка ─────────
@@ -1038,6 +1040,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
 
     let raf, lastT = performance.now();
     let pulsePhase = 0;
+    let sunAng = Math.PI/2;  // стартовая позиция Солнца — летнее солнцестояние
     const animate = (now)=>{
       const dt = now - lastT; lastT = now;
       const live = liveRef.current;
@@ -1046,6 +1049,26 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
         const dir = live.rotationOn==='cw' ? -1 : 1;
         const speedDeg = 360 / ((live.speedSec||24) * 1000);
         wheelGroup.rotation.y += dir * dt * speedDeg * Math.PI/180;
+      }
+      // Цикл Солнца — движение по эклиптике + пульсация. Активно только когда
+      // астро-режим включён И dayCycle включён (под-toggle Цикл Солнца).
+      if(astroSun && live.astroMode && live.dayCycle){
+        // Скорость: один полный обход эклиптики за live.speedSec секунд
+        // (синхронизировано с скоростью вращения колеса для гармонии)
+        const cycleMs = (live.speedSec||24) * 1000;
+        sunAng += (dt / cycleMs) * Math.PI * 2;
+        if(sunAng > Math.PI*2) sunAng -= Math.PI*2;
+        const cosT = Math.cos(23.5 * Math.PI / 180);
+        const sinT = Math.sin(23.5 * Math.PI / 180);
+        const x = R * Math.cos(sunAng);
+        const z = R * Math.sin(sunAng);
+        astroSun.position.set(x, z * sinT, z * cosT);
+        // Пульсация интенсивности — Солнце «дышит»
+        const pulse = 0.6 + 0.2 * Math.sin(now * 0.002);
+        if(astroSun.material) astroSun.material.emissiveIntensity = pulse;
+      } else if(astroSun){
+        // Когда dayCycle выключен — Солнце фиксировано в точке летнего солнцестояния
+        astroSun.material && (astroSun.material.emissiveIntensity = 0.7);
       }
       // Selected polka — пульсация emissive + лёгкое увеличение
       pulsePhase += dt * 0.003;
@@ -1118,7 +1141,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
     };
     raf = requestAnimationFrame(animate);
 
-    sceneRefs.current = { rebuildMechanics, buildDrillGroup, subPolki: subPolkiArr, cageMesh, equatorTube, astroGroup };
+    sceneRefs.current = { rebuildMechanics, buildDrillGroup, subPolki: subPolkiArr, cageMesh, equatorTube, astroGroup, wheelGroup, astroSun };
 
     return ()=>{
       cancelAnimationFrame(raf);
@@ -1171,6 +1194,16 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       sceneRefs.current.astroGroup.visible = !!astroMode;
     }
   }, [astroMode]);
+
+  // Наклон оси Земли — поворот wheelGroup на 23.5° вокруг оси Z.
+  // Когда выключен — ось вертикальна (стандартный вид Ясны).
+  // Когда включён — модель становится «как настоящая Земля» с наклонной осью.
+  React.useEffect(()=>{
+    if(sceneRefs.current && sceneRefs.current.wheelGroup){
+      const target = tiltAxis ? (23.5 * Math.PI / 180) : 0;
+      sceneRefs.current.wheelGroup.rotation.z = target;
+    }
+  }, [tiltAxis]);
 
   // Перестроение drillGroup при смене drill / subPolki
   // Используем стабильный signature вместо JSON.stringify на каждый render

@@ -814,6 +814,13 @@ function App(){
   // подписи кардинальных точек, наклон оси Земли.
   const[astroMode,setAstroMode]=useState(()=>{ try{return localStorage.getItem('yasna_astro_mode')==='1'}catch(_){return false} });
   useEffect(()=>{ try{localStorage.setItem('yasna_astro_mode', astroMode?'1':'0')}catch(_){} },[astroMode]);
+  // Наклон оси Земли (23.5°) — отдельный toggle внутри Астро-режима.
+  // Демонстрирует почему есть смена сезонов: ось остаётся наклонённой при движении Земли вокруг Солнца.
+  const[tiltAxis,setTiltAxis]=useState(()=>{ try{return localStorage.getItem('yasna_tilt_axis')==='1'}catch(_){return false} });
+  useEffect(()=>{ try{localStorage.setItem('yasna_tilt_axis', tiltAxis?'1':'0')}catch(_){} },[tiltAxis]);
+  // Цикл Солнца — анимированное движение Солнца по эклиптике + терминатор (граница день/ночь).
+  const[dayCycle,setDayCycle]=useState(()=>{ try{return localStorage.getItem('yasna_day_cycle')==='1'}catch(_){return false} });
+  useEffect(()=>{ try{localStorage.setItem('yasna_day_cycle', dayCycle?'1':'0')}catch(_){} },[dayCycle]);
   const[activeLesson,setActiveLesson]=useState(null);
   const[completedLessons,setCompletedLessons]=useState([]);
   // Auto-close burger menu when any modal/panel opens
@@ -1127,7 +1134,7 @@ function App(){
               <span style={{fontSize:10,color:showCage?'rgba(255,255,255,.85)':'#aeaeb2',fontWeight:700}}>{showCage?'Вкл':'Выкл'}</span>
             </button>}
             {/* Астрономический режим — Ясна как модель Земли/небесной сферы */}
-            {is3D && <button onClick={()=>setAstroMode(a=>!a)} title='Тропики, полярные круги, эклиптика, наклон оси Земли — Ясна как модель неба' style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1px solid ${astroMode?'#0071e3':'#e5e5ea'}`,background:astroMode?'#0071e3':'#fff',color:astroMode?'#fff':'#424245',fontSize:12.5,cursor:'pointer',fontWeight:astroMode?600:500,boxShadow:astroMode?'0 2px 8px rgba(0,113,227,.25)':'none'}}>
+            {is3D && <button onClick={()=>setAstroMode(a=>!a)} title='Тропики, полярные круги, эклиптика, наклон оси Земли — Ясна как модель неба' style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1px solid ${astroMode?'#0071e3':'#e5e5ea'}`,background:astroMode?'#0071e3':'#fff',color:astroMode?'#fff':'#424245',fontSize:12.5,cursor:'pointer',fontWeight:astroMode?600:500,boxShadow:astroMode?'0 2px 8px rgba(0,113,227,.25)':'none',marginBottom:astroMode?6:0}}>
               <span style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:18,height:18,flexShrink:0}}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
                   <circle cx="12" cy="12" r="9"/>
@@ -1137,6 +1144,18 @@ function App(){
               </span>
               <span style={{flex:1,textAlign:'left'}}>Астро-режим</span>
               <span style={{fontSize:10,color:astroMode?'rgba(255,255,255,.85)':'#aeaeb2',fontWeight:700}}>{astroMode?'Вкл':'Выкл'}</span>
+            </button>}
+            {/* Под-toggle: Наклон оси Земли — виден только когда астро-режим вкл */}
+            {is3D && astroMode && <button onClick={()=>setTiltAxis(t=>!t)} title='Наклонить ось вращения на 23.5° — как у Земли. Демонстрирует почему есть смена сезонов.' style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'7px 10px 7px 22px',borderRadius:8,border:`1px solid ${tiltAxis?'rgba(0,113,227,.45)':'#e5e5ea'}`,background:tiltAxis?'rgba(0,113,227,.10)':'#fff',color:tiltAxis?'#0058b8':'#6e6e73',fontSize:12,cursor:'pointer',fontWeight:tiltAxis?600:500,marginBottom:6}}>
+              <span style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:14,height:14,flexShrink:0,fontSize:10,opacity:.7}}>↘</span>
+              <span style={{flex:1,textAlign:'left'}}>Наклон оси <span style={{fontSize:10,opacity:.6,fontWeight:500}}>· 23.5°</span></span>
+              <span style={{fontSize:10,color:tiltAxis?'#0058b8':'#aeaeb2',fontWeight:700}}>{tiltAxis?'Вкл':'Выкл'}</span>
+            </button>}
+            {/* Под-toggle: Цикл Солнца (анимация) */}
+            {is3D && astroMode && <button onClick={()=>setDayCycle(d=>!d)} title='Анимированное движение Солнца по эклиптике + ночная сторона затемняется' style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'7px 10px 7px 22px',borderRadius:8,border:`1px solid ${dayCycle?'rgba(0,113,227,.45)':'#e5e5ea'}`,background:dayCycle?'rgba(0,113,227,.10)':'#fff',color:dayCycle?'#0058b8':'#6e6e73',fontSize:12,cursor:'pointer',fontWeight:dayCycle?600:500}}>
+              <span style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:14,height:14,flexShrink:0,fontSize:10,opacity:.7}}>☀</span>
+              <span style={{flex:1,textAlign:'left'}}>Цикл Солнца</span>
+              <span style={{fontSize:10,color:dayCycle?'#0058b8':'#aeaeb2',fontWeight:700}}>{dayCycle?'Вкл':'Выкл'}</span>
             </button>}
           </div>
         </div>}
@@ -1152,7 +1171,7 @@ function App(){
             setSel(next);
           };
           return is3D
-            ? <Yasna3DView y={y} af={af} sel={sel} onSel={onStarSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} solidMech={solidMech} showCage={showCage} astroMode={astroMode}/>
+            ? <Yasna3DView y={y} af={af} sel={sel} onSel={onStarSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} solidMech={solidMech} showCage={showCage} astroMode={astroMode} tiltAxis={tiltAxis} dayCycle={dayCycle}/>
             : <Star yy={y} sel={sel} onSel={onStarSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} starRotation={starRotation} rotationSpeed={rotationSpeed} showComposition={showComposition}/>;
         })()}</div>
         <OverlayLegend y={y} overlay={overlay} onClear={()=>setOverlay(null)}/>
