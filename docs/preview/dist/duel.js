@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T23:30:39.323Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T23:38:58.201Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5877,7 +5877,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T23:30:38.212Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T23:38:57.279Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -21443,17 +21443,21 @@ window.YasnaCore = {
           "div",
           { className: "dp-hero-name-row" },
           React.createElement("span", { className: "dp-hero-name" }, me.nickname),
-          React.createElement("span", {
+          React.createElement("a", {
             className: "dp-hero-rank-pill dp-tip",
-            "data-tip": "\u0421\u0442\u0443\u043F\u0435\u043D\u044C \u2014 \u0442\u0432\u043E\u0439 \u0443\u0440\u043E\u0432\u0435\u043D\u044C. \u0427\u0435\u043C \u0431\u043E\u043B\u044C\u0448\u0435 \u043F\u0430\u0440\u0442\u0438\u0439 \u0438 \u0442\u043E\u0447\u043D\u0435\u0435 \u043E\u0442\u0432\u0435\u0442\u044B \u2014 \u0442\u0435\u043C \u0432\u044B\u0448\u0435: \u041F\u043E\u0441\u043B\u0443\u0448\u043D\u0438\u043A \u2192 \u0421\u0442\u0443\u0434\u0435\u043D\u0442 \u2192 \u041C\u0430\u0433\u0438\u0441\u0442\u0440."
+            href: "rating.html",
+            "data-tip": "\u0421\u0442\u0443\u043F\u0435\u043D\u044C \u2014 \u0442\u0432\u043E\u0439 \u0443\u0440\u043E\u0432\u0435\u043D\u044C \u043E\u0441\u0432\u043E\u0435\u043D\u0438\u044F. \u0422\u0430\u043F\u043D\u0438 \u0447\u0442\u043E\u0431\u044B \u0443\u0437\u043D\u0430\u0442\u044C \u043E \u0434\u0432\u0443\u0445\u0442\u0440\u0435\u043A\u043E\u0432\u043E\u0439 \u0441\u0438\u0441\u0442\u0435\u043C\u0435 \u0440\u0435\u0439\u0442\u0438\u043D\u0433\u0430.",
+            style: { textDecoration: "none" }
           }, stupen.name, " ", toRoman(stupen.subLevel))
         ),
         React.createElement(
           "div",
           { className: "dp-hero-stats" },
-          React.createElement("span", {
+          React.createElement("a", {
             className: "dp-hero-bead dp-tip",
-            "data-tip": "\u0411\u0443\u0441\u0438\u043D\u044B \u2726 \u2014 \u043E\u0447\u043A\u0438 \u0437\u0430 \u043F\u0430\u0440\u0442\u0438\u0438. 10 \u0437\u0430 \u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 + \u0434\u043E 5 \u0431\u043E\u043D\u0443\u0441\u043D\u044B\u0445 \u0437\u0430 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u044C. \u0418\u0437 \u0431\u0443\u0441\u0438\u043D \u0441\u043A\u043B\u0430\u0434\u044B\u0432\u0430\u0435\u0442\u0441\u044F \u0441\u0442\u0443\u043F\u0435\u043D\u044C."
+            href: "rating.html",
+            "data-tip": "\u0411\u0443\u0441\u0438\u043D\u044B \u2726 \u2014 \u043E\u0447\u043A\u0438 \u0437\u0430 \u043F\u0430\u0440\u0442\u0438\u0438. \u0422\u0430\u043F\u043D\u0438 \u0447\u0442\u043E\u0431\u044B \u0443\u0437\u043D\u0430\u0442\u044C \u043A\u0430\u043A \u0441\u0447\u0438\u0442\u0430\u0435\u0442\u0441\u044F \u0440\u0435\u0439\u0442\u0438\u043D\u0433.",
+            style: { textDecoration: "none" }
           }, "\u2726 ", busey),
           React.createElement("span", { className: "dp-hero-stats-sep" }, "\xB7"),
           React.createElement("span", null, games, " ", Term("\u043F\u0430\u0440\u0442\u0438\u0439", "\u041F\u0430\u0440\u0442\u0438\u044F \u2014 \u0432\u0438\u043A\u0442\u043E\u0440\u0438\u043D\u0430 \u0438\u0437 10/18/30 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u043D\u0430 \u0442\u0435\u043C\u044B \u042F\u0441\u043D\u044B. \u0411\u043B\u0438\u0446 ~2 \u043C\u0438\u043D \xB7 \u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442 ~5 \u043C\u0438\u043D \xB7 \u042D\u043A\u0441\u043F\u0435\u0440\u0442 ~9 \u043C\u0438\u043D."))

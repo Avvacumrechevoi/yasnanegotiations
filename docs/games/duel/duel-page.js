@@ -334,15 +334,19 @@
       React.createElement('div', { className: 'dp-hero-body' },
         React.createElement('div', { className: 'dp-hero-name-row' },
           React.createElement('span', { className: 'dp-hero-name' }, me.nickname),
-          React.createElement('span', {
+          React.createElement('a', {
             className: 'dp-hero-rank-pill dp-tip',
-            'data-tip': 'Ступень — твой уровень. Чем больше партий и точнее ответы — тем выше: Послушник → Студент → Магистр.'
+            href: 'rating.html',
+            'data-tip': 'Ступень — твой уровень освоения. Тапни чтобы узнать о двухтрековой системе рейтинга.',
+            style: { textDecoration: 'none' },
           }, stupen.name, ' ', toRoman(stupen.subLevel))
         ),
         React.createElement('div', { className: 'dp-hero-stats' },
-          React.createElement('span', {
+          React.createElement('a', {
             className: 'dp-hero-bead dp-tip',
-            'data-tip': 'Бусины ✦ — очки за партии. 10 за верный ответ + до 5 бонусных за скорость. Из бусин складывается ступень.'
+            href: 'rating.html',
+            'data-tip': 'Бусины ✦ — очки за партии. Тапни чтобы узнать как считается рейтинг.',
+            style: { textDecoration: 'none' },
           }, '✦ ', busey),
           React.createElement('span', { className: 'dp-hero-stats-sep' }, '·'),
           React.createElement('span', null, games, ' ', Term('партий', 'Партия — викторина из 10/18/30 вопросов на темы Ясны. Блиц ~2 мин · Стандарт ~5 мин · Эксперт ~9 мин.'))
