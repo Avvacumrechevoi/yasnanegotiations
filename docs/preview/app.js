@@ -839,7 +839,11 @@ function App(){
         <span className='hdr-brand-desk' style={{fontFamily:'var(--serif)',fontSize:17,color:'#1d1d1f',fontWeight:700,marginRight:12,letterSpacing:-0.3}}>Ясна</span>
         {/* y.name удалён — он дублирует активный таб ниже */}
         <span className='hdr-title-mob' style={{display:'none',fontFamily:'var(--serif)',fontSize:20,color:'#1d1d1f',fontWeight:700,marginRight:6,letterSpacing:-0.2}}>Ясна</span>
-        
+        {/* Игра — Primary CTA, slева сразу после логотипа (всегда заметна) */}
+        <a href='duel.html' title='Игра по Ясне: викторина, Архив, Этюд дня' className='hdr-btn-game' style={{border:'1px solid #0071e3',color:'#fff',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:'#0071e3',cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:6,textDecoration:'none',boxSizing:'border-box',boxShadow:'0 1px 3px rgba(0,113,227,.20)',marginLeft:8}}>
+          <span>Игра</span>
+          <span style={{fontSize:9,padding:'1px 5px',background:'rgba(255,255,255,.22)',color:'#fff',borderRadius:4,letterSpacing:.5,fontWeight:700}}>NEW</span>
+        </a>
         <div style={{flex:1}}/>
         <div className='hdr-btns' style={{display:'flex',gap:6,alignItems:'center'}}>
         {/* ────────────────────────────────────────────────────────────
@@ -857,20 +861,22 @@ function App(){
           </button>
           {learnOpen && <>
             <div onClick={()=>setLearnOpen(false)} style={{position:'fixed',inset:0,zIndex:99}}/>
-            <div style={{position:'absolute',top:'calc(100% + 4px)',right:0,minWidth:220,background:'#fff',border:'1px solid #d2d2d7',borderRadius:10,boxShadow:'0 6px 24px rgba(0,0,0,.12)',zIndex:100,overflow:'hidden'}}>
+            <div style={{position:'absolute',top:'calc(100% + 4px)',right:0,minWidth:240,maxHeight:'calc(100vh - 80px)',overflowY:'auto',background:'#fff',border:'1px solid #d2d2d7',borderRadius:10,boxShadow:'0 6px 24px rgba(0,0,0,.12)',zIndex:100}}>
+              {/* Уроки — отдельный пункт, общие для всех Ясн */}
               <button onClick={()=>{setLessonPicker(true);setLearnOpen(false)}} style={{display:'flex',width:'100%',padding:'11px 14px',fontSize:13,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left',cursor:'pointer'}}>Уроки <span style={{color:'#86868b',fontSize:11,marginLeft:6}}>· 4 шага</span></button>
-              {y && window.YasnaTours && window.YasnaTours.has(y.name)
-                ?<button onClick={()=>{setShowTour(true);setLearnOpen(false)}} style={{display:'flex',width:'100%',padding:'11px 14px',fontSize:13,color:'#1d1d1f',border:'none',background:'#fff',textAlign:'left',cursor:'pointer'}}>Гид по «{y.name}»</button>
-                :<div style={{padding:'11px 14px',fontSize:12,color:'#aeaeb2',fontStyle:'italic'}}>Гид появится для отдельных Ясн</div>
-              }
+              {/* Все зарегистрированные гиды — auto-list через YasnaTours.list() */}
+              {(()=>{
+                const tours=(window.YasnaTours&&window.YasnaTours.list?window.YasnaTours.list():[]);
+                if(tours.length===0)return <div style={{padding:'11px 14px',fontSize:12,color:'#aeaeb2',fontStyle:'italic'}}>Гиды появятся скоро</div>;
+                return <>
+                  <div style={{padding:'8px 14px 4px',fontSize:10,fontWeight:600,letterSpacing:1.2,textTransform:'uppercase',color:'#86868b'}}>Гиды по Яснам · {tours.length}</div>
+                  {tours.map(name=>{const isCurrent=y&&y.name===name;return <button key={name} onClick={()=>{const t=T.find(tt=>tt.n===name);if(t&&!isCurrent)load(t);setShowTour(true);setLearnOpen(false);}} style={{display:'flex',alignItems:'center',gap:8,width:'100%',padding:'10px 14px',fontSize:13,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:isCurrent?'rgba(0,113,227,.06)':'#fff',textAlign:'left',cursor:'pointer',fontWeight:isCurrent?600:400}}><span style={{flex:1}}>{name}</span>{isCurrent && <span style={{fontSize:9,padding:'1px 6px',background:'rgba(0,113,227,.14)',color:'#0058b8',borderRadius:8,fontWeight:600,letterSpacing:.5}}>СЕЙЧАС</span>}</button>;})}
+                </>;
+              })()}
             </div>
           </>}
         </div>
-        {/* 2. Игра NEW — Primary CTA */}
-        <a href='duel.html' title='Игра по Ясне: викторина, Архив, Этюд дня' className='hdr-btn-game' style={{border:'1px solid #0071e3',color:'#fff',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:'#0071e3',cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:6,textDecoration:'none',boxSizing:'border-box',boxShadow:'0 1px 3px rgba(0,113,227,.20)'}}>
-          <span>Игра</span>
-          <span style={{fontSize:9,padding:'1px 5px',background:'rgba(255,255,255,.22)',color:'#fff',borderRadius:4,letterSpacing:.5,fontWeight:700}}>NEW</span>
-        </a>
+        {/* Игра переехала влево, рядом с лого — см. начало .hdr */}
         {/* 3. Справка ▼ (Стихии переехала в "..." настройки над звездой) */}
         <div style={{position:'relative'}}>
           <button onClick={()=>setHelpOpen(o=>!o)} title='Инструкция, Глоссарий, Проверка' className='hdr-btn' style={{border:`1px solid ${helpOpen?'rgba(0,113,227,.4)':'#d2d2d7'}`,color:helpOpen?'#0058b8':'#424245',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:helpOpen?'rgba(0,113,227,.06)':'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:6,boxSizing:'border-box'}}>
