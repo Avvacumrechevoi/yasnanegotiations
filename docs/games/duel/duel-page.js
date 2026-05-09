@@ -1959,9 +1959,9 @@
               React.createElement('h2', null, 'Какая партия?')
             ),
 
-            // ═════ СЕКЦИЯ 1: Длительность ═════
+            // ═════ СЕКЦИЯ 1: Количество вопросов ═════
             React.createElement('section', { className: 'dp-picker-section' },
-              React.createElement('div', { className: 'dp-picker-section-eyebrow' }, '◷  Длительность'),
+              React.createElement('div', { className: 'dp-picker-section-eyebrow' }, '◷  Количество вопросов'),
               React.createElement('div', { className: 'dp-mode-grid' },
                 modes.map(m =>
                   React.createElement('button', {
@@ -2036,40 +2036,34 @@
               )
             ),
 
-            // ═════ СЕКЦИЯ 3: С кем играешь ═════
-            React.createElement('section', { className: 'dp-picker-section' },
-              React.createElement('div', { className: 'dp-picker-section-eyebrow' }, '◐  Соперник'),
-              React.createElement('div', { className: 'dp-opponent-grid' },
-                React.createElement('button', {
-                  className: 'dp-opponent-btn' + (partiyaPicker.preferredOpponent === 'shadow' ? ' dp-opponent-btn--preferred' : ''),
-                  onClick: () => {
-                    if(!enoughThemes) return;
-                    setPartiyaPicker(null);
-                    startPartiyaWithShadow('medium', mode, selectedThemes);
-                  },
-                  disabled: !enoughThemes,
-                  type: 'button'
-                },
-                  React.createElement('div', { className: 'dp-opponent-icon', 'aria-hidden': 'true' }, '🌗'),
-                  React.createElement('div', { className: 'dp-opponent-body' },
-                    React.createElement('div', { className: 'dp-opponent-title' }, 'Соло'),
-                    React.createElement('div', { className: 'dp-opponent-sub' }, 'Против Тени-бота')
-                  )
+            // ═════ Footer: Главная CTA ═════
+            // Соперник уже выбран на карточке (Solo/PvP), здесь только запуск.
+            // preferredOpponent → определяет какой start-handler вызывать.
+            (() => {
+              const opp = partiyaPicker.preferredOpponent || 'shadow';
+              const isPvp = opp === 'pvp';
+              const handleStart = () => {
+                if(!enoughThemes) return;
+                if(isPvp){
+                  startPartiyaPvP();
+                } else {
+                  setPartiyaPicker(null);
+                  startPartiyaWithShadow('medium', mode, selectedThemes);
+                }
+              };
+              return React.createElement('section', { className: 'dp-picker-footer' },
+                React.createElement('div', { className: 'dp-picker-footer-meta' },
+                  React.createElement('span', { className: 'dp-picker-footer-icon', 'aria-hidden': 'true' }, isPvp ? '◐◑' : '🌗'),
+                  React.createElement('span', null, isPvp ? 'Играешь с другом по ссылке' : 'Играешь соло против Тени-бота')
                 ),
                 React.createElement('button', {
-                  className: 'dp-opponent-btn dp-opponent-btn--accent' + (partiyaPicker.preferredOpponent === 'pvp' ? ' dp-opponent-btn--preferred' : ''),
-                  onClick: startPartiyaPvP,
+                  className: 'dp-picker-footer-cta',
+                  onClick: handleStart,
                   disabled: !enoughThemes,
                   type: 'button'
-                },
-                  React.createElement('div', { className: 'dp-opponent-icon', 'aria-hidden': 'true' }, '◐◑'),
-                  React.createElement('div', { className: 'dp-opponent-body' },
-                    React.createElement('div', { className: 'dp-opponent-title' }, 'Вдвоём'),
-                    React.createElement('div', { className: 'dp-opponent-sub' }, 'С другом по ссылке')
-                  )
-                )
-              )
-            )
+                }, isPvp ? 'Создать комнату →' : 'Начать партию →')
+              );
+            })()
           )
         );
       })(),

@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T21:57:47.590Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T22:02:11.418Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5861,7 +5861,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T21:57:47.162Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T22:02:11.001Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -23222,11 +23222,11 @@ window.YasnaCore = {
               React.createElement("div", { className: "dp-auth-eyebrow" }, "\u2726  \u041F\u0430\u0440\u0442\u0438\u044F"),
               React.createElement("h2", null, "\u041A\u0430\u043A\u0430\u044F \u043F\u0430\u0440\u0442\u0438\u044F?")
             ),
-            // ═════ СЕКЦИЯ 1: Длительность ═════
+            // ═════ СЕКЦИЯ 1: Количество вопросов ═════
             React.createElement(
               "section",
               { className: "dp-picker-section" },
-              React.createElement("div", { className: "dp-picker-section-eyebrow" }, "\u25F7  \u0414\u043B\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u044C"),
+              React.createElement("div", { className: "dp-picker-section-eyebrow" }, "\u25F7  \u041A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432"),
               React.createElement(
                 "div",
                 { className: "dp-mode-grid" },
@@ -23329,52 +23329,38 @@ window.YasnaCore = {
                 " \u0442\u0435\u043C."
               )
             ),
-            // ═════ СЕКЦИЯ 3: С кем играешь ═════
-            React.createElement(
-              "section",
-              { className: "dp-picker-section" },
-              React.createElement("div", { className: "dp-picker-section-eyebrow" }, "\u25D0  \u0421\u043E\u043F\u0435\u0440\u043D\u0438\u043A"),
-              React.createElement(
-                "div",
-                { className: "dp-opponent-grid" },
+            // ═════ Footer: Главная CTA ═════
+            // Соперник уже выбран на карточке (Solo/PvP), здесь только запуск.
+            // preferredOpponent → определяет какой start-handler вызывать.
+            (() => {
+              const opp = partiyaPicker.preferredOpponent || "shadow";
+              const isPvp = opp === "pvp";
+              const handleStart = () => {
+                if (!enoughThemes) return;
+                if (isPvp) {
+                  startPartiyaPvP();
+                } else {
+                  setPartiyaPicker(null);
+                  startPartiyaWithShadow("medium", mode, selectedThemes);
+                }
+              };
+              return React.createElement(
+                "section",
+                { className: "dp-picker-footer" },
                 React.createElement(
-                  "button",
-                  {
-                    className: "dp-opponent-btn" + (partiyaPicker.preferredOpponent === "shadow" ? " dp-opponent-btn--preferred" : ""),
-                    onClick: () => {
-                      if (!enoughThemes) return;
-                      setPartiyaPicker(null);
-                      startPartiyaWithShadow("medium", mode, selectedThemes);
-                    },
-                    disabled: !enoughThemes,
-                    type: "button"
-                  },
-                  React.createElement("div", { className: "dp-opponent-icon", "aria-hidden": "true" }, "\u{1F317}"),
-                  React.createElement(
-                    "div",
-                    { className: "dp-opponent-body" },
-                    React.createElement("div", { className: "dp-opponent-title" }, "\u0421\u043E\u043B\u043E"),
-                    React.createElement("div", { className: "dp-opponent-sub" }, "\u041F\u0440\u043E\u0442\u0438\u0432 \u0422\u0435\u043D\u0438-\u0431\u043E\u0442\u0430")
-                  )
+                  "div",
+                  { className: "dp-picker-footer-meta" },
+                  React.createElement("span", { className: "dp-picker-footer-icon", "aria-hidden": "true" }, isPvp ? "\u25D0\u25D1" : "\u{1F317}"),
+                  React.createElement("span", null, isPvp ? "\u0418\u0433\u0440\u0430\u0435\u0448\u044C \u0441 \u0434\u0440\u0443\u0433\u043E\u043C \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435" : "\u0418\u0433\u0440\u0430\u0435\u0448\u044C \u0441\u043E\u043B\u043E \u043F\u0440\u043E\u0442\u0438\u0432 \u0422\u0435\u043D\u0438-\u0431\u043E\u0442\u0430")
                 ),
-                React.createElement(
-                  "button",
-                  {
-                    className: "dp-opponent-btn dp-opponent-btn--accent" + (partiyaPicker.preferredOpponent === "pvp" ? " dp-opponent-btn--preferred" : ""),
-                    onClick: startPartiyaPvP,
-                    disabled: !enoughThemes,
-                    type: "button"
-                  },
-                  React.createElement("div", { className: "dp-opponent-icon", "aria-hidden": "true" }, "\u25D0\u25D1"),
-                  React.createElement(
-                    "div",
-                    { className: "dp-opponent-body" },
-                    React.createElement("div", { className: "dp-opponent-title" }, "\u0412\u0434\u0432\u043E\u0451\u043C"),
-                    React.createElement("div", { className: "dp-opponent-sub" }, "\u0421 \u0434\u0440\u0443\u0433\u043E\u043C \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435")
-                  )
-                )
-              )
-            )
+                React.createElement("button", {
+                  className: "dp-picker-footer-cta",
+                  onClick: handleStart,
+                  disabled: !enoughThemes,
+                  type: "button"
+                }, isPvp ? "\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u043A\u043E\u043C\u043D\u0430\u0442\u0443 \u2192" : "\u041D\u0430\u0447\u0430\u0442\u044C \u043F\u0430\u0440\u0442\u0438\u044E \u2192")
+              );
+            })()
           )
         );
       })(),
