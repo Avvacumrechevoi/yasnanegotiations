@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T21:12:16.276Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T21:31:52.779Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5861,7 +5861,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T21:12:15.816Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T21:31:52.335Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -21467,8 +21467,8 @@ window.YasnaCore = {
         "div",
         { className: "dp-games-grid" },
         React.createElement(
-          "button",
-          { className: "dp-game-card dp-game-primary", onClick: onPartiya },
+          "div",
+          { className: "dp-game-card dp-game-primary" },
           React.createElement("div", { className: "dp-game-eyebrow" }, "\u2726  \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0430 \xB7 ~5 \u043C\u0438\u043D\u0443\u0442"),
           React.createElement(
             "div",
@@ -21488,12 +21488,69 @@ window.YasnaCore = {
             React.createElement("li", null, "4 \u0444\u043E\u0440\u043C\u0430\u0442\u0430: \u0432\u044B\u0431\u043E\u0440 \u0438\u0437 4 \xB7 \u0432\u0435\u0440\u043D\u043E/\u043D\u0435\u0442 \xB7 \u043D\u0435\u0441\u043A\u043E\u043B\u044C\u043A\u043E \u0432\u0435\u0440\u043D\u044B\u0445 \xB7 \u0441\u043E\u0435\u0434\u0438\u043D\u0438 \u043F\u0430\u0440\u044B"),
             React.createElement("li", null, "\u0412 \u0444\u0438\u043D\u0430\u043B\u0435 \u2014 \u0440\u0430\u0437\u0431\u043E\u0440 \u043E\u0448\u0438\u0431\u043E\u043A \u0441 \u0446\u0438\u0442\u0430\u0442\u0430\u043C\u0438 \u0438\u0437 \u043A\u043D\u0438\u0433\u0438")
           ),
+          // ─── Две CTA-кнопки: Соло (с Тенью-ботом) или PvP (с другом по ссылке) ───
           React.createElement(
             "div",
-            { className: "dp-game-meta" },
-            React.createElement("span", null, "\u0421\u043E\u043B\u043E \u0441 \u0422\u0435\u043D\u044C\u044E"),
-            React.createElement("span", null, "\xB7"),
-            React.createElement("span", { className: "dp-game-meta-pvp" }, "\u0412\u0434\u0432\u043E\u0451\u043C \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435 \u2726")
+            { className: "dp-cta-row" },
+            React.createElement(
+              "button",
+              {
+                type: "button",
+                className: "dp-cta dp-cta--solo",
+                onClick: (e) => {
+                  e.stopPropagation();
+                  onPartiya("shadow");
+                },
+                "aria-label": "\u0418\u0433\u0440\u0430\u0442\u044C \u0441\u043E\u043B\u043E \u0441 \u0422\u0435\u043D\u044C\u044E"
+              },
+              React.createElement(
+                "span",
+                { className: "dp-cta__icon", "aria-hidden": "true" },
+                React.createElement(
+                  "svg",
+                  { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round", strokeLinejoin: "round" },
+                  React.createElement("circle", { cx: 12, cy: 8, r: 3.5 }),
+                  React.createElement("path", { d: "M5 21c0-3.866 3.134-7 7-7s7 3.134 7 7" })
+                )
+              ),
+              React.createElement(
+                "span",
+                { className: "dp-cta__body" },
+                React.createElement("span", { className: "dp-cta__title" }, "\u0418\u0433\u0440\u0430\u0442\u044C \u0441\u043E\u043B\u043E"),
+                React.createElement("span", { className: "dp-cta__sub" }, "\u043F\u0440\u043E\u0442\u0438\u0432 \u0422\u0435\u043D\u0438-\u0431\u043E\u0442\u0430")
+              )
+            ),
+            React.createElement(
+              "button",
+              {
+                type: "button",
+                className: "dp-cta dp-cta--pvp",
+                onClick: (e) => {
+                  e.stopPropagation();
+                  onPartiya("pvp");
+                },
+                "aria-label": "\u0418\u0433\u0440\u0430\u0442\u044C \u0432\u0434\u0432\u043E\u0451\u043C \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435"
+              },
+              React.createElement(
+                "span",
+                { className: "dp-cta__icon", "aria-hidden": "true" },
+                React.createElement(
+                  "svg",
+                  { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round", strokeLinejoin: "round" },
+                  React.createElement("circle", { cx: 8, cy: 9, r: 3 }),
+                  React.createElement("circle", { cx: 17, cy: 10, r: 2.5 }),
+                  React.createElement("path", { d: "M2 20c0-3.314 2.686-6 6-6s6 2.686 6 6" }),
+                  React.createElement("path", { d: "M14 20c.4-2.4 2.4-4.2 4.8-4.2s4.4 1.8 4.8 4.2" })
+                )
+              ),
+              React.createElement(
+                "span",
+                { className: "dp-cta__body" },
+                React.createElement("span", { className: "dp-cta__title" }, "\u0421 \u0434\u0440\u0443\u0433\u043E\u043C"),
+                React.createElement("span", { className: "dp-cta__sub" }, "\u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435-\u043A\u043E\u043C\u043D\u0430\u0442\u0435")
+              ),
+              React.createElement("span", { className: "dp-cta__badge", "aria-hidden": "true" }, "\u2726")
+            )
           )
         ),
         React.createElement(
@@ -22946,12 +23003,12 @@ window.YasnaCore = {
       }));
     };
     const [partiyaPicker, setPartiyaPicker] = useState(null);
-    const askPartiyaMode = () => {
+    const askPartiyaMode = (preferredOpponent) => {
       requireProfile(() => setPartiyaPicker({
         mode: "standard",
         expanded: false,
-        selectedThemes: null
-        // null = все темы по умолчанию
+        selectedThemes: null,
+        preferredOpponent: preferredOpponent || null
       }));
     };
     const startPartiyaPvP = () => {
@@ -23240,7 +23297,7 @@ window.YasnaCore = {
                 React.createElement(
                   "button",
                   {
-                    className: "dp-opponent-btn",
+                    className: "dp-opponent-btn" + (partiyaPicker.preferredOpponent === "shadow" ? " dp-opponent-btn--preferred" : ""),
                     onClick: () => {
                       if (!enoughThemes) return;
                       setPartiyaPicker(null);
@@ -23260,7 +23317,7 @@ window.YasnaCore = {
                 React.createElement(
                   "button",
                   {
-                    className: "dp-opponent-btn dp-opponent-btn--accent",
+                    className: "dp-opponent-btn dp-opponent-btn--accent" + (partiyaPicker.preferredOpponent === "pvp" ? " dp-opponent-btn--preferred" : ""),
                     onClick: startPartiyaPvP,
                     disabled: !enoughThemes,
                     type: "button"

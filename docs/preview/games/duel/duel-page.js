@@ -437,7 +437,7 @@
         )
       ),
       React.createElement('div', { className: 'dp-games-grid' },
-        React.createElement('button', { className: 'dp-game-card dp-game-primary', onClick: onPartiya },
+        React.createElement('div', { className: 'dp-game-card dp-game-primary' },
           React.createElement('div', { className: 'dp-game-eyebrow' }, '✦  Доступна · ~5 минут'),
           React.createElement('div', { className: 'dp-game-title-row' },
             React.createElement('div', { className: 'dp-game-title' }, 'Партия'),
@@ -451,10 +451,45 @@
             React.createElement('li', null, '4 формата: выбор из 4 · верно/нет · несколько верных · соедини пары'),
             React.createElement('li', null, 'В финале — разбор ошибок с цитатами из книги')
           ),
-          React.createElement('div', { className: 'dp-game-meta' },
-            React.createElement('span', null, 'Соло с Тенью'),
-            React.createElement('span', null, '·'),
-            React.createElement('span', { className: 'dp-game-meta-pvp' }, 'Вдвоём по ссылке ✦')
+          // ─── Две CTA-кнопки: Соло (с Тенью-ботом) или PvP (с другом по ссылке) ───
+          React.createElement('div', { className: 'dp-cta-row' },
+            React.createElement('button', {
+              type: 'button',
+              className: 'dp-cta dp-cta--solo',
+              onClick: (e) => { e.stopPropagation(); onPartiya('shadow'); },
+              'aria-label': 'Играть соло с Тенью',
+            },
+              React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
+                React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
+                  React.createElement('circle', { cx: 12, cy: 8, r: 3.5 }),
+                  React.createElement('path', { d: 'M5 21c0-3.866 3.134-7 7-7s7 3.134 7 7' })
+                )
+              ),
+              React.createElement('span', { className: 'dp-cta__body' },
+                React.createElement('span', { className: 'dp-cta__title' }, 'Играть соло'),
+                React.createElement('span', { className: 'dp-cta__sub' }, 'против Тени-бота')
+              )
+            ),
+            React.createElement('button', {
+              type: 'button',
+              className: 'dp-cta dp-cta--pvp',
+              onClick: (e) => { e.stopPropagation(); onPartiya('pvp'); },
+              'aria-label': 'Играть вдвоём по ссылке',
+            },
+              React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
+                React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
+                  React.createElement('circle', { cx: 8, cy: 9, r: 3 }),
+                  React.createElement('circle', { cx: 17, cy: 10, r: 2.5 }),
+                  React.createElement('path', { d: 'M2 20c0-3.314 2.686-6 6-6s6 2.686 6 6' }),
+                  React.createElement('path', { d: 'M14 20c.4-2.4 2.4-4.2 4.8-4.2s4.4 1.8 4.8 4.2' })
+                )
+              ),
+              React.createElement('span', { className: 'dp-cta__body' },
+                React.createElement('span', { className: 'dp-cta__title' }, 'С другом'),
+                React.createElement('span', { className: 'dp-cta__sub' }, 'по ссылке-комнате')
+              ),
+              React.createElement('span', { className: 'dp-cta__badge', 'aria-hidden': 'true' }, '✦')
+            )
           )
         ),
         React.createElement('button', { className: 'dp-game-card dp-game-soon', onClick: onUzor, disabled: true, style: { opacity: 0.6, cursor: 'not-allowed' } },
@@ -1711,11 +1746,14 @@
     // partiyaPicker = null | { mode, expanded: bool, selectedThemes: Set<id>|null }
     const [partiyaPicker, setPartiyaPicker] = useState(null);
 
-    const askPartiyaMode = () => {
+    // preferredOpponent: 'shadow' | 'pvp' | null — какая опция предвыделена.
+    // Открывает picker с подсвеченной нужной кнопкой соперника.
+    const askPartiyaMode = (preferredOpponent) => {
       requireProfile(() => setPartiyaPicker({
         mode: 'standard',
         expanded: false,
-        selectedThemes: null  // null = все темы по умолчанию
+        selectedThemes: null,
+        preferredOpponent: preferredOpponent || null,
       }));
     };
 
@@ -1958,7 +1996,7 @@
               React.createElement('div', { className: 'dp-picker-section-eyebrow' }, '◐  Соперник'),
               React.createElement('div', { className: 'dp-opponent-grid' },
                 React.createElement('button', {
-                  className: 'dp-opponent-btn',
+                  className: 'dp-opponent-btn' + (partiyaPicker.preferredOpponent === 'shadow' ? ' dp-opponent-btn--preferred' : ''),
                   onClick: () => {
                     if(!enoughThemes) return;
                     setPartiyaPicker(null);
@@ -1974,7 +2012,7 @@
                   )
                 ),
                 React.createElement('button', {
-                  className: 'dp-opponent-btn dp-opponent-btn--accent',
+                  className: 'dp-opponent-btn dp-opponent-btn--accent' + (partiyaPicker.preferredOpponent === 'pvp' ? ' dp-opponent-btn--preferred' : ''),
                   onClick: startPartiyaPvP,
                   disabled: !enoughThemes,
                   type: 'button'
