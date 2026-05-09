@@ -127,7 +127,12 @@ function OverlayPicker({currentName,overlay,onSelect,onClose}){
 function Picker({pinned,onTogglePin,onClear,onClose}){
   const[q,setQ]=useState('');
   const filtered=T.filter(t=>t.n.toLowerCase().includes(q.toLowerCase()));
-  const starterList=filtered.filter(t=>t.starter);
+  // Кастомный порядок стартовых — Суток/Года/Жизни во главе
+  const STARTER_ORDER=['суток','года','фаз_жизни','линий_руки','двора_животных','цветов','знаки_з.','дома','кухни','круговорота_воды'];
+  const starterList=filtered.filter(t=>t.starter).sort((a,b)=>{
+    const ai=STARTER_ORDER.indexOf(a.id), bi=STARTER_ORDER.indexOf(b.id);
+    return (ai===-1?999:ai)-(bi===-1?999:bi);
+  });
   const additionalList=filtered.filter(t=>t.rubrik&&!t.starter);
   const customList=filtered.filter(t=>t.custom&&!t.rubrik);
   const otherList=filtered.filter(t=>!t.rubrik&&!t.custom);
@@ -190,6 +195,9 @@ function Picker({pinned,onTogglePin,onClear,onClose}){
             {(()=>{const starterIds=T.filter(t=>t.starter).map(t=>t.id);const allStarterSelected=starterIds.every(id=>pinned.includes(id));return allStarterSelected?
               <button onClick={()=>{starterIds.forEach(id=>{if(pinned.includes(id))onTogglePin(id);});}} style={{fontSize:11,color:'#0071e3',border:'1px solid rgba(0,122,255,.3)',padding:'4px 12px',borderRadius:12,background:'rgba(0,122,255,.08)',cursor:'pointer',fontWeight:600}}>★ Стартовые — снять</button>
               :<button onClick={()=>{starterIds.forEach(id=>{if(!pinned.includes(id))onTogglePin(id);});}} style={{fontSize:11,color:'#0071e3',border:'1px solid rgba(0,122,255,.3)',padding:'4px 12px',borderRadius:12,background:'transparent',cursor:'pointer'}}>★ Только стартовые</button>;})()}
+            {(()=>{const rubIds=T.filter(t=>t.rubrik).map(t=>t.id);const allRubSelected=rubIds.every(id=>pinned.includes(id));return allRubSelected?
+              <button onClick={()=>{rubIds.forEach(id=>{if(pinned.includes(id))onTogglePin(id);});}} style={{fontSize:11,color:'#0071e3',border:'1px solid rgba(0,122,255,.3)',padding:'4px 12px',borderRadius:12,background:'rgba(0,122,255,.08)',cursor:'pointer',fontWeight:600}}>✦ Дополнительные — снять</button>
+              :<button onClick={()=>{rubIds.forEach(id=>{if(!pinned.includes(id))onTogglePin(id);});}} style={{fontSize:11,color:'#0071e3',border:'1px solid rgba(0,122,255,.3)',padding:'4px 12px',borderRadius:12,background:'transparent',cursor:'pointer'}}>✦ Дополнительные</button>;})()}
             {pinnedCount>0&&pinnedCount<total&&<button onClick={onClear} style={{fontSize:11,color:'#E8364F',border:'1px solid rgba(232,54,79,.3)',padding:'4px 12px',borderRadius:12,background:'transparent',cursor:'pointer'}}>Снять все</button>}
             <div style={{flex:1}}/>
             <span className="picker-legend" style={{fontSize:10,color:'#aeaeb2',display:'flex',alignItems:'center',gap:10}}>
