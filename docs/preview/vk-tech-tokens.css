@@ -1107,6 +1107,39 @@ body.theme-vk-dark .filters-collapsible {
   height: 36px;
   box-sizing: border-box;
 }
+
+/* ─── Игра — Primary CTA (solid VK Blue + белый текст) ─── */
+body.theme-vk-dark .hdr-btn-game {
+  background: var(--vk-accent) !important;
+  color: #FFFFFF !important;
+  border: 1px solid var(--vk-accent) !important;
+  box-shadow: 0 1px 3px rgba(0, 119, 255, 0.30) !important;
+}
+body.theme-vk-dark .hdr-btn-game:hover {
+  background: var(--vk-accent-hover) !important;
+  border-color: var(--vk-accent-hover) !important;
+}
+
+/* ─── Войти — Tonal с аватаром ─── */
+body.theme-vk-dark .hdr-btn-profile {
+  background: var(--vk-bg-tonal) !important;
+  color: var(--vk-text-primary) !important;
+  border: 1px solid var(--vk-border) !important;
+}
+body.theme-vk-dark .hdr-btn-profile:hover {
+  background: var(--vk-bg-strong) !important;
+  border-color: var(--vk-text-tertiary) !important;
+}
+
+/* ─── Стихии icon-only ─── */
+body.theme-vk-dark .hdr-btn-icon {
+  background: var(--vk-bg-tonal) !important;
+  border: 1px solid var(--vk-border) !important;
+}
+body.theme-vk-dark .hdr-btn-icon:hover {
+  background: var(--vk-bg-strong) !important;
+  border-color: var(--vk-text-tertiary) !important;
+}
 /* Theme toggle в header — icon-only 36×36 */
 .dp-theme-toggle--header {
   width: 36px;

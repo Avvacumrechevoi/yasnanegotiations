@@ -28,7 +28,7 @@
 
 <link rel="stylesheet" href="styles.css"/>
 <!-- VK Tech Design System — токены (Figma 19:92826) -->
-<link rel="stylesheet" href="vk-tech-tokens.css?v=16"/>
+<link rel="stylesheet" href="vk-tech-tokens.css?v=17"/>
 <!-- VK Dark Theme — точечные правки гида (только preview) -->
 <link rel="stylesheet" href="theme-vk-dark-guide.css?v=8"/>
 
@@ -126,7 +126,13 @@
     var hdrBtns = document.querySelector('.hdr-btns');
     if(hdrBtns && !hdrBtns.querySelector(':scope > .dp-theme-toggle')){
       var btn = makeButton('header');
-      hdrBtns.appendChild(btn);
+      // Вставляем ПЕРЕД кнопкой «Войти» (если есть) — иначе в конец.
+      var profileBtn = hdrBtns.querySelector(':scope > .hdr-btn-profile');
+      if(profileBtn){
+        hdrBtns.insertBefore(btn, profileBtn);
+      } else {
+        hdrBtns.appendChild(btn);
+      }
     }
     // Mobile: floating top-right (всегда видна, даже когда .hdr-btns скрыт)
     if(!document.querySelector('body > .dp-theme-toggle--floating')){
