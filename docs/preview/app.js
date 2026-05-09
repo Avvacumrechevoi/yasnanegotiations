@@ -1096,14 +1096,28 @@ function App(){
             </button>
           </div>
         </div>}
-        <div className="star-svg-wrap" style={{width:'100%',height:'100%',maxWidth:'none',maxHeight:'none',flex:1}}>{is3D ? <Yasna3DView y={y} af={af} sel={sel} onSel={setSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/> : <Star yy={y} sel={sel} onSel={setSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} starRotation={starRotation} rotationSpeed={rotationSpeed} showComposition={showComposition}/>}</div>
+        <div className="star-svg-wrap" style={{width:'100%',height:'100%',maxWidth:'none',maxHeight:'none',flex:1}}>{(()=>{
+          /* Если карточка свёрнута и кликнули по ТОЙ ЖЕ полке — раскрываем
+             панель вместо снятия выделения. Это нужно мобильному, чтобы
+             пользователь мог снова открыть карточку без потери обводки. */
+          const onStarSel=(next)=>{
+            if(next===null && sel!==null && panelCollapsed){
+              setPanelCollapsed(false);
+              return;
+            }
+            setSel(next);
+          };
+          return is3D
+            ? <Yasna3DView y={y} af={af} sel={sel} onSel={onStarSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/>
+            : <Star yy={y} sel={sel} onSel={onStarSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} starRotation={starRotation} rotationSpeed={rotationSpeed} showComposition={showComposition}/>;
+        })()}</div>
         <OverlayLegend y={y} overlay={overlay} onClear={()=>setOverlay(null)}/>
             </div>
         </div>
         {/* side-panel: flex-сосед workspace на десктопе, overlay на планшете, скрыт на мобильном (там bottom-sheet) */}
         {sel!==null && <aside className={'side-panel'+(panelCollapsed?' collapsed':'')} aria-label='Карточка полки'>
           <button className='side-panel-toggle' onClick={()=>setPanelCollapsed(c=>!c)} title={panelCollapsed?'Развернуть панель':'Свернуть панель'} aria-label={panelCollapsed?'Развернуть панель':'Свернуть панель'}>{panelCollapsed?'‹':'›'}</button>
-          {!panelCollapsed && <Info i={sel} p={y.p} af={af} y={y} overlay={overlay} onEdit={()=>setEd(true)} onClose={()=>setSel(null)} onSel={setSel}/>}
+          {!panelCollapsed && <Info i={sel} p={y.p} af={af} y={y} overlay={overlay} onEdit={()=>setEd(true)} onClose={()=>setPanelCollapsed(true)} onSel={setSel}/>}
         </aside>}
       </div>
       {/* Ясна² Drill Editor: bottom-panel с 12 inputs для sub-полок */}
