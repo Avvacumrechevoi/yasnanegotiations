@@ -1855,9 +1855,14 @@
         ];
         const cur = modes.find(m => m.id === mode);
 
-        // Предупреждение если выбранных тем недостаточно для режима
-        const minThemesForMode = { blitz: 5, standard: 6, expert: 6 };
-        const enoughThemes = selectedCount >= minThemesForMode[mode];
+        // ─── Минимум тем = 1 ────────────────────────────────────────
+        // Раньше блокировали Партию пока не выбраны 5+ тем. Теперь
+        // движок умеет распределять total вопросов на любое N≥1 тем
+        // (см. generatePartiya). Поэтому блокируем только при 0.
+        const enoughThemes = selectedCount >= 1;
+        // Тем меньше чем по умолчанию ожидает режим — сообщаем мягко
+        const idealThemesCount = { blitz: 5, standard: 6, expert: 6 }[mode] || 6;
+        const fewThemes = selectedCount < idealThemesCount && selectedCount >= 1;
 
         return React.createElement('div', {
           className: 'dp-auth-overlay',
@@ -1930,7 +1935,12 @@
                 })
               ),
               !enoughThemes && React.createElement('div', { className: 'dp-themes-warn' },
-                '⚠  Для режима ', cur.label, ' нужно минимум ', minThemesForMode[mode], '. Сейчас: ', selectedCount, '.'
+                '⚠  Выбери хотя бы одну тему.'
+              ),
+              fewThemes && React.createElement('div', { className: 'dp-themes-hint',
+                style: { fontSize:11, color:'#86868b', marginTop:6, lineHeight:1.5 } },
+                'Выбрана ', selectedCount, ' тема — все ', cur.count, ' вопросов будут из неё. ',
+                'По умолчанию режим распределяется на ', idealThemesCount, ' тем.'
               )
             ),
 

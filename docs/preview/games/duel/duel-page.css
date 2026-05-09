@@ -1452,9 +1452,19 @@ a { color: inherit; }
   transform: translateY(0);
   box-shadow: var(--shadow-sm);
 }
-.tn-option:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+/* Focus-ring — только клавиатурная навигация на hover-устройствах.
+   На тач :focus-visible часто триггерится после tap → пользователь
+   видит синюю рамку и думает «вариант пред-выбран» (Bug 1).
+   Решение: показываем outline только когда устройство поддерживает hover. */
+@media (hover: hover) and (pointer: fine) {
+  .tn-option:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+@media (hover: none) {
+  .tn-option:focus,
+  .tn-option:focus-visible { outline: none; }
 }
 .tn-option-letter {
   display: inline-flex; align-items: center; justify-content: center;

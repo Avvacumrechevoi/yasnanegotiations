@@ -117,6 +117,16 @@ a { color: inherit; }
   max-width: 760px;
   margin: 0 auto;
   padding: var(--space-4) var(--space-5) var(--space-16);
+  overflow-x: hidden;          /* предотвращает гориз. скролл из-за overflow-элементов */
+}
+@media (max-width: 767px) {
+  body, html { overflow-x: hidden; }
+  .dp-root { padding-left: 12px; padding-right: 12px; }
+  .dp-header {
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;          /* кнопки внутри не вылезают за хедер */
+  }
 }
 
 /* ═══ Header ═══ */
@@ -178,10 +188,12 @@ a { color: inherit; }
 .dp-btn:active { transform: scale(0.98); }
 .dp-btn-primary {
   background: var(--primary);
-  color: var(--bg-surface);
+  color: #ffffff;
   border-color: var(--primary);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 119, 255, 0.20);
 }
-.dp-btn-primary:hover { background: var(--primary-strong); border-color: var(--primary-strong); }
+.dp-btn-primary:hover { background: var(--primary-strong); border-color: var(--primary-strong); color: #ffffff; }
 .dp-btn-cta {
   background: var(--primary);
   color: #fff;
@@ -1440,9 +1452,19 @@ a { color: inherit; }
   transform: translateY(0);
   box-shadow: var(--shadow-sm);
 }
-.tn-option:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+/* Focus-ring — только клавиатурная навигация на hover-устройствах.
+   На тач :focus-visible часто триггерится после tap → пользователь
+   видит синюю рамку и думает «вариант пред-выбран» (Bug 1).
+   Решение: показываем outline только когда устройство поддерживает hover. */
+@media (hover: hover) and (pointer: fine) {
+  .tn-option:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+@media (hover: none) {
+  .tn-option:focus,
+  .tn-option:focus-visible { outline: none; }
 }
 .tn-option-letter {
   display: inline-flex; align-items: center; justify-content: center;

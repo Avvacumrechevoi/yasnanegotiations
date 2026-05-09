@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T12:43:28.322Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T16:45:41.573Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5662,7 +5662,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T12:43:27.363Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T16:45:40.686Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -18101,7 +18101,40 @@ window.YasnaCore = {
     }
   }
   const ACTIVE_THEMES = useNew ? NEW_THEMES_FOR_PARTIYA : THEMES;
-  const ACTIVE_QUESTIONS = useNew ? NEW_QUESTIONS : MERGED_QUESTIONS;
+  const ACTIVE_QUESTIONS_RAW = useNew ? NEW_QUESTIONS : MERGED_QUESTIONS;
+  const DISABLED_TYPES = /* @__PURE__ */ new Set(["fill-blank", "order"]);
+  function isQuestionValid(q) {
+    if (!q || typeof q !== "object") return false;
+    if (!q.id || !q.theme) return false;
+    const text = q.text || q.stem;
+    if (!text || typeof text !== "string") return false;
+    const type = q.type || "single-choice";
+    if (DISABLED_TYPES.has(type)) return false;
+    if (type === "single-choice") {
+      return Array.isArray(q.options) && q.options.length >= 2 && (typeof q.correct === "number" || typeof q.correct === "string");
+    }
+    if (type === "true-false") {
+      return Array.isArray(q.options) && q.options.length === 2 && (q.correct === 0 || q.correct === 1 || q.correct === true || q.correct === false);
+    }
+    if (type === "multi-choice") {
+      return Array.isArray(q.options) && q.options.length >= 2 && Array.isArray(q.correct) && q.correct.length >= 1;
+    }
+    if (type === "match-pair") {
+      return Array.isArray(q.pairsLeft) && Array.isArray(q.pairsRight) && q.pairsLeft.length === q.pairsRight.length && q.pairsLeft.length >= 2;
+    }
+    return false;
+  }
+  const ACTIVE_QUESTIONS = ACTIVE_QUESTIONS_RAW.filter(isQuestionValid);
+  const SKIPPED_COUNT = ACTIVE_QUESTIONS_RAW.length - ACTIVE_QUESTIONS.length;
+  if (SKIPPED_COUNT > 0) {
+    console.log(
+      "[YasnaTrivia] \u041E\u0442\u0444\u0438\u043B\u044C\u0442\u0440\u043E\u0432\u0430\u043D\u043E",
+      SKIPPED_COUNT,
+      "\u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 (\u0431\u0438\u0442\u044B\u0435 / \u043E\u0442\u043A\u043B\u044E\u0447\u0451\u043D\u043D\u044B\u0435 \u0442\u0438\u043F\u044B:",
+      [...DISABLED_TYPES].join(", "),
+      ")"
+    );
+  }
   if (NEW) {
     console.log(
       "[YasnaTrivia] \u041A\u043E\u043D\u0442\u0435\u043D\u0442-bundle:",
@@ -18186,26 +18219,32 @@ window.YasnaCore = {
   }
   function generatePartiya(seed, mode, themesFilter) {
     const cfg = MODE_CONFIG[mode] || MODE_CONFIG.standard;
+    const targetTotal = cfg.themes * cfg.qPerTheme;
     const seen = loadSeen();
     const win = ANTI_REPEAT_WINDOW_MS[mode] || ANTI_REPEAT_WINDOW_MS.standard;
     const cutoff = Date.now() - win;
     const isFresh = (qId) => !seen[qId] || seen[qId] < cutoff;
     const rng = seedRandom(seed || Date.now());
-    const eligibleThemes = themesFilter ? ACTIVE_THEMES.filter((t) => themesFilter.includes(t.id)) : ACTIVE_THEMES;
-    const shuffled = [...eligibleThemes].sort(() => rng() - 0.5);
-    const chosen = shuffled.slice(0, cfg.themes);
-    const partiya = chosen.map((theme) => {
+    const eligibleThemes = themesFilter && themesFilter.length > 0 ? ACTIVE_THEMES.filter((t) => themesFilter.includes(t.id)) : ACTIVE_THEMES;
+    const themesToUse = eligibleThemes.length <= cfg.themes ? [...eligibleThemes] : [...eligibleThemes].sort(() => rng() - 0.5).slice(0, cfg.themes);
+    if (themesToUse.length === 0) return [];
+    const N = themesToUse.length;
+    const baseQ = Math.floor(targetTotal / N);
+    const extra = targetTotal - baseQ * N;
+    const ordered = [...themesToUse].sort(() => rng() - 0.5);
+    const partiya = ordered.map((theme, idx) => {
+      const want = baseQ + (idx < extra ? 1 : 0);
       const themeQs = ACTIVE_QUESTIONS.filter((q) => q.theme === theme.id);
       const fresh = themeQs.filter((q) => isFresh(q.id));
       const shFresh = [...fresh].sort(() => rng() - 0.5);
-      let picked = shFresh.slice(0, cfg.qPerTheme);
-      if (picked.length < cfg.qPerTheme) {
+      let picked = shFresh.slice(0, want);
+      if (picked.length < want) {
         const fallback = themeQs.filter((q) => !picked.find((p) => p.id === q.id));
         const shAll = [...fallback].sort(() => rng() - 0.5);
-        picked = [...picked, ...shAll.slice(0, cfg.qPerTheme - picked.length)];
+        picked = [...picked, ...shAll.slice(0, want - picked.length)];
       }
-      return { theme, questions: picked };
-    });
+      return { theme, questions: picked, requested: want };
+    }).filter((r) => r.questions.length > 0);
     const allIds = partiya.flatMap((r) => r.questions.map((q) => q.id));
     markSeen(allIds);
     return partiya;
@@ -18244,6 +18283,60 @@ window.YasnaCore = {
   const SHOW_FEEDBACK_MS = 1500;
   const SHOW_VS_MS = 2200;
   const SHOW_ROUND_INTRO_MS = 1800;
+  class QuestionErrorBoundary extends React.Component {
+    constructor(p) {
+      super(p);
+      this.state = { err: null };
+    }
+    static getDerivedStateFromError(err) {
+      return { err };
+    }
+    componentDidCatch(err, info) {
+      try {
+        console.error("[Question render error]", err, info);
+      } catch (_) {
+      }
+      this.skipTimer = setTimeout(() => {
+        try {
+          this.props.onSkip && this.props.onSkip();
+        } catch (_) {
+        }
+      }, 1200);
+    }
+    componentWillUnmount() {
+      clearTimeout(this.skipTimer);
+    }
+    render() {
+      if (this.state.err) {
+        return React.createElement(
+          "div",
+          { className: "tn-fullscreen" },
+          React.createElement(
+            "div",
+            { className: "tn-container", style: { paddingTop: 80 } },
+            React.createElement(
+              "div",
+              {
+                style: { textAlign: "center", padding: "40px 24px", maxWidth: 480, margin: "0 auto" }
+              },
+              React.createElement("div", { style: { fontSize: 32, marginBottom: 16, opacity: 0.5 } }, "\u25F7"),
+              React.createElement(
+                "h2",
+                { style: { fontSize: 18, marginBottom: 8, fontWeight: 500 } },
+                "\u042D\u0442\u043E\u0442 \u0432\u043E\u043F\u0440\u043E\u0441 \u043F\u0440\u043E\u043F\u0443\u0449\u0435\u043D"
+              ),
+              React.createElement(
+                "p",
+                { style: { fontSize: 13, color: "#86868b" } },
+                "\u0411\u0438\u0442\u044B\u0435 \u0434\u0430\u043D\u043D\u044B\u0435 \u2014 \u043F\u0440\u043E\u0434\u043E\u043B\u0436\u0430\u0435\u043C \u043F\u0430\u0440\u0442\u0438\u044E \u0447\u0435\u0440\u0435\u0437 \u0441\u0435\u043A\u0443\u043D\u0434\u0443\u2026"
+              )
+            )
+          )
+        );
+      }
+      return this.props.children;
+    }
+  }
   const TEN_LEVELS = {
     easy: {
       name: "\u0422\u0435\u043D\u044C \u041F\u043E\u0441\u043B\u0443\u0448\u043D\u0438\u043A\u0430",
@@ -18470,10 +18563,18 @@ window.YasnaCore = {
   }
   function TnOptions({ options, chosen, correctIdx, showFeedback, onPick }) {
     const labels = ["A", "B", "C", "D", "E", "F"];
+    const opts = Array.isArray(options) ? options : [];
+    if (opts.length === 0) {
+      return React.createElement(
+        "div",
+        { className: "tn-options", style: { textAlign: "center", padding: "40px 24px", color: "#86868b" } },
+        "\u25F7 \u042D\u0442\u043E\u0442 \u0432\u043E\u043F\u0440\u043E\u0441 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D"
+      );
+    }
     return React.createElement(
       "div",
       { className: "tn-options", role: "group" },
-      options.map((opt, i) => {
+      opts.map((opt, i) => {
         let state = "default";
         if (showFeedback) {
           if (i === correctIdx && i === chosen) state = "correct";
@@ -18485,7 +18586,7 @@ window.YasnaCore = {
           key: i,
           index: i,
           label: labels[i] || i + 1,
-          text: opt,
+          text: String(opt),
           state,
           onClick: () => onPick(i)
         });
@@ -18528,12 +18629,20 @@ window.YasnaCore = {
     return String(s || "").toLowerCase().trim().replace(/ё/g, "\u0435").replace(/[.,!?;:"'()\[\]]/g, "").replace(/\s+/g, " ");
   }
   function TnMultiChoice({ options, correctIdxs, chosen, showFeedback, onSubmit }) {
+    const opts = Array.isArray(options) ? options : [];
     const [picks, setPicks] = useState(/* @__PURE__ */ new Set());
     useEffect(() => {
       setPicks(/* @__PURE__ */ new Set());
-    }, [options]);
+    }, [opts]);
     const labels = ["A", "B", "C", "D", "E", "F", "G", "H"];
     const correctSet = new Set(correctIdxs || []);
+    if (opts.length === 0) {
+      return React.createElement(
+        "div",
+        { className: "tn-options", style: { textAlign: "center", padding: "40px 24px", color: "#86868b" } },
+        "\u25F7 \u042D\u0442\u043E\u0442 \u0432\u043E\u043F\u0440\u043E\u0441 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D"
+      );
+    }
     function toggle(i) {
       if (showFeedback) return;
       const ns = new Set(picks);
@@ -18552,7 +18661,7 @@ window.YasnaCore = {
       React.createElement(
         "div",
         { className: "tn-multi-list" },
-        options.map((opt, i) => {
+        opts.map((opt, i) => {
           const isPicked = (chosenSet || picks).has(i);
           const isCorrect = correctSet.has(i);
           let state = isPicked ? "picked" : "default";
@@ -18590,22 +18699,32 @@ window.YasnaCore = {
     );
   }
   function TnMatchPair({ pairsLeft, pairsRight, correct, chosen, showFeedback, onSubmit }) {
+    const pL = Array.isArray(pairsLeft) ? pairsLeft : [];
+    const pR = Array.isArray(pairsRight) ? pairsRight : [];
+    if (pL.length === 0 || pR.length === 0 || pL.length !== pR.length) {
+      return React.createElement(
+        "div",
+        { className: "tn-options", style: { textAlign: "center", padding: "40px 24px", color: "#86868b" } },
+        React.createElement("div", { style: { fontSize: 14, marginBottom: 8 } }, "\u25F7 \u042D\u0442\u043E\u0442 \u0432\u043E\u043F\u0440\u043E\u0441 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D"),
+        React.createElement("div", { style: { fontSize: 11 } }, "\u0418\u0434\u0451\u043C \u0434\u0430\u043B\u044C\u0448\u0435\u2026")
+      );
+    }
     const rightShuffled = useMemo(() => {
-      const arr = pairsRight.map((r, i) => ({ text: r, origIdx: i }));
-      const seed = pairsRight.join("|").length;
+      const arr = pR.map((r, i) => ({ text: r, origIdx: i }));
+      const seed = pR.join("|").length;
       let x = seed;
       arr.sort(() => {
         x = (x * 9301 + 49297) % 233280;
         return x / 233280 - 0.5;
       });
       return arr;
-    }, [pairsRight]);
+    }, [pR]);
     const [matches, setMatches] = useState({});
     const [selectedLeft, setSelectedLeft] = useState(null);
     useEffect(() => {
       setMatches({});
       setSelectedLeft(null);
-    }, [pairsLeft]);
+    }, [pL]);
     function clickLeft(i) {
       if (showFeedback || matches[i] != null) return;
       setSelectedLeft(selectedLeft === i ? null : i);
@@ -18625,10 +18744,10 @@ window.YasnaCore = {
     }
     function submit() {
       if (showFeedback) return;
-      if (Object.keys(matches).length !== pairsLeft.length) return;
+      if (Object.keys(matches).length !== pL.length) return;
       onSubmit(matches);
     }
-    const allMatched = Object.keys(matches).length === pairsLeft.length;
+    const allMatched = Object.keys(matches).length === pL.length;
     function pairCorrect(leftIdx, rightOrigIdx) {
       return rightOrigIdx === leftIdx;
     }
@@ -18642,7 +18761,7 @@ window.YasnaCore = {
         React.createElement(
           "div",
           { className: "tn-match-col tn-match-col-left" },
-          pairsLeft.map((txt, i) => {
+          pL.map((txt, i) => {
             const matched = matches[i] != null;
             const isSel = selectedLeft === i;
             let state = matched ? "matched" : isSel ? "selected" : "default";
@@ -18684,7 +18803,7 @@ window.YasnaCore = {
         className: "tn-multi-submit",
         onClick: submit,
         disabled: !allMatched
-      }, allMatched ? "\u041E\u0442\u0432\u0435\u0442\u0438\u0442\u044C \u2192" : "\u0421\u043E\u0435\u0434\u0438\u043D\u0438 \u0432\u0441\u0435 \u043F\u0430\u0440\u044B (" + Object.keys(matches).length + " / " + pairsLeft.length + ")")
+      }, allMatched ? "\u041E\u0442\u0432\u0435\u0442\u0438\u0442\u044C \u2192" : "\u0421\u043E\u0435\u0434\u0438\u043D\u0438 \u0432\u0441\u0435 \u043F\u0430\u0440\u044B (" + Object.keys(matches).length + " / " + pL.length + ")")
     );
   }
   function TnFillBlank({ correct, alternatives, chosen, showFeedback, onSubmit }) {
@@ -18972,7 +19091,7 @@ window.YasnaCore = {
       )
     );
   }
-  function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswersRef, streak, streakMultiplier }) {
+  function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, roundsTotal, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswersRef, streak, streakMultiplier }) {
     const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
     const [chosen, setChosen] = useState(null);
     const startedAt = useRef(Date.now());
@@ -19146,7 +19265,7 @@ window.YasnaCore = {
       React.createElement(
         "div",
         { className: "tn-container" },
-        React.createElement(TnTopBar, { eyebrow: "\u041F\u0430\u0440\u0442\u0438\u044F \xB7 \u0420\u0430\u0443\u043D\u0434 " + roundNum + " / 6" }),
+        React.createElement(TnTopBar, { eyebrow: "\u041F\u0430\u0440\u0442\u0438\u044F \xB7 \u0420\u0430\u0443\u043D\u0434 " + roundNum + " / " + (roundsTotal || 6) }),
         React.createElement(TnGameProgress, { qOverall, totalOverall }),
         React.createElement(TnVsHeader, { player, scoreP, opponent, scoreO }),
         React.createElement(TnTimerBar, { timeLeft, paused: showFeedback }),
@@ -19836,26 +19955,64 @@ window.YasnaCore = {
       });
     }
     if (phase === "question") {
-      return React.createElement(Question, {
-        key: "q-" + roundIdx + "-" + qIdx,
-        q: currentQ,
-        theme: currentRound.theme,
-        qIndex: qIdx,
-        totalInRound: currentRound.questions.length,
-        qOverall,
-        totalOverall,
-        roundNum: roundIdx + 1,
-        scoreP,
-        scoreO,
-        player,
-        opponent: { name: opp.name, level: opponentLevel || "medium" },
-        onAnswer,
-        isPvP,
-        transport,
-        oppAnswersRef,
-        streak,
-        streakMultiplier
+      if (!currentQ) {
+        const skip = () => onAnswer({
+          playerCorrect: false,
+          playerTime: QUESTION_TIME * 1e3,
+          oppCorrect: false,
+          oppTime: QUESTION_TIME * 1e3,
+          oppBusey: 0
+        });
+        setTimeout(skip, 100);
+        return React.createElement(
+          "div",
+          { className: "tn-fullscreen" },
+          React.createElement(
+            "div",
+            { className: "tn-container" },
+            React.createElement(
+              "div",
+              { style: { padding: 60, textAlign: "center", color: "#86868b" } },
+              "\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430\u2026"
+            )
+          )
+        );
+      }
+      const onSkip = () => onAnswer({
+        playerCorrect: false,
+        playerTime: QUESTION_TIME * 1e3,
+        oppCorrect: false,
+        oppTime: QUESTION_TIME * 1e3,
+        oppBusey: 0
       });
+      return React.createElement(
+        QuestionErrorBoundary,
+        {
+          key: "qb-" + roundIdx + "-" + qIdx,
+          onSkip
+        },
+        React.createElement(Question, {
+          key: "q-" + roundIdx + "-" + qIdx,
+          q: currentQ,
+          theme: currentRound.theme,
+          qIndex: qIdx,
+          totalInRound: currentRound.questions.length,
+          qOverall,
+          totalOverall,
+          roundNum: roundIdx + 1,
+          roundsTotal: partiya.length,
+          scoreP,
+          scoreO,
+          player,
+          opponent: { name: opp.name, level: opponentLevel || "medium" },
+          onAnswer,
+          isPvP,
+          transport,
+          oppAnswersRef,
+          streak,
+          streakMultiplier
+        })
+      );
     }
     if (phase === "midrecap") {
       const handleContinue = () => {
@@ -22322,8 +22479,9 @@ window.YasnaCore = {
           { id: "expert", label: "\u042D\u043A\u0441\u043F\u0435\u0440\u0442", count: 30, time: "~9 \u043C\u0438\u043D", sub: "\u0433\u043B\u0443\u0431\u043E\u043A\u0438\u0439" }
         ];
         const cur = modes.find((m) => m.id === mode);
-        const minThemesForMode = { blitz: 5, standard: 6, expert: 6 };
-        const enoughThemes = selectedCount >= minThemesForMode[mode];
+        const enoughThemes = selectedCount >= 1;
+        const idealThemesCount = { blitz: 5, standard: 6, expert: 6 }[mode] || 6;
+        const fewThemes = selectedCount < idealThemesCount && selectedCount >= 1;
         return React.createElement(
           "div",
           {
@@ -22418,13 +22576,22 @@ window.YasnaCore = {
               !enoughThemes && React.createElement(
                 "div",
                 { className: "dp-themes-warn" },
-                "\u26A0  \u0414\u043B\u044F \u0440\u0435\u0436\u0438\u043C\u0430 ",
-                cur.label,
-                " \u043D\u0443\u0436\u043D\u043E \u043C\u0438\u043D\u0438\u043C\u0443\u043C ",
-                minThemesForMode[mode],
-                ". \u0421\u0435\u0439\u0447\u0430\u0441: ",
+                "\u26A0  \u0412\u044B\u0431\u0435\u0440\u0438 \u0445\u043E\u0442\u044F \u0431\u044B \u043E\u0434\u043D\u0443 \u0442\u0435\u043C\u0443."
+              ),
+              fewThemes && React.createElement(
+                "div",
+                {
+                  className: "dp-themes-hint",
+                  style: { fontSize: 11, color: "#86868b", marginTop: 6, lineHeight: 1.5 }
+                },
+                "\u0412\u044B\u0431\u0440\u0430\u043D\u0430 ",
                 selectedCount,
-                "."
+                " \u0442\u0435\u043C\u0430 \u2014 \u0432\u0441\u0435 ",
+                cur.count,
+                " \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u0431\u0443\u0434\u0443\u0442 \u0438\u0437 \u043D\u0435\u0451. ",
+                "\u041F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E \u0440\u0435\u0436\u0438\u043C \u0440\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u044F\u0435\u0442\u0441\u044F \u043D\u0430 ",
+                idealThemesCount,
+                " \u0442\u0435\u043C."
               )
             ),
             // ═════ СЕКЦИЯ 3: С кем играешь ═════

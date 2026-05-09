@@ -11,6 +11,41 @@
   const SHOW_VS_MS = 2200;
   const SHOW_ROUND_INTRO_MS = 1800;
 
+  // ─── Question-level Error Boundary ───────────────────────────────
+  // Если рендер вопроса падает (битый JSON, отсутствующее поле и т.п.) —
+  // НЕ убиваем всю партию. Показываем skip-плашку и вызываем onSkip
+  // через 1.2 сек — партия идёт дальше как будто игрок ответил неверно.
+  // Без этого ОДНА битая запись = «Что-то ускользнуло» на полпути.
+  class QuestionErrorBoundary extends React.Component {
+    constructor(p){ super(p); this.state = { err: null }; }
+    static getDerivedStateFromError(err){ return { err }; }
+    componentDidCatch(err, info){
+      try { console.error('[Question render error]', err, info); } catch(_){}
+      this.skipTimer = setTimeout(() => {
+        try { this.props.onSkip && this.props.onSkip(); } catch(_){}
+      }, 1200);
+    }
+    componentWillUnmount(){ clearTimeout(this.skipTimer); }
+    render(){
+      if(this.state.err){
+        return React.createElement('div', { className: 'tn-fullscreen' },
+          React.createElement('div', { className: 'tn-container', style: { paddingTop: 80 } },
+            React.createElement('div', {
+              style: { textAlign:'center', padding:'40px 24px', maxWidth:480, margin:'0 auto' }
+            },
+              React.createElement('div', { style: { fontSize:32, marginBottom:16, opacity:.5 } }, '◷'),
+              React.createElement('h2', { style: { fontSize:18, marginBottom:8, fontWeight:500 } },
+                'Этот вопрос пропущен'),
+              React.createElement('p', { style: { fontSize:13, color:'#86868b' } },
+                'Битые данные — продолжаем партию через секунду…')
+            )
+          )
+        );
+      }
+      return this.props.children;
+    }
+  }
+
   // Три именованных лика Тени (плюс PvP — режим живого собеседника)
   const TEN_LEVELS = {
     easy:   { name: 'Тень Послушника',  subtitle: 'легко',  glyph: '🌅',
@@ -161,12 +196,19 @@
   }
 
   // ─── Карточка вопроса (тема + текст) ────────────────────────────
-  function TnQuestionCard({ qOverall, totalOverall, themeName, text, timeLeft, showFeedback }){
+  function TnQuestionCard({ qOverall, totalOverall, themeName, text, timeLeft, showFeedback, qType }){
+    const typeLabel =
+      qType === 'true-false'  ? 'Верно или нет?' :
+      qType === 'fill-blank'  ? 'Заполни пропуск' :
+      qType === 'multi-choice'? 'Выбери все верные' :
+      qType === 'match-pair'  ? 'Соедини пары' : null;
     return React.createElement('article', { className: 'tn-q-card' },
       React.createElement('div', { className: 'tn-q-meta' },
         React.createElement('span', { className: 'tn-q-meta-num' }, 'Вопрос ', qOverall + 1, ' / ', totalOverall),
         React.createElement('span', { className: 'tn-q-meta-dot' }, '·'),
         React.createElement('span', { className: 'tn-q-meta-theme' }, themeName),
+        typeLabel && React.createElement('span', { className: 'tn-q-meta-dot' }, '·'),
+        typeLabel && React.createElement('span', { className: 'tn-q-meta-type' }, typeLabel),
         !showFeedback && React.createElement('span', { className: 'tn-q-meta-time' },
           React.createElement('span', { 'aria-hidden': 'true' }, '◷ '), timeLeft, ' с'
         )
@@ -195,8 +237,14 @@
 
   function TnOptions({ options, chosen, correctIdx, showFeedback, onPick }){
     const labels = ['A','B','C','D','E','F'];
+    const opts = Array.isArray(options) ? options : [];
+    if(opts.length === 0){
+      return React.createElement('div', { className: 'tn-options', style: { textAlign:'center', padding:'40px 24px', color:'#86868b' } },
+        '◷ Этот вопрос недоступен'
+      );
+    }
     return React.createElement('div', { className: 'tn-options', role: 'group' },
-      options.map((opt, i) => {
+      opts.map((opt, i) => {
         let state = 'default';
         if(showFeedback){
           if(i === correctIdx && i === chosen) state = 'correct';
@@ -205,26 +253,295 @@
           else state = 'disabled';
         }
         return React.createElement(TnOption, {
-          key: i, index: i, label: labels[i] || (i+1), text: opt,
+          key: i, index: i, label: labels[i] || (i+1), text: String(opt),
           state, onClick: () => onPick(i),
         });
       })
     );
   }
 
+  // ─── True/False — две большие кнопки «Верно / Не верно» ─────────
+  function TnTrueFalse({ chosen, correctIdx, showFeedback, onPick }){
+    const items = [
+      { idx: 0, label: 'Верно', sym: '✓' },
+      { idx: 1, label: 'Не верно', sym: '✕' }
+    ];
+    return React.createElement('div', { className: 'tn-options tn-options-tf', role: 'group' },
+      items.map(it => {
+        let state = 'default';
+        if(showFeedback){
+          if(it.idx === correctIdx && it.idx === chosen) state = 'correct';
+          else if(it.idx === correctIdx) state = 'shown-correct';
+          else if(it.idx === chosen) state = 'wrong';
+          else state = 'disabled';
+        }
+        const isClickable = state === 'default';
+        return React.createElement('button', {
+          key: it.idx,
+          className: 'tn-option tn-option-tf tn-option-' + state,
+          disabled: !isClickable,
+          onClick: isClickable ? () => onPick(it.idx) : undefined,
+          'aria-label': it.label
+        },
+          React.createElement('span', { className: 'tn-option-tf-sym', 'aria-hidden': 'true' }, it.sym),
+          React.createElement('span', { className: 'tn-option-tf-text' }, it.label)
+        );
+      })
+    );
+  }
+
+  // ─── Fill-blank — текстовое поле + кнопка отправить ─────────────
+  // Нормализация ответа: lowercase, trim, ё→е, убираем знаки препинания.
+  // correct может быть строкой, может быть {correct, alternatives[]}.
+  function normalizeFillAnswer(s){
+    return String(s || '')
+      .toLowerCase()
+      .trim()
+      .replace(/ё/g, 'е')
+      .replace(/[.,!?;:"'()\[\]]/g, '')
+      .replace(/\s+/g, ' ');
+  }
+
+  // ─── Multi-choice — несколько правильных вариантов ──────────────
+  // Игрок отмечает чекбоксами, побеждает если ВСЕ верные отмечены и ни одного лишнего.
+  function TnMultiChoice({ options, correctIdxs, chosen, showFeedback, onSubmit }){
+    const opts = Array.isArray(options) ? options : [];
+    const [picks, setPicks] = useState(new Set());
+    useEffect(() => { setPicks(new Set()); }, [opts]);
+    const labels = ['A','B','C','D','E','F','G','H'];
+    const correctSet = new Set(correctIdxs || []);
+    if(opts.length === 0){
+      return React.createElement('div', { className: 'tn-options', style: { textAlign:'center', padding:'40px 24px', color:'#86868b' } },
+        '◷ Этот вопрос недоступен'
+      );
+    }
+
+    function toggle(i){
+      if(showFeedback) return;
+      const ns = new Set(picks);
+      if(ns.has(i)) ns.delete(i); else ns.add(i);
+      setPicks(ns);
+    }
+
+    function submit(){
+      if(showFeedback || picks.size === 0) return;
+      onSubmit([...picks].sort());
+    }
+
+    const chosenSet = chosen ? new Set(chosen) : null;
+
+    return React.createElement('div', { className: 'tn-options tn-options-multi', role: 'group' },
+      React.createElement('div', { className: 'tn-multi-list' },
+        opts.map((opt, i) => {
+          const isPicked = (chosenSet || picks).has(i);
+          const isCorrect = correctSet.has(i);
+          let state = isPicked ? 'picked' : 'default';
+          if(showFeedback){
+            if(isPicked && isCorrect) state = 'correct';
+            else if(isPicked && !isCorrect) state = 'wrong';
+            else if(!isPicked && isCorrect) state = 'shown-correct';
+            else state = 'disabled';
+          }
+          return React.createElement('button', {
+            key: i,
+            type: 'button',
+            className: 'tn-option tn-option-multi tn-option-' + state,
+            disabled: showFeedback,
+            onClick: () => toggle(i),
+            'aria-pressed': isPicked
+          },
+            React.createElement('span', { className: 'tn-option-letter', 'aria-hidden': 'true' }, labels[i] || (i+1)),
+            React.createElement('span', { className: 'tn-option-text' }, opt),
+            React.createElement('span', { className: 'tn-option-check', 'aria-hidden': 'true' },
+              showFeedback
+                ? (isCorrect && isPicked ? '✓' : (isCorrect ? '✓' : (isPicked ? '✕' : '')))
+                : (isPicked ? '✓' : '')
+            )
+          );
+        })
+      ),
+      !showFeedback && React.createElement('button', {
+        className: 'tn-multi-submit',
+        onClick: submit,
+        disabled: picks.size === 0
+      }, 'Ответить → (', picks.size, ')')
+    );
+  }
+
+  // ─── Match-pair — соединить пары tap-to-pair ────────────────────
+  // Сначала тап на левый элемент, потом на правый — пара формируется.
+  // Уже соединённые элементы «гасятся». Кнопка submit активна когда
+  // все пары соединены.
+  function TnMatchPair({ pairsLeft, pairsRight, correct, chosen, showFeedback, onSubmit }){
+    // Defensive: если pairsLeft/pairsRight отсутствуют (битый JSON) — рендерим
+    // skip-плашку, не падаем. Боль: эта функция была эпицентром Bug 2.
+    const pL = Array.isArray(pairsLeft) ? pairsLeft : [];
+    const pR = Array.isArray(pairsRight) ? pairsRight : [];
+    if(pL.length === 0 || pR.length === 0 || pL.length !== pR.length){
+      return React.createElement('div', { className: 'tn-options', style: { textAlign:'center', padding:'40px 24px', color:'#86868b' } },
+        React.createElement('div', { style: { fontSize:14, marginBottom:8 } }, '◷ Этот вопрос недоступен'),
+        React.createElement('div', { style: { fontSize:11 } }, 'Идём дальше…')
+      );
+    }
+    // pairsLeft и pairsRight приходят в правильном порядке (correct[i] = [left[i], right[i]]).
+    // Перемешиваем правую колонку для UI.
+    const rightShuffled = useMemo(() => {
+      const arr = pR.map((r, i) => ({ text: r, origIdx: i }));
+      // детерминированный шафл по pairsRight (для PvP консистентности)
+      const seed = pR.join('|').length;
+      let x = seed;
+      arr.sort(() => { x = (x * 9301 + 49297) % 233280; return x / 233280 - 0.5; });
+      return arr;
+    }, [pR]);
+
+    const [matches, setMatches] = useState({});  // { leftIdx: rightOrigIdx }
+    const [selectedLeft, setSelectedLeft] = useState(null);
+    useEffect(() => { setMatches({}); setSelectedLeft(null); }, [pL]);
+
+    function clickLeft(i){
+      if(showFeedback || matches[i] != null) return;
+      setSelectedLeft(selectedLeft === i ? null : i);
+    }
+    function clickRight(rightOrigIdx){
+      if(showFeedback) return;
+      const usedBy = Object.entries(matches).find(([k, v]) => v === rightOrigIdx);
+      if(usedBy){
+        const upd = { ...matches };
+        delete upd[usedBy[0]];
+        setMatches(upd);
+        return;
+      }
+      if(selectedLeft == null) return;
+      setMatches({ ...matches, [selectedLeft]: rightOrigIdx });
+      setSelectedLeft(null);
+    }
+    function submit(){
+      if(showFeedback) return;
+      if(Object.keys(matches).length !== pL.length) return;
+      onSubmit(matches);
+    }
+
+    const allMatched = Object.keys(matches).length === pL.length;
+
+    // Для feedback — какие пары верные
+    function pairCorrect(leftIdx, rightOrigIdx){
+      // Правильная пара: pairsLeft[leftIdx] ↔ pairsRight[leftIdx]
+      // (исходный порядок без шафла)
+      return rightOrigIdx === leftIdx;
+    }
+
+    return React.createElement('div', { className: 'tn-options tn-options-match', role: 'group' },
+      React.createElement('div', { className: 'tn-match-grid' },
+        // Левая колонка
+        React.createElement('div', { className: 'tn-match-col tn-match-col-left' },
+          pL.map((txt, i) => {
+            const matched = matches[i] != null;
+            const isSel = selectedLeft === i;
+            let state = matched ? 'matched' : (isSel ? 'selected' : 'default');
+            if(showFeedback && matched){
+              state = pairCorrect(i, matches[i]) ? 'correct' : 'wrong';
+            }
+            return React.createElement('button', {
+              key: i, type: 'button',
+              className: 'tn-match-item tn-match-' + state,
+              onClick: () => clickLeft(i),
+              disabled: showFeedback
+            }, txt);
+          })
+        ),
+        // Правая колонка (перемешанная)
+        React.createElement('div', { className: 'tn-match-col tn-match-col-right' },
+          rightShuffled.map(({ text, origIdx }) => {
+            const usedBy = Object.entries(matches).find(([k, v]) => v === origIdx);
+            const isUsed = !!usedBy;
+            let state = isUsed ? 'matched' : 'default';
+            if(showFeedback && isUsed){
+              const leftIdx = parseInt(usedBy[0], 10);
+              state = pairCorrect(leftIdx, origIdx) ? 'correct' : 'wrong';
+            }
+            return React.createElement('button', {
+              key: origIdx, type: 'button',
+              className: 'tn-match-item tn-match-' + state,
+              onClick: () => clickRight(origIdx),
+              disabled: showFeedback
+            }, text);
+          })
+        )
+      ),
+      !showFeedback && React.createElement('button', {
+        className: 'tn-multi-submit',
+        onClick: submit,
+        disabled: !allMatched
+      }, allMatched ? 'Ответить →' : 'Соедини все пары (' + Object.keys(matches).length + ' / ' + pL.length + ')')
+    );
+  }
+
+  function TnFillBlank({ correct, alternatives, chosen, showFeedback, onSubmit }){
+    const [val, setVal] = useState('');
+    useEffect(() => { setVal(''); }, [correct]);
+
+    const acceptable = [correct, ...(alternatives || [])].map(normalizeFillAnswer);
+    const isCorrect = chosen != null && acceptable.includes(normalizeFillAnswer(chosen));
+
+    function submit(){
+      const trimmed = val.trim();
+      if(!trimmed || showFeedback) return;
+      onSubmit(trimmed);
+    }
+
+    if(showFeedback){
+      // После ответа — показать что ввёл игрок и что было правильно
+      return React.createElement('div', { className: 'tn-fill', role: 'group' },
+        React.createElement('div', {
+          className: 'tn-fill-result tn-fill-' + (isCorrect ? 'correct' : 'wrong')
+        },
+          React.createElement('div', { className: 'tn-fill-result-label' }, 'Твой ответ:'),
+          React.createElement('div', { className: 'tn-fill-result-text' }, chosen || '—'),
+          !isCorrect && React.createElement(React.Fragment, null,
+            React.createElement('div', { className: 'tn-fill-result-label', style: { marginTop: 8 } }, 'Правильный ответ:'),
+            React.createElement('div', { className: 'tn-fill-result-text tn-fill-result-correct' }, correct)
+          )
+        )
+      );
+    }
+
+    return React.createElement('div', { className: 'tn-fill', role: 'group' },
+      React.createElement('input', {
+        type: 'text',
+        className: 'tn-fill-input',
+        value: val,
+        onChange: e => setVal(e.target.value),
+        onKeyDown: e => { if(e.key === 'Enter') submit(); },
+        autoFocus: true,
+        placeholder: 'Введи слово или фразу',
+        'aria-label': 'Ваш ответ'
+      }),
+      React.createElement('button', {
+        className: 'tn-fill-submit',
+        onClick: submit,
+        disabled: !val.trim()
+      }, 'Ответить →')
+    );
+  }
+
   // ─── Баннер обратной связи (после ответа) ───────────────────────
-  function TnFeedbackBanner({ kind, busey }){
+  function TnFeedbackBanner({ kind, busey, streak, mult }){
     if(kind === 'correct'){
       return React.createElement('div', { className: 'tn-feedback tn-feedback-correct' },
         React.createElement('span', { className: 'tn-feedback-icon', 'aria-hidden': 'true' }, '✦'),
         React.createElement('span', { className: 'tn-feedback-text' }, 'Верно'),
+        // Серия — показывается при 3+ верных
+        streak >= 3 && React.createElement('span', { className: 'tn-feedback-streak' },
+          '🔥 ', streak, ' подряд · ×', mult.toFixed(1)
+        ),
         busey > 0 && React.createElement('span', { className: 'tn-feedback-busey' }, '+', busey, ' бусин')
       );
     }
     if(kind === 'wrong'){
       return React.createElement('div', { className: 'tn-feedback tn-feedback-wrong' },
         React.createElement('span', { className: 'tn-feedback-icon', 'aria-hidden': 'true' }, '◯'),
-        React.createElement('span', { className: 'tn-feedback-text' }, 'Не верно')
+        React.createElement('span', { className: 'tn-feedback-text' }, 'Не верно'),
+        streak === 0 && React.createElement('span', { className: 'tn-feedback-streak-broken' }, 'серия сброшена')
       );
     }
     return React.createElement('div', { className: 'tn-feedback tn-feedback-timeout' },
@@ -233,8 +550,184 @@
     );
   }
 
+  // ─── Pre-match preview — список тем перед стартом PvP ───────────
+  // Оба игрока видят темы, режим, аватары. Каждый жмёт «Готов».
+  // Как только оба готовы (или истёк 60-сек таймер) — стартует партия.
+  // ВАЖНО: ready-сообщения могут теряться (Firebase reconnect / race-condition).
+  // Защита: (1) переотправляем ready каждые 2 сек пока ждём, (2) при countdown=0
+  // принудительно стартуем независимо от opp.
+  function TnPreMatch({ player, opponent, partiya, mode, playerReady, oppReady, onReady, onForceStart, transport, isPvP }){
+    const totalQ = partiya.reduce((s, r) => s + r.questions.length, 0);
+    const themesList = partiya.map(r => r.theme);
+    const modeLabel = mode === 'blitz' ? 'Блиц' : mode === 'expert' ? 'Эксперт' : 'Стандарт';
+    const modeMeta  = mode === 'blitz' ? '~2 мин' : mode === 'expert' ? '~9 мин' : '~5 мин';
+
+    // Countdown 60 сек. На 0: если ещё не готов — авто-готов; если уже готов
+    // и opp нет — force-start (не блокируем партию навсегда).
+    const [countdown, setCountdown] = useState(60);
+    useEffect(() => {
+      const i = setInterval(() => setCountdown(c => Math.max(0, c - 1)), 1000);
+      return () => clearInterval(i);
+    }, []);
+    useEffect(() => {
+      if(countdown !== 0) return;
+      if(!playerReady){ onReady(); return; }
+      if(onForceStart) onForceStart();
+    }, [countdown, playerReady, onReady, onForceStart]);
+
+    // Re-broadcast: пока я готов и жду opp — переотправляю ready каждые 2 сек.
+    // Если первое сообщение потерялось, повторное дойдёт. Останавливается
+    // когда oppReady=true.
+    useEffect(() => {
+      if(!isPvP || !transport || !playerReady || oppReady) return;
+      const i = setInterval(() => {
+        try { transport.send({ t: 'ready' }); } catch(_){}
+      }, 2000);
+      return () => clearInterval(i);
+    }, [isPvP, transport, playerReady, oppReady]);
+
+    return React.createElement('div', { className: 'tn-fullscreen tn-prematch' },
+      React.createElement('div', { className: 'tn-container' },
+        React.createElement(TnTopBar, { eyebrow: '◐  Партия для двоих' }),
+        React.createElement('div', { className: 'tn-prematch-card' },
+          React.createElement('div', { className: 'tn-prematch-eyebrow' }, modeLabel, ' · ', totalQ, ' вопросов · ', modeMeta),
+          React.createElement('h1', { className: 'tn-prematch-title' }, 'Готовы?'),
+
+          // Аватары + ready-state
+          React.createElement('div', { className: 'tn-prematch-players' },
+            React.createElement('div', { className: 'tn-prematch-player' + (playerReady ? ' tn-prematch-player-ready' : '') },
+              React.createElement('div', { className: 'tn-prematch-avatar' }, renderTnAvatar(player.avatar, player.nickname)),
+              React.createElement('div', { className: 'tn-prematch-name' }, player.nickname),
+              React.createElement('div', { className: 'tn-prematch-status' },
+                playerReady ? '✓ Готов' : '◷ Не готов'
+              )
+            ),
+            React.createElement('div', { className: 'tn-prematch-vs' }, 'против'),
+            React.createElement('div', { className: 'tn-prematch-player' + (oppReady ? ' tn-prematch-player-ready' : '') },
+              React.createElement('div', { className: 'tn-prematch-avatar' }, opponent.glyph || renderTnAvatar(opponent.avatar, opponent.name) || '◐'),
+              React.createElement('div', { className: 'tn-prematch-name' }, opponent.name || 'Собеседник'),
+              React.createElement('div', { className: 'tn-prematch-status' },
+                oppReady ? '✓ Готов' : '◷ Думает…'
+              )
+            )
+          ),
+
+          // Список тем партии
+          React.createElement('div', { className: 'tn-prematch-themes-eyebrow' }, '☷  Темы партии'),
+          React.createElement('div', { className: 'tn-prematch-themes' },
+            themesList.map((t, i) =>
+              React.createElement('div', { key: i, className: 'tn-prematch-theme' },
+                React.createElement('span', { className: 'tn-prematch-theme-num' }, i + 1),
+                React.createElement('span', { className: 'tn-prematch-theme-name' }, t.name)
+              )
+            )
+          ),
+
+          // Кнопка «Готов» / «Жду собеседника»
+          !playerReady && React.createElement('button', {
+            className: 'tn-prematch-btn tn-prematch-btn-primary',
+            onClick: onReady,
+            type: 'button',
+            autoFocus: true
+          }, '✓ Готов'),
+          playerReady && !oppReady && React.createElement(React.Fragment, null,
+            React.createElement('div', { className: 'tn-prematch-waiting' },
+              React.createElement('span', { className: 'tn-prematch-waiting-spinner' }, '◷'),
+              React.createElement('span', null, 'Ждём собеседника… (', countdown, ' сек)')
+            ),
+            // Принудительный старт — не дожидаясь opp
+            countdown < 50 && onForceStart && React.createElement('button', {
+              className: 'tn-prematch-btn',
+              style: { background: 'transparent', color: 'var(--text-2)', border: '1px solid var(--border-1)', marginTop: 8, fontSize: 14 },
+              onClick: onForceStart,
+              type: 'button'
+            }, 'Начать сейчас →')
+          ),
+          playerReady && oppReady && React.createElement('div', { className: 'tn-prematch-go' },
+            '✦ Все готовы — старт через мгновение'
+          ),
+
+          React.createElement('div', { className: 'tn-prematch-hint' },
+            'Оба видят одни вопросы в одном порядке.', React.createElement('br'),
+            'Если соперник не отвечает — авто-старт через 60 сек.'
+          )
+        )
+      )
+    );
+  }
+
+  // ─── Mid-partiya recap — заставка на середине партии ─────────────
+  // Показывает: прогресс N/total · текущий счёт · топ темы · слабая тема.
+  // Авто-продвижение через 4 сек или по клику «Дальше».
+  function TnMidRecap({ qOverall, totalOverall, scoreP, scoreO, totalBusey, streakPeak, partiyaLog, opponent, player, onContinue }){
+    // Авто-продвижение через 4 сек
+    useEffect(() => {
+      const t = setTimeout(() => onContinue(), 4500);
+      return () => clearTimeout(t);
+    }, []);
+
+    // Подсчёт по темам — найти лучшую и худшую
+    const byTheme = {};
+    for(const r of partiyaLog){
+      if(!byTheme[r.themeId]) byTheme[r.themeId] = { name: r.themeName, c: 0, t: 0 };
+      byTheme[r.themeId].t++;
+      if(r.playerCorrect) byTheme[r.themeId].c++;
+    }
+    const themesArr = Object.values(byTheme).map(t => ({ ...t, pct: t.t > 0 ? t.c / t.t : 0 }));
+    themesArr.sort((a, b) => b.pct - a.pct);
+    const bestTheme = themesArr[0];
+    const worstTheme = themesArr[themesArr.length - 1];
+
+    const lead = scoreP - scoreO;
+    const leadText = lead > 0 ? 'Ты впереди на ' + lead + ' ✦'
+                   : lead < 0 ? 'Соперник опережает на ' + Math.abs(lead) + ' ✦'
+                   : 'Идёшь вровень';
+
+    return React.createElement('div', { className: 'tn-fullscreen tn-midrecap' },
+      React.createElement('div', { className: 'tn-container' },
+        React.createElement('div', { className: 'tn-midrecap-card' },
+          React.createElement('div', { className: 'tn-midrecap-eyebrow' }, '◐  Половина партии'),
+          React.createElement('div', { className: 'tn-midrecap-progress' }, qOverall, ' / ', totalOverall),
+          React.createElement('div', { className: 'tn-midrecap-lead' }, leadText),
+
+          React.createElement('div', { className: 'tn-midrecap-row' },
+            React.createElement('div', { className: 'tn-midrecap-stat' },
+              React.createElement('div', { className: 'tn-midrecap-stat-label' }, '✦ Бусины'),
+              React.createElement('div', { className: 'tn-midrecap-stat-value' }, '+', totalBusey)
+            ),
+            streakPeak >= 3 && React.createElement('div', { className: 'tn-midrecap-stat' },
+              React.createElement('div', { className: 'tn-midrecap-stat-label' }, '🔥 Серия'),
+              React.createElement('div', { className: 'tn-midrecap-stat-value' }, streakPeak, ' подряд')
+            )
+          ),
+
+          themesArr.length >= 2 && React.createElement('div', { className: 'tn-midrecap-themes' },
+            bestTheme && bestTheme.c > 0 && React.createElement('div', { className: 'tn-midrecap-theme tn-midrecap-theme-best' },
+              React.createElement('span', { className: 'tn-midrecap-theme-icon' }, '🟢'),
+              React.createElement('span', { className: 'tn-midrecap-theme-name' }, bestTheme.name),
+              React.createElement('span', { className: 'tn-midrecap-theme-stat' }, bestTheme.c, '/', bestTheme.t)
+            ),
+            worstTheme && worstTheme.pct < 1 && worstTheme !== bestTheme && React.createElement('div', { className: 'tn-midrecap-theme tn-midrecap-theme-worst' },
+              React.createElement('span', { className: 'tn-midrecap-theme-icon' }, worstTheme.c === 0 ? '🔴' : '🟡'),
+              React.createElement('span', { className: 'tn-midrecap-theme-name' }, worstTheme.name),
+              React.createElement('span', { className: 'tn-midrecap-theme-stat' }, worstTheme.c, '/', worstTheme.t)
+            )
+          ),
+
+          React.createElement('button', {
+            className: 'tn-midrecap-btn',
+            onClick: onContinue,
+            type: 'button',
+            autoFocus: true
+          }, 'Дальше →'),
+          React.createElement('div', { className: 'tn-midrecap-hint' }, 'или подожди 4 сек')
+        )
+      )
+    );
+  }
+
   // ─── Question — основной компонент игрового вопроса ─────────────
-  function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswersRef }){
+  function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, roundsTotal, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswersRef, streak, streakMultiplier }){
     const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
     const [chosen, setChosen] = useState(null);
     const startedAt = useRef(Date.now());
@@ -314,6 +807,7 @@
             playerCorrect, playerTime,
             oppCorrect: oppData.correct,
             oppTime: oppData.time,
+            oppBusey: oppData.busey,  // ← пересчитанный соперником на его стороне
           });
         } else {
           setTimeout(tryAdvance, 150);
@@ -323,15 +817,32 @@
       setTimeout(tryAdvance, SHOW_FEEDBACK_MS);
     }
 
+    // ─── Helper: посчитать busey игрока с учётом streak ─────────────
+    // Используется и локально для счёта, и для передачи opp в PvP.
+    // Это решает асимметрию счёта между клиентами: opp получает уже
+    // готовую цифру с уплыжённой streak-надбавкой.
+    function computeMyBusey(playerCorrect, playerTime){
+      if(!playerCorrect) return 0;
+      const newStreak = streak + 1;
+      const mult = streakMultiplier(newStreak);
+      return Math.round(buseyForCorrect(playerTime) * mult);
+    }
+
+    function sendOppAnswer(correct, time){
+      if(!isPvP || !transport) return;
+      try {
+        transport.send({
+          t: 'opp-answer',
+          correct, time, qId: q.id,
+          busey: computeMyBusey(correct, time)  // ← пересчитанный с моим streak
+        });
+      } catch(_){}
+    }
+
     function handleTimeout(){
       if(chosen != null || answeredRef.current) return;
       setChosen(-1);
-      // При timeout тоже шлём opp-answer чтобы соперник знал
-      if(isPvP && transport){
-        try {
-          transport.send({ t: 'opp-answer', correct: false, time: QUESTION_TIME * 1000, qId: q.id });
-        } catch(_){}
-      }
+      sendOppAnswer(false, QUESTION_TIME * 1000);
       waitForOppAndAdvance(false, QUESTION_TIME * 1000, true);
     }
 
@@ -340,35 +851,126 @@
       setChosen(idx);
       const playerTime = Date.now() - startedAt.current;
       const playerCorrect = idx === q.correct;
+      sendOppAnswer(playerCorrect, playerTime);
+      waitForOppAndAdvance(playerCorrect, playerTime, false);
+    }
 
-      if(isPvP && transport){
-        try {
-          transport.send({ t: 'opp-answer', correct: playerCorrect, time: playerTime, qId: q.id });
-        } catch(_){}
+    // pick для fill-blank — принимает строку, проверяет нормализованно
+    function pickFill(text){
+      if(chosen != null || answeredRef.current) return;
+      const acceptable = [q.correct, ...(q.alternatives || [])].map(s =>
+        String(s || '').toLowerCase().trim()
+          .replace(/ё/g, 'е')
+          .replace(/[.,!?;:"'()\[\]]/g, '')
+          .replace(/\s+/g, ' ')
+      );
+      const normalized = String(text || '').toLowerCase().trim()
+        .replace(/ё/g, 'е')
+        .replace(/[.,!?;:"'()\[\]]/g, '')
+        .replace(/\s+/g, ' ');
+      const playerCorrect = acceptable.includes(normalized);
+      setChosen(text);
+      const playerTime = Date.now() - startedAt.current;
+      sendOppAnswer(playerCorrect, playerTime);
+      waitForOppAndAdvance(playerCorrect, playerTime, false);
+    }
+
+    // pick для multi-choice — массив индексов, верно если совпадает с correct
+    function pickMulti(idxs){
+      if(chosen != null || answeredRef.current) return;
+      const correctSorted = [...(q.correct || [])].sort();
+      const pickedSorted  = [...idxs].sort();
+      const playerCorrect = correctSorted.length === pickedSorted.length &&
+        correctSorted.every((v, i) => v === pickedSorted[i]);
+      setChosen(idxs);
+      const playerTime = Date.now() - startedAt.current;
+      sendOppAnswer(playerCorrect, playerTime);
+      waitForOppAndAdvance(playerCorrect, playerTime, false);
+    }
+
+    // pick для match-pair — { leftIdx: rightOrigIdx }, верно если все пары совпадают по индексу
+    function pickMatch(matches){
+      if(chosen != null || answeredRef.current) return;
+      const total = (q.pairsLeft || []).length;
+      let correctCount = 0;
+      for(let i = 0; i < total; i++){
+        if(matches[i] === i) correctCount++;
       }
-
+      const playerCorrect = correctCount === total;
+      setChosen(matches);
+      const playerTime = Date.now() - startedAt.current;
+      sendOppAnswer(playerCorrect, playerTime);
       waitForOppAndAdvance(playerCorrect, playerTime, false);
     }
 
     const showFeedback = chosen != null;
-    const playerCorrect = chosen === q.correct;
-    const feedbackKind = chosen === -1 ? 'timeout' : (playerCorrect ? 'correct' : 'wrong');
+    const qType = q.type || 'single-choice';
+    let playerCorrect, feedbackKind;
+
+    if(qType === 'fill-blank'){
+      const acceptable = [q.correct, ...(q.alternatives || [])].map(s =>
+        String(s || '').toLowerCase().trim()
+          .replace(/ё/g, 'е').replace(/[.,!?;:"'()\[\]]/g, '').replace(/\s+/g, ' ')
+      );
+      const normalized = String(chosen || '').toLowerCase().trim()
+        .replace(/ё/g, 'е').replace(/[.,!?;:"'()\[\]]/g, '').replace(/\s+/g, ' ');
+      playerCorrect = chosen != null && acceptable.includes(normalized);
+      feedbackKind = chosen == null ? 'timeout' : (playerCorrect ? 'correct' : 'wrong');
+    } else if(qType === 'multi-choice'){
+      const correctSorted = [...(q.correct || [])].sort();
+      const pickedSorted  = chosen ? [...chosen].sort() : [];
+      playerCorrect = chosen != null &&
+        correctSorted.length === pickedSorted.length &&
+        correctSorted.every((v, i) => v === pickedSorted[i]);
+      feedbackKind = chosen == null ? 'timeout' : (playerCorrect ? 'correct' : 'wrong');
+    } else if(qType === 'match-pair'){
+      const total = (q.pairsLeft || []).length;
+      let cc = 0;
+      if(chosen){ for(let i = 0; i < total; i++){ if(chosen[i] === i) cc++; } }
+      playerCorrect = cc === total && chosen != null;
+      feedbackKind = chosen == null ? 'timeout' : (playerCorrect ? 'correct' : 'wrong');
+    } else {
+      playerCorrect = chosen === q.correct;
+      feedbackKind = chosen === -1 ? 'timeout' : (playerCorrect ? 'correct' : 'wrong');
+    }
     const playerBusey = playerCorrect ? buseyForCorrect(Date.now() - startedAt.current) : 0;
 
     return React.createElement('div', { className: 'tn-fullscreen' },
       React.createElement('div', { className: 'tn-container' },
-        React.createElement(TnTopBar, { eyebrow: 'Партия · Раунд ' + roundNum + ' / 6' }),
+        React.createElement(TnTopBar, { eyebrow: 'Партия · Раунд ' + roundNum + ' / ' + (roundsTotal || 6) }),
         React.createElement(TnGameProgress, { qOverall, totalOverall }),
         React.createElement(TnVsHeader, { player, scoreP, opponent, scoreO }),
         React.createElement(TnTimerBar, { timeLeft, paused: showFeedback }),
         React.createElement(TnQuestionCard, {
           qOverall, totalOverall, themeName: theme.name,
           text: q.text, timeLeft, showFeedback,
+          qType
         }),
-        React.createElement(TnOptions, {
+        // ─── Роутер по типу вопроса ───
+        qType === 'true-false' && React.createElement(TnTrueFalse, {
+          chosen, correctIdx: q.correct, showFeedback, onPick: pick,
+        }),
+        qType === 'fill-blank' && React.createElement(TnFillBlank, {
+          correct: q.correct, alternatives: q.alternatives,
+          chosen, showFeedback, onSubmit: pickFill,
+        }),
+        qType === 'multi-choice' && React.createElement(TnMultiChoice, {
+          options: q.options, correctIdxs: q.correct,
+          chosen, showFeedback, onSubmit: pickMulti,
+        }),
+        qType === 'match-pair' && React.createElement(TnMatchPair, {
+          pairsLeft: q.pairsLeft, pairsRight: q.pairsRight, correct: q.correct,
+          chosen, showFeedback, onSubmit: pickMatch,
+        }),
+        (qType === 'single-choice' || !qType) && React.createElement(TnOptions, {
           options: q.options, chosen, correctIdx: q.correct, showFeedback, onPick: pick,
         }),
-        showFeedback && React.createElement(TnFeedbackBanner, { kind: feedbackKind, busey: playerBusey }),
+        showFeedback && React.createElement(TnFeedbackBanner, {
+          kind: feedbackKind,
+          busey: playerBusey,
+          streak: feedbackKind === 'correct' ? (streak || 0) + 1 : (feedbackKind === 'wrong' ? 0 : (streak || 0)),
+          mult: streakMultiplier ? streakMultiplier((streak || 0) + 1) : 1.0
+        }),
         !showFeedback && React.createElement('div', { className: 'tn-foot' },
           React.createElement('span', { className: 'tn-foot-hint' }, 'Чем быстрее верный ответ — тем больше бусин')
         )
@@ -445,13 +1047,104 @@
   }
 
   // ─── «Где увидеть результат» ───────────────────────────────────
+  // Light theme: классический список с буллитами.
+  // Dark theme (theme-vk-dark): VK-Scheme — 3 пронумерованных шага.
   function TnFinalArchive(){
     return React.createElement('div', { className: 'tn-final-archive' },
-      React.createElement('div', { className: 'tn-final-archive-eyebrow' }, '☷  Партия записана в'),
-      React.createElement('ul', { className: 'tn-final-archive-list' },
-        React.createElement('li', null, React.createElement('strong', null, 'Хронику'), ' — список твоих партий'),
-        React.createElement('li', null, React.createElement('strong', null, 'Достижения'), ' — открыты звания и серии'),
-        React.createElement('li', null, React.createElement('strong', null, 'Партитуру'), ' — мастерство по темам Ясны')
+      // ─── Light: оригинальный список, скрыт в Dark ───
+      React.createElement('div', { className: 'vk-light-only' },
+        React.createElement('div', { className: 'tn-final-archive-eyebrow' }, '☷  Партия записана в'),
+        React.createElement('ul', { className: 'tn-final-archive-list' },
+          React.createElement('li', null, React.createElement('strong', null, 'Хронику'), ' — список твоих партий'),
+          React.createElement('li', null, React.createElement('strong', null, 'Достижения'), ' — открыты звания и серии'),
+          React.createElement('li', null, React.createElement('strong', null, 'Партитуру'), ' — мастерство по темам Ясны')
+        )
+      ),
+      // ─── Dark: VK-Scheme — куда уходит партия ───
+      React.createElement('div', { className: 'vk-scheme-block' },
+        React.createElement('div', { className: 'vk-scheme' },
+          React.createElement('div', { className: 'vk-scheme-canvas' },
+            React.createElement('div', { className: 'vk-scheme-header' },
+              React.createElement('h3', { className: 'vk-scheme-header-title' }, 'Партия записана в три места'),
+              React.createElement('span', { className: 'vk-scheme-tag vk-scheme-tag--mute' }, '✦  итог')
+            ),
+            React.createElement('ol', { className: 'vk-scheme-steps' },
+              React.createElement('li', { className: 'vk-scheme-step' },
+                React.createElement('div', { className: 'vk-scheme-num' },
+                  React.createElement('div', { className: 'vk-scheme-num-inner' }, '01')
+                ),
+                React.createElement('div', { className: 'vk-scheme-desc' },
+                  React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Хроника'),
+                  React.createElement('div', { className: 'vk-scheme-desc-text' }, 'Список всех твоих партий — кто, когда, со счётом')
+                )
+              ),
+              React.createElement('li', { className: 'vk-scheme-step' },
+                React.createElement('div', { className: 'vk-scheme-num' },
+                  React.createElement('div', { className: 'vk-scheme-num-inner' }, '02')
+                ),
+                React.createElement('div', { className: 'vk-scheme-desc' },
+                  React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Достижения'),
+                  React.createElement('div', { className: 'vk-scheme-desc-text' }, 'Открываются звания и серии — отметки твоего пути')
+                )
+              ),
+              React.createElement('li', { className: 'vk-scheme-step' },
+                React.createElement('div', { className: 'vk-scheme-num' },
+                  React.createElement('div', { className: 'vk-scheme-num-inner' }, '03')
+                ),
+                React.createElement('div', { className: 'vk-scheme-desc' },
+                  React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Партитура'),
+                  React.createElement('div', { className: 'vk-scheme-desc-text' }, 'Растёт мастерство по шести темам Ясны')
+                )
+              )
+            ),
+            React.createElement('div', { className: 'vk-scheme-foot' },
+              'Прогресс зачитывается сразу после завершения партии.')
+          )
+        )
+      )
+    );
+  }
+
+  // ─── Разбор ошибок с цитатами из книги ────────────────────────
+  // Каждая ошибка раскрывается отдельной карточкой: вопрос + правильный
+  // ответ + дословная цитата из источника (атома). Если ошибок > 0 —
+  // блок появляется в финале, иначе — поздравительная плашка.
+  function TnFinalRecap({ partiyaLog }){
+    const wrongs = partiyaLog.filter(r => !r.playerCorrect);
+    const total = partiyaLog.length;
+
+    if(wrongs.length === 0){
+      // Все верно — поздравительная плашка вместо разбора
+      return React.createElement('div', { className: 'tn-final-recap tn-final-recap-perfect' },
+        React.createElement('div', { className: 'tn-final-recap-eyebrow' }, '✦  Безупречно'),
+        React.createElement('div', { className: 'tn-final-recap-title' }, 'Все ', total, ' вопросов верно'),
+        React.createElement('div', { className: 'tn-final-recap-text' },
+          'Ты прошёл партию без единой ошибки. Это редкость — Тень оценила.'
+        )
+      );
+    }
+
+    return React.createElement('div', { className: 'tn-final-recap' },
+      React.createElement('div', { className: 'tn-final-recap-eyebrow' }, '☷  Разбор · ', wrongs.length, ' ошиб', wrongs.length === 1 ? 'ка' : (wrongs.length < 5 ? 'ки' : 'ок')),
+      React.createElement('div', { className: 'tn-final-recap-title' }, 'Что говорит книга'),
+      React.createElement('ul', { className: 'tn-final-recap-list' },
+        wrongs.map((r, i) => {
+          const correctText = (r.qOptions && typeof r.qCorrect === 'number')
+            ? r.qOptions[r.qCorrect]
+            : (typeof r.qCorrect === 'string' ? r.qCorrect : '—');
+          return React.createElement('li', { key: i, className: 'tn-final-recap-item' },
+            React.createElement('div', { className: 'tn-final-recap-q' },
+              React.createElement('span', { className: 'tn-final-recap-q-num' }, '№', i + 1),
+              React.createElement('span', { className: 'tn-final-recap-q-theme' }, r.themeName || r.themeId),
+              React.createElement('span', { className: 'tn-final-recap-q-text' }, r.qText)
+            ),
+            React.createElement('div', { className: 'tn-final-recap-answer' },
+              React.createElement('span', { className: 'tn-final-recap-answer-label' }, 'Правильно: '),
+              React.createElement('strong', null, correctText)
+            ),
+            r.qHint && React.createElement('blockquote', { className: 'tn-final-recap-quote' }, r.qHint)
+          );
+        })
       )
     );
   }
@@ -502,11 +1195,25 @@
       sub = 'В игре нет проигравших — есть те, кто знает чуть меньше. Знаки помнят твой путь. Завтра — новая Партия.';
     }
 
+    // System Message при PvP-disconnect — заменяет привычный финал на пояснение
+    var disconnectMsg = oppDisconnected && React.createElement('div', { className: 'vk-scheme-block' },
+      React.createElement('div', { className: 'vk-sysmsg vk-sysmsg--warn' },
+        React.createElement('div', { className: 'vk-sysmsg-icon', 'aria-hidden': 'true' }, '↯'),
+        React.createElement('div', { className: 'vk-sysmsg-body' },
+          React.createElement('div', { className: 'vk-sysmsg-title' }, 'Связь с собеседником прервана'),
+          React.createElement('div', { className: 'vk-sysmsg-text' },
+            'Партия не засчитывается, бусины не начисляются. Открой комнату заново или сыграй с Тенью.'
+          )
+        )
+      )
+    );
+
     return React.createElement('div', { className: 'tn-fullscreen' },
       React.createElement('div', { className: 'tn-container tn-container-final' },
         React.createElement(TnTopBar, { eyebrow: 'Партия завершена' }),
         React.createElement('div', { className: 'tn-final' },
           React.createElement(TnFinalHeadline, { kind, headline, sub }),
+          disconnectMsg,
           !oppDisconnected && React.createElement(TnFinalVs, {
             playerName: player.nickname,
             scoreP,
@@ -517,6 +1224,7 @@
           !oppDisconnected && React.createElement(TnFinalStats, {
             correctCount, totalQ, avgTimeMs, totalBusey,
           }),
+          !oppDisconnected && React.createElement(TnFinalRecap, { partiyaLog }),
           !oppDisconnected && React.createElement(TnFinalScoring, null),
           !oppDisconnected && React.createElement(TnFinalArchive, null),
           React.createElement(TnFinalActions, { onAgain, onClose })
@@ -526,10 +1234,12 @@
   }
 
   // ─── Main Engine ─────────────────────────────────────────────────
-  function TurnirGame({ player, opponentLevel, onClose, opponentMode, transport, role, oppData }){
+  function TurnirGame({ player, opponentLevel, onClose, opponentMode, transport, role, oppData, mode, selectedThemes }){
     React.useEffect(() => { window.__tnOnClose = onClose; return () => { delete window.__tnOnClose; }; }, [onClose]);
 
     const isPvP = opponentMode === 'pvp' && transport;
+    const partiyaMode = mode || 'standard';  // 'blitz' | 'standard' | 'expert'
+    const themesFilter = selectedThemes || null;  // null = все темы
 
     // Для PvP: opponent — это живой игрок; для shadow — Тень
     const opp = isPvP
@@ -547,7 +1257,7 @@
     // Для shadow: каждый раз новый seed.
     const [partiya, setPartiya] = useState(() => {
       if(!isPvP || role === 'host') {
-        return window.YasnaTrivia.generatePartiya(Date.now());
+        return window.YasnaTrivia.generatePartiya(Date.now(), partiyaMode, themesFilter);
       }
       return null; // гость ждёт от хоста
     });
@@ -559,6 +1269,25 @@
     const [totalBusey, setTotalBusey] = useState(0);
     const [partiyaLog, setPartiyaLog] = useState([]);
     const [oppDisconnected, setOppDisconnected] = useState(false);
+
+    // ─── Streak — серия верных ответов ──────────────────────────
+    // 3 верных подряд → ×1.2, 5 → ×1.5, 7+ → ×2.0
+    // Промах сбрасывает на 0. Множитель применяется к бусинам за вопрос.
+    const [streak, setStreak] = useState(0);
+    const [streakPeak, setStreakPeak] = useState(0);
+    function streakMultiplier(s){
+      if(s >= 7) return 2.0;
+      if(s >= 5) return 1.5;
+      if(s >= 3) return 1.2;
+      return 1.0;
+    }
+
+    // Mid-partiya recap — показывается один раз за партию
+    const [midRecapShown, setMidRecapShown] = useState(false);
+
+    // Pre-match preview ready-states (только для PvP)
+    const [playerReady, setPlayerReady] = useState(false);
+    const [oppReady, setOppReady] = useState(false);
 
     // ─── PvP: Sync Партии и обмен ответами ───
     // Map по qId — каждый ответ соперника привязан к конкретному вопросу.
@@ -582,22 +1311,31 @@
         }
         if(msg.t === 'opp-answer'){
           // Пишем в map по qId. Никогда не перезаписываем чужие.
+          // busey приходит уже посчитанный на стороне opp (включая его streak).
           if(msg.qId){
-            oppAnswersRef.current[msg.qId] = { correct: msg.correct, time: msg.time };
+            oppAnswersRef.current[msg.qId] = {
+              correct: msg.correct,
+              time: msg.time,
+              busey: msg.busey  // может быть undefined для старых клиентов
+            };
           }
         }
         if(msg.t === 'opp-leave'){
           setOppDisconnected(true);
+        }
+        // Pre-match preview: «соперник готов» сигнал
+        if(msg.t === 'ready'){
+          setOppReady(true);
         }
       });
 
       // Хост отправляет Партию гостю
       if(role === 'host' && partiya){
         const seed = Date.now();
-        const newPartiya = window.YasnaTrivia.generatePartiya(seed);
+        const newPartiya = window.YasnaTrivia.generatePartiya(seed, partiyaMode, themesFilter);
         setPartiya(newPartiya);
         // Пушим сразу, без setTimeout — буфер на гостя поймает если он ещё не готов
-        transport.send({ t: 'partiya-init', seed, partiya: newPartiya.map(r => ({
+        transport.send({ t: 'partiya-init', seed, mode: partiyaMode, partiya: newPartiya.map(r => ({
           theme: { id: r.theme.id, name: r.theme.name },
           questions: r.questions.map(q => q.id),
         })) });
@@ -605,6 +1343,16 @@
 
       return off;
     }, [isPvP, transport, role]);
+
+    // ─── Авто-переход из preview в intro когда оба готовы ───
+    // ВАЖНО: этот хук должен быть ДО early-return для гостя без partiya,
+    // иначе при загрузке partiya у гостя меняется счётчик хуков → React error #310.
+    React.useEffect(() => {
+      if(phase === 'preview' && playerReady && oppReady){
+        const t = setTimeout(() => setPhase('intro'), 800);
+        return () => clearTimeout(t);
+      }
+    }, [phase, playerReady, oppReady]);
 
     // ─── Guard: гость в PvP может ещё не получить partiya-init от хоста.
     // partiya === null → показываем loading и ждём хоста.
@@ -628,21 +1376,36 @@
 
     function onAnswer(result){
       let dp = 0, doO = 0, dB = 0;
+      const newStreak = result.playerCorrect ? streak + 1 : 0;
+      const mult = streakMultiplier(newStreak);
       if(result.playerCorrect){
         const b = buseyForCorrect(result.playerTime);
-        dp = b;
-        dB = 5 + Math.floor(b / 4);
+        dp = Math.round(b * mult);                    // streak-усиление в счёт партии
+        dB = Math.round((5 + Math.floor(b / 4)) * mult); // и в общие бусины
       }
       if(result.oppCorrect){
-        doO = buseyForCorrect(result.oppTime);
+        // PvP: opp присылает уже пересчитанный busey включая свой streak.
+        // Это решает асимметрию: A видит B-счёт так же как B видит свой.
+        // Shadow: opp.busey не передаётся → fallback на raw buseyForCorrect.
+        doO = result.oppBusey != null
+          ? result.oppBusey
+          : buseyForCorrect(result.oppTime);
       }
       const newScoreP = scoreP + dp;
       const newScoreO = scoreO + doO;
       const newBusey = totalBusey + dB;
+      setStreak(newStreak);
+      if(newStreak > streakPeak) setStreakPeak(newStreak);
 
       const logEntry = {
         themeId: currentRound.theme.id,
+        themeName: currentRound.theme.name,
         qId: currentQ.id,
+        qText: currentQ.text,
+        qOptions: currentQ.options,
+        qCorrect: currentQ.correct,
+        qHint: currentQ.hint,                // explanation.quote из контента
+        qType: currentQ.type || 'single-choice',
         playerCorrect: result.playerCorrect,
         oppCorrect: result.oppCorrect,
         playerTime: result.playerTime,
@@ -654,7 +1417,18 @@
       setTotalBusey(newBusey);
       setPartiyaLog(newLog);
 
-      if(qIdx < currentRound.questions.length - 1){
+      // ─── Mid-partiya recap — на середине партии ───
+      // Показываем краткую заставку с прогрессом после половины вопросов.
+      // Один раз за партию. Игрок жмёт «Дальше» или ждёт ~4 сек.
+      const halfMark = Math.floor(totalOverall / 2);
+      const needMidRecap = !midRecapShown
+        && newLog.length === halfMark
+        && newLog.length < totalOverall
+        && totalOverall >= 10; // не показываем на коротких партиях
+      if(needMidRecap){
+        setMidRecapShown(true);
+        setPhase('midrecap');
+      } else if(qIdx < currentRound.questions.length - 1){
         setQIdx(qIdx + 1);
       } else if(roundIdx < partiya.length - 1){
         setRoundIdx(roundIdx + 1);
@@ -758,12 +1532,38 @@
 
     function startAgain(){ onClose(); }
 
+    function onPlayerReady(){
+      setPlayerReady(true);
+      if(isPvP && transport){
+        try { transport.send({ t: 'ready' }); } catch(_){}
+      }
+    }
+
     if(phase === 'vs'){
       return React.createElement(VsScreen, {
         player,
         opponent: { name: opp.name, subtitle: opp.level === 'easy' ? 'Лёгкая' : (opp.level === 'hard' ? 'Сильная' : 'Средняя') },
         themes: partiya,
-        onReady: () => setPhase('intro')
+        // Для PvP идём в preview (оба нажмут «Готов»). Для shadow — сразу в intro.
+        onReady: () => setPhase(isPvP && partiya ? 'preview' : 'intro')
+      });
+    }
+    if(phase === 'preview'){
+      // На случай если у гостя partiya ещё не подгрузилась — заглушка
+      if(!partiya) return React.createElement('div', { className: 'tn-fullscreen' },
+        React.createElement('div', { className: 'tn-container' },
+          React.createElement('div', { className: 'tn-prematch-card', style: { textAlign: 'center', padding: '40px 24px' } },
+            React.createElement('div', { style: { fontSize: 32, marginBottom: 16, opacity: 0.6 } }, '◷'),
+            React.createElement('div', null, 'Ждём настройку партии от собеседника…')
+          )
+        )
+      );
+      return React.createElement(TnPreMatch, {
+        player, opponent: opp, partiya, mode: partiyaMode,
+        playerReady, oppReady,
+        onReady: onPlayerReady,
+        onForceStart: () => setPhase('intro'),  // на 60-сек если opp не отвечает
+        transport, isPvP
       });
     }
     if(phase === 'intro'){
@@ -775,19 +1575,69 @@
       });
     }
     if(phase === 'question'){
+      // Если currentQ пустой (битый partiya) — пропускаем как timeout
+      if(!currentQ){
+        // Авто-skip — записываем как timeout и идём дальше
+        const skip = () => onAnswer({
+          playerCorrect: false, playerTime: QUESTION_TIME * 1000,
+          oppCorrect: false, oppTime: QUESTION_TIME * 1000, oppBusey: 0
+        });
+        setTimeout(skip, 100);
+        return React.createElement('div', { className: 'tn-fullscreen' },
+          React.createElement('div', { className: 'tn-container' },
+            React.createElement('div', { style: { padding:60, textAlign:'center', color:'#86868b' } },
+              'Загрузка…')
+          )
+        );
+      }
       // КРИТИЧНО: key на основе вопроса — React гарантированно пересоздаёт
       // компонент при смене вопроса. Без этого state (chosen/timer) переносится
       // между вопросами и игра ломается после первого клика.
-      return React.createElement(Question, {
-        key: 'q-' + roundIdx + '-' + qIdx,
-        q: currentQ, theme: currentRound.theme,
-        qIndex: qIdx, totalInRound: currentRound.questions.length,
-        qOverall, totalOverall, roundNum: roundIdx + 1,
-        scoreP, scoreO,
-        player,
-        opponent: { name: opp.name, level: opponentLevel || 'medium' },
-        onAnswer,
-        isPvP, transport, oppAnswersRef,
+      // Дополнительно — оборачиваем в ErrorBoundary: одна битая запись не
+      // должна убивать всю партию.
+      const onSkip = () => onAnswer({
+        playerCorrect: false, playerTime: QUESTION_TIME * 1000,
+        oppCorrect: false, oppTime: QUESTION_TIME * 1000, oppBusey: 0
+      });
+      return React.createElement(QuestionErrorBoundary, {
+        key: 'qb-' + roundIdx + '-' + qIdx,
+        onSkip,
+      },
+        React.createElement(Question, {
+          key: 'q-' + roundIdx + '-' + qIdx,
+          q: currentQ, theme: currentRound.theme,
+          qIndex: qIdx, totalInRound: currentRound.questions.length,
+          qOverall, totalOverall,
+          roundNum: roundIdx + 1, roundsTotal: partiya.length,
+          scoreP, scoreO,
+          player,
+          opponent: { name: opp.name, level: opponentLevel || 'medium' },
+          onAnswer,
+          isPvP, transport, oppAnswersRef,
+          streak, streakMultiplier
+        })
+      );
+    }
+    if(phase === 'midrecap'){
+      // После клика «Дальше» или таймера — продвигаемся к следующему вопросу
+      const handleContinue = () => {
+        if(qIdx < currentRound.questions.length - 1){
+          setQIdx(qIdx + 1);
+          setPhase('question');
+        } else if(roundIdx < partiya.length - 1){
+          setRoundIdx(roundIdx + 1);
+          setQIdx(0);
+          setPhase('intro');
+        } else {
+          // На самом краю партии (теоретически невозможно — half-mark < total)
+          setPhase('question');
+        }
+      };
+      return React.createElement(TnMidRecap, {
+        qOverall: partiyaLog.length,
+        totalOverall, scoreP, scoreO, totalBusey, streakPeak,
+        partiyaLog, player, opponent: opp,
+        onContinue: handleContinue
       });
     }
     if(phase === 'final'){

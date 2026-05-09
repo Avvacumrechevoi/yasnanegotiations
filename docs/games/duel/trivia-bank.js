@@ -260,22 +260,223 @@
       hint:'«Сутки Рыболова» — финальная глава, где все темы сходятся в единую картину.' },
   ];
 
-  // ─── API ────────────────────────────────────────────────────
-  function getThemes(){ return THEMES; }
-  function getTheme(id){ return THEMES.find(t => t.id === id); }
-  function getQuestionsForTheme(themeId){ return QUESTIONS.filter(q => q.theme === themeId); }
-  function getAllQuestions(){ return QUESTIONS; }
+  // ═══ ИСТОЧНИК КОНТЕНТА ═════════════════════════════════════════════
+  // Если подгружен content.bundle.js (window.YasnaContent) и в нём ≥6 тем
+  // и ≥18 single-choice вопросов — переключаемся полностью на новый банк.
+  // Иначе работает legacy-хардкод выше (back-compat пока банк наполняется).
+  //
+  // Это даёт плавный переход: по мере добавления тем T2…T10 в content/,
+  // движок автоматически перейдёт на атомизированный контент.
+  // ───────────────────────────────────────────────────────────────────
+  const NEW = (typeof window !== 'undefined' && window.YasnaContent) || null;
+  const NEW_THEMES = NEW?.THEMES || [];
+  const NEW_QUESTIONS = NEW?.QUESTIONS || [];
+  const NEW_QUESTIONS_FULL = NEW?.QUESTIONS_FULL || [];
+  const NEW_ATOMS = NEW?.ATOMS || [];
 
-  // Случайный набор для партии: 6 тем × 3 вопроса = 18 вопросов
-  function generatePartiya(seed){
+  // Фильтруем темы: T10 «Сутки Рыболова» помечена themes_in_partia=false
+  // (финальный обзор, не самостоятельная тема для партии).
+  const NEW_THEMES_FOR_PARTIYA = NEW_THEMES.filter(t => t.includeInPartiya !== false);
+
+  const useNew = NEW_THEMES_FOR_PARTIYA.length >= 6 && NEW_QUESTIONS.length >= 18;
+
+  // ─── Гибрид: новые вопросы подмешиваются к legacy-темам по slug ───
+  // Цель: пока банк маленький, не терять новые типы вопросов (true-false,
+  // fill-blank). Они мерджатся в legacy QUESTIONS под legacy theme id, если
+  // совпадают слаги (например, T1 «chto-est-yasna» → legacy 'gimny' через
+  // дополнительный мап). Это временно, пока useNew=false.
+  const SLUG_TO_LEGACY = {
+    'chto-est-yasna': 'gimny',
+    // следующие пустые — заполнить когда T2-T10 наполнятся:
+    'opisanie-sutok': 'sutki',
+    'granit-nauki': 'zerno',
+    'osi-kresty': 'antipody'
+  };
+
+  let MERGED_QUESTIONS = QUESTIONS;
+  if(!useNew && NEW_QUESTIONS.length > 0){
+    const remapped = NEW_QUESTIONS.map(q => {
+      const legacyTheme = SLUG_TO_LEGACY[q.theme];
+      return legacyTheme ? { ...q, theme: legacyTheme } : null;
+    }).filter(Boolean);
+    if(remapped.length > 0){
+      MERGED_QUESTIONS = [...QUESTIONS, ...remapped];
+    }
+  }
+
+  // Для партии используем фильтрованный список (без T10).
+  // Все темы доступны через getAllThemes() для UI / Партитуры.
+  const ACTIVE_THEMES = useNew ? NEW_THEMES_FOR_PARTIYA : THEMES;
+  const ACTIVE_QUESTIONS_RAW = useNew ? NEW_QUESTIONS : MERGED_QUESTIONS;
+
+  // ─── Валидация и фильтрация вопросов ────────────────────────────────
+  // Защита от двух типов проблем:
+  //   1) Малформенные вопросы (битый JSON) — рендер крашится
+  //   2) Тип fill-blank — UX-провал (никто не помнит дословно)
+  // Эти типы фильтруем globally. Для расширения см. README в content/.
+  const DISABLED_TYPES = new Set(['fill-blank', 'order']);
+
+  function isQuestionValid(q){
+    if(!q || typeof q !== 'object') return false;
+    if(!q.id || !q.theme) return false;
+    const text = q.text || q.stem;
+    if(!text || typeof text !== 'string') return false;
+    const type = q.type || 'single-choice';
+    if(DISABLED_TYPES.has(type)) return false;
+    // Per-type checks
+    if(type === 'single-choice'){
+      return Array.isArray(q.options) && q.options.length >= 2
+        && (typeof q.correct === 'number' || typeof q.correct === 'string');
+    }
+    if(type === 'true-false'){
+      return Array.isArray(q.options) && q.options.length === 2
+        && (q.correct === 0 || q.correct === 1 || q.correct === true || q.correct === false);
+    }
+    if(type === 'multi-choice'){
+      return Array.isArray(q.options) && q.options.length >= 2
+        && Array.isArray(q.correct) && q.correct.length >= 1;
+    }
+    if(type === 'match-pair'){
+      return Array.isArray(q.pairsLeft) && Array.isArray(q.pairsRight)
+        && q.pairsLeft.length === q.pairsRight.length
+        && q.pairsLeft.length >= 2;
+    }
+    return false;  // Неизвестный тип — не пропускаем
+  }
+
+  // Применяем фильтр + считаем статистику (для дев-консоли)
+  const ACTIVE_QUESTIONS = ACTIVE_QUESTIONS_RAW.filter(isQuestionValid);
+  const SKIPPED_COUNT = ACTIVE_QUESTIONS_RAW.length - ACTIVE_QUESTIONS.length;
+  if(SKIPPED_COUNT > 0){
+    console.log('[YasnaTrivia] Отфильтровано', SKIPPED_COUNT,
+      'вопросов (битые / отключённые типы:', [...DISABLED_TYPES].join(', '), ')');
+  }
+
+  if(NEW){
+    console.log('[YasnaTrivia] Контент-bundle:',
+      NEW.buildInfo?.themes, 'тем,',
+      NEW.buildInfo?.questionsTotal, 'вопросов (legacy-conv:',
+      NEW.buildInfo?.questionsLegacy + ').',
+      useNew
+        ? 'Используется новый банк полностью.'
+        : 'Hybrid: legacy + ' + (MERGED_QUESTIONS.length - QUESTIONS.length) + ' новых вопросов.'
+    );
+  }
+
+  // ─── API ────────────────────────────────────────────────────
+  function getThemes(){ return ACTIVE_THEMES; }
+  function getTheme(id){ return ACTIVE_THEMES.find(t => t.id === id); }
+  function getQuestionsForTheme(themeId){ return ACTIVE_QUESTIONS.filter(q => q.theme === themeId); }
+  function getAllQuestions(){ return ACTIVE_QUESTIONS; }
+
+  // Атомы и расширенный банк — только из нового контента, для будущего движка
+  function getAtoms(){ return NEW_ATOMS; }
+  function getQuestionsFull(){ return NEW_QUESTIONS_FULL; }
+
+  // Конфигурация по режимам — длительность партии
+  const MODE_CONFIG = {
+    blitz:    { themes: 5, qPerTheme: 2 },  // 10 вопросов · ~2 мин
+    standard: { themes: 6, qPerTheme: 3 },  // 18 вопросов · ~5 мин
+    expert:   { themes: 6, qPerTheme: 5 }   // 30 вопросов · ~9 мин
+  };
+
+  // ─── Anti-repeat: история показанных вопросов ────────────────────
+  // localStorage key: yasna_seen_questions = { qId: timestampMs }
+  // TTL: 30 дней. Окно anti-repeat — последние ~3 партии × ~18 = 50 qId.
+  // При построении партии исключаем qId которые видели за последние N часов
+  // (mode-зависимо). Если после фильтра пул < нужного — расширяем окно.
+  const SEEN_KEY = 'yasna_seen_questions';
+  const SEEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;          // 30 дней
+  const ANTI_REPEAT_WINDOW_MS = {
+    blitz:    2 * 60 * 60 * 1000,    // 2 часа — Блиц короткий, ок повторам быстрее
+    standard: 12 * 60 * 60 * 1000,   // 12 часов
+    expert:   24 * 60 * 60 * 1000    // 24 часа — Эксперт хочет максимум разнообразия
+  };
+
+  function loadSeen(){
+    try {
+      const raw = localStorage.getItem(SEEN_KEY);
+      if(!raw) return {};
+      const parsed = JSON.parse(raw);
+      // Чистим устаревшие записи
+      const now = Date.now();
+      let dirty = false;
+      for(const k in parsed){
+        if(now - parsed[k] > SEEN_TTL_MS){ delete parsed[k]; dirty = true; }
+      }
+      if(dirty){ try { localStorage.setItem(SEEN_KEY, JSON.stringify(parsed)); } catch(_){} }
+      return parsed;
+    } catch(_){ return {}; }
+  }
+
+  function markSeen(qIds){
+    try {
+      const seen = loadSeen();
+      const now = Date.now();
+      for(const id of qIds){ if(id) seen[id] = now; }
+      localStorage.setItem(SEEN_KEY, JSON.stringify(seen));
+    } catch(_){}
+  }
+
+  // Случайный набор для партии.
+  // mode: 'blitz' | 'standard' | 'expert' — длительность (определяет TOTAL вопросов)
+  // themesFilter: null (все) или массив theme.id (кастомный набор, ≥1)
+  //
+  // Логика распределения total на N тем (N ≥ 1):
+  //   targetTotal = cfg.themes * cfg.qPerTheme  (10/18/30)
+  //   N тем → каждая получает ceil(target/N) или floor — равномерно.
+  //   Если у темы недостаточно вопросов — берём всё что есть, остаток
+  //   добиваем из соседних тем (если их несколько) или partiya короче.
+  function generatePartiya(seed, mode, themesFilter){
+    const cfg = MODE_CONFIG[mode] || MODE_CONFIG.standard;
+    const targetTotal = cfg.themes * cfg.qPerTheme;
+    const seen = loadSeen();
+    const win = ANTI_REPEAT_WINDOW_MS[mode] || ANTI_REPEAT_WINDOW_MS.standard;
+    const cutoff = Date.now() - win;
+    const isFresh = (qId) => !seen[qId] || seen[qId] < cutoff;
+
     const rng = seedRandom(seed || Date.now());
-    const shuffled = [...THEMES].sort(() => rng() - 0.5);
-    const chosen = shuffled.slice(0, 6);
-    return chosen.map(theme => {
-      const themeQs = QUESTIONS.filter(q => q.theme === theme.id);
-      const shQ = [...themeQs].sort(() => rng() - 0.5);
-      return { theme, questions: shQ.slice(0, 3) };
-    });
+    // Кастом-фильтр тем (≥1 теперь разрешено)
+    const eligibleThemes = themesFilter && themesFilter.length > 0
+      ? ACTIVE_THEMES.filter(t => themesFilter.includes(t.id))
+      : ACTIVE_THEMES;
+
+    // Если выбрано тем меньше, чем хочет режим — играем со всеми выбранными.
+    // Иначе — случайная выборка cfg.themes из эл-ных.
+    const themesToUse = eligibleThemes.length <= cfg.themes
+      ? [...eligibleThemes]
+      : [...eligibleThemes].sort(() => rng() - 0.5).slice(0, cfg.themes);
+
+    if(themesToUse.length === 0) return [];
+
+    // Распределяем target вопросов по N темам (равномерно с округлением вверх)
+    const N = themesToUse.length;
+    const baseQ = Math.floor(targetTotal / N);
+    const extra = targetTotal - baseQ * N;
+    // Перемешиваем порядок тем (на старт партии — не всегда первая выбранная)
+    const ordered = [...themesToUse].sort(() => rng() - 0.5);
+
+    const partiya = ordered.map((theme, idx) => {
+      const want = baseQ + (idx < extra ? 1 : 0);  // первые `extra` тем получают +1
+      const themeQs = ACTIVE_QUESTIONS.filter(q => q.theme === theme.id);
+      // Сначала свежие
+      const fresh = themeQs.filter(q => isFresh(q.id));
+      const shFresh = [...fresh].sort(() => rng() - 0.5);
+      let picked = shFresh.slice(0, want);
+      // Если свежих мало — добиваем из всего пула
+      if(picked.length < want){
+        const fallback = themeQs.filter(q => !picked.find(p => p.id === q.id));
+        const shAll = [...fallback].sort(() => rng() - 0.5);
+        picked = [...picked, ...shAll.slice(0, want - picked.length)];
+      }
+      return { theme, questions: picked, requested: want };
+    }).filter(r => r.questions.length > 0);  // отбрасываем темы с 0 вопросов
+
+    // Помечаем все выбранные qId как «показанные»
+    const allIds = partiya.flatMap(r => r.questions.map(q => q.id));
+    markSeen(allIds);
+
+    return partiya;
   }
 
   function seedRandom(seed){
@@ -284,7 +485,14 @@
   }
 
   window.YasnaTrivia = {
-    THEMES, QUESTIONS,
-    getThemes, getTheme, getQuestionsForTheme, getAllQuestions, generatePartiya
+    THEMES: ACTIVE_THEMES,
+    QUESTIONS: ACTIVE_QUESTIONS,
+    getThemes, getTheme, getQuestionsForTheme, getAllQuestions, generatePartiya,
+    // расширенный API (новый контент)
+    getAtoms, getQuestionsFull,
+    MODE_CONFIG,
+    // флаг для UI: показывать ли «Атомизированный контент» индикатор
+    isUsingNewBank: useNew,
+    contentVersion: NEW?.version || 'legacy-1.0'
   };
 })();

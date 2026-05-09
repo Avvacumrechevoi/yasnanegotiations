@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T12:43:27.863Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T16:45:41.118Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5646,7 +5646,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T12:43:27.363Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T16:45:40.686Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -17632,6 +17632,7 @@ window.YasnaCore = {
 /* ─── games/duel/trivia-bank.js ─── */
 ;(function(){
 (function() {
+  var _a, _b, _c;
   const THEMES = [
     { id: "gimny", name: "\u0413\u0438\u043C\u043D\u044B \u0438 \u0412\u0435\u0434\u0430", emoji: "\u{1F31F}", short: "\u0413\u0438\u043C\u043D\u044B" },
     { id: "sutki", name: "\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435 \u0421\u0443\u0442\u043E\u043A", emoji: "\u23F0", short: "\u0421\u0443\u0442\u043A\u0438" },
@@ -18059,27 +18060,178 @@ window.YasnaCore = {
       hint: "\xAB\u0421\u0443\u0442\u043A\u0438 \u0420\u044B\u0431\u043E\u043B\u043E\u0432\u0430\xBB \u2014 \u0444\u0438\u043D\u0430\u043B\u044C\u043D\u0430\u044F \u0433\u043B\u0430\u0432\u0430, \u0433\u0434\u0435 \u0432\u0441\u0435 \u0442\u0435\u043C\u044B \u0441\u0445\u043E\u0434\u044F\u0442\u0441\u044F \u0432 \u0435\u0434\u0438\u043D\u0443\u044E \u043A\u0430\u0440\u0442\u0438\u043D\u0443."
     }
   ];
+  const NEW = typeof window !== "undefined" && window.YasnaContent || null;
+  const NEW_THEMES = (NEW == null ? void 0 : NEW.THEMES) || [];
+  const NEW_QUESTIONS = (NEW == null ? void 0 : NEW.QUESTIONS) || [];
+  const NEW_QUESTIONS_FULL = (NEW == null ? void 0 : NEW.QUESTIONS_FULL) || [];
+  const NEW_ATOMS = (NEW == null ? void 0 : NEW.ATOMS) || [];
+  const NEW_THEMES_FOR_PARTIYA = NEW_THEMES.filter((t) => t.includeInPartiya !== false);
+  const useNew = NEW_THEMES_FOR_PARTIYA.length >= 6 && NEW_QUESTIONS.length >= 18;
+  const SLUG_TO_LEGACY = {
+    "chto-est-yasna": "gimny",
+    // следующие пустые — заполнить когда T2-T10 наполнятся:
+    "opisanie-sutok": "sutki",
+    "granit-nauki": "zerno",
+    "osi-kresty": "antipody"
+  };
+  let MERGED_QUESTIONS = QUESTIONS;
+  if (!useNew && NEW_QUESTIONS.length > 0) {
+    const remapped = NEW_QUESTIONS.map((q) => {
+      const legacyTheme = SLUG_TO_LEGACY[q.theme];
+      return legacyTheme ? { ...q, theme: legacyTheme } : null;
+    }).filter(Boolean);
+    if (remapped.length > 0) {
+      MERGED_QUESTIONS = [...QUESTIONS, ...remapped];
+    }
+  }
+  const ACTIVE_THEMES = useNew ? NEW_THEMES_FOR_PARTIYA : THEMES;
+  const ACTIVE_QUESTIONS_RAW = useNew ? NEW_QUESTIONS : MERGED_QUESTIONS;
+  const DISABLED_TYPES = /* @__PURE__ */ new Set(["fill-blank", "order"]);
+  function isQuestionValid(q) {
+    if (!q || typeof q !== "object") return false;
+    if (!q.id || !q.theme) return false;
+    const text = q.text || q.stem;
+    if (!text || typeof text !== "string") return false;
+    const type = q.type || "single-choice";
+    if (DISABLED_TYPES.has(type)) return false;
+    if (type === "single-choice") {
+      return Array.isArray(q.options) && q.options.length >= 2 && (typeof q.correct === "number" || typeof q.correct === "string");
+    }
+    if (type === "true-false") {
+      return Array.isArray(q.options) && q.options.length === 2 && (q.correct === 0 || q.correct === 1 || q.correct === true || q.correct === false);
+    }
+    if (type === "multi-choice") {
+      return Array.isArray(q.options) && q.options.length >= 2 && Array.isArray(q.correct) && q.correct.length >= 1;
+    }
+    if (type === "match-pair") {
+      return Array.isArray(q.pairsLeft) && Array.isArray(q.pairsRight) && q.pairsLeft.length === q.pairsRight.length && q.pairsLeft.length >= 2;
+    }
+    return false;
+  }
+  const ACTIVE_QUESTIONS = ACTIVE_QUESTIONS_RAW.filter(isQuestionValid);
+  const SKIPPED_COUNT = ACTIVE_QUESTIONS_RAW.length - ACTIVE_QUESTIONS.length;
+  if (SKIPPED_COUNT > 0) {
+    console.log(
+      "[YasnaTrivia] \u041E\u0442\u0444\u0438\u043B\u044C\u0442\u0440\u043E\u0432\u0430\u043D\u043E",
+      SKIPPED_COUNT,
+      "\u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 (\u0431\u0438\u0442\u044B\u0435 / \u043E\u0442\u043A\u043B\u044E\u0447\u0451\u043D\u043D\u044B\u0435 \u0442\u0438\u043F\u044B:",
+      [...DISABLED_TYPES].join(", "),
+      ")"
+    );
+  }
+  if (NEW) {
+    console.log(
+      "[YasnaTrivia] \u041A\u043E\u043D\u0442\u0435\u043D\u0442-bundle:",
+      (_a = NEW.buildInfo) == null ? void 0 : _a.themes,
+      "\u0442\u0435\u043C,",
+      (_b = NEW.buildInfo) == null ? void 0 : _b.questionsTotal,
+      "\u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 (legacy-conv:",
+      ((_c = NEW.buildInfo) == null ? void 0 : _c.questionsLegacy) + ").",
+      useNew ? "\u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0435\u0442\u0441\u044F \u043D\u043E\u0432\u044B\u0439 \u0431\u0430\u043D\u043A \u043F\u043E\u043B\u043D\u043E\u0441\u0442\u044C\u044E." : "Hybrid: legacy + " + (MERGED_QUESTIONS.length - QUESTIONS.length) + " \u043D\u043E\u0432\u044B\u0445 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432."
+    );
+  }
   function getThemes() {
-    return THEMES;
+    return ACTIVE_THEMES;
   }
   function getTheme(id) {
-    return THEMES.find((t) => t.id === id);
+    return ACTIVE_THEMES.find((t) => t.id === id);
   }
   function getQuestionsForTheme(themeId) {
-    return QUESTIONS.filter((q) => q.theme === themeId);
+    return ACTIVE_QUESTIONS.filter((q) => q.theme === themeId);
   }
   function getAllQuestions() {
-    return QUESTIONS;
+    return ACTIVE_QUESTIONS;
   }
-  function generatePartiya(seed) {
+  function getAtoms() {
+    return NEW_ATOMS;
+  }
+  function getQuestionsFull() {
+    return NEW_QUESTIONS_FULL;
+  }
+  const MODE_CONFIG = {
+    blitz: { themes: 5, qPerTheme: 2 },
+    // 10 вопросов · ~2 мин
+    standard: { themes: 6, qPerTheme: 3 },
+    // 18 вопросов · ~5 мин
+    expert: { themes: 6, qPerTheme: 5 }
+    // 30 вопросов · ~9 мин
+  };
+  const SEEN_KEY = "yasna_seen_questions";
+  const SEEN_TTL_MS = 30 * 24 * 60 * 60 * 1e3;
+  const ANTI_REPEAT_WINDOW_MS = {
+    blitz: 2 * 60 * 60 * 1e3,
+    // 2 часа — Блиц короткий, ок повторам быстрее
+    standard: 12 * 60 * 60 * 1e3,
+    // 12 часов
+    expert: 24 * 60 * 60 * 1e3
+    // 24 часа — Эксперт хочет максимум разнообразия
+  };
+  function loadSeen() {
+    try {
+      const raw = localStorage.getItem(SEEN_KEY);
+      if (!raw) return {};
+      const parsed = JSON.parse(raw);
+      const now = Date.now();
+      let dirty = false;
+      for (const k in parsed) {
+        if (now - parsed[k] > SEEN_TTL_MS) {
+          delete parsed[k];
+          dirty = true;
+        }
+      }
+      if (dirty) {
+        try {
+          localStorage.setItem(SEEN_KEY, JSON.stringify(parsed));
+        } catch (_) {
+        }
+      }
+      return parsed;
+    } catch (_) {
+      return {};
+    }
+  }
+  function markSeen(qIds) {
+    try {
+      const seen = loadSeen();
+      const now = Date.now();
+      for (const id of qIds) {
+        if (id) seen[id] = now;
+      }
+      localStorage.setItem(SEEN_KEY, JSON.stringify(seen));
+    } catch (_) {
+    }
+  }
+  function generatePartiya(seed, mode, themesFilter) {
+    const cfg = MODE_CONFIG[mode] || MODE_CONFIG.standard;
+    const targetTotal = cfg.themes * cfg.qPerTheme;
+    const seen = loadSeen();
+    const win = ANTI_REPEAT_WINDOW_MS[mode] || ANTI_REPEAT_WINDOW_MS.standard;
+    const cutoff = Date.now() - win;
+    const isFresh = (qId) => !seen[qId] || seen[qId] < cutoff;
     const rng = seedRandom(seed || Date.now());
-    const shuffled = [...THEMES].sort(() => rng() - 0.5);
-    const chosen = shuffled.slice(0, 6);
-    return chosen.map((theme) => {
-      const themeQs = QUESTIONS.filter((q) => q.theme === theme.id);
-      const shQ = [...themeQs].sort(() => rng() - 0.5);
-      return { theme, questions: shQ.slice(0, 3) };
-    });
+    const eligibleThemes = themesFilter && themesFilter.length > 0 ? ACTIVE_THEMES.filter((t) => themesFilter.includes(t.id)) : ACTIVE_THEMES;
+    const themesToUse = eligibleThemes.length <= cfg.themes ? [...eligibleThemes] : [...eligibleThemes].sort(() => rng() - 0.5).slice(0, cfg.themes);
+    if (themesToUse.length === 0) return [];
+    const N = themesToUse.length;
+    const baseQ = Math.floor(targetTotal / N);
+    const extra = targetTotal - baseQ * N;
+    const ordered = [...themesToUse].sort(() => rng() - 0.5);
+    const partiya = ordered.map((theme, idx) => {
+      const want = baseQ + (idx < extra ? 1 : 0);
+      const themeQs = ACTIVE_QUESTIONS.filter((q) => q.theme === theme.id);
+      const fresh = themeQs.filter((q) => isFresh(q.id));
+      const shFresh = [...fresh].sort(() => rng() - 0.5);
+      let picked = shFresh.slice(0, want);
+      if (picked.length < want) {
+        const fallback = themeQs.filter((q) => !picked.find((p) => p.id === q.id));
+        const shAll = [...fallback].sort(() => rng() - 0.5);
+        picked = [...picked, ...shAll.slice(0, want - picked.length)];
+      }
+      return { theme, questions: picked, requested: want };
+    }).filter((r) => r.questions.length > 0);
+    const allIds = partiya.flatMap((r) => r.questions.map((q) => q.id));
+    markSeen(allIds);
+    return partiya;
   }
   function seedRandom(seed) {
     let x = seed;
@@ -18089,13 +18241,20 @@ window.YasnaCore = {
     };
   }
   window.YasnaTrivia = {
-    THEMES,
-    QUESTIONS,
+    THEMES: ACTIVE_THEMES,
+    QUESTIONS: ACTIVE_QUESTIONS,
     getThemes,
     getTheme,
     getQuestionsForTheme,
     getAllQuestions,
-    generatePartiya
+    generatePartiya,
+    // расширенный API (новый контент)
+    getAtoms,
+    getQuestionsFull,
+    MODE_CONFIG,
+    // флаг для UI: показывать ли «Атомизированный контент» индикатор
+    isUsingNewBank: useNew,
+    contentVersion: (NEW == null ? void 0 : NEW.version) || "legacy-1.0"
   };
 })();
 
@@ -18108,6 +18267,60 @@ window.YasnaCore = {
   const SHOW_FEEDBACK_MS = 1500;
   const SHOW_VS_MS = 2200;
   const SHOW_ROUND_INTRO_MS = 1800;
+  class QuestionErrorBoundary extends React.Component {
+    constructor(p) {
+      super(p);
+      this.state = { err: null };
+    }
+    static getDerivedStateFromError(err) {
+      return { err };
+    }
+    componentDidCatch(err, info) {
+      try {
+        console.error("[Question render error]", err, info);
+      } catch (_) {
+      }
+      this.skipTimer = setTimeout(() => {
+        try {
+          this.props.onSkip && this.props.onSkip();
+        } catch (_) {
+        }
+      }, 1200);
+    }
+    componentWillUnmount() {
+      clearTimeout(this.skipTimer);
+    }
+    render() {
+      if (this.state.err) {
+        return React.createElement(
+          "div",
+          { className: "tn-fullscreen" },
+          React.createElement(
+            "div",
+            { className: "tn-container", style: { paddingTop: 80 } },
+            React.createElement(
+              "div",
+              {
+                style: { textAlign: "center", padding: "40px 24px", maxWidth: 480, margin: "0 auto" }
+              },
+              React.createElement("div", { style: { fontSize: 32, marginBottom: 16, opacity: 0.5 } }, "\u25F7"),
+              React.createElement(
+                "h2",
+                { style: { fontSize: 18, marginBottom: 8, fontWeight: 500 } },
+                "\u042D\u0442\u043E\u0442 \u0432\u043E\u043F\u0440\u043E\u0441 \u043F\u0440\u043E\u043F\u0443\u0449\u0435\u043D"
+              ),
+              React.createElement(
+                "p",
+                { style: { fontSize: 13, color: "#86868b" } },
+                "\u0411\u0438\u0442\u044B\u0435 \u0434\u0430\u043D\u043D\u044B\u0435 \u2014 \u043F\u0440\u043E\u0434\u043E\u043B\u0436\u0430\u0435\u043C \u043F\u0430\u0440\u0442\u0438\u044E \u0447\u0435\u0440\u0435\u0437 \u0441\u0435\u043A\u0443\u043D\u0434\u0443\u2026"
+              )
+            )
+          )
+        );
+      }
+      return this.props.children;
+    }
+  }
   const TEN_LEVELS = {
     easy: {
       name: "\u0422\u0435\u043D\u044C \u041F\u043E\u0441\u043B\u0443\u0448\u043D\u0438\u043A\u0430",
@@ -18291,7 +18504,8 @@ window.YasnaCore = {
       React.createElement("div", { className: cls, style: { width: pct + "%" } })
     );
   }
-  function TnQuestionCard({ qOverall, totalOverall, themeName, text, timeLeft, showFeedback }) {
+  function TnQuestionCard({ qOverall, totalOverall, themeName, text, timeLeft, showFeedback, qType }) {
+    const typeLabel = qType === "true-false" ? "\u0412\u0435\u0440\u043D\u043E \u0438\u043B\u0438 \u043D\u0435\u0442?" : qType === "fill-blank" ? "\u0417\u0430\u043F\u043E\u043B\u043D\u0438 \u043F\u0440\u043E\u043F\u0443\u0441\u043A" : qType === "multi-choice" ? "\u0412\u044B\u0431\u0435\u0440\u0438 \u0432\u0441\u0435 \u0432\u0435\u0440\u043D\u044B\u0435" : qType === "match-pair" ? "\u0421\u043E\u0435\u0434\u0438\u043D\u0438 \u043F\u0430\u0440\u044B" : null;
     return React.createElement(
       "article",
       { className: "tn-q-card" },
@@ -18301,6 +18515,8 @@ window.YasnaCore = {
         React.createElement("span", { className: "tn-q-meta-num" }, "\u0412\u043E\u043F\u0440\u043E\u0441 ", qOverall + 1, " / ", totalOverall),
         React.createElement("span", { className: "tn-q-meta-dot" }, "\xB7"),
         React.createElement("span", { className: "tn-q-meta-theme" }, themeName),
+        typeLabel && React.createElement("span", { className: "tn-q-meta-dot" }, "\xB7"),
+        typeLabel && React.createElement("span", { className: "tn-q-meta-type" }, typeLabel),
         !showFeedback && React.createElement(
           "span",
           { className: "tn-q-meta-time" },
@@ -18331,10 +18547,18 @@ window.YasnaCore = {
   }
   function TnOptions({ options, chosen, correctIdx, showFeedback, onPick }) {
     const labels = ["A", "B", "C", "D", "E", "F"];
+    const opts = Array.isArray(options) ? options : [];
+    if (opts.length === 0) {
+      return React.createElement(
+        "div",
+        { className: "tn-options", style: { textAlign: "center", padding: "40px 24px", color: "#86868b" } },
+        "\u25F7 \u042D\u0442\u043E\u0442 \u0432\u043E\u043F\u0440\u043E\u0441 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D"
+      );
+    }
     return React.createElement(
       "div",
       { className: "tn-options", role: "group" },
-      options.map((opt, i) => {
+      opts.map((opt, i) => {
         let state = "default";
         if (showFeedback) {
           if (i === correctIdx && i === chosen) state = "correct";
@@ -18346,20 +18570,296 @@ window.YasnaCore = {
           key: i,
           index: i,
           label: labels[i] || i + 1,
-          text: opt,
+          text: String(opt),
           state,
           onClick: () => onPick(i)
         });
       })
     );
   }
-  function TnFeedbackBanner({ kind, busey }) {
+  function TnTrueFalse({ chosen, correctIdx, showFeedback, onPick }) {
+    const items = [
+      { idx: 0, label: "\u0412\u0435\u0440\u043D\u043E", sym: "\u2713" },
+      { idx: 1, label: "\u041D\u0435 \u0432\u0435\u0440\u043D\u043E", sym: "\u2715" }
+    ];
+    return React.createElement(
+      "div",
+      { className: "tn-options tn-options-tf", role: "group" },
+      items.map((it) => {
+        let state = "default";
+        if (showFeedback) {
+          if (it.idx === correctIdx && it.idx === chosen) state = "correct";
+          else if (it.idx === correctIdx) state = "shown-correct";
+          else if (it.idx === chosen) state = "wrong";
+          else state = "disabled";
+        }
+        const isClickable = state === "default";
+        return React.createElement(
+          "button",
+          {
+            key: it.idx,
+            className: "tn-option tn-option-tf tn-option-" + state,
+            disabled: !isClickable,
+            onClick: isClickable ? () => onPick(it.idx) : void 0,
+            "aria-label": it.label
+          },
+          React.createElement("span", { className: "tn-option-tf-sym", "aria-hidden": "true" }, it.sym),
+          React.createElement("span", { className: "tn-option-tf-text" }, it.label)
+        );
+      })
+    );
+  }
+  function normalizeFillAnswer(s) {
+    return String(s || "").toLowerCase().trim().replace(/ё/g, "\u0435").replace(/[.,!?;:"'()\[\]]/g, "").replace(/\s+/g, " ");
+  }
+  function TnMultiChoice({ options, correctIdxs, chosen, showFeedback, onSubmit }) {
+    const opts = Array.isArray(options) ? options : [];
+    const [picks, setPicks] = useState(/* @__PURE__ */ new Set());
+    useEffect(() => {
+      setPicks(/* @__PURE__ */ new Set());
+    }, [opts]);
+    const labels = ["A", "B", "C", "D", "E", "F", "G", "H"];
+    const correctSet = new Set(correctIdxs || []);
+    if (opts.length === 0) {
+      return React.createElement(
+        "div",
+        { className: "tn-options", style: { textAlign: "center", padding: "40px 24px", color: "#86868b" } },
+        "\u25F7 \u042D\u0442\u043E\u0442 \u0432\u043E\u043F\u0440\u043E\u0441 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D"
+      );
+    }
+    function toggle(i) {
+      if (showFeedback) return;
+      const ns = new Set(picks);
+      if (ns.has(i)) ns.delete(i);
+      else ns.add(i);
+      setPicks(ns);
+    }
+    function submit() {
+      if (showFeedback || picks.size === 0) return;
+      onSubmit([...picks].sort());
+    }
+    const chosenSet = chosen ? new Set(chosen) : null;
+    return React.createElement(
+      "div",
+      { className: "tn-options tn-options-multi", role: "group" },
+      React.createElement(
+        "div",
+        { className: "tn-multi-list" },
+        opts.map((opt, i) => {
+          const isPicked = (chosenSet || picks).has(i);
+          const isCorrect = correctSet.has(i);
+          let state = isPicked ? "picked" : "default";
+          if (showFeedback) {
+            if (isPicked && isCorrect) state = "correct";
+            else if (isPicked && !isCorrect) state = "wrong";
+            else if (!isPicked && isCorrect) state = "shown-correct";
+            else state = "disabled";
+          }
+          return React.createElement(
+            "button",
+            {
+              key: i,
+              type: "button",
+              className: "tn-option tn-option-multi tn-option-" + state,
+              disabled: showFeedback,
+              onClick: () => toggle(i),
+              "aria-pressed": isPicked
+            },
+            React.createElement("span", { className: "tn-option-letter", "aria-hidden": "true" }, labels[i] || i + 1),
+            React.createElement("span", { className: "tn-option-text" }, opt),
+            React.createElement(
+              "span",
+              { className: "tn-option-check", "aria-hidden": "true" },
+              showFeedback ? isCorrect && isPicked ? "\u2713" : isCorrect ? "\u2713" : isPicked ? "\u2715" : "" : isPicked ? "\u2713" : ""
+            )
+          );
+        })
+      ),
+      !showFeedback && React.createElement("button", {
+        className: "tn-multi-submit",
+        onClick: submit,
+        disabled: picks.size === 0
+      }, "\u041E\u0442\u0432\u0435\u0442\u0438\u0442\u044C \u2192 (", picks.size, ")")
+    );
+  }
+  function TnMatchPair({ pairsLeft, pairsRight, correct, chosen, showFeedback, onSubmit }) {
+    const pL = Array.isArray(pairsLeft) ? pairsLeft : [];
+    const pR = Array.isArray(pairsRight) ? pairsRight : [];
+    if (pL.length === 0 || pR.length === 0 || pL.length !== pR.length) {
+      return React.createElement(
+        "div",
+        { className: "tn-options", style: { textAlign: "center", padding: "40px 24px", color: "#86868b" } },
+        React.createElement("div", { style: { fontSize: 14, marginBottom: 8 } }, "\u25F7 \u042D\u0442\u043E\u0442 \u0432\u043E\u043F\u0440\u043E\u0441 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D"),
+        React.createElement("div", { style: { fontSize: 11 } }, "\u0418\u0434\u0451\u043C \u0434\u0430\u043B\u044C\u0448\u0435\u2026")
+      );
+    }
+    const rightShuffled = useMemo(() => {
+      const arr = pR.map((r, i) => ({ text: r, origIdx: i }));
+      const seed = pR.join("|").length;
+      let x = seed;
+      arr.sort(() => {
+        x = (x * 9301 + 49297) % 233280;
+        return x / 233280 - 0.5;
+      });
+      return arr;
+    }, [pR]);
+    const [matches, setMatches] = useState({});
+    const [selectedLeft, setSelectedLeft] = useState(null);
+    useEffect(() => {
+      setMatches({});
+      setSelectedLeft(null);
+    }, [pL]);
+    function clickLeft(i) {
+      if (showFeedback || matches[i] != null) return;
+      setSelectedLeft(selectedLeft === i ? null : i);
+    }
+    function clickRight(rightOrigIdx) {
+      if (showFeedback) return;
+      const usedBy = Object.entries(matches).find(([k, v]) => v === rightOrigIdx);
+      if (usedBy) {
+        const upd = { ...matches };
+        delete upd[usedBy[0]];
+        setMatches(upd);
+        return;
+      }
+      if (selectedLeft == null) return;
+      setMatches({ ...matches, [selectedLeft]: rightOrigIdx });
+      setSelectedLeft(null);
+    }
+    function submit() {
+      if (showFeedback) return;
+      if (Object.keys(matches).length !== pL.length) return;
+      onSubmit(matches);
+    }
+    const allMatched = Object.keys(matches).length === pL.length;
+    function pairCorrect(leftIdx, rightOrigIdx) {
+      return rightOrigIdx === leftIdx;
+    }
+    return React.createElement(
+      "div",
+      { className: "tn-options tn-options-match", role: "group" },
+      React.createElement(
+        "div",
+        { className: "tn-match-grid" },
+        // Левая колонка
+        React.createElement(
+          "div",
+          { className: "tn-match-col tn-match-col-left" },
+          pL.map((txt, i) => {
+            const matched = matches[i] != null;
+            const isSel = selectedLeft === i;
+            let state = matched ? "matched" : isSel ? "selected" : "default";
+            if (showFeedback && matched) {
+              state = pairCorrect(i, matches[i]) ? "correct" : "wrong";
+            }
+            return React.createElement("button", {
+              key: i,
+              type: "button",
+              className: "tn-match-item tn-match-" + state,
+              onClick: () => clickLeft(i),
+              disabled: showFeedback
+            }, txt);
+          })
+        ),
+        // Правая колонка (перемешанная)
+        React.createElement(
+          "div",
+          { className: "tn-match-col tn-match-col-right" },
+          rightShuffled.map(({ text, origIdx }) => {
+            const usedBy = Object.entries(matches).find(([k, v]) => v === origIdx);
+            const isUsed = !!usedBy;
+            let state = isUsed ? "matched" : "default";
+            if (showFeedback && isUsed) {
+              const leftIdx = parseInt(usedBy[0], 10);
+              state = pairCorrect(leftIdx, origIdx) ? "correct" : "wrong";
+            }
+            return React.createElement("button", {
+              key: origIdx,
+              type: "button",
+              className: "tn-match-item tn-match-" + state,
+              onClick: () => clickRight(origIdx),
+              disabled: showFeedback
+            }, text);
+          })
+        )
+      ),
+      !showFeedback && React.createElement("button", {
+        className: "tn-multi-submit",
+        onClick: submit,
+        disabled: !allMatched
+      }, allMatched ? "\u041E\u0442\u0432\u0435\u0442\u0438\u0442\u044C \u2192" : "\u0421\u043E\u0435\u0434\u0438\u043D\u0438 \u0432\u0441\u0435 \u043F\u0430\u0440\u044B (" + Object.keys(matches).length + " / " + pL.length + ")")
+    );
+  }
+  function TnFillBlank({ correct, alternatives, chosen, showFeedback, onSubmit }) {
+    const [val, setVal] = useState("");
+    useEffect(() => {
+      setVal("");
+    }, [correct]);
+    const acceptable = [correct, ...alternatives || []].map(normalizeFillAnswer);
+    const isCorrect = chosen != null && acceptable.includes(normalizeFillAnswer(chosen));
+    function submit() {
+      const trimmed = val.trim();
+      if (!trimmed || showFeedback) return;
+      onSubmit(trimmed);
+    }
+    if (showFeedback) {
+      return React.createElement(
+        "div",
+        { className: "tn-fill", role: "group" },
+        React.createElement(
+          "div",
+          {
+            className: "tn-fill-result tn-fill-" + (isCorrect ? "correct" : "wrong")
+          },
+          React.createElement("div", { className: "tn-fill-result-label" }, "\u0422\u0432\u043E\u0439 \u043E\u0442\u0432\u0435\u0442:"),
+          React.createElement("div", { className: "tn-fill-result-text" }, chosen || "\u2014"),
+          !isCorrect && React.createElement(
+            React.Fragment,
+            null,
+            React.createElement("div", { className: "tn-fill-result-label", style: { marginTop: 8 } }, "\u041F\u0440\u0430\u0432\u0438\u043B\u044C\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442:"),
+            React.createElement("div", { className: "tn-fill-result-text tn-fill-result-correct" }, correct)
+          )
+        )
+      );
+    }
+    return React.createElement(
+      "div",
+      { className: "tn-fill", role: "group" },
+      React.createElement("input", {
+        type: "text",
+        className: "tn-fill-input",
+        value: val,
+        onChange: (e) => setVal(e.target.value),
+        onKeyDown: (e) => {
+          if (e.key === "Enter") submit();
+        },
+        autoFocus: true,
+        placeholder: "\u0412\u0432\u0435\u0434\u0438 \u0441\u043B\u043E\u0432\u043E \u0438\u043B\u0438 \u0444\u0440\u0430\u0437\u0443",
+        "aria-label": "\u0412\u0430\u0448 \u043E\u0442\u0432\u0435\u0442"
+      }),
+      React.createElement("button", {
+        className: "tn-fill-submit",
+        onClick: submit,
+        disabled: !val.trim()
+      }, "\u041E\u0442\u0432\u0435\u0442\u0438\u0442\u044C \u2192")
+    );
+  }
+  function TnFeedbackBanner({ kind, busey, streak, mult }) {
     if (kind === "correct") {
       return React.createElement(
         "div",
         { className: "tn-feedback tn-feedback-correct" },
         React.createElement("span", { className: "tn-feedback-icon", "aria-hidden": "true" }, "\u2726"),
         React.createElement("span", { className: "tn-feedback-text" }, "\u0412\u0435\u0440\u043D\u043E"),
+        // Серия — показывается при 3+ верных
+        streak >= 3 && React.createElement(
+          "span",
+          { className: "tn-feedback-streak" },
+          "\u{1F525} ",
+          streak,
+          " \u043F\u043E\u0434\u0440\u044F\u0434 \xB7 \xD7",
+          mult.toFixed(1)
+        ),
         busey > 0 && React.createElement("span", { className: "tn-feedback-busey" }, "+", busey, " \u0431\u0443\u0441\u0438\u043D")
       );
     }
@@ -18368,7 +18868,8 @@ window.YasnaCore = {
         "div",
         { className: "tn-feedback tn-feedback-wrong" },
         React.createElement("span", { className: "tn-feedback-icon", "aria-hidden": "true" }, "\u25EF"),
-        React.createElement("span", { className: "tn-feedback-text" }, "\u041D\u0435 \u0432\u0435\u0440\u043D\u043E")
+        React.createElement("span", { className: "tn-feedback-text" }, "\u041D\u0435 \u0432\u0435\u0440\u043D\u043E"),
+        streak === 0 && React.createElement("span", { className: "tn-feedback-streak-broken" }, "\u0441\u0435\u0440\u0438\u044F \u0441\u0431\u0440\u043E\u0448\u0435\u043D\u0430")
       );
     }
     return React.createElement(
@@ -18378,7 +18879,203 @@ window.YasnaCore = {
       React.createElement("span", { className: "tn-feedback-text" }, "\u0412\u0440\u0435\u043C\u044F \u0432\u044B\u0448\u043B\u043E")
     );
   }
-  function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswersRef }) {
+  function TnPreMatch({ player, opponent, partiya, mode, playerReady, oppReady, onReady, onForceStart, transport, isPvP }) {
+    const totalQ = partiya.reduce((s, r) => s + r.questions.length, 0);
+    const themesList = partiya.map((r) => r.theme);
+    const modeLabel = mode === "blitz" ? "\u0411\u043B\u0438\u0446" : mode === "expert" ? "\u042D\u043A\u0441\u043F\u0435\u0440\u0442" : "\u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442";
+    const modeMeta = mode === "blitz" ? "~2 \u043C\u0438\u043D" : mode === "expert" ? "~9 \u043C\u0438\u043D" : "~5 \u043C\u0438\u043D";
+    const [countdown, setCountdown] = useState(60);
+    useEffect(() => {
+      const i = setInterval(() => setCountdown((c) => Math.max(0, c - 1)), 1e3);
+      return () => clearInterval(i);
+    }, []);
+    useEffect(() => {
+      if (countdown !== 0) return;
+      if (!playerReady) {
+        onReady();
+        return;
+      }
+      if (onForceStart) onForceStart();
+    }, [countdown, playerReady, onReady, onForceStart]);
+    useEffect(() => {
+      if (!isPvP || !transport || !playerReady || oppReady) return;
+      const i = setInterval(() => {
+        try {
+          transport.send({ t: "ready" });
+        } catch (_) {
+        }
+      }, 2e3);
+      return () => clearInterval(i);
+    }, [isPvP, transport, playerReady, oppReady]);
+    return React.createElement(
+      "div",
+      { className: "tn-fullscreen tn-prematch" },
+      React.createElement(
+        "div",
+        { className: "tn-container" },
+        React.createElement(TnTopBar, { eyebrow: "\u25D0  \u041F\u0430\u0440\u0442\u0438\u044F \u0434\u043B\u044F \u0434\u0432\u043E\u0438\u0445" }),
+        React.createElement(
+          "div",
+          { className: "tn-prematch-card" },
+          React.createElement("div", { className: "tn-prematch-eyebrow" }, modeLabel, " \xB7 ", totalQ, " \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \xB7 ", modeMeta),
+          React.createElement("h1", { className: "tn-prematch-title" }, "\u0413\u043E\u0442\u043E\u0432\u044B?"),
+          // Аватары + ready-state
+          React.createElement(
+            "div",
+            { className: "tn-prematch-players" },
+            React.createElement(
+              "div",
+              { className: "tn-prematch-player" + (playerReady ? " tn-prematch-player-ready" : "") },
+              React.createElement("div", { className: "tn-prematch-avatar" }, renderTnAvatar(player.avatar, player.nickname)),
+              React.createElement("div", { className: "tn-prematch-name" }, player.nickname),
+              React.createElement(
+                "div",
+                { className: "tn-prematch-status" },
+                playerReady ? "\u2713 \u0413\u043E\u0442\u043E\u0432" : "\u25F7 \u041D\u0435 \u0433\u043E\u0442\u043E\u0432"
+              )
+            ),
+            React.createElement("div", { className: "tn-prematch-vs" }, "\u043F\u0440\u043E\u0442\u0438\u0432"),
+            React.createElement(
+              "div",
+              { className: "tn-prematch-player" + (oppReady ? " tn-prematch-player-ready" : "") },
+              React.createElement("div", { className: "tn-prematch-avatar" }, opponent.glyph || renderTnAvatar(opponent.avatar, opponent.name) || "\u25D0"),
+              React.createElement("div", { className: "tn-prematch-name" }, opponent.name || "\u0421\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A"),
+              React.createElement(
+                "div",
+                { className: "tn-prematch-status" },
+                oppReady ? "\u2713 \u0413\u043E\u0442\u043E\u0432" : "\u25F7 \u0414\u0443\u043C\u0430\u0435\u0442\u2026"
+              )
+            )
+          ),
+          // Список тем партии
+          React.createElement("div", { className: "tn-prematch-themes-eyebrow" }, "\u2637  \u0422\u0435\u043C\u044B \u043F\u0430\u0440\u0442\u0438\u0438"),
+          React.createElement(
+            "div",
+            { className: "tn-prematch-themes" },
+            themesList.map(
+              (t, i) => React.createElement(
+                "div",
+                { key: i, className: "tn-prematch-theme" },
+                React.createElement("span", { className: "tn-prematch-theme-num" }, i + 1),
+                React.createElement("span", { className: "tn-prematch-theme-name" }, t.name)
+              )
+            )
+          ),
+          // Кнопка «Готов» / «Жду собеседника»
+          !playerReady && React.createElement("button", {
+            className: "tn-prematch-btn tn-prematch-btn-primary",
+            onClick: onReady,
+            type: "button",
+            autoFocus: true
+          }, "\u2713 \u0413\u043E\u0442\u043E\u0432"),
+          playerReady && !oppReady && React.createElement(
+            React.Fragment,
+            null,
+            React.createElement(
+              "div",
+              { className: "tn-prematch-waiting" },
+              React.createElement("span", { className: "tn-prematch-waiting-spinner" }, "\u25F7"),
+              React.createElement("span", null, "\u0416\u0434\u0451\u043C \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430\u2026 (", countdown, " \u0441\u0435\u043A)")
+            ),
+            // Принудительный старт — не дожидаясь opp
+            countdown < 50 && onForceStart && React.createElement("button", {
+              className: "tn-prematch-btn",
+              style: { background: "transparent", color: "var(--text-2)", border: "1px solid var(--border-1)", marginTop: 8, fontSize: 14 },
+              onClick: onForceStart,
+              type: "button"
+            }, "\u041D\u0430\u0447\u0430\u0442\u044C \u0441\u0435\u0439\u0447\u0430\u0441 \u2192")
+          ),
+          playerReady && oppReady && React.createElement(
+            "div",
+            { className: "tn-prematch-go" },
+            "\u2726 \u0412\u0441\u0435 \u0433\u043E\u0442\u043E\u0432\u044B \u2014 \u0441\u0442\u0430\u0440\u0442 \u0447\u0435\u0440\u0435\u0437 \u043C\u0433\u043D\u043E\u0432\u0435\u043D\u0438\u0435"
+          ),
+          React.createElement(
+            "div",
+            { className: "tn-prematch-hint" },
+            "\u041E\u0431\u0430 \u0432\u0438\u0434\u044F\u0442 \u043E\u0434\u043D\u0438 \u0432\u043E\u043F\u0440\u043E\u0441\u044B \u0432 \u043E\u0434\u043D\u043E\u043C \u043F\u043E\u0440\u044F\u0434\u043A\u0435.",
+            React.createElement("br"),
+            "\u0415\u0441\u043B\u0438 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A \u043D\u0435 \u043E\u0442\u0432\u0435\u0447\u0430\u0435\u0442 \u2014 \u0430\u0432\u0442\u043E-\u0441\u0442\u0430\u0440\u0442 \u0447\u0435\u0440\u0435\u0437 60 \u0441\u0435\u043A."
+          )
+        )
+      )
+    );
+  }
+  function TnMidRecap({ qOverall, totalOverall, scoreP, scoreO, totalBusey, streakPeak, partiyaLog, opponent, player, onContinue }) {
+    useEffect(() => {
+      const t = setTimeout(() => onContinue(), 4500);
+      return () => clearTimeout(t);
+    }, []);
+    const byTheme = {};
+    for (const r of partiyaLog) {
+      if (!byTheme[r.themeId]) byTheme[r.themeId] = { name: r.themeName, c: 0, t: 0 };
+      byTheme[r.themeId].t++;
+      if (r.playerCorrect) byTheme[r.themeId].c++;
+    }
+    const themesArr = Object.values(byTheme).map((t) => ({ ...t, pct: t.t > 0 ? t.c / t.t : 0 }));
+    themesArr.sort((a, b) => b.pct - a.pct);
+    const bestTheme = themesArr[0];
+    const worstTheme = themesArr[themesArr.length - 1];
+    const lead = scoreP - scoreO;
+    const leadText = lead > 0 ? "\u0422\u044B \u0432\u043F\u0435\u0440\u0435\u0434\u0438 \u043D\u0430 " + lead + " \u2726" : lead < 0 ? "\u0421\u043E\u043F\u0435\u0440\u043D\u0438\u043A \u043E\u043F\u0435\u0440\u0435\u0436\u0430\u0435\u0442 \u043D\u0430 " + Math.abs(lead) + " \u2726" : "\u0418\u0434\u0451\u0448\u044C \u0432\u0440\u043E\u0432\u0435\u043D\u044C";
+    return React.createElement(
+      "div",
+      { className: "tn-fullscreen tn-midrecap" },
+      React.createElement(
+        "div",
+        { className: "tn-container" },
+        React.createElement(
+          "div",
+          { className: "tn-midrecap-card" },
+          React.createElement("div", { className: "tn-midrecap-eyebrow" }, "\u25D0  \u041F\u043E\u043B\u043E\u0432\u0438\u043D\u0430 \u043F\u0430\u0440\u0442\u0438\u0438"),
+          React.createElement("div", { className: "tn-midrecap-progress" }, qOverall, " / ", totalOverall),
+          React.createElement("div", { className: "tn-midrecap-lead" }, leadText),
+          React.createElement(
+            "div",
+            { className: "tn-midrecap-row" },
+            React.createElement(
+              "div",
+              { className: "tn-midrecap-stat" },
+              React.createElement("div", { className: "tn-midrecap-stat-label" }, "\u2726 \u0411\u0443\u0441\u0438\u043D\u044B"),
+              React.createElement("div", { className: "tn-midrecap-stat-value" }, "+", totalBusey)
+            ),
+            streakPeak >= 3 && React.createElement(
+              "div",
+              { className: "tn-midrecap-stat" },
+              React.createElement("div", { className: "tn-midrecap-stat-label" }, "\u{1F525} \u0421\u0435\u0440\u0438\u044F"),
+              React.createElement("div", { className: "tn-midrecap-stat-value" }, streakPeak, " \u043F\u043E\u0434\u0440\u044F\u0434")
+            )
+          ),
+          themesArr.length >= 2 && React.createElement(
+            "div",
+            { className: "tn-midrecap-themes" },
+            bestTheme && bestTheme.c > 0 && React.createElement(
+              "div",
+              { className: "tn-midrecap-theme tn-midrecap-theme-best" },
+              React.createElement("span", { className: "tn-midrecap-theme-icon" }, "\u{1F7E2}"),
+              React.createElement("span", { className: "tn-midrecap-theme-name" }, bestTheme.name),
+              React.createElement("span", { className: "tn-midrecap-theme-stat" }, bestTheme.c, "/", bestTheme.t)
+            ),
+            worstTheme && worstTheme.pct < 1 && worstTheme !== bestTheme && React.createElement(
+              "div",
+              { className: "tn-midrecap-theme tn-midrecap-theme-worst" },
+              React.createElement("span", { className: "tn-midrecap-theme-icon" }, worstTheme.c === 0 ? "\u{1F534}" : "\u{1F7E1}"),
+              React.createElement("span", { className: "tn-midrecap-theme-name" }, worstTheme.name),
+              React.createElement("span", { className: "tn-midrecap-theme-stat" }, worstTheme.c, "/", worstTheme.t)
+            )
+          ),
+          React.createElement("button", {
+            className: "tn-midrecap-btn",
+            onClick: onContinue,
+            type: "button",
+            autoFocus: true
+          }, "\u0414\u0430\u043B\u044C\u0448\u0435 \u2192"),
+          React.createElement("div", { className: "tn-midrecap-hint" }, "\u0438\u043B\u0438 \u043F\u043E\u0434\u043E\u0436\u0434\u0438 4 \u0441\u0435\u043A")
+        )
+      )
+    );
+  }
+  function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, roundsTotal, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswersRef, streak, streakMultiplier }) {
     const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
     const [chosen, setChosen] = useState(null);
     const startedAt = useRef(Date.now());
@@ -18437,7 +19134,9 @@ window.YasnaCore = {
             playerCorrect: playerCorrect2,
             playerTime,
             oppCorrect: oppData.correct,
-            oppTime: oppData.time
+            oppTime: oppData.time,
+            oppBusey: oppData.busey
+            // ← пересчитанный соперником на его стороне
           });
         } else {
           setTimeout(tryAdvance, 150);
@@ -18445,15 +19144,30 @@ window.YasnaCore = {
       }
       setTimeout(tryAdvance, SHOW_FEEDBACK_MS);
     }
+    function computeMyBusey(playerCorrect2, playerTime) {
+      if (!playerCorrect2) return 0;
+      const newStreak = streak + 1;
+      const mult = streakMultiplier(newStreak);
+      return Math.round(buseyForCorrect(playerTime) * mult);
+    }
+    function sendOppAnswer(correct, time) {
+      if (!isPvP || !transport) return;
+      try {
+        transport.send({
+          t: "opp-answer",
+          correct,
+          time,
+          qId: q.id,
+          busey: computeMyBusey(correct, time)
+          // ← пересчитанный с моим streak
+        });
+      } catch (_) {
+      }
+    }
     function handleTimeout() {
       if (chosen != null || answeredRef.current) return;
       setChosen(-1);
-      if (isPvP && transport) {
-        try {
-          transport.send({ t: "opp-answer", correct: false, time: QUESTION_TIME * 1e3, qId: q.id });
-        } catch (_) {
-        }
-      }
+      sendOppAnswer(false, QUESTION_TIME * 1e3);
       waitForOppAndAdvance(false, QUESTION_TIME * 1e3, true);
     }
     function pick(idx) {
@@ -18461,17 +19175,73 @@ window.YasnaCore = {
       setChosen(idx);
       const playerTime = Date.now() - startedAt.current;
       const playerCorrect2 = idx === q.correct;
-      if (isPvP && transport) {
-        try {
-          transport.send({ t: "opp-answer", correct: playerCorrect2, time: playerTime, qId: q.id });
-        } catch (_) {
-        }
+      sendOppAnswer(playerCorrect2, playerTime);
+      waitForOppAndAdvance(playerCorrect2, playerTime, false);
+    }
+    function pickFill(text) {
+      if (chosen != null || answeredRef.current) return;
+      const acceptable = [q.correct, ...q.alternatives || []].map(
+        (s) => String(s || "").toLowerCase().trim().replace(/ё/g, "\u0435").replace(/[.,!?;:"'()\[\]]/g, "").replace(/\s+/g, " ")
+      );
+      const normalized = String(text || "").toLowerCase().trim().replace(/ё/g, "\u0435").replace(/[.,!?;:"'()\[\]]/g, "").replace(/\s+/g, " ");
+      const playerCorrect2 = acceptable.includes(normalized);
+      setChosen(text);
+      const playerTime = Date.now() - startedAt.current;
+      sendOppAnswer(playerCorrect2, playerTime);
+      waitForOppAndAdvance(playerCorrect2, playerTime, false);
+    }
+    function pickMulti(idxs) {
+      if (chosen != null || answeredRef.current) return;
+      const correctSorted = [...q.correct || []].sort();
+      const pickedSorted = [...idxs].sort();
+      const playerCorrect2 = correctSorted.length === pickedSorted.length && correctSorted.every((v, i) => v === pickedSorted[i]);
+      setChosen(idxs);
+      const playerTime = Date.now() - startedAt.current;
+      sendOppAnswer(playerCorrect2, playerTime);
+      waitForOppAndAdvance(playerCorrect2, playerTime, false);
+    }
+    function pickMatch(matches) {
+      if (chosen != null || answeredRef.current) return;
+      const total = (q.pairsLeft || []).length;
+      let correctCount = 0;
+      for (let i = 0; i < total; i++) {
+        if (matches[i] === i) correctCount++;
       }
+      const playerCorrect2 = correctCount === total;
+      setChosen(matches);
+      const playerTime = Date.now() - startedAt.current;
+      sendOppAnswer(playerCorrect2, playerTime);
       waitForOppAndAdvance(playerCorrect2, playerTime, false);
     }
     const showFeedback = chosen != null;
-    const playerCorrect = chosen === q.correct;
-    const feedbackKind = chosen === -1 ? "timeout" : playerCorrect ? "correct" : "wrong";
+    const qType = q.type || "single-choice";
+    let playerCorrect, feedbackKind;
+    if (qType === "fill-blank") {
+      const acceptable = [q.correct, ...q.alternatives || []].map(
+        (s) => String(s || "").toLowerCase().trim().replace(/ё/g, "\u0435").replace(/[.,!?;:"'()\[\]]/g, "").replace(/\s+/g, " ")
+      );
+      const normalized = String(chosen || "").toLowerCase().trim().replace(/ё/g, "\u0435").replace(/[.,!?;:"'()\[\]]/g, "").replace(/\s+/g, " ");
+      playerCorrect = chosen != null && acceptable.includes(normalized);
+      feedbackKind = chosen == null ? "timeout" : playerCorrect ? "correct" : "wrong";
+    } else if (qType === "multi-choice") {
+      const correctSorted = [...q.correct || []].sort();
+      const pickedSorted = chosen ? [...chosen].sort() : [];
+      playerCorrect = chosen != null && correctSorted.length === pickedSorted.length && correctSorted.every((v, i) => v === pickedSorted[i]);
+      feedbackKind = chosen == null ? "timeout" : playerCorrect ? "correct" : "wrong";
+    } else if (qType === "match-pair") {
+      const total = (q.pairsLeft || []).length;
+      let cc = 0;
+      if (chosen) {
+        for (let i = 0; i < total; i++) {
+          if (chosen[i] === i) cc++;
+        }
+      }
+      playerCorrect = cc === total && chosen != null;
+      feedbackKind = chosen == null ? "timeout" : playerCorrect ? "correct" : "wrong";
+    } else {
+      playerCorrect = chosen === q.correct;
+      feedbackKind = chosen === -1 ? "timeout" : playerCorrect ? "correct" : "wrong";
+    }
     const playerBusey = playerCorrect ? buseyForCorrect(Date.now() - startedAt.current) : 0;
     return React.createElement(
       "div",
@@ -18479,7 +19249,7 @@ window.YasnaCore = {
       React.createElement(
         "div",
         { className: "tn-container" },
-        React.createElement(TnTopBar, { eyebrow: "\u041F\u0430\u0440\u0442\u0438\u044F \xB7 \u0420\u0430\u0443\u043D\u0434 " + roundNum + " / 6" }),
+        React.createElement(TnTopBar, { eyebrow: "\u041F\u0430\u0440\u0442\u0438\u044F \xB7 \u0420\u0430\u0443\u043D\u0434 " + roundNum + " / " + (roundsTotal || 6) }),
         React.createElement(TnGameProgress, { qOverall, totalOverall }),
         React.createElement(TnVsHeader, { player, scoreP, opponent, scoreO }),
         React.createElement(TnTimerBar, { timeLeft, paused: showFeedback }),
@@ -18489,16 +19259,51 @@ window.YasnaCore = {
           themeName: theme.name,
           text: q.text,
           timeLeft,
-          showFeedback
+          showFeedback,
+          qType
         }),
-        React.createElement(TnOptions, {
+        // ─── Роутер по типу вопроса ───
+        qType === "true-false" && React.createElement(TnTrueFalse, {
+          chosen,
+          correctIdx: q.correct,
+          showFeedback,
+          onPick: pick
+        }),
+        qType === "fill-blank" && React.createElement(TnFillBlank, {
+          correct: q.correct,
+          alternatives: q.alternatives,
+          chosen,
+          showFeedback,
+          onSubmit: pickFill
+        }),
+        qType === "multi-choice" && React.createElement(TnMultiChoice, {
+          options: q.options,
+          correctIdxs: q.correct,
+          chosen,
+          showFeedback,
+          onSubmit: pickMulti
+        }),
+        qType === "match-pair" && React.createElement(TnMatchPair, {
+          pairsLeft: q.pairsLeft,
+          pairsRight: q.pairsRight,
+          correct: q.correct,
+          chosen,
+          showFeedback,
+          onSubmit: pickMatch
+        }),
+        (qType === "single-choice" || !qType) && React.createElement(TnOptions, {
           options: q.options,
           chosen,
           correctIdx: q.correct,
           showFeedback,
           onPick: pick
         }),
-        showFeedback && React.createElement(TnFeedbackBanner, { kind: feedbackKind, busey: playerBusey }),
+        showFeedback && React.createElement(TnFeedbackBanner, {
+          kind: feedbackKind,
+          busey: playerBusey,
+          streak: feedbackKind === "correct" ? (streak || 0) + 1 : feedbackKind === "wrong" ? 0 : streak || 0,
+          mult: streakMultiplier ? streakMultiplier((streak || 0) + 1) : 1
+        }),
         !showFeedback && React.createElement(
           "div",
           { className: "tn-foot" },
@@ -18590,13 +19395,139 @@ window.YasnaCore = {
     return React.createElement(
       "div",
       { className: "tn-final-archive" },
-      React.createElement("div", { className: "tn-final-archive-eyebrow" }, "\u2637  \u041F\u0430\u0440\u0442\u0438\u044F \u0437\u0430\u043F\u0438\u0441\u0430\u043D\u0430 \u0432"),
+      // ─── Light: оригинальный список, скрыт в Dark ───
+      React.createElement(
+        "div",
+        { className: "vk-light-only" },
+        React.createElement("div", { className: "tn-final-archive-eyebrow" }, "\u2637  \u041F\u0430\u0440\u0442\u0438\u044F \u0437\u0430\u043F\u0438\u0441\u0430\u043D\u0430 \u0432"),
+        React.createElement(
+          "ul",
+          { className: "tn-final-archive-list" },
+          React.createElement("li", null, React.createElement("strong", null, "\u0425\u0440\u043E\u043D\u0438\u043A\u0443"), " \u2014 \u0441\u043F\u0438\u0441\u043E\u043A \u0442\u0432\u043E\u0438\u0445 \u043F\u0430\u0440\u0442\u0438\u0439"),
+          React.createElement("li", null, React.createElement("strong", null, "\u0414\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F"), " \u2014 \u043E\u0442\u043A\u0440\u044B\u0442\u044B \u0437\u0432\u0430\u043D\u0438\u044F \u0438 \u0441\u0435\u0440\u0438\u0438"),
+          React.createElement("li", null, React.createElement("strong", null, "\u041F\u0430\u0440\u0442\u0438\u0442\u0443\u0440\u0443"), " \u2014 \u043C\u0430\u0441\u0442\u0435\u0440\u0441\u0442\u0432\u043E \u043F\u043E \u0442\u0435\u043C\u0430\u043C \u042F\u0441\u043D\u044B")
+        )
+      ),
+      // ─── Dark: VK-Scheme — куда уходит партия ───
+      React.createElement(
+        "div",
+        { className: "vk-scheme-block" },
+        React.createElement(
+          "div",
+          { className: "vk-scheme" },
+          React.createElement(
+            "div",
+            { className: "vk-scheme-canvas" },
+            React.createElement(
+              "div",
+              { className: "vk-scheme-header" },
+              React.createElement("h3", { className: "vk-scheme-header-title" }, "\u041F\u0430\u0440\u0442\u0438\u044F \u0437\u0430\u043F\u0438\u0441\u0430\u043D\u0430 \u0432 \u0442\u0440\u0438 \u043C\u0435\u0441\u0442\u0430"),
+              React.createElement("span", { className: "vk-scheme-tag vk-scheme-tag--mute" }, "\u2726  \u0438\u0442\u043E\u0433")
+            ),
+            React.createElement(
+              "ol",
+              { className: "vk-scheme-steps" },
+              React.createElement(
+                "li",
+                { className: "vk-scheme-step" },
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-num" },
+                  React.createElement("div", { className: "vk-scheme-num-inner" }, "01")
+                ),
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-desc" },
+                  React.createElement("div", { className: "vk-scheme-desc-title" }, "\u0425\u0440\u043E\u043D\u0438\u043A\u0430"),
+                  React.createElement("div", { className: "vk-scheme-desc-text" }, "\u0421\u043F\u0438\u0441\u043E\u043A \u0432\u0441\u0435\u0445 \u0442\u0432\u043E\u0438\u0445 \u043F\u0430\u0440\u0442\u0438\u0439 \u2014 \u043A\u0442\u043E, \u043A\u043E\u0433\u0434\u0430, \u0441\u043E \u0441\u0447\u0451\u0442\u043E\u043C")
+                )
+              ),
+              React.createElement(
+                "li",
+                { className: "vk-scheme-step" },
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-num" },
+                  React.createElement("div", { className: "vk-scheme-num-inner" }, "02")
+                ),
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-desc" },
+                  React.createElement("div", { className: "vk-scheme-desc-title" }, "\u0414\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F"),
+                  React.createElement("div", { className: "vk-scheme-desc-text" }, "\u041E\u0442\u043A\u0440\u044B\u0432\u0430\u044E\u0442\u0441\u044F \u0437\u0432\u0430\u043D\u0438\u044F \u0438 \u0441\u0435\u0440\u0438\u0438 \u2014 \u043E\u0442\u043C\u0435\u0442\u043A\u0438 \u0442\u0432\u043E\u0435\u0433\u043E \u043F\u0443\u0442\u0438")
+                )
+              ),
+              React.createElement(
+                "li",
+                { className: "vk-scheme-step" },
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-num" },
+                  React.createElement("div", { className: "vk-scheme-num-inner" }, "03")
+                ),
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-desc" },
+                  React.createElement("div", { className: "vk-scheme-desc-title" }, "\u041F\u0430\u0440\u0442\u0438\u0442\u0443\u0440\u0430"),
+                  React.createElement("div", { className: "vk-scheme-desc-text" }, "\u0420\u0430\u0441\u0442\u0451\u0442 \u043C\u0430\u0441\u0442\u0435\u0440\u0441\u0442\u0432\u043E \u043F\u043E \u0448\u0435\u0441\u0442\u0438 \u0442\u0435\u043C\u0430\u043C \u042F\u0441\u043D\u044B")
+                )
+              )
+            ),
+            React.createElement(
+              "div",
+              { className: "vk-scheme-foot" },
+              "\u041F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u0437\u0430\u0447\u0438\u0442\u044B\u0432\u0430\u0435\u0442\u0441\u044F \u0441\u0440\u0430\u0437\u0443 \u043F\u043E\u0441\u043B\u0435 \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u0438\u044F \u043F\u0430\u0440\u0442\u0438\u0438."
+            )
+          )
+        )
+      )
+    );
+  }
+  function TnFinalRecap({ partiyaLog }) {
+    const wrongs = partiyaLog.filter((r) => !r.playerCorrect);
+    const total = partiyaLog.length;
+    if (wrongs.length === 0) {
+      return React.createElement(
+        "div",
+        { className: "tn-final-recap tn-final-recap-perfect" },
+        React.createElement("div", { className: "tn-final-recap-eyebrow" }, "\u2726  \u0411\u0435\u0437\u0443\u043F\u0440\u0435\u0447\u043D\u043E"),
+        React.createElement("div", { className: "tn-final-recap-title" }, "\u0412\u0441\u0435 ", total, " \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u0432\u0435\u0440\u043D\u043E"),
+        React.createElement(
+          "div",
+          { className: "tn-final-recap-text" },
+          "\u0422\u044B \u043F\u0440\u043E\u0448\u0451\u043B \u043F\u0430\u0440\u0442\u0438\u044E \u0431\u0435\u0437 \u0435\u0434\u0438\u043D\u043E\u0439 \u043E\u0448\u0438\u0431\u043A\u0438. \u042D\u0442\u043E \u0440\u0435\u0434\u043A\u043E\u0441\u0442\u044C \u2014 \u0422\u0435\u043D\u044C \u043E\u0446\u0435\u043D\u0438\u043B\u0430."
+        )
+      );
+    }
+    return React.createElement(
+      "div",
+      { className: "tn-final-recap" },
+      React.createElement("div", { className: "tn-final-recap-eyebrow" }, "\u2637  \u0420\u0430\u0437\u0431\u043E\u0440 \xB7 ", wrongs.length, " \u043E\u0448\u0438\u0431", wrongs.length === 1 ? "\u043A\u0430" : wrongs.length < 5 ? "\u043A\u0438" : "\u043E\u043A"),
+      React.createElement("div", { className: "tn-final-recap-title" }, "\u0427\u0442\u043E \u0433\u043E\u0432\u043E\u0440\u0438\u0442 \u043A\u043D\u0438\u0433\u0430"),
       React.createElement(
         "ul",
-        { className: "tn-final-archive-list" },
-        React.createElement("li", null, React.createElement("strong", null, "\u0425\u0440\u043E\u043D\u0438\u043A\u0443"), " \u2014 \u0441\u043F\u0438\u0441\u043E\u043A \u0442\u0432\u043E\u0438\u0445 \u043F\u0430\u0440\u0442\u0438\u0439"),
-        React.createElement("li", null, React.createElement("strong", null, "\u0414\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F"), " \u2014 \u043E\u0442\u043A\u0440\u044B\u0442\u044B \u0437\u0432\u0430\u043D\u0438\u044F \u0438 \u0441\u0435\u0440\u0438\u0438"),
-        React.createElement("li", null, React.createElement("strong", null, "\u041F\u0430\u0440\u0442\u0438\u0442\u0443\u0440\u0443"), " \u2014 \u043C\u0430\u0441\u0442\u0435\u0440\u0441\u0442\u0432\u043E \u043F\u043E \u0442\u0435\u043C\u0430\u043C \u042F\u0441\u043D\u044B")
+        { className: "tn-final-recap-list" },
+        wrongs.map((r, i) => {
+          const correctText = r.qOptions && typeof r.qCorrect === "number" ? r.qOptions[r.qCorrect] : typeof r.qCorrect === "string" ? r.qCorrect : "\u2014";
+          return React.createElement(
+            "li",
+            { key: i, className: "tn-final-recap-item" },
+            React.createElement(
+              "div",
+              { className: "tn-final-recap-q" },
+              React.createElement("span", { className: "tn-final-recap-q-num" }, "\u2116", i + 1),
+              React.createElement("span", { className: "tn-final-recap-q-theme" }, r.themeName || r.themeId),
+              React.createElement("span", { className: "tn-final-recap-q-text" }, r.qText)
+            ),
+            React.createElement(
+              "div",
+              { className: "tn-final-recap-answer" },
+              React.createElement("span", { className: "tn-final-recap-answer-label" }, "\u041F\u0440\u0430\u0432\u0438\u043B\u044C\u043D\u043E: "),
+              React.createElement("strong", null, correctText)
+            ),
+            r.qHint && React.createElement("blockquote", { className: "tn-final-recap-quote" }, r.qHint)
+          );
+        })
       )
     );
   }
@@ -18641,6 +19572,25 @@ window.YasnaCore = {
       headline = isPvP ? "\u0421\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A \u043E\u0431\u043E\u0433\u043D\u0430\u043B." : "\u0422\u0435\u043D\u044C \u043E\u0431\u043E\u0433\u043D\u0430\u043B\u0430.";
       sub = "\u0412 \u0438\u0433\u0440\u0435 \u043D\u0435\u0442 \u043F\u0440\u043E\u0438\u0433\u0440\u0430\u0432\u0448\u0438\u0445 \u2014 \u0435\u0441\u0442\u044C \u0442\u0435, \u043A\u0442\u043E \u0437\u043D\u0430\u0435\u0442 \u0447\u0443\u0442\u044C \u043C\u0435\u043D\u044C\u0448\u0435. \u0417\u043D\u0430\u043A\u0438 \u043F\u043E\u043C\u043D\u044F\u0442 \u0442\u0432\u043E\u0439 \u043F\u0443\u0442\u044C. \u0417\u0430\u0432\u0442\u0440\u0430 \u2014 \u043D\u043E\u0432\u0430\u044F \u041F\u0430\u0440\u0442\u0438\u044F.";
     }
+    var disconnectMsg = oppDisconnected && React.createElement(
+      "div",
+      { className: "vk-scheme-block" },
+      React.createElement(
+        "div",
+        { className: "vk-sysmsg vk-sysmsg--warn" },
+        React.createElement("div", { className: "vk-sysmsg-icon", "aria-hidden": "true" }, "\u21AF"),
+        React.createElement(
+          "div",
+          { className: "vk-sysmsg-body" },
+          React.createElement("div", { className: "vk-sysmsg-title" }, "\u0421\u0432\u044F\u0437\u044C \u0441 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u043E\u043C \u043F\u0440\u0435\u0440\u0432\u0430\u043D\u0430"),
+          React.createElement(
+            "div",
+            { className: "vk-sysmsg-text" },
+            "\u041F\u0430\u0440\u0442\u0438\u044F \u043D\u0435 \u0437\u0430\u0441\u0447\u0438\u0442\u044B\u0432\u0430\u0435\u0442\u0441\u044F, \u0431\u0443\u0441\u0438\u043D\u044B \u043D\u0435 \u043D\u0430\u0447\u0438\u0441\u043B\u044F\u044E\u0442\u0441\u044F. \u041E\u0442\u043A\u0440\u043E\u0439 \u043A\u043E\u043C\u043D\u0430\u0442\u0443 \u0437\u0430\u043D\u043E\u0432\u043E \u0438\u043B\u0438 \u0441\u044B\u0433\u0440\u0430\u0439 \u0441 \u0422\u0435\u043D\u044C\u044E."
+          )
+        )
+      )
+    );
     return React.createElement(
       "div",
       { className: "tn-fullscreen" },
@@ -18652,6 +19602,7 @@ window.YasnaCore = {
           "div",
           { className: "tn-final" },
           React.createElement(TnFinalHeadline, { kind, headline, sub }),
+          disconnectMsg,
           !oppDisconnected && React.createElement(TnFinalVs, {
             playerName: player.nickname,
             scoreP,
@@ -18665,6 +19616,7 @@ window.YasnaCore = {
             avgTimeMs,
             totalBusey
           }),
+          !oppDisconnected && React.createElement(TnFinalRecap, { partiyaLog }),
           !oppDisconnected && React.createElement(TnFinalScoring, null),
           !oppDisconnected && React.createElement(TnFinalArchive, null),
           React.createElement(TnFinalActions, { onAgain, onClose })
@@ -18672,7 +19624,7 @@ window.YasnaCore = {
       )
     );
   }
-  function TurnirGame({ player, opponentLevel, onClose, opponentMode, transport, role, oppData }) {
+  function TurnirGame({ player, opponentLevel, onClose, opponentMode, transport, role, oppData, mode, selectedThemes }) {
     React.useEffect(() => {
       window.__tnOnClose = onClose;
       return () => {
@@ -18680,6 +19632,8 @@ window.YasnaCore = {
       };
     }, [onClose]);
     const isPvP = opponentMode === "pvp" && transport;
+    const partiyaMode = mode || "standard";
+    const themesFilter = selectedThemes || null;
     const opp = isPvP ? {
       name: (oppData == null ? void 0 : oppData.nickname) || "\u0421\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A",
       subtitle: "real-time",
@@ -18689,7 +19643,7 @@ window.YasnaCore = {
     const [phase, setPhase] = useState("vs");
     const [partiya, setPartiya] = useState(() => {
       if (!isPvP || role === "host") {
-        return window.YasnaTrivia.generatePartiya(Date.now());
+        return window.YasnaTrivia.generatePartiya(Date.now(), partiyaMode, themesFilter);
       }
       return null;
     });
@@ -18700,6 +19654,17 @@ window.YasnaCore = {
     const [totalBusey, setTotalBusey] = useState(0);
     const [partiyaLog, setPartiyaLog] = useState([]);
     const [oppDisconnected, setOppDisconnected] = useState(false);
+    const [streak, setStreak] = useState(0);
+    const [streakPeak, setStreakPeak] = useState(0);
+    function streakMultiplier(s) {
+      if (s >= 7) return 2;
+      if (s >= 5) return 1.5;
+      if (s >= 3) return 1.2;
+      return 1;
+    }
+    const [midRecapShown, setMidRecapShown] = useState(false);
+    const [playerReady, setPlayerReady] = useState(false);
+    const [oppReady, setOppReady] = useState(false);
     const oppAnswersRef = useRef({});
     useEffect(() => {
       if (!isPvP || !transport) return;
@@ -18715,24 +19680,38 @@ window.YasnaCore = {
         }
         if (msg.t === "opp-answer") {
           if (msg.qId) {
-            oppAnswersRef.current[msg.qId] = { correct: msg.correct, time: msg.time };
+            oppAnswersRef.current[msg.qId] = {
+              correct: msg.correct,
+              time: msg.time,
+              busey: msg.busey
+              // может быть undefined для старых клиентов
+            };
           }
         }
         if (msg.t === "opp-leave") {
           setOppDisconnected(true);
         }
+        if (msg.t === "ready") {
+          setOppReady(true);
+        }
       });
       if (role === "host" && partiya) {
         const seed = Date.now();
-        const newPartiya = window.YasnaTrivia.generatePartiya(seed);
+        const newPartiya = window.YasnaTrivia.generatePartiya(seed, partiyaMode, themesFilter);
         setPartiya(newPartiya);
-        transport.send({ t: "partiya-init", seed, partiya: newPartiya.map((r) => ({
+        transport.send({ t: "partiya-init", seed, mode: partiyaMode, partiya: newPartiya.map((r) => ({
           theme: { id: r.theme.id, name: r.theme.name },
           questions: r.questions.map((q) => q.id)
         })) });
       }
       return off;
     }, [isPvP, transport, role]);
+    React.useEffect(() => {
+      if (phase === "preview" && playerReady && oppReady) {
+        const t = setTimeout(() => setPhase("intro"), 800);
+        return () => clearTimeout(t);
+      }
+    }, [phase, playerReady, oppReady]);
     if (isPvP && role === "guest" && !partiya) {
       return React.createElement(
         "div",
@@ -18757,20 +19736,31 @@ window.YasnaCore = {
     const qOverall = partiya.slice(0, roundIdx).reduce((sum, r) => sum + r.questions.length, 0) + qIdx;
     function onAnswer(result) {
       let dp = 0, doO = 0, dB = 0;
+      const newStreak = result.playerCorrect ? streak + 1 : 0;
+      const mult = streakMultiplier(newStreak);
       if (result.playerCorrect) {
         const b = buseyForCorrect(result.playerTime);
-        dp = b;
-        dB = 5 + Math.floor(b / 4);
+        dp = Math.round(b * mult);
+        dB = Math.round((5 + Math.floor(b / 4)) * mult);
       }
       if (result.oppCorrect) {
-        doO = buseyForCorrect(result.oppTime);
+        doO = result.oppBusey != null ? result.oppBusey : buseyForCorrect(result.oppTime);
       }
       const newScoreP = scoreP + dp;
       const newScoreO = scoreO + doO;
       const newBusey = totalBusey + dB;
+      setStreak(newStreak);
+      if (newStreak > streakPeak) setStreakPeak(newStreak);
       const logEntry = {
         themeId: currentRound.theme.id,
+        themeName: currentRound.theme.name,
         qId: currentQ.id,
+        qText: currentQ.text,
+        qOptions: currentQ.options,
+        qCorrect: currentQ.correct,
+        qHint: currentQ.hint,
+        // explanation.quote из контента
+        qType: currentQ.type || "single-choice",
         playerCorrect: result.playerCorrect,
         oppCorrect: result.oppCorrect,
         playerTime: result.playerTime
@@ -18780,7 +19770,12 @@ window.YasnaCore = {
       setScoreO(newScoreO);
       setTotalBusey(newBusey);
       setPartiyaLog(newLog);
-      if (qIdx < currentRound.questions.length - 1) {
+      const halfMark = Math.floor(totalOverall / 2);
+      const needMidRecap = !midRecapShown && newLog.length === halfMark && newLog.length < totalOverall && totalOverall >= 10;
+      if (needMidRecap) {
+        setMidRecapShown(true);
+        setPhase("midrecap");
+      } else if (qIdx < currentRound.questions.length - 1) {
         setQIdx(qIdx + 1);
       } else if (roundIdx < partiya.length - 1) {
         setRoundIdx(roundIdx + 1);
@@ -18888,12 +19883,51 @@ window.YasnaCore = {
     function startAgain() {
       onClose();
     }
+    function onPlayerReady() {
+      setPlayerReady(true);
+      if (isPvP && transport) {
+        try {
+          transport.send({ t: "ready" });
+        } catch (_) {
+        }
+      }
+    }
     if (phase === "vs") {
       return React.createElement(VsScreen, {
         player,
         opponent: { name: opp.name, subtitle: opp.level === "easy" ? "\u041B\u0451\u0433\u043A\u0430\u044F" : opp.level === "hard" ? "\u0421\u0438\u043B\u044C\u043D\u0430\u044F" : "\u0421\u0440\u0435\u0434\u043D\u044F\u044F" },
         themes: partiya,
-        onReady: () => setPhase("intro")
+        // Для PvP идём в preview (оба нажмут «Готов»). Для shadow — сразу в intro.
+        onReady: () => setPhase(isPvP && partiya ? "preview" : "intro")
+      });
+    }
+    if (phase === "preview") {
+      if (!partiya) return React.createElement(
+        "div",
+        { className: "tn-fullscreen" },
+        React.createElement(
+          "div",
+          { className: "tn-container" },
+          React.createElement(
+            "div",
+            { className: "tn-prematch-card", style: { textAlign: "center", padding: "40px 24px" } },
+            React.createElement("div", { style: { fontSize: 32, marginBottom: 16, opacity: 0.6 } }, "\u25F7"),
+            React.createElement("div", null, "\u0416\u0434\u0451\u043C \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0443 \u043F\u0430\u0440\u0442\u0438\u0438 \u043E\u0442 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430\u2026")
+          )
+        )
+      );
+      return React.createElement(TnPreMatch, {
+        player,
+        opponent: opp,
+        partiya,
+        mode: partiyaMode,
+        playerReady,
+        oppReady,
+        onReady: onPlayerReady,
+        onForceStart: () => setPhase("intro"),
+        // на 60-сек если opp не отвечает
+        transport,
+        isPvP
       });
     }
     if (phase === "intro") {
@@ -18905,23 +19939,89 @@ window.YasnaCore = {
       });
     }
     if (phase === "question") {
-      return React.createElement(Question, {
-        key: "q-" + roundIdx + "-" + qIdx,
-        q: currentQ,
-        theme: currentRound.theme,
-        qIndex: qIdx,
-        totalInRound: currentRound.questions.length,
-        qOverall,
+      if (!currentQ) {
+        const skip = () => onAnswer({
+          playerCorrect: false,
+          playerTime: QUESTION_TIME * 1e3,
+          oppCorrect: false,
+          oppTime: QUESTION_TIME * 1e3,
+          oppBusey: 0
+        });
+        setTimeout(skip, 100);
+        return React.createElement(
+          "div",
+          { className: "tn-fullscreen" },
+          React.createElement(
+            "div",
+            { className: "tn-container" },
+            React.createElement(
+              "div",
+              { style: { padding: 60, textAlign: "center", color: "#86868b" } },
+              "\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430\u2026"
+            )
+          )
+        );
+      }
+      const onSkip = () => onAnswer({
+        playerCorrect: false,
+        playerTime: QUESTION_TIME * 1e3,
+        oppCorrect: false,
+        oppTime: QUESTION_TIME * 1e3,
+        oppBusey: 0
+      });
+      return React.createElement(
+        QuestionErrorBoundary,
+        {
+          key: "qb-" + roundIdx + "-" + qIdx,
+          onSkip
+        },
+        React.createElement(Question, {
+          key: "q-" + roundIdx + "-" + qIdx,
+          q: currentQ,
+          theme: currentRound.theme,
+          qIndex: qIdx,
+          totalInRound: currentRound.questions.length,
+          qOverall,
+          totalOverall,
+          roundNum: roundIdx + 1,
+          roundsTotal: partiya.length,
+          scoreP,
+          scoreO,
+          player,
+          opponent: { name: opp.name, level: opponentLevel || "medium" },
+          onAnswer,
+          isPvP,
+          transport,
+          oppAnswersRef,
+          streak,
+          streakMultiplier
+        })
+      );
+    }
+    if (phase === "midrecap") {
+      const handleContinue = () => {
+        if (qIdx < currentRound.questions.length - 1) {
+          setQIdx(qIdx + 1);
+          setPhase("question");
+        } else if (roundIdx < partiya.length - 1) {
+          setRoundIdx(roundIdx + 1);
+          setQIdx(0);
+          setPhase("intro");
+        } else {
+          setPhase("question");
+        }
+      };
+      return React.createElement(TnMidRecap, {
+        qOverall: partiyaLog.length,
         totalOverall,
-        roundNum: roundIdx + 1,
         scoreP,
         scoreO,
+        totalBusey,
+        streakPeak,
+        partiyaLog,
         player,
-        opponent: { name: opp.name, level: opponentLevel || "medium" },
-        onAnswer,
-        isPvP,
-        transport,
-        oppAnswersRef
+        opponent: opp,
+        onContinue: handleContinue
       });
     }
     if (phase === "final") {
@@ -19282,6 +20382,26 @@ window.YasnaCore = {
     tabIndex: 0,
     "data-tip": tip
   }, label);
+  function VkSysMsg({ kind = "info", size = "m", icon = "\u2699", title, text, action }) {
+    const cls = ["vk-sysmsg", "vk-sysmsg--" + kind];
+    if (size === "s") cls.push("vk-sysmsg--s");
+    return React.createElement(
+      "div",
+      { className: cls.join(" "), role: "status" },
+      React.createElement("div", { className: "vk-sysmsg-icon", "aria-hidden": "true" }, icon),
+      React.createElement(
+        "div",
+        { className: "vk-sysmsg-body" },
+        title && React.createElement("div", { className: "vk-sysmsg-title" }, title),
+        text && React.createElement("div", { className: "vk-sysmsg-text" }, text)
+      ),
+      action && React.createElement("button", {
+        type: "button",
+        onClick: action.onClick,
+        className: "vk-sysmsg-action" + (action.variant === "accent" ? " vk-sysmsg-action--accent" : "")
+      }, action.label)
+    );
+  }
   function avatarInitials(name) {
     if (!name) return "\xB7";
     const t = String(name).trim();
@@ -19350,9 +20470,9 @@ window.YasnaCore = {
       React.createElement(
         "nav",
         { className: "dp-header-nav" },
-        React.createElement("a", { href: "#hronika", onClick: onAnchorClick("hronika") }, "\u0425\u0440\u043E\u043D\u0438\u043A\u0430"),
+        React.createElement("a", { href: "#hronika", onClick: onAnchorClick("hronika") }, "\u0422\u043E\u043F \u043D\u0435\u0434\u0435\u043B\u0438"),
         React.createElement("a", { href: "#zhurnal", onClick: onAnchorClick("zhurnal") }, "\u0416\u0443\u0440\u043D\u0430\u043B"),
-        React.createElement("a", { href: "#znaki", onClick: onAnchorClick("znaki") }, "\u0417\u043D\u0430\u043A\u0438"),
+        React.createElement("a", { href: "#znaki", onClick: onAnchorClick("znaki") }, "\u0414\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F"),
         React.createElement(
           "div",
           { className: "dp-header-auth", ref: helpRef, style: { position: "relative" } },
@@ -19365,15 +20485,15 @@ window.YasnaCore = {
           helpOpen && React.createElement(
             "div",
             { className: "dp-help-popover" },
-            React.createElement("h4", null, "\u0422\u0440\u0435\u043D\u0430\u0436\u0451\u0440 \u042F\u0441\u043D\u044B"),
-            React.createElement("div", null, "\u0422\u0438\u0445\u043E\u0435 \u043C\u0435\u0441\u0442\u043E, \u0433\u0434\u0435 \u0438\u0433\u0440\u0430\u044E\u0442 \u0432 \u0431\u0438\u0441\u0435\u0440. \u041F\u0430\u0440\u0442\u0438\u044F \u2014 \u0432\u043E\u0441\u0435\u043C\u043D\u0430\u0434\u0446\u0430\u0442\u044C \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u0438\u0437 \u0448\u0435\u0441\u0442\u0438 \u0441\u043B\u0443\u0447\u0430\u0439\u043D\u044B\u0445 \u0442\u0435\u043C. \u0421\u043E\u043F\u0435\u0440\u043D\u0438\u043A \u2014 \u0422\u0435\u043D\u044C \u0438\u043B\u0438 \u0436\u0438\u0432\u043E\u0439 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A."),
+            React.createElement("h4", null, "\u041A\u0430\u043A \u044D\u0442\u043E \u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442"),
+            React.createElement("div", null, "\u041F\u0430\u0440\u0442\u0438\u044F \u2014 \u0438\u0433\u0440\u043E\u0432\u0430\u044F \u0432\u0438\u043A\u0442\u043E\u0440\u0438\u043D\u0430 \u043F\u043E \u043C\u043E\u0434\u0435\u043B\u0438 \u042F\u0441\u043D\u044B \u0421\u0443\u0442\u043E\u043A. \u0412\u044B\u0431\u0438\u0440\u0430\u0435\u0448\u044C \u0434\u043B\u0438\u043D\u0443 (\u0411\u043B\u0438\u0446 10 / \u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442 18 / \u042D\u043A\u0441\u043F\u0435\u0440\u0442 30) \u0438 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u0430 (\u0422\u0435\u043D\u044C-\u0431\u043E\u0442 \u0438\u043B\u0438 \u0436\u0438\u0432\u043E\u0439 \u0434\u0440\u0443\u0433). 5 \u0442\u0438\u043F\u043E\u0432 \u0437\u0430\u0434\u0430\u043D\u0438\u0439, \u0440\u0430\u0437\u0431\u043E\u0440 \u043E\u0448\u0438\u0431\u043E\u043A \u0441 \u0446\u0438\u0442\u0430\u0442\u0430\u043C\u0438 \u0438\u0437 \u043A\u043D\u0438\u0433\u0438 \u0432 \u0444\u0438\u043D\u0430\u043B\u0435."),
             React.createElement(
               "ul",
               null,
-              React.createElement("li", null, React.createElement("strong", null, "\u0411\u0443\u0441\u0438\u043D\u044B \u2726"), " \u2014 \u0442\u0432\u043E\u0438 \u043E\u0447\u043A\u0438. \u0417\u0430 \u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 + \u0431\u043E\u043D\u0443\u0441 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438."),
-              React.createElement("li", null, React.createElement("strong", null, "\u0421\u0442\u0443\u043F\u0435\u043D\u044C"), " \u2014 \u043E\u0442 \u041F\u043E\u0441\u043B\u0443\u0448\u043D\u0438\u043A\u0430 \u0434\u043E \u041C\u0430\u0433\u0438\u0441\u0442\u0440\u0430."),
-              React.createElement("li", null, React.createElement("strong", null, "\u041E\u0441\u0432\u043E\u0435\u043D\u0438\u0435 \u0442\u0435\u043C"), " \u2014 \u043A\u0430\u0440\u0442\u0430 9 \u0442\u0435\u043C \u043C\u043E\u0434\u0435\u043B\u0438 \xAB\u0421\u0443\u0442\u043A\u0438\xBB \u0441 \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441\u043E\u043C."),
-              React.createElement("li", null, React.createElement("strong", null, "\u0425\u0440\u043E\u043D\u0438\u043A\u0430"), " \u2014 \u0442\u043E\u043F \u0438\u0433\u0440\u043E\u043A\u043E\u0432 \u043D\u0435\u0434\u0435\u043B\u0438.")
+              React.createElement("li", null, React.createElement("strong", null, "\u0411\u0443\u0441\u0438\u043D\u044B \u2726"), " \u2014 \u043E\u0447\u043A\u0438 \u0437\u0430 \u043F\u0430\u0440\u0442\u0438\u0438. +10 \u0437\u0430 \u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442, +5 \u0431\u043E\u043D\u0443\u0441 \u0437\u0430 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u044C, \xD71.2\u2026\xD72.0 \u043C\u043D\u043E\u0436\u0438\u0442\u0435\u043B\u044C \u0437\u0430 \u0441\u0435\u0440\u0438\u044E."),
+              React.createElement("li", null, React.createElement("strong", null, "\u0421\u0442\u0443\u043F\u0435\u043D\u044C"), " \u2014 \u0442\u0432\u043E\u0439 \u0443\u0440\u043E\u0432\u0435\u043D\u044C. \u0420\u0430\u0441\u0442\u0451\u0442 \u043F\u043E \u0431\u0443\u0441\u0438\u043D\u0430\u043C: \u043E\u0442 \u041F\u043E\u0441\u043B\u0443\u0448\u043D\u0438\u043A\u0430 \u0434\u043E \u041C\u0430\u0433\u0438\u0441\u0442\u0440\u0430."),
+              React.createElement("li", null, React.createElement("strong", null, "\u041E\u0441\u0432\u043E\u0435\u043D\u0438\u0435 \u0442\u0435\u043C"), " \u2014 \u043A\u0430\u0440\u0442\u0430 9 \u0442\u0435\u043C \xAB\u042F\u0441\u043D\u044B \u0421\u0443\u0442\u043E\u043A\xBB \u0441 \u0442\u0432\u043E\u0438\u043C \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441\u043E\u043C."),
+              React.createElement("li", null, React.createElement("strong", null, "\u0422\u043E\u043F \u043D\u0435\u0434\u0435\u043B\u0438"), " \u2014 \u043B\u0438\u0434\u0435\u0440\u0431\u043E\u0440\u0434 \u043F\u043E \u0431\u0443\u0441\u0438\u043D\u0430\u043C, \u043E\u0431\u043D\u0443\u043B\u044F\u0435\u0442\u0441\u044F \u0432 \u0441\u0443\u0431\u0431\u043E\u0442\u0443 23:59.")
             )
           ),
           user ? React.createElement("button", { className: "dp-btn-text", onClick: onLogout, style: { marginLeft: 6 } }, "\u0412\u044B\u0439\u0442\u0438") : React.createElement("button", {
@@ -19381,6 +20501,45 @@ window.YasnaCore = {
             onClick: onLoginClick,
             style: { padding: "8px 16px", fontSize: 13, marginLeft: 6 }
           }, "\u0412\u043E\u0439\u0442\u0438")
+        )
+      )
+    );
+  }
+  function DPHeroCTA({ onPartiya, onUzor }) {
+    return React.createElement(
+      "div",
+      { className: "vk-scheme-block dp-hero-cta-row" },
+      React.createElement(
+        "button",
+        {
+          className: "dp-hero-cta-btn dp-hero-cta-btn--primary",
+          onClick: onPartiya,
+          type: "button",
+          "aria-label": "\u041D\u0430\u0447\u0430\u0442\u044C \u043F\u0430\u0440\u0442\u0438\u044E"
+        },
+        React.createElement("span", { className: "dp-hero-cta-icon", "aria-hidden": "true" }, "\u25B6"),
+        React.createElement(
+          "span",
+          { className: "dp-hero-cta-body" },
+          React.createElement("span", { className: "dp-hero-cta-title" }, "\u0418\u0433\u0440\u0430\u0442\u044C \u041F\u0430\u0440\u0442\u0438\u044E"),
+          React.createElement("span", { className: "dp-hero-cta-sub" }, "\u0412\u044B\u0431\u043E\u0440: \u0411\u043B\u0438\u0446 10 \xB7 \u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442 18 \xB7 \u042D\u043A\u0441\u043F\u0435\u0440\u0442 30")
+        )
+      ),
+      React.createElement(
+        "button",
+        {
+          className: "dp-hero-cta-btn dp-hero-cta-btn--ghost",
+          onClick: onUzor,
+          type: "button",
+          disabled: true,
+          title: "\u0418\u0433\u0440\u0430 \u0432 \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0435"
+        },
+        React.createElement("span", { className: "dp-hero-cta-icon", "aria-hidden": "true" }, "\u25F7"),
+        React.createElement(
+          "span",
+          { className: "dp-hero-cta-body" },
+          React.createElement("span", { className: "dp-hero-cta-title" }, "\u0420\u0430\u0441\u043A\u043B\u0430\u0434"),
+          React.createElement("span", { className: "dp-hero-cta-sub" }, "PvP \xB7 \u0441\u043A\u043E\u0440\u043E")
         )
       )
     );
@@ -19393,9 +20552,9 @@ window.YasnaCore = {
       React.createElement(
         "h1",
         { className: "dp-castalia-h1" },
-        React.createElement("span", null, "\u042F\u0441\u043D\u0430."),
+        React.createElement("span", null, "\u042F\u0441\u043D\u0430 \u2014"),
         React.createElement("br"),
-        React.createElement("span", null, "\u041F\u0430\u0440\u0442\u0438\u044F \u0437\u0430 \u043F\u0430\u0440\u0442\u0438\u0435\u0439.")
+        React.createElement("span", null, "\u043C\u0430\u0441\u0442\u0435\u0440\u0441\u0442\u0432\u043E \u0432 \u0438\u0433\u0440\u0435.")
       )
     );
   }
@@ -19404,11 +20563,11 @@ window.YasnaCore = {
       "section",
       { className: "dp-welcome", role: "region", "aria-label": "\u041F\u0440\u0438\u0432\u0435\u0442\u0441\u0442\u0432\u0438\u0435" },
       React.createElement("div", { className: "dp-welcome-eyebrow" }, "\u2726  \u0422\u0440\u0435\u043D\u0430\u0436\u0451\u0440 \u042F\u0441\u043D\u044B"),
-      React.createElement("h1", { className: "dp-welcome-title" }, "\u042F\u0441\u043D\u0430.", React.createElement("br"), "\u041F\u0430\u0440\u0442\u0438\u044F \u0437\u0430 \u043F\u0430\u0440\u0442\u0438\u0435\u0439."),
+      React.createElement("h1", { className: "dp-welcome-title" }, "\u042F\u0441\u043D\u0430 \u2014", React.createElement("br"), "\u043C\u0430\u0441\u0442\u0435\u0440\u0441\u0442\u0432\u043E \u0432 \u0438\u0433\u0440\u0435."),
       React.createElement(
         "p",
         { className: "dp-welcome-sub" },
-        "\u0422\u0440\u0435\u043D\u0438\u0440\u0443\u0439 \u0437\u043D\u0430\u043D\u0438\u0435 \u043C\u043E\u0434\u0435\u043B\u0438 \u042F\u0441\u043D\u044B \u0447\u0435\u0440\u0435\u0437 \u043A\u043E\u0440\u043E\u0442\u043A\u0438\u0435 \u043F\u0430\u0440\u0442\u0438\u0438. 18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u0441 4 \u0432\u0430\u0440\u0438\u0430\u043D\u0442\u0430\u043C\u0438 \u043E\u0442\u0432\u0435\u0442\u0430. \u0428\u0435\u0441\u0442\u044C \u0442\u0435\u043C \u043F\u043E \u0442\u0440\u0438 \u0432\u043E\u043F\u0440\u043E\u0441\u0430. \u0421\u043E\u043F\u0435\u0440\u043D\u0438\u043A \u2014 \u0431\u043E\u0442 \u0438\u043B\u0438 \u0436\u0438\u0432\u043E\u0439 \u0434\u0440\u0443\u0433. \u0417\u0430 \u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 +10 \u0431\u0443\u0441\u0438\u043D, \u0437\u0430 \u0431\u044B\u0441\u0442\u0440\u044B\u0439 \u2014 \u0431\u043E\u043D\u0443\u0441 +5."
+        "\u0423\u0447\u0438\u0441\u044C \u043C\u043E\u0434\u0435\u043B\u0438 \u042F\u0441\u043D\u044B \u0421\u0443\u0442\u043E\u043A \u0447\u0435\u0440\u0435\u0437 \u0438\u0433\u0440\u043E\u0432\u044B\u0435 \u043F\u0430\u0440\u0442\u0438\u0438. 9 \u0442\u0435\u043C \xB7 124 \u0432\u043E\u043F\u0440\u043E\u0441\u0430 \xB7 5 \u0442\u0438\u043F\u043E\u0432 \u0437\u0430\u0434\u0430\u043D\u0438\u0439. \u0412\u044B\u0431\u0438\u0440\u0430\u0435\u0448\u044C \u0434\u043B\u0438\u043D\u0443 (\u0411\u043B\u0438\u0446 10 / \u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442 18 / \u042D\u043A\u0441\u043F\u0435\u0440\u0442 30) \u0438 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u0430 \u2014 \u0422\u0435\u043D\u044C-\u0431\u043E\u0442 \u0438\u043B\u0438 \u0436\u0438\u0432\u043E\u0439 \u0434\u0440\u0443\u0433 \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435. \u0417\u0430 \u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 \u2014 10 \u0431\u0443\u0441\u0438\u043D, \u0434\u043E +5 \u0437\u0430 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u044C, \u0441\u0435\u0440\u0438\u044F \u0438\u0437 3+ \u0432\u0435\u0440\u043D\u044B\u0445 \u0434\u0430\u0451\u0442 \u043C\u043D\u043E\u0436\u0438\u0442\u0435\u043B\u044C."
       ),
       React.createElement(
         "div",
@@ -19472,14 +20631,20 @@ window.YasnaCore = {
           "div",
           { className: "dp-hero-name-row" },
           React.createElement("span", { className: "dp-hero-name" }, me.nickname),
-          React.createElement("span", { className: "dp-hero-rank-pill" }, stupen.name, " ", toRoman(stupen.subLevel))
+          React.createElement("span", {
+            className: "dp-hero-rank-pill dp-tip",
+            "data-tip": "\u0421\u0442\u0443\u043F\u0435\u043D\u044C \u2014 \u0442\u0432\u043E\u0439 \u0443\u0440\u043E\u0432\u0435\u043D\u044C. \u0427\u0435\u043C \u0431\u043E\u043B\u044C\u0448\u0435 \u043F\u0430\u0440\u0442\u0438\u0439 \u0438 \u0442\u043E\u0447\u043D\u0435\u0435 \u043E\u0442\u0432\u0435\u0442\u044B \u2014 \u0442\u0435\u043C \u0432\u044B\u0448\u0435: \u041F\u043E\u0441\u043B\u0443\u0448\u043D\u0438\u043A \u2192 \u0421\u0442\u0443\u0434\u0435\u043D\u0442 \u2192 \u041C\u0430\u0433\u0438\u0441\u0442\u0440."
+          }, stupen.name, " ", toRoman(stupen.subLevel))
         ),
         React.createElement(
           "div",
           { className: "dp-hero-stats" },
-          React.createElement("span", { className: "dp-hero-bead" }, "\u2726 ", busey),
+          React.createElement("span", {
+            className: "dp-hero-bead dp-tip",
+            "data-tip": "\u0411\u0443\u0441\u0438\u043D\u044B \u2726 \u2014 \u043E\u0447\u043A\u0438 \u0437\u0430 \u043F\u0430\u0440\u0442\u0438\u0438. 10 \u0437\u0430 \u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 + \u0434\u043E 5 \u0431\u043E\u043D\u0443\u0441\u043D\u044B\u0445 \u0437\u0430 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u044C. \u0418\u0437 \u0431\u0443\u0441\u0438\u043D \u0441\u043A\u043B\u0430\u0434\u044B\u0432\u0430\u0435\u0442\u0441\u044F \u0441\u0442\u0443\u043F\u0435\u043D\u044C."
+          }, "\u2726 ", busey),
           React.createElement("span", { className: "dp-hero-stats-sep" }, "\xB7"),
-          React.createElement("span", null, games, " ", Term("\u043F\u0430\u0440\u0442\u0438\u0439", "\u041F\u0430\u0440\u0442\u0438\u044F \u2014 \u0438\u0433\u0440\u043E\u0432\u0430\u044F \u0441\u0435\u0441\u0441\u0438\u044F \u0438\u0437 \u0432\u043E\u0441\u0435\u043C\u043D\u0430\u0434\u0446\u0430\u0442\u0438 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u043F\u043E \u0448\u0435\u0441\u0442\u0438 \u0442\u0435\u043C\u0430\u043C."))
+          React.createElement("span", null, games, " ", Term("\u043F\u0430\u0440\u0442\u0438\u0439", "\u041F\u0430\u0440\u0442\u0438\u044F \u2014 \u0432\u0438\u043A\u0442\u043E\u0440\u0438\u043D\u0430 \u0438\u0437 18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u043D\u0430 6 \u0442\u0435\u043C \u043C\u043E\u0434\u0435\u043B\u0438 \u042F\u0441\u043D\u044B. \u0418\u0434\u0451\u0442 \u043E\u043A\u043E\u043B\u043E 5 \u043C\u0438\u043D\u0443\u0442."))
         ),
         React.createElement(
           "div",
@@ -19513,26 +20678,31 @@ window.YasnaCore = {
       setDismissed(true);
     };
     return React.createElement(
-      "div",
-      { className: "dp-sync-notice", role: "note" },
-      React.createElement("div", { className: "dp-sync-notice-icon", "aria-hidden": "true" }, "\u25F7"),
+      React.Fragment,
+      null,
+      // ─── Light: оригинальный плашка-уведомление ───
       React.createElement(
         "div",
-        { className: "dp-sync-notice-body" },
-        React.createElement("div", { className: "dp-sync-notice-title" }, "\u041F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u0445\u0440\u0430\u043D\u0438\u0442\u0441\u044F \u0432 \u044D\u0442\u043E\u043C \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0435"),
+        { className: "dp-sync-notice vk-light-only", role: "note" },
+        React.createElement("div", { className: "dp-sync-notice-icon", "aria-hidden": "true" }, "\u25F7"),
         React.createElement(
           "div",
-          { className: "dp-sync-notice-text" },
-          "\u0411\u0443\u0441\u0438\u043D\u044B, \u0441\u0435\u0440\u0438\u0438 \u0438 \u0438\u0441\u0442\u043E\u0440\u0438\u044F \u043F\u0430\u0440\u0442\u0438\u0439 \u2014 \u0437\u0434\u0435\u0441\u044C, \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u043E. \u041E\u0447\u0438\u0441\u0442\u0438\u0448\u044C \u043A\u0435\u0448 \u0438\u043B\u0438 \u0441\u043C\u0435\u043D\u0438\u0448\u044C \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E \u2014 \u043F\u043E\u0442\u0435\u0440\u044F\u0435\u0448\u044C.",
-          React.createElement("br"),
-          "\u0412\u043E\u0439\u0434\u0438 \u0447\u0435\u0440\u0435\u0437 Telegram, \u0447\u0442\u043E\u0431\u044B \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u0436\u0438\u043B \u043C\u0435\u0436\u0434\u0443 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430\u043C\u0438."
+          { className: "dp-sync-notice-body" },
+          React.createElement("div", { className: "dp-sync-notice-title" }, "\u041F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u0445\u0440\u0430\u043D\u0438\u0442\u0441\u044F \u0432 \u044D\u0442\u043E\u043C \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0435"),
+          React.createElement(
+            "div",
+            { className: "dp-sync-notice-text" },
+            "\u0411\u0443\u0441\u0438\u043D\u044B, \u0441\u0435\u0440\u0438\u0438 \u0438 \u0438\u0441\u0442\u043E\u0440\u0438\u044F \u043F\u0430\u0440\u0442\u0438\u0439 \u2014 \u0437\u0434\u0435\u0441\u044C, \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u043E. \u041E\u0447\u0438\u0441\u0442\u0438\u0448\u044C \u043A\u0435\u0448 \u0438\u043B\u0438 \u0441\u043C\u0435\u043D\u0438\u0448\u044C \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E \u2014 \u043F\u043E\u0442\u0435\u0440\u044F\u0435\u0448\u044C.",
+            React.createElement("br"),
+            "\u0412\u043E\u0439\u0434\u0438 \u0447\u0435\u0440\u0435\u0437 Telegram, \u0447\u0442\u043E\u0431\u044B \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u0436\u0438\u043B \u043C\u0435\u0436\u0434\u0443 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430\u043C\u0438."
+          )
+        ),
+        React.createElement(
+          "div",
+          { className: "dp-sync-notice-actions" },
+          React.createElement("button", { className: "dp-sync-notice-cta", onClick: onLoginClick, type: "button" }, "\u0412\u043E\u0439\u0442\u0438"),
+          React.createElement("button", { className: "dp-sync-notice-x", onClick: dismiss, type: "button", "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C" }, "\xD7")
         )
-      ),
-      React.createElement(
-        "div",
-        { className: "dp-sync-notice-actions" },
-        React.createElement("button", { className: "dp-sync-notice-cta", onClick: onLoginClick, type: "button" }, "\u0412\u043E\u0439\u0442\u0438"),
-        React.createElement("button", { className: "dp-sync-notice-x", onClick: dismiss, type: "button", "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C" }, "\xD7")
       )
     );
   }
@@ -19542,21 +20712,118 @@ window.YasnaCore = {
       { className: "dp-section", role: "region", "aria-label": "\u0413\u043B\u0430\u0432\u043D\u044B\u0439 \u0440\u0438\u0442\u0443\u0430\u043B" },
       React.createElement(
         "div",
-        { style: { marginBottom: "var(--space-5)" } },
-        React.createElement("div", { className: "dp-eyebrow" }, "\u0413\u043B\u0430\u0432\u043D\u044B\u0439 \u0440\u0438\u0442\u0443\u0430\u043B"),
+        { style: { marginBottom: "var(--space-3)" } },
+        React.createElement("div", { className: "dp-eyebrow" }, "\u0418\u0433\u0440\u044B \u042F\u0441\u043D\u044B"),
         React.createElement(
           "h2",
           { className: "dp-section-h", style: { fontFamily: "var(--font-serif)", fontWeight: 500, fontSize: 22, letterSpacing: "-0.005em" } },
-          "\u041F\u0430\u0440\u0442\u0438\u044F \u0438 \u0420\u0430\u0441\u043A\u043B\u0430\u0434"
+          "\u0414\u0432\u0435 \u0438\u0433\u0440\u043E\u0432\u044B\u0435 \u043F\u0440\u0430\u043A\u0442\u0438\u043A\u0438"
         ),
         React.createElement(
           "p",
-          { className: "dp-section-desc", style: { marginTop: 6 } },
-          "\u0414\u0432\u0435 \u043F\u0440\u0430\u043A\u0442\u0438\u043A\u0438 \u042F\u0441\u043D\u044B. ",
+          { className: "dp-section-desc", style: { marginTop: 4 } },
           React.createElement("strong", { style: { color: "var(--text-1)", fontWeight: 500 } }, "\u041F\u0430\u0440\u0442\u0438\u044F"),
-          " \u2014 18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u0441 \u0432\u0430\u0440\u0438\u0430\u043D\u0442\u0430\u043C\u0438 \u043E\u0442\u0432\u0435\u0442\u0430. ",
+          " \u2014 \u0432\u0438\u043A\u0442\u043E\u0440\u0438\u043D\u0430 10/18/30 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u0441 \u0422\u0435\u043D\u044C\u044E \u0438\u043B\u0438 \u0434\u0440\u0443\u0433\u043E\u043C. ",
           React.createElement("strong", { style: { color: "var(--text-1)", fontWeight: 500 } }, "\u0420\u0430\u0441\u043A\u043B\u0430\u0434"),
-          " \u2014 \u0440\u0430\u0441\u0441\u0442\u0430\u0432\u0438\u0442\u044C \u044D\u043B\u0435\u043C\u0435\u043D\u0442\u044B \u043F\u043E \u043C\u0435\u0441\u0442\u0430\u043C \u0431\u044B\u0441\u0442\u0440\u0435\u0435 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u0430."
+          " \u2014 \u0433\u043E\u043D\u043A\u0430 \u043F\u043E 12 \u043F\u043E\u043B\u043A\u0430\u043C \u043F\u0440\u043E\u0442\u0438\u0432 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u0430."
+        )
+      ),
+      // ─── Dark: VK-Scheme — как устроена Партия (5 шагов) ───
+      React.createElement(
+        "div",
+        { className: "vk-scheme-block", style: { marginBottom: "var(--space-5)" } },
+        React.createElement(
+          "div",
+          { className: "vk-scheme" },
+          React.createElement(
+            "div",
+            { className: "vk-scheme-canvas" },
+            React.createElement(
+              "div",
+              { className: "vk-scheme-header" },
+              React.createElement("h3", { className: "vk-scheme-header-title" }, "\u041A\u0430\u043A \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442 \u043E\u0434\u043D\u0430 \u041F\u0430\u0440\u0442\u0438\u044F"),
+              React.createElement("span", { className: "vk-scheme-tag vk-scheme-tag--accent" }, "\u0411\u043B\u0438\u0446 / \u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442 / \u042D\u043A\u0441\u043F\u0435\u0440\u0442")
+            ),
+            React.createElement(
+              "ol",
+              { className: "vk-scheme-steps" },
+              React.createElement(
+                "li",
+                { className: "vk-scheme-step" },
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-num" },
+                  React.createElement("div", { className: "vk-scheme-num-inner" }, "01")
+                ),
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-desc" },
+                  React.createElement("div", { className: "vk-scheme-desc-title" }, "\u0412\u044B\u0431\u043E\u0440 \u0434\u043B\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u0438 \u0438 \u0442\u0435\u043C"),
+                  React.createElement("div", { className: "vk-scheme-desc-text" }, "10 / 18 / 30 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \xB7 \u043C\u043E\u0436\u043D\u043E \u043E\u0441\u0442\u0430\u0432\u0438\u0442\u044C \u0432\u0441\u0435 \u0442\u0435\u043C\u044B \u0438\u043B\u0438 \u0432\u044B\u0431\u0440\u0430\u0442\u044C \u0443\u0437\u043A\u043E")
+                )
+              ),
+              React.createElement(
+                "li",
+                { className: "vk-scheme-step" },
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-num" },
+                  React.createElement("div", { className: "vk-scheme-num-inner" }, "02")
+                ),
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-desc" },
+                  React.createElement("div", { className: "vk-scheme-desc-title" }, "\u0421\u043E\u043F\u0435\u0440\u043D\u0438\u043A \u2014 \u0422\u0435\u043D\u044C \u0438\u043B\u0438 \u0434\u0440\u0443\u0433"),
+                  React.createElement("div", { className: "vk-scheme-desc-text" }, "\u0411\u043E\u0442 \u0440\u0430\u0437\u043D\u043E\u0439 \u0441\u0438\u043B\u044B \u0438\u043B\u0438 \u0436\u0438\u0432\u043E\u0439 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435-\u043A\u043E\u043C\u043D\u0430\u0442\u0435")
+                )
+              ),
+              React.createElement(
+                "li",
+                { className: "vk-scheme-step" },
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-num" },
+                  React.createElement("div", { className: "vk-scheme-num-inner" }, "03")
+                ),
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-desc" },
+                  React.createElement("div", { className: "vk-scheme-desc-title" }, "5 \u0442\u0438\u043F\u043E\u0432 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \xB7 \u0442\u0430\u0439\u043C\u0435\u0440"),
+                  React.createElement("div", { className: "vk-scheme-desc-text" }, "\u0412\u044B\u0431\u043E\u0440 \u0438\u0437 4 \xB7 \xAB\u0432\u0435\u0440\u043D\u043E/\u043D\u0435\u0442\xBB \xB7 \u0432\u043F\u0438\u0448\u0438 \u0441\u043B\u043E\u0432\u043E \xB7 \u043D\u0435\u0441\u043A\u043E\u043B\u044C\u043A\u043E \u0432\u0435\u0440\u043D\u044B\u0445 \xB7 \u0441\u043E\u0435\u0434\u0438\u043D\u0438 \u043F\u0430\u0440\u044B")
+                )
+              ),
+              React.createElement(
+                "li",
+                { className: "vk-scheme-step" },
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-num" },
+                  React.createElement("div", { className: "vk-scheme-num-inner" }, "04")
+                ),
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-desc" },
+                  React.createElement("div", { className: "vk-scheme-desc-title" }, "\u0411\u0443\u0441\u0438\u043D\u044B \xB7 streak \xD71.2\u2026\xD72.0"),
+                  React.createElement("div", { className: "vk-scheme-desc-text" }, "+10 \u0437\u0430 \u0432\u0435\u0440\u043D\u044B\u0439, \u0434\u043E +5 \u0437\u0430 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u044C. 3/5/7 \u0432\u0435\u0440\u043D\u044B\u0445 \u043F\u043E\u0434\u0440\u044F\u0434 \u2014 \u043C\u043D\u043E\u0436\u0438\u0442\u0435\u043B\u044C")
+                )
+              ),
+              React.createElement(
+                "li",
+                { className: "vk-scheme-step" },
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-num" },
+                  React.createElement("div", { className: "vk-scheme-num-inner" }, "05")
+                ),
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-desc" },
+                  React.createElement("div", { className: "vk-scheme-desc-title" }, "\u0424\u0438\u043D\u0430\u043B \xB7 \u0440\u0430\u0437\u0431\u043E\u0440 \u0441 \u0446\u0438\u0442\u0430\u0442\u0430\u043C\u0438"),
+                  React.createElement("div", { className: "vk-scheme-desc-text" }, "\u041A\u0430\u0436\u0434\u0430\u044F \u043E\u0448\u0438\u0431\u043A\u0430 \u2014 \u0441 \u0434\u043E\u0441\u043B\u043E\u0432\u043D\u043E\u0439 \u0446\u0438\u0442\u0430\u0442\u043E\u0439 \u0438\u0437 \u043A\u043D\u0438\u0433\u0438. \u041F\u0430\u0440\u0442\u0438\u0442\u0443\u0440\u0430 \u043E\u0441\u0432\u043E\u0435\u043D\u0438\u044F \u0440\u0430\u0441\u0442\u0451\u0442")
+                )
+              )
+            )
+          )
         )
       ),
       React.createElement(
@@ -19565,27 +20832,40 @@ window.YasnaCore = {
         React.createElement(
           "button",
           { className: "dp-game-card dp-game-primary", onClick: onPartiya },
-          React.createElement("div", { className: "dp-game-eyebrow" }, "\u041F\u0430\u0440\u0442\u0438\u044F \xB7 ~5 \u043C\u0438\u043D\u0443\u0442"),
+          React.createElement("div", { className: "dp-game-eyebrow" }, "\u2726  \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0430 \xB7 ~5 \u043C\u0438\u043D\u0443\u0442"),
           React.createElement("div", { className: "dp-game-title" }, "\u041F\u0430\u0440\u0442\u0438\u044F"),
-          React.createElement("div", { className: "dp-game-sub" }, "18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u0441 4 \u0432\u0430\u0440\u0438\u0430\u043D\u0442\u0430\u043C\u0438 \u043E\u0442\u0432\u0435\u0442\u0430. 6 \u0442\u0435\u043C \u043F\u043E 3 \u0432\u043E\u043F\u0440\u043E\u0441\u0430. \u0422\u043E\u0447\u043D\u043E\u0441\u0442\u044C \u0432\u0430\u0436\u043D\u0435\u0435 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u2014 \u0437\u0430 \u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 +10 \u0431\u0443\u0441\u0438\u043D, \u0437\u0430 \u0431\u044B\u0441\u0442\u0440\u044B\u0439 \u0431\u043E\u043D\u0443\u0441 +5."),
+          React.createElement(
+            "div",
+            { className: "dp-game-sub" },
+            React.createElement("strong", { style: { color: "inherit", fontWeight: 500 } }, "\u0411\u043B\u0438\u0446 10 \xB7 \u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442 18 \xB7 \u042D\u043A\u0441\u043F\u0435\u0440\u0442 30"),
+            " \u2014 \u0432\u044B\u0431\u0438\u0440\u0430\u0435\u0448\u044C \u0434\u043B\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u044C.",
+            React.createElement("br"),
+            "\u0412\u044B\u0431\u043E\u0440 \u0438\u0437 4, \xAB\u0432\u0435\u0440\u043D\u043E/\u043D\u0435\u0442\xBB, \u0437\u0430\u043F\u043E\u043B\u043D\u0438 \u043F\u0440\u043E\u043F\u0443\u0441\u043A. \u0412 \u0444\u0438\u043D\u0430\u043B\u0435 \u2014 \u0440\u0430\u0437\u0431\u043E\u0440 \u043E\u0448\u0438\u0431\u043E\u043A \u0441 \u0446\u0438\u0442\u0430\u0442\u0430\u043C\u0438 \u0438\u0437 \u043A\u043D\u0438\u0433\u0438."
+          ),
           React.createElement(
             "div",
             { className: "dp-game-meta" },
-            React.createElement("span", null, "\u0421\u043E\u043B\u043E \u043F\u0440\u043E\u0442\u0438\u0432 \u0431\u043E\u0442\u0430"),
+            React.createElement("span", null, "\u0421\u043E\u043B\u043E \u0441 \u0422\u0435\u043D\u044C\u044E"),
             React.createElement("span", null, "\xB7"),
-            React.createElement("span", { className: "dp-game-meta-pvp" }, "\u0412\u0434\u0432\u043E\u0451\u043C \u0441 \u0434\u0440\u0443\u0433\u043E\u043C \u2726")
+            React.createElement("span", { className: "dp-game-meta-pvp" }, "\u0412\u0434\u0432\u043E\u0451\u043C \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435 \u2726")
           )
         ),
         React.createElement(
           "button",
           { className: "dp-game-card dp-game-soon", onClick: onUzor, disabled: true, style: { opacity: 0.6, cursor: "not-allowed" } },
-          React.createElement("div", { className: "dp-game-eyebrow" }, "\u0420\u0430\u0441\u043A\u043B\u0430\u0434 \xB7 \u0441\u043A\u043E\u0440\u043E"),
+          React.createElement("div", { className: "dp-game-eyebrow" }, "\u25F7  \u0412 \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0435"),
           React.createElement("div", { className: "dp-game-title" }, "\u0420\u0430\u0441\u043A\u043B\u0430\u0434"),
-          React.createElement("div", { className: "dp-game-sub" }, "\u0420\u0430\u0441\u0441\u0442\u0430\u0432\u0438\u0442\u044C 12 \u044D\u043B\u0435\u043C\u0435\u043D\u0442\u043E\u0432 \u043F\u043E \u043C\u0435\u0441\u0442\u0430\u043C \u0431\u044B\u0441\u0442\u0440\u0435\u0435 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u0430. \u0418\u0433\u0440\u0430 \u0432 \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0435 \u2014 \u043F\u043E\u043A\u0430 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0430."),
+          React.createElement(
+            "div",
+            { className: "dp-game-sub" },
+            "\u0413\u043E\u043D\u043A\u0430 \u043D\u0430 \u0434\u0432\u043E\u0438\u0445: \u0440\u0430\u0437\u043B\u043E\u0436\u0438\u0442\u044C 12 \u044D\u043B\u0435\u043C\u0435\u043D\u0442\u043E\u0432 \u043F\u043E \u0441\u0432\u043E\u0438\u043C \u043C\u0435\u0441\u0442\u0430\u043C \u0440\u0430\u043D\u044C\u0448\u0435 \u0432\u0442\u043E\u0440\u043E\u0433\u043E \u0438\u0433\u0440\u043E\u043A\u0430.",
+            React.createElement("br"),
+            "\u0421\u043A\u043E\u0440\u043E \u2014 \u0441\u043B\u0435\u0434\u0438 \u0437\u0430 \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u044F\u043C\u0438."
+          ),
           React.createElement(
             "div",
             { className: "dp-game-meta" },
-            React.createElement("span", { className: "dp-game-meta-pvp" }, "\u0432 \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0435")
+            React.createElement("span", { className: "dp-game-meta-pvp" }, "PvP \xB7 \u0441\u043A\u043E\u0440\u043E")
           )
         )
       )
@@ -19664,6 +20944,7 @@ window.YasnaCore = {
     const data = ((_b = Storage == null ? void 0 : Storage.getOverallStats) == null ? void 0 : _b.call(Storage)) || {};
     const masteryByTheme = data.masteryByTheme || {};
     const opened = themes.filter((t) => (masteryByTheme[t.id] || 0) > 0).length;
+    const isFresh = opened === 0;
     const sortedByMastery = themes.map((t) => ({ ...t, pct: masteryByTheme[t.id] || 0 })).sort((a, b) => b.pct - a.pct);
     const currentTheme = sortedByMastery.find((t) => t.pct > 0 && t.pct < 100) || sortedByMastery[0];
     return React.createElement(
@@ -19673,12 +20954,16 @@ window.YasnaCore = {
         "div",
         { className: "dp-section-h-row" },
         React.createElement("h2", { className: "dp-section-h" }, IconGrid(), " \u041E\u0441\u0432\u043E\u0435\u043D\u0438\u0435 \u0442\u0435\u043C"),
-        React.createElement("span", { className: "dp-section-h-sub" }, "\u041E\u0442\u043A\u0440\u044B\u0442\u043E ", opened, " \u0438\u0437 ", themes.length)
+        React.createElement(
+          "span",
+          { className: "dp-section-h-sub" },
+          isFresh ? "\u0421\u044B\u0433\u0440\u0430\u0439 \u043F\u0435\u0440\u0432\u0443\u044E \u041F\u0430\u0440\u0442\u0438\u044E" : "\u041E\u0442\u043A\u0440\u044B\u0442\u043E " + opened + " \u0438\u0437 " + themes.length
+        )
       ),
       React.createElement(
         "p",
         { className: "dp-section-desc" },
-        "9 \u0442\u0435\u043C \u043C\u043E\u0434\u0435\u043B\u0438 \xAB\u0421\u0443\u0442\u043A\u0438\xBB. \u041C\u0430\u0441\u0442\u0435\u0440\u0441\u0442\u0432\u043E \u043F\u043E \u0442\u0435\u043C\u0435 \u0440\u0430\u0441\u0442\u0451\u0442 \u043E\u0442 \u0432\u0435\u0440\u043D\u044B\u0445 \u043E\u0442\u0432\u0435\u0442\u043E\u0432 \u0432 \u041F\u0430\u0440\u0442\u0438\u044F\u0445. \u0427\u0435\u043C \u0447\u0430\u0449\u0435 \u0442\u0435\u043C\u0430 \u0432\u044B\u043F\u0430\u0434\u0430\u043B\u0430 \u2014 \u0442\u0435\u043C \u0448\u0438\u0440\u0435 \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441."
+        isFresh ? "\u041A\u0430\u0440\u0442\u0430 9 \u0442\u0435\u043C \u043C\u043E\u0434\u0435\u043B\u0438 \u042F\u0441\u043D\u044B \u0421\u0443\u0442\u043E\u043A. \u0422\u0435\u043C\u044B \u043E\u0442\u043A\u0440\u044B\u0432\u0430\u044E\u0442\u0441\u044F \u043F\u043E \u043C\u0435\u0440\u0435 \u0442\u043E\u0433\u043E, \u043A\u0430\u043A \u0442\u044B \u043E\u0442\u0432\u0435\u0447\u0430\u0435\u0448\u044C \u043D\u0430 \u0438\u0445 \u0432\u043E\u043F\u0440\u043E\u0441\u044B \u0432 \u041F\u0430\u0440\u0442\u0438\u044F\u0445. \u0427\u0435\u043C \u0447\u0430\u0449\u0435 \u0442\u0435\u043C\u0430 \u0432\u044B\u043F\u0430\u0434\u0430\u0435\u0442 \u0438 \u0447\u0435\u043C \u0431\u043E\u043B\u044C\u0448\u0435 \u0432\u0435\u0440\u043D\u044B\u0445 \u043E\u0442\u0432\u0435\u0442\u043E\u0432 \u2014 \u0442\u0435\u043C \u0432\u044B\u0448\u0435 \u043C\u0430\u0441\u0442\u0435\u0440\u0441\u0442\u0432\u043E." : "9 \u0442\u0435\u043C \u043C\u043E\u0434\u0435\u043B\u0438 \xAB\u0421\u0443\u0442\u043A\u0438\xBB. \u041C\u0430\u0441\u0442\u0435\u0440\u0441\u0442\u0432\u043E \u043F\u043E \u0442\u0435\u043C\u0435 \u0440\u0430\u0441\u0442\u0451\u0442 \u043E\u0442 \u0432\u0435\u0440\u043D\u044B\u0445 \u043E\u0442\u0432\u0435\u0442\u043E\u0432 \u0432 \u041F\u0430\u0440\u0442\u0438\u044F\u0445. \u0427\u0435\u043C \u0447\u0430\u0449\u0435 \u0442\u0435\u043C\u0430 \u0432\u044B\u043F\u0430\u0434\u0430\u043B\u0430 \u2014 \u0442\u0435\u043C \u0448\u0438\u0440\u0435 \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441."
       ),
       React.createElement(
         "div",
@@ -19740,7 +21025,7 @@ window.YasnaCore = {
           null,
           IconScroll(),
           " ",
-          Term("\u0425\u0440\u043E\u043D\u0438\u043A\u0430 \u043D\u0435\u0434\u0435\u043B\u0438", "\u0425\u0440\u043E\u043D\u0438\u043A\u0430 \u2014 \u0442\u043E\u043F \u0438\u0433\u0440\u043E\u043A\u043E\u0432 \u043D\u0435\u0434\u0435\u043B\u0438 \u043F\u043E \u0431\u0443\u0441\u0438\u043D\u0430\u043C. \u041E\u0431\u043D\u0443\u043B\u044F\u0435\u0442\u0441\u044F \u0432 \u0441\u0443\u0431\u0431\u043E\u0442\u0443 23:59.")
+          Term("\u0422\u043E\u043F \u043D\u0435\u0434\u0435\u043B\u0438", "\u041B\u0438\u0434\u0435\u0440\u0431\u043E\u0440\u0434 \u2014 \u043A\u0442\u043E \u0437\u0430\u0440\u0430\u0431\u043E\u0442\u0430\u043B \u0431\u043E\u043B\u044C\u0448\u0435 \u0431\u0443\u0441\u0438\u043D \u0437\u0430 \u044D\u0442\u0443 \u043D\u0435\u0434\u0435\u043B\u044E. \u041E\u0431\u043D\u0443\u043B\u044F\u0435\u0442\u0441\u044F \u0432 \u0441\u0443\u0431\u0431\u043E\u0442\u0443 23:59.")
         ),
         React.createElement("span", { className: "dp-card-meta" }, "\u0421\u0431 23:59")
       ),
@@ -19826,7 +21111,7 @@ window.YasnaCore = {
           null,
           IconStar(),
           " ",
-          Term("\u0414\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F", "\u0414\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F \u2014 \u043E\u0442\u043A\u0440\u044B\u0432\u0430\u044E\u0442\u0441\u044F \u0437\u0430 \u0443\u043F\u043E\u0440\u0441\u0442\u0432\u043E, \u0441\u0435\u0440\u0438\u0438 \u0438 \u043F\u043E\u0431\u0435\u0434\u044B.")
+          Term("\u0414\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F", "\u0417\u043D\u0430\u043A\u0438 \u0437\u0430 \u0443\u043F\u043E\u0440\u0441\u0442\u0432\u043E \u2014 \u0441\u0435\u0440\u0438\u0438 \u043F\u0430\u0440\u0442\u0438\u0439, \u0442\u043E\u0447\u043D\u044B\u0435 \u043E\u0442\u0432\u0435\u0442\u044B, \u043F\u043E\u0431\u0435\u0434\u044B \u043D\u0430\u0434 \u0422\u0435\u043D\u044C\u044E \u0440\u0430\u0437\u043D\u043E\u0439 \u0441\u043B\u043E\u0436\u043D\u043E\u0441\u0442\u0438.")
         ),
         React.createElement("span", { className: "dp-card-meta" }, unlocked.length, " / ", all.length)
       ),
@@ -19892,7 +21177,7 @@ window.YasnaCore = {
       React.createElement(
         "div",
         { className: "dp-card-h" },
-        React.createElement("h3", null, IconJournal(), " ", Term("\u0416\u0443\u0440\u043D\u0430\u043B", "\u0416\u0443\u0440\u043D\u0430\u043B \u2014 \u0442\u0432\u043E\u044F \u043B\u0438\u0447\u043D\u0430\u044F \u043B\u0435\u0442\u043E\u043F\u0438\u0441\u044C \u043F\u043E\u0441\u043B\u0435\u0434\u043D\u0438\u0445 \u043F\u0430\u0440\u0442\u0438\u0439.")),
+        React.createElement("h3", null, IconJournal(), " ", Term("\u0416\u0443\u0440\u043D\u0430\u043B", "\u0418\u0441\u0442\u043E\u0440\u0438\u044F \u0442\u0432\u043E\u0438\u0445 \u043F\u043E\u0441\u043B\u0435\u0434\u043D\u0438\u0445 \u043F\u0430\u0440\u0442\u0438\u0439 \u2014 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A, \u0441\u0447\u0451\u0442, \u0442\u043E\u0447\u043D\u043E\u0441\u0442\u044C.")),
         React.createElement("span", { className: "dp-card-meta" }, matches.length > 0 ? matches.length + " \u043F\u043E\u0441\u043B\u0435\u0434\u043D\u0438\u0445" : "")
       ),
       matches.length === 0 ? React.createElement("div", { className: "dp-card-empty" }, "\u041F\u0430\u0440\u0442\u0438\u0439 \u0435\u0449\u0451 \u043D\u0435 \u0431\u044B\u043B\u043E.", React.createElement("br"), "\u041D\u0430\u0447\u043D\u0438 \u2014 \u0437\u0434\u0435\u0441\u044C \u043F\u043E\u044F\u0432\u0438\u0442\u0441\u044F \u043F\u0435\u0440\u0432\u0430\u044F \u0437\u0430\u043F\u0438\u0441\u044C.") : React.createElement(
@@ -20743,14 +22028,82 @@ window.YasnaCore = {
             null,
             "\u0412\u043E\u0439\u0434\u0438 \u0447\u0435\u0440\u0435\u0437 Telegram. \u0411\u0443\u0441\u0438\u043D\u044B, \u0441\u0435\u0440\u0438\u0438 \u0438 \u0438\u0441\u0442\u043E\u0440\u0438\u044F \u043F\u0430\u0440\u0442\u0438\u0439 \u0431\u0443\u0434\u0443\u0442 \u0436\u0438\u0442\u044C \u0441 \u0442\u0432\u043E\u0438\u043C \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u043E\u043C."
           ),
+          // ─── Light: оригинальный список перков ───
           React.createElement(
             "ul",
-            { className: "dp-auth-perks" },
+            { className: "dp-auth-perks vk-light-only" },
             React.createElement("li", null, "\u041F\u0430\u0440\u0442\u0438\u0438 \u0441 \u043B\u044E\u0431\u043E\u0433\u043E \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430 \u2014 \u043E\u0431\u0449\u0438\u0439 \u0441\u0447\u0451\u0442"),
             React.createElement("li", null, "\u0411\u0435\u0437 \u043F\u0430\u0440\u043E\u043B\u0435\u0439. \u0422\u043E\u043B\u044C\u043A\u043E \u0438\u043C\u044F \u0438 \u0430\u0432\u0430\u0442\u0430\u0440 \u0438\u0437 Telegram"),
             React.createElement("li", null, "\u0413\u043E\u0441\u0442\u0435\u0432\u043E\u0439 \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u0441\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u0441\u044F \u2014 \u043F\u0440\u0438 \u043B\u043E\u0433\u0438\u043D\u0435 \u043E\u043D \u0434\u043E\u0431\u0430\u0432\u0438\u0442\u0441\u044F \u043A \u0442\u0432\u043E\u0435\u043C\u0443")
           ),
-          !baseUrl ? React.createElement("div", { className: "dp-auth-msg-error" }, "\u0421\u0435\u0440\u0432\u0435\u0440 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D") : !botUsername ? React.createElement("div", { className: "dp-auth-msg-error" }, "\u0411\u043E\u0442 \u043D\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043D") : React.createElement("div", {
+          // ─── Dark: VK-Scheme — как работает синхронизация ───
+          React.createElement(
+            "div",
+            { className: "vk-scheme-block" },
+            React.createElement(
+              "div",
+              { className: "vk-scheme" },
+              React.createElement(
+                "div",
+                { className: "vk-scheme-canvas" },
+                React.createElement(
+                  "div",
+                  { className: "vk-scheme-header" },
+                  React.createElement("h3", { className: "vk-scheme-header-title" }, "\u0427\u0442\u043E \u0434\u0430\u0451\u0442 \u0432\u0445\u043E\u0434 \u0447\u0435\u0440\u0435\u0437 Telegram")
+                ),
+                React.createElement(
+                  "ol",
+                  { className: "vk-scheme-steps" },
+                  React.createElement(
+                    "li",
+                    { className: "vk-scheme-step" },
+                    React.createElement(
+                      "div",
+                      { className: "vk-scheme-num" },
+                      React.createElement("div", { className: "vk-scheme-num-inner" }, "01")
+                    ),
+                    React.createElement(
+                      "div",
+                      { className: "vk-scheme-desc" },
+                      React.createElement("div", { className: "vk-scheme-desc-title" }, "\u041E\u0431\u0449\u0438\u0439 \u0441\u0447\u0451\u0442 \u043C\u0435\u0436\u0434\u0443 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430\u043C\u0438"),
+                      React.createElement("div", { className: "vk-scheme-desc-text" }, "\u0411\u0443\u0441\u0438\u043D\u044B \u0438 \u0441\u0435\u0440\u0438\u0438 \u0436\u0438\u0432\u0443\u0442 \u0441 \u0442\u0432\u043E\u0438\u043C \u0430\u043A\u043A\u0430\u0443\u043D\u0442\u043E\u043C, \u0430 \u043D\u0435 \u0441 \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u043E\u043C")
+                    )
+                  ),
+                  React.createElement(
+                    "li",
+                    { className: "vk-scheme-step" },
+                    React.createElement(
+                      "div",
+                      { className: "vk-scheme-num" },
+                      React.createElement("div", { className: "vk-scheme-num-inner" }, "02")
+                    ),
+                    React.createElement(
+                      "div",
+                      { className: "vk-scheme-desc" },
+                      React.createElement("div", { className: "vk-scheme-desc-title" }, "\u0411\u0435\u0437 \u043F\u0430\u0440\u043E\u043B\u0435\u0439"),
+                      React.createElement("div", { className: "vk-scheme-desc-text" }, "\u0411\u0435\u0440\u0451\u043C \u0442\u043E\u043B\u044C\u043A\u043E \u0438\u043C\u044F \u0438 \u0430\u0432\u0430\u0442\u0430\u0440 \u0438\u0437 Telegram. \u0421\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u044F \u043D\u0430\u043C \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u044B")
+                    )
+                  ),
+                  React.createElement(
+                    "li",
+                    { className: "vk-scheme-step" },
+                    React.createElement(
+                      "div",
+                      { className: "vk-scheme-num" },
+                      React.createElement("div", { className: "vk-scheme-num-inner" }, "03")
+                    ),
+                    React.createElement(
+                      "div",
+                      { className: "vk-scheme-desc" },
+                      React.createElement("div", { className: "vk-scheme-desc-title" }, "\u0413\u043E\u0441\u0442\u0435\u0432\u043E\u0439 \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u043D\u0435 \u0442\u0435\u0440\u044F\u0435\u0442\u0441\u044F"),
+                      React.createElement("div", { className: "vk-scheme-desc-text" }, "\u041F\u0440\u0438 \u043B\u043E\u0433\u0438\u043D\u0435 \u0431\u0443\u0441\u0438\u043D\u044B \u0438\u0437 \u044D\u0442\u043E\u0439 \u0441\u0435\u0441\u0441\u0438\u0438 \u0434\u043E\u0431\u0430\u0432\u044F\u0442\u0441\u044F \u043A \u0442\u0432\u043E\u0435\u043C\u0443 \u0441\u0447\u0451\u0442\u0443")
+                    )
+                  )
+                )
+              )
+            )
+          ),
+          !baseUrl ? VkSysMsg({ kind: "error", icon: "\u26A0", title: "\u0421\u0435\u0440\u0432\u0435\u0440 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D", text: "\u0417\u0430\u0439\u0434\u0438 \u0447\u0435\u0440\u0435\u0437 \u043D\u0435\u0441\u043A\u043E\u043B\u044C\u043A\u043E \u043C\u0438\u043D\u0443\u0442 \u2014 \u043C\u044B \u0443\u0436\u0435 \u0447\u0438\u043D\u0438\u043C." }) : !botUsername ? VkSysMsg({ kind: "error", icon: "\u2699", title: "\u0411\u043E\u0442 \u043D\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043D", text: "\u042D\u0442\u043E \u043F\u0440\u0435\u0432\u044C\u044E-\u0441\u0431\u043E\u0440\u043A\u0430. \u0410\u0432\u0442\u043E\u0440\u0438\u0437\u0430\u0446\u0438\u044F \u0447\u0435\u0440\u0435\u0437 Telegram \u043E\u0442\u043A\u043B\u044E\u0447\u0435\u043D\u0430." }) : React.createElement("div", {
             className: "dp-auth-tg-widget",
             ref: (el) => {
               if (!el || el.children.length) return;
@@ -20764,8 +22117,8 @@ window.YasnaCore = {
               el.appendChild(s);
             }
           }),
-          phase === "loading" && React.createElement("div", { className: "dp-auth-msg-loading" }, "\u25F7  \u0410\u0432\u0442\u043E\u0440\u0438\u0437\u0430\u0446\u0438\u044F\u2026"),
-          error && React.createElement("div", { className: "dp-auth-msg-error" }, error),
+          phase === "loading" && VkSysMsg({ kind: "info", icon: "\u25F7", size: "s", text: "\u0410\u0432\u0442\u043E\u0440\u0438\u0437\u0430\u0446\u0438\u044F \u0432 Telegram\u2026" }),
+          error && VkSysMsg({ kind: "error", icon: "\u26A0", title: "\u041D\u0435 \u043F\u043E\u043B\u0443\u0447\u0438\u043B\u043E\u0441\u044C \u0432\u043E\u0439\u0442\u0438", text: error }),
           React.createElement(
             "div",
             { className: "dp-auth-foot" },
@@ -20861,7 +22214,7 @@ window.YasnaCore = {
         return null;
       }
     }, []);
-    const [lobby, setLobby] = useState(urlRoom ? { game: "turnir", mode: "guest", code: urlRoom } : null);
+    const [lobby, setLobby] = useState(urlRoom ? { game: "turnir", lobbyMode: "guest", code: urlRoom } : null);
     const [, setTick] = useState(0);
     const [orientHidden, setOrientHidden] = useState(() => {
       try {
@@ -20928,32 +22281,55 @@ window.YasnaCore = {
       delete window.__dpPendingPlay;
       if (pending) pending();
     };
-    const startPartiyaWithShadow = (level) => {
-      requireProfile(() => setGame({ type: "turnir", opponent: "shadow", shadowLevel: level || "medium" }));
+    const startPartiyaWithShadow = (level, mode, selectedThemes) => {
+      requireProfile(() => setGame({
+        type: "turnir",
+        opponent: "shadow",
+        shadowLevel: level || "medium",
+        mode: mode || "standard",
+        selectedThemes: selectedThemes || null
+      }));
     };
-    const [partiyaPicker, setPartiyaPicker] = useState(false);
+    const [partiyaPicker, setPartiyaPicker] = useState(null);
     const askPartiyaMode = () => {
-      requireProfile(() => setPartiyaPicker(true));
+      requireProfile(() => setPartiyaPicker({
+        mode: "standard",
+        expanded: false,
+        selectedThemes: null
+        // null = все темы по умолчанию
+      }));
     };
     const startPartiyaPvP = () => {
-      setPartiyaPicker(false);
-      setLobby({ game: "turnir" });
+      const partiyaMode = (partiyaPicker == null ? void 0 : partiyaPicker.mode) || "standard";
+      const selectedThemes = (partiyaPicker == null ? void 0 : partiyaPicker.selectedThemes) || null;
+      setPartiyaPicker(null);
+      setLobby({ game: "turnir", partiyaMode, selectedThemes });
     };
     const startUzorPvP = () => {
       requireProfile(() => setLobby({ game: "uzor" }));
     };
     const onLobbyConnected = ({ transport, role, opponent }) => {
+      const partiyaMode = (lobby == null ? void 0 : lobby.partiyaMode) || "standard";
+      const selectedThemes = (lobby == null ? void 0 : lobby.selectedThemes) || null;
       setLobby(null);
       try {
         window.history.replaceState({}, "", window.location.pathname);
       } catch (_) {
       }
-      setGame({ type: "turnir", opponent: "pvp", transport, role, opp: opponent });
+      setGame({
+        type: "turnir",
+        opponent: "pvp",
+        transport,
+        role,
+        opp: opponent,
+        mode: partiyaMode,
+        selectedThemes
+      });
     };
     useEffect(() => {
       if (urlRoom && !user && !profile) {
         setAnonModal(true);
-        window.__dpPendingPlay = () => setLobby({ game: "turnir", mode: "guest", code: urlRoom });
+        window.__dpPendingPlay = () => setLobby({ game: "turnir", lobbyMode: "guest", code: urlRoom });
       }
     }, [urlRoom]);
     if (game) {
@@ -20980,6 +22356,10 @@ window.YasnaCore = {
           opponentLevel: game.shadowLevel || "medium",
           opponentMode: game.opponent,
           // 'shadow' or 'pvp'
+          mode: game.mode || "standard",
+          // 'blitz' | 'standard' | 'expert'
+          selectedThemes: game.selectedThemes || null,
+          // null = все темы
           transport: game.transport,
           role: game.role,
           oppData: game.opp,
@@ -20999,6 +22379,7 @@ window.YasnaCore = {
         "main",
         { id: "main" },
         React.createElement(DPCastaliaTitle, null),
+        React.createElement(DPHeroCTA, { onPartiya: askPartiyaMode, onUzor: startUzorPvP }),
         React.createElement(DPProfileHero, { user, profile, onLoginClick, remoteProfile }),
         React.createElement(DPSyncNotice, { user, onLoginClick }),
         React.createElement(DPMainGames, { onPartiya: askPartiyaMode, onUzor: startUzorPvP }),
@@ -21047,56 +22428,205 @@ window.YasnaCore = {
           delete window.__dpPendingPlay;
         }
       }),
-      // ─── Диалог выбора режима Партии (соло / вдвоём) ───
-      partiyaPicker && React.createElement(
-        "div",
-        {
-          className: "dp-auth-overlay",
-          onClick: (e) => {
-            if (e.target === e.currentTarget) setPartiyaPicker(false);
+      // ─── Диалог выбора режима Партии (длительность + темы + соперник) ───
+      partiyaPicker && (() => {
+        const mode = partiyaPicker.mode;
+        const expanded = partiyaPicker.expanded;
+        const selectedThemes = partiyaPicker.selectedThemes;
+        const setMode = (m) => setPartiyaPicker({ ...partiyaPicker, mode: m });
+        const setExpanded = (v) => setPartiyaPicker({ ...partiyaPicker, expanded: v });
+        const setSelectedThemes = (s) => setPartiyaPicker({ ...partiyaPicker, selectedThemes: s });
+        const allThemes = window.YasnaTrivia && window.YasnaTrivia.getThemes() || [];
+        const isAllSelected = !selectedThemes;
+        const selectedSet = selectedThemes ? new Set(selectedThemes) : null;
+        const selectedCount = isAllSelected ? allThemes.length : selectedThemes.length;
+        const toggleTheme = (themeId) => {
+          if (isAllSelected) {
+            const ns = new Set(allThemes.map((t) => t.id));
+            ns.delete(themeId);
+            setSelectedThemes([...ns]);
+          } else {
+            const ns = new Set(selectedThemes);
+            if (ns.has(themeId)) ns.delete(themeId);
+            else ns.add(themeId);
+            setSelectedThemes([...ns]);
           }
-        },
-        React.createElement(
+        };
+        const resetThemes = () => setSelectedThemes(null);
+        const modes = [
+          { id: "blitz", label: "\u0411\u043B\u0438\u0446", count: 10, time: "~2 \u043C\u0438\u043D", sub: "\u0440\u0430\u0437\u043E\u0433\u0440\u0435\u0432" },
+          { id: "standard", label: "\u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442", count: 18, time: "~5 \u043C\u0438\u043D", sub: "\u043E\u0441\u043D\u043E\u0432\u043D\u043E\u0439" },
+          { id: "expert", label: "\u042D\u043A\u0441\u043F\u0435\u0440\u0442", count: 30, time: "~9 \u043C\u0438\u043D", sub: "\u0433\u043B\u0443\u0431\u043E\u043A\u0438\u0439" }
+        ];
+        const cur = modes.find((m) => m.id === mode);
+        const enoughThemes = selectedCount >= 1;
+        const idealThemesCount = { blitz: 5, standard: 6, expert: 6 }[mode] || 6;
+        const fewThemes = selectedCount < idealThemesCount && selectedCount >= 1;
+        return React.createElement(
           "div",
-          { className: "dp-auth-modal", role: "dialog", "aria-modal": "true" },
-          React.createElement("button", { className: "dp-auth-x", onClick: () => setPartiyaPicker(false), "aria-label": "\u041E\u0442\u043C\u0435\u043D\u0430" }, "\xD7"),
-          React.createElement("div", { className: "dp-auth-eyebrow" }, "\u2726  \u041F\u0430\u0440\u0442\u0438\u044F"),
-          React.createElement("h2", null, "\u0421 \u043A\u0435\u043C \u0438\u0433\u0440\u0430\u0435\u0448\u044C?"),
-          React.createElement("p", null, "18 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u0441 4 \u0432\u0430\u0440\u0438\u0430\u043D\u0442\u0430\u043C\u0438 \u043E\u0442\u0432\u0435\u0442\u0430. \u0422\u043E\u0447\u043D\u043E\u0441\u0442\u044C \u0432\u0430\u0436\u043D\u0435\u0435 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438."),
+          {
+            className: "dp-auth-overlay",
+            onClick: (e) => {
+              if (e.target === e.currentTarget) setPartiyaPicker(null);
+            }
+          },
           React.createElement(
             "div",
-            { style: { display: "grid", gap: 8, marginTop: 16 } },
+            { className: "dp-auth-modal dp-partiya-picker dp-partiya-picker--v2", role: "dialog", "aria-modal": "true" },
+            React.createElement("button", { className: "dp-auth-x", onClick: () => setPartiyaPicker(null), "aria-label": "\u041E\u0442\u043C\u0435\u043D\u0430" }, "\xD7"),
+            // ─── Heading ───
             React.createElement(
-              "button",
-              {
-                className: "dp-btn",
-                onClick: () => {
-                  setPartiyaPicker(false);
-                  startPartiyaWithShadow("medium");
-                },
-                style: { padding: "14px 18px", justifyContent: "flex-start", textAlign: "left" }
-              },
-              "\u{1F317}  ",
-              React.createElement("span", { style: { fontWeight: 500, marginLeft: 4 } }, "\u0421\u043E\u043B\u043E \u043F\u0440\u043E\u0442\u0438\u0432 \u0422\u0435\u043D\u0438"),
-              React.createElement("span", { style: { fontSize: 12, color: "var(--text-3)", marginLeft: "auto" } }, "\xB7 \u0431\u043E\u0442")
+              "div",
+              { className: "dp-picker-head" },
+              React.createElement("div", { className: "dp-auth-eyebrow" }, "\u2726  \u041F\u0430\u0440\u0442\u0438\u044F"),
+              React.createElement("h2", null, "\u041A\u0430\u043A\u0430\u044F \u043F\u0430\u0440\u0442\u0438\u044F?")
             ),
+            // ═════ СЕКЦИЯ 1: Длительность ═════
             React.createElement(
-              "button",
-              {
-                className: "dp-btn dp-btn-primary",
-                onClick: startPartiyaPvP,
-                style: { padding: "14px 18px", justifyContent: "flex-start", textAlign: "left" }
-              },
-              "\u25D0\u25D1  ",
-              React.createElement("span", { style: { fontWeight: 500, marginLeft: 4 } }, "\u0412\u0434\u0432\u043E\u0451\u043C \u0441 \u0434\u0440\u0443\u0433\u043E\u043C"),
-              React.createElement("span", { style: { fontSize: 12, opacity: 0.85, marginLeft: "auto" } }, "\xB7 real-time")
+              "section",
+              { className: "dp-picker-section" },
+              React.createElement("div", { className: "dp-picker-section-eyebrow" }, "\u25F7  \u0414\u043B\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u044C"),
+              React.createElement(
+                "div",
+                { className: "dp-mode-grid" },
+                modes.map(
+                  (m) => React.createElement(
+                    "button",
+                    {
+                      key: m.id,
+                      className: "dp-mode-btn" + (mode === m.id ? " dp-mode-btn-active" : ""),
+                      onClick: () => setMode(m.id),
+                      type: "button"
+                    },
+                    React.createElement("div", { className: "dp-mode-btn-count" }, m.count),
+                    React.createElement("div", { className: "dp-mode-btn-label" }, m.label),
+                    React.createElement("div", { className: "dp-mode-btn-time" }, m.time)
+                  )
+                )
+              ),
+              React.createElement(
+                "p",
+                { className: "dp-mode-desc" },
+                cur.id === "blitz" ? "\u041A\u043E\u0440\u043E\u0442\u043A\u0438\u0439 \u0440\u0430\u0437\u043E\u0433\u0440\u0435\u0432. 5 \u0442\u0435\u043C \u043F\u043E 2 \u0432\u043E\u043F\u0440\u043E\u0441\u0430." : cur.id === "expert" ? "\u0413\u043B\u0443\u0431\u043E\u043A\u0438\u0439 \u0437\u0430\u0445\u043E\u0434. 6 \u0442\u0435\u043C \u043F\u043E 5 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432." : "\u041E\u0441\u043D\u043E\u0432\u043D\u043E\u0439 \u0440\u0435\u0436\u0438\u043C. 6 \u0442\u0435\u043C \u043F\u043E 3 \u0432\u043E\u043F\u0440\u043E\u0441\u0430."
+              )
+            ),
+            // ═════ СЕКЦИЯ 2: Темы ═════
+            React.createElement(
+              "section",
+              { className: "dp-picker-section" },
+              React.createElement(
+                "div",
+                { className: "dp-picker-section-head" },
+                React.createElement("div", { className: "dp-picker-section-eyebrow" }, "\u2637  \u0422\u0435\u043C\u044B"),
+                React.createElement(
+                  "div",
+                  { className: "dp-picker-section-meta" },
+                  isAllSelected ? "\u0432\u0441\u0435 " + allThemes.length : selectedCount + " \u0438\u0437 " + allThemes.length,
+                  !isAllSelected && React.createElement("button", {
+                    className: "dp-themes-reset",
+                    onClick: resetThemes,
+                    type: "button"
+                  }, "\u21BA \u0441\u0431\u0440\u043E\u0441\u0438\u0442\u044C")
+                )
+              ),
+              // Темы как чипы — всегда видны
+              React.createElement(
+                "div",
+                { className: "dp-themes-list dp-themes-list--chips" },
+                allThemes.map((t) => {
+                  const checked = isAllSelected || selectedSet.has(t.id);
+                  return React.createElement(
+                    "button",
+                    {
+                      key: t.id,
+                      type: "button",
+                      onClick: () => toggleTheme(t.id),
+                      className: "dp-theme-chip" + (checked ? " dp-theme-chip-checked" : ""),
+                      "aria-pressed": checked
+                    },
+                    React.createElement(
+                      "span",
+                      { className: "dp-theme-chip-icon", "aria-hidden": "true" },
+                      checked ? "\u2713" : ""
+                    ),
+                    React.createElement("span", { className: "dp-theme-chip-name" }, t.short || t.name)
+                  );
+                })
+              ),
+              !enoughThemes && React.createElement(
+                "div",
+                { className: "dp-themes-warn" },
+                "\u26A0  \u0412\u044B\u0431\u0435\u0440\u0438 \u0445\u043E\u0442\u044F \u0431\u044B \u043E\u0434\u043D\u0443 \u0442\u0435\u043C\u0443."
+              ),
+              fewThemes && React.createElement(
+                "div",
+                {
+                  className: "dp-themes-hint",
+                  style: { fontSize: 11, color: "#86868b", marginTop: 6, lineHeight: 1.5 }
+                },
+                "\u0412\u044B\u0431\u0440\u0430\u043D\u0430 ",
+                selectedCount,
+                " \u0442\u0435\u043C\u0430 \u2014 \u0432\u0441\u0435 ",
+                cur.count,
+                " \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u0431\u0443\u0434\u0443\u0442 \u0438\u0437 \u043D\u0435\u0451. ",
+                "\u041F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E \u0440\u0435\u0436\u0438\u043C \u0440\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u044F\u0435\u0442\u0441\u044F \u043D\u0430 ",
+                idealThemesCount,
+                " \u0442\u0435\u043C."
+              )
+            ),
+            // ═════ СЕКЦИЯ 3: С кем играешь ═════
+            React.createElement(
+              "section",
+              { className: "dp-picker-section" },
+              React.createElement("div", { className: "dp-picker-section-eyebrow" }, "\u25D0  \u0421\u043E\u043F\u0435\u0440\u043D\u0438\u043A"),
+              React.createElement(
+                "div",
+                { className: "dp-opponent-grid" },
+                React.createElement(
+                  "button",
+                  {
+                    className: "dp-opponent-btn",
+                    onClick: () => {
+                      if (!enoughThemes) return;
+                      setPartiyaPicker(null);
+                      startPartiyaWithShadow("medium", mode, selectedThemes);
+                    },
+                    disabled: !enoughThemes,
+                    type: "button"
+                  },
+                  React.createElement("div", { className: "dp-opponent-icon", "aria-hidden": "true" }, "\u{1F317}"),
+                  React.createElement(
+                    "div",
+                    { className: "dp-opponent-body" },
+                    React.createElement("div", { className: "dp-opponent-title" }, "\u0421\u043E\u043B\u043E"),
+                    React.createElement("div", { className: "dp-opponent-sub" }, "\u041F\u0440\u043E\u0442\u0438\u0432 \u0422\u0435\u043D\u0438-\u0431\u043E\u0442\u0430")
+                  )
+                ),
+                React.createElement(
+                  "button",
+                  {
+                    className: "dp-opponent-btn dp-opponent-btn--accent",
+                    onClick: startPartiyaPvP,
+                    disabled: !enoughThemes,
+                    type: "button"
+                  },
+                  React.createElement("div", { className: "dp-opponent-icon", "aria-hidden": "true" }, "\u25D0\u25D1"),
+                  React.createElement(
+                    "div",
+                    { className: "dp-opponent-body" },
+                    React.createElement("div", { className: "dp-opponent-title" }, "\u0412\u0434\u0432\u043E\u0451\u043C"),
+                    React.createElement("div", { className: "dp-opponent-sub" }, "\u0421 \u0434\u0440\u0443\u0433\u043E\u043C \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435")
+                  )
+                )
+              )
             )
           )
-        )
-      ),
+        );
+      })(),
       // ─── Lobby для PvP (polling-relay через Yandex Cloud) ───
       lobby && React.createElement(DPLobbyV2, {
-        initialMode: lobby.mode || null,
+        initialMode: lobby.lobbyMode || null,
+        // 'guest'/'host' — внутреннее состояние лобби
         initialCode: lobby.code || null,
         onClose: () => setLobby(null),
         profile: profile || user,

@@ -11,6 +11,41 @@
   const SHOW_VS_MS = 2200;
   const SHOW_ROUND_INTRO_MS = 1800;
 
+  // ─── Question-level Error Boundary ───────────────────────────────
+  // Если рендер вопроса падает (битый JSON, отсутствующее поле и т.п.) —
+  // НЕ убиваем всю партию. Показываем skip-плашку и вызываем onSkip
+  // через 1.2 сек — партия идёт дальше как будто игрок ответил неверно.
+  // Без этого ОДНА битая запись = «Что-то ускользнуло» на полпути.
+  class QuestionErrorBoundary extends React.Component {
+    constructor(p){ super(p); this.state = { err: null }; }
+    static getDerivedStateFromError(err){ return { err }; }
+    componentDidCatch(err, info){
+      try { console.error('[Question render error]', err, info); } catch(_){}
+      this.skipTimer = setTimeout(() => {
+        try { this.props.onSkip && this.props.onSkip(); } catch(_){}
+      }, 1200);
+    }
+    componentWillUnmount(){ clearTimeout(this.skipTimer); }
+    render(){
+      if(this.state.err){
+        return React.createElement('div', { className: 'tn-fullscreen' },
+          React.createElement('div', { className: 'tn-container', style: { paddingTop: 80 } },
+            React.createElement('div', {
+              style: { textAlign:'center', padding:'40px 24px', maxWidth:480, margin:'0 auto' }
+            },
+              React.createElement('div', { style: { fontSize:32, marginBottom:16, opacity:.5 } }, '◷'),
+              React.createElement('h2', { style: { fontSize:18, marginBottom:8, fontWeight:500 } },
+                'Этот вопрос пропущен'),
+              React.createElement('p', { style: { fontSize:13, color:'#86868b' } },
+                'Битые данные — продолжаем партию через секунду…')
+            )
+          )
+        );
+      }
+      return this.props.children;
+    }
+  }
+
   // Три именованных лика Тени (плюс PvP — режим живого собеседника)
   const TEN_LEVELS = {
     easy:   { name: 'Тень Послушника',  subtitle: 'легко',  glyph: '🌅',
@@ -202,8 +237,14 @@
 
   function TnOptions({ options, chosen, correctIdx, showFeedback, onPick }){
     const labels = ['A','B','C','D','E','F'];
+    const opts = Array.isArray(options) ? options : [];
+    if(opts.length === 0){
+      return React.createElement('div', { className: 'tn-options', style: { textAlign:'center', padding:'40px 24px', color:'#86868b' } },
+        '◷ Этот вопрос недоступен'
+      );
+    }
     return React.createElement('div', { className: 'tn-options', role: 'group' },
-      options.map((opt, i) => {
+      opts.map((opt, i) => {
         let state = 'default';
         if(showFeedback){
           if(i === correctIdx && i === chosen) state = 'correct';
@@ -212,7 +253,7 @@
           else state = 'disabled';
         }
         return React.createElement(TnOption, {
-          key: i, index: i, label: labels[i] || (i+1), text: opt,
+          key: i, index: i, label: labels[i] || (i+1), text: String(opt),
           state, onClick: () => onPick(i),
         });
       })
@@ -264,10 +305,16 @@
   // ─── Multi-choice — несколько правильных вариантов ──────────────
   // Игрок отмечает чекбоксами, побеждает если ВСЕ верные отмечены и ни одного лишнего.
   function TnMultiChoice({ options, correctIdxs, chosen, showFeedback, onSubmit }){
+    const opts = Array.isArray(options) ? options : [];
     const [picks, setPicks] = useState(new Set());
-    useEffect(() => { setPicks(new Set()); }, [options]);
+    useEffect(() => { setPicks(new Set()); }, [opts]);
     const labels = ['A','B','C','D','E','F','G','H'];
     const correctSet = new Set(correctIdxs || []);
+    if(opts.length === 0){
+      return React.createElement('div', { className: 'tn-options', style: { textAlign:'center', padding:'40px 24px', color:'#86868b' } },
+        '◷ Этот вопрос недоступен'
+      );
+    }
 
     function toggle(i){
       if(showFeedback) return;
@@ -285,7 +332,7 @@
 
     return React.createElement('div', { className: 'tn-options tn-options-multi', role: 'group' },
       React.createElement('div', { className: 'tn-multi-list' },
-        options.map((opt, i) => {
+        opts.map((opt, i) => {
           const isPicked = (chosenSet || picks).has(i);
           const isCorrect = correctSet.has(i);
           let state = isPicked ? 'picked' : 'default';
@@ -326,20 +373,30 @@
   // Уже соединённые элементы «гасятся». Кнопка submit активна когда
   // все пары соединены.
   function TnMatchPair({ pairsLeft, pairsRight, correct, chosen, showFeedback, onSubmit }){
+    // Defensive: если pairsLeft/pairsRight отсутствуют (битый JSON) — рендерим
+    // skip-плашку, не падаем. Боль: эта функция была эпицентром Bug 2.
+    const pL = Array.isArray(pairsLeft) ? pairsLeft : [];
+    const pR = Array.isArray(pairsRight) ? pairsRight : [];
+    if(pL.length === 0 || pR.length === 0 || pL.length !== pR.length){
+      return React.createElement('div', { className: 'tn-options', style: { textAlign:'center', padding:'40px 24px', color:'#86868b' } },
+        React.createElement('div', { style: { fontSize:14, marginBottom:8 } }, '◷ Этот вопрос недоступен'),
+        React.createElement('div', { style: { fontSize:11 } }, 'Идём дальше…')
+      );
+    }
     // pairsLeft и pairsRight приходят в правильном порядке (correct[i] = [left[i], right[i]]).
     // Перемешиваем правую колонку для UI.
     const rightShuffled = useMemo(() => {
-      const arr = pairsRight.map((r, i) => ({ text: r, origIdx: i }));
+      const arr = pR.map((r, i) => ({ text: r, origIdx: i }));
       // детерминированный шафл по pairsRight (для PvP консистентности)
-      const seed = pairsRight.join('|').length;
+      const seed = pR.join('|').length;
       let x = seed;
       arr.sort(() => { x = (x * 9301 + 49297) % 233280; return x / 233280 - 0.5; });
       return arr;
-    }, [pairsRight]);
+    }, [pR]);
 
     const [matches, setMatches] = useState({});  // { leftIdx: rightOrigIdx }
     const [selectedLeft, setSelectedLeft] = useState(null);
-    useEffect(() => { setMatches({}); setSelectedLeft(null); }, [pairsLeft]);
+    useEffect(() => { setMatches({}); setSelectedLeft(null); }, [pL]);
 
     function clickLeft(i){
       if(showFeedback || matches[i] != null) return;
@@ -347,7 +404,6 @@
     }
     function clickRight(rightOrigIdx){
       if(showFeedback) return;
-      // отменить если уже использован
       const usedBy = Object.entries(matches).find(([k, v]) => v === rightOrigIdx);
       if(usedBy){
         const upd = { ...matches };
@@ -361,12 +417,11 @@
     }
     function submit(){
       if(showFeedback) return;
-      if(Object.keys(matches).length !== pairsLeft.length) return;
-      // matches: { leftIdx: rightOrigIdx } → играем с этой структурой
+      if(Object.keys(matches).length !== pL.length) return;
       onSubmit(matches);
     }
 
-    const allMatched = Object.keys(matches).length === pairsLeft.length;
+    const allMatched = Object.keys(matches).length === pL.length;
 
     // Для feedback — какие пары верные
     function pairCorrect(leftIdx, rightOrigIdx){
@@ -379,7 +434,7 @@
       React.createElement('div', { className: 'tn-match-grid' },
         // Левая колонка
         React.createElement('div', { className: 'tn-match-col tn-match-col-left' },
-          pairsLeft.map((txt, i) => {
+          pL.map((txt, i) => {
             const matched = matches[i] != null;
             const isSel = selectedLeft === i;
             let state = matched ? 'matched' : (isSel ? 'selected' : 'default');
@@ -417,7 +472,7 @@
         className: 'tn-multi-submit',
         onClick: submit,
         disabled: !allMatched
-      }, allMatched ? 'Ответить →' : 'Соедини все пары (' + Object.keys(matches).length + ' / ' + pairsLeft.length + ')')
+      }, allMatched ? 'Ответить →' : 'Соедини все пары (' + Object.keys(matches).length + ' / ' + pL.length + ')')
     );
   }
 
@@ -672,7 +727,7 @@
   }
 
   // ─── Question — основной компонент игрового вопроса ─────────────
-  function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswersRef, streak, streakMultiplier }){
+  function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, roundsTotal, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswersRef, streak, streakMultiplier }){
     const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
     const [chosen, setChosen] = useState(null);
     const startedAt = useRef(Date.now());
@@ -882,7 +937,7 @@
 
     return React.createElement('div', { className: 'tn-fullscreen' },
       React.createElement('div', { className: 'tn-container' },
-        React.createElement(TnTopBar, { eyebrow: 'Партия · Раунд ' + roundNum + ' / 6' }),
+        React.createElement(TnTopBar, { eyebrow: 'Партия · Раунд ' + roundNum + ' / ' + (roundsTotal || 6) }),
         React.createElement(TnGameProgress, { qOverall, totalOverall }),
         React.createElement(TnVsHeader, { player, scoreP, opponent, scoreO }),
         React.createElement(TnTimerBar, { timeLeft, paused: showFeedback }),
@@ -1520,21 +1575,48 @@
       });
     }
     if(phase === 'question'){
+      // Если currentQ пустой (битый partiya) — пропускаем как timeout
+      if(!currentQ){
+        // Авто-skip — записываем как timeout и идём дальше
+        const skip = () => onAnswer({
+          playerCorrect: false, playerTime: QUESTION_TIME * 1000,
+          oppCorrect: false, oppTime: QUESTION_TIME * 1000, oppBusey: 0
+        });
+        setTimeout(skip, 100);
+        return React.createElement('div', { className: 'tn-fullscreen' },
+          React.createElement('div', { className: 'tn-container' },
+            React.createElement('div', { style: { padding:60, textAlign:'center', color:'#86868b' } },
+              'Загрузка…')
+          )
+        );
+      }
       // КРИТИЧНО: key на основе вопроса — React гарантированно пересоздаёт
       // компонент при смене вопроса. Без этого state (chosen/timer) переносится
       // между вопросами и игра ломается после первого клика.
-      return React.createElement(Question, {
-        key: 'q-' + roundIdx + '-' + qIdx,
-        q: currentQ, theme: currentRound.theme,
-        qIndex: qIdx, totalInRound: currentRound.questions.length,
-        qOverall, totalOverall, roundNum: roundIdx + 1,
-        scoreP, scoreO,
-        player,
-        opponent: { name: opp.name, level: opponentLevel || 'medium' },
-        onAnswer,
-        isPvP, transport, oppAnswersRef,
-        streak, streakMultiplier
+      // Дополнительно — оборачиваем в ErrorBoundary: одна битая запись не
+      // должна убивать всю партию.
+      const onSkip = () => onAnswer({
+        playerCorrect: false, playerTime: QUESTION_TIME * 1000,
+        oppCorrect: false, oppTime: QUESTION_TIME * 1000, oppBusey: 0
       });
+      return React.createElement(QuestionErrorBoundary, {
+        key: 'qb-' + roundIdx + '-' + qIdx,
+        onSkip,
+      },
+        React.createElement(Question, {
+          key: 'q-' + roundIdx + '-' + qIdx,
+          q: currentQ, theme: currentRound.theme,
+          qIndex: qIdx, totalInRound: currentRound.questions.length,
+          qOverall, totalOverall,
+          roundNum: roundIdx + 1, roundsTotal: partiya.length,
+          scoreP, scoreO,
+          player,
+          opponent: { name: opp.name, level: opponentLevel || 'medium' },
+          onAnswer,
+          isPvP, transport, oppAnswersRef,
+          streak, streakMultiplier
+        })
+      );
     }
     if(phase === 'midrecap'){
       // После клика «Дальше» или таймера — продвигаемся к следующему вопросу

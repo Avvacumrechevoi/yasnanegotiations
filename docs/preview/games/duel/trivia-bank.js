@@ -307,7 +307,50 @@
   // Для партии используем фильтрованный список (без T10).
   // Все темы доступны через getAllThemes() для UI / Партитуры.
   const ACTIVE_THEMES = useNew ? NEW_THEMES_FOR_PARTIYA : THEMES;
-  const ACTIVE_QUESTIONS = useNew ? NEW_QUESTIONS : MERGED_QUESTIONS;
+  const ACTIVE_QUESTIONS_RAW = useNew ? NEW_QUESTIONS : MERGED_QUESTIONS;
+
+  // ─── Валидация и фильтрация вопросов ────────────────────────────────
+  // Защита от двух типов проблем:
+  //   1) Малформенные вопросы (битый JSON) — рендер крашится
+  //   2) Тип fill-blank — UX-провал (никто не помнит дословно)
+  // Эти типы фильтруем globally. Для расширения см. README в content/.
+  const DISABLED_TYPES = new Set(['fill-blank', 'order']);
+
+  function isQuestionValid(q){
+    if(!q || typeof q !== 'object') return false;
+    if(!q.id || !q.theme) return false;
+    const text = q.text || q.stem;
+    if(!text || typeof text !== 'string') return false;
+    const type = q.type || 'single-choice';
+    if(DISABLED_TYPES.has(type)) return false;
+    // Per-type checks
+    if(type === 'single-choice'){
+      return Array.isArray(q.options) && q.options.length >= 2
+        && (typeof q.correct === 'number' || typeof q.correct === 'string');
+    }
+    if(type === 'true-false'){
+      return Array.isArray(q.options) && q.options.length === 2
+        && (q.correct === 0 || q.correct === 1 || q.correct === true || q.correct === false);
+    }
+    if(type === 'multi-choice'){
+      return Array.isArray(q.options) && q.options.length >= 2
+        && Array.isArray(q.correct) && q.correct.length >= 1;
+    }
+    if(type === 'match-pair'){
+      return Array.isArray(q.pairsLeft) && Array.isArray(q.pairsRight)
+        && q.pairsLeft.length === q.pairsRight.length
+        && q.pairsLeft.length >= 2;
+    }
+    return false;  // Неизвестный тип — не пропускаем
+  }
+
+  // Применяем фильтр + считаем статистику (для дев-консоли)
+  const ACTIVE_QUESTIONS = ACTIVE_QUESTIONS_RAW.filter(isQuestionValid);
+  const SKIPPED_COUNT = ACTIVE_QUESTIONS_RAW.length - ACTIVE_QUESTIONS.length;
+  if(SKIPPED_COUNT > 0){
+    console.log('[YasnaTrivia] Отфильтровано', SKIPPED_COUNT,
+      'вопросов (битые / отключённые типы:', [...DISABLED_TYPES].join(', '), ')');
+  }
 
   if(NEW){
     console.log('[YasnaTrivia] Контент-bundle:',
@@ -376,37 +419,58 @@
   }
 
   // Случайный набор для партии.
-  // mode: 'blitz' | 'standard' | 'expert' — длительность
-  // themesFilter: null (все) или массив theme.id (кастомный набор)
+  // mode: 'blitz' | 'standard' | 'expert' — длительность (определяет TOTAL вопросов)
+  // themesFilter: null (все) или массив theme.id (кастомный набор, ≥1)
+  //
+  // Логика распределения total на N тем (N ≥ 1):
+  //   targetTotal = cfg.themes * cfg.qPerTheme  (10/18/30)
+  //   N тем → каждая получает ceil(target/N) или floor — равномерно.
+  //   Если у темы недостаточно вопросов — берём всё что есть, остаток
+  //   добиваем из соседних тем (если их несколько) или partiya короче.
   function generatePartiya(seed, mode, themesFilter){
     const cfg = MODE_CONFIG[mode] || MODE_CONFIG.standard;
+    const targetTotal = cfg.themes * cfg.qPerTheme;
     const seen = loadSeen();
     const win = ANTI_REPEAT_WINDOW_MS[mode] || ANTI_REPEAT_WINDOW_MS.standard;
     const cutoff = Date.now() - win;
     const isFresh = (qId) => !seen[qId] || seen[qId] < cutoff;
 
     const rng = seedRandom(seed || Date.now());
-    // Если задан кастомный набор тем — фильтруем
-    const eligibleThemes = themesFilter
+    // Кастом-фильтр тем (≥1 теперь разрешено)
+    const eligibleThemes = themesFilter && themesFilter.length > 0
       ? ACTIVE_THEMES.filter(t => themesFilter.includes(t.id))
       : ACTIVE_THEMES;
-    const shuffled = [...eligibleThemes].sort(() => rng() - 0.5);
-    const chosen = shuffled.slice(0, cfg.themes);
 
-    const partiya = chosen.map(theme => {
+    // Если выбрано тем меньше, чем хочет режим — играем со всеми выбранными.
+    // Иначе — случайная выборка cfg.themes из эл-ных.
+    const themesToUse = eligibleThemes.length <= cfg.themes
+      ? [...eligibleThemes]
+      : [...eligibleThemes].sort(() => rng() - 0.5).slice(0, cfg.themes);
+
+    if(themesToUse.length === 0) return [];
+
+    // Распределяем target вопросов по N темам (равномерно с округлением вверх)
+    const N = themesToUse.length;
+    const baseQ = Math.floor(targetTotal / N);
+    const extra = targetTotal - baseQ * N;
+    // Перемешиваем порядок тем (на старт партии — не всегда первая выбранная)
+    const ordered = [...themesToUse].sort(() => rng() - 0.5);
+
+    const partiya = ordered.map((theme, idx) => {
+      const want = baseQ + (idx < extra ? 1 : 0);  // первые `extra` тем получают +1
       const themeQs = ACTIVE_QUESTIONS.filter(q => q.theme === theme.id);
-      // Сначала берём только свежие, если их достаточно
+      // Сначала свежие
       const fresh = themeQs.filter(q => isFresh(q.id));
       const shFresh = [...fresh].sort(() => rng() - 0.5);
-      let picked = shFresh.slice(0, cfg.qPerTheme);
-      // Если свежих мало — добиваем из всего пула (исключая уже выбранные)
-      if(picked.length < cfg.qPerTheme){
+      let picked = shFresh.slice(0, want);
+      // Если свежих мало — добиваем из всего пула
+      if(picked.length < want){
         const fallback = themeQs.filter(q => !picked.find(p => p.id === q.id));
         const shAll = [...fallback].sort(() => rng() - 0.5);
-        picked = [...picked, ...shAll.slice(0, cfg.qPerTheme - picked.length)];
+        picked = [...picked, ...shAll.slice(0, want - picked.length)];
       }
-      return { theme, questions: picked };
-    });
+      return { theme, questions: picked, requested: want };
+    }).filter(r => r.questions.length > 0);  // отбрасываем темы с 0 вопросов
 
     // Помечаем все выбранные qId как «показанные»
     const allIds = partiya.flatMap(r => r.questions.map(q => q.id));
