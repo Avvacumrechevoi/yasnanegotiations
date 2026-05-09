@@ -366,75 +366,79 @@
     );
   }
 
+  // ─── Tooltip: «Как проходит Партия» — popover вместо большого блока ─
+  // Trigger — маленькая «(i)» кнопка в инлайне с описанием. Контент тот же
+  // 5 шагов, но компактнее и не занимает место постоянно.
+  // Закрывается по клику вне, по Escape или по повторному клику trigger.
+  function DPPartiyaHowTooltip(){
+    const [open, setOpen] = useState(false);
+    const ref = useRef(null);
+    useEffect(() => {
+      if(!open) return;
+      const onDocClick = (e) => {
+        if(ref.current && !ref.current.contains(e.target)) setOpen(false);
+      };
+      const onKey = (e) => { if(e.key === 'Escape') setOpen(false); };
+      document.addEventListener('mousedown', onDocClick);
+      document.addEventListener('keydown', onKey);
+      return () => {
+        document.removeEventListener('mousedown', onDocClick);
+        document.removeEventListener('keydown', onKey);
+      };
+    }, [open]);
+
+    const STEPS = [
+      ['01', 'Выбор длительности и тем', '10 / 18 / 30 вопросов · все темы или узкий набор'],
+      ['02', 'Соперник — Тень или друг', 'Бот разной силы или живой собеседник по ссылке-комнате'],
+      ['03', '4 типа вопросов · таймер', 'Выбор из 4 · «верно/нет» · несколько верных · соедини пары'],
+      ['04', 'Бусины · streak ×1.2 … ×2.0', '+10 за верный, до +5 за скорость. 3/5/7 верных подряд — множитель'],
+      ['05', 'Финал · разбор с цитатами', 'Каждая ошибка — с цитатой из книги. Партитура освоения растёт'],
+    ];
+
+    return React.createElement('span', { ref, className: 'dp-howto', style: { position:'relative', display:'inline-block' } },
+      React.createElement('button', {
+        type: 'button',
+        className: 'dp-howto-trigger',
+        onClick: () => setOpen(o => !o),
+        'aria-expanded': open,
+        'aria-label': 'Как проходит Партия',
+        title: 'Как проходит Партия',
+      }, 'i'),
+      open && React.createElement('div', { className: 'dp-howto-popover', role: 'dialog', 'aria-label': 'Как проходит Партия' },
+        React.createElement('div', { className: 'dp-howto-arrow', 'aria-hidden': 'true' }),
+        React.createElement('div', { className: 'dp-howto-head' },
+          React.createElement('h3', { className: 'dp-howto-title' }, 'Как проходит одна Партия'),
+          React.createElement('span', { className: 'dp-howto-tag' }, 'Блиц / Стандарт / Эксперт')
+        ),
+        React.createElement('ol', { className: 'dp-howto-steps' },
+          STEPS.map(([num, title, text]) =>
+            React.createElement('li', { key: num, className: 'dp-howto-step' },
+              React.createElement('div', { className: 'dp-howto-num' }, num),
+              React.createElement('div', { className: 'dp-howto-desc' },
+                React.createElement('div', { className: 'dp-howto-desc-title' }, title),
+                React.createElement('div', { className: 'dp-howto-desc-text' }, text)
+              )
+            )
+          )
+        )
+      )
+    );
+  }
+
   // ─── Главный ритуал · 2 игры ─────────────────────────────────────
   function DPMainGames({ onPartiya, onUzor }){
     return React.createElement('section', { className: 'dp-section', role: 'region', 'aria-label': 'Главный ритуал' },
-      React.createElement('div', { style: { marginBottom: 'var(--space-3)' } },
+      React.createElement('div', { style: { marginBottom: 'var(--space-5)' } },
         React.createElement('div', { className: 'dp-eyebrow' }, 'Игры Ясны'),
         React.createElement('h2', { className: 'dp-section-h', style: { fontFamily: 'var(--font-serif)', fontWeight: 500, fontSize: 22, letterSpacing: '-0.005em' } },
           'Две игровые практики'
         ),
         React.createElement('p', { className: 'dp-section-desc', style: { marginTop: 4 } },
-          React.createElement('strong', { style: { color: 'var(--text-1)', fontWeight: 500 } }, 'Партия'), ' — викторина 10/18/30 вопросов с Тенью или другом. ',
+          React.createElement('strong', { style: { color: 'var(--text-1)', fontWeight: 500 } }, 'Партия'),
+          ' ',
+          React.createElement(DPPartiyaHowTooltip, null),
+          ' — викторина 10/18/30 вопросов с Тенью или другом. ',
           React.createElement('strong', { style: { color: 'var(--text-1)', fontWeight: 500 } }, 'Расклад'), ' — гонка по 12 полкам против соперника.'
-        )
-      ),
-      // ─── Dark: VK-Scheme — как устроена Партия (5 шагов) ───
-      React.createElement('div', { className: 'vk-scheme-block', style: { marginBottom: 'var(--space-5)' } },
-        React.createElement('div', { className: 'vk-scheme' },
-          React.createElement('div', { className: 'vk-scheme-canvas' },
-            React.createElement('div', { className: 'vk-scheme-header' },
-              React.createElement('h3', { className: 'vk-scheme-header-title' }, 'Как проходит одна Партия'),
-              React.createElement('span', { className: 'vk-scheme-tag vk-scheme-tag--accent' }, 'Блиц / Стандарт / Эксперт')
-            ),
-            React.createElement('ol', { className: 'vk-scheme-steps' },
-              React.createElement('li', { className: 'vk-scheme-step' },
-                React.createElement('div', { className: 'vk-scheme-num' },
-                  React.createElement('div', { className: 'vk-scheme-num-inner' }, '01')
-                ),
-                React.createElement('div', { className: 'vk-scheme-desc' },
-                  React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Выбор длительности и тем'),
-                  React.createElement('div', { className: 'vk-scheme-desc-text' }, '10 / 18 / 30 вопросов · можно оставить все темы или выбрать узко')
-                )
-              ),
-              React.createElement('li', { className: 'vk-scheme-step' },
-                React.createElement('div', { className: 'vk-scheme-num' },
-                  React.createElement('div', { className: 'vk-scheme-num-inner' }, '02')
-                ),
-                React.createElement('div', { className: 'vk-scheme-desc' },
-                  React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Соперник — Тень или друг'),
-                  React.createElement('div', { className: 'vk-scheme-desc-text' }, 'Бот разной силы или живой собеседник по ссылке-комнате')
-                )
-              ),
-              React.createElement('li', { className: 'vk-scheme-step' },
-                React.createElement('div', { className: 'vk-scheme-num' },
-                  React.createElement('div', { className: 'vk-scheme-num-inner' }, '03')
-                ),
-                React.createElement('div', { className: 'vk-scheme-desc' },
-                  React.createElement('div', { className: 'vk-scheme-desc-title' }, '5 типов вопросов · таймер'),
-                  React.createElement('div', { className: 'vk-scheme-desc-text' }, 'Выбор из 4 · «верно/нет» · впиши слово · несколько верных · соедини пары')
-                )
-              ),
-              React.createElement('li', { className: 'vk-scheme-step' },
-                React.createElement('div', { className: 'vk-scheme-num' },
-                  React.createElement('div', { className: 'vk-scheme-num-inner' }, '04')
-                ),
-                React.createElement('div', { className: 'vk-scheme-desc' },
-                  React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Бусины · streak ×1.2…×2.0'),
-                  React.createElement('div', { className: 'vk-scheme-desc-text' }, '+10 за верный, до +5 за скорость. 3/5/7 верных подряд — множитель')
-                )
-              ),
-              React.createElement('li', { className: 'vk-scheme-step' },
-                React.createElement('div', { className: 'vk-scheme-num' },
-                  React.createElement('div', { className: 'vk-scheme-num-inner' }, '05')
-                ),
-                React.createElement('div', { className: 'vk-scheme-desc' },
-                  React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Финал · разбор с цитатами'),
-                  React.createElement('div', { className: 'vk-scheme-desc-text' }, 'Каждая ошибка — с дословной цитатой из книги. Партитура освоения растёт')
-                )
-              )
-            )
-          )
         )
       ),
       React.createElement('div', { className: 'dp-games-grid' },

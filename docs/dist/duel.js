@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T20:30:58.448Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T20:47:43.316Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5861,7 +5861,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T20:30:57.989Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T20:47:42.830Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -21384,13 +21384,79 @@ window.YasnaCore = {
       )
     );
   }
+  function DPPartiyaHowTooltip() {
+    const [open, setOpen] = useState(false);
+    const ref = useRef(null);
+    useEffect(() => {
+      if (!open) return;
+      const onDocClick = (e) => {
+        if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+      };
+      const onKey = (e) => {
+        if (e.key === "Escape") setOpen(false);
+      };
+      document.addEventListener("mousedown", onDocClick);
+      document.addEventListener("keydown", onKey);
+      return () => {
+        document.removeEventListener("mousedown", onDocClick);
+        document.removeEventListener("keydown", onKey);
+      };
+    }, [open]);
+    const STEPS = [
+      ["01", "\u0412\u044B\u0431\u043E\u0440 \u0434\u043B\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u0438 \u0438 \u0442\u0435\u043C", "10 / 18 / 30 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \xB7 \u0432\u0441\u0435 \u0442\u0435\u043C\u044B \u0438\u043B\u0438 \u0443\u0437\u043A\u0438\u0439 \u043D\u0430\u0431\u043E\u0440"],
+      ["02", "\u0421\u043E\u043F\u0435\u0440\u043D\u0438\u043A \u2014 \u0422\u0435\u043D\u044C \u0438\u043B\u0438 \u0434\u0440\u0443\u0433", "\u0411\u043E\u0442 \u0440\u0430\u0437\u043D\u043E\u0439 \u0441\u0438\u043B\u044B \u0438\u043B\u0438 \u0436\u0438\u0432\u043E\u0439 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435-\u043A\u043E\u043C\u043D\u0430\u0442\u0435"],
+      ["03", "4 \u0442\u0438\u043F\u0430 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \xB7 \u0442\u0430\u0439\u043C\u0435\u0440", "\u0412\u044B\u0431\u043E\u0440 \u0438\u0437 4 \xB7 \xAB\u0432\u0435\u0440\u043D\u043E/\u043D\u0435\u0442\xBB \xB7 \u043D\u0435\u0441\u043A\u043E\u043B\u044C\u043A\u043E \u0432\u0435\u0440\u043D\u044B\u0445 \xB7 \u0441\u043E\u0435\u0434\u0438\u043D\u0438 \u043F\u0430\u0440\u044B"],
+      ["04", "\u0411\u0443\u0441\u0438\u043D\u044B \xB7 streak \xD71.2 \u2026 \xD72.0", "+10 \u0437\u0430 \u0432\u0435\u0440\u043D\u044B\u0439, \u0434\u043E +5 \u0437\u0430 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u044C. 3/5/7 \u0432\u0435\u0440\u043D\u044B\u0445 \u043F\u043E\u0434\u0440\u044F\u0434 \u2014 \u043C\u043D\u043E\u0436\u0438\u0442\u0435\u043B\u044C"],
+      ["05", "\u0424\u0438\u043D\u0430\u043B \xB7 \u0440\u0430\u0437\u0431\u043E\u0440 \u0441 \u0446\u0438\u0442\u0430\u0442\u0430\u043C\u0438", "\u041A\u0430\u0436\u0434\u0430\u044F \u043E\u0448\u0438\u0431\u043A\u0430 \u2014 \u0441 \u0446\u0438\u0442\u0430\u0442\u043E\u0439 \u0438\u0437 \u043A\u043D\u0438\u0433\u0438. \u041F\u0430\u0440\u0442\u0438\u0442\u0443\u0440\u0430 \u043E\u0441\u0432\u043E\u0435\u043D\u0438\u044F \u0440\u0430\u0441\u0442\u0451\u0442"]
+    ];
+    return React.createElement(
+      "span",
+      { ref, className: "dp-howto", style: { position: "relative", display: "inline-block" } },
+      React.createElement("button", {
+        type: "button",
+        className: "dp-howto-trigger",
+        onClick: () => setOpen((o) => !o),
+        "aria-expanded": open,
+        "aria-label": "\u041A\u0430\u043A \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442 \u041F\u0430\u0440\u0442\u0438\u044F",
+        title: "\u041A\u0430\u043A \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442 \u041F\u0430\u0440\u0442\u0438\u044F"
+      }, "i"),
+      open && React.createElement(
+        "div",
+        { className: "dp-howto-popover", role: "dialog", "aria-label": "\u041A\u0430\u043A \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442 \u041F\u0430\u0440\u0442\u0438\u044F" },
+        React.createElement("div", { className: "dp-howto-arrow", "aria-hidden": "true" }),
+        React.createElement(
+          "div",
+          { className: "dp-howto-head" },
+          React.createElement("h3", { className: "dp-howto-title" }, "\u041A\u0430\u043A \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442 \u043E\u0434\u043D\u0430 \u041F\u0430\u0440\u0442\u0438\u044F"),
+          React.createElement("span", { className: "dp-howto-tag" }, "\u0411\u043B\u0438\u0446 / \u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442 / \u042D\u043A\u0441\u043F\u0435\u0440\u0442")
+        ),
+        React.createElement(
+          "ol",
+          { className: "dp-howto-steps" },
+          STEPS.map(
+            ([num, title, text]) => React.createElement(
+              "li",
+              { key: num, className: "dp-howto-step" },
+              React.createElement("div", { className: "dp-howto-num" }, num),
+              React.createElement(
+                "div",
+                { className: "dp-howto-desc" },
+                React.createElement("div", { className: "dp-howto-desc-title" }, title),
+                React.createElement("div", { className: "dp-howto-desc-text" }, text)
+              )
+            )
+          )
+        )
+      )
+    );
+  }
   function DPMainGames({ onPartiya, onUzor }) {
     return React.createElement(
       "section",
       { className: "dp-section", role: "region", "aria-label": "\u0413\u043B\u0430\u0432\u043D\u044B\u0439 \u0440\u0438\u0442\u0443\u0430\u043B" },
       React.createElement(
         "div",
-        { style: { marginBottom: "var(--space-3)" } },
+        { style: { marginBottom: "var(--space-5)" } },
         React.createElement("div", { className: "dp-eyebrow" }, "\u0418\u0433\u0440\u044B \u042F\u0441\u043D\u044B"),
         React.createElement(
           "h2",
@@ -21401,107 +21467,11 @@ window.YasnaCore = {
           "p",
           { className: "dp-section-desc", style: { marginTop: 4 } },
           React.createElement("strong", { style: { color: "var(--text-1)", fontWeight: 500 } }, "\u041F\u0430\u0440\u0442\u0438\u044F"),
+          " ",
+          React.createElement(DPPartiyaHowTooltip, null),
           " \u2014 \u0432\u0438\u043A\u0442\u043E\u0440\u0438\u043D\u0430 10/18/30 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \u0441 \u0422\u0435\u043D\u044C\u044E \u0438\u043B\u0438 \u0434\u0440\u0443\u0433\u043E\u043C. ",
           React.createElement("strong", { style: { color: "var(--text-1)", fontWeight: 500 } }, "\u0420\u0430\u0441\u043A\u043B\u0430\u0434"),
           " \u2014 \u0433\u043E\u043D\u043A\u0430 \u043F\u043E 12 \u043F\u043E\u043B\u043A\u0430\u043C \u043F\u0440\u043E\u0442\u0438\u0432 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u0430."
-        )
-      ),
-      // ─── Dark: VK-Scheme — как устроена Партия (5 шагов) ───
-      React.createElement(
-        "div",
-        { className: "vk-scheme-block", style: { marginBottom: "var(--space-5)" } },
-        React.createElement(
-          "div",
-          { className: "vk-scheme" },
-          React.createElement(
-            "div",
-            { className: "vk-scheme-canvas" },
-            React.createElement(
-              "div",
-              { className: "vk-scheme-header" },
-              React.createElement("h3", { className: "vk-scheme-header-title" }, "\u041A\u0430\u043A \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442 \u043E\u0434\u043D\u0430 \u041F\u0430\u0440\u0442\u0438\u044F"),
-              React.createElement("span", { className: "vk-scheme-tag vk-scheme-tag--accent" }, "\u0411\u043B\u0438\u0446 / \u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442 / \u042D\u043A\u0441\u043F\u0435\u0440\u0442")
-            ),
-            React.createElement(
-              "ol",
-              { className: "vk-scheme-steps" },
-              React.createElement(
-                "li",
-                { className: "vk-scheme-step" },
-                React.createElement(
-                  "div",
-                  { className: "vk-scheme-num" },
-                  React.createElement("div", { className: "vk-scheme-num-inner" }, "01")
-                ),
-                React.createElement(
-                  "div",
-                  { className: "vk-scheme-desc" },
-                  React.createElement("div", { className: "vk-scheme-desc-title" }, "\u0412\u044B\u0431\u043E\u0440 \u0434\u043B\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u0438 \u0438 \u0442\u0435\u043C"),
-                  React.createElement("div", { className: "vk-scheme-desc-text" }, "10 / 18 / 30 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \xB7 \u043C\u043E\u0436\u043D\u043E \u043E\u0441\u0442\u0430\u0432\u0438\u0442\u044C \u0432\u0441\u0435 \u0442\u0435\u043C\u044B \u0438\u043B\u0438 \u0432\u044B\u0431\u0440\u0430\u0442\u044C \u0443\u0437\u043A\u043E")
-                )
-              ),
-              React.createElement(
-                "li",
-                { className: "vk-scheme-step" },
-                React.createElement(
-                  "div",
-                  { className: "vk-scheme-num" },
-                  React.createElement("div", { className: "vk-scheme-num-inner" }, "02")
-                ),
-                React.createElement(
-                  "div",
-                  { className: "vk-scheme-desc" },
-                  React.createElement("div", { className: "vk-scheme-desc-title" }, "\u0421\u043E\u043F\u0435\u0440\u043D\u0438\u043A \u2014 \u0422\u0435\u043D\u044C \u0438\u043B\u0438 \u0434\u0440\u0443\u0433"),
-                  React.createElement("div", { className: "vk-scheme-desc-text" }, "\u0411\u043E\u0442 \u0440\u0430\u0437\u043D\u043E\u0439 \u0441\u0438\u043B\u044B \u0438\u043B\u0438 \u0436\u0438\u0432\u043E\u0439 \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435-\u043A\u043E\u043C\u043D\u0430\u0442\u0435")
-                )
-              ),
-              React.createElement(
-                "li",
-                { className: "vk-scheme-step" },
-                React.createElement(
-                  "div",
-                  { className: "vk-scheme-num" },
-                  React.createElement("div", { className: "vk-scheme-num-inner" }, "03")
-                ),
-                React.createElement(
-                  "div",
-                  { className: "vk-scheme-desc" },
-                  React.createElement("div", { className: "vk-scheme-desc-title" }, "5 \u0442\u0438\u043F\u043E\u0432 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 \xB7 \u0442\u0430\u0439\u043C\u0435\u0440"),
-                  React.createElement("div", { className: "vk-scheme-desc-text" }, "\u0412\u044B\u0431\u043E\u0440 \u0438\u0437 4 \xB7 \xAB\u0432\u0435\u0440\u043D\u043E/\u043D\u0435\u0442\xBB \xB7 \u0432\u043F\u0438\u0448\u0438 \u0441\u043B\u043E\u0432\u043E \xB7 \u043D\u0435\u0441\u043A\u043E\u043B\u044C\u043A\u043E \u0432\u0435\u0440\u043D\u044B\u0445 \xB7 \u0441\u043E\u0435\u0434\u0438\u043D\u0438 \u043F\u0430\u0440\u044B")
-                )
-              ),
-              React.createElement(
-                "li",
-                { className: "vk-scheme-step" },
-                React.createElement(
-                  "div",
-                  { className: "vk-scheme-num" },
-                  React.createElement("div", { className: "vk-scheme-num-inner" }, "04")
-                ),
-                React.createElement(
-                  "div",
-                  { className: "vk-scheme-desc" },
-                  React.createElement("div", { className: "vk-scheme-desc-title" }, "\u0411\u0443\u0441\u0438\u043D\u044B \xB7 streak \xD71.2\u2026\xD72.0"),
-                  React.createElement("div", { className: "vk-scheme-desc-text" }, "+10 \u0437\u0430 \u0432\u0435\u0440\u043D\u044B\u0439, \u0434\u043E +5 \u0437\u0430 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u044C. 3/5/7 \u0432\u0435\u0440\u043D\u044B\u0445 \u043F\u043E\u0434\u0440\u044F\u0434 \u2014 \u043C\u043D\u043E\u0436\u0438\u0442\u0435\u043B\u044C")
-                )
-              ),
-              React.createElement(
-                "li",
-                { className: "vk-scheme-step" },
-                React.createElement(
-                  "div",
-                  { className: "vk-scheme-num" },
-                  React.createElement("div", { className: "vk-scheme-num-inner" }, "05")
-                ),
-                React.createElement(
-                  "div",
-                  { className: "vk-scheme-desc" },
-                  React.createElement("div", { className: "vk-scheme-desc-title" }, "\u0424\u0438\u043D\u0430\u043B \xB7 \u0440\u0430\u0437\u0431\u043E\u0440 \u0441 \u0446\u0438\u0442\u0430\u0442\u0430\u043C\u0438"),
-                  React.createElement("div", { className: "vk-scheme-desc-text" }, "\u041A\u0430\u0436\u0434\u0430\u044F \u043E\u0448\u0438\u0431\u043A\u0430 \u2014 \u0441 \u0434\u043E\u0441\u043B\u043E\u0432\u043D\u043E\u0439 \u0446\u0438\u0442\u0430\u0442\u043E\u0439 \u0438\u0437 \u043A\u043D\u0438\u0433\u0438. \u041F\u0430\u0440\u0442\u0438\u0442\u0443\u0440\u0430 \u043E\u0441\u0432\u043E\u0435\u043D\u0438\u044F \u0440\u0430\u0441\u0442\u0451\u0442")
-                )
-              )
-            )
-          )
         )
       ),
       React.createElement(
