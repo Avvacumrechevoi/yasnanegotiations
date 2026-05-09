@@ -45,18 +45,41 @@ function saveOverrides(ov){
 }
 
 // ─── Merge content + overrides ──────────────────────────────────────
+// Читаем РАЗРЕШЁННЫЙ контент из ContentStore (это baseline + published
+// overrides из YDB), а потом сверху накладываем ЛОКАЛЬНЫЕ незапубликованные
+// правки админа. Так в списке видно:
+//   • базовые вопросы (без бейджа)
+//   • опубликованные ранее новые → бейдж "✓ Опубликовано"
+//   • локально-новые/изменённые → бейдж "✦ Новый (локально)" / "✎ Изменён локально"
 function getMergedQuestions(){
-  const content = window.YasnaContent;
-  if(!content) return [];
+  const store = window.YasnaContentStore;
+  const resolved = (store && store.getResolved && store.getResolved())
+    || window.YasnaContentResolved
+    || window.YasnaContent;
+  if(!resolved) return [];
+
+  // IDs опубликованных-добавленных (из YDB-ревизии). Берём из сырых overrides.
+  const storeOv = (store && store._internal && store._internal.getOverrides && store._internal.getOverrides()) || {};
+  const publishedAddedIds = new Set((storeOv.added || []).map(q => q.id));
+  const publishedEditedIds = new Set(Object.keys(storeOv.edited || {}));
+
   const ov = loadOverrides();
   const deletedSet = new Set(ov.deleted);
-  // Базовые вопросы (с применением edited и без удалённых)
-  const base = (content.QUESTIONS || [])
+  // Resolved.QUESTIONS уже содержит baseline + published.added; deleted уже исключены.
+  // Здесь применяем ЛОКАЛЬНЫЕ edited и фильтруем ЛОКАЛЬНО deleted.
+  const base = (resolved.QUESTIONS || [])
     .filter(q => !deletedSet.has(q.id))
-    .map(q => ov.edited[q.id] ? { ...q, ...ov.edited[q.id] } : q);
-  // Добавленные вопросы (помечаем флагом для UI)
-  const added = (ov.added || []).map(q => ({ ...q, _isNew: true }));
-  return [...base, ...added];
+    .map(q => {
+      const localEdit = ov.edited[q.id];
+      const tagged = localEdit ? { ...q, ...localEdit, _localEdited: true } : q;
+      // Помечаем «опубликованные» (есть в overrides текущей ревизии)
+      if(publishedAddedIds.has(q.id)) tagged._publishedNew = true;
+      else if(publishedEditedIds.has(q.id)) tagged._publishedEdited = true;
+      return tagged;
+    });
+  // Локально-добавленные (ещё не опубликованные)
+  const localAdded = (ov.added || []).map(q => ({ ...q, _isNew: true }));
+  return [...base, ...localAdded];
 }
 
 // ─── ID generator для новых вопросов ────────────────────────────────
@@ -468,17 +491,27 @@ function AdminApp(){
   const [showPublish, setShowPublish] = useState(false);
   const [publishedResult, setPublishedResult] = useState(null);
 
-  // Bootstrap ContentStore — чтобы видеть последнюю опубликованную ревизию
+  // ─── Tick для триггера re-render когда ContentStore обновляется ───
+  // Когда приходит новая ревизия из API (после publish или периодического
+  // refresh), мы должны перерисовать список вопросов — но useMemo привязан
+  // к локальному `overrides`. Поэтому увеличиваем счётчик `storeTick` →
+  // useMemo пересчитывается → подтягивается новый resolved-контент.
+  const [storeTick, setStoreTick] = useState(0);
+
+  // Bootstrap ContentStore + подписка на обновления
   useEffect(() => {
     if(window.YasnaContentStore){
       try { window.YasnaContentStore.init(); } catch(_){}
     }
+    const onUpdate = () => setStoreTick(t => t + 1);
+    window.addEventListener('yasna-content-updated', onUpdate);
+    return () => window.removeEventListener('yasna-content-updated', onUpdate);
   }, []);
 
   // Сохраняем overrides в localStorage при изменении
   useEffect(() => { saveOverrides(overrides); }, [overrides]);
 
-  const allQuestions = useMemo(() => getMergedQuestions(), [overrides]);
+  const allQuestions = useMemo(() => getMergedQuestions(), [overrides, storeTick]);
   const questionsForTheme = useMemo(
     () => allQuestions.filter(q => q.theme === activeTheme),
     [allQuestions, activeTheme]
@@ -599,8 +632,10 @@ function AdminApp(){
                 React.createElement('div', { className:'ad-q-type' }, type ? (type.icon + ' ' + type.label.toLowerCase()) : (q.type || '?')),
                 React.createElement('div', { className:'ad-q-text' },
                   React.createElement('strong', null, q.text || q.stem || '(без текста)'),
-                  q._isNew && React.createElement('small', { style: { color:'#0058b8' } }, '✦ Новый (локально)'),
-                  overrides.edited[q.id] && React.createElement('small', { style: { color:'#c0943a' } }, '✎ Изменён локально'),
+                  q._isNew && React.createElement('small', { style: { color:'#0058b8' } }, '✦ Новый (локально, не опубликован)'),
+                  q._localEdited && React.createElement('small', { style: { color:'#c0943a' } }, '✎ Изменён локально, не опубликован'),
+                  q._publishedNew && !q._isNew && !q._localEdited && React.createElement('small', { style: { color:'#137333' } }, '✓ Опубликовано в БД'),
+                  q._publishedEdited && !q._localEdited && React.createElement('small', { style: { color:'#137333' } }, '✓ Изменения опубликованы в БД'),
                   q.hint && React.createElement('small', null, '«', q.hint.slice(0, 80), q.hint.length > 80 ? '…»' : '»')
                 ),
                 React.createElement('div', { className:'ad-q-actions' },
