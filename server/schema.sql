@@ -30,6 +30,24 @@ CREATE TABLE device_links (
   INDEX device_links_by_user GLOBAL ON (user_id)
 );
 
+-- ─── Контент: ревизии правок (overrides) ──────────────────────────
+-- Tier-2 хранилище для админских правок контента.
+-- Каждый publish создаёт НОВУЮ строку с is_current=true. Перед этим всем
+-- предыдущим строкам ставится is_current=false (атомарно в одной транзакции).
+-- Хранит full snapshot { added, edited, deleted } — не дельта от прошлого.
+-- История последних 50 ревизий → возможность отката одним SQL-запросом.
+CREATE TABLE content_revisions (
+  revision_id     Utf8 NOT NULL,            -- UUID
+  data_json       Utf8 NOT NULL,            -- сериализованный {added, edited, deleted}
+  data_hash       Utf8 NOT NULL,            -- sha256(data_json) — ETag
+  published_by    Utf8,                     -- nickname / 'admin'
+  published_at    Timestamp NOT NULL,
+  is_current      Bool NOT NULL,            -- только одна строка с true
+  notes           Utf8,                     -- комментарий к публикации
+  PRIMARY KEY (revision_id),
+  INDEX content_by_current GLOBAL ON (is_current, published_at)
+);
+
 -- Матчи. user_id nullable — анонимные матчи учитываются под device_id.
 CREATE TABLE matches (
   id              Utf8 NOT NULL,

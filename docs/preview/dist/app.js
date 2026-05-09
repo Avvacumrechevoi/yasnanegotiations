@@ -1,4 +1,4 @@
-/* Yasna bundle: app.js — собран 2026-05-09T16:45:41.347Z */
+/* Yasna bundle: app.js — собран 2026-05-09T17:03:20.524Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -585,6 +585,221 @@
     angDeg,
     rad,
     xy
+  };
+})();
+
+})();
+/* ─── core/content-store.js ─── */
+;(function(){
+;
+(function() {
+  "use strict";
+  const CACHE_KEY = "yasna_content_overrides_cache_v1";
+  const CACHE_TTL_MS = 5 * 60 * 1e3;
+  function apiBase() {
+    try {
+      const el = document.querySelector('meta[name="yasna:api"]');
+      return el ? el.getAttribute("content") : "";
+    } catch (_) {
+      return "";
+    }
+  }
+  let baseline = null;
+  let overrides = null;
+  let revisionMeta = null;
+  let resolved = null;
+  function loadCache() {
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || !parsed.cachedAt) return null;
+      return parsed;
+    } catch (_) {
+      return null;
+    }
+  }
+  function saveCache(payload) {
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({
+        ...payload,
+        cachedAt: Date.now()
+      }));
+    } catch (_) {
+    }
+  }
+  function clearCache() {
+    try {
+      localStorage.removeItem(CACHE_KEY);
+    } catch (_) {
+    }
+  }
+  function computeResolved() {
+    var _a, _b;
+    if (!baseline) return null;
+    const ov = overrides || { added: [], edited: {}, deleted: [] };
+    const deletedSet = new Set(ov.deleted || []);
+    const baseQs = (baseline.QUESTIONS || []).filter((q) => !deletedSet.has(q.id)).map((q) => ov.edited && ov.edited[q.id] ? { ...q, ...ov.edited[q.id] } : q);
+    const addedQs = (ov.added || []).filter((q) => q && q.id);
+    const allQs = [...baseQs, ...addedQs];
+    const baseFullQs = (baseline.QUESTIONS_FULL || []).filter((q) => !deletedSet.has(q.id)).map((q) => ov.edited && ov.edited[q.id] ? { ...q, ...ov.edited[q.id] } : q);
+    return {
+      version: baseline.version || "1.0",
+      buildInfo: baseline.buildInfo,
+      THEMES: baseline.THEMES || [],
+      QUESTIONS: allQs,
+      QUESTIONS_FULL: [...baseFullQs, ...addedQs],
+      ATOMS: baseline.ATOMS || [],
+      // Метаданные источников — для UI (показать «контент обновлён 5 мин назад»)
+      _meta: {
+        baselineVersion: baseline.version || "1.0",
+        revision: revisionMeta,
+        hasOverrides: !!(((_a = ov.added) == null ? void 0 : _a.length) || Object.keys(ov.edited || {}).length || ((_b = ov.deleted) == null ? void 0 : _b.length)),
+        counts: {
+          base: (baseline.QUESTIONS || []).length,
+          added: (ov.added || []).length,
+          edited: Object.keys(ov.edited || {}).length,
+          deleted: (ov.deleted || []).length,
+          total: allQs.length
+        }
+      }
+    };
+  }
+  function publishGlobal() {
+    resolved = computeResolved();
+    window.YasnaContentResolved = resolved;
+    try {
+      window.dispatchEvent(new CustomEvent("yasna-content-updated", {
+        detail: { meta: resolved == null ? void 0 : resolved._meta }
+      }));
+    } catch (_) {
+    }
+  }
+  async function fetchOverrides(etag) {
+    const base = apiBase();
+    if (!base) return { status: "no-api" };
+    const headers = { "Accept": "application/json" };
+    if (etag) headers["If-None-Match"] = '"' + etag + '"';
+    let resp;
+    try {
+      resp = await fetch(base.replace(/\/$/, "") + "/content", {
+        method: "GET",
+        headers,
+        // Браузер сам кэширует, но мы сами рулим через ETag
+        cache: "no-cache"
+      });
+    } catch (err) {
+      return { status: "network-error", error: err };
+    }
+    if (resp.status === 304) {
+      return { status: "not-modified" };
+    }
+    if (!resp.ok) {
+      return { status: "http-error", code: resp.status };
+    }
+    let body;
+    try {
+      body = await resp.json();
+    } catch (err) {
+      return { status: "parse-error", error: err };
+    }
+    return { status: "ok", body };
+  }
+  let _initialized = false;
+  let _refreshPromise = null;
+  function init() {
+    baseline = window.YasnaContent || baseline;
+    if (!_initialized) {
+      const cached = loadCache();
+      if (cached) {
+        overrides = cached.data || null;
+        revisionMeta = {
+          revisionId: cached.revisionId,
+          dataHash: cached.dataHash,
+          publishedAt: cached.publishedAt,
+          publishedBy: cached.publishedBy
+        };
+      }
+      _initialized = true;
+    }
+    publishGlobal();
+    if (!_refreshPromise) {
+      _refreshPromise = refresh().catch((err) => {
+        console.warn("[ContentStore] refresh failed (using cache/baseline):", err);
+      }).finally(() => {
+        _refreshPromise = null;
+      });
+    }
+    return _refreshPromise;
+  }
+  async function refresh() {
+    const cachedHash = (revisionMeta == null ? void 0 : revisionMeta.dataHash) || null;
+    const result = await fetchOverrides(cachedHash);
+    if (result.status === "not-modified") {
+      return { changed: false, status: "fresh" };
+    }
+    if (result.status !== "ok") {
+      return { changed: false, status: result.status };
+    }
+    const body = result.body;
+    overrides = body.data || { added: [], edited: {}, deleted: [] };
+    revisionMeta = {
+      revisionId: body.revisionId,
+      dataHash: body.dataHash,
+      publishedAt: body.publishedAt,
+      publishedBy: body.publishedBy
+    };
+    saveCache({ ...revisionMeta, data: overrides });
+    publishGlobal();
+    return { changed: true, status: "updated", revision: revisionMeta };
+  }
+  function getResolved() {
+    return resolved || computeResolved();
+  }
+  async function publish(data, opts) {
+    const base = apiBase();
+    if (!base) throw new Error("API endpoint \u043D\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043D");
+    const password = opts && opts.password || "";
+    if (!password) throw new Error("\u0422\u0440\u0435\u0431\u0443\u0435\u0442\u0441\u044F password");
+    const resp = await fetch(base.replace(/\/$/, "") + "/content/publish", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + password
+      },
+      body: JSON.stringify({
+        data,
+        publishedBy: opts && opts.publishedBy || "admin",
+        notes: opts && opts.notes || ""
+      })
+    });
+    let body;
+    try {
+      body = await resp.json();
+    } catch (_) {
+      body = null;
+    }
+    if (!resp.ok) {
+      const err = new Error((body == null ? void 0 : body.error) || "HTTP " + resp.status);
+      err.code = resp.status;
+      err.body = body;
+      throw err;
+    }
+    await refresh();
+    return body;
+  }
+  window.YasnaContentStore = {
+    init,
+    refresh,
+    getResolved,
+    publish,
+    // для отладки
+    _internal: {
+      getBaseline: () => baseline,
+      getOverrides: () => overrides,
+      getRevisionMeta: () => revisionMeta,
+      clearCache
+    }
   };
 })();
 

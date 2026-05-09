@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T16:45:41.118Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T17:03:20.304Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -585,6 +585,221 @@
     angDeg,
     rad,
     xy
+  };
+})();
+
+})();
+/* ─── core/content-store.js ─── */
+;(function(){
+;
+(function() {
+  "use strict";
+  const CACHE_KEY = "yasna_content_overrides_cache_v1";
+  const CACHE_TTL_MS = 5 * 60 * 1e3;
+  function apiBase() {
+    try {
+      const el = document.querySelector('meta[name="yasna:api"]');
+      return el ? el.getAttribute("content") : "";
+    } catch (_) {
+      return "";
+    }
+  }
+  let baseline = null;
+  let overrides = null;
+  let revisionMeta = null;
+  let resolved = null;
+  function loadCache() {
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || !parsed.cachedAt) return null;
+      return parsed;
+    } catch (_) {
+      return null;
+    }
+  }
+  function saveCache(payload) {
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({
+        ...payload,
+        cachedAt: Date.now()
+      }));
+    } catch (_) {
+    }
+  }
+  function clearCache() {
+    try {
+      localStorage.removeItem(CACHE_KEY);
+    } catch (_) {
+    }
+  }
+  function computeResolved() {
+    var _a, _b;
+    if (!baseline) return null;
+    const ov = overrides || { added: [], edited: {}, deleted: [] };
+    const deletedSet = new Set(ov.deleted || []);
+    const baseQs = (baseline.QUESTIONS || []).filter((q) => !deletedSet.has(q.id)).map((q) => ov.edited && ov.edited[q.id] ? { ...q, ...ov.edited[q.id] } : q);
+    const addedQs = (ov.added || []).filter((q) => q && q.id);
+    const allQs = [...baseQs, ...addedQs];
+    const baseFullQs = (baseline.QUESTIONS_FULL || []).filter((q) => !deletedSet.has(q.id)).map((q) => ov.edited && ov.edited[q.id] ? { ...q, ...ov.edited[q.id] } : q);
+    return {
+      version: baseline.version || "1.0",
+      buildInfo: baseline.buildInfo,
+      THEMES: baseline.THEMES || [],
+      QUESTIONS: allQs,
+      QUESTIONS_FULL: [...baseFullQs, ...addedQs],
+      ATOMS: baseline.ATOMS || [],
+      // Метаданные источников — для UI (показать «контент обновлён 5 мин назад»)
+      _meta: {
+        baselineVersion: baseline.version || "1.0",
+        revision: revisionMeta,
+        hasOverrides: !!(((_a = ov.added) == null ? void 0 : _a.length) || Object.keys(ov.edited || {}).length || ((_b = ov.deleted) == null ? void 0 : _b.length)),
+        counts: {
+          base: (baseline.QUESTIONS || []).length,
+          added: (ov.added || []).length,
+          edited: Object.keys(ov.edited || {}).length,
+          deleted: (ov.deleted || []).length,
+          total: allQs.length
+        }
+      }
+    };
+  }
+  function publishGlobal() {
+    resolved = computeResolved();
+    window.YasnaContentResolved = resolved;
+    try {
+      window.dispatchEvent(new CustomEvent("yasna-content-updated", {
+        detail: { meta: resolved == null ? void 0 : resolved._meta }
+      }));
+    } catch (_) {
+    }
+  }
+  async function fetchOverrides(etag) {
+    const base = apiBase();
+    if (!base) return { status: "no-api" };
+    const headers = { "Accept": "application/json" };
+    if (etag) headers["If-None-Match"] = '"' + etag + '"';
+    let resp;
+    try {
+      resp = await fetch(base.replace(/\/$/, "") + "/content", {
+        method: "GET",
+        headers,
+        // Браузер сам кэширует, но мы сами рулим через ETag
+        cache: "no-cache"
+      });
+    } catch (err) {
+      return { status: "network-error", error: err };
+    }
+    if (resp.status === 304) {
+      return { status: "not-modified" };
+    }
+    if (!resp.ok) {
+      return { status: "http-error", code: resp.status };
+    }
+    let body;
+    try {
+      body = await resp.json();
+    } catch (err) {
+      return { status: "parse-error", error: err };
+    }
+    return { status: "ok", body };
+  }
+  let _initialized = false;
+  let _refreshPromise = null;
+  function init() {
+    baseline = window.YasnaContent || baseline;
+    if (!_initialized) {
+      const cached = loadCache();
+      if (cached) {
+        overrides = cached.data || null;
+        revisionMeta = {
+          revisionId: cached.revisionId,
+          dataHash: cached.dataHash,
+          publishedAt: cached.publishedAt,
+          publishedBy: cached.publishedBy
+        };
+      }
+      _initialized = true;
+    }
+    publishGlobal();
+    if (!_refreshPromise) {
+      _refreshPromise = refresh().catch((err) => {
+        console.warn("[ContentStore] refresh failed (using cache/baseline):", err);
+      }).finally(() => {
+        _refreshPromise = null;
+      });
+    }
+    return _refreshPromise;
+  }
+  async function refresh() {
+    const cachedHash = (revisionMeta == null ? void 0 : revisionMeta.dataHash) || null;
+    const result = await fetchOverrides(cachedHash);
+    if (result.status === "not-modified") {
+      return { changed: false, status: "fresh" };
+    }
+    if (result.status !== "ok") {
+      return { changed: false, status: result.status };
+    }
+    const body = result.body;
+    overrides = body.data || { added: [], edited: {}, deleted: [] };
+    revisionMeta = {
+      revisionId: body.revisionId,
+      dataHash: body.dataHash,
+      publishedAt: body.publishedAt,
+      publishedBy: body.publishedBy
+    };
+    saveCache({ ...revisionMeta, data: overrides });
+    publishGlobal();
+    return { changed: true, status: "updated", revision: revisionMeta };
+  }
+  function getResolved() {
+    return resolved || computeResolved();
+  }
+  async function publish(data, opts) {
+    const base = apiBase();
+    if (!base) throw new Error("API endpoint \u043D\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043D");
+    const password = opts && opts.password || "";
+    if (!password) throw new Error("\u0422\u0440\u0435\u0431\u0443\u0435\u0442\u0441\u044F password");
+    const resp = await fetch(base.replace(/\/$/, "") + "/content/publish", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + password
+      },
+      body: JSON.stringify({
+        data,
+        publishedBy: opts && opts.publishedBy || "admin",
+        notes: opts && opts.notes || ""
+      })
+    });
+    let body;
+    try {
+      body = await resp.json();
+    } catch (_) {
+      body = null;
+    }
+    if (!resp.ok) {
+      const err = new Error((body == null ? void 0 : body.error) || "HTTP " + resp.status);
+      err.code = resp.status;
+      err.body = body;
+      throw err;
+    }
+    await refresh();
+    return body;
+  }
+  window.YasnaContentStore = {
+    init,
+    refresh,
+    getResolved,
+    publish,
+    // для отладки
+    _internal: {
+      getBaseline: () => baseline,
+      getOverrides: () => overrides,
+      getRevisionMeta: () => revisionMeta,
+      clearCache
+    }
   };
 })();
 
@@ -5646,7 +5861,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T16:45:40.686Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T17:03:19.874Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -18060,7 +18275,11 @@ window.YasnaCore = {
       hint: "\xAB\u0421\u0443\u0442\u043A\u0438 \u0420\u044B\u0431\u043E\u043B\u043E\u0432\u0430\xBB \u2014 \u0444\u0438\u043D\u0430\u043B\u044C\u043D\u0430\u044F \u0433\u043B\u0430\u0432\u0430, \u0433\u0434\u0435 \u0432\u0441\u0435 \u0442\u0435\u043C\u044B \u0441\u0445\u043E\u0434\u044F\u0442\u0441\u044F \u0432 \u0435\u0434\u0438\u043D\u0443\u044E \u043A\u0430\u0440\u0442\u0438\u043D\u0443."
     }
   ];
-  const NEW = typeof window !== "undefined" && window.YasnaContent || null;
+  function getNewContent() {
+    if (typeof window === "undefined") return null;
+    return window.YasnaContentStore && window.YasnaContentStore.getResolved() || window.YasnaContentResolved || window.YasnaContent || null;
+  }
+  const NEW = getNewContent();
   const NEW_THEMES = (NEW == null ? void 0 : NEW.THEMES) || [];
   const NEW_QUESTIONS = (NEW == null ? void 0 : NEW.QUESTIONS) || [];
   const NEW_QUESTIONS_FULL = (NEW == null ? void 0 : NEW.QUESTIONS_FULL) || [];
@@ -18074,18 +18293,38 @@ window.YasnaCore = {
     "granit-nauki": "zerno",
     "osi-kresty": "antipody"
   };
-  let MERGED_QUESTIONS = QUESTIONS;
-  if (!useNew && NEW_QUESTIONS.length > 0) {
-    const remapped = NEW_QUESTIONS.map((q) => {
-      const legacyTheme = SLUG_TO_LEGACY[q.theme];
-      return legacyTheme ? { ...q, theme: legacyTheme } : null;
-    }).filter(Boolean);
-    if (remapped.length > 0) {
-      MERGED_QUESTIONS = [...QUESTIONS, ...remapped];
+  let ACTIVE_THEMES = [];
+  let ACTIVE_QUESTIONS = [];
+  function rebuild() {
+    const fresh = getNewContent() || NEW;
+    const themes = (fresh == null ? void 0 : fresh.THEMES) || NEW_THEMES;
+    const questions = (fresh == null ? void 0 : fresh.QUESTIONS) || NEW_QUESTIONS;
+    const themesForPartiya = themes.filter((t) => t.includeInPartiya !== false);
+    const useNewLocal = themesForPartiya.length >= 6 && questions.length >= 18;
+    let merged = QUESTIONS;
+    if (!useNewLocal && questions.length > 0) {
+      const remapped = questions.map((q) => {
+        const legacyTheme = SLUG_TO_LEGACY[q.theme];
+        return legacyTheme ? { ...q, theme: legacyTheme } : null;
+      }).filter(Boolean);
+      if (remapped.length > 0) {
+        merged = [...QUESTIONS, ...remapped];
+      }
+    }
+    ACTIVE_THEMES = useNewLocal ? themesForPartiya : THEMES;
+    const raw = useNewLocal ? questions : merged;
+    ACTIVE_QUESTIONS = raw.filter(isQuestionValid);
+    const skipped = raw.length - ACTIVE_QUESTIONS.length;
+    if (skipped > 0) {
+      console.log(
+        "[YasnaTrivia] \u041E\u0442\u0444\u0438\u043B\u044C\u0442\u0440\u043E\u0432\u0430\u043D\u043E",
+        skipped,
+        "\u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 (\u0431\u0438\u0442\u044B\u0435 / \u043E\u0442\u043A\u043B\u044E\u0447\u0451\u043D\u043D\u044B\u0435 \u0442\u0438\u043F\u044B:",
+        [...DISABLED_TYPES].join(", "),
+        ")"
+      );
     }
   }
-  const ACTIVE_THEMES = useNew ? NEW_THEMES_FOR_PARTIYA : THEMES;
-  const ACTIVE_QUESTIONS_RAW = useNew ? NEW_QUESTIONS : MERGED_QUESTIONS;
   const DISABLED_TYPES = /* @__PURE__ */ new Set(["fill-blank", "order"]);
   function isQuestionValid(q) {
     if (!q || typeof q !== "object") return false;
@@ -18108,16 +18347,18 @@ window.YasnaCore = {
     }
     return false;
   }
-  const ACTIVE_QUESTIONS = ACTIVE_QUESTIONS_RAW.filter(isQuestionValid);
-  const SKIPPED_COUNT = ACTIVE_QUESTIONS_RAW.length - ACTIVE_QUESTIONS.length;
-  if (SKIPPED_COUNT > 0) {
-    console.log(
-      "[YasnaTrivia] \u041E\u0442\u0444\u0438\u043B\u044C\u0442\u0440\u043E\u0432\u0430\u043D\u043E",
-      SKIPPED_COUNT,
-      "\u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 (\u0431\u0438\u0442\u044B\u0435 / \u043E\u0442\u043A\u043B\u044E\u0447\u0451\u043D\u043D\u044B\u0435 \u0442\u0438\u043F\u044B:",
-      [...DISABLED_TYPES].join(", "),
-      ")"
-    );
+  if (typeof window !== "undefined" && window.YasnaContentStore) {
+    try {
+      window.YasnaContentStore.init();
+    } catch (_) {
+    }
+  }
+  rebuild();
+  if (typeof window !== "undefined") {
+    window.addEventListener("yasna-content-updated", () => {
+      rebuild();
+      console.log("[YasnaTrivia] \u041A\u043E\u043D\u0442\u0435\u043D\u0442 \u043F\u0435\u0440\u0435\u0440\u0435\u0437\u043E\u043B\u0432\u043B\u0435\u043D:", ACTIVE_QUESTIONS.length, "\u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432");
+    });
   }
   if (NEW) {
     console.log(
@@ -18241,20 +18482,32 @@ window.YasnaCore = {
     };
   }
   window.YasnaTrivia = {
-    THEMES: ACTIVE_THEMES,
-    QUESTIONS: ACTIVE_QUESTIONS,
+    get THEMES() {
+      return ACTIVE_THEMES;
+    },
+    get QUESTIONS() {
+      return ACTIVE_QUESTIONS;
+    },
     getThemes,
     getTheme,
     getQuestionsForTheme,
     getAllQuestions,
     generatePartiya,
-    // расширенный API (новый контент)
     getAtoms,
     getQuestionsFull,
     MODE_CONFIG,
-    // флаг для UI: показывать ли «Атомизированный контент» индикатор
-    isUsingNewBank: useNew,
-    contentVersion: (NEW == null ? void 0 : NEW.version) || "legacy-1.0"
+    rebuild,
+    // ← можно вызвать вручную из консоли для дебага
+    get isUsingNewBank() {
+      const fresh = getNewContent() || NEW;
+      return ((fresh == null ? void 0 : fresh.THEMES) || []).filter((t) => t.includeInPartiya !== false).length >= 6 && ((fresh == null ? void 0 : fresh.QUESTIONS) || []).length >= 18;
+    },
+    get contentVersion() {
+      var _a2;
+      const fresh = getNewContent() || NEW;
+      const meta = (_a2 = fresh == null ? void 0 : fresh._meta) == null ? void 0 : _a2.revision;
+      return ((fresh == null ? void 0 : fresh.version) || "legacy-1.0") + ((meta == null ? void 0 : meta.revisionId) ? " \xB7 " + meta.revisionId : "");
+    }
   };
 })();
 

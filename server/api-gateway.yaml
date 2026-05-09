@@ -43,6 +43,57 @@ paths:
         '200':
           description: CORS preflight
 
+  /content:
+    get:
+      summary: Get current content overrides (Tier-2 live revision)
+      description: |
+        Возвращает последнюю опубликованную ревизию overrides.
+        Поддерживает If-None-Match для эффективного кэша (304).
+        Если ревизий нет — пустой объект (клиент работает на baseline).
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {CONTENT_FETCH_FUNCTION_ID}
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+        '304':
+          description: Not Modified (ETag matches)
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {CONTENT_FETCH_FUNCTION_ID}
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  /content/publish:
+    post:
+      summary: Publish new content revision (admin only)
+      description: |
+        Публикует новую ревизию overrides. Требует Authorization: Bearer ADMIN_PASSWORD.
+        Каждая публикация — атомарная транзакция (старые is_current=false → INSERT new).
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {CONTENT_PUBLISH_FUNCTION_ID}
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '400':
+          description: Validation failed
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {CONTENT_PUBLISH_FUNCTION_ID}
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
   /leaderboard:
     get:
       summary: Get leaderboard

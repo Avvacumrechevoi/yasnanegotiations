@@ -374,10 +374,17 @@
     return false;
   }
 
-  // Первичный билд (с тем что есть на момент загрузки)
+  // ─── Bootstrap ContentStore ──────────────────────────────────────
+  // Запускаем ContentStore чтобы он подтянул baseline из window.YasnaContent
+  // (которая ужа загружена через content.bundle.js) + cached overrides
+  // из localStorage. Async fetch /content идёт в фоне — на него подпишемся
+  // через 'yasna-content-updated' event.
+  if(typeof window !== 'undefined' && window.YasnaContentStore){
+    try { window.YasnaContentStore.init(); } catch(_){}
+  }
+  // Первичный rebuild с актуальным resolved-content
   rebuild();
-  // Подписка на обновления контента — пересобираем когда YasnaContentStore
-  // подтянет свежие overrides из бэкенда.
+  // Подписка на обновления — Tier-2 fetch из бэкенда придёт позже
   if(typeof window !== 'undefined'){
     window.addEventListener('yasna-content-updated', () => {
       rebuild();
