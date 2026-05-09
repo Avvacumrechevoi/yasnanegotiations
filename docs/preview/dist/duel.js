@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T07:46:06.326Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T08:11:00.958Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -1998,15 +1998,15 @@
     return /* @__PURE__ */ React.createElement("div", { className: "overlay-legend", style: { position: "absolute", top: 50, right: 12, background: "rgba(255,255,255,.95)", border: "1px solid rgba(0,0,0,.06)", borderRadius: 12, padding: "10px 14px", backdropFilter: "blur(16px)", minWidth: 180, zIndex: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: "#6e6e73", textTransform: "uppercase", letterSpacing: 1 } }, "\u0421\u043E\u0432\u043C\u0435\u0449\u0435\u043D\u0438\u0435"), /* @__PURE__ */ React.createElement("button", { onClick: onClear, style: { fontSize: 14, color: "#6e6e73", padding: "0 4px" } }, "\u2715")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, marginBottom: 4 } }, /* @__PURE__ */ React.createElement("div", { style: { width: 12, height: 3, borderRadius: 2, background: "rgba(0,122,255,.6)" } }), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, color: "#1d1d1f" } }, y.name)), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6 } }, /* @__PURE__ */ React.createElement("div", { style: { width: 12, height: 3, borderRadius: 2, background: "rgba(175,82,222,.5)" } }), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, color: "#af52de", fontStyle: "italic" } }, overlay.name || overlay.n)));
   }
   function Editor({ y, setY, onClose }) {
-    return /* @__PURE__ */ React.createElement("div", { className: "editor-panel", style: { position: "fixed", top: 0, right: 0, width: 370, height: "100vh", background: "rgba(255,255,255,.98)", borderLeft: "1px solid rgba(0,0,0,.08)", zIndex: 50, display: "flex", flexDirection: "column" } }, /* @__PURE__ */ React.createElement("div", { style: { padding: "14px 18px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 } }, /* @__PURE__ */ React.createElement("h3", { style: { fontFamily: "var(--serif)", fontSize: 18, color: "#1d1d1f", fontWeight: 600 } }, "\u0420\u0435\u0434\u0430\u043A\u0442\u043E\u0440"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, color: "#34c759", fontWeight: 500, letterSpacing: 0.3 } }, "\u25CF \u0430\u0432\u0442\u043E\u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0435")), /* @__PURE__ */ React.createElement("div", { style: { padding: "12px 18px", overflowY: "auto", flex: 1 } }, /* @__PURE__ */ React.createElement(
+    return /* @__PURE__ */ React.createElement("div", { className: "editor-panel", style: { position: "fixed", top: 0, right: 0, width: "min(370px, 100vw)", height: "100vh", background: "rgba(255,255,255,.98)", borderLeft: "1px solid rgba(0,0,0,.08)", zIndex: 50, display: "flex", flexDirection: "column" } }, /* @__PURE__ */ React.createElement("div", { className: "editor-hdr", style: { padding: "12px 16px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0, gap: 8 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 8, minWidth: 0, flex: 1 } }, /* @__PURE__ */ React.createElement("h3", { style: { fontFamily: "var(--serif)", fontSize: 18, color: "#1d1d1f", fontWeight: 600, whiteSpace: "nowrap" } }, "\u0420\u0435\u0434\u0430\u043A\u0442\u043E\u0440"), /* @__PURE__ */ React.createElement("span", { className: "editor-autosave", style: { display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, color: "#34c759", fontWeight: 500, letterSpacing: 0.3, whiteSpace: "nowrap" } }, /* @__PURE__ */ React.createElement("span", { style: { width: 6, height: 6, borderRadius: "50%", background: "#34c759", flexShrink: 0 } }), /* @__PURE__ */ React.createElement("span", { className: "editor-autosave-label" }, "\u0430\u0432\u0442\u043E\u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0435"))), /* @__PURE__ */ React.createElement("button", { onClick: onClose, className: "editor-close", "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C \u0440\u0435\u0434\u0430\u043A\u0442\u043E\u0440", style: { width: 32, height: 32, borderRadius: "50%", background: "transparent", border: "1px solid var(--border)", color: "var(--txt2,#6e6e73)", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 } }, "\xD7")), /* @__PURE__ */ React.createElement("div", { style: { padding: "12px 16px", overflowY: "auto", flex: 1 } }, /* @__PURE__ */ React.createElement(
       "input",
       {
         value: y.name,
         onChange: (e) => setY({ ...y, name: e.target.value }),
         placeholder: "\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435",
-        style: { width: "100%", background: "var(--bg3)", border: "1px solid var(--border)", color: "#1d1d1f", padding: "9px 12px", borderRadius: 7, fontFamily: "var(--serif)", fontSize: 17, fontWeight: 700, marginBottom: 10, outline: "none" }
+        style: { width: "100%", background: "var(--bg3)", border: "1px solid var(--border)", color: "#1d1d1f", padding: "10px 12px", borderRadius: 8, fontFamily: "var(--serif)", fontSize: 17, fontWeight: 700, marginBottom: 10, outline: "none", boxSizing: "border-box" }
       }
-    ), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5, marginBottom: 14 } }, [["th", "\u25B2 \u0412\u0435\u0440\u0445"], ["bh", "\u25BC \u041D\u0438\u0437"], ["lh", "\u25C0 \u041B\u0435\u0432\u043E"], ["rh", "\u25B6 \u041F\u0440\u0430\u0432\u043E"]].map(
+    ), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginBottom: 14 } }, [["th", "\u25B2 \u0412\u0435\u0440\u0445"], ["bh", "\u25BC \u041D\u0438\u0437"], ["lh", "\u25C0 \u041B\u0435\u0432\u043E"], ["rh", "\u25B6 \u041F\u0440\u0430\u0432\u043E"]].map(
       ([k, ph]) => /* @__PURE__ */ React.createElement(
         "input",
         {
@@ -2014,12 +2014,12 @@
           placeholder: ph,
           value: y[k] || "",
           onChange: (e) => setY({ ...y, [k]: e.target.value }),
-          style: { background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--txt)", padding: "5px 8px", borderRadius: 5, fontSize: 10, outline: "none" }
+          style: { background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--txt)", padding: "8px 10px", borderRadius: 7, fontSize: 12, outline: "none", boxSizing: "border-box" }
         }
       )
     )), y.p.map((l, i) => {
       const c = CR[gc(i)].c;
-      return /* @__PURE__ */ React.createElement("div", { key: i, style: { display: "flex", alignItems: "center", gap: 7, marginBottom: 5 } }, /* @__PURE__ */ React.createElement("div", { style: { width: 26, height: 26, borderRadius: "50%", border: `2px solid ${c}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, color: c, flexShrink: 0 } }, i), /* @__PURE__ */ React.createElement(
+      return /* @__PURE__ */ React.createElement("div", { key: i, style: { display: "flex", alignItems: "center", gap: 8, marginBottom: 6 } }, /* @__PURE__ */ React.createElement("div", { style: { width: 28, height: 28, borderRadius: "50%", border: `2px solid ${c}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: c, flexShrink: 0 } }, i), /* @__PURE__ */ React.createElement(
         "input",
         {
           value: l,
@@ -2029,12 +2029,12 @@
             setY({ ...y, p: np });
           },
           placeholder: (REF[i] || {}).f || "",
-          style: { flex: 1, background: "var(--bg)", border: "1px solid var(--border)", color: "#1d1d1f", padding: "7px 10px", borderRadius: 5, fontSize: 12, outline: "none" },
+          style: { flex: 1, minWidth: 0, background: "var(--bg)", border: "1px solid var(--border)", color: "#1d1d1f", padding: "8px 10px", borderRadius: 6, fontSize: 13, outline: "none", boxSizing: "border-box" },
           onFocus: (e) => e.target.style.borderColor = c,
           onBlur: (e) => e.target.style.borderColor = "var(--border)"
         }
       ));
-    })), /* @__PURE__ */ React.createElement("div", { style: { padding: "12px 18px", borderTop: "1px solid var(--border)", display: "flex", gap: 8, flexShrink: 0, background: "#fafafa" } }, /* @__PURE__ */ React.createElement("button", { onClick: onClose, style: { flex: 1, padding: "11px 14px", borderRadius: 9, fontSize: 14, fontWeight: 600, background: "#0071e3", color: "#fff", border: "none", cursor: "pointer", boxShadow: "0 1px 3px rgba(0,113,227,.2)" } }, "\u2713 \u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u0438 \u0437\u0430\u043A\u0440\u044B\u0442\u044C")));
+    })), /* @__PURE__ */ React.createElement("div", { style: { padding: "12px 16px", borderTop: "1px solid var(--border)", display: "flex", gap: 8, flexShrink: 0, background: "#fafafa" } }, /* @__PURE__ */ React.createElement("button", { onClick: onClose, style: { flex: 1, padding: "12px 14px", borderRadius: 10, fontSize: 14, fontWeight: 600, background: "#0071e3", color: "#fff", border: "none", cursor: "pointer", boxShadow: "0 1px 3px rgba(0,113,227,.2)" } }, "\u2713 \u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u0438 \u0437\u0430\u043A\u0440\u044B\u0442\u044C")));
   }
   function OverlayPicker({ currentName, overlay, onSelect, onClose }) {
     const [q, setQ] = useState("");
@@ -5308,7 +5308,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T07:46:05.123Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T08:10:59.775Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
   const THEMES = [
     {
       "id": "chto-est-yasna",

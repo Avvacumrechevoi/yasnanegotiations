@@ -905,18 +905,23 @@ function App(){
           <span>Войти</span>
         </a>
         </div>
-        <div className='hdr-mob-tools' style={{display:'none',gap:6,alignItems:'center',marginRight:8}}>
-          <button onClick={()=>setLessonPicker(true)} title="Уроки" style={{position:'relative',fontSize:15,padding:'8px 11px',border:'1px solid rgba(0,122,255,.35)',borderRadius:10,background:'rgba(0,122,255,.06)',color:'#0071e3',whiteSpace:'nowrap',fontWeight:600,minHeight:36,display:'flex',alignItems:'center',gap:5}}>
-            <span style={{fontSize:15,lineHeight:1}}>🎓</span>
-            <span className="lesson-label" style={{fontSize:13,fontWeight:600}}>Уроки</span>
-            <span style={{position:'absolute',top:-3,right:-3,width:8,height:8,borderRadius:'50%',background:'#E8364F',border:'1.5px solid #fff'}}/>
+        <div className='hdr-mob-tools' style={{display:'none',gap:5,alignItems:'center',marginRight:6}}>
+          {/* Все кнопки на мобильном — единый размер 36×36, icon-only по VK Tech */}
+          {/* 1. Игра — Primary CTA */}
+          <a href='duel.html' title='Игра по Ясне' aria-label='Игра' style={{position:'relative',width:36,height:36,padding:0,border:'1px solid #0071e3',borderRadius:10,background:'#0071e3',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',textDecoration:'none',boxSizing:'border-box',boxShadow:'0 1px 3px rgba(0,113,227,.20)'}}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span style={{position:'absolute',top:-3,right:-3,width:8,height:8,borderRadius:'50%',background:'#FF3985',border:'1.5px solid var(--bg2,#fff)'}} title='NEW'/>
+          </a>
+          {/* 2. Уроки */}
+          <button onClick={()=>setLessonPicker(true)} title='Уроки' aria-label='Уроки' style={{position:'relative',width:36,height:36,padding:0,border:'1px solid var(--border,#d2d2d7)',borderRadius:10,background:'var(--bg3,#fff)',color:'var(--txt,#424245)',display:'flex',alignItems:'center',justifyContent:'center',boxSizing:'border-box'}}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8.5l9-5 9 5-9 5-9-5z"/><path d="M7 11v4.5c0 1.5 2.5 2.5 5 2.5s5-1 5-2.5V11"/></svg>
           </button>
-          {/* Гид — показывается на мобильном если зарегистрирован для текущей Ясны */}
-          {y && window.YasnaTours && window.YasnaTours.has(y.name) && <button onClick={()=>setShowTour(true)} title="Гид по Ясне" style={{fontSize:15,padding:'8px 11px',border:'1px solid rgba(162,28,175,.35)',borderRadius:10,background:'rgba(162,28,175,.06)',color:'#a21caf',whiteSpace:'nowrap',fontWeight:600,minHeight:36,display:'flex',alignItems:'center',gap:5}}>
-            <span style={{fontSize:13,lineHeight:1}}>✦</span>
-            <span style={{fontSize:13,fontWeight:600}}>Гид</span>
-          </button>}
-          <button onClick={()=>setFullStar(true)} style={{fontSize:16,padding:'8px 11px',border:'1px solid #d2d2d7',borderRadius:10,background:'#fff',color:'#6e6e73',minHeight:36,minWidth:36}}>⤢</button>
+          {/* 3. Гид — только если зарегистрирован для текущей Ясны */}
+          {y && window.YasnaTours && window.YasnaTours.has(y.name) && <button onClick={()=>setShowTour(true)} title={'Гид по «'+y.name+'»'} aria-label='Гид' style={{width:36,height:36,padding:0,border:'1px solid rgba(162,28,175,.35)',borderRadius:10,background:'rgba(162,28,175,.10)',color:'#a21caf',display:'flex',alignItems:'center',justifyContent:'center',boxSizing:'border-box',fontSize:14,fontWeight:700}}>✦</button>}
+          {/* 4. Полный экран */}
+          <button onClick={()=>setFullStar(true)} title='Во весь экран' aria-label='Во весь экран' style={{width:36,height:36,padding:0,border:'1px solid var(--border,#d2d2d7)',borderRadius:10,background:'var(--bg3,#fff)',color:'var(--txt,#424245)',display:'flex',alignItems:'center',justifyContent:'center',boxSizing:'border-box'}}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/></svg>
+          </button>
         </div>
         <div className='hdr-burger' style={{position:'relative'}}>
           <button onClick={()=>setMenu(!menu)} style={{fontSize:20,padding:'6px 12px',border:'1px solid #d2d2d7',borderRadius:10,background:menu?'#f5f5f7':'#fff',color:'#424245',minHeight:36,minWidth:40}}>☰</button>

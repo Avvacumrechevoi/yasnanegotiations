@@ -31,30 +31,37 @@ function OverlayLegend({y,overlay,onClear}){
 
 function Editor({y,setY,onClose}){
   return(
-    <div className='editor-panel' style={{position:'fixed',top:0,right:0,width:370,height:'100vh',background:'rgba(255,255,255,.98)',borderLeft:'1px solid rgba(0,0,0,.08)',zIndex:50,display:'flex',flexDirection:'column'}}>
-      <div style={{padding:'14px 18px',borderBottom:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center',flexShrink:0}}>
-        <h3 style={{fontFamily:'var(--serif)',fontSize:18,color:'#1d1d1f',fontWeight:600}}>Редактор</h3>
-        <span style={{fontSize:11,color:'#34c759',fontWeight:500,letterSpacing:.3}}>● автосохранение</span>
+    <div className='editor-panel' style={{position:'fixed',top:0,right:0,width:'min(370px, 100vw)',height:'100vh',background:'rgba(255,255,255,.98)',borderLeft:'1px solid rgba(0,0,0,.08)',zIndex:50,display:'flex',flexDirection:'column'}}>
+      {/* Header — компактный с close-кнопкой на мобильном */}
+      <div className='editor-hdr' style={{padding:'12px 16px',borderBottom:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center',flexShrink:0,gap:8}}>
+        <div style={{display:'flex',alignItems:'center',gap:8,minWidth:0,flex:1}}>
+          <h3 style={{fontFamily:'var(--serif)',fontSize:18,color:'#1d1d1f',fontWeight:600,whiteSpace:'nowrap'}}>Редактор</h3>
+          <span className='editor-autosave' style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:11,color:'#34c759',fontWeight:500,letterSpacing:.3,whiteSpace:'nowrap'}}>
+            <span style={{width:6,height:6,borderRadius:'50%',background:'#34c759',flexShrink:0}}/>
+            <span className='editor-autosave-label'>автосохранение</span>
+          </span>
+        </div>
+        <button onClick={onClose} className='editor-close' aria-label='Закрыть редактор' style={{width:32,height:32,borderRadius:'50%',background:'transparent',border:'1px solid var(--border)',color:'var(--txt2,#6e6e73)',fontSize:16,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>×</button>
       </div>
-      <div style={{padding:'12px 18px',overflowY:'auto',flex:1}}>
+      <div style={{padding:'12px 16px',overflowY:'auto',flex:1}}>
         <input value={y.name} onChange={e=>setY({...y,name:e.target.value})} placeholder="Название"
-          style={{width:'100%',background:'var(--bg3)',border:'1px solid var(--border)',color:'#1d1d1f',padding:'9px 12px',borderRadius:7,fontFamily:'var(--serif)',fontSize:17,fontWeight:700,marginBottom:10,outline:'none'}}/>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:5,marginBottom:14}}>
+          style={{width:'100%',background:'var(--bg3)',border:'1px solid var(--border)',color:'#1d1d1f',padding:'10px 12px',borderRadius:8,fontFamily:'var(--serif)',fontSize:17,fontWeight:700,marginBottom:10,outline:'none',boxSizing:'border-box'}}/>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6,marginBottom:14}}>
           {[['th','▲ Верх'],['bh','▼ Низ'],['lh','◀ Лево'],['rh','▶ Право']].map(([k,ph])=>
             <input key={k} placeholder={ph} value={y[k]||''} onChange={e=>setY({...y,[k]:e.target.value})}
-              style={{background:'var(--bg3)',border:'1px solid var(--border)',color:'var(--txt)',padding:'5px 8px',borderRadius:5,fontSize:10,outline:'none'}}/>
+              style={{background:'var(--bg3)',border:'1px solid var(--border)',color:'var(--txt)',padding:'8px 10px',borderRadius:7,fontSize:12,outline:'none',boxSizing:'border-box'}}/>
           )}
         </div>
         {y.p.map((l,i)=>{const c=CR[gc(i)].c;return(
-          <div key={i} style={{display:'flex',alignItems:'center',gap:7,marginBottom:5}}>
-            <div style={{width:26,height:26,borderRadius:'50%',border:`2px solid ${c}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:c,flexShrink:0}}>{i}</div>
+          <div key={i} style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+            <div style={{width:28,height:28,borderRadius:'50%',border:`2px solid ${c}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:c,flexShrink:0}}>{i}</div>
             <input value={l} onChange={e=>{const np=[...y.p];np[i]=e.target.value;setY({...y,p:np});}} placeholder={(REF[i]||{}).f||''}
-              style={{flex:1,background:'var(--bg)',border:'1px solid var(--border)',color:'#1d1d1f',padding:'7px 10px',borderRadius:5,fontSize:12,outline:'none'}}
+              style={{flex:1,minWidth:0,background:'var(--bg)',border:'1px solid var(--border)',color:'#1d1d1f',padding:'8px 10px',borderRadius:6,fontSize:13,outline:'none',boxSizing:'border-box'}}
               onFocus={e=>e.target.style.borderColor=c} onBlur={e=>e.target.style.borderColor='var(--border)'}/>
           </div>);})}
       </div>
-      <div style={{padding:'12px 18px',borderTop:'1px solid var(--border)',display:'flex',gap:8,flexShrink:0,background:'#fafafa'}}>
-        <button onClick={onClose} style={{flex:1,padding:'11px 14px',borderRadius:9,fontSize:14,fontWeight:600,background:'#0071e3',color:'#fff',border:'none',cursor:'pointer',boxShadow:'0 1px 3px rgba(0,113,227,.2)'}}>✓ Сохранить и закрыть</button>
+      <div style={{padding:'12px 16px',borderTop:'1px solid var(--border)',display:'flex',gap:8,flexShrink:0,background:'#fafafa'}}>
+        <button onClick={onClose} style={{flex:1,padding:'12px 14px',borderRadius:10,fontSize:14,fontWeight:600,background:'#0071e3',color:'#fff',border:'none',cursor:'pointer',boxShadow:'0 1px 3px rgba(0,113,227,.2)'}}>✓ Сохранить и закрыть</button>
       </div>
     </div>);
 }
