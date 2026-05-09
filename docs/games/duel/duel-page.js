@@ -12,6 +12,34 @@
   const { useState, useEffect, useRef, useMemo } = React;
   const _g = (n) => window[n];
 
+  // ─── Иконки и цвета тем — для banner-cards в picker'е ───────────────
+  // Каждая тема имеет уникальный hue + line-style SVG. Цвета — из VK Tech
+  // палитры (--vk-accent, --vk-accent-2/3, --vk-success, --vk-warning, ...).
+  const THEME_VISUALS = {
+    // ─ Новый банк (T1-T10) ─
+    'chto-est-yasna':       { color: '#0077FF', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6M12 16v6M2 12h6M16 12h6M5 5l4 4M15 15l4 4M5 19l4-4M15 9l4-4"/></svg>' },
+    'sutki-chertyozh':      { color: '#00D3E6', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>' },
+    'granit-nauki':         { color: '#C0943A', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8l6-5 6 5v8l-6 5-6-5z"/><path d="M6 8h12M12 3v18"/></svg>' },
+    'osi-kresty':           { color: '#F06838', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18M5 5l14 14M19 5L5 19"/></svg>' },
+    'skorosti-nakopleniya': { color: '#59A840', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18l6-8 5 4 7-9"/><path d="M14 5h7v7"/></svg>' },
+    'chashi-vesy':          { color: '#E1334E', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 8h14M5 8l-3 6h6zM19 8l3 6h-6z"/></svg>' },
+    'khram-tri-kresta-sofiya': { color: '#9966EA', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V10l9-6 9 6v11M9 21v-7h6v7M12 4v6"/></svg>' },
+    'prana-stihii':         { color: '#FF3985', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-3 4-5 7-5 10a5 5 0 0 0 10 0c0-3-2-6-5-10z"/></svg>' },
+    'tsveta-ogon-dugi-sezony': { color: '#F6C64A', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg>' },
+    // ─ Legacy банк (T1.legacy → gimny etc.) ─
+    'gimny':    { color: '#0077FF', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6M12 16v6M2 12h6M16 12h6"/></svg>' },
+    'sutki':    { color: '#00D3E6', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/></svg>' },
+    'zerno':    { color: '#C0943A', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 8l6-5 6 5v8l-6 5-6-5z"/></svg>' },
+    'antipody': { color: '#F06838', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v18M3 12h18"/></svg>' },
+    'skorpion': { color: '#9966EA', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 12c4 0 7-3 7-7M19 12c-4 0-7-3-7-7M12 12v9"/></svg>' },
+    'chashi':   { color: '#E1334E', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v18M5 8h14"/></svg>' },
+    'prana':    { color: '#FF3985', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3c-3 4-5 7-5 10a5 5 0 0 0 10 0c0-3-2-6-5-10z"/></svg>' },
+    'zerkalo':  { color: '#5B9CF6', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="6" y="3" width="12" height="18" rx="2"/></svg>' },
+    'skrizhal': { color: '#59A840', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>' },
+    // ─ Fallback ─
+    '__default': { color: '#0077FF', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="4"/></svg>' },
+  };
+
   // ─── Error Boundary ─────────────────────────────────────────────────
   class DPErrorBoundary extends React.Component {
     constructor(p){ super(p); this.state = { err: null }; }
@@ -1747,12 +1775,17 @@
     const [partiyaPicker, setPartiyaPicker] = useState(null);
 
     // preferredOpponent: 'shadow' | 'pvp' | null — какая опция предвыделена.
-    // Открывает picker с подсвеченной нужной кнопкой соперника.
+    // По умолчанию выбрана ОДНА тема (первая) — пользователь сам расширяет.
+    // Раньше было null (все темы) — это перегружало пул и игрок видел много
+    // несвязанных тем. С одной темой опыт сфокусированнее: пришёл изучать
+    // конкретное — играй на одной теме.
     const askPartiyaMode = (preferredOpponent) => {
+      const allThemes = (window.YasnaTrivia && window.YasnaTrivia.getThemes && window.YasnaTrivia.getThemes()) || [];
+      const firstTheme = allThemes[0]?.id;
       requireProfile(() => setPartiyaPicker({
         mode: 'standard',
         expanded: false,
-        selectedThemes: null,
+        selectedThemes: firstTheme ? [firstTheme] : null,
         preferredOpponent: preferredOpponent || null,
       }));
     };
@@ -1965,21 +1998,31 @@
                   }, '↺ сбросить')
                 )
               ),
-              // Темы как чипы — всегда видны
-              React.createElement('div', { className: 'dp-themes-list dp-themes-list--chips' },
+              // Темы как банеры с иконками — визуально насыщеннее чем chips
+              React.createElement('div', { className: 'dp-themes-list dp-themes-list--banners' },
                 allThemes.map(t => {
                   const checked = isAllSelected || selectedSet.has(t.id);
+                  const meta = THEME_VISUALS[t.id] || THEME_VISUALS.__default;
                   return React.createElement('button', {
                     key: t.id,
                     type: 'button',
                     onClick: () => toggleTheme(t.id),
-                    className: 'dp-theme-chip' + (checked ? ' dp-theme-chip-checked' : ''),
+                    className: 'dp-theme-banner' + (checked ? ' is-checked' : ''),
+                    style: { '--theme-color': meta.color },
                     'aria-pressed': checked
                   },
-                    React.createElement('span', { className: 'dp-theme-chip-icon', 'aria-hidden': 'true' },
-                      checked ? '✓' : ''
+                    React.createElement('span', {
+                      className: 'dp-theme-banner__icon',
+                      'aria-hidden': 'true',
+                      dangerouslySetInnerHTML: { __html: meta.svg }
+                    }),
+                    React.createElement('span', { className: 'dp-theme-banner__body' },
+                      React.createElement('span', { className: 'dp-theme-banner__name' }, t.short || t.name),
+                      React.createElement('span', { className: 'dp-theme-banner__count' },
+                        ((window.YasnaTrivia?.getQuestionsForTheme?.(t.id)?.length) || 0), ' вопросов'
+                      )
                     ),
-                    React.createElement('span', { className: 'dp-theme-chip-name' }, t.short || t.name)
+                    checked && React.createElement('span', { className: 'dp-theme-banner__check', 'aria-hidden': 'true' }, '✓')
                   );
                 })
               ),
