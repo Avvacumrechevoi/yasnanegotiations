@@ -1,4 +1,4 @@
-/* Yasna bundle: app.js — собран 2026-05-09T08:20:43.169Z */
+/* Yasna bundle: app.js — собран 2026-05-09T08:34:07.768Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -10575,16 +10575,21 @@ function App() {
     setLessonPicker(true);
     setLearnOpen(false);
   }, style: { display: "flex", width: "100%", padding: "11px 14px", fontSize: 13, color: "#1d1d1f", border: "none", borderBottom: "1px solid #f5f5f7", background: "#fff", textAlign: "left", cursor: "pointer" } }, "\u0423\u0440\u043E\u043A\u0438 ", /* @__PURE__ */ React.createElement("span", { style: { color: "#86868b", fontSize: 11, marginLeft: 6 } }, "\xB7 4 \u0448\u0430\u0433\u0430")), (() => {
-    const tours = window.YasnaTours && window.YasnaTours.list ? window.YasnaTours.list() : [];
-    if (tours.length === 0) return /* @__PURE__ */ React.createElement("div", { style: { padding: "11px 14px", fontSize: 12, color: "#aeaeb2", fontStyle: "italic" } }, "\u0413\u0438\u0434\u044B \u043F\u043E\u044F\u0432\u044F\u0442\u0441\u044F \u0441\u043A\u043E\u0440\u043E");
-    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { style: { padding: "8px 14px 4px", fontSize: 10, fontWeight: 600, letterSpacing: 1.2, textTransform: "uppercase", color: "#86868b" } }, "\u0413\u0438\u0434\u044B \u043F\u043E \u042F\u0441\u043D\u0430\u043C \xB7 ", tours.length), tours.map((name) => {
+    const allTours = window.YasnaTours && window.YasnaTours.list ? window.YasnaTours.list() : [];
+    if (allTours.length === 0) return /* @__PURE__ */ React.createElement("div", { style: { padding: "11px 14px", fontSize: 12, color: "#aeaeb2", fontStyle: "italic" } }, "\u0413\u0438\u0434\u044B \u043F\u043E\u044F\u0432\u044F\u0442\u0441\u044F \u0441\u043A\u043E\u0440\u043E");
+    const PRIORITY = ["\u0421\u0443\u0442\u043E\u043A", "\u0413\u043E\u0434\u0430", "\u0416\u0438\u0437\u043D\u0438"];
+    const tours = [...allTours].sort((a, b) => {
+      const ai = PRIORITY.indexOf(a), bi = PRIORITY.indexOf(b);
+      return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+    });
+    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { style: { padding: "10px 14px 6px", fontSize: 11, fontWeight: 600, letterSpacing: 1.4, textTransform: "uppercase", color: "#86868b" } }, "\u0413\u0438\u0434\u044B \u043F\u043E \u042F\u0441\u043D\u0430\u043C ", /* @__PURE__ */ React.createElement("span", { style: { color: "#aeaeb2", fontWeight: 500 } }, "\xB7 ", tours.length)), tours.map((name) => {
       const isCurrent = y && y.name === name;
       return /* @__PURE__ */ React.createElement("button", { key: name, onClick: () => {
         const t = T.find((tt) => tt.n === name);
         if (t && !isCurrent) load(t);
         setShowTour(true);
         setLearnOpen(false);
-      }, style: { display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "10px 14px", fontSize: 13, color: "#1d1d1f", border: "none", borderBottom: "1px solid #f5f5f7", background: isCurrent ? "rgba(0,113,227,.06)" : "#fff", textAlign: "left", cursor: "pointer", fontWeight: isCurrent ? 600 : 400 } }, /* @__PURE__ */ React.createElement("span", { style: { flex: 1 } }, name), isCurrent && /* @__PURE__ */ React.createElement("span", { style: { fontSize: 9, padding: "1px 6px", background: "rgba(0,113,227,.14)", color: "#0058b8", borderRadius: 8, fontWeight: 600, letterSpacing: 0.5 } }, "\u0421\u0415\u0419\u0427\u0410\u0421"));
+      }, className: "hdr-learn-item" + (isCurrent ? " is-current" : ""), style: { display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "11px 14px", fontSize: 13, color: isCurrent ? "#fff" : "#1d1d1f", border: "none", borderLeft: `3px solid ${isCurrent ? "#0071e3" : "transparent"}`, borderBottom: "1px solid #f5f5f7", background: isCurrent ? "#0071e3" : "#fff", textAlign: "left", cursor: "pointer", fontWeight: isCurrent ? 600 : 500 } }, /* @__PURE__ */ React.createElement("span", { style: { flex: 1 } }, name), isCurrent && /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, padding: "2px 7px", background: "rgba(255,255,255,.22)", color: "#fff", borderRadius: 8, fontWeight: 700, letterSpacing: 0.4 } }, "\u0441\u0435\u0439\u0447\u0430\u0441"));
     }));
   })()))), /* @__PURE__ */ React.createElement("div", { style: { position: "relative" } }, /* @__PURE__ */ React.createElement("button", { onClick: () => setHelpOpen((o) => !o), title: "\u0418\u043D\u0441\u0442\u0440\u0443\u043A\u0446\u0438\u044F \xB7 \u0413\u043B\u043E\u0441\u0441\u0430\u0440\u0438\u0439 \xB7 \u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430", className: "hdr-btn", style: { border: `1px solid ${helpOpen ? "rgba(0,113,227,.4)" : "#d2d2d7"}`, color: helpOpen ? "#0058b8" : "#424245", padding: "7px 14px", height: 36, borderRadius: 8, fontSize: 13, background: helpOpen ? "rgba(0,113,227,.06)" : "#fff", cursor: "pointer", fontWeight: 500, display: "flex", alignItems: "center", gap: 6, boxSizing: "border-box" } }, /* @__PURE__ */ React.createElement("span", null, "\u0421\u043F\u0440\u0430\u0432\u043A\u0430"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 9, display: "inline-block", transform: helpOpen ? "rotate(180deg)" : "none", transition: "transform .2s", opacity: 0.7 } }, "\u25BC")), helpOpen && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { onClick: () => setHelpOpen(false), style: { position: "fixed", inset: 0, zIndex: 99 } }), /* @__PURE__ */ React.createElement("div", { style: { position: "absolute", top: "calc(100% + 4px)", right: 0, minWidth: 200, background: "#fff", border: "1px solid #d2d2d7", borderRadius: 10, boxShadow: "0 6px 24px rgba(0,0,0,.12)", zIndex: 100, overflow: "hidden" } }, /* @__PURE__ */ React.createElement("button", { onClick: () => {
     setInstr(true);
@@ -10599,7 +10604,12 @@ function App() {
     setLessonPicker(true);
     setMenu(false);
   }, style: { display: "flex", width: "100%", padding: "10px 16px", fontSize: 14, color: "#1d1d1f", border: "none", borderBottom: "1px solid #f5f5f7", background: "#fff", textAlign: "left", alignItems: "center", gap: 8, fontWeight: 500 } }, /* @__PURE__ */ React.createElement("span", { style: { flex: 1 } }, "\u0423\u0440\u043E\u043A\u0438"), /* @__PURE__ */ React.createElement("span", { style: { color: "#86868b", fontSize: 11 } }, "4 \u0448\u0430\u0433\u0430")), (() => {
-    const tours = window.YasnaTours && window.YasnaTours.list ? window.YasnaTours.list() : [];
+    const allTours = window.YasnaTours && window.YasnaTours.list ? window.YasnaTours.list() : [];
+    const PRIORITY = ["\u0421\u0443\u0442\u043E\u043A", "\u0413\u043E\u0434\u0430", "\u0416\u0438\u0437\u043D\u0438"];
+    const tours = [...allTours].sort((a, b) => {
+      const ai = PRIORITY.indexOf(a), bi = PRIORITY.indexOf(b);
+      return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+    });
     return tours.map((name) => {
       const isCurrent = y && y.name === name;
       return /* @__PURE__ */ React.createElement("button", { key: "tour-" + name, onClick: () => {
@@ -10607,7 +10617,7 @@ function App() {
         if (t && !isCurrent) load(t);
         setShowTour(true);
         setMenu(false);
-      }, style: { display: "flex", width: "100%", padding: "10px 16px", fontSize: 14, color: "#1d1d1f", border: "none", borderBottom: "1px solid #f5f5f7", background: isCurrent ? "rgba(0,113,227,.06)" : "#fff", textAlign: "left", alignItems: "center", gap: 8, fontWeight: isCurrent ? 600 : 400 } }, /* @__PURE__ */ React.createElement("span", { style: { flex: 1 } }, "\u0413\u0438\u0434 \xB7 ", name), isCurrent && /* @__PURE__ */ React.createElement("span", { style: { fontSize: 9, padding: "1px 6px", background: "rgba(0,113,227,.14)", color: "#0058b8", borderRadius: 8, fontWeight: 600 } }, "\u0421\u0415\u0419\u0427\u0410\u0421"));
+      }, style: { display: "flex", width: "100%", padding: "11px 16px", fontSize: 14, color: isCurrent ? "#fff" : "#1d1d1f", border: "none", borderLeft: `3px solid ${isCurrent ? "#0071e3" : "transparent"}`, borderBottom: "1px solid #f5f5f7", background: isCurrent ? "#0071e3" : "#fff", textAlign: "left", alignItems: "center", gap: 8, fontWeight: isCurrent ? 600 : 500 } }, /* @__PURE__ */ React.createElement("span", { style: { flex: 1 } }, "\u0413\u0438\u0434 \xB7 ", name), isCurrent && /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, padding: "2px 7px", background: "rgba(255,255,255,.22)", color: "#fff", borderRadius: 8, fontWeight: 700, letterSpacing: 0.4 } }, "\u0441\u0435\u0439\u0447\u0430\u0441"));
     });
   })(), /* @__PURE__ */ React.createElement("div", { style: { padding: "10px 16px 4px", fontSize: 10, fontWeight: 700, letterSpacing: 1.4, textTransform: "uppercase", color: "#86868b", borderTop: "1px solid #f5f5f7" } }, "\u0421\u043F\u0440\u0430\u0432\u043A\u0430"), /* @__PURE__ */ React.createElement("button", { onClick: () => {
     setInstr(true);

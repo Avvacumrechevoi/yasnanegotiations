@@ -865,13 +865,19 @@ function App(){
             <div style={{position:'absolute',top:'calc(100% + 4px)',right:0,minWidth:240,maxHeight:'calc(100vh - 80px)',overflowY:'auto',background:'#fff',border:'1px solid #d2d2d7',borderRadius:10,boxShadow:'0 6px 24px rgba(0,0,0,.12)',zIndex:100}}>
               {/* Уроки — отдельный пункт, общие для всех Ясн */}
               <button onClick={()=>{setLessonPicker(true);setLearnOpen(false)}} style={{display:'flex',width:'100%',padding:'11px 14px',fontSize:13,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left',cursor:'pointer'}}>Уроки <span style={{color:'#86868b',fontSize:11,marginLeft:6}}>· 4 шага</span></button>
-              {/* Все зарегистрированные гиды — auto-list через YasnaTours.list() */}
+              {/* Все зарегистрированные гиды — auto-list через YasnaTours.list().
+                  Приоритет: Суток / Года / Жизни первыми, остальные — после. */}
               {(()=>{
-                const tours=(window.YasnaTours&&window.YasnaTours.list?window.YasnaTours.list():[]);
-                if(tours.length===0)return <div style={{padding:'11px 14px',fontSize:12,color:'#aeaeb2',fontStyle:'italic'}}>Гиды появятся скоро</div>;
+                const allTours=(window.YasnaTours&&window.YasnaTours.list?window.YasnaTours.list():[]);
+                if(allTours.length===0)return <div style={{padding:'11px 14px',fontSize:12,color:'#aeaeb2',fontStyle:'italic'}}>Гиды появятся скоро</div>;
+                const PRIORITY=['Суток','Года','Жизни'];
+                const tours=[...allTours].sort((a,b)=>{
+                  const ai=PRIORITY.indexOf(a),bi=PRIORITY.indexOf(b);
+                  return (ai===-1?999:ai)-(bi===-1?999:bi);
+                });
                 return <>
-                  <div style={{padding:'8px 14px 4px',fontSize:10,fontWeight:600,letterSpacing:1.2,textTransform:'uppercase',color:'#86868b'}}>Гиды по Яснам · {tours.length}</div>
-                  {tours.map(name=>{const isCurrent=y&&y.name===name;return <button key={name} onClick={()=>{const t=T.find(tt=>tt.n===name);if(t&&!isCurrent)load(t);setShowTour(true);setLearnOpen(false);}} style={{display:'flex',alignItems:'center',gap:8,width:'100%',padding:'10px 14px',fontSize:13,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:isCurrent?'rgba(0,113,227,.06)':'#fff',textAlign:'left',cursor:'pointer',fontWeight:isCurrent?600:400}}><span style={{flex:1}}>{name}</span>{isCurrent && <span style={{fontSize:9,padding:'1px 6px',background:'rgba(0,113,227,.14)',color:'#0058b8',borderRadius:8,fontWeight:600,letterSpacing:.5}}>СЕЙЧАС</span>}</button>;})}
+                  <div style={{padding:'10px 14px 6px',fontSize:11,fontWeight:600,letterSpacing:1.4,textTransform:'uppercase',color:'#86868b'}}>Гиды по Яснам <span style={{color:'#aeaeb2',fontWeight:500}}>· {tours.length}</span></div>
+                  {tours.map(name=>{const isCurrent=y&&y.name===name;return <button key={name} onClick={()=>{const t=T.find(tt=>tt.n===name);if(t&&!isCurrent)load(t);setShowTour(true);setLearnOpen(false);}} className={'hdr-learn-item'+(isCurrent?' is-current':'')} style={{display:'flex',alignItems:'center',gap:8,width:'100%',padding:'11px 14px',fontSize:13,color:isCurrent?'#fff':'#1d1d1f',border:'none',borderLeft:`3px solid ${isCurrent?'#0071e3':'transparent'}`,borderBottom:'1px solid #f5f5f7',background:isCurrent?'#0071e3':'#fff',textAlign:'left',cursor:'pointer',fontWeight:isCurrent?600:500}}><span style={{flex:1}}>{name}</span>{isCurrent && <span style={{fontSize:10,padding:'2px 7px',background:'rgba(255,255,255,.22)',color:'#fff',borderRadius:8,fontWeight:700,letterSpacing:.4}}>сейчас</span>}</button>;})}
                 </>;
               })()}
             </div>
@@ -948,7 +954,14 @@ function App(){
               <span style={{flex:1}}>Уроки</span>
               <span style={{color:'#86868b',fontSize:11}}>4 шага</span>
             </button>
-            {(()=>{const tours=(window.YasnaTours&&window.YasnaTours.list?window.YasnaTours.list():[]);return tours.map(name=>{const isCurrent=y&&y.name===name;return <button key={'tour-'+name} onClick={()=>{const t=T.find(tt=>tt.n===name);if(t&&!isCurrent)load(t);setShowTour(true);setMenu(false);}} style={{display:'flex',width:'100%',padding:'10px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:isCurrent?'rgba(0,113,227,.06)':'#fff',textAlign:'left',alignItems:'center',gap:8,fontWeight:isCurrent?600:400}}><span style={{flex:1}}>Гид · {name}</span>{isCurrent && <span style={{fontSize:9,padding:'1px 6px',background:'rgba(0,113,227,.14)',color:'#0058b8',borderRadius:8,fontWeight:600}}>СЕЙЧАС</span>}</button>;});})()}
+            {(()=>{
+              const allTours=(window.YasnaTours&&window.YasnaTours.list?window.YasnaTours.list():[]);
+              const PRIORITY=['Суток','Года','Жизни'];
+              const tours=[...allTours].sort((a,b)=>{
+                const ai=PRIORITY.indexOf(a),bi=PRIORITY.indexOf(b);
+                return (ai===-1?999:ai)-(bi===-1?999:bi);
+              });
+              return tours.map(name=>{const isCurrent=y&&y.name===name;return <button key={'tour-'+name} onClick={()=>{const t=T.find(tt=>tt.n===name);if(t&&!isCurrent)load(t);setShowTour(true);setMenu(false);}} style={{display:'flex',width:'100%',padding:'11px 16px',fontSize:14,color:isCurrent?'#fff':'#1d1d1f',border:'none',borderLeft:`3px solid ${isCurrent?'#0071e3':'transparent'}`,borderBottom:'1px solid #f5f5f7',background:isCurrent?'#0071e3':'#fff',textAlign:'left',alignItems:'center',gap:8,fontWeight:isCurrent?600:500}}><span style={{flex:1}}>Гид · {name}</span>{isCurrent && <span style={{fontSize:10,padding:'2px 7px',background:'rgba(255,255,255,.22)',color:'#fff',borderRadius:8,fontWeight:700,letterSpacing:.4}}>сейчас</span>}</button>;});})()}
             {/* СПРАВКА */}
             <div style={{padding:'10px 16px 4px',fontSize:10,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',color:'#86868b',borderTop:'1px solid #f5f5f7'}}>Справка</div>
             <button onClick={()=>{setInstr(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'10px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left'}}>Инструкция</button>
