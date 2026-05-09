@@ -6,14 +6,17 @@
     "id": "T4",
     "slug": "osi-kresty",
     "title": "Свет и Тьма. Оси и противостояния",
-    "alt_titles": ["Опорный Крест", "Линия Борьбы. Линия Единства", "Имена чертежа"],
+    "alt_titles": [
+      "Опорный Крест",
+      "Линия Борьбы. Линия Единства",
+      "Имена чертежа"
+    ],
     "items_range": "124-253",
     "pdf_pages": "15-31",
     "source_file": "Сутки/05_узел_04_оси_противостояния_кресты.md",
     "summary": "Узел вводит в построенный шестиугольник оси и противостояния — горизонтальную «Линию Борьбы» (свет/тьма) и вертикальную «Линию Единства» (нарастание/спад света), их пересечение «Опорный Крест» = «Крест Единства и Борьбы Противоположностей»; формализует 6 пар полных противостояний и 5+5 пар половинных; вводит десяток дополнительных имён чертежа (Лучевая Ясна, Турель, Тарелка, Ясная Звезда, Алмаз, Диамант, Бриллиант, Адамас, Двугранец, Булат, Кристалл, Диаграмма) и через них — учение о Мировом Зеркале.",
     "themes_in_partia": true
   },
-
   "categories": [
     {
       "id": "T4.K1",
@@ -25,35 +28,77 @@
           "id": "T4.K1.A1",
           "kind": "postulate",
           "quote": "Сутки есть противостояние света и тьмы.",
-          "source": { "items": [126], "pdf_page": 15 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "true-false"]
+          "source": {
+            "items": [
+              126
+            ],
+            "pdf_page": 15
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T4.K1.A2",
           "kind": "postulate",
           "quote": "Сутки есть противостояние Нарастания Света и Спада Света.",
-          "source": { "items": [127], "pdf_page": 15 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "true-false"]
+          "source": {
+            "items": [
+              127
+            ],
+            "pdf_page": 15
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T4.K1.A3",
           "kind": "definition",
           "term": "Явный Свет",
           "quote": "Прямой солнечный свет. Этот [прямой] свет называется «Явный Свет».",
-          "source": { "items": [162], "pdf_page": 19 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "match-pair", "fill-blank"]
+          "source": {
+            "items": [
+              162
+            ],
+            "pdf_page": 19
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "match-pair",
+            "fill-blank"
+          ]
         },
         {
           "id": "T4.K1.A4",
           "kind": "definition",
           "term": "Неявный Свет",
           "quote": "Этот свет, отражённый небесами или светом луны и планет. Этот отражённый свет солнца называется «Неявный Свет».",
-          "source": { "items": [161], "pdf_page": 19 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "match-pair", "fill-blank"]
+          "source": {
+            "items": [
+              161
+            ],
+            "pdf_page": 19
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "match-pair",
+            "fill-blank"
+          ]
         },
         {
           "id": "T4.K1.A5",
@@ -61,40 +106,87 @@
           "term_a": "Явный Свет",
           "term_b": "Неявный Свет",
           "quote": "Горизонтальная линия, разделяющая день и ночь, разделяет «Явный Свет» и «Неявный Свет».",
-          "source": { "items": [163], "pdf_page": 19 },
-          "supports_questions": ["match-pair"]
+          "source": {
+            "items": [
+              163
+            ],
+            "pdf_page": 19
+          },
+          "supports_questions": [
+            "match-pair"
+          ]
         },
         {
           "id": "T4.K1.A6",
           "kind": "definition",
           "term": "Чистый Свет",
           "quote": "Дневной Переход есть Чистый Свет.",
-          "source": { "items": [168], "pdf_page": 20 },
-          "meta": { "is_keystone": true, "links": { "see_also": ["T2.K3.A12"] } },
-          "supports_questions": ["single-choice", "fill-blank", "match-pair"]
+          "source": {
+            "items": [
+              168
+            ],
+            "pdf_page": 20
+          },
+          "meta": {
+            "is_keystone": true,
+            "links": {
+              "see_also": [
+                "T2.K3.A12"
+              ]
+            }
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank",
+            "match-pair"
+          ]
         },
         {
           "id": "T4.K1.A7",
           "kind": "definition",
           "term": "Тьма-тьмущая",
           "quote": "Ночная Тьма есть Тьма… скажем, пока, Тьмущая. Потому что какая же она Чистая Тьма, если в ней пока, какой-то свет есть?",
-          "source": { "items": [170], "pdf_page": 20 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "match-pair"]
+          "source": {
+            "items": [
+              170
+            ],
+            "pdf_page": 20
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T4.K1.A8",
           "kind": "fact",
           "quote": "В Дневном Переходе совсем нет примеси тьмы.",
-          "source": { "items": [167], "pdf_page": 20 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              167
+            ],
+            "pdf_page": 20
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         },
         {
           "id": "T4.K1.A9",
           "kind": "fact",
           "quote": "В Ночной Тьме нет примеси света.",
-          "source": { "items": [169], "pdf_page": 20 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              169
+            ],
+            "pdf_page": 20
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         },
         {
           "id": "T4.K1.A10",
@@ -115,17 +207,28 @@
             "Спуск Солнца",
             "Пропадание Света"
           ],
-          "source": { "items": [171], "pdf_page": 20 },
+          "source": {
+            "items": [
+              171
+            ],
+            "pdf_page": 20
+          },
           "meta": {
             "is_keystone": true,
-            "links": { "see_also": ["T2.K3.A12"] },
+            "links": {
+              "see_also": [
+                "T2.K3.A12"
+              ]
+            },
             "notes": "Второй формальный список имён 12 времён, через метафору борьбы света и тьмы."
           },
-          "supports_questions": ["multi-choice", "match-pair"]
+          "supports_questions": [
+            "multi-choice",
+            "match-pair"
+          ]
         }
       ]
     },
-
     {
       "id": "T4.K2",
       "slug": "glavnye-osi",
@@ -136,9 +239,19 @@
           "id": "T4.K2.A1",
           "kind": "postulate",
           "quote": "В Ясне времён суток из всех шести противостояний главными противостояниями являются два противостояния: горизонтальная линия, разделяющая свет и тьму, и вертикальная линия, разделяющая время нарастания света и время его ниспадания.",
-          "source": { "items": [138], "pdf_page": 16 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "single-choice"]
+          "source": {
+            "items": [
+              138
+            ],
+            "pdf_page": 16
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "single-choice"
+          ]
         },
         {
           "id": "T4.K2.A2",
@@ -146,9 +259,21 @@
           "term": "Горизонтальная ось",
           "alt_name": "Линия Борьбы",
           "quote": "Горизонтальная ось, соединяющая короткие противостоящие времена Проявление Света и Проявление Тьмы… разделяет свет и тьму, и она называется «Линия Борьбы».",
-          "source": { "items": [164, 248], "pdf_page": 19 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "match-pair", "fill-blank"]
+          "source": {
+            "items": [
+              164,
+              248
+            ],
+            "pdf_page": 19
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "match-pair",
+            "fill-blank"
+          ]
         },
         {
           "id": "T4.K2.A3",
@@ -156,9 +281,20 @@
           "term": "Вертикальная ось",
           "alt_name": "Линия Единства",
           "quote": "Вертикальная ось, соединяющая долгие противостоящие времена Дневного Перехода и Полной Тьмы, разделяет нарастание света и спад света, и она называется «Линия Единства».",
-          "source": { "items": [249], "pdf_page": 31 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "match-pair", "fill-blank"]
+          "source": {
+            "items": [
+              249
+            ],
+            "pdf_page": 31
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "match-pair",
+            "fill-blank"
+          ]
         },
         {
           "id": "T4.K2.A4",
@@ -166,32 +302,59 @@
           "term": "Опорный Крест",
           "alt_name": "Крест Единства и Борьбы Противоположностей",
           "quote": "Крест из двух главных осей Ясны с поперечными чёрточками на концах называется «Опорный Крест». А сам Опорный Крест Ясны называется ещё «Крест Единства и Борьбы Противоположностей».",
-          "source": { "items": [149, 250], "pdf_page": 18 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "match-pair", "fill-blank"]
+          "source": {
+            "items": [
+              149,
+              250
+            ],
+            "pdf_page": 18
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "match-pair",
+            "fill-blank"
+          ]
         },
         {
           "id": "T4.K2.A5",
           "kind": "fact",
           "quote": "Опорный Крест одновременно разводит, разделяет, свет и тьму, и нарастание света и его ниспадание.",
-          "source": { "items": [150], "pdf_page": 18 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              150
+            ],
+            "pdf_page": 18
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         },
         {
           "id": "T4.K2.A6",
           "kind": "scheme",
           "term": "Лучевая Ясна",
           "quote": "Вот она, Ясна. Вот такой простой чертёж. Это есть Лучевая Ясна.",
-          "source": { "items": [140, 141], "pdf_page": 16 },
+          "source": {
+            "items": [
+              140,
+              141
+            ],
+            "pdf_page": 16
+          },
           "meta": {
             "references_illustration": "T4.I2",
             "notes": "12-точечный круг с двумя главными осями"
           },
-          "supports_questions": ["single-choice", "match-pair"]
+          "supports_questions": [
+            "single-choice",
+            "match-pair"
+          ]
         }
       ]
     },
-
     {
       "id": "T4.K3",
       "slug": "imena-chertezha-rasshirenny",
@@ -211,37 +374,94 @@
             "Тарелочка с голубой каёмочкой",
             "Блюдечко с голубой каёмочкой"
           ],
-          "source": { "items": [143, 144, 146], "pdf_page": 17 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["multi-choice"]
+          "source": {
+            "items": [
+              143,
+              144,
+              146
+            ],
+            "pdf_page": 17
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "multi-choice"
+          ]
         },
         {
           "id": "T4.K3.A2",
           "kind": "etymology",
           "term": "Пролить свет",
           "quote": "Именно эта «Ясная Звезда» проливает свет на какую-либо вещь… Сейчас часто пользуются выражениями «пролить свет на что-либо», «осветить вопрос», «осветить некое явление», но совершенно не помнят, от чего они происходят.",
-          "source": { "items": [144, 145], "pdf_page": 17 },
-          "meta": { "related_words": ["пролить свет", "осветить вопрос", "осветить явление"] },
-          "supports_questions": ["multi-choice", "single-choice"]
+          "source": {
+            "items": [
+              144,
+              145
+            ],
+            "pdf_page": 17
+          },
+          "meta": {
+            "related_words": [
+              "пролить свет",
+              "осветить вопрос",
+              "осветить явление"
+            ]
+          },
+          "supports_questions": [
+            "multi-choice",
+            "single-choice"
+          ]
         },
         {
           "id": "T4.K3.A3",
           "kind": "list",
           "term": "Однословные имена-«семейство Алмаза»",
           "quote": "«Алмаз». Вот очень удобное название этого чертежа. Или «Диамант»… А ещё «Бриллиант»… есть ещё латинское слово «Adamas». Или «Адамас».",
-          "items_list": ["Алмаз", "Диамант", "Бриллиант", "Адамас"],
-          "source": { "items": [182, 183, 184, 185], "pdf_page": 23 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["multi-choice"]
+          "items_list": [
+            "Алмаз",
+            "Диамант",
+            "Бриллиант",
+            "Адамас"
+          ],
+          "source": {
+            "items": [
+              182,
+              183,
+              184,
+              185
+            ],
+            "pdf_page": 23
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "multi-choice"
+          ]
         },
         {
           "id": "T4.K3.A4",
           "kind": "etymology",
           "term": "Алмаз / Диамант / Бриллиант",
           "quote": "«Бриллиант» есть другая форма слова «Диамант», а слово «Алмаз» есть вариант обратного чтения слова «Диамант».",
-          "source": { "items": [184], "pdf_page": 23 },
-          "meta": { "related_words": ["Алмаз", "Диамант", "Бриллиант"] },
-          "supports_questions": ["single-choice", "fill-blank"]
+          "source": {
+            "items": [
+              184
+            ],
+            "pdf_page": 23
+          },
+          "meta": {
+            "related_words": [
+              "Алмаз",
+              "Диамант",
+              "Бриллиант"
+            ]
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank"
+          ]
         },
         {
           "id": "T4.K3.A5",
@@ -249,8 +469,16 @@
           "term": "Чертёж по-русски",
           "alt_name": "Двугранец",
           "quote": "В Ясне этот чертёж по-русски называется «Двугранец». Или «Двугранен».",
-          "source": { "items": [188], "pdf_page": 23 },
-          "supports_questions": ["single-choice", "match-pair"]
+          "source": {
+            "items": [
+              188
+            ],
+            "pdf_page": 23
+          },
+          "supports_questions": [
+            "single-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T4.K3.A6",
@@ -258,8 +486,16 @@
           "term": "Чертёж",
           "alt_name": "Булат",
           "quote": "Это, прежде всего, «Булат». В Ясне это слово используется в строгом виде «Булат». Или «Булатт».",
-          "source": { "items": [207], "pdf_page": 26 },
-          "supports_questions": ["single-choice", "match-pair"]
+          "source": {
+            "items": [
+              207
+            ],
+            "pdf_page": 26
+          },
+          "supports_questions": [
+            "single-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T4.K3.A7",
@@ -267,8 +503,16 @@
           "term": "Чертёж",
           "alt_name": "Кристалл",
           "quote": "И наконец, слово «Кристалл». Это тоже есть ещё одно название чертежа Ясны.",
-          "source": { "items": [212], "pdf_page": 26 },
-          "supports_questions": ["single-choice", "match-pair"]
+          "source": {
+            "items": [
+              212
+            ],
+            "pdf_page": 26
+          },
+          "supports_questions": [
+            "single-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T4.K3.A8",
@@ -276,51 +520,113 @@
           "term": "Чертёж (техническое имя)",
           "alt_name": "Диаграмма",
           "quote": "Это слово «Диаграмма». Часто любой пояснительный что-либо чертёж называют «Диаграммой».",
-          "source": { "items": [216, 217], "pdf_page": 26 },
-          "supports_questions": ["single-choice", "match-pair"]
+          "source": {
+            "items": [
+              216,
+              217
+            ],
+            "pdf_page": 26
+          },
+          "supports_questions": [
+            "single-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T4.K3.A9",
           "kind": "etymology",
           "term": "Диаграмма",
           "quote": "В слове «Диаграмма» начальное «Диа-» означает не просто число «два» для какого-то удвоения. Оно в этом слове означает именно противостояние, противоположенность, двойственность.",
-          "source": { "items": [218], "pdf_page": 26 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "fill-blank"]
+          "source": {
+            "items": [
+              218
+            ],
+            "pdf_page": 26
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank"
+          ]
         },
         {
           "id": "T4.K3.A10",
           "kind": "etymology",
           "term": "Восток",
           "quote": "Слово «Восток» есть другой вид слова «Востор», которое, в свою очередь, есть изменение для удобства произношения слова «Воизстор». В точке выхода солнца горизонт его выстирает, или воизстирает.",
-          "source": { "items": [204], "pdf_page": 25 },
-          "meta": { "related_words": ["Воизстор", "Востор", "выстирать"] },
-          "supports_questions": ["single-choice"]
+          "source": {
+            "items": [
+              204
+            ],
+            "pdf_page": 25
+          },
+          "meta": {
+            "related_words": [
+              "Воизстор",
+              "Востор",
+              "выстирать"
+            ]
+          },
+          "supports_questions": [
+            "single-choice"
+          ]
         },
         {
           "id": "T4.K3.A11",
           "kind": "etymology",
           "term": "Запад",
           "quote": "Слово «Запад» есть, кстати, и в просторечии. На западе солнце западает за горизонт.",
-          "source": { "items": [205], "pdf_page": 25 },
-          "meta": { "related_words": ["западает"] },
-          "supports_questions": ["single-choice"]
+          "source": {
+            "items": [
+              205
+            ],
+            "pdf_page": 25
+          },
+          "meta": {
+            "related_words": [
+              "западает"
+            ]
+          },
+          "supports_questions": [
+            "single-choice"
+          ]
         },
         {
           "id": "T4.K3.A12",
           "kind": "scheme",
           "term": "Меч",
           "quote": "В таком виде этот чертёж есть не только изображение двенадцати времён суток, но это и вид поперечного среза меча, заточенного с обеих сторон.",
-          "source": { "items": [194, 195], "pdf_page": 24 },
-          "meta": { "references_illustration": "T4.I7" },
-          "supports_questions": ["single-choice", "match-pair"]
+          "source": {
+            "items": [
+              194,
+              195
+            ],
+            "pdf_page": 24
+          },
+          "meta": {
+            "references_illustration": "T4.I7"
+          },
+          "supports_questions": [
+            "single-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T4.K3.A13",
           "kind": "fact",
           "quote": "Правый и левый острые углы есть два острия Ясны Суток. И это есть две грани этого меча.",
-          "source": { "items": [196], "pdf_page": 24 },
-          "supports_questions": ["true-false", "single-choice"]
+          "source": {
+            "items": [
+              196
+            ],
+            "pdf_page": 24
+          },
+          "supports_questions": [
+            "true-false",
+            "single-choice"
+          ]
         },
         {
           "id": "T4.K3.A14",
@@ -328,12 +634,21 @@
           "term_a": "Восточное Сражение",
           "term_b": "Западное Сражение",
           "quote": "На востоке победу в сражении одерживают силы света. На западе побеждает тьма.",
-          "source": { "items": [200, 201, 202], "pdf_page": 25 },
-          "supports_questions": ["match-pair", "fill-blank"]
+          "source": {
+            "items": [
+              200,
+              201,
+              202
+            ],
+            "pdf_page": 25
+          },
+          "supports_questions": [
+            "match-pair",
+            "fill-blank"
+          ]
         }
       ]
     },
-
     {
       "id": "T4.K4",
       "slug": "polnye-i-polovinnye",
@@ -345,18 +660,40 @@
           "kind": "definition",
           "term": "Полное противостояние",
           "quote": "Полное противостояние есть противостояние относительно центра диаграммы.",
-          "source": { "items": [227], "pdf_page": 28 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "fill-blank", "match-pair"]
+          "source": {
+            "items": [
+              227
+            ],
+            "pdf_page": 28
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank",
+            "match-pair"
+          ]
         },
         {
           "id": "T4.K4.A2",
           "kind": "definition",
           "term": "Половинное противостояние",
           "quote": "Половинное противостояние есть противостояние относительно прямой, делящей диаграмму на две половины.",
-          "source": { "items": [229], "pdf_page": 28 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "fill-blank", "match-pair"]
+          "source": {
+            "items": [
+              229
+            ],
+            "pdf_page": 28
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank",
+            "match-pair"
+          ]
         },
         {
           "id": "T4.K4.A3",
@@ -365,9 +702,20 @@
           "quote": "На этом чертеже видно, что Ясна Сутою есть шесть пар противостояний друг другу времён.",
           "value": 6,
           "unit": "пар полных противостояний",
-          "source": { "items": [136, 224], "pdf_page": 16 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "fill-blank"]
+          "source": {
+            "items": [
+              136,
+              224
+            ],
+            "pdf_page": 16
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank"
+          ]
         },
         {
           "id": "T4.K4.A4",
@@ -382,9 +730,19 @@
             "Начало Тьмы ↔ Начало Света",
             "Спад Явного Света ↔ Спад Явной Тьмы"
           ],
-          "source": { "items": [224], "pdf_page": 28 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["multi-choice", "match-pair"]
+          "source": {
+            "items": [
+              224
+            ],
+            "pdf_page": 28
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "multi-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T4.K4.A5",
@@ -398,24 +756,53 @@
             "Первый Свет ↔ Последняя Тьма",
             "Утренняя Заря ↔ Подъём Солнца"
           ],
-          "source": { "items": [233], "pdf_page": 29 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["multi-choice", "match-pair"]
+          "source": {
+            "items": [
+              233
+            ],
+            "pdf_page": 29
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "multi-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T4.K4.A6",
           "kind": "fact",
           "quote": "Только пять пар половинных противостояний. И шестой пары нет.",
-          "source": { "items": [234], "pdf_page": 29 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["true-false", "fill-blank"]
+          "source": {
+            "items": [
+              234
+            ],
+            "pdf_page": 29
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "true-false",
+            "fill-blank"
+          ]
         },
         {
           "id": "T4.K4.A7",
           "kind": "fact",
           "quote": "А вот время выхода солнца, то есть Проявление Света, противостоит само себе. Самому себе противостоит. Содержит в себе противоречие с собой. То же самое с временем захода солнца, или Проявление Тьмы.",
-          "source": { "items": [235, 236], "pdf_page": 29 },
-          "supports_questions": ["true-false", "single-choice"]
+          "source": {
+            "items": [
+              235,
+              236
+            ],
+            "pdf_page": 29
+          },
+          "supports_questions": [
+            "true-false",
+            "single-choice"
+          ]
         },
         {
           "id": "T4.K4.A8",
@@ -429,27 +816,52 @@
             "Подъём Солнца ↔ Спуск Солнца",
             "Последняя Тьма ↔ Первая Тьма"
           ],
-          "source": { "items": [253], "pdf_page": 31 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["multi-choice", "match-pair"]
+          "source": {
+            "items": [
+              253
+            ],
+            "pdf_page": 31
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "multi-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T4.K4.A9",
           "kind": "fact",
           "quote": "Если Заре в полном противостоянии противостоит Спуск Солнца, то в половинном противостоянии относительно линии горизонта Заре противостоит Подъём Солнца.",
-          "source": { "items": [231], "pdf_page": 28 },
-          "supports_questions": ["true-false", "single-choice"]
+          "source": {
+            "items": [
+              231
+            ],
+            "pdf_page": 28
+          },
+          "supports_questions": [
+            "true-false",
+            "single-choice"
+          ]
         },
         {
           "id": "T4.K4.A10",
           "kind": "fact",
           "quote": "Любое из времён может противостоять себе самому. При определённых условиях. Это есть свойство Ясны.",
-          "source": { "items": [240, 241], "pdf_page": 30 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              240,
+              241
+            ],
+            "pdf_page": 30
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         }
       ]
     },
-
     {
       "id": "T4.K5",
       "slug": "mirovoye-zerkalo",
@@ -460,33 +872,64 @@
           "id": "T4.K5.A1",
           "kind": "postulate",
           "quote": "Ясна и есть учение о двойственности и о противоположности. Ясна учит тому, что всякая вещь в этом мире есть с противоположностью. У всякой вещи. У всего есть отражение в Мировом Зеркале.",
-          "source": { "items": [219], "pdf_page": 26 },
+          "source": {
+            "items": [
+              219
+            ],
+            "pdf_page": 26
+          },
           "meta": {
             "is_keystone": true,
-            "links": { "applies_in": ["T4.K4.A1", "T4.K4.A2"] }
+            "links": {
+              "applies_in": [
+                "T4.K4.A1",
+                "T4.K4.A2"
+              ]
+            }
           },
-          "supports_questions": ["fill-blank", "single-choice", "true-false"]
+          "supports_questions": [
+            "fill-blank",
+            "single-choice",
+            "true-false"
+          ]
         },
         {
           "id": "T4.K5.A2",
           "kind": "definition",
           "term": "Линия Зеркала",
           "quote": "Для половинных противостояний всегда нужно указывать линию, которая делит Ясну пополам и относительно которой это противостояние рассматривается. То есть нужно указывать линию Зеркала, в которое смотрятся эти две равные половины.",
-          "source": { "items": [232], "pdf_page": 28 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "fill-blank"]
+          "source": {
+            "items": [
+              232
+            ],
+            "pdf_page": 28
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank"
+          ]
         },
         {
           "id": "T4.K5.A3",
           "kind": "fact",
           "quote": "В этом зеркале День себя видит как Ночь, а Ночь себя видит как День. То есть оба видят друг друга как свою противоположность.",
-          "source": { "items": [230], "pdf_page": 28 },
-          "supports_questions": ["true-false", "single-choice"]
+          "source": {
+            "items": [
+              230
+            ],
+            "pdf_page": 28
+          },
+          "supports_questions": [
+            "true-false",
+            "single-choice"
+          ]
         }
       ]
     }
   ],
-
   "illustrations": [
     {
       "id": "T4.I1",
@@ -494,8 +937,17 @@
       "code": "V-005",
       "pdf_page": 15,
       "caption": "12 равномерно расставленных подписей вокруг окружности (имена 12 времён).",
-      "source": { "items": [132, 133], "pdf_page": 15 },
-      "use_cases": ["explainer", "theme-cover"]
+      "source": {
+        "items": [
+          132,
+          133
+        ],
+        "pdf_page": 15
+      },
+      "use_cases": [
+        "explainer",
+        "theme-cover"
+      ]
     },
     {
       "id": "T4.I2",
@@ -503,8 +955,17 @@
       "code": "V-006",
       "pdf_page": 16,
       "caption": "12-точечный круг с двумя главными осями (вертикальной и горизонтальной); 12 «лучей» расходятся из центра.",
-      "source": { "items": [140, 141], "pdf_page": 16 },
-      "use_cases": ["question-illustration", "explainer"]
+      "source": {
+        "items": [
+          140,
+          141
+        ],
+        "pdf_page": 16
+      },
+      "use_cases": [
+        "question-illustration",
+        "explainer"
+      ]
     },
     {
       "id": "T4.I3",
@@ -512,8 +973,18 @@
       "code": "V-007",
       "pdf_page": 17,
       "caption": "12-точечный круг со столбиком в центре (стилизованная колонна или светильник); подписи имён 12 фаз.",
-      "source": { "items": [142, 143, 144, 146], "pdf_page": 17 },
-      "use_cases": ["question-illustration"]
+      "source": {
+        "items": [
+          142,
+          143,
+          144,
+          146
+        ],
+        "pdf_page": 17
+      },
+      "use_cases": [
+        "question-illustration"
+      ]
     },
     {
       "id": "T4.I4",
@@ -521,8 +992,17 @@
       "code": "V-008",
       "pdf_page": 18,
       "caption": "Крест с 4 концами и поперечными чёрточками; на концах — подписи «свет» / «тьма» / «нарастание» / «ниспадание».",
-      "source": { "items": [149, 150], "pdf_page": 18 },
-      "use_cases": ["question-illustration", "theme-cover"]
+      "source": {
+        "items": [
+          149,
+          150
+        ],
+        "pdf_page": 18
+      },
+      "use_cases": [
+        "question-illustration",
+        "theme-cover"
+      ]
     },
     {
       "id": "T4.I5",
@@ -530,8 +1010,16 @@
       "code": "V-009",
       "pdf_page": 19,
       "caption": "12-точечный круг с горизонтальной осью «Линия Борьбы»; верх — Явный Свет, низ — Неявный Свет.",
-      "source": { "items": [163, 164], "pdf_page": 19 },
-      "use_cases": ["question-illustration"]
+      "source": {
+        "items": [
+          163,
+          164
+        ],
+        "pdf_page": 19
+      },
+      "use_cases": [
+        "question-illustration"
+      ]
     },
     {
       "id": "T4.I6",
@@ -539,8 +1027,16 @@
       "code": "V-012",
       "pdf_page": 22,
       "caption": "12-точечный круг с дугообразными стрелками в каждом квадранте: «Растёт Явный Свет», «Спадает Явный Свет», «Растёт Явная Тьма» и т.п.",
-      "source": { "items": [175, 176], "pdf_page": 22 },
-      "use_cases": ["explainer"]
+      "source": {
+        "items": [
+          175,
+          176
+        ],
+        "pdf_page": 22
+      },
+      "use_cases": [
+        "explainer"
+      ]
     },
     {
       "id": "T4.I7",
@@ -548,8 +1044,18 @@
       "code": "V-014",
       "pdf_page": 24,
       "caption": "Шестиугольник, сжатый по вертикали и вытянутый по горизонтали — поперечный срез двусторонне заточенного меча. Восточное и Западное острия.",
-      "source": { "items": [194, 195, 196, 198], "pdf_page": 24 },
-      "use_cases": ["question-illustration"]
+      "source": {
+        "items": [
+          194,
+          195,
+          196,
+          198
+        ],
+        "pdf_page": 24
+      },
+      "use_cases": [
+        "question-illustration"
+      ]
     },
     {
       "id": "T4.I8",
@@ -557,8 +1063,17 @@
       "code": "V-015",
       "pdf_page": 25,
       "caption": "«Меч» с подписями «Восточное Сражение» (победа света) и «Западное Сражение» (победа тьмы).",
-      "source": { "items": [200, 201, 202], "pdf_page": 25 },
-      "use_cases": ["explainer"]
+      "source": {
+        "items": [
+          200,
+          201,
+          202
+        ],
+        "pdf_page": 25
+      },
+      "use_cases": [
+        "explainer"
+      ]
     },
     {
       "id": "T4.I9",
@@ -566,8 +1081,17 @@
       "code": "V-017",
       "pdf_page": 28,
       "caption": "12-точечный круг с парно противопоставленными по диагонали 12 именами.",
-      "source": { "items": [223, 224], "pdf_page": 28 },
-      "use_cases": ["question-illustration", "theme-cover"]
+      "source": {
+        "items": [
+          223,
+          224
+        ],
+        "pdf_page": 28
+      },
+      "use_cases": [
+        "question-illustration",
+        "theme-cover"
+      ]
     },
     {
       "id": "T4.I10",
@@ -575,8 +1099,19 @@
       "code": "V-018",
       "pdf_page": 29,
       "caption": "Шестиугольник с горизонтальной осью; 5 пар отражения через горизонт + закольцованные стрелки на горизонтных вершинах («противостоит сам себе»).",
-      "source": { "items": [233, 235, 236, 237], "pdf_page": 29 },
-      "use_cases": ["question-illustration", "explainer"]
+      "source": {
+        "items": [
+          233,
+          235,
+          236,
+          237
+        ],
+        "pdf_page": 29
+      },
+      "use_cases": [
+        "question-illustration",
+        "explainer"
+      ]
     },
     {
       "id": "T4.I11",
@@ -584,11 +1119,20 @@
       "code": "V-020",
       "pdf_page": 31,
       "caption": "Опорный Крест в окружении концентрических кругов и спиралей; вертикаль — Линия Единства, горизонталь — Линия Борьбы.",
-      "source": { "items": [248, 249, 250], "pdf_page": 31 },
-      "use_cases": ["theme-cover", "question-illustration"]
+      "source": {
+        "items": [
+          248,
+          249,
+          250
+        ],
+        "pdf_page": 31
+      },
+      "use_cases": [
+        "theme-cover",
+        "question-illustration"
+      ]
     }
   ],
-
   "questions": [
     {
       "id": "T4.Q1",
@@ -596,13 +1140,28 @@
       "difficulty": "easy",
       "stem": "Прямой солнечный свет, по книге, называется:",
       "correct": "Явный Свет",
-      "options": ["Явный Свет", "Неявный Свет", "Чистый Свет", "Прямой Свет"],
+      "options": [
+        "Явный Свет",
+        "Неявный Свет",
+        "Чистый Свет",
+        "Прямой Свет"
+      ],
       "explanation": {
         "quote": "А во всех временах суток прямой солнечный свет есть. Этот [прямой] свет называется «Явный Свет».",
-        "source": { "items": [162], "pdf_page": 19 }
+        "source": {
+          "items": [
+            162
+          ],
+          "pdf_page": 19
+        }
       },
-      "source_atoms": ["T4.K1.A3"],
-      "tags": ["definition", "core"]
+      "source_atoms": [
+        "T4.K1.A3"
+      ],
+      "tags": [
+        "definition",
+        "core"
+      ]
     },
     {
       "id": "T4.Q2",
@@ -610,13 +1169,28 @@
       "difficulty": "easy",
       "stem": "Свет, отражённый небесами или светом луны и планет, называется:",
       "correct": "Неявный Свет",
-      "options": ["Явный Свет", "Неявный Свет", "Тьма-тьмущая", "Лунный Свет"],
+      "options": [
+        "Явный Свет",
+        "Неявный Свет",
+        "Тьма-тьмущая",
+        "Лунный Свет"
+      ],
       "explanation": {
         "quote": "Этот свет, отражённый небесами или светом луны и планет. Этот отражённый свет солнца называется «Неявный Свет».",
-        "source": { "items": [161], "pdf_page": 19 }
+        "source": {
+          "items": [
+            161
+          ],
+          "pdf_page": 19
+        }
       },
-      "source_atoms": ["T4.K1.A4"],
-      "tags": ["definition", "core"]
+      "source_atoms": [
+        "T4.K1.A4"
+      ],
+      "tags": [
+        "definition",
+        "core"
+      ]
     },
     {
       "id": "T4.Q3",
@@ -624,46 +1198,105 @@
       "difficulty": "medium",
       "stem": "Соотнесите ось чертежа и её имя",
       "correct": [
-        ["горизонтальная ось", "Линия Борьбы"],
-        ["вертикальная ось", "Линия Единства"]
+        [
+          "горизонтальная ось",
+          "Линия Борьбы"
+        ],
+        [
+          "вертикальная ось",
+          "Линия Единства"
+        ]
       ],
       "explanation": {
         "quote": "Горизонтальная ось… называется «Линия Борьбы». Вертикальная ось… называется «Линия Единства».",
-        "source": { "items": [248, 249], "pdf_page": 31 }
+        "source": {
+          "items": [
+            248,
+            249
+          ],
+          "pdf_page": 31
+        }
       },
-      "source_atoms": ["T4.K2.A2", "T4.K2.A3"],
-      "tags": ["pairing", "keystone"]
+      "source_atoms": [
+        "T4.K2.A2",
+        "T4.K2.A3"
+      ],
+      "tags": [
+        "pairing",
+        "keystone"
+      ]
     },
     {
       "id": "T4.Q4",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "medium",
       "stem": "Опорный Крест Ясны называется ещё «Крест Единства и Борьбы _____».",
       "correct": "Противоположностей",
-      "correct_alternatives": ["противоположностей"],
+      "correct_alternatives": [
+        "противоположностей"
+      ],
       "explanation": {
         "quote": "А сам Опорный Крест Ясны называется ещё «Крест Единства и Борьбы Противоположностей».",
-        "source": { "items": [250], "pdf_page": 31 }
+        "source": {
+          "items": [
+            250
+          ],
+          "pdf_page": 31
+        }
       },
-      "source_atoms": ["T4.K2.A4"],
-      "tags": ["name", "keystone"]
+      "source_atoms": [
+        "T4.K2.A4"
+      ],
+      "tags": [
+        "name",
+        "keystone"
+      ],
+      "options": [
+        "Противоположностей",
+        "Стихий",
+        "Времён",
+        "Сил"
+      ]
     },
     {
       "id": "T4.Q5",
       "type": "multi-choice",
       "difficulty": "medium",
       "stem": "Какие однословные имена «семейства Алмаза» носит чертёж?",
-      "correct": ["Алмаз", "Диамант", "Бриллиант", "Адамас"],
+      "correct": [
+        "Алмаз",
+        "Диамант",
+        "Бриллиант",
+        "Адамас"
+      ],
       "options": [
-        "Алмаз", "Диамант", "Бриллиант", "Адамас",
-        "Изумруд", "Рубин", "Сапфир"
+        "Алмаз",
+        "Диамант",
+        "Бриллиант",
+        "Адамас",
+        "Изумруд",
+        "Рубин",
+        "Сапфир"
       ],
       "explanation": {
         "quote": "«Алмаз». Вот очень удобное название этого чертежа. Или «Диамант»… А ещё «Бриллиант»… есть ещё латинское слово «Adamas». Или «Адамас».",
-        "source": { "items": [182, 183, 184, 185], "pdf_page": 23 }
+        "source": {
+          "items": [
+            182,
+            183,
+            184,
+            185
+          ],
+          "pdf_page": 23
+        }
       },
-      "source_atoms": ["T4.K3.A3"],
-      "tags": ["name", "list"]
+      "source_atoms": [
+        "T4.K3.A3"
+      ],
+      "tags": [
+        "name",
+        "list"
+      ]
     },
     {
       "id": "T4.Q6",
@@ -679,10 +1312,19 @@
       ],
       "explanation": {
         "quote": "«Бриллиант» есть другая форма слова «Диамант», а слово «Алмаз» есть вариант обратного чтения слова «Диамант».",
-        "source": { "items": [184], "pdf_page": 23 }
+        "source": {
+          "items": [
+            184
+          ],
+          "pdf_page": 23
+        }
       },
-      "source_atoms": ["T4.K3.A4"],
-      "tags": ["etymology"]
+      "source_atoms": [
+        "T4.K3.A4"
+      ],
+      "tags": [
+        "etymology"
+      ]
     },
     {
       "id": "T4.Q7",
@@ -690,27 +1332,60 @@
       "difficulty": "medium",
       "stem": "По-русски, в Ясне, чертёж называется:",
       "correct": "Двугранец",
-      "options": ["Двугранец", "Шестигран", "Колесогран", "Многогранник"],
+      "options": [
+        "Двугранец",
+        "Шестигран",
+        "Колесогран",
+        "Многогранник"
+      ],
       "explanation": {
         "quote": "В Ясне этот чертёж по-русски называется «Двугранец». Или «Двугранен».",
-        "source": { "items": [188], "pdf_page": 23 }
+        "source": {
+          "items": [
+            188
+          ],
+          "pdf_page": 23
+        }
       },
-      "source_atoms": ["T4.K3.A5"],
-      "tags": ["name"]
+      "source_atoms": [
+        "T4.K3.A5"
+      ],
+      "tags": [
+        "name"
+      ]
     },
     {
       "id": "T4.Q8",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "medium",
       "stem": "В слове «Диаграмма» начальное «Диа-» означает не «два», а _____.",
       "correct": "противостояние",
-      "correct_alternatives": ["противоположенность", "двойственность"],
+      "correct_alternatives": [
+        "противоположенность",
+        "двойственность"
+      ],
       "explanation": {
         "quote": "В слове «Диаграмма» начальное «Диа-» означает не просто число «два» для какого-то удвоения. Оно в этом слове означает именно противостояние, противоположенность, двойственность.",
-        "source": { "items": [218], "pdf_page": 26 }
+        "source": {
+          "items": [
+            218
+          ],
+          "pdf_page": 26
+        }
       },
-      "source_atoms": ["T4.K3.A9"],
-      "tags": ["etymology", "keystone"]
+      "source_atoms": [
+        "T4.K3.A9"
+      ],
+      "tags": [
+        "etymology",
+        "keystone"
+      ],
+      "options": [
+        "противостояние",
+        "разделение",
+        "удвоение",
+        "продолжение"
+      ]
     },
     {
       "id": "T4.Q9",
@@ -718,13 +1393,29 @@
       "difficulty": "easy",
       "stem": "Сколько пар полных противостояний в Ясне Суток?",
       "correct": "6",
-      "options": ["3", "5", "6", "12"],
+      "options": [
+        "3",
+        "5",
+        "6",
+        "12"
+      ],
       "explanation": {
         "quote": "На этом чертеже видно, что Ясна Сутою есть шесть пар противостояний друг другу времён.",
-        "source": { "items": [136, 224], "pdf_page": 16 }
+        "source": {
+          "items": [
+            136,
+            224
+          ],
+          "pdf_page": 16
+        }
       },
-      "source_atoms": ["T4.K4.A3"],
-      "tags": ["number", "keystone"]
+      "source_atoms": [
+        "T4.K4.A3"
+      ],
+      "tags": [
+        "number",
+        "keystone"
+      ]
     },
     {
       "id": "T4.Q10",
@@ -740,10 +1431,22 @@
       ],
       "explanation": {
         "quote": "Только пять пар половинных противостояний. И шестой пары нет… время выхода солнца, то есть Проявление Света, противостоит само себе.",
-        "source": { "items": [234, 235], "pdf_page": 29 }
+        "source": {
+          "items": [
+            234,
+            235
+          ],
+          "pdf_page": 29
+        }
       },
-      "source_atoms": ["T4.K4.A6", "T4.K4.A7"],
-      "tags": ["number", "keystone"]
+      "source_atoms": [
+        "T4.K4.A6",
+        "T4.K4.A7"
+      ],
+      "tags": [
+        "number",
+        "keystone"
+      ]
     },
     {
       "id": "T4.Q11",
@@ -751,28 +1454,62 @@
       "difficulty": "hard",
       "stem": "Соотнесите тип противостояния и его определение",
       "correct": [
-        ["Полное противостояние", "относительно центра диаграммы"],
-        ["Половинное противостояние", "относительно прямой, делящей диаграмму на две половины"]
+        [
+          "Полное противостояние",
+          "относительно центра диаграммы"
+        ],
+        [
+          "Половинное противостояние",
+          "относительно прямой, делящей диаграмму на две половины"
+        ]
       ],
       "explanation": {
         "quote": "Полное противостояние есть противостояние относительно центра диаграммы. Половинное противостояние есть противостояние относительно прямой, делящей диаграмму на две половины.",
-        "source": { "items": [227, 229], "pdf_page": 28 }
+        "source": {
+          "items": [
+            227,
+            229
+          ],
+          "pdf_page": 28
+        }
       },
-      "source_atoms": ["T4.K4.A1", "T4.K4.A2"],
-      "tags": ["pairing", "definition"]
+      "source_atoms": [
+        "T4.K4.A1",
+        "T4.K4.A2"
+      ],
+      "tags": [
+        "pairing",
+        "definition"
+      ]
     },
     {
       "id": "T4.Q12",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "hard",
       "stem": "У всякой вещи есть отражение в _____ Зеркале.",
       "correct": "Мировом",
       "explanation": {
         "quote": "Ясна учит тому, что всякая вещь в этом мире есть с противоположностью. У всякой вещи. У всего есть отражение в Мировом Зеркале.",
-        "source": { "items": [219], "pdf_page": 26 }
+        "source": {
+          "items": [
+            219
+          ],
+          "pdf_page": 26
+        }
       },
-      "source_atoms": ["T4.K5.A1"],
-      "tags": ["postulate", "keystone"]
+      "source_atoms": [
+        "T4.K5.A1"
+      ],
+      "tags": [
+        "postulate",
+        "keystone"
+      ],
+      "options": [
+        "Мировом",
+        "Тёмном",
+        "Звёздном",
+        "Едином"
+      ]
     },
     {
       "id": "T4.Q13",
@@ -782,10 +1519,21 @@
       "correct": true,
       "explanation": {
         "quote": "Дневной Переход есть Чистый Свет. В Дневном Переходе совсем нет примеси тьмы.",
-        "source": { "items": [167, 168], "pdf_page": 20 }
+        "source": {
+          "items": [
+            167,
+            168
+          ],
+          "pdf_page": 20
+        }
       },
-      "source_atoms": ["T4.K1.A6", "T4.K1.A8"],
-      "tags": ["fact"]
+      "source_atoms": [
+        "T4.K1.A6",
+        "T4.K1.A8"
+      ],
+      "tags": [
+        "fact"
+      ]
     },
     {
       "id": "T4.Q14",
@@ -793,13 +1541,28 @@
       "difficulty": "medium",
       "stem": "На какой стороне горизонта побеждают силы тьмы (по книге)?",
       "correct": "На западе",
-      "options": ["На востоке", "На западе", "На севере", "На юге"],
+      "options": [
+        "На востоке",
+        "На западе",
+        "На севере",
+        "На юге"
+      ],
       "explanation": {
         "quote": "На востоке победу в сражении одерживают силы света. На западе побеждает тьма.",
-        "source": { "items": [201, 202], "pdf_page": 25 }
+        "source": {
+          "items": [
+            201,
+            202
+          ],
+          "pdf_page": 25
+        }
       },
-      "source_atoms": ["T4.K3.A14"],
-      "tags": ["opposition"]
+      "source_atoms": [
+        "T4.K3.A14"
+      ],
+      "tags": [
+        "opposition"
+      ]
     },
     {
       "id": "T4.Q15",
@@ -807,97 +1570,339 @@
       "difficulty": "hard",
       "stem": "Соотнесите пару половинного противостояния (относительно Линии Борьбы)",
       "correct": [
-        ["Утренняя Заря", "Подъём Солнца"],
-        ["Полная Тьма", "Чистый Свет"],
-        ["Вечерние Сумерки", "Спуск Солнца"]
+        [
+          "Утренняя Заря",
+          "Подъём Солнца"
+        ],
+        [
+          "Полная Тьма",
+          "Чистый Свет"
+        ],
+        [
+          "Вечерние Сумерки",
+          "Спуск Солнца"
+        ]
       ],
       "explanation": {
         "quote": "Список противостояний относительно линии горизонта… 1. Вечерние Сумерки — Спуск Солнца. 3. Полная Тьма — Чистый Свет. 5. Утренняя Заря — Подъём Солнца.",
-        "source": { "items": [233], "pdf_page": 29 }
+        "source": {
+          "items": [
+            233
+          ],
+          "pdf_page": 29
+        }
       },
-      "source_atoms": ["T4.K4.A5"],
-      "tags": ["pairing", "list"]
+      "source_atoms": [
+        "T4.K4.A5"
+      ],
+      "tags": [
+        "pairing",
+        "list"
+      ]
     }
   ],
-
   "rejected": [
-    { "item": 124, "reason": "Введение темы: «речь шла только о свете» — переходный комментарий." },
-    { "item": 125, "reason": "Намерение продолжить — переходный комментарий." },
-    { "item": 128, "reason": "Конкретизация роста света на промежутке — покрыто T4.K1.A2." },
-    { "item": 129, "reason": "Конкретизация спада освещённости — покрыто T4.K1.A2." },
-    { "item": 130, "reason": "Геометрическое замечание о вертикальной линии — покрыто T4.K2.A1, T4.K2.A3." },
-    { "item": 131, "reason": "Прерванная фраза в скане; геометрическая ремарка." },
-    { "item": 132, "reason": "Намерение перерисовать чертёж — мета-комментарий." },
-    { "item": 133, "reason": "Конкретизация: каждому времени соответствует риска — пояснение к диаграмме." },
-    { "item": 134, "reason": "Конкретизация про вертикальную линию через Дневной Переход и Тьму Ночи — покрыто T4.K2.A3." },
-    { "item": 135, "reason": "Конкретизация про вертикальную прямую — покрыто T4.K2.A3." },
-    { "item": 137, "reason": "Мета-комментарий о вариантах чертежа." },
-    { "item": 139, "reason": "Намерение обозначить концы осей чёрточками — техническая ремарка." },
-    { "item": 140, "reason": "Декларативное «Вот она, Ясна» — покрыто атомом T4.K2.A6 («Лучевая Ясна»)." },
-    { "item": 142, "reason": "Геометрическая ремарка о Кресте — покрыто T4.K2.A4." },
-    { "item": 145, "reason": "Этимологическое замечание о выражениях, не Ясна-факт — покрыто T4.K3.A2." },
-    { "item": 147, "reason": "Метаремарка: имена зависят от изучаемой вещи." },
-    { "item": 148, "reason": "Переход «продолжим» — служебный." },
-    { "item": 151, "reason": "Конкретизация природы противостояния осей — покрыто T4.K2.A5." },
-    { "item": 152, "reason": "Перефразировка №151 — повтор «перечит»." },
-    { "item": 153, "reason": "Перефразировка №152 — обратное направление." },
-    { "item": 154, "reason": "Этимологическая ремарка о пословице «олеть поперёк батьки» — за рамками Ясны Суток." },
-    { "item": 155, "reason": "Философская ремарка о «помощи поперёк» — за рамками testable-факта." },
-    { "item": 156, "reason": "Риторический вопрос автора о «бати vs батьки»." },
-    { "item": 157, "reason": "Намерение взглянуть с точки зрения тьмы." },
-    { "item": 158, "reason": "Перефразировка №157." },
-    { "item": 159, "reason": "Эквивалентность «нарастание света = отступление тьмы» — покрыто T4.K1.A2." },
-    { "item": 160, "reason": "Эквивалентность «спад света = рост тьмы» — покрыто T4.K1.A2." },
-    { "item": 165, "reason": "Прозаическое описание сyтoк через свет/тьму (длинный параграф). Покрыто атомом T4.K1.A10 (12 имён)." },
-    { "item": 166, "reason": "Введение «чистых времён» — покрыто T4.K1.A6, T4.K1.A7." },
-    { "item": 172, "reason": "Намерение перерисовать с новыми именами — служебная ремарка." },
-    { "item": 173, "reason": "Метакомментарий об улучшении чертежа." },
-    { "item": 174, "reason": "Большой прозаический военно-мифологический параграф (свет vs тьма как война). Покрыто T4.K1.A10 и T4.K1.A1." },
-    { "item": 175, "reason": "Третий список 12 имён (динамический) — близкий повтор T4.K1.A10. Не вынесен отдельным атомом, чтобы не дублировать." },
-    { "item": 176, "reason": "Подпись к диаграмме («Ясна может быть такой:»). Покрыто T4.I6." },
-    { "item": 177, "reason": "Подпись к диаграмме (спираль/вихрь)." },
-    { "item": 178, "reason": "Переход к противостояниям — служебный." },
-    { "item": 179, "reason": "Намерение вернуться к Орешку — служебный." },
-    { "item": 180, "reason": "Метакомментарий о двусловных названиях." },
-    { "item": 181, "reason": "Метакомментарий об односложных именах." },
-    { "item": 186, "reason": "Прерванная фраза в скане о трёх словах." },
-    { "item": 187, "reason": "Историко-научное замечание о тюрко-арабско-греческом происхождении слов — за рамками Ясны." },
-    { "item": 189, "reason": "Намерение вернуться к словам — служебная ремарка." },
-    { "item": 190, "reason": "Намерение посмотреть на грани — переход." },
-    { "item": 191, "reason": "Повтор геометрии: горизонталь делит шестиугольник пополам — покрыто T2.K2.A2 и T2.K4.A4." },
-    { "item": 192, "reason": "Геометрическое замечание о горизонтных точках — покрыто T2.K2.A1 и T4.K3.A13." },
-    { "item": 193, "reason": "Прерванное «12 = ?+?+?» — содержательно покрыто T2.K3.A1 (12 времён)." },
-    { "item": 194, "reason": "Намерение перерисовать как меч — покрыто T4.K3.A12." },
-    { "item": 197, "reason": "Геометрическая ремарка о пропорциях времён — покрыто T2.K3.A2." },
-    { "item": 198, "reason": "Конкретизация заточки меча — иллюстрация V-014b." },
-    { "item": 199, "reason": "Конкретизация о двух минутах прохода солнцем горизонта — покрыто T2.K2.A16." },
-    { "item": 203, "reason": "Намерение объяснить «Восток/Запад» — переход." },
-    { "item": 206, "reason": "Намерение ввести новое имя — переход." },
-    { "item": "208-210", "reason": "Прозаический комментарий о связи булата с дамасской сталью." },
-    { "item": 211, "reason": "Намерение вернуться к булату — служебная ремарка." },
-    { "item": 213, "reason": "Замечание о Кристалле в латыни — побочное." },
-    { "item": 214, "reason": "Метакомментарий: «много названий, красивых, точных»." },
-    { "item": 215, "reason": "Метакомментарий: будем выбирать имя по обсуждаемому вопросу." },
-    { "item": 220, "reason": "Намерение перейти к попарному исследованию." },
-    { "item": 221, "reason": "Повтор: «Ясна Сутою есть двенадцать времён» — покрыто T2.K3.A1." },
-    { "item": 222, "reason": "Геометрическая ремарка о линиях и углах — покрыто T2.K4.A2, T2.K4.A3." },
-    { "item": 223, "reason": "Описание метода поиска противостояний по диаграмме." },
-    { "item": 225, "reason": "Подписи столбцов в списке 6 пар — служебная ремарка." },
-    { "item": 226, "reason": "Анонс двух видов противостояний — покрыто T4.K4.A1, T4.K4.A2." },
-    { "item": 228, "reason": "Подпись к диаграмме («показаны полные противостояния»)." },
-    { "item": 237, "reason": "Перефразировка №235-236 — два самопротивостояния вместо шестой пары." },
-    { "item": 238, "reason": "Перефразировка свойства самопротивостояния." },
-    { "item": 239, "reason": "Расширенное замечание: ось может быть любой." },
-    { "item": 242, "reason": "Сильно повреждённый скан, реконструкция неоднозначна." },
-    { "item": 243, "reason": "Философская ремарка о «чёрно-белом мышлении» — за рамками testable-факта." },
-    { "item": 244, "reason": "Длинная авторская диагностика «чёрно-белых» людей — философская ремарка, за рамками Ясны Суток." },
-    { "item": 245, "reason": "Намерение рассмотреть только две главные оси." },
-    { "item": 246, "reason": "Анонс — покрыто T4.K2.A1." },
-    { "item": 247, "reason": "Конкретизация: главные оси = горизонталь и вертикаль Опорного Креста." },
-    { "item": 251, "reason": "Намерение посмотреть на противостояние относительно Линии Единства." },
-    { "item": 252, "reason": "Перефразировка: противостояние нарастания и спада = Единство." }
+    {
+      "item": 124,
+      "reason": "Введение темы: «речь шла только о свете» — переходный комментарий."
+    },
+    {
+      "item": 125,
+      "reason": "Намерение продолжить — переходный комментарий."
+    },
+    {
+      "item": 128,
+      "reason": "Конкретизация роста света на промежутке — покрыто T4.K1.A2."
+    },
+    {
+      "item": 129,
+      "reason": "Конкретизация спада освещённости — покрыто T4.K1.A2."
+    },
+    {
+      "item": 130,
+      "reason": "Геометрическое замечание о вертикальной линии — покрыто T4.K2.A1, T4.K2.A3."
+    },
+    {
+      "item": 131,
+      "reason": "Прерванная фраза в скане; геометрическая ремарка."
+    },
+    {
+      "item": 132,
+      "reason": "Намерение перерисовать чертёж — мета-комментарий."
+    },
+    {
+      "item": 133,
+      "reason": "Конкретизация: каждому времени соответствует риска — пояснение к диаграмме."
+    },
+    {
+      "item": 134,
+      "reason": "Конкретизация про вертикальную линию через Дневной Переход и Тьму Ночи — покрыто T4.K2.A3."
+    },
+    {
+      "item": 135,
+      "reason": "Конкретизация про вертикальную прямую — покрыто T4.K2.A3."
+    },
+    {
+      "item": 137,
+      "reason": "Мета-комментарий о вариантах чертежа."
+    },
+    {
+      "item": 139,
+      "reason": "Намерение обозначить концы осей чёрточками — техническая ремарка."
+    },
+    {
+      "item": 140,
+      "reason": "Декларативное «Вот она, Ясна» — покрыто атомом T4.K2.A6 («Лучевая Ясна»)."
+    },
+    {
+      "item": 142,
+      "reason": "Геометрическая ремарка о Кресте — покрыто T4.K2.A4."
+    },
+    {
+      "item": 145,
+      "reason": "Этимологическое замечание о выражениях, не Ясна-факт — покрыто T4.K3.A2."
+    },
+    {
+      "item": 147,
+      "reason": "Метаремарка: имена зависят от изучаемой вещи."
+    },
+    {
+      "item": 148,
+      "reason": "Переход «продолжим» — служебный."
+    },
+    {
+      "item": 151,
+      "reason": "Конкретизация природы противостояния осей — покрыто T4.K2.A5."
+    },
+    {
+      "item": 152,
+      "reason": "Перефразировка №151 — повтор «перечит»."
+    },
+    {
+      "item": 153,
+      "reason": "Перефразировка №152 — обратное направление."
+    },
+    {
+      "item": 154,
+      "reason": "Этимологическая ремарка о пословице «олеть поперёк батьки» — за рамками Ясны Суток."
+    },
+    {
+      "item": 155,
+      "reason": "Философская ремарка о «помощи поперёк» — за рамками testable-факта."
+    },
+    {
+      "item": 156,
+      "reason": "Риторический вопрос автора о «бати vs батьки»."
+    },
+    {
+      "item": 157,
+      "reason": "Намерение взглянуть с точки зрения тьмы."
+    },
+    {
+      "item": 158,
+      "reason": "Перефразировка №157."
+    },
+    {
+      "item": 159,
+      "reason": "Эквивалентность «нарастание света = отступление тьмы» — покрыто T4.K1.A2."
+    },
+    {
+      "item": 160,
+      "reason": "Эквивалентность «спад света = рост тьмы» — покрыто T4.K1.A2."
+    },
+    {
+      "item": 165,
+      "reason": "Прозаическое описание сyтoк через свет/тьму (длинный параграф). Покрыто атомом T4.K1.A10 (12 имён)."
+    },
+    {
+      "item": 166,
+      "reason": "Введение «чистых времён» — покрыто T4.K1.A6, T4.K1.A7."
+    },
+    {
+      "item": 172,
+      "reason": "Намерение перерисовать с новыми именами — служебная ремарка."
+    },
+    {
+      "item": 173,
+      "reason": "Метакомментарий об улучшении чертежа."
+    },
+    {
+      "item": 174,
+      "reason": "Большой прозаический военно-мифологический параграф (свет vs тьма как война). Покрыто T4.K1.A10 и T4.K1.A1."
+    },
+    {
+      "item": 175,
+      "reason": "Третий список 12 имён (динамический) — близкий повтор T4.K1.A10. Не вынесен отдельным атомом, чтобы не дублировать."
+    },
+    {
+      "item": 176,
+      "reason": "Подпись к диаграмме («Ясна может быть такой:»). Покрыто T4.I6."
+    },
+    {
+      "item": 177,
+      "reason": "Подпись к диаграмме (спираль/вихрь)."
+    },
+    {
+      "item": 178,
+      "reason": "Переход к противостояниям — служебный."
+    },
+    {
+      "item": 179,
+      "reason": "Намерение вернуться к Орешку — служебный."
+    },
+    {
+      "item": 180,
+      "reason": "Метакомментарий о двусловных названиях."
+    },
+    {
+      "item": 181,
+      "reason": "Метакомментарий об односложных именах."
+    },
+    {
+      "item": 186,
+      "reason": "Прерванная фраза в скане о трёх словах."
+    },
+    {
+      "item": 187,
+      "reason": "Историко-научное замечание о тюрко-арабско-греческом происхождении слов — за рамками Ясны."
+    },
+    {
+      "item": 189,
+      "reason": "Намерение вернуться к словам — служебная ремарка."
+    },
+    {
+      "item": 190,
+      "reason": "Намерение посмотреть на грани — переход."
+    },
+    {
+      "item": 191,
+      "reason": "Повтор геометрии: горизонталь делит шестиугольник пополам — покрыто T2.K2.A2 и T2.K4.A4."
+    },
+    {
+      "item": 192,
+      "reason": "Геометрическое замечание о горизонтных точках — покрыто T2.K2.A1 и T4.K3.A13."
+    },
+    {
+      "item": 193,
+      "reason": "Прерванное «12 = ?+?+?» — содержательно покрыто T2.K3.A1 (12 времён)."
+    },
+    {
+      "item": 194,
+      "reason": "Намерение перерисовать как меч — покрыто T4.K3.A12."
+    },
+    {
+      "item": 197,
+      "reason": "Геометрическая ремарка о пропорциях времён — покрыто T2.K3.A2."
+    },
+    {
+      "item": 198,
+      "reason": "Конкретизация заточки меча — иллюстрация V-014b."
+    },
+    {
+      "item": 199,
+      "reason": "Конкретизация о двух минутах прохода солнцем горизонта — покрыто T2.K2.A16."
+    },
+    {
+      "item": 203,
+      "reason": "Намерение объяснить «Восток/Запад» — переход."
+    },
+    {
+      "item": 206,
+      "reason": "Намерение ввести новое имя — переход."
+    },
+    {
+      "item": "208-210",
+      "reason": "Прозаический комментарий о связи булата с дамасской сталью."
+    },
+    {
+      "item": 211,
+      "reason": "Намерение вернуться к булату — служебная ремарка."
+    },
+    {
+      "item": 213,
+      "reason": "Замечание о Кристалле в латыни — побочное."
+    },
+    {
+      "item": 214,
+      "reason": "Метакомментарий: «много названий, красивых, точных»."
+    },
+    {
+      "item": 215,
+      "reason": "Метакомментарий: будем выбирать имя по обсуждаемому вопросу."
+    },
+    {
+      "item": 220,
+      "reason": "Намерение перейти к попарному исследованию."
+    },
+    {
+      "item": 221,
+      "reason": "Повтор: «Ясна Сутою есть двенадцать времён» — покрыто T2.K3.A1."
+    },
+    {
+      "item": 222,
+      "reason": "Геометрическая ремарка о линиях и углах — покрыто T2.K4.A2, T2.K4.A3."
+    },
+    {
+      "item": 223,
+      "reason": "Описание метода поиска противостояний по диаграмме."
+    },
+    {
+      "item": 225,
+      "reason": "Подписи столбцов в списке 6 пар — служебная ремарка."
+    },
+    {
+      "item": 226,
+      "reason": "Анонс двух видов противостояний — покрыто T4.K4.A1, T4.K4.A2."
+    },
+    {
+      "item": 228,
+      "reason": "Подпись к диаграмме («показаны полные противостояния»)."
+    },
+    {
+      "item": 237,
+      "reason": "Перефразировка №235-236 — два самопротивостояния вместо шестой пары."
+    },
+    {
+      "item": 238,
+      "reason": "Перефразировка свойства самопротивостояния."
+    },
+    {
+      "item": 239,
+      "reason": "Расширенное замечание: ось может быть любой."
+    },
+    {
+      "item": 242,
+      "reason": "Сильно повреждённый скан, реконструкция неоднозначна."
+    },
+    {
+      "item": 243,
+      "reason": "Философская ремарка о «чёрно-белом мышлении» — за рамками testable-факта."
+    },
+    {
+      "item": 244,
+      "reason": "Длинная авторская диагностика «чёрно-белых» людей — философская ремарка, за рамками Ясны Суток."
+    },
+    {
+      "item": 245,
+      "reason": "Намерение рассмотреть только две главные оси."
+    },
+    {
+      "item": 246,
+      "reason": "Анонс — покрыто T4.K2.A1."
+    },
+    {
+      "item": 247,
+      "reason": "Конкретизация: главные оси = горизонталь и вертикаль Опорного Креста."
+    },
+    {
+      "item": 251,
+      "reason": "Намерение посмотреть на противостояние относительно Линии Единства."
+    },
+    {
+      "item": 252,
+      "reason": "Перефразировка: противостояние нарастания и спада = Единство."
+    }
   ],
-
   "stats": {
     "items_in_range": 130,
     "atoms_count": 43,
@@ -909,20 +1914,30 @@
     "coverage_pct": 36,
     "keystone_count": 23,
     "kind_distribution": {
-      "fact": 9, "definition": 7, "name": 7, "list": 6,
-      "etymology": 5, "postulate": 4, "opposition": 2,
-      "scheme": 2, "number": 1, "pairing": 0
+      "fact": 9,
+      "definition": 7,
+      "name": 7,
+      "list": 6,
+      "etymology": 5,
+      "postulate": 4,
+      "opposition": 2,
+      "scheme": 2,
+      "number": 1,
+      "pairing": 0
     }
   },
   "changelog": [
-    { "version": "1.1.1", "changes": [
-      "Initial version T4: 5 категорий (Свет/Тьма, Главные оси, Имена-расширенные, Полные/Половинные противостояния, Мировое Зеркало)",
-      "Самый большой узел Сутки — 130 пунктов на 17 страницах",
-      "44 атома, 11 иллюстраций (V-005…V-020), 15 вопросов",
-      "19 keystone-атомов — это узел центрального учения о противостояниях",
-      "10 имён чертежа: Лучевая Ясна, Турель, Тарелка, Ясная Звезда, Алмаз, Диамант, Бриллиант, Адамас, Двугранец, Булат, Кристалл, Диаграмма, Меч",
-      "3 списка противостояний (6 полных, 5 половинных по Линии Борьбы, 5 половинных по Линии Единства)",
-      "Coverage 38% объясняется тем, что 130 пунктов содержат много прозы (№165, 174, 244 — длинные художественные/философские параграфы) и повторов (№152, 153, 159, 160). Все важные факты подняты в атомы; rejected — обоснованы."
-    ]}
+    {
+      "version": "1.1.1",
+      "changes": [
+        "Initial version T4: 5 категорий (Свет/Тьма, Главные оси, Имена-расширенные, Полные/Половинные противостояния, Мировое Зеркало)",
+        "Самый большой узел Сутки — 130 пунктов на 17 страницах",
+        "44 атома, 11 иллюстраций (V-005…V-020), 15 вопросов",
+        "19 keystone-атомов — это узел центрального учения о противостояниях",
+        "10 имён чертежа: Лучевая Ясна, Турель, Тарелка, Ясная Звезда, Алмаз, Диамант, Бриллиант, Адамас, Двугранец, Булат, Кристалл, Диаграмма, Меч",
+        "3 списка противостояний (6 полных, 5 половинных по Линии Борьбы, 5 половинных по Линии Единства)",
+        "Coverage 38% объясняется тем, что 130 пунктов содержат много прозы (№165, 174, 244 — длинные художественные/философские параграфы) и повторов (№152, 153, 159, 160). Все важные факты подняты в атомы; rejected — обоснованы."
+      ]
+    }
   ]
 }

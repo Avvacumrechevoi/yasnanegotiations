@@ -51,7 +51,12 @@ function saveOverrides(ov){
 //   • базовые вопросы (без бейджа)
 //   • опубликованные ранее новые → бейдж "✓ Опубликовано"
 //   • локально-новые/изменённые → бейдж "✦ Новый (локально)" / "✎ Изменён локально"
-function getMergedQuestions(){
+// currentOverrides — current React-state value. Если передан, используется
+// он, иначе загружается из localStorage (для не-React контекстов).
+// КРИТИЧНО: после setOverrides() localStorage обновляется в useEffect ПОСЛЕ
+// render, поэтому в render-цикле нельзя полагаться на loadOverrides() —
+// он отдаст stale данные. Передаём свежее значение из стейта.
+function getMergedQuestions(currentOverrides){
   const store = window.YasnaContentStore;
   const resolved = (store && store.getResolved && store.getResolved())
     || window.YasnaContentResolved
@@ -69,8 +74,8 @@ function getMergedQuestions(){
   const SUPPORTED_TYPES = new Set(['single-choice', 'true-false', 'multi-choice', 'match-pair']);
   const isSupported = (q) => SUPPORTED_TYPES.has(q.type || 'single-choice');
 
-  const ov = loadOverrides();
-  const deletedSet = new Set(ov.deleted);
+  const ov = currentOverrides || loadOverrides();
+  const deletedSet = new Set(ov.deleted || []);
   // Resolved.QUESTIONS уже содержит baseline + published.added; deleted уже исключены.
   // Здесь применяем ЛОКАЛЬНЫЕ edited и фильтруем ЛОКАЛЬНО deleted.
   const base = (resolved.QUESTIONS || [])
@@ -626,7 +631,11 @@ function AdminApp(){
   // Сохраняем overrides в localStorage при изменении
   useEffect(() => { saveOverrides(overrides); }, [overrides]);
 
-  const allQuestions = useMemo(() => getMergedQuestions(), [overrides, storeTick]);
+  // Передаём overrides из React-стейта (не loadOverrides из localStorage) —
+  // чтобы после setOverrides({}) memo сразу получил пустые данные, не дожидаясь
+  // saveOverrides useEffect. Иначе бейджи «Изменён локально» не пропадают
+  // после публикации (требуется ручной refresh страницы — что мы и чиним).
+  const allQuestions = useMemo(() => getMergedQuestions(overrides), [overrides, storeTick]);
   const questionsForTheme = useMemo(
     () => allQuestions.filter(q => q.theme === activeTheme),
     [allQuestions, activeTheme]

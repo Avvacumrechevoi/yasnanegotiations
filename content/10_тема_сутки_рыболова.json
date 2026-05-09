@@ -6,14 +6,16 @@
     "id": "T10",
     "slug": "sutki-rybolova",
     "title": "Сутки Рыболова. Конец",
-    "alt_titles": ["Финал", "Храмовое имя Ясны Сутoк"],
+    "alt_titles": [
+      "Финал",
+      "Храмовое имя Ясны Сутoк"
+    ],
     "items_range": "931-944",
     "pdf_pages": "104",
     "source_file": "Сутки/11_узел_10_сутки_рыболова_конец.md",
     "summary": "Книга закрывается храмовым именем «Сутки Рыболова» (отсылка к мудрости рыболова: терпение, бдительность, готовность к действию) и к русской пословице «Без труда не вытащишь и рыбки из пруда»; повторной формулой универсального закона («Закон одной вещи = Закон любой»); парадоксальным финалом: ничего не понявшим — «тебе всё ясно», ничего нового не нашедшим — «Ясна не теория, Ясна есть Вечность, передаётся из рук в руки, в любых текстах не живёт».",
     "themes_in_partia": false
   },
-
   "categories": [
     {
       "id": "T10.K1",
@@ -27,48 +29,99 @@
           "term": "Ясна Сутoк (храмовое имя)",
           "alt_name": "Сутки Рыболова",
           "quote": "Осталось только сказать, что у этой Ясны, Ясны «Сутoк», в Храмовом Учении есть своё собственное название. Она называется «Сутки Рыболова».",
-          "source": { "items": [931], "pdf_page": 104 },
+          "source": {
+            "items": [
+              931
+            ],
+            "pdf_page": 104
+          },
           "meta": {
             "is_keystone": true,
-            "links": { "see_also": ["T1.K5.A6"] }
+            "links": {
+              "see_also": [
+                "T1.K5.A6"
+              ]
+            }
           },
-          "supports_questions": ["single-choice", "match-pair", "fill-blank"]
+          "supports_questions": [
+            "single-choice",
+            "match-pair",
+            "fill-blank"
+          ]
         },
         {
           "id": "T10.K1.A2",
           "kind": "postulate",
           "quote": "Рыболов в древности был мудрым.",
-          "source": { "items": [932], "pdf_page": 104 },
-          "supports_questions": ["true-false", "fill-blank"]
+          "source": {
+            "items": [
+              932
+            ],
+            "pdf_page": 104
+          },
+          "supports_questions": [
+            "true-false",
+            "fill-blank"
+          ]
         },
         {
           "id": "T10.K1.A3",
           "kind": "list",
           "term": "Три качества рыболова (=три качества познающего Ясну)",
           "quote": "Терпение и бдительность, постоянная готовность к действию — вот оружие рыболова.",
-          "items_list": ["Терпение", "Бдительность", "Постоянная готовность к действию"],
-          "source": { "items": [933], "pdf_page": 104 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["multi-choice", "match-pair"]
+          "items_list": [
+            "Терпение",
+            "Бдительность",
+            "Постоянная готовность к действию"
+          ],
+          "source": {
+            "items": [
+              933
+            ],
+            "pdf_page": 104
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "multi-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T10.K1.A4",
           "kind": "fact",
           "quote": "«Без труда не вытащишь и рыбки из пруда». Эта русская пословица очень мудрая. Она только на первый взгляд есть некое наивное наблюдение.",
-          "source": { "items": [934], "pdf_page": 104 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["true-false", "single-choice"]
+          "source": {
+            "items": [
+              934
+            ],
+            "pdf_page": 104
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "true-false",
+            "single-choice"
+          ]
         },
         {
           "id": "T10.K1.A5",
           "kind": "fact",
           "quote": "Не случайно все учения древности так связаны с рыбаками и в рыбной ловлей.",
-          "source": { "items": [935], "pdf_page": 104 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              935
+            ],
+            "pdf_page": 104
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         }
       ]
     },
-
     {
       "id": "T10.K2",
       "slug": "zakon-odnoy-veshchi",
@@ -79,24 +132,46 @@
           "id": "T10.K2.A1",
           "kind": "postulate",
           "quote": "Ясна говорит: всё, что известно, есть Законом для одной вещи, будет Законом для любой другой вещи на свете. Для явной и не явной, для существующей и мнимой, для присутствующей и отсутствующей, для наличия какой-либо вещи или её полного отсутствия, для схожести чего-то с чем-то и для непохожести на всё что-то, и так далее…",
-          "source": { "items": [937], "pdf_page": 104 },
+          "source": {
+            "items": [
+              937
+            ],
+            "pdf_page": 104
+          },
           "meta": {
             "is_keystone": true,
-            "links": { "see_also": ["T1.K5.A3", "T1.K1.A6"] }
+            "links": {
+              "see_also": [
+                "T1.K5.A3",
+                "T1.K1.A6"
+              ]
+            }
           },
-          "supports_questions": ["fill-blank", "true-false", "single-choice"]
+          "supports_questions": [
+            "fill-blank",
+            "true-false",
+            "single-choice"
+          ]
         },
         {
           "id": "T10.K2.A2",
           "kind": "postulate",
           "quote": "И в этом её сила.",
-          "source": { "items": [938], "pdf_page": 104 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank"]
+          "source": {
+            "items": [
+              938
+            ],
+            "pdf_page": 104
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank"
+          ]
         }
       ]
     },
-
     {
       "id": "T10.K3",
       "slug": "yasna-est-vechnost",
@@ -107,55 +182,115 @@
           "id": "T10.K3.A1",
           "kind": "postulate",
           "quote": "Ясна не является научным исследованием. Не является ни какой-то частью научной теории. Не является пересказом каких-либо книг. Не является ни обзором содержащего учения определенного характера.",
-          "source": { "items": [942], "pdf_page": 104 },
-          "meta": { "is_keystone": true, "links": { "see_also": ["T6.K5.A6"] } },
-          "supports_questions": ["true-false", "fill-blank"]
+          "source": {
+            "items": [
+              942
+            ],
+            "pdf_page": 104
+          },
+          "meta": {
+            "is_keystone": true,
+            "links": {
+              "see_also": [
+                "T6.K5.A6"
+              ]
+            }
+          },
+          "supports_questions": [
+            "true-false",
+            "fill-blank"
+          ]
         },
         {
           "id": "T10.K3.A2",
           "kind": "postulate",
           "quote": "Ясна сама есть Вечная Вечность. Ясна есть Вечность.",
-          "source": { "items": [942], "pdf_page": 104 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "single-choice"]
+          "source": {
+            "items": [
+              942
+            ],
+            "pdf_page": 104
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "single-choice"
+          ]
         },
         {
           "id": "T10.K3.A3",
           "kind": "postulate",
           "quote": "Передаётся Ясна из рук в руки. И она не для новостей.",
-          "source": { "items": [942], "pdf_page": 104 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "true-false"]
+          "source": {
+            "items": [
+              942
+            ],
+            "pdf_page": 104
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T10.K3.A4",
           "kind": "postulate",
           "quote": "И не живёт она в любых текстах.",
-          "source": { "items": [942], "pdf_page": 104 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "true-false"]
+          "source": {
+            "items": [
+              942
+            ],
+            "pdf_page": 104
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T10.K3.A5",
           "kind": "postulate",
           "quote": "Для тех, кто Ничего Не Понял. Не беда. Значит, тебе и так всё ясно. Без дополнительных книг и объяснений.",
-          "source": { "items": [941], "pdf_page": 104 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "true-false"]
+          "source": {
+            "items": [
+              941
+            ],
+            "pdf_page": 104
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T10.K3.A6",
           "kind": "fact",
           "quote": "И если [тебе] говорят: Ясна, тебе все понятно из других книг и объяснений, значит, тебе давно всё ясно. И значит, ты Ничего Не Понял.",
-          "source": { "items": [942], "pdf_page": 104 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              942
+            ],
+            "pdf_page": 104
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         }
       ]
     }
   ],
-
   "illustrations": [],
-
   "questions": [
     {
       "id": "T10.Q1",
@@ -163,57 +298,125 @@
       "difficulty": "easy",
       "stem": "Каким храмовым именем называется Ясна Сутoк?",
       "correct": "Сутки Рыболова",
-      "options": ["Сутки Рыболова", "Сутки Странника", "Сутки Воина", "Сутки Жреца"],
+      "options": [
+        "Сутки Рыболова",
+        "Сутки Странника",
+        "Сутки Воина",
+        "Сутки Жреца"
+      ],
       "explanation": {
         "quote": "У этой Ясны, Ясны «Сутoк», в Храмовом Учении есть своё собственное название. Она называется «Сутки Рыболова».",
-        "source": { "items": [931], "pdf_page": 104 }
+        "source": {
+          "items": [
+            931
+          ],
+          "pdf_page": 104
+        }
       },
-      "source_atoms": ["T10.K1.A1"],
-      "tags": ["name", "keystone"]
+      "source_atoms": [
+        "T10.K1.A1"
+      ],
+      "tags": [
+        "name",
+        "keystone"
+      ]
     },
     {
       "id": "T10.Q2",
       "type": "multi-choice",
       "difficulty": "medium",
       "stem": "Какие три качества — оружие рыболова (=качества познающего Ясну)?",
-      "correct": ["Терпение", "Бдительность", "Постоянная готовность к действию"],
+      "correct": [
+        "Терпение",
+        "Бдительность",
+        "Постоянная готовность к действию"
+      ],
       "options": [
-        "Терпение", "Бдительность", "Постоянная готовность к действию",
-        "Сила", "Хитрость", "Быстрота", "Молчание"
+        "Терпение",
+        "Бдительность",
+        "Постоянная готовность к действию",
+        "Сила",
+        "Хитрость",
+        "Быстрота",
+        "Молчание"
       ],
       "explanation": {
         "quote": "Терпение и бдительность, постоянная готовность к действию — вот оружие рыболова.",
-        "source": { "items": [933], "pdf_page": 104 }
+        "source": {
+          "items": [
+            933
+          ],
+          "pdf_page": 104
+        }
       },
-      "source_atoms": ["T10.K1.A3"],
-      "tags": ["list", "keystone"]
+      "source_atoms": [
+        "T10.K1.A3"
+      ],
+      "tags": [
+        "list",
+        "keystone"
+      ]
     },
     {
       "id": "T10.Q3",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "easy",
       "stem": "«Без труда не _____ и рыбки из пруда».",
       "correct": "вытащишь",
       "explanation": {
         "quote": "«Без труда не вытащишь и рыбки из пруда».",
-        "source": { "items": [934], "pdf_page": 104 }
+        "source": {
+          "items": [
+            934
+          ],
+          "pdf_page": 104
+        }
       },
-      "source_atoms": ["T10.K1.A4"],
-      "tags": ["language", "proverb"]
+      "source_atoms": [
+        "T10.K1.A4"
+      ],
+      "tags": [
+        "language",
+        "proverb"
+      ],
+      "options": [
+        "вытащишь",
+        "поймаешь",
+        "найдёшь",
+        "увидишь"
+      ]
     },
     {
       "id": "T10.Q4",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "medium",
       "stem": "Закон Ясны: всё, что есть Законом для одной вещи, будет Законом для _____ вещи на свете.",
       "correct": "любой другой",
-      "correct_alternatives": ["любой"],
+      "correct_alternatives": [
+        "любой"
+      ],
       "explanation": {
         "quote": "Ясна говорит: всё, что известно, есть Законом для одной вещи, будет Законом для любой другой вещи на свете.",
-        "source": { "items": [937], "pdf_page": 104 }
+        "source": {
+          "items": [
+            937
+          ],
+          "pdf_page": 104
+        }
       },
-      "source_atoms": ["T10.K2.A1"],
-      "tags": ["postulate", "keystone"]
+      "source_atoms": [
+        "T10.K2.A1"
+      ],
+      "tags": [
+        "postulate",
+        "keystone"
+      ],
+      "options": [
+        "любой другой",
+        "каждой третьей",
+        "противоположной",
+        "связанной"
+      ]
     },
     {
       "id": "T10.Q5",
@@ -223,24 +426,53 @@
       "correct": false,
       "explanation": {
         "quote": "Ясна не является научным исследованием. Не является ни какой-то частью научной теории. Не является пересказом каких-либо книг.",
-        "source": { "items": [942], "pdf_page": 104 }
+        "source": {
+          "items": [
+            942
+          ],
+          "pdf_page": 104
+        }
       },
-      "source_atoms": ["T10.K3.A1"],
-      "tags": ["fact", "keystone"]
+      "source_atoms": [
+        "T10.K3.A1"
+      ],
+      "tags": [
+        "fact",
+        "keystone"
+      ]
     },
     {
       "id": "T10.Q6",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "easy",
       "stem": "Ясна есть _____.",
       "correct": "Вечность",
-      "correct_alternatives": ["вечность", "Вечная Вечность"],
+      "correct_alternatives": [
+        "вечность",
+        "Вечная Вечность"
+      ],
       "explanation": {
         "quote": "Ясна сама есть Вечная Вечность. Ясна есть Вечность.",
-        "source": { "items": [942], "pdf_page": 104 }
+        "source": {
+          "items": [
+            942
+          ],
+          "pdf_page": 104
+        }
       },
-      "source_atoms": ["T10.K3.A2"],
-      "tags": ["postulate", "keystone"]
+      "source_atoms": [
+        "T10.K3.A2"
+      ],
+      "tags": [
+        "postulate",
+        "keystone"
+      ],
+      "options": [
+        "Вечность",
+        "Звезда",
+        "Истина",
+        "Свет"
+      ]
     },
     {
       "id": "T10.Q7",
@@ -256,10 +488,21 @@
       ],
       "explanation": {
         "quote": "Передаётся Ясна из рук в руки. И она не для новостей. И не живёт она в любых текстах.",
-        "source": { "items": [942], "pdf_page": 104 }
+        "source": {
+          "items": [
+            942
+          ],
+          "pdf_page": 104
+        }
       },
-      "source_atoms": ["T10.K3.A3", "T10.K3.A4"],
-      "tags": ["postulate", "keystone"]
+      "source_atoms": [
+        "T10.K3.A3",
+        "T10.K3.A4"
+      ],
+      "tags": [
+        "postulate",
+        "keystone"
+      ]
     },
     {
       "id": "T10.Q8",
@@ -269,21 +512,44 @@
       "correct": false,
       "explanation": {
         "quote": "И не живёт она в любых текстах.",
-        "source": { "items": [942], "pdf_page": 104 }
+        "source": {
+          "items": [
+            942
+          ],
+          "pdf_page": 104
+        }
       },
-      "source_atoms": ["T10.K3.A4"],
-      "tags": ["postulate", "keystone"]
+      "source_atoms": [
+        "T10.K3.A4"
+      ],
+      "tags": [
+        "postulate",
+        "keystone"
+      ]
     }
   ],
-
   "rejected": [
-    { "item": 936, "reason": "Метарема: «не в рыбах все дело» — связочный пункт." },
-    { "item": 939, "reason": "Однословное «Конец.» — литературный приём, не testable." },
-    { "item": 940, "reason": "«Нет, не совсем ещё конец.» — литературный приём." },
-    { "item": 943, "reason": "«Вот теперь — Конец.» — литературный приём финала." },
-    { "item": 944, "reason": "«Всё.» — финальное слово книги, литературный приём." }
+    {
+      "item": 936,
+      "reason": "Метарема: «не в рыбах все дело» — связочный пункт."
+    },
+    {
+      "item": 939,
+      "reason": "Однословное «Конец.» — литературный приём, не testable."
+    },
+    {
+      "item": 940,
+      "reason": "«Нет, не совсем ещё конец.» — литературный приём."
+    },
+    {
+      "item": 943,
+      "reason": "«Вот теперь — Конец.» — литературный приём финала."
+    },
+    {
+      "item": 944,
+      "reason": "«Всё.» — финальное слово книги, литературный приём."
+    }
   ],
-
   "stats": {
     "items_in_range": 14,
     "atoms_count": 13,
@@ -295,16 +561,22 @@
     "coverage_pct": 72,
     "keystone_count": 10,
     "kind_distribution": {
-      "postulate": 8, "fact": 3, "name": 1, "list": 1
+      "postulate": 8,
+      "fact": 3,
+      "name": 1,
+      "list": 1
     }
   },
   "changelog": [
-    { "version": "1.1.1", "changes": [
-      "Initial T10: 3 категории (Храмовое имя / Закон одной вещи / Ясна есть Вечность)",
-      "Финал книги — короткий узел (14 пунктов), 13 атомов, 11 keystone",
-      "themes_in_partia: false — финальный узел не выпадает в случайной выборке Партии (это сводный узел, а не самостоятельная тема)",
-      "Ключевые keystone: Сутки Рыболова, 3 качества рыболова, Закон одной вещи = Закон любой, Ясна есть Вечность, Передаётся из рук в руки, Не живёт в любых текстах",
-      "Coverage 72% — отброшены только литературные приёмы финала (Конец / Всё / Нет, не совсем)"
-    ]}
+    {
+      "version": "1.1.1",
+      "changes": [
+        "Initial T10: 3 категории (Храмовое имя / Закон одной вещи / Ясна есть Вечность)",
+        "Финал книги — короткий узел (14 пунктов), 13 атомов, 11 keystone",
+        "themes_in_partia: false — финальный узел не выпадает в случайной выборке Партии (это сводный узел, а не самостоятельная тема)",
+        "Ключевые keystone: Сутки Рыболова, 3 качества рыболова, Закон одной вещи = Закон любой, Ясна есть Вечность, Передаётся из рук в руки, Не живёт в любых текстах",
+        "Coverage 72% — отброшены только литературные приёмы финала (Конец / Всё / Нет, не совсем)"
+      ]
+    }
   ]
 }

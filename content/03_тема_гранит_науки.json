@@ -6,14 +6,16 @@
     "id": "T3",
     "slug": "granit-nauki",
     "title": "Гранит Науки. Зерно Познания",
-    "alt_titles": ["Орешек Науки", "Имена чертежа"],
+    "alt_titles": [
+      "Орешек Науки",
+      "Имена чертежа"
+    ],
     "items_range": "108-123",
     "pdf_pages": "14",
     "source_file": "Сутки/04_узел_03_гранит_науки.md",
     "summary": "Узел не строит ничего нового геометрически, а наводит над шестиугольником именной и понятийный аппарат: даёт три древних имени («Гранит Науки», «Зерно Познания», «Орешек Науки»), укореняет их в этимологии «грани = углы / стороны огранёного предмета», помещает чертёж в институциональный контекст 12 школ Ясны и формализует различение знать (= уметь пользоваться) ↔ ведать (= ведать Ясну вещи).",
     "themes_in_partia": true
   },
-
   "categories": [
     {
       "id": "T3.K1",
@@ -27,12 +29,25 @@
           "term": "Шестиугольник суток",
           "alt_name": "Гранит Науки",
           "quote": "Этот чертёж древние славяне построили в глубокой древности, и потому называется он «Гранит Науки».",
-          "source": { "items": [108], "pdf_page": 14 },
+          "source": {
+            "items": [
+              108
+            ],
+            "pdf_page": 14
+          },
           "meta": {
             "is_keystone": true,
-            "links": { "see_also": ["T2.K4.A1"] }
+            "links": {
+              "see_also": [
+                "T2.K4.A1"
+              ]
+            }
           },
-          "supports_questions": ["single-choice", "match-pair", "fill-blank"]
+          "supports_questions": [
+            "single-choice",
+            "match-pair",
+            "fill-blank"
+          ]
         },
         {
           "id": "T3.K1.A2",
@@ -40,11 +55,19 @@
           "term": "Шестиугольник суток",
           "alt_name": "Орешек Науки",
           "quote": "Для тех, для которых [он трудно даётся], он называется «Орешек Науки».",
-          "source": { "items": [109], "pdf_page": 14 },
+          "source": {
+            "items": [
+              109
+            ],
+            "pdf_page": 14
+          },
           "meta": {
             "notes": "В скане конец фразы повреждён. Реконструкция: «крепкий орешек», который надо разгрызть."
           },
-          "supports_questions": ["single-choice", "match-pair"]
+          "supports_questions": [
+            "single-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T3.K1.A3",
@@ -52,23 +75,43 @@
           "term": "Шестиугольник суток",
           "alt_name": "Зерно Познания",
           "quote": "А ещё этот чертёж называется «Зерно Познания».",
-          "source": { "items": [116], "pdf_page": 14 },
+          "source": {
+            "items": [
+              116
+            ],
+            "pdf_page": 14
+          },
           "meta": {
             "is_keystone": true,
-            "links": { "see_also": ["T3.K1.A1", "T3.K2.A4"] }
+            "links": {
+              "see_also": [
+                "T3.K1.A1",
+                "T3.K2.A4"
+              ]
+            }
           },
-          "supports_questions": ["single-choice", "match-pair", "fill-blank"]
+          "supports_questions": [
+            "single-choice",
+            "match-pair",
+            "fill-blank"
+          ]
         },
         {
           "id": "T3.K1.A4",
           "kind": "fact",
           "quote": "Изучать этот чертёж очень нелегко. Очень нелегко его изучать.",
-          "source": { "items": [111], "pdf_page": 14 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              111
+            ],
+            "pdf_page": 14
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         }
       ]
     },
-
     {
       "id": "T3.K2",
       "slug": "etimologiya-grani",
@@ -79,60 +122,120 @@
           "id": "T3.K2.A1",
           "kind": "postulate",
           "quote": "Гранит грани науки.",
-          "source": { "items": [113], "pdf_page": 14 },
+          "source": {
+            "items": [
+              113
+            ],
+            "pdf_page": 14
+          },
           "meta": {
             "is_keystone": true,
             "notes": "Авторская формула-афоризм, замыкающая «гранит» на «грани» и «науку»."
           },
-          "supports_questions": ["fill-blank", "single-choice"]
+          "supports_questions": [
+            "fill-blank",
+            "single-choice"
+          ]
         },
         {
           "id": "T3.K2.A2",
           "kind": "definition",
           "term": "Гранит",
           "quote": "Любой многоугольник по-русски называется «гранит».",
-          "source": { "items": [114], "pdf_page": 14 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "fill-blank", "true-false"]
+          "source": {
+            "items": [
+              114
+            ],
+            "pdf_page": 14
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T3.K2.A3",
           "kind": "etymology",
           "term": "Грани",
           "quote": "Слово «гранит» происходит от понятия и слова «грани». Не наоборот. Слово «грани» изначально имело значение «угол», но сейчас чаще всего это слово означает и угол, и плоскость, сторону огранёного предмета.",
-          "source": { "items": [114], "pdf_page": 14 },
+          "source": {
+            "items": [
+              114
+            ],
+            "pdf_page": 14
+          },
           "meta": {
-            "related_words": ["гранит", "гранат", "гранёный", "огранка"],
+            "related_words": [
+              "гранит",
+              "гранат",
+              "гранёный",
+              "огранка"
+            ],
             "is_keystone": true
           },
-          "supports_questions": ["single-choice", "match-pair", "fill-blank"]
+          "supports_questions": [
+            "single-choice",
+            "match-pair",
+            "fill-blank"
+          ]
         },
         {
           "id": "T3.K2.A4",
           "kind": "etymology",
           "term": "Гранат (плод)",
           "quote": "Похожее название имеет плод южного фруктового дерева, наполненный угловатыми красными зёрнами в светло-жёлтых гнёздах — гранат.",
-          "source": { "items": [114], "pdf_page": 14 },
-          "meta": { "related_words": ["грани", "гранит"] },
-          "supports_questions": ["single-choice", "match-pair"]
+          "source": {
+            "items": [
+              114
+            ],
+            "pdf_page": 14
+          },
+          "meta": {
+            "related_words": [
+              "грани",
+              "гранит"
+            ]
+          },
+          "supports_questions": [
+            "single-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T3.K2.A5",
           "kind": "fact",
           "quote": "Структура у них кристаллическая, зернистая, часто со светлыми прожилками.",
-          "source": { "items": [114], "pdf_page": 14 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              114
+            ],
+            "pdf_page": 14
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         },
         {
           "id": "T3.K2.A6",
           "kind": "fact",
           "quote": "Само слово «науками» тоже имеет прямое отношение к чертежу. Хотя это никак не чувствуется.",
-          "source": { "items": [115], "pdf_page": 14 },
-          "supports_questions": ["true-false", "single-choice"]
+          "source": {
+            "items": [
+              115
+            ],
+            "pdf_page": 14
+          },
+          "supports_questions": [
+            "true-false",
+            "single-choice"
+          ]
         }
       ]
     },
-
     {
       "id": "T3.K3",
       "slug": "shkoly-i-nauka",
@@ -143,25 +246,49 @@
           "id": "T3.K3.A1",
           "kind": "fact",
           "quote": "Изучение этого чертежа в школах двенадцати [Учебников Ясны] было обязательным при изучении всех дисциплин, и тех дисциплин, которые сейчас называются «гуманитарными». И называются они «науками».",
-          "source": { "items": [112], "pdf_page": 14 },
+          "source": {
+            "items": [
+              112
+            ],
+            "pdf_page": 14
+          },
           "meta": {
             "is_keystone": true,
-            "links": { "see_also": ["T1.K5.A5"] },
+            "links": {
+              "see_also": [
+                "T1.K5.A5"
+              ]
+            },
             "notes": "Реконструкция в скобках по контексту: отсылка к 12 Основным Учебникам Ясны (T1.K5.A5)."
           },
-          "supports_questions": ["true-false", "single-choice"]
+          "supports_questions": [
+            "true-false",
+            "single-choice"
+          ]
         },
         {
           "id": "T3.K3.A2",
           "kind": "fact",
           "quote": "Изучение этого чертежа в школах двенадцати [Учебников Ясны] было обязательным при изучении всех дисциплин.",
-          "source": { "items": [112], "pdf_page": 14 },
-          "meta": { "links": { "see_also": ["T3.K3.A1"] } },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              112
+            ],
+            "pdf_page": 14
+          },
+          "meta": {
+            "links": {
+              "see_also": [
+                "T3.K3.A1"
+              ]
+            }
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         }
       ]
     },
-
     {
       "id": "T3.K4",
       "slug": "znat-vedat-formalno",
@@ -173,24 +300,56 @@
           "kind": "definition",
           "term": "Знать (вещь)",
           "quote": "Знать какую-либо вещь — это есть умение ею пользоваться, использовать её для чего-либо.",
-          "source": { "items": [118], "pdf_page": 14 },
+          "source": {
+            "items": [
+              118
+            ],
+            "pdf_page": 14
+          },
           "meta": {
             "is_keystone": true,
-            "links": { "see_also": ["T3.K4.A2"], "prerequisite": ["T1.K3.A3"] }
+            "links": {
+              "see_also": [
+                "T3.K4.A2"
+              ],
+              "prerequisite": [
+                "T1.K3.A3"
+              ]
+            }
           },
-          "supports_questions": ["single-choice", "fill-blank", "match-pair"]
+          "supports_questions": [
+            "single-choice",
+            "fill-blank",
+            "match-pair"
+          ]
         },
         {
           "id": "T3.K4.A2",
           "kind": "definition",
           "term": "Ведать (вещь)",
           "quote": "Ведать какую-либо вещь — есть ведать Ясну этой вещи.",
-          "source": { "items": [119], "pdf_page": 14 },
+          "source": {
+            "items": [
+              119
+            ],
+            "pdf_page": 14
+          },
           "meta": {
             "is_keystone": true,
-            "links": { "see_also": ["T3.K4.A1"], "prerequisite": ["T1.K3.A3"] }
+            "links": {
+              "see_also": [
+                "T3.K4.A1"
+              ],
+              "prerequisite": [
+                "T1.K3.A3"
+              ]
+            }
           },
-          "supports_questions": ["single-choice", "fill-blank", "match-pair"]
+          "supports_questions": [
+            "single-choice",
+            "fill-blank",
+            "match-pair"
+          ]
         },
         {
           "id": "T3.K4.A3",
@@ -198,55 +357,109 @@
           "term_a": "знать",
           "term_b": "ведать",
           "quote": "Знать какую-либо вещь — это есть умение ею пользоваться. Ведать какую-либо вещь — есть ведать Ясну этой вещи.",
-          "source": { "items": [118, 119], "pdf_page": 14 },
+          "source": {
+            "items": [
+              118,
+              119
+            ],
+            "pdf_page": 14
+          },
           "meta": {
             "kind_a": "уметь действовать, пользоваться",
             "kind_b": "видеть Ясну вещи",
-            "links": { "see_also": ["T1.K3.A3"] }
+            "links": {
+              "see_also": [
+                "T1.K3.A3"
+              ]
+            }
           },
-          "supports_questions": ["match-pair"]
+          "supports_questions": [
+            "match-pair"
+          ]
         },
         {
           "id": "T3.K4.A4",
           "kind": "postulate",
           "quote": "Ясна есть не только изложение чертежа. Ясна есть древнее славянское учение об устройстве всего мира.",
-          "source": { "items": [117, 122], "pdf_page": 14 },
+          "source": {
+            "items": [
+              117,
+              122
+            ],
+            "pdf_page": 14
+          },
           "meta": {
             "is_keystone": true,
-            "links": { "see_also": ["T1.K1.A3", "T1.K1.A4"] }
+            "links": {
+              "see_also": [
+                "T1.K1.A3",
+                "T1.K1.A4"
+              ]
+            }
           },
-          "supports_questions": ["fill-blank", "true-false"]
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T3.K4.A5",
           "kind": "fact",
           "quote": "Чертёж суток, который мы сейчас построили, есть только самое начало построения Ясны суток.",
-          "source": { "items": [121], "pdf_page": 14 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              121
+            ],
+            "pdf_page": 14
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         }
       ]
     }
   ],
-
   "illustrations": [],
-
   "questions": [
     {
       "id": "T3.Q1",
       "type": "multi-choice",
       "difficulty": "medium",
       "stem": "Какие имена носит шестиугольный чертёж суток в книге?",
-      "correct": ["Гранит Науки", "Зерно Познания", "Орешек Науки"],
+      "correct": [
+        "Гранит Науки",
+        "Зерно Познания",
+        "Орешек Науки"
+      ],
       "options": [
-        "Гранит Науки", "Зерно Познания", "Орешек Науки",
-        "Колесо Времени", "Печать Соломона", "Ключ от Бытия"
+        "Гранит Науки",
+        "Зерно Познания",
+        "Орешек Науки",
+        "Колесо Времени",
+        "Печать Соломона",
+        "Ключ от Бытия"
       ],
       "explanation": {
         "quote": "Этот чертёж… называется он «Гранит Науки». Для тех, для которых он трудно даётся, он называется «Орешек Науки». А ещё этот чертёж называется «Зерно Познания».",
-        "source": { "items": [108, 109, 116], "pdf_page": 14 }
+        "source": {
+          "items": [
+            108,
+            109,
+            116
+          ],
+          "pdf_page": 14
+        }
       },
-      "source_atoms": ["T3.K1.A1", "T3.K1.A2", "T3.K1.A3"],
-      "tags": ["name", "list", "keystone"]
+      "source_atoms": [
+        "T3.K1.A1",
+        "T3.K1.A2",
+        "T3.K1.A3"
+      ],
+      "tags": [
+        "name",
+        "list",
+        "keystone"
+      ]
     },
     {
       "id": "T3.Q2",
@@ -254,57 +467,126 @@
       "difficulty": "medium",
       "stem": "Любой многоугольник по-русски называется:",
       "correct": "Гранит",
-      "options": ["Грань", "Гранит", "Гранат", "Огранка"],
+      "options": [
+        "Грань",
+        "Гранит",
+        "Гранат",
+        "Огранка"
+      ],
       "explanation": {
         "quote": "Любой многоугольник по-русски называется «гранит».",
-        "source": { "items": [114], "pdf_page": 14 }
+        "source": {
+          "items": [
+            114
+          ],
+          "pdf_page": 14
+        }
       },
-      "source_atoms": ["T3.K2.A2"],
-      "tags": ["definition", "language"]
+      "source_atoms": [
+        "T3.K2.A2"
+      ],
+      "tags": [
+        "definition",
+        "language"
+      ]
     },
     {
       "id": "T3.Q3",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "medium",
       "stem": "Слово «грани» изначально имело значение «_____».",
       "correct": "угол",
-      "correct_alternatives": ["углы"],
+      "correct_alternatives": [
+        "углы"
+      ],
       "explanation": {
         "quote": "Слово «грани» изначально имело значение «угол», но сейчас чаще всего это слово означает и угол, и плоскость, сторону огранёного предмета.",
-        "source": { "items": [114], "pdf_page": 14 }
+        "source": {
+          "items": [
+            114
+          ],
+          "pdf_page": 14
+        }
       },
-      "source_atoms": ["T3.K2.A3"],
-      "tags": ["etymology", "language"]
+      "source_atoms": [
+        "T3.K2.A3"
+      ],
+      "tags": [
+        "etymology",
+        "language"
+      ],
+      "options": [
+        "угол",
+        "край",
+        "место",
+        "предел"
+      ]
     },
     {
       "id": "T3.Q4",
       "type": "multi-choice",
       "difficulty": "medium",
       "stem": "Какие слова, по книге, происходят от корня «грани»?",
-      "correct": ["гранит", "гранат", "гранёный", "огранка"],
+      "correct": [
+        "гранит",
+        "гранат",
+        "гранёный",
+        "огранка"
+      ],
       "options": [
-        "гранит", "гранат", "гранёный", "огранка",
-        "горизонт", "грамота", "гряда"
+        "гранит",
+        "гранат",
+        "гранёный",
+        "огранка",
+        "горизонт",
+        "грамота",
+        "гряда"
       ],
       "explanation": {
         "quote": "Слово «гранит» происходит от понятия и слова «грани». Не наоборот.",
-        "source": { "items": [114], "pdf_page": 14 }
+        "source": {
+          "items": [
+            114
+          ],
+          "pdf_page": 14
+        }
       },
-      "source_atoms": ["T3.K2.A3"],
-      "tags": ["etymology", "list"]
+      "source_atoms": [
+        "T3.K2.A3"
+      ],
+      "tags": [
+        "etymology",
+        "list"
+      ]
     },
     {
       "id": "T3.Q5",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "easy",
       "stem": "Афоризм узла: «Гранит _____ науки».",
       "correct": "грани",
       "explanation": {
         "quote": "Гранит грани науки.",
-        "source": { "items": [113], "pdf_page": 14 }
+        "source": {
+          "items": [
+            113
+          ],
+          "pdf_page": 14
+        }
       },
-      "source_atoms": ["T3.K2.A1"],
-      "tags": ["postulate", "keystone"]
+      "source_atoms": [
+        "T3.K2.A1"
+      ],
+      "tags": [
+        "postulate",
+        "keystone"
+      ],
+      "options": [
+        "грани",
+        "основа",
+        "твердыня",
+        "начало"
+      ]
     },
     {
       "id": "T3.Q6",
@@ -312,15 +594,33 @@
       "difficulty": "medium",
       "stem": "Соотнесите термин и его дефиницию",
       "correct": [
-        ["знать вещь", "уметь ею пользоваться"],
-        ["ведать вещь", "ведать её Ясну"]
+        [
+          "знать вещь",
+          "уметь ею пользоваться"
+        ],
+        [
+          "ведать вещь",
+          "ведать её Ясну"
+        ]
       ],
       "explanation": {
         "quote": "Знать какую-либо вещь — это есть умение ею пользоваться, использовать её для чего-либо. Ведать какую-либо вещь — есть ведать Ясну этой вещи.",
-        "source": { "items": [118, 119], "pdf_page": 14 }
+        "source": {
+          "items": [
+            118,
+            119
+          ],
+          "pdf_page": 14
+        }
       },
-      "source_atoms": ["T3.K4.A1", "T3.K4.A2"],
-      "tags": ["pairing", "keystone"]
+      "source_atoms": [
+        "T3.K4.A1",
+        "T3.K4.A2"
+      ],
+      "tags": [
+        "pairing",
+        "keystone"
+      ]
     },
     {
       "id": "T3.Q7",
@@ -336,10 +636,20 @@
       ],
       "explanation": {
         "quote": "Знать какую-либо вещь — это есть умение ею пользоваться, использовать её для чего-либо.",
-        "source": { "items": [118], "pdf_page": 14 }
+        "source": {
+          "items": [
+            118
+          ],
+          "pdf_page": 14
+        }
       },
-      "source_atoms": ["T3.K4.A1"],
-      "tags": ["definition", "core"]
+      "source_atoms": [
+        "T3.K4.A1"
+      ],
+      "tags": [
+        "definition",
+        "core"
+      ]
     },
     {
       "id": "T3.Q8",
@@ -355,10 +665,20 @@
       ],
       "explanation": {
         "quote": "Ведать какую-либо вещь — есть ведать Ясну этой вещи.",
-        "source": { "items": [119], "pdf_page": 14 }
+        "source": {
+          "items": [
+            119
+          ],
+          "pdf_page": 14
+        }
       },
-      "source_atoms": ["T3.K4.A2"],
-      "tags": ["definition", "core"]
+      "source_atoms": [
+        "T3.K4.A2"
+      ],
+      "tags": [
+        "definition",
+        "core"
+      ]
     },
     {
       "id": "T3.Q9",
@@ -368,20 +688,40 @@
       "correct": true,
       "explanation": {
         "quote": "Изучение этого чертежа в школах двенадцати [Учебников Ясны] было обязательным при изучении всех дисциплин.",
-        "source": { "items": [112], "pdf_page": 14 }
+        "source": {
+          "items": [
+            112
+          ],
+          "pdf_page": 14
+        }
       },
-      "source_atoms": ["T3.K3.A1"],
-      "tags": ["fact", "history"]
+      "source_atoms": [
+        "T3.K3.A1"
+      ],
+      "tags": [
+        "fact",
+        "history"
+      ]
     }
   ],
-
   "rejected": [
-    { "item": 107, "reason": "Граничный пункт из узла 2 («Вот таким получилось описание суток…»). Покрыт в T2.K4.A7." },
-    { "item": 110, "reason": "Самая повреждённая фраза узла; реконструкция неоднозначна, не testable." },
-    { "item": 120, "reason": "Резюме «Сейчас мы выяснили Ясну Суток» — мета-замечание; разрешается через A4 («чертёж — только начало»)." },
-    { "item": 123, "reason": "Переходный анонс к узлу 4: «Продолжим наше исследование. Взглянем ещё раз на наш чертёж.» Не несёт факта." }
+    {
+      "item": 107,
+      "reason": "Граничный пункт из узла 2 («Вот таким получилось описание суток…»). Покрыт в T2.K4.A7."
+    },
+    {
+      "item": 110,
+      "reason": "Самая повреждённая фраза узла; реконструкция неоднозначна, не testable."
+    },
+    {
+      "item": 120,
+      "reason": "Резюме «Сейчас мы выяснили Ясну Суток» — мета-замечание; разрешается через A4 («чертёж — только начало»)."
+    },
+    {
+      "item": 123,
+      "reason": "Переходный анонс к узлу 4: «Продолжим наше исследование. Взглянем ещё раз на наш чертёж.» Не несёт факта."
+    }
   ],
-
   "stats": {
     "items_in_range": 16,
     "atoms_count": 17,
@@ -393,17 +733,24 @@
     "coverage_pct": 81,
     "keystone_count": 9,
     "kind_distribution": {
-      "name": 3, "definition": 3, "fact": 5, "etymology": 2,
-      "postulate": 2, "pairing": 1
+      "name": 3,
+      "definition": 3,
+      "fact": 5,
+      "etymology": 2,
+      "postulate": 2,
+      "pairing": 1
     }
   },
   "changelog": [
-    { "version": "1.1.1", "changes": [
-      "Initial version: 4 категории (Имена / Этимология грани / 12 школ / Знать↔Ведать)",
-      "Узел компактный (16 пунктов на одной PDF-странице) — 17 атомов, coverage 81%",
-      "Без иллюстраций: используется уже построенный шестиугольник (T2.I4)",
-      "Закрывает обещание из T1: формальные дефиниции «знать» (T3.K4.A1) и «ведать» (T3.K4.A2) с meta.links.prerequisite на T1.K3.A3",
-      "T3.K4.A4 «Ясна есть не только изложение чертежа» — переподтверждение T1.K1.A3/A4 после построения чертежа"
-    ]}
+    {
+      "version": "1.1.1",
+      "changes": [
+        "Initial version: 4 категории (Имена / Этимология грани / 12 школ / Знать↔Ведать)",
+        "Узел компактный (16 пунктов на одной PDF-странице) — 17 атомов, coverage 81%",
+        "Без иллюстраций: используется уже построенный шестиугольник (T2.I4)",
+        "Закрывает обещание из T1: формальные дефиниции «знать» (T3.K4.A1) и «ведать» (T3.K4.A2) с meta.links.prerequisite на T1.K3.A3",
+        "T3.K4.A4 «Ясна есть не только изложение чертежа» — переподтверждение T1.K1.A3/A4 после построения чертежа"
+      ]
+    }
   ]
 }

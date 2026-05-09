@@ -6,14 +6,17 @@
     "id": "T7",
     "slug": "khram-tri-kresta-sofiya",
     "title": "Храм. Три Креста. София",
-    "alt_titles": ["Храмовое Учение", "Числа", "Вера. Надежда. Любовь"],
+    "alt_titles": [
+      "Храмовое Учение",
+      "Числа",
+      "Вера. Надежда. Любовь"
+    ],
     "items_range": "377-534",
     "pdf_pages": "48-62",
     "source_file": "Сутки/08_узел_07_храм_кресты_софия.md",
     "summary": "Узел совершает максимальный концептуальный сдвиг книги: переименовывает Ясну в Храмовое Учение (одно из 12 учебников «Коломенского Костра»); вводит сквозную нумерацию 0–11; даёт главную структурную находку — Три Креста (Опорный 0-3-6-9, Тепловой 1-4-7-10, Веры 2-5-8-11), соединённых центрами в 12-лучевую Звезду; раскрывает каждый Крест через множественные имена; идентифицирует христианскую триаду Вера-Надежда-Любовь как именно эти Три Креста, объединённые в Софию; вводит метафору Полочек и Яблочка на Блюдечке.",
     "themes_in_partia": true
   },
-
   "categories": [
     {
       "id": "T7.K1",
@@ -25,30 +28,76 @@
           "id": "T7.K1.A1",
           "kind": "postulate",
           "quote": "Это учение есть Храмовое Учение.",
-          "source": { "items": [377], "pdf_page": 48 },
-          "meta": { "is_keystone": true, "links": { "see_also": ["T6.K5.A6"] } },
-          "supports_questions": ["fill-blank", "true-false"]
+          "source": {
+            "items": [
+              377
+            ],
+            "pdf_page": 48
+          },
+          "meta": {
+            "is_keystone": true,
+            "links": {
+              "see_also": [
+                "T6.K5.A6"
+              ]
+            }
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T7.K1.A2",
           "kind": "postulate",
           "quote": "Храм говорит: Всё на свете устроено одинаково. Единообразно. Всё в природе устроено по одному образу. Всё в природе устроено по одному и тому же образу и подобию. По единой Программе.",
-          "source": { "items": [384], "pdf_page": 48 },
+          "source": {
+            "items": [
+              384
+            ],
+            "pdf_page": 48
+          },
           "meta": {
             "is_keystone": true,
-            "links": { "see_also": ["T1.K1.A6", "T1.K5.A1"] }
+            "links": {
+              "see_also": [
+                "T1.K1.A6",
+                "T1.K5.A1"
+              ]
+            }
           },
-          "supports_questions": ["fill-blank", "true-false"]
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T7.K1.A3",
           "kind": "list",
           "term": "Имена единого устройства мира",
           "quote": "По единой Программе. По единой Сверхпрограмме. По единой Матрице. Славяне эту Сверхпрограмму называют «Матрицу». В западных странах называют «Матрица».",
-          "items_list": ["Программа", "Сверхпрограмма", "Матрица"],
-          "source": { "items": [384, 385, 386, 387, 388], "pdf_page": 48 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["multi-choice", "single-choice"]
+          "items_list": [
+            "Программа",
+            "Сверхпрограмма",
+            "Матрица"
+          ],
+          "source": {
+            "items": [
+              384,
+              385,
+              386,
+              387,
+              388
+            ],
+            "pdf_page": 48
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "multi-choice",
+            "single-choice"
+          ]
         },
         {
           "id": "T7.K1.A4",
@@ -56,24 +105,52 @@
           "term": "Храмовое Учение славян",
           "alt_name": "Коломенский Костёр",
           "quote": "Храмовое Учение славян называется Коломенский Костёр.",
-          "source": { "items": [394], "pdf_page": 48 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "match-pair", "fill-blank"]
+          "source": {
+            "items": [
+              394
+            ],
+            "pdf_page": 48
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "match-pair",
+            "fill-blank"
+          ]
         },
         {
           "id": "T7.K1.A5",
           "kind": "fact",
           "quote": "Своё Храмовое Учение потеряли все славяне.",
-          "source": { "items": [392], "pdf_page": 48 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["true-false", "single-choice"]
+          "source": {
+            "items": [
+              392
+            ],
+            "pdf_page": 48
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "true-false",
+            "single-choice"
+          ]
         },
         {
           "id": "T7.K1.A6",
           "kind": "fact",
           "quote": "Потух Коломенский Костёр! И славяне греются у костров других.",
-          "source": { "items": [395], "pdf_page": 48 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              395
+            ],
+            "pdf_page": 48
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         },
         {
           "id": "T7.K1.A7",
@@ -81,36 +158,73 @@
           "term": "Самочинное учение на Руси",
           "alt_name": "Бобровая Запруда",
           "quote": "Всякое самочинное учение на Руси называется «Бобровая Запруда».",
-          "source": { "items": [407], "pdf_page": 49 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "match-pair", "fill-blank"]
+          "source": {
+            "items": [
+              407
+            ],
+            "pdf_page": 49
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "match-pair",
+            "fill-blank"
+          ]
         },
         {
           "id": "T7.K1.A8",
           "kind": "postulate",
           "quote": "Никакая Академия Храма не заменит.",
-          "source": { "items": [404], "pdf_page": 49 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "true-false"]
+          "source": {
+            "items": [
+              404
+            ],
+            "pdf_page": 49
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T7.K1.A9",
           "kind": "postulate",
           "quote": "Не все знания на свете есть знания для мозгов. Для ума.",
-          "source": { "items": [406], "pdf_page": 49 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              406
+            ],
+            "pdf_page": 49
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         },
         {
           "id": "T7.K1.A10",
           "kind": "postulate",
           "quote": "Храм есть Учение Жизни. И не только о том, как жить, но и о том, как жить. Зачем человеку жить так, и не иначе.",
-          "source": { "items": [491], "pdf_page": 55 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "true-false"]
+          "source": {
+            "items": [
+              491
+            ],
+            "pdf_page": 55
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         }
       ]
     },
-
     {
       "id": "T7.K2",
       "slug": "numeratsiya-0-11",
@@ -136,64 +250,145 @@
             "10 — Вечерние Сумерки",
             "11 — Последний Свет"
           ],
-          "source": { "items": [416], "pdf_page": 50 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair", "order"]
+          "source": {
+            "items": [
+              416
+            ],
+            "pdf_page": 50
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair",
+            "order"
+          ]
         },
         {
           "id": "T7.K2.A2",
           "kind": "rule",
           "quote": "Все долгие времена сутки имеют номера чётные, а все времена короткие, переломные, имеют номера нечётные.",
-          "source": { "items": [419, 420], "pdf_page": 50 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "true-false", "single-choice"]
+          "source": {
+            "items": [
+              419,
+              420
+            ],
+            "pdf_page": 50
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false",
+            "single-choice"
+          ]
         },
         {
           "id": "T7.K2.A3",
           "kind": "postulate",
           "quote": "Свет и Тьма нераздельны. Они — одно целое. Они — Ясна.",
-          "source": { "items": [424], "pdf_page": 51 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "true-false"]
+          "source": {
+            "items": [
+              424
+            ],
+            "pdf_page": 51
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T7.K2.A4",
           "kind": "fact",
           "quote": "Тьма содержит в себе Свет. Но и Свет содержит в себе Тьму. И имеет её порождение.",
-          "source": { "items": [422, 423], "pdf_page": 51 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              422,
+              423
+            ],
+            "pdf_page": 51
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         },
         {
           "id": "T7.K2.A5",
           "kind": "postulate",
           "quote": "Линия Борьбы есть Ось три — девять.",
-          "source": { "items": [428], "pdf_page": 51 },
+          "source": {
+            "items": [
+              428
+            ],
+            "pdf_page": 51
+          },
           "meta": {
             "is_keystone": true,
-            "links": { "see_also": ["T4.K2.A2"] }
+            "links": {
+              "see_also": [
+                "T4.K2.A2"
+              ]
+            }
           },
-          "supports_questions": ["fill-blank", "single-choice"]
+          "supports_questions": [
+            "fill-blank",
+            "single-choice"
+          ]
         },
         {
           "id": "T7.K2.A6",
           "kind": "postulate",
           "quote": "Линия Единства есть Ось ноль — шесть.",
-          "source": { "items": [429], "pdf_page": 51 },
+          "source": {
+            "items": [
+              429
+            ],
+            "pdf_page": 51
+          },
           "meta": {
             "is_keystone": true,
-            "links": { "see_also": ["T4.K2.A3"] }
+            "links": {
+              "see_also": [
+                "T4.K2.A3"
+              ]
+            }
           },
-          "supports_questions": ["fill-blank", "single-choice"]
+          "supports_questions": [
+            "fill-blank",
+            "single-choice"
+          ]
         },
         {
           "id": "T7.K2.A7",
           "kind": "list",
           "term": "Опорные Числа Ясны (Главные Числа Мира)",
           "quote": "Номера всех концов Опорного Креста: Ноль, Три, Шесть, Девять — есть Опорные Числа Ясны. Главные Числа Мира.",
-          "items_list": ["0 — Тёмная Ночь", "3 — Выход Солнца", "6 — Светлый День", "9 — Заход Солнца"],
-          "source": { "items": [432, 434], "pdf_page": 51 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["multi-choice", "match-pair", "fill-blank"]
+          "items_list": [
+            "0 — Тёмная Ночь",
+            "3 — Выход Солнца",
+            "6 — Светлый День",
+            "9 — Заход Солнца"
+          ],
+          "source": {
+            "items": [
+              432,
+              434
+            ],
+            "pdf_page": 51
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "multi-choice",
+            "match-pair",
+            "fill-blank"
+          ]
         },
         {
           "id": "T7.K2.A8",
@@ -201,12 +396,18 @@
           "term": "Главные времена бытия",
           "alt_name": "0, 3, 6, 9",
           "quote": "Тёмная Ночь — 0, Выход Солнца — 3, Светлый День — 6 и Заход Солнца — 9 есть опорные времена сyтoк. Главные времена бытия.",
-          "source": { "items": [434], "pdf_page": 51 },
-          "supports_questions": ["match-pair"]
+          "source": {
+            "items": [
+              434
+            ],
+            "pdf_page": 51
+          },
+          "supports_questions": [
+            "match-pair"
+          ]
         }
       ]
     },
-
     {
       "id": "T7.K3",
       "slug": "tri-kresta",
@@ -217,69 +418,145 @@
           "id": "T7.K3.A1",
           "kind": "postulate",
           "quote": "Кроме Опорного Креста в Ясне есть ещё два креста.",
-          "source": { "items": [436], "pdf_page": 52 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              436
+            ],
+            "pdf_page": 52
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         },
         {
           "id": "T7.K3.A2",
           "kind": "postulate",
           "quote": "Вся жизнь зависит от трёх крестов.",
-          "source": { "items": [437], "pdf_page": 52 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "true-false"]
+          "source": {
+            "items": [
+              437
+            ],
+            "pdf_page": 52
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T7.K3.A3",
           "kind": "postulate",
           "quote": "Ясна есть Три Креста, соединённых друг с другом своими центрами. Каждый Крест есть четыре луча, всего Крестов — три, итого всего лучей — двенадцать.",
-          "source": { "items": [494, 495], "pdf_page": 56 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "single-choice", "true-false"]
+          "source": {
+            "items": [
+              494,
+              495
+            ],
+            "pdf_page": 56
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "single-choice",
+            "true-false"
+          ]
         },
         {
           "id": "T7.K3.A4",
           "kind": "scheme",
           "term": "Опорный Крест",
           "quote": "Опорный, Главный Крест — Крест 0 — 3 — 6 — 9, есть Крест двух Основ суток — Тьмы — 0 и Света — 6 на Линии Единства, и из Борьбы а 3 и 9 на Линии Борьбы.",
-          "source": { "items": [496], "pdf_page": 56 },
+          "source": {
+            "items": [
+              496
+            ],
+            "pdf_page": 56
+          },
           "meta": {
             "is_keystone": true,
             "references_illustration": "T7.I3"
           },
-          "supports_questions": ["single-choice", "fill-blank", "match-pair"]
+          "supports_questions": [
+            "single-choice",
+            "fill-blank",
+            "match-pair"
+          ]
         },
         {
           "id": "T7.K3.A5",
           "kind": "scheme",
           "term": "Тепловой Крест",
           "quote": "Тепловой Крест, или Правый Крест — Крест 1 — 4 — 7 — 10, по-другому называется «Крест Целей».",
-          "source": { "items": [443, 446, 498], "pdf_page": 52 },
+          "source": {
+            "items": [
+              443,
+              446,
+              498
+            ],
+            "pdf_page": 52
+          },
           "meta": {
             "is_keystone": true,
             "references_illustration": "T7.I4"
           },
-          "supports_questions": ["single-choice", "fill-blank", "match-pair"]
+          "supports_questions": [
+            "single-choice",
+            "fill-blank",
+            "match-pair"
+          ]
         },
         {
           "id": "T7.K3.A6",
           "kind": "scheme",
           "term": "Крест Веры",
           "quote": "Крест Веры, или Левый Крест — Крест 2 — 5 — 8 — 11, по-другому называется «Крест Свежести». И ещё одно из главных его названий — «Крест Левиаф».",
-          "source": { "items": [450, 451, 499], "pdf_page": 53 },
+          "source": {
+            "items": [
+              450,
+              451,
+              499
+            ],
+            "pdf_page": 53
+          },
           "meta": {
             "is_keystone": true,
             "references_illustration": "T7.I5"
           },
-          "supports_questions": ["single-choice", "fill-blank", "match-pair"]
+          "supports_questions": [
+            "single-choice",
+            "fill-blank",
+            "match-pair"
+          ]
         },
         {
           "id": "T7.K3.A7",
           "kind": "fact",
           "quote": "Тепловой Крест сдвинут относительно светового, Опорного Креста на один шаг по часовой стрелке. То есть направо.",
-          "source": { "items": [445], "pdf_page": 52 },
-          "meta": { "links": { "see_also": ["T7.K3.A5"] } },
-          "supports_questions": ["true-false", "single-choice"]
+          "source": {
+            "items": [
+              445
+            ],
+            "pdf_page": 52
+          },
+          "meta": {
+            "links": {
+              "see_also": [
+                "T7.K3.A5"
+              ]
+            }
+          },
+          "supports_questions": [
+            "true-false",
+            "single-choice"
+          ]
         },
         {
           "id": "T7.K3.A8",
@@ -288,8 +565,16 @@
           "quote": "Самое тёплое время суток — седьмое время. Первая Тьма. Возле Перелом К Спуску Солнца.",
           "value": 7,
           "unit": "номер фазы (Первая Тьма)",
-          "source": { "items": [438], "pdf_page": 52 },
-          "supports_questions": ["single-choice", "fill-blank"]
+          "source": {
+            "items": [
+              438
+            ],
+            "pdf_page": 52
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank"
+          ]
         },
         {
           "id": "T7.K3.A9",
@@ -298,12 +583,19 @@
           "quote": "Самое холодное время суток есть первое время, время Первый Свет.",
           "value": 1,
           "unit": "номер фазы (Первый Свет)",
-          "source": { "items": [439], "pdf_page": 52 },
-          "supports_questions": ["single-choice", "fill-blank"]
+          "source": {
+            "items": [
+              439
+            ],
+            "pdf_page": 52
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank"
+          ]
         }
       ]
     },
-
     {
       "id": "T7.K4",
       "slug": "imena-krestov",
@@ -321,9 +613,21 @@
             "Крест Бытию",
             "Крест Надежды"
           ],
-          "source": { "items": [496, 497, 523], "pdf_page": 56 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["multi-choice", "match-pair"]
+          "source": {
+            "items": [
+              496,
+              497,
+              523
+            ],
+            "pdf_page": 56
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "multi-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T7.K4.A2",
@@ -340,9 +644,25 @@
             "Крест Результатов",
             "Крест Любови"
           ],
-          "source": { "items": [443, 446, 447, 498, 501, 502, 524], "pdf_page": 52 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["multi-choice", "match-pair"]
+          "source": {
+            "items": [
+              443,
+              446,
+              447,
+              498,
+              501,
+              502,
+              524
+            ],
+            "pdf_page": 52
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "multi-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T7.K4.A3",
@@ -356,9 +676,22 @@
             "Крест Свежести",
             "Крест Левиаф"
           ],
-          "source": { "items": [450, 451, 452, 499], "pdf_page": 53 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["multi-choice", "match-pair"]
+          "source": {
+            "items": [
+              450,
+              451,
+              452,
+              499
+            ],
+            "pdf_page": 53
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "multi-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T7.K4.A4",
@@ -366,13 +699,23 @@
           "term": "Все Три Креста вместе",
           "alt_name": "Числа / София / Ясна",
           "quote": "Все Три Креста вместе называются «Числа». Или «София». Или просто «Числа», или «Ясна».",
-          "source": { "items": [500], "pdf_page": 56 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["multi-choice", "single-choice", "match-pair"]
+          "source": {
+            "items": [
+              500
+            ],
+            "pdf_page": 56
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "multi-choice",
+            "single-choice",
+            "match-pair"
+          ]
         }
       ]
     },
-
     {
       "id": "T7.K5",
       "slug": "vera-nadezhda-lyubov",
@@ -385,9 +728,19 @@
           "term": "Опорный Крест (0-3-6-9)",
           "alt_name": "Крест Надежды",
           "quote": "Опорный — Крест 0 — 3 — 6 — 9 называется ещё «Крест Надежды».",
-          "source": { "items": [523], "pdf_page": 61 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair", "single-choice"]
+          "source": {
+            "items": [
+              523
+            ],
+            "pdf_page": 61
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair",
+            "single-choice"
+          ]
         },
         {
           "id": "T7.K5.A2",
@@ -395,9 +748,19 @@
           "term": "Тепловой Крест (1-4-7-10)",
           "alt_name": "Крест Любви",
           "quote": "Крест Победы — Крест 1 — 4 — 7 — 10 называется по-другому «Крест Любови».",
-          "source": { "items": [524], "pdf_page": 61 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair", "single-choice"]
+          "source": {
+            "items": [
+              524
+            ],
+            "pdf_page": 61
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair",
+            "single-choice"
+          ]
         },
         {
           "id": "T7.K5.A3",
@@ -405,52 +768,114 @@
           "term": "Левый Крест (2-5-8-11)",
           "alt_name": "Крест Веры",
           "quote": "Этот крест называется Крест Веры.",
-          "source": { "items": [451], "pdf_page": 53 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair", "single-choice"]
+          "source": {
+            "items": [
+              451
+            ],
+            "pdf_page": 53
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair",
+            "single-choice"
+          ]
         },
         {
           "id": "T7.K5.A4",
           "kind": "postulate",
           "quote": "Если возможно известность Любви, то София есть единение всех трёх Крестов: Веры. Надежды и Любви.",
-          "source": { "items": [527], "pdf_page": 61 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "single-choice"]
+          "source": {
+            "items": [
+              527
+            ],
+            "pdf_page": 61
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "single-choice"
+          ]
         },
         {
           "id": "T7.K5.A5",
           "kind": "postulate",
           "quote": "Ясна есть «София». Ведь Ясна есть учение всеобщего знания.",
-          "source": { "items": [528], "pdf_page": 62 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "true-false"]
+          "source": {
+            "items": [
+              528
+            ],
+            "pdf_page": 62
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T7.K5.A6",
           "kind": "definition",
           "term": "Полочка",
           "quote": "Лучи Ясны в виде «Ясная Звезда», или «Тарелка», «Тарелочка», называются «Полочками». Каждый луч — «Полочка».",
-          "source": { "items": [457], "pdf_page": 53 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "match-pair", "fill-blank"]
+          "source": {
+            "items": [
+              457
+            ],
+            "pdf_page": 53
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "match-pair",
+            "fill-blank"
+          ]
         },
         {
           "id": "T7.K5.A7",
           "kind": "etymology",
           "term": "Разложить по полочкам",
           "quote": "Разложение этой вещи на Ясну в виде «Тарелка» есть разложение этой вещи «По Полочкам». Отсюда русское выражение: «Разложить по полочкам».",
-          "source": { "items": [458, 459], "pdf_page": 54 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "fill-blank"]
+          "source": {
+            "items": [
+              458,
+              459
+            ],
+            "pdf_page": 54
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank"
+          ]
         },
         {
           "id": "T7.K5.A8",
           "kind": "etymology",
           "term": "Катать Яблочко по Блюдечку",
           "quote": "Пользоваться Ясной какой-либо вещи или какого-либо явления раньше называлось «Катать Яблочко по Блюдечку с Голубой Каёмочкой».",
-          "source": { "items": [466], "pdf_page": 54 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "fill-blank"]
+          "source": {
+            "items": [
+              466
+            ],
+            "pdf_page": 54
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank"
+          ]
         },
         {
           "id": "T7.K5.A9",
@@ -463,8 +888,20 @@
             "Перезрелое — злое, завистливое внимание",
             "С Червоточинкой — внимание завистливой души"
           ],
-          "source": { "items": [468, 469, 470, 472, 473], "pdf_page": 54 },
-          "supports_questions": ["match-pair", "multi-choice"]
+          "source": {
+            "items": [
+              468,
+              469,
+              470,
+              472,
+              473
+            ],
+            "pdf_page": 54
+          },
+          "supports_questions": [
+            "match-pair",
+            "multi-choice"
+          ]
         },
         {
           "id": "T7.K5.A10",
@@ -472,14 +909,27 @@
           "term": "Анонс Зеркала Девы",
           "alt_name": "Храмовая Математическая Физика",
           "quote": "Зеркало Девы есть знаков о пользы и мерах. Особые понятия. Можно сказать, из Звезда Ясны. И это есть особая Храмовая Математическая Физика.",
-          "source": { "items": [532, 533], "pdf_page": 62 },
-          "meta": { "links": { "leads_to": ["T8.K1.A1"] } },
-          "supports_questions": ["single-choice"]
+          "source": {
+            "items": [
+              532,
+              533
+            ],
+            "pdf_page": 62
+          },
+          "meta": {
+            "links": {
+              "leads_to": [
+                "T8.K1.A1"
+              ]
+            }
+          },
+          "supports_questions": [
+            "single-choice"
+          ]
         }
       ]
     }
   ],
-
   "illustrations": [
     {
       "id": "T7.I1",
@@ -487,8 +937,17 @@
       "code": "V-031",
       "pdf_page": 50,
       "caption": "Шестиугольник с 12 позициями (0–11) и числами на каждой; внутри сверху — солнечный лик, снизу — лунный.",
-      "source": { "items": [416, 417], "pdf_page": 50 },
-      "use_cases": ["theme-cover", "explainer"]
+      "source": {
+        "items": [
+          416,
+          417
+        ],
+        "pdf_page": 50
+      },
+      "use_cases": [
+        "theme-cover",
+        "explainer"
+      ]
     },
     {
       "id": "T7.I2",
@@ -496,8 +955,15 @@
       "code": "V-032",
       "pdf_page": 50,
       "caption": "12-точечная звезда со спиралью внутри; те же номера 0–11.",
-      "source": { "items": [420], "pdf_page": 50 },
-      "use_cases": ["explainer"]
+      "source": {
+        "items": [
+          420
+        ],
+        "pdf_page": 50
+      },
+      "use_cases": [
+        "explainer"
+      ]
     },
     {
       "id": "T7.I3",
@@ -505,8 +971,15 @@
       "code": "V-033",
       "pdf_page": 51,
       "caption": "Крест двух Основ суток — Тьмы (0) и Света (6) на Линии Единства, и Борьбы (3 и 9) на Линии Борьбы.",
-      "source": { "items": [496], "pdf_page": 51 },
-      "use_cases": ["question-illustration"]
+      "source": {
+        "items": [
+          496
+        ],
+        "pdf_page": 51
+      },
+      "use_cases": [
+        "question-illustration"
+      ]
     },
     {
       "id": "T7.I4",
@@ -514,8 +987,17 @@
       "code": "V-034",
       "pdf_page": 52,
       "caption": "Внутри шестиугольника — крест с осями Тепло (1) — Холод (7) и Тепловой Горизонт (4 — 10), повёрнутый на один шаг по часовой стрелке относительно Опорного Креста.",
-      "source": { "items": [443, 444, 445], "pdf_page": 52 },
-      "use_cases": ["question-illustration"]
+      "source": {
+        "items": [
+          443,
+          444,
+          445
+        ],
+        "pdf_page": 52
+      },
+      "use_cases": [
+        "question-illustration"
+      ]
     },
     {
       "id": "T7.I5",
@@ -523,8 +1005,16 @@
       "code": "V-035",
       "pdf_page": 53,
       "caption": "Третий крест Ясны: оси 2-8 и 5-11.",
-      "source": { "items": [450, 451], "pdf_page": 53 },
-      "use_cases": ["question-illustration"]
+      "source": {
+        "items": [
+          450,
+          451
+        ],
+        "pdf_page": 53
+      },
+      "use_cases": [
+        "question-illustration"
+      ]
     },
     {
       "id": "T7.I6",
@@ -532,25 +1022,52 @@
       "code": "V-036",
       "pdf_page": 56,
       "caption": "Три Креста, соединённых центрами; 12 лучей образуют 12-точечную Звезду.",
-      "source": { "items": [494, 495, 500], "pdf_page": 56 },
-      "use_cases": ["theme-cover", "question-illustration"]
+      "source": {
+        "items": [
+          494,
+          495,
+          500
+        ],
+        "pdf_page": 56
+      },
+      "use_cases": [
+        "theme-cover",
+        "question-illustration"
+      ]
     }
   ],
-
   "questions": [
     {
       "id": "T7.Q1",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "easy",
       "stem": "Это учение есть _____ Учение.",
       "correct": "Храмовое",
-      "correct_alternatives": ["храмовое"],
+      "correct_alternatives": [
+        "храмовое"
+      ],
       "explanation": {
         "quote": "Это учение есть Храмовое Учение.",
-        "source": { "items": [377], "pdf_page": 48 }
+        "source": {
+          "items": [
+            377
+          ],
+          "pdf_page": 48
+        }
       },
-      "source_atoms": ["T7.K1.A1"],
-      "tags": ["postulate", "keystone"]
+      "source_atoms": [
+        "T7.K1.A1"
+      ],
+      "tags": [
+        "postulate",
+        "keystone"
+      ],
+      "options": [
+        "Храмовое",
+        "Тайное",
+        "Народное",
+        "Звёздное"
+      ]
     },
     {
       "id": "T7.Q2",
@@ -566,10 +1083,20 @@
       ],
       "explanation": {
         "quote": "Храмовое Учение славян называется Коломенский Костёр.",
-        "source": { "items": [394], "pdf_page": 48 }
+        "source": {
+          "items": [
+            394
+          ],
+          "pdf_page": 48
+        }
       },
-      "source_atoms": ["T7.K1.A4"],
-      "tags": ["name", "keystone"]
+      "source_atoms": [
+        "T7.K1.A4"
+      ],
+      "tags": [
+        "name",
+        "keystone"
+      ]
     },
     {
       "id": "T7.Q3",
@@ -585,38 +1112,94 @@
       ],
       "explanation": {
         "quote": "Всякое самочинное учение на Руси называется «Бобровая Запруда».",
-        "source": { "items": [407], "pdf_page": 49 }
+        "source": {
+          "items": [
+            407
+          ],
+          "pdf_page": 49
+        }
       },
-      "source_atoms": ["T7.K1.A7"],
-      "tags": ["name", "keystone"]
+      "source_atoms": [
+        "T7.K1.A7"
+      ],
+      "tags": [
+        "name",
+        "keystone"
+      ]
     },
     {
       "id": "T7.Q4",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "medium",
       "stem": "Все долгие времена сутки имеют номера _____, а все короткие переломные — _____.",
       "correct": "чётные и нечётные",
-      "correct_alternatives": ["чётные, нечётные"],
+      "correct_alternatives": [
+        "чётные, нечётные"
+      ],
       "explanation": {
         "quote": "Все долгие времена сутки имеют номера чётные, а все времена короткие, переломные, имеют номера нечётные.",
-        "source": { "items": [419, 420], "pdf_page": 50 }
+        "source": {
+          "items": [
+            419,
+            420
+          ],
+          "pdf_page": 50
+        }
       },
-      "source_atoms": ["T7.K2.A2"],
-      "tags": ["rule", "keystone"]
+      "source_atoms": [
+        "T7.K2.A2"
+      ],
+      "tags": [
+        "rule",
+        "keystone"
+      ],
+      "options": [
+        "чётные и нечётные",
+        "нечётные и чётные",
+        "малые и большие",
+        "светлые и тёмные"
+      ]
     },
     {
       "id": "T7.Q5",
       "type": "multi-choice",
       "difficulty": "medium",
       "stem": "Какие числа являются Опорными Числами Ясны (Главными Числами Мира)?",
-      "correct": ["0", "3", "6", "9"],
-      "options": ["0", "1", "2", "3", "5", "6", "7", "9", "11", "12"],
+      "correct": [
+        "0",
+        "3",
+        "6",
+        "9"
+      ],
+      "options": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "5",
+        "6",
+        "7",
+        "9",
+        "11",
+        "12"
+      ],
       "explanation": {
         "quote": "Номера всех концов Опорного Креста: Ноль, Три, Шесть, Девять — есть Опорные Числа Ясны. Главные Числа Мира.",
-        "source": { "items": [432, 434], "pdf_page": 51 }
+        "source": {
+          "items": [
+            432,
+            434
+          ],
+          "pdf_page": 51
+        }
       },
-      "source_atoms": ["T7.K2.A7"],
-      "tags": ["number", "keystone"]
+      "source_atoms": [
+        "T7.K2.A7"
+      ],
+      "tags": [
+        "number",
+        "keystone"
+      ]
     },
     {
       "id": "T7.Q6",
@@ -632,10 +1215,21 @@
       ],
       "explanation": {
         "quote": "Ясна есть Три Креста, соединённых друг с другом своими центрами. Каждый Крест есть четыре луча, всего Крестов — три, итого всего лучей — двенадцать.",
-        "source": { "items": [494, 495], "pdf_page": 56 }
+        "source": {
+          "items": [
+            494,
+            495
+          ],
+          "pdf_page": 56
+        }
       },
-      "source_atoms": ["T7.K3.A3"],
-      "tags": ["number", "keystone"]
+      "source_atoms": [
+        "T7.K3.A3"
+      ],
+      "tags": [
+        "number",
+        "keystone"
+      ]
     },
     {
       "id": "T7.Q7",
@@ -643,16 +1237,39 @@
       "difficulty": "hard",
       "stem": "Соотнесите Крест и его номера лучей",
       "correct": [
-        ["Опорный Крест (Крест Надежды)", "0 — 3 — 6 — 9"],
-        ["Тепловой Крест (Крест Любви)", "1 — 4 — 7 — 10"],
-        ["Крест Веры (Левый Крест)", "2 — 5 — 8 — 11"]
+        [
+          "Опорный Крест (Крест Надежды)",
+          "0 — 3 — 6 — 9"
+        ],
+        [
+          "Тепловой Крест (Крест Любви)",
+          "1 — 4 — 7 — 10"
+        ],
+        [
+          "Крест Веры (Левый Крест)",
+          "2 — 5 — 8 — 11"
+        ]
       ],
       "explanation": {
         "quote": "Опорный, Главный Крест — Крест 0 — 3 — 6 — 9. Тепловой Крест, или Правый Крест — Крест 1 — 4 — 7 — 10. Крест Веры, или Левый Крест — Крест 2 — 5 — 8 — 11.",
-        "source": { "items": [496, 498, 499], "pdf_page": 56 }
+        "source": {
+          "items": [
+            496,
+            498,
+            499
+          ],
+          "pdf_page": 56
+        }
       },
-      "source_atoms": ["T7.K3.A4", "T7.K3.A5", "T7.K3.A6"],
-      "tags": ["pairing", "keystone"]
+      "source_atoms": [
+        "T7.K3.A4",
+        "T7.K3.A5",
+        "T7.K3.A6"
+      ],
+      "tags": [
+        "pairing",
+        "keystone"
+      ]
     },
     {
       "id": "T7.Q8",
@@ -660,30 +1277,71 @@
       "difficulty": "hard",
       "stem": "Соотнесите Крест и христианскую добродетель",
       "correct": [
-        ["Опорный Крест (0-3-6-9)", "Надежда"],
-        ["Тепловой Крест (1-4-7-10)", "Любовь"],
-        ["Левый Крест (2-5-8-11)", "Вера"]
+        [
+          "Опорный Крест (0-3-6-9)",
+          "Надежда"
+        ],
+        [
+          "Тепловой Крест (1-4-7-10)",
+          "Любовь"
+        ],
+        [
+          "Левый Крест (2-5-8-11)",
+          "Вера"
+        ]
       ],
       "explanation": {
         "quote": "Опорный — Крест 0 — 3 — 6 — 9 называется ещё «Крест Надежды». Крест Победы — Крест 1 — 4 — 7 — 10 называется по-другому «Крест Любови». Этот крест называется Крест Веры.",
-        "source": { "items": [451, 523, 524], "pdf_page": 61 }
+        "source": {
+          "items": [
+            451,
+            523,
+            524
+          ],
+          "pdf_page": 61
+        }
       },
-      "source_atoms": ["T7.K5.A1", "T7.K5.A2", "T7.K5.A3"],
-      "tags": ["pairing", "keystone"]
+      "source_atoms": [
+        "T7.K5.A1",
+        "T7.K5.A2",
+        "T7.K5.A3"
+      ],
+      "tags": [
+        "pairing",
+        "keystone"
+      ]
     },
     {
       "id": "T7.Q9",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "hard",
       "stem": "Все Три Креста вместе называются «Числа», или «_____», или «Ясна».",
       "correct": "София",
-      "correct_alternatives": ["софия"],
+      "correct_alternatives": [
+        "софия"
+      ],
       "explanation": {
         "quote": "Все Три Креста вместе называются «Числа». Или «София». Или просто «Числа», или «Ясна».",
-        "source": { "items": [500], "pdf_page": 56 }
+        "source": {
+          "items": [
+            500
+          ],
+          "pdf_page": 56
+        }
       },
-      "source_atoms": ["T7.K4.A4"],
-      "tags": ["name", "keystone"]
+      "source_atoms": [
+        "T7.K4.A4"
+      ],
+      "tags": [
+        "name",
+        "keystone"
+      ],
+      "options": [
+        "София",
+        "Звезда",
+        "Тарелка",
+        "Сила"
+      ]
     },
     {
       "id": "T7.Q10",
@@ -691,13 +1349,27 @@
       "difficulty": "medium",
       "stem": "Какой номер у самого тёплого времени сyтoк (Первая Тьма)?",
       "correct": "7",
-      "options": ["1", "4", "7", "10"],
+      "options": [
+        "1",
+        "4",
+        "7",
+        "10"
+      ],
       "explanation": {
         "quote": "Самое тёплое время суток — седьмое время. Первая Тьма.",
-        "source": { "items": [438], "pdf_page": 52 }
+        "source": {
+          "items": [
+            438
+          ],
+          "pdf_page": 52
+        }
       },
-      "source_atoms": ["T7.K3.A8"],
-      "tags": ["number"]
+      "source_atoms": [
+        "T7.K3.A8"
+      ],
+      "tags": [
+        "number"
+      ]
     },
     {
       "id": "T7.Q11",
@@ -705,13 +1377,27 @@
       "difficulty": "medium",
       "stem": "Какой номер у самого холодного времени сyтoк (Первый Свет)?",
       "correct": "1",
-      "options": ["1", "4", "7", "10"],
+      "options": [
+        "1",
+        "4",
+        "7",
+        "10"
+      ],
       "explanation": {
         "quote": "Самое холодное время суток есть первое время, время Первый Свет.",
-        "source": { "items": [439], "pdf_page": 52 }
+        "source": {
+          "items": [
+            439
+          ],
+          "pdf_page": 52
+        }
       },
-      "source_atoms": ["T7.K3.A9"],
-      "tags": ["number"]
+      "source_atoms": [
+        "T7.K3.A9"
+      ],
+      "tags": [
+        "number"
+      ]
     },
     {
       "id": "T7.Q12",
@@ -737,24 +1423,59 @@
       ],
       "explanation": {
         "quote": "Тепловой Крест называется ещё Правый Крест. Крест Управления. По-другому называется «Крест Целей». Крестом Победы. Крест Победы — Крест 1 — 4 — 7 — 10 называется по-другому «Крест Любови».",
-        "source": { "items": [443, 446, 447, 498, 502, 524], "pdf_page": 52 }
+        "source": {
+          "items": [
+            443,
+            446,
+            447,
+            498,
+            502,
+            524
+          ],
+          "pdf_page": 52
+        }
       },
-      "source_atoms": ["T7.K4.A2"],
-      "tags": ["list", "name"]
+      "source_atoms": [
+        "T7.K4.A2"
+      ],
+      "tags": [
+        "list",
+        "name"
+      ]
     },
     {
       "id": "T7.Q13",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "medium",
       "stem": "Лучи Ясны в виде «Ясная Звезда» или «Тарелка» называются «_____».",
       "correct": "Полочками",
-      "correct_alternatives": ["полочками", "Полочки", "полочки"],
+      "correct_alternatives": [
+        "полочками",
+        "Полочки",
+        "полочки"
+      ],
       "explanation": {
         "quote": "Лучи Ясны в виде «Ясная Звезда», или «Тарелка», «Тарелочка», называются «Полочками». Каждый луч — «Полочка».",
-        "source": { "items": [457], "pdf_page": 53 }
+        "source": {
+          "items": [
+            457
+          ],
+          "pdf_page": 53
+        }
       },
-      "source_atoms": ["T7.K5.A6"],
-      "tags": ["definition", "keystone"]
+      "source_atoms": [
+        "T7.K5.A6"
+      ],
+      "tags": [
+        "definition",
+        "keystone"
+      ],
+      "options": [
+        "Полочками",
+        "Гранями",
+        "Лучами",
+        "Углами"
+      ]
     },
     {
       "id": "T7.Q14",
@@ -770,10 +1491,21 @@
       ],
       "explanation": {
         "quote": "Разложение этой вещи на Ясну в виде «Тарелка» есть разложение этой вещи «По Полочкам». Отсюда русское выражение: «Разложить по полочкам».",
-        "source": { "items": [458, 459], "pdf_page": 54 }
+        "source": {
+          "items": [
+            458,
+            459
+          ],
+          "pdf_page": 54
+        }
       },
-      "source_atoms": ["T7.K5.A7"],
-      "tags": ["etymology", "language"]
+      "source_atoms": [
+        "T7.K5.A7"
+      ],
+      "tags": [
+        "etymology",
+        "language"
+      ]
     },
     {
       "id": "T7.Q15",
@@ -783,91 +1515,303 @@
       "correct": true,
       "explanation": {
         "quote": "Свет и Тьма нераздельны. Они — одно целое. Они — Ясна.",
-        "source": { "items": [424], "pdf_page": 51 }
+        "source": {
+          "items": [
+            424
+          ],
+          "pdf_page": 51
+        }
       },
-      "source_atoms": ["T7.K2.A3"],
-      "tags": ["postulate", "keystone"]
+      "source_atoms": [
+        "T7.K2.A3"
+      ],
+      "tags": [
+        "postulate",
+        "keystone"
+      ]
     },
     {
       "id": "T7.Q16",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "hard",
       "stem": "Линия Борьбы есть Ось _____ — _____ (по числам).",
       "correct": "три и девять",
-      "correct_alternatives": ["3 и 9", "три, девять", "3, 9"],
+      "correct_alternatives": [
+        "3 и 9",
+        "три, девять",
+        "3, 9"
+      ],
       "explanation": {
         "quote": "Линия Борьбы есть Ось три — девять. Линия Единства есть Ось ноль — шесть.",
-        "source": { "items": [428, 429], "pdf_page": 51 }
+        "source": {
+          "items": [
+            428,
+            429
+          ],
+          "pdf_page": 51
+        }
       },
-      "source_atoms": ["T7.K2.A5"],
-      "tags": ["number", "scheme"]
+      "source_atoms": [
+        "T7.K2.A5"
+      ],
+      "tags": [
+        "number",
+        "scheme"
+      ],
+      "options": [
+        "три и девять",
+        "ноль и шесть",
+        "один и семь",
+        "два и восемь"
+      ]
     }
   ],
-
   "rejected": [
-    { "item": 378, "reason": "Перефразировка №377: «Так учит Храм»." },
-    { "item": 379, "reason": "Хронологическая ремарка о возрасте Храмового Учения." },
-    { "item": 380, "reason": "Перефразировка: «Храмовое учение очень-очень-очень давно»." },
-    { "item": 381, "reason": "Сравнительная ремарка о науке." },
-    { "item": 382, "reason": "Связочное «Но.»" },
-    { "item": 383, "reason": "Связочное «Храмовое учение очень отличается от науки»." },
-    { "item": 389, "reason": "Этнографическое замечание про народы — нет атома о Сутках." },
-    { "item": 390, "reason": "Перефразировка №389." },
-    { "item": 391, "reason": "Перефразировка №389: «другие утратили»." },
-    { "item": 393, "reason": "Эмфаза о горестности утраты — литературная." },
-    { "item": 396, "reason": "Эмфаза: «холодно и одиноко»." },
-    { "item": 397, "reason": "Прозаическая ремарка о попытках обрести Новый Храм." },
-    { "item": 398, "reason": "Длинная прозаическая ремарка о расхождении славян по миру." },
-    { "item": 399, "reason": "Прозаическая ремарка о научных учреждениях." },
-    { "item": 400, "reason": "Прозаическая ремарка о собирании знаний." },
-    { "item": 401, "reason": "Сильно повреждённый скан о высших светских заведениях." },
-    { "item": 402, "reason": "Перефразировка №401." },
-    { "item": 403, "reason": "Связочное «Но.»" },
-    { "item": 405, "reason": "Прозаическая ремарка о Храме как «знаниях души и сердца»." },
-    { "item": 408, "reason": "Прозаическая ремарка о «Бобровой Запруде»." },
-    { "item": "409-415", "reason": "Блок об утрате языка и абстрактных понятиях; прозаический материал, частично повреждён." },
-    { "item": 418, "reason": "Подпись к диаграмме о чётных гранях." },
-    { "item": 421, "reason": "Список противостояний по новой нумерации; покрыто T4.K4.A4 и T7.K2.A1." },
-    { "item": 425, "reason": "Конкретизация: Утреннее сражение в третьем времени — покрыто T6.K2.A3." },
-    { "item": 426, "reason": "Конкретизация: Вечернее сражение в девятом времени — покрыто T6.K2.A4." },
-    { "item": 427, "reason": "Связочный вывод про Ось 3-9; покрыто T7.K2.A5." },
-    { "item": 430, "reason": "Перефразировка: оси перечат друг другу — покрыто T4.K2.A5." },
-    { "item": 431, "reason": "Перефразировка: соединение осей = Единство и Борьба — покрыто T4.K2.A4." },
-    { "item": 433, "reason": "Связочный пункт без №." },
-    { "item": 435, "reason": "Прозаическая ремарка об Основах." },
-    { "item": 440, "reason": "Конкретизация Оси Тепла — покрыто T7.K3.A5." },
-    { "item": 441, "reason": "Конкретизация Оси Тепла — покрыто T7.K3.A5." },
-    { "item": 442, "reason": "Конкретизация Тепловой Горизонт — покрыто T7.K3.A5." },
-    { "item": 444, "reason": "Подпись к диаграмме." },
-    { "item": 448, "reason": "Перефразировка №445 о сдвиге." },
-    { "item": 449, "reason": "Длинное описание тепловой Ясны по 12 фазам — литературное расширение T7.K3.A5." },
-    { "item": 453, "reason": "Анонс «о нём речь впереди» — мета." },
-    { "item": "454-456", "reason": "Прозаические ремарки о методе изучения Ясны." },
-    { "item": 460, "reason": "Перефразировка №459." },
-    { "item": 461, "reason": "Введение «Твёрдой Части Ясны» — побочный термин." },
-    { "item": 464, "reason": "Прозаическая ремарка о «Катании Яблочка»." },
-    { "item": 467, "reason": "Прозаическая конкретизация о катании Яблочка." },
-    { "item": 471, "reason": "Прозаическая конкретизация." },
-    { "item": 474, "reason": "Прозаическая конкретизация о здоровом внимании." },
-    { "item": 477, "reason": "Прозаическая ремарка о «древнем мониторе»." },
-    { "item": 478, "reason": "Прозаическая ремарка: «осталось только в сказках»." },
-    { "item": "479-490", "reason": "Полемический блок о картах Таро, Рунах, Академиях, церквах — расширенная литературная критика, без отдельных testable-фактов о Ясне Сутою." },
-    { "item": 492, "reason": "Подведение итога: каждая Полочка имеет номер; покрыто T7.K2.A1." },
-    { "item": 493, "reason": "Подведение итога: «Сутки выложены на Тарелочке»." },
-    { "item": 503, "reason": "Прозаическая ремарка о победе." },
-    { "item": 504, "reason": "Длинный обход 4 точек Креста Веры — литературное расширение T7.K3.A6." },
-    { "item": "505-509", "reason": "Прозаическая интеграция Крестов; покрыто T7.K3 и T7.K4." },
-    { "item": 510, "reason": "Длинный сводный обход 12 фаз через Кресты — литературная медитация." },
-    { "item": 511, "reason": "Повтор №510 с дополнениями." },
-    { "item": 512, "reason": "Прозаическая ремарка: «Теперь — спать»." },
-    { "item": "513-521", "reason": "Личное обращение и полемика об отсутствии Храма; не testable-факты о Ясне Сутою." },
-    { "item": 522, "reason": "Намерение связать Кресты с Надеждой и Любовью; покрыто T7.K5.A1, A2, A3." },
-    { "item": 525, "reason": "Этимологическая ремарка о связи «Надежда» и «Опора»." },
-    { "item": 526, "reason": "Прозаическая конкретизация." },
-    { "item": "529-531", "reason": "Анонс Зеркала Девы; покрыто T7.K5.A10." },
-    { "item": 534, "reason": "Закрытие узла: «зайти на Бобровую Запруду» — служебное." }
+    {
+      "item": 378,
+      "reason": "Перефразировка №377: «Так учит Храм»."
+    },
+    {
+      "item": 379,
+      "reason": "Хронологическая ремарка о возрасте Храмового Учения."
+    },
+    {
+      "item": 380,
+      "reason": "Перефразировка: «Храмовое учение очень-очень-очень давно»."
+    },
+    {
+      "item": 381,
+      "reason": "Сравнительная ремарка о науке."
+    },
+    {
+      "item": 382,
+      "reason": "Связочное «Но.»"
+    },
+    {
+      "item": 383,
+      "reason": "Связочное «Храмовое учение очень отличается от науки»."
+    },
+    {
+      "item": 389,
+      "reason": "Этнографическое замечание про народы — нет атома о Сутках."
+    },
+    {
+      "item": 390,
+      "reason": "Перефразировка №389."
+    },
+    {
+      "item": 391,
+      "reason": "Перефразировка №389: «другие утратили»."
+    },
+    {
+      "item": 393,
+      "reason": "Эмфаза о горестности утраты — литературная."
+    },
+    {
+      "item": 396,
+      "reason": "Эмфаза: «холодно и одиноко»."
+    },
+    {
+      "item": 397,
+      "reason": "Прозаическая ремарка о попытках обрести Новый Храм."
+    },
+    {
+      "item": 398,
+      "reason": "Длинная прозаическая ремарка о расхождении славян по миру."
+    },
+    {
+      "item": 399,
+      "reason": "Прозаическая ремарка о научных учреждениях."
+    },
+    {
+      "item": 400,
+      "reason": "Прозаическая ремарка о собирании знаний."
+    },
+    {
+      "item": 401,
+      "reason": "Сильно повреждённый скан о высших светских заведениях."
+    },
+    {
+      "item": 402,
+      "reason": "Перефразировка №401."
+    },
+    {
+      "item": 403,
+      "reason": "Связочное «Но.»"
+    },
+    {
+      "item": 405,
+      "reason": "Прозаическая ремарка о Храме как «знаниях души и сердца»."
+    },
+    {
+      "item": 408,
+      "reason": "Прозаическая ремарка о «Бобровой Запруде»."
+    },
+    {
+      "item": "409-415",
+      "reason": "Блок об утрате языка и абстрактных понятиях; прозаический материал, частично повреждён."
+    },
+    {
+      "item": 418,
+      "reason": "Подпись к диаграмме о чётных гранях."
+    },
+    {
+      "item": 421,
+      "reason": "Список противостояний по новой нумерации; покрыто T4.K4.A4 и T7.K2.A1."
+    },
+    {
+      "item": 425,
+      "reason": "Конкретизация: Утреннее сражение в третьем времени — покрыто T6.K2.A3."
+    },
+    {
+      "item": 426,
+      "reason": "Конкретизация: Вечернее сражение в девятом времени — покрыто T6.K2.A4."
+    },
+    {
+      "item": 427,
+      "reason": "Связочный вывод про Ось 3-9; покрыто T7.K2.A5."
+    },
+    {
+      "item": 430,
+      "reason": "Перефразировка: оси перечат друг другу — покрыто T4.K2.A5."
+    },
+    {
+      "item": 431,
+      "reason": "Перефразировка: соединение осей = Единство и Борьба — покрыто T4.K2.A4."
+    },
+    {
+      "item": 433,
+      "reason": "Связочный пункт без №."
+    },
+    {
+      "item": 435,
+      "reason": "Прозаическая ремарка об Основах."
+    },
+    {
+      "item": 440,
+      "reason": "Конкретизация Оси Тепла — покрыто T7.K3.A5."
+    },
+    {
+      "item": 441,
+      "reason": "Конкретизация Оси Тепла — покрыто T7.K3.A5."
+    },
+    {
+      "item": 442,
+      "reason": "Конкретизация Тепловой Горизонт — покрыто T7.K3.A5."
+    },
+    {
+      "item": 444,
+      "reason": "Подпись к диаграмме."
+    },
+    {
+      "item": 448,
+      "reason": "Перефразировка №445 о сдвиге."
+    },
+    {
+      "item": 449,
+      "reason": "Длинное описание тепловой Ясны по 12 фазам — литературное расширение T7.K3.A5."
+    },
+    {
+      "item": 453,
+      "reason": "Анонс «о нём речь впереди» — мета."
+    },
+    {
+      "item": "454-456",
+      "reason": "Прозаические ремарки о методе изучения Ясны."
+    },
+    {
+      "item": 460,
+      "reason": "Перефразировка №459."
+    },
+    {
+      "item": 461,
+      "reason": "Введение «Твёрдой Части Ясны» — побочный термин."
+    },
+    {
+      "item": 464,
+      "reason": "Прозаическая ремарка о «Катании Яблочка»."
+    },
+    {
+      "item": 467,
+      "reason": "Прозаическая конкретизация о катании Яблочка."
+    },
+    {
+      "item": 471,
+      "reason": "Прозаическая конкретизация."
+    },
+    {
+      "item": 474,
+      "reason": "Прозаическая конкретизация о здоровом внимании."
+    },
+    {
+      "item": 477,
+      "reason": "Прозаическая ремарка о «древнем мониторе»."
+    },
+    {
+      "item": 478,
+      "reason": "Прозаическая ремарка: «осталось только в сказках»."
+    },
+    {
+      "item": "479-490",
+      "reason": "Полемический блок о картах Таро, Рунах, Академиях, церквах — расширенная литературная критика, без отдельных testable-фактов о Ясне Сутою."
+    },
+    {
+      "item": 492,
+      "reason": "Подведение итога: каждая Полочка имеет номер; покрыто T7.K2.A1."
+    },
+    {
+      "item": 493,
+      "reason": "Подведение итога: «Сутки выложены на Тарелочке»."
+    },
+    {
+      "item": 503,
+      "reason": "Прозаическая ремарка о победе."
+    },
+    {
+      "item": 504,
+      "reason": "Длинный обход 4 точек Креста Веры — литературное расширение T7.K3.A6."
+    },
+    {
+      "item": "505-509",
+      "reason": "Прозаическая интеграция Крестов; покрыто T7.K3 и T7.K4."
+    },
+    {
+      "item": 510,
+      "reason": "Длинный сводный обход 12 фаз через Кресты — литературная медитация."
+    },
+    {
+      "item": 511,
+      "reason": "Повтор №510 с дополнениями."
+    },
+    {
+      "item": 512,
+      "reason": "Прозаическая ремарка: «Теперь — спать»."
+    },
+    {
+      "item": "513-521",
+      "reason": "Личное обращение и полемика об отсутствии Храма; не testable-факты о Ясне Сутою."
+    },
+    {
+      "item": 522,
+      "reason": "Намерение связать Кресты с Надеждой и Любовью; покрыто T7.K5.A1, A2, A3."
+    },
+    {
+      "item": 525,
+      "reason": "Этимологическая ремарка о связи «Надежда» и «Опора»."
+    },
+    {
+      "item": 526,
+      "reason": "Прозаическая конкретизация."
+    },
+    {
+      "item": "529-531",
+      "reason": "Анонс Зеркала Девы; покрыто T7.K5.A10."
+    },
+    {
+      "item": 534,
+      "reason": "Закрытие узла: «зайти на Бобровую Запруду» — служебное."
+    }
   ],
-
   "stats": {
     "items_in_range": 158,
     "atoms_count": 41,
@@ -879,19 +1823,29 @@
     "coverage_pct": 40,
     "keystone_count": 32,
     "kind_distribution": {
-      "postulate": 13, "name": 8, "list": 7, "fact": 4,
-      "scheme": 3, "etymology": 2, "number": 2, "rule": 1, "definition": 1
+      "postulate": 13,
+      "name": 8,
+      "list": 7,
+      "fact": 4,
+      "scheme": 3,
+      "etymology": 2,
+      "number": 2,
+      "rule": 1,
+      "definition": 1
     }
   },
   "changelog": [
-    { "version": "1.1.1", "changes": [
-      "Initial T7: 5 категорий (Храмовое Учение / Нумерация и Опорные Числа / Три Креста / Имена Крестов / Вера-Надежда-Любовь и Полочки)",
-      "Самый концептуально насыщенный узел (158 пунктов на 14 страницах)",
-      "28 keystone-атомов — рекорд по плотности keystone в одной теме",
-      "Главные находки: Три Креста как центральная конструкция Ясны; София = Ясна = Числа = Вера+Надежда+Любовь",
-      "Имена Опорного (4 имени), Теплового (8 имён) и Левого (5 имён) крестов вынесены в отдельные list-атомы",
-      "Полочки и Яблочко на Блюдечке — две корпусные метафоры, ключ к русским выражениям",
-      "Coverage 41% — много полемики и медитативных обходов 12 фаз; все Ясна-факты атомизированы"
-    ]}
+    {
+      "version": "1.1.1",
+      "changes": [
+        "Initial T7: 5 категорий (Храмовое Учение / Нумерация и Опорные Числа / Три Креста / Имена Крестов / Вера-Надежда-Любовь и Полочки)",
+        "Самый концептуально насыщенный узел (158 пунктов на 14 страницах)",
+        "28 keystone-атомов — рекорд по плотности keystone в одной теме",
+        "Главные находки: Три Креста как центральная конструкция Ясны; София = Ясна = Числа = Вера+Надежда+Любовь",
+        "Имена Опорного (4 имени), Теплового (8 имён) и Левого (5 имён) крестов вынесены в отдельные list-атомы",
+        "Полочки и Яблочко на Блюдечке — две корпусные метафоры, ключ к русским выражениям",
+        "Coverage 41% — много полемики и медитативных обходов 12 фаз; все Ясна-факты атомизированы"
+      ]
+    }
   ]
 }

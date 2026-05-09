@@ -6,14 +6,16 @@
     "id": "T2",
     "slug": "sutki-chertyozh",
     "title": "Описание суток. Базовый чертёж",
-    "alt_titles": ["Чертёж суток", "Шестиугольник"],
+    "alt_titles": [
+      "Чертёж суток",
+      "Шестиугольник"
+    ],
     "items_range": "42-107",
     "pdf_pages": "7-13",
     "source_file": "Сутки/03_узел_02_описание_сутoк_базовый_чертёж.md",
     "summary": "Узел берёт сутки как «вещь, имеющую размеры во времени» и шаг за шагом строит чертёж: горизонтальная линия → круг с горизонтом → круг с 4 рисками → 12 названных времён → шестиугольник, чьи 6 сторон — долгие времена и 6 углов — короткие переходы.",
     "themes_in_partia": true
   },
-
   "categories": [
     {
       "id": "T2.K1",
@@ -26,8 +28,17 @@
           "kind": "definition",
           "term": "Сутки",
           "quote": "Длительность суток есть время обращения земного шара вокруг своей оси.",
-          "source": { "items": [42], "pdf_page": 7 },
-          "supports_questions": ["single-choice", "fill-blank", "true-false"]
+          "source": {
+            "items": [
+              42
+            ],
+            "pdf_page": 7
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T2.K1.A2",
@@ -36,80 +47,170 @@
           "quote": "Продолжительность суток равна двадцати четырём часам.",
           "value": 24,
           "unit": "часа",
-          "source": { "items": [42], "pdf_page": 7 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "fill-blank"]
+          "source": {
+            "items": [
+              42
+            ],
+            "pdf_page": 7
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank"
+          ]
         },
         {
           "id": "T2.K1.A3",
           "kind": "etymology",
           "term": "Сутки",
           "quote": "Сами сутки родственно словам «стыка», «состыковать», «столкновение», «соткать».",
-          "source": { "items": [42], "pdf_page": 7 },
-          "meta": {
-            "related_words": ["стыка", "состыковать", "столкновение", "соткать"],
-            "is_keystone": true,
-            "links": { "leads_to": ["T2.K2.A2"] }
+          "source": {
+            "items": [
+              42
+            ],
+            "pdf_page": 7
           },
-          "supports_questions": ["single-choice", "match-pair", "multi-choice"]
+          "meta": {
+            "related_words": [
+              "стыка",
+              "состыковать",
+              "столкновение",
+              "соткать"
+            ],
+            "is_keystone": true,
+            "links": {
+              "leads_to": [
+                "T2.K2.A2"
+              ]
+            }
+          },
+          "supports_questions": [
+            "single-choice",
+            "match-pair",
+            "multi-choice"
+          ]
         },
         {
           "id": "T2.K1.A4",
           "kind": "definition",
           "term": "Сутки",
           "quote": "Сутки состоят из двух больших состыкованных частей: дня и ночи.",
-          "source": { "items": [42], "pdf_page": 7 },
-          "supports_questions": ["single-choice", "fill-blank", "true-false"]
+          "source": {
+            "items": [
+              42
+            ],
+            "pdf_page": 7
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T2.K1.A5",
           "kind": "fact",
           "quote": "Длительность дня и ночи в сутках зависит от времени года.",
-          "source": { "items": [42], "pdf_page": 7 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              42
+            ],
+            "pdf_page": 7
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         },
         {
           "id": "T2.K1.A6",
           "kind": "list",
           "term": "Три части дня",
           "quote": "День… мы можем поделить на три части: начало дня… всего времени солнца, затем середин… сам день, и в конце дня мы выделяем время заката солнца.",
-          "items_list": ["начало дня (восход)", "сам день", "закат солнца"],
-          "source": { "items": [42], "pdf_page": 7 },
-          "supports_questions": ["multi-choice", "single-choice"]
+          "items_list": [
+            "начало дня (восход)",
+            "сам день",
+            "закат солнца"
+          ],
+          "source": {
+            "items": [
+              42
+            ],
+            "pdf_page": 7
+          },
+          "supports_questions": [
+            "multi-choice",
+            "single-choice"
+          ]
         },
         {
           "id": "T2.K1.A7",
           "kind": "list",
           "term": "Три части ночи",
           "quote": "Ночь мы тоже можем поделить на три части: вечерние сумерки, сама ночь, или тьма, и утренняя заря.",
-          "items_list": ["вечерние сумерки", "сама ночь (тьма)", "утренняя заря"],
-          "source": { "items": [42], "pdf_page": 7 },
-          "supports_questions": ["multi-choice", "single-choice"]
+          "items_list": [
+            "вечерние сумерки",
+            "сама ночь (тьма)",
+            "утренняя заря"
+          ],
+          "source": {
+            "items": [
+              42
+            ],
+            "pdf_page": 7
+          },
+          "supports_questions": [
+            "multi-choice",
+            "single-choice"
+          ]
         },
         {
           "id": "T2.K1.A8",
           "kind": "fact",
           "quote": "День начинается с выходом солнца из-за горизонта на востоке и заканчивается с закатом его за горизонт на западе.",
-          "source": { "items": [42], "pdf_page": 7 },
-          "supports_questions": ["true-false", "single-choice"]
+          "source": {
+            "items": [
+              42
+            ],
+            "pdf_page": 7
+          },
+          "supports_questions": [
+            "true-false",
+            "single-choice"
+          ]
         },
         {
           "id": "T2.K1.A9",
           "kind": "fact",
           "quote": "Ночь начинается с заката солнца за горизонт на западе и заканчивается с выходом его из-за горизонта на востоке.",
-          "source": { "items": [42], "pdf_page": 7 },
-          "supports_questions": ["true-false", "single-choice"]
+          "source": {
+            "items": [
+              42
+            ],
+            "pdf_page": 7
+          },
+          "supports_questions": [
+            "true-false",
+            "single-choice"
+          ]
         },
         {
           "id": "T2.K1.A10",
           "kind": "rule",
           "quote": "Знания же о внутреннем устройстве суток удобно показать в виде чертежа.",
-          "source": { "items": [47], "pdf_page": 7 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              47
+            ],
+            "pdf_page": 7
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         }
       ]
     },
-
     {
       "id": "T2.K2",
       "slug": "gorizont-i-chetyre-riski",
@@ -123,8 +224,16 @@
           "quote": "Сутки состоят из двух больших частей: дня и ночи. Отделён день от ночи двумя точками: точкой выхода солнца из-за горизонта и точкой захода солнца за горизонт.",
           "value": 2,
           "unit": "точки горизонта",
-          "source": { "items": [48], "pdf_page": 7 },
-          "supports_questions": ["single-choice", "fill-blank"]
+          "source": {
+            "items": [
+              48
+            ],
+            "pdf_page": 7
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank"
+          ]
         },
         {
           "id": "T2.K2.A2",
@@ -132,12 +241,24 @@
           "term": "Горизонт",
           "alt_name": "Линия противостояния и линия стыка",
           "quote": "Эта линия есть линия противостояния дня и ночи. Или эта линия есть линия стыка дня и ночи.",
-          "source": { "items": [52], "pdf_page": 8 },
+          "source": {
+            "items": [
+              52
+            ],
+            "pdf_page": 8
+          },
           "meta": {
             "is_keystone": true,
-            "links": { "see_also": ["T2.K1.A3"] }
+            "links": {
+              "see_also": [
+                "T2.K1.A3"
+              ]
+            }
           },
-          "supports_questions": ["single-choice", "match-pair"]
+          "supports_questions": [
+            "single-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T2.K2.A3",
@@ -145,38 +266,82 @@
           "term_a": "день",
           "term_b": "ночь",
           "quote": "Солнце над линией — это день, и солнце под этой линией — ночь.",
-          "source": { "items": [51], "pdf_page": 8 },
-          "supports_questions": ["match-pair", "single-choice"]
+          "source": {
+            "items": [
+              51
+            ],
+            "pdf_page": 8
+          },
+          "supports_questions": [
+            "match-pair",
+            "single-choice"
+          ]
         },
         {
           "id": "T2.K2.A4",
           "kind": "fact",
           "quote": "На чертеже точку выхода солнца из-за горизонта поместим слева, а точку захода солнца — справа.",
-          "source": { "items": [49], "pdf_page": 7 },
-          "supports_questions": ["single-choice", "true-false"]
+          "source": {
+            "items": [
+              49
+            ],
+            "pdf_page": 7
+          },
+          "supports_questions": [
+            "single-choice",
+            "true-false"
+          ]
         },
         {
           "id": "T2.K2.A5",
           "kind": "fact",
           "quote": "Солнце восходит слева, а заходит справа.",
-          "source": { "items": [50], "pdf_page": 7 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              50
+            ],
+            "pdf_page": 7
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         },
         {
           "id": "T2.K2.A6",
           "kind": "rule",
           "quote": "Будет удобнее изобразить сутки не просто одной только линией, отделяющей день от ночи, а изобразить их в виде круга, разделённого горизонтальной чертой.",
-          "source": { "items": [56], "pdf_page": 8 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              56
+            ],
+            "pdf_page": 8
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         },
         {
           "id": "T2.K2.A7",
           "kind": "definition",
           "term": "Круг чертежа",
           "quote": "Круг будет изображать путь солнца по небу, а горизонтальная будет разделять путь солнца, и заодно она разделит весь путь солнца на дневной путь, над землёй, и на путь ночной, под землёй.",
-          "source": { "items": [57], "pdf_page": 8 },
-          "meta": { "links": { "leads_to": ["T2.K2.A11"] } },
-          "supports_questions": ["fill-blank", "single-choice"]
+          "source": {
+            "items": [
+              57
+            ],
+            "pdf_page": 8
+          },
+          "meta": {
+            "links": {
+              "leads_to": [
+                "T2.K2.A11"
+              ]
+            }
+          },
+          "supports_questions": [
+            "fill-blank",
+            "single-choice"
+          ]
         },
         {
           "id": "T2.K2.A8",
@@ -184,16 +349,30 @@
           "term_a": "видимый путь над землёй",
           "term_b": "невидимый путь под землёй",
           "quote": "Разделит весь путь солнца на дневной путь, над землёй, и на путь ночной, под землёй.",
-          "source": { "items": [57], "pdf_page": 8 },
-          "supports_questions": ["match-pair"]
+          "source": {
+            "items": [
+              57
+            ],
+            "pdf_page": 8
+          },
+          "supports_questions": [
+            "match-pair"
+          ]
         },
         {
           "id": "T2.K2.A9",
           "kind": "definition",
           "term": "Риска",
           "quote": "Поставим риску на этом круге, отделяющую от всего времени дня время восхода солнца, время подъёма солнца на небо.",
-          "source": { "items": [58], "pdf_page": 8 },
-          "supports_questions": ["single-choice"]
+          "source": {
+            "items": [
+              58
+            ],
+            "pdf_page": 8
+          },
+          "supports_questions": [
+            "single-choice"
+          ]
         },
         {
           "id": "T2.K2.A10",
@@ -202,59 +381,126 @@
           "quote": "Поставим риску, отделяющую… Поставим ещё одну риску… Теперь на полукруге ночи тоже поставим две риски.",
           "value": 4,
           "unit": "риски (2 дневных + 2 ночных)",
-          "source": { "items": [58, 59, 60], "pdf_page": 8 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "fill-blank"]
+          "source": {
+            "items": [
+              58,
+              59,
+              60
+            ],
+            "pdf_page": 8
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank"
+          ]
         },
         {
           "id": "T2.K2.A11",
           "kind": "definition",
           "term": "Конец подъёма",
           "quote": "Концом подъёма можно считать то время, когда солнце начинает больше смещаться к западу, чем подыматься вверх.",
-          "source": { "items": [65], "pdf_page": 9 },
-          "supports_questions": ["fill-blank", "single-choice"]
+          "source": {
+            "items": [
+              65
+            ],
+            "pdf_page": 9
+          },
+          "supports_questions": [
+            "fill-blank",
+            "single-choice"
+          ]
         },
         {
           "id": "T2.K2.A12",
           "kind": "definition",
           "term": "Начало спуска",
           "quote": "Началом спуска солнца можно считать то время, когда солнце начинает больше спускаться вниз, чем смещаться к западу.",
-          "source": { "items": [66], "pdf_page": 9 },
-          "supports_questions": ["fill-blank", "single-choice"]
+          "source": {
+            "items": [
+              66
+            ],
+            "pdf_page": 9
+          },
+          "supports_questions": [
+            "fill-blank",
+            "single-choice"
+          ]
         },
         {
           "id": "T2.K2.A13",
           "kind": "rule",
           "quote": "Главное то, что эти перемены — есть. И пока этого достаточно.",
-          "source": { "items": [67], "pdf_page": 9 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              67
+            ],
+            "pdf_page": 9
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         },
         {
           "id": "T2.K2.A14",
           "kind": "fact",
           "quote": "В древности концом суток и началом суток следующих многие народы считали закат солнца за горизонт на западе. Некоторые народы началом и концом суток считали выход солнца из-за горизонта на востоке. Сейчас началом и концом суток принято время полудня.",
-          "source": { "items": [68], "pdf_page": 9 },
-          "supports_questions": ["multi-choice", "single-choice"]
+          "source": {
+            "items": [
+              68
+            ],
+            "pdf_page": 9
+          },
+          "supports_questions": [
+            "multi-choice",
+            "single-choice"
+          ]
         },
         {
           "id": "T2.K2.A15",
           "kind": "rule",
           "quote": "Сейчас же для себя назначим началом и концом суток время заката солнца за горизонт на западе.",
-          "source": { "items": [69], "pdf_page": 9 },
-          "meta": { "is_keystone": true, "links": { "leads_to": ["T2.K3.A5"] } },
-          "supports_questions": ["single-choice", "true-false"]
+          "source": {
+            "items": [
+              69
+            ],
+            "pdf_page": 9
+          },
+          "meta": {
+            "is_keystone": true,
+            "links": {
+              "leads_to": [
+                "T2.K3.A5"
+              ]
+            }
+          },
+          "supports_questions": [
+            "single-choice",
+            "true-false"
+          ]
         },
         {
           "id": "T2.K2.A16",
           "kind": "fact",
           "quote": "Линия горизонта… идёт довольно быстро. И там, и там на это нужно меньше, по нескольких минут.",
-          "source": { "items": [82], "pdf_page": 11 },
-          "meta": { "notes": "Прохождение солнцем линии горизонта — короткое время в несколько минут (восток и запад)" },
-          "supports_questions": ["true-false", "single-choice"]
+          "source": {
+            "items": [
+              82
+            ],
+            "pdf_page": 11
+          },
+          "meta": {
+            "notes": "Прохождение солнцем линии горизонта — короткое время в несколько минут (восток и запад)"
+          },
+          "supports_questions": [
+            "true-false",
+            "single-choice"
+          ]
         }
       ]
     },
-
     {
       "id": "T2.K3",
       "slug": "dvenadtsat-vremyon",
@@ -265,17 +511,37 @@
           "id": "T2.K3.A1",
           "kind": "postulate",
           "quote": "Сутки есть двенадцать времён.",
-          "source": { "items": [89], "pdf_page": 12 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "true-false"]
+          "source": {
+            "items": [
+              89
+            ],
+            "pdf_page": 12
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T2.K3.A2",
           "kind": "postulate",
           "quote": "Сутки есть чередование шести долгих и шести коротких времён.",
-          "source": { "items": [92], "pdf_page": 12 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "single-choice"]
+          "source": {
+            "items": [
+              92
+            ],
+            "pdf_page": 12
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "single-choice"
+          ]
         },
         {
           "id": "T2.K3.A3",
@@ -284,8 +550,16 @@
           "quote": "Сутки есть чередование шести долгих и шести коротких времён.",
           "value": 6,
           "unit": "долгих времён",
-          "source": { "items": [92], "pdf_page": 12 },
-          "supports_questions": ["single-choice", "fill-blank"]
+          "source": {
+            "items": [
+              92
+            ],
+            "pdf_page": 12
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank"
+          ]
         },
         {
           "id": "T2.K3.A4",
@@ -294,8 +568,16 @@
           "quote": "Сутки есть чередование шести долгих и шести коротких времён.",
           "value": 6,
           "unit": "коротких времён",
-          "source": { "items": [92], "pdf_page": 12 },
-          "supports_questions": ["single-choice", "fill-blank"]
+          "source": {
+            "items": [
+              92
+            ],
+            "pdf_page": 12
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank"
+          ]
         },
         {
           "id": "T2.K3.A5",
@@ -317,46 +599,96 @@
             "Спуск к земле"
           ],
           "is_cyclic": true,
-          "source": { "items": [72, 73, 74], "pdf_page": 10 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["order", "single-choice"]
+          "source": {
+            "items": [
+              72,
+              73,
+              74
+            ],
+            "pdf_page": 10
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "order",
+            "single-choice"
+          ]
         },
         {
           "id": "T2.K3.A6",
           "kind": "fact",
           "quote": "Откуда солнце ушло, туда и вернулось. Поэтому тринадцатый пункт в этом списке — это есть пункт первый. Правда, надо понимать, что это пункт первый следующих суток, и именно следующих суток.",
-          "source": { "items": [73], "pdf_page": 10 },
-          "supports_questions": ["true-false", "single-choice"]
+          "source": {
+            "items": [
+              73
+            ],
+            "pdf_page": 10
+          },
+          "supports_questions": [
+            "true-false",
+            "single-choice"
+          ]
         },
         {
           "id": "T2.K3.A7",
           "kind": "fact",
           "quote": "Каждое время имеет своё собственное свойство.",
-          "source": { "items": [93], "pdf_page": 12 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              93
+            ],
+            "pdf_page": 12
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         },
         {
           "id": "T2.K3.A8",
           "kind": "definition",
           "term": "Долгое время",
           "quote": "Все долгие времена сутки есть времена медленных изменений общей обстановки.",
-          "source": { "items": [95], "pdf_page": 12 },
-          "supports_questions": ["match-pair", "fill-blank"]
+          "source": {
+            "items": [
+              95
+            ],
+            "pdf_page": 12
+          },
+          "supports_questions": [
+            "match-pair",
+            "fill-blank"
+          ]
         },
         {
           "id": "T2.K3.A9",
           "kind": "definition",
           "term": "Короткое время",
           "quote": "Все короткие времена сутки есть времена быстрых изменений общей обстановки, и они есть короткие переходные времена от одного долгого времени к следующему.",
-          "source": { "items": [96], "pdf_page": 12 },
-          "supports_questions": ["match-pair", "fill-blank"]
+          "source": {
+            "items": [
+              96
+            ],
+            "pdf_page": 12
+          },
+          "supports_questions": [
+            "match-pair",
+            "fill-blank"
+          ]
         },
         {
           "id": "T2.K3.A10",
           "kind": "fact",
           "quote": "Все короткие времена сутки отличаются друг от друга смыслом происходящих в них событий.",
-          "source": { "items": [97], "pdf_page": 12 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              97
+            ],
+            "pdf_page": 12
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         },
         {
           "id": "T2.K3.A11",
@@ -364,9 +696,23 @@
           "term_a": "долгое время",
           "term_b": "короткое время",
           "quote": "Сутки состоят из чередующихся долгих времён переходов солнца и коротких времён перемен.",
-          "source": { "items": [83], "pdf_page": 11 },
-          "meta": { "links": { "see_also": ["T2.K3.A8", "T2.K3.A9"] } },
-          "supports_questions": ["match-pair"]
+          "source": {
+            "items": [
+              83
+            ],
+            "pdf_page": 11
+          },
+          "meta": {
+            "links": {
+              "see_also": [
+                "T2.K3.A8",
+                "T2.K3.A9"
+              ]
+            }
+          },
+          "supports_questions": [
+            "match-pair"
+          ]
         },
         {
           "id": "T2.K3.A12",
@@ -387,9 +733,25 @@
             "Заход Солнца",
             "(закрытие — начало новых суток)"
           ],
-          "source": { "items": [99], "pdf_page": 12 },
-          "meta": { "is_keystone": true, "links": { "see_also": ["T2.K3.A5"] } },
-          "supports_questions": ["multi-choice", "match-pair", "single-choice"]
+          "source": {
+            "items": [
+              99
+            ],
+            "pdf_page": 12
+          },
+          "meta": {
+            "is_keystone": true,
+            "links": {
+              "see_also": [
+                "T2.K3.A5"
+              ]
+            }
+          },
+          "supports_questions": [
+            "multi-choice",
+            "match-pair",
+            "single-choice"
+          ]
         },
         {
           "id": "T2.K3.A13",
@@ -410,20 +772,52 @@
             "Вечерний Закат: «Дневное красное солнце клонится к земле. Всё кругом успокаивается.»",
             "Заход Солнца: «Солнце коснулось горизонта на западе. Солнечный диск проходит линию горизонта. Когда солнце за горизонт зайдёт полностью, начнутся новые сутки.»"
           ],
-          "source": { "items": ["87.1", "87.2", "87.3", "87.4", "87.5", "87.6", "87.7", "87.8", "87.9", "87.10", "87.11", "87.12"], "pdf_page": 11 },
-          "meta": { "links": { "see_also": ["T2.K3.A5", "T2.K3.A12"] } },
-          "supports_questions": ["match-pair", "single-choice"]
+          "source": {
+            "items": [
+              "87.1",
+              "87.2",
+              "87.3",
+              "87.4",
+              "87.5",
+              "87.6",
+              "87.7",
+              "87.8",
+              "87.9",
+              "87.10",
+              "87.11",
+              "87.12"
+            ],
+            "pdf_page": 11
+          },
+          "meta": {
+            "links": {
+              "see_also": [
+                "T2.K3.A5",
+                "T2.K3.A12"
+              ]
+            }
+          },
+          "supports_questions": [
+            "match-pair",
+            "single-choice"
+          ]
         },
         {
           "id": "T2.K3.A14",
           "kind": "fact",
           "quote": "Времена двух ночных перемен тоже коротки.",
-          "source": { "items": [78], "pdf_page": 11 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              78
+            ],
+            "pdf_page": 11
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         }
       ]
     },
-
     {
       "id": "T2.K4",
       "slug": "shestiugolnik",
@@ -435,30 +829,63 @@
           "kind": "scheme",
           "term": "Шестиугольник суток",
           "quote": "Теперь на нашем чертеже соединим все риски и точки на линии горизонта прямыми линиями. Получится шестиугольник.",
-          "source": { "items": [100], "pdf_page": 13 },
-          "meta": { "is_keystone": true, "references_illustration": "T2.I4" },
-          "supports_questions": ["single-choice", "fill-blank"]
+          "source": {
+            "items": [
+              100
+            ],
+            "pdf_page": 13
+          },
+          "meta": {
+            "is_keystone": true,
+            "references_illustration": "T2.I4"
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank"
+          ]
         },
         {
           "id": "T2.K4.A2",
           "kind": "rule",
           "quote": "Во всех долгих временах обстановка изменяется плавно, постепенно, или преимущественно, поэтому теперь все долгие времена будут изображены отрезками прямой линии.",
-          "source": { "items": [101], "pdf_page": 13 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              101
+            ],
+            "pdf_page": 13
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         },
         {
           "id": "T2.K4.A3",
           "kind": "rule",
           "quote": "А все короткие времена, в которых происходят все резкие изменения обстановки, или переломы, в нашем чертеже тоже будут изображены переломами — углами шестиугольника.",
-          "source": { "items": [102], "pdf_page": 13 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              102
+            ],
+            "pdf_page": 13
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         },
         {
           "id": "T2.K4.A4",
           "kind": "fact",
           "quote": "Чертёж суток теперь есть шестиугольник, поделённый на две половины горизонтальной линией.",
-          "source": { "items": [104], "pdf_page": 13 },
-          "supports_questions": ["true-false", "fill-blank"]
+          "source": {
+            "items": [
+              104
+            ],
+            "pdf_page": 13
+          },
+          "supports_questions": [
+            "true-false",
+            "fill-blank"
+          ]
         },
         {
           "id": "T2.K4.A5",
@@ -467,9 +894,23 @@
           "quote": "Шесть сторон этого шестиугольника изображают шесть долгих времён.",
           "value": 6,
           "unit": "сторон шестиугольника = 6 долгих времён",
-          "source": { "items": [105], "pdf_page": 13 },
-          "meta": { "links": { "see_also": ["T2.K3.A3"] } },
-          "supports_questions": ["single-choice", "fill-blank"]
+          "source": {
+            "items": [
+              105
+            ],
+            "pdf_page": 13
+          },
+          "meta": {
+            "links": {
+              "see_also": [
+                "T2.K3.A3"
+              ]
+            }
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank"
+          ]
         },
         {
           "id": "T2.K4.A6",
@@ -478,21 +919,41 @@
           "quote": "Шесть его углов изображают шесть коротких времён. Это есть шесть переломов — переходов от одного долгого времени к следующему. Шесть перемен.",
           "value": 6,
           "unit": "углов шестиугольника = 6 коротких времён",
-          "source": { "items": [106], "pdf_page": 13 },
-          "meta": { "links": { "see_also": ["T2.K3.A4"] } },
-          "supports_questions": ["single-choice", "fill-blank"]
+          "source": {
+            "items": [
+              106
+            ],
+            "pdf_page": 13
+          },
+          "meta": {
+            "links": {
+              "see_also": [
+                "T2.K3.A4"
+              ]
+            }
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank"
+          ]
         },
         {
           "id": "T2.K4.A7",
           "kind": "fact",
           "quote": "Вот таким получилось описание суток, и таким получился чертёж.",
-          "source": { "items": [107], "pdf_page": 14 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              107
+            ],
+            "pdf_page": 14
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         }
       ]
     }
   ],
-
   "illustrations": [
     {
       "id": "T2.I1",
@@ -500,8 +961,19 @@
       "pdf_page": 8,
       "code": "V-001",
       "caption": "Горизонтальная линия (горизонт / земля); над ней — небо; «Восток» с восходящим солнцем — слева; «Запад» с заходящим солнцем — справа.",
-      "source": { "items": [48, 49, 50, 51], "pdf_page": 8 },
-      "use_cases": ["theme-cover", "explainer"]
+      "source": {
+        "items": [
+          48,
+          49,
+          50,
+          51
+        ],
+        "pdf_page": 8
+      },
+      "use_cases": [
+        "theme-cover",
+        "explainer"
+      ]
     },
     {
       "id": "T2.I2",
@@ -509,8 +981,18 @@
       "pdf_page": 8,
       "code": "V-002",
       "caption": "Круг, разделённый горизонтальной чертой. Верхняя половина — «Видимый путь над землёй». Нижняя — «Невидимый путь под землёй».",
-      "source": { "items": [56, 57, 58], "pdf_page": 8 },
-      "use_cases": ["question-illustration", "explainer"]
+      "source": {
+        "items": [
+          56,
+          57,
+          58
+        ],
+        "pdf_page": 8
+      },
+      "use_cases": [
+        "question-illustration",
+        "explainer"
+      ]
     },
     {
       "id": "T2.I3",
@@ -518,8 +1000,20 @@
       "pdf_page": 9,
       "code": "V-003",
       "caption": "Круг с горизонтом и четырьмя рисками: «Конец подъёма», «Начало спуска», «Конец сумерек», «Начало зари».",
-      "source": { "items": [58, 59, 60, 61, 62], "pdf_page": 9 },
-      "use_cases": ["question-illustration", "explainer"]
+      "source": {
+        "items": [
+          58,
+          59,
+          60,
+          61,
+          62
+        ],
+        "pdf_page": 9
+      },
+      "use_cases": [
+        "question-illustration",
+        "explainer"
+      ]
     },
     {
       "id": "T2.I4",
@@ -527,11 +1021,24 @@
       "pdf_page": 13,
       "code": "V-004",
       "caption": "Шестиугольник с горизонтальной линией через середину. Шесть сторон — 6 долгих времён; шесть углов — 6 коротких времён.",
-      "source": { "items": [100, 101, 102, 103, 104, 105, 106], "pdf_page": 13 },
-      "use_cases": ["theme-cover", "question-illustration"]
+      "source": {
+        "items": [
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106
+        ],
+        "pdf_page": 13
+      },
+      "use_cases": [
+        "theme-cover",
+        "question-illustration"
+      ]
     }
   ],
-
   "questions": [
     {
       "id": "T2.Q1",
@@ -539,30 +1046,65 @@
       "difficulty": "easy",
       "stem": "Скольким часам равна продолжительность суток?",
       "correct": "24",
-      "options": ["12", "18", "24", "60"],
+      "options": [
+        "12",
+        "18",
+        "24",
+        "60"
+      ],
       "explanation": {
         "quote": "Продолжительность суток равна двадцати четырём часам.",
-        "source": { "items": [42], "pdf_page": 7 }
+        "source": {
+          "items": [
+            42
+          ],
+          "pdf_page": 7
+        }
       },
-      "source_atoms": ["T2.K1.A2"],
-      "tags": ["number", "core"]
+      "source_atoms": [
+        "T2.K1.A2"
+      ],
+      "tags": [
+        "number",
+        "core"
+      ]
     },
     {
       "id": "T2.Q2",
       "type": "multi-choice",
       "difficulty": "medium",
       "stem": "Каким словам родственно слово «сутки» по книге?",
-      "correct": ["стыка", "состыковать", "столкновение", "соткать"],
+      "correct": [
+        "стыка",
+        "состыковать",
+        "столкновение",
+        "соткать"
+      ],
       "options": [
-        "стыка", "состыковать", "столкновение", "соткать",
-        "сутулый", "судьба", "сухой"
+        "стыка",
+        "состыковать",
+        "столкновение",
+        "соткать",
+        "сутулый",
+        "судьба",
+        "сухой"
       ],
       "explanation": {
         "quote": "Сами сутки родственно словам «стыка», «состыковать», «столкновение», «соткать».",
-        "source": { "items": [42], "pdf_page": 7 }
+        "source": {
+          "items": [
+            42
+          ],
+          "pdf_page": 7
+        }
       },
-      "source_atoms": ["T2.K1.A3"],
-      "tags": ["etymology", "list"]
+      "source_atoms": [
+        "T2.K1.A3"
+      ],
+      "tags": [
+        "etymology",
+        "list"
+      ]
     },
     {
       "id": "T2.Q3",
@@ -578,10 +1120,19 @@
       ],
       "explanation": {
         "quote": "Сутки состоят из двух больших состыкованных частей: дня и ночи.",
-        "source": { "items": [42], "pdf_page": 7 }
+        "source": {
+          "items": [
+            42
+          ],
+          "pdf_page": 7
+        }
       },
-      "source_atoms": ["T2.K1.A4"],
-      "tags": ["definition"]
+      "source_atoms": [
+        "T2.K1.A4"
+      ],
+      "tags": [
+        "definition"
+      ]
     },
     {
       "id": "T2.Q4",
@@ -597,10 +1148,19 @@
       ],
       "explanation": {
         "quote": "Отделён день от ночи двумя точками: точкой выхода солнца из-за горизонта и точкой захода солнца за горизонт.",
-        "source": { "items": [48], "pdf_page": 7 }
+        "source": {
+          "items": [
+            48
+          ],
+          "pdf_page": 7
+        }
       },
-      "source_atoms": ["T2.K2.A1"],
-      "tags": ["number"]
+      "source_atoms": [
+        "T2.K2.A1"
+      ],
+      "tags": [
+        "number"
+      ]
     },
     {
       "id": "T2.Q5",
@@ -608,15 +1168,31 @@
       "difficulty": "medium",
       "stem": "Соотнесите два значения линии горизонта",
       "correct": [
-        ["линия противостояния", "разделяет день и ночь"],
-        ["линия стыка", "соединяет день и ночь"]
+        [
+          "линия противостояния",
+          "разделяет день и ночь"
+        ],
+        [
+          "линия стыка",
+          "соединяет день и ночь"
+        ]
       ],
       "explanation": {
         "quote": "Эта линия есть линия противостояния дня и ночи. Или эта линия есть линия стыка дня и ночи.",
-        "source": { "items": [52], "pdf_page": 8 }
+        "source": {
+          "items": [
+            52
+          ],
+          "pdf_page": 8
+        }
       },
-      "source_atoms": ["T2.K2.A2"],
-      "tags": ["pairing", "keystone"]
+      "source_atoms": [
+        "T2.K2.A2"
+      ],
+      "tags": [
+        "pairing",
+        "keystone"
+      ]
     },
     {
       "id": "T2.Q6",
@@ -632,72 +1208,181 @@
       ],
       "explanation": {
         "quote": "Поставим риску… Поставим ещё одну риску… Теперь на полукруге ночи тоже поставим две риски.",
-        "source": { "items": [58, 59, 60], "pdf_page": 8 }
+        "source": {
+          "items": [
+            58,
+            59,
+            60
+          ],
+          "pdf_page": 8
+        }
       },
-      "source_atoms": ["T2.K2.A10"],
-      "tags": ["number"]
+      "source_atoms": [
+        "T2.K2.A10"
+      ],
+      "tags": [
+        "number"
+      ]
     },
     {
       "id": "T2.Q7",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "medium",
       "stem": "Концом подъёма можно считать то время, когда солнце начинает больше смещаться к _____, чем подыматься вверх.",
       "correct": "западу",
-      "correct_alternatives": ["западу"],
+      "correct_alternatives": [
+        "западу"
+      ],
       "explanation": {
         "quote": "Концом подъёма можно считать то время, когда солнце начинает больше смещаться к западу, чем подыматься вверх.",
-        "source": { "items": [65], "pdf_page": 9 }
+        "source": {
+          "items": [
+            65
+          ],
+          "pdf_page": 9
+        }
       },
-      "source_atoms": ["T2.K2.A11"],
-      "tags": ["definition"]
+      "source_atoms": [
+        "T2.K2.A11"
+      ],
+      "tags": [
+        "definition"
+      ],
+      "options": [
+        "западу",
+        "востоку",
+        "югу",
+        "зениту"
+      ]
     },
     {
       "id": "T2.Q8",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "easy",
       "stem": "Сутки есть _____ времён.",
       "correct": "двенадцать",
-      "correct_alternatives": ["12"],
+      "correct_alternatives": [
+        "12"
+      ],
       "explanation": {
         "quote": "Сутки есть двенадцать времён.",
-        "source": { "items": [89], "pdf_page": 12 }
+        "source": {
+          "items": [
+            89
+          ],
+          "pdf_page": 12
+        }
       },
-      "source_atoms": ["T2.K3.A1"],
-      "tags": ["postulate", "keystone"]
+      "source_atoms": [
+        "T2.K3.A1"
+      ],
+      "tags": [
+        "postulate",
+        "keystone"
+      ],
+      "options": [
+        "двенадцать",
+        "шесть",
+        "двадцать четыре",
+        "восемь"
+      ]
     },
     {
       "id": "T2.Q9",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "medium",
       "stem": "Сутки есть чередование шести _____ и шести _____ времён.",
       "correct": "долгих и коротких",
-      "correct_alternatives": ["долгих, коротких", "длинных и коротких"],
+      "correct_alternatives": [
+        "долгих, коротких",
+        "длинных и коротких"
+      ],
       "explanation": {
         "quote": "Сутки есть чередование шести долгих и шести коротких времён.",
-        "source": { "items": [92], "pdf_page": 12 }
+        "source": {
+          "items": [
+            92
+          ],
+          "pdf_page": 12
+        }
       },
-      "source_atoms": ["T2.K3.A2"],
-      "tags": ["postulate", "keystone"]
+      "source_atoms": [
+        "T2.K3.A2"
+      ],
+      "tags": [
+        "postulate",
+        "keystone"
+      ],
+      "options": [
+        "долгих и коротких",
+        "светлых и тёмных",
+        "тёплых и холодных",
+        "явных и тайных"
+      ]
     },
     {
       "id": "T2.Q10",
-      "type": "order",
+      "type": "match-pair",
       "difficulty": "hard",
-      "stem": "Расставьте в правильном порядке (от заката следующего цикла) первые шесть времён суток после захода солнца",
+      "stem": "Соотнесите позицию и элемент в правильном порядке (от заката следующего цикла) первые шесть времён суток после захода солнца",
       "correct": [
+        [
+          "Первое",
+          "Вечерние сумерки"
+        ],
+        [
+          "Второе",
+          "Конец сумерек, начало тьмы"
+        ],
+        [
+          "Третье",
+          "Тьма ночи"
+        ],
+        [
+          "Четвёртое",
+          "Утренняя заря"
+        ],
+        [
+          "Пятое",
+          "Начало зари, конец тьмы"
+        ],
+        [
+          "Шестое",
+          "Выход солнца из-за горизонта"
+        ]
+      ],
+      "explanation": {
+        "quote": "1. Горизонт — Солнце зашло за горизонт. 2. Вечерние сумерки. 3. Риска — Конец сумерек и начало тьмы. 4. Тьма ночи. 5. Утренняя заря. 6. Риска — Начало зари и конец тьмы. 7. Горизонт — Солнце выходит из-за горизонта.",
+        "source": {
+          "items": [
+            72
+          ],
+          "pdf_page": 10
+        }
+      },
+      "source_atoms": [
+        "T2.K3.A5"
+      ],
+      "tags": [
+        "process",
+        "order"
+      ],
+      "pairsLeft": [
+        "Первое",
+        "Второе",
+        "Третье",
+        "Четвёртое",
+        "Пятое",
+        "Шестое"
+      ],
+      "pairsRight": [
         "Вечерние сумерки",
         "Конец сумерек, начало тьмы",
         "Тьма ночи",
         "Утренняя заря",
         "Начало зари, конец тьмы",
         "Выход солнца из-за горизонта"
-      ],
-      "explanation": {
-        "quote": "1. Горизонт — Солнце зашло за горизонт. 2. Вечерние сумерки. 3. Риска — Конец сумерек и начало тьмы. 4. Тьма ночи. 5. Утренняя заря. 6. Риска — Начало зари и конец тьмы. 7. Горизонт — Солнце выходит из-за горизонта.",
-        "source": { "items": [72], "pdf_page": 10 }
-      },
-      "source_atoms": ["T2.K3.A5"],
-      "tags": ["process", "order"]
+      ]
     },
     {
       "id": "T2.Q11",
@@ -705,15 +1390,33 @@
       "difficulty": "medium",
       "stem": "Соотнесите тип времени и его свойство",
       "correct": [
-        ["долгое время", "медленные изменения общей обстановки"],
-        ["короткое время", "быстрые изменения, переход к следующему"]
+        [
+          "долгое время",
+          "медленные изменения общей обстановки"
+        ],
+        [
+          "короткое время",
+          "быстрые изменения, переход к следующему"
+        ]
       ],
       "explanation": {
         "quote": "Все долгие времена сутки есть времена медленных изменений общей обстановки. Все короткие времена сутки есть времена быстрых изменений общей обстановки.",
-        "source": { "items": [95, 96], "pdf_page": 12 }
+        "source": {
+          "items": [
+            95,
+            96
+          ],
+          "pdf_page": 12
+        }
       },
-      "source_atoms": ["T2.K3.A8", "T2.K3.A9"],
-      "tags": ["opposition", "definition"]
+      "source_atoms": [
+        "T2.K3.A8",
+        "T2.K3.A9"
+      ],
+      "tags": [
+        "opposition",
+        "definition"
+      ]
     },
     {
       "id": "T2.Q12",
@@ -721,60 +1424,174 @@
       "difficulty": "medium",
       "stem": "Какая фигура получается, если соединить все риски и точки горизонта прямыми линиями?",
       "correct": "Шестиугольник",
-      "options": ["Квадрат", "Шестиугольник", "Восьмиугольник", "Двенадцатиугольник"],
+      "options": [
+        "Квадрат",
+        "Шестиугольник",
+        "Восьмиугольник",
+        "Двенадцатиугольник"
+      ],
       "explanation": {
         "quote": "Теперь на нашем чертеже соединим все риски и точки на линии горизонта прямыми линиями. Получится шестиугольник.",
-        "source": { "items": [100], "pdf_page": 13 }
+        "source": {
+          "items": [
+            100
+          ],
+          "pdf_page": 13
+        }
       },
-      "source_atoms": ["T2.K4.A1"],
-      "tags": ["scheme", "keystone"]
+      "source_atoms": [
+        "T2.K4.A1"
+      ],
+      "tags": [
+        "scheme",
+        "keystone"
+      ]
     },
     {
       "id": "T2.Q13",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "medium",
       "stem": "Шесть сторон шестиугольника изображают шесть _____ времён, а шесть углов — шесть _____ времён.",
       "correct": "долгих и коротких",
-      "correct_alternatives": ["долгих, коротких"],
+      "correct_alternatives": [
+        "долгих, коротких"
+      ],
       "explanation": {
         "quote": "Шесть сторон этого шестиугольника изображают шесть долгих времён. Шесть его углов изображают шесть коротких времён.",
-        "source": { "items": [105, 106], "pdf_page": 13 }
+        "source": {
+          "items": [
+            105,
+            106
+          ],
+          "pdf_page": 13
+        }
       },
-      "source_atoms": ["T2.K4.A5", "T2.K4.A6"],
-      "tags": ["scheme", "number"]
+      "source_atoms": [
+        "T2.K4.A5",
+        "T2.K4.A6"
+      ],
+      "tags": [
+        "scheme",
+        "number"
+      ],
+      "options": [
+        "долгих и коротких",
+        "светлых и тёмных",
+        "явных и тайных",
+        "мужских и женских"
+      ]
     }
   ],
-
   "rejected": [
-    { "item": 43, "reason": "Откладывает на потом тему вращения земли — мета-комментарий, не факт." },
-    { "item": 44, "reason": "Откладывает на потом тему 24-часовой шкалы — мета-комментарий." },
-    { "item": 45, "reason": "Откладывает на потом тему названий — мета-комментарий." },
-    { "item": 46, "reason": "Откладывает на потом тему сезонной зависимости — мета-комментарий." },
-    { "item": 53, "reason": "Прерванная фраза в скане; реконструкция неоднозначна." },
-    { "item": 54, "reason": "Цитата из Бытия как поэтический инсерт; не testable-факт о Ясне." },
-    { "item": 55, "reason": "Намерение («теперь можно разделить»), без отдельного факта; покрыто атомами K2." },
-    { "item": 63, "reason": "Поясняет, что ночные перемены наблюдаемы — мета-комментарий к рискам." },
-    { "item": 64, "reason": "Намерение перейти к дневным переменам — мета-комментарий." },
-    { "item": 70, "reason": "Резюмирующее замечание перед описанием — мета-комментарий." },
-    { "item": 71, "reason": "Художественное описание суток (10 строк лирики). Содержательно покрыто T2.K3.A5 (process) и T2.K3.A13 (литературные описания)." },
-    { "item": 75, "reason": "Перефразировка определения долгих/коротких времён — покрыто T2.K3.A8 и T2.K3.A9." },
-    { "item": 76, "reason": "Конкретизация для одной риски — покрыто T2.K2.A11." },
-    { "item": 77, "reason": "Конкретизация для второй дневной риски — покрыто T2.K2.A12." },
-    { "item": 79, "reason": "Конкретизация про конкретную ночную риску — покрыто T2.K2.A10." },
-    { "item": 80, "reason": "Конкретизация про вторую ночную риску — покрыто T2.K2.A10." },
-    { "item": 81, "reason": "Прерванная фраза в скане, обрывается." },
-    { "item": 84, "reason": "Трудночитаемая фраза в скане; содержательно покрыта T2.K3.A1 (12 времён)." },
-    { "item": 85, "reason": "Перефразировка свойства долгих времён — покрыто T2.K3.A8." },
-    { "item": 86, "reason": "Перефразировка свойства коротких времён — покрыто T2.K3.A9." },
-    { "item": 87, "reason": "Намерение описывать каждое из 12 времён — переход к подсписку 87.1–87.12." },
-    { "item": 88, "reason": "Перефразировка факта «12 пунктов»; покрыто T2.K3.A1." },
-    { "item": 90, "reason": "Перефразировка №89 («Сутки есть двенадцать различных времён») — синонимично T2.K3.A1." },
-    { "item": 91, "reason": "Перефразировка свойства чередования; покрыто T2.K3.A2." },
-    { "item": 94, "reason": "Перефразировка №93; «В каждом из времён происходит некое событие» — покрыто T2.K3.A7." },
-    { "item": 98, "reason": "Намерение использовать новые знания — мета-комментарий." },
-    { "item": 103, "reason": "Подпись к диаграмме («Чертёж стал таким:»). Иллюстрация T2.I4." }
+    {
+      "item": 43,
+      "reason": "Откладывает на потом тему вращения земли — мета-комментарий, не факт."
+    },
+    {
+      "item": 44,
+      "reason": "Откладывает на потом тему 24-часовой шкалы — мета-комментарий."
+    },
+    {
+      "item": 45,
+      "reason": "Откладывает на потом тему названий — мета-комментарий."
+    },
+    {
+      "item": 46,
+      "reason": "Откладывает на потом тему сезонной зависимости — мета-комментарий."
+    },
+    {
+      "item": 53,
+      "reason": "Прерванная фраза в скане; реконструкция неоднозначна."
+    },
+    {
+      "item": 54,
+      "reason": "Цитата из Бытия как поэтический инсерт; не testable-факт о Ясне."
+    },
+    {
+      "item": 55,
+      "reason": "Намерение («теперь можно разделить»), без отдельного факта; покрыто атомами K2."
+    },
+    {
+      "item": 63,
+      "reason": "Поясняет, что ночные перемены наблюдаемы — мета-комментарий к рискам."
+    },
+    {
+      "item": 64,
+      "reason": "Намерение перейти к дневным переменам — мета-комментарий."
+    },
+    {
+      "item": 70,
+      "reason": "Резюмирующее замечание перед описанием — мета-комментарий."
+    },
+    {
+      "item": 71,
+      "reason": "Художественное описание суток (10 строк лирики). Содержательно покрыто T2.K3.A5 (process) и T2.K3.A13 (литературные описания)."
+    },
+    {
+      "item": 75,
+      "reason": "Перефразировка определения долгих/коротких времён — покрыто T2.K3.A8 и T2.K3.A9."
+    },
+    {
+      "item": 76,
+      "reason": "Конкретизация для одной риски — покрыто T2.K2.A11."
+    },
+    {
+      "item": 77,
+      "reason": "Конкретизация для второй дневной риски — покрыто T2.K2.A12."
+    },
+    {
+      "item": 79,
+      "reason": "Конкретизация про конкретную ночную риску — покрыто T2.K2.A10."
+    },
+    {
+      "item": 80,
+      "reason": "Конкретизация про вторую ночную риску — покрыто T2.K2.A10."
+    },
+    {
+      "item": 81,
+      "reason": "Прерванная фраза в скане, обрывается."
+    },
+    {
+      "item": 84,
+      "reason": "Трудночитаемая фраза в скане; содержательно покрыта T2.K3.A1 (12 времён)."
+    },
+    {
+      "item": 85,
+      "reason": "Перефразировка свойства долгих времён — покрыто T2.K3.A8."
+    },
+    {
+      "item": 86,
+      "reason": "Перефразировка свойства коротких времён — покрыто T2.K3.A9."
+    },
+    {
+      "item": 87,
+      "reason": "Намерение описывать каждое из 12 времён — переход к подсписку 87.1–87.12."
+    },
+    {
+      "item": 88,
+      "reason": "Перефразировка факта «12 пунктов»; покрыто T2.K3.A1."
+    },
+    {
+      "item": 90,
+      "reason": "Перефразировка №89 («Сутки есть двенадцать различных времён») — синонимично T2.K3.A1."
+    },
+    {
+      "item": 91,
+      "reason": "Перефразировка свойства чередования; покрыто T2.K3.A2."
+    },
+    {
+      "item": 94,
+      "reason": "Перефразировка №93; «В каждом из времён происходит некое событие» — покрыто T2.K3.A7."
+    },
+    {
+      "item": 98,
+      "reason": "Намерение использовать новые знания — мета-комментарий."
+    },
+    {
+      "item": 103,
+      "reason": "Подпись к диаграмме («Чертёж стал таким:»). Иллюстрация T2.I4."
+    }
   ],
-
   "stats": {
     "items_in_range": 66,
     "atoms_count": 47,
@@ -786,17 +1603,29 @@
     "coverage_pct": 64,
     "keystone_count": 10,
     "kind_distribution": {
-      "definition": 7, "fact": 11, "rule": 6, "postulate": 2,
-      "name": 1, "list": 4, "etymology": 1, "scheme": 1,
-      "number": 7, "process": 1, "opposition": 3, "pairing": 0
+      "definition": 7,
+      "fact": 11,
+      "rule": 6,
+      "postulate": 2,
+      "name": 1,
+      "list": 4,
+      "etymology": 1,
+      "scheme": 1,
+      "number": 7,
+      "process": 1,
+      "opposition": 3,
+      "pairing": 0
     }
   },
   "changelog": [
-    { "version": "1.1.1", "changes": [
-      "Initial version под schema v1.1.1: 4 категории (Что знаем / Горизонт+риски / 12 времён / Шестиугольник)",
-      "Впервые в проекте: kind=process (12-фазный цикл), kind=opposition (день/ночь, видимое/невидимое, долгое/короткое), kind=number (массово: 24, 4, 12, 6, 6, 2)",
-      "4 иллюстрации впервые: горизонталь (V-001), круг с горизонтом (V-002), круг с 4 рисками (V-003), шестиугольник (V-004)",
-      "Подняты атомы из rejected: №68 (народы и закат), №69 (правило начала суток), №78, №82, №87.1-87.12 (литературные описания 12 времён) и №99 (12 имён). Это улучшило coverage с 49% до 64%."
-    ]}
+    {
+      "version": "1.1.1",
+      "changes": [
+        "Initial version под schema v1.1.1: 4 категории (Что знаем / Горизонт+риски / 12 времён / Шестиугольник)",
+        "Впервые в проекте: kind=process (12-фазный цикл), kind=opposition (день/ночь, видимое/невидимое, долгое/короткое), kind=number (массово: 24, 4, 12, 6, 6, 2)",
+        "4 иллюстрации впервые: горизонталь (V-001), круг с горизонтом (V-002), круг с 4 рисками (V-003), шестиугольник (V-004)",
+        "Подняты атомы из rejected: №68 (народы и закат), №69 (правило начала суток), №78, №82, №87.1-87.12 (литературные описания 12 времён) и №99 (12 имён). Это улучшило coverage с 49% до 64%."
+      ]
+    }
   ]
 }
