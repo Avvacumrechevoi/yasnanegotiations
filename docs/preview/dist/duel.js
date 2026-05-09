@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T09:49:34.641Z */
+/* Yasna bundle: duel.js — собран 2026-05-09T10:00:34.731Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -593,7 +593,7 @@
 ;(function(){
 (function() {
   const { opp, rad } = window.YasnaData;
-  function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki }) {
+  function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki, solidMech }) {
     const canvasRef = React.useRef(null);
     const initCamDist = typeof window !== "undefined" && window.innerWidth <= 768 ? 820 : 560;
     const stateRef = React.useRef({
@@ -605,10 +605,10 @@
       lastY: 0
     });
     const sceneRefs = React.useRef(null);
-    const liveRef = React.useRef({ rotationOn, speedSec, sel, drill, af });
+    const liveRef = React.useRef({ rotationOn, speedSec, sel, drill, af, solidMech });
     React.useEffect(() => {
-      liveRef.current = { rotationOn, speedSec, sel, drill, af };
-    }, [rotationOn, speedSec, sel, drill, JSON.stringify(af || [])]);
+      liveRef.current = { rotationOn, speedSec, sel, drill, af, solidMech };
+    }, [rotationOn, speedSec, sel, drill, solidMech, JSON.stringify(af || [])]);
     React.useEffect(() => {
       if (typeof window === "undefined" || !window.THREE) return;
       const THREE = window.THREE;
@@ -1017,22 +1017,31 @@
         const N = (active || []).length;
         cageMat.opacity = N === 0 ? 0.07 : N <= 2 ? 0.04 : 0.02;
         equatorTube.material.opacity = N === 0 ? 0.75 : N <= 2 ? 0.6 : 0.35;
+        const solidMode = !!live.solidMech;
+        const baseOp = solidMode ? 0.92 : 0.65;
         const crossDefs = [
-          { id: "support", col: 16725332, idx: [0, 3, 6, 9] },
-          { id: "right", col: 16760896, idx: [1, 4, 7, 10] },
-          { id: "left", col: 6335228, idx: [2, 5, 8, 11] }
+          { id: "support", col: 15218255, idx: [0, 3, 6, 9] },
+          // VK Crimson
+          { id: "right", col: 15247412, idx: [1, 4, 7, 10] },
+          // VK Yellow
+          { id: "left", col: 6003958, idx: [2, 5, 8, 11] }
+          // VK Light Blue
         ];
         crossDefs.forEach((c) => {
-          if (active.includes(c.id)) mechGroup.add(makeBipyramid(c.idx, c.col, 0.65));
+          if (active.includes(c.id)) mechGroup.add(makeBipyramid(c.idx, c.col, baseOp));
         });
         const pranaDefs = [
-          { id: "she", col: 14725192, idx: [0, 4, 8] },
-          { id: "fo", col: 4894975, idx: [1, 5, 9] },
-          { id: "tsi", col: 8442111, idx: [2, 6, 10] },
-          { id: "ha", col: 16742472, idx: [3, 7, 11] }
+          { id: "she", col: 12620858, idx: [0, 4, 8] },
+          // Земля
+          { id: "fo", col: 2450411, idx: [1, 5, 9] },
+          // Вода
+          { id: "tsi", col: 440020, idx: [2, 6, 10] },
+          // Воздух
+          { id: "ha", col: 15755320, idx: [3, 7, 11] }
+          // Огонь
         ];
         pranaDefs.forEach((p) => {
-          if (active.includes(p.id)) mechGroup.add(makeBipyramid(p.idx, p.col, 0.6));
+          if (active.includes(p.id)) mechGroup.add(makeBipyramid(p.idx, p.col, solidMode ? 0.88 : 0.6));
         });
         if (active.includes("opp")) {
           const grp = new THREE.Group();
@@ -1065,13 +1074,15 @@
           });
         }
         if (active.includes("halves")) {
+          const wf = !solidMode;
+          const op = solidMode ? 0.32 : 0.18;
           const upper = new THREE.Mesh(
-            new THREE.SphereGeometry(R * 1.02, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2),
-            new THREE.MeshBasicMaterial({ color: 13213744, wireframe: true, transparent: true, opacity: 0.18 })
+            new THREE.SphereGeometry(R * 1.02, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2),
+            new THREE.MeshBasicMaterial({ color: 12620858, wireframe: wf, transparent: true, opacity: op, side: THREE.DoubleSide })
           );
           const lower = new THREE.Mesh(
-            new THREE.SphereGeometry(R * 1.02, 24, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
-            new THREE.MeshBasicMaterial({ color: 6574280, wireframe: true, transparent: true, opacity: 0.18 })
+            new THREE.SphereGeometry(R * 1.02, 32, 16, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
+            new THREE.MeshBasicMaterial({ color: 2450411, wireframe: wf, transparent: true, opacity: op, side: THREE.DoubleSide })
           );
           mechGroup.add(upper);
           mechGroup.add(lower);
@@ -1322,8 +1333,8 @@
         ndc_local.x = (e.clientX - rect.left) / rect.width * 2 - 1;
         ndc_local.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
         raycaster_local.setFromCamera(ndc_local, camera);
-        const live = liveRef.current;
-        if (live.drill != null && sceneRefs.current && sceneRefs.current.subPolki) {
+        const live2 = liveRef.current;
+        if (live2.drill != null && sceneRefs.current && sceneRefs.current.subPolki) {
           const subHits = raycaster_local.intersectObjects(sceneRefs.current.subPolki);
           if (subHits.length) {
             const ball = subHits[0].object;
@@ -1340,7 +1351,7 @@
           const outerHits = raycaster_local.intersectObjects(polki);
           if (outerHits.length) {
             const idx = outerHits[0].object.userData.polkaIdx;
-            if (idx !== live.drill && typeof onDrill === "function") {
+            if (idx !== live2.drill && typeof onDrill === "function") {
               onDrill(idx);
             }
             return;
@@ -1351,7 +1362,7 @@
         const hits = raycaster_local.intersectObjects(polki);
         if (hits.length) {
           const idx = hits[0].object.userData.polkaIdx;
-          if ((live.af || []).includes("mb_yasna2") && typeof onDrill === "function") {
+          if ((live2.af || []).includes("mb_yasna2") && typeof onDrill === "function") {
             onDrill(idx);
           } else if (typeof onSel === "function") {
             onSel(idx);
@@ -1374,17 +1385,17 @@
       const animate = (now) => {
         const dt = now - lastT;
         lastT = now;
-        const live = liveRef.current;
-        if (live.rotationOn) {
-          const dir = live.rotationOn === "cw" ? -1 : 1;
-          const speedDeg = 360 / ((live.speedSec || 24) * 1e3);
+        const live2 = liveRef.current;
+        if (live2.rotationOn) {
+          const dir = live2.rotationOn === "cw" ? -1 : 1;
+          const speedDeg = 360 / ((live2.speedSec || 24) * 1e3);
           wheelGroup.rotation.y += dir * dt * speedDeg * Math.PI / 180;
         }
         pulsePhase += dt * 3e-3;
-        const drilling = live.drill != null;
+        const drilling = live2.drill != null;
         polki.forEach((p, i) => {
           if (drilling) {
-            if (i === live.drill) {
+            if (i === live2.drill) {
               p.scale.lerp(new THREE.Vector3(0.4, 0.4, 0.4), 0.12);
               p.material.emissiveIntensity = 0.08;
               p.material.opacity = 0.4;
@@ -1396,7 +1407,7 @@
               p.material.transparent = true;
             }
           } else {
-            if (i === live.sel) {
+            if (i === live2.sel) {
               const pulse = 0.5 + 0.4 * Math.sin(pulsePhase * 2);
               p.material.emissiveIntensity = pulse;
               p.scale.lerp(new THREE.Vector3(1.4, 1.4, 1.4), 0.1);
@@ -1420,7 +1431,7 @@
           drillGroup.scale.lerp(new THREE.Vector3(1, 1, 1), 0.12);
           drillGroup.rotation.y += dt * 1e-4;
           subPolkiArr.forEach((sb, i) => {
-            if (i === live.sel) {
+            if (i === live2.sel) {
               const pulse = 0.5 + 0.4 * Math.sin(pulsePhase * 2);
               sb.material.emissiveIntensity = pulse;
               sb.scale.lerp(new THREE.Vector3(1.4, 1.4, 1.4), 0.1);
@@ -1476,7 +1487,7 @@
       if (sceneRefs.current && sceneRefs.current.rebuildMechanics) {
         sceneRefs.current.rebuildMechanics(af || []);
       }
-    }, [JSON.stringify(af || [])]);
+    }, [JSON.stringify(af || []), solidMech]);
     const subPolkiSig = (subPolki || []).join("|");
     React.useEffect(() => {
       if (sceneRefs.current && sceneRefs.current.buildDrillGroup) {
@@ -5308,7 +5319,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T09:49:33.643Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
+  const BUILD_INFO = { "builtAt": "2026-05-09T10:00:33.787Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 45 };
   const THEMES = [
     {
       "id": "chto-est-yasna",

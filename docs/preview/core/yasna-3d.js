@@ -10,7 +10,7 @@
 
 const { opp, rad } = window.YasnaData;
 
-function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki }){
+function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki, solidMech }){
   const canvasRef = React.useRef(null);
   // На мобиле стартовый camDist больше — чтобы весь шар помещался в узкую portrait-область
   const initCamDist = (typeof window!=='undefined' && window.innerWidth <= 768) ? 820 : 560;
@@ -20,8 +20,8 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
   });
   const sceneRefs = React.useRef(null);
   // Свежие props для animate-loop (избегаем stale closure)
-  const liveRef = React.useRef({ rotationOn, speedSec, sel, drill, af });
-  React.useEffect(()=>{ liveRef.current = { rotationOn, speedSec, sel, drill, af }; }, [rotationOn, speedSec, sel, drill, JSON.stringify(af||[])]);
+  const liveRef = React.useRef({ rotationOn, speedSec, sel, drill, af, solidMech });
+  React.useEffect(()=>{ liveRef.current = { rotationOn, speedSec, sel, drill, af, solidMech }; }, [rotationOn, speedSec, sel, drill, solidMech, JSON.stringify(af||[])]);
 
   React.useEffect(()=>{
     if(typeof window==='undefined' || !window.THREE) return;
@@ -447,23 +447,26 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       cageMat.opacity = N === 0 ? 0.07 : N <= 2 ? 0.04 : 0.02;
       equatorTube.material.opacity = N === 0 ? 0.75 : N <= 2 ? 0.6 : 0.35;
 
+      // Палитра по VK Tech — синхронизирована с data.js / yasna-star.js
+      const solidMode = !!live.solidMech;
+      const baseOp = solidMode ? 0.92 : 0.65;
       const crossDefs = [
-        {id:'support', col:0xff3554, idx:[0,3,6,9]},
-        {id:'right',   col:0xffc040, idx:[1,4,7,10]},
-        {id:'left',    col:0x60aafc, idx:[2,5,8,11]},
+        {id:'support', col:0xE8364F, idx:[0,3,6,9]},   // VK Crimson
+        {id:'right',   col:0xE8A834, idx:[1,4,7,10]},  // VK Yellow
+        {id:'left',    col:0x5B9CF6, idx:[2,5,8,11]},  // VK Light Blue
       ];
       crossDefs.forEach(c=>{
-        if(active.includes(c.id)) mechGroup.add(makeBipyramid(c.idx, c.col, 0.65));
+        if(active.includes(c.id)) mechGroup.add(makeBipyramid(c.idx, c.col, baseOp));
       });
 
       const pranaDefs = [
-        {id:'she', col:0xe0b048, idx:[0,4,8]},
-        {id:'fo',  col:0x4ab0ff, idx:[1,5,9]},
-        {id:'tsi', col:0x80d0ff, idx:[2,6,10]},
-        {id:'ha',  col:0xff7848, idx:[3,7,11]},
+        {id:'she', col:0xC0943A, idx:[0,4,8]},   // Земля
+        {id:'fo',  col:0x2563EB, idx:[1,5,9]},   // Вода
+        {id:'tsi', col:0x06B6D4, idx:[2,6,10]},  // Воздух
+        {id:'ha',  col:0xF06838, idx:[3,7,11]},  // Огонь
       ];
       pranaDefs.forEach(p=>{
-        if(active.includes(p.id)) mechGroup.add(makeBipyramid(p.idx, p.col, 0.6));
+        if(active.includes(p.id)) mechGroup.add(makeBipyramid(p.idx, p.col, solidMode?0.88:0.6));
       });
 
       if(active.includes('opp')){
@@ -499,13 +502,16 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       }
 
       if(active.includes('halves')){
+        // Solid-режим — заполненная сфера с двусторонним рендерингом
+        const wf = !solidMode;
+        const op = solidMode ? 0.32 : 0.18;
         const upper = new THREE.Mesh(
-          new THREE.SphereGeometry(R*1.02, 24, 12, 0, Math.PI*2, 0, Math.PI/2),
-          new THREE.MeshBasicMaterial({ color:0xC9A030, wireframe:true, transparent:true, opacity:0.18 })
+          new THREE.SphereGeometry(R*1.02, 32, 16, 0, Math.PI*2, 0, Math.PI/2),
+          new THREE.MeshBasicMaterial({ color:0xC0943A, wireframe:wf, transparent:true, opacity:op, side:THREE.DoubleSide })
         );
         const lower = new THREE.Mesh(
-          new THREE.SphereGeometry(R*1.02, 24, 12, 0, Math.PI*2, Math.PI/2, Math.PI/2),
-          new THREE.MeshBasicMaterial({ color:0x6450C8, wireframe:true, transparent:true, opacity:0.18 })
+          new THREE.SphereGeometry(R*1.02, 32, 16, 0, Math.PI*2, Math.PI/2, Math.PI/2),
+          new THREE.MeshBasicMaterial({ color:0x2563EB, wireframe:wf, transparent:true, opacity:op, side:THREE.DoubleSide })
         );
         mechGroup.add(upper); mechGroup.add(lower);
       }
@@ -934,7 +940,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
     if(sceneRefs.current && sceneRefs.current.rebuildMechanics){
       sceneRefs.current.rebuildMechanics(af||[]);
     }
-  }, [JSON.stringify(af||[])]);
+  }, [JSON.stringify(af||[]), solidMech]);
 
   // Перестроение drillGroup при смене drill / subPolki
   // Используем стабильный signature вместо JSON.stringify на каждый render

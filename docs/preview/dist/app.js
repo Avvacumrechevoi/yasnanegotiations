@@ -1,4 +1,4 @@
-/* Yasna bundle: app.js — собран 2026-05-09T09:49:34.390Z */
+/* Yasna bundle: app.js — собран 2026-05-09T10:00:34.489Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -593,7 +593,7 @@
 ;(function(){
 (function() {
   const { opp, rad } = window.YasnaData;
-  function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki }) {
+  function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, subPolki, solidMech }) {
     const canvasRef = React.useRef(null);
     const initCamDist = typeof window !== "undefined" && window.innerWidth <= 768 ? 820 : 560;
     const stateRef = React.useRef({
@@ -605,10 +605,10 @@
       lastY: 0
     });
     const sceneRefs = React.useRef(null);
-    const liveRef = React.useRef({ rotationOn, speedSec, sel, drill, af });
+    const liveRef = React.useRef({ rotationOn, speedSec, sel, drill, af, solidMech });
     React.useEffect(() => {
-      liveRef.current = { rotationOn, speedSec, sel, drill, af };
-    }, [rotationOn, speedSec, sel, drill, JSON.stringify(af || [])]);
+      liveRef.current = { rotationOn, speedSec, sel, drill, af, solidMech };
+    }, [rotationOn, speedSec, sel, drill, solidMech, JSON.stringify(af || [])]);
     React.useEffect(() => {
       if (typeof window === "undefined" || !window.THREE) return;
       const THREE = window.THREE;
@@ -1017,22 +1017,31 @@
         const N = (active || []).length;
         cageMat.opacity = N === 0 ? 0.07 : N <= 2 ? 0.04 : 0.02;
         equatorTube.material.opacity = N === 0 ? 0.75 : N <= 2 ? 0.6 : 0.35;
+        const solidMode = !!live.solidMech;
+        const baseOp = solidMode ? 0.92 : 0.65;
         const crossDefs = [
-          { id: "support", col: 16725332, idx: [0, 3, 6, 9] },
-          { id: "right", col: 16760896, idx: [1, 4, 7, 10] },
-          { id: "left", col: 6335228, idx: [2, 5, 8, 11] }
+          { id: "support", col: 15218255, idx: [0, 3, 6, 9] },
+          // VK Crimson
+          { id: "right", col: 15247412, idx: [1, 4, 7, 10] },
+          // VK Yellow
+          { id: "left", col: 6003958, idx: [2, 5, 8, 11] }
+          // VK Light Blue
         ];
         crossDefs.forEach((c) => {
-          if (active.includes(c.id)) mechGroup.add(makeBipyramid(c.idx, c.col, 0.65));
+          if (active.includes(c.id)) mechGroup.add(makeBipyramid(c.idx, c.col, baseOp));
         });
         const pranaDefs = [
-          { id: "she", col: 14725192, idx: [0, 4, 8] },
-          { id: "fo", col: 4894975, idx: [1, 5, 9] },
-          { id: "tsi", col: 8442111, idx: [2, 6, 10] },
-          { id: "ha", col: 16742472, idx: [3, 7, 11] }
+          { id: "she", col: 12620858, idx: [0, 4, 8] },
+          // Земля
+          { id: "fo", col: 2450411, idx: [1, 5, 9] },
+          // Вода
+          { id: "tsi", col: 440020, idx: [2, 6, 10] },
+          // Воздух
+          { id: "ha", col: 15755320, idx: [3, 7, 11] }
+          // Огонь
         ];
         pranaDefs.forEach((p) => {
-          if (active.includes(p.id)) mechGroup.add(makeBipyramid(p.idx, p.col, 0.6));
+          if (active.includes(p.id)) mechGroup.add(makeBipyramid(p.idx, p.col, solidMode ? 0.88 : 0.6));
         });
         if (active.includes("opp")) {
           const grp = new THREE.Group();
@@ -1065,13 +1074,15 @@
           });
         }
         if (active.includes("halves")) {
+          const wf = !solidMode;
+          const op = solidMode ? 0.32 : 0.18;
           const upper = new THREE.Mesh(
-            new THREE.SphereGeometry(R * 1.02, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2),
-            new THREE.MeshBasicMaterial({ color: 13213744, wireframe: true, transparent: true, opacity: 0.18 })
+            new THREE.SphereGeometry(R * 1.02, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2),
+            new THREE.MeshBasicMaterial({ color: 12620858, wireframe: wf, transparent: true, opacity: op, side: THREE.DoubleSide })
           );
           const lower = new THREE.Mesh(
-            new THREE.SphereGeometry(R * 1.02, 24, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
-            new THREE.MeshBasicMaterial({ color: 6574280, wireframe: true, transparent: true, opacity: 0.18 })
+            new THREE.SphereGeometry(R * 1.02, 32, 16, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
+            new THREE.MeshBasicMaterial({ color: 2450411, wireframe: wf, transparent: true, opacity: op, side: THREE.DoubleSide })
           );
           mechGroup.add(upper);
           mechGroup.add(lower);
@@ -1322,8 +1333,8 @@
         ndc_local.x = (e.clientX - rect.left) / rect.width * 2 - 1;
         ndc_local.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
         raycaster_local.setFromCamera(ndc_local, camera);
-        const live = liveRef.current;
-        if (live.drill != null && sceneRefs.current && sceneRefs.current.subPolki) {
+        const live2 = liveRef.current;
+        if (live2.drill != null && sceneRefs.current && sceneRefs.current.subPolki) {
           const subHits = raycaster_local.intersectObjects(sceneRefs.current.subPolki);
           if (subHits.length) {
             const ball = subHits[0].object;
@@ -1340,7 +1351,7 @@
           const outerHits = raycaster_local.intersectObjects(polki);
           if (outerHits.length) {
             const idx = outerHits[0].object.userData.polkaIdx;
-            if (idx !== live.drill && typeof onDrill === "function") {
+            if (idx !== live2.drill && typeof onDrill === "function") {
               onDrill(idx);
             }
             return;
@@ -1351,7 +1362,7 @@
         const hits = raycaster_local.intersectObjects(polki);
         if (hits.length) {
           const idx = hits[0].object.userData.polkaIdx;
-          if ((live.af || []).includes("mb_yasna2") && typeof onDrill === "function") {
+          if ((live2.af || []).includes("mb_yasna2") && typeof onDrill === "function") {
             onDrill(idx);
           } else if (typeof onSel === "function") {
             onSel(idx);
@@ -1374,17 +1385,17 @@
       const animate = (now) => {
         const dt = now - lastT;
         lastT = now;
-        const live = liveRef.current;
-        if (live.rotationOn) {
-          const dir = live.rotationOn === "cw" ? -1 : 1;
-          const speedDeg = 360 / ((live.speedSec || 24) * 1e3);
+        const live2 = liveRef.current;
+        if (live2.rotationOn) {
+          const dir = live2.rotationOn === "cw" ? -1 : 1;
+          const speedDeg = 360 / ((live2.speedSec || 24) * 1e3);
           wheelGroup.rotation.y += dir * dt * speedDeg * Math.PI / 180;
         }
         pulsePhase += dt * 3e-3;
-        const drilling = live.drill != null;
+        const drilling = live2.drill != null;
         polki.forEach((p, i) => {
           if (drilling) {
-            if (i === live.drill) {
+            if (i === live2.drill) {
               p.scale.lerp(new THREE.Vector3(0.4, 0.4, 0.4), 0.12);
               p.material.emissiveIntensity = 0.08;
               p.material.opacity = 0.4;
@@ -1396,7 +1407,7 @@
               p.material.transparent = true;
             }
           } else {
-            if (i === live.sel) {
+            if (i === live2.sel) {
               const pulse = 0.5 + 0.4 * Math.sin(pulsePhase * 2);
               p.material.emissiveIntensity = pulse;
               p.scale.lerp(new THREE.Vector3(1.4, 1.4, 1.4), 0.1);
@@ -1420,7 +1431,7 @@
           drillGroup.scale.lerp(new THREE.Vector3(1, 1, 1), 0.12);
           drillGroup.rotation.y += dt * 1e-4;
           subPolkiArr.forEach((sb, i) => {
-            if (i === live.sel) {
+            if (i === live2.sel) {
               const pulse = 0.5 + 0.4 * Math.sin(pulsePhase * 2);
               sb.material.emissiveIntensity = pulse;
               sb.scale.lerp(new THREE.Vector3(1.4, 1.4, 1.4), 0.1);
@@ -1476,7 +1487,7 @@
       if (sceneRefs.current && sceneRefs.current.rebuildMechanics) {
         sceneRefs.current.rebuildMechanics(af || []);
       }
-    }, [JSON.stringify(af || [])]);
+    }, [JSON.stringify(af || []), solidMech]);
     const subPolkiSig = (subPolki || []).join("|");
     React.useEffect(() => {
       if (sceneRefs.current && sceneRefs.current.buildDrillGroup) {
@@ -10522,6 +10533,19 @@ function App() {
     };
   }, [showDuel]);
   const [panelCollapsed, setPanelCollapsed] = useState(false);
+  const [solidMech, setSolidMech] = useState(() => {
+    try {
+      return localStorage.getItem("yasna_solid_mech") === "1";
+    } catch (_) {
+      return false;
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem("yasna_solid_mech", solidMech ? "1" : "0");
+    } catch (_) {
+    }
+  }, [solidMech]);
   const [activeLesson, setActiveLesson] = useState(null);
   const [completedLessons, setCompletedLessons] = useState([]);
   useEffect(() => {
@@ -10654,7 +10678,7 @@ function App() {
     if (confirm("\u041E\u0447\u0438\u0441\u0442\u0438\u0442\u044C sub-\u043F\u043E\u043B\u043A\u0438 \u044D\u0442\u043E\u0439 \u041F\u043E\u043B\u043A\u0438?")) clearSub(y.name, yasna2Drill);
   }, title: "\u041E\u0447\u0438\u0441\u0442\u0438\u0442\u044C", style: { padding: "6px 10px", borderRadius: 9, border: "1px solid #d2d2d7", background: "#fff", cursor: "pointer", fontSize: 13 } }, "\u{1F9F9} \u041E\u0447\u0438\u0441\u0442\u0438\u0442\u044C"), /* @__PURE__ */ React.createElement("button", { onClick: () => setDrillEditing((v) => !v), style: { padding: "6px 14px", borderRadius: 9, border: `1px solid ${drillEditing ? "#a21caf" : "#a21caf66"}`, background: drillEditing ? "#a21caf" : "#fff", color: drillEditing ? "#fff" : "#a21caf", fontWeight: 600, fontSize: 12.5, cursor: "pointer", display: "flex", alignItems: "center", gap: 5 } }, drillEditing ? "\u2713 \u0413\u043E\u0442\u043E\u0432\u043E" : "\u270F\uFE0F \u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C")), /* @__PURE__ */ React.createElement("div", { className: "app-body" + (sel !== null ? " app-body-with-panel" : ""), style: { display: "flex", flex: 1, minHeight: 0, position: "relative" } }, /* @__PURE__ */ React.createElement("div", { className: "workspace", style: { flex: 1, display: "flex", flexDirection: "column", minWidth: 0, position: "relative" } }, /* @__PURE__ */ React.createElement("div", { className: "star-area" + (starRotation ? " star-rotating-" + starRotation : "") + (is3D ? " star-3d-active" : ""), style: { flex: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "visible", "--rotation-speed": rotationSpeed + "s" }, onClick: (e) => {
     if (e.target === e.currentTarget) setSel(null);
-  } }, /* @__PURE__ */ React.createElement("button", { className: "fullstar-btn", onClick: () => setFullStar(true), style: { display: "none", position: "absolute", top: 8, right: 8, width: 32, height: 32, borderRadius: 8, border: "1px solid #e5e5ea", background: "rgba(255,255,255,.8)", fontSize: 16, zIndex: 5, alignItems: "center", justifyContent: "center" } }, "\u2922"), /* @__PURE__ */ React.createElement("div", { className: "diag-corner-toolbar", style: { position: "absolute", top: 10, right: 10, display: "flex", gap: 4, zIndex: 6, background: "rgba(255,255,255,.94)", backdropFilter: "blur(8px)", border: "1px solid #e5e5ea", borderRadius: 14, padding: "5px 6px", boxShadow: "0 2px 10px rgba(0,0,0,.06)" } }, /* @__PURE__ */ React.createElement("button", { onClick: () => setFullStar(true), title: "\u0412\u043E \u0432\u0435\u0441\u044C \u044D\u043A\u0440\u0430\u043D", style: { width: 36, height: 36, borderRadius: 10, border: "1px solid #e5e5ea", background: "#fff", color: "#424245", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 } }, /* @__PURE__ */ React.createElement("svg", { width: "22", height: "22", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.2", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("path", { d: "M4 9V4h5" }), /* @__PURE__ */ React.createElement("path", { d: "M20 9V4h-5" }), /* @__PURE__ */ React.createElement("path", { d: "M4 15v5h5" }), /* @__PURE__ */ React.createElement("path", { d: "M20 15v5h-5" }))), /* @__PURE__ */ React.createElement("button", { onClick: () => setIs3D((v) => !v), title: is3D ? "\u041F\u043B\u043E\u0441\u043A\u0430\u044F \u043F\u0440\u043E\u0435\u043A\u0446\u0438\u044F" : "\u041E\u0431\u044A\u0451\u043C\u043D\u044B\u0439 \u0440\u0435\u0436\u0438\u043C (3D)", style: { width: 36, height: 36, borderRadius: 10, border: "1px solid " + (is3D ? "#a21caf" : "#e5e5ea"), background: is3D ? "#a21caf" : "#fff", color: is3D ? "#fff" : "#424245", fontSize: 12, fontWeight: 700, letterSpacing: 0.5, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" } }, "3D"), /* @__PURE__ */ React.createElement("button", { disabled: yasna2Drill != null, onClick: () => setStarRotation((r) => r === "ccw" ? null : "ccw"), title: yasna2Drill != null ? "\u041D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u043F\u0440\u0438 \u043E\u0442\u043A\u0440\u044B\u0442\u043E\u0439 sub-\u042F\u0441\u043D\u0435" : starRotation === "ccw" ? "\u041E\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C \u0432\u0440\u0430\u0449\u0435\u043D\u0438\u0435" : "\u0412\u0440\u0430\u0449\u0430\u0442\u044C \u043F\u0440\u043E\u0442\u0438\u0432 \u0447\u0430\u0441\u043E\u0432\u043E\u0439", style: { width: 36, height: 36, borderRadius: 10, border: "1px solid " + (starRotation === "ccw" ? "#a21caf" : "#e5e5ea"), background: starRotation === "ccw" ? "#a21caf" : "#fff", color: starRotation === "ccw" ? "#fff" : "#424245", fontSize: 21, lineHeight: 1, cursor: yasna2Drill != null ? "not-allowed" : "pointer", opacity: yasna2Drill != null ? 0.4 : 1, display: "flex", alignItems: "center", justifyContent: "center" } }, "\u21BA"), /* @__PURE__ */ React.createElement("button", { disabled: yasna2Drill != null, onClick: () => setStarRotation((r) => r === "cw" ? null : "cw"), title: yasna2Drill != null ? "\u041D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u043F\u0440\u0438 \u043E\u0442\u043A\u0440\u044B\u0442\u043E\u0439 sub-\u042F\u0441\u043D\u0435" : starRotation === "cw" ? "\u041E\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C \u0432\u0440\u0430\u0449\u0435\u043D\u0438\u0435" : "\u0412\u0440\u0430\u0449\u0430\u0442\u044C \u043F\u043E \u0447\u0430\u0441\u043E\u0432\u043E\u0439", style: { width: 36, height: 36, borderRadius: 10, border: "1px solid " + (starRotation === "cw" ? "#a21caf" : "#e5e5ea"), background: starRotation === "cw" ? "#a21caf" : "#fff", color: starRotation === "cw" ? "#fff" : "#424245", fontSize: 21, lineHeight: 1, cursor: yasna2Drill != null ? "not-allowed" : "pointer", opacity: yasna2Drill != null ? 0.4 : 1, display: "flex", alignItems: "center", justifyContent: "center" } }, "\u21BB"), /* @__PURE__ */ React.createElement("button", { onClick: () => setRotPanelOpen((o) => !o), title: "\u0421\u043A\u043E\u0440\u043E\u0441\u0442\u044C \u0432\u0440\u0430\u0449\u0435\u043D\u0438\u044F \u0438 \u0440\u0435\u0436\u0438\u043C\u044B", style: { width: 36, height: 36, borderRadius: 10, border: "1px solid " + (rotPanelOpen ? "#a21caf" : "#e5e5ea"), background: rotPanelOpen ? "#a21caf" : "#fff", color: rotPanelOpen ? "#fff" : "#424245", fontSize: 18, lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" } }, "\u22EF")), rotPanelOpen && /* @__PURE__ */ React.createElement("div", { onClick: (e) => e.stopPropagation(), style: { position: "absolute", top: 50, right: 10, width: 240, zIndex: 7, background: "#fff", border: "1px solid #d2d2d7", borderRadius: 12, boxShadow: "0 6px 24px rgba(0,0,0,.12)", padding: "12px 14px" } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 } }, /* @__PURE__ */ React.createElement("span", { style: { fontWeight: 600, fontSize: 11, color: "#581c87", letterSpacing: 0.5, textTransform: "uppercase" } }, "\u0421\u043A\u043E\u0440\u043E\u0441\u0442\u044C"), /* @__PURE__ */ React.createElement("span", { style: { color: "#a21caf", fontWeight: 700, fontVariantNumeric: "tabular-nums", fontSize: 12 } }, rotationSpeed, "s/\u043E\u0431\u043E\u0440\u043E\u0442")), /* @__PURE__ */ React.createElement("input", { type: "range", min: "5", max: "120", value: rotationSpeed, onChange: (e) => setRotationSpeed(+e.target.value), style: { width: "100%" } }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", fontSize: 9.5, color: "#86868b", marginTop: -2, marginBottom: 8 } }, /* @__PURE__ */ React.createElement("span", null, "\u0431\u044B\u0441\u0442\u0440\u043E"), /* @__PURE__ */ React.createElement("span", null, "\u043C\u0435\u0434\u0438\u0442\u0430\u0442\u0438\u0432\u043D\u043E")), /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600, fontSize: 11, color: "#581c87", letterSpacing: 0.5, textTransform: "uppercase", marginBottom: 6 } }, "\u041E\u0434\u0438\u043D \u043E\u0431\u043E\u0440\u043E\u0442"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6 } }, /* @__PURE__ */ React.createElement("button", { disabled: yasna2Drill != null || starRotation !== null, onClick: () => impulseRotation("ccw"), style: { flex: 1, padding: "7px", borderRadius: 8, border: "1px solid #e5e5ea", background: "#fff", color: "#581c87", fontSize: 11.5, cursor: "pointer" } }, "\u27F2 \u041F\u0440\u043E\u0442\u0438\u0432"), /* @__PURE__ */ React.createElement("button", { disabled: yasna2Drill != null || starRotation !== null, onClick: () => impulseRotation("cw"), style: { flex: 1, padding: "7px", borderRadius: 8, border: "1px solid #e5e5ea", background: "#fff", color: "#581c87", fontSize: 11.5, cursor: "pointer" } }, "\u27F3 \u041F\u043E \u0447\u0430\u0441\u043E\u0432\u043E\u0439")), is3D && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 10, padding: "7px 9px", background: "rgba(162,28,175,.08)", borderRadius: 8, fontSize: 10.5, color: "#581c87", lineHeight: 1.45 } }, /* @__PURE__ */ React.createElement("b", { style: { color: "#a21caf" } }, "3D \u0440\u0435\u0436\u0438\u043C."), " Drag \u2014 \u0432\u0440\u0430\u0449\u0435\u043D\u0438\u0435, \u043A\u043E\u043B\u0435\u0441\u043E \u2014 zoom, \u043A\u043B\u0438\u043A \u043F\u043E \u0448\u0430\u0440\u0443 \u2014 \u0432\u044B\u0431\u043E\u0440."), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 12, paddingTop: 12, borderTop: "1px solid #e5e5ea" } }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600, fontSize: 11, color: "#581c87", letterSpacing: 0.5, textTransform: "uppercase", marginBottom: 6 } }, "\u041E\u0442\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0435"), /* @__PURE__ */ React.createElement("button", { onClick: () => setShowComposition((c) => !c), title: "\u0421\u043E\u0441\u0442\u0430\u0432 4 \u043F\u0440\u0430\u043D \u0432 \u043A\u0430\u0436\u0434\u043E\u0439 \u041F\u043E\u043B\u043A\u0435", style: { width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 8, border: `1px solid ${showComposition ? "rgba(192,148,58,.5)" : "#e5e5ea"}`, background: showComposition ? "rgba(192,148,58,.10)" : "#fff", color: showComposition ? "#7a5e25" : "#424245", fontSize: 12.5, cursor: "pointer", fontWeight: 500, marginBottom: 6 } }, /* @__PURE__ */ React.createElement("span", { style: { display: "inline-flex", gap: 1.5, alignItems: "center", flexShrink: 0 } }, /* @__PURE__ */ React.createElement("span", { style: { width: 3, height: 14, background: "#C0943A", borderRadius: 1 } }), /* @__PURE__ */ React.createElement("span", { style: { width: 3, height: 14, background: "#4090D8", borderRadius: 1 } }), /* @__PURE__ */ React.createElement("span", { style: { width: 3, height: 14, background: "#06B6D4", borderRadius: 1 } }), /* @__PURE__ */ React.createElement("span", { style: { width: 3, height: 14, background: "#F06838", borderRadius: 1 } })), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, textAlign: "left" } }, "\u0421\u0442\u0438\u0445\u0438\u0438"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: showComposition ? "#7a5e25" : "#aeaeb2", fontWeight: 600 } }, showComposition ? "\u0412\u043A\u043B" : "\u0412\u044B\u043A\u043B")), /* @__PURE__ */ React.createElement("button", { onClick: () => overlay ? setOverlay(null) : setShowOverlayPicker(true), title: overlay ? "\u0421\u043D\u044F\u0442\u044C \u0441\u043E\u0432\u043C\u0435\u0449\u0435\u043D\u0438\u0435" : "\u0421\u043E\u0432\u043C\u0435\u0441\u0442\u0438\u0442\u044C \u0434\u0432\u0435 \u042F\u0441\u043D\u044B \u0434\u043B\u044F \u0441\u0440\u0430\u0432\u043D\u0435\u043D\u0438\u044F", style: { width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 8, border: `1px solid ${overlay ? "rgba(175,82,222,.5)" : "#e5e5ea"}`, background: overlay ? "rgba(175,82,222,.10)" : "#fff", color: overlay ? "#a21caf" : "#424245", fontSize: 12.5, cursor: "pointer", fontWeight: 500 } }, /* @__PURE__ */ React.createElement("span", { style: { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 18, height: 18, flexShrink: 0, fontSize: 14, fontWeight: 600 } }, overlay ? "\u2297" : "\u2295"), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, textAlign: "left" } }, "\u0421\u043E\u0432\u043C\u0435\u0441\u0442\u0438\u0442\u044C"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: overlay ? "#a21caf" : "#aeaeb2", fontWeight: 600 } }, overlay ? "\u0412\u043A\u043B" : "\u0412\u044B\u043A\u043B")))), /* @__PURE__ */ React.createElement("div", { className: "star-svg-wrap", style: { width: "100%", height: "100%", maxWidth: "none", maxHeight: "none", flex: 1 } }, (() => {
+  } }, /* @__PURE__ */ React.createElement("button", { className: "fullstar-btn", onClick: () => setFullStar(true), style: { display: "none", position: "absolute", top: 8, right: 8, width: 32, height: 32, borderRadius: 8, border: "1px solid #e5e5ea", background: "rgba(255,255,255,.8)", fontSize: 16, zIndex: 5, alignItems: "center", justifyContent: "center" } }, "\u2922"), /* @__PURE__ */ React.createElement("div", { className: "diag-corner-toolbar", style: { position: "absolute", top: 10, right: 10, display: "flex", gap: 4, zIndex: 6, background: "rgba(255,255,255,.94)", backdropFilter: "blur(8px)", border: "1px solid #e5e5ea", borderRadius: 14, padding: "5px 6px", boxShadow: "0 2px 10px rgba(0,0,0,.06)" } }, /* @__PURE__ */ React.createElement("button", { onClick: () => setFullStar(true), title: "\u0412\u043E \u0432\u0435\u0441\u044C \u044D\u043A\u0440\u0430\u043D", style: { width: 36, height: 36, borderRadius: 10, border: "1px solid #e5e5ea", background: "#fff", color: "#424245", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 } }, /* @__PURE__ */ React.createElement("svg", { width: "22", height: "22", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.2", strokeLinecap: "round", strokeLinejoin: "round" }, /* @__PURE__ */ React.createElement("path", { d: "M4 9V4h5" }), /* @__PURE__ */ React.createElement("path", { d: "M20 9V4h-5" }), /* @__PURE__ */ React.createElement("path", { d: "M4 15v5h5" }), /* @__PURE__ */ React.createElement("path", { d: "M20 15v5h-5" }))), /* @__PURE__ */ React.createElement("button", { onClick: () => setIs3D((v) => !v), title: is3D ? "\u041F\u043B\u043E\u0441\u043A\u0430\u044F \u043F\u0440\u043E\u0435\u043A\u0446\u0438\u044F" : "\u041E\u0431\u044A\u0451\u043C\u043D\u044B\u0439 \u0440\u0435\u0436\u0438\u043C (3D)", style: { width: 36, height: 36, borderRadius: 10, border: "1px solid " + (is3D ? "#a21caf" : "#e5e5ea"), background: is3D ? "#a21caf" : "#fff", color: is3D ? "#fff" : "#424245", fontSize: 12, fontWeight: 700, letterSpacing: 0.5, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" } }, "3D"), /* @__PURE__ */ React.createElement("button", { disabled: yasna2Drill != null, onClick: () => setStarRotation((r) => r === "ccw" ? null : "ccw"), title: yasna2Drill != null ? "\u041D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u043F\u0440\u0438 \u043E\u0442\u043A\u0440\u044B\u0442\u043E\u0439 sub-\u042F\u0441\u043D\u0435" : starRotation === "ccw" ? "\u041E\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C \u0432\u0440\u0430\u0449\u0435\u043D\u0438\u0435" : "\u0412\u0440\u0430\u0449\u0430\u0442\u044C \u043F\u0440\u043E\u0442\u0438\u0432 \u0447\u0430\u0441\u043E\u0432\u043E\u0439", style: { width: 36, height: 36, borderRadius: 10, border: "1px solid " + (starRotation === "ccw" ? "#a21caf" : "#e5e5ea"), background: starRotation === "ccw" ? "#a21caf" : "#fff", color: starRotation === "ccw" ? "#fff" : "#424245", fontSize: 21, lineHeight: 1, cursor: yasna2Drill != null ? "not-allowed" : "pointer", opacity: yasna2Drill != null ? 0.4 : 1, display: "flex", alignItems: "center", justifyContent: "center" } }, "\u21BA"), /* @__PURE__ */ React.createElement("button", { disabled: yasna2Drill != null, onClick: () => setStarRotation((r) => r === "cw" ? null : "cw"), title: yasna2Drill != null ? "\u041D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u043D\u043E \u043F\u0440\u0438 \u043E\u0442\u043A\u0440\u044B\u0442\u043E\u0439 sub-\u042F\u0441\u043D\u0435" : starRotation === "cw" ? "\u041E\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C \u0432\u0440\u0430\u0449\u0435\u043D\u0438\u0435" : "\u0412\u0440\u0430\u0449\u0430\u0442\u044C \u043F\u043E \u0447\u0430\u0441\u043E\u0432\u043E\u0439", style: { width: 36, height: 36, borderRadius: 10, border: "1px solid " + (starRotation === "cw" ? "#a21caf" : "#e5e5ea"), background: starRotation === "cw" ? "#a21caf" : "#fff", color: starRotation === "cw" ? "#fff" : "#424245", fontSize: 21, lineHeight: 1, cursor: yasna2Drill != null ? "not-allowed" : "pointer", opacity: yasna2Drill != null ? 0.4 : 1, display: "flex", alignItems: "center", justifyContent: "center" } }, "\u21BB"), /* @__PURE__ */ React.createElement("button", { onClick: () => setRotPanelOpen((o) => !o), title: "\u0421\u043A\u043E\u0440\u043E\u0441\u0442\u044C \u0432\u0440\u0430\u0449\u0435\u043D\u0438\u044F \u0438 \u0440\u0435\u0436\u0438\u043C\u044B", style: { width: 36, height: 36, borderRadius: 10, border: "1px solid " + (rotPanelOpen ? "#a21caf" : "#e5e5ea"), background: rotPanelOpen ? "#a21caf" : "#fff", color: rotPanelOpen ? "#fff" : "#424245", fontSize: 18, lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" } }, "\u22EF")), rotPanelOpen && /* @__PURE__ */ React.createElement("div", { onClick: (e) => e.stopPropagation(), style: { position: "absolute", top: 50, right: 10, width: 240, zIndex: 7, background: "#fff", border: "1px solid #d2d2d7", borderRadius: 12, boxShadow: "0 6px 24px rgba(0,0,0,.12)", padding: "12px 14px" } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 } }, /* @__PURE__ */ React.createElement("span", { style: { fontWeight: 600, fontSize: 11, color: "#581c87", letterSpacing: 0.5, textTransform: "uppercase" } }, "\u0421\u043A\u043E\u0440\u043E\u0441\u0442\u044C"), /* @__PURE__ */ React.createElement("span", { style: { color: "#a21caf", fontWeight: 700, fontVariantNumeric: "tabular-nums", fontSize: 12 } }, rotationSpeed, "s/\u043E\u0431\u043E\u0440\u043E\u0442")), /* @__PURE__ */ React.createElement("input", { type: "range", min: "5", max: "120", value: rotationSpeed, onChange: (e) => setRotationSpeed(+e.target.value), style: { width: "100%" } }), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", fontSize: 9.5, color: "#86868b", marginTop: -2, marginBottom: 8 } }, /* @__PURE__ */ React.createElement("span", null, "\u0431\u044B\u0441\u0442\u0440\u043E"), /* @__PURE__ */ React.createElement("span", null, "\u043C\u0435\u0434\u0438\u0442\u0430\u0442\u0438\u0432\u043D\u043E")), /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600, fontSize: 11, color: "#581c87", letterSpacing: 0.5, textTransform: "uppercase", marginBottom: 6 } }, "\u041E\u0434\u0438\u043D \u043E\u0431\u043E\u0440\u043E\u0442"), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 6 } }, /* @__PURE__ */ React.createElement("button", { disabled: yasna2Drill != null || starRotation !== null, onClick: () => impulseRotation("ccw"), style: { flex: 1, padding: "7px", borderRadius: 8, border: "1px solid #e5e5ea", background: "#fff", color: "#581c87", fontSize: 11.5, cursor: "pointer" } }, "\u27F2 \u041F\u0440\u043E\u0442\u0438\u0432"), /* @__PURE__ */ React.createElement("button", { disabled: yasna2Drill != null || starRotation !== null, onClick: () => impulseRotation("cw"), style: { flex: 1, padding: "7px", borderRadius: 8, border: "1px solid #e5e5ea", background: "#fff", color: "#581c87", fontSize: 11.5, cursor: "pointer" } }, "\u27F3 \u041F\u043E \u0447\u0430\u0441\u043E\u0432\u043E\u0439")), is3D && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 10, padding: "7px 9px", background: "rgba(162,28,175,.08)", borderRadius: 8, fontSize: 10.5, color: "#581c87", lineHeight: 1.45 } }, /* @__PURE__ */ React.createElement("b", { style: { color: "#a21caf" } }, "3D \u0440\u0435\u0436\u0438\u043C."), " Drag \u2014 \u0432\u0440\u0430\u0449\u0435\u043D\u0438\u0435, \u043A\u043E\u043B\u0435\u0441\u043E \u2014 zoom, \u043A\u043B\u0438\u043A \u043F\u043E \u0448\u0430\u0440\u0443 \u2014 \u0432\u044B\u0431\u043E\u0440."), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 12, paddingTop: 12, borderTop: "1px solid #e5e5ea" } }, /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600, fontSize: 11, color: "#581c87", letterSpacing: 0.5, textTransform: "uppercase", marginBottom: 6 } }, "\u041E\u0442\u043E\u0431\u0440\u0430\u0436\u0435\u043D\u0438\u0435"), /* @__PURE__ */ React.createElement("button", { onClick: () => setShowComposition((c) => !c), title: "\u0421\u043E\u0441\u0442\u0430\u0432 4 \u043F\u0440\u0430\u043D \u0432 \u043A\u0430\u0436\u0434\u043E\u0439 \u041F\u043E\u043B\u043A\u0435", style: { width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 8, border: `1px solid ${showComposition ? "rgba(192,148,58,.5)" : "#e5e5ea"}`, background: showComposition ? "rgba(192,148,58,.10)" : "#fff", color: showComposition ? "#7a5e25" : "#424245", fontSize: 12.5, cursor: "pointer", fontWeight: 500, marginBottom: 6 } }, /* @__PURE__ */ React.createElement("span", { style: { display: "inline-flex", gap: 1.5, alignItems: "center", flexShrink: 0 } }, /* @__PURE__ */ React.createElement("span", { style: { width: 3, height: 14, background: "#C0943A", borderRadius: 1 } }), /* @__PURE__ */ React.createElement("span", { style: { width: 3, height: 14, background: "#4090D8", borderRadius: 1 } }), /* @__PURE__ */ React.createElement("span", { style: { width: 3, height: 14, background: "#06B6D4", borderRadius: 1 } }), /* @__PURE__ */ React.createElement("span", { style: { width: 3, height: 14, background: "#F06838", borderRadius: 1 } })), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, textAlign: "left" } }, "\u0421\u0442\u0438\u0445\u0438\u0438"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: showComposition ? "#7a5e25" : "#aeaeb2", fontWeight: 600 } }, showComposition ? "\u0412\u043A\u043B" : "\u0412\u044B\u043A\u043B")), /* @__PURE__ */ React.createElement("button", { onClick: () => overlay ? setOverlay(null) : setShowOverlayPicker(true), title: overlay ? "\u0421\u043D\u044F\u0442\u044C \u0441\u043E\u0432\u043C\u0435\u0449\u0435\u043D\u0438\u0435" : "\u0421\u043E\u0432\u043C\u0435\u0441\u0442\u0438\u0442\u044C \u0434\u0432\u0435 \u042F\u0441\u043D\u044B \u0434\u043B\u044F \u0441\u0440\u0430\u0432\u043D\u0435\u043D\u0438\u044F", style: { width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 8, border: `1px solid ${overlay ? "rgba(175,82,222,.5)" : "#e5e5ea"}`, background: overlay ? "rgba(175,82,222,.10)" : "#fff", color: overlay ? "#a21caf" : "#424245", fontSize: 12.5, cursor: "pointer", fontWeight: 500, marginBottom: is3D ? 6 : 0 } }, /* @__PURE__ */ React.createElement("span", { style: { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 18, height: 18, flexShrink: 0, fontSize: 14, fontWeight: 600 } }, overlay ? "\u2297" : "\u2295"), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, textAlign: "left" } }, "\u0421\u043E\u0432\u043C\u0435\u0441\u0442\u0438\u0442\u044C"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: overlay ? "#a21caf" : "#aeaeb2", fontWeight: 600 } }, overlay ? "\u0412\u043A\u043B" : "\u0412\u044B\u043A\u043B")), is3D && /* @__PURE__ */ React.createElement("button", { onClick: () => setSolidMech((s) => !s), title: "\u0417\u0430\u043F\u043E\u043B\u043D\u0438\u0442\u044C \u0433\u0435\u043E\u043C\u0435\u0442\u0440\u0438\u0447\u0435\u0441\u043A\u0438\u0435 \u0444\u0438\u0433\u0443\u0440\u044B \u043C\u0435\u0445\u0430\u043D\u0438\u043A \u0441\u043F\u043B\u043E\u0448\u043D\u043E\u0439 \u0437\u0430\u043B\u0438\u0432\u043A\u043E\u0439", style: { width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 8, border: `1px solid ${solidMech ? "rgba(0,113,227,.5)" : "#e5e5ea"}`, background: solidMech ? "rgba(0,113,227,.10)" : "#fff", color: solidMech ? "#0058b8" : "#424245", fontSize: 12.5, cursor: "pointer", fontWeight: 500 } }, /* @__PURE__ */ React.createElement("span", { style: { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 18, height: 18, flexShrink: 0 } }, /* @__PURE__ */ React.createElement("svg", { width: "14", height: "14", viewBox: "0 0 24 24", fill: solidMech ? "currentColor" : "none", stroke: "currentColor", strokeWidth: "1.8" }, /* @__PURE__ */ React.createElement("polygon", { points: "12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2" }))), /* @__PURE__ */ React.createElement("span", { style: { flex: 1, textAlign: "left" } }, "\u0421\u043F\u043B\u043E\u0448\u043D\u043E\u0439 \u0440\u0435\u0436\u0438\u043C"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: solidMech ? "#0058b8" : "#aeaeb2", fontWeight: 600 } }, solidMech ? "\u0412\u043A\u043B" : "\u0412\u044B\u043A\u043B")))), /* @__PURE__ */ React.createElement("div", { className: "star-svg-wrap", style: { width: "100%", height: "100%", maxWidth: "none", maxHeight: "none", flex: 1 } }, (() => {
     const onStarSel = (next) => {
       if (next === null && sel !== null && panelCollapsed) {
         setPanelCollapsed(false);
@@ -10662,7 +10686,7 @@ function App() {
       }
       setSel(next);
     };
-    return is3D ? /* @__PURE__ */ React.createElement(Yasna3DView, { y, af, sel, onSel: onStarSel, rotationOn: starRotation, speedSec: rotationSpeed, drill: yasna2Drill, onDrill: setYasna2Drill, subPolki: yasna2Drill != null ? getSubPolki(y.name, yasna2Drill) : null }) : /* @__PURE__ */ React.createElement(Star, { yy: y, sel, onSel: onStarSel, hl, af, showOpp: af.includes("opp"), overlay, mob: typeof window !== "undefined" && window.innerWidth <= 768, drill: yasna2Drill, onDrill: setYasna2Drill, subPolki: yasna2Drill != null ? getSubPolki(y.name, yasna2Drill) : null, starRotation, rotationSpeed, showComposition });
+    return is3D ? /* @__PURE__ */ React.createElement(Yasna3DView, { y, af, sel, onSel: onStarSel, rotationOn: starRotation, speedSec: rotationSpeed, drill: yasna2Drill, onDrill: setYasna2Drill, subPolki: yasna2Drill != null ? getSubPolki(y.name, yasna2Drill) : null, solidMech }) : /* @__PURE__ */ React.createElement(Star, { yy: y, sel, onSel: onStarSel, hl, af, showOpp: af.includes("opp"), overlay, mob: typeof window !== "undefined" && window.innerWidth <= 768, drill: yasna2Drill, onDrill: setYasna2Drill, subPolki: yasna2Drill != null ? getSubPolki(y.name, yasna2Drill) : null, starRotation, rotationSpeed, showComposition });
   })()), /* @__PURE__ */ React.createElement(OverlayLegend, { y, overlay, onClear: () => setOverlay(null) }))), sel !== null && /* @__PURE__ */ React.createElement("aside", { className: "side-panel" + (panelCollapsed ? " collapsed" : ""), "aria-label": "\u041A\u0430\u0440\u0442\u043E\u0447\u043A\u0430 \u043F\u043E\u043B\u043A\u0438" }, /* @__PURE__ */ React.createElement("button", { className: "side-panel-toggle", onClick: () => setPanelCollapsed((c) => !c), title: panelCollapsed ? "\u0420\u0430\u0437\u0432\u0435\u0440\u043D\u0443\u0442\u044C \u043F\u0430\u043D\u0435\u043B\u044C" : "\u0421\u0432\u0435\u0440\u043D\u0443\u0442\u044C \u043F\u0430\u043D\u0435\u043B\u044C", "aria-label": panelCollapsed ? "\u0420\u0430\u0437\u0432\u0435\u0440\u043D\u0443\u0442\u044C \u043F\u0430\u043D\u0435\u043B\u044C" : "\u0421\u0432\u0435\u0440\u043D\u0443\u0442\u044C \u043F\u0430\u043D\u0435\u043B\u044C" }, panelCollapsed ? "\u2039" : "\u203A"), !panelCollapsed && /* @__PURE__ */ React.createElement(Info, { i: sel, p: y.p, af, y, overlay, onEdit: () => setEd(true), onClose: () => setPanelCollapsed(true), onSel: setSel }))), yasna2Drill != null && drillEditing && /* @__PURE__ */ React.createElement("div", { style: { flexShrink: 0, padding: "14px 18px", background: "linear-gradient(180deg,rgba(162,28,175,.04),rgba(162,28,175,.08))", borderTop: "1px solid rgba(162,28,175,.25)", maxHeight: "40vh", overflowY: "auto" } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10, marginBottom: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, color: "#a21caf", fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" } }, "Sub-\u041F\u043E\u043B\u043A\u0438 \u0432\u043D\u0443\u0442\u0440\u0435\u043D\u043D\u0435\u0439 \u042F\u0441\u043D\u044B \u041F\u043E\u043B\u043A\u0438 ", yasna2Drill), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: "#86868b" } }, "\xB7 \u0441\u043E\u0445\u0440\u0430\u043D\u044F\u0435\u0442\u0441\u044F \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438")), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 8 } }, Array.from({ length: 12 }, (_, j) => {
     const v = getSubPolki(y.name, yasna2Drill)[j] || "";
     return /* @__PURE__ */ React.createElement("div", { key: j, style: { display: "flex", gap: 8, alignItems: "center" } }, /* @__PURE__ */ React.createElement("span", { style: { width: 24, height: 24, borderRadius: "50%", border: "1.5px solid #a21caf", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: "#a21caf", flexShrink: 0, background: "#fff" } }, j), /* @__PURE__ */ React.createElement("input", { value: v, onChange: (e) => setSubPolkaAt(y.name, yasna2Drill, j, e.target.value), placeholder: "\u043D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 sub-\u043F\u043E\u043B\u043A\u0438", style: { flex: 1, padding: "6px 10px", border: "1px solid #d2d2d7", borderRadius: 7, fontSize: 12.5, fontFamily: "inherit", outline: "none", background: "#fff" }, onFocus: (e) => {

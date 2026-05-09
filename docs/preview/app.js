@@ -803,6 +803,9 @@ function App(){
     return ()=>{ try{root.unmount();}catch(_){} div.remove(); };
   },[showDuel]);
   const[panelCollapsed,setPanelCollapsed]=useState(false);
+  // Сплошной режим механик в 3D — сохраняется в localStorage
+  const[solidMech,setSolidMech]=useState(()=>{ try{return localStorage.getItem('yasna_solid_mech')==='1'}catch(_){return false} });
+  useEffect(()=>{ try{localStorage.setItem('yasna_solid_mech', solidMech?'1':'0')}catch(_){} },[solidMech]);
   const[activeLesson,setActiveLesson]=useState(null);
   const[completedLessons,setCompletedLessons]=useState([]);
   // Auto-close burger menu when any modal/panel opens
@@ -1089,11 +1092,19 @@ function App(){
               <span style={{fontSize:10,color:showComposition?'#7a5e25':'#aeaeb2',fontWeight:600}}>{showComposition?'Вкл':'Выкл'}</span>
             </button>
             {/* Совместить — переехала из тулбара */}
-            <button onClick={()=>overlay?setOverlay(null):setShowOverlayPicker(true)} title={overlay?'Снять совмещение':'Совместить две Ясны для сравнения'} style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1px solid ${overlay?'rgba(175,82,222,.5)':'#e5e5ea'}`,background:overlay?'rgba(175,82,222,.10)':'#fff',color:overlay?'#a21caf':'#424245',fontSize:12.5,cursor:'pointer',fontWeight:500}}>
+            <button onClick={()=>overlay?setOverlay(null):setShowOverlayPicker(true)} title={overlay?'Снять совмещение':'Совместить две Ясны для сравнения'} style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1px solid ${overlay?'rgba(175,82,222,.5)':'#e5e5ea'}`,background:overlay?'rgba(175,82,222,.10)':'#fff',color:overlay?'#a21caf':'#424245',fontSize:12.5,cursor:'pointer',fontWeight:500,marginBottom:is3D?6:0}}>
               <span style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:18,height:18,flexShrink:0,fontSize:14,fontWeight:600}}>{overlay?'⊗':'⊕'}</span>
               <span style={{flex:1,textAlign:'left'}}>Совместить</span>
               <span style={{fontSize:10,color:overlay?'#a21caf':'#aeaeb2',fontWeight:600}}>{overlay?'Вкл':'Выкл'}</span>
             </button>
+            {/* Сплошной режим — только в 3D, заполняет геометрические фигуры механик */}
+            {is3D && <button onClick={()=>setSolidMech(s=>!s)} title='Заполнить геометрические фигуры механик сплошной заливкой' style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1px solid ${solidMech?'rgba(0,113,227,.5)':'#e5e5ea'}`,background:solidMech?'rgba(0,113,227,.10)':'#fff',color:solidMech?'#0058b8':'#424245',fontSize:12.5,cursor:'pointer',fontWeight:500}}>
+              <span style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:18,height:18,flexShrink:0}}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill={solidMech?'currentColor':'none'} stroke="currentColor" strokeWidth="1.8"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/></svg>
+              </span>
+              <span style={{flex:1,textAlign:'left'}}>Сплошной режим</span>
+              <span style={{fontSize:10,color:solidMech?'#0058b8':'#aeaeb2',fontWeight:600}}>{solidMech?'Вкл':'Выкл'}</span>
+            </button>}
           </div>
         </div>}
         <div className="star-svg-wrap" style={{width:'100%',height:'100%',maxWidth:'none',maxHeight:'none',flex:1}}>{(()=>{
@@ -1108,7 +1119,7 @@ function App(){
             setSel(next);
           };
           return is3D
-            ? <Yasna3DView y={y} af={af} sel={sel} onSel={onStarSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null}/>
+            ? <Yasna3DView y={y} af={af} sel={sel} onSel={onStarSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} solidMech={solidMech}/>
             : <Star yy={y} sel={sel} onSel={onStarSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} starRotation={starRotation} rotationSpeed={rotationSpeed} showComposition={showComposition}/>;
         })()}</div>
         <OverlayLegend y={y} overlay={overlay} onClear={()=>setOverlay(null)}/>
