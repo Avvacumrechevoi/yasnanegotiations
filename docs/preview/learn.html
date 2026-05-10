@@ -168,239 +168,221 @@ a { color: inherit; text-decoration: none; }
 }
 .l-progress-count { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text-primary); }
 
-/* ─── MAP ─── */
-.l-map-wrap {
-  max-width: 1320px;
+/* ═══ PATH — вертикальный таймлайн обучения ═══ */
+.l-path-wrap {
+  max-width: 1100px;
   margin: 32px auto 0;
   padding: 0 16px;
   position: relative;
 }
-.l-map-card {
-  background:
-    radial-gradient(ellipse 50% 70% at 30% 50%, rgba(0, 119, 255, 0.05) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 80% at 80% 50%, rgba(246, 198, 74, 0.04) 0%, transparent 70%),
-    var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 28px;
-  padding: 32px 24px 40px;
-  position: relative;
-  overflow: hidden;
+.l-path-header {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap;
+  margin-bottom: 28px;
 }
-.l-map-svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-height: 620px;
-}
-
-/* ─── Карта России: 2-слойный stage ─── */
-.l-map-stage {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 960 / 540;
-  max-height: 640px;
-  margin: 0 auto;
-}
-.l-russia-bg {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(168, 177, 190, 0.18);  /* фон карты — тусклый серо-синий, регулируется CSS */
-  pointer-events: none;
-  filter: drop-shadow(0 0 30px rgba(0, 119, 255, 0.04));
-}
-.l-russia-bg svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-/* Линии границ регионов — едва заметные */
-.l-russia-bg svg path[style*="stroke"],
-.l-russia-bg svg path {
-  stroke: rgba(255, 255, 255, 0.04) !important;
-  stroke-width: 0.5 !important;
-  transition: fill 200ms ease;
-}
-.l-russia-bg.l-russia-loading::before {
-  content: '';
-  position: absolute; inset: 50% auto auto 50%;
-  width: 32px; height: 32px;
-  border: 2px solid rgba(255,255,255,0.1);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  animation: l-spin 0.8s linear infinite;
-}
-@keyframes l-spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
-
-.l-map-overlay {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-/* outline (legacy) */
-.l-map-svg .country-outline {
-  fill: rgba(255, 255, 255, 0.015);
-  stroke: rgba(255, 255, 255, 0.10);
-  stroke-width: 1.2;
-  stroke-dasharray: 4 4;
-}
-.l-map-svg .country-mass {
-  fill: rgba(255, 255, 255, 0.025);
-  stroke: rgba(255, 255, 255, 0.07);
-  stroke-width: 1;
-}
-.l-map-svg .water {
-  fill: rgba(0, 119, 255, 0.06);
-  stroke: rgba(0, 119, 255, 0.20);
-  stroke-width: 1;
-}
-.l-map-svg .route {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.22);
-  stroke-width: 1.5;
-  stroke-dasharray: 3 6;
-  stroke-linecap: round;
-}
-.l-map-svg .route-done {
-  fill: none;
-  stroke: var(--gold);
-  stroke-width: 2.4;
-  stroke-linecap: round;
-  filter: drop-shadow(0 0 6px rgba(246, 198, 74, 0.4));
-}
-
-/* city pin */
-.l-pin { cursor: pointer; transition: all 220ms ease; }
-.l-pin-bg { fill: var(--bg-elevated); stroke: var(--text-muted); stroke-width: 1.6; transition: all 220ms ease; }
-.l-pin-num { fill: var(--text-secondary); font-family: var(--font-display); font-weight: 700; font-size: 13px; text-anchor: middle; dominant-baseline: central; transition: fill 220ms ease; user-select: none; pointer-events: none; }
-.l-pin-label {
-  fill: var(--text-secondary);
+.l-path-title {
   font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 13px;
-  letter-spacing: 0.01em;
-  pointer-events: none;
-  transition: fill 220ms ease;
+  font-size: 22px; font-weight: 600; letter-spacing: -0.012em;
+  color: var(--text-primary); margin: 0;
 }
-.l-pin-sublabel {
-  fill: var(--text-muted);
+.l-path-legend {
+  display: flex; gap: 18px; flex-wrap: wrap;
+  font-size: 12.5px; color: var(--text-muted);
   font-family: var(--font-sans);
-  font-weight: 400;
-  font-size: 10.5px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  pointer-events: none;
 }
+.l-path-legend-item { display: flex; align-items: center; gap: 7px; }
+.l-path-legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.l-path-legend-dot.active { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+.l-path-legend-dot.done   { background: var(--gold); }
+.l-path-legend-dot.locked { background: var(--text-muted); opacity: 0.5; }
 
-/* status: locked */
-.l-pin[data-status="locked"] .l-pin-bg { fill: var(--bg-elevated); stroke: var(--text-muted); opacity: 0.55; }
-.l-pin[data-status="locked"] .l-pin-num { fill: var(--text-muted); opacity: 0.55; }
-.l-pin[data-status="locked"] .l-pin-label { opacity: 0.55; }
+/* Сам путь — список .l-stop карточек, соединённых вертикальной линией */
+.l-path { position: relative; padding-left: 0; list-style: none; margin: 0; }
 
-/* status: active (current) */
-.l-pin[data-status="active"] .l-pin-bg { fill: var(--accent); stroke: var(--accent-hover); filter: drop-shadow(0 0 14px var(--accent-glow)); }
-.l-pin[data-status="active"] .l-pin-num { fill: white; }
-.l-pin[data-status="active"] .l-pin-label { fill: var(--text-primary); font-weight: 700; }
-.l-pin[data-status="active"] .l-pin-pulse {
-  fill: none; stroke: var(--accent); stroke-width: 1.5; opacity: 0.5;
-  transform-origin: center;
-  animation: pulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* status: done */
-.l-pin[data-status="done"] .l-pin-bg { fill: var(--gold-soft); stroke: var(--gold); }
-.l-pin[data-status="done"] .l-pin-num { fill: var(--gold); }
-.l-pin[data-status="done"] .l-pin-label { fill: var(--gold); }
-
-/* hover */
-.l-pin:hover .l-pin-bg,
-.l-pin:focus-visible .l-pin-bg {
-  transform: scale(1.28);
-  transform-origin: center;
-  filter: drop-shadow(0 0 12px var(--accent-glow));
-}
-.l-pin:hover .l-pin-label,
-.l-pin:focus-visible .l-pin-label { fill: var(--text-primary); }
-.l-pin:hover .l-pin-sublabel,
-.l-pin:focus-visible .l-pin-sublabel { fill: var(--accent); }
-.l-pin:hover .l-pin-halo {
-  opacity: 0.85;
-}
-.l-pin-halo {
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 1;
-  opacity: 0;
-  transition: opacity 200ms ease;
-  pointer-events: none;
-}
-
-/* ─── Floating tooltip над hover-ed пином ─── */
-.l-pin-tooltip {
+/* Вертикальная нить проходит через центр маркеров слева */
+.l-path::before {
+  content: '';
   position: absolute;
+  left: 32px;
+  top: 28px; bottom: 28px;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    var(--gold) 0%,
+    var(--gold) var(--progress, 0%),
+    rgba(255,255,255,0.08) var(--progress, 0%),
+    rgba(255,255,255,0.08) 100%
+  );
+  border-radius: 2px;
+  z-index: 0;
+}
+
+/* Каждая остановка — flex с маркером слева и карточкой справа */
+.l-stop {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
+  padding: 8px 0;
+  margin: 0;
+}
+.l-stop + .l-stop { margin-top: 12px; }
+
+/* Маркер — круг с номером */
+.l-stop-marker {
+  position: relative;
+  flex-shrink: 0;
+  width: 64px;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding-top: 22px;
+  z-index: 1;
+}
+.l-stop-marker__circle {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  border: 2px solid rgba(255,255,255,0.10);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700; font-size: 22px;
+  color: var(--text-secondary);
+  transition: transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1), border-color 200ms, background 200ms, color 200ms, box-shadow 240ms;
+}
+
+/* Карточка остановки */
+.l-stop-card {
+  flex: 1;
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 24px 28px;
+  cursor: pointer;
+  transition: transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1), border-color 200ms, box-shadow 240ms, background 200ms;
+  text-align: left;
+  font-family: var(--font-sans);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px 24px;
+  align-items: center;
+}
+.l-stop-card-info { min-width: 0; grid-column: 1; }
+.l-stop-card-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.l-stop-card-city {
+  font-family: var(--font-display);
+  font-size: 22px; font-weight: 600; letter-spacing: -0.01em;
+  color: var(--text-primary); margin: 0 0 4px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.l-stop-card-theme {
+  display: inline-flex; align-items: center;
+  font-family: var(--font-display);
+  font-size: 12.5px; font-weight: 600;
+  padding: 3px 10px; border-radius: 999px;
+  background: rgba(0, 119, 255, 0.08);
+  color: var(--accent);
+  border: 1px solid rgba(0, 119, 255, 0.18);
+  letter-spacing: 0.01em;
+}
+.l-stop-card-desc {
+  font-size: 14.5px; color: var(--text-secondary); line-height: 1.5;
+  margin: 8px 0 0;
+}
+.l-stop-card-meta {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  font-size: 12.5px; color: var(--text-muted);
+  margin-top: 10px;
+}
+.l-stop-card-meta strong { color: var(--text-secondary); font-weight: 500; }
+
+/* Кнопка-стрелка справа */
+.l-stop-card-cta {
+  grid-column: 2;
+  display: flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px;
+  border-radius: 50%;
   background: var(--bg-elevated);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 10px 14px;
-  pointer-events: none;
-  opacity: 0;
-  transform: translate(-50%, -100%) translateY(-12px);
-  transition: opacity 200ms ease, transform 200ms ease;
-  z-index: 10;
-  white-space: nowrap;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  font-family: var(--font-display);
-  min-width: 140px;
-  text-align: center;
-}
-.l-pin-tooltip.l-show {
-  opacity: 1;
-  transform: translate(-50%, -100%) translateY(-18px);
-}
-.l-pin-tooltip::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-top-color: var(--bg-elevated);
-}
-.l-pin-tooltip__num {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.10em;
-  color: var(--accent);
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-.l-pin-tooltip__city { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
-.l-pin-tooltip__theme { font-size: 12.5px; color: var(--text-secondary); }
-
-@keyframes pulse {
-  0%   { r: 16; opacity: 0.5; }
-  100% { r: 32; opacity: 0; }
+  color: var(--text-secondary);
+  font-size: 20px;
+  transition: all 200ms ease;
+  flex-shrink: 0;
 }
 
-/* legend */
-.l-legend {
-  display: flex; flex-wrap: wrap; gap: 24px; justify-content: center;
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border);
-  font-size: 12px;
+/* ─── Состояния ─── */
+.l-stop[data-status="locked"] .l-stop-card { opacity: 0.55; cursor: not-allowed; }
+.l-stop[data-status="locked"] .l-stop-marker__circle {
+  background: var(--bg-base);
+  border-color: rgba(255,255,255,0.06);
   color: var(--text-muted);
 }
-.l-legend-item { display: flex; align-items: center; gap: 8px; }
-.l-legend-dot { width: 10px; height: 10px; border-radius: 50%; }
-.l-legend-dot.locked { background: var(--text-muted); opacity: 0.5; }
-.l-legend-dot.active { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
-.l-legend-dot.done   { background: var(--gold); box-shadow: 0 0 8px rgba(246, 198, 74, 0.4); }
+.l-stop[data-status="locked"] .l-stop-card-cta { opacity: 0.4; }
+
+.l-stop[data-status="active"] .l-stop-card {
+  border-color: rgba(0,119,255,0.50);
+  box-shadow: 0 12px 32px rgba(0,119,255,0.12), 0 0 0 1px rgba(0,119,255,0.20);
+  background: linear-gradient(135deg, rgba(0,119,255,0.04), transparent 60%), var(--bg-card);
+}
+.l-stop[data-status="active"] .l-stop-marker__circle {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 0 0 6px rgba(0,119,255,0.16), 0 0 24px rgba(0,119,255,0.45);
+}
+.l-stop[data-status="active"] .l-stop-card-cta {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.l-stop[data-status="done"] .l-stop-marker__circle {
+  background: rgba(246,198,74,0.10);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.l-stop[data-status="done"] .l-stop-marker__circle::after {
+  content: '✓';
+  position: absolute; right: 4px; top: 4px;
+  width: 18px; height: 18px;
+  background: var(--gold);
+  color: var(--bg-base);
+  border-radius: 50%;
+  font-size: 11px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 0 2px var(--bg-card);
+}
+.l-stop[data-status="done"] .l-stop-card { background: rgba(246,198,74,0.02); }
+.l-stop[data-status="done"] .l-stop-card-eyebrow { color: var(--gold); }
+
+/* Hover/focus только на доступных карточках. Через transform на child, не на родителе — без jitter. */
+.l-stop:not([data-status="locked"]) .l-stop-card:hover,
+.l-stop:not([data-status="locked"]) .l-stop-card:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(0,119,255,0.50);
+  box-shadow: 0 14px 36px rgba(0,119,255,0.16);
+}
+.l-stop:not([data-status="locked"]) .l-stop-card:hover .l-stop-card-cta,
+.l-stop:not([data-status="locked"]) .l-stop-card:focus-visible .l-stop-card-cta {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* Адаптив: на мобильных делаем компактнее */
+@media (max-width: 640px) {
+  .l-path::before { left: 22px; }
+  .l-stop { gap: 14px; }
+  .l-stop-marker { width: 44px; padding-top: 18px; }
+  .l-stop-marker__circle { width: 38px; height: 38px; font-size: 16px; }
+  .l-stop-card { padding: 18px 18px; grid-template-columns: 1fr; }
+  .l-stop-card-cta { display: none; }
+  .l-stop-card-city { font-size: 18px; }
+  .l-stop-card-desc { font-size: 13.5px; }
+}
 
 /* ─── ACTIVE STATION PANEL ─── */
 .l-active {
@@ -582,8 +564,6 @@ a { color: inherit; text-decoration: none; }
   .l-hero { margin: 24px auto 8px; }
   .l-hero-title { font-size: 36px; }
   .l-progress { padding: 0 16px; }
-  .l-map-card { padding: 16px 8px 20px; border-radius: 18px; }
-  .l-pin-label, .l-pin-sublabel { font-size: 10px; }
   .l-active {
     grid-template-columns: 1fr;
     margin: 20px 16px 60px;
@@ -598,8 +578,6 @@ a { color: inherit; text-decoration: none; }
   .l-back-text { display: none; }
   .l-hero { padding: 0 16px; }
   .l-hero-title { font-size: 30px; }
-  .l-pin-label { display: none; }
-  .l-pin-sublabel { display: none; }
 }
 
 /* ─── A11y ─── */
@@ -638,118 +616,17 @@ a { color: inherit; text-decoration: none; }
   <span class="l-progress-count" id="progressCount">0 из 8</span>
 </div>
 
-<div class="l-map-wrap">
-  <div class="l-map-card">
-    <div class="l-map-stage">
-      <!-- Слой 1: фоновая карта России (загружается через fetch из assets/russia-map.svg) -->
-      <div class="l-russia-bg l-russia-loading" id="russiaBg" aria-hidden="true"></div>
-
-      <!-- Слой 2: overlay с маршрутом и точками -->
-      <svg class="l-map-overlay" viewBox="0 0 960 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Маршрут курса по картам России">
-        <!-- Маршрут — пунктир соединяющий все 8 точек -->
-        <path id="routeBase" class="route" d="
-          M 193 215
-          L 205 230
-          L 235 248
-          L 240 170
-          L 270 255
-          L 320 250
-          L 560 305
-          L 755 370
-        "/>
-
-        <!-- Пройденный кусок маршрута (динамически) -->
-        <path id="routeDone" class="route-done" d="" />
-
-        <!-- ═══ ПИНЫ — координаты пересчитаны на viewBox 960×540 (slide3 проекция) ═══ -->
-        <!-- 1 Москва -->
-        <g class="l-pin" data-id="moscow" data-num="1" data-city="Москва" data-theme="Корень" tabindex="0" role="button" aria-label="Москва — Корень" transform="translate(235, 248)">
-          <circle class="l-pin-halo" r="22" cx="0" cy="0"/>
-          <circle class="l-pin-pulse" r="14" cx="0" cy="0"/>
-          <circle class="l-pin-bg" r="14" cx="0" cy="0"/>
-          <text class="l-pin-num" x="0" y="0">1</text>
-          <text class="l-pin-label" x="20" y="2">Москва</text>
-          <text class="l-pin-sublabel" x="20" y="16">Корень</text>
-        </g>
-
-        <!-- 2 Великий Новгород -->
-        <g class="l-pin" data-id="novgorod" data-num="2" data-city="Великий Новгород" data-theme="Время" tabindex="0" role="button" aria-label="Великий Новгород — Время" transform="translate(205, 230)">
-          <circle class="l-pin-halo" r="22" cx="0" cy="0"/>
-          <circle class="l-pin-bg" r="14" cx="0" cy="0"/>
-          <text class="l-pin-num" x="0" y="0">2</text>
-          <text class="l-pin-label" x="-20" y="2" text-anchor="end">В. Новгород</text>
-          <text class="l-pin-sublabel" x="-20" y="16" text-anchor="end">Время</text>
-        </g>
-
-        <!-- 3 Санкт-Петербург -->
-        <g class="l-pin" data-id="spb" data-num="3" data-city="Санкт-Петербург" data-theme="Слово" tabindex="0" role="button" aria-label="Санкт-Петербург — Слово" transform="translate(193, 215)">
-          <circle class="l-pin-halo" r="22" cx="0" cy="0"/>
-          <circle class="l-pin-bg" r="14" cx="0" cy="0"/>
-          <text class="l-pin-num" x="0" y="0">3</text>
-          <text class="l-pin-label" x="-20" y="2" text-anchor="end">Петербург</text>
-          <text class="l-pin-sublabel" x="-20" y="16" text-anchor="end">Слово</text>
-        </g>
-
-        <!-- 4 Архангельск -->
-        <g class="l-pin" data-id="arkhangelsk" data-num="4" data-city="Архангельск" data-theme="Небо" tabindex="0" role="button" aria-label="Архангельск — Небо" transform="translate(240, 170)">
-          <circle class="l-pin-halo" r="22" cx="0" cy="0"/>
-          <circle class="l-pin-bg" r="14" cx="0" cy="0"/>
-          <text class="l-pin-num" x="0" y="0">4</text>
-          <text class="l-pin-label" x="20" y="2">Архангельск</text>
-          <text class="l-pin-sublabel" x="20" y="16">Небо</text>
-        </g>
-
-        <!-- 5 Казань -->
-        <g class="l-pin" data-id="kazan" data-num="5" data-city="Казань" data-theme="Круг" tabindex="0" role="button" aria-label="Казань — Круг" transform="translate(270, 268)">
-          <circle class="l-pin-halo" r="22" cx="0" cy="0"/>
-          <circle class="l-pin-bg" r="14" cx="0" cy="0"/>
-          <text class="l-pin-num" x="0" y="0">5</text>
-          <text class="l-pin-label" x="20" y="2">Казань</text>
-          <text class="l-pin-sublabel" x="20" y="16">Круг</text>
-        </g>
-
-        <!-- 6 Урал / Екатеринбург -->
-        <g class="l-pin" data-id="ural" data-num="6" data-city="Урал" data-theme="Камень" tabindex="0" role="button" aria-label="Урал — Камень" transform="translate(320, 250)">
-          <circle class="l-pin-halo" r="22" cx="0" cy="0"/>
-          <circle class="l-pin-bg" r="14" cx="0" cy="0"/>
-          <text class="l-pin-num" x="0" y="0">6</text>
-          <text class="l-pin-label" x="20" y="2">Урал</text>
-          <text class="l-pin-sublabel" x="20" y="16">Камень</text>
-        </g>
-
-        <!-- 7 Байкал / Иркутск -->
-        <g class="l-pin" data-id="baikal" data-num="7" data-city="Байкал" data-theme="Вода" tabindex="0" role="button" aria-label="Байкал — Вода" transform="translate(560, 305)">
-          <circle class="l-pin-halo" r="22" cx="0" cy="0"/>
-          <circle class="l-pin-bg" r="14" cx="0" cy="0"/>
-          <text class="l-pin-num" x="0" y="0">7</text>
-          <text class="l-pin-label" x="20" y="2">Байкал</text>
-          <text class="l-pin-sublabel" x="20" y="16">Вода</text>
-        </g>
-
-        <!-- 8 Владивосток -->
-        <g class="l-pin" data-id="vladivostok" data-num="8" data-city="Владивосток" data-theme="Горизонт" tabindex="0" role="button" aria-label="Владивосток — Горизонт" transform="translate(755, 370)">
-          <circle class="l-pin-halo" r="22" cx="0" cy="0"/>
-          <circle class="l-pin-bg" r="14" cx="0" cy="0"/>
-          <text class="l-pin-num" x="0" y="0">8</text>
-          <text class="l-pin-label" x="-20" y="2" text-anchor="end">Владивосток</text>
-          <text class="l-pin-sublabel" x="-20" y="16" text-anchor="end">Горизонт</text>
-        </g>
-      </svg>
-
-      <!-- Floating tooltip — следует за hovered пином -->
-      <div class="l-pin-tooltip" id="pinTooltip" aria-hidden="true">
-        <div class="l-pin-tooltip__num"></div>
-        <div class="l-pin-tooltip__city"></div>
-        <div class="l-pin-tooltip__theme"></div>
-      </div>
-    </div>
-
-    <div class="l-legend">
-      <div class="l-legend-item"><span class="l-legend-dot active"></span><span>Текущая остановка</span></div>
-      <div class="l-legend-item"><span class="l-legend-dot done"></span><span>Пройдено</span></div>
-      <div class="l-legend-item"><span class="l-legend-dot locked"></span><span>Заблокировано</span></div>
+<div class="l-path-wrap">
+  <div class="l-path-header">
+    <h2 class="l-path-title">Путь обучения · 8 остановок</h2>
+    <div class="l-path-legend">
+      <div class="l-path-legend-item"><span class="l-path-legend-dot done"></span><span>Пройдено</span></div>
+      <div class="l-path-legend-item"><span class="l-path-legend-dot active"></span><span>Сейчас</span></div>
+      <div class="l-path-legend-item"><span class="l-path-legend-dot locked"></span><span>Закрыто</span></div>
     </div>
   </div>
+
+  <ol class="l-path" id="learnPath" role="list" style="--progress: 0%;"></ol>
 </div>
 
 <section class="l-active" id="activePanel">
@@ -926,38 +803,49 @@ a { color: inherit; text-decoration: none; }
     return STATIONS.length - 1;
   }
 
-  // ═══ РЕНДЕР ПИНОВ ═══
-  function renderPins(){
-    document.querySelectorAll('.l-pin').forEach((el, i) => {
-      el.dataset.status = getStatus(i);
-    });
-  }
+  // ═══ РЕНДЕР ПУТИ (timeline-список остановок) ═══
+  function renderPath(){
+    const list = document.getElementById('learnPath');
+    if(!list) return;
+    const html = STATIONS.map((s, i) => {
+      const status = getStatus(i);
+      const cta = status === 'done' ? '✓' : (status === 'locked' ? '🔒' : '→');
+      return (
+        '<li class="l-stop" data-status="' + status + '" data-idx="' + i + '">' +
+          '<div class="l-stop-marker" aria-hidden="true">' +
+            '<div class="l-stop-marker__circle">' + s.num + '</div>' +
+          '</div>' +
+          '<button type="button" class="l-stop-card" tabindex="0" aria-label="Открыть остановку ' + s.num + ' — ' + s.city + '">' +
+            '<div class="l-stop-card-info">' +
+              '<div class="l-stop-card-eyebrow">' + (status === 'done' ? 'ПРОЙДЕНО' : (status === 'active' ? 'СЕЙЧАС' : 'ОСТАНОВКА ' + s.num)) + '</div>' +
+              '<h3 class="l-stop-card-city">' + s.city + ' <span class="l-stop-card-theme">' + s.theme + '</span></h3>' +
+              '<p class="l-stop-card-desc">' + (s.subtitle || '') + '</p>' +
+              '<div class="l-stop-card-meta">' +
+                '<span><strong>' + s.duration + '</strong></span>' +
+                '<span>·</span>' +
+                '<span>' + s.format + '</span>' +
+              '</div>' +
+            '</div>' +
+            '<div class="l-stop-card-cta" aria-hidden="true">' + cta + '</div>' +
+          '</button>' +
+        '</li>'
+      );
+    }).join('');
+    list.innerHTML = html;
 
-  // ═══ РЕНДЕР МАРШРУТА (пройденный кусок) ═══
-  // Координаты в SVG viewBox 960×540 (slide3 проекция карты России)
-  function renderRoute(){
-    const points = [
-      [235, 248],  // 1 Москва
-      [205, 230],  // 2 В. Новгород
-      [193, 215],  // 3 Петербург
-      [240, 170],  // 4 Архангельск
-      [270, 268],  // 5 Казань
-      [320, 250],  // 6 Урал
-      [560, 305],  // 7 Байкал
-      [755, 370]   // 8 Владивосток
-    ];
+    // Прогресс-нить — заполняем линию пропорционально пройденным
     const p = getProgress();
-    let lastDoneIdx = -1;
-    for(let i = 0; i < STATIONS.length; i++){
-      if(p[STATIONS[i].id] && p[STATIONS[i].id].done) lastDoneIdx = i;
-    }
-    const doneEl = document.getElementById('routeDone');
-    if(lastDoneIdx < 1){ doneEl.setAttribute('d', ''); return; }
-    let d = `M ${points[0][0]} ${points[0][1]}`;
-    for(let i = 1; i <= lastDoneIdx; i++){
-      d += ` L ${points[i][0]} ${points[i][1]}`;
-    }
-    doneEl.setAttribute('d', d);
+    const doneCount = STATIONS.filter(s => p[s.id] && p[s.id].done).length;
+    const pct = (doneCount / Math.max(1, STATIONS.length)) * 100;
+    list.style.setProperty('--progress', pct + '%');
+
+    // Привязываем клики (заново — innerHTML их сбрасывает)
+    list.querySelectorAll('.l-stop-card').forEach((card, i) => {
+      card.addEventListener('click', () => openStation(i));
+      card.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openStation(i); }
+      });
+    });
   }
 
   // ═══ РЕНДЕР АКТИВНОЙ ПАНЕЛИ ═══
@@ -997,8 +885,7 @@ a { color: inherit; text-decoration: none; }
   }
 
   function renderAll(){
-    renderPins();
-    renderRoute();
+    renderPath();
     renderActive();
     renderProgress();
   }
@@ -1044,71 +931,7 @@ a { color: inherit; text-decoration: none; }
     document.getElementById('modalBg').dataset.open = '';
   }
 
-  // ═══ ЗАГРУЗКА КАРТЫ РОССИИ ═══
-  // Подгружаем фоновую SVG карту из assets и инжектим как inline-SVG.
-  function loadRussiaMap(){
-    const bg = document.getElementById('russiaBg');
-    if(!bg) return;
-    fetch('assets/russia-map.svg', { cache: 'force-cache' })
-      .then(r => r.ok ? r.text() : Promise.reject(r.status))
-      .then(svgText => {
-        // Удаляем XML-декларацию и DOCTYPE, чтобы инлайнить чисто
-        const cleaned = svgText
-          .replace(/<\?xml[^?]+\?>/g, '')
-          .replace(/<!DOCTYPE[^>]+>/g, '');
-        bg.innerHTML = cleaned;
-        bg.classList.remove('l-russia-loading');
-        // Делаем подгруженный svg растягиваемым на контейнер
-        const inner = bg.querySelector('svg');
-        if(inner){
-          inner.removeAttribute('width');
-          inner.removeAttribute('height');
-          inner.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-        }
-      })
-      .catch(err => {
-        console.warn('Russia map failed to load:', err);
-        bg.classList.remove('l-russia-loading');
-      });
-  }
-  loadRussiaMap();
-
-  // ═══ TOOLTIP над активным пином ═══
-  const tooltipEl = document.getElementById('pinTooltip');
-  function showTip(pinEl){
-    if(!tooltipEl || !pinEl) return;
-    const stage = pinEl.closest('.l-map-stage');
-    if(!stage) return;
-    const rect = pinEl.getBoundingClientRect();
-    const stageRect = stage.getBoundingClientRect();
-    const cx = rect.left + rect.width/2 - stageRect.left;
-    const cy = rect.top - stageRect.top;
-    tooltipEl.style.left = cx + 'px';
-    tooltipEl.style.top = cy + 'px';
-    tooltipEl.querySelector('.l-pin-tooltip__num').textContent = 'Остановка ' + pinEl.dataset.num;
-    tooltipEl.querySelector('.l-pin-tooltip__city').textContent = pinEl.dataset.city || '';
-    tooltipEl.querySelector('.l-pin-tooltip__theme').textContent = pinEl.dataset.theme || '';
-    tooltipEl.classList.add('l-show');
-    tooltipEl.setAttribute('aria-hidden', 'false');
-  }
-  function hideTip(){
-    if(!tooltipEl) return;
-    tooltipEl.classList.remove('l-show');
-    tooltipEl.setAttribute('aria-hidden', 'true');
-  }
-
-  // ═══ СОБЫТИЯ ═══
-  document.querySelectorAll('.l-pin').forEach((el, i) => {
-    el.addEventListener('click', () => openStation(i));
-    el.addEventListener('keydown', (e) => {
-      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openStation(i); }
-    });
-    el.addEventListener('mouseenter', () => showTip(el));
-    el.addEventListener('focus', () => showTip(el));
-    el.addEventListener('mouseleave', hideTip);
-    el.addEventListener('blur', hideTip);
-  });
-
+  // ═══ СОБЫТИЯ модалки и закрытия ═══
   document.getElementById('modalClose').addEventListener('click', closeModal);
   document.getElementById('modalSecondary').addEventListener('click', closeModal);
   document.getElementById('modalBg').addEventListener('click', (e) => {
