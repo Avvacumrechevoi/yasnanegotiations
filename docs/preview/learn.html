@@ -193,7 +193,56 @@ a { color: inherit; text-decoration: none; }
   max-height: 620px;
 }
 
-/* outline */
+/* ─── Карта России: 2-слойный stage ─── */
+.l-map-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 960 / 540;
+  max-height: 640px;
+  margin: 0 auto;
+}
+.l-russia-bg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(168, 177, 190, 0.18);  /* фон карты — тусклый серо-синий, регулируется CSS */
+  pointer-events: none;
+  filter: drop-shadow(0 0 30px rgba(0, 119, 255, 0.04));
+}
+.l-russia-bg svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* Линии границ регионов — едва заметные */
+.l-russia-bg svg path[style*="stroke"],
+.l-russia-bg svg path {
+  stroke: rgba(255, 255, 255, 0.04) !important;
+  stroke-width: 0.5 !important;
+  transition: fill 200ms ease;
+}
+.l-russia-bg.l-russia-loading::before {
+  content: '';
+  position: absolute; inset: 50% auto auto 50%;
+  width: 32px; height: 32px;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: l-spin 0.8s linear infinite;
+}
+@keyframes l-spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+.l-map-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* outline (legacy) */
 .l-map-svg .country-outline {
   fill: rgba(255, 255, 255, 0.015);
   stroke: rgba(255, 255, 255, 0.10);
@@ -212,15 +261,15 @@ a { color: inherit; text-decoration: none; }
 }
 .l-map-svg .route {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.18);
-  stroke-width: 1.4;
-  stroke-dasharray: 2 6;
+  stroke: rgba(255, 255, 255, 0.22);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 6;
   stroke-linecap: round;
 }
 .l-map-svg .route-done {
   fill: none;
   stroke: var(--gold);
-  stroke-width: 2.2;
+  stroke-width: 2.4;
   stroke-linecap: round;
   filter: drop-shadow(0 0 6px rgba(246, 198, 74, 0.4));
 }
@@ -269,8 +318,69 @@ a { color: inherit; text-decoration: none; }
 .l-pin[data-status="done"] .l-pin-label { fill: var(--gold); }
 
 /* hover */
-.l-pin:hover .l-pin-bg { transform: scale(1.18); transform-origin: center; }
-.l-pin:hover .l-pin-label { fill: var(--text-primary); }
+.l-pin:hover .l-pin-bg,
+.l-pin:focus-visible .l-pin-bg {
+  transform: scale(1.28);
+  transform-origin: center;
+  filter: drop-shadow(0 0 12px var(--accent-glow));
+}
+.l-pin:hover .l-pin-label,
+.l-pin:focus-visible .l-pin-label { fill: var(--text-primary); }
+.l-pin:hover .l-pin-sublabel,
+.l-pin:focus-visible .l-pin-sublabel { fill: var(--accent); }
+.l-pin:hover .l-pin-halo {
+  opacity: 0.85;
+}
+.l-pin-halo {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1;
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+
+/* ─── Floating tooltip над hover-ed пином ─── */
+.l-pin-tooltip {
+  position: absolute;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -100%) translateY(-12px);
+  transition: opacity 200ms ease, transform 200ms ease;
+  z-index: 10;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  font-family: var(--font-display);
+  min-width: 140px;
+  text-align: center;
+}
+.l-pin-tooltip.l-show {
+  opacity: 1;
+  transform: translate(-50%, -100%) translateY(-18px);
+}
+.l-pin-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--bg-elevated);
+}
+.l-pin-tooltip__num {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.l-pin-tooltip__city { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+.l-pin-tooltip__theme { font-size: 12.5px; color: var(--text-secondary); }
 
 @keyframes pulse {
   0%   { r: 16; opacity: 0.5; }
@@ -530,117 +640,109 @@ a { color: inherit; text-decoration: none; }
 
 <div class="l-map-wrap">
   <div class="l-map-card">
-    <svg class="l-map-svg" viewBox="0 0 1280 620" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Карта России со станциями курса">
+    <div class="l-map-stage">
+      <!-- Слой 1: фоновая карта России (загружается через fetch из assets/russia-map.svg) -->
+      <div class="l-russia-bg l-russia-loading" id="russiaBg" aria-hidden="true"></div>
 
-      <!-- Очень условный контур России — суша как мягкая лента -->
-      <path class="country-mass" d="
-        M 130 240
-        C 200 220, 280 230, 340 240
-        C 380 220, 420 215, 470 195
-        C 520 180, 560 200, 600 215
-        C 660 200, 720 230, 780 235
-        C 840 220, 900 240, 960 245
-        C 1020 235, 1080 250, 1140 270
-        C 1190 285, 1230 305, 1240 350
-        C 1240 410, 1210 460, 1180 490
-        C 1140 510, 1080 510, 1020 495
-        C 960 500, 900 480, 840 475
-        C 780 480, 720 460, 660 460
-        C 600 470, 540 460, 480 450
-        C 420 460, 360 450, 300 430
-        C 240 420, 180 400, 140 360
-        C 110 320, 110 270, 130 240 Z
-      "/>
+      <!-- Слой 2: overlay с маршрутом и точками -->
+      <svg class="l-map-overlay" viewBox="0 0 960 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Маршрут курса по картам России">
+        <!-- Маршрут — пунктир соединяющий все 8 точек -->
+        <path id="routeBase" class="route" d="
+          M 193 215
+          L 205 230
+          L 235 248
+          L 240 170
+          L 270 255
+          L 320 250
+          L 560 305
+          L 755 370
+        "/>
 
-      <!-- Чёрное море (юг-запад) -->
-      <ellipse class="water" cx="280" cy="430" rx="60" ry="22"/>
-      <!-- Каспий (юг) -->
-      <ellipse class="water" cx="500" cy="460" rx="32" ry="48"/>
-      <!-- Байкал (центр-восток) — продолговатый -->
-      <path class="water" d="M 905 380 C 920 380, 935 415, 928 445 C 920 460, 905 455, 895 440 C 888 415, 895 388, 905 380 Z"/>
+        <!-- Пройденный кусок маршрута (динамически) -->
+        <path id="routeDone" class="route-done" d="" />
 
-      <!-- Маршрут — пунктир соединяющий все 8 точек -->
-      <path id="routeBase" class="route" d="
-        M 405 235
-        L 415 270
-        L 430 320
-        L 470 200
-        L 555 320
-        L 670 318
-        L 920 395
-        L 1175 460
-      "/>
+        <!-- ═══ ПИНЫ — координаты пересчитаны на viewBox 960×540 (slide3 проекция) ═══ -->
+        <!-- 1 Москва -->
+        <g class="l-pin" data-id="moscow" data-num="1" data-city="Москва" data-theme="Корень" tabindex="0" role="button" aria-label="Москва — Корень" transform="translate(235, 248)">
+          <circle class="l-pin-halo" r="22" cx="0" cy="0"/>
+          <circle class="l-pin-pulse" r="14" cx="0" cy="0"/>
+          <circle class="l-pin-bg" r="14" cx="0" cy="0"/>
+          <text class="l-pin-num" x="0" y="0">1</text>
+          <text class="l-pin-label" x="20" y="2">Москва</text>
+          <text class="l-pin-sublabel" x="20" y="16">Корень</text>
+        </g>
 
-      <!-- Пройденный кусок маршрута (динамически) -->
-      <path id="routeDone" class="route-done" d="" />
+        <!-- 2 Великий Новгород -->
+        <g class="l-pin" data-id="novgorod" data-num="2" data-city="Великий Новгород" data-theme="Время" tabindex="0" role="button" aria-label="Великий Новгород — Время" transform="translate(205, 230)">
+          <circle class="l-pin-halo" r="22" cx="0" cy="0"/>
+          <circle class="l-pin-bg" r="14" cx="0" cy="0"/>
+          <text class="l-pin-num" x="0" y="0">2</text>
+          <text class="l-pin-label" x="-20" y="2" text-anchor="end">В. Новгород</text>
+          <text class="l-pin-sublabel" x="-20" y="16" text-anchor="end">Время</text>
+        </g>
 
-      <!-- ═══ ПИНЫ ═══ -->
-      <!-- 1 Москва -->
-      <g class="l-pin" data-id="moscow" data-num="1" tabindex="0" role="button" aria-label="Москва — Корень" transform="translate(430, 320)">
-        <circle class="l-pin-pulse" r="16" cx="0" cy="0"/>
-        <circle class="l-pin-bg" r="16" cx="0" cy="0"/>
-        <text class="l-pin-num" x="0" y="0">1</text>
-        <text class="l-pin-label" x="22" y="2">Москва</text>
-        <text class="l-pin-sublabel" x="22" y="18">Корень</text>
-      </g>
+        <!-- 3 Санкт-Петербург -->
+        <g class="l-pin" data-id="spb" data-num="3" data-city="Санкт-Петербург" data-theme="Слово" tabindex="0" role="button" aria-label="Санкт-Петербург — Слово" transform="translate(193, 215)">
+          <circle class="l-pin-halo" r="22" cx="0" cy="0"/>
+          <circle class="l-pin-bg" r="14" cx="0" cy="0"/>
+          <text class="l-pin-num" x="0" y="0">3</text>
+          <text class="l-pin-label" x="-20" y="2" text-anchor="end">Петербург</text>
+          <text class="l-pin-sublabel" x="-20" y="16" text-anchor="end">Слово</text>
+        </g>
 
-      <!-- 2 Великий Новгород -->
-      <g class="l-pin" data-id="novgorod" data-num="2" tabindex="0" role="button" aria-label="Великий Новгород — Время" transform="translate(415, 270)">
-        <circle class="l-pin-bg" r="16" cx="0" cy="0"/>
-        <text class="l-pin-num" x="0" y="0">2</text>
-        <text class="l-pin-label" x="22" y="2">В. Новгород</text>
-        <text class="l-pin-sublabel" x="22" y="18">Время</text>
-      </g>
+        <!-- 4 Архангельск -->
+        <g class="l-pin" data-id="arkhangelsk" data-num="4" data-city="Архангельск" data-theme="Небо" tabindex="0" role="button" aria-label="Архангельск — Небо" transform="translate(240, 170)">
+          <circle class="l-pin-halo" r="22" cx="0" cy="0"/>
+          <circle class="l-pin-bg" r="14" cx="0" cy="0"/>
+          <text class="l-pin-num" x="0" y="0">4</text>
+          <text class="l-pin-label" x="20" y="2">Архангельск</text>
+          <text class="l-pin-sublabel" x="20" y="16">Небо</text>
+        </g>
 
-      <!-- 3 Санкт-Петербург -->
-      <g class="l-pin" data-id="spb" data-num="3" tabindex="0" role="button" aria-label="Санкт-Петербург — Слово" transform="translate(405, 235)">
-        <circle class="l-pin-bg" r="16" cx="0" cy="0"/>
-        <text class="l-pin-num" x="0" y="0">3</text>
-        <text class="l-pin-label" x="-72" y="2" text-anchor="end">Петербург</text>
-        <text class="l-pin-sublabel" x="-72" y="18" text-anchor="end">Слово</text>
-      </g>
+        <!-- 5 Казань -->
+        <g class="l-pin" data-id="kazan" data-num="5" data-city="Казань" data-theme="Круг" tabindex="0" role="button" aria-label="Казань — Круг" transform="translate(270, 268)">
+          <circle class="l-pin-halo" r="22" cx="0" cy="0"/>
+          <circle class="l-pin-bg" r="14" cx="0" cy="0"/>
+          <text class="l-pin-num" x="0" y="0">5</text>
+          <text class="l-pin-label" x="20" y="2">Казань</text>
+          <text class="l-pin-sublabel" x="20" y="16">Круг</text>
+        </g>
 
-      <!-- 4 Архангельск -->
-      <g class="l-pin" data-id="arkhangelsk" data-num="4" tabindex="0" role="button" aria-label="Архангельск — Небо" transform="translate(470, 200)">
-        <circle class="l-pin-bg" r="16" cx="0" cy="0"/>
-        <text class="l-pin-num" x="0" y="0">4</text>
-        <text class="l-pin-label" x="22" y="2">Архангельск</text>
-        <text class="l-pin-sublabel" x="22" y="18">Небо</text>
-      </g>
+        <!-- 6 Урал / Екатеринбург -->
+        <g class="l-pin" data-id="ural" data-num="6" data-city="Урал" data-theme="Камень" tabindex="0" role="button" aria-label="Урал — Камень" transform="translate(320, 250)">
+          <circle class="l-pin-halo" r="22" cx="0" cy="0"/>
+          <circle class="l-pin-bg" r="14" cx="0" cy="0"/>
+          <text class="l-pin-num" x="0" y="0">6</text>
+          <text class="l-pin-label" x="20" y="2">Урал</text>
+          <text class="l-pin-sublabel" x="20" y="16">Камень</text>
+        </g>
 
-      <!-- 5 Казань -->
-      <g class="l-pin" data-id="kazan" data-num="5" tabindex="0" role="button" aria-label="Казань — Круг" transform="translate(555, 320)">
-        <circle class="l-pin-bg" r="16" cx="0" cy="0"/>
-        <text class="l-pin-num" x="0" y="0">5</text>
-        <text class="l-pin-label" x="22" y="2">Казань</text>
-        <text class="l-pin-sublabel" x="22" y="18">Круг</text>
-      </g>
+        <!-- 7 Байкал / Иркутск -->
+        <g class="l-pin" data-id="baikal" data-num="7" data-city="Байкал" data-theme="Вода" tabindex="0" role="button" aria-label="Байкал — Вода" transform="translate(560, 305)">
+          <circle class="l-pin-halo" r="22" cx="0" cy="0"/>
+          <circle class="l-pin-bg" r="14" cx="0" cy="0"/>
+          <text class="l-pin-num" x="0" y="0">7</text>
+          <text class="l-pin-label" x="20" y="2">Байкал</text>
+          <text class="l-pin-sublabel" x="20" y="16">Вода</text>
+        </g>
 
-      <!-- 6 Урал / Екатеринбург -->
-      <g class="l-pin" data-id="ural" data-num="6" tabindex="0" role="button" aria-label="Урал — Камень" transform="translate(670, 318)">
-        <circle class="l-pin-bg" r="16" cx="0" cy="0"/>
-        <text class="l-pin-num" x="0" y="0">6</text>
-        <text class="l-pin-label" x="22" y="2">Урал</text>
-        <text class="l-pin-sublabel" x="22" y="18">Камень</text>
-      </g>
+        <!-- 8 Владивосток -->
+        <g class="l-pin" data-id="vladivostok" data-num="8" data-city="Владивосток" data-theme="Горизонт" tabindex="0" role="button" aria-label="Владивосток — Горизонт" transform="translate(755, 370)">
+          <circle class="l-pin-halo" r="22" cx="0" cy="0"/>
+          <circle class="l-pin-bg" r="14" cx="0" cy="0"/>
+          <text class="l-pin-num" x="0" y="0">8</text>
+          <text class="l-pin-label" x="-20" y="2" text-anchor="end">Владивосток</text>
+          <text class="l-pin-sublabel" x="-20" y="16" text-anchor="end">Горизонт</text>
+        </g>
+      </svg>
 
-      <!-- 7 Байкал / Иркутск -->
-      <g class="l-pin" data-id="baikal" data-num="7" tabindex="0" role="button" aria-label="Байкал — Вода" transform="translate(920, 395)">
-        <circle class="l-pin-bg" r="16" cx="0" cy="0"/>
-        <text class="l-pin-num" x="0" y="0">7</text>
-        <text class="l-pin-label" x="22" y="2">Байкал</text>
-        <text class="l-pin-sublabel" x="22" y="18">Вода</text>
-      </g>
-
-      <!-- 8 Владивосток -->
-      <g class="l-pin" data-id="vladivostok" data-num="8" tabindex="0" role="button" aria-label="Владивосток — Горизонт" transform="translate(1175, 460)">
-        <circle class="l-pin-bg" r="16" cx="0" cy="0"/>
-        <text class="l-pin-num" x="0" y="0">8</text>
-        <text class="l-pin-label" x="-22" y="2" text-anchor="end">Владивосток</text>
-        <text class="l-pin-sublabel" x="-22" y="18" text-anchor="end">Горизонт</text>
-      </g>
-
-    </svg>
+      <!-- Floating tooltip — следует за hovered пином -->
+      <div class="l-pin-tooltip" id="pinTooltip" aria-hidden="true">
+        <div class="l-pin-tooltip__num"></div>
+        <div class="l-pin-tooltip__city"></div>
+        <div class="l-pin-tooltip__theme"></div>
+      </div>
+    </div>
 
     <div class="l-legend">
       <div class="l-legend-item"><span class="l-legend-dot active"></span><span>Текущая остановка</span></div>
@@ -832,10 +934,17 @@ a { color: inherit; text-decoration: none; }
   }
 
   // ═══ РЕНДЕР МАРШРУТА (пройденный кусок) ═══
+  // Координаты в SVG viewBox 960×540 (slide3 проекция карты России)
   function renderRoute(){
     const points = [
-      [430, 320], [415, 270], [405, 235], [470, 200],
-      [555, 320], [670, 318], [920, 395], [1175, 460]
+      [235, 248],  // 1 Москва
+      [205, 230],  // 2 В. Новгород
+      [193, 215],  // 3 Петербург
+      [240, 170],  // 4 Архангельск
+      [270, 268],  // 5 Казань
+      [320, 250],  // 6 Урал
+      [560, 305],  // 7 Байкал
+      [755, 370]   // 8 Владивосток
     ];
     const p = getProgress();
     let lastDoneIdx = -1;
@@ -935,12 +1044,69 @@ a { color: inherit; text-decoration: none; }
     document.getElementById('modalBg').dataset.open = '';
   }
 
+  // ═══ ЗАГРУЗКА КАРТЫ РОССИИ ═══
+  // Подгружаем фоновую SVG карту из assets и инжектим как inline-SVG.
+  function loadRussiaMap(){
+    const bg = document.getElementById('russiaBg');
+    if(!bg) return;
+    fetch('assets/russia-map.svg', { cache: 'force-cache' })
+      .then(r => r.ok ? r.text() : Promise.reject(r.status))
+      .then(svgText => {
+        // Удаляем XML-декларацию и DOCTYPE, чтобы инлайнить чисто
+        const cleaned = svgText
+          .replace(/<\?xml[^?]+\?>/g, '')
+          .replace(/<!DOCTYPE[^>]+>/g, '');
+        bg.innerHTML = cleaned;
+        bg.classList.remove('l-russia-loading');
+        // Делаем подгруженный svg растягиваемым на контейнер
+        const inner = bg.querySelector('svg');
+        if(inner){
+          inner.removeAttribute('width');
+          inner.removeAttribute('height');
+          inner.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        }
+      })
+      .catch(err => {
+        console.warn('Russia map failed to load:', err);
+        bg.classList.remove('l-russia-loading');
+      });
+  }
+  loadRussiaMap();
+
+  // ═══ TOOLTIP над активным пином ═══
+  const tooltipEl = document.getElementById('pinTooltip');
+  function showTip(pinEl){
+    if(!tooltipEl || !pinEl) return;
+    const stage = pinEl.closest('.l-map-stage');
+    if(!stage) return;
+    const rect = pinEl.getBoundingClientRect();
+    const stageRect = stage.getBoundingClientRect();
+    const cx = rect.left + rect.width/2 - stageRect.left;
+    const cy = rect.top - stageRect.top;
+    tooltipEl.style.left = cx + 'px';
+    tooltipEl.style.top = cy + 'px';
+    tooltipEl.querySelector('.l-pin-tooltip__num').textContent = 'Остановка ' + pinEl.dataset.num;
+    tooltipEl.querySelector('.l-pin-tooltip__city').textContent = pinEl.dataset.city || '';
+    tooltipEl.querySelector('.l-pin-tooltip__theme').textContent = pinEl.dataset.theme || '';
+    tooltipEl.classList.add('l-show');
+    tooltipEl.setAttribute('aria-hidden', 'false');
+  }
+  function hideTip(){
+    if(!tooltipEl) return;
+    tooltipEl.classList.remove('l-show');
+    tooltipEl.setAttribute('aria-hidden', 'true');
+  }
+
   // ═══ СОБЫТИЯ ═══
   document.querySelectorAll('.l-pin').forEach((el, i) => {
     el.addEventListener('click', () => openStation(i));
     el.addEventListener('keydown', (e) => {
       if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openStation(i); }
     });
+    el.addEventListener('mouseenter', () => showTip(el));
+    el.addEventListener('focus', () => showTip(el));
+    el.addEventListener('mouseleave', hideTip);
+    el.addEventListener('blur', hideTip);
   });
 
   document.getElementById('modalClose').addEventListener('click', closeModal);
