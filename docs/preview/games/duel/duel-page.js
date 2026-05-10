@@ -169,16 +169,6 @@
 
   // ─── Header ──────────────────────────────────────────────────────
   function DPHeader({ user, onLoginClick, onLogout }){
-    const [helpOpen, setHelpOpen] = useState(false);
-    const helpRef = useRef(null);
-    useEffect(() => {
-      const onDoc = (e) => {
-        if(helpRef.current && !helpRef.current.contains(e.target)) setHelpOpen(false);
-      };
-      if(helpOpen) document.addEventListener('mousedown', onDoc);
-      return () => document.removeEventListener('mousedown', onDoc);
-    }, [helpOpen]);
-
     const onAnchorClick = (id) => (e) => {
       e.preventDefault();
       const el = document.getElementById(id);
@@ -196,29 +186,13 @@
         React.createElement('a', { href: '#hronika', onClick: onAnchorClick('hronika') }, 'Топ недели'),
         React.createElement('a', { href: '#zhurnal', onClick: onAnchorClick('zhurnal') }, 'Журнал'),
         React.createElement('a', { href: '#znaki', onClick: onAnchorClick('znaki') }, 'Достижения'),
-        React.createElement('div', { className: 'dp-header-auth', ref: helpRef, style: { position: 'relative' } },
-          React.createElement('button', {
-            className: 'dp-help-btn',
-            onClick: () => setHelpOpen(v => !v),
-            'aria-label': 'Что это за страница?',
-            'aria-expanded': helpOpen
-          }, '?'),
-          helpOpen && React.createElement('div', { className: 'dp-help-popover' },
-            React.createElement('h4', null, 'Как это работает'),
-            React.createElement('div', null, 'Партия — игровая викторина по модели Ясны Суток. Выбираешь длину (Блиц 10 / Стандарт 18 / Эксперт 30) и соперника (Тень или живой друг). 5 типов заданий, разбор ошибок с цитатами из книги в финале.'),
-            React.createElement('ul', null,
-              React.createElement('li', null, React.createElement('strong', null, 'Бусины ✦'), ' — очки за партии. +10 за верный ответ, +5 бонус за скорость, ×1.2…×2.0 множитель за серию.'),
-              React.createElement('li', null, React.createElement('strong', null, 'Ступень'), ' — твой уровень. Растёт по бусинам: от Послушника до Магистра.'),
-              React.createElement('li', null, React.createElement('strong', null, 'Освоение тем'), ' — карта 9 тем «Ясны Суток» с твоим прогрессом.'),
-              React.createElement('li', null, React.createElement('strong', null, 'Топ недели'), ' — лидерборд по бусинам, обнуляется в субботу 23:59.')
-            )
-          ),
+        React.createElement('div', { className: 'dp-header-auth' },
           user
-            ? React.createElement('button', { className: 'dp-btn-text', onClick: onLogout, style: { marginLeft: 6 } }, 'Выйти')
+            ? React.createElement('button', { className: 'dp-btn-text', onClick: onLogout }, 'Выйти')
             : React.createElement('button', {
                 className: 'dp-btn dp-btn-primary',
                 onClick: onLoginClick,
-                style: { padding: '8px 16px', fontSize: 13, marginLeft: 6 }
+                style: { padding: '8px 16px', fontSize: 13 }
               }, 'Войти')
         )
       )
