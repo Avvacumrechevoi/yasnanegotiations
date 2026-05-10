@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,viewport-fit=cover"/>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <title>Как устроен рейтинг · Ясна</title>
-<meta name="description" content="Две шкалы прогресса в Ясне: личное Освоение (бусины) и Турнирная Каста (PvP-ранг)."/>
+<meta name="description" content="Две шкалы прогресса в Ясне: личное Освоение (бусины) и соревновательная Каста (рейтинг в партиях против другого игрока)."/>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>"/>
 
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -292,6 +292,30 @@
   .rt-tag--caste { background: rgba(0,119,255,.16); color: #5B9CF6; border: 1px solid rgba(0,119,255,.30); }
   .rt-tag--neutral { background: rgba(255,255,255,.06); color: #aeaeb2; border: 1px solid rgba(255,255,255,.10); }
 
+  /* ─── Terms (откуда что) ──────────────────────────────────────── */
+  .rt-terms {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 22px;
+  }
+  @media (max-width: 720px) { .rt-terms { grid-template-columns: 1fr; } }
+  .rt-term {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 14px;
+    padding: 18px 20px;
+  }
+  .rt-term__name {
+    font-family: 'Manrope', ui-serif, Georgia, serif;
+    font-size: 17px; font-weight: 600; color: #fff;
+    margin-bottom: 8px; letter-spacing: -0.005em;
+  }
+  .rt-term__desc {
+    font-size: 14px; color: #d2d2d7; line-height: 1.6;
+  }
+  .rt-term__desc strong { color: #fff; font-weight: 600; }
+
   /* ─── FAQ ──────────────────────────────────────────────────────── */
   .rt-faq { display: flex; flex-direction: column; gap: 10px; }
   .rt-faq details {
@@ -338,7 +362,7 @@
   <p class="rt-lead">
     В Ясне твой путь измеряется по двум независимым шкалам.
     <strong>Освоение</strong> — личный накопительный опыт, который не теряется.
-    <strong>Каста</strong> — соревновательный ранг в играх с другими людьми.
+    <strong>Каста</strong> — соревновательный рейтинг в партиях против живого соперника.
     Каждая отвечает на свой вопрос: «сколько знаешь» и «как играешь».
   </p>
 
@@ -358,8 +382,8 @@
 
     <p class="rt-track-lead">
       Сколько ты знаешь Ясну и как часто играешь.
-      Растёт от каждой партии — соло или PvP. <strong>Никогда не падает.</strong>
-      Это шкала «сколько знаешь».
+      Растёт от каждой партии — одиночной (с Тенью) и против живого соперника.
+      <strong>Никогда не падает.</strong> Это шкала «сколько знаешь».
     </p>
 
     <!-- Formula stat-cards -->
@@ -430,26 +454,26 @@
         </svg>
       </div>
       <div class="rt-track-titles">
-        <div class="rt-track-eyebrow">Турнирный ранг · PR (Player Rank)</div>
+        <div class="rt-track-eyebrow">Соревновательный рейтинг</div>
         <h2 class="rt-track-h2">Каста</h2>
       </div>
     </div>
 
     <p class="rt-track-lead">
-      Твоё место среди живых игроков. Меняется <strong>только в PvP</strong> —
-      с ботами эта шкала не растёт. Может расти и падать — это здоровый соревновательный сигнал.
-      Старт — <strong>PR 1200</strong>.
+      Твоё место среди живых игроков. Меняется только в партиях против другого человека —
+      с Тенью эта шкала не растёт. Может расти и падать; это нормальный соревновательный сигнал,
+      а не наказание. Старт — <strong>1200 пунктов</strong>.
     </p>
 
     <!-- Formula -->
     <div class="rt-formula" style="--accent: #5B9CF6; --accent-bg: rgba(0,119,255,.10); --accent-border: rgba(0,119,255,.25);">
       <div class="rt-formula__card rt-formula__card--accent">
         <div class="rt-formula__big">1200</div>
-        <div class="rt-formula__label">старт PR</div>
+        <div class="rt-formula__label">старт</div>
       </div>
       <div class="rt-formula__card rt-formula__card--accent">
-        <div class="rt-formula__big">±32</div>
-        <div class="rt-formula__label">K-фактор ELO</div>
+        <div class="rt-formula__big">±8…24</div>
+        <div class="rt-formula__label">за партию</div>
       </div>
       <div class="rt-formula__card rt-formula__card--accent">
         <div class="rt-formula__big">800</div>
@@ -457,39 +481,51 @@
       </div>
     </div>
 
-    <!-- Delta examples (визуальная иллюстрация ELO) -->
+    <!-- How rating changes — explained by gap, not exact numbers -->
+    <p class="rt-section-text" style="margin-top: 8px; margin-bottom: 16px;">
+      Размер изменения зависит не от того, на сколько <em>точно</em> отличаются ваши рейтинги,
+      а от того, кто кого победил. Чем больше разрыв — тем сильнее асимметрия:
+      обыграть сильного даёт много, проиграть слабому — больно.
+      Внутри одного «пояса» (около 100 пунктов разницы) изменение почти одинаковое.
+    </p>
+
     <div class="rt-delta-grid">
       <div class="rt-delta-card">
-        <div class="rt-delta-card__title">↑ Победа</div>
+        <div class="rt-delta-card__title">↑ Если ты победил</div>
         <div class="rt-delta-card__row">
-          <span>над сильнее (1400)</span>
-          <span class="rt-delta-card__delta rt-delta-card__delta--win">+24</span>
+          <span>соперник заметно сильнее <span style="color:#6e6e73">(на 200+)</span></span>
+          <span class="rt-delta-card__delta rt-delta-card__delta--win">+22…26</span>
         </div>
         <div class="rt-delta-card__row">
-          <span>над равным (1200)</span>
-          <span class="rt-delta-card__delta rt-delta-card__delta--win">+16</span>
+          <span>примерно равный <span style="color:#6e6e73">(±100)</span></span>
+          <span class="rt-delta-card__delta rt-delta-card__delta--win">+12…20</span>
         </div>
         <div class="rt-delta-card__row">
-          <span>над слабее (1000)</span>
-          <span class="rt-delta-card__delta rt-delta-card__delta--win">+8</span>
+          <span>заметно слабее <span style="color:#6e6e73">(на 200+ ниже)</span></span>
+          <span class="rt-delta-card__delta rt-delta-card__delta--win">+6…10</span>
         </div>
       </div>
       <div class="rt-delta-card">
-        <div class="rt-delta-card__title">↓ Поражение</div>
+        <div class="rt-delta-card__title">↓ Если ты проиграл</div>
         <div class="rt-delta-card__row">
-          <span>от сильнее (1400)</span>
-          <span class="rt-delta-card__delta rt-delta-card__delta--lose">−8</span>
+          <span>соперник заметно сильнее <span style="color:#6e6e73">(на 200+)</span></span>
+          <span class="rt-delta-card__delta rt-delta-card__delta--lose">−6…10</span>
         </div>
         <div class="rt-delta-card__row">
-          <span>от равного (1200)</span>
-          <span class="rt-delta-card__delta rt-delta-card__delta--lose">−16</span>
+          <span>примерно равный <span style="color:#6e6e73">(±100)</span></span>
+          <span class="rt-delta-card__delta rt-delta-card__delta--lose">−12…20</span>
         </div>
         <div class="rt-delta-card__row">
-          <span>от слабее (1000)</span>
-          <span class="rt-delta-card__delta rt-delta-card__delta--lose">−24</span>
+          <span>заметно слабее <span style="color:#6e6e73">(на 200+ ниже)</span></span>
+          <span class="rt-delta-card__delta rt-delta-card__delta--lose">−22…26</span>
         </div>
       </div>
     </div>
+    <p class="rt-section-text" style="margin-top: 14px; color: #6e6e73; font-size: 13.5px; line-height: 1.6;">
+      «Равный» — не «ровно столько же пунктов». Если у соперника 1199, а у тебя 1200 — это всё ещё равный.
+      Граница нечёткая: чем ближе по рейтингу, тем меньше игра считает разницу.
+      Только при разрыве больше 200 пунктов асимметрия становится заметной.
+    </p>
 
     <!-- Caste levels bar -->
     <div class="rt-levels-bar">
@@ -531,45 +567,46 @@
     </div>
   </section>
 
-  <!-- ═══ Comparison ═══ -->
+  <!-- ═══ What changes when ═══ -->
   <section class="rt-section">
-    <h2 class="rt-section-title">Что меняется когда</h2>
+    <h2 class="rt-section-title">Что меняется после партии</h2>
     <p class="rt-section-text">
-      Каждое действие в игре по-разному влияет на обе шкалы. Соло копит бусины, не трогает ранг.
-      PvP двигает обе.
+      Простая логика: <strong>бусины</strong> ты получаешь за каждый верный ответ, в любой партии.
+      <strong>Рейтинг касты</strong> двигается только в партиях против другого человека.
+      С Тенью каста никогда не меняется — это твой личный тренажёр.
     </p>
     <div class="rt-compare">
       <table>
         <thead>
           <tr>
-            <th>Действие</th>
+            <th>Партия</th>
             <th>Освоение</th>
             <th>Каста</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Соло-партия (Тень)</td>
-            <td><span class="rt-tag rt-tag--mastery">+ ✦</span></td>
+            <td>Одиночная (с Тенью)</td>
+            <td><span class="rt-tag rt-tag--mastery">+ бусины</span></td>
             <td><span class="rt-tag rt-tag--neutral">— не меняется</span></td>
           </tr>
           <tr>
-            <td>PvP-партия · победа</td>
-            <td><span class="rt-tag rt-tag--mastery">+ ✦</span></td>
-            <td><span class="rt-tag rt-tag--caste">+ ΔPR</span></td>
+            <td>С другим человеком · победа</td>
+            <td><span class="rt-tag rt-tag--mastery">+ бусины</span></td>
+            <td><span class="rt-tag rt-tag--caste">+ рейтинг</span></td>
           </tr>
           <tr>
-            <td>PvP-партия · поражение</td>
-            <td><span class="rt-tag rt-tag--mastery">+ ✦ за верные</span></td>
-            <td><span class="rt-tag rt-tag--caste">− ΔPR</span></td>
+            <td>С другим человеком · поражение</td>
+            <td><span class="rt-tag rt-tag--mastery">+ бусины за верные</span></td>
+            <td><span class="rt-tag rt-tag--caste">− рейтинг</span></td>
           </tr>
           <tr>
-            <td>PvP · сдался досрочно</td>
-            <td><span class="rt-tag rt-tag--mastery">+ ✦ за пройденное</span></td>
-            <td><span class="rt-tag rt-tag--caste">− ΔPR (штраф)</span></td>
+            <td>Сдался досрочно</td>
+            <td><span class="rt-tag rt-tag--mastery">+ бусины за пройденное</span></td>
+            <td><span class="rt-tag rt-tag--caste">− рейтинг (штраф)</span></td>
           </tr>
           <tr>
-            <td>Дисконнект</td>
+            <td>Прервалась связь</td>
             <td><span class="rt-tag rt-tag--neutral">— не меняется</span></td>
             <td><span class="rt-tag rt-tag--neutral">— не меняется</span></td>
           </tr>
@@ -578,26 +615,70 @@
     </div>
   </section>
 
-  <!-- ═══ Why split ═══ -->
+  <!-- ═══ Откуда что · Терминология и легенда ═══ -->
   <section class="rt-section">
-    <h2 class="rt-section-title">Зачем разделили</h2>
+    <h2 class="rt-section-title">Откуда что</h2>
     <p class="rt-section-text">
-      Раньше всё считалось одной кучей. Это было несправедливо: 100 партий со слабым ботом
-      приравнивалось к 100 партиям против сильных людей. Теперь освоение и каста —
-      разные шкалы.
+      Название игры и шкал — отсылка к роману Германа Гессе «Игра в бисер».
+      Касталия в романе — школа-орден, где знание разных областей мира сводится в единый язык.
+      Игроки нанизывают бусины: каждая — связь между идеями из науки, музыки, поэзии, математики.
     </p>
-    <p class="rt-section-text">
-      <strong>Освоение</strong> — твой личный путь, не падает. Хочешь только изучать —
-      играй с Тенью, копи бусины, расти по ступеням.
-    </p>
-    <p class="rt-section-text">
-      <strong>Каста</strong> — соревновательная картина. Растёт когда побеждаешь равных или сильных.
-      Падает при поражении. Это шкала «как ты играешь против других».
-    </p>
-    <p class="rt-section-text" style="color:#aeaeb2; font-size:13.5px; font-style:italic; margin-top:18px;">
-      Названия — отсылка к Hesse: Касталия как образовательная иерархия,
-      Магистр Игры (Magister Ludi) — глава ордена в «Игре в бисер».
-    </p>
+
+    <div class="rt-terms">
+      <div class="rt-term">
+        <div class="rt-term__name">✦ Бусина</div>
+        <div class="rt-term__desc">
+          Каждый верный ответ. У Гессе бусины — узлы в нити знания: ты соединяешь разрозненные явления
+          одним способом мышления. В Ясне бусина — это маленький факт того, что ты увидел структуру
+          в новом примере. Никогда не пропадает: что узнал — то твоё.
+        </div>
+      </div>
+
+      <div class="rt-term">
+        <div class="rt-term__name">Освоение</div>
+        <div class="rt-term__desc">
+          Личная шкала пути. Растёт только вверх. Отвечает на вопрос: «сколько я уже понимаю».
+          Ступени — академические: <strong>Послушник → Студент → Бакалавр → Магистр → Доктор</strong>.
+          Доктор — открытая высшая ступень, без потолка.
+        </div>
+      </div>
+
+      <div class="rt-term">
+        <div class="rt-term__name">Каста</div>
+        <div class="rt-term__desc">
+          Соревновательная шкала. Меняется только в партиях против живого соперника.
+          Отвечает на вопрос: «как я играю против других». Ступени касты:
+          <strong>Странник → Знаток → Игрок → Магистр Игры → Великий Магистр</strong>.
+          Магистр Игры (у Гессе — Magister Ludi) — глава ордена; Великий Магистр у нас — высшая каста.
+        </div>
+      </div>
+
+      <div class="rt-term">
+        <div class="rt-term__name">Рейтинг</div>
+        <div class="rt-term__desc">
+          Число, которое стоит за кастой. Старт — 1200 пунктов, каждый получает одинаково.
+          Растёт после побед, падает после поражений; размер зависит от соперника.
+          Каста — это «диапазон рейтинга». Например, 1100—1399 — это Знаток.
+        </div>
+      </div>
+
+      <div class="rt-term">
+        <div class="rt-term__name">Тень</div>
+        <div class="rt-term__desc">
+          Соперник в одиночной партии. Не живой человек, а тренажёр —
+          задаёт темп и проверяет твои ответы. Игра с Тенью копит бусины и помогает изучать темы,
+          но не меняет каста-рейтинг: побеждать тренажёр — не то же, что побеждать человека.
+        </div>
+      </div>
+
+      <div class="rt-term">
+        <div class="rt-term__name">Партия</div>
+        <div class="rt-term__desc">
+          Одна сессия игры — несколько вопросов по выбранным темам.
+          Может быть одиночной (с Тенью) или против другого человека.
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- ═══ FAQ ═══ -->
@@ -606,35 +687,35 @@
     <div class="rt-faq">
       <details>
         <summary>Можно ли потерять бусины?</summary>
-        <p>Нет. Бусины — это память о пройденном пути. Они только накапливаются. Поражения, сдача и timeout не уменьшают бусины.</p>
+        <p>Нет. Бусины — это память о пройденном пути. Они только накапливаются. Поражения, сдача и истёкшее время не уменьшают бусины.</p>
       </details>
       <details>
-        <summary>Почему мой PR упал? Я ведь правильно отвечал!</summary>
-        <p>В PvP важно не только насколько ты прав, но и кто соперник. Если ты проиграл сильному игроку — потеря небольшая (−8). Если слабому — больше (−24). Это нормальная ELO-логика. Бусины при этом продолжают начисляться за верные ответы.</p>
+        <summary>Почему мой рейтинг упал? Я ведь правильно отвечал!</summary>
+        <p>В партиях против человека важно не только насколько ты прав, но и кто соперник. Если ты проиграл явно более сильному — потеря небольшая. Если соперник был слабее — больше. Это симметрично работает и в плюс: побеждать сильного приносит больше, чем побеждать слабого. Бусины при этом продолжают начисляться за каждый твой верный ответ.</p>
       </details>
       <details>
-        <summary>Нужно ли играть в PvP?</summary>
-        <p>Не обязательно. Если хочешь только изучать Ясну — играй с Тенью, копи бусины, расти по ступеням. PvP добавляет соревновательный слой для тех, кому интересно меряться силой с другими.</p>
+        <summary>Нужно ли играть с другими людьми?</summary>
+        <p>Не обязательно. Если хочешь только изучать Ясну — играй с Тенью, копи бусины, расти по ступеням Освоения. Партии против живого соперника добавляют соревновательный слой для тех, кому интересно меряться силой с другими.</p>
       </details>
       <details>
         <summary>Что если я долго не играл — упадёт ли каста?</summary>
-        <p>Нет. PR не «выветривается». Ты возвращаешься на той же касте, на которой ушёл.</p>
+        <p>Нет. Рейтинг не «выветривается». Ты возвращаешься на той же касте, на которой ушёл.</p>
       </details>
       <details>
         <summary>Можно ли стать Великим Магистром только играя с Тенью?</summary>
-        <p>Нет — Великий Магистр это <strong style="color:#fff">только PvP</strong>-каста, она требует побед над живыми игроками. Но ты можешь стать <strong style="color:#fff">Доктором</strong> по линии Освоения, играя только соло — это путь знания, а не состязания.</p>
+        <p>Нет — Великий Магистр это высшая каста, она требует побед над живыми игроками. Но ты можешь стать <strong style="color:#fff">Доктором</strong> по линии Освоения, играя только с Тенью — это путь знания, а не состязания.</p>
       </details>
       <details>
         <summary>Я сильный по Освоению (Магистр), но слабый по Касте (Странник). Это нормально?</summary>
-        <p>Да, это нормально и даже типично. Ты много знаешь, но мало играл против людей. Бусины — про знание; PR — про практику соревнования. Они разные навыки.</p>
+        <p>Да, это нормально и даже типично. Ты много знаешь, но мало играл против людей. Бусины — про знание; рейтинг — про практику соревнования. Это разные навыки.</p>
       </details>
     </div>
   </section>
 
   <div class="rt-foot">
-    <strong>Версия системы рейтинга</strong>: v2 (текущая разработка). Раньше была одна общая «бусины + ступень».
-    Сейчас идёт переход на двухтрековую модель — пока на странице описано как должно быть; PR-расчёт включится в ближайшем релизе.
-    Бусины и ступени работают как раньше, без потерь.
+    <strong>Версия системы</strong>: v2 (в разработке). Идёт переход на двухтрековую модель —
+    пока на странице описано, как это будет; полный пересчёт рейтинга включится в ближайшем релизе.
+    Бусины и ступени Освоения работают как раньше — без потерь и без сбросов.
   </div>
 
 </div>
