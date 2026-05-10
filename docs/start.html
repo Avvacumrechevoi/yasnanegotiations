@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta name="theme-color" content="#0a0b0d"/>
+<title>Ясна — интерактивный тренажёр</title>
+<meta name="description" content="Видеть устройство любого явления по методу Ясны. Учить · Играть · Изучать звезду из 36 Ясн."/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Ясна — интерактивный тренажёр"/>
+<meta property="og:description" content="Видеть устройство любого явления по методу Ясны."/>
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet"/>
+
+<style>
+/* ─── VK Tech tokens (inline) — единая палитра с дуэлью ─── */
+:root {
+  --bg-base:        #0a0b0d;
+  --bg-surface:     #131517;
+  --bg-elevated:    #1A1D20;
+  --bg-card:        #16191C;
+  --bg-tonal:       #262A2E;
+
+  --text-primary:   #FEFEFE;
+  --text-secondary: #A8B1BE;
+  --text-tertiary:  #626D7A;
+
+  --border:         rgba(255, 255, 255, 0.06);
+  --border-strong:  rgba(255, 255, 255, 0.10);
+
+  /* PRIMARY ACCENT — VK Play Blue #0077FF (как в дуэли) */
+  --accent:         #0077FF;
+  --accent-hover:   #16A7FF;          /* VK Play Light Blue */
+  --accent-soft:    rgba(0, 119, 255, 0.12);
+  --accent-glow:    rgba(0, 119, 255, 0.30);
+  --accent-on:      #FFFFFF;          /* текст на синей кнопке */
+
+  /* SECONDARY ACCENT — VK Cyan #00D3E6, только для декоративных glow */
+  --accent-2:       #00D3E6;
+  --accent-2-soft:  rgba(0, 211, 230, 0.10);
+
+  --font-sans:      'Inter', system-ui, -apple-system, sans-serif;
+  --font-display:   'Manrope', system-ui, sans-serif;
+  --font-serif:     'Cormorant Garamond', Georgia, serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 30%, rgba(0, 119, 255, 0.07) 0%, transparent 60%),
+    var(--bg-base);
+  background-attachment: fixed;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   HEADER · pill-карточка с лого, навигацией и CTA
+   ═══════════════════════════════════════════════════════════════════ */
+
+.s-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 24px auto 0;
+  padding: 8px 8px 8px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  position: sticky;
+  top: 16px;
+  z-index: 10;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.s-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+.s-brand-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-hover);
+  font-size: 18px;
+  border: 1px solid rgba(0, 119, 255, 0.25);
+  flex-shrink: 0;
+}
+.s-brand-text { display: flex; flex-direction: column; line-height: 1; }
+.s-brand-name {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.s-brand-sub {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-top: 4px;
+}
+
+.s-nav {
+  display: flex;
+  gap: 4px;
+}
+.s-nav-link {
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-radius: 100px;
+  transition: color 150ms ease, background 150ms ease;
+}
+.s-nav-link:hover { color: var(--text-primary); background: var(--bg-tonal); }
+.s-nav-link.is-active { color: var(--text-primary); background: var(--bg-tonal); }
+
+.s-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--accent);
+  color: var(--accent-on);
+  border: none;
+  border-radius: 100px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 4px 16px var(--accent-glow);
+  transition: background 150ms ease, transform 100ms ease, box-shadow 150ms ease;
+}
+.s-cta:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px var(--accent-glow);
+}
+.s-cta:active { transform: translateY(0); }
+
+/* ═══════════════════════════════════════════════════════════════════
+   HERO · большой заголовок + 2 CTA
+   ═══════════════════════════════════════════════════════════════════ */
+
+.s-hero {
+  position: relative;
+  margin: 64px auto 0;
+  max-width: 1200px;
+  padding: 80px 24px;
+  background: linear-gradient(180deg, rgba(0, 119, 255, 0.05) 0%, transparent 100%);
+  border: 1px solid var(--border);
+  border-radius: 32px;
+  text-align: center;
+}
+
+.s-hero-eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 32px;
+}
+
+.s-hero-title {
+  font-family: var(--font-serif);
+  font-size: clamp(40px, 7vw, 88px);
+  line-height: 1.05;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  margin: 0 auto 32px;
+  max-width: 1000px;
+}
+.s-hero-title-accent {
+  color: var(--accent);
+  font-style: italic;
+  font-weight: 600;
+}
+
+.s-hero-desc {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.6;
+  font-weight: 400;
+  color: var(--text-secondary);
+  max-width: 640px;
+  margin: 0 auto 40px;
+}
+
+.s-hero-cta-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.s-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 28px;
+  border-radius: 100px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 180ms ease;
+  border: 1px solid transparent;
+}
+.s-btn-primary {
+  background: var(--accent);
+  color: var(--accent-on);
+  box-shadow: 0 8px 32px var(--accent-glow),
+              inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+.s-btn-primary:hover {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 119, 255, 0.45),
+              inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+.s-btn-secondary {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+.s-btn-secondary:hover {
+  background: var(--bg-tonal);
+  border-color: var(--text-tertiary);
+}
+.s-btn-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.20);
+  font-size: 14px;
+  margin-left: 4px;
+}
+.s-btn-secondary .s-btn-arrow {
+  background: var(--bg-tonal);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FEATURES · 5 карточек с иконками
+   ═══════════════════════════════════════════════════════════════════ */
+
+.s-features {
+  max-width: 1200px;
+  margin: 56px auto 80px;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.s-feature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 28px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+.s-feature:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  background: var(--bg-elevated);
+  box-shadow: 0 16px 40px rgba(0, 119, 255, 0.15);
+}
+
+.s-feature-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(0, 119, 255, 0.22) 0%, rgba(0, 119, 255, 0.06) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  border: 1px solid rgba(0, 119, 255, 0.22);
+  position: relative;
+}
+.s-feature-icon::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(0, 119, 255, 0.40) 0%, transparent 50%);
+  z-index: -1;
+  filter: blur(10px);
+  opacity: 0.5;
+  transition: opacity 200ms ease;
+}
+.s-feature:hover .s-feature-icon::before { opacity: 1; }
+
+.s-feature-icon svg {
+  width: 32px;
+  height: 32px;
+  color: var(--accent);
+}
+
+.s-feature-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+.s-feature-title {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+.s-feature-desc {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  flex: 1 1 auto;
+}
+.s-feature-link {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-top: auto;
+}
+
+/* ─── Mobile ─── */
+@media (max-width: 1024px) {
+  .s-features { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 767px) {
+  .s-header {
+    margin: 12px;
+    padding: 8px 8px 8px 14px;
+    border-radius: 100px;
+  }
+  .s-nav { display: none; }
+  .s-brand-name { font-size: 10px; }
+  .s-brand-sub { font-size: 12px; }
+  .s-brand-mark { width: 36px; height: 36px; font-size: 16px; }
+  .s-cta { padding: 10px 18px; font-size: 13px; }
+
+  .s-hero {
+    margin: 24px 12px 0;
+    padding: 48px 20px;
+    border-radius: 24px;
+  }
+  .s-hero-title { font-size: 36px; }
+  .s-hero-desc { font-size: 15px; }
+  .s-btn { padding: 14px 20px; font-size: 14px; }
+
+  .s-features { margin: 32px 12px 32px; gap: 10px; grid-template-columns: 1fr; padding: 0; }
+  .s-feature { padding: 20px 16px; flex-direction: row; align-items: flex-start; text-align: left; }
+  .s-feature-icon { margin-bottom: 0; margin-right: 16px; flex-shrink: 0; width: 52px; height: 52px; }
+  .s-feature-eyebrow { margin-bottom: 6px; }
+  .s-feature-title { font-size: 18px; margin-bottom: 6px; }
+  .s-feature-desc { margin-bottom: 8px; font-size: 13px; }
+  .s-feature-link { font-size: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header class="s-header">
+  <a href="#" class="s-brand">
+    <span class="s-brand-mark" aria-hidden="true">✦</span>
+    <span class="s-brand-text">
+      <span class="s-brand-name">YASNA</span>
+      <span class="s-brand-sub">Интерактивный тренажёр</span>
+    </span>
+  </a>
+  <nav class="s-nav" aria-label="Навигация">
+    <a href="#" class="s-nav-link is-active">Главная</a>
+    <a href="index.html" class="s-nav-link" data-path="explore">Звезда</a>
+    <a href="duel.html" class="s-nav-link" data-path="play">Партия</a>
+  </nav>
+  <a href="index.html" class="s-cta" data-path="explore">Открыть звезду</a>
+</header>
+
+<!-- ═══ HERO ═══ -->
+<section class="s-hero">
+  <div class="s-hero-eyebrow">Метод Ясны · 12 полок · 36 Ясн</div>
+  <h1 class="s-hero-title">
+    Видеть устройство любого явления<br/>
+    <span class="s-hero-title-accent">по методу Ясны</span>
+  </h1>
+  <p class="s-hero-desc">
+    Метод раскладывает день, год, жизнь — любое явление — на двенадцать полок.
+    Пройдите путь по Руси, играйте партии, изучайте 36 готовых Ясн.
+  </p>
+  <div class="s-hero-cta-row">
+    <a href="learn.html" class="s-btn s-btn-primary" data-path="learn">
+      Начать путь
+      <span class="s-btn-arrow" aria-hidden="true">→</span>
+    </a>
+    <a href="duel.html" class="s-btn s-btn-secondary" data-path="play">
+      Сыграть Партию
+      <span class="s-btn-arrow" aria-hidden="true">→</span>
+    </a>
+  </div>
+</section>
+
+<!-- ═══ FEATURES ═══ -->
+<section class="s-features" aria-label="Что внутри">
+
+  <a href="learn.html" class="s-feature" data-path="learn">
+    <div class="s-feature-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M3 8.5l9-5 9 5-9 5-9-5z" stroke-linejoin="round"/>
+        <path d="M7 11v4.5c0 1.5 2.5 2.5 5 2.5s5-1 5-2.5V11" stroke-linecap="round"/>
+        <path d="M21 8.5v6" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="s-feature-eyebrow">Курс</div>
+    <h3 class="s-feature-title">Путь по Руси</h3>
+    <p class="s-feature-desc">Восемь остановок от Москвы до океана — собери русское мировоззрение по 12 полкам.</p>
+    <span class="s-feature-link">Открыть карту →</span>
+  </a>
+
+  <a href="duel.html" class="s-feature" data-path="play">
+    <div class="s-feature-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 7v5l3 2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="s-feature-eyebrow">Партия</div>
+    <h3 class="s-feature-title">Сыграть викторину</h3>
+    <p class="s-feature-desc">18 вопросов · соло с Тенью или вдвоём по ссылке. Бусины, ступени, разбор в финале.</p>
+    <span class="s-feature-link">Сыграть →</span>
+  </a>
+
+  <a href="index.html" class="s-feature" data-path="explore">
+    <div class="s-feature-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 3v18M3 12h18M5.5 5.5l13 13M18.5 5.5l-13 13" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="s-feature-eyebrow">Библиотека</div>
+    <h3 class="s-feature-title">36 готовых Ясн</h3>
+    <p class="s-feature-desc">Сутки, Года, Жизни, Переговоры — переключай явления на одной 12-полочной звезде.</p>
+    <span class="s-feature-link">Открыть библиотеку →</span>
+  </a>
+
+  <a href="index.html" class="s-feature" data-path="create">
+    <div class="s-feature-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M16.5 4.5l3 3-11 11H5.5v-3l11-11z" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M14 7l3 3" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="s-feature-eyebrow">Конструктор</div>
+    <h3 class="s-feature-title">Собрать свою Ясну</h3>
+    <p class="s-feature-desc">Опиши явление по 12 полкам — сохрани в личную коллекцию и поделись ссылкой.</p>
+    <span class="s-feature-link">Открыть редактор →</span>
+  </a>
+
+</section>
+
+<script>
+(function(){
+  'use strict';
+  var VISITED_KEY = 'yasna_visited';
+  var THEME_KEY = 'yasna_theme_vk_dark';
+
+  // Авто-скип отключён — лендинг всегда показывается при прямом заходе.
+  // ?reset=1 всё ещё чистит флаг yasna_visited (для отладки).
+  try {
+    var params = new URLSearchParams(window.location.search);
+    if(params.get('reset') === '1'){
+      localStorage.removeItem(VISITED_KEY);
+    }
+  } catch(_){}
+
+  // Включаем тёмную тему по умолчанию
+  try {
+    if(localStorage.getItem(THEME_KEY) === null){
+      localStorage.setItem(THEME_KEY, '1');
+    }
+  } catch(_){}
+
+  // Mark visited на любой клик-путь
+  document.querySelectorAll('[data-path]').forEach(function(el){
+    el.addEventListener('click', function(){
+      try {
+        localStorage.setItem(VISITED_KEY, '1');
+        var path = el.getAttribute('data-path');
+        var stat = JSON.parse(localStorage.getItem('yasna_path_stats') || '{}');
+        stat[path] = (stat[path] || 0) + 1;
+        localStorage.setItem('yasna_path_stats', JSON.stringify(stat));
+      } catch(_){}
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

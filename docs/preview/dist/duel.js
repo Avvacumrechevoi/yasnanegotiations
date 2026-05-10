@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-09T23:45:16.511Z */
+/* Yasna bundle: duel.js — собран 2026-05-10T01:07:29.889Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5877,7 +5877,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-09T23:45:15.364Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-05-10T01:07:28.262Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -21153,7 +21153,7 @@ window.YasnaCore = {
               className: "dp-btn"
             }, "\u041F\u0435\u0440\u0435\u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C"),
             React.createElement("a", {
-              href: "index.html",
+              href: "start.html",
               className: "dp-btn dp-btn-primary",
               style: { textDecoration: "none" }
             }, "\u041A \u042F\u0441\u043D\u0435")
@@ -21255,15 +21255,6 @@ window.YasnaCore = {
     return r[n] || n + "";
   }
   function DPHeader({ user, onLoginClick, onLogout }) {
-    const [helpOpen, setHelpOpen] = useState(false);
-    const helpRef = useRef(null);
-    useEffect(() => {
-      const onDoc = (e) => {
-        if (helpRef.current && !helpRef.current.contains(e.target)) setHelpOpen(false);
-      };
-      if (helpOpen) document.addEventListener("mousedown", onDoc);
-      return () => document.removeEventListener("mousedown", onDoc);
-    }, [helpOpen]);
     const onAnchorClick = (id) => (e) => {
       e.preventDefault();
       const el = document.getElementById(id);
@@ -21274,7 +21265,7 @@ window.YasnaCore = {
       { className: "dp-header" },
       React.createElement(
         "a",
-        { href: "index.html", className: "dp-header-back", title: "\u041A \u042F\u0441\u043D\u0435", "aria-label": "\u0412\u0435\u0440\u043D\u0443\u0442\u044C\u0441\u044F \u043A \u042F\u0441\u043D\u0435" },
+        { href: "start.html", className: "dp-header-back", title: "\u041A \u042F\u0441\u043D\u0435", "aria-label": "\u0412\u0435\u0440\u043D\u0443\u0442\u044C\u0441\u044F \u043A \u042F\u0441\u043D\u0435" },
         React.createElement("span", { className: "dp-header-back-arrow", "aria-hidden": "true" }, "\u2190"),
         React.createElement("span", null, "\u042F\u0441\u043D\u0430")
       ),
@@ -21282,36 +21273,17 @@ window.YasnaCore = {
       React.createElement(
         "nav",
         { className: "dp-header-nav" },
+        React.createElement("a", { href: "rating.html", title: "\u041A\u0430\u043A \u0443\u0441\u0442\u0440\u043E\u0435\u043D\u044B \u0448\u043A\u0430\u043B\u044B \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441\u0430" }, "\u0420\u0435\u0439\u0442\u0438\u043D\u0433"),
         React.createElement("a", { href: "#hronika", onClick: onAnchorClick("hronika") }, "\u0422\u043E\u043F \u043D\u0435\u0434\u0435\u043B\u0438"),
         React.createElement("a", { href: "#zhurnal", onClick: onAnchorClick("zhurnal") }, "\u0416\u0443\u0440\u043D\u0430\u043B"),
         React.createElement("a", { href: "#znaki", onClick: onAnchorClick("znaki") }, "\u0414\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F"),
         React.createElement(
           "div",
-          { className: "dp-header-auth", ref: helpRef, style: { position: "relative" } },
-          React.createElement("button", {
-            className: "dp-help-btn",
-            onClick: () => setHelpOpen((v) => !v),
-            "aria-label": "\u0427\u0442\u043E \u044D\u0442\u043E \u0437\u0430 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0430?",
-            "aria-expanded": helpOpen
-          }, "?"),
-          helpOpen && React.createElement(
-            "div",
-            { className: "dp-help-popover" },
-            React.createElement("h4", null, "\u041A\u0430\u043A \u044D\u0442\u043E \u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442"),
-            React.createElement("div", null, "\u041F\u0430\u0440\u0442\u0438\u044F \u2014 \u0438\u0433\u0440\u043E\u0432\u0430\u044F \u0432\u0438\u043A\u0442\u043E\u0440\u0438\u043D\u0430 \u043F\u043E \u043C\u043E\u0434\u0435\u043B\u0438 \u042F\u0441\u043D\u044B \u0421\u0443\u0442\u043E\u043A. \u0412\u044B\u0431\u0438\u0440\u0430\u0435\u0448\u044C \u0434\u043B\u0438\u043D\u0443 (\u0411\u043B\u0438\u0446 10 / \u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442 18 / \u042D\u043A\u0441\u043F\u0435\u0440\u0442 30) \u0438 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u0430 (\u0422\u0435\u043D\u044C \u0438\u043B\u0438 \u0436\u0438\u0432\u043E\u0439 \u0434\u0440\u0443\u0433). 5 \u0442\u0438\u043F\u043E\u0432 \u0437\u0430\u0434\u0430\u043D\u0438\u0439, \u0440\u0430\u0437\u0431\u043E\u0440 \u043E\u0448\u0438\u0431\u043E\u043A \u0441 \u0446\u0438\u0442\u0430\u0442\u0430\u043C\u0438 \u0438\u0437 \u043A\u043D\u0438\u0433\u0438 \u0432 \u0444\u0438\u043D\u0430\u043B\u0435."),
-            React.createElement(
-              "ul",
-              null,
-              React.createElement("li", null, React.createElement("strong", null, "\u0411\u0443\u0441\u0438\u043D\u044B \u2726"), " \u2014 \u043E\u0447\u043A\u0438 \u0437\u0430 \u043F\u0430\u0440\u0442\u0438\u0438. +10 \u0437\u0430 \u0432\u0435\u0440\u043D\u044B\u0439 \u043E\u0442\u0432\u0435\u0442, +5 \u0431\u043E\u043D\u0443\u0441 \u0437\u0430 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u044C, \xD71.2\u2026\xD72.0 \u043C\u043D\u043E\u0436\u0438\u0442\u0435\u043B\u044C \u0437\u0430 \u0441\u0435\u0440\u0438\u044E."),
-              React.createElement("li", null, React.createElement("strong", null, "\u0421\u0442\u0443\u043F\u0435\u043D\u044C"), " \u2014 \u0442\u0432\u043E\u0439 \u0443\u0440\u043E\u0432\u0435\u043D\u044C. \u0420\u0430\u0441\u0442\u0451\u0442 \u043F\u043E \u0431\u0443\u0441\u0438\u043D\u0430\u043C: \u043E\u0442 \u041F\u043E\u0441\u043B\u0443\u0448\u043D\u0438\u043A\u0430 \u0434\u043E \u041C\u0430\u0433\u0438\u0441\u0442\u0440\u0430."),
-              React.createElement("li", null, React.createElement("strong", null, "\u041E\u0441\u0432\u043E\u0435\u043D\u0438\u0435 \u0442\u0435\u043C"), " \u2014 \u043A\u0430\u0440\u0442\u0430 9 \u0442\u0435\u043C \xAB\u042F\u0441\u043D\u044B \u0421\u0443\u0442\u043E\u043A\xBB \u0441 \u0442\u0432\u043E\u0438\u043C \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441\u043E\u043C."),
-              React.createElement("li", null, React.createElement("strong", null, "\u0422\u043E\u043F \u043D\u0435\u0434\u0435\u043B\u0438"), " \u2014 \u043B\u0438\u0434\u0435\u0440\u0431\u043E\u0440\u0434 \u043F\u043E \u0431\u0443\u0441\u0438\u043D\u0430\u043C, \u043E\u0431\u043D\u0443\u043B\u044F\u0435\u0442\u0441\u044F \u0432 \u0441\u0443\u0431\u0431\u043E\u0442\u0443 23:59.")
-            )
-          ),
-          user ? React.createElement("button", { className: "dp-btn-text", onClick: onLogout, style: { marginLeft: 6 } }, "\u0412\u044B\u0439\u0442\u0438") : React.createElement("button", {
+          { className: "dp-header-auth" },
+          user ? React.createElement("button", { className: "dp-btn-text", onClick: onLogout }, "\u0412\u044B\u0439\u0442\u0438") : React.createElement("button", {
             className: "dp-btn dp-btn-primary",
             onClick: onLoginClick,
-            style: { padding: "8px 16px", fontSize: 13, marginLeft: 6 }
+            style: { padding: "8px 16px", fontSize: 13 }
           }, "\u0412\u043E\u0439\u0442\u0438")
         )
       )
@@ -21446,7 +21418,7 @@ window.YasnaCore = {
           React.createElement("a", {
             className: "dp-hero-rank-pill dp-tip",
             href: "rating.html",
-            "data-tip": "\u0421\u0442\u0443\u043F\u0435\u043D\u044C \u2014 \u0442\u0432\u043E\u0439 \u0443\u0440\u043E\u0432\u0435\u043D\u044C \u043E\u0441\u0432\u043E\u0435\u043D\u0438\u044F. \u0422\u0430\u043F\u043D\u0438 \u0447\u0442\u043E\u0431\u044B \u0443\u0437\u043D\u0430\u0442\u044C \u043E \u0434\u0432\u0443\u0445\u0442\u0440\u0435\u043A\u043E\u0432\u043E\u0439 \u0441\u0438\u0441\u0442\u0435\u043C\u0435 \u0440\u0435\u0439\u0442\u0438\u043D\u0433\u0430.",
+            "data-tip": "\u0421\u0442\u0443\u043F\u0435\u043D\u044C \u2014 \u0442\u0432\u043E\u0439 \u0443\u0440\u043E\u0432\u0435\u043D\u044C \u0432 \u042F\u0441\u043D\u0435. \u0420\u0430\u0441\u0442\u0451\u0442 \u0441 \u043A\u0430\u0436\u0434\u043E\u0439 \u043F\u0430\u0440\u0442\u0438\u0435\u0439. \u041D\u0430\u0436\u043C\u0438, \u0447\u0442\u043E\u0431\u044B \u0443\u0437\u043D\u0430\u0442\u044C \u043F\u0440\u043E \u0448\u043A\u0430\u043B\u044B \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441\u0430.",
             style: { textDecoration: "none" }
           }, stupen.name, " ", toRoman(stupen.subLevel))
         ),
@@ -21456,7 +21428,7 @@ window.YasnaCore = {
           React.createElement("a", {
             className: "dp-hero-bead dp-tip",
             href: "rating.html",
-            "data-tip": "\u0411\u0443\u0441\u0438\u043D\u044B \u2726 \u2014 \u043E\u0447\u043A\u0438 \u0437\u0430 \u043F\u0430\u0440\u0442\u0438\u0438. \u0422\u0430\u043F\u043D\u0438 \u0447\u0442\u043E\u0431\u044B \u0443\u0437\u043D\u0430\u0442\u044C \u043A\u0430\u043A \u0441\u0447\u0438\u0442\u0430\u0435\u0442\u0441\u044F \u0440\u0435\u0439\u0442\u0438\u043D\u0433.",
+            "data-tip": "\u0411\u0443\u0441\u0438\u043D\u044B \u2726 \u2014 \u043E\u0447\u043A\u0438 \u0437\u0430 \u043F\u0430\u0440\u0442\u0438\u0438. \u041D\u0430\u0436\u043C\u0438, \u0447\u0442\u043E\u0431\u044B \u0443\u0437\u043D\u0430\u0442\u044C, \u043A\u0430\u043A \u0441\u0447\u0438\u0442\u0430\u0435\u0442\u0441\u044F \u0440\u0435\u0439\u0442\u0438\u043D\u0433.",
             style: { textDecoration: "none" }
           }, "\u2726 ", busey),
           React.createElement("span", { className: "dp-hero-stats-sep" }, "\xB7"),
@@ -23269,7 +23241,7 @@ window.YasnaCore = {
         React.createElement(
           "div",
           null,
-          React.createElement("a", { href: "index.html" }, "\u041A \u042F\u0441\u043D\u0435"),
+          React.createElement("a", { href: "start.html" }, "\u041A \u042F\u0441\u043D\u0435"),
           " \xB7 ",
           React.createElement("a", { href: "https://github.com/Avvacumrechevoi/yasnanegotiations", target: "_blank", rel: "noopener" }, "GitHub")
         ),

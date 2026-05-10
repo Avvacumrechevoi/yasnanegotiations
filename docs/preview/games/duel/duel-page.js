@@ -61,7 +61,7 @@
               className: 'dp-btn'
             }, 'Перезагрузить'),
             React.createElement('a', {
-              href: 'index.html',
+              href: 'start.html',
               className: 'dp-btn dp-btn-primary',
               style: { textDecoration: 'none' }
             }, 'К Ясне')
@@ -176,7 +176,7 @@
     };
 
     return React.createElement('header', { className: 'dp-header' },
-      React.createElement('a', { href: 'index.html', className: 'dp-header-back', title: 'К Ясне', 'aria-label': 'Вернуться к Ясне' },
+      React.createElement('a', { href: 'start.html', className: 'dp-header-back', title: 'К Ясне', 'aria-label': 'Вернуться к Ясне' },
         React.createElement('span', { className: 'dp-header-back-arrow', 'aria-hidden': 'true' }, '←'),
         React.createElement('span', null, 'Ясна')
       ),
@@ -1868,7 +1868,7 @@
           'Здесь играют — это и есть смысл.»'
         ),
         React.createElement('div', null,
-          React.createElement('a', { href: 'index.html' }, 'К Ясне'),
+          React.createElement('a', { href: 'start.html' }, 'К Ясне'),
           ' · ',
           React.createElement('a', { href: 'https://github.com/Avvacumrechevoi/yasnanegotiations', target: '_blank', rel: 'noopener' }, 'GitHub')
         ),
