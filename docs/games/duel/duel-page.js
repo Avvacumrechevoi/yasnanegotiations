@@ -312,7 +312,7 @@
           React.createElement('a', {
             className: 'dp-hero-rank-pill dp-tip',
             href: 'rating.html',
-            'data-tip': 'Ступень — твой уровень освоения. Тапни чтобы узнать о двухтрековой системе рейтинга.',
+            'data-tip': 'Ступень — твой уровень в Ясне. Растёт с каждой партией. Нажми, чтобы узнать про шкалы прогресса.',
             style: { textDecoration: 'none' },
           }, stupen.name, ' ', toRoman(stupen.subLevel))
         ),
@@ -320,7 +320,7 @@
           React.createElement('a', {
             className: 'dp-hero-bead dp-tip',
             href: 'rating.html',
-            'data-tip': 'Бусины ✦ — очки за партии. Тапни чтобы узнать как считается рейтинг.',
+            'data-tip': 'Бусины ✦ — очки за партии. Нажми, чтобы узнать, как считается рейтинг.',
             style: { textDecoration: 'none' },
           }, '✦ ', busey),
           React.createElement('span', { className: 'dp-hero-stats-sep' }, '·'),
