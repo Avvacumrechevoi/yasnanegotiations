@@ -192,6 +192,7 @@
       ),
       React.createElement('div', { className: 'dp-header-spacer' }),
       React.createElement('nav', { className: 'dp-header-nav' },
+        React.createElement('a', { href: 'rating.html', title: 'Как устроены шкалы прогресса' }, 'Рейтинг'),
         React.createElement('a', { href: '#hronika', onClick: onAnchorClick('hronika') }, 'Топ недели'),
         React.createElement('a', { href: '#zhurnal', onClick: onAnchorClick('zhurnal') }, 'Журнал'),
         React.createElement('a', { href: '#znaki', onClick: onAnchorClick('znaki') }, 'Достижения'),
