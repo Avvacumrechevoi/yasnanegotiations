@@ -384,18 +384,36 @@ a { color: inherit; text-decoration: none; }
   .l-stop-card-desc { font-size: 13.5px; }
 }
 
-/* ─── ACTIVE STATION PANEL ─── */
+/* ─── ACTIVE STATION PANEL — главный CTA сразу под прогрессом ─── */
 .l-active {
-  max-width: 920px;
-  margin: 32px auto 80px;
-  padding: 28px 28px 24px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  max-width: 1100px;
+  margin: 24px auto 36px;
+  padding: 32px 36px 32px;
+  background:
+    radial-gradient(ellipse 60% 100% at 90% 50%, rgba(0,119,255,0.10) 0%, transparent 70%),
+    linear-gradient(135deg, rgba(0,119,255,0.06), transparent 50%),
+    var(--bg-card);
+  border: 1px solid rgba(0, 119, 255, 0.30);
   border-radius: 24px;
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 20px 32px;
-  align-items: end;
+  align-items: center;
+  box-shadow: 0 16px 40px rgba(0, 119, 255, 0.10), 0 0 0 1px rgba(0, 119, 255, 0.10);
+  position: relative;
+}
+/* Маркер «следующая остановка» сверху-слева */
+.l-active::before {
+  content: 'СЛЕДУЮЩАЯ ОСТАНОВКА';
+  position: absolute;
+  top: -10px; left: 28px;
+  padding: 4px 12px;
+  background: var(--accent);
+  color: var(--accent-on);
+  font-family: var(--font-sans);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.18em;
+  border-radius: 100px;
 }
 .l-active-text { display: flex; flex-direction: column; gap: 8px; }
 .l-active-eyebrow {
@@ -616,19 +634,7 @@ a { color: inherit; text-decoration: none; }
   <span class="l-progress-count" id="progressCount">0 из 8</span>
 </div>
 
-<div class="l-path-wrap">
-  <div class="l-path-header">
-    <h2 class="l-path-title">Путь обучения · 8 остановок</h2>
-    <div class="l-path-legend">
-      <div class="l-path-legend-item"><span class="l-path-legend-dot done"></span><span>Пройдено</span></div>
-      <div class="l-path-legend-item"><span class="l-path-legend-dot active"></span><span>Сейчас</span></div>
-      <div class="l-path-legend-item"><span class="l-path-legend-dot locked"></span><span>Закрыто</span></div>
-    </div>
-  </div>
-
-  <ol class="l-path" id="learnPath" role="list" style="--progress: 0%;"></ol>
-</div>
-
+<!-- Активная остановка — крупный CTA сверху, до списка -->
 <section class="l-active" id="activePanel">
   <div class="l-active-text">
     <div class="l-active-eyebrow" id="activeEyebrow">Корень · Остановка 1 из 8</div>
@@ -640,6 +646,19 @@ a { color: inherit; text-decoration: none; }
     <span class="l-active-cta-arrow">→</span>
   </button>
 </section>
+
+<div class="l-path-wrap">
+  <div class="l-path-header">
+    <h2 class="l-path-title">Все остановки</h2>
+    <div class="l-path-legend">
+      <div class="l-path-legend-item"><span class="l-path-legend-dot done"></span><span>Пройдено</span></div>
+      <div class="l-path-legend-item"><span class="l-path-legend-dot active"></span><span>Сейчас</span></div>
+      <div class="l-path-legend-item"><span class="l-path-legend-dot locked"></span><span>Закрыто</span></div>
+    </div>
+  </div>
+
+  <ol class="l-path" id="learnPath" role="list" style="--progress: 0%;"></ol>
+</div>
 
 <!-- ═══ MODAL ═══ -->
 <div class="l-modal-bg" id="modalBg" role="dialog" aria-modal="true">
