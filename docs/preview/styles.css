@@ -405,6 +405,18 @@ input{font-family:var(--sans)}
   display: none;
 }
 
+/* Тёмный «ночной» backdrop ТОЛЬКО под Three.js-сценой. Сцена спроектирована
+   под тёмный фон (fog 0x0a0b0d + светящиеся подписи/звёзды): на светлой теме
+   прозрачный canvas показывал светлый body, из-за чего тёмный туман выглядел
+   грязно-серым, а светлые подписи — тёмными пятнами. Класс star-3d-active есть
+   только в реальном 3D — 2D-вид (светлый) не затрагивается. */
+.star-area.star-3d-active {
+  background: radial-gradient(ellipse 72% 66% at 50% 44%,
+    #16182a 0%, #0c0e15 58%, #07080c 100%);
+  border-radius: 14px;
+  transition: background .4s ease;
+}
+
 
 
 /* ─── Tablet adaptivity (768-1100px) — Спринт 4 ─── */
