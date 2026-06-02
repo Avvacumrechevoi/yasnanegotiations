@@ -7,7 +7,7 @@
 
 (function(){
 
-const { useState } = React;
+const { useState, useEffect } = React;
 const { PR } = window.YasnaData;
 
 function Verification({y,vs,setVs,onClose}){

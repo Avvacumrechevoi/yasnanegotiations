@@ -4,7 +4,7 @@
 // Соперник: Тень трёх ликов (бот) или живой собеседник (PvP через transport)
 // ═══════════════════════════════════════════════════════════════════
 (function(){
-  const { useState, useEffect, useRef } = React;
+  const { useState, useEffect, useRef, useMemo } = React;
 
   const QUESTION_TIME = 15;
   const SHOW_FEEDBACK_MS = 1500;
