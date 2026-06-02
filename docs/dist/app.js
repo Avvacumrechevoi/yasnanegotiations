@@ -1,4 +1,4 @@
-/* Yasna bundle: app.js — собран 2026-06-02T20:38:40.560Z */
+/* Yasna bundle: app.js — собран 2026-06-02T21:30:35.257Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -804,6 +804,251 @@
 })();
 
 })();
+/* ─── core/sky-real.js ─── */
+;(function(){
+(function() {
+  "use strict";
+  function raDecToVec(raDeg, decDeg, R) {
+    const a = raDeg * Math.PI / 180, d = decDeg * Math.PI / 180;
+    const cd = Math.cos(d);
+    return [R * cd * Math.cos(a), R * Math.sin(d), R * cd * Math.sin(a)];
+  }
+  const _cache = {};
+  function loadJSON(url) {
+    if (_cache[url]) return _cache[url];
+    _cache[url] = fetch(url).then((r) => {
+      if (!r.ok) throw new Error("fetch " + url + " " + r.status);
+      return r.json();
+    });
+    return _cache[url];
+  }
+  const loadStars = () => loadJSON("data/sky-stars.json");
+  const loadConstellations = () => loadJSON("data/sky-constellations.json");
+  function bvToRGB(ci) {
+    if (ci == null || isNaN(ci)) ci = 0.5;
+    let r, g, b;
+    if (ci < 0) {
+      r = 0.66;
+      g = 0.74;
+      b = 1;
+    } else if (ci < 0.3) {
+      r = 0.82;
+      g = 0.86;
+      b = 1;
+    } else if (ci < 0.58) {
+      r = 0.97;
+      g = 0.97;
+      b = 1;
+    } else if (ci < 0.81) {
+      r = 1;
+      g = 0.97;
+      b = 0.86;
+    } else if (ci < 1.15) {
+      r = 1;
+      g = 0.89;
+      b = 0.7;
+    } else if (ci < 1.5) {
+      r = 1;
+      g = 0.8;
+      b = 0.58;
+    } else {
+      r = 1;
+      g = 0.72;
+      b = 0.52;
+    }
+    return [r, g, b];
+  }
+  function starMaterial(THREE) {
+    return new THREE.ShaderMaterial({
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      uniforms: { uPix: { value: 260 } },
+      vertexShader: `
+        attribute float size; attribute vec3 color; varying vec3 vColor; uniform float uPix;
+        void main(){ vColor=color; vec4 mv=modelViewMatrix*vec4(position,1.0);
+          gl_PointSize = size * (uPix / -mv.z); gl_Position = projectionMatrix*mv; }`,
+      fragmentShader: `
+        varying vec3 vColor;
+        void main(){ vec2 c=gl_PointCoord-vec2(0.5); float d=length(c); if(d>0.5) discard;
+          float a=smoothstep(0.5,0.08,d); gl_FragColor=vec4(vColor,a); }`
+    });
+  }
+  function buildStars(THREE, R, cat) {
+    const stars = cat.stars;
+    const n = stars.length;
+    const pos = new Float32Array(n * 3), col = new Float32Array(n * 3), siz = new Float32Array(n);
+    const Rs = R + 2;
+    for (let i = 0; i < n; i++) {
+      const s = stars[i];
+      const v = raDecToVec(s[0] * 15, s[1], Rs);
+      pos[i * 3] = v[0];
+      pos[i * 3 + 1] = v[1];
+      pos[i * 3 + 2] = v[2];
+      const c = bvToRGB(s[3]);
+      col[i * 3] = c[0];
+      col[i * 3 + 1] = c[1];
+      col[i * 3 + 2] = c[2];
+      siz[i] = Math.max(0.7, 4.6 - 0.62 * (s[2] + 1.5));
+    }
+    const geom = new THREE.BufferGeometry();
+    geom.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    geom.setAttribute("color", new THREE.BufferAttribute(col, 3));
+    geom.setAttribute("size", new THREE.BufferAttribute(siz, 1));
+    const pts = new THREE.Points(geom, starMaterial(THREE));
+    pts.frustumCulled = false;
+    return pts;
+  }
+  function buildConstellations(THREE, R, con) {
+    const segPos = [];
+    const Rc = R + 1;
+    con.constellations.forEach((c) => {
+      c.paths.forEach((path) => {
+        for (let i = 0; i + 1 < path.length; i++) {
+          const a = raDecToVec(path[i][0], path[i][1], Rc);
+          const b = raDecToVec(path[i + 1][0], path[i + 1][1], Rc);
+          segPos.push(a[0], a[1], a[2], b[0], b[1], b[2]);
+        }
+      });
+    });
+    const geom = new THREE.BufferGeometry();
+    geom.setAttribute("position", new THREE.BufferAttribute(new Float32Array(segPos), 3));
+    const mat = new THREE.LineBasicMaterial({ color: 5939455, transparent: true, opacity: 0.34 });
+    const seg = new THREE.LineSegments(geom, mat);
+    seg.frustumCulled = false;
+    return seg;
+  }
+  function buildNames(THREE, R, cat, makeLabelSprite, maxMag) {
+    const g = new THREE.Group();
+    if (!makeLabelSprite) return g;
+    maxMag = maxMag == null ? 2.2 : maxMag;
+    const byHip = {};
+    cat.stars.forEach((s) => {
+      if (s[4]) byHip[s[4]] = s;
+    });
+    Object.keys(cat.names).forEach((hip) => {
+      const s = byHip[hip];
+      if (!s || s[2] > maxMag) return;
+      const v = raDecToVec(s[0] * 15, s[1], R + 6);
+      const sp = makeLabelSprite(cat.names[hip], { color: "#cfe0ff", fontSize: 38, weight: "600", depthTest: false });
+      if (!sp) return;
+      sp.position.set(v[0], v[1], v[2]);
+      const h = 7;
+      sp.scale.set(h * (sp.userData.aspect || 4), h, 1);
+      g.add(sp);
+    });
+    return g;
+  }
+  const D2R = Math.PI / 180, R2D = 180 / Math.PI;
+  function julianDay(date) {
+    return date.getTime() / 864e5 + 24405875e-1;
+  }
+  function rev(x) {
+    x = x % 360;
+    return x < 0 ? x + 360 : x;
+  }
+  function obliquity(T) {
+    return 23.439291 - 0.0130042 * T;
+  }
+  const PLAN = {
+    Mercury: [0.38709927, 0.20563593, 7.00497902, 252.2503235, 77.45779628, 48.33076593, 37e-8, 1906e-8, -594749e-8, 149472.67411175, 0.16047689, -0.12534081],
+    Venus: [0.72333566, 677672e-8, 3.39467605, 181.9790995, 131.60246718, 76.67984255, 39e-7, -4107e-8, -7889e-7, 58517.81538729, 268329e-8, -0.27769418],
+    Earth: [1.00000261, 0.01671123, -1531e-8, 100.46457166, 102.93768193, 0, 562e-8, -4392e-8, -0.01294668, 35999.37244981, 0.32327364, 0],
+    Mars: [1.52371034, 0.0933941, 1.84969142, -4.55343205, -23.94362959, 49.55953891, 1847e-8, 7882e-8, -813131e-8, 19140.30268499, 0.44441088, -0.29257343],
+    Jupiter: [5.202887, 0.04838624, 1.30439695, 34.39644051, 14.72847983, 100.47390909, -11607e-8, -13253e-8, -183714e-8, 3034.74612775, 0.21252668, 0.20469106],
+    Saturn: [9.53667594, 0.05386179, 2.48599187, 49.95424423, 92.59887831, 113.66242448, -12506e-7, -50991e-8, 193609e-8, 1222.49362201, -0.41897216, -0.28867794],
+    Uranus: [19.18916464, 0.04725744, 0.77263783, 313.23810451, 170.9542763, 74.01692503, -196176e-8, -4397e-8, -242939e-8, 428.48202785, 0.40805281, 0.04240589],
+    Neptune: [30.06992276, 859048e-8, 1.77004347, -55.12002969, 44.96476227, 131.78422574, 26291e-8, 5105e-8, 35372e-8, 218.45945325, -0.32241464, -508664e-8]
+  };
+  function helio(name, T) {
+    const E = PLAN[name];
+    const a = E[0] + E[6] * T, e = E[1] + E[7] * T, I = (E[2] + E[8] * T) * D2R, L = E[3] + E[9] * T, peri = E[4] + E[10] * T, node = E[5] + E[11] * T;
+    const M = rev(L - peri) * D2R, w = (peri - node) * D2R, Om = node * D2R;
+    let Ecc = M;
+    for (let k = 0; k < 10; k++) {
+      Ecc = Ecc - (Ecc - e * Math.sin(Ecc) - M) / (1 - e * Math.cos(Ecc));
+    }
+    const xv = a * (Math.cos(Ecc) - e), yv = a * Math.sqrt(1 - e * e) * Math.sin(Ecc);
+    const cw = Math.cos(w), sw = Math.sin(w), cO = Math.cos(Om), sO = Math.sin(Om), ci = Math.cos(I), si = Math.sin(I);
+    return [
+      (cw * cO - sw * sO * ci) * xv + (-sw * cO - cw * sO * ci) * yv,
+      (cw * sO + sw * cO * ci) * xv + (-sw * sO + cw * cO * ci) * yv,
+      sw * si * xv + cw * si * yv
+    ];
+  }
+  function eclToRaDec(x, y, z, T) {
+    const eps = obliquity(T) * D2R;
+    const ye = y * Math.cos(eps) - z * Math.sin(eps), ze = y * Math.sin(eps) + z * Math.cos(eps);
+    return { ra: rev(Math.atan2(ye, x) * R2D), dec: Math.atan2(ze, Math.sqrt(x * x + ye * ye)) * R2D };
+  }
+  function planetRaDec(name, jd) {
+    const T = (jd - 2451545) / 36525, e = helio("Earth", T), p = helio(name, T);
+    return eclToRaDec(p[0] - e[0], p[1] - e[1], p[2] - e[2], T);
+  }
+  function sunRaDec(jd) {
+    const T = (jd - 2451545) / 36525, e = helio("Earth", T);
+    return eclToRaDec(-e[0], -e[1], -e[2], T);
+  }
+  function moonRaDec(jd) {
+    const T = (jd - 2451545) / 36525;
+    const Lp = 218.3164477 + 481267.88123421 * T, D = 297.8501921 + 445267.1114034 * T, M = 357.5291092 + 35999.0502909 * T, Mp = 134.9633964 + 477198.8675055 * T, F = 93.272095 + 483202.0175233 * T;
+    const d = rev(D) * D2R, m = rev(M) * D2R, mp = rev(Mp) * D2R, f = rev(F) * D2R;
+    const lon = (Lp + 6.289 * Math.sin(mp) + 1.274 * Math.sin(2 * d - mp) + 0.658 * Math.sin(2 * d) + 0.214 * Math.sin(2 * mp) - 0.186 * Math.sin(m) - 0.114 * Math.sin(2 * f)) * D2R;
+    const lat = (5.128 * Math.sin(f) + 0.281 * Math.sin(mp + f) + 0.278 * Math.sin(mp - f) + 0.173 * Math.sin(2 * d - f)) * D2R;
+    return eclToRaDec(Math.cos(lat) * Math.cos(lon), Math.cos(lat) * Math.sin(lon), Math.sin(lat), T);
+  }
+  function buildSolarSystem(THREE, R, date, makeLabelSprite) {
+    const g = new THREE.Group();
+    const jd = julianDay(date || /* @__PURE__ */ new Date());
+    const bodies = [
+      { n: "\u0421\u043E\u043B\u043D\u0446\u0435", f: () => sunRaDec(jd), c: 16765514, s: 6 },
+      { n: "\u041B\u0443\u043D\u0430", f: () => moonRaDec(jd), c: 14147304, s: 4.6 },
+      { n: "\u041C\u0435\u0440\u043A\u0443\u0440\u0438\u0439", f: () => planetRaDec("Mercury", jd), c: 12036494, s: 2.6 },
+      { n: "\u0412\u0435\u043D\u0435\u0440\u0430", f: () => planetRaDec("Venus", jd), c: 16115638, s: 3.6 },
+      { n: "\u041C\u0430\u0440\u0441", f: () => planetRaDec("Mars", jd), c: 14903099, s: 3 },
+      { n: "\u042E\u043F\u0438\u0442\u0435\u0440", f: () => planetRaDec("Jupiter", jd), c: 15320988, s: 4.2 },
+      { n: "\u0421\u0430\u0442\u0443\u0440\u043D", f: () => planetRaDec("Saturn", jd), c: 15391138, s: 3.8 },
+      { n: "\u0423\u0440\u0430\u043D", f: () => planetRaDec("Uranus", jd), c: 10935526, s: 2.6 },
+      { n: "\u041D\u0435\u043F\u0442\u0443\u043D", f: () => planetRaDec("Neptune", jd), c: 7243494, s: 2.6 }
+    ];
+    bodies.forEach((b) => {
+      const rd = b.f();
+      const v = raDecToVec(rd.ra, rd.dec, R + 3);
+      const m = new THREE.Mesh(
+        new THREE.SphereGeometry(b.s, 18, 12),
+        new THREE.MeshBasicMaterial({ color: b.c })
+      );
+      m.position.set(v[0], v[1], v[2]);
+      g.add(m);
+      if (makeLabelSprite) {
+        const sp = makeLabelSprite(b.n, { color: "#" + b.c.toString(16).padStart(6, "0"), fontSize: 40, weight: "700", depthTest: false });
+        if (sp) {
+          const vl = raDecToVec(rd.ra, rd.dec, R + 13);
+          sp.position.set(vl[0], vl[1], vl[2]);
+          const h = 8;
+          sp.scale.set(h * (sp.userData.aspect || 4), h, 1);
+          g.add(sp);
+        }
+      }
+    });
+    return g;
+  }
+  window.YasnaSkyReal = {
+    raDecToVec,
+    loadStars,
+    loadConstellations,
+    buildStars,
+    buildConstellations,
+    buildNames,
+    julianDay,
+    sunRaDec,
+    moonRaDec,
+    planetRaDec,
+    buildSolarSystem
+  };
+})();
+
+})();
 /* ─── core/yasna-3d.js ─── */
 ;(function(){
 (function() {
@@ -827,7 +1072,7 @@
     }, [rotationOn, speedSec, sel, drill, solidMech, showCage, astroMode, JSON.stringify(astroLayers || {}), JSON.stringify(af || [])]);
     React.useEffect(() => {
       if (typeof window === "undefined" || !window.THREE) return;
-      const THREE = window.THREE;
+      const THREE2 = window.THREE;
       const canvas = canvasRef.current;
       if (!canvas) return;
       const isMobile = window.innerWidth <= 768;
@@ -860,19 +1105,19 @@
         torusTube: 16,
         stars: 1500
       };
-      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
+      const renderer = new THREE2.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, Q.pxRatio));
       renderer.setClearColor(0, 0);
-      if (THREE.sRGBEncoding) renderer.outputEncoding = THREE.sRGBEncoding;
-      if (THREE.ACESFilmicToneMapping !== void 0) {
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      if (THREE2.sRGBEncoding) renderer.outputEncoding = THREE2.sRGBEncoding;
+      if (THREE2.ACESFilmicToneMapping !== void 0) {
+        renderer.toneMapping = THREE2.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 0.92;
       }
-      const scene = new THREE.Scene();
-      scene.fog = new THREE.Fog(658189, 600, 2e3);
-      const camera = new THREE.PerspectiveCamera(38, 1, 1, 5e3);
+      const scene = new THREE2.Scene();
+      scene.fog = new THREE2.Fog(658189, 600, 2e3);
+      const camera = new THREE2.PerspectiveCamera(38, 1, 1, 5e3);
       {
-        const starsGeom = new THREE.BufferGeometry();
+        const starsGeom = new THREE2.BufferGeometry();
         const positions = [];
         const colors = [];
         for (let i = 0; i < Q.stars; i++) {
@@ -893,42 +1138,42 @@
             colors.push(1, 1, 1);
           }
         }
-        starsGeom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-        starsGeom.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
-        const starsMat = new THREE.PointsMaterial({
+        starsGeom.setAttribute("position", new THREE2.Float32BufferAttribute(positions, 3));
+        starsGeom.setAttribute("color", new THREE2.Float32BufferAttribute(colors, 3));
+        const starsMat = new THREE2.PointsMaterial({
           size: 2.8,
           sizeAttenuation: true,
           transparent: true,
           opacity: 0.92,
           vertexColors: true
         });
-        scene.add(new THREE.Points(starsGeom, starsMat));
+        scene.add(new THREE2.Points(starsGeom, starsMat));
       }
       {
-        const nebulaGeom = new THREE.SphereGeometry(1800, 32, 24);
-        const nebulaMat = new THREE.MeshBasicMaterial({
+        const nebulaGeom = new THREE2.SphereGeometry(1800, 32, 24);
+        const nebulaMat = new THREE2.MeshBasicMaterial({
           color: 2759242,
           transparent: true,
           opacity: 0.18,
-          side: THREE.BackSide
+          side: THREE2.BackSide
         });
-        scene.add(new THREE.Mesh(nebulaGeom, nebulaMat));
+        scene.add(new THREE2.Mesh(nebulaGeom, nebulaMat));
       }
-      scene.add(new THREE.AmbientLight(16777215, 0.32));
-      const keyLight = new THREE.DirectionalLight(16777215, 1.05);
+      scene.add(new THREE2.AmbientLight(16777215, 0.32));
+      const keyLight = new THREE2.DirectionalLight(16777215, 1.05);
       keyLight.position.set(3, 5, 4);
       scene.add(keyLight);
-      const fillLight = new THREE.DirectionalLight(6326510, 0.38);
+      const fillLight = new THREE2.DirectionalLight(6326510, 0.38);
       fillLight.position.set(-4, 2, -2);
       scene.add(fillLight);
-      const rimLight = new THREE.DirectionalLight(16759432, 0.55);
+      const rimLight = new THREE2.DirectionalLight(16759432, 0.55);
       rimLight.position.set(0, -3, -5);
       scene.add(rimLight);
-      scene.add(new THREE.HemisphereLight(12636415, 2105394, 0.18));
+      scene.add(new THREE2.HemisphereLight(12636415, 2105394, 0.18));
       try {
-        const pmremGenerator = new THREE.PMREMGenerator(renderer);
-        const skyScene = new THREE.Scene();
-        skyScene.background = new THREE.Color(1316904);
+        const pmremGenerator = new THREE2.PMREMGenerator(renderer);
+        const skyScene = new THREE2.Scene();
+        skyScene.background = new THREE2.Color(1316904);
         const envMap = pmremGenerator.fromScene(skyScene, 0.02).texture;
         scene.environment = envMap;
         pmremGenerator.dispose();
@@ -937,56 +1182,61 @@
       const R = 200;
       const polkaR = 11;
       const POLE_Y = R * 0.65;
-      const wheelGroup = new THREE.Group();
+      const wheelGroup = new THREE2.Group();
       scene.add(wheelGroup);
       const equatorPos = (i) => {
         const a = (270 - i * 30) * Math.PI / 180;
-        return new THREE.Vector3(R * Math.cos(a), 0, -R * Math.sin(a));
+        return new THREE2.Vector3(R * Math.cos(a), 0, -R * Math.sin(a));
       };
-      const NORTH = new THREE.Vector3(0, POLE_Y, 0);
-      const SOUTH = new THREE.Vector3(0, -POLE_Y, 0);
+      const NORTH = new THREE2.Vector3(0, POLE_Y, 0);
+      const SOUTH = new THREE2.Vector3(0, -POLE_Y, 0);
       const makeTube = (a, b, radius, material) => {
-        const dir = new THREE.Vector3().subVectors(b, a);
+        const dir = new THREE2.Vector3().subVectors(b, a);
         const len = dir.length();
         if (len < 0.1) return null;
-        const mid = new THREE.Vector3().addVectors(a, b).multiplyScalar(0.5);
-        const geom = new THREE.CylinderGeometry(radius, radius, len, 10, 1, false);
-        const mesh = new THREE.Mesh(geom, material);
+        const mid = new THREE2.Vector3().addVectors(a, b).multiplyScalar(0.5);
+        const geom = new THREE2.CylinderGeometry(radius, radius, len, 10, 1, false);
+        const mesh = new THREE2.Mesh(geom, material);
         mesh.position.copy(mid);
-        const axis = new THREE.Vector3(0, 1, 0);
+        const axis = new THREE2.Vector3(0, 1, 0);
         const norm = dir.clone().normalize();
-        const cross = new THREE.Vector3().crossVectors(axis, norm);
+        const cross = new THREE2.Vector3().crossVectors(axis, norm);
         const dot = axis.dot(norm);
         const angle = Math.acos(Math.max(-1, Math.min(1, dot)));
         if (cross.lengthSq() > 1e-4) mesh.setRotationFromAxisAngle(cross.normalize(), angle);
         return mesh;
       };
-      const cageGeom = new THREE.SphereGeometry(R + polkaR * 1.5, Q.cageSegW, Q.cageSegH);
-      const cageMat = new THREE.MeshBasicMaterial({ color: 6318240, wireframe: true, transparent: true, opacity: 0.07 });
-      const cageMesh = new THREE.Mesh(cageGeom, cageMat);
+      const cageGeom = new THREE2.SphereGeometry(R + polkaR * 1.5, Q.cageSegW, Q.cageSegH);
+      const cageMat = new THREE2.MeshBasicMaterial({ color: 6318240, wireframe: true, transparent: true, opacity: 0.07 });
+      const cageMesh = new THREE2.Mesh(cageGeom, cageMat);
       wheelGroup.add(cageMesh);
-      const equatorTube = new THREE.Mesh(
-        new THREE.TorusGeometry(R, 0.7, Q.torusTube, Q.torusTubeSegs),
-        new THREE.MeshStandardMaterial({ color: 12101848, opacity: 0.75, transparent: true, metalness: 0.7, roughness: 0.25, emissive: 4206752, emissiveIntensity: 0.1 })
+      const equatorTube = new THREE2.Mesh(
+        new THREE2.TorusGeometry(R, 0.7, Q.torusTube, Q.torusTubeSegs),
+        new THREE2.MeshStandardMaterial({ color: 12101848, opacity: 0.75, transparent: true, metalness: 0.7, roughness: 0.25, emissive: 4206752, emissiveIntensity: 0.1 })
       );
       equatorTube.rotation.x = Math.PI / 2;
       wheelGroup.add(equatorTube);
-      const astroGroup = new THREE.Group();
+      const astroGroup = new THREE2.Group();
       astroGroup.visible = false;
       wheelGroup.add(astroGroup);
       let astroSun = null;
       const astroSubs = {
-        tropics: new THREE.Group(),
-        arctics: new THREE.Group(),
-        parallels: new THREE.Group(),
-        ecliptic: new THREE.Group(),
-        zodiac: new THREE.Group(),
-        seasons: new THREE.Group(),
-        meridians: new THREE.Group(),
-        cardinals: new THREE.Group(),
-        polaris: new THREE.Group(),
-        sun: new THREE.Group(),
-        terminator: new THREE.Group()
+        tropics: new THREE2.Group(),
+        arctics: new THREE2.Group(),
+        parallels: new THREE2.Group(),
+        ecliptic: new THREE2.Group(),
+        zodiac: new THREE2.Group(),
+        seasons: new THREE2.Group(),
+        meridians: new THREE2.Group(),
+        cardinals: new THREE2.Group(),
+        polaris: new THREE2.Group(),
+        sun: new THREE2.Group(),
+        terminator: new THREE2.Group(),
+        // Реальное небо (ленивое построение из data/sky-*.json — см. sky-real.js)
+        realStars: new THREE2.Group(),
+        realConstel: new THREE2.Group(),
+        realNames: new THREE2.Group(),
+        realPlanets: new THREE2.Group()
       };
       Object.values(astroSubs).forEach((g) => astroGroup.add(g));
       {
@@ -995,11 +1245,11 @@
           const pts = [];
           for (let i = 0; i <= segs; i++) {
             const ang = i / segs * Math.PI * 2;
-            pts.push(new THREE.Vector3(r * Math.cos(ang), y2, r * Math.sin(ang)));
+            pts.push(new THREE2.Vector3(r * Math.cos(ang), y2, r * Math.sin(ang)));
           }
-          const geom = new THREE.BufferGeometry().setFromPoints(pts);
-          const mat = dashed ? new THREE.LineDashedMaterial({ color, transparent: true, opacity, dashSize: 3, gapSize: 2, linewidth: 1 }) : new THREE.LineBasicMaterial({ color, transparent: true, opacity, linewidth: 1 });
-          const line = new THREE.Line(geom, mat);
+          const geom = new THREE2.BufferGeometry().setFromPoints(pts);
+          const mat = dashed ? new THREE2.LineDashedMaterial({ color, transparent: true, opacity, dashSize: 3, gapSize: 2, linewidth: 1 }) : new THREE2.LineBasicMaterial({ color, transparent: true, opacity, linewidth: 1 });
+          const line = new THREE2.Line(geom, mat);
           if (dashed) line.computeLineDistances();
           return line;
         };
@@ -1018,19 +1268,19 @@
             const ang = i / segs * Math.PI * 2;
             const x = R * Math.cos(ang);
             const z = R * Math.sin(ang);
-            pts.push(new THREE.Vector3(x, z * sinT, z * cosT));
+            pts.push(new THREE2.Vector3(x, z * sinT, z * cosT));
           }
-          const geom = new THREE.BufferGeometry().setFromPoints(pts);
-          const mat = new THREE.LineBasicMaterial({ color: 15755320, transparent: true, opacity: 0.75, linewidth: 1.5 });
-          astroSubs.ecliptic.add(new THREE.Line(geom, mat));
-          const sunMat = new THREE.MeshStandardMaterial({
+          const geom = new THREE2.BufferGeometry().setFromPoints(pts);
+          const mat = new THREE2.LineBasicMaterial({ color: 15755320, transparent: true, opacity: 0.75, linewidth: 1.5 });
+          astroSubs.ecliptic.add(new THREE2.Line(geom, mat));
+          const sunMat = new THREE2.MeshStandardMaterial({
             color: 16172618,
             emissive: 16172618,
             emissiveIntensity: 0.7,
             metalness: 0.3,
             roughness: 0.4
           });
-          const sun = new THREE.Mesh(new THREE.SphereGeometry(2.8, 24, 16), sunMat);
+          const sun = new THREE2.Mesh(new THREE2.SphereGeometry(2.8, 24, 16), sunMat);
           sun.position.set(0, R * sinT, R * cosT);
           astroSubs.sun.add(sun);
           astroSun = sun;
@@ -1038,15 +1288,15 @@
         {
           const segs = 96;
           const positions = new Float32Array((segs + 1) * 3);
-          const geom = new THREE.BufferGeometry();
-          geom.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-          const mat = new THREE.LineBasicMaterial({
+          const geom = new THREE2.BufferGeometry();
+          geom.setAttribute("position", new THREE2.BufferAttribute(positions, 3));
+          const mat = new THREE2.LineBasicMaterial({
             color: 16172618,
             transparent: true,
             opacity: 0.45,
             linewidth: 1.5
           });
-          const terminator = new THREE.LineLoop(geom, mat);
+          const terminator = new THREE2.LineLoop(geom, mat);
           astroSubs.terminator.add(terminator);
           astroGroup.userData.terminator = terminator;
         }
@@ -1067,16 +1317,16 @@
             const x = p.x * Math.sin(theta);
             const y2 = NORTH.y * Math.cos(theta);
             const z = p.z * Math.sin(theta);
-            pts.push(new THREE.Vector3(x, y2, z));
+            pts.push(new THREE2.Vector3(x, y2, z));
           }
-          const geom = new THREE.BufferGeometry().setFromPoints(pts);
+          const geom = new THREE2.BufferGeometry().setFromPoints(pts);
           const isCardinal = i % 3 === 0;
-          const mat = new THREE.LineBasicMaterial({
+          const mat = new THREE2.LineBasicMaterial({
             color: isCardinal ? 11055550 : 4868693,
             transparent: true,
             opacity: isCardinal ? 0.42 : 0.18
           });
-          astroSubs.meridians.add(new THREE.Line(geom, mat));
+          astroSubs.meridians.add(new THREE2.Line(geom, mat));
         }
         if (window.YasnaSprites && window.YasnaSprites.makeTextSprite) {
           const cardinals = [
@@ -1119,7 +1369,7 @@
           seasons.forEach((s) => {
             const x = R * Math.cos(s.ang);
             const z = R * Math.sin(s.ang);
-            const pt = new THREE.Vector3(x, z * sinT, z * cosT);
+            const pt = new THREE2.Vector3(x, z * sinT, z * cosT);
             const sprite = window.YasnaSprites.makeLabelSprite(s.label, {
               color: "#" + s.color.toString(16).padStart(6, "0"),
               fontSize: 56,
@@ -1186,7 +1436,7 @@
             const ang = i / 12 * Math.PI * 2;
             const x = R * Math.cos(ang);
             const zCoord = R * Math.sin(ang);
-            const pt = new THREE.Vector3(x, zCoord * sinT, zCoord * cosT);
+            const pt = new THREE2.Vector3(x, zCoord * sinT, zCoord * cosT);
             const sprite = window.YasnaSprites.makeLabelSprite(z.glyph, {
               color: elemColor[z.elem],
               fontSize: 96,
@@ -1207,31 +1457,31 @@
       }
       for (let i = 0; i < 12; i += 3) {
         const p = equatorPos(i);
-        const meridianMat = new THREE.MeshBasicMaterial({ color: 12101848, transparent: true, opacity: 0.2 });
+        const meridianMat = new THREE2.MeshBasicMaterial({ color: 12101848, transparent: true, opacity: 0.2 });
         const t1 = makeTube(NORTH, p, 0.35, meridianMat);
         if (t1) wheelGroup.add(t1);
         const t2 = makeTube(p, SOUTH, 0.35, meridianMat);
         if (t2) wheelGroup.add(t2);
       }
       const pillar = makeTube(
-        new THREE.Vector3(0, POLE_Y * 1.05, 0),
-        new THREE.Vector3(0, -POLE_Y * 1.05, 0),
+        new THREE2.Vector3(0, POLE_Y * 1.05, 0),
+        new THREE2.Vector3(0, -POLE_Y * 1.05, 0),
         0.9,
-        new THREE.MeshStandardMaterial({ color: 9063853, opacity: 0.55, transparent: true, metalness: 0.6, roughness: 0.2, emissive: 7092878, emissiveIntensity: 0.16 })
+        new THREE2.MeshStandardMaterial({ color: 9063853, opacity: 0.55, transparent: true, metalness: 0.6, roughness: 0.2, emissive: 7092878, emissiveIntensity: 0.16 })
       );
       if (pillar) wheelGroup.add(pillar);
-      const poleMat = new THREE.MeshStandardMaterial({
+      const poleMat = new THREE2.MeshStandardMaterial({
         color: 9063853,
         roughness: 0.18,
         metalness: 0.7,
         emissive: 9063853,
         emissiveIntensity: 0.18
       });
-      const poleGeom = new THREE.SphereGeometry(polkaR * 0.7, Q.poleSegW, Q.poleSegH);
-      const northBall = new THREE.Mesh(poleGeom, poleMat);
+      const poleGeom = new THREE2.SphereGeometry(polkaR * 0.7, Q.poleSegW, Q.poleSegH);
+      const northBall = new THREE2.Mesh(poleGeom, poleMat);
       northBall.position.copy(NORTH);
       wheelGroup.add(northBall);
-      const southBall = new THREE.Mesh(poleGeom, poleMat);
+      const southBall = new THREE2.Mesh(poleGeom, poleMat);
       southBall.position.copy(SOUTH);
       wheelGroup.add(southBall);
       const npLabel = makeTextSprite("\u0417\u0435\u043D\u0438\u0442", "#d8b8ff", 56, "600");
@@ -1251,24 +1501,24 @@
       for (let i = 0; i < 12; i++) {
         const pos = equatorPos(i);
         const baseColor = polkaColor(i);
-        const planetMat = new THREE.MeshStandardMaterial({
+        const planetMat = new THREE2.MeshStandardMaterial({
           color: baseColor,
           roughness: 0.32,
           metalness: 0.55,
           emissive: baseColor,
           emissiveIntensity: 0.15
         });
-        const planet = new THREE.Mesh(new THREE.SphereGeometry(polkaR, Q.polkaSegW, Q.polkaSegH), planetMat);
+        const planet = new THREE2.Mesh(new THREE2.SphereGeometry(polkaR, Q.polkaSegW, Q.polkaSegH), planetMat);
         planet.position.copy(pos);
         planet.userData.polkaIdx = i;
         wheelGroup.add(planet);
-        const auraMat = new THREE.MeshBasicMaterial({
+        const auraMat = new THREE2.MeshBasicMaterial({
           color: baseColor,
           transparent: true,
           opacity: 0.16,
-          side: THREE.BackSide
+          side: THREE2.BackSide
         });
-        const aura = new THREE.Mesh(new THREE.SphereGeometry(polkaR * 1.22, Q.auraSegW, Q.auraSegH), auraMat);
+        const aura = new THREE2.Mesh(new THREE2.SphereGeometry(polkaR * 1.22, Q.auraSegW, Q.auraSegH), auraMat);
         planet.add(aura);
         const num = makeDigitSprite(i, { size: 256, color: "#ffffff", stroke: "rgba(15,8,30,0.95)", depthTest: false });
         num.position.set(0, 0, polkaR * 0.05);
@@ -1295,9 +1545,9 @@
         }
         polki.push(planet);
       }
-      const mechGroup = new THREE.Group();
+      const mechGroup = new THREE2.Group();
       wheelGroup.add(mechGroup);
-      const tubeMat = (color, opacity) => new THREE.MeshStandardMaterial({
+      const tubeMat = (color, opacity) => new THREE2.MeshStandardMaterial({
         color,
         transparent: true,
         opacity,
@@ -1309,7 +1559,7 @@
         // избегаем z-fighting между прозрачными трубками
       });
       function makeBipyramid(indices, color, opacity, solid) {
-        const grp = new THREE.Group();
+        const grp = new THREE2.Group();
         const pts = indices.map((i) => equatorPos(i));
         const mat = tubeMat(color, opacity);
         for (let k = 0; k < pts.length; k++) {
@@ -1321,12 +1571,12 @@
           const tS = makeTube(pts[k], SOUTH, solid ? 0.5 : 0.9, mat);
           if (tS) grp.add(tS);
         }
-        const apexGeom = new THREE.SphereGeometry(2.2, 16, 12);
+        const apexGeom = new THREE2.SphereGeometry(2.2, 16, 12);
         const apexMat = tubeMat(color, Math.min(opacity * 1.5, 1));
-        const apexN = new THREE.Mesh(apexGeom, apexMat);
+        const apexN = new THREE2.Mesh(apexGeom, apexMat);
         apexN.position.copy(NORTH);
         grp.add(apexN);
-        const apexS = new THREE.Mesh(apexGeom.clone(), apexMat);
+        const apexS = new THREE2.Mesh(apexGeom.clone(), apexMat);
         apexS.position.copy(SOUTH);
         grp.add(apexS);
         if (solid) {
@@ -1342,10 +1592,10 @@
             positions.push(b.x, b.y, b.z);
             positions.push(a.x, a.y, a.z);
           }
-          const geom = new THREE.BufferGeometry();
-          geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+          const geom = new THREE2.BufferGeometry();
+          geom.setAttribute("position", new THREE2.Float32BufferAttribute(positions, 3));
           geom.computeVertexNormals();
-          const fillMat = new THREE.MeshStandardMaterial({
+          const fillMat = new THREE2.MeshStandardMaterial({
             color,
             transparent: true,
             opacity: 0.55,
@@ -1353,16 +1603,16 @@
             roughness: 0.3,
             emissive: color,
             emissiveIntensity: 0.2,
-            side: THREE.DoubleSide,
+            side: THREE2.DoubleSide,
             depthWrite: false
           });
-          const fillMesh = new THREE.Mesh(geom, fillMat);
+          const fillMesh = new THREE2.Mesh(geom, fillMat);
           grp.add(fillMesh);
         }
         return grp;
       }
       function makeTetrahedron(p1, p2, p3, p4, color, opacity) {
-        const grp = new THREE.Group();
+        const grp = new THREE2.Group();
         const mat = tubeMat(color, opacity);
         const edges = [[p1, p2], [p2, p3], [p3, p1], [p1, p4], [p2, p4], [p3, p4]];
         edges.forEach(([a, b]) => {
@@ -1371,7 +1621,7 @@
         });
         return grp;
       }
-      const drillGroup = new THREE.Group();
+      const drillGroup = new THREE2.Group();
       drillGroup.visible = false;
       drillGroup.scale.set(1e-3, 1e-3, 1e-3);
       wheelGroup.add(drillGroup);
@@ -1403,41 +1653,41 @@
         if (drillIdx == null) return;
         const subR = polkaR * 2.8;
         const subPolkaR = polkaR * 0.4;
-        const subCage = new THREE.Mesh(
-          new THREE.SphereGeometry(subR + subPolkaR * 1.2, 18, 12),
-          new THREE.MeshBasicMaterial({ color: 10717408, wireframe: true, transparent: true, opacity: 0.18 })
+        const subCage = new THREE2.Mesh(
+          new THREE2.SphereGeometry(subR + subPolkaR * 1.2, 18, 12),
+          new THREE2.MeshBasicMaterial({ color: 10717408, wireframe: true, transparent: true, opacity: 0.18 })
         );
         drillGroup.add(subCage);
-        const subEquator = new THREE.Mesh(
-          new THREE.TorusGeometry(subR, 0.4, 10, 64),
-          new THREE.MeshStandardMaterial({ color: 10717408, opacity: 0.7, transparent: true, metalness: 0.6, roughness: 0.3, emissive: 7097773, emissiveIntensity: 0.3 })
+        const subEquator = new THREE2.Mesh(
+          new THREE2.TorusGeometry(subR, 0.4, 10, 64),
+          new THREE2.MeshStandardMaterial({ color: 10717408, opacity: 0.7, transparent: true, metalness: 0.6, roughness: 0.3, emissive: 7097773, emissiveIntensity: 0.3 })
         );
         subEquator.rotation.x = Math.PI / 2;
         drillGroup.add(subEquator);
         const subPoleY = subR * 0.65;
-        const pillarMat = new THREE.MeshStandardMaterial({ color: 12094944, opacity: 0.5, transparent: true, metalness: 0.55, roughness: 0.25, emissive: 7092878, emissiveIntensity: 0.3 });
-        const pillarGeom = new THREE.CylinderGeometry(0.4, 0.4, subPoleY * 2.2, 8, 1, false);
-        const subPillar = new THREE.Mesh(pillarGeom, pillarMat);
+        const pillarMat = new THREE2.MeshStandardMaterial({ color: 12094944, opacity: 0.5, transparent: true, metalness: 0.55, roughness: 0.25, emissive: 7092878, emissiveIntensity: 0.3 });
+        const pillarGeom = new THREE2.CylinderGeometry(0.4, 0.4, subPoleY * 2.2, 8, 1, false);
+        const subPillar = new THREE2.Mesh(pillarGeom, pillarMat);
         drillGroup.add(subPillar);
         for (let i = 0; i < 12; i++) {
           const a = (270 - i * 30) * Math.PI / 180;
           const px = subR * Math.cos(a), pz = -subR * Math.sin(a);
           const baseColor = subPolkaColor(i);
-          const subMat = new THREE.MeshStandardMaterial({
+          const subMat = new THREE2.MeshStandardMaterial({
             color: baseColor,
             roughness: 0.4,
             metalness: 0.45,
             emissive: baseColor,
             emissiveIntensity: 0.45
           });
-          const subBall = new THREE.Mesh(new THREE.SphereGeometry(subPolkaR, 32, 24), subMat);
+          const subBall = new THREE2.Mesh(new THREE2.SphereGeometry(subPolkaR, 32, 24), subMat);
           subBall.position.set(px, 0, pz);
           subBall.userData.subIdx = i;
           drillGroup.add(subBall);
           subPolkiArr.push(subBall);
-          const subAura = new THREE.Mesh(
-            new THREE.SphereGeometry(subPolkaR * 1.4, 16, 12),
-            new THREE.MeshBasicMaterial({ color: baseColor, transparent: true, opacity: 0.32, side: THREE.BackSide })
+          const subAura = new THREE2.Mesh(
+            new THREE2.SphereGeometry(subPolkaR * 1.4, 16, 12),
+            new THREE2.MeshBasicMaterial({ color: baseColor, transparent: true, opacity: 0.32, side: THREE2.BackSide })
           );
           subBall.add(subAura);
           const num = makeDigitSprite(i, { size: 192, color: "#ffffff", stroke: "rgba(15,8,30,0.95)", depthTest: false });
@@ -1447,8 +1697,8 @@
           const subLabel = subData && subData[i] ? subData[i] : "";
           if (subLabel) {
             const lbl = makeLabelSprite(subLabel, { fontSize: 52, weight: "700", color: "#ffffff", depthTest: false });
-            const dir = new THREE.Vector3(px, 0, pz).normalize();
-            const lblPos = new THREE.Vector3(px, 0, pz).add(dir.multiplyScalar(subPolkaR * 3.4));
+            const dir = new THREE2.Vector3(px, 0, pz).normalize();
+            const lblPos = new THREE2.Vector3(px, 0, pz).add(dir.multiplyScalar(subPolkaR * 3.4));
             lblPos.y = 5;
             lbl.position.copy(lblPos);
             const subH = subPolkaR * 1.4;
@@ -1457,12 +1707,12 @@
             subPolkiLabels.push(lbl);
           }
         }
-        const subPoleMat = new THREE.MeshStandardMaterial({ color: 12094944, roughness: 0.22, metalness: 0.6, emissive: 12094944, emissiveIntensity: 0.4 });
-        const subPoleGeom = new THREE.SphereGeometry(subPolkaR * 0.6, 24, 18);
-        const subN = new THREE.Mesh(subPoleGeom, subPoleMat);
+        const subPoleMat = new THREE2.MeshStandardMaterial({ color: 12094944, roughness: 0.22, metalness: 0.6, emissive: 12094944, emissiveIntensity: 0.4 });
+        const subPoleGeom = new THREE2.SphereGeometry(subPolkaR * 0.6, 24, 18);
+        const subN = new THREE2.Mesh(subPoleGeom, subPoleMat);
         subN.position.set(0, subPoleY, 0);
         drillGroup.add(subN);
-        const subS = new THREE.Mesh(subPoleGeom.clone(), subPoleMat);
+        const subS = new THREE2.Mesh(subPoleGeom.clone(), subPoleMat);
         subS.position.set(0, -subPoleY, 0);
         drillGroup.add(subS);
         const titleText = y && y.p && y.p[drillIdx] ? `\u041F\u043E\u043B\u043A\u0430 ${drillIdx}: ${y.p[drillIdx].slice(0, 18)}` : `\u041F\u043E\u043B\u043A\u0430 ${drillIdx}`;
@@ -1472,11 +1722,11 @@
         drillGroup.add(title);
         const a0 = (270 - drillIdx * 30) * Math.PI / 180;
         drillGroup.position.set(R * Math.cos(a0), 0, -R * Math.sin(a0));
-        const dirOut = new THREE.Vector3(drillGroup.position.x, 0, drillGroup.position.z).normalize();
+        const dirOut = new THREE2.Vector3(drillGroup.position.x, 0, drillGroup.position.z).normalize();
         drillGroup.position.add(dirOut.multiplyScalar(subR * 1.1));
       }
-      const raycaster = new THREE.Raycaster();
-      const ndc = new THREE.Vector2();
+      const raycaster = new THREE2.Raycaster();
+      const ndc = new THREE2.Vector2();
       function rebuildMechanics(active) {
         while (mechGroup.children.length) {
           const ch = mechGroup.children[0];
@@ -1524,7 +1774,7 @@
           if (active.includes(p.id)) mechGroup.add(makeBipyramid(p.idx, p.col, solidMode ? 0.88 : 0.6, solidMode));
         });
         if (active.includes("opp")) {
-          const grp = new THREE.Group();
+          const grp = new THREE2.Group();
           const mat = tubeMat(16756784, 0.55);
           for (let i = 0; i < 6; i++) {
             const t = makeTube(equatorPos(i), equatorPos(i + 6), 0.4, mat);
@@ -1534,7 +1784,7 @@
         }
         if (active.includes("rhythm")) {
           const triples = [[2, 3, 4], [5, 6, 7], [8, 9, 10], [11, 0, 1]];
-          const center = new THREE.Vector3(0, 0, 0);
+          const center = new THREE2.Vector3(0, 0, 0);
           triples.forEach((tr) => {
             const [a, b, c] = tr.map((i) => equatorPos(i));
             mechGroup.add(makeTetrahedron(a, b, c, center, 3186784, 0.55));
@@ -1547,30 +1797,30 @@
             const [a, b, c] = arc.map((i) => equatorPos(i));
             const mid = b.clone();
             mid.y = R * 0.18;
-            const curve = new THREE.CatmullRomCurve3([a, mid, c]);
-            const tubeGeom = new THREE.TubeGeometry(curve, 32, 0.9, 8, false);
-            const m = new THREE.Mesh(tubeGeom, tubeMat(cols[ai], 0.7));
+            const curve = new THREE2.CatmullRomCurve3([a, mid, c]);
+            const tubeGeom = new THREE2.TubeGeometry(curve, 32, 0.9, 8, false);
+            const m = new THREE2.Mesh(tubeGeom, tubeMat(cols[ai], 0.7));
             mechGroup.add(m);
           });
         }
         if (active.includes("halves")) {
           const wf = !solidMode;
           const op = solidMode ? 0.32 : 0.18;
-          const upper = new THREE.Mesh(
-            new THREE.SphereGeometry(R * 1.02, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2),
-            new THREE.MeshBasicMaterial({ color: 12620858, wireframe: wf, transparent: true, opacity: op, side: THREE.DoubleSide })
+          const upper = new THREE2.Mesh(
+            new THREE2.SphereGeometry(R * 1.02, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2),
+            new THREE2.MeshBasicMaterial({ color: 12620858, wireframe: wf, transparent: true, opacity: op, side: THREE2.DoubleSide })
           );
-          const lower = new THREE.Mesh(
-            new THREE.SphereGeometry(R * 1.02, 32, 16, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
-            new THREE.MeshBasicMaterial({ color: 2450411, wireframe: wf, transparent: true, opacity: op, side: THREE.DoubleSide })
+          const lower = new THREE2.Mesh(
+            new THREE2.SphereGeometry(R * 1.02, 32, 16, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
+            new THREE2.MeshBasicMaterial({ color: 2450411, wireframe: wf, transparent: true, opacity: op, side: THREE2.DoubleSide })
           );
           mechGroup.add(upper);
           mechGroup.add(lower);
         }
         if (active.includes("error89")) {
-          const ringMat = new THREE.MeshBasicMaterial({ color: 14239471, transparent: true, opacity: 0.7 });
+          const ringMat = new THREE2.MeshBasicMaterial({ color: 14239471, transparent: true, opacity: 0.7 });
           [8, 9, 2, 3].forEach((i) => {
-            const ring = new THREE.Mesh(new THREE.TorusGeometry(polkaR * 1.7, 1, 8, 24), ringMat);
+            const ring = new THREE2.Mesh(new THREE2.TorusGeometry(polkaR * 1.7, 1, 8, 24), ringMat);
             ring.position.copy(equatorPos(i));
             ring.rotation.x = Math.PI / 2;
             mechGroup.add(ring);
@@ -1585,7 +1835,7 @@
           const ZS = ["\u2651", "\u2652", "\u2653", "\u2648", "\u2649", "\u264A", "\u264B", "\u264C", "\u264D", "\u264E", "\u264F", "\u2650"];
           const coinR = polkaR * 0.85;
           const coinThick = polkaR * 0.28;
-          const sideMat = new THREE.MeshStandardMaterial({
+          const sideMat = new THREE2.MeshStandardMaterial({
             color: 7020968,
             metalness: 0.85,
             roughness: 0.22,
@@ -1619,25 +1869,25 @@
             ctx.shadowOffsetY = -2;
             ctx.fillText(sym, 128, 138);
             ctx.shadowColor = "transparent";
-            const tex = new THREE.CanvasTexture(cv);
-            tex.minFilter = THREE.LinearFilter;
-            tex.magFilter = THREE.LinearFilter;
-            if (THREE.sRGBEncoding) tex.encoding = THREE.sRGBEncoding;
-            const faceMat = new THREE.MeshStandardMaterial({
+            const tex = new THREE2.CanvasTexture(cv);
+            tex.minFilter = THREE2.LinearFilter;
+            tex.magFilter = THREE2.LinearFilter;
+            if (THREE2.sRGBEncoding) tex.encoding = THREE2.sRGBEncoding;
+            const faceMat = new THREE2.MeshStandardMaterial({
               map: tex,
               metalness: 0.3,
               roughness: 0.5,
               emissive: 7092909,
               emissiveIntensity: 0.38
             });
-            const coinGeom = new THREE.CylinderGeometry(coinR, coinR, coinThick, 40, 1, false);
-            const coin = new THREE.Mesh(coinGeom, [sideMat, faceMat, faceMat.clone()]);
+            const coinGeom = new THREE2.CylinderGeometry(coinR, coinR, coinThick, 40, 1, false);
+            const coin = new THREE2.Mesh(coinGeom, [sideMat, faceMat, faceMat.clone()]);
             const dir = equatorPos(i).clone().normalize();
             const pos = equatorPos(i).clone().add(dir.clone().multiplyScalar(polkaR * 2));
             pos.y = polkaR * 1.6;
             coin.position.copy(pos);
-            const axisFrom = new THREE.Vector3(0, 1, 0);
-            const q = new THREE.Quaternion().setFromUnitVectors(axisFrom, dir);
+            const axisFrom = new THREE2.Vector3(0, 1, 0);
+            const q = new THREE2.Quaternion().setFromUnitVectors(axisFrom, dir);
             coin.setRotationFromQuaternion(q);
             coin.userData.spinAxis = dir.clone();
             coin.userData.spinSpeed = 4e-4 + i % 3 * 1e-4;
@@ -1646,27 +1896,27 @@
           mechGroup.userData.zodiacCoinsAnim = true;
         }
         if (active.includes("mb_scorpio_spider")) {
-          const top = new THREE.Mesh(
-            new THREE.SphereGeometry(R * 1.02, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2),
-            new THREE.MeshStandardMaterial({ color: 2450411, transparent: true, opacity: 0.18, roughness: 0.5, metalness: 0.2, side: THREE.DoubleSide })
+          const top = new THREE2.Mesh(
+            new THREE2.SphereGeometry(R * 1.02, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2),
+            new THREE2.MeshStandardMaterial({ color: 2450411, transparent: true, opacity: 0.18, roughness: 0.5, metalness: 0.2, side: THREE2.DoubleSide })
           );
           mechGroup.add(top);
-          const bot = new THREE.Mesh(
-            new THREE.SphereGeometry(R * 1.02, 32, 16, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
-            new THREE.MeshStandardMaterial({ color: 14427686, transparent: true, opacity: 0.18, roughness: 0.5, metalness: 0.2, side: THREE.DoubleSide })
+          const bot = new THREE2.Mesh(
+            new THREE2.SphereGeometry(R * 1.02, 32, 16, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
+            new THREE2.MeshStandardMaterial({ color: 14427686, transparent: true, opacity: 0.18, roughness: 0.5, metalness: 0.2, side: THREE2.DoubleSide })
           );
           mechGroup.add(bot);
         }
         if (active.includes("mb_mobius")) {
-          const curve = new THREE.CatmullRomCurve3([
+          const curve = new THREE2.CatmullRomCurve3([
             equatorPos(11),
-            new THREE.Vector3(R * 0.5, -R * 0.45, R * 0.45),
-            new THREE.Vector3(0, -R * 0.6, R * 0.65),
-            new THREE.Vector3(-R * 0.5, -R * 0.45, R * 0.45),
+            new THREE2.Vector3(R * 0.5, -R * 0.45, R * 0.45),
+            new THREE2.Vector3(0, -R * 0.6, R * 0.65),
+            new THREE2.Vector3(-R * 0.5, -R * 0.45, R * 0.45),
             equatorPos(1)
           ], false, "catmullrom", 0.5);
-          const tubeGeom = new THREE.TubeGeometry(curve, 80, 1.6, 12, false);
-          const mat = new THREE.MeshStandardMaterial({
+          const tubeGeom = new THREE2.TubeGeometry(curve, 80, 1.6, 12, false);
+          const mat = new THREE2.MeshStandardMaterial({
             color: 1358036,
             transparent: true,
             opacity: 0.95,
@@ -1675,7 +1925,7 @@
             emissive: 1358036,
             emissiveIntensity: 0.55
           });
-          mechGroup.add(new THREE.Mesh(tubeGeom, mat));
+          mechGroup.add(new THREE2.Mesh(tubeGeom, mat));
         }
         if (active.includes("mb_accumulation")) {
           [0, 3, 6, 9].forEach((i) => {
@@ -1684,9 +1934,9 @@
             apex.y = R * 0.35;
             const t = makeTube(base, apex, 1.2, tubeMat(2279504, 0.85));
             if (t) mechGroup.add(t);
-            const ring = new THREE.Mesh(
-              new THREE.TorusGeometry(polkaR * 1.4, 0.7, 8, 32),
-              new THREE.MeshStandardMaterial({ color: 2279504, transparent: true, opacity: 0.85, metalness: 0.6, roughness: 0.2, emissive: 2279504, emissiveIntensity: 0.4 })
+            const ring = new THREE2.Mesh(
+              new THREE2.TorusGeometry(polkaR * 1.4, 0.7, 8, 32),
+              new THREE2.MeshStandardMaterial({ color: 2279504, transparent: true, opacity: 0.85, metalness: 0.6, roughness: 0.2, emissive: 2279504, emissiveIntensity: 0.4 })
             );
             ring.position.copy(base);
             ring.rotation.x = Math.PI / 2;
@@ -1694,17 +1944,17 @@
           });
         }
         if (active.includes("mb_yasna2")) {
-          const microMat = new THREE.MeshStandardMaterial({ color: 10624175, transparent: true, opacity: 0.7, metalness: 0.4, roughness: 0.3, emissive: 10624175, emissiveIntensity: 0.1 });
-          const microGeom = new THREE.SphereGeometry(1.4, 10, 6);
+          const microMat = new THREE2.MeshStandardMaterial({ color: 10624175, transparent: true, opacity: 0.7, metalness: 0.4, roughness: 0.3, emissive: 10624175, emissiveIntensity: 0.1 });
+          const microGeom = new THREE2.SphereGeometry(1.4, 10, 6);
           const instCount = 144;
-          const instMesh = new THREE.InstancedMesh(microGeom, microMat, instCount);
-          const dummy = new THREE.Object3D();
+          const instMesh = new THREE2.InstancedMesh(microGeom, microMat, instCount);
+          const dummy = new THREE2.Object3D();
           let idx = 0;
           for (let i = 0; i < 12; i++) {
             const center = equatorPos(i);
             for (let j = 0; j < 12; j++) {
               const a = (270 - j * 30) * Math.PI / 180;
-              const localPos = new THREE.Vector3((polkaR + 5) * Math.cos(a), 0, -(polkaR + 5) * Math.sin(a));
+              const localPos = new THREE2.Vector3((polkaR + 5) * Math.cos(a), 0, -(polkaR + 5) * Math.sin(a));
               const microPos = center.clone().add(localPos);
               dummy.position.copy(microPos);
               dummy.updateMatrix();
@@ -1802,8 +2052,8 @@
       canvas.addEventListener("touchstart", onTouchStart, { passive: false });
       canvas.addEventListener("touchmove", onTouchMove, { passive: false });
       canvas.addEventListener("touchend", onTouchEnd);
-      const raycaster_local = new THREE.Raycaster();
-      const ndc_local = new THREE.Vector2();
+      const raycaster_local = new THREE2.Raycaster();
+      const ndc_local = new THREE2.Vector2();
       const onClick = (e) => {
         if (stateRef.current.dragMoved > (isTouch ? 12 : 5)) {
           stateRef.current.dragMoved = 0;
@@ -1890,10 +2140,10 @@
           if (astroSun.material) astroSun.material.emissiveIntensity = pulse;
           const term = astroGroup.userData.terminator;
           if (term) {
-            const sunDir = new THREE.Vector3(sx, sy, sZ).normalize();
-            const helper = Math.abs(sunDir.y) < 0.9 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0);
-            const e1 = new THREE.Vector3().crossVectors(sunDir, helper).normalize();
-            const e2 = new THREE.Vector3().crossVectors(sunDir, e1).normalize();
+            const sunDir = new THREE2.Vector3(sx, sy, sZ).normalize();
+            const helper = Math.abs(sunDir.y) < 0.9 ? new THREE2.Vector3(0, 1, 0) : new THREE2.Vector3(1, 0, 0);
+            const e1 = new THREE2.Vector3().crossVectors(sunDir, helper).normalize();
+            const e2 = new THREE2.Vector3().crossVectors(sunDir, e1).normalize();
             const positions = term.geometry.attributes.position.array;
             const segs = positions.length / 3 - 1;
             for (let i = 0; i <= segs; i++) {
@@ -1916,12 +2166,12 @@
         polki.forEach((p, i) => {
           if (drilling) {
             if (i === live.drill) {
-              p.scale.lerp(new THREE.Vector3(0.4, 0.4, 0.4), 0.12);
+              p.scale.lerp(new THREE2.Vector3(0.4, 0.4, 0.4), 0.12);
               p.material.emissiveIntensity = 0.08;
               p.material.opacity = 0.4;
               p.material.transparent = true;
             } else {
-              p.scale.lerp(new THREE.Vector3(0.7, 0.7, 0.7), 0.12);
+              p.scale.lerp(new THREE2.Vector3(0.7, 0.7, 0.7), 0.12);
               p.material.emissiveIntensity = 0.1;
               p.material.opacity = 0.55;
               p.material.transparent = true;
@@ -1930,10 +2180,10 @@
             if (i === live.sel) {
               const pulse = 0.5 + 0.4 * Math.sin(pulsePhase * 2);
               p.material.emissiveIntensity = pulse;
-              p.scale.lerp(new THREE.Vector3(1.4, 1.4, 1.4), 0.1);
+              p.scale.lerp(new THREE2.Vector3(1.4, 1.4, 1.4), 0.1);
             } else {
               p.material.emissiveIntensity = 0.15;
-              p.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
+              p.scale.lerp(new THREE2.Vector3(1, 1, 1), 0.1);
             }
             p.material.opacity = 1;
             p.material.transparent = false;
@@ -1949,7 +2199,7 @@
             const intensity = 0.04 + dayFactor * 0.41;
             p.material.emissiveIntensity = intensity;
             const targetScale = 0.85 + dayFactor * 0.15;
-            p.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.08);
+            p.scale.lerp(new THREE2.Vector3(targetScale, targetScale, targetScale), 0.08);
           });
         }
         if (mechGroup.userData.zodiacCoinsAnim) {
@@ -1961,21 +2211,21 @@
         }
         if (drilling) {
           if (!drillGroup.visible) drillGroup.visible = true;
-          drillGroup.scale.lerp(new THREE.Vector3(1, 1, 1), 0.12);
+          drillGroup.scale.lerp(new THREE2.Vector3(1, 1, 1), 0.12);
           drillGroup.rotation.y += dt * 1e-4;
           subPolkiArr.forEach((sb, i) => {
             if (i === live.sel) {
               const pulse = 0.5 + 0.4 * Math.sin(pulsePhase * 2);
               sb.material.emissiveIntensity = pulse;
-              sb.scale.lerp(new THREE.Vector3(1.4, 1.4, 1.4), 0.1);
+              sb.scale.lerp(new THREE2.Vector3(1.4, 1.4, 1.4), 0.1);
             } else {
               sb.material.emissiveIntensity = 0.45;
-              sb.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
+              sb.scale.lerp(new THREE2.Vector3(1, 1, 1), 0.1);
             }
           });
         } else {
           if (drillGroup.scale.x > 0.05) {
-            drillGroup.scale.lerp(new THREE.Vector3(1e-3, 1e-3, 1e-3), 0.18);
+            drillGroup.scale.lerp(new THREE2.Vector3(1e-3, 1e-3, 1e-3), 0.18);
           } else if (drillGroup.visible) {
             drillGroup.visible = false;
           }
@@ -2040,6 +2290,42 @@
       });
     }, [JSON.stringify(astroLayers || {})]);
     React.useEffect(() => {
+      const sc = sceneRefs.current;
+      if (!sc || !sc.astroSubs || !window.YasnaSkyReal) return;
+      const SR = window.YasnaSkyReal, subs = sc.astroSubs, R = 200;
+      const mk = (window.YasnaSprites || {}).makeLabelSprite;
+      const L = astroLayers || {};
+      const built = sc._skyBuilt || (sc._skyBuilt = {});
+      if ((L.realStars || L.realNames) && !built.stars) {
+        built.stars = true;
+        SR.loadStars().then((cat) => {
+          subs.realStars.add(SR.buildStars(THREE, R, cat));
+          if (mk) subs.realNames.add(SR.buildNames(THREE, R, cat, mk));
+        }).catch((e) => {
+          built.stars = false;
+          console.warn("[sky] stars load failed", e);
+        });
+      }
+      if (L.realConstel && !built.con) {
+        built.con = true;
+        SR.loadConstellations().then((con) => {
+          subs.realConstel.add(SR.buildConstellations(THREE, R, con));
+        }).catch((e) => {
+          built.con = false;
+          console.warn("[sky] constellations load failed", e);
+        });
+      }
+      if (L.realPlanets && !built.planets) {
+        built.planets = true;
+        try {
+          subs.realPlanets.add(SR.buildSolarSystem(THREE, R, /* @__PURE__ */ new Date(), mk));
+        } catch (e) {
+          built.planets = false;
+          console.warn("[sky] planets build failed", e);
+        }
+      }
+    }, [JSON.stringify(astroLayers || {})]);
+    React.useEffect(() => {
       if (sceneRefs.current && sceneRefs.current.wheelGroup) {
         const tilt = !!(astroLayers && astroLayers.tiltAxis) && !!astroMode;
         const target = tilt ? 23.5 * Math.PI / 180 : 0;
@@ -2055,7 +2341,7 @@
     return /* @__PURE__ */ React.createElement("canvas", { ref: canvasRef, style: { width: "100%", height: "100%", display: "block", cursor: "grab", outline: "none", touchAction: "none" } });
   }
   function makeTextSprite(text, color, fontSize, weight) {
-    const THREE = window.THREE;
+    const THREE2 = window.THREE;
     const c = document.createElement("canvas");
     c.width = 512;
     c.height = 128;
@@ -2065,14 +2351,14 @@
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(text, 256, 64);
-    const tex = new THREE.CanvasTexture(c);
-    tex.minFilter = THREE.LinearFilter;
-    tex.magFilter = THREE.LinearFilter;
-    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true });
-    return new THREE.Sprite(mat);
+    const tex = new THREE2.CanvasTexture(c);
+    tex.minFilter = THREE2.LinearFilter;
+    tex.magFilter = THREE2.LinearFilter;
+    const mat = new THREE2.SpriteMaterial({ map: tex, transparent: true });
+    return new THREE2.Sprite(mat);
   }
   function makeLabelSprite(text, opts) {
-    const THREE = window.THREE;
+    const THREE2 = window.THREE;
     const o = opts || {};
     const fontSize = o.fontSize || 64;
     const padding = Math.floor(fontSize * 0.6);
@@ -2103,17 +2389,17 @@
     ctx.strokeText(text, c.width / 2, c.height / 2);
     ctx.fillStyle = o.color || "#ffffff";
     ctx.fillText(text, c.width / 2, c.height / 2);
-    const tex = new THREE.CanvasTexture(c);
-    tex.minFilter = THREE.LinearFilter;
-    tex.magFilter = THREE.LinearFilter;
-    if (THREE.sRGBEncoding) tex.encoding = THREE.sRGBEncoding;
-    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: o.depthTest !== false, depthWrite: false });
-    const sp = new THREE.Sprite(mat);
+    const tex = new THREE2.CanvasTexture(c);
+    tex.minFilter = THREE2.LinearFilter;
+    tex.magFilter = THREE2.LinearFilter;
+    if (THREE2.sRGBEncoding) tex.encoding = THREE2.sRGBEncoding;
+    const mat = new THREE2.SpriteMaterial({ map: tex, transparent: true, depthTest: o.depthTest !== false, depthWrite: false });
+    const sp = new THREE2.Sprite(mat);
     sp.userData.aspect = c.width / c.height;
     return sp;
   }
   function makeDigitSprite(digit, opts) {
-    const THREE = window.THREE;
+    const THREE2 = window.THREE;
     const o = opts || {};
     const size = o.size || 256;
     const c = document.createElement("canvas");
@@ -2141,12 +2427,12 @@
     ctx.strokeText(String(digit), size / 2, size / 2 + size * 0.02);
     ctx.fillStyle = o.color || "#ffffff";
     ctx.fillText(String(digit), size / 2, size / 2 + size * 0.02);
-    const tex = new THREE.CanvasTexture(c);
-    tex.minFilter = THREE.LinearFilter;
-    tex.magFilter = THREE.LinearFilter;
-    if (THREE.sRGBEncoding) tex.encoding = THREE.sRGBEncoding;
-    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: o.depthTest !== false, depthWrite: false });
-    const spr = new THREE.Sprite(mat);
+    const tex = new THREE2.CanvasTexture(c);
+    tex.minFilter = THREE2.LinearFilter;
+    tex.magFilter = THREE2.LinearFilter;
+    if (THREE2.sRGBEncoding) tex.encoding = THREE2.sRGBEncoding;
+    const mat = new THREE2.SpriteMaterial({ map: tex, transparent: true, depthTest: o.depthTest !== false, depthWrite: false });
+    const spr = new THREE2.Sprite(mat);
     return spr;
   }
   window.Yasna3DView = Yasna3DView;
@@ -2188,8 +2474,16 @@
     // Граница день/ночь (требует sunCycle)
     dayNight: false,
     // Подсветка полок по освещённости
-    tiltAxis: false
+    tiltAxis: false,
     // Наклон оси на 23.5°
+    realStars: false,
+    // Реальные звёзды (HYG, до 6.5ᵐ)
+    realConstel: false,
+    // Линии настоящих созвездий
+    realNames: false,
+    // Имена ярких звёзд
+    realPlanets: false
+    // Солнце/Луна/планеты на текущую дату
   };
   const SECTIONS = [
     { title: "\u0413\u0435\u043E\u043C\u0435\u0442\u0440\u0438\u044F \u0417\u0435\u043C\u043B\u0438", layers: [
@@ -2213,6 +2507,12 @@
       { k: "terminator", label: "\u0422\u0435\u0440\u043C\u0438\u043D\u0430\u0442\u043E\u0440 \xB7 \u0434\u0435\u043D\u044C/\u043D\u043E\u0447\u044C" },
       { k: "dayNight", label: "\u041E\u0441\u0432\u0435\u0449\u0451\u043D\u043D\u043E\u0441\u0442\u044C \u043F\u043E\u043B\u043E\u043A" },
       { k: "tiltAxis", label: "\u041D\u0430\u043A\u043B\u043E\u043D \u043E\u0441\u0438 \u0417\u0435\u043C\u043B\u0438", sub: "23.5\xB0" }
+    ] },
+    { title: "\u0420\u0435\u0430\u043B\u044C\u043D\u043E\u0435 \u043D\u0435\u0431\u043E", layers: [
+      { k: "realStars", label: "\u0417\u0432\u0451\u0437\u0434\u044B", sub: "8920 \xB7 \u0434\u043E 6.5\u1D50" },
+      { k: "realConstel", label: "\u0421\u043E\u0437\u0432\u0435\u0437\u0434\u0438\u044F", sub: "88 \u0444\u0438\u0433\u0443\u0440" },
+      { k: "realNames", label: "\u0418\u043C\u0435\u043D\u0430 \u0437\u0432\u0451\u0437\u0434" },
+      { k: "realPlanets", label: "\u041F\u043B\u0430\u043D\u0435\u0442\u044B", sub: "\u0421\u043E\u043B\u043D\u0446\u0435 \xB7 \u041B\u0443\u043D\u0430 \xB7 \u043D\u0430 \u0441\u0435\u0433\u043E\u0434\u043D\u044F" }
     ] }
   ];
   function useIsMobile(breakpoint = 768) {

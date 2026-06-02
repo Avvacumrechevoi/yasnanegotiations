@@ -30,6 +30,7 @@ const isWatch = process.argv.includes('--watch');
 const APP_FILES = [
   'core/data.js',
   'core/content-store.js', // ← Tier-1 + Tier-2 merge layer (должен быть ДО trivia-bank)
+  'core/sky-real.js',      // ← реальное звёздное небо (window.YasnaSkyReal) — до yasna-3d.js
   'core/yasna-3d.js',
   'core/astro-panel.js',
   'core/verification.js',
