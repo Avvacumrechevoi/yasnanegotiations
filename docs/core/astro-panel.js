@@ -46,6 +46,10 @@ const DEFAULTS = {
   terminator: false,  // Граница день/ночь (требует sunCycle)
   dayNight:   false,  // Подсветка полок по освещённости
   tiltAxis:   false,  // Наклон оси на 23.5°
+  realStars:   false, // Реальные звёзды (HYG, до 6.5ᵐ)
+  realConstel: false, // Линии настоящих созвездий
+  realNames:   false, // Имена ярких звёзд
+  realPlanets: false, // Солнце/Луна/планеты на текущую дату
 };
 
 // ─── Структура UI ────────────────────────────────────────────────────
@@ -72,6 +76,12 @@ const SECTIONS = [
     { k:'terminator', label:'Терминатор · день/ночь' },
     { k:'dayNight',   label:'Освещённость полок' },
     { k:'tiltAxis',   label:'Наклон оси Земли',      sub:'23.5°' },
+  ]},
+  { title: 'Реальное небо', layers: [
+    { k:'realStars',   label:'Звёзды',      sub:'8920 · до 6.5ᵐ' },
+    { k:'realConstel', label:'Созвездия',   sub:'88 фигур' },
+    { k:'realNames',   label:'Имена звёзд' },
+    { k:'realPlanets', label:'Планеты',     sub:'Солнце · Луна · на сегодня' },
   ]},
 ];
 

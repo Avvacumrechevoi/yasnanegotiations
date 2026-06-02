@@ -198,6 +198,11 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       polaris:    new THREE.Group(),
       sun:        new THREE.Group(),
       terminator: new THREE.Group(),
+      // Реальное небо (ленивое построение из data/sky-*.json — см. sky-real.js)
+      realStars:   new THREE.Group(),
+      realConstel: new THREE.Group(),
+      realNames:   new THREE.Group(),
+      realPlanets: new THREE.Group(),
     };
     Object.values(astroSubs).forEach(g => astroGroup.add(g));
     {
@@ -1350,6 +1355,36 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
     Object.keys(subs).forEach(key=>{
       subs[key].visible = !!L[key];
     });
+  }, [JSON.stringify(astroLayers||{})]);
+
+  // ─── Реальное небо: ленивое построение при первом включении слоя ───
+  // Каталог звёзд (HYG) + линии созвездий (d3-celestial) грузятся из
+  // data/sky-*.json по требованию — не раздувают основной бандл.
+  React.useEffect(()=>{
+    const sc = sceneRefs.current;
+    if(!sc || !sc.astroSubs || !window.YasnaSkyReal) return;
+    const SR = window.YasnaSkyReal, subs = sc.astroSubs, R = 200;
+    const mk = (window.YasnaSprites||{}).makeLabelSprite;
+    const L = astroLayers || {};
+    const built = sc._skyBuilt || (sc._skyBuilt = {});
+    if((L.realStars || L.realNames) && !built.stars){
+      built.stars = true;
+      SR.loadStars().then(cat=>{
+        subs.realStars.add(SR.buildStars(THREE, R, cat));
+        if(mk) subs.realNames.add(SR.buildNames(THREE, R, cat, mk));
+      }).catch(e=>{ built.stars=false; console.warn('[sky] stars load failed', e); });
+    }
+    if(L.realConstel && !built.con){
+      built.con = true;
+      SR.loadConstellations().then(con=>{
+        subs.realConstel.add(SR.buildConstellations(THREE, R, con));
+      }).catch(e=>{ built.con=false; console.warn('[sky] constellations load failed', e); });
+    }
+    if(L.realPlanets && !built.planets){
+      built.planets = true; // синхронно (эфемериды, без fetch); позиции на текущую дату
+      try { subs.realPlanets.add(SR.buildSolarSystem(THREE, R, new Date(), mk)); }
+      catch(e){ built.planets=false; console.warn('[sky] planets build failed', e); }
+    }
   }, [JSON.stringify(astroLayers||{})]);
 
   // Наклон оси Земли — поворот wheelGroup на 23.5° вокруг оси Z.
