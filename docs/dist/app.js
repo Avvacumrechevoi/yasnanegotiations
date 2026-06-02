@@ -1,4 +1,4 @@
-/* Yasna bundle: app.js — собран 2026-05-10T01:07:28.676Z */
+/* Yasna bundle: app.js — собран 2026-06-02T20:38:40.560Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -2398,7 +2398,7 @@
 /* ─── core/verification.js ─── */
 ;(function(){
 (function() {
-  const { useState } = React;
+  const { useState, useEffect } = React;
   const { PR } = window.YasnaData;
   function Verification({ y, vs, setVs, onClose }) {
     const p = y.p || [];

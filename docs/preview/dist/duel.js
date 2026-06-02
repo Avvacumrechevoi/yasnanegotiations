@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-06-02T16:53:14.312Z */
+/* Yasna bundle: duel.js — собран 2026-06-02T20:38:40.883Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -2157,7 +2157,7 @@
 /* ─── core/verification.js ─── */
 ;(function(){
 (function() {
-  const { useState } = React;
+  const { useState, useEffect } = React;
   const { PR } = window.YasnaData;
   function Verification({ y, vs, setVs, onClose }) {
     const p = y.p || [];
@@ -5877,7 +5877,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-06-02T16:53:13.821Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-06-02T20:38:40.404Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -18950,7 +18950,7 @@ window.YasnaCore = {
 /* ─── games/duel/turnir-engine.js ─── */
 ;(function(){
 (function() {
-  const { useState, useEffect, useRef } = React;
+  const { useState, useEffect, useRef, useMemo } = React;
   const QUESTION_TIME = 15;
   const SHOW_FEEDBACK_MS = 1500;
   const SHOW_VS_MS = 2200;
