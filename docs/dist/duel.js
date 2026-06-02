@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-05-10T01:07:29.213Z */
+/* Yasna bundle: duel.js — собран 2026-06-02T16:13:13.318Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5861,7 +5861,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-05-10T01:07:28.262Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-06-02T16:13:13.090Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -21234,7 +21234,7 @@ window.YasnaCore = {
     const r = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
     return r[n] || n + "";
   }
-  function DPHeader({ user, onLoginClick, onLogout }) {
+  function DPHeader({ user, onLoginClick, onLogout, isFirstTime }) {
     const onAnchorClick = (id) => (e) => {
       e.preventDefault();
       const el = document.getElementById(id);
@@ -21254,9 +21254,13 @@ window.YasnaCore = {
         "nav",
         { className: "dp-header-nav" },
         React.createElement("a", { href: "rating.html", title: "\u041A\u0430\u043A \u0443\u0441\u0442\u0440\u043E\u0435\u043D\u044B \u0448\u043A\u0430\u043B\u044B \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441\u0430" }, "\u0420\u0435\u0439\u0442\u0438\u043D\u0433"),
-        React.createElement("a", { href: "#hronika", onClick: onAnchorClick("hronika") }, "\u0422\u043E\u043F \u043D\u0435\u0434\u0435\u043B\u0438"),
-        React.createElement("a", { href: "#zhurnal", onClick: onAnchorClick("zhurnal") }, "\u0416\u0443\u0440\u043D\u0430\u043B"),
-        React.createElement("a", { href: "#znaki", onClick: onAnchorClick("znaki") }, "\u0414\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F"),
+        // Якорные ссылки ведут на секции главного экрана (#hronika/#zhurnal/#znaki).
+        // На приветственном экране (первый визит) этих секций нет — без условия
+        // ссылки были бы «мёртвыми» (клик ничего не делает). Показываем их только
+        // когда отрисован главный экран (вернувшийся игрок / после онбординга).
+        !isFirstTime && React.createElement("a", { href: "#hronika", onClick: onAnchorClick("hronika") }, "\u0422\u043E\u043F \u043D\u0435\u0434\u0435\u043B\u0438"),
+        !isFirstTime && React.createElement("a", { href: "#zhurnal", onClick: onAnchorClick("zhurnal") }, "\u0416\u0443\u0440\u043D\u0430\u043B"),
+        !isFirstTime && React.createElement("a", { href: "#znaki", onClick: onAnchorClick("znaki") }, "\u0414\u043E\u0441\u0442\u0438\u0436\u0435\u043D\u0438\u044F"),
         React.createElement(
           "div",
           { className: "dp-header-auth" },
@@ -21325,7 +21329,7 @@ window.YasnaCore = {
   function DPWelcome({ onLoginClick, onAnonStart }) {
     return React.createElement(
       "section",
-      { className: "dp-welcome", role: "region", "aria-label": "\u041F\u0440\u0438\u0432\u0435\u0442\u0441\u0442\u0432\u0438\u0435" },
+      { className: "dp-welcome", id: "main", role: "region", "aria-label": "\u041F\u0440\u0438\u0432\u0435\u0442\u0441\u0442\u0432\u0438\u0435" },
       React.createElement("div", { className: "dp-welcome-eyebrow" }, "\u2726  \u0422\u0440\u0435\u043D\u0430\u0436\u0451\u0440 \u042F\u0441\u043D\u044B"),
       React.createElement("h1", { className: "dp-welcome-title" }, "\u042F\u0441\u043D\u0430 \u2014", React.createElement("br"), "\u043C\u0430\u0441\u0442\u0435\u0440\u0441\u0442\u0432\u043E \u0432 \u0438\u0433\u0440\u0435."),
       React.createElement(
@@ -23179,7 +23183,7 @@ window.YasnaCore = {
       "div",
       { className: "dp-root" },
       React.createElement("a", { href: "#main", className: "dp-skip" }, "\u041F\u0440\u043E\u043F\u0443\u0441\u0442\u0438\u0442\u044C \u043A \u0433\u043B\u0430\u0432\u043D\u043E\u043C\u0443"),
-      React.createElement(DPHeader, { user, onLoginClick, onLogout }),
+      React.createElement(DPHeader, { user, onLoginClick, onLogout, isFirstTime }),
       isFirstTime ? React.createElement(DPWelcome, { onLoginClick, onAnonStart: () => setAnonModal(true) }) : React.createElement(
         "main",
         { id: "main" },

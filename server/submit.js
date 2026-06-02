@@ -32,7 +32,9 @@ function verifyJWT(token, secret){
   const [h, b, s] = token.split('.');
   if(!h || !b || !s) return null;
   const expected = crypto.createHmac('sha256', secret).update(`${h}.${b}`).digest('base64url');
-  if(expected !== s) return null;
+  // Constant-time сравнение подписи — без утечки через timing (как в content-publish.js).
+  const expBuf = Buffer.from(expected), sigBuf = Buffer.from(s);
+  if(expBuf.length !== sigBuf.length || !crypto.timingSafeEqual(expBuf, sigBuf)) return null;
   try {
     const payload = JSON.parse(Buffer.from(b, 'base64url').toString());
     if(payload.exp && payload.exp < Math.floor(Date.now()/1000)) return null;
