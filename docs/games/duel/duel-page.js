@@ -176,7 +176,21 @@
     };
 
     return React.createElement('header', { className: 'dp-header' },
-      React.createElement('a', { href: 'start.html', className: 'dp-header-back', title: 'К Ясне', 'aria-label': 'Вернуться к Ясне' },
+      React.createElement('a', {
+        href: 'start.html', className: 'dp-header-back', title: 'Назад', 'aria-label': 'Назад',
+        // «Назад»: если пришли с другой страницы этого сайта (например, из
+        // Конструктора по кнопке «Игра») — возвращаемся именно туда. При прямом
+        // заходе / переходе извне history.back() некуда вести — тогда срабатывает
+        // href и ведёт на хаб start.html.
+        onClick: (e) => {
+          try {
+            if(document.referrer && document.referrer.indexOf(window.location.origin) === 0 && window.history.length > 1){
+              e.preventDefault();
+              window.history.back();
+            }
+          } catch(_){}
+        }
+      },
         React.createElement('span', { className: 'dp-header-back-arrow', 'aria-hidden': 'true' }, '←'),
         React.createElement('span', null, 'Ясна')
       ),
