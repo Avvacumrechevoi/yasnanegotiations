@@ -168,7 +168,7 @@
   // ═══════════════════════════════════════════════════════════════════
 
   // ─── Header ──────────────────────────────────────────────────────
-  function DPHeader({ user, onLoginClick, onLogout }){
+  function DPHeader({ user, onLoginClick, onLogout, isFirstTime }){
     const onAnchorClick = (id) => (e) => {
       e.preventDefault();
       const el = document.getElementById(id);
@@ -183,9 +183,13 @@
       React.createElement('div', { className: 'dp-header-spacer' }),
       React.createElement('nav', { className: 'dp-header-nav' },
         React.createElement('a', { href: 'rating.html', title: 'Как устроены шкалы прогресса' }, 'Рейтинг'),
-        React.createElement('a', { href: '#hronika', onClick: onAnchorClick('hronika') }, 'Топ недели'),
-        React.createElement('a', { href: '#zhurnal', onClick: onAnchorClick('zhurnal') }, 'Журнал'),
-        React.createElement('a', { href: '#znaki', onClick: onAnchorClick('znaki') }, 'Достижения'),
+        // Якорные ссылки ведут на секции главного экрана (#hronika/#zhurnal/#znaki).
+        // На приветственном экране (первый визит) этих секций нет — без условия
+        // ссылки были бы «мёртвыми» (клик ничего не делает). Показываем их только
+        // когда отрисован главный экран (вернувшийся игрок / после онбординга).
+        !isFirstTime && React.createElement('a', { href: '#hronika', onClick: onAnchorClick('hronika') }, 'Топ недели'),
+        !isFirstTime && React.createElement('a', { href: '#zhurnal', onClick: onAnchorClick('zhurnal') }, 'Журнал'),
+        !isFirstTime && React.createElement('a', { href: '#znaki', onClick: onAnchorClick('znaki') }, 'Достижения'),
         React.createElement('div', { className: 'dp-header-auth' },
           user
             ? React.createElement('button', { className: 'dp-btn-text', onClick: onLogout }, 'Выйти')
@@ -246,7 +250,7 @@
 
   // ─── Welcome (первый визит) ──────────────────────────────────────
   function DPWelcome({ onLoginClick, onAnonStart }){
-    return React.createElement('section', { className: 'dp-welcome', role: 'region', 'aria-label': 'Приветствие' },
+    return React.createElement('section', { className: 'dp-welcome', id: 'main', role: 'region', 'aria-label': 'Приветствие' },
       React.createElement('div', { className: 'dp-welcome-eyebrow' }, '✦  Тренажёр Ясны'),
       React.createElement('h1', { className: 'dp-welcome-title' }, 'Ясна —', React.createElement('br'), 'мастерство в игре.'),
       React.createElement('p', { className: 'dp-welcome-sub' },
@@ -1837,7 +1841,7 @@
 
     return React.createElement('div', { className: 'dp-root' },
       React.createElement('a', { href: '#main', className: 'dp-skip' }, 'Пропустить к главному'),
-      React.createElement(DPHeader, { user, onLoginClick, onLogout }),
+      React.createElement(DPHeader, { user, onLoginClick, onLogout, isFirstTime }),
 
       isFirstTime
         ? React.createElement(DPWelcome, { onLoginClick, onAnonStart: () => setAnonModal(true) })
