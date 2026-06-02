@@ -18,23 +18,29 @@ body.theme-vk-dark.vk-light {
   --vk-bg-deep:        #eef0f3;
   --vk-text-primary:   #1d1d1f;
   --vk-text-secondary: #6e6e73;
-  --vk-text-tertiary:  #86868b;
+  --vk-text-tertiary:  #757579;   /* чуть темнее #86868b: муты-подписи проходят контраст и на тонированном фоне */
   --vk-text-quaternary:#aeaeb2;
   --vk-border:         rgba(0, 0, 0, 0.12);
   --vk-border-strong:  #d2d2d7;
   --vk-accent:         #0071e3;   /* Конструктор blue */
   --vk-accent-hover:   #0a84ff;
   --vk-accent-soft:    rgba(0, 113, 227, 0.12);
+  --vk-accent-2:       #0a7c8e;   /* cyan #00D3E6 → тёмный teal, читаем на светлом */
+  --vk-accent-3:       #c0356b;   /* pink #FF3985 → тёмный, читаем на светлом */
+  /* Badge fg (cyan/красный/жёлтый) рассчитаны на тёмные бейджи — затемняем под светлый фон */
+  --vk-badge-success-fg: #0a7c8e;
+  --vk-badge-danger-fg:  #c0392b;
+  --vk-badge-warn-fg:    #9a6700;
 
   /* ─── duel-page токены (theme-vk-dark.css перекрашивает их в тёмные — тянем обратно в светлые) ─── */
   --bg-page:       #f5f5f7;
   --bg-surface:    #ffffff;
   --bg-soft:       #f5f5f7;
   --bg-tonal:      #e8e8ed;
-  --bg-deep:       #1d1d1f;
+  --bg-deep:       #eef0f3;   /* было #1d1d1f: карточка recap на экране результатов была тёмной с тёмным текстом */
   --text-1:        #1d1d1f;
   --text-2:        #6e6e73;
-  --text-3:        #86868b;
+  --text-3:        #757579;   /* чуть темнее #86868b — муты-подписи (время, %, «не открыто») проходят контраст */
   --text-on-dark:  #f5f5f7;
 
   --accent:        #0071e3;
