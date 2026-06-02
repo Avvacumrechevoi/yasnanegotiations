@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-06-02T16:13:13.318Z */
+/* Yasna bundle: duel.js — собран 2026-06-02T16:30:44.932Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5861,7 +5861,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-06-02T16:13:13.090Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-06-02T16:30:44.662Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -21245,7 +21245,25 @@ window.YasnaCore = {
       { className: "dp-header" },
       React.createElement(
         "a",
-        { href: "start.html", className: "dp-header-back", title: "\u041A \u042F\u0441\u043D\u0435", "aria-label": "\u0412\u0435\u0440\u043D\u0443\u0442\u044C\u0441\u044F \u043A \u042F\u0441\u043D\u0435" },
+        {
+          href: "start.html",
+          className: "dp-header-back",
+          title: "\u041D\u0430\u0437\u0430\u0434",
+          "aria-label": "\u041D\u0430\u0437\u0430\u0434",
+          // «Назад»: если пришли с другой страницы этого сайта (например, из
+          // Конструктора по кнопке «Игра») — возвращаемся именно туда. При прямом
+          // заходе / переходе извне history.back() некуда вести — тогда срабатывает
+          // href и ведёт на хаб start.html.
+          onClick: (e) => {
+            try {
+              if (document.referrer && document.referrer.indexOf(window.location.origin) === 0 && window.history.length > 1) {
+                e.preventDefault();
+                window.history.back();
+              }
+            } catch (_) {
+            }
+          }
+        },
         React.createElement("span", { className: "dp-header-back-arrow", "aria-hidden": "true" }, "\u2190"),
         React.createElement("span", null, "\u042F\u0441\u043D\u0430")
       ),
