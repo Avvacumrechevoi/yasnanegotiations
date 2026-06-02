@@ -29,8 +29,9 @@
 <link rel="stylesheet" href="../vk-tech-tokens.css?v=9"/>
 <link rel="stylesheet" href="games/duel/theme-vk-dark.css?v=14"/>
 <link rel="stylesheet" href="games/duel/vk-scheme.css?v=9"/>
+<link rel="stylesheet" href="games/duel/vk-light.css?v=nav3"/>
 </head>
-<body>
+<body class="theme-vk-dark vk-light">
 <div id="duel-page-root"></div>
 
 <!-- React + Three.js + Firebase из CDN -->
@@ -69,8 +70,10 @@
     catch(_){ return false; }
   }
   function apply(on){
-    if(on) document.body.classList.add(BODY_CLASS);
-    else document.body.classList.remove(BODY_CLASS);
+    // VK-вёрстка (широкий контейнер, сетки) — ВСЕГДА. Цвет: светлый по
+    // умолчанию (класс vk-light), тёмный — когда on=true (снимаем vk-light).
+    document.body.classList.add(BODY_CLASS);
+    document.body.classList.toggle('vk-light', !on);
     var btn = document.getElementById('dp-theme-toggle');
     if(btn){
       var icon = btn.querySelector('.dp-theme-toggle-icon');

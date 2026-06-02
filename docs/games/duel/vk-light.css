@@ -1,0 +1,72 @@
+/* ═══════════════════════════════════════════════════════════════════
+   VK Light — светлая палитра для VK-вёрстки.
+   ──────────────────────────────────────────────────────────────────
+   Включается классом `vk-light` ПОВЕРХ `theme-vk-dark`: берём широкую
+   VK-вёрстку (контейнер 1280, сетки, крупные заголовки) тёмной темы,
+   но красим её в светлые цвета Конструктора (белый фон, синий #0071e3).
+   Снять класс `vk-light` → вернётся «настоящая» тёмная VK-тема.
+   Грузится ПОСЛЕ theme-vk-dark.css / vk-tech-tokens.css, чтобы выиграть.
+   ═══════════════════════════════════════════════════════════════════ */
+
+body.theme-vk-dark.vk-light {
+  /* ─── VK Tech tokens → светлые ─── */
+  --vk-bg-base:        #f5f5f7;
+  --vk-bg-surface:     #ffffff;
+  --vk-bg-elevated:    #ffffff;
+  --vk-bg-tonal:       #f0f0f2;
+  --vk-bg-strong:      #d2d2d7;
+  --vk-bg-deep:        #eef0f3;
+  --vk-text-primary:   #1d1d1f;
+  --vk-text-secondary: #6e6e73;
+  --vk-text-tertiary:  #86868b;
+  --vk-text-quaternary:#aeaeb2;
+  --vk-border:         rgba(0, 0, 0, 0.12);
+  --vk-border-strong:  #d2d2d7;
+  --vk-accent:         #0071e3;   /* Конструктор blue */
+  --vk-accent-hover:   #0a84ff;
+  --vk-accent-soft:    rgba(0, 113, 227, 0.12);
+
+  /* ─── duel-page токены (theme-vk-dark.css перекрашивает их в тёмные — тянем обратно в светлые) ─── */
+  --bg-page:       #f5f5f7;
+  --bg-surface:    #ffffff;
+  --bg-soft:       #f5f5f7;
+  --bg-tonal:      #e8e8ed;
+  --bg-deep:       #1d1d1f;
+  --text-1:        #1d1d1f;
+  --text-2:        #6e6e73;
+  --text-3:        #86868b;
+  --text-on-dark:  #f5f5f7;
+
+  --accent:        #0071e3;
+  --accent-soft:   rgba(0, 113, 227, 0.12);
+  --accent-strong: #0058b0;
+  --primary:       #0071e3;
+  --primary-strong:#0058b0;
+  --primary-soft:  rgba(0, 113, 227, 0.12);
+
+  --border-1: #d2d2d7;
+  --border-2: #e8e8ed;
+  --shadow-sm:   0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md:   0 4px 14px rgba(0, 0, 0, 0.08);
+  --shadow-lg:   0 8px 32px rgba(0, 0, 0, 0.12);
+  --shadow-deep: 0 12px 60px rgba(0, 0, 0, 0.16);
+
+  background: #f5f5f7;
+  color: #1d1d1f;
+}
+
+/* Подложка body/страницы в светлый */
+body.theme-vk-dark.vk-light .dp-root { background: transparent; }
+
+/* ─── Игровые экраны: фидбэк ответов под светлый фон ───
+   В тёмной теме «верный/неверный» текст светлый (#A4D480 / #F2949C) — на светлом
+   фоне нечитабелен. Затемняем до контрастных значений. Зелёная/красная заливка
+   и белый текст на ней (.tn-option-correct) остаются — там контраст ок. */
+body.theme-vk-dark.vk-light .tn-option-shown-correct,
+body.theme-vk-dark.vk-light .tn-option-shown-correct .tn-option-text { color: #1f7a33; }
+body.theme-vk-dark.vk-light .tn-option-wrong .tn-option-text { color: #c0392b; }
+
+/* vk-scheme — тёмный explainer (canvas #1d1d1f), показывается только в тёмной теме.
+   В светлой его прячем (как в исходной светлой теме): основной текст логина и
+   кнопка Telegram остаются, дублирующий тёмный блок-схема — нет. */
+body.theme-vk-dark.vk-light .vk-scheme-block { display: none; }
