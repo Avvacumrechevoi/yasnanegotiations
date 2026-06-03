@@ -611,6 +611,30 @@ body.theme-vk-dark .tn-option-letter {
   font-weight: 600;
 }
 
+/* ─── Экран вопроса: кнопка «Ответить» всегда видна + вмещаемость ─── */
+/* tn-fullscreen — скролл-контейнер (overflow:auto). При multi с 7+ вариантами
+   кнопка отправки уезжала на ~180px под фолд. Делаем её липкой к низу — видна
+   всегда, без скролла. Применяется и к light-VK, и к dark-VK. */
+body.theme-vk-dark .tn-multi-submit,
+body.theme-vk-dark .tn-fill-submit {
+  position: sticky;
+  bottom: 8px;
+  z-index: 6;
+  margin-top: 4px;
+  box-shadow: 0 6px 22px rgba(20, 30, 60, 0.18);
+}
+body.theme-vk-dark .tn-options-multi { gap: 8px; }
+body.theme-vk-dark .tn-multi-list { gap: 6px; padding-bottom: 2px; }
+
+/* Невысокие экраны (ноутбуки 13", мобайл) — компактнее вопрос и варианты,
+   чтобы помещалось с минимумом скролла. */
+@media (max-height: 820px) {
+  body.theme-vk-dark .tn-q-card { padding: 16px 20px; }
+  body.theme-vk-dark .tn-q-text { font-size: var(--vk-title-l-size, 22px); line-height: 1.25; }
+  body.theme-vk-dark .tn-option { padding-top: 11px; padding-bottom: 11px; }
+  body.theme-vk-dark .tn-multi-list { gap: 5px; }
+}
+
 /* ─── Финал партии ─── */
 body.theme-vk-dark .tn-final-eyebrow {
   font-family: var(--vk-font-title);
