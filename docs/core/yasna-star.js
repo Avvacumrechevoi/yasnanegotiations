@@ -26,6 +26,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
   // Округление до 0.5px — резко уменьшает sub-pixel re-rasterization текста
   // (на 0.5px шаге глиф закрепляется на той же raster-grid, не плавает).
   const [rotAngle, setRotAngle] = React.useState(0);
+  const [hov, setHov] = React.useState(null); // Вариант A «Тихий старт»: индекс наведённого узла
   const speedRef = React.useRef(rotationSpeed||24);
   React.useEffect(()=>{ speedRef.current = rotationSpeed||24; }, [rotationSpeed]);
   React.useEffect(()=>{
@@ -59,7 +60,14 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
   // Static (без rotation) — для wrap-g механик: error89, scorpio_spider, mobius
   const staticPts = Array.from({length:12},(_,i)=>xy(i,cx,cy,R))
   const hasMech=af.length>0;
-  const nc=i=>(hl&&!hl.includes(i))?'#e0e0e8':CR[gc(i)].c;
+  // Вариант A «Тихий старт»: базовое состояние нейтральное (графит), цвет креста
+  // раскрывается при наведении / выборе узла или через механику (hl). Опорный
+  // крест выделяется весом линии (см. strokeWidth ниже), без цвета.
+  const nc=i=>{
+    if(hl) return hl.includes(i)?CR[gc(i)].c:'#e0e0e8';
+    if((hov!=null&&gc(hov)===gc(i))||(sel!=null&&gc(sel)===gc(i))) return CR[gc(i)].c;
+    return [0,3,6,9].includes(i)?'#86868b':'#c7c7cc';
+  };
   const no=i=>(hl&&!hl.includes(i))?.15:1;
   const anch=i=>{const x=lps[i].x;return Math.abs(x-cx)<25?'middle':x<cx?'end':'start';};
   return(
@@ -302,11 +310,11 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
         </g>;
       })}
       {pts.map((pt,i)=>{const isSel=sel===i,c=nc(i),o=no(i);const lbl=p[i]||'';const tipText=lbl?`Полка ${i}: ${lbl}`:`Полка ${i}`;return(
-        <g key={i} onClick={()=>{if(af.includes('mb_yasna2')&&drill==null&&onDrill){onDrill(i);}else{onSel(sel===i?null:i);}}} style={{cursor:'pointer'}}>
+        <g key={i} onMouseEnter={()=>setHov(i)} onMouseLeave={()=>setHov(null)} onClick={()=>{if(af.includes('mb_yasna2')&&drill==null&&onDrill){onDrill(i);}else{onSel(sel===i?null:i);}}} style={{cursor:'pointer'}}>
           <title>{tipText}</title>
           <circle cx={pt.x} cy={pt.y} r={nr+14} fill="transparent" stroke="none"/>
           {isSel&&<circle cx={pt.x} cy={pt.y} r={nr+8} fill={c} opacity=".06" filter="url(#gw)"/>}
-          <circle cx={pt.x} cy={pt.y} r={isSel?nr+3:nr} fill="#fff" stroke={c} strokeWidth={isSel?3.2:2.2} opacity={o} filter={isSel?"url(#gw)":"url(#ns)"} style={{pointerEvents:'none',transition:'r 150ms ease'}}/>
+          <circle cx={pt.x} cy={pt.y} r={isSel?nr+3:nr} fill="#fff" stroke={c} strokeWidth={isSel?3.2:([0,3,6,9].includes(i)?2.6:2)} opacity={o} filter={isSel?"url(#gw)":"url(#ns)"} style={{pointerEvents:'none',transition:'r 150ms ease'}}/>
           <text x={pt.x} y={pt.y+(af.includes('mb_zodiac')?7:6)} textAnchor="middle" fill={af.includes('mb_zodiac')?'#7c3aed':(hl&&!hl.includes(i))?'#c0c0c5':'#1f2937'} fontSize={af.includes('mb_zodiac')?(isMob?(isSel?"24":"22"):(isSel?"32":"30")):(isMob?(isSel?"22":"20"):(isSel?"30":"28"))} fontWeight={af.includes('mb_zodiac')?"600":"700"} fontFamily="var(--sans)" opacity={o} style={{pointerEvents:'none'}}>{af.includes('mb_zodiac')?['♑','♒','♓','♈','♉','♊','♋','♌','♍','♎','♏','♐'][i]:i}</text>
         </g>);})}
       {!overlay&&(starRotation?lpsRot:lps).map((pt,i)=>{const lOrig=p[i]||'';if(!lOrig)return null;let dy=5;if(!starRotation){if(i===0)dy=16;if(i===6)dy=-7;}
