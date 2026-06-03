@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-06-03T09:51:32.406Z */
+/* Yasna bundle: duel.js — собран 2026-06-03T15:35:26.827Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -21289,35 +21289,27 @@ window.YasnaCore = {
     return React.createElement(
       "header",
       { className: "dp-header" },
+      // Лого = «домой» (на лендинг) — единая конвенция со всеми страницами.
       React.createElement(
         "a",
-        {
-          href: "start.html",
-          className: "dp-header-back",
-          title: "\u041D\u0430\u0437\u0430\u0434",
-          "aria-label": "\u041D\u0430\u0437\u0430\u0434",
-          // «Назад»: если пришли с другой страницы этого сайта (например, из
-          // Конструктора по кнопке «Игра») — возвращаемся именно туда. При прямом
-          // заходе / переходе извне history.back() некуда вести — тогда срабатывает
-          // href и ведёт на хаб start.html.
-          onClick: (e) => {
-            try {
-              if (document.referrer && document.referrer.indexOf(window.location.origin) === 0 && window.history.length > 1) {
-                e.preventDefault();
-                window.history.back();
-              }
-            } catch (_) {
-            }
-          }
-        },
-        React.createElement("span", { className: "dp-header-back-arrow", "aria-hidden": "true" }, "\u2190"),
-        React.createElement("span", null, "\u042F\u0441\u043D\u0430")
+        { href: "start.html", className: "ynav-home dp-header-home", title: "\u041D\u0430 \u0433\u043B\u0430\u0432\u043D\u0443\u044E \u2014 \u043B\u0435\u043D\u0434\u0438\u043D\u0433 \u042F\u0441\u043D\u044B" },
+        React.createElement("span", { className: "ynav-mark", "aria-hidden": "true" }, "\u2726"),
+        React.createElement("span", { className: "ynav-name" }, "\u042F\u0441\u043D\u0430")
+      ),
+      // Свитчер разделов (Вариант B) — «Игра» активна.
+      React.createElement(
+        "nav",
+        { className: "ynav-links dp-switch", style: { flex: "0 1 auto" }, "aria-label": "\u0420\u0430\u0437\u0434\u0435\u043B\u044B" },
+        React.createElement("a", { className: "ynav-item", href: "index.html" }, "\u041A\u043E\u043D\u0441\u0442\u0440\u0443\u043A\u0442\u043E\u0440"),
+        React.createElement("a", { className: "ynav-item is-active", href: "duel.html" }, "\u0418\u0433\u0440\u0430", React.createElement("span", { className: "ynav-new" }, "NEW")),
+        React.createElement("a", { className: "ynav-item", href: "learn.html" }, "\u041E\u0431\u0443\u0447\u0435\u043D\u0438\u0435"),
+        React.createElement("a", { className: "ynav-item", href: "rating.html" }, "\u0420\u0435\u0439\u0442\u0438\u043D\u0433")
       ),
       React.createElement("div", { className: "dp-header-spacer" }),
       React.createElement(
         "nav",
         { className: "dp-header-nav" },
-        React.createElement("a", { href: "rating.html", title: "\u041A\u0430\u043A \u0443\u0441\u0442\u0440\u043E\u0435\u043D\u044B \u0448\u043A\u0430\u043B\u044B \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441\u0430" }, "\u0420\u0435\u0439\u0442\u0438\u043D\u0433"),
+        // «Рейтинг» переехал в общий свитчер разделов (см. .dp-switch выше).
         // Якорные ссылки ведут на секции главного экрана (#hronika/#zhurnal/#znaki).
         // На приветственном экране (первый визит) этих секций нет — без условия
         // ссылки были бы «мёртвыми» (клик ничего не делает). Показываем их только

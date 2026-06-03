@@ -29,6 +29,7 @@ input{font-family:var(--sans)}
   .hdr-sub{display:none!important}
   .hdr-meta{display:none!important}
   .hdr-btns{display:none!important}
+  .hdr-switch{display:none!important}
   .mob-only{display:inline!important}
   .desk-only{display:none!important}
   .hdr-burger{display:flex!important}
