@@ -924,7 +924,7 @@
   }
 
   // ─── Lobby UI · использует polling-transport ─────────────────────
-  function DPLobbyV2({ onClose, profile, onConnected, initialMode, initialCode }){
+  function DPLobbyV2({ onClose, profile, onConnected, initialMode, initialCode, onNeedNickname }){
     const [mode, setMode] = useState(initialMode || 'choose');
     const [roomCode, setRoomCode] = useState('');
     const [roomId, setRoomId] = useState('');
@@ -958,6 +958,7 @@
         return;
       }
       if(!me?.deviceId || !me?.nickname){
+        if(onNeedNickname){ onNeedNickname(); return; }  // открыть онбординг ника, не тупик
         setError('Сначала укажи никнейм.');
         setMode('error');
         return;
@@ -1021,6 +1022,7 @@
         return;
       }
       if(!me?.deviceId || !me?.nickname){
+        if(onNeedNickname){ onNeedNickname(); return; }  // открыть онбординг ника, не тупик
         setError('Сначала укажи никнейм.');
         setMode('error');
         return;
@@ -2078,7 +2080,8 @@
         initialCode: lobby.code || null,
         onClose: () => setLobby(null),
         profile: profile || user,
-        onConnected: onLobbyConnected
+        onConnected: onLobbyConnected,
+        onNeedNickname: () => setAnonModal(true)   // нет ника → онбординг (не тупик «Назад»)
       })
     );
   }
