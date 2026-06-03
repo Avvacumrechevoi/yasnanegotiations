@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-06-03T08:59:04.987Z */
+/* Yasna bundle: duel.js — собран 2026-06-03T09:51:32.406Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -3019,6 +3019,7 @@ function Star({ yy, sel, onSel, hl, af = [], showOpp, overlay, mob, drill, onDri
   const p = yy.p || [];
   const S = 900, W = 700, cx = S / 2, cy = W / 2, R = isMob ? 215 : 280, nr = isMob ? 28 : 32, lr = (isMob ? 215 : 280) + (isMob ? 62 : 70);
   const [rotAngle, setRotAngle] = React.useState(0);
+  const [hov, setHov] = React.useState(null);
   const speedRef = React.useRef(rotationSpeed || 24);
   React.useEffect(() => {
     speedRef.current = rotationSpeed || 24;
@@ -3053,7 +3054,11 @@ function Star({ yy, sel, onSel, hl, af = [], showOpp, overlay, mob, drill, onDri
   const ilps = Array.from({ length: 12 }, (_, i) => xyRot(i, cx, cy, lr - 16));
   const staticPts = Array.from({ length: 12 }, (_, i) => xy(i, cx, cy, R));
   const hasMech = af.length > 0;
-  const nc = (i) => hl && !hl.includes(i) ? "#e0e0e8" : CR[gc(i)].c;
+  const nc = (i) => {
+    if (hl) return hl.includes(i) ? CR[gc(i)].c : "#e0e0e8";
+    if (hov != null && gc(hov) === gc(i) || sel != null && gc(sel) === gc(i)) return CR[gc(i)].c;
+    return [0, 3, 6, 9].includes(i) ? "#86868b" : "#c7c7cc";
+  };
   const no = (i) => hl && !hl.includes(i) ? 0.15 : 1;
   const anch = (i) => {
     const x = lps[i].x;
@@ -3232,13 +3237,13 @@ function Star({ yy, sel, onSel, hl, af = [], showOpp, overlay, mob, drill, onDri
     const isSel = sel === i, c = nc(i), o = no(i);
     const lbl = p[i] || "";
     const tipText = lbl ? `\u041F\u043E\u043B\u043A\u0430 ${i}: ${lbl}` : `\u041F\u043E\u043B\u043A\u0430 ${i}`;
-    return /* @__PURE__ */ React.createElement("g", { key: i, onClick: () => {
+    return /* @__PURE__ */ React.createElement("g", { key: i, onMouseEnter: () => setHov(i), onMouseLeave: () => setHov(null), onClick: () => {
       if (af.includes("mb_yasna2") && drill == null && onDrill) {
         onDrill(i);
       } else {
         onSel(sel === i ? null : i);
       }
-    }, style: { cursor: "pointer" } }, /* @__PURE__ */ React.createElement("title", null, tipText), /* @__PURE__ */ React.createElement("circle", { cx: pt.x, cy: pt.y, r: nr + 14, fill: "transparent", stroke: "none" }), isSel && /* @__PURE__ */ React.createElement("circle", { cx: pt.x, cy: pt.y, r: nr + 8, fill: c, opacity: ".06", filter: "url(#gw)" }), /* @__PURE__ */ React.createElement("circle", { cx: pt.x, cy: pt.y, r: isSel ? nr + 3 : nr, fill: "#fff", stroke: c, strokeWidth: isSel ? 3.2 : 2.2, opacity: o, filter: isSel ? "url(#gw)" : "url(#ns)", style: { pointerEvents: "none", transition: "r 150ms ease" } }), /* @__PURE__ */ React.createElement("text", { x: pt.x, y: pt.y + (af.includes("mb_zodiac") ? 7 : 6), textAnchor: "middle", fill: af.includes("mb_zodiac") ? "#7c3aed" : hl && !hl.includes(i) ? "#c0c0c5" : "#1f2937", fontSize: af.includes("mb_zodiac") ? isMob ? isSel ? "24" : "22" : isSel ? "32" : "30" : isMob ? isSel ? "22" : "20" : isSel ? "30" : "28", fontWeight: af.includes("mb_zodiac") ? "600" : "700", fontFamily: "var(--sans)", opacity: o, style: { pointerEvents: "none" } }, af.includes("mb_zodiac") ? ["\u2651", "\u2652", "\u2653", "\u2648", "\u2649", "\u264A", "\u264B", "\u264C", "\u264D", "\u264E", "\u264F", "\u2650"][i] : i));
+    }, style: { cursor: "pointer" } }, /* @__PURE__ */ React.createElement("title", null, tipText), /* @__PURE__ */ React.createElement("circle", { cx: pt.x, cy: pt.y, r: nr + 14, fill: "transparent", stroke: "none" }), isSel && /* @__PURE__ */ React.createElement("circle", { cx: pt.x, cy: pt.y, r: nr + 8, fill: c, opacity: ".06", filter: "url(#gw)" }), /* @__PURE__ */ React.createElement("circle", { cx: pt.x, cy: pt.y, r: isSel ? nr + 3 : nr, fill: "#fff", stroke: c, strokeWidth: isSel ? 3.2 : [0, 3, 6, 9].includes(i) ? 2.6 : 2, opacity: o, filter: isSel ? "url(#gw)" : "url(#ns)", style: { pointerEvents: "none", transition: "r 150ms ease" } }), /* @__PURE__ */ React.createElement("text", { x: pt.x, y: pt.y + (af.includes("mb_zodiac") ? 7 : 6), textAnchor: "middle", fill: af.includes("mb_zodiac") ? "#7c3aed" : hl && !hl.includes(i) ? "#c0c0c5" : "#1f2937", fontSize: af.includes("mb_zodiac") ? isMob ? isSel ? "24" : "22" : isSel ? "32" : "30" : isMob ? isSel ? "22" : "20" : isSel ? "30" : "28", fontWeight: af.includes("mb_zodiac") ? "600" : "700", fontFamily: "var(--sans)", opacity: o, style: { pointerEvents: "none" } }, af.includes("mb_zodiac") ? ["\u2651", "\u2652", "\u2653", "\u2648", "\u2649", "\u264A", "\u264B", "\u264C", "\u264D", "\u264E", "\u264F", "\u2650"][i] : i));
   }), !overlay && (starRotation ? lpsRot : lps).map((pt, i) => {
     const lOrig = p[i] || "";
     if (!lOrig) return null;
@@ -5902,7 +5907,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-06-03T08:59:04.702Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-05-10T01:07:28.262Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
