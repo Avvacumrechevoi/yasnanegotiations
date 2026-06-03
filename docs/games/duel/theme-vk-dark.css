@@ -2090,3 +2090,28 @@ body.theme-vk-dark .dp-tip:not([data-tip])::after {
     font-size: 13px;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Компактная продуктовая типографика лендинга (2026-06-03)
+   Было «постерно»: hero 64px (--vk-display-m), крупные карточки/отступы.
+   Приводим к плотной шкале (~40px hero). Применяется к light-VK и dark-VK.
+   ═══════════════════════════════════════════════════════════════════ */
+body.theme-vk-dark .dp-castalia-h1,
+body.theme-vk-dark .dp-welcome-title {
+  font-size: 40px;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+body.theme-vk-dark .dp-castalia-title { margin-bottom: 20px; }
+body.theme-vk-dark .dp-game-title { font-size: 21px; line-height: 1.2; }
+body.theme-vk-dark .dp-hero { padding: 18px 20px; }
+body.theme-vk-dark .dp-game-card { padding: 18px 20px; }
+body.theme-vk-dark .dp-hero-progress { height: 6px; }
+
+@media (max-width: 640px) {
+  body.theme-vk-dark .dp-castalia-h1,
+  body.theme-vk-dark .dp-welcome-title { font-size: 28px; line-height: 1.12; }
+  body.theme-vk-dark .dp-game-title { font-size: 18px; }
+  body.theme-vk-dark .dp-hero,
+  body.theme-vk-dark .dp-game-card { padding: 15px 16px; }
+}
