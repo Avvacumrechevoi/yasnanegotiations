@@ -847,10 +847,18 @@ function App(){
   return(
     <div style={{background:'var(--bg)',height:'100vh',display:'flex',flexDirection:'column'}}>
       <div className='hdr' style={{display:'flex',alignItems:'center',padding:'10px 20px',background:'var(--bg2)',borderBottom:'1px solid rgba(0,0,0,.06)',flexShrink:0,minHeight:56}}>
-        <span style={{fontSize:20,color:'#0071e3',marginRight:6}}>✦</span>
-        <span className='hdr-brand-desk' style={{fontFamily:'var(--serif)',fontSize:17,color:'#1d1d1f',fontWeight:700,marginRight:12,letterSpacing:-0.3}}>Ясна</span>
-        {/* y.name удалён — он дублирует активный таб ниже */}
-        <span className='hdr-title-mob' style={{display:'none',fontFamily:'var(--serif)',fontSize:20,color:'#1d1d1f',fontWeight:700,marginRight:6,letterSpacing:-0.2}}>Ясна</span>
+        <a href='start.html' title='На главную — лендинг Ясны' style={{display:'flex',alignItems:'center',textDecoration:'none',flexShrink:0}}>
+          <span style={{fontSize:20,color:'#0071e3',marginRight:6}}>✦</span>
+          <span className='hdr-brand-desk' style={{fontFamily:'var(--serif)',fontSize:17,color:'#1d1d1f',fontWeight:700,marginRight:12,letterSpacing:-0.3}}>Ясна</span>
+          <span className='hdr-title-mob' style={{display:'none',fontFamily:'var(--serif)',fontSize:20,color:'#1d1d1f',fontWeight:700,marginRight:6,letterSpacing:-0.2}}>Ясна</span>
+        </a>
+        {/* Свитчер разделов (Вариант B) — десктоп; на мобайле разделы в бургере */}
+        <nav className='ynav-links hdr-switch' style={{flex:'0 1 auto',marginRight:6}} aria-label='Разделы'>
+          <a className='ynav-item is-active' href='index.html'>Конструктор</a>
+          <a className='ynav-item' href='duel.html'>Игра<span className='ynav-new'>NEW</span></a>
+          <a className='ynav-item' href='learn.html'>Обучение</a>
+          <a className='ynav-item' href='rating.html'>Рейтинг</a>
+        </nav>
         <div style={{flex:1}}/>
         <div className='hdr-btns' style={{display:'flex',gap:6,alignItems:'center'}}>
         {/* ────────────────────────────────────────────────────────────
@@ -861,15 +869,11 @@ function App(){
            • Тема                  — Icon-only neutral
            • Войти                 — Tonal с аватаром (единственная иконка)
            ────────────────────────────────────────────────────────────── */}
-        {/* 1. Игра NEW — Primary CTA */}
-        <a href='duel.html' title='Сыграть Партию' className='hdr-btn-game' style={{border:'1px solid #0071e3',color:'#fff',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:'#0071e3',cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:6,textDecoration:'none',boxSizing:'border-box',boxShadow:'0 1px 3px rgba(0,113,227,.20)'}}>
-          <span>Игра</span>
-          <span style={{fontSize:9,padding:'1px 5px',background:'rgba(255,255,255,.22)',color:'#fff',borderRadius:4,letterSpacing:.5,fontWeight:700}}>NEW</span>
-        </a>
+        {/* «Игра» переехала в свитчер разделов рядом с лого (см. .hdr-switch выше) */}
         {/* 2. Обучение ▼ — dropdown рендерится после всего хедера (см. ниже),
             чтобы работало и на десктопе, и на мобильном. */}
         <button onClick={()=>setLearnOpen(o=>!o)} title='Уроки и гиды по Яснам' className='hdr-btn' style={{border:`1px solid ${learnOpen?'rgba(0,113,227,.4)':'#d2d2d7'}`,color:learnOpen?'#0058b8':'#424245',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:learnOpen?'rgba(0,113,227,.06)':'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:6,boxSizing:'border-box'}}>
-          <span>Обучение</span>
+          <span>Гид</span>
           <span style={{fontSize:9,display:'inline-block',transform:learnOpen?'rotate(180deg)':'none',transition:'transform .2s',opacity:.7}}>▼</span>
         </button>
         {/* Игра переехала влево, рядом с лого — см. начало .hdr */}
@@ -909,7 +913,7 @@ function App(){
             <span style={{position:'absolute',top:-3,right:-3,width:8,height:8,borderRadius:'50%',background:'#FF3985',border:'1.5px solid var(--bg2,#fff)'}} title='NEW'/>
           </a>
           {/* 2. Обучение — icon-only кнопка с дропдауном (Уроки + все гиды) */}
-          <button onClick={()=>setLearnOpen(o=>!o)} title='Уроки и гиды по Яснам' aria-label='Обучение' style={{width:36,height:36,padding:0,border:`1px solid ${learnOpen?'rgba(0,113,227,.4)':'var(--border,#d2d2d7)'}`,borderRadius:10,background:learnOpen?'rgba(0,113,227,.06)':'var(--bg3,#fff)',color:learnOpen?'#0058b8':'var(--txt,#424245)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',boxSizing:'border-box'}}>
+          <button onClick={()=>setLearnOpen(o=>!o)} title='Уроки и гиды по Яснам' aria-label='Гид' style={{width:36,height:36,padding:0,border:`1px solid ${learnOpen?'rgba(0,113,227,.4)':'var(--border,#d2d2d7)'}`,borderRadius:10,background:learnOpen?'rgba(0,113,227,.06)':'var(--bg3,#fff)',color:learnOpen?'#0058b8':'var(--txt,#424245)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',boxSizing:'border-box'}}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 8.5l9-5 9 5-9 5-9-5z"/>
               <path d="M7 11v4.5c0 1.5 2.5 2.5 5 2.5s5-1 5-2.5V11"/>
@@ -921,6 +925,12 @@ function App(){
           <button onClick={()=>setMenu(!menu)} style={{fontSize:20,padding:'6px 12px',border:'1px solid #d2d2d7',borderRadius:10,background:menu?'#f5f5f7':'#fff',color:'#424245',minHeight:36,minWidth:40}}>☰</button>
           {menu&&<div onClick={()=>setMenu(false)} style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:79}}/>}
           {menu&&<div style={{position:'absolute',top:'100%',right:0,marginTop:4,background:'#fff',border:'1px solid #e5e5ea',borderRadius:12,boxShadow:'0 8px 30px rgba(0,0,0,.12)',zIndex:80,minWidth:260,maxWidth:'calc(100vw - 24px)',maxHeight:'calc(100vh - 80px)',overflowY:'auto'}}>
+            {/* Разделы (Вариант B) — навигация между страницами */}
+            <div style={{padding:'12px 16px 6px',fontSize:11,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',color:'#86868b'}}>Разделы</div>
+            <a href='index.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'#0058b8',fontWeight:700,borderBottom:'1px solid #f5f5f7',background:'rgba(0,113,227,.06)',textDecoration:'none'}}>Конструктор</a>
+            <a href='duel.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'#1d1d1f',borderBottom:'1px solid #f5f5f7',background:'#fff',textDecoration:'none'}}>Игра</a>
+            <a href='learn.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'#1d1d1f',borderBottom:'1px solid #f5f5f7',background:'#fff',textDecoration:'none'}}>Обучение</a>
+            <a href='rating.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'#1d1d1f',borderBottom:'1px solid #f5f5f7',background:'#fff',textDecoration:'none'}}>Рейтинг</a>
             {/* Войти — профиль с аватаром, первой кнопкой */}
             <a href='duel.html#login' style={{display:'flex',width:'100%',padding:'14px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textDecoration:'none',alignItems:'center',gap:12,fontWeight:600,boxSizing:'border-box'}}>
               <span style={{width:32,height:32,borderRadius:'50%',background:'linear-gradient(135deg,#0071e3,#16A7FF)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>

@@ -176,27 +176,21 @@
     };
 
     return React.createElement('header', { className: 'dp-header' },
-      React.createElement('a', {
-        href: 'start.html', className: 'dp-header-back', title: 'Назад', 'aria-label': 'Назад',
-        // «Назад»: если пришли с другой страницы этого сайта (например, из
-        // Конструктора по кнопке «Игра») — возвращаемся именно туда. При прямом
-        // заходе / переходе извне history.back() некуда вести — тогда срабатывает
-        // href и ведёт на хаб start.html.
-        onClick: (e) => {
-          try {
-            if(document.referrer && document.referrer.indexOf(window.location.origin) === 0 && window.history.length > 1){
-              e.preventDefault();
-              window.history.back();
-            }
-          } catch(_){}
-        }
-      },
-        React.createElement('span', { className: 'dp-header-back-arrow', 'aria-hidden': 'true' }, '←'),
-        React.createElement('span', null, 'Ясна')
+      // Лого = «домой» (на лендинг) — единая конвенция со всеми страницами.
+      React.createElement('a', { href: 'start.html', className: 'ynav-home dp-header-home', title: 'На главную — лендинг Ясны' },
+        React.createElement('span', { className: 'ynav-mark', 'aria-hidden': 'true' }, '✦'),
+        React.createElement('span', { className: 'ynav-name' }, 'Ясна')
+      ),
+      // Свитчер разделов (Вариант B) — «Игра» активна.
+      React.createElement('nav', { className: 'ynav-links dp-switch', style: { flex: '0 1 auto' }, 'aria-label': 'Разделы' },
+        React.createElement('a', { className: 'ynav-item', href: 'index.html' }, 'Конструктор'),
+        React.createElement('a', { className: 'ynav-item is-active', href: 'duel.html' }, 'Игра', React.createElement('span', { className: 'ynav-new' }, 'NEW')),
+        React.createElement('a', { className: 'ynav-item', href: 'learn.html' }, 'Обучение'),
+        React.createElement('a', { className: 'ynav-item', href: 'rating.html' }, 'Рейтинг')
       ),
       React.createElement('div', { className: 'dp-header-spacer' }),
       React.createElement('nav', { className: 'dp-header-nav' },
-        React.createElement('a', { href: 'rating.html', title: 'Как устроены шкалы прогресса' }, 'Рейтинг'),
+        // «Рейтинг» переехал в общий свитчер разделов (см. .dp-switch выше).
         // Якорные ссылки ведут на секции главного экрана (#hronika/#zhurnal/#znaki).
         // На приветственном экране (первый визит) этих секций нет — без условия
         // ссылки были бы «мёртвыми» (клик ничего не делает). Показываем их только

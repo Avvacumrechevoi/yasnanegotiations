@@ -1,0 +1,83 @@
+/* ═══════════════════════════════════════════════════════════════════
+   site-nav.css — единый верхний свитчер разделов (Вариант B).
+   Один визуальный источник правды для ВСЕХ страниц:
+   start · index(конструктор) · duel(игра) · learn(обучение) · rating.
+   Разметку даёт core/site-nav.js (window.SiteNav.html/mount) для статических
+   страниц; React-страницы (конструктор, игра) рендерят те же классы нативно.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.ynav{
+  display:flex; align-items:center; gap:16px;
+  padding:9px 20px; min-height:56px; box-sizing:border-box;
+  background:#fff; border-bottom:1px solid rgba(0,0,0,.08);
+  font-family:var(--sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+}
+
+/* Логотип = «домой» (на лендинг) — единая конвенция */
+.ynav-home{ display:flex; align-items:center; gap:7px; text-decoration:none; flex-shrink:0; }
+.ynav-mark{ font-size:20px; line-height:1; color:#0071e3; }
+.ynav-name{ font-family:var(--serif, Georgia, "Times New Roman", serif);
+  font-size:17px; font-weight:700; letter-spacing:-.3px; color:#1d1d1f; }
+
+/* Свитчер разделов */
+.ynav-links{ display:flex; align-items:center; gap:2px; flex:1; min-width:0;
+  overflow-x:auto; scrollbar-width:none; -ms-overflow-style:none; }
+.ynav-links::-webkit-scrollbar{ display:none; }
+.ynav-item{ position:relative; padding:7px 13px; border-radius:8px;
+  font-size:14px; font-weight:500; line-height:1; color:#424245;
+  text-decoration:none; white-space:nowrap;
+  transition:background .15s ease, color .15s ease; }
+.ynav-item:hover{ background:rgba(0,0,0,.05); color:#1d1d1f; }
+.ynav-item.is-active{ color:#0058b8; font-weight:700; background:rgba(0,113,227,.10); }
+.ynav-new{ font-size:9px; padding:1px 5px; margin-left:6px; vertical-align:middle;
+  background:#0071e3; color:#fff; border-radius:4px; letter-spacing:.5px; font-weight:700; }
+
+/* Войти */
+.ynav-login{ flex-shrink:0; display:flex; align-items:center; gap:8px;
+  padding:7px 14px 7px 10px; height:36px; box-sizing:border-box;
+  border:1px solid #d2d2d7; border-radius:8px; background:#fff;
+  font-size:13px; font-weight:500; color:#1d1d1f; text-decoration:none; }
+.ynav-login:hover{ border-color:#b8b8be; }
+.ynav-login-av{ width:22px; height:22px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg,#0071e3,#16A7FF); }
+
+/* ── Мобильный ── */
+@media (max-width:640px){
+  .ynav{ gap:8px; padding:8px 12px; }
+  .ynav-name{ display:none; }
+  .ynav-item{ padding:6px 10px; font-size:13px; }
+  .ynav-login{ padding:7px 10px; }
+  .ynav-login-txt{ display:none; }
+}
+
+/* Липкий вариант — для статических страниц (start/learn/rating) */
+.ynav--sticky{ position:sticky; top:0; z-index:50; }
+
+/* Старые ad-hoc хедеры статических страниц скрыты — их заменяет единый .ynav */
+.s-header, .l-header, .rt-back{ display:none !important; }
+
+/* Игра (duel): отступ лого от свитчера в её собственном хедере .dp-header */
+.dp-header-home{ margin-right:10px; }
+.dp-header .ynav-item{ line-height:1; }
+
+/* Конструктор: на мобайле инлайн-свитчер скрыт — разделы доступны в бургере.
+   (Брейкпоинт совпадает с .hdr-btns/.hdr-mob-tools = 768px.) */
+@media (max-width:768px){ .hdr-switch{ display:none !important; } }
+
+/* ── Тёмный вариант: learn/rating (модификатор .ynav--dark) +
+      тёмная тема игры (theme-vk-dark без vk-light) ── */
+.ynav--dark,
+body.theme-vk-dark:not(.vk-light) .ynav{
+  background:rgba(20,23,27,.88); border-bottom-color:rgba(255,255,255,.10);
+  backdrop-filter:saturate(140%) blur(14px); -webkit-backdrop-filter:saturate(140%) blur(14px); }
+.ynav--dark .ynav-name,
+body.theme-vk-dark:not(.vk-light) .ynav-name{ color:#f5f5f7; }
+.ynav--dark .ynav-item,
+body.theme-vk-dark:not(.vk-light) .ynav-item{ color:#b8b9bf; }
+.ynav--dark .ynav-item:hover,
+body.theme-vk-dark:not(.vk-light) .ynav-item:hover{ background:rgba(255,255,255,.08); color:#fff; }
+.ynav--dark .ynav-item.is-active,
+body.theme-vk-dark:not(.vk-light) .ynav-item.is-active{ color:#fff; background:rgba(45,123,246,.26); }
+.ynav--dark .ynav-login,
+body.theme-vk-dark:not(.vk-light) .ynav-login{ background:transparent; border-color:rgba(255,255,255,.20); color:#f5f5f7; }
