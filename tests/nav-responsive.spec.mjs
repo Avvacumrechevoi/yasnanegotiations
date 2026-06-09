@@ -94,15 +94,18 @@ for (const vp of [
           await waitBar(page);
           const sel = p.spa ? '.dp-switch .ynav-item' : '#site-nav .ynav-item';
           await page.waitForSelector(sel);
-          const overflow = await page.evaluate((s) => {
+          const res = await page.evaluate((s) => {
             const items = [...document.querySelectorAll(s)];
             const last = items[items.length - 1];
             if (!last) return { missing: true };
-            const r = last.getBoundingClientRect();
-            return { right: Math.round(r.right), vw: window.innerWidth, fits: r.right <= window.innerWidth + 1, text: last.textContent.trim() };
+            const cont = last.closest('.ynav-links');           // скролл-контейнер свитчера
+            const lr = last.getBoundingClientRect();
+            const cr = cont.getBoundingClientRect();
+            // обрезан, если выходит за правый край контейнера (уехал под «Войти» / в скролл)
+            return { itemRight: Math.round(lr.right), contRight: Math.round(cr.right), clipped: lr.right > cr.right + 1, text: last.textContent.trim() };
           }, sel);
-          expect(overflow.missing, 'свитчер пуст').toBeFalsy();
-          expect(overflow.fits, `последний раздел "${overflow.text}" обрезан: right ${overflow.right} > ${overflow.vw}`).toBeTruthy();
+          expect(res.missing, 'свитчер пуст').toBeFalsy();
+          expect(res.clipped, `последний раздел "${res.text}" обрезан контейнером бара: right ${res.itemRight} > край ${res.contRight}`).toBeFalsy();
         });
       }
     }
