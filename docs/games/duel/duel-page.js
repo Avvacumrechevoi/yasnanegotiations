@@ -1709,6 +1709,15 @@
     const onLoginClick = () => setAuthModal(true);
     const onLoggedIn = (u) => { setUser(u); setProfile(_g('YasnaDuelProfile')?.load?.()); setAuthModal(false); };
 
+    // «Войти» из общего свитчера навигации ведёт на duel.html#login —
+    // открываем окно авторизации сразу при наличии этого хэша (и при hashchange).
+    useEffect(() => {
+      const openIfLogin = () => { if (window.location.hash === '#login') setAuthModal(true); };
+      openIfLogin();
+      window.addEventListener('hashchange', openIfLogin);
+      return () => window.removeEventListener('hashchange', openIfLogin);
+    }, []);
+
     // ─── Remote profile sync ───────────────────────────────────────
     // При логине через Telegram (или при наличии deviceId для гостя)
     // дёргаем /profile и подмешиваем серверные данные в UI.
