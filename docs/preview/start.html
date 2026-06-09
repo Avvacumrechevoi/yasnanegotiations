@@ -468,9 +468,10 @@ body {
   .s-hero-desc { font-size: 15px; }
   .s-btn { padding: 14px 20px; font-size: 14px; }
 
-  .s-features { margin: 32px 12px 32px; gap: 10px; grid-template-columns: 1fr; padding: 0; }
-  .s-feature { padding: 18px 16px; flex-direction: row; align-items: center; text-align: left; gap: 14px; }
-  .s-feature-icon { margin-bottom: 0; flex-shrink: 0; width: 52px; height: 52px; }
+  .s-features { margin: 32px 12px 32px; gap: 10px; grid-template-columns: minmax(0, 1fr); padding: 0; }
+  .s-feature { padding: 18px 16px; flex-direction: column; align-items: flex-start; text-align: left; gap: 6px; min-width: 0; overflow: hidden; }
+  .s-feature > * { max-width: 100%; }
+  .s-feature-icon { margin-bottom: 8px; flex-shrink: 0; width: 48px; height: 48px; }
   .s-feature-content { display: flex; flex-direction: column; min-width: 0; flex: 1; }
   .s-feature-eyebrow { margin-bottom: 4px; }
   .s-feature-title { font-size: 17px; margin-bottom: 4px; }

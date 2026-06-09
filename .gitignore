@@ -12,3 +12,7 @@ dist/
 !docs/preview/dist/**
 
 .DS_Store
+
+# Playwright
+test-results/
+playwright-report/
