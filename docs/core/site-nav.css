@@ -44,10 +44,11 @@
 
 /* ── Мобильный ── */
 @media (max-width:640px){
-  .ynav{ gap:8px; padding:8px 12px; }
+  .ynav{ gap:6px; padding:8px 10px; }
   .ynav-name{ display:none; }
-  .ynav-item{ padding:6px 10px; font-size:13px; }
-  .ynav-login{ padding:7px 10px; }
+  .ynav-item{ padding:5px 8px; font-size:12.5px; }   /* компактнее — чтобы 4 раздела влезали на узких телефонах (~375px) */
+  .ynav-new{ font-size:8px; padding:1px 4px; margin-left:4px; }
+  .ynav-login{ padding:7px 9px; }
   .ynav-login-txt{ display:none; }
 }
 
