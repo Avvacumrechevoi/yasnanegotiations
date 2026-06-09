@@ -44,11 +44,11 @@
 
 /* ── Мобильный ── */
 @media (max-width:640px){
-  .ynav{ gap:6px; padding:8px 10px; }
+  .ynav{ gap:5px; padding:8px 8px; }
   .ynav-name{ display:none; }
-  .ynav-item{ padding:5px 8px; font-size:12.5px; }   /* компактнее — чтобы 4 раздела влезали на узких телефонах (~375px) */
-  .ynav-new{ font-size:8px; padding:1px 4px; margin-left:4px; }
-  .ynav-login{ padding:7px 9px; }
+  .ynav-item{ padding:5px 7px; font-size:12px; }     /* компактно — все 4 раздела влезают на узких телефонах (~375px) */
+  .ynav-new{ display:none; }                          /* NEW-бейдж скрыт на мобайле — экономит место под «Рейтинг» */
+  .ynav-login{ padding:6px 8px; }
   .ynav-login-txt{ display:none; }
 }
 
