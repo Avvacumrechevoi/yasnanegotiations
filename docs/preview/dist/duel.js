@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-06-03T15:35:27.052Z */
+/* Yasna bundle: duel.js — собран 2026-06-09T21:06:10.832Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -23128,6 +23128,14 @@ window.YasnaCore = {
       setProfile((_b = (_a = _g("YasnaDuelProfile")) == null ? void 0 : _a.load) == null ? void 0 : _b.call(_a));
       setAuthModal(false);
     };
+    useEffect(() => {
+      const openIfLogin = () => {
+        if (window.location.hash === "#login") setAuthModal(true);
+      };
+      openIfLogin();
+      window.addEventListener("hashchange", openIfLogin);
+      return () => window.removeEventListener("hashchange", openIfLogin);
+    }, []);
     const [remoteProfile, setRemoteProfile] = useState(null);
     useEffect(() => {
       const LB = _g("YasnaLeaderboardClient");
