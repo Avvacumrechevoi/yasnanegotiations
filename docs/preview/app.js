@@ -772,6 +772,27 @@ function App(){
   const setSubPolkaAt=(name,idx,j,val)=>{const k=subKey(name,idx);setSubData(prev=>{const cur=[...(prev[k]||Array(12).fill(''))];cur[j]=val;return{...prev,[k]:cur};});};
   const setSubPolkiAll=(name,idx,arr)=>{setSubData(prev=>({...prev,[subKey(name,idx)]:[...arr]}));};
   const clearSub=(name,idx)=>{setSubData(prev=>{const next={...prev};delete next[subKey(name,idx)];return next;});};
+  // ═══ «Мои Ясны» — персистентный реестр пользовательских Ясен ══════
+  // Ключ yasna_custom_v1: [{id, n, name, p[12], th/bh/lh/rh, custom:true, user:true, updatedAt}].
+  // user:true отличает СОЗДАННЫЕ ПОЛЬЗОВАТЕЛЕМ от заводских шаблонов с custom:true
+  // (напр. «Атмосферы встречи» из data.js). Автосохранение — debounce 400мс по y,
+  // плюс синхронный flush в load()/createNew(), чтобы быстрые переключения не теряли ввод.
+  const genId=()=>'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+  const[customs,setCustoms]=useState(()=>{try{const s=JSON.parse(localStorage.getItem('yasna_custom_v1'));return Array.isArray(s)?s:[];}catch(_){return[];}});
+  useEffect(()=>{try{localStorage.setItem('yasna_custom_v1',JSON.stringify(customs));}catch(_){}},[customs]);
+  const upsertCustom=cy=>{
+    if(!cy||!cy.user||!cy.id)return;
+    // Нетронутую пустышку «Новая» не сохраняем — не плодим мусор в реестре
+    const pristine=cy.name==='Новая'&&!cy.p.some(Boolean)&&!cy.th&&!cy.bh&&!cy.lh&&!cy.rh;
+    if(pristine)return;
+    setCustoms(prev=>{
+      const rec={id:cy.id,n:cy.name,name:cy.name,p:[...cy.p],th:cy.th||'',bh:cy.bh||'',lh:cy.lh||'',rh:cy.rh||'',custom:true,user:true,updatedAt:Date.now()};
+      const i=prev.findIndex(c=>c.id===cy.id);
+      if(i===-1)return[...prev,rec];
+      const next=[...prev];next[i]=rec;return next;
+    });
+  };
+  useEffect(()=>{const t=setTimeout(()=>upsertCustom(y),400);return()=>clearTimeout(t);},[y]);
   const[af,setAf]=useState([]);
   const[ed,setEd]=useState(false);
   const[glossary,setGlossary]=useState(false);
@@ -784,7 +805,8 @@ function App(){
   const[overlay,setOverlay]=useState(null);
   const[showOverlayPicker,setShowOverlayPicker]=useState(false);
   const[picker,setPicker]=useState(false);
-  const[pinned,setPinned]=useState(defPinned);
+  const[pinned,setPinned]=useState(()=>{try{const s=JSON.parse(localStorage.getItem('yasna_pinned_v1'));return Array.isArray(s)&&s.length?s:defPinned;}catch(_){return defPinned;}});
+  useEffect(()=>{try{localStorage.setItem('yasna_pinned_v1',JSON.stringify(pinned));}catch(_){}},[pinned]);
   const[lessonPicker,setLessonPicker]=useState(false);
   const[showTour,setShowTour]=useState(false);
   const[helpOpen,setHelpOpen]=useState(false);
@@ -839,11 +861,27 @@ function App(){
       setSel(null);
     }
   },[ed,glossary,instr,verif,fullStar,picker,showOverlayPicker,lessonPicker,activeLesson]);
-  const load=t=>{setY({name:t.n,p:[...t.p],th:t.th||'',bh:t.bh||'',lh:t.lh||'',rh:t.rh||'',custom:!!t.custom});setSel(null);setAf([]);setYasna2Drill(null);};
+  // flush несохранённого ввода ПЕРЕД заменой y — быстрые переключения не теряют работу
+  const load=t=>{upsertCustom(y);setY({id:t.user?t.id:undefined,user:!!t.user,name:t.n||t.name,p:[...t.p],th:t.th||'',bh:t.bh||'',lh:t.lh||'',rh:t.rh||'',custom:!!t.custom});setSel(null);setAf([]);setYasna2Drill(null);};
+  const createNew=()=>{upsertCustom(y);setY({id:genId(),user:true,name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);};
+  // Редактировать текущую: своя — открываем как есть; встроенный шаблон —
+  // copy-on-write (копия «(моя)»), оригинал из data.js не трогаем.
+  const editCurrent=()=>{
+    if(y.user&&y.id){setEd(true);return;}
+    setY({...y,p:[...y.p],id:genId(),user:true,custom:true,name:y.name+' (моя)'});
+    setEd(true);
+  };
+  const deleteCustom=id=>{
+    setCustoms(prev=>prev.filter(c=>c.id!==id));
+    setPinned(p=>p.filter(x=>x!==id));
+    // Если удаляем открытую — сбрасываем вид НАПРЯМУЮ (не через load():
+    // его flush upsertCustom(y) вернул бы удаляемую запись обратно).
+    if(y.id===id){setY({name:initT.n,p:[...initT.p],th:initT.th||'',bh:initT.bh||'',lh:initT.lh||'',rh:initT.rh||'',custom:!!initT.custom});setSel(null);setAf([]);setYasna2Drill(null);}
+  };
   const tog=f=>setAf(p=>p.includes(f)?p.filter(x=>x!==f):[...p,f]);
   const togglePin=id=>setPinned(p=>p.includes(id)?p.filter(x=>x!==id):[...p,id]);
   const hl=useMemo(()=>{if(!af.length)return null;const all=new Set();af.forEach(id=>{const f=FL.find(x=>x.id===id);if(f?.p)f.p.forEach(x=>all.add(x));});return all.size?[...all]:null;},[af]);
-  const pinnedTemplates=pinned.map(id=>T.find(t=>t.id===id)).filter(Boolean);
+  const pinnedTemplates=pinned.map(id=>T.find(t=>t.id===id)||customs.find(c=>c.id===id)).filter(Boolean);
   return(
     <div style={{background:'var(--bg)',height:'100vh',display:'flex',flexDirection:'column'}}>
       <div className='hdr' style={{display:'flex',alignItems:'center',padding:'10px 20px',background:'var(--bg2)',borderBottom:'1px solid rgba(0,0,0,.06)',flexShrink:0,minHeight:56}}>
@@ -1001,9 +1039,11 @@ function App(){
         <div className='nav-right' style={{display:'flex',alignItems:'center',gap:5,paddingRight:20,paddingLeft:10,flexShrink:0,background:'var(--bg2)',borderLeft:'1px solid #e5e5ea'}}>
         {/* Только + ещё и + Создать остаются в nav-right (компактнее) */}
         <button onClick={()=>setPicker(true)} style={{padding:'6px 12px',borderRadius:16,fontSize:13,color:'#6e6e73',border:'1px dashed var(--border)',whiteSpace:'nowrap',background:'transparent',cursor:'pointer'}} title='Все доступные Ясны'><span className='desk-only'>+ ещё ({Math.max(0, T.length - pinnedTemplates.length)})</span><span className='mob-only'>☰</span></button>
-        <button className='desk-only' onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);}} style={{padding:'7px 16px',borderRadius:16,fontSize:13,color:'#fff',border:'none',whiteSpace:'nowrap',background:'#0071e3',cursor:'pointer',fontWeight:600,boxShadow:'0 1px 3px rgba(0,113,227,.25)'}} title='Создать новую Ясну' aria-label='Создать новую Ясну'>+ Создать</button>
-        {/* FAB для mobile (Block 4.6) */}
-        <button className='fab-create mob-only' onClick={()=>{setY({name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);}} title='Создать новую Ясну' aria-label='Создать новую Ясну' style={{display:'none'}}>+</button>
+        <button className='desk-only' onClick={editCurrent} style={{padding:'7px 12px',borderRadius:16,fontSize:13,color:'#0058b8',border:'1px solid rgba(0,113,227,.45)',whiteSpace:'nowrap',background:'transparent',cursor:'pointer',fontWeight:600}} title='Редактировать текущую Ясну (для встроенной создастся ваша копия)' aria-label='Редактировать текущую Ясну'>✎ Редактировать</button>
+        <button className='desk-only' onClick={createNew} style={{padding:'7px 16px',borderRadius:16,fontSize:13,color:'#fff',border:'none',whiteSpace:'nowrap',background:'#0071e3',cursor:'pointer',fontWeight:600,boxShadow:'0 1px 3px rgba(0,113,227,.25)'}} title='Создать новую Ясну' aria-label='Создать новую Ясну'>+ Создать</button>
+        {/* FAB'ы для mobile (Block 4.6): создать + редактировать текущую */}
+        <button className='fab-create mob-only' onClick={createNew} title='Создать новую Ясну' aria-label='Создать новую Ясну' style={{display:'none'}}>+</button>
+        <button className='fab-edit mob-only' onClick={editCurrent} title='Редактировать текущую Ясну' aria-label='Редактировать текущую Ясну' style={{display:'none'}}>✎</button>
         </div>
       </div>
       {/* МЕХАНИКИ — overlay-панель слева под триггером. Не больше ~1/3 экрана.
@@ -1181,7 +1221,7 @@ function App(){
         {/* side-panel: flex-сосед workspace на десктопе, overlay на планшете, скрыт на мобильном (там bottom-sheet) */}
         {sel!==null && <aside className={'side-panel'+(panelCollapsed?' collapsed':'')} aria-label='Карточка полки'>
           <button className='side-panel-toggle' onClick={()=>setPanelCollapsed(c=>!c)} title={panelCollapsed?'Развернуть панель':'Свернуть панель'} aria-label={panelCollapsed?'Развернуть панель':'Свернуть панель'}>{panelCollapsed?'‹':'›'}</button>
-          {!panelCollapsed && <Info i={sel} p={y.p} af={af} y={y} overlay={overlay} onEdit={()=>setEd(true)} onClose={()=>setPanelCollapsed(true)} onSel={setSel}/>}
+          {!panelCollapsed && <Info i={sel} p={y.p} af={af} y={y} overlay={overlay} onEdit={editCurrent} onClose={()=>setPanelCollapsed(true)} onSel={setSel}/>}
         </aside>}
       </div>
       {/* Ясна² Drill Editor: bottom-panel с 12 inputs для sub-полок */}
@@ -1221,7 +1261,7 @@ function App(){
       })()}
       {activeLesson&&<Lesson lessonId={activeLesson} onClose={()=>setActiveLesson(null)} onComplete={(id)=>setCompletedLessons(prev=>prev.includes(id)?prev:[...prev,id])} onPickAnother={()=>{setActiveLesson(null);setLessonPicker(true);}} onOpenLesson={(id)=>setActiveLesson(id)}/>}
       {glossary&&<Glossary onClose={()=>setGlossary(false)}/>}
-      {picker&&<Picker pinned={pinned} onTogglePin={togglePin} onClear={()=>setPinned([])} onClose={()=>setPicker(false)}/>}
+      {picker&&<Picker pinned={pinned} onTogglePin={togglePin} onClear={()=>setPinned([])} onClose={()=>setPicker(false)} customs={customs} onOpenCustom={c=>{load(c);setPicker(false);}} onDeleteCustom={deleteCustom}/>}
     </div>);
 }
 ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));

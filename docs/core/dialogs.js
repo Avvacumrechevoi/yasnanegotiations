@@ -124,9 +124,10 @@ function OverlayPicker({currentName,overlay,onSelect,onClose}){
     </div>);
 }
 
-function Picker({pinned,onTogglePin,onClear,onClose}){
+function Picker({pinned,onTogglePin,onClear,onClose,customs=[],onOpenCustom,onDeleteCustom}){
   const[q,setQ]=useState('');
   const filtered=T.filter(t=>t.n.toLowerCase().includes(q.toLowerCase()));
+  const myList=customs.filter(c=>((c.n||c.name)||'').toLowerCase().includes(q.toLowerCase()));
   const starterList=filtered.filter(t=>t.starter);
   const additionalList=filtered.filter(t=>t.rubrik&&!t.starter);
   const customList=filtered.filter(t=>t.custom&&!t.rubrik);
@@ -200,7 +201,27 @@ function Picker({pinned,onTogglePin,onClear,onClose}){
         </div>
         {/* LIST */}
         <div style={{flex:1,overflowY:'auto',padding:'14px 22px 18px'}}>
-          {filtered.length===0?
+          {/* МОИ ЯСНЫ — пользовательские, из localStorage (yasna_custom_v1) */}
+          {myList.length>0&&(
+            <div style={{marginBottom:18}} data-testid="my-yasnas">
+              <div style={{marginBottom:8,paddingLeft:4}}>
+                <div style={{fontSize:11,fontWeight:600,color:'#6e6e73',textTransform:'uppercase',letterSpacing:1}}>Мои Ясны <span style={{color:'#aeaeb2',fontWeight:400}}>· {myList.length}</span></div>
+                <div style={{fontSize:11,color:'#aeaeb2',marginTop:2}}>Созданные вами · хранятся в этом браузере · клик — открыть</div>
+              </div>
+              <div className='picker-grid' style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
+                {myList.map(c=>{const active=pinned.includes(c.id);const nm=c.n||c.name;return(
+                  <div key={c.id} style={{position:'relative',display:'flex',alignItems:'center',background:active?'#e6f0fa':'#f5f5f7',borderRadius:10,border:`1px solid ${active?'rgba(0,122,255,.4)':'transparent'}`,overflow:'hidden'}}>
+                    <span style={{position:'absolute',left:0,top:0,bottom:0,width:3,background:'#af52de'}} title="Моя Ясна"/>
+                    <button onClick={()=>onOpenCustom&&onOpenCustom(c)} title={'Открыть «'+nm+'»'}
+                      style={{flex:1,minWidth:0,textAlign:'left',padding:'11px 4px 11px 16px',background:'transparent',border:'none',fontSize:14,color:active?'#0071e3':'#1d1d1f',fontWeight:active?600:400,cursor:'pointer',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{nm}</button>
+                    <button onClick={()=>onTogglePin(c.id)} title={active?'Убрать из вкладок':'Закрепить во вкладках'}
+                      style={{border:'none',background:'transparent',cursor:'pointer',fontSize:13,color:active?'#0071e3':'#aeaeb2',padding:'8px 2px',flexShrink:0}}>{active?'📌':'📍'}</button>
+                    <button onClick={()=>{if(window.confirm('Удалить Ясну «'+nm+'»? Это действие необратимо.'))onDeleteCustom&&onDeleteCustom(c.id);}} title='Удалить'
+                      style={{border:'none',background:'transparent',cursor:'pointer',fontSize:13,color:'#E8364F',padding:'8px 12px 8px 2px',flexShrink:0}}>🗑</button>
+                  </div>);})}
+              </div>
+            </div>)}
+          {filtered.length===0&&myList.length===0?
             <div style={{textAlign:'center',padding:'60px 20px',color:'#aeaeb2',fontSize:13}}>Ничего не найдено по запросу «{q}»</div>
             :<>
               <Section title="Стартовые" subtitle="Шесть Ясн для первого знакомства — самые наглядные и связанные с опытом" items={starterList}/>
