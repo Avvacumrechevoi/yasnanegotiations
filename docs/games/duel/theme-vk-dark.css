@@ -2115,3 +2115,23 @@ body.theme-vk-dark .dp-hero-progress { height: 6px; }
   body.theme-vk-dark .dp-hero,
   body.theme-vk-dark .dp-game-card { padding: 15px 16px; }
 }
+
+/* ─── Компактная мобильная главная: десктопные размеры (заголовок 28-32px,
+   крупные карточки) выталкивали действия «Играть соло / С другом» за фолд.
+   Ужимаем заголовок, профиль и отступы — действия поднимаются на первый экран.
+   В конце файла + высокая специфичность → перекрывает прежние правила. */
+@media (max-width: 767px) {
+  body.theme-vk-dark .dp-castalia-h1,
+  body.theme-vk-dark .dp-welcome-title { font-size: 22px; line-height: 1.18; }
+  body.theme-vk-dark .dp-castalia-title { margin-bottom: 14px; }
+  body.theme-vk-dark .dp-castalia-eyebrow { margin-bottom: 6px; }
+  body.theme-vk-dark .dp-hero { padding: 14px 16px; gap: 12px; margin-bottom: 16px; }
+  body.theme-vk-dark .dp-section { margin-bottom: 20px; }
+  /* Карточка «Партия» компактнее: кнопки «Играть соло / С другом» — на первом
+     экране. Пункты-детали (10·18·30, форматы, разбор) на мобильном скрыты —
+     они есть в подсказке «i» и в модалке выбора; здесь приоритет — действие. */
+  body.theme-vk-dark .dp-game-card { padding: 14px 16px; }
+  body.theme-vk-dark .dp-game-eyebrow { margin-bottom: 8px; }
+  body.theme-vk-dark .dp-game-sub { margin: 6px 0 10px; font-size: 14px; line-height: 1.4; }
+  body.theme-vk-dark .dp-game-bullets { display: none; }
+}

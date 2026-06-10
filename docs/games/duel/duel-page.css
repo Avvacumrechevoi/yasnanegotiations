@@ -1256,7 +1256,15 @@ a { color: inherit; }
   .dp-quests { grid-template-columns: 1fr; }
   .dp-partitura { grid-template-columns: 1fr 1fr; }
   .dp-two-col { grid-template-columns: 1fr; }
-  .dp-castalia-h1 { font-size: 28px; }
+  /* Мобильная компоновка: десктопные отступы 48px (space-12) выталкивали
+     карточки «Играть соло / С другом» далеко за фолд. Ужимаем заголовок и
+     все крупные вертикальные зазоры — действия поднимаются на первый экран. */
+  .dp-castalia-h1 { font-size: 23px; line-height: 1.15; }
+  .dp-castalia-title { margin-bottom: var(--space-5); padding: 0; }
+  .dp-castalia-eyebrow { margin-bottom: var(--space-2); }
+  .dp-header { margin-bottom: var(--space-5); }
+  .dp-hero { margin-bottom: var(--space-5); padding: var(--space-5); }
+  .dp-section { margin-bottom: var(--space-6); }
   .dp-welcome { padding: var(--space-8) var(--space-5) var(--space-6); }
   .dp-welcome-title { font-size: 30px; }
   .dp-welcome-pillars { grid-template-columns: 1fr; }
@@ -2625,7 +2633,29 @@ body.theme-vk-dark .dp-theme-banner__count { color: var(--text-2, #aeaeb2); }
    Picker содержит сетку тем 2-3 колонки, нужно больше места. */
 .dp-partiya-picker--v2 {
   max-width: 580px !important;
+  /* Не выше экрана: на невысоких телефонах контент (количество + темы + кнопка)
+     раньше превышал вьюпорт, модалка была overflow:hidden без скролла →
+     кнопка «Начать партию» обрезалась и была недостижима.
+     Теперь: flex-колонка с фикс. шапкой и кнопкой; скроллится только список тем. */
+  max-height: calc(100dvh - 32px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
+/* Скроллируемая зона — секция тем (та, что содержит сетку тем). */
+.dp-partiya-picker--v2 .dp-picker-section:has(.dp-themes-reset),
+.dp-partiya-picker--v2 .dp-picker-section:has(.dp-themes-list--banners) {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+/* Шапка и кнопка не сжимаются и остаются видимыми. */
+.dp-partiya-picker--v2 .dp-picker-head,
+.dp-partiya-picker--v2 .dp-picker-footer { flex-shrink: 0; }
+.dp-partiya-picker--v2 .dp-auth-x { position: absolute; z-index: 3; }
+/* Фолбэк для браузеров без :has — оверлей скроллится, если модалка выше экрана. */
+.dp-auth-overlay { overflow-y: auto; }
 
 /* ─── Picker footer: одна большая CTA на всю ширину ───────────
    Соперник уже выбран на карточке — здесь только запуск.
