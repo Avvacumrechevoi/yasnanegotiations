@@ -554,8 +554,13 @@ input{font-family:var(--sans)}
 /* 4.6: FAB «+ Создать» на mobile — поднят выше bottom nav-tabs */
 @media(max-width:767px){
   .fab-create.mob-only{position:fixed!important;bottom:70px!important;right:16px!important;width:56px!important;height:56px!important;border-radius:50%!important;box-shadow:0 4px 14px rgba(37,99,235,.32)!important;z-index:51!important;background:#0071e3!important;color:#fff!important;font-size:28px!important;padding:0!important;border:none!important;display:flex!important;align-items:center!important;justify-content:center!important;line-height:1!important}
-  /* Скрыть FAB когда открыта side-panel/sheet */
+  /* FAB «✎ Редактировать текущую» — над FAB создания */
+  .fab-edit.mob-only{position:fixed!important;bottom:138px!important;right:20px!important;width:48px!important;height:48px!important;border-radius:50%!important;box-shadow:0 3px 10px rgba(0,0,0,.16)!important;z-index:51!important;background:#fff!important;color:#0071e3!important;font-size:19px!important;padding:0!important;border:1.5px solid rgba(0,113,227,.5)!important;display:flex!important;align-items:center!important;justify-content:center!important;line-height:1!important}
+  /* Скрыть FAB'ы когда открыта side-panel/sheet или редактор */
   body:has(aside.side-panel) .fab-create.mob-only{display:none!important}
+  body:has(aside.side-panel) .fab-edit.mob-only,
+  body:has(.editor-panel) .fab-edit.mob-only,
+  body:has(.editor-panel) .fab-create.mob-only{display:none!important}
 }
 
 /* 3.4: ⊕ кнопка чёткий aria-fallback (через title уже есть, дополнительная обводка фокуса) */
