@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-06-10T17:15:29.064Z */
+/* Yasna bundle: duel.js — собран 2026-06-10T18:04:14.256Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5954,7 +5954,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-06-10T17:15:28.512Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-06-10T18:04:13.758Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -19949,7 +19949,7 @@ window.YasnaCore = {
     }
     function waitForOppAndAdvance(playerCorrect2, playerTime, isTimeout) {
       const waitStartedAt = Date.now();
-      const MAX_WAIT_MS = 5e3;
+      const MAX_WAIT_MS = (QUESTION_TIME + 2) * 1e3;
       function tryAdvance() {
         if (answeredRef.current) return;
         const oppPvP = isPvP && (oppAnswersRef == null ? void 0 : oppAnswersRef.current) ? oppAnswersRef.current[q.id] : null;
@@ -20497,6 +20497,14 @@ window.YasnaCore = {
         delete window.__tnOnClose;
       };
     }, [onClose]);
+    React.useEffect(() => () => {
+      if (transport && transport.close) {
+        try {
+          transport.close();
+        } catch (_) {
+        }
+      }
+    }, [transport]);
     const isPvP = opponentMode === "pvp" && transport;
     const partiyaMode = mode || "standard";
     const themesFilter = selectedThemes || null;
@@ -20520,6 +20528,7 @@ window.YasnaCore = {
     const [totalBusey, setTotalBusey] = useState(0);
     const [partiyaLog, setPartiyaLog] = useState([]);
     const [oppDisconnected, setOppDisconnected] = useState(false);
+    const [guestStuck, setGuestStuck] = useState(false);
     const [streak, setStreak] = useState(0);
     const [streakPeak, setStreakPeak] = useState(0);
     function streakMultiplier(s) {
@@ -20578,6 +20587,11 @@ window.YasnaCore = {
         return () => clearTimeout(t);
       }
     }, [phase, playerReady, oppReady]);
+    React.useEffect(() => {
+      if (!(isPvP && role === "guest" && !partiya)) return;
+      const t = setTimeout(() => setGuestStuck(true), 3e4);
+      return () => clearTimeout(t);
+    }, [isPvP, role, partiya]);
     if (isPvP && role === "guest" && !partiya) {
       return React.createElement(
         "div",
@@ -20585,14 +20599,24 @@ window.YasnaCore = {
         React.createElement(
           "div",
           { className: "tn-card", style: { textAlign: "center", padding: "40px 24px" } },
-          React.createElement("div", { className: "tn-eyebrow" }, "\u2726  \u041E\u0436\u0438\u0434\u0430\u0435\u043C \u0445\u043E\u0437\u044F\u0438\u043D\u0430"),
-          React.createElement("h2", { style: { margin: "12px 0 8px" } }, "\u0425\u043E\u0437\u044F\u0438\u043D \u0433\u043E\u0442\u043E\u0432\u0438\u0442 \u041F\u0430\u0440\u0442\u0438\u044E\u2026"),
+          React.createElement("div", { className: "tn-eyebrow" }, guestStuck ? "\u2726  \u041D\u0435 \u0434\u043E\u0436\u0434\u0430\u043B\u0438\u0441\u044C" : "\u2726  \u041E\u0436\u0438\u0434\u0430\u0435\u043C \u0445\u043E\u0437\u044F\u0438\u043D\u0430"),
+          React.createElement(
+            "h2",
+            { style: { margin: "12px 0 8px" } },
+            guestStuck ? "\u0425\u043E\u0437\u044F\u0438\u043D \u0442\u0430\u043A \u0438 \u043D\u0435 \u043D\u0430\u0447\u0430\u043B \u041F\u0430\u0440\u0442\u0438\u044E" : "\u0425\u043E\u0437\u044F\u0438\u043D \u0433\u043E\u0442\u043E\u0432\u0438\u0442 \u041F\u0430\u0440\u0442\u0438\u044E\u2026"
+          ),
           React.createElement(
             "p",
             { style: { color: "var(--ts-muted, #888)" } },
-            "\u0421\u0435\u0439\u0447\u0430\u0441 \u043E\u043D \u043E\u0442\u043F\u0440\u0430\u0432\u0438\u0442 \u043D\u0430\u0447\u0430\u043B\u044C\u043D\u0443\u044E \u0440\u0430\u0441\u043A\u043B\u0430\u0434\u043A\u0443, \u0438 \u043C\u044B \u0441\u0442\u0430\u0440\u0442\u0443\u0435\u043C."
+            guestStuck ? "\u041F\u043E\u0445\u043E\u0436\u0435, \u0445\u043E\u0437\u044F\u0438\u043D \u0437\u0430\u043A\u0440\u044B\u043B \u0432\u043A\u043B\u0430\u0434\u043A\u0443 \u0438\u043B\u0438 \u043F\u043E\u0442\u0435\u0440\u044F\u043B \u0441\u0432\u044F\u0437\u044C. \u0412\u0435\u0440\u043D\u0438\u0441\u044C \u0438 \u043F\u043E\u043F\u0440\u043E\u0431\u0443\u0439 \u043F\u043E\u0437\u0436\u0435 \u0438\u043B\u0438 \u0441\u043E\u0437\u0434\u0430\u0439 \u0441\u0432\u043E\u044E \u043A\u043E\u043C\u043D\u0430\u0442\u0443." : "\u0421\u0435\u0439\u0447\u0430\u0441 \u043E\u043D \u043E\u0442\u043F\u0440\u0430\u0432\u0438\u0442 \u043D\u0430\u0447\u0430\u043B\u044C\u043D\u0443\u044E \u0440\u0430\u0441\u043A\u043B\u0430\u0434\u043A\u0443, \u0438 \u043C\u044B \u0441\u0442\u0430\u0440\u0442\u0443\u0435\u043C."
           ),
-          React.createElement("div", { style: { marginTop: 24, fontSize: 32, opacity: 0.6 } }, "\u25D0  \u25D1")
+          !guestStuck && React.createElement("div", { style: { marginTop: 24, fontSize: 32, opacity: 0.6 } }, "\u25D0  \u25D1"),
+          React.createElement("button", {
+            className: "tn-final-btn",
+            style: { marginTop: 24 },
+            type: "button",
+            onClick: onClose
+          }, guestStuck ? "\u0412\u0435\u0440\u043D\u0443\u0442\u044C\u0441\u044F \u2192" : "\u0412\u044B\u0439\u0442\u0438")
         )
       );
     }

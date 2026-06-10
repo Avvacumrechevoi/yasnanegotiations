@@ -845,7 +845,11 @@
     // (рассинхрон счёта на N бусин в каждом раунде).
     function waitForOppAndAdvance(playerCorrect, playerTime, isTimeout){
       const waitStartedAt = Date.now();
-      const MAX_WAIT_MS = 5000; // максимум ждём ответ соперника 5 секунд
+      // Ждём ответ соперника до конца ЕГО таймера вопроса (QUESTION_TIME) + буфер.
+      // Раньше было 5с от момента нашего ответа: соперник, легитимно ответивший
+      // позже (у него до 15с), засчитывался как «неверно» → рассинхрон счёта и
+      // разные победители на двух экранах. Теперь поздний ответ учитывается.
+      const MAX_WAIT_MS = (QUESTION_TIME + 2) * 1000;
 
       function tryAdvance(){
         if(answeredRef.current) return;
@@ -1342,6 +1346,14 @@
   function TurnirGame({ player, opponentLevel, onClose, opponentMode, transport, role, oppData, mode, selectedThemes }){
     React.useEffect(() => { window.__tnOnClose = onClose; return () => { delete window.__tnOnClose; }; }, [onClose]);
 
+    // При выходе из партии (unmount по «Сдаться»/«Новая Партия»/«На главную»)
+    // закрываем транспорт: соперник получит opp-leave, heartbeat и listeners
+    // остановятся, комната не зависнет в статусе 'playing'. Без этого соперник
+    // продолжал играть с «призраком», а комната жила вечно.
+    React.useEffect(() => () => {
+      if(transport && transport.close){ try { transport.close(); } catch(_){} }
+    }, [transport]);
+
     const isPvP = opponentMode === 'pvp' && transport;
     const partiyaMode = mode || 'standard';  // 'blitz' | 'standard' | 'expert'
     const themesFilter = selectedThemes || null;  // null = все темы
@@ -1374,6 +1386,8 @@
     const [totalBusey, setTotalBusey] = useState(0);
     const [partiyaLog, setPartiyaLog] = useState([]);
     const [oppDisconnected, setOppDisconnected] = useState(false);
+    // Гость ждёт partiya-init от хоста. Если за 30с не пришло — выход из тупика.
+    const [guestStuck, setGuestStuck] = useState(false);
 
     // ─── Streak — серия верных ответов ──────────────────────────
     // 3 верных подряд → ×1.2, 5 → ×1.5, 7+ → ×2.0
@@ -1459,17 +1473,34 @@
       }
     }, [phase, playerReady, oppReady]);
 
+    // Таймаут ожидания хоста: если за 30с partiya-init не пришла —
+    // выводим гостя из вечного лоадера (показываем ошибку + «Вернуться»).
+    React.useEffect(() => {
+      if(!(isPvP && role === 'guest' && !partiya)) return;
+      const t = setTimeout(() => setGuestStuck(true), 30000);
+      return () => clearTimeout(t);
+    }, [isPvP, role, partiya]);
+
     // ─── Guard: гость в PvP может ещё не получить partiya-init от хоста.
     // partiya === null → показываем loading и ждём хоста.
     // Без этого падает `partiya[roundIdx]` → TypeError reading '0'.
     if(isPvP && role === 'guest' && !partiya){
       return React.createElement('div', { className: 'tn-overlay' },
         React.createElement('div', { className: 'tn-card', style: { textAlign: 'center', padding: '40px 24px' } },
-          React.createElement('div', { className: 'tn-eyebrow' }, '✦  Ожидаем хозяина'),
-          React.createElement('h2', { style: { margin: '12px 0 8px' } }, 'Хозяин готовит Партию…'),
+          React.createElement('div', { className: 'tn-eyebrow' }, guestStuck ? '✦  Не дождались' : '✦  Ожидаем хозяина'),
+          React.createElement('h2', { style: { margin: '12px 0 8px' } },
+            guestStuck ? 'Хозяин так и не начал Партию' : 'Хозяин готовит Партию…'),
           React.createElement('p', { style: { color: 'var(--ts-muted, #888)' } },
-            'Сейчас он отправит начальную раскладку, и мы стартуем.'),
-          React.createElement('div', { style: { marginTop: 24, fontSize: 32, opacity: 0.6 } }, '◐  ◑'),
+            guestStuck
+              ? 'Похоже, хозяин закрыл вкладку или потерял связь. Вернись и попробуй позже или создай свою комнату.'
+              : 'Сейчас он отправит начальную раскладку, и мы стартуем.'),
+          !guestStuck && React.createElement('div', { style: { marginTop: 24, fontSize: 32, opacity: 0.6 } }, '◐  ◑'),
+          React.createElement('button', {
+            className: 'tn-final-btn',
+            style: { marginTop: 24 },
+            type: 'button',
+            onClick: onClose,
+          }, guestStuck ? 'Вернуться →' : 'Выйти'),
         )
       );
     }

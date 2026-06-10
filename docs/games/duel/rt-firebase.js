@@ -118,8 +118,18 @@
       },
     });
 
-    // Если хост закроет вкладку — статус автоматически станет 'closed'
-    db.ref('rooms/' + code + '/meta/status').onDisconnect().set('closed');
+    // ВАЖНО: НЕ ставим onDisconnect → 'closed' для ожидающей комнаты.
+    // Причина: на мобильных браузерах (особенно iOS Safari) переход
+    // в фоновый режим (например, открыть Telegram → отправить ссылку →
+    // вернуться) убивает WebSocket-соединение, Firebase считает хоста
+    // отключённым и закрывает комнату через onDisconnect. Гость потом
+    // получает ошибку «Комната закрыта». Реальное состояние —
+    // комната жива, хост просто свернул вкладку.
+    //
+    // Вместо этого: TTL по lastSeen + heartbeat (см. waitForGuest).
+    // Комната считается мёртвой если createdAt > 30 минут назад
+    // (проверка в joinRoom через createdAt timestamp).
+    db.ref('rooms/' + code + '/host/online').onDisconnect().set(false);
 
     console.log('[firebase] room created', code);
     return { code };
@@ -181,6 +191,13 @@
 
     const room = snap.val();
     if(room.meta?.status === 'closed') throw new Error('closed');
+
+    // TTL — orphan room cleanup. Если комната создана > 30 минут назад
+    // и до сих пор в waiting (никто не зашёл) — считаем мёртвой.
+    if(room.meta?.status === 'waiting' && room.meta?.createdAt){
+      const ageMs = Date.now() - room.meta.createdAt;
+      if(ageMs > 30 * 60 * 1000) throw new Error('closed');
+    }
 
     // Если гость уже занят и это не мы (re-join) — отказ
     if(room.guest && room.guest.deviceId && room.guest.deviceId !== String(deviceId)){

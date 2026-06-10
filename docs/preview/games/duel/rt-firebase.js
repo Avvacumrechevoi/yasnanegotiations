@@ -191,6 +191,7 @@
 
     const room = snap.val();
     if(room.meta?.status === 'closed') throw new Error('closed');
+
     // TTL — orphan room cleanup. Если комната создана > 30 минут назад
     // и до сих пор в waiting (никто не зашёл) — считаем мёртвой.
     if(room.meta?.status === 'waiting' && room.meta?.createdAt){
