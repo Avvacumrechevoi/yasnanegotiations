@@ -236,13 +236,15 @@
   // Заполняется на 100% в начале, уменьшается до 0% за QUESTION_TIME сек.
   // Цвет меняется: зелёный → оранжевый → красный (последние секунды).
   function TnTimerBar({ timeLeft, paused }){
-    const pct = (timeLeft / QUESTION_TIME) * 100;
-    let cls = 'tn-timer-fill';
+    // Ширину гоним непрерывной CSS-анимацией (100%→0 за QUESTION_TIME, linear),
+    // а НЕ посекундным inline-width — иначе бар дёргался 15 ступенями. Компонент
+    // ремаунтится на каждый вопрос (key у Question) → анимация рестартует.
+    let cls = 'tn-timer-fill tn-timer-anim';
     if(timeLeft <= 5) cls += ' tn-timer-warn';
     if(timeLeft <= 2) cls += ' tn-timer-danger';
     if(paused) cls += ' tn-timer-paused';
     return React.createElement('div', { className: 'tn-timer-bar', role: 'timer', 'aria-label': 'Осталось ' + timeLeft + ' секунд' },
-      React.createElement('div', { className: cls, style: { width: pct + '%' } })
+      React.createElement('div', { className: cls, style: { animationDuration: QUESTION_TIME + 's' } })
     );
   }
 
@@ -1656,7 +1658,22 @@
       try { localStorage.setItem(KEY, JSON.stringify(raw)); } catch(_){}
     }
 
-    function startAgain(){ onClose(); }
+    function startAgain(){
+      // PvP: живого соперника здесь не переподключить — выходим в лобби.
+      if(isPvP){ onClose(); return; }
+      // Соло: реальный рестарт — новая раскладка + полный сброс состояния
+      // (раньше «Новая Партия» просто звала onClose и закрывала экран).
+      setPartiya(window.YasnaTrivia.generatePartiya(Date.now(), partiyaMode, themesFilter));
+      setRoundIdx(0); setQIdx(0);
+      setScoreP(0); setScoreO(0);
+      setTotalBusey(0); setPartiyaLog([]);
+      setStreak(0); setStreakPeak(0);
+      setMidRecapShown(false);
+      setOppDisconnected(false);
+      setGuestStuck(false);
+      setPlayerReady(false); setOppReady(false);
+      setPhase('vs');
+    }
 
     function onPlayerReady(){
       setPlayerReady(true);

@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-06-10T19:45:34.085Z */
+/* Yasna bundle: duel.js — собран 2026-06-10T23:25:35.902Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5939,7 +5939,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-06-10T19:45:33.829Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-06-10T23:25:35.605Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -19309,15 +19309,14 @@ window.YasnaCore = {
     );
   }
   function TnTimerBar({ timeLeft, paused }) {
-    const pct = timeLeft / QUESTION_TIME * 100;
-    let cls = "tn-timer-fill";
+    let cls = "tn-timer-fill tn-timer-anim";
     if (timeLeft <= 5) cls += " tn-timer-warn";
     if (timeLeft <= 2) cls += " tn-timer-danger";
     if (paused) cls += " tn-timer-paused";
     return React.createElement(
       "div",
       { className: "tn-timer-bar", role: "timer", "aria-label": "\u041E\u0441\u0442\u0430\u043B\u043E\u0441\u044C " + timeLeft + " \u0441\u0435\u043A\u0443\u043D\u0434" },
-      React.createElement("div", { className: cls, style: { width: pct + "%" } })
+      React.createElement("div", { className: cls, style: { animationDuration: QUESTION_TIME + "s" } })
     );
   }
   function TnQuestionCard({ qOverall, totalOverall, themeName, text, timeLeft, showFeedback, qType }) {
@@ -20751,7 +20750,25 @@ window.YasnaCore = {
       }
     }
     function startAgain() {
-      onClose();
+      if (isPvP) {
+        onClose();
+        return;
+      }
+      setPartiya(window.YasnaTrivia.generatePartiya(Date.now(), partiyaMode, themesFilter));
+      setRoundIdx(0);
+      setQIdx(0);
+      setScoreP(0);
+      setScoreO(0);
+      setTotalBusey(0);
+      setPartiyaLog([]);
+      setStreak(0);
+      setStreakPeak(0);
+      setMidRecapShown(false);
+      setOppDisconnected(false);
+      setGuestStuck(false);
+      setPlayerReady(false);
+      setOppReady(false);
+      setPhase("vs");
     }
     function onPlayerReady() {
       setPlayerReady(true);
@@ -20981,7 +20998,7 @@ window.YasnaCore = {
     }
     if (!code) throw new Error("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u0433\u0435\u043D\u0435\u0440\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0443\u043D\u0438\u043A\u0430\u043B\u044C\u043D\u044B\u0439 \u043A\u043E\u0434");
     const TS = firebase.database.ServerValue.TIMESTAMP;
-    await db.ref("rooms/" + code).set({
+    await db.ref("rooms/" + code).update({
       meta: {
         status: "waiting",
         createdAt: TS,
@@ -21610,9 +21627,11 @@ window.YasnaCore = {
         if (e.key === "Escape") setOpen(false);
       };
       document.addEventListener("mousedown", onDocClick);
+      document.addEventListener("touchstart", onDocClick, { passive: true });
       document.addEventListener("keydown", onKey);
       return () => {
         document.removeEventListener("mousedown", onDocClick);
+        document.removeEventListener("touchstart", onDocClick);
         document.removeEventListener("keydown", onKey);
       };
     }, [open]);
@@ -21634,10 +21653,12 @@ window.YasnaCore = {
         "aria-label": "\u041A\u0430\u043A \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442 \u041F\u0430\u0440\u0442\u0438\u044F",
         title: "\u041A\u0430\u043A \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442 \u041F\u0430\u0440\u0442\u0438\u044F"
       }, "i"),
+      open && React.createElement("div", { className: "dp-howto-scrim", "aria-hidden": "true", onClick: () => setOpen(false) }),
       open && React.createElement(
         "div",
-        { className: "dp-howto-popover", role: "dialog", "aria-label": "\u041A\u0430\u043A \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442 \u041F\u0430\u0440\u0442\u0438\u044F" },
+        { className: "dp-howto-popover", role: "dialog", "aria-modal": "true", "aria-label": "\u041A\u0430\u043A \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442 \u041F\u0430\u0440\u0442\u0438\u044F" },
         React.createElement("div", { className: "dp-howto-arrow", "aria-hidden": "true" }),
+        React.createElement("button", { type: "button", className: "dp-howto-close", "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C", onClick: () => setOpen(false) }, "\xD7"),
         React.createElement(
           "div",
           { className: "dp-howto-head" },

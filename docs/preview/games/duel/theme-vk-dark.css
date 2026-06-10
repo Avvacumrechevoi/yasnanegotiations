@@ -59,17 +59,21 @@ body.theme-vk-dark .tn-option {
   background: var(--bg-surface);
   color: var(--text-1);
 }
-body.theme-vk-dark .tn-option:not([disabled]):hover {
-  background: var(--bg-tonal);
-  border-color: var(--accent);
+/* hover-подсветка варианта — ТОЛЬКО на hover-устройствах: на тач :hover
+   «залипает» после тапа и выглядит как пред-выбранный (ложный) вариант. */
+@media (hover: hover) and (pointer: fine) {
+  body.theme-vk-dark .tn-option:not([disabled]):hover {
+    background: var(--bg-tonal);
+    border-color: var(--accent);
+  }
+  body.theme-vk-dark .tn-option:not([disabled]):hover .tn-option-letter {
+    background: rgba(1, 135, 246, 0.20);
+    color: var(--accent);
+  }
 }
 body.theme-vk-dark .tn-option-letter {
   background: var(--bg-tonal);
   color: var(--text-2);
-}
-body.theme-vk-dark .tn-option:not([disabled]):hover .tn-option-letter {
-  background: rgba(1, 135, 246, 0.20);
-  color: var(--accent);
 }
 
 /* ─── Состояния ответа в тёмной теме ─────────────────────────────
@@ -2218,4 +2222,15 @@ body.theme-vk-dark .dp-hero-progress { height: 6px; }
 }
 @media (min-width: 1280px) {
   body.theme-vk-dark .dp-castalia-h1 { font-size: 40px; line-height: 1.06; }
+}
+
+/* На тач-устройствах CSS-тултипы .dp-tip/.dp-term (ранг, бусины, «партий»)
+   «залипали» после тапа (нет hover, :focus-visible не сбрасывался) и
+   перекрывали контент без возможности закрыть. На touch их прячем — на
+   ранг/бусины тап ведёт на rating.html (подсказка там и так есть). */
+@media (hover: none) {
+  body.theme-vk-dark .dp-term::after,
+  body.theme-vk-dark .dp-term::before,
+  body.theme-vk-dark .dp-tip::after,
+  body.theme-vk-dark .dp-tip::before { display: none !important; }
 }

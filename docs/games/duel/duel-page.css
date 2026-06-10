@@ -1403,17 +1403,25 @@ a { color: inherit; }
   height: 100%;
   background: var(--primary);
   border-radius: 3px;
-  transition: width 1s linear, background-color var(--duration-base) ease-out;
+  transition: background-color var(--duration-base) ease-out;
+}
+/* Плавный линейный обратный отсчёт ширины (длительность = QUESTION_TIME,
+   задаётся инлайн). Раньше ширина прыгала посекундно → рывки. */
+.tn-timer-fill.tn-timer-anim {
+  width: 100%;
+  animation-name: tnTimerCountdown;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@keyframes tnTimerCountdown {
+  from { width: 100%; }
+  to   { width: 0%; }
 }
 .tn-timer-fill.tn-timer-warn  { background: var(--accent); }
-.tn-timer-fill.tn-timer-danger {
-  background: var(--danger);
-  animation: tn-pulse 0.7s ease-in-out infinite;
-}
+.tn-timer-fill.tn-timer-danger { background: var(--danger); }
 .tn-timer-fill.tn-timer-paused {
-  animation: none;
-  opacity: 0.5;
-  transition: width var(--duration-base) ease-out, background-color var(--duration-base) ease-out, opacity var(--duration-base) ease-out;
+  animation-play-state: paused;
+  opacity: 0.6;
 }
 @keyframes tn-pulse {
   0%, 100% { opacity: 1; }
@@ -1478,11 +1486,13 @@ a { color: inherit; }
   transition: all var(--duration-fast);
   box-shadow: var(--shadow-sm);
 }
-.tn-option:not([disabled]):hover {
-  background: var(--bg-surface);
-  border-color: var(--accent);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+@media (hover: hover) and (pointer: fine) {
+  .tn-option:not([disabled]):hover {
+    background: var(--bg-surface);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
 }
 .tn-option:not([disabled]):active {
   transform: translateY(0);
@@ -1513,9 +1523,11 @@ a { color: inherit; }
   font-family: var(--font-sans);
   transition: all var(--duration-fast);
 }
-.tn-option:not([disabled]):hover .tn-option-letter {
-  background: var(--accent-soft);
-  color: var(--accent-strong);
+@media (hover: hover) and (pointer: fine) {
+  .tn-option:not([disabled]):hover .tn-option-letter {
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+  }
 }
 .tn-option-text {
   flex: 1;
@@ -2330,17 +2342,56 @@ body:not(.theme-vk-dark) .dp-howto-desc-title { color: #1d1d1f; }
 body:not(.theme-vk-dark) .dp-howto-desc-text { color: #6e6e73; }
 
 /* Mobile — popover на всю ширину под trigger */
+/* Десктоп: поповер — anchored-tooltip, скрим и крестик не нужны. */
+.dp-howto-close { display: none; }
+.dp-howto-scrim { display: none; }
+
 @media (max-width: 640px) {
+  /* Мобильный: bottom-sheet снизу на всю ширину, со скроллом, скримом и крестиком —
+     раньше поповер был фикс-снизу без max-height/overflow/закрытия и обрезался. */
+  .dp-howto-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 49;
+    animation: dpHowtoIn .16s cubic-bezier(.32,.72,0,1);
+  }
   .dp-howto-popover {
     position: fixed;
     top: auto;
-    bottom: 12px;
-    left: 12px;
-    right: 12px;
+    bottom: 0;
+    left: 0;
+    right: 0;
     width: auto;
     max-width: none;
+    max-height: 82vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 16px 16px 0 0;
+    padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+    z-index: 50;
   }
   .dp-howto-arrow { display: none; }
+  .dp-howto-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: var(--bg-tonal, rgba(255, 255, 255, .12));
+    color: var(--text-1, #fff);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 2;
+  }
+  .dp-howto-head { padding-right: 40px; }
 }
 
 /* ─── Game card refactor: title row + bullets ────────────────────

@@ -103,8 +103,12 @@
 
     const TS = firebase.database.ServerValue.TIMESTAMP;
 
-    // Атомарная запись комнаты
-    await db.ref('rooms/' + code).set({
+    // Атомарная запись комнаты — через update(), а НЕ set() на родителя.
+    // ВАЖНО: правила RTDB заданы на детях (meta/host/guest), без .write на
+    // самом узле rooms/$code. set() на родителя Firebase ОТКЛОНЯЕТ
+    // (PERMISSION_DENIED — нет .write на уровне записи и выше). update() же
+    // оценивает права по каждому ребёнку (meta/host) отдельно — и проходит.
+    await db.ref('rooms/' + code).update({
       meta: {
         status: 'waiting',
         createdAt: TS,

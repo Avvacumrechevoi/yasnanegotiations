@@ -262,7 +262,7 @@
       React.createElement('div', { className: 'dp-welcome-eyebrow' }, '✦  Тренажёр Ясны'),
       React.createElement('h1', { className: 'dp-welcome-title' }, 'Ясна —', React.createElement('br'), 'мастерство в игре.'),
       React.createElement('p', { className: 'dp-welcome-sub' },
-        'Учись модели Ясны Суток через игровые партии. 9 тем · 124 вопроса · 5 типов заданий. Выбираешь длину (Блиц 10 / Стандарт 18 / Эксперт 30) и соперника — Тень или живой друг по ссылке. За верный ответ — 10 бусин, до +5 за скорость, серия из 3+ верных даёт множитель.'
+        'Учись модели Ясны Суток через игровые партии. 9 тем · 5 типов заданий. Выбираешь длину (Блиц 10 / Стандарт 18 / Эксперт 30) и соперника — Тень или живой друг по ссылке. За верный ответ — 10 бусин, до +5 за скорость, серия из 3+ верных даёт множитель.'
       ),
       React.createElement('div', { className: 'dp-welcome-actions' },
         React.createElement('button', { className: 'dp-btn dp-btn-cta', onClick: onLoginClick }, 'Войти через Telegram'),
@@ -399,9 +399,11 @@
       };
       const onKey = (e) => { if(e.key === 'Escape') setOpen(false); };
       document.addEventListener('mousedown', onDocClick);
+      document.addEventListener('touchstart', onDocClick, { passive: true });
       document.addEventListener('keydown', onKey);
       return () => {
         document.removeEventListener('mousedown', onDocClick);
+        document.removeEventListener('touchstart', onDocClick);
         document.removeEventListener('keydown', onKey);
       };
     }, [open]);
@@ -423,8 +425,10 @@
         'aria-label': 'Как проходит Партия',
         title: 'Как проходит Партия',
       }, 'i'),
-      open && React.createElement('div', { className: 'dp-howto-popover', role: 'dialog', 'aria-label': 'Как проходит Партия' },
+      open && React.createElement('div', { className: 'dp-howto-scrim', 'aria-hidden': 'true', onClick: () => setOpen(false) }),
+      open && React.createElement('div', { className: 'dp-howto-popover', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Как проходит Партия' },
         React.createElement('div', { className: 'dp-howto-arrow', 'aria-hidden': 'true' }),
+        React.createElement('button', { type: 'button', className: 'dp-howto-close', 'aria-label': 'Закрыть', onClick: () => setOpen(false) }, '×'),
         React.createElement('div', { className: 'dp-howto-head' },
           React.createElement('h3', { className: 'dp-howto-title' }, 'Как проходит одна Партия'),
           React.createElement('span', { className: 'dp-howto-tag' }, 'Блиц / Стандарт / Эксперт')

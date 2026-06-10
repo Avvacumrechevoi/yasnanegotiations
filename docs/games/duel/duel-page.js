@@ -399,9 +399,11 @@
       };
       const onKey = (e) => { if(e.key === 'Escape') setOpen(false); };
       document.addEventListener('mousedown', onDocClick);
+      document.addEventListener('touchstart', onDocClick, { passive: true });
       document.addEventListener('keydown', onKey);
       return () => {
         document.removeEventListener('mousedown', onDocClick);
+        document.removeEventListener('touchstart', onDocClick);
         document.removeEventListener('keydown', onKey);
       };
     }, [open]);
@@ -423,8 +425,10 @@
         'aria-label': 'Как проходит Партия',
         title: 'Как проходит Партия',
       }, 'i'),
-      open && React.createElement('div', { className: 'dp-howto-popover', role: 'dialog', 'aria-label': 'Как проходит Партия' },
+      open && React.createElement('div', { className: 'dp-howto-scrim', 'aria-hidden': 'true', onClick: () => setOpen(false) }),
+      open && React.createElement('div', { className: 'dp-howto-popover', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Как проходит Партия' },
         React.createElement('div', { className: 'dp-howto-arrow', 'aria-hidden': 'true' }),
+        React.createElement('button', { type: 'button', className: 'dp-howto-close', 'aria-label': 'Закрыть', onClick: () => setOpen(false) }, '×'),
         React.createElement('div', { className: 'dp-howto-head' },
           React.createElement('h3', { className: 'dp-howto-title' }, 'Как проходит одна Партия'),
           React.createElement('span', { className: 'dp-howto-tag' }, 'Блиц / Стандарт / Эксперт')
