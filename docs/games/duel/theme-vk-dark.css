@@ -2135,3 +2135,87 @@ body.theme-vk-dark .dp-hero-progress { height: 6px; }
   body.theme-vk-dark .dp-game-sub { margin: 6px 0 10px; font-size: 14px; line-height: 1.4; }
   body.theme-vk-dark .dp-game-bullets { display: none; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   ДЕСКТОПНАЯ РАСКЛАДКА «ИГРЫ» — action-first (CJM: главное действие —
+   НАЧАТЬ ПАРТИЮ). Компактный заголовок + эйчброу-чип в строку, профиль —
+   горизонтальная лента вместо большой карточки, действия «Играть соло /
+   С другом» поднимаются на первый экран. Только ≥768px — мобильный вид
+   (@media ≤767) не затрагивается. В конце файла → перекрывает ранние
+   правила H1 (64/48px) и hero.
+   ═══════════════════════════════════════════════════════════════════ */
+@media (min-width: 768px) {
+  /* Заголовок и эйчброу — одна компактная строка */
+  body.theme-vk-dark .dp-castalia-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  body.theme-vk-dark .dp-castalia-h1 { font-size: 34px; line-height: 1.08; order: 0; }
+  body.theme-vk-dark .dp-castalia-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 5px 12px;
+    border-radius: 8px;
+    background: var(--accent-soft, rgba(0, 119, 255, 0.12));
+    color: var(--vk-accent, #0077FF);
+    font-size: 11px;
+    letter-spacing: 0.10em;
+    white-space: nowrap;
+    align-self: center;
+    order: 1;
+  }
+
+  /* Профиль — горизонтальная лента во всю ширину (а не крупная карточка) */
+  body.theme-vk-dark .dp-hero {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    grid-template-columns: none;
+    padding: 12px 18px;
+    min-height: 56px;
+    margin-bottom: 20px;
+    border-radius: 14px;
+  }
+  body.theme-vk-dark .dp-hero-avatar { width: 40px; height: 40px; font-size: 16px; flex-shrink: 0; }
+  body.theme-vk-dark .dp-hero-body {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  body.theme-vk-dark .dp-hero-name-row { margin-bottom: 0; display: inline-flex; align-items: center; gap: 8px; }
+  body.theme-vk-dark .dp-hero-name { font-size: 16px; line-height: 1.2; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  body.theme-vk-dark .dp-hero-stats { margin: 0; }
+  body.theme-vk-dark .dp-hero-progress { margin: 0; height: 5px; width: 180px; flex-shrink: 0; border-radius: 3px; }
+  body.theme-vk-dark .dp-hero-body > div:last-child { margin-top: 0; }
+  body.theme-vk-dark .dp-hero-cta { margin-left: auto; flex-shrink: 0; align-self: center; }
+
+  /* Карточка «Партия» компактнее — CTA на первом экране */
+  body.theme-vk-dark .dp-game-card { min-height: 0; padding: 20px; }
+  body.theme-vk-dark .dp-game-bullets { font-size: 12.5px; line-height: 1.45; margin: 8px 0 12px; }
+  body.theme-vk-dark .dp-cta-row { margin-top: 12px; padding-top: 12px; }
+
+  /* «Играть соло» — доминирующая primary-кнопка (один визуальный фокус) */
+  body.theme-vk-dark .dp-cta--solo {
+    background: var(--vk-accent, #0077FF);
+    border-color: var(--vk-accent, #0077FF);
+  }
+  body.theme-vk-dark .dp-cta--solo .dp-cta__title,
+  body.theme-vk-dark .dp-cta--solo .dp-cta__sub { color: #fff; }
+  body.theme-vk-dark .dp-cta--solo .dp-cta__icon {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.28);
+    color: #fff;
+  }
+}
+@media (min-width: 1280px) {
+  body.theme-vk-dark .dp-castalia-h1 { font-size: 40px; line-height: 1.06; }
+}
