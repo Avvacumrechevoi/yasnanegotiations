@@ -1507,7 +1507,11 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
 
 // Main Lesson component — all lessons use scroll format
 function Lesson({lessonId,onClose,onComplete,onPickAnother,onOpenLesson}){
-  const lesson=LESSONS.find(l=>l.id===lessonId)||LESSONS[0];
+  // ВАЖНО: в esbuild-бандле каждый файл обёрнут в IIFE, поэтому голый
+  // LESSONS из lessons-index.js здесь НЕ виден (в babel-standalone «протекал»).
+  // Берём список из window.YasnaLessons.lessons — он populated к моменту рендера.
+  const ALL=(window.YasnaLessons&&window.YasnaLessons.lessons)||[];
+  const lesson=ALL.find(l=>l.id===lessonId)||ALL[0];
   return<ScrollLesson key={lesson.id} lesson={lesson} onClose={onClose} onComplete={onComplete} onPickAnother={onPickAnother} onOpenLesson={onOpenLesson}/>;
 }
 

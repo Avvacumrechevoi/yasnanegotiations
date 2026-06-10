@@ -838,7 +838,27 @@ function App(){
   const[astroMode,setAstroMode] = window.YasnaAstro.useAstroMode();
   const[astroLayers,toggleAstroLayer] = window.YasnaAstro.useAstroLayers();
   const[activeLesson,setActiveLesson]=useState(null);
-  const[completedLessons,setCompletedLessons]=useState([]);
+  // Прогресс уроков персистится между сессиями (раньше терялся при F5).
+  const[completedLessons,setCompletedLessons]=useState(()=>{try{const s=JSON.parse(localStorage.getItem('yasna_completed_lessons_v1'));return Array.isArray(s)?s:[];}catch(_){return[];}});
+  useEffect(()=>{try{localStorage.setItem('yasna_completed_lessons_v1',JSON.stringify(completedLessons));}catch(_){}},[completedLessons]);
+  // Deep-link из курса/лендинга: index.html?lesson=<id|1> открывает урок.
+  // Без этого «Начать главу» (learn.html) вело на пустую звезду.
+  useEffect(()=>{
+    try{
+      const q=new URLSearchParams(window.location.search);
+      const raw=q.get('lesson');
+      if(raw){
+        const id=(raw==='1'||raw==='l1'||raw==='intro')?'l1_intro':raw;
+        const ls=(window.YasnaLessons&&window.YasnaLessons.lessons)||[];
+        const exists=ls.some(l=>l&&l.id===id);
+        if(exists) setActiveLesson(id);
+        // чистим URL, чтобы перезагрузка не открывала урок повторно
+        q.delete('lesson');
+        const rest=q.toString();
+        window.history.replaceState(null,'',window.location.pathname+(rest?'?'+rest:''));
+      }
+    }catch(_){}
+  },[]);
   // Auto-close burger menu when any modal/panel opens
   useEffect(()=>{ if(!af.includes('mb_yasna2')){setYasna2Drill(null);setDrillEditing(false);} },[af]);
   useEffect(()=>{ if(yasna2Drill!=null) setStarRotation(null); },[yasna2Drill]);

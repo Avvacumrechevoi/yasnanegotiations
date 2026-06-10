@@ -1,4 +1,4 @@
-/* Yasna bundle: app.js — собран 2026-06-10T07:36:26.640Z */
+/* Yasna bundle: app.js — собран 2026-06-10T17:15:28.701Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -4861,7 +4861,8 @@ function ScrollLesson({ lesson, onClose, onComplete, onPickAnother, onOpenLesson
   }), /* @__PURE__ */ React.createElement("div", { style: { height: 40 } })));
 }
 function Lesson({ lessonId, onClose, onComplete, onPickAnother, onOpenLesson }) {
-  const lesson = LESSONS.find((l) => l.id === lessonId) || LESSONS[0];
+  const ALL = window.YasnaLessons && window.YasnaLessons.lessons || [];
+  const lesson = ALL.find((l) => l.id === lessonId) || ALL[0];
   return /* @__PURE__ */ React.createElement(ScrollLesson, { key: lesson.id, lesson, onClose, onComplete, onPickAnother, onOpenLesson });
 }
 Object.assign(window.YasnaLessons, {
@@ -11726,7 +11727,36 @@ function App() {
   const [astroMode, setAstroMode] = window.YasnaAstro.useAstroMode();
   const [astroLayers, toggleAstroLayer] = window.YasnaAstro.useAstroLayers();
   const [activeLesson, setActiveLesson] = useState(null);
-  const [completedLessons, setCompletedLessons] = useState([]);
+  const [completedLessons, setCompletedLessons] = useState(() => {
+    try {
+      const s = JSON.parse(localStorage.getItem("yasna_completed_lessons_v1"));
+      return Array.isArray(s) ? s : [];
+    } catch (_) {
+      return [];
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem("yasna_completed_lessons_v1", JSON.stringify(completedLessons));
+    } catch (_) {
+    }
+  }, [completedLessons]);
+  useEffect(() => {
+    try {
+      const q = new URLSearchParams(window.location.search);
+      const raw = q.get("lesson");
+      if (raw) {
+        const id = raw === "1" || raw === "l1" || raw === "intro" ? "l1_intro" : raw;
+        const ls = window.YasnaLessons && window.YasnaLessons.lessons || [];
+        const exists = ls.some((l) => l && l.id === id);
+        if (exists) setActiveLesson(id);
+        q.delete("lesson");
+        const rest = q.toString();
+        window.history.replaceState(null, "", window.location.pathname + (rest ? "?" + rest : ""));
+      }
+    } catch (_) {
+    }
+  }, []);
   useEffect(() => {
     if (!af.includes("mb_yasna2")) {
       setYasna2Drill(null);

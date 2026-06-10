@@ -1350,6 +1350,25 @@ a { color: inherit; text-decoration: none; }
     renderAll();
   }
 
+  // Станция засчитывается по РЕАЛЬНОМУ завершению урока в конструкторе,
+  // а не по клику. Конструктор пишет id пройденных уроков в этот ключ.
+  const LESSON_OF = { moscow: 'l1_intro' };
+  function syncFromLessons(){
+    let completed = [];
+    try { completed = JSON.parse(localStorage.getItem('yasna_completed_lessons_v1')) || []; }
+    catch(_){ completed = []; }
+    if(!Array.isArray(completed) || !completed.length) return;
+    const p = getProgress();
+    let changed = false;
+    Object.keys(LESSON_OF).forEach(function(stationId){
+      if(completed.indexOf(LESSON_OF[stationId]) !== -1 && !(p[stationId] && p[stationId].done)){
+        p[stationId] = { done: true, ts: Date.now() };
+        changed = true;
+      }
+    });
+    if(changed){ try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)); } catch(_){} }
+  }
+
   // ═══ СТАТУС СТАНЦИИ ═══
   // 1) Всё пройденное → done
   // 2) Первая непройденная → active
@@ -1485,7 +1504,8 @@ a { color: inherit; text-decoration: none; }
       cta.textContent = status === 'done' ? 'Пройти заново →' : (s.action.label + ' →');
       cta.dataset.locked = '';
       cta.onclick = () => {
-        setStationDone(s.id);
+        // Прогресс НЕ засчитываем по клику — только реальное завершение урока
+        // (см. syncFromLessons). Просто открываем главу в конструкторе.
         if(s.action.href) window.location.href = s.action.href;
       };
     } else {
@@ -1514,6 +1534,7 @@ a { color: inherit; text-decoration: none; }
   // (DEBUG-параметры обработаны в начале IIFE — см. PROGRESS_KEY_FOR_RESET)
 
   // ═══ INIT ═══
+  syncFromLessons();
   renderAll();
 
 })();

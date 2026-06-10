@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta name="theme-color" content="#0a0b0d"/>
+<title>Тренажёр переговоров · Ясна</title>
+<meta name="description" content="Учись видеть стадию переговоров по модели Ясны: 12 шагов цикла А↔В от информационного поля до итога. Карта стадий и тренировка «определи стадию»."/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Тренажёр переговоров · Ясна"/>
+<meta property="og:description" content="12 стадий переговоров по методу Ясны — карта и интерактивная тренировка."/>
+<meta property="og:url" content="https://avvacumrechevoi.github.io/yasnanegotiations/negotiations.html"/>
+<meta name="twitter:card" content="summary"/>
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet"/>
+
+<style>
+/* ─── VK Tech tokens (inline) — единая палитра с лендингом/дуэлью ─── */
+:root {
+  --bg-base:        #0a0b0d;
+  --bg-surface:     #131517;
+  --bg-elevated:    #1A1D20;
+  --bg-card:        #16191C;
+  --bg-tonal:       #262A2E;
+
+  --text-primary:   #FEFEFE;
+  --text-secondary: #A8B1BE;
+  --text-tertiary:  #626D7A;
+
+  --border:         rgba(255, 255, 255, 0.06);
+  --border-strong:  rgba(255, 255, 255, 0.10);
+
+  --accent:         #0077FF;
+  --accent-hover:   #16A7FF;
+  --accent-soft:    rgba(0, 119, 255, 0.12);
+  --accent-glow:    rgba(0, 119, 255, 0.30);
+  --accent-on:      #FFFFFF;
+
+  --accent-2:       #00D3E6;
+
+  --font-sans:      'Inter', system-ui, -apple-system, sans-serif;
+  --font-display:   'Manrope', system-ui, sans-serif;
+  --font-serif:     'Cormorant Garamond', Georgia, serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: var(--bg-base); color: var(--text-primary);
+  font-family: var(--font-sans); min-height: 100vh;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+body {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 20%, rgba(0, 119, 255, 0.07) 0%, transparent 60%),
+    var(--bg-base);
+  background-attachment: fixed;
+}
+</style>
+
+<link rel="stylesheet" href="core/site-nav.css?v=nav4"/>
+<link rel="stylesheet" href="negotiations/trainer.css?v=1"/>
+</head>
+<body>
+
+<header class="ynav ynav--dark ynav--sticky" id="site-nav"></header>
+<script src="core/site-nav.js?v=nav2"></script>
+<script>window.SiteNav&&SiteNav.mount('site-nav','');</script>
+
+<main class="neg-wrap">
+
+  <section class="neg-hero">
+    <span class="neg-eyebrow">Переговоры</span>
+    <h1 class="neg-title">Тренажёр переговоров</h1>
+    <p class="neg-lead">
+      Любые переговоры идут по одному циклу: от первого контакта через резонанс
+      и столкновение — к итогу. Ясна раскладывает этот цикл на <strong>12 стадий</strong>.
+      Научишься видеть, на какой ты стадии — будешь вести разговор, а не плыть по нему.
+    </p>
+  </section>
+
+  <section class="neg-section" id="map">
+    <h2 class="neg-section-h">Карта переговоров · 12 стадий</h2>
+    <p class="neg-section-sub">Нажми на стадию, чтобы раскрыть разбор. Цвет показывает фазу дуги: вход → нарастание → вершина → спад → итог.</p>
+    <div id="neg-map-root"></div>
+  </section>
+
+  <section class="neg-section" id="drill">
+    <h2 class="neg-section-h">Тренировка · определи стадию</h2>
+    <p class="neg-section-sub">Прочитай реплику или ход и выбери, какой стадии переговоров он соответствует. Сразу — короткий разбор.</p>
+
+    <div class="neg-drill-stats">
+      <div class="neg-stat"><div class="neg-stat-val" id="neg-stat-answered">0</div><div class="neg-stat-lbl">ответов</div></div>
+      <div class="neg-stat"><div class="neg-stat-val" id="neg-stat-acc">0%</div><div class="neg-stat-lbl">точность</div></div>
+      <div class="neg-stat"><div class="neg-stat-val" id="neg-stat-streak">0</div><div class="neg-stat-lbl">лучшая серия</div></div>
+    </div>
+
+    <div class="neg-drill-card" id="neg-drill-root"></div>
+  </section>
+
+  <div class="neg-foot">
+    Модель «Ясна Переговоров» · та же 12-полочная звезда есть в
+    <a href="index.html">конструкторе</a> (механика «Переговоров»).
+    Раздел в развитии — см. <a href="learn.html">обучение</a> и <a href="duel.html">игру</a>.
+  </div>
+
+</main>
+
+<script src="negotiations/scenarios.js?v=1"></script>
+<script src="negotiations/trainer.js?v=1"></script>
+
+</body>
+</html>
