@@ -67,12 +67,30 @@ async function main(){
 
   for(const file of files){
     const filePath = path.join(CONTENT_DIR, file);
+    let raw;
     let data;
     try {
-      data = JSON.parse(await readFile(filePath, 'utf-8'));
+      raw = await readFile(filePath, 'utf-8');
+      data = JSON.parse(raw);
     } catch(e){
       errors.push(`[${file}] JSON parse error: ${e.message}`);
       continue;
+    }
+
+    // ─── OCR-гомоглифы: слова, где смешаны латиница и кириллица ───
+    // (напр. «сyтoк» с лат. y/o). Ловит то, что не видно глазом.
+    {
+      const reWord = /[A-Za-zА-Яа-яЁё]{2,}/g;
+      const reCyr = /[А-Яа-яЁё]/, reLat = /[A-Za-z]/;
+      const seen = new Set();
+      let m;
+      while((m = reWord.exec(raw))){
+        const w = m[0];
+        if(reCyr.test(w) && reLat.test(w) && !seen.has(w)){
+          seen.add(w);
+          errors.push(`[${file}] homoglyph: слово «${w}» смешивает латиницу и кириллицу`);
+        }
+      }
     }
 
     // ─── theme ───
@@ -154,6 +172,13 @@ async function main(){
           }
           if(!Array.isArray(q.correct) || q.correct.length === 0){
             errors.push(`[${q.id}] multi-choice correct must be non-empty array`);
+          } else if(Array.isArray(q.options)){
+            // каждый правильный должен присутствовать среди options
+            for(const c of q.correct){
+              if(!q.options.includes(c)){
+                errors.push(`[${q.id}] multi-choice correct "${c}" not in options`);
+              }
+            }
           }
         } else if(q.type === 'true-false'){
           if(typeof q.correct !== 'boolean'){

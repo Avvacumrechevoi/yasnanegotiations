@@ -262,7 +262,7 @@
       React.createElement('div', { className: 'dp-welcome-eyebrow' }, '✦  Тренажёр Ясны'),
       React.createElement('h1', { className: 'dp-welcome-title' }, 'Ясна —', React.createElement('br'), 'мастерство в игре.'),
       React.createElement('p', { className: 'dp-welcome-sub' },
-        'Учись модели Ясны Суток через игровые партии. 9 тем · 124 вопроса · 5 типов заданий. Выбираешь длину (Блиц 10 / Стандарт 18 / Эксперт 30) и соперника — Тень или живой друг по ссылке. За верный ответ — 10 бусин, до +5 за скорость, серия из 3+ верных даёт множитель.'
+        'Учись модели Ясны Суток через игровые партии. 9 тем · 5 типов заданий. Выбираешь длину (Блиц 10 / Стандарт 18 / Эксперт 30) и соперника — Тень или живой друг по ссылке. За верный ответ — 10 бусин, до +5 за скорость, серия из 3+ верных даёт множитель.'
       ),
       React.createElement('div', { className: 'dp-welcome-actions' },
         React.createElement('button', { className: 'dp-btn dp-btn-cta', onClick: onLoginClick }, 'Войти через Telegram'),
