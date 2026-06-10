@@ -65,7 +65,12 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
   // крест выделяется весом линии (см. strokeWidth ниже), без цвета.
   const nc=i=>{
     if(hl) return hl.includes(i)?CR[gc(i)].c:'#e0e0e8';
-    if((hov!=null&&gc(hov)===gc(i))||(sel!=null&&gc(sel)===gc(i))) return CR[gc(i)].c;
+    // Выбор: красим ТОЛЬКО выбранный узел (раньше — весь крест gc(sel)===gc(i),
+    // из-за чего «горели» 4 цифры и было непонятно, какая выбрана).
+    if(sel!=null && sel===i) return CR[gc(i)].c;
+    // Ховер: подсветка всего креста как подсказка о родстве — только когда
+    // ничего не выбрано (иначе одновременно светится до 8 из 12 узлов).
+    if(sel==null && hov!=null && gc(hov)===gc(i)) return CR[gc(i)].c;
     return [0,3,6,9].includes(i)?'#86868b':'#c7c7cc';
   };
   const no=i=>(hl&&!hl.includes(i))?.15:1;

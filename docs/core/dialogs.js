@@ -13,14 +13,14 @@ const { CR, REF, T, GLOSS, gc } = window.YasnaData;
 function OverlayLegend({y,overlay,onClear}){
   if(!overlay)return null;
   return(
-    <div className="overlay-legend" style={{position:'absolute',top:50,right:12,background:'rgba(255,255,255,.95)',border:'1px solid rgba(0,0,0,.06)',borderRadius:12,padding:'10px 14px',backdropFilter:'blur(16px)',minWidth:180,zIndex:10}}>
+    <div className="overlay-legend" style={{position:'absolute',top:50,right:12,background:'var(--vk-bg-elevated,rgba(255,255,255,.95))',border:'1px solid var(--vk-border,rgba(0,0,0,.06))',borderRadius:12,padding:'10px 14px',backdropFilter:'blur(16px)',minWidth:180,zIndex:10}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
         <span style={{fontSize:10,color:'#6e6e73',textTransform:'uppercase',letterSpacing:1}}>Совмещение</span>
         <button onClick={onClear} style={{fontSize:14,color:'#6e6e73',padding:'0 4px'}}>✕</button>
       </div>
       <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:4}}>
         <div style={{width:12,height:3,borderRadius:2,background:'rgba(0,122,255,.6)'}}/>
-        <span style={{fontSize:11,color:'#1d1d1f'}}>{y.name}</span>
+        <span style={{fontSize:11,color:'var(--vk-text-primary,#1d1d1f)'}}>{y.name}</span>
       </div>
       <div style={{display:'flex',alignItems:'center',gap:6}}>
         <div style={{width:12,height:3,borderRadius:2,background:'rgba(175,82,222,.5)'}}/>
@@ -31,14 +31,14 @@ function OverlayLegend({y,overlay,onClear}){
 
 function Editor({y,setY,onClose}){
   return(
-    <div className='editor-panel' style={{position:'fixed',top:0,right:0,width:370,height:'100vh',background:'rgba(255,255,255,.98)',borderLeft:'1px solid rgba(0,0,0,.08)',zIndex:50,display:'flex',flexDirection:'column'}}>
+    <div className='editor-panel' style={{position:'fixed',top:0,right:0,width:370,height:'100vh',background:'var(--vk-bg-surface,rgba(255,255,255,.98))',borderLeft:'1px solid var(--vk-border,rgba(0,0,0,.08))',zIndex:50,display:'flex',flexDirection:'column'}}>
       <div style={{padding:'14px 18px',borderBottom:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center',flexShrink:0}}>
-        <h3 style={{fontFamily:'var(--serif)',fontSize:18,color:'#1d1d1f',fontWeight:600}}>Редактор</h3>
+        <h3 style={{fontFamily:'var(--serif)',fontSize:18,color:'var(--vk-text-primary,#1d1d1f)',fontWeight:600}}>Редактор</h3>
         <span style={{fontSize:11,color:'#34c759',fontWeight:500,letterSpacing:.3}}>● автосохранение</span>
       </div>
       <div style={{padding:'12px 18px',overflowY:'auto',flex:1}}>
         <input value={y.name} onChange={e=>setY({...y,name:e.target.value})} placeholder="Название"
-          style={{width:'100%',background:'var(--bg3)',border:'1px solid var(--border)',color:'#1d1d1f',padding:'9px 12px',borderRadius:7,fontFamily:'var(--serif)',fontSize:17,fontWeight:700,marginBottom:10,outline:'none'}}/>
+          style={{width:'100%',background:'var(--bg3)',border:'1px solid var(--border)',color:'var(--vk-text-primary,#1d1d1f)',padding:'9px 12px',borderRadius:7,fontFamily:'var(--serif)',fontSize:17,fontWeight:700,marginBottom:10,outline:'none'}}/>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:5,marginBottom:14}}>
           {[['th','▲ Верх'],['bh','▼ Низ'],['lh','◀ Лево'],['rh','▶ Право']].map(([k,ph])=>
             <input key={k} placeholder={ph} value={y[k]||''} onChange={e=>setY({...y,[k]:e.target.value})}
@@ -49,11 +49,11 @@ function Editor({y,setY,onClose}){
           <div key={i} style={{display:'flex',alignItems:'center',gap:7,marginBottom:5}}>
             <div style={{width:26,height:26,borderRadius:'50%',border:`2px solid ${c}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:c,flexShrink:0}}>{i}</div>
             <input value={l} onChange={e=>{const np=[...y.p];np[i]=e.target.value;setY({...y,p:np});}} placeholder={(REF[i]||{}).f||''}
-              style={{flex:1,background:'var(--bg)',border:'1px solid var(--border)',color:'#1d1d1f',padding:'7px 10px',borderRadius:5,fontSize:12,outline:'none'}}
+              style={{flex:1,background:'var(--bg)',border:'1px solid var(--border)',color:'var(--vk-text-primary,#1d1d1f)',padding:'7px 10px',borderRadius:5,fontSize:12,outline:'none'}}
               onFocus={e=>e.target.style.borderColor=c} onBlur={e=>e.target.style.borderColor='var(--border)'}/>
           </div>);})}
       </div>
-      <div style={{padding:'12px 18px',borderTop:'1px solid var(--border)',display:'flex',gap:8,flexShrink:0,background:'#fafafa'}}>
+      <div style={{padding:'12px 18px',borderTop:'1px solid var(--border)',display:'flex',gap:8,flexShrink:0,background:'var(--vk-bg-elevated,#fafafa)'}}>
         <button onClick={onClose} style={{flex:1,padding:'11px 14px',borderRadius:9,fontSize:14,fontWeight:600,background:'#0071e3',color:'#fff',border:'none',cursor:'pointer',boxShadow:'0 1px 3px rgba(0,113,227,.2)'}}>✓ Сохранить и закрыть</button>
       </div>
     </div>);

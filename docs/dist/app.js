@@ -1,4 +1,4 @@
-/* Yasna bundle: app.js — собран 2026-06-10T18:55:07.822Z */
+/* Yasna bundle: app.js — собран 2026-06-10T19:45:33.983Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -3105,16 +3105,16 @@
   const { CR, REF, T, GLOSS, gc } = window.YasnaData;
   function OverlayLegend({ y, overlay, onClear }) {
     if (!overlay) return null;
-    return /* @__PURE__ */ React.createElement("div", { className: "overlay-legend", style: { position: "absolute", top: 50, right: 12, background: "rgba(255,255,255,.95)", border: "1px solid rgba(0,0,0,.06)", borderRadius: 12, padding: "10px 14px", backdropFilter: "blur(16px)", minWidth: 180, zIndex: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: "#6e6e73", textTransform: "uppercase", letterSpacing: 1 } }, "\u0421\u043E\u0432\u043C\u0435\u0449\u0435\u043D\u0438\u0435"), /* @__PURE__ */ React.createElement("button", { onClick: onClear, style: { fontSize: 14, color: "#6e6e73", padding: "0 4px" } }, "\u2715")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, marginBottom: 4 } }, /* @__PURE__ */ React.createElement("div", { style: { width: 12, height: 3, borderRadius: 2, background: "rgba(0,122,255,.6)" } }), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, color: "#1d1d1f" } }, y.name)), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6 } }, /* @__PURE__ */ React.createElement("div", { style: { width: 12, height: 3, borderRadius: 2, background: "rgba(175,82,222,.5)" } }), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, color: "#af52de", fontStyle: "italic" } }, overlay.name || overlay.n)));
+    return /* @__PURE__ */ React.createElement("div", { className: "overlay-legend", style: { position: "absolute", top: 50, right: 12, background: "var(--vk-bg-elevated,rgba(255,255,255,.95))", border: "1px solid var(--vk-border,rgba(0,0,0,.06))", borderRadius: 12, padding: "10px 14px", backdropFilter: "blur(16px)", minWidth: 180, zIndex: 10 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 } }, /* @__PURE__ */ React.createElement("span", { style: { fontSize: 10, color: "#6e6e73", textTransform: "uppercase", letterSpacing: 1 } }, "\u0421\u043E\u0432\u043C\u0435\u0449\u0435\u043D\u0438\u0435"), /* @__PURE__ */ React.createElement("button", { onClick: onClear, style: { fontSize: 14, color: "#6e6e73", padding: "0 4px" } }, "\u2715")), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, marginBottom: 4 } }, /* @__PURE__ */ React.createElement("div", { style: { width: 12, height: 3, borderRadius: 2, background: "rgba(0,122,255,.6)" } }), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, color: "var(--vk-text-primary,#1d1d1f)" } }, y.name)), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6 } }, /* @__PURE__ */ React.createElement("div", { style: { width: 12, height: 3, borderRadius: 2, background: "rgba(175,82,222,.5)" } }), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, color: "#af52de", fontStyle: "italic" } }, overlay.name || overlay.n)));
   }
   function Editor({ y, setY, onClose }) {
-    return /* @__PURE__ */ React.createElement("div", { className: "editor-panel", style: { position: "fixed", top: 0, right: 0, width: 370, height: "100vh", background: "rgba(255,255,255,.98)", borderLeft: "1px solid rgba(0,0,0,.08)", zIndex: 50, display: "flex", flexDirection: "column" } }, /* @__PURE__ */ React.createElement("div", { style: { padding: "14px 18px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 } }, /* @__PURE__ */ React.createElement("h3", { style: { fontFamily: "var(--serif)", fontSize: 18, color: "#1d1d1f", fontWeight: 600 } }, "\u0420\u0435\u0434\u0430\u043A\u0442\u043E\u0440"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, color: "#34c759", fontWeight: 500, letterSpacing: 0.3 } }, "\u25CF \u0430\u0432\u0442\u043E\u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0435")), /* @__PURE__ */ React.createElement("div", { style: { padding: "12px 18px", overflowY: "auto", flex: 1 } }, /* @__PURE__ */ React.createElement(
+    return /* @__PURE__ */ React.createElement("div", { className: "editor-panel", style: { position: "fixed", top: 0, right: 0, width: 370, height: "100vh", background: "var(--vk-bg-surface,rgba(255,255,255,.98))", borderLeft: "1px solid var(--vk-border,rgba(0,0,0,.08))", zIndex: 50, display: "flex", flexDirection: "column" } }, /* @__PURE__ */ React.createElement("div", { style: { padding: "14px 18px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 } }, /* @__PURE__ */ React.createElement("h3", { style: { fontFamily: "var(--serif)", fontSize: 18, color: "var(--vk-text-primary,#1d1d1f)", fontWeight: 600 } }, "\u0420\u0435\u0434\u0430\u043A\u0442\u043E\u0440"), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, color: "#34c759", fontWeight: 500, letterSpacing: 0.3 } }, "\u25CF \u0430\u0432\u0442\u043E\u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u0438\u0435")), /* @__PURE__ */ React.createElement("div", { style: { padding: "12px 18px", overflowY: "auto", flex: 1 } }, /* @__PURE__ */ React.createElement(
       "input",
       {
         value: y.name,
         onChange: (e) => setY({ ...y, name: e.target.value }),
         placeholder: "\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435",
-        style: { width: "100%", background: "var(--bg3)", border: "1px solid var(--border)", color: "#1d1d1f", padding: "9px 12px", borderRadius: 7, fontFamily: "var(--serif)", fontSize: 17, fontWeight: 700, marginBottom: 10, outline: "none" }
+        style: { width: "100%", background: "var(--bg3)", border: "1px solid var(--border)", color: "var(--vk-text-primary,#1d1d1f)", padding: "9px 12px", borderRadius: 7, fontFamily: "var(--serif)", fontSize: 17, fontWeight: 700, marginBottom: 10, outline: "none" }
       }
     ), /* @__PURE__ */ React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5, marginBottom: 14 } }, [["th", "\u25B2 \u0412\u0435\u0440\u0445"], ["bh", "\u25BC \u041D\u0438\u0437"], ["lh", "\u25C0 \u041B\u0435\u0432\u043E"], ["rh", "\u25B6 \u041F\u0440\u0430\u0432\u043E"]].map(
       ([k, ph]) => /* @__PURE__ */ React.createElement(
@@ -3139,12 +3139,12 @@
             setY({ ...y, p: np });
           },
           placeholder: (REF[i] || {}).f || "",
-          style: { flex: 1, background: "var(--bg)", border: "1px solid var(--border)", color: "#1d1d1f", padding: "7px 10px", borderRadius: 5, fontSize: 12, outline: "none" },
+          style: { flex: 1, background: "var(--bg)", border: "1px solid var(--border)", color: "var(--vk-text-primary,#1d1d1f)", padding: "7px 10px", borderRadius: 5, fontSize: 12, outline: "none" },
           onFocus: (e) => e.target.style.borderColor = c,
           onBlur: (e) => e.target.style.borderColor = "var(--border)"
         }
       ));
-    })), /* @__PURE__ */ React.createElement("div", { style: { padding: "12px 18px", borderTop: "1px solid var(--border)", display: "flex", gap: 8, flexShrink: 0, background: "#fafafa" } }, /* @__PURE__ */ React.createElement("button", { onClick: onClose, style: { flex: 1, padding: "11px 14px", borderRadius: 9, fontSize: 14, fontWeight: 600, background: "#0071e3", color: "#fff", border: "none", cursor: "pointer", boxShadow: "0 1px 3px rgba(0,113,227,.2)" } }, "\u2713 \u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u0438 \u0437\u0430\u043A\u0440\u044B\u0442\u044C")));
+    })), /* @__PURE__ */ React.createElement("div", { style: { padding: "12px 18px", borderTop: "1px solid var(--border)", display: "flex", gap: 8, flexShrink: 0, background: "var(--vk-bg-elevated,#fafafa)" } }, /* @__PURE__ */ React.createElement("button", { onClick: onClose, style: { flex: 1, padding: "11px 14px", borderRadius: 9, fontSize: 14, fontWeight: 600, background: "#0071e3", color: "#fff", border: "none", cursor: "pointer", boxShadow: "0 1px 3px rgba(0,113,227,.2)" } }, "\u2713 \u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u0438 \u0437\u0430\u043A\u0440\u044B\u0442\u044C")));
   }
   function OverlayPicker({ currentName, overlay, onSelect, onClose }) {
     const [q, setQ] = useState("");
@@ -3587,7 +3587,8 @@ function Star({ yy, sel, onSel, hl, af = [], showOpp, overlay, mob, drill, onDri
   const hasMech = af.length > 0;
   const nc = (i) => {
     if (hl) return hl.includes(i) ? CR[gc(i)].c : "#e0e0e8";
-    if (hov != null && gc(hov) === gc(i) || sel != null && gc(sel) === gc(i)) return CR[gc(i)].c;
+    if (sel != null && sel === i) return CR[gc(i)].c;
+    if (sel == null && hov != null && gc(hov) === gc(i)) return CR[gc(i)].c;
     return [0, 3, 6, 9].includes(i) ? "#86868b" : "#c7c7cc";
   };
   const no = (i) => hl && !hl.includes(i) ? 0.15 : 1;

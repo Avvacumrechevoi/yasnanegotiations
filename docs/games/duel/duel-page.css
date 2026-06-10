@@ -128,30 +128,33 @@ a { color: inherit; }
   .dp-header {
     width: 100%;
     box-sizing: border-box;
-    /* Раньше тут было overflow:hidden — навигация шире вьюпорта просто
-       обрезалась: «Достижения» уезжали за край, кнопка «Войти» исчезала.
-       Теперь «Войти» закреплена справа в 1-й строке, а ссылки переносятся ниже. */
+    /* Строка 1: лого слева + «Войти/Выйти» справа (в потоке, не absolute).
+       Строка 2: свитчер разделов на всю ширину — переносится, не обрезается.
+       Раньше .dp-header-auth был position:absolute и НАЕЗЖАЛ на свитчер
+       (Рейтинг ↔ Выйти) в авторизованном состоянии на узких экранах. */
     position: relative;
     flex-wrap: wrap;
     row-gap: var(--space-3);
     overflow: visible;
   }
   .dp-header-spacer { display: none; }
-  /* «Войти» — в правый верхний угол (1-я строка, рядом с «← Ясна»), вне потока nav. */
-  .dp-header-auth {
-    position: absolute;
-    top: var(--space-1);
-    right: 0;
-  }
-  /* Ссылки — на всю ширину 2-й строкой; переносятся, ничего не обрезается. */
+  /* Авторизация — в 1-й строке справа, в нормальном потоке (без absolute). */
   .dp-header-nav {
-    order: 3;
-    flex-basis: 100%;
+    order: 2;
+    margin-left: auto;
     flex-wrap: wrap;
     gap: var(--space-3) var(--space-4);
     align-items: center;
   }
-  .dp-header-nav a { padding: 6px 0; }   /* выше тач-цель (было ~20px) */
+  .dp-header-auth { position: static; }
+  .dp-header-nav a { padding: 6px 0; }   /* выше тач-цель */
+  /* Свитчер разделов — отдельной 2-й строкой на всю ширину. */
+  .dp-switch {
+    order: 3;
+    flex-basis: 100%;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+  }
 }
 
 /* ═══ Header ═══ */

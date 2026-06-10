@@ -65,7 +65,12 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
   // крест выделяется весом линии (см. strokeWidth ниже), без цвета.
   const nc=i=>{
     if(hl) return hl.includes(i)?CR[gc(i)].c:'#e0e0e8';
-    if((hov!=null&&gc(hov)===gc(i))||(sel!=null&&gc(sel)===gc(i))) return CR[gc(i)].c;
+    // Выбор: красим ТОЛЬКО выбранный узел (раньше — весь крест gc(sel)===gc(i),
+    // из-за чего «горели» 4 цифры и было непонятно, какая выбрана).
+    if(sel!=null && sel===i) return CR[gc(i)].c;
+    // Ховер: подсветка всего креста как подсказка о родстве — только когда
+    // ничего не выбрано (иначе одновременно светится до 8 из 12 узлов).
+    if(sel==null && hov!=null && gc(hov)===gc(i)) return CR[gc(i)].c;
     return [0,3,6,9].includes(i)?'#86868b':'#c7c7cc';
   };
   const no=i=>(hl&&!hl.includes(i))?.15:1;
@@ -313,9 +318,8 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
         <g key={i} onMouseEnter={()=>setHov(i)} onMouseLeave={()=>setHov(null)} onClick={()=>{if(af.includes('mb_yasna2')&&drill==null&&onDrill){onDrill(i);}else{onSel(sel===i?null:i);}}} style={{cursor:'pointer'}}>
           <title>{tipText}</title>
           <circle cx={pt.x} cy={pt.y} r={nr+14} fill="transparent" stroke="none"/>
-          {isSel&&<circle cx={pt.x} cy={pt.y} r={nr+10} fill={c} opacity=".14" filter="url(#gw)"/>}
-          {isSel&&<circle cx={pt.x} cy={pt.y} r={nr+6} fill='none' stroke={c} strokeWidth="1.6" opacity=".55"/>}
-          <circle cx={pt.x} cy={pt.y} r={isSel?nr+3:nr} fill="#fff" stroke={c} strokeWidth={isSel?4:([0,3,6,9].includes(i)?2.6:2)} opacity={o} filter={isSel?"url(#gw)":"url(#ns)"} style={{pointerEvents:'none',transition:'r 180ms ease, stroke-width 180ms ease'}}/>
+          {isSel&&<circle cx={pt.x} cy={pt.y} r={nr+8} fill={c} opacity=".06" filter="url(#gw)"/>}
+          <circle cx={pt.x} cy={pt.y} r={isSel?nr+3:nr} fill="#fff" stroke={c} strokeWidth={isSel?3.2:([0,3,6,9].includes(i)?2.6:2)} opacity={o} filter={isSel?"url(#gw)":"url(#ns)"} style={{pointerEvents:'none',transition:'r 150ms ease'}}/>
           <text x={pt.x} y={pt.y+(af.includes('mb_zodiac')?7:6)} textAnchor="middle" fill={af.includes('mb_zodiac')?'#7c3aed':(hl&&!hl.includes(i))?'#c0c0c5':'#1f2937'} fontSize={af.includes('mb_zodiac')?(isMob?(isSel?"24":"22"):(isSel?"32":"30")):(isMob?(isSel?"22":"20"):(isSel?"30":"28"))} fontWeight={af.includes('mb_zodiac')?"600":"700"} fontFamily="var(--sans)" opacity={o} style={{pointerEvents:'none'}}>{af.includes('mb_zodiac')?['♑','♒','♓','♈','♉','♊','♋','♌','♍','♎','♏','♐'][i]:i}</text>
         </g>);})}
       {!overlay&&(starRotation?lpsRot:lps).map((pt,i)=>{const lOrig=p[i]||'';if(!lOrig)return null;let dy=5;if(!starRotation){if(i===0)dy=16;if(i===6)dy=-7;}
