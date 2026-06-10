@@ -6,7 +6,7 @@
 // Env vars: JWT_SECRET, YDB_ENDPOINT, YDB_DATABASE
 
 const crypto = require('crypto');
-const { Driver, getCredentialsFromEnv } = require('ydb-sdk');
+const { Driver, getCredentialsFromEnv, TypedValues, Types } = require('ydb-sdk');
 
 let driver = null;
 async function getDriver(){
@@ -119,21 +119,25 @@ exports.handler = async (event) => {
       INSERT INTO matches (id, user_id, device_id, nickname, avatar, game_id, yasna_id, result, score, max_score, time_ms, transport, is_bot, by_surrender, ip_hash, created_at)
       VALUES ($id, $uid, $dev, $nick, $av, $game, $yasna, $res, $score, $max, $time, $transport, $bot, $surr, $iph, CurrentUtcTimestamp());
     `, {
-      '$id':   { type: {typeId:'UTF8'}, value: {textValue: String(matchId)} },
-      '$uid':  userId ? { type: {optionalType:{item:{typeId:'UTF8'}}}, value:{textValue: userId} } : { type: {optionalType:{item:{typeId:'UTF8'}}}, value:{nullFlagValue:0} },
-      '$dev':  { type: {typeId:'UTF8'}, value:{textValue: String(deviceId)} },
-      '$nick': { type: {typeId:'UTF8'}, value:{textValue: String(authNick || nickname).slice(0,40)} },
-      '$av':   avatar ? { type: {optionalType:{item:{typeId:'UTF8'}}}, value:{textValue: String(avatar).slice(0,200)} } : { type: {optionalType:{item:{typeId:'UTF8'}}}, value:{nullFlagValue:0} },
-      '$game': { type: {typeId:'UTF8'}, value:{textValue: String(gameId)} },
-      '$yasna':{ type: {typeId:'UTF8'}, value:{textValue: String(yasnaId)} },
-      '$res':  { type: {typeId:'UTF8'}, value:{textValue: String(result)} },
-      '$score':score != null ? { type:{optionalType:{item:{typeId:'INT32'}}}, value:{int32Value: parseInt(score,10)} } : { type:{optionalType:{item:{typeId:'INT32'}}}, value:{nullFlagValue:0} },
-      '$max':  maxScore != null ? { type:{optionalType:{item:{typeId:'INT32'}}}, value:{int32Value: parseInt(maxScore,10)} } : { type:{optionalType:{item:{typeId:'INT32'}}}, value:{nullFlagValue:0} },
-      '$time': { type: {typeId:'INT32'}, value:{int32Value: t} },
-      '$transport': transport ? { type:{optionalType:{item:{typeId:'UTF8'}}}, value:{textValue: transport} } : { type:{optionalType:{item:{typeId:'UTF8'}}}, value:{nullFlagValue:0} },
-      '$bot':  { type: {typeId:'BOOL'}, value:{boolValue: !!isBot} },
-      '$surr': { type: {typeId:'BOOL'}, value:{boolValue: !!bySurrender} },
-      '$iph':  ipHash ? { type:{optionalType:{item:{typeId:'UTF8'}}}, value:{textValue: ipHash} } : { type:{optionalType:{item:{typeId:'UTF8'}}}, value:{nullFlagValue:0} },
+      // ВАЖНО: типизированные значения строим через TypedValues/Types из ydb-sdk,
+      // а не ручными protobuf-объектами. Ручной формат для Optional-полей
+      // (optionalType+nullFlagValue) ломался: YDB отвечал «ImportTypeFromProto
+      // unknown type id: 0» (BadRequest 400010) — INSERT никогда не проходил.
+      '$id':   TypedValues.utf8(String(matchId)),
+      '$uid':  userId ? TypedValues.optional(TypedValues.utf8(String(userId))) : TypedValues.optionalNull(Types.UTF8),
+      '$dev':  TypedValues.utf8(String(deviceId)),
+      '$nick': TypedValues.utf8(String(authNick || nickname).slice(0,40)),
+      '$av':   avatar ? TypedValues.optional(TypedValues.utf8(String(avatar).slice(0,200))) : TypedValues.optionalNull(Types.UTF8),
+      '$game': TypedValues.utf8(String(gameId)),
+      '$yasna':TypedValues.utf8(String(yasnaId)),
+      '$res':  TypedValues.utf8(String(result)),
+      '$score':score != null ? TypedValues.optional(TypedValues.int32(parseInt(score,10))) : TypedValues.optionalNull(Types.INT32),
+      '$max':  maxScore != null ? TypedValues.optional(TypedValues.int32(parseInt(maxScore,10))) : TypedValues.optionalNull(Types.INT32),
+      '$time': TypedValues.int32(t),
+      '$transport': transport ? TypedValues.optional(TypedValues.utf8(String(transport))) : TypedValues.optionalNull(Types.UTF8),
+      '$bot':  TypedValues.bool(!!isBot),
+      '$surr': TypedValues.bool(!!bySurrender),
+      '$iph':  ipHash ? TypedValues.optional(TypedValues.utf8(String(ipHash))) : TypedValues.optionalNull(Types.UTF8),
     });
   });
   } catch(e){
