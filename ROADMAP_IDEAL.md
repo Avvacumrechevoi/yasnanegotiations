@@ -41,15 +41,16 @@ start.html ─┬─ index.html         Конструктор
 
 | # | Проблема | Файл | Действие |
 |---|---|---|---|
-| 0.1 ⬜ | Рейтинг накручивается curl'ом (нет дедупа matchId, привязки к JWT, лимитов) | `server/submit.js:66` | server-issued nonce на старт матча; зачёт только по валидному JWT; nickname/user_id из токена; rate-limit по ip_hash |
-| 0.2 ⬜ | RTDB: любой аноним перезаписывает `meta` чужой комнаты | `firebase-rules.json:7-14` | привязать запись к `auth.uid`, хранить uid в host/guest |
-| 0.3 ⬜ | RTDB: `messages`/`host`/`guest` читаемы всем по коду; подделка отправителя | `firebase-rules.json:5,26-34` | `.read` только участникам; автор по `auth.uid`; `.validate` на размер; удлинить код комнаты |
+| 0.1 🟡 | Рейтинг накручивается curl'ом | `server/submit.js` | ✅ ник из JWT (анти-имперсонация), идемпотентность matchId (409), `NaN`-баг времени. ⬜ остаётся: server-issued nonce + rate-limit |
+| 0.2 ✅ | RTDB: любой аноним перезаписывает `meta` чужой комнаты | `firebase-rules.json` | запись привязана к `auth.uid`; клиент пишет uid в host/guest. **Публиковать вручную — SECURITY_DEPLOY.md** |
+| 0.3 ✅ | RTDB: подделка сообщений/слотов | `firebase-rules.json` | `messages` пишут только участники (по uid); `from` сверяется + лимит длины. Чтение по коду оставлено осознанно |
 | 0.4 ⬜ | Админ-публикация контента — статический пароль без лимитов | `server/content-publish.js:115` | JWT с ролью admin + rate-limit/lockout |
 | 0.5 ⬜ | Нет бэкапов YDB/RTDB; админ-правки — единственная копия | `server/schema.sql` | scheduled export YDB → S3; бэкап RTDB; скрипт «ревизия → git» |
 | 0.6 ⬜ | 152-ФЗ: Telegram-логин пишет ПДн без политики/согласия | `server/auth-telegram.js:97` | страница политики ПДн + согласие у виджета + удаление аккаунта |
-| 0.7 ⬜ | CORS `*` на авторизованных эндпоинтах | `server/auth-telegram.js:28` | ограничить Origin доменом Pages |
+| 0.7 ✅ | CORS `*` на эндпоинтах | `server/*.js` | `ALLOW_ORIGIN` (env, по умолчанию домен Pages) вместо `*` во всех функциях |
 
-*Анти-чит по `time`: нечисловое значение даёт `NaN`, проходит проверку `submit.js:67` — починить parseInt-валидацией.*
+✅ Баг анти-чита по `time` (`NaN` проходил проверку) — починен в `submit.js`.
+**Деплой Волны 0:** клиент — авто (Pages); правила + бэкенд — вручную (`SECURITY_DEPLOY.md`).
 
 ---
 

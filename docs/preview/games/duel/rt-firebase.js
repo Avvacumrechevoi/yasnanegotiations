@@ -87,7 +87,7 @@
   // ─── HOST: создание комнаты ──────────────────────────────────────
   async function createRoom({ deviceId, nickname, avatar }){
     if(!deviceId || !nickname) throw new Error('deviceId и nickname обязательны');
-    await ensureAuth();
+    const user = await ensureAuth();
 
     // Подбираем уникальный код (до 5 попыток)
     let code = null;
@@ -114,6 +114,7 @@
         deviceId: String(deviceId),
         nickname: String(nickname).slice(0, 40),
         avatar: avatar ? String(avatar).slice(0, 200) : null,
+        uid: user.uid,        // привязка владельца слота — для правил RTDB (auth.uid)
         lastSeen: TS,
       },
     });
@@ -183,7 +184,7 @@
     const code = String(rawCode || '').trim().toUpperCase();
     if(!validCode(code)) throw new Error('invalid_code_format');
 
-    await ensureAuth();
+    const user = await ensureAuth();
 
     const roomRef = db.ref('rooms/' + code);
     const snap = await roomRef.get();
@@ -215,6 +216,7 @@
       'guest/deviceId':  String(deviceId),
       'guest/nickname':  String(nickname).slice(0, 40),
       'guest/avatar':    avatar ? String(avatar).slice(0, 200) : null,
+      'guest/uid':       user.uid,   // привязка владельца слота — для правил RTDB
       'guest/lastSeen':  TS,
       'meta/status':     'playing',
     });

@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-06-10T18:04:14.256Z */
+/* Yasna bundle: duel.js — собран 2026-06-10T18:24:38.208Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5954,7 +5954,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-06-10T18:04:13.758Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-06-10T18:24:37.615Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -20984,7 +20984,7 @@ window.YasnaCore = {
   }
   async function createRoom({ deviceId, nickname, avatar }) {
     if (!deviceId || !nickname) throw new Error("deviceId \u0438 nickname \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B");
-    await ensureAuth();
+    const user = await ensureAuth();
     let code = null;
     for (let i = 0; i < 5; i++) {
       const candidate = genRoomCode();
@@ -21006,6 +21006,8 @@ window.YasnaCore = {
         deviceId: String(deviceId),
         nickname: String(nickname).slice(0, 40),
         avatar: avatar ? String(avatar).slice(0, 200) : null,
+        uid: user.uid,
+        // привязка владельца слота — для правил RTDB (auth.uid)
         lastSeen: TS
       }
     });
@@ -21053,7 +21055,7 @@ window.YasnaCore = {
     if (!deviceId || !nickname) throw new Error("deviceId \u0438 nickname \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B");
     const code = String(rawCode || "").trim().toUpperCase();
     if (!validCode(code)) throw new Error("invalid_code_format");
-    await ensureAuth();
+    const user = await ensureAuth();
     const roomRef = db.ref("rooms/" + code);
     const snap = await roomRef.get();
     if (!snap.exists()) throw new Error("not_found");
@@ -21074,6 +21076,8 @@ window.YasnaCore = {
       "guest/deviceId": String(deviceId),
       "guest/nickname": String(nickname).slice(0, 40),
       "guest/avatar": avatar ? String(avatar).slice(0, 200) : null,
+      "guest/uid": user.uid,
+      // привязка владельца слота — для правил RTDB
       "guest/lastSeen": TS,
       "meta/status": "playing"
     });

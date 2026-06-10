@@ -20,8 +20,10 @@ async function getDriver(){
   return driver;
 }
 
+// CORS: разрешаем только свой домен (env ALLOW_ORIGIN), а не '*'.
+const ALLOW_ORIGIN = process.env.ALLOW_ORIGIN || 'https://avvacumrechevoi.github.io';
 const CORS = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': ALLOW_ORIGIN,
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   'Content-Type': 'application/json',
@@ -54,12 +56,14 @@ exports.handler = async (event) => {
   try { body = typeof event.body === 'string' ? JSON.parse(event.body) : event.body; }
   catch(_){ return { statusCode:400, headers:CORS, body: JSON.stringify({error:'invalid json'}) }; }
 
-  // Опциональная JWT-аутентификация
-  let userId = null;
+  // Опциональная JWT-аутентификация.
+  // Для аутентифицированных берём ник/идентичность ИЗ ТОКЕНА, игнорируя
+  // присланные в теле — иначе любой мог подставить чужой ник/user_id.
+  let userId = null, authNick = null;
   const auth = event.headers?.Authorization || event.headers?.authorization;
   if(auth?.startsWith('Bearer ')){
     const payload = verifyJWT(auth.slice(7), process.env.JWT_SECRET);
-    if(payload?.sub) userId = payload.sub;
+    if(payload?.sub){ userId = payload.sub; if(payload.nick) authNick = String(payload.nick); }
   }
 
   // Валидация полей
@@ -72,12 +76,20 @@ exports.handler = async (event) => {
   if(!VALID_RESULTS.has(result)) return { statusCode:400, headers:CORS, body: JSON.stringify({error:'invalid result'}) };
   if(transport && !VALID_TRANSPORTS.has(transport)) return { statusCode:400, headers:CORS, body: JSON.stringify({error:'invalid transport'}) };
 
-  // Anti-cheat: time >= 1s, score <= maxScore, max 10 минут
+  // Anti-cheat: time >= 1s, score <= maxScore, max 10 минут.
+  // Number.isFinite — иначе нечисловое time даёт NaN, проходит сравнения
+  // (NaN<1000 и NaN>600000 оба false) и уходит в YDB как int32Value:NaN.
   const t = parseInt(time, 10);
-  if(t < 1000 || t > 600000){
+  if(!Number.isFinite(t) || t < 1000 || t > 600000){
     return { statusCode:400, headers:CORS, body: JSON.stringify({error:'unrealistic time'}) };
   }
-  if(score != null && maxScore != null && score > maxScore){
+  if(score != null && !Number.isFinite(parseInt(score, 10))){
+    return { statusCode:400, headers:CORS, body: JSON.stringify({error:'invalid score'}) };
+  }
+  if(maxScore != null && !Number.isFinite(parseInt(maxScore, 10))){
+    return { statusCode:400, headers:CORS, body: JSON.stringify({error:'invalid maxScore'}) };
+  }
+  if(score != null && maxScore != null && parseInt(score,10) > parseInt(maxScore,10)){
     return { statusCode:400, headers:CORS, body: JSON.stringify({error:'score > maxScore'}) };
   }
 
@@ -86,6 +98,7 @@ exports.handler = async (event) => {
   const ipHash = ip ? crypto.createHash('sha256').update(ip + (process.env.JWT_SECRET || '')).digest('hex').slice(0, 16) : '';
 
   const drv = await getDriver();
+  try {
   await drv.tableClient.withSession(async (session) => {
     await session.executeQuery(`
       DECLARE $id AS Utf8;
@@ -109,7 +122,7 @@ exports.handler = async (event) => {
       '$id':   { type: {typeId:'UTF8'}, value: {textValue: String(matchId)} },
       '$uid':  userId ? { type: {optionalType:{item:{typeId:'UTF8'}}}, value:{textValue: userId} } : { type: {optionalType:{item:{typeId:'UTF8'}}}, value:{nullFlagValue:0} },
       '$dev':  { type: {typeId:'UTF8'}, value:{textValue: String(deviceId)} },
-      '$nick': { type: {typeId:'UTF8'}, value:{textValue: String(nickname).slice(0,40)} },
+      '$nick': { type: {typeId:'UTF8'}, value:{textValue: String(authNick || nickname).slice(0,40)} },
       '$av':   avatar ? { type: {optionalType:{item:{typeId:'UTF8'}}}, value:{textValue: String(avatar).slice(0,200)} } : { type: {optionalType:{item:{typeId:'UTF8'}}}, value:{nullFlagValue:0} },
       '$game': { type: {typeId:'UTF8'}, value:{textValue: String(gameId)} },
       '$yasna':{ type: {typeId:'UTF8'}, value:{textValue: String(yasnaId)} },
@@ -123,6 +136,16 @@ exports.handler = async (event) => {
       '$iph':  ipHash ? { type:{optionalType:{item:{typeId:'UTF8'}}}, value:{textValue: ipHash} } : { type:{optionalType:{item:{typeId:'UTF8'}}}, value:{nullFlagValue:0} },
     });
   });
+  } catch(e){
+    // INSERT с уже существующим matchId (PK) → дубль/повторная отправка.
+    // Идемпотентно отвечаем 409, а не 500: один матч засчитывается один раз.
+    const msg = String(e?.message || e);
+    if(/PRECONDITION_FAILED|already exists|duplicate|constraint/i.test(msg)){
+      return { statusCode: 409, headers: CORS, body: JSON.stringify({ error:'duplicate matchId', userId }) };
+    }
+    console.error('[submit] YDB insert failed', msg);
+    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error:'db error' }) };
+  }
 
   return { statusCode: 200, headers: CORS, body: JSON.stringify({ ok:true, userId }) };
 };
