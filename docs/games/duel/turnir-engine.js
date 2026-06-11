@@ -501,19 +501,22 @@
     const [selectedLeft, setSelectedLeft] = useState(null);
     useEffect(() => { setMatches({}); setSelectedLeft(null); }, [pL]);
 
+    // Цвет пары по индексу левого элемента — связь показываем цветом+номером
+    // на ОБОИХ элементах пары (надёжнее SVG-стрелок: не ломается при переносах).
+    const PAIR_COLORS = ['#7C5CFC', '#12B886', '#F5A623', '#2688EB', '#E64980', '#15AABF'];
+    const pairColor = (leftIdx) => PAIR_COLORS[leftIdx % PAIR_COLORS.length];
+    // обратный индекс: rightOrigIdx → leftIdx
+    const rightToLeft = {};
+    Object.keys(matches).forEach(l => { rightToLeft[matches[l]] = parseInt(l, 10); });
+
     function clickLeft(i){
-      if(showFeedback || matches[i] != null) return;
+      if(showFeedback) return;
+      if(matches[i] != null){ const u = { ...matches }; delete u[i]; setMatches(u); setSelectedLeft(null); return; }
       setSelectedLeft(selectedLeft === i ? null : i);
     }
     function clickRight(rightOrigIdx){
       if(showFeedback) return;
-      const usedBy = Object.entries(matches).find(([k, v]) => v === rightOrigIdx);
-      if(usedBy){
-        const upd = { ...matches };
-        delete upd[usedBy[0]];
-        setMatches(upd);
-        return;
-      }
+      if(rightToLeft[rightOrigIdx] != null){ const u = { ...matches }; delete u[rightToLeft[rightOrigIdx]]; setMatches(u); return; }
       if(selectedLeft == null) return;
       setMatches({ ...matches, [selectedLeft]: rightOrigIdx });
       setSelectedLeft(null);
@@ -525,51 +528,64 @@
     }
 
     const allMatched = Object.keys(matches).length === pL.length;
+    const pairCorrect = (leftIdx, rightOrigIdx) => rightOrigIdx === leftIdx;
 
-    // Для feedback — какие пары верные
-    function pairCorrect(leftIdx, rightOrigIdx){
-      // Правильная пара: pairsLeft[leftIdx] ↔ pairsRight[leftIdx]
-      // (исходный порядок без шафла)
-      return rightOrigIdx === leftIdx;
+    // Бейдж пары: цветной кружок с номером (или ✓/✕ в фидбэке)
+    function matchBadge(num, col, fbState){
+      return React.createElement('span', {
+        className: 'tn-match-badge' + (fbState ? ' tn-match-badge-' + fbState : ''),
+        style: col ? { '--pair': col } : null, 'aria-hidden': 'true',
+      }, fbState === 'correct' ? '✓' : (fbState === 'wrong' ? '✕' : num));
     }
 
-    return React.createElement('div', { className: 'tn-options tn-options-match', role: 'group' },
+    return React.createElement('div', {
+      className: 'tn-options tn-options-match' + (selectedLeft != null ? ' is-selecting' : ''),
+      role: 'group'
+    },
       React.createElement('div', { className: 'tn-match-grid' },
-        // Левая колонка
+        // Левая колонка (фиксированный порядок)
         React.createElement('div', { className: 'tn-match-col tn-match-col-left' },
           pL.map((txt, i) => {
             const matched = matches[i] != null;
             const isSel = selectedLeft === i;
             let state = matched ? 'matched' : (isSel ? 'selected' : 'default');
-            if(showFeedback && matched){
-              state = pairCorrect(i, matches[i]) ? 'correct' : 'wrong';
-            }
+            if(showFeedback && matched) state = pairCorrect(i, matches[i]) ? 'correct' : 'wrong';
+            const col = matched ? pairColor(i) : null;
             return React.createElement('button', {
               key: i, type: 'button',
               className: 'tn-match-item tn-match-' + state,
+              style: col ? { '--pair': col } : null,
               onClick: () => clickLeft(i),
-              disabled: showFeedback
-            }, txt);
+              disabled: showFeedback,
+            },
+              React.createElement('span', { className: 'tn-match-text' }, txt),
+              matched && matchBadge(i + 1, col, showFeedback ? state : null)
+            );
           })
         ),
-        // Правая колонка (перемешанная)
+        // Правая колонка (перемешанная) — бейдж слева (смотрит в центр)
         React.createElement('div', { className: 'tn-match-col tn-match-col-right' },
           rightShuffled.map(({ text, origIdx }) => {
-            const usedBy = Object.entries(matches).find(([k, v]) => v === origIdx);
-            const isUsed = !!usedBy;
-            let state = isUsed ? 'matched' : 'default';
-            if(showFeedback && isUsed){
-              const leftIdx = parseInt(usedBy[0], 10);
-              state = pairCorrect(leftIdx, origIdx) ? 'correct' : 'wrong';
-            }
+            const leftIdx = rightToLeft[origIdx];
+            const matched = leftIdx != null;
+            let state = matched ? 'matched' : 'default';
+            if(showFeedback && matched) state = pairCorrect(leftIdx, origIdx) ? 'correct' : 'wrong';
+            const col = matched ? pairColor(leftIdx) : null;
             return React.createElement('button', {
               key: origIdx, type: 'button',
-              className: 'tn-match-item tn-match-' + state,
+              className: 'tn-match-item tn-match-right tn-match-' + state,
+              style: col ? { '--pair': col } : null,
               onClick: () => clickRight(origIdx),
-              disabled: showFeedback
-            }, text);
+              disabled: showFeedback,
+            },
+              matched && matchBadge(leftIdx + 1, col, showFeedback ? state : null),
+              React.createElement('span', { className: 'tn-match-text' }, text)
+            );
           })
         )
+      ),
+      !showFeedback && React.createElement('div', { className: 'tn-match-hint' },
+        selectedLeft != null ? '↳ выбери пару справа' : 'Нажми слева, потом пару справа'
       ),
       !showFeedback && React.createElement('button', {
         className: 'tn-multi-submit',
