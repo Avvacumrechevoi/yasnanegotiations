@@ -1,11 +1,11 @@
 // АВТОГЕНЕРИРОВАННЫЙ ФАЙЛ — НЕ РЕДАКТИРОВАТЬ
 // Источник: content/*.json
 // Сборщик: scripts/build-content.mjs
-// Build: 2026-06-11T09:48:10.566Z
+// Build: 2026-06-11T13:21:50.778Z
 // Themes: 10 · Atoms: 324 · Questions: 126 (single-choice: 76)
 
 ;(function(){
-  const BUILD_INFO = {"builtAt":"2026-06-11T09:48:10.566Z","contentVersion":"1.1.0","files":10,"themes":10,"atomsTotal":324,"questionsTotal":126,"questionsLegacy":76};
+  const BUILD_INFO = {"builtAt":"2026-06-11T13:21:50.778Z","contentVersion":"1.1.0","files":10,"themes":10,"atomsTotal":324,"questionsTotal":126,"questionsLegacy":76};
   const THEMES = [
   {
     "id": "chto-est-yasna",

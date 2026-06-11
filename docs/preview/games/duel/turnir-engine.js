@@ -229,11 +229,20 @@
   // Question — декомпозиция UI на компоненты
   // ═══════════════════════════════════════════════════════════════════
 
-  // ─── Прогресс по партии (1/18) ──────────────────────────────────
+  // ─── Прогресс по партии — дискретные сегменты «отвечено / осталось» ──
+  // Раньше была непрерывная полоса; вместе с полосой таймера получалось
+  // «много полосок». Сегменты читаются как счётчик: пройдено / текущий / впереди.
   function TnGameProgress({ qOverall, totalOverall }){
-    const pct = ((qOverall + 1) / totalOverall) * 100;
-    return React.createElement('div', { className: 'tn-game-progress', role: 'progressbar', 'aria-valuenow': qOverall + 1, 'aria-valuemax': totalOverall },
-      React.createElement('div', { className: 'tn-game-progress-fill', style: { width: pct + '%' } })
+    const total = Math.max(1, totalOverall || 1);
+    return React.createElement('div', {
+      className: 'tn-progress-seg', role: 'progressbar',
+      'aria-valuenow': qOverall + 1, 'aria-valuemax': total,
+      'aria-label': 'Вопрос ' + (qOverall + 1) + ' из ' + total,
+    },
+      Array.from({ length: total }, (_, i) => React.createElement('span', {
+        key: i,
+        className: 'tn-progress-seg-i' + (i < qOverall ? ' is-done' : (i === qOverall ? ' is-now' : '')),
+      }))
     );
   }
 

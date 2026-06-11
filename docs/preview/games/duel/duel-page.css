@@ -1353,18 +1353,25 @@ a { color: inherit; }
 .tn-quit:hover { background: var(--bg-soft); color: var(--text-1); }
 
 /* ─── Game progress (1 / 18) ────────────────────────────────────── */
-.tn-game-progress {
-  height: 2px;
-  background: var(--bg-tonal);
-  border-radius: 1px;
-  overflow: hidden;
+/* Прогресс по вопросам — дискретные сегменты (отвечено / текущий / впереди).
+   Заменяет непрерывную полосу: вместе с таймером не выглядит как «много полосок». */
+.tn-progress-seg {
+  display: flex;
+  gap: 3px;
   margin-bottom: var(--space-5);
 }
-.tn-game-progress-fill {
-  height: 100%;
+.tn-progress-seg-i {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--bg-tonal);
+  transition: background var(--duration-fast) ease-out;
+}
+.tn-progress-seg-i.is-done { background: var(--accent); }
+.tn-progress-seg-i.is-now {
   background: var(--accent);
-  border-radius: 1px;
-  transition: width var(--duration-base) ease-out;
+  box-shadow: 0 0 0 1px var(--accent), 0 0 6px rgba(0, 119, 255, 0.45);
 }
 
 /* ─── Vs Header (две стороны и счёт) ────────────────────────────── */

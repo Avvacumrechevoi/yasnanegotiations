@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-06-11T09:48:11.473Z */
+/* Yasna bundle: duel.js — собран 2026-06-11T13:21:51.310Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -6069,7 +6069,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-06-11T09:48:10.566Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-06-11T13:21:50.778Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -19417,11 +19417,20 @@ window.YasnaCore = {
     );
   }
   function TnGameProgress({ qOverall, totalOverall }) {
-    const pct = (qOverall + 1) / totalOverall * 100;
+    const total = Math.max(1, totalOverall || 1);
     return React.createElement(
       "div",
-      { className: "tn-game-progress", role: "progressbar", "aria-valuenow": qOverall + 1, "aria-valuemax": totalOverall },
-      React.createElement("div", { className: "tn-game-progress-fill", style: { width: pct + "%" } })
+      {
+        className: "tn-progress-seg",
+        role: "progressbar",
+        "aria-valuenow": qOverall + 1,
+        "aria-valuemax": total,
+        "aria-label": "\u0412\u043E\u043F\u0440\u043E\u0441 " + (qOverall + 1) + " \u0438\u0437 " + total
+      },
+      Array.from({ length: total }, (_, i) => React.createElement("span", {
+        key: i,
+        className: "tn-progress-seg-i" + (i < qOverall ? " is-done" : i === qOverall ? " is-now" : "")
+      }))
     );
   }
   function TnVsHeader({ player, scoreP, opponent, scoreO, bonusP, bonusO }) {
