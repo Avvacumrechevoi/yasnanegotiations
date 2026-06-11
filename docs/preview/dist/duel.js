@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-06-11T09:17:52.759Z */
+/* Yasna bundle: duel.js — собран 2026-06-11T09:33:03.501Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -6069,7 +6069,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-06-11T09:17:52.228Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-06-11T09:32:56.532Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -22833,7 +22833,7 @@ window.YasnaCore = {
                   e.stopPropagation();
                   onPartiya("shadow");
                 },
-                "aria-label": "\u0418\u0433\u0440\u0430\u0442\u044C \u0441\u043E\u043B\u043E \u0441 \u0422\u0435\u043D\u044C\u044E"
+                "aria-label": "\u0418\u0433\u0440\u0430\u0442\u044C \u043E\u0434\u043D\u043E\u043C\u0443 \u0441 \u0422\u0435\u043D\u044C\u044E"
               },
               React.createElement(
                 "span",
@@ -22848,7 +22848,7 @@ window.YasnaCore = {
               React.createElement(
                 "span",
                 { className: "dp-cta__body" },
-                React.createElement("span", { className: "dp-cta__title" }, "\u0418\u0433\u0440\u0430\u0442\u044C \u0441\u043E\u043B\u043E"),
+                React.createElement("span", { className: "dp-cta__title" }, "\u0418\u0433\u0440\u0430\u0442\u044C \u043E\u0434\u043D\u043E\u043C\u0443"),
                 React.createElement("span", { className: "dp-cta__sub" }, "\u043F\u0440\u043E\u0442\u0438\u0432 \u0422\u0435\u043D\u0438")
               )
             ),

@@ -480,7 +480,7 @@
               type: 'button',
               className: 'dp-cta dp-cta--solo',
               onClick: (e) => { e.stopPropagation(); onPartiya('shadow'); },
-              'aria-label': 'Играть соло с Тенью',
+              'aria-label': 'Играть одному с Тенью',
             },
               React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
                 React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
@@ -489,7 +489,7 @@
                 )
               ),
               React.createElement('span', { className: 'dp-cta__body' },
-                React.createElement('span', { className: 'dp-cta__title' }, 'Играть соло'),
+                React.createElement('span', { className: 'dp-cta__title' }, 'Играть одному'),
                 React.createElement('span', { className: 'dp-cta__sub' }, 'против Тени')
               )
             ),
