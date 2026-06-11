@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-06-10T23:25:35.902Z */
+/* Yasna bundle: duel.js — собран 2026-06-11T06:49:13.381Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -5939,7 +5939,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-06-10T23:25:35.605Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-06-11T06:49:13.038Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -20525,6 +20525,7 @@ window.YasnaCore = {
     const [playerReady, setPlayerReady] = useState(false);
     const [oppReady, setOppReady] = useState(false);
     const oppAnswersRef = useRef({});
+    const matchFinishedRef = useRef(false);
     useEffect(() => {
       if (!isPvP || !transport) return;
       const off = transport.on((msg) => {
@@ -20548,6 +20549,7 @@ window.YasnaCore = {
           }
         }
         if (msg.t === "opp-leave") {
+          if (matchFinishedRef.current) return;
           setOppDisconnected(true);
         }
         if (msg.t === "ready") {
@@ -20656,6 +20658,7 @@ window.YasnaCore = {
     }
     function finishPartiya(finalP, finalO, finalB, finalLog) {
       var _a, _b, _c;
+      matchFinishedRef.current = true;
       const log = finalLog || partiyaLog;
       const totalTime = log.reduce((s, r) => s + (r.playerTime || 0), 0);
       const sharedMatchId = "turnir-" + Date.now();
@@ -20754,6 +20757,7 @@ window.YasnaCore = {
         onClose();
         return;
       }
+      matchFinishedRef.current = false;
       setPartiya(window.YasnaTrivia.generatePartiya(Date.now(), partiyaMode, themesFilter));
       setRoundIdx(0);
       setQIdx(0);

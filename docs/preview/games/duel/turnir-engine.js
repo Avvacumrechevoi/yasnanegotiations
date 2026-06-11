@@ -1415,6 +1415,10 @@
     // Это решает race-condition: если ответ на вопрос N приходит когда мы
     // уже на N+1, он не попадает в "не тот вопрос".
     const oppAnswersRef = useRef({});
+    // true, как только партия доиграна до конца (finishPartiya). После этого
+    // выход соперника с экрана результатов — НЕ «прерывание»: матч завершён,
+    // бусины уже зачтены, финал у оставшегося игрока сохраняется.
+    const matchFinishedRef = useRef(false);
     useEffect(() => {
       if(!isPvP || !transport) return;
 
@@ -1442,6 +1446,10 @@
           }
         }
         if(msg.t === 'opp-leave'){
+          // Если партия уже доиграна до конца — выход соперника с экрана
+          // результатов НЕ является прерыванием: матч завершён, бусины зачтены,
+          // финал у оставшегося игрока остаётся. Игнорируем сигнал.
+          if(matchFinishedRef.current) return;
           setOppDisconnected(true);
         }
         // Pre-match preview: «соперник готов» сигнал
@@ -1569,6 +1577,9 @@
     }
 
     function finishPartiya(finalP, finalO, finalB, finalLog){
+      // Партия доиграна до конца → последующий выход соперника с экрана
+      // результатов больше не считается «прерыванием» (см. обработчик opp-leave).
+      matchFinishedRef.current = true;
       const log = finalLog || partiyaLog;
       const totalTime = log.reduce((s, r) => s + (r.playerTime || 0), 0);
       const sharedMatchId = 'turnir-' + Date.now();
@@ -1663,6 +1674,7 @@
       if(isPvP){ onClose(); return; }
       // Соло: реальный рестарт — новая раскладка + полный сброс состояния
       // (раньше «Новая Партия» просто звала onClose и закрывала экран).
+      matchFinishedRef.current = false;
       setPartiya(window.YasnaTrivia.generatePartiya(Date.now(), partiyaMode, themesFilter));
       setRoundIdx(0); setQIdx(0);
       setScoreP(0); setScoreO(0);
