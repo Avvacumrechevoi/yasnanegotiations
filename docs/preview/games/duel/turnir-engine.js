@@ -6,7 +6,7 @@
 (function(){
   const { useState, useEffect, useRef, useMemo } = React;
 
-  const QUESTION_TIME = 15;
+  const QUESTION_TIME = 30;  // 30с на вопрос (таймер обратного отсчёта в 2× медленнее)
   const SHOW_FEEDBACK_MS = 1500;
   const SHOW_VS_MS = 2200;
   const SHOW_ROUND_INTRO_MS = 1800;
@@ -190,7 +190,7 @@
                 React.createElement('div', { className: 'tn-vs-stage__brief-label' }, themeCount === 1 ? 'тема' : (themeCount < 5 ? 'темы' : 'тем'))
               ),
               React.createElement('div', { className: 'tn-vs-stage__brief-stat' },
-                React.createElement('div', { className: 'tn-vs-stage__brief-num' }, '15'),
+                React.createElement('div', { className: 'tn-vs-stage__brief-num' }, QUESTION_TIME),
                 React.createElement('div', { className: 'tn-vs-stage__brief-label' }, 'сек на ответ')
               )
             ),

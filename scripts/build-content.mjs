@@ -39,7 +39,7 @@ const THEME_META = {
   'T8':  { emoji: '⚜',  short: 'Прана' },
   'T9':  { emoji: '◉',  short: 'Цвета' },
   'T10': { emoji: '✺',  short: 'Финал' },
-  'T11': { emoji: '♥',  short: 'Сердце' }
+  'T11': { emoji: '♥',  short: 'Джива: Сердце' }
 };
 
 const DIFF_MAP = { easy: 1, medium: 2, hard: 3 };
