@@ -16,6 +16,105 @@
 (function(){
   const { useState, useEffect, useRef, useMemo } = React;
 
+  // ─── Надёжное копирование в буфер обмена ────────────────────────────
+  // window.YasnaClipboard(text, onOk, onFail). Определяется один раз и
+  // используется и в старом движке (duel.js), и в DPLobbyV2 (duel-page.js).
+  //
+  // Порядок (проверен эмпирически на реальном пользовательском жесте):
+  //   1) navigator.clipboard.writeText() — основной путь. Успешный промис —
+  //      ЧЕСТНЫЙ сигнал успеха. Но он отклоняется когда документ не в фокусе
+  //      ("Document is not focused") и в in-app браузерах мессенджеров
+  //      (Telegram/VK/Instagram), где clipboard-write заблокирован политикой.
+  //   2) на отказ/отсутствие — execCommand над скрытым textarea (iOS-safe
+  //      выделение через Range). execCommand в .catch сохраняет жест и копирует
+  //      там, где async падает. Его true НЕ показываем как успех «вслепую» —
+  //      он используется только как запасной путь.
+  //   3) если и это не сработало — onFail (по умолчанию: selectable-панель,
+  //      т.к. window.prompt() глушится в in-app webview).
+  // Успех (onOk) — ТОЛЬКО при реальном успехе. Анти-паттерн прошлого: писать
+  // setStatus('скопировано') синхронно рядом с async writeText(), чей отказ
+  // не ловится try/catch → ссылка не копировалась, а UI лгал «✓».
+  window.YasnaClipboard = window.YasnaClipboard || (function(){
+    function legacyCopy(text){
+      var prev = document.activeElement;
+      var sel = window.getSelection ? window.getSelection() : null;
+      var saved = [];
+      try { if(sel) for(var i=0;i<sel.rangeCount;i++) saved.push(sel.getRangeAt(i)); } catch(_){}
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.readOnly = false;
+      ta.contentEditable = 'true';            // iOS WebKit: editable нужно для выделения
+      ta.setAttribute('aria-hidden', 'true');
+      ta.tabIndex = -1;
+      // На экране, но визуально инертно. opacity:0 (не display/visibility:none —
+      // те делают элемент невыделяемым). font-size:16px против авто-зума iOS.
+      ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;padding:0;border:0;margin:0;opacity:0;font-size:16px;pointer-events:none;';
+      document.body.appendChild(ta);
+      var ok = false;
+      try {
+        if(sel){
+          var range = document.createRange();
+          range.selectNodeContents(ta);
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+        ta.setSelectionRange(0, 999999);      // не text.length — surrogate-pair-safe
+        ok = document.execCommand('copy');
+      } catch(_){ ok = false; }
+      try { if(sel){ sel.removeAllRanges(); for(var j=0;j<saved.length;j++) sel.addRange(saved[j]); } } catch(_){}
+      try { document.body.removeChild(ta); } catch(_){}
+      if(prev && prev.focus){ try { prev.focus({ preventScroll:true }); } catch(_){} }
+      return ok;
+    }
+    // Запасная панель: read-only поле с уже выделенным текстом. Зависит только
+    // от рендера DOM + нативного выделения (long-press / Ctrl-Cmd-C) → работает
+    // в 100% контекстов, не полагаясь на window.prompt() (его глушат webview).
+    function defaultFallback(text){
+      var box = document.getElementById('yasna-copy-fallback');
+      var input;
+      if(!box){
+        box = document.createElement('div');
+        box.id = 'yasna-copy-fallback';
+        box.style.cssText = 'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:2147483647;max-width:92vw;width:420px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;background:#fff;color:#111;border:1px solid #ccc;border-radius:12px;padding:10px 12px;box-shadow:0 8px 28px rgba(0,0,0,.18);font-size:13px;';
+        var hint = document.createElement('span');
+        hint.textContent = 'Скопируй ссылку вручную:';
+        hint.style.cssText = 'flex-basis:100%;opacity:.75;';
+        box.appendChild(hint);
+        input = document.createElement('input');
+        input.type = 'text'; input.readOnly = true; input.id = 'yasna-copy-fallback-input';
+        input.setAttribute('aria-label','Ссылка для собеседника');
+        input.style.cssText = 'flex:1;min-width:0;font-size:16px;padding:8px;border:1px solid #ccc;border-radius:8px;color:#111;background:#fff;';
+        input.addEventListener('focus', function(){ input.select(); try { input.setSelectionRange(0, input.value.length); } catch(_){} });
+        box.appendChild(input);
+        var close = document.createElement('button');
+        close.type = 'button'; close.textContent = '×'; close.setAttribute('aria-label','Закрыть');
+        close.style.cssText = 'border:0;background:transparent;font-size:20px;line-height:1;cursor:pointer;color:#111;';
+        close.addEventListener('click', function(){ box.style.display='none'; });
+        box.appendChild(close);
+        document.body.appendChild(box);
+      } else { input = document.getElementById('yasna-copy-fallback-input'); }
+      input.value = text; box.style.display = 'flex';
+      input.focus(); input.select(); try { input.setSelectionRange(0, input.value.length); } catch(_){}
+    }
+    function copyText(text, onOk, onFail){
+      var calledOk = false, calledFail = false;   // ровно один терминальный путь
+      function done(){ if(calledOk||calledFail) return; calledOk = true; if(onOk) onOk(); }
+      function fail(){ if(calledOk||calledFail) return; calledFail = true; if(onFail) onFail(); else defaultFallback(text); }
+      function tryLegacy(){ if(legacyCopy(text)) done(); else fail(); }
+      // 1) async-first, пока transient activation свежая.
+      if(window.isSecureContext && navigator.clipboard && navigator.clipboard.writeText){
+        var p; try { p = navigator.clipboard.writeText(text); } catch(_){ tryLegacy(); return; }
+        if(p && typeof p.then === 'function'){ p.then(done, tryLegacy); }  // НЕ ретраим writeText — жест уже потрачен
+        else { tryLegacy(); }
+        return;
+      }
+      // 2) нет async API / не secure → legacy → панель.
+      tryLegacy();
+    }
+    copyText.showManualFallback = defaultFallback;
+    return copyText;
+  })();
+
   // ─── PROFILE ───────────────────────────────────────────────────────
   // Локальный профиль гостя — никнейм + emoji-аватар. Хранится в localStorage.
   // Первый вход → онбординг с выбором ника. Передаётся в hello/host-ack —
@@ -1162,7 +1261,7 @@
     };
 
     const copyCode = () => {
-      try { navigator.clipboard?.writeText(code); setStatus('Код скопирован! Перешли его другу.'); } catch(_){}
+      window.YasnaClipboard(code, () => setStatus('Код скопирован! Перешли его другу.'));
     };
 
     return (
@@ -2028,8 +2127,10 @@
         <div style={{display:'flex',gap:10,justifyContent:'center',marginTop:24,flexWrap:'wrap'}}>
           <button className="duel-btn duel-btn-text" onClick={() => {
             const json = window.YasnaDuelStorage.exportJSON();
-            navigator.clipboard?.writeText(json);
-            alert('Статистика скопирована в буфер обмена. Сохраните файл .json для бэкапа.');
+            window.YasnaClipboard(json,
+              () => alert('Статистика скопирована в буфер обмена. Сохраните файл .json для бэкапа.'),
+              () => alert('Не удалось скопировать автоматически — скопируй текст из появившегося поля внизу экрана.')
+            );
           }}>📋 Экспорт</button>
           <button className="duel-btn duel-btn-text" onClick={() => {
             if(confirm('Очистить всю статистику и историю? Действие необратимо.')){

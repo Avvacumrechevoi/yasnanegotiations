@@ -1,4 +1,4 @@
-/* Yasna bundle: app.js — собран 2026-06-11T06:49:13.255Z */
+/* Yasna bundle: app.js — собран 2026-06-11T07:13:56.329Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -8829,6 +8829,139 @@ window.YasnaLessons.LESSONS = LESSONS;
 ;(function(){
 (function() {
   const { useState, useEffect, useRef, useMemo } = React;
+  window.YasnaClipboard = window.YasnaClipboard || function() {
+    function legacyCopy(text) {
+      var prev = document.activeElement;
+      var sel = window.getSelection ? window.getSelection() : null;
+      var saved = [];
+      try {
+        if (sel) for (var i = 0; i < sel.rangeCount; i++) saved.push(sel.getRangeAt(i));
+      } catch (_) {
+      }
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.readOnly = false;
+      ta.contentEditable = "true";
+      ta.setAttribute("aria-hidden", "true");
+      ta.tabIndex = -1;
+      ta.style.cssText = "position:fixed;top:0;left:0;width:1px;height:1px;padding:0;border:0;margin:0;opacity:0;font-size:16px;pointer-events:none;";
+      document.body.appendChild(ta);
+      var ok = false;
+      try {
+        if (sel) {
+          var range = document.createRange();
+          range.selectNodeContents(ta);
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+        ta.setSelectionRange(0, 999999);
+        ok = document.execCommand("copy");
+      } catch (_) {
+        ok = false;
+      }
+      try {
+        if (sel) {
+          sel.removeAllRanges();
+          for (var j = 0; j < saved.length; j++) sel.addRange(saved[j]);
+        }
+      } catch (_) {
+      }
+      try {
+        document.body.removeChild(ta);
+      } catch (_) {
+      }
+      if (prev && prev.focus) {
+        try {
+          prev.focus({ preventScroll: true });
+        } catch (_) {
+        }
+      }
+      return ok;
+    }
+    function defaultFallback(text) {
+      var box = document.getElementById("yasna-copy-fallback");
+      var input;
+      if (!box) {
+        box = document.createElement("div");
+        box.id = "yasna-copy-fallback";
+        box.style.cssText = "position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:2147483647;max-width:92vw;width:420px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;background:#fff;color:#111;border:1px solid #ccc;border-radius:12px;padding:10px 12px;box-shadow:0 8px 28px rgba(0,0,0,.18);font-size:13px;";
+        var hint = document.createElement("span");
+        hint.textContent = "\u0421\u043A\u043E\u043F\u0438\u0440\u0443\u0439 \u0441\u0441\u044B\u043B\u043A\u0443 \u0432\u0440\u0443\u0447\u043D\u0443\u044E:";
+        hint.style.cssText = "flex-basis:100%;opacity:.75;";
+        box.appendChild(hint);
+        input = document.createElement("input");
+        input.type = "text";
+        input.readOnly = true;
+        input.id = "yasna-copy-fallback-input";
+        input.setAttribute("aria-label", "\u0421\u0441\u044B\u043B\u043A\u0430 \u0434\u043B\u044F \u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u0430");
+        input.style.cssText = "flex:1;min-width:0;font-size:16px;padding:8px;border:1px solid #ccc;border-radius:8px;color:#111;background:#fff;";
+        input.addEventListener("focus", function() {
+          input.select();
+          try {
+            input.setSelectionRange(0, input.value.length);
+          } catch (_) {
+          }
+        });
+        box.appendChild(input);
+        var close = document.createElement("button");
+        close.type = "button";
+        close.textContent = "\xD7";
+        close.setAttribute("aria-label", "\u0417\u0430\u043A\u0440\u044B\u0442\u044C");
+        close.style.cssText = "border:0;background:transparent;font-size:20px;line-height:1;cursor:pointer;color:#111;";
+        close.addEventListener("click", function() {
+          box.style.display = "none";
+        });
+        box.appendChild(close);
+        document.body.appendChild(box);
+      } else {
+        input = document.getElementById("yasna-copy-fallback-input");
+      }
+      input.value = text;
+      box.style.display = "flex";
+      input.focus();
+      input.select();
+      try {
+        input.setSelectionRange(0, input.value.length);
+      } catch (_) {
+      }
+    }
+    function copyText(text, onOk, onFail) {
+      var calledOk = false, calledFail = false;
+      function done() {
+        if (calledOk || calledFail) return;
+        calledOk = true;
+        if (onOk) onOk();
+      }
+      function fail() {
+        if (calledOk || calledFail) return;
+        calledFail = true;
+        if (onFail) onFail();
+        else defaultFallback(text);
+      }
+      function tryLegacy() {
+        if (legacyCopy(text)) done();
+        else fail();
+      }
+      if (window.isSecureContext && navigator.clipboard && navigator.clipboard.writeText) {
+        var p;
+        try {
+          p = navigator.clipboard.writeText(text);
+        } catch (_) {
+          tryLegacy();
+          return;
+        }
+        if (p && typeof p.then === "function") {
+          p.then(done, tryLegacy);
+        } else {
+          tryLegacy();
+        }
+        return;
+      }
+      tryLegacy();
+    }
+    copyText.showManualFallback = defaultFallback;
+    return copyText;
+  }();
   const PROFILE_KEY = "yasna_duel_profile";
   const AVATAR_OPTIONS = ["\u{1F98A}", "\u{1F43A}", "\u{1F981}", "\u{1F42F}", "\u{1F43B}", "\u{1F43C}", "\u{1F989}", "\u{1F985}", "\u{1F409}", "\u{1F984}", "\u2694\uFE0F", "\u{1F3AF}"];
   function _genDeviceId() {
@@ -10174,12 +10307,7 @@ window.YasnaLessons.LESSONS = LESSONS;
       setJoinCode("");
     };
     const copyCode = () => {
-      var _a;
-      try {
-        (_a = navigator.clipboard) == null ? void 0 : _a.writeText(code);
-        setStatus("\u041A\u043E\u0434 \u0441\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D! \u041F\u0435\u0440\u0435\u0448\u043B\u0438 \u0435\u0433\u043E \u0434\u0440\u0443\u0433\u0443.");
-      } catch (_) {
-      }
+      window.YasnaClipboard(code, () => setStatus("\u041A\u043E\u0434 \u0441\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D! \u041F\u0435\u0440\u0435\u0448\u043B\u0438 \u0435\u0433\u043E \u0434\u0440\u0443\u0433\u0443."));
     };
     return /* @__PURE__ */ React.createElement("div", { className: "duel-lobby" }, /* @__PURE__ */ React.createElement("div", { className: "duel-title" }, /* @__PURE__ */ React.createElement("span", { className: "duel-emoji" }, "\u2694\uFE0F"), /* @__PURE__ */ React.createElement("h1", null, "\u0414\u0443\u044D\u043B\u044C 1v1"), step === "pick-game" && /* @__PURE__ */ React.createElement("p", null, "\u0412\u044B\u0431\u0435\u0440\u0438 \u0440\u0435\u0436\u0438\u043C"), step === "configure" && /* @__PURE__ */ React.createElement("p", null, game.title), (step === "hosting" || step === "joining") && /* @__PURE__ */ React.createElement("p", null, game == null ? void 0 : game.title)), step === "pick-game" && (() => {
       var _a, _b, _c, _d, _e;
@@ -10608,10 +10736,12 @@ window.YasnaLessons.LESSONS = LESSONS;
         opacity: a.unlocked ? 1 : 0.55
       }, title: a.desc }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 24, filter: a.unlocked ? "none" : "grayscale(1)" } }, a.icon), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, fontWeight: 700, color: a.unlocked ? "#1d1d1f" : "#6e6e73", marginTop: 4, lineHeight: 1.2 } }, a.title), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, color: "#6e6e73", marginTop: 2, lineHeight: 1.3 } }, a.desc), a.progress != null && a.goal && !a.unlocked && /* @__PURE__ */ React.createElement("div", { style: { marginTop: 6, height: 3, background: "#e5e5ea", borderRadius: 2, overflow: "hidden" } }, /* @__PURE__ */ React.createElement("div", { style: { height: "100%", width: Math.round(a.progress / a.goal * 100) + "%", background: "#d4a574" } })), a.progress != null && a.goal && !a.unlocked && /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, color: "#6e6e73", marginTop: 3 } }, a.progress, " / ", a.goal), a.unlocked && /* @__PURE__ */ React.createElement("div", { style: { position: "absolute", top: 4, right: 4, fontSize: 10, color: "#16a34a" } }, "\u2713")))));
     })(), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 10, justifyContent: "center", marginTop: 24, flexWrap: "wrap" } }, /* @__PURE__ */ React.createElement("button", { className: "duel-btn duel-btn-text", onClick: () => {
-      var _a2;
       const json = window.YasnaDuelStorage.exportJSON();
-      (_a2 = navigator.clipboard) == null ? void 0 : _a2.writeText(json);
-      alert("\u0421\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043A\u0430 \u0441\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0430 \u0432 \u0431\u0443\u0444\u0435\u0440 \u043E\u0431\u043C\u0435\u043D\u0430. \u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u0435 \u0444\u0430\u0439\u043B .json \u0434\u043B\u044F \u0431\u044D\u043A\u0430\u043F\u0430.");
+      window.YasnaClipboard(
+        json,
+        () => alert("\u0421\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043A\u0430 \u0441\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u043D\u0430 \u0432 \u0431\u0443\u0444\u0435\u0440 \u043E\u0431\u043C\u0435\u043D\u0430. \u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u0435 \u0444\u0430\u0439\u043B .json \u0434\u043B\u044F \u0431\u044D\u043A\u0430\u043F\u0430."),
+        () => alert("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u2014 \u0441\u043A\u043E\u043F\u0438\u0440\u0443\u0439 \u0442\u0435\u043A\u0441\u0442 \u0438\u0437 \u043F\u043E\u044F\u0432\u0438\u0432\u0448\u0435\u0433\u043E\u0441\u044F \u043F\u043E\u043B\u044F \u0432\u043D\u0438\u0437\u0443 \u044D\u043A\u0440\u0430\u043D\u0430.")
+      );
     } }, "\u{1F4CB} \u042D\u043A\u0441\u043F\u043E\u0440\u0442"), /* @__PURE__ */ React.createElement("button", { className: "duel-btn duel-btn-text", onClick: () => {
       if (confirm("\u041E\u0447\u0438\u0441\u0442\u0438\u0442\u044C \u0432\u0441\u044E \u0441\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043A\u0443 \u0438 \u0438\u0441\u0442\u043E\u0440\u0438\u044E? \u0414\u0435\u0439\u0441\u0442\u0432\u0438\u0435 \u043D\u0435\u043E\u0431\u0440\u0430\u0442\u0438\u043C\u043E.")) {
         window.YasnaDuelStorage.reset();

@@ -929,6 +929,7 @@
     const [inputCode, setInputCode] = useState(initialCode || '');
     const [error, setError] = useState(null);
     const [statusText, setStatusText] = useState('Жду собеседника…');
+    const [copyFallbackLink, setCopyFallbackLink] = useState('');  // если авто-копирование не удалось — показываем выделяемую ссылку
     const transportRef = useRef(null);
     const waitingPollTimer = useRef(null);
     const me = profile;
@@ -1068,14 +1069,20 @@
     }
 
     function copyLink(){
-      const link = window.location.origin + window.location.pathname + '?room=' + roomCode;
-      try {
-        navigator.clipboard.writeText(link);
-        setStatusText('✓ Ссылка скопирована · жду собеседника…');
-        setTimeout(() => setStatusText('Жду собеседника…'), 2500);
-      } catch(_){
-        prompt('Скопируй ссылку:', link);
-      }
+      const link = window.location.origin + window.location.pathname + '?room=' + encodeURIComponent(roomCode);
+      window.YasnaClipboard(link,
+        () => {
+          // реальный успех (промис writeText зарезолвился ИЛИ execCommand скопировал)
+          setCopyFallbackLink('');
+          setStatusText('✓ Ссылка скопирована · жду собеседника…');
+          setTimeout(() => setStatusText('Жду собеседника…'), 2500);
+        },
+        () => {
+          // ни один путь не скопировал — показываем выделяемую ссылку (не prompt:
+          // его глушат in-app браузеры мессенджеров)
+          setCopyFallbackLink(link);
+        }
+      );
     }
 
     return React.createElement('div', { className: 'dp-lobby-overlay', onClick: e => { if(e.target === e.currentTarget) onClose(); } },
@@ -1109,7 +1116,17 @@
               React.createElement('div', { className: 'dp-lobby-code-label' }, 'Код комнаты'),
               React.createElement('div', { className: 'dp-lobby-code' }, roomCode),
               React.createElement('div', { className: 'dp-lobby-code-hint' }, 'Покажи этот код собеседнику или скопируй ссылку'),
-              React.createElement('button', { className: 'dp-lobby-code-link', onClick: copyLink }, 'Скопировать ссылку')
+              React.createElement('button', { className: 'dp-lobby-code-link', onClick: copyLink }, 'Скопировать ссылку'),
+              copyFallbackLink && React.createElement('div', { className: 'dp-lobby-code-fallback' },
+                React.createElement('div', { className: 'dp-lobby-code-fallback-hint' }, 'Не удалось скопировать автоматически — выдели ссылку и скопируй вручную:'),
+                React.createElement('input', {
+                  className: 'dp-lobby-code-fallback-input',
+                  type: 'text', readOnly: true, value: copyFallbackLink, autoFocus: true,
+                  onFocus: e => e.target.select(),
+                  onClick: e => e.target.select(),
+                  'aria-label': 'Ссылка для собеседника'
+                })
+              )
             ),
             React.createElement('div', { className: 'dp-lobby-status' },
               React.createElement('div', { className: 'dp-lobby-status-icon' }, '◷'),
@@ -1402,15 +1419,16 @@
     }
 
     function copyLink(){
-      const link = window.location.origin + window.location.pathname + '?room=' + roomCode;
-      try {
-        navigator.clipboard.writeText(link);
-        setStatusText('✓ Ссылка скопирована · жду собеседника…');
-        setTimeout(() => setStatusText('Жду собеседника…'), 2500);
-      } catch(_){
-        // Fallback — выделить текст пользователю
-        prompt('Скопируй ссылку:', link);
-      }
+      // Примечание: DPLobby — устаревший дубликат DPLobbyV2 (не используется в
+      // рендере), оставлен в синхроне ради консистентности.
+      const link = window.location.origin + window.location.pathname + '?room=' + encodeURIComponent(roomCode);
+      window.YasnaClipboard(link,
+        () => {
+          setStatusText('✓ Ссылка скопирована · жду собеседника…');
+          setTimeout(() => setStatusText('Жду собеседника…'), 2500);
+        }
+        // onFail не передаём → helper покажет выделяемую панель с ссылкой
+      );
     }
 
     return React.createElement('div', { className: 'dp-lobby-overlay', onClick: e => { if(e.target === e.currentTarget) onClose(); } },
