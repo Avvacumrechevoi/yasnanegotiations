@@ -922,7 +922,7 @@
   }
 
   // ─── Lobby UI · использует polling-transport ─────────────────────
-  function DPLobbyV2({ onClose, profile, onConnected, initialMode, initialCode, onNeedNickname }){
+  function DPLobbyV2({ onClose, profile, onConnected, initialMode, initialCode, onNeedNickname, onConfigureHost }){
     const [mode, setMode] = useState(initialMode || 'choose');
     const [roomCode, setRoomCode] = useState('');
     const [roomId, setRoomId] = useState('');
@@ -946,6 +946,11 @@
     useEffect(() => {
       if(initialMode === 'guest' && initialCode){
         setTimeout(() => doJoin(initialCode), 100);
+      }
+      // Хост приходит сюда уже после конфига партии (picker) → создаём комнату
+      // сразу, минуя экран выбора. См. choose-first флоу в DPMainPage.
+      if(initialMode === 'host'){
+        setTimeout(() => doCreate(), 100);
       }
     }, []);
 
@@ -1096,10 +1101,10 @@
             'Создай комнату и поделись кодом · или войди по коду собеседника.'
           ),
           React.createElement('div', { className: 'dp-lobby-options' },
-            React.createElement('button', { className: 'dp-lobby-opt', onClick: doCreate },
+            React.createElement('button', { className: 'dp-lobby-opt', onClick: () => { if(onConfigureHost) onConfigureHost(); else doCreate(); } },
               React.createElement('div', { className: 'dp-lobby-opt-icon' }, '◯'),
               React.createElement('div', { className: 'dp-lobby-opt-title' }, 'Создать'),
-              React.createElement('div', { className: 'dp-lobby-opt-sub' }, 'Получишь код. Покажи его другу.')
+              React.createElement('div', { className: 'dp-lobby-opt-sub' }, 'Настроишь партию, получишь код для друга.')
             ),
             React.createElement('button', { className: 'dp-lobby-opt', onClick: () => setMode('guest') },
               React.createElement('div', { className: 'dp-lobby-opt-icon' }, '◐'),
@@ -1818,8 +1823,29 @@
       const partiyaMode = partiyaPicker?.mode || 'standard';
       const selectedThemes = partiyaPicker?.selectedThemes || null;
       setPartiyaPicker(null);
-      // partiyaMode (не mode!) — иначе конфликт с lobbyMode внутри DPLobbyV2
-      setLobby({ game: 'turnir', partiyaMode, selectedThemes });
+      // lobbyMode:'host' → DPLobbyV2 сразу создаёт комнату (минуя choose).
+      // partiyaMode (не mode!) — иначе конфликт с lobbyMode внутри DPLobbyV2.
+      setLobby({ game: 'turnir', lobbyMode: 'host', partiyaMode, selectedThemes });
+    };
+
+    // ─── PvP-вход: choose-first ───────────────────────────────────────
+    // Раньше «Играть с другом» открывало конфиг партии («Какая партия?»),
+    // и единственная кнопка «Создать комнату» прятала за собой выбор
+    // Создать/Войти — гостю было некуда ввести код. Теперь сначала выбор:
+    //   • Создать → конфиг партии (picker) → комната + код + ссылка;
+    //   • Войти по коду → ввод кода (конфиг наследуется от хоста).
+    const startPvP = () => {
+      requireProfile(() => setLobby({ game: 'turnir', lobbyMode: 'choose' }));
+    };
+    // Из choose «Создать» → открыть конфиг партии, затем хостить.
+    const configureHostThenCreate = () => {
+      setLobby(null);
+      askPartiyaMode('pvp');
+    };
+    // Роутер карточек DPMainGames: соло → конфиг сразу; PvP → choose-first.
+    const onPartiyaCTA = (opp) => {
+      if(opp === 'pvp'){ startPvP(); }
+      else { askPartiyaMode(opp); }
     };
 
     const startUzorPvP = () => {
@@ -1893,7 +1919,7 @@
             // содержимому, чем shortcut-кнопки сверху, и видны без скролла.
             React.createElement(DPProfileHero, { user, profile, onLoginClick, remoteProfile }),
             React.createElement(DPSyncNotice, { user, onLoginClick }),
-            React.createElement(DPMainGames, { onPartiya: askPartiyaMode, onUzor: startUzorPvP }),
+            React.createElement(DPMainGames, { onPartiya: onPartiyaCTA, onUzor: startUzorPvP }),
             React.createElement(DPQuestsRow, { onEtude: () => startPartiyaWithShadow('easy') }),
             React.createElement(DPPartitura, null),
             React.createElement('section', { className: 'dp-section' },
@@ -2101,11 +2127,13 @@
 
       // ─── Lobby для PvP (polling-relay через Yandex Cloud) ───
       lobby && React.createElement(DPLobbyV2, {
-        initialMode: lobby.lobbyMode || null,    // 'guest'/'host' — внутреннее состояние лобби
+        key: lobby.lobbyMode || 'choose',          // смена режима → чистый ремаунт (авто-эффекты)
+        initialMode: lobby.lobbyMode || null,    // 'choose'/'guest'/'host' — внутреннее состояние лобби
         initialCode: lobby.code || null,
         onClose: () => setLobby(null),
         profile: profile || user,
         onConnected: onLobbyConnected,
+        onConfigureHost: configureHostThenCreate,  // choose «Создать» → конфиг партии → хост
         onNeedNickname: () => setAnonModal(true)   // нет ника → онбординг (не тупик «Назад»)
       })
     );

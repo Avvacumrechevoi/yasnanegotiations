@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-06-11T07:13:56.756Z */
+/* Yasna bundle: duel.js — собран 2026-06-11T07:32:04.354Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -6069,7 +6069,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-06-11T07:13:56.107Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-06-11T07:32:03.812Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -22374,7 +22374,7 @@ window.YasnaCore = {
       }
     };
   }
-  function DPLobbyV2({ onClose, profile, onConnected, initialMode, initialCode, onNeedNickname }) {
+  function DPLobbyV2({ onClose, profile, onConnected, initialMode, initialCode, onNeedNickname, onConfigureHost }) {
     const [mode, setMode] = useState(initialMode || "choose");
     const [roomCode, setRoomCode] = useState("");
     const [roomId, setRoomId] = useState("");
@@ -22402,6 +22402,9 @@ window.YasnaCore = {
     useEffect(() => {
       if (initialMode === "guest" && initialCode) {
         setTimeout(() => doJoin(initialCode), 100);
+      }
+      if (initialMode === "host") {
+        setTimeout(() => doCreate(), 100);
       }
     }, []);
     async function doCreate() {
@@ -22562,10 +22565,13 @@ window.YasnaCore = {
             { className: "dp-lobby-options" },
             React.createElement(
               "button",
-              { className: "dp-lobby-opt", onClick: doCreate },
+              { className: "dp-lobby-opt", onClick: () => {
+                if (onConfigureHost) onConfigureHost();
+                else doCreate();
+              } },
               React.createElement("div", { className: "dp-lobby-opt-icon" }, "\u25EF"),
               React.createElement("div", { className: "dp-lobby-opt-title" }, "\u0421\u043E\u0437\u0434\u0430\u0442\u044C"),
-              React.createElement("div", { className: "dp-lobby-opt-sub" }, "\u041F\u043E\u043B\u0443\u0447\u0438\u0448\u044C \u043A\u043E\u0434. \u041F\u043E\u043A\u0430\u0436\u0438 \u0435\u0433\u043E \u0434\u0440\u0443\u0433\u0443.")
+              React.createElement("div", { className: "dp-lobby-opt-sub" }, "\u041D\u0430\u0441\u0442\u0440\u043E\u0438\u0448\u044C \u043F\u0430\u0440\u0442\u0438\u044E, \u043F\u043E\u043B\u0443\u0447\u0438\u0448\u044C \u043A\u043E\u0434 \u0434\u043B\u044F \u0434\u0440\u0443\u0433\u0430.")
             ),
             React.createElement(
               "button",
@@ -23424,7 +23430,21 @@ window.YasnaCore = {
       const partiyaMode = (partiyaPicker == null ? void 0 : partiyaPicker.mode) || "standard";
       const selectedThemes = (partiyaPicker == null ? void 0 : partiyaPicker.selectedThemes) || null;
       setPartiyaPicker(null);
-      setLobby({ game: "turnir", partiyaMode, selectedThemes });
+      setLobby({ game: "turnir", lobbyMode: "host", partiyaMode, selectedThemes });
+    };
+    const startPvP = () => {
+      requireProfile(() => setLobby({ game: "turnir", lobbyMode: "choose" }));
+    };
+    const configureHostThenCreate = () => {
+      setLobby(null);
+      askPartiyaMode("pvp");
+    };
+    const onPartiyaCTA = (opp) => {
+      if (opp === "pvp") {
+        startPvP();
+      } else {
+        askPartiyaMode(opp);
+      }
     };
     const startUzorPvP = () => {
       requireProfile(() => setLobby({ game: "uzor" }));
@@ -23505,7 +23525,7 @@ window.YasnaCore = {
         // содержимому, чем shortcut-кнопки сверху, и видны без скролла.
         React.createElement(DPProfileHero, { user, profile, onLoginClick, remoteProfile }),
         React.createElement(DPSyncNotice, { user, onLoginClick }),
-        React.createElement(DPMainGames, { onPartiya: askPartiyaMode, onUzor: startUzorPvP }),
+        React.createElement(DPMainGames, { onPartiya: onPartiyaCTA, onUzor: startUzorPvP }),
         React.createElement(DPQuestsRow, { onEtude: () => startPartiyaWithShadow("easy") }),
         React.createElement(DPPartitura, null),
         React.createElement(
@@ -23730,12 +23750,16 @@ window.YasnaCore = {
       })(),
       // ─── Lobby для PvP (polling-relay через Yandex Cloud) ───
       lobby && React.createElement(DPLobbyV2, {
+        key: lobby.lobbyMode || "choose",
+        // смена режима → чистый ремаунт (авто-эффекты)
         initialMode: lobby.lobbyMode || null,
-        // 'guest'/'host' — внутреннее состояние лобби
+        // 'choose'/'guest'/'host' — внутреннее состояние лобби
         initialCode: lobby.code || null,
         onClose: () => setLobby(null),
         profile: profile || user,
         onConnected: onLobbyConnected,
+        onConfigureHost: configureHostThenCreate,
+        // choose «Создать» → конфиг партии → хост
         onNeedNickname: () => setAnonModal(true)
         // нет ника → онбординг (не тупик «Назад»)
       })
