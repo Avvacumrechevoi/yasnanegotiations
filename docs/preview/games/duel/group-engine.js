@@ -162,31 +162,58 @@
   // ───────────────────────────────────────────────────────────────────
   function GroupResults({ results, players, meId, onClose, onAgain, canAgain }){
     const sh = S();
+    const av = (a, n) => (sh.renderTnAvatar ? sh.renderTnAvatar(a, n) : '◐');
     const list = (results && results.length) ? results : rankPlayers(players).map((p, i) => ({
       deviceId: p.deviceId, nickname: p.nickname, avatar: p.avatar, score: p.score || 0, correct: p.correct || 0, rank: i + 1,
     }));
     const medals = ['🥇', '🥈', '🥉'];
-    const myRank = (list.find(r => r.deviceId === meId) || {}).rank;
+    const mine = list.find(r => r.deviceId === meId) || null;
+    const myRank = mine ? mine.rank : null;
+    const headline = myRank === 1 ? 'Ты первый!' : (myRank ? ('Ты ' + myRank + '-й из ' + list.length) : 'Партия завершена');
+    const sub = mine
+      ? ('Твой счёт · ' + (mine.score || 0) + ' ✦' + (mine.correct != null ? '  ·  верных ' + mine.correct : ''))
+      : (list.length + ' игроков');
+
+    const top = list.slice(0, 3);
+    const rest = list.slice(3);
+    // Раскладка пьедестала: 2-е слева · 1-е по центру · 3-е справа (только реальные места)
+    const podiumOrder = [top[1], top[0], top[2]].filter(Boolean);
+
     return React.createElement('div', { className: 'tn-fullscreen' },
-      React.createElement('div', { className: 'tn-container', style: { maxWidth: 560, margin: '0 auto' } },
+      React.createElement('div', { className: 'tn-container dp-group-final', style: { maxWidth: 600, margin: '0 auto' } },
         React.createElement('header', { className: 'tn-final-head' },
-          React.createElement('div', { className: 'tn-final-eyebrow tn-final-eyebrow-win' }, '✦  Итоги Касты'),
-          React.createElement('h1', { className: 'tn-final-headline' },
-            myRank === 1 ? 'Ты первый!' : (myRank ? ('Ты ' + myRank + '-й') : 'Партия завершена')
-          )
+          React.createElement('div', { className: 'tn-final-eyebrow tn-final-eyebrow-' + (myRank === 1 ? 'win' : 'loss') }, '✦  Итоги Касты'),
+          React.createElement('h1', { className: 'tn-final-headline' }, headline),
+          React.createElement('p', { className: 'tn-final-sub' }, sub)
         ),
-        React.createElement('div', { className: 'dp-group-results' },
-          list.map((r, i) => React.createElement('div', {
+        // ─── Пьедестал (топ-3) ───
+        React.createElement('div', { className: 'dp-podium' },
+          podiumOrder.map(r => React.createElement('div', {
             key: r.deviceId,
-            className: 'dp-group-results-row' + (r.deviceId === meId ? ' is-me' : '') + (i < 3 ? ' is-podium' : ''),
+            className: 'dp-podium-col dp-podium-col--' + r.rank + (r.deviceId === meId ? ' is-me' : ''),
           },
-            React.createElement('span', { className: 'dp-group-results-rank' }, i < 3 ? medals[i] : (i + 1)),
-            React.createElement('span', { className: 'dp-group-board-av' }, (sh.renderTnAvatar ? sh.renderTnAvatar(r.avatar, r.nickname) : '◐')),
+            React.createElement('div', { className: 'dp-podium-medal', 'aria-hidden': 'true' }, medals[r.rank - 1]),
+            React.createElement('div', { className: 'dp-podium-av' }, av(r.avatar, r.nickname)),
+            React.createElement('div', { className: 'dp-podium-name' }, r.nickname || 'Игрок'),
+            React.createElement('div', { className: 'dp-podium-score' }, (r.score || 0), ' ✦'),
+            React.createElement('div', { className: 'dp-podium-stand' },
+              React.createElement('span', { className: 'dp-podium-place' }, r.rank))
+          ))
+        ),
+        // ─── Остальные места (4+) ───
+        rest.length > 0 && React.createElement('div', { className: 'dp-group-results' },
+          rest.map(r => React.createElement('div', {
+            key: r.deviceId,
+            className: 'dp-group-results-row' + (r.deviceId === meId ? ' is-me' : ''),
+          },
+            React.createElement('span', { className: 'dp-group-results-rank' }, r.rank),
+            React.createElement('span', { className: 'dp-group-board-av' }, av(r.avatar, r.nickname)),
             React.createElement('span', { className: 'dp-group-results-name' }, r.nickname || 'Игрок'),
+            (r.correct != null) && React.createElement('span', { className: 'dp-group-results-correct' }, '✓ ' + r.correct),
             React.createElement('span', { className: 'dp-group-results-score' }, (r.score || 0), ' ✦')
           ))
         ),
-        React.createElement('div', { className: 'tn-final-actions', style: { display: 'flex', gap: 10, justifyContent: 'center', marginTop: 20, flexWrap: 'wrap' } },
+        React.createElement('div', { className: 'tn-final-actions', style: { display: 'flex', gap: 10, justifyContent: 'center', marginTop: 24, flexWrap: 'wrap' } },
           canAgain && React.createElement('button', { className: 'dp-btn dp-btn-cta', onClick: onAgain }, 'Сыграть ещё'),
           React.createElement('button', { className: 'dp-btn', onClick: onClose }, 'На главную')
         )
@@ -598,5 +625,5 @@
     ));
   }
 
-  window.YasnaGroup = { GroupApp };
+  window.YasnaGroup = { GroupApp, GroupResults };
 })();

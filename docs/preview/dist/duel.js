@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-06-11T09:33:03.501Z */
+/* Yasna bundle: duel.js — собран 2026-06-11T09:48:11.473Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -6069,7 +6069,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-06-11T09:32:56.532Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-06-11T09:48:10.566Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -21696,6 +21696,7 @@ window.YasnaCore = {
   }
   function GroupResults({ results, players, meId, onClose, onAgain, canAgain }) {
     const sh = S();
+    const av = (a, n) => sh.renderTnAvatar ? sh.renderTnAvatar(a, n) : "\u25D0";
     const list = results && results.length ? results : rankPlayers(players).map((p, i) => ({
       deviceId: p.deviceId,
       nickname: p.nickname,
@@ -21705,41 +21706,67 @@ window.YasnaCore = {
       rank: i + 1
     }));
     const medals = ["\u{1F947}", "\u{1F948}", "\u{1F949}"];
-    const myRank = (list.find((r) => r.deviceId === meId) || {}).rank;
+    const mine = list.find((r) => r.deviceId === meId) || null;
+    const myRank = mine ? mine.rank : null;
+    const headline = myRank === 1 ? "\u0422\u044B \u043F\u0435\u0440\u0432\u044B\u0439!" : myRank ? "\u0422\u044B " + myRank + "-\u0439 \u0438\u0437 " + list.length : "\u041F\u0430\u0440\u0442\u0438\u044F \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u0430";
+    const sub = mine ? "\u0422\u0432\u043E\u0439 \u0441\u0447\u0451\u0442 \xB7 " + (mine.score || 0) + " \u2726" + (mine.correct != null ? "  \xB7  \u0432\u0435\u0440\u043D\u044B\u0445 " + mine.correct : "") : list.length + " \u0438\u0433\u0440\u043E\u043A\u043E\u0432";
+    const top = list.slice(0, 3);
+    const rest = list.slice(3);
+    const podiumOrder = [top[1], top[0], top[2]].filter(Boolean);
     return React.createElement(
       "div",
       { className: "tn-fullscreen" },
       React.createElement(
         "div",
-        { className: "tn-container", style: { maxWidth: 560, margin: "0 auto" } },
+        { className: "tn-container dp-group-final", style: { maxWidth: 600, margin: "0 auto" } },
         React.createElement(
           "header",
           { className: "tn-final-head" },
-          React.createElement("div", { className: "tn-final-eyebrow tn-final-eyebrow-win" }, "\u2726  \u0418\u0442\u043E\u0433\u0438 \u041A\u0430\u0441\u0442\u044B"),
-          React.createElement(
-            "h1",
-            { className: "tn-final-headline" },
-            myRank === 1 ? "\u0422\u044B \u043F\u0435\u0440\u0432\u044B\u0439!" : myRank ? "\u0422\u044B " + myRank + "-\u0439" : "\u041F\u0430\u0440\u0442\u0438\u044F \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u0430"
-          )
+          React.createElement("div", { className: "tn-final-eyebrow tn-final-eyebrow-" + (myRank === 1 ? "win" : "loss") }, "\u2726  \u0418\u0442\u043E\u0433\u0438 \u041A\u0430\u0441\u0442\u044B"),
+          React.createElement("h1", { className: "tn-final-headline" }, headline),
+          React.createElement("p", { className: "tn-final-sub" }, sub)
         ),
+        // ─── Пьедестал (топ-3) ───
         React.createElement(
           "div",
-          { className: "dp-group-results" },
-          list.map((r, i) => React.createElement(
+          { className: "dp-podium" },
+          podiumOrder.map((r) => React.createElement(
             "div",
             {
               key: r.deviceId,
-              className: "dp-group-results-row" + (r.deviceId === meId ? " is-me" : "") + (i < 3 ? " is-podium" : "")
+              className: "dp-podium-col dp-podium-col--" + r.rank + (r.deviceId === meId ? " is-me" : "")
             },
-            React.createElement("span", { className: "dp-group-results-rank" }, i < 3 ? medals[i] : i + 1),
-            React.createElement("span", { className: "dp-group-board-av" }, sh.renderTnAvatar ? sh.renderTnAvatar(r.avatar, r.nickname) : "\u25D0"),
+            React.createElement("div", { className: "dp-podium-medal", "aria-hidden": "true" }, medals[r.rank - 1]),
+            React.createElement("div", { className: "dp-podium-av" }, av(r.avatar, r.nickname)),
+            React.createElement("div", { className: "dp-podium-name" }, r.nickname || "\u0418\u0433\u0440\u043E\u043A"),
+            React.createElement("div", { className: "dp-podium-score" }, r.score || 0, " \u2726"),
+            React.createElement(
+              "div",
+              { className: "dp-podium-stand" },
+              React.createElement("span", { className: "dp-podium-place" }, r.rank)
+            )
+          ))
+        ),
+        // ─── Остальные места (4+) ───
+        rest.length > 0 && React.createElement(
+          "div",
+          { className: "dp-group-results" },
+          rest.map((r) => React.createElement(
+            "div",
+            {
+              key: r.deviceId,
+              className: "dp-group-results-row" + (r.deviceId === meId ? " is-me" : "")
+            },
+            React.createElement("span", { className: "dp-group-results-rank" }, r.rank),
+            React.createElement("span", { className: "dp-group-board-av" }, av(r.avatar, r.nickname)),
             React.createElement("span", { className: "dp-group-results-name" }, r.nickname || "\u0418\u0433\u0440\u043E\u043A"),
+            r.correct != null && React.createElement("span", { className: "dp-group-results-correct" }, "\u2713 " + r.correct),
             React.createElement("span", { className: "dp-group-results-score" }, r.score || 0, " \u2726")
           ))
         ),
         React.createElement(
           "div",
-          { className: "tn-final-actions", style: { display: "flex", gap: 10, justifyContent: "center", marginTop: 20, flexWrap: "wrap" } },
+          { className: "tn-final-actions", style: { display: "flex", gap: 10, justifyContent: "center", marginTop: 24, flexWrap: "wrap" } },
           canAgain && React.createElement("button", { className: "dp-btn dp-btn-cta", onClick: onAgain }, "\u0421\u044B\u0433\u0440\u0430\u0442\u044C \u0435\u0449\u0451"),
           React.createElement("button", { className: "dp-btn", onClick: onClose }, "\u041D\u0430 \u0433\u043B\u0430\u0432\u043D\u0443\u044E")
         )
@@ -22288,7 +22315,7 @@ window.YasnaCore = {
       }, style: { width: "100%" } }, "\u041D\u0430\u0437\u0430\u0434")
     ));
   }
-  window.YasnaGroup = { GroupApp };
+  window.YasnaGroup = { GroupApp, GroupResults };
 })();
 
 })();

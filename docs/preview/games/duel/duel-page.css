@@ -2638,7 +2638,41 @@ body:not(.theme-vk-dark) .dp-cta-row { border-top-color: #f0f0f2; }
 .dp-group-board-done { color:#12B886; }
 .dp-group-board-off { color:#888; }
 
-/* Подиум итогов */
+/* Финал Касты — церемониальный пьедестал */
+.dp-group-final { padding-top: 8px; }
+.dp-podium { display:flex; align-items:flex-end; justify-content:center; gap:8px; margin:22px auto 4px; max-width:520px; }
+.dp-podium-col { display:flex; flex-direction:column; align-items:center; gap:3px; flex:1 1 0; min-width:0; max-width:170px; }
+.dp-podium-medal { font-size:24px; line-height:1; }
+.dp-podium-av {
+  width:48px; height:48px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(255,255,255,.08); font-size:22px; overflow:hidden;
+  border:2px solid transparent; flex-shrink:0;
+}
+.dp-podium-av img { width:100%; height:100%; object-fit:cover; }
+.dp-podium-name { font-size:13px; font-weight:600; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--text-1,#fff); }
+.dp-podium-score { font-size:12.5px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--text-2,#aeaeb2); }
+.dp-podium-stand {
+  width:100%; border-radius:12px 12px 0 0; margin-top:5px;
+  display:flex; align-items:flex-start; justify-content:center; padding-top:8px;
+}
+.dp-podium-place { font-size:20px; font-weight:800; color:#fff; opacity:.92; }
+/* Высоты и цвета подставок */
+.dp-podium-col--1 .dp-podium-stand { height:82px; background:linear-gradient(180deg,#F5C451,#E0A93B); }
+.dp-podium-col--2 .dp-podium-stand { height:58px; background:linear-gradient(180deg,#CBD0DA,#AAB1BE); }
+.dp-podium-col--3 .dp-podium-stand { height:42px; background:linear-gradient(180deg,#D9965C,#BE7A40); }
+/* Акцент 1-го места */
+.dp-podium-col--1 .dp-podium-av { width:62px; height:62px; font-size:28px; border-color:#F5C451; box-shadow:0 0 0 4px rgba(245,196,81,.18); }
+.dp-podium-col--1 .dp-podium-medal { font-size:30px; }
+.dp-podium-col--1 .dp-podium-name { font-size:14px; }
+/* Твоя колонка */
+.dp-podium-col.is-me .dp-podium-name { color:#7C5CFC; }
+.dp-podium-col.is-me .dp-podium-av { border-color:#7C5CFC; }
+.dp-group-results-correct { font-size:12px; color:var(--text-2,#aeaeb2); font-variant-numeric:tabular-nums; margin-right:8px; }
+body:not(.theme-vk-dark) .dp-podium-av { background:#eef0f4; }
+body:not(.theme-vk-dark) .dp-podium-name { color:#1d1d1f; }
+
+/* Список 4+ мест */
 .dp-group-results { display:flex; flex-direction:column; gap:6px; margin-top:8px; }
 .dp-group-results-row { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px; background: rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); }
 .dp-group-results-row.is-podium { background: rgba(124,92,252,.10); }
