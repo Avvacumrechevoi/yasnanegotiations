@@ -238,7 +238,11 @@
   //   on(fn)            — fn получает {t: 'partiya-init', ...payload}
   //   close()
   //   startHeartbeat()  — no-op (Firebase сам держит соединение)
-  function makeTransport({ code, deviceId, role }){
+  // presencePath — куда писать lastSeen (default = role, т.е. host/guest для 2p).
+  //   для группы передаём 'players/<deviceId>'.
+  // kind — '2p' (default) | 'group'. Для группы close() НЕ закрывает комнату
+  //   (уход одного игрока ≠ конец партии) — только гасит свой online-флаг.
+  function makeTransport({ code, deviceId, role, presencePath, kind }){
     init();
     const handlers = new Set();
     // Буфер — сообщения, пришедшие до того как TurnirGame.useEffect
@@ -259,7 +263,7 @@
         return;
       }
       // console.log('[firebase/recv] from=opp type=' + m.type + ' handlers=' + handlers.size);
-      const reconstructed = Object.assign({ t: m.type }, m.payload || {});
+      const reconstructed = Object.assign({ t: m.type, from: m.from }, m.payload || {});
       if(handlers.size === 0){
         // debug: buffering;
         buffer.push(reconstructed);
@@ -282,7 +286,7 @@
     statusRef.on('value', onStatus);
 
     // Heartbeat: обновляем lastSeen каждые 10 секунд (видно сопернику)
-    const presenceRef = db.ref('rooms/' + code + '/' + role + '/lastSeen');
+    const presenceRef = db.ref('rooms/' + code + '/' + (presencePath || role) + '/lastSeen');
     const heartbeat = setInterval(() => {
       if(!stopped) presenceRef.set(firebase.database.ServerValue.TIMESTAMP);
     }, 10000);
@@ -325,11 +329,144 @@
         clearInterval(heartbeat);
         try { messagesRef.off('child_added', onMsg); } catch(_){}
         try { statusRef.off('value', onStatus); } catch(_){}
-        // Помечаем комнату закрытой — соперник получит opp-leave
-        try { statusRef.set('closed'); } catch(_){}
+        if(kind === 'group'){
+          // Группа: НЕ закрываем комнату при выходе одного игрока — партия
+          // продолжается у остальных. Гасим только свой online-флаг.
+          try { db.ref('rooms/' + code + '/players/' + deviceId + '/online').set(false); } catch(_){}
+        } else {
+          // 2p: помечаем комнату закрытой — соперник получит opp-leave.
+          try { statusRef.set('closed'); } catch(_){}
+        }
       },
       startHeartbeat(){ /* интервал уже запущен в makeTransport */ },
     };
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // ─── РЕЖИМ ГРУППЫ «С коллективом» (N=3..8) ──────────────────────────
+  // Отдельный API поверх той же комнаты rooms/<code>. Вместо host/guest —
+  // мапа players/<deviceId>. meta.kind='group' разделяет режимы (старый
+  // joinRoom сюда не попадёт). Транспорт (makeTransport) переиспользуется
+  // как есть — он уже broadcast на N слушателей.
+  // ═══════════════════════════════════════════════════════════════════
+
+  // HOST: создать комнату-группу (status='lobby', хост ждёт игроков и стартует кнопкой)
+  async function createGroupRoom({ deviceId, nickname, avatar, capacity = 8, minPlayers = 3, partiyaMode = 'standard', themes = null }){
+    if(!deviceId || !nickname) throw new Error('deviceId и nickname обязательны');
+    const user = await ensureAuth();
+
+    let code = null;
+    for(let i = 0; i < 5; i++){
+      const candidate = genRoomCode();
+      const snap = await db.ref('rooms/' + candidate + '/meta').get();
+      if(!snap.exists()){ code = candidate; break; }
+    }
+    if(!code) throw new Error('Не удалось сгенерировать уникальный код');
+
+    const TS = firebase.database.ServerValue.TIMESTAMP;
+    const cap = Math.max(2, Math.min(12, capacity | 0));
+    const updates = {
+      meta: {
+        status: 'lobby',
+        kind: 'group',
+        version: 3,
+        createdAt: TS,
+        hostDeviceId: String(deviceId),
+        hostUid: user.uid,           // правилам RTDB: только хост меняет meta
+        capacity: cap,
+        minPlayers: Math.max(2, Math.min(cap, minPlayers | 0)),
+        partiyaMode: String(partiyaMode),
+        themes: (themes && themes.length) ? themes.map(String) : null,
+        seed: null,
+        startedAt: null,
+      },
+    };
+    updates['players/' + deviceId] = {
+      deviceId: String(deviceId),
+      uid: user.uid,
+      nickname: String(nickname).slice(0, 40),
+      avatar: avatar ? String(avatar).slice(0, 200) : null,
+      role: 'host',
+      joinedAt: TS,
+      lastSeen: TS,
+      online: true,
+      score: 0, correct: 0, streak: 0, finished: false,
+    };
+    await db.ref('rooms/' + code).update(updates);
+
+    // Уход хоста ≠ закрытие комнаты — гасим только свой online-флаг.
+    db.ref('rooms/' + code + '/players/' + deviceId + '/online').onDisconnect().set(false);
+    console.log('[firebase] group room created', code);
+    return { code };
+  }
+
+  // GUEST: войти в комнату-группу. Возвращает { meta, players, code }.
+  async function joinGroupRoom(rawCode, { deviceId, nickname, avatar }){
+    if(!deviceId || !nickname) throw new Error('deviceId и nickname обязательны');
+    const code = String(rawCode || '').trim().toUpperCase();
+    if(!validCode(code)) throw new Error('invalid_code_format');
+    const user = await ensureAuth();
+
+    const roomRef = db.ref('rooms/' + code);
+    const snap = await roomRef.get();
+    if(!snap.exists()) throw new Error('not_found');
+    const room = snap.val();
+    if(room.meta?.kind !== 'group') throw new Error('wrong_kind');
+    if(room.meta?.status === 'closed' || room.meta?.status === 'finished') throw new Error('closed');
+    if(room.meta?.createdAt && (Date.now() - room.meta.createdAt) > 30 * 60 * 1000) throw new Error('closed');
+
+    const players = room.players || {};
+    const prev = players[deviceId];
+    const already = !!prev;
+    // late-join после старта запрещён в MVP (re-join своего слота разрешён)
+    if(!already && room.meta?.status !== 'lobby') throw new Error('already_started');
+    if(!already && Object.keys(players).length >= (room.meta?.capacity || 8)) throw new Error('room_full');
+
+    const TS = firebase.database.ServerValue.TIMESTAMP;
+    await roomRef.child('players/' + deviceId).update({
+      deviceId: String(deviceId),
+      uid: user.uid,
+      nickname: String(nickname).slice(0, 40),
+      avatar: avatar ? String(avatar).slice(0, 200) : null,
+      role: already ? (prev.role || 'player') : 'player',
+      joinedAt: already ? (prev.joinedAt || TS) : TS,
+      lastSeen: TS,
+      online: true,
+      score: already ? (prev.score || 0) : 0,
+      correct: already ? (prev.correct || 0) : 0,
+      streak: already ? (prev.streak || 0) : 0,
+      finished: already ? !!prev.finished : false,
+    });
+    db.ref('rooms/' + code + '/players/' + deviceId + '/online').onDisconnect().set(false);
+    return { meta: room.meta, players, code };
+  }
+
+  // Подписка на мапу игроков (лобби + табло). Один listener на всю мапу.
+  function watchPlayers(code, cb){
+    init();
+    const ref = db.ref('rooms/' + code + '/players');
+    const handler = ref.on('value', (snap) => { try { cb(snap.val() || {}); } catch(_){} });
+    return () => { try { ref.off('value', handler); } catch(_){} };
+  }
+
+  // Подписка на meta (status/seed/results — старт партии и финальная таблица).
+  function watchMeta(code, cb){
+    init();
+    const ref = db.ref('rooms/' + code + '/meta');
+    const handler = ref.on('value', (snap) => { try { cb(snap.val() || {}); } catch(_){} });
+    return () => { try { ref.off('value', handler); } catch(_){} };
+  }
+
+  // Хост: патч meta (старт партии: seed/status/startedAt; финал: results/status).
+  async function updateGroupMeta(code, patch){
+    init();
+    await db.ref('rooms/' + code + '/meta').update(patch || {});
+  }
+
+  // Игрок: патч своего слота (score/correct/streak/finished/lastSeen).
+  async function updatePlayer(code, deviceId, patch){
+    init();
+    await db.ref('rooms/' + code + '/players/' + deviceId).update(patch || {});
   }
 
   // ─── Экспорт ─────────────────────────────────────────────────────
@@ -339,6 +476,13 @@
     waitForGuest,
     makeTransport,
     validCode,
+    // группа «С коллективом»
+    createGroupRoom,
+    joinGroupRoom,
+    watchPlayers,
+    watchMeta,
+    updateGroupMeta,
+    updatePlayer,
   };
 
   // console.log('[YasnaRT] Firebase real-time transport loaded');

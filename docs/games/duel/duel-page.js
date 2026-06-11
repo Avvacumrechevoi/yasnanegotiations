@@ -512,6 +512,27 @@
                 React.createElement('span', { className: 'dp-cta__sub' }, 'по ссылке-комнате')
               ),
               React.createElement('span', { className: 'dp-cta__badge', 'aria-hidden': 'true' }, '✦')
+            ),
+            React.createElement('button', {
+              type: 'button',
+              className: 'dp-cta dp-cta--group',
+              onClick: (e) => { e.stopPropagation(); onPartiya('group'); },
+              'aria-label': 'Играть с коллективом',
+            },
+              React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
+                React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
+                  React.createElement('circle', { cx: 7, cy: 9, r: 2.3 }),
+                  React.createElement('circle', { cx: 12, cy: 7.5, r: 2.3 }),
+                  React.createElement('circle', { cx: 17, cy: 9, r: 2.3 }),
+                  React.createElement('path', { d: 'M3 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2' }),
+                  React.createElement('path', { d: 'M13 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2' })
+                )
+              ),
+              React.createElement('span', { className: 'dp-cta__body' },
+                React.createElement('span', { className: 'dp-cta__title' }, 'С коллективом'),
+                React.createElement('span', { className: 'dp-cta__sub' }, 'компанией 3–8 по ссылке')
+              ),
+              React.createElement('span', { className: 'dp-cta__badge', 'aria-hidden': 'true' }, 'NEW')
             )
           )
         ),
@@ -1723,6 +1744,16 @@
     // lobbyMode — внутреннее состояние лобби (для url-room автогостем)
     // partiyaMode — длительность партии, передаётся в TurnirGame после connected
     const [lobby, setLobby] = useState(urlRoom ? { game: 'turnir', lobbyMode: 'guest', code: urlRoom } : null);
+    // Режим «С коллективом»: ?kroom=CODE → авто-вход гостем в групповую комнату.
+    const urlKroom = useMemo(() => {
+      try {
+        const p = new URLSearchParams(window.location.search);
+        const r = (p.get('kroom') || '').trim().toUpperCase();
+        return /^KASTA-[A-Z0-9]{4}$/.test(r) ? r : null;
+      } catch(_){ return null; }
+    }, []);
+    // groupLobby = null | { initialMode?: 'choose'|'join'|'create', code? }
+    const [groupLobby, setGroupLobby] = useState(urlKroom ? { initialMode: 'join', code: urlKroom } : null);
     const [, setTick] = useState(0);
     const [orientHidden, setOrientHidden] = useState(() => {
       try { return localStorage.getItem('yasna_dp_orient_hidden') === '1'; } catch(_){ return false; }
@@ -1842,9 +1873,16 @@
       setLobby(null);
       askPartiyaMode('pvp');
     };
-    // Роутер карточек DPMainGames: соло → конфиг сразу; PvP → choose-first.
+    // ─── Вход «С коллективом» (отдельный режим, N=3..8) ───────────────
+    // GroupApp сам разводит choose → Создать (конфиг) / Войти по коду.
+    const startGroup = () => {
+      requireProfile(() => setGroupLobby({ initialMode: 'choose' }));
+    };
+    // Роутер карточек DPMainGames: соло → конфиг сразу; PvP → choose-first;
+    // группа → GroupApp (choose-first).
     const onPartiyaCTA = (opp) => {
       if(opp === 'pvp'){ startPvP(); }
+      else if(opp === 'group'){ startGroup(); }
       else { askPartiyaMode(opp); }
     };
 
@@ -1876,6 +1914,14 @@
       }
     }, [urlRoom]);
 
+    // Аналогично для ?kroom= (групповая комната)
+    useEffect(() => {
+      if(urlKroom && !user && !profile){
+        setAnonModal(true);
+        window.__dpPendingPlay = () => setGroupLobby({ initialMode: 'join', code: urlKroom });
+      }
+    }, [urlKroom]);
+
     // ─── Если игра запущена — отображаем её ───
     if(game){
       const Turnir = _g('YasnaTurnir');
@@ -1904,6 +1950,32 @@
           onClose: () => { setGame(null); setTick(t => t + 1); }
         })
       );
+    }
+
+    // ─── Режим «С коллективом» — отдельный движок (лобби + игра внутри) ───
+    if(groupLobby){
+      const Group = _g('YasnaGroup');
+      const meBase = profile || user;   // profile первый — у залогиненного user нет deviceId
+      // deviceId живёт в гостевом профиле (YasnaDuelProfile); user (Telegram) его не несёт.
+      const gid = (profile && profile.deviceId) || (user && user.deviceId) ||
+                  (_g('YasnaDuelProfile') && _g('YasnaDuelProfile').load && (_g('YasnaDuelProfile').load() || {}).deviceId);
+      if(Group && meBase && gid){
+        const meG = { nickname: meBase.nickname, avatar: meBase.avatar, deviceId: gid };
+        return React.createElement(DPErrorBoundary, null,
+          React.createElement(Group.GroupApp, {
+            profile: meG,
+            initialMode: groupLobby.initialMode || 'choose',
+            initialCode: groupLobby.code || null,
+            onNeedNickname: () => setAnonModal(true),
+            onClose: () => {
+              setGroupLobby(null);
+              try { window.history.replaceState({}, '', window.location.pathname); } catch(_){}
+              setTick(t => t + 1);
+            },
+          })
+        );
+      }
+      // нет профиля/движка — проваливаемся на главную; анон-модал откроет эффект urlKroom/requireProfile
     }
 
     return React.createElement('div', { className: 'dp-root' },

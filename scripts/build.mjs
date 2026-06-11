@@ -77,6 +77,7 @@ const DUEL_FILES = [
   'games/duel/trivia-bank.js',
   'games/duel/turnir-engine.js',
   'games/duel/rt-firebase.js',
+  'games/duel/group-engine.js',   // ← режим «С коллективом» (после turnir-engine: использует __shared)
   'games/duel/duel-page.js',
 ];
 

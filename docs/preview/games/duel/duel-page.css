@@ -2592,6 +2592,74 @@ body:not(.theme-vk-dark) .dp-cta-row { border-top-color: #f0f0f2; }
   .dp-cta-row { grid-template-columns: 1fr; }
 }
 
+/* ═══ Режим «С коллективом» (group) ═══ */
+.dp-cta--group { grid-column: 1 / -1; }   /* во всю ширину — заметный NEW-баннер */
+.dp-cta--group .dp-cta__icon {
+  background: rgba(124, 92, 252, 0.12);
+  border-color: rgba(124, 92, 252, 0.30);
+  color: #7C5CFC;
+}
+.dp-cta--group:hover { border-color: #7C5CFC; background: rgba(124, 92, 252, 0.10); }
+.dp-cta--group:hover .dp-cta__icon { background: #7C5CFC; color: #fff; }
+.dp-cta--group .dp-cta__badge {
+  background: #7C5CFC; color: #fff; opacity: 1;
+  font-size: 9px; font-weight: 700; letter-spacing: .04em;
+  padding: 2px 6px; border-radius: 6px; top: 10px;
+}
+
+/* Лобби-комната группы */
+.dp-group-lobby-head { display:flex; align-items:baseline; gap:8px; margin: 14px 0 8px; }
+.dp-group-lobby-count { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text-1, #fff); }
+.dp-group-lobby-hint { font-size: 12px; color: var(--text-2, #aeaeb2); }
+.dp-group-lobby-list { display:flex; flex-direction:column; gap:6px; max-height: 220px; overflow-y:auto; margin-bottom: 12px; }
+.dp-group-lobby-player { display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:10px; background: rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); }
+.dp-group-lobby-player.is-off { opacity:.45; }
+.dp-group-lobby-pname { font-size:14px; font-weight:500; color: var(--text-1,#fff); }
+.dp-group-lobby-badge { font-size:11px; color: #7C5CFC; font-weight:600; }
+
+/* Степпер количества игроков */
+.dp-group-cap { display:flex; align-items:center; gap:14px; margin: 8px 0 2px; }
+.dp-group-cap-btn { width:40px; height:40px; border-radius:10px; border:1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.05); color: var(--text-1,#fff); font-size:22px; line-height:1; cursor:pointer; }
+.dp-group-cap-btn:hover { border-color:#7C5CFC; }
+.dp-group-cap-val { font-size:22px; font-weight:700; min-width:28px; text-align:center; font-variant-numeric: tabular-nums; color: var(--text-1,#fff); }
+
+/* Табло во время игры */
+.dp-group-play { min-height: 100vh; }
+.dp-group-board { display:flex; flex-direction:column; gap:4px; }
+.dp-group-board--compact { position: sticky; top:0; z-index:5; background: var(--bg-1, #101014); padding:8px 12px; border-bottom:1px solid rgba(255,255,255,.08); max-height: 132px; overflow-y:auto; }
+.dp-group-board-row { display:flex; align-items:center; gap:8px; padding:5px 8px; border-radius:8px; font-size:13px; }
+.dp-group-board-row.is-me { background: rgba(124,92,252,.16); }
+.dp-group-board-row.is-off { opacity:.5; }
+.dp-group-board-rank { width:18px; text-align:center; color: var(--text-2,#aeaeb2); font-variant-numeric:tabular-nums; }
+.dp-group-board-av { width:24px; height:24px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; background: rgba(255,255,255,.08); font-size:13px; overflow:hidden; flex-shrink:0; }
+.dp-group-board-av img { width:100%; height:100%; object-fit:cover; }
+.dp-group-board-name { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color: var(--text-1,#fff); }
+.dp-group-board-score { font-weight:700; font-variant-numeric:tabular-nums; color: var(--text-1,#fff); }
+.dp-group-board-done { color:#12B886; }
+.dp-group-board-off { color:#888; }
+
+/* Подиум итогов */
+.dp-group-results { display:flex; flex-direction:column; gap:6px; margin-top:8px; }
+.dp-group-results-row { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px; background: rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); }
+.dp-group-results-row.is-podium { background: rgba(124,92,252,.10); }
+.dp-group-results-row.is-me { border-color:#7C5CFC; }
+.dp-group-results-rank { font-size:18px; min-width:30px; text-align:center; font-variant-numeric:tabular-nums; }
+.dp-group-results-name { flex:1; min-width:0; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color: var(--text-1,#fff); }
+.dp-group-results-score { font-weight:700; font-variant-numeric:tabular-nums; color: var(--text-1,#fff); }
+
+/* Light theme overrides */
+body:not(.theme-vk-dark) .dp-group-lobby-player,
+body:not(.theme-vk-dark) .dp-group-results-row { background:#fafafc; border-color:#e5e5ea; }
+body:not(.theme-vk-dark) .dp-group-board--compact { background:#fff; border-bottom-color:#e5e5ea; }
+body:not(.theme-vk-dark) .dp-group-cap-btn { background:#fff; border-color:#e5e5ea; color:#1d1d1f; }
+body:not(.theme-vk-dark) .dp-group-board-name,
+body:not(.theme-vk-dark) .dp-group-board-score,
+body:not(.theme-vk-dark) .dp-group-results-name,
+body:not(.theme-vk-dark) .dp-group-results-score,
+body:not(.theme-vk-dark) .dp-group-cap-val,
+body:not(.theme-vk-dark) .dp-group-lobby-count,
+body:not(.theme-vk-dark) .dp-group-lobby-pname { color:#1d1d1f; }
+
 /* Preferred opponent — подсвечена тонкой рамкой VK-accent чтобы пользователь
    видел, что мы помним его выбор из карточки. Не auto-click — пусть подтвердит. */
 .dp-opponent-btn--preferred {

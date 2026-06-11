@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-06-11T07:32:04.117Z */
+/* Yasna bundle: duel.js — собран 2026-06-11T09:17:52.528Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -6069,7 +6069,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-06-11T07:32:03.812Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
+  const BUILD_INFO = { "builtAt": "2026-06-11T09:17:52.228Z", "contentVersion": "1.1.0", "files": 10, "themes": 10, "atomsTotal": 324, "questionsTotal": 126, "questionsLegacy": 76 };
   const THEMES = [
     {
       "id": "chto-est-yasna",
@@ -19235,6 +19235,37 @@ window.YasnaCore = {
     const speedBonus = Math.max(0, Math.round(5 * (1 - timeMs / (QUESTION_TIME * 1e3))));
     return baseScore + speedBonus;
   }
+  function streakMultiplier(s) {
+    if (s >= 7) return 2;
+    if (s >= 5) return 1.5;
+    if (s >= 3) return 1.2;
+    return 1;
+  }
+  function checkAnswer(q, chosen) {
+    const qType = q && q.type || "single-choice";
+    if (chosen == null || chosen === -1) return false;
+    if (qType === "fill-blank") {
+      const norm = (s) => String(s || "").toLowerCase().trim().replace(/ё/g, "\u0435").replace(/[.,!?;:"'()\[\]]/g, "").replace(/\s+/g, " ");
+      const acceptable = [q.correct, ...q.alternatives || []].map(norm);
+      return acceptable.includes(norm(chosen));
+    }
+    if (qType === "multi-choice") {
+      if (!Array.isArray(chosen)) return false;
+      const a = [...q.correct || []].sort();
+      const b = [...chosen].sort();
+      return a.length === b.length && a.every((v, i) => v === b[i]);
+    }
+    if (qType === "match-pair") {
+      if (!chosen || typeof chosen !== "object") return false;
+      const total = (q.pairsLeft || []).length;
+      let cc = 0;
+      for (let i = 0; i < total; i++) {
+        if (chosen[i] === i) cc++;
+      }
+      return total > 0 && cc === total;
+    }
+    return chosen === q.correct;
+  }
   function avatarInitials(name) {
     if (!name) return "\xB7";
     return String(name).trim().slice(0, 1).toUpperCase();
@@ -20019,7 +20050,7 @@ window.YasnaCore = {
       )
     );
   }
-  function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, roundsTotal, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswersRef, streak, streakMultiplier }) {
+  function Question({ q, theme, qIndex, totalInRound, qOverall, totalOverall, roundNum, roundsTotal, scoreP, scoreO, player, opponent, onAnswer, isPvP, transport, oppAnswersRef, streak, streakMultiplier: streakMultiplier2 }) {
     const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
     const [chosen, setChosen] = useState(null);
     const startedAt = useRef(Date.now());
@@ -20091,7 +20122,7 @@ window.YasnaCore = {
     function computeMyBusey(playerCorrect2, playerTime) {
       if (!playerCorrect2) return 0;
       const newStreak = streak + 1;
-      const mult = streakMultiplier(newStreak);
+      const mult = streakMultiplier2(newStreak);
       return Math.round(buseyForCorrect(playerTime) * mult);
     }
     function sendOppAnswer(correct, time) {
@@ -20645,7 +20676,7 @@ window.YasnaCore = {
     const [guestStuck, setGuestStuck] = useState(false);
     const [streak, setStreak] = useState(0);
     const [streakPeak, setStreakPeak] = useState(0);
-    function streakMultiplier(s) {
+    function streakMultiplier2(s) {
       if (s >= 7) return 2;
       if (s >= 5) return 1.5;
       if (s >= 3) return 1.2;
@@ -20743,7 +20774,7 @@ window.YasnaCore = {
     function onAnswer(result) {
       let dp = 0, doO = 0, dB = 0;
       const newStreak = result.playerCorrect ? streak + 1 : 0;
-      const mult = streakMultiplier(newStreak);
+      const mult = streakMultiplier2(newStreak);
       if (result.playerCorrect) {
         const b = buseyForCorrect(result.playerTime);
         dp = Math.round(b * mult);
@@ -21015,7 +21046,7 @@ window.YasnaCore = {
           transport,
           oppAnswersRef,
           streak,
-          streakMultiplier
+          streakMultiplier: streakMultiplier2
         })
       );
     }
@@ -21061,7 +21092,30 @@ window.YasnaCore = {
     }
     return null;
   }
-  window.YasnaTurnir = { TurnirGame };
+  window.YasnaTurnir = {
+    TurnirGame,
+    // Общие presentational-компоненты и хелперы для group-engine.js.
+    // НЕ содержат 2p-логики (scoreP/scoreO/opp-wait) — чистый рендер + расчёт.
+    __shared: {
+      QUESTION_TIME,
+      SHOW_FEEDBACK_MS,
+      buseyForCorrect,
+      streakMultiplier,
+      checkAnswer,
+      renderTnAvatar,
+      QuestionErrorBoundary,
+      TnTopBar,
+      TnGameProgress,
+      TnTimerBar,
+      TnQuestionCard,
+      TnFeedbackBanner,
+      TnOptions,
+      TnTrueFalse,
+      TnMultiChoice,
+      TnMatchPair,
+      TnFillBlank
+    }
+  };
 })();
 
 })();
@@ -21221,7 +21275,7 @@ window.YasnaCore = {
     console.log("[firebase] joined room", code);
     return { host: room.host };
   }
-  function makeTransport({ code, deviceId, role }) {
+  function makeTransport({ code, deviceId, role, presencePath, kind }) {
     init();
     const handlers = /* @__PURE__ */ new Set();
     const buffer = [];
@@ -21237,7 +21291,7 @@ window.YasnaCore = {
       if (m.from === deviceId) {
         return;
       }
-      const reconstructed = Object.assign({ t: m.type }, m.payload || {});
+      const reconstructed = Object.assign({ t: m.type, from: m.from }, m.payload || {});
       if (handlers.size === 0) {
         buffer.push(reconstructed);
       } else {
@@ -21263,7 +21317,7 @@ window.YasnaCore = {
       }
     }
     statusRef.on("value", onStatus);
-    const presenceRef = db.ref("rooms/" + code + "/" + role + "/lastSeen");
+    const presenceRef = db.ref("rooms/" + code + "/" + (presencePath || role) + "/lastSeen");
     const heartbeat = setInterval(() => {
       if (!stopped) presenceRef.set(firebase.database.ServerValue.TIMESTAMP);
     }, 1e4);
@@ -21310,22 +21364,931 @@ window.YasnaCore = {
           statusRef.off("value", onStatus);
         } catch (_) {
         }
-        try {
-          statusRef.set("closed");
-        } catch (_) {
+        if (kind === "group") {
+          try {
+            db.ref("rooms/" + code + "/players/" + deviceId + "/online").set(false);
+          } catch (_) {
+          }
+        } else {
+          try {
+            statusRef.set("closed");
+          } catch (_) {
+          }
         }
       },
       startHeartbeat() {
       }
     };
   }
+  async function createGroupRoom({ deviceId, nickname, avatar, capacity = 8, minPlayers = 3, partiyaMode = "standard", themes = null }) {
+    if (!deviceId || !nickname) throw new Error("deviceId \u0438 nickname \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B");
+    const user = await ensureAuth();
+    let code = null;
+    for (let i = 0; i < 5; i++) {
+      const candidate = genRoomCode();
+      const snap = await db.ref("rooms/" + candidate + "/meta").get();
+      if (!snap.exists()) {
+        code = candidate;
+        break;
+      }
+    }
+    if (!code) throw new Error("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u0433\u0435\u043D\u0435\u0440\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0443\u043D\u0438\u043A\u0430\u043B\u044C\u043D\u044B\u0439 \u043A\u043E\u0434");
+    const TS = firebase.database.ServerValue.TIMESTAMP;
+    const cap = Math.max(2, Math.min(12, capacity | 0));
+    const updates = {
+      meta: {
+        status: "lobby",
+        kind: "group",
+        version: 3,
+        createdAt: TS,
+        hostDeviceId: String(deviceId),
+        hostUid: user.uid,
+        // правилам RTDB: только хост меняет meta
+        capacity: cap,
+        minPlayers: Math.max(2, Math.min(cap, minPlayers | 0)),
+        partiyaMode: String(partiyaMode),
+        themes: themes && themes.length ? themes.map(String) : null,
+        seed: null,
+        startedAt: null
+      }
+    };
+    updates["players/" + deviceId] = {
+      deviceId: String(deviceId),
+      uid: user.uid,
+      nickname: String(nickname).slice(0, 40),
+      avatar: avatar ? String(avatar).slice(0, 200) : null,
+      role: "host",
+      joinedAt: TS,
+      lastSeen: TS,
+      online: true,
+      score: 0,
+      correct: 0,
+      streak: 0,
+      finished: false
+    };
+    await db.ref("rooms/" + code).update(updates);
+    db.ref("rooms/" + code + "/players/" + deviceId + "/online").onDisconnect().set(false);
+    console.log("[firebase] group room created", code);
+    return { code };
+  }
+  async function joinGroupRoom(rawCode, { deviceId, nickname, avatar }) {
+    var _a, _b, _c, _d, _e, _f;
+    if (!deviceId || !nickname) throw new Error("deviceId \u0438 nickname \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B");
+    const code = String(rawCode || "").trim().toUpperCase();
+    if (!validCode(code)) throw new Error("invalid_code_format");
+    const user = await ensureAuth();
+    const roomRef = db.ref("rooms/" + code);
+    const snap = await roomRef.get();
+    if (!snap.exists()) throw new Error("not_found");
+    const room = snap.val();
+    if (((_a = room.meta) == null ? void 0 : _a.kind) !== "group") throw new Error("wrong_kind");
+    if (((_b = room.meta) == null ? void 0 : _b.status) === "closed" || ((_c = room.meta) == null ? void 0 : _c.status) === "finished") throw new Error("closed");
+    if (((_d = room.meta) == null ? void 0 : _d.createdAt) && Date.now() - room.meta.createdAt > 30 * 60 * 1e3) throw new Error("closed");
+    const players = room.players || {};
+    const prev = players[deviceId];
+    const already = !!prev;
+    if (!already && ((_e = room.meta) == null ? void 0 : _e.status) !== "lobby") throw new Error("already_started");
+    if (!already && Object.keys(players).length >= (((_f = room.meta) == null ? void 0 : _f.capacity) || 8)) throw new Error("room_full");
+    const TS = firebase.database.ServerValue.TIMESTAMP;
+    await roomRef.child("players/" + deviceId).update({
+      deviceId: String(deviceId),
+      uid: user.uid,
+      nickname: String(nickname).slice(0, 40),
+      avatar: avatar ? String(avatar).slice(0, 200) : null,
+      role: already ? prev.role || "player" : "player",
+      joinedAt: already ? prev.joinedAt || TS : TS,
+      lastSeen: TS,
+      online: true,
+      score: already ? prev.score || 0 : 0,
+      correct: already ? prev.correct || 0 : 0,
+      streak: already ? prev.streak || 0 : 0,
+      finished: already ? !!prev.finished : false
+    });
+    db.ref("rooms/" + code + "/players/" + deviceId + "/online").onDisconnect().set(false);
+    return { meta: room.meta, players, code };
+  }
+  function watchPlayers(code, cb) {
+    init();
+    const ref = db.ref("rooms/" + code + "/players");
+    const handler = ref.on("value", (snap) => {
+      try {
+        cb(snap.val() || {});
+      } catch (_) {
+      }
+    });
+    return () => {
+      try {
+        ref.off("value", handler);
+      } catch (_) {
+      }
+    };
+  }
+  function watchMeta(code, cb) {
+    init();
+    const ref = db.ref("rooms/" + code + "/meta");
+    const handler = ref.on("value", (snap) => {
+      try {
+        cb(snap.val() || {});
+      } catch (_) {
+      }
+    });
+    return () => {
+      try {
+        ref.off("value", handler);
+      } catch (_) {
+      }
+    };
+  }
+  async function updateGroupMeta(code, patch) {
+    init();
+    await db.ref("rooms/" + code + "/meta").update(patch || {});
+  }
+  async function updatePlayer(code, deviceId, patch) {
+    init();
+    await db.ref("rooms/" + code + "/players/" + deviceId).update(patch || {});
+  }
   window.YasnaRT = {
     createRoom,
     joinRoom,
     waitForGuest,
     makeTransport,
-    validCode
+    validCode,
+    // группа «С коллективом»
+    createGroupRoom,
+    joinGroupRoom,
+    watchPlayers,
+    watchMeta,
+    updateGroupMeta,
+    updatePlayer
   };
+})();
+
+})();
+/* ─── games/duel/group-engine.js ─── */
+;(function(){
+(function() {
+  const { useState, useEffect, useRef, useMemo } = React;
+  const FINISH_WAIT_MS = 2e4;
+  const HEARTBEAT_MS = 12e3;
+  const ONLINE_TTL_MS = 3e4;
+  function S() {
+    return window.YasnaTurnir && window.YasnaTurnir.__shared || {};
+  }
+  function RT() {
+    return window.YasnaRT;
+  }
+  function nowMs() {
+    return Date.now();
+  }
+  function isOnline(p) {
+    if (!p || p.online === false) return false;
+    if (p.lastSeen && nowMs() - p.lastSeen > ONLINE_TTL_MS) return false;
+    return true;
+  }
+  function flattenPartiya(partiya) {
+    const flat = [];
+    (partiya || []).forEach((r) => {
+      (r.questions || []).forEach((q) => flat.push({ q, theme: r.theme }));
+    });
+    return flat;
+  }
+  function rankPlayers(playersMap) {
+    return Object.values(playersMap || {}).slice().sort(
+      (a, b) => (b.score || 0) - (a.score || 0) || (b.correct || 0) - (a.correct || 0) || (a.joinedAt || 0) - (b.joinedAt || 0)
+    );
+  }
+  function GroupQuestion({ q, theme, qOverall, totalOverall, onAnswer }) {
+    const sh = S();
+    const QUESTION_TIME = sh.QUESTION_TIME || 15;
+    const SHOW_FEEDBACK_MS = sh.SHOW_FEEDBACK_MS || 1500;
+    const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
+    const [chosen, setChosen] = useState(null);
+    const startedAt = useRef(nowMs());
+    const answeredRef = useRef(false);
+    useEffect(() => {
+      setTimeLeft(QUESTION_TIME);
+      setChosen(null);
+      startedAt.current = nowMs();
+      answeredRef.current = false;
+    }, [q && q.id]);
+    useEffect(() => {
+      if (chosen != null) return;
+      const iv = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(iv);
+            handleTimeout();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1e3);
+      return () => clearInterval(iv);
+    }, [chosen]);
+    function finish(value, correct) {
+      const timeMs = nowMs() - startedAt.current;
+      setTimeout(() => {
+        try {
+          onAnswer({ correct, timeMs, value });
+        } catch (_) {
+        }
+      }, SHOW_FEEDBACK_MS);
+    }
+    function submit(value) {
+      if (chosen != null || answeredRef.current) return;
+      answeredRef.current = true;
+      setChosen(value);
+      finish(value, sh.checkAnswer(q, value));
+    }
+    function handleTimeout() {
+      if (chosen != null || answeredRef.current) return;
+      answeredRef.current = true;
+      setChosen(-1);
+      finish(-1, false);
+    }
+    const showFeedback = chosen != null;
+    const qType = q && q.type || "single-choice";
+    return React.createElement(
+      "div",
+      { className: "tn-fullscreen" },
+      React.createElement(
+        "div",
+        { className: "tn-container" },
+        sh.TnTopBar && React.createElement(sh.TnTopBar, { eyebrow: "\u041A\u0430\u0441\u0442\u0430 \xB7 \u0432\u043E\u043F\u0440\u043E\u0441 " + (qOverall + 1) + " / " + totalOverall }),
+        sh.TnGameProgress && React.createElement(sh.TnGameProgress, { qOverall, totalOverall }),
+        sh.TnTimerBar && React.createElement(sh.TnTimerBar, { timeLeft, paused: showFeedback }),
+        sh.TnQuestionCard && React.createElement(sh.TnQuestionCard, {
+          qOverall,
+          totalOverall,
+          themeName: theme && theme.name,
+          text: q && q.text,
+          timeLeft,
+          showFeedback,
+          qType
+        }),
+        qType === "true-false" && React.createElement(sh.TnTrueFalse, {
+          chosen,
+          correctIdx: q.correct,
+          showFeedback,
+          onPick: submit
+        }),
+        qType === "fill-blank" && React.createElement(sh.TnFillBlank, {
+          correct: q.correct,
+          alternatives: q.alternatives,
+          chosen,
+          showFeedback,
+          onSubmit: submit
+        }),
+        qType === "multi-choice" && React.createElement(sh.TnMultiChoice, {
+          options: q.options,
+          correctIdxs: q.correct,
+          chosen,
+          showFeedback,
+          onSubmit: submit
+        }),
+        qType === "match-pair" && React.createElement(sh.TnMatchPair, {
+          pairsLeft: q.pairsLeft,
+          pairsRight: q.pairsRight,
+          correct: q.correct,
+          chosen,
+          showFeedback,
+          onSubmit: submit
+        }),
+        (qType === "single-choice" || !qType) && React.createElement(sh.TnOptions, {
+          options: q.options,
+          chosen,
+          correctIdx: q.correct,
+          showFeedback,
+          onPick: submit
+        }),
+        showFeedback && chosen === -1 && React.createElement(
+          "div",
+          { className: "tn-foot" },
+          React.createElement("span", { className: "tn-foot-timeout" }, "\u25F7 \u0412\u0440\u0435\u043C\u044F \u0432\u044B\u0448\u043B\u043E")
+        )
+      )
+    );
+  }
+  function GroupScoreboard({ players, meId, compact }) {
+    const sh = S();
+    const ranked = rankPlayers(players);
+    return React.createElement(
+      "div",
+      { className: "dp-group-board" + (compact ? " dp-group-board--compact" : "") },
+      ranked.map((p, i) => React.createElement(
+        "div",
+        {
+          key: p.deviceId,
+          className: "dp-group-board-row" + (p.deviceId === meId ? " is-me" : "") + (isOnline(p) ? "" : " is-off")
+        },
+        React.createElement("span", { className: "dp-group-board-rank" }, i + 1),
+        React.createElement("span", { className: "dp-group-board-av" }, sh.renderTnAvatar ? sh.renderTnAvatar(p.avatar, p.nickname) : "\u25D0"),
+        React.createElement(
+          "span",
+          { className: "dp-group-board-name" },
+          p.nickname || "\u0418\u0433\u0440\u043E\u043A",
+          p.finished && React.createElement("span", { className: "dp-group-board-done", title: "\u0444\u0438\u043D\u0438\u0448\u0438\u0440\u043E\u0432\u0430\u043B" }, " \u2713"),
+          !isOnline(p) && React.createElement("span", { className: "dp-group-board-off", title: "\u043E\u0442\u043A\u043B\u044E\u0447\u0438\u043B\u0441\u044F" }, " \u25CC")
+        ),
+        React.createElement("span", { className: "dp-group-board-score" }, p.score || 0)
+      ))
+    );
+  }
+  function GroupResults({ results, players, meId, onClose, onAgain, canAgain }) {
+    const sh = S();
+    const list = results && results.length ? results : rankPlayers(players).map((p, i) => ({
+      deviceId: p.deviceId,
+      nickname: p.nickname,
+      avatar: p.avatar,
+      score: p.score || 0,
+      correct: p.correct || 0,
+      rank: i + 1
+    }));
+    const medals = ["\u{1F947}", "\u{1F948}", "\u{1F949}"];
+    const myRank = (list.find((r) => r.deviceId === meId) || {}).rank;
+    return React.createElement(
+      "div",
+      { className: "tn-fullscreen" },
+      React.createElement(
+        "div",
+        { className: "tn-container", style: { maxWidth: 560, margin: "0 auto" } },
+        React.createElement(
+          "header",
+          { className: "tn-final-head" },
+          React.createElement("div", { className: "tn-final-eyebrow tn-final-eyebrow-win" }, "\u2726  \u0418\u0442\u043E\u0433\u0438 \u041A\u0430\u0441\u0442\u044B"),
+          React.createElement(
+            "h1",
+            { className: "tn-final-headline" },
+            myRank === 1 ? "\u0422\u044B \u043F\u0435\u0440\u0432\u044B\u0439!" : myRank ? "\u0422\u044B " + myRank + "-\u0439" : "\u041F\u0430\u0440\u0442\u0438\u044F \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u0430"
+          )
+        ),
+        React.createElement(
+          "div",
+          { className: "dp-group-results" },
+          list.map((r, i) => React.createElement(
+            "div",
+            {
+              key: r.deviceId,
+              className: "dp-group-results-row" + (r.deviceId === meId ? " is-me" : "") + (i < 3 ? " is-podium" : "")
+            },
+            React.createElement("span", { className: "dp-group-results-rank" }, i < 3 ? medals[i] : i + 1),
+            React.createElement("span", { className: "dp-group-board-av" }, sh.renderTnAvatar ? sh.renderTnAvatar(r.avatar, r.nickname) : "\u25D0"),
+            React.createElement("span", { className: "dp-group-results-name" }, r.nickname || "\u0418\u0433\u0440\u043E\u043A"),
+            React.createElement("span", { className: "dp-group-results-score" }, r.score || 0, " \u2726")
+          ))
+        ),
+        React.createElement(
+          "div",
+          { className: "tn-final-actions", style: { display: "flex", gap: 10, justifyContent: "center", marginTop: 20, flexWrap: "wrap" } },
+          canAgain && React.createElement("button", { className: "dp-btn dp-btn-cta", onClick: onAgain }, "\u0421\u044B\u0433\u0440\u0430\u0442\u044C \u0435\u0449\u0451"),
+          React.createElement("button", { className: "dp-btn", onClick: onClose }, "\u041D\u0430 \u0433\u043B\u0430\u0432\u043D\u0443\u044E")
+        )
+      )
+    );
+  }
+  function GroupRoom({ code, deviceId, profile, onClose }) {
+    const sh = S();
+    const rt = RT();
+    const [players, setPlayers] = useState({});
+    const [meta, setMeta] = useState(null);
+    const [copyFallback, setCopyFallback] = useState("");
+    const [qIdx, setQIdx] = useState(0);
+    const [score, setScore] = useState(0);
+    const [correctCount, setCorrectCount] = useState(0);
+    const [streak, setStreak] = useState(0);
+    const [localPhase, setLocalPhase] = useState("lobby");
+    const submittedResultRef = useRef(false);
+    const judgedRef = useRef(false);
+    const finishTimerRef = useRef(null);
+    const isHost = meta ? meta.hostDeviceId === deviceId : false;
+    const status = meta ? meta.status : "lobby";
+    useEffect(() => {
+      const offP = rt.watchPlayers(code, setPlayers);
+      const offM = rt.watchMeta(code, (m) => setMeta(m || {}));
+      return () => {
+        try {
+          offP();
+        } catch (_) {
+        }
+        try {
+          offM();
+        } catch (_) {
+        }
+      };
+    }, [code]);
+    useEffect(() => {
+      const iv = setInterval(() => {
+        try {
+          rt.updatePlayer(code, deviceId, { lastSeen: nowMs() });
+        } catch (_) {
+        }
+      }, HEARTBEAT_MS);
+      return () => {
+        clearInterval(iv);
+        try {
+          rt.updatePlayer(code, deviceId, { online: false });
+        } catch (_) {
+        }
+      };
+    }, [code, deviceId]);
+    const partiya = useMemo(() => {
+      if (!meta || !meta.seed || !window.YasnaTrivia) return null;
+      try {
+        return window.YasnaTrivia.generatePartiya(meta.seed, meta.partiyaMode || "standard", meta.themes || null);
+      } catch (_) {
+        return null;
+      }
+    }, [meta && meta.seed, meta && meta.partiyaMode]);
+    const flat = useMemo(() => flattenPartiya(partiya), [partiya]);
+    const totalQ = flat.length;
+    useEffect(() => {
+      if (status === "playing" && localPhase === "lobby" && totalQ > 0) {
+        setLocalPhase("playing");
+        setQIdx(0);
+        setScore(0);
+        setCorrectCount(0);
+        setStreak(0);
+        submittedResultRef.current = false;
+      }
+    }, [status, totalQ]);
+    useEffect(() => {
+      if (!isHost || status !== "playing" || judgedRef.current) return;
+      const arr = Object.values(players || {});
+      const online = arr.filter(isOnline);
+      const anyFinished = arr.some((p) => p.finished);
+      const allOnlineFinished = online.length > 0 && online.every((p) => p.finished);
+      function writeResults() {
+        if (judgedRef.current) return;
+        judgedRef.current = true;
+        const ranked = rankPlayers(players).map((p, i) => ({
+          deviceId: p.deviceId,
+          nickname: p.nickname || "\u0418\u0433\u0440\u043E\u043A",
+          avatar: typeof p.avatar === "string" ? p.avatar : null,
+          score: p.score || 0,
+          correct: p.correct || 0,
+          rank: i + 1
+        }));
+        try {
+          rt.updateGroupMeta(code, { status: "finished", results: ranked, finishedAt: nowMs() });
+        } catch (_) {
+        }
+      }
+      if (allOnlineFinished) {
+        if (finishTimerRef.current) {
+          clearTimeout(finishTimerRef.current);
+          finishTimerRef.current = null;
+        }
+        writeResults();
+      } else if (anyFinished && !finishTimerRef.current) {
+        finishTimerRef.current = setTimeout(writeResults, FINISH_WAIT_MS);
+      }
+    }, [isHost, status, players]);
+    useEffect(() => {
+      if (status !== "finished" || submittedResultRef.current) return;
+      submittedResultRef.current = true;
+      const results = meta && meta.results || [];
+      const mine = results.find((r) => r.deviceId === deviceId);
+      const myRank = mine ? mine.rank : null;
+      const total = results.length || Object.keys(players).length;
+      const matchId = "group-" + code + "-" + (meta && meta.seed || "");
+      try {
+        window.YasnaDuelStorage && window.YasnaDuelStorage.recordMatch && window.YasnaDuelStorage.recordMatch({
+          matchId,
+          gameId: "group",
+          yasnaId: "\u0441\u0443\u0442\u043E\u043A",
+          result: myRank === 1 ? "win" : "loss",
+          score,
+          maxScore: totalQ * 15,
+          time: 0,
+          transport: "group",
+          isBot: false,
+          bySurrender: false,
+          themesPlayed: flat.map((f) => f.theme && f.theme.id).filter(Boolean)
+        });
+      } catch (_) {
+      }
+      try {
+        window.YasnaLeaderboardClient && window.YasnaLeaderboardClient.submitMatch && window.YasnaLeaderboardClient.submitMatch({
+          matchId,
+          deviceId,
+          nickname: profile && profile.nickname,
+          avatar: profile && typeof profile.avatar === "string" ? profile.avatar : "\xB7",
+          gameId: "group",
+          yasnaId: "\u0441\u0443\u0442\u043E\u043A",
+          result: myRank === 1 ? "win" : "loss",
+          score,
+          maxScore: totalQ * 15,
+          time: 0,
+          transport: "group",
+          isBot: false,
+          players: total,
+          rank: myRank
+        }).catch(() => {
+        });
+      } catch (_) {
+      }
+    }, [status]);
+    function startGame() {
+      if (!isHost) return;
+      const onlineCount = Object.values(players).filter(isOnline).length;
+      const minP2 = meta && meta.minPlayers || 3;
+      if (onlineCount < minP2) return;
+      try {
+        rt.updateGroupMeta(code, { seed: nowMs(), status: "playing", startedAt: nowMs() });
+      } catch (_) {
+      }
+    }
+    function onAnswer(res) {
+      const newStreak = res.correct ? streak + 1 : 0;
+      const gained = res.correct ? Math.round(sh.buseyForCorrect(res.timeMs) * sh.streakMultiplier(newStreak)) : 0;
+      const newScore = score + gained;
+      const newCorrect = correctCount + (res.correct ? 1 : 0);
+      setStreak(newStreak);
+      setScore(newScore);
+      setCorrectCount(newCorrect);
+      const isLast = qIdx + 1 >= totalQ;
+      try {
+        rt.updatePlayer(code, deviceId, {
+          score: newScore,
+          correct: newCorrect,
+          streak: newStreak,
+          finished: isLast,
+          lastSeen: nowMs()
+        });
+      } catch (_) {
+      }
+      if (isLast) {
+        setLocalPhase("done");
+      } else {
+        setQIdx(qIdx + 1);
+      }
+    }
+    function hostAgain() {
+      if (!isHost) return;
+      judgedRef.current = false;
+      try {
+        rt.updateGroupMeta(code, { status: "lobby", seed: null, results: null, startedAt: null });
+      } catch (_) {
+      }
+      try {
+        rt.updatePlayer(code, deviceId, { score: 0, correct: 0, streak: 0, finished: false });
+      } catch (_) {
+      }
+      setLocalPhase("lobby");
+      setQIdx(0);
+      setScore(0);
+      setCorrectCount(0);
+      setStreak(0);
+    }
+    function copyLink() {
+      const link = window.location.origin + window.location.pathname + "?kroom=" + encodeURIComponent(code);
+      window.YasnaClipboard(
+        link,
+        () => {
+          setCopyFallback("");
+        },
+        () => {
+          setCopyFallback(link);
+        }
+      );
+    }
+    useEffect(() => {
+      if (status === "lobby" && localPhase === "done") {
+        setLocalPhase("lobby");
+        setQIdx(0);
+        setScore(0);
+        setCorrectCount(0);
+        setStreak(0);
+        try {
+          rt.updatePlayer(code, deviceId, { score: 0, correct: 0, streak: 0, finished: false });
+        } catch (_) {
+        }
+      }
+    }, [status]);
+    if (status === "finished") {
+      return React.createElement(GroupResults, {
+        results: meta && meta.results,
+        players,
+        meId: deviceId,
+        onClose,
+        onAgain: hostAgain,
+        canAgain: isHost
+      });
+    }
+    if (status === "playing" && localPhase !== "lobby") {
+      if (localPhase === "done" || qIdx >= totalQ) {
+        return React.createElement(
+          "div",
+          { className: "tn-fullscreen" },
+          React.createElement(
+            "div",
+            { className: "tn-container", style: { maxWidth: 560, margin: "0 auto" } },
+            React.createElement(
+              "div",
+              { style: { textAlign: "center", padding: "24px 0" } },
+              React.createElement("div", { style: { fontSize: 30, marginBottom: 8 } }, "\u25F7"),
+              React.createElement("h2", { style: { fontSize: 18, fontWeight: 600 } }, "\u0413\u043E\u0442\u043E\u0432\u043E! \u0416\u0434\u0451\u043C \u043E\u0441\u0442\u0430\u043B\u044C\u043D\u044B\u0445\u2026"),
+              React.createElement("p", { style: { color: "#86868b", fontSize: 13 } }, "\u0422\u0432\u043E\u0439 \u0441\u0447\u0451\u0442: " + score + " \u2726")
+            ),
+            React.createElement(GroupScoreboard, { players, meId: deviceId })
+          )
+        );
+      }
+      const cur = flat[qIdx];
+      const QEB = sh.QuestionErrorBoundary;
+      const qEl = React.createElement(GroupQuestion, {
+        key: cur.q && cur.q.id || qIdx,
+        q: cur.q,
+        theme: cur.theme,
+        qOverall: qIdx,
+        totalOverall: totalQ,
+        onAnswer
+      });
+      return React.createElement(
+        "div",
+        { className: "dp-group-play" },
+        React.createElement(GroupScoreboard, { players, meId: deviceId, compact: true }),
+        QEB ? React.createElement(QEB, { onSkip: () => onAnswer({ correct: false, timeMs: 15e3, value: -1 }) }, qEl) : qEl
+      );
+    }
+    const onlinePlayers = Object.values(players).filter(isOnline);
+    const minP = meta && meta.minPlayers || 3;
+    const cap = meta && meta.capacity || 8;
+    const canStart = isHost && onlinePlayers.length >= minP;
+    return React.createElement(
+      "div",
+      { className: "dp-lobby-overlay", onClick: (e) => {
+        if (e.target === e.currentTarget) onClose();
+      } },
+      React.createElement(
+        "div",
+        { className: "dp-lobby", role: "dialog", "aria-modal": "true" },
+        React.createElement("button", { className: "dp-lobby-x", onClick: onClose, "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C" }, "\xD7"),
+        React.createElement("div", { className: "dp-lobby-eyebrow" }, "\u2726  \u041A\u0430\u0441\u0442\u0430 \xB7 \u0432\u0434\u0435\u0441\u044F\u0442\u0435\u0440\u043E\u043C \u0432\u0435\u0441\u0435\u043B\u0435\u0435"),
+        React.createElement("h2", null, "\u041F\u0430\u0440\u0442\u0438\u044F \u043D\u0430 \u043A\u043E\u043C\u043F\u0430\u043D\u0438\u044E"),
+        React.createElement(
+          "div",
+          { className: "dp-lobby-code-block" },
+          React.createElement("div", { className: "dp-lobby-code-label" }, "\u041A\u043E\u0434 \u043A\u043E\u043C\u043D\u0430\u0442\u044B"),
+          React.createElement("div", { className: "dp-lobby-code" }, code),
+          React.createElement("div", { className: "dp-lobby-code-hint" }, "\u0420\u0430\u0437\u043E\u0448\u043B\u0438 \u043A\u043E\u0434 \u0438\u043B\u0438 \u0441\u0441\u044B\u043B\u043A\u0443 \u2014 \u043F\u0443\u0441\u0442\u044C \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0430\u044E\u0442\u0441\u044F"),
+          React.createElement("button", { className: "dp-lobby-code-link", onClick: copyLink }, "\u0421\u043A\u043E\u043F\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0441\u0441\u044B\u043B\u043A\u0443"),
+          copyFallback && React.createElement(
+            "div",
+            { className: "dp-lobby-code-fallback" },
+            React.createElement("div", { className: "dp-lobby-code-fallback-hint" }, "\u0421\u043A\u043E\u043F\u0438\u0440\u0443\u0439 \u0441\u0441\u044B\u043B\u043A\u0443 \u0432\u0440\u0443\u0447\u043D\u0443\u044E:"),
+            React.createElement("input", {
+              className: "dp-lobby-code-fallback-input",
+              type: "text",
+              readOnly: true,
+              value: copyFallback,
+              autoFocus: true,
+              onFocus: (e) => e.target.select(),
+              onClick: (e) => e.target.select()
+            })
+          )
+        ),
+        React.createElement(
+          "div",
+          { className: "dp-group-lobby-head" },
+          React.createElement("span", { className: "dp-group-lobby-count" }, onlinePlayers.length + " / " + cap),
+          React.createElement("span", { className: "dp-group-lobby-hint" }, "\u0438\u0433\u0440\u043E\u043A\u043E\u0432 \u0432 \u043A\u043E\u043C\u043D\u0430\u0442\u0435")
+        ),
+        React.createElement(
+          "div",
+          { className: "dp-group-lobby-list" },
+          rankPlayers(players).map((p) => React.createElement(
+            "div",
+            {
+              key: p.deviceId,
+              className: "dp-group-lobby-player" + (isOnline(p) ? "" : " is-off")
+            },
+            React.createElement("span", { className: "dp-group-board-av" }, sh.renderTnAvatar ? sh.renderTnAvatar(p.avatar, p.nickname) : "\u25D0"),
+            React.createElement(
+              "span",
+              { className: "dp-group-lobby-pname" },
+              p.nickname || "\u0418\u0433\u0440\u043E\u043A",
+              p.role === "host" && React.createElement("span", { className: "dp-group-lobby-badge" }, " \u0445\u043E\u0437\u044F\u0438\u043D")
+            )
+          ))
+        ),
+        isHost ? React.createElement(
+          React.Fragment,
+          null,
+          React.createElement("button", {
+            className: "dp-btn dp-btn-cta",
+            onClick: startGame,
+            disabled: !canStart,
+            style: { width: "100%", marginTop: 8 }
+          }, canStart ? "\u041D\u0430\u0447\u0430\u0442\u044C \u043F\u0430\u0440\u0442\u0438\u044E \u2192" : "\u041D\u0443\u0436\u043D\u043E \u0435\u0449\u0451 " + Math.max(0, minP - onlinePlayers.length) + " (\u043C\u0438\u043D. " + minP + ")")
+        ) : React.createElement(
+          "div",
+          { className: "dp-lobby-status" },
+          React.createElement("div", { className: "dp-lobby-status-icon" }, "\u25F7"),
+          React.createElement("div", { className: "dp-lobby-status-title" }, "\u0416\u0434\u0451\u043C, \u043F\u043E\u043A\u0430 \u0445\u043E\u0437\u044F\u0438\u043D \u043D\u0430\u0447\u043D\u0451\u0442\u2026")
+        )
+      )
+    );
+  }
+  function GroupApp({ profile, initialMode, initialCode, onClose, onNeedNickname }) {
+    const me = profile;
+    const [mode, setMode] = useState(initialMode || "choose");
+    const [code, setCode] = useState(initialCode || "");
+    const [inputCode, setInputCode] = useState(initialCode || "");
+    const [error, setError] = useState(null);
+    const [busy, setBusy] = useState(false);
+    const [cfgMode, setCfgMode] = useState("standard");
+    const [cfgCap, setCfgCap] = useState(8);
+    const rt = window.YasnaRT;
+    function needNick() {
+      if (me && me.deviceId && me.nickname) return false;
+      if (onNeedNickname) {
+        onNeedNickname();
+      }
+      return true;
+    }
+    async function doCreate() {
+      if (needNick()) return;
+      setBusy(true);
+      setError(null);
+      try {
+        const { code: c } = await rt.createGroupRoom({
+          deviceId: me.deviceId,
+          nickname: me.nickname,
+          avatar: me.avatar || null,
+          capacity: cfgCap,
+          minPlayers: 3,
+          partiyaMode: cfgMode,
+          themes: null
+        });
+        setCode(c);
+        setMode("room");
+      } catch (e) {
+        setError("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u043A\u043E\u043C\u043D\u0430\u0442\u0443: " + (e && e.message));
+        setMode("error");
+      } finally {
+        setBusy(false);
+      }
+    }
+    async function doJoin(codeOverride) {
+      const c = String(codeOverride || inputCode).trim().toUpperCase();
+      if (!/^KASTA-[A-Z0-9]{4}$/.test(c)) {
+        setError("\u041A\u043E\u0434 \u0434\u043E\u043B\u0436\u0435\u043D \u0431\u044B\u0442\u044C \u0432 \u0444\u043E\u0440\u043C\u0430\u0442\u0435 KASTA-XXXX");
+        return;
+      }
+      if (needNick()) return;
+      setBusy(true);
+      setError(null);
+      setMode("join");
+      setInputCode(c);
+      try {
+        await rt.joinGroupRoom(c, { deviceId: me.deviceId, nickname: me.nickname, avatar: me.avatar || null });
+        setCode(c);
+        setMode("room");
+      } catch (e) {
+        const m = e && e.message;
+        if (m === "not_found") setError("\u041A\u043E\u043C\u043D\u0430\u0442\u0430 \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u0430. \u041F\u0440\u043E\u0432\u0435\u0440\u044C \u043A\u043E\u0434.");
+        else if (m === "room_full") setError("\u041A\u043E\u043C\u043D\u0430\u0442\u0430 \u0437\u0430\u043F\u043E\u043B\u043D\u0435\u043D\u0430.");
+        else if (m === "already_started") setError("\u041F\u0430\u0440\u0442\u0438\u044F \u0443\u0436\u0435 \u0438\u0434\u0451\u0442 \u2014 \u043F\u043E\u043F\u0440\u043E\u0441\u0438 \u043A\u043E\u0434 \u043D\u0430 \u0441\u043B\u0435\u0434\u0443\u044E\u0449\u0443\u044E.");
+        else if (m === "closed") setError("\u041A\u043E\u043C\u043D\u0430\u0442\u0430 \u0437\u0430\u043A\u0440\u044B\u0442\u0430.");
+        else if (m === "wrong_kind") setError("\u042D\u0442\u043E \u043A\u043E\u0434 \u043E\u0431\u044B\u0447\u043D\u043E\u0439 \u041F\u0430\u0440\u0442\u0438\u0438, \u043D\u0435 \u041A\u0430\u0441\u0442\u044B.");
+        else setError("\u041E\u0448\u0438\u0431\u043A\u0430 \u0432\u0445\u043E\u0434\u0430: " + m);
+        setMode("error");
+      } finally {
+        setBusy(false);
+      }
+    }
+    useEffect(() => {
+      if (initialMode === "join" && initialCode) {
+        setTimeout(() => doJoin(initialCode), 100);
+      }
+    }, []);
+    if (mode === "room" && code) {
+      return React.createElement(GroupRoom, { code, deviceId: me.deviceId, profile: me, onClose });
+    }
+    const overlay = (children) => React.createElement("div", {
+      className: "dp-lobby-overlay",
+      onClick: (e) => {
+        if (e.target === e.currentTarget) onClose();
+      }
+    }, React.createElement(
+      "div",
+      { className: "dp-lobby", role: "dialog", "aria-modal": "true" },
+      React.createElement("button", { className: "dp-lobby-x", onClick: onClose, "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C" }, "\xD7"),
+      React.createElement("div", { className: "dp-lobby-eyebrow" }, "\u2726  \u041A\u0430\u0441\u0442\u0430 \xB7 \u043A\u043E\u043C\u043F\u0430\u043D\u0438\u0435\u0439"),
+      React.createElement("h2", null, "\u041F\u0430\u0440\u0442\u0438\u044F \u043D\u0430 \u043A\u043E\u043C\u043F\u0430\u043D\u0438\u044E"),
+      children
+    ));
+    if (mode === "choose") {
+      return overlay(React.createElement(
+        React.Fragment,
+        null,
+        React.createElement("p", { className: "dp-lobby-sub" }, "\u0421\u043E\u0431\u0435\u0440\u0438 \u043A\u043E\u043C\u043F\u0430\u043D\u0438\u044E 3\u20138 \u0447\u0435\u043B\u043E\u0432\u0435\u043A \u043F\u043E \u043E\u0434\u043D\u043E\u0439 \u0441\u0441\u044B\u043B\u043A\u0435."),
+        React.createElement(
+          "div",
+          { className: "dp-lobby-options" },
+          React.createElement(
+            "button",
+            { className: "dp-lobby-opt", onClick: () => setMode("create") },
+            React.createElement("div", { className: "dp-lobby-opt-icon" }, "\u25EF"),
+            React.createElement("div", { className: "dp-lobby-opt-title" }, "\u0421\u043E\u0437\u0434\u0430\u0442\u044C"),
+            React.createElement("div", { className: "dp-lobby-opt-sub" }, "\u041D\u0430\u0441\u0442\u0440\u043E\u0438\u0448\u044C \u043F\u0430\u0440\u0442\u0438\u044E, \u043F\u043E\u0437\u043E\u0432\u0451\u0448\u044C \u0434\u0440\u0443\u0437\u0435\u0439.")
+          ),
+          React.createElement(
+            "button",
+            { className: "dp-lobby-opt", onClick: () => setMode("join") },
+            React.createElement("div", { className: "dp-lobby-opt-icon" }, "\u25D0"),
+            React.createElement("div", { className: "dp-lobby-opt-title" }, "\u0412\u043E\u0439\u0442\u0438 \u043F\u043E \u043A\u043E\u0434\u0443"),
+            React.createElement("div", { className: "dp-lobby-opt-sub" }, "\u0412\u0432\u0435\u0434\u0438 \u043A\u043E\u0434, \u0447\u0442\u043E \u043F\u0440\u0438\u0441\u043B\u0430\u043B \u0434\u0440\u0443\u0433.")
+          )
+        ),
+        error && React.createElement("div", { className: "dp-lobby-error" }, error)
+      ));
+    }
+    if (mode === "create") {
+      const modes = [
+        { id: "blitz", label: "\u0411\u043B\u0438\u0446", count: 10 },
+        { id: "standard", label: "\u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442", count: 18 },
+        { id: "expert", label: "\u042D\u043A\u0441\u043F\u0435\u0440\u0442", count: 30 }
+      ];
+      return overlay(React.createElement(
+        React.Fragment,
+        null,
+        React.createElement("div", { className: "dp-picker-section-eyebrow", style: { marginTop: 4 } }, "\u25F7  \u0421\u043A\u043E\u043B\u044C\u043A\u043E \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432"),
+        React.createElement(
+          "div",
+          { className: "dp-mode-grid" },
+          modes.map((m) => React.createElement(
+            "button",
+            {
+              key: m.id,
+              type: "button",
+              className: "dp-mode-btn" + (cfgMode === m.id ? " dp-mode-btn-active" : ""),
+              onClick: () => setCfgMode(m.id)
+            },
+            React.createElement("div", { className: "dp-mode-btn-count" }, m.count),
+            React.createElement("div", { className: "dp-mode-btn-label" }, m.label)
+          ))
+        ),
+        React.createElement("div", { className: "dp-picker-section-eyebrow", style: { marginTop: 14 } }, "\u2637  \u0421\u043A\u043E\u043B\u044C\u043A\u043E \u0438\u0433\u0440\u043E\u043A\u043E\u0432 (\u043C\u0430\u043A\u0441.)"),
+        React.createElement(
+          "div",
+          { className: "dp-group-cap" },
+          React.createElement("button", { type: "button", className: "dp-group-cap-btn", onClick: () => setCfgCap(Math.max(3, cfgCap - 1)) }, "\u2212"),
+          React.createElement("span", { className: "dp-group-cap-val" }, cfgCap),
+          React.createElement("button", { type: "button", className: "dp-group-cap-btn", onClick: () => setCfgCap(Math.min(8, cfgCap + 1)) }, "+")
+        ),
+        React.createElement("button", {
+          className: "dp-btn dp-btn-cta",
+          onClick: doCreate,
+          disabled: busy,
+          style: { width: "100%", marginTop: 16 }
+        }, busy ? "\u0421\u043E\u0437\u0434\u0430\u0451\u043C\u2026" : "\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u043A\u043E\u043C\u043D\u0430\u0442\u0443 \u2192"),
+        error && React.createElement("div", { className: "dp-lobby-error" }, error)
+      ));
+    }
+    if (mode === "join") {
+      return overlay(React.createElement(
+        React.Fragment,
+        null,
+        React.createElement("p", { className: "dp-lobby-sub" }, busy ? "\u041F\u043E\u0434\u043A\u043B\u044E\u0447\u0430\u044E\u0441\u044C \u043A " + inputCode + "\u2026" : "\u0412\u0432\u0435\u0434\u0438 \u043A\u043E\u0434 \u043E\u0442 \u0445\u043E\u0437\u044F\u0438\u043D\u0430"),
+        !busy && React.createElement("input", {
+          className: "dp-lobby-input",
+          placeholder: "KASTA-XXXX",
+          value: inputCode,
+          maxLength: 10,
+          autoFocus: true,
+          onChange: (e) => setInputCode(e.target.value),
+          onKeyDown: (e) => {
+            if (e.key === "Enter") doJoin();
+          }
+        }),
+        !busy && React.createElement("button", {
+          className: "dp-btn dp-btn-cta",
+          onClick: () => doJoin(),
+          disabled: !inputCode.trim(),
+          style: { width: "100%" }
+        }, "\u0412\u043E\u0439\u0442\u0438 \u2192"),
+        error && React.createElement("div", { className: "dp-lobby-error" }, error)
+      ));
+    }
+    return overlay(React.createElement(
+      React.Fragment,
+      null,
+      React.createElement(
+        "div",
+        { className: "dp-lobby-status" },
+        React.createElement("div", { className: "dp-lobby-status-icon", style: { color: "var(--danger)" } }, "\u25CB"),
+        React.createElement("div", { className: "dp-lobby-status-title" }, "\u041D\u0435 \u043F\u043E\u043B\u0443\u0447\u0438\u043B\u043E\u0441\u044C"),
+        React.createElement("div", { className: "dp-lobby-status-sub" }, error || "\u041F\u043E\u043F\u0440\u043E\u0431\u0443\u0439 \u0435\u0449\u0451 \u0440\u0430\u0437")
+      ),
+      React.createElement("button", { className: "dp-btn", onClick: () => {
+        setError(null);
+        setMode("choose");
+      }, style: { width: "100%" } }, "\u041D\u0430\u0437\u0430\u0434")
+    ));
+  }
+  window.YasnaGroup = { GroupApp };
 })();
 
 })();
@@ -21919,6 +22882,38 @@ window.YasnaCore = {
                 React.createElement("span", { className: "dp-cta__sub" }, "\u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435-\u043A\u043E\u043C\u043D\u0430\u0442\u0435")
               ),
               React.createElement("span", { className: "dp-cta__badge", "aria-hidden": "true" }, "\u2726")
+            ),
+            React.createElement(
+              "button",
+              {
+                type: "button",
+                className: "dp-cta dp-cta--group",
+                onClick: (e) => {
+                  e.stopPropagation();
+                  onPartiya("group");
+                },
+                "aria-label": "\u0418\u0433\u0440\u0430\u0442\u044C \u0441 \u043A\u043E\u043B\u043B\u0435\u043A\u0442\u0438\u0432\u043E\u043C"
+              },
+              React.createElement(
+                "span",
+                { className: "dp-cta__icon", "aria-hidden": "true" },
+                React.createElement(
+                  "svg",
+                  { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round", strokeLinejoin: "round" },
+                  React.createElement("circle", { cx: 7, cy: 9, r: 2.3 }),
+                  React.createElement("circle", { cx: 12, cy: 7.5, r: 2.3 }),
+                  React.createElement("circle", { cx: 17, cy: 9, r: 2.3 }),
+                  React.createElement("path", { d: "M3 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2" }),
+                  React.createElement("path", { d: "M13 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2" })
+                )
+              ),
+              React.createElement(
+                "span",
+                { className: "dp-cta__body" },
+                React.createElement("span", { className: "dp-cta__title" }, "\u0421 \u043A\u043E\u043B\u043B\u0435\u043A\u0442\u0438\u0432\u043E\u043C"),
+                React.createElement("span", { className: "dp-cta__sub" }, "\u043A\u043E\u043C\u043F\u0430\u043D\u0438\u0435\u0439 3\u20138 \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435")
+              ),
+              React.createElement("span", { className: "dp-cta__badge", "aria-hidden": "true" }, "NEW")
             )
           )
         ),
@@ -23331,6 +24326,16 @@ window.YasnaCore = {
       }
     }, []);
     const [lobby, setLobby] = useState(urlRoom ? { game: "turnir", lobbyMode: "guest", code: urlRoom } : null);
+    const urlKroom = useMemo(() => {
+      try {
+        const p = new URLSearchParams(window.location.search);
+        const r = (p.get("kroom") || "").trim().toUpperCase();
+        return /^KASTA-[A-Z0-9]{4}$/.test(r) ? r : null;
+      } catch (_) {
+        return null;
+      }
+    }, []);
+    const [groupLobby, setGroupLobby] = useState(urlKroom ? { initialMode: "join", code: urlKroom } : null);
     const [, setTick] = useState(0);
     const [orientHidden, setOrientHidden] = useState(() => {
       try {
@@ -23439,9 +24444,14 @@ window.YasnaCore = {
       setLobby(null);
       askPartiyaMode("pvp");
     };
+    const startGroup = () => {
+      requireProfile(() => setGroupLobby({ initialMode: "choose" }));
+    };
     const onPartiyaCTA = (opp) => {
       if (opp === "pvp") {
         startPvP();
+      } else if (opp === "group") {
+        startGroup();
       } else {
         askPartiyaMode(opp);
       }
@@ -23473,6 +24483,12 @@ window.YasnaCore = {
         window.__dpPendingPlay = () => setLobby({ game: "turnir", lobbyMode: "guest", code: urlRoom });
       }
     }, [urlRoom]);
+    useEffect(() => {
+      if (urlKroom && !user && !profile) {
+        setAnonModal(true);
+        window.__dpPendingPlay = () => setGroupLobby({ initialMode: "join", code: urlKroom });
+      }
+    }, [urlKroom]);
     if (game) {
       const Turnir = _g("YasnaTurnir");
       if (!Turnir) {
@@ -23510,6 +24526,32 @@ window.YasnaCore = {
           }
         })
       );
+    }
+    if (groupLobby) {
+      const Group = _g("YasnaGroup");
+      const meBase = profile || user;
+      const gid = profile && profile.deviceId || user && user.deviceId || _g("YasnaDuelProfile") && _g("YasnaDuelProfile").load && (_g("YasnaDuelProfile").load() || {}).deviceId;
+      if (Group && meBase && gid) {
+        const meG = { nickname: meBase.nickname, avatar: meBase.avatar, deviceId: gid };
+        return React.createElement(
+          DPErrorBoundary,
+          null,
+          React.createElement(Group.GroupApp, {
+            profile: meG,
+            initialMode: groupLobby.initialMode || "choose",
+            initialCode: groupLobby.code || null,
+            onNeedNickname: () => setAnonModal(true),
+            onClose: () => {
+              setGroupLobby(null);
+              try {
+                window.history.replaceState({}, "", window.location.pathname);
+              } catch (_) {
+              }
+              setTick((t) => t + 1);
+            }
+          })
+        );
+      }
     }
     return React.createElement(
       "div",

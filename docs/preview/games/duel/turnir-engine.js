@@ -62,6 +62,46 @@
     return baseScore + speedBonus;
   }
 
+  // Модульный множитель серии — копия внутреннего streakMultiplier из TurnirGame
+  // (тот остаётся как есть и шадоует этот внутри компонента). Экспортируется
+  // в __shared для group-engine, чтобы скоринг был идентичен 2p.
+  function streakMultiplier(s){
+    if(s >= 7) return 2.0;
+    if(s >= 5) return 1.5;
+    if(s >= 3) return 1.2;
+    return 1.0;
+  }
+
+  // Чистая проверка правильности ответа — единый источник истины для всех
+  // 5 типов вопросов. Логика идентична inline-проверкам в Question (790+);
+  // вынесена сюда, чтобы group-engine использовал ТЕ ЖЕ правила без дублирования.
+  // chosen: индекс | строка (fill) | массив (multi) | {leftIdx:rightIdx} (match) | -1/null (timeout).
+  function checkAnswer(q, chosen){
+    const qType = (q && q.type) || 'single-choice';
+    if(chosen == null || chosen === -1) return false;
+    if(qType === 'fill-blank'){
+      const norm = s => String(s || '').toLowerCase().trim()
+        .replace(/ё/g, 'е').replace(/[.,!?;:"'()\[\]]/g, '').replace(/\s+/g, ' ');
+      const acceptable = [q.correct, ...((q.alternatives) || [])].map(norm);
+      return acceptable.includes(norm(chosen));
+    }
+    if(qType === 'multi-choice'){
+      if(!Array.isArray(chosen)) return false;
+      const a = [...(q.correct || [])].sort();
+      const b = [...chosen].sort();
+      return a.length === b.length && a.every((v, i) => v === b[i]);
+    }
+    if(qType === 'match-pair'){
+      if(!chosen || typeof chosen !== 'object') return false;
+      const total = (q.pairsLeft || []).length;
+      let cc = 0;
+      for(let i = 0; i < total; i++){ if(chosen[i] === i) cc++; }
+      return total > 0 && cc === total;
+    }
+    // single-choice / true-false
+    return chosen === q.correct;
+  }
+
   function avatarInitials(name){
     if(!name) return '·';
     return String(name).trim().slice(0, 1).toUpperCase();
@@ -1808,5 +1848,16 @@
     return null;
   }
 
-  window.YasnaTurnir = { TurnirGame };
+  window.YasnaTurnir = {
+    TurnirGame,
+    // Общие presentational-компоненты и хелперы для group-engine.js.
+    // НЕ содержат 2p-логики (scoreP/scoreO/opp-wait) — чистый рендер + расчёт.
+    __shared: {
+      QUESTION_TIME, SHOW_FEEDBACK_MS,
+      buseyForCorrect, streakMultiplier, checkAnswer, renderTnAvatar,
+      QuestionErrorBoundary,
+      TnTopBar, TnGameProgress, TnTimerBar, TnQuestionCard, TnFeedbackBanner,
+      TnOptions, TnTrueFalse, TnMultiChoice, TnMatchPair, TnFillBlank,
+    },
+  };
 })();
