@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-06-12T14:55:58.737Z */
+/* Yasna bundle: duel.js — собран 2026-06-12T15:11:16.515Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -6069,7 +6069,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-06-12T14:55:58.373Z", "contentVersion": "1.1.0", "files": 11, "themes": 11, "atomsTotal": 334, "questionsTotal": 168, "questionsLegacy": 100 };
+  const BUILD_INFO = { "builtAt": "2026-06-12T15:11:16.198Z", "contentVersion": "1.1.0", "files": 11, "themes": 11, "atomsTotal": 334, "questionsTotal": 168, "questionsLegacy": 100 };
   const THEMES = [
     {
       "id": "dzhiva-serdtse",
@@ -26857,6 +26857,30 @@ window.YasnaCore = {
       React.createElement(
         "footer",
         { className: "dp-footer" },
+        // Переключатель темы (оформление) — здесь, а не в хедере, чтобы не
+        // загромождать навигацию. Тогглит класс vk-light на body + color-scheme.
+        React.createElement(
+          "button",
+          {
+            className: "dp-theme-switch",
+            type: "button",
+            "aria-label": "\u041F\u0435\u0440\u0435\u043A\u043B\u044E\u0447\u0438\u0442\u044C \u0442\u0435\u043C\u0443 \u043E\u0444\u043E\u0440\u043C\u043B\u0435\u043D\u0438\u044F",
+            onClick: () => {
+              const goDark = document.body.classList.contains("vk-light");
+              document.body.classList.toggle("vk-light", !goDark);
+              try {
+                document.documentElement.style.colorScheme = goDark ? "dark" : "light";
+              } catch (_) {
+              }
+              try {
+                localStorage.setItem("yasna_theme_vk_dark", goDark ? "1" : "0");
+              } catch (_) {
+              }
+              setTick((t) => t + 1);
+            }
+          },
+          document.body.classList.contains("vk-light") ? "\u{1F319}  \u0422\u0451\u043C\u043D\u0430\u044F \u0442\u0435\u043C\u0430" : "\u2600  \u0421\u0432\u0435\u0442\u043B\u0430\u044F \u0442\u0435\u043C\u0430"
+        ),
         React.createElement(
           "div",
           { className: "dp-footer-quote" },

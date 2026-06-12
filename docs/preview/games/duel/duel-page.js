@@ -2007,6 +2007,21 @@
           ),
 
       React.createElement('footer', { className: 'dp-footer' },
+        // Переключатель темы (оформление) — здесь, а не в хедере, чтобы не
+        // загромождать навигацию. Тогглит класс vk-light на body + color-scheme.
+        React.createElement('button', {
+          className: 'dp-theme-switch', type: 'button',
+          'aria-label': 'Переключить тему оформления',
+          onClick: () => {
+            const goDark = document.body.classList.contains('vk-light'); // сейчас светлая → в тёмную
+            document.body.classList.toggle('vk-light', !goDark);
+            try { document.documentElement.style.colorScheme = goDark ? 'dark' : 'light'; } catch(_){}
+            try { localStorage.setItem('yasna_theme_vk_dark', goDark ? '1' : '0'); } catch(_){}
+            setTick(t => t + 1);
+          },
+        },
+          document.body.classList.contains('vk-light') ? '🌙  Тёмная тема' : '☀  Светлая тема'
+        ),
         React.createElement('div', { className: 'dp-footer-quote' },
           '«В Ясне не выигрывают и не проигрывают.', React.createElement('br'),
           'Здесь играют — это и есть смысл.»'

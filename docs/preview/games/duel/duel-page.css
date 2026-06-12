@@ -1195,6 +1195,24 @@ a { color: inherit; }
   color: var(--text-3);
   line-height: 1.8;
 }
+/* Переключатель темы (оформление) — компактная пилюля в футере */
+.dp-theme-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 auto var(--space-5);
+  padding: 8px 16px;
+  border: 0.5px solid var(--border-1);
+  border-radius: 999px;
+  background: var(--bg-surface);
+  color: var(--text-2);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--easing-out), color var(--duration-fast) var(--easing-out);
+}
+.dp-theme-switch:hover { border-color: var(--accent); color: var(--text-1); }
 .dp-footer-quote {
   font-family: var(--font-serif);
   font-size: 13px;

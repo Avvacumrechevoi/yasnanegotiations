@@ -20,7 +20,7 @@
 <meta name="yasna:tg-bot" content="YasnaDuelBot"/>
 
 <link rel="stylesheet" href="styles.css"/>
-<link rel="stylesheet" href="games/duel/duel-page.css?v=layout8"/>
+<link rel="stylesheet" href="games/duel/duel-page.css?v=layout9"/>
 <!-- VK Dark Theme — экспериментальная альтернатива (только preview) -->
 <!-- Inter и Manrope как лицензионная замена VK Sans / VK Sans Display Expanded -->
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -33,6 +33,8 @@
 <link rel="stylesheet" href="core/site-nav.css?v=nav4"/>
 </head>
 <body class="theme-vk-dark vk-light">
+<!-- Тема оформления: применяем сохранённый выбор ДО отрисовки (без мигания). -->
+<script>try{var __d=localStorage.getItem('yasna_theme_vk_dark')==='1';if(__d)document.body.classList.remove('vk-light');document.documentElement.style.colorScheme=__d?'dark':'light';}catch(e){}</script>
 <div id="duel-page-root"></div>
 
 <!-- React + Three.js + Firebase из CDN -->
@@ -54,100 +56,9 @@
 
 <!-- Pre-built bundle: core/* + games/duel/* + duel-page (см. scripts/build.mjs) -->
 <!-- Cache-busting: меняй версию при каждом релизе чтобы CDN отдавал свежий файл -->
-<script src="dist/duel.min.js?v=gamefix12"></script>
-
-<!-- ═══ Theme Toggle — только в preview ═══════════════════════
-     Переключатель экспериментальной темной темы. Применяет/снимает
-     класс `theme-vk-dark` на body. Состояние в localStorage.
-     ─────────────────────────────────────────────────────────── -->
-<script>
-(function(){
-  'use strict';
-  var STORAGE_KEY = 'yasna_theme_vk_dark';
-  var BODY_CLASS = 'theme-vk-dark';
-
-  function isOn(){
-    try { return localStorage.getItem(STORAGE_KEY) === '1'; }
-    catch(_){ return false; }
-  }
-  function apply(on){
-    // VK-вёрстка (широкий контейнер, сетки) — ВСЕГДА. Цвет: светлый по
-    // умолчанию (класс vk-light), тёмный — когда on=true (снимаем vk-light).
-    document.body.classList.add(BODY_CLASS);
-    document.body.classList.toggle('vk-light', !on);
-    var btn = document.getElementById('dp-theme-toggle');
-    if(btn){
-      var icon = btn.querySelector('.dp-theme-toggle-icon');
-      if(icon) icon.textContent = on ? '☀' : '🌑';
-      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-      btn.title = on ? 'Светлая тема' : 'Тёмная тема';
-    }
-  }
-  function toggle(){
-    var next = !isOn();
-    try { localStorage.setItem(STORAGE_KEY, next ? '1' : '0'); } catch(_){}
-    apply(next);
-  }
-
-  // Применяем при загрузке (до первой отрисовки если возможно)
-  apply(isOn());
-
-  // ─── Кнопка теперь icon-only 32×32, инжектится В header (.dp-header-auth)
-  //     перед кнопкой «Войти/?». MutationObserver re-инжектит если React
-  //     пере-смонтировал хедер. ───
-  function makeButton(){
-    var btn = document.createElement('button');
-    btn.id = 'dp-theme-toggle';
-    btn.className = 'dp-theme-toggle dp-theme-toggle--header';
-    btn.type = 'button';
-    // Icon only — никаких label-span'ов
-    btn.innerHTML = '<span class="dp-theme-toggle-icon" aria-hidden="true">🌑</span>';
-    btn.addEventListener('click', toggle);
-    return btn;
-  }
-  function mountButton(){
-    if(document.getElementById('dp-theme-toggle')) return;
-    var auth = document.querySelector('.dp-header-auth');
-    var btn = makeButton();
-    if(auth){
-      // Вставляем ПЕРЕД help-btn (?) если есть, иначе в начало auth
-      var helpBtn = auth.querySelector('.dp-help-btn');
-      if(helpBtn){
-        auth.insertBefore(btn, helpBtn);
-      } else {
-        auth.insertBefore(btn, auth.firstChild);
-      }
-    } else {
-      // Fallback: если хедер ещё не отрендерен — кладём на body как раньше
-      document.body.appendChild(btn);
-    }
-    apply(isOn());
-  }
-  function startObserver(){
-    mountButton();
-    var obs = new MutationObserver(function(){
-      // Если кнопка пропала (React re-mount) — инжектим заново
-      if(!document.getElementById('dp-theme-toggle')){
-        mountButton();
-      } else {
-        // Если кнопка осталась на body, а .dp-header-auth уже появился — переносим внутрь
-        var btn = document.getElementById('dp-theme-toggle');
-        var auth = document.querySelector('.dp-header-auth');
-        if(btn && auth && btn.parentElement === document.body){
-          var helpBtn = auth.querySelector('.dp-help-btn');
-          if(helpBtn) auth.insertBefore(btn, helpBtn);
-          else auth.insertBefore(btn, auth.firstChild);
-        }
-      }
-    });
-    obs.observe(document.body, { childList: true, subtree: true });
-  }
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', startObserver);
-  } else {
-    startObserver();
-  }
-})();
-</script>
+<script src="dist/duel.min.js?v=gamefix13"></script>
+<!-- Старый header-инжект переключателя темы удалён: теперь единый переключатель
+     в футере (рендерится React, см. duel-page.js), а тема применяется до отрисовки
+     inline-скриптом после <body>. -->
 </body>
 </html>

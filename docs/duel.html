@@ -5,10 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta name="theme-color" content="#BA7517"/>
-<!-- Сайт оформлен в светлой теме (своя VK-светлая палитра). Объявляем это явно,
-     чтобы браузеры/телефоны в системном тёмном режиме НЕ перекрашивали страницу
-     принудительно (force-dark делал текст серым/невидимым в игре). -->
-<meta name="color-scheme" content="light"/>
 <title>Игра по Ясне</title>
 <meta name="description" content="Игра по Ясне — Партия из 18 вопросов с соперником Тенью. Тренируй память, собирай бусины, поднимайся по ступеням."/>
 <meta property="og:type" content="website"/>
@@ -24,7 +20,7 @@
 <meta name="yasna:tg-bot" content="YasnaDuelBot"/>
 
 <link rel="stylesheet" href="styles.css"/>
-<link rel="stylesheet" href="games/duel/duel-page.css?v=layout8"/>
+<link rel="stylesheet" href="games/duel/duel-page.css?v=layout9"/>
 <!-- Светлая VK-тема: широкая вёрстка тёмной темы в светлых цветах Конструктора -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=PT+Mono&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="vk-tech-tokens.css?v=9"/>
@@ -34,6 +30,11 @@
 <link rel="stylesheet" href="core/site-nav.css?v=nav4"/>
 </head>
 <body class="theme-vk-dark vk-light">
+<!-- Тема оформления: применяем сохранённый выбор ДО отрисовки (без мигания).
+     Светлая по умолчанию (vk-light); '1' в localStorage → тёмная (снимаем vk-light).
+     color-scheme выставляем явно, чтобы браузер в системном тёмном НЕ перекрашивал
+     светлую страницу принудительно (force-dark делал текст серым). -->
+<script>try{var __d=localStorage.getItem('yasna_theme_vk_dark')==='1';if(__d)document.body.classList.remove('vk-light');document.documentElement.style.colorScheme=__d?'dark':'light';}catch(e){}</script>
 <div id="duel-page-root"></div>
 
 <!-- React + Three.js + Firebase из CDN -->
@@ -55,6 +56,6 @@
 
 <!-- Pre-built bundle: core/* + games/duel/* + duel-page (см. scripts/build.mjs) -->
 <!-- Cache-busting: меняй версию при каждом релизе чтобы CDN отдавал свежий файл -->
-<script src="dist/duel.min.js?v=gamefix12"></script>
+<script src="dist/duel.min.js?v=gamefix13"></script>
 </body>
 </html>
