@@ -1474,11 +1474,21 @@ body.theme-vk-dark .tn-container-final {
   }
   body.theme-vk-dark .tn-container,
   body.theme-vk-dark .tn-container-final {
-    padding: 16px 16px 40px;
+    padding: 12px 16px 32px;
   }
   body.theme-vk-dark .tn-q-card {
-    padding: 20px;
+    padding: 16px 18px;
   }
+  /* ─── Компактная игровая «шапка» на мобиле ───
+     Меньше высоты у VS-плашки и отступов блоков → вопрос и варианты
+     поднимаются выше и помещаются на экран (было «перегружено»). */
+  body.theme-vk-dark .tn-topbar { padding-bottom: 8px; }
+  body.theme-vk-dark .tn-progress-seg { margin-bottom: 10px; }
+  body.theme-vk-dark .tn-vs-header { margin-bottom: 10px; padding: 2px 0; gap: 10px; }
+  body.theme-vk-dark .tn-vs-avatar { width: 32px; height: 32px; font-size: 15px; }
+  body.theme-vk-dark .tn-vs-name { font-size: 13px; }
+  body.theme-vk-dark .tn-vs-score { font-size: 11px; }
+  body.theme-vk-dark .tn-timer-bar { margin-bottom: 10px; }
   body.theme-vk-dark .tn-final-vs {
     padding: 24px 20px;
   }

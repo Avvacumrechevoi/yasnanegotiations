@@ -147,13 +147,31 @@ a { color: inherit; }
     align-items: center;
   }
   .dp-header-auth { position: static; }
+  /* Показываем бренд «Ясна» рядом с ✦ — строка 1 не выглядит пустой
+     (site-nav.css прячет .ynav-name на мобиле; перебиваем по специфичности). */
+  .dp-header-home .ynav-name { display: inline; font-size: 16px; font-weight: 600; color: var(--text-1, #1d1d1f); }
   .dp-header-nav a { padding: 6px 0; }   /* выше тач-цель */
-  /* Свитчер разделов — отдельной 2-й строкой на всю ширину. */
+  /* Свитчер разделов — отдельной 2-й строкой: аккуратная таб-полоса
+     на всю ширину (равномерно, в одну строку, со скроллом если не влезает)
+     + тонкий разделитель сверху, чтобы две строки читались как единый хедер. */
   .dp-switch {
     order: 3;
     flex-basis: 100%;
-    flex-wrap: wrap;
-    gap: var(--space-2) var(--space-4);
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 2px;
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 0.5px solid var(--border-2, rgba(0,0,0,.08));
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .dp-switch::-webkit-scrollbar { display: none; }
+  .dp-switch .ynav-item {
+    white-space: nowrap;
+    flex: 0 0 auto;
+    padding: 4px 2px;
+    font-size: 13px;
   }
 }
 
