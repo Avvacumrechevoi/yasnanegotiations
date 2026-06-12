@@ -1493,11 +1493,18 @@ a { color: inherit; }
   font-size: 11px; text-transform: uppercase; letter-spacing: 0.10em;
   color: var(--text-3);
   font-weight: 500;
-  margin-bottom: var(--space-4);
+  margin-bottom: 8px;
 }
 .tn-q-meta-num { color: var(--accent); font-weight: 600; }
 .tn-q-meta-dot { opacity: 0.5; }
 .tn-q-meta-theme { color: var(--text-2); }
+/* Строка темы — приглушённо, обычным регистром, читается как «Тема: …» */
+.tn-q-theme {
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: var(--text-3);
+  margin-bottom: 14px;
+}
 .tn-q-meta-time {
   margin-left: auto;
   background: var(--bg-soft);

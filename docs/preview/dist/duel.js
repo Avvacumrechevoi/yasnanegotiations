@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-06-11T15:02:29.276Z */
+/* Yasna bundle: duel.js — собран 2026-06-12T14:55:59.004Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -6069,7 +6069,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-06-11T15:02:28.705Z", "contentVersion": "1.1.0", "files": 11, "themes": 11, "atomsTotal": 334, "questionsTotal": 168, "questionsLegacy": 100 };
+  const BUILD_INFO = { "builtAt": "2026-06-12T14:55:58.373Z", "contentVersion": "1.1.0", "files": 11, "themes": 11, "atomsTotal": 334, "questionsTotal": 168, "questionsLegacy": 100 };
   const THEMES = [
     {
       "id": "dzhiva-serdtse",
@@ -21705,26 +21705,16 @@ window.YasnaCore = {
     );
   }
   function TnQuestionCard({ qOverall, totalOverall, themeName, text, timeLeft, showFeedback, qType }) {
-    const typeLabel = qType === "true-false" ? "\u0412\u0435\u0440\u043D\u043E \u0438\u043B\u0438 \u043D\u0435\u0442?" : qType === "fill-blank" ? "\u0417\u0430\u043F\u043E\u043B\u043D\u0438 \u043F\u0440\u043E\u043F\u0443\u0441\u043A" : qType === "multi-choice" ? "\u0412\u044B\u0431\u0435\u0440\u0438 \u0432\u0441\u0435 \u0432\u0435\u0440\u043D\u044B\u0435" : qType === "match-pair" ? "\u0421\u043E\u0435\u0434\u0438\u043D\u0438 \u043F\u0430\u0440\u044B" : null;
+    const themeLabel = "\u0422\u0435\u043C\u0430: " + String(themeName || "").replace(/:\s+/, ". ");
     return React.createElement(
       "article",
       { className: "tn-q-card" },
       React.createElement(
         "div",
         { className: "tn-q-meta" },
-        React.createElement("span", { className: "tn-q-meta-num" }, "\u0412\u043E\u043F\u0440\u043E\u0441 ", qOverall + 1, " / ", totalOverall),
-        React.createElement("span", { className: "tn-q-meta-dot" }, "\xB7"),
-        React.createElement("span", { className: "tn-q-meta-theme" }, themeName),
-        typeLabel && React.createElement("span", { className: "tn-q-meta-dot" }, "\xB7"),
-        typeLabel && React.createElement("span", { className: "tn-q-meta-type" }, typeLabel),
-        !showFeedback && React.createElement(
-          "span",
-          { className: "tn-q-meta-time" },
-          React.createElement("span", { "aria-hidden": "true" }, "\u25F7 "),
-          timeLeft,
-          " \u0441"
-        )
+        React.createElement("span", { className: "tn-q-meta-num" }, "\u0412\u043E\u043F\u0440\u043E\u0441 ", qOverall + 1, " / ", totalOverall)
       ),
+      React.createElement("div", { className: "tn-q-theme" }, themeLabel),
       React.createElement("h2", { className: "tn-q-text" }, text)
     );
   }
@@ -21958,59 +21948,51 @@ window.YasnaCore = {
         className: "tn-options tn-options-match" + (selectedLeft != null ? " is-selecting" : ""),
         role: "group"
       },
+      // Построчная сетка: левый[i] и правый[i] в ОДНОЙ grid-строке →
+      // обе ячейки одной высоты (align-items:stretch), нет «разных уровней».
       React.createElement(
         "div",
         { className: "tn-match-grid" },
-        // Левая колонка (фиксированный порядок)
-        React.createElement(
-          "div",
-          { className: "tn-match-col tn-match-col-left" },
-          pL.map((txt, i) => {
-            const matched = matches[i] != null;
-            const isSel = selectedLeft === i;
-            let state = matched ? "matched" : isSel ? "selected" : "default";
-            if (showFeedback && matched) state = pairCorrect(i, matches[i]) ? "correct" : "wrong";
-            const col = matched ? pairColor(i) : null;
-            return React.createElement(
-              "button",
-              {
-                key: i,
-                type: "button",
-                className: "tn-match-item tn-match-" + state,
-                style: col ? { "--pair": col } : null,
-                onClick: () => clickLeft(i),
-                disabled: showFeedback
-              },
-              React.createElement("span", { className: "tn-match-text" }, txt),
-              matched && matchBadge(i + 1, col, showFeedback ? state : null)
-            );
-          })
-        ),
-        // Правая колонка (перемешанная) — бейдж слева (смотрит в центр)
-        React.createElement(
-          "div",
-          { className: "tn-match-col tn-match-col-right" },
-          rightShuffled.map(({ text, origIdx }) => {
-            const leftIdx = rightToLeft[origIdx];
-            const matched = leftIdx != null;
-            let state = matched ? "matched" : "default";
-            if (showFeedback && matched) state = pairCorrect(leftIdx, origIdx) ? "correct" : "wrong";
-            const col = matched ? pairColor(leftIdx) : null;
-            return React.createElement(
-              "button",
-              {
-                key: origIdx,
-                type: "button",
-                className: "tn-match-item tn-match-right tn-match-" + state,
-                style: col ? { "--pair": col } : null,
-                onClick: () => clickRight(origIdx),
-                disabled: showFeedback
-              },
-              matched && matchBadge(leftIdx + 1, col, showFeedback ? state : null),
-              React.createElement("span", { className: "tn-match-text" }, text)
-            );
-          })
-        )
+        pL.map((txt, i) => {
+          const lMatched = matches[i] != null;
+          const lSel = selectedLeft === i;
+          let lState = lMatched ? "matched" : lSel ? "selected" : "default";
+          if (showFeedback && lMatched) lState = pairCorrect(i, matches[i]) ? "correct" : "wrong";
+          const lCol = lMatched ? pairColor(i) : null;
+          const leftBtn = React.createElement(
+            "button",
+            {
+              key: "l" + i,
+              type: "button",
+              className: "tn-match-item tn-match-left tn-match-" + lState,
+              style: lCol ? { "--pair": lCol } : null,
+              onClick: () => clickLeft(i),
+              disabled: showFeedback
+            },
+            React.createElement("span", { className: "tn-match-text" }, txt),
+            lMatched && matchBadge(i + 1, lCol, showFeedback ? lState : null)
+          );
+          const rc = rightShuffled[i];
+          const rLeftIdx = rightToLeft[rc.origIdx];
+          const rMatched = rLeftIdx != null;
+          let rState = rMatched ? "matched" : "default";
+          if (showFeedback && rMatched) rState = pairCorrect(rLeftIdx, rc.origIdx) ? "correct" : "wrong";
+          const rCol = rMatched ? pairColor(rLeftIdx) : null;
+          const rightBtn = React.createElement(
+            "button",
+            {
+              key: "r" + rc.origIdx,
+              type: "button",
+              className: "tn-match-item tn-match-right tn-match-" + rState,
+              style: rCol ? { "--pair": rCol } : null,
+              onClick: () => clickRight(rc.origIdx),
+              disabled: showFeedback
+            },
+            rMatched && matchBadge(rLeftIdx + 1, rCol, showFeedback ? rState : null),
+            React.createElement("span", { className: "tn-match-text" }, rc.text)
+          );
+          return React.createElement(React.Fragment, { key: i }, leftBtn, rightBtn);
+        })
       ),
       !showFeedback && React.createElement(
         "div",
