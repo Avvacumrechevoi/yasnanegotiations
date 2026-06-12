@@ -1156,11 +1156,11 @@
               )
             ),
             React.createElement('div', { className: 'dp-lobby-status' },
-              React.createElement('div', { className: 'dp-lobby-status-icon' }, '◷'),
+              React.createElement('div', { className: 'dp-loader', 'aria-hidden': 'true' }),
               React.createElement('div', { className: 'dp-lobby-status-title' }, statusText)
             )
           ) : React.createElement('div', { className: 'dp-lobby-status' },
-            React.createElement('div', { className: 'dp-lobby-status-icon' }, '◷'),
+            React.createElement('div', { className: 'dp-loader', 'aria-hidden': 'true' }),
             React.createElement('div', { className: 'dp-lobby-status-title' }, statusText)
           )
         ),
@@ -1186,7 +1186,7 @@
         ),
 
         mode === 'waiting' && React.createElement('div', { className: 'dp-lobby-status' },
-          React.createElement('div', { className: 'dp-lobby-status-icon' }, '◷'),
+          React.createElement('div', { className: 'dp-loader', 'aria-hidden': 'true' }),
           React.createElement('div', { className: 'dp-lobby-status-title' }, statusText),
           React.createElement('div', { className: 'dp-lobby-status-sub' }, 'Это занимает несколько секунд')
         ),
@@ -1491,7 +1491,7 @@
             React.createElement('button', { className: 'dp-lobby-code-link', onClick: copyLink }, 'Скопировать ссылку')
           ),
           React.createElement('div', { className: 'dp-lobby-status' },
-            React.createElement('div', { className: 'dp-lobby-status-icon' }, '◷'),
+            React.createElement('div', { className: 'dp-loader', 'aria-hidden': 'true' }),
             React.createElement('div', { className: 'dp-lobby-status-title' }, statusText)
           )
         ),
@@ -1517,7 +1517,7 @@
         ),
 
         mode === 'waiting' && React.createElement('div', { className: 'dp-lobby-status' },
-          React.createElement('div', { className: 'dp-lobby-status-icon' }, '◷'),
+          React.createElement('div', { className: 'dp-loader', 'aria-hidden': 'true' }),
           React.createElement('div', { className: 'dp-lobby-status-title' }, statusText),
           React.createElement('div', { className: 'dp-lobby-status-sub' }, 'Это занимает несколько секунд')
         ),

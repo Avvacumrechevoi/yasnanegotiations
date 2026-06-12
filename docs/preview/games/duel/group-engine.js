@@ -398,7 +398,7 @@
         return React.createElement('div', { className: 'tn-fullscreen' },
           React.createElement('div', { className: 'tn-container', style: { maxWidth: 560, margin: '0 auto' } },
             React.createElement('div', { style: { textAlign: 'center', padding: '24px 0' } },
-              React.createElement('div', { style: { fontSize: 30, marginBottom: 8 } }, '◷'),
+              React.createElement('div', { className: 'dp-loader', 'aria-hidden': 'true' }),
               React.createElement('h2', { style: { fontSize: 18, fontWeight: 600 } }, 'Готово! Ждём остальных…'),
               React.createElement('p', { style: { color: '#86868b', fontSize: 13 } }, 'Твой счёт: ' + score + ' ✦')
             ),
@@ -464,7 +464,7 @@
               }, canStart ? 'Начать партию →' : ('Нужно ещё ' + Math.max(0, minP - onlinePlayers.length) + ' (мин. ' + minP + ')')),
             )
           : React.createElement('div', { className: 'dp-lobby-status' },
-              React.createElement('div', { className: 'dp-lobby-status-icon' }, '◷'),
+              React.createElement('div', { className: 'dp-loader', 'aria-hidden': 'true' }),
               React.createElement('div', { className: 'dp-lobby-status-title' }, 'Ждём, пока хозяин начнёт…')
             )
       )

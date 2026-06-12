@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-06-12T15:11:16.515Z */
+/* Yasna bundle: duel.js — собран 2026-06-12T15:18:06.790Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -6069,7 +6069,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-06-12T15:11:16.198Z", "contentVersion": "1.1.0", "files": 11, "themes": 11, "atomsTotal": 334, "questionsTotal": 168, "questionsLegacy": 100 };
+  const BUILD_INFO = { "builtAt": "2026-06-12T15:18:06.478Z", "contentVersion": "1.1.0", "files": 11, "themes": 11, "atomsTotal": 334, "questionsTotal": 168, "questionsLegacy": 100 };
   const THEMES = [
     {
       "id": "dzhiva-serdtse",
@@ -24253,7 +24253,7 @@ window.YasnaCore = {
             React.createElement(
               "div",
               { style: { textAlign: "center", padding: "24px 0" } },
-              React.createElement("div", { style: { fontSize: 30, marginBottom: 8 } }, "\u25F7"),
+              React.createElement("div", { className: "dp-loader", "aria-hidden": "true" }),
               React.createElement("h2", { style: { fontSize: 18, fontWeight: 600 } }, "\u0413\u043E\u0442\u043E\u0432\u043E! \u0416\u0434\u0451\u043C \u043E\u0441\u0442\u0430\u043B\u044C\u043D\u044B\u0445\u2026"),
               React.createElement("p", { style: { color: "#86868b", fontSize: 13 } }, "\u0422\u0432\u043E\u0439 \u0441\u0447\u0451\u0442: " + score + " \u2726")
             ),
@@ -24351,7 +24351,7 @@ window.YasnaCore = {
         ) : React.createElement(
           "div",
           { className: "dp-lobby-status" },
-          React.createElement("div", { className: "dp-lobby-status-icon" }, "\u25F7"),
+          React.createElement("div", { className: "dp-loader", "aria-hidden": "true" }),
           React.createElement("div", { className: "dp-lobby-status-title" }, "\u0416\u0434\u0451\u043C, \u043F\u043E\u043A\u0430 \u0445\u043E\u0437\u044F\u0438\u043D \u043D\u0430\u0447\u043D\u0451\u0442\u2026")
         )
       )
@@ -25878,13 +25878,13 @@ window.YasnaCore = {
             React.createElement(
               "div",
               { className: "dp-lobby-status" },
-              React.createElement("div", { className: "dp-lobby-status-icon" }, "\u25F7"),
+              React.createElement("div", { className: "dp-loader", "aria-hidden": "true" }),
               React.createElement("div", { className: "dp-lobby-status-title" }, statusText)
             )
           ) : React.createElement(
             "div",
             { className: "dp-lobby-status" },
-            React.createElement("div", { className: "dp-lobby-status-icon" }, "\u25F7"),
+            React.createElement("div", { className: "dp-loader", "aria-hidden": "true" }),
             React.createElement("div", { className: "dp-lobby-status-title" }, statusText)
           )
         ),
@@ -25914,7 +25914,7 @@ window.YasnaCore = {
         mode === "waiting" && React.createElement(
           "div",
           { className: "dp-lobby-status" },
-          React.createElement("div", { className: "dp-lobby-status-icon" }, "\u25F7"),
+          React.createElement("div", { className: "dp-loader", "aria-hidden": "true" }),
           React.createElement("div", { className: "dp-lobby-status-title" }, statusText),
           React.createElement("div", { className: "dp-lobby-status-sub" }, "\u042D\u0442\u043E \u0437\u0430\u043D\u0438\u043C\u0430\u0435\u0442 \u043D\u0435\u0441\u043A\u043E\u043B\u044C\u043A\u043E \u0441\u0435\u043A\u0443\u043D\u0434")
         ),
@@ -26262,7 +26262,7 @@ window.YasnaCore = {
           React.createElement(
             "div",
             { className: "dp-lobby-status" },
-            React.createElement("div", { className: "dp-lobby-status-icon" }, "\u25F7"),
+            React.createElement("div", { className: "dp-loader", "aria-hidden": "true" }),
             React.createElement("div", { className: "dp-lobby-status-title" }, statusText)
           )
         ),
@@ -26292,7 +26292,7 @@ window.YasnaCore = {
         mode === "waiting" && React.createElement(
           "div",
           { className: "dp-lobby-status" },
-          React.createElement("div", { className: "dp-lobby-status-icon" }, "\u25F7"),
+          React.createElement("div", { className: "dp-loader", "aria-hidden": "true" }),
           React.createElement("div", { className: "dp-lobby-status-title" }, statusText),
           React.createElement("div", { className: "dp-lobby-status-sub" }, "\u042D\u0442\u043E \u0437\u0430\u043D\u0438\u043C\u0430\u0435\u0442 \u043D\u0435\u0441\u043A\u043E\u043B\u044C\u043A\u043E \u0441\u0435\u043A\u0443\u043D\u0434")
         ),

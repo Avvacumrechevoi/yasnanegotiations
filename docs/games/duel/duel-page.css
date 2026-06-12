@@ -1162,6 +1162,22 @@ a { color: inherit; }
   0%, 100% { opacity: 0.4; transform: scale(0.95); }
   50% { opacity: 1; transform: scale(1.05); }
 }
+/* Плавный лоадер ожидания (создание комнаты / ждём собеседника) —
+   кольцевой спиннер с линейным вращением вместо мерцающих «часов». */
+.dp-loader {
+  width: 42px;
+  height: 42px;
+  margin: 4px auto var(--space-4);
+  border-radius: 50%;
+  border: 3px solid var(--border-1, rgba(127,127,127,.18));
+  border-top-color: var(--accent, #0077FF);
+  animation: dp-spin 0.85s linear infinite;
+  will-change: transform;
+}
+@keyframes dp-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .dp-loader { animation-duration: 1.6s; }
+}
 .dp-lobby-status-title {
   font-family: var(--font-serif);
   font-size: 22px;
