@@ -61,7 +61,7 @@ body {
 </style>
 
 <link rel="stylesheet" href="core/site-nav.css?v=nav4"/>
-<link rel="stylesheet" href="negotiations/trainer.css?v=2"/>
+<link rel="stylesheet" href="negotiations/trainer.css?v=3"/>
 </head>
 <body>
 
@@ -110,7 +110,13 @@ body {
 
   <section class="neg-section" id="map">
     <h2 class="neg-section-h">Карта переговоров · 12 стадий</h2>
-    <p class="neg-section-sub">Нажми на стадию, чтобы раскрыть разбор. Цвет показывает фазу дуги: вход → нарастание → вершина → спад → итог.</p>
+    <p class="neg-section-sub">Сначала — короткий гид по дуге разговора: пять фаз от старта до итога. Ниже — все 12 стадий для справки.</p>
+    <div id="neg-guide-root" class="neg-guide"></div>
+
+    <div class="neg-map-head">
+      <h3 class="neg-c-trainer-h">Все 12 стадий</h3>
+      <p class="neg-section-sub">Нажми на стадию, чтобы раскрыть разбор. Цвет слева — фаза дуги: вход → нарастание → вершина → спад → итог.</p>
+    </div>
     <div id="neg-map-root"></div>
   </section>
 
@@ -137,8 +143,8 @@ body {
 
 <script src="negotiations/contact-content.js?v=1"></script>
 <script src="negotiations/contact-trainer.js?v=2"></script>
-<script src="negotiations/scenarios.js?v=1"></script>
-<script src="negotiations/trainer.js?v=1"></script>
+<script src="negotiations/scenarios.js?v=2"></script>
+<script src="negotiations/trainer.js?v=2"></script>
 
 </body>
 </html>

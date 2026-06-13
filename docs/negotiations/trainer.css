@@ -33,6 +33,68 @@
 }
 .neg-section-sub { font-size: 14px; color: var(--text-tertiary); margin-bottom: 22px; }
 
+/* ── гид по дуге (5 фаз, шаг за шагом) ───────────────────────────── */
+.neg-guide-rail { display: flex; gap: 6px; margin-bottom: 16px; }
+.neg-guide-seg {
+  flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 7px;
+  background: transparent; border: 0; cursor: pointer; padding: 4px 2px; font: inherit;
+  color: var(--text-tertiary);
+}
+.neg-guide-seg-dot { width: 100%; height: 4px; border-radius: 4px; background: var(--bg-tonal); transition: background .2s; }
+.neg-guide-seg-lbl { font-size: 11px; font-weight: 600; letter-spacing: .03em; white-space: nowrap; transition: color .2s; }
+.neg-guide-seg.is-done .neg-guide-seg-dot,
+.neg-guide-seg.is-active .neg-guide-seg-dot { background: var(--gcol, var(--accent)); }
+.neg-guide-seg.is-active .neg-guide-seg-lbl { color: var(--text-primary); }
+.neg-guide-seg:hover .neg-guide-seg-lbl { color: var(--text-secondary); }
+.neg-guide-seg--вход       { --gcol: #00D3E6; }
+.neg-guide-seg--нарастание { --gcol: var(--accent); }
+.neg-guide-seg--вершина    { --gcol: #FFB020; }
+.neg-guide-seg--спад       { --gcol: #B07CFF; }
+.neg-guide-seg--итог       { --gcol: #2FBF71; }
+
+.neg-guide-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-left: 3px solid var(--gcol, var(--accent));
+  border-radius: 18px; padding: 20px 22px;
+}
+.neg-guide-card--вход       { --gcol: #00D3E6; }
+.neg-guide-card--нарастание { --gcol: var(--accent); }
+.neg-guide-card--вершина    { --gcol: #FFB020; }
+.neg-guide-card--спад       { --gcol: #B07CFF; }
+.neg-guide-card--итог       { --gcol: #2FBF71; }
+.neg-guide-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 12px; }
+.neg-guide-badge {
+  font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--gcol, var(--accent)); background: rgba(255,255,255,.05);
+  border: 1px solid var(--border-strong); border-radius: 100px; padding: 4px 11px; white-space: nowrap;
+}
+.neg-guide-step { font-size: 12px; color: var(--text-tertiary); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.neg-guide-title { font-family: var(--font-display); font-size: 21px; font-weight: 700; color: var(--text-primary); margin-bottom: 14px; }
+.neg-guide-block { margin-bottom: 12px; }
+.neg-guide-block:last-child { margin-bottom: 0; }
+.neg-guide-lbl { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-tertiary); margin-bottom: 4px; }
+.neg-guide-lbl--you { color: var(--gcol, var(--accent)); }
+.neg-guide-block p { font-size: 14.5px; line-height: 1.58; color: var(--text-secondary); margin: 0; }
+
+.neg-guide-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 18px; }
+.neg-guide-btn {
+  display: inline-flex; align-items: center; gap: 8px; font: inherit; font-weight: 600; font-size: 14px;
+  border-radius: 100px; padding: 11px 22px; cursor: pointer; border: 1px solid transparent;
+}
+.neg-guide-btn--primary { background: var(--accent); color: var(--accent-on, #fff); border: 0; }
+.neg-guide-btn--primary:hover { background: var(--accent-hover); }
+.neg-guide-btn--ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border-strong); }
+.neg-guide-btn--ghost:hover:not(:disabled) { color: var(--text-primary); border-color: var(--accent); }
+.neg-guide-btn:disabled { opacity: .35; cursor: default; }
+
+.neg-map-head { margin-top: 32px; }
+
+@media (max-width: 520px) {
+  .neg-guide-seg-lbl { font-size: 10px; letter-spacing: 0; }
+  .neg-guide-btn { padding: 10px 16px; font-size: 13px; }
+  .neg-guide-card { padding: 18px; }
+}
+
 /* ── карта 12 стадий ────────────────────────────────────────────── */
 .neg-map { display: flex; flex-direction: column; gap: 8px; }
 .neg-map-group {

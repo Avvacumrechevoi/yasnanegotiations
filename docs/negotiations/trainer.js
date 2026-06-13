@@ -12,6 +12,7 @@
 
   var STAGES = C.STAGES;
   var DRILL = C.DRILL;
+  var GUIDE = C.GUIDE || [];
   var STAGE_BY_ID = {};
   STAGES.forEach(function (s) { STAGE_BY_ID[s.id] = s; });
 
@@ -57,6 +58,69 @@
       var t = arr[k]; arr[k] = arr[j]; arr[j] = t;
     }
     return arr;
+  }
+
+  // ═══ 0. Гид по дуге переговоров (5 фаз, шаг за шагом) ══════════════
+  var guidePos = 0;
+
+  function renderGuide(root) {
+    if (!GUIDE.length) return;
+    root.innerHTML = '';
+    var p = GUIDE[guidePos];
+
+    // рейка-дуга: 5 фаз, текущая подсвечена, пройденные залиты
+    var rail = el('div', 'neg-guide-rail');
+    GUIDE.forEach(function (g, i) {
+      var cls = 'neg-guide-seg neg-guide-seg--' + g.key;
+      if (i === guidePos) cls += ' is-active';
+      else if (i < guidePos) cls += ' is-done';
+      var seg = el('button', cls);
+      seg.setAttribute('type', 'button');
+      seg.setAttribute('aria-label', 'Фаза ' + (i + 1) + ': ' + g.title);
+      seg.innerHTML =
+        '<span class="neg-guide-seg-dot"></span>' +
+        '<span class="neg-guide-seg-lbl">' + g.arc + '</span>';
+      seg.addEventListener('click', function () { guidePos = i; renderGuide(root); });
+      rail.appendChild(seg);
+    });
+    root.appendChild(rail);
+
+    // карточка фазы
+    var card = el('div', 'neg-guide-card neg-guide-card--' + p.key);
+    card.innerHTML =
+      '<div class="neg-guide-top">' +
+        '<span class="neg-guide-badge">' + p.stages + '</span>' +
+        '<span class="neg-guide-step">Фаза ' + (guidePos + 1) + ' / ' + GUIDE.length + '</span>' +
+      '</div>' +
+      '<h3 class="neg-guide-title">' + p.title + '</h3>' +
+      '<div class="neg-guide-block"><span class="neg-guide-lbl">Что происходит</span><p>' + p.what + '</p></div>' +
+      '<div class="neg-guide-block"><span class="neg-guide-lbl neg-guide-lbl--you">Твой ход</span><p>' + p.you + '</p></div>';
+    root.appendChild(card);
+
+    // навигация
+    var nav = el('div', 'neg-guide-nav');
+    var back = el('button', 'neg-guide-btn neg-guide-btn--ghost', '← Назад');
+    back.setAttribute('type', 'button');
+    back.disabled = guidePos === 0;
+    back.addEventListener('click', function () {
+      if (guidePos > 0) { guidePos -= 1; renderGuide(root); }
+    });
+    nav.appendChild(back);
+
+    var fwd;
+    if (guidePos < GUIDE.length - 1) {
+      fwd = el('button', 'neg-guide-btn neg-guide-btn--primary', 'Дальше →');
+      fwd.addEventListener('click', function () { guidePos += 1; renderGuide(root); });
+    } else {
+      fwd = el('button', 'neg-guide-btn neg-guide-btn--primary', 'Все 12 стадий ↓');
+      fwd.addEventListener('click', function () {
+        var m = document.getElementById('neg-map-root');
+        if (m && m.scrollIntoView) m.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+    fwd.setAttribute('type', 'button');
+    nav.appendChild(fwd);
+    root.appendChild(nav);
   }
 
   // ═══ 1. Карта 12 стадий ═══════════════════════════════════════════
@@ -205,8 +269,10 @@
 
   // ═══ bootstrap ════════════════════════════════════════════════════
   function init() {
+    var guideRoot = document.getElementById('neg-guide-root');
     var mapRoot = document.getElementById('neg-map-root');
     var drillRoot = document.getElementById('neg-drill-root');
+    if (guideRoot) renderGuide(guideRoot);
     if (mapRoot) renderMap(mapRoot);
     if (drillRoot) { startDrill(); renderDrill(drillRoot); }
     refreshStats();
