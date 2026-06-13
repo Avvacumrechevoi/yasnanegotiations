@@ -107,19 +107,15 @@
     });
     nav.appendChild(back);
 
-    var fwd;
     if (guidePos < GUIDE.length - 1) {
-      fwd = el('button', 'neg-guide-btn neg-guide-btn--primary', 'Дальше →');
+      var fwd = el('button', 'neg-guide-btn neg-guide-btn--primary', 'Дальше →');
+      fwd.setAttribute('type', 'button');
       fwd.addEventListener('click', function () { guidePos += 1; renderGuide(root); });
+      nav.appendChild(fwd);
     } else {
-      fwd = el('button', 'neg-guide-btn neg-guide-btn--primary', 'Все 12 стадий ↓');
-      fwd.addEventListener('click', function () {
-        var m = document.getElementById('neg-map-root');
-        if (m && m.scrollIntoView) m.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
+      var end = el('span', 'neg-guide-end', 'Это вся дуга. Прокрути ниже.');
+      nav.appendChild(end);
     }
-    fwd.setAttribute('type', 'button');
-    nav.appendChild(fwd);
     root.appendChild(nav);
   }
 
@@ -152,13 +148,16 @@
   }
 
   // ═══ 2. Дрилл «Определи стадию» ═══════════════════════════════════
-  var drillState = { deck: [], pos: 0, streak: 0, locked: false };
+  var drillState = { deck: [], pos: 0, streak: 0, right: 0, locked: false, limit: 0, onDone: null };
 
-  function startDrill() {
+  function startDrill(limit) {
     // seed по числу уже отвеченных, чтобы при возврате порядок менялся
-    drillState.deck = shuffleDeck(DRILL.length, 7 + progress.answered);
+    var deck = shuffleDeck(DRILL.length, 7 + progress.answered);
+    drillState.limit = limit || 0;
+    drillState.deck = (limit && limit < deck.length) ? deck.slice(0, limit) : deck;
     drillState.pos = 0;
     drillState.streak = 0;
+    drillState.right = 0;
     drillState.locked = false;
   }
 
@@ -224,6 +223,7 @@
     progress.answered += 1;
     if (ok) {
       progress.correct += 1;
+      drillState.right += 1;
       drillState.streak += 1;
       if (drillState.streak > progress.bestStreak) progress.bestStreak = drillState.streak;
     } else {
@@ -246,15 +246,15 @@
   }
 
   function renderDrillSummary(panel) {
-    var pct = progress.answered ? Math.round(progress.correct / progress.answered * 100) : 0;
+    var total = drillState.deck.length;
     panel.appendChild(el('div', 'neg-drill-done',
-      '<div class="neg-done-title">Круг пройден</div>' +
-      '<div class="neg-done-sub">Всего ответов: ' + progress.answered +
-      ' · точность ' + pct + '% · лучшая серия ' + progress.bestStreak + '</div>'));
-    var again = el('button', 'neg-btn neg-btn--primary', 'Ещё круг →');
+      '<div class="neg-done-title">Круг пройден · ' + drillState.right + '/' + total + '</div>' +
+      '<div class="neg-done-sub">Лучшая серия за всё время: ' + progress.bestStreak + '</div>'));
+    var again = el('button', 'neg-btn neg-btn--primary', 'Пройти ещё раз →');
     again.setAttribute('type', 'button');
-    again.addEventListener('click', function () { startDrill(); renderDrill(panel); });
+    again.addEventListener('click', function () { startDrill(drillState.limit); renderDrill(panel); });
     panel.appendChild(again);
+    if (drillState.onDone) { try { drillState.onDone(drillState.right, total); } catch (_) {} }
   }
 
   // ═══ статистика в шапке дрилла ════════════════════════════════════
@@ -268,11 +268,11 @@
   }
 
   // ═══ 3. Практикумы: «ситуация → выбор хода → разбор» ══════════════
-  // Один универсальный движок на все ситуационные дриллы.
-  // Контент — window.NegContent.PRACTICE (массив банков из scenarios.js).
+  // Универсальный движок на все ситуационные дриллы. Монтируется движком
+  // уроков (lessons-neg.js) в произвольный контейнер; по завершении круга
+  // зовёт onDone(right,total). Контент — window.NegContent.PRACTICE.
   var PRACTICE = C.PRACTICE || [];
 
-  // прогресс практикумов — отдельный namespace, чтобы не мешать дриллу стадий
   var PKEY = 'yasna_neg_practice_v1';
   function loadPractice() { try { return JSON.parse(localStorage.getItem(PKEY)) || {}; } catch (_) { return {}; } }
   function savePractice(p) { try { localStorage.setItem(PKEY, JSON.stringify(p)); } catch (_) {} }
@@ -280,82 +280,35 @@
 
   var TAG_VERDICT = { good: '✓ В точку', mid: '~ Полумера', bad: '✗ Мимо' };
 
-  var elHub = null, elEx = null;
-  function showHub() { if (elHub) elHub.hidden = false; if (elEx) elEx.hidden = true; }
-  function showEx()  { if (elHub) elHub.hidden = true;  if (elEx) elEx.hidden = false; }
-
-  function newEx() { return { bank: null, deck: [], pos: 0, correct: 0, locked: false }; }
+  function newEx() { return { bank: null, deck: [], pos: 0, correct: 0, locked: false, root: null, onDone: null }; }
   var ex = newEx();
-
-  function startEx(bank) {
-    ex = newEx();
-    ex.bank = bank;
-    var prev = (practice[bank.id] && practice[bank.id].plays) || 0;
-    ex.deck = shuffleDeck(bank.items.length, 13 + prev * 7);
-  }
 
   function pctVerdict(p) {
     if (p >= 90) return 'Мастерски';
     if (p >= 70) return 'Хорошо';
-    if (p >= 50) return 'Неплохо, но есть куда расти';
-    return 'Стоит пройти ещё круг';
+    if (p >= 50) return 'Неплохо, есть куда расти';
+    return 'Стоит пройти ещё раз';
   }
 
-  // ── список упражнений (хаб) ──────────────────────────────────────
-  function renderHub() {
-    if (!elHub) return;
-    elHub.innerHTML = '';
-
-    // несущая мысль (P0-теория): три режима контакта
-    var memo = el('div', 'neg-memo');
-    memo.innerHTML =
-      '<div class="neg-memo-h">Главное: держи резонанс</div>' +
-      '<p class="neg-memo-p">Любые переговоры идут в одном из трёх режимов. Лови режим — и не дожимай там, где контакт рвётся.</p>' +
-      '<div class="neg-memo-modes">' +
-        '<span class="neg-memo-mode neg-memo-mode--ok"><b>Резонанс</b> — слышите друг друга, тон теплеет, он повторяет твои слова своими.</span>' +
-        '<span class="neg-memo-mode neg-memo-mode--mid"><b>Монолог</b> — говоришь только ты, второй закрылся. Остановись и проверь интерес.</span>' +
-        '<span class="neg-memo-mode neg-memo-mode--no"><b>Срыв</b> — контакт оборвался. Оставь мост, не дави.</span>' +
-      '</div>';
-    elHub.appendChild(memo);
-
-    if (!PRACTICE.length) return;
-
-    var grid = el('div', 'neg-hub');
-    PRACTICE.forEach(function (bank) {
-      var st = practice[bank.id] || {};
-      var badge = st.plays
-        ? '<span class="neg-hub-badge">лучшее ' + (st.best || 0) + '/' + bank.items.length + '</span>'
-        : '<span class="neg-hub-badge neg-hub-badge--new">новое</span>';
-      var card = el('button', 'neg-hub-card');
-      card.setAttribute('type', 'button');
-      card.innerHTML =
-        '<span class="neg-hub-card-h">' + bank.title + '</span>' +
-        '<span class="neg-hub-card-sub">' + bank.intro + '</span>' +
-        '<span class="neg-hub-card-foot">' + badge + '<span class="neg-hub-go">Начать →</span></span>';
-      card.addEventListener('click', function () {
-        startEx(bank); renderEx(); showEx();
-        if (elEx && elEx.scrollIntoView) elEx.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-      grid.appendChild(card);
-    });
-    elHub.appendChild(grid);
+  // Смонтировать дрилл по id банка в контейнер; count — ограничение длины.
+  function mountDrill(root, bankId, onDone, count) {
+    var bank = null;
+    PRACTICE.forEach(function (b) { if (b.id === bankId) bank = b; });
+    if (!bank) { root.innerHTML = '<div class="neg-ex-empty">Практика недоступна.</div>'; if (onDone) onDone(0, 0); return; }
+    ex = newEx();
+    ex.bank = bank;
+    ex.root = root;
+    ex.onDone = onDone || null;
+    var plays = (practice[bank.id] && practice[bank.id].plays) || 0;
+    var full = shuffleDeck(bank.items.length, 13 + plays * 7);
+    ex.deck = (count && count < full.length) ? full.slice(0, count) : full;
+    renderEx();
   }
 
-  // ── активное упражнение ──────────────────────────────────────────
   function renderEx() {
-    if (!elEx) return;
-    elEx.innerHTML = '';
+    var root = ex.root; if (!root) return;
+    root.innerHTML = '';
     var bank = ex.bank;
-    if (!bank) { showHub(); return; }
-
-    var head = el('div', 'neg-ex-head');
-    var back = el('button', 'neg-ex-back', '← к списку');
-    back.setAttribute('type', 'button');
-    back.addEventListener('click', function () { ex = newEx(); showHub(); renderHub(); });
-    head.appendChild(back);
-    head.appendChild(el('span', 'neg-ex-name', bank.title));
-    elEx.appendChild(head);
-
     if (ex.pos >= ex.deck.length) { renderExSummary(); return; }
 
     var item = bank.items[ex.deck[ex.pos]];
@@ -364,7 +317,7 @@
     prog.innerHTML =
       '<span>' + (ex.pos + 1) + ' / ' + ex.deck.length + '</span>' +
       '<span class="neg-ex-score">верно: ' + ex.correct + '</span>';
-    elEx.appendChild(prog);
+    root.appendChild(prog);
 
     var card = el('div', 'neg-drill-card');
     if (item.scene) card.appendChild(el('div', 'neg-ex-scene', item.scene));
@@ -386,7 +339,7 @@
     });
     card.appendChild(opts);
     card.appendChild(fb);
-    elEx.appendChild(card);
+    root.appendChild(card);
     ex.locked = false;
   }
 
@@ -419,7 +372,7 @@
   }
 
   function renderExSummary() {
-    var bank = ex.bank;
+    var root = ex.root, bank = ex.bank;
     var total = ex.deck.length;
     var pct = total ? Math.round(ex.correct / total * 100) : 0;
 
@@ -431,33 +384,57 @@
 
     var done = el('div', 'neg-ex-done');
     done.innerHTML =
-      '<div class="neg-done-title">' + bank.title + ' · ' + ex.correct + '/' + total + '</div>' +
-      '<div class="neg-done-sub">' + pctVerdict(pct) + ' · лучший результат: ' + st.best + '/' + total + '</div>';
-    elEx.appendChild(done);
+      '<div class="neg-done-title">' + ex.correct + ' / ' + total + ' · ' + pctVerdict(pct) + '</div>' +
+      '<div class="neg-done-sub">Лучший результат: ' + st.best + '/' + total + '</div>';
+    root.appendChild(done);
 
-    var row = el('div', 'neg-ex-done-actions');
-    var again = el('button', 'neg-btn neg-btn--primary', 'Ещё раз →');
+    var again = el('button', 'neg-btn neg-btn--primary neg-ex-again', 'Пройти ещё раз →');
     again.setAttribute('type', 'button');
-    again.addEventListener('click', function () { startEx(bank); renderEx(); });
-    var toList = el('button', 'neg-ex-back', '← к списку');
-    toList.setAttribute('type', 'button');
-    toList.addEventListener('click', function () { ex = newEx(); showHub(); renderHub(); });
-    row.appendChild(again);
-    row.appendChild(toList);
-    elEx.appendChild(row);
+    again.addEventListener('click', function () {
+      var full = shuffleDeck(bank.items.length, 13 + st.plays * 7);
+      ex.deck = (ex.deck.length < full.length) ? full.slice(0, ex.deck.length) : full;
+      ex.pos = 0; ex.correct = 0; renderEx();
+    });
+    root.appendChild(again);
+
+    if (ex.onDone) { try { ex.onDone(ex.correct, total); } catch (_) {} }
   }
 
-  // ═══ bootstrap ════════════════════════════════════════════════════
+  // ═══ 4. Памятка «три режима контакта» (теория-виджет) ═════════════
+  function renderModes(root) {
+    var memo = el('div', 'neg-memo');
+    memo.innerHTML =
+      '<div class="neg-memo-h">Три режима контакта</div>' +
+      '<p class="neg-memo-p">Любой разговор идёт в одном из трёх режимов. Лови режим — и веди себя по нему, а не по своему плану.</p>' +
+      '<div class="neg-memo-modes">' +
+        '<span class="neg-memo-mode neg-memo-mode--ok"><b>Резонанс</b> — слышите друг друга, тон теплеет, он повторяет твои слова своими. Веди дальше.</span>' +
+        '<span class="neg-memo-mode neg-memo-mode--mid"><b>Монолог</b> — говоришь только ты, второй закрылся. Остановись и проверь интерес.</span>' +
+        '<span class="neg-memo-mode neg-memo-mode--no"><b>Срыв</b> — контакт оборвался. Оставь мост, не дави.</span>' +
+      '</div>';
+    root.appendChild(memo);
+  }
+
+  // ═══ публичный мост для движка уроков (lessons-neg.js) ════════════
+  window.NegTrainerUI = {
+    renderArc:  function (root) { guidePos = 0; renderGuide(root); },
+    renderMap:  function (root) { renderMap(root); },
+    renderModes: renderModes,
+    mountDrill: mountDrill,
+    mountStageDrill: function (root, onDone, count) {
+      drillState.onDone = onDone || null;
+      startDrill(count);
+      renderDrill(root);
+    }
+  };
+
+  // ═══ bootstrap (обратная совместимость со старой разметкой) ═══════
   function init() {
     var guideRoot = document.getElementById('neg-guide-root');
     var mapRoot = document.getElementById('neg-map-root');
     var drillRoot = document.getElementById('neg-drill-root');
-    elHub = document.getElementById('neg-practice-hub');
-    elEx = document.getElementById('neg-practice-ex');
     if (guideRoot) renderGuide(guideRoot);
     if (mapRoot) renderMap(mapRoot);
     if (drillRoot) { startDrill(); renderDrill(drillRoot); }
-    if (elHub) { renderHub(); showHub(); }
     refreshStats();
   }
 

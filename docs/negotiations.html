@@ -61,7 +61,7 @@ body {
 </style>
 
 <link rel="stylesheet" href="core/site-nav.css?v=nav4"/>
-<link rel="stylesheet" href="negotiations/trainer.css?v=4"/>
+<link rel="stylesheet" href="negotiations/trainer.css?v=5"/>
 </head>
 <body>
 
@@ -75,70 +75,18 @@ body {
     <span class="neg-eyebrow">Переговоры</span>
     <h1 class="neg-title">Тренажёр переговоров</h1>
     <p class="neg-lead">
-      Сначала — <strong>войти в контакт</strong>: научись читать 4 типа людей и заходить верно.
-      Дальше — вести разговор по <strong>12 стадиям</strong> цикла, а не плыть по нему.
-      Ниже: теория и практика входа в контакт, затем карта стадий.
+      Переговоры — это не набор трюков, а <strong>навык</strong>. Пройди по сценариям: читать людей,
+      вести разговор, договариваться честно и выходить красиво. Коротко, по шагам, с практикой.
     </p>
   </section>
 
-  <section class="neg-section" id="contact">
-    <h2 class="neg-section-h">Вход в контакт · 4 типа людей</h2>
-    <p class="neg-section-sub">
-      Прежде чем вести — нужно <strong>войти в контакт</strong>. Люди по сути делятся на четыре
-      знака: <b>ХА</b> (воля), <b>ФО</b> (ум), <b>ЦИ</b> (душа), <b>ШЭ</b> (тело). К каждому — свой заход.
-    </p>
-
-    <!-- Сначала теория, потом практика — переключатель режимов -->
-    <div class="neg-c-tabs" id="neg-c-tabs" role="tablist">
-      <button class="neg-c-tab is-active" type="button" data-tab="theory" role="tab">1 · Теория</button>
-      <button class="neg-c-tab" type="button" data-tab="practice" role="tab">2 · Практика</button>
-    </div>
-
-    <div class="neg-c-pane" id="neg-c-pane-theory">
-      <p class="neg-section-sub">Четыре знака сути. Нажми на карточку — раскроется: как распознать, как входить и что отталкивает.</p>
-      <div id="neg-types-root"></div>
-      <button class="neg-btn neg-btn--primary neg-c-go-practice" type="button" id="neg-c-to-practice">Перейти к практике · 7 встреч →</button>
-    </div>
-
-    <div class="neg-c-pane" id="neg-c-pane-practice" hidden>
-      <h3 class="neg-c-trainer-h">Прочитай человека и зайди верно</h3>
-      <p class="neg-section-sub">7 встреч. На каждой — определи тип по поведению, затем выбери заход.
-        Один заход резонирует, другой — рвёт контакт. Сразу — разбор.</p>
-      <div id="neg-contact-root" class="neg-drill-card"></div>
-    </div>
+  <section class="neg-section" id="neg-catalog">
+    <h2 class="neg-section-h">Сценарии</h2>
+    <p class="neg-section-sub">Четыре коротких сценария — путь переговоров от первого слова до результата. Внутри каждого теория идёт порциями, а практика — по шагам. Начни с первого или открой нужный.</p>
+    <div id="neg-catalog-list"></div>
   </section>
 
-  <section class="neg-section" id="map">
-    <h2 class="neg-section-h">Карта переговоров · 12 стадий</h2>
-    <p class="neg-section-sub">Сначала — короткий гид по дуге разговора: пять фаз от старта до итога. Ниже — все 12 стадий для справки.</p>
-    <div id="neg-guide-root" class="neg-guide"></div>
-
-    <div class="neg-map-head">
-      <h3 class="neg-c-trainer-h">Все 12 стадий</h3>
-      <p class="neg-section-sub">Нажми на стадию, чтобы раскрыть разбор. Цвет слева — фаза дуги: вход → нарастание → вершина → спад → итог.</p>
-    </div>
-    <div id="neg-map-root"></div>
-  </section>
-
-  <section class="neg-section" id="practice">
-    <h2 class="neg-section-h">Практика · разбор ситуаций</h2>
-    <p class="neg-section-sub">Шесть коротких тренажёров на разные навыки переговоров. В каждом — ситуация и выбор хода: один вариант резонирует, другой рвёт контакт. Сразу — разбор.</p>
-    <div id="neg-practice-hub"></div>
-    <div id="neg-practice-ex" hidden></div>
-  </section>
-
-  <section class="neg-section" id="drill">
-    <h2 class="neg-section-h">Тренировка · определи стадию</h2>
-    <p class="neg-section-sub">Прочитай реплику или ход и выбери, какой стадии переговоров он соответствует. Сразу — короткий разбор.</p>
-
-    <div class="neg-drill-stats">
-      <div class="neg-stat"><div class="neg-stat-val" id="neg-stat-answered">0</div><div class="neg-stat-lbl">ответов</div></div>
-      <div class="neg-stat"><div class="neg-stat-val" id="neg-stat-acc">0%</div><div class="neg-stat-lbl">точность</div></div>
-      <div class="neg-stat"><div class="neg-stat-val" id="neg-stat-streak">0</div><div class="neg-stat-lbl">лучшая серия</div></div>
-    </div>
-
-    <div class="neg-drill-card" id="neg-drill-root"></div>
-  </section>
+  <section class="neg-section" id="neg-lesson" hidden></section>
 
   <div class="neg-foot">
     Модель «Ясна Переговоров» · та же 12-полочная звезда есть в
@@ -149,10 +97,11 @@ body {
 </main>
 
 <script src="negotiations/contact-content.js?v=1"></script>
-<script src="negotiations/contact-trainer.js?v=2"></script>
+<script src="negotiations/contact-trainer.js?v=3"></script>
 <script src="negotiations/scenarios.js?v=3"></script>
 <script src="negotiations/practice-content.js?v=1"></script>
-<script src="negotiations/trainer.js?v=3"></script>
+<script src="negotiations/trainer.js?v=4"></script>
+<script src="negotiations/lessons-neg.js?v=1"></script>
 
 </body>
 </html>

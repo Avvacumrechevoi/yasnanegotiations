@@ -387,3 +387,78 @@
 
 @media (max-width: 640px) { .neg-c-types { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 420px) { .neg-c-types { grid-template-columns: 1fr; } .neg-c-typeopts { grid-template-columns: 1fr; } }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Уроки переговоров: каталог сценариев + урок с порционной подачей
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* — каталог сценариев — */
+.neg-cat { display: flex; flex-direction: column; gap: 12px; }
+.neg-cat-card {
+  display: flex; align-items: center; gap: 16px; text-align: left; width: 100%;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px;
+  padding: 18px 20px; cursor: pointer; color: var(--text-primary); font: inherit;
+  transition: border-color .15s, background .15s, transform .12s;
+}
+.neg-cat-card:hover { background: var(--bg-elevated); border-color: var(--border-strong); transform: translateY(-2px); }
+.neg-cat-num {
+  flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 700; font-size: 18px;
+  background: var(--accent-soft); color: var(--accent-hover); border: 1px solid rgba(0,119,255,.25);
+}
+.neg-cat-card.is-done .neg-cat-num { background: rgba(47,191,113,.14); color: #2FBF71; border-color: rgba(47,191,113,.3); }
+.neg-cat-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.neg-cat-title { font-family: var(--font-display); font-weight: 700; font-size: 17px; }
+.neg-cat-outcome { font-size: 13.5px; color: var(--text-secondary); line-height: 1.45; }
+.neg-cat-meta { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+.neg-cat-go { flex-shrink: 0; font-size: 13px; font-weight: 600; color: var(--accent-hover); white-space: nowrap; }
+@media (max-width: 520px) { .neg-cat-card { padding: 16px; gap: 12px; } .neg-cat-go { display: none; } }
+
+/* — шапка урока — */
+.neg-l-head { max-width: 760px; margin: 0 auto 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+.neg-l-back {
+  background: transparent; border: 1px solid var(--border-strong); color: var(--text-secondary);
+  border-radius: 100px; padding: 7px 14px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.neg-l-back:hover { color: var(--text-primary); border-color: var(--accent); }
+.neg-l-head-title { font-family: var(--font-display); font-weight: 700; font-size: 20px; color: var(--text-primary); }
+.neg-l-bar { flex: 1 1 100%; height: 4px; border-radius: 4px; background: var(--bg-tonal); overflow: hidden; }
+.neg-l-bar-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .35s ease; }
+
+/* — сегменты урока — */
+.neg-l-segs { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+.neg-l-block { }
+.neg-l-appear { animation: negBlockIn .4s cubic-bezier(.16,1,.3,1) both; }
+@keyframes negBlockIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.neg-l-seg-title { font-family: var(--font-display); font-weight: 700; font-size: 17px; color: var(--text-primary); margin-bottom: 6px; }
+.neg-l-seg-note { font-size: 13.5px; color: var(--text-tertiary); line-height: 1.5; margin-bottom: 14px; }
+.neg-l-prose { font-size: 15.5px; line-height: 1.62; color: var(--text-secondary); }
+.neg-l-prose--lead { font-size: 17px; color: var(--text-primary); }
+.neg-l-prose b { color: var(--text-primary); font-weight: 600; }
+.neg-l-mount { margin-top: 4px; }
+
+/* — гейт «Дальше» — */
+.neg-gate {
+  display: inline-flex; align-items: center; gap: 8px; margin-top: 18px;
+  background: var(--accent); color: var(--accent-on, #fff); border: 0; border-radius: 100px;
+  padding: 12px 26px; font: inherit; font-weight: 600; font-size: 15px; cursor: pointer;
+  transition: background .15s;
+}
+.neg-gate:hover:not(:disabled) { background: var(--accent-hover); }
+.neg-gate:disabled { cursor: default; }
+.neg-gate.is-wait { background: var(--bg-tonal); color: var(--text-tertiary); }
+.neg-gate.is-ready { animation: negGatePulse 2.2s ease-in-out infinite; }
+.neg-gate.is-used { background: rgba(47,191,113,.14); color: #2FBF71; animation: none; }
+@keyframes negGatePulse { 0%, 100% { box-shadow: 0 4px 16px rgba(0,119,255,.28); } 50% { box-shadow: 0 6px 22px rgba(0,119,255,.5); } }
+
+/* — итог сценария — */
+.neg-l-sum-badge {
+  display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: #2FBF71; background: rgba(47,191,113,.12); border: 1px solid rgba(47,191,113,.3);
+  border-radius: 100px; padding: 6px 14px; margin-bottom: 14px;
+}
+.neg-l-sum-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+
+.neg-guide-end { font-size: 13px; color: var(--text-tertiary); align-self: center; }
+.neg-ex-empty { font-size: 14px; color: var(--text-tertiary); padding: 12px 0; }

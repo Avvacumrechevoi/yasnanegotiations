@@ -71,7 +71,7 @@
 
   // ═══ Сценарий ═════════════════════════════════════════════════════
   var S = { deck: [], pos: 0, step: 'type', locked: false,
-            contacts: 0, typeRight: 0, missType: {}, missOpen: {} };
+            contacts: 0, typeRight: 0, missType: {}, missOpen: {}, onDone: null };
 
   function startSession() {
     S.deck = shuffle(C.encounters.length, 7 + prog.sessions * 13);
@@ -227,7 +227,17 @@
     again.addEventListener('click', function () { startSession(); render(root); });
     wrap.appendChild(again);
     root.appendChild(wrap);
+
+    if (S.onDone) { try { S.onDone(S.contacts, n); } catch (_) {} }
   }
+
+  // ── публичный мост для движка уроков (lessons-neg.js) ────────────
+  function mountPractice(root, onDone) {
+    startSession();
+    S.onDone = onDone || null;
+    render(root);
+  }
+  window.NegContactUI = { renderTypes: renderTypes, mountPractice: mountPractice };
 
   // ═══ Табы: сначала Теория, потом Практика ════════════════════════
   function setupTabs() {
