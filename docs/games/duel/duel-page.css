@@ -592,6 +592,10 @@ a { color: inherit; }
   font-weight: 500;
 }
 .dp-game-primary .dp-game-meta-pvp { color: var(--accent-soft); }
+/* Карточка-переход на тренажёр переговоров */
+.dp-game-card--neg { cursor: pointer; transition: border-color var(--duration-fast) var(--easing-out), transform var(--duration-fast) var(--easing-out); }
+.dp-game-card--neg:hover { border-color: var(--vk-accent, #0077FF); transform: translateY(-1px); }
+.dp-game-meta-open { color: var(--vk-accent, #0077FF); font-weight: 600; font-size: 14px; }
 
 /* ═══ Сегодня (Этюды дня) ═══ */
 .dp-quests {
