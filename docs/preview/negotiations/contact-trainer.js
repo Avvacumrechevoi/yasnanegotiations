@@ -229,12 +229,40 @@
     root.appendChild(wrap);
   }
 
+  // ═══ Табы: сначала Теория, потом Практика ════════════════════════
+  function setupTabs() {
+    var tabs = document.getElementById('neg-c-tabs');
+    if (!tabs) return;
+    var paneT = document.getElementById('neg-c-pane-theory');
+    var paneP = document.getElementById('neg-c-pane-practice');
+    function show(name) {
+      [].forEach.call(tabs.querySelectorAll('.neg-c-tab'), function (b) {
+        b.classList.toggle('is-active', b.getAttribute('data-tab') === name);
+      });
+      if (paneT) paneT.hidden = name !== 'theory';
+      if (paneP) paneP.hidden = name !== 'practice';
+      try { localStorage.setItem('yasna_negc_tab', name); } catch (_) {}
+    }
+    [].forEach.call(tabs.querySelectorAll('.neg-c-tab'), function (b) {
+      b.addEventListener('click', function () { show(b.getAttribute('data-tab')); });
+    });
+    var toP = document.getElementById('neg-c-to-practice');
+    if (toP) toP.addEventListener('click', function () {
+      show('practice');
+      if (tabs.scrollIntoView) tabs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    // Новичок (не играл и не выбирал вкладку) → Теория; иначе последняя выбранная / Практика.
+    var saved = null; try { saved = localStorage.getItem('yasna_negc_tab'); } catch (_) {}
+    show(saved || (prog.sessions > 0 ? 'practice' : 'theory'));
+  }
+
   // ═══ bootstrap ════════════════════════════════════════════════════
   function init() {
     var typesRoot = document.getElementById('neg-types-root');
     var contactRoot = document.getElementById('neg-contact-root');
     if (typesRoot) renderTypes(typesRoot);
     if (contactRoot) { startSession(); render(contactRoot); }
+    setupTabs();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

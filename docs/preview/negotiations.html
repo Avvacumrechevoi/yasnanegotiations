@@ -61,7 +61,7 @@ body {
 </style>
 
 <link rel="stylesheet" href="core/site-nav.css?v=nav4"/>
-<link rel="stylesheet" href="negotiations/trainer.css?v=1"/>
+<link rel="stylesheet" href="negotiations/trainer.css?v=2"/>
 </head>
 <body>
 
@@ -75,9 +75,9 @@ body {
     <span class="neg-eyebrow">Переговоры</span>
     <h1 class="neg-title">Тренажёр переговоров</h1>
     <p class="neg-lead">
-      Любые переговоры идут по одному циклу: от первого контакта через резонанс
-      и столкновение — к итогу. Ясна раскладывает этот цикл на <strong>12 стадий</strong>.
-      Научишься видеть, на какой ты стадии — будешь вести разговор, а не плыть по нему.
+      Сначала — <strong>войти в контакт</strong>: научись читать 4 типа людей и заходить верно.
+      Дальше — вести разговор по <strong>12 стадиям</strong> цикла, а не плыть по нему.
+      Ниже: теория и практика входа в контакт, затем карта стадий.
     </p>
   </section>
 
@@ -85,15 +85,27 @@ body {
     <h2 class="neg-section-h">Вход в контакт · 4 типа людей</h2>
     <p class="neg-section-sub">
       Прежде чем вести — нужно <strong>войти в контакт</strong>. Люди по сути делятся на четыре
-      знака: <b>ХА</b> (воля), <b>ФО</b> (ум), <b>ЦИ</b> (душа), <b>ШЭ</b> (тело). К каждому —
-      свой заход. Нажми на тип, чтобы раскрыть разбор.
+      знака: <b>ХА</b> (воля), <b>ФО</b> (ум), <b>ЦИ</b> (душа), <b>ШЭ</b> (тело). К каждому — свой заход.
     </p>
-    <div id="neg-types-root"></div>
 
-    <h3 class="neg-c-trainer-h">Тренажёр: прочитай человека и зайди верно</h3>
-    <p class="neg-section-sub">7 встреч. На каждой — определи тип по поведению, затем выбери заход.
-      Один заход резонирует, другой — рвёт контакт. Сразу — разбор.</p>
-    <div id="neg-contact-root" class="neg-drill-card"></div>
+    <!-- Сначала теория, потом практика — переключатель режимов -->
+    <div class="neg-c-tabs" id="neg-c-tabs" role="tablist">
+      <button class="neg-c-tab is-active" type="button" data-tab="theory" role="tab">1 · Теория</button>
+      <button class="neg-c-tab" type="button" data-tab="practice" role="tab">2 · Практика</button>
+    </div>
+
+    <div class="neg-c-pane" id="neg-c-pane-theory">
+      <p class="neg-section-sub">Четыре знака сути. Нажми на карточку — раскроется: как распознать, как входить и что отталкивает.</p>
+      <div id="neg-types-root"></div>
+      <button class="neg-btn neg-btn--primary neg-c-go-practice" type="button" id="neg-c-to-practice">Перейти к практике · 7 встреч →</button>
+    </div>
+
+    <div class="neg-c-pane" id="neg-c-pane-practice" hidden>
+      <h3 class="neg-c-trainer-h">Прочитай человека и зайди верно</h3>
+      <p class="neg-section-sub">7 встреч. На каждой — определи тип по поведению, затем выбери заход.
+        Один заход резонирует, другой — рвёт контакт. Сразу — разбор.</p>
+      <div id="neg-contact-root" class="neg-drill-card"></div>
+    </div>
   </section>
 
   <section class="neg-section" id="map">
@@ -124,7 +136,7 @@ body {
 </main>
 
 <script src="negotiations/contact-content.js?v=1"></script>
-<script src="negotiations/contact-trainer.js?v=1"></script>
+<script src="negotiations/contact-trainer.js?v=2"></script>
 <script src="negotiations/scenarios.js?v=1"></script>
 <script src="negotiations/trainer.js?v=1"></script>
 
