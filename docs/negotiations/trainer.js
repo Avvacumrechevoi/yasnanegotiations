@@ -267,14 +267,197 @@
     if (b) b.textContent = progress.bestStreak;
   }
 
+  // ═══ 3. Практикумы: «ситуация → выбор хода → разбор» ══════════════
+  // Один универсальный движок на все ситуационные дриллы.
+  // Контент — window.NegContent.PRACTICE (массив банков из scenarios.js).
+  var PRACTICE = C.PRACTICE || [];
+
+  // прогресс практикумов — отдельный namespace, чтобы не мешать дриллу стадий
+  var PKEY = 'yasna_neg_practice_v1';
+  function loadPractice() { try { return JSON.parse(localStorage.getItem(PKEY)) || {}; } catch (_) { return {}; } }
+  function savePractice(p) { try { localStorage.setItem(PKEY, JSON.stringify(p)); } catch (_) {} }
+  var practice = loadPractice();
+
+  var TAG_VERDICT = { good: '✓ В точку', mid: '~ Полумера', bad: '✗ Мимо' };
+
+  var elHub = null, elEx = null;
+  function showHub() { if (elHub) elHub.hidden = false; if (elEx) elEx.hidden = true; }
+  function showEx()  { if (elHub) elHub.hidden = true;  if (elEx) elEx.hidden = false; }
+
+  function newEx() { return { bank: null, deck: [], pos: 0, correct: 0, locked: false }; }
+  var ex = newEx();
+
+  function startEx(bank) {
+    ex = newEx();
+    ex.bank = bank;
+    var prev = (practice[bank.id] && practice[bank.id].plays) || 0;
+    ex.deck = shuffleDeck(bank.items.length, 13 + prev * 7);
+  }
+
+  function pctVerdict(p) {
+    if (p >= 90) return 'Мастерски';
+    if (p >= 70) return 'Хорошо';
+    if (p >= 50) return 'Неплохо, но есть куда расти';
+    return 'Стоит пройти ещё круг';
+  }
+
+  // ── список упражнений (хаб) ──────────────────────────────────────
+  function renderHub() {
+    if (!elHub) return;
+    elHub.innerHTML = '';
+
+    // несущая мысль (P0-теория): три режима контакта
+    var memo = el('div', 'neg-memo');
+    memo.innerHTML =
+      '<div class="neg-memo-h">Главное: держи резонанс</div>' +
+      '<p class="neg-memo-p">Любые переговоры идут в одном из трёх режимов. Лови режим — и не дожимай там, где контакт рвётся.</p>' +
+      '<div class="neg-memo-modes">' +
+        '<span class="neg-memo-mode neg-memo-mode--ok"><b>Резонанс</b> — слышите друг друга, тон теплеет, он повторяет твои слова своими.</span>' +
+        '<span class="neg-memo-mode neg-memo-mode--mid"><b>Монолог</b> — говоришь только ты, второй закрылся. Остановись и проверь интерес.</span>' +
+        '<span class="neg-memo-mode neg-memo-mode--no"><b>Срыв</b> — контакт оборвался. Оставь мост, не дави.</span>' +
+      '</div>';
+    elHub.appendChild(memo);
+
+    if (!PRACTICE.length) return;
+
+    var grid = el('div', 'neg-hub');
+    PRACTICE.forEach(function (bank) {
+      var st = practice[bank.id] || {};
+      var badge = st.plays
+        ? '<span class="neg-hub-badge">лучшее ' + (st.best || 0) + '/' + bank.items.length + '</span>'
+        : '<span class="neg-hub-badge neg-hub-badge--new">новое</span>';
+      var card = el('button', 'neg-hub-card');
+      card.setAttribute('type', 'button');
+      card.innerHTML =
+        '<span class="neg-hub-card-h">' + bank.title + '</span>' +
+        '<span class="neg-hub-card-sub">' + bank.intro + '</span>' +
+        '<span class="neg-hub-card-foot">' + badge + '<span class="neg-hub-go">Начать →</span></span>';
+      card.addEventListener('click', function () {
+        startEx(bank); renderEx(); showEx();
+        if (elEx && elEx.scrollIntoView) elEx.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      grid.appendChild(card);
+    });
+    elHub.appendChild(grid);
+  }
+
+  // ── активное упражнение ──────────────────────────────────────────
+  function renderEx() {
+    if (!elEx) return;
+    elEx.innerHTML = '';
+    var bank = ex.bank;
+    if (!bank) { showHub(); return; }
+
+    var head = el('div', 'neg-ex-head');
+    var back = el('button', 'neg-ex-back', '← к списку');
+    back.setAttribute('type', 'button');
+    back.addEventListener('click', function () { ex = newEx(); showHub(); renderHub(); });
+    head.appendChild(back);
+    head.appendChild(el('span', 'neg-ex-name', bank.title));
+    elEx.appendChild(head);
+
+    if (ex.pos >= ex.deck.length) { renderExSummary(); return; }
+
+    var item = bank.items[ex.deck[ex.pos]];
+
+    var prog = el('div', 'neg-ex-prog');
+    prog.innerHTML =
+      '<span>' + (ex.pos + 1) + ' / ' + ex.deck.length + '</span>' +
+      '<span class="neg-ex-score">верно: ' + ex.correct + '</span>';
+    elEx.appendChild(prog);
+
+    var card = el('div', 'neg-drill-card');
+    if (item.scene) card.appendChild(el('div', 'neg-ex-scene', item.scene));
+    card.appendChild(el('div', 'neg-ex-line', item.line));
+    card.appendChild(el('div', 'neg-ex-ask', item.ask));
+
+    var opts = el('div', 'neg-ex-opts');
+    var order = shuffleDeck(item.options.length, ex.deck[ex.pos] + 17 + ex.pos);
+    var fb = el('div', 'neg-ex-fb');
+    order.forEach(function (oi) {
+      var o = item.options[oi];
+      var b = el('button', 'neg-ex-opt');
+      b.setAttribute('type', 'button');
+      b.setAttribute('data-tag', o.tag);
+      b.textContent = o.text;
+      b._opt = o;
+      b.addEventListener('click', function () { answerEx(o, item, opts, fb); });
+      opts.appendChild(b);
+    });
+    card.appendChild(opts);
+    card.appendChild(fb);
+    elEx.appendChild(card);
+    ex.locked = false;
+  }
+
+  function answerEx(picked, item, opts, fb) {
+    if (ex.locked) return;
+    ex.locked = true;
+    var goodOpt = null;
+    item.options.forEach(function (o) { if (o.tag === 'good') goodOpt = o; });
+    var isGood = picked.tag === 'good';
+    if (isGood) ex.correct += 1;
+
+    [].forEach.call(opts.querySelectorAll('.neg-ex-opt'), function (b) {
+      b.disabled = true;
+      if (b._opt && b._opt.tag === 'good') b.classList.add('is-good');
+      else if (b._opt === picked) b.classList.add(picked.tag === 'bad' ? 'is-bad' : 'is-mid');
+    });
+
+    fb.className = 'neg-ex-fb is-show is-' + picked.tag;
+    var html =
+      '<div class="neg-ex-fb-v">' + (TAG_VERDICT[picked.tag] || '') + '</div>' +
+      '<div class="neg-ex-fb-why">' + picked.why + '</div>';
+    if (!isGood && goodOpt) {
+      html += '<div class="neg-ex-fb-good"><b>В точку:</b> ' + goodOpt.text + ' — ' + goodOpt.why + '</div>';
+    }
+    html += '<button type="button" class="neg-next neg-ex-next">Дальше →</button>';
+    fb.innerHTML = html;
+    var nx = fb.querySelector('.neg-ex-next');
+    nx.addEventListener('click', function () { ex.pos += 1; renderEx(); });
+    nx.focus();
+  }
+
+  function renderExSummary() {
+    var bank = ex.bank;
+    var total = ex.deck.length;
+    var pct = total ? Math.round(ex.correct / total * 100) : 0;
+
+    var st = practice[bank.id] || { best: 0, plays: 0 };
+    st.plays = (st.plays || 0) + 1;
+    if (ex.correct > (st.best || 0)) st.best = ex.correct;
+    practice[bank.id] = st;
+    savePractice(practice);
+
+    var done = el('div', 'neg-ex-done');
+    done.innerHTML =
+      '<div class="neg-done-title">' + bank.title + ' · ' + ex.correct + '/' + total + '</div>' +
+      '<div class="neg-done-sub">' + pctVerdict(pct) + ' · лучший результат: ' + st.best + '/' + total + '</div>';
+    elEx.appendChild(done);
+
+    var row = el('div', 'neg-ex-done-actions');
+    var again = el('button', 'neg-btn neg-btn--primary', 'Ещё раз →');
+    again.setAttribute('type', 'button');
+    again.addEventListener('click', function () { startEx(bank); renderEx(); });
+    var toList = el('button', 'neg-ex-back', '← к списку');
+    toList.setAttribute('type', 'button');
+    toList.addEventListener('click', function () { ex = newEx(); showHub(); renderHub(); });
+    row.appendChild(again);
+    row.appendChild(toList);
+    elEx.appendChild(row);
+  }
+
   // ═══ bootstrap ════════════════════════════════════════════════════
   function init() {
     var guideRoot = document.getElementById('neg-guide-root');
     var mapRoot = document.getElementById('neg-map-root');
     var drillRoot = document.getElementById('neg-drill-root');
+    elHub = document.getElementById('neg-practice-hub');
+    elEx = document.getElementById('neg-practice-ex');
     if (guideRoot) renderGuide(guideRoot);
     if (mapRoot) renderMap(mapRoot);
     if (drillRoot) { startDrill(); renderDrill(drillRoot); }
+    if (elHub) { renderHub(); showHub(); }
     refreshStats();
   }
 
