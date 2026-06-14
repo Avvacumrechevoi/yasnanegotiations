@@ -537,6 +537,38 @@
             )
           )
         ),
+        // ─── Карточка-переход на тренажёр переговоров (рядом с Партией) ───
+        React.createElement('a', {
+          className: 'dp-game-card dp-game-card--neg',
+          href: 'negotiations.html',
+          style: { textDecoration: 'none' },
+        },
+          React.createElement('div', { className: 'dp-game-eyebrow' }, '✦  Доступно · отдельный тренажёр'),
+          React.createElement('div', { className: 'dp-game-title-row' },
+            React.createElement('div', { className: 'dp-game-title' }, 'Переговоры')
+          ),
+          React.createElement('div', { className: 'dp-game-sub' },
+            'Отдельный тренажёр в 4 сценария: читать людей, вести разговор, договариваться честно и выходить красиво — с практикой и живым спаррингом.'
+          ),
+          React.createElement('ul', { className: 'dp-game-bullets' },
+            React.createElement('li', null, '4 типа людей · вход в контакт · 7 живых встреч'),
+            React.createElement('li', null, 'Карта 12 стадий + ситуационные дриллы'),
+            React.createElement('li', null, 'Спарринг с ИИ-собеседником в чате')
+          ),
+          React.createElement('div', { className: 'dp-cta-row' },
+            React.createElement('span', { className: 'dp-cta dp-cta--neg' },
+              React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
+                React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
+                  React.createElement('path', { d: 'M21 11.5a8.5 8.5 0 0 1-12.2 7.7L3 21l1.8-5.8A8.5 8.5 0 1 1 21 11.5z' })
+                )
+              ),
+              React.createElement('span', { className: 'dp-cta__body' },
+                React.createElement('span', { className: 'dp-cta__title' }, 'Открыть тренажёр →'),
+                React.createElement('span', { className: 'dp-cta__sub' }, '4 сценария · ~30 минут')
+              )
+            )
+          )
+        ),
         React.createElement('button', { className: 'dp-game-card dp-game-soon', onClick: onUzor, disabled: true, style: { opacity: 0.6, cursor: 'not-allowed' } },
           React.createElement('div', { className: 'dp-game-eyebrow' }, '◷  В разработке'),
           React.createElement('div', { className: 'dp-game-title-row' },
@@ -552,28 +584,6 @@
           ),
           React.createElement('div', { className: 'dp-game-meta' },
             React.createElement('span', { className: 'dp-game-meta-pvp' }, 'PvP · скоро')
-          )
-        ),
-        // ─── Карточка-переход на тренажёр переговоров (отдельный раздел) ───
-        React.createElement('a', {
-          className: 'dp-game-card dp-game-card--neg',
-          href: 'negotiations.html',
-          style: { textDecoration: 'none', display: 'block' },
-        },
-          React.createElement('div', { className: 'dp-game-eyebrow' }, '✦  Доступно · тренажёр'),
-          React.createElement('div', { className: 'dp-game-title-row' },
-            React.createElement('div', { className: 'dp-game-title' }, 'Переговоры')
-          ),
-          React.createElement('div', { className: 'dp-game-sub' },
-            'Учись входить в контакт с 4 типами людей — ХА · ФО · ЦИ · ШЭ — и вести разговор по стадиям.'
-          ),
-          React.createElement('ul', { className: 'dp-game-bullets' },
-            React.createElement('li', null, 'Вход в контакт · 7 живых встреч'),
-            React.createElement('li', null, 'Определи тип — выбери верный заход'),
-            React.createElement('li', null, 'Карта 12 стадий переговоров')
-          ),
-          React.createElement('div', { className: 'dp-game-meta' },
-            React.createElement('span', { className: 'dp-game-meta-open' }, 'Открыть тренажёр →')
           )
         )
       )

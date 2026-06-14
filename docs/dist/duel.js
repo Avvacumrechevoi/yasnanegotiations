@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-06-13T19:53:38.857Z */
+/* Yasna bundle: duel.js — собран 2026-06-14T18:22:20.092Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -25185,6 +25185,56 @@ window.YasnaCore = {
             )
           )
         ),
+        // ─── Карточка-переход на тренажёр переговоров (рядом с Партией) ───
+        React.createElement(
+          "a",
+          {
+            className: "dp-game-card dp-game-card--neg",
+            href: "negotiations.html",
+            style: { textDecoration: "none" }
+          },
+          React.createElement("div", { className: "dp-game-eyebrow" }, "\u2726  \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u043E \xB7 \u043E\u0442\u0434\u0435\u043B\u044C\u043D\u044B\u0439 \u0442\u0440\u0435\u043D\u0430\u0436\u0451\u0440"),
+          React.createElement(
+            "div",
+            { className: "dp-game-title-row" },
+            React.createElement("div", { className: "dp-game-title" }, "\u041F\u0435\u0440\u0435\u0433\u043E\u0432\u043E\u0440\u044B")
+          ),
+          React.createElement(
+            "div",
+            { className: "dp-game-sub" },
+            "\u041E\u0442\u0434\u0435\u043B\u044C\u043D\u044B\u0439 \u0442\u0440\u0435\u043D\u0430\u0436\u0451\u0440 \u0432 4 \u0441\u0446\u0435\u043D\u0430\u0440\u0438\u044F: \u0447\u0438\u0442\u0430\u0442\u044C \u043B\u044E\u0434\u0435\u0439, \u0432\u0435\u0441\u0442\u0438 \u0440\u0430\u0437\u0433\u043E\u0432\u043E\u0440, \u0434\u043E\u0433\u043E\u0432\u0430\u0440\u0438\u0432\u0430\u0442\u044C\u0441\u044F \u0447\u0435\u0441\u0442\u043D\u043E \u0438 \u0432\u044B\u0445\u043E\u0434\u0438\u0442\u044C \u043A\u0440\u0430\u0441\u0438\u0432\u043E \u2014 \u0441 \u043F\u0440\u0430\u043A\u0442\u0438\u043A\u043E\u0439 \u0438 \u0436\u0438\u0432\u044B\u043C \u0441\u043F\u0430\u0440\u0440\u0438\u043D\u0433\u043E\u043C."
+          ),
+          React.createElement(
+            "ul",
+            { className: "dp-game-bullets" },
+            React.createElement("li", null, "4 \u0442\u0438\u043F\u0430 \u043B\u044E\u0434\u0435\u0439 \xB7 \u0432\u0445\u043E\u0434 \u0432 \u043A\u043E\u043D\u0442\u0430\u043A\u0442 \xB7 7 \u0436\u0438\u0432\u044B\u0445 \u0432\u0441\u0442\u0440\u0435\u0447"),
+            React.createElement("li", null, "\u041A\u0430\u0440\u0442\u0430 12 \u0441\u0442\u0430\u0434\u0438\u0439 + \u0441\u0438\u0442\u0443\u0430\u0446\u0438\u043E\u043D\u043D\u044B\u0435 \u0434\u0440\u0438\u043B\u043B\u044B"),
+            React.createElement("li", null, "\u0421\u043F\u0430\u0440\u0440\u0438\u043D\u0433 \u0441 \u0418\u0418-\u0441\u043E\u0431\u0435\u0441\u0435\u0434\u043D\u0438\u043A\u043E\u043C \u0432 \u0447\u0430\u0442\u0435")
+          ),
+          React.createElement(
+            "div",
+            { className: "dp-cta-row" },
+            React.createElement(
+              "span",
+              { className: "dp-cta dp-cta--neg" },
+              React.createElement(
+                "span",
+                { className: "dp-cta__icon", "aria-hidden": "true" },
+                React.createElement(
+                  "svg",
+                  { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round", strokeLinejoin: "round" },
+                  React.createElement("path", { d: "M21 11.5a8.5 8.5 0 0 1-12.2 7.7L3 21l1.8-5.8A8.5 8.5 0 1 1 21 11.5z" })
+                )
+              ),
+              React.createElement(
+                "span",
+                { className: "dp-cta__body" },
+                React.createElement("span", { className: "dp-cta__title" }, "\u041E\u0442\u043A\u0440\u044B\u0442\u044C \u0442\u0440\u0435\u043D\u0430\u0436\u0451\u0440 \u2192"),
+                React.createElement("span", { className: "dp-cta__sub" }, "4 \u0441\u0446\u0435\u043D\u0430\u0440\u0438\u044F \xB7 ~30 \u043C\u0438\u043D\u0443\u0442")
+              )
+            )
+          )
+        ),
         React.createElement(
           "button",
           { className: "dp-game-card dp-game-soon", onClick: onUzor, disabled: true, style: { opacity: 0.6, cursor: "not-allowed" } },
@@ -25210,38 +25260,6 @@ window.YasnaCore = {
             "div",
             { className: "dp-game-meta" },
             React.createElement("span", { className: "dp-game-meta-pvp" }, "PvP \xB7 \u0441\u043A\u043E\u0440\u043E")
-          )
-        ),
-        // ─── Карточка-переход на тренажёр переговоров (отдельный раздел) ───
-        React.createElement(
-          "a",
-          {
-            className: "dp-game-card dp-game-card--neg",
-            href: "negotiations.html",
-            style: { textDecoration: "none", display: "block" }
-          },
-          React.createElement("div", { className: "dp-game-eyebrow" }, "\u2726  \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u043E \xB7 \u0442\u0440\u0435\u043D\u0430\u0436\u0451\u0440"),
-          React.createElement(
-            "div",
-            { className: "dp-game-title-row" },
-            React.createElement("div", { className: "dp-game-title" }, "\u041F\u0435\u0440\u0435\u0433\u043E\u0432\u043E\u0440\u044B")
-          ),
-          React.createElement(
-            "div",
-            { className: "dp-game-sub" },
-            "\u0423\u0447\u0438\u0441\u044C \u0432\u0445\u043E\u0434\u0438\u0442\u044C \u0432 \u043A\u043E\u043D\u0442\u0430\u043A\u0442 \u0441 4 \u0442\u0438\u043F\u0430\u043C\u0438 \u043B\u044E\u0434\u0435\u0439 \u2014 \u0425\u0410 \xB7 \u0424\u041E \xB7 \u0426\u0418 \xB7 \u0428\u042D \u2014 \u0438 \u0432\u0435\u0441\u0442\u0438 \u0440\u0430\u0437\u0433\u043E\u0432\u043E\u0440 \u043F\u043E \u0441\u0442\u0430\u0434\u0438\u044F\u043C."
-          ),
-          React.createElement(
-            "ul",
-            { className: "dp-game-bullets" },
-            React.createElement("li", null, "\u0412\u0445\u043E\u0434 \u0432 \u043A\u043E\u043D\u0442\u0430\u043A\u0442 \xB7 7 \u0436\u0438\u0432\u044B\u0445 \u0432\u0441\u0442\u0440\u0435\u0447"),
-            React.createElement("li", null, "\u041E\u043F\u0440\u0435\u0434\u0435\u043B\u0438 \u0442\u0438\u043F \u2014 \u0432\u044B\u0431\u0435\u0440\u0438 \u0432\u0435\u0440\u043D\u044B\u0439 \u0437\u0430\u0445\u043E\u0434"),
-            React.createElement("li", null, "\u041A\u0430\u0440\u0442\u0430 12 \u0441\u0442\u0430\u0434\u0438\u0439 \u043F\u0435\u0440\u0435\u0433\u043E\u0432\u043E\u0440\u043E\u0432")
-          ),
-          React.createElement(
-            "div",
-            { className: "dp-game-meta" },
-            React.createElement("span", { className: "dp-game-meta-open" }, "\u041E\u0442\u043A\u0440\u044B\u0442\u044C \u0442\u0440\u0435\u043D\u0430\u0436\u0451\u0440 \u2192")
           )
         )
       )

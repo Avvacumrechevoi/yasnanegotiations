@@ -524,6 +524,7 @@ a { color: inherit; }
   grid-template-columns: 1fr 1fr;
   gap: var(--space-3);
   margin-bottom: var(--space-12);
+  align-items: start;
 }
 .dp-game-card {
   background: var(--bg-surface);
@@ -596,6 +597,11 @@ a { color: inherit; }
 .dp-game-card--neg { cursor: pointer; transition: border-color var(--duration-fast) var(--easing-out), transform var(--duration-fast) var(--easing-out); }
 .dp-game-card--neg:hover { border-color: var(--vk-accent, #0077FF); transform: translateY(-1px); }
 .dp-game-meta-open { color: var(--vk-accent, #0077FF); font-weight: 600; font-size: 14px; }
+/* Заметная единая CTA-кнопка карточки «Переговоры» */
+.dp-cta--neg { grid-column: 1 / -1; border-color: rgba(0,119,255,0.30); background: rgba(0,119,255,0.08); }
+.dp-cta--neg .dp-cta__icon { background: rgba(0,119,255,0.12); border-color: rgba(0,119,255,0.30); color: var(--vk-accent, #0077FF); }
+.dp-game-card--neg:hover .dp-cta--neg { border-color: var(--vk-accent, #0077FF); background: rgba(0,119,255,0.14); }
+.dp-game-card--neg:hover .dp-cta--neg .dp-cta__icon { background: var(--vk-accent, #0077FF); color: #fff; }
 
 /* ═══ Сегодня (Этюды дня) ═══ */
 .dp-quests {
