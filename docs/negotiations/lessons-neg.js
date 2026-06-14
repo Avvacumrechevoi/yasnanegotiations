@@ -40,11 +40,23 @@
     if (d.indexOf(id) < 0) { d.push(id); try { localStorage.setItem(LKEY, JSON.stringify(d)); } catch (_) {} }
   }
 
+  // ── онбординг: один вопрос по боли → рекомендованный сценарий ─────
+  var ONBKEY = 'yasna_neg_onb_v1';
+  function loadOnb() { try { return localStorage.getItem(ONBKEY); } catch (_) { return null; } }
+  function saveOnb(v) { try { localStorage.setItem(ONBKEY, v); } catch (_) {} }
+  var PAINS = [
+    { lesson: 'l1', label: 'Не считываю человека — один и тот же довод одного цепляет, другого отталкивает' },
+    { lesson: 'l2', label: 'Разговор уходит в хаос — теряю нить, не знаю, давить или слушать' },
+    { lesson: 'l3', label: 'Прогибаюсь по деньгам и условиям — боюсь назвать цифру и отдать всё даром' },
+    { lesson: 'l4', label: 'Расстаёмся на осадке — разговор скатывается, остаётся неприятный след' }
+  ];
+  function lessonById(id) { var r = null; LESSONS.forEach(function (l) { if (l.id === id) r = l; }); return r; }
+
   // ═══ КОНТЕНТ: 4 сценария ══════════════════════════════════════════
   var LESSONS = [
     {
       id: 'l1', n: 1, title: 'Кто передо мной', sparId: 'type-ha',
-      outcome: 'Читать 4 типа людей и заходить верно', duration: '~7 мин',
+      outcome: 'Читать людей: командир, аналитик, душевный, практик — и заходить верно', duration: '~7 мин',
       when: 'Когда заходишь к новому человеку и не понимаешь, почему один и тот же довод одного зажигает, а другого отталкивает.',
       skill: 'Читать тип собеседника по первым репликам и за одну фразу выбирать заход под него — командиру суть и цифру, аналитику факты, душевному смысл, практику показать руками.',
       segments: [
@@ -59,7 +71,7 @@
     },
     {
       id: 'l2', n: 2, title: 'Как ведётся разговор', sparId: 'rezonans',
-      outcome: 'Видеть дугу из 12 стадий и держать резонанс', duration: '~9 мин',
+      outcome: 'Видеть, куда движется разговор, и не терять контакт', duration: '~9 мин',
       when: 'Когда разговор кажется хаосом — теряешь нить и не понимаешь, какой ход уместен сейчас: давить, слушать, фиксировать или отступить.',
       skill: 'Видеть разговор как дугу из 12 стадий, определять текущую стадию по реплике и ловить режим контакта — резонанс это или назревающий срыв.',
       segments: [
@@ -146,19 +158,21 @@
       rail.appendChild(seg);
     });
     route.appendChild(rail);
-    route.appendChild(el('div', 'neg-route-meta', 'Пройдено ' + done.length + ' из ' + LESSONS.length + ' · весь путь ~30 мин'));
+    route.appendChild(el('div', 'neg-route-meta', 'Пройдено ' + done.length + ' из ' + LESSONS.length + ' · ~30 мин · можно по порядку или открыть нужный'));
     catalogList.appendChild(route);
 
+    var reco = loadOnb();
     var list = el('div', 'neg-cat');
     LESSONS.forEach(function (lesson, k) {
       var isDone = done.indexOf(lesson.id) >= 0;
       var isHere = (k === hereIdx);
-      var card = el('button', 'neg-cat-card' + (isDone ? ' is-done' : '') + (isHere ? ' is-here' : ''));
+      var isReco = (reco && reco === lesson.id);
+      var card = el('button', 'neg-cat-card' + (isDone ? ' is-done' : '') + (isHere ? ' is-here' : '') + (isReco ? ' is-reco' : ''));
       card.type = 'button';
       card.innerHTML =
         '<span class="neg-cat-num">' + (isDone ? '✓' : lesson.n) + '</span>' +
         '<span class="neg-cat-body">' +
-          (isHere ? '<span class="neg-cat-here">Вы здесь</span>' : '') +
+          (isReco ? '<span class="neg-cat-here neg-cat-reco">Тебе сюда</span>' : (isHere ? '<span class="neg-cat-here">Вы здесь</span>' : '')) +
           '<span class="neg-cat-title">' + lesson.title + '</span>' +
           '<span class="neg-cat-outcome">Научишься: ' + lesson.outcome + '</span>' +
           (lesson.when ? '<span class="neg-cat-when">' + richText(lesson.when) + '</span>' : '') +
@@ -327,6 +341,39 @@
     }
   }
 
+  // ── вводный экран первого визита ─────────────────────────────────
+  function renderOnboarding() {
+    var host = document.getElementById('neg-onb-root');
+    if (!host) return;
+    var ov = el('div', 'neg-onb');
+    var card = el('div', 'neg-onb-card');
+    card.innerHTML =
+      '<div class="neg-onb-eyebrow">Тренажёр переговоров</div>' +
+      '<div class="neg-onb-value">Переговоры — это навык. 4 коротких сценария, ~30 минут.</div>' +
+      '<div class="neg-onb-sub">Один вопрос — и подскажем, с чего начать именно тебе. Или просто пройди по порядку.</div>' +
+      '<div class="neg-onb-q">Что у тебя сейчас горит?</div>';
+    var opts = el('div', 'neg-onb-opts');
+    PAINS.forEach(function (p) {
+      var b = el('button', 'neg-onb-opt');
+      b.type = 'button';
+      b.textContent = p.label;
+      b.addEventListener('click', function () {
+        saveOnb(p.lesson);
+        host.innerHTML = '';
+        var l = lessonById(p.lesson);
+        if (l) openLesson(l);
+      });
+      opts.appendChild(b);
+    });
+    card.appendChild(opts);
+    var skip = el('button', 'neg-onb-skip', 'Не уверен — просто веди по порядку →');
+    skip.type = 'button';
+    skip.addEventListener('click', function () { saveOnb('skip'); host.innerHTML = ''; renderCatalog(); });
+    card.appendChild(skip);
+    ov.appendChild(card);
+    host.appendChild(ov);
+  }
+
   // ═══ bootstrap ════════════════════════════════════════════════════
   function init() {
     catalogSec = document.getElementById('neg-catalog');
@@ -335,6 +382,7 @@
     if (!catalogList || !lessonRoot) return;
     showCatalog();
     renderCatalog();
+    if (!loadOnb()) renderOnboarding();
 
     // главная кнопка-вход в герое: продолжить с первого непройденного
     var heroStart = document.getElementById('neg-hero-start');
