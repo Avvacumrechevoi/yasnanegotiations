@@ -462,3 +462,96 @@
 
 .neg-guide-end { font-size: 13px; color: var(--text-tertiary); align-self: center; }
 .neg-ex-empty { font-size: 14px; color: var(--text-tertiary); padding: 12px 0; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Режимы: вкладки «Сценарии | Спарринг» + чат-спарринг
+   ═══════════════════════════════════════════════════════════════════ */
+.neg-mode-tabs { display: inline-flex; gap: 4px; background: var(--bg-tonal); padding: 4px; border-radius: 12px; margin: 0 0 24px; }
+.neg-mode-tab { padding: 9px 20px; border-radius: 9px; border: 0; background: transparent; color: var(--text-secondary); font: inherit; font-weight: 600; font-size: 14px; cursor: pointer; transition: background .15s, color .15s; }
+.neg-mode-tab:hover { color: var(--text-primary); }
+.neg-mode-tab.is-active { background: var(--accent); color: var(--accent-on, #fff); }
+
+/* — выбор параметра — */
+.neg-spar-intro { margin-bottom: 16px; }
+.neg-spar-grid { display: grid; gap: 10px; }
+@media (min-width: 600px) { .neg-spar-grid { grid-template-columns: 1fr 1fr; } }
+.neg-spar-card {
+  display: flex; align-items: center; gap: 14px; text-align: left; width: 100%;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+  padding: 16px; cursor: pointer; color: var(--text-primary); font: inherit;
+  transition: border-color .15s, background .15s, transform .12s;
+}
+.neg-spar-card:hover { background: var(--bg-elevated); border-color: var(--border-strong); transform: translateY(-2px); }
+.neg-spar-card-glyph { flex-shrink: 0; font-size: 26px; width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; background: var(--bg-tonal); border-radius: 12px; }
+.neg-spar-card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.neg-spar-card-param { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--accent-hover); font-weight: 600; }
+.neg-spar-card-title { font-family: var(--font-display); font-weight: 700; font-size: 16px; }
+.neg-spar-card-persona { font-size: 12.5px; color: var(--text-tertiary); }
+.neg-spar-card-foot { flex-shrink: 0; }
+.neg-spar-card-badge { font-size: 11px; color: var(--text-tertiary); }
+.neg-spar-card-badge--new { color: var(--accent-hover); font-weight: 600; }
+
+/* — шапка диалога — */
+.neg-spar-head { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+.neg-spar-back { background: transparent; border: 1px solid var(--border-strong); color: var(--text-secondary); border-radius: 100px; padding: 7px 14px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.neg-spar-back:hover { color: var(--text-primary); border-color: var(--accent); }
+.neg-spar-persona { display: flex; align-items: center; gap: 10px; }
+.neg-spar-persona-glyph { font-size: 26px; }
+.neg-spar-persona-meta { display: flex; flex-direction: column; }
+.neg-spar-persona-name { font-family: var(--font-display); font-weight: 700; font-size: 16px; color: var(--text-primary); }
+.neg-spar-persona-role { font-size: 12px; color: var(--text-tertiary); }
+
+.neg-spar-goal { background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; }
+.neg-spar-setting { font-size: 12px; color: var(--text-tertiary); margin-bottom: 4px; }
+.neg-spar-goal-text { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
+.neg-spar-goal-text b { color: var(--text-primary); }
+
+.neg-spar-meter { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.neg-spar-meter-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-tertiary); white-space: nowrap; }
+.neg-spar-meter-bar { flex: 1; height: 6px; border-radius: 6px; background: var(--bg-tonal); overflow: hidden; }
+.neg-spar-meter-fill { display: block; height: 100%; width: 50%; background: linear-gradient(90deg, #E2604A, #E0A93B 50%, #2FBF71); transition: width .4s ease; }
+
+/* — лента сообщений — */
+.neg-spar-msgs { max-height: 56vh; overflow-y: auto; padding: 6px 2px; display: flex; flex-direction: column; gap: 10px; }
+.neg-spar-msg { display: flex; }
+.neg-spar-msg--ai { justify-content: flex-start; }
+.neg-spar-msg--me { justify-content: flex-end; }
+.neg-spar-bubble { max-width: 82%; padding: 11px 14px; border-radius: 16px; font-size: 14.5px; line-height: 1.5; }
+.neg-spar-msg--ai .neg-spar-bubble { background: var(--bg-elevated); border: 1px solid var(--border-strong); border-bottom-left-radius: 5px; color: var(--text-primary); }
+.neg-spar-msg--me .neg-spar-bubble { background: var(--accent-soft); border: 1px solid rgba(0,119,255,.3); border-bottom-right-radius: 5px; color: var(--text-primary); }
+.neg-spar-coach { align-self: center; font-size: 12.5px; line-height: 1.4; color: var(--text-tertiary); padding: 2px 8px; }
+.neg-spar-coach--good { color: #2FBF71; }
+.neg-spar-coach--bad { color: #E2604A; }
+.neg-spar-coach--mid { color: #E0A93B; }
+
+/* — зона ввода — */
+.neg-spar-input { margin-top: 14px; }
+.neg-spar-hint { font-size: 12.5px; color: var(--text-tertiary); min-height: 18px; margin-bottom: 8px; }
+.neg-spar-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.neg-spar-chip {
+  text-align: left; background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 12px;
+  padding: 9px 13px; font: inherit; font-size: 13.5px; line-height: 1.4; color: var(--text-secondary);
+  cursor: pointer; transition: border-color .13s, background .13s, color .13s; max-width: 100%;
+}
+.neg-spar-chip:hover { border-color: var(--accent); background: var(--bg-elevated); color: var(--text-primary); }
+.neg-spar-chip--alt { color: var(--text-tertiary); }
+.neg-spar-typebar { display: flex; gap: 8px; align-items: flex-end; }
+.neg-spar-ta {
+  flex: 1; resize: none; background: var(--bg-elevated); border: 1px solid var(--border-strong); border-radius: 14px;
+  padding: 11px 14px; font: inherit; font-size: 14.5px; line-height: 1.4; color: var(--text-primary); max-height: 120px;
+}
+.neg-spar-ta:focus { outline: none; border-color: var(--accent); }
+.neg-spar-send {
+  flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--accent);
+  color: var(--accent-on, #fff); font-size: 20px; cursor: pointer; transition: background .15s;
+}
+.neg-spar-send:hover { background: var(--accent-hover); }
+
+/* — разбор — */
+.neg-spar-debrief { margin: 12px 0 4px; padding: 16px 18px; border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--text-tertiary); }
+.neg-spar-debrief--good { border-left-color: #2FBF71; }
+.neg-spar-debrief--bad { border-left-color: #E2604A; }
+.neg-spar-debrief--mid { border-left-color: #E0A93B; }
+.neg-spar-deb-title { font-family: var(--font-display); font-weight: 700; font-size: 18px; color: var(--text-primary); margin-bottom: 6px; }
+.neg-spar-deb-text { font-size: 14px; line-height: 1.55; color: var(--text-secondary); }
+.neg-spar-deb-sub { font-size: 12px; color: var(--text-tertiary); margin-top: 8px; }

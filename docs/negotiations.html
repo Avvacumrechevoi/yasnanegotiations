@@ -61,7 +61,7 @@ body {
 </style>
 
 <link rel="stylesheet" href="core/site-nav.css?v=nav4"/>
-<link rel="stylesheet" href="negotiations/trainer.css?v=5"/>
+<link rel="stylesheet" href="negotiations/trainer.css?v=6"/>
 </head>
 <body>
 
@@ -80,13 +80,28 @@ body {
     </p>
   </section>
 
-  <section class="neg-section" id="neg-catalog">
-    <h2 class="neg-section-h">Сценарии</h2>
-    <p class="neg-section-sub">Четыре коротких сценария — путь переговоров от первого слова до результата. Внутри каждого теория идёт порциями, а практика — по шагам. Начни с первого или открой нужный.</p>
-    <div id="neg-catalog-list"></div>
-  </section>
+  <div class="neg-mode-tabs" id="neg-mode-tabs" role="tablist">
+    <button class="neg-mode-tab is-active" type="button" data-mode="lessons" role="tab">Сценарии</button>
+    <button class="neg-mode-tab" type="button" data-mode="spar" role="tab">Спарринг с ИИ</button>
+  </div>
 
-  <section class="neg-section" id="neg-lesson" hidden></section>
+  <div id="neg-mode-lessons">
+    <section class="neg-section" id="neg-catalog">
+      <h2 class="neg-section-h">Сценарии</h2>
+      <p class="neg-section-sub">Четыре коротких сценария — путь переговоров от первого слова до результата. Внутри каждого теория идёт порциями, а практика — по шагам. Начни с первого или открой нужный.</p>
+      <div id="neg-catalog-list"></div>
+    </section>
+
+    <section class="neg-section" id="neg-lesson" hidden></section>
+  </div>
+
+  <div id="neg-mode-spar" hidden>
+    <section class="neg-section">
+      <h2 class="neg-section-h">Спарринг с ИИ</h2>
+      <p class="neg-section-sub">Тренируй параметры встречи в живом диалоге: собеседник-ИИ отвечает на твой ход. Отвечай своими словами или жми подсказки.</p>
+      <div id="neg-spar-root"></div>
+    </section>
+  </div>
 
   <div class="neg-foot">
     Модель «Ясна Переговоров» · та же 12-полочная звезда есть в
@@ -102,6 +117,8 @@ body {
 <script src="negotiations/practice-content.js?v=1"></script>
 <script src="negotiations/trainer.js?v=4"></script>
 <script src="negotiations/lessons-neg.js?v=1"></script>
+<script src="negotiations/spar-content.js?v=1"></script>
+<script src="negotiations/spar.js?v=1"></script>
 
 </body>
 </html>
