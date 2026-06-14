@@ -555,3 +555,69 @@
 .neg-spar-deb-title { font-family: var(--font-display); font-weight: 700; font-size: 18px; color: var(--text-primary); margin-bottom: 6px; }
 .neg-spar-deb-text { font-size: 14px; line-height: 1.55; color: var(--text-secondary); }
 .neg-spar-deb-sub { font-size: 12px; color: var(--text-tertiary); margin-top: 8px; }
+.neg-spar-deb-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+
+/* — выбор движка — */
+.neg-spar-engine { display: grid; gap: 10px; margin: 14px 0 16px; }
+@media (min-width: 600px) { .neg-spar-engine { grid-template-columns: 1fr 1fr; } }
+.neg-spar-eng-btn {
+  display: flex; flex-direction: column; gap: 4px; text-align: left; cursor: pointer;
+  background: var(--bg-card); border: 1.5px solid var(--border-strong); border-radius: 14px;
+  padding: 14px 16px; color: var(--text-primary); font: inherit; transition: border-color .15s, background .15s;
+}
+.neg-spar-eng-btn:hover { border-color: var(--accent); }
+.neg-spar-eng-btn.is-active { border-color: var(--accent); background: var(--accent-soft); }
+.neg-spar-eng-h { font-weight: 700; font-size: 15px; }
+.neg-spar-eng-d { font-size: 12.5px; color: var(--text-tertiary); line-height: 1.45; }
+
+/* — панель ключа (BYOK) — */
+.neg-spar-key { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+.neg-spar-key-title { font-weight: 700; font-size: 15px; color: var(--text-primary); margin-bottom: 6px; }
+.neg-spar-key-note { font-size: 12.5px; line-height: 1.5; color: var(--text-tertiary); margin-bottom: 12px; }
+.neg-spar-key-note a { color: var(--accent-hover); }
+.neg-spar-key-form { display: flex; flex-wrap: wrap; gap: 8px; }
+.neg-spar-key-input { flex: 1 1 200px; background: var(--bg-elevated); border: 1px solid var(--border-strong); border-radius: 10px; padding: 10px 12px; font: inherit; font-size: 14px; color: var(--text-primary); }
+.neg-spar-key-input:focus { outline: none; border-color: var(--accent); }
+.neg-spar-key-model { background: var(--bg-elevated); border: 1px solid var(--border-strong); border-radius: 10px; padding: 10px 12px; font: inherit; font-size: 13px; color: var(--text-primary); cursor: pointer; }
+.neg-spar-key-save { background: var(--accent); color: var(--accent-on, #fff); border: 0; border-radius: 10px; padding: 10px 18px; font: inherit; font-weight: 600; font-size: 14px; cursor: pointer; }
+.neg-spar-key-save:hover { background: var(--accent-hover); }
+.neg-spar-key-row { font-size: 13px; }
+.neg-spar-key-ok { color: #2FBF71; font-weight: 600; }
+.neg-spar-key-sub { color: var(--text-tertiary); }
+.neg-spar-key-actions { display: flex; gap: 14px; margin-top: 8px; }
+.neg-spar-key-link { background: none; border: 0; color: var(--accent-hover); font: inherit; font-size: 13px; cursor: pointer; padding: 0; }
+.neg-spar-key-link:hover { text-decoration: underline; }
+
+.neg-spar-pick-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin: 4px 0 10px; }
+
+/* — аватар собеседника — */
+.neg-spar-msg--ai { align-items: flex-end; gap: 8px; }
+.neg-spar-avatar { flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--bg-tonal); display: inline-flex; align-items: center; justify-content: center; font-size: 17px; }
+.neg-spar-engine-tag { margin-left: auto; font-size: 11px; color: var(--text-tertiary); background: var(--bg-tonal); border-radius: 100px; padding: 4px 10px; white-space: nowrap; }
+
+/* — композер (зона хода игрока) — */
+.neg-spar-composer { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+.neg-spar-opts-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--text-tertiary); margin-bottom: 10px; }
+.neg-spar-opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+.neg-spar-opt {
+  display: flex; align-items: flex-start; gap: 10px; text-align: left; width: 100%;
+  background: var(--bg-elevated); border: 1.5px solid var(--border-strong); border-left: 3px solid var(--accent);
+  border-radius: 12px; padding: 12px 14px; cursor: pointer; color: var(--text-primary); font: inherit;
+  font-size: 14.5px; line-height: 1.45; transition: border-color .13s, background .13s, transform .1s;
+}
+.neg-spar-opt:hover { background: var(--accent-soft); border-color: var(--accent); transform: translateX(2px); }
+.neg-spar-opt-mark { color: var(--accent-hover); font-weight: 700; font-size: 18px; line-height: 1.2; }
+.neg-spar-or { display: flex; align-items: center; gap: 10px; margin: 14px 0 10px; color: var(--text-tertiary); font-size: 12px; }
+.neg-spar-or::before, .neg-spar-or::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.neg-spar-finish { margin-top: 10px; width: 100%; background: var(--bg-tonal); color: var(--text-secondary); border: 1px solid var(--border-strong); border-radius: 12px; padding: 11px; font: inherit; font-weight: 600; font-size: 14px; cursor: pointer; }
+.neg-spar-finish:hover { color: var(--text-primary); border-color: var(--accent); }
+
+/* — индикатор «печатает» — */
+.neg-spar-dots { display: inline-flex; gap: 4px; padding: 2px 0; }
+.neg-spar-dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--text-tertiary); display: inline-block; animation: negDot 1.2s infinite ease-in-out; }
+.neg-spar-dots i:nth-child(2) { animation-delay: .2s; }
+.neg-spar-dots i:nth-child(3) { animation-delay: .4s; }
+@keyframes negDot { 0%, 60%, 100% { opacity: .25; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
+.neg-spar-aierr { font-size: 13px; line-height: 1.5; color: #E2604A; background: rgba(226,96,74,.1); border: 1px solid rgba(226,96,74,.3); border-radius: 12px; padding: 12px 14px; }
+.neg-spar-aierr-sub { color: var(--text-tertiary); font-size: 12px; }
+.neg-spar-ta:disabled, .neg-spar-send:disabled { opacity: .5; cursor: default; }
