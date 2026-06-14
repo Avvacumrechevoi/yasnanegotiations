@@ -27,6 +27,16 @@
 
   var SPAR = window.NegSpar || [];
 
+  // боль + связь с уроком (JTBD): спарринг = «живая» версия навыка из урока
+  var SPAR_META = {
+    rezonans:        { when: 'Собеседник пришёл холодным скептиком, а ты по привычке хочешь сразу питчить.', from: 'Урок 2' },
+    'type-ha':       { when: 'Перед тобой нетерпеливый командир: «у меня пять минут», давит на результат.', from: 'Урок 1' },
+    'give-take':     { when: 'Оппонент давит односторонне — требует уступок, а взамен молчит.', from: 'Урок 3' },
+    'status-benefit':{ when: 'Клиент твердит «дорого», но на деле его задело отношение.', from: 'Урок 3' },
+    protivostoyanie: { when: 'Пик: ультиматум, голос на пределе — «или цена падает, или мы уходим».', from: 'Урок 2' },
+    hidden:          { when: 'За вежливым «дорого» прячется настоящая причина — страх рискнуть.', from: 'Урок 2' }
+  };
+
   // ── хранилище ────────────────────────────────────────────────────
   var SKEY = 'yasna_neg_spar_v1';
   function loadProg() { try { return JSON.parse(localStorage.getItem(SKEY)) || {}; } catch (_) { return {}; } }
@@ -101,13 +111,16 @@
       var badge = (engine === 'script' && st.plays)
         ? '<span class="neg-spar-card-badge">лучшее ' + (st.best || 0) + '/' + sc.beats.length + '</span>'
         : '<span class="neg-spar-card-badge neg-spar-card-badge--new">тренировать →</span>';
+      var meta = SPAR_META[sc.id] || {};
       var card = el('button', 'neg-spar-card');
       card.type = 'button';
       card.innerHTML =
         '<span class="neg-spar-card-glyph">' + esc(sc.persona.glyph) + '</span>' +
         '<span class="neg-spar-card-body">' +
-          '<span class="neg-spar-card-param">' + esc(sc.param) + '</span>' +
+          '<span class="neg-spar-card-param">' + esc(sc.param) +
+            (meta.from ? ' <span class="neg-spar-card-from">из «' + esc(meta.from) + '»</span>' : '') + '</span>' +
           '<span class="neg-spar-card-title">' + esc(sc.title) + '</span>' +
+          (meta.when ? '<span class="neg-spar-card-when">Когда: ' + esc(meta.when) + '</span>' : '') +
           '<span class="neg-spar-card-persona">' + esc(sc.persona.name) + ' · ' + esc(sc.persona.role) + '</span>' +
         '</span>' +
         '<span class="neg-spar-card-foot">' + badge + '</span>';

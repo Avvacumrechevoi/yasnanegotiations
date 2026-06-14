@@ -15,6 +15,8 @@
   var GUIDE = C.GUIDE || [];
   var STAGE_BY_ID = {};
   STAGES.forEach(function (s) { STAGE_BY_ID[s.id] = s; });
+  var SKILL_BY_STAGE = {};
+  (C.STAGE_SKILLS || []).forEach(function (x) { SKILL_BY_STAGE[x.stage] = x; });
 
   var GROUP_LABEL = {
     'вход':       'Вход',
@@ -128,6 +130,7 @@
         lastGroup = s.group;
         wrap.appendChild(el('div', 'neg-map-group', GROUP_LABEL[s.group] || s.group));
       }
+      var sk = SKILL_BY_STAGE[s.id];
       var card = el('button', 'neg-stage neg-stage--' + s.group);
       card.setAttribute('type', 'button');
       card.setAttribute('aria-expanded', 'false');
@@ -136,6 +139,8 @@
         '<span class="neg-stage-body">' +
           '<span class="neg-stage-name">' + s.name + '</span>' +
           '<span class="neg-stage-role">' + s.role + '</span>' +
+          (sk ? '<span class="neg-stage-skill">🎯 ' + sk.skill + '</span>' +
+                '<span class="neg-stage-where">↳ ' + sk.where + '</span>' : '') +
           '<span class="neg-stage-desc">' + s.desc + '</span>' +
         '</span>';
       card.addEventListener('click', function () {
