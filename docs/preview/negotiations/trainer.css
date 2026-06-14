@@ -638,3 +638,63 @@
 .neg-stage-where { font-size: 11.5px; line-height: 1.4; color: var(--text-tertiary); margin-top: 2px; }
 .neg-spar-card-from { font-size: 10.5px; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--text-tertiary); background: var(--bg-tonal); border-radius: 100px; padding: 2px 8px; }
 .neg-spar-card-when { font-size: 12.5px; line-height: 1.4; color: var(--text-secondary); margin: 3px 0; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Кастдев-пересборка: один вход, маршрут, фокус, доступность
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* доступность: единый видимый фокус + размер серого текста */
+.neg-wrap :focus-visible { outline: 2px solid var(--accent-hover); outline-offset: 2px; border-radius: 6px; }
+
+/* — главная кнопка-вход в герое — */
+.neg-hero-cta {
+  margin-top: 24px; display: inline-flex; align-items: center; gap: 8px;
+  background: var(--accent); color: var(--accent-on, #fff); border: 0; border-radius: 100px;
+  padding: 15px 30px; font: inherit; font-weight: 700; font-size: 16px; cursor: pointer;
+  box-shadow: 0 6px 22px var(--accent-glow); transition: background .15s, transform .12s;
+}
+.neg-hero-cta:hover { background: var(--accent-hover); transform: translateY(-1px); }
+
+/* — маршрут «ты здесь» над каталогом — */
+.neg-route { margin-bottom: 22px; }
+.neg-route-rail { display: flex; gap: 6px; }
+.neg-route-step { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 7px; background: transparent; border: 0; cursor: pointer; padding: 4px 2px; font: inherit; color: var(--text-tertiary); }
+.neg-route-dot { width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; background: var(--bg-tonal); color: var(--text-secondary); border: 1px solid var(--border-strong); transition: background .15s, color .15s, box-shadow .15s; }
+.neg-route-step.is-done .neg-route-dot { background: rgba(47,191,113,.18); color: #2FBF71; border-color: rgba(47,191,113,.4); }
+.neg-route-step.is-here .neg-route-dot { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.neg-route-lbl { font-size: 11px; line-height: 1.25; text-align: center; }
+.neg-route-step.is-here .neg-route-lbl { color: var(--text-primary); font-weight: 600; }
+.neg-route-step:hover .neg-route-lbl { color: var(--text-secondary); }
+.neg-route-meta { text-align: center; font-size: 12.5px; color: var(--text-tertiary); margin-top: 12px; }
+@media (max-width: 520px) { .neg-route-lbl { font-size: 9.5px; } .neg-route-dot { width: 26px; height: 26px; } }
+
+/* — карточка каталога: результат вперёд, «вы здесь» — */
+.neg-cat-card.is-here { border-color: var(--accent); background: var(--accent-soft); }
+.neg-cat-here { display: inline-block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-on, #fff); background: var(--accent); border-radius: 100px; padding: 2px 9px; margin-bottom: 6px; align-self: flex-start; }
+.neg-cat-outcome { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-top: 2px; }
+.neg-cat-when { font-size: 12.5px; color: var(--text-tertiary); margin-top: 4px; }
+
+/* — шапка урока: «Сценарий N из 4» + «Шаг N из M» — */
+.neg-l-head-tw { display: flex; flex-direction: column; }
+.neg-l-head-kicker { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--accent-hover); font-weight: 700; }
+.neg-l-step { flex: 1 1 100%; font-size: 12px; color: var(--text-tertiary); margin-top: 4px; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* — микроцель и связка с спаррингом — */
+.neg-l-todo { font-size: 13.5px; line-height: 1.5; color: var(--text-secondary); background: var(--bg-elevated); border-left: 2px solid var(--accent); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; }
+.neg-l-spar-link { display: inline-block; margin-top: 14px; background: transparent; border: 1px solid var(--border-strong); color: var(--text-secondary); border-radius: 100px; padding: 10px 18px; font: inherit; font-weight: 600; font-size: 14px; cursor: pointer; }
+.neg-l-spar-link:hover { border-color: var(--accent); color: var(--text-primary); }
+
+/* — спарринг: AI за ссылкой, рекомендованная карточка — */
+.neg-spar-ailink { display: block; width: 100%; margin-top: 18px; background: transparent; border: 1px dashed var(--border-strong); border-radius: 12px; padding: 12px; font: inherit; font-size: 13px; color: var(--text-tertiary); cursor: pointer; text-align: center; }
+.neg-spar-ailink:hover { color: var(--text-secondary); border-color: var(--accent); }
+.neg-spar-card.is-rec { border-color: var(--accent); }
+.neg-spar-card-rec { display: inline-block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-on, #fff); background: var(--accent); border-radius: 100px; padding: 2px 9px; margin-bottom: 5px; align-self: flex-start; }
+
+/* — нецветовые маркеры вердикта (a11y) — */
+.neg-ex-opt.is-good::before { content: '✓ '; font-weight: 700; }
+.neg-ex-opt.is-bad::before { content: '✗ '; font-weight: 700; }
+.neg-ex-opt.is-mid::before { content: '~ '; font-weight: 700; }
+
+/* — гибрид типов: деловое имя крупно, код мелко — */
+.neg-c-typebtn-id { font-size: 14px; }
+.neg-c-typebtn-name { font-size: 10.5px; opacity: .75; }

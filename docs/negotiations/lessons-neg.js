@@ -43,12 +43,12 @@
   // ═══ КОНТЕНТ: 4 сценария ══════════════════════════════════════════
   var LESSONS = [
     {
-      id: 'l1', n: 1, title: 'Кто передо мной',
+      id: 'l1', n: 1, title: 'Кто передо мной', sparId: 'type-ha',
       outcome: 'Читать 4 типа людей и заходить верно', duration: '~7 мин',
       when: 'Когда заходишь к новому человеку и не понимаешь, почему один и тот же довод одного зажигает, а другого отталкивает.',
       skill: 'Читать тип собеседника по первым репликам и за одну фразу выбирать заход под него — командиру суть и цифру, аналитику факты, душевному смысл, практику показать руками.',
       segments: [
-        { type: 'intro', body: 'Прежде чем что-то предлагать, надо понять, **кто** перед тобой. Люди по сути делятся на четыре типа — командир, аналитик, душевный, практик — и к каждому свой заход. Здесь ты учишься читать тип по первым словам и сразу выбирать верный ход: спутал тип — даже правильный довод не сработает. Это фундамент любого контакта.' },
+        { type: 'intro', body: 'Прежде чем что-то предлагать — пойми, **кто** перед тобой. Сейчас научишься читать 4 типа людей и за фразу выбирать верный заход.' },
         { type: 'theory', title: 'Почему это первый шаг', body: 'Один и тот же аргумент одного зажигает, другого отталкивает. Сильные переговорщики не заучивают универсальные фразы — они **читают человека** и подстраивают заход. С этого начинается контакт.' },
         { type: 'widget', widget: 'types', title: 'Четыре типа', note: 'Нажми на карточку — раскроется: как распознать, как входить и что отталкивает.' },
         { type: 'practice', bank: 'RECON', count: 5, title: 'Практика · собери досье', note: 'Сильную позицию готовят ДО встречи. По обрывку информации реши, что он даёт и что выяснить.' },
@@ -58,12 +58,12 @@
       ]
     },
     {
-      id: 'l2', n: 2, title: 'Как ведётся разговор',
+      id: 'l2', n: 2, title: 'Как ведётся разговор', sparId: 'rezonans',
       outcome: 'Видеть дугу из 12 стадий и держать резонанс', duration: '~9 мин',
       when: 'Когда разговор кажется хаосом — теряешь нить и не понимаешь, какой ход уместен сейчас: давить, слушать, фиксировать или отступить.',
       skill: 'Видеть разговор как дугу из 12 стадий, определять текущую стадию по реплике и ловить режим контакта — резонанс это или назревающий срыв.',
       segments: [
-        { type: 'intro', body: 'Разговор — не хаос, а **дуга**: вход, нарастание, вершина, спад, итог. Если видишь, на какой ты стадии, понимаешь, какой ход делать. Здесь ты разбираешь все 12 стадий и учишься ловить режим контакта — когда между вами резонанс, а когда назревает срыв. Это навигатор: знаешь карту — не заблудишься в любом разговоре.' },
+        { type: 'intro', body: 'Разговор — не хаос, а **дуга** из 12 стадий: вход → нарастание → вершина → спад → итог. Научишься видеть, на какой ты стадии, и ловить момент — резонанс или назревающий срыв.' },
         { type: 'widget', widget: 'arc', title: 'Дуга разговора', note: 'Пять фаз. Пройди по ним шаг за шагом.' },
         { type: 'widget', widget: 'stages', title: 'Все 12 стадий', note: 'Полная карта: у каждой стадии — свой навык и где его тренировать. Нажми стадию для разбора. Справочник, к нему можно возвращаться.' },
         { type: 'stagedrill', count: 8, title: 'Практика · определи стадию', note: 'Реплика или ход — определи, какая это стадия переговоров. Сразу разбор.' },
@@ -74,12 +74,12 @@
       ]
     },
     {
-      id: 'l3', n: 3, title: 'Договориться честно',
+      id: 'l3', n: 3, title: 'Договориться честно', sparId: 'give-take',
       outcome: 'Строить честный обмен и не путать дело со статусом', duration: '~8 мин',
       when: 'Когда нужно договориться, но боишься либо отдать всё даром под давлением, либо лечить недовольство не тем — скидкой там, где задето самолюбие.',
       skill: 'Строить честный обмен — на каждое «беру» называть своё «даю, если» под проверяемое условие; отличать спор о деле от спора о статусе; и в концовке наносить решающий ход.',
       segments: [
-        { type: 'intro', body: 'Сделка держится на **обмене**: у каждого есть что взять и что дать. Спроси себя — что я беру, что даю взамен, что нужно ему. Берёшь и ничего не даёшь — это не сделка, а продавливание. И вторая половина: часть конфликта про **дело** (цифры, сроки), а часть про **статус** (кого уважили). Не путай — скидкой не лечат задетое самолюбие. Здесь ты тренируешь и то, и другое, и решающий ход в концовке.' },
+        { type: 'intro', body: 'Сделка держится на честном **обмене** — и на том, чтобы не путать спор о деле со спором о статусе. Сейчас отработаешь и то, и другое, и решающий ход в концовке.' },
         { type: 'theory', title: 'Дать и взять', body: 'Спроси себя: что я **беру**, что **даю** взамен, что нужно **ему**, что он готов дать. Берёшь и ничего не даёшь — это не сделка, а продавливание. Обещай только то, что выдержит проверку.' },
         { type: 'practice', bank: 'DEALPLAY', count: 6, title: 'Практика · собери сделку', note: 'Посмотри на обмен и реши, что сделать, чтобы он стал честным.' },
         { type: 'theory', title: 'Дело или статус', body: 'Часть конфликта — про **дело** (условия, цифры, сроки). Часть — про **статус** (кого уважили, кто решает). Не путай: скидкой не лечат задетое самолюбие, а извинением — реальную проблему в цене.' },
@@ -89,12 +89,12 @@
       ]
     },
     {
-      id: 'l4', n: 4, title: 'Удержать и выйти',
+      id: 'l4', n: 4, title: 'Удержать и выйти', sparId: 'protivostoyanie',
       outcome: 'Чинить недопонимание и оставлять чистый след', duration: '~7 мин',
       when: 'Когда разговор после пика покатился вниз — тон холодеет, слова поняли по-разному — и есть риск, что недопонимание превратится в разрыв, а встреча закончится осадком.',
       skill: 'Чинить недопонимание на ходу и удерживать рвущийся контакт; завершать встречу так, чтобы даже при отказе остался чистый след — благодарность и открытая дверь вместо дожима и обиды.',
       segments: [
-        { type: 'intro', body: 'После вершины разговор катится вниз — но по двум склонам: к пониманию или к срыву. Недопонимание (слова поняли по-разному) — ещё не разрыв: почини сразу, уточни, назови расхождение без обвинения. И помни — переговоры не кончаются на последнем слове, остаётся **след**. Чистый шаг и благодарность оставляют имя, дожим и обида — осадок. Здесь ты учишься удерживать контакт и выходить так, чтобы дверь осталась открытой.' },
+        { type: 'intro', body: 'После пика разговор катится вниз — к пониманию или к срыву. Научишься чинить недопонимание на ходу и выходить так, чтобы остался чистый **след**.' },
         { type: 'theory', title: 'Развилка', body: 'Недопонимание (слова поняли по-разному) — ещё не срыв. Почини сразу: уточни, переспроси смысл, назови расхождение без обвинения — и разговор свернёт к пониманию, а не к разрыву.' },
         { type: 'practice', bank: 'REPAIR', count: 6, title: 'Практика · почини недопонимание', note: 'Тон холодеет — выбери ход, который разворачивает к пониманию.' },
         { type: 'practice', bank: 'BREAK', count: 5, title: 'Практика · контакт рвётся', note: 'Собеседник встал и уходит. Выбери ход, который вернёт за стол, а не добьёт.' },
@@ -118,25 +118,53 @@
   function showCatalog() { if (catalogSec) catalogSec.hidden = false; if (lessonRoot) lessonRoot.hidden = true; }
   function showLesson() { if (catalogSec) catalogSec.hidden = true; if (lessonRoot) lessonRoot.hidden = false; }
 
-  // ── каталог сценариев ────────────────────────────────────────────
+  function firstUndoneIndex() {
+    var done = loadDone();
+    for (var k = 0; k < LESSONS.length; k++) { if (done.indexOf(LESSONS[k].id) < 0) return k; }
+    return -1; // всё пройдено
+  }
+
+  // ── каталог сценариев: маршрут + карточки ────────────────────────
   function renderCatalog() {
     if (!catalogList) return;
     catalogList.innerHTML = '';
     var done = loadDone();
+    var hereIdx = firstUndoneIndex();
+
+    // маршрут «ты здесь»: дорожка 1→2→3→4
+    var route = el('div', 'neg-route');
+    var rail = el('div', 'neg-route-rail');
+    LESSONS.forEach(function (l, k) {
+      var isDone = done.indexOf(l.id) >= 0;
+      var here = (k === hereIdx);
+      var seg = el('button', 'neg-route-step' + (isDone ? ' is-done' : '') + (here ? ' is-here' : ''));
+      seg.type = 'button';
+      seg.innerHTML =
+        '<span class="neg-route-dot">' + (isDone ? '✓' : l.n) + '</span>' +
+        '<span class="neg-route-lbl">' + l.title + '</span>';
+      seg.addEventListener('click', function () { openLesson(l); });
+      rail.appendChild(seg);
+    });
+    route.appendChild(rail);
+    route.appendChild(el('div', 'neg-route-meta', 'Пройдено ' + done.length + ' из ' + LESSONS.length + ' · весь путь ~30 мин'));
+    catalogList.appendChild(route);
+
     var list = el('div', 'neg-cat');
-    LESSONS.forEach(function (lesson) {
+    LESSONS.forEach(function (lesson, k) {
       var isDone = done.indexOf(lesson.id) >= 0;
-      var card = el('button', 'neg-cat-card' + (isDone ? ' is-done' : ''));
+      var isHere = (k === hereIdx);
+      var card = el('button', 'neg-cat-card' + (isDone ? ' is-done' : '') + (isHere ? ' is-here' : ''));
       card.type = 'button';
       card.innerHTML =
-        '<span class="neg-cat-num">' + lesson.n + '</span>' +
+        '<span class="neg-cat-num">' + (isDone ? '✓' : lesson.n) + '</span>' +
         '<span class="neg-cat-body">' +
+          (isHere ? '<span class="neg-cat-here">Вы здесь</span>' : '') +
           '<span class="neg-cat-title">' + lesson.title + '</span>' +
+          '<span class="neg-cat-outcome">Научишься: ' + lesson.outcome + '</span>' +
           (lesson.when ? '<span class="neg-cat-when">' + richText(lesson.when) + '</span>' : '') +
-          '<span class="neg-cat-outcome">→ ' + lesson.outcome + '</span>' +
           '<span class="neg-cat-meta">' + lesson.duration + ' · ' + lesson.segments.length + ' шагов' + (isDone ? ' · ✓ пройдено' : '') + '</span>' +
         '</span>' +
-        '<span class="neg-cat-go">' + (isDone ? 'Повторить' : 'Начать') + ' →</span>';
+        '<span class="neg-cat-go">' + (isHere ? 'Начать здесь' : (isDone ? 'Повторить' : 'Начать')) + ' →</span>';
       card.addEventListener('click', function () { openLesson(lesson); });
       list.appendChild(card);
     });
@@ -153,12 +181,19 @@
     back.type = 'button';
     back.addEventListener('click', backToCatalog);
     head.appendChild(back);
-    head.appendChild(el('div', 'neg-l-head-title', lesson.n + '. ' + lesson.title));
+    var tw = el('div', 'neg-l-head-tw');
+    tw.innerHTML =
+      '<div class="neg-l-head-kicker">Сценарий ' + lesson.n + ' из ' + LESSONS.length + '</div>' +
+      '<div class="neg-l-head-title">' + lesson.title + '</div>';
+    head.appendChild(tw);
     var barWrap = el('div', 'neg-l-bar');
     var bar = el('div', 'neg-l-bar-fill');
     barWrap.appendChild(bar);
     head.appendChild(barWrap);
+    var stepText = el('div', 'neg-l-step');
+    head.appendChild(stepText);
     state.bar = bar;
+    state.stepText = stepText;
     lessonRoot.appendChild(head);
 
     state.segWrap = el('div', 'neg-l-segs');
@@ -177,7 +212,9 @@
   }
 
   function updateBar(i) {
-    if (state.bar) state.bar.style.width = Math.round((i + 1) / state.lesson.segments.length * 100) + '%';
+    var total = state.lesson.segments.length;
+    if (state.bar) state.bar.style.width = Math.round((i + 1) / total * 100) + '%';
+    if (state.stepText) state.stepText.textContent = 'Шаг ' + (i + 1) + ' из ' + total;
   }
 
   // ── один сегмент урока + его гейт ────────────────────────────────
@@ -192,6 +229,8 @@
     // заголовок шага (не для intro/summary)
     if (seg.title) block.appendChild(el('div', 'neg-l-seg-title', seg.title));
     if (seg.note) block.appendChild(el('div', 'neg-l-seg-note', seg.note));
+    // микроцель прямым языком — что именно делать на этом шаге
+    if (seg.todo) block.appendChild(el('div', 'neg-l-todo', '▸ Что делать: ' + seg.todo));
 
     // итоговый экран
     if (seg.type === 'summary') { renderSummary(block, seg); return; }
@@ -200,9 +239,9 @@
     if (seg.type === 'intro' || seg.type === 'theory') {
       block.appendChild(el('div', 'neg-l-prose' + (seg.type === 'intro' ? ' neg-l-prose--lead' : ''), richText(seg.body)));
     }
-    // на вводном шаге — явная цель урока (навык на выходе)
-    if (seg.type === 'intro' && lesson.skill) {
-      block.appendChild(el('div', 'neg-l-skilltag', '🎯 Навык на выходе: ' + richText(lesson.skill)));
+    // на вводном шаге — явная цель урока (коротко)
+    if (seg.type === 'intro' && lesson.outcome) {
+      block.appendChild(el('div', 'neg-l-skilltag', '🎯 Навык на выходе: ' + lesson.outcome));
     }
 
     // точка монтажа интерактива
@@ -221,7 +260,7 @@
         appendSegment(i + 1);
       });
     }
-    var unlock = function () { if (gate) { gate.disabled = false; gate.classList.remove('is-wait'); gate.classList.add('is-ready'); } };
+    var unlock = function () { if (gate) { gate.disabled = false; gate.classList.remove('is-wait'); gate.classList.add('is-ready'); gate.textContent = 'Дальше →'; } };
     var onDone = function () { unlock(); };
 
     var needsDone = (seg.type === 'practice' || seg.type === 'contact' || seg.type === 'stagedrill');
@@ -248,7 +287,7 @@
     }
 
     if (gate) {
-      if (needsDone) { gate.disabled = true; gate.classList.add('is-wait'); }
+      if (needsDone) { gate.disabled = true; gate.classList.add('is-wait'); gate.textContent = 'Сначала пройди практику ↓'; }
       else { unlock(); }
       block.appendChild(gate);
     }
@@ -277,6 +316,15 @@
     back.addEventListener('click', backToCatalog);
     actions.appendChild(back);
     block.appendChild(actions);
+
+    // отработать тот же навык вживую в спарринге
+    if (state.lesson.sparId && window.NegSparUI && window.NegSparUI.open) {
+      var spar = el('button', 'neg-l-spar-link', '🤖 Отработать вживую в диалоге →');
+      spar.type = 'button';
+      var sid = state.lesson.sparId;
+      spar.addEventListener('click', function () { window.NegSparUI.open(sid); });
+      block.appendChild(spar);
+    }
   }
 
   // ═══ bootstrap ════════════════════════════════════════════════════
@@ -287,6 +335,16 @@
     if (!catalogList || !lessonRoot) return;
     showCatalog();
     renderCatalog();
+
+    // главная кнопка-вход в герое: продолжить с первого непройденного
+    var heroStart = document.getElementById('neg-hero-start');
+    if (heroStart) heroStart.addEventListener('click', function () {
+      var idx = firstUndoneIndex();
+      var target = LESSONS[idx < 0 ? 0 : idx];
+      var lt = document.querySelector('#neg-mode-tabs [data-mode="lessons"]');
+      if (lt) lt.click();
+      openLesson(target);
+    });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

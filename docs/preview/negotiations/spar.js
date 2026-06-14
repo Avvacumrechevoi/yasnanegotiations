@@ -73,61 +73,73 @@
 
   var sparRoot = null;
 
-  // ═══ экран выбора: движок + ключ + параметры ══════════════════════
+  // ═══ экран выбора: собеседники (движок ИИ — за ссылкой) ═══════════
+  var aiSetupOpen = false;
+
   function renderSelector() {
     if (!sparRoot) return;
     sparRoot.innerHTML = '';
-    var engine = getEngine();
+    var key = getKey();
+    // дефолт: без ключа всегда «готовый сценарий», чтобы карточки запускались сразу
+    if (!key && getEngine() === 'ai') setEngine('script');
+    var showAi = aiSetupOpen || !!key;
 
-    // 1) как это работает
     sparRoot.appendChild(el('p', 'neg-section-sub',
-      'Тренируй параметр встречи в живом диалоге. Шаг 1 — выбери движок. Шаг 2 — выбери параметр. Дальше веди разговор: отвечай в чате.'));
+      'Тренируй навык в живом диалоге: выбери собеседника и веди разговор — отвечай своими словами или жми подсказки.'));
 
-    // 2) выбор движка
-    var eng = el('div', 'neg-spar-engine');
-    eng.innerHTML =
-      '<button type="button" class="neg-spar-eng-btn' + (engine === 'script' ? ' is-active' : '') + '" data-eng="script">' +
-        '<span class="neg-spar-eng-h">📋 Готовый сценарий</span>' +
-        '<span class="neg-spar-eng-d">Без ключа и интернета. Реплики на правилах, выбор кнопками или текстом.</span>' +
-      '</button>' +
-      '<button type="button" class="neg-spar-eng-btn' + (engine === 'ai' ? ' is-active' : '') + '" data-eng="ai">' +
-        '<span class="neg-spar-eng-h">🤖 Реальный ИИ</span>' +
-        '<span class="neg-spar-eng-d">Живой собеседник на твоём API-ключе. Пишешь свободно, ИИ отвечает в роли.</span>' +
-      '</button>';
-    [].forEach.call(eng.querySelectorAll('.neg-spar-eng-btn'), function (b) {
-      b.addEventListener('click', function () { setEngine(b.getAttribute('data-eng')); renderSelector(); });
-    });
-    sparRoot.appendChild(eng);
+    // блок «реальный ИИ» показывается только если его открыли (или ключ уже есть)
+    if (showAi) {
+      var engine = getEngine();
+      var eng = el('div', 'neg-spar-engine');
+      eng.innerHTML =
+        '<button type="button" class="neg-spar-eng-btn' + (engine === 'script' ? ' is-active' : '') + '" data-eng="script">' +
+          '<span class="neg-spar-eng-h">📋 Готовый сценарий</span>' +
+          '<span class="neg-spar-eng-d">Без ключа и интернета. Реплики на правилах.</span>' +
+        '</button>' +
+        '<button type="button" class="neg-spar-eng-btn' + (engine === 'ai' ? ' is-active' : '') + '" data-eng="ai">' +
+          '<span class="neg-spar-eng-h">🤖 Реальный ИИ</span>' +
+          '<span class="neg-spar-eng-d">Живой собеседник на твоём API-ключе.</span>' +
+        '</button>';
+      [].forEach.call(eng.querySelectorAll('.neg-spar-eng-btn'), function (b) {
+        b.addEventListener('click', function () { setEngine(b.getAttribute('data-eng')); renderSelector(); });
+      });
+      sparRoot.appendChild(eng);
+      if (engine === 'ai') sparRoot.appendChild(renderKeyPanel());
+    }
 
-    // 3) панель ключа (только для ИИ)
-    if (engine === 'ai') sparRoot.appendChild(renderKeyPanel());
-
-    // 4) карточки параметров
     if (!SPAR.length) { sparRoot.appendChild(el('div', 'neg-ex-empty', 'Сценарии не загружены.')); return; }
-    sparRoot.appendChild(el('div', 'neg-spar-pick-label', 'Выбери параметр встречи:'));
+    sparRoot.appendChild(el('div', 'neg-spar-pick-label', 'Выбери, с кем потренироваться:'));
     var grid = el('div', 'neg-spar-grid');
-    SPAR.forEach(function (sc) {
+    SPAR.forEach(function (sc, idx) {
       var st = prog[sc.id] || {};
-      var badge = (engine === 'script' && st.plays)
+      var badge = st.plays
         ? '<span class="neg-spar-card-badge">лучшее ' + (st.best || 0) + '/' + sc.beats.length + '</span>'
         : '<span class="neg-spar-card-badge neg-spar-card-badge--new">тренировать →</span>';
       var meta = SPAR_META[sc.id] || {};
-      var card = el('button', 'neg-spar-card');
+      var card = el('button', 'neg-spar-card' + (idx === 0 ? ' is-rec' : ''));
       card.type = 'button';
       card.innerHTML =
         '<span class="neg-spar-card-glyph">' + esc(sc.persona.glyph) + '</span>' +
         '<span class="neg-spar-card-body">' +
-          '<span class="neg-spar-card-param">' + esc(sc.param) +
-            (meta.from ? ' <span class="neg-spar-card-from">из «' + esc(meta.from) + '»</span>' : '') + '</span>' +
+          (idx === 0 ? '<span class="neg-spar-card-rec">Рекомендуем начать</span>' : '') +
           '<span class="neg-spar-card-title">' + esc(sc.title) + '</span>' +
           (meta.when ? '<span class="neg-spar-card-when">Когда: ' + esc(meta.when) + '</span>' : '') +
-          '<span class="neg-spar-card-persona">' + esc(sc.persona.name) + ' · ' + esc(sc.persona.role) + '</span>' +
+          '<span class="neg-spar-card-persona">' + esc(sc.persona.name) + ' · ' + esc(sc.persona.role) +
+            (meta.from ? ' <span class="neg-spar-card-from">из «' + esc(meta.from) + '»</span>' : '') + '</span>' +
         '</span>' +
         '<span class="neg-spar-card-foot">' + badge + '</span>';
       card.addEventListener('click', function () { openScenario(sc); });
       grid.appendChild(card);
     });
     sparRoot.appendChild(grid);
+
+    // ссылка на подключение реального ИИ (для продвинутых)
+    if (!showAi) {
+      var link = el('button', 'neg-spar-ailink', '🤖 Хочешь живого ИИ-собеседника? Подключить свой ключ (для продвинутых) →');
+      link.type = 'button';
+      link.addEventListener('click', function () { aiSetupOpen = true; renderSelector(); });
+      sparRoot.appendChild(link);
+    }
   }
 
   function renderKeyPanel() {
@@ -442,6 +454,19 @@
       [opts, orr, tb, hint, lbl].forEach(function (n) { if (n) n.style.display = 'none'; });
     }
   }
+
+  // ═══ публичный мост: открыть спарринг по id (зов из урока) ════════
+  window.NegSparUI = {
+    open: function (id) {
+      var st = document.querySelector('#neg-mode-tabs [data-mode="spar"]');
+      if (st) st.click();
+      if (!sparRoot) sparRoot = document.getElementById('neg-spar-root');
+      var sc = null;
+      SPAR.forEach(function (s) { if (s.id === id) sc = s; });
+      if (sc) openScenario(sc); else renderSelector();
+      if (sparRoot && sparRoot.scrollIntoView) sparRoot.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   // ═══ bootstrap ════════════════════════════════════════════════════
   function init() {

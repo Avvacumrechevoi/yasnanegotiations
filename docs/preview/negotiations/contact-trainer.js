@@ -50,8 +50,8 @@
       card.innerHTML =
         '<span class="neg-c-type-head">' +
           '<span class="neg-c-type-glyph">' + t.glyph + '</span>' +
-          '<span class="neg-c-type-id">' + esc(t.id) + '</span>' +
-          '<span class="neg-c-type-name">' + esc(t.name) + '</span>' +
+          '<span class="neg-c-type-id">' + esc(t.label || t.id) + '</span>' +
+          '<span class="neg-c-type-name">' + esc(t.id) + ' · ' + esc(t.name) + '</span>' +
         '</span>' +
         '<span class="neg-c-type-one">' + esc(t.oneLiner) + '</span>' +
         '<span class="neg-c-type-more">' +
@@ -112,9 +112,10 @@
     TYPES.forEach(function (t) {
       var b = el('button', 'neg-c-typebtn');
       b.type = 'button';
+      b.setAttribute('data-id', t.id);
       b.innerHTML = '<span class="neg-c-typebtn-glyph">' + t.glyph + '</span>' +
-                    '<span class="neg-c-typebtn-id">' + esc(t.id) + '</span>' +
-                    '<span class="neg-c-typebtn-name">' + esc(t.name) + '</span>';
+                    '<span class="neg-c-typebtn-id">' + esc(t.label || t.id) + '</span>' +
+                    '<span class="neg-c-typebtn-name">' + esc(t.id) + '</span>';
       b.addEventListener('click', function () { pickType(t.id, enc, opts, stage, root); });
       opts.appendChild(b);
     });
@@ -128,7 +129,7 @@
     if (ok) S.typeRight += 1; else S.missType[enc.correctType] = true;
 
     [].forEach.call(opts.querySelectorAll('.neg-c-typebtn'), function (b) {
-      var id = b.querySelector('.neg-c-typebtn-id').textContent;
+      var id = b.getAttribute('data-id');
       b.disabled = true;
       if (id === enc.correctType) b.classList.add('is-correct');
       else if (id === picked) b.classList.add('is-wrong');
@@ -137,7 +138,7 @@
     var t = TYPE_BY_ID[enc.correctType];
     var fb = el('div', 'neg-c-fb ' + (ok ? 'is-ok' : 'is-no'));
     fb.innerHTML =
-      '<div class="neg-c-fb-verdict">' + (ok ? '✓ Верно — это ' : '✗ Это ') + t.glyph + ' ' + esc(t.id) + ' · ' + esc(t.name) + '</div>' +
+      '<div class="neg-c-fb-verdict">' + (ok ? '✓ Верно — это ' : '✗ Это ') + t.glyph + ' ' + esc(t.label || t.id) + ' · ' + esc(t.name) + '</div>' +
       '<div class="neg-c-fb-why">' + esc(enc.typeWhy) + '</div>';
     stage.appendChild(fb);
 
@@ -214,12 +215,12 @@
       ids.forEach(function (id) {
         var t = TYPE_BY_ID[id];
         tips.appendChild(el('div', 'neg-c-tip',
-          '<span class="neg-c-tip-id">' + t.glyph + ' ' + esc(id) + '</span>' + esc(C.debrief[id])));
+          '<span class="neg-c-tip-id">' + t.glyph + ' ' + esc(t.label || id) + '</span>' + esc(C.debrief[id])));
       });
       wrap.appendChild(tips);
     } else {
       wrap.appendChild(el('div', 'neg-c-tips',
-        '<div class="neg-c-tip">Чисто: ты верно прочитал каждый тип и зашёл в резонанс. ✦</div>'));
+        '<div class="neg-c-tip">Чисто: ты верно прочитал каждый тип и зашёл в резонанс. ✓</div>'));
     }
 
     var again = el('button', 'neg-btn neg-btn--primary', 'Пройти ещё раз →');
