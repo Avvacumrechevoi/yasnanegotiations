@@ -543,12 +543,14 @@ input{font-family:var(--sans)}
   .side-panel .fi-handle{display:none!important}
 }
 
-/* 4.4: mobile tabs fade-края для индикации scroll */
+/* 4.4: убраны fade-края tabs — давали засвеченный блик (var(--bg2) не
+   адаптировался к тёмной теме, а ::after стоял на right:140px посреди ленты).
+   Скролл и так очевиден; артефакт удалён. */
 @media(max-width:767px){
   .nav-tabs{position:relative}
-  .nav-tabs::before,.nav-tabs::after{content:'';position:absolute;top:0;bottom:0;width:24px;pointer-events:none;z-index:2}
-  .nav-tabs::before{left:0;background:linear-gradient(to right,var(--bg2),transparent)}
-  .nav-tabs::after{right:140px;background:linear-gradient(to left,var(--bg2),transparent)}
+  /* «Механики» на мобайле — только значок ⊞ (текст/каретка скрыты .desk-only) */
+  .mech-trigger{padding:9px 13px!important;min-width:42px;justify-content:center}
+  .mech-trigger .mech-ico{font-size:19px!important}
 }
 
 /* 4.6: FAB «+ Создать» на mobile — поднят выше bottom nav-tabs */

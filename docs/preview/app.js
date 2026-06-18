@@ -838,7 +838,27 @@ function App(){
   const[astroMode,setAstroMode] = window.YasnaAstro.useAstroMode();
   const[astroLayers,toggleAstroLayer] = window.YasnaAstro.useAstroLayers();
   const[activeLesson,setActiveLesson]=useState(null);
-  const[completedLessons,setCompletedLessons]=useState([]);
+  // Прогресс уроков персистится между сессиями (раньше терялся при F5).
+  const[completedLessons,setCompletedLessons]=useState(()=>{try{const s=JSON.parse(localStorage.getItem('yasna_completed_lessons_v1'));return Array.isArray(s)?s:[];}catch(_){return[];}});
+  useEffect(()=>{try{localStorage.setItem('yasna_completed_lessons_v1',JSON.stringify(completedLessons));}catch(_){}},[completedLessons]);
+  // Deep-link из курса/лендинга: index.html?lesson=<id|1> открывает урок.
+  // Без этого «Начать главу» (learn.html) вело на пустую звезду.
+  useEffect(()=>{
+    try{
+      const q=new URLSearchParams(window.location.search);
+      const raw=q.get('lesson');
+      if(raw){
+        const id=(raw==='1'||raw==='l1'||raw==='intro')?'l1_intro':raw;
+        const ls=(window.YasnaLessons&&window.YasnaLessons.lessons)||[];
+        const exists=ls.some(l=>l&&l.id===id);
+        if(exists) setActiveLesson(id);
+        // чистим URL, чтобы перезагрузка не открывала урок повторно
+        q.delete('lesson');
+        const rest=q.toString();
+        window.history.replaceState(null,'',window.location.pathname+(rest?'?'+rest:''));
+      }
+    }catch(_){}
+  },[]);
   // Auto-close burger menu when any modal/panel opens
   useEffect(()=>{ if(!af.includes('mb_yasna2')){setYasna2Drill(null);setDrillEditing(false);} },[af]);
   useEffect(()=>{ if(yasna2Drill!=null) setStarRotation(null); },[yasna2Drill]);
@@ -1024,10 +1044,10 @@ function App(){
       <div className='nav-tabs' style={{display:'flex',alignItems:'center',padding:'8px 0 8px 20px',background:'var(--bg2)',borderBottom:'1px solid #d2d2d7',flexShrink:0,position:'relative'}}>
         {/* Механики — закреплённая первая «таблетка», открывает inline-аккордеон ниже nav-tabs */}
         <button onClick={()=>setFiltersOpen(o=>!o)} title='Развернуть/свернуть список механик' className='mech-trigger' aria-expanded={filtersOpen} style={{padding:'8px 16px',borderRadius:18,fontSize:14,whiteSpace:'nowrap',background:filtersOpen?'rgba(0,113,227,.12)':'transparent',color:filtersOpen||af.length>0?'#0058b8':'var(--txt2)',border:`1px solid ${filtersOpen?'rgba(0,113,227,.45)':'#d2d2d7'}`,cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:8,flexShrink:0,marginRight:8,fontFamily:'var(--vk-font, var(--sans))'}}>
-          <span style={{fontSize:15,lineHeight:1}}>⊞</span>
-          <span>Механики</span>
+          <span className='mech-ico' style={{fontSize:15,lineHeight:1}}>⊞</span>
+          <span className='desk-only'>Механики</span>
           {af.length>0&&<span style={{fontSize:12,padding:'2px 8px',background:'#0071e3',color:'#fff',borderRadius:9,fontWeight:700,minWidth:20,textAlign:'center',lineHeight:1.2}}>{af.length}</span>}
-          <span style={{fontSize:10,display:'inline-block',transform:filtersOpen?'rotate(180deg)':'none',transition:'transform .25s ease',opacity:.7}}>▼</span>
+          <span className='desk-only' style={{fontSize:10,display:'inline-block',transform:filtersOpen?'rotate(180deg)':'none',transition:'transform .25s ease',opacity:.7}}>▼</span>
         </button>
         {/* Разделитель между Механиками и списком Ясн (вне scroll) */}
         <div style={{width:1,height:20,background:'var(--border,#d2d2d7)',marginRight:6,flexShrink:0}}/>
