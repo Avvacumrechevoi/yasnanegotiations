@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-06-14T18:22:20.319Z */
+/* Yasna bundle: duel.js — собран 2026-06-18T20:51:15.042Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -1152,29 +1152,29 @@
             astroSubs.polaris.add(polarisSprite);
           }
           const zodiac = [
-            { glyph: "\u2648", name: "\u041E\u0432\u0435\u043D", elem: "fire" },
+            { glyph: "\u2648", name: "\u041E\u0432\u0435\u043D", elem: "fire", pos: 3 },
             // 0°
-            { glyph: "\u2649", name: "\u0422\u0435\u043B\u0435\u0446", elem: "earth" },
+            { glyph: "\u2649", name: "\u0422\u0435\u043B\u0435\u0446", elem: "earth", pos: 4 },
             // 30°
-            { glyph: "\u264A", name: "\u0411\u043B\u0438\u0437\u043D\u0435\u0446\u044B", elem: "air" },
+            { glyph: "\u264A", name: "\u0411\u043B\u0438\u0437\u043D\u0435\u0446\u044B", elem: "air", pos: 5 },
             // 60°
-            { glyph: "\u264B", name: "\u0420\u0430\u043A", elem: "water" },
+            { glyph: "\u264B", name: "\u0420\u0430\u043A", elem: "water", pos: 6 },
             // 90° — летнее солнцестояние
-            { glyph: "\u264C", name: "\u041B\u0435\u0432", elem: "fire" },
+            { glyph: "\u264C", name: "\u041B\u0435\u0432", elem: "fire", pos: 7 },
             // 120°
-            { glyph: "\u264D", name: "\u0414\u0435\u0432\u0430", elem: "earth" },
+            { glyph: "\u264D", name: "\u0414\u0435\u0432\u0430", elem: "earth", pos: 8 },
             // 150°
-            { glyph: "\u264E", name: "\u0412\u0435\u0441\u044B", elem: "air" },
+            { glyph: "\u264E", name: "\u0412\u0435\u0441\u044B", elem: "air", pos: 9 },
             // 180° — осеннее равноденствие
-            { glyph: "\u264F", name: "\u0421\u043A\u043E\u0440\u043F\u0438\u043E\u043D", elem: "water" },
+            { glyph: "\u264F", name: "\u0421\u043A\u043E\u0440\u043F\u0438\u043E\u043D", elem: "water", pos: 10 },
             // 210°
-            { glyph: "\u2650", name: "\u0421\u0442\u0440\u0435\u043B\u0435\u0446", elem: "fire" },
+            { glyph: "\u2650", name: "\u0421\u0442\u0440\u0435\u043B\u0435\u0446", elem: "fire", pos: 11 },
             // 240°
-            { glyph: "\u2651", name: "\u041A\u043E\u0437\u0435\u0440\u043E\u0433", elem: "earth" },
+            { glyph: "\u2651", name: "\u041A\u043E\u0437\u0435\u0440\u043E\u0433", elem: "earth", pos: 0 },
             // 270° — зимнее солнцестояние
-            { glyph: "\u2652", name: "\u0412\u043E\u0434\u043E\u043B\u0435\u0439", elem: "air" },
+            { glyph: "\u2652", name: "\u0412\u043E\u0434\u043E\u043B\u0435\u0439", elem: "air", pos: 1 },
             // 300°
-            { glyph: "\u2653", name: "\u0420\u044B\u0431\u044B", elem: "water" }
+            { glyph: "\u2653", name: "\u0420\u044B\u0431\u044B", elem: "water", pos: 2 }
             // 330°
           ];
           const elemColor = {
@@ -1192,18 +1192,11 @@
             const x = R * Math.cos(ang);
             const zCoord = R * Math.sin(ang);
             const pt = new THREE2.Vector3(x, zCoord * sinT, zCoord * cosT);
-            const sprite = window.YasnaSprites.makeLabelSprite(z.glyph, {
-              color: elemColor[z.elem],
-              fontSize: 96,
-              // глифы крупные — это символы, не текст
-              weight: "700",
-              depthTest: false
-              // всегда поверх — не уходят за сферу
-            });
+            const sprite = window.YasnaSprites.makeImageSprite ? window.YasnaSprites.makeImageSprite("assets/zodiac/z" + z.pos + ".png", { depthTest: false }) : window.YasnaSprites.makeLabelSprite(z.glyph, { color: elemColor[z.elem], fontSize: 96, weight: "700", depthTest: false });
             if (sprite) {
               const dir = pt.clone().normalize();
-              sprite.position.copy(pt).addScaledVector(dir, 16);
-              const h = 16;
+              sprite.position.copy(pt).addScaledVector(dir, 18);
+              const h = 20;
               sprite.scale.set(h * (sprite.userData.aspect || 1), h, 1);
               astroSubs.zodiac.add(sprite);
             }
@@ -1615,19 +1608,19 @@
             ctx.beginPath();
             ctx.arc(128, 128, 118, 0, Math.PI * 2);
             ctx.stroke();
-            ctx.font = 'bold 168px -apple-system, BlinkMacSystemFont, "SF Pro Display", "Apple Color Emoji", sans-serif';
-            ctx.fillStyle = "#3a0d6e";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.shadowColor = "rgba(255,255,255,0.6)";
-            ctx.shadowBlur = 4;
-            ctx.shadowOffsetY = -2;
-            ctx.fillText(sym, 128, 138);
-            ctx.shadowColor = "transparent";
             const tex = new THREE2.CanvasTexture(cv);
             tex.minFilter = THREE2.LinearFilter;
             tex.magFilter = THREE2.LinearFilter;
             if (THREE2.sRGBEncoding) tex.encoding = THREE2.sRGBEncoding;
+            (function(idx) {
+              const img = new Image();
+              img.onload = function() {
+                const s = 176;
+                ctx.drawImage(img, 128 - s / 2, 130 - s / 2, s, s);
+                tex.needsUpdate = true;
+              };
+              img.src = "assets/zodiac/z" + idx + ".png";
+            })(i);
             const faceMat = new THREE2.MeshStandardMaterial({
               map: tex,
               metalness: 0.3,
@@ -2191,7 +2184,21 @@
     return spr;
   }
   window.Yasna3DView = Yasna3DView;
-  window.YasnaSprites = { makeTextSprite, makeLabelSprite, makeDigitSprite };
+  function makeImageSprite(url, opts) {
+    const THREE2 = window.THREE;
+    const o = opts || {};
+    const tex = new THREE2.TextureLoader().load(url, function(t) {
+      t.minFilter = THREE2.LinearFilter;
+      t.magFilter = THREE2.LinearFilter;
+      if (THREE2.sRGBEncoding) t.encoding = THREE2.sRGBEncoding;
+      t.needsUpdate = true;
+    });
+    const mat = new THREE2.SpriteMaterial({ map: tex, transparent: true, depthTest: o.depthTest !== false, depthWrite: false });
+    const sp = new THREE2.Sprite(mat);
+    sp.userData.aspect = 1;
+    return sp;
+  }
+  window.YasnaSprites = { makeTextSprite, makeLabelSprite, makeDigitSprite, makeImageSprite };
 })();
 
 })();
@@ -3267,6 +3274,7 @@ function Star({ yy, sel, onSel, hl, af = [], showOpp, overlay, mob, drill, onDri
     return /* @__PURE__ */ React.createElement("g", { key: `comp${i}`, style: { pointerEvents: "none", opacity: dim, transition: "opacity .25s" } }, segs, /* @__PURE__ */ React.createElement("circle", { cx: px, cy: py, r: ph, fill: "#fff", stroke: "rgba(0,0,0,.08)", strokeWidth: ".8" }), /* @__PURE__ */ React.createElement("text", { x: px, y: py + 1.5, textAnchor: "middle", dominantBaseline: "middle", fontSize: "13", fontWeight: "700", fill: COMP_COLORS[maxIdx], fontFamily: "var(--sans)" }, i), /* @__PURE__ */ React.createElement("text", { x: px, y: py + ph + 8, textAnchor: "middle", fontSize: "9", fontWeight: "600", fill: COMP_COLORS[maxIdx], fontFamily: "var(--sans)" }, r[maxIdx], "%"));
   }), pts.map((pt, i) => {
     const isSel = sel === i, c = nc(i), o = no(i);
+    const zsz = (isSel ? nr + 3 : nr) * 1.7;
     const lbl = p[i] || "";
     const tipText = lbl ? `\u041F\u043E\u043B\u043A\u0430 ${i}: ${lbl}` : `\u041F\u043E\u043B\u043A\u0430 ${i}`;
     return /* @__PURE__ */ React.createElement("g", { key: i, onMouseEnter: () => setHov(i), onMouseLeave: () => setHov(null), onClick: () => {
@@ -3275,7 +3283,7 @@ function Star({ yy, sel, onSel, hl, af = [], showOpp, overlay, mob, drill, onDri
       } else {
         onSel(sel === i ? null : i);
       }
-    }, style: { cursor: "pointer" } }, /* @__PURE__ */ React.createElement("title", null, tipText), /* @__PURE__ */ React.createElement("circle", { cx: pt.x, cy: pt.y, r: nr + 14, fill: "transparent", stroke: "none" }), isSel && /* @__PURE__ */ React.createElement("circle", { cx: pt.x, cy: pt.y, r: nr + 8, fill: c, opacity: ".06", filter: "url(#gw)" }), /* @__PURE__ */ React.createElement("circle", { cx: pt.x, cy: pt.y, r: isSel ? nr + 3 : nr, fill: "#fff", stroke: c, strokeWidth: isSel ? 3.2 : [0, 3, 6, 9].includes(i) ? 2.6 : 2, opacity: o, filter: isSel ? "url(#gw)" : "url(#ns)", style: { pointerEvents: "none", transition: "r 150ms ease" } }), /* @__PURE__ */ React.createElement("text", { x: pt.x, y: pt.y + (af.includes("mb_zodiac") ? 7 : 6), textAnchor: "middle", fill: af.includes("mb_zodiac") ? "#7c3aed" : hl && !hl.includes(i) ? "#c0c0c5" : "#1f2937", fontSize: af.includes("mb_zodiac") ? isMob ? isSel ? "24" : "22" : isSel ? "32" : "30" : isMob ? isSel ? "22" : "20" : isSel ? "30" : "28", fontWeight: af.includes("mb_zodiac") ? "600" : "700", fontFamily: "var(--sans)", opacity: o, style: { pointerEvents: "none" } }, af.includes("mb_zodiac") ? ["\u2651", "\u2652", "\u2653", "\u2648", "\u2649", "\u264A", "\u264B", "\u264C", "\u264D", "\u264E", "\u264F", "\u2650"][i] : i));
+    }, style: { cursor: "pointer" } }, /* @__PURE__ */ React.createElement("title", null, tipText), /* @__PURE__ */ React.createElement("circle", { cx: pt.x, cy: pt.y, r: nr + 14, fill: "transparent", stroke: "none" }), isSel && /* @__PURE__ */ React.createElement("circle", { cx: pt.x, cy: pt.y, r: nr + 8, fill: c, opacity: ".06", filter: "url(#gw)" }), /* @__PURE__ */ React.createElement("circle", { cx: pt.x, cy: pt.y, r: isSel ? nr + 3 : nr, fill: "#fff", stroke: c, strokeWidth: isSel ? 3.2 : [0, 3, 6, 9].includes(i) ? 2.6 : 2, opacity: o, filter: isSel ? "url(#gw)" : "url(#ns)", style: { pointerEvents: "none", transition: "r 150ms ease" } }), af.includes("mb_zodiac") ? /* @__PURE__ */ React.createElement("image", { href: `assets/zodiac/z${i}.png`, x: pt.x - zsz / 2, y: pt.y - zsz / 2, width: zsz, height: zsz, preserveAspectRatio: "xMidYMid meet", opacity: o, style: { pointerEvents: "none" } }) : /* @__PURE__ */ React.createElement("text", { x: pt.x, y: pt.y + 6, textAnchor: "middle", fill: hl && !hl.includes(i) ? "#c0c0c5" : "#1f2937", fontSize: isMob ? isSel ? "22" : "20" : isSel ? "30" : "28", fontWeight: "700", fontFamily: "var(--sans)", opacity: o, style: { pointerEvents: "none" } }, i));
   }), !overlay && (starRotation ? lpsRot : lps).map((pt, i) => {
     const lOrig = p[i] || "";
     if (!lOrig) return null;

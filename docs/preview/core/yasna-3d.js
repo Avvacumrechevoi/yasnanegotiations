@@ -411,19 +411,21 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
         //   ang=π   → Весы ♎ (осеннее равноденствие)
         //   ang=3π/2→ Козерог ♑ (зимнее солнцестояние)
         // Цвета — по стихии знака (Огонь/Земля/Воздух/Вода).
+        // pos — индекс знака на Полке Ясны (картинка assets/zodiac/z{pos}.png):
+        // позиции 0..11 = ♑♒♓♈♉♊♋♌♍♎♏♐.
         const zodiac = [
-          { glyph:'♈', name:'Овен',       elem:'fire'  }, // 0°
-          { glyph:'♉', name:'Телец',      elem:'earth' }, // 30°
-          { glyph:'♊', name:'Близнецы',   elem:'air'   }, // 60°
-          { glyph:'♋', name:'Рак',        elem:'water' }, // 90° — летнее солнцестояние
-          { glyph:'♌', name:'Лев',        elem:'fire'  }, // 120°
-          { glyph:'♍', name:'Дева',       elem:'earth' }, // 150°
-          { glyph:'♎', name:'Весы',       elem:'air'   }, // 180° — осеннее равноденствие
-          { glyph:'♏', name:'Скорпион',   elem:'water' }, // 210°
-          { glyph:'♐', name:'Стрелец',    elem:'fire'  }, // 240°
-          { glyph:'♑', name:'Козерог',    elem:'earth' }, // 270° — зимнее солнцестояние
-          { glyph:'♒', name:'Водолей',    elem:'air'   }, // 300°
-          { glyph:'♓', name:'Рыбы',       elem:'water' }, // 330°
+          { glyph:'♈', name:'Овен',       elem:'fire',  pos:3  }, // 0°
+          { glyph:'♉', name:'Телец',      elem:'earth', pos:4  }, // 30°
+          { glyph:'♊', name:'Близнецы',   elem:'air',   pos:5  }, // 60°
+          { glyph:'♋', name:'Рак',        elem:'water', pos:6  }, // 90° — летнее солнцестояние
+          { glyph:'♌', name:'Лев',        elem:'fire',  pos:7  }, // 120°
+          { glyph:'♍', name:'Дева',       elem:'earth', pos:8  }, // 150°
+          { glyph:'♎', name:'Весы',       elem:'air',   pos:9  }, // 180° — осеннее равноденствие
+          { glyph:'♏', name:'Скорпион',   elem:'water', pos:10 }, // 210°
+          { glyph:'♐', name:'Стрелец',    elem:'fire',  pos:11 }, // 240°
+          { glyph:'♑', name:'Козерог',    elem:'earth', pos:0  }, // 270° — зимнее солнцестояние
+          { glyph:'♒', name:'Водолей',    elem:'air',   pos:1  }, // 300°
+          { glyph:'♓', name:'Рыбы',       elem:'water', pos:2  }, // 330°
         ];
         const elemColor = {
           fire:  '#F06838',  // VK Orange-red
@@ -436,19 +438,16 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
           const x = R * Math.cos(ang);
           const zCoord = R * Math.sin(ang);
           const pt = new THREE.Vector3(x, zCoord * sinT, zCoord * cosT);
-          // makeLabelSprite — поддерживает options-объект (makeTextSprite — нет!)
-          const sprite = window.YasnaSprites.makeLabelSprite(z.glyph, {
-            color: elemColor[z.elem],
-            fontSize: 96,           // глифы крупные — это символы, не текст
-            weight: '700',
-            depthTest: false,       // всегда поверх — не уходят за сферу
-          });
+          // Картинка знака зодиака (PNG) вместо текстового глифа.
+          const sprite = (window.YasnaSprites.makeImageSprite
+            ? window.YasnaSprites.makeImageSprite('assets/zodiac/z' + z.pos + '.png', { depthTest: false })
+            : window.YasnaSprites.makeLabelSprite(z.glyph, { color: elemColor[z.elem], fontSize: 96, weight: '700', depthTest: false }));
           if(sprite){
-            // Вынести наружу эклиптики, чтобы глифы не сливались с линией
+            // Вынести наружу эклиптики, чтобы знаки не сливались с линией
             const dir = pt.clone().normalize();
-            sprite.position.copy(pt).addScaledVector(dir, 16);
-            // World-scale: глиф 16 единиц по высоте (vs полка ~25)
-            const h = 16;
+            sprite.position.copy(pt).addScaledVector(dir, 18);
+            // World-scale: знак ~20 единиц по высоте (vs полка ~25)
+            const h = 20;
             sprite.scale.set(h * (sprite.userData.aspect||1), h, 1);
             astroSubs.zodiac.add(sprite);
           }
@@ -879,21 +878,20 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
           ctx.strokeStyle = 'rgba(255,255,255,.55)';
           ctx.lineWidth = 6;
           ctx.beginPath(); ctx.arc(128,128,118,0,Math.PI*2); ctx.stroke();
-          // Глиф
-          ctx.font = 'bold 168px -apple-system, BlinkMacSystemFont, "SF Pro Display", "Apple Color Emoji", sans-serif';
-          ctx.fillStyle = '#3a0d6e';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          // Лёгкая тень для объёма
-          ctx.shadowColor = 'rgba(255,255,255,0.6)';
-          ctx.shadowBlur = 4;
-          ctx.shadowOffsetY = -2;
-          ctx.fillText(sym, 128, 138);
-          ctx.shadowColor = 'transparent';
           const tex = new THREE.CanvasTexture(cv);
           tex.minFilter = THREE.LinearFilter;
           tex.magFilter = THREE.LinearFilter;
           if(THREE.sRGBEncoding) tex.encoding = THREE.sRGBEncoding;
+          // Знак зодиака — картинкой поверх грани монеты (грузится асинхронно)
+          (function(idx){
+            const img = new Image();
+            img.onload = function(){
+              const s = 176;
+              ctx.drawImage(img, 128 - s/2, 130 - s/2, s, s);
+              tex.needsUpdate = true;
+            };
+            img.src = 'assets/zodiac/z' + idx + '.png';
+          })(i);
           const faceMat = new THREE.MeshStandardMaterial({
             map: tex, metalness: 0.3, roughness: 0.5,
             emissive: 0x6c3aad, emissiveIntensity: 0.38,
@@ -1519,6 +1517,21 @@ function makeDigitSprite(digit, opts){
 
 
 window.Yasna3DView = Yasna3DView;
-window.YasnaSprites = { makeTextSprite, makeLabelSprite, makeDigitSprite };
+// Спрайт-картинка (PNG знака зодиака): текстура грузится асинхронно, квадратный аспект.
+function makeImageSprite(url, opts){
+  const THREE = window.THREE;
+  const o = opts || {};
+  const tex = new THREE.TextureLoader().load(url, function(t){
+    t.minFilter = THREE.LinearFilter; t.magFilter = THREE.LinearFilter;
+    if(THREE.sRGBEncoding) t.encoding = THREE.sRGBEncoding;
+    t.needsUpdate = true;
+  });
+  const mat = new THREE.SpriteMaterial({ map:tex, transparent:true, depthTest: o.depthTest !== false, depthWrite:false });
+  const sp = new THREE.Sprite(mat);
+  sp.userData.aspect = 1;
+  return sp;
+}
+
+window.YasnaSprites = { makeTextSprite, makeLabelSprite, makeDigitSprite, makeImageSprite };
 
 })();
