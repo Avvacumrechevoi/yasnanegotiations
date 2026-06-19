@@ -9,29 +9,27 @@
 .neg-hero { text-align: center; padding: 56px 16px 36px; }
 .neg-eyebrow {
   display: inline-block;
-  font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--accent-hover);
-  background: var(--accent-soft);
-  border: 1px solid rgba(0,119,255,0.25);
-  border-radius: 100px; padding: 6px 14px; margin-bottom: 20px;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text-tertiary); background: transparent; border: 0;
+  padding: 0; margin-bottom: 16px;
 }
 .neg-title {
   font-family: var(--font-display);
-  font-size: clamp(30px, 5vw, 46px); font-weight: 700; line-height: 1.08;
-  letter-spacing: -0.02em; color: var(--text-primary);
+  font-size: clamp(34px, 5vw, 52px); font-weight: 700; line-height: 1.08;
+  letter-spacing: -0.025em; color: var(--text-primary);
 }
 .neg-lead {
-  max-width: 660px; margin: 18px auto 0;
-  font-size: clamp(15px, 2.2vw, 18px); line-height: 1.6; color: var(--text-secondary);
+  max-width: 600px; margin: 18px auto 0;
+  font-size: clamp(16px, 2.2vw, 17px); line-height: 1.65; color: var(--text-secondary);
 }
 
 /* ── секции ─────────────────────────────────────────────────────── */
-.neg-section { margin-top: 48px; }
+.neg-section { margin-top: 40px; }
 .neg-section-h {
   font-family: var(--font-display);
   font-size: 22px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;
 }
-.neg-section-sub { font-size: 14px; color: var(--text-tertiary); margin-bottom: 22px; }
+.neg-section-sub { font-size: 14px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 20px; max-width: 640px; }
 
 /* ── гид по дуге (5 фаз, шаг за шагом) ───────────────────────────── */
 .neg-guide-rail { display: flex; gap: 6px; margin-bottom: 16px; }
@@ -258,44 +256,40 @@
   color: var(--text-tertiary); background: var(--bg-tonal); border-radius: 5px; padding: 2px 6px; margin-left: 6px; vertical-align: middle; }
 
 /* ── Конструктор «Живого спарринга»: тип × навык × уровень ── */
-.neg-cfg { display: flex; flex-direction: column; gap: 8px; margin: 6px 0 16px; }
-.neg-cfg-label { font-size: 12px; font-weight: 700; letter-spacing: .03em; color: var(--text-tertiary); margin-top: 12px; }
+.neg-cfg { display: flex; flex-direction: column; gap: 10px; margin: 6px 0 16px; }
+.neg-cfg-label { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--text-tertiary); margin-top: 24px; }
 .neg-cfg-label:first-child { margin-top: 0; }
+/* единая карточная система выбора: радиус 14, padding 14, плоско, is-on = заливка + бордюр (без ring-шума) */
 .neg-cfg-types { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 @media (max-width: 560px) { .neg-cfg-types { grid-template-columns: 1fr 1fr; } }
-.neg-cfg-type { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; text-align: left;
-  background: var(--bg-card); border: 1px solid var(--border); border-top: 3px solid var(--tcol, var(--accent));
-  border-radius: 14px; padding: 12px; cursor: pointer; color: var(--text-primary); font: inherit;
-  transition: border-color .15s, background .15s, box-shadow .15s; }
-.neg-cfg-type:hover { background: var(--bg-elevated); }
-.neg-cfg-type.is-on { background: var(--bg-elevated); border-color: var(--tcol, var(--accent)); box-shadow: 0 0 0 1px var(--tcol, var(--accent)); }
+.neg-cfg-type, .neg-cfg-skill, .neg-cfg-level {
+  display: flex; flex-direction: column; gap: 3px; text-align: left;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 14px;
+  cursor: pointer; color: var(--text-primary); font: inherit; box-shadow: none;
+  transition: border-color .15s, background .15s; }
+.neg-cfg-type { align-items: flex-start; }
+.neg-cfg-type:hover, .neg-cfg-skill:hover, .neg-cfg-level:hover { background: var(--bg-elevated); }
+.neg-cfg-type.is-on { background: var(--accent-soft); border-color: var(--tcol, var(--accent)); }
 .neg-cfg-type-glyph { font-size: 20px; line-height: 1; }
-.neg-cfg-type-name { font-weight: 700; font-size: 14px; color: var(--tcol, var(--text-primary)); }
-.neg-cfg-type-role { font-size: 11.5px; color: var(--text-tertiary); line-height: 1.3; }
+.neg-cfg-type-name { font-weight: 700; font-size: 14px; color: var(--text-primary); }
+.neg-cfg-type-role { font-size: 12.5px; color: var(--text-tertiary); line-height: 1.35; }
 .neg-cfg-skills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 @media (max-width: 720px) { .neg-cfg-skills { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 460px) { .neg-cfg-skills { grid-template-columns: 1fr; } }
-.neg-cfg-skill { display: flex; flex-direction: column; gap: 3px; text-align: left;
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 11px 13px; cursor: pointer; color: var(--text-primary); font: inherit;
-  transition: border-color .15s, background .15s, box-shadow .15s; }
-.neg-cfg-skill:hover { background: var(--bg-elevated); }
-.neg-cfg-skill.is-on { background: var(--accent-soft); border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-.neg-cfg-skill-h { font-weight: 600; font-size: 13.5px; }
-.neg-cfg-skill-d { font-size: 11.5px; color: var(--text-tertiary); line-height: 1.35; }
+.neg-cfg-skill.is-on { background: var(--accent-soft); border-color: var(--accent); }
+.neg-cfg-skill-h { font-weight: 700; font-size: 14px; }
+.neg-cfg-skill-d { font-size: 12.5px; color: var(--text-tertiary); line-height: 1.35; }
 .neg-cfg-levels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 @media (max-width: 560px) { .neg-cfg-levels { grid-template-columns: 1fr; } }
-.neg-cfg-level { display: flex; flex-direction: column; gap: 3px; text-align: left;
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 11px 13px; cursor: pointer; color: var(--text-primary); font: inherit;
-  transition: border-color .15s, background .15s, box-shadow .15s; }
-.neg-cfg-level:hover { background: var(--bg-elevated); }
 .neg-cfg-level.is-on { background: var(--bg-elevated); }
-.neg-cfg-level--easy.is-on   { border-color: #2FBF71; box-shadow: 0 0 0 1px #2FBF71; }
-.neg-cfg-level--medium.is-on { border-color: #E0A93B; box-shadow: 0 0 0 1px #E0A93B; }
-.neg-cfg-level--hard.is-on   { border-color: #E2604A; box-shadow: 0 0 0 1px #E2604A; }
-.neg-cfg-level-h { font-weight: 700; font-size: 13.5px; }
-.neg-cfg-level-d { font-size: 11.5px; color: var(--text-tertiary); line-height: 1.35; }
-.neg-cfg-start { margin-top: 8px; align-self: flex-start; display: inline-flex; align-items: center; gap: 8px;
-  background: var(--accent); color: var(--accent-on, #fff); border: 0; border-radius: 100px; padding: 13px 26px;
+.neg-cfg-level--easy.is-on   { border-color: #2FBF71; background: rgba(47,191,113,.12); }
+.neg-cfg-level--medium.is-on { border-color: #E0A93B; background: rgba(224,169,59,.12); }
+.neg-cfg-level--hard.is-on   { border-color: #E2604A; background: rgba(226,96,74,.12); }
+.neg-cfg-level-h { font-weight: 700; font-size: 14px; }
+.neg-cfg-level-d { font-size: 12.5px; color: var(--text-tertiary); line-height: 1.35; }
+/* единственный акцент экрана — на всю ширину секции */
+.neg-cfg-start { margin-top: 20px; align-self: stretch; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--accent); color: var(--accent-on, #fff); border: 0; border-radius: 100px; padding: 14px 28px;
   font: inherit; font-weight: 700; font-size: 15px; cursor: pointer; box-shadow: 0 6px 22px var(--accent-glow); transition: background .15s; }
 .neg-cfg-start:hover { background: var(--accent-hover); }
 .neg-spar-key-note--lvl { margin-top: 8px; font-size: 12px; }
@@ -574,22 +568,22 @@
 /* ═══════════════════════════════════════════════════════════════════
    Режимы: вкладки «Сценарии | Спарринг» + чат-спарринг
    ═══════════════════════════════════════════════════════════════════ */
-.neg-mode-tabs { display: inline-flex; gap: 4px; background: var(--bg-tonal); padding: 4px; border-radius: 12px; margin: 0 0 24px; }
+.neg-mode-tabs { display: flex; width: fit-content; gap: 4px; background: var(--bg-tonal); padding: 4px; border-radius: 12px; margin: 0 auto 28px; }
 .neg-mode-tab { padding: 9px 20px; border-radius: 9px; border: 0; background: transparent; color: var(--text-secondary); font: inherit; font-weight: 600; font-size: 14px; cursor: pointer; transition: background .15s, color .15s; }
 .neg-mode-tab:hover { color: var(--text-primary); }
 .neg-mode-tab.is-active { background: var(--accent); color: var(--accent-on, #fff); }
 
 /* — выбор параметра — */
 .neg-spar-intro { margin-bottom: 16px; }
-.neg-spar-grid { display: grid; gap: 10px; }
+.neg-spar-grid { display: grid; gap: 12px; }
 @media (min-width: 600px) { .neg-spar-grid { grid-template-columns: 1fr 1fr; } }
 .neg-spar-card {
   display: flex; align-items: center; gap: 14px; text-align: left; width: 100%;
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
-  padding: 16px; cursor: pointer; color: var(--text-primary); font: inherit;
-  transition: border-color .15s, background .15s, transform .12s;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+  padding: 16px; cursor: pointer; color: var(--text-primary); font: inherit; box-shadow: none;
+  transition: border-color .15s, background .15s;
 }
-.neg-spar-card:hover { background: var(--bg-elevated); border-color: var(--border-strong); transform: translateY(-2px); }
+.neg-spar-card:hover { background: var(--bg-elevated); border-color: var(--border-strong); }
 .neg-spar-card-glyph { flex-shrink: 0; font-size: 26px; width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; background: var(--bg-tonal); border-radius: 12px; }
 .neg-spar-card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .neg-spar-card-param { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--accent-hover); font-weight: 600; }
@@ -673,7 +667,7 @@
 @media (min-width: 600px) { .neg-spar-engine { grid-template-columns: 1fr 1fr; } }
 .neg-spar-eng-btn {
   display: flex; flex-direction: column; gap: 4px; text-align: left; cursor: pointer;
-  background: var(--bg-card); border: 1.5px solid var(--border-strong); border-radius: 14px;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
   padding: 14px 16px; color: var(--text-primary); font: inherit; transition: border-color .15s, background .15s;
 }
 .neg-spar-eng-btn:hover { border-color: var(--accent); }
@@ -682,7 +676,7 @@
 .neg-spar-eng-d { font-size: 12.5px; color: var(--text-tertiary); line-height: 1.45; }
 
 /* — панель ключа (BYOK) — */
-.neg-spar-key { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+.neg-spar-key { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-top: 16px; margin-bottom: 0; }
 .neg-spar-key-title { font-weight: 700; font-size: 15px; color: var(--text-primary); margin-bottom: 6px; }
 .neg-spar-key-note { font-size: 12.5px; line-height: 1.5; color: var(--text-tertiary); margin-bottom: 12px; }
 .neg-spar-key-note a { color: var(--accent-hover); }
@@ -699,7 +693,7 @@
 .neg-spar-key-link { background: none; border: 0; color: var(--accent-hover); font: inherit; font-size: 13px; cursor: pointer; padding: 0; }
 .neg-spar-key-link:hover { text-decoration: underline; }
 
-.neg-spar-pick-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin: 4px 0 10px; }
+.neg-spar-pick-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-tertiary); margin: 28px 0 12px; padding-top: 20px; border-top: 1px solid var(--border); }
 
 /* — аватар собеседника — */
 .neg-spar-msg--ai { align-items: flex-end; gap: 8px; }
@@ -762,6 +756,9 @@
   box-shadow: 0 6px 22px var(--accent-glow); transition: background .15s, transform .12s;
 }
 .neg-hero-cta:hover { background: var(--accent-hover); transform: translateY(-1px); }
+/* На вкладке «Живой спарринг» главный синий CTA — это .neg-cfg-start; герой-кнопку гасим в ghost (одна акцентная кнопка на вкладку) */
+html[data-neg-mode="spar"] .neg-hero-cta { background: transparent; color: var(--text-secondary); border: 1px solid var(--border-strong); box-shadow: none; font-weight: 600; padding: 13px 26px; }
+html[data-neg-mode="spar"] .neg-hero-cta:hover { color: var(--text-primary); border-color: var(--accent); transform: none; background: transparent; }
 
 /* — маршрут «ты здесь» над каталогом — */
 .neg-route { margin-bottom: 22px; }
@@ -793,7 +790,7 @@
 .neg-l-spar-link:hover { border-color: var(--accent); color: var(--text-primary); }
 
 /* — спарринг: AI за ссылкой, рекомендованная карточка — */
-.neg-spar-ailink { display: block; width: 100%; margin-top: 18px; background: transparent; border: 1px dashed var(--border-strong); border-radius: 12px; padding: 12px; font: inherit; font-size: 13px; color: var(--text-tertiary); cursor: pointer; text-align: center; }
+.neg-spar-ailink { display: block; width: 100%; margin-top: 16px; background: transparent; border: 1px dashed var(--border-strong); border-radius: 12px; padding: 12px; font: inherit; font-size: 13px; color: var(--text-tertiary); cursor: pointer; text-align: center; }
 .neg-spar-ailink:hover { color: var(--text-secondary); border-color: var(--accent); }
 .neg-spar-card.is-rec { border-color: var(--accent); }
 .neg-spar-card-rec { display: inline-block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-on, #fff); background: var(--accent); border-radius: 100px; padding: 2px 9px; margin-bottom: 5px; align-self: flex-start; }
@@ -931,6 +928,10 @@ html[data-theme='light'] .neg-c-type--ФО { --tcol: #1F6FCB; }
 html[data-theme='light'] .neg-c-type--ЦИ { --tcol: #7C45D6; }
 html[data-theme='light'] .neg-c-type--ШЭ { --tcol: #147A3C; }
 html[data-theme='light'] .neg-c-type-lbl--no { color: #B5371F; }
+/* конструктор: уровни — AA-бордюры на светлом */
+html[data-theme='light'] .neg-cfg-level--easy.is-on   { border-color: #147A3C; background: rgba(47,191,113,.14); }
+html[data-theme='light'] .neg-cfg-level--medium.is-on { border-color: #8A6100; background: rgba(224,169,59,.16); }
+html[data-theme='light'] .neg-cfg-level--hard.is-on   { border-color: #B5371F; background: rgba(226,96,74,.14); }
 /* type-answer buttons */
 html[data-theme='light'] .neg-c-typebtn.is-correct { border-color: #147A3C; background: rgba(43,181,115,.16); }
 html[data-theme='light'] .neg-c-typebtn.is-wrong   { border-color: #B5371F; background: rgba(226,96,74,.14); }

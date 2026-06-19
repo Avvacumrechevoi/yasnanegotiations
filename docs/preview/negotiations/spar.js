@@ -119,6 +119,8 @@
       });
       if (paneL) paneL.hidden = mode !== 'lessons';
       if (paneS) paneS.hidden = mode !== 'spar';
+      // на вкладке спарринга герой-CTA гасится в ghost (одна акцентная кнопка на вкладку)
+      try { document.documentElement.setAttribute('data-neg-mode', mode); } catch (_) {}
       try { localStorage.setItem('yasna_neg_mode', mode); } catch (_) {}
     }
     [].forEach.call(tabs.querySelectorAll('.neg-mode-tab'), function (b) {
