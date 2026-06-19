@@ -187,6 +187,7 @@
         React.createElement('a', { className: 'ynav-item', href: 'index.html' }, 'Конструктор'),
         React.createElement('a', { className: 'ynav-item is-active', href: 'duel.html' }, 'Игра', React.createElement('span', { className: 'ynav-new' }, 'NEW')),
         React.createElement('a', { className: 'ynav-item', href: 'learn.html' }, 'Обучение'),
+        React.createElement('a', { className: 'ynav-item', href: 'trainers.html' }, 'Тренажёры'),
         React.createElement('a', { className: 'ynav-item', href: 'rating.html' }, 'Рейтинг')
       ),
       React.createElement('div', { className: 'dp-header-spacer' }),
@@ -537,38 +538,7 @@
             )
           )
         ),
-        // ─── Карточка-переход на тренажёр переговоров (рядом с Партией) ───
-        React.createElement('a', {
-          className: 'dp-game-card dp-game-card--neg',
-          href: 'negotiations.html',
-          style: { textDecoration: 'none' },
-        },
-          React.createElement('div', { className: 'dp-game-eyebrow' }, '✦  Доступно · отдельный тренажёр'),
-          React.createElement('div', { className: 'dp-game-title-row' },
-            React.createElement('div', { className: 'dp-game-title' }, 'Переговоры')
-          ),
-          React.createElement('div', { className: 'dp-game-sub' },
-            'Отдельный тренажёр в 4 сценария: читать людей, вести разговор, договариваться честно и выходить красиво — с практикой и живым спаррингом.'
-          ),
-          React.createElement('ul', { className: 'dp-game-bullets' },
-            React.createElement('li', null, '4 типа людей · вход в контакт · 7 живых встреч'),
-            React.createElement('li', null, 'Карта 12 стадий + ситуационные дриллы'),
-            React.createElement('li', null, 'Спарринг с ИИ-собеседником в чате')
-          ),
-          React.createElement('div', { className: 'dp-cta-row' },
-            React.createElement('span', { className: 'dp-cta dp-cta--neg' },
-              React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
-                React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
-                  React.createElement('path', { d: 'M21 11.5a8.5 8.5 0 0 1-12.2 7.7L3 21l1.8-5.8A8.5 8.5 0 1 1 21 11.5z' })
-                )
-              ),
-              React.createElement('span', { className: 'dp-cta__body' },
-                React.createElement('span', { className: 'dp-cta__title' }, 'Открыть тренажёр →'),
-                React.createElement('span', { className: 'dp-cta__sub' }, '4 сценария · ~30 минут')
-              )
-            )
-          )
-        ),
+        // (карточка «Переговоры» переехала в раздел «Тренажёры» — trainers.html)
         React.createElement('button', { className: 'dp-game-card dp-game-soon', onClick: onUzor, disabled: true, style: { opacity: 0.6, cursor: 'not-allowed' } },
           React.createElement('div', { className: 'dp-game-eyebrow' }, '◷  В разработке'),
           React.createElement('div', { className: 'dp-game-title-row' },

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta name="theme-color" content="#0a0b0d"/>
+<title>Тренажёры · Ясна</title>
+<meta name="description" content="Интерактивные тренажёры Ясны: уроки базового курса по шагам и тренажёр переговоров — читать людей, вести разговор, договариваться."/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Тренажёры · Ясна"/>
+<meta property="og:description" content="Уроки базового курса и тренажёр переговоров — практика по шагам."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet"/>
+
+<style>
+:root{
+  --bg-base:#0a0b0d; --bg-surface:#131517; --bg-elevated:#1A1D20; --bg-card:#16191C; --bg-tonal:#262A2E;
+  --text-primary:#FEFEFE; --text-secondary:#A8B1BE; --text-tertiary:#8A95A3;
+  --border:rgba(255,255,255,.06); --border-strong:rgba(255,255,255,.10);
+  --accent:#0077FF; --accent-hover:#16A7FF; --accent-soft:rgba(0,119,255,.12); --accent-glow:rgba(0,119,255,.30); --accent-on:#fff;
+  --font-sans:'Inter',system-ui,-apple-system,sans-serif; --font-display:'Manrope',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg-base);color:var(--text-primary);font-family:var(--font-sans);min-height:100vh;-webkit-font-smoothing:antialiased}
+body{background:radial-gradient(ellipse 80% 60% at 50% 18%,rgba(0,119,255,.07) 0%,transparent 60%),var(--bg-base);background-attachment:fixed}
+
+.tr-wrap{max-width:1000px;margin:0 auto;padding:0 20px 80px}
+.tr-hero{text-align:center;padding:56px 16px 32px}
+.tr-eyebrow{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-hover);background:var(--accent-soft);border:1px solid rgba(0,119,255,.25);border-radius:100px;padding:6px 14px;margin-bottom:20px}
+.tr-title{font-family:var(--font-display);font-size:clamp(30px,5vw,46px);font-weight:800;line-height:1.08;letter-spacing:-.02em}
+.tr-lead{max-width:640px;margin:16px auto 0;font-size:clamp(15px,2.2vw,18px);line-height:1.6;color:var(--text-secondary)}
+
+.tr-grid{display:grid;gap:16px;margin-top:24px}
+@media(min-width:760px){.tr-grid{grid-template-columns:1fr 1fr;align-items:start}}
+
+.tr-card{display:flex;flex-direction:column;background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:24px 24px 22px;text-decoration:none;color:var(--text-primary);transition:border-color .15s,background .15s,transform .12s}
+.tr-card:hover{background:var(--bg-elevated);border-color:var(--border-strong);transform:translateY(-2px)}
+.tr-card-badge{align-self:flex-start;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-hover);background:var(--accent-soft);border:1px solid rgba(0,119,255,.25);border-radius:100px;padding:5px 12px;margin-bottom:14px}
+.tr-card-h{font-family:var(--font-display);font-size:24px;font-weight:700;letter-spacing:-.01em;margin-bottom:8px}
+.tr-card-sub{font-size:14.5px;line-height:1.55;color:var(--text-secondary);margin-bottom:16px}
+.tr-bullets{list-style:none;margin:0 0 18px;padding:0;flex:1}
+.tr-bullets li{position:relative;padding-left:18px;font-size:13.5px;line-height:1.5;color:var(--text-secondary);margin-bottom:7px}
+.tr-bullets li::before{content:'·';position:absolute;left:4px;color:var(--accent-hover);font-weight:700}
+.tr-cta{display:inline-flex;align-items:center;gap:12px;background:var(--bg-elevated);border:1px solid var(--border-strong);border-radius:14px;padding:13px 16px;margin-top:auto;transition:border-color .15s,background .15s}
+.tr-card:hover .tr-cta{border-color:var(--accent);background:var(--accent-soft)}
+.tr-cta-ico{flex-shrink:0;width:40px;height:40px;border-radius:11px;background:var(--bg-tonal);display:flex;align-items:center;justify-content:center;font-size:20px}
+.tr-cta-body{display:flex;flex-direction:column;gap:2px}
+.tr-cta-title{font-weight:700;font-size:15px;color:var(--text-primary)}
+.tr-cta-sub{font-size:12px;color:var(--text-tertiary)}
+
+.tr-foot{margin-top:48px;text-align:center;color:var(--text-tertiary);font-size:13px}
+.tr-foot a{color:var(--accent-hover);text-decoration:none}
+.tr-foot a:hover{text-decoration:underline}
+</style>
+
+<link rel="stylesheet" href="core/site-nav.css?v=nav4"/>
+</head>
+<body>
+
+<header class="ynav ynav--dark ynav--sticky" id="site-nav"></header>
+<script src="core/site-nav.js?v=nav3"></script>
+<script>window.SiteNav&&SiteNav.mount('site-nav','trainers');</script>
+
+<main class="tr-wrap">
+
+  <section class="tr-hero">
+    <span class="tr-eyebrow">Тренажёры</span>
+    <h1 class="tr-title">Тренажёры Ясны</h1>
+    <p class="tr-lead">
+      Не теория, а практика по шагам. Выбери тренажёр и отрабатывай навык:
+      от устройства любого явления до живого разговора с человеком.
+    </p>
+  </section>
+
+  <div class="tr-grid">
+
+    <a class="tr-card" href="index.html?lessons=1">
+      <span class="tr-card-badge">✦ Доступно · базовый курс</span>
+      <div class="tr-card-h">Уроки</div>
+      <p class="tr-card-sub">Базовый курс по методу Ясны — по шагам, с проверками. Учишься видеть устройство любого явления: дня, разговора, проекта.</p>
+      <ul class="tr-bullets">
+        <li>4 урока · подача порциями с проверками</li>
+        <li>Видеть Ясну в любом явлении — 4 / 8 / 12 полок</li>
+        <li>Прогресс сохраняется, можно вернуться</li>
+      </ul>
+      <span class="tr-cta">
+        <span class="tr-cta-ico" aria-hidden="true">✦</span>
+        <span class="tr-cta-body">
+          <span class="tr-cta-title">Открыть уроки →</span>
+          <span class="tr-cta-sub">в конструкторе · 4 шага</span>
+        </span>
+      </span>
+    </a>
+
+    <a class="tr-card" href="negotiations.html">
+      <span class="tr-card-badge">✦ Доступно · отдельный тренажёр</span>
+      <div class="tr-card-h">Переговоры</div>
+      <p class="tr-card-sub">4 сценария: читать людей, вести разговор, договариваться честно и выходить красиво — с практикой и живым спаррингом.</p>
+      <ul class="tr-bullets">
+        <li>4 типа людей · вход в контакт · 7 живых встреч</li>
+        <li>Карта 12 стадий + ситуационные дриллы</li>
+        <li>Спарринг с ИИ-собеседником в чате</li>
+      </ul>
+      <span class="tr-cta">
+        <span class="tr-cta-ico" aria-hidden="true">💬</span>
+        <span class="tr-cta-body">
+          <span class="tr-cta-title">Открыть тренажёр →</span>
+          <span class="tr-cta-sub">4 сценария · ~30 минут</span>
+        </span>
+      </span>
+    </a>
+
+  </div>
+
+  <div class="tr-foot">
+    Новые тренажёры в разработке. А пока — <a href="learn.html">обучение</a> по методу Ясны и <a href="duel.html">игра</a> на закрепление.
+  </div>
+
+</main>
+
+</body>
+</html>

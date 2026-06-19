@@ -857,6 +857,13 @@ function App(){
         const rest=q.toString();
         window.history.replaceState(null,'',window.location.pathname+(rest?'?'+rest:''));
       }
+      // ?lessons=1 — открыть выбор уроков (заход со страницы «Тренажёры»)
+      if(q.get('lessons')!=null){
+        setLessonPicker(true);
+        q.delete('lessons');
+        const rest2=q.toString();
+        window.history.replaceState(null,'',window.location.pathname+(rest2?'?'+rest2:''));
+      }
     }catch(_){}
   },[]);
   // Auto-close burger menu when any modal/panel opens
@@ -915,7 +922,7 @@ function App(){
           <a className='ynav-item is-active' href='index.html'>Конструктор</a>
           <a className='ynav-item' href='duel.html'>Игра<span className='ynav-new'>NEW</span></a>
           <a className='ynav-item' href='learn.html'>Обучение</a>
-          <a className='ynav-item' href='rating.html'>Рейтинг</a>
+          <a className='ynav-item' href='trainers.html'>Тренажёры</a>
         </nav>
         <div style={{flex:1}}/>
         <div className='hdr-btns' style={{display:'flex',gap:6,alignItems:'center'}}>
@@ -988,7 +995,7 @@ function App(){
             <a href='index.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'#0058b8',fontWeight:700,borderBottom:'1px solid #f5f5f7',background:'rgba(0,113,227,.06)',textDecoration:'none'}}>Конструктор</a>
             <a href='duel.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'#1d1d1f',borderBottom:'1px solid #f5f5f7',background:'#fff',textDecoration:'none'}}>Игра</a>
             <a href='learn.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'#1d1d1f',borderBottom:'1px solid #f5f5f7',background:'#fff',textDecoration:'none'}}>Обучение</a>
-            <a href='rating.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'#1d1d1f',borderBottom:'1px solid #f5f5f7',background:'#fff',textDecoration:'none'}}>Рейтинг</a>
+            <a href='trainers.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'#1d1d1f',borderBottom:'1px solid #f5f5f7',background:'#fff',textDecoration:'none'}}>Тренажёры</a>
             {/* Войти — профиль с аватаром, первой кнопкой */}
             <a href='duel.html#login' style={{display:'flex',width:'100%',padding:'14px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textDecoration:'none',alignItems:'center',gap:12,fontWeight:600,boxSizing:'border-box'}}>
               <span style={{width:32,height:32,borderRadius:'50%',background:'linear-gradient(135deg,#0071e3,#16A7FF)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
@@ -1025,7 +1032,7 @@ function App(){
       {learnOpen && <>
         <div onClick={()=>setLearnOpen(false)} style={{position:'fixed',inset:0,zIndex:99,background:'transparent'}}/>
         <div className='hdr-learn-dropdown' style={{position:'fixed',top:60,right:16,minWidth:240,maxWidth:'min(320px, calc(100vw - 32px))',maxHeight:'calc(100vh - 80px)',overflowY:'auto',background:'#fff',border:'1px solid #d2d2d7',borderRadius:12,boxShadow:'0 12px 36px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.06)',zIndex:100,animation:'slideDown .2s cubic-bezier(.16,1,.3,1)'}}>
-          <button onClick={()=>{setLessonPicker(true);setLearnOpen(false)}} style={{display:'flex',width:'100%',padding:'12px 16px',fontSize:13,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textAlign:'left',cursor:'pointer',fontWeight:500}}>Уроки <span style={{color:'#86868b',fontSize:11,marginLeft:6,fontWeight:400}}>· 4 шага</span></button>
+          {/* «Уроки» переехали в раздел «Тренажёры» (trainers.html) — в Гиде остаются только гиды по Яснам */}
           {(()=>{
             const allTours=(window.YasnaTours&&window.YasnaTours.list?window.YasnaTours.list():[]);
             if(allTours.length===0)return <div style={{padding:'12px 16px',fontSize:12,color:'#aeaeb2',fontStyle:'italic'}}>Гиды появятся скоро</div>;
