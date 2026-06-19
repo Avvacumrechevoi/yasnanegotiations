@@ -50,8 +50,15 @@
       card.innerHTML =
         '<span class="neg-c-type-head">' +
           '<span class="neg-c-type-glyph">' + t.glyph + '</span>' +
-          '<span class="neg-c-type-id">' + esc(t.label || t.id) + '</span>' +
-          '<span class="neg-c-type-name">' + esc(t.id) + ' · ' + esc(t.name) + '</span>' +
+          '<span class="neg-c-type-title">' +
+            '<span class="neg-c-type-id">' + esc(t.label || t.id) + '</span>' +
+            '<span class="neg-c-type-tags">' +
+              '<span class="neg-c-type-tag neg-c-type-tag--code">' + esc(t.id) + '</span>' +
+              String(t.name || '').split('·').map(function (p) {
+                p = p.trim(); return p ? '<span class="neg-c-type-tag">' + esc(p) + '</span>' : '';
+              }).join('') +
+            '</span>' +
+          '</span>' +
         '</span>' +
         '<span class="neg-c-type-one">' + esc(t.oneLiner) + '</span>' +
         '<span class="neg-c-type-more">' +
