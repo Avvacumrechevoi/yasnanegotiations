@@ -236,6 +236,13 @@
   background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px;
   padding: 22px;
 }
+/* длинный скролл практики — отступ между сложенными карточками реплик */
+.neg-ex-card { margin-bottom: 14px; }
+.neg-ex-card:last-child { margin-bottom: 0; }
+/* карточка встречи «вход в контакт» — внешняя обёртка (внутри свой neg-c-person) */
+.neg-c-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; padding: 20px; }
+/* отвеченная карточка слегка приглушена — фокус на текущей (но текст читаем) */
+.neg-drill-card .neg-ex-opt:disabled, .neg-drill-card .neg-opt:disabled { cursor: default; }
 .neg-drill-head {
   display: flex; justify-content: space-between; align-items: center;
   font-size: 12px; color: var(--text-tertiary); margin-bottom: 14px;

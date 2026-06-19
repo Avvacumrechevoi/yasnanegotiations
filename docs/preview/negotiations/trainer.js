@@ -47,6 +47,12 @@
     if (html != null) e.innerHTML = html;
     return e;
   }
+  // Плавный скролл к только что добавленной карточке (длинный скролл практики).
+  function scrollToCard(card) {
+    if (!card || !card.getBoundingClientRect || !window.scrollTo) return;
+    var y = card.getBoundingClientRect().top + window.pageYOffset - 80;
+    try { window.scrollTo({ top: y, behavior: 'smooth' }); } catch (_) { window.scrollTo(0, y); }
+  }
   // Детерминированная «случайность» без Math.random в чистом виде —
   // используем seed по индексу, чтобы порядок был стабилен в рамках сессии.
   function shuffleDeck(n, seed) {
@@ -153,7 +159,7 @@
   }
 
   // ═══ 2. Дрилл «Определи стадию» ═══════════════════════════════════
-  var drillState = { deck: [], pos: 0, streak: 0, right: 0, locked: false, limit: 0, onDone: null };
+  var drillState = { deck: [], pos: 0, streak: 0, right: 0, locked: false, limit: 0, onDone: null, root: null };
 
   function startDrill(limit) {
     // seed по числу уже отвеченных, чтобы при возврате порядок менялся
@@ -177,25 +183,29 @@
     return out;
   }
 
+  // Длинный скролл: каждая реплика — отдельная карточка, добавляется вниз,
+  // отвеченные остаются (можно прокрутить вверх и увидеть свои ответы).
   function renderDrill(panel) {
-    panel.innerHTML = '';
-    if (drillState.pos >= drillState.deck.length) { renderDrillSummary(panel); return; }
+    if (panel) drillState.root = panel;
+    var root = drillState.root; if (!root) return;
+    if (drillState.pos >= drillState.deck.length) { renderDrillSummary(); return; }
 
     var item = DRILL[drillState.deck[drillState.pos]];
     var correct = item.stage;
+    var idx = drillState.pos;
 
-    // прогресс-строка
+    var card = el('div', 'neg-drill-card neg-ex-card neg-l-appear');
     var head = el('div', 'neg-drill-head');
     head.innerHTML =
-      '<span class="neg-drill-count">Реплика ' + (drillState.pos + 1) + ' / ' + drillState.deck.length + '</span>' +
+      '<span class="neg-drill-count">Реплика ' + (idx + 1) + ' / ' + drillState.deck.length + '</span>' +
       '<span class="neg-drill-streak">серия: ' + drillState.streak + '</span>';
-    panel.appendChild(head);
-
-    panel.appendChild(el('div', 'neg-drill-line', item.line));
-    panel.appendChild(el('div', 'neg-drill-ask', 'Какая это стадия переговоров?'));
+    card.appendChild(head);
+    card.appendChild(el('div', 'neg-drill-line', item.line));
+    card.appendChild(el('div', 'neg-drill-ask', 'Какая это стадия переговоров?'));
 
     var opts = el('div', 'neg-drill-opts');
-    var optionIds = optionsFor(correct, drillState.deck[drillState.pos] + 1);
+    var fb = el('div', 'neg-drill-fb');
+    var optionIds = optionsFor(correct, drillState.deck[idx] + 1);
     optionIds.forEach(function (sid) {
       var s = STAGE_BY_ID[sid];
       var b = el('button', 'neg-opt');
@@ -204,11 +214,11 @@
       b.addEventListener('click', function () { answer(sid, correct, item, opts, fb); });
       opts.appendChild(b);
     });
-    panel.appendChild(opts);
-
-    var fb = el('div', 'neg-drill-fb');
-    panel.appendChild(fb);
+    card.appendChild(opts);
+    card.appendChild(fb);
+    root.appendChild(card);
     drillState.locked = false;
+    if (idx > 0) scrollToCard(card);
   }
 
   function answer(picked, correct, item, opts, fb) {
@@ -243,22 +253,27 @@
       '<div class="neg-fb-verdict">' + (ok ? '✓ Верно' : '✗ Это стадия «' + s.name + '»') + '</div>' +
       '<div class="neg-fb-why">' + item.why + '</div>' +
       '<button type="button" class="neg-next">Дальше →</button>';
-    fb.querySelector('.neg-next').addEventListener('click', function () {
+    var nx = fb.querySelector('.neg-next');
+    nx.addEventListener('click', function () {
+      if (nx.disabled) return;
+      nx.disabled = true; nx.style.display = 'none';   // отвеченная карточка остаётся, кнопка прячется
       drillState.pos += 1;
-      renderDrill(fb.parentNode);
+      renderDrill();
     });
-    fb.querySelector('.neg-next').focus();
+    nx.focus();
   }
 
-  function renderDrillSummary(panel) {
+  function renderDrillSummary() {
+    var root = drillState.root; if (!root) return;
     var total = drillState.deck.length;
-    panel.appendChild(el('div', 'neg-drill-done',
+    var done = el('div', 'neg-drill-done neg-ex-card',
       '<div class="neg-done-title">Круг пройден · ' + drillState.right + '/' + total + '</div>' +
-      '<div class="neg-done-sub">Лучшая серия за всё время: ' + progress.bestStreak + '</div>'));
+      '<div class="neg-done-sub">Лучшая серия за всё время: ' + progress.bestStreak + '</div>');
+    root.appendChild(done);
     var again = el('button', 'neg-btn neg-btn--primary', 'Пройти ещё раз →');
     again.setAttribute('type', 'button');
-    again.addEventListener('click', function () { startDrill(drillState.limit); renderDrill(panel); });
-    panel.appendChild(again);
+    again.addEventListener('click', function () { root.innerHTML = ''; startDrill(drillState.limit); renderDrill(); });
+    root.appendChild(again);
     if (drillState.onDone) { try { drillState.onDone(drillState.right, total); } catch (_) {} }
   }
 
@@ -307,30 +322,27 @@
     var plays = (practice[bank.id] && practice[bank.id].plays) || 0;
     var full = shuffleDeck(bank.items.length, 13 + plays * 7);
     ex.deck = (count && count < full.length) ? full.slice(0, count) : full;
+    root.innerHTML = '';
     renderEx();
   }
 
+  // Длинный скролл: карточка реплики добавляется вниз; отвеченные остаются.
   function renderEx() {
     var root = ex.root; if (!root) return;
-    root.innerHTML = '';
     var bank = ex.bank;
     if (ex.pos >= ex.deck.length) { renderExSummary(); return; }
 
     var item = bank.items[ex.deck[ex.pos]];
+    var idx = ex.pos;
 
-    var prog = el('div', 'neg-ex-prog');
-    prog.innerHTML =
-      '<span>' + (ex.pos + 1) + ' / ' + ex.deck.length + '</span>' +
-      '<span class="neg-ex-score">верно: ' + ex.correct + '</span>';
-    root.appendChild(prog);
-
-    var card = el('div', 'neg-drill-card');
+    var card = el('div', 'neg-drill-card neg-ex-card neg-l-appear');
+    card.appendChild(el('div', 'neg-ex-prog', '<span>Реплика ' + (idx + 1) + ' / ' + ex.deck.length + '</span>'));
     if (item.scene) card.appendChild(el('div', 'neg-ex-scene', item.scene));
     card.appendChild(el('div', 'neg-ex-line', item.line));
     card.appendChild(el('div', 'neg-ex-ask', item.ask));
 
     var opts = el('div', 'neg-ex-opts');
-    var order = shuffleDeck(item.options.length, ex.deck[ex.pos] + 17 + ex.pos);
+    var order = shuffleDeck(item.options.length, ex.deck[idx] + 17 + idx);
     var fb = el('div', 'neg-ex-fb');
     order.forEach(function (oi) {
       var o = item.options[oi];
@@ -346,6 +358,7 @@
     card.appendChild(fb);
     root.appendChild(card);
     ex.locked = false;
+    if (idx > 0) scrollToCard(card);
   }
 
   function answerEx(picked, item, opts, fb) {
@@ -372,7 +385,12 @@
     html += '<button type="button" class="neg-next neg-ex-next">Дальше →</button>';
     fb.innerHTML = html;
     var nx = fb.querySelector('.neg-ex-next');
-    nx.addEventListener('click', function () { ex.pos += 1; renderEx(); });
+    nx.addEventListener('click', function () {
+      if (nx.disabled) return;
+      nx.disabled = true; nx.style.display = 'none';   // карточка остаётся, кнопка прячется
+      ex.pos += 1;
+      renderEx();
+    });
     nx.focus();
   }
 
@@ -387,7 +405,7 @@
     practice[bank.id] = st;
     savePractice(practice);
 
-    var done = el('div', 'neg-ex-done');
+    var done = el('div', 'neg-ex-done neg-ex-card');
     done.innerHTML =
       '<div class="neg-done-title">' + ex.correct + ' / ' + total + ' · ' + pctVerdict(pct) + '</div>' +
       '<div class="neg-done-sub">Лучший результат: ' + st.best + '/' + total + '</div>';
@@ -398,7 +416,7 @@
     again.addEventListener('click', function () {
       var full = shuffleDeck(bank.items.length, 13 + st.plays * 7);
       ex.deck = (ex.deck.length < full.length) ? full.slice(0, ex.deck.length) : full;
-      ex.pos = 0; ex.correct = 0; renderEx();
+      ex.pos = 0; ex.correct = 0; root.innerHTML = ''; renderEx();
     });
     root.appendChild(again);
 
@@ -428,7 +446,9 @@
     mountStageDrill: function (root, onDone, count) {
       drillState.onDone = onDone || null;
       startDrill(count);
-      renderDrill(root);
+      drillState.root = root;
+      root.innerHTML = '';
+      renderDrill();
     }
   };
 
@@ -439,7 +459,7 @@
     var drillRoot = document.getElementById('neg-drill-root');
     if (guideRoot) renderGuide(guideRoot);
     if (mapRoot) renderMap(mapRoot);
-    if (drillRoot) { startDrill(); renderDrill(drillRoot); }
+    if (drillRoot) { startDrill(); drillState.root = drillRoot; drillRoot.innerHTML = ''; renderDrill(); }
     refreshStats();
   }
 

@@ -78,7 +78,12 @@
 
   // ═══ Сценарий ═════════════════════════════════════════════════════
   var S = { deck: [], pos: 0, step: 'type', locked: false,
-            contacts: 0, typeRight: 0, missType: {}, missOpen: {}, onDone: null };
+            contacts: 0, typeRight: 0, missType: {}, missOpen: {}, onDone: null, root: null };
+  function scrollToCard(card) {
+    if (!card || !card.getBoundingClientRect || !window.scrollTo) return;
+    var y = card.getBoundingClientRect().top + window.pageYOffset - 80;
+    try { window.scrollTo({ top: y, behavior: 'smooth' }); } catch (_) { window.scrollTo(0, y); }
+  }
 
   function startSession() {
     S.deck = shuffle(C.encounters.length, 7 + prog.sessions * 13);
@@ -88,27 +93,32 @@
 
   function curEnc() { return C.encounters[S.deck[S.pos]]; }
 
+  // Длинный скролл: каждая встреча — отдельная карточка, добавляется вниз;
+  // пройденные остаются (можно прокрутить вверх и пересмотреть свои ответы).
   function render(root) {
-    root.innerHTML = '';
-    if (S.pos >= S.deck.length) { renderSummary(root); return; }
+    if (root) S.root = root;
+    root = S.root; if (!root) return;
+    if (S.pos >= S.deck.length) { renderSummary(); return; }
     var enc = curEnc();
+    var idx = S.pos;
 
-    // прогресс
+    var card = el('div', 'neg-c-card neg-ex-card neg-l-appear');
     var head = el('div', 'neg-c-head');
     head.innerHTML =
-      '<span class="neg-c-count">Встреча ' + (S.pos + 1) + ' / ' + S.deck.length + '</span>' +
+      '<span class="neg-c-count">Встреча ' + (idx + 1) + ' / ' + S.deck.length + '</span>' +
       '<span class="neg-c-score">контакт ' + S.contacts + ' · тип ' + S.typeRight + '</span>';
-    root.appendChild(head);
+    card.appendChild(head);
 
-    // карточка человека
     var person = el('div', 'neg-c-person');
     person.innerHTML =
       '<div class="neg-c-setting">' + esc(enc.setting) + '</div>' +
       '<div class="neg-c-line">' + esc(enc.personLine) + '</div>';
-    root.appendChild(person);
+    card.appendChild(person);
 
     var stage = el('div', 'neg-c-stage');
-    root.appendChild(stage);
+    card.appendChild(stage);
+    root.appendChild(card);
+    if (idx > 0) scrollToCard(card);
     renderTypeStep(stage, enc, root);
   }
 
@@ -193,18 +203,23 @@
         (S.pos + 1 >= S.deck.length ? 'К разбору →' : 'Следующая встреча →') + '</button>';
     stage.appendChild(fb);
     var next = fb.querySelector('.neg-c-next');
-    next.addEventListener('click', function () { S.pos += 1; S.locked = false; render(root); });
+    next.addEventListener('click', function () {
+      if (next.disabled) return;
+      next.disabled = true; next.style.display = 'none';   // встреча остаётся, кнопка прячется
+      S.pos += 1; S.locked = false; render();
+    });
     next.focus();
   }
 
   // ═══ Финальный дебриф ═════════════════════════════════════════════
-  function renderSummary(root) {
+  function renderSummary() {
+    var root = S.root; if (!root) return;
     prog.sessions += 1;
     if (S.contacts > prog.bestContacts) prog.bestContacts = S.contacts;
     save(prog);
 
     var n = S.deck.length;
-    var wrap = el('div', 'neg-c-summary');
+    var wrap = el('div', 'neg-c-summary neg-ex-card');
     var verdict = S.contacts >= 6 ? 'Мастер контакта' : S.contacts >= 4 ? 'Хорошо читаешь людей' : 'Есть куда расти';
     wrap.appendChild(el('div', 'neg-c-sum-title', verdict));
     wrap.appendChild(el('div', 'neg-c-sum-stats',
@@ -232,7 +247,7 @@
 
     var again = el('button', 'neg-btn neg-btn--primary', 'Пройти ещё раз →');
     again.type = 'button';
-    again.addEventListener('click', function () { startSession(); render(root); });
+    again.addEventListener('click', function () { S.root.innerHTML = ''; startSession(); render(); });
     wrap.appendChild(again);
     root.appendChild(wrap);
 
@@ -243,7 +258,9 @@
   function mountPractice(root, onDone) {
     startSession();
     S.onDone = onDone || null;
-    render(root);
+    S.root = root;
+    root.innerHTML = '';
+    render();
   }
   window.NegContactUI = { renderTypes: renderTypes, mountPractice: mountPractice };
 
