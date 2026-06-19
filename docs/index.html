@@ -2,6 +2,9 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8"/>
+<!-- Единая тема (core/theme.js, ключ yasna_theme). Адаптер: dark → body.theme-vk-dark (как раньше). -->
+<script>window.YasnaThemeAdapter=function(d){if(document.body)document.body.classList.toggle('theme-vk-dark',d==='dark');};</script>
+<script src="core/theme.js?v=th1"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
@@ -31,7 +34,7 @@
 <link rel="stylesheet" href="vk-tech-tokens.css?v=21"/>
 <!-- theme-vk-dark-guide.css — экспериментальные dark-тюнинги гида, только в preview-дереве (в корне файла нет → линк убран, чтобы не было 404) -->
 <!-- Единый верхний свитчер разделов (Вариант B) -->
-<link rel="stylesheet" href="core/site-nav.css?v=nav4"/>
+<link rel="stylesheet" href="core/site-nav.css?v=nav6"/>
 
 <!-- Авто-редирект на start.html отключён — index.html всегда грузится напрямую.
      Лендинг доступен по прямой ссылке /preview/start.html. -->
@@ -41,7 +44,7 @@
 <!-- color-scheme guard: конструктор по умолчанию СВЕТЛЫЙ. Объявляем схему явно ДО рендера,
      чтобы системный тёмный режим браузера НЕ перекрашивал светлые карточки принудительно
      (force-dark делал тёмный текст серым-невидимым). Тёмная тема приложения → colorScheme:dark. -->
-<script>try{var __d=localStorage.getItem('yasna_theme_vk_dark')==='1';if(__d)document.body.classList.add('theme-vk-dark');document.documentElement.style.colorScheme=__d?'dark':'light';}catch(e){}</script>
+<script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.setAttribute('data-theme',d?'dark':'light');document.documentElement.style.colorScheme=d?'dark':'light';if(d)document.body.classList.add('theme-vk-dark');}catch(e){}</script>
 <div id="root"></div>
 
 <!-- React + Three.js + PeerJS из CDN — внешние библиотеки -->
@@ -78,7 +81,7 @@
   var BODY_CLASS = 'theme-vk-dark';
 
   function isOn(){
-    try { return localStorage.getItem(STORAGE_KEY) === '1'; }
+    try { if(window.Theme) return window.Theme.resolve() === 'dark'; return localStorage.getItem(STORAGE_KEY) === '1'; }
     catch(_){ return false; }
   }
   function applyClass(on){
@@ -101,10 +104,13 @@
     document.querySelectorAll('.dp-theme-toggle').forEach(function(b){ updateButton(b, on); });
   }
   function toggle(){
+    if(window.Theme){ window.Theme.cycle(); applyAll(isOn()); return; }   // единый ключ
     var next = !isOn();
     try { localStorage.setItem(STORAGE_KEY, next ? '1' : '0'); } catch(_){}
     applyAll(next);
   }
+  // обновлять кнопку/класс, если тему сменили в другой вкладке или из системы
+  if(window.Theme && window.Theme.onChange){ window.Theme.onChange(function(){ applyAll(isOn()); }); }
 
   // Применяем СРАЗУ (до первой отрисовки если возможно)
   applyClass(isOn());

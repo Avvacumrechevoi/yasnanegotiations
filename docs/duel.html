@@ -2,6 +2,9 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8"/>
+<!-- Единая тема (core/theme.js, ключ yasna_theme). Адаптер: light → body.vk-light (как раньше). -->
+<script>window.YasnaThemeAdapter=function(d){if(document.body)document.body.classList.toggle('vk-light',d==='light');};</script>
+<script src="core/theme.js?v=th1"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta name="theme-color" content="#BA7517"/>
@@ -27,14 +30,14 @@
 <link rel="stylesheet" href="games/duel/theme-vk-dark.css?v=21"/>
 <link rel="stylesheet" href="games/duel/vk-scheme.css?v=11"/>
 <link rel="stylesheet" href="games/duel/vk-light.css?v=nav4"/>
-<link rel="stylesheet" href="core/site-nav.css?v=nav4"/>
+<link rel="stylesheet" href="core/site-nav.css?v=nav6"/>
 </head>
 <body class="theme-vk-dark vk-light">
 <!-- Тема оформления: применяем сохранённый выбор ДО отрисовки (без мигания).
      Светлая по умолчанию (vk-light); '1' в localStorage → тёмная (снимаем vk-light).
      color-scheme выставляем явно, чтобы браузер в системном тёмном НЕ перекрашивал
      светлую страницу принудительно (force-dark делал текст серым). -->
-<script>try{var __d=localStorage.getItem('yasna_theme_vk_dark')==='1';if(__d)document.body.classList.remove('vk-light');document.documentElement.style.colorScheme=__d?'dark':'light';}catch(e){}</script>
+<script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.setAttribute('data-theme',d?'dark':'light');document.documentElement.style.colorScheme=d?'dark':'light';document.body.classList.toggle('vk-light',!d);}catch(e){}</script>
 <div id="duel-page-root"></div>
 
 <!-- React + Three.js + Firebase из CDN -->

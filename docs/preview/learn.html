@@ -2,7 +2,8 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8"/>
-<meta name="color-scheme" content="dark"/>
+<script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);var e=document.documentElement;e.setAttribute('data-theme',d?'dark':'light');e.style.colorScheme=d?'dark':'light';}catch(e){}</script>
+<script src="core/theme.js?v=th1"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta name="theme-color" content="#0a0b0d"/>
@@ -879,12 +880,20 @@ a { color: inherit; text-decoration: none; }
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 :focus-visible { outline: 2px solid var(--accent-hover); outline-offset: 2px; }
+
+/* ── Светлая тема (единый ключ; html[data-theme='light']) — переопределяем тёмные токены ── */
+html[data-theme='light'] {
+  --bg-base:#F5F5F7; --bg-surface:#FFFFFF; --bg-elevated:#FFFFFF; --bg-card:#FFFFFF; --bg-tonal:#ECEEF1;
+  --text-primary:#0D1B2A; --text-secondary:#3D4852; --text-tertiary:#6E7781;
+  --border:rgba(0,0,0,0.08); --border-strong:rgba(0,0,0,0.14);
+  --accent:#0071E3; --accent-hover:#0058B8; --accent-soft:rgba(0,119,255,0.10); --accent-glow:rgba(0,119,255,0.22); --accent-on:#FFFFFF;
+}
 </style>
 </head>
 <body>
-<link rel="stylesheet" href="core/site-nav.css?v=nav4"/>
+<link rel="stylesheet" href="core/site-nav.css?v=nav6"/>
 <header class="ynav ynav--dark ynav--sticky" id="site-nav"></header>
-<script src="core/site-nav.js?v=nav3"></script>
+<script src="core/site-nav.js?v=nav5"></script>
 <script>window.SiteNav&&SiteNav.mount('site-nav','learn');</script>
 
 <!-- ═══ ONBOARDING — показывается при первом заходе ═══ -->

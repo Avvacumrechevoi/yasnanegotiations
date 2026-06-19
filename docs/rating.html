@@ -2,7 +2,8 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8"/>
-<meta name="color-scheme" content="dark"/>
+<script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);var e=document.documentElement;e.setAttribute('data-theme',d?'dark':'light');e.style.colorScheme=d?'dark':'light';}catch(e){}</script>
+<script src="core/theme.js?v=th1"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,viewport-fit=cover"/>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <title>Как устроен рейтинг · Ясна</title>
@@ -393,12 +394,30 @@
     line-height: 1.65;
   }
   .rt-foot strong { color: #aeaeb2; font-style: normal; }
+
+/* ── Светлая тема (единый ключ html[data-theme='light']) — рейтинг на raw-hex ── */
+html[data-theme='light'] body { background:#F5F5F7; color:#0D1B2A; }
+html[data-theme='light'] .rt-back { color:#5C6A80; border-color:rgba(0,0,0,.12); }
+html[data-theme='light'] .rt-back:hover { background:rgba(0,0,0,.05); color:#0D1B2A; }
+html[data-theme='light'] .rt-eyebrow { color:#1F6FCB; background:rgba(0,119,255,.10); border-color:rgba(0,119,255,.28); }
+html[data-theme='light'] .rt-lead { color:#3D4852; }
+html[data-theme='light'] .rt-lead strong, html[data-theme='light'] .rt-track-lead strong { color:#0D1B2A; }
+html[data-theme='light'] .rt-track-lead { color:#3D4852; }
+html[data-theme='light'] .rt-track-eyebrow, html[data-theme='light'] .rt-levels-bar-title { color:#5C6A80; }
+html[data-theme='light'] .rt-track-icon--caste { color:#1F6FCB; }
+html[data-theme='light'] .rt-track-icon--mastery { color:#147A3C; }
+html[data-theme='light'] .rt-formula__card, html[data-theme='light'] .rt-level-card { background:rgba(0,0,0,.04); border-color:rgba(0,0,0,.10); }
+html[data-theme='light'] .rt-formula__label { color:#3D4852; }
+html[data-theme='light'] .rt-formula__big { color:#147A3C; }
+html[data-theme='light'] .rt-levels-track__seg { background:rgba(0,0,0,.08); }
+/* серый текст и тонкие плашки на светлом */
+html[data-theme='light'] .rt-level-card *, html[data-theme='light'] .rt-formula__card * { border-color:rgba(0,0,0,.10); }
 </style>
 </head>
 <body>
-<link rel="stylesheet" href="core/site-nav.css?v=nav4"/>
+<link rel="stylesheet" href="core/site-nav.css?v=nav6"/>
 <header class="ynav ynav--dark ynav--sticky" id="site-nav"></header>
-<script src="core/site-nav.js?v=nav3"></script>
+<script src="core/site-nav.js?v=nav5"></script>
 <script>window.SiteNav&&SiteNav.mount('site-nav','rating');</script>
 <div class="rt-shell">
 

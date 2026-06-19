@@ -2,7 +2,8 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8"/>
-<meta name="color-scheme" content="dark"/>
+<script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);var e=document.documentElement;e.setAttribute('data-theme',d?'dark':'light');e.style.colorScheme=d?'dark':'light';}catch(e){}</script>
+<script src="core/theme.js?v=th1"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
 <meta http-equiv="Cache-Control" content="no-cache"/>
 <meta name="theme-color" content="#0a0b0d"/>
@@ -61,38 +62,14 @@ body {
 }
 </style>
 
-<link rel="stylesheet" href="core/site-nav.css?v=nav5"/>
-<link rel="stylesheet" href="negotiations/trainer.css?v=18"/>
+<link rel="stylesheet" href="core/site-nav.css?v=nav6"/>
+<link rel="stylesheet" href="negotiations/trainer.css?v=19"/>
 </head>
 <body>
-<!-- Тема тренажёра: тёмная по умолчанию, 'light' в localStorage → светлая. Ставим класс ДО отрисовки (без мигания). -->
-<script>try{if(localStorage.getItem('yasna_neg_theme')==='light'){document.body.classList.add('neg-light');document.documentElement.style.colorScheme='light';}}catch(e){}</script>
 
 <header class="ynav ynav--dark ynav--sticky" id="site-nav"></header>
-<script src="core/site-nav.js?v=nav4"></script>
-<script>
-  window.SiteNav && SiteNav.mount('site-nav', 'trainers', { theme: true });
-  (function(){
-    var KEY = 'yasna_neg_theme';
-    function isLight(){ try { return localStorage.getItem(KEY) === 'light'; } catch(_){ return false; } }
-    function paint(){
-      var light = isLight();
-      document.body.classList.toggle('neg-light', light);
-      try { document.documentElement.style.colorScheme = light ? 'light' : 'dark'; } catch(_){}
-      var ico = document.querySelector('#ynav-theme-btn .ynav-theme-ico');
-      var btn = document.getElementById('ynav-theme-btn');
-      if (ico) ico.textContent = light ? '🌙' : '☀';   // показываем, КУДА переключит
-      if (btn) btn.setAttribute('title', light ? 'Включить тёмную тему' : 'Включить светлую тему');
-    }
-    var btn = document.getElementById('ynav-theme-btn');
-    if (btn) btn.addEventListener('click', function(){
-      var next = !isLight();
-      try { localStorage.setItem(KEY, next ? 'light' : 'dark'); } catch(_){}
-      paint();
-    });
-    paint();
-  })();
-</script>
+<script src="core/site-nav.js?v=nav5"></script>
+<script>window.SiteNav && SiteNav.mount('site-nav', 'trainers');</script>
 
 <main class="neg-wrap">
 

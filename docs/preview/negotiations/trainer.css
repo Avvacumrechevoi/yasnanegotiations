@@ -827,7 +827,7 @@
 .neg-cat-card.is-reco { border-color: #2FBF71; }
 
 /* ═══════════════════════════════════════════════════════════════════
-   LIGHT THEME — body.neg-light
+   LIGHT THEME — html[data-theme='light']
    Token overrides + every hardcoded-color override from trainer.css.
    Paste AFTER the inline :root and after trainer.css is loaded.
 
@@ -842,7 +842,7 @@
      blue   #1F6FCB  (white 5.01)  / accent-hover #0058B8 (white 6.80)
    ═══════════════════════════════════════════════════════════════════ */
 
-body.neg-light {
+html[data-theme='light'] {
   --bg-base:        #F5F5F7;
   --bg-surface:     #FFFFFF;
   --bg-elevated:    #FFFFFF;
@@ -867,97 +867,97 @@ body.neg-light {
 }
 
 /* page background (replaces dark radial-gradient on html/body) */
-body.neg-light {
+html[data-theme='light'] {
   background:
     radial-gradient(ellipse 80% 60% at 50% 20%, rgba(0, 119, 255, 0.06) 0%, transparent 60%),
     var(--bg-base);
 }
 
 /* eyebrow / accent-tinted pill borders — slightly stronger on white */
-body.neg-light .neg-eyebrow { border-color: rgba(0,119,255,0.28); }
+html[data-theme='light'] .neg-eyebrow { border-color: rgba(0,119,255,0.28); }
 
 /* ── гид по дуге: per-phase accent vars used as TEXT (badge, lbl--you, dot) ── */
-body.neg-light .neg-guide-seg--вход       { --gcol: #006B7D; }
-body.neg-light .neg-guide-seg--нарастание { --gcol: var(--accent-hover); }
-body.neg-light .neg-guide-seg--вершина    { --gcol: #8A6100; }
-body.neg-light .neg-guide-seg--спад       { --gcol: #7C45D6; }
-body.neg-light .neg-guide-seg--итог       { --gcol: #147A3C; }
-body.neg-light .neg-guide-card--вход       { --gcol: #006B7D; }
-body.neg-light .neg-guide-card--нарастание { --gcol: var(--accent-hover); }
-body.neg-light .neg-guide-card--вершина    { --gcol: #8A6100; }
-body.neg-light .neg-guide-card--спад       { --gcol: #7C45D6; }
-body.neg-light .neg-guide-card--итог       { --gcol: #147A3C; }
+html[data-theme='light'] .neg-guide-seg--вход       { --gcol: #006B7D; }
+html[data-theme='light'] .neg-guide-seg--нарастание { --gcol: var(--accent-hover); }
+html[data-theme='light'] .neg-guide-seg--вершина    { --gcol: #8A6100; }
+html[data-theme='light'] .neg-guide-seg--спад       { --gcol: #7C45D6; }
+html[data-theme='light'] .neg-guide-seg--итог       { --gcol: #147A3C; }
+html[data-theme='light'] .neg-guide-card--вход       { --gcol: #006B7D; }
+html[data-theme='light'] .neg-guide-card--нарастание { --gcol: var(--accent-hover); }
+html[data-theme='light'] .neg-guide-card--вершина    { --gcol: #8A6100; }
+html[data-theme='light'] .neg-guide-card--спад       { --gcol: #7C45D6; }
+html[data-theme='light'] .neg-guide-card--итог       { --gcol: #147A3C; }
 /* badge bg was a subtle white tint (rgba(255,255,255,.05)) → invisible on
    white; swap to a light grey tint so the pill reads */
-body.neg-light .neg-guide-badge { background: rgba(0,0,0,.04); }
+html[data-theme='light'] .neg-guide-badge { background: rgba(0,0,0,.04); }
 
 /* ── карта 12 стадий: per-group left-border (decorative ≥3:1 ok) + num TEXT ── */
-body.neg-light .neg-stage--вход      { border-left-color: #006B7D; }
-body.neg-light .neg-stage--вершина   { border-left-color: #8A6100; }
-body.neg-light .neg-stage--спад      { border-left-color: #7C45D6; }
-body.neg-light .neg-stage--итог      { border-left-color: #147A3C; }
-body.neg-light .neg-stage--вход      .neg-stage-num { color: #006B7D; }
-body.neg-light .neg-stage--вершина   .neg-stage-num { color: #8A6100; }
-body.neg-light .neg-stage--итог      .neg-stage-num { color: #147A3C; }
+html[data-theme='light'] .neg-stage--вход      { border-left-color: #006B7D; }
+html[data-theme='light'] .neg-stage--вершина   { border-left-color: #8A6100; }
+html[data-theme='light'] .neg-stage--спад      { border-left-color: #7C45D6; }
+html[data-theme='light'] .neg-stage--итог      { border-left-color: #147A3C; }
+html[data-theme='light'] .neg-stage--вход      .neg-stage-num { color: #006B7D; }
+html[data-theme='light'] .neg-stage--вершина   .neg-stage-num { color: #8A6100; }
+html[data-theme='light'] .neg-stage--итог      .neg-stage-num { color: #147A3C; }
 
 /* ── памятка: режим-маркеры (left-border only) ── */
-body.neg-light .neg-memo-mode--ok  { border-left-color: #147A3C; }
-body.neg-light .neg-memo-mode--mid { border-left-color: #8A6100; }
-body.neg-light .neg-memo-mode--no  { border-left-color: #B5371F; }
+html[data-theme='light'] .neg-memo-mode--ok  { border-left-color: #147A3C; }
+html[data-theme='light'] .neg-memo-mode--mid { border-left-color: #8A6100; }
+html[data-theme='light'] .neg-memo-mode--no  { border-left-color: #B5371F; }
 
 /* ── ситуационный экзамен: вариант-чипы (tinted bg + readable border) ── */
-body.neg-light .neg-ex-opt.is-good { border-color: #147A3C; background: rgba(47,191,113,.16); }
-body.neg-light .neg-ex-opt.is-mid  { border-color: #8A6100; background: rgba(224,169,59,.18); }
-body.neg-light .neg-ex-opt.is-bad  { border-color: #B5371F; background: rgba(226,96,74,.14); }
+html[data-theme='light'] .neg-ex-opt.is-good { border-color: #147A3C; background: rgba(47,191,113,.16); }
+html[data-theme='light'] .neg-ex-opt.is-mid  { border-color: #8A6100; background: rgba(224,169,59,.18); }
+html[data-theme='light'] .neg-ex-opt.is-bad  { border-color: #B5371F; background: rgba(226,96,74,.14); }
 /* feedback verdict TEXT (on white card) */
-body.neg-light .neg-ex-fb.is-good .neg-ex-fb-v { color: #147A3C; }
-body.neg-light .neg-ex-fb.is-mid  .neg-ex-fb-v { color: #8A6100; }
-body.neg-light .neg-ex-fb.is-bad  .neg-ex-fb-v { color: #B5371F; }
+html[data-theme='light'] .neg-ex-fb.is-good .neg-ex-fb-v { color: #147A3C; }
+html[data-theme='light'] .neg-ex-fb.is-mid  .neg-ex-fb-v { color: #8A6100; }
+html[data-theme='light'] .neg-ex-fb.is-bad  .neg-ex-fb-v { color: #B5371F; }
 /* «как лучше» врезка: green text on 10% green tint */
-body.neg-light .neg-ex-fb-good   { background: rgba(47,191,113,.10); border-left-color: #147A3C; }
-body.neg-light .neg-ex-fb-good b { color: #147A3C; }
+html[data-theme='light'] .neg-ex-fb-good   { background: rgba(47,191,113,.10); border-left-color: #147A3C; }
+html[data-theme='light'] .neg-ex-fb-good b { color: #147A3C; }
 
 /* ── дрилл: варианты ── */
-body.neg-light .neg-opt.is-correct { border-color: #147A3C; background: rgba(47,191,113,.16); }
+html[data-theme='light'] .neg-opt.is-correct { border-color: #147A3C; background: rgba(47,191,113,.16); }
 /* solid green badge: white text needs #147A3C (white-on-#1F8F50 = 4.12 FAIL) */
-body.neg-light .neg-opt.is-correct .neg-opt-num { background: #147A3C; color: #FFFFFF; }
-body.neg-light .neg-opt.is-wrong { border-color: #B5371F; background: rgba(255,92,92,.12); }
-body.neg-light .neg-drill-fb.is-ok .neg-fb-verdict { color: #147A3C; }
-body.neg-light .neg-drill-fb.is-no .neg-fb-verdict { color: #B5371F; }
+html[data-theme='light'] .neg-opt.is-correct .neg-opt-num { background: #147A3C; color: #FFFFFF; }
+html[data-theme='light'] .neg-opt.is-wrong { border-color: #B5371F; background: rgba(255,92,92,.12); }
+html[data-theme='light'] .neg-drill-fb.is-ok .neg-fb-verdict { color: #147A3C; }
+html[data-theme='light'] .neg-drill-fb.is-no .neg-fb-verdict { color: #B5371F; }
 
 /* ── тренажёр «Вход в контакт»: 4 типа — --tcol used as TEXT (.neg-c-type-id, lbl) ── */
-body.neg-light .neg-c-type--ХА { --tcol: #B5481F; }
-body.neg-light .neg-c-type--ФО { --tcol: #1F6FCB; }
-body.neg-light .neg-c-type--ЦИ { --tcol: #7C45D6; }
-body.neg-light .neg-c-type--ШЭ { --tcol: #147A3C; }
-body.neg-light .neg-c-type-lbl--no { color: #B5371F; }
+html[data-theme='light'] .neg-c-type--ХА { --tcol: #B5481F; }
+html[data-theme='light'] .neg-c-type--ФО { --tcol: #1F6FCB; }
+html[data-theme='light'] .neg-c-type--ЦИ { --tcol: #7C45D6; }
+html[data-theme='light'] .neg-c-type--ШЭ { --tcol: #147A3C; }
+html[data-theme='light'] .neg-c-type-lbl--no { color: #B5371F; }
 /* type-answer buttons */
-body.neg-light .neg-c-typebtn.is-correct { border-color: #147A3C; background: rgba(43,181,115,.16); }
-body.neg-light .neg-c-typebtn.is-wrong   { border-color: #B5371F; background: rgba(226,96,74,.14); }
+html[data-theme='light'] .neg-c-typebtn.is-correct { border-color: #147A3C; background: rgba(43,181,115,.16); }
+html[data-theme='light'] .neg-c-typebtn.is-wrong   { border-color: #B5371F; background: rgba(226,96,74,.14); }
 /* open-answer buttons */
-body.neg-light .neg-c-openbtn.is-resonate { border-color: #147A3C; background: rgba(43,181,115,.16); }
-body.neg-light .neg-c-openbtn.is-neutral  { border-color: #8A6100; background: rgba(224,169,59,.16); }
-body.neg-light .neg-c-openbtn.is-repel    { border-color: #B5371F; background: rgba(226,96,74,.16); }
+html[data-theme='light'] .neg-c-openbtn.is-resonate { border-color: #147A3C; background: rgba(43,181,115,.16); }
+html[data-theme='light'] .neg-c-openbtn.is-neutral  { border-color: #8A6100; background: rgba(224,169,59,.16); }
+html[data-theme='light'] .neg-c-openbtn.is-repel    { border-color: #B5371F; background: rgba(226,96,74,.16); }
 /* feedback left-borders */
-body.neg-light .neg-c-fb.is-ok  { border-left-color: #147A3C; }
-body.neg-light .neg-c-fb.is-no  { border-left-color: #B5371F; }
-body.neg-light .neg-c-fb.is-mid { border-left-color: #8A6100; }
+html[data-theme='light'] .neg-c-fb.is-ok  { border-left-color: #147A3C; }
+html[data-theme='light'] .neg-c-fb.is-no  { border-left-color: #B5371F; }
+html[data-theme='light'] .neg-c-fb.is-mid { border-left-color: #8A6100; }
 
 /* ── каталог: «готово» номер (green text on 16% green tint) ── */
-body.neg-light .neg-cat-card.is-done .neg-cat-num { background: rgba(47,191,113,.16); color: #147A3C; border-color: rgba(47,191,113,.40); }
+html[data-theme='light'] .neg-cat-card.is-done .neg-cat-num { background: rgba(47,191,113,.16); color: #147A3C; border-color: rgba(47,191,113,.40); }
 /* accent-tinted num border on white */
-body.neg-light .neg-cat-num { border-color: rgba(0,119,255,.28); }
+html[data-theme='light'] .neg-cat-num { border-color: rgba(0,119,255,.28); }
 
 /* ── урок: пример (accent-2 = #006B7D handles border + label via token) ── */
 /* takeaway: 10% green tint, green label + bold text */
-body.neg-light .neg-l-takeaway     { background: rgba(47,191,113,.10); border-color: rgba(47,191,113,.30); }
-body.neg-light .neg-l-takeaway-lbl   { color: #147A3C; }
-body.neg-light .neg-l-takeaway-txt b { color: #147A3C; }
+html[data-theme='light'] .neg-l-takeaway     { background: rgba(47,191,113,.10); border-color: rgba(47,191,113,.30); }
+html[data-theme='light'] .neg-l-takeaway-lbl   { color: #147A3C; }
+html[data-theme='light'] .neg-l-takeaway-txt b { color: #147A3C; }
 
 /* ── гейт «Дальше»: pulse glow + «использован» state ── */
-body.neg-light .neg-gate.is-used { background: rgba(47,191,113,.14); color: #147A3C; }
+html[data-theme='light'] .neg-gate.is-used { background: rgba(47,191,113,.14); color: #147A3C; }
 @media (prefers-reduced-motion: no-preference) {
-  body.neg-light .neg-gate.is-ready { animation: negGatePulseLight 2.2s ease-in-out infinite; }
+  html[data-theme='light'] .neg-gate.is-ready { animation: negGatePulseLight 2.2s ease-in-out infinite; }
 }
 @keyframes negGatePulseLight {
   0%, 100% { box-shadow: 0 4px 16px rgba(0,119,255,.20); }
@@ -965,50 +965,50 @@ body.neg-light .neg-gate.is-used { background: rgba(47,191,113,.14); color: #147
 }
 
 /* ── итог сценария: бейдж (green TEXT on 12% green pill) ── */
-body.neg-light .neg-l-sum-badge { color: #147A3C; background: rgba(47,191,113,.12); border-color: rgba(47,191,113,.32); }
+html[data-theme='light'] .neg-l-sum-badge { color: #147A3C; background: rgba(47,191,113,.12); border-color: rgba(47,191,113,.32); }
 
 /* ── скилл-тег (accent-soft pill, accent-hover bold) ── */
-body.neg-light .neg-l-skilltag { border-color: rgba(0,119,255,.25); }
+html[data-theme='light'] .neg-l-skilltag { border-color: rgba(0,119,255,.25); }
 
 /* ── спарринг: «мой» пузырь + бордюр ── */
-body.neg-light .neg-spar-msg--me .neg-spar-bubble { border-color: rgba(0,119,255,.30); }
+html[data-theme='light'] .neg-spar-msg--me .neg-spar-bubble { border-color: rgba(0,119,255,.30); }
 /* метр настроения: darken gradient stops for visibility on light track */
-body.neg-light .neg-spar-meter-fill { background: linear-gradient(90deg, #B5371F, #8A6100 50%, #147A3C); }
+html[data-theme='light'] .neg-spar-meter-fill { background: linear-gradient(90deg, #B5371F, #8A6100 50%, #147A3C); }
 /* coach inline verdicts (TEXT) */
-body.neg-light .neg-spar-coach--good { color: #147A3C; }
-body.neg-light .neg-spar-coach--bad  { color: #B5371F; }
-body.neg-light .neg-spar-coach--mid  { color: #8A6100; }
+html[data-theme='light'] .neg-spar-coach--good { color: #147A3C; }
+html[data-theme='light'] .neg-spar-coach--bad  { color: #B5371F; }
+html[data-theme='light'] .neg-spar-coach--mid  { color: #8A6100; }
 /* debrief left-borders */
-body.neg-light .neg-spar-debrief--good { border-left-color: #147A3C; }
-body.neg-light .neg-spar-debrief--bad  { border-left-color: #B5371F; }
-body.neg-light .neg-spar-debrief--mid  { border-left-color: #8A6100; }
+html[data-theme='light'] .neg-spar-debrief--good { border-left-color: #147A3C; }
+html[data-theme='light'] .neg-spar-debrief--bad  { border-left-color: #B5371F; }
+html[data-theme='light'] .neg-spar-debrief--mid  { border-left-color: #8A6100; }
 /* BYOK key ok (TEXT) */
-body.neg-light .neg-spar-key-ok { color: #147A3C; }
+html[data-theme='light'] .neg-spar-key-ok { color: #147A3C; }
 /* AI error block (red TEXT on 10% red tint) */
-body.neg-light .neg-spar-aierr { color: #B5371F; background: rgba(226,96,74,.10); border-color: rgba(226,96,74,.30); }
+html[data-theme='light'] .neg-spar-aierr { color: #B5371F; background: rgba(226,96,74,.10); border-color: rgba(226,96,74,.30); }
 /* coach avatar shadow softer on light */
-body.neg-light .neg-coach-av svg { box-shadow: 0 2px 10px rgba(0,119,255,.25); }
+html[data-theme='light'] .neg-coach-av svg { box-shadow: 0 2px 10px rgba(0,119,255,.25); }
 
 /* ── маршрут «ты здесь» ── */
-body.neg-light .neg-route-step.is-done .neg-route-dot { background: rgba(47,191,113,.18); color: #147A3C; border-color: rgba(47,191,113,.42); }
-body.neg-light .neg-route-step.is-here .neg-route-dot { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+html[data-theme='light'] .neg-route-step.is-done .neg-route-dot { background: rgba(47,191,113,.18); color: #147A3C; border-color: rgba(47,191,113,.42); }
+html[data-theme='light'] .neg-route-step.is-here .neg-route-dot { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
 
 /* ── каталог-метки «Вы здесь» (синий) / «Тебе сюда» (зелёный) ── */
-body.neg-light .neg-cat-card.is-here { border-color: var(--accent); background: var(--accent-soft); }
+html[data-theme='light'] .neg-cat-card.is-here { border-color: var(--accent); background: var(--accent-soft); }
 /* .neg-cat-reco is a SOLID green pill carrying white .neg-cat-here text →
    white-on-#1F8F50 = 4.12 (FAIL) and white-on-#2FBF71 = 2.38 (FAIL).
    Use #147A3C so white text clears AA (5.41). */
-body.neg-light .neg-cat-reco         { background: #147A3C; }
-body.neg-light .neg-cat-card.is-reco { border-color: #147A3C; }
+html[data-theme='light'] .neg-cat-reco         { background: #147A3C; }
+html[data-theme='light'] .neg-cat-card.is-reco { border-color: #147A3C; }
 /* .neg-cat-here / .neg-spar-card-rec keep --accent-on white text on --accent
    bg → white-on-#0071E3 = 4.70 ok */
 
 /* ── наставник-карточка (accent-soft bg, light border) ── */
-body.neg-light .neg-l-coach { border-color: rgba(0,119,255,.20); }
+html[data-theme='light'] .neg-l-coach { border-color: rgba(0,119,255,.20); }
 
 /* ── онбординг-оверлей: тёмный скрим → светлее, тени мягче ── */
-body.neg-light .neg-onb      { background: rgba(13,27,42,.45); }
-body.neg-light .neg-onb-card { box-shadow: 0 20px 60px rgba(13,27,42,.20); }
+html[data-theme='light'] .neg-onb      { background: rgba(13,27,42,.45); }
+html[data-theme='light'] .neg-onb-card { box-shadow: 0 20px 60px rgba(13,27,42,.20); }
 
 /* ── мелкие тени, объявленные в трейнере на тёмном ── */
-body.neg-light .neg-hero-cta { box-shadow: 0 6px 22px var(--accent-glow); }
+html[data-theme='light'] .neg-hero-cta { box-shadow: 0 6px 22px var(--accent-glow); }

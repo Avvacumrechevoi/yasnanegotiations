@@ -66,40 +66,24 @@
    (Брейкпоинт совпадает с .hdr-btns/.hdr-mob-tools = 768px.) */
 @media (max-width:768px){ .hdr-switch{ display:none !important; } }
 
-/* ── Тёмный вариант: learn/rating (модификатор .ynav--dark) +
-      тёмная тема игры (theme-vk-dark без vk-light) ── */
-.ynav--dark,
-body.theme-vk-dark:not(.vk-light) .ynav{
+/* ── Тёмный хедер по ЕДИНОМУ ключу темы (html[data-theme='dark']).
+      Светлый — дефолтный .ynav выше. .ynav--dark в разметке оставлен как
+      no-op (тема теперь решается атрибутом, см. core/theme.js). ── */
+html[data-theme='dark'] .ynav{
   background:rgba(20,23,27,.88); border-bottom-color:rgba(255,255,255,.10);
   backdrop-filter:saturate(140%) blur(14px); -webkit-backdrop-filter:saturate(140%) blur(14px); }
-.ynav--dark .ynav-name,
-body.theme-vk-dark:not(.vk-light) .ynav-name{ color:#f5f5f7; }
-.ynav--dark .ynav-item,
-body.theme-vk-dark:not(.vk-light) .ynav-item{ color:#b8b9bf; }
-.ynav--dark .ynav-item:hover,
-body.theme-vk-dark:not(.vk-light) .ynav-item:hover{ background:rgba(255,255,255,.08); color:#fff; }
-.ynav--dark .ynav-item.is-active,
-body.theme-vk-dark:not(.vk-light) .ynav-item.is-active{ color:#fff; background:rgba(45,123,246,.26); }
-.ynav--dark .ynav-login,
-body.theme-vk-dark:not(.vk-light) .ynav-login{ background:transparent; border-color:rgba(255,255,255,.20); color:#f5f5f7; }
+html[data-theme='dark'] .ynav-name{ color:#f5f5f7; }
+html[data-theme='dark'] .ynav-mark{ color:#16A7FF; }
+html[data-theme='dark'] .ynav-item{ color:#b8b9bf; }
+html[data-theme='dark'] .ynav-item:hover{ background:rgba(255,255,255,.08); color:#fff; }
+html[data-theme='dark'] .ynav-item.is-active{ color:#fff; background:rgba(45,123,246,.26); }
+html[data-theme='dark'] .ynav-login{ background:transparent; border-color:rgba(255,255,255,.20); color:#f5f5f7; }
 
-/* ── Кнопка переключения темы (опциональна, opts.theme) ── */
+/* ── Кнопка переключения темы (в шапке на каждой странице) ── */
 .ynav-theme{ flex-shrink:0; width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center;
   border:1px solid #d2d2d7; border-radius:8px; background:#fff; color:#1d1d1f; cursor:pointer;
   font-size:16px; line-height:1; padding:0; transition:border-color .15s, background .15s; }
 .ynav-theme:hover{ border-color:#b8b8be; background:#f5f5f7; }
 .ynav-theme:focus-visible{ outline:2px solid #0071e3; outline-offset:2px; }
-.ynav--dark .ynav-theme{ background:transparent; border-color:rgba(255,255,255,.20); color:#f5f5f7; }
-.ynav--dark .ynav-theme:hover{ background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.32); }
-
-/* ── Светлая тема тренажёра (body.neg-light) — хедер становится светлым ── */
-body.neg-light .ynav--dark{
-  background:rgba(255,255,255,.90); border-bottom-color:rgba(0,0,0,.08); }
-body.neg-light .ynav--dark .ynav-name{ color:#1d1d1f; }
-body.neg-light .ynav--dark .ynav-mark{ color:#0071e3; }
-body.neg-light .ynav--dark .ynav-item{ color:#424245; }
-body.neg-light .ynav--dark .ynav-item:hover{ background:rgba(0,0,0,.05); color:#1d1d1f; }
-body.neg-light .ynav--dark .ynav-item.is-active{ color:#0058b8; background:rgba(0,113,227,.10); }
-body.neg-light .ynav--dark .ynav-login{ background:#fff; border-color:#d2d2d7; color:#1d1d1f; }
-body.neg-light .ynav--dark .ynav-theme{ background:#fff; border-color:#d2d2d7; color:#1d1d1f; }
-body.neg-light .ynav--dark .ynav-theme:hover{ background:#f5f5f7; border-color:#b8b8be; }
+html[data-theme='dark'] .ynav-theme{ background:transparent; border-color:rgba(255,255,255,.20); color:#f5f5f7; }
+html[data-theme='dark'] .ynav-theme:hover{ background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.32); }

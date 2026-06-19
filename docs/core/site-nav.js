@@ -34,18 +34,37 @@
       +   '<span class="ynav-name">Ясна</span>'
       + '</a>'
       + '<nav class="ynav-links" aria-label="Разделы">' + links + '</nav>'
-      + (opts.theme ? THEME_BTN : '')
+      + (opts.theme === false ? '' : THEME_BTN)   // кнопка темы по умолчанию ЕСТЬ на всех страницах
       + '<a class="ynav-login" href="duel.html#login" title="Войти — прогресс на любом устройстве">'
       +   '<span class="ynav-login-av">' + AVATAR_SVG + '</span>'
       +   '<span class="ynav-login-txt">Войти</span>'
       + '</a>';
   }
 
+  // Иконка показывает, КУДА переключит: в тёмной — ☀ (на светлую), в светлой — 🌙.
+  function syncThemeBtn() {
+    var ico = document.querySelector('#ynav-theme-btn .ynav-theme-ico');
+    if (!ico || !window.Theme) return;
+    var dark = window.Theme.resolve() === 'dark';
+    ico.textContent = dark ? '☀' : '🌑';
+    var btn = document.getElementById('ynav-theme-btn');
+    if (btn) btn.setAttribute('title', dark ? 'Включить светлую тему' : 'Включить тёмную тему');
+  }
+
+  function wireTheme() {
+    var btn = document.getElementById('ynav-theme-btn');
+    if (!btn || !window.Theme) return;
+    btn.addEventListener('click', function () { window.Theme.cycle(); });
+    window.Theme.onChange(syncThemeBtn);
+    syncThemeBtn();
+  }
+
   function mount(el, current, opts){
     if (typeof el === 'string') el = document.getElementById(el);
     if (el) el.innerHTML = html(current, opts);
+    wireTheme();
     return el;
   }
 
-  window.SiteNav = { html: html, mount: mount, SECTIONS: SECTIONS };
+  window.SiteNav = { html: html, mount: mount, SECTIONS: SECTIONS, syncThemeBtn: syncThemeBtn };
 })();
