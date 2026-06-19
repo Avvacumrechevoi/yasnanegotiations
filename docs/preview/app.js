@@ -293,7 +293,7 @@ function LessonPicker({onSelectLesson,onClose,completedLessons=[]}){
   };
 
   return(
-    <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#F5F5F7',zIndex:70,display:'flex',flexDirection:'column'}}>
+    <div className="yl-lightscope" style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#F5F5F7',zIndex:70,display:'flex',flexDirection:'column',colorScheme:'light'}}>
       {/* Header */}
       <div style={{padding:'14px 20px',borderBottom:'1px solid #E5E5EA',flexShrink:0,display:'flex',alignItems:'center',gap:10,background:'#fff'}}>
         <div style={{flex:1,minWidth:0}}>
@@ -838,6 +838,20 @@ function App(){
   const[astroMode,setAstroMode] = window.YasnaAstro.useAstroMode();
   const[astroLayers,toggleAstroLayer] = window.YasnaAstro.useAstroLayers();
   const[activeLesson,setActiveLesson]=useState(null);
+  // Уроки и каталог — светлый «документ» (фикс-оверлей на весь экран). В тёмной
+  // теме приложения хрупкий catch-all красил белые карточки в тёмный, но НЕ их
+  // тёмный текст → нечитаемо. Пока открыт урок/каталог, снимаем body.theme-vk-dark
+  // (оверлей всё равно закрывает тёмный фон целиком) — урок рендерится в чистой
+  // светлой палитре. По закрытии тему возвращаем из localStorage. useLayoutEffect —
+  // до отрисовки, чтобы не было вспышки тёмного. См. также .yl-lightscope в CSS.
+  React.useLayoutEffect(()=>{
+    let dark=false; try{dark=localStorage.getItem('yasna_theme_vk_dark')==='1';}catch(_){}
+    if(!dark) return;
+    const open=lessonPicker||!!activeLesson;
+    document.body.classList.toggle('theme-vk-dark',!open);
+    try{document.documentElement.style.colorScheme=open?'light':'dark';}catch(_){}
+    return ()=>{ try{ if(localStorage.getItem('yasna_theme_vk_dark')==='1'){document.body.classList.add('theme-vk-dark');document.documentElement.style.colorScheme='dark';} }catch(_){} };
+  },[lessonPicker,activeLesson]);
   // Прогресс уроков персистится между сессиями (раньше терялся при F5).
   const[completedLessons,setCompletedLessons]=useState(()=>{try{const s=JSON.parse(localStorage.getItem('yasna_completed_lessons_v1'));return Array.isArray(s)?s:[];}catch(_){return[];}});
   useEffect(()=>{try{localStorage.setItem('yasna_completed_lessons_v1',JSON.stringify(completedLessons));}catch(_){}},[completedLessons]);
@@ -1017,7 +1031,7 @@ function App(){
             {/* ТЕМА */}
             <div style={{padding:'12px 16px 6px',fontSize:11,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',color:'#86868b',borderTop:'1px solid #f5f5f7'}}>Тема</div>
             <button onClick={()=>{
-              try{var k='yasna_theme_vk_dark';var on=localStorage.getItem(k)==='1';localStorage.setItem(k,on?'0':'1');document.body.classList.toggle('theme-vk-dark',!on);}catch(_){}
+              try{var k='yasna_theme_vk_dark';var on=localStorage.getItem(k)==='1';localStorage.setItem(k,on?'0':'1');document.body.classList.toggle('theme-vk-dark',!on);document.documentElement.style.colorScheme=(!on)?'dark':'light';}catch(_){}
               setMenu(false);
             }} style={{display:'flex',alignItems:'center',gap:10,width:'100%',padding:'11px 16px',fontSize:14,color:'#1d1d1f',border:'none',background:'#fff',textAlign:'left',cursor:'pointer'}}>
               <span style={{fontSize:15,lineHeight:1}}>{(typeof localStorage!=='undefined'&&localStorage.getItem('yasna_theme_vk_dark')==='1')?'☀':'🌑'}</span>

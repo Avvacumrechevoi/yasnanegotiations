@@ -6,14 +6,17 @@
     "id": "T8",
     "slug": "prana-stihii",
     "title": "Прана и Стихии",
-    "alt_titles": ["Постулат. Пурана", "Звезда Борьбы", "Три Дуги"],
+    "alt_titles": [
+      "Постулат. Пурана",
+      "Звезда Борьбы",
+      "Три Дуги"
+    ],
     "items_range": "535-744",
     "pdf_pages": "62-85",
     "source_file": "Сутки/09_узел_08_прана_стихии_постулат.md",
     "summary": "Узел вводит четвёртый структурный слой Ясны — Праны (Стихии): четыре первоосновы — Земля (ШЕ/ЭЛ), Вода (ФО/ОМ), Воздух (ЦИ/ИНЬ), Огонь (ХА/АНГ); каждый Крест = Единение Четырёх Пран; Праны определяются через Закон Отрицания Отрицания («не не X»); звуковые имена соответствуют артикуляционным классам (зубные/губные/горловые); Праны = состояния вещества при нагревании; чертёж с Лицами Пран = Постулат / Пурана; цикл = Три Дуги; хексаграмма Воды и Огня = Звезда Борьбы; 12 фаз = 4 Праны × 3 фазы.",
     "themes_in_partia": true
   },
-
   "categories": [
     {
       "id": "T8.K1",
@@ -26,27 +29,67 @@
           "kind": "etymology",
           "term": "Прана",
           "quote": "Русское слово было не совсем такого — Прана. Оно было другим. Ему родственны русские слова «Привесь», «Перед», «Прянок», «Стихия», «Спица»… И не русские: «Специя», «Фракция», «Рафинад»…",
-          "source": { "items": [543], "pdf_page": 62 },
+          "source": {
+            "items": [
+              543
+            ],
+            "pdf_page": 62
+          },
           "meta": {
             "is_keystone": true,
-            "related_words": ["Привесь", "Перед", "Прянок", "Стихия", "Спица", "Специя", "Фракция", "Рафинад"]
+            "related_words": [
+              "Привесь",
+              "Перед",
+              "Прянок",
+              "Стихия",
+              "Спица",
+              "Специя",
+              "Фракция",
+              "Рафинад"
+            ]
           },
-          "supports_questions": ["multi-choice", "single-choice"]
+          "supports_questions": [
+            "multi-choice",
+            "single-choice"
+          ]
         },
         {
           "id": "T8.K1.A2",
           "kind": "fact",
           "quote": "Это не так. Считается, что слово и понятие «Прана» взяты из Индуизма или Буддизма. Это не так.",
-          "source": { "items": [541, 542], "pdf_page": 62 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              541,
+              542
+            ],
+            "pdf_page": 62
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         },
         {
           "id": "T8.K1.A3",
           "kind": "postulate",
           "quote": "Если Ясна есть Единение Трёх Крестов, то каждый Крест есть Единение Четырёх Пран.",
-          "source": { "items": [544], "pdf_page": 63 },
-          "meta": { "is_keystone": true, "links": { "see_also": ["T7.K3.A3"] } },
-          "supports_questions": ["fill-blank", "true-false"]
+          "source": {
+            "items": [
+              544
+            ],
+            "pdf_page": 63
+          },
+          "meta": {
+            "is_keystone": true,
+            "links": {
+              "see_also": [
+                "T7.K3.A3"
+              ]
+            }
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T8.K1.A4",
@@ -55,19 +98,44 @@
           "quote": "Всего различных Пран — четыре.",
           "value": 4,
           "unit": "Праны",
-          "source": { "items": [545], "pdf_page": 63 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "fill-blank"]
+          "source": {
+            "items": [
+              545
+            ],
+            "pdf_page": 63
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank"
+          ]
         },
         {
           "id": "T8.K1.A5",
           "kind": "list",
           "term": "Четыре Праны",
           "quote": "Эти Праны есть: 1. Прана Земли. 2. Прана Воды. 3. Прана Воздуха. 4. Прана Огня.",
-          "items_list": ["Прана Земли", "Прана Воды", "Прана Воздуха", "Прана Огня"],
-          "source": { "items": [549], "pdf_page": 63 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["multi-choice", "match-pair"]
+          "items_list": [
+            "Прана Земли",
+            "Прана Воды",
+            "Прана Воздуха",
+            "Прана Огня"
+          ],
+          "source": {
+            "items": [
+              549
+            ],
+            "pdf_page": 63
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "multi-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T8.K1.A6",
@@ -75,9 +143,19 @@
           "term_a": "Прана Огня",
           "term_b": "Прана Воды",
           "quote": "Прана Огня противостоит Пране Воды.",
-          "source": { "items": [555], "pdf_page": 63 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair", "single-choice"]
+          "source": {
+            "items": [
+              555
+            ],
+            "pdf_page": 63
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair",
+            "single-choice"
+          ]
         },
         {
           "id": "T8.K1.A7",
@@ -85,9 +163,19 @@
           "term_a": "Прана Воздуха",
           "term_b": "Прана Земли",
           "quote": "Прана Воздуха противостоит Пране Земли.",
-          "source": { "items": [556], "pdf_page": 63 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair", "single-choice"]
+          "source": {
+            "items": [
+              556
+            ],
+            "pdf_page": 63
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair",
+            "single-choice"
+          ]
         },
         {
           "id": "T8.K1.A8",
@@ -95,9 +183,19 @@
           "term": "Четыре Праны",
           "alt_name": "Четыре Стихии Мира",
           "quote": "«Четыре Праны» Ясны на Запруде сейчас называются «Четыре Стихии Мира».",
-          "source": { "items": [564], "pdf_page": 64 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "match-pair"]
+          "source": {
+            "items": [
+              564
+            ],
+            "pdf_page": 64
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T8.K1.A9",
@@ -105,13 +203,27 @@
           "term": "Три Креста Ясны",
           "alt_name": "Три Гуны / Ганеша",
           "quote": "Три Креста Ясны и индусов называются «Три Гуны». А все вместе они называются «Ганеша».",
-          "source": { "items": [560], "pdf_page": 63 },
-          "meta": { "is_keystone": true, "links": { "see_also": ["T7.K3.A3"] } },
-          "supports_questions": ["match-pair", "single-choice"]
+          "source": {
+            "items": [
+              560
+            ],
+            "pdf_page": 63
+          },
+          "meta": {
+            "is_keystone": true,
+            "links": {
+              "see_also": [
+                "T7.K3.A3"
+              ]
+            }
+          },
+          "supports_questions": [
+            "match-pair",
+            "single-choice"
+          ]
         }
       ]
     },
-
     {
       "id": "T8.K2",
       "slug": "zvukovye-imena",
@@ -129,9 +241,20 @@
             "ЦИ — Воздух",
             "ХА — Огонь"
           ],
-          "source": { "items": [572, 573], "pdf_page": 64 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair", "multi-choice"]
+          "source": {
+            "items": [
+              572,
+              573
+            ],
+            "pdf_page": 64
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair",
+            "multi-choice"
+          ]
         },
         {
           "id": "T8.K2.A2",
@@ -144,9 +267,20 @@
             "ИНЬ — Воздух",
             "АНГ — Огонь"
           ],
-          "source": { "items": [583, 584], "pdf_page": 65 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair", "multi-choice"]
+          "source": {
+            "items": [
+              583,
+              584
+            ],
+            "pdf_page": 65
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair",
+            "multi-choice"
+          ]
         },
         {
           "id": "T8.K2.A3",
@@ -159,9 +293,21 @@
             "Воздух — Зубные мягкие (мягкие Ц, С, З, Л, Д, Т, Н)",
             "Огонь — Горловые Звуки (К, Х, Г)"
           ],
-          "source": { "items": [574, 575, 576, 577], "pdf_page": 64 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair"]
+          "source": {
+            "items": [
+              574,
+              575,
+              576,
+              577
+            ],
+            "pdf_page": 64
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair"
+          ]
         },
         {
           "id": "T8.K2.A4",
@@ -173,27 +319,51 @@
             "Вода — О",
             "Воздух — А"
           ],
-          "source": { "items": [574, 575, 576], "pdf_page": 64 },
-          "supports_questions": ["match-pair"]
+          "source": {
+            "items": [
+              574,
+              575,
+              576
+            ],
+            "pdf_page": 64
+          },
+          "supports_questions": [
+            "match-pair"
+          ]
         },
         {
           "id": "T8.K2.A5",
           "kind": "definition",
           "term": "Глухие Гласы",
           "quote": "ФО, ЦИ, ХА и ШЕ есть проявления Пран «Глухими Гласами», то есть звуками без голоса.",
-          "source": { "items": [582], "pdf_page": 65 },
-          "supports_questions": ["match-pair", "fill-blank"]
+          "source": {
+            "items": [
+              582
+            ],
+            "pdf_page": 65
+          },
+          "supports_questions": [
+            "match-pair",
+            "fill-blank"
+          ]
         },
         {
           "id": "T8.K2.A6",
           "kind": "fact",
           "quote": "В Ясне все буквы есть «Гласы», а «Согласные» называются только составные буквы.",
-          "source": { "items": [581], "pdf_page": 64 },
-          "supports_questions": ["true-false", "single-choice"]
+          "source": {
+            "items": [
+              581
+            ],
+            "pdf_page": 64
+          },
+          "supports_questions": [
+            "true-false",
+            "single-choice"
+          ]
         }
       ]
     },
-
     {
       "id": "T8.K3",
       "slug": "zakon-otritsaniya",
@@ -204,9 +374,19 @@
           "id": "T8.K3.A1",
           "kind": "postulate",
           "quote": "Весь мир есть проявления Пран.",
-          "source": { "items": [598], "pdf_page": 67 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "true-false"]
+          "source": {
+            "items": [
+              598
+            ],
+            "pdf_page": 67
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T8.K3.A2",
@@ -214,9 +394,20 @@
           "term": "Закон Ясны для определения Праны",
           "alt_name": "Закон Отрицания Отрицания / Закон двойного отрицания",
           "quote": "Для объяснения понятия Прана в Ясне есть «Закон Отрицания Отрицания». То есть «Закон двойного отрицания».",
-          "source": { "items": [599], "pdf_page": 67 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "match-pair", "fill-blank"]
+          "source": {
+            "items": [
+              599
+            ],
+            "pdf_page": 67
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "match-pair",
+            "fill-blank"
+          ]
         },
         {
           "id": "T8.K3.A3",
@@ -229,45 +420,96 @@
             "Прана ЦИ = «не не воздух»",
             "Прана ХА = «не не огонь»"
           ],
-          "source": { "items": [600], "pdf_page": 67 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair", "multi-choice"]
+          "source": {
+            "items": [
+              600
+            ],
+            "pdf_page": 67
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair",
+            "multi-choice"
+          ]
         },
         {
           "id": "T8.K3.A4",
           "kind": "definition",
           "term": "Прана ШЕ (Земля)",
           "quote": "Прана ШЕ есть проявления в мире всякого такого, что относится к устойчивого. Проявление Праны ШЕ есть устойчивость, неизменность, определённость.",
-          "source": { "items": [607], "pdf_page": 68 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair", "single-choice", "fill-blank"]
+          "source": {
+            "items": [
+              607
+            ],
+            "pdf_page": 68
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair",
+            "single-choice",
+            "fill-blank"
+          ]
         },
         {
           "id": "T8.K3.A5",
           "kind": "definition",
           "term": "Прана ФО (Вода)",
           "quote": "Прана ФО проявляется в мире движением чего-либо. Перемещением.",
-          "source": { "items": [608], "pdf_page": 68 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair", "single-choice"]
+          "source": {
+            "items": [
+              608
+            ],
+            "pdf_page": 68
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair",
+            "single-choice"
+          ]
         },
         {
           "id": "T8.K3.A6",
           "kind": "definition",
           "term": "Прана ЦИ (Воздух)",
           "quote": "Прана ЦИ есть проявление покоя. Но ЦИ есть проявление покоя неустойчивого. Покоя, всегда готового к изменению, к движению.",
-          "source": { "items": [609], "pdf_page": 68 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair", "single-choice"]
+          "source": {
+            "items": [
+              609
+            ],
+            "pdf_page": 68
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair",
+            "single-choice"
+          ]
         },
         {
           "id": "T8.K3.A7",
           "kind": "definition",
           "term": "Прана ХА (Огонь)",
           "quote": "Прана ХА есть проявление движением. Но в отличие от ФО, ХА есть увеличение, рост, повышение.",
-          "source": { "items": [610], "pdf_page": 68 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair", "single-choice"]
+          "source": {
+            "items": [
+              610
+            ],
+            "pdf_page": 68
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair",
+            "single-choice"
+          ]
         },
         {
           "id": "T8.K3.A8",
@@ -280,8 +522,16 @@
             "ФО — 3 элемента",
             "ШЕ — 4 элемента"
           ],
-          "source": { "items": [605], "pdf_page": 68 },
-          "supports_questions": ["match-pair", "multi-choice"]
+          "source": {
+            "items": [
+              605
+            ],
+            "pdf_page": 68
+          },
+          "supports_questions": [
+            "match-pair",
+            "multi-choice"
+          ]
         },
         {
           "id": "T8.K3.A9",
@@ -295,9 +545,19 @@
             "ХА — подвижная"
           ],
           "is_cyclic": true,
-          "source": { "items": [631], "pdf_page": 70 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["order", "match-pair"]
+          "source": {
+            "items": [
+              631
+            ],
+            "pdf_page": 70
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "order",
+            "match-pair"
+          ]
         },
         {
           "id": "T8.K3.A10",
@@ -310,20 +570,39 @@
             "Воздух — газообразное",
             "Огонь — огненное (плазма)"
           ],
-          "source": { "items": [632, 633], "pdf_page": 70 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair", "multi-choice", "order"]
+          "source": {
+            "items": [
+              632,
+              633
+            ],
+            "pdf_page": 70
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair",
+            "multi-choice",
+            "order"
+          ]
         },
         {
           "id": "T8.K3.A11",
           "kind": "fact",
           "quote": "Если нечто твёрдое нагревать, то сначала оно станет жидким, расплавится, потом эта жидкость станет испаряться, и со временем всё превратится в воздух. А дальше, продолжая нагревать газ, станет чем-то огненным.",
-          "source": { "items": [633], "pdf_page": 70 },
-          "supports_questions": ["true-false", "order"]
+          "source": {
+            "items": [
+              633
+            ],
+            "pdf_page": 70
+          },
+          "supports_questions": [
+            "true-false",
+            "order"
+          ]
         }
       ]
     },
-
     {
       "id": "T8.K4",
       "slug": "postulat-purana",
@@ -333,84 +612,180 @@
         {
           "id": "T8.K4.A1",
           "kind": "name",
-          "term": "Ясна Сутoк с лицами Пран",
+          "term": "Ясна Суток с лицами Пран",
           "alt_name": "Постулат / Пурана / Упа Пурана",
-          "quote": "Такая Ясна Сутoк называется «Постулат» или «Пурана». На санскрите и на ведийском «Постулат» называют «Пурана». Слово «Пурана» есть сжатие по определённым правилам слова «Постулат». Развёрнутое описание всех времён Ясны Сутoк есть «Постулат». Или «Популярин». На санскрите «Упа пурана».",
-          "source": { "items": [635, 636, 641], "pdf_page": 71 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair", "multi-choice", "single-choice"]
+          "quote": "Такая Ясна Суток называется «Постулат» или «Пурана». На санскрите и на ведийском «Постулат» называют «Пурана». Слово «Пурана» есть сжатие по определённым правилам слова «Постулат». Развёрнутое описание всех времён Ясны Суток есть «Постулат». Или «Популярин». На санскрите «Упа пурана».",
+          "source": {
+            "items": [
+              635,
+              636,
+              641
+            ],
+            "pdf_page": 71
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair",
+            "multi-choice",
+            "single-choice"
+          ]
         },
         {
           "id": "T8.K4.A2",
           "kind": "etymology",
           "term": "Постулат",
           "quote": "Это слово имеет отношение к современным словам: «Постулат», «Апостол», «Апостроф», «Эпистолярный», «Постамент», «Литера», «Повесть»…",
-          "source": { "items": [638], "pdf_page": 71 },
-          "meta": {
-            "related_words": ["Постулат", "Апостол", "Апостроф", "Эпистолярный", "Постамент", "Литера", "Повесть"]
+          "source": {
+            "items": [
+              638
+            ],
+            "pdf_page": 71
           },
-          "supports_questions": ["multi-choice"]
+          "meta": {
+            "related_words": [
+              "Постулат",
+              "Апостол",
+              "Апостроф",
+              "Эпистолярный",
+              "Постамент",
+              "Литера",
+              "Повесть"
+            ]
+          },
+          "supports_questions": [
+            "multi-choice"
+          ]
         },
         {
           "id": "T8.K4.A3",
           "kind": "postulate",
-          "quote": "Постулат есть последовательное описание всех времён сyтoк.",
-          "source": { "items": [639], "pdf_page": 71 },
-          "supports_questions": ["fill-blank", "true-false"]
+          "quote": "Постулат есть последовательное описание всех времён суток.",
+          "source": {
+            "items": [
+              639
+            ],
+            "pdf_page": 71
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T8.K4.A4",
           "kind": "postulate",
-          "quote": "Постулат сyтoк есть чертёж Ясны сyтoк.",
-          "source": { "items": [640], "pdf_page": 71 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "true-false"]
+          "quote": "Постулат суток есть чертёж Ясны суток.",
+          "source": {
+            "items": [
+              640
+            ],
+            "pdf_page": 71
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T8.K4.A5",
           "kind": "list",
-          "term": "Три Дуги сyтoк",
+          "term": "Три Дуги суток",
           "quote": "Можно говорить о повелении света на первой дуге Ясны от 1-ФО до 5-ФО. Вторая дуга тепла от 5-ФО до 9-ФО. Со времени Захода Солнца — 9-ФО начинается третья дуга от 9-ФО до 1-ФО.",
           "items_list": [
             "Первая Дуга: 1-ФО → 5-ФО (утренняя, через 3-ХА Выход Солнца)",
             "Вторая Дуга: 5-ФО → 9-ФО (дневная, через 7-ХА Первая Тьма)",
             "Третья Дуга: 9-ФО → 1-ФО (ночная, через 11-ХА Последний Свет)"
           ],
-          "source": { "items": [663, 667, 668], "pdf_page": 75 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["multi-choice", "order"]
+          "source": {
+            "items": [
+              663,
+              667,
+              668
+            ],
+            "pdf_page": 75
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "multi-choice",
+            "order"
+          ]
         },
         {
           "id": "T8.K4.A6",
           "kind": "scheme",
           "term": "Звезда Борьбы",
           "quote": "Если соединить в два треугольника, все Краткие Времена Ясны, то есть соединить все 6 изломов, то получатся треугольники, треугольник Праны ФО и треугольник времён ХА. Эта Ясна есть Ясна Борьбы. На ней сошлись в противоборстве Праны ФО и ХА. То есть сошлись противники — Вода и Огня.",
-          "source": { "items": [697, 698, 699], "pdf_page": 80 },
-          "meta": { "is_keystone": true, "references_illustration": "T8.I7" },
-          "supports_questions": ["single-choice", "match-pair"]
+          "source": {
+            "items": [
+              697,
+              698,
+              699
+            ],
+            "pdf_page": 80
+          },
+          "meta": {
+            "is_keystone": true,
+            "references_illustration": "T8.I7"
+          },
+          "supports_questions": [
+            "single-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T8.K4.A7",
           "kind": "list",
           "term": "Имена Звезды Борьбы",
           "quote": "У этой Ясны нет широко известного названия. Она так и называется — «Звезда Борьбы». Ещё одно — «Звезда Одинцы» (с ударением на «О»), «Звезда Индры», «Звезда Найвия».",
-          "items_list": ["Звезда Борьбы", "Звезда Одинцы", "Звезда Индры", "Звезда Найвия"],
-          "source": { "items": [700], "pdf_page": 80 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["multi-choice"]
+          "items_list": [
+            "Звезда Борьбы",
+            "Звезда Одинцы",
+            "Звезда Индры",
+            "Звезда Найвия"
+          ],
+          "source": {
+            "items": [
+              700
+            ],
+            "pdf_page": 80
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "multi-choice"
+          ]
         },
         {
           "id": "T8.K4.A8",
           "kind": "list",
           "term": "Три времени Праны ШЕ",
           "quote": "В сутках есть три времени ШЕ. Праны ШЕ есть долгие времена: 1. Время Тьмы. 2. Время Подъёма Солнца. 3. Время Спуска Солнца.",
-          "items_list": ["Тьма Ночи (0)", "Подъём Солнца (4)", "Спуск Солнца (8)"],
-          "source": { "items": [702], "pdf_page": 80 },
-          "supports_questions": ["multi-choice", "match-pair"]
+          "items_list": [
+            "Тьма Ночи (0)",
+            "Подъём Солнца (4)",
+            "Спуск Солнца (8)"
+          ],
+          "source": {
+            "items": [
+              702
+            ],
+            "pdf_page": 80
+          },
+          "supports_questions": [
+            "multi-choice",
+            "match-pair"
+          ]
         }
       ]
     },
-
     {
       "id": "T8.K5",
       "slug": "12-faz-cherez-prany",
@@ -422,51 +797,118 @@
           "kind": "list",
           "term": "Твёрдые (Земные) Времена",
           "quote": "Если Прана ШЕ есть Твёрдость, если это Прана Земли, то времена такие: 1. Ночная Тьма. 2. Подъём Солнца. 3. Спуск Солнца. есть Твёрдые Времена. Или они ещё Земные Времена.",
-          "items_list": ["Ночная Тьма (0)", "Подъём Солнца (4)", "Спуск Солнца (8)"],
-          "source": { "items": [740], "pdf_page": 84 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["multi-choice", "match-pair"]
+          "items_list": [
+            "Ночная Тьма (0)",
+            "Подъём Солнца (4)",
+            "Спуск Солнца (8)"
+          ],
+          "source": {
+            "items": [
+              740
+            ],
+            "pdf_page": 84
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "multi-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T8.K5.A2",
           "kind": "list",
           "term": "Жидкие (Водные) Времена",
-          "quote": "Прана ФО есть Жидкость, это Прана Воды и времена сyтoк: 1. Первый Свет. 2. Последняя Тьма. 3. Заход Солнца. есть Жидкие Времена. Они же Водные Времена.",
-          "items_list": ["Первый Свет (1)", "Последняя Тьма (5)", "Заход Солнца (9)"],
-          "source": { "items": [741], "pdf_page": 84 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["multi-choice", "match-pair"]
+          "quote": "Прана ФО есть Жидкость, это Прана Воды и времена суток: 1. Первый Свет. 2. Последняя Тьма. 3. Заход Солнца. есть Жидкие Времена. Они же Водные Времена.",
+          "items_list": [
+            "Первый Свет (1)",
+            "Последняя Тьма (5)",
+            "Заход Солнца (9)"
+          ],
+          "source": {
+            "items": [
+              741
+            ],
+            "pdf_page": 84
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "multi-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T8.K5.A3",
           "kind": "list",
           "term": "Воздушные Времена",
           "quote": "Прана ЦИ есть Воздух, Газ, Прана Воздуха. Её времена: 1. Утренняя Заря. 2. Светлый День. 3. Вечерние Сумерки. Это Воздушные Времена.",
-          "items_list": ["Утренняя Заря (2)", "Светлый День (6)", "Вечерние Сумерки (10)"],
-          "source": { "items": [742], "pdf_page": 84 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["multi-choice", "match-pair"]
+          "items_list": [
+            "Утренняя Заря (2)",
+            "Светлый День (6)",
+            "Вечерние Сумерки (10)"
+          ],
+          "source": {
+            "items": [
+              742
+            ],
+            "pdf_page": 84
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "multi-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T8.K5.A4",
           "kind": "list",
           "term": "Огненные Времена",
           "quote": "Прана ХА есть Огонь, Прана Пламени, и её времена: 1. Выход Солнца. 2. Первая Тьма. 3. Последний Свет. Это Времена Огненные. Или Пламенные Времена.",
-          "items_list": ["Выход Солнца (3)", "Первая Тьма (7)", "Последний Свет (11)"],
-          "source": { "items": [743], "pdf_page": 84 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["multi-choice", "match-pair"]
+          "items_list": [
+            "Выход Солнца (3)",
+            "Первая Тьма (7)",
+            "Последний Свет (11)"
+          ],
+          "source": {
+            "items": [
+              743
+            ],
+            "pdf_page": 84
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "multi-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T8.K5.A5",
           "kind": "postulate",
-          "quote": "12 фаз сyтoк = 4 Праны × 3 фазы каждой Праны.",
-          "source": { "items": [740, 741, 742, 743], "pdf_page": 84 },
+          "quote": "12 фаз суток = 4 Праны × 3 фазы каждой Праны.",
+          "source": {
+            "items": [
+              740,
+              741,
+              742,
+              743
+            ],
+            "pdf_page": 84
+          },
           "meta": {
             "is_keystone": true,
             "notes": "Содержательное обобщение блока №740-743 — формула распределения."
           },
-          "supports_questions": ["fill-blank", "true-false"]
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T8.K5.A6",
@@ -481,13 +923,19 @@
             "Тьма под водой",
             "Во сне"
           ],
-          "source": { "items": [744], "pdf_page": 85 },
-          "supports_questions": ["multi-choice"]
+          "source": {
+            "items": [
+              744
+            ],
+            "pdf_page": 85
+          },
+          "supports_questions": [
+            "multi-choice"
+          ]
         }
       ]
     }
   ],
-
   "illustrations": [
     {
       "id": "T8.I1",
@@ -495,8 +943,15 @@
       "code": "V-038",
       "pdf_page": 65,
       "caption": "Крест глухих Пран — ФО (вода) / ХА (огонь) / ЦИ (воздух) / ШЕ (земля), расставленных по сторонам света.",
-      "source": { "items": [586], "pdf_page": 65 },
-      "use_cases": ["question-illustration"]
+      "source": {
+        "items": [
+          586
+        ],
+        "pdf_page": 65
+      },
+      "use_cases": [
+        "question-illustration"
+      ]
     },
     {
       "id": "T8.I2",
@@ -504,17 +959,33 @@
       "code": "V-039",
       "pdf_page": 66,
       "caption": "Крест звонких Пран — ИНЬ (воздух, верх) / ЭЛ (земля, низ) / ОМ (вода, лево) / АНГ (огонь, право).",
-      "source": { "items": [587], "pdf_page": 66 },
-      "use_cases": ["question-illustration"]
+      "source": {
+        "items": [
+          587
+        ],
+        "pdf_page": 66
+      },
+      "use_cases": [
+        "question-illustration"
+      ]
     },
     {
       "id": "T8.I3",
       "name": "Опорный Крест через Праны",
       "code": "V-040",
       "pdf_page": 69,
-      "caption": "Опорный Крест Сутoк, где Линия Горизонта разделяет Воздух (вверху) от Земли (внизу), Линия Единства — Свет/Тьма.",
-      "source": { "items": [613, 614, 620], "pdf_page": 69 },
-      "use_cases": ["explainer"]
+      "caption": "Опорный Крест Суток, где Линия Горизонта разделяет Воздух (вверху) от Земли (внизу), Линия Единства — Свет/Тьма.",
+      "source": {
+        "items": [
+          613,
+          614,
+          620
+        ],
+        "pdf_page": 69
+      },
+      "use_cases": [
+        "explainer"
+      ]
     },
     {
       "id": "T8.I4",
@@ -522,26 +993,51 @@
       "code": "V-041",
       "pdf_page": 70,
       "caption": "12-точечная звезда с расставленными Pran-лицами на каждой позиции.",
-      "source": { "items": [627], "pdf_page": 70 },
-      "use_cases": ["question-illustration"]
+      "source": {
+        "items": [
+          627
+        ],
+        "pdf_page": 70
+      },
+      "use_cases": [
+        "question-illustration"
+      ]
     },
     {
       "id": "T8.I5",
       "name": "Постулат / Пурана",
       "code": "V-042",
       "pdf_page": 71,
-      "caption": "Полная Ясна Сутoк с лицами Пран и нумерацией 0–11.",
-      "source": { "items": [634, 635], "pdf_page": 71 },
-      "use_cases": ["theme-cover", "question-illustration"]
+      "caption": "Полная Ясна Суток с лицами Пран и нумерацией 0–11.",
+      "source": {
+        "items": [
+          634,
+          635
+        ],
+        "pdf_page": 71
+      },
+      "use_cases": [
+        "theme-cover",
+        "question-illustration"
+      ]
     },
     {
       "id": "T8.I6",
-      "name": "Три Дуги сyтoк",
+      "name": "Три Дуги суток",
       "code": "V-042b",
       "pdf_page": 75,
-      "caption": "Цикл сyтoк, разделённый на три арки: 1-ФО → 5-ФО, 5-ФО → 9-ФО, 9-ФО → 1-ФО.",
-      "source": { "items": [663, 667, 668], "pdf_page": 75 },
-      "use_cases": ["explainer"]
+      "caption": "Цикл суток, разделённый на три арки: 1-ФО → 5-ФО, 5-ФО → 9-ФО, 9-ФО → 1-ФО.",
+      "source": {
+        "items": [
+          663,
+          667,
+          668
+        ],
+        "pdf_page": 75
+      },
+      "use_cases": [
+        "explainer"
+      ]
     },
     {
       "id": "T8.I7",
@@ -549,11 +1045,21 @@
       "code": "V-043",
       "pdf_page": 80,
       "caption": "Хексаграмма (Звезда Давида) — два пересекающихся треугольника: треугольник точек ФО (Воды) и треугольник точек ХА (Огня). Внутри — спирали инь-ян.",
-      "source": { "items": [697, 698, 699, 700], "pdf_page": 80 },
-      "use_cases": ["theme-cover", "question-illustration"]
+      "source": {
+        "items": [
+          697,
+          698,
+          699,
+          700
+        ],
+        "pdf_page": 80
+      },
+      "use_cases": [
+        "theme-cover",
+        "question-illustration"
+      ]
     }
   ],
-
   "questions": [
     {
       "id": "T8.Q1",
@@ -561,30 +1067,65 @@
       "difficulty": "easy",
       "stem": "Сколько Пран всего в Ясне?",
       "correct": "4",
-      "options": ["3", "4", "5", "12"],
+      "options": [
+        "3",
+        "4",
+        "5",
+        "12"
+      ],
       "explanation": {
         "quote": "Всего различных Пран — четыре.",
-        "source": { "items": [545], "pdf_page": 63 }
+        "source": {
+          "items": [
+            545
+          ],
+          "pdf_page": 63
+        }
       },
-      "source_atoms": ["T8.K1.A4"],
-      "tags": ["number", "core"]
+      "source_atoms": [
+        "T8.K1.A4"
+      ],
+      "tags": [
+        "number",
+        "core"
+      ]
     },
     {
       "id": "T8.Q2",
       "type": "multi-choice",
       "difficulty": "easy",
       "stem": "Перечислите Четыре Праны Ясны",
-      "correct": ["Прана Земли", "Прана Воды", "Прана Воздуха", "Прана Огня"],
+      "correct": [
+        "Прана Земли",
+        "Прана Воды",
+        "Прана Воздуха",
+        "Прана Огня"
+      ],
       "options": [
-        "Прана Земли", "Прана Воды", "Прана Воздуха", "Прана Огня",
-        "Прана Эфира", "Прана Дерева", "Прана Металла"
+        "Прана Земли",
+        "Прана Воды",
+        "Прана Воздуха",
+        "Прана Огня",
+        "Прана Эфира",
+        "Прана Дерева",
+        "Прана Металла"
       ],
       "explanation": {
         "quote": "Эти Праны есть: 1. Прана Земли. 2. Прана Воды. 3. Прана Воздуха. 4. Прана Огня.",
-        "source": { "items": [549], "pdf_page": 63 }
+        "source": {
+          "items": [
+            549
+          ],
+          "pdf_page": 63
+        }
       },
-      "source_atoms": ["T8.K1.A5"],
-      "tags": ["list", "keystone"]
+      "source_atoms": [
+        "T8.K1.A5"
+      ],
+      "tags": [
+        "list",
+        "keystone"
+      ]
     },
     {
       "id": "T8.Q3",
@@ -592,17 +1133,39 @@
       "difficulty": "medium",
       "stem": "Соотнесите Прану и её глухое звуковое имя",
       "correct": [
-        ["Земля", "ШЕ"],
-        ["Вода", "ФО"],
-        ["Воздух", "ЦИ"],
-        ["Огонь", "ХА"]
+        [
+          "Земля",
+          "ШЕ"
+        ],
+        [
+          "Вода",
+          "ФО"
+        ],
+        [
+          "Воздух",
+          "ЦИ"
+        ],
+        [
+          "Огонь",
+          "ХА"
+        ]
       ],
       "explanation": {
         "quote": "1. ШЕ — Земля. 2. ФО — Вода. 3. ЦИ — Воздух. 4. ХА — Огонь.",
-        "source": { "items": [573], "pdf_page": 64 }
+        "source": {
+          "items": [
+            573
+          ],
+          "pdf_page": 64
+        }
       },
-      "source_atoms": ["T8.K2.A1"],
-      "tags": ["pairing", "keystone"]
+      "source_atoms": [
+        "T8.K2.A1"
+      ],
+      "tags": [
+        "pairing",
+        "keystone"
+      ]
     },
     {
       "id": "T8.Q4",
@@ -610,17 +1173,39 @@
       "difficulty": "medium",
       "stem": "Соотнесите Прану и её звонкое звуковое имя",
       "correct": [
-        ["Земля", "ЭЛ"],
-        ["Вода", "ОМ"],
-        ["Воздух", "ИНЬ"],
-        ["Огонь", "АНГ"]
+        [
+          "Земля",
+          "ЭЛ"
+        ],
+        [
+          "Вода",
+          "ОМ"
+        ],
+        [
+          "Воздух",
+          "ИНЬ"
+        ],
+        [
+          "Огонь",
+          "АНГ"
+        ]
       ],
       "explanation": {
         "quote": "ЭЛ — Земля. ОМ — Вода. ИНЬ — Воздух. АНГ — Огонь.",
-        "source": { "items": [584], "pdf_page": 65 }
+        "source": {
+          "items": [
+            584
+          ],
+          "pdf_page": 65
+        }
       },
-      "source_atoms": ["T8.K2.A2"],
-      "tags": ["pairing", "keystone"]
+      "source_atoms": [
+        "T8.K2.A2"
+      ],
+      "tags": [
+        "pairing",
+        "keystone"
+      ]
     },
     {
       "id": "T8.Q5",
@@ -628,16 +1213,37 @@
       "difficulty": "hard",
       "stem": "Соотнесите Прану и её артикуляционный класс",
       "correct": [
-        ["Земля (ШЕ)", "Зубные звуки"],
-        ["Вода (ФО)", "Губные звуки"],
-        ["Огонь (ХА)", "Горловые звуки"]
+        [
+          "Земля (ШЕ)",
+          "Зубные звуки"
+        ],
+        [
+          "Вода (ФО)",
+          "Губные звуки"
+        ],
+        [
+          "Огонь (ХА)",
+          "Горловые звуки"
+        ]
       ],
       "explanation": {
         "quote": "Прана Земли в звуках есть «Зубные Звуки». Прана Воды в звуках есть «Губные Звуки». Прана Огня в звуках есть «Горловые Звуки».",
-        "source": { "items": [574, 575, 577], "pdf_page": 64 }
+        "source": {
+          "items": [
+            574,
+            575,
+            577
+          ],
+          "pdf_page": 64
+        }
       },
-      "source_atoms": ["T8.K2.A3"],
-      "tags": ["pairing", "language"]
+      "source_atoms": [
+        "T8.K2.A3"
+      ],
+      "tags": [
+        "pairing",
+        "language"
+      ]
     },
     {
       "id": "T8.Q6",
@@ -645,27 +1251,59 @@
       "difficulty": "medium",
       "stem": "Какая Прана противостоит Пране Огня?",
       "correct": "Прана Воды",
-      "options": ["Прана Воды", "Прана Воздуха", "Прана Земли", "Прана Эфира"],
+      "options": [
+        "Прана Воды",
+        "Прана Воздуха",
+        "Прана Земли",
+        "Прана Эфира"
+      ],
       "explanation": {
         "quote": "Прана Огня противостоит Пране Воды.",
-        "source": { "items": [555], "pdf_page": 63 }
+        "source": {
+          "items": [
+            555
+          ],
+          "pdf_page": 63
+        }
       },
-      "source_atoms": ["T8.K1.A6"],
-      "tags": ["opposition", "keystone"]
+      "source_atoms": [
+        "T8.K1.A6"
+      ],
+      "tags": [
+        "opposition",
+        "keystone"
+      ]
     },
     {
       "id": "T8.Q7",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "hard",
-      "stem": "В Ясне Прана определяется через Закон _____ Отрицания: «Прана ФО есть «не не вода»».",
+      "stem": "В Ясне Прана определяется через «Закон Отрицания …»: «Прана ФО есть «не не вода»».",
       "correct": "Отрицания",
-      "correct_alternatives": ["двойного"],
       "explanation": {
         "quote": "Для объяснения понятия Прана в Ясне есть «Закон Отрицания Отрицания». То есть «Закон двойного отрицания». Прана ФО есть «не не вода».",
-        "source": { "items": [599, 600], "pdf_page": 67 }
+        "source": {
+          "items": [
+            599,
+            600
+          ],
+          "pdf_page": 67
+        }
       },
-      "source_atoms": ["T8.K3.A2", "T8.K3.A3"],
-      "tags": ["postulate", "keystone"]
+      "source_atoms": [
+        "T8.K3.A2",
+        "T8.K3.A3"
+      ],
+      "tags": [
+        "postulate",
+        "keystone"
+      ],
+      "options": [
+        "Отрицания",
+        "Двойного",
+        "Противоположности",
+        "Стихий"
+      ]
     },
     {
       "id": "T8.Q8",
@@ -673,41 +1311,105 @@
       "difficulty": "medium",
       "stem": "Соотнесите Прану и её ключевую характеристику",
       "correct": [
-        ["ШЕ (Земля)", "устойчивость, неизменность"],
-        ["ФО (Вода)", "движение, перемещение"],
-        ["ЦИ (Воздух)", "неустойчивый покой"],
-        ["ХА (Огонь)", "рост, увеличение"]
+        [
+          "ШЕ (Земля)",
+          "устойчивость, неизменность"
+        ],
+        [
+          "ФО (Вода)",
+          "движение, перемещение"
+        ],
+        [
+          "ЦИ (Воздух)",
+          "неустойчивый покой"
+        ],
+        [
+          "ХА (Огонь)",
+          "рост, увеличение"
+        ]
       ],
       "explanation": {
         "quote": "Прана ШЕ есть устойчивость, неизменность, определённость. Прана ФО проявляется… движением чего-либо. Перемещением. Прана ЦИ есть проявление покоя… неустойчивого. Прана ХА есть проявление движением. ХА есть увеличение, рост, повышение.",
-        "source": { "items": [607, 608, 609, 610], "pdf_page": 68 }
+        "source": {
+          "items": [
+            607,
+            608,
+            609,
+            610
+          ],
+          "pdf_page": 68
+        }
       },
-      "source_atoms": ["T8.K3.A4", "T8.K3.A5", "T8.K3.A6", "T8.K3.A7"],
-      "tags": ["pairing", "keystone"]
+      "source_atoms": [
+        "T8.K3.A4",
+        "T8.K3.A5",
+        "T8.K3.A6",
+        "T8.K3.A7"
+      ],
+      "tags": [
+        "pairing",
+        "keystone"
+      ]
     },
     {
       "id": "T8.Q9",
-      "type": "order",
+      "type": "match-pair",
       "difficulty": "hard",
-      "stem": "Расставьте Праны в порядке состояний вещества при нагревании",
+      "stem": "Соотнесите позицию и элемент Праны в порядке состояний вещества при нагревании",
       "correct": [
+        [
+          "Первое",
+          "Земля — твёрдое"
+        ],
+        [
+          "Второе",
+          "Вода — жидкое"
+        ],
+        [
+          "Третье",
+          "Воздух — газообразное"
+        ],
+        [
+          "Последнее",
+          "Огонь — огненное (плазма)"
+        ]
+      ],
+      "explanation": {
+        "quote": "Земля есть нечто твёрдое. Вода есть нечто жидкое. Воздух есть нечто газообразное. Огонь есть нечто огненное.",
+        "source": {
+          "items": [
+            632,
+            633
+          ],
+          "pdf_page": 70
+        }
+      },
+      "source_atoms": [
+        "T8.K3.A10",
+        "T8.K3.A11"
+      ],
+      "tags": [
+        "process",
+        "keystone"
+      ],
+      "pairsLeft": [
+        "Первое",
+        "Второе",
+        "Третье",
+        "Последнее"
+      ],
+      "pairsRight": [
         "Земля — твёрдое",
         "Вода — жидкое",
         "Воздух — газообразное",
         "Огонь — огненное (плазма)"
-      ],
-      "explanation": {
-        "quote": "Земля есть нечто твёрдое. Вода есть нечто жидкое. Воздух есть нечто газообразное. Огонь есть нечто огненное.",
-        "source": { "items": [632, 633], "pdf_page": 70 }
-      },
-      "source_atoms": ["T8.K3.A10", "T8.K3.A11"],
-      "tags": ["process", "keystone"]
+      ]
     },
     {
       "id": "T8.Q10",
       "type": "single-choice",
       "difficulty": "medium",
-      "stem": "Как ещё называется Ясна Сутoк с расставленными Лицами Пран?",
+      "stem": "Как ещё называется Ясна Суток с расставленными Лицами Пран?",
       "correct": "Постулат / Пурана",
       "options": [
         "Постулат / Пурана",
@@ -716,11 +1418,21 @@
         "Ясная Звезда"
       ],
       "explanation": {
-        "quote": "Такая Ясна Сутoк называется «Постулат» или «Пурана».",
-        "source": { "items": [635], "pdf_page": 71 }
+        "quote": "Такая Ясна Суток называется «Постулат» или «Пурана».",
+        "source": {
+          "items": [
+            635
+          ],
+          "pdf_page": 71
+        }
       },
-      "source_atoms": ["T8.K4.A1"],
-      "tags": ["name", "keystone"]
+      "source_atoms": [
+        "T8.K4.A1"
+      ],
+      "tags": [
+        "name",
+        "keystone"
+      ]
     },
     {
       "id": "T8.Q11",
@@ -736,59 +1448,140 @@
       ],
       "explanation": {
         "quote": "Соединить в два треугольника, все Краткие Времена Ясны… треугольник Праны ФО и треугольник времён ХА. Эта Ясна есть Ясна Борьбы. На ней сошлись в противоборстве Праны ФО и ХА.",
-        "source": { "items": [697, 698], "pdf_page": 80 }
+        "source": {
+          "items": [
+            697,
+            698
+          ],
+          "pdf_page": 80
+        }
       },
-      "source_atoms": ["T8.K4.A6"],
-      "tags": ["scheme", "keystone"]
+      "source_atoms": [
+        "T8.K4.A6"
+      ],
+      "tags": [
+        "scheme",
+        "keystone"
+      ]
     },
     {
       "id": "T8.Q12",
       "type": "multi-choice",
       "difficulty": "hard",
       "stem": "Какие имена носит Звезда Борьбы?",
-      "correct": ["Звезда Борьбы", "Звезда Одинцы", "Звезда Индры", "Звезда Найвия"],
+      "correct": [
+        "Звезда Борьбы",
+        "Звезда Одинцы",
+        "Звезда Индры",
+        "Звезда Найвия"
+      ],
       "options": [
-        "Звезда Борьбы", "Звезда Одинцы", "Звезда Индры", "Звезда Найвия",
-        "Звезда Соломона", "Звезда Эльдорадо", "Звезда Огня"
+        "Звезда Борьбы",
+        "Звезда Одинцы",
+        "Звезда Индры",
+        "Звезда Найвия",
+        "Звезда Соломона",
+        "Звезда Эльдорадо",
+        "Звезда Огня"
       ],
       "explanation": {
         "quote": "Она так и называется — «Звезда Борьбы». Ещё одно — «Звезда Одинцы», «Звезда Индры», «Звезда Найвия».",
-        "source": { "items": [700], "pdf_page": 80 }
+        "source": {
+          "items": [
+            700
+          ],
+          "pdf_page": 80
+        }
       },
-      "source_atoms": ["T8.K4.A7"],
-      "tags": ["name", "list"]
+      "source_atoms": [
+        "T8.K4.A7"
+      ],
+      "tags": [
+        "name",
+        "list"
+      ]
     },
     {
       "id": "T8.Q13",
       "type": "match-pair",
       "difficulty": "hard",
-      "stem": "Соотнесите Прану и её три фазы сyтoк",
+      "stem": "Соотнесите Прану и её три фазы суток",
       "correct": [
-        ["ШЕ — Земля (Твёрдые)", "Тьма Ночи, Подъём, Спуск"],
-        ["ФО — Вода (Жидкие)", "Первый Свет, Последняя Тьма, Заход"],
-        ["ЦИ — Воздух (Воздушные)", "Заря, Светлый День, Сумерки"],
-        ["ХА — Огонь (Огненные)", "Выход Солнца, Первая Тьма, Последний Свет"]
+        [
+          "ШЕ — Земля (Твёрдые)",
+          "Тьма Ночи, Подъём, Спуск"
+        ],
+        [
+          "ФО — Вода (Жидкие)",
+          "Первый Свет, Последняя Тьма, Заход"
+        ],
+        [
+          "ЦИ — Воздух (Воздушные)",
+          "Заря, Светлый День, Сумерки"
+        ],
+        [
+          "ХА — Огонь (Огненные)",
+          "Выход Солнца, Первая Тьма, Последний Свет"
+        ]
       ],
       "explanation": {
         "quote": "Прана ШЕ… Ночная Тьма, Подъём Солнца, Спуск Солнца. Прана ФО… Первый Свет, Последняя Тьма, Заход Солнца. Прана ЦИ… Утренняя Заря, Светлый День, Вечерние Сумерки. Прана ХА… Выход Солнца, Первая Тьма, Последний Свет.",
-        "source": { "items": [740, 741, 742, 743], "pdf_page": 84 }
+        "source": {
+          "items": [
+            740,
+            741,
+            742,
+            743
+          ],
+          "pdf_page": 84
+        }
       },
-      "source_atoms": ["T8.K5.A1", "T8.K5.A2", "T8.K5.A3", "T8.K5.A4"],
-      "tags": ["pairing", "keystone"]
+      "source_atoms": [
+        "T8.K5.A1",
+        "T8.K5.A2",
+        "T8.K5.A3",
+        "T8.K5.A4"
+      ],
+      "tags": [
+        "pairing",
+        "keystone"
+      ]
     },
     {
       "id": "T8.Q14",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "medium",
-      "stem": "12 фаз сyтoк = _____ Праны × _____ фазы каждой.",
+      "stem": "12 фаз суток = … Праны × … фазы каждой.",
       "correct": "4 и 3",
-      "correct_alternatives": ["4, 3", "четыре и три"],
+      "correct_alternatives": [
+        "4, 3",
+        "четыре и три"
+      ],
       "explanation": {
         "quote": "Прана ШЕ … 3 фазы. Прана ФО … 3 фазы. Прана ЦИ … 3 фазы. Прана ХА … 3 фазы. (4 × 3 = 12)",
-        "source": { "items": [740, 741, 742, 743], "pdf_page": 84 }
+        "source": {
+          "items": [
+            740,
+            741,
+            742,
+            743
+          ],
+          "pdf_page": 84
+        }
       },
-      "source_atoms": ["T8.K5.A5"],
-      "tags": ["number", "keystone"]
+      "source_atoms": [
+        "T8.K5.A5"
+      ],
+      "tags": [
+        "number",
+        "keystone"
+      ],
+      "options": [
+        "4 и 3",
+        "6 и 2",
+        "3 и 4",
+        "12 и 1"
+      ]
     },
     {
       "id": "T8.Q15",
@@ -804,10 +1597,19 @@
       ],
       "explanation": {
         "quote": "Три Креста Ясны и индусов называются «Три Гуны». А все вместе они называются «Ганеша».",
-        "source": { "items": [560], "pdf_page": 63 }
+        "source": {
+          "items": [
+            560
+          ],
+          "pdf_page": 63
+        }
       },
-      "source_atoms": ["T8.K1.A9"],
-      "tags": ["name"]
+      "source_atoms": [
+        "T8.K1.A9"
+      ],
+      "tags": [
+        "name"
+      ]
     },
     {
       "id": "T8.Q16",
@@ -817,38 +1619,114 @@
       "correct": false,
       "explanation": {
         "quote": "Считается, что в действие [этого] слова и понятия «Прана» взяты из Индуизма или Буддизма. Это не так. Русское слово было… Ему родственны русские слова «Привесь», «Перед», «Прянок», «Стихия», «Спица»…",
-        "source": { "items": [541, 542, 543], "pdf_page": 62 }
+        "source": {
+          "items": [
+            541,
+            542,
+            543
+          ],
+          "pdf_page": 62
+        }
       },
-      "source_atoms": ["T8.K1.A1", "T8.K1.A2"],
-      "tags": ["etymology"]
+      "source_atoms": [
+        "T8.K1.A1",
+        "T8.K1.A2"
+      ],
+      "tags": [
+        "etymology"
+      ]
     }
   ],
-
   "rejected": [
-    { "item": "536-540", "reason": "Полемический блок о Самочинных Учениях; покрыто T8.K1.A2." },
-    { "item": "544-конец", "reason": "Связочные пункты — переход к Пранам." },
-    { "item": "546-548", "reason": "Перефразировки «каждая Прана = одна из четырёх» — покрыто T8.K1.A4 и T8.K1.A5." },
-    { "item": "550-553", "reason": "Прозаические оговорки о условности Пран — мета-комментарий." },
-    { "item": 554, "reason": "Перефразировка: каждый Крест = две пары Пран." },
-    { "item": "557-559", "reason": "Перефразировка: только так Праны противостоят — покрыто T8.K1.A6, A7." },
-    { "item": "561-563", "reason": "Перефразировка: Крест Пран = Единство и Борьба — покрыто T4.K2.A4." },
-    { "item": "565-567", "reason": "Прозаические замечания о «Запруде» и 4 Стихиях — покрыто T8.K1.A8." },
-    { "item": "568-571", "reason": "Прозаические замечания о появлении противостояний." },
-    { "item": "578-580", "reason": "Полемика о Лингвистике — мета-комментарий." },
-    { "item": "585-592", "reason": "Прозаические замечания о ИНЬ-ЯНЬ; покрыто T8.K2.A2." },
-    { "item": "593-597", "reason": "Промежуточные пояснения о сложности учения о Пранах." },
-    { "item": "601-606", "reason": "Прозаические разъяснения, частично повреждённые скан." },
-    { "item": "611-612", "reason": "Связочные пункты — переход." },
-    { "item": "613-626", "reason": "Подробный разбор Опорного Креста через Праны; покрыто T8.K1.A6, A7 и иллюстрацией T8.I3." },
-    { "item": "627-630", "reason": "Прозаический разбор расстановки Пран; покрыто T8.K3.A9." },
-    { "item": "634, 637, 642", "reason": "Подписи к диаграмме и связочные." },
-    { "item": "643-660", "reason": "Подробное описание 12 фаз через Праны — литературное расширение T8.K5." },
-    { "item": "661-666", "reason": "Прозаическое описание дуг через метафору тепла — покрыто T8.K4.A5." },
-    { "item": "669-696", "reason": "Длинный блок о Радуге, цветах, тонком разборе тепла — анонс отдельного учебника «Радуга»." },
-    { "item": "701-704", "reason": "Прозаические замечания о Звезде Борьбы и Пранах ШЕ — покрыто T8.K4.A7, A8." },
-    { "item": "705-739", "reason": "Подготовительный блок к финальной классификации — постепенное развёртывание T8.K5." }
+    {
+      "item": "536-540",
+      "reason": "Полемический блок о Самочинных Учениях; покрыто T8.K1.A2."
+    },
+    {
+      "item": "544-конец",
+      "reason": "Связочные пункты — переход к Пранам."
+    },
+    {
+      "item": "546-548",
+      "reason": "Перефразировки «каждая Прана = одна из четырёх» — покрыто T8.K1.A4 и T8.K1.A5."
+    },
+    {
+      "item": "550-553",
+      "reason": "Прозаические оговорки о условности Пран — мета-комментарий."
+    },
+    {
+      "item": 554,
+      "reason": "Перефразировка: каждый Крест = две пары Пран."
+    },
+    {
+      "item": "557-559",
+      "reason": "Перефразировка: только так Праны противостоят — покрыто T8.K1.A6, A7."
+    },
+    {
+      "item": "561-563",
+      "reason": "Перефразировка: Крест Пран = Единство и Борьба — покрыто T4.K2.A4."
+    },
+    {
+      "item": "565-567",
+      "reason": "Прозаические замечания о «Запруде» и 4 Стихиях — покрыто T8.K1.A8."
+    },
+    {
+      "item": "568-571",
+      "reason": "Прозаические замечания о появлении противостояний."
+    },
+    {
+      "item": "578-580",
+      "reason": "Полемика о Лингвистике — мета-комментарий."
+    },
+    {
+      "item": "585-592",
+      "reason": "Прозаические замечания о ИНЬ-ЯНЬ; покрыто T8.K2.A2."
+    },
+    {
+      "item": "593-597",
+      "reason": "Промежуточные пояснения о сложности учения о Пранах."
+    },
+    {
+      "item": "601-606",
+      "reason": "Прозаические разъяснения, частично повреждённые скан."
+    },
+    {
+      "item": "611-612",
+      "reason": "Связочные пункты — переход."
+    },
+    {
+      "item": "613-626",
+      "reason": "Подробный разбор Опорного Креста через Праны; покрыто T8.K1.A6, A7 и иллюстрацией T8.I3."
+    },
+    {
+      "item": "627-630",
+      "reason": "Прозаический разбор расстановки Пран; покрыто T8.K3.A9."
+    },
+    {
+      "item": "634, 637, 642",
+      "reason": "Подписи к диаграмме и связочные."
+    },
+    {
+      "item": "643-660",
+      "reason": "Подробное описание 12 фаз через Праны — литературное расширение T8.K5."
+    },
+    {
+      "item": "661-666",
+      "reason": "Прозаическое описание дуг через метафору тепла — покрыто T8.K4.A5."
+    },
+    {
+      "item": "669-696",
+      "reason": "Длинный блок о Радуге, цветах, тонком разборе тепла — анонс отдельного учебника «Радуга»."
+    },
+    {
+      "item": "701-704",
+      "reason": "Прозаические замечания о Звезде Борьбы и Пранах ШЕ — покрыто T8.K4.A7, A8."
+    },
+    {
+      "item": "705-739",
+      "reason": "Подготовительный блок к финальной классификации — постепенное развёртывание T8.K5."
+    }
   ],
-
   "stats": {
     "items_in_range": 210,
     "atoms_count": 40,
@@ -860,19 +1738,29 @@
     "coverage_pct": 65,
     "keystone_count": 30,
     "kind_distribution": {
-      "list": 16, "postulate": 5, "definition": 5, "name": 4,
-      "fact": 3, "etymology": 2, "opposition": 2, "process": 1,
-      "scheme": 1, "number": 1
+      "list": 16,
+      "postulate": 5,
+      "definition": 5,
+      "name": 4,
+      "fact": 3,
+      "etymology": 2,
+      "opposition": 2,
+      "process": 1,
+      "scheme": 1,
+      "number": 1
     },
     "rejected_note": "rejected массив содержит 22 диапазонных записи; реальное число пунктов внутри диапазонов значительно больше (≈150 пунктов). Это сделано для краткости — каждый диапазон поясняет, почему вся группа отброшена. Для строгого audit-trail можно развернуть в индивидуальные записи."
   },
   "changelog": [
-    { "version": "1.1.1", "changes": [
-      "Initial T8: 5 категорий (Четыре Праны / Звуковые имена / Закон Отрицания + характеристики / Постулат, Дуги, Звезда Борьбы / 12 фаз через Праны)",
-      "Самый большой узел Сутки после T4 (210 пунктов). Coverage 65% по диапазонной свёртке rejected.",
-      "Главные находки: 4 Праны = Земля/Вода/Воздух/Огонь со звуковыми именами (глухие+звонкие), Закон Отрицания Отрицания («не не X»), Постулат/Пурана/Упа Пурана как имя чертежа, формула 12 = 4 × 3.",
-      "Keystone-атомов: 28 — высокая плотность, узел центральный для понимания структуры Ясны.",
-      "rejected массив свёрнут в диапазоны (~150 пунктов в 22 записях) для удобочитаемости; технически нарушает строгий audit-trail."
-    ]}
+    {
+      "version": "1.1.1",
+      "changes": [
+        "Initial T8: 5 категорий (Четыре Праны / Звуковые имена / Закон Отрицания + характеристики / Постулат, Дуги, Звезда Борьбы / 12 фаз через Праны)",
+        "Самый большой узел Сутки после T4 (210 пунктов). Coverage 65% по диапазонной свёртке rejected.",
+        "Главные находки: 4 Праны = Земля/Вода/Воздух/Огонь со звуковыми именами (глухие+звонкие), Закон Отрицания Отрицания («не не X»), Постулат/Пурана/Упа Пурана как имя чертежа, формула 12 = 4 × 3.",
+        "Keystone-атомов: 28 — высокая плотность, узел центральный для понимания структуры Ясны.",
+        "rejected массив свёрнут в диапазоны (~150 пунктов в 22 записях) для удобочитаемости; технически нарушает строгий audit-trail."
+      ]
+    }
   ]
 }

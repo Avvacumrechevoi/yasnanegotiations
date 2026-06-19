@@ -6,14 +6,16 @@
     "id": "T6",
     "slug": "chashi-vesy",
     "title": "Чаши, Весы, Истина и Розыгрыш",
-    "alt_titles": ["Силы Света и Тьмы", "Утреннее и Вечернее Сражение"],
+    "alt_titles": [
+      "Силы Света и Тьмы",
+      "Утреннее и Вечернее Сражение"
+    ],
     "items_range": "304-376",
     "pdf_pages": "41-47",
     "source_file": "Сутки/07_узел_06_чаши_весы_истина.md",
     "summary": "Узел переоформляет шестиугольник через метафоры двух чаш (Чаша Неба = Свет = День; Чаша Земли = Тьма = Ночь) и весов с балансиром-горизонтом, делает явной асимметрию двух сражений — Восточного, где свет побеждает истиной, и Западного, где тьма побеждает обманом и коварством (Стрелка/Истина vs Планка/Розыгрыш), и через философское отступление о сне (отдых от страха) и страхе (ожидании) закрывается: это учение не научное, а вненаучное.",
     "themes_in_partia": true
   },
-
   "categories": [
     {
       "id": "T6.K1",
@@ -25,16 +27,34 @@
           "id": "T6.K1.A1",
           "kind": "postulate",
           "quote": "Диаграмма суток, то есть наш чертёж «Орешек Знаний», состоит из двух чаш.",
-          "source": { "items": [307], "pdf_page": 41 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "true-false"]
+          "source": {
+            "items": [
+              307
+            ],
+            "pdf_page": 41
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T6.K1.A2",
           "kind": "fact",
           "quote": "Нижняя чаша ночных времён накрыта перевёрнутой чашей времён дневных.",
-          "source": { "items": [308], "pdf_page": 41 },
-          "supports_questions": ["true-false", "single-choice"]
+          "source": {
+            "items": [
+              308
+            ],
+            "pdf_page": 41
+          },
+          "supports_questions": [
+            "true-false",
+            "single-choice"
+          ]
         },
         {
           "id": "T6.K1.A3",
@@ -42,9 +62,19 @@
           "term": "Чаша Света",
           "alt_name": "Чаша Неба",
           "quote": "Чаша Света — Чаша Неба.",
-          "source": { "items": [309], "pdf_page": 41 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair", "single-choice"]
+          "source": {
+            "items": [
+              309
+            ],
+            "pdf_page": 41
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair",
+            "single-choice"
+          ]
         },
         {
           "id": "T6.K1.A4",
@@ -52,23 +82,47 @@
           "term": "Чаша Тьмы",
           "alt_name": "Чаша Земли",
           "quote": "Чаша Тьмы — Чаша Земли.",
-          "source": { "items": [310], "pdf_page": 41 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair", "single-choice"]
+          "source": {
+            "items": [
+              310
+            ],
+            "pdf_page": 41
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair",
+            "single-choice"
+          ]
         },
         {
           "id": "T6.K1.A5",
           "kind": "fact",
           "quote": "Ночная чаша наполняется Тьмой.",
-          "source": { "items": [311], "pdf_page": 41 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              311
+            ],
+            "pdf_page": 41
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         },
         {
           "id": "T6.K1.A6",
           "kind": "fact",
           "quote": "Дневная чаша наполняется Светом.",
-          "source": { "items": [312], "pdf_page": 41 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              312
+            ],
+            "pdf_page": 41
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         },
         {
           "id": "T6.K1.A7",
@@ -76,12 +130,19 @@
           "term_a": "Чаша Неба (Света, Дня)",
           "term_b": "Чаша Земли (Тьмы, Ночи)",
           "quote": "Чаша Света — Чаша Неба. Чаша Тьмы — Чаша Земли.",
-          "source": { "items": [309, 310], "pdf_page": 41 },
-          "supports_questions": ["match-pair"]
+          "source": {
+            "items": [
+              309,
+              310
+            ],
+            "pdf_page": 41
+          },
+          "supports_questions": [
+            "match-pair"
+          ]
         }
       ]
     },
-
     {
       "id": "T6.K2",
       "slug": "sily-i-srazheniya",
@@ -94,35 +155,75 @@
           "term": "Серединное время Чаши Света",
           "alt_name": "Сила Света",
           "quote": "Серединное время Чаши Света есть время Чистого Света. То есть нижней чаши, называется Сила Тьмы.",
-          "source": { "items": [314], "pdf_page": 42 },
+          "source": {
+            "items": [
+              314
+            ],
+            "pdf_page": 42
+          },
           "meta": {
             "notes": "Реконстр.: Сила Света = Чистый Свет (Дневной Переход); Сила Тьмы = Полная Тьма (Тьма Ночи)."
           },
-          "supports_questions": ["match-pair", "single-choice"]
+          "supports_questions": [
+            "match-pair",
+            "single-choice"
+          ]
         },
         {
           "id": "T6.K2.A2",
           "kind": "fact",
           "quote": "На горизонте, в соединениях Силы Света и Силы Тьмы временами, эти силы встречаются в двух сражениях. Утреннее сражение и вечернее сражение.",
-          "source": { "items": [316], "pdf_page": 42 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "true-false"]
+          "source": {
+            "items": [
+              316
+            ],
+            "pdf_page": 42
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T6.K2.A3",
           "kind": "postulate",
           "quote": "В утреннем сражении между светом и тьмой, в сражении на востоке, свет побеждает тьму. И побеждает её уверенно, быстро, без сомнений, когда точно это произошло.",
-          "source": { "items": [351], "pdf_page": 46 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "true-false", "single-choice"]
+          "source": {
+            "items": [
+              351
+            ],
+            "pdf_page": 46
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false",
+            "single-choice"
+          ]
         },
         {
           "id": "T6.K2.A4",
           "kind": "postulate",
           "quote": "А вот вечернее сражение, на западе, — тут сложнее. Борьба между тьмой и светом здесь продолжается подольше. Начинается она не очень известно, и заканчивается тоже неизвестно, когда. И там борьба не всегда ясна. И хоть тьма здесь и побеждает, в конце концов, но побеждает она свет с помощью обмана, с помощью коварства и чудес.",
-          "source": { "items": [352], "pdf_page": 46 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "true-false", "single-choice"]
+          "source": {
+            "items": [
+              352
+            ],
+            "pdf_page": 46
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false",
+            "single-choice"
+          ]
         },
         {
           "id": "T6.K2.A5",
@@ -130,9 +231,19 @@
           "term_a": "Утреннее Сражение (восток)",
           "term_b": "Вечернее Сражение (запад)",
           "quote": "В утреннем сражении… свет побеждает уверенно, быстро, без сомнений. А вот вечернее сражение, на западе, — тут сложнее… тьма побеждает свет с помощью обмана, с помощью коварства и чудес.",
-          "source": { "items": [351, 352], "pdf_page": 46 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair"]
+          "source": {
+            "items": [
+              351,
+              352
+            ],
+            "pdf_page": 46
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair"
+          ]
         },
         {
           "id": "T6.K2.A6",
@@ -146,20 +257,39 @@
             "Тьма наливается с Запада через Вечерние Сумерки"
           ],
           "is_cyclic": true,
-          "source": { "items": [319, 320, 321, 322], "pdf_page": 42 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["order", "match-pair"]
+          "source": {
+            "items": [
+              319,
+              320,
+              321,
+              322
+            ],
+            "pdf_page": 42
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "order",
+            "match-pair"
+          ]
         },
         {
           "id": "T6.K2.A7",
           "kind": "fact",
           "quote": "Обманчивое, коварное время заката. Коварное время Проявления Тьмы.",
-          "source": { "items": [347], "pdf_page": 45 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              347
+            ],
+            "pdf_page": 45
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         }
       ]
     },
-
     {
       "id": "T6.K3",
       "slug": "vesy",
@@ -170,9 +300,19 @@
           "id": "T6.K3.A1",
           "kind": "postulate",
           "quote": "Всякое сражение, всякая борьба, есть весы. Чья возьмёт? Чья чаша перевесит?",
-          "source": { "items": [325], "pdf_page": 43 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "true-false"]
+          "source": {
+            "items": [
+              325
+            ],
+            "pdf_page": 43
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T6.K3.A2",
@@ -180,27 +320,70 @@
           "term": "Времена Весов",
           "alt_name": "Проявление Света и Проявление Тьмы",
           "quote": "Время Проявление Света и время Проявление Тьмы есть Времена Весов.",
-          "source": { "items": [326, 327], "pdf_page": 43 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "match-pair"]
+          "source": {
+            "items": [
+              326,
+              327
+            ],
+            "pdf_page": 43
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "match-pair"
+          ]
         },
         {
           "id": "T6.K3.A3",
           "kind": "definition",
           "term": "Планка Весов",
           "quote": "Саму планку весов нужно будет поместить на западе.",
-          "source": { "items": [355, 357], "pdf_page": 46 },
-          "meta": { "is_keystone": true, "links": { "see_also": ["T6.K4.A1"] } },
-          "supports_questions": ["match-pair", "single-choice"]
+          "source": {
+            "items": [
+              355,
+              357
+            ],
+            "pdf_page": 46
+          },
+          "meta": {
+            "is_keystone": true,
+            "links": {
+              "see_also": [
+                "T6.K4.A1"
+              ]
+            }
+          },
+          "supports_questions": [
+            "match-pair",
+            "single-choice"
+          ]
         },
         {
           "id": "T6.K3.A4",
           "kind": "definition",
           "term": "Стрелка Весов",
           "quote": "Стрелку и шкалу её нужно будет поместить, напротив, на востоке. Тьма любит и уважает точность. Стрелка будет показывать точное соотношение Тьмы и Света.",
-          "source": { "items": [356, 357], "pdf_page": 46 },
-          "meta": { "is_keystone": true, "links": { "see_also": ["T6.K4.A2"] } },
-          "supports_questions": ["match-pair", "single-choice"]
+          "source": {
+            "items": [
+              356,
+              357
+            ],
+            "pdf_page": 46
+          },
+          "meta": {
+            "is_keystone": true,
+            "links": {
+              "see_also": [
+                "T6.K4.A2"
+              ]
+            }
+          },
+          "supports_questions": [
+            "match-pair",
+            "single-choice"
+          ]
         },
         {
           "id": "T6.K3.A5",
@@ -212,13 +395,24 @@
             "Стрелка Весов = Проявление Света (восток)",
             "Шкала Весов = на востоке (вместе со Стрелкой)"
           ],
-          "source": { "items": [355, 356, 357, 358], "pdf_page": 46 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair"]
+          "source": {
+            "items": [
+              355,
+              356,
+              357,
+              358
+            ],
+            "pdf_page": 46
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair"
+          ]
         }
       ]
     },
-
     {
       "id": "T6.K4",
       "slug": "istina-i-rozygrysh",
@@ -231,12 +425,26 @@
           "term": "Проявление Тьмы",
           "alt_name": "Время Розыгрыша",
           "quote": "Проявление Тьмы есть Время Розыгрыша.",
-          "source": { "items": [361], "pdf_page": 46 },
+          "source": {
+            "items": [
+              361
+            ],
+            "pdf_page": 46
+          },
           "meta": {
             "is_keystone": true,
-            "links": { "see_also": ["T6.K2.A4", "T6.K3.A3"] }
+            "links": {
+              "see_also": [
+                "T6.K2.A4",
+                "T6.K3.A3"
+              ]
+            }
           },
-          "supports_questions": ["match-pair", "single-choice", "fill-blank"]
+          "supports_questions": [
+            "match-pair",
+            "single-choice",
+            "fill-blank"
+          ]
         },
         {
           "id": "T6.K4.A2",
@@ -244,12 +452,26 @@
           "term": "Проявление Света",
           "alt_name": "Время Истины",
           "quote": "Проявление Света есть Время Истины.",
-          "source": { "items": [361], "pdf_page": 46 },
+          "source": {
+            "items": [
+              361
+            ],
+            "pdf_page": 46
+          },
           "meta": {
             "is_keystone": true,
-            "links": { "see_also": ["T6.K2.A3", "T6.K3.A4"] }
+            "links": {
+              "see_also": [
+                "T6.K2.A3",
+                "T6.K3.A4"
+              ]
+            }
           },
-          "supports_questions": ["match-pair", "single-choice", "fill-blank"]
+          "supports_questions": [
+            "match-pair",
+            "single-choice",
+            "fill-blank"
+          ]
         },
         {
           "id": "T6.K4.A3",
@@ -257,35 +479,68 @@
           "term_a": "Время Истины (восток, Проявление Света)",
           "term_b": "Время Розыгрыша (запад, Проявление Тьмы)",
           "quote": "Проявление Тьмы есть Время Розыгрыша. Проявление Света есть Время Истины.",
-          "source": { "items": [361], "pdf_page": 46 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair"]
+          "source": {
+            "items": [
+              361
+            ],
+            "pdf_page": 46
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair"
+          ]
         },
         {
           "id": "T6.K4.A4",
           "kind": "fact",
           "quote": "Из-за преломления лучей, у меня видеть солнце, которое на самом деле уже зашло.",
-          "source": { "items": [344], "pdf_page": 45 },
-          "meta": { "notes": "Атмосферная рефракция — оптический обман на закате; основа метафоры «Розыгрыша»." },
-          "supports_questions": ["true-false", "single-choice"]
+          "source": {
+            "items": [
+              344
+            ],
+            "pdf_page": 45
+          },
+          "meta": {
+            "notes": "Атмосферная рефракция — оптический обман на закате; основа метафоры «Розыгрыша»."
+          },
+          "supports_questions": [
+            "true-false",
+            "single-choice"
+          ]
         },
         {
           "id": "T6.K4.A5",
           "kind": "fact",
           "quote": "Получается, что здесь, в точке заката, что-то происходит. Не само солнце. Оно само заходило не раньше. Я ошибаюсь. И виноват в этом воздух.",
-          "source": { "items": [345], "pdf_page": 45 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              345
+            ],
+            "pdf_page": 45
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         },
         {
           "id": "T6.K4.A6",
           "kind": "rule",
           "quote": "Дело [в том, что] мы не ошибаемся: где видим солнце, там оно и есть. Ошибаемся только на закате.",
-          "source": { "items": [365], "pdf_page": 47 },
-          "supports_questions": ["true-false", "single-choice"]
+          "source": {
+            "items": [
+              365
+            ],
+            "pdf_page": 47
+          },
+          "supports_questions": [
+            "true-false",
+            "single-choice"
+          ]
         }
       ]
     },
-
     {
       "id": "T6.K5",
       "slug": "son-strah-ozhidanie",
@@ -296,40 +551,87 @@
           "id": "T6.K5.A1",
           "kind": "postulate",
           "quote": "Тот, кто всегда безусмерен и всегда и во всём прав, спит. Только тот, кто никогда не делает. Или ничего не говорит. Или отвечает. Спит наяву.",
-          "source": { "items": [367], "pdf_page": 47 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "true-false"]
+          "source": {
+            "items": [
+              367
+            ],
+            "pdf_page": 47
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T6.K5.A2",
           "kind": "postulate",
           "quote": "Сон есть отдых от страха.",
-          "source": { "items": [370], "pdf_page": 47 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "true-false", "single-choice"]
+          "source": {
+            "items": [
+              370
+            ],
+            "pdf_page": 47
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false",
+            "single-choice"
+          ]
         },
         {
           "id": "T6.K5.A3",
           "kind": "postulate",
           "quote": "Всякий страх есть ожидание. Или всякое ожидание есть страх. Жажить, — значит бояться.",
-          "source": { "items": [372], "pdf_page": 47 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "true-false"]
+          "source": {
+            "items": [
+              372
+            ],
+            "pdf_page": 47
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T6.K5.A4",
           "kind": "fact",
           "quote": "А кому бояться нечего и ожидать нечего, тот никогда не спит. Даже, когда спит.",
-          "source": { "items": [373], "pdf_page": 47 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              373
+            ],
+            "pdf_page": 47
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         },
         {
           "id": "T6.K5.A5",
           "kind": "postulate",
           "quote": "Это учение не является научным учением, научным исследованием. Или научным знанием. Хотя и очень на такое похоже.",
-          "source": { "items": [375], "pdf_page": 47 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              375
+            ],
+            "pdf_page": 47
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         },
         {
           "id": "T6.K5.A6",
@@ -337,14 +639,24 @@
           "term": "Учение Ясны (по характеру)",
           "alt_name": "Вненаучное учение",
           "quote": "Это есть глубоко антинаучное учение. Ещё лучше сказать, [то] есть вненаучное учение.",
-          "source": { "items": [376], "pdf_page": 47 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "match-pair", "fill-blank"]
+          "source": {
+            "items": [
+              376
+            ],
+            "pdf_page": 47
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "match-pair",
+            "fill-blank"
+          ]
         }
       ]
     }
   ],
-
   "illustrations": [
     {
       "id": "T6.I1",
@@ -352,8 +664,17 @@
       "code": "V-027",
       "pdf_page": 41,
       "caption": "Шестиугольник, внутри которого видны две чаши: верхняя — Чаша Неба (опрокинутая, с днём); нижняя — Чаша Земли (с ночью). Стыкуются на линии горизонта.",
-      "source": { "items": [307, 308], "pdf_page": 41 },
-      "use_cases": ["theme-cover", "explainer"]
+      "source": {
+        "items": [
+          307,
+          308
+        ],
+        "pdf_page": 41
+      },
+      "use_cases": [
+        "theme-cover",
+        "explainer"
+      ]
     },
     {
       "id": "T6.I2",
@@ -361,8 +682,17 @@
       "code": "V-028",
       "pdf_page": 43,
       "caption": "Шестиугольник трансформирован в Весы — две чаши, подвешенные на горизонтальной планке; стрелка балансира показывает перевес.",
-      "source": { "items": [325, 326, 327], "pdf_page": 43 },
-      "use_cases": ["question-illustration"]
+      "source": {
+        "items": [
+          325,
+          326,
+          327
+        ],
+        "pdf_page": 43
+      },
+      "use_cases": [
+        "question-illustration"
+      ]
     },
     {
       "id": "T6.I3",
@@ -370,8 +700,17 @@
       "code": "V-029",
       "pdf_page": 46,
       "caption": "Шестиугольник, на горизонте — балансирная планка; слева Восточное Утреннее Сражение (свет уверенно побеждает); справа Обманное Вечернее Сражение (тьма побеждает обманом).",
-      "source": { "items": [351, 352], "pdf_page": 46 },
-      "use_cases": ["question-illustration", "theme-cover"]
+      "source": {
+        "items": [
+          351,
+          352
+        ],
+        "pdf_page": 46
+      },
+      "use_cases": [
+        "question-illustration",
+        "theme-cover"
+      ]
     },
     {
       "id": "T6.I4",
@@ -379,11 +718,20 @@
       "code": "V-030",
       "pdf_page": 47,
       "caption": "Шестиугольник с подписями частей весов: «Чаша Неба», «Точка Весов», «Розыгрыш», «Стрелка», «Истина», «Чаша Тьмы», «Шкала», «Весы Игроков».",
-      "source": { "items": [358, 359, 360, 361], "pdf_page": 47 },
-      "use_cases": ["explainer"]
+      "source": {
+        "items": [
+          358,
+          359,
+          360,
+          361
+        ],
+        "pdf_page": 47
+      },
+      "use_cases": [
+        "explainer"
+      ]
     }
   ],
-
   "questions": [
     {
       "id": "T6.Q1",
@@ -399,10 +747,20 @@
       ],
       "explanation": {
         "quote": "Диаграмма суток, то есть наш чертёж «Орешек Знаний», состоит из двух чаш.",
-        "source": { "items": [307], "pdf_page": 41 }
+        "source": {
+          "items": [
+            307
+          ],
+          "pdf_page": 41
+        }
       },
-      "source_atoms": ["T6.K1.A1"],
-      "tags": ["number", "keystone"]
+      "source_atoms": [
+        "T6.K1.A1"
+      ],
+      "tags": [
+        "number",
+        "keystone"
+      ]
     },
     {
       "id": "T6.Q2",
@@ -410,29 +768,65 @@
       "difficulty": "medium",
       "stem": "Соотнесите Чашу и её альтернативное имя",
       "correct": [
-        ["Чаша Света", "Чаша Неба"],
-        ["Чаша Тьмы", "Чаша Земли"]
+        [
+          "Чаша Света",
+          "Чаша Неба"
+        ],
+        [
+          "Чаша Тьмы",
+          "Чаша Земли"
+        ]
       ],
       "explanation": {
         "quote": "Чаша Света — Чаша Неба. Чаша Тьмы — Чаша Земли.",
-        "source": { "items": [309, 310], "pdf_page": 41 }
+        "source": {
+          "items": [
+            309,
+            310
+          ],
+          "pdf_page": 41
+        }
       },
-      "source_atoms": ["T6.K1.A3", "T6.K1.A4"],
-      "tags": ["pairing", "name"]
+      "source_atoms": [
+        "T6.K1.A3",
+        "T6.K1.A4"
+      ],
+      "tags": [
+        "pairing",
+        "name"
+      ]
     },
     {
       "id": "T6.Q3",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "medium",
-      "stem": "В утреннем сражении свет побеждает тьму уверенно, быстро, _____.",
+      "stem": "В утреннем сражении свет побеждает тьму уверенно, быстро, …",
       "correct": "без сомнений",
-      "correct_alternatives": ["без обмана"],
+      "correct_alternatives": [
+        "без обмана"
+      ],
       "explanation": {
         "quote": "В утреннем сражении между светом и тьмой, в сражении на востоке, свет побеждает тьму. И побеждает её уверенно, быстро, без сомнений.",
-        "source": { "items": [351], "pdf_page": 46 }
+        "source": {
+          "items": [
+            351
+          ],
+          "pdf_page": 46
+        }
       },
-      "source_atoms": ["T6.K2.A3"],
-      "tags": ["fact", "keystone"]
+      "source_atoms": [
+        "T6.K2.A3"
+      ],
+      "tags": [
+        "fact",
+        "keystone"
+      ],
+      "options": [
+        "без сомнений",
+        "медленно",
+        "с ожиданием",
+        "постепенно"
+      ]
     },
     {
       "id": "T6.Q4",
@@ -448,26 +842,54 @@
       ],
       "explanation": {
         "quote": "Тьма побеждает свет с помощью обмана, с помощью коварства и чудес.",
-        "source": { "items": [352], "pdf_page": 46 }
+        "source": {
+          "items": [
+            352
+          ],
+          "pdf_page": 46
+        }
       },
-      "source_atoms": ["T6.K2.A4"],
-      "tags": ["fact", "keystone"]
+      "source_atoms": [
+        "T6.K2.A4"
+      ],
+      "tags": [
+        "fact",
+        "keystone"
+      ]
     },
     {
       "id": "T6.Q5",
       "type": "match-pair",
       "difficulty": "medium",
-      "stem": "Соотнесите время сyтoк и его роль в Весах Ясны",
+      "stem": "Соотнесите время суток и его роль в Весах Ясны",
       "correct": [
-        ["Проявление Света (восток)", "Стрелка Весов / Время Истины"],
-        ["Проявление Тьмы (запад)", "Планка Весов / Время Розыгрыша"]
+        [
+          "Проявление Света (восток)",
+          "Стрелка Весов / Время Истины"
+        ],
+        [
+          "Проявление Тьмы (запад)",
+          "Планка Весов / Время Розыгрыша"
+        ]
       ],
       "explanation": {
         "quote": "Проявление Тьмы есть Время Планки Весов. Проявление Света есть время Стрелки Весов. Проявление Тьмы есть Время Розыгрыша. Проявление Света есть Время Истины.",
-        "source": { "items": [357, 361], "pdf_page": 46 }
+        "source": {
+          "items": [
+            357,
+            361
+          ],
+          "pdf_page": 46
+        }
       },
-      "source_atoms": ["T6.K3.A5", "T6.K4.A3"],
-      "tags": ["pairing", "keystone"]
+      "source_atoms": [
+        "T6.K3.A5",
+        "T6.K4.A3"
+      ],
+      "tags": [
+        "pairing",
+        "keystone"
+      ]
     },
     {
       "id": "T6.Q6",
@@ -483,10 +905,20 @@
       ],
       "explanation": {
         "quote": "Проявление Света есть Время Истины.",
-        "source": { "items": [361], "pdf_page": 46 }
+        "source": {
+          "items": [
+            361
+          ],
+          "pdf_page": 46
+        }
       },
-      "source_atoms": ["T6.K4.A2"],
-      "tags": ["name", "keystone"]
+      "source_atoms": [
+        "T6.K4.A2"
+      ],
+      "tags": [
+        "name",
+        "keystone"
+      ]
     },
     {
       "id": "T6.Q7",
@@ -502,10 +934,20 @@
       ],
       "explanation": {
         "quote": "Проявление Тьмы есть Время Розыгрыша.",
-        "source": { "items": [361], "pdf_page": 46 }
+        "source": {
+          "items": [
+            361
+          ],
+          "pdf_page": 46
+        }
       },
-      "source_atoms": ["T6.K4.A1"],
-      "tags": ["name", "keystone"]
+      "source_atoms": [
+        "T6.K4.A1"
+      ],
+      "tags": [
+        "name",
+        "keystone"
+      ]
     },
     {
       "id": "T6.Q8",
@@ -515,112 +957,318 @@
       "correct": true,
       "explanation": {
         "quote": "Из-за преломления лучей, у меня видеть солнце, которое на самом деле уже зашло.",
-        "source": { "items": [344], "pdf_page": 45 }
+        "source": {
+          "items": [
+            344
+          ],
+          "pdf_page": 45
+        }
       },
-      "source_atoms": ["T6.K4.A4"],
-      "tags": ["fact", "atmosphere"]
+      "source_atoms": [
+        "T6.K4.A4"
+      ],
+      "tags": [
+        "fact",
+        "atmosphere"
+      ]
     },
     {
       "id": "T6.Q9",
-      "type": "order",
+      "type": "match-pair",
       "difficulty": "hard",
-      "stem": "Расставьте по порядку четыре канала переливания света и тьмы между чашами (от восхода)",
+      "stem": "Соотнесите позицию и элемент по порядку четыре канала переливания света и тьмы между чашами (от восхода)",
       "correct": [
+        [
+          "Первое",
+          "Тьма выливается через Утреннюю Зарю на восток"
+        ],
+        [
+          "Второе",
+          "Свет наливается с востока через Подъём Солнца"
+        ],
+        [
+          "Третье",
+          "Свет выливается через Спуск Солнца на западе"
+        ],
+        [
+          "Последнее",
+          "Тьма наливается с Запада через Вечерние Сумерки"
+        ]
+      ],
+      "explanation": {
+        "quote": "Тьма из своей Чаши Тьмы выливается через Зарю на восток. Свет из своей Чаши Света выливается через Спуск Солнца на западе. Наливается Чаша Света Светом с востока через Подъём Солнца. Чаша Тьмы наливается Тьмой с Запада через Сумерки.",
+        "source": {
+          "items": [
+            319,
+            320,
+            321,
+            322
+          ],
+          "pdf_page": 42
+        }
+      },
+      "source_atoms": [
+        "T6.K2.A6"
+      ],
+      "tags": [
+        "process",
+        "keystone"
+      ],
+      "pairsLeft": [
+        "Первое",
+        "Второе",
+        "Третье",
+        "Последнее"
+      ],
+      "pairsRight": [
         "Тьма выливается через Утреннюю Зарю на восток",
         "Свет наливается с востока через Подъём Солнца",
         "Свет выливается через Спуск Солнца на западе",
         "Тьма наливается с Запада через Вечерние Сумерки"
-      ],
-      "explanation": {
-        "quote": "Тьма из своей Чаши Тьмы выливается через Зарю на восток. Свет из своей Чаши Света выливается через Спуск Солнца на западе. Наливается Чаша Света Светом с востока через Подъём Солнца. Чаша Тьмы наливается Тьмой с Запада через Сумерки.",
-        "source": { "items": [319, 320, 321, 322], "pdf_page": 42 }
-      },
-      "source_atoms": ["T6.K2.A6"],
-      "tags": ["process", "keystone"]
+      ]
     },
     {
       "id": "T6.Q10",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "easy",
-      "stem": "Сон есть отдых от _____.",
+      "stem": "Сон есть отдых от …",
       "correct": "страха",
       "explanation": {
         "quote": "Сон есть отдых от страха.",
-        "source": { "items": [370], "pdf_page": 47 }
+        "source": {
+          "items": [
+            370
+          ],
+          "pdf_page": 47
+        }
       },
-      "source_atoms": ["T6.K5.A2"],
-      "tags": ["postulate", "keystone"]
+      "source_atoms": [
+        "T6.K5.A2"
+      ],
+      "tags": [
+        "postulate",
+        "keystone"
+      ],
+      "options": [
+        "страха",
+        "дня",
+        "тьмы",
+        "движения"
+      ]
     },
     {
       "id": "T6.Q11",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "medium",
-      "stem": "Всякий страх есть _____. Жить — значит бояться.",
+      "stem": "Всякий страх есть … Жить — значит бояться.",
       "correct": "ожидание",
       "explanation": {
         "quote": "Всякий страх есть ожидание. Или всякое ожидание есть страх. Жажить, — значит бояться.",
-        "source": { "items": [372], "pdf_page": 47 }
+        "source": {
+          "items": [
+            372
+          ],
+          "pdf_page": 47
+        }
       },
-      "source_atoms": ["T6.K5.A3"],
-      "tags": ["postulate", "keystone"]
+      "source_atoms": [
+        "T6.K5.A3"
+      ],
+      "tags": [
+        "postulate",
+        "keystone"
+      ],
+      "options": [
+        "ожидание",
+        "тьма",
+        "покой",
+        "неведение"
+      ]
     },
     {
       "id": "T6.Q12",
       "type": "single-choice",
       "difficulty": "hard",
-      "stem": "Каким автор называет учение Ясны по его характеру?",
+      "stem": "Какое определение характера учения Ясны автор считает самым точным («ещё лучше сказать…»)?",
       "correct": "Вненаучное",
-      "options": ["Научное", "Антинаучное", "Вненаучное", "Религиозное"],
+      "options": [
+        "Научное",
+        "Антинаучное",
+        "Вненаучное",
+        "Религиозное"
+      ],
       "explanation": {
         "quote": "Это есть глубоко антинаучное учение. Ещё лучше сказать, [то] есть вненаучное учение.",
-        "source": { "items": [376], "pdf_page": 47 }
+        "source": {
+          "items": [
+            376
+          ],
+          "pdf_page": 47
+        }
       },
-      "source_atoms": ["T6.K5.A6"],
-      "tags": ["name", "keystone"]
+      "source_atoms": [
+        "T6.K5.A6"
+      ],
+      "tags": [
+        "name",
+        "keystone"
+      ]
     }
   ],
-
   "rejected": [
-    { "item": 304, "reason": "Recap-список из 8 пунктов о уже сказанном; покрыто T2.K3 и T2.K4." },
-    { "item": 305, "reason": "Метакомментарий: «не станем перечислять»." },
-    { "item": 306, "reason": "Альтернативное членение 5+5+2 — покрыто T2.K3.A1 и T6.K1.A2." },
-    { "item": 313, "reason": "Прерванная фраза в скане; реконструкция неоднозначна." },
-    { "item": 315, "reason": "Сильно повреждённый скан; смысл не реконструируется." },
-    { "item": 317, "reason": "Прозаическая ремарка о наступлении света — покрыто T6.K2.A3." },
-    { "item": 318, "reason": "Прозаическая ремарка о Вечернем Сражении — покрыто T6.K2.A4." },
-    { "item": 323, "reason": "Подробное прозаическое описание цикла переливания — покрыто T6.K2.A6 (process)." },
-    { "item": 324, "reason": "Подробное описание цикла Чистого Света — покрыто T6.K2.A6." },
-    { "item": 328, "reason": "Конкретизация о двух плечах — покрыто T6.K1.A7." },
-    { "item": 329, "reason": "Намерение вернуться к весам — служебный переход." },
-    { "item": 330, "reason": "Технический пункт: солнце видно днём — общеизвестное замечание." },
-    { "item": 331, "reason": "О приборах для определения положения солнца — техническая ремарка." },
-    { "item": 332, "reason": "Технический пункт о Переломе к Спуску." },
-    { "item": 333, "reason": "Тех. пункт о точках выхода/захода — покрыто T2.K2.A1." },
-    { "item": 334, "reason": "Тех. ремарка: положение солнца известно днём." },
-    { "item": 335, "reason": "Прерванная грамматически фраза в скане." },
-    { "item": 336, "reason": "Тех. ремарка о расчёте положения солнца ночью." },
-    { "item": 337, "reason": "Конкретизация — точное наблюдение в ночные времена." },
-    { "item": "338-342", "reason": "Блок про точное наблюдение в обсерваториях — техническая часть, мало testable-фактов о Ясне." },
-    { "item": 343, "reason": "Намерение упомянуть «другую ошибку» — служебный переход." },
-    { "item": 346, "reason": "Прерванная фраза о «прогрессо воздух»." },
-    { "item": 348, "reason": "Историческая ремарка о наблюдательных пунктах в древности." },
-    { "item": 349, "reason": "Конкретизация наблюдений в обсерваториях — техническая." },
-    { "item": 350, "reason": "Конкретизация: время заката тоже фиксировали — покрыто T6.K4.A4." },
-    { "item": 353, "reason": "Прерванная фраза в скане о ходе сражения." },
-    { "item": 354, "reason": "Намерение представить весы со шкалой и стрелкой — покрыто T6.K3.A4." },
-    { "item": 358, "reason": "Перефразировка №357 — Проявление Тьмы есть Весы." },
-    { "item": 359, "reason": "Перефразировка №357: «Окончательно: Проявление Тьмы есть Время Весов»." },
-    { "item": 360, "reason": "Перефразировка: «Проявление Тьмы есть Весы»." },
-    { "item": 362, "reason": "Прозаическая ремарка о ходе вечернего сражения — литературная." },
-    { "item": 363, "reason": "Авторская ремарка «А Бог его знает!» — литературная." },
-    { "item": 364, "reason": "Микросвязка («К ним же, кстати говорится»)." },
-    { "item": 366, "reason": "Авторская ремарка: «Если спишь, то не ошибёшься»." },
-    { "item": 368, "reason": "Сильно повреждённый скан о связи совершенства и сна." },
-    { "item": 369, "reason": "Перефразировка №367 — «всегда правый спит»." },
-    { "item": 371, "reason": "Отсылка к №276 — точное место не сходится; покрыто T6.K5.A2." },
-    { "item": 374, "reason": "Закрытие учения — мета-комментарий." }
+    {
+      "item": 304,
+      "reason": "Recap-список из 8 пунктов о уже сказанном; покрыто T2.K3 и T2.K4."
+    },
+    {
+      "item": 305,
+      "reason": "Метакомментарий: «не станем перечислять»."
+    },
+    {
+      "item": 306,
+      "reason": "Альтернативное членение 5+5+2 — покрыто T2.K3.A1 и T6.K1.A2."
+    },
+    {
+      "item": 313,
+      "reason": "Прерванная фраза в скане; реконструкция неоднозначна."
+    },
+    {
+      "item": 315,
+      "reason": "Сильно повреждённый скан; смысл не реконструируется."
+    },
+    {
+      "item": 317,
+      "reason": "Прозаическая ремарка о наступлении света — покрыто T6.K2.A3."
+    },
+    {
+      "item": 318,
+      "reason": "Прозаическая ремарка о Вечернем Сражении — покрыто T6.K2.A4."
+    },
+    {
+      "item": 323,
+      "reason": "Подробное прозаическое описание цикла переливания — покрыто T6.K2.A6 (process)."
+    },
+    {
+      "item": 324,
+      "reason": "Подробное описание цикла Чистого Света — покрыто T6.K2.A6."
+    },
+    {
+      "item": 328,
+      "reason": "Конкретизация о двух плечах — покрыто T6.K1.A7."
+    },
+    {
+      "item": 329,
+      "reason": "Намерение вернуться к весам — служебный переход."
+    },
+    {
+      "item": 330,
+      "reason": "Технический пункт: солнце видно днём — общеизвестное замечание."
+    },
+    {
+      "item": 331,
+      "reason": "О приборах для определения положения солнца — техническая ремарка."
+    },
+    {
+      "item": 332,
+      "reason": "Технический пункт о Переломе к Спуску."
+    },
+    {
+      "item": 333,
+      "reason": "Тех. пункт о точках выхода/захода — покрыто T2.K2.A1."
+    },
+    {
+      "item": 334,
+      "reason": "Тех. ремарка: положение солнца известно днём."
+    },
+    {
+      "item": 335,
+      "reason": "Прерванная грамматически фраза в скане."
+    },
+    {
+      "item": 336,
+      "reason": "Тех. ремарка о расчёте положения солнца ночью."
+    },
+    {
+      "item": 337,
+      "reason": "Конкретизация — точное наблюдение в ночные времена."
+    },
+    {
+      "item": "338-342",
+      "reason": "Блок про точное наблюдение в обсерваториях — техническая часть, мало testable-фактов о Ясне."
+    },
+    {
+      "item": 343,
+      "reason": "Намерение упомянуть «другую ошибку» — служебный переход."
+    },
+    {
+      "item": 346,
+      "reason": "Прерванная фраза о «прогрессо воздух»."
+    },
+    {
+      "item": 348,
+      "reason": "Историческая ремарка о наблюдательных пунктах в древности."
+    },
+    {
+      "item": 349,
+      "reason": "Конкретизация наблюдений в обсерваториях — техническая."
+    },
+    {
+      "item": 350,
+      "reason": "Конкретизация: время заката тоже фиксировали — покрыто T6.K4.A4."
+    },
+    {
+      "item": 353,
+      "reason": "Прерванная фраза в скане о ходе сражения."
+    },
+    {
+      "item": 354,
+      "reason": "Намерение представить весы со шкалой и стрелкой — покрыто T6.K3.A4."
+    },
+    {
+      "item": 358,
+      "reason": "Перефразировка №357 — Проявление Тьмы есть Весы."
+    },
+    {
+      "item": 359,
+      "reason": "Перефразировка №357: «Окончательно: Проявление Тьмы есть Время Весов»."
+    },
+    {
+      "item": 360,
+      "reason": "Перефразировка: «Проявление Тьмы есть Весы»."
+    },
+    {
+      "item": 362,
+      "reason": "Прозаическая ремарка о ходе вечернего сражения — литературная."
+    },
+    {
+      "item": 363,
+      "reason": "Авторская ремарка «А Бог его знает!» — литературная."
+    },
+    {
+      "item": 364,
+      "reason": "Микросвязка («К ним же, кстати говорится»)."
+    },
+    {
+      "item": 366,
+      "reason": "Авторская ремарка: «Если спишь, то не ошибёшься»."
+    },
+    {
+      "item": 368,
+      "reason": "Сильно повреждённый скан о связи совершенства и сна."
+    },
+    {
+      "item": 369,
+      "reason": "Перефразировка №367 — «всегда правый спит»."
+    },
+    {
+      "item": 371,
+      "reason": "Отсылка к №276 — точное место не сходится; покрыто T6.K5.A2."
+    },
+    {
+      "item": 374,
+      "reason": "Закрытие учения — мета-комментарий."
+    }
   ],
-
   "stats": {
     "items_in_range": 73,
     "atoms_count": 31,
@@ -632,18 +1280,27 @@
     "coverage_pct": 45,
     "keystone_count": 21,
     "kind_distribution": {
-      "postulate": 8, "fact": 8, "name": 7, "opposition": 3,
-      "definition": 2, "list": 1, "process": 1, "rule": 1
+      "postulate": 8,
+      "fact": 8,
+      "name": 7,
+      "opposition": 3,
+      "definition": 2,
+      "list": 1,
+      "process": 1,
+      "rule": 1
     }
   },
   "changelog": [
-    { "version": "1.1.1", "changes": [
-      "Initial version T6: 5 категорий (Чаши Неба и Земли / Силы и Сражения / Весы / Истина и Розыгрыш / Сон-Страх-Ожидание + вненаучное)",
-      "Категория «Чаши» по содержанию книги — ДВЕ чаши (Неба и Земли), не пять (правка в реестре спеки оставлена для будущей версии 1.2)",
-      "Главная новая механика: асимметрия Восток/Запад как Истина/Розыгрыш",
-      "Атмосферная рефракция как онтологический «обман Тьмы» (T6.K4.A4) — мост к естествознанию",
-      "Корпусные постулаты T6.K5: Сон=отдых от страха, страх=ожидание, учение Ясны — вненаучное",
-      "Coverage 44% — много технического материала про обсерватории и наблюдение (№330-349) и литературных ремарок"
-    ]}
+    {
+      "version": "1.1.1",
+      "changes": [
+        "Initial version T6: 5 категорий (Чаши Неба и Земли / Силы и Сражения / Весы / Истина и Розыгрыш / Сон-Страх-Ожидание + вненаучное)",
+        "Категория «Чаши» по содержанию книги — ДВЕ чаши (Неба и Земли), не пять (правка в реестре спеки оставлена для будущей версии 1.2)",
+        "Главная новая механика: асимметрия Восток/Запад как Истина/Розыгрыш",
+        "Атмосферная рефракция как онтологический «обман Тьмы» (T6.K4.A4) — мост к естествознанию",
+        "Корпусные постулаты T6.K5: Сон=отдых от страха, страх=ожидание, учение Ясны — вненаучное",
+        "Coverage 44% — много технического материала про обсерватории и наблюдение (№330-349) и литературных ремарок"
+      ]
+    }
   ]
 }

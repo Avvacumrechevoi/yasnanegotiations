@@ -47,7 +47,7 @@
 .neg-guide-seg.is-active .neg-guide-seg-lbl { color: var(--text-primary); }
 .neg-guide-seg:hover .neg-guide-seg-lbl { color: var(--text-secondary); }
 .neg-guide-seg--вход       { --gcol: #00D3E6; }
-.neg-guide-seg--нарастание { --gcol: var(--accent); }
+.neg-guide-seg--нарастание { --gcol: var(--accent-hover); }
 .neg-guide-seg--вершина    { --gcol: #FFB020; }
 .neg-guide-seg--спад       { --gcol: #B07CFF; }
 .neg-guide-seg--итог       { --gcol: #2FBF71; }
@@ -58,7 +58,7 @@
   border-radius: 18px; padding: 20px 22px;
 }
 .neg-guide-card--вход       { --gcol: #00D3E6; }
-.neg-guide-card--нарастание { --gcol: var(--accent); }
+.neg-guide-card--нарастание { --gcol: var(--accent-hover); }
 .neg-guide-card--вершина    { --gcol: #FFB020; }
 .neg-guide-card--спад       { --gcol: #B07CFF; }
 .neg-guide-card--итог       { --gcol: #2FBF71; }
@@ -85,7 +85,7 @@
 .neg-guide-btn--primary:hover { background: var(--accent-hover); }
 .neg-guide-btn--ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border-strong); }
 .neg-guide-btn--ghost:hover:not(:disabled) { color: var(--text-primary); border-color: var(--accent); }
-.neg-guide-btn:disabled { opacity: .35; cursor: default; }
+.neg-guide-btn:disabled { opacity: .5; cursor: default; }
 
 .neg-map-head { margin-top: 32px; }
 
@@ -313,12 +313,12 @@
 .neg-c-type.is-open { background: var(--bg-elevated); border-color: var(--tcol, var(--accent)); }
 .neg-c-type-head { display: flex; align-items: center; gap: 8px; }
 .neg-c-type-glyph { font-size: 18px; }
-.neg-c-type-id { font-weight: 700; color: var(--tcol, var(--accent)); letter-spacing: .04em; }
+.neg-c-type-id { font-weight: 700; color: var(--tcol, var(--accent-hover)); letter-spacing: .04em; }
 .neg-c-type-name { font-size: 12px; color: var(--text-tertiary); }
 .neg-c-type-one { font-size: 13px; color: var(--text-secondary); line-height: 1.45; }
 .neg-c-type-more { display: none; margin-top: 4px; padding-top: 10px; border-top: 1px solid var(--border); }
 .neg-c-type.is-open .neg-c-type-more { display: block; }
-.neg-c-type-lbl { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--tcol, var(--accent)); margin: 8px 0 3px; }
+.neg-c-type-lbl { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--tcol, var(--accent-hover)); margin: 8px 0 3px; }
 .neg-c-type-lbl--no { color: #E2604A; }
 .neg-c-type-more p { font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0; }
 .neg-c-type-cues { margin: 0; padding-left: 16px; }
@@ -544,6 +544,9 @@
   padding: 11px 14px; font: inherit; font-size: 14.5px; line-height: 1.4; color: var(--text-primary); max-height: 120px;
 }
 .neg-spar-ta:focus { outline: none; border-color: var(--accent); }
+/* Плейсхолдеры явно через токен — negotiations.html не грузит vk-tech-tokens.css,
+   а UA-дефолт плейсхолдера на тёмном фоне непредсказуем (Firefox его ещё и гасит). */
+.neg-spar-ta::placeholder, .neg-spar-key-input::placeholder { color: var(--text-tertiary); opacity: 1; }
 .neg-spar-send {
   flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--accent);
   color: var(--accent-on, #fff); font-size: 20px; cursor: pointer; transition: background .15s;

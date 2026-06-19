@@ -28,7 +28,7 @@
 
 <link rel="stylesheet" href="styles.css?v=tabbar1"/>
 <!-- VK Tech Design System — токены (Figma 19:92826) -->
-<link rel="stylesheet" href="vk-tech-tokens.css?v=20"/>
+<link rel="stylesheet" href="vk-tech-tokens.css?v=21"/>
 <!-- VK Dark Theme — точечные правки гида (только preview) -->
 <link rel="stylesheet" href="theme-vk-dark-guide.css?v=8"/>
 <!-- Единый верхний свитчер разделов (Вариант B) -->
@@ -39,6 +39,10 @@
 
 </head>
 <body>
+<!-- color-scheme guard: конструктор по умолчанию СВЕТЛЫЙ. Объявляем схему явно ДО рендера,
+     чтобы системный тёмный режим браузера НЕ перекрашивал светлые карточки принудительно
+     (force-dark делал тёмный текст серым-невидимым). Тёмная тема приложения → colorScheme:dark. -->
+<script>try{var __d=localStorage.getItem('yasna_theme_vk_dark')==='1';if(__d)document.body.classList.add('theme-vk-dark');document.documentElement.style.colorScheme=__d?'dark':'light';}catch(e){}</script>
 <div id="root"></div>
 
 <!-- React + Three.js + PeerJS из CDN — внешние библиотеки -->
@@ -59,7 +63,7 @@
 <!-- Pre-built bundle (см. scripts/build.mjs · npm run build) -->
 <!-- Включает: core/* + lessons/* + tours/* + games/duel/* + app.js -->
 <!-- Без bundle браузер качал бы babel-standalone ~3MB и компилировал JSX в рантайме. -->
-<script src="dist/app.min.js?v=lessonfix1"></script>
+<script src="dist/app.min.js?v=dark2"></script>
 
 <!-- ═══ VK Dark Theme Toggle (только preview) ═══════════════════════
      Переключатель тёмной темы — инжектится прямо в .hdr-btns

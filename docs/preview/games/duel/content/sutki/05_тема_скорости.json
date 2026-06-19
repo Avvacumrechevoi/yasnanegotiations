@@ -6,14 +6,16 @@
     "id": "T5",
     "slug": "skorosti-nakopleniya",
     "title": "Скорости и накопление качества",
-    "alt_titles": ["Лёгкие. Тяжёлые. Времена Ожидания", "Накопление и переход"],
+    "alt_titles": [
+      "Лёгкие. Тяжёлые. Времена Ожидания",
+      "Накопление и переход"
+    ],
     "items_range": "254-303",
     "pdf_pages": "32-41",
     "source_file": "Сутки/06_узел_05_скорости_накопление_качества.md",
     "summary": "Узел переходит от статической геометрии к динамическому слою: завершает половинные противостояния по Линии Единства (5 пар + 2 внутренних противоречия Дня и Ночи), вводит тройную классификацию фаз — Лёгкие (ускорение, Заря и Спуск), Тяжёлые (замедление, Подъём и Сумерки), Времена Ожидания (неизменность, День и Ночь), — и главную новую механику: 6 долгих фаз = 6 накоплений качества, 6 коротких = 6 качественных переходов; в Днях и Ночах копится невидимое — тепло и холод.",
     "themes_in_partia": true
   },
-
   "categories": [
     {
       "id": "T5.K1",
@@ -25,12 +27,28 @@
           "id": "T5.K1.A1",
           "kind": "fact",
           "quote": "А вместо шестой пары будет тоже два внутренних противостояния: наверху внутреннее противоречие Дня, Чистого Света, и внизу внутреннее противоречие Ночи. Или Тьмы.",
-          "source": { "items": [255], "pdf_page": 32 },
+          "source": {
+            "items": [
+              255
+            ],
+            "pdf_page": 32
+          },
           "meta": {
             "is_keystone": true,
-            "links": { "see_also": ["T4.K4.A7"], "prerequisite": ["T4.K4.A2"] }
+            "links": {
+              "see_also": [
+                "T4.K4.A7"
+              ],
+              "prerequisite": [
+                "T4.K4.A2"
+              ]
+            }
           },
-          "supports_questions": ["fill-blank", "true-false", "single-choice"]
+          "supports_questions": [
+            "fill-blank",
+            "true-false",
+            "single-choice"
+          ]
         },
         {
           "id": "T5.K1.A2",
@@ -38,12 +56,18 @@
           "term_a": "Внутреннее противоречие Дня (Чистого Света)",
           "term_b": "Внутреннее противоречие Ночи (Тьмы)",
           "quote": "Наверху внутреннее противоречие Дня, Чистого Света, и внизу внутреннее противоречие Ночи. Или Тьмы.",
-          "source": { "items": [255], "pdf_page": 32 },
-          "supports_questions": ["match-pair"]
+          "source": {
+            "items": [
+              255
+            ],
+            "pdf_page": 32
+          },
+          "supports_questions": [
+            "match-pair"
+          ]
         }
       ]
     },
-
     {
       "id": "T5.K2",
       "slug": "skorosti",
@@ -57,8 +81,16 @@
           "quote": "Свет растёт в пяти временах.",
           "value": 5,
           "unit": "времён роста света",
-          "source": { "items": [261], "pdf_page": 33 },
-          "supports_questions": ["single-choice", "fill-blank"]
+          "source": {
+            "items": [
+              261
+            ],
+            "pdf_page": 33
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank"
+          ]
         },
         {
           "id": "T5.K2.A2",
@@ -73,33 +105,72 @@
             "Перелом ко Дню (предел)"
           ],
           "is_cyclic": false,
-          "source": { "items": [261], "pdf_page": 33 },
-          "supports_questions": ["order", "single-choice"]
+          "source": {
+            "items": [
+              261
+            ],
+            "pdf_page": 33
+          },
+          "supports_questions": [
+            "order",
+            "single-choice"
+          ]
         },
         {
           "id": "T5.K2.A3",
           "kind": "fact",
           "quote": "В начале Утренней Зари свет растёт очень медленно, а в конце её свет нарастает быстро.",
-          "source": { "items": [263], "pdf_page": 34 },
-          "supports_questions": ["true-false", "fill-blank"]
+          "source": {
+            "items": [
+              263
+            ],
+            "pdf_page": 34
+          },
+          "supports_questions": [
+            "true-false",
+            "fill-blank"
+          ]
         },
         {
           "id": "T5.K2.A4",
           "kind": "fact",
           "quote": "У Подъёма Солнца, наоборот: в начале Подъёма Солнца свет нарастает быстро, к концу его еле-еле дотопает до точки Перелома.",
-          "source": { "items": [264], "pdf_page": 34 },
-          "supports_questions": ["true-false", "single-choice"]
+          "source": {
+            "items": [
+              264
+            ],
+            "pdf_page": 34
+          },
+          "supports_questions": [
+            "true-false",
+            "single-choice"
+          ]
         },
         {
           "id": "T5.K2.A5",
           "kind": "postulate",
           "quote": "Самая большая скорость изменения освещённости в сутках — во временах Проявления Света и Проявления Тьмы.",
-          "source": { "items": [269, 270], "pdf_page": 34 },
+          "source": {
+            "items": [
+              269,
+              270
+            ],
+            "pdf_page": 34
+          },
           "meta": {
             "is_keystone": true,
-            "links": { "see_also": ["T2.K2.A16", "T4.K3.A12"] }
+            "links": {
+              "see_also": [
+                "T2.K2.A16",
+                "T4.K3.A12"
+              ]
+            }
           },
-          "supports_questions": ["fill-blank", "single-choice", "true-false"]
+          "supports_questions": [
+            "fill-blank",
+            "single-choice",
+            "true-false"
+          ]
         },
         {
           "id": "T5.K2.A6",
@@ -114,21 +185,40 @@
             "Светлый День — неизменность (0)",
             "Тёмная Ночь — неизменность (0)"
           ],
-          "source": { "items": [273], "pdf_page": 35 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair", "multi-choice"]
+          "source": {
+            "items": [
+              273
+            ],
+            "pdf_page": 35
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair",
+            "multi-choice"
+          ]
         },
         {
           "id": "T5.K2.A7",
           "kind": "rule",
           "quote": "Если ускорение изменения освещённости обозначить знаком «Плюс», замедление — знаком «Минус», а неизменность — знаком «Нолик», то диаграмма, рассматривающая сутки в этом смысле, будет такой.",
-          "source": { "items": [274], "pdf_page": 35 },
-          "meta": { "references_illustration": "T5.I2" },
-          "supports_questions": ["match-pair", "single-choice"]
+          "source": {
+            "items": [
+              274
+            ],
+            "pdf_page": 35
+          },
+          "meta": {
+            "references_illustration": "T5.I2"
+          },
+          "supports_questions": [
+            "match-pair",
+            "single-choice"
+          ]
         }
       ]
     },
-
     {
       "id": "T5.K3",
       "slug": "lyogkie-tyazhyolye-ozhidaniya",
@@ -140,66 +230,137 @@
           "kind": "definition",
           "term": "Лёгкие Времена",
           "quote": "Два времени суток, Утренняя Заря и Спуск Солнца, в которых свет изменяется с ускорением, и где ему изменяться легко, называются «Лёгкие Времена».",
-          "source": { "items": [275], "pdf_page": 35 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "fill-blank", "match-pair"]
+          "source": {
+            "items": [
+              275
+            ],
+            "pdf_page": 35
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank",
+            "match-pair"
+          ]
         },
         {
           "id": "T5.K3.A2",
           "kind": "definition",
           "term": "Тяжёлые Времена",
           "quote": "Два времени суток, Подъём Солнца и Вечерние Сумерки, в которых свет изменяется с замедлением, и где ему, стало быть, изменяться тяжело, называются «Тяжёлые Времена».",
-          "source": { "items": [276], "pdf_page": 35 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "fill-blank", "match-pair"]
+          "source": {
+            "items": [
+              276
+            ],
+            "pdf_page": 35
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank",
+            "match-pair"
+          ]
         },
         {
           "id": "T5.K3.A3",
           "kind": "definition",
           "term": "Времена Ожидания",
           "quote": "Времена Дня и Ночи называют «Времена Ожидания».",
-          "source": { "items": [277], "pdf_page": 35 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["single-choice", "fill-blank", "match-pair"]
+          "source": {
+            "items": [
+              277
+            ],
+            "pdf_page": 35
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "single-choice",
+            "fill-blank",
+            "match-pair"
+          ]
         },
         {
           "id": "T5.K3.A4",
           "kind": "fact",
           "quote": "Заря — лёгкое время. И Проявление Света есть лёгкое достижение Утренней Зари.",
-          "source": { "items": [281], "pdf_page": 36 },
-          "supports_questions": ["true-false", "match-pair"]
+          "source": {
+            "items": [
+              281
+            ],
+            "pdf_page": 36
+          },
+          "supports_questions": [
+            "true-false",
+            "match-pair"
+          ]
         },
         {
           "id": "T5.K3.A5",
           "kind": "fact",
           "quote": "Проявление Тьмы есть лёгкое достижение Вечернего Спуска.",
-          "source": { "items": [284], "pdf_page": 37 },
-          "supports_questions": ["true-false", "match-pair"]
+          "source": {
+            "items": [
+              284
+            ],
+            "pdf_page": 37
+          },
+          "supports_questions": [
+            "true-false",
+            "match-pair"
+          ]
         },
         {
           "id": "T5.K3.A6",
           "kind": "fact",
           "quote": "Последний Свет есть трудное достижение Вечерних Сумерек.",
-          "source": { "items": [285], "pdf_page": 37 },
-          "supports_questions": ["true-false", "match-pair"]
+          "source": {
+            "items": [
+              285
+            ],
+            "pdf_page": 37
+          },
+          "supports_questions": [
+            "true-false",
+            "match-pair"
+          ]
         },
         {
           "id": "T5.K3.A7",
           "kind": "fact",
           "quote": "День, так же как и ночь, труден ожиданиями.",
-          "source": { "items": [283], "pdf_page": 37 },
-          "supports_questions": ["true-false"]
+          "source": {
+            "items": [
+              283
+            ],
+            "pdf_page": 37
+          },
+          "supports_questions": [
+            "true-false"
+          ]
         },
         {
           "id": "T5.K3.A8",
           "kind": "postulate",
           "quote": "Вся жизнь на земле живёт в ногу со светом солнца.",
-          "source": { "items": [278], "pdf_page": 36 },
-          "supports_questions": ["fill-blank", "true-false"]
+          "source": {
+            "items": [
+              278
+            ],
+            "pdf_page": 36
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         }
       ]
     },
-
     {
       "id": "T5.K4",
       "slug": "nakoplenie-kachestva",
@@ -210,20 +371,42 @@
           "id": "T5.K4.A1",
           "kind": "postulate",
           "quote": "Получилось, во всех долгих временах что-то накапливается. Накапливается количество света. Или накапливается количество тьмы. Или ещё что-то — жара, мрака, холода.",
-          "source": { "items": [286], "pdf_page": 37 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "true-false"]
+          "source": {
+            "items": [
+              286
+            ],
+            "pdf_page": 37
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T5.K4.A2",
           "kind": "postulate",
           "quote": "Ясна есть [после] шести накоплений и шесть переходов накопленного качества в новое качество.",
-          "source": { "items": [288], "pdf_page": 38 },
+          "source": {
+            "items": [
+              288
+            ],
+            "pdf_page": 38
+          },
           "meta": {
             "is_keystone": true,
-            "links": { "see_also": ["T2.K3.A2"] }
+            "links": {
+              "see_also": [
+                "T2.K3.A2"
+              ]
+            }
           },
-          "supports_questions": ["fill-blank", "single-choice"]
+          "supports_questions": [
+            "fill-blank",
+            "single-choice"
+          ]
         },
         {
           "id": "T5.K4.A3",
@@ -238,9 +421,25 @@
             "Вечерние Сумерки — Явная Тьма",
             "Тьма Ночи — Холод (невидимо)"
           ],
-          "source": { "items": [289, 290, 293, 294, 296, 297, 298], "pdf_page": 38 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair", "multi-choice"]
+          "source": {
+            "items": [
+              289,
+              290,
+              293,
+              294,
+              296,
+              297,
+              298
+            ],
+            "pdf_page": 38
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair",
+            "multi-choice"
+          ]
         },
         {
           "id": "T5.K4.A4",
@@ -255,20 +454,42 @@
             "Последний Свет (Сумерки → Тьма Ночи)",
             "Первый Свет (Тьма Ночи → Заря)"
           ],
-          "source": { "items": [289, 290, 291, 296, 297, 298], "pdf_page": 38 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair", "multi-choice"]
+          "source": {
+            "items": [
+              289,
+              290,
+              291,
+              296,
+              297,
+              298
+            ],
+            "pdf_page": 38
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair",
+            "multi-choice"
+          ]
         },
         {
           "id": "T5.K4.A5",
           "kind": "fact",
           "quote": "Утренняя Заря накапливает неявный свет. И когда его становится много, происходит переход неявного света в явный. Это происходит в коротком времени Проявление Света.",
-          "source": { "items": [289], "pdf_page": 38 },
-          "supports_questions": ["fill-blank", "true-false"]
+          "source": {
+            "items": [
+              289
+            ],
+            "pdf_page": 38
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         }
       ]
     },
-
     {
       "id": "T5.K5",
       "slug": "nevidimoe-nakoplenie",
@@ -279,40 +500,90 @@
           "id": "T5.K5.A1",
           "kind": "postulate",
           "quote": "Накопление постоянного неизменного света есть накопление тепла.",
-          "source": { "items": [294], "pdf_page": 38 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["fill-blank", "single-choice", "true-false"]
+          "source": {
+            "items": [
+              294
+            ],
+            "pdf_page": 38
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "fill-blank",
+            "single-choice",
+            "true-false"
+          ]
         },
         {
           "id": "T5.K5.A2",
           "kind": "fact",
           "quote": "Сразу после него начинает накапливаться Чистый Свет. Да. Его не становится со временем больше, не он меняется по величине. Он накапливается другим образом. Идёт причинное накопление. Невидимое глазу.",
-          "source": { "items": [293], "pdf_page": 38 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["true-false", "single-choice"]
+          "source": {
+            "items": [
+              293
+            ],
+            "pdf_page": 38
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "true-false",
+            "single-choice"
+          ]
         },
         {
           "id": "T5.K5.A3",
           "kind": "postulate",
           "quote": "Результат накопления долгого постоянного Света является качественный переход — появление Первой Тьмы.",
-          "source": { "items": [294], "pdf_page": 38 },
-          "supports_questions": ["true-false", "fill-blank"]
+          "source": {
+            "items": [
+              294
+            ],
+            "pdf_page": 38
+          },
+          "supports_questions": [
+            "true-false",
+            "fill-blank"
+          ]
         },
         {
           "id": "T5.K5.A4",
           "kind": "fact",
           "quote": "Там, днём, в течение Светлого Дня, накапливалось тепло, а здесь, в течение Тьмы Ночи, накапливается холод. А результатом накопления Тьмы, накоплением холода, становится появление Первого Света. Появляется начало Утренней Зари.",
-          "source": { "items": [298], "pdf_page": 39 },
-          "meta": { "is_keystone": true },
-          "supports_questions": ["match-pair", "fill-blank"]
+          "source": {
+            "items": [
+              298
+            ],
+            "pdf_page": 39
+          },
+          "meta": {
+            "is_keystone": true
+          },
+          "supports_questions": [
+            "match-pair",
+            "fill-blank"
+          ]
         },
         {
           "id": "T5.K5.A5",
           "kind": "postulate",
           "quote": "И какое может произойти? Накапливается тьма и холод, появляется свет!",
-          "source": { "items": [298], "pdf_page": 39 },
-          "meta": { "is_keystone": true, "notes": "Парадокс узла 5; разрешение откладывается на дальнейшие учебники Ясны." },
-          "supports_questions": ["fill-blank", "true-false"]
+          "source": {
+            "items": [
+              298
+            ],
+            "pdf_page": 39
+          },
+          "meta": {
+            "is_keystone": true,
+            "notes": "Парадокс узла 5; разрешение откладывается на дальнейшие учебники Ясны."
+          },
+          "supports_questions": [
+            "fill-blank",
+            "true-false"
+          ]
         },
         {
           "id": "T5.K5.A6",
@@ -320,13 +591,19 @@
           "term_a": "тепло (накапливается днём)",
           "term_b": "холод (накапливается ночью)",
           "quote": "Там, днём, в течение Светлого Дня, накапливалось тепло, а здесь, в течение Тьмы Ночи, накапливается холод.",
-          "source": { "items": [298], "pdf_page": 39 },
-          "supports_questions": ["match-pair"]
+          "source": {
+            "items": [
+              298
+            ],
+            "pdf_page": 39
+          },
+          "supports_questions": [
+            "match-pair"
+          ]
         }
       ]
     }
   ],
-
   "illustrations": [
     {
       "id": "T5.I1",
@@ -334,8 +611,15 @@
       "code": "V-021",
       "pdf_page": 32,
       "caption": "Шестиугольник с вертикальной осью «Линия Единства»; стрелки показывают 5 пар отражения через эту ось.",
-      "source": { "items": [254], "pdf_page": 32 },
-      "use_cases": ["question-illustration"]
+      "source": {
+        "items": [
+          254
+        ],
+        "pdf_page": 32
+      },
+      "use_cases": [
+        "question-illustration"
+      ]
     },
     {
       "id": "T5.I2",
@@ -343,8 +627,17 @@
       "code": "V-024",
       "pdf_page": 35,
       "caption": "Шестиугольник с +/−/0 в шести позициях: «+» (Заря, Спуск), «−» (Подъём, Сумерки), «0» (День, Ночь).",
-      "source": { "items": [273, 274], "pdf_page": 35 },
-      "use_cases": ["theme-cover", "explainer"]
+      "source": {
+        "items": [
+          273,
+          274
+        ],
+        "pdf_page": 35
+      },
+      "use_cases": [
+        "theme-cover",
+        "explainer"
+      ]
     },
     {
       "id": "T5.I3",
@@ -352,8 +645,17 @@
       "code": "V-025",
       "pdf_page": 37,
       "caption": "Шестиугольник с подписями «Лёгкое Достижение Света», «Трудное Достижение Тьмы», «Жар», «Свет», «Тьма» и т.п. — каждая фаза отмечена по характеру достижения.",
-      "source": { "items": [281, 284, 285], "pdf_page": 37 },
-      "use_cases": ["question-illustration"]
+      "source": {
+        "items": [
+          281,
+          284,
+          285
+        ],
+        "pdf_page": 37
+      },
+      "use_cases": [
+        "question-illustration"
+      ]
     },
     {
       "id": "T5.I4",
@@ -361,25 +663,52 @@
       "code": "V-026",
       "pdf_page": 39,
       "caption": "Шестиугольник с подписями накоплений каждой фазы: Накопление Чистого Света, Накопление Жара, Накопление Неявной Тьмы, Накопление Явной Тьмы, Накопление Холода, Накопление Неявного Света, Накопление Явного Света.",
-      "source": { "items": [286, 289, 290, 294, 296, 297, 298], "pdf_page": 39 },
-      "use_cases": ["theme-cover", "question-illustration"]
+      "source": {
+        "items": [
+          286,
+          289,
+          290,
+          294,
+          296,
+          297,
+          298
+        ],
+        "pdf_page": 39
+      },
+      "use_cases": [
+        "theme-cover",
+        "question-illustration"
+      ]
     }
   ],
-
   "questions": [
     {
       "id": "T5.Q1",
       "type": "single-choice",
       "difficulty": "medium",
-      "stem": "Сколько фаз сyтoк, в которых свет растёт?",
+      "stem": "Сколько фаз суток, в которых свет растёт?",
       "correct": "5",
-      "options": ["3", "5", "6", "12"],
+      "options": [
+        "3",
+        "5",
+        "6",
+        "12"
+      ],
       "explanation": {
         "quote": "Свет растёт в пяти временах.",
-        "source": { "items": [261], "pdf_page": 33 }
+        "source": {
+          "items": [
+            261
+          ],
+          "pdf_page": 33
+        }
       },
-      "source_atoms": ["T5.K2.A1"],
-      "tags": ["number"]
+      "source_atoms": [
+        "T5.K2.A1"
+      ],
+      "tags": [
+        "number"
+      ]
     },
     {
       "id": "T5.Q2",
@@ -395,10 +724,21 @@
       ],
       "explanation": {
         "quote": "Самая большая скорость изменения освещённости в сутках — во временах Проявления Света и Проявления Тьмы.",
-        "source": { "items": [269, 270], "pdf_page": 34 }
+        "source": {
+          "items": [
+            269,
+            270
+          ],
+          "pdf_page": 34
+        }
       },
-      "source_atoms": ["T5.K2.A5"],
-      "tags": ["fact", "keystone"]
+      "source_atoms": [
+        "T5.K2.A5"
+      ],
+      "tags": [
+        "fact",
+        "keystone"
+      ]
     },
     {
       "id": "T5.Q3",
@@ -406,16 +746,35 @@
       "difficulty": "medium",
       "stem": "Соотнесите долгую фазу и знак её скорости",
       "correct": [
-        ["Утренняя Заря", "+ (ускорение)"],
-        ["Подъём Солнца", "− (замедление)"],
-        ["Дневной Переход", "0 (неизменность)"]
+        [
+          "Утренняя Заря",
+          "+ (ускорение)"
+        ],
+        [
+          "Подъём Солнца",
+          "− (замедление)"
+        ],
+        [
+          "Дневной Переход",
+          "0 (неизменность)"
+        ]
       ],
       "explanation": {
         "quote": "В двух временах суток, в Утренней Заре и в Спуске Солнца, изменения… с ускорением. В двух временах суток, в Подъёме Солнца и в Вечерних Сумерках, изменения… только замедляются. В двух временах суток, в Светлом Дне и в Тёмной Ночи, количество света… не изменяется.",
-        "source": { "items": [273], "pdf_page": 35 }
+        "source": {
+          "items": [
+            273
+          ],
+          "pdf_page": 35
+        }
       },
-      "source_atoms": ["T5.K2.A6"],
-      "tags": ["pairing", "keystone"]
+      "source_atoms": [
+        "T5.K2.A6"
+      ],
+      "tags": [
+        "pairing",
+        "keystone"
+      ]
     },
     {
       "id": "T5.Q4",
@@ -423,58 +782,134 @@
       "difficulty": "medium",
       "stem": "Соотнесите класс времени и принадлежащие ему фазы",
       "correct": [
-        ["Лёгкие Времена", "Утренняя Заря и Спуск Солнца"],
-        ["Тяжёлые Времена", "Подъём Солнца и Вечерние Сумерки"],
-        ["Времена Ожидания", "День и Ночь"]
+        [
+          "Лёгкие Времена",
+          "Утренняя Заря и Спуск Солнца"
+        ],
+        [
+          "Тяжёлые Времена",
+          "Подъём Солнца и Вечерние Сумерки"
+        ],
+        [
+          "Времена Ожидания",
+          "День и Ночь"
+        ]
       ],
       "explanation": {
         "quote": "Утренняя Заря и Спуск Солнца… называются «Лёгкие Времена». Подъём Солнца и Вечерние Сумерки… называются «Тяжёлые Времена». Времена Дня и Ночи называют «Времена Ожидания».",
-        "source": { "items": [275, 276, 277], "pdf_page": 35 }
+        "source": {
+          "items": [
+            275,
+            276,
+            277
+          ],
+          "pdf_page": 35
+        }
       },
-      "source_atoms": ["T5.K3.A1", "T5.K3.A2", "T5.K3.A3"],
-      "tags": ["pairing", "keystone"]
+      "source_atoms": [
+        "T5.K3.A1",
+        "T5.K3.A2",
+        "T5.K3.A3"
+      ],
+      "tags": [
+        "pairing",
+        "keystone"
+      ]
     },
     {
       "id": "T5.Q5",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "medium",
-      "stem": "Утренняя Заря и Спуск Солнца — это _____ Времена.",
+      "stem": "Утренняя Заря и Спуск Солнца — это … Времена.",
       "correct": "Лёгкие",
-      "correct_alternatives": ["лёгкие"],
+      "correct_alternatives": [
+        "лёгкие"
+      ],
       "explanation": {
         "quote": "Два времени суток, Утренняя Заря и Спуск Солнца, в которых свет изменяется с ускорением… называются «Лёгкие Времена».",
-        "source": { "items": [275], "pdf_page": 35 }
+        "source": {
+          "items": [
+            275
+          ],
+          "pdf_page": 35
+        }
       },
-      "source_atoms": ["T5.K3.A1"],
-      "tags": ["definition"]
+      "source_atoms": [
+        "T5.K3.A1"
+      ],
+      "tags": [
+        "definition"
+      ],
+      "options": [
+        "Лёгкие",
+        "Тяжёлые",
+        "Долгие",
+        "Медленные"
+      ]
     },
     {
       "id": "T5.Q6",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "easy",
-      "stem": "Времена Дня и Ночи называются «Времена _____».",
+      "stem": "Времена Дня и Ночи называются «Времена …».",
       "correct": "Ожидания",
-      "correct_alternatives": ["ожидания"],
+      "correct_alternatives": [
+        "ожидания"
+      ],
       "explanation": {
         "quote": "Времена Дня и Ночи называют «Времена Ожидания».",
-        "source": { "items": [277], "pdf_page": 35 }
+        "source": {
+          "items": [
+            277
+          ],
+          "pdf_page": 35
+        }
       },
-      "source_atoms": ["T5.K3.A3"],
-      "tags": ["definition"]
+      "source_atoms": [
+        "T5.K3.A3"
+      ],
+      "tags": [
+        "definition"
+      ],
+      "options": [
+        "Ожидания",
+        "Покоя",
+        "Сна",
+        "Скорости"
+      ]
     },
     {
       "id": "T5.Q7",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "hard",
-      "stem": "Ясна есть _____ накоплений и _____ переходов накопленного качества в новое качество.",
+      "stem": "Ясна есть … накоплений и … переходов накопленного качества в новое качество.",
       "correct": "шесть и шесть",
-      "correct_alternatives": ["шесть, шесть", "6 и 6"],
+      "correct_alternatives": [
+        "шесть, шесть",
+        "6 и 6"
+      ],
       "explanation": {
         "quote": "Ясна есть [после] шести накоплений и шесть переходов накопленного качества в новое качество.",
-        "source": { "items": [288], "pdf_page": 38 }
+        "source": {
+          "items": [
+            288
+          ],
+          "pdf_page": 38
+        }
       },
-      "source_atoms": ["T5.K4.A2"],
-      "tags": ["postulate", "keystone"]
+      "source_atoms": [
+        "T5.K4.A2"
+      ],
+      "tags": [
+        "postulate",
+        "keystone"
+      ],
+      "options": [
+        "шесть и шесть",
+        "три и три",
+        "двенадцать и двенадцать",
+        "четыре и четыре"
+      ]
     },
     {
       "id": "T5.Q8",
@@ -482,30 +917,71 @@
       "difficulty": "hard",
       "stem": "Соотнесите долгую фазу и накапливающееся в ней качество",
       "correct": [
-        ["Утренняя Заря", "Неявный Свет"],
-        ["Подъём Солнца", "Явный Свет"],
-        ["Дневной Переход", "Тепло"],
-        ["Тьма Ночи", "Холод"]
+        [
+          "Утренняя Заря",
+          "Неявный Свет"
+        ],
+        [
+          "Подъём Солнца",
+          "Явный Свет"
+        ],
+        [
+          "Дневной Переход",
+          "Тепло"
+        ],
+        [
+          "Тьма Ночи",
+          "Холод"
+        ]
       ],
       "explanation": {
         "quote": "Утренняя Заря накапливает неявный свет… в Подъёма Солнца — накопление Явного Света… накопление постоянного неизменного света есть накопление тепла… в течение Тьмы Ночи накапливается холод.",
-        "source": { "items": [289, 290, 294, 298], "pdf_page": 38 }
+        "source": {
+          "items": [
+            289,
+            290,
+            294,
+            298
+          ],
+          "pdf_page": 38
+        }
       },
-      "source_atoms": ["T5.K4.A3"],
-      "tags": ["pairing", "keystone"]
+      "source_atoms": [
+        "T5.K4.A3"
+      ],
+      "tags": [
+        "pairing",
+        "keystone"
+      ]
     },
     {
       "id": "T5.Q9",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "hard",
-      "stem": "Накопление постоянного неизменного света есть накопление _____.",
+      "stem": "Накопление постоянного неизменного света есть накопление …",
       "correct": "тепла",
       "explanation": {
         "quote": "Накопление постоянного неизменного света есть накопление тепла.",
-        "source": { "items": [294], "pdf_page": 38 }
+        "source": {
+          "items": [
+            294
+          ],
+          "pdf_page": 38
+        }
       },
-      "source_atoms": ["T5.K5.A1"],
-      "tags": ["postulate", "keystone"]
+      "source_atoms": [
+        "T5.K5.A1"
+      ],
+      "tags": [
+        "postulate",
+        "keystone"
+      ],
+      "options": [
+        "тепла",
+        "силы",
+        "тьмы",
+        "движения"
+      ]
     },
     {
       "id": "T5.Q10",
@@ -521,10 +997,20 @@
       ],
       "explanation": {
         "quote": "Результатом накопления Тьмы, накоплением холода, становится появление Первого Света. Появляется начало Утренней Зари.",
-        "source": { "items": [298], "pdf_page": 39 }
+        "source": {
+          "items": [
+            298
+          ],
+          "pdf_page": 39
+        }
       },
-      "source_atoms": ["T5.K5.A4"],
-      "tags": ["fact", "keystone"]
+      "source_atoms": [
+        "T5.K5.A4"
+      ],
+      "tags": [
+        "fact",
+        "keystone"
+      ]
     },
     {
       "id": "T5.Q11",
@@ -534,53 +1020,148 @@
       "correct": true,
       "explanation": {
         "quote": "Вся жизнь на земле живёт в ногу со светом солнца.",
-        "source": { "items": [278], "pdf_page": 36 }
+        "source": {
+          "items": [
+            278
+          ],
+          "pdf_page": 36
+        }
       },
-      "source_atoms": ["T5.K3.A8"],
-      "tags": ["postulate"]
+      "source_atoms": [
+        "T5.K3.A8"
+      ],
+      "tags": [
+        "postulate"
+      ]
     },
     {
       "id": "T5.Q12",
-      "type": "fill-blank",
+      "type": "single-choice",
       "difficulty": "hard",
-      "stem": "Парадокс узла: накапливается тьма и холод — появляется _____.",
+      "stem": "Парадокс узла: накапливается тьма и холод — появляется …",
       "correct": "свет",
       "explanation": {
         "quote": "Накапливается тьма и холод, появляется свет!",
-        "source": { "items": [298], "pdf_page": 39 }
+        "source": {
+          "items": [
+            298
+          ],
+          "pdf_page": 39
+        }
       },
-      "source_atoms": ["T5.K5.A5"],
-      "tags": ["postulate", "keystone"]
+      "source_atoms": [
+        "T5.K5.A5"
+      ],
+      "tags": [
+        "postulate",
+        "keystone"
+      ],
+      "options": [
+        "свет",
+        "тепло",
+        "движение",
+        "жизнь"
+      ]
     }
   ],
-
   "rejected": [
-    { "item": 254, "reason": "Подпись к диаграмме («Пять пар половинных противостояний») — покрыто T4.K4.A8." },
-    { "item": 256, "reason": "Методическое замечание об изучении «единств» — мета-комментарий." },
-    { "item": 257, "reason": "Авторская ремарка об усталости от изложения." },
-    { "item": 258, "reason": "Сильно повреждённый скан, реконструкция неоднозначна." },
-    { "item": 259, "reason": "Совет читать без спешки — мета-комментарий." },
-    { "item": 260, "reason": "Авторская ремарка о незавершённости узнанного." },
-    { "item": 262, "reason": "Прозаическое описание скоростей роста; покрыто T5.K2.A3, T5.K2.A4." },
-    { "item": 265, "reason": "Дословный повтор №264." },
-    { "item": 266, "reason": "Прозаическое описание спада света — покрыто T5.K2.A6." },
-    { "item": 267, "reason": "Перефразировка №266." },
-    { "item": 268, "reason": "Конкретизация «начало Спада медленно, конец быстро» — покрыто T5.K2.A6." },
-    { "item": 271, "reason": "Прозаическая зарисовка о Сумерках — покрыто T5.K2.A6." },
-    { "item": 272, "reason": "Подпись к диаграмме («общая картина»)." },
-    { "item": 279, "reason": "Сильно повреждённое прозаическое описание утра; покрыто T5.K3.A4 и T5.K3.A8." },
-    { "item": 280, "reason": "Сильно повреждённое прозаическое описание вечера; покрыто T5.K3.A6 и T5.K3.A8." },
-    { "item": 282, "reason": "Перефразировка достижения Подъёма; покрыто T5.K3.A2." },
-    { "item": 287, "reason": "Конкретизация «новое качество накапливается»; покрыто T5.K4.A2." },
-    { "item": 292, "reason": "Утверждение о «застывших временах», разрешается через T5.K5.A2." },
-    { "item": 295, "reason": "Нечитаемый/пустой пункт в скане." },
-    { "item": 299, "reason": "Авторская рефлексия «почему 12, а не 14 или 16» — методологическая ремарка." },
-    { "item": 300, "reason": "Продолжение рефлексии о делении сyтoк (3, 5, 6, 12)." },
-    { "item": 301, "reason": "Продолжение №300." },
-    { "item": 302, "reason": "Художественная ремарка о «красоте и ладности» фигуры." },
-    { "item": 303, "reason": "Закрытие узла: «в главном сутки устроены именно так» — мета." }
+    {
+      "item": 254,
+      "reason": "Подпись к диаграмме («Пять пар половинных противостояний») — покрыто T4.K4.A8."
+    },
+    {
+      "item": 256,
+      "reason": "Методическое замечание об изучении «единств» — мета-комментарий."
+    },
+    {
+      "item": 257,
+      "reason": "Авторская ремарка об усталости от изложения."
+    },
+    {
+      "item": 258,
+      "reason": "Сильно повреждённый скан, реконструкция неоднозначна."
+    },
+    {
+      "item": 259,
+      "reason": "Совет читать без спешки — мета-комментарий."
+    },
+    {
+      "item": 260,
+      "reason": "Авторская ремарка о незавершённости узнанного."
+    },
+    {
+      "item": 262,
+      "reason": "Прозаическое описание скоростей роста; покрыто T5.K2.A3, T5.K2.A4."
+    },
+    {
+      "item": 265,
+      "reason": "Дословный повтор №264."
+    },
+    {
+      "item": 266,
+      "reason": "Прозаическое описание спада света — покрыто T5.K2.A6."
+    },
+    {
+      "item": 267,
+      "reason": "Перефразировка №266."
+    },
+    {
+      "item": 268,
+      "reason": "Конкретизация «начало Спада медленно, конец быстро» — покрыто T5.K2.A6."
+    },
+    {
+      "item": 271,
+      "reason": "Прозаическая зарисовка о Сумерках — покрыто T5.K2.A6."
+    },
+    {
+      "item": 272,
+      "reason": "Подпись к диаграмме («общая картина»)."
+    },
+    {
+      "item": 279,
+      "reason": "Сильно повреждённое прозаическое описание утра; покрыто T5.K3.A4 и T5.K3.A8."
+    },
+    {
+      "item": 280,
+      "reason": "Сильно повреждённое прозаическое описание вечера; покрыто T5.K3.A6 и T5.K3.A8."
+    },
+    {
+      "item": 282,
+      "reason": "Перефразировка достижения Подъёма; покрыто T5.K3.A2."
+    },
+    {
+      "item": 287,
+      "reason": "Конкретизация «новое качество накапливается»; покрыто T5.K4.A2."
+    },
+    {
+      "item": 292,
+      "reason": "Утверждение о «застывших временах», разрешается через T5.K5.A2."
+    },
+    {
+      "item": 295,
+      "reason": "Нечитаемый/пустой пункт в скане."
+    },
+    {
+      "item": 299,
+      "reason": "Авторская рефлексия «почему 12, а не 14 или 16» — методологическая ремарка."
+    },
+    {
+      "item": 300,
+      "reason": "Продолжение рефлексии о делении суток (3, 5, 6, 12)."
+    },
+    {
+      "item": 301,
+      "reason": "Продолжение №300."
+    },
+    {
+      "item": 302,
+      "reason": "Художественная ремарка о «красоте и ладности» фигуры."
+    },
+    {
+      "item": 303,
+      "reason": "Закрытие узла: «в главном сутки устроены именно так» — мета."
+    }
   ],
-
   "stats": {
     "items_in_range": 50,
     "atoms_count": 28,
@@ -592,18 +1173,27 @@
     "coverage_pct": 54,
     "keystone_count": 14,
     "kind_distribution": {
-      "fact": 10, "postulate": 7, "definition": 3, "list": 3,
-      "opposition": 2, "number": 1, "process": 1, "rule": 1
+      "fact": 10,
+      "postulate": 7,
+      "definition": 3,
+      "list": 3,
+      "opposition": 2,
+      "number": 1,
+      "process": 1,
+      "rule": 1
     }
   },
   "changelog": [
-    { "version": "1.1.1", "changes": [
-      "Initial version T5: 5 категорий (Внутренние противоречия / Скорости / Лёгкие-Тяжёлые-Ожидания / Накопление качества / Невидимое накопление)",
-      "Главная новая механика узла: 6 накоплений + 6 переходов",
-      "14 keystone-атомов — это узел центральной динамики Ясны Суток",
-      "Первое появление kind=process в Сутки 5 (цепочка роста света через 5 фаз)",
-      "Парадокс «накапливается тьма и холод — появляется свет» (T5.K5.A5) keystone — открытый вопрос для дальнейших книг",
-      "Coverage 54% — много прозы и реконструкций (нечитаемые №258, 279, 280, 295, философская рефлексия №299-303)"
-    ]}
+    {
+      "version": "1.1.1",
+      "changes": [
+        "Initial version T5: 5 категорий (Внутренние противоречия / Скорости / Лёгкие-Тяжёлые-Ожидания / Накопление качества / Невидимое накопление)",
+        "Главная новая механика узла: 6 накоплений + 6 переходов",
+        "14 keystone-атомов — это узел центральной динамики Ясны Суток",
+        "Первое появление kind=process в Сутки 5 (цепочка роста света через 5 фаз)",
+        "Парадокс «накапливается тьма и холод — появляется свет» (T5.K5.A5) keystone — открытый вопрос для дальнейших книг",
+        "Coverage 54% — много прозы и реконструкций (нечитаемые №258, 279, 280, 295, философская рефлексия №299-303)"
+      ]
+    }
   ]
 }

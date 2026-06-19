@@ -235,25 +235,29 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose,onSel}){
         </div>
       </div>
       <div ref={scrollRef} style={{flex:1,overflowY:'auto',padding:'0 18px 16px',position:'relative'}}>
-        {/* Плейсхолдер визуализации полки — место под иллюстрацию/фото */}
-        <div className='fi-illustration' style={{position:'relative',width:'100%',aspectRatio:'16/9',marginBottom:14,borderRadius:14,overflow:'hidden',background:`linear-gradient(135deg, ${CR[gc(i)].c}11 0%, ${CR[gc(i)].c}06 100%)`,border:`1px solid ${CR[gc(i)].c}22`,display:'flex',alignItems:'center',justifyContent:'center'}}>
-          {/* Декоративные круги-волны на фоне */}
-          <svg style={{position:'absolute',inset:0,width:'100%',height:'100%',opacity:.35}} viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden='true'>
-            <circle cx="160" cy="90" r="60" fill='none' stroke={CR[gc(i)].c} strokeWidth="0.6" strokeDasharray="2 5"/>
-            <circle cx="160" cy="90" r="40" fill='none' stroke={CR[gc(i)].c} strokeWidth="0.6" strokeDasharray="2 5"/>
-            <circle cx="160" cy="90" r="20" fill='none' stroke={CR[gc(i)].c} strokeWidth="0.6"/>
-          </svg>
-          {/* Большая цифра-индикатор полки */}
-          <div style={{position:'relative',display:'flex',flexDirection:'column',alignItems:'center',gap:6,zIndex:1}}>
-            <div style={{fontFamily:'var(--serif)',fontSize:64,fontWeight:600,color:CR[gc(i)].c,lineHeight:1,letterSpacing:'-0.04em'}}>{i}</div>
-            <div style={{fontSize:10,fontWeight:600,letterSpacing:1.6,textTransform:'uppercase',color:'var(--txt2,#86868b)'}}>иллюстрация · скоро</div>
-          </div>
+        {/* Соседи — 3 кликабельных строки (Block 2.4) */}
+        <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:12,paddingBottom:10,borderBottom:'1px solid #f0f0f2'}}>
+          <button onClick={()=>onSel&&onSel((i+11)%12)} title='Перейти к предыдущей полке' style={{display:'flex',alignItems:'center',gap:8,fontSize:12,color:'#424245',background:'transparent',border:'none',padding:'4px 6px',borderRadius:6,cursor:'pointer',textAlign:'left',width:'100%'}} onMouseEnter={e=>e.currentTarget.style.background='#f5f5f7'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+            <span style={{color:'#86868b',fontSize:14,fontWeight:600,minWidth:14}}>←</span>
+            <span style={{color:'#aeaeb2',fontSize:10,fontWeight:600,minWidth:14}}>{(i+11)%12}</span>
+            <span style={{color:prevL?'#1d1d1f':'#c0c0c5',fontStyle:prevL?'normal':'italic'}}>{prevL||'—'}</span>
+          </button>
+          <button onClick={()=>onSel&&onSel((i+1)%12)} title='Перейти к следующей полке' style={{display:'flex',alignItems:'center',gap:8,fontSize:12,color:'#424245',background:'transparent',border:'none',padding:'4px 6px',borderRadius:6,cursor:'pointer',textAlign:'left',width:'100%'}} onMouseEnter={e=>e.currentTarget.style.background='#f5f5f7'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+            <span style={{color:'#86868b',fontSize:14,fontWeight:600,minWidth:14}}>→</span>
+            <span style={{color:'#aeaeb2',fontSize:10,fontWeight:600,minWidth:14}}>{(i+1)%12}</span>
+            <span style={{color:nextL?'#1d1d1f':'#c0c0c5',fontStyle:nextL?'normal':'italic'}}>{nextL||'—'}</span>
+          </button>
+          <button onClick={()=>onSel&&onSel(opp(i))} title='Перейти к противоположной полке' style={{display:'flex',alignItems:'center',gap:8,fontSize:12,color:'#424245',background:'transparent',border:'none',padding:'4px 6px',borderRadius:6,cursor:'pointer',textAlign:'left',width:'100%'}} onMouseEnter={e=>e.currentTarget.style.background='#fef8e7'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+            <span style={{color:'#ff9500',fontSize:14,fontWeight:600,minWidth:14}}>↔</span>
+            <span style={{color:'#aeaeb2',fontSize:10,fontWeight:600,minWidth:14}}>{opp(i)}</span>
+            <span style={{color:oppLabel?'#1d1d1f':'#c0c0c5',fontStyle:oppLabel?'normal':'italic'}}>{oppLabel||'—'}</span>
+          </button>
+          {overlay&&<div style={{display:'flex',alignItems:'center',gap:5,fontSize:11,color:'#af52de',flexWrap:'wrap'}}>
+            <span style={{fontWeight:600}}>⊕</span>
+            <span style={{color:'#aeaeb2',fontSize:10,fontWeight:600,fontStyle:'italic'}}>{overlay.name||overlay.n||'наложение'}:</span>
+            <span style={{color:overlayLabel?'#af52de':'#c0c0c5',fontStyle:overlayLabel?'normal':'italic'}}>{overlayLabel||'—'}</span>
+          </div>}
         </div>
-        {overlay&&<div style={{display:'flex',alignItems:'center',gap:5,fontSize:11,color:'#af52de',flexWrap:'wrap',marginBottom:10,paddingBottom:10,borderBottom:'1px solid #f0f0f2'}}>
-          <span style={{fontWeight:600}}>⊕</span>
-          <span style={{color:'#aeaeb2',fontSize:10,fontWeight:600,fontStyle:'italic'}}>{overlay.name||overlay.n||'наложение'}:</span>
-          <span style={{color:overlayLabel?'#af52de':'#c0c0c5',fontStyle:overlayLabel?'normal':'italic'}}>{overlayLabel||'—'}</span>
-        </div>}
         <div style={{fontSize:13,color:'#424245',lineHeight:1.6,marginBottom:10,padding:'10px 12px',background:'var(--bg2)',borderRadius:10}}>
           {POS_DESC[i]}
         </div>

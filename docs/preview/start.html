@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8"/>
+<meta name="color-scheme" content="dark"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
 <meta http-equiv="Cache-Control" content="no-cache"/>
 <meta name="theme-color" content="#0a0b0d"/>
@@ -437,6 +438,14 @@ body {
   font-size: 14.5px; line-height: 1.55;
   color: var(--text-secondary);
 }
+.s-napr--link { display: block; text-decoration: none; cursor: pointer; }
+.s-napr__link {
+  margin-top: 14px;
+  font-family: var(--font-sans);
+  font-size: 14px; font-weight: 600;
+  color: var(--accent-hover);
+}
+.s-napr--link:hover .s-napr__link { text-decoration: underline; }
 
 /* ─── Mobile ─── */
 @media (max-width: 1024px) {
@@ -565,6 +574,19 @@ body {
     <span class="s-feature-link">Открыть библиотеку →</span>
   </a>
 
+  <a href="negotiations.html" class="s-feature" data-path="negotiations">
+    <div class="s-feature-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M8 10h8M8 14h5" stroke-linecap="round"/>
+        <path d="M4 5h16v11H9l-5 4z" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="s-feature-eyebrow">Тренажёр</div>
+    <h3 class="s-feature-title">Переговоры</h3>
+    <p class="s-feature-desc">12 стадий цикла А↔В. Учись видеть, на какой ты стадии.</p>
+    <span class="s-feature-link">Открыть тренажёр →</span>
+  </a>
+
 </section>
 
 <!-- ═══ НАПРАВЛЕНИЯ · что развивается и как метод работает ═══ -->
@@ -587,14 +609,15 @@ body {
         и решения как структуру, а не хаос событий.
       </div>
     </div>
-    <div class="s-napr">
+    <a class="s-napr s-napr--link" href="negotiations.html" data-path="negotiations">
       <div class="s-napr__num">02</div>
       <div class="s-napr__title">Командное</div>
       <div class="s-napr__desc">
         Переговоры, проекты, конфликты. Раскладка по 12 полкам показывает,
         где спор, где согласие и каков следующий шаг.
       </div>
-    </div>
+      <div class="s-napr__link">Тренажёр переговоров →</div>
+    </a>
     <div class="s-napr">
       <div class="s-napr__num">03</div>
       <div class="s-napr__title">Учение</div>
