@@ -1,4 +1,4 @@
-/* Yasna bundle: app.js — собран 2026-06-19T12:48:41.342Z */
+/* Yasna bundle: app.js — собран 2026-06-19T13:19:37.640Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -4870,7 +4870,8 @@ function ScrollLesson({ lesson, onClose, onComplete, onPickAnother, onOpenLesson
   }), /* @__PURE__ */ React.createElement("div", { style: { height: 40 } })));
 }
 function Lesson({ lessonId, onClose, onComplete, onPickAnother, onOpenLesson }) {
-  const lesson = LESSONS.find((l) => l.id === lessonId) || LESSONS[0];
+  const ALL = window.YasnaLessons && window.YasnaLessons.lessons || [];
+  const lesson = ALL.find((l) => l.id === lessonId) || ALL[0];
   return /* @__PURE__ */ React.createElement(ScrollLesson, { key: lesson.id, lesson, onClose, onComplete, onPickAnother, onOpenLesson });
 }
 Object.assign(window.YasnaLessons, {
