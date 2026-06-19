@@ -15,7 +15,14 @@
   ];
   var AVATAR_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.5-3.5 4.5-5 7-5s5.5 1.5 7 5"/></svg>';
 
-  function html(current){
+  // Кнопка переключения темы — опциональна (opts.theme). Поведение/иконку
+  // навешивает сама страница (см. negotiations.html), site-nav даёт только слот.
+  var THEME_BTN = '<button class="ynav-theme" id="ynav-theme-btn" type="button"'
+    + ' aria-label="Переключить светлую/тёмную тему" title="Светлая / тёмная тема">'
+    + '<span class="ynav-theme-ico" aria-hidden="true">☀</span></button>';
+
+  function html(current, opts){
+    opts = opts || {};
     var links = SECTIONS.map(function(s){
       var active = s.sec === current ? ' is-active' : '';
       var badge  = s.badge ? '<span class="ynav-new">' + s.badge + '</span>' : '';
@@ -27,15 +34,16 @@
       +   '<span class="ynav-name">Ясна</span>'
       + '</a>'
       + '<nav class="ynav-links" aria-label="Разделы">' + links + '</nav>'
+      + (opts.theme ? THEME_BTN : '')
       + '<a class="ynav-login" href="duel.html#login" title="Войти — прогресс на любом устройстве">'
       +   '<span class="ynav-login-av">' + AVATAR_SVG + '</span>'
       +   '<span class="ynav-login-txt">Войти</span>'
       + '</a>';
   }
 
-  function mount(el, current){
+  function mount(el, current, opts){
     if (typeof el === 'string') el = document.getElementById(el);
-    if (el) el.innerHTML = html(current);
+    if (el) el.innerHTML = html(current, opts);
     return el;
   }
 
