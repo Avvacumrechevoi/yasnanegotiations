@@ -26,6 +26,57 @@
   }
 
   var SPAR = window.NegSpar || [];
+  var TYPES = (window.NegContact && window.NegContact.types) || [];
+  function typeById(code) { var r = null; TYPES.forEach(function (t) { if (t.id === code) r = t; }); return r; }
+
+  // ═══ Конфиг «Живого спарринга»: уровни × навыки × типы ════════════
+  // model — СЛУЖЕБНОЕ поле, в UI НЕ показывается (юзер видит только уровень).
+  var CFG = {
+    naming: {
+      title: 'Живой спарринг',
+      sub: 'Веди настоящий разговор: выбери, кого тренируешь, какой навык качаешь и насколько жёстко играть — и заходи. Отвечай своими словами, собеседник реагирует по-живому, как человек напротив.'
+    },
+    levels: [
+      { id: 'easy',   label: 'Разминка',     emoji: '🟢', model: 'claude-haiku-4-5',
+        desc: 'Дружелюбный: прощает шероховатости и сам подсказывает, куда вести.',
+        behavior: 'Уровень РАЗМИНКА. Ты настроен доброжелательно и искренне хочешь, чтобы разговор сложился. Прощай неуклюжие формулировки и мелкие промахи: если ход в целом в нужную сторону — теплей и иди навстречу. На явную ошибку реагируй мягко, без обиды, и сам приоткрывай зацепку, за которую игроку удобно ухватиться («меня вот что на самом деле волнует…»). Сопротивляйся слабо, из контакта не выходи. Дай игроку почувствовать прогресс. Держись своего характера, но в его тёплой, расположенной версии.' },
+      { id: 'medium', label: 'Переговоры',   emoji: '🟡', model: 'claude-sonnet-4-6',
+        desc: 'Реалистичный: за верный заход теплеет, на промах холодеет — как в жизни.',
+        behavior: 'Уровень ПЕРЕГОВОРЫ. Веди себя как живой деловой человек этой роли — без поблажек и без злого умысла. Точный ход — теплей и шаг навстречу; вода, давление или мимо твоего характера — холодней, держи дистанцию, переспрашивай, можешь усомниться вслух. Ничего не подсказывай и не подыгрывай. Контакт растёт только за реальную работу игрока; одна-две грубые ошибки подряд — и ты заметно отстраняешься.' },
+      { id: 'hard',   label: 'Жёсткий стол', emoji: '🔴', model: 'claude-opus-4-8',
+        desc: 'Тёртый и недоверчивый: цепляется к неточностям, легко встаёт из-за стола.',
+        behavior: 'Уровень ЖЁСТКИЙ СТОЛ. Ты опытный, недоверчивый и не расположенный собеседник; время и терпение на исходе. Ловишь любую неточность, штамп, манипуляцию и несоответствие своему характеру — называешь это вслух и давишь сильнее. Теплеешь скупо и только за по-настоящему сильный, точный ход, и даже тогда не до конца. На слабый или давящий ход — холодеешь резко: можешь оборвать тему, поставить ультиматум или встать из-за стола. Никаких подсказок и поблажек — пусть игрок вытаскивает разговор сам.' }
+    ],
+    skills: [
+      { id: 'contact',  label: 'Вход в контакт', sub: 'Расположить с первых фраз и считать, кто перед тобой.',
+        goal: 'Игрок тренирует ВХОД В КОНТАКТ: расположить собеседника с первых реплик, по поведению считать его тип и выбрать верный заход вместо шаблонного. Награждай ходы, где игрок сперва настраивается на тебя (вопрос о тебе или твоём контексте, верный тон, темп под тебя), и холодей на разогнавшийся с порога питч или заход не в твою волну. Свой тип проявляй с первых реплик, чтобы было что считывать.',
+        success: 'первые 1–2 хода попали в волну собеседника, тип распознан и заход подобран под него' },
+      { id: 'resonance', label: 'Резонанс', sub: 'Поймать волну и не питчить раньше времени.',
+        goal: 'Игрок тренирует РЕЗОНАНС: поймать твою волну — темп, тему, настроение — и удержаться от преждевременного питча. Награждай отзеркаливание, уточняющие вопросы и движение в твоём темпе; холодей, если игрок перескакивает к продаже, деньгам или решению раньше, чем построен контакт.',
+        success: 'игрок шёл в твоём темпе, развивал твою тему и не сорвался в питч' },
+      { id: 'give-take', label: 'Дать-взять', sub: 'На каждое «беру» — своё «даю, если».',
+        goal: 'Игрок тренирует ЧЕСТНЫЙ ОБМЕН: на каждое твоё «беру» называть встречное «даю, если» и привязывать уступку к проверяемому условию. Дави односторонне — проси уступок, про встречное молчи; награждай ровный обмен, остывай и на капитуляцию «лишь бы закрыть», и на встречный продавливающий ультиматум.',
+        success: 'ни одной уступки даром, каждая привязана к условию, без капитуляции и без пережима' },
+      { id: 'status',    label: 'Дело vs статус', sub: 'Понять, что задето: условия или самолюбие.',
+        goal: 'Игрок тренирует РАЗЛИЧЕНИЕ ДРАЙВЕРА: услышать, в чём настоящий корень недовольства — деловые условия или задетое самолюбие и статус — и попасть в настоящую причину. Подавай жалобу про «цену» или «условия», за которой на деле задето отношение к тебе; награждай прощупывающие вопросы и признание твоего статуса, холодей, когда игрок лечит задетое самолюбие скидкой или цифрой.',
+        success: 'игрок не клюнул на ложный повод, прощупал и попал в настоящий драйвер' },
+      { id: 'repair',    label: 'Починить недопонимание', sub: 'Развернуть холодеющий разговор без обвинений.',
+        goal: 'Игрок тренирует ПОЧИНКУ НЕДОПОНИМАНИЯ: развернуть холодеющий или сорвавшийся разговор обратно к пониманию — без оправданий и встречных обвинений. Будь холоден, поминай прошлый промах или обиду; награждай прямое признание факта без оправданий и возврат к твоему интересу, резко закрывайся на перевод стрелок и отмашку «всякое бывает».',
+        success: 'игрок признал проблему без оправданий и перевода вины — холод сменился готовностью продолжать' },
+      { id: 'exit',      label: 'Выйти красиво', sub: 'Завершить — даже при отказе — с чистым следом.',
+        goal: 'Игрок тренирует КРАСИВЫЙ ВЫХОД: завершить разговор — в том числе при твоём отказе — так, чтобы остался чистый след и открытая дверь. Веди дело к завершению или к отказу; награждай чёткую фиксацию договорённого, спокойное принятие «нет» и оставленную дверь, остывай на дожим после отказа, на обиду и на затянутый финал.',
+        success: 'итог зафиксирован или отказ принят ровно, без дожима и обиды, дверь оставлена открытой' }
+    ],
+    typeRole: { 'ХА': 'нетерпеливый руководитель', 'ФО': 'аналитик-скептик', 'ЦИ': 'человек смысла и тепла', 'ШЭ': 'практик до мозга костей' },
+    typePrompt: {
+      'ХА': 'Тип ХА «Командир» (метка: Огонь · Воля, 🔥). Ты руководитель, привыкший решать и отвечать за результат. Нетерпелив: «у меня пять минут», всё нужно было ещё вчера; говоришь рублеными короткими фразами и сразу про дело. Тебя заводят: суть в первой фразе, выгода и конкретная цифра, готовый выбор как команда («бери вариант А или Б»). Тебя бесят и охлаждают: вода, долгие вступления и благодарности, теория и психология, неуверенность («наверное», «не знаю»), эмоции и лесть вместо результата. Зашли коротко и по выгоде — разворачиваешься и решаешь быстро.',
+      'ФО': 'Тип ФО «Аналитик» (метка: Вода · Ум, 💧). Ты скептик с внутренней бритвой: «пока не доказано — не считается». Сух, держишь дистанцию, проверяешь каждое утверждение. Тебя заводят: факты, цифры, ссылка на источник или замер, признание твоей экспертизы, честное «не знаю» вместо блефа. Тебя бесят и закрывают: «поверьте», «мы лучшие», эмоции вместо доказательств, общие слова и регалии, ранний питч. Доверие даёшь медленно и только за проверяемое; на пустое обещание каменеешь.',
+      'ЦИ': 'Тип ЦИ «Душевный» (метка: Воздух · Душа, ✦). Для тебя «зачем» и «с кем» важнее, чем «сколько». Ты человек смысла и тепла, ценишь отношения и личный контакт, говоришь живо, порой уходишь в истории. Тебя заводят: разговор по-человечески, искренний интерес к тебе, сначала контакт и смысл — потом дело, признание твоей истории. Тебя ранят и отталкивают: сухой питч с порога, давление и спешка, обезличенность («вы как все»), сведение всего к деньгам. Чувствуешь, что тебя слышат как человека, — раскрываешься.',
+      'ШЭ': 'Тип ШЭ «Практик» (метка: Земля · Тело, ⬢). Веришь только тому, что можно потрогать и проверить руками: «покажи готовое, а не рассказывай». Конкретен, приземлён, теорию пропускаешь мимо ушей. Тебя заводят: демо, живой кейс, цифры и факты, пошаговая конкретика. Тебя бесят и охлаждают: абстракции и «вообще», концепции и методологии, обещания без доказательства, «в перспективе». Пока не увидел или не пощупал — не веришь; увидел конкретное — включаешься.'
+    }
+  };
+  function levelById(id) { var r = CFG.levels[1]; CFG.levels.forEach(function (l) { if (l.id === id) r = l; }); return r; }
+  function skillById(id) { var r = CFG.skills[0]; CFG.skills.forEach(function (s) { if (s.id === id) r = s; }); return r; }
 
   // боль + связь с уроком (JTBD): спарринг = «живая» версия навыка из урока
   var SPAR_META = {
@@ -47,8 +98,14 @@
   function setEngine(v) { try { localStorage.setItem('yasna_neg_engine', v); } catch (_) {} }
   function getKey() { try { return localStorage.getItem('yasna_neg_aikey') || ''; } catch (_) { return ''; } }
   function setKey(v) { try { v ? localStorage.setItem('yasna_neg_aikey', v) : localStorage.removeItem('yasna_neg_aikey'); } catch (_) {} }
-  function getModel() { try { return localStorage.getItem('yasna_neg_aimodel') || 'claude-haiku-4-5'; } catch (_) { return 'claude-haiku-4-5'; } }
-  function setModel(v) { try { localStorage.setItem('yasna_neg_aimodel', v); } catch (_) {} }
+  // Уровень сложности → модель (служебно). Юзер выбирает только уровень.
+  function getLevel() { try { return localStorage.getItem('yasna_neg_level') || 'medium'; } catch (_) { return 'medium'; } }
+  function setLevel(v) { try { localStorage.setItem('yasna_neg_level', v); } catch (_) {} }
+  function getModel() { return levelById(getLevel()).model; }
+  function getSparType() { try { return localStorage.getItem('yasna_neg_spar_type') || 'ХА'; } catch (_) { return 'ХА'; } }
+  function setSparType(v) { try { localStorage.setItem('yasna_neg_spar_type', v); } catch (_) {} }
+  function getSparSkill() { try { return localStorage.getItem('yasna_neg_spar_skill') || CFG.skills[0].id; } catch (_) { return CFG.skills[0].id; } }
+  function setSparSkill(v) { try { localStorage.setItem('yasna_neg_spar_skill', v); } catch (_) {} }
 
   // ═══ верхние вкладки режимов ══════════════════════════════════════
   function setupModeTabs() {
@@ -79,67 +136,114 @@
   function renderSelector() {
     if (!sparRoot) return;
     sparRoot.innerHTML = '';
-    var key = getKey();
-    // дефолт: без ключа всегда «готовый сценарий», чтобы карточки запускались сразу
-    if (!key && getEngine() === 'ai') setEngine('script');
-    var showAi = aiSetupOpen || !!key;
 
-    sparRoot.appendChild(el('p', 'neg-section-sub',
-      'Тренируй навык в живом диалоге: выбери собеседника и веди разговор — отвечай своими словами или жми подсказки. Работает сразу, без ключа.'));
+    // ── конструктор: тип × навык × уровень ──
+    var cfg = el('div', 'neg-cfg');
+    var curType = getSparType(), curSkill = getSparSkill(), curLvl = getLevel();
 
-    // блок «реальный ИИ» показывается только если его открыли (или ключ уже есть)
-    if (showAi) {
-      var engine = getEngine();
-      var eng = el('div', 'neg-spar-engine');
-      eng.innerHTML =
-        '<button type="button" class="neg-spar-eng-btn' + (engine === 'script' ? ' is-active' : '') + '" data-eng="script">' +
-          '<span class="neg-spar-eng-h">📋 Готовый сценарий</span>' +
-          '<span class="neg-spar-eng-d">Без ключа и интернета. Реплики на правилах.</span>' +
-        '</button>' +
-        '<button type="button" class="neg-spar-eng-btn' + (engine === 'ai' ? ' is-active' : '') + '" data-eng="ai">' +
-          '<span class="neg-spar-eng-h">🤖 Реальный ИИ <span class="neg-spar-eng-opt">опционально</span></span>' +
-          '<span class="neg-spar-eng-d">Для продвинутых: живой собеседник на своём ключе Anthropic. Для теста не нужен.</span>' +
-        '</button>';
-      [].forEach.call(eng.querySelectorAll('.neg-spar-eng-btn'), function (b) {
-        b.addEventListener('click', function () { setEngine(b.getAttribute('data-eng')); renderSelector(); });
-      });
-      sparRoot.appendChild(eng);
-      if (engine === 'ai') sparRoot.appendChild(renderKeyPanel());
-    }
-
-    if (!SPAR.length) { sparRoot.appendChild(el('div', 'neg-ex-empty', 'Сценарии не загружены.')); return; }
-    sparRoot.appendChild(el('div', 'neg-spar-pick-label', 'Выбери, с кем потренироваться:'));
-    var grid = el('div', 'neg-spar-grid');
-    SPAR.forEach(function (sc, idx) {
-      var st = prog[sc.id] || {};
-      var badge = st.plays
-        ? '<span class="neg-spar-card-badge">лучшее ' + (st.best || 0) + '/' + sc.beats.length + '</span>'
-        : '<span class="neg-spar-card-badge neg-spar-card-badge--new">тренировать →</span>';
-      var meta = SPAR_META[sc.id] || {};
-      var card = el('button', 'neg-spar-card' + (idx === 0 ? ' is-rec' : ''));
-      card.type = 'button';
-      card.innerHTML =
-        '<span class="neg-spar-card-glyph">' + esc(sc.persona.glyph) + '</span>' +
-        '<span class="neg-spar-card-body">' +
-          (idx === 0 ? '<span class="neg-spar-card-rec">Рекомендуем начать</span>' : '') +
-          '<span class="neg-spar-card-title">' + esc(sc.title) + '</span>' +
-          (meta.when ? '<span class="neg-spar-card-when">Когда: ' + esc(meta.when) + '</span>' : '') +
-          '<span class="neg-spar-card-persona">' + esc(sc.persona.name) + ' · ' + esc(sc.persona.role) +
-            (meta.from ? ' <span class="neg-spar-card-from">из «' + esc(meta.from) + '»</span>' : '') + '</span>' +
-        '</span>' +
-        '<span class="neg-spar-card-foot">' + badge + '</span>';
-      card.addEventListener('click', function () { openScenario(sc); });
-      grid.appendChild(card);
+    cfg.appendChild(el('div', 'neg-cfg-label', '1 · С кем тренируешься'));
+    var typeRow = el('div', 'neg-cfg-types');
+    TYPES.forEach(function (t) {
+      var b = el('button', 'neg-cfg-type neg-c-type--' + t.id + (t.id === curType ? ' is-on' : ''));
+      b.type = 'button';
+      b.innerHTML =
+        '<span class="neg-cfg-type-glyph">' + esc(t.glyph) + '</span>' +
+        '<span class="neg-cfg-type-name">' + esc(t.label || t.id) + '</span>' +
+        '<span class="neg-cfg-type-role">' + esc(CFG.typeRole[t.id] || '') + '</span>';
+      b.addEventListener('click', function () { setSparType(t.id); renderSelector(); });
+      typeRow.appendChild(b);
     });
-    sparRoot.appendChild(grid);
+    cfg.appendChild(typeRow);
 
-    // ссылка на подключение реального ИИ (для продвинутых)
-    if (!showAi) {
-      var link = el('button', 'neg-spar-ailink', '🤖 Хочешь живого ИИ-собеседника? Подключить свой ключ (для продвинутых) →');
+    cfg.appendChild(el('div', 'neg-cfg-label', '2 · Какой навык качаешь'));
+    var skillRow = el('div', 'neg-cfg-skills');
+    CFG.skills.forEach(function (s) {
+      var b = el('button', 'neg-cfg-skill' + (s.id === curSkill ? ' is-on' : ''));
+      b.type = 'button';
+      b.innerHTML = '<span class="neg-cfg-skill-h">' + esc(s.label) + '</span>' +
+        '<span class="neg-cfg-skill-d">' + esc(s.sub) + '</span>';
+      b.addEventListener('click', function () { setSparSkill(s.id); renderSelector(); });
+      skillRow.appendChild(b);
+    });
+    cfg.appendChild(skillRow);
+
+    cfg.appendChild(el('div', 'neg-cfg-label', '3 · Насколько жёстко'));
+    var lvlRow = el('div', 'neg-cfg-levels');
+    CFG.levels.forEach(function (l) {
+      var b = el('button', 'neg-cfg-level neg-cfg-level--' + l.id + (l.id === curLvl ? ' is-on' : ''));
+      b.type = 'button';
+      b.innerHTML = '<span class="neg-cfg-level-h">' + l.emoji + ' ' + esc(l.label) + '</span>' +
+        '<span class="neg-cfg-level-d">' + esc(l.desc) + '</span>';
+      b.addEventListener('click', function () { setLevel(l.id); renderSelector(); });
+      lvlRow.appendChild(b);
+    });
+    cfg.appendChild(lvlRow);
+
+    var tt = typeById(curType) || {}, sk = skillById(curSkill);
+    var cta = el('button', 'neg-cfg-start', 'Начать спарринг: ' + esc(tt.label || '') + ' · ' + esc(sk.label) + ' →');
+    cta.type = 'button';
+    cta.addEventListener('click', onStartConfigured);
+    cfg.appendChild(cta);
+    sparRoot.appendChild(cfg);
+
+    // ключ для живого диалога (BYOK) — панель или ссылка
+    if (aiSetupOpen || getKey()) sparRoot.appendChild(renderKeyPanel());
+    else {
+      var link = el('button', 'neg-spar-ailink', '🔑 Для живого диалога нужен свой ключ Anthropic — подключить →');
       link.type = 'button';
       link.addEventListener('click', function () { aiSetupOpen = true; renderSelector(); });
       sparRoot.appendChild(link);
     }
+
+    // ── готовые сценарии: быстрый старт без настройки и без ключа ──
+    if (SPAR.length) {
+      sparRoot.appendChild(el('div', 'neg-spar-pick-label', 'Или готовый сценарий — сразу, без настройки и ключа:'));
+      var grid = el('div', 'neg-spar-grid');
+      SPAR.forEach(function (sc, idx) {
+        var st = prog[sc.id] || {};
+        var badge = st.plays
+          ? '<span class="neg-spar-card-badge">лучшее ' + (st.best || 0) + '/' + sc.beats.length + '</span>'
+          : '<span class="neg-spar-card-badge neg-spar-card-badge--new">тренировать →</span>';
+        var meta = SPAR_META[sc.id] || {};
+        var card = el('button', 'neg-spar-card');
+        card.type = 'button';
+        card.innerHTML =
+          '<span class="neg-spar-card-glyph">' + esc(sc.persona.glyph) + '</span>' +
+          '<span class="neg-spar-card-body">' +
+            '<span class="neg-spar-card-title">' + esc(sc.title) + '</span>' +
+            (meta.when ? '<span class="neg-spar-card-when">Когда: ' + esc(meta.when) + '</span>' : '') +
+            '<span class="neg-spar-card-persona">' + esc(sc.persona.name) + ' · ' + esc(sc.persona.role) +
+              (meta.from ? ' <span class="neg-spar-card-from">из «' + esc(meta.from) + '»</span>' : '') + '</span>' +
+          '</span>' +
+          '<span class="neg-spar-card-foot">' + badge + '</span>';
+        card.addEventListener('click', function () { startScriptChat(sc); });
+        grid.appendChild(card);
+      });
+      sparRoot.appendChild(grid);
+    }
+  }
+
+  // Старт настроенного живого диалога. Без ключа — открываем панель ключа.
+  function onStartConfigured() {
+    if (!getKey()) {
+      aiSetupOpen = true; renderSelector();
+      var i = document.getElementById('neg-spar-key-input');
+      if (i) { try { i.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (_) {} i.focus(); }
+      return;
+    }
+    startAIChat(buildScenario(getSparType(), getSparSkill()));
+  }
+
+  // Сборка «сценария» из выбора конструктора (для живого диалога).
+  function buildScenario(typeCode, skillId) {
+    var t = typeById(typeCode) || {};
+    var sk = skillById(skillId);
+    return {
+      _configured: true, _typeCode: typeCode, _skillId: skillId,
+      persona: { name: (t.label || typeCode), role: (CFG.typeRole[typeCode] || ''), glyph: (t.glyph || '💬') },
+      setting: 'Деловой разговор один на один.',
+      param: sk.label, goal: sk.sub, skill: sk
+    };
   }
 
   function renderKeyPanel() {
@@ -148,7 +252,7 @@
     if (hasKey) {
       wrap.innerHTML =
         '<div class="neg-spar-key-row"><span class="neg-spar-key-ok">✓ Ключ сохранён</span> ' +
-        '<span class="neg-spar-key-sub">в этом браузере · модель: ' + esc(getModel()) + '</span></div>' +
+        '<span class="neg-spar-key-sub">в этом браузере · уровень задаёт сложность собеседника</span></div>' +
         '<div class="neg-spar-key-actions">' +
           '<button type="button" class="neg-spar-key-link" data-act="edit">Сменить ключ</button>' +
           '<button type="button" class="neg-spar-key-link" data-act="del">Удалить</button>' +
@@ -163,28 +267,15 @@
       'Получить ключ: <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>.</p>' +
       '<div class="neg-spar-key-form">' +
         '<input type="password" class="neg-spar-key-input" id="neg-spar-key-input" placeholder="sk-ant-..." autocomplete="off"/>' +
-        '<select class="neg-spar-key-model" id="neg-spar-key-model">' +
-          '<option value="claude-haiku-4-5">Haiku (быстрее/дешевле)</option>' +
-          '<option value="claude-sonnet-4-6">Sonnet (умнее)</option>' +
-        '</select>' +
-        '<button type="button" class="neg-spar-key-save" id="neg-spar-key-save">Сохранить</button>' +
-      '</div>';
+        '<button type="button" class="neg-spar-key-save" id="neg-spar-key-save">Сохранить и начать</button>' +
+      '</div>' +
+      '<p class="neg-spar-key-note neg-spar-key-note--lvl">Сложность собеседника выбирается уровнем выше (🟢 / 🟡 / 🔴) — модель подбирается автоматически.</p>';
     wrap.querySelector('#neg-spar-key-save').addEventListener('click', function () {
       var v = (wrap.querySelector('#neg-spar-key-input').value || '').trim();
-      var m = wrap.querySelector('#neg-spar-key-model').value;
       if (!v) { wrap.querySelector('#neg-spar-key-input').focus(); return; }
-      setModel(m); setKey(v); renderSelector();
+      setKey(v); startAIChat(buildScenario(getSparType(), getSparSkill()));
     });
     return wrap;
-  }
-
-  function openScenario(sc) {
-    if (getEngine() === 'ai') {
-      if (!getKey()) { renderSelector(); var i = document.getElementById('neg-spar-key-input'); if (i) i.focus(); return; }
-      startAIChat(sc);
-    } else {
-      startScriptChat(sc);
-    }
   }
 
   // ═══ общий каркас чата ════════════════════════════════════════════
@@ -318,7 +409,8 @@
   var AI = null;
   function startAIChat(sc) {
     AI = { sc: sc, history: [], turns: 0, busy: false, msgs: null };
-    AI.msgs = chatShell(sc, '🤖 ИИ · ' + getModel().replace('claude-', ''));
+    var lv = levelById(getLevel());
+    AI.msgs = chatShell(sc, lv.emoji + ' ' + lv.label);   // ярлык уровня, без «ИИ» и без модели
 
     var comp = el('div', 'neg-spar-composer');
     comp.innerHTML =
@@ -338,15 +430,29 @@
     aiKick();
   }
 
+  // Системный промпт собирается из выбора конструктора: тип × навык × уровень.
   function aiSystem(sc) {
-    return 'Ты играешь РОЛЬ собеседника на деловых переговорах, НЕ ассистента. ' +
-      'Персона: ' + sc.persona.name + ' — ' + sc.persona.role + '. Обстановка: ' + sc.setting + ' ' +
-      'Пользователь — переговорщик напротив; он тренирует параметр «' + sc.param + '»: ' + sc.goal + ' ' +
-      'Веди себя как живой человек этой роли: отвечай коротко (1–3 фразы), по-русски, эмоционально достоверно. ' +
-      'Реагируй на КАЧЕСТВО его хода по сути параметра: ведёт верно — теплей и двигайся навстречу; давит/мимо — холодней, сопротивляйся, можешь и уйти из контакта. ' +
-      'Никогда не выходи из роли, не объясняй правила, не давай советов и мета-комментариев. Только реплики персонажа.';
+    var typeName = sc.persona.name;
+    var typeBehavior = (sc._typeCode && CFG.typePrompt[sc._typeCode]) || (typeName + ' — ' + sc.persona.role + '.');
+    var skillGoal = (sc.skill && sc.skill.goal) || ('Игрок тренирует «' + sc.param + '»: ' + sc.goal);
+    var difficultyBehavior = levelById(getLevel()).behavior;
+    return 'Ты играешь РОЛЬ собеседника на деловых переговорах, а НЕ ассистента и НЕ тренера. Ты — живой человек этой роли, с её характером и интересами.\n\n' +
+      'ТВОЙ ХАРАКТЕР (' + typeName + ') — держи его в каждой реплике:\n' + typeBehavior + '\n\n' +
+      'ЧТО ТРЕНИРУЕТ ИГРОК НАПРОТИВ — на это реагируй прежде всего:\n' + skillGoal + '\n\n' +
+      'НАСКОЛЬКО ЖЁСТКО ИГРАТЬ:\n' + difficultyBehavior + '\n\n' +
+      'КАК ОТВЕЧАТЬ:\n' +
+      '- По-русски, коротко — 1–3 фразы, как в живой устной речи.\n' +
+      '- Главное: реагируй на КАЧЕСТВО хода игрока — и по тренируемому навыку, и по своему характеру. Точный, сильный ход — теплей и шаг навстречу; вода, давление, манипуляция или мимо твоего типа — холодней и сопротивляйся, вплоть до выхода из контакта (насколько резко — по уровню жёсткости выше).\n' +
+      '- Будь эмоционально достоверным: характер (' + typeName + ') виден всегда, даже когда теплеешь или злишься.\n' +
+      '- НИКОГДА не выходи из роли: не объясняй правила, не оценивай ход игрока вслух, не давай советов, подсказок и мета-комментариев, не называй «правильный ответ». Только реплики и реакции персонажа.\n' +
+      '- Не повторяй слова игрока дословно и не уходи в монолог — отвечай как в настоящем диалоге.';
   }
   async function callClaude(messages, system, maxTokens) {
+    return callWithModel(getModel(), messages, system, maxTokens, true);
+  }
+  // Если у ключа нет доступа к выбранной модели (часто на «Жёстком столе» = Opus) —
+  // тихо откатываемся на Sonnet, чтобы уровень всё равно работал.
+  async function callWithModel(model, messages, system, maxTokens, allowFallback) {
     var res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -355,10 +461,14 @@
         'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true'
       },
-      body: JSON.stringify({ model: getModel(), max_tokens: maxTokens || 320, system: system, messages: messages })
+      body: JSON.stringify({ model: model, max_tokens: maxTokens || 320, system: system, messages: messages })
     });
     if (!res.ok) {
       var t = ''; try { t = await res.text(); } catch (_) {}
+      var modelIssue = (res.status === 404) || (res.status === 400 && /model/i.test(t));
+      if (allowFallback && modelIssue && model !== 'claude-sonnet-4-6') {
+        return callWithModel('claude-sonnet-4-6', messages, system, maxTokens, false);
+      }
       throw new Error('HTTP ' + res.status + (t ? ' · ' + t.slice(0, 160) : ''));
     }
     var data = await res.json();
@@ -408,7 +518,8 @@
     aiSetBusy(true); aiTyping(true);
     try {
       var hist = AI.history.slice();
-      hist.push({ role: 'user', content: 'Выйди из роли. Как тренер оцени, как я провёл этот разговор по параметру «' + AI.sc.param + '» (' + AI.sc.goal + '). ' +
+      var crit = (AI.sc.skill && AI.sc.skill.success) ? ' Критерий «хорошо»: ' + AI.sc.skill.success + '.' : '';
+      hist.push({ role: 'user', content: 'Выйди из роли. Как тренер оцени, как я провёл этот разговор по навыку «' + AI.sc.param + '».' + crit + ' ' +
         'Дай короткий разбор (2–4 фразы): что сработало, что улучшить. Начни ПЕРВОЙ строкой ровно так: «Оценка: N/5» (N — целое 0–5).' });
       var verdict = await callClaude(hist, 'Ты — наставник по переговорам. Отвечай по-русски, по делу, без воды.', 400);
       aiTyping(false);
@@ -463,7 +574,7 @@
       if (!sparRoot) sparRoot = document.getElementById('neg-spar-root');
       var sc = null;
       SPAR.forEach(function (s) { if (s.id === id) sc = s; });
-      if (sc) openScenario(sc); else renderSelector();
+      if (sc) startScriptChat(sc); else renderSelector();
       if (sparRoot && sparRoot.scrollIntoView) sparRoot.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };

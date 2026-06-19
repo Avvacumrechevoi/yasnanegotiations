@@ -256,6 +256,49 @@
 @media (max-width: 640px) { .neg-fab-fb { right: 12px; bottom: 12px; padding: 12px; } .neg-fab-fb-txt { display: none; } }
 .neg-spar-eng-opt { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
   color: var(--text-tertiary); background: var(--bg-tonal); border-radius: 5px; padding: 2px 6px; margin-left: 6px; vertical-align: middle; }
+
+/* ── Конструктор «Живого спарринга»: тип × навык × уровень ── */
+.neg-cfg { display: flex; flex-direction: column; gap: 8px; margin: 6px 0 16px; }
+.neg-cfg-label { font-size: 12px; font-weight: 700; letter-spacing: .03em; color: var(--text-tertiary); margin-top: 12px; }
+.neg-cfg-label:first-child { margin-top: 0; }
+.neg-cfg-types { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+@media (max-width: 560px) { .neg-cfg-types { grid-template-columns: 1fr 1fr; } }
+.neg-cfg-type { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; text-align: left;
+  background: var(--bg-card); border: 1px solid var(--border); border-top: 3px solid var(--tcol, var(--accent));
+  border-radius: 14px; padding: 12px; cursor: pointer; color: var(--text-primary); font: inherit;
+  transition: border-color .15s, background .15s, box-shadow .15s; }
+.neg-cfg-type:hover { background: var(--bg-elevated); }
+.neg-cfg-type.is-on { background: var(--bg-elevated); border-color: var(--tcol, var(--accent)); box-shadow: 0 0 0 1px var(--tcol, var(--accent)); }
+.neg-cfg-type-glyph { font-size: 20px; line-height: 1; }
+.neg-cfg-type-name { font-weight: 700; font-size: 14px; color: var(--tcol, var(--text-primary)); }
+.neg-cfg-type-role { font-size: 11.5px; color: var(--text-tertiary); line-height: 1.3; }
+.neg-cfg-skills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+@media (max-width: 720px) { .neg-cfg-skills { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 460px) { .neg-cfg-skills { grid-template-columns: 1fr; } }
+.neg-cfg-skill { display: flex; flex-direction: column; gap: 3px; text-align: left;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 11px 13px; cursor: pointer; color: var(--text-primary); font: inherit;
+  transition: border-color .15s, background .15s, box-shadow .15s; }
+.neg-cfg-skill:hover { background: var(--bg-elevated); }
+.neg-cfg-skill.is-on { background: var(--accent-soft); border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.neg-cfg-skill-h { font-weight: 600; font-size: 13.5px; }
+.neg-cfg-skill-d { font-size: 11.5px; color: var(--text-tertiary); line-height: 1.35; }
+.neg-cfg-levels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+@media (max-width: 560px) { .neg-cfg-levels { grid-template-columns: 1fr; } }
+.neg-cfg-level { display: flex; flex-direction: column; gap: 3px; text-align: left;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 11px 13px; cursor: pointer; color: var(--text-primary); font: inherit;
+  transition: border-color .15s, background .15s, box-shadow .15s; }
+.neg-cfg-level:hover { background: var(--bg-elevated); }
+.neg-cfg-level.is-on { background: var(--bg-elevated); }
+.neg-cfg-level--easy.is-on   { border-color: #2FBF71; box-shadow: 0 0 0 1px #2FBF71; }
+.neg-cfg-level--medium.is-on { border-color: #E0A93B; box-shadow: 0 0 0 1px #E0A93B; }
+.neg-cfg-level--hard.is-on   { border-color: #E2604A; box-shadow: 0 0 0 1px #E2604A; }
+.neg-cfg-level-h { font-weight: 700; font-size: 13.5px; }
+.neg-cfg-level-d { font-size: 11.5px; color: var(--text-tertiary); line-height: 1.35; }
+.neg-cfg-start { margin-top: 8px; align-self: flex-start; display: inline-flex; align-items: center; gap: 8px;
+  background: var(--accent); color: var(--accent-on, #fff); border: 0; border-radius: 100px; padding: 13px 26px;
+  font: inherit; font-weight: 700; font-size: 15px; cursor: pointer; box-shadow: 0 6px 22px var(--accent-glow); transition: background .15s; }
+.neg-cfg-start:hover { background: var(--accent-hover); }
+.neg-spar-key-note--lvl { margin-top: 8px; font-size: 12px; }
 /* отвеченная карточка слегка приглушена — фокус на текущей (но текст читаем) */
 .neg-drill-card .neg-ex-opt:disabled, .neg-drill-card .neg-opt:disabled { cursor: default; }
 .neg-drill-head {

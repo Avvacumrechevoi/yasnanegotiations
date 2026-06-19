@@ -62,7 +62,7 @@ body {
 </style>
 
 <link rel="stylesheet" href="core/site-nav.css?v=nav5"/>
-<link rel="stylesheet" href="negotiations/trainer.css?v=17"/>
+<link rel="stylesheet" href="negotiations/trainer.css?v=18"/>
 </head>
 <body>
 <!-- Тема тренажёра: тёмная по умолчанию, 'light' в localStorage → светлая. Ставим класс ДО отрисовки (без мигания). -->
@@ -110,7 +110,7 @@ body {
 
   <div class="neg-mode-tabs" id="neg-mode-tabs" role="tablist">
     <button class="neg-mode-tab is-active" type="button" data-mode="lessons" role="tab">Сценарии</button>
-    <button class="neg-mode-tab" type="button" data-mode="spar" role="tab">Спарринг с ИИ</button>
+    <button class="neg-mode-tab" type="button" data-mode="spar" role="tab">Живой спарринг</button>
   </div>
 
   <div id="neg-mode-lessons">
@@ -125,8 +125,8 @@ body {
 
   <div id="neg-mode-spar" hidden>
     <section class="neg-section">
-      <h2 class="neg-section-h">Спарринг с ИИ</h2>
-      <p class="neg-section-sub">Тренируй параметры встречи в живом диалоге: собеседник-ИИ отвечает на твой ход. Отвечай своими словами или жми подсказки.</p>
+      <h2 class="neg-section-h">Живой спарринг</h2>
+      <p class="neg-section-sub">Веди настоящий разговор: выбери, кого тренируешь, какой навык качаешь и насколько жёстко играть — и заходи. Собеседник реагирует по-живому, как человек напротив.</p>
       <div id="neg-spar-root"></div>
     </section>
   </div>
@@ -150,7 +150,7 @@ body {
 <script src="negotiations/trainer.js?v=6"></script>
 <script src="negotiations/lessons-neg.js?v=5"></script>
 <script src="negotiations/spar-content.js?v=1"></script>
-<script src="negotiations/spar.js?v=6"></script>
+<script src="negotiations/spar.js?v=7"></script>
 
 </body>
 </html>
