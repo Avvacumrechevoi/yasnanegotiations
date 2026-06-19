@@ -241,6 +241,21 @@
 .neg-ex-card:last-child { margin-bottom: 0; }
 /* карточка встречи «вход в контакт» — внешняя обёртка (внутри свой neg-c-person) */
 .neg-c-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; padding: 20px; }
+
+/* Плавающая кнопка обратной связи (для тестеров) */
+.neg-fab-fb {
+  position: fixed; right: 18px; bottom: 18px; z-index: 60;
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--accent); color: var(--accent-on, #fff); text-decoration: none;
+  border-radius: 100px; padding: 11px 18px; font-weight: 600; font-size: 14px;
+  box-shadow: 0 6px 22px var(--accent-glow); transition: background .15s, transform .12s;
+}
+.neg-fab-fb:hover { background: var(--accent-hover); transform: translateY(-1px); }
+.neg-fab-fb:focus-visible { outline: 2px solid var(--accent-on, #fff); outline-offset: 2px; }
+.neg-fab-fb-ico { font-size: 16px; line-height: 1; }
+@media (max-width: 640px) { .neg-fab-fb { right: 12px; bottom: 12px; padding: 12px; } .neg-fab-fb-txt { display: none; } }
+.neg-spar-eng-opt { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--text-tertiary); background: var(--bg-tonal); border-radius: 5px; padding: 2px 6px; margin-left: 6px; vertical-align: middle; }
 /* отвеченная карточка слегка приглушена — фокус на текущей (но текст читаем) */
 .neg-drill-card .neg-ex-opt:disabled, .neg-drill-card .neg-opt:disabled { cursor: default; }
 .neg-drill-head {

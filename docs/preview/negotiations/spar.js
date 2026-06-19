@@ -97,8 +97,8 @@
           '<span class="neg-spar-eng-d">Без ключа и интернета. Реплики на правилах.</span>' +
         '</button>' +
         '<button type="button" class="neg-spar-eng-btn' + (engine === 'ai' ? ' is-active' : '') + '" data-eng="ai">' +
-          '<span class="neg-spar-eng-h">🤖 Реальный ИИ</span>' +
-          '<span class="neg-spar-eng-d">Живой собеседник на твоём API-ключе.</span>' +
+          '<span class="neg-spar-eng-h">🤖 Реальный ИИ <span class="neg-spar-eng-opt">опционально</span></span>' +
+          '<span class="neg-spar-eng-d">Для продвинутых: живой собеседник на своём ключе Anthropic. Для теста не нужен.</span>' +
         '</button>';
       [].forEach.call(eng.querySelectorAll('.neg-spar-eng-btn'), function (b) {
         b.addEventListener('click', function () { setEngine(b.getAttribute('data-eng')); renderSelector(); });

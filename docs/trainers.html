@@ -55,6 +55,14 @@ body{background:radial-gradient(ellipse 80% 60% at 50% 18%,rgba(0,119,255,.07) 0
 .tr-foot{margin-top:48px;text-align:center;color:var(--text-tertiary);font-size:13px}
 .tr-foot a{color:var(--accent-hover);text-decoration:none}
 .tr-foot a:hover{text-decoration:underline}
+
+/* Плавающая кнопка обратной связи (для тестеров) */
+.tr-fab-fb{position:fixed;right:18px;bottom:18px;z-index:60;display:inline-flex;align-items:center;gap:8px;
+  background:var(--accent);color:var(--accent-on,#fff);text-decoration:none;border-radius:100px;padding:11px 18px;
+  font-weight:600;font-size:14px;box-shadow:0 6px 22px var(--accent-glow);transition:background .15s,transform .12s}
+.tr-fab-fb:hover{background:var(--accent-hover);transform:translateY(-1px)}
+.tr-fab-fb-ico{font-size:16px;line-height:1}
+@media(max-width:640px){.tr-fab-fb{right:12px;bottom:12px;padding:12px}.tr-fab-fb-txt{display:none}}
 </style>
 
 <link rel="stylesheet" href="core/site-nav.css?v=nav4"/>
@@ -121,6 +129,11 @@ body{background:radial-gradient(ellipse 80% 60% at 50% 18%,rgba(0,119,255,.07) 0
   </div>
 
 </main>
+
+<!-- Кнопка обратной связи для тестеров — ведёт в Telegram-бот -->
+<a class="tr-fab-fb" href="https://t.me/YasnaDuelBot?start=otzyv" target="_blank" rel="noopener" title="Оставить отзыв в Telegram">
+  <span class="tr-fab-fb-ico" aria-hidden="true">💬</span><span class="tr-fab-fb-txt">Отзыв</span>
+</a>
 
 </body>
 </html>
