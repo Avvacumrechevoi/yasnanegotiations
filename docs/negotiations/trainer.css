@@ -198,9 +198,10 @@
 }
 .neg-ex-opt:hover:not(:disabled) { border-color: var(--accent); background: var(--bg-tonal); }
 .neg-ex-opt:disabled { cursor: default; }
-.neg-ex-opt.is-good { border-color: #2FBF71; background: rgba(47,191,113,.14); }
-.neg-ex-opt.is-mid  { border-color: #E0A93B; background: rgba(224,169,59,.14); }
-.neg-ex-opt.is-bad  { border-color: #E2604A; background: rgba(226,96,74,.14); }
+/* отвеченные варианты — сигнал полоской слева, без сплошной заливки (аккуратнее) */
+.neg-ex-opt.is-good { border-color: var(--border-strong); box-shadow: inset 4px 0 0 0 #2FBF71; }
+.neg-ex-opt.is-mid  { border-color: var(--border-strong); box-shadow: inset 4px 0 0 0 #E0A93B; }
+.neg-ex-opt.is-bad  { border-color: var(--border-strong); box-shadow: inset 4px 0 0 0 #E2604A; }
 
 .neg-ex-fb { max-height: 0; overflow: hidden; opacity: 0; transition: max-height .26s ease, opacity .2s ease; }
 .neg-ex-fb.is-show { max-height: 420px; opacity: 1; margin-top: 14px; }
@@ -322,9 +323,10 @@
   display: inline-flex; align-items: center; justify-content: center;
   font-size: 12px; font-weight: 700; background: var(--bg-tonal); color: var(--text-tertiary);
 }
-.neg-opt.is-correct { border-color: #2FBF71; background: rgba(47,191,113,0.14); }
+.neg-opt.is-correct { border-color: var(--border-strong); box-shadow: inset 4px 0 0 0 #2FBF71; }
 .neg-opt.is-correct .neg-opt-num { background: #2FBF71; color: #04210f; }
-.neg-opt.is-wrong { border-color: #FF5C5C; background: rgba(255,92,92,0.12); }
+.neg-opt.is-wrong { border-color: var(--border-strong); box-shadow: inset 4px 0 0 0 #FF5C5C; }
+.neg-opt.is-wrong .neg-opt-num { background: #FF5C5C; color: #2a0606; }
 
 .neg-drill-fb { max-height: 0; overflow: hidden; opacity: 0; transition: max-height 260ms ease, opacity 200ms ease; }
 .neg-drill-fb.is-show { max-height: 320px; opacity: 1; margin-top: 16px; }
@@ -419,8 +421,8 @@
 .neg-c-typebtn-glyph { font-size: 16px; }
 .neg-c-typebtn-id { font-weight: 700; }
 .neg-c-typebtn-name { font-size: 11.5px; color: var(--text-tertiary); }
-.neg-c-typebtn.is-correct { border-color: #2BB573; background: rgba(43,181,115,.14); }
-.neg-c-typebtn.is-wrong { border-color: #E2604A; background: rgba(226,96,74,.14); }
+.neg-c-typebtn.is-correct { border-color: var(--border-strong); box-shadow: inset 4px 0 0 0 #2BB573; }
+.neg-c-typebtn.is-wrong { border-color: var(--border-strong); box-shadow: inset 4px 0 0 0 #E2604A; }
 .neg-c-typebtn:disabled { cursor: default; }
 
 .neg-c-openopts { display: flex; flex-direction: column; gap: 8px; }
@@ -431,9 +433,9 @@
 }
 .neg-c-openbtn:hover:not(:disabled) { border-color: var(--accent); background: var(--bg-elevated); }
 .neg-c-openbtn:disabled { cursor: default; opacity: .6; }
-.neg-c-openbtn.is-resonate { border-color: #2BB573; background: rgba(43,181,115,.16); opacity: 1; }
-.neg-c-openbtn.is-neutral { border-color: #E0A93B; background: rgba(224,169,59,.14); opacity: 1; }
-.neg-c-openbtn.is-repel { border-color: #E2604A; background: rgba(226,96,74,.16); opacity: 1; }
+.neg-c-openbtn.is-resonate { border-color: var(--border-strong); box-shadow: inset 4px 0 0 0 #2BB573; opacity: 1; }
+.neg-c-openbtn.is-neutral { border-color: var(--border-strong); box-shadow: inset 4px 0 0 0 #E0A93B; opacity: 1; }
+.neg-c-openbtn.is-repel { border-color: var(--border-strong); box-shadow: inset 4px 0 0 0 #E2604A; opacity: 1; }
 
 .neg-c-fb { margin-top: 12px; padding: 12px 14px; border-radius: 12px; border-left: 3px solid var(--border-strong); background: var(--bg-elevated); }
 .neg-c-fb.is-ok { border-left-color: #2BB573; }
@@ -483,15 +485,22 @@
 .neg-cat-go { flex-shrink: 0; font-size: 13px; font-weight: 600; color: var(--accent-hover); white-space: nowrap; }
 @media (max-width: 520px) { .neg-cat-card { padding: 16px; gap: 12px; } .neg-cat-go { display: none; } }
 
-/* — шапка урока — */
-.neg-l-head { max-width: 760px; margin: 0 auto 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+/* — шапка урока: прогресс липнет под навбаром, всегда виден при скролле — */
+.neg-l-head {
+  position: sticky; top: 56px; z-index: 30;
+  max-width: 760px; margin: 0 auto 20px;
+  display: flex; align-items: center; gap: 8px 14px; flex-wrap: wrap;
+  padding: 12px 0 12px; border-bottom: 1px solid var(--border);
+  background: rgba(10,11,13,.86);
+  -webkit-backdrop-filter: saturate(1.4) blur(14px); backdrop-filter: saturate(1.4) blur(14px);
+}
 .neg-l-back {
   background: transparent; border: 1px solid var(--border-strong); color: var(--text-secondary);
   border-radius: 100px; padding: 7px 14px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
 }
 .neg-l-back:hover { color: var(--text-primary); border-color: var(--accent); }
 .neg-l-head-title { font-family: var(--font-display); font-weight: 700; font-size: 20px; color: var(--text-primary); }
-.neg-l-bar { flex: 1 1 100%; height: 4px; border-radius: 4px; background: var(--bg-tonal); overflow: hidden; }
+.neg-l-bar { order: 1; flex: 1 1 100%; height: 5px; border-radius: 4px; background: var(--bg-tonal); overflow: hidden; }
 .neg-l-bar-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .35s ease; }
 
 /* — сегменты урока — */
@@ -782,7 +791,7 @@ html[data-neg-mode="spar"] .neg-hero-cta:hover { color: var(--text-primary); bor
 /* — шапка урока: «Сценарий N из 4» + «Шаг N из M» — */
 .neg-l-head-tw { display: flex; flex-direction: column; }
 .neg-l-head-kicker { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--accent-hover); font-weight: 700; }
-.neg-l-step { flex: 1 1 100%; font-size: 12px; color: var(--text-tertiary); margin-top: 4px; text-align: right; font-variant-numeric: tabular-nums; }
+.neg-l-step { flex: 0 0 auto; margin-left: auto; font-size: 12px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; font-variant-numeric: tabular-nums; }
 
 /* — микроцель и связка с спаррингом — */
 .neg-l-todo { font-size: 13.5px; line-height: 1.5; color: var(--text-secondary); background: var(--bg-elevated); border-left: 2px solid var(--accent); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; }
@@ -796,9 +805,9 @@ html[data-neg-mode="spar"] .neg-hero-cta:hover { color: var(--text-primary); bor
 .neg-spar-card-rec { display: inline-block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-on, #fff); background: var(--accent); border-radius: 100px; padding: 2px 9px; margin-bottom: 5px; align-self: flex-start; }
 
 /* — нецветовые маркеры вердикта (a11y) — */
-.neg-ex-opt.is-good::before { content: '✓ '; font-weight: 700; }
-.neg-ex-opt.is-bad::before { content: '✗ '; font-weight: 700; }
-.neg-ex-opt.is-mid::before { content: '~ '; font-weight: 700; }
+.neg-ex-opt.is-good::before { content: '✓ '; font-weight: 700; color: #2FBF71; }
+.neg-ex-opt.is-bad::before { content: '✗ '; font-weight: 700; color: #E2604A; }
+.neg-ex-opt.is-mid::before { content: '~ '; font-weight: 700; color: #E0A93B; }
 
 /* — гибрид типов: деловое имя крупно, код мелко — */
 .neg-c-typebtn-id { font-size: 14px; }
@@ -873,6 +882,9 @@ html[data-theme='light'] {
 /* eyebrow / accent-tinted pill borders — slightly stronger on white */
 html[data-theme='light'] .neg-eyebrow { border-color: rgba(0,119,255,0.28); }
 
+/* липкая шапка урока — светлый полупрозрачный фон под блюром */
+html[data-theme='light'] .neg-l-head { background: rgba(245,245,247,.88); }
+
 /* ── гид по дуге: per-phase accent vars used as TEXT (badge, lbl--you, dot) ── */
 html[data-theme='light'] .neg-guide-seg--вход       { --gcol: #006B7D; }
 html[data-theme='light'] .neg-guide-seg--нарастание { --gcol: var(--accent-hover); }
@@ -902,10 +914,13 @@ html[data-theme='light'] .neg-memo-mode--ok  { border-left-color: #147A3C; }
 html[data-theme='light'] .neg-memo-mode--mid { border-left-color: #8A6100; }
 html[data-theme='light'] .neg-memo-mode--no  { border-left-color: #B5371F; }
 
-/* ── ситуационный экзамен: вариант-чипы (tinted bg + readable border) ── */
-html[data-theme='light'] .neg-ex-opt.is-good { border-color: #147A3C; background: rgba(47,191,113,.16); }
-html[data-theme='light'] .neg-ex-opt.is-mid  { border-color: #8A6100; background: rgba(224,169,59,.18); }
-html[data-theme='light'] .neg-ex-opt.is-bad  { border-color: #B5371F; background: rgba(226,96,74,.14); }
+/* ── ситуационный экзамен: вариант-чипы — полоска слева (AA-цвета на белом) ── */
+html[data-theme='light'] .neg-ex-opt.is-good { border-color: var(--border-strong); box-shadow: inset 4px 0 0 0 #147A3C; }
+html[data-theme='light'] .neg-ex-opt.is-mid  { border-color: var(--border-strong); box-shadow: inset 4px 0 0 0 #8A6100; }
+html[data-theme='light'] .neg-ex-opt.is-bad  { border-color: var(--border-strong); box-shadow: inset 4px 0 0 0 #B5371F; }
+html[data-theme='light'] .neg-ex-opt.is-good::before { color: #147A3C; }
+html[data-theme='light'] .neg-ex-opt.is-mid::before  { color: #8A6100; }
+html[data-theme='light'] .neg-ex-opt.is-bad::before  { color: #B5371F; }
 /* feedback verdict TEXT (on white card) */
 html[data-theme='light'] .neg-ex-fb.is-good .neg-ex-fb-v { color: #147A3C; }
 html[data-theme='light'] .neg-ex-fb.is-mid  .neg-ex-fb-v { color: #8A6100; }
@@ -914,11 +929,12 @@ html[data-theme='light'] .neg-ex-fb.is-bad  .neg-ex-fb-v { color: #B5371F; }
 html[data-theme='light'] .neg-ex-fb-good   { background: rgba(47,191,113,.10); border-left-color: #147A3C; }
 html[data-theme='light'] .neg-ex-fb-good b { color: #147A3C; }
 
-/* ── дрилл: варианты ── */
-html[data-theme='light'] .neg-opt.is-correct { border-color: #147A3C; background: rgba(47,191,113,.16); }
+/* ── дрилл: варианты — полоска слева ── */
+html[data-theme='light'] .neg-opt.is-correct { border-color: var(--border-strong); box-shadow: inset 4px 0 0 0 #147A3C; }
 /* solid green badge: white text needs #147A3C (white-on-#1F8F50 = 4.12 FAIL) */
 html[data-theme='light'] .neg-opt.is-correct .neg-opt-num { background: #147A3C; color: #FFFFFF; }
-html[data-theme='light'] .neg-opt.is-wrong { border-color: #B5371F; background: rgba(255,92,92,.12); }
+html[data-theme='light'] .neg-opt.is-wrong { border-color: var(--border-strong); box-shadow: inset 4px 0 0 0 #B5371F; }
+html[data-theme='light'] .neg-opt.is-wrong .neg-opt-num { background: #B5371F; color: #FFFFFF; }
 html[data-theme='light'] .neg-drill-fb.is-ok .neg-fb-verdict { color: #147A3C; }
 html[data-theme='light'] .neg-drill-fb.is-no .neg-fb-verdict { color: #B5371F; }
 
@@ -932,13 +948,13 @@ html[data-theme='light'] .neg-c-type-lbl--no { color: #B5371F; }
 html[data-theme='light'] .neg-cfg-level--easy.is-on   { border-color: #147A3C; background: rgba(47,191,113,.14); }
 html[data-theme='light'] .neg-cfg-level--medium.is-on { border-color: #8A6100; background: rgba(224,169,59,.16); }
 html[data-theme='light'] .neg-cfg-level--hard.is-on   { border-color: #B5371F; background: rgba(226,96,74,.14); }
-/* type-answer buttons */
-html[data-theme='light'] .neg-c-typebtn.is-correct { border-color: #147A3C; background: rgba(43,181,115,.16); }
-html[data-theme='light'] .neg-c-typebtn.is-wrong   { border-color: #B5371F; background: rgba(226,96,74,.14); }
-/* open-answer buttons */
-html[data-theme='light'] .neg-c-openbtn.is-resonate { border-color: #147A3C; background: rgba(43,181,115,.16); }
-html[data-theme='light'] .neg-c-openbtn.is-neutral  { border-color: #8A6100; background: rgba(224,169,59,.16); }
-html[data-theme='light'] .neg-c-openbtn.is-repel    { border-color: #B5371F; background: rgba(226,96,74,.16); }
+/* type-answer buttons — полоска слева */
+html[data-theme='light'] .neg-c-typebtn.is-correct { border-color: var(--border-strong); box-shadow: inset 4px 0 0 0 #147A3C; }
+html[data-theme='light'] .neg-c-typebtn.is-wrong   { border-color: var(--border-strong); box-shadow: inset 4px 0 0 0 #B5371F; }
+/* open-answer buttons — полоска слева */
+html[data-theme='light'] .neg-c-openbtn.is-resonate { border-color: var(--border-strong); box-shadow: inset 4px 0 0 0 #147A3C; }
+html[data-theme='light'] .neg-c-openbtn.is-neutral  { border-color: var(--border-strong); box-shadow: inset 4px 0 0 0 #8A6100; }
+html[data-theme='light'] .neg-c-openbtn.is-repel    { border-color: var(--border-strong); box-shadow: inset 4px 0 0 0 #B5371F; }
 /* feedback left-borders */
 html[data-theme='light'] .neg-c-fb.is-ok  { border-left-color: #147A3C; }
 html[data-theme='light'] .neg-c-fb.is-no  { border-left-color: #B5371F; }
