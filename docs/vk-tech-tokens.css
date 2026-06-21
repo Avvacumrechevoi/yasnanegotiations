@@ -507,6 +507,57 @@ body.theme-vk-dark [style*='border: 1px solid rgb(124, 58, 237)'] {
    системного force-dark браузера (он тоже «серил» текст). См. docs/duel.html. */
 .yl-lightscope { color-scheme: light; }
 
+/* ════════════════════════════════════════════════════════════════════
+   LIGHT-ISLAND HARD GUARD (страховка от гонки с единой темой).
+   Читаемость курса/уроков раньше держалась ТОЛЬКО на JS: app.js снимал
+   theme-vk-dark с <body>, пока открыт оверлей. Если снятие не срабатывало
+   (гонка с core/theme.js), catch-all'ы выше красили светлые ИНЛАЙН-фоны в
+   тёмные, а тёмный инлайн-текст оставался тёмным → текст пропадал.
+   Здесь возвращаем исходную СВЕТЛУЮ палитру ВНУТРИ .yl-lightscope
+   независимо от JS: те же [style*='rgb(...)'] селекторы, что и в catch-all,
+   но с лишним классом .yl-lightscope → специфичность выше, перебивают
+   catch-all даже при body.theme-vk-dark. Перечислены только те цвета,
+   которые трогает catch-all; остальная палитра уроков и так светлая. */
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope[style*='rgb(255, 255, 255)'],
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope [style*='rgb(255, 255, 255)'],
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope[style*='rgb(255,255,255)'],
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope [style*='rgb(255,255,255)'] { background: #fff !important; }
+
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope[style*='rgb(245, 245, 247)'],
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope [style*='rgb(245, 245, 247)'],
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope[style*='rgb(245,245,247)'],
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope [style*='rgb(245,245,247)'] { background: #F5F5F7 !important; }
+
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope[style*='rgb(210, 210, 215)'],
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope [style*='rgb(210, 210, 215)'],
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope[style*='rgb(210,210,215)'],
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope [style*='rgb(210,210,215)'] { border-color: #d2d2d7 !important; }
+
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope[style*='rgb(229, 229, 234)'],
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope [style*='rgb(229, 229, 234)'],
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope[style*='rgb(229,229,234)'],
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope [style*='rgb(229,229,234)'] { border-color: #e5e5ea !important; }
+
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope[style*='rgb(110, 110, 115)'],
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope [style*='rgb(110, 110, 115)'] { color: #6e6e73 !important; }
+
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope[style*='rgb(66, 66, 69)'],
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope [style*='rgb(66, 66, 69)'] { color: #424245 !important; }
+
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope[style*='rgb(0, 113, 227)'],
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope [style*='rgb(0, 113, 227)'],
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope[style*='rgb(0,113,227)'],
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope [style*='rgb(0,113,227)'] { color: #0071e3 !important; }
+
+/* пурпур (наследие старого тулбара) — вернуть исходные, на случай если
+   встретятся в контенте урока */
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope [style*='rgb(162, 28, 175)'] { color: #a21caf !important; }
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope [style*='rgb(124, 58, 237)'] { color: #7c3aed !important; }
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope [style*='rgb(144, 96, 208)'] { color: #9060d0 !important; }
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope [style*='rgb(168, 85, 247)'] { color: #a855f7 !important; }
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope [style*='rgb(175, 82, 222)'] { color: #af52de !important; }
+body.theme-vk-dark .yl-lightscope.yl-lightscope.yl-lightscope [style*='rgb(88, 28, 135)'] { color: #581c87 !important; }
+
 /* Range slider — VK accent */
 body.theme-vk-dark input[type='range'] {
   -webkit-appearance: none;
