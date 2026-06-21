@@ -911,8 +911,11 @@ body.theme-vk-dark .tn-round-eyebrow {
   border-radius: 0;
 }
 body.theme-vk-dark .tn-final-eyebrow-win  { color: var(--primary); }
-body.theme-vk-dark .tn-final-eyebrow-lose { color: var(--text-3); }
+body.theme-vk-dark .tn-final-eyebrow-lose { color: var(--text-2); } /* было --text-3 #626D7A 3.06:1 → --text-2 7.4:1 */
 body.theme-vk-dark .tn-final-eyebrow-draw { color: var(--accent); }
+/* «Партия прервана» и разделитель «vs» брали --text-3 (3.06:1 на --bg-page) → AA-фикс */
+body.theme-vk-dark .tn-final-eyebrow-leave { color: var(--text-2); }
+body.theme-vk-dark .tn-vs-divider { color: var(--text-2); }
 
 /* tn-q-meta-num и meta-time — VK-tag-стиль */
 body.theme-vk-dark .tn-q-meta-num,
