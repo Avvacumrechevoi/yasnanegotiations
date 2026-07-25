@@ -43,34 +43,47 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SA_ID="${YC_SA_ID:-aje0k8v128i3gvatqah2}"
 RUNTIME="${YC_RUNTIME:-nodejs16}"
 
-# имя функции → файл исходника
-declare -a NAMES=(submit leaderboard auth-telegram content-fetch content-publish)
-declare -A SRC=(
-  [submit]=submit.js
-  [leaderboard]=leaderboard.js
-  [auth-telegram]=auth-telegram.js
-  [content-fetch]=content-fetch.js
-  [content-publish]=content-publish.js
-)
+# имя функции → файл исходника.
+# БЕЗ `declare -A`: в macOS штатный bash — 3.2, ассоциативных массивов там нет,
+# и скрипт падал ещё до первого деплоя («submit: unbound variable»).
+# Держим POSIX-подобную форму, чтобы одинаково работало локально и в CI.
+ALL_NAMES="submit leaderboard auth-telegram content-fetch content-publish"
+src_for(){
+  case "$1" in
+    submit)          echo submit.js ;;
+    leaderboard)     echo leaderboard.js ;;
+    auth-telegram)   echo auth-telegram.js ;;
+    content-fetch)   echo content-fetch.js ;;
+    content-publish) echo content-publish.js ;;
+    *)               echo "" ;;
+  esac
+}
 
 PROMOTE=0
-ARGS=()
+TARGETS=""
 for a in "$@"; do
-  if [[ "$a" == "--promote" ]]; then PROMOTE=1; else ARGS+=("$a"); fi
+  if [ "$a" = "--promote" ]; then PROMOTE=1; else TARGETS="$TARGETS $a"; fi
 done
-TARGETS=("${ARGS[@]:-${NAMES[@]}}")
+[ -n "$(echo "$TARGETS" | tr -d ' ')" ] || TARGETS="$ALL_NAMES"
 
 command -v yc >/dev/null || { echo "yc CLI не найден в PATH"; exit 1; }
 
-for short in "${TARGETS[@]}"; do
-  file="${SRC[$short]:-}"
+for short in $TARGETS; do
+  file="$(src_for "$short")"
   [[ -n "$file" ]] || { echo "неизвестная функция: $short"; exit 1; }
   fn="yasna-$short"
   src="$REPO/server/$file"
   [[ -f "$src" ]] || { echo "нет исходника: $src"; exit 1; }
 
   echo "──────── $fn ────────"
-  node --check "$src" || { echo "  ✗ синтаксическая ошибка, пропускаю"; exit 1; }
+  # node есть в CI, но не обязан быть на машине разработчика (на рабочем маке его
+  # нет вообще — бандлы собираются в Actions). Проверяем синтаксис, если можем,
+  # и не блокируем деплой из-за отсутствия интерпретатора.
+  if command -v node >/dev/null; then
+    node --check "$src" || { echo "  ✗ синтаксическая ошибка, пропускаю"; exit 1; }
+  else
+    echo "  ⓘ node не найден — проверка синтаксиса пропущена (в CI она выполняется)"
+  fi
 
   dir="$(mktemp -d)"
   cp "$src" "$dir/index.js"

@@ -6,7 +6,10 @@
 // Env vars: JWT_SECRET, YDB_ENDPOINT, YDB_DATABASE
 
 const crypto = require('crypto');
-const { Driver, getCredentialsFromEnv, TypedValues, Types } = require('ydb-sdk');
+// PreconditionFailed нужен, чтобы отличить дубль matchId от настоящей ошибки БД
+// (см. подробный разбор в catch ниже). Достаём мягко: если в будущей версии SDK
+// класс переименуют, останется страховка по имени класса и по тексту.
+const { Driver, getCredentialsFromEnv, TypedValues, Types, PreconditionFailed } = require('ydb-sdk');
 
 let driver = null;
 async function getDriver(){
@@ -160,8 +163,20 @@ exports.handler = async (event) => {
   } catch(e){
     // INSERT с уже существующим matchId (PK) → дубль/повторная отправка.
     // Идемпотентно отвечаем 409, а не 500: один матч засчитывается один раз.
+    //
+    // ПОЧЕМУ НЕ ТОЛЬКО ПО ТЕКСТУ. Прежний вариант искал в message подстроки
+    // PRECONDITION_FAILED|already exists|duplicate|constraint — и НЕ находил
+    // ничего: YDB отдаёт статус PRECONDITION_FAILED (код 1060) с issue
+    // «Conflict with existing key., code: 2012», а в e.message SDK кладёт
+    // только issues, без имени статуса. Дубль уходил в 500, а клиент
+    // (duel.js:_postSubmit) считает 5xx поводом «повторить позже» — и такая
+    // запись зависала в очереди навсегда, ретраясь бесконечно. Опираемся на
+    // класс ошибки, текст — только страховка.
     const msg = String(e?.message || e);
-    if(/PRECONDITION_FAILED|already exists|duplicate|constraint/i.test(msg)){
+    const isDup = (PreconditionFailed && e instanceof PreconditionFailed)
+      || e?.constructor?.name === 'PreconditionFailed'
+      || /Conflict with existing key|PRECONDITION_FAILED|already exists|duplicate/i.test(msg);
+    if(isDup){
       return { statusCode: 409, headers: CORS, body: JSON.stringify({ error:'duplicate matchId', userId }) };
     }
     console.error('[submit] YDB insert failed', msg);
