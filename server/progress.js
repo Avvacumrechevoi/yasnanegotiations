@@ -75,6 +75,12 @@ const CORS = {
   'Content-Type': 'application/json',
 };
 
+// Разделитель составного ключа в Map. ИМЕННО экранированной записью, а не
+// сырым байтом: сырой NUL делал файл бинарным для file(1), и grep молча
+// пропускал весь progress.js при поиске по server/ — поиск «где читаются
+// entitlements» не находил ничего.
+const SEP = '\u0000';
+
 const OWNER_USER = 'usr:';
 const OWNER_DEV  = 'dev:';
 
@@ -269,7 +275,7 @@ async function handlePut(drv, { ownerKey, userId, deviceId, body }){
       SELECT scope, item_id, rev, state_json FROM progress WHERE owner_key = $o;`,
       { '$o': TypedValues.utf8(ownerKey) });
     for(const row of (r.resultSets[0]?.rows || [])){
-      cur.set(txt(row.items[0]) + ' ' + txt(row.items[1]),
+      cur.set(txt(row.items[0]) + SEP + txt(row.items[1]),
               { rev: num(row.items[2]) || 0, state: txt(row.items[3]) });
     }
 
@@ -281,7 +287,7 @@ async function handlePut(drv, { ownerKey, userId, deviceId, body }){
       if(!VALID_SCOPES.has(scope)){ rejected.push({ scope, itemId, why:'scope not synced' }); continue; }
       if(state.length > MAX_STATE){ rejected.push({ scope, itemId, why:'state too large' }); continue; }
 
-      const key = scope + ' ' + itemId;
+      const key = scope + SEP + itemId;
       const existing = cur.get(key);
       // Строгий разбор rev. Прежняя проверка Number.isFinite(+it.rev) считала
       // валидными null/''/false (все дают +x === 0), а parseInt от них даёт NaN,
