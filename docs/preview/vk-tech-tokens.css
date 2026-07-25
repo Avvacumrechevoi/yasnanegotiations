@@ -869,6 +869,33 @@ body.theme-vk-dark .fi [style*='rgb(248, 248, 249)'] {
   background: var(--vk-bg-elevated) !important;
 }
 
+/* Пропущенные светлые фоны внутри .fi. Их НЕ было в списке выше, поэтому
+   плашки оставались почти белыми, а текст внутри уже перекрашивался в светлый
+   правилами ниже → блоки становились невидимыми:
+   • #faf7ff (rgb 250,247,255) — блок «Открыть в Ясне „X“ →» (info-card.js:268);
+   • #fafafa (rgb 250,250,250) — блок неактивных механик «Не входит в: …» (:296). */
+body.theme-vk-dark .fi [style*='rgb(250, 247, 255)'],
+body.theme-vk-dark .fi [style*='rgb(250,247,255)'],
+body.theme-vk-dark .fi [style*='rgb(250, 250, 250)'],
+body.theme-vk-dark .fi [style*='rgb(250,250,250)'] {
+  background: var(--vk-bg-tonal) !important;
+  border-color: var(--vk-border) !important;
+}
+
+/* Тёмный инлайн-текст внутри .fi. Строки соседних Полок в правой панели
+   (info-card.js:243/248/253) задают инлайн color:#1d1d1f, а кнопка получает
+   тёмный фон из `.fi button` ниже → тёмное на тёмном, контраст 1.55:1.
+   Правил для rgb(29,29,31) внутри .fi не было вообще. */
+body.theme-vk-dark .fi [style*='rgb(29, 29, 31)'],
+body.theme-vk-dark .fi [style*='rgb(29,29,31)'] {
+  color: var(--vk-text-primary) !important;
+}
+/* «не заполнено» (#c0c0c5) — приглушённый, но читаемый */
+body.theme-vk-dark .fi [style*='rgb(192, 192, 197)'],
+body.theme-vk-dark .fi [style*='rgb(192,192,197)'] {
+  color: #8A95A3 !important;
+}
+
 /* Заголовки-крупные (название полочки) — text-primary */
 body.theme-vk-dark .fi h1,
 body.theme-vk-dark .fi h2,

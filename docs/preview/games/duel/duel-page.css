@@ -2702,7 +2702,12 @@ body:not(.theme-vk-dark) .dp-cta-row { border-top-color: #f0f0f2; }
 /* Табло во время игры */
 .dp-group-play { min-height: 100vh; }
 .dp-group-board { display:flex; flex-direction:column; gap:4px; }
-.dp-group-board--compact { position: sticky; top:0; z-index:5; background: var(--bg-1, #101014); padding:8px 12px; border-bottom:1px solid rgba(255,255,255,.08); max-height: 132px; overflow-y:auto; }
+/* ВАЖНО: тут был var(--bg-1, #101014), а токен --bg-1 не объявлен НИ В ОДНОМ
+   css проекта → всегда брался фолбэк #101014 (почти чёрный). В светлой теме
+   --text-1 = #1d1d1f, то есть тёмный текст на почти чёрной плашке: контраст
+   1.13:1, липкое табло группы было нечитаемым. --bg-page и --border-2 объявлены
+   и в theme-vk-dark.css, и в vk-light.css — берём их. */
+.dp-group-board--compact { position: sticky; top:0; z-index:5; background: var(--bg-page); padding:8px 12px; border-bottom:1px solid var(--border-2, rgba(255,255,255,.08)); max-height: 132px; overflow-y:auto; }
 .dp-group-board-row { display:flex; align-items:center; gap:8px; padding:5px 8px; border-radius:8px; font-size:13px; }
 .dp-group-board-row.is-me { background: rgba(124,92,252,.16); }
 .dp-group-board-row.is-off { opacity:.5; }
