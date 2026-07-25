@@ -1808,8 +1808,39 @@
       setTick(t => t + 1);
     };
 
+    // Сетевым режимам (PvP «С другом», группа) нужен НЕ просто «залогинен», а
+    // пригодный профиль: ник + deviceId (deviceId — ключ слота в комнате Firebase).
+    // У Telegram-user'а deviceId НЕТ (см. коммент к meBase ниже), а profile может
+    // быть null → «Создать комнату» уходило в ветку без ника, открывало онбординг
+    // БЕЗ продолжения и молча ничего не делало («комната не создаётся»).
+    // Достраиваем недостающее из того, что есть, и персистим: save() без deviceId,
+    // затем load() — он сам догенерит deviceId (см. duel.js/loadProfile).
+    const ensureNetProfile = () => {
+      const P = _g('YasnaDuelProfile');
+      const stored = (P && P.load && P.load()) || null;
+      if(stored && stored.deviceId && stored.nickname) return stored;
+      const src = profile || user || {};
+      const nickname = src.nickname || src.firstName || src.username || src.name || null;
+      if(!nickname) return null;                // ника взять негде → честный онбординг
+      if(P && P.save){
+        P.save({
+          nickname: String(nickname).slice(0, 40),
+          avatar: src.avatar || (_g('YasnaDuelProfile')?.AVATAR_OPTIONS || ['🦊'])[0],
+          deviceId: (stored && stored.deviceId) || (src.deviceId || undefined),
+        });
+        return (P.load && P.load()) || null;    // load() досыпет deviceId, если его не было
+      }
+      return null;
+    };
+
     const requireProfile = (cb) => {
-      if(user || profile){ cb(); return; }
+      const ready = ensureNetProfile();
+      if(ready){
+        // синхронизируем React-состояние, чтобы лобби получило полный профиль
+        if(!profile || profile.deviceId !== ready.deviceId) setProfile(ready);
+        cb();
+        return;
+      }
       setAnonModal(true);
       window.__dpPendingPlay = cb;
     };
@@ -1969,7 +2000,10 @@
             profile: meG,
             initialMode: groupLobby.initialMode || 'choose',
             initialCode: groupLobby.code || null,
-            onNeedNickname: () => setAnonModal(true),
+            onNeedNickname: () => {                  // онбординг + продолжение (не тупик)
+              window.__dpPendingPlay = () => setGroupLobby(Object.assign({}, groupLobby));
+              setAnonModal(true);
+            },
             onClose: () => {
               setGroupLobby(null);
               try { window.history.replaceState({}, '', window.location.pathname); } catch(_){}
@@ -2217,14 +2251,30 @@
 
       // ─── Lobby для PvP (polling-relay через Yandex Cloud) ───
       lobby && React.createElement(DPLobbyV2, {
-        key: lobby.lobbyMode || 'choose',          // смена режима → чистый ремаунт (авто-эффекты)
+        // nonce в key — чтобы повтор после онбординга ника ремаунтил лобби и
+        // авто-эффект (doCreate/doJoin) отработал заново
+        key: (lobby.lobbyMode || 'choose') + ':' + (lobby.nonce || 0),
         initialMode: lobby.lobbyMode || null,    // 'choose'/'guest'/'host' — внутреннее состояние лобби
         initialCode: lobby.code || null,
         onClose: () => setLobby(null),
-        profile: profile || user,
+        // ВАЖНО: раньше было `profile || user` — у Telegram-user'а нет deviceId,
+        // и doCreate молча уходил в онбординг без продолжения (комната не создавалась).
+        // Достаём deviceId из гостевого профиля, как это делает групповой режим.
+        profile: (function(){
+          const P = _g('YasnaDuelProfile');
+          const stored = (P && P.load && P.load()) || null;
+          const base = (profile && profile.deviceId) ? profile : (stored || profile || user);
+          if(base && !base.deviceId && stored && stored.deviceId){
+            return Object.assign({}, base, { deviceId: stored.deviceId });
+          }
+          return base;
+        })(),
         onConnected: onLobbyConnected,
         onConfigureHost: configureHostThenCreate,  // choose «Создать» → конфиг партии → хост
-        onNeedNickname: () => setAnonModal(true)   // нет ника → онбординг (не тупик «Назад»)
+        onNeedNickname: () => {                    // нет ника → онбординг И продолжение действия
+          window.__dpPendingPlay = () => setLobby(Object.assign({}, lobby, { nonce: Date.now() }));
+          setAnonModal(true);
+        }
       })
     );
   }

@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-06-19T13:58:22.011Z */
+/* Yasna bundle: duel.js — собран 2026-07-25T09:59:11.962Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -26673,8 +26673,28 @@ window.YasnaCore = {
       setProfile(null);
       setTick((t) => t + 1);
     };
+    const ensureNetProfile = () => {
+      var _a;
+      const P = _g("YasnaDuelProfile");
+      const stored = P && P.load && P.load() || null;
+      if (stored && stored.deviceId && stored.nickname) return stored;
+      const src = profile || user || {};
+      const nickname = src.nickname || src.firstName || src.username || src.name || null;
+      if (!nickname) return null;
+      if (P && P.save) {
+        P.save({
+          nickname: String(nickname).slice(0, 40),
+          avatar: src.avatar || (((_a = _g("YasnaDuelProfile")) == null ? void 0 : _a.AVATAR_OPTIONS) || ["\u{1F98A}"])[0],
+          deviceId: stored && stored.deviceId || (src.deviceId || void 0)
+        });
+        return P.load && P.load() || null;
+      }
+      return null;
+    };
     const requireProfile = (cb) => {
-      if (user || profile) {
+      const ready = ensureNetProfile();
+      if (ready) {
+        if (!profile || profile.deviceId !== ready.deviceId) setProfile(ready);
         cb();
         return;
       }
@@ -26818,7 +26838,10 @@ window.YasnaCore = {
             profile: meG,
             initialMode: groupLobby.initialMode || "choose",
             initialCode: groupLobby.code || null,
-            onNeedNickname: () => setAnonModal(true),
+            onNeedNickname: () => {
+              window.__dpPendingPlay = () => setGroupLobby(Object.assign({}, groupLobby));
+              setAnonModal(true);
+            },
             onClose: () => {
               setGroupLobby(null);
               try {
@@ -27094,18 +27117,32 @@ window.YasnaCore = {
       })(),
       // ─── Lobby для PvP (polling-relay через Yandex Cloud) ───
       lobby && React.createElement(DPLobbyV2, {
-        key: lobby.lobbyMode || "choose",
-        // смена режима → чистый ремаунт (авто-эффекты)
+        // nonce в key — чтобы повтор после онбординга ника ремаунтил лобби и
+        // авто-эффект (doCreate/doJoin) отработал заново
+        key: (lobby.lobbyMode || "choose") + ":" + (lobby.nonce || 0),
         initialMode: lobby.lobbyMode || null,
         // 'choose'/'guest'/'host' — внутреннее состояние лобби
         initialCode: lobby.code || null,
         onClose: () => setLobby(null),
-        profile: profile || user,
+        // ВАЖНО: раньше было `profile || user` — у Telegram-user'а нет deviceId,
+        // и doCreate молча уходил в онбординг без продолжения (комната не создавалась).
+        // Достаём deviceId из гостевого профиля, как это делает групповой режим.
+        profile: function() {
+          const P = _g("YasnaDuelProfile");
+          const stored = P && P.load && P.load() || null;
+          const base = profile && profile.deviceId ? profile : stored || profile || user;
+          if (base && !base.deviceId && stored && stored.deviceId) {
+            return Object.assign({}, base, { deviceId: stored.deviceId });
+          }
+          return base;
+        }(),
         onConnected: onLobbyConnected,
         onConfigureHost: configureHostThenCreate,
         // choose «Создать» → конфиг партии → хост
-        onNeedNickname: () => setAnonModal(true)
-        // нет ника → онбординг (не тупик «Назад»)
+        onNeedNickname: () => {
+          window.__dpPendingPlay = () => setLobby(Object.assign({}, lobby, { nonce: Date.now() }));
+          setAnonModal(true);
+        }
       })
     );
   }
