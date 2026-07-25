@@ -371,6 +371,25 @@
       try { localStorage.setItem('yasna_sync_notice_dismissed', '1'); } catch(_){}
       setDismissed(true);
     };
+    // Выгрузка снапшота прогресса файлом — страховка до появления серверного
+    // хранения (см. core/storage.js: реестр 44 ключей, секреты и кэш не входят).
+    const downloadProgress = () => {
+      const S = _g('YasnaStorage');
+      if(!S || !S.exportAll){ alert('Модуль хранения не загрузился. Обнови страницу.'); return; }
+      try {
+        const snap = S.exportAll();
+        const blob = new Blob([JSON.stringify(snap, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'yasna-progress-' + new Date().toISOString().slice(0, 10) + '.json';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => { try { URL.revokeObjectURL(url); } catch(_){} }, 1000);
+      } catch(e){
+        console.warn('[progress] выгрузка не удалась', e);
+        alert('Не удалось сохранить файл: ' + ((e && e.message) || e));
+      }
+    };
     return React.createElement(React.Fragment, null,
       // ─── Light: оригинальный плашка-уведомление ───
       React.createElement('div', { className: 'dp-sync-notice vk-light-only', role: 'note' },
@@ -380,11 +399,15 @@
           React.createElement('div', { className: 'dp-sync-notice-text' },
             'Бусины, серии и история партий — здесь, локально. Очистишь кеш или сменишь устройство — потеряешь.',
             React.createElement('br'),
-            'Войди через Telegram, чтобы прогресс жил между устройствами.'
+            // Раньше здесь стояло «Войди через Telegram, чтобы прогресс жил между
+            // устройствами» — это неправда: серверного хранения прогресса нет
+            // (в схеме только users/device_links/matches). Пока его нет — даём
+            // честную страховку: выгрузку файла.
+            'Пока перенос между устройствами не сделан — скачай копию, она пригодится.'
           )
         ),
         React.createElement('div', { className: 'dp-sync-notice-actions' },
-          React.createElement('button', { className: 'dp-sync-notice-cta', onClick: onLoginClick, type: 'button' }, 'Войти'),
+          React.createElement('button', { className: 'dp-sync-notice-cta', onClick: downloadProgress, type: 'button' }, 'Скачать копию'),
           React.createElement('button', { className: 'dp-sync-notice-x', onClick: dismiss, type: 'button', 'aria-label': 'Закрыть' }, '×')
         )
       )

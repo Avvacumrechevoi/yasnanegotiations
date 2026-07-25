@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-07-25T13:35:26.213Z */
+/* Yasna bundle: duel.js — собран 2026-07-25T13:41:48.707Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -25125,6 +25125,33 @@ window.YasnaCore = {
       }
       setDismissed(true);
     };
+    const downloadProgress = () => {
+      const S = _g("YasnaStorage");
+      if (!S || !S.exportAll) {
+        alert("\u041C\u043E\u0434\u0443\u043B\u044C \u0445\u0440\u0430\u043D\u0435\u043D\u0438\u044F \u043D\u0435 \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u043B\u0441\u044F. \u041E\u0431\u043D\u043E\u0432\u0438 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0443.");
+        return;
+      }
+      try {
+        const snap = S.exportAll();
+        const blob = new Blob([JSON.stringify(snap, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "yasna-progress-" + (/* @__PURE__ */ new Date()).toISOString().slice(0, 10) + ".json";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => {
+          try {
+            URL.revokeObjectURL(url);
+          } catch (_) {
+          }
+        }, 1e3);
+      } catch (e) {
+        console.warn("[progress] \u0432\u044B\u0433\u0440\u0443\u0437\u043A\u0430 \u043D\u0435 \u0443\u0434\u0430\u043B\u0430\u0441\u044C", e);
+        alert("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C \u0444\u0430\u0439\u043B: " + (e && e.message || e));
+      }
+    };
     return React.createElement(
       React.Fragment,
       null,
@@ -25142,13 +25169,17 @@ window.YasnaCore = {
             { className: "dp-sync-notice-text" },
             "\u0411\u0443\u0441\u0438\u043D\u044B, \u0441\u0435\u0440\u0438\u0438 \u0438 \u0438\u0441\u0442\u043E\u0440\u0438\u044F \u043F\u0430\u0440\u0442\u0438\u0439 \u2014 \u0437\u0434\u0435\u0441\u044C, \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u043E. \u041E\u0447\u0438\u0441\u0442\u0438\u0448\u044C \u043A\u0435\u0448 \u0438\u043B\u0438 \u0441\u043C\u0435\u043D\u0438\u0448\u044C \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E \u2014 \u043F\u043E\u0442\u0435\u0440\u044F\u0435\u0448\u044C.",
             React.createElement("br"),
-            "\u0412\u043E\u0439\u0434\u0438 \u0447\u0435\u0440\u0435\u0437 Telegram, \u0447\u0442\u043E\u0431\u044B \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u0436\u0438\u043B \u043C\u0435\u0436\u0434\u0443 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430\u043C\u0438."
+            // Раньше здесь стояло «Войди через Telegram, чтобы прогресс жил между
+            // устройствами» — это неправда: серверного хранения прогресса нет
+            // (в схеме только users/device_links/matches). Пока его нет — даём
+            // честную страховку: выгрузку файла.
+            "\u041F\u043E\u043A\u0430 \u043F\u0435\u0440\u0435\u043D\u043E\u0441 \u043C\u0435\u0436\u0434\u0443 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430\u043C\u0438 \u043D\u0435 \u0441\u0434\u0435\u043B\u0430\u043D \u2014 \u0441\u043A\u0430\u0447\u0430\u0439 \u043A\u043E\u043F\u0438\u044E, \u043E\u043D\u0430 \u043F\u0440\u0438\u0433\u043E\u0434\u0438\u0442\u0441\u044F."
           )
         ),
         React.createElement(
           "div",
           { className: "dp-sync-notice-actions" },
-          React.createElement("button", { className: "dp-sync-notice-cta", onClick: onLoginClick, type: "button" }, "\u0412\u043E\u0439\u0442\u0438"),
+          React.createElement("button", { className: "dp-sync-notice-cta", onClick: downloadProgress, type: "button" }, "\u0421\u043A\u0430\u0447\u0430\u0442\u044C \u043A\u043E\u043F\u0438\u044E"),
           React.createElement("button", { className: "dp-sync-notice-x", onClick: dismiss, type: "button", "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C" }, "\xD7")
         )
       )
