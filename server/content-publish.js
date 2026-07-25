@@ -55,6 +55,73 @@ const CORS = {
   'Content-Type': 'application/json',
 };
 
+// Тот же разбор токена, что в progress.js/submit.js: HMAC-SHA256, подпись
+// сравнивается constant-time, exp проверяется.
+function verifyJWT(token, secret){
+  if(!token || !secret) return null;
+  const [h, b, s] = token.split('.');
+  if(!h || !b || !s) return null;
+  const expected = crypto.createHmac('sha256', secret).update(`${h}.${b}`).digest('base64url');
+  const expBuf = Buffer.from(expected), sigBuf = Buffer.from(s);
+  if(expBuf.length !== sigBuf.length || !crypto.timingSafeEqual(expBuf, sigBuf)) return null;
+  try {
+    const payload = JSON.parse(Buffer.from(b, 'base64url').toString());
+    if(payload.exp && payload.exp < Math.floor(Date.now()/1000)) return null;
+    return payload;
+  } catch(_){ return null; }
+}
+
+// Полномочие читается ИЗ БД по user_id из токена — ничего из тела запроса.
+// Роль по умолчанию берётся из roles.is_default, поэтому «нет строки в
+// user_roles» означает обычного пользователя, а не отказ в обслуживании.
+async function hasCap(drv, userId, cap){
+  let granted = false;
+  await drv.tableClient.withSession(async (s) => {
+    const r = await s.executeQuery(`
+      DECLARE $u AS Utf8; DECLARE $c AS Utf8;
+      $role = (
+        SELECT COALESCE(
+          (SELECT role_id FROM user_roles WHERE user_id = $u),
+          (SELECT role_id FROM roles WHERE is_default = true LIMIT 1)
+        ) AS role_id
+      );
+      SELECT g.granted AS granted
+      FROM role_grants AS g
+      WHERE g.role_id = (SELECT role_id FROM $role) AND g.feature = $c;`,
+      { '$u': TypedValues.utf8(String(userId)), '$c': TypedValues.utf8(String(cap)) });
+    const row = r.resultSets[0]?.rows?.[0];
+    granted = !!(row && row.items[0]?.boolValue);
+  });
+  return granted;
+}
+
+// Журнал доступа: пишем и успехи, и ОТКАЗЫ. Без записи отказов украденный
+// токен не виден вообще — успешные действия выглядят штатно.
+async function audit(drv, entry){
+  try {
+    await drv.tableClient.withSession(async (s) => {
+      await s.executeQuery(`
+        DECLARE $id AS Utf8; DECLARE $a AS Utf8; DECLARE $act AS Utf8;
+        DECLARE $t AS Optional<Utf8>; DECLARE $res AS Utf8;
+        DECLARE $why AS Optional<Utf8>; DECLARE $p AS Optional<Utf8>;
+        UPSERT INTO access_audit (id, at, actor, action, target, feature, result, reason, payload_json)
+        VALUES ($id, CurrentUtcTimestamp(), $a, $act, $t, NULL, $res, $why, $p);`,
+        {
+          '$id':  TypedValues.utf8(crypto.randomUUID()),
+          '$a':   TypedValues.utf8(String(entry.actor || 'anon')),
+          '$act': TypedValues.utf8(String(entry.action)),
+          '$t':   entry.target ? TypedValues.optional(TypedValues.utf8(String(entry.target))) : TypedValues.optionalNull(Types.UTF8),
+          '$res': TypedValues.utf8(String(entry.result)),
+          '$why': entry.reason ? TypedValues.optional(TypedValues.utf8(String(entry.reason).slice(0,400))) : TypedValues.optionalNull(Types.UTF8),
+          '$p':   entry.payload ? TypedValues.optional(TypedValues.utf8(JSON.stringify(entry.payload).slice(0,4000))) : TypedValues.optionalNull(Types.UTF8),
+        });
+    });
+  } catch(e){
+    // Журнал не должен ронять публикацию, но молчать о его поломке нельзя.
+    console.error('[content-publish] audit failed', e?.message || e);
+  }
+}
+
 // ─── Валидация одного вопроса ────────────────────────────────────────
 // Та же логика что во frontend isQuestionValid — дублируем для безопасности
 // (никогда не доверяем клиенту).
@@ -122,18 +189,41 @@ exports.handler = async (event) => {
   }
 
   // ─── Auth ───────────────────────────────────────────────
+  // ПОЧЕМУ ПЕРЕДЕЛАНО. Прежняя проверка была ровно одна: Bearer сверялся с
+  // ОДНИМ общим ADMIN_PASSWORD. Последствия, проверенные по коду:
+  //   • кто угодно, узнав пароль, перезаписывает вопросы всем игрокам;
+  //   • автор ревизии брался из ТЕЛА запроса (publishedBy ниже) — то есть
+  //     content_revisions.published_by подделывался, и «кто это сделал»
+  //     установить было нельзя;
+  //   • страница docs/admin.html при этом не закрыта вообще (монтируется без
+  //     проверки), пароль спрашивался только в модалке публикации.
+  // Теперь основной путь — личный JWT с полномочием cap:content.publish,
+  // роль читается из БД, автор берётся из токена.
+  //
+  // Пароль ОСТАВЛЕН аварийным входом: он же единственный способ опубликовать,
+  // если токен потерян или роль случайно снята с самого себя. Каждое такое
+  // использование пишется в журнал как emergency — молчаливого чёрного хода
+  // быть не должно.
   const auth = event.headers?.Authorization || event.headers?.authorization || '';
-  const expected = process.env.ADMIN_PASSWORD || '';
-  if(!expected){
-    console.error('[content-publish] ADMIN_PASSWORD not configured');
-    return { statusCode:500, headers:CORS, body: JSON.stringify({error:'server misconfigured'}) };
-  }
-  const provided = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
-  // Constant-time compare чтобы не leak'ать длину пароля через timing
-  const a = Buffer.from(provided);
-  const b = Buffer.from(expected);
-  if(a.length !== b.length || !crypto.timingSafeEqual(a, b)){
+  const bearer = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
+  if(!bearer){
     return { statusCode:401, headers:CORS, body: JSON.stringify({error:'unauthorized'}) };
+  }
+
+  let actorUserId = null, actorNick = null, viaEmergency = false;
+  const payload = verifyJWT(bearer, process.env.JWT_SECRET);
+  if(payload?.sub){
+    actorUserId = String(payload.sub);
+    actorNick = payload.nick ? String(payload.nick) : null;
+  } else {
+    // не токен — сверяем с аварийным паролем
+    const expected = process.env.ADMIN_PASSWORD || '';
+    const a = Buffer.from(bearer), b = Buffer.from(expected);
+    if(!expected || a.length !== b.length || !crypto.timingSafeEqual(a, b)){
+      return { statusCode:401, headers:CORS, body: JSON.stringify({error:'unauthorized'}) };
+    }
+    viaEmergency = true;
+    console.warn('[content-publish] публикация аварийным паролем');
   }
 
   // ─── Body parsing ───────────────────────────────────────
@@ -155,11 +245,33 @@ exports.handler = async (event) => {
 
   const revisionId = newRevisionId();
   const dataHash = crypto.createHash('sha256').update(dataJson).digest('hex');
-  const publishedByStr = (publishedBy || 'admin').toString().slice(0, 80);
+  // published_by уходит в ПУБЛИЧНЫЙ ответ GET /content, поэтому туда кладём
+  // отображаемое имя из токена, а не идентификатор аккаунта: иначе публичный
+  // эндпоинт начал бы раздавать user_id админов. Настоящий user_id пишется в
+  // access_audit — он не публичный, и именно он отвечает на вопрос «кто это
+  // сделал». Присланный клиентом publishedBy игнорируется полностью: раньше
+  // именно из него бралось авторство, то есть подпись подделывалась.
+  const publishedByStr = viaEmergency
+    ? 'аварийный доступ'
+    : (actorNick || 'админ').toString().slice(0, 80);
   const notesStr = (notes || '').toString().slice(0, 500);
+  const actorKey = actorUserId ? ('usr:' + actorUserId) : 'emergency:password';
 
   try {
     const drv = await getDriver();
+
+    // Полномочие проверяем ПОСЛЕ подключения к БД и ДО записи.
+    if(!viaEmergency){
+      const allowed = await hasCap(drv, actorUserId, 'cap:content.publish');
+      if(!allowed){
+        await audit(drv, {
+          actor: actorKey, action: 'content.publish', target: revisionId,
+          result: 'denied', reason: 'нет полномочия cap:content.publish',
+        });
+        return { statusCode:403, headers:CORS, body: JSON.stringify({
+          error:'forbidden', detail:'нет полномочия на публикацию контента' }) };
+      }
+    }
     await drv.tableClient.withSession(async (session) => {
       // Атомарно: помечаем все is_current=false, потом INSERT новой
       // YDB поддерживает транзакции через executeQuery с явным commit
@@ -193,6 +305,14 @@ exports.handler = async (event) => {
       });
     });
 
+    // След в журнале — кто именно опубликовал. Здесь настоящий user_id,
+    // в отличие от публичного published_by.
+    await audit(drv, {
+      actor: actorKey, action: 'content.publish', target: revisionId,
+      result: 'ok', reason: viaEmergency ? 'аварийный пароль' : null,
+      payload: { revisionId, dataHash, size: dataJson.length, notes: notesStr || null },
+    });
+
     return {
       statusCode: 200,
       headers: CORS,
@@ -203,6 +323,7 @@ exports.handler = async (event) => {
         publishedAt: new Date().toISOString(),
         publishedBy: publishedByStr,
         size: dataJson.length,
+        viaEmergency,
       }),
     };
   } catch(err){
