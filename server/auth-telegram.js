@@ -20,12 +20,20 @@ const { Driver, getCredentialsFromEnv, TypedValues, Types } = require('ydb-sdk')
 let driver = null;
 async function getDriver(){
   if(driver) return driver;
-  driver = new Driver({
+  // Драйвер попадает в модульный кэш ТОЛЬКО после успешной готовности.
+  // Раньше присваивание шло до ready(), и одна неудачная инициализация
+  // «залипала» в тёплом контейнере: последующие вызовы проверку минуют и
+  // работают с дохлым драйвером, пока контейнер не переедет.
+  const d = new Driver({
     endpoint: process.env.YDB_ENDPOINT,
     database: process.env.YDB_DATABASE,
     authService: getCredentialsFromEnv(),
   });
-  if(!await driver.ready(10000)) throw new Error('YDB not ready');
+  if(!await d.ready(10000)){
+    try { await d.destroy(); } catch(_){}
+    throw new Error('YDB not ready');
+  }
+  driver = d;
   return driver;
 }
 
@@ -65,7 +73,14 @@ exports.handler = async (event) => {
   catch(_){ return { statusCode: 400, headers: CORS, body: JSON.stringify({error:'invalid json'}) }; }
 
   const { id, first_name, last_name, username, photo_url, auth_date, hash, device_id, local_nickname, local_avatar } = body || {};
-  if(!id || !auth_date || !hash || !device_id){
+  // device_id НЕ обязателен. Раньше он требовался, и первый вход был невозможен
+  // в принципе: deviceId создаётся только внутри уже существующего гостевого
+  // профиля (duel.js, loadProfile), а новый посетитель жмёт «Войти» с welcome-
+  // экрана, когда профиля ещё нет — уходило device_id: undefined, поле выпадало
+  // из JSON, и сервер отвечал 400 при полностью валидной подписи Telegram.
+  // Привязка устройства и перенос анонимных матчей — необязательные шаги,
+  // выдача токена от них не зависит.
+  if(!id || !auth_date || !hash){
     return { statusCode: 400, headers: CORS, body: JSON.stringify({error:'missing fields'}) };
   }
 
@@ -117,26 +132,30 @@ exports.handler = async (event) => {
       });
     }
 
-    // 4. Link device
-    await session.executeQuery(`
-      DECLARE $dev AS Utf8;
-      DECLARE $uid AS Utf8;
-      UPSERT INTO device_links (device_id, user_id, linked_at)
-      VALUES ($dev, $uid, CurrentUtcTimestamp());
-    `, {
-      '$dev': TypedValues.utf8(String(device_id)),
-      '$uid': TypedValues.utf8(userId),
-    });
+    // 4-5. Привязка устройства и перенос анонимных матчей — ТОЛЬКО если клиент
+    // прислал device_id. Оба шага не влияют на выдачу токена: вход обязан
+    // работать и у того, кто пришёл впервые и никакого устройства ещё не имеет.
+    if(device_id){
+      const devStr = String(device_id).slice(0, 128);
+      await session.executeQuery(`
+        DECLARE $dev AS Utf8;
+        DECLARE $uid AS Utf8;
+        UPSERT INTO device_links (device_id, user_id, linked_at)
+        VALUES ($dev, $uid, CurrentUtcTimestamp());
+      `, {
+        '$dev': TypedValues.utf8(devStr),
+        '$uid': TypedValues.utf8(userId),
+      });
 
-    // 5. Migrate prior anonymous matches (без user_id) → теперь с user_id
-    await session.executeQuery(`
-      DECLARE $dev AS Utf8;
-      DECLARE $uid AS Utf8;
-      UPDATE matches SET user_id = $uid WHERE device_id = $dev AND user_id IS NULL;
-    `, {
-      '$dev': TypedValues.utf8(String(device_id)),
-      '$uid': TypedValues.utf8(userId),
-    });
+      await session.executeQuery(`
+        DECLARE $dev AS Utf8;
+        DECLARE $uid AS Utf8;
+        UPDATE matches SET user_id = $uid WHERE device_id = $dev AND user_id IS NULL;
+      `, {
+        '$dev': TypedValues.utf8(devStr),
+        '$uid': TypedValues.utf8(userId),
+      });
+    }
   });
 
   // 6. Issue JWT (валиден 30 дней)

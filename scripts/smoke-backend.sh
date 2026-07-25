@@ -48,8 +48,16 @@ curl -sS -m 25 "$GW/leaderboard?gameId=turnir&yasnaId=%D1%81%D1%83%D1%82%D0%BE%D
 # 2. Профиль игрока
 check "GET /profile"          200 "$GW/profile?deviceId=smoke-check&limit=5"
 
-# 3. Прогресс: чтение по несуществующему устройству — пустой, но валидный ответ
-check "GET /progress"         200 "$GW/progress?deviceId=smoke-check"
+# 3. Прогресс. Гостевое пространство требует секрет устройства, поэтому
+#    проверяем ОБЕ стороны: со своим секретом пускает, с чужим — нет.
+#    Отказ здесь так же важен, как допуск: до введения секрета чужой прогресс и
+#    личные заметки читались и затирались по одному лишь знанию идентификатора
+#    (воспроизведено на живом проде).
+check "GET /progress (свой секрет)" 200 -H 'X-Device-Secret: smoke-secret-do-not-reuse' \
+      "$GW/progress?deviceId=smoke-check"
+check "GET /progress (чужой секрет → 403)" 403 -H 'X-Device-Secret: wrong-secret' \
+      "$GW/progress?deviceId=smoke-check"
+check "GET /progress (без секрета → 403)" 403 "$GW/progress?deviceId=smoke-check"
 
 # 4. Контент Tier-2
 check "GET /content"          200 "$GW/content"

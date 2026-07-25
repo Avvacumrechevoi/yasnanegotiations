@@ -59,6 +59,7 @@
     // ── идентичность ──
     yasna_duel_profile:         { scope: 'identity', json: true,  owner: 'games/duel/duel.js', about: 'гостевой профиль: ник, аватар, deviceId — КЛЮЧ ко всему прогрессу' },
     yasna_device_id_v1:         { scope: 'identity', json: false, owner: 'core/storage.js',    about: 'единый id устройства для серверной синхронизации (общий с профилем игры)' },
+    yasna_device_secret_v1:     { scope: 'identity', json: false, owner: 'core/storage.js',    about: 'секрет устройства: доказывает право на гостевой прогресс', sensitive: true },
     yasna_duel_user:            { scope: 'identity', json: true,  owner: 'games/duel/duel.js', about: 'залогиненный пользователь (Telegram)' },
     yasna_duel_token:           { scope: 'identity', json: false, owner: 'games/duel/duel.js', about: 'JWT сессии', sensitive: true },
 
@@ -172,11 +173,17 @@
     // идентичность — отдельно и осознанно (нужна, чтобы связать устройство)
     var prof = getRaw('yasna_duel_profile');
     var dev = getRaw('yasna_device_id_v1');
+    var devSecret = getRaw('yasna_device_secret_v1');
     if (prof || dev) {
       out.identity = {};
       if (prof) out.identity.yasna_duel_profile = prof;
       // без id устройства перенесённый снапшот отвязан от серверного прогресса
       if (dev) out.identity.yasna_device_id_v1 = dev;
+      // Секрет устройства кладём осознанно, хотя ключ и помечен sensitive:
+      // без него перенос на другое устройство получит 403 на своём же гостевом
+      // прогрессе. Значит файл снапшота — личный: он и так содержит весь
+      // прогресс и заметки, а теперь ещё и доступ к серверной копии.
+      if (devSecret) out.identity.yasna_device_secret_v1 = devSecret;
     }
     // динамические ключи (заметки к урокам)
     try {
@@ -210,6 +217,25 @@
       if (!m || m.sensitive || m.scope === 'cache' || m.scope === 'secret') { res.rejected++; continue; }
       if (merge && getRaw(k) !== null) { res.skipped++; continue; }
       if (setRaw(k, String(snapshot.data[k]))) res.written++;
+    }
+
+    // Идентичность лежит в отдельном блоке snapshot.identity, и раньше импорт
+    // её просто НЕ ЧИТАЛ: снапшот восстанавливался, но устройство оставалось
+    // «другим», то есть отвязанным от своей же серверной копии прогресса.
+    // Восстанавливаем только по явному запросу и только если своей идентичности
+    // ещё нет — иначе перенос затирал бы аккаунт на рабочем устройстве.
+    if (o.identity && snapshot.identity && typeof snapshot.identity === 'object') {
+      res.identity = { written: 0, skipped: 0 };
+      var idKeys = ['yasna_device_id_v1', 'yasna_device_secret_v1', 'yasna_duel_profile'];
+      for (var j = 0; j < idKeys.length; j++) {
+        var ik = idKeys[j];
+        if (!snapshot.identity[ik]) continue;
+        if (getRaw(ik) !== null) { res.identity.skipped++; continue; }
+        if (setRaw(ik, String(snapshot.identity[ik]))) res.identity.written++;
+      }
+      // Версии синхронизации относятся к прежнему устройству — сбрасываем,
+      // чтобы следующий pull сравнивал с чистого листа.
+      if (res.identity.written) remove(SYNC_STATE_KEY);
     }
     return res;
   }
@@ -340,8 +366,34 @@
     return fresh;
   }
 
+  // Секрет устройства — доказательство «это то же устройство» для гостевого
+  // прогресса. Без него хватало ЗНАНИЯ deviceId, чтобы прочитать и затереть
+  // чужой прогресс: дыра была воспроизведена на живом сервере. Секрет создаётся
+  // здесь, на сервер уходит только его sha256 (заголовок X-Device-Secret,
+  // не query — строки запроса попадают в логи шлюза).
+  var DEVICE_SECRET_KEY = 'yasna_device_secret_v1';
+  function deviceSecret() {
+    var s = getRaw(DEVICE_SECRET_KEY);
+    if (s) return s;
+    var fresh = '';
+    try {
+      if (window.crypto && crypto.getRandomValues) {
+        var buf = new Uint8Array(32);
+        crypto.getRandomValues(buf);
+        for (var i = 0; i < buf.length; i++) fresh += ('0' + buf[i].toString(16)).slice(-2);
+      }
+    } catch (_) {}
+    if (!fresh) fresh = 'r' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    setRaw(DEVICE_SECRET_KEY, fresh);
+    return fresh;
+  }
+
   function identity() {
-    return { deviceId: deviceId(), token: getRaw('yasna_duel_token') || null };
+    return {
+      deviceId: deviceId(),
+      secret: deviceSecret(),
+      token: getRaw('yasna_duel_token') || null
+    };
   }
 
   // Локальные ключи, подлежащие синхронизации: реестровые нужных scope
@@ -375,6 +427,7 @@
     var url = base + path;
     var headers = { 'Content-Type': 'application/json' };
     if (id.token) headers.Authorization = 'Bearer ' + id.token;
+    if (id.secret) headers['X-Device-Secret'] = id.secret;
     var opts = { method: method, headers: headers };
     if (payload) opts.body = JSON.stringify(payload);
     return fetch(url, opts).then(function (r) {
@@ -403,6 +456,15 @@
       if (!data) return { skipped: 'нет адреса API' };
       var st = syncState();
       var applied = 0, conflicts = 0, i;
+
+      // Смена владельца (гость вошёл в аккаунт или вышел) обнуляет версии:
+      // rev'ы принадлежат КОНКРЕТНОМУ владельцу, и сравнивать их с версиями
+      // другого — значит принимать чужой прогресс за свой либо, наоборот,
+      // считать своё уже отправленным. После сброса подписи тоже пусты,
+      // поэтому следующий push отправит локальные значения целиком.
+      if (data.ownerKey && st.ownerKey && data.ownerKey !== st.ownerKey) {
+        st.revs = {}; st.sigs = {}; st.noteAt = {};
+      }
       st.ownerKey = data.ownerKey || st.ownerKey;
 
       for (i = 0; i < (data.items || []).length; i++) {
@@ -410,11 +472,12 @@
         if (!it || !it.itemId) continue;
         var localRaw = getRaw(it.itemId);
         var knownRev = st.revs[it.itemId] || 0;
+        var took = false;   // приняли ли мы серверное значение
 
         if (localRaw === null || localRaw === undefined) {          // локально нет — просто берём
-          if (setRaw(it.itemId, it.state)) applied++;
+          if (setRaw(it.itemId, it.state)) { applied++; took = true; }
         } else if (localRaw === it.state) {                          // совпадает — нечего делать
-          /* no-op */
+          took = true;
         } else if (it.rev > knownRev) {
           // Сервер новее того, что мы видели. Если наша копия отличалась от
           // последней синхронизированной — это расхождение, локальную версию
@@ -424,10 +487,20 @@
           } else if (!st.sigs[it.itemId]) {
             stashConflict(it.itemId, localRaw, it.state); conflicts++;   // первая синхронизация
           }
-          if (setRaw(it.itemId, it.state)) applied++;
+          if (setRaw(it.itemId, it.state)) { applied++; took = true; }
         }
-        st.revs[it.itemId] = it.rev;
-        st.sigs[it.itemId] = sig(getRaw(it.itemId) || '');
+
+        // ВЕРСИЮ И ПОДПИСЬ ОБНОВЛЯЕМ ТОЛЬКО ТАМ, ГДЕ СЕРВЕРНОЕ ЗНАЧЕНИЕ ПРИНЯТО.
+        // Раньше обе строки стояли безусловно, и в случае «локально другое, но
+        // сервер не новее» подпись подделывалась под ЛОКАЛЬНОЕ значение. Push
+        // отбирает изменения ровно по этой подписи — значит неотправленные
+        // правки (офлайн, упавший запрос, закрытая вкладка) навсегда считались
+        // отправленными и не уезжали никогда. А поскольку pull в start() идёт
+        // ПЕРЕД push, каждая загрузка страницы затирала подписи до отправки.
+        if (took) {
+          st.revs[it.itemId] = it.rev;
+          st.sigs[it.itemId] = sig(getRaw(it.itemId) || '');
+        }
       }
 
       for (i = 0; i < (data.notes || []).length; i++) {
@@ -484,13 +557,23 @@
     var payload = { items: items, notes: notes };
     if (id.deviceId) payload.deviceId = id.deviceId;
 
+    // Снимок ОТПРАВЛЕННЫХ значений. Подпись после ответа считается по нему, а
+    // не по тому, что лежит в localStorage в момент ответа: пока запрос летит,
+    // человек продолжает играть, и прежний код помечал синхронизированным
+    // значение, которое сервер никогда не видел — эти правки терялись.
+    var sentItems = {}, sentNotes = {};
+    for (i = 0; i < items.length; i++) sentItems[items[i].itemId] = items[i].state;
+    for (i = 0; i < notes.length; i++) sentNotes[notes[i].itemId] = notes[i].text;
+
     return request('PUT', '/progress', payload).then(function (data) {
       if (!data) return { skipped: 'нет адреса API' };
       var st2 = syncState(), k;
       for (k in (data.revs || {})) {
         var itemId = k.slice(k.indexOf('/') + 1);
         st2.revs[itemId] = data.revs[k];
-        st2.sigs[itemId] = sig(getRaw(itemId) || '');
+        if (Object.prototype.hasOwnProperty.call(sentItems, itemId)) {
+          st2.sigs[itemId] = sig(sentItems[itemId]);
+        }
       }
       // Конфликты: сервер вернул свою версию — принимаем её, свою сохраняем.
       for (var c = 0; c < (data.conflicts || []).length; c++) {
@@ -501,8 +584,22 @@
         st2.revs[cf.itemId] = cf.rev;
         st2.sigs[cf.itemId] = sig(cf.state);
       }
+      // Отвергнутое сервером (слишком большое, неподдерживаемый scope) помечаем,
+      // чтобы не гонять его в каждом цикле синхронизации бесконечно. Причина
+      // видна в sync.status().rejected — молчания здесь быть не должно.
+      st2.rejected = {};
+      for (var r = 0; r < (data.rejected || []).length; r++) {
+        var rj = data.rejected[r];
+        var rid = rj.itemId || rj.item_id;
+        if (!rid) continue;
+        st2.rejected[rid] = rj.why || 'отвергнуто сервером';
+        if (Object.prototype.hasOwnProperty.call(sentItems, rid)) {
+          st2.sigs[rid] = sig(sentItems[rid]);
+        }
+      }
       for (var m = 0; m < notes.length; m++) {
-        st2.sigs[NOTE_PREFIX + notes[m].itemId] = sig(notes[m].text);
+        if (st2.rejected[NOTE_PREFIX + notes[m].itemId]) continue;
+        st2.sigs[NOTE_PREFIX + notes[m].itemId] = sig(sentNotes[notes[m].itemId]);
         st2.noteAt[notes[m].itemId] = new Date().toISOString();
       }
       st2.lastPush = new Date().toISOString();
@@ -546,6 +643,8 @@
       ownerKey: st.ownerKey || null, isUser: !!st.isUser,
       lastPull: st.lastPull || null, lastPush: st.lastPush || null,
       lastError: st.lastError || null, conflicts: conflicts().length,
+      // отвергнутое сервером видно наружу: молча терять данные нельзя
+      rejected: st.rejected || {},
       entitlements: st.entitlements || [], configured: !!apiBase()
     };
   }

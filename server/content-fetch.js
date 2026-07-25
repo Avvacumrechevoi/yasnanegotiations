@@ -24,12 +24,20 @@ const { Driver, getCredentialsFromEnv } = require('ydb-sdk');
 let driver = null;
 async function getDriver(){
   if(driver) return driver;
-  driver = new Driver({
+  // Драйвер попадает в модульный кэш ТОЛЬКО после успешной готовности.
+  // Раньше присваивание шло до ready(), и одна неудачная инициализация
+  // «залипала» в тёплом контейнере: последующие вызовы проверку минуют и
+  // работают с дохлым драйвером, пока контейнер не переедет.
+  const d = new Driver({
     endpoint: process.env.YDB_ENDPOINT,
     database: process.env.YDB_DATABASE,
     authService: getCredentialsFromEnv(),
   });
-  if(!await driver.ready(10000)) throw new Error('YDB not ready');
+  if(!await d.ready(10000)){
+    try { await d.destroy(); } catch(_){}
+    throw new Error('YDB not ready');
+  }
+  driver = d;
   return driver;
 }
 
@@ -113,11 +121,29 @@ exports.handler = async (event) => {
     };
   } catch(err){
     console.error('[content-fetch]', err);
-    // На любой ошибке отдаём пустые overrides — клиент работает на baseline
+    // ОШИБКА БД — ЭТО 503, А НЕ 200 С ПУСТЫМИ ДАННЫМИ.
+    //
+    // Прежнее поведение выглядело безобидно («клиент поработает на baseline»),
+    // но ответ был синтаксически неотличим от легального «оверрайдов нет»:
+    // core/content-store.js считает успехом любой ok-ответ, поле error не
+    // читает — и записывает пустые overrides в кэш localStorage, затирая
+    // последнюю известную ревизию. Последствия: у игроков разом исчезают
+    // добавленные вопросы, откатываются правки, «оживают» удалённые; кэш для
+    // offline тоже уничтожен. А если в этот момент открыта админка, то
+    // mergeWithPublished склеит локальную дельту с ПУСТЫМ опубликованным
+    // набором, и следующая публикация заменит ревизию целиком — весь ранее
+    // опубликованный Tier-2 контент пропадёт из прода. Ровно этот класс потери
+    // уже описан в шапке mergeWithPublished (admin.js).
+    //
+    // С 503 клиент попадает в ветку http-error, СОХРАНЯЕТ кэш и продолжает
+    // работать на последних известных данных — то есть ведёт себя так, как
+    // обещает docs/CONTENT_ARCHITECTURE.md.
+    //
+    // Cache-Control здесь тоже недопустим: сбой кэшировался на 5 минут.
     return {
-      statusCode: 200,
-      headers: CORS,
-      body: JSON.stringify({ ...EMPTY_RESPONSE, error: 'fetch failed, using empty' }),
+      statusCode: 503,
+      headers: { ...CORS, 'Cache-Control': 'no-store' },
+      body: JSON.stringify({ error: 'content store unavailable', stale: true }),
     };
   }
 };

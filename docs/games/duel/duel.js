@@ -1904,7 +1904,9 @@
         {isEnabled && !loading && data.items.length > 0 && (
           <div style={{display:'flex',flexDirection:'column',gap:6}}>
             {data.items.map((row, i) => {
-              const isMe = data.myEntry && row.deviceId === data.myEntry.deviceId;
+              // «это я» приходит с сервера: user_id/deviceId других игроков
+              // публичный лидерборд больше не отдаёт.
+              const isMe = !!row.isMe;
               const rank = row.rank || (i + 1);
               const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
               return (
@@ -1922,7 +1924,7 @@
                 </div>
               );
             })}
-            {data.myEntry && !data.items.find(r => r.deviceId === data.myEntry.deviceId) && (
+            {data.myEntry && !data.items.some(r => r.isMe) && (
               <>
                 <div style={{textAlign:'center',color:'#a1a1a6',fontSize:11,padding:'4px 0'}}>...</div>
                 <div style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:10,background:'rgba(212,165,116,.1)',border:'1.5px solid #d4a574'}}>

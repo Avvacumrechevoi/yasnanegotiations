@@ -9,10 +9,27 @@
 // заметки и собственные Ясны. Очистка кэша или другой браузер = потеря всего,
 // а «мой прогресс на телефоне и на ноутбуке» был невозможен в принципе.
 //
-// КЛЮЧ ВЛАДЕЛЬЦА (owner_key). user_id, если пришёл валидный JWT, иначе
-// deviceId. Гостевой вход — важный сценарий продукта, ломать его нельзя:
-// гость играет и его прогресс уже хранится на сервере, а при первом входе
-// через Telegram прогресс устройства ПЕРЕНОСИТСЯ на аккаунт (claim ниже).
+// КЛЮЧ ВЛАДЕЛЬЦА (owner_key) — с ОБЯЗАТЕЛЬНЫМ префиксом пространства:
+//   'usr:<user_id>'   — владелец-аккаунт, доступ только по валидному JWT;
+//   'dev:<device_id>' — гость, доступ по секрету устройства.
+// Гостевой вход — важный сценарий продукта, ломать его нельзя: гость играет и
+// его прогресс хранится на сервере, а при первом входе через Telegram прогресс
+// устройства ПЕРЕНОСИТСЯ на аккаунт (claim ниже).
+//
+// ПОЧЕМУ ПРЕФИКСЫ И СЕКРЕТ. В первой версии owner_key был просто `user_id ||
+// deviceId`, и это оказалось дырой, проверенной на живом проде: зная id
+// аккаунта, любой человек БЕЗ токена читал чужой прогресс и личные заметки
+// (GET /progress?deviceId=<чужой user_id>) и затирал их записью с большим rev.
+// Префикс делает подмену пространства невозможной: параметр deviceId больше
+// физически не может адресовать строки аккаунта. Секрет устройства закрывает
+// вторую половину: гостевые строки были защищены только знанием deviceId,
+// который к тому же публиковался лидербордом.
+//
+// СЕКРЕТ УСТРОЙСТВА (заголовок X-Device-Secret) — привязка при первом
+// обращении (trust on first use): в device_auth пишется sha256 секрета, дальше
+// каждый запрос обязан его предъявить. Это не защита от кражи localStorage —
+// это защита от того, чтобы чужой прогресс читался по угаданному/подсмотренному
+// идентификатору.
 //
 // РАЗРЕШЕНИЕ КОНФЛИКТОВ. Хранить учебный прогресс как единый JSON на ключ и
 // сливать его по полям — значит придумывать правила слияния для каждого
@@ -31,12 +48,20 @@ const { Driver, getCredentialsFromEnv, TypedValues, Types } = require('ydb-sdk')
 let driver = null;
 async function getDriver(){
   if(driver) return driver;
-  driver = new Driver({
+  // Драйвер попадает в модульный кэш ТОЛЬКО после успешной готовности.
+  // Раньше присваивание шло до ready(), и одна неудачная инициализация
+  // «залипала» в тёплом контейнере: последующие вызовы проверку минуют и
+  // работают с дохлым драйвером, пока контейнер не переедет.
+  const d = new Driver({
     endpoint: process.env.YDB_ENDPOINT,
     database: process.env.YDB_DATABASE,
     authService: getCredentialsFromEnv(),
   });
-  if(!await driver.ready(10000)) throw new Error('YDB not ready');
+  if(!await d.ready(10000)){
+    try { await d.destroy(); } catch(_){}
+    throw new Error('YDB not ready');
+  }
+  driver = d;
   return driver;
 }
 
@@ -44,9 +69,14 @@ const ALLOW_ORIGIN = process.env.ALLOW_ORIGIN || 'https://avvacumrechevoi.github
 const CORS = {
   'Access-Control-Allow-Origin': ALLOW_ORIGIN,
   'Access-Control-Allow-Methods': 'GET, PUT, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  // X-Device-Secret — секрет устройства для гостевого доступа. Секрет идёт
+  // заголовком, а не в query: строки запроса попадают в логи шлюза.
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Device-Secret',
   'Content-Type': 'application/json',
 };
+
+const OWNER_USER = 'usr:';
+const OWNER_DEV  = 'dev:';
 
 // Тот же разбор токена, что в submit.js/content-publish.js.
 function verifyJWT(token, secret){
@@ -67,9 +97,14 @@ function verifyJWT(token, secret){
 // «сколько влезет»: иначе одним запросом можно набить базу мусором.
 const MAX_ITEMS  = 300;
 const MAX_NOTES  = 300;
-const MAX_STATE  = 32 * 1024;   // на одно значение
-const MAX_NOTE   = 16 * 1024;
+// 32 КБ было МЕНЬШЕ, чем реальный размер главного ключа прогресса: duel.js
+// держит историю до 200 партий, и yasna_duel_data у активного игрока доходит
+// до ~50 КБ. Такое значение отвергалось молча и переотправлялось в каждом
+// цикле синхронизации — то есть прогресс активного игрока не сохранялся вообще.
+const MAX_STATE  = 256 * 1024;  // на одно значение
+const MAX_NOTE   = 64 * 1024;
 const MAX_ID     = 128;
+const MAX_SECRET = 200;
 // Разрешённые scope: только то, что реально синхронизируется. prefs/cache/secret
 // на сервер не уезжают (тема и черновики админки там не нужны, ключи LLM — тем
 // более), см. scope в реестре docs/core/storage.js.
@@ -102,13 +137,39 @@ exports.handler = async (event) => {
 
   const deviceId = String(query.deviceId || body.deviceId || '').slice(0, MAX_ID);
   if(!userId && !deviceId) return fail(400, 'deviceId required');
-  const ownerKey = userId || deviceId;
+
+  const hdr = event.headers || {};
+  const deviceSecret = String(
+    hdr['X-Device-Secret'] || hdr['x-device-secret'] || body.deviceSecret || ''
+  ).slice(0, MAX_SECRET);
+
+  // Ключ владельца собирается ТОЛЬКО здесь и всегда с префиксом пространства.
+  const ownerKey = userId ? (OWNER_USER + userId) : (OWNER_DEV + deviceId);
 
   let drv;
   try { drv = await getDriver(); }
   catch(e){ console.error('[progress] YDB unavailable', e); return fail(503, 'db unavailable'); }
 
   try {
+    // Доступ к гостевому пространству — по секрету устройства. Он же требуется,
+    // когда залогиненный передаёт deviceId для переноса прогресса: без этой
+    // проверки любой обладатель аккаунта мог бы «присвоить» (и прочитать)
+    // гостевые данные чужого устройства, зная только его id.
+    if(deviceId){
+      const chk = await checkDeviceSecret(drv, deviceId, deviceSecret);
+      if(!chk.ok){
+        // Для залогиненного отсутствие/несовпадение секрета не должно закрывать
+        // доступ к ЕГО аккаунту — просто не делаем перенос с этого устройства.
+        if(!userId) return fail(403, chk.error);
+        console.warn('[progress] claim skipped:', chk.error);
+        return method === 'GET'
+          ? await handleGet(drv, { ownerKey, userId, deviceId: null })
+          : (method === 'PUT' || method === 'POST')
+            ? await handlePut(drv, { ownerKey, userId, deviceId: null, body })
+            : fail(405, 'method not allowed');
+      }
+    }
+
     if(method === 'GET')  return await handleGet(drv, { ownerKey, userId, deviceId });
     if(method === 'PUT' || method === 'POST') return await handlePut(drv, { ownerKey, userId, deviceId, body });
     return fail(405, 'method not allowed');
@@ -119,6 +180,45 @@ exports.handler = async (event) => {
     return fail(500, 'db error', { detail: String(e?.message || e).slice(0, 300) });
   }
 };
+
+// ─── секрет устройства ───────────────────────────────────────────────
+// Привязка при первом обращении: если для device_id записи ещё нет, сохраняем
+// sha256 присланного секрета и пускаем. Дальше секрет обязателен и должен
+// совпадать. Сравнение по хешам фиксированной длины через timingSafeEqual.
+//
+// Осознанное ограничение: устройства, которые успели записать прогресс ДО
+// появления секрета, привязываются к первому пришедшему секрету. Это слабее
+// настоящей регистрации, но радикально лучше прежнего состояния, когда для
+// доступа хватало знания deviceId, а deviceId ещё и публиковался лидербордом.
+async function checkDeviceSecret(drv, deviceId, secret){
+  if(!secret) return { ok:false, error:'device secret required' };
+  const hash = crypto.createHash('sha256').update(String(secret)).digest('hex');
+  let stored = null;
+  await drv.tableClient.withSession(async (s) => {
+    const r = await s.executeQuery(`DECLARE $d AS Utf8;
+      SELECT secret_hash FROM device_auth WHERE device_id = $d;`,
+      { '$d': TypedValues.utf8(deviceId) });
+    const row = r.resultSets[0]?.rows?.[0];
+    if(row) stored = txt(row.items[0]);
+  });
+
+  if(stored === null){
+    await drv.tableClient.withSession(async (s) => {
+      await s.executeQuery(`
+        DECLARE $d AS Utf8; DECLARE $h AS Utf8;
+        UPSERT INTO device_auth (device_id, secret_hash, created_at)
+        VALUES ($d, $h, CurrentUtcTimestamp());`,
+        { '$d': TypedValues.utf8(deviceId), '$h': TypedValues.utf8(hash) });
+    });
+    return { ok:true, bound:true };
+  }
+
+  const a = Buffer.from(String(stored)), b = Buffer.from(hash);
+  if(a.length !== b.length || !crypto.timingSafeEqual(a, b)){
+    return { ok:false, error:'device secret mismatch' };
+  }
+  return { ok:true };
+}
 
 // ─── чтение ──────────────────────────────────────────────────────────
 async function handleGet(drv, { ownerKey, userId, deviceId }){
@@ -183,7 +283,14 @@ async function handlePut(drv, { ownerKey, userId, deviceId, body }){
 
       const key = scope + ' ' + itemId;
       const existing = cur.get(key);
-      const sentRev = Number.isFinite(+it?.rev) ? Math.max(0, parseInt(it.rev, 10)) : null;
+      // Строгий разбор rev. Прежняя проверка Number.isFinite(+it.rev) считала
+      // валидными null/''/false (все дают +x === 0), а parseInt от них даёт NaN,
+      // после чего сравнение existing.rev > NaN ложно и запись проходила В ОБХОД
+      // проверки конфликта — то есть присланный мусорный rev затирал серверные
+      // данные. Теперь rev принимается только как настоящее целое число.
+      const revNum = (typeof it?.rev === 'number' || (typeof it?.rev === 'string' && it.rev.trim() !== ''))
+        ? Number(it.rev) : NaN;
+      const sentRev = Number.isInteger(revNum) && revNum >= 0 ? revNum : null;
 
       // Конфликт: на сервере версия новее той, которую видел клиент.
       // sentRev === null трактуем как «клиент не знает про версию» — это
@@ -246,8 +353,12 @@ async function handlePut(drv, { ownerKey, userId, deviceId, body }){
 // column set»), а LEFT ONLY JOIN здесь пришлось бы сочетать с чтением и
 // записью одной и той же таблицы в одной транзакции. Строк единицы-десятки,
 // так что явный проход понятнее и надёжнее любой хитрой конструкции.
-async function claimDeviceProgress(drv, userId, deviceId){
-  if(!userId || !deviceId || userId === deviceId) return;
+async function claimDeviceProgress(drv, userIdRaw, deviceIdRaw){
+  if(!userIdRaw || !deviceIdRaw) return;
+  // Ключи владельцев — всегда с префиксом пространства, см. шапку файла.
+  const userId = OWNER_USER + userIdRaw;
+  const deviceId = OWNER_DEV + deviceIdRaw;
+  if(userId === deviceId) return;
   await drv.tableClient.withSession(async (s) => {
     const read = async (sql, key) => {
       const r = await s.executeQuery(sql, { '$o': TypedValues.utf8(key) });
@@ -273,7 +384,9 @@ async function claimDeviceProgress(drv, userId, deviceId){
           '$i': TypedValues.utf8(itemId),
           '$j': TypedValues.utf8(txt(row.items[2]) || ''),
           '$r': TypedValues.uint64(num(row.items[3]) || 1),
-          '$d': TypedValues.optional(TypedValues.utf8(deviceId)),
+          // в колонку device_id пишем СЫРОЙ id устройства: она диагностическая,
+          // префикс пространства владельца в ней только мешал бы
+          '$d': TypedValues.optional(TypedValues.utf8(deviceIdRaw)),
         });
     }
 

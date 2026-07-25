@@ -30,12 +30,20 @@ const { Driver, getCredentialsFromEnv, TypedValues, Types } = require('ydb-sdk')
 let driver = null;
 async function getDriver(){
   if(driver) return driver;
-  driver = new Driver({
+  // Драйвер попадает в модульный кэш ТОЛЬКО после успешной готовности.
+  // Раньше присваивание шло до ready(), и одна неудачная инициализация
+  // «залипала» в тёплом контейнере: последующие вызовы проверку минуют и
+  // работают с дохлым драйвером, пока контейнер не переедет.
+  const d = new Driver({
     endpoint: process.env.YDB_ENDPOINT,
     database: process.env.YDB_DATABASE,
     authService: getCredentialsFromEnv(),
   });
-  if(!await driver.ready(10000)) throw new Error('YDB not ready');
+  if(!await d.ready(10000)){
+    try { await d.destroy(); } catch(_){}
+    throw new Error('YDB not ready');
+  }
+  driver = d;
   return driver;
 }
 

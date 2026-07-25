@@ -713,8 +713,10 @@
     }, []);
 
     const myDeviceId = user?.deviceId || _g('YasnaDuelProfile')?.load?.()?.deviceId;
-    const myInTop = items && myDeviceId && items.find(r => r.deviceId === myDeviceId);
-    const myRank = myInTop ? items.findIndex(r => r.deviceId === myDeviceId) + 1 : null;
+    // Признак «это я» считает сервер (leaderboard.js): идентификаторы игроков
+    // наружу не отдаются, сравнивать их на клиенте больше нечем.
+    const myInTop = items && items.find(r => r.isMe);
+    const myRank = myInTop ? items.findIndex(r => r.isMe) + 1 : null;
 
     return React.createElement('div', { className: 'dp-card', id: 'hronika' },
       React.createElement('div', { className: 'dp-card-h' },
@@ -739,10 +741,10 @@
                 ),
                 React.createElement('tbody', null,
                   items.slice(0, 5).map((row, idx) => {
-                    const isMe = myDeviceId && row.deviceId === myDeviceId;
+                    const isMe = !!row.isMe;
                     const rankCls = idx === 0 ? 'dp-td-rank-1' : idx === 1 ? 'dp-td-rank-2' : idx === 2 ? 'dp-td-rank-3' : '';
                     return React.createElement('tr', {
-                      key: row.deviceId || idx,
+                      key: idx,
                       className: isMe ? 'dp-tr-me' : ''
                     },
                       React.createElement('td', { className: 'dp-td-rank ' + rankCls }, idx + 1),

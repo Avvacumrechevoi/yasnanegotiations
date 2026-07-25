@@ -5,17 +5,42 @@
 // ═══════════════════════════════════════════════════════════════════
 // Env vars: YDB_ENDPOINT, YDB_DATABASE
 
+const crypto = require('crypto');
 const { Driver, getCredentialsFromEnv, TypedValues } = require('ydb-sdk');
+
+// Тот же разбор токена, что в submit.js/progress.js — нужен, чтобы найти
+// СВОЮ запись в топе у залогиненного игрока.
+function verifyJWT(token, secret){
+  if(!token || !secret) return null;
+  const [h, b, s] = token.split('.');
+  if(!h || !b || !s) return null;
+  const expected = crypto.createHmac('sha256', secret).update(`${h}.${b}`).digest('base64url');
+  const expBuf = Buffer.from(expected), sigBuf = Buffer.from(s);
+  if(expBuf.length !== sigBuf.length || !crypto.timingSafeEqual(expBuf, sigBuf)) return null;
+  try {
+    const payload = JSON.parse(Buffer.from(b, 'base64url').toString());
+    if(payload.exp && payload.exp < Math.floor(Date.now()/1000)) return null;
+    return payload;
+  } catch(_){ return null; }
+}
 
 let driver = null;
 async function getDriver(){
   if(driver) return driver;
-  driver = new Driver({
+  // Драйвер попадает в модульный кэш ТОЛЬКО после успешной готовности.
+  // Раньше присваивание шло до ready(), и одна неудачная инициализация
+  // «залипала» в тёплом контейнере: последующие вызовы проверку минуют и
+  // работают с дохлым драйвером, пока контейнер не переедет.
+  const d = new Driver({
     endpoint: process.env.YDB_ENDPOINT,
     database: process.env.YDB_DATABASE,
     authService: getCredentialsFromEnv(),
   });
-  if(!await driver.ready(10000)) throw new Error('YDB not ready');
+  if(!await d.ready(10000)){
+    try { await d.destroy(); } catch(_){}
+    throw new Error('YDB not ready');
+  }
+  driver = d;
   return driver;
 }
 
@@ -63,6 +88,15 @@ exports.handler = async (event) => {
   const period = String(params.period || 'all');
   const limit = Math.max(1, Math.min(100, parseInt(params.limit, 10) || 50));
   const myDeviceId = String(params.deviceId || '');
+  // Опционально читаем токен: после входа через Telegram матчи пишутся с
+  // user_id, и поиск «меня» только по device_id перестаёт находить свою же
+  // запись — залогиненный не видел себя в топе.
+  const myUserId = (() => {
+    const auth = event.headers?.Authorization || event.headers?.authorization;
+    if(!auth?.startsWith('Bearer ')) return null;
+    const p = verifyJWT(auth.slice(7), process.env.JWT_SECRET);
+    return p?.sub ? String(p.sub) : null;
+  })();
 
   if(!VALID_GAMES.has(gameId) || !VALID_YASNAS.has(yasnaId)){
     return { statusCode: 400, headers: CORS, body: JSON.stringify({error:'invalid filters'}) };
@@ -140,21 +174,33 @@ exports.handler = async (event) => {
         const cols = row.items;
         const score = cols[1]?.int32Value;
         const time = cols[2]?.int32Value;
+        const uid = cols[5]?.textValue || null;
+        const dev = cols[6]?.textValue || null;
         return {
           rank: idx + 1,
           score: score != null ? score : null,
           time: time != null ? time : null,
           nickname: cols[3]?.textValue || 'аноним',
           avatar: cols[4]?.textValue || '🦊',
-          user_id: cols[5]?.textValue || null,
-          deviceId: cols[6]?.textValue || null,
+          // user_id и deviceId наружу НЕ отдаём. Раньше отдавались — то есть
+          // публичный эндпоинт без всякой авторизации выдавал идентификаторы
+          // всех игроков топа. Пока /progress различал владельцев по одному
+          // deviceId, этого хватало, чтобы прочитать и затереть чужой прогресс
+          // (проверено на живом проде). Клиенту нужен только признак «это я»,
+          // и вычислить его — дело сервера.
+          isMe: (!!myDeviceId && dev === myDeviceId) || (!!myUserId && uid === myUserId),
+          _uid: undefined, _dev: undefined,
         };
       });
+      // сырые идентификаторы нужны только здесь, для поиска myEntry
+      const rawIds = rows.map(r => ({ uid: r.items[5]?.textValue || null, dev: r.items[6]?.textValue || null }));
 
       // myEntry — найти запись текущего пользователя
-      if(myDeviceId){
-        myEntry = items.find(r => r.deviceId === myDeviceId) || null;
-        if(!myEntry){
+      if(myDeviceId || myUserId){
+        const myIdx = rawIds.findIndex(x =>
+          (myDeviceId && x.dev === myDeviceId) || (myUserId && x.uid === myUserId));
+        myEntry = myIdx >= 0 ? items[myIdx] : null;
+        if(!myEntry && myDeviceId){
           // Не в топе — посмотреть отдельно
           const myQuery = `
             DECLARE $game AS Utf8;
@@ -177,7 +223,7 @@ exports.handler = async (event) => {
               time: myRow.items[1]?.int32Value,
               nickname: myRow.items[2]?.textValue,
               avatar: myRow.items[3]?.textValue || '🦊',
-              deviceId: myDeviceId,
+              isMe: true,
             };
           }
         }
