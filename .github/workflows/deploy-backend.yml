@@ -9,12 +9,21 @@
 # бэкенд сам.
 #
 # ЕДИНСТВЕННАЯ РУЧНАЯ НАСТРОЙКА — один секрет репозитория YC_SA_KEY:
-#   1) создать ключ сервисного аккаунта (у него уже есть нужные права):
-#        yc iam key create --service-account-id aje0k8v128i3gvatqah2 \
-#          --output sa-key.json --folder-id b1gc964j4lm3jfp3h038
-#   2) Settings → Secrets and variables → Actions → New repository secret,
-#      имя YC_SA_KEY, значение — ВСЁ содержимое sa-key.json;
-#   3) удалить sa-key.json с диска.
+# значение — авторизованный ключ сервисного аккаунта yasna-ci
+# (aje30jts5erm5c4r1cdh). Положить в Settings → Secrets and variables →
+# Actions → New repository secret, имя YC_SA_KEY, значение — ВСЁ содержимое
+# json-файла ключа. Файл после этого удалить с диска.
+#
+# Если ключ нужно выпустить заново:
+#   yc iam key create --service-account-id aje30jts5erm5c4r1cdh --output sa-key.json
+#
+# ВАЖНО: это ОТДЕЛЬНЫЙ аккаунт от того, под которым работают сами функции
+# (aje0k8v128i3gvatqah2). У рабочего аккаунта только invoker + ydb.editor, он
+# НЕ умеет создавать версии функций и править шлюз — ключ от него в CI был бы
+# бесполезен. У yasna-ci ровно права на деплой: serverless.functions.admin,
+# api-gateway.editor, ydb.editor, iam.serviceAccounts.user (последняя нужна,
+# чтобы назначать функциям рабочий сервисный аккаунт).
+#
 # Без секрета workflow не падает, а тихо пропускается — чтобы форки и ветки
 # без доступа к облаку не краснели.
 #

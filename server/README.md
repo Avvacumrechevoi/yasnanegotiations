@@ -28,15 +28,22 @@ README.md            — этот файл
 спека шлюза → проверка прода. Если проверка не прошла, теги возвращаются на
 прежние версии.
 
-**Единственная ручная настройка** — секрет репозитория `YC_SA_KEY`:
+**Единственная ручная настройка** — секрет репозитория `YC_SA_KEY` со
+авторизованным ключом сервисного аккаунта **`yasna-ci`** (`aje30jts5erm5c4r1cdh`):
+Settings → Secrets and variables → Actions → `YC_SA_KEY`, значение — всё
+содержимое json-файла ключа. Без секрета workflow не краснеет, а тихо
+пропускается.
+
+Выпустить ключ заново:
 
 ```bash
-yc iam key create --service-account-id aje0k8v128i3gvatqah2 --output sa-key.json --folder-id b1gc964j4lm3jfp3h038
+yc iam key create --service-account-id aje30jts5erm5c4r1cdh --output sa-key.json
 ```
 
-Содержимое `sa-key.json` → Settings → Secrets and variables → Actions →
-`YC_SA_KEY`, затем файл удалить. Без секрета workflow не краснеет, а тихо
-пропускается.
+`yasna-ci` — **отдельный** аккаунт от того, под которым работают функции
+(`aje0k8v128i3gvatqah2`, у него только `invoker` + `ydb.editor` и деплоить он
+не может). Права `yasna-ci`: `serverless.functions.admin`, `api-gateway.editor`,
+`ydb.editor`, `iam.serviceAccounts.user`.
 
 **Руками, если нужно:**
 
