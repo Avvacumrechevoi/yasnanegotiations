@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-07-25T11:35:31.932Z */
+/* Yasna bundle: duel.js — собран 2026-07-25T13:35:26.461Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -3887,17 +3887,58 @@ window.YasnaCore = {
         this._enqueue(payload);
         return false;
       }
-      const ok = await this._sendOne(payload);
-      if (!ok) this._enqueue(payload);
-      return ok;
+      const verdict = await this._postSubmit(payload);
+      if (verdict === "retry") this._enqueue(payload);
+      return verdict === "ok";
+    }
+    // Отправка матча с РАЗЛИЧЕНИЕМ КЛАССОВ ОТВЕТА → 'ok' | 'permanent' | 'retry'.
+    // Раньше здесь использовался _fetch, который на ЛЮБОЙ не-ok статус возвращает
+    // null — то есть 400 «невалидный payload» (безнадёжно) и 500/таймаут (стоит
+    // повторить) были неразличимы. Итог: отклонённый матч оставался в очереди и
+    // переотправлялся на КАЖДОЙ загрузке страницы, очередь росла до 200 записей.
+    // 409 сервер отдаёт на дубль по идемпотентности (submit.js) — это УСПЕХ,
+    // матч уже записан, из очереди его надо убрать.
+    async _postSubmit(payload) {
+      if (!this.baseUrl) return "retry";
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), LB_TIMEOUT_MS);
+      const headers = { "Content-Type": "application/json" };
+      const token = loadToken();
+      if (token) headers["Authorization"] = "Bearer " + token;
+      try {
+        const res = await fetch(this.baseUrl + "/submit", {
+          method: "POST",
+          headers,
+          body: JSON.stringify(payload),
+          signal: ctrl.signal
+        });
+        clearTimeout(timer);
+        if (res.ok) return "ok";
+        if (res.status === 409) return "ok";
+        this.lastError = "http-" + res.status;
+        if (res.status === 401) {
+          logout();
+          return "retry";
+        }
+        if (res.status >= 400 && res.status < 500) {
+          let why = "";
+          try {
+            const b = await res.json();
+            why = b && b.error || "";
+          } catch (_) {
+          }
+          console.warn("[leaderboard] \u043C\u0430\u0442\u0447 \u043E\u0442\u043A\u043B\u043E\u043D\u0451\u043D \u043E\u043A\u043E\u043D\u0447\u0430\u0442\u0435\u043B\u044C\u043D\u043E: HTTP " + res.status + " " + why + " (gameId=" + payload.gameId + ", transport=" + payload.transport + ")");
+          return "permanent";
+        }
+        return "retry";
+      } catch (e) {
+        clearTimeout(timer);
+        this.lastError = e && e.name === "AbortError" ? "timeout" : e && e.message || "network";
+        return "retry";
+      }
     }
     async _sendOne(payload) {
-      const res = await this._fetch("/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      return !!(res && res.ok);
+      return await this._postSubmit(payload) === "ok";
     }
     _enqueue(payload) {
       try {
@@ -3927,17 +3968,19 @@ window.YasnaCore = {
       }
       if (!q.length) return { sent: 0, remaining: 0 };
       const remaining = [];
-      let sent = 0;
+      let sent = 0, dropped = 0;
       for (const p of q) {
-        const ok = await this._sendOne(p);
-        if (ok) sent++;
+        const verdict = await this._postSubmit(p);
+        if (verdict === "ok") sent++;
+        else if (verdict === "permanent") dropped++;
         else remaining.push(p);
       }
       try {
         localStorage.setItem(LB_QUEUE_KEY, JSON.stringify(remaining));
       } catch (_) {
       }
-      return { sent, remaining: remaining.length };
+      if (dropped) console.warn("[leaderboard] \u0432\u044B\u0431\u0440\u043E\u0448\u0435\u043D\u043E \u0438\u0437 \u043E\u0447\u0435\u0440\u0435\u0434\u0438 \u0431\u0435\u0437\u043D\u0430\u0434\u0451\u0436\u043D\u044B\u0445 \u043C\u0430\u0442\u0447\u0435\u0439: " + dropped);
+      return { sent, dropped, remaining: remaining.length };
     }
     async fetchLeaderboard({ gameId, yasnaId, period = "all", limit = 50 } = {}) {
       if (!this.baseUrl) return { items: [], myEntry: null, error: "not-configured" };
@@ -24222,7 +24265,10 @@ window.YasnaCore = {
       const mine = results.find((r) => r.deviceId === deviceId);
       const myRank = mine ? mine.rank : null;
       const total = results.length || Object.keys(players).length;
-      const matchId = "group-" + code + "-" + (meta && meta.seed || "");
+      const sessionId = "group-" + code + "-" + (meta && meta.seed || "");
+      const matchId = sessionId + "-" + deviceId;
+      const startedAt = meta && meta.startedAt || null;
+      const elapsedMs = startedAt ? Math.max(0, nowMs() - startedAt) : 0;
       try {
         window.YasnaDuelStorage && window.YasnaDuelStorage.recordMatch && window.YasnaDuelStorage.recordMatch({
           matchId,
@@ -24231,7 +24277,7 @@ window.YasnaCore = {
           result: myRank === 1 ? "win" : "loss",
           score,
           maxScore: totalQ * 15,
-          time: 0,
+          time: elapsedMs,
           transport: "group",
           isBot: false,
           bySurrender: false,
@@ -24250,7 +24296,7 @@ window.YasnaCore = {
           result: myRank === 1 ? "win" : "loss",
           score,
           maxScore: totalQ * 15,
-          time: 0,
+          time: elapsedMs,
           transport: "group",
           isBot: false,
           players: total,
@@ -25054,8 +25100,12 @@ window.YasnaCore = {
       isGuest && React.createElement("button", { className: "dp-hero-cta", onClick: onLoginClick, title: "\u0412\u043E\u0439\u0434\u0438 \u2014 \u043F\u043E\u043F\u0430\u0434\u0451\u0448\u044C \u0432 \u0425\u0440\u043E\u043D\u0438\u043A\u0443" }, "\u0412\u043E\u0439\u0442\u0438 \u2192"),
       !isGuest && remoteProfile && React.createElement("div", {
         className: "dp-hero-synced",
-        title: "\u041F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u0441\u0438\u043D\u0445\u0440\u043E\u043D\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D \u0447\u0435\u0440\u0435\u0437 Telegram-\u0430\u043A\u043A\u0430\u0443\u043D\u0442"
-      }, "\u2713 \u0441\u0438\u043D\u0445\u0440.")
+        // Честная формулировка: серверного хранения учебного прогресса пока нет
+        // (в БД есть только users/device_links/matches — таблицы прогресса нет,
+        // и GET /profile не реализован). Telegram-вход сейчас даёт участие в
+        // Хронике и рейтинге по партиям, а не перенос прогресса между устройствами.
+        title: "\u0412\u0445\u043E\u0434 \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D: \u043F\u0430\u0440\u0442\u0438\u0438 \u0443\u0447\u0438\u0442\u044B\u0432\u0430\u044E\u0442\u0441\u044F \u0432 \u0425\u0440\u043E\u043D\u0438\u043A\u0435 \u0438 \u0440\u0435\u0439\u0442\u0438\u043D\u0433\u0435. \u041F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u043E\u0431\u0443\u0447\u0435\u043D\u0438\u044F \u043F\u043E\u043A\u0430 \u0445\u0440\u0430\u043D\u0438\u0442\u0441\u044F \u0432 \u044D\u0442\u043E\u043C \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0435"
+      }, "\u2713 \u0432 \u0425\u0440\u043E\u043D\u0438\u043A\u0435")
     );
   }
   function DPSyncNotice({ user, onLoginClick }) {
@@ -26515,13 +26565,17 @@ window.YasnaCore = {
         "div",
         { className: "dp-auth-modal", role: "dialog", "aria-modal": "true" },
         phase !== "success" && phase !== "loading" && React.createElement("button", { className: "dp-auth-x", onClick: onClose, "aria-label": "\u0417\u0430\u043A\u0440\u044B\u0442\u044C" }, "\xD7"),
-        // ─── Состояние успеха: «Привет, X. Прогресс синхронизирован.» ───
+        // ─── Состояние успеха ───
+        // Было «Прогресс синхронизирован. Партии с других устройств подтянутся
+        // автоматически» — это неправда: серверного прогресса нет (в схеме только
+        // users/device_links/matches), GET /profile не реализован. Обещать перенос
+        // между устройствами нельзя, пока нет таблицы прогресса и ручки чтения.
         phase === "success" && React.createElement(
           React.Fragment,
           null,
           React.createElement("div", { className: "dp-auth-success-icon", "aria-hidden": "true" }, "\u2726"),
           React.createElement("h2", { className: "dp-auth-success-title" }, "\u041F\u0440\u0438\u0432\u0435\u0442, ", welcomeName, "."),
-          React.createElement("p", { className: "dp-auth-success-text" }, "\u041F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u0441\u0438\u043D\u0445\u0440\u043E\u043D\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D. \u041F\u0430\u0440\u0442\u0438\u0438 \u0441 \u0434\u0440\u0443\u0433\u0438\u0445 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432 \u043F\u043E\u0434\u0442\u044F\u043D\u0443\u0442\u0441\u044F \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438.")
+          React.createElement("p", { className: "dp-auth-success-text" }, "\u0422\u0435\u043F\u0435\u0440\u044C \u043F\u0430\u0440\u0442\u0438\u0438 \u043F\u043E\u043F\u0430\u0434\u0430\u044E\u0442 \u0432 \u0425\u0440\u043E\u043D\u0438\u043A\u0443 \u0438 \u0440\u0435\u0439\u0442\u0438\u043D\u0433 \u043F\u043E\u0434 \u0442\u0432\u043E\u0438\u043C \u0438\u043C\u0435\u043D\u0435\u043C. \u041F\u0440\u043E\u0433\u0440\u0435\u0441\u0441 \u043E\u0431\u0443\u0447\u0435\u043D\u0438\u044F \u043F\u043E\u043A\u0430 \u0445\u0440\u0430\u043D\u0438\u0442\u0441\u044F \u0432 \u044D\u0442\u043E\u043C \u0431\u0440\u0430\u0443\u0437\u0435\u0440\u0435.")
         ),
         // ─── Idle / loading / error ───
         phase !== "success" && React.createElement(
@@ -26784,10 +26838,11 @@ window.YasnaCore = {
       (_b = (_a = _g("YasnaDuelAuth")) == null ? void 0 : _a.logout) == null ? void 0 : _b.call(_a);
       setUser(null);
       try {
-        localStorage.removeItem("yasna_duel_profile");
+        const P = _g("YasnaDuelProfile");
+        setProfile(P && P.load && P.load() || null);
       } catch (_) {
+        setProfile(null);
       }
-      setProfile(null);
       setTick((t) => t + 1);
     };
     const ensureNetProfile = () => {

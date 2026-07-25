@@ -348,8 +348,12 @@
       isGuest && React.createElement('button', { className: 'dp-hero-cta', onClick: onLoginClick, title: 'Войди — попадёшь в Хронику' }, 'Войти →'),
       !isGuest && remoteProfile && React.createElement('div', {
         className: 'dp-hero-synced',
-        title: 'Прогресс синхронизирован через Telegram-аккаунт'
-      }, '✓ синхр.')
+        // Честная формулировка: серверного хранения учебного прогресса пока нет
+        // (в БД есть только users/device_links/matches — таблицы прогресса нет,
+        // и GET /profile не реализован). Telegram-вход сейчас даёт участие в
+        // Хронике и рейтинге по партиям, а не перенос прогресса между устройствами.
+        title: 'Вход выполнен: партии учитываются в Хронике и рейтинге. Прогресс обучения пока хранится в этом браузере'
+      }, '✓ в Хронике')
     );
   }
 
@@ -1590,11 +1594,15 @@
       React.createElement('div', { className: 'dp-auth-modal', role: 'dialog', 'aria-modal': 'true' },
         phase !== 'success' && phase !== 'loading' && React.createElement('button', { className: 'dp-auth-x', onClick: onClose, 'aria-label': 'Закрыть' }, '×'),
 
-        // ─── Состояние успеха: «Привет, X. Прогресс синхронизирован.» ───
+        // ─── Состояние успеха ───
+        // Было «Прогресс синхронизирован. Партии с других устройств подтянутся
+        // автоматически» — это неправда: серверного прогресса нет (в схеме только
+        // users/device_links/matches), GET /profile не реализован. Обещать перенос
+        // между устройствами нельзя, пока нет таблицы прогресса и ручки чтения.
         phase === 'success' && React.createElement(React.Fragment, null,
           React.createElement('div', { className: 'dp-auth-success-icon', 'aria-hidden': 'true' }, '✦'),
           React.createElement('h2', { className: 'dp-auth-success-title' }, 'Привет, ', welcomeName, '.'),
-          React.createElement('p', { className: 'dp-auth-success-text' }, 'Прогресс синхронизирован. Партии с других устройств подтянутся автоматически.')
+          React.createElement('p', { className: 'dp-auth-success-text' }, 'Теперь партии попадают в Хронику и рейтинг под твоим именем. Прогресс обучения пока хранится в этом браузере.')
         ),
 
         // ─── Idle / loading / error ───
@@ -1803,10 +1811,18 @@
     }, [user, profile?.deviceId]);
 
     const onLogout = () => {
-      _g('YasnaDuelAuth')?.logout?.();
+      _g('YasnaDuelAuth')?.logout?.();          // чистит только токен и user
       setUser(null);
-      try { localStorage.removeItem('yasna_duel_profile'); } catch(_){}
-      setProfile(null);
+      // ВАЖНО: НЕ удаляем yasna_duel_profile. В нём лежит deviceId — ключ, к
+      // которому привязан ВЕСЬ локальный прогресс (партии, достижения, дневной
+      // вызов) и связь device_links на сервере. Раньше выход стирал профиль, и
+      // человек терял историю просто потому, что вышел из аккаунта. Гостевой
+      // профиль — независимая личность по дизайну (см. duel.js/loginWithTelegram),
+      // после выхода корректно вернуться к нему, а не обнулять.
+      try {
+        const P = _g('YasnaDuelProfile');
+        setProfile((P && P.load && P.load()) || null);
+      } catch(_){ setProfile(null); }
       setTick(t => t + 1);
     };
 

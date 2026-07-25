@@ -340,13 +340,24 @@
       const mine = results.find(r => r.deviceId === deviceId);
       const myRank = mine ? mine.rank : null;
       const total = results.length || Object.keys(players).length;
-      const matchId = 'group-' + code + '-' + (meta && meta.seed || '');
+      // matchId ОБЯЗАН быть уникальным на игрока: в matches PRIMARY KEY (id),
+      // а раньше здесь был общий 'group-<code>-<seed>' — все участники комнаты
+      // писали один и тот же id, поэтому сохранялся результат ровно одного, а
+      // остальные получали 409 (дубль). Добавляем deviceId; префикс с кодом и
+      // seed сохраняем, чтобы партию можно было опознать глазами в БД.
+      const sessionId = 'group-' + code + '-' + ((meta && meta.seed) || '');
+      const matchId = sessionId + '-' + deviceId;
+      // Реальная длительность вместо time:0. Ноль отсекался ещё на клиенте
+      // фильтром _shouldSubmit (time < 1000), поэтому групповые партии НИКОГДА
+      // не доходили до сервера. Считаем от meta.startedAt (ставится в startGame).
+      const startedAt = (meta && meta.startedAt) || null;
+      const elapsedMs = startedAt ? Math.max(0, nowMs() - startedAt) : 0;
       try {
         window.YasnaDuelStorage && window.YasnaDuelStorage.recordMatch && window.YasnaDuelStorage.recordMatch({
           matchId, gameId: 'group', yasnaId: 'суток',
           result: myRank === 1 ? 'win' : 'loss',
           score: score, maxScore: totalQ * 15,
-          time: 0, transport: 'group', isBot: false, bySurrender: false,
+          time: elapsedMs, transport: 'group', isBot: false, bySurrender: false,
           themesPlayed: flat.map(f => f.theme && f.theme.id).filter(Boolean),
         });
       } catch(_){}
@@ -356,7 +367,7 @@
           nickname: profile && profile.nickname, avatar: (profile && typeof profile.avatar === 'string') ? profile.avatar : '·',
           gameId: 'group', yasnaId: 'суток',
           result: myRank === 1 ? 'win' : 'loss',
-          score: score, maxScore: totalQ * 15, time: 0,
+          score: score, maxScore: totalQ * 15, time: elapsedMs,
           transport: 'group', isBot: false, players: total, rank: myRank,
         }).catch(() => {});
       } catch(_){}

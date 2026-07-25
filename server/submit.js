@@ -44,10 +44,27 @@ function verifyJWT(token, secret){
   } catch(_){ return null; }
 }
 
-const VALID_GAMES = new Set(['race-cross','race-mngmt','race-faith','quiz-antipodes','mirror-fill','speed-cross-yesno']);
-const VALID_YASNAS = new Set(['суток','года','фаз_жизни']);
-const VALID_RESULTS = new Set(['win','loss']);
-const VALID_TRANSPORTS = new Set(['peerjs','broadcast','bot','solo']);
+// Списки допустимых значений: дефолты + расширение через переменные окружения.
+// ПОЧЕМУ ТАК: раньше здесь был жёсткий whitelist из 6 легаси-id, а клиент давно
+// отправляет gameId 'turnir' (turnir-engine.js) и 'group' (group-engine.js) с
+// transport 'firebase'/'group'. Итог — КАЖДЫЙ матч получал 400 'invalid gameId',
+// таблица matches оставалась пустой, лидерборд и «Топ недели» — всегда пустыми.
+// Env-расширение нужно, чтобы следующий режим игры выходил БЕЗ правки и
+// редеплоя облачной функции (деплой бэкенда здесь ручной).
+function validSet(envName, defaults){
+  const extra = String(process.env[envName] || '').split(',').map(s => s.trim()).filter(Boolean);
+  return new Set(defaults.concat(extra));
+}
+const VALID_GAMES = validSet('EXTRA_GAMES', [
+  'turnir', 'group',                                              // действующие режимы
+  'race-cross','race-mngmt','race-faith','quiz-antipodes','mirror-fill','speed-cross-yesno', // легаси
+]);
+const VALID_YASNAS = validSet('EXTRA_YASNAS', ['суток','года','фаз_жизни']);
+const VALID_RESULTS = new Set(['win','loss','draw']);
+const VALID_TRANSPORTS = validSet('EXTRA_TRANSPORTS', [
+  'firebase', 'group',                                            // действующие транспорты
+  'peerjs','broadcast','bot','solo',                              // легаси
+]);
 
 exports.handler = async (event) => {
   if(event.httpMethod === 'OPTIONS') return { statusCode:200, headers: CORS, body:'' };

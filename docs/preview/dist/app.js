@@ -1,4 +1,4 @@
-/* Yasna bundle: app.js — собран 2026-07-25T11:35:31.815Z */
+/* Yasna bundle: app.js — собран 2026-07-25T13:35:26.346Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -9286,17 +9286,58 @@ window.YasnaLessons.LESSONS = LESSONS;
         this._enqueue(payload);
         return false;
       }
-      const ok = await this._sendOne(payload);
-      if (!ok) this._enqueue(payload);
-      return ok;
+      const verdict = await this._postSubmit(payload);
+      if (verdict === "retry") this._enqueue(payload);
+      return verdict === "ok";
+    }
+    // Отправка матча с РАЗЛИЧЕНИЕМ КЛАССОВ ОТВЕТА → 'ok' | 'permanent' | 'retry'.
+    // Раньше здесь использовался _fetch, который на ЛЮБОЙ не-ok статус возвращает
+    // null — то есть 400 «невалидный payload» (безнадёжно) и 500/таймаут (стоит
+    // повторить) были неразличимы. Итог: отклонённый матч оставался в очереди и
+    // переотправлялся на КАЖДОЙ загрузке страницы, очередь росла до 200 записей.
+    // 409 сервер отдаёт на дубль по идемпотентности (submit.js) — это УСПЕХ,
+    // матч уже записан, из очереди его надо убрать.
+    async _postSubmit(payload) {
+      if (!this.baseUrl) return "retry";
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), LB_TIMEOUT_MS);
+      const headers = { "Content-Type": "application/json" };
+      const token = loadToken();
+      if (token) headers["Authorization"] = "Bearer " + token;
+      try {
+        const res = await fetch(this.baseUrl + "/submit", {
+          method: "POST",
+          headers,
+          body: JSON.stringify(payload),
+          signal: ctrl.signal
+        });
+        clearTimeout(timer);
+        if (res.ok) return "ok";
+        if (res.status === 409) return "ok";
+        this.lastError = "http-" + res.status;
+        if (res.status === 401) {
+          logout();
+          return "retry";
+        }
+        if (res.status >= 400 && res.status < 500) {
+          let why = "";
+          try {
+            const b = await res.json();
+            why = b && b.error || "";
+          } catch (_) {
+          }
+          console.warn("[leaderboard] \u043C\u0430\u0442\u0447 \u043E\u0442\u043A\u043B\u043E\u043D\u0451\u043D \u043E\u043A\u043E\u043D\u0447\u0430\u0442\u0435\u043B\u044C\u043D\u043E: HTTP " + res.status + " " + why + " (gameId=" + payload.gameId + ", transport=" + payload.transport + ")");
+          return "permanent";
+        }
+        return "retry";
+      } catch (e) {
+        clearTimeout(timer);
+        this.lastError = e && e.name === "AbortError" ? "timeout" : e && e.message || "network";
+        return "retry";
+      }
     }
     async _sendOne(payload) {
-      const res = await this._fetch("/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      return !!(res && res.ok);
+      return await this._postSubmit(payload) === "ok";
     }
     _enqueue(payload) {
       try {
@@ -9326,17 +9367,19 @@ window.YasnaLessons.LESSONS = LESSONS;
       }
       if (!q.length) return { sent: 0, remaining: 0 };
       const remaining = [];
-      let sent = 0;
+      let sent = 0, dropped = 0;
       for (const p of q) {
-        const ok = await this._sendOne(p);
-        if (ok) sent++;
+        const verdict = await this._postSubmit(p);
+        if (verdict === "ok") sent++;
+        else if (verdict === "permanent") dropped++;
         else remaining.push(p);
       }
       try {
         localStorage.setItem(LB_QUEUE_KEY, JSON.stringify(remaining));
       } catch (_) {
       }
-      return { sent, remaining: remaining.length };
+      if (dropped) console.warn("[leaderboard] \u0432\u044B\u0431\u0440\u043E\u0448\u0435\u043D\u043E \u0438\u0437 \u043E\u0447\u0435\u0440\u0435\u0434\u0438 \u0431\u0435\u0437\u043D\u0430\u0434\u0451\u0436\u043D\u044B\u0445 \u043C\u0430\u0442\u0447\u0435\u0439: " + dropped);
+      return { sent, dropped, remaining: remaining.length };
     }
     async fetchLeaderboard({ gameId, yasnaId, period = "all", limit = 50 } = {}) {
       if (!this.baseUrl) return { items: [], myEntry: null, error: "not-configured" };

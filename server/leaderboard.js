@@ -27,8 +27,20 @@ const CORS = {
   'Content-Type': 'application/json',
 };
 
-const VALID_GAMES = new Set(['race-cross','race-mngmt','race-faith','quiz-antipodes','mirror-fill','speed-cross-yesno']);
-const VALID_YASNAS = new Set(['суток','года','фаз_жизни']);
+// Те же списки, что в submit.js (см. подробный коммент там). Держать в двух
+// функциях синхронно — известный минус: чтение лидерборда для gameId 'turnir'
+// отвечало 400 'invalid filters', поэтому «Топ недели» и Хроника были пусты
+// даже если бы записи доезжали. Env-расширение — чтобы новый режим не требовал
+// правки кода в двух местах.
+function validSet(envName, defaults){
+  const extra = String(process.env[envName] || '').split(',').map(s => s.trim()).filter(Boolean);
+  return new Set(defaults.concat(extra));
+}
+const VALID_GAMES = validSet('EXTRA_GAMES', [
+  'turnir', 'group',
+  'race-cross','race-mngmt','race-faith','quiz-antipodes','mirror-fill','speed-cross-yesno',
+]);
+const VALID_YASNAS = validSet('EXTRA_YASNAS', ['суток','года','фаз_жизни']);
 
 function periodToFilter(period){
   if(period === 'daily'){
