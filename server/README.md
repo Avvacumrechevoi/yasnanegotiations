@@ -99,7 +99,7 @@ cat > package.json <<EOF
 {
   "name": "yasna-auth-telegram",
   "version": "1.0.0",
-  "dependencies": { "ydb-sdk": "^7.0.0" }
+  "dependencies": { "ydb-sdk": "^5.11.1", "@yandex-cloud/nodejs-sdk": "^2.0.0" }
 }
 EOF
 

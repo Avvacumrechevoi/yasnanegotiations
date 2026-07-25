@@ -14,7 +14,8 @@
     "serve": "node scripts/serve.mjs",
     "test": "playwright test",
     "test:headed": "playwright test --headed",
-    "test:debug": "playwright test --debug"
+    "test:debug": "playwright test --debug",
+    "deploy:backend": "bash scripts/deploy-backend.sh"
   },
   "devDependencies": {
     "esbuild": "^0.24.0",

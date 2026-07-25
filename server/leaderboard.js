@@ -5,7 +5,7 @@
 // ═══════════════════════════════════════════════════════════════════
 // Env vars: YDB_ENDPOINT, YDB_DATABASE
 
-const { Driver, getCredentialsFromEnv } = require('ydb-sdk');
+const { Driver, getCredentialsFromEnv, TypedValues } = require('ydb-sdk');
 
 let driver = null;
 async function getDriver(){
@@ -73,6 +73,7 @@ exports.handler = async (event) => {
 
   let items = [];
   let myEntry = null;
+  let queryError = null;   // если запрос упал — отдаём 500, а не тихий пустой список
 
   await drv.tableClient.withSession(async (session) => {
     // Топ-N: для game_score-mode (Quiz/Mirror/Speed) — по score desc, при равенстве time asc.
@@ -86,7 +87,11 @@ exports.handler = async (event) => {
 
       $best_per_player = (
         SELECT
-          COALESCE(user_id, device_id) AS player_key,
+          -- player_key приходит из GROUP BY ... AS player_key (см. ниже).
+          -- Повторять здесь COALESCE(user_id, device_id) нельзя: YQL считает
+          -- user_id негруппированной колонкой и валит весь запрос
+          -- (Column user_id must either be a key column in GROUP BY ...).
+          player_key,
           MAX(score) AS best_score,
           MIN_BY(time_ms, score) AS best_time,
           MIN_BY(nickname, score) AS nickname,
@@ -94,21 +99,39 @@ exports.handler = async (event) => {
           MIN_BY(user_id, score) AS user_id,
           MIN_BY(device_id, score) AS device_id,
           MIN_BY(created_at, score) AS created_at
-        FROM matches VIEW matches_by_game
+        -- БЕЗ хинта VIEW matches_by_game: индекс покрывает только
+        -- (game_id, yasna_id, created_at) + PK, а запросу нужны result, is_bot,
+        -- score, time_ms, nickname, avatar, user_id, device_id. Чтение через
+        -- некрывающий индекс не даёт этих колонок, и выборка молча возвращалась
+        -- ПУСТОЙ (проверено: тот же WHERE по основной таблице даёт 3 строки).
+        -- Таблица матчей небольшая; если понадобится — сделать индекс COVERING.
+        FROM matches
         WHERE game_id = $game AND yasna_id = $yasna AND result = "win" AND is_bot = false ${filter}
-        GROUP BY COALESCE(user_id, device_id)
+        GROUP BY COALESCE(user_id, device_id) AS player_key
       );
 
       SELECT player_key, best_score, best_time, nickname, avatar, user_id, device_id, created_at
       FROM $best_per_player
-      ORDER BY best_score DESC NULLS LAST, best_time ASC
+      -- NULLS LAST УБРАН: YQL такого синтаксиса не знает и валил ВЕСЬ запрос
+      -- («extraneous input 'NULLS' expecting {<EOF>, ';'}», код 400080). Ошибка
+      -- глотался catch'ем ниже → HTTP 200 с пустым items, поэтому лидерборд
+      -- выглядел «просто пустым» и баг жил незамеченным. В YQL NULL меньше любого
+      -- значения, поэтому при DESC он и так оказывается в конце.
+      ORDER BY best_score DESC, best_time ASC
       LIMIT $limit;
     `;
 
     const params = {
-      '$game':  { type:{typeId:'UTF8'}, value:{textValue: gameId} },
-      '$yasna': { type:{typeId:'UTF8'}, value:{textValue: yasnaId} },
-      '$limit': { type:{typeId:'UINT64'}, value:{uint64Value: limit} },
+      // ВАЖНО: только TypedValues из ydb-sdk. Раньше параметры собирались
+      // вручную — { type:{typeId:'UTF8'}, value:{textValue: …} } — и НЕ
+      // биндились: typeId ожидает числовой enum, а не строку, поэтому фильтр
+      // game_id/yasna_id не совпадал НИКОГДА и лидерборд всегда отдавал пустой
+      // список, даже когда матчи в таблице есть (проверено диагностикой: 3 строки
+      // turnir/суток/win при пустом ответе). Тот же грабли уже задокументированы
+      // в submit.js — там от ручного формата ушли, здесь забыли.
+      '$game':  TypedValues.utf8(String(gameId)),
+      '$yasna': TypedValues.utf8(String(yasnaId)),
+      '$limit': TypedValues.uint64(limit),
     };
     try {
       const r = await session.executeQuery(query, params);
@@ -141,9 +164,10 @@ exports.handler = async (event) => {
             FROM matches WHERE game_id = $game AND yasna_id = $yasna AND device_id = $dev AND result = "win" AND is_bot = false ${filter};
           `;
           const r2 = await session.executeQuery(myQuery, {
-            '$game':  { type:{typeId:'UTF8'}, value:{textValue: gameId} },
-            '$yasna': { type:{typeId:'UTF8'}, value:{textValue: yasnaId} },
-            '$dev':   { type:{typeId:'UTF8'}, value:{textValue: myDeviceId} },
+            // см. коммент выше — только TypedValues, иначе биндинг молча пустой
+            '$game':  TypedValues.utf8(String(gameId)),
+            '$yasna': TypedValues.utf8(String(yasnaId)),
+            '$dev':   TypedValues.utf8(String(myDeviceId)),
           });
           const myRow = r2.resultSets[0]?.rows?.[0];
           if(myRow && myRow.items[0]?.int32Value !== undefined){
@@ -159,9 +183,16 @@ exports.handler = async (event) => {
         }
       }
     } catch(e){
+      // РАНЬШЕ ошибка только логировалась, и наружу уходил HTTP 200 с пустым
+      // items — из-за этого сломанный SQL (NULLS LAST) годами выглядел как
+      // «лидерборд пока пустой». Отдаём 500: пусть падение будет видно.
       console.error('YDB query failed', e);
+      queryError = String((e && e.message) || e);
     }
   });
 
+  if(queryError){
+    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error:'db query failed', detail: queryError.slice(0, 300) }) };
+  }
   return { statusCode: 200, headers: CORS, body: JSON.stringify({ items, myEntry }) };
 };
