@@ -361,6 +361,18 @@
 
     _profile(){ return loadProfile(); }
 
+    // Идентификатор залогиненного пользователя для серверных запросов.
+    // ВАЖНО: fetchProfile ниже вызывает this._userId(), а метода НЕ БЫЛО —
+    // получался TypeError, его глотал .catch(() => {}) у вызывающего
+    // (duel-page.js), и серверный профиль не приходил НИКОГДА. При этом сам
+    // эндпоинт /profile жив и отдаёт статистику матчей.
+    _userId(){
+      try {
+        const u = loadUser();
+        return (u && (u.userId || u.id)) || null;
+      } catch(_){ return null; }
+    }
+
     async _fetch(path, opts){
       if(!this.baseUrl) return null;
       const ctrl = new AbortController();
