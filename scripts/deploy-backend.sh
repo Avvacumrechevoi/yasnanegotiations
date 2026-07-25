@@ -47,7 +47,7 @@ RUNTIME="${YC_RUNTIME:-nodejs16}"
 # БЕЗ `declare -A`: в macOS штатный bash — 3.2, ассоциативных массивов там нет,
 # и скрипт падал ещё до первого деплоя («submit: unbound variable»).
 # Держим POSIX-подобную форму, чтобы одинаково работало локально и в CI.
-ALL_NAMES="submit leaderboard auth-telegram content-fetch content-publish"
+ALL_NAMES="submit leaderboard auth-telegram content-fetch content-publish progress"
 src_for(){
   case "$1" in
     submit)          echo submit.js ;;
@@ -55,7 +55,27 @@ src_for(){
     auth-telegram)   echo auth-telegram.js ;;
     content-fetch)   echo content-fetch.js ;;
     content-publish) echo content-publish.js ;;
+    progress)        echo progress.js ;;
     *)               echo "" ;;
+  esac
+}
+# Дополнительные модули в пакете функции. submit обслуживает ещё и /progress
+# (квота на число функций в облаке исчерпана — разбор в шапке server/submit.js),
+# поэтому progress.js уезжает вместе с ним и подключается через require.
+extras_for(){
+  case "$1" in
+    submit) echo progress.js ;;
+    *)      echo "" ;;
+  esac
+}
+
+# Откуда взять окружение при ПЕРВОМ деплое функции: своих версий ещё нет, а
+# YDB_*/JWT_SECRET/ALLOW_ORIGIN живут только в облаке (в репозитории их нет и
+# быть не должно). Берём у уже настроенной функции с тем же набором.
+env_donor_for(){
+  case "$1" in
+    progress) echo yasna-submit ;;
+    *)        echo "" ;;
   esac
 }
 
@@ -87,6 +107,12 @@ for short in $TARGETS; do
 
   dir="$(mktemp -d)"
   cp "$src" "$dir/index.js"
+  for extra in $(extras_for "$short"); do
+    [[ -f "$REPO/server/$extra" ]] || { echo "  ✗ нет доп. модуля: server/$extra"; exit 1; }
+    cp "$REPO/server/$extra" "$dir/$extra"
+    if command -v node >/dev/null; then node --check "$REPO/server/$extra" || exit 1; fi
+    echo "  + модуль $extra"
+  done
   cat > "$dir/package.json" <<JSON
 {
   "name": "$fn",
@@ -99,8 +125,23 @@ for short in $TARGETS; do
 }
 JSON
 
-  # окружение и параметры берём из ДЕЙСТВУЮЩЕЙ версии, чтобы ничего не потерять
-  cur="$(yc serverless function version list --function-name "$fn" --format json \
+  # функция может ещё не существовать (новый эндпоинт) — создаём
+  if ! yc serverless function get --name "$fn" >/dev/null 2>&1; then
+    echo "  + функции нет, создаю"
+    yc serverless function create --name "$fn" >/dev/null
+  fi
+
+  # окружение и параметры берём из ДЕЙСТВУЮЩЕЙ версии, чтобы ничего не потерять;
+  # при первом деплое — у функции-донора (см. env_donor_for)
+  src_fn="$fn"
+  if [ -z "$(yc serverless function version list --function-name "$fn" --format json | python3 -c 'import sys,json;print(len(json.load(sys.stdin)))')" ] \
+     || [ "$(yc serverless function version list --function-name "$fn" --format json | python3 -c 'import sys,json;print(len(json.load(sys.stdin)))')" = "0" ]; then
+    donor="$(env_donor_for "$short")"
+    [[ -n "$donor" ]] || { echo "  ✗ у $fn нет версий и не задан донор окружения (env_donor_for)"; exit 1; }
+    echo "  ⓘ первый деплой: окружение возьму у $donor"
+    src_fn="$donor"
+  fi
+  cur="$(yc serverless function version list --function-name "$src_fn" --format json \
         | python3 -c "import sys,json;d=json.load(sys.stdin);d.sort(key=lambda x:x.get('created_at',''),reverse=True);print(d[0]['id'])")"
   yc serverless function version get "$cur" --format json > "$dir/cur.json"
   python3 - "$dir" <<'PY'

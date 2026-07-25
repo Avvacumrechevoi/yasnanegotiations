@@ -69,7 +69,34 @@ const VALID_TRANSPORTS = validSet('EXTRA_TRANSPORTS', [
   'peerjs','broadcast','bot','solo',                              // легаси
 ]);
 
+// ─── маршрутизация: эта функция обслуживает ещё и /progress ───────────
+// ПОЧЕМУ ВМЕСТЕ. В облаке исчерпана квота serverless.functions.count (10 из 10),
+// поэтому отдельную yasna-progress создать нельзя. Из имеющихся функций
+// подсадить эндпоинт можно только сюда: код submit лежит в репозитории и
+// прибит к тегу stable (значит есть откат одной командой), тогда как,
+// например, исходника yasna-profile в репозитории нет вообще — он живёт
+// только в облаке, и его переразвёртывание сломало бы работающий /profile.
+// Разбор прогресса — в отдельном модуле server/progress.js, здесь только
+// разводка по пути. Если квоту поднимут, эндпоинт выносится обратно без
+// правки логики: достаточно задеплоить progress.js как свою функцию.
+let progressModule = null;
+function progressHandler(){
+  if(!progressModule){ progressModule = require('./progress.js'); }
+  return progressModule.handler;
+}
+function isProgressPath(event){
+  const p = String(
+    event?.path || event?.url ||
+    event?.requestContext?.http?.path || event?.requestContext?.path || ''
+  );
+  return /\/progress(\/|\?|$)/.test(p);
+}
+
 exports.handler = async (event) => {
+  // Путь проверяем ДО всего остального: неизвестный путь трактуем как submit,
+  // чтобы поведение прода не изменилось, даже если шлюз перестанет передавать path.
+  if(isProgressPath(event)) return progressHandler()(event);
+
   if(event.httpMethod === 'OPTIONS') return { statusCode:200, headers: CORS, body:'' };
 
   let body;
