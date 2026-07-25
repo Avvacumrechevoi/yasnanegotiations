@@ -399,7 +399,14 @@
       NEW.buildInfo?.questionsLegacy + ').',
       useNew
         ? 'Используется новый банк полностью.'
-        : 'Hybrid: legacy + ' + (MERGED_QUESTIONS.length - QUESTIONS.length) + ' новых вопросов.'
+        // БЫЛО: (MERGED_QUESTIONS.length - QUESTIONS.length) — переменной
+        // MERGED_QUESTIONS в файле НЕТ (реальная называется merged и локальна
+        // для rebuild). Ветка вычисляется только при useNew===false, поэтому мина
+        // спала: сейчас useNew===true (10 тем ≥6, 168 вопросов ≥18). Но при
+        // просадке банка это ReferenceError ВНУТРИ IIFE → window.YasnaTrivia не
+        // создаётся, и разом умирают соло, 2p и группа. Считаем по тому, что
+        // реально в области видимости.
+        : 'Hybrid: legacy ' + QUESTIONS.length + ' + новые из bundle (' + (NEW.buildInfo?.questionsTotal || 0) + ').'
     );
   }
 

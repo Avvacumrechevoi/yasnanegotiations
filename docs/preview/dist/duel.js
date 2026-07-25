@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-07-25T11:07:24.293Z */
+/* Yasna bundle: duel.js — собран 2026-07-25T11:35:31.932Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -20707,7 +20707,7 @@ window.YasnaCore = {
 /* ─── games/duel/trivia-bank.js ─── */
 ;(function(){
 (function() {
-  var _a, _b, _c;
+  var _a, _b, _c, _d;
   const THEMES = [
     { id: "gimny", name: "\u0413\u0438\u043C\u043D\u044B \u0438 \u0412\u0435\u0434\u0430", emoji: "\u{1F31F}", short: "\u0413\u0438\u043C\u043D\u044B" },
     { id: "sutki", name: "\u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435 \u0421\u0443\u0442\u043E\u043A", emoji: "\u23F0", short: "\u0421\u0443\u0442\u043A\u0438" },
@@ -21228,7 +21228,7 @@ window.YasnaCore = {
       (_b = NEW.buildInfo) == null ? void 0 : _b.questionsTotal,
       "\u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432 (legacy-conv:",
       ((_c = NEW.buildInfo) == null ? void 0 : _c.questionsLegacy) + ").",
-      useNew ? "\u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0435\u0442\u0441\u044F \u043D\u043E\u0432\u044B\u0439 \u0431\u0430\u043D\u043A \u043F\u043E\u043B\u043D\u043E\u0441\u0442\u044C\u044E." : "Hybrid: legacy + " + (MERGED_QUESTIONS.length - QUESTIONS.length) + " \u043D\u043E\u0432\u044B\u0445 \u0432\u043E\u043F\u0440\u043E\u0441\u043E\u0432."
+      useNew ? "\u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0435\u0442\u0441\u044F \u043D\u043E\u0432\u044B\u0439 \u0431\u0430\u043D\u043A \u043F\u043E\u043B\u043D\u043E\u0441\u0442\u044C\u044E." : "Hybrid: legacy " + QUESTIONS.length + " + \u043D\u043E\u0432\u044B\u0435 \u0438\u0437 bundle (" + (((_d = NEW.buildInfo) == null ? void 0 : _d.questionsTotal) || 0) + ")."
     );
   }
   function getThemes() {

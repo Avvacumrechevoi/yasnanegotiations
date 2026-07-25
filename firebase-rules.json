@@ -5,7 +5,7 @@
         ".read": "auth != null",
 
         "meta": {
-          ".write": "auth != null && ( !data.exists() || data.parent().child('host/uid').val() === auth.uid || data.parent().child('guest/uid').val() === auth.uid || newData.parent().child('guest/uid').val() === auth.uid || data.child('hostUid').val() === auth.uid )",
+          ".write": "auth != null && ( !data.exists() || data.parent().child('host/uid').val() === auth.uid || data.parent().child('guest/uid').val() === auth.uid || ( newData.parent().child('guest/uid').val() === auth.uid && data.child('kind').val() !== 'group' ) || data.child('hostUid').val() === auth.uid )",
           ".validate": "newData.hasChildren(['status', 'createdAt']) && ( !data.hasChild('kind') || newData.child('kind').val() === data.child('kind').val() ) && ( !data.hasChild('hostUid') || newData.child('hostUid').val() === data.child('hostUid').val() ) && ( !data.hasChild('createdAt') || newData.child('createdAt').val() === data.child('createdAt').val() )"
         },
 
@@ -15,7 +15,7 @@
         },
 
         "guest": {
-          ".write": "auth != null && ( !data.exists() || data.child('uid').val() === auth.uid )",
+          ".write": "auth != null && ( !data.exists() || data.child('uid').val() === auth.uid ) && root.child('rooms').child($code).child('meta/kind').val() !== 'group'",
           ".validate": "newData.hasChildren(['deviceId', 'nickname', 'uid']) && newData.child('uid').val() === auth.uid"
         },
 
