@@ -148,28 +148,74 @@ function QuestionEditor({ question, themes, onSave, onCancel, onDelete }){
   }));
   const [err, setErr] = useState(null);
 
+  // Заначка вариантов для choice-типов. Переключение типа на «Верно / Не верно»
+  // безусловно перезаписывало options на ['Верно','Не верно'], а обратного пути
+  // не было — четыре варианта с дистракторами (самая дорогая часть контента)
+  // уничтожались, спасала только «Отмена» со сбросом всей правки.
+  const choiceOptionsRef = React.useRef(
+    question.options && question.type !== 'true-false' ? [...question.options] : ['', '', '', '']
+  );
+  const isTfStub = (opts) => Array.isArray(opts) && opts.length === 2 &&
+    opts[0] === 'Верно' && opts[1] === 'Не верно';
+  // Пока пользователь в choice-типе — держим актуальный снимок вариантов
+  useEffect(() => {
+    if((q.type === 'single-choice' || q.type === 'multi-choice') && !isTfStub(q.options)){
+      choiceOptionsRef.current = [...q.options];
+    }
+  }, [q.options, q.type]);
+
   // При смене типа сбрасываем correct в дефолтный для типа
   useEffect(() => {
     setQ(prev => {
       if(prev.type === 'true-false') return { ...prev, correct: 0, options: ['Верно', 'Не верно'] };
-      if(prev.type === 'multi-choice') return { ...prev, correct: Array.isArray(prev.correct) ? prev.correct : [] };
-      if(prev.type === 'single-choice') return { ...prev, correct: typeof prev.correct === 'number' ? prev.correct : 0 };
+      // возвращаемся из true-false → восстанавливаем сохранённые варианты
+      const restored = isTfStub(prev.options) ? [...choiceOptionsRef.current] : prev.options;
+      if(prev.type === 'multi-choice'){
+        return { ...prev, options: restored, correct: Array.isArray(prev.correct) ? prev.correct : [] };
+      }
+      if(prev.type === 'single-choice'){
+        return { ...prev, options: restored, correct: typeof prev.correct === 'number' ? prev.correct : 0 };
+      }
       return prev;
     });
   }, [q.type]);
+
+  // Вырезание пустых вариантов СДВИГАЕТ индексы, поэтому correct нужно
+  // пересчитывать по карте «старый индекс → новый», а не клампить.
+  // Раньше было Math.min(q.correct, len-1) / filter(i < len): для
+  // ['', 'A', 'B', 'C'] с выбранным 'A' (correct=1) сохранялось
+  // options=['A','B','C'], correct=1 → правильным становился 'B',
+  // и игрок получал «неверно» за верный ответ.
+  function compactOptions(rawOptions){
+    const map = [];            // map[старый] = новый
+    const options = [];
+    rawOptions.forEach((o, i) => {
+      if(o && o.trim()){ map[i] = options.length; options.push(o.trim()); }
+    });
+    return { options, map };
+  }
 
   function save(){
     // Очищаем структуру под тип
     const out = { id: q.id, theme: q.theme, type: q.type, text: q.text.trim(), diff: q.diff, hint: q.hint.trim() };
     if(q.type === 'single-choice'){
-      out.options = q.options.filter(o => o.trim()).map(o => o.trim());
-      out.correct = Math.min(q.correct, out.options.length - 1);
+      const { options, map } = compactOptions(q.options);
+      out.options = options;
+      const mapped = map[q.correct];
+      if(mapped == null){ setErr('Правильный вариант не заполнен — впиши его текст или выбери другой'); return; }
+      out.correct = mapped;
     } else if(q.type === 'true-false'){
       out.options = ['Верно', 'Не верно'];
       out.correct = q.correct;
     } else if(q.type === 'multi-choice'){
-      out.options = q.options.filter(o => o.trim()).map(o => o.trim());
-      out.correct = Array.isArray(q.correct) ? q.correct.filter(i => i < out.options.length) : [];
+      const { options, map } = compactOptions(q.options);
+      out.options = options;
+      const src = Array.isArray(q.correct) ? q.correct : [];
+      const mapped = src.map(i => map[i]).filter(i => i != null);
+      if(src.length && mapped.length !== src.length){
+        setErr('Один из отмеченных правильных вариантов пуст — впиши текст или сними отметку'); return;
+      }
+      out.correct = mapped;
     } else if(q.type === 'match-pair'){
       const validPairs = q.pairsLeft.map((l, i) => ({ l: l.trim(), r: (q.pairsRight[i] || '').trim() }))
         .filter(p => p.l && p.r);
@@ -386,13 +432,37 @@ function PublishModal({ overrides, onClose, onPublished }){
     (overrides.deleted?.length || 0);
   const json = useMemo(() => JSON.stringify(overrides, null, 2), [overrides]);
 
+  // Сервер НЕ мержит присланную дельту с действующей ревизией: он помечает
+  // старую is_current=false и вставляет полученный JSON целиком. А локальные
+  // overrides обнуляются сразу после публикации — поэтому ВТОРАЯ публикация
+  // уезжала БЕЗ первой и молча удаляла её у всех игроков.
+  // Пока сервер не умеет мержить, склеиваем на клиенте: берём уже
+  // опубликованную дельту из ContentStore и накладываем локальную сверху.
+  function mergeWithPublished(local){
+    const store = window.YasnaContentStore;
+    const pub = (store && store._internal && store._internal.getOverrides && store._internal.getOverrides()) || {};
+    const byId = new Map();
+    (Array.isArray(pub.added) ? pub.added : []).forEach(q => { if(q && q.id) byId.set(q.id, q); });
+    (Array.isArray(local.added) ? local.added : []).forEach(q => { if(q && q.id) byId.set(q.id, q); }); // локальное побеждает
+    const merged = {
+      added: Array.from(byId.values()),
+      edited: Object.assign({}, pub.edited || {}, local.edited || {}),
+      deleted: Array.from(new Set([].concat(pub.deleted || [], local.deleted || []))),
+    };
+    console.log('[publish] дельта: локально added=' + (local.added || []).length +
+      ' → к отправке added=' + merged.added.length +
+      ', edited=' + Object.keys(merged.edited).length +
+      ', deleted=' + merged.deleted.length + ' (с учётом уже опубликованного)');
+    return merged;
+  }
+
   async function publish(){
     setErr(null); setBusy(true);
     try {
       if(!window.YasnaContentStore || !window.YasnaContentStore.publish){
         throw new Error('ContentStore не загружен — обнови страницу');
       }
-      const result = await window.YasnaContentStore.publish(overrides, {
+      const result = await window.YasnaContentStore.publish(mergeWithPublished(overrides), {
         password, publishedBy, notes,
       });
       storePwd(password);
@@ -646,15 +716,23 @@ function AdminApp(){
     (overrides.deleted?.length || 0);
 
   function handleSaveQuestion(q){
-    if(q.id && (overrides.added.find(a => a.id === q.id) || allQuestions.find(a => a.id === q.id && !a._isNew))){
-      // Существующий вопрос → правка
-      const existsInBase = (content.QUESTIONS || []).find(b => b.id === q.id);
-      if(existsInBase){
-        setOverrides({ ...overrides, edited: { ...overrides.edited, [q.id]: q } });
-      } else {
-        // Это NEW (added) — обновляем в added
-        setOverrides({ ...overrides, added: overrides.added.map(a => a.id === q.id ? q : a) });
-      }
+    // Источников ТРИ, а не два. Раньше их было два, и правка УЖЕ ОПУБЛИКОВАННОГО
+    // нового вопроса терялась молча: он есть в resolved (без флага _isNew), но
+    // его нет ни в baseline-бандле, ни в локальном overrides.added (он обнуляется
+    // после публикации) → управление уходило в ветку added.map() по ПУСТОМУ
+    // массиву, модалка закрывалась как при успехе, и не сохранялось ничего.
+    const inLocalAdded = q.id && overrides.added.find(a => a.id === q.id);
+    const inBaseline   = q.id && (content.QUESTIONS || []).find(b => b.id === q.id);
+    const inResolved   = q.id && allQuestions.find(a => a.id === q.id && !a._isNew);
+
+    if(inLocalAdded){
+      // ещё не опубликованный новый вопрос — правим на месте
+      setOverrides({ ...overrides, added: overrides.added.map(a => a.id === q.id ? q : a) });
+    } else if(inBaseline || inResolved){
+      // baseline ИЛИ уже опубликованный added → пишем в edited.
+      // content-store применяет edited и к added-вопросам (см. content-store.js),
+      // поэтому правка видна и в списке, и после публикации.
+      setOverrides({ ...overrides, edited: { ...overrides.edited, [q.id]: q } });
     } else {
       // Новый вопрос
       const newQ = { ...q, id: q.id || genNewId(q.theme) };
