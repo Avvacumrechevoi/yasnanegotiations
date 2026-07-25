@@ -18,7 +18,11 @@ body.theme-vk-dark {
   /* ─── Текст ─── */
   --text-1: #FEFEFE;        /* Content Base Primary */
   --text-2: #A8B1BE;        /* Content Base Secondary */
-  --text-3: #626D7A;        /* Content Base Tertiary */
+  /* #626D7A давал 3.06:1 на --bg-page (#212121) и 2.87:1 на #262626 — ниже AA
+     для мелких подписей («против», «☷ Темы партии», tn-eyebrow и ещё ~50 мест).
+     --text-3 используется ТОЛЬКО как color (51 из 58 вхождений; остальное —
+     border-color на hover), поэтому поднятие безопасно. #8A95A3 → ≥4.7:1. */
+  --text-3: #8A95A3;        /* Content Base Tertiary (было #626D7A — ниже AA) */
   --text-on-dark: #FEFEFE;
 
   /* ─── Акценты ─── */
@@ -910,6 +914,30 @@ body.theme-vk-dark .tn-round-eyebrow {
   letter-spacing: 0.10em;
   border-radius: 0;
 }
+/* ─── Акцент как МЕЛКИЙ ТЕКСТ на тёмном ───────────────────────────
+   vk-scheme.css в 29 местах красит текст в color:var(--accent) (#0077FF).
+   На тёмных поверхностях это 3.66:1 (#262626) — ниже AA для 11–16px.
+   Для ТЕКСТОВЫХ применений берём --accent-strong (#16A7FF, ≈6.2:1).
+   Заливки CTA НЕ трогаем: там белый текст на #0077FF, и осветление фона
+   только ухудшило бы контраст. */
+body.theme-vk-dark .tn-prematch-eyebrow,
+body.theme-vk-dark .tn-prematch-theme-num,
+body.theme-vk-dark .tn-midrecap-eyebrow,
+body.theme-vk-dark .tn-q-meta-type,
+body.theme-vk-dark .tn-final-recap-q-num,
+body.theme-vk-dark .tn-final-recap-q-theme,
+body.theme-vk-dark .tn-match-text,
+body.theme-vk-dark .tn-match-selected,
+body.theme-vk-dark .tn-multi-list,
+body.theme-vk-dark .tn-option-multi,
+body.theme-vk-dark .dp-mode-btn-count,
+body.theme-vk-dark .dp-mode-btn-active,
+body.theme-vk-dark .dp-themes-reset,
+body.theme-vk-dark .dp-themes-toggle-label,
+body.theme-vk-dark .dp-theme-chip-checked,
+body.theme-vk-dark .dp-theme-item-checked,
+body.theme-vk-dark .dp-opponent-btn--accent { color: var(--accent-strong); }
+
 body.theme-vk-dark .tn-final-eyebrow-win  { color: var(--primary); }
 body.theme-vk-dark .tn-final-eyebrow-lose { color: var(--text-2); } /* было --text-3 #626D7A 3.06:1 → --text-2 7.4:1 */
 body.theme-vk-dark .tn-final-eyebrow-draw { color: var(--accent); }
