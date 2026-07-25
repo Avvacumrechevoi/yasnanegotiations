@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-07-25T13:41:48.946Z */
+/* Yasna bundle: duel.js — собран 2026-07-25T14:07:38.653Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -24918,8 +24918,12 @@ window.YasnaCore = {
         React.createElement("a", { className: "ynav-item", href: "index.html" }, "\u041A\u043E\u043D\u0441\u0442\u0440\u0443\u043A\u0442\u043E\u0440"),
         React.createElement("a", { className: "ynav-item is-active", href: "duel.html" }, "\u0418\u0433\u0440\u0430", React.createElement("span", { className: "ynav-new" }, "NEW")),
         React.createElement("a", { className: "ynav-item", href: "learn.html" }, "\u041E\u0431\u0443\u0447\u0435\u043D\u0438\u0435"),
-        React.createElement("a", { className: "ynav-item", href: "trainers.html" }, "\u0422\u0440\u0435\u043D\u0430\u0436\u0451\u0440\u044B"),
-        React.createElement("a", { className: "ynav-item", href: "rating.html" }, "\u0420\u0435\u0439\u0442\u0438\u043D\u0433")
+        React.createElement("a", { className: "ynav-item", href: "trainers.html" }, "\u0422\u0440\u0435\u043D\u0430\u0436\u0451\u0440\u044B")
+        // «Рейтинг» убран из свитчера: канонический набор разделов — четыре
+        // (core/site-nav.js SECTIONS), а здесь был пятый пункт. Из-за расхождения
+        // на 375px последний раздел обрезался контейнером (right 350 > край 346),
+        // что и поймал тест nav-responsive. Страница рейтинга остаётся достижима
+        // ссылками с главного экрана игры (см. ниже href:'rating.html' ×2).
       ),
       React.createElement("div", { className: "dp-header-spacer" }),
       React.createElement(

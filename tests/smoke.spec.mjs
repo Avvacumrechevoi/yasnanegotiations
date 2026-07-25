@@ -74,12 +74,12 @@ test.describe('Главное приложение', () => {
   });
 
   test('4. Уроки открываются — список курсов виден', async ({ page }) => {
-    await page.goto('/');
+    // Кнопку «Уроки» убрали из дропдауна «Гид» — курс теперь открывается со
+    // страницы «Тренажёры» или диплинком ?lessons=1 (app.js обрабатывает его и
+    // чистит URL). Тест шёл прежним путём и падал по таймауту на несуществующей
+    // кнопке. Идём актуальным входом.
+    await page.goto('/index.html?lessons=1');
     await page.waitForFunction(() => !!window.YasnaCore && !!window.YasnaLessons);
-    // Открываем дропдаун «Гид» (бывш. «Обучение») — внутри него кнопка «Уроки».
-    await page.getByRole('button', { name: /Гид/ }).first().click();
-    const lessonsBtn = page.getByRole('button', { name: /Уроки/ }).first();
-    await lessonsBtn.click();
     // Должен появиться LessonPicker — заголовок "Курс по Ясне"
     await expect(page.getByText(/Курс по Ясне|Метод Ясны/).first()).toBeVisible({ timeout: 5000 });
     // Должен быть как минимум 1 ready-урок (l1_intro точно)
@@ -104,7 +104,9 @@ test.describe('Дуэль', () => {
       turnir: typeof window.YasnaTurnir?.TurnirGame,
       duelsCount: window.YasnaDuels?.list?.()?.length ?? 0,
     }));
-    expect(ok.trivia).toBe(9);
+    // Было toBe(9) — тест ломался от РОСТА контента (стало 10 тем). Проверяем
+    // нижнюю границу: добавление темы не должно валить набор.
+    expect(ok.trivia).toBeGreaterThanOrEqual(9);
     expect(ok.turnir).toBe('function');
     expect(ok.duelsCount).toBeGreaterThanOrEqual(3);
 
@@ -118,7 +120,7 @@ test.describe('Дуэль', () => {
     }
 
     // Кнопка "Начать" / "Новая Партия" должна быть видна
-    const ctaBtn = page.getByRole('button', { name: /Играть соло/ }).first();
+    const ctaBtn = page.getByRole('button', { name: /Играть одному|Играть соло/ }).first();
     await expect(ctaBtn).toBeVisible({ timeout: 5000 });
 
     // Реальные JS-исключения и битые ресурсы своего origin недопустимы.
@@ -145,7 +147,7 @@ test.describe('Дуэль', () => {
     await page.waitForFunction(() => !!window.YasnaTurnir);
 
     // Жмём "Начать"
-    const ctaBtn = page.getByRole('button', { name: /Играть соло/ }).first();
+    const ctaBtn = page.getByRole('button', { name: /Играть одному|Играть соло/ }).first();
     await ctaBtn.click({ timeout: 5000 });
 
     // VsScreen → пауза 1.4с → RoundIntro → пауза 1.3с → первый вопрос

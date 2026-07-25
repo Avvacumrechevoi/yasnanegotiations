@@ -187,8 +187,12 @@
         React.createElement('a', { className: 'ynav-item', href: 'index.html' }, 'Конструктор'),
         React.createElement('a', { className: 'ynav-item is-active', href: 'duel.html' }, 'Игра', React.createElement('span', { className: 'ynav-new' }, 'NEW')),
         React.createElement('a', { className: 'ynav-item', href: 'learn.html' }, 'Обучение'),
-        React.createElement('a', { className: 'ynav-item', href: 'trainers.html' }, 'Тренажёры'),
-        React.createElement('a', { className: 'ynav-item', href: 'rating.html' }, 'Рейтинг')
+        React.createElement('a', { className: 'ynav-item', href: 'trainers.html' }, 'Тренажёры')
+        // «Рейтинг» убран из свитчера: канонический набор разделов — четыре
+        // (core/site-nav.js SECTIONS), а здесь был пятый пункт. Из-за расхождения
+        // на 375px последний раздел обрезался контейнером (right 350 > край 346),
+        // что и поймал тест nav-responsive. Страница рейтинга остаётся достижима
+        // ссылками с главного экрана игры (см. ниже href:'rating.html' ×2).
       ),
       React.createElement('div', { className: 'dp-header-spacer' }),
       React.createElement('nav', { className: 'dp-header-nav' },

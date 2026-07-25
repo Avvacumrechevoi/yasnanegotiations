@@ -149,6 +149,66 @@ function fmt(bytes){
   return (bytes/1024/1024).toFixed(2) + ' MB';
 }
 
+// ─── Авто-штамповка кэш-версий ?v= по хэшу содержимого ──────────────
+// БЫЛО: ?v= правились РУКАМИ в каждом html. Это давало устойчивый класс багов —
+// файл изменён, версия та же, браузер отдаёт старое (за одну сессию наступали
+// на это многократно), либо наоборот версия бампнута там, но не в preview.
+// СТАЛО: после сборки для каждой локальной ссылки с ?v= подставляется первые
+// 8 символов sha256 самого файла. Свойства:
+//   • изменился файл → изменилась версия, всегда и автоматически;
+//   • не изменился → версия та же, кэш не сбрасывается зря;
+//   • внешние ссылки (шрифты, CDN) не трогаются — их нет на диске;
+//   • CI запускает build перед деплоем, поэтому в прод уезжают верные версии
+//     даже если локально забыли пересобрать.
+async function stampCacheVersions(root, label){
+  const { readdir } = await import('node:fs/promises');
+  const crypto = await import('node:crypto');
+  let files;
+  try { files = (await readdir(root)).filter(f => f.endsWith('.html')); }
+  catch(_){ return 0; }
+
+  const hashCache = new Map();
+  async function hashOf(abs){
+    if(hashCache.has(abs)) return hashCache.get(abs);
+    const buf = await readFile(abs);
+    const h = crypto.createHash('sha256').update(buf).digest('hex').slice(0, 8);
+    hashCache.set(abs, h);
+    return h;
+  }
+
+  let stamped = 0, touched = 0;
+  const changes = [];
+  for(const name of files){
+    const htmlPath = path.join(root, name);
+    const src = await readFile(htmlPath, 'utf8');
+    let out = '';
+    let lastIndex = 0;
+    // src="..." / href="..." с уже существующим ?v=<что-угодно>
+    const re = /((?:src|href)=")([^"?#\s]+)\?v=([^"#\s]*)(")/g;
+    let m;
+    while((m = re.exec(src)) !== null){
+      const [full, pre, rel, oldV, post] = m;
+      out += src.slice(lastIndex, m.index);
+      lastIndex = m.index + full.length;
+      // абсолютные и протокольные ссылки пропускаем
+      if(/^(https?:)?\/\//.test(rel) || rel.startsWith('data:')){ out += full; continue; }
+      const abs = path.resolve(path.dirname(htmlPath), rel);
+      if(!await fileExists(abs)){ out += full; continue; }   // битую ссылку не молчим — оставляем как есть
+      const v = await hashOf(abs);
+      out += pre + rel + '?v=' + v + post;
+      if(v !== oldV){ stamped++; changes.push(name + ' → ' + rel + ': ' + oldV + ' → ' + v); }
+    }
+    out += src.slice(lastIndex);
+    if(out !== src){ await writeFile(htmlPath, out, 'utf8'); touched++; }
+  }
+  if(stamped){
+    console.log(`  ↻ [${label}] кэш-версии обновлены: ${stamped} в ${touched} html`);
+    changes.slice(0, 8).forEach(s => console.log('     · ' + s));
+    if(changes.length > 8) console.log(`     · … и ещё ${changes.length - 8}`);
+  }
+  return stamped;
+}
+
 async function buildAll(){
   const start = Date.now();
   const targets = [
@@ -171,6 +231,9 @@ async function buildAll(){
 
     console.log(`  ✓ app.min.js  ${fmt(r1.minSize).padStart(8)} (dev ${fmt(r1.devSize)}, ${r1.files} файлов)`);
     console.log(`  ✓ duel.min.js ${fmt(r2.minSize).padStart(8)} (dev ${fmt(r2.devSize)}, ${r2.files} файлов)`);
+
+    // Кэш-версии считаем ПОСЛЕ сборки бандлов: их хэш должен быть от свежего dist.
+    await stampCacheVersions(srcRoot, t.label);
   }
 
   console.log(`\n✅ Готово за ${Date.now() - start} мс`);

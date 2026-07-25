@@ -13,24 +13,33 @@ import { test, expect } from '@playwright/test';
 // чтобы тест работал и в CI (там только chromium).
 // ════════════════════════════════════════════════════════════════════
 
+// ВАЖНО: раздел «Рейтинг» был заменён в шапке на «Тренажёры» (см. core/site-nav.js
+// SECTIONS), а тесты остались на старом наборе — отсюда 17 падений, которые никто
+// не видел, потому что деплой их не ждал. Приводим ожидания к реальной навигации:
+// Конструктор · Игра · Обучение · Тренажёры. rating.html остаётся достижимой
+// страницей (ссылки из игры), но в шапке её нет, поэтому .is-active по ней не
+// проверяем.
 const PAGES = [
-  { path: '/',            name: 'Конструктор', spa: true,  active: 'index.html'  },
-  { path: '/duel.html',   name: 'Игра',        spa: true,  active: 'duel.html'   },
-  { path: '/start.html',  name: 'Лендинг',     spa: false, active: null          },
-  { path: '/learn.html',  name: 'Обучение',    spa: false, active: 'learn.html'  },
-  { path: '/rating.html', name: 'Рейтинг',     spa: false, active: 'rating.html' },
+  { path: '/',              name: 'Конструктор', spa: true,  active: 'index.html'    },
+  { path: '/duel.html',     name: 'Игра',        spa: true,  active: 'duel.html'     },
+  { path: '/start.html',    name: 'Лендинг',     spa: false, active: null            },
+  { path: '/learn.html',    name: 'Обучение',    spa: false, active: 'learn.html'    },
+  { path: '/trainers.html', name: 'Тренажёры',   spa: false, active: 'trainers.html' },
 ];
-const SECTION_HREFS = ['index.html', 'duel.html', 'learn.html', 'rating.html'];
+const SECTION_HREFS = ['index.html', 'duel.html', 'learn.html', 'trainers.html'];
+
+// Опорная ссылка для «бар отрисован» — берём последний раздел набора.
+const ANCHOR_HREF = 'trainers.html';
 
 async function waitBar(page){
   // Ждём, что ссылки бара отрисованы. state:'attached' — чтобы не залипнуть на
   // display:none-элементе (на мобайле инлайн-свитчер конструктора скрыт).
-  await page.waitForSelector('a[href="rating.html"]', { state: 'attached', timeout: 15_000 });
+  await page.waitForSelector(`a[href="${ANCHOR_HREF}"]`, { state: 'attached', timeout: 15_000 });
 }
 
 // Открыть бургер один раз (если ещё не открыт).
 async function ensureBurgerOpen(page){
-  if (await page.locator('.hdr-burger a[href="rating.html"]:visible').count() === 0){
+  if (await page.locator(`.hdr-burger a[href="${ANCHOR_HREF}"]:visible`).count() === 0){
     const btn = page.locator('.hdr-burger > button');
     if (await btn.count() > 0){ await btn.first().click(); await page.waitForTimeout(300); }
   }
