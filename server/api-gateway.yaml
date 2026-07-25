@@ -213,6 +213,209 @@ paths:
         '200':
           description: CORS preflight
 
+  # ───── Роли, полномочия, журнал ─────
+  # Обслуживается функцией submit (server/access.js в её пакете): квота функций
+  # исчерпана. Разбор — в шапке server/submit.js.
+  /access/me:
+    get:
+      summary: Кто я и что мне открыто
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {SUBMIT_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Нужен вход
+        '403':
+          description: Нет полномочия
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {SUBMIT_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  /access/people:
+    get:
+      summary: Список аккаунтов с ролями
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {SUBMIT_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Нужен вход
+        '403':
+          description: Нет полномочия
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {SUBMIT_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  /access/audit:
+    get:
+      summary: Журнал действий
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {SUBMIT_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Нужен вход
+        '403':
+          description: Нет полномочия
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {SUBMIT_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  /access/role:
+    post:
+      summary: Сменить роль
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {SUBMIT_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Нужен вход
+        '403':
+          description: Нет полномочия
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {SUBMIT_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  /access/grant:
+    post:
+      summary: Персональный доступ
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {SUBMIT_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Нужен вход
+        '403':
+          description: Нет полномочия
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {SUBMIT_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  /access/revoke:
+    post:
+      summary: Снять исключение
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {SUBMIT_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Нужен вход
+        '403':
+          description: Нет полномочия
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {SUBMIT_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  /access/role-grant:
+    post:
+      summary: Галочка полномочия у роли
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {SUBMIT_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Нужен вход
+        '403':
+          description: Нет полномочия
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {SUBMIT_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  /access/catalog:
+    post:
+      summary: Публикация каталога
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {SUBMIT_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Нужен вход
+        '403':
+          description: Нет полномочия
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {SUBMIT_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
   /leaderboard:
     get:
       summary: Get leaderboard

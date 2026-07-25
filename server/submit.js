@@ -108,12 +108,20 @@ function reqPath(event){
 }
 function isProgressPath(event){ return /\/progress(\/|\?|$)/.test(reqPath(event)); }
 function isRoomsPath(event){ return /\/rooms\//.test(reqPath(event)); }
+// Роли, полномочия и журнал — server/access.js в этом же пакете.
+let accessModule = null;
+function accessHandler(){
+  if(!accessModule){ accessModule = require('./access.js'); }
+  return accessModule.handler;
+}
+function isAccessPath(event){ return /\/access(\/|\?|$)/.test(reqPath(event)); }
 
 exports.handler = async (event) => {
   // Путь проверяем ДО всего остального: неизвестный путь трактуем как submit,
   // чтобы поведение прода не изменилось, даже если шлюз перестанет передавать path.
   if(isProgressPath(event)) return progressHandler()(event);
   if(isRoomsPath(event)) return roomsHandler()(event);
+  if(isAccessPath(event)) return accessHandler()(event);
 
   if(event.httpMethod === 'OPTIONS') return { statusCode:200, headers: CORS, body:'' };
 

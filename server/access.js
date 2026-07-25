@@ -99,10 +99,17 @@ const CAP_ROLES_MANAGE = 'cap:roles.manage';
 // Ключ возможности: только ASCII и только безопасные символы. Не косметика:
 // без этого ' cap:roles.manage' (пробел), 'CAP:roles.manage' (регистр) или
 // 'сap:' (кириллическая «с») проходили бы мимо проверки запрещённых префиксов.
-const FEATURE_RE  = /^[A-Za-z0-9][A-Za-z0-9:._*-]{0,199}$/;
+// '*' допустима ТОЛЬКО как хвост ':*' или как один символ целиком. Раньше
+// звёздочка разрешалась в любом месте, и это давало обход запрета ниже:
+// ключи 'cap*', 'role*', 'admin*' не содержат двоеточия, поэтому проходили
+// и через RESERVED_RE, и через фильтр в resolveAccess — то есть выдача
+// «доступа» превращалась в выдачу полномочия.
+const FEATURE_RE  = /^(\*|[A-Za-z0-9][A-Za-z0-9:._-]{0,197}(:\*)?)$/;
 // Префиксы, которые НЕЛЬЗЯ выдать через /access/grant: это полномочия и роли,
 // они живут в role_grants/user_roles. Иначе выдача доступа = самоповышение.
-const RESERVED_RE = /^(cap|role|admin):/i;
+// Совпадение по ИМЕНИ ПРОСТРАНСТВА, а не по «слово с двоеточием»: иначе
+// 'cap*', 'capX', 'admin-panel' проскакивали мимо запрета.
+const RESERVED_RE = /^(cap|role|admin)([:._*-]|$)/i;
 
 // ─── JWT ─────────────────────────────────────────────────────────────
 // Та же функция, что в progress.js/submit.js/content-publish.js, БЕЗ изменений:
@@ -385,6 +392,17 @@ exports.handler = async (event) => {
     const hasBearer = !!(auth && auth.startsWith('Bearer '));
     const payload = hasBearer ? verifyJWT(auth.slice(7), process.env.JWT_SECRET) : null;
     const userId = payload?.sub ? String(payload.sub).slice(0, MAX_ID) : null;
+
+    // БЕЗ ТОКЕНА — сразу 401, ДО обращений к БД и ДО записи в журнал.
+    // Раньше любой POST без токена запускал resolveAccess (3-4 запроса к YDB)
+    // и добавлял строку в access_audit: цикл curl без единого пароля раздувал
+    // журнал и грузил базу. Единственное исключение — /me: «кто я и что мне
+    // открыто» это не секрет, и гостю там честно отвечают ролью по умолчанию.
+    if(!userId && route !== '/me'){
+      return fail(401, 'unauthorized', {
+        reason: hasBearer ? 'токен недействителен или истёк' : 'нужен вход',
+      });
+    }
 
     // Права актора вычисляются на каждом запросе, из БД. Кэша нет намеренно:
     // понижение роли должно действовать сразу, а не «когда протухнет токен».
@@ -910,22 +928,43 @@ async function handleCatalog(drv, ctx, body){
     const acc   = String(raw?.defaultAccess ?? raw?.default_access ?? '').trim();
     const st    = String(raw?.status || '').trim();
     if(!area || !title || !kind){ rejected.push({ feature: f, why:'area/title/kind required' }); continue; }
-    if(!VALID_ACCESS.has(acc)){ rejected.push({ feature: f, why:'defaultAccess must be open|account|closed' }); continue; }
-    if(!VALID_STATUS.has(st)){ rejected.push({ feature: f, why:'status must be live|wip' }); continue; }
+    // defaultAccess и status НЕОБЯЗАТЕЛЬНЫ. Раньше они требовались, и это
+    // ломало публикацию каталога: страница объявляет, ЧТО у неё есть, а
+    // «открыто или закрыто» — решение владельца, оно живёт в features и
+    // правится в матрице. Пустое значение = не трогать существующее.
+    if(acc && !VALID_ACCESS.has(acc)){ rejected.push({ feature: f, why:'defaultAccess must be open|account|closed' }); continue; }
+    if(st && !VALID_STATUS.has(st)){ rejected.push({ feature: f, why:'status must be live|wip' }); continue; }
     const parent = raw?.parent == null || raw.parent === '' ? null : String(raw.parent).slice(0, MAX_FEATURE);
     const declaredAt = raw?.declaredAt ?? raw?.declared_at;
     seen.add(f);
     rows.push({
-      feature: f, area, title, kind, defaultAccess: acc, status: st,
-      sensitive: parseBool(raw?.sensitive) === true,
+      feature: f, area, title, kind,
+      defaultAccess: acc || null, status: st || null,
+      sensitive: raw?.sensitive == null ? null : (parseBool(raw.sensitive) === true),
       parent,
       declaredAt: declaredAt == null || declaredAt === '' ? null : String(declaredAt).slice(0, 200),
     });
   }
 
   let upserted = 0;
-  for(let i = 0; i < rows.length; i += CATALOG_CHUNK){
-    const part = rows.slice(i, i + CATALOG_CHUNK);
+  // Новые узлы и уже существующие обрабатываются РАЗДЕЛЬНО, и это не
+  // придирка: UPSERT в YDB требует перечислить все NOT NULL колонки (в features
+  // это default_access, status, sensitive). Значит «просто обновить название
+  // раздела» через UPSERT либо не пройдёт разбор типов, либо перезапишет
+  // политику владельца значениями со страницы. Поэтому:
+  //   • новый узел  → UPSERT с безопасными значениями по умолчанию (открыт);
+  //   • известный   → UPDATE только описательных полей, а default_access,
+  //                   status и sensitive трогаем ЛИШЬ если их прислали явно.
+  const known = new Set();
+  {
+    const rs = await q1(drv, 'SELECT feature FROM features;', {});
+    for(const r of rowsOf(rs)) known.add(txt(r.items[0]));
+  }
+  const fresh = rows.filter(r => !known.has(r.feature));
+  const stale = rows.filter(r => known.has(r.feature));
+
+  for(let i = 0; i < fresh.length; i += CATALOG_CHUNK){
+    const part = fresh.slice(i, i + CATALOG_CHUNK);
     const decl = [], vals = [], params = {};
     part.forEach((r, k) => {
       decl.push(`DECLARE $f${k} AS Utf8; DECLARE $a${k} AS Utf8; DECLARE $p${k} AS Optional<Utf8>;`
@@ -937,16 +976,41 @@ async function handleCatalog(drv, ctx, body){
       params['$p' + k] = r.parent ? TypedValues.optional(TypedValues.utf8(r.parent)) : TypedValues.optionalNull(Types.UTF8);
       params['$t' + k] = TypedValues.utf8(r.title);
       params['$k' + k] = TypedValues.utf8(r.kind);
-      params['$d' + k] = TypedValues.utf8(r.defaultAccess);
-      params['$s' + k] = TypedValues.utf8(r.status);
-      params['$x' + k] = TypedValues.bool(r.sensitive);
+      // По умолчанию узел ОТКРЫТ и не считается чувствительным: механизм
+      // выкатывается раньше политики и не имеет права что-либо закрыть сам.
+      params['$d' + k] = TypedValues.utf8(r.defaultAccess || 'open');
+      params['$s' + k] = TypedValues.utf8(r.status || 'live');
+      params['$x' + k] = TypedValues.bool(r.sensitive === true);
       params['$q' + k] = r.declaredAt ? TypedValues.optional(TypedValues.utf8(r.declaredAt)) : TypedValues.optionalNull(Types.UTF8);
     });
-    // Пачкой по CATALOG_CHUNK строк: 500 отдельных UPSERT — это 500 обращений
-    // к БД в одном вызове функции, что упирается в её таймаут.
     await q1(drv, decl.join('\n') + `
       UPSERT INTO features (feature, area, parent, title, kind, default_access, status, sensitive, declared_at, seen_at)
       VALUES ` + vals.join(',\n             ') + ';', params);
+    upserted += part.length;
+  }
+
+  // Несколько UPDATE в одном запросе — чтобы не делать по обращению к БД на
+  // каждый узел: 500 запросов в одном вызове функции упираются в её таймаут.
+  for(let i = 0; i < stale.length; i += CATALOG_CHUNK){
+    const part = stale.slice(i, i + CATALOG_CHUNK);
+    const decl = [], stmts = [], params = {};
+    part.forEach((r, k) => {
+      decl.push(`DECLARE $f${k} AS Utf8; DECLARE $a${k} AS Utf8; DECLARE $p${k} AS Optional<Utf8>;`
+        + ` DECLARE $t${k} AS Utf8; DECLARE $k${k} AS Utf8; DECLARE $q${k} AS Optional<Utf8>;`);
+      const sets = [`area = $a${k}`, `parent = $p${k}`, `title = $t${k}`,
+                    `kind = $k${k}`, `declared_at = $q${k}`, 'seen_at = CurrentUtcTimestamp()'];
+      params['$f' + k] = TypedValues.utf8(r.feature);
+      params['$a' + k] = TypedValues.utf8(r.area);
+      params['$p' + k] = r.parent ? TypedValues.optional(TypedValues.utf8(r.parent)) : TypedValues.optionalNull(Types.UTF8);
+      params['$t' + k] = TypedValues.utf8(r.title);
+      params['$k' + k] = TypedValues.utf8(r.kind);
+      params['$q' + k] = r.declaredAt ? TypedValues.optional(TypedValues.utf8(r.declaredAt)) : TypedValues.optionalNull(Types.UTF8);
+      if(r.defaultAccess){ decl.push(`DECLARE $d${k} AS Utf8;`); sets.push(`default_access = $d${k}`); params['$d' + k] = TypedValues.utf8(r.defaultAccess); }
+      if(r.status){ decl.push(`DECLARE $s${k} AS Utf8;`); sets.push(`status = $s${k}`); params['$s' + k] = TypedValues.utf8(r.status); }
+      if(r.sensitive !== null && r.sensitive !== undefined){ decl.push(`DECLARE $x${k} AS Bool;`); sets.push(`sensitive = $x${k}`); params['$x' + k] = TypedValues.bool(r.sensitive === true); }
+      stmts.push(`UPDATE features SET ${sets.join(', ')} WHERE feature = $f${k};`);
+    });
+    await q1(drv, decl.join('\n') + '\n' + stmts.join('\n'), params);
     upserted += part.length;
   }
 

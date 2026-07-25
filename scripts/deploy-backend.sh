@@ -68,10 +68,7 @@ src_for(){
 # поэтому progress.js уезжает вместе с ним и подключается через require.
 extras_for(){
   case "$1" in
-    # access.js ПОКА НЕ ЗДЕСЬ: разбор нашёл в нём 6 blocker'ов (обход запрета
-    # масками вида 'cap*' без двоеточия, запись в БД по запросу без токена,
-    # расхождение контракта с вкладкой админки). Добавить обратно после правок.
-    submit)        echo "progress.js rooms-legacy.js" ;;
+    submit)        echo "progress.js rooms-legacy.js access.js" ;;
     auth-telegram) echo "mailer.js auth-email.js" ;;
     *)             echo "" ;;
   esac
