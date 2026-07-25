@@ -10,7 +10,12 @@
 //   YDB_DATABASE  — путь к базе вида /ru-central1/b1g.../etn...
 
 const crypto = require('crypto');
-const { Driver, getCredentialsFromEnv } = require('ydb-sdk');
+// TypedValues обязательны: ручной формат параметров ({type:{typeId:'UTF8'}, …})
+// не биндится — typeId ожидает числовой enum, а не строку. В лидерборде это
+// уже стоило пустого рейтинга при полной таблице матчей, а здесь ломает вход:
+// подпись Telegram проверяется успешно, а на первом же обращении к БД функция
+// падает и шлюз отдаёт 502. Проверено на живом проде (см. коммит).
+const { Driver, getCredentialsFromEnv, TypedValues, Types } = require('ydb-sdk');
 
 let driver = null;
 async function getDriver(){
@@ -81,7 +86,7 @@ exports.handler = async (event) => {
     const found = await session.executeQuery(`
       DECLARE $tg_id AS Int64;
       SELECT user_id, nickname, avatar FROM users VIEW users_by_tg WHERE tg_user_id = $tg_id LIMIT 1;
-    `, { '$tg_id': { type: { typeId: 'INT64' }, value: { int64Value: parseInt(id, 10) } } });
+    `, { '$tg_id': TypedValues.int64(parseInt(id, 10)) });
     const rows = found.resultSets[0]?.rows || [];
     if(rows.length){
       userId = rows[0].items[0].textValue;
@@ -91,7 +96,7 @@ exports.handler = async (event) => {
       await session.executeQuery(`
         DECLARE $uid AS Utf8;
         UPDATE users SET last_seen_at = CurrentUtcTimestamp() WHERE user_id = $uid;
-      `, { '$uid': { type: { typeId: 'UTF8' }, value: { textValue: userId } } });
+      `, { '$uid': TypedValues.utf8(userId) });
     } else {
       // Create new
       userId = crypto.randomUUID();
@@ -105,10 +110,10 @@ exports.handler = async (event) => {
         UPSERT INTO users (user_id, tg_user_id, nickname, avatar, created_at, last_seen_at)
         VALUES ($uid, $tg, $nick, $av, CurrentUtcTimestamp(), CurrentUtcTimestamp());
       `, {
-        '$uid': { type: { typeId: 'UTF8' }, value: { textValue: userId } },
-        '$tg': { type: { typeId: 'INT64' }, value: { int64Value: parseInt(id, 10) } },
-        '$nick': { type: { typeId: 'UTF8' }, value: { textValue: nickname } },
-        '$av': { type: { typeId: 'UTF8' }, value: { textValue: avatar } },
+        '$uid':  TypedValues.utf8(userId),
+        '$tg':   TypedValues.int64(parseInt(id, 10)),
+        '$nick': TypedValues.utf8(String(nickname)),
+        '$av':   TypedValues.utf8(String(avatar)),
       });
     }
 
@@ -119,8 +124,8 @@ exports.handler = async (event) => {
       UPSERT INTO device_links (device_id, user_id, linked_at)
       VALUES ($dev, $uid, CurrentUtcTimestamp());
     `, {
-      '$dev': { type: { typeId: 'UTF8' }, value: { textValue: device_id } },
-      '$uid': { type: { typeId: 'UTF8' }, value: { textValue: userId } },
+      '$dev': TypedValues.utf8(String(device_id)),
+      '$uid': TypedValues.utf8(userId),
     });
 
     // 5. Migrate prior anonymous matches (без user_id) → теперь с user_id
@@ -129,8 +134,8 @@ exports.handler = async (event) => {
       DECLARE $uid AS Utf8;
       UPDATE matches SET user_id = $uid WHERE device_id = $dev AND user_id IS NULL;
     `, {
-      '$dev': { type: { typeId: 'UTF8' }, value: { textValue: device_id } },
-      '$uid': { type: { typeId: 'UTF8' }, value: { textValue: userId } },
+      '$dev': TypedValues.utf8(String(device_id)),
+      '$uid': TypedValues.utf8(userId),
     });
   });
 

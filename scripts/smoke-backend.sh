@@ -59,6 +59,50 @@ check "GET /content"          200 "$GW/content"
 check "POST /submit (мусор)"  400 -X POST -H 'Content-Type: application/json' \
   --data-raw '{"nope":true}' "$GW/submit"
 
+# 6. ГЛУБОКАЯ проверка входа через Telegram.
+#
+# Зачем именно так. Проверка «невалидная подпись → 401» бесполезна: функция
+# падала ПОСЛЕ проверки подписи, на первом обращении к БД, и вход был мёртв в
+# проде (BadRequest 400010 «Unsupported data type: PRIMITIVE_TYPE_ID_UNSPECIFIED»
+# из-за ручного формата параметров). Поэтому логинимся по-настоящему:
+# подписываем данные ботовым токеном, который берём из окружения функции.
+# Тестовая личность одна и та же (tg id 999000111, «Проверка») — на первом
+# прогоне она создаётся, дальше проверяется ветка поиска существующего
+# пользователя. Тело ответа не печатаем: там JWT.
+if command -v yc >/dev/null 2>&1 && [ "${SMOKE_DEEP:-1}" = "1" ]; then
+  ver="$(yc serverless function version list --function-name yasna-auth-telegram --format json 2>/dev/null \
+        | python3 -c "import sys,json;d=json.load(sys.stdin);d.sort(key=lambda x:x.get('created_at',''),reverse=True);print(d[0]['id'])" 2>/dev/null || true)"
+  bt=""
+  [ -n "$ver" ] && bt="$(yc serverless function version get "$ver" --format json 2>/dev/null \
+        | python3 -c "import sys,json;print(json.load(sys.stdin).get('environment',{}).get('BOT_TOKEN',''))" 2>/dev/null || true)"
+  if [ -n "$bt" ]; then
+    payload="$(BT="$bt" python3 - <<'PY'
+import hmac, hashlib, json, os, time
+bt = os.environ['BT'].encode()
+f = {'id': 999000111, 'first_name': 'Проверка', 'username': 'smoke_probe', 'auth_date': int(time.time())}
+dcs = '\n'.join('%s=%s' % (k, f[k]) for k in sorted(f))
+f['hash'] = hmac.new(hashlib.sha256(bt).digest(), dcs.encode(), hashlib.sha256).hexdigest()
+f['device_id'] = 'smoke-login-probe'
+print(json.dumps(f, ensure_ascii=False))
+PY
+)"
+    code="$(curl -sS -m 25 -o /tmp/.smoke_login -w '%{http_code}' -X POST \
+            -H 'Content-Type: application/json' --data-raw "$payload" "$GW/auth/telegram" 2>&1 || echo 000)"
+    if [ "$code" = "200" ] && grep -q '"token"' /tmp/.smoke_login; then
+      echo "  ✓ POST /auth/telegram — реальный вход выдал токен"
+    else
+      echo "  ✗ POST /auth/telegram — вход не работает (HTTP $code)"
+      head -c 300 /tmp/.smoke_login | sed 's/^/      /'; echo
+      fails=$((fails+1))
+    fi
+    rm -f /tmp/.smoke_login
+  else
+    echo "  ⓘ BOT_TOKEN недоступен — глубокая проверка входа пропущена"
+  fi
+else
+  echo "  ⓘ yc CLI нет (или SMOKE_DEEP=0) — глубокая проверка входа пропущена"
+fi
+
 echo
 if [ "$fails" = "0" ]; then echo "Все проверки прошли."; exit 0; fi
 echo "Провалено проверок: $fails"; exit 1

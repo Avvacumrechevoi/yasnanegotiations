@@ -25,7 +25,7 @@
 // ═══════════════════════════════════════════════════════════════════
 
 const crypto = require('crypto');
-const { Driver, getCredentialsFromEnv } = require('ydb-sdk');
+const { Driver, getCredentialsFromEnv, TypedValues, Types } = require('ydb-sdk');
 
 let driver = null;
 async function getDriver(){
@@ -167,15 +167,21 @@ exports.handler = async (event) => {
         VALUES
           ($rev, $data, $hash, $by, CurrentUtcTimestamp(), true, $notes);
       `, {
-        '$rev':   { type:{typeId:'UTF8'}, value:{textValue: revisionId} },
-        '$data':  { type:{typeId:'UTF8'}, value:{textValue: dataJson} },
-        '$hash':  { type:{typeId:'UTF8'}, value:{textValue: dataHash} },
+        // Только TypedValues. Ручной формат ({type:{typeId:'UTF8'}}) не биндится:
+        // typeId ожидает числовой enum, а не строку. А для Optional-полей
+        // вариант optionalType+nullFlagValue вообще валил запрос с
+        // «ImportTypeFromProto unknown type id: 0» — на этих же граблях в
+        // submit.js INSERT не проходил никогда. Публикация контента шла тем же
+        // путём, поэтому её тоже переводим на TypedValues.
+        '$rev':   TypedValues.utf8(revisionId),
+        '$data':  TypedValues.utf8(dataJson),
+        '$hash':  TypedValues.utf8(dataHash),
         '$by':    publishedByStr
-                  ? { type:{optionalType:{item:{typeId:'UTF8'}}}, value:{textValue: publishedByStr} }
-                  : { type:{optionalType:{item:{typeId:'UTF8'}}}, value:{nullFlagValue:0} },
+                  ? TypedValues.optional(TypedValues.utf8(publishedByStr))
+                  : TypedValues.optionalNull(Types.UTF8),
         '$notes': notesStr
-                  ? { type:{optionalType:{item:{typeId:'UTF8'}}}, value:{textValue: notesStr} }
-                  : { type:{optionalType:{item:{typeId:'UTF8'}}}, value:{nullFlagValue:0} },
+                  ? TypedValues.optional(TypedValues.utf8(notesStr))
+                  : TypedValues.optionalNull(Types.UTF8),
       });
     });
 
