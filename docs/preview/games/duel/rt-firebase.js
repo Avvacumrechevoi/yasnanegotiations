@@ -225,8 +225,17 @@
       'meta/status':     'playing',
     });
 
-    // На дисконнект — закрываем комнату
-    db.ref('rooms/' + code + '/meta/status').onDisconnect().set('closed');
+    // ВАЖНО: НЕ ставим onDisconnect → meta/status='closed' (раньше стояло).
+    // Это ровно та ловушка, от которой отказались у хоста (см. коммент выше):
+    // на мобильных (особенно iOS Safari) уход вкладки в фон рвёт WebSocket,
+    // Firebase считает клиента отключённым и закрывал ЖИВУЮ комнату:
+    //   • хост получал opp-leave (makeTransport/onStatus) → партия умирала;
+    //   • сам гость по возвращении тоже получал 'closed' → «соперник вышел»;
+    //   • вернуться было нельзя — joinRoom падал на проверке status==='closed'.
+    // Осознанный выход и так закрывает комнату явно — close() делает
+    // statusRef.set('closed') (см. makeTransport). Здесь же только
+    // неразрушающий флаг присутствия, симметрично host/online.
+    db.ref('rooms/' + code + '/guest/online').onDisconnect().set(false);
 
     console.log('[firebase] joined room', code);
     return { host: room.host };

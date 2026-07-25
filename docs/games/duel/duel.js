@@ -386,10 +386,20 @@
       }
     }
 
-    // Только peerjs-матчи попадают в leaderboard
+    // В leaderboard попадают только партии против ЖИВОГО человека.
+    // isBot остаётся отсечкой осознанно: по продуктовой модели (см. rating.html)
+    // «Каста меняется только в партиях против человека», Тень её не двигает.
+    // А вот whitelist транспорта был мёртвым: он требовал 'peerjs', который
+    // ставил только удалённый PeerJS-транспорт. Живые сейчас — 'firebase'
+    // (дуо через RTDB) и 'group'. Из-за этого В ЛИДЕРБОРД НЕ УХОДИЛО НИЧЕГО.
     _shouldSubmit(match){
-      if(!match || match.isBot) return false;
-      if(match.transport !== 'peerjs') return false;
+      if(!match) return false;
+      if(match.isBot) return false;
+      const LIVE_TRANSPORTS = ['firebase', 'group'];
+      if(LIVE_TRANSPORTS.indexOf(match.transport) === -1){
+        console.warn('[leaderboard] пропущен матч: неизвестный transport=' + match.transport);
+        return false;
+      }
       // Sanity: time >= 1 секунды (match too short would be cheating)
       if((match.time || 0) < 1000) return false;
       return true;

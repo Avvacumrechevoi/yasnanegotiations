@@ -1650,8 +1650,11 @@
           score: finalP,
           maxScore: 18 * 15,
           time: totalTime,
-          transport: 'bot',
-          isBot: true,
+          // TurnirGame — общий движок для Тени И для PvP. Раньше здесь было
+          // жёстко 'bot'/isBot:true, поэтому партии против ЖИВОГО соперника
+          // писались в историю как ботовые (и отбрасывались лидербордом).
+          transport: isPvP ? 'firebase' : 'bot',
+          isBot: !isPvP,
           bySurrender: false,
           themesPlayed: log.map(r => r.themeId),
           correctByTheme: log.reduce((acc, r) => {
@@ -1679,8 +1682,8 @@
           score: finalP,
           maxScore: 270,
           time: totalTime,
-          transport: 'bot',
-          isBot: true,
+          transport: isPvP ? 'firebase' : 'bot',
+          isBot: !isPvP,
         }).catch(() => {});
       }
       setPhase('final');

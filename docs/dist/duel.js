@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-07-25T09:59:11.962Z */
+/* Yasna bundle: duel.js — собран 2026-07-25T10:27:22.071Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -3841,10 +3841,20 @@ window.YasnaCore = {
         return null;
       }
     }
-    // Только peerjs-матчи попадают в leaderboard
+    // В leaderboard попадают только партии против ЖИВОГО человека.
+    // isBot остаётся отсечкой осознанно: по продуктовой модели (см. rating.html)
+    // «Каста меняется только в партиях против человека», Тень её не двигает.
+    // А вот whitelist транспорта был мёртвым: он требовал 'peerjs', который
+    // ставил только удалённый PeerJS-транспорт. Живые сейчас — 'firebase'
+    // (дуо через RTDB) и 'group'. Из-за этого В ЛИДЕРБОРД НЕ УХОДИЛО НИЧЕГО.
     _shouldSubmit(match) {
-      if (!match || match.isBot) return false;
-      if (match.transport !== "peerjs") return false;
+      if (!match) return false;
+      if (match.isBot) return false;
+      const LIVE_TRANSPORTS = ["firebase", "group"];
+      if (LIVE_TRANSPORTS.indexOf(match.transport) === -1) {
+        console.warn("[leaderboard] \u043F\u0440\u043E\u043F\u0443\u0449\u0435\u043D \u043C\u0430\u0442\u0447: \u043D\u0435\u0438\u0437\u0432\u0435\u0441\u0442\u043D\u044B\u0439 transport=" + match.transport);
+        return false;
+      }
       if ((match.time || 0) < 1e3) return false;
       return true;
     }
@@ -23081,8 +23091,11 @@ window.YasnaCore = {
           score: finalP,
           maxScore: 18 * 15,
           time: totalTime,
-          transport: "bot",
-          isBot: true,
+          // TurnirGame — общий движок для Тени И для PvP. Раньше здесь было
+          // жёстко 'bot'/isBot:true, поэтому партии против ЖИВОГО соперника
+          // писались в историю как ботовые (и отбрасывались лидербордом).
+          transport: isPvP ? "firebase" : "bot",
+          isBot: !isPvP,
           bySurrender: false,
           themesPlayed: log.map((r) => r.themeId),
           correctByTheme: log.reduce((acc, r) => {
@@ -23114,8 +23127,8 @@ window.YasnaCore = {
           score: finalP,
           maxScore: 270,
           time: totalTime,
-          transport: "bot",
-          isBot: true
+          transport: isPvP ? "firebase" : "bot",
+          isBot: !isPvP
         }).catch(() => {
         });
       }
@@ -23519,7 +23532,7 @@ window.YasnaCore = {
       "guest/lastSeen": TS,
       "meta/status": "playing"
     });
-    db.ref("rooms/" + code + "/meta/status").onDisconnect().set("closed");
+    db.ref("rooms/" + code + "/guest/online").onDisconnect().set(false);
     console.log("[firebase] joined room", code);
     return { host: room.host };
   }

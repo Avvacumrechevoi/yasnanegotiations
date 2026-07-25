@@ -1,4 +1,4 @@
-/* Yasna bundle: app.js — собран 2026-07-25T09:59:12.081Z */
+/* Yasna bundle: app.js — собран 2026-07-25T10:27:22.195Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -9240,10 +9240,20 @@ window.YasnaLessons.LESSONS = LESSONS;
         return null;
       }
     }
-    // Только peerjs-матчи попадают в leaderboard
+    // В leaderboard попадают только партии против ЖИВОГО человека.
+    // isBot остаётся отсечкой осознанно: по продуктовой модели (см. rating.html)
+    // «Каста меняется только в партиях против человека», Тень её не двигает.
+    // А вот whitelist транспорта был мёртвым: он требовал 'peerjs', который
+    // ставил только удалённый PeerJS-транспорт. Живые сейчас — 'firebase'
+    // (дуо через RTDB) и 'group'. Из-за этого В ЛИДЕРБОРД НЕ УХОДИЛО НИЧЕГО.
     _shouldSubmit(match) {
-      if (!match || match.isBot) return false;
-      if (match.transport !== "peerjs") return false;
+      if (!match) return false;
+      if (match.isBot) return false;
+      const LIVE_TRANSPORTS = ["firebase", "group"];
+      if (LIVE_TRANSPORTS.indexOf(match.transport) === -1) {
+        console.warn("[leaderboard] \u043F\u0440\u043E\u043F\u0443\u0449\u0435\u043D \u043C\u0430\u0442\u0447: \u043D\u0435\u0438\u0437\u0432\u0435\u0441\u0442\u043D\u044B\u0439 transport=" + match.transport);
+        return false;
+      }
       if ((match.time || 0) < 1e3) return false;
       return true;
     }
