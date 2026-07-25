@@ -122,6 +122,12 @@
   const PROFILE_KEY = 'yasna_duel_profile';
   const AVATAR_OPTIONS = ['🦊','🐺','🦁','🐯','🐻','🐼','🦉','🦅','🐉','🦄','⚔️','🎯'];
   function _genDeviceId(){
+    // Сначала общий ключ, который держит core/storage.js: он появляется даже у
+    // того, кто в игры не заходил (уроки, тренажёры), и служит владельцем
+    // серверного прогресса. Без этой проверки онбординг «Партии» выдал бы
+    // ВТОРОЙ id, и накопленное гостем осталось бы под первым — прогресс
+    // расщепился бы на двух владельцев.
+    try { const shared = localStorage.getItem('yasna_device_id_v1'); if(shared) return shared; } catch(_){}
     if(typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
     return 'dev-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
   }

@@ -58,6 +58,7 @@
 
     // ── идентичность ──
     yasna_duel_profile:         { scope: 'identity', json: true,  owner: 'games/duel/duel.js', about: 'гостевой профиль: ник, аватар, deviceId — КЛЮЧ ко всему прогрессу' },
+    yasna_device_id_v1:         { scope: 'identity', json: false, owner: 'core/storage.js',    about: 'единый id устройства для серверной синхронизации (общий с профилем игры)' },
     yasna_duel_user:            { scope: 'identity', json: true,  owner: 'games/duel/duel.js', about: 'залогиненный пользователь (Telegram)' },
     yasna_duel_token:           { scope: 'identity', json: false, owner: 'games/duel/duel.js', about: 'JWT сессии', sensitive: true },
 
@@ -84,6 +85,8 @@
     yasna_content_overrides_cache_v1: { scope: 'cache', json: true, owner: 'core/content-store.js',    about: 'кэш Tier-2 контента' },
     yasna_admin_overrides:         { scope: 'cache',  json: true,  owner: 'admin.js',                  about: 'черновики админки (не прогресс игрока)' },
     yasna2:                        { scope: 'cache',  json: true,  owner: 'core/yasna-star.js',        about: 'состояние звезды' },
+    yasna_sync_state_v1:           { scope: 'cache',  json: true,  owner: 'core/storage.js',           about: 'состояние синхронизации: rev и подписи по ключам' },
+    yasna_sync_conflicts_v1:       { scope: 'cache',  json: true,  owner: 'core/storage.js',           about: 'журнал расхождений: локальные версии, вытесненные серверными' },
 
     // ── секреты: НИКОГДА не попадают в экспорт ──
     yasna_admin_pwd_v1:         { scope: 'secret', json: false, owner: 'admin.js',                about: 'пароль публикации контента', sensitive: true },
@@ -168,7 +171,13 @@
     }
     // идентичность — отдельно и осознанно (нужна, чтобы связать устройство)
     var prof = getRaw('yasna_duel_profile');
-    if (prof) out.identity = { yasna_duel_profile: prof };
+    var dev = getRaw('yasna_device_id_v1');
+    if (prof || dev) {
+      out.identity = {};
+      if (prof) out.identity.yasna_duel_profile = prof;
+      // без id устройства перенесённый снапшот отвязан от серверного прогресса
+      if (dev) out.identity.yasna_device_id_v1 = dev;
+    }
     // динамические ключи (заметки к урокам)
     try {
       for (i = 0; i < s.length; i++) {
@@ -251,6 +260,325 @@
     return r;
   }
 
+  // ═══════════════════════════════════════════════════════════════
+  // СИНХРОНИЗАЦИЯ С СЕРВЕРОМ (GET/PUT /progress)
+  //
+  // Уезжают только scope progress и creation. Тема, черновики админки,
+  // очередь неотправленных матчей и пользовательские ключи LLM остаются
+  // локальными: серверу они не нужны, а секреты там и вовсе не должны быть.
+  //
+  // ВЛАДЕЛЕЦ ЗАПИСИ на сервере — user_id, если есть валидный токен, иначе
+  // deviceId. Поэтому гость тоже сохраняется, а при первом входе через
+  // Telegram сервер переносит прогресс устройства на аккаунт.
+  //
+  // ПЕРВАЯ СИНХРОНИЗАЦИЯ на устройстве, где ЕСТЬ локальные данные и на
+  // сервере ТОЖЕ есть данные по этому ключу — единственный по-настоящему
+  // спорный случай. Автоматически «угадывать», где прогресс «больше»,
+  // нельзя: у пяти разделов пять разных форматов. Поэтому берём серверную
+  // версию (она общая для всех устройств), а локальную НЕ выбрасываем —
+  // складываем в yasna_sync_conflicts_v1, откуда её можно вернуть
+  // (sync.resolveKeepLocal). Молча потерянных данных не остаётся.
+  // ═══════════════════════════════════════════════════════════════
+  var SYNC_SCOPES = { progress: 1, creation: 1 };
+  var SYNC_STATE_KEY = 'yasna_sync_state_v1';
+  var SYNC_CONFLICTS_KEY = 'yasna_sync_conflicts_v1';
+  var NOTE_PREFIX = 'yasna_reflection_';
+  var PUSH_DEBOUNCE_MS = 4000;
+  var POLL_MS = 45000;          // тихая проверка «что-то изменилось?»
+
+  function apiBase() {
+    try {
+      var el = document.querySelector('meta[name="yasna:api"]');
+      var fromMeta = el ? el.getAttribute('content') : '';
+      return fromMeta || window.YASNA_LEADERBOARD_API || '';
+    } catch (_) { return ''; }
+  }
+
+  function syncState() {
+    var st = get(SYNC_STATE_KEY, null);
+    if (!st || typeof st !== 'object') st = {};
+    if (!st.revs) st.revs = {};
+    if (!st.sigs) st.sigs = {};
+    if (!st.noteAt) st.noteAt = {};
+    return st;
+  }
+  function saveSyncState(st) { set(SYNC_STATE_KEY, st); }
+
+  // Дешёвая подпись значения — чтобы не гонять на сервер неизменившееся.
+  function sig(str) {
+    var h = 5381, i;
+    for (i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0;
+    return String(str.length) + ':' + h;
+  }
+
+  // ЕДИНЫЙ идентификатор устройства.
+  // Раньше deviceId существовал только внутри профиля игры (yasna_duel_profile),
+  // а он создаётся при онбординге в «Партии». Человек, который проходит только
+  // уроки и в игры не заходит, deviceId не получал вовсе — то есть его прогресс
+  // синхронизировать было НЕЧЕМ. Поэтому идентификатор вынесен в отдельный ключ:
+  //   • если профиль игры уже есть — берём его deviceId (у действующих
+  //     пользователей идентичность не меняется) и зеркалим в общий ключ;
+  //   • если профиля нет — создаём общий ключ сами, а duel.js его подхватывает
+  //     (_genDeviceId), поэтому позже профиль игры получит ТОТ ЖЕ id и прогресс
+  //     гостя не расщепится на два владельца.
+  var DEVICE_KEY = 'yasna_device_id_v1';
+  function genDeviceId() {
+    try { if (window.crypto && crypto.randomUUID) return crypto.randomUUID(); } catch (_) {}
+    return 'dev-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+  }
+  function deviceId() {
+    var prof = get('yasna_duel_profile', null);
+    var fromProfile = (prof && prof.deviceId) || null;
+    var shared = getRaw(DEVICE_KEY);
+    if (fromProfile) {
+      if (shared !== fromProfile) setRaw(DEVICE_KEY, fromProfile);
+      return fromProfile;
+    }
+    if (shared) return shared;
+    var fresh = genDeviceId();
+    setRaw(DEVICE_KEY, fresh);
+    return fresh;
+  }
+
+  function identity() {
+    return { deviceId: deviceId(), token: getRaw('yasna_duel_token') || null };
+  }
+
+  // Локальные ключи, подлежащие синхронизации: реестровые нужных scope
+  // плюс динамические заметки к урокам (они уезжают в user_notes).
+  function localSyncable() {
+    var s = ls(), items = [], notes = [], k, i;
+    for (k in KEYS) {
+      if (!SYNC_SCOPES[KEYS[k].scope] || KEYS[k].sensitive) continue;
+      var raw = getRaw(k);
+      if (raw === null || raw === undefined) continue;
+      items.push({ scope: KEYS[k].scope, itemId: k, state: raw });
+    }
+    if (s) {
+      try {
+        for (i = 0; i < s.length; i++) {
+          var key = s.key(i);
+          if (!key || key.indexOf(NOTE_PREFIX) !== 0) continue;
+          var text = getRaw(key);
+          if (text === null) continue;
+          notes.push({ itemId: key.slice(NOTE_PREFIX.length), text: text });
+        }
+      } catch (_) {}
+    }
+    return { items: items, notes: notes };
+  }
+
+  function request(method, path, payload) {
+    var base = apiBase();
+    if (!base) return Promise.resolve(null);
+    var id = identity();
+    var url = base + path;
+    var headers = { 'Content-Type': 'application/json' };
+    if (id.token) headers.Authorization = 'Bearer ' + id.token;
+    var opts = { method: method, headers: headers };
+    if (payload) opts.body = JSON.stringify(payload);
+    return fetch(url, opts).then(function (r) {
+      if (!r.ok) return r.text().then(function (t) { throw new Error('HTTP ' + r.status + ' ' + t.slice(0, 120)); });
+      return r.json();
+    });
+  }
+
+  function stashConflict(key, localValue, serverValue) {
+    var list = get(SYNC_CONFLICTS_KEY, null);
+    if (!Array.isArray(list)) list = [];
+    list.push({ key: key, local: localValue, server: serverValue, at: new Date().toISOString() });
+    if (list.length > 50) list = list.slice(-50);   // журнал, а не хранилище
+    set(SYNC_CONFLICTS_KEY, list);
+  }
+
+  var syncing = false;
+
+  // Забрать серверное состояние и применить то, что новее известного нам.
+  function pull() {
+    if (!available()) return Promise.resolve({ skipped: 'storage unavailable' });
+    var id = identity();
+    if (!id.deviceId && !id.token) return Promise.resolve({ skipped: 'нет ни deviceId, ни токена' });
+    var qs = id.deviceId ? ('?deviceId=' + encodeURIComponent(id.deviceId)) : '';
+    return request('GET', '/progress' + qs, null).then(function (data) {
+      if (!data) return { skipped: 'нет адреса API' };
+      var st = syncState();
+      var applied = 0, conflicts = 0, i;
+      st.ownerKey = data.ownerKey || st.ownerKey;
+
+      for (i = 0; i < (data.items || []).length; i++) {
+        var it = data.items[i];
+        if (!it || !it.itemId) continue;
+        var localRaw = getRaw(it.itemId);
+        var knownRev = st.revs[it.itemId] || 0;
+
+        if (localRaw === null || localRaw === undefined) {          // локально нет — просто берём
+          if (setRaw(it.itemId, it.state)) applied++;
+        } else if (localRaw === it.state) {                          // совпадает — нечего делать
+          /* no-op */
+        } else if (it.rev > knownRev) {
+          // Сервер новее того, что мы видели. Если наша копия отличалась от
+          // последней синхронизированной — это расхождение, локальную версию
+          // сохраняем в журнал конфликтов, а не выбрасываем.
+          if (st.sigs[it.itemId] && st.sigs[it.itemId] !== sig(localRaw)) {
+            stashConflict(it.itemId, localRaw, it.state); conflicts++;
+          } else if (!st.sigs[it.itemId]) {
+            stashConflict(it.itemId, localRaw, it.state); conflicts++;   // первая синхронизация
+          }
+          if (setRaw(it.itemId, it.state)) applied++;
+        }
+        st.revs[it.itemId] = it.rev;
+        st.sigs[it.itemId] = sig(getRaw(it.itemId) || '');
+      }
+
+      for (i = 0; i < (data.notes || []).length; i++) {
+        var n = data.notes[i];
+        if (!n || !n.itemId) continue;
+        var nk = NOTE_PREFIX + n.itemId;
+        var localText = getRaw(nk);
+        var seenAt = st.noteAt[n.itemId] || '';
+        if (localText === null || localText === undefined) { if (setRaw(nk, n.text)) applied++; }
+        else if (localText !== n.text && String(n.updatedAt || '') > seenAt) {
+          stashConflict(nk, localText, n.text); conflicts++;
+          if (setRaw(nk, n.text)) applied++;
+        }
+        st.noteAt[n.itemId] = n.updatedAt || new Date().toISOString();
+      }
+
+      st.entitlements = data.entitlements || [];
+      st.isUser = !!data.isUser;
+      st.lastPull = new Date().toISOString();
+      st.lastError = null;
+      saveSyncState(st);
+      return { applied: applied, conflicts: conflicts, items: (data.items || []).length };
+    }).catch(function (e) {
+      var st = syncState(); st.lastError = String(e && e.message || e); saveSyncState(st);
+      return { error: st.lastError };
+    });
+  }
+
+  // Отправить то, что изменилось с прошлой отправки.
+  function push(opts) {
+    var o = opts || {};
+    if (!available()) return Promise.resolve({ skipped: 'storage unavailable' });
+    var id = identity();
+    if (!id.deviceId && !id.token) return Promise.resolve({ skipped: 'нет ни deviceId, ни токена' });
+
+    var st = syncState();
+    var local = localSyncable();
+    var items = [], notes = [], i;
+
+    for (i = 0; i < local.items.length; i++) {
+      var it = local.items[i];
+      var s2 = sig(it.state);
+      if (!o.force && st.sigs[it.itemId] === s2) continue;      // не изменилось
+      items.push({ scope: it.scope, itemId: it.itemId, state: it.state, rev: st.revs[it.itemId] || 0 });
+    }
+    for (i = 0; i < local.notes.length; i++) {
+      var n = local.notes[i];
+      var nsig = sig(n.text);
+      if (!o.force && st.sigs[NOTE_PREFIX + n.itemId] === nsig) continue;
+      notes.push({ itemId: n.itemId, text: n.text });
+    }
+    if (!items.length && !notes.length) return Promise.resolve({ saved: 0, nothing: true });
+
+    var payload = { items: items, notes: notes };
+    if (id.deviceId) payload.deviceId = id.deviceId;
+
+    return request('PUT', '/progress', payload).then(function (data) {
+      if (!data) return { skipped: 'нет адреса API' };
+      var st2 = syncState(), k;
+      for (k in (data.revs || {})) {
+        var itemId = k.slice(k.indexOf('/') + 1);
+        st2.revs[itemId] = data.revs[k];
+        st2.sigs[itemId] = sig(getRaw(itemId) || '');
+      }
+      // Конфликты: сервер вернул свою версию — принимаем её, свою сохраняем.
+      for (var c = 0; c < (data.conflicts || []).length; c++) {
+        var cf = data.conflicts[c];
+        var cur = getRaw(cf.itemId);
+        if (cur !== null && cur !== cf.state) stashConflict(cf.itemId, cur, cf.state);
+        setRaw(cf.itemId, cf.state);
+        st2.revs[cf.itemId] = cf.rev;
+        st2.sigs[cf.itemId] = sig(cf.state);
+      }
+      for (var m = 0; m < notes.length; m++) {
+        st2.sigs[NOTE_PREFIX + notes[m].itemId] = sig(notes[m].text);
+        st2.noteAt[notes[m].itemId] = new Date().toISOString();
+      }
+      st2.lastPush = new Date().toISOString();
+      st2.lastError = null;
+      st2.isUser = !!data.isUser;
+      st2.ownerKey = data.ownerKey || st2.ownerKey;
+      saveSyncState(st2);
+      return {
+        saved: data.saved || 0, notesSaved: data.notesSaved || 0,
+        conflicts: (data.conflicts || []).length, rejected: (data.rejected || []).length
+      };
+    }).catch(function (e) {
+      var st3 = syncState(); st3.lastError = String(e && e.message || e); saveSyncState(st3);
+      return { error: st3.lastError };
+    });
+  }
+
+  // Вернуть локальную версию из журнала конфликтов и навязать её серверу.
+  function resolveKeepLocal(key) {
+    var list = get(SYNC_CONFLICTS_KEY, null);
+    if (!Array.isArray(list)) return { error: 'конфликтов нет' };
+    for (var i = list.length - 1; i >= 0; i--) {
+      if (list[i].key !== key) continue;
+      setRaw(key, list[i].local);
+      var st = syncState();
+      // rev не трогаем: следующий push отправит с известным rev, и сервер
+      // примет запись, если с тех пор его версия не менялась.
+      st.sigs[key] = null;
+      saveSyncState(st);
+      list.splice(i, 1);
+      set(SYNC_CONFLICTS_KEY, list);
+      return push({ force: false });
+    }
+    return { error: 'для ключа ' + key + ' конфликта не найдено' };
+  }
+
+  function conflicts() { var l = get(SYNC_CONFLICTS_KEY, null); return Array.isArray(l) ? l : []; }
+  function status() {
+    var st = syncState();
+    return {
+      ownerKey: st.ownerKey || null, isUser: !!st.isUser,
+      lastPull: st.lastPull || null, lastPush: st.lastPush || null,
+      lastError: st.lastError || null, conflicts: conflicts().length,
+      entitlements: st.entitlements || [], configured: !!apiBase()
+    };
+  }
+
+  // ─── автосинхронизация ───────────────────────────────────────────
+  // События 'storage' срабатывают ТОЛЬКО для других вкладок, поэтому на них
+  // одних полагаться нельзя: свои же изменения так не поймать. Отсюда тихий
+  // опрос подписей раз в POLL_MS плюс отправка при уходе со страницы.
+  var pushTimer = null, started = false;
+  function schedule(delay) {
+    if (pushTimer) clearTimeout(pushTimer);
+    pushTimer = setTimeout(function () {
+      pushTimer = null;
+      if (syncing) return;
+      syncing = true;
+      push().then(function () { syncing = false; }, function () { syncing = false; });
+    }, delay == null ? PUSH_DEBOUNCE_MS : delay);
+  }
+
+  function start() {
+    if (started || !available()) return;
+    started = true;
+    setTimeout(function () { pull().then(function () { schedule(1500); }); }, 1200);
+    setInterval(function () { schedule(0); }, POLL_MS);
+    onChange(function () { schedule(); });
+    try {
+      window.addEventListener('pagehide', function () { push(); });
+      document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'hidden') push();
+      });
+    } catch (_) {}
+  }
+
   window.YasnaStorage = {
     KEYS: KEYS,
     PREFIXES: PREFIXES,
@@ -263,8 +591,19 @@
     runMigrations: runMigrations,
     onChange: onChange,
     report: report,
-    SNAPSHOT_VERSION: SNAPSHOT_VERSION
+    SNAPSHOT_VERSION: SNAPSHOT_VERSION,
+    sync: {
+      pull: pull,
+      push: push,
+      start: start,
+      schedule: schedule,
+      status: status,
+      conflicts: conflicts,
+      resolveKeepLocal: resolveKeepLocal,
+      SCOPES: SYNC_SCOPES
+    }
   };
 
   try { runMigrations(); } catch (_) {}
+  try { start(); } catch (e) { console.warn('[storage] автосинхронизация не запустилась: ' + ((e && e.message) || e)); }
 })();
