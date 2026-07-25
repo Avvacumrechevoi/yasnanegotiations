@@ -65,7 +65,31 @@ function signJWT(payload, secret){
   return `${header}.${body}.${sig}`;
 }
 
+// ─── маршрутизация: эта функция обслуживает ещё и вход по почте с профилем ──
+// Квота serverless.functions.count в облаке исчерпана (10 из 10), поэтому
+// эндпоинты подсаживаются к существующим функциям. Вход по почте и профиль
+// живут ЗДЕСЬ намеренно: это функция про идентичность, у неё уже есть
+// JWT_SECRET, и рассылка писем (nodemailer) не тащится в submit, который
+// вызывается на каждый матч. Неизвестный путь трактуется как вход через
+// Telegram — поведение прода не меняется, даже если шлюз перестанет
+// передавать path.
+let emailModule = null;
+function emailHandler(){
+  if(!emailModule){ emailModule = require('./auth-email.js'); }
+  return emailModule.handler;
+}
+function reqPath(event){
+  return String(event?.path || event?.url ||
+    event?.requestContext?.http?.path || event?.requestContext?.path || '');
+}
+function isEmailPath(event){
+  const p = reqPath(event);
+  return /\/auth\/email\//.test(p) || /\/account(\/|\?|$)/.test(p);
+}
+
 exports.handler = async (event) => {
+  if(isEmailPath(event)) return emailHandler()(event);
+
   if(event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: CORS, body: '' };
 
   let body;

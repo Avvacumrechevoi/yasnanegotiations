@@ -68,8 +68,23 @@ src_for(){
 # поэтому progress.js уезжает вместе с ним и подключается через require.
 extras_for(){
   case "$1" in
-    submit) echo "progress.js rooms-legacy.js" ;;
-    *)      echo "" ;;
+    # access.js ПОКА НЕ ЗДЕСЬ: разбор нашёл в нём 6 blocker'ов (обход запрета
+    # масками вида 'cap*' без двоеточия, запись в БД по запросу без токена,
+    # расхождение контракта с вкладкой админки). Добавить обратно после правок.
+    submit)        echo "progress.js rooms-legacy.js" ;;
+    auth-telegram) echo "mailer.js auth-email.js" ;;
+    *)             echo "" ;;
+  esac
+}
+
+# Дополнительные npm-зависимости конкретной функции. Общие (ydb-sdk и его
+# обязательная peer @yandex-cloud/nodejs-sdk) добавляются всем; здесь только
+# то, что нужно одной функции. nodemailer тащить в submit нельзя: submit
+# вызывается на каждый матч, и лишний холодный старт там не нужен.
+deps_for(){
+  case "$1" in
+    auth-telegram) echo '"nodemailer": "^6.9.14"' ;;
+    *)             echo "" ;;
   esac
 }
 
@@ -109,6 +124,30 @@ done
 
 command -v yc >/dev/null || { echo "yc CLI не найден в PATH"; exit 1; }
 
+# Сырые управляющие байты в исходниках делают файл БИНАРНЫМ для инструментов:
+# file(1) видит «data», а grep молча пропускает такой файл целиком. Это уже
+# случалось дважды — в progress.js (разделитель ключа записали байтом NUL) и в
+# auth-email.js (класс символов в регулярке). Второй раз обнаружилось только
+# потому, что поиск «где читаются entitlements» не находил НИ ОДНОЙ строки в
+# файле, который их читает. Проверяем перед каждым деплоем.
+badfiles="$(python3 - "$REPO" <<'PY'
+import glob, os, sys
+bad = []
+for f in sorted(glob.glob(os.path.join(sys.argv[1], 'server', '*.js'))):
+    d = open(f, 'rb').read()
+    ctrl = [b for b in d if b < 0x09 or b in (0x0b, 0x0c) or (0x0e <= b <= 0x1f) or b == 0x7f]
+    if ctrl:
+        bad.append('%s (%d байт)' % (os.path.basename(f), len(ctrl)))
+print('; '.join(bad))
+PY
+)"
+if [ -n "$badfiles" ]; then
+  echo "✗ сырые управляющие байты в исходниках: $badfiles"
+  echo "  Замени их escape-последовательностями (\\u0000 и т.п.) — иначе grep и file"
+  echo "  считают файл бинарным и молча его пропускают."
+  exit 1
+fi
+
 for short in $TARGETS; do
   file="$(src_for "$short")"
   [[ -n "$file" ]] || { echo "неизвестная функция: $short"; exit 1; }
@@ -134,6 +173,9 @@ for short in $TARGETS; do
     if command -v node >/dev/null; then node --check "$REPO/server/$extra" || exit 1; fi
     echo "  + модуль $extra"
   done
+  extra_deps="$(deps_for "$short")"
+  [ -n "$extra_deps" ] && extra_deps=",
+    $extra_deps"
   cat > "$dir/package.json" <<JSON
 {
   "name": "$fn",
@@ -141,10 +183,11 @@ for short in $TARGETS; do
   "private": true,
   "dependencies": {
     "ydb-sdk": "^5.11.1",
-    "@yandex-cloud/nodejs-sdk": "^2.0.0"
+    "@yandex-cloud/nodejs-sdk": "^2.0.0"$extra_deps
   }
 }
 JSON
+  [ -n "$extra_deps" ] && echo "  + зависимости:$(echo "$extra_deps" | tr -d '\n,' )"
 
   # функция может ещё не существовать (новый эндпоинт) — создаём
   if ! yc serverless function get --name "$fn" >/dev/null 2>&1; then
@@ -201,6 +244,17 @@ extra_path = os.path.join(sys.argv[1], 'extra_env.json')
 if os.path.exists(extra_path):
     for k, v in json.load(open(extra_path)).items():
         env.setdefault(k, v)
+
+# Переменные, переданные через окружение вызывающей оболочки (PASSTHROUGH_ENV —
+# список имён через пробел). Нужны для секретов, которых НЕ должно быть в
+# репозитории: пароль SMTP приходит так из scripts/set-mail-env.sh, то есть
+# идёт терминал → облако, минуя и репозиторий, и переписку. Значения здесь
+# НЕ печатаются — только имена.
+for name in (os.environ.get('PASSTHROUGH_ENV') or '').split():
+    val = os.environ.get(name)
+    if val:
+        env[name] = val
+        print('  ⇢ переменная %s передана из окружения' % name)
 bad = [k for k, v in env.items() if ',' in str(v)]
 if bad:
     sys.exit(f'значение содержит запятую, нужен другой способ передачи: {bad}')

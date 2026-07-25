@@ -111,6 +111,108 @@ paths:
         '200':
           description: CORS preflight
 
+  # ───── Регистрация и вход по почте, профиль ─────
+  # Обслуживается функцией auth-telegram (server/auth-email.js + mailer.js в её
+  # пакете): квота функций исчерпана, а это функция про идентичность — у неё
+  # уже есть JWT_SECRET, и nodemailer не тащится в submit.
+  /auth/email/request:
+    post:
+      summary: Отправить код входа на почту
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: Письмо отправлено
+        '429':
+          description: Слишком часто
+        '503':
+          description: Отправка писем не настроена
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  /auth/email/verify:
+    post:
+      summary: Проверить код и войти
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: Токен выдан
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  /account:
+    get:
+      summary: Свой профиль
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    put:
+      summary: Правка профиля (имя, фамилия, телефон)
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  /account/delete:
+    post:
+      summary: Удалить аккаунт (мягкое удаление, отвязка почты)
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
   /leaderboard:
     get:
       summary: Get leaderboard
