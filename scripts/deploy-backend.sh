@@ -47,7 +47,11 @@ RUNTIME="${YC_RUNTIME:-nodejs16}"
 # БЕЗ `declare -A`: в macOS штатный bash — 3.2, ассоциативных массивов там нет,
 # и скрипт падал ещё до первого деплоя («submit: unbound variable»).
 # Держим POSIX-подобную форму, чтобы одинаково работало локально и в CI.
-ALL_NAMES="submit leaderboard auth-telegram content-fetch content-publish progress"
+# progress здесь НЕТ намеренно: server/progress.js уезжает в пакете submit
+# (extras_for), своей функции у него нет — квота serverless.functions.count
+# исчерпана. Оставь его в списке — и деплой «всех функций» будет падать на
+# попытке создать yasna-progress.
+ALL_NAMES="submit leaderboard auth-telegram content-fetch content-publish"
 src_for(){
   case "$1" in
     submit)          echo submit.js ;;

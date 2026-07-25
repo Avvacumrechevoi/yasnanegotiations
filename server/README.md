@@ -1,17 +1,83 @@
-# Деплой Yasna Duel Backend в Yandex Cloud
+# Бэкенд Ясны в Yandex Cloud
 
-Полная инструкция от регистрации до работающего лидерборда. **Время: ~1.5 часа.** Стоимость в первый месяц: **0₽** (free tier).
+Ниже — сначала как всё устроено и обслуживается **сейчас**, потом историческая
+инструкция «с нуля» (она пригодится, если разворачивать окружение заново).
 
 ## Файлы в этой папке
 
 ```
-server_schema.sql                    — YDB-таблицы
-server_function_auth_telegram.js     — Cloud Function: Telegram Login
-server_function_submit.js            — Cloud Function: запись матча
-server_function_leaderboard.js       — Cloud Function: чтение топ-N
-server_api_gateway.yaml              — API Gateway конфиг
-server_README.md                     — этот файл
+progress.js          — /progress: учебный прогресс, заметки, права (в пакете submit)
+submit.js            — /submit: запись матча + разводка пути на /progress
+leaderboard.js       — /leaderboard: топ-N
+auth-telegram.js     — /auth/telegram: вход через Telegram
+content-fetch.js     — /content: Tier-2 overrides контента
+content-publish.js   — /content/publish: публикация ревизии (только админ)
+api-gateway.yaml     — спецификация шлюза, ИСТОЧНИК ПРАВДЫ
+migrations/*.sql     — схема БД, применяется по порядку
+schema.sql           — историческое описание первых таблиц
+README.md            — этот файл
 ```
+
+Исходника `/profile` здесь нет: функция `yasna-profile` живёт только в облаке.
+Её нельзя переразвернуть, не переписав заново — учитывать при правках.
+
+## Обслуживание
+
+**Автодеплой.** `push` в `main`, задевающий `server/**`, выкатывает бэкенд сам
+(`.github/workflows/deploy-backend.yml`): миграции → функции → тег `stable` →
+спека шлюза → проверка прода. Если проверка не прошла, теги возвращаются на
+прежние версии.
+
+**Единственная ручная настройка** — секрет репозитория `YC_SA_KEY`:
+
+```bash
+yc iam key create --service-account-id aje0k8v128i3gvatqah2 --output sa-key.json --folder-id b1gc964j4lm3jfp3h038
+```
+
+Содержимое `sa-key.json` → Settings → Secrets and variables → Actions →
+`YC_SA_KEY`, затем файл удалить. Без секрета workflow не краснеет, а тихо
+пропускается.
+
+**Руками, если нужно:**
+
+```bash
+./scripts/apply-migrations.sh --status        # что применено из migrations/*.sql
+./scripts/deploy-backend.sh submit            # собрать версию, прод не трогая
+./scripts/deploy-backend.sh --promote submit  # и перевести stable
+./scripts/deploy-gateway.sh --dry-run         # что изменится в шлюзе
+./scripts/smoke-backend.sh                    # живость прода
+```
+
+**Откат — одна команда** (шлюз ссылается на тег, не на `$latest`):
+
+```bash
+yc serverless function version list --function-name yasna-submit
+yc serverless function version set-tag --id <прежняя_версия> --tag stable
+```
+
+## Грабли, которые уже стоили времени
+
+- **Зависимости функций.** `ydb-sdk` — `^5.11.1` (версии 7.x в npm нет, README
+  раньше врал). Обязательна peer-зависимость `@yandex-cloud/nodejs-sdk` **^2.0.0**:
+  без неё функция стартует, но падает на metadata-авторизации и все обращения к
+  БД дают 502. Версию 3.x не брать.
+- **Миграции только через `ydb` CLI.** У `ydb-sdk` scheme- и table-клиенты сами
+  приписывают `database` к пути, поэтому абсолютный путь удваивается и таблицы
+  уезжают в `/<db>/ru-central1/<cloud>/<db>/<имя>`. Там их видит `describeTable`,
+  но не видит query-движок: `SELECT` падает с «Cannot find table».
+- **`ydb` CLI на macOS** не разрешает DNS через c-ares. Нужен
+  `GRPC_DNS_RESOLVER=native` (скрипты выставляют сами).
+- **Квота `serverless.functions.count` исчерпана (10/10).** Новых функций
+  создать нельзя — поэтому `/progress` обслуживается функцией `submit`
+  (`extras_for` в скрипте деплоя кладёт `progress.js` в её пакет). Если квоту
+  поднимут, эндпоинт выносится отдельно без правки логики.
+- **YQL.** Нет `NULLS LAST`; в `GROUP BY` по выражению нужен алиас
+  (`GROUP BY COALESCE(a,b) AS k`) и обращение по нему; коррелированный
+  `NOT EXISTS` со ссылкой на внешний алиас не поддерживается; параметры
+  строить только через `TypedValues` — ручные `{type:{typeId:'UTF8'}}` молча
+  не биндятся.
+- **Ошибки нельзя глотать.** Сломанный SQL в лидерборде годами отдавал HTTP 200
+  с пустым списком и выглядел как «пока никто не играл».
 
 ## Шаг 0. Что нужно
 
