@@ -1086,6 +1086,8 @@
           setError('В комнате уже два игрока. Попроси создать новую.');
         } else if(e.message === 'closed'){
           setError('Комната закрыта. Попроси создать новую.');
+        } else if(e.message === 'wrong_kind_group'){
+          setError('Это код комнаты «С коллективом», а не для двоих. Зайди через «С коллективом» → «Войти по коду».');
         } else if(e.message === 'cant_join_own_room'){
           setError('Нельзя войти в свою же комнату. Открой ссылку с другого устройства.');
         } else if(e.message === 'invalid_code_format'){

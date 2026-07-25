@@ -113,6 +113,11 @@
         status: 'waiting',
         createdAt: TS,
         version: 2,
+        // Явная метка режима. Коды duo и группы генерируются одним генератором
+        // и неотличимы, поэтому без метки групповой код проходил в duo-вход
+        // (и наоборот). Правила RTDB тоже опираются на kind: слоты players
+        // разрешены только в комнатах kind==='group'.
+        kind: '2p',
       },
       host: {
         deviceId: String(deviceId),
@@ -195,6 +200,12 @@
     if(!snap.exists()) throw new Error('not_found');
 
     const room = snap.val();
+    // Симметрично joinGroupRoom (проверка kind !== 'group'): не пускаем
+    // ГРУППОВОЙ код в duo-вход. Раньше это проходило все проверки и писало
+    // guest/* + meta/status='playing' — а групповое лобби по status==='playing'
+    // немедленно выбрасывало ВСЕХ игроков в партию с seed:null.
+    // Отсутствие kind = комната старого клиента → считаем её duo (совместимость).
+    if(room.meta?.kind === 'group') throw new Error('wrong_kind_group');
     if(room.meta?.status === 'closed') throw new Error('closed');
 
     // TTL — orphan room cleanup. Если комната создана > 30 минут назад

@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-07-25T10:27:22.308Z */
+/* Yasna bundle: duel.js — собран 2026-07-25T10:39:07.568Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -23451,7 +23451,12 @@ window.YasnaCore = {
       meta: {
         status: "waiting",
         createdAt: TS,
-        version: 2
+        version: 2,
+        // Явная метка режима. Коды duo и группы генерируются одним генератором
+        // и неотличимы, поэтому без метки групповой код проходил в duo-вход
+        // (и наоборот). Правила RTDB тоже опираются на kind: слоты players
+        // разрешены только в комнатах kind==='group'.
+        kind: "2p"
       },
       host: {
         deviceId: String(deviceId),
@@ -23502,7 +23507,7 @@ window.YasnaCore = {
     });
   }
   async function joinRoom(rawCode, { deviceId, nickname, avatar }) {
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e;
     if (!deviceId || !nickname) throw new Error("deviceId \u0438 nickname \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B");
     const code = String(rawCode || "").trim().toUpperCase();
     if (!validCode(code)) throw new Error("invalid_code_format");
@@ -23511,15 +23516,16 @@ window.YasnaCore = {
     const snap = await roomRef.get();
     if (!snap.exists()) throw new Error("not_found");
     const room = snap.val();
-    if (((_a = room.meta) == null ? void 0 : _a.status) === "closed") throw new Error("closed");
-    if (((_b = room.meta) == null ? void 0 : _b.status) === "waiting" && ((_c = room.meta) == null ? void 0 : _c.createdAt)) {
+    if (((_a = room.meta) == null ? void 0 : _a.kind) === "group") throw new Error("wrong_kind_group");
+    if (((_b = room.meta) == null ? void 0 : _b.status) === "closed") throw new Error("closed");
+    if (((_c = room.meta) == null ? void 0 : _c.status) === "waiting" && ((_d = room.meta) == null ? void 0 : _d.createdAt)) {
       const ageMs = Date.now() - room.meta.createdAt;
       if (ageMs > 30 * 60 * 1e3) throw new Error("closed");
     }
     if (room.guest && room.guest.deviceId && room.guest.deviceId !== String(deviceId)) {
       throw new Error("room_full");
     }
-    if (((_d = room.host) == null ? void 0 : _d.deviceId) === String(deviceId)) {
+    if (((_e = room.host) == null ? void 0 : _e.deviceId) === String(deviceId)) {
       throw new Error("cant_join_own_room");
     }
     const TS = firebase.database.ServerValue.TIMESTAMP;
@@ -25803,6 +25809,8 @@ window.YasnaCore = {
           setError("\u0412 \u043A\u043E\u043C\u043D\u0430\u0442\u0435 \u0443\u0436\u0435 \u0434\u0432\u0430 \u0438\u0433\u0440\u043E\u043A\u0430. \u041F\u043E\u043F\u0440\u043E\u0441\u0438 \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u043D\u043E\u0432\u0443\u044E.");
         } else if (e.message === "closed") {
           setError("\u041A\u043E\u043C\u043D\u0430\u0442\u0430 \u0437\u0430\u043A\u0440\u044B\u0442\u0430. \u041F\u043E\u043F\u0440\u043E\u0441\u0438 \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u043D\u043E\u0432\u0443\u044E.");
+        } else if (e.message === "wrong_kind_group") {
+          setError("\u042D\u0442\u043E \u043A\u043E\u0434 \u043A\u043E\u043C\u043D\u0430\u0442\u044B \xAB\u0421 \u043A\u043E\u043B\u043B\u0435\u043A\u0442\u0438\u0432\u043E\u043C\xBB, \u0430 \u043D\u0435 \u0434\u043B\u044F \u0434\u0432\u043E\u0438\u0445. \u0417\u0430\u0439\u0434\u0438 \u0447\u0435\u0440\u0435\u0437 \xAB\u0421 \u043A\u043E\u043B\u043B\u0435\u043A\u0442\u0438\u0432\u043E\u043C\xBB \u2192 \xAB\u0412\u043E\u0439\u0442\u0438 \u043F\u043E \u043A\u043E\u0434\u0443\xBB.");
         } else if (e.message === "cant_join_own_room") {
           setError("\u041D\u0435\u043B\u044C\u0437\u044F \u0432\u043E\u0439\u0442\u0438 \u0432 \u0441\u0432\u043E\u044E \u0436\u0435 \u043A\u043E\u043C\u043D\u0430\u0442\u0443. \u041E\u0442\u043A\u0440\u043E\u0439 \u0441\u0441\u044B\u043B\u043A\u0443 \u0441 \u0434\u0440\u0443\u0433\u043E\u0433\u043E \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430.");
         } else if (e.message === "invalid_code_format") {

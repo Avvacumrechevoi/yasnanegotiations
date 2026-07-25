@@ -5,8 +5,8 @@
         ".read": "auth != null",
 
         "meta": {
-          ".write": "auth != null && ( !data.exists() || data.parent().child('host/uid').val() === auth.uid || data.parent().child('guest/uid').val() === auth.uid || newData.parent().child('guest/uid').val() === auth.uid || data.child('hostUid').val() === auth.uid || newData.child('hostUid').val() === auth.uid )",
-          ".validate": "newData.hasChildren(['status', 'createdAt'])"
+          ".write": "auth != null && ( !data.exists() || data.parent().child('host/uid').val() === auth.uid || data.parent().child('guest/uid').val() === auth.uid || newData.parent().child('guest/uid').val() === auth.uid || data.child('hostUid').val() === auth.uid )",
+          ".validate": "newData.hasChildren(['status', 'createdAt']) && ( !data.hasChild('kind') || newData.child('kind').val() === data.child('kind').val() ) && ( !data.hasChild('hostUid') || newData.child('hostUid').val() === data.child('hostUid').val() ) && ( !data.hasChild('createdAt') || newData.child('createdAt').val() === data.child('createdAt').val() )"
         },
 
         "host": {
@@ -21,7 +21,7 @@
 
         "players": {
           "$pid": {
-            ".write": "auth != null && ( !data.exists() || data.child('uid').val() === auth.uid )",
+            ".write": "auth != null && ( !data.exists() || data.child('uid').val() === auth.uid ) && ( root.child('rooms').child($code).child('meta/kind').val() === 'group' || newData.parent().parent().child('meta/kind').val() === 'group' )",
             ".validate": "newData.hasChildren(['deviceId', 'nickname', 'uid']) && newData.child('uid').val() === auth.uid"
           }
         },
@@ -29,7 +29,7 @@
         "messages": {
           "$msgId": {
             ".write": "auth != null && newData.exists() && ( root.child('rooms').child($code).child('host/uid').val() === auth.uid || root.child('rooms').child($code).child('guest/uid').val() === auth.uid || root.child('rooms').child($code).child('players').child(newData.child('from').val()).child('uid').val() === auth.uid )",
-            ".validate": "newData.hasChildren(['from', 'type', 'ts']) && newData.child('from').isString() && newData.child('from').val().length <= 64 && ( newData.child('from').val() === root.child('rooms').child($code).child('host/deviceId').val() || newData.child('from').val() === root.child('rooms').child($code).child('guest/deviceId').val() || root.child('rooms').child($code).child('players').child(newData.child('from').val()).exists() )"
+            ".validate": "newData.hasChildren(['from', 'type', 'ts']) && newData.child('from').isString() && newData.child('from').val().length <= 64 && ( ( newData.child('from').val() === root.child('rooms').child($code).child('host/deviceId').val() && root.child('rooms').child($code).child('host/uid').val() === auth.uid ) || ( newData.child('from').val() === root.child('rooms').child($code).child('guest/deviceId').val() && root.child('rooms').child($code).child('guest/uid').val() === auth.uid ) || root.child('rooms').child($code).child('players').child(newData.child('from').val()).child('uid').val() === auth.uid )"
           }
         }
       }
