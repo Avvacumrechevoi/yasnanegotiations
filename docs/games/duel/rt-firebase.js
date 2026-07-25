@@ -489,6 +489,54 @@
     await db.ref('rooms/' + code + '/players/' + deviceId).update(patch || {});
   }
 
+  // ─── Присутствие (группа) ────────────────────────────────────────
+  // Раньше присутствие ломалось двумя способами:
+  // 1) online: create/join ставили online=true и вешали onDisconnect(false).
+  //    После обрыва (уход в фон на мобильном, смена сети) сервер писал false,
+  //    а обратно true не писал НИКТО: heartbeat обновлял только lastSeen,
+  //    onDisconnect не перевешивался. Хост, ушедший отправить ссылку,
+  //    возвращался «призраком» — и партию было невозможно начать.
+  // 2) lastSeen смешивал серверный TIMESTAMP (при join) и клиентский Date.now()
+  //    (в heartbeat), а сравнивался с локальными часами читателя. Расхождение
+  //    часов между телефонами делало живого игрока вечно «отключившимся».
+  // Решение: писать lastSeen ТОЛЬКО серверным временем, читать через
+  // серверный offset, и переармировать присутствие на каждом реконнекте.
+  function serverTs(){ return firebase.database.ServerValue.TIMESTAMP; }
+
+  let _offset = 0;
+  let _offsetBound = false;
+  function bindServerOffset(){
+    if(_offsetBound) return;
+    _offsetBound = true;
+    try {
+      db.ref('.info/serverTimeOffset').on('value', s => { _offset = Number(s.val()) || 0; });
+    } catch(_){}
+  }
+  // «Сейчас» по серверным часам — с ним и надо сравнивать lastSeen.
+  function serverNow(){ init(); bindServerOffset(); return Date.now() + _offset; }
+
+  // Держит players/<deviceId>/online=true, пока клиент подключён, и заново
+  // арм-ит onDisconnect на КАЖДОМ переподключении. Возвращает функцию отписки.
+  function ensurePresence(code, deviceId){
+    init();
+    bindServerOffset();
+    const ref = db.ref('rooms/' + code + '/players/' + deviceId);
+    const connRef = db.ref('.info/connected');
+    const onConn = connRef.on('value', snap => {
+      if(snap.val() !== true) return;         // отключены — ждём реконнекта
+      try {
+        // сначала арм-им «на случай обрыва», потом объявляем себя онлайн
+        ref.child('online').onDisconnect().set(false);
+        ref.update({ online: true, lastSeen: serverTs() });
+      } catch(_){}
+    });
+    return function stop(){
+      try { connRef.off('value', onConn); } catch(_){}
+      try { ref.child('online').onDisconnect().cancel(); } catch(_){}
+      try { ref.update({ online: false }); } catch(_){}
+    };
+  }
+
   // ─── Экспорт ─────────────────────────────────────────────────────
   window.YasnaRT = {
     createRoom,
@@ -503,6 +551,10 @@
     watchMeta,
     updateGroupMeta,
     updatePlayer,
+    // присутствие: серверное время + переарм onDisconnect на реконнекте
+    ensurePresence,
+    serverTs,
+    serverNow,
   };
 
   // console.log('[YasnaRT] Firebase real-time transport loaded');

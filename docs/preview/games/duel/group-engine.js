@@ -28,7 +28,14 @@
   function S(){ return (window.YasnaTurnir && window.YasnaTurnir.__shared) || {}; }
   function RT(){ return window.YasnaRT; }
 
-  function nowMs(){ return Date.now(); }
+  // «Сейчас» по СЕРВЕРНЫМ часам: lastSeen пишется серверным временем, поэтому
+  // сравнивать его с локальным Date.now() нельзя — расхождение часов между
+  // телефонами делало живого игрока вечно «отключившимся» (или наоборот).
+  function nowMs(){
+    const rt = RT();
+    if(rt && rt.serverNow){ try { return rt.serverNow(); } catch(_){} }
+    return Date.now();
+  }
   function isOnline(p){
     if(!p || p.online === false) return false;
     if(p.lastSeen && (nowMs() - p.lastSeen) > ONLINE_TTL_MS) return false;
@@ -252,13 +259,21 @@
     }, [code]);
 
     // ── Heartbeat + online ──
+    // ensurePresence держит online=true и заново арм-ит onDisconnect на КАЖДОМ
+    // реконнекте (без этого вернувшийся из фона игрок навсегда оставался
+    // online=false и не попадал в onlinePlayers → «Начать партию» не
+    // разблокировалась). Heartbeat пишет lastSeen СЕРВЕРНЫМ временем и
+    // подтверждает online — на случай, если флаг успел погаснуть.
     useEffect(() => {
+      const stopPresence = (rt.ensurePresence ? rt.ensurePresence(code, deviceId) : null);
+      const ts = () => (rt.serverTs ? rt.serverTs() : Date.now());
       const iv = setInterval(() => {
-        try { rt.updatePlayer(code, deviceId, { lastSeen: nowMs() }); } catch(_){}
+        try { rt.updatePlayer(code, deviceId, { online: true, lastSeen: ts() }); } catch(_){}
       }, HEARTBEAT_MS);
       return () => {
         clearInterval(iv);
-        try { rt.updatePlayer(code, deviceId, { online: false }); } catch(_){}
+        if(stopPresence){ try { stopPresence(); } catch(_){} }
+        else { try { rt.updatePlayer(code, deviceId, { online: false }); } catch(_){} }
       };
     }, [code, deviceId]);
 
@@ -280,6 +295,17 @@
         submittedResultRef.current = false;
       }
     }, [status, totalQ]);
+
+    // ── Фолбэк «итоги не пришли»: я доиграл, а status всё ещё 'playing' ──
+    // Даём хосту его FINISH_WAIT_MS + запас; если тишина — честно говорим, что
+    // ведущий отключился, и показываем предварительное табло (см. рендер ниже).
+    const [resultsStale, setResultsStale] = useState(false);
+    useEffect(() => {
+      const iFinished = (status === 'playing' && (localPhase === 'done' || qIdx >= totalQ));
+      if(!iFinished){ setResultsStale(false); return; }
+      const t = setTimeout(() => setResultsStale(true), FINISH_WAIT_MS + 10000);
+      return () => clearTimeout(t);
+    }, [status, localPhase, qIdx, totalQ]);
 
     // ── Хост-судья: когда все онлайн доиграли или прошёл таймаут — пишем results ──
     useEffect(() => {
@@ -376,10 +402,15 @@
       );
     }
 
-    // Когда хост обнулил партию (Сыграть ещё) — игроки тоже сбрасывают свой слот при возврате в lobby
+    // Когда хост обнулил партию (Сыграть ещё) — игроки тоже сбрасывают свой слот.
+    // ВАЖНО: условие было localPhase==='done', поэтому ОТСТАВШИЙ игрок (итоги
+    // написали по таймауту, пока он ещё отвечал → localPhase==='playing') не
+    // сбрасывался ни здесь, ни в эффекте lobby→playing. В новом раунде он
+    // продолжал с середины вопросов и тащил счёт прошлой партии в табло.
     useEffect(() => {
-      if(status === 'lobby' && localPhase === 'done'){
+      if(status === 'lobby' && localPhase !== 'lobby'){
         setLocalPhase('lobby'); setQIdx(0); setScore(0); setCorrectCount(0); setStreak(0);
+        submittedResultRef.current = false;
         try { rt.updatePlayer(code, deviceId, { score: 0, correct: 0, streak: 0, finished: false }); } catch(_){}
       }
     }, [status]);
@@ -395,14 +426,29 @@
     // playing → вопрос (или «ждём остальных» если доиграл)
     if(status === 'playing' && localPhase !== 'lobby'){
       if(localPhase === 'done' || qIdx >= totalQ){
+        // Итоги пишет только хост. Если он закрыл вкладку/отключился, meta.status
+        // навсегда оставался 'playing', а на этом экране не было ни кнопки выхода,
+        // ни фолбэка — доигравшие висели вечно (уйти можно было только
+        // перезагрузкой, после которой в комнату уже не вернуться).
+        // Теперь: выход доступен всегда, а по таймауту показываем предварительные
+        // итоги по текущему табло.
         return React.createElement('div', { className: 'tn-fullscreen' },
           React.createElement('div', { className: 'tn-container', style: { maxWidth: 560, margin: '0 auto' } },
             React.createElement('div', { style: { textAlign: 'center', padding: '24px 0' } },
-              React.createElement('div', { className: 'dp-loader', 'aria-hidden': 'true' }),
-              React.createElement('h2', { style: { fontSize: 18, fontWeight: 600 } }, 'Готово! Ждём остальных…'),
-              React.createElement('p', { style: { color: '#86868b', fontSize: 13 } }, 'Твой счёт: ' + score + ' ✦')
+              !resultsStale && React.createElement('div', { className: 'dp-loader', 'aria-hidden': 'true' }),
+              React.createElement('h2', { style: { fontSize: 18, fontWeight: 600 } },
+                resultsStale ? 'Итоги так и не пришли' : 'Готово! Ждём остальных…'),
+              React.createElement('p', { style: { color: 'var(--text-3, #86868b)', fontSize: 13 } },
+                resultsStale
+                  ? 'Похоже, ведущий отключился. Ниже — предварительные итоги по последнему табло.'
+                  : 'Твой счёт: ' + score + ' ✦')
             ),
-            React.createElement(GroupScoreboard, { players, meId: deviceId })
+            React.createElement(GroupScoreboard, { players, meId: deviceId }),
+            React.createElement('div', { style: { textAlign: 'center', marginTop: 18 } },
+              React.createElement('button', {
+                className: 'dp-btn', type: 'button', onClick: onClose,
+              }, '← На главную')
+            )
           )
         );
       }

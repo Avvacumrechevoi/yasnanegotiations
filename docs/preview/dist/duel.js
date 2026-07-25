@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-07-25T10:39:07.568Z */
+/* Yasna bundle: duel.js — собран 2026-07-25T11:07:24.293Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -23774,6 +23774,54 @@ window.YasnaCore = {
     init();
     await db.ref("rooms/" + code + "/players/" + deviceId).update(patch || {});
   }
+  function serverTs() {
+    return firebase.database.ServerValue.TIMESTAMP;
+  }
+  let _offset = 0;
+  let _offsetBound = false;
+  function bindServerOffset() {
+    if (_offsetBound) return;
+    _offsetBound = true;
+    try {
+      db.ref(".info/serverTimeOffset").on("value", (s) => {
+        _offset = Number(s.val()) || 0;
+      });
+    } catch (_) {
+    }
+  }
+  function serverNow() {
+    init();
+    bindServerOffset();
+    return Date.now() + _offset;
+  }
+  function ensurePresence(code, deviceId) {
+    init();
+    bindServerOffset();
+    const ref = db.ref("rooms/" + code + "/players/" + deviceId);
+    const connRef = db.ref(".info/connected");
+    const onConn = connRef.on("value", (snap) => {
+      if (snap.val() !== true) return;
+      try {
+        ref.child("online").onDisconnect().set(false);
+        ref.update({ online: true, lastSeen: serverTs() });
+      } catch (_) {
+      }
+    });
+    return function stop() {
+      try {
+        connRef.off("value", onConn);
+      } catch (_) {
+      }
+      try {
+        ref.child("online").onDisconnect().cancel();
+      } catch (_) {
+      }
+      try {
+        ref.update({ online: false });
+      } catch (_) {
+      }
+    };
+  }
   window.YasnaRT = {
     createRoom,
     joinRoom,
@@ -23786,7 +23834,11 @@ window.YasnaCore = {
     watchPlayers,
     watchMeta,
     updateGroupMeta,
-    updatePlayer
+    updatePlayer,
+    // присутствие: серверное время + переарм onDisconnect на реконнекте
+    ensurePresence,
+    serverTs,
+    serverNow
   };
 })();
 
@@ -23805,6 +23857,13 @@ window.YasnaCore = {
     return window.YasnaRT;
   }
   function nowMs() {
+    const rt = RT();
+    if (rt && rt.serverNow) {
+      try {
+        return rt.serverNow();
+      } catch (_) {
+      }
+    }
     return Date.now();
   }
   function isOnline(p) {
@@ -24071,17 +24130,26 @@ window.YasnaCore = {
       };
     }, [code]);
     useEffect(() => {
+      const stopPresence = rt.ensurePresence ? rt.ensurePresence(code, deviceId) : null;
+      const ts = () => rt.serverTs ? rt.serverTs() : Date.now();
       const iv = setInterval(() => {
         try {
-          rt.updatePlayer(code, deviceId, { lastSeen: nowMs() });
+          rt.updatePlayer(code, deviceId, { online: true, lastSeen: ts() });
         } catch (_) {
         }
       }, HEARTBEAT_MS);
       return () => {
         clearInterval(iv);
-        try {
-          rt.updatePlayer(code, deviceId, { online: false });
-        } catch (_) {
+        if (stopPresence) {
+          try {
+            stopPresence();
+          } catch (_) {
+          }
+        } else {
+          try {
+            rt.updatePlayer(code, deviceId, { online: false });
+          } catch (_) {
+          }
         }
       };
     }, [code, deviceId]);
@@ -24105,6 +24173,16 @@ window.YasnaCore = {
         submittedResultRef.current = false;
       }
     }, [status, totalQ]);
+    const [resultsStale, setResultsStale] = useState(false);
+    useEffect(() => {
+      const iFinished = status === "playing" && (localPhase === "done" || qIdx >= totalQ);
+      if (!iFinished) {
+        setResultsStale(false);
+        return;
+      }
+      const t = setTimeout(() => setResultsStale(true), FINISH_WAIT_MS + 1e4);
+      return () => clearTimeout(t);
+    }, [status, localPhase, qIdx, totalQ]);
     useEffect(() => {
       if (!isHost || status !== "playing" || judgedRef.current) return;
       const arr = Object.values(players || {});
@@ -24247,12 +24325,13 @@ window.YasnaCore = {
       );
     }
     useEffect(() => {
-      if (status === "lobby" && localPhase === "done") {
+      if (status === "lobby" && localPhase !== "lobby") {
         setLocalPhase("lobby");
         setQIdx(0);
         setScore(0);
         setCorrectCount(0);
         setStreak(0);
+        submittedResultRef.current = false;
         try {
           rt.updatePlayer(code, deviceId, { score: 0, correct: 0, streak: 0, finished: false });
         } catch (_) {
@@ -24280,11 +24359,28 @@ window.YasnaCore = {
             React.createElement(
               "div",
               { style: { textAlign: "center", padding: "24px 0" } },
-              React.createElement("div", { className: "dp-loader", "aria-hidden": "true" }),
-              React.createElement("h2", { style: { fontSize: 18, fontWeight: 600 } }, "\u0413\u043E\u0442\u043E\u0432\u043E! \u0416\u0434\u0451\u043C \u043E\u0441\u0442\u0430\u043B\u044C\u043D\u044B\u0445\u2026"),
-              React.createElement("p", { style: { color: "#86868b", fontSize: 13 } }, "\u0422\u0432\u043E\u0439 \u0441\u0447\u0451\u0442: " + score + " \u2726")
+              !resultsStale && React.createElement("div", { className: "dp-loader", "aria-hidden": "true" }),
+              React.createElement(
+                "h2",
+                { style: { fontSize: 18, fontWeight: 600 } },
+                resultsStale ? "\u0418\u0442\u043E\u0433\u0438 \u0442\u0430\u043A \u0438 \u043D\u0435 \u043F\u0440\u0438\u0448\u043B\u0438" : "\u0413\u043E\u0442\u043E\u0432\u043E! \u0416\u0434\u0451\u043C \u043E\u0441\u0442\u0430\u043B\u044C\u043D\u044B\u0445\u2026"
+              ),
+              React.createElement(
+                "p",
+                { style: { color: "var(--text-3, #86868b)", fontSize: 13 } },
+                resultsStale ? "\u041F\u043E\u0445\u043E\u0436\u0435, \u0432\u0435\u0434\u0443\u0449\u0438\u0439 \u043E\u0442\u043A\u043B\u044E\u0447\u0438\u043B\u0441\u044F. \u041D\u0438\u0436\u0435 \u2014 \u043F\u0440\u0435\u0434\u0432\u0430\u0440\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u0438\u0442\u043E\u0433\u0438 \u043F\u043E \u043F\u043E\u0441\u043B\u0435\u0434\u043D\u0435\u043C\u0443 \u0442\u0430\u0431\u043B\u043E." : "\u0422\u0432\u043E\u0439 \u0441\u0447\u0451\u0442: " + score + " \u2726"
+              )
             ),
-            React.createElement(GroupScoreboard, { players, meId: deviceId })
+            React.createElement(GroupScoreboard, { players, meId: deviceId }),
+            React.createElement(
+              "div",
+              { style: { textAlign: "center", marginTop: 18 } },
+              React.createElement("button", {
+                className: "dp-btn",
+                type: "button",
+                onClick: onClose
+              }, "\u2190 \u041D\u0430 \u0433\u043B\u0430\u0432\u043D\u0443\u044E")
+            )
           )
         );
       }
