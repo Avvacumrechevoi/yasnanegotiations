@@ -182,15 +182,20 @@ paths:
           description: CORS preflight
 
   # ───── Polling-relay PvP (легаси; действующий транспорт — Firebase RTDB) ─────
-  # В собранных бандлах обращений к /rooms/* больше нет, но маршруты оставлены:
-  # у кого-то может быть открыта старая версия страницы из кэша.
+  # Все четыре маршрута переведены на функцию submit (server/rooms-legacy.js),
+  # которая отвечает честным 410 с текстом «обновите страницу». Свои функции
+  # (yasna-rooms-create/join/send/poll) больше не нужны и держат слоты в
+  # исчерпанной квоте serverless.functions.count — после этой правки их можно
+  # удалить, освободив четыре слота. Сами маршруты оставлены: у кого-то может
+  # быть открыта страница, загруженная до перехода на Firebase, и такой клиент
+  # должен получить понятный ответ, а не 404 от шлюза.
 
   /rooms/create:
     post:
       summary: Создать комнату для PvP-Партии
       x-yc-apigateway-integration:
         type: cloud_functions
-        function_id: {ROOMS_CREATE_FUNCTION_ID}
+        function_id: {SUBMIT_FUNCTION_ID}
         tag: stable
         service_account_id: {SERVICE_ACCOUNT_ID}
       responses:
@@ -199,7 +204,7 @@ paths:
     options:
       x-yc-apigateway-integration:
         type: cloud_functions
-        function_id: {ROOMS_CREATE_FUNCTION_ID}
+        function_id: {SUBMIT_FUNCTION_ID}
         tag: stable
         service_account_id: {SERVICE_ACCOUNT_ID}
       responses:
@@ -211,7 +216,7 @@ paths:
       summary: Присоединиться к комнате по коду
       x-yc-apigateway-integration:
         type: cloud_functions
-        function_id: {ROOMS_JOIN_FUNCTION_ID}
+        function_id: {SUBMIT_FUNCTION_ID}
         tag: stable
         service_account_id: {SERVICE_ACCOUNT_ID}
       responses:
@@ -220,7 +225,7 @@ paths:
     options:
       x-yc-apigateway-integration:
         type: cloud_functions
-        function_id: {ROOMS_JOIN_FUNCTION_ID}
+        function_id: {SUBMIT_FUNCTION_ID}
         tag: stable
         service_account_id: {SERVICE_ACCOUNT_ID}
       responses:
@@ -232,7 +237,7 @@ paths:
       summary: Отправить сообщение в комнату
       x-yc-apigateway-integration:
         type: cloud_functions
-        function_id: {ROOMS_SEND_FUNCTION_ID}
+        function_id: {SUBMIT_FUNCTION_ID}
         tag: stable
         service_account_id: {SERVICE_ACCOUNT_ID}
       responses:
@@ -241,7 +246,7 @@ paths:
     options:
       x-yc-apigateway-integration:
         type: cloud_functions
-        function_id: {ROOMS_SEND_FUNCTION_ID}
+        function_id: {SUBMIT_FUNCTION_ID}
         tag: stable
         service_account_id: {SERVICE_ACCOUNT_ID}
       responses:
@@ -268,7 +273,7 @@ paths:
           schema: { type: integer, default: 50, maximum: 100 }
       x-yc-apigateway-integration:
         type: cloud_functions
-        function_id: {ROOMS_POLL_FUNCTION_ID}
+        function_id: {SUBMIT_FUNCTION_ID}
         tag: stable
         service_account_id: {SERVICE_ACCOUNT_ID}
       responses:
@@ -277,7 +282,7 @@ paths:
     options:
       x-yc-apigateway-integration:
         type: cloud_functions
-        function_id: {ROOMS_POLL_FUNCTION_ID}
+        function_id: {SUBMIT_FUNCTION_ID}
         tag: stable
         service_account_id: {SERVICE_ACCOUNT_ID}
       responses:

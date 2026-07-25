@@ -68,7 +68,7 @@ src_for(){
 # поэтому progress.js уезжает вместе с ним и подключается через require.
 extras_for(){
   case "$1" in
-    submit) echo progress.js ;;
+    submit) echo "progress.js rooms-legacy.js" ;;
     *)      echo "" ;;
   esac
 }

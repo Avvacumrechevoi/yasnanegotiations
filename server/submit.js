@@ -92,18 +92,28 @@ function progressHandler(){
   if(!progressModule){ progressModule = require('./progress.js'); }
   return progressModule.handler;
 }
-function isProgressPath(event){
-  const p = String(
+// Сюда же заведён legacy-транспорт /rooms/* — четыре отдельные функции ради
+// мёртвых эндпоинтов держали слоты в исчерпанной квоте. Подробности —
+// в шапке server/rooms-legacy.js.
+let roomsModule = null;
+function roomsHandler(){
+  if(!roomsModule){ roomsModule = require('./rooms-legacy.js'); }
+  return roomsModule.handler;
+}
+function reqPath(event){
+  return String(
     event?.path || event?.url ||
     event?.requestContext?.http?.path || event?.requestContext?.path || ''
   );
-  return /\/progress(\/|\?|$)/.test(p);
 }
+function isProgressPath(event){ return /\/progress(\/|\?|$)/.test(reqPath(event)); }
+function isRoomsPath(event){ return /\/rooms\//.test(reqPath(event)); }
 
 exports.handler = async (event) => {
   // Путь проверяем ДО всего остального: неизвестный путь трактуем как submit,
   // чтобы поведение прода не изменилось, даже если шлюз перестанет передавать path.
   if(isProgressPath(event)) return progressHandler()(event);
+  if(isRoomsPath(event)) return roomsHandler()(event);
 
   if(event.httpMethod === 'OPTIONS') return { statusCode:200, headers: CORS, body:'' };
 
