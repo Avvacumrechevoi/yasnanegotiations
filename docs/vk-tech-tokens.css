@@ -299,6 +299,52 @@ body.theme-vk-dark .vk-color--error     { color: var(--vk-error); }
 /* body — основной фон */
 body.theme-vk-dark { background: var(--vk-bg-base) !important; color: var(--vk-text-primary) !important; }
 
+/* ════════════════════════════════════════════════════════════════════
+   LEGACY-ТОКЕНЫ (styles.css) → ТЁМНАЯ ПАЛИТРА.
+   styles.css задаёт :root{--bg:#fff; --bg2:#f5f5f7; --txt:#1d1d1f; …} —
+   это СВЕТЛАЯ палитра, и тёмного переопределения у неё не было. Всё, что
+   React рисует инлайном через var(--bg2)/var(--txt2)/var(--border), в тёмной
+   теме оставалось светлым: панель .nav-right со «+ ещё (N)» была светло-серым
+   текстом (перекрашенным catch-all'ом) на СВЕТЛОМ фоне #f5f5f7 → контраст
+   1.99:1, текст справа пропадал. Catch-all'ы тут не помогают: они матчат
+   литеральные rgb(...) в style-атрибуте, а `var(--bg2)` под них не попадает.
+   Переопределяем сами токены на уровне body.theme-vk-dark — специфичность
+   (0,1,1) > :root (0,1,0), поэтому порядок подключения не важен, а светлая
+   тема не затронута (там :root остаётся как был).
+   ВНИМАНИЕ: подписи звезды — SVG <text fill="#000">, они держатся на своей
+   белой подложке; сознательно НЕ трогаем фон самой звезды (иначе подписи
+   пропадут) — это отдельная задача по рендереру core/yasna-star.js.
+   ════════════════════════════════════════════════════════════════════ */
+body.theme-vk-dark {
+  --bg:     var(--vk-bg-base);        /* было #ffffff */
+  --bg2:    var(--vk-bg-surface);     /* было #f5f5f7 — панели/тулбары (совпадает с .nav-tabs) */
+  --bg3:    var(--vk-bg-tonal);       /* было #e8e8ed */
+  --border: var(--vk-border);         /* было #d2d2d7 */
+  --txt:    var(--vk-text-primary);   /* было #1d1d1f */
+  --txt2:   var(--vk-text-secondary); /* было #6e6e73 */
+  --txt3:   #8A95A3;                  /* было #86868b; не --vk-text-tertiary (#626D7A ≈3:1, ниже AA) */
+  --accent: var(--vk-accent-hover);   /* было #0071e3 — на тёмном берём светлее */
+}
+
+/* Хардкоды, всплывшие после перевода legacy-токенов на тёмную палитру:
+   эти элементы раньше лежали на СВЕТЛОЙ панели (--bg2 был #f5f5f7), поэтому
+   тёмный текст/белый фон читались. Теперь панель тёмная — доводим их. */
+
+/* «✎ Редактировать»: инлайн color:#0058B8 (тёмно-синий hover-акцент) → 2.37:1
+   на #212121. Catch-all был только для #0071e3, эту вариацию пропустили. */
+body.theme-vk-dark [style*='rgb(0, 88, 184)'],
+body.theme-vk-dark [style*='rgb(0,88,184)'] { color: var(--vk-accent-hover) !important; }
+
+/* Плавающие белые пилюли над звездой (.fullstar-btn и т.п.): инлайн
+   background:rgba(255,255,255,.8) остался белым, а текст стал светлым → 2.17:1.
+   Делаем подложку тёмной, чтобы светлый текст читался. */
+body.theme-vk-dark .fullstar-btn,
+body.theme-vk-dark [style*='rgba(255, 255, 255, 0.8)'],
+body.theme-vk-dark [style*='rgba(255,255,255,0.8)'] {
+  background: var(--vk-bg-tonal) !important;
+  border-color: var(--vk-border) !important;
+}
+
 /* Хедер */
 body.theme-vk-dark .hdr,
 body.theme-vk-dark header[class*='hdr'] {
