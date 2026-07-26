@@ -41,15 +41,14 @@ export PATH
 
 command -v yc >/dev/null || { echo "yc CLI не найден в PATH"; exit 1; }
 
-# placeholder → имя функции в облаке
+# placeholder → имя функции в облаке.
+# Функций yasna-rooms-* здесь НЕТ: они удалены, а пути /rooms/* обслуживает
+# submit заглушкой (server/rooms-legacy.js, честный 410 «обновите страницу»).
+# Оставь их в списке — и деплой шлюза будет падать с «функция не найдена».
 pairs="AUTH_TELEGRAM:yasna-auth-telegram
 SUBMIT:yasna-submit
 LEADERBOARD:yasna-leaderboard
 PROFILE:yasna-profile
-ROOMS_CREATE:yasna-rooms-create
-ROOMS_JOIN:yasna-rooms-join
-ROOMS_SEND:yasna-rooms-send
-ROOMS_POLL:yasna-rooms-poll
 CONTENT_FETCH:yasna-content-fetch
 CONTENT_PUBLISH:yasna-content-publish"
 

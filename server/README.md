@@ -7,7 +7,11 @@
 
 ```
 progress.js          — /progress: учебный прогресс, заметки, права (в пакете submit)
-submit.js            — /submit: запись матча + разводка пути на /progress
+access.js            — /access/*: роли, полномочия, доступы, журнал (в пакете submit)
+rooms-legacy.js      — /rooms/*: заглушка 410, старый транспорт PvP (в пакете submit)
+auth-email.js        — /auth/email/*, /account: вход по почте и профиль (в пакете auth-telegram)
+mailer.js            — отправка писем по SMTP (в пакете auth-telegram)
+submit.js            — /submit: запись матча + разводка путей на progress/access/rooms
 leaderboard.js       — /leaderboard: топ-N
 auth-telegram.js     — /auth/telegram: вход через Telegram
 content-fetch.js     — /content: Tier-2 overrides контента
@@ -74,10 +78,14 @@ yc serverless function version set-tag --id <прежняя_версия> --tag 
   но не видит query-движок: `SELECT` падает с «Cannot find table».
 - **`ydb` CLI на macOS** не разрешает DNS через c-ares. Нужен
   `GRPC_DNS_RESOLVER=native` (скрипты выставляют сами).
-- **Квота `serverless.functions.count` исчерпана (10/10).** Новых функций
-  создать нельзя — поэтому `/progress` обслуживается функцией `submit`
-  (`extras_for` в скрипте деплоя кладёт `progress.js` в её пакет). Если квоту
-  поднимут, эндпоинт выносится отдельно без правки логики.
+- **Квота `serverless.functions.count` — 10, занято 6.** Было 10 из 10, поэтому
+  `/progress`, `/access/*` и `/rooms/*` обслуживаются функцией `submit`, а вход
+  по почте с профилем — функцией `auth-telegram` (`extras_for` в скрипте деплоя
+  кладёт нужные модули в их пакеты). Четыре слота освободились после удаления
+  legacy-функций `yasna-rooms-*`: их пути отвечает заглушка
+  `server/rooms-legacy.js` честным 410 «обновите страницу». Новые эндпоинты
+  теперь можно выносить в свои функции — логика для этого уже разделена по
+  файлам.
 - **YQL.** Нет `NULLS LAST`; в `GROUP BY` по выражению нужен алиас
   (`GROUP BY COALESCE(a,b) AS k`) и обращение по нему; коррелированный
   `NOT EXISTS` со ссылкой на внешний алиас не поддерживается; параметры
