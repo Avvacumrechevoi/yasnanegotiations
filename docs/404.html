@@ -6,6 +6,16 @@
 <meta name="theme-color" content="#0a0b0d"/>
 <meta name="robots" content="noindex"/>
 <title>Страница не найдена · Ясна</title>
+<script>
+// docs/preview/ удалён с домена (это был живой дубль сайта). Старые ссылки
+// вида /preview/duel.html ведут сюда — молча отправляем на настоящую страницу.
+(function(){
+  try {
+    var m = location.pathname.match(/^(.*)\/preview\/(.*)$/);
+    if (m) location.replace(m[1] + '/' + (m[2] || '') + location.search + location.hash);
+  } catch(_){}
+})();
+</script>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>

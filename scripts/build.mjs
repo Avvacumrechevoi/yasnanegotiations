@@ -213,7 +213,6 @@ async function buildAll(){
   const start = Date.now();
   const targets = [
     { src: 'docs', dist: 'docs/dist', label: 'prod' },
-    { src: 'docs/preview', dist: 'docs/preview/dist', label: 'preview' },
   ];
 
   for(const t of targets){

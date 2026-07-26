@@ -19,9 +19,10 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT = path.resolve(__dirname, '..');
 const CONTENT_DIR = path.join(PROJECT, 'content');
+// docs/preview удалён (это был живой дубль сайта на том же домене —
+// расхождения и двойная работа при каждой правке); бандл пишется в одно место.
 const OUT_FILES = [
-  path.join(PROJECT, 'docs/games/duel/content.bundle.js'),
-  path.join(PROJECT, 'docs/preview/games/duel/content.bundle.js')
+  path.join(PROJECT, 'docs/games/duel/content.bundle.js')
 ];
 
 // ─── Маппинг тем (book + theme.id) на короткий алиас для совместимости ──
