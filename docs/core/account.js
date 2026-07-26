@@ -343,7 +343,12 @@
           row.appendChild(link);
         }
         var out = el('button', 'yac-btn', 'Выйти');
-        out.addEventListener('click', function () { logout(); closeModal(); });
+        out.addEventListener('click', function () {
+          // Ждём очистки, а не закрываем окно сразу: человек должен видеть, что
+          // выход не мгновенный, потому что перед стиранием идёт отправка.
+          out.disabled = true; out.textContent = 'Выхожу…';
+          logout().then(function () { closeModal(); });
+        });
         row.appendChild(out);
         b.appendChild(row);
 
@@ -381,6 +386,9 @@
         });
         danger.appendChild(kill);
         b.appendChild(danger);
+        b.appendChild(el('div', 'yac-meta',
+          'При выходе прогресс на этом устройстве стирается — он остаётся на сервере и вернётся при входе. ' +
+          'Так сделано, чтобы на общем компьютере ваши уроки и заметки не достались следующему.'));
       }).catch(function (e) {
         meta.textContent = '';
         if (e.code === 401) {
@@ -398,17 +406,32 @@
     });
   }
 
+  // ВЫХОД СТИРАЕТ ЛОКАЛЬНУЮ КОПИЮ ПРОГРЕССА. Это не перестраховка: прежняя
+  // версия убирала только токен, и на общем компьютере (семья, офис, класс)
+  // следующий вошедший отправлял на сервер прогресс и ЛИЧНЫЕ ЗАМЕТКИ
+  // предыдущего — уже под своим аккаунтом. Проверено на живом сервере: во
+  // втором аккаунте оказались уроки и заметка первого человека.
+  //
+  // Потери данных здесь нет: перед стиранием YasnaStorage.sync.clearSynced()
+  // отправляет несохранённое на сервер, а при следующем входе всё вернётся.
+  // Что НЕ стираем: id устройства и его секрет — они не про человека, а про
+  // браузер, и нужны, чтобы гостевой прогресс не «отвязался»; настройки темы;
+  // очередь неотправленных матчей.
   function logout() {
     del(TOKEN_KEY);
     del(USER_KEY);
-    // Прогресс и id устройства НЕ удаляем: человек выходит из аккаунта, а не
-    // отказывается от того, что уже прошёл. Сбрасываем только состояние
-    // синхронизации, чтобы версии не сравнивались с версиями другого владельца.
-    del('yasna_sync_state_v1');
     renderNav();
-    try {
-      if (window.YasnaStorage && window.YasnaStorage.sync) window.YasnaStorage.sync.pull();
-    } catch (_) {}
+    var st = (window.YasnaStorage && window.YasnaStorage.sync) || null;
+    if (!st || typeof st.clearSynced !== 'function') {
+      // Старый storage.js без очистки — тогда хотя бы не оставляем состояние
+      // синхронизации, чтобы чужие версии не сравнивались с новыми.
+      del('yasna_sync_state_v1');
+      return Promise.resolve();
+    }
+    return st.clearSynced().then(function (r) {
+      try { st.pull(); } catch (_) {}
+      return r;
+    });
   }
 
   // ─── кнопка в шапке ────────────────────────────────────────────────

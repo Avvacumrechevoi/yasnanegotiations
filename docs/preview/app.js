@@ -973,7 +973,7 @@ function App(){
         </div>
         {/* Theme toggle injects сюда (см. index.html) — icon-only 36×36 */}
         {/* 5. Войти — единственная кнопка с иконкой-аватаром */}
-        <a href='duel.html#login' title='Войти через Telegram — прогресс на любом устройстве' className='hdr-btn-profile' style={{border:'1px solid #d2d2d7',color:'#1d1d1f',padding:'7px 14px 7px 10px',height:36,borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:8,textDecoration:'none',boxSizing:'border-box'}}>
+        <a href='duel.html#login' title='Войти — прогресс на любом устройстве' className='hdr-btn-profile' onClick={e=>{ if(window.YasnaAccount){ e.preventDefault(); window.YasnaAccount.isLoggedIn() ? window.YasnaAccount.openProfile() : window.YasnaAccount.openLogin(); } }} style={{border:'1px solid #d2d2d7',color:'#1d1d1f',padding:'7px 14px 7px 10px',height:36,borderRadius:8,fontSize:13,background:'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:8,textDecoration:'none',boxSizing:'border-box'}}>
           <span style={{width:22,height:22,borderRadius:'50%',background:'linear-gradient(135deg,#0071e3,#16A7FF)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="8" r="3.5"/>
@@ -1011,7 +1011,7 @@ function App(){
             <a href='learn.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'#1d1d1f',borderBottom:'1px solid #f5f5f7',background:'#fff',textDecoration:'none'}}>Обучение</a>
             <a href='trainers.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'#1d1d1f',borderBottom:'1px solid #f5f5f7',background:'#fff',textDecoration:'none'}}>Тренажёры</a>
             {/* Войти — профиль с аватаром, первой кнопкой */}
-            <a href='duel.html#login' style={{display:'flex',width:'100%',padding:'14px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textDecoration:'none',alignItems:'center',gap:12,fontWeight:600,boxSizing:'border-box'}}>
+            <a href='duel.html#login' onClick={e=>{ if(window.YasnaAccount){ e.preventDefault(); window.YasnaAccount.isLoggedIn() ? window.YasnaAccount.openProfile() : window.YasnaAccount.openLogin(); } }} style={{display:'flex',width:'100%',padding:'14px 16px',fontSize:14,color:'#1d1d1f',border:'none',borderBottom:'1px solid #f5f5f7',background:'#fff',textDecoration:'none',alignItems:'center',gap:12,fontWeight:600,boxSizing:'border-box'}}>
               <span style={{width:32,height:32,borderRadius:'50%',background:'linear-gradient(135deg,#0071e3,#16A7FF)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="8" r="3.5"/>

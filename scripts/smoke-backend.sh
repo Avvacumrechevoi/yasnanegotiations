@@ -67,6 +67,23 @@ check "GET /content"          200 "$GW/content"
 check "POST /submit (мусор)"  400 -X POST -H 'Content-Type: application/json' \
   --data-raw '{"nope":true}' "$GW/submit"
 
+# 5б. НОВЫЕ ЭНДПОИНТЫ. Раньше проверка их не касалась вовсе — а откат в CI
+# срабатывает ТОЛЬКО по её результату. То есть сломанный вход по почте, профиль
+# или роли уехали бы в прод и остались там: smoke зелёный, откат не сработал.
+# Проверяем отказы (они не пишут данных) и один безопасный ответ.
+check "GET /access/me (публично)"        200 "$GW/access/me"
+check "GET /access/people без токена"    401 "$GW/access/people"
+check "GET /account без токена"          401 "$GW/account"
+check "GET /auth/email/selftest без токена" 401 "$GW/auth/email/selftest"
+check "POST /auth/email/request (мусор)" 400 -X POST -H 'Content-Type: application/json' \
+      --data-raw '{"email":"не-почта"}' "$GW/auth/email/request"
+check "POST /content/publish без пароля" 401 -X POST -H 'Content-Type: application/json' \
+      --data-raw '{"data":{}}' "$GW/content/publish"
+# Метод именно POST: в спеке шлюза у /rooms/create объявлен post, и GET даёт
+# 405 от самого шлюза, не доходя до заглушки.
+check "POST /rooms/create (легаси → 410)" 410 -X POST -H 'Content-Type: application/json' \
+      --data-raw '{}' "$GW/rooms/create"
+
 # 6. ГЛУБОКАЯ проверка входа через Telegram.
 #
 # Зачем именно так. Проверка «невалидная подпись → 401» бесполезна: функция

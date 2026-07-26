@@ -389,10 +389,18 @@
   }
 
   function identity() {
+    var tok = getRaw('yasna_duel_token') || null;
+    var st = syncState();
+    // deviceId вместе с ТОКЕНОМ отправляем только до первого успешного переноса
+    // гостевого прогресса на аккаунт. Раньше он уходил в каждом запросе, а
+    // сервер на каждом обращении копировал строки dev:<id> в аккаунт там, где у
+    // аккаунта пусто. На общем компьютере это означало, что гостевые данные
+    // предыдущего человека подливались следующему вошедшему — раз за разом.
+    var claimDone = tok && st.claimedBy && st.ownerKey && st.claimedBy === st.ownerKey;
     return {
-      deviceId: deviceId(),
+      deviceId: (tok && claimDone) ? null : deviceId(),
       secret: deviceSecret(),
-      token: getRaw('yasna_duel_token') || null
+      token: tok
     };
   }
 
@@ -519,6 +527,9 @@
 
       st.entitlements = data.entitlements || [];
       st.isUser = !!data.isUser;
+      // Перенос гостевых данных на аккаунт нужен ОДИН раз; дальше deviceId не
+      // отправляем (см. identity), иначе чужой гостевой прогресс подливается.
+      if (data.isUser && data.ownerKey) st.claimedBy = data.ownerKey;
       st.lastPull = new Date().toISOString();
       st.lastError = null;
       saveSyncState(st);
@@ -605,6 +616,7 @@
       st2.lastPush = new Date().toISOString();
       st2.lastError = null;
       st2.isUser = !!data.isUser;
+      if (data.isUser && data.ownerKey) st2.claimedBy = data.ownerKey;
       st2.ownerKey = data.ownerKey || st2.ownerKey;
       saveSyncState(st2);
       return {
@@ -615,6 +627,46 @@
       var st3 = syncState(); st3.lastError = String(e && e.message || e); saveSyncState(st3);
       return { error: st3.lastError };
     });
+  }
+
+  // Стереть ВСЁ, что относится к учебному прогрессу этого человека.
+  //
+  // ЗАЧЕМ. Выход из аккаунта раньше убирал только токен, и на общем компьютере
+  // это приводило к утечке: ключи прогресса и личные заметки оставались в
+  // localStorage, а следующий вошедший отправлял их на сервер уже под СВОИМ
+  // аккаунтом. Проверено на живом сервере: во втором аккаунте оказались уроки и
+  // заметка первого человека. Поэтому при выходе локальная копия обязана
+  // исчезнуть — на сервере она уже сохранена и вернётся при следующем входе.
+  //
+  // Сначала ОТПРАВЛЯЕМ несохранённое, потом стираем: иначе выход в офлайне
+  // означал бы потерю того, что человек только что прошёл.
+  function clearSynced(opts) {
+    var o = opts || {};
+    var doClear = function () {
+      var s = ls();
+      var removed = 0, k, i;
+      for (k in KEYS) {
+        if (!SYNC_SCOPES[KEYS[k].scope]) continue;
+        if (getRaw(k) !== null) { remove(k); removed++; }
+      }
+      if (s) {
+        var kill = [];
+        try {
+          for (i = 0; i < s.length; i++) {
+            var key = s.key(i);
+            if (key && key.indexOf(NOTE_PREFIX) === 0) kill.push(key);
+          }
+        } catch (_) {}
+        for (i = 0; i < kill.length; i++) { remove(kill[i]); removed++; }
+      }
+      remove(SYNC_STATE_KEY);
+      remove(SYNC_CONFLICTS_KEY);
+      return { removed: removed };
+    };
+    if (o.push === false || !apiBase()) return Promise.resolve(doClear());
+    // push может не пройти (нет сети) — стираем всё равно: держать чужие данные
+    // в браузере опаснее, чем потерять несинхронизированный хвост.
+    return push().then(doClear, doClear);
   }
 
   // Вернуть локальную версию из журнала конфликтов и навязать её серверу.
@@ -699,6 +751,7 @@
       status: status,
       conflicts: conflicts,
       resolveKeepLocal: resolveKeepLocal,
+      clearSynced: clearSynced,
       SCOPES: SYNC_SCOPES
     }
   };

@@ -77,8 +77,21 @@ yql 'CREATE TABLE schema_migrations (
   applied_at Timestamp NOT NULL,
   PRIMARY KEY (name));' >/dev/null 2>&1 || true
 
-applied_list(){ yql 'SELECT name FROM schema_migrations;' 2>/dev/null | grep -o '"[^"]*\.sql"' | tr -d '"' || true; }
-APPLIED="$(applied_list)"
+# ЧИТАЕМ СТРОГО. Раньше здесь стояли и 2>/dev/null, и «|| true»: любой сбой
+# чтения (недоступная БД, изменившийся формат вывода CLI) превращался в «ничего
+# не применено», и раннер накатывал ВСЕ миграции заново. Для 003 это означало
+# перезапись role_grants значениями из миграции — то есть молчаливый откат всех
+# галочек, которые суперадмин расставил админу в матрице прав.
+#
+# Проверка выполняется В РОДИТЕЛЬСКОЙ оболочке: exit внутри $(...) завершил бы
+# только подоболочку, и скрипт поехал бы дальше с пустым списком — то есть
+# ровно с тем поведением, которое мы и убираем.
+if ! APPLIED_RAW="$(yql 'SELECT name FROM schema_migrations;' 2>&1)"; then
+  echo "✗ не удалось прочитать schema_migrations — не берусь применять миграции" >&2
+  printf '%s\n' "$APPLIED_RAW" | head -5 >&2
+  exit 1
+fi
+APPLIED="$(printf '%s' "$APPLIED_RAW" | grep -o '"[^"]*\.sql"' | tr -d '"' || true)"
 is_applied(){ echo "$APPLIED" | grep -qx "$1"; }
 
 if [ "$MODE" = "status" ]; then
