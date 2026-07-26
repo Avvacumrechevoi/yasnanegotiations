@@ -16,3 +16,4 @@ dist/
 # Playwright
 test-results/
 playwright-report/
+.claude/launch.json
