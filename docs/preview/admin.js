@@ -806,8 +806,20 @@ function AdminApp(){
           marginLeft: 6, padding: '1px 6px', borderRadius: 999,
           background: '#0071e3', color: '#fff', fontSize: 10, fontWeight: 700,
         }
-      }, totalChanges))
+      }, totalChanges)),
+      // Вкладка «Доступы» — отдельный файл admin-access.js, чтобы правки прав
+      // не смешивались с редактором контента (и чтобы одна ошибка не ломала
+      // другое). Кнопка появляется только если файл подключён.
+      window.YasnaAccessTab && React.createElement('button', {
+        className: 'ad-tab' + (activeView === 'access' ? ' is-active' : ''),
+        onClick: () => setActiveView('access'),
+      }, 'Доступы')
     ),
+
+    // ─── View: Доступы ───
+    activeView === 'access' && window.YasnaAccessTab &&
+      React.createElement('div', { className:'ad-card', style:{ padding:16 } },
+        React.createElement(window.YasnaAccessTab)),
 
     // ─── View: Drafts ───
     activeView === 'drafts' && React.createElement(DraftsView, {

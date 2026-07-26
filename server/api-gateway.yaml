@@ -392,6 +392,18 @@ paths:
           description: CORS preflight
 
   /access/catalog:
+    get:
+      summary: Каталог возможностей и матрица ролей
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {SUBMIT_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Нет полномочия
     post:
       summary: Публикация каталога
       x-yc-apigateway-integration:

@@ -421,7 +421,11 @@ exports.handler = async (event) => {
     if(route === '/grant')      return method === 'POST' ? await handleGrant(drv, ctx, body) : fail(405, 'method not allowed');
     if(route === '/revoke')     return method === 'POST' ? await handleRevoke(drv, ctx, body) : fail(405, 'method not allowed');
     if(route === '/role-grant') return method === 'POST' ? await handleRoleGrant(drv, ctx, body) : fail(405, 'method not allowed');
-    if(route === '/catalog')    return method === 'POST' ? await handleCatalog(drv, ctx, body) : fail(405, 'method not allowed');
+    if(route === '/catalog'){
+      if(method === 'GET')  return await handleCatalogRead(drv, ctx);
+      if(method === 'POST') return await handleCatalog(drv, ctx, body);
+      return fail(405, 'method not allowed');
+    }
     return fail(404, 'unknown access route');
   } catch(e){
     // Ошибка БД — это 5xx, а не «успешно, ничего нет». Пустой ответ на
@@ -474,7 +478,9 @@ async function handlePeople(drv, ctx, query){
   // YQL мог бы заспорить о типах.
   const sql = (nick) => `
     DECLARE $q AS Utf8; DECLARE $like AS Utf8; DECLARE $tg AS Int64; DECLARE $n AS Uint64;
-    SELECT user_id, nickname, last_seen_at FROM users
+    SELECT user_id, nickname, last_seen_at, email, email_verified,
+           registered_via, created_at, deleted_at, first_name, last_name, phone
+    FROM users
     WHERE user_id = $q OR tg_user_id = $tg OR ${nick} LIKE $like
     ORDER BY last_seen_at DESC
     LIMIT $n;`;
@@ -490,10 +496,22 @@ async function handlePeople(drv, ctx, query){
       params: Object.assign({}, params, { '$like': TypedValues.utf8(q ? like : '%') }) },
   ]);
 
+  // Реестр регистраций и список людей — один и тот же ответ: отдельная ручка
+  // потребовала бы отдельной функции, а квота исчерпана. Почта и способ
+  // регистрации отдаются ТОЛЬКО здесь, под cap:people.view — это внутренний
+  // экран администратора. tg_user_id по-прежнему не отдаём: он не нужен ни для
+  // одного действия в интерфейсе, а утекать ему незачем.
   const found = rowsOf(rs).map(row => ({
     userId: txt(row.items[0]),
     nickname: txt(row.items[1]),
     lastSeenAt: ts(row.items[2]),
+    email: txt(row.items[3]),
+    emailVerified: !!row.items[4]?.boolValue,
+    registeredVia: txt(row.items[5]) || (txt(row.items[3]) ? 'email' : 'telegram'),
+    createdAt: ts(row.items[6]),
+    deleted: ts(row.items[7]) != null,
+    fullName: [txt(row.items[8]), txt(row.items[9])].filter(Boolean).join(' ') || null,
+    phone: txt(row.items[10]),
   })).filter(p => p.userId);
 
   const rolesByUser = await rolesForUsers(drv, found.map(p => p.userId));
@@ -504,6 +522,13 @@ async function handlePeople(drv, ctx, query){
     userId: p.userId,
     nickname: p.nickname,
     lastSeenAt: p.lastSeenAt,
+    email: p.email,
+    emailVerified: p.emailVerified,
+    registeredVia: p.registeredVia,
+    createdAt: p.createdAt,
+    deleted: p.deleted,
+    fullName: p.fullName,
+    phone: p.phone,
     role: rolesByUser.get(p.userId) || defaultRole.roleId,
     // explicit=false значит «роли не выдавали, действует та, что по умолчанию»:
     // в интерфейсе это разные состояния, иначе снятие роли неотличимо от
@@ -900,6 +925,39 @@ async function handleAudit(drv, ctx, query){
 // Снимок того, что объявляет клиент. Смысл — чтобы новый тренажёр НЕ требовал
 // правки бэкенда: он объявляет свои узлы, они появляются в матрице суперадмина.
 // Здесь cap:* допустимы как ОПИСАНИЕ узла — каталог ничего не открывает.
+// ─── GET /access/catalog: каталог возможностей + матрица ролей ────────
+// Отдельной ручкой это не сделать (квота функций), поэтому GET и POST живут на
+// одном пути. Читать может любой, у кого есть хоть одно административное
+// полномочие: без каталога вкладка «Доступы» показывать нечего, а сам список
+// разделов секретом не является.
+async function handleCatalogRead(drv, ctx){
+  const allowed = ctx.has('cap:catalog.edit') || ctx.has('cap:access.grant')
+    || ctx.has('cap:people.view') || ctx.has('cap:roles.manage');
+  if(!allowed){
+    return deny(drv, ctx, 403, 'catalog.view', { reason:'нужно любое административное полномочие' });
+  }
+  const rs = await q1(drv, `SELECT feature, area, parent, title, kind, default_access,
+                                   status, sensitive, declared_at, seen_at
+                            FROM features;`, {});
+  const features = rowsOf(rs).map(r => ({
+    feature: txt(r.items[0]), area: txt(r.items[1]), parent: txt(r.items[2]),
+    title: txt(r.items[3]), kind: txt(r.items[4]), defaultAccess: txt(r.items[5]),
+    status: txt(r.items[6]), sensitive: bool(r.items[7]),
+    declaredAt: txt(r.items[8]), seenAt: ts(r.items[9]),
+  })).filter(f => f.feature);
+
+  const rg = await q1(drv, 'SELECT role_id, feature, granted FROM role_grants;', {});
+  const roleGrants = {};
+  for(const r of rowsOf(rg)){
+    const role = txt(r.items[0]), feat = txt(r.items[1]);
+    if(!role || !feat) continue;
+    (roleGrants[role] = roleGrants[role] || {})[feat] = bool(r.items[2]);
+  }
+
+  const roles = await readRoles(drv);
+  return ok({ features, roleGrants, roles });
+}
+
 async function handleCatalog(drv, ctx, body){
   const action = 'catalog.publish';
   if(!ctx.has('cap:catalog.edit')){
