@@ -228,13 +228,21 @@ async function publish(data, opts){
   const base = apiBase();
   if(!base) throw new Error('API endpoint не настроен');
   const password = (opts && opts.password) || '';
-  if(!password) throw new Error('Требуется password');
+  // Личный токен ПРЕДПОЧТИТЕЛЬНЕЕ общего пароля. Раньше сюда всегда уходил
+  // пароль, поэтому каждая реальная публикация проходила аварийной ветвью
+  // сервера, а авторство ревизии не фиксировалось — то есть «кто переписал
+  // вопросы всем игрокам» установить было нельзя, хотя серверная проверка по
+  // JWT с полномочием cap:content.publish уже работала.
+  var authValue = '';
+  try { authValue = localStorage.getItem('yasna_duel_token') || ''; } catch(_){}
+  if(!authValue) authValue = password || '';
+  if(!authValue) throw new Error('Нужен вход в аккаунт или аварийный пароль');
 
   const resp = await fetch(base.replace(/\/$/, '') + '/content/publish', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + password,
+      'Authorization': 'Bearer ' + authValue,
     },
     body: JSON.stringify({
       data,

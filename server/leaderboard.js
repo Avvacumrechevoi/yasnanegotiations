@@ -127,12 +127,16 @@ exports.handler = async (event) => {
           -- (Column user_id must either be a key column in GROUP BY ...).
           player_key,
           MAX(score) AS best_score,
-          MIN_BY(time_ms, score) AS best_time,
-          MIN_BY(nickname, score) AS nickname,
-          MIN_BY(avatar, score) AS avatar,
-          MIN_BY(user_id, score) AS user_id,
-          MIN_BY(device_id, score) AS device_id,
-          MIN_BY(created_at, score) AS created_at
+          -- MAX_BY, а не MIN_BY. Раньше лучший счёт брался как MAX(score), а
+          -- время, ник, аватар и дата — из матча с МИНИМАЛЬНЫМ счётом, то есть
+          -- строка в топе смешивала лучший результат игрока с подробностями его
+          -- худшей партии: рядом с 10/10 могло стоять время из партии на 1/10.
+          MAX_BY(time_ms, score) AS best_time,
+          MAX_BY(nickname, score) AS nickname,
+          MAX_BY(avatar, score) AS avatar,
+          MAX_BY(user_id, score) AS user_id,
+          MAX_BY(device_id, score) AS device_id,
+          MAX_BY(created_at, score) AS created_at
         -- БЕЗ хинта VIEW matches_by_game: индекс покрывает только
         -- (game_id, yasna_id, created_at) + PK, а запросу нужны result, is_bot,
         -- score, time_ms, nickname, avatar, user_id, device_id. Чтение через
