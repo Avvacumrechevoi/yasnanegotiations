@@ -475,6 +475,18 @@
       const headers = { 'Content-Type': 'application/json' };
       const token = loadToken();
       if(token) headers['Authorization'] = 'Bearer ' + token;
+      // Секрет устройства — чтобы сервер мог отличить настоящего игрока от
+      // curl'а. Раньше /submit принимал результат матча вообще без проверок:
+      // рейтинг набивался одной командой из терминала. Гостю нельзя требовать
+      // токен (игра без входа — штатный сценарий), поэтому доказательство —
+      // тот же секрет, что у синхронизации прогресса. YasnaStorage.deviceSecret()
+      // создаёт его при первом вызове, так что заголовок есть всегда.
+      try {
+        const sec = (window.YasnaStorage && window.YasnaStorage.deviceSecret)
+          ? window.YasnaStorage.deviceSecret()
+          : localStorage.getItem('yasna_device_secret_v1');
+        if(sec) headers['X-Device-Secret'] = sec;
+      } catch(_){}
       try {
         const res = await fetch(this.baseUrl + '/submit', {
           method: 'POST', headers, body: JSON.stringify(payload), signal: ctrl.signal,

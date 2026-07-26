@@ -742,6 +742,11 @@
     runMigrations: runMigrations,
     onChange: onChange,
     report: report,
+    // Секрет устройства нужен и играм: /submit требует доказательство
+    // (JWT либо X-Device-Secret), иначе рейтинг набивался curl'ом.
+    // Функция сама создаёт секрет при первом вызове — игра без единой
+    // синхронизации прогресса всё равно получит рабочее доказательство.
+    deviceSecret: deviceSecret,
     SNAPSHOT_VERSION: SNAPSHOT_VERSION,
     sync: {
       pull: pull,

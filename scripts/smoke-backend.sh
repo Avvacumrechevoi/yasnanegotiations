@@ -67,6 +67,19 @@ check "GET /content"          200 "$GW/content"
 check "POST /submit (мусор)"  400 -X POST -H 'Content-Type: application/json' \
   --data-raw '{"nope":true}' "$GW/submit"
 
+# 5а. Целостность рейтинга: корректное по форме тело БЕЗ доказательства
+#     (ни JWT, ни X-Device-Secret) обязано получить 401. Именно эта дыра
+#     позволяла набить рейтинг одной командой curl. Проверка ничего не пишет:
+#     отказ происходит до обращения к таблице matches.
+check "POST /submit (без доказательства → 401)" 401 -X POST -H 'Content-Type: application/json' \
+  --data-raw '{"matchId":"smoke-no-proof","deviceId":"smoke-check","nickname":"smoke","gameId":"turnir","yasnaId":"суток","result":"win","time":5000}' \
+  "$GW/submit"
+# 5б-0. Чужой секрет к известному устройству — 403, а не запись матча.
+check "POST /submit (чужой секрет → 403)" 403 -X POST -H 'Content-Type: application/json' \
+  -H 'X-Device-Secret: wrong-secret' \
+  --data-raw '{"matchId":"smoke-bad-secret","deviceId":"smoke-check","nickname":"smoke","gameId":"turnir","yasnaId":"суток","result":"win","time":5000}' \
+  "$GW/submit"
+
 # 5б. НОВЫЕ ЭНДПОИНТЫ. Раньше проверка их не касалась вовсе — а откат в CI
 # срабатывает ТОЛЬКО по её результату. То есть сломанный вход по почте, профиль
 # или роли уехали бы в прод и остались там: smoke зелёный, откат не сработал.

@@ -36,7 +36,9 @@ const ALLOW_ORIGIN = process.env.ALLOW_ORIGIN || 'https://avvacumrechevoi.github
 const CORS = {
   'Access-Control-Allow-Origin': ALLOW_ORIGIN,
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  // X-Device-Secret — доказательство устройства для гостевых матчей;
+  // без него preflight браузера отбросит заголовок и гость получит 401.
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Device-Secret',
   'Content-Type': 'application/json',
 };
 
@@ -76,6 +78,70 @@ const VALID_TRANSPORTS = validSet('EXTRA_TRANSPORTS', [
   'firebase', 'group',                                            // действующие транспорты
   'peerjs','broadcast','bot','solo',                              // легаси
 ]);
+
+const SUBMIT_PER_HOUR = 40;
+
+// Тот же секрет устройства, что проверяет /progress: доказательство «это тот же
+// браузер», а не защита от кражи localStorage. Привязка происходит при первой
+// синхронизации прогресса, поэтому у играющего человека секрет уже есть.
+async function checkDeviceSecret(drv, deviceId, secret){
+  if(!deviceId || !secret) return false;
+  const hash = crypto.createHash('sha256').update(String(secret)).digest('hex');
+  let stored = null;
+  await drv.tableClient.withSession(async (s) => {
+    const r = await s.executeQuery(`DECLARE $d AS Utf8;
+      SELECT secret_hash FROM device_auth WHERE device_id = $d;`,
+      { '$d': TypedValues.utf8(deviceId) });
+    const row = r.resultSets[0]?.rows?.[0];
+    if(row) stored = row.items[0]?.textValue ?? null;
+  });
+  // Устройство ещё не привязано — привязываем здесь же (trust on first use),
+  // иначе матч первого же игрока отвергался бы, пока он не откроет уроки.
+  if(stored === null){
+    await drv.tableClient.withSession(async (s) => {
+      await s.executeQuery(`
+        DECLARE $d AS Utf8; DECLARE $h AS Utf8;
+        UPSERT INTO device_auth (device_id, secret_hash, created_at)
+        VALUES ($d, $h, CurrentUtcTimestamp());`,
+        { '$d': TypedValues.utf8(deviceId), '$h': TypedValues.utf8(hash) });
+    });
+    return true;
+  }
+  const a = Buffer.from(String(stored)), b = Buffer.from(hash);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
+// Ограничение частоты в таблице, а не в памяти: функция живёт в нескольких
+// экземплярах, и счётчик в памяти защищал бы только один из них.
+async function rateOk(drv, bucket, limit){
+  let allowed = true;
+  await drv.tableClient.withSession(async (s) => {
+    const r = await s.executeQuery(`DECLARE $b AS Utf8;
+      SELECT window_start, hits FROM auth_throttle WHERE bucket = $b;`,
+      { '$b': TypedValues.utf8(bucket) });
+    const row = r.resultSets[0]?.rows?.[0];
+    const startMs = row ? Number(String(row.items[0]?.uint64Value ?? 0)) / 1000 : 0;
+    const hits = row ? Number(String(row.items[1]?.uint32Value ?? 0)) : 0;
+    const fresh = !row || (Date.now() - startMs) > 3600 * 1000;
+    if(!fresh && hits >= limit){ allowed = false; return; }
+    // window_start трогаем ТОЛЬКО при новом окне. Если сдвигать его каждым
+    // матчем, окно у активного игрока никогда не истекает: сыграл 40 партий
+    // за вечер в спокойном темпе — и заблокирован, хотя в час укладывался.
+    if(fresh){
+      await s.executeQuery(`
+        DECLARE $b AS Utf8; DECLARE $h AS Uint32;
+        UPSERT INTO auth_throttle (bucket, window_start, hits)
+        VALUES ($b, CurrentUtcTimestamp(), $h);`,
+        { '$b': TypedValues.utf8(bucket), '$h': TypedValues.uint32(1) });
+    } else {
+      await s.executeQuery(`
+        DECLARE $b AS Utf8; DECLARE $h AS Uint32;
+        UPDATE auth_throttle SET hits = $h WHERE bucket = $b;`,
+        { '$b': TypedValues.utf8(bucket), '$h': TypedValues.uint32(hits + 1) });
+    }
+  });
+  return allowed;
+}
 
 // ─── маршрутизация: эта функция обслуживает ещё и /progress ───────────
 // ПОЧЕМУ ВМЕСТЕ. В облаке исчерпана квота serverless.functions.count (10 из 10),
@@ -139,6 +205,19 @@ exports.handler = async (event) => {
     if(payload?.sub){ userId = payload.sub; if(payload.nick) authNick = String(payload.nick); }
   }
 
+  // ─── подтверждение, что это игрок, а не curl ──────────────────────
+  // Раньше /submit не проверял НИЧЕГО: любой мог набить рейтинг одной командой
+  // из терминала. Требовать токен нельзя — игра без входа штатный сценарий,
+  // поэтому принимаем два доказательства:
+  //   • валидный JWT (залогиненный), либо
+  //   • секрет устройства, который клиент завёл при первой синхронизации
+  //     (тот же X-Device-Secret, что у /progress; sha256 лежит в device_auth).
+  // Плюс ограничение частоты: 40 матчей в час на устройство. Живой игрок
+  // столько не сыграет, а скрипту это перекрывает смысл.
+  const hdrSecret = String(
+    event.headers?.['X-Device-Secret'] || event.headers?.['x-device-secret'] || ''
+  ).slice(0, 200);
+
   // Валидация полей
   const { matchId, deviceId, nickname, avatar, gameId, yasnaId, result, score, maxScore, time, transport, isBot, bySurrender } = body || {};
   if(!matchId || !deviceId || !nickname || !gameId || !yasnaId || !result || time == null){
@@ -164,6 +243,30 @@ exports.handler = async (event) => {
   }
   if(score != null && maxScore != null && parseInt(score,10) > parseInt(maxScore,10)){
     return { statusCode:400, headers:CORS, body: JSON.stringify({error:'score > maxScore'}) };
+  }
+
+  // Проверка доказательства и частоты — ДО записи в БД.
+  if(!userId){
+    if(!hdrSecret){
+      return { statusCode:401, headers:CORS, body: JSON.stringify({
+        error:'proof required',
+        detail:'нужен вход или секрет устройства — обновите страницу' }) };
+    }
+    let drvChk;
+    try { drvChk = await getDriver(); }
+    catch(e){ console.error('[submit] YDB недоступна', e); return { statusCode:503, headers:CORS, body: JSON.stringify({error:'db unavailable'}) }; }
+    const okSecret = await checkDeviceSecret(drvChk, String(deviceId).slice(0,128), hdrSecret);
+    if(!okSecret){
+      return { statusCode:403, headers:CORS, body: JSON.stringify({
+        error:'bad device secret',
+        detail:'это устройство не подтверждено' }) };
+    }
+    const okRate = await rateOk(drvChk, 'submit:' + String(deviceId).slice(0,128), SUBMIT_PER_HOUR);
+    if(!okRate){
+      return { statusCode:429, headers:CORS, body: JSON.stringify({
+        error:'too many matches',
+        detail:'слишком много партий за час' }) };
+    }
   }
 
   // IP hash для rate-limit (опционально)
