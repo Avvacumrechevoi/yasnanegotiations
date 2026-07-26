@@ -1877,6 +1877,16 @@
       buseyForCorrect, streakMultiplier, checkAnswer, renderTnAvatar,
       QuestionErrorBoundary,
       TnTopBar, TnGameProgress, TnTimerBar, TnQuestionCard, TnFeedbackBanner,
+  // Действующий режим объявляет себя в черновике каталога доступов сам:
+  // он регистрируется мимо YasnaDuels.register, поэтому автообъявление
+  // из register() его не покрывает. declare ничего не закрывает.
+  try {
+    if (window.YasnaAccess && window.YasnaAccess.declare) {
+      window.YasnaAccess.declare({ feature: 'game:turnir', area: 'game', parent: 'section:game',
+        title: 'Партия (турнир)', kind: 'mode', declaredAt: 'games/duel/turnir-engine.js' });
+    }
+  } catch(_){}
+
       TnOptions, TnTrueFalse, TnMultiChoice, TnMatchPair, TnFillBlank,
     },
   };

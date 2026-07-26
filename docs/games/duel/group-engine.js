@@ -682,5 +682,13 @@
     ));
   }
 
+  // См. комментарий в turnir-engine.js — групповой режим тоже мимо register().
+  try {
+    if (window.YasnaAccess && window.YasnaAccess.declare) {
+      window.YasnaAccess.declare({ feature: 'game:group', area: 'game', parent: 'section:game',
+        title: 'Партия с коллективом', kind: 'mode', declaredAt: 'games/duel/group-engine.js' });
+    }
+  } catch(_){}
+
   window.YasnaGroup = { GroupApp, GroupResults };
 })();
