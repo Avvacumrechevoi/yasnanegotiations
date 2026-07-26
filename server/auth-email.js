@@ -252,11 +252,16 @@ async function handleRequest(drv, { body, event }){
     // Срок жизни задаётся ЛИТЕРАЛЬНЫМ интервалом в самом запросе, а не
     // параметром типа Interval: так не нужно полагаться на то, что в этой
     // версии SDK есть TypedValues.interval — а проверять это в бою поздно.
+    // Unwrap обязателен: CurrentUtcTimestamp() + Interval(...) в YQL даёт
+    // Timestamp? (сложение может переполниться), а колонка объявлена NOT NULL —
+    // без него запрос отвергается на разборе типов: «Failed to convert
+    // 'expires_at': Optional<Timestamp> to Timestamp». Литералы помечены суффиксом
+    // u: строка в YQL по умолчанию String, а колонка — Utf8.
     await s.executeQuery(`
       DECLARE $e AS Utf8; DECLARE $h AS Utf8; DECLARE $ip AS Optional<Utf8>;
       UPSERT INTO email_codes (email, purpose, code_hash, attempts, expires_at, created_at, ip_hash)
-      VALUES ($e, "login", $h, 0u,
-              CurrentUtcTimestamp() + Interval("PT${CODE_TTL_MIN}M"),
+      VALUES ($e, "login"u, $h, 0u,
+              Unwrap(CurrentUtcTimestamp() + Interval("PT${CODE_TTL_MIN}M")),
               CurrentUtcTimestamp(), $ip);`,
       {
         '$e':   TypedValues.utf8(email),
@@ -301,8 +306,10 @@ async function handleVerify(drv, { body, event }){
   const match = a.length === b.length && crypto.timingSafeEqual(a, b);
   if(!match){
     await drv.tableClient.withSession(async (s) => {
+      // Частичный UPSERT существующей строки: перечисленных колонок достаточно,
+      // NOT NULL-поля уже заполнены. Литерал с суффиксом u — колонка Utf8.
       await s.executeQuery(`DECLARE $e AS Utf8; DECLARE $n AS Uint32;
-        UPSERT INTO email_codes (email, purpose, attempts) VALUES ($e, "login", $n);`,
+        UPSERT INTO email_codes (email, purpose, attempts) VALUES ($e, "login"u, $n);`,
         { '$e': TypedValues.utf8(email), '$n': TypedValues.uint32(row.attempts + 1) });
     });
     return fail(400, 'wrong code', { detail:'код не подошёл', attemptsLeft: Math.max(0, CODE_MAX_ATTEMPTS - row.attempts - 1) });
