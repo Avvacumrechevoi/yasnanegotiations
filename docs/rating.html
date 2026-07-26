@@ -426,6 +426,49 @@ html[data-theme='light'] .rt-formula__big { color:#147A3C; }
 html[data-theme='light'] .rt-levels-track__seg { background:rgba(0,0,0,.08); }
 /* серый текст и тонкие плашки на светлом */
 html[data-theme='light'] .rt-level-card *, html[data-theme='light'] .rt-formula__card * { border-color:rgba(0,0,0,.10); }
+
+/* ── Светлая тема, ЧАСТЬ 2 (аудит 23.06: покрытие было ~40%) ──────────
+   Всё ниже герой-блока жило на прибитых тёмных цветах: словарь, уровни,
+   таблицы, теги, Гессе-цитата, FAQ и инлайн-стили заголовков/врезок.
+   Инлайны перебиваются только !important — поэтому он здесь легален. */
+html[data-theme='light'] .rt-h1 { color:#0D1B2A; }
+html[data-theme='light'] .rt-track-h2 { color:#0D1B2A; }
+html[data-theme='light'] .rt-shell h3 { color:#0D1B2A !important; }
+html[data-theme='light'] .rt-section-text { color:#3D4852 !important; }
+html[data-theme='light'] .rt-section-text strong { color:#0D1B2A; }
+html[data-theme='light'] .rt-gloss { background:rgba(0,0,0,.04); border-color:rgba(0,0,0,.10); }
+html[data-theme='light'] .rt-gloss__name { color:#0D1B2A; }
+html[data-theme='light'] .rt-gloss__desc { color:#3D4852; }
+html[data-theme='light'] .rt-level-card__name { color:#0D1B2A; }
+html[data-theme='light'] .rt-level-card__range { color:#5C6A80; }
+html[data-theme='light'] .rt-hesse { background:rgba(0,0,0,.04); border-color:rgba(0,0,0,.10); }
+html[data-theme='light'] .rt-hesse__title { color:#0D1B2A; }
+html[data-theme='light'] .rt-hesse__text { color:#3D4852; }
+html[data-theme='light'] .rt-hesse__text strong { color:#0D1B2A; }
+html[data-theme='light'] .rt-compare table { background:transparent; }
+html[data-theme='light'] .rt-compare th { color:#5C6A80; border-color:rgba(0,0,0,.12); }
+html[data-theme='light'] .rt-compare td { color:#0D1B2A; border-color:rgba(0,0,0,.08); }
+html[data-theme='light'] .rt-compare td span { color:inherit; }
+html[data-theme='light'] .rt-delta-card__delta--win { color:#147A3C; }
+html[data-theme='light'] .rt-delta-card__delta--lose { color:#B3261E; }
+html[data-theme='light'] .rt-tag { color:#3D4852; background:rgba(0,0,0,.05); border-color:rgba(0,0,0,.12); }
+html[data-theme='light'] .rt-faq details { background:rgba(0,0,0,.03); border-color:rgba(0,0,0,.10); }
+html[data-theme='light'] .rt-faq details:hover, html[data-theme='light'] .rt-faq details[open] { background:rgba(0,0,0,.06); }
+html[data-theme='light'] .rt-faq summary { color:#0D1B2A; }
+html[data-theme='light'] .rt-faq p { color:#3D4852 !important; }
+html[data-theme='light'] .rt-faq p strong { color:#0D1B2A !important; }
+/* Инлайн-стили: заголовки h3 style="color:#fff", врезки со style="color:#d2d2d7…",
+   мелкие подписи #8e8e93 — ловим по контейнеру страницы. */
+html[data-theme='light'] .rt-shell [style*="color: #d2d2d7"],
+html[data-theme='light'] .rt-shell [style*="color:#d2d2d7"] { color:#3D4852 !important; }
+html[data-theme='light'] .rt-shell [style*="color: #8e8e93"],
+html[data-theme='light'] .rt-shell [style*="color:#8e8e93"] { color:#5C6A80 !important; }
+html[data-theme='light'] .rt-shell [style*="color: #a8b1be"],
+html[data-theme='light'] .rt-shell [style*="color:#a8b1be"] { color:#3D4852 !important; }
+html[data-theme='light'] .rt-shell [style*="color: #fff"],
+html[data-theme='light'] .rt-shell [style*="color:#fff"] { color:#0D1B2A !important; }
+html[data-theme='light'] .rt-shell [style*="background: rgba(255,255,255,.03)"],
+html[data-theme='light'] .rt-shell [style*="background: rgba(255,255,255,.02)"] { background:rgba(0,0,0,.04) !important; border-color:rgba(0,0,0,.10) !important; }
 </style>
 </head>
 <body>
