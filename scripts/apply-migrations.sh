@@ -40,6 +40,14 @@ YDB_DATABASE="${YDB_DATABASE:-/ru-central1/b1gqrqgua7miqmj6m4k0/etnrjgqnrg5ir7tk
 # Штатный резолвер работает; в CI переменная безвредна.
 export GRPC_DNS_RESOLVER="${GRPC_DNS_RESOLVER:-native}"
 
+# yc и ydb ставятся в домашнюю папку и в PATH обычной оболочки не попадают.
+# Без этого скрипты падали с «yc CLI не найден» — сообщение верное, но человек
+# в этот момент не понимает, что от него хотят. Находим сами.
+for d in "$HOME/yandex-cloud/bin" "$HOME/ydb/bin"; do
+  case ":$PATH:" in *":$d:"*) ;; *) [ -d "$d" ] && PATH="$d:$PATH" ;; esac
+done
+export PATH
+
 command -v ydb >/dev/null || { echo "ydb CLI не найден в PATH (обычно ~/ydb/bin)"; exit 1; }
 
 TOKFILE="$(mktemp)"

@@ -31,6 +31,14 @@ for a in "$@"; do
   esac
 done
 
+# yc и ydb ставятся в домашнюю папку и в PATH обычной оболочки не попадают.
+# Без этого скрипты падали с «yc CLI не найден» — сообщение верное, но человек
+# в этот момент не понимает, что от него хотят. Находим сами.
+for d in "$HOME/yandex-cloud/bin" "$HOME/ydb/bin"; do
+  case ":$PATH:" in *":$d:"*) ;; *) [ -d "$d" ] && PATH="$d:$PATH" ;; esac
+done
+export PATH
+
 command -v yc >/dev/null || { echo "yc CLI не найден в PATH"; exit 1; }
 
 # placeholder → имя функции в облаке
