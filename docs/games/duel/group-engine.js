@@ -41,6 +41,18 @@
     if(p.lastSeen && (nowMs() - p.lastSeen) > ONLINE_TTL_MS) return false;
     return true;
   }
+  // Ревизия контента: если у хоста и участника разные Tier-2 ревизии,
+  // даже детерминированный генератор даст разные партии (пул другой).
+  // Хост штампует свою ревизию в meta; участник при расхождении получает
+  // честное предупреждение в консоль (пул почти всегда совпадает, рвать
+  // партию из-за этого не стоит).
+  function contentRev(){
+    try {
+      const r = window.YasnaContentResolved && window.YasnaContentResolved._meta && window.YasnaContentResolved._meta.revision;
+      return (r && r.revisionId) || null;
+    } catch(_){ return null; }
+  }
+
   // Партия как плоский список { q, theme } из раундов generatePartiya.
   function flattenPartiya(partiya){
     const flat = [];
@@ -281,7 +293,14 @@
     const partiya = useMemo(() => {
       if(!meta || !meta.seed || !window.YasnaTrivia) return null;
       try {
-        return window.YasnaTrivia.generatePartiya(meta.seed, meta.partiyaMode || 'standard', meta.themes || null);
+        // shared: у всех участников ОДНИ вопросы из meta.seed. Без флага партию
+        // резала личная история «виденного» и engine-зависимый sort — игроки
+        // одной комнаты получали разные вопросы (аудит 23.06, пункт «ложная
+        // детерминированность»).
+        if(meta.contentRev && contentRev() && meta.contentRev !== contentRev()){
+          console.warn('[group] ревизия контента отличается от хостовой (' + meta.contentRev + ' ≠ ' + contentRev() + ') — вопросы могут не совпасть, обновите страницу');
+        }
+        return window.YasnaTrivia.generatePartiya(meta.seed, meta.partiyaMode || 'standard', meta.themes || null, { shared: true });
       } catch(_){ return null; }
     }, [meta && meta.seed, meta && meta.partiyaMode]);
     const flat = useMemo(() => flattenPartiya(partiya), [partiya]);
@@ -379,7 +398,7 @@
       const onlineCount = Object.values(players).filter(isOnline).length;
       const minP = (meta && meta.minPlayers) || 3;
       if(onlineCount < minP) return;
-      try { rt.updateGroupMeta(code, { seed: nowMs(), status: 'playing', startedAt: nowMs() }); } catch(_){}
+      try { rt.updateGroupMeta(code, { seed: nowMs(), status: 'playing', startedAt: nowMs(), contentRev: contentRev() }); } catch(_){}
     }
     function onAnswer(res){
       const newStreak = res.correct ? streak + 1 : 0;

@@ -474,15 +474,34 @@
   //   N тем → каждая получает ceil(target/N) или floor — равномерно.
   //   Если у темы недостаточно вопросов — берём всё что есть, остаток
   //   добиваем из соседних тем (если их несколько) или partiya короче.
-  function generatePartiya(seed, mode, themesFilter){
+  // opts.shared — «одна партия на всех из одного seed» (групповой режим).
+  // Обычный путь этого НЕ гарантирует, причём двумя способами сразу:
+  //   1) личная история «уже виденного» (localStorage) у каждого своя и
+  //      режет пул по-разному → у игроков разные вопросы при одном seed;
+  //   2) sort со случайным компаратором зависит от АЛГОРИТМА сортировки
+  //      движка: при одинаковом rng Safari и Chrome дают разные перестановки,
+  //      и даже число вызовов rng() различается — потоки расходятся навсегда.
+  // В shared-режиме оба источника расхождений выключены: полный пул без
+  // фильтра свежести + честный Fisher–Yates на seeded rng.
+  function generatePartiya(seed, mode, themesFilter, opts){
+    const shared = !!(opts && opts.shared);
     const cfg = MODE_CONFIG[mode] || MODE_CONFIG.standard;
     const targetTotal = cfg.themes * cfg.qPerTheme;
-    const seen = loadSeen();
+    const seen = shared ? {} : loadSeen();
     const win = ANTI_REPEAT_WINDOW_MS[mode] || ANTI_REPEAT_WINDOW_MS.standard;
     const cutoff = Date.now() - win;
-    const isFresh = (qId) => !seen[qId] || seen[qId] < cutoff;
+    const isFresh = (qId) => shared || !seen[qId] || seen[qId] < cutoff;
 
     const rng = seedRandom(seed || Date.now());
+    const shuffle = (arr) => {
+      if(!shared) return [...arr].sort(() => rng() - 0.5);   // прежнее поведение соло/дуэли
+      const a = [...arr];
+      for(let i = a.length - 1; i > 0; i--){
+        const j = Math.floor(rng() * (i + 1));
+        const t = a[i]; a[i] = a[j]; a[j] = t;
+      }
+      return a;
+    };
     // Кастом-фильтр тем (≥1 теперь разрешено)
     const eligibleThemes = themesFilter && themesFilter.length > 0
       ? ACTIVE_THEMES.filter(t => themesFilter.includes(t.id))
@@ -492,7 +511,7 @@
     // Иначе — случайная выборка cfg.themes из эл-ных.
     const themesToUse = eligibleThemes.length <= cfg.themes
       ? [...eligibleThemes]
-      : [...eligibleThemes].sort(() => rng() - 0.5).slice(0, cfg.themes);
+      : shuffle(eligibleThemes).slice(0, cfg.themes);
 
     if(themesToUse.length === 0) return [];
 
@@ -501,19 +520,19 @@
     const baseQ = Math.floor(targetTotal / N);
     const extra = targetTotal - baseQ * N;
     // Перемешиваем порядок тем (на старт партии — не всегда первая выбранная)
-    const ordered = [...themesToUse].sort(() => rng() - 0.5);
+    const ordered = shuffle(themesToUse);
 
     const partiya = ordered.map((theme, idx) => {
       const want = baseQ + (idx < extra ? 1 : 0);  // первые `extra` тем получают +1
       const themeQs = ACTIVE_QUESTIONS.filter(q => q.theme === theme.id);
       // Сначала свежие
       const fresh = themeQs.filter(q => isFresh(q.id));
-      const shFresh = [...fresh].sort(() => rng() - 0.5);
+      const shFresh = shuffle(fresh);
       let picked = shFresh.slice(0, want);
       // Если свежих мало — добиваем из всего пула
       if(picked.length < want){
         const fallback = themeQs.filter(q => !picked.find(p => p.id === q.id));
-        const shAll = [...fallback].sort(() => rng() - 0.5);
+        const shAll = shuffle(fallback);
         picked = [...picked, ...shAll.slice(0, want - picked.length)];
       }
       return { theme, questions: picked, requested: want };
