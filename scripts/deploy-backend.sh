@@ -51,7 +51,7 @@ RUNTIME="${YC_RUNTIME:-nodejs16}"
 # (extras_for), своей функции у него нет — квота serverless.functions.count
 # исчерпана. Оставь его в списке — и деплой «всех функций» будет падать на
 # попытке создать yasna-progress.
-ALL_NAMES="submit leaderboard auth-telegram content-fetch content-publish"
+ALL_NAMES="submit leaderboard auth-telegram content-fetch content-publish spar"
 src_for(){
   case "$1" in
     submit)          echo submit.js ;;
@@ -59,6 +59,7 @@ src_for(){
     auth-telegram)   echo auth-telegram.js ;;
     content-fetch)   echo content-fetch.js ;;
     content-publish) echo content-publish.js ;;
+    spar)            echo spar.js ;;
     progress)        echo progress.js ;;
     *)               echo "" ;;
   esac
@@ -70,6 +71,7 @@ extras_for(){
   case "$1" in
     submit)        echo "progress.js rooms-legacy.js access.js" ;;
     auth-telegram) echo "mailer.js auth-email.js" ;;
+    spar)          echo "access.js" ;;
     *)             echo "" ;;
   esac
 }
@@ -108,6 +110,7 @@ extra_env_for(){
 env_donor_for(){
   case "$1" in
     progress) echo yasna-submit ;;
+    spar)     echo yasna-submit ;;
     *)        echo "" ;;
   esac
 }

@@ -41,6 +41,48 @@ paths:
         '200':
           description: CORS preflight
 
+  /spar/status:
+    get:
+      summary: Sparring proxy status
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {SPAR_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {SPAR_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  /spar/chat:
+    post:
+      summary: Sparring LLM proxy
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {SPAR_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {SPAR_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
   /submit:
     post:
       summary: Submit match result

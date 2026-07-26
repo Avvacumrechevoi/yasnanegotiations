@@ -50,7 +50,8 @@ SUBMIT:yasna-submit
 LEADERBOARD:yasna-leaderboard
 PROFILE:yasna-profile
 CONTENT_FETCH:yasna-content-fetch
-CONTENT_PUBLISH:yasna-content-publish"
+CONTENT_PUBLISH:yasna-content-publish
+SPAR:yasna-spar"
 
 DOMAIN="$(yc serverless api-gateway get --id "$GW_ID" --format json | python3 -c 'import sys,json;print(json.load(sys.stdin)["domain"])')"
 out="$(mktemp)"; cp "$SPEC" "$out"

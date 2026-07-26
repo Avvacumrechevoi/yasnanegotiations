@@ -99,6 +99,18 @@ check "GET /account без токена"          401 "$GW/account"
 check "GET /auth/email/selftest без токена" 401 "$GW/auth/email/selftest"
 check "POST /auth/email/request (мусор)" 400 -X POST -H 'Content-Type: application/json' \
       --data-raw '{"email":"не-почта"}' "$GW/auth/email/request"
+# 5в. Спарринг-прокси: статус публичен; реплика без доказательства — 401
+#     (или 503, пока ключ не настроен, — обе ветки не пишут данных).
+check "GET /spar/status"                 200 "$GW/spar/status"
+spar_code=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' \
+  --data-raw '{"level":"easy","type":"ХА","skill":"contact","messages":[{"role":"user","content":"привет"}]}' \
+  "$GW/spar/chat")
+if [ "$spar_code" = "401" ] || [ "$spar_code" = "503" ]; then
+  echo "  ✓ POST /spar/chat без доказательства (HTTP $spar_code — отказ до LLM)"
+else
+  echo "  ✗ POST /spar/chat без доказательства — ожидался 401/503, получен $spar_code"; fails=$((fails+1))
+fi
+
 check "POST /content/publish без пароля" 401 -X POST -H 'Content-Type: application/json' \
       --data-raw '{"data":{}}' "$GW/content/publish"
 # Метод именно POST: в спеке шлюза у /rooms/create объявлен post, и GET даёт

@@ -102,6 +102,72 @@
   function getLevel() { try { return localStorage.getItem('yasna_neg_level') || 'medium'; } catch (_) { return 'medium'; } }
   function setLevel(v) { try { localStorage.setItem('yasna_neg_level', v); } catch (_) {} }
   function getModel() { return levelById(getLevel()).model; }
+
+  // ─── серверный прокси спарринга ───────────────────────────────────
+  // Ключ Anthropic живёт в облачной функции (server/spar.js), клиент шлёт
+  // только идентификаторы уровня/типа/навыка и реплики. BYOK остаётся
+  // запасным путём: если прокси не настроен (/spar/status → configured:false),
+  // показываем прежнюю панель «вставь свой ключ».
+  var PROXY_CACHE_KEY = 'yasna_spar_proxy_v1';
+  var proxyState = 'unknown';                     // 'unknown' | 'yes' | 'no'
+  function apiBase() {
+    try {
+      var m = document.querySelector('meta[name="yasna:api"]');
+      return (m && m.getAttribute('content')) || window.YASNA_LEADERBOARD_API || '';
+    } catch (_) { return ''; }
+  }
+  function probeProxy(done) {
+    var base = apiBase();
+    if (!base) { proxyState = 'no'; if (done) done(); return; }
+    try {
+      var c = JSON.parse(sessionStorage.getItem(PROXY_CACHE_KEY) || 'null');
+      if (c && (Date.now() - c.at) < 10 * 60 * 1000) {
+        proxyState = c.configured ? 'yes' : 'no';
+        if (done) done();
+        return;
+      }
+    } catch (_) {}
+    fetch(base + '/spar/status').then(function (r) { return r.json(); }).then(function (d) {
+      proxyState = d && d.configured ? 'yes' : 'no';
+      try { sessionStorage.setItem(PROXY_CACHE_KEY, JSON.stringify({ configured: proxyState === 'yes', at: Date.now() })); } catch (_) {}
+      if (done) done();
+    }).catch(function () { proxyState = 'no'; if (done) done(); });
+  }
+  function proxyOn() { return proxyState === 'yes'; }
+  function deviceIdRaw() { try { return localStorage.getItem('yasna_device_id_v1') || ''; } catch (_) { return ''; } }
+  function deviceSecretRaw() {
+    try {
+      if (window.YasnaStorage && window.YasnaStorage.deviceSecret) return window.YasnaStorage.deviceSecret();
+      return localStorage.getItem('yasna_device_secret_v1') || '';
+    } catch (_) { return ''; }
+  }
+  function tokenRaw() { try { return localStorage.getItem('yasna_duel_token') || ''; } catch (_) { return ''; } }
+
+  async function callProxy(messages, maxTokens) {
+    var headers = { 'Content-Type': 'application/json' };
+    var tok = tokenRaw();
+    if (tok) headers['Authorization'] = 'Bearer ' + tok;
+    var sec = deviceSecretRaw();
+    if (sec) headers['X-Device-Secret'] = sec;
+    var res = await fetch(apiBase() + '/spar/chat', {
+      method: 'POST', headers: headers,
+      body: JSON.stringify({
+        level: getLevel(),
+        type: (AI.sc && AI.sc._typeCode) || getSparType(),
+        skill: (AI.sc && AI.sc._skillId) || getSparSkill(),
+        deviceId: deviceIdRaw(),
+        kick: (maxTokens || 320) <= 200,
+        messages: messages
+      })
+    });
+    var data = null;
+    try { data = await res.json(); } catch (_) {}
+    if (!res.ok) {
+      var msg = (data && (data.detail || data.error)) || ('HTTP ' + res.status);
+      throw new Error(msg);
+    }
+    return (data && data.reply) || '(пустой ответ)';
+  }
   function getSparType() { try { return localStorage.getItem('yasna_neg_spar_type') || 'ХА'; } catch (_) { return 'ХА'; } }
   function setSparType(v) { try { localStorage.setItem('yasna_neg_spar_type', v); } catch (_) {} }
   function getSparSkill() { try { return localStorage.getItem('yasna_neg_spar_skill') || CFG.skills[0].id; } catch (_) { return CFG.skills[0].id; } }
@@ -188,8 +254,12 @@
     cfg.appendChild(cta);
     sparRoot.appendChild(cfg);
 
-    // ключ для живого диалога (BYOK) — панель или ссылка
-    if (aiSetupOpen || getKey()) sparRoot.appendChild(renderKeyPanel());
+    // Ключ для живого диалога. При работающем серверном прокси ключ не
+    // нужен вовсе; BYOK-панель остаётся только как запасной путь.
+    if (proxyOn()) {
+      var okNote = el('div', 'neg-spar-ailink neg-spar-ailink--on', '✓ Живой диалог включён — жми «Начать спарринг», ключ не нужен');
+      sparRoot.appendChild(okNote);
+    } else if (aiSetupOpen || getKey()) sparRoot.appendChild(renderKeyPanel());
     else {
       var link = el('button', 'neg-spar-ailink', '🔑 Для живого диалога нужен свой ключ Anthropic — подключить →');
       link.type = 'button';
@@ -225,8 +295,10 @@
     }
   }
 
-  // Старт настроенного живого диалога. Без ключа — открываем панель ключа.
+  // Старт настроенного живого диалога. С прокси ключ не нужен;
+  // без прокси и без ключа — открываем панель ключа.
   function onStartConfigured() {
+    if (proxyOn()) { startAIChat(buildScenario(getSparType(), getSparSkill())); return; }
     if (!getKey()) {
       aiSetupOpen = true; renderSelector();
       var i = document.getElementById('neg-spar-key-input');
@@ -450,6 +522,7 @@
       '- Не повторяй слова игрока дословно и не уходи в монолог — отвечай как в настоящем диалоге.';
   }
   async function callClaude(messages, system, maxTokens) {
+    if (proxyOn()) return callProxy(messages, maxTokens);
     return callWithModel(getModel(), messages, system, maxTokens, true);
   }
   // Если у ключа нет доступа к выбранной модели (часто на «Жёстком столе» = Opus) —
@@ -602,6 +675,11 @@
     sparRoot = document.getElementById('neg-spar-root');
     setupModeTabs();
     if (sparRoot) renderSelector();
+    // Узнаём про серверный прокси асинхронно и перерисовываем селектор,
+    // только если человек ещё на нём (не в открытом чате).
+    probeProxy(function () {
+      if (sparRoot && sparRoot.querySelector('.neg-cfg')) renderSelector();
+    });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

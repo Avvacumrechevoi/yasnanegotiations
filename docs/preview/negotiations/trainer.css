@@ -801,6 +801,9 @@ html[data-neg-mode="spar"] .neg-hero-cta:hover { color: var(--text-primary); bor
 /* — спарринг: AI за ссылкой, рекомендованная карточка — */
 .neg-spar-ailink { display: block; width: 100%; margin-top: 16px; background: transparent; border: 1px dashed var(--border-strong); border-radius: 12px; padding: 12px; font: inherit; font-size: 13px; color: var(--text-tertiary); cursor: pointer; text-align: center; }
 .neg-spar-ailink:hover { color: var(--text-secondary); border-color: var(--accent); }
+/* Серверный прокси включён: это уже не кнопка, а спокойное подтверждение. */
+.neg-spar-ailink--on { border-style: solid; border-color: rgba(47,191,113,.45); color: #2FBF71; cursor: default; }
+.neg-spar-ailink--on:hover { color: #2FBF71; border-color: rgba(47,191,113,.45); }
 .neg-spar-card.is-rec { border-color: var(--accent); }
 .neg-spar-card-rec { display: inline-block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-on, #fff); background: var(--accent); border-radius: 100px; padding: 2px 9px; margin-bottom: 5px; align-self: flex-start; }
 
