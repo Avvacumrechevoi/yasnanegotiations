@@ -43,6 +43,59 @@
     { key: 'cap:roles.manage',    title: 'Управлять ролями' }
   ];
 
+  // ─── цвета под тему ────────────────────────────────────────────────
+  // На admin.html тёмная тема сделана ПРЯМЫМИ переопределениями, а переменные
+  // --txt/--bg при этом остаются светлыми. Значит опираться на них нельзя:
+  // жёстко заданный серый #3a3a3c на тёмном фоне читается как чёрный по
+  // чёрному. Палитра выбирается по data-theme, а при переключении темы вкладка
+  // перерисовывается (см. useThemeTick).
+  function isDark() {
+    try { return document.documentElement.getAttribute('data-theme') === 'dark'; }
+    catch (_) { return false; }
+  }
+  function C() {
+    var d = isDark();
+    return {
+      dim:  d ? 'rgba(255,255,255,.62)' : '#6e6e73',
+      faint: d ? 'rgba(255,255,255,.45)' : '#8a8a8e',
+      body: d ? 'rgba(255,255,255,.86)' : '#3a3a3c',
+      line: d ? 'rgba(255,255,255,.14)' : '#e5e5ea',
+      lineSoft: d ? 'rgba(255,255,255,.08)' : '#f0f0f3',
+      fieldBg: d ? 'rgba(255,255,255,.06)' : '#ffffff',
+      fieldBorder: d ? 'rgba(255,255,255,.22)' : '#d2d2d7',
+      warnText: d ? '#f0c274' : '#8a5a12',
+      badText: d ? '#ff9a9a' : '#a12d2d',
+      rowBad: d ? 'rgba(255,90,90,.10)' : '#fff7f7',
+      rowWarn: d ? 'rgba(240,180,80,.10)' : '#fffaf0',
+      dot: d ? 'rgba(255,255,255,.30)' : '#c7c7cc',
+      tabOnBg: d ? '#fefefe' : '#1d1d1f',
+      tabOnText: d ? '#151515' : '#ffffff',
+      tabOffBg: d ? 'rgba(255,255,255,.08)' : '#f5f5f7',
+      noticeGoodBg: d ? 'rgba(60,200,120,.14)' : '#e4f6ea',
+      noticeGoodText: d ? '#8fe3b0' : '#1c6b3c',
+      noticeBadBg: d ? 'rgba(255,90,90,.14)' : '#fde8e8',
+      noticeBadText: d ? '#ffa8a8' : '#8c2020',
+      badge: {
+        neutral: d ? ['rgba(255,255,255,.10)', 'rgba(255,255,255,.85)'] : ['#eceff3', '#3a3a3c'],
+        good:    d ? ['rgba(60,200,120,.16)', '#7fe0a6'] : ['#e4f6ea', '#1c7a44'],
+        warn:    d ? ['rgba(240,180,80,.16)', '#f0c274'] : ['#fdf1dd', '#8a5a12'],
+        bad:     d ? ['rgba(255,90,90,.16)', '#ff9a9a'] : ['#fde8e8', '#a12d2d'],
+        accent:  d ? ['rgba(90,150,255,.18)', '#9dc0ff'] : ['#e8effd', '#1e4fa3']
+      }
+    };
+  }
+  // Переключение темы на странице не перезагружает её, поэтому инлайновые
+  // цвета иначе остались бы от прежней темы.
+  function useThemeTick() {
+    var t = React.useState(0);
+    React.useEffect(function () {
+      var obs = new MutationObserver(function () { t[1](function (n) { return n + 1; }); });
+      try { obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] }); } catch (_) {}
+      return function () { try { obs.disconnect(); } catch (_) {} };
+    }, []);
+    return t[0];
+  }
+
   function apiBase() {
     try {
       var el = document.querySelector('meta[name="yasna:api"]');
@@ -99,13 +152,8 @@
   }
 
   function Badge(props) {
-    var colors = {
-      neutral: ['#eceff3', '#3a3a3c'],
-      good:    ['#e4f6ea', '#1c7a44'],
-      warn:    ['#fdf1dd', '#8a5a12'],
-      bad:     ['#fde8e8', '#a12d2d'],
-      accent:  ['#e8effd', '#1e4fa3']
-    }[props.tone || 'neutral'] || ['#eceff3', '#3a3a3c'];
+    var c = C();
+    var colors = c.badge[props.tone || 'neutral'] || c.badge.neutral;
     return h('span', {
       style: {
         display: 'inline-block', padding: '2px 8px', borderRadius: 999,
@@ -117,10 +165,12 @@
   function Notice(props) {
     if (!props.text) return null;
     var bad = props.tone === 'bad';
+    var c = C();
     return h('div', {
       style: {
         margin: '10px 0', padding: '10px 12px', borderRadius: 10, fontSize: 14,
-        background: bad ? '#fde8e8' : '#e4f6ea', color: bad ? '#8c2020' : '#1c6b3c'
+        background: bad ? c.noticeBadBg : c.noticeGoodBg,
+        color: bad ? c.noticeBadText : c.noticeGoodText
       }
     }, props.text);
   }
@@ -154,7 +204,7 @@
     if (me.caps.indexOf('cap:people.view') < 0) {
       return h('div', null,
         h('div', { style: { fontSize: 15 } }, 'Нет полномочия «Видеть людей».'),
-        h('div', { style: { fontSize: 13, color: '#6e6e73', marginTop: 6 } },
+        h('div', { style: { fontSize: 13, color: C().dim, marginTop: 6 } },
           'Его выдаёт суперадмин на этой же вкладке.'));
     }
 
@@ -167,47 +217,47 @@
           type: 'search', placeholder: 'Ник, почта или user_id — и Enter',
           defaultValue: state.q,
           onKeyDown: function (e) { if (e.key === 'Enter') load(e.target.value.trim()); },
-          style: { flex: '1 1 220px', minWidth: 180, padding: '8px 10px', borderRadius: 8, border: '1px solid #d2d2d7' }
+          style: { flex: '1 1 220px', minWidth: 180, padding: '8px 10px', borderRadius: 8, border: '1px solid ' + C().fieldBorder, background: C().fieldBg, color: 'inherit' }
         }),
         h('button', { className: 'ad-btn', onClick: function () { load(state.q); } }, 'Обновить'),
-        h('span', { style: { fontSize: 13, color: '#6e6e73' } },
+        h('span', { style: { fontSize: 13, color: C().dim } },
           'всего: ' + state.people.length + (state.truncated ? ' (показаны не все)' : '') + ' · по почте: ' + byEmail),
         h(Badge, { tone: superCount > 1 ? 'good' : 'warn' }, 'суперадминов: ' + superCount)
       ),
-      superCount === 1 ? h('div', { style: { fontSize: 13, color: '#8a5a12', marginBottom: 10 } },
+      superCount === 1 ? h('div', { style: { fontSize: 13, color: C().warnText, marginBottom: 10 } },
         'Суперадмин один. Если потерять доступ к этому аккаунту, управление платформой придётся восстанавливать через базу — стоит выдать роль кому-то ещё.') : null,
       state.error ? h(Notice, { tone: 'bad', text: 'Не удалось загрузить: ' + state.error }) : null,
       msg ? h(Notice, { tone: msg.tone, text: msg.text }) : null,
-      state.loading ? h('div', { style: { color: '#6e6e73' } }, 'Загружаю…') : null,
+      state.loading ? h('div', { style: { color: C().dim } }, 'Загружаю…') : null,
 
       h('div', { style: { overflowX: 'auto' } },
         h('table', { style: { width: '100%', borderCollapse: 'collapse', fontSize: 14 } },
-          h('thead', null, h('tr', { style: { textAlign: 'left', color: '#6e6e73', fontSize: 12 } },
+          h('thead', null, h('tr', { style: { textAlign: 'left', color: C().dim, fontSize: 12 } },
             ['Человек', 'Почта', 'Как пришёл', 'Роль', 'Регистрация', 'Последний вход', ''].map(function (t, i) {
-              return h('th', { key: i, style: { padding: '8px 10px', borderBottom: '1px solid #e5e5ea', whiteSpace: 'nowrap' } }, t);
+              return h('th', { key: i, style: { padding: '8px 10px', borderBottom: '1px solid ' + C().line, whiteSpace: 'nowrap' } }, t);
             }))),
           h('tbody', null, state.people.map(function (p) {
-            return h('tr', { key: p.userId, style: { borderBottom: '1px solid #f0f0f3', opacity: p.deleted ? 0.5 : 1 } },
+            return h('tr', { key: p.userId, style: { borderBottom: '1px solid ' + C().lineSoft, opacity: p.deleted ? 0.5 : 1 } },
               h('td', { style: { padding: '8px 10px' } },
                 h('div', { style: { fontWeight: 500 } }, p.nickname || '—',
-                  p.deleted ? h('span', { style: { fontSize: 11, color: '#a12d2d' } }, ' удалён') : null),
-                p.fullName ? h('div', { style: { fontSize: 12, color: '#6e6e73' } }, p.fullName) : null,
-                p.phone ? h('div', { style: { fontSize: 12, color: '#6e6e73' } }, p.phone) : null,
-                h('div', { style: { fontSize: 11, color: '#8a8a8e', fontFamily: 'ui-monospace, monospace' } }, String(p.userId).slice(0, 8) + '…')),
+                  p.deleted ? h('span', { style: { fontSize: 11, color: C().badText } }, ' удалён') : null),
+                p.fullName ? h('div', { style: { fontSize: 12, color: C().dim } }, p.fullName) : null,
+                p.phone ? h('div', { style: { fontSize: 12, color: C().dim } }, p.phone) : null,
+                h('div', { style: { fontSize: 11, color: C().faint, fontFamily: 'ui-monospace, monospace' } }, String(p.userId).slice(0, 8) + '…')),
               h('td', { style: { padding: '8px 10px' } },
                 p.email
                   ? h('div', null, h('div', null, p.email),
                       h(Badge, { tone: p.emailVerified ? 'good' : 'warn' }, p.emailVerified ? 'подтверждена' : 'не подтверждена'))
-                  : h('span', { style: { color: '#8a8a8e' } }, '—')),
+                  : h('span', { style: { color: C().faint } }, '—')),
               h('td', { style: { padding: '8px 10px' } },
                 h(Badge, { tone: p.registeredVia === 'email' ? 'accent' : 'neutral' },
                   p.registeredVia === 'email' ? 'почта' : 'Telegram')),
               h('td', { style: { padding: '8px 10px' } },
                 h(Badge, { tone: p.role === 'superadmin' ? 'bad' : (p.role === 'admin' ? 'accent' : 'neutral') },
                   roleTitle(state.roles, p.role)),
-                p.explicit ? null : h('div', { style: { fontSize: 11, color: '#8a8a8e', marginTop: 3 } }, 'по умолчанию')),
+                p.explicit ? null : h('div', { style: { fontSize: 11, color: C().faint, marginTop: 3 } }, 'по умолчанию')),
               h('td', { style: { padding: '8px 10px', whiteSpace: 'nowrap' } }, dateOnly(p.createdAt)),
-              h('td', { style: { padding: '8px 10px', whiteSpace: 'nowrap', color: '#6e6e73' } }, human(p.lastSeenAt)),
+              h('td', { style: { padding: '8px 10px', whiteSpace: 'nowrap', color: C().dim } }, human(p.lastSeenAt)),
               h('td', { style: { padding: '8px 10px' } },
                 h('button', { className: 'ad-btn', onClick: function () { setSel(p); setMsg(null); } }, 'Открыть')));
           }))
@@ -248,52 +298,52 @@
         .catch(function (e) { setBusy(false); props.onError('Роль не изменена: ' + e.message); });
     }
 
-    return h('div', { style: { marginTop: 16, border: '1px solid #d2d2d7', borderRadius: 12, padding: 16 } },
+    return h('div', { style: { marginTop: 16, border: '1px solid ' + C().fieldBorder, borderRadius: 12, padding: 16 } },
       h('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' } },
         h('div', null,
           h('div', { style: { fontSize: 17, fontWeight: 600 } }, owner.nickname || owner.userId),
-          h('div', { style: { fontSize: 12, color: '#8a8a8e', fontFamily: 'ui-monospace, monospace' } }, 'usr:' + owner.userId),
-          owner.email ? h('div', { style: { fontSize: 13, color: '#3a3a3c', marginTop: 4 } },
+          h('div', { style: { fontSize: 12, color: C().faint, fontFamily: 'ui-monospace, monospace' } }, 'usr:' + owner.userId),
+          owner.email ? h('div', { style: { fontSize: 13, color: C().body, marginTop: 4 } },
             owner.email + (owner.emailVerified ? ' · подтверждена' : ' · не подтверждена')) : null),
         h('button', { className: 'ad-btn', onClick: props.onClose }, 'Закрыть')),
 
       h('div', { style: { marginTop: 16 } },
         h('div', { style: { fontWeight: 600, marginBottom: 8 } }, 'Роль'),
         !canRoles
-          ? h('div', { style: { fontSize: 13, color: '#6e6e73' } }, 'Менять роли может только тот, у кого есть полномочие «Управлять ролями».')
+          ? h('div', { style: { fontSize: 13, color: C().dim } }, 'Менять роли может только тот, у кого есть полномочие «Управлять ролями».')
           : h('div', null,
               props.roles.map(function (r) {
                 return h('label', { key: r.roleId, style: { display: 'inline-flex', alignItems: 'center', gap: 6, marginRight: 16, cursor: 'pointer' } },
                   h('input', { type: 'radio', name: 'role-' + owner.userId, checked: role === r.roleId,
                     onChange: function () { setRole(r.roleId); } }),
                   h('span', null, r.title),
-                  r.isDefault ? h('span', { style: { fontSize: 11, color: '#8a8a8e' } }, '(по умолчанию)') : null);
+                  r.isDefault ? h('span', { style: { fontSize: 11, color: C().faint } }, '(по умолчанию)') : null);
               }),
               h('div', { style: { marginTop: 10, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' } },
                 h('input', {
                   placeholder: 'Причина — попадёт в журнал', value: note,
                   onChange: function (e) { setNote(e.target.value); },
-                  style: { flex: '1 1 240px', padding: '7px 10px', borderRadius: 8, border: '1px solid #d2d2d7' }
+                  style: { flex: '1 1 240px', padding: '7px 10px', borderRadius: 8, border: '1px solid ' + C().fieldBorder, background: C().fieldBg, color: 'inherit' }
                 }),
                 h('button', {
                   className: 'ad-btn', disabled: busy || role === owner.role || lastSuper,
                   onClick: saveRole
                 }, busy ? 'Сохраняю…' : 'Сохранить роль')),
-              lastSuper ? h('div', { style: { marginTop: 6, fontSize: 13, color: '#a12d2d' } },
+              lastSuper ? h('div', { style: { marginTop: 6, fontSize: 13, color: C().badText } },
                 'Это последний суперадмин — сначала выдайте роль кому-то ещё, иначе платформа останется без управления.') : null)),
 
       h('div', { style: { marginTop: 20 } },
         h('div', { style: { fontWeight: 600, marginBottom: 4 } }, 'Полномочия роли «' + roleTitle(props.roles, role) + '»'),
-        h('div', { style: { fontSize: 12, color: '#6e6e73', marginBottom: 8 } },
+        h('div', { style: { fontSize: 12, color: C().dim, marginBottom: 8 } },
           'Галочки относятся к РОЛИ, а не к одному человеку: меняя их, вы меняете права всех, у кого эта роль.'),
         h(RoleCaps, { roleId: role, me: me, catalog: props.catalog, onError: props.onError, onDone: props.onDone })),
 
       h('div', { style: { marginTop: 20 } },
         h('div', { style: { fontWeight: 600, marginBottom: 4 } }, 'Персональные доступы'),
-        h('div', { style: { fontSize: 12, color: '#6e6e73', marginBottom: 8 } },
+        h('div', { style: { fontSize: 12, color: C().dim, marginBottom: 8 } },
           '«Наследовать» — как у роли. «Открыть» и «Закрыть» — исключение именно для этого человека.'),
         !canGrant
-          ? h('div', { style: { fontSize: 13, color: '#6e6e73' } }, 'Нужно полномочие «Выдавать доступы».')
+          ? h('div', { style: { fontSize: 13, color: C().dim } }, 'Нужно полномочие «Выдавать доступы».')
           : h(OwnerFeatures, { ownerKey: 'usr:' + owner.userId, catalog: props.catalog,
                                onError: props.onError, onDone: props.onDone })));
   }
@@ -328,7 +378,7 @@
             onChange: function (e) { toggle(c.key, e.target.checked); } }),
           h('span', null, c.title,
             locked && props.roleId === 'superadmin' && c.key === 'cap:roles.manage'
-              ? h('span', { style: { fontSize: 11, color: '#8a8a8e' } }, ' — снять нельзя') : null));
+              ? h('span', { style: { fontSize: 11, color: C().faint } }, ' — снять нельзя') : null));
       }));
   }
 
@@ -338,7 +388,7 @@
     var s = stateSt[0], setS = stateSt[1];
 
     if (!features.length) {
-      return h('div', { style: { fontSize: 13, color: '#6e6e73' } },
+      return h('div', { style: { fontSize: 13, color: C().dim } },
         'Каталог возможностей пуст: разделы ещё не объявили, что можно открывать и закрывать. Опубликуйте каталог на подвкладке «Каталог».');
     }
 
@@ -361,10 +411,10 @@
       s.error ? h(Notice, { tone: 'bad', text: s.error }) : null,
       s.note ? h(Notice, { text: s.note }) : null,
       features.slice(0, 200).map(function (f) {
-        return h('div', { key: f.feature, style: { display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderBottom: '1px solid #f0f0f3', flexWrap: 'wrap' } },
+        return h('div', { key: f.feature, style: { display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderBottom: '1px solid ' + C().lineSoft, flexWrap: 'wrap' } },
           h('div', { style: { flex: '1 1 220px' } },
             h('div', null, f.title || f.feature),
-            h('div', { style: { fontSize: 11, color: '#8a8a8e', fontFamily: 'ui-monospace, monospace' } },
+            h('div', { style: { fontSize: 11, color: C().faint, fontFamily: 'ui-monospace, monospace' } },
               f.feature + (f.sensitive ? ' · проверяется сервером' : ' · только витрина'))),
           ['inherit', 'open', 'closed'].map(function (m) {
             return h('button', { key: m, className: 'ad-btn', disabled: s.loading,
@@ -377,30 +427,30 @@
   // ─── матрица роли × возможности ─────────────────────────────────────
   function MatrixView(props) {
     var cat = props.catalog;
-    if (!cat) return h('div', { style: { color: '#6e6e73' } }, 'Загружаю каталог…');
+    if (!cat) return h('div', { style: { color: C().dim } }, 'Загружаю каталог…');
     var roles = cat.roles || [];
     var keys = CAPS.map(function (c) { return c.key; })
       .concat((cat.features || []).map(function (f) { return f.feature; }));
-    if (!keys.length || !roles.length) return h('div', { style: { color: '#6e6e73' } }, 'Нечего показывать: каталог пуст.');
+    if (!keys.length || !roles.length) return h('div', { style: { color: C().dim } }, 'Нечего показывать: каталог пуст.');
 
     return h('div', null,
-      h('div', { style: { fontSize: 13, color: '#6e6e73', marginBottom: 10 } },
+      h('div', { style: { fontSize: 13, color: C().dim, marginBottom: 10 } },
         '✓ открыто роли, ✕ закрыто явно, · не задано (действует правило по умолчанию).'),
       h('div', { style: { overflowX: 'auto' } },
         h('table', { style: { borderCollapse: 'collapse', fontSize: 13 } },
           h('thead', null, h('tr', null,
-            h('th', { style: { textAlign: 'left', padding: '6px 10px', borderBottom: '1px solid #e5e5ea' } }, 'Возможность'),
+            h('th', { style: { textAlign: 'left', padding: '6px 10px', borderBottom: '1px solid ' + C().line } }, 'Возможность'),
             roles.map(function (r) {
-              return h('th', { key: r.roleId, style: { padding: '6px 10px', borderBottom: '1px solid #e5e5ea', whiteSpace: 'nowrap' } }, r.title);
+              return h('th', { key: r.roleId, style: { padding: '6px 10px', borderBottom: '1px solid ' + C().line, whiteSpace: 'nowrap' } }, r.title);
             }))),
           h('tbody', null, keys.map(function (k) {
-            return h('tr', { key: k, style: { borderBottom: '1px solid #f5f5f7' } },
+            return h('tr', { key: k, style: { borderBottom: '1px solid ' + C().lineSoft } },
               h('td', { style: { padding: '6px 10px', fontFamily: k.indexOf('cap:') === 0 ? 'inherit' : 'ui-monospace, monospace' } }, k),
               roles.map(function (r) {
                 var g = (cat.roleGrants && cat.roleGrants[r.roleId]) || {};
                 var v = g[k];
                 return h('td', { key: r.roleId, style: { padding: '6px 10px', textAlign: 'center' } },
-                  v === true ? '✓' : (v === false ? '✕' : h('span', { style: { color: '#c7c7cc' } }, '·')));
+                  v === true ? '✓' : (v === false ? '✕' : h('span', { style: { color: C().dot } }, '·')));
               }));
           })))));
   }
@@ -441,23 +491,23 @@
 
     var list = (cat && cat.features) || [];
     return h('div', null,
-      h('div', { style: { fontSize: 13, color: '#6e6e73', marginBottom: 10 } },
+      h('div', { style: { fontSize: 13, color: C().dim, marginBottom: 10 } },
         'Каталог — список того, что вообще можно открывать и закрывать. Разделы объявляют свои узлы сами, поэтому новый тренажёр появляется здесь без правки кода прав.'),
       st.err ? h(Notice, { tone: 'bad', text: st.err }) : null,
       st.msg ? h(Notice, { text: st.msg }) : null,
       canEdit
         ? h('button', { className: 'ad-btn', disabled: st.busy, onClick: publish },
             st.busy ? 'Публикую…' : 'Опубликовать каталог с этой страницы')
-        : h('div', { style: { fontSize: 13, color: '#6e6e73' } }, 'Для публикации нужно полномочие «Править каталог».'),
+        : h('div', { style: { fontSize: 13, color: C().dim } }, 'Для публикации нужно полномочие «Править каталог».'),
       h('div', { style: { marginTop: 12, fontSize: 13 } },
         list.length ? ('Узлов на сервере: ' + list.length) : 'На сервере каталог пуст.'),
       h('div', { style: { marginTop: 8 } }, list.slice(0, 300).map(function (f) {
-        return h('div', { key: f.feature, style: { padding: '5px 0', borderBottom: '1px solid #f5f5f7', display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' } },
+        return h('div', { key: f.feature, style: { padding: '5px 0', borderBottom: '1px solid ' + C().lineSoft, display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' } },
           h('span', { style: { fontFamily: 'ui-monospace, monospace', fontSize: 12, flex: '1 1 240px' } }, f.feature),
           h(Badge, { tone: f.defaultAccess === 'closed' ? 'bad' : (f.defaultAccess === 'account' ? 'warn' : 'good') }, f.defaultAccess || '—'),
           h(Badge, { tone: f.status === 'live' ? 'neutral' : 'warn' }, f.status || '—'),
           f.sensitive ? h(Badge, { tone: 'accent' }, 'сервер') : null,
-          h('span', { style: { fontSize: 12, color: '#6e6e73' } }, f.title || ''));
+          h('span', { style: { fontSize: 12, color: C().dim } }, f.title || ''));
       })));
   }
 
@@ -474,34 +524,35 @@
         .catch(function (e) { setSt({ loading: false, error: e.message, entries: [] }); });
     }, [canView]);
 
-    if (!canView) return h('div', { style: { fontSize: 14, color: '#6e6e73' } }, 'Нужно полномочие «Видеть журнал».');
+    if (!canView) return h('div', { style: { fontSize: 14, color: C().dim } }, 'Нужно полномочие «Видеть журнал».');
 
     return h('div', null,
-      h('div', { style: { fontSize: 13, color: '#6e6e73', marginBottom: 10 } },
+      h('div', { style: { fontSize: 13, color: C().dim, marginBottom: 10 } },
         'Пишутся и успешные действия, и ОТКАЗЫ: по одним успехам украденный токен неотличим от обычной работы.'),
       st.error ? h(Notice, { tone: 'bad', text: st.error }) : null,
-      st.loading ? h('div', { style: { color: '#6e6e73' } }, 'Загружаю…') : null,
+      st.loading ? h('div', { style: { color: C().dim } }, 'Загружаю…') : null,
       h('div', { style: { overflowX: 'auto' } },
         h('table', { style: { width: '100%', borderCollapse: 'collapse', fontSize: 13 } },
-          h('thead', null, h('tr', { style: { textAlign: 'left', color: '#6e6e73', fontSize: 12 } },
+          h('thead', null, h('tr', { style: { textAlign: 'left', color: C().dim, fontSize: 12 } },
             ['Когда', 'Кто', 'Что', 'Над кем', 'Итог', 'Почему'].map(function (t, i) {
-              return h('th', { key: i, style: { padding: '7px 10px', borderBottom: '1px solid #e5e5ea', whiteSpace: 'nowrap' } }, t);
+              return h('th', { key: i, style: { padding: '7px 10px', borderBottom: '1px solid ' + C().line, whiteSpace: 'nowrap' } }, t);
             }))),
           h('tbody', null, st.entries.map(function (e, i) {
             var denied = e.result === 'denied', error = e.result === 'error';
-            return h('tr', { key: e.id || i, style: { borderBottom: '1px solid #f5f5f7', background: denied ? '#fff7f7' : (error ? '#fffaf0' : 'transparent') } },
+            return h('tr', { key: e.id || i, style: { borderBottom: '1px solid ' + C().lineSoft, background: denied ? C().rowBad : (error ? C().rowWarn : 'transparent') } },
               h('td', { style: { padding: '7px 10px', whiteSpace: 'nowrap' } }, human(e.at)),
               h('td', { style: { padding: '7px 10px', fontFamily: 'ui-monospace, monospace', fontSize: 11 } }, String(e.actor || '').slice(0, 26)),
               h('td', { style: { padding: '7px 10px' } }, e.action || '—'),
               h('td', { style: { padding: '7px 10px', fontFamily: 'ui-monospace, monospace', fontSize: 11 } }, String(e.target || '—').slice(0, 26)),
               h('td', { style: { padding: '7px 10px' } },
                 h(Badge, { tone: denied ? 'bad' : (error ? 'warn' : 'good') }, e.result || '—')),
-              h('td', { style: { padding: '7px 10px', color: '#3a3a3c' } }, e.reason || ''));
+              h('td', { style: { padding: '7px 10px', color: C().body } }, e.reason || ''));
           })))));
   }
 
   // ─── корень вкладки ─────────────────────────────────────────────────
   function AccessTab() {
+    useThemeTick();   // перерисовка при переключении темы страницы
     var meSt = React.useState(null);
     var me = meSt[0], setMe = meSt[1];
     var errSt = React.useState(null);
@@ -528,19 +579,19 @@
     }, []);
 
     if (err) return h(Notice, { tone: 'bad', text: 'Не удалось узнать свои права: ' + err });
-    if (!me) return h('div', { style: { color: '#6e6e73', padding: 20 } }, 'Загружаю…');
+    if (!me) return h('div', { style: { color: C().dim, padding: 20 } }, 'Загружаю…');
 
     if (!token()) {
       return h('div', { style: { padding: 20 } },
         h('div', { style: { fontSize: 16, fontWeight: 600, marginBottom: 8 } }, 'Нужен вход'),
-        h('div', { style: { fontSize: 14, color: '#3a3a3c' } },
+        h('div', { style: { fontSize: 14, color: C().body } },
           'Доступами управляет тот, кто вошёл в аккаунт. Войдите на странице игры и вернитесь сюда.'),
         h('a', { href: 'duel.html#login', className: 'ad-btn', style: { display: 'inline-block', marginTop: 12 } }, 'Перейти ко входу'));
     }
     if (!(me.caps || []).length) {
       return h('div', { style: { padding: 20 } },
         h('div', { style: { fontSize: 16, fontWeight: 600, marginBottom: 8 } }, 'Доступа нет'),
-        h('div', { style: { fontSize: 14, color: '#3a3a3c' } },
+        h('div', { style: { fontSize: 14, color: C().body } },
           'Ваша роль — «' + (me.roleTitle || me.role) + '», административных полномочий у неё нет. Их выдаёт суперадмин.'));
     }
 
@@ -550,7 +601,7 @@
       h('div', { style: { display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', marginBottom: 14 } },
         h('span', { style: { fontSize: 14 } }, 'Вы: ', h('b', null, me.roleTitle || me.role)),
         h(Badge, { tone: me.isSuperadmin ? 'bad' : 'accent' }, me.isSuperadmin ? 'суперадмин' : 'админ'),
-        h('span', { style: { fontSize: 12, color: '#6e6e73' } }, 'полномочий: ' + (me.caps || []).length),
+        h('span', { style: { fontSize: 12, color: C().dim } }, 'полномочий: ' + (me.caps || []).length),
         h('button', { className: 'ad-btn', onClick: loadCatalog, style: { marginLeft: 'auto' } }, 'Обновить каталог')),
 
       h('div', { style: { display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' } },
@@ -558,7 +609,7 @@
           var on = view === t[0];
           return h('button', {
             key: t[0], onClick: function () { setView(t[0]); }, className: 'ad-btn',
-            style: { background: on ? '#1d1d1f' : '#f5f5f7', color: on ? '#fff' : '#1d1d1f' }
+            style: { background: on ? C().tabOnBg : C().tabOffBg, color: on ? C().tabOnText : 'inherit' }
           }, t[1]);
         })),
 
