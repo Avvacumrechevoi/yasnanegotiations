@@ -2,10 +2,16 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "yasna-pr",
+      "name": "docs-static",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8090", "--directory", "docs"],
-      "port": 8090
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8642",
+        "--directory",
+        "/Users/avva/Downloads/Ясна книги официалные/_Разработка/yasnaneg-pr/docs"
+      ],
+      "port": 8642
     }
   ]
 }

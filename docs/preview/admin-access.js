@@ -459,49 +459,130 @@
   }
 
   // ─── каталог ────────────────────────────────────────────────────────
+  // Черновики узлов живут НА СТРАНИЦАХ (каждый раздел объявляет себя через
+  // YasnaAccess.declare() там, где он и так перечислен). Поэтому «Собрать
+  // каталог» открывает страницы в скрытых iframe того же origin, читает
+  // из каждого YasnaAccess.declared() и сливает. Плюс накопленный черновик
+  // localStorage этой страницы (catalog() с source != 'server').
+  var HARVEST_PAGES = ['index.html', 'duel.html', 'learn.html', 'trainers.html',
+                       'start.html', 'rating.html', 'negotiations.html'];
+
+  function pickNode(n) {
+    return { feature: n.feature, area: n.area, parent: n.parent, title: n.title,
+             kind: n.kind, defaultAccess: n.defaultAccess, status: n.status,
+             sensitive: !!n.sensitive, declaredAt: n.declaredAt || null };
+  }
+
   function CatalogView(props) {
     var cat = props.catalog;
-    var stSt = React.useState({ busy: false, msg: null, err: null });
+    var stSt = React.useState({ busy: null, msg: null, err: null, harvest: null, log: [] });
     var st = stSt[0], setSt = stSt[1];
     var canEdit = props.me.caps.indexOf('cap:catalog.edit') >= 0;
 
-    // Публикуем ТО, ЧТО ОБЪЯВИЛА ЭТА СТРАНИЦА, а не серверный снимок: иначе
-    // публикация возвращала бы серверу его же данные и создавала иллюзию работы.
-    function declaredNodes() {
+    function localDraft(into) {
       try {
-        if (window.YasnaAccess && typeof window.YasnaAccess.declared === 'function') {
-          return window.YasnaAccess.declared() || [];
-        }
+        (window.YasnaAccess && window.YasnaAccess.catalog ? window.YasnaAccess.catalog() : [])
+          .forEach(function (n) { if (n.source !== 'server') into[n.feature] = pickNode(n); });
       } catch (_) {}
-      return [];
+    }
+
+    function harvest() {
+      var collected = {};
+      localDraft(collected);
+      var log = [], idx = 0;
+      setSt({ busy: 'Собираю каталог со страниц…', msg: null, err: null, harvest: null, log: [] });
+
+      function done() {
+        var nodes = Object.keys(collected).sort().map(function (k) { return collected[k]; });
+        var onServer = {};
+        ((cat && cat.features) || []).forEach(function (f) { onServer[f.feature] = f; });
+        var fresh = nodes.filter(function (n) { return !onServer[n.feature]; }).length;
+        setSt({ busy: null, err: null, harvest: nodes, log: log,
+                msg: 'Собрано узлов: ' + nodes.length + ' (новых для сервера: ' + fresh + '). Проверь список и публикуй.' });
+      }
+
+      function next() {
+        if (idx >= HARVEST_PAGES.length) { done(); return; }
+        var page = HARVEST_PAGES[idx++];
+        var fr = document.createElement('iframe');
+        fr.style.cssText = 'position:absolute;width:2px;height:2px;border:0;visibility:hidden';
+        var settled = false;
+        var timer = setTimeout(function () { finish('таймаут 20с'); }, 20000);
+        function finish(note) {
+          if (settled) return; settled = true; clearTimeout(timer);
+          var got = 0;
+          try {
+            var A = fr.contentWindow && fr.contentWindow.YasnaAccess;
+            var nodes = (A && typeof A.declared === 'function') ? (A.declared() || []) : [];
+            nodes.forEach(function (n) { collected[n.feature] = pickNode(n); });
+            got = nodes.length;
+          } catch (e) { note = (note ? note + '; ' : '') + ((e && e.message) || e); }
+          log.push(page + ' — узлов: ' + got + (note ? ' (' + note + ')' : ''));
+          setSt(function (prev) { return Object.assign({}, prev, { log: log.slice() }); });
+          try { fr.parentNode && fr.parentNode.removeChild(fr); } catch (_) {}
+          next();
+        }
+        // После load ждём ещё немного: declare() пишет черновик отложенно
+        // (setTimeout(0)), а тяжёлые страницы регистрируют режимы при
+        // выполнении бандла.
+        fr.onload = function () { setTimeout(function () { finish(null); }, 1500); };
+        fr.onerror = function () { finish('не загрузилась'); };
+        fr.src = page + '?harvest=1';
+        document.body.appendChild(fr);
+      }
+      next();
     }
 
     function publish() {
-      var nodes = declaredNodes();
-      if (!nodes.length) {
-        setSt({ busy: false, msg: null, err: 'Эта страница ничего не объявила. Разделы объявляют свои узлы вызовом YasnaAccess.declare() — пока этого нет, публиковать нечего.' });
+      var nodes = st.harvest;
+      if (!nodes || !nodes.length) {
+        setSt(function (prev) { return Object.assign({}, prev, {
+          err: 'Сначала нажми «Собрать каталог» — публикуется именно собранный список.' }); });
         return;
       }
-      setSt({ busy: true, msg: null, err: null });
+      setSt(function (prev) { return Object.assign({}, prev, { busy: 'Публикую…', msg: null, err: null }); });
       api('/access/catalog', { method: 'POST', body: { features: nodes } })
         .then(function (d) {
-          setSt({ busy: false, err: null,
-                  msg: 'Опубликовано узлов: ' + d.upserted + (d.rejected && d.rejected.length ? ', отклонено: ' + d.rejected.length : '') });
+          setSt(function (prev) { return Object.assign({}, prev, { busy: null, err: null,
+                  msg: 'Опубликовано узлов: ' + d.upserted + (d.rejected && d.rejected.length ? ', отклонено: ' + d.rejected.length : '') }); });
           props.reload();
         })
-        .catch(function (e) { setSt({ busy: false, msg: null, err: e.message }); });
+        .catch(function (e) { setSt(function (prev) { return Object.assign({}, prev, { busy: null, msg: null, err: e.message }); }); });
     }
 
     var list = (cat && cat.features) || [];
+    var serverByKey = {};
+    list.forEach(function (f) { serverByKey[f.feature] = f; });
+
     return h('div', null,
       h('div', { style: { fontSize: 13, color: C().dim, marginBottom: 10 } },
-        'Каталог — список того, что вообще можно открывать и закрывать. Разделы объявляют свои узлы сами, поэтому новый тренажёр появляется здесь без правки кода прав.'),
+        'Каталог — список того, что вообще можно открывать и закрывать. Разделы объявляют свои узлы сами (YasnaAccess.declare), поэтому новый тренажёр появляется здесь без правки кода прав. Публикация ничего не закрывает: доступ меняется только галочками в Матрице.'),
       st.err ? h(Notice, { tone: 'bad', text: st.err }) : null,
       st.msg ? h(Notice, { text: st.msg }) : null,
       canEdit
-        ? h('button', { className: 'ad-btn', disabled: st.busy, onClick: publish },
-            st.busy ? 'Публикую…' : 'Опубликовать каталог с этой страницы')
+        ? h('div', { style: { display: 'flex', gap: 8, flexWrap: 'wrap' } },
+            h('button', { className: 'ad-btn', disabled: !!st.busy, onClick: harvest },
+              st.busy === 'Собираю каталог со страниц…' ? st.busy : 'Собрать каталог со страниц'),
+            h('button', { className: 'ad-btn', disabled: !!st.busy || !st.harvest || !st.harvest.length, onClick: publish },
+              st.busy === 'Публикую…' ? st.busy : 'Опубликовать собранное'))
         : h('div', { style: { fontSize: 13, color: C().dim } }, 'Для публикации нужно полномочие «Править каталог».'),
+      st.log.length
+        ? h('div', { style: { marginTop: 8, fontSize: 12, color: C().dim, fontFamily: 'ui-monospace, monospace' } },
+            st.log.map(function (l, i) { return h('div', { key: i }, l); }))
+        : null,
+      st.harvest
+        ? h('div', { style: { marginTop: 12 } },
+            h('div', { style: { fontSize: 13, fontWeight: 600, marginBottom: 6 } }, 'Собрано (' + st.harvest.length + '):'),
+            st.harvest.slice(0, 400).map(function (n) {
+              var known = serverByKey[n.feature];
+              return h('div', { key: n.feature, style: { padding: '4px 0', borderBottom: '1px solid ' + C().lineSoft, display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' } },
+                h('span', { style: { fontFamily: 'ui-monospace, monospace', fontSize: 12, flex: '1 1 240px' } }, n.feature),
+                h(Badge, { tone: known ? 'neutral' : 'good' }, known ? 'на сервере' : 'новый'),
+                n.status === 'wip' ? h(Badge, { tone: 'warn' }, 'wip') : null,
+                n.sensitive ? h(Badge, { tone: 'accent' }, 'сервер') : null,
+                h('span', { style: { fontSize: 12, color: C().dim } }, n.title || ''));
+            }))
+        : null,
       h('div', { style: { marginTop: 12, fontSize: 13 } },
         list.length ? ('Узлов на сервере: ' + list.length) : 'На сервере каталог пуст.'),
       h('div', { style: { marginTop: 8 } }, list.slice(0, 300).map(function (f) {
