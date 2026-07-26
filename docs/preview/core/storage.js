@@ -699,6 +699,20 @@
     return { error: 'для ключа ' + key + ' конфликта не найдено' };
   }
 
+  // Обратное решение: серверная версия уже применена при pull, поэтому
+  // здесь достаточно убрать отложенную локальную копию из журнала.
+  function resolveKeepServer(key) {
+    var list = get(SYNC_CONFLICTS_KEY, null);
+    if (!Array.isArray(list)) return { error: 'конфликтов нет' };
+    for (var i = list.length - 1; i >= 0; i--) {
+      if (list[i].key !== key) continue;
+      list.splice(i, 1);
+      set(SYNC_CONFLICTS_KEY, list);
+      return { ok: true };
+    }
+    return { error: 'для ключа ' + key + ' конфликта не найдено' };
+  }
+
   function conflicts() { var l = get(SYNC_CONFLICTS_KEY, null); return Array.isArray(l) ? l : []; }
   function status() {
     var st = syncState();
@@ -767,6 +781,7 @@
       status: status,
       conflicts: conflicts,
       resolveKeepLocal: resolveKeepLocal,
+      resolveKeepServer: resolveKeepServer,
       clearSynced: clearSynced,
       SCOPES: SYNC_SCOPES
     }

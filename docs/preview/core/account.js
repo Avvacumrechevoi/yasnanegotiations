@@ -122,6 +122,14 @@
     'html[data-theme="dark"] .yac-msg--ok{background:rgba(60,200,120,.14);color:#8fe3b0}',
     '.yac-meta{font-size:12.5px;line-height:1.6;color:#6e6e73;margin-top:4px}',
     'html[data-theme="dark"] .yac-meta{color:rgba(255,255,255,.62)}',
+    '.yac-sync{margin-top:14px;padding-top:10px;border-top:1px solid rgba(0,0,0,.08)}',
+    'html[data-theme="dark"] .yac-sync{border-top-color:rgba(255,255,255,.10)}',
+    '.yac-sync-bad{font-size:12.5px;line-height:1.55;color:#a12d2d;margin-top:6px}',
+    'html[data-theme="dark"] .yac-sync-bad{color:#ff9a9a}',
+    '.yac-sync-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}',
+    '.yac-sync-key{font-family:ui-monospace,monospace;font-size:11.5px;color:#6e6e73;flex:1 1 140px;word-break:break-all}',
+    'html[data-theme="dark"] .yac-sync-key{color:rgba(255,255,255,.55)}',
+    '.yac-btn--mini{padding:5px 10px;font-size:12.5px}',
     '.yac-x{position:absolute;top:10px;right:12px;border:0;background:transparent;font-size:22px;',
     '  line-height:1;cursor:pointer;color:#8a8a8e;padding:6px}',
     '.yac-wrap{position:relative}',
@@ -240,6 +248,9 @@
       }
       go.addEventListener('click', askCode);
       mail.addEventListener('keydown', function (e) { if (e.key === 'Enter') askCode(); });
+      // Гость тоже синхронизируется (пространство устройства): если что-то
+      // разошлось или сервер отвергает записи — видно и без входа.
+      syncSection(b, true);
       setTimeout(function () { mail.focus(); }, 60);
     });
   }
@@ -298,6 +309,75 @@
       });
       setTimeout(function () { code.focus(); }, 60);
     });
+  }
+
+  // ─── синхронизация: видимое состояние ──────────────────────────────
+  // Раньше конфликты и отвергнутые ключи жили только в консоли — человек
+  // не мог узнать, что его заметка «проиграла» серверной версии. Блок
+  // показывает последний обмен, ошибку и конфликты с кнопками решения.
+  function fmtAgo(iso) {
+    if (!iso) return 'ещё не было';
+    var t = Date.parse(iso);
+    if (!isFinite(t)) return iso;
+    var s = Math.max(0, (Date.now() - t) / 1000);
+    if (s < 60) return 'только что';
+    if (s < 3600) return Math.round(s / 60) + ' мин назад';
+    if (s < 86400) return Math.round(s / 3600) + ' ч назад';
+    return new Date(t).toLocaleString('ru-RU');
+  }
+
+  // quiet: показывать только если есть проблема (для окна входа гостя —
+  // гость тоже синхронизируется, но пугать его служебным блоком незачем).
+  function syncSection(b, quiet) {
+    var sync = window.YasnaStorage && window.YasnaStorage.sync;
+    if (!sync || !sync.status) return;
+    var host = el('div', 'yac-sync');
+    b.appendChild(host);
+    render();
+
+    function render() {
+      host.textContent = '';
+      var st;
+      try { st = sync.status(); } catch (_) { return; }
+      if (!st.configured) return;                      // нет адреса API — нечего показывать
+      if (quiet && !st.lastError && !st.conflicts && !Object.keys(st.rejected || {}).length) return;
+      host.appendChild(el('div', 'yac-lbl', 'Синхронизация'));
+      var meta = el('div', 'yac-meta');
+      meta.appendChild(el('div', null, 'Получено с сервера: ' + fmtAgo(st.lastPull)));
+      meta.appendChild(el('div', null, 'Отправлено на сервер: ' + fmtAgo(st.lastPush)));
+      if (st.lastError) meta.appendChild(el('div', 'yac-sync-bad', 'Ошибка: ' + st.lastError));
+      var rejectedKeys = Object.keys(st.rejected || {});
+      if (rejectedKeys.length) {
+        meta.appendChild(el('div', 'yac-sync-bad',
+          'Сервер отверг ключей: ' + rejectedKeys.length + ' (' + rejectedKeys.slice(0, 3).join(', ') + (rejectedKeys.length > 3 ? '…' : '') + ')'));
+      }
+      host.appendChild(meta);
+
+      var list = [];
+      try { list = sync.conflicts() || []; } catch (_) {}
+      if (list.length) {
+        host.appendChild(el('div', 'yac-sync-bad',
+          'Расхождения: ' + list.length + '. На этом устройстве и на сервере оказались разные версии — сейчас действует серверная, ваша сохранена здесь.'));
+        list.slice(0, 8).forEach(function (c) {
+          var row = el('div', 'yac-sync-row');
+          row.appendChild(el('span', 'yac-sync-key', c.key));
+          var mine = el('button', 'yac-btn yac-btn--mini', 'Вернуть мою');
+          mine.addEventListener('click', function () {
+            mine.disabled = true;
+            Promise.resolve(sync.resolveKeepLocal(c.key)).then(render, render);
+          });
+          var srv = el('button', 'yac-btn yac-btn--mini', 'Оставить серверную');
+          srv.addEventListener('click', function () {
+            srv.disabled = true;
+            sync.resolveKeepServer && sync.resolveKeepServer(c.key);
+            render();
+          });
+          row.appendChild(mine);
+          row.appendChild(srv);
+          host.appendChild(row);
+        });
+      }
+    }
   }
 
   // ─── профиль ───────────────────────────────────────────────────────
@@ -386,6 +466,7 @@
         });
         danger.appendChild(kill);
         b.appendChild(danger);
+        syncSection(b);
         b.appendChild(el('div', 'yac-meta',
           'При выходе прогресс на этом устройстве стирается — он остаётся на сервере и вернётся при входе. ' +
           'Так сделано, чтобы на общем компьютере ваши уроки и заметки не достались следующему.'));
