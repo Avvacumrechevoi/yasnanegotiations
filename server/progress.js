@@ -253,6 +253,50 @@ async function handleGet(drv, { ownerKey, userId, deviceId }){
       source: txt(row.items[2]), expiresAt: ts(row.items[3]),
     }));
   });
+
+  // ─── права: ГОТОВОЕ решение сервера ─────────────────────────────
+  // role + caps + access (галочки роли, слитые с персональными
+  // исключениями) + опубликованный каталог. Клиентский core/access.js
+  // это только отрисовывает — политику из кусочков он не складывает.
+  // Ошибка здесь не имеет права ронять прогресс: поля просто не приедут,
+  // клиент останется в fail-open.
+  try {
+    const acc = require('./access.js');
+    const r = await acc.resolveAccess(drv, {
+      userId,
+      ownerKeys: deviceId ? [OWNER_DEV + deviceId] : [],
+    });
+    out.role = { id: r.role, title: r.roleTitle, rank: r.rankLevel };
+    out.caps = r.caps;
+    out.access = r.features;
+
+    // Каталог — чтобы клиент отличал «Скоро» (wip) от «закрыто» и знал,
+    // какие узлы открываются по аккаунту. Ветку admin наружу не отдаём:
+    // /progress публичен, а структура админки гостю не нужна.
+    const features = [], why = {};
+    await drv.tableClient.withSession(async (s) => {
+      const rf = await s.executeQuery(`SELECT feature, area, parent, title, kind,
+          default_access, status, sensitive FROM features;`, {});
+      for(const row of (rf.resultSets[0]?.rows || [])){
+        const f = {
+          feature: txt(row.items[0]), area: txt(row.items[1]), parent: txt(row.items[2]),
+          title: txt(row.items[3]), kind: txt(row.items[4]),
+          defaultAccess: txt(row.items[5]), status: txt(row.items[6]),
+          sensitive: !!row.items[7]?.boolValue,
+        };
+        if(!f.feature || f.area === 'admin') continue;
+        features.push(f);
+        if(f.status === 'wip') why[f.feature] = 'wip';
+        else if(f.defaultAccess === 'account') why[f.feature] = 'account';
+        else if(f.defaultAccess === 'closed') why[f.feature] = 'closed';
+      }
+    });
+    out.features = features;
+    out.accessWhy = why;
+  } catch(e){
+    console.warn('[progress] права не посчитались:', (e && e.message) || e);
+  }
+
   await logSync(drv, ownerKey, deviceId, 'pull', out.items.length);
   return ok(out);
 }

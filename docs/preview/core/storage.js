@@ -526,6 +526,17 @@
       }
 
       st.entitlements = data.entitlements || [];
+      // Права — готовое решение сервера (роль, полномочия, маски, каталог).
+      // core/access.js читает их ОТСЮДА: своих запросов у него нет. Поля
+      // пишем только когда сервер их прислал: старая версия функции без них
+      // не должна затирать уже известные права пустотой.
+      if (data.role !== undefined || data.access !== undefined) {
+        st.role = data.role || null;
+        st.caps = data.caps || [];
+        st.access = data.access || {};
+        st.accessWhy = data.accessWhy || {};
+        st.features = data.features || [];
+      }
       st.isUser = !!data.isUser;
       // Перенос гостевых данных на аккаунт нужен ОДИН раз; дальше deviceId не
       // отправляем (см. identity), иначе чужой гостевой прогресс подливается.

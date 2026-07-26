@@ -55,6 +55,15 @@ check "GET /profile"          200 "$GW/profile?deviceId=smoke-check&limit=5"
 #    (воспроизведено на живом проде).
 check "GET /progress (свой секрет)" 200 -H 'X-Device-Secret: smoke-secret-do-not-reuse' \
       "$GW/progress?deviceId=smoke-check"
+# Контракт прав: клиентский core/access.js читает роль из ответа /progress.
+# Если поле пропало (откат на старую версию, сломанный resolveAccess) —
+# гейты у всех тихо уходят в fail-open, и заметить это можно только здесь.
+body=$(curl -s -H 'X-Device-Secret: smoke-secret-do-not-reuse' "$GW/progress?deviceId=smoke-check")
+if printf '%s' "$body" | grep -q '"role"'; then
+  echo "  ✓ GET /progress отдаёт role (контракт core/access.js)"
+else
+  echo "  ✗ GET /progress БЕЗ поля role — клиентские гейты ослепли"; fails=$((fails+1))
+fi
 check "GET /progress (чужой секрет → 403)" 403 -H 'X-Device-Secret: wrong-secret' \
       "$GW/progress?deviceId=smoke-check"
 check "GET /progress (без секрета → 403)" 403 "$GW/progress?deviceId=smoke-check"
