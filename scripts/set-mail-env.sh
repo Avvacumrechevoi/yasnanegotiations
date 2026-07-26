@@ -81,10 +81,17 @@ esac
 export MAIL_PASS_CHECK="$PASS"
 
 echo
-echo "Проверяю соединение с почтовым сервером…"
-# Проверка ДО записи в облако: иначе неверный пароль обнаружится только на
-# первой попытке входа живого человека.
-python3 - "$HOST" "$PORT" "$USER_" <<'PY' || { echo "✗ почтовый сервер не принял эти данные — ничего не записал"; exit 1; }
+echo "Проверяю соединение с почтовым сервером с этой машины…"
+# ВАЖНО: проверка ИНФОРМАТИВНАЯ, а не блокирующая.
+#
+# Письма отправляет облачная функция, а не эта машина. Домашние и офисные сети
+# часто глушат SMTP: TCP-соединение проходит, а TLS-рукопожатие висит до
+# таймаута. Проверено: с рабочего мака smtp.yandex.ru:465 даёт
+# «handshake operation timed out», а из Yandex Cloud тот же адрес отвечает
+# баннером за 56 мс. Если бы проверка блокировала, настройка была бы невозможна
+# из-за ограничения, которое к проду отношения не имеет.
+LOCAL_OK=1
+python3 - "$HOST" "$PORT" "$USER_" <<'PY' || LOCAL_OK=0
 import smtplib, ssl, sys, os
 host, port, user = sys.argv[1], int(sys.argv[2]), sys.argv[3]
 pwd = os.environ['MAIL_PASS_CHECK']
@@ -102,6 +109,18 @@ except Exception as e:
     sys.exit(1)
 PY
 
+if [ "$LOCAL_OK" != "1" ]; then
+  echo
+  echo "  Проверка с этой машины не прошла. Это НЕ обязательно ошибка пароля:"
+  echo "  сеть могла заглушить SMTP. Письма отправляет облако, и оттуда"
+  echo "  smtp.yandex.ru:465 доступен (проверено)."
+  printf "  Продолжить и записать настройки? [да/нет] (Enter = да): "
+  read -r answer
+  case "$answer" in
+    н*|Н*|n*|N*) echo "  отменено, ничего не записано"; exit 1 ;;
+  esac
+fi
+
 echo
 echo "Выкатываю функцию с новыми переменными…"
 # Переиспользуем обычный путь деплоя: он собирает пакет из репозитория,
@@ -118,7 +137,12 @@ export PASSTHROUGH_ENV="SMTP_HOST SMTP_PORT SMTP_USER SMTP_PASS MAIL_FROM"
 "$REPO/scripts/deploy-backend.sh" auth-telegram
 
 echo
-echo "Проверь новую версию и переведи прод:"
+echo "Настройки записаны. Пароль проверить можно ТОЛЬКО из облака:"
+echo "  1) переведи прод на новую версию (команды ниже)"
+echo "  2) вызови самопроверку — она попробует войти на почтовый сервер"
+echo "     ИЗ ОБЛАКА и ничего никому не отправит"
+echo
+echo "Команды:"
 echo "  yc serverless function version list --function-name $FN"
 echo "  yc serverless function version set-tag --id <новая> --tag stable"
 echo "  ./scripts/smoke-backend.sh"

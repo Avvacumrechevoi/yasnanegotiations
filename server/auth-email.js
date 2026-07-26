@@ -498,6 +498,37 @@ async function handleDelete(drv, { event }){
   return ok({ deleted: true });
 }
 
+// ─── GET /auth/email/selftest ────────────────────────────────────────
+// Проверка настроек почты ИЗ ОБЛАКА, без отправки письма. Доступна только
+// суперадмину: ответ содержит адрес отправителя и текст ошибки сервера, то
+// есть сведения о конфигурации, которые незачем показывать кому попало.
+async function handleSelftest(drv, { event }){
+  const auth = event.headers?.Authorization || event.headers?.authorization;
+  const payload = auth?.startsWith('Bearer ') ? verifyJWT(auth.slice(7), process.env.JWT_SECRET) : null;
+  if(!payload?.sub) return fail(401, 'unauthorized');
+
+  let isSuper = false;
+  await drv.tableClient.withSession(async (s) => {
+    const r = await s.executeQuery(`DECLARE $u AS Utf8;
+      SELECT role_id FROM user_roles WHERE user_id = $u;`,
+      { '$u': TypedValues.utf8(String(payload.sub)) });
+    isSuper = txt(r.resultSets[0]?.rows?.[0]?.items?.[0]) === 'superadmin';
+  });
+  if(!isSuper) return fail(403, 'forbidden', { detail:'самопроверка почты доступна суперадмину' });
+
+  const res = await mailer.verifyLogin();
+  if(!res.ok){
+    // Текст ошибки сервера отдаём как есть: «неверный пароль» и «сеть недоступна»
+    // требуют разных действий, и скрывать разницу — значит заставлять гадать.
+    return { statusCode: 502, headers: CORS, body: JSON.stringify({
+      ok: false, error: res.error, code: res.code,
+      hint: 'если сервер пишет про authentication — нужен пароль приложения, а не обычный пароль от почты',
+    }) };
+  }
+  return ok({ ok: true, host: res.host, port: res.port, user: res.user, from: res.from,
+              detail: 'почтовый сервер принял логин и пароль, письмо не отправлялось' });
+}
+
 // ─── маршрутизация ───────────────────────────────────────────────────
 function reqPath(event){
   return String(event?.path || event?.url ||
@@ -520,6 +551,7 @@ exports.handler = async (event) => {
   catch(e){ console.error('[auth-email] YDB недоступна', e); return fail(503, 'db unavailable'); }
 
   try {
+    if(/\/auth\/email\/selftest/.test(path) && method === 'GET') return await handleSelftest(drv, { event });
     if(/\/auth\/email\/request/.test(path) && method === 'POST') return await handleRequest(drv, { body, event });
     if(/\/auth\/email\/verify/.test(path)  && method === 'POST') return await handleVerify(drv, { body, event });
     if(/\/account\/delete/.test(path)      && method === 'POST') return await handleDelete(drv, { event });

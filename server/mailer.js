@@ -107,4 +107,22 @@ function loginCodeLetter(code, minutes){
   return { subject, text, html };
 }
 
-module.exports = { isConfigured, send, loginCodeLetter, mailConfig };
+// Проверка учётных данных БЕЗ отправки письма: nodemailer.verify() открывает
+// соединение, делает EHLO и AUTH, затем закрывает. Нужна потому, что проверить
+// пароль с машины разработчика зачастую нельзя: домашние и офисные сети глушат
+// SMTP (TCP проходит, TLS-рукопожатие висит), а из облака тот же сервер
+// отвечает за десятки миллисекунд. Значит проверять надо оттуда, где отправка
+// и происходит.
+async function verifyLogin(){
+  if(!isConfigured()) return { ok:false, error:'mail not configured' };
+  try {
+    const t = getTransport();
+    await t.verify();
+    const c = mailConfig();
+    return { ok:true, host: c.host, port: c.port, user: c.user, from: c.from };
+  } catch(e){
+    return { ok:false, error: String(e?.message || e).slice(0, 300), code: e?.code || null };
+  }
+}
+
+module.exports = { isConfigured, send, loginCodeLetter, mailConfig, verifyLogin };

@@ -140,6 +140,29 @@ paths:
         '200':
           description: CORS preflight
 
+  /auth/email/selftest:
+    get:
+      summary: Проверить настройки почты из облака (суперадмин, письмо не отправляется)
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: Сервер принял логин и пароль
+        '502':
+          description: Почтовый сервер отказал
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
   /auth/email/verify:
     post:
       summary: Проверить код и войти
