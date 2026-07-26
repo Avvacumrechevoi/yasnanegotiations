@@ -399,6 +399,16 @@
   }
   .rt-foot strong { color: #aeaeb2; font-style: normal; }
 
+/* Честная плашка статуса и бейдж «скоро» — обе темы. */
+.rt-status-note { margin: 14px 0 6px; padding: 12px 16px; border: 1px solid rgba(240,180,80,.35); background: rgba(240,180,80,.08); border-radius: 12px; font-size: 14px; line-height: 1.55; color: #d2d2d7; }
+.rt-status-note strong { color: #fff; font-weight: 600; }
+.rt-status-note__lead { color: #f0c274 !important; }
+.rt-soon-chip { display: inline-block; vertical-align: middle; margin-left: 10px; padding: 3px 12px; border-radius: 999px; background: rgba(240,180,80,.14); border: 1px solid rgba(240,180,80,.35); color: #f0c274; font-size: 13px; font-weight: 600; letter-spacing: .02em; }
+html[data-theme='light'] .rt-status-note { border-color: rgba(150,100,10,.35); background: rgba(240,180,80,.14); color: #3a3a3c; }
+html[data-theme='light'] .rt-status-note strong { color: #0D1B2A; }
+html[data-theme='light'] .rt-status-note__lead { color: #8a5a12 !important; }
+html[data-theme='light'] .rt-soon-chip { background: rgba(240,180,80,.18); border-color: rgba(150,100,10,.35); color: #8a5a12; }
+
 /* ── Светлая тема (единый ключ html[data-theme='light']) — рейтинг на raw-hex ── */
 html[data-theme='light'] body { background:#F5F5F7; color:#0D1B2A; }
 html[data-theme='light'] .rt-back { color:#5C6A80; border-color:rgba(0,0,0,.12); }
@@ -423,6 +433,19 @@ html[data-theme='light'] .rt-level-card *, html[data-theme='light'] .rt-formula_
 <header class="ynav ynav--dark ynav--sticky" id="site-nav"></header>
 <script src="core/site-nav.js?v=f062db06"></script>
 <script>window.SiteNav&&SiteNav.mount('site-nav','rating');</script>
+<script>
+// Страница и обе шкалы — в черновик каталога доступов. Шкалы wip: страница
+// описывает целевую систему, серверного расчёта Касты/Освоения ещё нет.
+try {
+  if (window.YasnaAccess && window.YasnaAccess.declare) {
+    window.YasnaAccess.declare([
+      { feature: 'section:rating', area: 'rating', title: 'Рейтинг', kind: 'section', declaredAt: 'rating.html' },
+      { feature: 'rating:mastery', area: 'rating', parent: 'section:rating', title: 'Шкала «Освоение»', kind: 'widget', status: 'wip', declaredAt: 'rating.html' },
+      { feature: 'rating:caste', area: 'rating', parent: 'section:rating', title: 'Шкала «Каста»', kind: 'widget', status: 'wip', declaredAt: 'rating.html' }
+    ]);
+  }
+} catch(_){}
+</script>
 <div class="rt-shell">
 
   <!-- «Назад»: вернуться на страницу, с которой пришли (напр. из Дуэли по «Рейтинг»);
@@ -438,6 +461,15 @@ html[data-theme='light'] .rt-level-card *, html[data-theme='light'] .rt-formula_
     <strong>Каста</strong> — соревновательный рейтинг в партиях против другого человека.
     Каждая отвечает на свой вопрос: «как хорошо знаешь» и «как играешь».
   </p>
+
+  <!-- Честный статус: страница описывает ЦЕЛЕВУЮ систему. Не убираем её —
+       это спецификация для игроков, — но помечаем, что уже работает. -->
+  <div class="rt-status-note">
+    <strong class="rt-status-note__lead">Сейчас работает:</strong> таблица лидеров по партиям —
+    лучший результат, топ недели и всех времён (кнопка «Рейтинг» в игре).
+    Шкалы <strong>Освоения</strong> и <strong>Касты</strong>,
+    описанные ниже, — целевая система: включаем поэтапно, числа и звания появятся в профиле сами.
+  </div>
 
   <!-- ═══ Quick glossary — короткий словарь в самом начале ═══ -->
   <div class="rt-glossary">
@@ -567,7 +599,7 @@ html[data-theme='light'] .rt-level-card *, html[data-theme='light'] .rt-formula_
       </div>
       <div class="rt-track-titles">
         <div class="rt-track-eyebrow">Соревновательный рейтинг</div>
-        <h2 class="rt-track-h2">Каста</h2>
+        <h2 class="rt-track-h2">Каста <span class="rt-soon-chip">скоро</span></h2>
       </div>
     </div>
 
