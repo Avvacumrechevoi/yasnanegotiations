@@ -427,6 +427,21 @@
       openLesson(target);
     });
   }
+  // Уроки объявляют себя в черновике каталога доступов. Это НЕ права:
+  // declare() ничего не закрывает (см. core/access.js) — черновик собирает
+  // админка кнопкой «Собрать каталог».
+  try {
+    if (window.YasnaAccess && window.YasnaAccess.declare) {
+      var declNodes = [{ feature: 'neg:lessons', area: 'trainers', parent: 'section:trainers',
+        title: 'Переговоры — уроки', kind: 'section', declaredAt: 'negotiations/lessons-neg.js' }];
+      LESSONS.forEach(function (l) {
+        declNodes.push({ feature: 'neg:lesson:' + l.id, area: 'trainers', parent: 'neg:lessons',
+          title: l.n + '. ' + l.title, kind: 'lesson', declaredAt: 'negotiations/lessons-neg.js' });
+      });
+      window.YasnaAccess.declare(declNodes);
+    }
+  } catch (_) {}
+
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();

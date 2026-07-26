@@ -140,4 +140,13 @@
       'ШЭ': 'Покажи готовое и работающее — образец, демо, живой кейс; ноль теории, максимум «потрогать руками».'
     }
   };
+
+  // Тренажёр «Вход в контакт» — один узел каталога доступов (типы ХА/ФО/ЦИ/ШЭ —
+  // кириллица, в ключ не годятся, да и закрывать их по отдельности незачем).
+  try {
+    if (window.YasnaAccess && window.YasnaAccess.declare) {
+      window.YasnaAccess.declare({ feature: 'neg:contact', area: 'trainers', parent: 'neg:lessons',
+        title: 'Переговоры — вход в контакт', kind: 'widget', declaredAt: 'negotiations/contact-content.js' });
+    }
+  } catch (_) {}
 })();

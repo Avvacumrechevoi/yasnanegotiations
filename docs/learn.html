@@ -1383,6 +1383,27 @@ html[data-theme='light'] {
     if(changed){ try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)); } catch(_){} }
   }
 
+  // Станции объявляют себя в черновике каталога доступов. Это НЕ права
+  // (declare ничего не закрывает — см. core/access.js): черновик нужен
+  // админке, чтобы собрать каталог одной кнопкой. status из action.available:
+  // ненаписанную главу открыть невозможно по конструкции — это wip.
+  try {
+    if (window.YasnaAccess && window.YasnaAccess.declare) {
+      window.YasnaAccess.declare(STATIONS.map(function(s){
+        return {
+          feature: 'course:stop:' + s.id,
+          area: 'course',
+          parent: 'section:learn',
+          title: s.city + ' — ' + s.title,
+          kind: 'lesson',
+          defaultAccess: 'open',
+          status: (s.action && s.action.available) ? 'live' : 'wip',
+          declaredAt: 'learn.html'
+        };
+      }));
+    }
+  } catch(_){}
+
   // ═══ СТАТУС СТАНЦИИ ═══
   // 1) Всё пройденное → done
   // 2) Первая непройденная → active

@@ -672,6 +672,24 @@ html[data-theme='light'] {
       } catch(_){}
     });
   });
+
+  // Гейты доступов на карточки-пути. Разделы объявлены в core/site-nav.js
+  // (section:*), тренажёр переговоров — в trainers.html; здесь только
+  // пометка data-yasna-locked, вид решает CSS, ничего не прячется.
+  try {
+    var A = window.YasnaAccess;
+    if (A && A.gate) {
+      var FEATURE_BY_PATH = {
+        learn: 'section:learn',
+        play: 'section:game',
+        explore: 'section:constructor',
+        negotiations: 'trainer:negotiations'
+      };
+      Object.keys(FEATURE_BY_PATH).forEach(function(p){
+        A.gate('[data-path="' + p + '"]', FEATURE_BY_PATH[p]);
+      });
+    }
+  } catch(_){}
 })();
 </script>
 

@@ -1960,4 +1960,17 @@
     ]
   }
 ];
+
+  // Банки практикумов — в черновик каталога доступов (не права, только опись).
+  try {
+    if (window.YasnaAccess && window.YasnaAccess.declare) {
+      var declNodes = [{ feature: 'neg:practice', area: 'trainers', parent: 'neg:lessons',
+        title: 'Переговоры — практикумы', kind: 'section', declaredAt: 'negotiations/practice-content.js' }];
+      window.NegContent.PRACTICE.forEach(function (b) {
+        declNodes.push({ feature: 'neg:practice:' + String(b.id).toLowerCase(), area: 'trainers',
+          parent: 'neg:practice', title: b.title, kind: 'theme', declaredAt: 'negotiations/practice-content.js' });
+      });
+      window.YasnaAccess.declare(declNodes);
+    }
+  } catch (_) {}
 })();

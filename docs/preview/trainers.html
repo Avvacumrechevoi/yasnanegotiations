@@ -85,6 +85,23 @@ html[data-theme='light'] {
 <header class="ynav ynav--dark ynav--sticky" id="site-nav"></header>
 <script src="core/site-nav.js?v=f062db06"></script>
 <script>window.SiteNav&&SiteNav.mount('site-nav','trainers');</script>
+<script>
+// Карточки тренажёров: объявить в черновике каталога доступов и повесить гейт.
+// declare ничего не закрывает; gate ставит только атрибут data-yasna-locked —
+// закрытие появится, лишь когда владелец опубликует каталог и снимет галочку.
+(function(){
+  var A = window.YasnaAccess;
+  if (!A) return;
+  A.declare([
+    { feature: 'trainer:lessons', area: 'trainers', parent: 'section:trainers',
+      title: 'Тренажёр «Уроки»', kind: 'section', declaredAt: 'trainers.html' },
+    { feature: 'trainer:negotiations', area: 'trainers', parent: 'section:trainers',
+      title: 'Тренажёр «Переговоры»', kind: 'section', declaredAt: 'trainers.html' }
+  ]);
+  A.gate('[data-feature="trainer:lessons"]', 'trainer:lessons');
+  A.gate('[data-feature="trainer:negotiations"]', 'trainer:negotiations');
+})();
+</script>
 
 <main class="tr-wrap">
 
@@ -99,7 +116,7 @@ html[data-theme='light'] {
 
   <div class="tr-grid">
 
-    <a class="tr-card" href="index.html?lessons=1">
+    <a class="tr-card" href="index.html?lessons=1" data-feature="trainer:lessons">
       <span class="tr-card-badge">✦ Доступно · базовый курс</span>
       <div class="tr-card-h">Уроки</div>
       <p class="tr-card-sub">Базовый курс по методу Ясны — по шагам, с проверками. Учишься видеть устройство любого явления: дня, разговора, проекта.</p>
@@ -117,7 +134,7 @@ html[data-theme='light'] {
       </span>
     </a>
 
-    <a class="tr-card" href="negotiations.html">
+    <a class="tr-card" href="negotiations.html" data-feature="trainer:negotiations">
       <span class="tr-card-badge">✦ Доступно · отдельный тренажёр</span>
       <div class="tr-card-h">Переговоры</div>
       <p class="tr-card-sub">4 сценария: читать людей, вести разговор, договариваться честно и выходить красиво — с практикой и живым спаррингом.</p>

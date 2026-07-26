@@ -582,6 +582,22 @@
   };
 
   // ═══ bootstrap ════════════════════════════════════════════════════
+  // Спарринг объявляет себя в черновике каталога. Уровни — sensitive:true:
+  // в объекте уровня лежит LLM-модель, то есть закрытие уровня обязано
+  // проверяться сервером, витринного гейта мало (см. ACCESS_DESIGN.md §4).
+  try {
+    if (window.YasnaAccess && window.YasnaAccess.declare) {
+      var declNodes = [{ feature: 'neg:spar', area: 'trainers', parent: 'section:trainers',
+        title: CFG.naming.title, kind: 'section', declaredAt: 'negotiations/spar.js' }];
+      CFG.levels.forEach(function (lv) {
+        declNodes.push({ feature: 'neg:spar:level:' + lv.id, area: 'trainers', parent: 'neg:spar',
+          title: 'Спарринг · ' + lv.label, kind: 'mode', sensitive: true,
+          declaredAt: 'negotiations/spar.js' });
+      });
+      window.YasnaAccess.declare(declNodes);
+    }
+  } catch (_) {}
+
   function init() {
     sparRoot = document.getElementById('neg-spar-root');
     setupModeTabs();

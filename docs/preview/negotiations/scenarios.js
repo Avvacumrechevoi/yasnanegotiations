@@ -153,4 +153,16 @@
   ];
 
   window.NegContent = { STAGES: STAGES, DRILL: DRILL, GUIDE: GUIDE, STAGE_SKILLS: STAGE_SKILLS };
+
+  // Дрилл-тренажёр и гид по стадиям — в черновик каталога доступов.
+  try {
+    if (window.YasnaAccess && window.YasnaAccess.declare) {
+      window.YasnaAccess.declare([
+        { feature: 'neg:drill', area: 'trainers', parent: 'neg:lessons',
+          title: 'Переговоры — тренажёр стадий', kind: 'widget', declaredAt: 'negotiations/scenarios.js' },
+        { feature: 'neg:guide', area: 'trainers', parent: 'neg:lessons',
+          title: 'Переговоры — гид по стадиям', kind: 'widget', declaredAt: 'negotiations/scenarios.js' }
+      ]);
+    }
+  } catch (_) {}
 })();

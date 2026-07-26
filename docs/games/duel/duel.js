@@ -815,6 +815,21 @@
       const errs = this.validate(config);
       if(errs.length){ console.warn('[YasnaDuels] invalid config', config?.id, errs); return false; }
       _registry.set(config.id, config);
+      // Каждый режим объявляет себя в черновике каталога доступов — любой
+      // будущий режим попадает в каталог сам, без правки кода. Это НЕ права:
+      // declare() ничего не закрывает (см. core/access.js).
+      try {
+        if(window.YasnaAccess && window.YasnaAccess.declare){
+          window.YasnaAccess.declare({
+            feature: 'game:' + config.id,
+            area: 'game',
+            parent: 'section:game',
+            title: config.title,
+            kind: 'mode',
+            declaredAt: 'games/duel (register)'
+          });
+        }
+      } catch(_){}
       return true;
     },
     get(id){ return _registry.get(id); },

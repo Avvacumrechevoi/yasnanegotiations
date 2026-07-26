@@ -59,10 +59,46 @@
     syncThemeBtn();
   }
 
+  // Области каталога — из ACCESS_DESIGN.md; 'learn' в шапке = area 'course'.
+  var AREA_BY_SEC = { constructor:'constructor', game:'game', learn:'course', trainers:'trainers' };
+
+  // Каждый раздел шапки объявляет себя в черновике каталога. Это НЕ права:
+  // declare() ничего не закрывает никогда (см. core/access.js) — черновик
+  // нужен админке, чтобы собрать каталог одной кнопкой.
+  function declareSections(){
+    var A = window.YasnaAccess;
+    if (!A || !A.declare) return;
+    var nodes = [], i, s;
+    for (i = 0; i < SECTIONS.length; i++) {
+      s = SECTIONS[i];
+      nodes.push({
+        feature: 'section:' + s.sec,
+        area: AREA_BY_SEC[s.sec] || 'other',
+        title: s.label,
+        kind: 'section',
+        defaultAccess: 'open',
+        status: 'live',
+        declaredAt: 'core/site-nav.js'
+      });
+    }
+    A.declare(nodes);
+  }
+
   function mount(el, current, opts){
     if (typeof el === 'string') el = document.getElementById(el);
     if (el) el.innerHTML = html(current, opts);
     wireTheme();
+    declareSections();
+    // Пометить закрытые разделы прямо в шапке (атрибут, вид решает CSS).
+    try {
+      var A = window.YasnaAccess;
+      if (A && A.gate && el) {
+        for (var i = 0; i < SECTIONS.length; i++) {
+          var a = el.querySelector('[data-sec="' + SECTIONS[i].sec + '"]');
+          if (a) A.gate(a, 'section:' + SECTIONS[i].sec);
+        }
+      }
+    } catch (_) {}
     return el;
   }
 
