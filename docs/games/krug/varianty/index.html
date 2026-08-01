@@ -1,0 +1,302 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ясна. Варианты интерфейса</title>
+<!--
+  Четыре варианта интерфейса для режима «Круг». Все работают САМИМ КРУГОМ:
+  кнопок-ответов под кольцом нет ни в одном.
+
+  Колода — авторская, из урока 1 Ясны суток (02_Суток__1, 00:06:00–00:09:36):
+  шесть долгих времён на чётных местах и шесть коротких переломов на нечётных.
+  Вторая оболочка — животные двора (01_Домашние_животные, уроки 3–5).
+
+  Это витрина для выбора, а не готовая игра: у каждого варианта показан один
+  характерный кусок, а не полный модуль.
+-->
+<style>
+  :root{--bg:#f4f5f7;--card:#fff;--tx:#12151c;--tx2:#4a5265;--tx3:#8b93a7;
+        --line:#e2e6ed;--acc:#F0B93F;--acct:#1B1405;--gold:#FFD479;--grey:#7B8496;--bad:#E0563C}
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#0e1116;--card:#171b23;--tx:#eef1f6;--tx2:#a8b0c2;--tx3:#727b8f;--line:#252b36}}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0 auto;max-width:440px;background:var(--bg);color:var(--tx);padding:14px 14px 40px;
+    font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  h1{font-size:21px;margin:0 0 3px;letter-spacing:-.2px}
+  .sub{color:var(--tx3);font-size:13.5px;margin-bottom:16px}
+  .pick{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);
+    border-radius:15px;padding:14px 16px;margin:9px 0;font:inherit;color:inherit;cursor:pointer}
+  .pick:hover{border-color:var(--tx3)}
+  .pick b{display:block;font-size:17px;margin-bottom:3px}
+  .pick span{font-size:13.5px;color:var(--tx2);line-height:1.4}
+  .pick i{display:block;font-style:normal;font-size:12.5px;color:var(--tx3);margin-top:6px}
+
+  #wrap{position:relative;width:100%;max-width:330px;margin:6px auto 0}
+  #wrap:before{content:'';display:block;padding-top:100%}
+  svg#ring{position:absolute;inset:0;width:100%;height:100%}
+  .wedge{transition:fill .4s,opacity .35s,d .45s cubic-bezier(.3,1.4,.5,1)}
+  .hit{fill:transparent;cursor:pointer}
+  .chord{stroke-width:2.5;stroke-linecap:round;fill:none;stroke-dasharray:230;stroke-dashoffset:230;
+    transition:stroke-dashoffset .5s ease,stroke .4s,opacity .4s}
+  .chord.on{stroke-dashoffset:0}
+  .nm{position:absolute;transform:translate(-50%,-50%);font-size:10.5px;font-weight:600;
+      text-align:center;line-height:1.1;width:62px;pointer-events:none;color:#fff;
+      text-shadow:0 1px 3px rgba(0,0,0,.85);transition:opacity .3s,color .3s}
+  .nm.dim{opacity:.35}
+  .nm.sel{color:var(--gold);font-size:11.5px}
+  .mid{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:150px;text-align:center;
+    font-size:14px;line-height:1.3;color:var(--tx2);pointer-events:none}
+  .mid b{display:block;color:var(--tx);font-size:16px;margin-bottom:3px}
+
+  .say{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 15px;margin-top:12px}
+  .say .hd{font-weight:700;margin-bottom:4px}
+  .say .bd{font-size:14px;line-height:1.48;color:var(--tx2)}
+  .row{display:flex;gap:8px;margin-top:10px}
+  button.go{flex:1;background:var(--acc);color:var(--acct);border:0;border-radius:12px;padding:12px;
+    font:inherit;font-weight:650;cursor:pointer}
+  button.gh{flex:1;background:transparent;color:var(--tx2);border:1px solid var(--line);
+    border-radius:12px;padding:12px;font:inherit;cursor:pointer}
+  .verdict{margin-top:14px;padding:12px 14px;border-left:3px solid var(--line);font-size:13px;
+    line-height:1.5;color:var(--tx3)}
+  .verdict b{color:var(--tx2)}
+  .shake{animation:sh .32s}
+  @keyframes sh{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+</style>
+
+<div id="app"></div>
+
+<script>
+/* ═══ авторская колода: Ясна суток, урок 1 ═══ */
+const T=['Ночь','Искра','Рассвет','Утро','Восход','Утренний салют',
+         'День','Обед','Закат','Вечер','Сумерки','Вечерний салют'];
+/* вторая оболочка — животные двора, уроки 3–5 */
+const Z=['Свинья','Кролики','Лошадь','Козёл','Корова','Верблюд',
+         'Человек','Кошка','Собака','Птицы','Пчёлы','Змея'];
+const PAL=['#131A30','#1B2545','#2F4472','#4D74B4','#8AA6D4','#D3C493',
+           '#F5CF74','#EAB35C','#D8894A','#C06A3C','#7A4634','#3B2A33'];
+
+const C=170,R=142,Ri=88,Rn=115,NS='http://www.w3.org/2000/svg';
+const A=i=>90+30*i;
+const Pa=(r,a)=>[C+r*Math.cos(a*Math.PI/180),C+r*Math.sin(a*Math.PI/180)];
+const P=(r,i)=>Pa(r,A(i));
+const VB={x:-22,y:-12,w:384};
+const px=x=>((x-VB.x)/VB.w*100)+'%', py=y=>((y-VB.y)/VB.w*100)+'%';
+
+function arc(i,w,ro,ri){
+  const a0=A(i)-w/2,a1=A(i)+w/2;
+  const [x0,y0]=Pa(ro,a0),[x1,y1]=Pa(ro,a1),[x2,y2]=Pa(ri,a1),[x3,y3]=Pa(ri,a0);
+  return `M${x0} ${y0}A${ro} ${ro} 0 0 1 ${x1} ${y1}L${x2} ${y2}A${ri} ${ri} 0 0 0 ${x3} ${y3}Z`;
+}
+const app=()=>document.getElementById('app');
+const el=h=>{const d=document.createElement('div');d.innerHTML=h;return d.firstElementChild};
+
+/* ═══ кольцо: строится один раз, дальше только атрибуты ═══ */
+let W=[],H=[],CH=[],NM=[],SVG=null,MID=null;
+function ring(host,{widths=null,names=T,onTap=null,dimAll=false}={}){
+  const wrap=el('<div id="wrap"><svg id="ring" viewBox="-22 -12 384 384"></svg></div>');
+  host.appendChild(wrap);
+  SVG=wrap.querySelector('svg'); W=[];H=[];CH=[];NM=[];
+  for(let i=0;i<12;i++){
+    const w=widths?widths[i]:28;
+    const p=document.createElementNS(NS,'path');
+    p.setAttribute('class','wedge'); p.setAttribute('d',arc(i,w,R,Ri));
+    p.setAttribute('fill',PAL[i]); p.style.opacity=dimAll?.4:1;
+    SVG.appendChild(p); W.push(p);
+  }
+  for(let k=0;k<6;k++){
+    const [x1,y1]=P(Ri-4,k),[x2,y2]=P(Ri-4,k+6);
+    const l=document.createElementNS(NS,'line'); l.setAttribute('class','chord');
+    l.setAttribute('x1',x1);l.setAttribute('y1',y1);l.setAttribute('x2',x2);l.setAttribute('y2',y2);
+    l.setAttribute('stroke','var(--gold)'); l.style.opacity=0; SVG.appendChild(l); CH.push(l);
+  }
+  for(let i=0;i<12;i++){
+    const h=document.createElementNS(NS,'path');
+    h.setAttribute('class','hit'); h.setAttribute('d',arc(i,30,R+14,Ri-10));
+    if(onTap) h.addEventListener('click',()=>onTap(i));
+    SVG.appendChild(h); H.push(h);
+  }
+  for(let i=0;i<12;i++){
+    const [x,y]=P(Rn,i);
+    const d=document.createElement('div'); d.className='nm';
+    d.style.left=px(x); d.style.top=py(y); d.textContent=names[i];
+    wrap.appendChild(d); NM.push(d);
+  }
+  MID=document.createElement('div'); MID.className='mid'; wrap.appendChild(MID);
+  return wrap;
+}
+function tie(k,col='var(--gold)'){ CH[k].setAttribute('stroke',col); CH[k].style.opacity=1; CH[k].classList.add('on') }
+function shake(){ const w=document.getElementById('wrap'); w.classList.remove('shake'); void w.offsetWidth; w.classList.add('shake') }
+function say(hd,bd){ const s=document.querySelector('.say'); if(s){s.querySelector('.hd').textContent=hd; s.querySelector('.bd').innerHTML=bd} }
+
+/* ════════════════ МЕНЮ ════════════════ */
+function menu(){
+  app().innerHTML='';
+  app().appendChild(el(`<div><h1>Четыре варианта</h1>
+    <div class="sub">Во всех четырёх играют самим кругом — кнопок-ответов под кольцом нет.
+    Колода авторская, из первого урока Ясны суток.</div></div>`));
+  const V=[
+    ['put','Поставь на место','Карточка в руке — ткни долю, где она живёт. Нитка через середину вспыхивает сама, когда заняты оба конца.','вопрос метода, а не геометрии'],
+    ['tie','Свяжи пару','Все двенадцать уже на круге, но перемешаны. Тапни два, которые стоят друг против друга. Верная пара уезжает на свои места.','геометрия не помогает — места чужие'],
+    ['rhythm','Долгое или перелом','Ни одного вопроса. Тапаешь долю — она становится широкой или узкой. Круг меняет форму под пальцем.','первый закон автора, целиком руками'],
+    ['turn','Поверни оболочку','Снаружи те же двенадцать мест, но животные двора. Крути внешнее кольцо, пока не сядет.','одно движение вместо объяснения']
+  ];
+  V.forEach(([id,t,s,i])=>{
+    const b=document.createElement('button'); b.className='pick';
+    b.innerHTML=`<b>${t}</b><span>${s}</span><i>${i}</i>`;
+    b.onclick=()=>({put:vPut,tie:vTie,rhythm:vRhythm,turn:vTurn})[id]();
+    app().appendChild(b);
+  });
+  app().appendChild(el(`<div class="verdict">Витрина для выбора, а не готовая игра: в каждом
+    варианте показан один характерный кусок. Скажите, какой брать в модуль 1 — соберу целиком
+    на авторских разборах с таймкодами.</div>`));
+}
+function back(){ return `<button class="gh" onclick="menu()">← К вариантам</button>` }
+
+/* ════════════════ 1. ПОСТАВЬ НА МЕСТО ════════════════ */
+function vPut(){
+  app().innerHTML='';
+  const head=el(`<div><h1>Поставь на место</h1><div class="sub">Карточка в руке — ткни долю круга,
+    где она живёт.</div></div>`); app().appendChild(head);
+  const st={deal:[0,6,3,9,1,7],i:0,placed:new Array(12).fill(false)};
+  const blank=new Array(12).fill('');
+  ring(app(),{names:blank,dimAll:true,onTap:i=>{
+    if(st.i>=st.deal.length) return;
+    if(st.placed[i]) return;
+    const truth=st.deal[st.i];
+    if(i!==truth){ shake(); W[i].style.opacity=.75; setTimeout(()=>W[i].style.opacity=.4,260);
+      say('Не сюда','Это место занимает другое время. Смотри на свет: где его больше, где меньше и куда он идёт.'); return }
+    st.placed[i]=true; W[i].style.opacity=1; NM[i].textContent=T[i];
+    const k=i%6;
+    if(st.placed[k]&&st.placed[k+6]){ tie(k); say('Сошлось','«'+T[k]+'» и «'+T[k+6]+'» — два конца одной нитки.') }
+    else say('Да','«'+T[i]+'» встало на своё место.');
+    st.i++;
+    if(st.i>=st.deal.length){ MID.innerHTML='<b>Три нитки</b>из шести'; say('Так это и играется','Дальше — оставшиеся шесть карточек, и круг закрывается целиком.') }
+    else next();
+  }});
+  app().appendChild(el(`<div class="say"><div class="hd">В руке</div><div class="bd"></div></div>`));
+  app().appendChild(el(`<div class="row">${back()}</div>`));
+  app().appendChild(el(`<div class="verdict"><b>Чем хорош.</b> Спрашивает то, что спрашивает метод:
+    где это стоит. Нитка вспыхивает сама — награда не за ответ, а за то, что круг сложился.<br>
+    <b>Чем рискован.</b> Двенадцать целей на телефоне: у узких долей дуга около 34 px. Нужен
+    невидимый хитбокс шире самой доли — он здесь уже стоит, но проверять надо на живом устройстве.</div>`));
+  function next(){ MID.innerHTML='<b>'+T[st.deal[st.i]]+'</b>куда?'; }
+  next(); say('В руке','Тапни долю круга, где живёт это время.');
+}
+
+/* ════════════════ 2. СВЯЖИ ПАРУ ════════════════ */
+function vTie(){
+  app().innerHTML='';
+  app().appendChild(el(`<div><h1>Свяжи пару</h1><div class="sub">Двенадцать уже на круге, но
+    перемешаны. Тапни два, которые стоят друг против друга.</div></div>`));
+  const perm=[...Array(12).keys()].map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(v=>v[1]);
+  const st={sel:null,done:0,at:perm.slice()};   /* at[слот] = какое время лежит в этом слоте */
+  ring(app(),{names:perm.map(v=>T[v]),dimAll:true,onTap:s=>{
+    if(st.at[s]===null) return;
+    if(st.sel===null){ st.sel=s; NM[s].classList.add('sel'); return }
+    if(st.sel===s){ NM[s].classList.remove('sel'); st.sel=null; return }
+    const a=st.at[st.sel],b=st.at[s];
+    if((a+6)%12!==b){ shake(); NM[st.sel].classList.remove('sel'); st.sel=null;
+      say('Не пара','Эти два не стоят друг против друга. Ищи то, у чего с ним есть общее — и что при этом ему противоположно.'); return }
+    /* верно: обе карточки уезжают на свои настоящие места */
+    const k=Math.min(a,b)%6;
+    NM[st.sel].classList.remove('sel');
+    [[st.sel,a],[s,b]].forEach(([slot,val])=>{ NM[slot].textContent=''; st.at[slot]=null; });
+    [a,b].forEach(v=>{ NM[v].textContent=T[v]; NM[v].classList.remove('dim'); W[v].style.opacity=1; });
+    tie(k); st.done++; st.sel=null;
+    say('Ровно напротив','«'+T[k]+'» и «'+T[k+6]+'». Они уехали на свои места — теперь круг знает, где они стоят.');
+    MID.innerHTML='<b>'+st.done+'</b>из шести';
+    if(st.done===3){ say('Так это и играется','Три нитки из шести. Когда сойдутся все, перемешанный круг встанет в порядок сам.') }
+  }});
+  app().appendChild(el(`<div class="say"><div class="hd">Начали</div><div class="bd">Тапни два времени, которые стоят друг против друга.</div></div>`));
+  app().appendChild(el(`<div class="row">${back()}</div>`));
+  app().appendChild(el(`<div class="verdict"><b>Чем хорош.</b> Единственный вариант, где геометрия
+    не подсказывает: места перемешаны, и «напротив» приходится брать смыслом. Из десяти тысяч
+    способов разбить двенадцать на шесть пар верный один.<br>
+    <b>Чем рискован.</b> Первый ход самый трудный: подсказки нет вовсе. Скорее второй-третий
+    модуль, чем первый.</div>`));
+  MID.innerHTML='<b>0</b>из шести';
+}
+
+/* ════════════════ 3. ДОЛГОЕ ИЛИ ПЕРЕЛОМ ════════════════ */
+function vRhythm(){
+  app().innerHTML='';
+  app().appendChild(el(`<div><h1>Долгое или перелом</h1><div class="sub">Ни одного вопроса.
+    Тапни долю — она станет широкой или узкой.</div></div>`));
+  const st={w:new Array(12).fill(28),ok:new Array(12).fill(false)};
+  ring(app(),{widths:st.w.slice(),onTap:i=>{
+    const want=i%2===0?36:20;
+    if(st.ok[i]) return;
+    st.w[i]=st.w[i]===36?20:36;
+    W[i].setAttribute('d',arc(i,st.w[i],R,Ri));
+    if(st.w[i]===want){
+      st.ok[i]=true; W[i].style.opacity=1;
+      const n=st.ok.filter(Boolean).length;
+      MID.innerHTML='<b>'+n+'</b>из двенадцати';
+      say(i%2===0?'Долгое':'Перелом',
+        i%2===0 ? '«'+T[i]+'» тянется. Долгие времена — чётные.'
+                : '«'+T[i]+'» длится около пяти минут. Переломы — нечётные.');
+      if(n===12){ MID.innerHTML='<b>Шесть и шесть</b>'; say('Гранит',
+        'Шесть долгих и шесть коротких, и они чередуются. Правильный шестиугольник автор называет гранитом: «познать Ясну значит разгрызть орешек знания».') }
+    } else {
+      W[i].style.opacity=.55;
+      say('Ещё раз','Это время так себя не ведёт. Оно тянется — или проходит за пять минут?');
+    }
+  }});
+  app().appendChild(el(`<div class="say"><div class="hd">Круг ровный</div>
+    <div class="bd">А в сутках шесть времён долгих и шесть коротких. Раздели их пальцем.</div></div>`));
+  app().appendChild(el(`<div class="row">${back()}</div>`));
+  app().appendChild(el(`<div class="verdict"><b>Чем хорош.</b> Это дословно первый закон автора,
+    и он делается руками, а не читается. Круг меняет форму под пальцем — сразу видно, что
+    получается ритм, а не список.<br>
+    <b>Чем рискован.</b> Двенадцать тапов подряд без сюжета. Годится как первый модуль на
+    минуту, но не как самостоятельная игра.</div>`));
+  MID.innerHTML='<b>0</b>из двенадцати';
+}
+
+/* ════════════════ 4. ПОВЕРНИ ОБОЛОЧКУ ════════════════ */
+function vTurn(){
+  app().innerHTML='';
+  app().appendChild(el(`<div><h1>Поверни оболочку</h1><div class="sub">Снаружи те же двенадцать
+    мест, но животные двора. Крути, пока не сядет.</div></div>`));
+  const st={off:5};
+  const wrap=ring(app(),{names:T});
+  /* внешнее кольцо имён — отдельным слоем */
+  const outer=document.createElement('div'); outer.style.cssText='position:absolute;inset:0';
+  wrap.appendChild(outer);
+  const ON=[];
+  for(let i=0;i<12;i++){
+    const [x,y]=P(R+22,i);
+    const d=document.createElement('div'); d.className='nm'; d.style.color='var(--tx2)';
+    d.style.textShadow='none'; d.style.left=px(x); d.style.top=py(y);
+    outer.appendChild(d); ON.push(d);
+  }
+  const paint=()=>{ for(let i=0;i<12;i++) ON[i].textContent=Z[(i+st.off+12)%12] };
+  const check=()=>{
+    if(st.off%12===0){
+      for(let k=0;k<6;k++) tie(k);
+      ON.forEach(n=>n.style.color='var(--gold)');
+      MID.innerHTML='<b>Село</b>';
+      say('Тот же круг','Свинья встала к ночи, человек — ко дню. Оба всеядные, и они на одной нитке. Слева от неё травоядные, справа плотоядные — круг не сдвинулся, поменялась только оболочка.');
+    } else {
+      MID.innerHTML=''; ON.forEach(n=>n.style.color='var(--tx2)');
+      CH.forEach(c=>{c.style.opacity=0;c.classList.remove('on')});
+      say('Не сходится','Пока животные стоят не на своих временах. Крути дальше.');
+    }
+  };
+  paint();
+  app().appendChild(el(`<div class="say"><div class="hd">Крути</div>
+    <div class="bd">Двенадцать животных двора и двенадцать времён суток. Верное совпадение одно.</div></div>`));
+  const row=el(`<div class="row"></div>`);
+  const L=document.createElement('button'); L.className='gh'; L.textContent='↶ влево';
+  const Rt=document.createElement('button'); Rt.className='gh'; Rt.textContent='вправо ↷';
+  L.onclick=()=>{st.off=(st.off+11)%12;paint();check()};
+  Rt.onclick=()=>{st.off=(st.off+1)%12;paint();check()};
+  row.appendChild(L); row.appendChild(Rt); app().appendChild(row);
+  app().appendChild(el(`<div class="row">${back()}</div>`));
+  app().appendChild(el(`<div class="verdict"><b>Чем хорош.</b> «Тот же круг — другая оболочка»
+    перестаёт быть словами и становится одним движением руки. Верное положение одно из двенадцати,
+    и проверить его можно по любой паре, которую знаешь.<br>
+    <b>Чем рискован.</b> Крутить можно тупым перебором — двенадцать нажатий и готово. Лечится
+    тем, что круг садится только когда игрок сам объяснит хотя бы одну пару.</div>`));
+}
+
+menu();
+</script>
