@@ -1,0 +1,318 @@
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<title>Расклад — прототип · Ясна</title>
+<!--
+  ПРОТОТИП режима «Расклад». Собран по docs/RASKLAD_DESIGN.md и docs/YASNA_SOURCE_ANALYSIS.md.
+  Самодостаточная страница: ни сборки, ни сети, ни зависимостей — чтобы можно было открыть
+  с телефона и потрогать механику до того, как писать её в продукте.
+
+  Что здесь воспроизведено из АВТОРСКОГО источника (а не придумано):
+  • порядок выдачи: сперва Опорный крест (0·3·6·9), потом остальные восемь — так автор ведёт
+    каждый урок, и это же самый жёсткий проверяемый фильтр;
+  • три автоматические проверки (антипод +6, треугольник стихии, сосед) — считаются по номеру
+    полки, ручного контента не требуют;
+  • разбор ошибки через ПАРУ («ты положил в X, а это признак Y, вот чем они отличаются»),
+    а не через одиночную полку;
+  • зона 8–9 помечена спорной и не даёт баллов: правило девиации автором не сформулировано.
+-->
+<style>
+  :root{
+    --bg:#0d0f12; --card:#16191c; --line:rgba(255,255,255,.10); --line2:rgba(255,255,255,.06);
+    --tx:#f2f3f5; --tx2:#a8b1be; --tx3:#6b7280;
+    --acc:#4d8dff; --ok:#3ec98a; --warn:#f0b354; --bad:#ff6b6b;
+    --op:#e8364f; --ve:#5b9cf6; --up:#e8a834;
+  }
+  @media (prefers-color-scheme: light){
+    :root{ --bg:#f5f5f7; --card:#fff; --line:rgba(0,0,0,.12); --line2:rgba(0,0,0,.06);
+           --tx:#12161c; --tx2:#4a5260; --tx3:#8a93a0; --acc:#0071e3; --ok:#12855a; --warn:#8a5a12; }
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--tx);font:15px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',Inter,sans-serif;
+       padding:14px;max-width:560px;margin:0 auto;-webkit-text-size-adjust:100%}
+  h1{font-size:19px;font-weight:700;letter-spacing:-.01em}
+  .sub{color:var(--tx2);font-size:13px;margin-top:2px}
+  .bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0 10px}
+  .pill{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px 11px;font-size:12.5px;color:var(--tx2)}
+  .pill b{color:var(--tx)}
+  .dots{letter-spacing:2px}
+  svg{display:block;width:100%;height:auto;touch-action:manipulation}
+  .slot{cursor:pointer}
+  .slot circle{transition:all .18s}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin:10px 0}
+  .now{border-color:var(--acc);box-shadow:0 0 0 3px rgba(77,141,255,.14)}
+  .now .lab{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--acc);font-weight:700}
+  .now .el{font-size:23px;font-weight:700;margin-top:5px;line-height:1.25}
+  .now .mn{font-size:12.5px;color:var(--tx3);margin-top:4px;font-style:italic}
+  .grp{margin-top:12px}
+  .grp h3{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--tx3);font-weight:700;margin-bottom:7px}
+  .row{display:flex;gap:7px;flex-wrap:wrap}
+  button{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--line);
+         border-radius:11px;padding:9px 13px;cursor:pointer;transition:all .15s}
+  button:hover:not(:disabled){border-color:var(--acc)}
+  button:disabled{opacity:.35;cursor:not-allowed}
+  button.on{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+  button.big{flex:1;min-width:96px;font-weight:600;padding:12px}
+  .cx0{border-left:3px solid var(--op)} .cx1{border-left:3px solid var(--ve)} .cx2{border-left:3px solid var(--up)}
+  .hint{font-size:12.5px;color:var(--tx2);margin-top:8px;padding:9px 11px;background:var(--line2);border-radius:9px}
+  .hint b{color:var(--tx)}
+  .rv{border-radius:16px;padding:14px 16px;margin:10px 0;border:1px solid}
+  .rv.good{border-color:rgba(62,201,138,.45);background:rgba(62,201,138,.09)}
+  .rv.part{border-color:rgba(240,179,84,.45);background:rgba(240,179,84,.09)}
+  .rv.miss{border-color:rgba(255,107,107,.40);background:rgba(255,107,107,.08)}
+  .rv .hd{font-weight:700;font-size:15px;display:flex;justify-content:space-between;gap:10px}
+  .rv .bd{font-size:13.5px;color:var(--tx2);margin-top:7px;line-height:1.55}
+  .rv .bd b{color:var(--tx)}
+  .fin td{padding:5px 0;font-size:14px} .fin td:last-child{text-align:right;font-weight:700}
+  .muted{color:var(--tx3);font-size:12px;margin-top:10px;line-height:1.5}
+  .warnbox{border:1px solid rgba(240,179,84,.4);background:rgba(240,179,84,.08);border-radius:11px;padding:9px 11px;font-size:12.5px;color:var(--tx2);margin-top:9px}
+</style>
+
+<h1>Расклад <span style="font-weight:400;color:var(--tx3)">· прототип</span></h1>
+<div class="sub" id="sub">Выбери, что раскладываем</div>
+<div id="app"></div>
+
+<script>
+// ─── ПОЛКИ: имя, функция и отличие от антипода — выведены из мастер-источника ───
+const SHELF = [
+ {n:'Скрытая основа', f:'Держит явление, не участвуя в нём: то, из чего всё выходит и куда возвращается.',
+  vs:'В нуле смешивают — границы стираются (месить, грязь, брод). В шестёрке складывают — части сохраняются и стыкуются. Проверка: после соединения части ещё различимы? Различимы — 6, слились — 0.'},
+ {n:'Искра', f:'Первое поступление извне после покоя: вход и ресурс, которого ещё не тратили.',
+  vs:'Единица — неистраченный ресурс на входе. Семёрка — истраченный ресурс, ставший результатом. Проверка: этим ещё будут пользоваться (1) или это уже сделано и проверяется (7)?'},
+ {n:'Заря', f:'Длительная подготовка до главного события: рубеж ещё не перейдён.',
+  vs:'Двойка работает с СЫРЫМ до вершины и смотрит вперёд, восьмёрка — с ГОТОВЫМ после вершины и приводит в порядок. Проверка: то, с чем работают, ещё не проходило главное событие (2) или уже прошло (8)?'},
+ {n:'Проявление Света', f:'Главное событие цикла: явление выходит наружу, рождается, вступает в бой.',
+  vs:'Тройка запускает — побеждает то, что рождается. Девятка закрывает — побеждает то, что уходит. Проверка: после этого элемента явление начинает жить или перестаёт?'},
+ {n:'Подъём', f:'Устойчивый рост и переработка вышедшего в дело: умение одного.',
+  vs:'Четвёрка — умение и рост одного мастера. Десятка — множество однотипного и свод. Проверка: это про одного и его умение (4) или про многих и однообразие (10)?'},
+ {n:'Накопитель', f:'Запас и тонкая настройка перед вершиной: рост окончен, собранное хранится.',
+  vs:'Пятёрка копит и настраивает тонко перед вершиной, одиннадцатая выбрасывает наружу и отсекает грубо. Проверка: сюда складывают (5) или отсюда выносят (11)?'},
+ {n:'Вершина', f:'Максимум явления и открытое соединение частей в целое: здесь делается главная работа.',
+  vs:'Шестой союз явный, на виду, в рабочем максимуме; нулевой — тайный, вне глаз и вне работы. Части после соединения различимы — 6, слились — 0.'},
+ {n:'Первая Тьма', f:'Работа окончена, результат достигнут: пик накопленного и точка проверки.',
+  vs:'Семёрка — готовый результат, который пробуют. Единица — сырой ресурс, который ещё не тратили. Проверка: это уже сделано и проверяется (7) или этим ещё будут пользоваться (1)?'},
+ {n:'Вечерняя Заря', f:'Длительная работа с готовым: разделить, очистить, привести в порядок.',
+  vs:'Восьмёрка работает с ГОТОВЫМ после вершины, двойка — с СЫРЫМ до неё. Обе — заря, обе — подготовка и деление; различает только положение относительно вершины.'},
+ {n:'Проявление Тьмы', f:'Итог подводится не боем, а мерой: взвесить, оценить, договориться.',
+  vs:'Девятка закрывает мерой и договором, тройка запускает ударом и боем. Проверка: после этого элемента явление перестаёт жить или начинает?'},
+ {n:'Сумерки', f:'Остаток рассредоточивается на множество одинаковых частей: свод, список, множество.',
+  vs:'Десятка — множество однотипного и свод. Четвёрка — умение и рост одного. Проверка: это про многих и однообразие (10) или про одного и его умение (4)?'},
+ {n:'Последний Свет', f:'Последнее действие круга: отдать наружу и отсечь — вынести, выстрелить, попрощаться.',
+  vs:'Одиннадцатая выбрасывает наружу грубо, пятёрка копит и настраивает тонко. Проверка: отсюда выносят (11) или сюда складывают (5)?'}
+];
+const CROSS = [ {n:'Опоры', p:[0,3,6,9], c:'var(--op)'}, {n:'Веры', p:[2,5,8,11], c:'var(--ve)'}, {n:'Управления', p:[1,4,7,10], c:'var(--up)'} ];
+const crossOf = i => i%3===0 ? 0 : (i%3===2 ? 1 : 2);
+// Из источника (книга «Суток» §418): чётные — долгие времена, нечётные — короткие переломы
+const dur = i => i%2===0 ? 'долгое, протяжённое' : 'короткий перелом';
+const TRI = ['Земля','Вода','Воздух','Огонь'];
+const triOf = i => i%4;
+
+// ─── Явления: элементы взяты из МАСТЕР-РУБРИКАТОРА, скобки-мнемоники сохранены ───
+const YASNY = {
+ sutki:{ t:'Ясна Суток', hint:'вводная: её автор разбирает первой',
+   p:['Ночь','Искра','Утр. Заря, Рассвет','Утро','Восход','Утренний Салют','День','Обед','Закат, Вечерняя Заря','Запад, Вечер','Сумерки','Вечерний Салют'], m:[] },
+ kuhni:{ t:'Ясна Кухни', hint:'перенос: то же устройство на незнакомой коже',
+   p:['Вход / Фартук','Мойка','Разделочный стол','Плита','Стол полуфабрикатов','Шкаф специй / Книга рецептов','Стол для готовки','Стол готовых блюд','Делим на порции','Оценочный стол','Шведский стол','Вынос блюд / Меню'],
+   m:['без свинства','водолей','рыбы','','«китайский стол»','','','проба','','','дракон нападает',''] }
+};
+
+const S = { key:null, blind:false, deck:[], idx:0, placed:{}, score:0, exact:0, log:[],
+            tochno:4, pas:3, sel:null, reason:null, phase:'menu', rev:null };
+
+const $ = h => { const d=document.createElement('div'); d.innerHTML=h; return d; };
+const app = () => document.getElementById('app');
+
+function start(key, blind){
+  S.key=key; S.blind=blind; S.placed={}; S.score=0; S.exact=0; S.log=[];
+  S.tochno=4; S.pas=3; S.idx=0; S.sel=null; S.reason=null; S.rev=null; S.phase='play';
+  // ПОРЯДОК АВТОРА: сперва Опорный крест, потом остальные восемь
+  const sh=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
+  S.deck = sh([0,3,6,9]).concat(sh([1,2,4,5,7,8,10,11]));
+  render();
+}
+
+function wheel(){
+  const R=104, cx=170, cy=160, out=[];
+  for(let i=0;i<12;i++){
+    const a=(90+i*30)*Math.PI/180, x=cx+R*Math.cos(a), y=cy+R*Math.sin(a);
+    const filled=S.placed[i]!==undefined, isSel=S.sel===i;
+    const isOpp=S.sel!==null&&i===(S.sel+6)%12, isTri=S.sel!==null&&i!==S.sel&&triOf(i)===triOf(S.sel);
+    let fill='var(--card)', stroke='var(--line)', sw=1.5;
+    if(filled){ fill=CROSS[crossOf(i)].c; stroke=CROSS[crossOf(i)].c; }
+    if(isTri){ stroke='var(--warn)'; sw=2; }
+    if(isOpp){ stroke='var(--acc)'; sw=3; }
+    if(isSel){ fill='var(--acc)'; stroke='var(--acc)'; sw=3; }
+    const txt = filled? '#fff' : (isSel?'#fff':'var(--tx2)');
+    out.push(`<g class="slot" onclick="pick(${i})">
+      <circle cx="${x}" cy="${y}" r="19" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>
+      <text x="${x}" y="${y+5}" text-anchor="middle" font-size="14" font-weight="700" fill="${txt}">${i}</text>
+      ${filled?(()=>{ // подпись уходит радиально НАРУЖУ — иначе нижние налезают на карточку
+          const lx=cx+(R+34)*Math.cos(a), ly=cy+(R+34)*Math.sin(a);
+          const anchor = Math.abs(Math.cos(a))<0.35 ? 'middle' : (Math.cos(a)>0 ? 'start' : 'end');
+          return `<text x="${lx}" y="${ly+3}" text-anchor="${anchor}" font-size="9.5" fill="var(--tx3)">${(YASNY[S.key].p[S.placed[i]]||'').slice(0,13)}</text>`;
+        })():''}
+    </g>`);
+  }
+  // оси опорного креста
+  const ln=(a,b)=>{const A=(90+a*30)*Math.PI/180,B=(90+b*30)*Math.PI/180;
+    return `<line x1="${cx+R*Math.cos(A)}" y1="${cy+R*Math.sin(A)}" x2="${cx+R*Math.cos(B)}" y2="${cy+R*Math.sin(B)}" stroke="var(--line2)" stroke-width="1"/>`;};
+  return `<svg viewBox="0 0 340 320">${ln(0,6)}${ln(3,9)}<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="var(--line2)"/>${out.join('')}</svg>`;
+}
+
+function pick(i){ if(S.phase!=='play') return; S.sel = (S.sel===i? null : i); S.reason=null; render(); }
+function setReason(r){ S.reason=r; render(); }
+
+function claim(kind, val){
+  const el = S.deck[S.idx], truth = el, ph = YASNY[S.key];
+  let pts=0, cls='miss', head='', body='';
+  const disputed = (truth===8||truth===9);
+
+  if(kind==='pas'){
+    S.pas--; S.deck.splice(S.idx,1); S.deck.push(el);
+    S.log.push({el, kind:'pas'});
+    S.sel=null; S.reason=null; render(); return;
+  }
+  if(kind==='cross'){
+    const ok = crossOf(truth)===val;
+    pts = ok?1:0; cls = ok?'part':'miss';
+    head = ok? 'Крест верный' : 'Не тот крест';
+    body = `«${ph.p[truth]}» живёт на полке <b>${truth} · ${SHELF[truth].n}</b> — крест <b>${CROSS[crossOf(truth)].n}</b>. ${SHELF[truth].f}`;
+  }
+  if(kind==='exact'){
+    S.tochno--;
+    const shelf = S.sel, ok = shelf===truth;
+    const rOk = S.reason==='opora'? [0,3,6,9].includes(truth)
+              : S.reason==='podg'?  [2,5,8,11].includes(truth)
+              : S.reason==='itog'?  [1,4,7,10].includes(truth) : false;
+    pts = (ok?3:(crossOf(shelf)===crossOf(truth)?1:0)) + (rOk?2:0);
+    cls = ok?'good':(crossOf(shelf)===crossOf(truth)?'part':'miss');
+    if(ok){ head='Точно'; body=`<b>${truth} · ${SHELF[truth].n}.</b> ${SHELF[truth].f}`; S.exact++; }
+    else if(shelf===(truth+6)%12){
+      // Самый ценный разбор: ровно напротив. Здесь у нас ЕСТЬ сорсная формулировка пары.
+      head='Ровно напротив';
+      body=`Ты положил на <b>${shelf} · ${SHELF[shelf].n}</b>, а здесь живёт <b>${truth} · ${SHELF[truth].n}</b>. Это антиподы — одна природа в зеркальной среде.<br><br>${SHELF[truth].vs}`;
+    } else {
+      // Разбор ВСЕГДА через ту пару, которую игрок реально спутал. Обе строки —
+      // функции полок из источника; различающий признак считается по номеру.
+      const sameCross = crossOf(shelf)===crossOf(truth);
+      head = sameCross ? 'Крест верный, полка не та' : 'Не тот крест';
+      body = `«${ph.p[truth]}» живёт на <b>${truth} · ${SHELF[truth].n}</b> — ${SHELF[truth].f}<br><br>`
+           + `<b>Что ты спутал.</b><br>`
+           + `<b>${shelf} · ${SHELF[shelf].n}</b> — ${SHELF[shelf].f}<br>`
+           + `<b>${truth} · ${SHELF[truth].n}</b> — ${SHELF[truth].f}<br><br>`
+           + `Различают: ${shelf} — ${dur(shelf)}, ${truth} — ${dur(truth)}`
+           + (sameCross ? `; обе на Кресте ${CROSS[crossOf(truth)].n}.` : `; крест ${CROSS[crossOf(shelf)].n} против ${CROSS[crossOf(truth)].n}.`);
+    }
+    if(rOk) body += `<br><br>Причина названа верно: +2.`;
+  }
+  if(disputed && pts>0){ pts=0; body += `<br><br><span style="color:var(--warn)">Полки 8 и 9 — спорная зона: правило девиации автором не сформулировано, баллы здесь не начисляются.</span>`; }
+
+  S.score += pts;
+  S.placed[truth] = truth;
+  S.log.push({el, kind, put:(kind==='exact'?S.sel:null), pts, truth});
+  S.rev = {cls, head, body, pts};
+  S.phase='reveal';
+  render();
+}
+
+function next(){
+  S.rev=null; S.sel=null; S.reason=null; S.idx++;
+  S.phase = S.idx>=S.deck.length ? 'end' : 'play';
+  render();
+}
+
+function render(){
+  const a = app(); a.innerHTML='';
+  const sub = document.getElementById('sub');
+
+  if(S.phase==='menu'){
+    sub.textContent='Выбери, что раскладываем';
+    a.appendChild($(`
+      <div class="card"><b>Как играется.</b><div class="sub" style="margin-top:6px">
+      Двенадцать элементов явления открываются по одному. По каждому — одна заявка: назвать
+      <b>точную полку с причиной</b> (таких всего 4 за партию), назвать только <b>крест</b>
+      (сколько угодно) или <b>спасовать</b> (до 3 раз — карта вернётся позже, когда на колесе
+      будет больше опор). Правда открывается сразу. Времени в счёте нет.</div></div>
+      <div class="grp"><h3>Тренировка — явление знакомое</h3><div class="row">
+        <button class="big" onclick="start('sutki',false)">Ясна Суток</button></div></div>
+      <div class="grp"><h3>Перенос — то же устройство, другая кожа</h3><div class="row">
+        <button class="big" onclick="start('kuhni',false)">Ясна Кухни</button>
+        <button class="big" onclick="start('kuhni',true)">Вслепую</button></div></div>
+      <div class="muted">Порядок выдачи авторский: сперва четыре элемента Опорного креста
+      (0·3·6·9), потом остальные восемь — тогда к середине партии на колесе уже есть опоры,
+      и можно проверять себя по антиподу и треугольнику.</div>`));
+    return;
+  }
+
+  const ph = YASNY[S.key];
+  sub.textContent = (S.blind? 'Явление скрыто' : ph.t) + ' · ' + ph.hint;
+
+  a.appendChild($(`<div class="bar">
+    <span class="pill">Карта <b>${Math.min(S.idx+1,12)}/12</b></span>
+    <span class="pill">Точно <b class="dots">${'●'.repeat(S.tochno)}${'○'.repeat(4-S.tochno)}</b></span>
+    <span class="pill">Пас <b class="dots">${'●'.repeat(S.pas)}${'○'.repeat(3-S.pas)}</b></span>
+    <span class="pill">Очки <b>${S.score}</b></span></div>`));
+  a.appendChild($(wheel()));
+
+  if(S.phase==='end'){
+    const total = S.log.filter(l=>l.kind!=='pas').length;
+    a.appendChild($(`<div class="card"><div class="fin"><table style="width:100%">
+      <tr><td>Точных попаданий</td><td>${S.exact} из 12</td></tr>
+      <tr><td>Очки</td><td>${S.score}</td></tr>
+      <tr><td>Заявок «Точно» потрачено</td><td>${4-S.tochno} из 4</td></tr>
+      </table></div>
+      <div class="muted">В продукте здесь же — карта полок: какие позиции читаешь уверенно,
+      какие путаешь, и с чем именно путаешь. Плюс «тень» — эта партия записывается логом из
+      12 заявок, и по ней можно играть против себя вчерашнего или против другого игрока.</div>
+      <div class="row" style="margin-top:12px"><button class="big" onclick="S.phase='menu';render()">Ещё раз</button></div>
+      </div>`));
+    return;
+  }
+
+  if(S.phase==='reveal'){
+    const r=S.rev;
+    a.appendChild($(`<div class="rv ${r.cls}"><div class="hd"><span>${r.head}</span><span>+${r.pts}</span></div>
+      <div class="bd">${r.body}</div></div>
+      <div class="row"><button class="big" onclick="next()">Дальше →</button></div>`));
+    return;
+  }
+
+  const el = S.deck[S.idx], mn = (ph.m&&ph.m[el])||'';
+  a.appendChild($(`<div class="card now"><div class="lab">Куда это встанет</div>
+    <div class="el">${ph.p[el]}</div>${mn?`<div class="mn">подсказка автора: ${mn}</div>`:''}</div>`));
+
+  // Автопроверки: считаются по номеру полки, ручного контента не нужно
+  if(S.sel!==null){
+    const opp=(S.sel+6)%12, tri=[0,1,2,3].map(k=>S.sel+ (k*4)).map(x=>x%12).filter(x=>x!==S.sel);
+    const oppEl = S.placed[opp]!==undefined ? ph.p[S.placed[opp]] : null;
+    const triEls = tri.filter(x=>S.placed[x]!==undefined).map(x=>ph.p[S.placed[x]]);
+    a.appendChild($(`<div class="hint">
+      <b>Если положишь на ${S.sel} — проверь себя.</b><br>
+      Напротив (${opp}) ${oppEl? `стоит <b>${oppEl}</b> — одна ли это природа в зеркальной среде?` : 'пока пусто.'}<br>
+      Треугольник ${TRI[triOf(S.sel)]}${triEls.length? `: уже стоят <b>${triEls.join(', ')}</b> — однороден ли ряд?` : ' пока пуст.'}
+    </div>`));
+  }
+
+  const forced = (12-S.idx) <= S.tochno;
+  a.appendChild($(`<div class="grp"><h3>Заявка</h3>
+    <div class="row">
+      <button class="big" ${S.sel===null||!S.reason||S.tochno<1?'disabled':''} onclick="claim('exact')">Точно${S.sel!==null?` → ${S.sel}`:''}</button>
+      <button class="big" ${S.pas<1||forced?'disabled':''} onclick="claim('pas')">Пас</button>
+    </div>
+    <div class="row" style="margin-top:7px">
+      <button class="big cx0" onclick="claim('cross',0)">Крест Опоры</button>
+      <button class="big cx1" onclick="claim('cross',1)">Веры</button>
+      <button class="big cx2" onclick="claim('cross',2)">Управления</button>
+    </div></div>
+    <div class="grp"><h3>Причина ${S.sel===null?'— сперва выбери полку на колесе':''}</h3>
+    <div class="row">
+      <button ${S.reason==='opora'?'class="on"':''} onclick="setReason('opora')">опора</button>
+      <button ${S.reason==='podg'?'class="on"':''} onclick="setReason('podg')">подготовка</button>
+      <button ${S.reason==='itog'?'class="on"':''} onclick="setReason('itog')">итог</button>
+    </div></div>
+    ${forced?'<div class="warnbox">Заявки «Точно» надо потратить все — карт осталось ровно столько же.</div>':''}
+    <div class="muted">«Крест» без полки — это пол для новичка: за него дают очко и он не тратит
+    дефицитный ресурс. «Точно» — единственное настоящее решение партии.</div>`));
+}
+
+S.phase='menu'; render();
+</script>
