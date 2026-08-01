@@ -88,12 +88,18 @@
   .note{font-size:12px;color:var(--tx3);text-align:center;margin-top:14px;line-height:1.45}
 </style>
 
-<div id="wrap"><svg id="ring" viewBox="0 0 340 340"></svg></div>
+<!-- холст шире кольца: боковым подписям «утро» и «вечер» нужны поля, иначе их срезает -->
+<div id="wrap"><svg id="ring" viewBox="-20 -10 380 380"></svg></div>
 <div id="panel"></div>
 
 <script>
 /* ═══ данные ═══ */
 const C=170, R=140, Ri=92, Rem=116;
+/* холст svg смещён и шире кольца — эмодзи лежат html-слоем поверх, поэтому их
+   проценты считаются по этому же прямоугольнику, а не по 340 */
+const VB={x:-20, y:-10, w:380};
+const pctX=x=>((x-VB.x)/VB.w*100)+'%';
+const pctY=y=>((y-VB.y)/VB.w*100)+'%';
 
 /* Сутки. Порядок: 0 — глухая ночь, дальше по кругу через утро, день, вечер.
    Напротив каждого — то, что стоит через шесть мест. */
@@ -198,7 +204,7 @@ function drawRing(intro){
     const [x,y]=P(Rem,i);
     const d=document.createElement('div');
     d.className='em on'; d.dataset.i=i;
-    d.style.left=(x/340*100)+'%'; d.style.top=(y/340*100)+'%';
+    d.style.left=pctX(x); d.style.top=pctY(y);
     d.textContent=S.fire?FIRE[i]:DAY[i].e;
     w.appendChild(d);
   }
