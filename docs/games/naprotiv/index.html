@@ -1,0 +1,429 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ровно напротив — прототип · Ясна</title>
+<!--
+  «Ровно напротив» — прототип финальной механики.
+  Единица игры — ОСЬ (пара «элемент ↔ его антипод»), а не полка.
+
+  Что здесь сознательно сделано и почему (docs/YASNA_FUN_PLAN.md):
+   • круга на игровом экране НЕТ: ось {i,i+6} это класс вычетов по модулю 6,
+     а «чётность + крест» по КТО дают ровно i mod 6 — форма и цвет круга вместе
+     раздают весь ключ (перебор: чётность даром 20%, крест даром 33%, оба 100%);
+   • на промахе с поля уходят ТОЛЬКО объявленные карточки (иначе слепая база
+     прыгает с 9.1% до 16.6%);
+   • «Ещё достижимо» считается максимумом по всем 10395 паросочетаниям,
+     совместимым с историей партии — ноль бит о ключе;
+   • причина (чип) записывается, но НИКОГДА не судится: тернарный ответ был бы
+     оракулом принадлежности к оси;
+   • три зачётных захода на явление, дальше только итоговое число.
+
+  ВРЕМЕННОЕ: тексты шести разводок переписаны мной из массива PAIR без номеров
+  полок. В бою их подписывает автор метода — подпись оси это утверждение о методе.
+-->
+<style>
+  :root{
+    --bg:#f4f5f7; --card:#fff; --tx:#12151c; --tx2:#4a5265; --tx3:#8b93a7;
+    --line:#dfe3ea; --line2:#eef0f4; --acc:#2f6bdd; --ok:#1a7f5a; --no:#b4472f;
+    --okbg:#e8f5ef; --nobg:#fbeceb; --chip:#f0f2f6;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#0f1218; --card:#181c25; --tx:#eef1f6; --tx2:#a8b0c2; --tx3:#727b8f;
+      --line:#272d3a; --line2:#1e232e; --acc:#6f9bff; --ok:#4bc99a; --no:#e08268;
+      --okbg:#12271f; --nobg:#2a1815; --chip:#212734; }
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--bg);color:var(--tx);
+    font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding:20px 16px 48px;max-width:560px;margin:0 auto}
+  h1{font-size:22px;margin:0 0 2px;letter-spacing:-.2px}
+  h1 small{font-weight:400;color:var(--tx3);font-size:15px}
+  #sub{color:var(--tx2);font-size:14px;margin:0 0 18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:10px 0}
+  button{font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);
+    border-radius:12px;padding:11px 14px;cursor:pointer;transition:.12s}
+  button:hover:not(:disabled){border-color:var(--tx3)}
+  button:disabled{opacity:.4;cursor:default}
+  .pri{background:var(--acc);color:#fff;border-color:transparent;font-weight:600}
+  .pri:hover:not(:disabled){filter:brightness(1.08)}
+  .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .muted{color:var(--tx3);font-size:13px;margin-top:10px;line-height:1.45}
+
+  /* ── поле: двенадцать одинаковых карточек, ничего не кодирующих ── */
+  .field{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0 0}
+  .el{background:var(--card);border:1.5px solid var(--line);border-radius:12px;
+    padding:12px 8px;min-height:68px;display:flex;align-items:center;justify-content:center;
+    text-align:center;font-size:13.5px;line-height:1.25;font-weight:500;cursor:pointer;transition:.12s}
+  .el:hover{border-color:var(--tx3)}
+  .el.sel{border-color:var(--acc);box-shadow:0 0 0 2.5px color-mix(in srgb,var(--acc) 22%,transparent);font-weight:700}
+  .el.gone{opacity:0;pointer-events:none;transform:scale(.9)}
+
+  .ceil{display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+    font-size:14px;color:var(--tx2);padding:2px 2px 0}
+  .ceil b{font-size:26px;color:var(--tx);font-variant-numeric:tabular-nums;font-weight:700}
+  .ceil .lbl{font-size:12.5px;color:var(--tx3);letter-spacing:.02em;text-transform:uppercase}
+
+  .claim{font-size:17px;line-height:1.4;margin:2px 0 12px}
+  .claim b{font-weight:700}
+  .chips{display:flex;gap:7px;flex-wrap:wrap}
+  .chip{background:var(--chip);border:1px solid transparent;border-radius:999px;
+    padding:9px 13px;font-size:13.5px;cursor:pointer;transition:.12s}
+  .chip:hover{border-color:var(--acc);color:var(--acc)}
+  .chip.q{background:transparent;border:1px dashed var(--line);color:var(--tx3)}
+
+  .rv{border-radius:14px;padding:14px 16px;margin:10px 0;border:1px solid}
+  .rv.ok{background:var(--okbg);border-color:color-mix(in srgb,var(--ok) 35%,transparent)}
+  .rv.no{background:var(--nobg);border-color:color-mix(in srgb,var(--no) 35%,transparent)}
+  .rv .hd{font-weight:700;margin-bottom:5px}
+  .rv.ok .hd{color:var(--ok)} .rv.no .hd{color:var(--no)}
+  .rv .bd{font-size:14.5px;line-height:1.5;color:var(--tx2)}
+
+  details.tools{margin-top:16px;border-top:1px solid var(--line2);padding-top:12px}
+  details.tools summary{cursor:pointer;font-size:13.5px;color:var(--tx2);list-style:none}
+  details.tools summary::-webkit-details-marker{display:none}
+  details.tools summary:before{content:'▸ ';color:var(--tx3)}
+  details.tools[open] summary:before{content:'▾ '}
+  .qlist{margin:10px 0 0;padding:0;list-style:none}
+  .qlist li{font-size:13.5px;color:var(--tx2);padding:7px 0;border-bottom:1px solid var(--line2);line-height:1.45}
+  .qlist li:last-child{border:0}
+  .qlist b{color:var(--tx)}
+
+  .phen{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;text-align:left}
+  .phen .nm{font-weight:600}
+  .phen .st{font-size:12.5px;color:var(--tx3);white-space:nowrap}
+  .phen.train .st{color:var(--tx3)}
+  table.brk{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px}
+  table.brk td{padding:5px 0;border-bottom:1px solid var(--line2);color:var(--tx2)}
+  table.brk td:last-child{text-align:right;white-space:nowrap;color:var(--tx)}
+  .warn{font-size:12.5px;color:var(--no);margin-top:6px}
+</style>
+
+<h1>Ровно напротив <small>· прототип</small></h1>
+<div id="sub"></div>
+<div id="app"></div>
+
+<script>
+/* ═══════════════════ 1. Данные ═══════════════════ */
+
+/* Шесть осей метода. Тексты переписаны без номеров полок (см. комментарий вверху).
+   Ось k соединяет позиции k и k+6. */
+const AX = [
+  {s:'смешивает / складывает', f:'В одном всё сливается и границы стираются. В другом части соединены, но остаются различимы.'},
+  {s:'до дела / после дела',   f:'Одно — ресурс, который ещё не тратили. Другое — результат, который уже проверяют.'},
+  {s:'сырое / готовое',        f:'Одно работает с сырым, на подъёме. Другое — с готовым, после вершины.'},
+  {s:'рождается / уходит',     f:'В одном побеждает то, что рождается. В другом побеждает то, что уходит.'},
+  {s:'умение / множество',     f:'Одно — умение одного. Другое — множество одинакового.'},
+  {s:'копит / выводит',        f:'Одно копит и удерживает внутри. Другое выводит наружу.'}
+];
+const TRY = {s:'просто пробую', f:'Основания нет — проверяю догадку.'};
+
+/* Явления. Истина: элемент i в паре с элементом (i+6)%12. Порядок на экране перемешивается. */
+const PH = [
+  {id:'sutki', n:'Суток', hint:'самое знакомое', p:[
+    'Ночь','Искра','Утренняя Заря','Утро','Восход','Утренний Салют',
+    'День','Первая Тьма','Закат','Вечер','Сумерки','Вечерний Салют']},
+  {id:'goda', n:'Года', hint:'', p:[
+    'Зима','Начало Весны','Тают снега','Весеннее Равноденствие','Появляются листья','Конец Весны',
+    'Лето','Начало Осени','Желтеют листья','Осеннее Равноденствие','Опадают листья','Конец Осени']},
+  {id:'kostra', n:'Костра', hint:'', p:[
+    'Стопка дров','Искра','Первый огонь','Шатун','Разгорается','Разгорелся',
+    'Горит','Догорел','Тухнет','Последний огонь','Раскалённые угли','Зола']},
+  {id:'voda', n:'Круговорота воды', hint:'', p:[
+    'Вода с землёй, грязь','Родник','Река','Поверхность водоёма','Пар','Облако',
+    'Холод, перенос','Гроза','Дождь','Касание воды','Стекание','Лужа']},
+  {id:'zhizn', n:'Жизни', hint:'про человека', p:[
+    'Половой акт','Зачатие','Беременность','Рождение','Обучение','Определение',
+    'Работа и семья','Конец работы','Учитель','Смерть','Скорбь','Памятник']},
+  {id:'emo', n:'Эмоций', hint:'', p:[
+    'Страх','Стыд','Обида','Гнев','Интерес','Удивление',
+    'Радость','Удовольствие','Любовь','Грусть','Скука','Отвращение']},
+  {id:'derevo', n:'Дерева', hint:'трудное — незнакомая оболочка', p:[
+    'Корни','Косточка','Плод','Рыльце','Столбик','Пестик',
+    'Лепесток','Билет','Лист','Ветка','Ствол','Пень']}
+];
+
+const ZACH = 3;   // зачётных заходов на явление
+
+/* ═══════════════════ 2. Все паросочетания двенадцати элементов ═══════════════════
+   10 395 штук. Нужны, чтобы честно считать «Ещё достижимо»: берём МАКСИМУМ по всем
+   ключам, совместимым с уже выданными ответами. Такое число зависит только от
+   публичной истории партии, значит не несёт о ключе ни бита. */
+const MATCH = (function(){
+  const out=[], cur=new Uint8Array(12);
+  (function rec(free){
+    if(!free.length){ out.push(cur.slice()); return; }
+    const a=free[0];
+    for(let i=1;i<free.length;i++){
+      const b=free[i];
+      cur[a]=b; cur[b]=a;
+      rec(free.filter((x,k)=>k!==0&&k!==i));
+    }
+  })([0,1,2,3,4,5,6,7,8,9,10,11]);
+  return out;
+})();
+
+/* ═══════════════════ 3. Состояние ═══════════════════ */
+const S = {
+  scr:'menu', ph:null, order:[], alive:[], sel:[],
+  said:[],          /* {a,b,chip,ok} — индексы ИСТИННЫХ позиций */
+  score:0, ceil:6, rev:null, train:false, done:false
+};
+
+const LS='yasna_naprotiv_v1';
+function mem(){ try{ return JSON.parse(localStorage.getItem(LS))||{} }catch(e){ return {} } }
+function memSet(o){ try{ localStorage.setItem(LS,JSON.stringify(o)) }catch(e){} }
+function plays(id){ return (mem().plays||{})[id]||0 }
+function bumpPlays(id){ const m=mem(); m.plays=m.plays||{}; m.plays[id]=(m.plays[id]||0)+1; memSet(m) }
+function seenFive(){ return !!mem().five }
+function markFive(){ const m=mem(); m.five=1; memSet(m) }
+
+const truth = i => (i+6)%12;
+const el = h => { const d=document.createElement('div'); d.innerHTML=h; return d };
+const esc = s => s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+/* ═══════════════════ 4. Потолок ═══════════════════ */
+function ceiling(){
+  const aliveSet = new Uint8Array(12);
+  S.alive.forEach(i=>aliveSet[i]=1);
+  let best = 0;
+  for(let m=0;m<MATCH.length;m++){
+    const M = MATCH[m];
+    let ok = true;
+    for(let k=0;k<S.said.length;k++){
+      const s = S.said[k];
+      if(s.ok){ if(M[s.a]!==s.b){ ok=false; break } }
+      else    { if(M[s.a]===s.b){ ok=false; break } }
+    }
+    if(!ok) continue;
+    let c=0;
+    for(let i=0;i<12;i++) if(aliveSet[i] && M[i]>i && aliveSet[M[i]]) c++;
+    if(c>best){ best=c; if(best===S.alive.length/2) break }
+  }
+  return S.score + best;
+}
+
+/* ═══════════════════ 5. Ход партии ═══════════════════ */
+function start(ph){
+  S.ph=ph; S.train = plays(ph.id) >= ZACH;
+  S.order = [...Array(12).keys()].map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(v=>v[1]);
+  S.alive = [...Array(12).keys()];
+  S.sel=[]; S.said=[]; S.score=0; S.rev=null; S.done=false; S.scr='play';
+  S.ceil = S.train ? null : 6;
+  bumpPlays(ph.id);
+  render();
+}
+
+function tap(i){
+  if(S.rev||S.done) return;
+  const k=S.sel.indexOf(i);
+  if(k>=0) S.sel.splice(k,1); else if(S.sel.length<2) S.sel.push(i);
+  render();
+}
+
+function say(chipIdx){
+  const [a,b]=S.sel;
+  const ok = truth(a)===b;
+  S.said.push({a,b,chip:chipIdx,ok});
+  if(ok) S.score++;
+  S.alive = S.alive.filter(x=>x!==a && x!==b);   // уходят ТОЛЬКО объявленные
+  S.sel=[];
+  if(!S.train){
+    S.ceil = ceiling();
+    const first = S.said.filter(s=>!s.ok).length===1;
+    S.rev = ok
+      ? {ok:true, hd:'Ровно напротив', bd: axText(a)}
+      : {ok:false, hd:'Не сошлось', bd:
+          (first
+            ? 'Обе карточки ушли с поля, а напротив каждой кто-то остался без пары — поэтому шести уже не будет. '
+            : '')
+          + `Ещё достижимо: <b>${S.ceil}</b>.`};
+  } else {
+    S.rev = {ok:null, hd:'Записано', bd:'В тренировке игра молчит до конца партии.'};
+  }
+  render();
+}
+
+function axText(i){ return AX[i%6].f }
+
+function next(){
+  S.rev=null;
+  if(!S.train){
+    // вынужденная последняя пара: осталось двое и они действительно ось
+    if(S.alive.length===2){
+      const [a,b]=S.alive;
+      if(truth(a)===b){
+        S.said.push({a,b,chip:-2,ok:true}); S.score++; S.alive=[];
+        S.ceil=S.score;
+        S.rev={ok:true, hd:'Здесь выбора нет', bd:'Последние двое обязаны быть парой — это засчитано без заявки. '+axText(a)};
+        return render();
+      }
+    }
+    if(S.ceil===S.score || S.alive.length<2){ return finish() }
+  } else {
+    if(S.alive.length<2){ return finish() }
+  }
+  render();
+}
+
+function finish(){ S.done=true; S.scr='end'; if(!S.train) S.ceil=ceiling(); render(); }
+
+/* ═══════════════════ 6. Экраны ═══════════════════ */
+function render(){
+  const app=document.getElementById('app'), sub=document.getElementById('sub');
+  app.innerHTML='';
+
+  /* ─ меню ─ */
+  if(S.scr==='menu'){
+    sub.textContent='Сведи двенадцать элементов в шесть пар противоположностей';
+    app.appendChild(el(`<div class="card">
+      <b>Правило одно.</b> У каждого элемента есть ровно один противоположный.
+      Найди все шесть пар. Ошибка уносит с поля обе объявленные карточки — а те,
+      кто стоял напротив них, остаются без пары навсегда.
+      <div class="muted">Времени нет. Очков нет. Считается только то, что ты утверждал.</div>
+    </div>`));
+    const list=el('<div></div>');
+    PH.forEach(p=>{
+      const n=plays(p.id), left=Math.max(0,ZACH-n), train=left===0;
+      const b=document.createElement('button');
+      b.style.cssText='width:100%;margin:8px 0;padding:14px 16px';
+      b.innerHTML=`<span class="phen ${train?'train':''}">
+        <span><span class="nm">${p.n}</span>${p.hint?`<span class="st"> · ${p.hint}</span>`:''}</span>
+        <span class="st">${train?'тренировка':`зачётных заходов: ${left}`}</span></span>`;
+      b.onclick=()=>start(p);
+      list.appendChild(b);
+    });
+    app.appendChild(list);
+    app.appendChild(el(`<div class="muted">С четвёртого захода явление уходит в тренировку:
+      игра назовёт только итоговое число, не показывая, какие именно пары верны.
+      Причина честная — шесть заходов с полным разбором вскрывают ключ явления перебором.</div>`));
+    app.appendChild(tools());
+    return;
+  }
+
+  /* ─ конец ─ */
+  if(S.scr==='end') return end(app,sub);
+
+  /* ─ партия ─ */
+  sub.textContent = S.ph.n + (S.train?' · тренировка':'');
+  app.appendChild(el(`<div class="ceil">
+    <span><span class="lbl">${S.train?'Заявлено':'Ещё достижимо'}</span><br><b>${S.train?S.said.length:S.ceil}</b></span>
+    <span style="text-align:right"><span class="lbl">Сошлось</span><br><b>${S.train?'—':S.score}</b></span>
+  </div>`));
+
+  const f=el('<div class="field"></div>').firstChild;
+  S.order.forEach(i=>{
+    const gone = !S.alive.includes(i);
+    const d=document.createElement('div');
+    d.className='el'+(gone?' gone':'')+(S.sel.includes(i)?' sel':'');
+    d.textContent=S.ph.p[i];
+    if(!gone) d.onclick=()=>tap(i);
+    f.appendChild(d);
+  });
+  app.appendChild(f);
+
+  if(S.rev){
+    app.appendChild(el(`<div class="rv ${S.rev.ok===false?'no':'ok'}">
+      <div class="hd">${S.rev.hd}</div><div class="bd">${S.rev.bd}</div></div>
+      <div class="row"><button class="pri" onclick="next()">Дальше →</button></div>`));
+    return;
+  }
+
+  if(S.sel.length===2){
+    const [a,b]=S.sel;
+    app.appendChild(el(`<div class="card">
+      <div class="claim">«<b>${esc(S.ph.p[a])}</b>» — ровно напротив «<b>${esc(S.ph.p[b])}</b>»</div>
+      <div class="muted" style="margin:0 0 10px">Назови основание — это и есть подтверждение заявки. Отмены не будет.</div>
+      <div class="chips">
+        ${AX.map((x,k)=>`<span class="chip" onclick="say(${k})">${x.s}</span>`).join('')}
+        <span class="chip q" onclick="say(-1)">${TRY.s}</span>
+      </div></div>`));
+  } else {
+    app.appendChild(el(`<div class="muted">Выбери две карточки, которые стоят друг против друга.</div>`));
+  }
+
+  app.appendChild(el(`<div class="row">
+    <button onclick="finish()">Я закончил</button>
+    <button onclick="S.scr='menu';render()">Выйти</button></div>`));
+  if(!S.train && S.said.length) app.appendChild(el(`<div class="muted">
+    «Ещё достижимо» — это максимум, который остаётся возможным при всём, что ты уже сказал вслух.
+    Игра считает его перебором всех 10&nbsp;395 раскладов, совместимых с твоими заявками,
+    и берёт наибольший. Сколько осей погибло на самом деле, она сказать не может:
+    это факт о ключе.</div>`));
+  app.appendChild(tools());
+}
+
+function tools(){
+  return el(`<details class="tools"><summary>Шесть вопросов, которые разводят пары</summary>
+    <ul class="qlist">${AX.map(x=>`<li><b>${x.s}</b> — ${x.f}</li>`).join('')}</ul>
+    <div class="muted">Читать можно в любой момент и сколько угодно: это инструмент до хода,
+    а не подсказка к текущей паре.</div></details>`);
+}
+
+function end(app,sub){
+  sub.textContent = S.ph.n + ' · итог';
+  const said=S.said.filter(s=>s.chip!==-2).length, forced=S.said.some(s=>s.chip===-2);
+  const rest=Math.max(0,S.ceil-S.score);
+
+  if(S.train){
+    app.appendChild(el(`<div class="card"><b>Сошлось: ${S.score} из 6.</b>
+      <div class="muted">Тренировка: какие именно пары верны, игра не показывает —
+      иначе повторные заходы вскрывают ключ перебором.</div></div>`));
+  } else {
+    app.appendChild(el(`<div class="card">
+      <div style="font-size:19px;line-height:1.45">
+        Ты утверждал <b>${said}</b> ${plural(said,'пару','пары','пар')}.
+        Сошлось <b>${S.score}</b>.${rest>0?` Ещё было достижимо <b>${rest}</b>.`:''}
+      </div>
+      ${forced?`<div class="muted">Последняя пара закрылась сама — там выбора не оставалось.</div>`:''}
+    </div>`));
+
+    const okAx=S.said.filter(s=>s.ok);
+    if(okAx.length) app.appendChild(el(`<div class="card"><b>Что сошлось</b>
+      ${okAx.map(s=>`<div style="margin-top:9px;font-size:14.5px;line-height:1.5">
+        <b>${esc(S.ph.p[s.a])}</b> ↔ <b>${esc(S.ph.p[s.b])}</b><br>
+        <span style="color:var(--tx2)">${axText(s.a)}</span></div>`).join('')}</div>`));
+
+    const use={};
+    S.said.filter(s=>s.chip>=-1).forEach(s=>{
+      const k=s.chip<0?'try':s.chip;
+      use[k]=use[k]||{n:0,ok:0}; use[k].n++; if(s.ok) use[k].ok++;
+    });
+    const keys=Object.keys(use);
+    if(keys.length) app.appendChild(el(`<div class="card"><b>На что ты ссылался</b>
+      <table class="brk">${keys.map(k=>{
+        const nm=k==='try'?TRY.s:AX[k].s, u=use[k];
+        return `<tr><td>${nm}</td><td>${u.n} ${plural(u.n,'раз','раза','раз')} · сошлось ${u.ok}</td></tr>`;
+      }).join('')}</table>
+      <div class="muted">Основание не оценивается — оно только записывается.
+      Игра, которая судит причину, подсказывает, к какой оси принадлежит карточка.</div></div>`));
+
+    if(S.score<=1) app.appendChild(el(`<div class="card">
+      <b>Так бывает.</b>
+      <div class="muted" style="margin-top:6px">Если сводить пары наугад, ноль осей выходит
+      у 58 партий из ста, одна — у 31. Двенадцать элементов дают 10&nbsp;395 способов
+      разбиться на шесть пар, и верный ровно один. Результат ${S.score} — это не «метод не работает»,
+      это «явление пока не прочитано».</div></div>`));
+
+    if(S.score>=4 && !seenFive()){
+      markFive();
+      app.appendChild(el(`<div class="card"><b>Пяти из шести не бывает.</b>
+        <div class="muted" style="margin-top:6px">Если сошлись пять — шестая сходится сама,
+        потому что двое оставшихся больше не с кем перепутать. Поэтому исходы здесь только
+        0, 1, 2, 3, 4 и 6.</div></div>`));
+    }
+  }
+
+  app.appendChild(el(`<div class="row">
+    <button class="pri" onclick="S.scr='menu';render()">К списку явлений</button>
+    <button onclick="start(S.ph)">Ещё раз это же</button></div>`));
+  app.appendChild(el(`<div class="muted">«Ещё раз это же» тратит следующий зачётный заход —
+    кнопки «та же раздача с тем же ключом» нет и не будет: шесть непересекающихся пар
+    с ответом «да/нет» это один тур кругового расписания, и одиннадцать туров вскрывают ключ целиком.</div>`));
+}
+
+function plural(n,a,b,c){
+  const x=Math.abs(n)%100, y=x%10;
+  if(x>10&&x<20) return c; if(y>1&&y<5) return b; if(y===1) return a; return c;
+}
+
+render();
+</script>
