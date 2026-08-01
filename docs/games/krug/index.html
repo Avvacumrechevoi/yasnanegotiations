@@ -143,7 +143,7 @@ const ORDER=[3,4,1,2];
 
 /* ═══ состояние ═══ */
 const S={ph:'intro', chord:new Array(6).fill(null), placed:new Array(12).fill(false),
-         q:null, pick:null, step:0, fire:false};
+         q:null, pick:null, step:0, right:0, fire:false};
 
 const A=i=>90+30*i;
 const P=(r,i)=>[C+r*Math.cos(A(i)*Math.PI/180), C+r*Math.sin(A(i)*Math.PI/180)];
@@ -235,10 +235,9 @@ function demo(){
 }
 
 function ask(){
-  if(S.step>=ORDER.length){ return done() }
-  const k=ORDER[S.step];
-
-  /* последняя пара закрывается сама */
+  /* Проверка «осталось двое» обязана идти ПЕРВОЙ. Если сначала смотреть, кончились ли
+     вопросы, игра проскочит в финал и молча запишет последнюю нитку себе в актив —
+     а её никто не тянул. */
   const free=[...Array(12).keys()].filter(i=>!S.placed[i]);
   if(free.length===2){
     const a=Math.min(...free);
@@ -253,8 +252,9 @@ function ask(){
     pan().appendChild(el(`<button class="go" onclick="done()">Посмотреть, что вышло →</button>`));
     return;
   }
+  if(S.step>=ORDER.length){ return done() }
 
-  const show=k, want=k+6;
+  const k=ORDER[S.step], show=k, want=k+6;
   /* злые отвлекающие: всегда сосед верного места */
   const pool=free.filter(i=>i!==show&&i!==want)
     .map(i=>[Math.min(Math.abs(i-want),12-Math.abs(i-want)),i])
@@ -293,6 +293,7 @@ function answer(i,btn){
        остаются без вариантов. */
     S.placed[want]=true;
     S.chord[show%6] = ok ? 'gold' : 'grey';
+    if(ok) S.right++;
     S.q=null; S.ph='say'; drawRing(false);
     pan().innerHTML='';
     pan().appendChild(el(`<div class="say">
@@ -307,13 +308,16 @@ function answer(i,btn){
 function done(){
   S.ph='done';
   for(let i=0;i<12;i++) S.placed[i]=true;
-  for(let k=0;k<6;k++) if(!S.chord[k]) S.chord[k]='gold';
   drawRing(false);
-  const mine=S.chord.filter(c=>c==='gold').length;
+  /* Считаем только то, о чём спрашивали: первая нитка показана даром, последняя
+     закрылась сама. Приписывать их игроку — врать ему в лицо на финальном экране. */
+  const n=ORDER.length, mine=S.right;
   pan().innerHTML='';
   pan().appendChild(el(`<div class="say"><div class="hd">Круг связан</div>
     <div class="bd">Шесть ниток, и каждая соединяет два конца одного и того же.
-    ${mine>=5?'Почти все ты протянул сам.':mine>=3?'Больше половины ты протянул сам.':''}</div></div>`));
+    Спрашивали про ${n}: ${mine===n?'все ' + n + ' ты нашёл сразу.'
+      : mine===0?'ни одна не легла с первого раза — зато теперь видно, как круг устроен.'
+      : mine + ' из них ты нашёл сразу.'}</div></div>`));
   pan().appendChild(el(`<button class="go" onclick="focus_()">Ничего не трогай →</button>`));
 }
 
@@ -345,7 +349,7 @@ function focus_(){
 
 function restart(){
   S.ph='intro'; S.chord=new Array(6).fill(null); S.placed=new Array(12).fill(false);
-  S.q=null; S.pick=null; S.step=0; S.fire=false;
+  S.q=null; S.pick=null; S.step=0; S.right=0; S.fire=false;
   intro();
 }
 
