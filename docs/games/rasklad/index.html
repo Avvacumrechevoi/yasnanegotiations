@@ -189,7 +189,7 @@ function wheel12(){
 // ═══ уровень 1 ═══
 function startL1(src){
   S.lvl=1; S.mode='play'; S.src=src; S.i=0; S.right=0; S.placed={}; S.rev=null; S.sel=null;
-  S.deck = (src==='day'? DAY : FIRE).map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(v=>v[1]);
+  S.deck = (src==='fire'? FIRE : DAY).map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(v=>v[1]);
   render();
 }
 function put(k){
