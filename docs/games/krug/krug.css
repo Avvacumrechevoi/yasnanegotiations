@@ -103,3 +103,15 @@ table.res{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
 table.res td{padding:6px 0;border-bottom:1px solid var(--k-line);color:var(--k-tx2)}
 table.res td:last-child{text-align:right;color:var(--k-tx);white-space:nowrap}
 table.res tr:last-child td{border:0}
+
+/* полоса хода в парной игре: мелкой подписи было мало — «вдвоём» не отличалось от «одному» */
+.turnbar{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12.5px;
+  font-weight:650;margin-bottom:7px}
+.turnbar.t0{background:color-mix(in srgb,var(--k-gold) 26%,transparent);color:var(--k-tx)}
+.turnbar.t1{background:color-mix(in srgb,var(--k-acc) 22%,transparent);color:var(--k-tx)}
+
+/* чей элемент: чёрточка под подписью. Красить сам текст нельзя — заливка доли
+   меняется от Ясны к Ясне, и цветной текст на светлой доле нечитаем. */
+.nm[data-by]:after{content:'';display:block;width:14px;height:2.5px;border-radius:2px;margin:3px auto 0}
+.nm[data-by="0"]:after{background:var(--k-gold)}
+.nm[data-by="1"]:after{background:var(--k-acc)}

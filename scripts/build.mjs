@@ -164,8 +164,23 @@ async function stampCacheVersions(root, label){
   const { readdir } = await import('node:fs/promises');
   const crypto = await import('node:crypto');
   let files;
-  try { files = (await readdir(root)).filter(f => f.endsWith('.html')); }
-  catch(_){ return 0; }
+  try {
+    // Обход обязан быть РЕКУРСИВНЫМ: страницы игр лежат в подпапках docs/games,
+    // и при плоском readdir им никогда не обновлялся ?v= — вернувшийся браузер
+    // продолжал отдавать старый js из кэша. Ровно на этом обжёгся «Круг»:
+    // парная игра была написана и выложена, а игрок видел прежнюю версию.
+    const walk = async (dir) => {
+      const out = [];
+      for(const d of await readdir(dir, { withFileTypes: true })){
+        if(d.name === 'dist' || d.name === 'node_modules' || d.name.startsWith('.')) continue;
+        const full = path.join(dir, d.name);
+        if(d.isDirectory()) out.push(...await walk(full));
+        else if(d.name.endsWith('.html')) out.push(path.relative(root, full));
+      }
+      return out;
+    };
+    files = await walk(root);
+  } catch(_){ return 0; }
 
   const hashCache = new Map();
   async function hashOf(abs){

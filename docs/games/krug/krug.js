@@ -86,7 +86,7 @@ function shuffled(arr,rnd){ const a=arr.slice();
 
 /* ─── состояние ───────────────────────────────────────────────────── */
 const S={ scr:'setup', yasna:null, seed:0, mode:'solo', preset:false,
-          deck:[], i:0, placed:[], first:[], by:[], miss:{}, turn:0, players:['Первый','Второй'] };
+          deck:[], i:0, placed:[], first:[], by:[], miss:{}, turn:0, hits:[0,0], tries:[0,0], els:[0,0], axBy:[], players:['Золотой','Синий'] };
 let LIST=[];
 
 /* ─── узлы круга: создаются один раз ──────────────────────────────── */
@@ -129,7 +129,7 @@ function buildRing(host,onTap){
 function light(i,by){
   N.w[i].style.opacity=1;
   N.n[i].textContent=S.yasna.p[i]; N.n[i].style.opacity=1;
-  if(by!==undefined) N.n[i].dataset.by=by;
+  if(by===0||by===1) N.n[i].dataset.by=by; else delete N.n[i].dataset.by;
 }
 function tie(k,col){ N.c[k].setAttribute('stroke',col||'var(--k-gold)');
   N.c[k].style.opacity=1; N.c[k].classList.add('on'); }
@@ -195,7 +195,10 @@ function mode(){
 /* ═══════════ ССЫЛКА НА ОДНУ РАЗДАЧУ ═══════════ */
 function share(){
   S.scr='share'; app().innerHTML='';
-  const url=location.origin+location.pathname+'#'+S.yasna.id+'.'+S.seed;
+  const q='?y='+encodeURIComponent(S.yasna.id)+'&s='+S.seed;
+  const url=location.origin+location.pathname+q;
+  /* адрес хоста тоже переписываем: иначе после перезагрузки ссылку не переслать */
+  try{ history.replaceState(null,'',q) }catch(_){}
   app().appendChild(el(`<div><h2>Одна раздача на всех</h2>
     <div class="sub">Отправь ссылку — у каждого будет та же Ясна и тот же порядок элементов.
     Каждый раскладывает у себя, потом сверяете, кто где промахнулся.</div></div>`));
@@ -215,6 +218,7 @@ function share(){
 function start(){
   S.scr='play'; S.i=0; S.placed=new Array(12).fill(false);
   S.first=new Array(12).fill(null); S.by=new Array(12).fill(null); S.miss={}; S.turn=0;
+  S.hits=[0,0]; S.tries=[0,0]; S.els=[0,0]; S.axBy=new Array(6).fill(null);
   const rnd=mulberry(S.seed);
   /* ноль и шестёрка выдаются даром: это опоры круга, от них считается всё остальное */
   S.deck=shuffled([1,2,3,4,5,7,8,9,10,11],rnd);
@@ -234,14 +238,13 @@ function render(){
   buildRing(app(),onTap);
   app().appendChild(el(`<div id="kbot"></div>`));
   /* восстановить уже поставленное (перерисовка круга) */
-  for(let i=0;i<12;i++) if(S.placed[i]) light(i,S.by[i]);
+  for(let i=0;i<12;i++) if(S.placed[i]) light(i, S.by[i]===null?undefined:S.by[i]);
   for(let k=0;k<6;k++) if(S.placed[k]&&S.placed[k+6]) tie(k, chordCol(k));
   hand();
 }
 function chordCol(k){
   if(S.mode!=='duo') return (S.first[k]===false||S.first[k+6]===false)?'var(--k-grey)':'var(--k-gold)';
-  /* в парной игре нитка окрашена по тому, кто поставил ВТОРОЙ её конец */
-  const who = S.by[k+6]!==null ? S.by[k+6] : S.by[k];
+  const who = S.axBy[k];
   return who===1?'var(--k-acc)':'var(--k-gold)';
 }
 function bot(){ return document.getElementById('kbot') }
@@ -251,7 +254,7 @@ function hand(){
   if(S.i>=S.deck.length) return finish();
   const t=S.deck[S.i];
   b.appendChild(el(`<div class="hand">
-    ${S.mode==='duo'?`<div class="who">Ходит ${esc(S.players[S.turn])}</div>`:''}
+    ${S.mode==='duo'?`<div class="turnbar t${S.turn}">Ходит ${esc(S.players[S.turn])}</div>`:''}
     <div class="el">${esc(S.yasna.p[t])}</div>
     <div class="q">куда на круге?</div></div>`));
   b.appendChild(prog());
@@ -277,9 +280,15 @@ function say(kind,hd,bd,btn,fn){
 function place(i,free){
   S.placed[i]=true; S.first[i]=free?null:S.first[i];
   S.by[i]=free?null:S.turn;
-  light(i, S.mode==='duo'?S.turn:undefined);
+  light(i,(S.mode==='duo'&&!free)?S.turn:undefined);
   const k=i%6;
-  if(S.placed[k]&&S.placed[k+6]) tie(k, chordCol(k));
+  if(S.placed[k]&&S.placed[k+6]){
+    /* Ось принадлежит тому, кто поставил ВТОРОЙ её конец, — он её и замкнул.
+       Считать по владельцу верхнего конца нельзя: это лотерея, кому какой
+       элемент выпал, а не заслуга игрока. */
+    if(S.axBy[k]===null||S.axBy[k]===undefined) S.axBy[k]=free?null:S.turn;
+    tie(k, chordCol(k));
+  }
 }
 
 function onTap(i){
@@ -287,6 +296,7 @@ function onTap(i){
   if(!bot()||!bot().querySelector('.hand')) return;      /* сейчас показан разбор */
   if(S.placed[i]){ shake(); return }
   const t=S.deck[S.i], ok=(i===t);
+  if(S.mode==='duo'){ S.tries[S.turn]++; if(ok){ S.els[S.turn]++; if(S.first[t]!==false) S.hits[S.turn]++; } }
   S.first[t]= (S.first[t]===false)?false:ok;             /* «с первого раза» помним навсегда */
   if(!ok){
     S.first[t]=false; S.miss[t]=(S.miss[t]||[]).concat(i);
@@ -306,6 +316,9 @@ function onTap(i){
       : `«<b>${esc(S.yasna.p[t])}</b>» — ${POS[t]}. Напротив пока пусто.`);
 }
 
+function plural(n,a,b,c){ const x=Math.abs(n)%100,y=x%10;
+  if(x>10&&x<20) return c; if(y>1&&y<5) return b; if(y===1) return a; return c; }
+
 /* ═══════════ ИТОГ ═══════════ */
 function finish(){
   S.scr='end';
@@ -317,6 +330,19 @@ function finish(){
   let body=`Все двенадцать на местах, шесть ниток протянуты.`;
   if(S.mode!=='duo'){
     body+=` С первого раза — <b>${clean}</b> из ${S.deck.length}.`;
+  } else {
+    /* нитку засчитываем тому, кто поставил её второй конец — он её и замкнул */
+    const ax=[0,0];
+    for(let k=0;k<6;k++){ const w=S.axBy[k]; if(w===0||w===1) ax[w]++; }
+    const lead = ax[0]===ax[1] ? null : (ax[0]>ax[1]?0:1);
+    body += `<br><br>Ось низ–верх дана даром, остальные пять замыкали вы.
+      <b>${esc(S.players[0])}</b> замкнул ${ax[0]} ${plural(ax[0],'ось','оси','осей')},
+      <b>${esc(S.players[1])}</b> — ${ax[1]}.`;
+    body += lead===null
+      ? ' Поровну.'
+      : ` Круг больше собрал <b>${esc(S.players[lead])}</b>.`;
+    body += `<br>С первого раза: ${esc(S.players[0])} — ${S.hits[0]} из ${S.els[0]},
+      ${esc(S.players[1])} — ${S.hits[1]} из ${S.els[1]}. Тапов всего: ${S.tries[0]} и ${S.tries[1]}.`;
   }
   b.appendChild(el(`<div class="say ok"><div class="hd">Готово</div><div class="bd">${body}</div></div>`));
 
@@ -338,10 +364,13 @@ function finish(){
       круг там тот же, меняется только оболочка.</div></div>`));
   }
 
-  const again=el(`<button class="go">Ещё Ясна →</button>`); again.onclick=()=>{ location.hash=''; setup() };
+  const again=el(`<button class="go">Ещё Ясна →</button>`);
+  again.onclick=()=>{ try{ history.replaceState(null,'',location.pathname) }catch(_){}
+    S.invited=false; S.preset=false; setup() };
   b.appendChild(again);
-  const same=el(`<button class="gh">Эту же ещё раз</button>`);
-  same.onclick=()=>{ S.seed=(Math.random()*1e9)|0; start() };
+  const same=el(`<button class="gh">${S.mode==='link'?'Ту же раздачу заново':'Эту же Ясну ещё раз'}</button>`);
+  /* в режиме общей ссылки сид менять нельзя: раздача обязана совпадать у всех */
+  same.onclick=()=>{ if(S.mode!=='link') S.seed=(Math.random()*1e9)|0; start() };
   b.appendChild(same);
 }
 
@@ -359,19 +388,40 @@ function boot(){
   };
   LIST=[].concat(FROM_LESSON.map(id=>mk(id,true)), FROM_CORPUS.map(id=>mk(id,false))).filter(Boolean);
 
-  /* пришли по ссылке с общей раздачей: #<id>.<seed> */
-  const m=/^#([^.]+)\.(\d+)$/.exec(location.hash||'');
-  if(m){
-    const y=LIST.find(x=>x.id===decodeURIComponent(m[1]));
-    if(y){ S.yasna=y; S.seed=parseInt(m[2],10)|0; S.mode='link'; return start() }
+  route();
+}
+/* Разбор адреса в ОДНОМ месте — иначе состояние расходится между холодным
+   заходом и сменой хэша на уже открытой вкладке. */
+function route(){
+  const u=new URLSearchParams(location.search||'');
+  const yid=u.get('y'), sd=u.get('s');
+  if(yid){
+    const y=LIST.find(x=>x.id===yid);
+    if(!y||!/^\d+$/.test(sd||'')) return badLink();
+    S.yasna=y; S.seed=parseInt(sd,10)|0; S.mode='link'; S.invited=true; return start();
   }
-  /* пришли с карточки практик: режим уже выбран, спрашиваем только Ясну */
   const pre=(location.hash||'').replace('#','');
-  if(pre==='solo'||pre==='duo'||pre==='link'){ S.mode=pre; S.preset=true; }
+  S.invited=false;
+  if(pre==='solo'||pre==='duo'||pre==='link'){ S.mode=pre; S.preset=true; S.yasna=null; }
+  else { S.preset=false; }
   setup();
 }
+function badLink(){
+  app().innerHTML='';
+  app().appendChild(el(`<div class="say no"><div class="hd">Эта раздача не открывается</div>
+    <div class="bd">Ссылка старая либо из другой версии игры: такой Ясны в списке нет.
+    Выбери явление сам — партия будет та же, только раздача своя.</div></div>`));
+  const b=el(`<button class="go">Выбрать Ясну →</button>`);
+  b.onclick=()=>{ history.replaceState(null,'',location.pathname); S.preset=false; setup() };
+  app().appendChild(b);
+}
+
 let booted=false;
 function once(){ if(booted) return; booted=true; boot(); }
+/* Кнопки карточки ведут на #solo/#duo/#link. Если вкладка уже открыта, браузер меняет
+   только хэш и страницу не перезагружает — без этого слушателя режим не переключался,
+   и «вдвоём» выглядело точно как «одному». */
+window.addEventListener('hashchange',route);
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',once);
 else once();
 })();
