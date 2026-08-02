@@ -76,7 +76,9 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
     // Ховер: подсвечиваем весь ТРЕУГОЛЬНИК как подсказку о родстве —
     // три полочки одной стихии, а не четыре одного креста.
     if(sel==null && hov!=null && gp(hov)===gp(i)) return pc(i);
-    return pc(i);
+    // Тихий старт: без механик, выбора и наведения круг не подкрашен вовсе.
+    // Опорный крест и здесь читается — но весом обводки, а не цветом.
+    return [0,3,6,9].includes(i)?'#86868b':'#c7c7cc';
   };
   const no=i=>(hl&&!hl.includes(i))?.15:1;
   const anch=i=>{const x=lps[i].x;return Math.abs(x-cx)<25?'middle':x<cx?'end':'start';};

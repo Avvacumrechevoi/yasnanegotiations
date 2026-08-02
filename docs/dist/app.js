@@ -1,4 +1,4 @@
-/* Yasna bundle: app.js — собран 2026-08-02T11:18:22.161Z */
+/* Yasna bundle: app.js — собран 2026-08-02T11:30:11.757Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -3604,7 +3604,7 @@ function Star({ yy, sel, onSel, hl, af = [], showOpp, overlay, mob, drill, onDri
     if (hl) return hl.includes(i) ? pc(i) : "#e0e0e8";
     if (sel != null && sel === i) return pc(i);
     if (sel == null && hov != null && gp2(hov) === gp2(i)) return pc(i);
-    return pc(i);
+    return [0, 3, 6, 9].includes(i) ? "#86868b" : "#c7c7cc";
   };
   const no = (i) => hl && !hl.includes(i) ? 0.15 : 1;
   const anch = (i) => {
