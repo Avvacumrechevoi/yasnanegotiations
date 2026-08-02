@@ -115,3 +115,49 @@ table.res tr:last-child td{border:0}
 .nm[data-by]:after{content:'';display:block;width:14px;height:2.5px;border-radius:2px;margin:3px auto 0}
 .nm[data-by="0"]:after{background:var(--k-gold)}
 .nm[data-by="1"]:after{background:var(--k-acc)}
+
+/* ── прогресс на экране выбора ── */
+.stats{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  background:var(--k-card);border:1px solid var(--k-line);border-radius:13px;
+  padding:10px 14px;font-size:13px;color:var(--k-tx2)}
+.stats b{color:var(--k-tx);font-weight:650}
+.stats .lnk{margin-left:auto;background:none;border:0;padding:0;font:inherit;font-size:13px;
+  color:var(--k-acc);cursor:pointer}
+.stats .lnk:hover{text-decoration:underline}
+.tile{position:relative}
+.tile .dot{position:absolute;top:9px;right:9px;width:6px;height:6px;border-radius:50%;
+  background:var(--k-gold)}
+
+/* ══════════════ ДЕСКТОП ══════════════
+   До 900 px игра — одна колонка под большой палец. Дальше колонка перестаёт
+   работать: круг уезжает вверх, а панель болтается под ним на пустом экране.
+   С 900 px раскладываем в две колонки — круг слева, ход и разбор справа,
+   оба по центру вертикали. Экраны выбора и истории остаются одноколоночными:
+   там сетка плиток сама тянется. */
+@media (min-width:900px){
+  .wrap{max-width:1000px;padding:18px 28px 48px}
+  .hd{padding:6px 0 16px}
+  .ttl{font-size:18px}
+
+  /* играем: круг и панель рядом */
+  main.duo-col{display:grid;grid-template-columns:minmax(320px,420px) minmax(320px,1fr);
+    gap:36px;align-items:center}
+  main.duo-col #wrap{max-width:420px;margin:0}
+  main.duo-col > div:first-child{grid-column:1 / -1;margin-bottom:-12px}
+  main.duo-col #kbot{align-self:center}
+
+  /* выбор Ясны: три колонки вместо двух */
+  .grid{grid-template-columns:repeat(3,1fr);gap:10px}
+  .tile{min-height:70px}
+  .tile b{font-size:15.5px}
+
+  h2{font-size:24px}
+  .sub{font-size:14.5px;max-width:60ch}
+  .hand .el{font-size:22px}
+  .say .bd{font-size:15px}
+  button.go,button.gh{max-width:none}
+}
+@media (min-width:1200px){
+  .wrap{max-width:1100px}
+  .grid{grid-template-columns:repeat(4,1fr)}
+}

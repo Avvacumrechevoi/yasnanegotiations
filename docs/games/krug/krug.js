@@ -84,6 +84,39 @@ function shuffled(arr,rnd){ const a=arr.slice();
   for(let i=a.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [a[i],a[j]]=[a[j],a[i]] }
   return a; }
 
+
+/* ═══════════ прогресс: свой ключ, локально ═══════════
+   Пишем в СВОЙ ключ, а не в yasna_duel_data: схема того ключа принадлежит движку
+   «Партии» (recordMatch в duel.js), он на этой странице не подключён, и писать туда
+   руками — верный способ разъехаться с ним при первой же его правке.
+   На сервер не отправляем ничего: ключ ответов лежит в data.js на этой же странице,
+   значит счёт самоотчётный и в общий рейтинг ему нельзя.                          */
+const LS='yasna_krug_v1', HIST_MAX=60;
+function load(){
+  try{ const d=JSON.parse(localStorage.getItem(LS)||'null');
+       if(d&&d.v===1) return d; }catch(_){}
+  return { v:1, games:[], best:{} };
+}
+function save(d){ try{ localStorage.setItem(LS,JSON.stringify(d)) }catch(_){} }
+function record(g){
+  const d=load();
+  d.games.unshift(g);
+  if(d.games.length>HIST_MAX) d.games.length=HIST_MAX;
+  const b=d.best[g.yasna];
+  if(b===undefined||g.clean>b) d.best[g.yasna]=g.clean;
+  save(d); return d;
+}
+const bestOf=id=>{ const b=load().best[id]; return b===undefined?null:b };
+const played=()=>Object.keys(load().best).length;
+function fmtDate(t){
+  const dt=new Date(t), n=new Date(), d0=new Date(n.getFullYear(),n.getMonth(),n.getDate());
+  const dd=Math.round((d0-new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()))/86400000);
+  const hm=String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0');
+  return dd===0?('сегодня '+hm):dd===1?('вчера '+hm):
+    (dt.getDate()+' '+['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'][dt.getMonth()]);
+}
+const MODE_RU={solo:'одному',duo:'вдвоём',link:'общая раздача'};
+
 /* ─── состояние ───────────────────────────────────────────────────── */
 const S={ scr:'setup', yasna:null, seed:0, mode:'solo', preset:false,
           deck:[], i:0, placed:[], first:[], by:[], miss:{}, turn:0, hits:[0,0], tries:[0,0], els:[0,0], axBy:[], players:['Золотой','Синий'] };
@@ -143,8 +176,8 @@ const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[
 
 /* ═══════════ ЭКРАН 1 · НАСТРОЙКА ═══════════ */
 function setup(){
-  S.scr='setup'; document.body.classList.remove('playing');
-  app().innerHTML='';
+  S.scr='setup';
+  app().innerHTML=''; app().classList.remove('duo-col');
   app().appendChild(el(`<div><h2>Поставь на место</h2>
     <div class="sub">Берёшь элемент явления и ставишь его на ту долю круга, где он живёт.
     Нитка через середину вспыхивает сама, когда заняты оба конца.${
@@ -152,13 +185,26 @@ function setup(){
       ({solo:'одному',duo:'вдвоём на одном телефоне',link:'компанией по ссылке'}[S.mode])+
       '</b>':''}</div></div>`));
 
+  const d=load(), k=played();
+  if(d.games.length){
+    const row=el(`<div class="stats">
+      <span><b>${k}</b> из ${LIST.length} явлений</span>
+      <span><b>${d.games.length}</b> ${plural(d.games.length,'партия','партии','партий')}</span>
+      <button class="lnk" type="button">История →</button></div>`);
+    row.querySelector('button').onclick=history_;
+    app().appendChild(row);
+  }
   app().appendChild(el(`<div class="sect">Какую Ясну раскладываем</div>`));
   const g=el(`<div class="grid"></div>`);
   const rnd=el(`<button class="tile rnd"><b>Случайная</b><i>из ${LIST.length} доступных</i></button>`);
   rnd.onclick=()=>{ pickYasna(LIST[Math.floor(Math.random()*LIST.length)], true) };
   g.appendChild(rnd);
   LIST.forEach(y=>{
-    const b=el(`<button class="tile"><b>${esc(y.n)}</b><i>${y.lesson?'есть урок автора':'из корпуса'}</i></button>`);
+    const bb=bestOf(y.id);
+    const b=el(`<button class="tile"><b>${esc(y.n)}</b><i>${
+      bb===null ? (y.lesson?'есть урок автора':'из корпуса')
+                : 'лучшее: '+bb+' из 10'
+    }</i>${bb!==null?'<span class="dot"></span>':''}</button>`);
     b.onclick=()=>pickYasna(y,false);
     g.appendChild(b);
   });
@@ -173,9 +219,40 @@ function pickYasna(y,isRandom){
   mode();
 }
 
+/* ═══════════ ИСТОРИЯ ═══════════ */
+function history_(){
+  S.scr='history'; app().innerHTML=''; app().classList.remove('duo-col');
+  const d=load();
+  app().appendChild(el(`<div><h2>История</h2>
+    <div class="sub">Партии хранятся на этом устройстве и никуда не отправляются.</div></div>`));
+  if(!d.games.length){
+    app().appendChild(el(`<div class="say"><div class="hd">Пока пусто</div>
+      <div class="bd">Разложи первый круг — партия появится здесь.</div></div>`));
+  } else {
+    const bestRows=LIST.filter(y=>d.best[y.id]!==undefined)
+      .sort((a,b)=>d.best[b.id]-d.best[a.id])
+      .map(y=>`<tr><td>${esc(y.n)}</td><td>${d.best[y.id]} из 10</td></tr>`).join('');
+    app().appendChild(el(`<div class="say"><div class="hd">Лучшее по явлениям</div>
+      <table class="res">${bestRows}</table></div>`));
+    const rows=d.games.slice(0,20).map(g=>`<tr><td>${esc(g.name||g.yasna)}
+      <span style="color:var(--k-tx3)"> · ${MODE_RU[g.mode]||g.mode}</span></td>
+      <td>${g.clean} из ${g.total}<span style="color:var(--k-tx3)"> · ${fmtDate(g.t)}</span></td></tr>`).join('');
+    app().appendChild(el(`<div class="say"><div class="hd">Последние партии</div>
+      <table class="res">${rows}</table></div>`));
+  }
+  const back=el(`<button class="go">← К выбору Ясны</button>`); back.onclick=setup;
+  app().appendChild(back);
+  if(d.games.length){
+    const clr=el(`<button class="gh">Очистить историю</button>`);
+    clr.onclick=()=>{ if(confirm('Удалить все записи партий с этого устройства?')){
+      try{ localStorage.removeItem(LS) }catch(_){} setup(); } };
+    app().appendChild(clr);
+  }
+}
+
 /* ═══════════ ЭКРАН 2 · РЕЖИМ ═══════════ */
 function mode(){
-  S.scr='mode'; app().innerHTML='';
+  S.scr='mode'; app().innerHTML=''; app().classList.remove('duo-col');
   app().appendChild(el(`<div><h2>Ясна ${esc(S.yasna.n)}</h2>
     <div class="sub">${S.random?'Выпала случайно. ':''}Двенадцать элементов, шесть осей.
     Как играем?</div></div>`));
@@ -194,7 +271,7 @@ function mode(){
 
 /* ═══════════ ССЫЛКА НА ОДНУ РАЗДАЧУ ═══════════ */
 function share(){
-  S.scr='share'; app().innerHTML='';
+  S.scr='share'; app().innerHTML=''; app().classList.remove('duo-col');
   const q='?y='+encodeURIComponent(S.yasna.id)+'&s='+S.seed;
   const url=location.origin+location.pathname+q;
   /* адрес хоста тоже переписываем: иначе после перезагрузки ссылку не переслать */
@@ -219,6 +296,7 @@ function start(){
   S.scr='play'; S.i=0; S.placed=new Array(12).fill(false);
   S.first=new Array(12).fill(null); S.by=new Array(12).fill(null); S.miss={}; S.turn=0;
   S.hits=[0,0]; S.tries=[0,0]; S.els=[0,0]; S.axBy=new Array(6).fill(null);
+  S.t0=Date.now(); S.logged=false;
   const rnd=mulberry(S.seed);
   /* ноль и шестёрка выдаются даром: это опоры круга, от них считается всё остальное */
   S.deck=shuffled([1,2,3,4,5,7,8,9,10,11],rnd);
@@ -230,7 +308,7 @@ function start(){
 }
 
 function render(){
-  app().innerHTML='';
+  app().innerHTML=''; app().classList.add('duo-col');
   const top=el(`<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">
     <div style="font-weight:650">${esc(S.yasna.n)}</div>
     <div style="font-size:12.5px;color:var(--k-tx3)">${S.mode==='duo'?'вдвоём':S.mode==='link'?'общая раздача':'одному'}</div></div>`);
@@ -325,6 +403,12 @@ function finish(){
   const b=bot(); b.innerHTML='';
   N.mid.innerHTML='<b>Круг собран</b>';
   const clean=S.deck.filter(t=>S.first[t]===true).length;
+  const prevBest=bestOf(S.yasna.id);
+  if(!S.logged){                      /* один раз на партию, а не на каждый рендер */
+    S.logged=true;
+    record({ t:Date.now(), yasna:S.yasna.id, name:S.yasna.n, mode:S.mode,
+             clean:clean, total:S.deck.length, ms:Math.max(0,Date.now()-S.t0) });
+  }
   const missed=S.deck.filter(t=>S.first[t]===false);
 
   let body=`Все двенадцать на местах, шесть ниток протянуты.`;
@@ -364,6 +448,14 @@ function finish(){
       круг там тот же, меняется только оболочка.</div></div>`));
   }
 
+  if(S.mode!=='duo'){
+    const nowBest=bestOf(S.yasna.id);
+    b.appendChild(el(`<div class="note" style="margin-top:10px">${
+      prevBest===null ? 'Это твоя первая раскладка Ясны '+esc(S.yasna.n)+'.'
+      : (clean>prevBest ? 'Личный рекорд на этой Ясне: было '+prevBest+', стало <b>'+clean+'</b>.'
+                        : 'Твой лучший результат на этой Ясне: '+nowBest+' из '+S.deck.length+'.')
+    }</div>`));
+  }
   const again=el(`<button class="go">Ещё Ясна →</button>`);
   again.onclick=()=>{ try{ history.replaceState(null,'',location.pathname) }catch(_){}
     S.invited=false; S.preset=false; setup() };
