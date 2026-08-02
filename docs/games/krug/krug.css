@@ -1,20 +1,21 @@
 /* Круг · «Поставь на место» — тренировка Ясны.
    Своя вёрстка: игра занимает экран целиком и не должна зависеть от сеток лендинга. */
 :root{
-  --k-bg:#f4f5f7; --k-card:#fff; --k-tx:#12151c; --k-tx2:#4a5265; --k-tx3:#8b93a7;
-  --k-line:#e2e6ed; --k-acc:#2f6bdd; --k-acct:#fff;
-  --k-gold:#E0A93B; --k-grey:#9aa3b4; --k-bad:#D4472C; --k-ok:#1a7f5a;
+  --k-bg:#f4f5f7; --k-card:#fff; --k-tx:#12151c; --k-tx2:#4a5265; --k-tx3:#657183;
+  --k-line:#e2e6ed; --k-line-strong:#7d899b; --k-acc:#2a60c9; --k-acct:#fff;
+  --k-stroke:#657183; --k-plate:rgba(11,14,20,.72);
+  --k-gold:#E0A93B; --k-gold-ink:#A8761B; --k-grey:#7d899b; --k-bad:#C03D22; --k-ok:#1a7f5a;
 }
 html[data-theme="dark"], :root.dark{
   --k-bg:#0e1116; --k-card:#171b23; --k-tx:#eef1f6; --k-tx2:#a8b0c2; --k-tx3:#727b8f;
   --k-line:#252b36; --k-acc:#6f9bff; --k-acct:#08101f;
-  --k-gold:#FFD479; --k-grey:#7B8496; --k-bad:#E0563C; --k-ok:#4bc99a;
+  --k-gold:#FFD479; --k-gold-ink:#FFD479; --k-grey:#8b95a8; --k-bad:#E0563C; --k-ok:#4bc99a;
 }
 @media (prefers-color-scheme:dark){
-  html:not([data-theme="light"]){
+  html:not([data-theme]){
     --k-bg:#0e1116; --k-card:#171b23; --k-tx:#eef1f6; --k-tx2:#a8b0c2; --k-tx3:#727b8f;
     --k-line:#252b36; --k-acc:#6f9bff; --k-acct:#08101f;
-    --k-gold:#FFD479; --k-grey:#7B8496; --k-bad:#E0563C; --k-ok:#4bc99a;
+    --k-gold:#FFD479; --k-gold-ink:#FFD479; --k-grey:#8b95a8; --k-bad:#E0563C; --k-ok:#4bc99a;
   }
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -22,7 +23,7 @@ body{margin:0;background:var(--k-bg);color:var(--k-tx);
   font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 .wrap{max-width:460px;margin:0 auto;padding:10px 14px 40px;min-height:100dvh;
   display:flex;flex-direction:column}
-.hd{display:flex;align-items:center;gap:12px;padding:4px 0 10px}
+.khd{display:flex;align-items:center;gap:12px;padding:4px 0 10px}
 .back{color:var(--k-tx3);text-decoration:none;font-size:13.5px;white-space:nowrap}
 .back:hover{color:var(--k-tx2)}
 .ttl{font-weight:700;font-size:16px}
@@ -36,7 +37,7 @@ h2{font-size:19px;margin:0 0 4px;letter-spacing:-.2px}
 
 /* ── выбор ясны ── */
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.tile{background:var(--k-card);border:1.5px solid var(--k-line);border-radius:13px;
+.tile{background:var(--k-card);border:1.5px solid var(--k-line-strong);border-radius:13px;
   padding:11px 12px;font:inherit;color:inherit;text-align:left;cursor:pointer;transition:.12s;
   display:flex;flex-direction:column;gap:2px;min-height:62px;justify-content:center}
 .tile:hover{border-color:var(--k-tx3)}
@@ -50,15 +51,21 @@ h2{font-size:19px;margin:0 0 4px;letter-spacing:-.2px}
 #wrap{position:relative;width:100%;max-width:340px;margin:8px auto 0}
 #wrap:before{content:'';display:block;padding-top:100%}
 #ring{position:absolute;inset:0;width:100%;height:100%}
-.wedge{transition:fill .4s ease,opacity .35s ease}
+.wedge{fill-opacity:.34; stroke:var(--k-stroke); stroke-opacity:.7; stroke-width:1.25;
+  vector-effect:non-scaling-stroke;
+  transition:fill .32s ease, fill-opacity .22s ease}
+.wedge[data-on]{fill-opacity:1; stroke-opacity:0}
 .hit{fill:transparent;cursor:pointer}
 .chord{stroke-width:2.5;stroke-linecap:round;fill:none;stroke-dasharray:240;
   stroke-dashoffset:240;transition:stroke .5s,opacity .4s}
 .chord.on{stroke-dashoffset:0;transition:stroke-dashoffset .5s ease,stroke .5s,opacity .4s}
-.nm{position:absolute;transform:translate(-50%,-50%);font-size:10px;font-weight:600;
-  text-align:center;line-height:1.12;width:64px;pointer-events:none;color:#fff;
-  text-shadow:0 1px 3px rgba(0,0,0,.9);transition:opacity .3s}
-.mid{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:154px;
+.nm{position:absolute;transform:translate(-50%,-50%);font-size:11px;font-weight:600;
+  text-align:center;line-height:1.15;width:58px;pointer-events:none;color:#fff;
+  overflow-wrap:anywhere;hyphens:auto;
+  background:var(--k-plate);border-radius:8px;padding:3px 5px;
+  opacity:0;transition:opacity .22s ease}
+.nm.on{opacity:1}
+.mid{position:absolute;left:50%;top:47.4%;transform:translate(-50%,-50%);width:30%;
   text-align:center;pointer-events:none;color:var(--k-tx3);font-size:12.5px;line-height:1.3}
 .mid b{display:block;color:var(--k-tx);font-size:16px;line-height:1.22;margin-bottom:3px;
   font-weight:650}
@@ -81,14 +88,14 @@ h2{font-size:19px;margin:0 0 4px;letter-spacing:-.2px}
 .say .bd b{color:var(--k-tx)}
 .prog{display:flex;gap:3px;margin-top:10px}
 .prog i{flex:1;height:3px;border-radius:2px;background:var(--k-line)}
-.prog i.d{background:var(--k-gold)}
+.prog i.d{background:var(--k-gold-ink)}
 .prog i.m{background:var(--k-grey)}
 
 button.go,button.gh{display:block;width:100%;margin-top:10px;border-radius:13px;padding:13px;
   font:inherit;font-size:15.5px;font-weight:650;cursor:pointer;border:0}
 button.go{background:var(--k-acc);color:var(--k-acct)}
 button.go:hover{filter:brightness(1.07)}
-button.gh{background:transparent;color:var(--k-tx2);border:1px solid var(--k-line);font-weight:500}
+button.gh{background:transparent;color:var(--k-tx2);border:1.5px solid var(--k-line-strong);font-weight:500}
 button:disabled{opacity:.45;cursor:default}
 .row2{display:flex;gap:8px}
 .row2>button{flex:1}
@@ -101,7 +108,7 @@ button:disabled{opacity:.45;cursor:default}
   padding:5px 11px;font-size:13px}
 table.res{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
 table.res td{padding:6px 0;border-bottom:1px solid var(--k-line);color:var(--k-tx2)}
-table.res td:last-child{text-align:right;color:var(--k-tx);white-space:nowrap}
+table.res td:last-child{text-align:right;color:var(--k-tx);white-space:normal;word-break:break-word}
 table.res tr:last-child td{border:0}
 
 /* полоса хода в парной игре: мелкой подписи было мало — «вдвоём» не отличалось от «одному» */
@@ -160,4 +167,26 @@ table.res tr:last-child td{border:0}
 @media (min-width:1200px){
   .wrap{max-width:1100px}
   .grid{grid-template-columns:repeat(4,1fr)}
+}
+
+/* ── доступность: с клавиатуры игра была непроходима ── */
+.hit:focus-visible{outline:none;fill:var(--k-acc);fill-opacity:.16;
+  stroke:var(--k-acc);stroke-width:2.5;vector-effect:non-scaling-stroke}
+.tile:focus-visible,button.go:focus-visible,button.gh:focus-visible,
+.stats .lnk:focus-visible{outline:2px solid var(--k-acc);outline-offset:2px}
+@media (hover:hover){ .hit:hover{fill:var(--k-tx);fill-opacity:.07} }
+
+/* подаренная ось — пунктиром: в парной игре она не принадлежит никому */
+.chord.free{opacity:.55;stroke-dasharray:6 7}
+
+/* панель не должна дёргать круг слева при смене высоты */
+#kbot{min-height:190px}
+@media (min-width:900px){ #kbot{min-height:300px} }
+
+/* ── движение: в файле не было ни одного правила для тех, кто его отключил ── */
+@media (prefers-reduced-motion:reduce){
+  *,*:before,*:after{animation-duration:.01ms !important;animation-iteration-count:1 !important;
+    transition-duration:.01ms !important}
+  .chord.on{stroke-dashoffset:0}
+  .nm.on{opacity:1}
 }

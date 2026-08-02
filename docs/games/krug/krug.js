@@ -100,10 +100,14 @@ function load(){
 function save(d){ try{ localStorage.setItem(LS,JSON.stringify(d)) }catch(_){} }
 function record(g){
   const d=load();
+  /* Партия вдвоём — не личный результат: рекорд и счётчик разобранных явлений
+     она портить не должна. И брошенная партия, добитая случайными тапами,
+     не должна выставлять рекорд — у «Партии» такой фильтр есть, у Круга не было. */
+  const personal = g.mode!=='duo' && g.ms>=5000 && g.total>=10;
   d.games.unshift(g);
   if(d.games.length>HIST_MAX) d.games.length=HIST_MAX;
-  const b=d.best[g.yasna];
-  if(b===undefined||g.clean>b) d.best[g.yasna]=g.clean;
+  if(personal){ const b=d.best[g.yasna];
+    if(b===undefined||g.clean>b) d.best[g.yasna]=g.clean; }
   save(d); return d;
 }
 const bestOf=id=>{ const b=load().best[id]; return b===undefined?null:b };
@@ -134,7 +138,7 @@ function buildRing(host,onTap){
   for(let i=0;i<12;i++){
     const p=document.createElementNS(NS,'path');
     p.setAttribute('class','wedge'); p.setAttribute('d',arc(i,wide(i)?34:22,R,Ri));
-    p.setAttribute('fill',pal[i]); p.style.opacity=.34;
+    p.setAttribute('fill',pal[i]); p.setAttribute('fill-opacity','.34');
     sv.appendChild(p); N.w.push(p);
   }
   for(let k=0;k<6;k++){
@@ -146,25 +150,35 @@ function buildRing(host,onTap){
   /* хитбокс шире самой доли: у узких мест дуга около 34 px, пальцу мало */
   for(let i=0;i<12;i++){
     const h=document.createElementNS(NS,'path');
-    h.setAttribute('class','hit'); h.setAttribute('d',arc(i,30,R+16,Ri-12));
+    h.setAttribute('class','hit');
+    /* Хитбокс обязан совпадать с ВИДИМОЙ долей. Было 30° у всех при заливке
+       34°/22° — тап по краю широкой доли уходил соседней, то есть игра
+       наказывала за верный ответ. 17+13=30 замощает кольцо без нахлёста. */
+    h.setAttribute('d',arc(i, wide(i)?34:26, R+16, Ri-12));
+    h.setAttribute('tabindex','0'); h.setAttribute('role','button');
+    h.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); onTap&&onTap(i) } });
     h.addEventListener('click',()=>onTap&&onTap(i));
     sv.appendChild(h); N.h.push(h);
   }
   for(let i=0;i<12;i++){
     const [x,y]=pp(Rn,i);
     const d=document.createElement('div'); d.className='nm';
-    d.style.left=pcx(x); d.style.top=pcy(y); d.style.opacity=0;
+    d.style.left=pcx(x); d.style.top=pcy(y);
     wrap.appendChild(d); N.n.push(d);
   }
   N.mid=document.createElement('div'); N.mid.className='mid'; wrap.appendChild(N.mid);
   return wrap;
 }
 function light(i,by){
-  N.w[i].style.opacity=1;
-  N.n[i].textContent=S.yasna.p[i]; N.n[i].style.opacity=1;
+  N.w[i].setAttribute('fill-opacity','1'); N.w[i].dataset.on='1';
+  const full=S.yasna.p[i];
+  N.n[i].textContent=shortName(full); N.n[i].title=full;
+  N.n[i].classList.add('on');
+  N.h[i].setAttribute('aria-label','Место '+(i+1)+': '+full);
   if(by===0||by===1) N.n[i].dataset.by=by; else delete N.n[i].dataset.by;
 }
-function tie(k,col){ N.c[k].setAttribute('stroke',col||'var(--k-gold)');
+function tie(k,col,free){ N.c[k].setAttribute('stroke',col||'var(--k-gold)');
+  if(free) N.c[k].classList.add('free');
   N.c[k].style.opacity=1; N.c[k].classList.add('on'); }
 function shake(){ if(!N.wrap) return; N.wrap.classList.remove('shake');
   void N.wrap.offsetWidth; N.wrap.classList.add('shake'); }
@@ -172,6 +186,14 @@ function shake(){ if(!N.wrap) return; N.wrap.classList.remove('shake');
 /* ─── помощники разметки ──────────────────────────────────────────── */
 const app=()=>document.getElementById('app');
 const el=h=>{const d=document.createElement('div');d.innerHTML=h.trim();return d.firstElementChild};
+/* Названия в корпусе бывают до 41 знака и с вариантами через « / » —
+   на дольку шириной 58 px влезает только главное слово. Полное остаётся
+   в title, в карточке в руке и в таблице разбора. */
+function shortName(s){
+  let a=String(s).split(' / ')[0].replace(/\s*\([^)]*\)\s*/g,' ').trim();
+  if(a.length>22) a=a.slice(0,21).replace(/[\s,.;:-]+$/,'')+'…';
+  return a||String(s);
+}
 const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 
 /* ═══════════ ЭКРАН 1 · НАСТРОЙКА ═══════════ */
@@ -321,6 +343,7 @@ function render(){
   hand();
 }
 function chordCol(k){
+  if(S.mode==='duo' && S.axBy[k]===null) return 'var(--k-grey)';
   if(S.mode!=='duo') return (S.first[k]===false||S.first[k+6]===false)?'var(--k-grey)':'var(--k-gold)';
   const who = S.axBy[k];
   return who===1?'var(--k-acc)':'var(--k-gold)';
@@ -365,7 +388,7 @@ function place(i,free){
        Считать по владельцу верхнего конца нельзя: это лотерея, кому какой
        элемент выпал, а не заслуга игрока. */
     if(S.axBy[k]===null||S.axBy[k]===undefined) S.axBy[k]=free?null:S.turn;
-    tie(k, chordCol(k));
+    tie(k, chordCol(k), S.mode==='duo'&&S.axBy[k]===null);
   }
 }
 
