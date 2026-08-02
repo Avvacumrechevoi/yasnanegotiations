@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-08-02T10:45:41.547Z */
+/* Yasna bundle: duel.js — собран 2026-08-02T10:50:58.599Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
