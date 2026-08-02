@@ -103,7 +103,7 @@ function shuffled(arr,rnd){ const a=arr.slice();
 const LS='yasna_krug_v1', HIST_MAX=60;
 function load(){
   try{ const d=JSON.parse(localStorage.getItem(LS)||'null');
-       if(d&&d.v===1) return d; }catch(_){}
+       if(d&&d.v===1&&Array.isArray(d.games)&&d.best&&typeof d.best==='object') return d; }catch(_){}
   return { v:1, games:[], best:{} };
 }
 function save(d){ try{ localStorage.setItem(LS,JSON.stringify(d)) }catch(_){} }
@@ -186,7 +186,7 @@ function light(i,by){
   N.h[i].setAttribute('aria-label','Место '+(i+1)+': '+full);
   if(by===0||by===1) N.n[i].dataset.by=by; else delete N.n[i].dataset.by;
 }
-function tie(k,col,free){ N.c[k].setAttribute('stroke',col||'var(--k-gold)');
+function tie(k,col,free){ N.c[k].setAttribute('stroke',col||'var(--k-gold-ink)');
   if(free) N.c[k].classList.add('free');
   N.c[k].style.opacity=1; N.c[k].classList.add('on'); }
 function shake(){ if(!N.wrap) return; N.wrap.classList.remove('shake');
@@ -353,9 +353,9 @@ function render(){
 }
 function chordCol(k){
   if(S.mode==='duo' && S.axBy[k]===null) return 'var(--k-grey)';
-  if(S.mode!=='duo') return (S.first[k]===false||S.first[k+6]===false)?'var(--k-grey)':'var(--k-gold)';
+  if(S.mode!=='duo') return (S.first[k]===false||S.first[k+6]===false)?'var(--k-grey)':'var(--k-gold-ink)';
   const who = S.axBy[k];
-  return who===1?'var(--k-acc)':'var(--k-gold)';
+  return who===1?'var(--k-acc)':'var(--k-gold-ink)';
 }
 function bot(){ return document.getElementById('kbot') }
 
@@ -552,8 +552,11 @@ window.addEventListener('hashchange',route);
    переключения — проверено, свежесозданная кнопка красится верно, а стоявшая
    на экране остаётся в прежней теме. Перерисовываем текущий экран сами. */
 new MutationObserver(()=>{
-  if(S.scr==='play'||S.scr==='end') render();
-  else if(S.scr==='setup') setup();
+  /* ТОЛЬКО служебные экраны. Игровой не трогаем: заливка долей принадлежит
+     явлению и от темы не зависит, а render() заканчивается hand() — при смене
+     темы поверх экрана разбора в руку возвращался уже поставленный элемент,
+     и партия зависала без выхода. */
+  if(S.scr==='setup') setup();
   else if(S.scr==='history') history_();
 }).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','style']});
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',once);
