@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-07-25T15:44:22.515Z */
+/* Yasna bundle: duel.js — собран 2026-08-02T07:08:16.126Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -760,12 +760,18 @@
     const base = apiBase();
     if (!base) throw new Error("API endpoint \u043D\u0435 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043D");
     const password = opts && opts.password || "";
-    if (!password) throw new Error("\u0422\u0440\u0435\u0431\u0443\u0435\u0442\u0441\u044F password");
+    var authValue = "";
+    try {
+      authValue = localStorage.getItem("yasna_duel_token") || "";
+    } catch (_) {
+    }
+    if (!authValue) authValue = password || "";
+    if (!authValue) throw new Error("\u041D\u0443\u0436\u0435\u043D \u0432\u0445\u043E\u0434 \u0432 \u0430\u043A\u043A\u0430\u0443\u043D\u0442 \u0438\u043B\u0438 \u0430\u0432\u0430\u0440\u0438\u0439\u043D\u044B\u0439 \u043F\u0430\u0440\u043E\u043B\u044C");
     const resp = await fetch(base.replace(/\/$/, "") + "/content/publish", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer " + password
+        "Authorization": "Bearer " + authValue
       },
       body: JSON.stringify({
         data,
@@ -3576,6 +3582,11 @@ window.YasnaCore = {
   const PROFILE_KEY = "yasna_duel_profile";
   const AVATAR_OPTIONS = ["\u{1F98A}", "\u{1F43A}", "\u{1F981}", "\u{1F42F}", "\u{1F43B}", "\u{1F43C}", "\u{1F989}", "\u{1F985}", "\u{1F409}", "\u{1F984}", "\u2694\uFE0F", "\u{1F3AF}"];
   function _genDeviceId() {
+    try {
+      const shared = localStorage.getItem("yasna_device_id_v1");
+      if (shared) return shared;
+    } catch (_) {
+    }
     if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
     return "dev-" + Math.random().toString(36).slice(2) + Date.now().toString(36);
   }
@@ -3918,6 +3929,11 @@ window.YasnaCore = {
       const headers = { "Content-Type": "application/json" };
       const token = loadToken();
       if (token) headers["Authorization"] = "Bearer " + token;
+      try {
+        const sec = window.YasnaStorage && window.YasnaStorage.deviceSecret ? window.YasnaStorage.deviceSecret() : localStorage.getItem("yasna_device_secret_v1");
+        if (sec) headers["X-Device-Secret"] = sec;
+      } catch (_) {
+      }
       try {
         const res = await fetch(this.baseUrl + "/submit", {
           method: "POST",
@@ -4468,6 +4484,19 @@ window.YasnaCore = {
         return false;
       }
       _registry.set(config.id, config);
+      try {
+        if (window.YasnaAccess && window.YasnaAccess.declare) {
+          window.YasnaAccess.declare({
+            feature: "game:" + config.id,
+            area: "game",
+            parent: "section:game",
+            title: config.title,
+            kind: "mode",
+            declaredAt: "games/duel (register)"
+          });
+        }
+      } catch (_) {
+      }
       return true;
     },
     get(id) {
@@ -5314,7 +5343,7 @@ window.YasnaCore = {
       },
       l
     ))))), !isEnabled && /* @__PURE__ */ React.createElement("div", { style: { padding: "24px", background: "#f5f5f7", borderRadius: 12, textAlign: "center" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 48, marginBottom: 8 } }, "\u2699\uFE0F"), /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600, marginBottom: 6 } }, "\u041B\u0438\u0434\u0435\u0440\u0431\u043E\u0440\u0434 \u0441\u043A\u043E\u0440\u043E \u043F\u043E\u044F\u0432\u0438\u0442\u0441\u044F"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 13, color: "#6e6e73", lineHeight: 1.5 } }, "\u0421\u0435\u0439\u0447\u0430\u0441 \u0432\u0441\u0435 \u043E\u043D\u043B\u0430\u0439\u043D-\u043C\u0430\u0442\u0447\u0438 \u043A\u043E\u043F\u044F\u0442\u0441\u044F \u0432 \u043E\u0447\u0435\u0440\u0435\u0434\u0438 (", pendingCount, " pending).", /* @__PURE__ */ React.createElement("br", null), "\u041A\u043E\u0433\u0434\u0430 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0438\u043C \u0441\u0435\u0440\u0432\u0435\u0440\u043D\u044B\u0439 backend (Yandex Cloud) \u2014 \u043B\u0438\u0434\u0435\u0440\u0431\u043E\u0440\u0434 \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u043D\u0430\u043F\u043E\u043B\u043D\u0438\u0442\u0441\u044F \u0438\u0437 \u043D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u043D\u043E\u0439 \u0438\u0441\u0442\u043E\u0440\u0438\u0438.")), isEnabled && loading && /* @__PURE__ */ React.createElement("div", { style: { padding: 32, textAlign: "center", color: "#6e6e73" } }, "\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430\u2026"), isEnabled && !loading && data.error && /* @__PURE__ */ React.createElement("div", { style: { padding: "16px 20px", background: "rgba(220,38,38,.06)", border: "1px solid rgba(220,38,38,.2)", borderRadius: 10, textAlign: "center" } }, /* @__PURE__ */ React.createElement("div", { style: { color: "#dc2626", fontWeight: 600 } }, "\u0421\u0435\u0440\u0432\u0435\u0440 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D"), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12, color: "#6e6e73", marginTop: 4 } }, data.error), /* @__PURE__ */ React.createElement("button", { className: "duel-btn duel-btn-text", onClick: load, style: { marginTop: 8 } }, "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u044C")), isEnabled && !loading && !data.error && data.items.length === 0 && /* @__PURE__ */ React.createElement("div", { style: { padding: 32, textAlign: "center", color: "#6e6e73" } }, "\u041F\u043E\u043A\u0430 \u043D\u0435\u0442 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u043E\u0432. \u0421\u044B\u0433\u0440\u0430\u0439\u0442\u0435 \u043F\u0435\u0440\u0432\u044B\u043C!"), isEnabled && !loading && data.items.length > 0 && /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, data.items.map((row, i) => {
-      const isMe = data.myEntry && row.deviceId === data.myEntry.deviceId;
+      const isMe = !!row.isMe;
       const rank = row.rank || i + 1;
       const medal = rank === 1 ? "\u{1F947}" : rank === 2 ? "\u{1F948}" : rank === 3 ? "\u{1F949}" : "";
       return /* @__PURE__ */ React.createElement("div", { key: i, style: {
@@ -5326,7 +5355,7 @@ window.YasnaCore = {
         background: isMe ? "rgba(212,165,116,.1)" : "#fff",
         border: "1.5px solid " + (isMe ? "#d4a574" : "#e5e5ea")
       } }, /* @__PURE__ */ React.createElement("div", { style: { minWidth: 32, fontWeight: 700, color: "#6e6e73", textAlign: "right" } }, medal || "#" + rank), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 20 } }, row.avatar || "\u{1F98A}"), /* @__PURE__ */ React.createElement("div", { style: { flex: 1, fontWeight: 600, fontSize: 14 } }, row.nickname || "\u0430\u043D\u043E\u043D\u0438\u043C", " ", isMe && /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, color: "#7a5e25", fontWeight: 500 } }, "\xB7 \u0432\u044B")), row.score != null && /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600 } }, row.score, "/", row.maxScore), /* @__PURE__ */ React.createElement("div", { style: { color: "#6e6e73", fontSize: 13, fontFamily: "ui-monospace,monospace" } }, fmtTime(row.time)));
-    }), data.myEntry && !data.items.find((r) => r.deviceId === data.myEntry.deviceId) && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", color: "#a1a1a6", fontSize: 11, padding: "4px 0" } }, "..."), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, background: "rgba(212,165,116,.1)", border: "1.5px solid #d4a574" } }, /* @__PURE__ */ React.createElement("div", { style: { minWidth: 32, fontWeight: 700, color: "#7a5e25", textAlign: "right" } }, "#", data.myEntry.rank), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 20 } }, data.myEntry.avatar), /* @__PURE__ */ React.createElement("div", { style: { flex: 1, fontWeight: 600, fontSize: 14 } }, data.myEntry.nickname, " ", /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, color: "#7a5e25", fontWeight: 500 } }, "\xB7 \u0432\u044B")), data.myEntry.score != null && /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600 } }, data.myEntry.score, "/", data.myEntry.maxScore), /* @__PURE__ */ React.createElement("div", { style: { color: "#6e6e73", fontSize: 13, fontFamily: "ui-monospace,monospace" } }, fmtTime(data.myEntry.time))))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "center", marginTop: 24 } }, /* @__PURE__ */ React.createElement("button", { className: "duel-btn duel-btn-primary", onClick: onClose }, "\u041D\u0430\u0437\u0430\u0434 \u0432 \u043B\u043E\u0431\u0431\u0438")));
+    }), data.myEntry && !data.items.some((r) => r.isMe) && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { style: { textAlign: "center", color: "#a1a1a6", fontSize: 11, padding: "4px 0" } }, "..."), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, background: "rgba(212,165,116,.1)", border: "1.5px solid #d4a574" } }, /* @__PURE__ */ React.createElement("div", { style: { minWidth: 32, fontWeight: 700, color: "#7a5e25", textAlign: "right" } }, "#", data.myEntry.rank), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 20 } }, data.myEntry.avatar), /* @__PURE__ */ React.createElement("div", { style: { flex: 1, fontWeight: 600, fontSize: 14 } }, data.myEntry.nickname, " ", /* @__PURE__ */ React.createElement("span", { style: { fontSize: 11, color: "#7a5e25", fontWeight: 500 } }, "\xB7 \u0432\u044B")), data.myEntry.score != null && /* @__PURE__ */ React.createElement("div", { style: { fontWeight: 600 } }, data.myEntry.score, "/", data.myEntry.maxScore), /* @__PURE__ */ React.createElement("div", { style: { color: "#6e6e73", fontSize: 13, fontFamily: "ui-monospace,monospace" } }, fmtTime(data.myEntry.time))))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", justifyContent: "center", marginTop: 24 } }, /* @__PURE__ */ React.createElement("button", { className: "duel-btn duel-btn-primary", onClick: onClose }, "\u041D\u0430\u0437\u0430\u0434 \u0432 \u043B\u043E\u0431\u0431\u0438")));
   }
   function AuthBlock() {
     var _a;
@@ -21358,30 +21387,42 @@ window.YasnaCore = {
     } catch (_) {
     }
   }
-  function generatePartiya(seed, mode, themesFilter) {
+  function generatePartiya(seed, mode, themesFilter, opts) {
+    const shared = !!(opts && opts.shared);
     const cfg = MODE_CONFIG[mode] || MODE_CONFIG.standard;
     const targetTotal = cfg.themes * cfg.qPerTheme;
-    const seen = loadSeen();
+    const seen = shared ? {} : loadSeen();
     const win = ANTI_REPEAT_WINDOW_MS[mode] || ANTI_REPEAT_WINDOW_MS.standard;
     const cutoff = Date.now() - win;
-    const isFresh = (qId) => !seen[qId] || seen[qId] < cutoff;
+    const isFresh = (qId) => shared || !seen[qId] || seen[qId] < cutoff;
     const rng = seedRandom(seed || Date.now());
+    const shuffle = (arr) => {
+      if (!shared) return [...arr].sort(() => rng() - 0.5);
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        const t = a[i];
+        a[i] = a[j];
+        a[j] = t;
+      }
+      return a;
+    };
     const eligibleThemes = themesFilter && themesFilter.length > 0 ? ACTIVE_THEMES.filter((t) => themesFilter.includes(t.id)) : ACTIVE_THEMES;
-    const themesToUse = eligibleThemes.length <= cfg.themes ? [...eligibleThemes] : [...eligibleThemes].sort(() => rng() - 0.5).slice(0, cfg.themes);
+    const themesToUse = eligibleThemes.length <= cfg.themes ? [...eligibleThemes] : shuffle(eligibleThemes).slice(0, cfg.themes);
     if (themesToUse.length === 0) return [];
     const N = themesToUse.length;
     const baseQ = Math.floor(targetTotal / N);
     const extra = targetTotal - baseQ * N;
-    const ordered = [...themesToUse].sort(() => rng() - 0.5);
+    const ordered = shuffle(themesToUse);
     const partiya = ordered.map((theme, idx) => {
       const want = baseQ + (idx < extra ? 1 : 0);
       const themeQs = ACTIVE_QUESTIONS.filter((q) => q.theme === theme.id);
       const fresh = themeQs.filter((q) => isFresh(q.id));
-      const shFresh = [...fresh].sort(() => rng() - 0.5);
+      const shFresh = shuffle(fresh);
       let picked = shFresh.slice(0, want);
       if (picked.length < want) {
         const fallback = themeQs.filter((q) => !picked.find((p) => p.id === q.id));
-        const shAll = [...fallback].sort(() => rng() - 0.5);
+        const shAll = shuffle(fallback);
         picked = [...picked, ...shAll.slice(0, want - picked.length)];
       }
       return { theme, questions: picked, requested: want };
@@ -23433,6 +23474,19 @@ window.YasnaCore = {
       TnFillBlank
     }
   };
+  try {
+    if (window.YasnaAccess && window.YasnaAccess.declare) {
+      window.YasnaAccess.declare({
+        feature: "game:turnir",
+        area: "game",
+        parent: "section:game",
+        title: "\u041F\u0430\u0440\u0442\u0438\u044F (\u0442\u0443\u0440\u043D\u0438\u0440)",
+        kind: "mode",
+        declaredAt: "games/duel/turnir-engine.js"
+      });
+    }
+  } catch (_) {
+  }
 })();
 
 })();
@@ -23927,6 +23981,14 @@ window.YasnaCore = {
     if (p.lastSeen && nowMs() - p.lastSeen > ONLINE_TTL_MS) return false;
     return true;
   }
+  function contentRev() {
+    try {
+      const r = window.YasnaContentResolved && window.YasnaContentResolved._meta && window.YasnaContentResolved._meta.revision;
+      return r && r.revisionId || null;
+    } catch (_) {
+      return null;
+    }
+  }
   function flattenPartiya(partiya) {
     const flat = [];
     (partiya || []).forEach((r) => {
@@ -24212,7 +24274,10 @@ window.YasnaCore = {
     const partiya = useMemo(() => {
       if (!meta || !meta.seed || !window.YasnaTrivia) return null;
       try {
-        return window.YasnaTrivia.generatePartiya(meta.seed, meta.partiyaMode || "standard", meta.themes || null);
+        if (meta.contentRev && contentRev() && meta.contentRev !== contentRev()) {
+          console.warn("[group] \u0440\u0435\u0432\u0438\u0437\u0438\u044F \u043A\u043E\u043D\u0442\u0435\u043D\u0442\u0430 \u043E\u0442\u043B\u0438\u0447\u0430\u0435\u0442\u0441\u044F \u043E\u0442 \u0445\u043E\u0441\u0442\u043E\u0432\u043E\u0439 (" + meta.contentRev + " \u2260 " + contentRev() + ") \u2014 \u0432\u043E\u043F\u0440\u043E\u0441\u044B \u043C\u043E\u0433\u0443\u0442 \u043D\u0435 \u0441\u043E\u0432\u043F\u0430\u0441\u0442\u044C, \u043E\u0431\u043D\u043E\u0432\u0438\u0442\u0435 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u0443");
+        }
+        return window.YasnaTrivia.generatePartiya(meta.seed, meta.partiyaMode || "standard", meta.themes || null, { shared: true });
       } catch (_) {
         return null;
       }
@@ -24325,7 +24390,7 @@ window.YasnaCore = {
       const minP2 = meta && meta.minPlayers || 3;
       if (onlineCount < minP2) return;
       try {
-        rt.updateGroupMeta(code, { seed: nowMs(), status: "playing", startedAt: nowMs() });
+        rt.updateGroupMeta(code, { seed: nowMs(), status: "playing", startedAt: nowMs(), contentRev: contentRev() });
       } catch (_) {
       }
     }
@@ -24737,6 +24802,19 @@ window.YasnaCore = {
       }, style: { width: "100%" } }, "\u041D\u0430\u0437\u0430\u0434")
     ));
   }
+  try {
+    if (window.YasnaAccess && window.YasnaAccess.declare) {
+      window.YasnaAccess.declare({
+        feature: "game:group",
+        area: "game",
+        parent: "section:game",
+        title: "\u041F\u0430\u0440\u0442\u0438\u044F \u0441 \u043A\u043E\u043B\u043B\u0435\u043A\u0442\u0438\u0432\u043E\u043C",
+        kind: "mode",
+        declaredAt: "games/duel/group-engine.js"
+      });
+    }
+  } catch (_) {
+  }
   window.YasnaGroup = { GroupApp, GroupResults };
 })();
 
@@ -24986,17 +25064,18 @@ window.YasnaCore = {
         "button",
         {
           className: "dp-hero-cta-btn dp-hero-cta-btn--ghost",
-          onClick: onUzor,
+          onClick: () => {
+            location.href = "games/krug/";
+          },
           type: "button",
-          disabled: true,
-          title: "\u0418\u0433\u0440\u0430 \u0432 \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0435"
+          "aria-label": "\u041E\u0442\u043A\u0440\u044B\u0442\u044C \u041A\u0440\u0443\u0433"
         },
-        React.createElement("span", { className: "dp-hero-cta-icon", "aria-hidden": "true" }, "\u25F7"),
+        React.createElement("span", { className: "dp-hero-cta-icon", "aria-hidden": "true" }, "\u25CE"),
         React.createElement(
           "span",
           { className: "dp-hero-cta-body" },
-          React.createElement("span", { className: "dp-hero-cta-title" }, "\u0420\u0430\u0441\u043A\u043B\u0430\u0434"),
-          React.createElement("span", { className: "dp-hero-cta-sub" }, "PvP \xB7 \u0441\u043A\u043E\u0440\u043E")
+          React.createElement("span", { className: "dp-hero-cta-title" }, "\u041A\u0440\u0443\u0433"),
+          React.createElement("span", { className: "dp-hero-cta-sub" }, "\u041F\u043E\u0441\u0442\u0430\u0432\u044C \u044D\u043B\u0435\u043C\u0435\u043D\u0442 \u043D\u0430 \u0441\u0432\u043E\u0451 \u043C\u0435\u0441\u0442\u043E")
         )
       )
     );
@@ -25409,30 +25488,119 @@ window.YasnaCore = {
         ),
         // (карточка «Переговоры» переехала в раздел «Тренажёры» — trainers.html)
         React.createElement(
-          "button",
-          { className: "dp-game-card dp-game-soon", onClick: onUzor, disabled: true, style: { opacity: 0.6, cursor: "not-allowed" } },
-          React.createElement("div", { className: "dp-game-eyebrow" }, "\u25F7  \u0412 \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0435"),
+          "div",
+          { className: "dp-game-card" },
+          React.createElement("div", { className: "dp-game-eyebrow" }, "\u2726  \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0430 \xB7 ~2 \u043C\u0438\u043D\u0443\u0442\u044B"),
           React.createElement(
             "div",
             { className: "dp-game-title-row" },
-            React.createElement("div", { className: "dp-game-title" }, "\u0420\u0430\u0441\u043A\u043B\u0430\u0434")
+            React.createElement("div", { className: "dp-game-title" }, "\u041A\u0440\u0443\u0433")
           ),
           React.createElement(
             "div",
             { className: "dp-game-sub" },
-            "\u0413\u043E\u043D\u043A\u0430 \u043F\u0440\u043E\u0442\u0438\u0432 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u0430: \u0440\u0430\u0437\u043B\u043E\u0436\u0438\u0442\u044C 12 \u044D\u043B\u0435\u043C\u0435\u043D\u0442\u043E\u0432 \u043F\u043E \u0441\u0432\u043E\u0438\u043C \u043C\u0435\u0441\u0442\u0430\u043C \u0431\u044B\u0441\u0442\u0440\u0435\u0435."
+            "\u0422\u0440\u0435\u043D\u0438\u0440\u043E\u0432\u043A\u0430: \u0431\u0435\u0440\u0451\u0448\u044C \u044D\u043B\u0435\u043C\u0435\u043D\u0442 \u044F\u0432\u043B\u0435\u043D\u0438\u044F \u0438 \u0441\u0442\u0430\u0432\u0438\u0448\u044C \u0435\u0433\u043E \u043D\u0430 \u0441\u0432\u043E\u0451 \u043C\u0435\u0441\u0442\u043E \u0432 \u043A\u0440\u0443\u0433\u0435. \u041F\u0440\u043E\u043C\u0430\u0445 \u043E\u0431\u044A\u044F\u0441\u043D\u044F\u0435\u0442\u0441\u044F \u0442\u0435\u043C, \u0447\u0435\u043C \u0437\u0430\u043D\u044F\u0442\u043E \u043C\u0435\u0441\u0442\u043E."
           ),
           React.createElement(
             "ul",
             { className: "dp-game-bullets" },
-            React.createElement("li", null, "12 \u043F\u043E\u043B\u043E\u043A \u042F\u0441\u043D\u044B \u2014 \u0442\u0432\u043E\u0451 \u0438\u0433\u0440\u043E\u0432\u043E\u0435 \u043F\u043E\u043B\u0435"),
-            React.createElement("li", null, "\u041A\u0442\u043E \u043F\u0435\u0440\u0432\u044B\u0439 \u043F\u0440\u0430\u0432\u0438\u043B\u044C\u043D\u043E \u0441\u043E\u0431\u0435\u0440\u0451\u0442 \u2014 \u043F\u043E\u0431\u0435\u0434\u0438\u043B"),
-            React.createElement("li", null, "\u0422\u043E\u043B\u044C\u043A\u043E PvP \xB7 \u0441\u043A\u043E\u0440\u043E")
+            React.createElement("li", null, "16 \u042F\u0441\u043D \u043D\u0430 \u0432\u044B\u0431\u043E\u0440 \u2014 \u0438\u043B\u0438 \u0441\u043B\u0443\u0447\u0430\u0439\u043D\u0430\u044F"),
+            React.createElement("li", null, "\u0421\u0442\u0430\u0432\u0438\u0448\u044C \u0442\u0430\u043F\u043E\u043C \u043F\u043E \u0441\u0430\u043C\u043E\u043C\u0443 \u043A\u0440\u0443\u0433\u0443, \u0430 \u043D\u0435 \u043F\u043E \u043A\u043D\u043E\u043F\u043A\u0430\u043C \u043F\u043E\u0434 \u043D\u0438\u043C"),
+            React.createElement("li", null, "\u041D\u0438\u0442\u043A\u0430 \u0447\u0435\u0440\u0435\u0437 \u0441\u0435\u0440\u0435\u0434\u0438\u043D\u0443 \u0432\u0441\u043F\u044B\u0445\u0438\u0432\u0430\u0435\u0442 \u0441\u0430\u043C\u0430, \u043A\u043E\u0433\u0434\u0430 \u043E\u0441\u044C \u0441\u043E\u0448\u043B\u0430\u0441\u044C")
           ),
           React.createElement(
             "div",
-            { className: "dp-game-meta" },
-            React.createElement("span", { className: "dp-game-meta-pvp" }, "PvP \xB7 \u0441\u043A\u043E\u0440\u043E")
+            { className: "dp-cta-row" },
+            React.createElement(
+              "button",
+              {
+                type: "button",
+                className: "dp-cta dp-cta--solo",
+                onClick: (e) => {
+                  e.stopPropagation();
+                  location.href = "games/krug/#solo";
+                },
+                "aria-label": "\u0420\u0430\u0437\u043B\u043E\u0436\u0438\u0442\u044C \u043A\u0440\u0443\u0433 \u043E\u0434\u043D\u043E\u043C\u0443"
+              },
+              React.createElement(
+                "span",
+                { className: "dp-cta__icon", "aria-hidden": "true" },
+                React.createElement(
+                  "svg",
+                  { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round", strokeLinejoin: "round" },
+                  React.createElement("circle", { cx: 12, cy: 12, r: 8 }),
+                  React.createElement("path", { d: "M12 4v16M4 12h16" })
+                )
+              ),
+              React.createElement(
+                "span",
+                { className: "dp-cta__body" },
+                React.createElement("span", { className: "dp-cta__title" }, "\u0418\u0433\u0440\u0430\u0442\u044C \u043E\u0434\u043D\u043E\u043C\u0443"),
+                React.createElement("span", { className: "dp-cta__sub" }, "\u0434\u0432\u0435\u043D\u0430\u0434\u0446\u0430\u0442\u044C \u043C\u0435\u0441\u0442, \u0448\u0435\u0441\u0442\u044C \u043E\u0441\u0435\u0439")
+              )
+            ),
+            React.createElement(
+              "button",
+              {
+                type: "button",
+                className: "dp-cta dp-cta--pvp",
+                onClick: (e) => {
+                  e.stopPropagation();
+                  location.href = "games/krug/#duo";
+                },
+                "aria-label": "\u0420\u0430\u0437\u043B\u043E\u0436\u0438\u0442\u044C \u043A\u0440\u0443\u0433 \u0432\u0434\u0432\u043E\u0451\u043C"
+              },
+              React.createElement(
+                "span",
+                { className: "dp-cta__icon", "aria-hidden": "true" },
+                React.createElement(
+                  "svg",
+                  { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round", strokeLinejoin: "round" },
+                  React.createElement("circle", { cx: 8, cy: 9, r: 3 }),
+                  React.createElement("circle", { cx: 16, cy: 9, r: 3 }),
+                  React.createElement("path", { d: "M3 19c0-2.4 1.8-4.2 5-4.2s5 1.8 5 4.2M13 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2" })
+                )
+              ),
+              React.createElement(
+                "span",
+                { className: "dp-cta__body" },
+                React.createElement("span", { className: "dp-cta__title" }, "\u0412\u0434\u0432\u043E\u0451\u043C"),
+                React.createElement("span", { className: "dp-cta__sub" }, "\u043F\u043E \u043E\u0447\u0435\u0440\u0435\u0434\u0438 \u043D\u0430 \u043E\u0434\u043D\u043E\u043C \u0442\u0435\u043B\u0435\u0444\u043E\u043D\u0435")
+              )
+            )
+          ),
+          React.createElement(
+            "div",
+            { className: "dp-cta-row" },
+            React.createElement(
+              "button",
+              {
+                type: "button",
+                className: "dp-cta dp-cta--group",
+                onClick: (e) => {
+                  e.stopPropagation();
+                  location.href = "games/krug/#link";
+                },
+                "aria-label": "\u0420\u0430\u0437\u043B\u043E\u0436\u0438\u0442\u044C \u043A\u0440\u0443\u0433 \u043A\u043E\u043C\u043F\u0430\u043D\u0438\u0435\u0439"
+              },
+              React.createElement(
+                "span",
+                { className: "dp-cta__icon", "aria-hidden": "true" },
+                React.createElement(
+                  "svg",
+                  { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round", strokeLinejoin: "round" },
+                  React.createElement("circle", { cx: 12, cy: 8, r: 3 }),
+                  React.createElement("path", { d: "M4 20c0-3 3.6-5.4 8-5.4s8 2.4 8 5.4" })
+                )
+              ),
+              React.createElement(
+                "span",
+                { className: "dp-cta__body" },
+                React.createElement("span", { className: "dp-cta__title" }, "\u041A\u043E\u043C\u043F\u0430\u043D\u0438\u0435\u0439"),
+                React.createElement("span", { className: "dp-cta__sub" }, "\u043E\u0434\u043D\u0430 \u0440\u0430\u0437\u0434\u0430\u0447\u0430 \u043D\u0430 \u0432\u0441\u0435\u0445 \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435")
+              ),
+              React.createElement("span", { className: "dp-cta__badge", "aria-hidden": "true" }, "NEW")
+            )
           )
         )
       )
@@ -25579,8 +25747,8 @@ window.YasnaCore = {
       LB.fetchLeaderboard({ gameId: "turnir", yasnaId: "\u0441\u0443\u0442\u043E\u043A", period: "week", limit: 8 }).then((res) => setItems((res == null ? void 0 : res.items) || [])).catch(() => setItems([]));
     }, []);
     const myDeviceId = (user == null ? void 0 : user.deviceId) || ((_c = (_b = (_a = _g("YasnaDuelProfile")) == null ? void 0 : _a.load) == null ? void 0 : _b.call(_a)) == null ? void 0 : _c.deviceId);
-    const myInTop = items && myDeviceId && items.find((r) => r.deviceId === myDeviceId);
-    const myRank = myInTop ? items.findIndex((r) => r.deviceId === myDeviceId) + 1 : null;
+    const myInTop = items && items.find((r) => r.isMe);
+    const myRank = myInTop ? items.findIndex((r) => r.isMe) + 1 : null;
     return React.createElement(
       "div",
       { className: "dp-card", id: "hronika" },
@@ -25618,12 +25786,12 @@ window.YasnaCore = {
             "tbody",
             null,
             items.slice(0, 5).map((row, idx) => {
-              const isMe = myDeviceId && row.deviceId === myDeviceId;
+              const isMe = !!row.isMe;
               const rankCls = idx === 0 ? "dp-td-rank-1" : idx === 1 ? "dp-td-rank-2" : idx === 2 ? "dp-td-rank-3" : "";
               return React.createElement(
                 "tr",
                 {
-                  key: row.deviceId || idx,
+                  key: idx,
                   className: isMe ? "dp-tr-me" : ""
                 },
                 React.createElement("td", { className: "dp-td-rank " + rankCls }, idx + 1),

@@ -85,7 +85,7 @@ function shuffled(arr,rnd){ const a=arr.slice();
   return a; }
 
 /* ─── состояние ───────────────────────────────────────────────────── */
-const S={ scr:'setup', yasna:null, seed:0, mode:'solo',
+const S={ scr:'setup', yasna:null, seed:0, mode:'solo', preset:false,
           deck:[], i:0, placed:[], first:[], by:[], miss:{}, turn:0, players:['Первый','Второй'] };
 let LIST=[];
 
@@ -147,7 +147,10 @@ function setup(){
   app().innerHTML='';
   app().appendChild(el(`<div><h2>Поставь на место</h2>
     <div class="sub">Берёшь элемент явления и ставишь его на ту долю круга, где он живёт.
-    Нитка через середину вспыхивает сама, когда заняты оба конца.</div></div>`));
+    Нитка через середину вспыхивает сама, когда заняты оба конца.${
+      S.preset?'<br><b style="color:var(--k-tx2)">Режим: '+
+      ({solo:'одному',duo:'вдвоём на одном телефоне',link:'компанией по ссылке'}[S.mode])+
+      '</b>':''}</div></div>`));
 
   app().appendChild(el(`<div class="sect">Какую Ясну раскладываем</div>`));
   const g=el(`<div class="grid"></div>`);
@@ -166,6 +169,7 @@ function setup(){
 
 function pickYasna(y,isRandom){
   S.yasna=y; S.seed=(Math.random()*1e9)|0; S.random=!!isRandom;
+  if(S.preset) return S.mode==='link'?share():start();
   mode();
 }
 
@@ -361,6 +365,9 @@ function boot(){
     const y=LIST.find(x=>x.id===decodeURIComponent(m[1]));
     if(y){ S.yasna=y; S.seed=parseInt(m[2],10)|0; S.mode='link'; return start() }
   }
+  /* пришли с карточки практик: режим уже выбран, спрашиваем только Ясну */
+  const pre=(location.hash||'').replace('#','');
+  if(pre==='solo'||pre==='duo'||pre==='link'){ S.mode=pre; S.preset=true; }
   setup();
 }
 let booted=false;
