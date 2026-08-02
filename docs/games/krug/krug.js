@@ -16,6 +16,15 @@
    Из 44 строк в игру идут те, у которых есть урок автора либо verified,
    и у которых все двенадцать элементов различимы. Строка с повтором
    элемента неиграбельна в принципе: два места нечем развести.          */
+/* Короткий латинский код явления для ссылки: id в корпусе кириллические, и
+   ?y=%D0%B3%D0%BE%D0%B4%D0%B0 разворачивается в три строки нечитаемого текста.
+   Старые ссылки с процентным id продолжают открываться — см. route(). */
+const SLUG = { 'суток':'sut','двора':'dvor','двора_животных':'zhiv','дома':'dom',
+  'кухни':'kuh','круговорота_воды':'voda','года':'god','дерева':'drev','печи':'pech',
+  'завода_предприятия':'zavod','колокольни':'kolok','театра':'teatr','фаз_жизни':'zhizn',
+  'kostra':'koster','emotsiy':'emo','удочки':'udoch' };
+const UNSLUG = Object.fromEntries(Object.entries(SLUG).map(([k,v])=>[v,k]));
+
 const FROM_LESSON = ['суток','двора','двора_животных','дома','кухни','круговорота_воды'];
 const FROM_CORPUS = ['года','дерева','печи','завода_предприятия','колокольни','театра',
                      'фаз_жизни','kostra','emotsiy','удочки'];
@@ -294,7 +303,7 @@ function mode(){
 /* ═══════════ ССЫЛКА НА ОДНУ РАЗДАЧУ ═══════════ */
 function share(){
   S.scr='share'; app().innerHTML=''; app().classList.remove('duo-col');
-  const q='?y='+encodeURIComponent(S.yasna.id)+'&s='+S.seed;
+  const q='?y='+(SLUG[S.yasna.id]||encodeURIComponent(S.yasna.id))+'&s='+S.seed;
   const url=location.origin+location.pathname+q;
   /* адрес хоста тоже переписываем: иначе после перезагрузки ссылку не переслать */
   try{ history.replaceState(null,'',q) }catch(_){}
@@ -511,7 +520,8 @@ function route(){
   const u=new URLSearchParams(location.search||'');
   const yid=u.get('y'), sd=u.get('s');
   if(yid){
-    const y=LIST.find(x=>x.id===yid);
+    const realId = UNSLUG[yid] || yid;          /* и короткий код, и старый id */
+    const y=LIST.find(x=>x.id===realId);
     if(!y||!/^\d+$/.test(sd||'')) return badLink();
     S.yasna=y; S.seed=parseInt(sd,10)|0; S.mode='link'; S.invited=true; return start();
   }
