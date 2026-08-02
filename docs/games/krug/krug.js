@@ -547,6 +547,15 @@ function once(){ if(booted) return; booted=true; boot(); }
    только хэш и страницу не перезагружает — без этого слушателя режим не переключался,
    и «вдвоём» выглядело точно как «одному». */
 window.addEventListener('hashchange',route);
+
+/* Смена темы: часть браузеров не переобсчитывает var() у узлов, созданных до
+   переключения — проверено, свежесозданная кнопка красится верно, а стоявшая
+   на экране остаётся в прежней теме. Перерисовываем текущий экран сами. */
+new MutationObserver(()=>{
+  if(S.scr==='play'||S.scr==='end') render();
+  else if(S.scr==='setup') setup();
+  else if(S.scr==='history') history_();
+}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','style']});
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',once);
 else once();
 })();
