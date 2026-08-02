@@ -1,0 +1,105 @@
+/* Круг · «Поставь на место» — тренировка Ясны.
+   Своя вёрстка: игра занимает экран целиком и не должна зависеть от сеток лендинга. */
+:root{
+  --k-bg:#f4f5f7; --k-card:#fff; --k-tx:#12151c; --k-tx2:#4a5265; --k-tx3:#8b93a7;
+  --k-line:#e2e6ed; --k-acc:#2f6bdd; --k-acct:#fff;
+  --k-gold:#E0A93B; --k-grey:#9aa3b4; --k-bad:#D4472C; --k-ok:#1a7f5a;
+}
+html[data-theme="dark"], :root.dark{
+  --k-bg:#0e1116; --k-card:#171b23; --k-tx:#eef1f6; --k-tx2:#a8b0c2; --k-tx3:#727b8f;
+  --k-line:#252b36; --k-acc:#6f9bff; --k-acct:#08101f;
+  --k-gold:#FFD479; --k-grey:#7B8496; --k-bad:#E0563C; --k-ok:#4bc99a;
+}
+@media (prefers-color-scheme:dark){
+  html:not([data-theme="light"]){
+    --k-bg:#0e1116; --k-card:#171b23; --k-tx:#eef1f6; --k-tx2:#a8b0c2; --k-tx3:#727b8f;
+    --k-line:#252b36; --k-acc:#6f9bff; --k-acct:#08101f;
+    --k-gold:#FFD479; --k-grey:#7B8496; --k-bad:#E0563C; --k-ok:#4bc99a;
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--k-bg);color:var(--k-tx);
+  font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:460px;margin:0 auto;padding:10px 14px 40px;min-height:100dvh;
+  display:flex;flex-direction:column}
+.hd{display:flex;align-items:center;gap:12px;padding:4px 0 10px}
+.back{color:var(--k-tx3);text-decoration:none;font-size:13.5px;white-space:nowrap}
+.back:hover{color:var(--k-tx2)}
+.ttl{font-weight:700;font-size:16px}
+.ttl span{font-weight:400;color:var(--k-tx3)}
+main{flex:1 0 auto}
+
+h2{font-size:19px;margin:0 0 4px;letter-spacing:-.2px}
+.sub{color:var(--k-tx3);font-size:13.5px;margin-bottom:14px;line-height:1.4}
+.sect{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--k-tx3);
+  margin:18px 0 8px}
+
+/* ── выбор ясны ── */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{background:var(--k-card);border:1.5px solid var(--k-line);border-radius:13px;
+  padding:11px 12px;font:inherit;color:inherit;text-align:left;cursor:pointer;transition:.12s;
+  display:flex;flex-direction:column;gap:2px;min-height:62px;justify-content:center}
+.tile:hover{border-color:var(--k-tx3)}
+.tile[aria-pressed="true"]{border-color:var(--k-acc);
+  box-shadow:0 0 0 2.5px color-mix(in srgb,var(--k-acc) 22%,transparent)}
+.tile b{font-size:14.5px;font-weight:650;line-height:1.2}
+.tile i{font-style:normal;font-size:11.5px;color:var(--k-tx3)}
+.tile.rnd b{color:var(--k-acc)}
+
+/* ── круг ── */
+#wrap{position:relative;width:100%;max-width:340px;margin:8px auto 0}
+#wrap:before{content:'';display:block;padding-top:100%}
+#ring{position:absolute;inset:0;width:100%;height:100%}
+.wedge{transition:fill .4s ease,opacity .35s ease}
+.hit{fill:transparent;cursor:pointer}
+.chord{stroke-width:2.5;stroke-linecap:round;fill:none;stroke-dasharray:240;
+  stroke-dashoffset:240;transition:stroke .5s,opacity .4s}
+.chord.on{stroke-dashoffset:0;transition:stroke-dashoffset .5s ease,stroke .5s,opacity .4s}
+.nm{position:absolute;transform:translate(-50%,-50%);font-size:10px;font-weight:600;
+  text-align:center;line-height:1.12;width:64px;pointer-events:none;color:#fff;
+  text-shadow:0 1px 3px rgba(0,0,0,.9);transition:opacity .3s}
+.mid{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:154px;
+  text-align:center;pointer-events:none;color:var(--k-tx3);font-size:12.5px;line-height:1.3}
+.mid b{display:block;color:var(--k-tx);font-size:16px;line-height:1.22;margin-bottom:3px;
+  font-weight:650}
+.shake{animation:kshake .32s}
+@keyframes kshake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* ── карточка в руке и разбор ── */
+.hand{background:var(--k-card);border:1px solid var(--k-line);border-radius:15px;
+  padding:13px 16px;text-align:center;margin-top:10px}
+.hand .who{font-size:12px;color:var(--k-tx3);margin-bottom:3px}
+.hand .el{font-size:19px;font-weight:650;line-height:1.25}
+.hand .q{font-size:13px;color:var(--k-tx3);margin-top:3px}
+.say{background:var(--k-card);border:1px solid var(--k-line);border-radius:15px;
+  padding:13px 16px;margin-top:10px}
+.say.ok{border-color:color-mix(in srgb,var(--k-ok) 40%,transparent)}
+.say.no{border-color:color-mix(in srgb,var(--k-bad) 40%,transparent)}
+.say .hd{font-weight:700;margin-bottom:4px}
+.say.ok .hd{color:var(--k-ok)} .say.no .hd{color:var(--k-bad)}
+.say .bd{font-size:14px;line-height:1.5;color:var(--k-tx2)}
+.say .bd b{color:var(--k-tx)}
+.prog{display:flex;gap:3px;margin-top:10px}
+.prog i{flex:1;height:3px;border-radius:2px;background:var(--k-line)}
+.prog i.d{background:var(--k-gold)}
+.prog i.m{background:var(--k-grey)}
+
+button.go,button.gh{display:block;width:100%;margin-top:10px;border-radius:13px;padding:13px;
+  font:inherit;font-size:15.5px;font-weight:650;cursor:pointer;border:0}
+button.go{background:var(--k-acc);color:var(--k-acct)}
+button.go:hover{filter:brightness(1.07)}
+button.gh{background:transparent;color:var(--k-tx2);border:1px solid var(--k-line);font-weight:500}
+button:disabled{opacity:.45;cursor:default}
+.row2{display:flex;gap:8px}
+.row2>button{flex:1}
+
+.note{font-size:12px;color:var(--k-tx3);margin-top:12px;line-height:1.45}
+.code{font-size:26px;font-weight:700;letter-spacing:.12em;text-align:center;
+  font-variant-numeric:tabular-nums;margin:6px 0}
+.who-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.who-list span{background:var(--k-card);border:1px solid var(--k-line);border-radius:999px;
+  padding:5px 11px;font-size:13px}
+table.res{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
+table.res td{padding:6px 0;border-bottom:1px solid var(--k-line);color:var(--k-tx2)}
+table.res td:last-child{text-align:right;color:var(--k-tx);white-space:nowrap}
+table.res tr:last-child td{border:0}
