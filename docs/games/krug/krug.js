@@ -321,12 +321,12 @@ function finish(){
       <table class="res"></table>
       <div class="bd" style="margin-top:8px;font-size:12.5px;color:var(--k-tx3)">
       Слева — элемент, справа — куда ты его отправил в первый раз.</div></div>`);
-    const tab=t.querySelector('table');
-    missed.forEach(x=>{
+    /* строки собираем строкой: <tr>, вставленный через div-обёртку, парсер выбрасывает */
+    t.querySelector('table').innerHTML = missed.map(x=>{
       const w=(S.miss[x]||[])[0];
-      tab.appendChild(el(`<tr><td>${esc(S.yasna.p[x])}</td>
-        <td>${w!==undefined?esc(S.yasna.p[w]||('место '+w)):'—'}</td></tr>`));
-    });
+      return `<tr><td>${esc(S.yasna.p[x])}</td><td>${
+        w!==undefined ? esc(S.yasna.p[w]||('место '+w)) : '—'}</td></tr>`;
+    }).join('');
     b.appendChild(t);
   } else {
     b.appendChild(el(`<div class="say"><div class="hd">Ни одного промаха</div>
