@@ -596,7 +596,7 @@
               ),
               React.createElement('span', { className: 'dp-cta__body' },
                 React.createElement('span', { className: 'dp-cta__title' }, 'Играть одному'),
-                React.createElement('span', { className: 'dp-cta__sub' }, 'двенадцать мест, шесть осей')
+                React.createElement('span', { className: 'dp-cta__sub' }, 'двенадцать мест')
               )
             ),
             React.createElement('button', {
@@ -613,11 +613,9 @@
               ),
               React.createElement('span', { className: 'dp-cta__body' },
                 React.createElement('span', { className: 'dp-cta__title' }, 'Вдвоём'),
-                React.createElement('span', { className: 'dp-cta__sub' }, 'по очереди на одном телефоне')
+                React.createElement('span', { className: 'dp-cta__sub' }, 'по очереди на телефоне')
               )
-            )
-          ),
-          React.createElement('div', { className: 'dp-cta-row' },
+            ),
             React.createElement('button', {
               type: 'button', className: 'dp-cta dp-cta--group',
               onClick: (e) => { e.stopPropagation(); location.href = 'games/krug/#link'; },
@@ -625,13 +623,15 @@
             },
               React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
                 React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
-                  React.createElement('circle', { cx: 12, cy: 8, r: 3 }),
-                  React.createElement('path', { d: 'M4 20c0-3 3.6-5.4 8-5.4s8 2.4 8 5.4' })
+                  React.createElement('circle', { cx: 8, cy: 9, r: 2.6 }),
+                  React.createElement('circle', { cx: 16, cy: 9, r: 2.6 }),
+                  React.createElement('path', { d: 'M3 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2' }),
+                  React.createElement('path', { d: 'M13 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2' })
                 )
               ),
               React.createElement('span', { className: 'dp-cta__body' },
                 React.createElement('span', { className: 'dp-cta__title' }, 'Компанией'),
-                React.createElement('span', { className: 'dp-cta__sub' }, 'одна раздача на всех по ссылке')
+                React.createElement('span', { className: 'dp-cta__sub' }, 'одна раздача по ссылке')
               ),
               React.createElement('span', { className: 'dp-cta__badge', 'aria-hidden': 'true' }, 'NEW')
             )

@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-08-02T07:08:16.126Z */
+/* Yasna bundle: duel.js — собран 2026-08-02T07:24:08.587Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -25536,7 +25536,7 @@ window.YasnaCore = {
                 "span",
                 { className: "dp-cta__body" },
                 React.createElement("span", { className: "dp-cta__title" }, "\u0418\u0433\u0440\u0430\u0442\u044C \u043E\u0434\u043D\u043E\u043C\u0443"),
-                React.createElement("span", { className: "dp-cta__sub" }, "\u0434\u0432\u0435\u043D\u0430\u0434\u0446\u0430\u0442\u044C \u043C\u0435\u0441\u0442, \u0448\u0435\u0441\u0442\u044C \u043E\u0441\u0435\u0439")
+                React.createElement("span", { className: "dp-cta__sub" }, "\u0434\u0432\u0435\u043D\u0430\u0434\u0446\u0430\u0442\u044C \u043C\u0435\u0441\u0442")
               )
             ),
             React.createElement(
@@ -25565,13 +25565,9 @@ window.YasnaCore = {
                 "span",
                 { className: "dp-cta__body" },
                 React.createElement("span", { className: "dp-cta__title" }, "\u0412\u0434\u0432\u043E\u0451\u043C"),
-                React.createElement("span", { className: "dp-cta__sub" }, "\u043F\u043E \u043E\u0447\u0435\u0440\u0435\u0434\u0438 \u043D\u0430 \u043E\u0434\u043D\u043E\u043C \u0442\u0435\u043B\u0435\u0444\u043E\u043D\u0435")
+                React.createElement("span", { className: "dp-cta__sub" }, "\u043F\u043E \u043E\u0447\u0435\u0440\u0435\u0434\u0438 \u043D\u0430 \u0442\u0435\u043B\u0435\u0444\u043E\u043D\u0435")
               )
-            )
-          ),
-          React.createElement(
-            "div",
-            { className: "dp-cta-row" },
+            ),
             React.createElement(
               "button",
               {
@@ -25589,15 +25585,17 @@ window.YasnaCore = {
                 React.createElement(
                   "svg",
                   { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round", strokeLinejoin: "round" },
-                  React.createElement("circle", { cx: 12, cy: 8, r: 3 }),
-                  React.createElement("path", { d: "M4 20c0-3 3.6-5.4 8-5.4s8 2.4 8 5.4" })
+                  React.createElement("circle", { cx: 8, cy: 9, r: 2.6 }),
+                  React.createElement("circle", { cx: 16, cy: 9, r: 2.6 }),
+                  React.createElement("path", { d: "M3 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2" }),
+                  React.createElement("path", { d: "M13 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2" })
                 )
               ),
               React.createElement(
                 "span",
                 { className: "dp-cta__body" },
                 React.createElement("span", { className: "dp-cta__title" }, "\u041A\u043E\u043C\u043F\u0430\u043D\u0438\u0435\u0439"),
-                React.createElement("span", { className: "dp-cta__sub" }, "\u043E\u0434\u043D\u0430 \u0440\u0430\u0437\u0434\u0430\u0447\u0430 \u043D\u0430 \u0432\u0441\u0435\u0445 \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435")
+                React.createElement("span", { className: "dp-cta__sub" }, "\u043E\u0434\u043D\u0430 \u0440\u0430\u0437\u0434\u0430\u0447\u0430 \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435")
               ),
               React.createElement("span", { className: "dp-cta__badge", "aria-hidden": "true" }, "NEW")
             )
