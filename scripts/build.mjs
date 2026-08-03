@@ -121,8 +121,14 @@ async function buildBundle(name, files, srcRoot, distRoot){
 
   await mkdir(distRoot, { recursive: true });
 
-  // Dev-сборка: без минификации, для отладки
-  const devOut = path.join(distRoot, `${name}.js`);
+  /* Dev-сборка: без минификации, для отладки. Кладём ВНЕ docs/, потому что
+     docs/ публикуется целиком: раньше эти два файла (3,5 МБ полностью
+     читаемого исходника) уезжали в интернет, хотя на них не ссылается ни одна
+     страница — страницы грузят только .min.js. Убрать их из git оказалось
+     мало: CI пересобирает бандлы перед публикацией и создавал их заново. */
+  const devRoot = path.join(PROJECT, '.build', 'dev');
+  await mkdir(devRoot, { recursive: true });
+  const devOut = path.join(devRoot, `${name}.js`);
   await writeFile(devOut, combined);
 
   // Prod-сборка: минифицированная
