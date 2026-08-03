@@ -57,13 +57,24 @@ body{
     <div class="e-code">Ошибка 404</div>
     <h1 class="e-title">Такой страницы нет</h1>
     <p class="e-desc">Возможно, ссылка устарела или вы ошиблись адресом. Вернитесь на главную или загляните в один из разделов.</p>
-    <div class="e-links">
-      <a class="e-btn e-btn--primary" href="/yasnanegotiations/start.html">На главную</a>
-      <a class="e-btn" href="/yasnanegotiations/index.html">Конструктор</a>
-      <a class="e-btn" href="/yasnanegotiations/learn.html">Обучение</a>
-      <a class="e-btn" href="/yasnanegotiations/duel.html">Игра</a>
-      <a class="e-btn" href="/yasnanegotiations/negotiations.html">Переговоры</a>
+    <div class="e-links" id="e-links">
+      <a class="e-btn e-btn--primary" data-p="start.html">На главную</a>
+      <a class="e-btn" data-p="index.html">Конструктор</a>
+      <a class="e-btn" data-p="learn.html">Обучение</a>
+      <a class="e-btn" data-p="duel.html">Игра</a>
+      <a class="e-btn" data-p="negotiations.html">Переговоры</a>
     </div>
+    <script>
+      /* Относительные ссылки здесь нельзя: Pages отдаёт эту страницу по ЛЮБОМУ
+         несуществующему адресу, и «start.html» разрешился бы от /games/что-то/.
+         Абсолютные тоже нельзя — корень сайта разный на github.io (проектный
+         подкаталог) и на своём домене. Поэтому считаем корень на месте. */
+      (function(){
+        var base = location.hostname.indexOf('github.io') > -1 ? '/yasnanegotiations/' : '/';
+        var a = document.getElementById('e-links').children;
+        for (var i = 0; i < a.length; i++) a[i].href = base + a[i].dataset.p;
+      })();
+    </script>
   </div>
 </body>
 </html>
