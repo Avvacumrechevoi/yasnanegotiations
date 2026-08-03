@@ -15,7 +15,7 @@ const setNative = async (page, locator, value) => {
 
 test('полный цикл: создать → автосейв → F5 → открыть → редактировать → copy-on-write → удалить', async ({ page }) => {
   test.setTimeout(60_000);
-  await page.goto('/');
+  await page.goto('/konstruktor.html');
   await page.waitForFunction(() => !!window.YasnaCore);
 
   // ── 1. СОЗДАТЬ ──
@@ -83,7 +83,7 @@ test('полный цикл: создать → автосейв → F5 → от
 });
 
 test('pinned-вкладки переживают перезагрузку', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/konstruktor.html');
   await page.waitForFunction(() => !!window.YasnaCore);
   // снять один дефолтный пин через Picker
   await page.getByTitle('Все доступные Ясны').click();

@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-08-03T18:31:19.102Z */
+/* Yasna bundle: duel.js — собран 2026-08-03T18:40:00.078Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -6174,7 +6174,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-06-13T19:53:38.570Z", "contentVersion": "1.1.0", "files": 11, "themes": 11, "atomsTotal": 334, "questionsTotal": 168, "questionsLegacy": 100 };
+  const BUILD_INFO = { "builtAt": "2026-08-03T18:39:59.771Z", "contentVersion": "1.1.0", "files": 11, "themes": 11, "atomsTotal": 334, "questionsTotal": 168, "questionsLegacy": 100 };
   const THEMES = [
     {
       "id": "dzhiva-serdtse",
@@ -25008,7 +25008,7 @@ window.YasnaCore = {
       React.createElement(
         "nav",
         { className: "ynav-links dp-switch", style: { flex: "0 1 auto" }, "aria-label": "\u0420\u0430\u0437\u0434\u0435\u043B\u044B" },
-        React.createElement("a", { className: "ynav-item", href: "index.html" }, "\u041A\u043E\u043D\u0441\u0442\u0440\u0443\u043A\u0442\u043E\u0440"),
+        React.createElement("a", { className: "ynav-item", href: "konstruktor.html" }, "\u041A\u043E\u043D\u0441\u0442\u0440\u0443\u043A\u0442\u043E\u0440"),
         React.createElement("a", { className: "ynav-item is-active", href: "duel.html" }, "\u0418\u0433\u0440\u0430", React.createElement("span", { className: "ynav-new" }, "NEW")),
         React.createElement("a", { className: "ynav-item", href: "learn.html" }, "\u041E\u0431\u0443\u0447\u0435\u043D\u0438\u0435"),
         React.createElement("a", { className: "ynav-item", href: "trainers.html" }, "\u0422\u0440\u0435\u043D\u0430\u0436\u0451\u0440\u044B")
