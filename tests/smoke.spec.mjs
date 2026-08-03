@@ -22,7 +22,7 @@ test.describe('Главное приложение', () => {
     page.on('pageerror', err => jsErrors.push(err.message));
     page.on('response', r => { try { const u = new URL(r.url()); if (u.origin === 'http://localhost:8080' && r.status() >= 400) badResponses.push(`${r.status()} ${u.pathname}`); } catch {} });
 
-    await page.goto('/');
+    await page.goto('/konstruktor.html');
     await page.waitForFunction(() => !!window.YasnaCore, { timeout: 10_000 });
 
     // Должны загрузиться все основные глобалы
@@ -48,7 +48,7 @@ test.describe('Главное приложение', () => {
   });
 
   test('2. Star-диаграмма отрендерилась с 12 полочками', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/konstruktor.html');
     await page.waitForFunction(() => !!window.YasnaCore);
     // Ждём пока root заполнится
     await page.waitForSelector('#root svg', { timeout: 10_000 });
@@ -59,7 +59,7 @@ test.describe('Главное приложение', () => {
   });
 
   test('3. Клик на полку открывает Info-карточку', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/konstruktor.html');
     await page.waitForFunction(() => !!window.YasnaCore);
     await page.waitForSelector('#root svg');
 
