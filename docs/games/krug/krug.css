@@ -59,8 +59,9 @@ h2{font-size:19px;margin:0 0 4px;letter-spacing:-.2px}
 .tile.rnd b{color:var(--k-acc)}
 
 /* ── круг ── */
-#wrap{position:relative;width:100%;max-width:340px;margin:8px auto 0}
-#wrap:before{content:'';display:block;padding-top:100%}
+#wrap{position:relative;width:100%;max-width:420px;margin:6px auto 0}
+/* холст шире, чем высок (532×420) — соотношение держим им, а не квадратом */
+#wrap:before{content:'';display:block;padding-top:78.95%}
 #ring{position:absolute;inset:0;width:100%;height:100%}
 .wedge{fill-opacity:.34; stroke:var(--k-stroke); stroke-opacity:.7; stroke-width:1.25;
   vector-effect:non-scaling-stroke;
@@ -70,12 +71,14 @@ h2{font-size:19px;margin:0 0 4px;letter-spacing:-.2px}
 .chord{stroke-width:2.5;stroke-linecap:round;fill:none;stroke-dasharray:240;
   stroke-dashoffset:240;transition:stroke .5s,opacity .4s}
 .chord.on{stroke-dashoffset:0;transition:stroke-dashoffset .5s ease,stroke .5s,opacity .4s}
-.nm{position:absolute;transform:translate(-50%,-50%);font-size:11px;font-weight:600;
-  text-align:center;line-height:1.15;width:58px;pointer-events:none;color:#fff;
-  overflow-wrap:anywhere;hyphens:auto;
-  background:var(--k-plate);border-radius:8px;padding:3px 5px;
+.nm{position:absolute;font-size:11.5px;font-weight:600;line-height:1.2;width:96px;
+  pointer-events:none;color:var(--k-tx);overflow-wrap:anywhere;hyphens:auto;
   opacity:0;transition:opacity .22s ease}
 .nm.on{opacity:1}
+/* выравнивание по стороне круга: подпись «растёт» от кольца наружу */
+.nm-c{transform:translate(-50%,-50%);text-align:center}
+.nm-l{transform:translate(-100%,-50%);text-align:right;padding-right:6px}
+.nm-r{transform:translate(0,-50%);text-align:left;padding-left:6px}
 .mid{position:absolute;left:50%;top:47.4%;transform:translate(-50%,-50%);width:30%;
   background:var(--k-bg);border-radius:50%;padding:10px 4px;
   text-align:center;pointer-events:none;color:var(--k-tx3);font-size:12.5px;line-height:1.3}
@@ -154,18 +157,19 @@ table.res tr:last-child td{border:0}
    оба по центру вертикали. Экраны выбора и истории остаются одноколоночными:
    там сетка плиток сама тянется. */
 @media (min-width:900px){
-  .wrap{max-width:1000px;padding:18px 28px 48px}
+  /* Игра занимает экран, а не колонку посреди пустоты. Кругу отдаём больше
+     половины ширины, панели — ровно столько, сколько нужно тексту: строка
+     длиннее 60 знаков всё равно читается хуже. */
+  .wrap{max-width:1120px;padding:18px 32px 48px}
   .khd{padding:6px 0 16px}
   .ttl{font-size:18px}
 
-  /* играем: круг и панель рядом */
-  main.duo-col{display:grid;grid-template-columns:minmax(320px,420px) minmax(320px,1fr);
-    gap:36px;align-items:center}
-  main.duo-col #wrap{max-width:420px;margin:0}
-  main.duo-col > div:first-child{grid-column:1 / -1;margin-bottom:-12px}
-  main.duo-col #kbot{align-self:center}
+  main.duo-col{display:grid;grid-template-columns:minmax(420px,1.35fr) minmax(300px,.85fr);
+    gap:48px;align-items:center;min-height:calc(100dvh - 190px)}
+  main.duo-col #wrap{max-width:none;width:100%;margin:0}
+  main.duo-col > div:first-child{grid-column:1 / -1;margin-bottom:-16px}
+  main.duo-col #kbot{align-self:center;max-width:460px}
 
-  /* выбор Ясны: три колонки вместо двух */
   .grid{grid-template-columns:repeat(3,1fr);gap:10px}
   .tile{min-height:70px}
   .tile b{font-size:15.5px}
@@ -174,15 +178,23 @@ table.res tr:last-child td{border:0}
   .sub{font-size:14.5px;max-width:60ch}
   .hand .el{font-size:22px}
   .say .bd{font-size:15px}
-  button.go,button.gh{max-width:none}
+  .nm{font-size:13px;width:118px}
 }
-@media (min-width:1200px){
-  .wrap{max-width:1100px}
+@media (min-width:1280px){
+  .wrap{max-width:1280px}
   .grid{grid-template-columns:repeat(4,1fr)}
+  main.duo-col{gap:64px}
+  .nm{font-size:13.5px;width:126px}
+}
 }
 
 /* ── доступность: с клавиатуры игра была непроходима ── */
-.hit:focus-visible{outline:none;fill:var(--k-acc);fill-opacity:.16;
+/* Браузер рисует фокус прямоугольником по bounding box пути — на дольке круга
+   это читается как случайный квадрат. Гасим его во всех состояниях и показываем
+   фокус самой долей: подсветка заливкой и обводка по её контуру. */
+.hit{outline:none}
+.hit:focus,.hit:focus-visible{outline:none}
+.hit:focus-visible{fill:var(--k-acc);fill-opacity:.14;
   stroke:var(--k-acc);stroke-width:2.5;vector-effect:non-scaling-stroke}
 .tile:focus-visible,button.go:focus-visible,button.gh:focus-visible,
 .stats .lnk:focus-visible{outline:2px solid var(--k-acc);outline-offset:2px}

@@ -493,6 +493,75 @@
       ),
       React.createElement('div', { className: 'dp-games-grid' },
         React.createElement('div', { className: 'dp-game-card dp-game-primary' },
+          React.createElement('div', { className: 'dp-game-eyebrow' }, '\u2726  \u0414\u043e\u0441\u0442\u0443\u043f\u043d\u0430 \u00b7 ~2 \u043c\u0438\u043d\u0443\u0442\u044b'),
+          React.createElement('div', { className: 'dp-game-title-row' },
+            React.createElement('div', { className: 'dp-game-title' }, 'Круг')
+          ),
+          React.createElement('div', { className: 'dp-game-sub' },
+            'Тренировка: берёшь элемент явления и ставишь его на своё место в круге. Промах объясняется тем, чем занято место.'
+          ),
+          React.createElement('ul', { className: 'dp-game-bullets' },
+            React.createElement('li', null, '16 Ясн на выбор — или случайная'),
+            React.createElement('li', null, 'Ставишь тапом по самому кругу, а не по кнопкам под ним'),
+            React.createElement('li', null, 'Нитка через середину вспыхивает сама, когда ось сошлась')
+          ),
+          React.createElement('div', { className: 'dp-cta-row' },
+            React.createElement('button', {
+              type: 'button', className: 'dp-cta dp-cta--solo',
+              onClick: (e) => { e.stopPropagation(); location.href = 'games/krug/#solo'; },
+              'aria-label': 'Разложить круг одному'
+            },
+              React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
+                React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
+                  React.createElement('circle', { cx: 12, cy: 12, r: 8 }),
+                  React.createElement('path', { d: 'M12 4v16M4 12h16' })
+                )
+              ),
+              React.createElement('span', { className: 'dp-cta__body' },
+                React.createElement('span', { className: 'dp-cta__title' }, 'Играть одному'),
+                React.createElement('span', { className: 'dp-cta__sub' }, 'двенадцать мест')
+              )
+            ),
+            React.createElement('button', {
+              type: 'button', className: 'dp-cta dp-cta--pvp',
+              onClick: (e) => { e.stopPropagation(); location.href = 'games/krug/#duo'; },
+              'aria-label': 'Разложить круг вдвоём'
+            },
+              React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
+                React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
+                  React.createElement('circle', { cx: 8, cy: 9, r: 3 }),
+                  React.createElement('circle', { cx: 16, cy: 9, r: 3 }),
+                  React.createElement('path', { d: 'M3 19c0-2.4 1.8-4.2 5-4.2s5 1.8 5 4.2M13 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2' })
+                )
+              ),
+              React.createElement('span', { className: 'dp-cta__body' },
+                React.createElement('span', { className: 'dp-cta__title' }, 'Вдвоём'),
+                React.createElement('span', { className: 'dp-cta__sub' }, 'по очереди на телефоне')
+              )
+            ),
+            React.createElement('button', {
+              type: 'button', className: 'dp-cta dp-cta--group',
+              onClick: (e) => { e.stopPropagation(); location.href = 'games/krug/#link'; },
+              'aria-label': 'Разложить круг компанией'
+            },
+              React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
+                React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
+                  React.createElement('circle', { cx: 8, cy: 9, r: 2.6 }),
+                  React.createElement('circle', { cx: 16, cy: 9, r: 2.6 }),
+                  React.createElement('path', { d: 'M3 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2' }),
+                  React.createElement('path', { d: 'M13 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2' })
+                )
+              ),
+              React.createElement('span', { className: 'dp-cta__body' },
+                React.createElement('span', { className: 'dp-cta__title' }, 'Компанией'),
+                React.createElement('span', { className: 'dp-cta__sub' }, 'одна раздача по ссылке')
+              ),
+              React.createElement('span', { className: 'dp-cta__badge', 'aria-hidden': 'true' }, 'NEW')
+            )
+          )
+        ),
+        // (карточка «Переговоры» переехала в раздел «Тренажёры» — trainers.html)
+        React.createElement('div', { className: 'dp-game-card' },
           React.createElement('div', { className: 'dp-game-eyebrow' }, '✦  Доступна · ~5 минут'),
           React.createElement('div', { className: 'dp-game-title-row' },
             React.createElement('div', { className: 'dp-game-title' }, 'Партия'),
@@ -568,75 +637,6 @@
             )
           )
         ),
-        // (карточка «Переговоры» переехала в раздел «Тренажёры» — trainers.html)
-        React.createElement('div', { className: 'dp-game-card' },
-          React.createElement('div', { className: 'dp-game-eyebrow' }, '\u2726  \u0414\u043e\u0441\u0442\u0443\u043f\u043d\u0430 \u00b7 ~2 \u043c\u0438\u043d\u0443\u0442\u044b'),
-          React.createElement('div', { className: 'dp-game-title-row' },
-            React.createElement('div', { className: 'dp-game-title' }, 'Круг')
-          ),
-          React.createElement('div', { className: 'dp-game-sub' },
-            'Тренировка: берёшь элемент явления и ставишь его на своё место в круге. Промах объясняется тем, чем занято место.'
-          ),
-          React.createElement('ul', { className: 'dp-game-bullets' },
-            React.createElement('li', null, '16 Ясн на выбор — или случайная'),
-            React.createElement('li', null, 'Ставишь тапом по самому кругу, а не по кнопкам под ним'),
-            React.createElement('li', null, 'Нитка через середину вспыхивает сама, когда ось сошлась')
-          ),
-          React.createElement('div', { className: 'dp-cta-row' },
-            React.createElement('button', {
-              type: 'button', className: 'dp-cta dp-cta--solo',
-              onClick: (e) => { e.stopPropagation(); location.href = 'games/krug/#solo'; },
-              'aria-label': 'Разложить круг одному'
-            },
-              React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
-                React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
-                  React.createElement('circle', { cx: 12, cy: 12, r: 8 }),
-                  React.createElement('path', { d: 'M12 4v16M4 12h16' })
-                )
-              ),
-              React.createElement('span', { className: 'dp-cta__body' },
-                React.createElement('span', { className: 'dp-cta__title' }, 'Играть одному'),
-                React.createElement('span', { className: 'dp-cta__sub' }, 'двенадцать мест')
-              )
-            ),
-            React.createElement('button', {
-              type: 'button', className: 'dp-cta dp-cta--pvp',
-              onClick: (e) => { e.stopPropagation(); location.href = 'games/krug/#duo'; },
-              'aria-label': 'Разложить круг вдвоём'
-            },
-              React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
-                React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
-                  React.createElement('circle', { cx: 8, cy: 9, r: 3 }),
-                  React.createElement('circle', { cx: 16, cy: 9, r: 3 }),
-                  React.createElement('path', { d: 'M3 19c0-2.4 1.8-4.2 5-4.2s5 1.8 5 4.2M13 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2' })
-                )
-              ),
-              React.createElement('span', { className: 'dp-cta__body' },
-                React.createElement('span', { className: 'dp-cta__title' }, 'Вдвоём'),
-                React.createElement('span', { className: 'dp-cta__sub' }, 'по очереди на телефоне')
-              )
-            ),
-            React.createElement('button', {
-              type: 'button', className: 'dp-cta dp-cta--group',
-              onClick: (e) => { e.stopPropagation(); location.href = 'games/krug/#link'; },
-              'aria-label': 'Разложить круг компанией'
-            },
-              React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
-                React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
-                  React.createElement('circle', { cx: 8, cy: 9, r: 2.6 }),
-                  React.createElement('circle', { cx: 16, cy: 9, r: 2.6 }),
-                  React.createElement('path', { d: 'M3 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2' }),
-                  React.createElement('path', { d: 'M13 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2' })
-                )
-              ),
-              React.createElement('span', { className: 'dp-cta__body' },
-                React.createElement('span', { className: 'dp-cta__title' }, 'Компанией'),
-                React.createElement('span', { className: 'dp-cta__sub' }, 'одна раздача по ссылке')
-              ),
-              React.createElement('span', { className: 'dp-cta__badge', 'aria-hidden': 'true' }, 'NEW')
-            )
-          )
-        )
       )
     );
   }

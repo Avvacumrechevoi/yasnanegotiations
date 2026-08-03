@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-08-02T11:30:11.887Z */
+/* Yasna bundle: duel.js — собран 2026-08-03T09:34:58.223Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -25372,6 +25372,121 @@ window.YasnaCore = {
         React.createElement(
           "div",
           { className: "dp-game-card dp-game-primary" },
+          React.createElement("div", { className: "dp-game-eyebrow" }, "\u2726  \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0430 \xB7 ~2 \u043C\u0438\u043D\u0443\u0442\u044B"),
+          React.createElement(
+            "div",
+            { className: "dp-game-title-row" },
+            React.createElement("div", { className: "dp-game-title" }, "\u041A\u0440\u0443\u0433")
+          ),
+          React.createElement(
+            "div",
+            { className: "dp-game-sub" },
+            "\u0422\u0440\u0435\u043D\u0438\u0440\u043E\u0432\u043A\u0430: \u0431\u0435\u0440\u0451\u0448\u044C \u044D\u043B\u0435\u043C\u0435\u043D\u0442 \u044F\u0432\u043B\u0435\u043D\u0438\u044F \u0438 \u0441\u0442\u0430\u0432\u0438\u0448\u044C \u0435\u0433\u043E \u043D\u0430 \u0441\u0432\u043E\u0451 \u043C\u0435\u0441\u0442\u043E \u0432 \u043A\u0440\u0443\u0433\u0435. \u041F\u0440\u043E\u043C\u0430\u0445 \u043E\u0431\u044A\u044F\u0441\u043D\u044F\u0435\u0442\u0441\u044F \u0442\u0435\u043C, \u0447\u0435\u043C \u0437\u0430\u043D\u044F\u0442\u043E \u043C\u0435\u0441\u0442\u043E."
+          ),
+          React.createElement(
+            "ul",
+            { className: "dp-game-bullets" },
+            React.createElement("li", null, "16 \u042F\u0441\u043D \u043D\u0430 \u0432\u044B\u0431\u043E\u0440 \u2014 \u0438\u043B\u0438 \u0441\u043B\u0443\u0447\u0430\u0439\u043D\u0430\u044F"),
+            React.createElement("li", null, "\u0421\u0442\u0430\u0432\u0438\u0448\u044C \u0442\u0430\u043F\u043E\u043C \u043F\u043E \u0441\u0430\u043C\u043E\u043C\u0443 \u043A\u0440\u0443\u0433\u0443, \u0430 \u043D\u0435 \u043F\u043E \u043A\u043D\u043E\u043F\u043A\u0430\u043C \u043F\u043E\u0434 \u043D\u0438\u043C"),
+            React.createElement("li", null, "\u041D\u0438\u0442\u043A\u0430 \u0447\u0435\u0440\u0435\u0437 \u0441\u0435\u0440\u0435\u0434\u0438\u043D\u0443 \u0432\u0441\u043F\u044B\u0445\u0438\u0432\u0430\u0435\u0442 \u0441\u0430\u043C\u0430, \u043A\u043E\u0433\u0434\u0430 \u043E\u0441\u044C \u0441\u043E\u0448\u043B\u0430\u0441\u044C")
+          ),
+          React.createElement(
+            "div",
+            { className: "dp-cta-row" },
+            React.createElement(
+              "button",
+              {
+                type: "button",
+                className: "dp-cta dp-cta--solo",
+                onClick: (e) => {
+                  e.stopPropagation();
+                  location.href = "games/krug/#solo";
+                },
+                "aria-label": "\u0420\u0430\u0437\u043B\u043E\u0436\u0438\u0442\u044C \u043A\u0440\u0443\u0433 \u043E\u0434\u043D\u043E\u043C\u0443"
+              },
+              React.createElement(
+                "span",
+                { className: "dp-cta__icon", "aria-hidden": "true" },
+                React.createElement(
+                  "svg",
+                  { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round", strokeLinejoin: "round" },
+                  React.createElement("circle", { cx: 12, cy: 12, r: 8 }),
+                  React.createElement("path", { d: "M12 4v16M4 12h16" })
+                )
+              ),
+              React.createElement(
+                "span",
+                { className: "dp-cta__body" },
+                React.createElement("span", { className: "dp-cta__title" }, "\u0418\u0433\u0440\u0430\u0442\u044C \u043E\u0434\u043D\u043E\u043C\u0443"),
+                React.createElement("span", { className: "dp-cta__sub" }, "\u0434\u0432\u0435\u043D\u0430\u0434\u0446\u0430\u0442\u044C \u043C\u0435\u0441\u0442")
+              )
+            ),
+            React.createElement(
+              "button",
+              {
+                type: "button",
+                className: "dp-cta dp-cta--pvp",
+                onClick: (e) => {
+                  e.stopPropagation();
+                  location.href = "games/krug/#duo";
+                },
+                "aria-label": "\u0420\u0430\u0437\u043B\u043E\u0436\u0438\u0442\u044C \u043A\u0440\u0443\u0433 \u0432\u0434\u0432\u043E\u0451\u043C"
+              },
+              React.createElement(
+                "span",
+                { className: "dp-cta__icon", "aria-hidden": "true" },
+                React.createElement(
+                  "svg",
+                  { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round", strokeLinejoin: "round" },
+                  React.createElement("circle", { cx: 8, cy: 9, r: 3 }),
+                  React.createElement("circle", { cx: 16, cy: 9, r: 3 }),
+                  React.createElement("path", { d: "M3 19c0-2.4 1.8-4.2 5-4.2s5 1.8 5 4.2M13 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2" })
+                )
+              ),
+              React.createElement(
+                "span",
+                { className: "dp-cta__body" },
+                React.createElement("span", { className: "dp-cta__title" }, "\u0412\u0434\u0432\u043E\u0451\u043C"),
+                React.createElement("span", { className: "dp-cta__sub" }, "\u043F\u043E \u043E\u0447\u0435\u0440\u0435\u0434\u0438 \u043D\u0430 \u0442\u0435\u043B\u0435\u0444\u043E\u043D\u0435")
+              )
+            ),
+            React.createElement(
+              "button",
+              {
+                type: "button",
+                className: "dp-cta dp-cta--group",
+                onClick: (e) => {
+                  e.stopPropagation();
+                  location.href = "games/krug/#link";
+                },
+                "aria-label": "\u0420\u0430\u0437\u043B\u043E\u0436\u0438\u0442\u044C \u043A\u0440\u0443\u0433 \u043A\u043E\u043C\u043F\u0430\u043D\u0438\u0435\u0439"
+              },
+              React.createElement(
+                "span",
+                { className: "dp-cta__icon", "aria-hidden": "true" },
+                React.createElement(
+                  "svg",
+                  { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round", strokeLinejoin: "round" },
+                  React.createElement("circle", { cx: 8, cy: 9, r: 2.6 }),
+                  React.createElement("circle", { cx: 16, cy: 9, r: 2.6 }),
+                  React.createElement("path", { d: "M3 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2" }),
+                  React.createElement("path", { d: "M13 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2" })
+                )
+              ),
+              React.createElement(
+                "span",
+                { className: "dp-cta__body" },
+                React.createElement("span", { className: "dp-cta__title" }, "\u041A\u043E\u043C\u043F\u0430\u043D\u0438\u0435\u0439"),
+                React.createElement("span", { className: "dp-cta__sub" }, "\u043E\u0434\u043D\u0430 \u0440\u0430\u0437\u0434\u0430\u0447\u0430 \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435")
+              ),
+              React.createElement("span", { className: "dp-cta__badge", "aria-hidden": "true" }, "NEW")
+            )
+          )
+        ),
+        // (карточка «Переговоры» переехала в раздел «Тренажёры» — trainers.html)
+        React.createElement(
+          "div",
+          { className: "dp-game-card" },
           React.createElement("div", { className: "dp-game-eyebrow" }, "\u2726  \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0430 \xB7 ~5 \u043C\u0438\u043D\u0443\u0442"),
           React.createElement(
             "div",
@@ -25483,121 +25598,6 @@ window.YasnaCore = {
                 { className: "dp-cta__body" },
                 React.createElement("span", { className: "dp-cta__title" }, "\u0421 \u043A\u043E\u043B\u043B\u0435\u043A\u0442\u0438\u0432\u043E\u043C"),
                 React.createElement("span", { className: "dp-cta__sub" }, "\u043A\u043E\u043C\u043F\u0430\u043D\u0438\u0435\u0439 3\u20138 \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435")
-              ),
-              React.createElement("span", { className: "dp-cta__badge", "aria-hidden": "true" }, "NEW")
-            )
-          )
-        ),
-        // (карточка «Переговоры» переехала в раздел «Тренажёры» — trainers.html)
-        React.createElement(
-          "div",
-          { className: "dp-game-card" },
-          React.createElement("div", { className: "dp-game-eyebrow" }, "\u2726  \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u0430 \xB7 ~2 \u043C\u0438\u043D\u0443\u0442\u044B"),
-          React.createElement(
-            "div",
-            { className: "dp-game-title-row" },
-            React.createElement("div", { className: "dp-game-title" }, "\u041A\u0440\u0443\u0433")
-          ),
-          React.createElement(
-            "div",
-            { className: "dp-game-sub" },
-            "\u0422\u0440\u0435\u043D\u0438\u0440\u043E\u0432\u043A\u0430: \u0431\u0435\u0440\u0451\u0448\u044C \u044D\u043B\u0435\u043C\u0435\u043D\u0442 \u044F\u0432\u043B\u0435\u043D\u0438\u044F \u0438 \u0441\u0442\u0430\u0432\u0438\u0448\u044C \u0435\u0433\u043E \u043D\u0430 \u0441\u0432\u043E\u0451 \u043C\u0435\u0441\u0442\u043E \u0432 \u043A\u0440\u0443\u0433\u0435. \u041F\u0440\u043E\u043C\u0430\u0445 \u043E\u0431\u044A\u044F\u0441\u043D\u044F\u0435\u0442\u0441\u044F \u0442\u0435\u043C, \u0447\u0435\u043C \u0437\u0430\u043D\u044F\u0442\u043E \u043C\u0435\u0441\u0442\u043E."
-          ),
-          React.createElement(
-            "ul",
-            { className: "dp-game-bullets" },
-            React.createElement("li", null, "16 \u042F\u0441\u043D \u043D\u0430 \u0432\u044B\u0431\u043E\u0440 \u2014 \u0438\u043B\u0438 \u0441\u043B\u0443\u0447\u0430\u0439\u043D\u0430\u044F"),
-            React.createElement("li", null, "\u0421\u0442\u0430\u0432\u0438\u0448\u044C \u0442\u0430\u043F\u043E\u043C \u043F\u043E \u0441\u0430\u043C\u043E\u043C\u0443 \u043A\u0440\u0443\u0433\u0443, \u0430 \u043D\u0435 \u043F\u043E \u043A\u043D\u043E\u043F\u043A\u0430\u043C \u043F\u043E\u0434 \u043D\u0438\u043C"),
-            React.createElement("li", null, "\u041D\u0438\u0442\u043A\u0430 \u0447\u0435\u0440\u0435\u0437 \u0441\u0435\u0440\u0435\u0434\u0438\u043D\u0443 \u0432\u0441\u043F\u044B\u0445\u0438\u0432\u0430\u0435\u0442 \u0441\u0430\u043C\u0430, \u043A\u043E\u0433\u0434\u0430 \u043E\u0441\u044C \u0441\u043E\u0448\u043B\u0430\u0441\u044C")
-          ),
-          React.createElement(
-            "div",
-            { className: "dp-cta-row" },
-            React.createElement(
-              "button",
-              {
-                type: "button",
-                className: "dp-cta dp-cta--solo",
-                onClick: (e) => {
-                  e.stopPropagation();
-                  location.href = "games/krug/#solo";
-                },
-                "aria-label": "\u0420\u0430\u0437\u043B\u043E\u0436\u0438\u0442\u044C \u043A\u0440\u0443\u0433 \u043E\u0434\u043D\u043E\u043C\u0443"
-              },
-              React.createElement(
-                "span",
-                { className: "dp-cta__icon", "aria-hidden": "true" },
-                React.createElement(
-                  "svg",
-                  { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round", strokeLinejoin: "round" },
-                  React.createElement("circle", { cx: 12, cy: 12, r: 8 }),
-                  React.createElement("path", { d: "M12 4v16M4 12h16" })
-                )
-              ),
-              React.createElement(
-                "span",
-                { className: "dp-cta__body" },
-                React.createElement("span", { className: "dp-cta__title" }, "\u0418\u0433\u0440\u0430\u0442\u044C \u043E\u0434\u043D\u043E\u043C\u0443"),
-                React.createElement("span", { className: "dp-cta__sub" }, "\u0434\u0432\u0435\u043D\u0430\u0434\u0446\u0430\u0442\u044C \u043C\u0435\u0441\u0442")
-              )
-            ),
-            React.createElement(
-              "button",
-              {
-                type: "button",
-                className: "dp-cta dp-cta--pvp",
-                onClick: (e) => {
-                  e.stopPropagation();
-                  location.href = "games/krug/#duo";
-                },
-                "aria-label": "\u0420\u0430\u0437\u043B\u043E\u0436\u0438\u0442\u044C \u043A\u0440\u0443\u0433 \u0432\u0434\u0432\u043E\u0451\u043C"
-              },
-              React.createElement(
-                "span",
-                { className: "dp-cta__icon", "aria-hidden": "true" },
-                React.createElement(
-                  "svg",
-                  { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round", strokeLinejoin: "round" },
-                  React.createElement("circle", { cx: 8, cy: 9, r: 3 }),
-                  React.createElement("circle", { cx: 16, cy: 9, r: 3 }),
-                  React.createElement("path", { d: "M3 19c0-2.4 1.8-4.2 5-4.2s5 1.8 5 4.2M13 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2" })
-                )
-              ),
-              React.createElement(
-                "span",
-                { className: "dp-cta__body" },
-                React.createElement("span", { className: "dp-cta__title" }, "\u0412\u0434\u0432\u043E\u0451\u043C"),
-                React.createElement("span", { className: "dp-cta__sub" }, "\u043F\u043E \u043E\u0447\u0435\u0440\u0435\u0434\u0438 \u043D\u0430 \u0442\u0435\u043B\u0435\u0444\u043E\u043D\u0435")
-              )
-            ),
-            React.createElement(
-              "button",
-              {
-                type: "button",
-                className: "dp-cta dp-cta--group",
-                onClick: (e) => {
-                  e.stopPropagation();
-                  location.href = "games/krug/#link";
-                },
-                "aria-label": "\u0420\u0430\u0437\u043B\u043E\u0436\u0438\u0442\u044C \u043A\u0440\u0443\u0433 \u043A\u043E\u043C\u043F\u0430\u043D\u0438\u0435\u0439"
-              },
-              React.createElement(
-                "span",
-                { className: "dp-cta__icon", "aria-hidden": "true" },
-                React.createElement(
-                  "svg",
-                  { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round", strokeLinejoin: "round" },
-                  React.createElement("circle", { cx: 8, cy: 9, r: 2.6 }),
-                  React.createElement("circle", { cx: 16, cy: 9, r: 2.6 }),
-                  React.createElement("path", { d: "M3 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2" }),
-                  React.createElement("path", { d: "M13 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2" })
-                )
-              ),
-              React.createElement(
-                "span",
-                { className: "dp-cta__body" },
-                React.createElement("span", { className: "dp-cta__title" }, "\u041A\u043E\u043C\u043F\u0430\u043D\u0438\u0435\u0439"),
-                React.createElement("span", { className: "dp-cta__sub" }, "\u043E\u0434\u043D\u0430 \u0440\u0430\u0437\u0434\u0430\u0447\u0430 \u043F\u043E \u0441\u0441\u044B\u043B\u043A\u0435")
               ),
               React.createElement("span", { className: "dp-cta__badge", "aria-hidden": "true" }, "NEW")
             )

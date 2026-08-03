@@ -47,8 +47,12 @@ const POS=[
 ];
 
 /* ─── геометрия ───────────────────────────────────────────────────── */
-const C=170,R=142,Ri=86,Rn=114,NS='http://www.w3.org/2000/svg';
-const VB={x:-22,y:-12,w:384};
+/* Подписи вынесены НАРУЖУ кольца — как в конструкторе. Плашки поверх долей
+   закрывали сам круг: двенадцать тёмных прямоугольников сходились в сплошное
+   кольцо, и грамматика «внизу темно, наверху светло» пропадала. Снаружи они
+   не мешают цвету, и круг можно сделать крупнее. */
+const C=170,R=132,Ri=78,Rn=148,NS='http://www.w3.org/2000/svg';
+const VB={x:-96,y:-40,w:532};
 const ang=i=>90+30*i;
 const pa=(r,a)=>[C+r*Math.cos(a*Math.PI/180),C+r*Math.sin(a*Math.PI/180)];
 const pp=(r,i)=>pa(r,ang(i));
@@ -139,7 +143,7 @@ let LIST=[];
 const N={w:[],h:[],c:[],n:[],mid:null,wrap:null};
 function buildRing(host,onTap){
   const wrap=document.createElement('div'); wrap.id='wrap';
-  wrap.innerHTML='<svg id="ring" viewBox="-22 -12 384 384"></svg>';
+  wrap.innerHTML='<svg id="ring" viewBox="-96 -40 532 420"></svg>';
   host.appendChild(wrap);
   const sv=wrap.querySelector('svg');
   N.w=[];N.h=[];N.c=[];N.n=[];N.wrap=wrap;
@@ -171,7 +175,11 @@ function buildRing(host,onTap){
   }
   for(let i=0;i<12;i++){
     const [x,y]=pp(Rn,i);
-    const d=document.createElement('div'); d.className='nm';
+    const d=document.createElement('div');
+    /* слева от круга подпись прижата вправо, справа — влево, сверху и снизу
+       по центру: иначе двенадцать блоков наезжают друг на друга */
+    const side = Math.abs(x-C)<26 ? 'c' : (x<C ? 'l' : 'r');
+    d.className='nm nm-'+side;
     d.style.left=pcx(x); d.style.top=pcy(y);
     wrap.appendChild(d); N.n.push(d);
   }
