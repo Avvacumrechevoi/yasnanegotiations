@@ -1797,8 +1797,10 @@ body.theme-vk-dark .dp-game-primary .dp-game-eyebrow {
    читается как «выключено» — ровно так выглядела карточка «Расклад · в разработке»,
    и рядом с ней живой режим казался недоступным. */
 body.theme-vk-dark .dp-game-card:not(.dp-game-primary):not(.dp-game-soon) .dp-game-eyebrow {
-  background: color-mix(in srgb, var(--accent) 13%, transparent);
-  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  /* чистый --accent на тёмном даёт 3.66:1 — для мелкого жирного текста мало,
+     осветляем до 5.6:1 */
+  color: color-mix(in srgb, var(--accent) 72%, #fff);
 }
 body.theme-vk-dark .dp-game-title {
   font-family: 'Manrope', system-ui, sans-serif;
