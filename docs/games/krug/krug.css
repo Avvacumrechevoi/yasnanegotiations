@@ -180,6 +180,14 @@ table.res tr:last-child td{border:0}
   main.duo-col #wrap{max-width:none;width:100%;margin:0}
   main.duo-col > div:first-child{grid-column:1 / -1;margin-bottom:-16px}
   main.duo-col #kbot{align-self:center;max-width:420px}
+  /* Кольцо на десктопе вдвое крупнее мобильного, а текст в центре оставался
+     16 px и занимал 26% дырки против 59% на телефоне — выглядел потерянным.
+     Ореол растим вместе с кеглем, иначе он перестаёт перекрывать хорду. */
+  .mid b{font-size:22px;margin-bottom:4px}
+  .mid{font-size:14.5px;text-shadow:
+    0 0 4px var(--k-bg),0 0 4px var(--k-bg),0 0 4px var(--k-bg),
+    0 0 9px var(--k-bg),0 0 9px var(--k-bg),0 0 9px var(--k-bg),
+    0 0 15px var(--k-bg),0 0 15px var(--k-bg)}
 
   .grid{grid-template-columns:repeat(3,1fr);gap:10px}
   .tile{min-height:70px}
