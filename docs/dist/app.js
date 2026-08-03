@@ -1,4 +1,4 @@
-/* Yasna bundle: app.js — собран 2026-08-03T18:39:59.942Z */
+/* Yasna bundle: app.js — собран 2026-08-03T18:54:36.875Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {

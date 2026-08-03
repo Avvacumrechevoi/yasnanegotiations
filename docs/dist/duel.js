@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-08-03T18:40:00.078Z */
+/* Yasna bundle: duel.js — собран 2026-08-03T18:54:36.991Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -6174,7 +6174,7 @@ window.YasnaCore = {
 ;(function(){
 ;
 (function() {
-  const BUILD_INFO = { "builtAt": "2026-08-03T18:39:59.771Z", "contentVersion": "1.1.0", "files": 11, "themes": 11, "atomsTotal": 334, "questionsTotal": 168, "questionsLegacy": 100 };
+  const BUILD_INFO = { "builtAt": "2026-08-03T18:54:36.711Z", "contentVersion": "1.1.0", "files": 11, "themes": 11, "atomsTotal": 334, "questionsTotal": 168, "questionsLegacy": 100 };
   const THEMES = [
     {
       "id": "dzhiva-serdtse",

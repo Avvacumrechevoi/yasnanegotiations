@@ -697,3 +697,84 @@ html[data-theme='light'] {
 
 </body>
 </html>
+\n<script id="yasna-gate-lock">
+/* Сюда человека привёл замок с закрытой страницы (core/gate.js): спрашиваем
+   логин и пароль, и при совпадении возвращаем туда, куда он шёл.
+   В коде лежит ХЕШ, а не пароль — иначе пароль был бы виден и на сайте, и в
+   публичном репозитории. От подбора это не спасает, см. шапку core/gate.js. */
+(function () {
+  var HASH = '3ea6652a1d304b429b06453d803a505f83f2f28795acd202acb8a2da4116b2dc';
+  var PASS_KEY = 'yasna_gate_pass';
+
+  function sha256(text) {
+    if (!(window.crypto && window.crypto.subtle)) return Promise.reject(new Error('no-subtle'));
+    return window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)).then(function (buf) {
+      return Array.prototype.map.call(new Uint8Array(buf), function (b) {
+        return ('0' + b.toString(16)).slice(-2);
+      }).join('');
+    });
+  }
+
+  function go(back) {
+    if (!back || back.charAt(0) !== '/' || back.charAt(1) === '/') { location.replace('./'); return; }
+    var base = '';
+    var m = location.pathname.match(/^\/[^/]+\//);
+    if (location.hostname.indexOf('github.io') > -1 && m) base = m[0].slice(0, -1);
+    location.replace(base + back);
+  }
+
+  try {
+    var q = new URLSearchParams(location.search);
+    if (q.get('lock') !== '1') return;
+    var back = q.get('back') || '';
+
+    var css = document.createElement('style');
+    css.textContent = '.ygl-bg{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;'
+      + 'justify-content:center;padding:20px;background:rgba(10,11,13,.72);backdrop-filter:blur(6px)}'
+      + '.ygl-box{width:100%;max-width:360px;background:var(--k-card,#fff);color:#12151c;border-radius:18px;'
+      + 'padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.35);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}'
+      + '.ygl-box h2{margin:0 0 6px;font-size:19px}'
+      + '.ygl-box p{margin:0 0 16px;font-size:13.5px;color:#657183}'
+      + '.ygl-box input{width:100%;box-sizing:border-box;margin-bottom:10px;padding:11px 13px;font-size:15px;'
+      + 'border:1px solid #d8dbe2;border-radius:11px;background:#fff;color:#12151c}'
+      + '.ygl-box input:focus{outline:none;border-color:#0071e3}'
+      + '.ygl-box button{width:100%;padding:12px;font-size:15px;font-weight:650;color:#fff;background:#0071e3;'
+      + 'border:0;border-radius:11px;cursor:pointer}'
+      + '.ygl-err{min-height:18px;margin:8px 0 0;font-size:13px;color:#d5342b}'
+      + '.ygl-back{display:block;margin-top:14px;text-align:center;font-size:13px;color:#657183;text-decoration:none}';
+    document.head.appendChild(css);
+
+    var wrap = document.createElement('div');
+    wrap.className = 'ygl-bg';
+    wrap.innerHTML = '<div class="ygl-box" role="dialog" aria-modal="true" aria-label="Доступ к разделу">'
+      + '<h2>Раздел закрыт</h2>'
+      + '<p>Платформа в работе. Вход по служебному паролю.</p>'
+      + '<input id="ygl-login" type="text" autocomplete="username" placeholder="Логин" autocapitalize="off" spellcheck="false"/>'
+      + '<input id="ygl-pass" type="password" autocomplete="current-password" placeholder="Пароль"/>'
+      + '<button id="ygl-go" type="button">Войти</button>'
+      + '<p class="ygl-err" id="ygl-err"></p>'
+      + '<a class="ygl-back" href="./">← остаться на главной</a>'
+      + '</div>';
+
+    var mount = function () {
+      document.body.appendChild(wrap);
+      var lg = document.getElementById('ygl-login');
+      var pw = document.getElementById('ygl-pass');
+      var er = document.getElementById('ygl-err');
+      lg.focus();
+      var submit = function () {
+        er.textContent = '';
+        sha256((lg.value || '').trim() + ':' + (pw.value || '')).then(function (h) {
+          if (h !== HASH) { er.textContent = 'Не подходит'; pw.value = ''; pw.focus(); return; }
+          try { localStorage.setItem(PASS_KEY, '1'); } catch (e) {}
+          go(back);
+        }).catch(function () { er.textContent = 'Браузер не поддерживает проверку'; });
+      };
+      document.getElementById('ygl-go').addEventListener('click', submit);
+      wrap.addEventListener('keydown', function (e) { if (e.key === 'Enter') submit(); });
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount);
+    else mount();
+  } catch (e) {}
+})();
+</script>
