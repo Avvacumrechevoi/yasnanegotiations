@@ -52,7 +52,7 @@ const POS=[
    кольцо, и грамматика «внизу темно, наверху светло» пропадала. Снаружи они
    не мешают цвету, и круг можно сделать крупнее. */
 const C=170,R=132,Ri=78,Rn=150,NS='http://www.w3.org/2000/svg';
-const VB={x:-78,y:-34,w:420,h:372};
+const VB={x:-78,y:-34,w:488,h:372};
 const ang=i=>90+30*i;
 const pa=(r,a)=>[C+r*Math.cos(a*Math.PI/180),C+r*Math.sin(a*Math.PI/180)];
 const pp=(r,i)=>pa(r,ang(i));
