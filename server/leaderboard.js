@@ -66,9 +66,18 @@ const CORS = {
    включите параллелизм внутри экземпляра — переделать на возврат копии.
    Vary: Origin обязателен, иначе промежуточный кэш отдаст чужому домену
    ответ, выписанный для нашего. */
-const ALLOWED_ORIGINS = (process.env.ALLOW_ORIGIN
-  || 'https://avvacumrechevoi.github.io,https://yasnalab.ru,https://www.yasnalab.ru')
-  .split(',').map(s => s.trim()).filter(Boolean);
+const ALLOWED_ORIGINS = [
+  'https://avvacumrechevoi.github.io',   // прежний адрес, живёт до конца переезда
+  'https://yasnalab.ru',                 // свой домен
+  'https://www.yasnalab.ru',
+].concat(
+  /* ALLOW_ORIGIN здесь ДОБАВЛЯЕТ адрес, а не заменяет список. Так вышло не из
+     красоты: scripts/deploy-backend.sh переносит окружение со старой версии и
+     запрещает запятые в значениях (--environment сам разделяется запятыми),
+     поэтому передать список переменной невозможно. Домены сайта — не секрет,
+     им место в коде; переменная остаётся для разового адреса вроде превью. */
+  String(process.env.ALLOW_ORIGIN || '').split(/[,\s]+/).map(s => s.trim()).filter(Boolean)
+).filter((v, i, a) => a.indexOf(v) === i);
 
 function applyCors(event){
   const h = (event && event.headers) || {};
