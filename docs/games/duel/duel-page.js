@@ -2159,10 +2159,11 @@
           '«В Ясне не выигрывают и не проигрывают.', React.createElement('br'),
           'Здесь играют — это и есть смысл.»'
         ),
+        /* Ссылку на репозиторий убрали намеренно: она указывала на исходники
+           прямо из подвала, то есть выдавала и площадку, и точное имя проекта
+           тому, кто вообще не искал. */
         React.createElement('div', null,
-          React.createElement('a', { href: 'index.html' }, 'К Ясне'),
-          ' · ',
-          React.createElement('a', { href: 'https://github.com/Avvacumrechevoi/yasnanegotiations', target: '_blank', rel: 'noopener' }, 'GitHub')
+          React.createElement('a', { href: 'index.html' }, 'К Ясне')
         ),
         React.createElement('div', { className: 'dp-footer-version' }, 'Ясна · v2.0 · мая 2026')
       ),
