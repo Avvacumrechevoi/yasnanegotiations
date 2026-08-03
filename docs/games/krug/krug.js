@@ -183,7 +183,13 @@ function buildRing(host,onTap){
     d.style.left=pcx(x); d.style.top=pcy(y);
     wrap.appendChild(d); N.n.push(d);
   }
-  N.mid=document.createElement('div'); N.mid.className='mid'; wrap.appendChild(N.mid);
+  N.mid=document.createElement('div'); N.mid.className='mid';
+  /* Центр кольца в канве не совпадает с центром блока: viewBox смещён, чтобы
+     дать место подписям. Позицию считаем той же формулой, что и подписи, —
+     зашитые 50%/47.4% уводили счётчик влево и вверх, и его подложка
+     выгрызала белое пятно из левой доли. */
+  N.mid.style.left=pcx(C); N.mid.style.top=pcy(C);
+  wrap.appendChild(N.mid);
   return wrap;
 }
 function light(i,by){
