@@ -143,7 +143,10 @@ let LIST=[];
 const N={w:[],h:[],c:[],n:[],mid:null,wrap:null};
 function buildRing(host,onTap){
   const wrap=document.createElement('div'); wrap.id='wrap';
-  wrap.innerHTML='<svg id="ring" viewBox="-78 -34 420 372"></svg>';
+  /* viewBox ОБЯЗАН строиться из VB: подписи и счётчик позиционируются формулами
+     pcx/pcy по тому же VB, и зашитая копия чисел разъезжается с ними при любой
+     правке холста — весь текстовый слой уезжал на 56 px влево от центра. */
+  wrap.innerHTML='<svg id="ring" viewBox="'+VB.x+' '+VB.y+' '+VB.w+' '+VB.h+'"></svg>';
   host.appendChild(wrap);
   const sv=wrap.querySelector('svg');
   N.w=[];N.h=[];N.c=[];N.n=[];N.wrap=wrap;
