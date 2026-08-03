@@ -38,9 +38,9 @@
     // ── учебный прогресс ──
     yasna_completed_lessons_v1: { scope: 'progress', json: true,  owner: 'app.js',             about: 'пройденные уроки курса' },
     yasna_course_progress:      { scope: 'progress', json: true,  owner: 'learn.html',         about: 'прогресс по карте курса' },
-    yasna_path_stats:           { scope: 'progress', json: true,  owner: 'start.html',         about: 'статистика пути' },
+    yasna_path_stats:           { scope: 'progress', json: true,  owner: 'index.html',         about: 'статистика пути' },
     yasna_learn_intro_done_v1:  { scope: 'progress', json: false, owner: 'learn.html',         about: 'вводный экран обучения пройден' },
-    yasna_visited:              { scope: 'progress', json: false, owner: 'start.html',         about: 'был ли первый визит' },
+    yasna_visited:              { scope: 'progress', json: false, owner: 'index.html',         about: 'был ли первый визит' },
 
     // ── игровой прогресс ──
     yasna_duel_data:            { scope: 'progress', json: true,  owner: 'games/duel/duel.js', about: 'история партий, бусины, мастерство по темам' },

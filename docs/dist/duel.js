@@ -1,4 +1,4 @@
-/* Yasna bundle: duel.js — собран 2026-08-03T18:06:16.075Z */
+/* Yasna bundle: duel.js — собран 2026-08-03T18:12:29.124Z */
 /* ─── core/data.js ─── */
 ;(function(){
 (function() {
@@ -24887,7 +24887,7 @@ window.YasnaCore = {
               className: "dp-btn"
             }, "\u041F\u0435\u0440\u0435\u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C"),
             React.createElement("a", {
-              href: "start.html",
+              href: "index.html",
               className: "dp-btn dp-btn-primary",
               style: { textDecoration: "none" }
             }, "\u041A \u042F\u0441\u043D\u0435")
@@ -25000,7 +25000,7 @@ window.YasnaCore = {
       // Лого = «домой» (на лендинг) — единая конвенция со всеми страницами.
       React.createElement(
         "a",
-        { href: "start.html", className: "ynav-home dp-header-home", title: "\u041D\u0430 \u0433\u043B\u0430\u0432\u043D\u0443\u044E \u2014 \u043B\u0435\u043D\u0434\u0438\u043D\u0433 \u042F\u0441\u043D\u044B" },
+        { href: "index.html", className: "ynav-home dp-header-home", title: "\u041D\u0430 \u0433\u043B\u0430\u0432\u043D\u0443\u044E \u2014 \u043B\u0435\u043D\u0434\u0438\u043D\u0433 \u042F\u0441\u043D\u044B" },
         React.createElement("span", { className: "ynav-mark", "aria-hidden": "true" }, "\u2726"),
         React.createElement("span", { className: "ynav-name" }, "\u042F\u0441\u043D\u0430")
       ),
@@ -27312,7 +27312,7 @@ window.YasnaCore = {
         React.createElement(
           "div",
           null,
-          React.createElement("a", { href: "start.html" }, "\u041A \u042F\u0441\u043D\u0435"),
+          React.createElement("a", { href: "index.html" }, "\u041A \u042F\u0441\u043D\u0435"),
           " \xB7 ",
           React.createElement("a", { href: "https://github.com/Avvacumrechevoi/yasnanegotiations", target: "_blank", rel: "noopener" }, "GitHub")
         ),

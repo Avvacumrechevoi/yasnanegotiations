@@ -8,7 +8,7 @@
    ═══════════════════════════════════════════════════════════════════ */
 (function(){
   var SECTIONS = [
-    { sec:'constructor', label:'Конструктор', href:'index.html'  },
+    { sec:'constructor', label:'Конструктор', href:'konstruktor.html'  },
     { sec:'game',        label:'Игра',        href:'duel.html', badge:'NEW' },
     { sec:'learn',       label:'Обучение',    href:'learn.html' },
     { sec:'trainers',    label:'Тренажёры',   href:'trainers.html' }
@@ -29,7 +29,7 @@
       return '<a class="ynav-item' + active + '" href="' + s.href + '" data-sec="' + s.sec + '">' + s.label + badge + '</a>';
     }).join('');
     return ''
-      + '<a class="ynav-home" href="start.html" title="На главную — лендинг Ясны">'
+      + '<a class="ynav-home" href="index.html" title="На главную — лендинг Ясны">'
       +   '<span class="ynav-mark" aria-hidden="true">✦</span>'
       +   '<span class="ynav-name">Ясна</span>'
       + '</a>'
@@ -59,7 +59,7 @@
     syncThemeBtn();
   }
 
-  // Области каталога — из ACCESS_DESIGN.md; 'learn' в шапке = area 'course'.
+  // Области каталога — из docs-internal/ACCESS_DESIGN.md; 'learn' в шапке = area 'course'.
   var AREA_BY_SEC = { constructor:'constructor', game:'game', learn:'course', trainers:'trainers' };
 
   // Каждый раздел шапки объявляет себя в черновике каталога. Это НЕ права:

@@ -62,7 +62,7 @@
               className: 'dp-btn'
             }, 'Перезагрузить'),
             React.createElement('a', {
-              href: 'start.html',
+              href: 'index.html',
               className: 'dp-btn dp-btn-primary',
               style: { textDecoration: 'none' }
             }, 'К Ясне')
@@ -178,7 +178,7 @@
 
     return React.createElement('header', { className: 'dp-header' },
       // Лого = «домой» (на лендинг) — единая конвенция со всеми страницами.
-      React.createElement('a', { href: 'start.html', className: 'ynav-home dp-header-home', title: 'На главную — лендинг Ясны' },
+      React.createElement('a', { href: 'index.html', className: 'ynav-home dp-header-home', title: 'На главную — лендинг Ясны' },
         React.createElement('span', { className: 'ynav-mark', 'aria-hidden': 'true' }, '✦'),
         React.createElement('span', { className: 'ynav-name' }, 'Ясна')
       ),
@@ -2160,7 +2160,7 @@
           'Здесь играют — это и есть смысл.»'
         ),
         React.createElement('div', null,
-          React.createElement('a', { href: 'start.html' }, 'К Ясне'),
+          React.createElement('a', { href: 'index.html' }, 'К Ясне'),
           ' · ',
           React.createElement('a', { href: 'https://github.com/Avvacumrechevoi/yasnanegotiations', target: '_blank', rel: 'noopener' }, 'GitHub')
         ),
@@ -2188,7 +2188,7 @@
         // при публикации правок в админке (Tier-2 overrides из YDB) ACTIVE_THEMES
         // пересобирается. Темы баседайн (фиксированы в content/*.json), но если
         // у темы 0 вопросов после правок — отфильтровываем здесь, чтобы игрок
-        // не мог выбрать пустую тему. См. docs/CONTENT_ARCHITECTURE.md.
+        // не мог выбрать пустую тему. См. docs-internal/CONTENT_ARCHITECTURE.md.
         const allThemesRaw = (window.YasnaTrivia && window.YasnaTrivia.getThemes()) || [];
         const allThemes = allThemesRaw.filter(t => {
           const qs = window.YasnaTrivia?.getQuestionsForTheme?.(t.id) || [];

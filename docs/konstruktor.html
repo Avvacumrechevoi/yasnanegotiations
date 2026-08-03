@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="robots" content="noindex, nofollow"/>
+<meta name="yandex" content="noindex, nofollow"/>
+<!-- Единая тема (core/theme.js, ключ yasna_theme). Адаптер: dark → body.theme-vk-dark (как раньше). -->
+<script>window.YasnaThemeAdapter=function(d){if(document.body)document.body.classList.toggle('theme-vk-dark',d==='dark');};</script>
+<script src="core/theme.js?v=37af65b1"></script>
+<script src="core/storage.js?v=c79cf748"></script>
+<script src="core/access.js?v=3ae5d2f4"></script>
+<script src="core/account.js?v=f41ef438"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<meta name="theme-color" content="#0071e3"/>
+<title>Конструктор ясн · Ясна</title>
+<meta name="description" content="Метод Ясны — увидеть устройство любого явления в 12-частной структуре. Уроки, гид, проверка, дуэль с Тенью."/>
+
+<!-- Open Graph / shared link previews -->
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Ясна — интерактивный тренажёр"/>
+<meta property="og:description" content="Метод Ясны: увидеть устройство любого явления в 12-частной структуре. Уроки · гид · проверка · дуэль."/>
+<meta property="og:url" content="https://avvacumrechevoi.github.io/yasnanegotiations/"/>
+<meta name="twitter:card" content="summary"/>
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>"/>
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230071e3' rx='20'/><text y='.85em' x='50' text-anchor='middle' font-size='80' fill='white'>✦</text></svg>"/>
+<link rel="manifest" href="manifest.webmanifest"/>
+
+<!-- API endpoints (читаются клиентом из meta — позволяет инжектить через CI без правки исходников). -->
+<!-- При деплое replace тегов через sed/envsubst, либо настройка через GitHub Actions secrets. -->
+<meta name="yasna:api"    content="https://d5dmdje8c5mk8811il5j.iwzqm34r.apigw.yandexcloud.net"/>
+<meta name="yasna:tg-bot" content="YasnaDuelBot"/>
+
+<link rel="stylesheet" href="styles.css?v=60e4a258"/>
+<!-- VK Tech Design System — токены (Figma 19:92826) -->
+<link rel="stylesheet" href="vk-tech-tokens.css?v=fce6c447"/>
+<!-- theme-vk-dark-guide.css — экспериментальные dark-тюнинги гида, только в preview-дереве (в корне файла нет → линк убран, чтобы не было 404) -->
+<!-- Единый верхний свитчер разделов (Вариант B) -->
+<link rel="stylesheet" href="core/site-nav.css?v=f8cd9a99"/>
+
+<!-- Конструктор переехал с корня: теперь по адресу сайта открывается лендинг
+     (index.html), а конструктор живёт здесь, konstruktor.html. -->
+
+</head>
+<body>
+<!-- color-scheme guard: конструктор по умолчанию СВЕТЛЫЙ. Объявляем схему явно ДО рендера,
+     чтобы системный тёмный режим браузера НЕ перекрашивал светлые карточки принудительно
+     (force-dark делал тёмный текст серым-невидимым). Тёмная тема приложения → colorScheme:dark. -->
+<script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.setAttribute('data-theme',d?'dark':'light');document.documentElement.style.colorScheme=d?'dark':'light';if(d)document.body.classList.add('theme-vk-dark');}catch(e){}</script>
+<div id="root"></div>
+
+<!-- React + Three.js + PeerJS из CDN — внешние библиотеки -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
+<!-- Читаем API config из meta-тегов в окно (для backward-compat с window.YASNA_*) -->
+<script>
+  (function(){
+    var m = function(n){ var el = document.querySelector('meta[name="yasna:'+n+'"]'); return el ? el.getAttribute('content') : ''; };
+    window.YASNA_LEADERBOARD_API = m('api') || '';
+    window.YASNA_TG_BOT = m('tg-bot') || '';
+  })();
+</script>
+
+<!-- Pre-built bundle (см. scripts/build.mjs · npm run build) -->
+<!-- Включает: core/* + lessons/* + tours/* + games/duel/* + app.js -->
+<!-- Без bundle браузер качал бы babel-standalone ~3MB и компилировал JSX в рантайме. -->
+<script src="dist/app.min.js?v=a94a9822"></script>
+
+<!-- ═══ VK Dark Theme Toggle ═══════════════════════════════════════
+     Переключатель тёмной темы — инжектится прямо в .hdr-btns
+     (где соседствуют другие хедер-кнопки: «Гид», «⤢ полноэкран»).
+     React не управляет нашей кнопкой — мы её добавляем через DOM.
+     MutationObserver re-инжектит если React пере-смонтирует .hdr-btns.
+     На мобиле кнопка живёт в свободном top-right (иконка-only).
+     ─────────────────────────────────────────────────────────────── -->
+<script>
+(function(){
+  'use strict';
+  var STORAGE_KEY = 'yasna_theme_vk_dark';
+  var BODY_CLASS = 'theme-vk-dark';
+
+  function isOn(){
+    try { if(window.Theme) return window.Theme.resolve() === 'dark'; return localStorage.getItem(STORAGE_KEY) === '1'; }
+    catch(_){ return false; }
+  }
+  function applyClass(on){
+    if(on) document.body.classList.add(BODY_CLASS);
+    else document.body.classList.remove(BODY_CLASS);
+  }
+  function updateButton(btn, on){
+    if(!btn) return;
+    var icon = btn.querySelector('.dp-theme-toggle-icon');
+    var label = btn.querySelector('.dp-theme-toggle-label');
+    if(icon)  icon.textContent  = on ? '☀' : '🌑';
+    if(label) label.textContent = on ? 'Светлая' : 'Тёмная';
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.title = on
+      ? 'Выключить экспериментальную тёмную тему'
+      : 'Включить экспериментальную тёмную тему';
+  }
+  function applyAll(on){
+    applyClass(on);
+    document.querySelectorAll('.dp-theme-toggle').forEach(function(b){ updateButton(b, on); });
+  }
+  function toggle(){
+    if(window.Theme){ window.Theme.cycle(); applyAll(isOn()); return; }   // единый ключ
+    var next = !isOn();
+    try { localStorage.setItem(STORAGE_KEY, next ? '1' : '0'); } catch(_){}
+    applyAll(next);
+  }
+  // обновлять кнопку/класс, если тему сменили в другой вкладке или из системы
+  if(window.Theme && window.Theme.onChange){ window.Theme.onChange(function(){ applyAll(isOn()); }); }
+
+  // Применяем СРАЗУ (до первой отрисовки если возможно)
+  applyClass(isOn());
+
+  function makeButton(variant){
+    var btn = document.createElement('button');
+    btn.className = 'dp-theme-toggle' + (variant ? ' dp-theme-toggle--' + variant : '');
+    btn.type = 'button';
+    // Header-вариант — только иконка (экономим место). Floating mobile — иконка тоже.
+    var iconOnly = (variant === 'header' || variant === 'floating');
+    btn.innerHTML = iconOnly
+      ? '<span class="dp-theme-toggle-icon" aria-hidden="true">🌑</span>'
+      : '<span class="dp-theme-toggle-icon" aria-hidden="true">🌑</span>' +
+        '<span class="dp-theme-toggle-label">Тёмная</span>';
+    btn.addEventListener('click', toggle);
+    updateButton(btn, isOn());
+    return btn;
+  }
+
+  // ─── Инжект в .hdr-btns (desktop хедер) ───
+  // Кнопка вставляется ПОСЛЕДНИМ ребёнком, рядом с «⤢». MutationObserver
+  // следит — если React пере-смонтировал хедер, инжектим заново.
+  function injectIntoHeader(){
+    var hdrBtns = document.querySelector('.hdr-btns');
+    if(hdrBtns && !hdrBtns.querySelector(':scope > .dp-theme-toggle')){
+      var btn = makeButton('header');
+      // Вставляем ПЕРЕД кнопкой «Войти» (если есть) — иначе в конец.
+      var profileBtn = hdrBtns.querySelector(':scope > .hdr-btn-profile');
+      if(profileBtn){
+        hdrBtns.insertBefore(btn, profileBtn);
+      } else {
+        hdrBtns.appendChild(btn);
+      }
+    }
+    // Mobile: floating уже не нужен — тема живёт внутри бургера.
+    // Оставляем код для обратной совместимости, но скрыт через CSS @media.
+    if(!document.querySelector('body > .dp-theme-toggle--floating')){
+      var fbtn = makeButton('floating');
+      document.body.appendChild(fbtn);
+    }
+  }
+
+  function startObserver(){
+    injectIntoHeader();
+    var obs = new MutationObserver(function(mutations){
+      // Если кнопки пропали (React re-mount) — инжектим заново.
+      if(!document.querySelector('.hdr-btns > .dp-theme-toggle--header') ||
+         !document.querySelector('body > .dp-theme-toggle--floating')){
+        injectIntoHeader();
+      }
+    });
+    obs.observe(document.body, { childList: true, subtree: true });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', startObserver);
+  } else {
+    startObserver();
+  }
+})();
+</script>
+</body>
+</html>

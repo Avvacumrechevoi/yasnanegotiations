@@ -657,7 +657,7 @@
   // ═══ bootstrap ════════════════════════════════════════════════════
   // Спарринг объявляет себя в черновике каталога. Уровни — sensitive:true:
   // в объекте уровня лежит LLM-модель, то есть закрытие уровня обязано
-  // проверяться сервером, витринного гейта мало (см. ACCESS_DESIGN.md §4).
+  // проверяться сервером, витринного гейта мало (см. docs-internal/ACCESS_DESIGN.md §4).
   try {
     if (window.YasnaAccess && window.YasnaAccess.declare) {
       var declNodes = [{ feature: 'neg:spar', area: 'trainers', parent: 'section:trainers',

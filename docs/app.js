@@ -926,14 +926,14 @@ function App(){
   return(
     <div style={{background:'var(--bg)',height:'100vh',display:'flex',flexDirection:'column'}}>
       <div className='hdr' style={{display:'flex',alignItems:'center',padding:'10px 20px',background:'var(--bg2)',borderBottom:'1px solid rgba(0,0,0,.06)',flexShrink:0,minHeight:56}}>
-        <a href='start.html' title='На главную — лендинг Ясны' style={{display:'flex',alignItems:'center',textDecoration:'none',flexShrink:0}}>
+        <a href='index.html' title='На главную — лендинг Ясны' style={{display:'flex',alignItems:'center',textDecoration:'none',flexShrink:0}}>
           <span style={{fontSize:20,color:'#0071e3',marginRight:6}}>✦</span>
           <span className='hdr-brand-desk' style={{fontFamily:'var(--serif)',fontSize:17,color:'#1d1d1f',fontWeight:700,marginRight:12,letterSpacing:-0.3}}>Ясна</span>
           <span className='hdr-title-mob' style={{display:'none',fontFamily:'var(--serif)',fontSize:20,color:'#1d1d1f',fontWeight:700,marginRight:6,letterSpacing:-0.2}}>Ясна</span>
         </a>
         {/* Свитчер разделов (Вариант B) — десктоп; на мобайле разделы в бургере */}
         <nav className='ynav-links hdr-switch' style={{flex:'0 1 auto',marginRight:6}} aria-label='Разделы'>
-          <a className='ynav-item is-active' href='index.html'>Конструктор</a>
+          <a className='ynav-item is-active' href='konstruktor.html'>Конструктор</a>
           <a className='ynav-item' href='duel.html'>Игра<span className='ynav-new'>NEW</span></a>
           <a className='ynav-item' href='learn.html'>Обучение</a>
           <a className='ynav-item' href='trainers.html'>Тренажёры</a>
@@ -1006,7 +1006,7 @@ function App(){
           {menu&&<div style={{position:'absolute',top:'100%',right:0,marginTop:4,background:'#fff',border:'1px solid #e5e5ea',borderRadius:12,boxShadow:'0 8px 30px rgba(0,0,0,.12)',zIndex:80,minWidth:260,maxWidth:'calc(100vw - 24px)',maxHeight:'calc(100vh - 80px)',overflowY:'auto'}}>
             {/* Разделы (Вариант B) — навигация между страницами */}
             <div style={{padding:'12px 16px 6px',fontSize:11,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',color:'#86868b'}}>Разделы</div>
-            <a href='index.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'#0058b8',fontWeight:700,borderBottom:'1px solid #f5f5f7',background:'rgba(0,113,227,.06)',textDecoration:'none'}}>Конструктор</a>
+            <a href='konstruktor.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'#0058b8',fontWeight:700,borderBottom:'1px solid #f5f5f7',background:'rgba(0,113,227,.06)',textDecoration:'none'}}>Конструктор</a>
             <a href='duel.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'#1d1d1f',borderBottom:'1px solid #f5f5f7',background:'#fff',textDecoration:'none'}}>Игра</a>
             <a href='learn.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'#1d1d1f',borderBottom:'1px solid #f5f5f7',background:'#fff',textDecoration:'none'}}>Обучение</a>
             <a href='trainers.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'#1d1d1f',borderBottom:'1px solid #f5f5f7',background:'#fff',textDecoration:'none'}}>Тренажёры</a>

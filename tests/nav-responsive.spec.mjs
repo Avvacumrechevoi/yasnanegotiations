@@ -6,7 +6,7 @@ import { test, expect } from '@playwright/test';
 //   • каждая страница отвечает 200;
 //   • единый свитчер: все 4 раздела ДОСТИЖИМЫ (на десктопе — инлайн,
 //     на мобайле у конструктора — в бургере «Разделы»);
-//   • логотип ведёт на лендинг (start.html);
+//   • логотип ведёт на лендинг (index.html, он же корень);
 //   • нет горизонтального переполнения страницы;
 //   • на узких телефонах (375px) последний раздел свитчера НЕ обрезан.
 // Mobile прогоняем через resize вьюпорта (а не отдельный проект),
@@ -20,13 +20,13 @@ import { test, expect } from '@playwright/test';
 // страницей (ссылки из игры), но в шапке её нет, поэтому .is-active по ней не
 // проверяем.
 const PAGES = [
-  { path: '/',              name: 'Конструктор', spa: true,  active: 'index.html'    },
+  { path: '/konstruktor.html', name: 'Конструктор', spa: true,  active: 'konstruktor.html' },
   { path: '/duel.html',     name: 'Игра',        spa: true,  active: 'duel.html'     },
-  { path: '/start.html',    name: 'Лендинг',     spa: false, active: null            },
+  { path: '/',              name: 'Лендинг',     spa: false, active: null            },
   { path: '/learn.html',    name: 'Обучение',    spa: false, active: 'learn.html'    },
   { path: '/trainers.html', name: 'Тренажёры',   spa: false, active: 'trainers.html' },
 ];
-const SECTION_HREFS = ['index.html', 'duel.html', 'learn.html', 'trainers.html'];
+const SECTION_HREFS = ['konstruktor.html', 'duel.html', 'learn.html', 'trainers.html'];
 
 // Опорная ссылка для «бар отрисован» — берём последний раздел набора.
 const ANCHOR_HREF = 'trainers.html';
@@ -78,8 +78,8 @@ for (const vp of [
         await waitBar(page);
 
         // 1) логотип → лендинг
-        const logo = page.locator('.ynav-home[href="start.html"], .hdr a[href="start.html"], .dp-header-home[href="start.html"]').first();
-        await expect(logo, 'логотип должен вести на start.html').toHaveCount(1);
+        const logo = page.locator('.ynav-home[href="index.html"], .hdr a[href="index.html"], .dp-header-home[href="index.html"]').first();
+        await expect(logo, 'логотип должен вести на index.html').toHaveCount(1);
 
         // 2) все 4 раздела достижимы (мобайл-конструктор: разрешаем бургер)
         const allowBurger = p.spa && p.name === 'Конструктор' && vp.w <= 768;

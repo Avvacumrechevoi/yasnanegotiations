@@ -78,7 +78,7 @@ test.describe('Главное приложение', () => {
     // страницы «Тренажёры» или диплинком ?lessons=1 (app.js обрабатывает его и
     // чистит URL). Тест шёл прежним путём и падал по таймауту на несуществующей
     // кнопке. Идём актуальным входом.
-    await page.goto('/index.html?lessons=1');
+    await page.goto('/konstruktor.html?lessons=1');
     await page.waitForFunction(() => !!window.YasnaCore && !!window.YasnaLessons);
     // Должен появиться LessonPicker — заголовок "Курс по Ясне"
     await expect(page.getByText(/Курс по Ясне|Метод Ясны/).first()).toBeVisible({ timeout: 5000 });

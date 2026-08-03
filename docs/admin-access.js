@@ -464,8 +464,8 @@
   // каталог» открывает страницы в скрытых iframe того же origin, читает
   // из каждого YasnaAccess.declared() и сливает. Плюс накопленный черновик
   // localStorage этой страницы (catalog() с source != 'server').
-  var HARVEST_PAGES = ['index.html', 'duel.html', 'learn.html', 'trainers.html',
-                       'start.html', 'rating.html', 'negotiations.html'];
+  var HARVEST_PAGES = ['konstruktor.html', 'duel.html', 'learn.html', 'trainers.html',
+                       'index.html', 'rating.html', 'negotiations.html'];
 
   function pickNode(n) {
     return { feature: n.feature, area: n.area, parent: n.parent, title: n.title,
