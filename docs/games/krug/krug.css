@@ -165,11 +165,11 @@ table.res tr:last-child td{border:0}
   .khd{padding:6px 0 16px}
   .ttl{font-size:18px}
 
-  main.duo-col{display:grid;grid-template-columns:minmax(420px,1.35fr) minmax(300px,.85fr);
+  main.duo-col{display:grid;grid-template-columns:minmax(460px,1.7fr) minmax(300px,.75fr);
     gap:48px;align-items:center;min-height:calc(100dvh - 190px)}
   main.duo-col #wrap{max-width:none;width:100%;margin:0}
   main.duo-col > div:first-child{grid-column:1 / -1;margin-bottom:-16px}
-  main.duo-col #kbot{align-self:center;max-width:460px}
+  main.duo-col #kbot{align-self:center;max-width:420px}
 
   .grid{grid-template-columns:repeat(3,1fr);gap:10px}
   .tile{min-height:70px}
