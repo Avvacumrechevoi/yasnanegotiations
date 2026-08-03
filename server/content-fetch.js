@@ -41,15 +41,35 @@ async function getDriver(){
   return driver;
 }
 
-const ALLOW_ORIGIN = process.env.ALLOW_ORIGIN || 'https://avvacumrechevoi.github.io';
 const CORS = {
-  'Access-Control-Allow-Origin': ALLOW_ORIGIN,
+  // адрес проставляется на запрос в applyCors(), см. ниже
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, If-None-Match',
   'Content-Type': 'application/json',
   // Кэш на 5 минут с возможностью revalidate через ETag
   'Cache-Control': 'public, max-age=300, must-revalidate',
 };
+
+/* ── CORS для нескольких доменов ──────────────────────────────────────
+   Один зашитый адрес отдавался в ответ независимо от того, кто спрашивает.
+   Пока сайт жил только на github.io, это работало; при переезде на свой
+   домен браузер начал бы резать все запросы. Список нужен именно списком:
+   во время переезда оба адреса живые одновременно.
+   ALLOW_ORIGIN переопределяется переменной окружения — адреса через запятую.
+   Заголовок ставится на общий объект в начале обработчика: экземпляр функции
+   обслуживает один запрос за раз. Vary: Origin обязателен, иначе кэш отдаст
+   чужому домену ответ, выписанный для нашего. */
+const ALLOWED_ORIGINS = (process.env.ALLOW_ORIGIN
+  || 'https://avvacumrechevoi.github.io,https://yasnalab.ru,https://www.yasnalab.ru')
+  .split(',').map(s => s.trim()).filter(Boolean);
+
+function applyCors(event){
+  const h = (event && event.headers) || {};
+  const origin = h.origin || h.Origin || '';
+  CORS['Access-Control-Allow-Origin'] =
+    ALLOWED_ORIGINS.indexOf(origin) > -1 ? origin : ALLOWED_ORIGINS[0];
+  CORS['Vary'] = 'Origin';
+}
 
 const EMPTY_RESPONSE = {
   revisionId: null,
@@ -60,6 +80,7 @@ const EMPTY_RESPONSE = {
 };
 
 exports.handler = async (event) => {
+  applyCors(event);
   if(event.httpMethod === 'OPTIONS') return { statusCode:200, headers: CORS, body:'' };
 
   // Извлекаем If-None-Match для 304 fast-path
