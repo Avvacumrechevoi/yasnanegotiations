@@ -85,6 +85,16 @@ h2{font-size:19px;margin:0 0 4px;letter-spacing:-.2px}
   text-align:center;pointer-events:none;color:var(--k-tx3);font-size:12.5px;line-height:1.3}
 .mid b{display:block;color:var(--k-tx);font-size:16px;line-height:1.22;margin-bottom:3px;
   font-weight:650}
+/* Через центр проходят до шести хорд закрытых осей, и текст оказывался ими
+   перечёркнут: в тёмной теме цифры на золотой линии дают 1.24:1, в светлой
+   вторая строка — 1.34:1, а «Круг собран» в финале читалось как зачёркнутое.
+   Ореол цветом фона по форме букв поднимает текст над линиями. Круглую
+   подложку не берём: она съедает звезду закрытых осей целиком, оставляя от
+   хорд двенадцать обрубков по краю дырки, — проверено на живой странице. */
+.mid{text-shadow:
+  0 0 3px var(--k-bg),0 0 3px var(--k-bg),0 0 3px var(--k-bg),
+  0 0 7px var(--k-bg),0 0 7px var(--k-bg),0 0 7px var(--k-bg),
+  0 0 12px var(--k-bg),0 0 12px var(--k-bg)}
 .shake{animation:kshake .32s}
 @keyframes kshake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 
