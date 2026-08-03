@@ -91,10 +91,18 @@ h2{font-size:19px;margin:0 0 4px;letter-spacing:-.2px}
    Ореол цветом фона по форме букв поднимает текст над линиями. Круглую
    подложку не берём: она съедает звезду закрытых осей целиком, оставляя от
    хорд двенадцать обрубков по краю дырки, — проверено на живой странице. */
-.mid{text-shadow:
-  0 0 3px var(--k-bg),0 0 3px var(--k-bg),0 0 3px var(--k-bg),
-  0 0 7px var(--k-bg),0 0 7px var(--k-bg),0 0 7px var(--k-bg),
-  0 0 12px var(--k-bg),0 0 12px var(--k-bg)}
+.mid{
+  /* вторая строка была --k-tx3 — 4.54:1 на чистом фоне, впритык к AA ещё до
+     того, как под неё попадёт хорда; --k-tx2 даёт 7.17 в светлой и 8.69 в тёмной */
+  color:var(--k-tx2);
+  /* восемь жёстких сдвигов по 1px дают у самого глифа кольцо чистого фона:
+     одни размытия вплотную к штриху не доходят до непрозрачности, а контраст
+     меряется именно по этому пикселю. Размытия сверху — чтобы край не выглядел
+     наклейкой; больше 8px не берём, каждый пиксель свечения гасит звезду. */
+  text-shadow:
+    1px 0 0 var(--k-bg),-1px 0 0 var(--k-bg),0 1px 0 var(--k-bg),0 -1px 0 var(--k-bg),
+    1px 1px 0 var(--k-bg),1px -1px 0 var(--k-bg),-1px 1px 0 var(--k-bg),-1px -1px 0 var(--k-bg),
+    0 0 4px var(--k-bg),0 0 4px var(--k-bg),0 0 8px var(--k-bg)}
 .shake{animation:kshake .32s}
 @keyframes kshake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 
@@ -185,9 +193,9 @@ table.res tr:last-child td{border:0}
      Ореол растим вместе с кеглем, иначе он перестаёт перекрывать хорду. */
   .mid b{font-size:22px;margin-bottom:4px}
   .mid{font-size:14.5px;text-shadow:
-    0 0 4px var(--k-bg),0 0 4px var(--k-bg),0 0 4px var(--k-bg),
-    0 0 9px var(--k-bg),0 0 9px var(--k-bg),0 0 9px var(--k-bg),
-    0 0 15px var(--k-bg),0 0 15px var(--k-bg)}
+    1.5px 0 0 var(--k-bg),-1.5px 0 0 var(--k-bg),0 1.5px 0 var(--k-bg),0 -1.5px 0 var(--k-bg),
+    1.5px 1.5px 0 var(--k-bg),1.5px -1.5px 0 var(--k-bg),-1.5px 1.5px 0 var(--k-bg),-1.5px -1.5px 0 var(--k-bg),
+    0 0 5px var(--k-bg),0 0 5px var(--k-bg),0 0 10px var(--k-bg)}
 
   .grid{grid-template-columns:repeat(3,1fr);gap:10px}
   .tile{min-height:70px}
@@ -204,7 +212,6 @@ table.res tr:last-child td{border:0}
   .grid{grid-template-columns:repeat(4,1fr)}
   main.duo-col{gap:64px}
   .nm{font-size:13.5px;width:126px}
-}
 }
 
 /* ── доступность: с клавиатуры игра была непроходима ── */
@@ -232,4 +239,11 @@ table.res tr:last-child td{border:0}
     transition-duration:.01ms !important}
   .chord.on{stroke-dashoffset:0}
   .nm.on{opacity:1}
+}
+
+/* Единственный режим, где подложка уместнее ореола: при forced-colors браузер
+   гасит text-shadow и форсирует цвета, так что текст и хорда становятся одним
+   системным цветом. Здесь читаемость важнее звезды. */
+@media (forced-colors:active){
+  .mid{background:Canvas;text-shadow:none}
 }

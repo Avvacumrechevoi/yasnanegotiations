@@ -204,8 +204,10 @@ function light(i,by){
   if(by===0||by===1) N.n[i].dataset.by=by; else delete N.n[i].dataset.by;
 }
 function tie(k,col,free){ N.c[k].setAttribute('stroke',col||'var(--k-gold-ink)');
-  if(free) N.c[k].classList.add('free');
-  N.c[k].style.opacity=1; N.c[k].classList.add('on'); }
+  N.c[k].classList.toggle('free',!!free);
+  /* инлайновый opacity перебивал .chord.free{opacity:.55}: подаренная ось
+     рисовалась пунктиром, но в полную силу — как заслуженная */
+  N.c[k].style.opacity=free?.55:1; N.c[k].classList.add('on'); }
 function shake(){ if(!N.wrap) return; N.wrap.classList.remove('shake');
   void N.wrap.offsetWidth; N.wrap.classList.add('shake'); }
 
@@ -365,7 +367,9 @@ function render(){
   app().appendChild(el(`<div id="kbot"></div>`));
   /* восстановить уже поставленное (перерисовка круга) */
   for(let i=0;i<12;i++) if(S.placed[i]) light(i, S.by[i]===null?undefined:S.by[i]);
-  for(let k=0;k<6;k++) if(S.placed[k]&&S.placed[k+6]) tie(k, chordCol(k));
+  /* перерисовка теряла признак подаренной оси — передаём его так же, как в игре */
+  for(let k=0;k<6;k++) if(S.placed[k]&&S.placed[k+6])
+    tie(k, chordCol(k), S.mode==='duo'&&S.axBy[k]===null);
   hand();
 }
 function chordCol(k){
