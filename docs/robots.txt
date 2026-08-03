@@ -1,0 +1,12 @@
+# Сайт закрыт от индексации целиком — ни одна страница не должна попадать
+# в поиск. Работает в паре с <meta name="robots" content="noindex, nofollow">
+# на каждой странице: robots.txt запрещает обход, мета — показ в выдаче.
+User-agent: *
+Disallow: /
+
+# Явно для Яндекса — основной поиск аудитории
+User-agent: Yandex
+Disallow: /
+
+User-agent: Googlebot
+Disallow: /
