@@ -1649,6 +1649,9 @@
     const [welcomeName, setWelcomeName] = useState('');
     const baseUrl = window.YASNA_LEADERBOARD_API;
     const botUsername = window.YASNA_TG_BOT;
+    /* Приложение узнаётся по своей метке в строке браузера — её ставит
+       Capacitor (appendUserAgent в capacitor.config.json). */
+    const вПриложении = () => /YasnaApp\//.test(navigator.userAgent);
     useEffect(() => {
       window.onTelegramAuth = async (tgUser) => {
         setPhase('loading'); setError(null);
@@ -1739,6 +1742,14 @@
 
           !baseUrl
             ? VkSysMsg({ kind: 'error', icon: '⚠', title: 'Сервер временно недоступен', text: 'Зайди через несколько минут — мы уже чиним.' })
+            : вПриложении()
+              /* Виджет Telegram привязан и к домену в BotFather, и к
+                 браузерному окружению: внутри приложения он не заработает
+                 никогда. Показывать неработающую кнопку — врать; показывать
+                 отладочное «Бот не настроен» — врать вдвойне. Говорим прямо
+                 и оставляем вход по почте, который в приложении работает. */
+              ? VkSysMsg({ kind: 'info', icon: '✉', title: 'Вход через Telegram — только на сайте',
+                           text: 'В приложении входите по почте — кнопка ниже.' })
             : !botUsername
               ? VkSysMsg({ kind: 'error', icon: '⚙', title: 'Бот не настроен', text: 'Это превью-сборка. Авторизация через Telegram отключена.' })
               : React.createElement('div', {

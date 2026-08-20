@@ -1,0 +1,22 @@
+{
+  "name": "yasna-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Ясна — приложение для Android. Обёртка Capacitor вокруг витрины сайта.",
+  "scripts": {
+    "vitrina": "node sobrat-vitrinu.mjs",
+    "sync": "npm run vitrina && cap sync android",
+    "apk": "npm run sync && cd android && ./gradlew assembleDebug",
+    "aab": "npm run sync && cd android && ./gradlew bundleRelease"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/network": "^8.0.0",
+    "@capacitor/status-bar": "^8.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.0.0"
+  }
+}

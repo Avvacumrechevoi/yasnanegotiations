@@ -34,3 +34,7 @@ sa-key*.json
 *.p12
 *.pfx
 secrets*.json
+
+# Приложение: сборка витрины и зависимости Capacitor
+app/www/
+app/node_modules/

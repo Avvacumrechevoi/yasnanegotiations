@@ -1,0 +1,32 @@
+# Стандартный список Capacitor + Android, плюс наше.
+
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+
+# Витрина копируется сюда командой cap sync — это сборка, а не исходник.
+# Исходник лежит в docs/, а что из него берётся — в app/sobrat-vitrinu.mjs.
+/app/src/main/assets/public
+/app/src/main/assets/capacitor.config.json
+/app/src/main/assets/capacitor.plugins.json
+/app/src/main/res/xml/config.xml
+
+# Ключ подписи и пароли к нему. В репозиторий не попадают никогда:
+# потеря ключа = невозможность обновить приложение в магазине,
+# утечка ключа = чужое приложение под вашим именем.
+keystore.properties
+*.jks
+*.keystore
+app/release/
+app/debug/

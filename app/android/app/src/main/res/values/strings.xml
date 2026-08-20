@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Ясна</string>
+    <string name="title_activity_main">Ясна</string>
+    <string name="package_name">ru.yasnalab.yasna</string>
+    <string name="custom_url_scheme">ru.yasnalab.yasna</string>
+</resources>

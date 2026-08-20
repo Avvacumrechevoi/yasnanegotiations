@@ -2034,13 +2034,21 @@
           </div>
         )}
 
-        {baseUrl && !botUsername && (
+        {baseUrl && /YasnaApp\//.test(navigator.userAgent) && (
+          /* См. duel-page.js: в приложении виджет Telegram не работает
+             принципиально, и честнее сказать это словами. */
+          <div style={{padding:'10px 12px',background:'#eef4ff',borderRadius:8,fontSize:13,color:'#0b57c0'}}>
+            Вход через Telegram доступен на сайте. В приложении — по почте.
+          </div>
+        )}
+
+        {baseUrl && !botUsername && !/YasnaApp\//.test(navigator.userAgent) && (
           <div style={{padding:'8px 12px',background:'#fff',borderRadius:8,fontSize:12,color:'#dc2626'}}>
             Telegram Bot не настроен. Добавь <code style={{fontSize:11}}>window.YASNA_TG_BOT = "YourBotName"</code> в index.html.
           </div>
         )}
 
-        {baseUrl && botUsername && (
+        {baseUrl && botUsername && !/YasnaApp\//.test(navigator.userAgent) && (
           <>
             <div style={{display:'flex',justifyContent:'center',marginBottom:8}}>
               {/* Telegram Widget — рендерится здесь через innerHTML после mount */}
