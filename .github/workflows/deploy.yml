@@ -74,13 +74,71 @@ jobs:
         # забыл закоммитить. Без bundle в браузер уезжает ~3MB babel-standalone.
         run: npm run build
 
+      # ─── Витрина: на сайт уезжает только то, что предназначено посетителю ──
+      # Раньше на прод выкладывался docs/ целиком, вместе с .DS_Store и четырьмя
+      # README. Это та же дыра, что нашлась в yasna3 11.08.2026, когда на боевом
+      # домене открытым текстом лежали материалы запуска. Правило простое: всё,
+      # что попало в docs/, по умолчанию становится страницей сайта, — поэтому
+      # служебное вырезаем явно.
+      - name: Собрать витрину
+        run: |
+          set -eu
+          mkdir -p _site
+          rsync -a docs/ _site/ \
+            --exclude '.DS_Store' \
+            --exclude '*.md'
+          echo "— в витрине:"; find _site -maxdepth 1 | sort
+
+      # ─── Боевая выкладка: Object Storage в Яндекс Облаке ──────────────────
+      # Домен yasnalab.ru смотрит сюда: GitHub Pages фильтруется из московских
+      # сетей, а аудитория у нас московская. Тот же переезд уже сделан для
+      # zolotoj-yasen.ru 19.08.2026 — здесь повторён один в один.
+      #
+      # Ключ — служебного аккаунта yasna-deploy, у него единственная роль
+      # storage.editor: писать в хранилище и больше ничего. Шаг пропускается,
+      # если секретов в репозитории ещё нет, — чтобы выкладка на Pages не падала
+      # из-за незаконченной настройки.
+      - name: Выложить в Object Storage
+        if: ${{ env.YC_S3_KEY_ID != '' }}
+        env:
+          YC_S3_KEY_ID: ${{ secrets.YC_S3_KEY_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_S3_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_S3_SECRET }}
+          AWS_DEFAULT_REGION: ru-central1
+          EP: https://storage.yandexcloud.net
+          B: s3://yasnalab.ru
+        run: |
+          set -eu
+          aws s3 sync _site/ "$B/" --endpoint-url "$EP" --delete --no-progress
+
+          # Хранилище само тип файла не проставляет: .css уезжает как text/plain,
+          # и браузер такие стили не применяет — сайт открывается голым текстом.
+          # Поэтому типы задаём явно, отдельным проходом по каждому виду файлов.
+          fix() {
+            aws s3 cp "$B/" "$B/" --endpoint-url "$EP" --recursive --no-progress \
+              --exclude "*" --include "$1" \
+              --content-type "$2" --metadata-directive REPLACE
+          }
+          fix "*.html"        "text/html; charset=utf-8"
+          fix "*.css"         "text/css; charset=utf-8"
+          fix "*.js"          "text/javascript; charset=utf-8"
+          fix "*.json"        "application/json; charset=utf-8"
+          fix "*.webmanifest" "application/manifest+json; charset=utf-8"
+          fix "*.svg"         "image/svg+xml"
+          fix "*.txt"         "text/plain; charset=utf-8"
+
+          echo "— в хранилище:"; aws s3 ls "$B/" --endpoint-url "$EP" | head -20
+
+      # ─── Запасная площадка: GitHub Pages ──────────────────────────────────
+      # Держим свежей намеренно: если хранилище или CDN откажут, домен
+      # возвращается сюда одной правкой DNS.
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs
+          path: _site
 
       - name: Deploy to GitHub Pages
         id: deployment
