@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Нет сети · Ясна</title>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<meta name="theme-color" content="#0071e3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0b0d" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="vendor/fonts/shrifty.css">
+<style>
+  :root{ --bg:#fff; --ink:#111827; --ink-2:#5b6472; --line:rgba(17,24,39,.14); --accent:#0071e3 }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#0a0b0d; --ink:#e9edf3; --ink-2:#98a2b3; --line:rgba(233,237,243,.16); --accent:#5aa9ff }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100dvh;display:grid;place-items:center;padding:28px;
+       background:var(--bg);color:var(--ink);
+       font:400 16px/1.6 Inter,system-ui,-apple-system,sans-serif}
+  main{max-width:44ch;text-align:center}
+  img{width:72px;height:72px;border-radius:18px;display:block;margin:0 auto 22px}
+  h1{font:600 26px/1.2 Manrope,Inter,system-ui,sans-serif;margin:0;letter-spacing:-.01em}
+  p{color:var(--ink-2);margin:14px 0 0}
+  .go{margin:26px 0 0;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  button,a.btn{font:600 15px/1 inherit;padding:12px 18px;border-radius:10px;cursor:pointer;
+       border:1px solid var(--line);background:transparent;color:var(--ink);text-decoration:none}
+  button.main{background:var(--accent);border-color:var(--accent);color:#fff}
+  button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body>
+<main>
+  <img src="assets/icons/icon-192.png" alt="">
+  <h1>Сети нет</h1>
+  <p>Эта страница ещё не сохранена на устройстве. Открытые раньше страницы
+     открываются и без сети — попробуйте вернуться назад.</p>
+  <div class="go">
+    <button class="main" type="button" onclick="location.reload()">Попробовать снова</button>
+    <a class="btn" href="./index.html">На главную</a>
+  </div>
+</main>
+</body>
+</html>

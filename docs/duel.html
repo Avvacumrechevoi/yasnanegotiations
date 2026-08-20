@@ -13,17 +13,27 @@
 <script src="core/access.js?v=3ae5d2f4"></script>
 <script src="core/account.js?v=f41ef438"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
+<!-- Приложение: манифест, иконки и цвет строки состояния. Раньше манифест
+     висел на двух страницах из девяти, иконка была одна — SVG в data-URI, а
+     theme-color на каждой странице свой: на светлых страницах стояла почти
+     чёрная полоса. Теперь одинаково везде, и по теме смотрящего. -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<meta name="theme-color" content="#0071e3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0b0d" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ясна">
+<script defer src="core/pwa.js"></script>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
-<meta name="theme-color" content="#BA7517"/>
 <title>Игра по Ясне</title>
 <meta name="description" content="Игра по Ясне — Партия из 18 вопросов с соперником Тенью. Тренируй память, собирай бусины, поднимайся по ступеням."/>
 <meta property="og:type" content="website"/>
 <meta property="og:title" content="Игра по Ясне"/>
 <meta property="og:description" content="Партия из 18 вопросов · 6 тем · соперник Тень. Бусины, ступени, Архив недели."/>
 <meta property="og:url" content="https://yasnalab.ru/duel.html"/>
-<meta name="twitter:card" content="summary"/>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>"/>
-<link rel="manifest" href="manifest.webmanifest"/>
+<meta name="twitter:card" content="summary"/><text y='.9em' font-size='90'>⚔️</text></svg>"/>
 
 <!-- API config через meta — позволяет инжектить через CI/sed без правки исходников. -->
 <meta name="yasna:api"    content="https://d5dmdje8c5mk8811il5j.iwzqm34r.apigw.yandexcloud.net"/>
@@ -32,7 +42,7 @@
 <link rel="stylesheet" href="styles.css"/>
 <link rel="stylesheet" href="games/duel/duel-page.css?v=6ea322ed"/>
 <!-- Светлая VK-тема: широкая вёрстка тёмной темы в светлых цветах Конструктора -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=PT+Mono&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="vendor/fonts/shrifty.css">
 <link rel="stylesheet" href="vk-tech-tokens.css?v=fce6c447"/>
 <link rel="stylesheet" href="games/duel/theme-vk-dark.css?v=25ac0f5c"/>
 <link rel="stylesheet" href="games/duel/vk-scheme.css?v=26d2dd53"/>
@@ -48,13 +58,13 @@
 <div id="duel-page-root"></div>
 
 <!-- React + Three.js + Firebase из CDN -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="vendor/js/react-18.2.0.min.js"></script>
+<script src="vendor/js/react-dom-18.2.0.min.js"></script>
+<script src="vendor/js/three-r128.min.js"></script>
 <!-- Firebase compat-сборки: глобальный объект `firebase`, классические script-теги -->
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-database-compat.js"></script>
+<script src="vendor/js/firebase-app-compat-10.13.2.js"></script>
+<script src="vendor/js/firebase-auth-compat-10.13.2.js"></script>
+<script src="vendor/js/firebase-database-compat-10.13.2.js"></script>
 
 <script>
   (function(){

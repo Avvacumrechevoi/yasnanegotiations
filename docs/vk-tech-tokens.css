@@ -9,7 +9,10 @@
    и связанные классы (.vk-btn, .vk-input) не активны.
    ════════════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* Шрифт берём из местной копии: страница не должна зависеть от чужого
+   сервера — ни в приложении, ни у человека, у которого fonts.gstatic.com
+   не открывается. Путь относительный к этому файлу (docs/). */
+@import url('vendor/fonts/shrifty.css');
 
 body.theme-vk-dark {
   /* ─── ПАЛИТРА (VK Modes · Dark — из Figma 3:183939) ─── */

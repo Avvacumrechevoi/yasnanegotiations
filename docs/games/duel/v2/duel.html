@@ -5,10 +5,22 @@
 <meta name="robots" content="noindex, nofollow"/>
 <meta name="yandex" content="noindex, nofollow"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
+<!-- Приложение: манифест, иконки и цвет строки состояния. Раньше манифест
+     висел на двух страницах из девяти, иконка была одна — SVG в data-URI, а
+     theme-color на каждой странице свой: на светлых страницах стояла почти
+     чёрная полоса. Теперь одинаково везде, и по теме смотрящего. -->
+<link rel="manifest" href="../../../manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="../../../assets/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="../../../assets/icons/apple-touch-icon.png">
+<meta name="theme-color" content="#0071e3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0b0d" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ясна">
+<script defer src="../../../core/pwa.js"></script>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <title>Дуэль · Ясна · v2 (preview)</title>
-<meta name="description" content="Дуэль по Ясне (v2 preview): подключён реальный контентный фундамент — 324 атома, 126 вопросов с цитатами и иллюстрациями."/>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>"/>
+<meta name="description" content="Дуэль по Ясне (v2 preview): подключён реальный контентный фундамент — 324 атома, 126 вопросов с цитатами и иллюстрациями."/><text y='.9em' font-size='90'>⚔️</text></svg>"/>
 <link rel="stylesheet" href="../../../styles.css"/>
 <link rel="stylesheet" href="../duel-page.css"/>
 <style>
@@ -38,17 +50,17 @@
 
 <!-- Замок: подключён ПЕРВЫМ, до всего остального (см. core/gate.js) -->
 <script src="../../../core/gate.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="../../../vendor/js/react-18.2.0.min.js"></script>
+<script src="../../../vendor/js/react-dom-18.2.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="../../../vendor/js/three-r128.min.js"></script>
 
 <script>
   window.YASNA_LEADERBOARD_API = "https://d5dmdje8c5mk8811il5j.iwzqm34r.apigw.yandexcloud.net";
   window.YASNA_TG_BOT = "YasnaDuelBot";
 </script>
 
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="../../../vendor/js/peerjs-1.5.4.min.js"></script>
 
 <!-- Все зависимости для Star-компонента и дуэлей (от v1) -->
 <script src="../../../core/data.js"></script>

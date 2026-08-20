@@ -11,19 +11,27 @@
 <script src="core/access.js?v=3ae5d2f4"></script>
 <script src="core/account.js?v=f41ef438"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<!-- Приложение: манифест, иконки и цвет строки состояния. Раньше манифест
+     висел на двух страницах из девяти, иконка была одна — SVG в data-URI, а
+     theme-color на каждой странице свой: на светлых страницах стояла почти
+     чёрная полоса. Теперь одинаково везде, и по теме смотрящего. -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<meta name="theme-color" content="#0071e3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0b0d" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ясна">
+<script defer src="core/pwa.js"></script>
 <meta http-equiv="Cache-Control" content="no-cache"/>
-<meta name="theme-color" content="#0a0b0d"/>
 <title>Ясна — интерактивный тренажёр</title>
 <meta name="description" content="Видеть устройство любого явления по методу Ясны. Учить · Играть · Изучать звезду из 36 Ясн."/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://yasnalab.ru/"/>
 <meta property="og:title" content="Ясна — интерактивный тренажёр"/>
-<meta property="og:description" content="Видеть устройство любого явления по методу Ясны."/>
-
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>"/>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet"/>
+<meta property="og:description" content="Видеть устройство любого явления по методу Ясны."/><text y='.9em' font-size='90'>✦</text></svg>"/>
+<link rel="stylesheet" href="vendor/fonts/shrifty.css">
 
 <style>
 /* ─── VK Tech tokens (inline) — единая палитра с дуэлью ─── */
