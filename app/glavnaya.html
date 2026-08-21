@@ -12,9 +12,10 @@
   каждый блок отвечает на «зачем мне это», а не «что у нас есть».
 
   Устройство экрана — сверху вниз по убыванию личного:
-    1. приветствие с именем и зверем (тап — в Профиль);
-    2. лента цитат дня: сегодняшняя + прошлые дни, дословные строки из
-       книги (citaty.js), источник «Ясна Суток · №» в углу карточки;
+    1. приветствие: знак приложения, имя и девиз (тап — в Профиль;
+       зверь владельца живёт в Профиле и во вкладке наббара);
+    2. цитата дня — одна карточка с градиентом: дословная строка из книги
+       (citaty.js), источник «Ясна Суток · №» в правом нижнем углу;
     3. два главных действия; их прогресс живёт прямо в карточках:
        у обучения — дорога из 8 остановок (yasna_course_progress; при
        нуле спрятана, чтобы не выглядела скелетоном), у игры — бусины и
@@ -73,11 +74,13 @@
   header{padding:18px 20px 4px}
   header a{display:flex;align-items:center;gap:12px;text-decoration:none;
     color:inherit;min-width:0}
-  .zver-chip{width:44px;height:44px;border-radius:50%;background:var(--ik-fon);
-    display:flex;align-items:center;justify-content:center;font-size:23px;
-    flex:0 0 auto;border:1.5px solid var(--kayma)}
+  .znak{width:44px;height:44px;border-radius:14px;flex:0 0 auto;
+    background:linear-gradient(145deg,var(--syn) 0%,#4c3bd6 100%);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 3px 10px rgba(0,90,220,.28)}
+  .znak svg{width:24px;height:24px;fill:#fff}
   .privet{min-width:0;flex:1}
-  .privet .im{font:600 21px/1.15 Manrope,Inter,sans-serif;
+  .privet .im{display:block;font:600 21px/1.15 Manrope,Inter,sans-serif;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .privet .im i{font:italic 600 23px/1 var(--serif);color:var(--syn)}
   .privet .pod{font-size:12.5px;color:var(--ink-2);margin-top:2px}
@@ -98,29 +101,42 @@
   .obnova-net{font:500 13px/1 Manrope,sans-serif;color:var(--ink-2);
     background:none;border:0;padding:8px;cursor:pointer}
 
-  /* ── Лента цитат ──
-     Горизонтальная лента с притяжкой: сегодняшняя карточка почти во всю
-     ширину, следующая выглядывает — видно, что можно листать. Градиент
-     нарочно едва заметный: от фона карточки в сторону фирменного синего. */
-  .lenta{display:flex;gap:10px;overflow-x:auto;margin:2px -16px 0;
-    padding:0 16px 4px;scroll-snap-type:x mandatory;
-    scrollbar-width:none;-webkit-overflow-scrolling:touch}
-  .lenta::-webkit-scrollbar{display:none}
-  .cit{flex:0 0 84%;scroll-snap-align:center;position:relative;
-    background:linear-gradient(135deg,var(--kart) 30%,var(--cit-grad) 100%);
-    border:1px solid var(--kayma);border-radius:18px;
-    padding:14px 16px 40px;text-decoration:none;color:inherit;min-height:128px}
-  .cit:active{filter:brightness(.96)}
-  .cit .k{font:600 11.5px/1 Manrope,sans-serif;letter-spacing:.1em;
-    text-transform:uppercase;color:var(--syn)}
-  .cit.byla .k{color:var(--ink-3)}
-  .cit .tx{font:500 18.5px/1.35 var(--serif);font-style:italic;margin:9px 0 0;
-    color:var(--ink)}
-  .cit .ot{font:500 12px/1.2 Manrope,sans-serif;color:var(--ink-2);margin-top:7px}
-  /* Источник — в правом нижнем углу, как просил владелец. */
-  .cit .ist{position:absolute;right:14px;bottom:12px;
+  /* ── Цитата дня ──
+     Одна карточка — и та, что видно первой на экране. Градиент «ночного
+     неба» нарочно другого рода, чем синяя кнопка ниже: две одинаково
+     ярких синих плитки подряд спорили бы друг с другом. Знак ✦ — водяной,
+     он же держит правый верхний угол, чтобы текст не висел в пустоте. */
+  .citata{position:relative;display:block;overflow:hidden;
+    border-radius:20px;padding:18px 18px 42px;margin-top:2px;
+    text-decoration:none;color:#fff;isolation:isolate;
+    background:
+      radial-gradient(120% 90% at 12% 8%, rgba(255,255,255,.16) 0%, transparent 55%),
+      linear-gradient(135deg,#1d3a86 0%,#3b2f8f 52%,#5a2f80 100%);
+    box-shadow:0 10px 26px rgba(24,32,84,.28)}
+  .citata:active{filter:brightness(.95)}
+  .citata .znak-vod{position:absolute;right:-14px;top:-16px;width:118px;height:118px;
+    fill:#fff;opacity:.09;pointer-events:none}
+  .citata .k{position:relative;font:700 11px/1 Manrope,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.72)}
+  .citata .tx{position:relative;font:500 20px/1.34 var(--serif);font-style:italic;
+    margin:10px 0 0;color:#fff;text-wrap:balance}
+  .citata .ot{position:relative;font:500 12.5px/1.3 Manrope,sans-serif;
+    color:rgba(255,255,255,.74);margin-top:9px}
+  .citata .ist{position:absolute;right:16px;bottom:14px;
     font:600 11px/1 Manrope,sans-serif;letter-spacing:.08em;
-    text-transform:uppercase;color:var(--ink-2)}
+    text-transform:uppercase;color:rgba(255,255,255,.6)}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) .citata{
+      background:
+        radial-gradient(120% 90% at 12% 8%, rgba(255,255,255,.10) 0%, transparent 55%),
+        linear-gradient(135deg,#152a5f 0%,#2a2166 52%,#42215d 100%);
+      box-shadow:0 10px 24px rgba(0,0,0,.4)}
+  }
+  :root[data-theme="dark"] .citata{
+    background:
+      radial-gradient(120% 90% at 12% 8%, rgba(255,255,255,.10) 0%, transparent 55%),
+      linear-gradient(135deg,#152a5f 0%,#2a2166 52%,#42215d 100%);
+    box-shadow:0 10px 24px rgba(0,0,0,.4)}
 
   h2{font:600 12.5px/1 Manrope,Inter,sans-serif;letter-spacing:.09em;
     text-transform:uppercase;color:var(--ink-3);margin:22px 4px 10px;
@@ -192,10 +208,12 @@
 
 <header>
   <a href="profil.html" aria-label="Профиль">
-    <span class="zver-chip" id="zver" aria-hidden="true">✦</span>
+    <span class="znak" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M12 1.6l2.2 6.3 6.3 2.1-6.3 2.1-2.2 6.3-2.2-6.3-6.3-2.1 6.3-2.1z"/><circle cx="19.4" cy="18.6" r="1.9"/></svg>
+    </span>
     <span class="privet">
       <span class="im">Привет, <i id="imya">Странник</i></span>
-      <div class="pod">видеть устройство любого явления</div>
+      <div class="pod">Открой строй вещей — от суток до судьбы</div>
     </span>
     <span class="k-profilu" aria-hidden="true">
       <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
@@ -208,10 +226,16 @@
        сборке (obnovlenie.js). Пустой узел ничего не занимает. -->
   <div id="obnova-mesto"></div>
 
-  <!-- Цитата дня — лентой: сегодняшняя во весь экран, прошлые дни
-       выглядывают справа и доскролливаются с притяжкой. Дословные строки
-       книги; та же сегодняшняя цитата приходит утренним уведомлением. -->
-  <div class="lenta" id="lenta" aria-label="Цитата дня и прошлые дни"></div>
+  <!-- Цитата дня: одна дословная строка из книги, та же, что приходит
+       утренним уведомлением. Тап уводит в Разбор — «посмотреть, из чего
+       это явление сложено». -->
+  <a class="citata" id="citata" href="konstruktor.html">
+    <svg class="znak-vod" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.6l2.2 6.3 6.3 2.1-6.3 2.1-2.2 6.3-2.2-6.3-6.3-2.1 6.3-2.1z"/></svg>
+    <span class="k">Цитата дня</span>
+    <div class="tx"></div>
+    <div class="ot"></div>
+    <span class="ist"></span>
+  </a>
 
   <h2>Начать сейчас</h2>
 
@@ -306,7 +330,6 @@
 
   /* Приветствие: имя и зверь из профиля. */
   var п=читать('yasna_duel_profile')||{};
-  if(п.avatar) document.getElementById('zver').textContent=п.avatar;
   if(п.nickname) document.getElementById('imya').textContent=п.nickname;
 
   /* Игра: пока партий нет — зовём содержимым (10 тем · 160 вопросов);
@@ -338,27 +361,15 @@
     document.getElementById('ucheba-m').innerHTML='<span class="m">продолжить</span>';
   }
 
-  /* Лента цитат: сегодня + четыре прошлых дня. Все — дословные строки
-     книги (citaty.js), сегодняшняя совпадает с утренним уведомлением. */
+  /* Цитата дня — дословная строка книги (citaty.js); та же, что уходит
+     утренним уведомлением. */
   (function(){
-    var лента=document.getElementById('lenta');
-    if(!лента||!window.yasnaCitata) return;
-    var МЕС=['января','февраля','марта','апреля','мая','июня','июля',
-             'августа','сентября','октября','ноября','декабря'];
-    for(var i=0;i<5;i++){
-      var дата=new Date(); дата.setDate(дата.getDate()-i);
-      var ц=window.yasnaCitata(дата);
-      var a=document.createElement('a');
-      a.className='cit'+(i?' byla':''); a.href='konstruktor.html';
-      var метка = i===0?'Цитата дня': i===1?'Вчера': дата.getDate()+' '+МЕС[дата.getMonth()];
-      a.innerHTML='<span class="k"></span><div class="tx"></div>'+
-                  '<div class="ot"></div><span class="ist"></span>';
-      a.querySelector('.k').textContent=метка;
-      a.querySelector('.tx').textContent='«'+ц[0]+'»';
-      a.querySelector('.ot').textContent=ц[1];
-      a.querySelector('.ist').textContent='Ясна Суток · '+ц[2];
-      лента.appendChild(a);
-    }
+    var к=document.getElementById('citata');
+    if(!к||!window.yasnaCitata) return;
+    var ц=window.yasnaCitata();
+    к.querySelector('.tx').textContent='«'+ц[0]+'»';
+    к.querySelector('.ot').textContent=ц[1];
+    к.querySelector('.ist').textContent='Ясна Суток · '+ц[2];
   })();
 
   /* Обновления: тихая проверка раз в несколько часов; плашка — только

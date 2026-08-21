@@ -147,13 +147,22 @@ function inviteBase(){
     return avatarInitials(name);
   }
 
+  // «1 партия», «2 партии», «5 партий» — без этого в полосе ступени
+  // выходило «1 партий».
+  function склонПартий(n){
+    const д = n % 10, с = n % 100;
+    if (д === 1 && с !== 11) return 'партия';
+    if (д >= 2 && д <= 4 && (с < 12 || с > 14)) return 'партии';
+    return 'партий';
+  }
+
   // ─── Прогрессия (Орден Касталии) ──────────────────────────────────
   const STUPENI = [
-    { name: 'Послушник', from: 0,      to: 1000 },
-    { name: 'Студент',   from: 1000,   to: 3000 },
-    { name: 'Игрок',     from: 3000,   to: 10000 },
-    { name: 'Мастер',    from: 10000,  to: 30000 },
-    { name: 'Магистр',   from: 30000,  to: Infinity },
+    { name: 'Послушник', rod: 'Послушника', from: 0,      to: 1000 },
+    { name: 'Студент',   rod: 'Студента',   from: 1000,   to: 3000 },
+    { name: 'Игрок',     rod: 'Игрока',     from: 3000,   to: 10000 },
+    { name: 'Мастер',    rod: 'Мастера',    from: 10000,  to: 30000 },
+    { name: 'Магистр',   rod: 'Магистра',   from: 30000,  to: Infinity },
   ];
   function getStupen(busey){
     const s = STUPENI.find(s => busey < s.to);
@@ -260,8 +269,9 @@ function inviteBase(){
 
   // ─── Headline на главной ─────────────────────────────────────────
   function DPCastaliaTitle(){
+    const вПрилож = /YasnaApp\//.test(navigator.userAgent);
     return React.createElement('div', { className: 'dp-castalia-title' },
-      React.createElement('div', { className: 'dp-castalia-eyebrow' }, '✦  Тренажёр Ясны'),
+      !вПрилож && React.createElement('div', { className: 'dp-castalia-eyebrow' }, '✦  Тренажёр Ясны'),
       React.createElement('h1', { className: 'dp-castalia-h1' },
         React.createElement('span', null, 'Ясна —'),
         React.createElement('br'),
@@ -331,8 +341,37 @@ function inviteBase(){
       if(stupen.to === Infinity) return 'высшая ступень';
       const curIdx = STUPENI.findIndex(x => x.name === stupen.name);
       const next = STUPENI[curIdx + 1];
-      return next ? ('до ' + next.name + ' · ' + stupen.toNext + ' ✦') : '';
+      /* Два числа с одним знаком рядом («✦ 420» набрано / «580 ✦» осталось)
+         путали — теперь ясно, что это остаток и до кого. */
+      return next ? ('ещё ' + stupen.toNext + ' ✦ до ' + (next.rod || next.name)) : '';
     })();
+
+    const вПрилож = /YasnaApp\//.test(navigator.userAgent);
+    if (вПрилож) {
+      const естьСчёт = busey > 0 || games > 0;
+      return React.createElement('section', { className: 'dp-hero dp-hero--stupen', role: 'region', 'aria-label': 'Ступень' },
+        React.createElement('div', { className: 'dp-hero-body' },
+          React.createElement('div', { className: 'dp-hero-name-row' },
+            React.createElement('a', {
+              className: 'dp-hero-rank-pill dp-tip',
+              href: 'rating.html',
+              'data-tip': 'Ступень — твой уровень в Ясне. Растёт с каждой партией.',
+              style: { textDecoration: 'none' },
+            }, stupen.name, ' ', toRoman(stupen.subLevel)),
+            естьСчёт && React.createElement('span', { className: 'dp-hero-stats' },
+              React.createElement('a', { className: 'dp-hero-bead', href: 'rating.html', style: { textDecoration: 'none' } }, '✦ ', busey),
+              React.createElement('span', { className: 'dp-hero-stats-sep' }, '·'),
+              React.createElement('span', null, games, ' ', склонПартий(games))
+            )
+          ),
+          React.createElement('div', { className: 'dp-hero-progress', 'aria-label': 'Прогресс ступени' },
+            React.createElement('div', { className: 'dp-hero-progress-fill', style: { width: pct + '%' } })
+          ),
+          React.createElement('div', { className: 'dp-hero-next' },
+            естьСчёт ? nextStupenLabel : 'Сыграй первую партию — пойдут бусины\u00A0✦')
+        )
+      );
+    }
 
     return React.createElement('section', { className: 'dp-hero', role: 'region', 'aria-label': 'Профиль игрока' },
       React.createElement('div', { className: 'dp-hero-avatar' }, avatarContent),
@@ -499,6 +538,36 @@ function inviteBase(){
   // Header: только заголовок (без eyebrow «Игры Ясны» — мы уже на странице
   // /duel, это контекст). Описание убрано из header'а — оно теперь в
   // tooltip'ах внутри каждой карточки рядом с её названием.
+  // ─── Превью Круга: один ход игрока ───────────────────────────────
+  // Показать быстрее, чем объяснить: элемент поднимается из середины и
+  // садится в пустое гнездо, гнездо занимается, нитка через середину
+  // вспыхивает — ровно то, что делает человек в игре. Прежний вариант
+  // с вращающимся лучом читался как циферблат и как жребий («игра решает
+  // за меня»), хотя ход в Круге осознанный. Цикл 4.6 с; при
+  // prefers-reduced-motion остаётся неподвижный кадр (CSS).
+  function DPKrugPreview(){
+    return React.createElement('div', { className: 'kp' },
+      React.createElement('svg', { className: 'kp-svg', viewBox: '0 0 120 120', 'aria-hidden': 'true' },
+        React.createElement('circle', { className: 'kp-koltso', cx: 60, cy: 60, r: 44 }),
+        React.createElement('line', { className: 'kp-nitka', x1: 98.1, y1: 38.0, x2: 21.9, y2: 82.0 }),
+        React.createElement('circle', { key: 'g0', className: 'kp-gnezdo', cx: 60.0, cy: 16.0, r: 4 }),
+        React.createElement('circle', { key: 'g1', className: 'kp-gnezdo', cx: 82.0, cy: 21.9, r: 4 }),
+        React.createElement('circle', { key: 'g2', className: 'kp-gnezdo kp-gnezdo--cel', cx: 98.1, cy: 38.0, r: 5 }),
+        React.createElement('circle', { key: 'g3', className: 'kp-gnezdo', cx: 104.0, cy: 60.0, r: 4 }),
+        React.createElement('circle', { key: 'g4', className: 'kp-gnezdo', cx: 98.1, cy: 82.0, r: 4 }),
+        React.createElement('circle', { key: 'g5', className: 'kp-gnezdo', cx: 82.0, cy: 98.1, r: 4 }),
+        React.createElement('circle', { key: 'g6', className: 'kp-gnezdo', cx: 60.0, cy: 104.0, r: 4 }),
+        React.createElement('circle', { key: 'g7', className: 'kp-gnezdo', cx: 38.0, cy: 98.1, r: 4 }),
+        React.createElement('circle', { key: 'g8', className: 'kp-gnezdo', cx: 21.9, cy: 82.0, r: 4 }),
+        React.createElement('circle', { key: 'g9', className: 'kp-gnezdo', cx: 16.0, cy: 60.0, r: 4 }),
+        React.createElement('circle', { key: 'g10', className: 'kp-gnezdo', cx: 21.9, cy: 38.0, r: 4 }),
+        React.createElement('circle', { key: 'g11', className: 'kp-gnezdo', cx: 38.0, cy: 21.9, r: 4 }),
+        React.createElement('circle', { className: 'kp-fishka', cx: 60, cy: 60, r: 7.5 })
+      ),
+      React.createElement('div', { className: 'kp-podpis' }, '12 мест — каждому элементу своё')
+    );
+  }
+
   function DPMainGames({ onPartiya, onUzor }){
     return React.createElement('section', { className: 'dp-section', role: 'region', 'aria-label': 'Игровые практики' },
       React.createElement('div', { style: { marginBottom: 'var(--space-5)' } },
@@ -512,8 +581,9 @@ function inviteBase(){
           React.createElement('div', { className: 'dp-game-title-row' },
             React.createElement('div', { className: 'dp-game-title' }, 'Круг')
           ),
+          /YasnaApp\//.test(navigator.userAgent) && React.createElement(DPKrugPreview, null),
           React.createElement('div', { className: 'dp-game-sub' },
-            'Тренировка: берёшь элемент явления и ставишь его на своё место в круге. Промах объясняется тем, чем занято место.'
+            'Тренировка: берёшь элемент явления и ставишь его на своё место в круге.'
           ),
           React.createElement('ul', { className: 'dp-game-bullets' },
             React.createElement('li', null, '16 Ясн на выбор — или случайная'),
@@ -533,8 +603,8 @@ function inviteBase(){
                 )
               ),
               React.createElement('span', { className: 'dp-cta__body' },
-                React.createElement('span', { className: 'dp-cta__title' }, 'Играть одному'),
-                React.createElement('span', { className: 'dp-cta__sub' }, 'двенадцать мест')
+                React.createElement('span', { className: 'dp-cta__title' }, 'Разложить круг'),
+                React.createElement('span', { className: 'dp-cta__sub' }, 'одному · 12 мест')
               )
             ),
             React.createElement('button', {

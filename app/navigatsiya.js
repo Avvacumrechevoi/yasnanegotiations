@@ -64,6 +64,10 @@
       'padding:6px 2px;text-decoration:none;color:var(--yk-ink2);' +
       'font:500 11.5px/1 Manrope,Inter,system-ui,sans-serif;border-radius:12px;' +
       'min-height:48px;justify-content:center}' +
+    '.yk-nav .yk-zver{width:23px;height:23px;border-radius:50%;display:flex;' +
+      'align-items:center;justify-content:center;font-size:15px;line-height:1;' +
+      'background:var(--yk-fon-akt);border:1px solid var(--yk-kayma)}' +
+    '.yk-nav a.yk-tut .yk-zver{border-color:var(--yk-syn)}' +
     '.yk-nav a svg{width:23px;height:23px;stroke:currentColor;fill:none;' +
       'stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}' +
     '.yk-nav a.yk-tut{color:var(--yk-syn)}' +
@@ -79,6 +83,18 @@
     '.yk-nav.yk-klava{display:none}';
   (document.head || document.documentElement).appendChild(st);
 
+  /* Свой знак вместо человечка: если человек назвался или вошёл по почте,
+     вкладка «Профиль» показывает его зверя — как аватар в мессенджерах. */
+  var мойЗверь = (function () {
+    try {
+      var п = JSON.parse(localStorage.getItem('yasna_duel_profile') || 'null');
+      if (!п || !п.avatar) return null;
+      var вошёл = !!(localStorage.getItem('yasna_duel_token') && localStorage.getItem('yasna_duel_user'));
+      var назвался = п.nickname && п.nickname !== 'Гость';
+      return (вошёл || назвался) ? п.avatar : null;
+    } catch (e) { return null; }
+  })();
+
   var nav = document.createElement('nav');
   nav.className = 'yk-nav';
   nav.setAttribute('aria-label', 'Разделы');
@@ -86,7 +102,9 @@
     var тут = п[0] === текущий;
     return '<a href="' + вверх + п[0] + '"' +
       (тут ? ' class="yk-tut" aria-current="page"' : '') + '>' +
-      '<svg viewBox="0 0 24 24" aria-hidden="true">' + п[2] + '</svg>' +
+      (п[0] === 'profil.html' && мойЗверь
+        ? '<span class="yk-zver" aria-hidden="true">' + мойЗверь + '</span>'
+        : '<svg viewBox="0 0 24 24" aria-hidden="true">' + п[2] + '</svg>') +
       п[1] + '</a>';
   }).join('');
   /* Переключение вкладок НЕ копит историю (правило нижней навигации):
@@ -114,4 +132,26 @@
     nav.classList.toggle('yk-klava', window.innerHeight < максВысота * 0.72);
   });
   document.body.appendChild(nav);
+
+  /* Профиль сохраняет имя и зверя на этой же странице — событие storage
+     в своей вкладке не приходит, поэтому даём ему прямой способ обновить
+     вкладку, не перезагружая экран. */
+  window.yasnaNavbarObnovi = function () {
+    var а = nav.querySelector('a[href$="profil.html"]');
+    if (!а) return;
+    var зверь = null;
+    try {
+      var п = JSON.parse(localStorage.getItem('yasna_duel_profile') || 'null');
+      var вошёл = !!(localStorage.getItem('yasna_duel_token') && localStorage.getItem('yasna_duel_user'));
+      if (п && п.avatar && (вошёл || (п.nickname && п.nickname !== 'Гость'))) зверь = п.avatar;
+    } catch (e) {}
+    var было = а.querySelector('.yk-zver, svg');
+    if (!было) return;
+    if (зверь) {
+      if (было.classList.contains('yk-zver')) { было.textContent = зверь; return; }
+      var s = document.createElement('span');
+      s.className = 'yk-zver'; s.setAttribute('aria-hidden', 'true'); s.textContent = зверь;
+      а.replaceChild(s, было);
+    }
+  };
 })();

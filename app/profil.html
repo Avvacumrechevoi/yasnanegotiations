@@ -182,6 +182,9 @@
     }
     try{ localStorage.setItem(КЛЮЧ,JSON.stringify(п));
       document.getElementById('soobshenie').textContent='Сохранено: '+выбран+' '+имя;
+      /* Вкладка «Профиль» в наббаре показывает зверя — обновляем сразу,
+         иначе он появлялся только после перехода на другой экран. */
+      if(window.yasnaNavbarObnovi) window.yasnaNavbarObnovi();
     }catch(e){
       document.getElementById('soobshenie').textContent='Не удалось сохранить.';
     }
