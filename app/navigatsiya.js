@@ -49,6 +49,9 @@
 
   var st = document.createElement('style');
   st.textContent =
+    /* Android WebView «удобно» раздувает шрифты (font boosting): заголовки
+       20px рендерились как 32px. Приложение задаёт размеры само. */
+    'html{-webkit-text-size-adjust:100%;text-size-adjust:100%}' +
     ':root{--yk-kart:#ffffff;--yk-kayma:rgba(16,20,24,.08);--yk-ink2:#5c6570;' +
       '--yk-syn:#0071e3;--yk-fon-akt:#eaf2fe;' +
       '--yk-snizu:var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))}' +

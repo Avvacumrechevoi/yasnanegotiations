@@ -2276,7 +2276,7 @@ function inviteBase(){
 
             // ═════ СЕКЦИЯ 1: Количество вопросов ═════
             React.createElement('section', { className: 'dp-picker-section' },
-              React.createElement('div', { className: 'dp-picker-section-eyebrow' }, '◷  Количество вопросов'),
+              React.createElement('div', { className: 'dp-picker-section-eyebrow' }, '◷  Длина партии'),
               React.createElement('div', { className: 'dp-mode-grid' },
                 modes.map(m =>
                   React.createElement('button', {

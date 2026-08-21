@@ -881,7 +881,7 @@ a { color: inherit; }
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100;
+  z-index: 130; /* выше наббара приложения (120): модальный флоу его накрывает */
   padding: var(--space-4);
   animation: dp-fade-in var(--duration-base) var(--easing-out);
 }
@@ -905,12 +905,12 @@ a { color: inherit; }
   position: absolute;
   top: var(--space-4);
   right: var(--space-4);
-  width: 28px; height: 28px;
+  width: 40px; height: 40px;
   border-radius: 50%;
   border: none;
   background: var(--bg-soft);
   color: var(--text-2);
-  font-size: 16px;
+  font-size: 19px;
   cursor: pointer;
   transition: background var(--duration-fast) var(--easing-out);
 }
@@ -986,7 +986,7 @@ a { color: inherit; }
   background: rgba(40, 30, 15, 0.5);
   backdrop-filter: blur(12px);
   display: flex; align-items: center; justify-content: center;
-  z-index: 100;
+  z-index: 130; /* выше наббара приложения (120): модальный флоу его накрывает */
   padding: var(--space-4);
   animation: dp-fade-in var(--duration-base) var(--easing-out);
 }
@@ -1003,12 +1003,12 @@ a { color: inherit; }
 .dp-lobby-x {
   position: absolute;
   top: var(--space-4); right: var(--space-4);
-  width: 28px; height: 28px;
+  width: 40px; height: 40px;
   border-radius: 50%;
   border: none;
   background: var(--bg-soft);
   color: var(--text-2);
-  font-size: 16px;
+  font-size: 19px;
   cursor: pointer;
 }
 .dp-lobby-x:hover { background: var(--bg-tonal); }
@@ -2729,23 +2729,28 @@ a { color: inherit; }
 
 /* Сетка 3×3 — все 9 тем без скролла. Вертикальный layout: иконка сверху,
    название по центру внизу. Текст крупнее за счёт убранного счётчика. */
-.dp-themes-list--banners {
+/* Двойной класс — выше специфичности .dp-themes-list из vk-scheme.css,
+   который на телефоне схлопывал сетку в одну колонку огромных карточек. */
+.dp-themes-list.dp-themes-list--banners {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
+  max-height: none;
+  margin-bottom: 0;
+  padding: 2px;
 }
-@media (max-width: 520px) {
-  .dp-themes-list--banners { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 560px) {
+  .dp-themes-list.dp-themes-list--banners { grid-template-columns: repeat(2, 1fr); }
 }
 
 .dp-theme-banner {
   position: relative;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 8px;
-  padding: 14px 10px;
+  padding: 8px 26px 8px 8px;
   border: 1px solid var(--border-1, #e5e5ea);
   border-radius: 12px;
   background: var(--bg-surface, #fff);
@@ -2754,7 +2759,7 @@ a { color: inherit; }
   font-family: inherit;
   transition: all .15s ease;
   --theme-color: #0077FF;
-  min-height: 96px;
+  min-height: 52px;
 }
 .dp-theme-banner:hover {
   border-color: var(--theme-color);
@@ -2773,8 +2778,8 @@ a { color: inherit; }
 
 .dp-theme-banner__icon {
   flex-shrink: 0;
-  width: 40px; height: 40px;
-  border-radius: 10px;
+  width: 30px; height: 30px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--theme-color) 14%, transparent);
   border: 1px solid color-mix(in srgb, var(--theme-color) 25%, transparent);
   display: inline-flex;
@@ -2783,7 +2788,7 @@ a { color: inherit; }
   color: var(--theme-color);
   transition: all .15s ease;
 }
-.dp-theme-banner__icon svg { width: 22px; height: 22px; }
+.dp-theme-banner__icon svg { width: 17px; height: 17px; }
 .dp-theme-banner.is-checked .dp-theme-banner__icon {
   background: var(--theme-color);
   border-color: var(--theme-color);
@@ -2791,7 +2796,8 @@ a { color: inherit; }
 }
 
 .dp-theme-banner__name {
-  font-size: 14px;
+  text-align: left;
+  font-size: 12.5px;
   font-weight: 600;
   color: var(--text-1, #1d1d1f);
   line-height: 1.25;
@@ -2806,9 +2812,10 @@ a { color: inherit; }
 }
 .dp-theme-banner__check {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 18px; height: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 7px;
+  width: 16px; height: 16px;
   border-radius: 50%;
   background: var(--theme-color);
   color: #fff;
@@ -2860,10 +2867,11 @@ body.theme-vk-dark .dp-theme-banner__count { color: var(--text-2, #aeaeb2); }
    Соперник уже выбран на карточке — здесь только запуск.
    Одна крупная кнопка во всю ширину, чёткие отступы. */
 .dp-picker-footer {
-  margin-top: 8px;
-  padding-top: 20px;
+  margin-top: 4px;
+  padding: 12px 0 calc(4px + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--border-1, #e5e5ea);
 }
+.dp-picker-footer-cta:disabled { opacity: .45; cursor: default; }
 .dp-picker-footer-cta {
   width: 100%;
   background: var(--vk-accent, #0077FF);
