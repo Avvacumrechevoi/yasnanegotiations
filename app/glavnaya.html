@@ -38,6 +38,7 @@
     --ink:#101418; --ink-2:#5c6570; --ink-3:#8b95a1;
     --kayma:rgba(16,20,24,.08);
     --ik-fon:#eaf2fe;
+    --cit-grad:#e3eefc;
     --serif:"Cormorant Garamond",Georgia,serif;
     --sverhu: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
     --snizu:  var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
@@ -48,6 +49,7 @@
       --ink:#e8ebee; --ink-2:#9aa3ad; --ink-3:#6d7681;
       --kayma:rgba(232,235,238,.12);
       --ik-fon:#1f2b3d;
+      --cit-grad:#182338;
       --syn:#3d96f0;
     }
   }
@@ -79,29 +81,40 @@
 
   main{padding:12px 16px calc(86px + var(--snizu))}
 
-  /* ── Цитата дня ── */
-  .citata{display:block;background:var(--kart);border:1px solid var(--kayma);
-    border-radius:18px;padding:15px 16px;margin:2px 0 12px;text-decoration:none;
-    color:inherit}
-  .citata:active{filter:brightness(.96)}
-  .citata .k{font:600 10.5px/1 Manrope,sans-serif;letter-spacing:.11em;
-    text-transform:uppercase;color:var(--ink-3)}
-  .citata .tx{font:500 19px/1.35 var(--serif);font-style:italic;margin:9px 0 7px;
-    color:var(--ink)}
-  .citata .ot{font:500 12px/1 Manrope,sans-serif;color:var(--ink-2)}
+  /* ── Плашка обновления ── */
+  .obnova{background:var(--kart);border:1.5px solid var(--syn);border-radius:16px;
+    padding:14px 16px;margin:2px 0 12px}
+  .obnova-t{font:600 15.5px/1.3 Manrope,Inter,sans-serif}
+  .obnova-o{font-size:13px;color:var(--ink-2);margin-top:4px;line-height:1.45}
+  .obnova-r{display:flex;gap:12px;align-items:center;margin-top:11px}
+  .obnova-da{font:600 14px/1 Manrope,sans-serif;color:#fff;background:var(--syn);
+    border:0;border-radius:10px;padding:11px 14px;cursor:pointer}
+  .obnova-net{font:500 13px/1 Manrope,sans-serif;color:var(--ink-2);
+    background:none;border:0;padding:8px;cursor:pointer}
 
-  /* ── Полоса моих чисел ── */
-  .chisla{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;
-    background:var(--kayma);border:1px solid var(--kayma);border-radius:16px;
-    overflow:hidden;margin:6px 0 0}
-  .chislo{background:var(--kart);padding:13px 8px 12px;text-align:center;
-    text-decoration:none;color:inherit;display:block}
-  .chislo:active{filter:brightness(.95)}
-  .chislo .z{font:600 22px/1.1 Manrope,Inter,sans-serif;
-    font-variant-numeric:tabular-nums}
-  .chislo .z .yn{color:var(--syn);font-size:16px;vertical-align:2px}
-  .chislo .p{font:500 10.5px/1.3 Manrope,sans-serif;letter-spacing:.07em;
-    text-transform:uppercase;color:var(--ink-3);margin-top:4px}
+  /* ── Лента цитат ──
+     Горизонтальная лента с притяжкой: сегодняшняя карточка почти во всю
+     ширину, следующая выглядывает — видно, что можно листать. Градиент
+     нарочно едва заметный: от фона карточки в сторону фирменного синего. */
+  .lenta{display:flex;gap:10px;overflow-x:auto;margin:2px -16px 0;
+    padding:0 16px 4px;scroll-snap-type:x mandatory;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .lenta::-webkit-scrollbar{display:none}
+  .cit{flex:0 0 84%;scroll-snap-align:center;position:relative;
+    background:linear-gradient(135deg,var(--kart) 30%,var(--cit-grad) 100%);
+    border:1px solid var(--kayma);border-radius:18px;
+    padding:14px 16px 40px;text-decoration:none;color:inherit;min-height:128px}
+  .cit:active{filter:brightness(.96)}
+  .cit .k{font:600 10.5px/1 Manrope,sans-serif;letter-spacing:.11em;
+    text-transform:uppercase;color:var(--syn)}
+  .cit.byla .k{color:var(--ink-3)}
+  .cit .tx{font:500 18.5px/1.35 var(--serif);font-style:italic;margin:9px 0 0;
+    color:var(--ink)}
+  .cit .ot{font:500 11.5px/1 Manrope,sans-serif;color:var(--ink-2);margin-top:7px}
+  /* Источник — в правом нижнем углу, как просил владелец. */
+  .cit .ist{position:absolute;right:14px;bottom:12px;
+    font:600 10px/1 Manrope,sans-serif;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--ink-3)}
 
   h2{font:600 12.5px/1 Manrope,Inter,sans-serif;letter-spacing:.09em;
     text-transform:uppercase;color:var(--ink-3);margin:22px 4px 10px;
@@ -118,6 +131,11 @@
   .delo .t{font:600 20px/1.25 Manrope,Inter,sans-serif;margin:7px 0 4px;
     padding-right:52px}
   .delo .o{font-size:13.5px;color:var(--ink-2);max-width:78%;line-height:1.45}
+  /* Дорога курса: восемь остановок карты «Путь по Руси» сегментами.
+     Пройденные заливаются — виден путь, а не голое число. */
+  .delo .put{display:flex;gap:4px;margin:12px 0 0}
+  .delo .put i{flex:1;height:5px;border-radius:3px;background:var(--kayma)}
+  .delo .put i.est{background:var(--syn)}
   .delo .meta{display:flex;gap:6px;margin:12px 0 0;flex-wrap:wrap}
   .delo .m{font:500 11.5px/1 Manrope,sans-serif;color:var(--ink-2);
     background:var(--fon);border:1px solid var(--kayma);border-radius:99px;
@@ -193,29 +211,14 @@
 </header>
 
 <main>
-  <!-- Цитата дня — первой: короткий повод открыть приложение и что-то
-       унести с собой. Дословные строки книги, ротация по дате; та же
-       цитата приходит утренним уведомлением (см. citaty.js). -->
-  <a class="citata" href="konstruktor.html" id="citata">
-    <span class="k">Цитата дня · Ясна Суток</span>
-    <div class="tx" id="citata-tx">«Кончилась тьма ночи, и начинается время утренней зари.»</div>
-    <div class="ot"><span id="citata-o">о первом свете</span> · <span id="citata-n">№87.4</span></div>
-  </a>
+  <!-- Сюда встаёт плашка «вышла версия…», когда хранилище говорит о новой
+       сборке (obnovlenie.js). Пустой узел ничего не занимает. -->
+  <div id="obnova-mesto"></div>
 
-  <div class="chisla" role="group" aria-label="Мои числа">
-    <a class="chislo" href="duel.html">
-      <div class="z"><span class="yn">✦</span> <span id="busin">0</span></div>
-      <div class="p">бусин</div>
-    </a>
-    <a class="chislo" href="duel.html">
-      <div class="z" id="partiy">0</div>
-      <div class="p">партий</div>
-    </a>
-    <a class="chislo" href="learn.html">
-      <div class="z" id="urokov">0</div>
-      <div class="p">уроков</div>
-    </a>
-  </div>
+  <!-- Цитата дня — лентой: сегодняшняя во весь экран, прошлые дни
+       выглядывают справа и доскролливаются с притяжкой. Дословные строки
+       книги; та же сегодняшняя цитата приходит утренним уведомлением. -->
+  <div class="lenta" id="lenta" aria-label="Цитата дня и прошлые дни"></div>
 
   <h2>Начать сейчас</h2>
 
@@ -223,7 +226,7 @@
     <span class="k">Игра</span>
     <div class="t">Сыграть и запомнить</div>
     <div class="o">Партия вопросов против бота-Тени или друга: играя, закрепляешь метод.</div>
-    <div class="meta"><span class="m">11 тем</span><span class="m">168 вопросов</span><span class="m">блиц ≈ 2 мин</span></div>
+    <div class="meta" id="igra-meta"><span class="m">11 тем</span><span class="m">168 вопросов</span><span class="m">блиц ≈ 2 мин</span></div>
     <span class="strelka" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
     </span>
@@ -233,6 +236,7 @@
     <span class="k">Обучение</span>
     <div class="t" id="ucheba-t">Разобраться, как устроена Ясна</div>
     <div class="o" id="ucheba-o">Первый урок — 5 минут, по шагам, с подсказками.</div>
+    <div class="put" aria-hidden="true" id="ucheba-put"></div>
     <div class="meta" id="ucheba-m"><span class="m">с нуля</span><span class="m">по шагам</span></div>
     <span class="strelka" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
@@ -322,6 +326,7 @@
 </nav>
 
 <script src="citaty.js"></script>
+<script src="obnovlenie.js"></script>
 <script>
 (function(){
   function читать(ключ){
@@ -333,32 +338,60 @@
   if(п.avatar) document.getElementById('zver').textContent=п.avatar;
   if(п.nickname) document.getElementById('imya').textContent=п.nickname;
 
-  /* Мои числа — те же ключи, что читает сама Партия. */
+  /* Игра: пока партий нет — зовём содержимым (11 тем · 168 вопросов);
+     как только человек заиграл — карточка показывает ЕГО счёт. */
   var д=читать('yasna_duel_data')||{};
-  document.getElementById('busin').textContent=д.totalScore||0;
-  document.getElementById('partiy').textContent=(д.totals&&д.totals.played)||0;
-  var уроки=читать('yasna_completed_lessons_v1');
-  var уроков=Array.isArray(уроки)?уроки.length:0;
-  document.getElementById('urokov').textContent=уроков;
-
-  /* Подпись обучения — по прогрессу: задача одна, состояние разное. */
-  if(уроков>0){
-    document.getElementById('ucheba-o').textContent='Пройдено уроков: '+уроков+'. Продолжай — дорога дальше.';
-    document.getElementById('ucheba-m').innerHTML='<span class="m">продолжить</span><span class="m">уроков: '+уроков+'</span>';
+  var бусин=д.totalScore||0;
+  var партий=(д.totals&&д.totals.played)||0;
+  if(партий>0){
+    document.getElementById('igra-meta').innerHTML=
+      '<span class="m">✦ '+бусин+' бусин</span><span class="m">партий: '+партий+'</span><span class="m">блиц ≈ 2 мин</span>';
   }
 
-  /* Цитата дня — из общего списка (citaty.js), там же — утренние пуши. */
-  if(window.yasnaCitata){
-    var ц=window.yasnaCitata();
-    document.getElementById('citata-tx').textContent='«'+ц[0]+'»';
-    document.getElementById('citata-o').textContent=ц[1];
-    document.getElementById('citata-n').textContent=ц[2];
+  /* Обучение: дорога из восьми остановок карты «Путь по Руси».
+     Пройденность читаем из того же ключа, что и сама карта курса. */
+  var ОСТАНОВОК=8;
+  var курс=читать('yasna_course_progress')||{};
+  var пройдено=0;
+  try{ пройдено=Object.keys(курс).filter(function(k){return курс[k]&&курс[k].done}).length; }catch(e){}
+  if(пройдено>ОСТАНОВОК) пройдено=ОСТАНОВОК;
+  var дорога=document.getElementById('ucheba-put');
+  for(var i=0;i<ОСТАНОВОК;i++){
+    var seg=document.createElement('i');
+    if(i<пройдено) seg.className='est';
+    дорога.appendChild(seg);
   }
-  /* Если утренняя цитата включена — молча сдвигаем расписание вперёд,
-     чтобы двухнедельный запас уведомлений не кончался. */
-  if(window.yasnaPushiVkl && window.yasnaPushiVkl() && window.yasnaPushi){
-    window.yasnaPushi(true);
+  if(пройдено>0){
+    document.getElementById('ucheba-o').textContent='Пройдено остановок: '+пройдено+' из '+ОСТАНОВОК+'. Дорога дальше.';
+    document.getElementById('ucheba-m').innerHTML='<span class="m">продолжить</span>';
   }
+
+  /* Лента цитат: сегодня + четыре прошлых дня. Все — дословные строки
+     книги (citaty.js), сегодняшняя совпадает с утренним уведомлением. */
+  (function(){
+    var лента=document.getElementById('lenta');
+    if(!лента||!window.yasnaCitata) return;
+    var МЕС=['января','февраля','марта','апреля','мая','июня','июля',
+             'августа','сентября','октября','ноября','декабря'];
+    for(var i=0;i<5;i++){
+      var дата=new Date(); дата.setDate(дата.getDate()-i);
+      var ц=window.yasnaCitata(дата);
+      var a=document.createElement('a');
+      a.className='cit'+(i?' byla':''); a.href='konstruktor.html';
+      var метка = i===0?'Цитата дня': i===1?'Вчера': дата.getDate()+' '+МЕС[дата.getMonth()];
+      a.innerHTML='<span class="k"></span><div class="tx"></div>'+
+                  '<div class="ot"></div><span class="ist"></span>';
+      a.querySelector('.k').textContent=метка;
+      a.querySelector('.tx').textContent='«'+ц[0]+'»';
+      a.querySelector('.ot').textContent=ц[1];
+      a.querySelector('.ist').textContent='Ясна Суток · '+ц[2];
+      лента.appendChild(a);
+    }
+  })();
+
+  /* Обновления: тихая проверка раз в несколько часов; плашка — только
+     когда в хранилище действительно лежит более новая сборка. */
+  if(window.yasnaObnovaPlashka) window.yasnaObnovaPlashka();
 
 })();
 </script>

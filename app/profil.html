@@ -105,6 +105,15 @@
   </section>
 
   <section class="kart">
+    <h2>Обновления</h2>
+    <div class="vhod-status" id="obnova-status">Версия приложения: …</div>
+    <p class="opis">Приложение само проверяет новые сборки в хранилище и
+       предлагает установить поверх — данные и прогресс сохраняются.</p>
+    <button class="knopka knopka--tihaya" id="obnova-knopka" type="button">Проверить сейчас</button>
+    <div class="soobshenie" id="obnova-soobshenie" role="status"></div>
+  </section>
+
+  <section class="kart">
     <h2>Цитата дня по утрам</h2>
     <div class="vhod-status" id="push-status">Выключено</div>
     <p class="opis">Каждое утро в 9:30 — одна строка из книги «Ясна Суток».
@@ -114,7 +123,7 @@
     <div class="soobshenie" id="push-soobshenie" role="status"></div>
   </section>
 
-  <div class="versiya">Ясна для Android · 1.7</div>
+  <div class="versiya">Ясна для Android · 1.9</div>
 </main>
 
 <nav aria-label="Разделы">
@@ -205,6 +214,35 @@
       кнВход.hidden=false; кнВыход.hidden=true;
     }
   }
+  /* Обновления. */
+  (function(){
+    var ст=document.getElementById('obnova-status');
+    var кн=document.getElementById('obnova-knopka');
+    var сб=document.getElementById('obnova-soobshenie');
+    var П=(window.Capacitor&&window.Capacitor.Plugins)||{};
+    if(П.App&&П.App.getInfo) П.App.getInfo().then(function(i){
+      ст.textContent='Версия приложения: '+i.version+' (сборка '+i.build+')';
+    });
+    кн.onclick=function(){
+      кн.disabled=true; сб.textContent='Проверяю…';
+      window.yasnaObnova(true).then(function(о){
+        кн.disabled=false;
+        if(о.статус==='есть'){
+          сб.innerHTML='';
+          var b=document.createElement('button');
+          b.className='knopka'; b.type='button';
+          b.textContent='Скачать версию '+о.имя;
+          b.onclick=function(){ window.yasnaObnovaSkachat(о.url); };
+          сб.textContent='Вышла версия '+о.имя+(о.изменения?': '+о.изменения:'')+' ';
+          сб.appendChild(b);
+        }
+        else if(о.статус==='свежая') сб.textContent='У вас последняя версия.';
+        else if(о.статус==='вне-приложения') сб.textContent='Доступно только в приложении.';
+        else сб.textContent='Хранилище недоступно — попробуйте позже.';
+      });
+    };
+  })();
+
   /* Утренняя цитата: включение просит разрешение на уведомления,
      расписание собирает citaty.js. */
   var пСтатус=document.getElementById('push-status');
@@ -240,6 +278,7 @@
 })();
 </script>
 <script src="citaty.js"></script>
+<script src="obnovlenie.js"></script>
 <script defer src="pribavka.js"></script>
 </body>
 </html>

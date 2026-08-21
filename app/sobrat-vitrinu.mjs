@@ -176,6 +176,8 @@ cpSync(join(ЗДЕСЬ, 'profil.html'), join(ЦЕЛЬ, 'profil.html'));
 /* Цитаты дня и расписание утренних уведомлений — общий файл главной и
    Профиля: два своих списка разошлись бы на первой правке. */
 cpSync(join(ЗДЕСЬ, 'citaty.js'), join(ЦЕЛЬ, 'citaty.js'));
+/* Самопроверка обновлений: version.json в хранилище, плашка на главной. */
+cpSync(join(ЗДЕСЬ, 'obnovlenie.js'), join(ЦЕЛЬ, 'obnovlenie.js'));
 const p = поправить();
 const остатки = [];
 const известные = [];
