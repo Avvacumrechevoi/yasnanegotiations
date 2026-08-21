@@ -809,6 +809,18 @@ function App(){
   useEffect(()=>{try{localStorage.setItem('yasna_pinned_v1',JSON.stringify(pinned));}catch(_){}},[pinned]);
   const[lessonPicker,setLessonPicker]=useState(false);
   const[showTour,setShowTour]=useState(false);
+  /* Гид по прямой ссылке: konstruktor.html#tour=<id>. Находим тур по id,
+     грузим его ясну и открываем гид — так на урок можно вести с других
+     страниц (главная приложения, Круг). Шаг движок восстановит сам. */
+  useEffect(()=>{
+    const mm=(window.location.hash||'').match(/tour=([\w-]+)/);
+    if(!mm||!window.YasnaTours)return;
+    const name=(window.YasnaTours.list()||[]).find(nm=>{const t=window.YasnaTours.get(nm);return t&&t.id===mm[1];});
+    if(!name)return;
+    const t=T.find(tt=>tt.n===name);
+    if(t)load(t);
+    setShowTour(true);
+  },[]);
   const[helpOpen,setHelpOpen]=useState(false);
   const[learnOpen,setLearnOpen]=useState(false);
   const[showComposition,setShowComposition]=useState(false);

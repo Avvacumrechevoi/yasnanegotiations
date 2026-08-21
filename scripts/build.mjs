@@ -52,6 +52,7 @@ const APP_FILES = [
   'tours/tour-goda.js',
   'tours/tour-zhizni.js',
   'tours/tour-peregovorov.js',
+  'tours/tour-pechi.js',
   'games/duel/duel.js',
   'games/duel/duel-games.js',
   'games/duel/duel-game-quiz.js',
