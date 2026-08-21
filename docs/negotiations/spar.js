@@ -261,10 +261,17 @@
       sparRoot.appendChild(okNote);
     } else if (aiSetupOpen || getKey()) sparRoot.appendChild(renderKeyPanel());
     else {
-      var link = el('button', 'neg-spar-ailink', '🔑 Для живого диалога нужен свой ключ Anthropic — подключить →');
-      link.type = 'button';
-      link.addEventListener('click', function () { aiSetupOpen = true; renderSelector(); });
-      sparRoot.appendChild(link);
+      /* В приложении чужое поле «вставьте API-ключ» — красный флаг для
+         магазинов и лишний внешний хост. Говорим честно и не предлагаем. */
+      if (/YasnaApp\//.test(navigator.userAgent)) {
+        sparRoot.appendChild(el('div', 'neg-spar-ailink',
+          'Живой диалог скоро появится — пока доступны готовые сценарии ниже.'));
+      } else {
+        var link = el('button', 'neg-spar-ailink', '🔑 Для живого диалога нужен свой ключ Anthropic — подключить →');
+        link.type = 'button';
+        link.addEventListener('click', function () { aiSetupOpen = true; renderSelector(); });
+        sparRoot.appendChild(link);
+      }
     }
 
     // ── готовые сценарии: быстрый старт без настройки и без ключа ──

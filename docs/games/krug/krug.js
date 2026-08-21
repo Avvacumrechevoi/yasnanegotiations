@@ -323,7 +323,11 @@ function mode(){
 function share(){
   S.scr='share'; app().innerHTML=''; app().classList.remove('duo-col');
   const q='?y='+(SLUG[S.yasna.id]||encodeURIComponent(S.yasna.id))+'&s='+S.seed;
-  const url=location.origin+location.pathname+q;
+  /* В приложении origin = https://localhost — ссылка мертва у получателя.
+     Подставляем живой адрес сайта; на сайте ветка не работает. */
+  const url=(/YasnaApp\//.test(navigator.userAgent)
+    ? 'https://avvacumrechevoi.github.io/yasnanegotiations/games/krug/index.html'
+    : location.origin+location.pathname)+q;
   /* адрес хоста тоже переписываем: иначе после перезагрузки ссылку не переслать */
   try{ history.replaceState(null,'',q) }catch(_){}
   app().appendChild(el(`<div><h2>Одна раздача на всех</h2>

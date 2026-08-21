@@ -32,6 +32,25 @@ const НЕ_БРАТЬ = [
   // Офлайн-механика сайта. Внутри приложения все файлы и так местные, а
   // работник только мешал бы обновлению: содержимое меняется вместе с APK.
   'sw.js', 'offline.html',
+  // Замок и его будущие грабли: файл лежал мёртвым грузом, но если какая-то
+  // страница снова его подключит, приложение навсегда уведёт на главную.
+  'core/gate.js', 'core/pwa.js',
+  // Исходники, запечённые в dist/*.min.js: страницы приложения грузят только
+  // бандлы (проверено по src= всех страниц), а эти копии — треть веса APK.
+  // ВАЖНО: games/duel/*.css остаются — их duel.html грузит напрямую.
+  'app.js', 'lessons', 'tours',
+  'core/astro-panel.js', 'core/sky-real.js',
+  // content-store.js грузила только вырезанная админка.
+  'core/content-store.js',
+  'games/duel/content', 'games/duel/content.bundle.js',
+  'games/duel/duel.js', 'games/duel/duel-page.js', 'games/duel/turnir-engine.js',
+  'games/duel/group-engine.js', 'games/duel/rt-firebase.js', 'games/duel/trivia-bank.js',
+  'games/duel/duel-games.js', 'games/duel/duel-game-mirror.js',
+  'games/duel/duel-game-quiz.js', 'games/duel/duel-game-speed.js',
+  // Сирота: ни одной ссылки ниоткуда (проверено грепом по всем html/js).
+  'games/krug/varianty',
+  // Карта России 518 КБ не используется ни одной страницей.
+  'assets/russia-map.svg',
 ];
 
 const МУСОР = /(^|\/)(\.DS_Store|.*\.md)$/;

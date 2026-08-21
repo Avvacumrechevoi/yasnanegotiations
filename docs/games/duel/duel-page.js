@@ -10,6 +10,15 @@
 // ═══════════════════════════════════════════════════════════════════
 (function(){
   const { useState, useEffect, useRef, useMemo } = React;
+/* Адрес для приглашений. В приложении (метка YasnaApp в строке браузера)
+   location.origin — это https://localhost: ссылка, собранная из него, мертва
+   у получателя. Подставляем живой адрес сайта; на сайте ветка не работает. */
+function inviteBase(){
+  if (/YasnaApp\//.test(navigator.userAgent))
+    return 'https://avvacumrechevoi.github.io/yasnanegotiations' +
+      (location.pathname.startsWith('/games/') ? location.pathname : '/duel.html');
+  return window.location.origin + window.location.pathname;
+}
   const _g = (n) => window[n];
 
   // ─── Иконки и цвета тем — для banner-cards в picker'е ───────────────
@@ -236,7 +245,7 @@
       ),
       React.createElement('button', {
         className: 'dp-hero-cta-btn dp-hero-cta-btn--ghost',
-        onClick: () => { location.href = 'games/krug/'; },
+        onClick: () => { location.href = 'games/krug/index.html'; },
         type: 'button',
         'aria-label': 'Открыть Круг'
       },
@@ -270,7 +279,11 @@
         'Учись модели Ясны Суток через игровые партии. 9 тем · 5 типов заданий. Выбираешь длину (Блиц 10 / Стандарт 18 / Эксперт 30) и соперника — Тень или живой друг по ссылке. За верный ответ — 10 бусин, до +5 за скорость, серия из 3+ верных даёт множитель.'
       ),
       React.createElement('div', { className: 'dp-welcome-actions' },
-        React.createElement('button', { className: 'dp-btn dp-btn-cta', onClick: onLoginClick }, 'Войти через Telegram'),
+        /* В приложении виджет Telegram не работает (домен в BotFather +
+           браузерное окружение) — кнопку не показываем, честнее строка. */
+        /YasnaApp\//.test(navigator.userAgent)
+          ? React.createElement('span', { className: 'dp-btn dp-btn-ghost', style: { pointerEvents: 'none' } }, 'Вход — по почте, кнопка ниже')
+          : React.createElement('button', { className: 'dp-btn dp-btn-cta', onClick: onLoginClick }, 'Войти через Telegram'),
         React.createElement('button', { className: 'dp-btn dp-btn-ghost', onClick: onAnonStart }, 'Сыграть гостем')
       ),
       React.createElement('div', { className: 'dp-welcome-pillars' },
@@ -508,7 +521,7 @@
           React.createElement('div', { className: 'dp-cta-row' },
             React.createElement('button', {
               type: 'button', className: 'dp-cta dp-cta--solo',
-              onClick: (e) => { e.stopPropagation(); location.href = 'games/krug/#solo'; },
+              onClick: (e) => { e.stopPropagation(); location.href = 'games/krug/index.html#solo'; },
               'aria-label': 'Разложить круг одному'
             },
               React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
@@ -524,7 +537,7 @@
             ),
             React.createElement('button', {
               type: 'button', className: 'dp-cta dp-cta--pvp',
-              onClick: (e) => { e.stopPropagation(); location.href = 'games/krug/#duo'; },
+              onClick: (e) => { e.stopPropagation(); location.href = 'games/krug/index.html#duo'; },
               'aria-label': 'Разложить круг вдвоём'
             },
               React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
@@ -541,7 +554,7 @@
             ),
             React.createElement('button', {
               type: 'button', className: 'dp-cta dp-cta--group',
-              onClick: (e) => { e.stopPropagation(); location.href = 'games/krug/#link'; },
+              onClick: (e) => { e.stopPropagation(); location.href = 'games/krug/index.html#link'; },
               'aria-label': 'Разложить круг компанией'
             },
               React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
@@ -1183,7 +1196,7 @@
     }
 
     function copyLink(){
-      const link = window.location.origin + window.location.pathname + '?room=' + encodeURIComponent(roomCode);
+      const link = inviteBase() + '?room=' + encodeURIComponent(roomCode);
       window.YasnaClipboard(link,
         () => {
           // реальный успех (промис writeText зарезолвился ИЛИ execCommand скопировал)
@@ -1535,7 +1548,7 @@
     function copyLink(){
       // Примечание: DPLobby — устаревший дубликат DPLobbyV2 (не используется в
       // рендере), оставлен в синхроне ради консистентности.
-      const link = window.location.origin + window.location.pathname + '?room=' + encodeURIComponent(roomCode);
+      const link = inviteBase() + '?room=' + encodeURIComponent(roomCode);
       window.YasnaClipboard(link,
         () => {
           setStatusText('✓ Ссылка скопирована · жду собеседника…');
