@@ -420,7 +420,7 @@ body.theme-vk-dark {
   --vk-title-xl-size: 26px;    --vk-title-xl-line: 32px;    --vk-title-xl-weight: 500;
   --vk-title-l-size:  20px;    --vk-title-l-line:  28px;    --vk-title-l-weight:  500;
   --vk-title-m-size:  16px;    --vk-title-m-line:  24px;    --vk-title-m-weight:  500;
-  --vk-title-s-size:  10px;    --vk-title-s-line:  16px;    --vk-title-s-weight:  500;
+  --vk-title-s-size:  11.5px;    --vk-title-s-line:  16px;    --vk-title-s-weight:  500;
 
   /* ─── Body ─── */
   --vk-body-xl-size: 26px;     --vk-body-xl-line: 36px;     --vk-body-xl-line-paragraph: 40px;

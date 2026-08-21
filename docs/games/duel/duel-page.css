@@ -655,7 +655,7 @@ a { color: inherit; }
   margin-bottom: var(--space-2);
 }
 .dp-quest-foot {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--primary);
   font-weight: 500;
 }
@@ -690,7 +690,7 @@ a { color: inherit; }
   gap: var(--space-2);
 }
 .dp-theme-current-badge {
-  font-size: 9px;
+  font-size: 10.5px;
   font-weight: 700;
   color: var(--accent);
   letter-spacing: 0.1em;
@@ -1286,7 +1286,7 @@ a { color: inherit; }
   max-width: 280px;
   white-space: normal;
   width: max-content;
-  z-index: 100;
+  z-index: 130;
   font-style: normal;
   font-weight: 400;
   line-height: 1.4;
@@ -2633,7 +2633,7 @@ a { color: inherit; }
 .dp-cta--group:hover .dp-cta__icon { background: #7C5CFC; color: #fff; }
 .dp-cta--group .dp-cta__badge {
   background: #7C5CFC; color: #fff; opacity: 1;
-  font-size: 9px; font-weight: 700; letter-spacing: .04em;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .04em;
   padding: 2px 6px; border-radius: 6px; top: 10px;
 }
 

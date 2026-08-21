@@ -359,7 +359,7 @@ function inviteBase(){
         React.createElement('div', { className: 'dp-hero-progress', 'aria-label': 'Прогресс ступени' },
           React.createElement('div', { className: 'dp-hero-progress-fill', style: { width: pct + '%' } })
         ),
-        nextStupenLabel && React.createElement('div', { style: { fontSize: 11, color: 'var(--text-3)', marginTop: 4, fontVariantNumeric: 'tabular-nums' } }, nextStupenLabel)
+        nextStupenLabel && React.createElement('div', { style: { fontSize: 12, color: 'var(--text-3)', marginTop: 4, fontVariantNumeric: 'tabular-nums' } }, nextStupenLabel)
       ),
       isGuest && (/YasnaApp\//.test(navigator.userAgent)
         ? React.createElement('a', { className: 'dp-hero-cta', href: 'profil.html', title: 'Имя, зверь и вход по почте — на экране «Профиль»' }, 'Имя и вход — в Профиле →')
@@ -1763,8 +1763,14 @@ function inviteBase(){
                  никогда. Показывать неработающую кнопку — врать; показывать
                  отладочное «Бот не настроен» — врать вдвойне. Говорим прямо
                  и оставляем вход по почте, который в приложении работает. */
-              ? VkSysMsg({ kind: 'info', icon: '✉', title: 'Вход через Telegram — только на сайте',
-                           text: 'В приложении входите по почте — кнопка ниже.' })
+              ? React.createElement(React.Fragment, null,
+                  VkSysMsg({ kind: 'info', icon: '✉', title: 'Вход через Telegram — только на сайте',
+                             text: 'В приложении вход по почте живёт на экране «Профиль».' }),
+                  React.createElement('a', {
+                    className: 'dp-btn dp-btn-primary',
+                    style: { display: 'block', textAlign: 'center', marginTop: 12 },
+                    href: 'profil.html'
+                  }, 'Открыть Профиль →'))
             : !botUsername
               ? VkSysMsg({ kind: 'error', icon: '⚙', title: 'Бот не настроен', text: 'Это превью-сборка. Авторизация через Telegram отключена.' })
               : React.createElement('div', {

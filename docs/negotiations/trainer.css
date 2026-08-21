@@ -15,7 +15,7 @@
 }
 .neg-title {
   font-family: var(--font-display);
-  font-size: clamp(34px, 5vw, 52px); font-weight: 700; line-height: 1.08;
+  font-size: clamp(26px, 6vw, 44px); font-weight: 700; line-height: 1.08;
   letter-spacing: -0.025em; color: var(--text-primary);
 }
 .neg-lead {
@@ -777,11 +777,11 @@ html[data-neg-mode="spar"] .neg-hero-cta:hover { color: var(--text-primary); bor
 .neg-route-dot { width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; background: var(--bg-tonal); color: var(--text-secondary); border: 1px solid var(--border-strong); transition: background .15s, color .15s, box-shadow .15s; }
 .neg-route-step.is-done .neg-route-dot { background: rgba(47,191,113,.18); color: #2FBF71; border-color: rgba(47,191,113,.4); }
 .neg-route-step.is-here .neg-route-dot { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
-.neg-route-lbl { font-size: 11px; line-height: 1.25; text-align: center; }
+.neg-route-lbl { font-size: 12px; line-height: 1.25; text-align: center; }
 .neg-route-step.is-here .neg-route-lbl { color: var(--text-primary); font-weight: 600; }
 .neg-route-step:hover .neg-route-lbl { color: var(--text-secondary); }
 .neg-route-meta { text-align: center; font-size: 12.5px; color: var(--text-tertiary); margin-top: 12px; }
-@media (max-width: 520px) { .neg-route-lbl { font-size: 11px; } .neg-route-dot { width: 32px; height: 32px; } }
+@media (max-width: 520px) { .neg-route-lbl { font-size: 12px; } .neg-route-dot { width: 32px; height: 32px; } }
 
 /* — карточка каталога: результат вперёд, «вы здесь» — */
 .neg-cat-card.is-here { border-color: var(--accent); background: var(--accent-soft); }
