@@ -104,7 +104,17 @@
     <button class="knopka knopka--tihaya" id="vyhod" type="button" hidden>Выйти</button>
   </section>
 
-  <div class="versiya">Ясна для Android · 1.6</div>
+  <section class="kart">
+    <h2>Цитата дня по утрам</h2>
+    <div class="vhod-status" id="push-status">Выключено</div>
+    <p class="opis">Каждое утро в 9:30 — одна строка из книги «Ясна Суток».
+       Та же цитата стоит на главной. Без сервера и без рекламы: уведомление
+       собирается прямо на устройстве.</p>
+    <button class="knopka" id="push-knopka" type="button">Включить</button>
+    <div class="soobshenie" id="push-soobshenie" role="status"></div>
+  </section>
+
+  <div class="versiya">Ясна для Android · 1.7</div>
 </main>
 
 <nav aria-label="Разделы">
@@ -195,6 +205,32 @@
       кнВход.hidden=false; кнВыход.hidden=true;
     }
   }
+  /* Утренняя цитата: включение просит разрешение на уведомления,
+     расписание собирает citaty.js. */
+  var пСтатус=document.getElementById('push-status');
+  var пКнопка=document.getElementById('push-knopka');
+  var пСооб=document.getElementById('push-soobshenie');
+  function показатьПуш(){
+    var вкл=window.yasnaPushiVkl && window.yasnaPushiVkl();
+    пСтатус.textContent=вкл?'✓ Включено — утром в 9:30':'Выключено';
+    пКнопка.textContent=вкл?'Выключить':'Включить';
+  }
+  пКнопка.onclick=function(){
+    var вкл=window.yasnaPushiVkl && window.yasnaPushiVkl();
+    пКнопка.disabled=true; пСооб.textContent='';
+    window.yasnaPushi(!вкл).then(function(итог){
+      пКнопка.disabled=false;
+      if(итог==='unavailable'){ пСооб.textContent='Доступно только в приложении.'; return; }
+      if(!вкл && итог==='denied'){
+        пСооб.textContent='Уведомления запрещены. Разрешите их приложению в настройках телефона.';
+        return;
+      }
+      пСооб.textContent=вкл?'Утренние цитаты выключены.':'Готово — первая цитата придёт завтра утром.';
+      показатьПуш();
+    });
+  };
+  показатьПуш();
+
   кнВыход.onclick=function(){
     try{ localStorage.removeItem('yasna_duel_token');
          localStorage.removeItem('yasna_duel_user'); }catch(e){}
@@ -203,6 +239,7 @@
   показатьВход();
 })();
 </script>
+<script src="citaty.js"></script>
 <script defer src="pribavka.js"></script>
 </body>
 </html>

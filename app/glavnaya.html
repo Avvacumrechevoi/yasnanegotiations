@@ -8,6 +8,9 @@
   ГЛАВНАЯ ПРИЛОЖЕНИЯ. Заменяет собой index.html сайта при сборке www/
   (см. sobrat-vitrinu.mjs).
 
+  Экран собран по задачам человека (JTBD), а не по устройству продукта:
+  каждый блок отвечает на «зачем мне это», а не «что у нас есть».
+
   Устройство экрана — сверху вниз по убыванию личного:
     1. приветствие с именем и зверем (тап — в Профиль);
     2. полоса моих чисел: бусины, партии, уроки — из тех же ключей
@@ -76,6 +79,17 @@
 
   main{padding:12px 16px calc(86px + var(--snizu))}
 
+  /* ── Цитата дня ── */
+  .citata{display:block;background:var(--kart);border:1px solid var(--kayma);
+    border-radius:18px;padding:15px 16px;margin:2px 0 12px;text-decoration:none;
+    color:inherit}
+  .citata:active{filter:brightness(.96)}
+  .citata .k{font:600 10.5px/1 Manrope,sans-serif;letter-spacing:.11em;
+    text-transform:uppercase;color:var(--ink-3)}
+  .citata .tx{font:500 19px/1.35 var(--serif);font-style:italic;margin:9px 0 7px;
+    color:var(--ink)}
+  .citata .ot{font:500 12px/1 Manrope,sans-serif;color:var(--ink-2)}
+
   /* ── Полоса моих чисел ── */
   .chisla{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;
     background:var(--kayma);border:1px solid var(--kayma);border-radius:16px;
@@ -133,21 +147,18 @@
   .yach .t{font:600 15px/1.2 Manrope,Inter,sans-serif;margin-top:10px}
   .yach .o{font-size:12px;color:var(--ink-2);margin-top:3px;line-height:1.4}
 
-  /* ── Место дня ── */
-  .mesto{display:block;background:var(--kart);border:1px solid var(--kayma);
-    border-radius:18px;padding:16px;text-decoration:none;color:inherit;
-    position:relative}
-  .mesto:active{filter:brightness(.96)}
-  .mesto .k{font:600 10.5px/1 Manrope,sans-serif;letter-spacing:.11em;
-    text-transform:uppercase;color:var(--ink-3)}
-  .mesto .im{font:600 26px/1.15 var(--serif);margin:8px 0 2px}
-  .mesto .im i{font-style:italic;color:var(--syn)}
-  .mesto .op{font-size:13.5px;color:var(--ink-2)}
-  .mesto .kuda{font:500 12px/1 Manrope,sans-serif;color:var(--syn);
-    margin-top:12px;display:inline-block}
-  .mesto .znak{position:absolute;right:16px;top:16px;opacity:.9}
-  .mesto .znak svg{width:34px;height:34px;stroke:var(--syn);fill:none;
-    stroke-width:1.6;stroke-linecap:round}
+  /* ── Список задач ── */
+  .spisok{background:var(--kart);border:1px solid var(--kayma);border-radius:16px;
+    overflow:hidden}
+  .spisok a{display:flex;align-items:center;gap:10px;padding:14px 14px;
+    text-decoration:none;color:inherit;border-bottom:1px solid var(--kayma)}
+  .spisok a:last-child{border-bottom:0}
+  .spisok a:active{filter:brightness(.95)}
+  .spisok span{flex:1;font:600 15px/1.25 Manrope,Inter,sans-serif}
+  .spisok small{display:block;font:400 12px/1.4 Inter,sans-serif;
+    color:var(--ink-2);margin-top:3px}
+  .spisok svg{width:16px;height:16px;stroke:var(--ink-3);fill:none;
+    stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
 
   /* ── Наббар ── */
   nav{position:fixed;left:0;right:0;bottom:0;z-index:900;
@@ -182,6 +193,15 @@
 </header>
 
 <main>
+  <!-- Цитата дня — первой: короткий повод открыть приложение и что-то
+       унести с собой. Дословные строки книги, ротация по дате; та же
+       цитата приходит утренним уведомлением (см. citaty.js). -->
+  <a class="citata" href="konstruktor.html" id="citata">
+    <span class="k">Цитата дня · Ясна Суток</span>
+    <div class="tx" id="citata-tx">«Кончилась тьма ночи, и начинается время утренней зари.»</div>
+    <div class="ot"><span id="citata-o">о первом свете</span> · <span id="citata-n">№87.4</span></div>
+  </a>
+
   <div class="chisla" role="group" aria-label="Мои числа">
     <a class="chislo" href="duel.html">
       <div class="z"><span class="yn">✦</span> <span id="busin">0</span></div>
@@ -200,9 +220,9 @@
   <h2>Начать сейчас</h2>
 
   <a class="delo delo--glav" href="duel.html">
-    <span class="k">Викторина</span>
-    <div class="t">Партия с Тенью</div>
-    <div class="o">Отвечай на вопросы на счёт — против бота по имени Тень или живого друга.</div>
+    <span class="k">Игра</span>
+    <div class="t">Сыграть и запомнить</div>
+    <div class="o">Партия вопросов против бота-Тени или друга: играя, закрепляешь метод.</div>
     <div class="meta"><span class="m">11 тем</span><span class="m">168 вопросов</span><span class="m">блиц ≈ 2 мин</span></div>
     <span class="strelka" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
@@ -211,70 +231,65 @@
 
   <a class="delo" href="learn.html">
     <span class="k">Обучение</span>
-    <div class="t" id="ucheba-t">Первый урок — 5 минут</div>
-    <div class="o" id="ucheba-o">Что такое Ясна и как ею пользоваться. По шагам, с подсказками.</div>
-    <div class="meta"><span class="m">с нуля</span><span class="m">по шагам</span></div>
+    <div class="t" id="ucheba-t">Разобраться, как устроена Ясна</div>
+    <div class="o" id="ucheba-o">Первый урок — 5 минут, по шагам, с подсказками.</div>
+    <div class="meta" id="ucheba-m"><span class="m">с нуля</span><span class="m">по шагам</span></div>
     <span class="strelka" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
     </span>
   </a>
 
-  <h2>Практики</h2>
+  <h2>Практики — под задачу</h2>
   <div class="setka">
     <a class="yach" href="games/krug/index.html">
       <span class="verh">
         <span class="ik" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="8.6"/><circle cx="12" cy="3.4" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="20.6" r="1.6" fill="currentColor" stroke="none"/><circle cx="3.4" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="20.6" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg></span>
-        <span class="n">16 явлений</span>
+        <span class="n">на память</span>
       </span>
-      <span><div class="t">Поставь на место</div><div class="o">бери элемент явления и ставь на его долю круга</div></span>
+      <span><div class="t">Поставь на место</div><div class="o">16 явлений: элемент — на его долю круга</div></span>
     </a>
     <a class="yach" href="konstruktor.html">
       <span class="verh">
         <span class="ik" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4v17.2M3.4 12h17.2M6 6l12 12M18 6L6 18"/></svg></span>
-        <span class="n">2D · 3D</span>
+        <span class="n">на погружение</span>
       </span>
-      <span><div class="t">Конструктор</div><div class="o">разложи явление по 12 частям: сутки, год, жизнь</div></span>
+      <span><div class="t">Конструктор</div><div class="o">разложи явление по 12 частям — в 2D и 3D</div></span>
     </a>
     <a class="yach" href="negotiations.html">
       <span class="verh">
         <span class="ik" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M4 6.5h11a2.5 2.5 0 0 1 2.5 2.5v2A2.5 2.5 0 0 1 15 13.5H9L5 17v-3.5H4A2.5 2.5 0 0 1 1.5 11V9A2.5 2.5 0 0 1 4 6.5z"/><path d="M20 10.2a2.3 2.3 0 0 1 2.5 2.3v1.8a2.3 2.3 0 0 1-2.3 2.3h-.9V19l-2.6-2.3"/></svg></span>
-        <span class="n">4 сценария</span>
+        <span class="n">люди и общение</span>
       </span>
-      <span><div class="t">Переговоры</div><div class="o">читать людей и вести разговор</div></span>
+      <span><div class="t">Переговоры</div><div class="o">читать людей и вести разговор: 4 сценария</div></span>
     </a>
-    <a class="yach" href="trainers.html">
+    <a class="yach" href="negotiations.html">
       <span class="verh">
-        <span class="ik" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="4" width="18" height="14" rx="2.5"/><path d="M8 21h8M12 18v3M7 12l3-3 2.5 2.5L16.5 8"/></svg></span>
-        <span class="n">каталог</span>
+        <span class="ik" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M4 11.2 12 4l8 7.2M6 9.8V20h12V9.8"/><path d="M9.5 20v-5.5h5V20"/></svg></span>
+        <span class="n">дом и семья</span>
       </span>
-      <span><div class="t">Тренажёры</div><div class="o">все игры и практики одним списком</div></span>
+      <span><div class="t">Договориться дома</div><div class="o">сцены из семейной жизни в тренажёре общения</div></span>
     </a>
   </div>
 
-  <h2>Круг суток</h2>
-  <a class="mesto" href="konstruktor.html">
-    <span class="k">Время дня · одно из двенадцати</span>
-    <div class="im"><i id="mesto-im">Искра</i></div>
-    <div class="op" id="mesto-op">первый свет суток</div>
-    <span class="kuda">Все двенадцать времён суток →</span>
-    <span class="znak" aria-hidden="true">
-      <svg viewBox="0 0 24 24" id="mesto-znak"><circle cx="12" cy="12" r="8.6" opacity=".35"/></svg>
-    </span>
-  </a>
+
 
   <h2>Узнать больше</h2>
-  <div class="setka">
-    <a class="yach" href="konstruktor.html">
-      <span class="verh">
-        <span class="ik" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15.5H6.5A2.5 2.5 0 0 0 4 21z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20"/></svg></span>
-      </span>
-      <span><div class="t">Готовые разборы</div><div class="o">библиотека явлений, уже разложенных по кругу</div></span>
+  <div class="spisok">
+    <a href="konstruktor.html">
+      <span>Изучить готовые ясны<small>библиотека явлений, уже разложенных по кругу</small></span>
+      <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
     </a>
-    <a class="yach" href="rating.html">
-      <span class="verh">
-        <span class="ik" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M5 20v-7M12 20V5M19 20v-11"/></svg></span>
-      </span>
-      <span><div class="t">Рейтинг</div><div class="o">как устроен счёт и звания</div></span>
+    <a href="konstruktor.html">
+      <span>Составить свою Ясну<small>разложи собственное явление по двенадцати частям</small></span>
+      <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+    </a>
+    <a href="rating.html">
+      <span>Понять, как устроен рейтинг<small>бусины, звания и за что их дают</small></span>
+      <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+    </a>
+    <a href="trainers.html">
+      <span>Все тренажёры одним списком<small>каталог игр и практик</small></span>
+      <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
     </a>
   </div>
 </main>
@@ -302,6 +317,7 @@
   </a>
 </nav>
 
+<script src="citaty.js"></script>
 <script>
 (function(){
   function читать(ключ){
@@ -321,41 +337,25 @@
   var уроков=Array.isArray(уроки)?уроки.length:0;
   document.getElementById('urokov').textContent=уроков;
 
-  /* Подпись обучения — по прогрессу. */
+  /* Подпись обучения — по прогрессу: задача одна, состояние разное. */
   if(уроков>0){
-    document.getElementById('ucheba-t').textContent='Продолжить обучение';
-    document.getElementById('ucheba-o').textContent='Пройдено уроков: '+уроков+'. Дорога ждёт дальше.';
+    document.getElementById('ucheba-o').textContent='Пройдено уроков: '+уроков+'. Продолжай — дорога дальше.';
+    document.getElementById('ucheba-m').innerHTML='<span class="m">продолжить</span><span class="m">уроков: '+уроков+'</span>';
   }
 
-  /* Место дня: одно из двенадцати мест круга Суток, по дате.
-     Имена — рабочие, определения выверены по корпусу (№416, №87.*, №266).
-     Порядок — по кругу от Ночи. Нарочно НЕ «время сейчас»: автор
-     отказывается привязывать места к часам (№44), и мы вслед за ним. */
-  var МЕСТА=[
-    ['Ночь','полная тьма, дно круга'],
-    ['Искра','первый свет суток'],
-    ['Утренняя Заря','свет есть, солнца ещё нет'],
-    ['Утро','солнце выходит из-за горизонта'],
-    ['Восход','солнце поднимается в небо'],
-    ['Утренний Салют','конец восхода, начало дня'],
-    ['День','солнце идёт вершиной'],
-    ['Первая Тьма','свет пошёл на убыль'],
-    ['Вечерняя Заря','солнце опускается'],
-    ['Вечер','солнце уходит за горизонт'],
-    ['Сумерки','света всё меньше'],
-    ['Вечерний Салют','конец сумерек, начало тьмы']
-  ];
-  var сег=new Date();
-  var день=Math.floor((сег-new Date(сег.getFullYear(),0,0))/864e5);
-  var номер=день%12;
-  document.getElementById('mesto-im').textContent=МЕСТА[номер][0];
-  document.getElementById('mesto-op').textContent=МЕСТА[номер][1];
-  /* Метка на кольце — там же, где это место стоит на настоящем круге. */
-  var уг=(номер*30+90)*Math.PI/180;
-  var т=document.createElementNS('http://www.w3.org/2000/svg','circle');
-  т.setAttribute('cx',12+8.6*Math.cos(уг)); т.setAttribute('cy',12+8.6*Math.sin(уг));
-  т.setAttribute('r','2.2'); т.setAttribute('fill','currentColor'); т.setAttribute('stroke','none');
-  document.getElementById('mesto-znak').appendChild(т);
+  /* Цитата дня — из общего списка (citaty.js), там же — утренние пуши. */
+  if(window.yasnaCitata){
+    var ц=window.yasnaCitata();
+    document.getElementById('citata-tx').textContent='«'+ц[0]+'»';
+    document.getElementById('citata-o').textContent=ц[1];
+    document.getElementById('citata-n').textContent=ц[2];
+  }
+  /* Если утренняя цитата включена — молча сдвигаем расписание вперёд,
+     чтобы двухнедельный запас уведомлений не кончался. */
+  if(window.yasnaPushiVkl && window.yasnaPushiVkl() && window.yasnaPushi){
+    window.yasnaPushi(true);
+  }
+
 })();
 </script>
 </body>
