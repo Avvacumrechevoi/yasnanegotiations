@@ -21,38 +21,38 @@ app/
 
 ## Что нужно один раз
 
-**Node 22.** Capacitor 8 требует именно его; на машине лежит в `~/.local/node22`.
+**Node 22.** Capacitor 8 требует именно его; на машине лежит в `~/.local/node22` (прежний Node 20 не тронут).
 
 ```bash
 export PATH="$HOME/.local/node22/bin:$PATH"
 ```
 
-**JDK 17 и инструменты Android** — уже скачаны в `~/.local/android-build`.
+**JDK 21 и инструменты Android** — уже стоят в `~/.local/android-build`.
+Именно 21, а не 17: Capacitor 8 собирается под него, а 17 отвечает
+`invalid source release: 21`.
 
 ```bash
-export JAVA_HOME="$HOME/.local/android-build/jdk-17/Contents/Home"
+export JAVA_HOME="$HOME/.local/android-build/jdk-21/Contents/Home"
 export ANDROID_HOME="$HOME/.local/android-build/sdk"
-export PATH="$JAVA_HOME/bin:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+export PATH="$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
 ```
 
-**Лицензии Android SDK.** Это согласие с условиями Google, и принять его должны
-вы, а не кто-то за вас:
+Лицензии Android SDK приняты, пакеты `platform-tools`, `platforms;android-36` и
+`build-tools;35.0.0` поставлены. Если понадобится на другой машине:
 
 ```bash
 yes | sdkmanager --licenses
 sdkmanager "platform-tools" "platforms;android-36" "build-tools;35.0.0"
 ```
 
-Около гигабайта. Версии не выдуманы — это ровно то, что запросил Gradle при
-пробной сборке:
+Одной командой всё окружение сразу:
 
+```bash
+export PATH="$HOME/.local/node22/bin:$PATH"
+export JAVA_HOME="$HOME/.local/android-build/jdk-21/Contents/Home"
+export ANDROID_HOME="$HOME/.local/android-build/sdk"
+export PATH="$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$PATH"
 ```
-Failed to install the following Android SDK packages as some licences have not been accepted.
-     build-tools;35.0.0 Android SDK Build-Tools 35
-     platforms;android-36 Android SDK Platform 36
-```
-
-Дальше сборка идёт сама.
 
 ---
 

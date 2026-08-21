@@ -11,6 +11,8 @@
 /.idea/assetWizardSettings.xml
 .DS_Store
 /build
+/capacitor-cordova-android-plugins/build
+/app/build
 /captures
 .externalNativeBuild
 .cxx
