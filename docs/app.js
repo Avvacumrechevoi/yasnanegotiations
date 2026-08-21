@@ -293,7 +293,7 @@ function LessonPicker({onSelectLesson,onClose,completedLessons=[]}){
   };
 
   return(
-    <div className="yl-lightscope" style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#F5F5F7',zIndex:70,display:'flex',flexDirection:'column',colorScheme:'light'}}>
+    <div className="yl-lightscope" style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#F5F5F7',zIndex:130,display:'flex',flexDirection:'column',colorScheme:'light'}}>
       {/* Header */}
       <div style={{padding:'14px 20px',borderBottom:'1px solid #E5E5EA',flexShrink:0,display:'flex',alignItems:'center',gap:10,background:'#fff'}}>
         <div style={{flex:1,minWidth:0}}>
@@ -357,7 +357,7 @@ function Instruction({onClose}){
   const Card=({title,color,children})=><div style={{padding:'16px 18px',background:color+'06',border:'1px solid '+color+'20',borderRadius:12,marginBottom:12}}><div style={{fontSize:13,fontWeight:700,color:color,marginBottom:8}}>{title}</div>{children}</div>;
 
   return(
-    <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#fff',zIndex:70,display:'flex',flexDirection:'column'}}>
+    <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#fff',zIndex:130,display:'flex',flexDirection:'column'}}>
       <div style={{display:'flex',alignItems:'center',padding:'14px 24px',borderBottom:'1px solid #e5e5ea',flexShrink:0}}>
         <h2 style={{fontSize:24,fontWeight:700,color:'#1d1d1f',flex:1}}>Инструкция по составлению Ясны</h2>
         <button onClick={onClose} style={{fontSize:13,color:'#0071e3',padding:'8px 20px',border:'1px solid #0071e3',borderRadius:8}}>Закрыть</button>
@@ -664,7 +664,7 @@ function Glossary({onClose}){
   const Warn=({children})=><div style={{display:'flex',gap:8,alignItems:'flex-start',marginBottom:6}}><span style={{color:'#ff9500',fontSize:13,lineHeight:1,flexShrink:0}}>⚠</span><div style={{fontSize:12,color:'#6e6e73',lineHeight:1.5}}>{children}</div></div>;
 
   return(
-    <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#fff',zIndex:70,display:'flex',flexDirection:'column'}}>
+    <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#fff',zIndex:130,display:'flex',flexDirection:'column'}}>
       <div style={{display:'flex',alignItems:'center',padding:'14px 24px',borderBottom:'1px solid #e5e5ea',flexShrink:0}}>
         <h2 style={{fontSize:24,fontWeight:700,color:'#1d1d1f',flex:1}}>Глоссарий</h2>
         <button onClick={onClose} style={{fontSize:13,color:'#0071e3',padding:'8px 20px',border:'1px solid #0071e3',borderRadius:8}}>Закрыть</button>
@@ -1102,7 +1102,7 @@ function App(){
       {/* МЕХАНИКИ — overlay-панель слева под триггером. Не больше ~1/3 экрана.
           Триггер живёт в .nav-tabs (см. выше). Группы по полю g. */}
       {filtersOpen && <>
-        <div onClick={()=>setFiltersOpen(false)} className='mech-overlay-backdrop' style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:129,background:'rgba(0,0,0,.35)'}}/>
+        <div onClick={()=>setFiltersOpen(false)} className='mech-overlay-backdrop' style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:129,background:document.documentElement.classList.contains('yk-est')?'rgba(0,0,0,.35)':'transparent'}}/>
         <div onClick={e=>e.stopPropagation()} className='mech-overlay' style={{position:'fixed',top:106,left:16,zIndex:130,width:'min(26vw, 340px)',minWidth:280,maxHeight:'calc(100vh - 130px)',overflowY:'auto',background:'var(--bg2,#fff)',border:'1px solid var(--border,#d2d2d7)',borderRadius:14,boxShadow:'0 18px 56px rgba(0,0,0,.40), 0 4px 16px rgba(0,0,0,.18)',padding:'12px 14px 14px',animation:'slideDown .2s cubic-bezier(.16,1,.3,1)'}}>
           {/* Top-bar */}
           <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14,flexWrap:'wrap'}}>

@@ -15,7 +15,7 @@
 }
 .neg-title {
   font-family: var(--font-display);
-  font-size: clamp(26px, 6vw, 44px); font-weight: 700; line-height: 1.08;
+  font-size: clamp(26px, 6vw, 52px); font-weight: 700; line-height: 1.08;
   letter-spacing: -0.025em; color: var(--text-primary);
 }
 .neg-lead {

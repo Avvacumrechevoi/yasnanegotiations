@@ -326,7 +326,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
           <title>{tipText}</title>
           <circle cx={pt.x} cy={pt.y} r={nr+14} fill="transparent" stroke="none"/>
           {isSel&&<circle cx={pt.x} cy={pt.y} r={nr+8} fill={c} opacity=".06" filter="url(#gw)"/>}
-          <circle cx={pt.x} cy={pt.y} r={isSel?nr+3:nr} fill="#fff" stroke={c} strokeWidth={isSel?3.2:([0,3,6,9].includes(i)?2.6:2)} opacity={o} filter={isSel?"url(#gw)":"url(#ns)"} style={{pointerEvents:'none',transition:'r 150ms ease'}}/>
+          <circle cx={pt.x} cy={pt.y} r={isSel?nr+3:nr} fill="var(--star-uzel,#fff)" stroke={c} strokeWidth={isSel?3.2:([0,3,6,9].includes(i)?2.6:2)} opacity={o} filter={isSel?"url(#gw)":"url(#ns)"} style={{pointerEvents:'none',transition:'r 150ms ease'}}/>
           {af.includes('mb_zodiac')
             ? <image href={`assets/zodiac/z${i}.png`} x={pt.x-zsz/2} y={pt.y-zsz/2} width={zsz} height={zsz} preserveAspectRatio="xMidYMid meet" opacity={o} style={{pointerEvents:'none'}}/>
             : <text x={pt.x} y={pt.y+6} textAnchor="middle" fill={(hl&&!hl.includes(i))?'#c0c0c5':'var(--star-ink,#1f2937)'} fontSize={isMob?(isSel?"22":"20"):(isSel?"30":"28")} fontWeight="700" fontFamily="var(--sans)" opacity={o} style={{pointerEvents:'none'}}>{i}</text>}
@@ -380,7 +380,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
         return<g className="drill-popup" style={{animation:'drillPopup .42s cubic-bezier(.16,1,.3,1)',transformOrigin:`${cx}px ${cy}px`}}>
           {/* Карточка-попап — занимает почти весь viewBox, без backdrop */}
           <rect x={cardX} y={cardY} width={cardW} height={cardH} rx="24" ry="24"
-                fill="#ffffff" stroke="rgba(162,28,175,.22)" strokeWidth="2"
+                fill="var(--star-uzel,#ffffff)" stroke="rgba(162,28,175,.22)" strokeWidth="2"
                 style={{filter:'drop-shadow(0 24px 56px rgba(15,23,42,.32))'}}
                 />
           {/* Декоративная верхняя полоса с градиентом */}
@@ -438,7 +438,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
             return<g key={`sub${j}`}>
               {/* Кружок sub-полки */}
               <circle cx={sx} cy={sy} r={subNr+3} fill="rgba(255,255,255,.95)" stroke="rgba(162,28,175,.15)" strokeWidth="0.8"/>
-              <circle cx={sx} cy={sy} r={subNr} fill="#fff" stroke={pranaColor} strokeWidth={isMob?2.8:3}/>
+              <circle cx={sx} cy={sy} r={subNr} fill="var(--star-uzel,#fff)" stroke={pranaColor} strokeWidth={isMob?2.8:3}/>
               {/* Цифра sub-полки */}
               <text x={sx} y={sy+(isMob?8:9)} textAnchor="middle" fontSize={isMob?28:32} fontWeight="700" fill="var(--star-ink,#1f2937)" fontFamily="var(--sans)">{j}</text>
               {/* Подпись sub-полки — снаружи кольца */}

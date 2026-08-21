@@ -26,14 +26,14 @@
     :root:not([data-theme="light"]){
       --fon:#101214; --kart:#1a1d21;
       --ink:#e8ebee; --ink-2:#9aa3ad; --kayma:rgba(232,235,238,.12);
-      --pole:#2b3036;
+      --pole:#2b3036; --syn:#3d96f0;
     }
   }
   /* Явный выбор в Профиле (html[data-theme]) сильнее системного */
   :root[data-theme="dark"]{
       --fon:#101214; --kart:#1a1d21;
       --ink:#e8ebee; --ink-2:#9aa3ad; --kayma:rgba(232,235,238,.12);
-      --pole:#2b3036;
+      --pole:#2b3036; --syn:#3d96f0;
     }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0}
@@ -136,10 +136,12 @@
     <div class="soobshenie" id="push-soobshenie" role="status"></div>
   </section>
 
-  <div class="versiya">Ясна для Android · 1.9</div>
+  <div class="versiya">Ясна для Android</div>
 </main>
 
 
+<script src="citaty.js"></script>
+<script src="obnovlenie.js"></script>
 <script>
 (function(){
   var КЛЮЧ='yasna_duel_profile';
@@ -271,8 +273,6 @@
   показатьВход();
 })();
 </script>
-<script src="citaty.js"></script>
-<script src="obnovlenie.js"></script>
 <script defer src="pribavka.js"></script>
 <script>
 /* Вид: три положения темы через единый core/theme.js (ключ yasna_theme). */

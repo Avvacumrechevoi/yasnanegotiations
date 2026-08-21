@@ -193,7 +193,10 @@
       b.addEventListener('click', function () { show(b.getAttribute('data-mode')); });
     });
     var saved = null; try { saved = localStorage.getItem('yasna_neg_mode'); } catch (_) {}
-    show(saved === 'spar' ? 'spar' : 'lessons');
+    /* Прямые двери (#dom с главной приложения) сильнее сохранённой вкладки:
+       человек шёл к сценариям, а не в свой прошлый спарринг. */
+    if (location.hash === '#dom') show('lessons');
+    else show(saved === 'spar' ? 'spar' : 'lessons');
   }
 
   var sparRoot = null;
@@ -661,6 +664,7 @@
   // Кнопка «назад» телефона: из «Живого спарринга» — к «Сценариям»,
   // а не закрывать приложение (событие шлёт app/pribavka.js).
   window.addEventListener('yasna:назад', function (e) {
+    if (e.defaultPrevented) return;      /* уже перехвачено другим слоем */
     var акт = document.querySelector('#neg-mode-tabs .neg-mode-tab.is-active');
     if (акт && акт.getAttribute('data-mode') === 'spar') {
       e.preventDefault();

@@ -1451,7 +1451,7 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
   };
 
   return(
-    <div className="yl-lightscope" style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#F8F8F9',zIndex:70,display:'flex',flexDirection:'column',colorScheme:'light'}}>
+    <div className="yl-lightscope" style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#F8F8F9',zIndex:130,display:'flex',flexDirection:'column',colorScheme:'light'}}>
       {/* Sticky header */}
       <div style={{padding:'10px 16px',borderBottom:'1px solid #ECECEE',flexShrink:0,display:'flex',alignItems:'center',gap:10,background:'#fff',position:'relative',boxShadow:'0 1px 2px rgba(0,0,0,.02)'}}>
         <div style={{flex:1,minWidth:0}}>

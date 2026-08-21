@@ -72,12 +72,11 @@
     /* Сайтовая шапка: разделы и тема переехали (наббар / Профиль→Вид). */
     '.ynav{display:none !important}' +
     '.dp-header{display:none !important}' +
-    /* Клавиатура открыта → вьюпорт низкий → наббар не всплывает над ней. */
     /* Плавающие кнопки «Отзыв» — над наббаром, а не под ним. */
     '.tr-fab-fb,.neg-fab-fb{bottom:calc(84px + var(--yk-snizu)) !important}' +
     /* 404: разделы уже в наббаре — остаётся одна дверь «На главную». */
     '.e-links .e-btn:not(.e-btn--primary){display:none}' +
-    '@media (max-height:450px){.yk-nav{display:none}body{padding-bottom:0 !important}}';
+    '.yk-nav.yk-klava{display:none}';
   (document.head || document.documentElement).appendChild(st);
 
   var nav = document.createElement('nav');
@@ -90,5 +89,29 @@
       '<svg viewBox="0 0 24 24" aria-hidden="true">' + п[2] + '</svg>' +
       п[1] + '</a>';
   }).join('');
+  /* Переключение вкладок НЕ копит историю (правило нижней навигации):
+     иначе десять переходов по вкладкам = десять нажатий «назад».
+     Заходы вглубь (урок, партия, круг) остаются обычными переходами. */
+  nav.addEventListener('click', function (e) {
+    var a = e.target.closest('a');
+    if (!a) return;
+    e.preventDefault();
+    /* Тап по УЖЕ активной вкладке — не перезагрузка, а наверх (стандарт). */
+    if (a.getAttribute('aria-current') === 'page') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    location.replace(a.href);
+  });
+
+  /* Клавиатура: медиазапрос по высоте ловил не все телефоны (высокие экраны
+     с клавиатурой оставались «высокими») и гасил навигацию в сплит-скрине.
+     Честный признак — вьюпорт просел ощутимо ниже своего максимума за
+     сессию: Android resize'ит WebView под клавиатуру. */
+  var максВысота = window.innerHeight;
+  window.addEventListener('resize', function () {
+    if (window.innerHeight > максВысота) максВысота = window.innerHeight;
+    nav.classList.toggle('yk-klava', window.innerHeight < максВысота * 0.72);
+  });
   document.body.appendChild(nav);
 })();

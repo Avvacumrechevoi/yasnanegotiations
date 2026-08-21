@@ -200,7 +200,7 @@ function light(i,by){
   const full=S.yasna.p[i];
   N.n[i].textContent=shortName(full); N.n[i].title=full;
   N.n[i].classList.add('on');
-  N.h[i].setAttribute('aria-label','Место '+(i+1)+': '+full);
+  N.h[i].setAttribute('aria-label','Место '+i+': '+full); /* канон: Полки 0…11 */
   if(by===0||by===1) N.n[i].dataset.by=by; else delete N.n[i].dataset.by;
 }
 function tie(k,col,free){ N.c[k].setAttribute('stroke',col||'var(--k-gold-ink)');
@@ -252,7 +252,7 @@ function setup(){
   LIST.forEach(y=>{
     const bb=bestOf(y.id);
     const b=el(`<button class="tile"><b>${esc(y.n)}</b><i>${
-      bb===null ? (y.lesson?'есть урок автора':'из книги Ясны')
+      bb===null ? (y.lesson?'есть урок автора':'из материалов Ясны')
                 : 'лучшее: '+bb+' из 10'
     }</i>${bb!==null?'<span class="dot"></span>':''}</button>`);
     b.onclick=()=>pickYasna(y,false);
@@ -437,7 +437,7 @@ function onTap(i){
     S.first[t]=false; S.miss[t]=(S.miss[t]||[]).concat(i);
     shake();
     say('no','Не сюда',
-      `Место ${i+1} — ${POS[i]}. Там живёт что-то другое.<br><br>
+      `Место ${i} — ${POS[i]}. Там живёт что-то другое.<br><br>
        «<b>${esc(S.yasna.p[t])}</b>» ищи там, где ${POS[t]}.`,
       'Попробовать ещё →', ()=>hand());
     return;
@@ -554,11 +554,6 @@ function route(){
   S.invited=false;
   if(pre==='solo'||pre==='duo'||pre==='link'){ S.mode=pre; S.preset=true; S.yasna=null; }
   else { S.preset=false; }
-  // Кнопка «назад» телефона (событие шлёт app/pribavka.js): посреди партии
-  // и на внутренних экранах возвращаемся к выбору ясны, а не прочь со страницы.
-  window.addEventListener('yasna:назад', function (e) {
-    if (S.scr && S.scr !== 'setup') { e.preventDefault(); setup(); window.scrollTo(0, 0); }
-  });
   setup();
 }
 function badLink(){
@@ -576,7 +571,13 @@ function once(){ if(booted) return; booted=true; boot(); }
 /* Кнопки карточки ведут на #solo/#duo/#link. Если вкладка уже открыта, браузер меняет
    только хэш и страницу не перезагружает — без этого слушателя режим не переключался,
    и «вдвоём» выглядело точно как «одному». */
-window.addEventListener('hashchange',route);
+  // Кнопка «назад» телефона: регистрируем ОДИН раз (раньше — внутри route(),
+  // и каждый hashchange добавлял дубликат слушателя).
+  window.addEventListener('yasna:назад', function (e) {
+    if (e.defaultPrevented) return;
+    if (S.scr && S.scr !== 'setup') { e.preventDefault(); setup(); window.scrollTo(0, 0); }
+  });
+  window.addEventListener('hashchange',route);
 
 /* Смена темы: часть браузеров не переобсчитывает var() у узлов, созданных до
    переключения — проверено, свежесозданная кнопка красится верно, а стоявшая

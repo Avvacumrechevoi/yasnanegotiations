@@ -30,10 +30,17 @@
 
 <div class="wrap">
   <header class="khd">
-    <a class="back" href="../../index.html">← Главная</a>
+    <a class="back" id="krug-nazad" href="../../duel.html">← Игра</a>
+    <script>
+    /* В приложении сюда приходят с главной; на сайте — из раздела Игры. */
+    if (/YasnaApp\//.test(navigator.userAgent)) {
+      var кн=document.getElementById('krug-nazad');
+      кн.href='../../index.html'; кн.textContent='← Главная';
+    }
+    </script>
     <div class="ttl">Круг <span>· поставь на место</span></div>
   </header>
   <main id="app"></main>
 </div>
 
-<script src="krug.js?v=e4287fdf"></script>
+<script src="krug.js?v=7c133695"></script>

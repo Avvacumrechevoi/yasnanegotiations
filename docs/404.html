@@ -17,7 +17,15 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Ясна">
-<script src="core/theme.js"></script>
+<script>
+/* Мини-тема вместо core/theme.js: 404 отдаётся с ЛЮБОГО пути, и относительный
+   src здесь не резолвится. Логика та же: ключ yasna_theme, авто — по системе. */
+(function(){try{
+  var m=localStorage.getItem('yasna_theme');
+  var d=(m==='dark')||(m!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.setAttribute('data-theme',d?'dark':'light');
+}catch(e){}})();
+</script>
 <script defer src="core/pwa.js"></script>
 <title>Страница не найдена · Ясна</title>
 <script>

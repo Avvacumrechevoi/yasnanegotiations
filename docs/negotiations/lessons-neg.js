@@ -422,6 +422,11 @@
   // Кнопка «назад» телефона (событие шлёт app/pribavka.js): внутри урока она
   // должна вести к каталогу сценариев, а не закрывать всё приложение.
   window.addEventListener('yasna:назад', function (e) {
+    if (e.defaultPrevented) return;      /* уже перехвачено другим слоем */
+    /* Открыта вкладка «Живой спарринг» — уступаем её слушателю (spar.js
+       вернёт на «Сценарии», где открытый урок ещё жив). */
+    var актСпар = document.querySelector('#neg-mode-tabs .neg-mode-tab.is-active');
+    if (актСпар && актСпар.getAttribute('data-mode') === 'spar') return;
     var onb = document.querySelector('.neg-onb');
     if (onb) { e.preventDefault(); saveOnb('skip'); onb.parentNode.innerHTML = ''; renderCatalog(); return; }
     if (lessonRoot && !lessonRoot.hidden) { e.preventDefault(); backToCatalog(); }

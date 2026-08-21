@@ -117,12 +117,14 @@
       d.className = 'obnova';
       d.setAttribute('role', 'status');
       d.innerHTML =
-        '<div class="obnova-t">Вышла версия ' + о.имя + '</div>' +
+        '<div class="obnova-t"></div>' +
         (о.изменения ? '<div class="obnova-o"></div>' : '') +
         '<div class="obnova-r">' +
           '<button type="button" class="obnova-da">Скачать и установить</button>' +
           '<button type="button" class="obnova-net">позже</button>' +
         '</div>';
+      /* Всё из удалённого манифеста — только textContent, никакого innerHTML. */
+      d.querySelector('.obnova-t').textContent = 'Вышла версия ' + о.имя;
       if (о.изменения) d.querySelector('.obnova-o').textContent = о.изменения;
       d.querySelector('.obnova-da').onclick = function () { window.yasnaObnovaSkachat(о.url); };
       d.querySelector('.obnova-net').onclick = function () {

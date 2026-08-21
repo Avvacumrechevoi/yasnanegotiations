@@ -1833,6 +1833,7 @@ body.theme-vk-dark {
   --star-fon: #14171b;
   --star-ink: #e8ebee;
   --star-ink-50: rgba(232,235,238,.55);
+  --star-uzel: #262b31;
 }
 body.theme-vk-dark .nav-tabs {
   background: var(--vk-bg-surface, #1a1d21) !important;
@@ -1842,7 +1843,7 @@ body.theme-vk-dark .nav-right {
   background: var(--vk-bg-surface, #1a1d21) !important;
   border-left-color: var(--vk-border, #2c313a) !important;
 }
-body.theme-vk-dark .nav-right button {
+body.theme-vk-dark .nav-right button:not(.fab-create):not(.fab-edit) {
   color: var(--vk-text-secondary, #c9cfd6) !important;
 }
 body.theme-vk-dark .fab-edit.mob-only {

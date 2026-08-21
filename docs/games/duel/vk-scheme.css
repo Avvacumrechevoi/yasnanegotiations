@@ -1865,9 +1865,3 @@ body.theme-vk-dark .dp-opponent-sub {
   .dp-auth-overlay .dp-auth-modal.dp-partiya-picker--v2 h2 { font-size: 20px; }
 }
 
-/* Заголовки карточек лобби: токен --vk-display-s-size (32px) на телефоне
-   крупноват — три класса и тег сильнее body.theme-vk-dark .dp-game-title. */
-@media (max-width: 480px) {
-  body .dp-root .dp-game-card .dp-game-title { font-size: 24px; line-height: 1.15; }
-  body .dp-root .dp-hero h1, body .dp-root .dp-hero-title { font-size: 26px; line-height: 1.15; }
-}

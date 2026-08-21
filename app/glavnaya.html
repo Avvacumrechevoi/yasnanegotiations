@@ -219,7 +219,7 @@
     <span class="k">Игра</span>
     <div class="t">Сыграть и запомнить</div>
     <div class="o">Партия вопросов против бота-Тени или друга: играя, закрепляешь метод.</div>
-    <div class="meta" id="igra-meta"><span class="m">11 тем</span><span class="m">168 вопросов</span><span class="m">блиц ≈ 2 мин</span></div>
+    <div class="meta" id="igra-meta"><span class="m">10 тем</span><span class="m">160 вопросов</span><span class="m">блиц ≈ 2 мин</span></div>
     <span class="strelka" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
     </span>
@@ -309,7 +309,7 @@
   if(п.avatar) document.getElementById('zver').textContent=п.avatar;
   if(п.nickname) document.getElementById('imya').textContent=п.nickname;
 
-  /* Игра: пока партий нет — зовём содержимым (11 тем · 168 вопросов);
+  /* Игра: пока партий нет — зовём содержимым (10 тем · 160 вопросов);
      как только человек заиграл — карточка показывает ЕГО счёт. */
   var д=читать('yasna_duel_data')||{};
   var бусин=д.totalScore||0;
@@ -363,6 +363,11 @@
 
   /* Обновления: тихая проверка раз в несколько часов; плашка — только
      когда в хранилище действительно лежит более новая сборка. */
+  /* Утренние цитаты: включённое расписание сдвигаем на 14 дней вперёд при
+     каждом открытии — иначе оно молча иссякает через две недели. */
+  if(window.yasnaPushiVkl && window.yasnaPushiVkl() && window.yasnaPushi)
+    window.yasnaPushi(true);
+
   if(window.yasnaObnovaPlashka) window.yasnaObnovaPlashka();
 
 })();
