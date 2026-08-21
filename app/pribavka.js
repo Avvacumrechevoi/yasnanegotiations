@@ -44,13 +44,39 @@
     });
   }
 
-  /* ── 2. Строка состояния ───────────────────────────────────────────────── */
+  /* ── 2. Строка состояния и системные отступы ──────────────────────────────
+     Android 15+ рисует страницу ПОД строкой состояния (edge-to-edge обязателен
+     для цели 35+), и setBackgroundColor там уже не действует. Из-за этого на
+     живом телефоне шапка сайта уезжала под часы — на эмулятоre без выреза
+     этого не было видно. Capacitor подкладывает размеры панелей переменными
+     --safe-area-inset-*; здесь мы:
+       — рисуем свою синюю подложку под строкой состояния,
+       — сдвигаем документ на её высоту,
+       — прилипающим шапкам сайта (.ynav--sticky) даём top той же высоты,
+         иначе при прокрутке они прилипали бы к краю окна и резались подложкой. */
   if (P.StatusBar) {
     try {
-      P.StatusBar.setBackgroundColor({ color: '#0071e3' });
-      P.StatusBar.setStyle({ style: 'LIGHT' });   /* светлые значки на синем */
+      /* DARK = светлые значки (стиль «на тёмном фоне») — у нас фон синий.
+         Раньше стояло LIGHT, и значки были тёмными на синем. */
+      P.StatusBar.setStyle({ style: 'DARK' });
+      P.StatusBar.setBackgroundColor({ color: '#0071e3' }); /* Android ≤14 */
     } catch (e) {}
   }
+  (function () {
+    var st = document.createElement('style');
+    st.textContent =
+      ':root{--yasna-sverhu:var(--safe-area-inset-top, env(safe-area-inset-top, 0px));' +
+      '--yasna-snizu:var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))}' +
+      'body{padding-top:var(--yasna-sverhu) !important}' +
+      '.ynav--sticky{top:var(--yasna-sverhu) !important}' +
+      '#yasna-plashka{position:fixed;top:0;left:0;right:0;height:var(--yasna-sverhu);' +
+      'background:#0071e3;z-index:2147483000;pointer-events:none}';
+    (document.head || document.documentElement).appendChild(st);
+    var pl = document.createElement('div');
+    pl.id = 'yasna-plashka';
+    pl.setAttribute('aria-hidden', 'true');
+    (document.body || document.documentElement).appendChild(pl);
+  })();
 
   /* ── 3. Знак о пропаже сети ────────────────────────────────────────────
      РОДНОЕ УВЕДОМЛЕНИЕ ANDROID, а не своя полоса в разметке. Две попытки до
