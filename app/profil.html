@@ -23,12 +23,18 @@
     --snizu:  var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
   }
   @media (prefers-color-scheme: dark){
-    :root{
+    :root:not([data-theme="light"]){
       --fon:#101214; --kart:#1a1d21;
       --ink:#e8ebee; --ink-2:#9aa3ad; --kayma:rgba(232,235,238,.12);
-      --pole:#24282d;
+      --pole:#2b3036;
     }
   }
+  /* Явный выбор в Профиле (html[data-theme]) сильнее системного */
+  :root[data-theme="dark"]{
+      --fon:#101214; --kart:#1a1d21;
+      --ink:#e8ebee; --ink-2:#9aa3ad; --kayma:rgba(232,235,238,.12);
+      --pole:#2b3036;
+    }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0}
   body{background:var(--fon);color:var(--ink);
@@ -50,8 +56,8 @@
     background:var(--pole);border:1.5px solid transparent;border-radius:12px;
     padding:13px 14px;outline:none}
   input[type=text]:focus{border-color:var(--syn)}
-  .zveri{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
-  .zver{width:46px;height:46px;border-radius:50%;border:2px solid transparent;
+  .zveri{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:14px 0 0;max-width:344px}
+  .zver{width:100%;aspect-ratio:1;max-width:50px;border-radius:50%;border:2px solid var(--kayma);
     background:var(--pole);font-size:24px;display:flex;align-items:center;
     justify-content:center;cursor:pointer;padding:0}
   .zver.vybran{border-color:var(--syn);background:transparent}
@@ -66,18 +72,15 @@
   .opis{font-size:13.5px;color:var(--ink-2);line-height:1.55;margin:8px 0 0}
   .vhod-status{display:flex;align-items:center;gap:10px;font-size:15px}
   .versiya{text-align:center;color:var(--ink-2);font-size:12px;margin:26px 0 0}
-
-  nav{position:fixed;left:0;right:0;bottom:0;z-index:900;background:var(--kart);
-    border-top:1px solid var(--kayma);padding:6px 6px calc(6px + var(--snizu));
-    display:flex}
-  nav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
-    padding:6px 2px;text-decoration:none;color:var(--ink-2);
-    font:500 10.5px/1 Manrope,Inter,sans-serif;border-radius:12px;min-height:48px;
-    justify-content:center}
-  nav a svg{width:23px;height:23px;stroke:currentColor;fill:none;
-    stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-  nav a.tut{color:var(--syn)}
-</style>
+  .segmenty{display:flex;gap:6px;background:var(--fon);border:1px solid var(--kayma);
+    border-radius:14px;padding:4px;margin-top:10px}
+  .segmenty button{flex:1;min-height:44px;border:0;border-radius:10px;background:none;
+    color:var(--ink-2);font:600 13.5px/1.2 Manrope,Inter,sans-serif;cursor:pointer}
+  .segmenty button[aria-checked="true"]{background:var(--kart);color:var(--syn);
+    box-shadow:0 1px 4px rgba(0,0,0,.12)}
+    [hidden]{display:none !important}
+  </style>
+  <script src="core/theme.js"></script>
 </head>
 <body>
 
@@ -105,6 +108,16 @@
   </section>
 
   <section class="kart">
+    <h2>Вид</h2>
+    <p class="opis">Тема приложения — на всех экранах сразу.</p>
+    <div class="segmenty" id="tema-segmenty" role="radiogroup" aria-label="Тема">
+      <button type="button" data-tema="auto">Как в системе</button>
+      <button type="button" data-tema="light">Светлая</button>
+      <button type="button" data-tema="dark">Тёмная</button>
+    </div>
+  </section>
+
+  <section class="kart">
     <h2>Обновления</h2>
     <div class="vhod-status" id="obnova-status">Версия приложения: …</div>
     <p class="opis">Приложение само проверяет новые сборки в хранилище и
@@ -126,28 +139,6 @@
   <div class="versiya">Ясна для Android · 1.9</div>
 </main>
 
-<nav aria-label="Разделы">
-  <a href="index.html">
-    <svg viewBox="0 0 24 24"><path d="M4 11.2 12 4l8 7.2M6 9.8V20h12V9.8"/></svg>
-    Главная
-  </a>
-  <a href="duel.html">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.5v4.5l3 2.2"/></svg>
-    Игра
-  </a>
-  <a href="learn.html">
-    <svg viewBox="0 0 24 24"><path d="M12 4 2.8 8.4 12 12.8l9.2-4.4zM6 10.6V16c0 1.4 2.7 3 6 3s6-1.6 6-3v-5.4"/></svg>
-    Уроки
-  </a>
-  <a href="konstruktor.html">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4v17.2M3.4 12h17.2"/></svg>
-    Разбор
-  </a>
-  <a class="tut" href="profil.html" aria-current="page">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg>
-    Профиль
-  </a>
-</nav>
 
 <script>
 (function(){
@@ -222,6 +213,8 @@
     var П=(window.Capacitor&&window.Capacitor.Plugins)||{};
     if(П.App&&П.App.getInfo) П.App.getInfo().then(function(i){
       ст.textContent='Версия приложения: '+i.version+' (сборка '+i.build+')';
+      var ф=document.querySelector('.versiya');
+      if(ф) ф.textContent='Ясна для Android · '+i.version;
     });
     кн.onclick=function(){
       кн.disabled=true; сб.textContent='Проверяю…';
@@ -271,7 +264,8 @@
 
   кнВыход.onclick=function(){
     try{ localStorage.removeItem('yasna_duel_token');
-         localStorage.removeItem('yasna_duel_user'); }catch(e){}
+         localStorage.removeItem('yasna_duel_user');
+         localStorage.removeItem('yasna_sync_state_v1'); }catch(e){}
     показатьВход();
   };
   показатьВход();
@@ -280,5 +274,21 @@
 <script src="citaty.js"></script>
 <script src="obnovlenie.js"></script>
 <script defer src="pribavka.js"></script>
+<script>
+/* Вид: три положения темы через единый core/theme.js (ключ yasna_theme). */
+(function(){
+  var ряд=document.getElementById('tema-segmenty');
+  if(!ряд||!window.Theme)return;
+  var кнопки=ряд.querySelectorAll('button');
+  function показать(){
+    var м=window.Theme.mode();
+    кнопки.forEach(function(к){к.setAttribute('aria-checked',String(к.dataset.tema===м));});
+  }
+  кнопки.forEach(function(к){к.addEventListener('click',function(){
+    window.Theme.set(к.dataset.tema); показать();
+  });});
+  window.Theme.onChange(показать); показать();
+})();
+</script>
 </body>
 </html>

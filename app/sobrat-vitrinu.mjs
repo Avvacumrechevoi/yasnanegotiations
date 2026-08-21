@@ -146,13 +146,20 @@ function поправить() {
     // ПРИБАВКА ПРИЛОЖЕНИЯ: кнопка «назад», строка состояния, знак о пропаже
     // сети. Без этого обёртка остаётся сайтом в рамке — и это первое, за что
     // её отклоняют в магазине.
-    if (!/pribavka\.js/.test(s)) {
+    {
       const глубина = relative(ЦЕЛЬ, dirname(п)).split(/[\\/]/).filter(Boolean).length;
       const вверх = '../'.repeat(глубина);
-      const тег = `\n<script defer src="${вверх}pribavka.js"></script>`;
-      if (/<\/body>/i.test(s)) s = s.replace(/<\/body>/i, тег + '\n</body>');
-      else s += тег;
-      прибавка++;
+      let тег = '';
+      if (!/src="[^"]*pribavka\.js/.test(s)) тег += `\n<script defer src="${вверх}pribavka.js"></script>`;
+      /* Отдельная проверка: profil.html носит pribavka.js в исходнике, и общий
+         if оставил бы его без сквозного наббара. Проверка — по src=, а не по
+         подстроке: комментарий со словом «navigatsiya.js» не считается тегом. */
+      if (!/src="[^"]*navigatsiya\.js/.test(s)) тег += `\n<script defer src="${вверх}navigatsiya.js"></script>`;
+      if (тег) {
+        if (/<\/body>/i.test(s)) s = s.replace(/<\/body>/i, тег + '\n</body>');
+        else s += тег;
+        прибавка++;
+      }
     }
 
     if (s !== было) writeFileSync(п, s, 'utf8');
@@ -164,6 +171,7 @@ const c = собрать();
 /* Прибавка живёт рядом со сборщиком, а не в docs/: на сайте она не нужна и
    там бы только мозолила глаза. */
 cpSync(join(ЗДЕСЬ, 'pribavka.js'), join(ЦЕЛЬ, 'pribavka.js'));
+cpSync(join(ЗДЕСЬ, 'navigatsiya.js'), join(ЦЕЛЬ, 'navigatsiya.js'));
 
 /* ГЛАВНАЯ ПРИЛОЖЕНИЯ вместо сайтовой. Сайтовая — рекламная страница со
    скроллом и героем; в приложении человеку нужны двери в занятия одним

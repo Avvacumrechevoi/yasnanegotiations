@@ -65,7 +65,7 @@
       return {
         id: q.id,
         text: q.stem,
-        options: ['Верно', 'Не верно'],
+        options: ['Верно', 'Неверно'],
         correct: q.correct === true ? 0 : 1,
         hint: q.explanation?.quote || '',
         source: q.explanation?.source || {},

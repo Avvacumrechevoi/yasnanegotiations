@@ -1401,8 +1401,10 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
 
   const visibleBlocks=lesson.blocks.slice(0,lastVisibleIdx+1);
 
-  // Прогресс: по количеству раскрытых gates
-  const progress=Math.min(100,(unlockedGates/(totalGates+1))*100);
+  // Прогресс: сделанное пользователем. unlockedGates стартует с 1 (первая
+  // секция открыта сама), поэтому вычитаем её — иначе шкала показывала 25%
+  // до первого касания.
+  const progress=totalGates>0?Math.min(100,Math.max(0,(unlockedGates-1)/totalGates*100)):100;
 
   useEffect(()=>{
     if(fullyDone&&onComplete)onComplete(lesson.id);

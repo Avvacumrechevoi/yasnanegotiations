@@ -26,6 +26,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Ясна">
 <script defer src="core/pwa.js"></script>
+<script>
+/* Гиды (#tour=…) живут на konstruktor.html — старые ссылки не должны вести в тупик. */
+(function(){var m=location.hash.match(/^#tour=(.+)$/);
+if(m)location.replace('konstruktor.html#tour='+m[1]);})();
+</script>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <title>Путь по Руси — карта курса · Ясна</title>
 <meta name="description" content="Курс по методу Ясны как путь странника от Москвы до Тихого океана — 8 остановок, 8 явлений, 8 граней русского мировоззрения."/>
@@ -188,6 +193,15 @@ a { color: inherit; text-decoration: none; }
 .l-progress-count { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text-primary); }
 
 /* ═══ PATH — вертикальный таймлайн обучения ═══ */
+.l-gidy { max-width: 980px; margin: 40px auto 0; padding: 0 24px; }
+.l-gidy-sub { color: var(--text-secondary, #A8B1BE); font-size: 14px; margin: 6px 0 16px; }
+.l-gidy-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.l-gid { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; min-height: 64px;
+  border: 1px solid var(--border, rgba(255,255,255,.08)); border-radius: 14px;
+  background: var(--bg-card, rgba(255,255,255,.03)); text-decoration: none; }
+.l-gid b { color: var(--text-primary, #FEFEFE); font-size: 15px; font-weight: 650; }
+.l-gid span { color: var(--text-tertiary, #626D7A); font-size: 12.5px; }
+.l-gid:hover { border-color: var(--accent, #0077FF); }
 .l-path-wrap {
   max-width: 1100px;
   margin: 32px auto 0;
@@ -638,7 +652,7 @@ a { color: inherit; text-decoration: none; }
 .l-intro-progress-pct {
   position: absolute;
   top: 12px; left: 16px;
-  font-size: 11px; font-weight: 700;
+  font-size: 12px; font-weight: 700;
   letter-spacing: 0.10em;
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
@@ -657,11 +671,12 @@ a { color: inherit; text-decoration: none; }
   border: 1px solid var(--border);
   color: var(--text-muted);
   font-family: var(--font-sans);
-  font-size: 12px; font-weight: 500;
-  padding: 8px 14px; border-radius: 100px;
+  font-size: 13px; font-weight: 500;
+  padding: 13px 16px; border-radius: 100px;
   cursor: pointer;
   transition: color 200ms ease, border-color 200ms ease;
 }
+html.yk-est .l-intro-progress { top: 0; }
 .l-intro-skip:hover {
   color: var(--text-primary);
   border-color: var(--text-tertiary);
@@ -680,6 +695,8 @@ a { color: inherit; text-decoration: none; }
 .l-intro-title em { color: var(--accent); font-style: italic; }
 
 .l-intro-step {
+  display: none; /* скрытый шаг не должен резервировать высоту: под онбордингом
+                    зияло ~1800px пустого фона до карты курса */
   margin-bottom: 36px;
   opacity: 0;
   transform: translateY(20px);
@@ -687,6 +704,7 @@ a { color: inherit; text-decoration: none; }
   pointer-events: none;
 }
 .l-intro-step.is-visible {
+  display: block;
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
@@ -916,6 +934,7 @@ html[data-theme='light'] {
 <!-- ═══ ONBOARDING — показывается при первом заходе ═══ -->
 <div class="l-intro-progress" id="introProgressBar" hidden>
   <div class="l-intro-progress-fill" id="introProgressFill"></div>
+  <div class="l-intro-progress-pct" id="introPct" aria-live="polite"></div>
 </div>
 
 <section class="l-intro" id="learnIntro" hidden>
@@ -1121,6 +1140,22 @@ html[data-theme='light'] {
   <ol class="l-path" id="learnPath" role="list" style="--progress: 0%;"></ol>
 </div>
 
+<!-- Авторские гиды: готовые анимированные разборы явлений. Раньше жили только
+     внутри Разбора и с экрана Уроков были недостижимы — тупик после главы 1. -->
+<div class="l-gidy" id="gidy">
+  <div class="l-path-header"><h2 class="l-path-title">Авторские гиды</h2></div>
+  <p class="l-gidy-sub">Пока следующие главы готовятся — готовые разборы явлений по шагам, с анимацией круга.</p>
+  <div class="l-gidy-grid">
+    <a class="l-gid" href="konstruktor.html#tour=pechi"><b>Ясна печи</b><span>урок автора · дословно</span></a>
+    <a class="l-gid" href="konstruktor.html#tour=sutki"><b>Сутки — корень всего</b><span>главный круг метода</span></a>
+    <a class="l-gid" href="konstruktor.html#tour=goda"><b>Год</b><span>двойник Суток крупнее</span></a>
+    <a class="l-gid" href="konstruktor.html#tour=zhizni"><b>Жизнь</b><span>жизнь как круг</span></a>
+    <a class="l-gid" href="konstruktor.html#tour=atm"><b>Атмосфера</b><span>видимая — как круг</span></a>
+    <a class="l-gid" href="konstruktor.html#tour=atm_skrytyh"><b>Под атмосферой</b><span>скрытые явления</span></a>
+    <a class="l-gid" href="konstruktor.html#tour=peregovorov"><b>Переговоры</b><span>разговор как круг</span></a>
+  </div>
+</div>
+
 </div><!-- /#learnMain -->
 
 <!-- ═══ MODAL ═══ -->
@@ -1200,9 +1235,11 @@ html[data-theme='light'] {
     const total = steps.length;
     let currentIdx = 0;
 
+    const introPct = document.getElementById('introPct');
     function updateProgress(){
       const pct = ((currentIdx + 1) / total) * 100;
       if(introFill) introFill.style.width = pct + '%';
+      if(introPct) introPct.textContent = 'Шаг ' + (currentIdx + 1) + ' из ' + total;
     }
     updateProgress();
 
@@ -1210,6 +1247,8 @@ html[data-theme='light'] {
       if(currentIdx >= total - 1) return;
       currentIdx++;
       const step = steps[currentIdx];
+      step.style.display = 'block';
+      void step.offsetHeight; /* зафиксировать стартовый кадр, чтобы плавность осталась */
       step.classList.add('is-visible');
       // Гладкий скролл к новому шагу
       setTimeout(() => {
@@ -1541,11 +1580,11 @@ html[data-theme='light'] {
     document.getElementById('modalStatus').textContent =
       status === 'done' ? 'Пройдена' :
       status === 'active' ? 'Доступна' :
-      'Заблокирована — пройди предыдущие';
+      (s.action.available ? 'Заблокирована — пройди предыдущие' : 'Глава готовится');
 
     const cta = document.getElementById('modalCta');
     if(status === 'locked'){
-      cta.textContent = 'Откроется после предыдущих';
+      cta.textContent = s.action.available ? 'Откроется после предыдущих' : 'Глава готовится';
       cta.dataset.locked = '1';
       cta.onclick = null;
     } else if(s.action.available){

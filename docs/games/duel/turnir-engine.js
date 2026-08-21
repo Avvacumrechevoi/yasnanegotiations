@@ -356,11 +356,11 @@
     );
   }
 
-  // ─── True/False — две большие кнопки «Верно / Не верно» ─────────
+  // ─── True/False — две большие кнопки «Верно / Неверно» ─────────
   function TnTrueFalse({ chosen, correctIdx, showFeedback, onPick }){
     const items = [
       { idx: 0, label: 'Верно', sym: '✓' },
-      { idx: 1, label: 'Не верно', sym: '✕' }
+      { idx: 1, label: 'Неверно', sym: '✕' }
     ];
     return React.createElement('div', { className: 'tn-options tn-options-tf', role: 'group' },
       items.map(it => {
@@ -636,7 +636,7 @@
   }
 
   // ─── Баннер обратной связи (после ответа) ───────────────────────
-  // Не дублируем «Верно» / «Не верно» — это уже видно по подсветке варианта
+  // Не дублируем «Верно» / «Неверно» — это уже видно по подсветке варианта
   // (зелёный SOLID = правильный, красный SOLID = ошибочный). Здесь показываем
   // только дополнительную инфу: streak-бонус, заработанные бусины, timeout.
   function TnFeedbackBanner({ kind, busey, streak, mult }){

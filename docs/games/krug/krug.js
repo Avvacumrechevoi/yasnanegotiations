@@ -252,7 +252,7 @@ function setup(){
   LIST.forEach(y=>{
     const bb=bestOf(y.id);
     const b=el(`<button class="tile"><b>${esc(y.n)}</b><i>${
-      bb===null ? (y.lesson?'есть урок автора':'из корпуса')
+      bb===null ? (y.lesson?'есть урок автора':'из книги Ясны')
                 : 'лучшее: '+bb+' из 10'
     }</i>${bb!==null?'<span class="dot"></span>':''}</button>`);
     b.onclick=()=>pickYasna(y,false);
@@ -260,7 +260,7 @@ function setup(){
   });
   app().appendChild(g);
   app().appendChild(el(`<div class="note">В списке только те явления, у которых все двенадцать
-    элементов различимы. Строки с повтором элемента в игру не идут: два места нечем развести.</div>`));
+    элементов различимы: если элемент повторяется, его не поставить на одно определённое место — такие строки в игру не идут.</div>`));
 }
 
 function pickYasna(y,isRandom){
@@ -312,7 +312,7 @@ function mode(){
     ['link','Компанией по ссылке','всем достаётся одна и та же раздача']
   ];
   opts.forEach(([id,t,s])=>{
-    const b=el(`<button class="tile" style="min-height:56px"><b>${t}</b><i>${s}</i></button>`);
+    const b=el(`<button class="tile" style="min-height:56px;width:100%"><b>${t}</b><i>${s}</i></button>`);
     b.onclick=()=>{ S.mode=id; id==='link'?share():start() };
     app().appendChild(b);
   });
@@ -437,7 +437,7 @@ function onTap(i){
     S.first[t]=false; S.miss[t]=(S.miss[t]||[]).concat(i);
     shake();
     say('no','Не сюда',
-      `Место ${i} — ${POS[i]}. Там живёт что-то другое.<br><br>
+      `Место ${i+1} — ${POS[i]}. Там живёт что-то другое.<br><br>
        «<b>${esc(S.yasna.p[t])}</b>» ищи там, где ${POS[t]}.`,
       'Попробовать ещё →', ()=>hand());
     return;
@@ -554,6 +554,11 @@ function route(){
   S.invited=false;
   if(pre==='solo'||pre==='duo'||pre==='link'){ S.mode=pre; S.preset=true; S.yasna=null; }
   else { S.preset=false; }
+  // Кнопка «назад» телефона (событие шлёт app/pribavka.js): посреди партии
+  // и на внутренних экранах возвращаемся к выбору ясны, а не прочь со страницы.
+  window.addEventListener('yasna:назад', function (e) {
+    if (S.scr && S.scr !== 'setup') { e.preventDefault(); setup(); window.scrollTo(0, 0); }
+  });
   setup();
 }
 function badLink(){

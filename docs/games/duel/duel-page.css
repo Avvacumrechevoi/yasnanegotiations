@@ -312,8 +312,10 @@ a { color: inherit; }
 }
 .dp-section-h-row {
   display: flex; justify-content: space-between; align-items: baseline;
+  flex-wrap: wrap; gap: 4px 8px;
   margin-bottom: var(--space-2);
 }
+.dp-section-h-sub { min-width: 0; }
 .dp-section-h {
   font-size: 17px;
   font-weight: 600;
@@ -468,8 +470,8 @@ a { color: inherit; }
 .dp-hero-rank-pill {
   background: var(--accent-soft);
   color: var(--accent-strong);
-  font-size: 11px; font-weight: 500;
-  padding: 2px 8px;
+  font-size: 12px; font-weight: 500;
+  padding: 6px 12px;
   border-radius: var(--radius-md);
   letter-spacing: 0.04em;
 }
@@ -556,7 +558,7 @@ a { color: inherit; }
   border-color: var(--primary-strong);
 }
 .dp-game-eyebrow {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -640,7 +642,7 @@ a { color: inherit; }
 }
 .dp-quest-locked .dp-quest-tag::after {
   content: " · готовится";
-  font-size: 9px;
+  font-size: 10.5px;
   color: var(--text-3);
   letter-spacing: 0;
   font-weight: 500;
@@ -2585,7 +2587,7 @@ a { color: inherit; }
   color: var(--text-1, #fff);
 }
 .dp-cta__sub {
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 400;
   line-height: 1.35;
   color: var(--text-2, #aeaeb2);

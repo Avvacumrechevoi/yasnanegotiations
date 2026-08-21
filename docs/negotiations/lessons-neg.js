@@ -151,8 +151,14 @@
   var catalogSec = null, catalogList = null, lessonRoot = null;
   var state = { lesson: null, segWrap: null, bar: null };
 
-  function showCatalog() { if (catalogSec) catalogSec.hidden = false; if (lessonRoot) lessonRoot.hidden = true; }
-  function showLesson() { if (catalogSec) catalogSec.hidden = true; if (lessonRoot) lessonRoot.hidden = false; }
+  function верхСтраницы(видно) {
+    ['.neg-hero', '#neg-mode-tabs'].forEach(function (сел) {
+      var э = document.querySelector(сел);
+      if (э) э.style.display = видно ? '' : 'none';
+    });
+  }
+  function showCatalog() { верхСтраницы(true); if (catalogSec) catalogSec.hidden = false; if (lessonRoot) lessonRoot.hidden = true; }
+  function showLesson() { верхСтраницы(false); if (catalogSec) catalogSec.hidden = true; if (lessonRoot) lessonRoot.hidden = false; }
 
   function firstUndoneIndex() {
     var done = loadDone();
@@ -238,7 +244,7 @@
     lessonRoot.appendChild(state.segWrap);
 
     showLesson();
-    window.scrollTo(0, 0);
+    window.scrollTo(0, 0); /* герой и табы на время урока спрятаны — верх и есть урок */
     appendSegment(0);
   }
 
@@ -334,7 +340,7 @@
     }
 
     if (gate) {
-      if (needsDone) { gate.disabled = true; gate.classList.add('is-wait'); gate.textContent = 'Сначала пройди практику ↓'; }
+      if (needsDone) { gate.disabled = true; gate.classList.add('is-wait'); gate.textContent = 'Сначала пройди практику ↑'; }
       else { unlock(); }
       block.appendChild(gate);
     }
@@ -399,6 +405,12 @@
       opts.appendChild(b);
     });
     card.appendChild(opts);
+    /* Крестик добавляем ПОСЛЕ innerHTML — иначе разметка его затирает. */
+    var x = el('button', 'neg-onb-x', '✕');
+    x.type = 'button';
+    x.setAttribute('aria-label', 'Закрыть');
+    x.addEventListener('click', function () { saveOnb('skip'); host.innerHTML = ''; renderCatalog(); });
+    card.appendChild(x);
     var skip = el('button', 'neg-onb-skip', 'Не уверен — просто веди по порядку →');
     skip.type = 'button';
     skip.addEventListener('click', function () { saveOnb('skip'); host.innerHTML = ''; renderCatalog(); });
@@ -407,15 +419,29 @@
     host.appendChild(ov);
   }
 
+  // Кнопка «назад» телефона (событие шлёт app/pribavka.js): внутри урока она
+  // должна вести к каталогу сценариев, а не закрывать всё приложение.
+  window.addEventListener('yasna:назад', function (e) {
+    var onb = document.querySelector('.neg-onb');
+    if (onb) { e.preventDefault(); saveOnb('skip'); onb.parentNode.innerHTML = ''; renderCatalog(); return; }
+    if (lessonRoot && !lessonRoot.hidden) { e.preventDefault(); backToCatalog(); }
+  });
+
   // ═══ bootstrap ════════════════════════════════════════════════════
   function init() {
     catalogSec = document.getElementById('neg-catalog');
     catalogList = document.getElementById('neg-catalog-list');
     lessonRoot = document.getElementById('neg-lesson');
     if (!catalogList || !lessonRoot) return;
+    /* Дверь «Договориться дома» с главной приложения: не спрашиваем боль,
+       а сразу показываем каталог с рекомендацией самого «домашнего»
+       сценария (осадок после разговора). Выбор человека не перетираем. */
+    if (location.hash === '#dom' && !loadOnb()) saveOnb('l4');
     showCatalog();
     renderCatalog();
     if (!loadOnb()) renderOnboarding();
+    if (location.hash === '#dom' && catalogSec && catalogSec.scrollIntoView)
+      catalogSec.scrollIntoView({ block: 'start' });
 
     // главная кнопка-вход в герое: продолжить с первого непройденного
     var heroStart = document.getElementById('neg-hero-start');

@@ -361,7 +361,9 @@ function inviteBase(){
         ),
         nextStupenLabel && React.createElement('div', { style: { fontSize: 11, color: 'var(--text-3)', marginTop: 4, fontVariantNumeric: 'tabular-nums' } }, nextStupenLabel)
       ),
-      isGuest && React.createElement('button', { className: 'dp-hero-cta', onClick: onLoginClick, title: 'Войди — попадёшь в Хронику' }, 'Войти →'),
+      isGuest && (/YasnaApp\//.test(navigator.userAgent)
+        ? React.createElement('a', { className: 'dp-hero-cta', href: 'profil.html', title: 'Имя, зверь и вход по почте — на экране «Профиль»' }, 'Имя и вход — в Профиле →')
+        : React.createElement('button', { className: 'dp-hero-cta', onClick: onLoginClick, title: 'Войди — попадёшь в Хронику' }, 'Войти →')),
       !isGuest && remoteProfile && React.createElement('div', {
         className: 'dp-hero-synced',
         // Честная формулировка: серверного хранения учебного прогресса пока нет
@@ -734,7 +736,7 @@ function inviteBase(){
       ),
       React.createElement('p', { className: 'dp-section-desc' },
         isFresh
-          ? 'Карта 9 тем модели Ясны Суток. Темы открываются по мере того, как ты отвечаешь на их вопросы в Партиях. Чем чаще тема выпадает и чем больше верных ответов — тем выше мастерство.'
+          ? 'Карта 10 тем модели Ясны Суток. Темы открываются по мере того, как ты отвечаешь на их вопросы в Партиях. Чем чаще тема выпадает и чем больше верных ответов — тем выше мастерство.'
           : '9 тем модели «Сутки». Мастерство по теме растёт от верных ответов в Партиях. Чем чаще тема выпадала — тем шире прогресс.'
       ),
       React.createElement('div', { className: 'dp-partitura' },

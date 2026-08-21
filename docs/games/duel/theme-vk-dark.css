@@ -2294,3 +2294,7 @@ body.theme-vk-dark .dp-hero-progress { height: 6px; }
   body.theme-vk-dark .dp-tip::after,
   body.theme-vk-dark .dp-tip::before { display: none !important; }
 }
+
+/* Корень страницы: до применения body.theme-vk-dark html оставался кремовым
+   (#F7F4EE из duel-page.css) — светлая рамка мигала за краями в тёмной теме. */
+html[data-theme="dark"] { background: #212121; }

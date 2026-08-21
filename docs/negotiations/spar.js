@@ -276,7 +276,10 @@
 
     // ── готовые сценарии: быстрый старт без настройки и без ключа ──
     if (SPAR.length) {
-      sparRoot.appendChild(el('div', 'neg-spar-pick-label', 'Или готовый сценарий — сразу, без настройки и ключа:'));
+      sparRoot.appendChild(el('div', 'neg-spar-pick-label',
+        /YasnaApp\//.test(navigator.userAgent)
+          ? 'Готовые сценарии — сразу, без настройки:'
+          : 'Или готовый сценарий — сразу, без настройки и ключа:'));
       var grid = el('div', 'neg-spar-grid');
       SPAR.forEach(function (sc, idx) {
         var st = prog[sc.id] || {};
@@ -306,6 +309,13 @@
   // без прокси и без ключа — открываем панель ключа.
   function onStartConfigured() {
     if (proxyOn()) { startAIChat(buildScenario(getSparType(), getSparSkill())); return; }
+    if (/YasnaApp\//.test(navigator.userAgent)) {
+      /* В приложении панель «вставь API-ключ» не показываем никогда (красный
+         флаг для магазинов) — ведём к готовым сценариям. */
+      var сетка = sparRoot && sparRoot.querySelector('.neg-spar-grid');
+      if (сетка && сетка.scrollIntoView) сетка.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
     if (!getKey()) {
       aiSetupOpen = true; renderSelector();
       var i = document.getElementById('neg-spar-key-input');
@@ -647,6 +657,18 @@
       [opts, orr, tb, hint, lbl].forEach(function (n) { if (n) n.style.display = 'none'; });
     }
   }
+
+  // Кнопка «назад» телефона: из «Живого спарринга» — к «Сценариям»,
+  // а не закрывать приложение (событие шлёт app/pribavka.js).
+  window.addEventListener('yasna:назад', function (e) {
+    var акт = document.querySelector('#neg-mode-tabs .neg-mode-tab.is-active');
+    if (акт && акт.getAttribute('data-mode') === 'spar') {
+      e.preventDefault();
+      var л = document.querySelector('#neg-mode-tabs [data-mode="lessons"]');
+      if (л) л.click();
+      window.scrollTo(0, 0);
+    }
+  });
 
   // ═══ публичный мост: открыть спарринг по id (зов из урока) ════════
   window.NegSparUI = {

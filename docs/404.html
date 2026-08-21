@@ -17,6 +17,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Ясна">
+<script src="core/theme.js"></script>
 <script defer src="core/pwa.js"></script>
 <title>Страница не найдена · Ясна</title>
 <script>
@@ -32,13 +33,25 @@
 <link rel="stylesheet" href="vendor/fonts/shrifty.css">
 <style>
 :root{
-  --bg-base:#0a0b0d; --bg-card:#16191C; --bg-tonal:#262A2E;
-  --text-primary:#FEFEFE; --text-secondary:#A8B1BE; --text-tertiary:#626D7A;
-  --border:rgba(255,255,255,.06); --accent:#0077FF; --accent-hover:#16A7FF;
-  --accent-soft:rgba(0,119,255,.12); --accent-on:#fff;
+  --bg-base:#f5f6f8; --bg-card:#ffffff; --bg-tonal:#e8ecf1;
+  --text-primary:#101418; --text-secondary:#5c6570; --text-tertiary:#8b95a1;
+  --border:rgba(16,20,24,.1); --accent:#0077FF; --accent-hover:#0066dd;
+  --accent-soft:rgba(0,119,255,.1); --accent-on:#fff;
   --font-sans:'Inter',system-ui,sans-serif; --font-display:'Manrope',system-ui,sans-serif;
   --font-serif:'Cormorant Garamond',Georgia,serif;
 }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+  --bg-base:#0a0b0d; --bg-card:#16191C; --bg-tonal:#262A2E;
+  --text-primary:#FEFEFE; --text-secondary:#A8B1BE; --text-tertiary:#626D7A;
+  --border:rgba(255,255,255,.06); --accent-hover:#16A7FF;
+  --accent-soft:rgba(0,119,255,.16) }
+}
+html[data-theme="dark"]{
+  --bg-base:#0a0b0d; --bg-card:#16191C; --bg-tonal:#262A2E;
+  --text-primary:#FEFEFE; --text-secondary:#A8B1BE; --text-tertiary:#626D7A;
+  --border:rgba(255,255,255,.06); --accent-hover:#16A7FF;
+  --accent-soft:rgba(0,119,255,.16) }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--bg-base);color:var(--text-primary);font-family:var(--font-sans);min-height:100vh}
 body{

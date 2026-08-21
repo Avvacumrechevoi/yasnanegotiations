@@ -624,7 +624,7 @@
         </div>
 
         {/* BOTTOM */}
-        <div style={{padding:'14px 24px',background:BG,borderTop:'1px solid '+BORDER,display:'flex',gap:10,alignItems:'center',flexShrink:0}}>
+        <div className="tour-nav" style={{padding:'14px 24px',background:BG,borderTop:'1px solid '+BORDER,display:'flex',gap:10,alignItems:'center',flexShrink:0}}>
           <button disabled={isIntro} onClick={advanceBack} style={{padding:'9px 14px',borderRadius:10,border:'1px solid '+BORDER,background:'transparent',color:isIntro?FG_DIM:FG_MUTED,cursor:isIntro?'not-allowed':'pointer',opacity:isIntro?.4:1,fontSize:12.5,fontWeight:500,display:'flex',alignItems:'center',gap:6}}>{ICONS.arrowLeft}<span>Назад</span></button>
           <button onClick={()=>setPlaying(p=>!p)} style={{padding:'9px 14px',borderRadius:10,border:'1px solid '+BORDER,background:'transparent',color:FG_MUTED,cursor:'pointer',fontSize:12.5,fontWeight:500,display:'flex',alignItems:'center',gap:6}}>{playing?ICONS.pause:ICONS.play}<span>{playing?'Пауза':'Авто'}</span></button>
           <div style={{flex:1,fontSize:11,color:FG_DIM,textAlign:'center'}}>
@@ -652,7 +652,7 @@
                Сверху резервируем минимальную зону под однострочный note-bubble (≈30px). */
             .tour-canvas-mobile {
               flex: 0 0 auto !important;
-              padding: 34px 10px 6px !important;
+              padding: 34px 10px 14px !important;
               align-items: flex-end !important;
               position: sticky !important;
               top: 0 !important;

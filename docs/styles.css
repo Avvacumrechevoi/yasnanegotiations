@@ -854,3 +854,21 @@ button:focus-visible{outline:2px solid #0071e3;outline-offset:2px}
 .theme-vk-dark .astro-chip__count,
 .theme-vk-dark .astro-chip__arrow{color:#98989d}
 .theme-vk-dark .astro-panel__handle{background:rgba(255,255,255,.20)}
+
+/* ─── Приложение (html.yk-est ставит app/navigatsiya.js): свой нижний наббар
+   высотой ~70px занимает нижний край, и всё, что жило у bottom:0, поднимается
+   над ним. На сайте класса нет — эти правила там не действуют. ─── */
+@media(max-width:1023px){
+  html.yk-est .nav-tabs{bottom:calc(70px + env(safe-area-inset-bottom,0px))!important}
+  html.yk-est .side-panel{bottom:calc(124px + env(safe-area-inset-bottom,0px))}
+  html.yk-est .filters-collapsible{bottom:calc(70px + env(safe-area-inset-bottom,0px))!important}
+  html.yk-est .fab-create.mob-only{bottom:calc(140px + env(safe-area-inset-bottom,0px))!important}
+  html.yk-est .fab-edit.mob-only{bottom:calc(208px + env(safe-area-inset-bottom,0px))!important}
+  html.yk-est .fullstar{height:calc(100vh - 70px - env(safe-area-inset-bottom,0px))!important}
+  html.yk-est .picker-inner{bottom:calc(70px + env(safe-area-inset-bottom,0px))!important}
+}
+/* Скролл-ряд ясн обрезался резко — намёк, что справа есть ещё */
+@media(max-width:768px){
+  .nav-tabs>div:first-child{mask-image:linear-gradient(90deg,#000 88%,transparent 100%);
+    -webkit-mask-image:linear-gradient(90deg,#000 88%,transparent 100%)}
+}

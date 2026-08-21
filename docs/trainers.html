@@ -48,6 +48,7 @@ body{background:radial-gradient(ellipse 80% 60% at 50% 18%,rgba(0,119,255,.07) 0
 
 .tr-wrap{max-width:1000px;margin:0 auto;padding:0 20px 80px}
 .tr-hero{text-align:center;padding:56px 16px 32px}
+@media(max-width:640px){.tr-hero{padding:26px 16px 18px}.tr-eyebrow{display:none}}
 .tr-eyebrow{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-hover);background:var(--accent-soft);border:1px solid rgba(0,119,255,.25);border-radius:100px;padding:6px 14px;margin-bottom:20px}
 .tr-title{font-family:var(--font-display);font-size:clamp(30px,5vw,46px);font-weight:800;line-height:1.08;letter-spacing:-.02em}
 .tr-lead{max-width:640px;margin:16px auto 0;font-size:clamp(15px,2.2vw,18px);line-height:1.6;color:var(--text-secondary)}
@@ -57,7 +58,7 @@ body{background:radial-gradient(ellipse 80% 60% at 50% 18%,rgba(0,119,255,.07) 0
 
 .tr-card{display:flex;flex-direction:column;background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:24px 24px 22px;text-decoration:none;color:var(--text-primary);transition:border-color .15s,background .15s,transform .12s}
 .tr-card:hover{background:var(--bg-elevated);border-color:var(--border-strong);transform:translateY(-2px)}
-.tr-card-badge{align-self:flex-start;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-hover);background:var(--accent-soft);border:1px solid rgba(0,119,255,.25);border-radius:100px;padding:5px 12px;margin-bottom:14px}
+.tr-card-badge{align-self:flex-start;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-hover);background:var(--accent-soft);border:1px solid rgba(0,119,255,.25);border-radius:100px;padding:5px 12px;margin-bottom:14px}
 .tr-card-h{font-family:var(--font-display);font-size:24px;font-weight:700;letter-spacing:-.01em;margin-bottom:8px}
 .tr-card-sub{font-size:14.5px;line-height:1.55;color:var(--text-secondary);margin-bottom:16px}
 .tr-bullets{list-style:none;margin:0 0 18px;padding:0;flex:1}
@@ -73,6 +74,7 @@ body{background:radial-gradient(ellipse 80% 60% at 50% 18%,rgba(0,119,255,.07) 0
 .tr-foot{margin-top:48px;text-align:center;color:var(--text-tertiary);font-size:13px}
 .tr-foot a{color:var(--accent-hover);text-decoration:none}
 .tr-foot a:hover{text-decoration:underline}
+html.yk-est .tr-foot{display:none}
 
 /* Плавающая кнопка обратной связи (для тестеров) */
 .tr-fab-fb{position:fixed;right:18px;bottom:18px;z-index:60;display:inline-flex;align-items:center;gap:8px;
@@ -131,7 +133,7 @@ html[data-theme='light'] {
 
     <a class="tr-card" href="konstruktor.html?lessons=1" data-feature="trainer:lessons">
       <span class="tr-card-badge">✦ Доступно · базовый курс</span>
-      <div class="tr-card-h">Уроки</div>
+      <div class="tr-card-h">Уроки базового курса</div>
       <p class="tr-card-sub">Базовый курс по методу Ясны — по шагам, с проверками. Учишься видеть устройство любого явления: дня, разговора, проекта.</p>
       <ul class="tr-bullets">
         <li>4 урока · подача порциями с проверками</li>
@@ -142,7 +144,7 @@ html[data-theme='light'] {
         <span class="tr-cta-ico" aria-hidden="true">✦</span>
         <span class="tr-cta-body">
           <span class="tr-cta-title">Открыть уроки →</span>
-          <span class="tr-cta-sub">в конструкторе · 4 шага</span>
+          <span class="tr-cta-sub">в разделе «Разбор» · 4 шага</span>
         </span>
       </span>
     </a>

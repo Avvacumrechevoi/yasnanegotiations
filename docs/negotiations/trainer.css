@@ -253,7 +253,7 @@
 .neg-fab-fb:focus-visible { outline: 2px solid var(--accent-on, #fff); outline-offset: 2px; }
 .neg-fab-fb-ico { font-size: 16px; line-height: 1; }
 @media (max-width: 640px) { .neg-fab-fb { right: 12px; bottom: 12px; padding: 12px; } .neg-fab-fb-txt { display: none; } }
-.neg-spar-eng-opt { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+.neg-spar-eng-opt { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
   color: var(--text-tertiary); background: var(--bg-tonal); border-radius: 5px; padding: 2px 6px; margin-left: 6px; vertical-align: middle; }
 
 /* ── Конструктор «Живого спарринга»: тип × навык × уровень ── */
@@ -379,7 +379,7 @@
 .neg-c-type-id { font-weight: 700; font-size: 15px; line-height: 1.15; color: var(--tcol, var(--accent-hover)); letter-spacing: .01em; }
 /* мета (код · стихия · сила) — отдельными тегами, чтобы не было кривых переносов */
 .neg-c-type-tags { display: flex; flex-wrap: wrap; gap: 4px; }
-.neg-c-type-tag { font-size: 10.5px; font-weight: 600; line-height: 1; letter-spacing: .02em; white-space: nowrap;
+.neg-c-type-tag { font-size: 11.5px; font-weight: 600; line-height: 1; letter-spacing: .02em; white-space: nowrap;
   padding: 3px 7px; border-radius: 6px; background: var(--bg-tonal); color: var(--text-tertiary); border: 1px solid transparent; }
 .neg-c-type-tag--code { color: var(--tcol, var(--accent-hover)); background: transparent; border-color: var(--tcol, var(--border-strong)); }
 .neg-c-type-one { font-size: 13px; color: var(--text-secondary); line-height: 1.45; margin-top: 2px; }
@@ -486,12 +486,13 @@
 @media (max-width: 520px) { .neg-cat-card { padding: 16px; gap: 12px; } .neg-cat-go { display: none; } }
 
 /* — шапка урока: прогресс липнет под навбаром, всегда виден при скролле — */
+html.yk-est .neg-l-head { top: 0; }
 .neg-l-head {
   position: sticky; top: 56px; z-index: 30;
   max-width: 760px; margin: 0 auto 20px;
   display: flex; align-items: center; gap: 8px 14px; flex-wrap: wrap;
   padding: 12px 0 12px; border-bottom: 1px solid var(--border);
-  background: rgba(10,11,13,.86);
+  background: rgba(10,11,13,.96);
   -webkit-backdrop-filter: saturate(1.4) blur(14px); backdrop-filter: saturate(1.4) blur(14px);
 }
 .neg-l-back {
@@ -578,7 +579,7 @@
    Режимы: вкладки «Сценарии | Спарринг» + чат-спарринг
    ═══════════════════════════════════════════════════════════════════ */
 .neg-mode-tabs { display: flex; width: fit-content; gap: 4px; background: var(--bg-tonal); padding: 4px; border-radius: 12px; margin: 0 auto 28px; }
-.neg-mode-tab { padding: 9px 20px; border-radius: 9px; border: 0; background: transparent; color: var(--text-secondary); font: inherit; font-weight: 600; font-size: 14px; cursor: pointer; transition: background .15s, color .15s; }
+.neg-mode-tab { padding: 14px 20px; border-radius: 9px; border: 0; background: transparent; color: var(--text-secondary); font: inherit; font-weight: 600; font-size: 14px; cursor: pointer; transition: background .15s, color .15s; }
 .neg-mode-tab:hover { color: var(--text-primary); }
 .neg-mode-tab.is-active { background: var(--accent); color: var(--accent-on, #fff); }
 
@@ -780,17 +781,17 @@ html[data-neg-mode="spar"] .neg-hero-cta:hover { color: var(--text-primary); bor
 .neg-route-step.is-here .neg-route-lbl { color: var(--text-primary); font-weight: 600; }
 .neg-route-step:hover .neg-route-lbl { color: var(--text-secondary); }
 .neg-route-meta { text-align: center; font-size: 12.5px; color: var(--text-tertiary); margin-top: 12px; }
-@media (max-width: 520px) { .neg-route-lbl { font-size: 9.5px; } .neg-route-dot { width: 26px; height: 26px; } }
+@media (max-width: 520px) { .neg-route-lbl { font-size: 11px; } .neg-route-dot { width: 32px; height: 32px; } }
 
 /* — карточка каталога: результат вперёд, «вы здесь» — */
 .neg-cat-card.is-here { border-color: var(--accent); background: var(--accent-soft); }
-.neg-cat-here { display: inline-block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-on, #fff); background: var(--accent); border-radius: 100px; padding: 2px 9px; margin-bottom: 6px; align-self: flex-start; }
+.neg-cat-here { display: inline-block; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-on, #fff); background: var(--accent); border-radius: 100px; padding: 2px 9px; margin-bottom: 6px; align-self: flex-start; }
 .neg-cat-outcome { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-top: 2px; }
 .neg-cat-when { font-size: 12.5px; color: var(--text-tertiary); margin-top: 4px; }
 
 /* — шапка урока: «Сценарий N из 4» + «Шаг N из M» — */
 .neg-l-head-tw { display: flex; flex-direction: column; }
-.neg-l-head-kicker { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--accent-hover); font-weight: 700; }
+.neg-l-head-kicker { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--accent-hover); font-weight: 700; }
 .neg-l-step { flex: 0 0 auto; margin-left: auto; font-size: 12px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; font-variant-numeric: tabular-nums; }
 
 /* — микроцель и связка с спаррингом — */
@@ -819,7 +820,7 @@ html[data-neg-mode="spar"] .neg-hero-cta:hover { color: var(--text-primary); bor
 /* — вводный экран первого визита (диагностика по боли) — */
 .neg-onb { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(10,11,13,.82); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); animation: negOnbIn .25s ease; }
 @keyframes negOnbIn { from { opacity: 0; } to { opacity: 1; } }
-.neg-onb-card { width: 100%; max-width: 560px; background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 20px; padding: 28px 26px; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+.neg-onb-card { position: relative; width: 100%; max-width: 560px; background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 20px; padding: 28px 26px; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
 .neg-onb-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent-hover); margin-bottom: 12px; }
 .neg-onb-value { font-family: var(--font-display); font-size: 19px; font-weight: 700; color: var(--text-primary); line-height: 1.3; }
 .neg-onb-sub { font-size: 14px; color: var(--text-secondary); line-height: 1.5; margin-top: 8px; }
@@ -886,7 +887,7 @@ html[data-theme='light'] {
 html[data-theme='light'] .neg-eyebrow { border-color: rgba(0,119,255,0.28); }
 
 /* липкая шапка урока — светлый полупрозрачный фон под блюром */
-html[data-theme='light'] .neg-l-head { background: rgba(245,245,247,.88); }
+html[data-theme='light'] .neg-l-head { background: rgba(245,245,247,.96); }
 
 /* ── гид по дуге: per-phase accent vars used as TEXT (badge, lbl--you, dot) ── */
 html[data-theme='light'] .neg-guide-seg--вход       { --gcol: #006B7D; }
@@ -1028,6 +1029,10 @@ html[data-theme='light'] .neg-l-coach { border-color: rgba(0,119,255,.20); }
 
 /* ── онбординг-оверлей: тёмный скрим → светлее, тени мягче ── */
 html[data-theme='light'] .neg-onb      { background: rgba(13,27,42,.45); }
+.neg-onb-x { position: absolute; top: 10px; right: 10px; width: 44px; height: 44px;
+  border: 0; background: none; color: var(--text-muted); font-size: 18px;
+  cursor: pointer; border-radius: 50%; }
+.neg-onb-x:hover { color: var(--text-primary); background: var(--bg-tonal); }
 html[data-theme='light'] .neg-onb-card { box-shadow: 0 20px 60px rgba(13,27,42,.20); }
 
 /* ── мелкие тени, объявленные в трейнере на тёмном ── */

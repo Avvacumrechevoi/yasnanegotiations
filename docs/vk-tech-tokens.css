@@ -1818,3 +1818,41 @@ body.theme-vk-dark .popup-overlay > div > div::-webkit-scrollbar-thumb {
 body.theme-vk-dark .popup-overlay > div > div::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.20);
 }
+
+/* ─── Тёмная тема: панель, тулбар диаграммы, звезда, FAB (аудит 08.2026) ───
+   Светлые «пятна», жившие только в тёмной теме: белая .nav-right, белая
+   пилюля тулбара диаграммы (инлайн в app.js — там теперь var(--diag-*)),
+   белая подложка звезды (var(--star-*) в core/yasna-star.js) и белый FAB ✎.
+   Светлая тема не трогается: у всех переменных светлые запасные значения. */
+body.theme-vk-dark {
+  --diag-bar-bg: rgba(26,29,33,.94);
+  --diag-btn-bg: #24282e;
+  --diag-btn-ink: #c9cfd6;
+  --diag-btn-border: #3a3f46;
+  --diag-pop-bg: #1f2328;
+  --star-fon: #14171b;
+  --star-ink: #e8ebee;
+  --star-ink-50: rgba(232,235,238,.55);
+}
+body.theme-vk-dark .nav-tabs {
+  background: var(--vk-bg-surface, #1a1d21) !important;
+  border-top-color: var(--vk-border, #2c313a) !important;
+}
+body.theme-vk-dark .nav-right {
+  background: var(--vk-bg-surface, #1a1d21) !important;
+  border-left-color: var(--vk-border, #2c313a) !important;
+}
+body.theme-vk-dark .nav-right button {
+  color: var(--vk-text-secondary, #c9cfd6) !important;
+}
+body.theme-vk-dark .fab-edit.mob-only {
+  background: var(--vk-bg-surface, #1a1d21) !important;
+  border-color: rgba(61,150,240,.55) !important;
+  color: #3d96f0 !important;
+}
+body.theme-vk-dark .fullstar { background: var(--star-fon, #14171b) !important; }
+body.theme-vk-dark .fullstar-close {
+  background: rgba(36,40,46,.92);
+  border-color: var(--vk-border, #2c313a);
+  color: #c9cfd6;
+}

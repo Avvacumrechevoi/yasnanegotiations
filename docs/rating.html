@@ -31,7 +31,7 @@
 <meta name="description" content="Две шкалы прогресса в Ясне: личное Освоение (бусины) и соревновательная Каста (рейтинг в партиях против другого игрока)."/>
 <link rel="stylesheet" href="vendor/fonts/shrifty.css">
 
-<link rel="stylesheet" href="vk-tech-tokens.css?v=e1404fe8"/>
+<link rel="stylesheet" href="vk-tech-tokens.css?v=956d2fd0"/>
 
 <style>
   * { box-sizing: border-box; }
@@ -57,9 +57,11 @@
   .rt-back:hover { background: rgba(255,255,255,.04); color: #fff; }
 
   /* ─── Hero ─────────────────────────────────────────────────────── */
+  .rt-range-notes { margin: 18px 0 48px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 640px) { .rt-range-notes { grid-template-columns: 1fr; } }
   .rt-eyebrow {
     display: inline-block;
-    font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.14em;
     text-transform: uppercase; color: #5B9CF6;
     background: rgba(0,119,255,.12); border: 1px solid rgba(0,119,255,.22);
     padding: 5px 11px; border-radius: 999px; margin-bottom: 18px;
@@ -127,7 +129,10 @@
     gap: 10px;
     margin-bottom: 32px;
   }
-  @media (max-width: 640px) { .rt-formula { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 640px) {
+    .rt-formula { grid-template-columns: 1fr 1fr; }
+    .rt-formula .rt-formula__card:last-child:nth-child(odd) { grid-column: span 2; }
+  }
 
   .rt-formula__card {
     background: rgba(255,255,255,.04);
@@ -321,6 +326,12 @@
     padding: 14px 22px;
   }
   .rt-compare tr:last-child td { border-bottom: 0; }
+  @media (max-width: 720px) {
+    /* было overflow:hidden — колонку «Каста» на телефоне обрезало целиком */
+    .rt-compare { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .rt-compare table { min-width: 540px; }
+    .rt-compare th, .rt-compare td { padding: 10px 12px; }
+  }
   .rt-compare td:first-child { color: #fff; font-weight: 500; }
   .rt-tag {
     display: inline-flex; align-items: center; gap: 4px;
@@ -413,6 +424,15 @@
   .rt-foot strong { color: #aeaeb2; font-style: normal; }
 
 /* Честная плашка статуса и бейдж «скоро» — обе темы. */
+.rt-moi { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 10px;
+  margin: 16px 0 2px; padding: 14px 16px; border-radius: 14px;
+  background: rgba(0,119,255,.10); border: 1px solid rgba(0,119,255,.25);
+  font-size: 15px; color: #e8ebee; font-variant-numeric: tabular-nums; }
+.rt-moi__b { font-weight: 700; color: #5B9CF6; font-size: 17px; }
+.rt-moi__sep { color: #6d7681; }
+.rt-moi__hint { flex-basis: 100%; font-size: 12px; color: #8e939b; }
+html[data-theme='light'] .rt-moi { color: #101418; background: rgba(0,113,227,.08); border-color: rgba(0,113,227,.22); }
+html[data-theme='light'] .rt-moi__hint { color: #5c6570; }
 .rt-status-note { margin: 14px 0 6px; padding: 12px 16px; border: 1px solid rgba(240,180,80,.35); background: rgba(240,180,80,.08); border-radius: 12px; font-size: 14px; line-height: 1.55; color: #d2d2d7; }
 .rt-status-note strong { color: #fff; font-weight: 600; }
 .rt-status-note__lead { color: #f0c274 !important; }
@@ -520,6 +540,13 @@ try {
 
   <!-- Честный статус: страница описывает ЦЕЛЕВУЮ систему. Не убираем её —
        это спецификация для игроков, — но помечаем, что уже работает. -->
+  <div class="rt-moi" id="rt-moi" hidden>
+    <span class="rt-moi__b" id="rt-moi-busy">✦ 0</span>
+    <span class="rt-moi__sep">·</span>
+    <span id="rt-moi-part">партий: 0</span>
+    <span class="rt-moi__hint">твои числа на этом устройстве</span>
+  </div>
+
   <div class="rt-status-note">
     <strong class="rt-status-note__lead">Сейчас работает:</strong> таблица лидеров по партиям —
     лучший результат, топ недели и всех времён (кнопка «Рейтинг» в игре).
@@ -719,7 +746,7 @@ try {
       </table>
     </div>
 
-    <div style="margin-top: 18px; margin-bottom: 48px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+    <div class="rt-range-notes">
       <div style="background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); border-radius: 12px; padding: 14px 18px;">
         <div style="font-size: 12px; font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase; color: #8e8e93; margin-bottom: 6px;">Откуда диапазон</div>
         <div style="font-size: 14.5px; color: #d2d2d7; line-height: 1.55;">
@@ -857,5 +884,20 @@ try {
   </section>
 
 </div>
+<script>
+/* Твои числа — те же ключи localStorage, что читает главная приложения. */
+(function () {
+  try {
+    var д = JSON.parse(localStorage.getItem('yasna_duel_data') || 'null');
+    var блок = document.getElementById('rt-moi');
+    if (!блок) return;
+    var бусин = (д && +д.totalScore) || 0;
+    var партий = (д && д.totals && +д.totals.played) || 0;
+    document.getElementById('rt-moi-busy').textContent = '✦ ' + бусин;
+    document.getElementById('rt-moi-part').textContent = 'партий: ' + партий;
+    блок.hidden = false;
+  } catch (e) {}
+})();
+</script>
 </body>
 </html>
