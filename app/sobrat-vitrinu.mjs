@@ -111,6 +111,29 @@ function поправить() {
     if (s2 !== s) работник++;
     s = s2;
 
+    // АВТО-ГОСТЬ. В приложении человек не должен упираться в стену
+    // «Войти / Сыграть гостем» и модалку имени: гостевой профиль создаётся
+    // при первом запуске, и Партия открывает игровой зал сразу. Имя и
+    // зверь меняются на экране «Профиль». Скрипт инлайном в голове — он
+    // обязан отработать РАНЬШЕ бандлов страницы, отложенный файл опоздал бы.
+    // deviceId берётся из общего ключа yasna_device_id_v1, если тот уже
+    // есть, — иначе прогресс расщепился бы на двух владельцев (см.
+    // комментарий к _genDeviceId в games/duel/duel.js).
+    if (!/yasna_duel_profile/.test(s)) {
+      const автоГость = `\n<script>(function(){try{
+  if(localStorage.getItem('yasna_duel_profile'))return;
+  var зв=['\u{1F98A}','\u{1F43A}','\u{1F981}','\u{1F42F}','\u{1F43B}','\u{1F43C}','\u{1F989}','\u{1F985}'];
+  var id=localStorage.getItem('yasna_device_id_v1');
+  if(!id){id=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():'dev-'+Math.random().toString(36).slice(2)+Date.now().toString(36);
+    localStorage.setItem('yasna_device_id_v1',id);}
+  localStorage.setItem('yasna_duel_profile',JSON.stringify({
+    nickname:'\u0413\u043E\u0441\u0442\u044C',
+    avatar:зв[Math.floor(Math.random()*зв.length)],deviceId:id}));
+}catch(e){}})();</script>`;
+      const мЗ = s.match(/<meta charset[^>]*>/i);
+      if (мЗ) s = s.slice(0, мЗ.index + мЗ[0].length) + автоГость + s.slice(мЗ.index + мЗ[0].length);
+    }
+
     // VIEWPORT-FIT=COVER — каждой странице приложения. Android 15+ рисует
     // WebView под строкой состояния; Capacitor сдвигает содержимое сам только
     // когда страница объявила cover (иначе он лишь ставит CSS-переменные,
@@ -147,6 +170,9 @@ cpSync(join(ЗДЕСЬ, 'pribavka.js'), join(ЦЕЛЬ, 'pribavka.js'));
    касанием и нижний наббар. Замена происходит ДО поправить(), чтобы новая
    главная тоже получила прибавку. */
 cpSync(join(ЗДЕСЬ, 'glavnaya.html'), join(ЦЕЛЬ, 'index.html'));
+/* Экран «Профиль» — только в приложении: имя и зверь для Партии, вход по
+   почте. На сайте эту роль играет окно входа на странице Игры. */
+cpSync(join(ЗДЕСЬ, 'profil.html'), join(ЦЕЛЬ, 'profil.html'));
 const p = поправить();
 const остатки = [];
 const известные = [];

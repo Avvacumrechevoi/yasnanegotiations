@@ -19,11 +19,20 @@
     --syn:#0071e3; --syn-t:#0B57C0;
     --fon:#f5f6f8; --kart:#ffffff;
     --ink:#101418; --ink-2:#5c6570; --kayma:rgba(16,20,24,.08);
+    --ik-fon:#eaf2fe;
     /* Отступы системных панелей. Capacitor 8 на Android 15+ рисует
        страницу ПОД строкой состояния и жестовой полосой и подкладывает
        размеры переменными --safe-area-inset-*; в браузере работают env(). */
     --sverhu: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
     --snizu:  var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --fon:#101214; --kart:#1a1d21;
+      --ink:#e8ebee; --ink-2:#9aa3ad; --kayma:rgba(232,235,238,.12);
+      --ik-fon:#1f2b3d;
+      --syn:#3d96f0;
+    }
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0}
@@ -75,7 +84,7 @@
     padding:14px;text-decoration:none;color:inherit;min-height:104px;
     display:flex;flex-direction:column;justify-content:space-between}
   .yach:active{filter:brightness(.96)}
-  .yach .ik{width:34px;height:34px;border-radius:9px;background:#eaf2fe;
+  .yach .ik{width:34px;height:34px;border-radius:9px;background:var(--ik-fon);
     display:flex;align-items:center;justify-content:center}
   .yach .ik svg{width:20px;height:20px;stroke:var(--syn)}
   .yach .t{font:600 15px/1.2 Manrope,Inter,sans-serif;margin-top:10px}
@@ -83,7 +92,7 @@
 
   /* ── Нижний наббар ── */
   nav{position:fixed;left:0;right:0;bottom:0;z-index:900;
-    background:#fff;  /* без backdrop-filter: он и рисовал «призраков» */
+    background:var(--kart);  /* без backdrop-filter: он рисовал «призраков» */
     border-top:1px solid var(--kayma);
     padding:6px 6px calc(6px + var(--snizu));
     display:flex}
@@ -94,7 +103,7 @@
   nav a svg{width:23px;height:23px;stroke:currentColor;fill:none;
     stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
   nav a.tut{color:var(--syn)}
-  nav a:active{background:#eef4ff}
+  nav a:active{background:var(--ik-fon)}
 </style>
 </head>
 <body>
@@ -187,9 +196,9 @@
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4v17.2M3.4 12h17.2"/></svg>
     Ясны
   </a>
-  <a href="negotiations.html">
-    <svg viewBox="0 0 24 24"><path d="M4 6.5h11a2.5 2.5 0 0 1 2.5 2.5v2A2.5 2.5 0 0 1 15 13.5H9L5 17z"/><path d="M20 10.2a2.3 2.3 0 0 1 2.5 2.3v1.8a2.3 2.3 0 0 1-2.3 2.3h-.9V19l-2.6-2.3"/></svg>
-    Спарринг
+  <a href="profil.html">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg>
+    Профиль
   </a>
 </nav>
 </body>

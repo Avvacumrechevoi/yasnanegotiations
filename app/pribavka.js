@@ -62,7 +62,22 @@
      сознательно — как страховка на случай сборки без нашей MainActivity. */
   (function () {
     var st = document.createElement('style');
+    /* Хедер сайта в приложении: без кнопки «Войти» (вход теперь на экране
+       «Профиль») и без вида плавающей карточки — на всю ширину, без
+       скруглений. Тёмная тема сайта рисовала его отдельной плашкой, и на
+       телефоне это выглядело чужеродно. */
     st.textContent =
+      '.ynav{border-radius:0 !important;margin:0 !important;max-width:none !important;' +
+      'width:100% !important;box-shadow:none !important}' +
+      '.ynav-login{display:none !important}' +
+      /* Хедер Партии — отдельный .dp-header, в тёмной теме он плавающая
+         карточка с «Войти» справа: на телефоне это выглядело чужеродно
+         (скрин владельца). На всю ширину, без карточности; вход — в Профиле,
+         поэтому блок авторизации из хедера уходит. */
+      '.dp-header{border-radius:0 !important;width:100vw !important;' +
+      'max-width:100vw !important;margin:0 calc(50% - 50vw) 14px !important;' +
+      'box-shadow:none !important}' +
+      '.dp-header-auth{display:none !important}' +
       ':root{--yasna-sverhu:var(--safe-area-inset-top, env(safe-area-inset-top, 0px));' +
       '--yasna-snizu:var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))}' +
       'body{padding-top:var(--yasna-sverhu) !important}' +
