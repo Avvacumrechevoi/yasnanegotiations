@@ -3207,57 +3207,47 @@ body.theme-vk-dark .dp-theme-banner__count { color: var(--text-2, #aeaeb2); }
   font-variant-numeric: tabular-nums;
 }
 
-/* ═══ Превью Круга на карточке (только в приложении) ═════════════════
-   Один ход вместо абзаца: элемент поднимается из середины и садится в
-   пустое гнездо, гнездо занимается, нитка через середину вспыхивает.
-   Тема: body всегда носит класс theme-vk-dark, а светлая добавляет
-   vk-light — поэтому все тёмные правила ниже идут через :not(.vk-light),
-   иначе кольцо белое на белом (так и случилось в первой версии). */
-.kp { display: flex; flex-direction: column; align-items: center; margin: 4px 0 14px; }
-.kp-svg { width: 148px; height: 148px; overflow: visible; }
-.kp-podpis {
-  margin-top: 6px;
-  font-size: 12px;
-  color: var(--text-3, #8a95a3);
-}
-.kp-koltso { fill: none; stroke: rgba(16,20,24,.16); stroke-width: 1.4; }
-.kp-gnezdo { fill: none; stroke: rgba(16,20,24,.28); stroke-width: 1.6; }
-.kp-gnezdo--cel { stroke: var(--vk-accent, #0077FF); stroke-width: 2;
-  animation: kp-zanyato 4.6s ease-out infinite; }
-.kp-fishka { fill: var(--vk-accent, #0077FF); opacity: 0;
-  animation: kp-hod 4.6s cubic-bezier(.32,.98,.4,1) infinite; }
-.kp-nitka { stroke: var(--vk-accent, #0077FF); stroke-width: 1.8; stroke-linecap: round;
-  opacity: 0; animation: kp-nit 4.6s ease-out infinite; }
+/* ═══ Превью Круга: та же картинка, что в игре ═══════════════════════
+   Доли лежат бледными (как непоставленные места), затем по очереди
+   занимаются в полную силу; когда заняты оба конца оси — между ними
+   вспыхивает золотая нить. Палитра и геометрия — из самой игры. */
+.kp { display: flex; flex-direction: column; align-items: center; margin: 2px 0 12px; }
+.kp-svg { width: 168px; height: 168px; }
+.kp-podpis { margin-top: 4px; font-size: 12px; color: var(--text-3, #8a95a3); }
 
-body.theme-vk-dark:not(.vk-light) .kp-koltso { stroke: rgba(255,255,255,.20); }
-body.theme-vk-dark:not(.vk-light) .kp-gnezdo { stroke: rgba(255,255,255,.34); }
+.kp-dolya { fill-opacity: .22; stroke: rgba(0,0,0,.14); stroke-width: 1.4; }
+body.theme-vk-dark:not(.vk-light) .kp-dolya { stroke: rgba(255,255,255,.14); }
+.kp-obod { fill: none; stroke: rgba(16,20,24,.16); stroke-width: 1.6; }
+body.theme-vk-dark:not(.vk-light) .kp-obod { stroke: rgba(255,255,255,.18); }
 
-@keyframes kp-hod {           /* из середины — на своё место */
-  0%, 6%   { opacity: 0; transform: translate(0,0) scale(.4); }
-  16%      { opacity: 1; transform: translate(0,0) scale(1); }
-  22%      { opacity: 1; transform: translate(0,0) scale(1.12); }
-  44%      { opacity: 1; transform: translate(38.1px,-22px) scale(1); }
-  52%      { opacity: 1; transform: translate(38.1px,-22px) scale(.82); }
-  88%      { opacity: 1; transform: translate(38.1px,-22px) scale(.82); }
-  100%     { opacity: 0; transform: translate(38.1px,-22px) scale(.82); }
+/* Четыре хода: 0 → 6 (ось сошлась) → 3 → 9 (вторая ось). Цикл 7.2 с. */
+.kp-hod-1 { animation: kp-zanyat 7.2s ease-out infinite; animation-delay: .2s; }
+.kp-hod-2 { animation: kp-zanyat 7.2s ease-out infinite; animation-delay: 1.1s; }
+.kp-hod-3 { animation: kp-zanyat 7.2s ease-out infinite; animation-delay: 2.4s; }
+.kp-hod-4 { animation: kp-zanyat 7.2s ease-out infinite; animation-delay: 3.3s; }
+@keyframes kp-zanyat {
+  0%      { fill-opacity: .22; }
+  4%      { fill-opacity: 1; }
+  66%     { fill-opacity: 1; }
+  86%     { fill-opacity: .22; }
+  100%    { fill-opacity: .22; }
 }
-@keyframes kp-zanyato {       /* гнездо занялось */
-  0%, 42%  { fill: transparent; }
-  50%      { fill: color-mix(in srgb, var(--vk-accent, #0077FF) 22%, transparent); }
-  88%      { fill: color-mix(in srgb, var(--vk-accent, #0077FF) 22%, transparent); }
-  100%     { fill: transparent; }
+.kp-nit { stroke: #E0A93B; stroke-width: 2.4; stroke-linecap: round; opacity: 0; }
+body.theme-vk-dark:not(.vk-light) .kp-nit { stroke: #FFD479; }
+.kp-nit-1 { animation: kp-nit-vspyh 7.2s ease-out infinite; animation-delay: 1.5s; }
+.kp-nit-2 { animation: kp-nit-vspyh 7.2s ease-out infinite; animation-delay: 3.7s; }
+@keyframes kp-nit-vspyh {
+  0%      { opacity: 0; }
+  3%      { opacity: 1; }
+  50%     { opacity: .85; }
+  76%     { opacity: 0; }
+  100%    { opacity: 0; }
 }
-@keyframes kp-nit {           /* ось сошлась */
-  0%, 56%  { opacity: 0; }
-  66%      { opacity: .9; }
-  88%      { opacity: .9; }
-  100%     { opacity: 0; }
-}
+/* Экономный режим: поле с двумя сошедшимися осями, без движения. */
 @media (prefers-reduced-motion: reduce) {
-  .kp-fishka, .kp-nitka, .kp-gnezdo--cel { animation: none; }
-  .kp-fishka { opacity: 1; transform: translate(38.1px,-22px); }
-  .kp-nitka { opacity: .9; }
-  .kp-gnezdo--cel { fill: color-mix(in srgb, var(--vk-accent, #0077FF) 22%, transparent); }
+  .kp-hod-1, .kp-hod-2, .kp-hod-3, .kp-hod-4, .kp-nit-1, .kp-nit-2 { animation: none; }
+  .kp-hod-1, .kp-hod-2, .kp-hod-3, .kp-hod-4 { fill-opacity: 1; }
+  .kp-nit { opacity: .9; }
 }
 
 /* ═══ Действия карточки: одна главная кнопка + две запасные ═══════════
@@ -3340,11 +3330,12 @@ body.theme-vk-dark:not(.vk-light) .kp-gnezdo { stroke: rgba(255,255,255,.34); }
   .dp-cta-row > :not(:first-child) { padding: 10px; gap: 8px; }
   .dp-cta-row > :not(:first-child) .dp-cta__title { font-size: 13px; }
 }
-/* Пилюля ступени и счёт — настоящие тап-цели (были 24 и 28 px). */
-.dp-hero--stupen .dp-hero-rank-pill,
-.dp-hero--stupen .dp-hero-bead {
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-}
-.dp-hero--stupen .dp-hero-bead { padding: 0 6px; }
+/* Полоса ступени — сама ссылка в рейтинг, поэтому пилюля остаётся меткой
+   обычного размера: раздутая до 44px она читалась как главная кнопка экрана. */
+.dp-hero--stupen { display: block; text-decoration: none; color: inherit; }
+.dp-hero--stupen:active { filter: brightness(.97); }
+.dp-hero--stupen .dp-hero-rank-pill { font-size: 12.5px; padding: 5px 11px; }
+/* Плитки «с кем играем»: без крупного числа, поэтому кегли иные, чем у длины. */
+.dp-mode-btn--opp { padding: 10px 6px; }
+.dp-mode-btn--opp .dp-mode-btn-label { font-size: 13.5px; font-weight: 600; }
+.dp-mode-btn--opp .dp-mode-btn-time { font-size: 11.5px; }

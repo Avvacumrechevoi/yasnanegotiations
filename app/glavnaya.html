@@ -107,24 +107,25 @@
      ярких синих плитки подряд спорили бы друг с другом. Знак ✦ — водяной,
      он же держит правый верхний угол, чтобы текст не висел в пустоте. */
   .citata{position:relative;display:block;overflow:hidden;
-    border-radius:20px;padding:18px 18px 42px;margin-top:2px;
+    border-radius:18px;padding:13px 15px 12px;margin-top:2px;
     text-decoration:none;color:#fff;isolation:isolate;
     background:
       radial-gradient(120% 90% at 12% 8%, rgba(255,255,255,.16) 0%, transparent 55%),
       linear-gradient(135deg,#1d3a86 0%,#3b2f8f 52%,#5a2f80 100%);
     box-shadow:0 10px 26px rgba(24,32,84,.28)}
   .citata:active{filter:brightness(.95)}
-  .citata .znak-vod{position:absolute;right:-14px;top:-16px;width:118px;height:118px;
-    fill:#fff;opacity:.09;pointer-events:none}
+  .citata .znak-vod{position:absolute;right:-10px;top:-22px;width:92px;height:92px;
+    fill:#fff;opacity:.10;pointer-events:none}
   .citata .k{position:relative;font:700 11px/1 Manrope,sans-serif;
     letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.72)}
-  .citata .tx{position:relative;font:500 20px/1.34 var(--serif);font-style:italic;
-    margin:10px 0 0;color:#fff;text-wrap:balance}
-  .citata .ot{position:relative;font:500 12.5px/1.3 Manrope,sans-serif;
-    color:rgba(255,255,255,.74);margin-top:9px}
-  .citata .ist{position:absolute;right:16px;bottom:14px;
-    font:600 11px/1 Manrope,sans-serif;letter-spacing:.08em;
-    text-transform:uppercase;color:rgba(255,255,255,.6)}
+  .citata .tx{position:relative;font:500 16.5px/1.32 var(--serif);font-style:italic;
+    margin:6px 0 0;color:#fff;text-wrap:pretty;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .citata .niz{position:relative;display:flex;align-items:baseline;
+    justify-content:space-between;gap:10px;margin-top:7px}
+  .citata .ot{font:500 12px/1.2 Manrope,sans-serif;color:rgba(255,255,255,.74)}
+  .citata .ist{flex:0 0 auto;font:600 10.5px/1 Manrope,sans-serif;letter-spacing:.06em;
+    text-transform:uppercase;color:rgba(255,255,255,.58);white-space:nowrap}
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]) .citata{
       background:
@@ -166,6 +167,47 @@
     width:38px;height:38px;border-radius:50%;background:var(--syn);
     display:flex;align-items:center;justify-content:center}
   .delo .strelka svg{width:18px;height:18px}
+  /* ── Живые превью в карточках ──
+     Карточки не должны быть одинаковыми плитками: у игры — бусины, которые
+     набегают за ответы, у обучения — дорога курса, по которой бежит свет.
+     Это и украшение, и обещание: видно, что будет, если нажать. */
+  .busy{position:absolute;right:14px;bottom:14px;display:flex;gap:5px;
+    pointer-events:none}
+  .busy i{font-style:normal;font-size:12px;line-height:1;color:rgba(255,255,255,.34);
+    animation:busy-nabor 3.6s ease-in-out infinite}
+  .busy i::before{content:'✦'}
+  .busy i:nth-child(2){animation-delay:.28s}
+  .busy i:nth-child(3){animation-delay:.56s}
+  .busy i:nth-child(4){animation-delay:.84s}
+  .busy i:nth-child(5){animation-delay:1.12s}
+  @keyframes busy-nabor{
+    0%,12%{color:rgba(255,255,255,.30);transform:scale(1)}
+    22%{color:#fff;transform:scale(1.35)}
+    58%{color:#fff;transform:scale(1)}
+    82%,100%{color:rgba(255,255,255,.30);transform:scale(1)}
+  }
+  /* Дорога курса, пока ничего не пройдено: по ней бежит свет — «путь ждёт». */
+  .delo .put.zhdet i{background:var(--kayma);animation:put-svet 4.2s ease-in-out infinite}
+  .delo .put.zhdet i:nth-child(2){animation-delay:.16s}
+  .delo .put.zhdet i:nth-child(3){animation-delay:.32s}
+  .delo .put.zhdet i:nth-child(4){animation-delay:.48s}
+  .delo .put.zhdet i:nth-child(5){animation-delay:.64s}
+  .delo .put.zhdet i:nth-child(6){animation-delay:.8s}
+  .delo .put.zhdet i:nth-child(7){animation-delay:.96s}
+  .delo .put.zhdet i:nth-child(8){animation-delay:1.12s}
+  @keyframes put-svet{
+    0%,10%{background:var(--kayma)}
+    20%{background:var(--syn)}
+    40%{background:var(--kayma)}
+    100%{background:var(--kayma)}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .busy i,.delo .put.zhdet i{animation:none}
+  }
+  /* Обучение — свой тон, чтобы две карточки не читались одной плиткой. */
+  .delo--uch{background:
+    radial-gradient(130% 100% at 100% 0%, var(--ik-fon) 0%, transparent 58%),
+    linear-gradient(150deg,var(--kart) 55%,var(--ik-fon) 100%)}
   .delo--glav{background:linear-gradient(135deg,#0B57C0,#0071e3);border:none;color:#fff}
   .delo--glav .k{color:rgba(255,255,255,.85)}
   .delo--glav .o{color:rgba(255,255,255,.88)}
@@ -233,8 +275,7 @@
     <svg class="znak-vod" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.6l2.2 6.3 6.3 2.1-6.3 2.1-2.2 6.3-2.2-6.3-6.3-2.1 6.3-2.1z"/></svg>
     <span class="k">Цитата дня</span>
     <div class="tx"></div>
-    <div class="ot"></div>
-    <span class="ist"></span>
+    <div class="niz"><span class="ot"></span><span class="ist"></span></div>
   </a>
 
   <h2>Начать сейчас</h2>
@@ -244,12 +285,13 @@
     <div class="t">Сыграть и запомнить</div>
     <div class="o">Партия вопросов против бота-Тени или друга: играя, закрепляешь метод.</div>
     <div class="meta" id="igra-meta"><span class="m">10 тем</span><span class="m">160 вопросов</span><span class="m">блиц ≈ 2 мин</span></div>
+    <span class="busy" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
     <span class="strelka" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
     </span>
   </a>
 
-  <a class="delo" href="learn.html">
+  <a class="delo delo--uch" href="learn.html">
     <span class="k">Обучение</span>
     <div class="t" id="ucheba-t">Разобраться, как устроена Ясна</div>
     <div class="o" id="ucheba-o">Первый урок — 5 минут, по шагам, с подсказками.</div>
@@ -350,7 +392,12 @@
   try{ пройдено=Object.keys(курс).filter(function(k){return курс[k]&&курс[k].done}).length; }catch(e){}
   if(пройдено>ОСТАНОВОК) пройдено=ОСТАНОВОК;
   var дорога=document.getElementById('ucheba-put');
-  if(пройдено===0){ дорога.hidden=true; }
+  if(пройдено===0){
+    /* Пустая серая полоса выглядела недорисованной — пусть по дороге
+       бежит свет: и превью курса, и приглашение. */
+    дорога.className='put zhdet';
+    for(var п=0;п<ОСТАНОВОК;п++) дорога.appendChild(document.createElement('i'));
+  }
   else for(var i=0;i<ОСТАНОВОК;i++){
     var seg=document.createElement('i');
     if(i<пройдено) seg.className='est';

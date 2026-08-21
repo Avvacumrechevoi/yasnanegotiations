@@ -272,11 +272,13 @@ function inviteBase(){
     const вПрилож = /YasnaApp\//.test(navigator.userAgent);
     return React.createElement('div', { className: 'dp-castalia-title' },
       !вПрилож && React.createElement('div', { className: 'dp-castalia-eyebrow' }, '✦  Тренажёр Ясны'),
-      React.createElement('h1', { className: 'dp-castalia-h1' },
-        React.createElement('span', null, 'Ясна —'),
-        React.createElement('br'),
-        React.createElement('span', null, 'мастерство в игре.')
-      )
+      вПрилож
+        ? React.createElement('h1', { className: 'dp-castalia-h1' }, 'Мастерство в игре')
+        : React.createElement('h1', { className: 'dp-castalia-h1' },
+            React.createElement('span', null, 'Ясна —'),
+            React.createElement('br'),
+            React.createElement('span', null, 'мастерство в игре.')
+          )
     );
   }
 
@@ -349,17 +351,15 @@ function inviteBase(){
     const вПрилож = /YasnaApp\//.test(navigator.userAgent);
     if (вПрилож) {
       const естьСчёт = busey > 0 || games > 0;
-      return React.createElement('section', { className: 'dp-hero dp-hero--stupen', role: 'region', 'aria-label': 'Ступень' },
+      /* Кликабельна вся полоса: пилюля — метка, а не кнопка (она выглядела
+         кнопкой и просилась в нажатие сильнее самой партии). */
+      return React.createElement('a', { className: 'dp-hero dp-hero--stupen', href: 'rating.html',
+          'aria-label': 'Ступень ' + stupen.name + ' — как считается рейтинг' },
         React.createElement('div', { className: 'dp-hero-body' },
           React.createElement('div', { className: 'dp-hero-name-row' },
-            React.createElement('a', {
-              className: 'dp-hero-rank-pill dp-tip',
-              href: 'rating.html',
-              'data-tip': 'Ступень — твой уровень в Ясне. Растёт с каждой партией.',
-              style: { textDecoration: 'none' },
-            }, stupen.name, ' ', toRoman(stupen.subLevel)),
+            React.createElement('span', { className: 'dp-hero-rank-pill' }, stupen.name, ' ', toRoman(stupen.subLevel)),
             естьСчёт && React.createElement('span', { className: 'dp-hero-stats' },
-              React.createElement('a', { className: 'dp-hero-bead', href: 'rating.html', style: { textDecoration: 'none' } }, '✦ ', busey),
+              React.createElement('span', { className: 'dp-hero-bead' }, '✦ ', busey),
               React.createElement('span', { className: 'dp-hero-stats-sep' }, '·'),
               React.createElement('span', null, games, ' ', склонПартий(games))
             )
@@ -538,33 +538,32 @@ function inviteBase(){
   // Header: только заголовок (без eyebrow «Игры Ясны» — мы уже на странице
   // /duel, это контекст). Описание убрано из header'а — оно теперь в
   // tooltip'ах внутри каждой карточки рядом с её названием.
-  // ─── Превью Круга: один ход игрока ───────────────────────────────
-  // Показать быстрее, чем объяснить: элемент поднимается из середины и
-  // садится в пустое гнездо, гнездо занимается, нитка через середину
-  // вспыхивает — ровно то, что делает человек в игре. Прежний вариант
-  // с вращающимся лучом читался как циферблат и как жребий («игра решает
-  // за меня»), хотя ход в Круге осознанный. Цикл 4.6 с; при
-  // prefers-reduced-motion остаётся неподвижный кадр (CSS).
+  // ─── Превью Круга: та же картинка, что в игре ────────────────────
+  // Геометрия и палитра взяты из docs/games/krug/krug.js один в один
+  // (C=170, R=132, Ri=78, доли 34°/22°, палитра Суток), только без подписей
+  // и хитбоксов: человек должен узнать поле до того, как войдёт. Четыре
+  // «хода» подряд — доля занимается; когда занялись оба конца оси, между
+  // ними вспыхивает золотая нить. Ровно то, что происходит в партии.
   function DPKrugPreview(){
     return React.createElement('div', { className: 'kp' },
-      React.createElement('svg', { className: 'kp-svg', viewBox: '0 0 120 120', 'aria-hidden': 'true' },
-        React.createElement('circle', { className: 'kp-koltso', cx: 60, cy: 60, r: 44 }),
-        React.createElement('line', { className: 'kp-nitka', x1: 98.1, y1: 38.0, x2: 21.9, y2: 82.0 }),
-        React.createElement('circle', { key: 'g0', className: 'kp-gnezdo', cx: 60.0, cy: 16.0, r: 4 }),
-        React.createElement('circle', { key: 'g1', className: 'kp-gnezdo', cx: 82.0, cy: 21.9, r: 4 }),
-        React.createElement('circle', { key: 'g2', className: 'kp-gnezdo kp-gnezdo--cel', cx: 98.1, cy: 38.0, r: 5 }),
-        React.createElement('circle', { key: 'g3', className: 'kp-gnezdo', cx: 104.0, cy: 60.0, r: 4 }),
-        React.createElement('circle', { key: 'g4', className: 'kp-gnezdo', cx: 98.1, cy: 82.0, r: 4 }),
-        React.createElement('circle', { key: 'g5', className: 'kp-gnezdo', cx: 82.0, cy: 98.1, r: 4 }),
-        React.createElement('circle', { key: 'g6', className: 'kp-gnezdo', cx: 60.0, cy: 104.0, r: 4 }),
-        React.createElement('circle', { key: 'g7', className: 'kp-gnezdo', cx: 38.0, cy: 98.1, r: 4 }),
-        React.createElement('circle', { key: 'g8', className: 'kp-gnezdo', cx: 21.9, cy: 82.0, r: 4 }),
-        React.createElement('circle', { key: 'g9', className: 'kp-gnezdo', cx: 16.0, cy: 60.0, r: 4 }),
-        React.createElement('circle', { key: 'g10', className: 'kp-gnezdo', cx: 21.9, cy: 38.0, r: 4 }),
-        React.createElement('circle', { key: 'g11', className: 'kp-gnezdo', cx: 38.0, cy: 21.9, r: 4 }),
-        React.createElement('circle', { className: 'kp-fishka', cx: 60, cy: 60, r: 7.5 })
+      React.createElement('svg', { className: 'kp-svg', viewBox: '30 30 280 280', 'aria-hidden': 'true' },
+        React.createElement('path', { key: 'w0', className: 'kp-dolya kp-hod-1', d: 'M208.6 296.2A132 132 0 0 1 131.4 296.2L147.2 244.6A78 78 0 0 0 192.8 244.6Z', fill: '#131A30' }),
+        React.createElement('path', { key: 'w1', className: 'kp-dolya', d: 'M127.0 294.8A132 132 0 0 1 83.4 269.6L118.8 228.9A78 78 0 0 0 144.6 243.8Z', fill: '#1B2545' }),
+        React.createElement('path', { key: 'w2', className: 'kp-dolya', d: 'M80.0 266.5A132 132 0 0 1 41.4 199.7L94.0 187.5A78 78 0 0 0 116.8 227.0Z', fill: '#2F4472' }),
+        React.createElement('path', { key: 'w3', className: 'kp-dolya kp-hod-3', d: 'M40.4 195.2A132 132 0 0 1 40.4 144.8L93.4 155.1A78 78 0 0 0 93.4 184.9Z', fill: '#4D74B4' }),
+        React.createElement('path', { key: 'w4', className: 'kp-dolya', d: 'M41.4 140.3A132 132 0 0 1 80.0 73.5L116.8 113.0A78 78 0 0 0 94.0 152.5Z', fill: '#8AA6D4' }),
+        React.createElement('path', { key: 'w5', className: 'kp-dolya', d: 'M83.4 70.4A132 132 0 0 1 127.0 45.2L144.6 96.2A78 78 0 0 0 118.8 111.1Z', fill: '#D3C493' }),
+        React.createElement('path', { key: 'w6', className: 'kp-dolya kp-hod-2', d: 'M131.4 43.8A132 132 0 0 1 208.6 43.8L192.8 95.4A78 78 0 0 0 147.2 95.4Z', fill: '#F5CF74' }),
+        React.createElement('path', { key: 'w7', className: 'kp-dolya', d: 'M213.0 45.2A132 132 0 0 1 256.6 70.4L221.2 111.1A78 78 0 0 0 195.4 96.2Z', fill: '#EAB35C' }),
+        React.createElement('path', { key: 'w8', className: 'kp-dolya', d: 'M260.0 73.5A132 132 0 0 1 298.6 140.3L246.0 152.5A78 78 0 0 0 223.2 113.0Z', fill: '#D8894A' }),
+        React.createElement('path', { key: 'w9', className: 'kp-dolya kp-hod-4', d: 'M299.6 144.8A132 132 0 0 1 299.6 195.2L246.6 184.9A78 78 0 0 0 246.6 155.1Z', fill: '#C06A3C' }),
+        React.createElement('path', { key: 'w10', className: 'kp-dolya', d: 'M298.6 199.7A132 132 0 0 1 260.0 266.5L223.2 227.0A78 78 0 0 0 246.0 187.5Z', fill: '#7A4634' }),
+        React.createElement('path', { key: 'w11', className: 'kp-dolya', d: 'M256.6 269.6A132 132 0 0 1 213.0 294.8L195.4 243.8A78 78 0 0 0 221.2 228.9Z', fill: '#3B2A33' }),
+        React.createElement('line', { key: 'c0', className: 'kp-nit kp-nit-1', x1: 170.0, y1: 244.0, x2: 170.0, y2: 96.0 }),
+        React.createElement('line', { key: 'c1', className: 'kp-nit kp-nit-2', x1: 96.0, y1: 170.0, x2: 244.0, y2: 170.0 }),
+        React.createElement('circle', { className: 'kp-obod', cx: 170, cy: 170, r: 132 })
       ),
-      React.createElement('div', { className: 'kp-podpis' }, '12 мест — каждому элементу своё')
+      React.createElement('div', { className: 'kp-podpis' }, 'ставишь элемент — сходится ось')
     );
   }
 
@@ -593,8 +592,8 @@ function inviteBase(){
           React.createElement('div', { className: 'dp-cta-row' },
             React.createElement('button', {
               type: 'button', className: 'dp-cta dp-cta--solo',
-              onClick: (e) => { e.stopPropagation(); location.href = 'games/krug/index.html#solo'; },
-              'aria-label': 'Разложить круг одному'
+              onClick: (e) => { e.stopPropagation(); location.href = 'games/krug/index.html'; },
+              'aria-label': 'Играть в Круг'
             },
               React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
                 React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
@@ -603,45 +602,9 @@ function inviteBase(){
                 )
               ),
               React.createElement('span', { className: 'dp-cta__body' },
-                React.createElement('span', { className: 'dp-cta__title' }, 'Разложить круг'),
-                React.createElement('span', { className: 'dp-cta__sub' }, 'одному · 12 мест')
+                React.createElement('span', { className: 'dp-cta__title' }, 'Играть'),
+                React.createElement('span', { className: 'dp-cta__sub' }, 'одному, вдвоём или компанией')
               )
-            ),
-            React.createElement('button', {
-              type: 'button', className: 'dp-cta dp-cta--pvp',
-              onClick: (e) => { e.stopPropagation(); location.href = 'games/krug/index.html#duo'; },
-              'aria-label': 'Разложить круг вдвоём'
-            },
-              React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
-                React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
-                  React.createElement('circle', { cx: 8, cy: 9, r: 3 }),
-                  React.createElement('circle', { cx: 16, cy: 9, r: 3 }),
-                  React.createElement('path', { d: 'M3 19c0-2.4 1.8-4.2 5-4.2s5 1.8 5 4.2M13 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2' })
-                )
-              ),
-              React.createElement('span', { className: 'dp-cta__body' },
-                React.createElement('span', { className: 'dp-cta__title' }, 'Вдвоём'),
-                React.createElement('span', { className: 'dp-cta__sub' }, 'по очереди на телефоне')
-              )
-            ),
-            React.createElement('button', {
-              type: 'button', className: 'dp-cta dp-cta--group',
-              onClick: (e) => { e.stopPropagation(); location.href = 'games/krug/index.html#link'; },
-              'aria-label': 'Разложить круг компанией'
-            },
-              React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
-                React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
-                  React.createElement('circle', { cx: 8, cy: 9, r: 2.6 }),
-                  React.createElement('circle', { cx: 16, cy: 9, r: 2.6 }),
-                  React.createElement('path', { d: 'M3 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2' }),
-                  React.createElement('path', { d: 'M13 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2' })
-                )
-              ),
-              React.createElement('span', { className: 'dp-cta__body' },
-                React.createElement('span', { className: 'dp-cta__title' }, 'Компанией'),
-                React.createElement('span', { className: 'dp-cta__sub' }, 'одна раздача по ссылке')
-              ),
-              React.createElement('span', { className: 'dp-cta__badge', 'aria-hidden': 'true' }, 'NEW')
             )
           )
         ),
@@ -660,65 +623,24 @@ function inviteBase(){
             React.createElement('li', null, '4 формата: выбор из 4 · верно/нет · несколько верных · соедини пары'),
             React.createElement('li', null, 'В финале — разбор ошибок с цитатами из книги')
           ),
-          // ─── Две CTA-кнопки: Соло (с Тенью) или PvP (с другом по ссылке) ───
+          /* Одна кнопка: с кем играть — следующим шагом, в окне настройки.
+             Три равные плитки заставляли выбирать соперника раньше, чем
+             человек решил играть, и «Компанией» не помещалось на 360. */
           React.createElement('div', { className: 'dp-cta-row' },
             React.createElement('button', {
-              type: 'button',
-              className: 'dp-cta dp-cta--solo',
+              type: 'button', className: 'dp-cta dp-cta--solo',
               onClick: (e) => { e.stopPropagation(); onPartiya('shadow'); },
-              'aria-label': 'Играть одному с Тенью',
+              'aria-label': 'Играть Партию'
             },
               React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
                 React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
-                  React.createElement('circle', { cx: 12, cy: 8, r: 3.5 }),
-                  React.createElement('path', { d: 'M5 21c0-3.866 3.134-7 7-7s7 3.134 7 7' })
+                  React.createElement('path', { d: 'M6 4l12 8-12 8z' })
                 )
               ),
               React.createElement('span', { className: 'dp-cta__body' },
-                React.createElement('span', { className: 'dp-cta__title' }, 'Играть одному'),
-                React.createElement('span', { className: 'dp-cta__sub' }, 'против Тени')
+                React.createElement('span', { className: 'dp-cta__title' }, 'Играть'),
+                React.createElement('span', { className: 'dp-cta__sub' }, 'с Тенью, другом или компанией')
               )
-            ),
-            React.createElement('button', {
-              type: 'button',
-              className: 'dp-cta dp-cta--pvp',
-              onClick: (e) => { e.stopPropagation(); onPartiya('pvp'); },
-              'aria-label': 'Играть вдвоём по ссылке',
-            },
-              React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
-                React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
-                  React.createElement('circle', { cx: 8, cy: 9, r: 3 }),
-                  React.createElement('circle', { cx: 17, cy: 10, r: 2.5 }),
-                  React.createElement('path', { d: 'M2 20c0-3.314 2.686-6 6-6s6 2.686 6 6' }),
-                  React.createElement('path', { d: 'M14 20c.4-2.4 2.4-4.2 4.8-4.2s4.4 1.8 4.8 4.2' })
-                )
-              ),
-              React.createElement('span', { className: 'dp-cta__body' },
-                React.createElement('span', { className: 'dp-cta__title' }, 'С другом'),
-                React.createElement('span', { className: 'dp-cta__sub' }, 'по ссылке-комнате')
-              ),
-              React.createElement('span', { className: 'dp-cta__badge', 'aria-hidden': 'true' }, '✦')
-            ),
-            React.createElement('button', {
-              type: 'button',
-              className: 'dp-cta dp-cta--group',
-              onClick: (e) => { e.stopPropagation(); onPartiya('group'); },
-              'aria-label': 'Играть с коллективом',
-            },
-              React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
-                React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
-                  React.createElement('circle', { cx: 7, cy: 9, r: 2.3 }),
-                  React.createElement('circle', { cx: 12, cy: 7.5, r: 2.3 }),
-                  React.createElement('circle', { cx: 17, cy: 9, r: 2.3 }),
-                  React.createElement('path', { d: 'M3 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2' }),
-                  React.createElement('path', { d: 'M13 19c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2' })
-                )
-              ),
-              React.createElement('span', { className: 'dp-cta__body' },
-                React.createElement('span', { className: 'dp-cta__title' }, 'С коллективом'),
-                React.createElement('span', { className: 'dp-cta__sub' }, 'компанией 3–8 по ссылке')
-              ),
-              React.createElement('span', { className: 'dp-cta__badge', 'aria-hidden': 'true' }, 'NEW')
             )
           )
         ),
@@ -2333,6 +2255,7 @@ function inviteBase(){
         // движок умеет распределять total вопросов на любое N≥1 тем
         // (см. generatePartiya). Поэтому блокируем только при 0.
         const enoughThemes = selectedCount >= 1;
+        const оппонент = partiyaPicker.preferredOpponent || 'shadow';
         // Тем меньше чем по умолчанию ожидает режим — сообщаем мягко
         const idealThemesCount = { blitz: 5, standard: 6, expert: 6 }[mode] || 6;
         const fewThemes = selectedCount < idealThemesCount && selectedCount >= 1;
@@ -2371,7 +2294,31 @@ function inviteBase(){
               // избыточна, цифры режима уже видно на самой кнопке.
             ),
 
-            // ═════ СЕКЦИЯ 2: Темы ═════
+            // ═════ СЕКЦИЯ 2: С кем играем ═════
+            // Раньше соперник выбирался кнопкой на карточке — теперь он часть
+            // настройки партии, как длина и темы.
+            React.createElement('section', { className: 'dp-picker-section' },
+              React.createElement('div', { className: 'dp-picker-section-eyebrow' }, '◐  С кем играем'),
+              React.createElement('div', { className: 'dp-mode-grid' },
+                [
+                  { id: 'shadow', label: 'Один', sub: 'против Тени' },
+                  { id: 'pvp',    label: 'С другом', sub: 'по ссылке' },
+                  { id: 'group',  label: 'Компанией', sub: '3–8 человек' },
+                ].map(о =>
+                  React.createElement('button', {
+                    key: о.id,
+                    type: 'button',
+                    className: 'dp-mode-btn dp-mode-btn--opp' + (оппонент === о.id ? ' dp-mode-btn-active' : ''),
+                    onClick: () => setPartiyaPicker(Object.assign({}, partiyaPicker, { preferredOpponent: о.id })),
+                  },
+                    React.createElement('div', { className: 'dp-mode-btn-label' }, о.label),
+                    React.createElement('div', { className: 'dp-mode-btn-time' }, о.sub)
+                  )
+                )
+              )
+            ),
+
+            // ═════ СЕКЦИЯ 3: Темы ═════
             React.createElement('section', { className: 'dp-picker-section' },
               React.createElement('div', { className: 'dp-picker-section-head' },
                 React.createElement('div', { className: 'dp-picker-section-eyebrow' }, '☷  Темы'),
@@ -2425,24 +2372,22 @@ function inviteBase(){
             // ═════ Footer: одна большая CTA-кнопка ═════
             // Соперник выбран на карточке (Solo/PvP), здесь только запуск.
             (() => {
-              const opp = partiyaPicker.preferredOpponent || 'shadow';
-              const isPvp = opp === 'pvp';
               const handleStart = () => {
                 if(!enoughThemes) return;
-                if(isPvp){
-                  startPartiyaPvP();
-                } else {
-                  setPartiyaPicker(null);
-                  startPartiyaWithShadow('medium', mode, selectedThemes);
-                }
+                if(оппонент === 'pvp'){ startPartiyaPvP(); return; }
+                if(оппонент === 'group'){ setPartiyaPicker(null); startGroup(); return; }
+                setPartiyaPicker(null);
+                startPartiyaWithShadow('medium', mode, selectedThemes);
               };
+              const надпись = оппонент === 'pvp' ? 'Создать комнату →'
+                : оппонент === 'group' ? 'Собрать компанию →' : 'Начать партию →';
               return React.createElement('section', { className: 'dp-picker-footer' },
                 React.createElement('button', {
                   className: 'dp-picker-footer-cta',
                   onClick: handleStart,
                   disabled: !enoughThemes,
                   type: 'button'
-                }, isPvp ? 'Создать комнату →' : 'Начать партию →')
+                }, надпись)
               );
             })()
           )
