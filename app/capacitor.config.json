@@ -4,7 +4,8 @@
   "webDir": "www",
   "android": {
     "allowMixedContent": false,
-    "appendUserAgent": "YasnaApp/1.0"
+    "appendUserAgent": "YasnaApp/1.0",
+    "backgroundColor": "#0e3f47"
   },
   "server": {
     "androidScheme": "https"

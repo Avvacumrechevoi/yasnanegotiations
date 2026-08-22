@@ -28,6 +28,53 @@
   Вёрстка нарочно простая: обычный поток, без вложенного скролла и
   backdrop-filter — они рисовали «призраков» в WebView.
 -->
+<!-- ═══ Заставка приложения ═══════════════════════════════════════════
+     Продолжение системной: тот же фон, тот же знак. Двенадцать лучей
+     зажигаются по кругу — как круг Ясны собирается из частей, — и заставка
+     растворяется. Показывается ОДИН раз за запуск (sessionStorage живёт,
+     пока жив WebView), иначе мелькала бы при каждом возврате на главную
+     по наббару. Разметка и стили встроены сюда намеренно: внешний файл
+     подъехал бы позже первого кадра, и человек увидел бы пустой экран. -->
+<style>
+  .sp{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:18px;
+    background:radial-gradient(120% 90% at 50% 35%,#12525a 0%,#0b343b 100%);
+    animation:sp-uhod .38s ease-out .84s forwards}
+  .sp-znak{width:132px;height:132px;color:#F6B93B;
+    animation:sp-vdoh 1.25s cubic-bezier(.2,.9,.3,1) both}
+  .sp-znak svg{width:100%;height:100%;display:block;overflow:visible}
+  .sp-znak .l{opacity:0;animation:sp-luch .42s ease-out both}
+  .sp-znak .l0{animation-delay:0.00s}.sp-znak .l1{animation-delay:0.04s}.sp-znak .l2{animation-delay:0.09s}.sp-znak .l3{animation-delay:0.14s}.sp-znak .l4{animation-delay:0.18s}.sp-znak .l5{animation-delay:0.22s}.sp-znak .l6{animation-delay:0.27s}.sp-znak .l7{animation-delay:0.32s}.sp-znak .l8{animation-delay:0.36s}.sp-znak .l9{animation-delay:0.40s}.sp-znak .l10{animation-delay:0.45s}.sp-znak .l11{animation-delay:0.49s}
+  .sp-imya{font:600 15px/1 Manrope,Inter,system-ui,sans-serif;letter-spacing:.34em;
+    text-transform:uppercase;color:#F6B93B;opacity:0;
+    animation:sp-imya .42s ease-out .58s both}
+  @keyframes sp-luch{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:none}}
+  @keyframes sp-vdoh{0%{transform:scale(.94)}70%{transform:scale(1)}100%{transform:scale(1.03)}}
+  @keyframes sp-imya{from{opacity:0;transform:translateY(5px)}to{opacity:.92;transform:none}}
+  @keyframes sp-uhod{to{opacity:0;visibility:hidden}}
+  @media (prefers-reduced-motion:reduce){
+    .sp{animation:sp-uhod .3s ease-out .35s forwards}
+    .sp-znak,.sp-znak .l,.sp-imya{animation:none;opacity:1}
+  }
+</style>
+<script>
+(function(){
+  /* Только в приложении и только на первом экране запуска. */
+  if(!/YasnaApp\//.test(navigator.userAgent)) return;
+  try{ if(sessionStorage.getItem('yasna_zastavka')==='1') return;
+       sessionStorage.setItem('yasna_zastavka','1'); }catch(e){}
+  document.documentElement.insertAdjacentHTML('afterbegin',
+    '<div class="sp" id="sp" role="presentation">' +
+      '<span class="sp-znak"><svg viewBox="0 0 100 100" aria-hidden="true">' +
+        '<g fill="none" stroke="currentColor" stroke-width="6.4" stroke-linecap="round"><g class="l l0"><line x1="50.0" y1="33.0" x2="50.0" y2="11.0"/></g><g class="l l0"><line x1="59.0" y1="11.0" x2="41.0" y2="11.0"/></g><g class="l l1"><line x1="58.5" y1="35.3" x2="71.5" y2="12.8"/></g><g class="l l1"><line x1="71.5" y1="12.8" x2="62.4" y2="18.0"/></g><g class="l l1"><line x1="71.5" y1="12.8" x2="71.5" y2="23.3"/></g><g class="l l2"><line x1="64.7" y1="41.5" x2="83.8" y2="30.5"/></g><g class="l l3"><line x1="67.0" y1="50.0" x2="89.0" y2="50.0"/></g><g class="l l3"><line x1="89.0" y1="59.0" x2="89.0" y2="41.0"/></g><g class="l l4"><line x1="64.7" y1="58.5" x2="83.8" y2="69.5"/></g><g class="l l5"><line x1="58.5" y1="64.7" x2="69.5" y2="83.8"/></g><g class="l l6"><line x1="50.0" y1="67.0" x2="50.0" y2="89.0"/></g><g class="l l6"><line x1="41.0" y1="89.0" x2="59.0" y2="89.0"/></g><g class="l l7"><line x1="41.5" y1="64.7" x2="30.5" y2="83.8"/></g><g class="l l8"><line x1="35.3" y1="58.5" x2="16.2" y2="69.5"/></g><g class="l l9"><line x1="33.0" y1="50.0" x2="11.0" y2="50.0"/></g><g class="l l9"><line x1="11.0" y1="41.0" x2="11.0" y2="59.0"/></g><g class="l l10"><line x1="35.3" y1="41.5" x2="16.2" y2="30.5"/></g><g class="l l11"><line x1="41.5" y1="35.3" x2="30.5" y2="16.2"/></g></g>' +
+      '</svg></span>' +
+      '<span class="sp-imya">Ясна</span>' +
+    '</div>');
+  /* Узел убираем после ухода: иначе он ловил бы касания поверх главной. */
+  setTimeout(function(){ var э=document.getElementById('sp'); if(э) э.remove(); }, 1400);
+})();
+</script>
+
 <link rel="stylesheet" href="vendor/fonts/shrifty.css">
 <style>
   :root{
@@ -72,21 +119,20 @@
 
   /* ── Приветствие ── */
   header{padding:18px 20px 4px}
-  header a{display:flex;align-items:center;gap:12px;text-decoration:none;
-    color:inherit;min-width:0}
+  .shapka{display:flex;align-items:center;gap:12px;min-width:0}
+  /* Знак Ясны: круг из двенадцати лучей с засечками и стрелкой — тот же,
+     что на обложке. Золото на глубоком зелёном, как в оригинале. */
   .znak{width:44px;height:44px;border-radius:14px;flex:0 0 auto;
-    background:linear-gradient(145deg,var(--syn) 0%,#4c3bd6 100%);
+    background:linear-gradient(150deg,#12525a 0%,#0e3f47 100%);
+    color:#F6B93B;
     display:flex;align-items:center;justify-content:center;
-    box-shadow:0 3px 10px rgba(0,90,220,.28)}
-  .znak svg{width:24px;height:24px;fill:#fff}
+    box-shadow:0 3px 10px rgba(8,40,44,.34)}
+  .znak svg{width:32px;height:32px}
   .privet{min-width:0;flex:1}
   .privet .im{display:block;font:600 21px/1.15 Manrope,Inter,sans-serif;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .privet .im i{font:italic 600 23px/1 var(--serif);color:var(--syn)}
   .privet .pod{font-size:12.5px;color:var(--ink-2);margin-top:2px}
-  .k-profilu{color:var(--ink-3);flex:0 0 auto}
-  .k-profilu svg{width:18px;height:18px;stroke:currentColor;fill:none;
-    stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
   main{padding:12px 16px calc(86px + var(--snizu))}
 
@@ -350,18 +396,13 @@
 <div class="plashka"></div>
 
 <header>
-  <a href="profil.html" aria-label="Профиль">
-    <span class="znak" aria-hidden="true">
-      <svg viewBox="0 0 24 24"><path d="M12 1.6l2.2 6.3 6.3 2.1-6.3 2.1-2.2 6.3-2.2-6.3-6.3-2.1 6.3-2.1z"/><circle cx="19.4" cy="18.6" r="1.9"/></svg>
-    </span>
+  <div class="shapka">
+    <span class="znak" aria-hidden="true"><svg viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.9" stroke-linecap="round"><line x1="20.0" y1="13.4" x2="20.0" y2="4.6"/><line x1="23.6" y1="4.6" x2="16.4" y2="4.6"/><line x1="23.3" y1="14.3" x2="28.5" y2="5.3"/><line x1="28.5" y1="5.3" x2="24.9" y2="7.4"/><line x1="28.5" y1="5.3" x2="28.5" y2="9.5"/><line x1="25.7" y1="16.7" x2="33.3" y2="12.3"/><line x1="26.6" y1="20.0" x2="35.4" y2="20.0"/><line x1="35.4" y1="23.6" x2="35.4" y2="16.4"/><line x1="25.7" y1="23.3" x2="33.3" y2="27.7"/><line x1="23.3" y1="25.7" x2="27.7" y2="33.3"/><line x1="20.0" y1="26.6" x2="20.0" y2="35.4"/><line x1="16.4" y1="35.4" x2="23.6" y2="35.4"/><line x1="16.7" y1="25.7" x2="12.3" y2="33.3"/><line x1="14.3" y1="23.3" x2="6.7" y2="27.7"/><line x1="13.4" y1="20.0" x2="4.6" y2="20.0"/><line x1="4.6" y1="16.4" x2="4.6" y2="23.6"/><line x1="14.3" y1="16.7" x2="6.7" y2="12.3"/><line x1="16.7" y1="14.3" x2="12.3" y2="6.7"/></g></svg></span>
     <span class="privet">
       <span class="im">Привет, <i id="imya">Странник</i></span>
       <div class="pod">Открой строй вещей — от суток до судьбы</div>
     </span>
-    <span class="k-profilu" aria-hidden="true">
-      <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-    </span>
-  </a>
+  </div>
 </header>
 
 <main>
@@ -374,7 +415,7 @@
        это явление сложено». -->
   <a class="citata" id="citata" href="konstruktor.html">
     <svg class="znak-vod" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.6l2.2 6.3 6.3 2.1-6.3 2.1-2.2 6.3-2.2-6.3-6.3-2.1 6.3-2.1z"/></svg>
-    <span class="k">Цитата дня</span>
+    <span class="k">Цитата</span>
     <div class="tx"></div>
     <div class="niz"><span class="ot"></span><span class="ist"></span></div>
   </a>
@@ -384,7 +425,7 @@
   <a class="delo delo--glav" href="duel.html">
     <span class="k">Игра</span>
     <div class="t">Играй и запоминай</div>
-    <div class="o">Партия вопросов против бота-Тени или друга: играя, закрепляешь метод.</div>
+    <div class="o">Викторина по Ясне: играй один или с друзьями.</div>
     <div class="meta" id="igra-meta"></div>
     <span class="busy" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
     <span class="strelka" aria-hidden="true">
@@ -395,9 +436,9 @@
   <a class="delo delo--uch" href="learn.html">
     <span class="k">Обучение</span>
     <div class="t" id="ucheba-t">Разобраться, как устроена Ясна</div>
-    <div class="o" id="ucheba-o">Первый урок — 5 минут, по шагам, с подсказками.</div>
+    <div class="o" id="ucheba-o">Пошаговый курс — от основ до продвинутого уровня.</div>
     <div class="put" aria-hidden="true" id="ucheba-put"></div>
-    <div class="meta" id="ucheba-m"><span class="m">с нуля</span><span class="m">по шагам</span></div>
+    <div class="meta" id="ucheba-m"></div>
     <span class="strelka" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
     </span>
@@ -528,11 +569,10 @@
      утренним уведомлением. */
   (function(){
     var к=document.getElementById('citata');
-    if(!к||!window.yasnaCitata) return;
-    var ц=window.yasnaCitata();
-    к.querySelector('.tx').textContent='«'+ц[0]+'»';
-    к.querySelector('.ot').textContent=ц[1];
-    к.querySelector('.ist').textContent='Ясна Суток · '+ц[2];
+    if(!к) return;
+    к.querySelector('.tx').textContent='«Мир — управляемый страх»';
+    к.querySelector('.ot').textContent='';
+    к.querySelector('.ist').textContent='Ясна';
   })();
 
   /* Обновления: тихая проверка раз в несколько часов; плашка — только

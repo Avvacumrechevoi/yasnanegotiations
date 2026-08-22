@@ -7,6 +7,7 @@
     <color name="colorPrimary">#0071e3</color>
     <color name="colorPrimaryDark">#0B57C0</color>
     <color name="colorAccent">#0071e3</color>
-    <!-- Заставка и фон окна под страницей: тот же синий, что у знака. -->
-    <color name="splashBackground">#0B57C0</color>
+    <!-- Заставка и фон окна: глубокий зелёный знака Ясны — тот же, что
+         у веб-заставки на главной, чтобы стык был незаметен. -->
+    <color name="splashBackground">#0e3f47</color>
 </resources>
