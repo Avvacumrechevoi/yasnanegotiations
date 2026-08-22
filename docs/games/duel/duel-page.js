@@ -294,7 +294,8 @@ function inviteBase(){
         /* В приложении виджет Telegram не работает (домен в BotFather +
            браузерное окружение) — кнопку не показываем, честнее строка. */
         /YasnaApp\//.test(navigator.userAgent)
-          ? React.createElement('span', { className: 'dp-btn dp-btn-ghost', style: { pointerEvents: 'none' } }, 'Вход — по почте, кнопка ниже')
+          ? React.createElement('button', { className: 'dp-btn dp-btn-cta',
+              onClick: function(){ if (window.YasnaAccount) window.YasnaAccount.openLogin(); } }, 'Войти по почте')
           : React.createElement('button', { className: 'dp-btn dp-btn-cta', onClick: onLoginClick }, 'Войти через Telegram'),
         React.createElement('button', { className: 'dp-btn dp-btn-ghost', onClick: onAnonStart }, 'Сыграть гостем')
       ),
@@ -465,12 +466,16 @@ function inviteBase(){
         ),
         nextStupenLabel && React.createElement('div', { style: { fontSize: 12, color: 'var(--text-3)', marginTop: 4, fontVariantNumeric: 'tabular-nums' } }, nextStupenLabel)
       ),
+      /* В приложении «Войти» открывает окно почты прямо здесь. Раньше это
+         была ссылка на Профиль с подсказкой в title — на Android title тачем
+         не всплывает вовсе, а Профиль отсылал обратно сюда. */
       isGuest && (/YasnaApp\//.test(navigator.userAgent)
-        ? React.createElement('a', { className: 'dp-hero-cta', href: 'profil.html', title: 'Имя, зверь и вход по почте — на экране «Профиль»' }, 'Имя и вход — в Профиле →')
+        ? React.createElement('button', { className: 'dp-hero-cta',
+            onClick: function(){ if (window.YasnaAccount) window.YasnaAccount.openLogin(); } }, 'Войти по почте →')
         : React.createElement('button', { className: 'dp-hero-cta', onClick: onLoginClick, title: 'Войди — попадёшь в Хронику' }, 'Войти →')),
       !isGuest && remoteProfile && React.createElement('div', {
         className: 'dp-hero-synced',
-        // Честная формулировка: серверного хранения учебного прогресса пока нет
+        // Прогресс уже на сервере (server/progress.js): формулировка ниже
         // (в БД есть только users/device_links/matches — таблицы прогресса нет,
         // и GET /profile не реализован). Telegram-вход сейчас даёт участие в
         // Хронике и рейтинге по партиям, а не перенос прогресса между устройствами.
@@ -514,18 +519,18 @@ function inviteBase(){
     };
     return React.createElement(React.Fragment, null,
       // ─── Light: оригинальный плашка-уведомление ───
-      React.createElement('div', { className: 'dp-sync-notice vk-light-only', role: 'note' },
+      // Класс vk-light-only убран: в тёмной теме плашки не было вовсе, хотя
+      // сказать ей есть что. Текст переписан по факту: серверное хранение
+      // прогресса появилось (server/progress.js, owner_key usr:/dev:), и
+      // прежнее «перенос между устройствами не сделан» стало неправдой.
+      React.createElement('div', { className: 'dp-sync-notice', role: 'note' },
         React.createElement('div', { className: 'dp-sync-notice-icon', 'aria-hidden': 'true' }, '◷'),
         React.createElement('div', { className: 'dp-sync-notice-body' },
-          React.createElement('div', { className: 'dp-sync-notice-title' }, 'Прогресс хранится в этом браузере'),
+          React.createElement('div', { className: 'dp-sync-notice-title' }, 'Прогресс сохраняется на сервере'),
           React.createElement('div', { className: 'dp-sync-notice-text' },
-            'Бусины, серии и история партий — здесь, локально. Очистишь кеш или сменишь устройство — потеряешь.',
+            'Уроки, разбор и бусины уже лежат на сервере — пока для этого устройства.',
             React.createElement('br'),
-            // Раньше здесь стояло «Войди через Telegram, чтобы прогресс жил между
-            // устройствами» — это неправда: серверного хранения прогресса нет
-            // (в схеме только users/device_links/matches). Пока его нет — даём
-            // честную страховку: выгрузку файла.
-            'Пока перенос между устройствами не сделан — скачай копию, она пригодится.'
+            'Войди по почте, и они привяжутся к тебе: вернутся после переустановки и откроются на другом телефоне.'
           )
         ),
         React.createElement('div', { className: 'dp-sync-notice-actions' },
@@ -1757,24 +1762,28 @@ function inviteBase(){
         phase === 'success' && React.createElement(React.Fragment, null,
           React.createElement('div', { className: 'dp-auth-success-icon', 'aria-hidden': 'true' }, '✦'),
           React.createElement('h2', { className: 'dp-auth-success-title' }, 'Привет, ', welcomeName, '.'),
-          React.createElement('p', { className: 'dp-auth-success-text' }, 'Теперь партии попадают в Хронику и рейтинг под твоим именем. Прогресс обучения пока хранится в этом браузере.')
+          React.createElement('p', { className: 'dp-auth-success-text' }, 'Теперь партии попадают в Хронику и рейтинг под твоим именем, а уроки и бусины привязаны к аккаунту — откроются на любом устройстве.')
         ),
 
         // ─── Idle / loading / error ───
         phase !== 'success' && React.createElement(React.Fragment, null,
           React.createElement('div', { className: 'dp-auth-eyebrow' }, '✦  Войти'),
-          React.createElement('h2', null, 'Сохрани прогресс между устройствами'),
-          React.createElement('p', null,
-            'Войди через Telegram. Бусины, серии и история партий будут жить с твоим аккаунтом.'),
+          /* В приложении виджет Telegram не работает вовсе, поэтому и заголовок,
+             и объяснение — про почту. Рекламировать способ, который тут же
+             объявлен невозможным, значит впустую тратить внимание человека. */
+          React.createElement('h2', null, вПриложении() ? 'Вход по почте' : 'Сохрани прогресс между устройствами'),
+          React.createElement('p', null, вПриложении()
+            ? 'Пришлём код из шести цифр — пароля нет. Уроки, разбор и бусины привяжутся к вам, а не к этому телефону.'
+            : 'Войди через Telegram. Бусины, серии и история партий будут жить с твоим аккаунтом.'),
 
           // ─── Light: оригинальный список перков ───
-          React.createElement('ul', { className: 'dp-auth-perks vk-light-only' },
+          !вПриложении() && React.createElement('ul', { className: 'dp-auth-perks vk-light-only' },
             React.createElement('li', null, 'Партии с любого устройства — общий счёт'),
             React.createElement('li', null, 'Без паролей. Только имя и аватар из Telegram'),
             React.createElement('li', null, 'Гостевой прогресс сохранится — при логине он добавится к твоему')
           ),
-          // ─── Dark: VK-Scheme — как работает синхронизация ───
-          React.createElement('div', { className: 'vk-scheme-block' },
+          // ─── Dark: VK-Scheme — как работает синхронизация (только сайт) ───
+          !вПриложении() && React.createElement('div', { className: 'vk-scheme-block' },
             React.createElement('div', { className: 'vk-scheme' },
               React.createElement('div', { className: 'vk-scheme-canvas' },
                 React.createElement('div', { className: 'vk-scheme-header' },
@@ -1821,14 +1830,18 @@ function inviteBase(){
                  никогда. Показывать неработающую кнопку — врать; показывать
                  отладочное «Бот не настроен» — врать вдвойне. Говорим прямо
                  и оставляем вход по почте, который в приложении работает. */
-              ? React.createElement(React.Fragment, null,
-                  VkSysMsg({ kind: 'info', icon: '✉', title: 'Вход через Telegram — только на сайте',
-                             text: 'В приложении вход по почте живёт на экране «Профиль».' }),
-                  React.createElement('a', {
-                    className: 'dp-btn dp-btn-primary',
-                    style: { display: 'block', textAlign: 'center', marginTop: 12 },
-                    href: 'profil.html'
-                  }, 'Открыть Профиль →'))
+              /* Раньше здесь была ссылка «Открыть Профиль →», а Профиль вёл
+                 сюда же — круг замыкался, и войти в приложении было нельзя.
+                 core/account.js на этой странице уже загружен, поэтому окно
+                 входа по почте открывается прямо отсюда. */
+              ? React.createElement('button', {
+                  className: 'dp-btn dp-btn-cta',
+                  style: { display: 'block', width: '100%', marginTop: 4 },
+                  onClick: function(){
+                    if (onClose) onClose();
+                    if (window.YasnaAccount) window.YasnaAccount.openLogin();
+                  }
+                }, 'Войти по почте')
             : !botUsername
               ? VkSysMsg({ kind: 'error', icon: '⚙', title: 'Бот не настроен', text: 'Это превью-сборка. Авторизация через Telegram отключена.' })
               : React.createElement('div', {
@@ -1847,8 +1860,9 @@ function inviteBase(){
                 }),
           phase === 'loading' && VkSysMsg({ kind: 'info', icon: '◷', size: 's', text: 'Авторизация в Telegram…' }),
           error && VkSysMsg({ kind: 'error', icon: '⚠', title: 'Не получилось войти', text: error }),
-          React.createElement('div', { className: 'dp-auth-foot' },
-            'Передаём только Telegram-имя и фото. Личные сообщения нам недоступны.')
+          React.createElement('div', { className: 'dp-auth-foot' }, вПриложении()
+            ? 'Храним почту и то, что вы сами напишете в профиле. Аккаунт можно удалить в любой момент.'
+            : 'Передаём только Telegram-имя и фото. Личные сообщения нам недоступны.')
         )
       )
     );

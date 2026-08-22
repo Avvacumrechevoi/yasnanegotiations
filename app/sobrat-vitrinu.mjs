@@ -233,6 +233,24 @@ const известные = [];
    остаток вытек в документ обычным текстом — на девяти страницах над шапкой
    висело ✦"/>. В браузере ошибки нет, в консоли тихо; видно только глазами,
    и я увидел это лишь на снимке с телефона. */
+/* АДРЕС API. core/account.js и core/storage.js молча отказываются работать,
+   если на странице нет <meta name="yasna:api">: вход по почте не открывается,
+   прогресс не уезжает. Ровно так и вышло с экраном Профиля — он собран не из
+   docs/, а отдельным файлом, и мету туда никто не положил. Проверка ловит
+   расхождение на сборке, а не на телефоне. */
+const безАдреса = [];
+(function адрес(dir) {
+  for (const имя of readdirSync(dir)) {
+    const п = join(dir, имя);
+    if (statSync(п).isDirectory()) { адрес(п); continue; }
+    if (!имя.endsWith('.html')) continue;
+    const s = readFileSync(п, 'utf8');
+    const нужен = /src="[^"]*core\/(account|storage)\.js/.test(s);
+    const есть = /name=["']yasna:api["']/.test(s);
+    if (нужен && !есть) безАдреса.push(relative(ЦЕЛЬ, п));
+  }
+})(ЦЕЛЬ);
+
 const обломки = [];
 (function ломано(dir) {
   for (const имя of readdirSync(dir)) {
@@ -256,6 +274,13 @@ if (обломки.length) {
   console.log('\n  ⚠ ОБЛОМКИ РАЗМЕТКИ — они видны на странице обычным текстом:');
   for (const x of обломки) console.log('    ' + x);
   process.exitCode = 1;
+}
+if (безАдреса.length) {
+  console.log('\n  ⚠ СТРАНИЦЫ БЕЗ АДРЕСА API — вход и синхронизация на них молча не работают:');
+  for (const x of безАдреса) console.log('    ' + x);
+  process.exitCode = 1;
+} else {
+  console.log('  адрес API есть везде, где он нужен');
 }
 if (остатки.length) {
   console.log('\n  ⚠ ОСТАЛИСЬ ССЫЛКИ НА ЧУЖИЕ СЕРВЕРА — в приложении они не откроются без сети:');

@@ -24,6 +24,9 @@
 <!-- Замок: подключён ПЕРВЫМ, до всего остального (см. core/gate.js) -->
 <script src="../../core/gate.js"></script>
 <script src="../../core/theme.js"></script>
+<!-- Адрес API: без него core/storage.js молча не отправляет прогресс
+     партий на сервер. Проверку на это делает app/sobrat-vitrinu.mjs. -->
+<meta name="yasna:api" content="https://d5dmdje8c5mk8811il5j.iwzqm34r.apigw.yandexcloud.net">
 <script src="../../core/storage.js"></script>
 <script src="../../core/data.js"></script>
 <link rel="stylesheet" href="krug.css?v=5ea672f5"/>

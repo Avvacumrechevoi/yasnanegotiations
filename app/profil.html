@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<!-- Адрес API. Без него core/account.js и core/storage.js отказываются слать
+     запросы («на этой странице не задан адрес API»), и вход по почте молча не
+     работает. Тот же адрес стоит на всех страницах витрины (docs/index.html). -->
+<meta name="yasna:api" content="https://d5dmdje8c5mk8811il5j.iwzqm34r.apigw.yandexcloud.net">
 <title>Профиль · Ясна</title>
 <!--
   ПРОФИЛЬ — единственное место авторизации в приложении.
@@ -17,23 +21,23 @@
   :root{
     --syn:#0071e3; --syn-t:#0B57C0;
     --fon:#f5f6f8; --kart:#ffffff;
-    --ink:#101418; --ink-2:#5c6570; --kayma:rgba(16,20,24,.1);
-    --pole:#eef1f5;
+    --ink:#101418; --ink-2:#5c6570; --ink-3:#8b95a1; --kayma:rgba(16,20,24,.1);
+    --pole:#eef1f5; --ploho:#c0392b;
     --sverhu: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
     --snizu:  var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
       --fon:#101214; --kart:#1a1d21;
-      --ink:#e8ebee; --ink-2:#9aa3ad; --kayma:rgba(232,235,238,.12);
-      --pole:#2b3036; --syn:#3d96f0;
+      --ink:#e8ebee; --ink-2:#9aa3ad; --ink-3:#6d7681; --kayma:rgba(232,235,238,.12);
+      --pole:#2b3036; --syn:#3d96f0; --ploho:#ff9a9a;
     }
   }
   /* Явный выбор в Профиле (html[data-theme]) сильнее системного */
   :root[data-theme="dark"]{
       --fon:#101214; --kart:#1a1d21;
-      --ink:#e8ebee; --ink-2:#9aa3ad; --kayma:rgba(232,235,238,.12);
-      --pole:#2b3036; --syn:#3d96f0;
+      --ink:#e8ebee; --ink-2:#9aa3ad; --ink-3:#6d7681; --kayma:rgba(232,235,238,.12);
+      --pole:#2b3036; --syn:#3d96f0; --ploho:#ff9a9a;
     }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0}
@@ -70,7 +74,8 @@
     border:1.5px solid var(--kayma)}
   .soobshenie{font-size:13.5px;color:var(--syn);margin:10px 0 0;min-height:1.2em}
   .opis{font-size:13.5px;color:var(--ink-2);line-height:1.55;margin:8px 0 0}
-  .vhod-status{display:flex;align-items:center;gap:10px;font-size:15px}
+  .vhod-status{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:15px;
+    min-width:0;overflow-wrap:anywhere}
   .versiya{text-align:center;color:var(--ink-2);font-size:12px;margin:26px 0 0}
   .segmenty{display:flex;gap:6px;background:var(--fon);border:1px solid var(--kayma);
     border-radius:14px;padding:4px;margin-top:10px}
@@ -89,7 +94,7 @@
   .ya-imya{font:600 19px/1.2 Manrope,Inter,sans-serif;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .ya-schet{font-size:13px;color:var(--ink-2)}
-  .ya-pravit{flex:0 0 auto;min-height:38px;padding:0 14px;border-radius:11px;
+  .ya-pravit{flex:0 0 auto;min-height:44px;padding:0 14px;border-radius:11px;
     border:1px solid var(--kayma);background:var(--fon);color:var(--ink-2);
     font:600 13px/1 Manrope,Inter,sans-serif;cursor:pointer}
   #pravka{margin-top:14px}
@@ -106,7 +111,7 @@
     text-transform:uppercase;color:var(--ink-3)}
   .kod{font:700 21px/1.15 Manrope,Inter,sans-serif;letter-spacing:.16em;
     margin-top:4px;font-variant-numeric:tabular-nums}
-  .kod-kn{width:auto;flex:0 0 auto;margin:0;min-height:42px;padding:0 14px}
+  .kod-kn{width:auto;flex:0 0 auto;margin:0;min-height:44px;padding:0 14px}
   .kod-vvod{display:flex;gap:8px;margin-top:6px}
   .kod-vvod input{flex:1;min-width:0;text-transform:uppercase;letter-spacing:.14em}
   .kod-vvod input::placeholder{text-transform:none;letter-spacing:0;color:var(--ink-3)}
@@ -120,7 +125,7 @@
   .chel-imya{flex:1;min-width:0;font:600 14.5px/1.2 Manrope,Inter,sans-serif;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .chel-kn{display:flex;gap:6px;flex:0 0 auto}
-  .chel-kn button{min-height:38px;padding:0 12px;border-radius:10px;
+  .chel-kn button{min-height:44px;padding:0 12px;border-radius:10px;
     border:1px solid var(--kayma);background:var(--kart);color:var(--ink-2);
     font:600 12.5px/1 Manrope,Inter,sans-serif;cursor:pointer}
   .chel-kn button.da{background:var(--syn);border-color:transparent;color:#fff}
@@ -133,7 +138,7 @@
 
 <header>
   <h1>Профиль</h1>
-  <div class="pod">имя, зверь и свои люди — то, что видят соперники</div>
+  <div class="pod">имя и зверь видят соперники; свои люди — чтобы звать в партию</div>
 </header>
 
 <main>
@@ -153,6 +158,19 @@
       <button class="knopka" id="sohranit" type="button">Сохранить</button>
     </div>
     <div class="soobshenie" id="soobshenie" role="status"></div>
+  </section>
+
+  <!-- Вход — не настройка, поэтому карточка стоит сразу под «Кто я»: это
+       второй по важности шаг после имени. Кнопка открывает окно core/account.js
+       прямо здесь; раньше это была ссылка на duel.html#login, и человек уезжал
+       в раздел игры, где ему предлагали вернуться обратно в Профиль. -->
+  <section class="kart">
+    <h2>Вход по почте</h2>
+    <div class="vhod-status" id="vhod-status"></div>
+    <p class="opis" id="vhod-opis"></p>
+    <button class="knopka" id="vhod-knopka" type="button">Войти по почте</button>
+    <button class="knopka knopka--tihaya" id="moy-akkaunt" type="button" hidden>Мой аккаунт</button>
+    <button class="knopka knopka--tihaya" id="vyhod" type="button" hidden>Выйти</button>
   </section>
 
   <section class="kart">
@@ -189,13 +207,6 @@
 
   <div class="razdel">Настройки</div>
 
-  <section class="kart">
-    <h2>Вход по почте</h2>
-    <div class="vhod-status" id="vhod-status"></div>
-    <p class="opis" id="vhod-opis"></p>
-    <a class="knopka" id="vhod-knopka" href="duel.html#login">Войти по почте</a>
-    <button class="knopka knopka--tihaya" id="vyhod" type="button" hidden>Выйти</button>
-  </section>
 
   <section class="kart">
     <h2>Вид</h2>
@@ -250,6 +261,12 @@
 <script src="core/druzya.js"></script>
 <script src="citaty.js"></script>
 <script src="obnovlenie.js"></script>
+<!-- Вход по почте и синхронизация прогресса. storage.js обязателен: без него
+     YasnaAccount.logout() не умеет очистить синхронизированное, и уроки
+     прошлого человека остаются на телефоне (на общем устройстве это уже
+     приводило к тому, что чужие заметки уезжали под новым аккаунтом). -->
+<script src="core/storage.js"></script>
+<script src="core/account.js"></script>
 <script>
 (function(){
   var КЛЮЧ='yasna_duel_profile';
@@ -333,22 +350,39 @@
   var статус=document.getElementById('vhod-status');
   var опис=document.getElementById('vhod-opis');
   var кнВход=document.getElementById('vhod-knopka');
+  var кнАккаунт=document.getElementById('moy-akkaunt');
   var кнВыход=document.getElementById('vyhod');
   function показатьВход(){
     var польз=null;
     try{ польз=JSON.parse(localStorage.getItem('yasna_duel_user')) }catch(e){}
     var есть=!!localStorage.getItem('yasna_duel_token');
     if(есть&&польз){
-      статус.textContent='✓ Вы вошли: '+(польз.name||польз.email||'аккаунт');
-      опис.textContent='Прогресс привязан к почте и переживёт переустановку приложения.';
-      кнВход.hidden=true; кнВыход.hidden=false;
+      /* Сервер отдаёт nickname/firstName/email; поля name у него нет — раньше
+         тут почти всегда выводилось слово «аккаунт». */
+      статус.textContent='Вы вошли: '+(польз.nickname||польз.firstName||польз.email||'аккаунт');
+      опис.textContent='Уроки, разбор и бусины хранятся на сервере под вашей почтой — '+
+        'вернутся после переустановки и на другом телефоне. Имя, зверь и список '+
+        'своих людей живут на этом устройстве.';
+      кнВход.hidden=true; кнАккаунт.hidden=false; кнВыход.hidden=false;
     } else {
       статус.textContent='Вы играете гостем.';
-      опис.textContent='Вход по почте привязывает прогресс к вам: он переживёт '+
-        'переустановку и откроется на любом устройстве. Письмо придёт с кодом — пароля нет.';
-      кнВход.hidden=false; кнВыход.hidden=true;
+      опис.textContent='Уроки и бусины уже сохраняются на сервере для этого телефона. '+
+        'Войдите по почте — и они привяжутся к вам, а не к устройству: вернутся после '+
+        'переустановки и откроются на другом телефоне. Имя, зверь и свои люди останутся здесь. '+
+        'Пароля нет — пришлём код из шести цифр.';
+      кнВход.hidden=false; кнАккаунт.hidden=true; кнВыход.hidden=true;
     }
   }
+  кнВход.onclick=function(){
+    if(window.YasnaAccount) window.YasnaAccount.openLogin();
+    else статус.textContent='Вход недоступен: не загрузился модуль аккаунта.';
+  };
+  кнАккаунт.onclick=function(){
+    if(window.YasnaAccount) window.YasnaAccount.openProfile();
+  };
+  /* Окно входа живёт поверх этого экрана и после успеха шлёт событие —
+     иначе под закрывшейся модалкой оставалось бы «Вы играете гостем». */
+  window.addEventListener('yasna:аккаунт', показатьВход);
   /* Обновления. */
   (function(){
     var ст=document.getElementById('obnova-status');
@@ -375,7 +409,7 @@
         }
         else if(о.статус==='свежая') сб.textContent='У вас последняя версия.';
         else if(о.статус==='вне-приложения') сб.textContent='Доступно только в приложении.';
-        else сб.textContent='Хранилище недоступно — попробуйте позже.';
+        else сб.textContent='Не удалось проверить обновления — нет связи. Попробуйте позже. — попробуйте позже.';
       });
     };
   })();
@@ -406,11 +440,18 @@
   };
   показатьПуш();
 
+  /* Выход отдан YasnaAccount.logout(): он не только убирает токен, но и
+     стирает синхронизированный прогресс с телефона, предварительно отправив
+     несохранённое на сервер. Своя очистка трёх ключей оставляла уроки и
+     личные заметки предыдущего человека — на общем телефоне они уезжали на
+     сервер уже под следующим аккаунтом. */
   кнВыход.onclick=function(){
-    try{ localStorage.removeItem('yasna_duel_token');
-         localStorage.removeItem('yasna_duel_user');
-         localStorage.removeItem('yasna_sync_state_v1'); }catch(e){}
-    показатьВход();
+    if(!window.YasnaAccount) return;
+    кнВыход.disabled=true; кнВыход.textContent='Выхожу…';
+    Promise.resolve(window.YasnaAccount.logout()).then(function(){
+      кнВыход.disabled=false; кнВыход.textContent='Выйти';
+      показатьВход();
+    });
   };
   показатьВход();
 })();
@@ -450,7 +491,7 @@
     сооб.textContent=текст||'';
     /* Красным — только то, что человек может исправить сам. Состояние
        системы («база ещё не открыта») говорим спокойно. */
-    сооб.style.color = плохо ? 'var(--plohо)' : '';
+    сооб.style.color = плохо ? 'var(--ploho)' : '';
   }
   function ошибкаТекстом(e){
     var к=String((e && e.message) || e);

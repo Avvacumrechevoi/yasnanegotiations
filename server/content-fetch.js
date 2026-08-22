@@ -63,6 +63,12 @@ const ALLOWED_ORIGINS = [
   'https://avvacumrechevoi.github.io',   // прежний адрес, живёт до конца переезда
   'https://yasnalab.ru',                 // свой домен
   'https://www.yasnalab.ru',
+  /* Android-приложение (Capacitor, androidScheme https): страницы витрины
+     живут в WebView на origin https://localhost, и без него браузер режет
+     ЛЮБОЙ запрос к API — вход по почте, прогресс, доступы. Это не дыра:
+     API авторизует по Bearer-токену из localStorage, а не по кукам, поэтому
+     чужая локальная страница ничего чужого не прочитает. */
+  'https://localhost',
 ].concat(
   /* ALLOW_ORIGIN здесь ДОБАВЛЯЕТ адрес, а не заменяет список. Так вышло не из
      красоты: scripts/deploy-backend.sh переносит окружение со старой версии и
