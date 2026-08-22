@@ -25,6 +25,36 @@ const SLUG = { 'суток':'sut','двора':'dvor','двора_животны
   'kostra':'koster','emotsiy':'emo','удочки':'udoch' };
 const UNSLUG = Object.fromEntries(Object.entries(SLUG).map(([k,v])=>[v,k]));
 
+
+/* ─── Значки явлений ──────────────────────────────────────────────
+   Каждой Ясне — свой знак: в списке из шестнадцати одинаковых плиток
+   человек искал строку глазами по тексту. Рисуем линией в одном
+   стиле (24×24, stroke), цвет берёт карточка. */
+const ZNAK = {
+  'суток':'<circle cx="12" cy="12" r="5"/><path d="M12 1.6v3M12 19.4v3M1.6 12h3M19.4 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M19.4 4.6l-2.1 2.1M6.7 17.3l-2.1 2.1"/>',
+  'года':'<circle cx="12" cy="12" r="8.4"/><path d="M12 3.6v16.8M3.6 12h16.8"/><path d="M12 12 12 3.6A8.4 8.4 0 0 1 20.4 12z" fill="currentColor" stroke="none" opacity=".55"/>',
+  'фаз_жизни':'<path d="M12 21.4c0-5 2-8 5.4-9.6-3.4-.6-5.4 1-5.4 4"/><path d="M12 21.4c0-6.4-2.3-9.8-6.2-11.4C9.7 9.3 12 11.3 12 15"/><path d="M12 21.4V8.6"/><circle cx="12" cy="5.2" r="2.6"/>',
+  'печи':'<path d="M4.6 20.6V7.4a2 2 0 0 1 2-2h8.8a2 2 0 0 1 2 2v13.2z"/><path d="M17.4 9.6h1.8V4.6h1.6"/><rect x="7.4" y="8.4" width="7.2" height="5.2" rx="1"/><path d="M9.8 12.2c1-.7 1-1.7.4-2.4 1.4.5 2 1.7 1.3 2.7"/><path d="M7.4 16.8h7.2"/>',
+  'дерева':'<path d="M12 21v-6"/><path d="M12 15c-3.6 0-6-2.2-6-5.4C6 6 8.6 3.4 12 3.4s6 2.6 6 6.2c0 3.2-2.4 5.4-6 5.4z"/><path d="M12 15V8.6M12 11.4 9.4 9M12 12.6l2.6-2.4"/>',
+  'завода_предприятия':'<path d="M3.4 20.6V11l5 3.2V11l5 3.2V6.4h7.2v14.2z"/><path d="M16 10.6v3M19 10.6v3"/>',
+  'удочки':'<path d="M4.4 3.6c5.6 1.4 9.4 5.4 11 11.4"/><path d="M15.4 15c0 2.2-1.6 4-3.6 4s-3.4-1.4-3.4-3.2"/><path d="M4.4 3.6H8"/><circle cx="11.8" cy="21" r="1"/>',
+  'колокольни':'<path d="M6.6 17.6c0-5.4 1.6-8.4 5.4-9.4 3.8 1 5.4 4 5.4 9.4z"/><path d="M4.6 17.6h14.8"/><path d="M12 8.2V5.4"/><circle cx="12" cy="4" r="1.4"/><path d="M10.6 20.4c.4.8 2.4.8 2.8 0"/>',
+  'театра':'<path d="M4.4 6.6h9.2v6.8a4.6 4.6 0 0 1-9.2 0z"/><path d="M6.8 9.6h.01M11.2 9.6h.01M7.4 12.4c.9 1 2.3 1 3.2 0"/><path d="M10.4 6.6V5.4h9.2v6.8a4.6 4.6 0 0 1-3.4 4.4"/>',
+  'дома':'<path d="M3.6 11.4 12 4l8.4 7.4"/><path d="M5.8 9.6V20h12.4V9.6"/><path d="M9.6 20v-5.4h4.8V20"/>',
+  'двора':'<path d="M3.4 20.4h17.2"/><path d="M5.6 20.4v-6.8l3.8-3 3.8 3v6.8"/><path d="M13.2 20.4v-4.6h5.2v4.6"/><path d="M8.2 20.4v-3.2h2.4v3.2"/><path d="M15.2 13.4h1.6"/>',
+  'двора_животных':'<path d="M12 20.4c-2.6 0-4.4-1.6-4.4-3.6 0-2.2 2-3.4 4.4-3.4s4.4 1.2 4.4 3.4c0 2-1.8 3.6-4.4 3.6z"/><ellipse cx="6.6" cy="10.4" rx="1.8" ry="2.4"/><ellipse cx="17.4" cy="10.4" rx="1.8" ry="2.4"/><ellipse cx="9.8" cy="6.4" rx="1.7" ry="2.2"/><ellipse cx="14.2" cy="6.4" rx="1.7" ry="2.2"/>',
+  'кухни':'<path d="M4.6 10.4h14.8v3.2a7.4 7.4 0 0 1-14.8 0z"/><path d="M19.4 11.6h1.8a1.6 1.6 0 0 1 0 3.2h-1.8"/><path d="M8.6 7.4c0-1.4 1-1.8 1-3M12 7.4c0-1.4 1-1.8 1-3M15.4 7.4c0-1.4 1-1.8 1-3"/>',
+  'круговорота_воды':'<path d="M12 3.4c2.8 3.4 4.4 5.8 4.4 8a4.4 4.4 0 1 1-8.8 0c0-2.2 1.6-4.6 4.4-8z"/><path d="M4 18.6c1.6 1.4 3.4 1.4 5 0s3.4-1.4 5 0 3.4 1.4 5 0"/>',
+  'kostra':'<path d="M12 3.4c3.4 3.6 5.4 6.2 5.4 9a5.4 5.4 0 1 1-10.8 0c0-2.8 2-5.4 5.4-9z"/><path d="M12 17.4c-1.4-1.2-2-2.2-2-3.2 0-1.2.8-2.2 2-3.4 1.2 1.2 2 2.2 2 3.4 0 1-.6 2-2 3.2z"/>',
+  'emotsiy':'<circle cx="12" cy="12" r="8.6"/><path d="M8.6 9.8h.01M15.4 9.8h.01"/><path d="M8.2 14.4c1 1.6 2.4 2.4 3.8 2.4s2.8-.8 3.8-2.4"/>',
+  '__slucha':'<path d="M4.6 8.6 12 4.4l7.4 4.2v6.8L12 19.6l-7.4-4.2z"/><path d="M9.4 11.4h.01M14.6 11.4h.01M12 14.6h.01"/>',
+  '__default':'<circle cx="12" cy="12" r="8.6"/><path d="M12 3.4v17.2M3.4 12h17.2"/>',
+};
+function znak(id){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" '
+       + 'stroke-linecap="round" stroke-linejoin="round">' + (ZNAK[id] || ZNAK.__default) + '</svg>';
+}
+
 const FROM_LESSON = ['суток','двора','двора_животных','дома','кухни','круговорота_воды'];
 const FROM_CORPUS = ['года','дерева','печи','завода_предприятия','колокольни','театра',
                      'фаз_жизни','kostra','emotsiy','удочки'];
@@ -51,8 +81,10 @@ const POS=[
    закрывали сам круг: двенадцать тёмных прямоугольников сходились в сплошное
    кольцо, и грамматика «внизу темно, наверху светло» пропадала. Снаружи они
    не мешают цвету, и круг можно сделать крупнее. */
-const C=170,R=132,Ri=78,Rn=150,NS='http://www.w3.org/2000/svg';
-const VB={x:-78,y:-34,w:488,h:372};
+const C=170,R=155,Ri=92,Rn=178,NS='http://www.w3.org/2000/svg';
+/* Холст держит пропорцию 452×380: по ней же CSS считает высоту контейнера,
+   а подписи — свои проценты (pcx/pcy). Менять числа только вместе. */
+const VB={x:-56,y:-32,w:452,h:380};
 const ang=i=>90+30*i;
 const pa=(r,a)=>[C+r*Math.cos(a*Math.PI/180),C+r*Math.sin(a*Math.PI/180)];
 const pp=(r,i)=>pa(r,ang(i));
@@ -184,8 +216,31 @@ function buildRing(host,onTap){
     const side = Math.abs(x-C)<26 ? 'c' : (x<C ? 'l' : 'r');
     d.className='nm nm-'+side;
     d.style.left=pcx(x); d.style.top=pcy(y);
+    d.dataset.mesto=String(i);
     wrap.appendChild(d); N.n.push(d);
   }
+  /* Подписи крайних мест (ровно слева и справа от кольца) вылезали за экран:
+     их бокс фиксированной ширины откладывается от точки на радиусе Rn, а на
+     телефоне до края остаётся меньше этой ширины. Ставим их по факту: после
+     раскладки прижимаем к краю холста, если не помещаются. */
+  function поправитьКрая(){
+    if(!wrap.clientWidth) return;
+    /* Два прохода: сначала снимаем прежние сдвиги у ВСЕХ подписей, потом
+       меряем — иначе замер идёт по уже сдвинутым соседям и одна подпись
+       каждый раз оставалась за краем. */
+    N.n.forEach(function(d){ d.style.removeProperty('margin-left'); });
+    const к=wrap.getBoundingClientRect();
+    N.n.forEach(function(d){
+      const r=d.getBoundingClientRect();
+      if(r.width<2) return;
+      const слева=r.left-к.left, справа=к.right-r.right;
+      if(слева<2) d.style.marginLeft=(2-слева)+'px';
+      else if(справа<2) d.style.marginLeft=-(2-справа)+'px';
+    });
+  }
+  N.поправитьКрая=поправитьКрая;
+  if(window.ResizeObserver){ try{ new ResizeObserver(поправитьКрая).observe(wrap) }catch(_){} }
+
   N.mid=document.createElement('div'); N.mid.className='mid';
   /* Центр кольца в канве не совпадает с центром блока: viewBox смещён, чтобы
      дать место подписям. Позицию считаем той же формулой, что и подписи, —
@@ -196,6 +251,9 @@ function buildRing(host,onTap){
   return wrap;
 }
 function light(i,by){
+  /* подпись только что появилась — проверим, помещается ли она в холст */
+  if(N.поправитьКрая){ requestAnimationFrame(function(){ N.поправитьКрая();
+    setTimeout(N.поправитьКрая, 260); }); }
   N.w[i].setAttribute('fill-opacity','1'); N.w[i].dataset.on='1';
   const full=S.yasna.p[i];
   N.n[i].textContent=shortName(full); N.n[i].title=full;
@@ -226,6 +284,7 @@ const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[
 
 /* ═══════════ ЭКРАН 1 · НАСТРОЙКА ═══════════ */
 function setup(){
+  try{ window.scrollTo(0,0) }catch(_){}
   S.scr='setup';
   app().innerHTML=''; app().classList.remove('duo-col');
   app().appendChild(el(`<div><h2>Поставь на место</h2>
@@ -246,15 +305,25 @@ function setup(){
   }
   app().appendChild(el(`<div class="sect">Какую Ясну раскладываем</div>`));
   const g=el(`<div class="grid"></div>`);
-  const rnd=el(`<button class="tile rnd"><b>Случайная</b><i>из ${LIST.length} доступных</i></button>`);
+  /* Случайная — такая же карточка, только знак кубика и акцентный тон:
+     раньше она отличалась лишь цветом слова и терялась среди прочих. */
+  const rnd=el(`<button class="tile tile--rnd" type="button">
+    <span class="tile-znak">${znak('__slucha')}</span>
+    <span class="tile-txt"><b>Случайная</b><i>из ${LIST.length} явлений</i></span></button>`);
   rnd.onclick=()=>{ pickYasna(LIST[Math.floor(Math.random()*LIST.length)], true) };
   g.appendChild(rnd);
   LIST.forEach(y=>{
     const bb=bestOf(y.id);
-    const b=el(`<button class="tile"><b>${esc(y.n)}</b><i>${
-      bb===null ? (y.lesson?'есть урок автора':'из материалов Ясны')
-                : 'лучшее: '+bb+' из 10'
-    }</i>${bb!==null?'<span class="dot"></span>':''}</button>`);
+    /* Мета одной строкой: пройденное показываем результатом, непройденное —
+       происхождением. Полоска снизу — доля верных с первого раза. */
+    const мета = bb===null
+      ? (y.lesson ? 'урок автора' : 'из материалов')
+      : 'лучшее: ' + bb + ' из 10';
+    const b=el(`<button class="tile${bb!==null?' tile--est':''}" type="button">
+      <span class="tile-znak">${znak(y.id)}</span>
+      <span class="tile-txt"><b>${esc(y.n)}</b><i>${мета}</i></span>
+      ${bb!==null?`<span class="tile-put" aria-hidden="true"><i style="width:${bb*10}%"></i></span>`:''}
+    </button>`);
     b.onclick=()=>pickYasna(y,false);
     g.appendChild(b);
   });
@@ -271,6 +340,7 @@ function pickYasna(y,isRandom){
 
 /* ═══════════ ИСТОРИЯ ═══════════ */
 function history_(){
+  try{ window.scrollTo(0,0) }catch(_){}
   S.scr='history'; app().innerHTML=''; app().classList.remove('duo-col');
   const d=load();
   app().appendChild(el(`<div><h2>История</h2>
@@ -302,6 +372,7 @@ function history_(){
 
 /* ═══════════ ЭКРАН 2 · РЕЖИМ ═══════════ */
 function mode(){
+  try{ window.scrollTo(0,0) }catch(_){}
   S.scr='mode'; app().innerHTML=''; app().classList.remove('duo-col');
   app().appendChild(el(`<div><h2>Ясна ${esc(S.yasna.n)}</h2>
     <div class="sub">${S.random?'Выпала случайно. ':''}Двенадцать элементов, шесть осей.
@@ -356,6 +427,7 @@ function start(){
   S.deck=shuffled([1,2,3,4,5,7,8,9,10,11],rnd);
   render();
   place(0,true); place(6,true);
+  S.vstuplenie=true;
   say('ok','Низ и верх выдаём',
     `<b>${esc(S.yasna.p[0])}</b> — ${POS[0]}. Напротив, на вершине, — <b>${esc(S.yasna.p[6])}</b>.
      Остальные десять поставь сам.`, 'Начали →', ()=>hand());
@@ -388,11 +460,12 @@ function hand(){
   const b=bot(); b.innerHTML='';
   if(S.i>=S.deck.length) return finish();
   const t=S.deck[S.i];
+  b.appendChild(prog());
   b.appendChild(el(`<div class="hand">
     ${S.mode==='duo'?`<div class="turnbar t${S.turn}">Ходит ${esc(S.players[S.turn])}</div>`:''}
+    <div class="hand-k">элемент ${S.i+1} из ${S.deck.length}</div>
     <div class="el">${esc(S.yasna.p[t])}</div>
-    <div class="q">куда на круге?</div></div>`));
-  b.appendChild(prog());
+    <div class="q">Куда на круге?</div></div>`));
   N.mid.innerHTML='<b>'+(S.i+1)+' / '+S.deck.length+'</b>элементов';
 }
 function prog(){
@@ -404,15 +477,40 @@ function prog(){
   });
   return p;
 }
+/* Разбор показываем ПОД карточкой элемента, а не вместо неё: раньше в
+   момент объяснения исчезало то, о чём объясняют, и приходилось вспоминать,
+   какой элемент был в руке. Карточка при этом гаснет — ход уже сделан. */
 function say(kind,hd,bd,btn,fn){
-  const b=bot(); b.innerHTML='';
-  b.appendChild(el(`<div class="say ${kind}"><div class="hd">${hd}</div><div class="bd">${bd}</div></div>`));
+  const b=bot();
+  const рука=b.querySelector('.hand');
+  const прог=b.querySelector('.prog');
+  b.innerHTML='';
+  if(прог) b.appendChild(прог);
+  if(рука){ if(!S.vstuplenie) рука.classList.add('hand--proshlo'); b.appendChild(рука); }
+  S.vstuplenie=false;
+  const блок=el(`<div class="say ${kind}"><div class="hd">${hd}</div><div class="bd">${bd}</div></div>`);
+  b.appendChild(блок);
   const g=el(`<button class="go">${btn||'Дальше →'}</button>`);
   g.onclick=fn||(()=>{ S.i++; if(S.mode==='duo') S.turn=1-S.turn; hand(); });
   b.appendChild(g);
+  /* На низком экране (сплит-скрин) разбор и кнопка оказывались за сгибом —
+     подводим их к глазам, но только если они действительно не видны. */
+  try{
+    const r=g.getBoundingClientRect();
+    if(r.bottom > innerHeight - 76) g.scrollIntoView({block:'end', behavior:'smooth'});
+  }catch(_){}
 }
 
 function place(i,free){
+  /* Пульс на доле и на её подписи: момент попадания должен быть виден
+     боковым зрением, иначе ход «проваливается» в текст разбора. */
+  if(!free && N.w[i]){
+    N.w[i].classList.remove('sel'); void N.w[i].getBBox;
+    N.w[i].classList.add('sel');
+    setTimeout(function(){ N.w[i] && N.w[i].classList.remove('sel') }, 620);
+    if(N.n[i]){ N.n[i].classList.add('nm-nov');
+      setTimeout(function(){ N.n[i] && N.n[i].classList.remove('nm-nov') }, 700); }
+  }
   S.placed[i]=true; S.first[i]=free?null:S.first[i];
   S.by[i]=free?null:S.turn;
   light(i,(S.mode==='duo'&&!free)?S.turn:undefined);
@@ -428,7 +526,10 @@ function place(i,free){
 
 function onTap(i){
   if(S.scr!=='play') return;
-  if(!bot()||!bot().querySelector('.hand')) return;      /* сейчас показан разбор */
+  /* Показан разбор — круг не принимает ходов. Признак теперь сам разбор:
+     карточка элемента при нём остаётся на экране (приглушённой), и проверка
+     по её наличию пропускала тап, ломая партию. */
+  if(!bot() || bot().querySelector('.say')) return;
   if(S.placed[i]){ shake(); return }
   const t=S.deck[S.i], ok=(i===t);
   if(S.mode==='duo'){ S.tries[S.turn]++; if(ok){ S.els[S.turn]++; if(S.first[t]!==false) S.hits[S.turn]++; } }
@@ -436,8 +537,10 @@ function onTap(i){
   if(!ok){
     S.first[t]=false; S.miss[t]=(S.miss[t]||[]).concat(i);
     shake();
+    if(N.w[i]){ N.w[i].classList.add('mimo');
+      setTimeout(function(){ N.w[i] && N.w[i].classList.remove('mimo') }, 620); }
     say('no','Не сюда',
-      `Место ${i} — ${POS[i]}. Там живёт что-то другое.<br><br>
+      `Место ${i}: ${POS[i]}. Там живёт что-то другое.<br><br>
        «<b>${esc(S.yasna.p[t])}</b>» ищи там, где ${POS[t]}.`,
       'Попробовать ещё →', ()=>hand());
     return;
@@ -446,9 +549,9 @@ function onTap(i){
   const k=t%6, closed=S.placed[k]&&S.placed[k+6];
   say('ok', closed?'Ось сошлась':'На месте',
     closed
-      ? `«<b>${esc(S.yasna.p[k])}</b>» и «<b>${esc(S.yasna.p[k+6])}</b>» — два конца одной нитки.
-         ${POS[k].charAt(0).toUpperCase()+POS[k].slice(1)} — и ровно напротив ${POS[k+6]}.`
-      : `«<b>${esc(S.yasna.p[t])}</b>» — ${POS[t]}. Напротив пока пусто.`);
+      ? `«<b>${esc(S.yasna.p[k])}</b>» и «<b>${esc(S.yasna.p[k+6])}</b>» — два конца одной нитки.<br><br>
+         Одно место: ${POS[k]}.<br>Ровно напротив: ${POS[k+6]}.`
+      : `«<b>${esc(S.yasna.p[t])}</b>» стоит там, где ${POS[t]}. Напротив пока пусто.`);
 }
 
 function plural(n,a,b,c){ const x=Math.abs(n)%100,y=x%10;
