@@ -155,6 +155,8 @@ function поправить() {
          if оставил бы его без сквозного наббара. Проверка — по src=, а не по
          подстроке: комментарий со словом «navigatsiya.js» не считается тегом. */
       if (!/src="[^"]*navigatsiya\.js/.test(s)) тег += `\n<script defer src="${вверх}navigatsiya.js"></script>`;
+      /* Зовы друзей: слушатель на всех экранах, Firebase грузит сам и лениво. */
+      if (!/src="[^"]*zovy\.js/.test(s)) тег += `\n<script defer src="${вверх}zovy.js"></script>`;
       if (тег) {
         if (/<\/body>/i.test(s)) s = s.replace(/<\/body>/i, тег + '\n</body>');
         else s += тег;
@@ -172,6 +174,7 @@ const c = собрать();
    там бы только мозолила глаза. */
 cpSync(join(ЗДЕСЬ, 'pribavka.js'), join(ЦЕЛЬ, 'pribavka.js'));
 cpSync(join(ЗДЕСЬ, 'navigatsiya.js'), join(ЦЕЛЬ, 'navigatsiya.js'));
+cpSync(join(ЗДЕСЬ, 'zovy.js'), join(ЦЕЛЬ, 'zovy.js'));
 
 /* ГЛАВНАЯ ПРИЛОЖЕНИЯ вместо сайтовой. Сайтовая — рекламная страница со
    скроллом и героем; в приложении человеку нужны двери в занятия одним

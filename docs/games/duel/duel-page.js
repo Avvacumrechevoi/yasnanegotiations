@@ -315,6 +315,71 @@ function inviteBase(){
     );
   }
 
+  // ─── Позвать своих: список друзей прямо в лобби ──────────────────
+  // Раньше единственным способом позвать человека была пересылка кода
+  // через мессенджер. Теперь друзья (core/druzya.js, та же база, что и
+  // комнаты) получают зов внутри приложения и видят его у себя.
+  function DPZvatDruzey({ code, kind }){
+    const [список, setСписок] = React.useState(() =>
+      (window.YasnaDruzya && window.YasnaDruzya.списокЛокально()) || []);
+    const [позваны, setПозваны] = React.useState({});
+    const [беда, setБеда] = React.useState('');
+
+    const [естьМодуль, setЕстьМодуль] = React.useState(!!window.YasnaDruzya);
+    React.useEffect(() => {
+      /* Модуль друзей на экран Игры приезжает лениво (app/zovy.js), поэтому
+         ждём его появления, а не решаем судьбу блока при первом рендере. */
+      let жив = true;
+      const взяться = () => {
+        const Д = window.YasnaDruzya;
+        if(!Д || !жив) return false;
+        setЕстьМодуль(true);
+        Д.друзья().then(с => жив && setСписок(с)).catch(() => {});
+        Д.объявиться().catch(() => {});
+        return true;
+      };
+      if(взяться()) return () => { жив = false; };
+      const таймер = setInterval(() => { if(взяться()) clearInterval(таймер); }, 700);
+      setTimeout(() => clearInterval(таймер), 12000);
+      return () => { жив = false; clearInterval(таймер); };
+    }, []);
+
+    if(!естьМодуль) return null;
+    if(!список.length){
+      return React.createElement('div', { className: 'dp-zvat dp-zvat--pusto' },
+        'Друзья появятся здесь: обменяйтесь кодами на экране «Профиль» — и звать можно будет одним касанием.');
+    }
+    const позвать = (ч) => {
+      setПозваны(п => Object.assign({}, п, { [ч.deviceId]: 'идёт' }));
+      window.YasnaDruzya.позватьВКомнату(ч.deviceId, code, kind || '2p')
+        .then(() => setПозваны(п => Object.assign({}, п, { [ч.deviceId]: 'позван' })))
+        .catch(() => {
+          setПозваны(п => Object.assign({}, п, { [ч.deviceId]: '' }));
+          setБеда('Не получилось позвать — проверьте связь.');
+        });
+    };
+    return React.createElement('div', { className: 'dp-zvat' },
+      React.createElement('div', { className: 'dp-zvat-zag' }, 'Позвать своих'),
+      React.createElement('div', { className: 'dp-zvat-spisok' },
+        список.map(ч => React.createElement('div', { className: 'dp-zvat-chel', key: ч.deviceId },
+          React.createElement('span', { className: 'dp-zvat-zver' }, ч.avatar || '✦'),
+          React.createElement('span', { className: 'dp-zvat-imya' }, ч.nick || 'Игрок'),
+          React.createElement('button', {
+            className: 'dp-zvat-kn' + (позваны[ч.deviceId] === 'позван' ? ' is-est' : ''),
+            type: 'button',
+            disabled: !!позваны[ч.deviceId],
+            onClick: () => позвать(ч),
+          }, позваны[ч.deviceId] === 'позван' ? 'Позван ✓'
+            : позваны[ч.deviceId] === 'идёт' ? '…' : 'Позвать')
+        ))
+      ),
+      беда && React.createElement('div', { className: 'dp-zvat-beda' }, беда)
+    );
+  }
+
+  /* Тот же список нужен групповому лобби (group-engine.js) — отдаём наружу. */
+  window.YasnaZvatDruzey = DPZvatDruzey;
+
   // ─── Profile-Hero (упрощённый — 4 блока) ─────────────────────────
   function DPProfileHero({ user, profile, onLoginClick, remoteProfile }){
     const me = user || profile;
@@ -1238,6 +1303,7 @@ function inviteBase(){
               React.createElement('div', { className: 'dp-lobby-code' }, roomCode),
               React.createElement('div', { className: 'dp-lobby-code-hint' }, 'Покажи этот код собеседнику или скопируй ссылку'),
               React.createElement('button', { className: 'dp-lobby-code-link', onClick: copyLink }, 'Скопировать ссылку'),
+              React.createElement(DPZvatDruzey, { code: roomCode, kind: '2p' }),
               copyFallbackLink && React.createElement('div', { className: 'dp-lobby-code-fallback' },
                 React.createElement('div', { className: 'dp-lobby-code-fallback-hint' }, 'Не удалось скопировать автоматически — выдели ссылку и скопируй вручную:'),
                 React.createElement('input', {

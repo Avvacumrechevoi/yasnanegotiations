@@ -78,7 +78,54 @@
     color:var(--ink-2);font:600 13.5px/1.2 Manrope,Inter,sans-serif;cursor:pointer}
   .segmenty button[aria-checked="true"]{background:var(--kart);color:var(--syn);
     box-shadow:0 1px 4px rgba(0,0,0,.12)}
-    [hidden]{display:none !important}
+  
+  /* ── Кто я: сводка вместо формы ── */
+  .kart--ya{padding-top:14px}
+  .ya{display:flex;align-items:center;gap:12px}
+  .ya-zver{width:52px;height:52px;flex:0 0 auto;border-radius:50%;
+    background:var(--pole);border:1.5px solid var(--kayma);
+    display:flex;align-items:center;justify-content:center;font-size:27px}
+  .ya-txt{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
+  .ya-imya{font:600 19px/1.2 Manrope,Inter,sans-serif;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ya-schet{font-size:13px;color:var(--ink-2)}
+  .ya-pravit{flex:0 0 auto;min-height:38px;padding:0 14px;border-radius:11px;
+    border:1px solid var(--kayma);background:var(--fon);color:var(--ink-2);
+    font:600 13px/1 Manrope,Inter,sans-serif;cursor:pointer}
+  #pravka{margin-top:14px}
+
+  /* ── Раздел ── */
+  .razdel{font:600 11.5px/1 Manrope,Inter,sans-serif;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-3);margin:26px 0 10px}
+
+  /* ── Свои люди ── */
+  .kod-ryad{display:flex;align-items:center;gap:10px;margin:12px 0 4px;
+    background:var(--fon);border:1px solid var(--kayma);border-radius:14px;padding:10px 12px}
+  .kod-ryad>div{flex:1;min-width:0}
+  .kod-metka{font:600 11px/1 Manrope,sans-serif;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--ink-3)}
+  .kod{font:700 21px/1.15 Manrope,Inter,sans-serif;letter-spacing:.16em;
+    margin-top:4px;font-variant-numeric:tabular-nums}
+  .kod-kn{width:auto;flex:0 0 auto;margin:0;min-height:42px;padding:0 14px}
+  .kod-vvod{display:flex;gap:8px;margin-top:6px}
+  .kod-vvod input{flex:1;min-width:0;text-transform:uppercase;letter-spacing:.14em}
+  .kod-vvod input::placeholder{text-transform:none;letter-spacing:0;color:var(--ink-3)}
+  .podzag{font:600 12.5px/1 Manrope,Inter,sans-serif;color:var(--ink-2);margin:16px 0 8px}
+  .lyudi{display:flex;flex-direction:column;gap:8px}
+  .chel{display:flex;align-items:center;gap:11px;background:var(--fon);
+    border:1px solid var(--kayma);border-radius:14px;padding:9px 11px}
+  .chel-zver{width:36px;height:36px;flex:0 0 auto;border-radius:50%;
+    background:var(--kart);border:1px solid var(--kayma);
+    display:flex;align-items:center;justify-content:center;font-size:19px}
+  .chel-imya{flex:1;min-width:0;font:600 14.5px/1.2 Manrope,Inter,sans-serif;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .chel-kn{display:flex;gap:6px;flex:0 0 auto}
+  .chel-kn button{min-height:38px;padding:0 12px;border-radius:10px;
+    border:1px solid var(--kayma);background:var(--kart);color:var(--ink-2);
+    font:600 12.5px/1 Manrope,Inter,sans-serif;cursor:pointer}
+  .chel-kn button.da{background:var(--syn);border-color:transparent;color:#fff}
+
+  [hidden]{display:none !important}
   </style>
   <script src="core/theme.js"></script>
 </head>
@@ -86,18 +133,61 @@
 
 <header>
   <h1>Профиль</h1>
-  <div class="pod">имя и зверь увидят соперники в игре</div>
+  <div class="pod">имя, зверь и свои люди — то, что видят соперники</div>
 </header>
 
 <main>
-  <section class="kart">
-    <h2>Как вас называть</h2>
-    <label for="imya">Имя</label>
-    <input type="text" id="imya" maxlength="20" autocomplete="nickname" placeholder="Например, Иван">
-    <div class="zveri" id="zveri" role="radiogroup" aria-label="Зверь-аватар"></div>
-    <button class="knopka" id="sohranit" type="button">Сохранить</button>
+  <section class="kart kart--ya">
+    <div class="ya">
+      <span class="ya-zver" id="ya-zver" aria-hidden="true">✦</span>
+      <span class="ya-txt">
+        <span class="ya-imya" id="ya-imya">Гость</span>
+        <span class="ya-schet" id="ya-schet">Послушник I</span>
+      </span>
+      <button class="ya-pravit" id="ya-pravit" type="button">Изменить</button>
+    </div>
+    <div id="pravka" hidden>
+      <label for="imya">Имя</label>
+      <input type="text" id="imya" maxlength="20" autocomplete="nickname" placeholder="Например, Иван">
+      <div class="zveri" id="zveri" role="radiogroup" aria-label="Зверь-аватар"></div>
+      <button class="knopka" id="sohranit" type="button">Сохранить</button>
+    </div>
     <div class="soobshenie" id="soobshenie" role="status"></div>
   </section>
+
+  <section class="kart">
+    <h2>Свои люди</h2>
+    <p class="opis">Друзья видны при создании игры: зовёшь их в комнату одним
+       касанием, а не пересылаешь код через мессенджер.</p>
+
+    <div class="kod-ryad">
+      <div>
+        <div class="kod-metka">Мой код</div>
+        <div class="kod" id="moy-kod">······</div>
+      </div>
+      <button class="knopka knopka--tihaya kod-kn" id="kod-kopirovat" type="button">Скопировать</button>
+    </div>
+
+    <label for="chuzhoy-kod">Код друга</label>
+    <div class="kod-vvod">
+      <input type="text" id="chuzhoy-kod" maxlength="7" autocapitalize="characters"
+             autocomplete="off" spellcheck="false" placeholder="шесть знаков">
+      <button class="knopka kod-kn" id="pozvat" type="button">Позвать</button>
+    </div>
+    <div class="soobshenie" id="druzya-soobshenie" role="status"></div>
+
+    <div id="zayavki-blok" hidden>
+      <div class="podzag">Просятся в друзья</div>
+      <div class="lyudi" id="zayavki"></div>
+    </div>
+
+    <div class="podzag" id="druzya-zag" hidden>Друзья</div>
+    <div class="lyudi" id="druzya"></div>
+    <div class="opis" id="druzya-pusto">Пока никого. Обменяйтесь кодами — и друг
+       появится здесь у обоих.</div>
+  </section>
+
+  <div class="razdel">Настройки</div>
 
   <section class="kart">
     <h2>Вход по почте</h2>
@@ -140,6 +230,24 @@
 </main>
 
 
+<!-- Друзья живут на той же базе, что и комнаты; SDK нужен и здесь. -->
+<script>
+/* Посев гостя: остальные страницы витрины делают это в <head>, а профиль и
+   главная — нет, и на свежей установке профиль оставался без имени. */
+(function(){try{
+  if(localStorage.getItem('yasna_duel_profile')) return;
+  var зв=['🦊','🐺','🦁','🐯','🐻','🐼','🦉','🦅'];
+  var id=localStorage.getItem('yasna_device_id_v1');
+  if(!id){ id=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():'dev-'+Date.now();
+    localStorage.setItem('yasna_device_id_v1',id); }
+  localStorage.setItem('yasna_duel_profile',JSON.stringify({
+    nickname:'Гость', avatar:зв[Math.floor(Math.random()*зв.length)], deviceId:id }));
+}catch(e){}})();
+</script>
+<script src="vendor/js/firebase-app-compat-10.13.2.js"></script>
+<script src="vendor/js/firebase-auth-compat-10.13.2.js"></script>
+<script src="vendor/js/firebase-database-compat-10.13.2.js"></script>
+<script src="core/druzya.js"></script>
 <script src="citaty.js"></script>
 <script src="obnovlenie.js"></script>
 <script>
@@ -154,6 +262,29 @@
   var п=профиль();
   var выбран=п.avatar||ЗВЕРИ[0];
   document.getElementById('imya').value=(п.nickname==='Гость'?'':п.nickname)||'';
+
+  /* Сводка сверху: зверь, имя и ступень со счётом. Форму показываем по
+     кнопке — в профиле игрока сначала смотрят на себя, а не правят поля. */
+  var СТУПЕНИ=[['Послушник',0],['Студент',1000],['Игрок',3000],['Мастер',10000],['Магистр',30000]];
+  function сводка(){
+    var т=профиль();
+    document.getElementById('ya-zver').textContent=т.avatar||'✦';
+    document.getElementById('ya-imya').textContent=т.nickname||'Гость';
+    var д={}; try{ д=JSON.parse(localStorage.getItem('yasna_duel_data'))||{} }catch(e){}
+    var бусин=+(д.totalScore||0), партий=+((д.totals&&(д.totals.played||д.totals.matches))||0);
+    var ст='Послушник';
+    СТУПЕНИ.forEach(function(п2){ if(бусин>=п2[1]) ст=п2[0] });
+    document.getElementById('ya-schet').textContent = партий
+      ? ст+' · ✦ '+бусин+' · партий: '+партий
+      : ст+' · первая партия впереди';
+  }
+  сводка();
+  var правка=document.getElementById('pravka'), кнПравить=document.getElementById('ya-pravit');
+  кнПравить.onclick=function(){
+    правка.hidden=!правка.hidden;
+    кнПравить.textContent=правка.hidden?'Изменить':'Свернуть';
+    if(!правка.hidden) document.getElementById('imya').focus();
+  };
 
   var ряд=document.getElementById('zveri');
   ЗВЕРИ.forEach(function(з){
@@ -185,6 +316,14 @@
       /* Вкладка «Профиль» в наббаре показывает зверя — обновляем сразу,
          иначе он появлялся только после перехода на другой экран. */
       if(window.yasnaNavbarObnovi) window.yasnaNavbarObnovi();
+      сводка();
+      правка.hidden=true; кнПравить.textContent='Изменить';
+      /* имя и зверь видны друзьям — обновим карточку в общей базе */
+      if(window.YasnaDruzya){
+        var поле=document.getElementById('moy-kod');
+        if(поле) поле.textContent=window.YasnaDruzya.мойКод()||'······';
+        window.YasnaDruzya.объявиться().catch(function(){});
+      }
     }catch(e){
       document.getElementById('soobshenie').textContent='Не удалось сохранить.';
     }
@@ -291,6 +430,110 @@
     window.Theme.set(к.dataset.tema); показать();
   });});
   window.Theme.onChange(показать); показать();
+})();
+</script>
+
+<script>
+/* ═══ Свои люди: код, заявки, список ═══════════════════════════════════
+   Всё держится на модуле core/druzya.js (Firebase RTDB). Если правила базы
+   ещё не опубликованы или нет сети — экран честно говорит об этом и
+   продолжает показывать сохранённый список. */
+(function(){
+  var Д=window.YasnaDruzya; if(!Д) return;
+  var сооб=document.getElementById('druzya-soobshenie');
+  var спис=document.getElementById('druzya'), пусто=document.getElementById('druzya-pusto');
+  var загД=document.getElementById('druzya-zag');
+  var блокЗ=document.getElementById('zayavki-blok'), списЗ=document.getElementById('zayavki');
+
+  function сказать(текст, плохо){
+    if(текст && текст.indexOf('ТИХО:')===0){ текст=текст.slice(5); плохо=false; }
+    сооб.textContent=текст||'';
+    /* Красным — только то, что человек может исправить сам. Состояние
+       системы («база ещё не открыта») говорим спокойно. */
+    сооб.style.color = плохо ? 'var(--plohо)' : '';
+  }
+  function ошибкаТекстом(e){
+    var к=String((e && e.message) || e);
+    if(к==='нет-sdk') return 'Друзья работают только в приложении.';
+    if(к==='нет-такого') return 'Такого кода нет. Проверьте буквы.';
+    if(к==='это-я') return 'Это ваш собственный код.';
+    if(к==='короткий-код') return 'Код — шесть знаков.';
+    if(/PERMISSION_DENIED/i.test(к)) return 'ТИХО:Друзья скоро заработают — общая база для них ещё открывается.';
+    if(к==='время-вышло') return 'Нет связи. Попробуйте позже.';
+    return 'Не получилось. Попробуйте позже.';
+  }
+
+  document.getElementById('moy-kod').textContent = Д.мойКод() || '······';
+  document.getElementById('kod-kopirovat').onclick=function(){
+    var к=Д.мойКод()||''; var кн=this;
+    (navigator.clipboard ? navigator.clipboard.writeText(к) : Promise.reject())
+      .then(function(){ кн.textContent='Скопировано'; setTimeout(function(){ кн.textContent='Скопировать' },1600); })
+      .catch(function(){ сказать('Код: '+к); });
+  };
+
+  function человек(ч, кнопки){
+    var d=document.createElement('div'); d.className='chel';
+    var з=document.createElement('span'); з.className='chel-zver'; з.textContent=ч.avatar||'✦';
+    var и=document.createElement('span'); и.className='chel-imya'; и.textContent=ч.nick||'Игрок';
+    var р=document.createElement('span'); р.className='chel-kn';
+    кнопки.forEach(function(к){
+      var b=document.createElement('button'); b.type='button'; b.textContent=к.т;
+      if(к.да) b.className='da';
+      b.onclick=к.жать; р.appendChild(b);
+    });
+    d.appendChild(з); d.appendChild(и); d.appendChild(р); return d;
+  }
+
+  function показатьДрузей(список){
+    спис.innerHTML='';
+    (список||[]).forEach(function(ч){
+      спис.appendChild(человек(ч,[{ т:'Убрать', жать:function(){
+        Д.забыть(ч.deviceId).then(показатьДрузей).catch(function(e){ сказать(ошибкаТекстом(e),true) });
+      }}]));
+    });
+    var есть=(список||[]).length>0;
+    загД.hidden=!есть; пусто.hidden=есть;
+  }
+
+  function показатьЗаявки(список){
+    списЗ.innerHTML='';
+    (список||[]).forEach(function(ч){
+      списЗ.appendChild(человек(ч,[
+        { т:'Принять', да:true, жать:function(){
+            Д.принять(ч.deviceId,ч.nick,ч.avatar).then(function(сп){
+              показатьДрузей(сп); обновитьЗаявки(); сказать('Теперь вы друзья.');
+            }).catch(function(e){ сказать(ошибкаТекстом(e),true) });
+          } },
+        { т:'Нет', жать:function(){
+            Д.отклонить(ч.deviceId).then(обновитьЗаявки).catch(function(){});
+          } }
+      ]));
+    });
+    блокЗ.hidden=!(список||[]).length;
+  }
+  function обновитьЗаявки(){ Д.заявки().then(показатьЗаявки).catch(function(){}); }
+
+  /* Первый заход: показываем сохранённый список сразу, потом обновляем из базы */
+  показатьДрузей(Д.списокЛокально());
+  Д.объявиться()
+    .then(function(){ return Д.забратьОтветы(); })
+    .then(function(){ return Д.друзья(); })
+    .then(показатьДрузей)
+    .then(обновитьЗаявки)
+    .catch(function(e){
+      сказать(ошибкаТекстом(e), true);
+    });
+
+  document.getElementById('pozvat').onclick=function(){
+    var поле=document.getElementById('chuzhoy-kod');
+    var код=(поле.value||'').trim().toUpperCase();
+    if(код.length<6){ сказать('Код — шесть знаков.',true); return }
+    var кн=this; кн.disabled=true; сказать('Отправляю…');
+    Д.позвать(код).then(function(){
+      поле.value=''; сказать('Заявка ушла. Друг увидит её у себя в Профиле.');
+    }).catch(function(e){ сказать(ошибкаТекстом(e), true) })
+      .then(function(){ кн.disabled=false });
+  };
 })();
 </script>
 </body>

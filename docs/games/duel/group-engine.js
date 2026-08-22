@@ -509,6 +509,7 @@
           React.createElement('div', { className: 'dp-lobby-code' }, code),
           React.createElement('div', { className: 'dp-lobby-code-hint' }, 'Разошли код или ссылку — пусть подключаются'),
           React.createElement('button', { className: 'dp-lobby-code-link', onClick: copyLink }, 'Скопировать ссылку'),
+          window.YasnaZvatDruzey && React.createElement(window.YasnaZvatDruzey, { code: code, kind: 'group' }),
           copyFallback && React.createElement('div', { className: 'dp-lobby-code-fallback' },
             React.createElement('div', { className: 'dp-lobby-code-fallback-hint' }, 'Скопируй ссылку вручную:'),
             React.createElement('input', {

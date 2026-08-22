@@ -331,6 +331,19 @@
     stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
   [hidden]{display:none !important}
   </style>
+  <script>
+  /* Посев гостя: главная — стартовый экран приложения, и на свежей установке
+     профиля ещё нет (остальные страницы витрины сеют его сами). */
+  (function(){try{
+    if(localStorage.getItem('yasna_duel_profile')) return;
+    var зв=['🦊','🐺','🦁','🐯','🐻','🐼','🦉','🦅'];
+    var id=localStorage.getItem('yasna_device_id_v1');
+    if(!id){ id=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():'dev-'+Date.now();
+      localStorage.setItem('yasna_device_id_v1',id); }
+    localStorage.setItem('yasna_duel_profile',JSON.stringify({
+      nickname:'Гость', avatar:зв[Math.floor(Math.random()*зв.length)], deviceId:id }));
+  }catch(e){}})();
+  </script>
   <script src="core/theme.js"></script>
 </head>
 <body>
