@@ -125,26 +125,26 @@
     '  font-family:Manrope,Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}',
     'html[data-theme="dark"] .yac-card{background:#1c1c1e;color:#fefefe;color-scheme:dark;',
     '  box-shadow:0 18px 50px rgba(0,0,0,.6)}',
-    '.yac-card .yac-h{font-size:21px;font-weight:700;margin:0 0 6px;padding-right:44px;line-height:1.25}',
+    '.yac-card .yac-h,.akkaunt .yac-h{font-size:21px;font-weight:700;margin:0 0 6px;padding-right:44px;line-height:1.25}',
     '.yac-sub{font-size:14.5px;line-height:1.5;color:#6e6e73;margin:0 0 16px}',
     'html[data-theme="dark"] .yac-sub{color:rgba(255,255,255,.66)}',
     '.yac-lbl{display:block;font-size:13px;color:#6e6e73;margin:12px 0 5px}',
     'html[data-theme="dark"] .yac-lbl{color:rgba(255,255,255,.66)}',
-    '.yac-card .yac-in{width:100%;box-sizing:border-box;padding:12px;min-height:48px;',
+    '.yac-card .yac-in,.akkaunt .yac-in{width:100%;box-sizing:border-box;padding:12px;min-height:48px;',
     '  font:400 16px/1.3 inherit;border-radius:12px;',
     '  border:1px solid #d2d2d7;background:#fff;color:#1d1d1f}',
-    'html[data-theme="dark"] .yac-card .yac-in{border-color:rgba(255,255,255,.24);',
+    'html[data-theme="dark"] .yac-card .yac-in,.akkaunt .yac-in{border-color:rgba(255,255,255,.24);',
     '  background:rgba(255,255,255,.06);color:#fefefe}',
-    '.yac-card .yac-in:focus{outline:2px solid #0071e3;outline-offset:1px}',
-    '.yac-card .yac-code{letter-spacing:.34em;font-size:26px;font-weight:600;text-align:center;',
+    '.yac-card .yac-in:focus,.akkaunt .yac-in:focus{outline:2px solid #0071e3;outline-offset:1px}',
+    '.yac-card .yac-code,.akkaunt .yac-code{letter-spacing:.34em;font-size:26px;font-weight:600;text-align:center;',
     '  min-height:58px;font-variant-numeric:tabular-nums}',
     '.yac-row{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}',
-    '.yac-card .yac-btn{flex:1 1 auto;min-height:48px;padding:12px 16px;font-size:15px;border-radius:12px;',
+    '.yac-card .yac-btn,.akkaunt .yac-btn{flex:1 1 auto;min-height:48px;padding:12px 16px;font-size:15px;border-radius:12px;',
     '  cursor:pointer;border:1px solid #d2d2d7;background:#f5f5f7;color:#1d1d1f;font-weight:500}',
     'html[data-theme="dark"] .yac-btn{border-color:rgba(255,255,255,.2);',
     '  background:rgba(255,255,255,.1);color:#fefefe}',
-    '.yac-card .yac-btn--main{background:#1d1d1f;border-color:#1d1d1f;color:#fff}',
-    'html[data-theme="dark"] .yac-card .yac-btn--main{background:#fefefe;border-color:#fefefe;color:#151515}',
+    '.yac-card .yac-btn--main,.akkaunt .yac-btn--main{background:#1d1d1f;border-color:#1d1d1f;color:#fff}',
+    'html[data-theme="dark"] .yac-card .yac-btn--main,.akkaunt .yac-btn--main{background:#fefefe;border-color:#fefefe;color:#151515}',
     '.yac-btn--danger{color:#a12d2d;border-color:#e8b4b4;background:#fdf2f2;flex:0 0 auto}',
     'html[data-theme="dark"] .yac-btn--danger{color:#ff9a9a;border-color:rgba(255,90,90,.35);',
     '  background:rgba(255,90,90,.12)}',
@@ -163,8 +163,8 @@
     '.yac-sync-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}',
     '.yac-sync-key{font-family:ui-monospace,monospace;font-size:12px;color:#6e6e73;flex:1 1 140px;word-break:break-all}',
     'html[data-theme="dark"] .yac-sync-key{color:rgba(255,255,255,.55)}',
-    '.yac-card .yac-btn--mini{min-height:36px;padding:6px 12px;font-size:13px}',
-    '.yac-card .yac-btn--wide{flex:1 1 100%}',
+    '.yac-card .yac-btn--mini,.akkaunt .yac-btn--mini{min-height:36px;padding:6px 12px;font-size:13px}',
+    '.yac-card .yac-btn--wide,.akkaunt .yac-btn--wide{flex:1 1 100%}',
     /* Крестик был 34×34 при норме 44 — на телефоне в него не попадали. */
     '.yac-x{position:absolute;top:6px;right:6px;border:0;background:transparent;font-size:24px;',
     '  line-height:1;cursor:pointer;color:#8a8a8e;padding:0;width:44px;height:44px;',
@@ -541,6 +541,118 @@
   }
 
   // ─── профиль ───────────────────────────────────────────────────────
+  /* ═══ ПОЛЯ АККАУНТА ПРЯМО НА ЭКРАНЕ ═══════════════════════════════
+     Раньше имя, фамилия, телефон, привязка почты и удаление аккаунта жили
+     только в модальном окне за кнопкой «Мой аккаунт»: человек не видел, что
+     у него вообще заполнено, пока не откроет окно. Эта функция рисует те же
+     поля в переданный узел — окно остаётся для сайта, а в приложении поля
+     стоят на экране.
+
+     Проверка полей: имя и фамилия — до 40 знаков, пусто допустимо (это не
+     обязательные поля); телефон — цифры, пробелы, скобки, плюс и дефис,
+     10–18 знаков; при ошибке говорим, что именно не так, и не даём сохранить. */
+  function встроить(узел, опции) {
+    if (!узел) return;
+    ensureCss();
+    var о = опции || {};
+    узел.innerHTML = '';
+    if (!isLoggedIn()) return;
+
+    var сост = el('div', 'yac-meta', 'Загружаю…');
+    узел.appendChild(сост);
+
+    api('/account').then(function (d) {
+      var u = d.user || {};
+      сост.textContent = '';
+      if (u.email) сост.appendChild(el('div', null, u.email + (u.emailVerified ? '' : ' · не подтверждена')));
+      else сост.appendChild(el('div', null, 'Почта не привязана'));
+
+      var поля = [
+        ['firstName', 'Имя', u.firstName || '', 'text', 'given-name'],
+        ['lastName', 'Фамилия', u.lastName || '', 'text', 'family-name'],
+        ['phone', 'Телефон', u.phone || '', 'tel', 'tel']
+      ];
+      var входы = {};
+      поля.forEach(function (ф) {
+        var л = el('label', 'yac-lbl', ф[1]);
+        var и = el('input', 'yac-in');
+        и.type = ф[3]; и.value = ф[2]; и.autocomplete = ф[4];
+        и.maxLength = ф[0] === 'phone' ? 18 : 40;
+        if (ф[0] === 'phone') { и.placeholder = '+7 900 000-00-00'; и.setAttribute('inputmode', 'tel'); }
+        и.id = 'yac-pole-' + ф[0];
+        л.setAttribute('for', и.id);
+        узел.appendChild(л); узел.appendChild(и);
+        входы[ф[0]] = и;
+      });
+
+      function проверить() {
+        var т = (входы.phone.value || '').trim();
+        if (т && !/^[+()\d\s-]{10,18}$/.test(т)) return 'Телефон: только цифры, пробелы, скобки, «+» и «-», от 10 знаков.';
+        if ((входы.firstName.value || '').trim().length > 40) return 'Имя длиннее 40 знаков.';
+        if ((входы.lastName.value || '').trim().length > 40) return 'Фамилия длиннее 40 знаков.';
+        return null;
+      }
+
+      var ряд = el('div', 'yac-row');
+      var сохр = el('button', 'yac-btn yac-btn--main yac-btn--wide', 'Сохранить');
+      ряд.appendChild(сохр);
+      if (!u.email) {
+        var привязать = el('button', 'yac-btn', 'Привязать почту');
+        привязать.addEventListener('click', function () { openLogin({ link: true }); });
+        ряд.appendChild(привязать);
+      }
+      var выйти = el('button', 'yac-btn', 'Выйти');
+      выйти.addEventListener('click', function () {
+        выйти.disabled = true; выйти.textContent = 'Выхожу…';
+        Promise.resolve(logout()).then(function () {
+          выйти.disabled = false; выйти.textContent = 'Выйти';
+          if (о.приВыходе) о.приВыходе();
+        });
+      });
+      ряд.appendChild(выйти);
+      узел.appendChild(ряд);
+
+      сохр.addEventListener('click', function () {
+        var беда = проверить();
+        if (беда) { say(узел, беда, true); return; }
+        сохр.disabled = true; сохр.textContent = 'Сохраняю…';
+        api('/account', { method: 'PUT', body: {
+          firstName: входы.firstName.value.trim(),
+          lastName: входы.lastName.value.trim(),
+          phone: входы.phone.value.trim()
+        } }).then(function () {
+          сохр.disabled = false; сохр.textContent = 'Сохранить';
+          say(узел, 'Сохранено.', false);
+          setTimeout(function () { say(узел, ''); }, 2500);
+        }).catch(function (e) {
+          сохр.disabled = false; сохр.textContent = 'Сохранить';
+          try { console.warn('[аккаунт]', e); } catch (_) {}
+          say(узел, (e && e.code === 0) ? e.message : 'Не удалось сохранить. Попробуйте позже.', true);
+        });
+      });
+
+      var опасно = el('div', 'yac-row');
+      var удалить = el('button', 'yac-btn yac-btn--danger', 'Удалить аккаунт');
+      удалить.addEventListener('click', function () {
+        if (!window.confirm('Удалить аккаунт? Личные данные и привязка почты будут стёрты. Отменить это нельзя.')) return;
+        удалить.disabled = true; удалить.textContent = 'Удаляю…';
+        api('/account/delete', { method: 'POST' })
+          .then(function () { logout(); if (о.приВыходе) о.приВыходе(); })
+          .catch(function (e) {
+            удалить.disabled = false; удалить.textContent = 'Удалить аккаунт';
+            say(узел, 'Не удалось удалить. Попробуйте позже.', true);
+          });
+      });
+      опасно.appendChild(удалить);
+      узел.appendChild(опасно);
+    }).catch(function (e) {
+      сост.textContent = '';
+      if (e && e.code === 401) { logout(); if (о.приВыходе) о.приВыходе(); return; }
+      try { console.warn('[аккаунт]', e); } catch (_) {}
+      say(узел, (e && e.code === 0) ? e.message : 'Не удалось загрузить данные аккаунта.', true);
+    });
+  }
+
   function openProfile(opts) {
     var o = opts || {};
     if (!isLoggedIn()) { openLogin(); return; }
@@ -715,6 +827,7 @@
   window.YasnaAccount = {
     openLogin: openLogin,
     openProfile: openProfile,
+    встроить: встроить,
     logout: logout,
     user: user,
     isLoggedIn: isLoggedIn,

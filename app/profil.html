@@ -130,6 +130,41 @@
     font:600 12.5px/1 Manrope,Inter,sans-serif;cursor:pointer}
   .chel-kn button.da{background:var(--syn);border-color:transparent;color:#fff}
 
+  /* Обновление: одна строка — версия и кнопка. */
+  .kart--obnova{padding:12px 14px}
+  .obnova-ryad{display:flex;align-items:center;gap:12px}
+  .obnova-versiya{flex:1;min-width:0;font:600 14.5px/1.3 Manrope,Inter,sans-serif;color:var(--ink)}
+  .knopka--uzkaya{width:auto;margin:0;padding:0 16px;min-height:44px;flex:0 0 auto}
+
+  /* ── Подсказки «i» ──
+     Пояснения ушли с экрана: вместо абзаца в каждой карточке — знак «i»
+     рядом с заголовком. Раскрывается строкой в потоке (не всплывашкой:
+     на телефоне она перекрывает то, что объясняет), по нажатию, одна за раз. */
+  .zag-ryad{display:flex;align-items:center;gap:4px}
+  .zag-ryad h2{margin:0}
+  .pdsk-kn{width:44px;height:44px;margin:-10px -10px -10px 0;border:0;background:transparent;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto}
+  .pdsk-kn i{width:20px;height:20px;border-radius:10px;border:1.4px solid var(--ink-3);
+    color:var(--ink-2);font:600 12px/18px Manrope,sans-serif;font-style:normal;text-align:center}
+  .pdsk-kn[aria-expanded="true"] i{border-color:var(--syn);color:var(--syn)}
+  .pdsk{margin:8px 0 0;padding:11px 13px;border-radius:12px;background:var(--pole);
+    font:400 13px/1.45 Manrope,Inter,sans-serif;color:var(--ink-2)}
+  .pdsk[hidden]{display:none}
+  @media (prefers-reduced-motion:no-preference){
+    .pdsk{animation:pdsk-v .14s ease-out}
+    @keyframes pdsk-v{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+  }
+
+  .ya-schet-ryad{display:flex;align-items:center;gap:2px}
+  .ya-chisla{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;
+    padding-top:12px;border-top:1px solid var(--kayma)}
+  .ya-chisla span{display:flex;flex-direction:column;gap:2px}
+  .ya-chisla b{font:700 20px/1 Manrope,Inter,sans-serif;color:var(--ink)}
+  .ya-chisla i{font:600 11.5px/1 Manrope,sans-serif;font-style:normal;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--ink-3)}
+
+  .kod-format{font:500 12px/1.3 Manrope,sans-serif;color:var(--ink-3);margin:6px 0 0}
+
   [hidden]{display:none !important}
   </style>
   <script src="core/theme.js"></script>
@@ -138,7 +173,6 @@
 
 <header>
   <h1>Профиль</h1>
-  <div class="pod">имя и зверь видят соперники; свои люди — чтобы звать в партию</div>
 </header>
 
 <main>
@@ -147,9 +181,20 @@
       <span class="ya-zver" id="ya-zver" aria-hidden="true">✦</span>
       <span class="ya-txt">
         <span class="ya-imya" id="ya-imya">Гость</span>
-        <span class="ya-schet" id="ya-schet">Послушник I</span>
+        <span class="ya-schet-ryad">
+          <span class="ya-schet" id="ya-schet">Послушник</span>
+          <button class="pdsk-kn" type="button" aria-expanded="false" aria-controls="pdsk-stupen"
+            aria-label="Подсказка: что такое ступень"><i aria-hidden="true">i</i></button>
+        </span>
       </span>
       <button class="ya-pravit" id="ya-pravit" type="button">Изменить</button>
+    </div>
+    <div class="pdsk" id="pdsk-stupen" role="note" hidden>Ступень растёт от бусин: Послушник — до 1000,
+      Студент — от 1000, Игрок — от 3000, Мастер — от 10 000, Магистр — от 30 000. Бусины дают партии.</div>
+    <div class="ya-chisla">
+      <span><b id="ya-buseny">0</b><i>бусин</i></span>
+      <span><b id="ya-partiy">0</b><i>партий</i></span>
+      <span><b id="ya-urokov">0</b><i>уроков</i></span>
     </div>
     <div id="pravka" hidden>
       <label for="imya">Имя</label>
@@ -160,23 +205,35 @@
     <div class="soobshenie" id="soobshenie" role="status"></div>
   </section>
 
+  <!-- Версия и обновление — сразу под именем: это первое, за чем сюда
+       заходят, когда что-то не так. Пояснение снято: строка версии и
+       кнопка говорят сами за себя. -->
+  <section class="kart kart--obnova">
+    <div class="obnova-ryad">
+      <span class="obnova-versiya" id="obnova-status">Версия …</span>
+      <button class="knopka knopka--tihaya knopka--uzkaya" id="obnova-knopka" type="button">Проверить</button>
+    </div>
+    <div class="soobshenie" id="obnova-soobshenie" role="status"></div>
+  </section>
+
   <!-- Вход — не настройка, поэтому карточка стоит сразу под «Кто я»: это
        второй по важности шаг после имени. Кнопка открывает окно core/account.js
        прямо здесь; раньше это была ссылка на duel.html#login, и человек уезжал
        в раздел игры, где ему предлагали вернуться обратно в Профиль. -->
   <section class="kart">
-    <h2>Вход по почте</h2>
+    <div class="zag-ryad"><h2>Аккаунт</h2><button class="pdsk-kn" type="button" aria-expanded="false" aria-controls="pdsk-akkaunt" aria-label="Подсказка: зачем вход по почте"><i aria-hidden="true">i</i></button></div>
+    <div class="pdsk" id="pdsk-akkaunt" role="note" hidden>Пароля нет: на почту приходит код из шести цифр. Аккаунт можно удалить в любой момент — кнопка внизу.</div>
     <div class="vhod-status" id="vhod-status"></div>
-    <p class="opis" id="vhod-opis"></p>
     <button class="knopka" id="vhod-knopka" type="button">Войти по почте</button>
-    <button class="knopka knopka--tihaya" id="moy-akkaunt" type="button" hidden>Мой аккаунт</button>
-    <button class="knopka knopka--tihaya" id="vyhod" type="button" hidden>Выйти</button>
+    <!-- Поля аккаунта стоят здесь же, а не за кнопкой «Мой аккаунт»: человек
+         должен видеть, что у него заполнено, не открывая ничего. Рисует их
+         core/account.js (встроить) — тот же код, что и в окне на сайте. -->
+    <div class="akkaunt" id="akkaunt" hidden></div>
   </section>
 
   <section class="kart">
-    <h2>Свои люди</h2>
-    <p class="opis">Друзья видны при создании игры: зовёшь их в комнату одним
-       касанием, а не пересылаешь код через мессенджер.</p>
+    <div class="zag-ryad"><h2>Свои люди</h2><button class="pdsk-kn" type="button" aria-expanded="false" aria-controls="pdsk-lyudi" aria-label="Подсказка: зачем свои люди"><i aria-hidden="true">i</i></button></div>
+    <div class="pdsk" id="pdsk-lyudi" role="note" hidden>Друзей видно при создании партии: зовёте одним касанием, код пересылать не нужно.</div>
 
     <div class="kod-ryad">
       <div>
@@ -188,10 +245,11 @@
 
     <label for="chuzhoy-kod">Код друга</label>
     <div class="kod-vvod">
-      <input type="text" id="chuzhoy-kod" maxlength="7" autocapitalize="characters"
-             autocomplete="off" spellcheck="false" placeholder="шесть знаков">
+      <input type="text" id="chuzhoy-kod" maxlength="6" autocapitalize="characters"
+             autocomplete="off" spellcheck="false" inputmode="latin" enterkeyhint="send">
       <button class="knopka kod-kn" id="pozvat" type="button">Позвать</button>
     </div>
+    <div class="kod-format">6 знаков, латиница и цифры</div>
     <div class="soobshenie" id="druzya-soobshenie" role="status"></div>
 
     <div id="zayavki-blok" hidden>
@@ -210,7 +268,6 @@
 
   <section class="kart">
     <h2>Вид</h2>
-    <p class="opis">Тема приложения — на всех экранах сразу.</p>
     <div class="segmenty" id="tema-segmenty" role="radiogroup" aria-label="Тема">
       <button type="button" data-tema="auto">Как в системе</button>
       <button type="button" data-tema="light">Светлая</button>
@@ -218,21 +275,13 @@
     </div>
   </section>
 
-  <section class="kart">
-    <h2>Обновления</h2>
-    <div class="vhod-status" id="obnova-status">Версия приложения: …</div>
-    <p class="opis">Приложение само проверяет новые сборки в хранилище и
-       предлагает установить поверх — данные и прогресс сохраняются.</p>
-    <button class="knopka knopka--tihaya" id="obnova-knopka" type="button">Проверить обновления</button>
-    <div class="soobshenie" id="obnova-soobshenie" role="status"></div>
-  </section>
 
   <section class="kart">
-    <h2>Цитата дня по утрам</h2>
-    <div class="vhod-status" id="push-status">Выключено</div>
-    <p class="opis">Каждое утро в 9:30 — одна строка из книги «Ясна Суток».
-       Та же цитата стоит на главной. Без сервера и без рекламы: уведомление
-       собирается прямо на устройстве.</p>
+    <div class="zag-ryad"><h2>Цитата дня</h2><button class="pdsk-kn" type="button"
+      aria-expanded="false" aria-controls="pdsk-citata" aria-label="Подсказка: как приходит цитата"><i aria-hidden="true">i</i></button></div>
+    <div class="pdsk" id="pdsk-citata" role="note" hidden>Одна строка из книги «Ясна Суток».
+      Уведомление готовит сам телефон, интернет для него не нужен.</div>
+    <div class="vhod-status" id="push-status">Каждое утро в 9:30</div>
     <button class="knopka" id="push-knopka" type="button">Включить</button>
     <div class="soobshenie" id="push-soobshenie" role="status"></div>
   </section>
@@ -291,9 +340,9 @@
     var бусин=+(д.totalScore||0), партий=+((д.totals&&(д.totals.played||д.totals.matches))||0);
     var ст='Послушник';
     СТУПЕНИ.forEach(function(п2){ if(бусин>=п2[1]) ст=п2[0] });
-    document.getElementById('ya-schet').textContent = партий
-      ? ст+' · ✦ '+бусин+' · партий: '+партий
-      : ст+' · первая партия впереди';
+    /* Числа стоят строкой ниже — в этой строке только ступень, иначе
+       одно и то же повторяется дважды подряд. */
+    document.getElementById('ya-schet').textContent = ст;
   }
   сводка();
   var правка=document.getElementById('pravka'), кнПравить=document.getElementById('ya-pravit');
@@ -319,8 +368,27 @@
     ряд.appendChild(b);
   });
 
+  /* Имя режем по ГРАФЕМАМ: maxlength считает единицы UTF-16 и рубит эмодзи
+     пополам. Пустое имя больше не подменяется молча на «Гость» — просим
+     вписать. Управляющие символы и двунаправленные метки выкидываем. */
+  var полеИмени=document.getElementById('imya');
+  function чистоеИмя(){
+    var т=(полеИмени.value||'')
+      .replace(/[\u0000-\u001f\u007f\u200b-\u200f\u202a-\u202e\u2066-\u2069<>]/g,'')
+      .replace(/\s+/g,' ').trim();
+    return Array.from(т).slice(0,20).join('');
+  }
+  полеИмени.setAttribute('enterkeyhint','done');
+  полеИмени.addEventListener('keydown',function(e){
+    if(e.key==='Enter'){ e.preventDefault(); document.getElementById('sohranit').click(); }
+  });
   document.getElementById('sohranit').onclick=function(){
-    var имя=(document.getElementById('imya').value||'').trim().slice(0,20)||'Гость';
+    var имя=чистоеИмя();
+    if(!имя){
+      document.getElementById('soobshenie').textContent='Впишите имя.';
+      полеИмени.focus();
+      return;
+    }
     var п=профиль();
     /* deviceId сохраняем как есть: это ключ к накопленному прогрессу. */
     п.nickname=имя; п.avatar=выбран;
@@ -329,7 +397,9 @@
         ||((window.crypto&&crypto.randomUUID)?crypto.randomUUID():'dev-'+Date.now());
     }
     try{ localStorage.setItem(КЛЮЧ,JSON.stringify(п));
-      document.getElementById('soobshenie').textContent='Сохранено: '+выбран+' '+имя;
+      var соб=document.getElementById('soobshenie');
+      соб.textContent='Сохранено';
+      setTimeout(function(){ if(соб.textContent==='Сохранено') соб.textContent=''; },2500);
       /* Вкладка «Профиль» в наббаре показывает зверя — обновляем сразу,
          иначе он появлялся только после перехода на другой экран. */
       if(window.yasnaNavbarObnovi) window.yasnaNavbarObnovi();
@@ -346,12 +416,46 @@
     }
   };
 
+  /* Три числа под именем. Ноль — это состояние, а не пустота: показываем
+     всегда, чтобы человек видел, что счётчик существует. */
+  (function(){
+    function ч(к){ try{ return JSON.parse(localStorage.getItem(к)) }catch(e){ return null } }
+    var д=ч('yasna_duel_data')||{};
+    var б=+(д.totalScore||0);
+    var п=(д.totals&&(д.totals.played||д.totals.matches))||0;
+    var БАЗ=['l1_intro','b2_four_pillars','b3_two_lines','b4_line_names'];
+    var у=ч('yasna_completed_lessons_v1');
+    var уроков=Array.isArray(у)?у.filter(function(и){return БАЗ.indexOf(и)>-1}).length:0;
+    var т={'ya-buseny':б,'ya-partiy':п,'ya-urokov':уроков};
+    Object.keys(т).forEach(function(ид){ var э=document.getElementById(ид); if(э) э.textContent=т[ид]; });
+  })();
+
+  /* Подсказки: раскрываются в потоке, одна за раз, закрываются повторным
+     нажатием, Escape и тапом вне. Ховера на телефоне нет, title не вызвать. */
+  (function(){
+    var открыта=null;
+    function закрыть(){
+      if(!открыта) return;
+      открыта.тело.hidden=true; открыта.кнопка.setAttribute('aria-expanded','false');
+      открыта=null;
+    }
+    document.addEventListener('click',function(e){
+      var кн=e.target.closest?e.target.closest('.pdsk-kn'):null;
+      if(!кн){ if(!e.target.closest||!e.target.closest('.pdsk')) закрыть(); return; }
+      var тело=document.getElementById(кн.getAttribute('aria-controls'));
+      if(!тело) return;
+      var былоОткрыто = открыта && открыта.тело===тело;
+      закрыть();
+      if(былоОткрыто) return;
+      тело.hidden=false; кн.setAttribute('aria-expanded','true');
+      открыта={кнопка:кн,тело:тело};
+    });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape') закрыть(); });
+  })();
+
   /* Статус входа. Токен и пользователь — те же ключи, что на сайте. */
   var статус=document.getElementById('vhod-status');
-  var опис=document.getElementById('vhod-opis');
   var кнВход=document.getElementById('vhod-knopka');
-  var кнАккаунт=document.getElementById('moy-akkaunt');
-  var кнВыход=document.getElementById('vyhod');
   function показатьВход(){
     var польз=null;
     try{ польз=JSON.parse(localStorage.getItem('yasna_duel_user')) }catch(e){}
@@ -359,30 +463,28 @@
     if(есть&&польз){
       /* Сервер отдаёт nickname/firstName/email; поля name у него нет — раньше
          тут почти всегда выводилось слово «аккаунт». */
-      статус.textContent='Вы вошли: '+(польз.nickname||польз.firstName||польз.email||'аккаунт');
-      опис.textContent='Уроки, разбор и бусины хранятся на сервере под вашей почтой — '+
-        'вернутся после переустановки и на другом телефоне. Имя, зверь и список '+
-        'своих людей живут на этом устройстве.';
-      кнВход.hidden=true; кнАккаунт.hidden=false; кнВыход.hidden=false;
+      статус.textContent='';
+      кнВход.hidden=true;
     } else {
-      статус.textContent='Вы играете гостем.';
-      опис.textContent='Уроки и бусины уже сохраняются на сервере для этого телефона. '+
-        'Войдите по почте — и они привяжутся к вам, а не к устройству: вернутся после '+
-        'переустановки и откроются на другом телефоне. Имя, зверь и свои люди останутся здесь. '+
-        'Пароля нет — пришлём код из шести цифр.';
-      кнВход.hidden=false; кнАккаунт.hidden=true; кнВыход.hidden=true;
+      статус.textContent='';
+      кнВход.hidden=false;
     }
   }
   кнВход.onclick=function(){
     if(window.YasnaAccount) window.YasnaAccount.openLogin();
     else статус.textContent='Вход недоступен: не загрузился модуль аккаунта.';
   };
-  кнАккаунт.onclick=function(){
-    if(window.YasnaAccount) window.YasnaAccount.openProfile();
-  };
+  function показатьПоля(){
+    var узел=document.getElementById('akkaunt');
+    if(!узел||!window.YasnaAccount) return;
+    var вошли=!!localStorage.getItem('yasna_duel_token');
+    узел.hidden=!вошли;
+    if(вошли) window.YasnaAccount.встроить(узел,{приВыходе:показатьВход});
+    else узел.innerHTML='';
+  }
   /* Окно входа живёт поверх этого экрана и после успеха шлёт событие —
      иначе под закрывшейся модалкой оставалось бы «Вы играете гостем». */
-  window.addEventListener('yasna:аккаунт', показатьВход);
+  window.addEventListener('yasna:аккаунт', function(){ показатьВход(); показатьПоля(); });
   /* Обновления. */
   (function(){
     var ст=document.getElementById('obnova-status');
@@ -390,7 +492,7 @@
     var сб=document.getElementById('obnova-soobshenie');
     var П=(window.Capacitor&&window.Capacitor.Plugins)||{};
     if(П.App&&П.App.getInfo) П.App.getInfo().then(function(i){
-      ст.textContent='Версия приложения: '+i.version+' (сборка '+i.build+')';
+      ст.textContent='Версия '+i.version;
       var ф=document.querySelector('.versiya');
       if(ф) ф.textContent='Ясна для Android · '+i.version;
     });
@@ -459,7 +561,7 @@
   var пСооб=document.getElementById('push-soobshenie');
   function показатьПуш(){
     var вкл=window.yasnaPushiVkl && window.yasnaPushiVkl();
-    пСтатус.textContent=вкл?'✓ Включено — утром в 9:30':'Выключено';
+    пСтатус.textContent=вкл?'Каждое утро в 9:30':'Утренние цитаты выключены';
     пКнопка.textContent=вкл?'Выключить':'Включить';
   }
   пКнопка.onclick=function(){
@@ -483,15 +585,11 @@
      несохранённое на сервер. Своя очистка трёх ключей оставляла уроки и
      личные заметки предыдущего человека — на общем телефоне они уезжали на
      сервер уже под следующим аккаунтом. */
-  кнВыход.onclick=function(){
-    if(!window.YasnaAccount) return;
-    кнВыход.disabled=true; кнВыход.textContent='Выхожу…';
-    Promise.resolve(window.YasnaAccount.logout()).then(function(){
-      кнВыход.disabled=false; кнВыход.textContent='Выйти';
-      показатьВход();
-    });
-  };
+  /* Кнопка «Выйти» переехала внутрь полей аккаунта (core/account.js,
+     встроить): выход рядом с тем, из чего выходишь. */
+
   показатьВход();
+  показатьПоля();
 })();
 </script>
 <script defer src="pribavka.js"></script>
@@ -619,6 +717,19 @@
 
   document.getElementById('pozvat').onclick=function(){
     var поле=document.getElementById('chuzhoy-kod');
+    /* Код набирают с чужого экрана: часто попадают кириллические двойники
+       (В вместо B, С вместо C) и нижний регистр. Чиним на вводе, а не
+       упрекаем человека потом. */
+    if(!поле.dataset.чинится){
+      поле.dataset.чинится='1';
+      var ДВОЙНИКИ={'В':'B','С':'C','Н':'H','К':'K','М':'M','Р':'P','Т':'T','Х':'X','А':'A','Е':'E','О':'O'};
+      поле.addEventListener('input',function(){
+        var т=(поле.value||'').toUpperCase().replace(/[\s-]/g,'');
+        т=т.replace(/[А-Я]/g,function(б){ return ДВОЙНИКИ[б]||''; });
+        т=т.replace(/[^A-Z0-9]/g,'').slice(0,6);
+        if(т!==поле.value) поле.value=т;
+      });
+    }
     var код=(поле.value||'').trim().toUpperCase();
     if(код.length<6){ сказать('Код — шесть знаков.',true); return }
     var кн=this; кн.disabled=true; сказать('Отправляю…');
