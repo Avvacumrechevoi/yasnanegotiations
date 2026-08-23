@@ -546,7 +546,7 @@ input{font-family:var(--sans)}
 /* 4.4: убраны fade-края tabs — давали засвеченный блик (var(--bg2) не
    адаптировался к тёмной теме, а ::after стоял на right:140px посреди ленты).
    Скролл и так очевиден; артефакт удалён. */
-@media(max-width:767px){
+@media(max-width:768px){
   .nav-tabs{position:relative}
   /* «Механики» на мобайле — только значок ⊞ (текст/каретка скрыты .desk-only) */
   .mech-trigger{padding:9px 13px!important;min-width:42px;justify-content:center}
@@ -554,14 +554,11 @@ input{font-family:var(--sans)}
 }
 
 /* 4.6: FAB «+ Создать» на mobile — поднят выше bottom nav-tabs */
-@media(max-width:767px){
+@media(max-width:768px){
   .fab-create.mob-only{position:fixed!important;bottom:70px!important;right:16px!important;width:56px!important;height:56px!important;border-radius:50%!important;box-shadow:0 4px 14px rgba(37,99,235,.32)!important;z-index:51!important;background:#0071e3!important;color:#fff!important;font-size:28px!important;padding:0!important;border:none!important;display:flex!important;align-items:center!important;justify-content:center!important;line-height:1!important}
   /* FAB «✎ Редактировать текущую» — над FAB создания */
-  .fab-edit.mob-only{position:fixed!important;bottom:138px!important;right:20px!important;width:48px!important;height:48px!important;border-radius:50%!important;box-shadow:0 3px 10px rgba(0,0,0,.16)!important;z-index:51!important;background:#fff!important;color:#0071e3!important;font-size:19px!important;padding:0!important;border:1.5px solid rgba(0,113,227,.5)!important;display:flex!important;align-items:center!important;justify-content:center!important;line-height:1!important}
   /* Скрыть FAB'ы когда открыта side-panel/sheet или редактор */
   body:has(aside.side-panel) .fab-create.mob-only{display:none!important}
-  body:has(aside.side-panel) .fab-edit.mob-only,
-  body:has(.editor-panel) .fab-edit.mob-only,
   body:has(.editor-panel) .fab-create.mob-only{display:none!important}
 }
 
@@ -577,7 +574,7 @@ button:focus-visible{outline:2px solid #0071e3;outline-offset:2px}
 .side-panel-toggle:hover{background:#f5f5f7;color:#1d1d1f}
 
 /* 4.3: mobile-burger drawer полировка — drop-shadow и smoother slide */
-@media(max-width:767px){
+@media(max-width:768px){
   .hdr-burger > div[role='menu']{box-shadow:-8px 0 32px rgba(0,0,0,.15)!important;animation:slideInLeft .22s cubic-bezier(.32,.72,0,1)}
 }
 @keyframes slideInLeft{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
@@ -804,7 +801,7 @@ button:focus-visible{outline:2px solid #0071e3;outline-offset:2px}
 }
 
 /* ─── Mobile: extra spacing для тач-таргетов ─────────────────────── */
-@media(max-width:767px){
+@media(max-width:768px){
   .astro-toggle{padding:10px 12px;font-size:13px}
   .astro-toggle__dot{width:16px;height:16px;font-size:11px}
   .astro-panel__icon-btn{width:32px;height:32px;font-size:18px}
@@ -864,7 +861,6 @@ button:focus-visible{outline:2px solid #0071e3;outline-offset:2px}
 @media(max-width:768px){
   html.yk-est .nav-tabs{bottom:calc(70px + env(safe-area-inset-bottom,0px))!important}
   html.yk-est .fab-create.mob-only{bottom:calc(140px + env(safe-area-inset-bottom,0px))!important}
-  html.yk-est .fab-edit.mob-only{bottom:calc(208px + env(safe-area-inset-bottom,0px))!important}
 }
 @media(max-width:1023px){
   html.yk-est .side-panel{bottom:calc(124px + env(safe-area-inset-bottom,0px))}

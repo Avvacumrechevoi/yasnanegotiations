@@ -34,7 +34,15 @@ function Editor({y,setY,onClose}){
     <div className='editor-panel' style={{position:'fixed',top:0,right:0,width:370,height:'100vh',background:'var(--vk-bg-surface,rgba(255,255,255,.98))',borderLeft:'1px solid var(--vk-border,rgba(0,0,0,.08))',zIndex:50,display:'flex',flexDirection:'column'}}>
       <div style={{padding:'14px 18px',borderBottom:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center',flexShrink:0}}>
         <h3 style={{fontFamily:'var(--serif)',fontSize:18,color:'var(--vk-text-primary,#1d1d1f)',fontWeight:600}}>Редактор</h3>
-        <span style={{fontSize:11,color:'#34c759',fontWeight:500,letterSpacing:.3}}>● автосохранение</span>
+        <div style={{display:'flex',alignItems:'center',gap:10}}>
+          <span style={{fontSize:11,color:'#34c759',fontWeight:500,letterSpacing:.3}}>● автосохранение</span>
+          {/* Выход был один — кнопка в самом низу панели, а на телефоне низ
+              закрыт наббаром: закрыть редактор было нечем. Крестик 44×44. */}
+          <button onClick={onClose} aria-label='Закрыть редактор' title='Закрыть'
+            style={{width:44,height:44,marginRight:-10,border:'none',background:'transparent',
+              color:'var(--vk-text-secondary,#6e6e73)',fontSize:22,lineHeight:1,cursor:'pointer',
+              display:'flex',alignItems:'center',justifyContent:'center'}}>×</button>
+        </div>
       </div>
       <div style={{padding:'12px 18px',overflowY:'auto',flex:1}}>
         <input value={y.name} onChange={e=>setY({...y,name:e.target.value})} placeholder="Название"

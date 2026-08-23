@@ -916,6 +916,36 @@ html.yk-est .l-intro-progress { top: 0; }
 }
 :focus-visible { outline: 2px solid var(--accent-hover); outline-offset: 2px; }
 
+
+/* ── Хаб обучения ── */
+.hub{max-width:760px;margin:0 auto;padding:20px 16px 8px}
+.hub-zag{font-family:var(--font-display);font-size:30px;font-weight:800;
+  letter-spacing:-.5px;margin:0 0 4px;color:var(--text-primary)}
+.hub-pod{margin:0 0 22px;font-size:15px;line-height:1.45;color:var(--text-secondary)}
+.hub-grp{margin-bottom:26px}
+.hub-grp-zag{margin:0 0 10px;font-size:12.5px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--text-muted)}
+/* Сетка сама раскладывается по ширине: на телефоне один столбец, дальше два. */
+.hub-ryad{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.hub-k{display:flex;flex-direction:column;gap:5px;padding:15px 16px;border-radius:16px;
+  background:var(--bg-card);border:1px solid var(--border);text-decoration:none;
+  transition:border-color .15s ease,transform .12s ease}
+.hub-k:hover{border-color:var(--border-strong)}
+.hub-k:active{transform:scale(.99)}
+.hub-k--glav{background:var(--accent-soft);border-color:var(--accent-glow)}
+.hub-k-t{font-size:16.5px;font-weight:700;color:var(--text-primary);line-height:1.25}
+.hub-k-o{font-size:13.5px;line-height:1.45;color:var(--text-secondary)}
+.hub-k-m{align-self:flex-start;margin-top:3px;padding:3px 9px;border-radius:8px;
+  background:var(--bg-elevated);border:1px solid var(--border);
+  font-size:12px;font-weight:600;color:var(--text-muted)}
+.hub-k--glav .hub-k-m{background:transparent;border-color:var(--accent-glow);color:var(--accent)}
+@media (max-width:380px){
+  .hub{padding:16px 14px 6px}
+  .hub-zag{font-size:26px}
+  .hub-k{padding:13px 14px}
+  .hub-k-t{font-size:15.5px}
+}
+
 /* ── Светлая тема (единый ключ; html[data-theme='light']) — переопределяем тёмные токены ── */
 html[data-theme='light'] {
   --bg-base:#F5F5F7; --bg-surface:#FFFFFF; --bg-elevated:#FFFFFF; --bg-card:#FFFFFF; --bg-tonal:#ECEEF1;
@@ -1098,47 +1128,107 @@ html[data-theme='light'] {
   </a>
 </header>
 
-<section class="l-hero">
-  <div class="l-hero-eyebrow">Карта пути</div>
-  <h1 class="l-hero-title">Путь по <em>Руси</em></h1>
-  <p class="l-hero-desc">
-    Восемь остановок от Москвы до Тихого океана. На каждой — одно явление мира,
-    разобранное по 12 полкам. Пройди весь путь — и научишься смотреть на мир
-    глазами человека, выросшего на этой земле.
-  </p>
-</section>
+<!-- ═══ ХАБ ОБУЧЕНИЯ ═══════════════════════════════════════════════════
+     Экран «Уроки» был одним курсом «Путь по Руси» — и всё. Остальное
+     обучение лежало по чужим экранам: базовый курс и авторские гиды — в
+     Разборе, инструкция, глоссарий и проверка Ясны — в его старой шапке,
+     переговоры — на отдельной странице тренажёров. Человек не мог узнать,
+     что у него вообще есть.
 
-<div class="l-progress" aria-label="Прогресс прохождения">
-  <span>Пройдено</span>
-  <div class="l-progress-track"><div class="l-progress-fill" id="progressFill"></div></div>
-  <span class="l-progress-count" id="progressCount">0 из 8</span>
-</div>
+     Группируем не по тому, где что лежит, а по тому, ЧЕГО ХОЧЕТ ЧЕЛОВЕК:
+     понять метод → разобрать своё явление → закрепить → свериться.
+     Внутри группы порядок от простого к сложному. Числа проставлены только
+     там, где они проверены по файлам; где не проверены — числа нет вовсе. -->
+<section class="hub" aria-labelledby="hub-zag">
+  <h1 class="hub-zag" id="hub-zag">Уроки</h1>
+  <p class="hub-pod" id="hub-pod">Всё обучение Ясны в одном месте.</p>
 
-<!-- Активная остановка — крупный CTA сверху, до списка -->
-<section class="l-active" id="activePanel">
-  <div class="l-active-text">
-    <div class="l-active-eyebrow" id="activeEyebrow">Корень · Остановка 1 из 8</div>
-    <h2 class="l-active-title" id="activeTitle">Москва</h2>
-    <p class="l-active-desc" id="activeDesc">Что такое Ясна и 12 полок — основа метода. С неё начинается любой путь.</p>
-  </div>
-  <button class="l-active-cta" id="activeCta">
-    <span id="activeCtaLabel">Начать главу</span>
-    <span class="l-active-cta-arrow">→</span>
-  </button>
-</section>
-
-<div class="l-path-wrap">
-  <div class="l-path-header">
-    <h2 class="l-path-title">Все остановки</h2>
-    <div class="l-path-legend">
-      <div class="l-path-legend-item"><span class="l-path-legend-dot done"></span><span>Пройдено</span></div>
-      <div class="l-path-legend-item"><span class="l-path-legend-dot active"></span><span>Сейчас</span></div>
-      <div class="l-path-legend-item"><span class="l-path-legend-dot locked"></span><span>Закрыто</span></div>
+  <div class="hub-grp">
+    <h2 class="hub-grp-zag">Понять метод</h2>
+    <div class="hub-ryad">
+      <a class="hub-k hub-k--glav" href="#znakomstvo" id="hub-znakomstvo">
+        <span class="hub-k-t">Знакомство с методом</span>
+        <span class="hub-k-o">Пять минут разговором: что такое Ясна и зачем 12 полок.</span>
+        <span class="hub-k-m" id="hub-znakomstvo-m">5 минут</span>
+      </a>
+      <a class="hub-k" href="konstruktor.html?lessons=1" id="hub-kurs">
+        <span class="hub-k-t">Базовый курс</span>
+        <span class="hub-k-o">Четыре урока по шагам, с подсказками прямо в круге.</span>
+        <span class="hub-k-m" id="hub-kurs-m">4 урока</span>
+      </a>
+      <a class="hub-k" href="konstruktor.html#spravka">
+        <span class="hub-k-t">Инструкция</span>
+        <span class="hub-k-o">Как составить свою Ясну — по шагам, от явления до проверки.</span>
+      </a>
     </div>
   </div>
 
-  <ol class="l-path" id="learnPath" role="list" style="--progress: 0%;"></ol>
-</div>
+  <div class="hub-grp">
+    <h2 class="hub-grp-zag">Разобрать явление</h2>
+    <div class="hub-ryad">
+      <a class="hub-k" href="#gidy">
+        <span class="hub-k-t">Авторские гиды</span>
+        <span class="hub-k-o">Готовые разборы: автор ведёт по кругу и объясняет каждый шаг.</span>
+        <span class="hub-k-m">7 разборов</span>
+      </a>
+      <a class="hub-k" href="konstruktor.html#biblioteka">
+        <span class="hub-k-t">Библиотека явлений</span>
+        <span class="hub-k-o">Дом, печь, дерево, завод, театр, месяцы — уже разложенные по кругу.</span>
+      </a>
+      <a class="hub-k" href="konstruktor.html#proverka">
+        <span class="hub-k-t">Проверка Ясны</span>
+        <span class="hub-k-o">Вопросы к той Ясне, что открыта в Разборе: где она ещё не сходится. Ответы не сохраняются.</span>
+        <span class="hub-k-m">38 проверок</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="hub-grp">
+    <h2 class="hub-grp-zag">Закрепить</h2>
+    <div class="hub-ryad">
+      <a class="hub-k" href="games/krug/index.html">
+        <span class="hub-k-t">Разложи по кругу</span>
+        <span class="hub-k-o">Берёшь элемент явления и кладёшь на его долю круга.</span>
+        <span class="hub-k-m">16 явлений</span>
+      </a>
+      <a class="hub-k" href="duel.html">
+        <span class="hub-k-t">Викторина по Ясне</span>
+        <span class="hub-k-o">Вопросы по книге с разбором ответа. Одному или с друзьями.</span>
+        <span class="hub-k-m">12 тем · 168 вопросов</span>
+      </a>
+      <a class="hub-k" href="negotiations.html">
+        <span class="hub-k-t">Переговоры</span>
+        <span class="hub-k-o">Разбор разговора по кругу: четыре сценария с практикумами.</span>
+        <span class="hub-k-m" id="hub-neg-m">4 сценария</span>
+      </a>
+      <a class="hub-k" href="negotiations.html#spar">
+        <span class="hub-k-t">Живой спарринг</span>
+        <span class="hub-k-o">Собеседник отвечает: без сети — готовые сцены, со связью — свободный разговор.</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="hub-grp">
+    <h2 class="hub-grp-zag">Свериться</h2>
+    <div class="hub-ryad">
+      <a class="hub-k" href="konstruktor.html#glossariy">
+        <span class="hub-k-t">Глоссарий</span>
+        <span class="hub-k-o">Слова метода: полка, крест, прана, противоположность.</span>
+      </a>
+      <a class="hub-k" href="rating.html">
+        <span class="hub-k-t">Как считается рост</span>
+        <span class="hub-k-o">Две шкалы: освоение метода и место в общем зачёте.</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- КУРС «ПУТЬ ПО РУСИ» СНЯТ С ЭКРАНА.
+     Из восьми обещанных остановок в приложении работала одна: у семи
+     не было ни урока, ни содержимого, и полоса «0 из 8» не могла
+     сдвинуться дальше первой. Экран «Уроки» стал хабом, который
+     разводит по тому, что действительно есть; курс вернётся сюда
+     карточкой, когда будут готовы остальные остановки. -->
 
 <!-- Авторские гиды: готовые анимированные разборы явлений. Раньше жили только
      внутри Разбора и с экрана Уроков были недостижимы — тупик после главы 1. -->
@@ -1158,26 +1248,6 @@ html[data-theme='light'] {
 
 </div><!-- /#learnMain -->
 
-<!-- ═══ MODAL ═══ -->
-<div class="l-modal-bg" id="modalBg" role="dialog" aria-modal="true">
-  <div class="l-modal" id="modal">
-    <button class="l-modal-close" id="modalClose" aria-label="Закрыть">×</button>
-    <div class="l-modal-num" id="modalNum">1</div>
-    <div class="l-modal-eyebrow" id="modalEyebrow">КОРЕНЬ · ОСТАНОВКА 1</div>
-    <h3 class="l-modal-title" id="modalTitle">Москва</h3>
-    <p class="l-modal-subtitle" id="modalSubtitle">Что такое Ясна — основа метода</p>
-    <p class="l-modal-body" id="modalBody">…</p>
-    <div class="l-modal-meta">
-      <div class="l-modal-meta-item"><span class="l-modal-meta-key">Длительность:</span><span class="l-modal-meta-val" id="modalDuration">5 минут</span></div>
-      <div class="l-modal-meta-item"><span class="l-modal-meta-key">Формат:</span><span class="l-modal-meta-val" id="modalFormat">Урок + 5 вопросов</span></div>
-      <div class="l-modal-meta-item"><span class="l-modal-meta-key">Статус:</span><span class="l-modal-meta-val" id="modalStatus">Доступна</span></div>
-    </div>
-    <div class="l-modal-actions">
-      <button class="l-modal-cta" id="modalCta">Начать главу →</button>
-      <button class="l-modal-secondary" id="modalSecondary">Закрыть</button>
-    </div>
-  </div>
-</div>
 
 <script>
 'use strict';
@@ -1196,6 +1266,8 @@ html[data-theme='light'] {
 
   // ═══ ОНБОРДИНГ — chat-style вступление ═══
   const INTRO_KEY = 'yasna_learn_intro_done_v1';
+  /* Наружу — чтобы карточка хаба и адрес #znakomstvo открывали знакомство. */
+  window.yasnaZnakomstvo = function(){ initIntro(true); };
   const introEl   = document.getElementById('learnIntro');
   const introBar  = document.getElementById('introProgressBar');
   const introFill = document.getElementById('introProgressFill');
@@ -1220,16 +1292,19 @@ html[data-theme='light'] {
     markIntroDone();
   }
 
-  function initIntro(){
+  function initIntro(вручную){
     if(!introEl) return;
-    if(isIntroDone()){
-      // Повторный заход — сразу показываем основную страницу
+    /* Знакомство больше не встречает человека собой: экран «Уроки» — это хаб,
+       и первым делом надо увидеть, что вообще есть. Знакомство стало одной из
+       карточек хаба и открывается по нажатию (или по адресу #znakomstvo). */
+    if(!вручную){
       introEl.hidden = true;
       if(introBar) introBar.hidden = true;
       return;
     }
     introEl.hidden = false;
     if(introBar) introBar.hidden = false;
+    try { window.scrollTo({top:0, behavior:'auto'}); } catch(_){}
 
     const steps = Array.from(introEl.querySelectorAll('.l-intro-step'));
     const total = steps.length;
@@ -1301,6 +1376,62 @@ html[data-theme='light'] {
     if(skipBtn) skipBtn.addEventListener('click', finishIntro);
   }
   initIntro();
+
+  /* ── Хаб: живые подписи и переходы ─────────────────────────────────
+     Карточки хаба не должны врать: «пройдено» появляется только если
+     знакомство действительно закончено, а «продолжить» — если в курсе есть
+     отметки. Числа, которых мы не можем проверить, не показываем вовсе. */
+  (function(){
+    var карта = document.getElementById('hub-znakomstvo');
+    if(карта){
+      карта.addEventListener('click', function(e){
+        e.preventDefault();
+        window.yasnaZnakomstvo && window.yasnaZnakomstvo();
+      });
+      var м = document.getElementById('hub-znakomstvo-m');
+      if(м && isIntroDone()) м.textContent = 'пройдено';
+    }
+    /* Открытие знакомства по адресу — с главной и из хаба. */
+    function поЯкорю(){
+      if((location.hash||'') === '#znakomstvo') window.yasnaZnakomstvo && window.yasnaZnakomstvo();
+    }
+    поЯкорю();
+    window.addEventListener('hashchange', поЯкорю);
+
+    /* Якорь #gidy приходил с главной приложения раньше, чем блок гидов был
+       готов, и прокрутка не срабатывала. Доводим её после отрисовки. */
+    if((location.hash||'') === '#gidy'){
+      setTimeout(function(){
+        var г = document.getElementById('gidy');
+        if(г) г.scrollIntoView({behavior:'smooth', block:'start'});
+      }, 400);
+    }
+
+    /* Базовый курс: если человек уже проходил уроки — говорим «продолжить». */
+    try{
+      var пройдено = JSON.parse(localStorage.getItem('yasna_completed_lessons_v1') || '[]');
+      var мк = document.getElementById('hub-kurs-m');
+      if(мк && Array.isArray(пройдено) && пройдено.length){
+        мк.textContent = 'пройдено ' + пройдено.length + ' из 4';
+      }
+    }catch(_){}
+    try{
+      var нг = JSON.parse(localStorage.getItem('yasna_neg_lessons_v1') || '{}');
+      var мн = document.getElementById('hub-neg-m');
+      var сколько = нг && typeof нг==='object' ? Object.keys(нг).length : 0;
+      if(мн && сколько) мн.textContent = 'пройдено ' + сколько + ' из 4';
+    }catch(_){}
+    /* Прогресс приходит с сервера позже первой отрисовки (core/storage.js
+       тянет его через ~1.2 с). Иначе на новом устройстве человек увидел бы
+       «4 урока» вместо «пройдено 3 из 4». */
+    setTimeout(function(){
+      try{
+        var у = JSON.parse(localStorage.getItem('yasna_completed_lessons_v1') || '[]');
+        var м = document.getElementById('hub-kurs-m');
+        if(м && Array.isArray(у) && у.length) м.textContent = 'пройдено ' + у.length + ' из 4';
+      }catch(_){}
+    }, 1800);
+  })();
 
   // ═══ КОНТЕНТ — 8 СТАНЦИЙ ═══
   const STATIONS = [
@@ -1410,6 +1541,7 @@ html[data-theme='light'] {
     catch(_){ return {}; }
   }
   function setStationDone(id){
+    if(!document.getElementById('learnPath')) return;   /* курс снят с экрана */
     const p = getProgress();
     p[id] = { done: true, ts: Date.now() };
     try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)); } catch(_){}
@@ -1420,6 +1552,7 @@ html[data-theme='light'] {
   // а не по клику. Конструктор пишет id пройденных уроков в этот ключ.
   const LESSON_OF = { moscow: 'l1_intro' };
   function syncFromLessons(){
+    if(!document.getElementById('learnPath')) return;   /* курс снят с экрана */
     let completed = [];
     try { completed = JSON.parse(localStorage.getItem('yasna_completed_lessons_v1')) || []; }
     catch(_){ completed = []; }
@@ -1481,6 +1614,7 @@ html[data-theme='light'] {
 
   // ═══ РЕНДЕР ПУТИ (timeline-список остановок) ═══
   function renderPath(){
+    if(!document.getElementById('learnPath')) return;   /* курс снят с экрана */
     const list = document.getElementById('learnPath');
     if(!list) return;
     const html = STATIONS.map((s, i) => {
@@ -1526,6 +1660,7 @@ html[data-theme='light'] {
 
   // ═══ РЕНДЕР АКТИВНОЙ ПАНЕЛИ ═══
   function renderActive(){
+    if(!document.getElementById('learnPath')) return;   /* курс снят с экрана */
     const idx = findActiveIdx();
     const s = STATIONS[idx];
     const status = getStatus(idx);
@@ -1553,6 +1688,7 @@ html[data-theme='light'] {
   }
 
   function renderProgress(){
+    if(!document.getElementById('learnPath')) return;   /* курс снят с экрана */
     const p = getProgress();
     const done = STATIONS.filter(s => p[s.id] && p[s.id].done).length;
     const pct = (done / STATIONS.length) * 100;
@@ -1568,6 +1704,7 @@ html[data-theme='light'] {
 
   // ═══ МОДАЛКА ═══
   function openStation(idx){
+    if(!document.getElementById('learnPath')) return;   /* курс снят с экрана */
     const s = STATIONS[idx];
     const status = getStatus(idx);
     document.getElementById('modalNum').textContent = s.num;
@@ -1605,18 +1742,13 @@ html[data-theme='light'] {
   }
 
   function closeModal(){
+    if(!document.getElementById('learnPath')) return;   /* курс снят с экрана */
     document.getElementById('modalBg').dataset.open = '';
   }
 
-  // ═══ СОБЫТИЯ модалки и закрытия ═══
-  document.getElementById('modalClose').addEventListener('click', closeModal);
-  document.getElementById('modalSecondary').addEventListener('click', closeModal);
-  document.getElementById('modalBg').addEventListener('click', (e) => {
-    if(e.target === document.getElementById('modalBg')) closeModal();
-  });
-  document.addEventListener('keydown', (e) => {
-    if(e.key === 'Escape') closeModal();
-  });
+  /* Обработчики модалки остановки сняты вместе с самой модалкой: курс
+     «Путь по Руси» ушёл с экрана, и элементов больше нет — прежние
+     addEventListener падали с «Cannot read properties of null». */
 
   // (DEBUG-параметры обработаны в начале IIFE — см. PROGRESS_KEY_FOR_RESET)
 

@@ -799,12 +799,53 @@ function App(){
   const[instr,setInstr]=useState(false);
   const[verif,setVerif]=useState(false);
   const[menu,setMenu]=useState(false);
+
+  /* Якорь снимаем при закрытии окна: иначе перезагрузка «Разбора» снова
+     открывает справку поверх звезды, а кнопка «назад» бесконечно её возвращает. */
+  const снятьЯкорь=()=>{ try{ history.replaceState(null,'',location.pathname+location.search); }catch(_){} };
+
+  /* ВХОД ПО ЯКОРЮ. Инструкция, Глоссарий и Проверка Ясны живут здесь, внутри
+     конструктора, но человек ищет их в обучении — и по просьбе владельца точки
+     входа переехали на экран «Уроки». Сам разбор переносить некуда: он завязан
+     на текущую Ясну. Поэтому «Уроки» открывают konstruktor.html#spravka
+     (#glossariy, #proverka), а окно поднимается здесь. */
+  useEffect(()=>{
+    const открытьПоЯкорю=()=>{
+      const я=(location.hash||'').replace('#','').toLowerCase();
+      if(я==='spravka'||я==='instrukciya') setInstr(true);
+      else if(я==='glossariy'||я==='glossary') setGlossary(true);
+      else if(я==='proverka') setVerif(true);
+      else if(я==='biblioteka') setPicker(true);
+    };
+    открытьПоЯкорю();
+    window.addEventListener('hashchange',открытьПоЯкорю);
+    return()=>window.removeEventListener('hashchange',открытьПоЯкорю);
+  },[]);
+
   const[filtersOpen,setFiltersOpen]=useState(false);
   const[fullStar,setFullStar]=useState(false);
   const[vState,setVState]=useState({});
   const[overlay,setOverlay]=useState(null);
   const[showOverlayPicker,setShowOverlayPicker]=useState(false);
   const[picker,setPicker]=useState(false);
+  /* Аппаратная «назад» в приложении (событие из app/pribavka.js). Раньше она
+     уносила с экрана целиком, даже когда открыт редактор или окно справки, —
+     и незаписанная правка пропадала. Закрываем по одному слою за нажатие. */
+  useEffect(()=>{
+    const назад=(e)=>{
+      if(e.defaultPrevented) return;
+      if(instr||glossary||verif||menu||picker||showOverlayPicker){
+        e.preventDefault();
+        setInstr(false);setGlossary(false);setVerif(false);
+        setMenu(false);setPicker(false);setShowOverlayPicker(false);
+        return;
+      }
+      if(ed){ e.preventDefault(); setEd(false); return; }
+      if(fullStar){ e.preventDefault(); setFullStar(false); return; }
+    };
+    window.addEventListener('yasna:назад',назад);
+    return()=>window.removeEventListener('yasna:назад',назад);
+  },[instr,glossary,verif,menu,picker,showOverlayPicker,ed,fullStar]);
   const[pinned,setPinned]=useState(()=>{try{const s=JSON.parse(localStorage.getItem('yasna_pinned_v1'));return Array.isArray(s)&&s.length?s:defPinned;}catch(_){return defPinned;}});
   useEffect(()=>{try{localStorage.setItem('yasna_pinned_v1',JSON.stringify(pinned));}catch(_){}},[pinned]);
   const[lessonPicker,setLessonPicker]=useState(false);
@@ -1094,9 +1135,12 @@ function App(){
         <button onClick={()=>setPicker(true)} style={{padding:'6px 12px',borderRadius:16,fontSize:13,color:'#6e6e73',border:'1px dashed var(--border)',whiteSpace:'nowrap',background:'transparent',cursor:'pointer'}} title='Все доступные Ясны'><span className='desk-only'>+ ещё ({Math.max(0, T.length - pinnedTemplates.length)})</span><span className='mob-only'>☰</span></button>
         <button className='desk-only' onClick={editCurrent} style={{padding:'7px 12px',borderRadius:16,fontSize:13,color:'#0058b8',border:'1px solid rgba(0,113,227,.45)',whiteSpace:'nowrap',background:'transparent',cursor:'pointer',fontWeight:600}} title='Редактировать текущую Ясну (для встроенной создастся ваша копия)' aria-label='Редактировать текущую Ясну'>✎ Редактировать</button>
         <button className='desk-only' onClick={createNew} style={{padding:'7px 16px',borderRadius:16,fontSize:13,color:'#fff',border:'none',whiteSpace:'nowrap',background:'#0071e3',cursor:'pointer',fontWeight:600,boxShadow:'0 1px 3px rgba(0,113,227,.25)'}} title='Создать новую Ясну' aria-label='Создать новую Ясну'>+ Создать</button>
-        {/* FAB'ы для mobile (Block 4.6): создать + редактировать текущую */}
+        {/* Кнопка правки на телефоне стоит в нижней панели рядом со списком
+            Ясн, а не вторым кругляшом над «плюсом»: два одинаковых круга друг
+            над другом читались как один элемент, продублированный по ошибке. */}
+        <button className='mob-only' onClick={editCurrent} title='Редактировать текущую Ясну' aria-label='Редактировать текущую Ясну' style={{padding:'6px 11px',borderRadius:16,fontSize:14,color:'#0058b8',border:'1px solid rgba(0,113,227,.45)',background:'transparent',cursor:'pointer',flexShrink:0}}>✎</button>
+        {/* Единственный FAB на телефоне — создать новую Ясну. */}
         <button className='fab-create mob-only' onClick={createNew} title='Создать новую Ясну' aria-label='Создать новую Ясну' style={{display:'none'}}>+</button>
-        <button className='fab-edit mob-only' onClick={editCurrent} title='Редактировать текущую Ясну' aria-label='Редактировать текущую Ясну' style={{display:'none'}}>✎</button>
         </div>
       </div>
       {/* МЕХАНИКИ — overlay-панель слева под триггером. Не больше ~1/3 экрана.
@@ -1300,8 +1344,8 @@ function App(){
       </>}
       {ed&&<Editor y={y} setY={setY} onClose={()=>setEd(false)}/>}
       {showOverlayPicker&&<OverlayPicker currentName={y.name} overlay={overlay} onSelect={setOverlay} onClose={()=>setShowOverlayPicker(false)}/>}
-      {verif&&<Verification y={y} vs={vState} setVs={setVState} onClose={()=>setVerif(false)}/>}
-      {instr&&<Instruction onClose={()=>setInstr(false)}/>}
+      {verif&&<Verification y={y} vs={vState} setVs={setVState} onClose={()=>{setVerif(false);снятьЯкорь();}}/>}
+      {instr&&<Instruction onClose={()=>{setInstr(false);снятьЯкорь();}}/>}
       {lessonPicker&&<LessonPicker onSelectLesson={(id)=>{setActiveLesson(id);setLessonPicker(false);}} onClose={()=>setLessonPicker(false)} completedLessons={completedLessons}/>}
       {showTour&&window.YasnaTours&&window.YasnaTours.has(y.name)&&(()=>{
         const tour=window.YasnaTours.get(y.name);
@@ -1313,8 +1357,8 @@ function App(){
         return React.createElement(window.YasnaTours.GuideRunner,{tour,yasnaTpl:tpl,onClose:()=>setShowTour(false),onLoadYasna:()=>{if(tpl)load(tpl);}});
       })()}
       {activeLesson&&<Lesson lessonId={activeLesson} onClose={()=>setActiveLesson(null)} onComplete={(id)=>setCompletedLessons(prev=>prev.includes(id)?prev:[...prev,id])} onPickAnother={()=>{setActiveLesson(null);setLessonPicker(true);}} onOpenLesson={(id)=>setActiveLesson(id)}/>}
-      {glossary&&<Glossary onClose={()=>setGlossary(false)}/>}
-      {picker&&<Picker pinned={pinned} onTogglePin={togglePin} onClear={()=>setPinned([])} onClose={()=>setPicker(false)} customs={customs} onOpenCustom={c=>{load(c);setPicker(false);}} onDeleteCustom={deleteCustom}/>}
+      {glossary&&<Glossary onClose={()=>{setGlossary(false);снятьЯкорь();}}/>}
+      {picker&&<Picker pinned={pinned} onTogglePin={togglePin} onClear={()=>setPinned([])} onClose={()=>{setPicker(false);снятьЯкорь();}} customs={customs} onOpenCustom={c=>{load(c);setPicker(false);}} onDeleteCustom={deleteCustom}/>}
     </div>);
 }
 ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));

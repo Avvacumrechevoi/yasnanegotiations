@@ -196,6 +196,9 @@
     /* Прямые двери (#dom с главной приложения) сильнее сохранённой вкладки:
        человек шёл к сценариям, а не в свой прошлый спарринг. */
     if (location.hash === '#dom') show('lessons');
+    /* Прямая дверь из хаба «Уроки»: negotiations.html#spar открывает
+       вкладку спарринга сразу, как это уже сделано для #dom. */
+    else if (location.hash === '#spar') show('spar');
     else show(saved === 'spar' ? 'spar' : 'lessons');
   }
 
