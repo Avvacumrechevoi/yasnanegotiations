@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- Ясна · Круг — «Поставь на место». Тренировка: карточка в руке, тап по доле круга.
+<!-- Ясна · «Разложи по кругу». Тренировка: карточка в руке, тап по доле круга.
      Выбор ясны (своя или случайная) + одному / вдвоём на одном телефоне / комнатой. -->
 <html lang="ru">
 <meta charset="utf-8">
@@ -19,8 +19,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Ясна">
 <script defer src="../../core/pwa.js"></script>
-<title>Круг · Ясна</title>
-<meta name="description" content="Тренировка Ясны: возьми элемент и поставь его на своё место в круге. Одному, вдвоём или компанией."/>
+<title>Разложи по кругу · Ясна</title>
+<meta name="description" content="Разложи по кругу — тренировка Ясны: берёшь элемент явления и кладёшь его на свою долю круга. Одному, вдвоём или компанией."/>
 <!-- Замок: подключён ПЕРВЫМ, до всего остального (см. core/gate.js) -->
 <script src="../../core/gate.js"></script>
 <script src="../../core/theme.js"></script>
@@ -29,21 +29,29 @@
 <meta name="yasna:api" content="https://d5dmdje8c5mk8811il5j.iwzqm34r.apigw.yandexcloud.net">
 <script src="../../core/storage.js"></script>
 <script src="../../core/data.js"></script>
-<link rel="stylesheet" href="krug.css?v=5ea672f5"/>
+<link rel="stylesheet" href="krug.css?v=610b8629"/>
 
 <div class="wrap">
+  <!-- Шапка экрана: крупная стрелка назад и название того места, где человек
+       сейчас находится. Подписи «· поставь на место» больше нет: название
+       игры одно и стоит в заголовке, а на игровом поле заголовок сменяется
+       на имя разложенной ясны (krug.js, функция шапка). -->
   <header class="khd">
-    <a class="back" id="krug-nazad" href="../../duel.html">← Игра</a>
+    <a class="back" id="krug-nazad" href="../../duel.html" aria-label="Назад">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"
+        fill="none" stroke="currentColor" stroke-width="2.2"
+        stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <h1 class="ttl" id="krug-zagolovok">Разложи по кругу</h1>
+    <button class="khd-ist" id="krug-istoriya" type="button" hidden>История</button>
     <script>
     /* В приложении сюда приходят с главной; на сайте — из раздела Игры. */
     if (/YasnaApp\//.test(navigator.userAgent)) {
-      var кн=document.getElementById('krug-nazad');
-      кн.href='../../index.html'; кн.textContent='← Главная';
+      document.getElementById('krug-nazad').href='../../index.html';
     }
     </script>
-    <div class="ttl">Круг <span>· поставь на место</span></div>
   </header>
   <main id="app"></main>
 </div>
 
-<script src="krug.js?v=3de3bc2b"></script>
+<script src="krug.js?v=f412b18d"></script>

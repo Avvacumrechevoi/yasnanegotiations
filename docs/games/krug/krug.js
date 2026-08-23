@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════
-   Круг · «Поставь на место»
+   «Разложи по кругу» — тренировка Ясны
    Тренировка Ясны: элемент в руке — тап по доле круга, где он живёт.
    Нитка через середину вспыхивает сама, когда заняты оба конца оси.
 
@@ -283,53 +283,62 @@ function shortName(s){
 const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 
 /* ═══════════ ЭКРАН 1 · НАСТРОЙКА ═══════════ */
+/* Заголовок в шапке — это ответ на вопрос «где я сейчас». Меняется вместе
+   с экраном: выбор → название игры, поле → имя разложенной ясны, история →
+   «История». Раньше он был неподвижной строкой «Круг · поставь на место». */
+function шапка(текст){
+  const з=document.getElementById('krug-zagolovok');
+  if(з) з.textContent=текст;
+}
+const ИМЯ_ИГРЫ='Разложи по кругу';
+
+/* Кнопка «История» живёт только на экране выбора: на поле и в самой истории
+   ей нечего делать, а место в шапке дорогое. */
+function прятатьИсторию(){
+  const к=document.getElementById('krug-istoriya');
+  if(к) к.hidden=true;
+}
+
 function setup(){
   try{ window.scrollTo(0,0) }catch(_){}
   S.scr='setup';
   app().innerHTML=''; app().classList.remove('duo-col');
-  app().appendChild(el(`<div><h2>Поставь на место</h2>
-    <div class="sub">Берёшь элемент явления и ставишь его на ту долю круга, где он живёт.
-    Нитка через середину вспыхивает сама, когда заняты оба конца.${
-      S.preset?'<br><b style="color:var(--k-tx2)">Режим: '+
-      ({solo:'одному',duo:'вдвоём на одном телефоне',link:'компанией по ссылке'}[S.mode])+
-      '</b>':''}</div></div>`));
+  шапка(ИМЯ_ИГРЫ);
 
-  const d=load(), k=played();
-  if(d.games.length){
-    const row=el(`<div class="stats">
-      <span><b>${k}</b> из ${LIST.length} явлений</span>
-      <span><b>${d.games.length}</b> ${plural(d.games.length,'партия','партии','партий')}</span>
-      <button class="lnk" type="button">История →</button></div>`);
-    row.querySelector('button').onclick=history_;
-    app().appendChild(row);
+  /* История переехала в шапку: на экране выбора не должно быть ничего,
+     кроме заголовка «Выберите ясну» и самих ясен. */
+  const d=load();
+  const кнИст=document.getElementById('krug-istoriya');
+  if(кнИст){
+    кнИст.hidden=!d.games.length;
+    кнИст.onclick=history_;
   }
-  app().appendChild(el(`<div class="sect">Какую Ясну раскладываем</div>`));
+
+  app().appendChild(el(`<div class="sect">Выберите ясну</div>`));
   const g=el(`<div class="grid"></div>`);
   /* Случайная — такая же карточка, только знак кубика и акцентный тон:
      раньше она отличалась лишь цветом слова и терялась среди прочих. */
   const rnd=el(`<button class="tile tile--rnd" type="button">
     <span class="tile-znak">${znak('__slucha')}</span>
-    <span class="tile-txt"><b>Случайная</b><i>из ${LIST.length} явлений</i></span></button>`);
+    <span class="tile-txt"><b>Случайная</b></span></button>`);
   rnd.onclick=()=>{ pickYasna(LIST[Math.floor(Math.random()*LIST.length)], true) };
   g.appendChild(rnd);
   LIST.forEach(y=>{
     const bb=bestOf(y.id);
-    /* Мета одной строкой: пройденное показываем результатом, непройденное —
-       происхождением. Полоска снизу — доля верных с первого раза. */
-    const мета = bb===null
-      ? (y.lesson ? 'урок автора' : 'из материалов')
-      : 'лучшее: ' + bb + ' из 10';
-    const b=el(`<button class="tile${bb!==null?' tile--est':''}" type="button">
+    /* Только название. Подписи «урок автора» / «из материалов» / «лучшее:
+       6 из 10» убраны: выбирают ясну по имени, а происхождение строки и
+       прошлый счёт к этому выбору отношения не имеют. Освоенное отмечено
+       без слов — золотым знаком и тонкой полоской доли верных. */
+    const b=el(`<button class="tile${bb!==null?' tile--est':''}" type="button"
+      ${bb!==null?`title="лучшее: ${bb} из 10"`:''}>
       <span class="tile-znak">${znak(y.id)}</span>
-      <span class="tile-txt"><b>${esc(y.n)}</b><i>${мета}</i></span>
+      <span class="tile-txt"><b>${esc(y.n)}</b></span>
       ${bb!==null?`<span class="tile-put" aria-hidden="true"><i style="width:${bb*10}%"></i></span>`:''}
     </button>`);
     b.onclick=()=>pickYasna(y,false);
     g.appendChild(b);
   });
   app().appendChild(g);
-  app().appendChild(el(`<div class="note">В списке только те явления, у которых все двенадцать
-    элементов различимы: если элемент повторяется, его не поставить на одно определённое место — такие строки в игру не идут.</div>`));
 }
 
 function pickYasna(y,isRandom){
@@ -342,9 +351,10 @@ function pickYasna(y,isRandom){
 function history_(){
   try{ window.scrollTo(0,0) }catch(_){}
   S.scr='history'; app().innerHTML=''; app().classList.remove('duo-col');
+  шапка('История'); прятатьИсторию();
   const d=load();
-  app().appendChild(el(`<div><h2>История</h2>
-    <div class="sub">Партии хранятся на этом устройстве и никуда не отправляются.</div></div>`));
+  app().appendChild(el(`<div class="sub" style="margin-top:2px">Партии хранятся на этом
+    устройстве и никуда не отправляются.</div>`));
   if(!d.games.length){
     app().appendChild(el(`<div class="say"><div class="hd">Пока пусто</div>
       <div class="bd">Разложи первый круг — партия появится здесь.</div></div>`));
@@ -360,7 +370,7 @@ function history_(){
     app().appendChild(el(`<div class="say"><div class="hd">Последние партии</div>
       <table class="res">${rows}</table></div>`));
   }
-  const back=el(`<button class="go">← К выбору Ясны</button>`); back.onclick=setup;
+  const back=el(`<button class="go">← К выбору ясны</button>`); back.onclick=setup;
   app().appendChild(back);
   if(d.games.length){
     const clr=el(`<button class="gh">Очистить историю</button>`);
@@ -374,9 +384,9 @@ function history_(){
 function mode(){
   try{ window.scrollTo(0,0) }catch(_){}
   S.scr='mode'; app().innerHTML=''; app().classList.remove('duo-col');
-  app().appendChild(el(`<div><h2>Ясна ${esc(S.yasna.n)}</h2>
-    <div class="sub">${S.random?'Выпала случайно. ':''}Двенадцать элементов, шесть осей.
-    Как играем?</div></div>`));
+  шапка('Ясна ' + S.yasna.n); прятатьИсторию();
+  app().appendChild(el(`<div><h2>Как играем?</h2>
+    <div class="sub">${S.random?'Ясна выпала случайно. ':''}Двенадцать элементов, шесть осей.</div></div>`));
   const opts=[
     ['solo','Одному','сам себе, ~2 минуты'],
     ['duo','Вдвоём на одном телефоне','ходите по очереди, телефон между вами'],
@@ -387,7 +397,7 @@ function mode(){
     b.onclick=()=>{ S.mode=id; id==='link'?share():start() };
     app().appendChild(b);
   });
-  app().appendChild(el(`<button class="gh" onclick="location.reload()">← Другая Ясна</button>`));
+  app().appendChild(el(`<button class="gh" onclick="location.reload()">← Выбрать другую ясну</button>`));
 }
 
 /* ═══════════ ССЫЛКА НА ОДНУ РАЗДАЧУ ═══════════ */
@@ -418,7 +428,7 @@ function share(){
 
 /* ═══════════ ПАРТИЯ ═══════════ */
 function start(){
-  S.scr='play'; S.i=0; S.placed=new Array(12).fill(false);
+  S.scr='play'; шапка('Ясна ' + S.yasna.n); прятатьИсторию(); S.i=0; S.placed=new Array(12).fill(false);
   S.first=new Array(12).fill(null); S.by=new Array(12).fill(null); S.miss={}; S.turn=0;
   S.hits=[0,0]; S.tries=[0,0]; S.els=[0,0]; S.axBy=new Array(6).fill(null);
   S.t0=Date.now(); S.logged=false;
@@ -435,10 +445,12 @@ function start(){
 
 function render(){
   app().innerHTML=''; app().classList.add('duo-col');
-  const top=el(`<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">
-    <div style="font-weight:650">${esc(S.yasna.n)}</div>
-    <div style="font-size:12.5px;color:var(--k-tx3)">${S.mode==='duo'?'вдвоём':S.mode==='link'?'общая раздача':'одному'}</div></div>`);
-  app().appendChild(top);
+  /* Название ясны стоит в шапке экрана, поэтому здесь его больше нет —
+     раньше оно повторялось дважды подряд. Остаётся только режим партии:
+     во «вдвоём» это подсказка, чей сейчас ход. */
+  if(S.mode!=='solo'){
+    app().appendChild(el(`<div class="rezhim">${S.mode==='duo'?'вдвоём на одном телефоне':'общая раздача'}</div>`));
+  }
   buildRing(app(),onTap);
   app().appendChild(el(`<div id="kbot"></div>`));
   /* восстановить уже поставленное (перерисовка круга) */

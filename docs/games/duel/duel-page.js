@@ -256,11 +256,11 @@ function inviteBase(){
         className: 'dp-hero-cta-btn dp-hero-cta-btn--ghost',
         onClick: () => { location.href = 'games/krug/index.html'; },
         type: 'button',
-        'aria-label': 'Открыть Круг'
+        'aria-label': 'Открыть «Разложи по кругу»'
       },
         React.createElement('span', { className: 'dp-hero-cta-icon', 'aria-hidden': 'true' }, '◎'),
         React.createElement('span', { className: 'dp-hero-cta-body' },
-          React.createElement('span', { className: 'dp-hero-cta-title' }, 'Круг'),
+          React.createElement('span', { className: 'dp-hero-cta-title' }, 'Разложи по кругу'),
           React.createElement('span', { className: 'dp-hero-cta-sub' }, 'Поставь элемент на своё место')
         )
       )
@@ -648,7 +648,7 @@ function inviteBase(){
         React.createElement('div', { className: 'dp-game-card dp-game-primary' },
           React.createElement('div', { className: 'dp-game-eyebrow' }, '\u2726  \u0414\u043e\u0441\u0442\u0443\u043f\u043d\u0430 \u00b7 ~2 \u043c\u0438\u043d\u0443\u0442\u044b'),
           React.createElement('div', { className: 'dp-game-title-row' },
-            React.createElement('div', { className: 'dp-game-title' }, 'Круг')
+            React.createElement('div', { className: 'dp-game-title' }, 'Разложи по кругу')
           ),
           /YasnaApp\//.test(navigator.userAgent) && React.createElement(DPKrugPreview, null),
           React.createElement('div', { className: 'dp-game-sub' },
@@ -663,7 +663,7 @@ function inviteBase(){
             React.createElement('button', {
               type: 'button', className: 'dp-cta dp-cta--solo',
               onClick: (e) => { e.stopPropagation(); location.href = 'games/krug/index.html'; },
-              'aria-label': 'Играть в Круг'
+              'aria-label': 'Играть в «Разложи по кругу»'
             },
               React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
                 React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
