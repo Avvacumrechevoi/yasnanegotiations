@@ -35,6 +35,9 @@ public class MainActivity extends BridgeActivity {
        ═══════════════════════════════════════════════════════════════════ */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        // Свой плагин обновления регистрируем ДО super.onCreate: мост
+        // собирает список плагинов при создании и позже его не пересматривает.
+        registerPlugin(UstanovkaObnovleniya.class);
         super.onCreate(savedInstanceState);
 
         // За панелями — цвет фона страниц, а не чёрный: строка состояния

@@ -223,7 +223,7 @@
     <div class="vhod-status" id="obnova-status">Версия приложения: …</div>
     <p class="opis">Приложение само проверяет новые сборки в хранилище и
        предлагает установить поверх — данные и прогресс сохраняются.</p>
-    <button class="knopka knopka--tihaya" id="obnova-knopka" type="button">Проверить сейчас</button>
+    <button class="knopka knopka--tihaya" id="obnova-knopka" type="button">Проверить обновления</button>
     <div class="soobshenie" id="obnova-soobshenie" role="status"></div>
   </section>
 
@@ -394,22 +394,60 @@
       var ф=document.querySelector('.versiya');
       if(ф) ф.textContent='Ясна для Android · '+i.version;
     });
+    /* Состояния проверки говорят вслух. Раньше ответ «свежая» выглядел так
+       же тихо, как отказ по сети, и кнопка казалась мёртвой. */
+    function сказать(текст, плохо){
+      сб.innerHTML='';
+      var д=document.createElement('div');
+      д.textContent=текст;
+      д.style.color = плохо ? 'var(--ploho)' : 'var(--ink-2)';
+      сб.appendChild(д);
+      return д;
+    }
     кн.onclick=function(){
-      кн.disabled=true; сб.textContent='Проверяю…';
+      кн.disabled=true; кн.textContent='Проверяю…';
+      сказать('Смотрю, не вышла ли новая версия…');
       window.yasnaObnova(true).then(function(о){
-        кн.disabled=false;
+        кн.disabled=false; кн.textContent='Проверить обновления';
         if(о.статус==='есть'){
-          сб.innerHTML='';
+          сказать('Вышла версия '+о.имя+(о.изменения?': '+о.изменения:''));
           var b=document.createElement('button');
           b.className='knopka'; b.type='button';
-          b.textContent='Скачать версию '+о.имя;
-          b.onclick=function(){ window.yasnaObnovaSkachat(о.url); };
-          сб.textContent='Вышла версия '+о.имя+(о.изменения?': '+о.изменения:'')+' ';
+          b.style.marginTop='10px';
+          b.textContent='Скачать и установить '+о.имя;
+          b.onclick=function(){
+            b.disabled=true;
+            var ход=document.createElement('div');
+            ход.style.marginTop='8px'; ход.style.color='var(--ink-2)';
+            ход.textContent='Скачиваю…';
+            сб.appendChild(ход);
+            window.yasnaObnovaSkachat(о.url, function(с){
+              ход.textContent=с.текст||'';
+              ход.style.color = с.вид==='ошибка' ? 'var(--ploho)' : 'var(--ink-2)';
+              /* Право спросили или загрузка сорвалась — даём нажать снова. */
+              if(с.вид==='ошибка'||с.вид==='право') b.disabled=false;
+              if(с.вид==='ставлю') b.textContent='Готово — окно установки открыто';
+              /* Ждём сеть — даём человеку выход, а не бесконечное ожидание. */
+              if(с.вид==='ждём' && !ход.querySelector('button')){
+                var о=document.createElement('button');
+                о.type='button'; о.className='knopka knopka--tihaya';
+                о.style.marginTop='8px'; о.textContent='Отменить загрузку';
+                о.onclick=function(){
+                  window.yasnaObnovaOtmenit().then(function(){
+                    ход.textContent='Загрузка отменена.'; b.disabled=false;
+                  });
+                };
+                ход.appendChild(document.createElement('br'));
+                ход.appendChild(о);
+              }
+            });
+          };
           сб.appendChild(b);
         }
-        else if(о.статус==='свежая') сб.textContent='У вас последняя версия.';
-        else if(о.статус==='вне-приложения') сб.textContent='Доступно только в приложении.';
-        else сб.textContent='Не удалось проверить обновления — нет связи. Попробуйте позже. — попробуйте позже.';
+        else if(о.статус==='свежая') сказать('У вас последняя версия — '+(о.имя||'')+'.');
+        else if(о.статус==='вне-приложения') сказать('Проверка обновлений работает только в приложении.');
+        else if(о.статус==='отложено') сказать('Обновление отложено. Нажмите ещё раз, чтобы поставить сейчас.');
+        else сказать('Не удалось проверить обновления: нет связи с хранилищем. Попробуйте позже.', true);
       });
     };
   })();

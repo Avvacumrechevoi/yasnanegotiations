@@ -39,4 +39,9 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Обновление вне магазина: приложение скачивает APK и открывает
+         системное окно установки. Без этого права установщик не открывается
+         вовсе, и «Скачать» выглядит мёртвой кнопкой. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 </manifest>

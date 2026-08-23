@@ -101,10 +101,71 @@
     try { localStorage.setItem(К_ОТЛОЖЕНО, String(код)); } catch (e) {}
   };
 
-  /* «Скачать»: наружный адрес Capacitor открывает в браузере телефона —
-     тот сам качает APK и предлагает установить поверх. */
-  window.yasnaObnovaSkachat = function (url) {
-    window.open(url, '_system') || (location.href = url);
+  /* «Скачать и установить».
+     Раньше здесь стояло window.open(url, '_system') — приём Cordova, которого
+     в Capacitor нет вовсе. WebView отдавал адрес APK системе «кому-нибудь»:
+     на телефонах Samsung его перехватывал Galaxy Store и предлагал скачать
+     чужое приложение. Теперь путь явный и наш целиком: системный загрузчик
+     кладёт файл в папку приложения, мы показываем проценты и открываем
+     штатное окно установки (плагин YasnaUstanovka, android/.../
+     UstanovkaObnovleniya.java).
+
+     ход(состояние) — необязательный обработчик для кнопки:
+       {вид:'право'|'качаю'|'ставлю'|'ошибка', процент, текст} */
+  window.yasnaObnovaSkachat = function (url, ход) {
+    var У = плагины().YasnaUstanovka;
+    var скажи = function (с) { try { ход && ход(с); } catch (e) {} };
+
+    if (!У || !У.skachat) {
+      /* Не приложение или старая сборка без плагина — отдаём адрес системе.
+         Это хуже (человек сам найдёт файл в загрузках), но лучше тишины. */
+      скажи({ вид: 'качаю', текст: 'Открываю загрузку в браузере' });
+      location.href = url;
+      return Promise.resolve();
+    }
+
+    return Promise.resolve(У.mozhetStavit ? У.mozhetStavit() : { mozhet: true })
+      .then(function (р) {
+        if (р && р.mozhet === false) {
+          /* Установка из неизвестных источников выключена. Молча открывать
+             установщик бесполезно — система его просто не покажет. */
+          скажи({ вид: 'право', текст: 'Разрешите установку из этого приложения — откроем настройку' });
+          return У.otkrytNastrojku().then(function () {
+            скажи({ вид: 'право', текст: 'Разрешили? Нажмите «Скачать» ещё раз' });
+          });
+        }
+        скажи({ вид: 'качаю', процент: 0, текст: 'Скачиваю…' });
+        var снятьХод = null, снятьКонец = null;
+        var убрать = function () {
+          try { снятьХод && снятьХод.remove && снятьХод.remove(); } catch (e) {}
+          try { снятьКонец && снятьКонец.remove && снятьКонец.remove(); } catch (e) {}
+        };
+        снятьХод = У.addListener('yasnaObnovaHod', function (д) {
+          if (д && д.zhdyot) {
+            /* Системный загрузчик держит задание в очереди, пока нет годной
+               сети. Молчать об этом нельзя: со стороны это «зависло». */
+            скажи({ вид: 'ждём', текст: 'Жду сеть — загрузка начнётся, как только появится интернет' });
+            return;
+          }
+          var п = д && typeof д.procent === 'number' ? д.procent : null;
+          скажи({ вид: 'качаю', процент: п, текст: п === null ? 'Скачиваю…' : 'Скачиваю ' + п + '%' });
+        });
+        снятьКонец = У.addListener('yasnaObnovaGotovo', function (д) {
+          убрать();
+          if (д && д.oshibka) скажи({ вид: 'ошибка', текст: 'Не удалось скачать. Проверьте связь и попробуйте ещё раз.' });
+          else скажи({ вид: 'ставлю', текст: 'Скачано — подтвердите установку' });
+        });
+        return У.skachat({ url: url }).catch(function (e) {
+          убрать();
+          скажи({ вид: 'ошибка', текст: 'Не удалось начать загрузку: ' + (e && e.message || e) });
+        });
+      });
+  };
+
+  /* Снять начатую загрузку (кнопка «отменить», когда ждём сеть). */
+  window.yasnaObnovaOtmenit = function () {
+    var У = плагины().YasnaUstanovka;
+    return У && У.otmenit ? У.otmenit() : Promise.resolve();
   };
 
   /* Плашка на главной: вставляется в #obnova-mesto, если там она уместна. */
@@ -126,7 +187,16 @@
       /* Всё из удалённого манифеста — только textContent, никакого innerHTML. */
       d.querySelector('.obnova-t').textContent = 'Вышла версия ' + о.имя;
       if (о.изменения) d.querySelector('.obnova-o').textContent = о.изменения;
-      d.querySelector('.obnova-da').onclick = function () { window.yasnaObnovaSkachat(о.url); };
+      d.querySelector('.obnova-da').onclick = function () {
+        var кн = d.querySelector('.obnova-da');
+        кн.disabled = true;
+        /* Плашка тоже рассказывает, что происходит: раньше после нажатия она
+           просто застывала, и было не понять, идёт ли что-нибудь. */
+        window.yasnaObnovaSkachat(о.url, function (с) {
+          кн.textContent = с.текст || 'Скачиваю…';
+          if (с.вид === 'ошибка' || с.вид === 'право' || с.вид === 'ждём') кн.disabled = false;
+        });
+      };
       d.querySelector('.obnova-net').onclick = function () {
         window.yasnaObnovaOtlozhit(о.код); d.remove();
       };
