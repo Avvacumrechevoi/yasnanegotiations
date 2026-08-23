@@ -138,17 +138,33 @@ h2{font-size:19px;margin:0 0 4px;letter-spacing:-.2px}
   0%{filter:drop-shadow(0 0 0 transparent)}
   40%{filter:drop-shadow(0 0 6px var(--k-gold))}
   100%{filter:drop-shadow(0 0 0 transparent)}}
-.nm{position:absolute;font-size:12px;font-weight:600;line-height:1.2;width:84px;
-  pointer-events:none;color:var(--k-tx);overflow-wrap:anywhere;hyphens:auto;
-  opacity:0;transition:opacity .22s ease}
+/* Перенос только по пробелам: с overflow-wrap:anywhere и hyphens:auto имена
+   рвались посреди слова — «Утрен-ний Салют», «Вечер-ний Салют». Одиночное
+   длинное слово («Колокольни») по-прежнему перенесётся, но лишь если само
+   не влезает. text-wrap:balance делит двухсловные имена поровну. */
+.nm{position:absolute;font-size:12px;font-weight:600;line-height:1.18;width:84px;
+  pointer-events:none;color:var(--k-tx);overflow-wrap:break-word;hyphens:manual;
+  text-wrap:balance;opacity:0;transition:opacity .22s ease}
+/* Ширина по месту на круге: сверху и снизу простор вбок есть, по бокам его
+   нет вовсе, а по диагоналям соседние подписи ближе всего друг к другу. */
+.nm--verh{width:112px}
+.nm--bok{width:86px}
+.nm--kosoj{width:96px}
 .nm.on{opacity:1}
 /* выравнивание по стороне круга: подпись «растёт» от кольца наружу */
 .nm-c{transform:translate(-50%,-50%);text-align:center}
-.nm-l{transform:translate(-100%,-50%);text-align:right;padding-right:6px}
-.nm-r{transform:translate(0,-50%);text-align:left;padding-left:6px}
-.mid{position:absolute;transform:translate(-50%,-50%);width:30%;aspect-ratio:1;
+.nm-l{transform:translate(-100%,-50%);text-align:right;padding-right:11px}
+.nm-r{transform:translate(0,-50%);text-align:left;padding-left:11px}
+/* Подложка под текстом центра. Круглая заглушка во всю дырку съедала звезду
+   закрытых осей, а голый текст с ореолом всё равно сливался с хордами —
+   человек так и сказал. Середина: плашка ровно по тексту, полупрозрачная,
+   с мягким краем; хорды видны вокруг неё и просвечивают под ней. */
+.mid{position:absolute;transform:translate(-50%,-50%);max-width:40%;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  border-radius:50%;
+  padding:7px 13px;border-radius:14px;
+  background:color-mix(in srgb,var(--k-bg) 86%,transparent);
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--k-tx) 8%,transparent),
+             0 4px 14px color-mix(in srgb,var(--k-bg) 60%,transparent);
   text-align:center;pointer-events:none;color:var(--k-tx3);font-size:12.5px;line-height:1.3}
 .mid b{display:block;color:var(--k-tx);font-size:16px;line-height:1.22;margin-bottom:3px;
   font-weight:650}
@@ -224,6 +240,18 @@ h2{font-size:19px;margin:0 0 4px;letter-spacing:-.2px}
 
 button.go,button.gh{display:block;width:100%;margin-top:10px;border-radius:13px;padding:13px;
   font:inherit;font-size:15.5px;font-weight:650;cursor:pointer;border:0}
+
+/* КНОПКА ХОДА ВСЕГДА НА ВИДУ.
+   Разбор бывает длинным («Не сюда» плюс подсказка), и на телефоне кнопка
+   уезжала под наббар: человек видел половину синей полосы и не понимал, что
+   она нажимается. Прокрутка при этом нужна — текст читают целиком. Поэтому
+   кнопка липнет к низу видимой части, пока её панель на экране, а не просто
+   стоит последней в потоке. В приложении отступ снизу считается от высоты
+   сквозного наббара (app/navigatsiya.js), на сайте — от края экрана. */
+main.duo-col #kbot button.go{position:sticky;bottom:10px;z-index:6;
+  box-shadow:0 6px 20px color-mix(in srgb,var(--k-bg) 75%,transparent)}
+html.yk-est main.duo-col #kbot button.go{
+  bottom:calc(78px + var(--yk-snizu, env(safe-area-inset-bottom,0px)))}
 button.go{background-color:var(--k-acc);color:var(--k-acct)}
 button.go:hover{filter:brightness(1.07)}
 button.gh{background-color:transparent;color:var(--k-tx2);border:1.5px solid var(--k-line-strong);font-weight:500}
