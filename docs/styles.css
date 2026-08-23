@@ -488,7 +488,10 @@ input{font-family:var(--sans)}
     max-height:none;
     --sht-dok:0px;
     border-left:none;
-    border-top:1px solid var(--border);
+    /* Кромка листа отдельным токеном: --border (#d2d2d7 / полупрозрачный)
+       давал 1.5:1 в свете и 1.3:1 в тьме — границы слоя не было видно ни там,
+       ни там, и человек не понимал, где кончается карточка. */
+    border-top:1px solid var(--sht-kayma);
     border-radius:20px 20px 0 0;
     box-shadow:0 -10px 34px rgba(0,0,0,.20);
     background:var(--bg);
@@ -501,6 +504,11 @@ input{font-family:var(--sans)}
     contain:layout paint;
   }
   .side-panel.sht--snap{transition:transform var(--sht-dur,320ms) cubic-bezier(.32,.72,0,1)}
+  /* В тёмной теме карточка (#151515) на почти таком же фоне (#111417) не
+     читалась как отдельный слой: 1.01:1. Светлая кромка сверху и заметное
+     затемнение возвращают границу. */
+  body.theme-vk-dark .side-panel{box-shadow:0 -1px 0 rgba(255,255,255,.16),0 -12px 34px rgba(0,0,0,.6)}
+  body.theme-vk-dark .sht-fon{background:rgba(0,0,0,.62)}
   .side-panel.sht--nad-dokom{z-index:130}
   .sht-fon{
     position:fixed;inset:0;background:rgba(0,0,0,.36);
@@ -1020,6 +1028,11 @@ html.yk-est body:has(aside.side-panel) .raz-dok{display:none}
    Цвета только токенами: карточка живёт в обеих темах.
    ═══════════════════════════════════════════════════════════════════ */
 
+:root{--na-akcente:#ffffff;--sht-kayma:#b6b6bc}
+/* В тёмной теме акцент светлее (#16A7FF), и белая надпись на нём давала
+   2.6:1 — ниже порога. На светлом акценте текст должен быть тёмным. */
+body.theme-vk-dark{--na-akcente:#06131d;--sht-kayma:rgba(255,255,255,.22)}
+
 .sht-korpus{position:relative;display:flex;flex-direction:column;height:100%;background:var(--bg);
   color:var(--txt);font-family:var(--sans);min-height:0}
 
@@ -1040,12 +1053,15 @@ html.yk-est body:has(aside.side-panel) .raz-dok{display:none}
   touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 .sht-ryad{display:flex;align-items:center;gap:12px;padding-right:52px}
 .sht-nomer{width:38px;height:38px;flex:0 0 auto;border-radius:50%;border:2px solid;
-  display:flex;align-items:center;justify-content:center;font:700 16px/1 var(--sans)}
+  display:flex;align-items:center;justify-content:center;font:700 16px/1 var(--sans);
+  color:var(--txt)}
 .sht-imena{min-width:0;flex:1}
-.sht-yasna{font:600 12px/1.2 var(--sans);color:var(--txt3);letter-spacing:.02em;
+.sht-yasna{font:600 12px/1.2 var(--sans);color:var(--txt2);letter-spacing:.02em;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sht-imya{margin:2px 0 0;font:700 20px/1.25 var(--sans);color:var(--txt);
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Имя места — до двух строк: многоточие резало 47 подписей из 528 на 360px,
+   включая «Утренняя Заря / Рассвет» в самой Ясне Суток. */
+.sht-imya{margin:2px 0 0;font:700 20px/1.22 var(--sans);color:var(--txt);
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .sht-pusto{color:var(--txt3);font-weight:500}
 .sht-pasport{margin-top:3px;font:500 12px/1.35 var(--sans);color:var(--txt2)}
 .sht-zakryt{position:absolute;top:0;right:8px;width:44px;height:44px;border-radius:50%;
@@ -1060,12 +1076,14 @@ html.yk-est body:has(aside.side-panel) .raz-dok{display:none}
   scrollbar-width:thin;scrollbar-color:var(--border) transparent}
 .side-panel[data-upor="мини"] .sht-telo{overflow:hidden}
 /* На мини и среднем нижнюю полосу занимает наббар: гасим под ним текст,
-   иначе фраза обрывается на полуслове ровно под кнопками навигации. */
+   иначе фраза обрывается на полуслове ровно под кнопками навигации.
+   Затухание короткое (14px) и вплотную к наббару: длинное съедало полосу
+   живого содержимого — на узком экране в него попадала главная кнопка. */
 @media(max-width:1023px){
   .side-panel[data-upor="мини"] .sht-telo,
   .side-panel[data-upor="средне"] .sht-telo{
-    -webkit-mask-image:linear-gradient(180deg,#000 calc(100% - var(--sht-dok,0px) - 30px),rgba(0,0,0,0) calc(100% - var(--sht-dok,0px)));
-    mask-image:linear-gradient(180deg,#000 calc(100% - var(--sht-dok,0px) - 30px),rgba(0,0,0,0) calc(100% - var(--sht-dok,0px)));
+    -webkit-mask-image:linear-gradient(180deg,#000 calc(100% - var(--sht-dok,0px) - 14px),rgba(0,0,0,0) calc(100% - var(--sht-dok,0px)));
+    mask-image:linear-gradient(180deg,#000 calc(100% - var(--sht-dok,0px) - 14px),rgba(0,0,0,0) calc(100% - var(--sht-dok,0px)));
   }
 }
 .dos-hvost{height:calc(var(--sht-dok,0px) + 20px)}
@@ -1073,18 +1091,19 @@ html.yk-est body:has(aside.side-panel) .raz-dok{display:none}
    Вне потока — иначе она сама сдвигала бы шапку карточки вниз на эти 70px. */
 .sht-mera{position:absolute;top:0;left:0;display:block;width:0;height:var(--sht-dok,0px);
   visibility:hidden;pointer-events:none}
+.sht-mini-kraj{display:block;width:0;height:0}
 
 /* ─── Содержимое ─── */
 .dos-sut{margin:0 0 12px;font:500 15px/1.45 var(--sans);color:var(--txt)}
 .dos-blok{margin:0 0 18px;padding:0}
 .dos-blok p{margin:0 0 8px;font:400 14px/1.55 var(--sans);color:var(--txt2)}
 .dos-kleymo{font:700 12px/1.2 var(--sans);letter-spacing:.07em;text-transform:uppercase;
-  color:var(--txt3);margin:0 0 7px}
+  color:var(--txt2);margin:0 0 7px}
 
 .dos-knopka{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
   min-height:46px;padding:11px 14px;border-radius:12px;
   font:600 14px/1.3 var(--sans);text-align:center}
-.dos-knopka--glavnaya{background:var(--accent);color:#fff;border:0;margin-bottom:14px}
+.dos-knopka--glavnaya{background:var(--accent);color:var(--na-akcente);border:0;margin-bottom:14px}
 .dos-knopka--glavnaya:active{filter:brightness(.93)}
 .dos-knopka--tihaya{background:var(--bg2);color:var(--txt);border:1px solid var(--border);margin-bottom:18px}
 .dos-razbor .dos-knopka--tihaya{margin-bottom:2px}
@@ -1093,19 +1112,22 @@ html.yk-est body:has(aside.side-panel) .raz-dok{display:none}
 .dos-knopka--niz{margin:4px 0 10px}
 
 .dos-risunok{margin:0 0 18px;padding:0}
-.dos-scena{display:block;width:100%;height:132px;border-radius:14px;background:var(--bg2)}
+/* Пропорция задаётся коробкой, а не обрезкой: с slice подписи «восток» и
+   «запад» срезались по краям, а на планшете уезжали за нижний край вовсе. */
+.dos-scena{display:block;width:100%;height:auto;aspect-ratio:360/132;
+  border-radius:14px;background:var(--bg2)}
 .dos-krug{display:block;width:132px;height:132px;margin:0 auto}
-.dos-risunok figcaption{margin-top:7px;font:400 12px/1.4 var(--sans);color:var(--txt3)}
+.dos-risunok figcaption{margin-top:7px;font:400 12px/1.4 var(--sans);color:var(--txt2)}
 
 .dos-citata{margin:0 0 10px;padding:0 0 0 12px;border-left:3px solid var(--border)}
 .dos-citata p{margin:0;font:400 14px/1.55 var(--serif);color:var(--txt)}
 .dos-citata p::before{content:'«'}
 .dos-citata p::after{content:'»'}
 .dos-citata cite{display:block;margin-top:4px;font:500 12px/1.35 var(--sans);
-  color:var(--txt3);font-style:normal}
+  color:var(--txt2);font-style:normal}
 .dos-citata--urok{border-left-color:var(--accent)}
 .dos-citata--urok p{font-family:var(--sans)}
-.dos-asr{color:var(--txt3)}
+.dos-asr{color:var(--txt2)}
 
 .dos-meh{margin:0 0 8px;padding:8px 0 8px 11px;border-left:3px solid var(--border)}
 .dos-meh-t{font:600 13px/1.3 var(--sans);margin-bottom:4px}
@@ -1118,26 +1140,26 @@ html.yk-est body:has(aside.side-panel) .raz-dok{display:none}
   font:700 12px/1.3 var(--sans)}
 .dos-shag-imya{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dos-shag-rol{color:var(--txt3);font-size:12px}
-.dos-tihoe{margin:6px 0 0;font:400 12px/1.45 var(--sans);color:var(--txt3)}
+.dos-tihoe{margin:6px 0 0;font:400 12px/1.45 var(--sans);color:var(--txt2)}
 
 .dos-vopros-t{margin:0 0 10px;font:600 15px/1.4 var(--sans);color:var(--txt)}
 .dos-otvety{display:flex;flex-direction:column;gap:8px}
 .dos-otvet{min-height:46px;padding:11px 13px;border-radius:12px;text-align:left;
-  border:1px solid var(--border);background:var(--bg);color:var(--txt);
+  border:1px solid var(--sht-kayma);background:var(--bg);color:var(--txt);
   font:500 14px/1.4 var(--sans)}
 .dos-otvet--verno{border-color:#30a060;background:rgba(48,160,96,.10);color:var(--txt)}
 .dos-otvet--mimo{border-color:#e8364f;background:rgba(232,54,79,.08)}
 .dos-razbor{margin-top:10px}
 .dos-razbor p{margin:0 0 6px;font:400 14px/1.55 var(--sans);color:var(--txt2)}
 .dos-razbor cite{display:block;margin-bottom:10px;font:500 12px/1.35 var(--sans);
-  color:var(--txt3);font-style:normal}
+  color:var(--txt2);font-style:normal}
 
 .dos-chipy{display:flex;flex-wrap:wrap;gap:8px}
 .dos-chip{display:flex;flex-direction:column;align-items:flex-start;gap:2px;
   min-height:46px;padding:7px 12px;border-radius:12px;
-  border:1px solid var(--border);background:var(--bg2);text-align:left}
+  border:1px solid var(--sht-kayma);background:var(--bg2);text-align:left}
 .dos-chip:active{background:var(--bg3)}
-.dos-chip-y{font:500 12px/1.2 var(--sans);color:var(--txt3)}
+.dos-chip-y{font:500 12px/1.2 var(--sans);color:var(--txt2)}
 .dos-chip-p{font:600 14px/1.25 var(--sans);color:var(--txt)}
 .dos-chip--nazad{justify-content:center;font:600 14px/1.25 var(--sans);color:var(--accent);
   background:transparent;border-style:dashed}

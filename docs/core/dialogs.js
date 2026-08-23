@@ -29,7 +29,20 @@ function OverlayLegend({y,overlay,onClear}){
     </div>);
 }
 
-function Editor({y,setY,onClose}){
+function Editor({y,setY,onClose,мест}){
+  /* «Заполнить место N» из карточки открывало редактор на первом поле, и
+     человек искал нужную строку глазами. Ставим на неё фокус и подводим
+     панель к ней. */
+  const полеРеф=React.useRef(null);
+  React.useEffect(()=>{
+    if(мест==null) return;
+    const t=setTimeout(()=>{
+      const э=полеРеф.current;
+      if(!э) return;
+      try{ э.scrollIntoView({block:'center'}); э.focus({preventScroll:true}); }catch(_){ }
+    },60);
+    return()=>clearTimeout(t);
+  },[мест]);
   return(
     <div className='editor-panel' style={{position:'fixed',top:0,right:0,width:370,height:'100vh',background:'var(--vk-bg-surface,rgba(255,255,255,.98))',borderLeft:'1px solid var(--vk-border,rgba(0,0,0,.08))',zIndex:50,display:'flex',flexDirection:'column'}}>
       <div style={{padding:'14px 18px',borderBottom:'1px solid var(--border)',display:'flex',justifyContent:'space-between',alignItems:'center',flexShrink:0}}>
@@ -56,8 +69,8 @@ function Editor({y,setY,onClose}){
         {y.p.map((l,i)=>{const c=CR[gc(i)].c;return(
           <div key={i} style={{display:'flex',alignItems:'center',gap:7,marginBottom:5}}>
             <div style={{width:26,height:26,borderRadius:'50%',border:`2px solid ${c}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:c,flexShrink:0}}>{i}</div>
-            <input value={l} onChange={e=>{const np=[...y.p];np[i]=e.target.value;setY({...y,p:np});}} placeholder={(REF[i]||{}).f||''}
-              style={{flex:1,background:'var(--bg)',border:'1px solid var(--border)',color:'var(--vk-text-primary,#1d1d1f)',padding:'7px 10px',borderRadius:5,fontSize:12,outline:'none'}}
+            <input ref={i===мест?полеРеф:null} value={l} onChange={e=>{const np=[...y.p];np[i]=e.target.value;setY({...y,p:np});}} placeholder={(REF[i]||{}).f||''}
+              style={{flex:1,background:'var(--bg)',border:i===мест?`1px solid ${c}`:'1px solid var(--border)',boxShadow:i===мест?`0 0 0 3px ${c}22`:'none',color:'var(--vk-text-primary,#1d1d1f)',padding:'7px 10px',borderRadius:5,fontSize:12,outline:'none'}}
               onFocus={e=>e.target.style.borderColor=c} onBlur={e=>e.target.style.borderColor='var(--border)'}/>
           </div>);})}
       </div>

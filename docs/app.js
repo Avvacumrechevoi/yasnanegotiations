@@ -983,11 +983,18 @@ function App(){
     const открыта=ed||glossary||instr||verif||fullStar||picker||showOverlayPicker||lessonPicker||activeLesson||showTour;
     if(открыта){
       setMenu(false);
-      setSel(с=>{ if(с!==null) местоДоМодалки.current=с; return null; });
+      setSel(с=>{
+        if(с!==null){
+          const т=document.querySelector('aside.side-panel .sht-telo');
+          местоДоМодалки.current={i:с,упор:window.__yasnaУпор||'мини',скролл:т?т.scrollTop:0};
+        }
+        return null;
+      });
     } else if(местоДоМодалки.current!==null){
       const было=местоДоМодалки.current;
       местоДоМодалки.current=null;
-      setSel(было);
+      window.__yasnaВозврат={упор:было.упор,скролл:было.скролл};
+      setSel(было.i);
     }
   },[ed,glossary,instr,verif,fullStar,picker,showOverlayPicker,lessonPicker,activeLesson,showTour]);
   // flush несохранённого ввода ПЕРЕД заменой y — быстрые переключения не теряют работу
@@ -998,13 +1005,17 @@ function App(){
     const прежняя=y&&y.name?{n:y.name,p:[...y.p],th:y.th,bh:y.bh,lh:y.lh,rh:y.rh,user:!!y.user,id:y.id,custom:!!y.custom}:null;
     upsertCustom(y);
     setY({id:t.user?t.id:undefined,user:!!t.user,name:t.n||t.name,p:[...t.p],th:t.th||'',bh:t.bh||'',lh:t.lh||'',rh:t.rh||'',custom:!!t.custom});
-    setAf([]);setYasna2Drill(null);
+    /* Механики НЕ снимаем: чип нужен, чтобы сравнить одно место в двух яснах,
+       а сравнивают его под той же линзой, которую человек включил. */
+    setYasna2Drill(null);
     setОткуда(прежняя&&прежняя.n!==(t.n||t.name)?прежняя:null);
   };
   const createNew=()=>{upsertCustom(y);setY({id:genId(),user:true,name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);};
   // Редактировать текущую: своя — открываем как есть; встроенный шаблон —
   // copy-on-write (копия «(моя)»), оригинал из data.js не трогаем.
-  const editCurrent=()=>{
+  const[правитьМесто,setПравитьМесто]=useState(null);
+  const editCurrent=(место)=>{
+    setПравитьМесто(typeof место==='number'?место:null);
     if(y.user&&y.id){setEd(true);return;}
     setY({...y,p:[...y.p],id:genId(),user:true,custom:true,name:y.name+' (моя)'});
     setEd(true);
@@ -1451,7 +1462,7 @@ function App(){
         </div>
         <button className='fullstar-close' onClick={()=>setFullStar(false)}>✕</button>
       </>}
-      {ed&&<Editor y={y} setY={setY} onClose={()=>setEd(false)}/>}
+      {ed&&<Editor y={y} setY={setY} мест={правитьМесто} onClose={()=>{setEd(false);setПравитьМесто(null);}}/>}
       {showOverlayPicker&&<OverlayPicker currentName={y.name} overlay={overlay} onSelect={setOverlay} onClose={()=>setShowOverlayPicker(false)}/>}
       {verif&&<Verification y={y} vs={vState} setVs={setVState} onClose={()=>{setVerif(false);снятьЯкорь();}}/>}
       {instr&&<Instruction onClose={()=>{setInstr(false);снятьЯкорь();}}/>}

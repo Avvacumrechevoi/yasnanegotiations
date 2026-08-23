@@ -66,7 +66,7 @@ function СценаСуток({i}){
   const с=СЦЕНЫ[i]||СЦЕНЫ[0];
   const gid='sky'+i;
   return (
-    <svg className="dos-scena" viewBox="0 0 360 132" preserveAspectRatio="xMidYMid slice" role="img"
+    <svg className="dos-scena" viewBox="0 0 360 132" preserveAspectRatio="none" role="img"
          aria-label={'Схема неба для места '+i}>
       <defs>
         <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
@@ -117,7 +117,14 @@ function МиниКруг({i,p,cr,pr}){
 function собратьВопрос(n,i,p,cr,pr,суточная){
   const label=p[i]||('место '+i);
   const oppLabel=p[opp(i)]||'';
-  const свободные=p.map((т,j)=>({т,j})).filter(x=>x.т&&x.j!==i&&x.j!==opp(i)).map(x=>x.т);
+  /* Ложные варианты берём с РАЗНЫХ сторон круга, а не первые попавшиеся:
+     раньше .slice(0,2) всегда давал места 0 и 1, и вопрос запоминался
+     не смыслом, а видом. */
+  const свободные=[2,4,8,10,3,9,5,7,1,11]
+    .map(ш=>(i+ш)%12)
+    .filter(j=>j!==i&&j!==opp(i)&&p[j])
+    .map(j=>p[j])
+    .filter((т,k,м)=>м.indexOf(т)===k);
   const варианты=(верный,прочие)=>{
     const все=[верный].concat(прочие.slice(0,2));
     /* Перемешивание, зависящее только от i — ответ не «прыгает» при перерисовке */
@@ -127,8 +134,8 @@ function собратьВопрос(n,i,p,cr,pr,суточная){
     return {
       в:'Что стоит напротив места «'+label+'»?',
       о:варианты(oppLabel,свободные),
-      р:'Напротив всегда стоит место, отличающееся на шесть: '+i+' и '+opp(i)+'. '+(OPP_DESC[i<6?i:i-6]||''),
-      и:суточная?'Ясна Суток, с. 31':null
+      р:'Полное противостояние идёт через центр круга: место отличается на шесть — '+i+' и '+opp(i)+'. '+(OPP_DESC[i<6?i:i-6]||''),
+      и:суточная?'Ясна Суток, с. 28':null
     };
   }
   if(n===1){
@@ -141,19 +148,27 @@ function собратьВопрос(n,i,p,cr,pr,суточная){
       и:суточная?'Ясна Суток, с. 50':null
     };
   }
-  const прочие=['ШЕ','ФО','ЦИ','ХА'].filter(k=>k!==pr.n.split(' ')[1]);
+  /* Ложные варианты берём по КЛЮЧУ праны, а не по подписи: подписи в разных
+     местах кода писались то «ШЭ», то «ШЕ», и правильный ответ попадал в список
+     ложных вторым экземпляром — на местах 0, 4 и 8 человек видел «Земля ШЭ» и
+     «Земля ШЕ» одновременно. */
+  const свой=gp(i);
+  const прочие=['she','fo','tsi','ha'].filter(k=>k!==свой).slice(0,2).map(k=>({т:PR[k].n,верно:false}));
   return {
     в:'Какая стихия у места «'+label+'»?',
-    о:[{т:pr.n,верно:true}].concat(['Земля ШЕ','Вода ФО','Воздух ЦИ','Огонь ХА'].filter(т=>т!==pr.n).slice(0,2).map(т=>({т,верно:false})))
+    о:[{т:pr.n,верно:true}].concat(прочие)
         .sort((a,b)=>((i*5+a.т.length)%4)-((i*5+b.т.length)%4)),
-    р:PRANA_CTX[gp(i)],
-    и:суточная?'Ясна Суток, с. 84':null
+    р:PRANA_CTX[свой],
+    /* Страницу не ставим: этот разбор сшит из трёх разных мест книги
+       (с. 64–65 — звук, с. 68 — свойство, с. 84 — треугольник). */
+    и:null
   };
 }
 
 function Самопроверка({i,p,cr,pr,суточная}){
   const[открыт,setОткрыт]=useState(false);
   const[n,setN]=useState(i%3);
+  useEffect(()=>{setN(i%3);},[i]);
   const[ответ,setОтвет]=useState(null);
   const в=useMemo(()=>собратьВопрос(n,i,p,cr,pr,суточная),[n,i,p,cr,pr,суточная]);
   useEffect(()=>{setОтвет(null);},[i,n]);
@@ -205,7 +220,8 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose,onSel,onLesson,onTour,
       if(PR[fid].p.includes(i)) mechItems.push({c:PR[fid].c,title:PR[fid].n,text:PRANA_CTX[fid]});
       else mechItems.push({c:'var(--txt3)',title:PR[fid].n,text:'Это место в треугольник не входит — в нём стоят '+PR[fid].p.join(', ')+'.',dim:true});
     }
-    if(fid==='opp') mechItems.push({c:'#ff9500',title:'Напротив',text:OPP_DESC[oppPairIdx]+(oppLabel?' «'+label+'» ↔ «'+oppLabel+'»':'')});
+    /* Механику «противоположности» в список не кладём: постоянный блок
+       «Напротив» и так стоит ниже, и текст выходил дважды на одном экране. */
     if(fid==='rhythm'){
       const triples=[[2,3,4],[5,6,7],[8,9,10],[11,0,1]];
       const tri=triples.find(t=>t.includes(i));
@@ -263,21 +279,38 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose,onSel,onLesson,onTour,
   useEffect(()=>{
     if(!корень.current||!window.YasnaShtorka)return;
     const узел=корень.current.closest('aside.side-panel')||корень.current;
+    /* Возврат из урока: человек ушёл с раскрытой карточки и с середины
+       текста — возвращаем и ступень, и прокрутку. Метку кладёт app.js
+       ровно на один разворот и мы её тут же съедаем. */
+    const возврат=window.__yasnaВозврат; window.__yasnaВозврат=null;
     шт.current=window.YasnaShtorka.создать(узел,{
-      старт:'мини',
+      старт:(возврат&&возврат.упор)||'мини',
+      наУпор:(имя)=>{ if(имя!=='закрыто') window.__yasnaУпор=имя; },
       наЗакрытие:()=>{ if(onClose) onClose(); },
       наСоседа:(шаг)=>{ if(соседПоЖесту.current) соседПоЖесту.current(шаг); }
     });
+    if(возврат&&возврат.скролл){
+      setTimeout(()=>{
+        const т=корень.current&&корень.current.querySelector('.sht-telo');
+        if(т) т.scrollTop=возврат.скролл;
+      },40);
+    }
     return()=>{ if(шт.current){шт.current.снять();шт.current=null;} };
   },[]);
 
   const закрыть=()=>{ if(шт.current) шт.current.закрыть(); else if(onClose) onClose(); };
 
   /* Сменилось место или ясна — читаем сначала: содержимое другое, а
-     прокрутка иначе осталась бы посреди чужого текста. */
+     прокрутка иначе осталась бы посреди чужого текста. Если карточка в этот
+     миг уезжала вниз (человек закрыл её и тут же ткнул в другое место круга),
+     возвращаем её на мини: иначе он выбрал место, а карточки не видно. */
   useEffect(()=>{
     const т=корень.current&&корень.current.querySelector('.sht-telo');
     if(т) т.scrollTop=0;
+    if(шт.current&&шт.current.упор()==='закрыто') шт.current.кУпору('мини');
+    /* Паспорт места на узком экране бывает в две строки: без пересчёта низ
+       карточки гулял на 16px, и последняя строка уезжала под маску. */
+    else if(шт.current) шт.current.пересчитать();
   },[i,y.name]);
 
   /* ── Первичное действие: первое подходящее, дальше не идём ────── */
@@ -293,19 +326,24 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose,onSel,onLesson,onTour,
   const естьТур=!!(window.YasnaTours&&window.YasnaTours.has&&window.YasnaTours.has(y.name));
 
   let действие=null;
-  if(урок&&onLesson) действие={т:'Урок · '+урок.t,на:()=>onLesson(урок.id)};
+  if(isEmpty&&onEdit) действие={т:'Заполнить место '+i,на:()=>onEdit(i)};
+  else if(урок&&onLesson) действие={т:'Урок · '+урок.t,на:()=>onLesson(урок.id)};
   else if(естьТур&&onTour) действие={т:'Пройти ясну по кругу',на:()=>onTour()};
-  else if(isEmpty&&onEdit) действие={т:'Заполнить место '+i,на:onEdit};
 
   /* ── То же место в других яснах ───────────────────────────────── */
   const другие=useMemo(()=>{
     const своё=(y.name||'').replace(/\s*\(моя\)\s*$/,'').trim();
-    return (T||[]).filter(t=>t.rubrik&&t.p&&t.p[i]&&t.n!==своё);
-  },[i,y.name]);
+    const назад=откуда&&откуда.n;
+    return (T||[]).filter(t=>t.rubrik&&t.p&&t.p[i]&&t.n!==своё&&t.n!==назад);
+  },[i,y.name,откуда]);
 
   const паспорт=[isLong?'долгое':'короткое',pr.n,(ref.f||'').toLowerCase()].filter(Boolean).join(' · ');
-  const суть=дос?дос.sut:(POS_DESC[i]||'').split('. ')[0]+'.';
-  const почему=дос?дос.pochemu:POS_DESC[i];
+  /* Для ясн без досье суть — первая фраза описания, а «почему здесь» —
+     всё остальное: иначе одна и та же строка повторялась через полэкрана. */
+  const описание=POS_DESC[i]||'';
+  const точка=описание.indexOf('. ');
+  const суть=дос?дос.sut:(точка>0?описание.slice(0,точка+1):описание);
+  const почему=дос?дос.pochemu:(точка>0?описание.slice(точка+2):описание);
 
   return(
     <div className="sht-korpus" ref={корень}>
@@ -317,7 +355,9 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose,onSel,onLesson,onTour,
       <header className="sht-shapka" data-tyaga>
         <button type="button" className="sht-zakryt" onClick={закрыть} aria-label="Закрыть карточку" title="Закрыть">×</button>
         <div className="sht-ryad">
-          <div className="sht-nomer" style={{borderColor:cr.c,color:cr.c}}>{i}</div>
+          {/* Обводка цветом креста, цифра — обычным текстом: цветом креста
+              она давала 2.1–4.1:1 на белом, а это самый заметный знак шапки. */}
+          <div className="sht-nomer" style={{borderColor:cr.c}}>{i}</div>
           <div className="sht-imena">
             <div className="sht-yasna">{y.name||''}</div>
             <h2 className="sht-imya">{label||<span className="sht-pusto">Место не заполнено</span>}</h2>
@@ -330,6 +370,15 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose,onSel,onLesson,onTour,
         <p className="dos-sut">{суть}</p>
 
         {действие&&<button type="button" className="dos-knopka dos-knopka--glavnaya" onClick={действие.на}>{действие.т}</button>}
+        {/* Метка нижнего края мини-упора: по ней шторка меряет, какой высоты
+            хватит, чтобы поместились суть и одно действие. Раньше упор считался
+            долей экрана, и на 360×800 кнопка уходила под наббар. */}
+        <i className="sht-mini-kraj" aria-hidden="true"/>
+
+        <section className="dos-blok">
+          <Клеймо>Почему здесь</Клеймо>
+          <p>{почему}</p>
+        </section>
 
         <figure className="dos-risunok">
           {суточная?<СценаСуток i={i}/>:<МиниКруг i={i} p={p} cr={cr} pr={pr}/>}
@@ -337,11 +386,6 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose,onSel,onLesson,onTour,
             ?'Небо в это время. Восток слева, запад справа — как на чертеже книги.'
             :'Место '+i+' на круге: пунктир — то, что напротив, треугольник — своя стихия.'}</figcaption>
         </figure>
-
-        <section className="dos-blok">
-          <Клеймо>Почему здесь</Клеймо>
-          <p>{почему}</p>
-        </section>
 
         {activeMech.length>0&&<section className="dos-blok">
           <Клеймо>Включённые механики</Клеймо>
@@ -362,7 +406,9 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose,onSel,onLesson,onTour,
 
         {дос&&дос.kn&&дос.kn!==label&&<section className="dos-blok">
           <Клеймо>Как называется</Клеймо>
-          <p>В приложении это место подписано «{label}». В книге у него имя «{дос.kn}».</p>
+          <p>{label
+            ?<>В приложении это место подписано «{label}». В книге у него имя «{дос.kn}».</>
+            :<>Место не заполнено. В книге здесь стоит «{дос.kn}».</>}</p>
           <Цитата t={window.YasnaDosye.именаКниги.t} s={window.YasnaDosye.именаКниги.s}/>
         </section>}
 
@@ -392,7 +438,10 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose,onSel,onLesson,onTour,
         {другие.length>0&&<section className="dos-blok">
           <Клеймо>То же место в других яснах</Клеймо>
           <div className="dos-chipy">
-            {откуда&&onYasna&&<button type="button" className="dos-chip dos-chip--nazad" onClick={()=>onYasna(откуда)}>← {откуда.n}</button>}
+            {откуда&&onYasna&&<button type="button" className="dos-chip dos-chip--nazad" onClick={()=>onYasna(откуда)}>
+              <span className="dos-chip-y">← вернуться</span>
+              <span className="dos-chip-p">{откуда.n} · {(откуда.p&&откуда.p[i])||''}</span>
+            </button>}
             {другие.map(t=><button key={t.id||t.n} type="button" className="dos-chip" onClick={()=>onYasna&&onYasna(t)}>
               <span className="dos-chip-y">{t.n}</span>
               <span className="dos-chip-p">{t.p[i]}</span>
