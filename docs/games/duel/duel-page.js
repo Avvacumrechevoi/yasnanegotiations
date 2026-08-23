@@ -1190,13 +1190,19 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
           } else if(e.message === 'closed'){
             setError('Комната закрыта.');
           } else {
-            setError('Ошибка ожидания: ' + e.message);
+            /* Раньше сюда попадал сырой текст Firebase («PERMISSION_DENIED:
+               Permission denied») — человеку он ничего не говорит. */
+            console.warn('[комната] ожидание:', e);
+            setError('Что-то пошло не так, пока мы ждали второго игрока. Попробуйте создать комнату заново.');
           }
           setMode('error');
         }
       } catch(e){
         console.error('[lobby/create] exception', e);
-        setError('Ошибка создания комнаты: ' + e.message);
+        console.warn('[комната] создание:', e);
+        setError(/permission/i.test(String(e && e.message))
+          ? 'Не удалось открыть комнату — сервер игры отказал. Попробуйте ещё раз через минуту.'
+          : 'Не удалось создать комнату. Проверьте связь и попробуйте ещё раз.');
         setMode('error');
       }
     }
@@ -1256,7 +1262,10 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
         } else if(e.message === 'invalid_code_format'){
           setError('Код должен быть в формате KASTA-XXXX');
         } else {
-          setError('Ошибка подключения: ' + e.message);
+          console.warn('[комната] вход:', e);
+          setError(/permission/i.test(String(e && e.message))
+            ? 'Комната не пускает — возможно, она уже закрыта. Попросите новый код.'
+            : 'Не удалось подключиться. Проверьте связь и попробуйте ещё раз.');
         }
         setMode('error');
       }

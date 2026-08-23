@@ -587,7 +587,11 @@
         });
         setCode(c); setMode('room');
       } catch(e){
-        setError('Не удалось создать комнату: ' + (e && e.message)); setMode('error');
+        console.warn('[группа] создание:', e);
+        setError(/permission/i.test(String(e && e.message))
+          ? 'Сервер игры отказал в создании комнаты. Попробуйте ещё раз через минуту.'
+          : 'Не удалось создать комнату. Проверьте связь и попробуйте ещё раз.');
+        setMode('error');
       } finally { setBusy(false); }
     }
 
