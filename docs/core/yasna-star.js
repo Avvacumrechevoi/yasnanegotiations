@@ -82,8 +82,11 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
   };
   const no=i=>(hl&&!hl.includes(i))?.15:1;
   const anch=i=>{const x=lps[i].x;return Math.abs(x-cx)<25?'middle':x<cx?'end':'start';};
+  /* Поле зрения на телефоне было шире рисунка на треть: круг занимал 44%
+     ширины экрана, а подписи полок выходили 8.8–9.7 px — ниже читаемого.
+     Поджатый viewBox поднимает масштаб всего рисунка сразу. */
   return(
-    <svg viewBox={mob?`40 -10 820 720`:`-80 -50 1060 800`} preserveAspectRatio="xMidYMid meet" style={{width:'100%',height:'100%',display:'block'}}>
+    <svg viewBox={mob?`26 -10 866 720`:`-80 -50 1060 800`} preserveAspectRatio="xMidYMid meet" style={{width:'100%',height:'100%',display:'block'}}>
       <defs>
         <filter id="gw"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
         <filter id="ns"><feDropShadow dx="0" dy="1" stdDeviation="2.5" floodOpacity=".07"/></filter>
@@ -329,7 +332,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
           <circle cx={pt.x} cy={pt.y} r={isSel?nr+3:nr} fill="var(--star-uzel,#fff)" stroke={c} strokeWidth={isSel?3.2:([0,3,6,9].includes(i)?2.6:2)} opacity={o} filter={isSel?"url(#gw)":"url(#ns)"} style={{pointerEvents:'none',transition:'r 150ms ease'}}/>
           {af.includes('mb_zodiac')
             ? <image href={`assets/zodiac/z${i}.png`} x={pt.x-zsz/2} y={pt.y-zsz/2} width={zsz} height={zsz} preserveAspectRatio="xMidYMid meet" opacity={o} style={{pointerEvents:'none'}}/>
-            : <text x={pt.x} y={pt.y+6} textAnchor="middle" fill={(hl&&!hl.includes(i))?'#c0c0c5':'var(--star-ink,#1f2937)'} fontSize={isMob?(isSel?"22":"20"):(isSel?"30":"28")} fontWeight="700" fontFamily="var(--sans)" opacity={o} style={{pointerEvents:'none'}}>{i}</text>}
+            : <text x={pt.x} y={pt.y+6} textAnchor="middle" fill={(hl&&!hl.includes(i))?'#c0c0c5':'var(--star-ink,#1f2937)'} fontSize={isMob?(isSel?"32":"30"):(isSel?"30":"28")} fontWeight="700" fontFamily="var(--sans)" opacity={o} style={{pointerEvents:'none'}}>{i}</text>}
         </g>);})}
       {!overlay&&(starRotation?lpsRot:lps).map((pt,i)=>{const lOrig=p[i]||'';if(!lOrig)return null;let dy=5;if(!starRotation){if(i===0)dy=16;if(i===6)dy=-7;}
         // Trim incomplete trailing tokens (e.g. '("кита' or '(без свинст') — likely data-import artifacts
@@ -350,8 +353,10 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
         const xOff = isRotating ? 0 : (i===3?14:i===9?-14:i===4?8:i===8?-8:0);
         const dyEff = isRotating ? 5 : dy;
         const anchEff = isRotating ? 'middle' : anch(i);
-        const fs=isMob?(sel===i?'24':'22'):(sel===i?'26':'24'); // desktop +1.18× после расширения viewBox
-        const fsW=isMob?(sel===i?'24':'22'):(sel===i?'26':'24');if(parts){return<text key={`l${i}`} x={pt.x+xOff} y={pt.y+dyEff-9} textAnchor={anchEff} fill={'var(--star-ink,#000)'} fontSize={fsW} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}><tspan x={pt.x+xOff} dy="0">{parts[0]}</tspan><tspan x={pt.x+xOff} dy={isMob?22:22}>{parts[1]}</tspan></text>;}
+        /* Однострочные имена полок были 22 ед. = 9.7 px на телефоне (поле
+           зрения сжимает рисунок вдвое). Порог читаемости 12 px даёт 28 ед. */
+        const fs=isMob?(sel===i?'32':'30'):(sel===i?'26':'24');
+        const fsW=isMob?(sel===i?'32':'30'):(sel===i?'26':'24');if(parts){return<text key={`l${i}`} x={pt.x+xOff} y={pt.y+dyEff-9} textAnchor={anchEff} fill={'var(--star-ink,#000)'} fontSize={fsW} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}><tspan x={pt.x+xOff} dy="0">{parts[0]}</tspan><tspan x={pt.x+xOff} dy={isMob?22:22}>{parts[1]}</tspan></text>;}
         return<text key={`l${i}`} x={pt.x+xOff} y={pt.y+dyEff} textAnchor={anchEff} fill={'var(--star-ink,#000)'} fontSize={fs} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}>{l}</text>;})}
       {overlay&&<>
         {/* Outer orbit - more visible, solid thin line */}

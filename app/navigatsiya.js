@@ -96,7 +96,21 @@
     '.tr-fab-fb,.neg-fab-fb{bottom:calc(84px + var(--yk-snizu)) !important}' +
     /* 404: разделы уже в наббаре — остаётся одна дверь «На главную». */
     '.e-links .e-btn:not(.e-btn--primary){display:none}' +
-    '.yk-nav.yk-klava{display:none}';
+    '.yk-nav.yk-klava{display:none}' +
+    /* ВОЗВРАТ ИЗ ЗАХОДА ВГЛУБЬ.
+       Правило платформы: переключение вкладок — без истории, а заход вглубь
+       (карточка «Уроков» открыла «Разбор», рейтинг открыт из игры) обязан
+       иметь видимый выход назад. Своей шапки у экранов витрины нет, поэтому
+       кнопку рисует наббар — одну и ту же на всех экранах. */
+    '.yk-nazad{position:fixed;z-index:118;left:calc(8px + env(safe-area-inset-left,0px));' +
+      'top:calc(8px + var(--yk-sverhu));display:inline-flex;align-items:center;gap:6px;' +
+      'height:40px;padding:0 14px 0 10px;border-radius:20px;border:1px solid var(--yk-kayma);' +
+      'background:var(--yk-kart);color:var(--yk-ink2);font:600 13.5px/1 Manrope,Inter,sans-serif;' +
+      'box-shadow:0 2px 10px rgba(0,0,0,.10);cursor:pointer;text-decoration:none}' +
+    '.yk-nazad svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;' +
+      'stroke-linecap:round;stroke-linejoin:round}' +
+    '.yk-nazad:active{transform:scale(.96)}' +
+    ':root{--yk-sverhu:var(--safe-area-inset-top, env(safe-area-inset-top, 0px))}';
   (document.head || document.documentElement).appendChild(st);
 
   /* Свой знак вместо человечка: если человек назвался или вошёл по почте,
@@ -130,6 +144,9 @@
     var a = e.target.closest('a');
     if (!a) return;
     e.preventDefault();
+    /* Переключение вкладок — это смена «дома», а не заход вглубь: метку
+       «откуда» снимаем, иначе кнопка возврата всплыла бы на самой вкладке. */
+    try { sessionStorage.removeItem('yasna_otkuda_v1'); } catch (_) {}
     /* Тап по УЖЕ активной вкладке — наверх (стандарт нижней навигации).
        Но подсвеченной вкладка бывает и на «дочернем» экране (Тренажёры и
        Переговоры подсвечивают «Уроки», Рейтинг — «Игру»): там прокрутка
@@ -143,6 +160,74 @@
     }
     location.replace(a.href);
   });
+
+  /* ══ ВОЗВРАТ ИЗ ЗАХОДА ВГЛУБЬ ═══════════════════════════════════════
+     Как это принято: пять вкладок — это пять «домов», переключение между
+     ними историю не копит. Всё остальное — заход вглубь: из «Уроков» в
+     «Разбор» за инструкцией, из «Игры» в «Рейтинг», из главной в практику.
+     У такого перехода обязан быть видимый выход назад — раньше его не было
+     вовсе: человек уходил в «Разбор» и мог вернуться только вкладкой,
+     потеряв место, откуда пришёл.
+
+     Помним ОТКУДА пришли (sessionStorage, живёт до закрытия приложения):
+     метку ставит сам переход по ссылке, а переключение вкладок её стирает. */
+  var КЛЮЧ_ОТКУДА = 'yasna_otkuda_v1';
+  var ИМЕНА = { 'index.html': 'Главная', 'duel.html': 'Игра', 'learn.html': 'Уроки',
+                'konstruktor.html': 'Разбор', 'profil.html': 'Профиль',
+                'rating.html': 'Рейтинг', 'negotiations.html': 'Переговоры',
+                'trainers.html': 'Тренажёры' };
+
+  function имяЭкрана(имяФайла) {
+    if (!имяФайла) return 'назад';
+    if (имяФайла.indexOf('krug') >= 0) return 'Разложи по кругу';
+    return ИМЕНА[имяФайла] || 'назад';
+  }
+  function прочитатьОткуда() {
+    try { return JSON.parse(sessionStorage.getItem(КЛЮЧ_ОТКУДА) || 'null'); } catch (_) { return null; }
+  }
+  function записатьОткуда(з) {
+    try { з ? sessionStorage.setItem(КЛЮЧ_ОТКУДА, JSON.stringify(з))
+            : sessionStorage.removeItem(КЛЮЧ_ОТКУДА); } catch (_) {}
+  }
+
+  /* Любой переход по ссылке внутри приложения (кроме наббара) — заход вглубь.
+     Ставим метку до ухода: на новой странице она уже будет. */
+  document.addEventListener('click', function (e) {
+    var a = e.target && e.target.closest && e.target.closest('a[href]');
+    if (!a || a.closest('.yk-nav')) return;
+    var href = a.getAttribute('href') || '';
+    if (!href || href.charAt(0) === '#' || /^(https?:|mailto:|tel:|javascript:)/i.test(href)) return;
+    if (a.target === '_blank') return;
+    var сюда = href.split('#')[0].split('?')[0].split('/').pop();
+    if (!сюда || сюда === файл) return;              /* тот же экран — не заход */
+    записатьОткуда({ файл: файл, путь: location.pathname + location.search, имя: имяЭкрана(файл) });
+  }, true);
+
+  (function кнопкаНазад() {
+    var откуда = прочитатьОткуда();
+    if (!откуда || откуда.файл === файл) return;
+    /* На «Круге» своя стрелка в шапке — второй кнопки не надо. */
+    if (часть.indexOf('krug') >= 0 || document.getElementById('krug-nazad')) return;
+    var кн = document.createElement('a');
+    кн.className = 'yk-nazad';
+    кн.href = откуда.путь || (вверх + откуда.файл);
+    кн.setAttribute('aria-label', 'Назад: ' + откуда.имя);
+    кн.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>' +
+                   '<span>' + откуда.имя + '</span>';
+    кн.addEventListener('click', function (e) {
+      e.preventDefault();
+      записатьОткуда(null);
+      /* Настоящая история лучше: сохраняет прокрутку и состояние экрана. */
+      if (history.length > 1) { history.back(); return; }
+      location.replace(кн.href);
+    });
+    document.body.appendChild(кн);
+
+    /* Метку не снимаем по аппаратной «назад»: то же событие приходит и когда
+       она всего лишь закрывает окно поверх экрана. Метка безвредна — кнопка
+       рисуется, только если экран в ней отличается от текущего, а переключение
+       вкладок стирает её само. */
+  })();
 
   /* Клавиатура: медиазапрос по высоте ловил не все телефоны (высокие экраны
      с клавиатурой оставались «высокими») и гасил навигацию в сплит-скрине.
