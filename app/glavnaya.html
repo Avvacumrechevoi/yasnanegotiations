@@ -297,9 +297,24 @@
     .pr-chipy{gap:6px}
     .pr-chip{padding:0 11px;font-size:12.5px}
   }
-  .pr-karta{display:grid;grid-template-columns:96px 1fr;gap:14px;align-items:center;
+  /* Карточка-обложка: метка и заголовок стоят НАД сценой, круглая стрелка —
+     в правом верхнем углу. Раньше единственное действие («Играть →») лежало
+     широкой кнопкой внизу карточки и на 393×850 целиком уходило под наббар:
+     человек видел половину синей полосы. Теперь действие всегда над сгибом. */
+  .pr-karta{display:block;position:relative;overflow:hidden;
     background:var(--kart);border:1px solid var(--kayma);border-radius:18px;
-    padding:14px;text-decoration:none;color:inherit;position:relative;overflow:hidden}
+    padding:15px 15px 14px;text-decoration:none;color:inherit}
+  .pr-verh{padding-right:56px}
+  .pr-ryad{display:grid;grid-template-columns:96px 1fr;gap:14px;align-items:center;margin-top:12px}
+  .pr-fakt{display:flex;align-items:center;gap:9px;margin-top:12px;padding-top:11px;
+    border-top:1px solid var(--kayma);font:500 12.5px/1.35 Manrope,sans-serif;color:var(--ink-2)}
+  .pr-tochki{display:flex;gap:3px;flex:0 0 auto}
+  .pr-tochki i{width:5px;height:5px;border-radius:50%;background:var(--kayma)}
+  .pr-tochki i.est{background:var(--syn)}
+  .pr-strelka{position:absolute;right:14px;top:14px;width:44px;height:44px;border-radius:50%;
+    background:var(--syn);display:flex;align-items:center;justify-content:center}
+  .pr-strelka svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2.2;
+    stroke-linecap:round;stroke-linejoin:round}
   .pr-karta:active{filter:brightness(.96)}
   .pr-karta.smena .pr-telo{animation:pr-vhod .28s ease-out}
   @keyframes pr-vhod{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
@@ -308,7 +323,7 @@
   .pr-scena{width:84px;height:84px}
   .pr-metka{font:600 12px/1 Manrope,sans-serif;letter-spacing:.06em;
     text-transform:uppercase;color:var(--ink-3)}
-  .pr-t{font:600 17px/1.2 Manrope,Inter,sans-serif;margin:6px 0 4px}
+  .pr-t{font:700 21px/1.18 Manrope,Inter,sans-serif;margin:6px 0 0;letter-spacing:-.3px}
   .pr-o{font-size:12.5px;line-height:1.45;color:var(--ink-2)}
   .pr-knopka{grid-column:1 / -1;margin-top:2px;min-height:46px;border-radius:13px;
     background:var(--syn);color:#fff;display:flex;align-items:center;
@@ -379,6 +394,67 @@
     color:var(--ink-2);margin-top:3px}
   .spisok svg{width:16px;height:16px;stroke:var(--ink-3);fill:none;
     stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+  /* ── Виджеты «Где ты сейчас» ──
+     Плоский список строк с шевронами не говорил ничего о человеке. Плитки
+     показывают посчитанное: сколько явлений разобрано в Круге, сколько
+     уроков пройдено, сколько сценариев просмотрено. Пустое состояние не
+     печатает ноль — оно приглашает. */
+  .vid{display:flex;flex-direction:column;gap:10px}
+  .vid-glav{display:flex;flex-direction:column;gap:9px;padding:16px;border-radius:18px;
+    background:linear-gradient(140deg,var(--kart) 0%,color-mix(in srgb,var(--syn) 9%,var(--kart)) 100%);
+    border:1px solid var(--kayma);text-decoration:none}
+  .vid-glav-verh{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+  .vid-glav-verh b{font:700 30px/1 Manrope,Inter,sans-serif;color:var(--ink);letter-spacing:-.5px}
+  .vid-glav-verh i{font:600 14px/1 Manrope,sans-serif;font-style:normal;color:var(--ink-2)}
+  .vid-shkala{display:block;height:6px;border-radius:3px;background:var(--pole);overflow:hidden}
+  .vid-shkala i{display:block;height:100%;width:0;border-radius:3px;background:var(--syn);
+    transition:width .6s cubic-bezier(.2,.9,.3,1)}
+  .vid-glav-niz{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .vid-glav-niz em{font:500 12.5px/1.3 Manrope,sans-serif;font-style:normal;color:var(--ink-2)}
+  .vid-glav-niz em:last-child{color:var(--syn);font-weight:600;white-space:nowrap}
+
+  .vid-setka{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .vid-plit{position:relative;display:flex;flex-direction:column;gap:3px;padding:14px;
+    border-radius:16px;background:var(--kart);border:1px solid var(--kayma);
+    text-decoration:none;min-height:132px}
+  .vid-plit:active{filter:brightness(.97)}
+  .vid-znak{width:34px;height:34px;border-radius:11px;display:flex;align-items:center;
+    justify-content:center;background:color-mix(in srgb,var(--syn) 13%,transparent);
+    color:var(--syn);margin-bottom:5px}
+  .vid-znak svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;
+    stroke-linecap:round;stroke-linejoin:round}
+  .vid-plit b{font:700 19px/1.15 Manrope,Inter,sans-serif;color:var(--ink);letter-spacing:-.3px}
+  .vid-plit-t{font:600 13.5px/1.25 Manrope,sans-serif;color:var(--ink)}
+  .vid-plit em{font:500 12px/1.35 Manrope,sans-serif;font-style:normal;color:var(--ink-2)}
+  .vid-plit-shkala{position:absolute;left:14px;right:14px;bottom:12px;height:4px;border-radius:2px;
+    background:var(--pole);overflow:hidden;display:none}
+  .vid-plit-shkala i{display:block;height:100%;width:0;border-radius:2px;background:var(--syn)}
+  .vid-plit.s-shkaloy{padding-bottom:26px}
+  .vid-plit.s-shkaloy .vid-plit-shkala{display:block}
+
+  .vid-shirokaya{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;
+    background:var(--kart);border:1px solid var(--kayma);text-decoration:none}
+  .vid-shirokaya-txt{min-width:0;display:flex;flex-direction:column;gap:2px}
+  .vid-shirokaya b{font:700 15.5px/1.25 Manrope,Inter,sans-serif;color:var(--ink)}
+  .vid-shirokaya em{font:500 12.5px/1.35 Manrope,sans-serif;font-style:normal;color:var(--ink-2)}
+
+  .vid-para{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .vid-karta{display:flex;flex-direction:column;gap:4px;padding:14px;border-radius:16px;
+    background:var(--kart);border:1px solid var(--kayma);text-decoration:none;min-height:104px}
+  .vid-karta-metka{font:700 11px/1 Manrope,sans-serif;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--ink-2)}
+  .vid-karta b{font:700 16px/1.2 Manrope,Inter,sans-serif;color:var(--ink)}
+  .vid-karta em{font:500 12px/1.35 Manrope,sans-serif;font-style:normal;color:var(--ink-2)}
+  .vid-tihaya{display:flex;align-items:center;justify-content:center;text-align:center;
+    min-height:52px;padding:10px 12px;border-radius:14px;border:1px solid var(--kayma);
+    background:transparent;color:var(--ink-2);text-decoration:none;
+    font:600 13px/1.25 Manrope,sans-serif}
+  @media (max-width:360px){
+    .vid-plit{min-height:126px;padding:12px}
+    .vid-plit b{font-size:18px}
+  }
+
   [hidden]{display:none !important}
   </style>
   <script>
@@ -458,40 +534,110 @@
   <div class="praktiki">
     <div class="pr-chipy" role="tablist" aria-label="Задача"><button type="button" class="pr-chip est" data-p="pamyat">Память</button><button type="button" class="pr-chip" data-p="pogruzhenie">Погружение</button><button type="button" class="pr-chip" data-p="obshchenie">Общение</button><button type="button" class="pr-chip" data-p="dom">Дом</button></div>
     <a class="pr-karta" id="pr-karta" href="games/krug/index.html">
-      <div class="pr-scen"><div class="pr-holst" data-s="pamyat"><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><path class="pr-dolya pr-h1" d="M61.7 88.3A40 40 0 0 1 38.3 88.3L43.0 73.0A24 24 0 0 0 57.0 73.0Z" fill="#131A30"/><path class="pr-dolya" d="M37.0 87.8A40 40 0 0 1 23.8 80.2L34.3 68.1A24 24 0 0 0 42.2 72.7Z" fill="#1B2545"/><path class="pr-dolya" d="M22.7 79.3A40 40 0 0 1 11.0 59.0L26.6 55.4A24 24 0 0 0 33.6 67.6Z" fill="#2F4472"/><path class="pr-dolya pr-h3" d="M10.7 57.6A40 40 0 0 1 10.7 42.4L26.4 45.4A24 24 0 0 0 26.4 54.6Z" fill="#4D74B4"/><path class="pr-dolya" d="M11.0 41.0A40 40 0 0 1 22.7 20.7L33.6 32.4A24 24 0 0 0 26.6 44.6Z" fill="#8AA6D4"/><path class="pr-dolya" d="M23.8 19.8A40 40 0 0 1 37.0 12.2L42.2 27.3A24 24 0 0 0 34.3 31.9Z" fill="#D3C493"/><path class="pr-dolya pr-h2" d="M38.3 11.7A40 40 0 0 1 61.7 11.7L57.0 27.0A24 24 0 0 0 43.0 27.0Z" fill="#F5CF74"/><path class="pr-dolya" d="M63.0 12.2A40 40 0 0 1 76.2 19.8L65.7 31.9A24 24 0 0 0 57.8 27.3Z" fill="#EAB35C"/><path class="pr-dolya" d="M77.3 20.7A40 40 0 0 1 89.0 41.0L73.4 44.6A24 24 0 0 0 66.4 32.4Z" fill="#D8894A"/><path class="pr-dolya pr-h4" d="M89.3 42.4A40 40 0 0 1 89.3 57.6L73.6 54.6A24 24 0 0 0 73.6 45.4Z" fill="#C06A3C"/><path class="pr-dolya" d="M89.0 59.0A40 40 0 0 1 77.3 79.3L66.4 67.6A24 24 0 0 0 73.4 55.4Z" fill="#7A4634"/><path class="pr-dolya" d="M76.2 80.2A40 40 0 0 1 63.0 87.8L57.8 72.7A24 24 0 0 0 65.7 68.1Z" fill="#3B2A33"/><line class="pr-nit" x1="50.0" y1="72.0" x2="50.0" y2="28.0"/></svg></div><div class="pr-holst" data-s="pogruzhenie" hidden><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><circle class="pr-obod" cx="50" cy="50" r="38"/><polygon class="pr-setka" points="50.0,88.0 31.0,82.9 17.1,69.0 12.0,50.0 17.1,31.0 31.0,17.1 50.0,12.0 69.0,17.1 82.9,31.0 88.0,50.0 82.9,69.0 69.0,82.9"/><line class="pr-os pr-os1" x1="50.0" y1="88.0" x2="50.0" y2="12.0"/><line class="pr-os pr-os2" x1="17.1" y1="69.0" x2="82.9" y2="31.0"/><line class="pr-os pr-os3" x1="17.1" y1="31.0" x2="82.9" y2="69.0"/><circle class="pr-uzel" cx="50.0" cy="88.0" r="2.6"/><circle class="pr-uzel" cx="31.0" cy="82.9" r="2.6"/><circle class="pr-uzel" cx="17.1" cy="69.0" r="2.6"/><circle class="pr-uzel" cx="12.0" cy="50.0" r="2.6"/><circle class="pr-uzel" cx="17.1" cy="31.0" r="2.6"/><circle class="pr-uzel" cx="31.0" cy="17.1" r="2.6"/><circle class="pr-uzel" cx="50.0" cy="12.0" r="2.6"/><circle class="pr-uzel" cx="69.0" cy="17.1" r="2.6"/><circle class="pr-uzel" cx="82.9" cy="31.0" r="2.6"/><circle class="pr-uzel" cx="88.0" cy="50.0" r="2.6"/><circle class="pr-uzel" cx="82.9" cy="69.0" r="2.6"/><circle class="pr-uzel" cx="69.0" cy="82.9" r="2.6"/><path class="pr-znak" d="M50 41l2.4 6.6 6.6 2.4-6.6 2.4-2.4 6.6-2.4-6.6-6.6-2.4 6.6-2.4z"/></svg></div><div class="pr-holst" data-s="obshchenie" hidden><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><rect class="pr-rep pr-r1" x="12" y="20" width="52" height="20" rx="10"/><rect class="pr-rep pr-r2 pr-otvet" x="36" y="46" width="52" height="20" rx="10"/><rect class="pr-rep pr-r3" x="12" y="72" width="44" height="18" rx="9"/></svg></div><div class="pr-holst" data-s="dom" hidden><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><path class="pr-krysha" d="M14 46 50 18l36 28"/><path class="pr-steny" d="M22 43v39h56V43"/><rect class="pr-okno pr-o1" x="32" y="52" width="15" height="15" rx="3"/><rect class="pr-okno pr-o2" x="53" y="52" width="15" height="15" rx="3"/><rect class="pr-dver" x="42" y="70" width="16" height="12" rx="2"/></svg></div></div>
-      <div class="pr-telo">
+      <div class="pr-verh">
         <div class="pr-metka" id="pr-metka">память · ~2 минуты</div>
         <div class="pr-t" id="pr-t">Разложи по кругу</div>
+      </div>
+      <span class="pr-strelka" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+      </span>
+      <div class="pr-ryad">
+      <div class="pr-scen"><div class="pr-holst" data-s="pamyat"><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><path class="pr-dolya pr-h1" d="M61.7 88.3A40 40 0 0 1 38.3 88.3L43.0 73.0A24 24 0 0 0 57.0 73.0Z" fill="#131A30"/><path class="pr-dolya" d="M37.0 87.8A40 40 0 0 1 23.8 80.2L34.3 68.1A24 24 0 0 0 42.2 72.7Z" fill="#1B2545"/><path class="pr-dolya" d="M22.7 79.3A40 40 0 0 1 11.0 59.0L26.6 55.4A24 24 0 0 0 33.6 67.6Z" fill="#2F4472"/><path class="pr-dolya pr-h3" d="M10.7 57.6A40 40 0 0 1 10.7 42.4L26.4 45.4A24 24 0 0 0 26.4 54.6Z" fill="#4D74B4"/><path class="pr-dolya" d="M11.0 41.0A40 40 0 0 1 22.7 20.7L33.6 32.4A24 24 0 0 0 26.6 44.6Z" fill="#8AA6D4"/><path class="pr-dolya" d="M23.8 19.8A40 40 0 0 1 37.0 12.2L42.2 27.3A24 24 0 0 0 34.3 31.9Z" fill="#D3C493"/><path class="pr-dolya pr-h2" d="M38.3 11.7A40 40 0 0 1 61.7 11.7L57.0 27.0A24 24 0 0 0 43.0 27.0Z" fill="#F5CF74"/><path class="pr-dolya" d="M63.0 12.2A40 40 0 0 1 76.2 19.8L65.7 31.9A24 24 0 0 0 57.8 27.3Z" fill="#EAB35C"/><path class="pr-dolya" d="M77.3 20.7A40 40 0 0 1 89.0 41.0L73.4 44.6A24 24 0 0 0 66.4 32.4Z" fill="#D8894A"/><path class="pr-dolya pr-h4" d="M89.3 42.4A40 40 0 0 1 89.3 57.6L73.6 54.6A24 24 0 0 0 73.6 45.4Z" fill="#C06A3C"/><path class="pr-dolya" d="M89.0 59.0A40 40 0 0 1 77.3 79.3L66.4 67.6A24 24 0 0 0 73.4 55.4Z" fill="#7A4634"/><path class="pr-dolya" d="M76.2 80.2A40 40 0 0 1 63.0 87.8L57.8 72.7A24 24 0 0 0 65.7 68.1Z" fill="#3B2A33"/><line class="pr-nit" x1="50.0" y1="72.0" x2="50.0" y2="28.0"/></svg></div><div class="pr-holst" data-s="pogruzhenie" hidden><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><circle class="pr-obod" cx="50" cy="50" r="38"/><polygon class="pr-setka" points="50.0,88.0 31.0,82.9 17.1,69.0 12.0,50.0 17.1,31.0 31.0,17.1 50.0,12.0 69.0,17.1 82.9,31.0 88.0,50.0 82.9,69.0 69.0,82.9"/><line class="pr-os pr-os1" x1="50.0" y1="88.0" x2="50.0" y2="12.0"/><line class="pr-os pr-os2" x1="17.1" y1="69.0" x2="82.9" y2="31.0"/><line class="pr-os pr-os3" x1="17.1" y1="31.0" x2="82.9" y2="69.0"/><circle class="pr-uzel" cx="50.0" cy="88.0" r="2.6"/><circle class="pr-uzel" cx="31.0" cy="82.9" r="2.6"/><circle class="pr-uzel" cx="17.1" cy="69.0" r="2.6"/><circle class="pr-uzel" cx="12.0" cy="50.0" r="2.6"/><circle class="pr-uzel" cx="17.1" cy="31.0" r="2.6"/><circle class="pr-uzel" cx="31.0" cy="17.1" r="2.6"/><circle class="pr-uzel" cx="50.0" cy="12.0" r="2.6"/><circle class="pr-uzel" cx="69.0" cy="17.1" r="2.6"/><circle class="pr-uzel" cx="82.9" cy="31.0" r="2.6"/><circle class="pr-uzel" cx="88.0" cy="50.0" r="2.6"/><circle class="pr-uzel" cx="82.9" cy="69.0" r="2.6"/><circle class="pr-uzel" cx="69.0" cy="82.9" r="2.6"/><path class="pr-znak" d="M50 41l2.4 6.6 6.6 2.4-6.6 2.4-2.4 6.6-2.4-6.6-6.6-2.4 6.6-2.4z"/></svg></div><div class="pr-holst" data-s="obshchenie" hidden><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><rect class="pr-rep pr-r1" x="12" y="20" width="52" height="20" rx="10"/><rect class="pr-rep pr-r2 pr-otvet" x="36" y="46" width="52" height="20" rx="10"/><rect class="pr-rep pr-r3" x="12" y="72" width="44" height="18" rx="9"/></svg></div><div class="pr-holst" data-s="dom" hidden><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><path class="pr-krysha" d="M14 46 50 18l36 28"/><path class="pr-steny" d="M22 43v39h56V43"/><rect class="pr-okno pr-o1" x="32" y="52" width="15" height="15" rx="3"/><rect class="pr-okno pr-o2" x="53" y="52" width="15" height="15" rx="3"/><rect class="pr-dver" x="42" y="70" width="16" height="12" rx="2"/></svg></div></div>
         <div class="pr-o" id="pr-o">Берёшь элемент явления и кладёшь на его долю круга. Шестнадцать явлений на выбор.</div>
       </div>
-      <span class="pr-knopka" id="pr-knopka">Играть <span aria-hidden="true">→</span></span>
+      <div class="pr-fakt" id="pr-fakt" hidden></div>
     </a>
   </div>
 
-<h2>Узнать больше</h2>
-  <div class="spisok">
-    <a href="konstruktor.html#tour=pechi">
-      <span>Пройти урок автора: Ясна печи<small>расшифровка живого урока — дословно, с разбором по кругу</small></span>
-      <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+<!-- ═══ ГДЕ ТЫ СЕЙЧАС ═══════════════════════════════════════════════
+     Здесь был плоский список из пяти строк с шевронами — он выглядел как
+     системные настройки и ничего не рассказывал о человеке. Теперь виджеты
+     с ЖИВЫМИ числами: каждая плитка показывает то, что действительно
+     посчитано, и ведёт туда, откуда это число берётся. Если данных нет
+     (первый запуск), плитка не показывает ноль — она приглашает начать. -->
+<h2 id="vid-zag">Где ты сейчас</h2>
+  <div class="vid">
+    <a class="vid-glav" id="vid-glav" href="rating.html">
+      <span class="vid-glav-verh">
+        <b id="vid-buseny">✦ —</b>
+        <i id="vid-stupen">Послушник</i>
+      </span>
+      <span class="vid-shkala" aria-hidden="true"><i id="vid-shkala-fill"></i></span>
+      <span class="vid-glav-niz">
+        <em id="vid-do">Сыграйте первую партию — пойдут бусины</em>
+        <em id="vid-partiy"></em>
+      </span>
     </a>
-    <a href="learn.html#gidy">
-      <span>Изучить готовые ясны<small>библиотека явлений, уже разложенных по кругу</small></span>
-      <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+
+    <div class="vid-setka">
+      <a class="vid-plit" href="games/krug/index.html">
+        <span class="vid-znak vid-znak--krug" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4v17.2M3.4 12h17.2"/></svg>
+        </span>
+        <b id="vid-krug-n">16 явлений</b>
+        <span class="vid-plit-t">Разложи по кругу</span>
+        <em id="vid-krug-o">каждое явление — свой круг</em>
+        <span class="vid-plit-shkala" aria-hidden="true"><i id="vid-krug-fill"></i></span>
+      </a>
+
+      <a class="vid-plit" href="konstruktor.html?lessons=1">
+        <span class="vid-znak vid-znak--kurs" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 4 2.8 8.4 12 12.8l9.2-4.4zM6 10.6V16c0 1.4 2.7 3 6 3s6-1.6 6-3v-5.4"/></svg>
+        </span>
+        <b id="vid-kurs-n">4 урока</b>
+        <span class="vid-plit-t">Базовый курс</span>
+        <em id="vid-kurs-o">по шагам, прямо в круге</em>
+        <span class="vid-plit-shkala" aria-hidden="true"><i id="vid-kurs-fill"></i></span>
+      </a>
+
+      <a class="vid-plit" href="negotiations.html">
+        <span class="vid-znak vid-znak--razgovor" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M4 6.5h16v9H9.5L5.5 19v-3.5H4z"/></svg>
+        </span>
+        <b id="vid-neg-n">4 сценария</b>
+        <span class="vid-plit-t">Переговоры</span>
+        <em id="vid-neg-o">разговор как круг</em>
+        <span class="vid-plit-shkala" aria-hidden="true"><i id="vid-neg-fill"></i></span>
+      </a>
+
+      <a class="vid-plit" href="konstruktor.html">
+        <span class="vid-znak vid-znak--svoya" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M12 8v8M8 12h8"/></svg>
+        </span>
+        <b id="vid-svoya-n">Своя Ясна</b>
+        <span class="vid-plit-t" id="vid-svoya-t">Разобрать своё</span>
+        <em id="vid-svoya-o">двенадцать полок, ваше явление</em>
+        <span class="vid-plit-shkala" aria-hidden="true"><i id="vid-svoya-fill"></i></span>
+      </a>
+    </div>
+
+    <a class="vid-shirokaya" id="vid-dalshe" href="learn.html">
+      <span class="vid-znak vid-znak--dalshe" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M5 12h13M13 6.5 18.5 12 13 17.5"/></svg>
+      </span>
+      <span class="vid-shirokaya-txt">
+        <b id="vid-dalshe-t">Дальше: знакомство с методом</b>
+        <em id="vid-dalshe-o">пять минут разговором — что такое Ясна</em>
+      </span>
     </a>
-    <a href="konstruktor.html">
-      <span>Составить свою Ясну<small>разложи собственное явление по двенадцати частям</small></span>
-      <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-    </a>
-    <a href="rating.html">
-      <span>Понять, как устроен рейтинг<small>бусины, звания и за что их дают</small></span>
-      <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-    </a>
-    <!-- Вело на trainers.html, который после пересборки «Уроков» слово в слово
-         повторяет хаб и не содержит ни одной игры. Дверь одна — «Уроки». -->
-    <a href="learn.html">
-      <span>Всё обучение одним списком<small>курс, разборы, игры и переговоры</small></span>
-      <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-    </a>
+
+    <div class="vid-para">
+      <a class="vid-karta" href="konstruktor.html#tour=pechi">
+        <span class="vid-karta-metka">Урок автора</span>
+        <b>Ясна печи</b>
+        <em>расшифровка живого урока — дословно</em>
+      </a>
+      <a class="vid-karta" href="learn.html#gidy">
+        <span class="vid-karta-metka">Разборы</span>
+        <b>Семь гидов</b>
+        <em>автор ведёт по кругу шаг за шагом</em>
+      </a>
+    </div>
+
+    <div class="vid-para vid-para--tihie">
+      <a class="vid-tihaya" href="learn.html">Всё обучение одним списком</a>
+      <a class="vid-tihaya" href="rating.html">Как устроен рост</a>
+    </div>
   </div>
 </main>
 
@@ -518,12 +664,17 @@
       '<span class="m">✦ '+бусин+' бусин</span><span class="m">партий: '+партий+'</span>';
   }
 
-  /* Обучение: дорога из восьми остановок карты «Путь по Руси».
-     Пройденность читаем из того же ключа, что и сама карта курса. */
-  var ОСТАНОВОК=8;
-  var курс=читать('yasna_course_progress')||{};
+  /* Обучение: дорога базового курса. Раньше это были восемь остановок
+     «Пути по Руси» — курс снят с экрана «Уроки» (из восьми работала одна),
+     и главная обещала то, чего больше нет. Теперь считаем те же четыре
+     урока, что показывает хаб: yasna_completed_lessons_v1. */
+  var БАЗОВЫЙ=['l1_intro','b2_four_pillars','b3_two_lines','b4_line_names'];
+  var ОСТАНОВОК=БАЗОВЫЙ.length;
+  var прошёл=читать('yasna_completed_lessons_v1');
   var пройдено=0;
-  try{ пройдено=Object.keys(курс).filter(function(k){return курс[k]&&курс[k].done}).length; }catch(e){}
+  try{
+    if(Array.isArray(прошёл)) пройдено=прошёл.filter(function(id){return БАЗОВЫЙ.indexOf(id)>-1}).length;
+  }catch(e){}
   if(пройдено>ОСТАНОВОК) пройдено=ОСТАНОВОК;
   var дорога=document.getElementById('ucheba-put');
   if(пройдено===0){
@@ -538,9 +689,142 @@
     дорога.appendChild(seg);
   }
   if(пройдено>0){
-    document.getElementById('ucheba-o').textContent='Пройдено остановок: '+пройдено+' из '+ОСТАНОВОК+'. Дорога дальше.';
-    document.getElementById('ucheba-m').innerHTML='<span class="m">продолжить</span>';
+    document.getElementById('ucheba-o').textContent = пройдено>=ОСТАНОВОК
+      ? 'Базовый курс пройден целиком. Дальше — авторские разборы и практики.'
+      : 'Пройдено уроков: '+пройдено+' из '+ОСТАНОВОК+'. Курс ждёт дальше.';
+    document.getElementById('ucheba-m').innerHTML = пройдено>=ОСТАНОВОК
+      ? '<span class="m">курс пройден</span>' : '<span class="m">продолжить</span>';
   }
+
+  /* ── Виджеты «Где ты сейчас» ────────────────────────────────────────
+     Правило одно: показываем только то, что посчитано. Нет данных — не
+     печатаем ноль, а зовём начать. Ступени те же, что в игре и Профиле
+     (duel-page.js: Послушник 0 / Студент 1000 / Игрок 3000 / Мастер 10000
+     / Магистр 30000) — расхождение шкал уже однажды стоило доверия. */
+  (function(){
+    var СТУПЕНИ=[['Послушник',0],['Студент',1000],['Игрок',3000],['Мастер',10000],['Магистр',30000]];
+    function ступень(б){
+      var тек=СТУПЕНИ[0], след=null;
+      for(var i=0;i<СТУПЕНИ.length;i++){
+        if(б>=СТУПЕНИ[i][1]) тек=СТУПЕНИ[i];
+        else { след=СТУПЕНИ[i]; break; }
+      }
+      return {имя:тек[0], от:тек[1], след:след};
+    }
+    function текст(ид,зн){ var э=document.getElementById(ид); if(э) э.textContent=зн; }
+    function шкала(ид,доля){ var э=document.getElementById(ид); if(э) setTimeout(function(){ э.style.width=Math.max(0,Math.min(1,доля))*100+'%'; },60); }
+    function сШкалой(э){ if(э) э.classList.add('s-shkaloy'); }
+
+    /* Правило раздела: на чистой установке его нет вовсе. Показывать «✦ 0»,
+       «0 из 16» и пустые полосы — значит рассказывать человеку, что он ничего
+       не сделал, вместо того чтобы показать, что тут есть. */
+    var д=читать('yasna_duel_data')||{};
+    var бусин=+(д.totalScore||0), партий=(д.totals&&д.totals.played)||0;
+    var естьХоть=false;
+    try{
+      var к0=читать('yasna_krug_v1')||{}, у0=читать('yasna_completed_lessons_v1'),
+          н0=читать('yasna_neg_lessons_v1'), с0=читать('yasna_custom_v1');
+      естьХоть = партий>0 || бусин>0
+        || Object.keys(к0.best||{}).length>0
+        || (Array.isArray(у0)&&у0.length>0)
+        || (н0 && Object.keys(н0).length>0)
+        || (Array.isArray(с0)&&с0.length>0);
+    }catch(e){}
+    if(!естьХоть){
+      var заг=document.getElementById('vid-zag'), блок=document.querySelector('.vid');
+      if(заг) заг.hidden=true;
+      /* Оставляем только двери — то, что можно открыть прямо сейчас. */
+      if(блок){
+        var глав=document.getElementById('vid-glav'); if(глав) глав.remove();
+        var сетка=блок.querySelector('.vid-setka'); if(сетка) сетка.remove();
+      }
+    }
+    if(партий>0||бусин>0){
+      var ст=ступень(бусин);
+      текст('vid-buseny','✦ '+бусин);
+      текст('vid-stupen',ст.имя);
+      текст('vid-partiy',партий+' '+(партий%10===1&&партий%100!==11?'партия':([2,3,4].indexOf(партий%10)>-1&&[12,13,14].indexOf(партий%100)===-1?'партии':'партий')));
+      if(ст.след){
+        текст('vid-do','ещё '+(ст.след[1]-бусин)+' ✦ до ступени «'+ст.след[0]+'»');
+        шкала('vid-shkala-fill',(бусин-ст.от)/(ст.след[1]-ст.от));
+      } else { текст('vid-do','высшая ступень'); шкала('vid-shkala-fill',1); }
+    } else {
+      текст('vid-buseny','✦ 0');
+      текст('vid-stupen','Послушник');
+      текст('vid-do','Сыграйте первую партию — пойдут бусины');
+      текст('vid-partiy','начать →');
+    }
+
+    /* Круг: сколько явлений разобрано (ключ игры — тот же, что в самой игре). */
+    var кр=читать('yasna_krug_v1')||{};
+    var разобрано=0;
+    try{ разобрано=Object.keys(кр.best||{}).length; }catch(e){}
+    var ВСЕГО_ЯВЛЕНИЙ=16;
+    if(разобрано>0){
+      текст('vid-krug-n',разобрано+' из '+ВСЕГО_ЯВЛЕНИЙ);
+      текст('vid-krug-o','явлений разобрано');
+      сШкалой(document.getElementById('vid-krug-fill').closest('.vid-plit'));
+      шкала('vid-krug-fill',разобрано/ВСЕГО_ЯВЛЕНИЙ);
+    }
+
+    /* Базовый курс: те же четыре урока, что считает хаб «Уроки». */
+    var БАЗ=['l1_intro','b2_four_pillars','b3_two_lines','b4_line_names'];
+    var уроки=читать('yasna_completed_lessons_v1');
+    var прошли=0;
+    if(Array.isArray(уроки)) прошли=уроки.filter(function(и){return БАЗ.indexOf(и)>-1}).length;
+    if(прошли>0){
+      текст('vid-kurs-n',прошли+' из '+БАЗ.length);
+      текст('vid-kurs-o',прошли>=БАЗ.length?'курс пройден':'уроков пройдено');
+      сШкалой(document.getElementById('vid-kurs-fill').closest('.vid-plit'));
+      шкала('vid-kurs-fill',прошли/БАЗ.length);
+    }
+
+    /* Переговоры: просмотренные сценарии (это просмотр, а не освоение). */
+    var нег=читать('yasna_neg_lessons_v1');
+    var сцен=0;
+    try{ сцен=Array.isArray(нег)?нег.length:Object.keys(нег||{}).length; }catch(e){}
+    if(сцен>0){
+      текст('vid-neg-n',сцен+' из 4');
+      текст('vid-neg-o','сценариев просмотрено');
+      сШкалой(document.getElementById('vid-neg-fill').closest('.vid-plit'));
+      шкала('vid-neg-fill',сцен/4);
+    }
+
+    /* Своя Ясна: сколько полок заполнено в последней своей раскладке. */
+    var свои=читать('yasna_custom_v1');
+    if(Array.isArray(свои)&&свои.length){
+      var последняя=свои[свои.length-1]||{};
+      var занято=0;
+      try{ занято=(последняя.p||[]).filter(function(x){return x&&String(x).trim()}).length; }catch(e){}
+      текст('vid-svoya-n',занято+' из 12');
+      текст('vid-svoya-t',последняя.n||последняя.name||'Ваша Ясна');
+      текст('vid-svoya-o',занято>=12?'круг собран':'полок заполнено');
+      сШкалой(document.getElementById('vid-svoya-fill').closest('.vid-plit'));
+      шкала('vid-svoya-fill',занято/12);
+    }
+
+    /* Широкая плитка «Дальше» ведёт туда, где человек остановился. */
+    var знак=false;
+    try{ знак=localStorage.getItem('yasna_learn_intro_done_v1')==='1'; }catch(e){}
+    var д2=document.getElementById('vid-dalshe');
+    if(!знак){
+      текст('vid-dalshe-t','Дальше: знакомство с методом');
+      текст('vid-dalshe-o','пять минут разговором — что такое Ясна');
+      д2.setAttribute('href','learn.html#znakomstvo');
+    } else if(прошли<БАЗ.length){
+      текст('vid-dalshe-t','Дальше: базовый курс');
+      текст('vid-dalshe-o',прошли?('пройдено '+прошли+' из '+БАЗ.length+' — продолжить'):'четыре урока по шагам, прямо в круге');
+      д2.setAttribute('href','konstruktor.html?lessons=1');
+    } else if(сцен<4){
+      текст('vid-dalshe-t','Дальше: переговоры');
+      текст('vid-dalshe-o','метод в разговоре — четыре сценария');
+      д2.setAttribute('href','negotiations.html');
+    } else {
+      текст('vid-dalshe-t','Дальше: разобрать своё явление');
+      текст('vid-dalshe-o','двенадцать полок, ваш круг');
+      д2.setAttribute('href','konstruktor.html');
+    }
+  })();
 
   /* Практики: переключение задачи меняет карточку и запускает свою сцену.
      Ссылки настоящие — карточка остаётся одной большой кнопкой. */
@@ -553,19 +837,58 @@
     ];
     var чипы=document.querySelectorAll('.pr-chip'), карта=document.getElementById('pr-karta');
     if(!чипы.length||!карта) return;
+    /* Строка под карточкой. Есть данные — говорим о человеке («разобрано 3 из
+       16»), нет — о содержании («шестнадцать явлений ждут раскладки»). Ноль
+       не печатаем никогда. */
+    function фактДля(id){
+      function ч2(к){ try{ return JSON.parse(localStorage.getItem(к)) }catch(e){ return null } }
+      if(id==='pamyat'){
+        var кр=ч2('yasna_krug_v1')||{}, n=0;
+        try{ n=Object.keys(кр.best||{}).length; }catch(e){}
+        return n>0 ? {текст:'разобрано '+n+' из 16 явлений', всего:16, есть:n}
+                   : {текст:'шестнадцать явлений ждут раскладки', всего:16, есть:0};
+      }
+      if(id==='pogruzhenie'){
+        var свои=ч2('yasna_custom_v1');
+        var к=Array.isArray(свои)?свои.length:0;
+        return к>0 ? {текст:'своих Ясн: '+к, всего:0, есть:0}
+                   : {текст:'двенадцать полок — от основы до вершины', всего:0, есть:0};
+      }
+      if(id==='obshchenie'){
+        var нег=ч2('yasna_neg_lessons_v1'), c=0;
+        try{ c=Array.isArray(нег)?нег.length:Object.keys(нег||{}).length; }catch(e){}
+        return c>0 ? {текст:'просмотрено '+c+' из 4 сценариев', всего:4, есть:c}
+                   : {текст:'четыре сценария · первый — «Кто передо мной»', всего:4, есть:0};
+      }
+      return {текст:'один разговор · разбор по шагам', всего:0, есть:0};
+    }
+    function показатьФакт(id){
+      var э=document.getElementById('pr-fakt'); if(!э) return;
+      var ф=фактДля(id);
+      э.innerHTML='';
+      if(ф.всего){
+        var т=document.createElement('span'); т.className='pr-tochki';
+        for(var i=0;i<ф.всего;i++){ var и=document.createElement('i'); if(i<ф.есть) и.className='est'; т.appendChild(и); }
+        э.appendChild(т);
+      }
+      var сп=document.createElement('span'); сп.textContent=ф.текст; э.appendChild(сп);
+      э.hidden=false;
+    }
+
     function показать(id){
       var п=П.filter(function(x){return x.id===id})[0]; if(!п) return;
       карта.href=п.href;
       document.getElementById('pr-metka').textContent=п.metka;
       document.getElementById('pr-t').textContent=п.t;
       document.getElementById('pr-o').textContent=п.o;
-      document.getElementById('pr-knopka').firstChild.nodeValue=п.kn+' ';
+      показатьФакт(id);
       [].forEach.call(document.querySelectorAll('.pr-holst'),function(х){
         х.hidden = х.getAttribute('data-s')!==id;
       });
       [].forEach.call(чипы,function(ч){ ч.classList.toggle('est', ч.getAttribute('data-p')===id); });
       карта.classList.remove('smena'); void карта.offsetWidth; карта.classList.add('smena');
     }
+    показатьФакт('pamyat');
     [].forEach.call(чипы,function(ч){
       ч.addEventListener('click',function(){ показать(ч.getAttribute('data-p')); });
     });
