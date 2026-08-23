@@ -1,11 +1,11 @@
 // АВТОГЕНЕРИРОВАННЫЙ ФАЙЛ — НЕ РЕДАКТИРОВАТЬ
 // Источник: content/*.json
 // Сборщик: scripts/build-content.mjs
-// Build: 2026-08-23T13:33:24.490Z
+// Build: 2026-08-23T21:21:00.772Z
 // Themes: 11 · Atoms: 334 · Questions: 168 (single-choice: 100)
 
 ;(function(){
-  const BUILD_INFO = {"builtAt":"2026-08-23T13:33:24.490Z","contentVersion":"1.1.0","files":11,"themes":11,"atomsTotal":334,"questionsTotal":168,"questionsLegacy":100};
+  const BUILD_INFO = {"builtAt":"2026-08-23T21:21:00.772Z","contentVersion":"1.1.0","files":11,"themes":11,"atomsTotal":334,"questionsTotal":168,"questionsLegacy":100};
   const THEMES = [
   {
     "id": "dzhiva-serdtse",

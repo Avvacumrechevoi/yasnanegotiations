@@ -849,21 +849,7 @@ function App(){
   /* Аппаратная «назад» в приложении (событие из app/pribavka.js). Раньше она
      уносила с экрана целиком, даже когда открыт редактор или окно справки, —
      и незаписанная правка пропадала. Закрываем по одному слою за нажатие. */
-  useEffect(()=>{
-    const назад=(e)=>{
-      if(e.defaultPrevented) return;
-      if(instr||glossary||verif||menu||picker||showOverlayPicker){
-        e.preventDefault();
-        setInstr(false);setGlossary(false);setVerif(false);
-        setMenu(false);setPicker(false);setShowOverlayPicker(false);
-        return;
-      }
-      if(ed){ e.preventDefault(); setEd(false); return; }
-      if(fullStar){ e.preventDefault(); setFullStar(false); return; }
-    };
-    window.addEventListener('yasna:назад',назад);
-    return()=>window.removeEventListener('yasna:назад',назад);
-  },[instr,glossary,verif,menu,picker,showOverlayPicker,ed,fullStar]);
+  const[откуда,setОткуда]=useState(null);
   const[pinned,setPinned]=useState(()=>{try{const s=JSON.parse(localStorage.getItem('yasna_pinned_v1'));return Array.isArray(s)&&s.length?s:defPinned;}catch(_){return defPinned;}});
   useEffect(()=>{try{localStorage.setItem('yasna_pinned_v1',JSON.stringify(pinned));}catch(_){}},[pinned]);
   const[lessonPicker,setLessonPicker]=useState(false);
@@ -923,6 +909,30 @@ function App(){
     try{document.documentElement.style.colorScheme=open?'light':'dark';}catch(_){}
     return ()=>{ try{ if(localStorage.getItem('yasna_theme_vk_dark')==='1'){document.body.classList.add('theme-vk-dark');document.documentElement.style.colorScheme='dark';} }catch(_){} };
   },[lessonPicker,activeLesson]);
+  /* Аппаратная «назад» закрывает по одному слою за нажатие. Урок, каталог
+     уроков и тур сюда не входили: внутри урока кнопка не делала ничего, и
+     выйти из него на телефоне было нечем — только свернуть приложение.
+     Слушатель стоит ЗДЕСЬ, ниже объявления activeLesson: список зависимостей
+     считается на отрисовке, и выше по файлу эти переменные ещё не существуют. */
+  useEffect(()=>{
+    const назад=(e)=>{
+      if(e.defaultPrevented) return;
+      if(activeLesson){ e.preventDefault(); setActiveLesson(null); return; }
+      if(lessonPicker){ e.preventDefault(); setLessonPicker(false); return; }
+      if(showTour){ e.preventDefault(); setShowTour(false); return; }
+      if(instr||glossary||verif||menu||picker||showOverlayPicker){
+        e.preventDefault();
+        setInstr(false);setGlossary(false);setVerif(false);
+        setMenu(false);setPicker(false);setShowOverlayPicker(false);
+        return;
+      }
+      if(ed){ e.preventDefault(); setEd(false); return; }
+      if(fullStar){ e.preventDefault(); setFullStar(false); return; }
+    };
+    window.addEventListener('yasna:назад',назад);
+    return()=>window.removeEventListener('yasna:назад',назад);
+  },[instr,glossary,verif,menu,picker,showOverlayPicker,ed,fullStar,activeLesson,lessonPicker,showTour]);
+
   // Прогресс уроков персистится между сессиями (раньше терялся при F5).
   const[completedLessons,setCompletedLessons]=useState(()=>{try{const s=JSON.parse(localStorage.getItem('yasna_completed_lessons_v1'));return Array.isArray(s)?s:[];}catch(_){return[];}});
   useEffect(()=>{try{localStorage.setItem('yasna_completed_lessons_v1',JSON.stringify(completedLessons));}catch(_){}},[completedLessons]);
@@ -964,17 +974,33 @@ function App(){
   useEffect(()=>{ setPanelCollapsed(false); },[sel]);
 
   // Rotation теперь управляется внутри Star через ref + rAF (см. yasna-star.js)
+  /* Модалка (урок, справка, редактор) закрывает карточку места — иначе
+     шторка осталась бы поверх неё. Но само выбранное место мы помним и
+     возвращаем: человек ушёл в урок ИЗ карточки и должен вернуться в неё,
+     а не на пустой круг. */
+  const местоДоМодалки=useRef(null);
   useEffect(()=>{
-    if(ed||glossary||instr||verif||fullStar||picker||showOverlayPicker||lessonPicker||activeLesson){
+    const открыта=ed||glossary||instr||verif||fullStar||picker||showOverlayPicker||lessonPicker||activeLesson||showTour;
+    if(открыта){
       setMenu(false);
-      // Закрываем Info-карточку (FI), чтобы её состояние fi-full не оставалось
-      // под модалкой и не держало body:has(.fi-full) → .hdr{max-height:0} активным.
-      // Без этого после возврата из модалки шапка остаётся свёрнутой и некликабельной.
-      setSel(null);
+      setSel(с=>{ if(с!==null) местоДоМодалки.current=с; return null; });
+    } else if(местоДоМодалки.current!==null){
+      const было=местоДоМодалки.current;
+      местоДоМодалки.current=null;
+      setSel(было);
     }
-  },[ed,glossary,instr,verif,fullStar,picker,showOverlayPicker,lessonPicker,activeLesson]);
+  },[ed,glossary,instr,verif,fullStar,picker,showOverlayPicker,lessonPicker,activeLesson,showTour]);
   // flush несохранённого ввода ПЕРЕД заменой y — быстрые переключения не теряют работу
-  const load=t=>{upsertCustom(y);setY({id:t.user?t.id:undefined,user:!!t.user,name:t.n||t.name,p:[...t.p],th:t.th||'',bh:t.bh||'',lh:t.lh||'',rh:t.rh||'',custom:!!t.custom});setSel(null);setAf([]);setYasna2Drill(null);};
+  const load=t=>{upsertCustom(y);setY({id:t.user?t.id:undefined,user:!!t.user,name:t.n||t.name,p:[...t.p],th:t.th||'',bh:t.bh||'',lh:t.lh||'',rh:t.rh||'',custom:!!t.custom});setSel(null);setAf([]);setYasna2Drill(null);setОткуда(null);};
+  /* Переход по чипу «то же место в другой ясне»: место остаётся выбранным,
+     иначе сравнивать нечего — карточка закрылась бы вместе со смыслом. */
+  const loadAt=t=>{
+    const прежняя=y&&y.name?{n:y.name,p:[...y.p],th:y.th,bh:y.bh,lh:y.lh,rh:y.rh,user:!!y.user,id:y.id,custom:!!y.custom}:null;
+    upsertCustom(y);
+    setY({id:t.user?t.id:undefined,user:!!t.user,name:t.n||t.name,p:[...t.p],th:t.th||'',bh:t.bh||'',lh:t.lh||'',rh:t.rh||'',custom:!!t.custom});
+    setAf([]);setYasna2Drill(null);
+    setОткуда(прежняя&&прежняя.n!==(t.n||t.name)?прежняя:null);
+  };
   const createNew=()=>{upsertCustom(y);setY({id:genId(),user:true,name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);};
   // Редактировать текущую: своя — открываем как есть; встроенный шаблон —
   // copy-on-write (копия «(моя)»), оригинал из data.js не трогаем.
@@ -1390,9 +1416,18 @@ function App(){
             </div>
         </div>
         {/* side-panel: flex-сосед workspace на десктопе, overlay на планшете, скрыт на мобильном (там bottom-sheet) */}
-        {sel!==null && <aside className={'side-panel'+(panelCollapsed?' collapsed':'')} aria-label='Карточка полки'>
+        {/* Затемнение — только когда шторка поднята выше среднего упора.
+            Ниже его круг остаётся рабочим: можно крутить и выбирать другое
+            место, не закрывая карточку (так же ведут себя Карты и Музыка). */}
+        {sel!==null && <div className='sht-fon' aria-hidden='true'/>}
+        {sel!==null && <aside className={'side-panel sht'+(panelCollapsed?' collapsed':'')} aria-label='Карточка места'>
           <button className='side-panel-toggle' onClick={()=>setPanelCollapsed(c=>!c)} title={panelCollapsed?'Развернуть панель':'Свернуть панель'} aria-label={panelCollapsed?'Развернуть панель':'Свернуть панель'}>{panelCollapsed?'‹':'›'}</button>
-          {!panelCollapsed && <Info i={sel} p={y.p} af={af} y={y} overlay={overlay} onEdit={editCurrent} onClose={()=>setPanelCollapsed(true)} onSel={setSel}/>}
+          {!panelCollapsed && <Info i={sel} p={y.p} af={af} y={y} overlay={overlay} onEdit={editCurrent}
+            onClose={()=>setSel(null)} onSel={setSel}
+            onLesson={id=>setActiveLesson(id)}
+            onTour={()=>setShowTour(true)}
+            onYasna={t=>loadAt(t)}
+            откуда={откуда}/>}
         </aside>}
       </div>
       {/* Ясна² Drill Editor: bottom-panel с 12 inputs для sub-полок */}

@@ -1,8 +1,26 @@
 // ═══════════════════════════════════════════════════════════════════
-// INFO CARD — карточка выбранной полки
-// Extracted from core/yasna-star.js (Layer 2 component).
-// Зависимости: window.YasnaData (CR, PR, REF, gc, gp, opp,
-//                POS_DESC, CROSS_CTX, PRANA_CTX, OPP_DESC).
+// КАРТОЧКА МЕСТА — досье полки, а не подпись к ней.
+//
+// ЧТО ИЗМЕНИЛОСЬ И ПОЧЕМУ. Прежняя карточка повторяла то, что и так
+// нарисовано на круге: три строки «← 2», «→ 4», «↔ 9» с номерами
+// соседей. Номера видны на схеме, читать их второй раз незачем, а
+// место они занимали всё. Ещё в ней был заголовок «Открыть в Ясне
+// „…“ →» — обычный <div> без обработчика: нажать нечего, и вёл он в
+// ту же ясну, которая уже открыта.
+//
+// Теперь карточка отвечает на единственный вопрос, ради которого её
+// открывают: ПОЧЕМУ это явление стоит именно здесь и почему так
+// называется. Соседи переехали в жест (смахивание по шапке), связь
+// «напротив» — в блок словами, а числа остались только в кружке.
+//
+// Лестница содержимого совпадает с упорами шторки:
+//   мини    — имя, паспорт места, суть одной строкой, одно действие;
+//   средне  — иллюстрация, «почему здесь», самопроверка;
+//   полно   — имя книги, «напротив», цитаты книги, реплики урока,
+//             то же место в других яснах.
+// Блок без источника не рисуется вовсе — ни заголовка, ни пустой рамки.
+//
+// Зависимости: window.YasnaData, window.YasnaDosye, window.YasnaShtorka.
 // Экспорт: window.Info.
 // ═══════════════════════════════════════════════════════════════════
 
@@ -10,35 +28,184 @@
 
 const { useState, useMemo, useEffect, useRef } = React;
 const {
-  CR, PR, REF,
+  CR, PR, REF, T,
   POS_DESC, CROSS_CTX, PRANA_CTX, OPP_DESC,
   gc, gp, opp
 } = window.YasnaData;
 
-function Info({i,p,af=[],y={},overlay=null,onEdit,onClose,onSel}){
+/* ─── Мелкие части ──────────────────────────────────────────────── */
+
+const Клеймо=({children})=><div className="dos-kleymo">{children}</div>;
+
+const Цитата=({t,s,урок})=>(
+  <blockquote className={'dos-citata'+(урок?' dos-citata--urok':'')}>
+    <p>{t}</p>
+    <cite>{s}{урок?<span className="dos-asr"> · расшифровка урока</span>:null}</cite>
+  </blockquote>
+);
+
+/* Сцена суток: горизонт и солнце ровно в том положении, которое
+   описывает это место. Рисуется из индекса — ни файлов, ни сети. */
+const СЦЕНЫ=[
+  {неб:['#070b1e','#131a3c'],звёзды:true},
+  {неб:['#0a1030','#2a2350'],звёзды:true,заря:{x:64,сила:.45}},
+  {неб:['#131a3c','#8a4a58'],заря:{x:72,сила:.9}},
+  {неб:['#2a2140','#e0733a'],солнце:{x:72,y:92},заря:{x:72,сила:1}},
+  {неб:['#3a3560','#f0a050'],солнце:{x:108,y:64}},
+  {неб:['#4a5a90','#f7c46a'],солнце:{x:142,y:42}},
+  {неб:['#5a9ad8','#cfe8ff'],солнце:{x:180,y:30}},
+  {неб:['#5f92cc','#f6d08a'],солнце:{x:218,y:42}},
+  {неб:['#4a4a80','#f0955a'],солнце:{x:252,y:64}},
+  {неб:['#2a2140','#e05a3a'],солнце:{x:288,y:92},заря:{x:288,сила:1}},
+  {неб:['#141a3c','#6a3a5e'],заря:{x:288,сила:.8}},
+  {неб:['#0a1030','#2a2350'],звёзды:true,заря:{x:288,сила:.4}},
+];
+const ЗВЁЗДЫ=[[24,22],[58,38],[96,18],[132,44],[168,26],[204,40],[238,20],[276,36],[312,24],[336,46],[46,58],[300,58]];
+
+function СценаСуток({i}){
+  const с=СЦЕНЫ[i]||СЦЕНЫ[0];
+  const gid='sky'+i;
+  return (
+    <svg className="dos-scena" viewBox="0 0 360 132" preserveAspectRatio="xMidYMid slice" role="img"
+         aria-label={'Схема неба для места '+i}>
+      <defs>
+        <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={с.неб[0]}/>
+          <stop offset="1" stopColor={с.неб[1]}/>
+        </linearGradient>
+        {с.заря&&<radialGradient id={gid+'z'} cx="50%" cy="50%" r="50%">
+          <stop offset="0" stopColor="#ffd08a" stopOpacity={с.заря.сила}/>
+          <stop offset="1" stopColor="#ffd08a" stopOpacity="0"/>
+        </radialGradient>}
+      </defs>
+      <rect x="0" y="0" width="360" height="132" fill={'url(#'+gid+')'}/>
+      {с.звёзды&&ЗВЁЗДЫ.map((з,k)=><circle key={k} cx={з[0]} cy={з[1]} r={k%3?1:1.6} fill="#fff" opacity={k%3?.5:.8}/>)}
+      {с.заря&&<ellipse cx={с.заря.x} cy="92" rx="78" ry="46" fill={'url(#'+gid+'z)'}/>}
+      {с.солнце&&<circle cx={с.солнце.x} cy={с.солнце.y} r="14" fill="#ffd66b" stroke="#fff3c4" strokeWidth="2"/>}
+      <rect x="0" y="92" width="360" height="40" fill="#1a1c22"/>
+      <rect x="0" y="91" width="360" height="2" fill="#3c4049"/>
+      <text x="12" y="114" fill="#9aa0aa" fontSize="12">восток</text>
+      <text x="348" y="114" fill="#9aa0aa" fontSize="12" textAnchor="end">запад</text>
+    </svg>
+  );
+}
+
+/* Мини-круг: та же схема, но карманная — чтобы на полном экране,
+   когда звезда скрыта шторкой, место не терялось из виду. */
+function МиниКруг({i,p,cr,pr}){
+  const R=48,cx=60,cy=60;
+  const точка=(j)=>{const a=(270-j*30)*Math.PI/180;return{x:cx+R*Math.cos(a),y:cy-R*Math.sin(a)};};
+  const тр=pr.p.map(точка);
+  const о=точка(opp(i)),м=точка(i);
+  return (
+    <svg className="dos-krug" viewBox="0 0 120 120" role="img" aria-label={'Место '+i+' на круге'}>
+      <circle cx={cx} cy={cy} r={R} fill="none" stroke="var(--border)" strokeWidth="1"/>
+      <polygon points={тр.map(t=>t.x+','+t.y).join(' ')} fill={pr.c+'14'} stroke={pr.c+'55'} strokeWidth="1"/>
+      <line x1={м.x} y1={м.y} x2={о.x} y2={о.y} stroke="var(--txt3)" strokeWidth="1" strokeDasharray="3 3"/>
+      {Array.from({length:12},(_,j)=>{
+        const т=точка(j);
+        if(j===i) return <circle key={j} cx={т.x} cy={т.y} r="7" fill={cr.c}/>;
+        if(j===opp(i)) return <circle key={j} cx={т.x} cy={т.y} r="5" fill="none" stroke="var(--txt2)" strokeWidth="1.5"/>;
+        return <circle key={j} cx={т.x} cy={т.y} r="3" fill="var(--border)"/>;
+      })}
+      <text x={cx} y={cy+5} textAnchor="middle" fontSize="15" fontWeight="700" fill={cr.c}>{i}</text>
+    </svg>
+  );
+}
+
+/* ─── Самопроверка: один вопрос, собранный из устройства круга ──── */
+function собратьВопрос(n,i,p,cr,pr,суточная){
+  const label=p[i]||('место '+i);
+  const oppLabel=p[opp(i)]||'';
+  const свободные=p.map((т,j)=>({т,j})).filter(x=>x.т&&x.j!==i&&x.j!==opp(i)).map(x=>x.т);
+  const варианты=(верный,прочие)=>{
+    const все=[верный].concat(прочие.slice(0,2));
+    /* Перемешивание, зависящее только от i — ответ не «прыгает» при перерисовке */
+    return все.map((т,k)=>({т,верно:k===0})).sort((a,b)=>((i*7+a.т.length)%5)-((i*7+b.т.length)%5));
+  };
+  if(n===0&&oppLabel&&свободные.length>=2){
+    return {
+      в:'Что стоит напротив места «'+label+'»?',
+      о:варианты(oppLabel,свободные),
+      р:'Напротив всегда стоит место, отличающееся на шесть: '+i+' и '+opp(i)+'. '+(OPP_DESC[i<6?i:i-6]||''),
+      и:суточная?'Ясна Суток, с. 31':null
+    };
+  }
+  if(n===1){
+    const долгое=i%2===0;
+    return {
+      в:'«'+label+'» — долгое время или короткий перелом?',
+      о:[{т:'Долгое: обстановка меняется медленно',верно:долгое},
+         {т:'Короткое: перелом, всё меняется быстро',верно:!долгое}],
+      р:'Все чётные места круга — долгие, все нечётные — короткие переломные. Место '+i+' '+(долгое?'чётное':'нечётное')+'.',
+      и:суточная?'Ясна Суток, с. 50':null
+    };
+  }
+  const прочие=['ШЕ','ФО','ЦИ','ХА'].filter(k=>k!==pr.n.split(' ')[1]);
+  return {
+    в:'Какая стихия у места «'+label+'»?',
+    о:[{т:pr.n,верно:true}].concat(['Земля ШЕ','Вода ФО','Воздух ЦИ','Огонь ХА'].filter(т=>т!==pr.n).slice(0,2).map(т=>({т,верно:false})))
+        .sort((a,b)=>((i*5+a.т.length)%4)-((i*5+b.т.length)%4)),
+    р:PRANA_CTX[gp(i)],
+    и:суточная?'Ясна Суток, с. 84':null
+  };
+}
+
+function Самопроверка({i,p,cr,pr,суточная}){
+  const[открыт,setОткрыт]=useState(false);
+  const[n,setN]=useState(i%3);
+  const[ответ,setОтвет]=useState(null);
+  const в=useMemo(()=>собратьВопрос(n,i,p,cr,pr,суточная),[n,i,p,cr,pr,суточная]);
+  useEffect(()=>{setОтвет(null);},[i,n]);
+  if(!открыт) return (
+    <button type="button" className="dos-knopka dos-knopka--tihaya" onClick={()=>setОткрыт(true)}>
+      Проверить себя · 1 вопрос
+    </button>
+  );
+  return (
+    <section className="dos-blok dos-vopros">
+      <Клеймо>Проверь себя</Клеймо>
+      <p className="dos-vopros-t">{в.в}</p>
+      <div className="dos-otvety">
+        {в.о.map((о,k)=>(
+          <button key={k} type="button"
+            className={'dos-otvet'+(ответ===null?'':о.верно?' dos-otvet--verno':(ответ===k?' dos-otvet--mimo':''))}
+            onClick={()=>ответ===null&&setОтвет(k)}>{о.т}</button>
+        ))}
+      </div>
+      {ответ!==null&&<div className="dos-razbor">
+        <p>{в.о[ответ]&&в.о[ответ].верно?'Верно. ':'Не так. '}{в.р}</p>
+        {в.и&&<cite>{в.и}</cite>}
+        <button type="button" className="dos-knopka dos-knopka--tihaya" onClick={()=>setN(k=>(k+1)%3)}>Ещё вопрос</button>
+      </div>}
+    </section>
+  );
+}
+
+/* ─── Карточка ──────────────────────────────────────────────────── */
+
+function Info({i,p,af=[],y={},overlay=null,onEdit,onClose,onSel,onLesson,onTour,onYasna,откуда}){
   if(i===null)return null;
   const cr=CR[gc(i)],pr=PR[gp(i)],ref=REF[i],label=p[i]||'',oppLabel=p[opp(i)]||'';
-  const prevL=p[(i+11)%12]||'',nextL=p[(i+1)%12]||'';
   const isLong=i%2===0;
   const oppPairIdx=i<6?i:i-6;
-  const hasMech=af.length>0;
   const isEmpty=!label;
-  // Polarity relation: which pole does this position belong to?
-  const poleVert=[0,1,11].includes(i)?'bh':[5,6,7].includes(i)?'th':null;
-  const poleHoriz=[2,3,4].includes(i)?'lh':[8,9,10].includes(i)?'rh':null;
   const overlayLabel=overlay&&overlay.p?(overlay.p[i]||''):'';
+  const дос=(window.YasnaDosye&&window.YasnaDosye.место)?window.YasnaDosye.место(y,i):null;
+  const суточная=!!дос;
 
+  /* ── Механики: показываем только то, что человек сам включил ── */
   const mechItems=[];
   af.forEach(fid=>{
     if(['support','right','left'].includes(fid)){
       if(CR[fid].p.includes(i)) mechItems.push({c:CR[fid].c,title:CR[fid].n+' · '+CR[fid].v,text:CROSS_CTX[fid][i]});
-      else mechItems.push({c:'#aeaeb2',title:CR[fid].n,text:'Позиция '+i+' не входит в этот крест ('+CR[fid].p.join('·')+')',dim:true});
+      else mechItems.push({c:'var(--txt3)',title:CR[fid].n,text:'Это место в крест не входит — в нём стоят '+CR[fid].p.join(', ')+'.',dim:true});
     }
     if(['she','fo','tsi','ha'].includes(fid)){
       if(PR[fid].p.includes(i)) mechItems.push({c:PR[fid].c,title:PR[fid].n,text:PRANA_CTX[fid]});
-      else mechItems.push({c:'#aeaeb2',title:PR[fid].n,text:'Позиция '+i+' не входит в треугольник ('+PR[fid].p.join('·')+')',dim:true});
+      else mechItems.push({c:'var(--txt3)',title:PR[fid].n,text:'Это место в треугольник не входит — в нём стоят '+PR[fid].p.join(', ')+'.',dim:true});
     }
-    if(fid==='opp') mechItems.push({c:'#ff9500',title:'↔ ['+i+'] — ['+opp(i)+']',text:OPP_DESC[oppPairIdx]+(oppLabel?' «'+label+'» ↔ «'+oppLabel+'»':'')});
+    if(fid==='opp') mechItems.push({c:'#ff9500',title:'Напротив',text:OPP_DESC[oppPairIdx]+(oppLabel?' «'+label+'» ↔ «'+oppLabel+'»':'')});
     if(fid==='rhythm'){
       const triples=[[2,3,4],[5,6,7],[8,9,10],[11,0,1]];
       const tri=triples.find(t=>t.includes(i));
@@ -46,10 +213,9 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose,onSel}){
         const myK=tri.indexOf(i);
         const roles=[{r:'Вера',l:'подготовка',c:'#5B9CF6'},{r:'Бой',l:'событие',c:'#E8364F'},{r:'Победа',l:'итог',c:'#E8A834'}];
         const role=roles[myK];
-        const triIdx=triples.indexOf(tri)+1;
         const triNames=['I','II','III','IV'];
         const steps=tri.map((j,k)=>({idx:j,role:roles[k],name:p[j]||'',active:k===myK}));
-        mechItems.push({c:'#30A060',title:'Ритм · Тройка '+triNames[triIdx-1]+' · '+role.r,steps});
+        mechItems.push({c:'#30A060',title:'Ритм · Тройка '+triNames[triples.indexOf(tri)]+' · '+role.r,steps});
       }
     }
     if(fid==='arcs'){
@@ -59,250 +225,184 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose,onSel}){
       arcs.forEach((arc,ai)=>{
         if(arc.includes(i)){
           const myK=arc.indexOf(i);
-          const role=arcRoles[myK];
           const steps=arc.map((j,k)=>({idx:j,role:arcRoles[k],name:p[j]||'',active:k===myK}));
-          mechItems.push({c:['#4090D8','#9060D0','#30A060'][ai],title:arcNames[ai]+' · '+role.r+' ('+role.l+')',steps});
+          mechItems.push({c:['#4090D8','#9060D0','#30A060'][ai],title:arcNames[ai]+' · '+arcRoles[myK].r+' ('+arcRoles[myK].l+')',steps});
         }
       });
     }
     if(fid==='halves'){
       const isLight=[4,5,6,7,8].includes(i);
       const isDark=[10,11,0,1,2].includes(i);
-      const isHoriz=[3,9].includes(i);
       const isLeft=[1,2,3,4,5].includes(i);
       const isRight=[7,8,9,10,11].includes(i);
-      const isVert=[0,6].includes(i);
-      mechItems.push({c:isLight?'#C0A030':isDark?'#5868B8':'#86868b',
+      mechItems.push({c:isLight?'#C0A030':isDark?'#5868B8':'var(--txt3)',
         title:isLight?'Чаша Света (верх)':isDark?'Чаша Тьмы (низ)':'Горизонт',
-        text:isLight?'Явное, открытое, активное. Позиции 4-5-6-7-8.':isDark?'Скрытое, закрытое, пассивное. Позиции 10-11-0-1-2.':'Соединяет чаши. Точка борьбы и перехода.'});
-      mechItems.push({c:isLeft?'#28A060':isRight?'#A046A0':'#86868b',
+        text:isLight?'Явное, открытое, активное.':isDark?'Скрытое, закрытое, спокойное.':'Соединяет чаши. Точка борьбы и перехода.'});
+      mechItems.push({c:isLeft?'#28A060':isRight?'#A046A0':'var(--txt3)',
         title:isLeft?'Левая половина (нарастание)':isRight?'Правая половина (спад)':'Ось Единства',
-        text:isLeft?'Энергия растёт, свет нарастает. Позиции 1-2-3-4-5.':isRight?'Энергия падает, свет убывает. Позиции 7-8-9-10-11.':'Вертикальная ось. Полюс '+(i===0?'Тьмы':'Света')+'.'});
+        text:isLeft?'Свет прибывает.':isRight?'Свет убывает.':'Вертикальная ось. Полюс '+(i===0?'тьмы':'света')+'.'});
     }
     if(fid==='error89'){
       const isMain=[8,9].includes(i);
       const isMirror=[2,3].includes(i);
-      const isOpCross=[0,3,6,9].includes(i);
-      const opErrors={0:'Ошибка во сне: решение приходит во сне, но ты не уверен, было ли оно.',3:'Просмотрел: на Востоке (Истина) кажется всё точно, но можно просмотреть деталь.',6:'Мираж: на вершине (День) иллюзия полноты, но реальность сложнее.',9:'Ошибка измерения: на Западе (Розыгрыш) мир показывает не то, что есть.'};
-      if(isMain) mechItems.push({c:'#D946EF',title:'Зона ошибки 8↔9',text:'Элементы полочек 8 и 9 могут быть перепутаны. «'+( p[8]||'[8]')+' » выглядит как «'+(p[9]||'[9]')+'» и наоборот. ДЕВять содержит ДЕВА(8), ВОСемь содержит ВЕСы(9) — язык хранит эту путаницу.'});
-      else if(isMirror) mechItems.push({c:'#D946EF',title:'Зеркало ошибки 2↔3',text:'Если 8↔9 путаются, то и 2↔3 тоже. «'+(p[2]||'[2]')+'» может содержать свойства «'+(p[3]||'[3]')+'». Пример: бар(2) по сути кухня(3), но в столовой.'});
-      else if(isOpCross) mechItems.push({c:'#D946EF',title:'Ошибка Опорного креста',text:opErrors[i]});
-      else mechItems.push({c:'#D946EF44',title:'Ошибка 8↔9',text:'Позиция '+i+' не в зоне основной ошибки. Главная путаница — между 8 и 9 (и зеркально 2↔3).',dim:true});
-    }
-    if(fid==='__none__'){
-      if([0,6].includes(i)) mechItems.push({c:'#86868b',title:'Линия Единства (0↔6)',text:'Вертикальная ось. Позиция '+i+' — '+(i===0?'полюс Тьмы':'полюс Света')+'.'});
-      else if([3,9].includes(i)) mechItems.push({c:'#86868b',title:'Линия Борьбы (3↔9)',text:'Горизонтальная ось. Позиция '+i+' — '+(i===3?'Восток (Истина)':'Запад (Розыгрыш)')+'.'});
-      else mechItems.push({c:'#aeaeb2',title:'Оси',text:'Позиция '+i+' не на осях.',dim:true});
+      const opErrors={0:'Ошибка во сне: решение приходит во сне, но ты не уверен, было ли оно.',3:'Просмотрел: на востоке кажется, что всё точно, но деталь можно не заметить.',6:'Мираж: на вершине иллюзия полноты, а мир сложнее.',9:'Ошибка измерения: на западе мир показывает не то, что есть.'};
+      if(isMain) mechItems.push({c:'#D946EF',title:'Зона ошибки 8 и 9',text:'Здесь путают соседние места: «'+(p[8]||'8')+'» выглядит как «'+(p[9]||'9')+'». В языке та же путаница: ДЕВять — ДЕВА, ВОСемь — ВЕСы.'});
+      else if(isMirror) mechItems.push({c:'#D946EF',title:'Зеркало ошибки 2 и 3',text:'Если путаются 8 и 9, то и 2 с 3 тоже: «'+(p[2]||'2')+'» может содержать свойства «'+(p[3]||'3')+'».'});
+      else if([0,6].includes(i)) mechItems.push({c:'#D946EF',title:'Ошибка Опорного креста',text:opErrors[i]});
     }
   });
-
-  const Tag=({color,children})=><span style={{display:'inline-block',padding:'1px 8px',borderRadius:10,fontSize:10,fontWeight:500,background:color+'12',color:color,border:`1px solid ${color}25`}}>{children}</span>;
-
-  // Split mechItems into active and dim; collapse dim into one line when there are many
   const activeMech=mechItems.filter(it=>!it.dim);
   const dimMech=mechItems.filter(it=>it.dim);
-  const collapseDim=dimMech.length>3;
 
-  // Scroll indicator: show only when content overflows
-  const[scrollHint,setScrollHint]=useState(false);
-  const scrollRef=(el)=>{
-    if(!el)return;
-    const check=()=>{
-      const overflowing=el.scrollHeight>el.clientHeight+4;
-      const atBottom=el.scrollTop+el.clientHeight>=el.scrollHeight-8;
-      setScrollHint(overflowing&&!atBottom);
-    };
-    check();
-    el.onscroll=check;
-    // re-check after mechItems might re-render
-    setTimeout(check,50);
-  };
-
-  // Card size state: 'compact' | 'mid' | 'full' (mobile only)
-  const[cardSize,setCardSize]=useState('compact');
-  const sizeHeights={compact:0.32,mid:0.60,full:0.90}; // vh fractions
-
-  // Drag state kept in ref to avoid stale closure + re-render churn
-  const dragRef=React.useRef(null);
-
-  // Cycle through states on tap of handle
-  const cycleSize=()=>{
-    setCardSize(s=>s==='compact'?'mid':s==='mid'?'full':'compact');
-  };
+  /* ── Шторка ───────────────────────────────────────────────────── */
+  const корень=useRef(null);
+  const шт=useRef(null);
+  const соседПоЖесту=useRef(null);
+  соседПоЖесту.current=(шаг)=>{ if(onSel) onSel((i+(шаг>0?1:-1)+12)%12); };
 
   useEffect(()=>{
-    const handle=document.querySelector('.fi-handle');
-    if(!handle)return;
+    if(!корень.current||!window.YasnaShtorka)return;
+    const узел=корень.current.closest('aside.side-panel')||корень.current;
+    шт.current=window.YasnaShtorka.создать(узел,{
+      старт:'мини',
+      наЗакрытие:()=>{ if(onClose) onClose(); },
+      наСоседа:(шаг)=>{ if(соседПоЖесту.current) соседПоЖесту.current(шаг); }
+    });
+    return()=>{ if(шт.current){шт.current.снять();шт.current=null;} };
+  },[]);
 
-    const onDown=(e)=>{
-      // Don't start drag on close button or interactive children
-      if(e.target.closest('button'))return;
-      const y=e.touches?e.touches[0].clientY:e.clientY;
-      const h=window.innerHeight;
-      // Mark if the touch started on the narrow handle (tap here cycles sizes)
-      const fromHandle=e.currentTarget.classList.contains('fi-handle');
-      dragRef.current={startY:y,startH:sizeHeights[cardSize]*h,h,moved:false,curH:null,tapStart:Date.now(),fromHandle};
-      // add window listeners
-      window.addEventListener('touchmove',onMove,{passive:false});
-      window.addEventListener('touchend',onUp);
-      window.addEventListener('touchcancel',onUp);
-      window.addEventListener('mousemove',onMove);
-      window.addEventListener('mouseup',onUp);
-    };
-    const onMove=(e)=>{
-      const d=dragRef.current;
-      if(!d)return;
-      const y=e.touches?e.touches[0].clientY:e.clientY;
-      const dy=d.startY-y;
-      const newH=Math.max(d.h*0.20, Math.min(d.h*0.92, d.startH+dy));
-      const el=document.querySelector('.fi');
-      if(el){ el.style.height=newH+'px'; el.style.maxHeight=newH+'px'; el.classList.add('fi-dragging'); }
-      d.curH=newH;
-      d.moved=Math.abs(dy)>5;
-      if(e.cancelable)e.preventDefault();
-    };
-    const onUp=()=>{
-      const d=dragRef.current;
-      if(!d){cleanup();return;}
-      const el=document.querySelector('.fi');
-      const wasTap=!d.moved&&(Date.now()-d.tapStart)<300;
-      if(wasTap&&d.fromHandle){
-        // Only cycle on handle tap
-        if(el){ el.style.height=''; el.style.maxHeight=''; el.classList.remove('fi-dragging'); }
-        cycleSize();
-      } else if(d.curH!=null){
-        const frac=d.curH/d.h;
-        let target='compact';
-        if(frac>0.75) target='full';
-        else if(frac>0.45) target='mid';
-        setCardSize(target);
-        if(el){ el.style.height=''; el.style.maxHeight=''; el.classList.remove('fi-dragging'); }
-      } else {
-        if(el){ el.style.height=''; el.style.maxHeight=''; el.classList.remove('fi-dragging'); }
-      }
-      dragRef.current=null;
-      cleanup();
-    };
-    const cleanup=()=>{
-      window.removeEventListener('touchmove',onMove);
-      window.removeEventListener('touchend',onUp);
-      window.removeEventListener('touchcancel',onUp);
-      window.removeEventListener('mousemove',onMove);
-      window.removeEventListener('mouseup',onUp);
-    };
+  const закрыть=()=>{ if(шт.current) шт.current.закрыть(); else if(onClose) onClose(); };
 
-    handle.addEventListener('touchstart',onDown,{passive:true});
-    handle.addEventListener('mousedown',onDown);
-    // Also attach to header zone for bigger swipe target
-    const headerZone=document.querySelector('.fi-header-zone');
-    if(headerZone){
-      headerZone.addEventListener('touchstart',onDown,{passive:true});
-      headerZone.addEventListener('mousedown',onDown);
-    }
-    return()=>{
-      handle.removeEventListener('touchstart',onDown);
-      handle.removeEventListener('mousedown',onDown);
-      if(headerZone){
-        headerZone.removeEventListener('touchstart',onDown);
-        headerZone.removeEventListener('mousedown',onDown);
-      }
-      cleanup();
-    };
-  },[cardSize]);
+  /* Сменилось место или ясна — читаем сначала: содержимое другое, а
+     прокрутка иначе осталась бы посреди чужого текста. */
+  useEffect(()=>{
+    const т=корень.current&&корень.current.querySelector('.sht-telo');
+    if(т) т.scrollTop=0;
+  },[i,y.name]);
 
-  // Reset card size when selecting a new position
-  useEffect(()=>{setCardSize('compact');},[i]);
+  /* ── Первичное действие: первое подходящее, дальше не идём ────── */
+  const урок=useMemo(()=>{
+    const L=(window.YasnaLessons&&window.YasnaLessons.LESSONS)||[];
+    if(!суточная) return null;
+    const карта={0:'l2_night_foundation',1:'l3_morning',2:'l3_morning',3:'l3_morning'};
+    const id=карта[i];
+    if(!id) return null;
+    const l=L.find(x=>x.id===id);
+    return l?{id:l.id,t:l.title}:null;
+  },[i,суточная]);
+  const естьТур=!!(window.YasnaTours&&window.YasnaTours.has&&window.YasnaTours.has(y.name));
+
+  let действие=null;
+  if(урок&&onLesson) действие={т:'Урок · '+урок.t,на:()=>onLesson(урок.id)};
+  else if(естьТур&&onTour) действие={т:'Пройти ясну по кругу',на:()=>onTour()};
+  else if(isEmpty&&onEdit) действие={т:'Заполнить место '+i,на:onEdit};
+
+  /* ── То же место в других яснах ───────────────────────────────── */
+  const другие=useMemo(()=>{
+    const своё=(y.name||'').replace(/\s*\(моя\)\s*$/,'').trim();
+    return (T||[]).filter(t=>t.rubrik&&t.p&&t.p[i]&&t.n!==своё);
+  },[i,y.name]);
+
+  const паспорт=[isLong?'долгое':'короткое',pr.n,(ref.f||'').toLowerCase()].filter(Boolean).join(' · ');
+  const суть=дос?дос.sut:(POS_DESC[i]||'').split('. ')[0]+'.';
+  const почему=дос?дос.pochemu:POS_DESC[i];
 
   return(
-    <div className={"fi fi-"+cardSize+" fi-sidepanel"} style={{width:'100%',height:'100%',background:'rgba(255,255,255,.98)',display:'flex',flexDirection:'column'}}>
-      <div className="fi-handle" style={{display:'flex',justifyContent:'center',flexShrink:0}}>
-        <div className="fi-handle-bar" style={{width:36,height:4,borderRadius:2,background:'#d2d2d7'}}/>
+    <div className="sht-korpus" ref={корень}>
+      <i className="sht-mera" aria-hidden="true"/>
+      <div className="sht-ruchka" data-tyaga>
+        <button type="button" className="sht-ruchka-knopka" aria-label="Развернуть или свернуть карточку"><span className="sht-bar"/></button>
       </div>
-      <div className="fi-header-zone" style={{padding:'4px 18px 8px',flexShrink:0,position:'relative'}}>
-        {/* Close — выровнен по вертикальной середине ряда заголовка через top:50% / translateY */}
-        <button onClick={onClose} aria-label='Закрыть' title='Закрыть' style={{position:'absolute',top:'50%',right:12,transform:'translateY(-50%)',width:30,height:30,borderRadius:'50%',border:'1px solid #e5e5ea',background:'#f5f5f7',fontSize:18,lineHeight:1,color:'#86868b',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:1,padding:0}}>×</button>
-        <div style={{display:'flex',alignItems:'center',gap:12,paddingRight:38}}>
-          <div style={{width:36,height:36,borderRadius:'50%',border:`2px solid ${cr.c}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:700,color:cr.c,flexShrink:0}}>{i}</div>
-          <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:16,color:'#1d1d1f',fontWeight:700,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{label||<span style={{color:'#aeaeb2'}}>Не заполнено</span>}</div>
-            <div style={{display:'flex',alignItems:'center',gap:4,marginTop:3,flexWrap:'wrap'}}>
-              {ref.f&&<span style={{fontSize:9,color:'#6e6e73',textTransform:'uppercase',letterSpacing:0.5,fontWeight:700,marginRight:4}}>{ref.f}</span>}
-              <Tag color={cr.c}>{cr.v}</Tag>
-              <Tag color={pr.c}>{pr.n.split(' ')[0]}</Tag>
-              <Tag color="#86868b">{isLong?'Долгое':'Короткое'}</Tag>
-            </div>
+
+      <header className="sht-shapka" data-tyaga>
+        <button type="button" className="sht-zakryt" onClick={закрыть} aria-label="Закрыть карточку" title="Закрыть">×</button>
+        <div className="sht-ryad">
+          <div className="sht-nomer" style={{borderColor:cr.c,color:cr.c}}>{i}</div>
+          <div className="sht-imena">
+            <div className="sht-yasna">{y.name||''}</div>
+            <h2 className="sht-imya">{label||<span className="sht-pusto">Место не заполнено</span>}</h2>
+            <div className="sht-pasport">{паспорт}</div>
           </div>
         </div>
-      </div>
-      <div ref={scrollRef} style={{flex:1,overflowY:'auto',padding:'0 18px 16px',position:'relative'}}>
-        {/* Соседи — 3 кликабельных строки (Block 2.4) */}
-        <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:12,paddingBottom:10,borderBottom:'1px solid #f0f0f2'}}>
-          <button onClick={()=>onSel&&onSel((i+11)%12)} title='Перейти к предыдущей полке' style={{display:'flex',alignItems:'center',gap:8,fontSize:12,color:'#424245',background:'transparent',border:'none',padding:'4px 6px',borderRadius:6,cursor:'pointer',textAlign:'left',width:'100%'}} onMouseEnter={e=>e.currentTarget.style.background='#f5f5f7'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-            <span style={{color:'#86868b',fontSize:14,fontWeight:600,minWidth:14}}>←</span>
-            <span style={{color:'#aeaeb2',fontSize:10,fontWeight:600,minWidth:14}}>{(i+11)%12}</span>
-            <span style={{color:prevL?'#1d1d1f':'#c0c0c5',fontStyle:prevL?'normal':'italic'}}>{prevL||'—'}</span>
-          </button>
-          <button onClick={()=>onSel&&onSel((i+1)%12)} title='Перейти к следующей полке' style={{display:'flex',alignItems:'center',gap:8,fontSize:12,color:'#424245',background:'transparent',border:'none',padding:'4px 6px',borderRadius:6,cursor:'pointer',textAlign:'left',width:'100%'}} onMouseEnter={e=>e.currentTarget.style.background='#f5f5f7'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-            <span style={{color:'#86868b',fontSize:14,fontWeight:600,minWidth:14}}>→</span>
-            <span style={{color:'#aeaeb2',fontSize:10,fontWeight:600,minWidth:14}}>{(i+1)%12}</span>
-            <span style={{color:nextL?'#1d1d1f':'#c0c0c5',fontStyle:nextL?'normal':'italic'}}>{nextL||'—'}</span>
-          </button>
-          <button onClick={()=>onSel&&onSel(opp(i))} title='Перейти к противоположной полке' style={{display:'flex',alignItems:'center',gap:8,fontSize:12,color:'#424245',background:'transparent',border:'none',padding:'4px 6px',borderRadius:6,cursor:'pointer',textAlign:'left',width:'100%'}} onMouseEnter={e=>e.currentTarget.style.background='#fef8e7'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-            <span style={{color:'#ff9500',fontSize:14,fontWeight:600,minWidth:14}}>↔</span>
-            <span style={{color:'#aeaeb2',fontSize:10,fontWeight:600,minWidth:14}}>{opp(i)}</span>
-            <span style={{color:oppLabel?'#1d1d1f':'#c0c0c5',fontStyle:oppLabel?'normal':'italic'}}>{oppLabel||'—'}</span>
-          </button>
-          {overlay&&<div style={{display:'flex',alignItems:'center',gap:5,fontSize:11,color:'#af52de',flexWrap:'wrap'}}>
-            <span style={{fontWeight:600}}>⊕</span>
-            <span style={{color:'#aeaeb2',fontSize:10,fontWeight:600,fontStyle:'italic'}}>{overlay.name||overlay.n||'наложение'}:</span>
-            <span style={{color:overlayLabel?'#af52de':'#c0c0c5',fontStyle:overlayLabel?'normal':'italic'}}>{overlayLabel||'—'}</span>
-          </div>}
-        </div>
-        <div style={{fontSize:13,color:'#424245',lineHeight:1.6,marginBottom:10,padding:'10px 12px',background:'var(--bg2)',borderRadius:10}}>
-          {POS_DESC[i]}
-        </div>
-      {isEmpty&&onEdit&&<button onClick={onEdit} style={{width:'100%',padding:'9px 12px',marginBottom:10,background:'rgba(0,122,255,.06)',border:'1px dashed rgba(0,122,255,.35)',borderRadius:10,color:'#0071e3',fontSize:12,fontWeight:500,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}>
-        <span style={{fontSize:14}}>✎</span>
-        <span>Заполнить позицию {i}</span>
-      </button>}
-      {(poleVert||poleHoriz)&&(y.th||y.bh||y.lh||y.rh)&&<div style={{display:'flex',flexDirection:'column',gap:4,marginBottom:10,padding:'8px 10px',background:'#faf7ff',borderRadius:8,border:'1px solid #ece3f7'}}>
-        <div style={{fontSize:12,fontWeight:600,color:'#0058b8',marginBottom:4}}>Открыть в Ясне «{y.name}» →</div>
-        {poleVert==='th'&&y.th&&<div style={{fontSize:11,color:'#424245'}}><span style={{color:'#86868b'}}>▲ ближе к верху:</span> <b>{y.th}</b></div>}
-        {poleVert==='bh'&&y.bh&&<div style={{fontSize:11,color:'#424245'}}><span style={{color:'#86868b'}}>▼ ближе к низу:</span> <b>{y.bh}</b></div>}
-        {poleHoriz==='lh'&&y.lh&&<div style={{fontSize:11,color:'#424245'}}><span style={{color:'#86868b'}}>◀ ближе к лево:</span> <b>{y.lh}</b></div>}
-        {poleHoriz==='rh'&&y.rh&&<div style={{fontSize:11,color:'#424245'}}><span style={{color:'#86868b'}}>▶ ближе к право:</span> <b>{y.rh}</b></div>}
-      </div>}
-      {activeMech.length>0&&<div style={{display:'flex',flexDirection:'column',gap:4,marginBottom:6}}>
-        {activeMech.map((it,j)=><div key={j} style={{padding:'6px 10px',background:it.c+'08',borderRadius:8,borderLeft:`3px solid ${it.c}`,flexShrink:0}}>
-          <div style={{fontSize:10,fontWeight:600,color:it.c,marginBottom:it.steps?4:1}}>{it.title}</div>
-          {it.steps
-            ?<div style={{display:'flex',flexDirection:'column',gap:2,marginTop:2}}>
-              {it.steps.map((s,k)=><div key={k} style={{display:'flex',alignItems:'center',gap:6,fontSize:11,padding:s.active?'3px 6px':'2px 6px',background:s.active?'#ffffff':'transparent',borderRadius:4,border:s.active?'1px solid '+it.c+'40':'1px solid transparent'}}>
-                <span style={{fontSize:9,color:s.role.c,fontWeight:700,minWidth:22,padding:'1px 4px',background:s.role.c+'14',borderRadius:3,textAlign:'center'}}>{s.role.r}</span>
-                <span style={{fontSize:9,color:'#86868b',minWidth:14}}>[{s.idx}]</span>
-                <span style={{color:s.active?'#1d1d1f':'#424245',fontWeight:s.active?600:400,flex:1,minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{s.name||<span style={{color:'#c0c0c5',fontStyle:'italic'}}>—</span>}</span>
-                <span style={{fontSize:9,color:'#aeaeb2'}}>{s.role.l}</span>
-              </div>)}
-            </div>
-            :<div style={{fontSize:11,color:'#424245',lineHeight:1.45}}>{it.text}</div>
-          }
-        </div>)}
-      </div>}
-      {dimMech.length>0&&(collapseDim
-        ?<div style={{padding:'6px 10px',background:'#fafafa',borderRadius:8,border:'1px dashed #e5e5ea',fontSize:10,color:'#aeaeb2',lineHeight:1.5,marginBottom:6}}>
-          <span style={{fontWeight:600}}>Не входит в:</span> {dimMech.map(it=>it.title).join(' · ')}
-        </div>
-        :<div style={{display:'flex',flexDirection:'column',gap:4,marginBottom:6}}>
-          {dimMech.map((it,j)=><div key={'d'+j} style={{padding:'6px 10px',background:'#fafafa',borderRadius:8,borderLeft:'3px solid #e5e5ea',opacity:.55}}>
-            <div style={{fontSize:10,fontWeight:600,color:'#aeaeb2',marginBottom:1}}>{it.title}</div>
-            <div style={{fontSize:11,color:'#aeaeb2',lineHeight:1.45}}>{it.text}</div>
+      </header>
+
+      <div className="sht-telo">
+        <p className="dos-sut">{суть}</p>
+
+        {действие&&<button type="button" className="dos-knopka dos-knopka--glavnaya" onClick={действие.на}>{действие.т}</button>}
+
+        <figure className="dos-risunok">
+          {суточная?<СценаСуток i={i}/>:<МиниКруг i={i} p={p} cr={cr} pr={pr}/>}
+          <figcaption>{суточная
+            ?'Небо в это время. Восток слева, запад справа — как на чертеже книги.'
+            :'Место '+i+' на круге: пунктир — то, что напротив, треугольник — своя стихия.'}</figcaption>
+        </figure>
+
+        <section className="dos-blok">
+          <Клеймо>Почему здесь</Клеймо>
+          <p>{почему}</p>
+        </section>
+
+        {activeMech.length>0&&<section className="dos-blok">
+          <Клеймо>Включённые механики</Клеймо>
+          {activeMech.map((it,j)=><div key={j} className="dos-meh" style={{borderColor:it.c}}>
+            <div className="dos-meh-t" style={{color:it.c}}>{it.title}</div>
+            {it.steps
+              ?<div className="dos-shagi">{it.steps.map((s,k)=><div key={k} className={'dos-shag'+(s.active?' dos-shag--tut':'')}>
+                  <span className="dos-rol" style={{color:s.role.c,background:s.role.c+'18'}}>{s.role.r}</span>
+                  <span className="dos-shag-imya">{s.name||'—'}</span>
+                  <span className="dos-shag-rol">{s.role.l}</span>
+                </div>)}</div>
+              :<p>{it.text}</p>}
           </div>)}
-        </div>
-      )}
+          {dimMech.length>0&&<p className="dos-tihoe">Не входит: {dimMech.map(it=>it.title).join(' · ')}</p>}
+        </section>}
+
+        <Самопроверка i={i} p={p} cr={cr} pr={pr} суточная={суточная}/>
+
+        {дос&&дос.kn&&дос.kn!==label&&<section className="dos-blok">
+          <Клеймо>Как называется</Клеймо>
+          <p>В приложении это место подписано «{label}». В книге у него имя «{дос.kn}».</p>
+          <Цитата t={window.YasnaDosye.именаКниги.t} s={window.YasnaDosye.именаКниги.s}/>
+        </section>}
+
+        <section className="dos-blok">
+          <Клеймо>Напротив</Клеймо>
+          <p>{OPP_DESC[oppPairIdx]}</p>
+          {oppLabel&&<button type="button" className="dos-knopka dos-knopka--tihaya" onClick={()=>onSel&&onSel(opp(i))}>
+            Перейти к «{oppLabel}» →
+          </button>}
+        </section>
+
+        {overlay&&overlayLabel&&<section className="dos-blok">
+          <Клеймо>Наложение · {overlay.name||overlay.n||'вторая ясна'}</Клеймо>
+          <p>На этом же месте: <b>{overlayLabel}</b></p>
+        </section>}
+
+        {дос&&дос.cit&&дос.cit.length>0&&<section className="dos-blok">
+          <Клеймо>Из книги</Клеймо>
+          {дос.cit.map((ц,k)=><Цитата key={k} t={ц.t} s={ц.s}/>)}
+        </section>}
+
+        {дос&&дос.urok&&дос.urok.length>0&&<section className="dos-blok">
+          <Клеймо>Из урока</Клеймо>
+          {дос.urok.map((ц,k)=><Цитата key={k} t={ц.t} s={ц.s} урок/>)}
+        </section>}
+
+        {другие.length>0&&<section className="dos-blok">
+          <Клеймо>То же место в других яснах</Клеймо>
+          <div className="dos-chipy">
+            {откуда&&onYasna&&<button type="button" className="dos-chip dos-chip--nazad" onClick={()=>onYasna(откуда)}>← {откуда.n}</button>}
+            {другие.map(t=><button key={t.id||t.n} type="button" className="dos-chip" onClick={()=>onYasna&&onYasna(t)}>
+              <span className="dos-chip-y">{t.n}</span>
+              <span className="dos-chip-p">{t.p[i]}</span>
+            </button>)}
+          </div>
+        </section>}
+
+        {действие&&<button type="button" className="dos-knopka dos-knopka--glavnaya dos-knopka--niz" onClick={действие.на}>{действие.т}</button>}
+        <div className="dos-hvost"/>
       </div>
-      {scrollHint&&<div style={{position:'absolute',bottom:0,left:0,right:0,height:28,background:'linear-gradient(transparent,rgba(255,255,255,.95))',display:'flex',alignItems:'flex-end',justifyContent:'center',paddingBottom:4,pointerEvents:'none'}}>
-        <span style={{fontSize:10,color:'#aeaeb2',animation:'bounce 1.5s infinite'}}>↓</span>
-      </div>}
     </div>);
 }
 

@@ -35,6 +35,8 @@ const APP_FILES = [
   'core/astro-panel.js',
   'core/verification.js',
   'core/dialogs.js',
+  'core/shtorka.js',   // ← шторка с упорами (window.YasnaShtorka) — до info-card
+  'core/dosye.js',     // ← досье мест из книги и уроков (window.YasnaDosye)
   'core/info-card.js',
   'core/yasna-star.js',
   'lessons/engine.js',
@@ -67,6 +69,8 @@ const DUEL_FILES = [
   'core/yasna-3d.js',
   'core/verification.js',
   'core/dialogs.js',
+  'core/shtorka.js',   // ← шторка с упорами (window.YasnaShtorka) — до info-card
+  'core/dosye.js',     // ← досье мест из книги и уроков (window.YasnaDosye)
   'core/info-card.js',
   'core/yasna-star.js',
   'games/duel/duel.js',
