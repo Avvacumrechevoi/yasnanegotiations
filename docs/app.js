@@ -828,6 +828,24 @@ function App(){
   const[overlay,setOverlay]=useState(null);
   const[showOverlayPicker,setShowOverlayPicker]=useState(false);
   const[picker,setPicker]=useState(false);
+  /* Перестройка экрана «Разбор» под телефон (только в приложении, html.yk-est).
+     Лента Ясн внизу была замочной скважиной: из 44 разборов в неё влезало
+     полтора, а открыть незакреплённый можно было только через ритуал
+     закрепления. Наверх уходит ИМЯ текущей Ясны с входом в выбор, вниз —
+     два крупных действия: «Механики» и «+». Список приезжает листом снизу. */
+  /* Признак приложения НЕ вычисляем в JS: app/navigatsiya.js грузится defer и
+     ставит html.yk-est то раньше, то позже монтирования React — гонка. Новые
+     узлы рендерятся всегда и по умолчанию скрыты, показывает их CSS. */
+  const[листЯсн,setЛистЯсн]=useState(false);
+  /* Недавние: пять последних открытых Ясн. Лента чипов росла от закреплений
+     (восемь штук — 1179 px в окне 169, а «выбрать все» давало 32 экрана);
+     здесь длина постоянна и умещается в один флик. */
+  const[недавниеИмена,setНедавниеИмена]=useState(()=>{
+    try{ const с=JSON.parse(localStorage.getItem('yasna_nedavnie_v1')); return Array.isArray(с)?с:[]; }
+    catch(_){ return []; }
+  });
+  const[менюПлюс,setМенюПлюс]=useState(false);
+  const[поиск,setПоиск]=useState('');
   /* Аппаратная «назад» в приложении (событие из app/pribavka.js). Раньше она
      уносила с экрана целиком, даже когда открыт редактор или окно справки, —
      и незаписанная правка пропадала. Закрываем по одному слою за нажатие. */
@@ -976,6 +994,20 @@ function App(){
   const togglePin=id=>setPinned(p=>p.includes(id)?p.filter(x=>x!==id):[...p,id]);
   const hl=useMemo(()=>{if(!af.length)return null;const all=new Set();af.forEach(id=>{const f=FL.find(x=>x.id===id);if(f?.p)f.p.forEach(x=>all.add(x));});return all.size?[...all]:null;},[af]);
   const pinnedTemplates=pinned.map(id=>T.find(t=>t.id===id)||customs.find(c=>c.id===id)).filter(Boolean);
+
+  useEffect(()=>{
+    if(!y||!y.name) return;
+    setНедавниеИмена(п=>{
+      const н=[y.name, ...п.filter(и=>i_ne(и,y.name))].slice(0,5);
+      try{ localStorage.setItem('yasna_nedavnie_v1', JSON.stringify(н)); }catch(_){}
+      return н;
+    });
+    function i_ne(а,б){ return а!==б; }
+  },[y&&y.name]);
+
+  const недавние = недавниеИмена
+    .map(имя => customs.find(c=>(c.n||c.name)===имя) || T.find(t=>t.n===имя))
+    .filter(Boolean);
   return(
     <div style={{background:'var(--bg)',height:'100vh',display:'flex',flexDirection:'column'}}>
       <div className='hdr' style={{display:'flex',alignItems:'center',padding:'10px 20px',background:'var(--bg2)',borderBottom:'1px solid rgba(0,0,0,.06)',flexShrink:0,minHeight:56}}>
@@ -1115,6 +1147,45 @@ function App(){
           })()}
         </div>
       </>}
+      {/* ═══ ТЕЛЕФОН: полоса имени сверху ═══════════════════════════════
+          Одна крупная цель во всю ширину: кружок Ясны (двенадцать полок,
+          заполненные — залиты), имя, мета и шеврон. Тап открывает лист со
+          всеми Яснами. Заменяет собой и ленту чипов, и «☰». */}
+      <div className='raz-imya-polosa'>
+        <button className='raz-imya' onClick={()=>{setПоиск('');setЛистЯсн(true)}} aria-haspopup='dialog' aria-expanded={листЯсн}>
+          <span className='raz-krug' aria-hidden='true'>
+            <svg viewBox='0 0 28 28'>
+              <circle cx='14' cy='14' r='11' fill='none' stroke='currentColor' strokeWidth='1.2' opacity='.35'/>
+              {Array.from({length:12},(_,i)=>{
+                const у=(i*30-90)*Math.PI/180, cx=14+11*Math.cos(у), cy=14+11*Math.sin(у);
+                const есть=!!(y.p&&y.p[i]&&String(y.p[i]).trim());
+                return <circle key={i} cx={cx} cy={cy} r='2.1' fill={есть?'currentColor':'none'} stroke='currentColor' strokeWidth='1.1' opacity={есть?1:.45}/>;
+              })}
+            </svg>
+          </span>
+          <span className='raz-imya-txt'>
+            <span className='raz-imya-n'>{y.name||'Без названия'}</span>
+            <span className='raz-imya-m'>{(()=>{
+              const свои=y.user||y.custom;
+              const занято=(y.p||[]).filter(x=>x&&String(x).trim()).length;
+              if(свои) return 'ваша Ясна · заполнено '+занято+' из 12';
+              const шаблон=T.find(t=>t.n===y.name);
+              if(шаблон&&шаблон.verified) return 'проверена автором';
+              return 'заполнено '+занято+' из 12';
+            })()}</span>
+          </span>
+          <span className='raz-imya-shevron' aria-hidden='true'>▾</span>
+        </button>
+        {/* Ряд недавних: пять последних Ясн одним фликом вместо каталога-щели. */}
+        {недавние.length>1 && <div className='raz-nedavnie'>
+          {недавние.map(t=>{
+            const тут=y.name===(t.n||t.name);
+            return <button key={'n-'+(t.id||t.n)} className={'raz-chip'+(тут?' tut':'')}
+              onClick={()=>{ if(!тут) load(t); }}>{t.n||t.name}</button>;
+          })}
+          <button className='raz-chip raz-chip--vse' onClick={()=>{setПоиск('');setЛистЯсн(true)}}>Все {T.length+customs.length} ›</button>
+        </div>}
+      </div>
       <div className='nav-tabs' style={{display:'flex',alignItems:'center',padding:'8px 0 8px 20px',background:'var(--bg2)',borderBottom:'1px solid #d2d2d7',flexShrink:0,position:'relative'}}>
         {/* Механики — закреплённая первая «таблетка», открывает inline-аккордеон ниже nav-tabs */}
         <button onClick={()=>setFiltersOpen(o=>!o)} title='Развернуть/свернуть список механик' className='mech-trigger' aria-expanded={filtersOpen} style={{padding:'8px 16px',borderRadius:18,fontSize:14,whiteSpace:'nowrap',background:filtersOpen?'rgba(0,113,227,.12)':'transparent',color:filtersOpen||af.length>0?'#0058b8':'var(--txt2)',border:`1px solid ${filtersOpen?'rgba(0,113,227,.45)':'#d2d2d7'}`,cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:8,flexShrink:0,marginRight:8,fontFamily:'var(--vk-font, var(--sans))'}}>
@@ -1135,15 +1206,6 @@ function App(){
         <button onClick={()=>setPicker(true)} style={{padding:'6px 12px',borderRadius:16,fontSize:13,color:'var(--txt2,#6e6e73)',border:'1px dashed var(--border)',whiteSpace:'nowrap',background:'transparent',cursor:'pointer'}} title='Все доступные Ясны'><span className='desk-only'>+ ещё ({Math.max(0, T.length - pinnedTemplates.length)})</span><span className='mob-only'>☰</span></button>
         <button className='desk-only' onClick={editCurrent} style={{padding:'7px 12px',borderRadius:16,fontSize:13,color:'#0058b8',border:'1px solid rgba(0,113,227,.45)',whiteSpace:'nowrap',background:'transparent',cursor:'pointer',fontWeight:600}} title='Редактировать текущую Ясну (для встроенной создастся ваша копия)' aria-label='Редактировать текущую Ясну'>✎ Редактировать</button>
         <button className='desk-only' onClick={createNew} style={{padding:'7px 16px',borderRadius:16,fontSize:13,color:'#fff',border:'none',whiteSpace:'nowrap',background:'#0071e3',cursor:'pointer',fontWeight:600,boxShadow:'0 1px 3px rgba(0,113,227,.25)'}} title='Создать новую Ясну' aria-label='Создать новую Ясну'>+ Создать</button>
-        {/* Кнопка правки на телефоне стоит в нижней панели рядом со списком
-            Ясн, а не вторым кругляшом над «плюсом»: два одинаковых круга друг
-            над другом читались как один элемент, продублированный по ошибке. */}
-        <button className='mob-only' onClick={editCurrent} title='Редактировать текущую Ясну' aria-label='Редактировать текущую Ясну' style={{padding:'6px 11px',borderRadius:16,fontSize:14,color:'#0058b8',border:'1px solid rgba(0,113,227,.45)',background:'transparent',cursor:'pointer',flexShrink:0}}>✎</button>
-        {/* Справка. Раньше единственной дверью в Инструкцию, Глоссарий и
-            Проверку была шапка конструктора — в приложении она погашена, и
-            с самого «Разбора» открыть их стало нечем (вход остался только
-            через «Уроки»). Возвращаем дверь на месте работы. */}
-        <button className='mob-only' onClick={()=>setMenu(true)} title='Инструкция · Глоссарий · Проверка Ясны' aria-label='Справка' style={{padding:'6px 11px',borderRadius:16,fontSize:14,color:'var(--txt2,#6e6e73)',border:'1px solid var(--border,#d2d2d7)',background:'transparent',cursor:'pointer',flexShrink:0}}>?</button>
         {/* Единственный FAB на телефоне — создать новую Ясну. */}
         <button className='fab-create mob-only' onClick={createNew} title='Создать новую Ясну' aria-label='Создать новую Ясну' style={{display:'none'}}>+</button>
         </div>
@@ -1242,6 +1304,13 @@ function App(){
           {/* Отображение — Стихии + Совместить */}
           <div style={{marginTop:12,paddingTop:12,borderTop:'1px solid #e5e5ea'}}>
             <div style={{fontWeight:600,fontSize:11,color:'#581c87',letterSpacing:.5,textTransform:'uppercase',marginBottom:6}}>Отображение</div>
+            {/* Справка живёт здесь: отдельной «?» на экране больше нет,
+                а на «Уроках» те же двери открываются по якорям. */}
+            <div style={{display:'flex',gap:6,marginBottom:10}}>
+              <button onClick={()=>{setRotPanelOpen(false);setInstr(true)}} style={{flex:1,padding:'8px 6px',borderRadius:10,fontSize:12,border:'1px solid var(--border,#d2d2d7)',background:'transparent',color:'var(--txt2,#6e6e73)',cursor:'pointer'}}>Инструкция</button>
+              <button onClick={()=>{setRotPanelOpen(false);setGlossary(true)}} style={{flex:1,padding:'8px 6px',borderRadius:10,fontSize:12,border:'1px solid var(--border,#d2d2d7)',background:'transparent',color:'var(--txt2,#6e6e73)',cursor:'pointer'}}>Глоссарий</button>
+              <button onClick={()=>{setRotPanelOpen(false);setVerif(true)}} style={{flex:1,padding:'8px 6px',borderRadius:10,fontSize:12,border:'1px solid var(--border,#d2d2d7)',background:'transparent',color:'var(--txt2,#6e6e73)',cursor:'pointer'}}>Проверка</button>
+            </div>
             <button onClick={()=>setShowComposition(c=>!c)} title='Состав 4 пран в каждой Полке' style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1px solid ${showComposition?'rgba(192,148,58,.5)':'#e5e5ea'}`,background:showComposition?'rgba(192,148,58,.10)':'#fff',color:showComposition?'#7a5e25':'#424245',fontSize:12.5,cursor:'pointer',fontWeight:500,marginBottom:6}}>
               <span style={{display:'inline-flex',gap:1.5,alignItems:'center',flexShrink:0}}>
                 <span style={{width:3,height:14,background:'#C0943A',borderRadius:1}}/>
@@ -1363,6 +1432,76 @@ function App(){
       })()}
       {activeLesson&&<Lesson lessonId={activeLesson} onClose={()=>setActiveLesson(null)} onComplete={(id)=>setCompletedLessons(prev=>prev.includes(id)?prev:[...prev,id])} onPickAnother={()=>{setActiveLesson(null);setLessonPicker(true);}} onOpenLesson={(id)=>setActiveLesson(id)}/>}
       {glossary&&<Glossary onClose={()=>{setGlossary(false);снятьЯкорь();}}/>}
+      {/* ═══ ТЕЛЕФОН: нижний док ══════════════════════════════════════
+          Два действия под большим пальцем вместо полосы-каталога:
+          «Механики» словом (иконка одна не вытягивает понятие) и «+».
+          Правка живёт в меню «+» — отдельной кнопки «✎» больше нет. */}
+      {!ed && !fullStar && <div className='raz-dok'>
+        <button className={'raz-meh'+(af.length?' est':'')+(filtersOpen?' otkryt':'')}
+          onClick={()=>setFiltersOpen(o=>!o)} aria-expanded={filtersOpen}>
+          <svg viewBox='0 0 24 24' aria-hidden='true' width='22' height='22' fill='none'
+            stroke='currentColor' strokeWidth='1.7' strokeLinecap='round'>
+            <circle cx='12' cy='12' r='8.4'/><path d='M5 9.2h14M6.4 15.2h11.2'/>
+            <circle cx='12' cy='3.6' r='1.6' fill='currentColor' stroke='none'/>
+          </svg>
+          <span>Механики</span>
+          {af.length>0 && <i className='raz-meh-schet'>{af.length}</i>}
+        </button>
+        <div className='raz-plyus-obertka'>
+          {менюПлюс && <>
+            <div className='raz-menyu-fon' onClick={()=>setМенюПлюс(false)}/>
+            <div className='raz-menyu' role='menu'>
+              <button role='menuitem' onClick={()=>{setМенюПлюс(false);editCurrent();}}>
+                <b>✎ Изменить эту Ясну</b>
+                <i>для встроенной создастся ваша копия</i>
+              </button>
+              <button role='menuitem' onClick={()=>{setМенюПлюс(false);createNew();}}>
+                <b>＋ Создать новую</b>
+                <i>пустой круг из двенадцати полок</i>
+              </button>
+            </div>
+          </>}
+          <button className='raz-plyus' onClick={()=>setМенюПлюс(o=>!o)}
+            aria-label='Создать или изменить Ясну' aria-haspopup='menu' aria-expanded={менюПлюс}>+</button>
+        </div>
+      </div>}
+
+      {/* ═══ ТЕЛЕФОН: лист со всеми Яснами ═══════════════════════════
+          Тап по строке ОТКРЫВАЕТ Ясну и закрывает лист. В прежнем окне
+          «Все Ясны» тап лишь закреплял её в ленте, а открыть незакреплённую
+          было нельзя вовсе — из 44 разборов 36 оставались недоступными. */}
+      {листЯсн && (()=>{
+        const мои=customs.map(c=>({...c, n:c.n||c.name, свой:true}));
+        const все=[...мои, ...T];
+        const q=поиск.trim().toLowerCase();
+        const найдено=q?все.filter(t=>String(t.n||'').toLowerCase().includes(q)):все;
+        return <>
+          <div className='raz-list-fon' onClick={()=>setЛистЯсн(false)}/>
+          <div className='raz-list' role='dialog' aria-modal='true' aria-label='Выбор Ясны'>
+            <div className='raz-list-ruchka' aria-hidden='true'/>
+            <div className='raz-list-shapka'>
+              <b>Ясны</b><span>{все.length}</span>
+              <button className='raz-list-x' onClick={()=>setЛистЯсн(false)} aria-label='Закрыть'>×</button>
+            </div>
+            <input className='raz-list-poisk' value={поиск} onChange={e=>setПоиск(e.target.value)}
+              placeholder='Найти по названию' inputMode='search' aria-label='Поиск Ясны'/>
+            <div className='raz-list-telo'>
+              <button className='raz-list-nov' onClick={()=>{setЛистЯсн(false);createNew();}}>＋ Новая Ясна</button>
+              {найдено.length===0 && <div className='raz-list-pusto'>Ничего не нашлось. Проверьте написание.</div>}
+              {найдено.map((t,i)=>{
+                const текущая = y.name===(t.n||t.name);
+                return <button key={(t.id||t.n)+'-'+i} className={'raz-list-str'+(текущая?' tut':'')}
+                  onClick={()=>{ if(!текущая) load(t); setЛистЯсн(false); }}>
+                  <span className='raz-list-imya'>{t.n||t.name}</span>
+                  <span className='raz-list-meta'>{t.свой?'ваша':(t.verified?'проверена':'из материалов')}</span>
+                  {текущая && <span className='raz-list-tut'>сейчас</span>}
+                </button>;
+              })}
+            </div>
+          </div>
+        </>;
+      })()}
+
       {picker&&<Picker pinned={pinned} onTogglePin={togglePin} onClear={()=>setPinned([])} onClose={()=>{setPicker(false);снятьЯкорь();}} customs={customs} onOpenCustom={c=>{load(c);setPicker(false);}} onDeleteCustom={deleteCustom}/>}
     </div>);
 }

@@ -1,5 +1,5 @@
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#ffffff;--bg2:#f5f5f7;--bg3:#e8e8ed;--border:#d2d2d7;--accent:#0071e3;--txt:#1d1d1f;--txt2:#6e6e73;--txt3:#86868b;--serif:-apple-system,BlinkMacSystemFont,'SF Pro Display',Georgia,serif;--sans:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif}
+:root{--ya-akcent-soft:rgba(0,113,227,.12);--bg:#ffffff;--bg2:#f5f5f7;--bg3:#e8e8ed;--border:#d2d2d7;--accent:#0071e3;--txt:#1d1d1f;--txt2:#6e6e73;--txt3:#86868b;--serif:-apple-system,BlinkMacSystemFont,'SF Pro Display',Georgia,serif;--sans:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif}
 body{font-family:var(--sans);background:var(--bg);color:var(--txt);overflow:hidden;height:100vh}
 button{font-family:var(--sans);cursor:pointer;transition:all .15s;border:none;background:none;color:var(--txt2)}
 button:hover{color:var(--txt)}
@@ -870,3 +870,114 @@ button:focus-visible{outline:2px solid #0071e3;outline-offset:2px}
   .nav-tabs>.hide-scroll{mask-image:linear-gradient(90deg,#000 88%,transparent 100%);
     -webkit-mask-image:linear-gradient(90deg,#000 88%,transparent 100%)}
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   ЭКРАН «РАЗБОР» В ПРИЛОЖЕНИИ: имя сверху, два действия под пальцем.
+   Лента чипов внизу была замочной скважиной — в окно 169 px из 44 Ясн
+   влезало полтора чипа, а открыть незакреплённую было нельзя вовсе.
+   Наверх переезжает то, ради чего лента и была: имя текущей Ясны,
+   пять недавних и вход в полный каталог. Вниз — «Механики» и «+».
+   Гейт только по html.yk-est (его ставит app/navigatsiya.js): сайт и
+   мобильный веб остаются нетронутыми. Ниже — состояние по умолчанию. */
+.raz-imya-polosa,.raz-dok,.raz-list,.raz-list-fon{display:none}
+
+html.yk-est .nav-tabs{display:none !important}
+
+html.yk-est .raz-imya-polosa{display:block;position:fixed;left:0;right:0;
+  top:calc(70px + var(--yk-sverhu,0px));z-index:40;padding:0 12px 6px}
+/* Полотну звезды нужен воздух: сверху под полосу имени (и ряд недавних),
+   снизу — под док. Круг центрируется в коробке, поэтому оба отступа
+   двигают его вниз; числа подобраны так, чтобы подписи не уходили ни под
+   полосу, ни под наббар. */
+html.yk-est .star-area{padding:126px 12px calc(96px + var(--yk-snizu,0px)) !important}
+html.yk-est body:has(.raz-nedavnie) .star-area{padding-top:170px !important}
+html.yk-est .raz-imya{display:flex;align-items:center;gap:11px;width:100%;
+  min-height:48px;padding:7px 12px;border-radius:14px;text-align:left;
+  background:var(--bg2);border:1px solid var(--border);cursor:pointer;
+  box-shadow:0 2px 10px rgba(0,0,0,.06)}
+html.yk-est .raz-imya:active{background:var(--bg3)}
+html.yk-est .raz-krug{flex:0 0 auto;width:28px;height:28px;color:var(--accent)}
+html.yk-est .raz-krug svg{width:28px;height:28px;display:block}
+html.yk-est .raz-imya-txt{min-width:0;display:flex;flex-direction:column;gap:2px;flex:1}
+html.yk-est .raz-imya-n{font:600 17px/1.2 var(--sans);color:var(--txt);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html.yk-est .raz-imya-m{font:500 12px/1.2 var(--sans);color:var(--txt3)}
+html.yk-est .raz-imya-shevron{flex:0 0 auto;color:var(--txt2);font-size:14px}
+
+/* Недавние: постоянные пять, один флик. */
+html.yk-est .raz-nedavnie{display:flex;gap:6px;margin-top:6px;overflow-x:auto;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch}
+html.yk-est .raz-nedavnie::-webkit-scrollbar{display:none}
+html.yk-est .raz-chip{flex:0 0 auto;min-height:36px;padding:0 13px;border-radius:18px;
+  font:500 13px/1 var(--sans);color:var(--txt2);background:var(--bg2);
+  border:1px solid var(--border);cursor:pointer;white-space:nowrap}
+html.yk-est .raz-chip.tut{color:var(--accent);border-color:var(--accent);font-weight:700;
+  background:var(--ya-akcent-soft,rgba(0,113,227,.12))}
+html.yk-est .raz-chip--vse{border-style:dashed;color:var(--txt3)}
+
+/* Док: два крупных органа в зоне большого пальца, между ними пусто. */
+html.yk-est .raz-dok{display:block}
+html.yk-est .raz-meh{position:fixed;left:12px;z-index:51;
+  bottom:calc(82px + var(--yk-snizu,env(safe-area-inset-bottom,0px)));
+  min-height:48px;padding:0 16px;border-radius:24px;display:inline-flex;
+  align-items:center;gap:9px;font:600 14px/1 var(--sans);color:var(--txt2);
+  background:var(--bg);border:1px solid var(--border);cursor:pointer;
+  box-shadow:0 3px 12px rgba(0,0,0,.10)}
+html.yk-est .raz-meh.est,html.yk-est .raz-meh.otkryt{color:var(--accent);
+  border-color:var(--accent);background:var(--ya-akcent-soft,rgba(0,113,227,.12))}
+html.yk-est .raz-meh-schet{min-width:20px;height:20px;border-radius:10px;background:#0071e3;
+  color:#fff;font:700 12px/20px var(--sans);text-align:center;font-style:normal}
+html.yk-est .raz-plyus-obertka{position:fixed;right:12px;z-index:51;
+  bottom:calc(82px + var(--yk-snizu,env(safe-area-inset-bottom,0px)))}
+html.yk-est .raz-plyus{width:64px;height:64px;border-radius:32px;border:0;
+  background:var(--accent,#0071e3);color:#fff;font:300 30px/1 var(--sans);cursor:pointer;
+  box-shadow:0 4px 16px rgba(0,113,227,.34)}
+html.yk-est .raz-plyus:active{transform:scale(.96)}
+html.yk-est .raz-menyu-fon{position:fixed;inset:0;z-index:128;background:rgba(0,0,0,.28)}
+html.yk-est .raz-menyu{position:absolute;right:0;bottom:74px;z-index:129;width:min(300px,calc(100vw - 24px));
+  background:var(--bg);border:1px solid var(--border);border-radius:16px;overflow:hidden;
+  box-shadow:0 14px 40px rgba(0,0,0,.28)}
+html.yk-est .raz-menyu button{display:block;width:100%;min-height:56px;padding:11px 16px;
+  text-align:left;background:transparent;border:0;border-bottom:1px solid var(--border);cursor:pointer}
+html.yk-est .raz-menyu button:last-child{border-bottom:0}
+html.yk-est .raz-menyu b{display:block;font:600 15px/1.25 var(--sans);color:var(--txt)}
+html.yk-est .raz-menyu i{display:block;font:400 12px/1.3 var(--sans);color:var(--txt3);font-style:normal;margin-top:3px}
+
+/* Лист со всеми Яснами: тап по строке ОТКРЫВАЕТ Ясну. */
+html.yk-est .raz-list-fon{display:block;position:fixed;inset:0;z-index:129;background:rgba(0,0,0,.45)}
+html.yk-est .raz-list{display:flex;flex-direction:column;position:fixed;left:0;right:0;bottom:0;
+  z-index:130;height:85dvh;background:var(--bg);border-radius:18px 18px 0 0;
+  box-shadow:0 -8px 30px rgba(0,0,0,.30)}
+html.yk-est .raz-list-ruchka{width:40px;height:4px;border-radius:2px;background:var(--border);
+  margin:8px auto 4px}
+html.yk-est .raz-list-shapka{display:flex;align-items:center;gap:8px;padding:6px 16px 10px}
+html.yk-est .raz-list-shapka b{font:700 19px/1.2 var(--sans);color:var(--txt)}
+html.yk-est .raz-list-shapka span{font:500 13px/1 var(--sans);color:var(--txt3);flex:1}
+html.yk-est .raz-list-x{width:44px;height:44px;border:0;background:transparent;color:var(--txt2);
+  font-size:24px;line-height:1;cursor:pointer}
+html.yk-est .raz-list-poisk{margin:0 16px 8px;min-height:44px;padding:0 14px;border-radius:12px;
+  border:1px solid var(--border);background:var(--bg2);color:var(--txt);font:400 16px/1 var(--sans)}
+html.yk-est .raz-list-telo{flex:1;overflow-y:auto;padding:0 12px calc(20px + var(--yk-snizu,0px))}
+html.yk-est .raz-list-nov{width:100%;min-height:52px;margin-bottom:6px;border-radius:12px;
+  border:1px dashed var(--accent);background:transparent;color:var(--accent);
+  font:600 15px/1 var(--sans);cursor:pointer}
+html.yk-est .raz-list-str{display:flex;align-items:center;gap:10px;width:100%;min-height:56px;
+  padding:8px 12px;border:0;border-bottom:1px solid var(--border);background:transparent;
+  text-align:left;cursor:pointer}
+html.yk-est .raz-list-str.tut{background:var(--ya-akcent-soft,rgba(0,113,227,.12));border-radius:10px}
+html.yk-est .raz-list-imya{flex:1;font:600 15px/1.25 var(--sans);color:var(--txt)}
+html.yk-est .raz-list-meta{font:500 12px/1 var(--sans);color:var(--txt3);white-space:nowrap}
+html.yk-est .raz-list-tut{font:700 11px/1 var(--sans);color:var(--accent);
+  border:1px solid var(--accent);border-radius:8px;padding:4px 7px;white-space:nowrap}
+html.yk-est .raz-list-pusto{padding:22px 12px;font:400 14px/1.5 var(--sans);color:var(--txt3)}
+
+/* Панель механик приезжает снизу, под палец: раньше она выпадала сверху,
+   в 600 px от кнопки, которой её открывают. */
+html.yk-est .mech-overlay{position:fixed !important;left:0 !important;right:0 !important;
+  top:auto !important;bottom:0 !important;width:100% !important;min-width:0 !important;
+  max-width:none !important;max-height:62dvh !important;border-radius:18px 18px 0 0 !important;
+  padding-bottom:calc(18px + var(--yk-snizu,0px)) !important}
+
+/* Док не спорит с карточкой полки и редактором. */
+html.yk-est body:has(.editor-panel) .raz-dok,
+html.yk-est body:has(aside.side-panel) .raz-dok{display:none}
