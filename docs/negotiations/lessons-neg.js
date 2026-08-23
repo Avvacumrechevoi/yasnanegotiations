@@ -89,7 +89,7 @@
         { type: 'practice', bank: 'RECON', count: 5, title: 'Практика · собери досье', note: 'Сильную позицию готовят ДО встречи. По обрывку информации реши, что он даёт и что выяснить.' },
         { type: 'contact', title: 'Практика · вход в контакт', note: 'Семь встреч. На каждой определи тип по реплике, затем выбери заход: один резонирует, другой рвёт контакт.' },
         { type: 'practice', bank: 'TYPESTAGE', count: 6, title: 'Практика · заход под характер', note: 'Сложнее: дан тип и момент разговора — выбери ход, верный именно для этого человека.' },
-        { type: 'summary', body: 'Готово. Ты различаешь четыре типа и заходишь под каждый. Дальше — как ведётся **сам разговор**: от первого слова до результата.' }
+        { type: 'summary', body: 'Сценарий просмотрен: четыре типа и заходы под каждый. Чтобы это осталось в руках, решите практики выше. Дальше — как ведётся **сам разговор**: от первого слова до результата.' }
       ]
     },
     {
@@ -149,7 +149,7 @@
 
   // ═══ DOM-узлы ═════════════════════════════════════════════════════
   var catalogSec = null, catalogList = null, lessonRoot = null;
-  var state = { lesson: null, segWrap: null, bar: null };
+  var state = { lesson: null, segWrap: null, bar: null, решено: 0, всегоПрактик: 0 };
 
   function верхСтраницы(видно) {
     ['.neg-hero', '#neg-mode-tabs'].forEach(function (сел) {
@@ -217,7 +217,8 @@
 
   // ── открыть урок ─────────────────────────────────────────────────
   function openLesson(lesson) {
-    state = { lesson: lesson, segWrap: null, bar: null };
+    state = { lesson: lesson, segWrap: null, bar: null, решено: 0,
+      всегоПрактик: (lesson.segments || []).filter(function (s) { return s.type === 'practice'; }).length };
     lessonRoot.innerHTML = '';
 
     var head = el('div', 'neg-l-head');
@@ -314,7 +315,9 @@
       });
     }
     var unlock = function () { if (gate) { gate.disabled = false; gate.classList.remove('is-wait'); gate.classList.add('is-ready'); gate.textContent = 'Дальше →'; } };
-    var onDone = function () { unlock(); };
+    /* Каждая пройденная практика считается: по этому счёту итоговый экран
+       отличает «просмотрел» от «прошёл». */
+    var onDone = function () { state.решено = (state.решено || 0) + 1; unlock(); };
 
     var needsDone = (seg.type === 'practice' || seg.type === 'contact' || seg.type === 'stagedrill');
 
@@ -353,7 +356,12 @@
     markDone(state.lesson.id);
     updateBar(state.lesson.segments.length - 1);
 
-    block.appendChild(el('div', 'neg-l-sum-badge', '✓ Сценарий пройден'));
+    /* «Пройден» выдавалось за просмотр — даже при нуле решённых практик.
+       Разводим просмотр и освоение: галочка только когда что-то решено. */
+    block.appendChild(el('div', 'neg-l-sum-badge',
+      state.решено > 0
+        ? '✓ Сценарий пройден · практик решено: ' + state.решено + ' из ' + state.всегоПрактик
+        : 'Сценарий просмотрен'));
     if (seg.body) block.appendChild(el('div', 'neg-l-prose', richText(seg.body)));
 
     var actions = el('div', 'neg-l-sum-actions');

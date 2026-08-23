@@ -744,7 +744,9 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
         id: 'gimn',
         tag: 'Тема дня',
         title: (todayTheme?.name || 'Тема готовится'),
-        foot: '3 вопроса по этой теме · откроется в полночь',
+        /* «Откроется в полночь» назначало срок, которого нет: карточка
+           заперта флагом ready:false, а не временем. Говорим честно. */
+        foot: '3 вопроса по этой теме · формат ещё готовится',
         footMute: true,
         ready: false
       },
@@ -823,7 +825,7 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
               React.createElement('div', { className: 'dp-theme-bar-fill', style: { width: pct + '%' } })
             ),
             React.createElement('div', { className: 'dp-theme-meta' },
-              React.createElement('span', null, isLocked ? 'не открыто' : pct + '%')
+              React.createElement('span', { style: { fontSize: 12 } }, isLocked ? 'не открыто' : pct + '%')
             )
           );
         })
@@ -890,7 +892,9 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
                   myInTop ? 'Ты на ' + myRank + '-й позиции'
                           : (myDeviceId ? 'Ты пока вне топ-5' : 'Сыграй, чтобы попасть в Хронику')
                 ),
-                myDeviceId && !myInTop && React.createElement('a', { href: '#', style: { color: 'var(--info)', textDecoration: 'none' }, onClick: e => e.preventDefault() }, 'все →')
+                /* Ссылка обещала полный список и не делала ничего: href='#'
+                   и preventDefault. Экран рейтинга в приложении есть. */
+                myDeviceId && !myInTop && React.createElement('a', { href: 'rating.html', style: { color: 'var(--info)', textDecoration: 'none' } }, 'все →')
               )
             )
     );
@@ -899,15 +903,24 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
   // ─── Знаки Магистра ──────────────────────────────────────────────
   function DPZnaki(){
     const Ach = _g('YasnaDuelAchievements');
-    if(!Ach?.list || !Ach?.getUnlocked) return React.createElement('div', { className: 'dp-card', id: 'znaki' },
+    /* Карточка проверяла Ach.getUnlocked, которого в модуле нет, и всегда
+       падала в заглушку «0 / 0» — человек думал, что достижений в игре нет.
+       Разблокированные лежат прямо в list() полем unlocked. */
+    const взятые = () => {
+      try {
+        if (Ach?.getUnlocked) return Ach.getUnlocked() || [];
+        return (Ach?.list?.() || []).filter(a => a && a.unlocked).map(a => a.id);
+      } catch (_) { return []; }
+    };
+    if(!Ach?.list) return React.createElement('div', { className: 'dp-card', id: 'znaki' },
       React.createElement('div', { className: 'dp-card-h' },
         React.createElement('h3', null, IconStar(), ' Достижения'),
-        React.createElement('span', { className: 'dp-card-meta' }, '0 / 0')
+        React.createElement('span', { className: 'dp-card-meta' }, '—')
       ),
       React.createElement('div', { className: 'dp-card-empty' }, 'Пока пусто. Сыграй Партию.')
     );
-    const all = Ach.list();
-    const unlocked = Ach.getUnlocked() || [];
+    const all = Ach.list() || [];
+    const unlocked = взятые();
     const items = all.slice(0, 8).map(a => ({
       a, got: unlocked.includes(a.id)
     }));
@@ -2097,6 +2110,15 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
       }));
     };
 
+    /* Второй игрок получал код от друга, а ввести его было негде: единственная
+       кнопка всегда создавала НОВУЮ комнату. Открываем лобби в режиме гостя —
+       там уже есть поле кода. */
+    const startPartiyaGuest = () => {
+      const partiyaMode = partiyaPicker?.mode || 'standard';
+      setPartiyaPicker(null);
+      setLobby({ game: 'turnir', lobbyMode: 'guest', partiyaMode });
+    };
+
     const startPartiyaPvP = () => {
       const partiyaMode = partiyaPicker?.mode || 'standard';
       const selectedThemes = partiyaPicker?.selectedThemes || null;
@@ -2501,7 +2523,14 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
                   onClick: handleStart,
                   disabled: !enoughThemes,
                   type: 'button'
-                }, надпись)
+                }, надпись),
+                /* Вторая дверь для того, кому код УЖЕ прислали. */
+                оппонент === 'pvp' && React.createElement('button', {
+                  className: 'dp-btn dp-btn-ghost',
+                  style: { display: 'block', width: '100%', marginTop: 10 },
+                  onClick: startPartiyaGuest,
+                  type: 'button'
+                }, 'У меня есть код комнаты')
               );
             })()
           )

@@ -827,6 +827,7 @@ a { color: inherit; }
   border: 0.5px solid rgba(186, 117, 23, 0.25);
 }
 .dp-znaki-foot {
+  font-size: 12px;
   font-size: 11px;
   color: var(--text-3);
   padding-top: var(--space-3);

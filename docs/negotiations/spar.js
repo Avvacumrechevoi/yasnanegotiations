@@ -198,7 +198,14 @@
     if (location.hash === '#dom') show('lessons');
     /* Прямая дверь из хаба «Уроки»: negotiations.html#spar открывает
        вкладку спарринга сразу, как это уже сделано для #dom. */
-    else if (location.hash === '#spar') show('spar');
+    else if (location.hash === '#spar') {
+      /* Пришли по прямой ссылке из хаба «Уроки» — вводное окно тренажёра
+         поверх спарринга здесь только мешает: человек уже выбрал, куда шёл. */
+      try { localStorage.setItem('yasna_neg_onb_v1', '1'); } catch (_) {}
+      var онб = document.querySelector('.neg-onb');
+      if (онб) онб.remove();
+      show('spar');
+    }
     else show(saved === 'spar' ? 'spar' : 'lessons');
   }
 
@@ -463,17 +470,35 @@
   }
   function ssMeter() { var f = document.getElementById('neg-spar-meter-fill'); if (f) f.style.width = Math.round(SS.meter / SS.sc.beats.length * 100) + '%'; }
   function ssSubmitText(ta) {
-    var t = (ta.value || '').trim(); if (!t || SS.locked) return; ta.value = '';
-    ssStep(ssClassify(t, SS.sc.beats[SS.beat].moves), t);
+    var t = (ta.value || '').trim(); if (!t || SS.locked) return;
+    /* Свободный текст сравнивается с репликами по ключевым словам. Если не
+       совпало НИЧЕГО, раньше подставлялся разбор случайной средней реплики —
+       и на бессмыслицу человек получал уверенный вердикт. Честнее сказать,
+       что разобрать это мы не можем, и не трогать счётчик. */
+    var найдено = ssClassify(t, SS.sc.beats[SS.beat].moves, true);
+    if (!найдено) {
+      var поле = document.getElementById('neg-spar-svoy-otvet-note');
+      if (!поле) {
+        поле = el('div', 'neg-cfg-note'); поле.id = 'neg-spar-svoy-otvet-note';
+        ta.parentNode && ta.parentNode.appendChild(поле);
+      }
+      поле.textContent = 'Такой ответ я разобрать не могу — выберите одну из реплик выше или напишите ближе к ним.';
+      return;
+    }
+    var стар = document.getElementById('neg-spar-svoy-otvet-note');
+    if (стар) стар.remove();
+    ta.value = '';
+    ssStep(найдено, t);
   }
-  function ssClassify(text, moves) {
+  function ssClassify(text, moves, строго) {
     var t = text.toLowerCase(), best = null, bestScore = -1, midM = null, first = moves[0];
     moves.forEach(function (m) {
       if (m.tag === 'mid' && !midM) midM = m;
       var s = 0; (m.keywords || []).forEach(function (kw) { if (kw && t.indexOf(String(kw).toLowerCase()) >= 0) s += 1; });
       if (s > bestScore) { bestScore = s; best = m; }
     });
-    return bestScore <= 0 ? (midM || first) : best;
+    if (bestScore <= 0) return строго ? null : (midM || first);
+    return best;
   }
   function ssShowBeat() {
     var beat = SS.sc.beats[SS.beat];

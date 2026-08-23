@@ -1006,14 +1006,14 @@ function App(){
             чтобы работало и на десктопе, и на мобильном. */}
         <button onClick={()=>setLearnOpen(o=>!o)} title='Уроки и гиды по Яснам' className='hdr-btn' style={{border:`1px solid ${learnOpen?'rgba(0,113,227,.4)':'#d2d2d7'}`,color:learnOpen?'#0058b8':'#424245',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:learnOpen?'rgba(0,113,227,.06)':'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:6,boxSizing:'border-box'}}>
           <span>Гид</span>
-          <span style={{fontSize:9,display:'inline-block',transform:learnOpen?'rotate(180deg)':'none',transition:'transform .2s',opacity:.7}}>▼</span>
+          <span style={{fontSize:11,display:'inline-block',transform:learnOpen?'rotate(180deg)':'none',transition:'transform .2s',opacity:.7}}>▼</span>
         </button>
         {/* Игра переехала влево, рядом с лого — см. начало .hdr */}
         {/* 3. Справка ▼ (Стихии переехала в "..." настройки над звездой) */}
         <div style={{position:'relative'}}>
           <button onClick={()=>setHelpOpen(o=>!o)} title='Инструкция · Глоссарий · Проверка' className='hdr-btn' style={{border:`1px solid ${helpOpen?'rgba(0,113,227,.4)':'#d2d2d7'}`,color:helpOpen?'#0058b8':'#424245',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:helpOpen?'rgba(0,113,227,.06)':'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:6,boxSizing:'border-box'}}>
             <span>Справка</span>
-            <span style={{fontSize:9,display:'inline-block',transform:helpOpen?'rotate(180deg)':'none',transition:'transform .2s',opacity:.7}}>▼</span>
+            <span style={{fontSize:11,display:'inline-block',transform:helpOpen?'rotate(180deg)':'none',transition:'transform .2s',opacity:.7}}>▼</span>
           </button>
           {helpOpen && <>
             <div onClick={()=>setHelpOpen(false)} style={{position:'fixed',inset:0,zIndex:99}}/>
@@ -1139,6 +1139,11 @@ function App(){
             Ясн, а не вторым кругляшом над «плюсом»: два одинаковых круга друг
             над другом читались как один элемент, продублированный по ошибке. */}
         <button className='mob-only' onClick={editCurrent} title='Редактировать текущую Ясну' aria-label='Редактировать текущую Ясну' style={{padding:'6px 11px',borderRadius:16,fontSize:14,color:'#0058b8',border:'1px solid rgba(0,113,227,.45)',background:'transparent',cursor:'pointer',flexShrink:0}}>✎</button>
+        {/* Справка. Раньше единственной дверью в Инструкцию, Глоссарий и
+            Проверку была шапка конструктора — в приложении она погашена, и
+            с самого «Разбора» открыть их стало нечем (вход остался только
+            через «Уроки»). Возвращаем дверь на месте работы. */}
+        <button className='mob-only' onClick={()=>setMenu(true)} title='Инструкция · Глоссарий · Проверка Ясны' aria-label='Справка' style={{padding:'6px 11px',borderRadius:16,fontSize:14,color:'var(--txt2,#6e6e73)',border:'1px solid var(--border,#d2d2d7)',background:'transparent',cursor:'pointer',flexShrink:0}}>?</button>
         {/* Единственный FAB на телефоне — создать новую Ясну. */}
         <button className='fab-create mob-only' onClick={createNew} title='Создать новую Ясну' aria-label='Создать новую Ясну' style={{display:'none'}}>+</button>
         </div>

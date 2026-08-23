@@ -488,10 +488,24 @@
       meta.appendChild(el('div', null, 'Отправлено на сервер: ' + fmtAgo(st.lastPush)));
       /* Сообщения fetch («Failed to fetch», «Load failed») по-английски и
          человеку ничего не говорят — переводим в понятную причину. */
-      if (st.lastError) meta.appendChild(el('div', 'yac-sync-bad',
-        /failed to fetch|networkerror|load failed/i.test(String(st.lastError))
-          ? 'Последняя попытка не удалась: не было связи с сервером.'
-          : 'Не удалось обменяться с сервером: ' + st.lastError));
+      if (st.lastError) {
+        /* Сюда попадали куски ответа сервера — «HTTP 500», JSON с
+           RESOURCE_EXHAUSTED. Человеку это ничего не объясняет, а выглядит
+           как поломка приложения. Разводим на три понятные причины, всё
+           остальное уходит в консоль. */
+        var сырое = String(st.lastError);
+        try { console.warn('[синхронизация]', сырое); } catch (_) {}
+        var текст;
+        if (/failed to fetch|networkerror|load failed|нет связи|не ответил/i.test(сырое))
+          текст = 'Последняя попытка не удалась: не было связи с сервером.';
+        else if (/\b(5\d\d)\b|resource_exhausted|unavailable|timeout/i.test(сырое))
+          текст = 'Сервер сейчас не отвечает. Записи сохранены на телефоне и уйдут, когда он ответит.';
+        else if (/\b(401|403)\b|unauthorized|forbidden/i.test(сырое))
+          текст = 'Сервер не принял записи этого устройства. Попробуйте войти по почте.';
+        else
+          текст = 'Обмен с сервером не удался. Записи сохранены на телефоне.';
+        meta.appendChild(el('div', 'yac-sync-bad', текст));
+      }
       var rejectedKeys = Object.keys(st.rejected || {});
       if (rejectedKeys.length) {
         meta.appendChild(el('div', 'yac-sync-bad',
@@ -627,7 +641,8 @@
           again.addEventListener('click', function () { openLogin(); });
           var r = el('div', 'yac-row'); r.appendChild(again); b.appendChild(r);
         } else {
-          say(b, e.message || 'Не удалось загрузить профиль.', true);
+          try { console.warn('[профиль]', e); } catch (_) {}
+          say(b, (e && e.code === 0) ? e.message : 'Не удалось загрузить профиль. Попробуйте позже.', true);
         }
       });
     });

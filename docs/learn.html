@@ -11,7 +11,7 @@
 <script src="core/theme.js?v=37af65b1"></script>
 <script src="core/storage.js?v=c79cf748"></script>
 <script src="core/access.js?v=3ae5d2f4"></script>
-<script src="core/account.js?v=e50048f2"></script>
+<script src="core/account.js?v=87b2d946"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
 <!-- Приложение: манифест, иконки и цвет строки состояния. Раньше манифест
      висел на двух страницах из девяти, иконка была одна — SVG в data-URI, а
@@ -758,6 +758,7 @@ html.yk-est .l-intro-progress { top: 0; }
   display: flex; gap: 10px; flex-wrap: wrap;
 }
 
+.l-intro-btn[hidden] { display: none !important; }
 .l-intro-btn {
   display: inline-flex; align-items: center; gap: 8px;
   padding: 12px 22px;
@@ -1179,7 +1180,7 @@ html[data-theme='light'] {
       </a>
       <a class="hub-k" href="konstruktor.html#biblioteka">
         <span class="hub-k-t">Библиотека явлений</span>
-        <span class="hub-k-o">Дом, печь, дерево, завод, театр, месяцы — уже разложенные по кругу.</span>
+        <span class="hub-k-o">Список готовых Ясн: отметьте нужные — и они появятся вкладками в «Разборе».</span>
       </a>
       <a class="hub-k" href="konstruktor.html#proverka">
         <span class="hub-k-t">Проверка Ясны</span>
@@ -1200,7 +1201,7 @@ html[data-theme='light'] {
       <a class="hub-k" href="duel.html">
         <span class="hub-k-t">Викторина по Ясне</span>
         <span class="hub-k-o">Вопросы по книге с разбором ответа. Одному или с друзьями.</span>
-        <span class="hub-k-m">12 тем · 168 вопросов</span>
+        <span class="hub-k-m">11 тем · 168 вопросов</span>
       </a>
       <a class="hub-k" href="negotiations.html">
         <span class="hub-k-t">Переговоры</span>
@@ -1289,6 +1290,10 @@ html[data-theme='light'] {
 
   function finishIntro(){
     if(!introEl) return;
+    if(mainEl) mainEl.style.display = '';
+    try {
+      if(location.hash === '#znakomstvo') history.replaceState(null, '', location.pathname);
+    } catch(_){}
     introEl.style.opacity = '0';
     introEl.style.transition = 'opacity 240ms ease';
     setTimeout(() => {
@@ -1297,6 +1302,25 @@ html[data-theme='light'] {
       window.scrollTo({ top: 0, behavior: 'auto' });
     }, 240);
     markIntroDone();
+  }
+
+  /* Сброс: без него повторное открытие показывало сразу несколько раскрытых
+     шагов, а полоса «Шаг 1 из 5» врала. */
+  function сброситьЗнакомство(){
+    if(!introEl) return;
+    var шаги = Array.from(introEl.querySelectorAll('.l-intro-step'));
+    шаги.forEach(function(ш, i){
+      ш.classList.toggle('is-visible', i === 0);
+      ш.style.display = i === 0 ? '' : 'none';
+    });
+    var quiz = introEl.querySelector('#introQuiz');
+    if(quiz){
+      quiz.classList.remove('is-checked');
+      quiz.querySelectorAll('.l-intro-option').forEach(function(o){ o.classList.remove('is-selected'); });
+      var чек = introEl.querySelector('#introQuizCheck'), дальше = introEl.querySelector('#introQuizNext');
+      if(чек){ чек.hidden = false; чек.disabled = true; }
+      if(дальше) дальше.hidden = true;
+    }
   }
 
   function initIntro(вручную){
@@ -1309,9 +1333,18 @@ html[data-theme='light'] {
       if(introBar) introBar.hidden = true;
       return;
     }
+    сброситьЗнакомство();
     introEl.hidden = false;
+    /* Знакомство — окно, а не кусок страницы: под ним просвечивал хаб вместе
+       с карточкой, которую только что нажали. Прячем хаб на время разговора. */
+    if(mainEl) mainEl.style.display = 'none';
     if(introBar) introBar.hidden = false;
     try { window.scrollTo({top:0, behavior:'auto'}); } catch(_){}
+    /* Системная «назад» на Android должна закрывать окно, а не уносить с
+       экрана: добавляем запись в историю и слушаем возврат. */
+    try {
+      if(location.hash !== '#znakomstvo') history.pushState({знакомство:1}, '', '#znakomstvo');
+    } catch(_){}
 
     const steps = Array.from(introEl.querySelectorAll('.l-intro-step'));
     const total = steps.length;
@@ -1411,6 +1444,18 @@ html[data-theme='light'] {
     }
     поЯкорю();
     window.addEventListener('hashchange', поЯкорю);
+    /* Возврат по системной «назад»: адрес теряет #znakomstvo — закрываем окно
+       без отметки «пройдено», человек просто передумал. */
+    window.addEventListener('popstate', function(){
+      var окно = document.getElementById('learnIntro');
+      if(окно && !окно.hidden && location.hash !== '#znakomstvo'){
+        окно.hidden = true;
+        var полоса = document.getElementById('introProgressBar');
+        if(полоса) полоса.hidden = true;
+        var хаб = document.getElementById('learnMain');
+        if(хаб) хаб.style.display = '';
+      }
+    });
 
     /* Якорь #gidy приходил с главной приложения раньше, чем блок гидов был
        готов, и прокрутка не срабатывала. Доводим её после отрисовки. */

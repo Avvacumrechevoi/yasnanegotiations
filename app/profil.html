@@ -542,7 +542,20 @@
     return 'Не получилось. Попробуйте позже.';
   }
 
-  document.getElementById('moy-kod').textContent = Д.мойКод() || '······';
+  /* Код рисовался сразу из локального хранилища, даже если карточка не
+     доехала до общей базы: друг вводил такой код и получал «Такого кода нет».
+     До успеха публикации показываем точки и причину. */
+  var полеКода = document.getElementById('moy-kod');
+  var подписьКода = document.querySelector('.kod-metka');
+  полеКода.textContent = '······';
+  function показатьКод(){
+    полеКода.textContent = Д.мойКод() || '······';
+    if(подписьКода) подписьКода.textContent = 'Мой код';
+  }
+  function кодНеГотов(причина){
+    полеКода.textContent = '······';
+    if(подписьКода) подписьКода.textContent = причина || 'Код появится, когда будет связь';
+  }
   document.getElementById('kod-kopirovat').onclick=function(){
     var к=Д.мойКод()||''; var кн=this;
     (navigator.clipboard ? navigator.clipboard.writeText(к) : Promise.reject())
@@ -595,11 +608,12 @@
   /* Первый заход: показываем сохранённый список сразу, потом обновляем из базы */
   показатьДрузей(Д.списокЛокально());
   Д.объявиться()
-    .then(function(){ return Д.забратьОтветы(); })
+    .then(function(){ показатьКод(); return Д.забратьОтветы(); })
     .then(function(){ return Д.друзья(); })
     .then(показатьДрузей)
     .then(обновитьЗаявки)
     .catch(function(e){
+      кодНеГотов();
       сказать(ошибкаТекстом(e), true);
     });
 

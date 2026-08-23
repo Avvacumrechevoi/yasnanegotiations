@@ -519,11 +519,19 @@ function say(kind,hd,bd,btn,fn){
   const g=el(`<button class="go">${btn||'Дальше →'}</button>`);
   g.onclick=fn||(()=>{ S.i++; if(S.mode==='duo') S.turn=1-S.turn; hand(); });
   b.appendChild(g);
-  /* На низком экране (сплит-скрин) разбор и кнопка оказывались за сгибом —
-     подводим их к глазам, но только если они действительно не видны. */
+  /* Кнопка теперь липкая, и её низ ВСЕГДА равен экрану минус отступ — прежняя
+     проверка «низ кнопки ниже экрана» не срабатывала никогда, а сама кнопка
+     стояла поверх карточки разбора. Смотрим на низ КАРТОЧКИ и подводим её к
+     глазам, если она уходит под кнопку. */
+  /* scrollIntoView({block:'end'}) равняет низ карточки по низу ЭКРАНА, а над
+     ним ещё стоит липкая кнопка — последние строки разбора так и оставались
+     под ней. Докручиваем ровно на перекрытие. */
   try{
-    const r=g.getBoundingClientRect();
-    if(r.bottom > innerHeight - 76) g.scrollIntoView({block:'end', behavior:'smooth'});
+    requestAnimationFrame(function(){
+      const кн=g.getBoundingClientRect(), карт=блок.getBoundingClientRect();
+      const перекрытие = карт.bottom - кн.top + 12;
+      if(перекрытие > 0) window.scrollBy({top: перекрытие, behavior:'smooth'});
+    });
   }catch(_){}
 }
 
@@ -556,7 +564,20 @@ function onTap(i){
      карточка элемента при нём остаётся на экране (приглушённой), и проверка
      по её наличию пропускала тап, ломая партию. */
   if(!bot() || bot().querySelector('.say')) return;
-  if(S.placed[i]){ shake(); return }
+  if(S.placed[i]){
+    /* Тряска — тот же сигнал, что и у промаха, но там есть разбор, а здесь
+       не было ни слова: человек тапал, экран дёргался, и было непонятно,
+       ошибся он или место занято. Промах при этом не засчитываем. */
+    shake();
+    if(N.w[i]){ N.w[i].classList.add('zanyato');
+      setTimeout(function(){ N.w[i] && N.w[i].classList.remove('zanyato') }, 620); }
+    if(N.n[i]) N.n[i].classList.add('on');
+    const кто=S.yasna.p[i];
+    say('no','Место занято',
+      `Здесь уже стоит «<b>${esc(кто)}</b>». Выберите свободную долю.`,
+      'Понятно →', ()=>hand());
+    return;
+  }
   const t=S.deck[S.i], ok=(i===t);
   if(S.mode==='duo'){ S.tries[S.turn]++; if(ok){ S.els[S.turn]++; if(S.first[t]!==false) S.hits[S.turn]++; } }
   S.first[t]= (S.first[t]===false)?false:ok;             /* «с первого раза» помним навсегда */
@@ -565,10 +586,15 @@ function onTap(i){
     shake();
     if(N.w[i]){ N.w[i].classList.add('mimo');
       setTimeout(function(){ N.w[i] && N.w[i].classList.remove('mimo') }, 620); }
+    /* Разбор называл нужное место словами («первый просвет после дна»), а на
+       круге номеров нет — отсчитывать доли в уме приходилось самому. Мягко
+       подсвечиваем ту долю, о которой идёт речь: не цветом «верно», а пульсом. */
+    if(N.w[t]){ N.w[t].classList.add('podskazka');
+      setTimeout(function(){ N.w[t] && N.w[t].classList.remove('podskazka') }, 2600); }
     say('no','Не сюда',
       `Место ${i}: ${POS[i]}. Там живёт что-то другое.<br><br>
-       «<b>${esc(S.yasna.p[t])}</b>» ищи там, где ${POS[t]}.`,
-      'Попробовать ещё →', ()=>hand());
+       «<b>${esc(S.yasna.p[t])}</b>» ищи там, где ${POS[t]} — доля подсвечена на круге.`,
+      'Поставить туда →', ()=>hand());
     return;
   }
   place(t);
@@ -710,8 +736,27 @@ function once(){ if(booted) return; booted=true; boot(); }
   // и каждый hashchange добавлял дубликат слушателя).
   window.addEventListener('yasna:назад', function (e) {
     if (e.defaultPrevented) return;
-    if (S.scr && S.scr !== 'setup') { e.preventDefault(); setup(); window.scrollTo(0, 0); }
+    if (S.scr && S.scr !== 'setup') { e.preventDefault(); назадНаВыбор(); }
   });
+
+  /* Стрелка в шапке вела на Главную с любого экрана — из середины партии она
+     выбрасывала наружу, и раскладка пропадала без вопроса (запись в историю
+     делает только finish). Теперь стрелка ведёт себя как системная «назад»:
+     с игровых экранов возвращает к выбору ясны, и только с самого выбора —
+     наружу. Из начатой партии спрашиваем подтверждение. */
+  function назадНаВыбор(){
+    if (S.scr === 'play' && S.i > 0 && !confirm('Выйти из партии? Раскладка не сохранится.')) return;
+    try { history.replaceState(null, '', location.pathname); } catch (_) {}
+    S.preset = false; S.invited = false;
+    setup(); window.scrollTo(0, 0);
+  }
+  (function стрелка(){
+    const кн = document.getElementById('krug-nazad');
+    if (!кн) return;
+    кн.addEventListener('click', function (e) {
+      if (S.scr && S.scr !== 'setup') { e.preventDefault(); назадНаВыбор(); }
+    });
+  })();
   window.addEventListener('hashchange',route);
 
 /* Смена темы: часть браузеров не переобсчитывает var() у узлов, созданных до

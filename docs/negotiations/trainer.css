@@ -250,6 +250,11 @@
   box-shadow: 0 6px 22px var(--accent-glow); transition: background .15s, transform .12s;
 }
 .neg-fab-fb:hover { background: var(--accent-hover); transform: translateY(-1px); }
+/* ФАБ «Отзыв» лежал поверх главной кнопки спарринга и поверх ссылок карточек.
+   Отводим ему полосу справа у тех блоков, куда он дотягивается. */
+@media (max-width: 720px) {
+  .neg-spar-grid, .neg-cfg-start { padding-right: 62px; }
+}
 .neg-fab-fb:focus-visible { outline: 2px solid var(--accent-on, #fff); outline-offset: 2px; }
 .neg-fab-fb-ico { font-size: 16px; line-height: 1; }
 @media (max-width: 640px) { .neg-fab-fb { right: 12px; bottom: 12px; padding: 12px; } .neg-fab-fb-txt { display: none; } }
@@ -602,7 +607,7 @@ html.yk-est .neg-l-head { top: 0; }
 .neg-spar-card-title { font-family: var(--font-display); font-weight: 700; font-size: 16px; }
 .neg-spar-card-persona { font-size: 12.5px; color: var(--text-tertiary); }
 .neg-spar-card-foot { flex-shrink: 0; }
-.neg-spar-card-badge { font-size: 11px; color: var(--text-tertiary); }
+.neg-spar-card-badge { font-size: 12px; color: var(--text-tertiary); }
 .neg-spar-card-badge--new { color: var(--accent-hover); font-weight: 600; }
 
 /* — шапка диалога — */
@@ -750,7 +755,7 @@ html.yk-est .neg-l-head { top: 0; }
 .neg-l-skilltag b { color: var(--accent-hover); }
 .neg-stage-skill { font-size: 13px; line-height: 1.45; color: var(--text-secondary); margin-top: 5px; }
 .neg-stage-where { font-size: 11.5px; line-height: 1.4; color: var(--text-tertiary); margin-top: 2px; }
-.neg-spar-card-from { font-size: 10.5px; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--text-tertiary); background: var(--bg-tonal); border-radius: 100px; padding: 2px 8px; }
+.neg-spar-card-from { font-size: 12px; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--text-tertiary); background: var(--bg-tonal); border-radius: 100px; padding: 2px 8px; }
 .neg-spar-card-when { font-size: 12.5px; line-height: 1.4; color: var(--text-secondary); margin: 3px 0; }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -787,7 +792,7 @@ html[data-neg-mode="spar"] .neg-hero-cta:hover { color: var(--text-primary); bor
 
 /* — карточка каталога: результат вперёд, «вы здесь» — */
 .neg-cat-card.is-here { border-color: var(--accent); background: var(--accent-soft); }
-.neg-cat-here { display: inline-block; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-on, #fff); background: var(--accent); border-radius: 100px; padding: 2px 9px; margin-bottom: 6px; align-self: flex-start; }
+.neg-cat-here { display: inline-block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--accent-on, #fff); background: var(--accent); border-radius: 100px; padding: 2px 9px; margin-bottom: 6px; align-self: flex-start; }
 .neg-cat-outcome { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-top: 2px; }
 .neg-cat-when { font-size: 12.5px; color: var(--text-tertiary); margin-top: 4px; }
 
