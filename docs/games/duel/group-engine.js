@@ -425,7 +425,13 @@
       setLocalPhase('lobby'); setQIdx(0); setScore(0); setCorrectCount(0); setStreak(0);
     }
     function copyLink(){
-      const link = window.location.origin + window.location.pathname + '?kroom=' + encodeURIComponent(code);
+      /* В приложении origin — https://localhost, и такая ссылка у получателя
+         мертва. inviteBase() (duel-page.js) подставляет живой адрес сайта;
+         в дуо-ветке это уже сделано, здесь оставалось по-старому. */
+      const база = (typeof inviteBase === 'function')
+        ? inviteBase()
+        : (window.YasnaInviteBase ? window.YasnaInviteBase() : (window.location.origin + window.location.pathname));
+      const link = база + '?kroom=' + encodeURIComponent(code);
       window.YasnaClipboard(link,
         () => { setCopyFallback(''); },
         () => { setCopyFallback(link); }

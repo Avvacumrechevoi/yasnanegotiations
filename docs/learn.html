@@ -32,11 +32,11 @@
 if(m)location.replace('konstruktor.html#tour='+m[1]);})();
 </script>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
-<title>Путь по Руси — карта курса · Ясна</title>
-<meta name="description" content="Курс по методу Ясны как путь странника от Москвы до Тихого океана — 8 остановок, 8 явлений, 8 граней русского мировоззрения."/>
+<title>Обучение · Ясна</title>
+<meta name="description" content="Всё обучение методу Ясны в одном месте: знакомство, базовый курс, авторские разборы, тренировки и справочник."/>
 <meta property="og:type" content="website"/>
-<meta property="og:title" content="Путь по Руси — курс по методу Ясны"/>
-<meta property="og:description" content="8 остановок от Москвы до Тихого океана — собери русское мировоззрение по 12 полкам."/>
+<meta property="og:title" content="Обучение методу Ясны"/>
+<meta property="og:description" content="Знакомство, базовый курс, авторские разборы, тренировки и справочник — всё обучение в одном месте."/>
 <link rel="stylesheet" href="vendor/fonts/shrifty.css">
 
 <style>
@@ -56,6 +56,10 @@ if(m)location.replace('konstruktor.html#tour='+m[1]);})();
   --accent-soft:    rgba(0, 119, 255, 0.12);
   --accent-glow:    rgba(0, 119, 255, 0.30);
   --accent-on:      #FFFFFF;
+  /* Токен использовался в подписях гидов и рамках, но объявлен был только в
+     светлой теме: в тёмной подписи падали на фолбэк #626D7A — 2.6:1 на
+     карточке, нечитаемо. */
+  --text-tertiary:  #97A2B0;
 
   --gold:           #f6c64a;
   --gold-soft:      rgba(246, 198, 74, 0.12);
@@ -1027,13 +1031,14 @@ html[data-theme='light'] {
       </div>
     </div>
     <p class="l-intro-msg">
-      Курс собран как путешествие по Руси — <strong>8 остановок</strong> от Москвы
-      до Тихого океана. Каждый город даёт свой угол зрения на одно явление: Москва —
-      основу, Петербург — слово, Архангельск — небо, Байкал — воду.
+      Учиться можно с двух сторон. <strong>Базовый курс</strong> ведёт по шагам:
+      что такое явление, где у него опоры, как ложатся две главные линии. Уроки
+      идут прямо в круге — подсказки появляются там, где вы работаете.
     </p>
     <p class="l-intro-msg">
-      На каждой остановке короткий урок, разбор и проверочный вопрос. Чтобы
-      двинуться дальше — нужно пройти текущую.
+      А <strong>авторские разборы</strong> — это готовые круги: автор берёт печь,
+      сутки, год или переговоры и раскладывает их на глазах. Смотреть можно в
+      любом порядке, ничего не закрыто.
     </p>
     <div class="l-intro-cta-row">
       <button class="l-intro-btn l-intro-btn--primary" data-action="next">Идём дальше</button>
@@ -1078,7 +1083,7 @@ html[data-theme='light'] {
       </div>
 
       <div class="l-intro-explain" id="introExplain">
-        <strong>Точно.</strong> Сутки, жизнь и переговоры — это <em>циклы</em>: у них есть
+        <strong id="introExplainHd">Точно.</strong> Сутки, жизнь и переговоры — это <em>циклы</em>: у них есть
         начало, середина и конец, повторяющаяся структура. А список покупок —
         просто перечисление вещей. У него нет внутреннего движения и ролей.
         Метод Ясны работает там, где есть устройство, а не просто набор.
@@ -1101,15 +1106,16 @@ html[data-theme='light'] {
       </div>
     </div>
     <p class="l-intro-msg">
-      Ну что, готов? Первая остановка — <strong>Москва</strong>. Здесь — основа метода
-      и сами 12 полок. С неё начинается любой путь.
+      Ну что, начнём? Первый урок — про само явление и про то, почему полок
+      двенадцать. Он короткий, и всё делается прямо в круге.
     </p>
     <p class="l-intro-msg">
-      За каждый верный ответ ты получаешь <em>бусину</em> ✦. Бусины не теряются.
-      После 8 остановок ты увидишь устройство мира как структуру — а не хаос событий.
+      Дальше — как пойдёт: можно идти по курсу, а можно смотреть готовые разборы.
+      Всё это собрано на экране «Уроки», куда вы сейчас вернётесь.
     </p>
     <div class="l-intro-cta-row">
-      <button class="l-intro-btn l-intro-btn--primary" data-action="finish">К пути по Руси →</button>
+      <a class="l-intro-btn l-intro-btn--primary" href="konstruktor.html?lessons=1">Открыть базовый курс →</a>
+      <button class="l-intro-btn" data-action="finish">Сначала осмотрюсь</button>
     </div>
   </div>
 </section>
@@ -1234,10 +1240,11 @@ html[data-theme='light'] {
      внутри Разбора и с экрана Уроков были недостижимы — тупик после главы 1. -->
 <div class="l-gidy" id="gidy">
   <div class="l-path-header"><h2 class="l-path-title">Авторские гиды</h2></div>
-  <p class="l-gidy-sub">Пока следующие главы готовятся — готовые разборы явлений по шагам, с анимацией круга.</p>
+  <p class="l-gidy-sub">Автор разбирает явление по шагам, круг собирается на глазах. Смотреть можно
+     подряд или выбрать своё — порядок ниже от главного к частному.</p>
   <div class="l-gidy-grid">
-    <a class="l-gid" href="konstruktor.html#tour=pechi"><b>Ясна печи</b><span>урок автора · дословно</span></a>
     <a class="l-gid" href="konstruktor.html#tour=sutki"><b>Сутки — корень всего</b><span>главный круг метода</span></a>
+    <a class="l-gid" href="konstruktor.html#tour=pechi"><b>Ясна печи</b><span>урок автора, дословно</span></a>
     <a class="l-gid" href="konstruktor.html#tour=goda"><b>Год</b><span>двойник Суток крупнее</span></a>
     <a class="l-gid" href="konstruktor.html#tour=zhizni"><b>Жизнь</b><span>жизнь как круг</span></a>
     <a class="l-gid" href="konstruktor.html#tour=atm"><b>Атмосфера</b><span>видимая — как круг</span></a>
@@ -1369,6 +1376,13 @@ html[data-theme='light'] {
       quizEl.classList.add('is-checked');
       if(quizCheck) quizCheck.hidden = true;
       if(quizNext) quizNext.hidden = false;
+      /* Разбор был статическим и начинался словом «Точно.» — человек, выбравший
+         неверный вариант, видел красную рамку и тут же похвалу. Заголовок
+         разбора теперь зависит от того, что выбрали. */
+      var выбран = quizEl.querySelector('.l-intro-option.is-selected');
+      var верно  = выбран && выбран.getAttribute('data-correct') === 'true';
+      var шапка  = document.getElementById('introExplainHd');
+      if(шапка) шапка.textContent = верно ? 'Точно.' : 'Не совсем.';
     }
 
     // Skip
@@ -1408,13 +1422,23 @@ html[data-theme='light'] {
     }
 
     /* Базовый курс: если человек уже проходил уроки — говорим «продолжить». */
-    try{
-      var пройдено = JSON.parse(localStorage.getItem('yasna_completed_lessons_v1') || '[]');
-      var мк = document.getElementById('hub-kurs-m');
-      if(мк && Array.isArray(пройдено) && пройдено.length){
-        мк.textContent = 'пройдено ' + пройдено.length + ' из 4';
-      }
-    }catch(_){}
+    /* В yasna_completed_lessons_v1 лежат ВСЕ пройденные уроки конструктора,
+       включая отдельные («Ночь», «Утро»), а в базовом курсе их четыре — из-за
+       этого карточка показывала «пройдено 6 из 4». Считаем по своему списку. */
+    var БАЗОВЫЙ = ['l1_intro','b2_four_pillars','b3_two_lines','b4_line_names'];
+    function подписьКурса(){
+      try{
+        var пройдено = JSON.parse(localStorage.getItem('yasna_completed_lessons_v1') || '[]');
+        if(!Array.isArray(пройдено)) return;
+        var своих = пройдено.filter(function(id){ return БАЗОВЫЙ.indexOf(id) > -1; }).length;
+        var мк = document.getElementById('hub-kurs-m');
+        if(!мк || !своих) return;
+        мк.textContent = своих >= БАЗОВЫЙ.length
+          ? 'курс пройден'
+          : 'пройдено ' + своих + ' из ' + БАЗОВЫЙ.length;
+      }catch(_){}
+    }
+    подписьКурса();
     try{
       var нг = JSON.parse(localStorage.getItem('yasna_neg_lessons_v1') || '{}');
       var мн = document.getElementById('hub-neg-m');
@@ -1424,13 +1448,7 @@ html[data-theme='light'] {
     /* Прогресс приходит с сервера позже первой отрисовки (core/storage.js
        тянет его через ~1.2 с). Иначе на новом устройстве человек увидел бы
        «4 урока» вместо «пройдено 3 из 4». */
-    setTimeout(function(){
-      try{
-        var у = JSON.parse(localStorage.getItem('yasna_completed_lessons_v1') || '[]');
-        var м = document.getElementById('hub-kurs-m');
-        if(м && Array.isArray(у) && у.length) м.textContent = 'пройдено ' + у.length + ' из 4';
-      }catch(_){}
-    }, 1800);
+    setTimeout(подписьКурса, 1800);
   })();
 
   // ═══ КОНТЕНТ — 8 СТАНЦИЙ ═══

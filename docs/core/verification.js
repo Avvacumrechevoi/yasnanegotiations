@@ -50,7 +50,7 @@ function Verification({y,vs,setVs,onClose}){
       <div style={{flex:1,minWidth:0}}>
         <div style={{display:'flex',alignItems:'flex-start',gap:6,marginBottom:2}}>
           {weight&&<span style={{fontSize:9,fontWeight:700,color:wColor,padding:'1px 5px',border:`1px solid ${wColor}40`,borderRadius:3,letterSpacing:0.3,flexShrink:0,marginTop:2}}>{weight}</span>}
-          <div style={{fontSize:13,color:'#1d1d1f',lineHeight:1.5,flex:1}}>{q}</div>
+          <div style={{fontSize:13,color:'var(--txt,#1d1d1f)',lineHeight:1.5,flex:1}}>{q}</div>
           {info&&<button onClick={()=>setOpenInfo(isOpen?null:id)} title="Подробнее"
             style={{width:20,height:20,borderRadius:'50%',border:'1.5px solid #c7c7cc',background:isOpen?'#0071e3':'#fff',color:isOpen?'#fff':'#86868b',fontSize:11,cursor:'pointer',fontWeight:700,flexShrink:0,marginTop:1,lineHeight:1,padding:0,fontFamily:'Georgia,serif',fontStyle:'italic'}}>i</button>}
         </div>
@@ -278,17 +278,17 @@ function Verification({y,vs,setVs,onClose}){
   // INTRO SCREEN
   if(showIntro===true){
     return(
-      <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#fff',zIndex:70,display:'flex',flexDirection:'column'}}>
+      <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'var(--bg,#fff)',color:'var(--txt,#1d1d1f)',zIndex:130,display:'flex',flexDirection:'column'}}>
         <div style={{padding:'12px 20px',borderBottom:'1px solid #f0f0f2',display:'flex',alignItems:'center',gap:10,flexShrink:0}}>
           <div style={{flex:1,minWidth:0}}>
             <div style={{fontSize:10,color:'#86868b',textTransform:'uppercase',letterSpacing:0.8,fontWeight:600,marginBottom:2}}>Проверка</div>
-            <h2 style={{fontSize:18,fontWeight:700,color:'#1d1d1f',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{y.name}</h2>
+            <h2 style={{fontSize:18,fontWeight:700,color:'var(--txt,#1d1d1f)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{y.name}</h2>
           </div>
-          <button onClick={onClose} style={{width:36,height:36,borderRadius:10,border:'1px solid #e5e5ea',background:'#fff',fontSize:16,color:'#424245',cursor:'pointer',flexShrink:0}}>✕</button>
+          <button onClick={onClose} style={{width:36,height:36,borderRadius:10,border:'1px solid #e5e5ea',background:'var(--bg,#fff)',fontSize:16,color:'#424245',cursor:'pointer',flexShrink:0}}>✕</button>
         </div>
         <div className='fullpage-content' style={{flex:1,overflowY:'auto',padding:'24px 20px',maxWidth:680,margin:'0 auto',width:'100%'}}>
-          <div style={{fontSize:24,fontWeight:700,color:'#1d1d1f',marginBottom:10,lineHeight:1.25}}>Проверка Ясны</div>
-          <div style={{fontSize:14,color:'#6e6e73',lineHeight:1.6,marginBottom:16}}>
+          <div style={{fontSize:24,fontWeight:700,color:'var(--txt,#1d1d1f)',marginBottom:10,lineHeight:1.25}}>Проверка Ясны</div>
+          <div style={{fontSize:14,color:'var(--txt2,#6e6e73)',lineHeight:1.6,marginBottom:16}}>
             Каждый вопрос — с прямой цитатой из книг «Ясна Суток / Ясна Года / Ясна Жизни». <b>Шаг 0 — Быстрая проверка</b>: 7 главных пунктов, ~3 минуты. <b>Шаги 1–4</b> — глубокая проверка по способу построения из книг.
           </div>
 
@@ -297,47 +297,47 @@ function Verification({y,vs,setVs,onClose}){
             Сначала заполните все 12 позиций в Редакторе.
           </div>}
 
-          <div style={{fontSize:13,fontWeight:700,color:'#1d1d1f',marginBottom:10,textTransform:'uppercase',letterSpacing:0.5}}>Пять шагов проверки</div>
+          <div style={{fontSize:13,fontWeight:700,color:'var(--txt,#1d1d1f)',marginBottom:10,textTransform:'uppercase',letterSpacing:0.5}}>Пять шагов проверки</div>
 
           <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:24}}>
             <div style={{padding:'14px 16px',background:'rgba(0,122,255,.04)',borderRadius:12,borderLeft:'3px solid #0071e3'}}>
               <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:4}}>
                 <span style={{fontSize:11,fontWeight:700,color:'#0071e3',letterSpacing:1}}>ШАГ 0</span>
-                <div style={{fontSize:15,fontWeight:600,color:'#1d1d1f'}}>Быстрая проверка · 7 пунктов · ~3 минуты</div>
+                <div style={{fontSize:15,fontWeight:600,color:'var(--txt,#1d1d1f)'}}>Быстрая проверка · 7 пунктов · ~3 минуты</div>
               </div>
-              <div style={{fontSize:13,color:'#6e6e73',lineHeight:1.55}}>Самое важное одной обоймой: Горизонт → Опорный Крест → 12 полок → чередование → замыкание → параметр → уникальность.</div>
+              <div style={{fontSize:13,color:'var(--txt2,#6e6e73)',lineHeight:1.55}}>Самое важное одной обоймой: Горизонт → Опорный Крест → 12 полок → чередование → замыкание → параметр → уникальность.</div>
             </div>
-            <div style={{padding:'14px 16px',background:'#f5f5f7',borderRadius:12,borderLeft:'3px solid #6e6e73'}}>
+            <div style={{padding:'14px 16px',background:'var(--bg2,#f5f5f7)',borderRadius:12,borderLeft:'3px solid #6e6e73'}}>
               <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:4}}>
                 <span style={{fontSize:11,fontWeight:700,color:'#424245',letterSpacing:1}}>ШАГ 1</span>
-                <div style={{fontSize:15,fontWeight:600,color:'#1d1d1f'}}>Опорный Крест ({krestChecks.length})</div>
+                <div style={{fontSize:15,fontWeight:600,color:'var(--txt,#1d1d1f)'}}>Опорный Крест ({krestChecks.length})</div>
               </div>
-              <div style={{fontSize:13,color:'#6e6e73',lineHeight:1.55}}>Способ построения из Ясны Года, узел 1, пп. 11–16: Линия Горизонта × Линия Единения = 4 опоры (0/3/6/9).</div>
+              <div style={{fontSize:13,color:'var(--txt2,#6e6e73)',lineHeight:1.55}}>Способ построения из Ясны Года, узел 1, пп. 11–16: Линия Горизонта × Линия Единения = 4 опоры (0/3/6/9).</div>
             </div>
-            <div style={{padding:'14px 16px',background:'#f5f5f7',borderRadius:12,borderLeft:'3px solid #6e6e73'}}>
+            <div style={{padding:'14px 16px',background:'var(--bg2,#f5f5f7)',borderRadius:12,borderLeft:'3px solid #6e6e73'}}>
               <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:4}}>
                 <span style={{fontSize:11,fontWeight:700,color:'#424245',letterSpacing:1}}>ШАГ 2</span>
-                <div style={{fontSize:15,fontWeight:600,color:'#1d1d1f'}}>12 Полок ({polkiChecks.length})</div>
+                <div style={{fontSize:15,fontWeight:600,color:'var(--txt,#1d1d1f)'}}>12 Полок ({polkiChecks.length})</div>
               </div>
-              <div style={{fontSize:13,color:'#6e6e73',lineHeight:1.55}}>Главные свойства полок из Ясны Суток, узел 2, пп. 88–97: 12 различных, 6 долгих + 6 коротких, у каждой свойство и событие, цикл замыкается.</div>
+              <div style={{fontSize:13,color:'var(--txt2,#6e6e73)',lineHeight:1.55}}>Главные свойства полок из Ясны Суток, узел 2, пп. 88–97: 12 различных, 6 долгих + 6 коротких, у каждой свойство и событие, цикл замыкается.</div>
             </div>
-            <div style={{padding:'14px 16px',background:'#f5f5f7',borderRadius:12,borderLeft:'3px solid #6e6e73'}}>
+            <div style={{padding:'14px 16px',background:'var(--bg2,#f5f5f7)',borderRadius:12,borderLeft:'3px solid #6e6e73'}}>
               <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:4}}>
                 <span style={{fontSize:11,fontWeight:700,color:'#424245',letterSpacing:1}}>ШАГ 3</span>
-                <div style={{fontSize:15,fontWeight:600,color:'#1d1d1f'}}>Кресты + Праны ({krestyAndPranChecks.length})</div>
+                <div style={{fontSize:15,fontWeight:600,color:'var(--txt,#1d1d1f)'}}>Кресты + Праны ({krestyAndPranChecks.length})</div>
               </div>
-              <div style={{fontSize:13,color:'#6e6e73',lineHeight:1.55}}>Кресты Управления и Веры, тройки Вера→Бой→Победа, 4 стихии и Три Дуги. Источники: Ясна Суток узлы 7–8 + Ясна Года узел 9.</div>
+              <div style={{fontSize:13,color:'var(--txt2,#6e6e73)',lineHeight:1.55}}>Кресты Управления и Веры, тройки Вера→Бой→Победа, 4 стихии и Три Дуги. Источники: Ясна Суток узлы 7–8 + Ясна Года узел 9.</div>
             </div>
-            <div style={{padding:'14px 16px',background:'#f5f5f7',borderRadius:12,borderLeft:'3px solid #6e6e73'}}>
+            <div style={{padding:'14px 16px',background:'var(--bg2,#f5f5f7)',borderRadius:12,borderLeft:'3px solid #6e6e73'}}>
               <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:4}}>
                 <span style={{fontSize:11,fontWeight:700,color:'#424245',letterSpacing:1}}>ШАГ 4</span>
-                <div style={{fontSize:15,fontWeight:600,color:'#1d1d1f'}}>Целое ({wholeChecks.length})</div>
+                <div style={{fontSize:15,fontWeight:600,color:'var(--txt,#1d1d1f)'}}>Целое ({wholeChecks.length})</div>
               </div>
-              <div style={{fontSize:13,color:'#6e6e73',lineHeight:1.55}}>Законы, общие для всех Ясн: одинаковое устройство, замыкание Мёбиуса, накопление→переход, общий параметр, цельный образ.</div>
+              <div style={{fontSize:13,color:'var(--txt2,#6e6e73)',lineHeight:1.55}}>Законы, общие для всех Ясн: одинаковое устройство, замыкание Мёбиуса, накопление→переход, общий параметр, цельный образ.</div>
             </div>
           </div>
 
-          <div style={{fontSize:13,fontWeight:700,color:'#1d1d1f',marginBottom:10,textTransform:'uppercase',letterSpacing:0.5}}>Веса проверок</div>
+          <div style={{fontSize:13,fontWeight:700,color:'var(--txt,#1d1d1f)',marginBottom:10,textTransform:'uppercase',letterSpacing:0.5}}>Веса проверок</div>
           <div style={{display:'flex',flexDirection:'column',gap:6,marginBottom:24}}>
             <div style={{display:'flex',alignItems:'center',gap:10,padding:'8px 12px',background:'#fff5f5',borderRadius:8,border:'1px solid #E8364F20'}}>
               <span style={{fontSize:10,fontWeight:700,color:'#E8364F',padding:'2px 6px',border:'1px solid #E8364F40',borderRadius:4,flexShrink:0}}>КРИТ</span>
@@ -347,13 +347,13 @@ function Verification({y,vs,setVs,onClose}){
               <span style={{fontSize:10,fontWeight:700,color:'#E8A834',padding:'2px 6px',border:'1px solid #E8A83440',borderRadius:4,flexShrink:0}}>ВАЖ</span>
               <span style={{fontSize:13,color:'#424245'}}>Влияет на итог: «безупречно / с оговорками».</span>
             </div>
-            <div style={{display:'flex',alignItems:'center',gap:10,padding:'8px 12px',background:'#f5f5f7',borderRadius:8,border:'1px solid #d2d2d7'}}>
+            <div style={{display:'flex',alignItems:'center',gap:10,padding:'8px 12px',background:'var(--bg2,#f5f5f7)',borderRadius:8,border:'1px solid #d2d2d7'}}>
               <span style={{fontSize:10,fontWeight:700,color:'#86868b',padding:'2px 6px',border:'1px solid #86868b40',borderRadius:4,flexShrink:0}}>ЖЕЛ</span>
               <span style={{fontSize:13,color:'#424245'}}>Желательно, но не обязательно для итога.</span>
             </div>
           </div>
 
-          <div style={{fontSize:13,fontWeight:700,color:'#1d1d1f',marginBottom:6,textTransform:'uppercase',letterSpacing:0.5}}>Подсказки</div>
+          <div style={{fontSize:13,fontWeight:700,color:'var(--txt,#1d1d1f)',marginBottom:6,textTransform:'uppercase',letterSpacing:0.5}}>Подсказки</div>
           <ul style={{fontSize:13,color:'#424245',lineHeight:1.65,marginLeft:18,marginBottom:18}}>
             <li>Каждая проверка имеет кнопку <b>i</b> — раскрывает цитату из конкретного пункта книги.</li>
             <li>Кнопка «—» ставит «не применимо» (например, для абстрактных Ясн без явного Горизонта).</li>
@@ -361,9 +361,9 @@ function Verification({y,vs,setVs,onClose}){
             <li>Внизу — кнопка «📋 Отчёт» копирует протокол в буфер.</li>
           </ul>
         </div>
-        <div style={{padding:'14px 20px',borderTop:'1px solid #f0f0f2',background:'#fff',flexShrink:0,boxShadow:'0 -4px 16px rgba(0,0,0,.04)'}}>
-          <div style={{maxWidth:680,margin:'0 auto',display:'flex',gap:10,justifyContent:'flex-end',flexWrap:'wrap'}}>
-            <button onClick={onClose} style={{fontSize:14,padding:'10px 18px',borderRadius:10,border:'1px solid #e5e5ea',background:'#fff',color:'#424245',cursor:'pointer'}}>Отмена</button>
+        <div style={{padding:'14px 20px',borderTop:'1px solid #f0f0f2',background:'var(--bg,#fff)',flexShrink:0,boxShadow:'0 -4px 16px rgba(0,0,0,.04)'}}>
+          <div style={{paddingBottom:'calc(12px + env(safe-area-inset-bottom,0px))',maxWidth:680,margin:'0 auto',display:'flex',gap:10,justifyContent:'flex-end',flexWrap:'wrap'}}>
+            <button onClick={onClose} style={{fontSize:14,padding:'10px 18px',borderRadius:10,border:'1px solid #e5e5ea',background:'var(--bg,#fff)',color:'#424245',cursor:'pointer'}}>Отмена</button>
             <button onClick={()=>setShowIntro(false)} style={{fontSize:14,fontWeight:600,padding:'10px 20px',borderRadius:10,border:'1px solid #0071e3',background:'#0071e3',color:'#fff',cursor:'pointer',flex:'1 1 auto',minWidth:200}}>Начать с Шага 0 (Быстро) →</button>
           </div>
         </div>
@@ -371,15 +371,15 @@ function Verification({y,vs,setVs,onClose}){
   }
 
   return(
-    <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#fff',zIndex:70,display:'flex',flexDirection:'column'}}>
+    <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'var(--bg,#fff)',color:'var(--txt,#1d1d1f)',zIndex:130,display:'flex',flexDirection:'column'}}>
       {/* HEADER */}
       <div className="verif-header" style={{display:'flex',alignItems:'center',padding:'12px 20px',borderBottom:'1px solid #f0f0f2',flexShrink:0,gap:10}}>
         <div style={{flex:1,minWidth:0}}>
           <div style={{fontSize:10,color:'#86868b',textTransform:'uppercase',letterSpacing:0.8,fontWeight:600,marginBottom:2}}>Проверка</div>
-          <h2 className="verif-title" style={{fontSize:18,fontWeight:700,color:'#1d1d1f',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{y.name}</h2>
+          <h2 className="verif-title" style={{fontSize:18,fontWeight:700,color:'var(--txt,#1d1d1f)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{y.name}</h2>
         </div>
-        <button onClick={()=>setShowIntro(true)} className="verif-help" title="Показать инструкцию" style={{width:36,height:36,borderRadius:10,border:'1px solid #e5e5ea',background:'#fff',fontSize:15,color:'#424245',cursor:'pointer',flexShrink:0,fontFamily:'Georgia,serif',fontStyle:'italic',fontWeight:700}}>?</button>
-        <button onClick={onClose} className="verif-close" style={{width:36,height:36,borderRadius:10,border:'1px solid #e5e5ea',background:'#fff',fontSize:16,color:'#424245',cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+        <button onClick={()=>setShowIntro(true)} className="verif-help" title="Показать инструкцию" style={{width:36,height:36,borderRadius:10,border:'1px solid #e5e5ea',background:'var(--bg,#fff)',fontSize:15,color:'#424245',cursor:'pointer',flexShrink:0,fontFamily:'Georgia,serif',fontStyle:'italic',fontWeight:700}}>?</button>
+        <button onClick={onClose} className="verif-close" style={{width:36,height:36,borderRadius:10,border:'1px solid #e5e5ea',background:'var(--bg,#fff)',fontSize:16,color:'#424245',cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
       </div>
 
       {/* STATUS + PROGRESS */}
@@ -407,9 +407,9 @@ function Verification({y,vs,setVs,onClose}){
           <span>→</span><span>К следующему</span>
         </button>}
         <button onClick={()=>setHidePassed(v=>!v)} style={{fontSize:11,color:hidePassed?'#0071e3':'#6e6e73',padding:'5px 10px',border:`1px solid ${hidePassed?'#0071e3':'#e5e5ea'}`,borderRadius:7,background:hidePassed?'rgba(0,122,255,.06)':'#fff',cursor:'pointer',fontWeight:500}}>{hidePassed?'Показать все':'Скрыть ✓'}</button>
-        {totalDone>0&&<button onClick={exportReport} style={{fontSize:11,color:'#424245',padding:'5px 10px',border:'1px solid #e5e5ea',borderRadius:7,background:'#fff',cursor:'pointer',fontWeight:500}}>{copyFeedback||'📋 Отчёт'}</button>}
+        {totalDone>0&&<button onClick={exportReport} style={{fontSize:11,color:'#424245',padding:'5px 10px',border:'1px solid #e5e5ea',borderRadius:7,background:'var(--bg,#fff)',cursor:'pointer',fontWeight:500}}>{copyFeedback||'📋 Отчёт'}</button>}
         <div style={{flex:1}}/>
-        <button onClick={()=>{if(confirm('Сбросить все ответы для этой Ясны?')){const keys=Object.keys(vs).filter(k=>k.startsWith(y.name+'_'));const nv={...vs};keys.forEach(k=>delete nv[k]);setVs(nv);setShowIntro(true);}}} style={{fontSize:11,color:'#E8364F',padding:'5px 10px',border:'1px solid #E8364F30',borderRadius:7,background:'#fff',cursor:'pointer'}}>Сбросить</button>
+        <button onClick={()=>{if(confirm('Сбросить все ответы для этой Ясны?')){const keys=Object.keys(vs).filter(k=>k.startsWith(y.name+'_'));const nv={...vs};keys.forEach(k=>delete nv[k]);setVs(nv);setShowIntro(true);}}} style={{fontSize:11,color:'#E8364F',padding:'5px 10px',border:'1px solid #E8364F30',borderRadius:7,background:'var(--bg,#fff)',cursor:'pointer'}}>Сбросить</button>
       </div>
 
       {/* TABS */}
@@ -427,7 +427,7 @@ function Verification({y,vs,setVs,onClose}){
           Проверка достоверна только на полной Ясне. Сначала заполните все 12 позиций в Редакторе.
         </div>}
 
-        <div style={{display:'flex',alignItems:'center',gap:10,padding:'8px 12px',background:'#f5f5f7',borderRadius:10,marginBottom:14,fontSize:11,color:'#6e6e73',flexWrap:'wrap'}}>
+        <div style={{display:'flex',alignItems:'center',gap:10,padding:'8px 12px',background:'var(--bg2,#f5f5f7)',borderRadius:10,marginBottom:14,fontSize:11,color:'var(--txt2,#6e6e73)',flexWrap:'wrap'}}>
           <span style={{fontWeight:600,color:'#424245'}}>Как отвечать:</span>
           <span style={{display:'inline-flex',alignItems:'center',gap:4}}><span style={{width:16,height:16,borderRadius:4,border:'1.5px solid #30A060',background:'#30A06012',color:'#30A060',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700}}>✓</span>верно</span>
           <span style={{display:'inline-flex',alignItems:'center',gap:4}}><span style={{width:16,height:16,borderRadius:4,border:'1.5px solid #E8364F',background:'#E8364F12',color:'#E8364F',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700}}>✗</span>неверно</span>
@@ -448,7 +448,7 @@ function Verification({y,vs,setVs,onClose}){
         </>}
 
         {tab==='krest'&&<>
-          <div style={{fontSize:12,color:'#6e6e73',marginBottom:12,lineHeight:1.55,padding:'9px 12px',background:'#f0f5ff',borderRadius:8}}>
+          <div style={{fontSize:12,color:'var(--txt2,#6e6e73)',marginBottom:12,lineHeight:1.55,padding:'9px 12px',background:'#f0f5ff',borderRadius:8}}>
             <b style={{color:'#0071e3'}}>Шаг 1. Опорный Крест</b> — авторский алгоритм построения Ясны (Ясна Года №11–16). Линия Горизонта × Линия Единения = 4 опоры (0/3/6/9).
           </div>
           <div style={{border:'1px solid #e5e5ea',borderRadius:10,padding:'4px 14px'}}>
@@ -457,7 +457,7 @@ function Verification({y,vs,setVs,onClose}){
         </>}
 
         {tab==='polki'&&<>
-          <div style={{fontSize:12,color:'#6e6e73',marginBottom:12,lineHeight:1.55,padding:'9px 12px',background:'#f0f5ff',borderRadius:8}}>
+          <div style={{fontSize:12,color:'var(--txt2,#6e6e73)',marginBottom:12,lineHeight:1.55,padding:'9px 12px',background:'#f0f5ff',borderRadius:8}}>
             <b style={{color:'#0071e3'}}>Шаг 2. 12 Полок</b> — ключевые определения автора из Ясны Суток, узел 2, пункты 88–97. Самая короткая формулировка во всех трёх книгах.
           </div>
           <div style={{border:'1px solid #e5e5ea',borderRadius:10,padding:'4px 14px'}}>
@@ -466,7 +466,7 @@ function Verification({y,vs,setVs,onClose}){
         </>}
 
         {tab==='kpr'&&<>
-          <div style={{fontSize:12,color:'#6e6e73',marginBottom:12,lineHeight:1.55,padding:'9px 12px',background:'#f0f5ff',borderRadius:8}}>
+          <div style={{fontSize:12,color:'var(--txt2,#6e6e73)',marginBottom:12,lineHeight:1.55,padding:'9px 12px',background:'#f0f5ff',borderRadius:8}}>
             <b style={{color:'#0071e3'}}>Шаг 3. Кресты + Праны</b> — Кресты Управления и Веры, тройки Вера→Бой→Победа, 4 стихии (Земля/Вода/Воздух/Огонь). Ясна Суток узлы 7–8 + Ясна Года узел 9.
           </div>
           <div style={{border:'1px solid #e5e5ea',borderRadius:10,padding:'4px 14px'}}>
@@ -475,7 +475,7 @@ function Verification({y,vs,setVs,onClose}){
         </>}
 
         {tab==='whole'&&<>
-          <div style={{fontSize:12,color:'#6e6e73',marginBottom:12,lineHeight:1.55,padding:'9px 12px',background:'#f0f5ff',borderRadius:8}}>
+          <div style={{fontSize:12,color:'var(--txt2,#6e6e73)',marginBottom:12,lineHeight:1.55,padding:'9px 12px',background:'#f0f5ff',borderRadius:8}}>
             <b style={{color:'#0071e3'}}>Шаг 4. Целое</b> — общие для всех Ясн законы (одинаковое устройство, Лента Мёбиуса, Накопление→Переход) + проверка на цельность.
           </div>
           <div style={{border:'1px solid #e5e5ea',borderRadius:10,padding:'4px 14px',marginBottom:14}}>
@@ -484,9 +484,9 @@ function Verification({y,vs,setVs,onClose}){
 
           <div style={{padding:'16px 20px',background:`linear-gradient(135deg,${statusColor}08,${statusColor}14)`,border:`1px solid ${statusColor}40`,borderRadius:14,marginTop:20}}>
             <div style={{fontSize:11,fontWeight:700,color:statusColor,letterSpacing:0.5,textTransform:'uppercase',marginBottom:6}}>Итоговый вердикт</div>
-            <div style={{fontSize:18,fontWeight:700,color:'#1d1d1f',marginBottom:8}}>{status}</div>
+            <div style={{fontSize:18,fontWeight:700,color:'var(--txt,#1d1d1f)',marginBottom:8}}>{status}</div>
             <div style={{fontSize:13,color:'#424245',lineHeight:1.6,marginBottom:10}}>{statusDesc}</div>
-            <div style={{display:'flex',gap:10,flexWrap:'wrap',fontSize:11,color:'#6e6e73'}}>
+            <div style={{display:'flex',gap:10,flexWrap:'wrap',fontSize:11,color:'var(--txt2,#6e6e73)'}}>
               <span><b style={{color:'#E8364F'}}>КРИТ:</b> {critS.pass}/{critChecks.length}{critS.failed>0?`, ${critS.failed} провалено`:''}</span>
               <span><b style={{color:'#E8A834'}}>ВАЖ:</b> {vazhS.pass}/{vazhChecks.length}</span>
               <span><b style={{color:'#86868b'}}>ЖЕЛ:</b> {zhelS.pass}/{zhelChecks.length}</span>

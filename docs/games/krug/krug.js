@@ -402,7 +402,16 @@ function mode(){
     b.onclick=()=>{ S.mode=id; id==='link'?share():start() };
     app().appendChild(b);
   });
-  app().appendChild(el(`<button class="gh" onclick="location.reload()">← Выбрать другую ясну</button>`));
+  /* Была перезагрузка страницы, а в адресе к этому моменту мог остаться
+     ?y=…&s=… от экрана ссылки — route() поднимал по нему партию, и человек
+     получал ясну, которую не выбирал. Чистим адрес и состояние сами. */
+  const другая=el(`<button class="gh">← Выбрать другую ясну</button>`);
+  другая.onclick=()=>{
+    try{ history.replaceState(null,'',location.pathname); }catch(_){}
+    S.preset=false; S.invited=false; S.mode=null; S.yasna=null;
+    setup();
+  };
+  app().appendChild(другая);
 }
 
 /* ═══════════ ССЫЛКА НА ОДНУ РАЗДАЧУ ═══════════ */
@@ -592,18 +601,24 @@ function finish(){
   if(S.mode!=='duo'){
     body+=` С первого раза — <b>${clean}</b> из ${S.deck.length}.`;
   } else {
-    /* нитку засчитываем тому, кто поставил её второй конец — он её и замкнул */
+    /* Нитка засчитывалась тому, кто поставил её второй конец, и по этому
+       числу объявлялся победитель — но кому достанется второй конец, решает
+       порядок перетасованной колоды, а не игра. Победителя теперь считаем
+       по сопоставимому: сколько поставлено с первого раза (при равенстве —
+       у кого меньше тапов). Оси остаются как есть, но без вердикта. */
     const ax=[0,0];
     for(let k=0;k<6;k++){ const w=S.axBy[k]; if(w===0||w===1) ax[w]++; }
-    const lead = ax[0]===ax[1] ? null : (ax[0]>ax[1]?0:1);
-    body += `<br><br>Ось низ–верх дана даром, остальные пять замыкали вы.
-      <b>${esc(S.players[0])}</b> замкнул ${ax[0]} ${plural(ax[0],'ось','оси','осей')},
-      <b>${esc(S.players[1])}</b> — ${ax[1]}.`;
+    const доля=i=>S.els[i]?S.hits[i]/S.els[i]:0;
+    let lead=null;
+    if(доля(0)!==доля(1)) lead = доля(0)>доля(1) ? 0 : 1;
+    else if(S.tries[0]!==S.tries[1]) lead = S.tries[0]<S.tries[1] ? 0 : 1;
+    body += `<br><br>С первого раза: <b>${esc(S.players[0])}</b> — ${S.hits[0]} из ${S.els[0]},
+      <b>${esc(S.players[1])}</b> — ${S.hits[1]} из ${S.els[1]}. Тапов всего: ${S.tries[0]} и ${S.tries[1]}.`;
     body += lead===null
-      ? ' Поровну.'
-      : ` Круг больше собрал <b>${esc(S.players[lead])}</b>.`;
-    body += `<br>С первого раза: ${esc(S.players[0])} — ${S.hits[0]} из ${S.els[0]},
-      ${esc(S.players[1])} — ${S.hits[1]} из ${S.els[1]}. Тапов всего: ${S.tries[0]} и ${S.tries[1]}.`;
+      ? '<br>Поровну.'
+      : `<br>Точнее собирал <b>${esc(S.players[lead])}</b>.`;
+    body += `<br><br>Оси замыкали: ${esc(S.players[0])} — ${ax[0]}, ${esc(S.players[1])} — ${ax[1]}
+      <span style="color:var(--k-tx3)">(кому достанется второй конец, решает раздача)</span>.`;
   }
   b.appendChild(el(`<div class="say ok"><div class="hd">Готово</div><div class="bd">${body}</div></div>`));
 

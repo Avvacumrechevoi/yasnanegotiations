@@ -186,7 +186,7 @@
     box-shadow:0 10px 24px rgba(0,0,0,.4)}
 
   h2{font:600 12.5px/1 Manrope,Inter,sans-serif;letter-spacing:.09em;
-    text-transform:uppercase;color:var(--ink-3);margin:22px 4px 10px;
+    text-transform:uppercase;color:var(--ink-2);margin:22px 4px 10px;
     display:flex;align-items:center;gap:10px}
   h2::after{content:"";flex:1;height:1px;background:var(--kayma)}
 
@@ -241,9 +241,13 @@
   .delo .put.zhdet i:nth-child(6){animation-delay:.8s}
   .delo .put.zhdet i:nth-child(7){animation-delay:.96s}
   .delo .put.zhdet i:nth-child(8){animation-delay:1.12s}
+  /* Пробегающий огонёк красился тем же синим, что и пройденная остановка, —
+     на свежей установке человек видел «шесть из восьми пройдено», хотя не
+     проходил ничего. Огонёк теперь другого языка: бледная подсветка, а не
+     цвет пройденного. */
   @keyframes put-svet{
     0%,10%{background:var(--kayma)}
-    20%{background:var(--syn)}
+    20%{background:color-mix(in srgb, var(--ink-2) 42%, transparent)}
     40%{background:var(--kayma)}
     100%{background:var(--kayma)}
   }
@@ -285,7 +289,7 @@
   .pr-chipy{display:flex;gap:7px;overflow-x:auto;padding:2px 16px 10px;
     margin:0 -16px;scrollbar-width:none}
   .pr-chipy::-webkit-scrollbar{display:none}
-  .pr-chip{flex:0 0 auto;min-height:38px;padding:0 14px;border-radius:99px;
+  .pr-chip{flex:0 0 auto;min-height:44px;padding:0 14px;border-radius:99px;
     border:1px solid var(--kayma);background:var(--kart);color:var(--ink-2);
     font:600 13px/1 Manrope,Inter,sans-serif;cursor:pointer}
   .pr-chip.est{background:var(--syn);border-color:transparent;color:#fff}
@@ -302,7 +306,7 @@
   .pr-scen{width:96px;height:96px;border-radius:14px;background:var(--fon);
     display:flex;align-items:center;justify-content:center;overflow:hidden}
   .pr-scena{width:84px;height:84px}
-  .pr-metka{font:600 11.5px/1 Manrope,sans-serif;letter-spacing:.06em;
+  .pr-metka{font:600 12px/1 Manrope,sans-serif;letter-spacing:.06em;
     text-transform:uppercase;color:var(--ink-3)}
   .pr-t{font:600 17px/1.2 Manrope,Inter,sans-serif;margin:6px 0 4px}
   .pr-o{font-size:12.5px;line-height:1.45;color:var(--ink-2)}
@@ -482,8 +486,10 @@
       <span>Понять, как устроен рейтинг<small>бусины, звания и за что их дают</small></span>
       <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
     </a>
-    <a href="trainers.html">
-      <span>Все тренажёры одним списком<small>каталог игр и практик</small></span>
+    <!-- Вело на trainers.html, который после пересборки «Уроков» слово в слово
+         повторяет хаб и не содержит ни одной игры. Дверь одна — «Уроки». -->
+    <a href="learn.html">
+      <span>Всё обучение одним списком<small>курс, разборы, игры и переговоры</small></span>
       <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
     </a>
   </div>
@@ -542,8 +548,8 @@
     var П=[
     {id:'pamyat',metka:'память · ~2 минуты',t:'Разложи по кругу',o:'Берёшь элемент явления и кладёшь на его долю круга. Шестнадцать явлений на выбор.',href:'games/krug/index.html',kn:'Играть'},
     {id:'pogruzhenie',metka:'погружение · ~5 минут',t:'Разобрать явление',o:'Конструктор: раскладываешь своё дело по двенадцати частям — в плоскости и в объёме.',href:'konstruktor.html',kn:'Разложить'},
-    {id:'obshchenie',metka:'разговор · ~10 минут',t:'Читать людей',o:'Тренажёр переговоров: четыре сценария — от первого контакта до выхода без осадка.',href:'negotiations.html',kn:'Начать'},
-    {id:'dom',metka:'дом · ~10 минут',t:'Договориться дома',o:'Тот же тренажёр на домашних сценах: как говорить с близкими, чтобы не оставалось осадка.',href:'negotiations.html#dom',kn:'Начать'}
+    {id:'obshchenie',metka:'общение · ~30 минут',t:'Читать людей',o:'Тренажёр переговоров: четыре сценария — от первого контакта до выхода без осадка.',href:'negotiations.html',kn:'Начать'},
+    {id:'dom',metka:'разговор · ~10 минут',t:'Выйти без осадка',o:'Сценарий «Удержать и выйти»: как закончить разговор, чтобы не осталось горечи.',href:'negotiations.html#dom',kn:'Начать'}
     ];
     var чипы=document.querySelectorAll('.pr-chip'), карта=document.getElementById('pr-karta');
     if(!чипы.length||!карта) return;

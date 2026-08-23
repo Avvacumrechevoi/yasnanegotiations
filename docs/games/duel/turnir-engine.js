@@ -208,18 +208,28 @@
   }
 
   // ─── Round Intro ─────────────────────────────────────────────────
-  function RoundIntro({ roundNum, theme, onReady }){
+  /* Заставка раунда печатала «Раунд N из 6» и «три вопроса по теме» жёстко,
+     хотя раундов и вопросов бывает другое число — партия сама говорила о себе
+     неправду ещё до первого вопроса. Берём настоящие числа из партии. */
+  function RoundIntro({ roundNum, roundsTotal, qCount, theme, onReady }){
     useEffect(() => {
       const t = setTimeout(onReady, SHOW_ROUND_INTRO_MS);
       return () => clearTimeout(t);
     }, []);
     return React.createElement('div', { className: 'tn-fullscreen' },
       React.createElement('div', { className: 'tn-container' },
-        React.createElement(TnTopBar, { eyebrow: '✦ Раунд ' + roundNum + ' из 6' }),
+        React.createElement(TnTopBar, { eyebrow: '✦ Раунд ' + roundNum + ' из ' + (roundsTotal || roundNum) }),
         React.createElement('div', { className: 'tn-round-intro' },
           React.createElement('div', { className: 'tn-round-eyebrow', style: { letterSpacing: '0.16em', opacity: 0.7 } }, 'Гимн ', roundNum, '-й'),
           React.createElement('h1', { className: 'tn-round-title', style: { fontFamily: 'ui-serif, Georgia, serif', fontWeight: 500, letterSpacing: '-0.01em' } }, theme.name),
-          React.createElement('div', { className: 'tn-round-sub', style: { fontStyle: 'italic', opacity: 0.7 } }, 'три вопроса по теме')
+          React.createElement('div', { className: 'tn-round-sub', style: { fontStyle: 'italic', opacity: 0.7 } },
+            (function(){
+              var n = qCount || 0;
+              if(!n) return 'вопросы по теме';
+              var сл = (n % 10 === 1 && n % 100 !== 11) ? 'вопрос'
+                : ([2,3,4].indexOf(n % 10) > -1 && [12,13,14].indexOf(n % 100) === -1 ? 'вопроса' : 'вопросов');
+              return n + ' ' + сл + ' по теме';
+            })())
         )
       )
     );
@@ -1785,6 +1795,8 @@
       return React.createElement(RoundIntro, {
         key: 'intro-' + roundIdx,
         roundNum: roundIdx + 1,
+        roundsTotal: (partiya && partiya.length) || undefined,
+        qCount: (currentRound.questions && currentRound.questions.length) || undefined,
         theme: currentRound.theme,
         onReady: () => setPhase('question')
       });

@@ -716,7 +716,8 @@ a { color: inherit; }
 }
 .dp-theme-locked-icon {
   color: var(--text-3);
-  font-size: 11px;
+  /* 11px — ниже порога читаемости на телефоне (12px). */
+  font-size: 12px;
 }
 
 /* ═══ Bottom blocks (Хроника + Знаки) ═══ */
@@ -746,7 +747,7 @@ a { color: inherit; }
   display: flex; align-items: center; gap: var(--space-2);
 }
 .dp-card-meta {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-3);
 }
 .dp-card-empty {
@@ -1262,7 +1263,7 @@ a { color: inherit; }
 .dp-footer-version {
   margin-top: var(--space-3);
   color: var(--text-3);
-  font-size: 11px;
+  font-size: 12px;
 }
 
 /* ═══ Term tooltip ═══ */

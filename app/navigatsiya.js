@@ -84,6 +84,9 @@
     '.hdr{display:none !important}' +
     /* Та же история на «Уроках»: своя шапка .l-header дублирует наббар. */
     '.l-header{display:none !important}' +
+    /* «Рейтинг»: ссылка «← к Ясне» вела на сайтовую главную и в приложении
+       дублировала вкладку наббара. */
+    '.rt-back{display:none !important}' +
     /* Панель «Редактор» в Разборе — во всю высоту окна, и её кнопка выхода
        оказывалась ровно под наббаром: закрыть редактор было нечем. */
     '.editor-panel{height:calc(100vh - 70px - var(--yk-snizu)) !important;z-index:129 !important}' +

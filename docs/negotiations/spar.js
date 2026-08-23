@@ -254,10 +254,22 @@
     cfg.appendChild(lvlRow);
 
     var tt = typeById(curType) || {}, sk = skillById(curSkill);
-    var cta = el('button', 'neg-cfg-start', 'Начать спарринг: ' + esc(tt.label || '') + ' · ' + esc(sk.label) + ' →');
+    /* Живой собеседник работает только когда включён серверный прокси
+       (/spar/status → configured:true). Пока его нет, кнопка называла себя
+       «Начать спарринг», а по нажатию молча прокручивала страницу к готовым
+       сценам — человек считал, что она сломана. Говорим прямо. */
+    var живой = proxyOn();
+    var cta = el('button', 'neg-cfg-start', живой
+      ? 'Начать спарринг: ' + esc(tt.label || '') + ' · ' + esc(sk.label) + ' →'
+      : 'Живой диалог сейчас недоступен — открыть готовые сцены →');
     cta.type = 'button';
     cta.addEventListener('click', onStartConfigured);
     cfg.appendChild(cta);
+    if (!живой) {
+      cfg.appendChild(el('div', 'neg-cfg-note',
+        'Свободный разговор с собеседником включается на сервере. Сейчас он выключен, ' +
+        'поэтому доступны шесть готовых сцен — они работают и без сети.'));
+    }
     sparRoot.appendChild(cfg);
 
     // Ключ для живого диалога. При работающем серверном прокси ключ не

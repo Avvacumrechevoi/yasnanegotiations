@@ -19,6 +19,9 @@ function inviteBase(){
       (location.pathname.startsWith('/games/') ? location.pathname : '/duel.html');
   return window.location.origin + window.location.pathname;
 }
+/* Наружу: тем же адресом пользуется группа (group-engine.js) — файлы бандла
+   не видят функций друг друга напрямую. */
+try { window.YasnaInviteBase = inviteBase; } catch (_) {}
   const _g = (n) => window[n];
 
   // ─── Иконки и цвета тем — для banner-cards в picker'е ───────────────
@@ -528,9 +531,9 @@ function inviteBase(){
         React.createElement('div', { className: 'dp-sync-notice-body' },
           React.createElement('div', { className: 'dp-sync-notice-title' }, 'Прогресс сохраняется на сервере'),
           React.createElement('div', { className: 'dp-sync-notice-text' },
-            'Уроки, разбор и бусины уже лежат на сервере — пока для этого устройства.',
+            'Уроки и разборы уже лежат на сервере — пока для этого устройства.',
             React.createElement('br'),
-            'Войди по почте, и они привяжутся к тебе: вернутся после переустановки и откроются на другом телефоне.'
+            'Войди по почте, и они привяжутся к тебе: вернутся после переустановки и откроются на другом телефоне. Бусины и история партий пока живут только здесь.'
           )
         ),
         React.createElement('div', { className: 'dp-sync-notice-actions' },
@@ -2269,7 +2272,17 @@ function inviteBase(){
         React.createElement('div', null,
           React.createElement('a', { href: 'index.html' }, 'К Ясне')
         ),
-        React.createElement('div', { className: 'dp-footer-version' }, 'Ясна · v2.0 · мая 2026')
+        /* Версия была вписана руками («v2.0 · мая 2026») и устарела на четыре
+           выпуска, да ещё в кривом падеже. В приложении берём настоящую у
+           Capacitor, на сайте не показываем вовсе. */
+        React.createElement('div', { className: 'dp-footer-version', ref: el => {
+          if(!el || el.dataset.v) return; el.dataset.v='1';
+          try{
+            var П=(window.Capacitor&&window.Capacitor.Plugins)||{};
+            if(П.App&&П.App.getInfo){ П.App.getInfo().then(function(i){ el.textContent='Ясна · '+i.version; }); }
+            else el.textContent='';
+          }catch(_){ el.textContent=''; }
+        } }, 'Ясна')
       ),
 
       authModal && React.createElement(DPAuthModal, { onClose: () => setAuthModal(false), onLoggedIn }),
@@ -2441,12 +2454,24 @@ function inviteBase(){
               !enoughThemes && React.createElement('div', { className: 'dp-themes-warn' },
                 '⚠  Выбери хотя бы одну тему.'
               ),
-              // Hint когда выбрана только 1 тема — показываем что все вопросы
-              // будут из неё. Это норм поведение, не ограничение.
-              selectedCount === 1 && React.createElement('div', { className: 'dp-themes-hint',
-                style: { fontSize:11, color:'#86868b', marginTop:6, lineHeight:1.5 } },
-                'Все ', cur.count, ' вопросов будут из выбранной темы.'
-              )
+              /* Обещали «все 30 вопросов из выбранной темы», а в банке темы их
+                 бывает девять — партия молча выходила втрое короче. Считаем
+                 фактический пул и говорим как есть. */
+              selectedCount === 1 && (function(){
+                var ид = isAllSelected ? (allThemes[0] && allThemes[0].id) : selectedThemes[0];
+                var есть = 0;
+                try {
+                  var банк = window.YasnaTrivia && window.YasnaTrivia.getQuestionsForTheme;
+                  есть = банк ? (банк(ид) || []).length : 0;
+                } catch(_){}
+                var текст = (!есть || есть >= cur.count)
+                  ? 'Все ' + cur.count + ' вопросов будут из выбранной темы.'
+                  : 'В этой теме ' + есть + ' ' + (есть % 10 === 1 && есть % 100 !== 11 ? 'вопрос'
+                      : ([2,3,4].indexOf(есть % 10) > -1 && [12,13,14].indexOf(есть % 100) === -1 ? 'вопроса' : 'вопросов'))
+                    + ' — партия будет короче.';
+                return React.createElement('div', { className: 'dp-themes-hint',
+                  style: { fontSize:12, color:'#86868b', marginTop:6, lineHeight:1.5 } }, текст);
+              })()
             ),
 
             // ═════ Footer: одна большая CTA-кнопка ═════
