@@ -594,17 +594,17 @@
   // Каждое: { id, icon, title, desc, check(data, lastMatch), goal, progress(data) }
   const ACHIEVEMENTS = [
     // Foundational
-    { id:'first-duel', icon:'🎯', title:'Первая дуэль', desc:'Сыграйте свой первый матч',
+    { id:'first-duel', icon:'🎯', title:'Первая партия', desc:'Сыграй первую партию',
       check:d => d.totals.played >= 1 },
-    { id:'first-win', icon:'🏆', title:'Первая победа', desc:'Выиграйте первый матч',
+    { id:'first-win', icon:'🏆', title:'Первая победа', desc:'Выиграй первую партию',
       check:d => d.totals.wins >= 1 },
-    { id:'matches-5', icon:'🎮', title:'Игрок', desc:'Сыграйте 5 матчей',
+    { id:'matches-5', icon:'🎮', title:'Игрок', desc:'Сыграй 5 партий',
       check:d => d.totals.played >= 5, goal:5, progress:d => d.totals.played },
-    { id:'matches-25', icon:'🥉', title:'Постоянный', desc:'25 матчей',
+    { id:'matches-25', icon:'🥉', title:'Постоянный', desc:'25 партий',
       check:d => d.totals.played >= 25, goal:25, progress:d => d.totals.played },
-    { id:'matches-100', icon:'🥇', title:'Ветеран', desc:'100 матчей',
+    { id:'matches-100', icon:'🥇', title:'Ветеран', desc:'100 партий',
       check:d => d.totals.played >= 100, goal:100, progress:d => d.totals.played },
-    { id:'wins-5', icon:'⭐', title:'Победитель', desc:'5 побед',
+    { id:'wins-5', icon:'⭐', title:'Победиль', desc:'5 побед',
       check:d => d.totals.wins >= 5, goal:5, progress:d => d.totals.wins },
     { id:'wins-25', icon:'🌟', title:'Чемпион', desc:'25 побед',
       check:d => d.totals.wins >= 25, goal:25, progress:d => d.totals.wins },
@@ -632,7 +632,7 @@
       check:d => (d.records?.['race-mngmt']?.['суток']?.wins || 0) + (d.records?.['race-mngmt']?.['года']?.wins || 0) + (d.records?.['race-mngmt']?.['фаз_жизни']?.wins || 0) >= 10 },
     { id:'race-master-faith', icon:'🕊', title:'Мастер веры', desc:'10 побед в Race-Faith',
       check:d => (d.records?.['race-faith']?.['суток']?.wins || 0) + (d.records?.['race-faith']?.['года']?.wins || 0) + (d.records?.['race-faith']?.['фаз_жизни']?.wins || 0) >= 10 },
-    { id:'three-crosses', icon:'👑', title:'Три креста', desc:'Победите хотя бы раз в каждом из трёх Race-режимов',
+    { id:'three-crosses', icon:'👑', title:'Три креста', desc:'Победи хотя бы раз в каждом из трёх Race-режимов',
       check:d => ['race-cross','race-mngmt','race-faith'].every(g => Object.values(d.records?.[g] || {}).some(r => (r.wins || 0) > 0)) },
 
     // Quiz / Mirror / Speed
@@ -644,17 +644,17 @@
       check:(d, m) => m && m.gameId === 'speed-cross-yesno' && m.score >= 20 },
 
     // Yasna mastery
-    { id:'sutok-win', icon:'🌅', title:'Знаток Суток', desc:'Победите на Ясне Суток',
+    { id:'sutok-win', icon:'🌅', title:'Знаток Суток', desc:'Победи на Ясне Суток',
       check:d => Object.entries(d.records || {}).some(([g, byY]) => (byY?.['суток']?.wins || 0) > 0) },
-    { id:'goda-win', icon:'🌗', title:'Знаток Года', desc:'Победите на Ясне Года',
+    { id:'goda-win', icon:'🌗', title:'Знаток Года', desc:'Победи на Ясне Года',
       check:d => Object.entries(d.records || {}).some(([g, byY]) => (byY?.['года']?.wins || 0) > 0) },
-    { id:'zhizni-win', icon:'🧬', title:'Знаток Жизни', desc:'Победите на Ясне Жизни',
+    { id:'zhizni-win', icon:'🧬', title:'Знаток Жизни', desc:'Победи на Ясне Жизни',
       check:d => Object.entries(d.records || {}).some(([g, byY]) => (byY?.['фаз_жизни']?.wins || 0) > 0) },
-    { id:'all-yasnas', icon:'🌌', title:'Все три Ясны', desc:'Победите на каждой из трёх Ясн',
+    { id:'all-yasnas', icon:'🌌', title:'Все три Ясны', desc:'Победи на каждой из трёх Ясн',
       check:d => ['суток','года','фаз_жизни'].every(y => Object.values(d.records || {}).some(byY => (byY?.[y]?.wins || 0) > 0)) },
 
     // Mode mastery
-    { id:'all-modes', icon:'🎨', title:'Универсал', desc:'Выиграйте во всех 6 режимах',
+    { id:'all-modes', icon:'🎨', title:'Универсал', desc:'Выиграй во всех 6 режимах',
       check:d => ['race-cross','race-mngmt','race-faith','quiz-antipodes','mirror-fill','speed-cross-yesno']
         .every(g => Object.values(d.records?.[g] || {}).some(r => (r.wins || 0) > 0)) },
 
@@ -667,9 +667,9 @@
       check:(d, m) => m && m.isBot && m.botLevel === 'hard' && m.result === 'win' },
 
     // Social
-    { id:'first-online', icon:'🌐', title:'Свобода', desc:'Сыграйте первый онлайн-матч',
+    { id:'first-online', icon:'🌐', title:'Свобода', desc:'Сыграй первый онлайн-партию',
       check:(d, m) => m && m.transport === 'peerjs' },
-    { id:'online-win', icon:'🎖', title:'Онлайн-чемпион', desc:'Выиграйте онлайн',
+    { id:'online-win', icon:'🎖', title:'Онлайн-чемпион', desc:'Выиграй онлайн',
       check:(d, m) => m && m.transport === 'peerjs' && m.result === 'win' },
 
     // Comeback

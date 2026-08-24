@@ -3444,41 +3444,109 @@ html.yk-est .dp-cta__title { font-size: 14px; }
 html.yk-est .dp-cta__sub { font-size: 12px; }
 html.yk-est .dp-cta-row { grid-template-columns: 1fr; gap: 8px; }
 
-/* ─── Превью Партии: ход игры одной картинкой ─── */
-.pp { margin: 12px 0 4px; border-radius: 14px; overflow: hidden;
-  background: var(--bg-tonal, rgba(255,255,255,.04)); }
-.pp-svg { display: block; width: 100%; height: auto; }
-.pp-vopros { fill: var(--bg-surface, #fff); stroke: var(--border-1, rgba(0,0,0,.10)); stroke-width: 1; }
-.pp-stroka { fill: var(--text-3, #8A95A3); opacity: .5; }
-.pp-stroka--2 { opacity: .3; }
-.pp-otvet { fill: var(--bg-surface, #fff); stroke: var(--border-1, rgba(0,0,0,.10)); stroke-width: 1; }
-.pp-verno { animation: ppVerno 4.2s ease-in-out infinite; }
-.pp-galka { fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
-  opacity: 0; animation: ppGalka 4.2s ease-in-out infinite; }
-.pp-busina { fill: var(--gold, #F6C64A); opacity: 0; animation: ppBusina 4.2s ease-in-out infinite; }
-.pp-schet { fill: var(--text-3, #8A95A3); opacity: .18; }
-.pp-schet--2 { animation: ppSchet 4.2s ease-in-out infinite; }
-.pp-o1 { animation: ppMimo 4.2s ease-in-out infinite; }
+/* ─── Превью Партии: настоящие вопросы, три формата ─────────────────
+   Показываем то, что человек увидит в игре: реальный вопрос из банка и
+   реальные ответы. Сцены сменяются сами — выбрать ответ, верно/нет,
+   соединить пары. */
+.pq { margin: 12px 0 4px; }
+.pq-ryad { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.pq-vid { font-size: 12px; font-weight: 600; letter-spacing: .04em;
+  color: var(--text-3, #8A95A3); text-transform: lowercase; }
+.pq-tochki { display: flex; gap: 4px; margin-left: auto; }
+.pq-tochki i { width: 5px; height: 5px; border-radius: 50%; background: var(--border-2, rgba(0,0,0,.16)); }
+.pq-tochki i.est { background: var(--vk-accent, #0077FF); }
 
-@keyframes ppVerno {
-  0%, 34% { fill: var(--bg-surface, #fff); stroke: var(--border-1, rgba(0,0,0,.10)); }
-  42%, 86% { fill: #2E9E5B; stroke: #2E9E5B; }
-  94%, 100% { fill: var(--bg-surface, #fff); stroke: var(--border-1, rgba(0,0,0,.10)); }
-}
-@keyframes ppGalka { 0%, 38% { opacity: 0 } 46%, 86% { opacity: 1 } 94%, 100% { opacity: 0 } }
-@keyframes ppMimo {
-  0%, 18% { opacity: 1 } 26%, 88% { opacity: .45 } 96%, 100% { opacity: 1 }
-}
-@keyframes ppBusina {
-  0%, 44% { opacity: 0; transform: translate(0, 0) scale(.7) }
-  54% { opacity: 1; transform: translate(0, 0) scale(1) }
-  78% { opacity: 1; transform: translate(38px, 82px) scale(.8) }
-  86%, 100% { opacity: 0; transform: translate(38px, 82px) scale(.6) }
-}
-@keyframes ppSchet { 0%, 76% { opacity: .18 } 84%, 96% { opacity: .5 } 100% { opacity: .18 } }
+.pq-ekran { border-radius: 14px; padding: 12px; background: var(--bg-tonal, rgba(0,0,0,.03));
+  border: 1px solid var(--border-1, rgba(0,0,0,.08)); animation: pqVhod .32s ease-out; }
+@keyframes pqVhod { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }
+
+.pq-vopros { font-size: 13.5px; line-height: 1.4; font-weight: 600;
+  color: var(--text-1, #1d1d1f); margin-bottom: 10px; }
+
+.pq-otvety { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.pq-otvety--dva { grid-template-columns: 1fr 1fr; }
+.pq-otvet { position: relative; min-height: 34px; display: flex; align-items: center; gap: 6px;
+  padding: 7px 9px; border-radius: 9px; font-size: 12.5px; line-height: 1.25;
+  background: var(--bg-surface, #fff); border: 1px solid var(--border-1, rgba(0,0,0,.10));
+  color: var(--text-2, #6e6e73); transition: background .3s ease, border-color .3s ease, color .3s ease, opacity .3s ease; }
+.pq-otvet--verno { background: #2E9E5B; border-color: #2E9E5B; color: #fff; font-weight: 600; }
+.pq-otvet--mimo { opacity: .45; }
+.pq-galka { margin-left: auto; font-weight: 700; }
+
+.pq-pary { display: flex; flex-direction: column; gap: 6px; }
+.pq-para { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+.pq-para-l, .pq-para-r { padding: 6px 9px; border-radius: 9px; background: var(--bg-surface, #fff);
+  border: 1px solid var(--border-1, rgba(0,0,0,.10)); color: var(--text-2, #6e6e73);
+  transition: border-color .3s ease, color .3s ease; }
+.pq-para-l { flex: 0 0 auto; font-weight: 600; }
+.pq-para-r { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pq-para-nit { flex: 0 0 18px; height: 1.5px; background: var(--border-2, rgba(0,0,0,.16));
+  transition: background .3s ease; }
+.pq-para--svyazana .pq-para-nit { background: #2E9E5B; }
+.pq-para--svyazana .pq-para-l, .pq-para--svyazana .pq-para-r { border-color: #2E9E5B; color: var(--text-1, #1d1d1f); }
+
+/* ─── Тема дня ─── */
+.dp-tema { display: block; width: 100%; text-align: left; cursor: pointer;
+  border-radius: 16px; padding: 14px 16px; border: 1px solid var(--border-1, rgba(0,0,0,.10));
+  background: var(--bg-surface, #fff); }
+.dp-tema:active { transform: scale(.995); }
+.dp-tema-verh { display: flex; align-items: center; gap: 8px; }
+.dp-tema-metka { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--vk-accent, #0077FF); }
+.dp-tema-osvoeno { margin-left: auto; font-size: 12px; color: var(--text-3, #8A95A3); }
+.dp-tema-imya { margin-top: 4px; font-size: 19px; font-weight: 700; line-height: 1.25;
+  color: var(--text-1, #1d1d1f); }
+.dp-tema-o { margin-top: 3px; font-size: 13px; color: var(--text-2, #6e6e73); }
+.dp-tema-niz { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+.dp-tema-knopka { min-height: 40px; display: inline-flex; align-items: center; padding: 0 16px;
+  border-radius: 11px; background: var(--vk-accent, #0077FF); color: #fff;
+  font-size: 14px; font-weight: 700; }
+.dp-tema-fakt { font-size: 12.5px; color: var(--text-3, #8A95A3); }
 
 @media (prefers-reduced-motion: reduce) {
-  .pp-verno, .pp-galka, .pp-busina, .pp-schet--2, .pp-o1 { animation: none }
-  .pp-verno { fill: #2E9E5B; stroke: #2E9E5B }
-  .pp-galka { opacity: 1 }
+  .pq-ekran { animation: none }
 }
+
+/* ─── Статистика: четыре числа и раскрывающиеся темы ─── */
+.dp-chisla { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+.dp-chislo { text-align: center; padding: 10px 4px; border-radius: 12px;
+  background: var(--bg-surface, #fff); border: 1px solid var(--border-1, rgba(0,0,0,.08)); }
+.dp-chislo-n { font-size: 19px; font-weight: 700; line-height: 1.1; color: var(--text-1, #1d1d1f);
+  font-variant-numeric: tabular-nums; }
+.dp-chislo-p { margin-top: 3px; font-size: 11.5px; line-height: 1.2; color: var(--text-3, #8A95A3); }
+.dp-temy-knopka { display: flex; align-items: center; justify-content: space-between; width: 100%;
+  min-height: 46px; padding: 0 14px; border-radius: 12px; cursor: pointer;
+  background: var(--bg-surface, #fff); border: 1px solid var(--border-1, rgba(0,0,0,.10));
+  font-size: 14px; font-weight: 600; color: var(--text-1, #1d1d1f); font-family: inherit; }
+.dp-temy-shevron { color: var(--text-3, #8A95A3); }
+.dp-temy { margin-top: 10px; }
+.dp-temy-o { font-size: 12.5px; line-height: 1.45; color: var(--text-3, #8A95A3); margin: 0 0 10px; }
+.dp-tema-stroka { margin-bottom: 10px; }
+.dp-tema-stroka-verh { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+.dp-tema-stroka-imya { flex: 1; min-width: 0; font-size: 13.5px; color: var(--text-1, #1d1d1f); }
+.dp-tema-stroka-pct { font-size: 12px; color: var(--text-3, #8A95A3); font-variant-numeric: tabular-nums; }
+.dp-tema-stroka-polosa { height: 4px; border-radius: 2px; background: var(--border-1, rgba(0,0,0,.08)); overflow: hidden; }
+.dp-tema-stroka-fill { height: 100%; background: var(--vk-accent, #0077FF); border-radius: 2px; }
+
+/* ─── Достижения списком ─── */
+.dp-znaki { display: flex; flex-direction: column; gap: 2px; }
+.dp-znak-stroka { display: flex; align-items: flex-start; gap: 11px; padding: 9px 0;
+  border-bottom: 1px solid var(--border-1, rgba(0,0,0,.06)); }
+.dp-znak-stroka:last-child { border-bottom: 0; }
+.dp-znak-ikonka { flex: 0 0 auto; width: 34px; height: 34px; border-radius: 10px; display: flex;
+  align-items: center; justify-content: center; font-size: 17px;
+  background: var(--bg-tonal, rgba(0,0,0,.04)); filter: grayscale(1); opacity: .55; }
+.dp-znak-stroka.est .dp-znak-ikonka { filter: none; opacity: 1;
+  background: rgba(246, 198, 74, .18); }
+.dp-znak-telo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.dp-znak-imya { font-size: 14px; font-weight: 600; color: var(--text-1, #1d1d1f); }
+.dp-znak-stroka:not(.est) .dp-znak-imya { color: var(--text-2, #6e6e73); font-weight: 500; }
+.dp-znak-o { font-size: 12.5px; line-height: 1.35; color: var(--text-3, #8A95A3); }
+.dp-znak-polosa { display: block; height: 3px; margin-top: 5px; border-radius: 2px;
+  background: var(--border-1, rgba(0,0,0,.08)); overflow: hidden; }
+.dp-znak-polosa i { display: block; height: 100%; background: var(--vk-accent, #0077FF); }
+.dp-znak-schet { flex: 0 0 auto; font-size: 12px; color: var(--text-3, #8A95A3);
+  font-variant-numeric: tabular-nums; padding-top: 2px; }
+.dp-znaki-esche { width: 100%; min-height: 44px; margin-top: 10px; border-radius: 12px;
+  border: 1px solid var(--border-1, rgba(0,0,0,.10)); background: transparent; cursor: pointer;
+  font-family: inherit; font-size: 13.5px; font-weight: 600; color: var(--text-2, #6e6e73); }

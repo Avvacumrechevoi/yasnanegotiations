@@ -159,6 +159,13 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
     return 'партий';
   }
 
+  function склонВопросов(n){
+    const д = n % 10, с = n % 100;
+    if (д === 1 && с !== 11) return 'вопрос';
+    if (д >= 2 && д <= 4 && (с < 12 || с > 14)) return 'вопроса';
+    return 'вопросов';
+  }
+
   // ─── Прогрессия (Орден Касталии) ──────────────────────────────────
   const STUPENI = [
     { name: 'Послушник', rod: 'Послушника', from: 0,      to: 1000 },
@@ -640,32 +647,104 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
     );
   }
 
-  /* ─── Превью Партии ───────────────────────────────────────────────
-     У «Разложи по Ясне» картинка показывает, что произойдёт: доли круга
-     занимаются, ось вспыхивает. У Партии такой картинки не было вовсе, и
-     карточка выглядела пустой рядом с соседкой. Здесь ровно то же правило:
-     показываем сам ход игры — вопрос, четыре ответа, один загорается верным,
-     и в счёт уходит бусина. Ничего, чего в игре нет. */
+  /* ─── Превью Партии: настоящие вопросы, три формата ───────────────
+     Раньше здесь была схема из прямоугольников: «карточка вопроса» и
+     «четыре ответа». Она показывала форму, но не дело. Теперь берём из
+     банка НАСТОЯЩИЕ вопросы — по одному на каждый формат партии — и
+     проигрываем их по кругу: вопрос → выбор → верный загорается → смена.
+     Ни одного выдуманного текста: если в банке подходящего вопроса нет,
+     формат просто не показывается.
+
+     Тема «Джива» из показа исключена: она не из книг Ясны (см. карту
+     корпуса), и встречать человека ею на витрине нечестно. */
+  function короткий(т, предел){
+    if (!т) return '';
+    const с = String(т).trim();
+    return с.length > предел ? с.slice(0, предел - 1).trimEnd() + '…' : с;
+  }
+
   function DPPartiyaPreview(){
-    return React.createElement('div', { className: 'pp' },
-      React.createElement('svg', { className: 'pp-svg', viewBox: '0 0 320 150', 'aria-hidden': 'true' },
-        /* карточка вопроса */
-        React.createElement('rect', { className: 'pp-vopros', x: 20, y: 12, width: 280, height: 30, rx: 10 }),
-        React.createElement('rect', { className: 'pp-stroka', x: 34, y: 22, width: 150, height: 5, rx: 2.5 }),
-        React.createElement('rect', { className: 'pp-stroka pp-stroka--2', x: 34, y: 31, width: 96, height: 5, rx: 2.5 }),
-        /* четыре ответа */
-        React.createElement('rect', { className: 'pp-otvet pp-o1', x: 20, y: 54, width: 134, height: 26, rx: 9 }),
-        React.createElement('rect', { className: 'pp-otvet pp-o2 pp-verno', x: 166, y: 54, width: 134, height: 26, rx: 9 }),
-        React.createElement('rect', { className: 'pp-otvet pp-o3', x: 20, y: 88, width: 134, height: 26, rx: 9 }),
-        React.createElement('rect', { className: 'pp-otvet pp-o4', x: 166, y: 88, width: 134, height: 26, rx: 9 }),
-        /* галочка на верном */
-        React.createElement('path', { className: 'pp-galka', d: 'M258 67l5 5 9-10' }),
-        /* бусина уходит в счёт */
-        React.createElement('path', { className: 'pp-busina',
-          d: 'M233 41l2.6 7.4 7.4 2.6-7.4 2.6-2.6 7.4-2.6-7.4-7.4-2.6 7.4-2.6z' }),
-        /* счёт */
-        React.createElement('rect', { className: 'pp-schet', x: 20, y: 126, width: 60, height: 14, rx: 7 }),
-        React.createElement('rect', { className: 'pp-schet pp-schet--2', x: 240, y: 126, width: 60, height: 14, rx: 7 })
+    const сцены = useMemo(() => {
+      const все = (window.YasnaTrivia && window.YasnaTrivia.getAllQuestions && window.YasnaTrivia.getAllQuestions()) || [];
+      const годные = все.filter(q => q && q.theme !== 'dzhiva-serdtse' && q.text && q.text.length <= 92);
+      const выбрать = (тип, проверка) => {
+        const сп = годные.filter(q => q.type === тип && проверка(q));
+        return сп.length ? сп[Math.floor(Math.random() * сп.length)] : null;
+      };
+      const один = выбрать('single-choice', q =>
+        Array.isArray(q.options) && q.options.length === 4 && q.options.every(o => o && o.length <= 30));
+      const данет = выбрать('true-false', q => Array.isArray(q.options) && q.options.length === 2);
+      const пары = выбрать('match-pair', q =>
+        Array.isArray(q.pairsLeft) && q.pairsLeft.length >= 2 &&
+        q.pairsLeft.every(o => o && o.length <= 18) &&
+        Array.isArray(q.pairsRight) && q.pairsRight.every(o => o && o.length <= 26));
+      const сп = [];
+      if (один) сп.push({ вид: 'выбор', q: один });
+      if (данет) сп.push({ вид: 'данет', q: данет });
+      if (пары) сп.push({ вид: 'пары', q: пары });
+      return сп;
+    }, []);
+
+    const [шаг, setШаг] = useState(0);       /* какая сцена */
+    const [фаза, setФаза] = useState(0);     /* 0 — вопрос, 1 — ответ виден */
+
+    useEffect(() => {
+      if (сцены.length === 0) return;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        setФаза(1); return;
+      }
+      let живо = true;
+      const т1 = setTimeout(() => { if (живо) setФаза(1); }, 1500);
+      const т2 = setTimeout(() => {
+        if (!живо) return;
+        setФаза(0);
+        setШаг(ш => (ш + 1) % сцены.length);
+      }, 4200);
+      return () => { живо = false; clearTimeout(т1); clearTimeout(т2); };
+    }, [шаг, сцены.length]);
+
+    if (сцены.length === 0) return null;
+    const сцена = сцены[шаг];
+    const q = сцена.q;
+    const ключ = сцена.вид + шаг + фаза;
+
+    const подпись = { выбор: 'выбрать ответ', данет: 'верно или нет', пары: 'соединить пары' }[сцена.вид];
+
+    let тело = null;
+    if (сцена.вид === 'выбор' || сцена.вид === 'данет') {
+      const верный = typeof q.correct === 'number' ? q.correct : 0;
+      тело = React.createElement('div', { className: 'pq-otvety' + (сцена.вид === 'данет' ? ' pq-otvety--dva' : '') },
+        q.options.map((о, i) => React.createElement('div', {
+          key: i,
+          className: 'pq-otvet' + (фаза && i === верный ? ' pq-otvet--verno' : '') +
+                     (фаза && i !== верный ? ' pq-otvet--mimo' : '')
+        },
+          короткий(о, 30),
+          фаза && i === верный ? React.createElement('span', { className: 'pq-galka' }, '✓') : null
+        ))
+      );
+    } else {
+      const пары = (q.pairsLeft || []).slice(0, 3);
+      const справа = (q.pairsRight || []).slice(0, 3);
+      тело = React.createElement('div', { className: 'pq-pary' },
+        пары.map((л, i) => React.createElement('div', { key: i, className: 'pq-para' + (фаза ? ' pq-para--svyazana' : '') },
+          React.createElement('span', { className: 'pq-para-l' }, короткий(л, 18)),
+          React.createElement('span', { className: 'pq-para-nit' }),
+          React.createElement('span', { className: 'pq-para-r' }, короткий(справа[i], 26))
+        ))
+      );
+    }
+
+    return React.createElement('div', { className: 'pq' },
+      React.createElement('div', { className: 'pq-ryad' },
+        React.createElement('span', { className: 'pq-vid' }, подпись),
+        React.createElement('span', { className: 'pq-tochki' },
+          сцены.map((_, i) => React.createElement('i', { key: i, className: i === шаг ? 'est' : '' }))
+        )
+      ),
+      React.createElement('div', { className: 'pq-ekran', key: ключ },
+        React.createElement('div', { className: 'pq-vopros' }, короткий(q.text, 92)),
+        тело
       )
     );
   }
@@ -720,7 +799,7 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
           ),
           /YasnaApp\//.test(navigator.userAgent) && React.createElement(DPPartiyaPreview, null),
           React.createElement('div', { className: 'dp-game-sub' },
-            'Вопрос — четыре ответа. Верный отвечен — идёт бусина.'
+            'Вопросы по книге: выбрать ответ, верно или нет, соединить пары.'
           ),
           React.createElement('ul', { className: 'dp-game-bullets' },
             React.createElement('li', null, '10 · 18 · 30 вопросов на выбор'),
@@ -738,7 +817,7 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
             React.createElement('button', {
               type: 'button', className: 'dp-cta dp-cta--solo',
               onClick: (e) => { e.stopPropagation(); onProsto && onProsto(); },
-              'aria-label': 'Просто играть — партия с Тенью'
+              'aria-label': 'Быстрая игра — партия с Тенью'
             },
               React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
                 React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
@@ -746,14 +825,14 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
                 )
               ),
               React.createElement('span', { className: 'dp-cta__body' },
-                React.createElement('span', { className: 'dp-cta__title' }, 'Просто играть'),
+                React.createElement('span', { className: 'dp-cta__title' }, 'Быстрая игра'),
                 React.createElement('span', { className: 'dp-cta__sub' }, 'с Тенью, обычная длина')
               )
             ),
             React.createElement('button', {
               type: 'button', className: 'dp-cta dp-cta--vybor',
               onClick: (e) => { e.stopPropagation(); onPartiya('shadow'); },
-              'aria-label': 'Выбрать партию: длительность, темы, соперник'
+              'aria-label': 'Настроить партию: длительность, темы, соперник'
             },
               React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
                 React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
@@ -761,7 +840,7 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
                 )
               ),
               React.createElement('span', { className: 'dp-cta__body' },
-                React.createElement('span', { className: 'dp-cta__title' }, 'Выбрать партию'),
+                React.createElement('span', { className: 'dp-cta__title' }, 'Настроить партию'),
                 React.createElement('span', { className: 'dp-cta__sub' }, 'длина, темы, соперник')
               )
             )
@@ -771,111 +850,112 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
     );
   }
 
-  // ─── Сегодня · этюды дня ─────────────────────────────────────────
-  function DPQuestsRow({ onEtude }){
-    const Daily = _g('YasnaDailyChallenge');
-    const today = Daily?.today?.();
-    const themes = window.YasnaTrivia?.THEMES || [];
-    const themeIdx = today ? parseInt(today.date.replace(/-/g, ''), 10) % Math.max(1, themes.length) : 0;
-    const todayTheme = themes[themeIdx];
-    const data = Daily?.load?.() || {};
-    const todayPlayed = today && data.byDate?.[today.date];
+  // ─── Тема дня ────────────────────────────────────────────────────
+  // Было две плитки: «Вызов дня» и запертая «Тема дня» с подписью «формат
+  // ещё готовится», плюс счётчик «1 доступно · 1 в подготовке» — экран
+  // сообщал о себе, а не о деле. Осталась одна карточка, и она работает:
+  // тема выбирается по дате (у всех одна и та же), нажатие открывает блиц
+  // ровно по этой теме, снизу видно, играл ли ты сегодня.
+  function DPTemaDnya({ onTema }){
+    const themes = (window.YasnaTrivia && window.YasnaTrivia.getThemes && window.YasnaTrivia.getThemes()) || [];
+    if(!themes.length) return null;
+    const д = new Date();
+    const ключДня = д.getFullYear() + '-' + String(д.getMonth()+1).padStart(2,'0') + '-' + String(д.getDate()).padStart(2,'0');
+    const номер = parseInt(ключДня.replace(/-/g, ''), 10) % themes.length;
+    const тема = themes[номер];
+    const вопросов = (window.YasnaTrivia.getQuestionsForTheme
+      ? window.YasnaTrivia.getQuestionsForTheme(тема.id).length : 0);
 
-    const quests = [
-      {
-        id: 'etude',
-        tag: 'Вызов дня',
-        title: 'Один шанс в сутки',
-        foot: todayPlayed ? 'Сыграно: ' + todayPlayed.score + ' ✦' : '+30 ✦ если справишься. Одна ошибка — проигрыш',
-        footMute: !!todayPlayed,
-        ready: true
-      },
-      {
-        id: 'gimn',
-        tag: 'Тема дня',
-        title: (todayTheme?.name || 'Тема готовится'),
-        /* «Откроется в полночь» назначало срок, которого нет: карточка
-           заперта флагом ready:false, а не временем. Говорим честно. */
-        foot: '3 вопроса по этой теме · формат ещё готовится',
-        footMute: true,
-        ready: false
-      },
-    ];
+    /* Освоение этой темы — из тех же чисел, что показывает статистика. */
+    const Storage = _g('YasnaDuelStorage');
+    const общее = Storage?.getOverallStats?.() || {};
+    const освоено = (общее.masteryByTheme || {})[тема.id] || 0;
 
-    return React.createElement('section', { className: 'dp-section' },
+    /* «Играл сегодня» берём из истории партий: своего сигнала у темы дня
+       нет, и выдумывать его нечестно. */
+    const история = Storage?.getMatchHistory?.() || [];
+    const началоДня = new Date(); началоДня.setHours(0,0,0,0);
+    const сегодняПартий = история.filter(m => m && m.date >= началоДня.getTime()).length;
+
+    return React.createElement('section', { className: 'dp-section', role: 'region', 'aria-label': 'Тема дня' },
       React.createElement('div', { className: 'dp-section-h-row' },
-        React.createElement('h2', { className: 'dp-section-h' }, IconCalendar(), ' Сегодня'),
-        React.createElement('span', { className: 'dp-section-h-sub' }, quests.filter(q => q.ready).length + ' доступно · ' + (quests.length - quests.filter(q => q.ready).length) + ' в подготовке')
+        React.createElement('h2', { className: 'dp-section-h' }, IconCalendar(), ' Тема дня')
       ),
-      React.createElement('p', { className: 'dp-section-desc' },
-        'Ежедневные короткие практики (3 вопроса, не больше минуты).'
-      ),
-      React.createElement('div', { className: 'dp-quests' },
-        quests.map(q =>
-          React.createElement('button', {
-            key: q.id,
-            className: 'dp-quest' + (q.ready ? '' : ' dp-quest-locked'),
-            onClick: q.ready ? onEtude : undefined,
-            disabled: !q.ready,
-            'aria-disabled': !q.ready,
-            title: q.ready ? '' : 'Этот формат скоро появится'
-          },
-            React.createElement('div', { className: 'dp-quest-tag' }, q.tag),
-            React.createElement('div', { className: 'dp-quest-title' }, q.title),
-            React.createElement('div', {
-              className: 'dp-quest-foot' + (q.footMute ? ' dp-quest-foot-mute' : '')
-            }, q.foot)
-          )
+      React.createElement('button', {
+        type: 'button', className: 'dp-tema', onClick: () => onTema && onTema(тема.id),
+        'aria-label': 'Пройти тему дня: ' + тема.name
+      },
+        React.createElement('div', { className: 'dp-tema-verh' },
+          React.createElement('span', { className: 'dp-tema-metka' }, 'Сегодня'),
+          освоено > 0 && React.createElement('span', { className: 'dp-tema-osvoeno' }, 'освоено ' + освоено + '%')
+        ),
+        React.createElement('div', { className: 'dp-tema-imya' }, тема.name),
+        React.createElement('div', { className: 'dp-tema-o' },
+          вопросов ? ('Блиц по этой теме · ' + вопросов + ' ' + склонВопросов(вопросов) + ' в запасе') : 'Блиц по этой теме'),
+        React.createElement('div', { className: 'dp-tema-niz' },
+          React.createElement('span', { className: 'dp-tema-knopka' }, 'Пройти тему'),
+          React.createElement('span', { className: 'dp-tema-fakt' },
+            сегодняПартий ? ('сегодня сыграно: ' + сегодняПартий + ' ' + склонПартий(сегодняПартий)) : 'сегодня ещё не играл')
         )
       )
     );
   }
 
-  // ─── Партитура (карта тем с прогрессом) ──────────────────────────
-  function DPPartitura(){
-    const themes = window.YasnaTrivia?.THEMES || [];
-    if(themes.length === 0) return null;
+  // ─── Статистика ──────────────────────────────────────────────────
+  // Было «Освоение тем» — сетка из одиннадцати полосок сразу на экране, и
+  // непонятно, что с ней делать. Освоение тем — это подробность, а не
+  // главное: наверх выносим четыре числа о себе, а темы раскрываются по
+  // нажатию. Сами темы — про книгу, поэтому в строке сказано, откуда они.
+  function DPStatistika(){
+    const themes = (window.YasnaTrivia && window.YasnaTrivia.getThemes && window.YasnaTrivia.getThemes()) || [];
     const Storage = _g('YasnaDuelStorage');
-    const data = Storage?.getOverallStats?.() || {};
-    const masteryByTheme = data.masteryByTheme || {};
-    const opened = themes.filter(t => (masteryByTheme[t.id] || 0) > 0).length;
-    const isFresh = opened === 0;
+    const общее = Storage?.getOverallStats?.() || {};
+    const мастерство = общее.masteryByTheme || {};
+    const открыто = themes.filter(t => (мастерство[t.id] || 0) > 0).length;
+    const [раскрыто, setРаскрыто] = useState(false);
 
-    // Текущая тема — та, что максимально освоена но < 100, либо первая открытая.
-    const sortedByMastery = themes.map(t => ({ ...t, pct: masteryByTheme[t.id] || 0 })).sort((a, b) => b.pct - a.pct);
-    const currentTheme = sortedByMastery.find(t => t.pct > 0 && t.pct < 100) || sortedByMastery[0];
+    const итоги = общее.totals || {};
+    const партий = итоги.played || 0;
+    const побед = итоги.wins || 0;
+    const бусины = общее.beads != null ? общее.beads : (общее.busey || 0);
+    const серия = (общее.streak && (общее.streak.best || общее.streak.current)) || итоги.bestStreak || 0;
 
-    return React.createElement('section', { className: 'dp-section', role: 'region', 'aria-label': 'Освоение тем' },
+    const числа = [
+      { n: партий, п: 'партий' },
+      { n: побед, п: 'побед' },
+      { n: бусины, п: 'бусин' },
+      { n: открыто + ' / ' + themes.length, п: 'тем открыто' }
+    ];
+
+    return React.createElement('section', { className: 'dp-section', role: 'region', 'aria-label': 'Статистика' },
       React.createElement('div', { className: 'dp-section-h-row' },
-        React.createElement('h2', { className: 'dp-section-h' }, IconGrid(), ' Освоение тем'),
-        React.createElement('span', { className: 'dp-section-h-sub' },
-          isFresh ? 'Сыграй первую Партию' : ('Открыто ' + opened + ' из ' + themes.length))
+        React.createElement('h2', { className: 'dp-section-h' }, IconGrid(), ' Статистика')
       ),
-      React.createElement('p', { className: 'dp-section-desc' },
-        isFresh
-          ? 'Карта 10 тем модели Ясны Суток. Темы открываются по мере того, как ты отвечаешь на их вопросы в Партиях. Чем чаще тема выпадает и чем больше верных ответов — тем выше мастерство.'
-          : '9 тем модели «Сутки». Мастерство по теме растёт от верных ответов в Партиях. Чем чаще тема выпадала — тем шире прогресс.'
+      React.createElement('div', { className: 'dp-chisla' },
+        числа.map((ч, i) => React.createElement('div', { key: i, className: 'dp-chislo' },
+          React.createElement('div', { className: 'dp-chislo-n' }, String(ч.n)),
+          React.createElement('div', { className: 'dp-chislo-p' }, ч.п)
+        ))
       ),
-      React.createElement('div', { className: 'dp-partitura' },
+      React.createElement('button', {
+        type: 'button', className: 'dp-temy-knopka', onClick: () => setРаскрыто(в => !в),
+        'aria-expanded': раскрыто ? 'true' : 'false'
+      },
+        React.createElement('span', null, 'Освоение тем книги'),
+        React.createElement('span', { className: 'dp-temy-shevron' }, раскрыто ? '⌃' : '⌄')
+      ),
+      раскрыто && React.createElement('div', { className: 'dp-temy' },
+        React.createElement('p', { className: 'dp-temy-o' },
+          'Темы — главы книги «Ясна Суток». Освоение растёт от верных ответов в партиях по этой теме.'),
         themes.map(t => {
-          const pct = masteryByTheme[t.id] || 0;
-          const isLocked = pct === 0;
-          const isCurrent = currentTheme && currentTheme.id === t.id && pct > 0;
-          return React.createElement('div', {
-            key: t.id,
-            className: 'dp-theme' + (isLocked ? ' dp-theme-locked' : '') + (isCurrent ? ' dp-theme-current' : '')
-          },
-            React.createElement('div', { className: 'dp-theme-name' },
-              React.createElement('span', null, t.name),
-              isCurrent
-                ? React.createElement('span', { className: 'dp-theme-current-badge' }, 'сейчас')
-                : isLocked && React.createElement('span', { className: 'dp-theme-locked-icon' }, '🔒')
+          const pct = мастерство[t.id] || 0;
+          return React.createElement('div', { key: t.id, className: 'dp-tema-stroka' },
+            React.createElement('div', { className: 'dp-tema-stroka-verh' },
+              React.createElement('span', { className: 'dp-tema-stroka-imya' }, t.name),
+              React.createElement('span', { className: 'dp-tema-stroka-pct' }, pct ? pct + '%' : 'не открыта')
             ),
-            !isLocked && React.createElement('div', { className: 'dp-theme-bar' },
-              React.createElement('div', { className: 'dp-theme-bar-fill', style: { width: pct + '%' } })
-            ),
-            React.createElement('div', { className: 'dp-theme-meta' },
-              React.createElement('span', { style: { fontSize: 12 } }, isLocked ? 'не открыто' : pct + '%')
+            React.createElement('div', { className: 'dp-tema-stroka-polosa' },
+              React.createElement('div', { className: 'dp-tema-stroka-fill', style: { width: Math.max(2, pct) + '%' } })
             )
           );
         })
@@ -951,55 +1031,55 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
   }
 
   // ─── Знаки Магистра ──────────────────────────────────────────────
+  // ─── Достижения ──────────────────────────────────────────────────
+  // Было восемь безымянных кружков с римскими цифрами: взятые «I II III»,
+  // невзятые «·». Человек не мог узнать ни что он получил, ни за что дают
+  // остальные. Теперь это список: знак, имя, за что даётся и сколько
+  // осталось. Взятые сверху, следующие — за ними, с полосой прогресса.
   function DPZnaki(){
     const Ach = _g('YasnaDuelAchievements');
-    /* Карточка проверяла Ach.getUnlocked, которого в модуле нет, и всегда
-       падала в заглушку «0 / 0» — человек думал, что достижений в игре нет.
-       Разблокированные лежат прямо в list() полем unlocked. */
-    const взятые = () => {
-      try {
-        if (Ach?.getUnlocked) return Ach.getUnlocked() || [];
-        return (Ach?.list?.() || []).filter(a => a && a.unlocked).map(a => a.id);
-      } catch (_) { return []; }
-    };
-    if(!Ach?.list) return React.createElement('div', { className: 'dp-card', id: 'znaki' },
-      React.createElement('div', { className: 'dp-card-h' },
-        React.createElement('h3', null, IconStar(), ' Достижения'),
-        React.createElement('span', { className: 'dp-card-meta' }, '—')
-      ),
-      React.createElement('div', { className: 'dp-card-empty' }, 'Пока пусто. Сыграй Партию.')
-    );
-    const all = Ach.list() || [];
-    const unlocked = взятые();
-    const items = all.slice(0, 8).map(a => ({
-      a, got: unlocked.includes(a.id)
-    }));
-    const lastUnlocked = all.filter(a => unlocked.includes(a.id)).slice(-1)[0];
+    const Storage = _g('YasnaDuelStorage');
+    const [всё, setВсё] = useState(false);
+    if(!Ach?.list) return null;
+
+    const данные = Storage?.getOverallStats?.() || {};
+    const список = (Ach.list() || []).map(a => {
+      let сделано = 0;
+      try { сделано = a.progress ? (a.progress(данные) || 0) : 0; } catch(_) {}
+      return { a, взят: !!a.unlocked, цель: a.goal || 0, сделано: сделано };
+    });
+    const взятые = список.filter(з => з.взят);
+    const впереди = список.filter(з => !з.взят)
+      .sort((x, y) => (y.цель ? y.сделано / y.цель : 0) - (x.цель ? x.сделано / x.цель : 0));
+    const показать = всё ? взятые.concat(впереди) : взятые.concat(впереди).slice(0, 5);
 
     return React.createElement('div', { className: 'dp-card', id: 'znaki' },
       React.createElement('div', { className: 'dp-card-h' },
         React.createElement('h3', null, IconStar(), ' ',
-          Term('Достижения', 'Знаки за упорство — серии партий, точные ответы, победы над Тенью разной сложности.')
+          Term('Достижения', 'Знаки за упорство: серии партий, точные ответы, победы над Тенью.')
         ),
-        React.createElement('span', { className: 'dp-card-meta' }, unlocked.length, ' / ', all.length)
+        React.createElement('span', { className: 'dp-card-meta' }, взятые.length, ' из ', список.length)
       ),
-      React.createElement('div', { className: 'dp-znaki-grid' },
-        items.map(({ a, got }, i) =>
-          React.createElement('div', {
-            key: a.id,
-            className: 'dp-znak' + (got ? ' dp-znak-on' : ''),
-            title: got ? a.title : 'Не открыто',
-            'aria-label': got ? 'Знак: ' + a.title : 'Знак не открыт'
-          }, got ? toRoman(i + 1) : '·')
+      React.createElement('div', { className: 'dp-znaki' },
+        показать.map(({ a, взят, цель, сделано }) =>
+          React.createElement('div', { key: a.id, className: 'dp-znak-stroka' + (взят ? ' est' : '') },
+            React.createElement('span', { className: 'dp-znak-ikonka', 'aria-hidden': 'true' }, a.icon || '✦'),
+            React.createElement('span', { className: 'dp-znak-telo' },
+              React.createElement('span', { className: 'dp-znak-imya' }, a.title),
+              React.createElement('span', { className: 'dp-znak-o' },
+                взят ? 'получен' : (a.desc || '')),
+              !взят && цель > 0 && React.createElement('span', { className: 'dp-znak-polosa' },
+                React.createElement('i', { style: { width: Math.min(100, Math.round(сделано / цель * 100)) + '%' } })
+              )
+            ),
+            !взят && цель > 0 && React.createElement('span', { className: 'dp-znak-schet' },
+              Math.min(сделано, цель), ' / ', цель)
+          )
         )
       ),
-      React.createElement('div', { className: 'dp-znaki-foot' },
-        unlocked.length === 0
-          ? 'Знак ждёт первой Партии.'
-          : (lastUnlocked
-              ? React.createElement(React.Fragment, null, React.createElement('strong', null, 'Последний:'), ' ', lastUnlocked.title)
-              : 'Сыграй первую партию')
-      )
+      список.length > 5 && React.createElement('button', {
+        type: 'button', className: 'dp-znaki-esche', onClick: () => setВсё(в => !в)
+      }, всё ? 'Свернуть' : ('Показать все ' + список.length))
     );
   }
 
@@ -2315,8 +2395,8 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
             React.createElement(DPSyncNotice, { user, onLoginClick }),
             React.createElement(DPMainGames, { onPartiya: onPartiyaCTA, onUzor: startUzorPvP,
               onProsto: () => startPartiyaWithShadow('medium', 'standard', null) }),
-            React.createElement(DPQuestsRow, { onEtude: () => startPartiyaWithShadow('easy') }),
-            React.createElement(DPPartitura, null),
+            React.createElement(DPTemaDnya, { onTema: (themeId) => startPartiyaWithShadow('medium', 'blitz', [themeId]) }),
+            React.createElement(DPStatistika, null),
             React.createElement('section', { className: 'dp-section' },
               React.createElement('div', { className: 'dp-two-col' },
                 React.createElement(DPHronika, { user }),
@@ -2331,7 +2411,9 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
       React.createElement('footer', { className: 'dp-footer' },
         // Переключатель темы (оформление) — здесь, а не в хедере, чтобы не
         // загромождать навигацию. Тогглит класс vk-light на body + color-scheme.
-        React.createElement('button', {
+        /* Переключатель темы снят с подвала: в приложении тема живёт в Профиле
+           (Настройки → Вид), и две ручки для одного спорили между собой. */
+        !/YasnaApp\//.test(navigator.userAgent) && React.createElement('button', {
           className: 'dp-theme-switch', type: 'button',
           'aria-label': 'Переключить тему оформления',
           onClick: () => {
