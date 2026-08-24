@@ -113,6 +113,21 @@
     '.yk-nazad svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;' +
       'stroke-linecap:round;stroke-linejoin:round}' +
     '.yk-nazad:active{transform:scale(.96)}' +
+    /* ПОЛОСА ПОД КНОПКОЙ ВОЗВРАТА.
+       Кнопка висит в левом верхнем углу и наезжала на заголовки экранов:
+       «Уроки», «Профиль», «Мастерство в игре», «✦ Рейтинг» — проверено
+       замером, наложение до 2600 px². Раз кнопка занимает верхнюю полосу,
+       полосу надо отдать ей целиком: содержимое страницы начинается ниже.
+       Так же, как наббар внизу получает свои 70px. */
+    'html.yk-nazad-est body{padding-top:calc(52px + var(--yk-sverhu)) !important}' +
+    /* Экраны, у которых своя верхняя лента приклеена к окну (её body-отступ
+       не двигает) — сдвигаем саму ленту. */
+    'html.yk-nazad-est .raz-imya-polosa,html.yk-nazad-est .dp-sticky,' +
+      'html.yk-nazad-est .rt-top{top:calc(52px + var(--yk-sverhu)) !important}' +
+    /* Пока поверх экрана открыт лист во весь экран (карточка места, «Все 12
+       мест», поиск), кнопка мешает его собственной шапке — прячем. Признак
+       ставит страница: html.yk-bez-nazad. */
+    'html.yk-bez-nazad .yk-nazad{display:none !important}' +
     ':root{--yk-sverhu:var(--safe-area-inset-top, env(safe-area-inset-top, 0px))}';
   (document.head || document.documentElement).appendChild(st);
 
@@ -225,14 +240,150 @@
       location.replace(кн.href);
     });
     document.body.appendChild(кн);
-    /* Признак для страниц: сверху слева занято кнопкой возврата. По нему
-       экраны со своей верхней лентой (например «Разбор») отводят ей место. */
-    document.documentElement.classList.add('yk-nazad-est');
+
+    /* ══ ГДЕ СТОЯТЬ КНОПКЕ ═══════════════════════════════════════════════
+       Кнопка висит в левом верхнем углу и наезжала на заголовки: «Уроки»,
+       «Профиль», «Мастерство в игре», «✦ Рейтинг» (замер: наложение до
+       2600 px²). Место выбираем не на глаз, а проверкой:
+
+         1. Если под кнопкой ничего нет — оставляем как есть.
+         2. Если есть — отдаём ей верхнюю полосу: содержимое страницы
+            начинается на 52px ниже (класс yk-nazad-est).
+         3. Полоса не годится экранам, чья оболочка ровно во весь экран
+            («Разбор»): страница станет на 52px выше себя и поедет под
+            наббар. Там вместо полосы сдвигаем саму кнопку — сначала ниже
+            помехи, потом правее.
+
+       Проверка повторяется после отрисовки и при повороте: заголовки
+       появляются позже первого кадра. */
+    var корень = document.documentElement;
+    var ПОЛОСА = 52;
+
+    function помехи() {
+      var r = кн.getBoundingClientRect();
+      var сп = [];
+      var узлы = document.body.querySelectorAll('*');
+      for (var i = 0; i < узлы.length; i++) {
+        var э = узлы[i];
+        if (э === кн || кн.contains(э) || э.contains(кн)) continue;
+        var cs = getComputedStyle(э);
+        if (cs.display === 'none' || cs.visibility === 'hidden') continue;
+        if (parseFloat(cs.opacity) < 0.05) continue;
+        var свой = false, д = э.childNodes;
+        for (var j = 0; j < д.length; j++) {
+          if (д[j].nodeType === 3 && д[j].textContent.trim()) { свой = true; break; }
+        }
+        var интер = /^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/.test(э.tagName);
+        if (!свой && !интер) continue;
+        var rr = э.getBoundingClientRect();
+        if (!rr.width || !rr.height) continue;
+        if (rr.right < r.left || rr.left > r.right || rr.bottom < r.top || rr.top > r.bottom) continue;
+        сп.push(rr);
+      }
+      return сп;
+    }
+
+    /* Оболочка ровно во весь экран — значит страница не прокручивается и
+       полосу отдавать нельзя. */
+    function оболочкаВоВесьЭкран() {
+      return document.body.scrollHeight <= window.innerHeight + 2;
+    }
+
+    function разместить() {
+      кн.style.top = ''; кн.style.left = '';
+      корень.classList.remove('yk-nazad-est');
+      if (!помехи().length) return;
+
+      var жёсткая = оболочкаВоВесьЭкран();
+      if (!жёсткая) {
+        корень.classList.add('yk-nazad-est');
+        if (!помехи().length) return;
+        корень.classList.remove('yk-nazad-est');
+      }
+
+      /* Сдвигаем кнопку: сначала ниже самой низкой помехи. */
+      var сп = помехи();
+      var низ = 0;
+      сп.forEach(function (rr) { if (rr.bottom > низ) низ = rr.bottom; });
+      var предел = Math.round(window.innerHeight * 0.34);
+      var новыйВерх = Math.min(Math.round(низ + 8), предел);
+      кн.style.top = новыйВерх + 'px';
+      if (!помехи().length) return;
+
+      /* Не помогло — уходим правее всего, что мешает. */
+      сп = помехи();
+      var право = 0;
+      сп.forEach(function (rr) { if (rr.right > право) право = rr.right; });
+      var шир = кн.getBoundingClientRect().width;
+      var лево = Math.min(Math.round(право + 8), Math.max(8, window.innerWidth - шир - 8));
+      кн.style.left = лево + 'px';
+    }
+
+    var ждём = false;
+    function пересмотретьМесто() {
+      if (ждём) return;
+      ждём = true;
+      requestAnimationFrame(function () { ждём = false; разместить(); });
+    }
+    пересмотретьМесто();
+    setTimeout(пересмотретьМесто, 400);
+    setTimeout(пересмотретьМесто, 1500);
+    window.addEventListener('resize', пересмотретьМесто);
+    window.addEventListener('orientationchange', пересмотретьМесто);
 
     /* Метку не снимаем по аппаратной «назад»: то же событие приходит и когда
        она всего лишь закрывает окно поверх экрана. Метка безвредна — кнопка
        рисуется, только если экран в ней отличается от текущего, а переключение
        вкладок стирает её само. */
+
+    /* ПОКА ПОВЕРХ ЭКРАНА ЛЕЖИТ ЛИСТ ВО ВЕСЬ ЭКРАН — КНОПКУ ПРЯЧЕМ.
+       Урок, разбор автора, карточка места на полном упоре, «Все 12 мест»,
+       поиск, редактор — у каждого своя шапка со своим крестиком, и кнопка
+       возврата наезжала на их заголовки (замер: до 2600 px² наложения на
+       заголовке урока). Признак ищем по виду, а не по имени класса: любой
+       слой position:fixed с z-index ≥ 129, который накрывает почти весь
+       экран. Так правило работает и для листов, которых ещё нет.
+       Аппаратная «назад» и крестик такие листы закрывают — выход есть. */
+    var корень = document.documentElement;
+    function накрытоЛистом() {
+      /* Обходим всё поддерево: карточка места лежит четвёртым уровнем от
+         body (#root > .app > .app-body > aside), и обход «на три уровня»
+         её не видел. Экраны небольшие (275–500 узлов), а сам обход зажат
+         в один кадр и не слушает правки inline-стиля — иначе он срабатывал
+         бы на каждом кадре перетаскивания шторки. */
+      var узлы = document.body.querySelectorAll('*');
+      var W = window.innerWidth, H = window.innerHeight;
+      for (var i = 0; i < узлы.length; i++) {
+        var э = узлы[i];
+        if (э.classList && э.classList.contains('yk-nazad')) continue;
+        var cs = getComputedStyle(э);
+        if (cs.position !== 'fixed') continue;
+        if (cs.display === 'none' || cs.visibility === 'hidden') continue;
+        if (parseFloat(cs.opacity) < 0.02) continue;
+        if ((+cs.zIndex || 0) < 129) continue;
+        var r = э.getBoundingClientRect();
+        if (r.width >= W * 0.9 && r.height >= H * 0.8) return true;
+      }
+      return false;
+    }
+    var ждёмКадр = false;
+    function пересмотреть() {
+      if (ждёмКадр) return;
+      ждёмКадр = true;
+      requestAnimationFrame(function () {
+        ждёмКадр = false;
+        корень.classList.toggle('yk-bez-nazad', накрытоЛистом());
+      });
+    }
+    пересмотреть();
+    try {
+      new MutationObserver(пересмотреть).observe(document.body, {
+        childList: true, subtree: true,
+        attributes: true, attributeFilter: ['class', 'hidden', 'aria-hidden', 'data-upor']
+      });
+    } catch (_) {}
+    window.addEventListener('resize', пересмотреть);
+    window.addEventListener('hashchange', пересмотреть);
   })();
 
   /* Клавиатура: медиазапрос по высоте ловил не все телефоны (высокие экраны

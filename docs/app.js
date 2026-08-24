@@ -809,9 +809,16 @@ function App(){
      входа переехали на экран «Уроки». Сам разбор переносить некуда: он завязан
      на текущую Ясну. Поэтому «Уроки» открывают konstruktor.html#spravka
      (#glossariy, #proverka), а окно поднимается здесь. */
+  /* Пришли ли мы на этот экран РАДИ окна (по якорю из «Уроков»). Если да,
+     крестик окна должен возвращать туда, откуда пришли: иначе человек
+     закрывал словарь и оставался на чужом экране «Разбора», а домой шёл
+     двумя лишними касаниями. */
+  const радиОкна=useRef(false);
   useEffect(()=>{
     const открытьПоЯкорю=()=>{
       const я=(location.hash||'').replace('#','').toLowerCase();
+      const это=['spravka','instrukciya','glossariy','glossary','proverka','biblioteka'].includes(я);
+      if(это) радиОкна.current=true;
       if(я==='spravka'||я==='instrukciya') setInstr(true);
       else if(я==='glossariy'||я==='glossary') setGlossary(true);
       else if(я==='proverka') setVerif(true);
@@ -821,6 +828,21 @@ function App(){
     window.addEventListener('hashchange',открытьПоЯкорю);
     return()=>window.removeEventListener('hashchange',открытьПоЯкорю);
   },[]);
+
+  /* Возврат домой после закрытия такого окна. Читаем ту же метку, что ставит
+     наббар приложения (app/navigatsiya.js), — другой памяти о «откуда» нет. */
+  const домойЕслиРадиОкна=()=>{
+    if(!радиОкна.current) return false;
+    радиОкна.current=false;
+    let откуда=null;
+    try{ откуда=JSON.parse(sessionStorage.getItem('yasna_otkuda_v1')||'null'); }catch(_){}
+    const свой=(location.pathname.split('/').pop())||'';
+    if(!откуда||!откуда.файл||откуда.файл===свой) return false;
+    снятьЯкорь();
+    if(history.length>1){ history.back(); return true; }
+    location.replace(откуда.путь||откуда.файл);
+    return true;
+  };
 
   const[filtersOpen,setFiltersOpen]=useState(false);
   const[fullStar,setFullStar]=useState(false);
@@ -924,6 +946,9 @@ function App(){
         e.preventDefault();
         setInstr(false);setGlossary(false);setVerif(false);
         setMenu(false);setPicker(false);setShowOverlayPicker(false);
+        /* Если пришли на экран ради этого окна — «назад» ведёт домой, а не
+           оставляет человека на чужом экране. */
+        домойЕслиРадиОкна();
         return;
       }
       if(ed){ e.preventDefault(); setEd(false); return; }
@@ -1477,8 +1502,8 @@ function App(){
       </>}
       {ed&&<Editor y={y} setY={setY} мест={правитьМесто} onClose={()=>{setEd(false);setПравитьМесто(null);}}/>}
       {showOverlayPicker&&<OverlayPicker currentName={y.name} overlay={overlay} onSelect={setOverlay} onClose={()=>setShowOverlayPicker(false)}/>}
-      {verif&&<Verification y={y} vs={vState} setVs={setVState} onClose={()=>{setVerif(false);снятьЯкорь();}}/>}
-      {instr&&<Instruction onClose={()=>{setInstr(false);снятьЯкорь();}}/>}
+      {verif&&<Verification y={y} vs={vState} setVs={setVState} onClose={()=>{setVerif(false);if(!домойЕслиРадиОкна())снятьЯкорь();}}/>}
+      {instr&&<Instruction onClose={()=>{setInstr(false);if(!домойЕслиРадиОкна())снятьЯкорь();}}/>}
       {lessonPicker&&<LessonPicker onSelectLesson={(id)=>{setActiveLesson(id);setLessonPicker(false);}} onClose={()=>setLessonPicker(false)} completedLessons={completedLessons}/>}
       {showTour&&window.YasnaTours&&window.YasnaTours.has(y.name)&&(()=>{
         const tour=window.YasnaTours.get(y.name);
@@ -1490,7 +1515,7 @@ function App(){
         return React.createElement(window.YasnaTours.GuideRunner,{tour,yasnaTpl:tpl,onClose:()=>setShowTour(false),onLoadYasna:()=>{if(tpl)load(tpl);}});
       })()}
       {activeLesson&&<Lesson lessonId={activeLesson} onClose={()=>setActiveLesson(null)} onComplete={(id)=>setCompletedLessons(prev=>prev.includes(id)?prev:[...prev,id])} onPickAnother={()=>{setActiveLesson(null);setLessonPicker(true);}} onOpenLesson={(id)=>setActiveLesson(id)}/>}
-      {glossary&&<Glossary onClose={()=>{setGlossary(false);снятьЯкорь();}}/>}
+      {glossary&&<Glossary onClose={()=>{setGlossary(false);if(!домойЕслиРадиОкна())снятьЯкорь();}}/>}
       {/* ═══ ТЕЛЕФОН: нижний док ══════════════════════════════════════
           Два действия под большим пальцем вместо полосы-каталога:
           «Механики» словом (иконка одна не вытягивает понятие) и «+».
@@ -1561,7 +1586,7 @@ function App(){
         </>;
       })()}
 
-      {picker&&<Picker pinned={pinned} onTogglePin={togglePin} onClear={()=>setPinned([])} onClose={()=>{setPicker(false);снятьЯкорь();}} customs={customs} onOpenCustom={c=>{load(c);setPicker(false);}} onDeleteCustom={deleteCustom}/>}
+      {picker&&<Picker pinned={pinned} onTogglePin={togglePin} onClear={()=>setPinned([])} onClose={()=>{setPicker(false);if(!домойЕслиРадиОкна())снятьЯкорь();}} customs={customs} onOpenCustom={c=>{load(c);setPicker(false);}} onDeleteCustom={deleteCustom}/>}
     </div>);
 }
 ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
