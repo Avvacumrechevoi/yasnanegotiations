@@ -311,6 +311,8 @@
   .pr-tochki{display:flex;gap:3px;flex:0 0 auto}
   .pr-tochki i{width:5px;height:5px;border-radius:50%;background:var(--kayma)}
   .pr-tochki i.est{background:var(--syn)}
+  .pr-karta--pusto{opacity:.72;cursor:default}
+  .pr-karta--pusto .pr-strelka{display:none}
   .pr-strelka{position:absolute;right:14px;top:14px;width:44px;height:44px;border-radius:50%;
     background:var(--syn);display:flex;align-items:center;justify-content:center}
   .pr-strelka svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2.2;
@@ -504,8 +506,8 @@
 
   <a class="delo delo--glav" href="duel.html">
     <span class="k">Игра</span>
-    <div class="t">Играй и запоминай</div>
-    <div class="o">Викторина по Ясне: играй один или с друзьями.</div>
+    <div class="t">Викторина по Ясне</div>
+    <div class="o">Играй один или с друзьями.</div>
     <div class="meta" id="igra-meta"></div>
     <span class="busy" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
     <span class="strelka" aria-hidden="true">
@@ -515,7 +517,7 @@
 
   <a class="delo delo--uch" href="learn.html">
     <span class="k">Обучение</span>
-    <div class="t" id="ucheba-t">Разобраться, как устроена Ясна</div>
+    <div class="t" id="ucheba-t">Устройство Ясны</div>
     <div class="o" id="ucheba-o">Пошаговый курс — от основ до продвинутого уровня.</div>
     <div class="put" aria-hidden="true" id="ucheba-put"></div>
     <div class="meta" id="ucheba-m"></div>
@@ -524,7 +526,7 @@
     </span>
   </a>
 
-  <h2>Под задачу</h2>
+  <h2>Практика</h2>
 
   <!-- Практики: не четыре одинаковые плитки, а выбор задачи и одна живая
        карточка. У каждой практики своя сцена: круг занимает доли (Память),
@@ -532,7 +534,7 @@
        (Общение), в доме зажигается свет (Дом). Видно, что будет, если
        нажать, — и переключается одним касанием. -->
   <div class="praktiki">
-    <div class="pr-chipy" role="tablist" aria-label="Задача"><button type="button" class="pr-chip est" data-p="pamyat">Память</button><button type="button" class="pr-chip" data-p="pogruzhenie">Погружение</button><button type="button" class="pr-chip" data-p="obshchenie">Общение</button><button type="button" class="pr-chip" data-p="dom">Дом</button></div>
+    <div class="pr-chipy" role="tablist" aria-label="Задача"><button type="button" class="pr-chip est" data-p="pamyat">Память</button><button type="button" class="pr-chip" data-p="pogruzhenie">Погружение</button><button type="button" class="pr-chip" data-p="semya">Семья</button><button type="button" class="pr-chip" data-p="obshchenie">Общение</button></div>
     <a class="pr-karta" id="pr-karta" href="games/krug/index.html">
       <div class="pr-verh">
         <div class="pr-metka" id="pr-metka">память · ~2 минуты</div>
@@ -542,7 +544,7 @@
         <svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
       </span>
       <div class="pr-ryad">
-      <div class="pr-scen"><div class="pr-holst" data-s="pamyat"><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><path class="pr-dolya pr-h1" d="M61.7 88.3A40 40 0 0 1 38.3 88.3L43.0 73.0A24 24 0 0 0 57.0 73.0Z" fill="#131A30"/><path class="pr-dolya" d="M37.0 87.8A40 40 0 0 1 23.8 80.2L34.3 68.1A24 24 0 0 0 42.2 72.7Z" fill="#1B2545"/><path class="pr-dolya" d="M22.7 79.3A40 40 0 0 1 11.0 59.0L26.6 55.4A24 24 0 0 0 33.6 67.6Z" fill="#2F4472"/><path class="pr-dolya pr-h3" d="M10.7 57.6A40 40 0 0 1 10.7 42.4L26.4 45.4A24 24 0 0 0 26.4 54.6Z" fill="#4D74B4"/><path class="pr-dolya" d="M11.0 41.0A40 40 0 0 1 22.7 20.7L33.6 32.4A24 24 0 0 0 26.6 44.6Z" fill="#8AA6D4"/><path class="pr-dolya" d="M23.8 19.8A40 40 0 0 1 37.0 12.2L42.2 27.3A24 24 0 0 0 34.3 31.9Z" fill="#D3C493"/><path class="pr-dolya pr-h2" d="M38.3 11.7A40 40 0 0 1 61.7 11.7L57.0 27.0A24 24 0 0 0 43.0 27.0Z" fill="#F5CF74"/><path class="pr-dolya" d="M63.0 12.2A40 40 0 0 1 76.2 19.8L65.7 31.9A24 24 0 0 0 57.8 27.3Z" fill="#EAB35C"/><path class="pr-dolya" d="M77.3 20.7A40 40 0 0 1 89.0 41.0L73.4 44.6A24 24 0 0 0 66.4 32.4Z" fill="#D8894A"/><path class="pr-dolya pr-h4" d="M89.3 42.4A40 40 0 0 1 89.3 57.6L73.6 54.6A24 24 0 0 0 73.6 45.4Z" fill="#C06A3C"/><path class="pr-dolya" d="M89.0 59.0A40 40 0 0 1 77.3 79.3L66.4 67.6A24 24 0 0 0 73.4 55.4Z" fill="#7A4634"/><path class="pr-dolya" d="M76.2 80.2A40 40 0 0 1 63.0 87.8L57.8 72.7A24 24 0 0 0 65.7 68.1Z" fill="#3B2A33"/><line class="pr-nit" x1="50.0" y1="72.0" x2="50.0" y2="28.0"/></svg></div><div class="pr-holst" data-s="pogruzhenie" hidden><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><circle class="pr-obod" cx="50" cy="50" r="38"/><polygon class="pr-setka" points="50.0,88.0 31.0,82.9 17.1,69.0 12.0,50.0 17.1,31.0 31.0,17.1 50.0,12.0 69.0,17.1 82.9,31.0 88.0,50.0 82.9,69.0 69.0,82.9"/><line class="pr-os pr-os1" x1="50.0" y1="88.0" x2="50.0" y2="12.0"/><line class="pr-os pr-os2" x1="17.1" y1="69.0" x2="82.9" y2="31.0"/><line class="pr-os pr-os3" x1="17.1" y1="31.0" x2="82.9" y2="69.0"/><circle class="pr-uzel" cx="50.0" cy="88.0" r="2.6"/><circle class="pr-uzel" cx="31.0" cy="82.9" r="2.6"/><circle class="pr-uzel" cx="17.1" cy="69.0" r="2.6"/><circle class="pr-uzel" cx="12.0" cy="50.0" r="2.6"/><circle class="pr-uzel" cx="17.1" cy="31.0" r="2.6"/><circle class="pr-uzel" cx="31.0" cy="17.1" r="2.6"/><circle class="pr-uzel" cx="50.0" cy="12.0" r="2.6"/><circle class="pr-uzel" cx="69.0" cy="17.1" r="2.6"/><circle class="pr-uzel" cx="82.9" cy="31.0" r="2.6"/><circle class="pr-uzel" cx="88.0" cy="50.0" r="2.6"/><circle class="pr-uzel" cx="82.9" cy="69.0" r="2.6"/><circle class="pr-uzel" cx="69.0" cy="82.9" r="2.6"/><path class="pr-znak" d="M50 41l2.4 6.6 6.6 2.4-6.6 2.4-2.4 6.6-2.4-6.6-6.6-2.4 6.6-2.4z"/></svg></div><div class="pr-holst" data-s="obshchenie" hidden><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><rect class="pr-rep pr-r1" x="12" y="20" width="52" height="20" rx="10"/><rect class="pr-rep pr-r2 pr-otvet" x="36" y="46" width="52" height="20" rx="10"/><rect class="pr-rep pr-r3" x="12" y="72" width="44" height="18" rx="9"/></svg></div><div class="pr-holst" data-s="dom" hidden><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><path class="pr-krysha" d="M14 46 50 18l36 28"/><path class="pr-steny" d="M22 43v39h56V43"/><rect class="pr-okno pr-o1" x="32" y="52" width="15" height="15" rx="3"/><rect class="pr-okno pr-o2" x="53" y="52" width="15" height="15" rx="3"/><rect class="pr-dver" x="42" y="70" width="16" height="12" rx="2"/></svg></div></div>
+      <div class="pr-scen"><div class="pr-holst" data-s="pamyat"><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><path class="pr-dolya pr-h1" d="M61.7 88.3A40 40 0 0 1 38.3 88.3L43.0 73.0A24 24 0 0 0 57.0 73.0Z" fill="#131A30"/><path class="pr-dolya" d="M37.0 87.8A40 40 0 0 1 23.8 80.2L34.3 68.1A24 24 0 0 0 42.2 72.7Z" fill="#1B2545"/><path class="pr-dolya" d="M22.7 79.3A40 40 0 0 1 11.0 59.0L26.6 55.4A24 24 0 0 0 33.6 67.6Z" fill="#2F4472"/><path class="pr-dolya pr-h3" d="M10.7 57.6A40 40 0 0 1 10.7 42.4L26.4 45.4A24 24 0 0 0 26.4 54.6Z" fill="#4D74B4"/><path class="pr-dolya" d="M11.0 41.0A40 40 0 0 1 22.7 20.7L33.6 32.4A24 24 0 0 0 26.6 44.6Z" fill="#8AA6D4"/><path class="pr-dolya" d="M23.8 19.8A40 40 0 0 1 37.0 12.2L42.2 27.3A24 24 0 0 0 34.3 31.9Z" fill="#D3C493"/><path class="pr-dolya pr-h2" d="M38.3 11.7A40 40 0 0 1 61.7 11.7L57.0 27.0A24 24 0 0 0 43.0 27.0Z" fill="#F5CF74"/><path class="pr-dolya" d="M63.0 12.2A40 40 0 0 1 76.2 19.8L65.7 31.9A24 24 0 0 0 57.8 27.3Z" fill="#EAB35C"/><path class="pr-dolya" d="M77.3 20.7A40 40 0 0 1 89.0 41.0L73.4 44.6A24 24 0 0 0 66.4 32.4Z" fill="#D8894A"/><path class="pr-dolya pr-h4" d="M89.3 42.4A40 40 0 0 1 89.3 57.6L73.6 54.6A24 24 0 0 0 73.6 45.4Z" fill="#C06A3C"/><path class="pr-dolya" d="M89.0 59.0A40 40 0 0 1 77.3 79.3L66.4 67.6A24 24 0 0 0 73.4 55.4Z" fill="#7A4634"/><path class="pr-dolya" d="M76.2 80.2A40 40 0 0 1 63.0 87.8L57.8 72.7A24 24 0 0 0 65.7 68.1Z" fill="#3B2A33"/><line class="pr-nit" x1="50.0" y1="72.0" x2="50.0" y2="28.0"/></svg></div><div class="pr-holst" data-s="pogruzhenie" hidden><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><circle class="pr-obod" cx="50" cy="50" r="38"/><polygon class="pr-setka" points="50.0,88.0 31.0,82.9 17.1,69.0 12.0,50.0 17.1,31.0 31.0,17.1 50.0,12.0 69.0,17.1 82.9,31.0 88.0,50.0 82.9,69.0 69.0,82.9"/><line class="pr-os pr-os1" x1="50.0" y1="88.0" x2="50.0" y2="12.0"/><line class="pr-os pr-os2" x1="17.1" y1="69.0" x2="82.9" y2="31.0"/><line class="pr-os pr-os3" x1="17.1" y1="31.0" x2="82.9" y2="69.0"/><circle class="pr-uzel" cx="50.0" cy="88.0" r="2.6"/><circle class="pr-uzel" cx="31.0" cy="82.9" r="2.6"/><circle class="pr-uzel" cx="17.1" cy="69.0" r="2.6"/><circle class="pr-uzel" cx="12.0" cy="50.0" r="2.6"/><circle class="pr-uzel" cx="17.1" cy="31.0" r="2.6"/><circle class="pr-uzel" cx="31.0" cy="17.1" r="2.6"/><circle class="pr-uzel" cx="50.0" cy="12.0" r="2.6"/><circle class="pr-uzel" cx="69.0" cy="17.1" r="2.6"/><circle class="pr-uzel" cx="82.9" cy="31.0" r="2.6"/><circle class="pr-uzel" cx="88.0" cy="50.0" r="2.6"/><circle class="pr-uzel" cx="82.9" cy="69.0" r="2.6"/><circle class="pr-uzel" cx="69.0" cy="82.9" r="2.6"/><path class="pr-znak" d="M50 41l2.4 6.6 6.6 2.4-6.6 2.4-2.4 6.6-2.4-6.6-6.6-2.4 6.6-2.4z"/></svg></div><div class="pr-holst" data-s="obshchenie" hidden><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><rect class="pr-rep pr-r1" x="12" y="20" width="52" height="20" rx="10"/><rect class="pr-rep pr-r2 pr-otvet" x="36" y="46" width="52" height="20" rx="10"/><rect class="pr-rep pr-r3" x="12" y="72" width="44" height="18" rx="9"/></svg></div><div class="pr-holst" data-s="semya" hidden><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><path class="pr-krysha" d="M14 46 50 18l36 28"/><path class="pr-steny" d="M22 43v39h56V43"/><rect class="pr-okno pr-o1" x="32" y="52" width="15" height="15" rx="3"/><rect class="pr-okno pr-o2" x="53" y="52" width="15" height="15" rx="3"/><rect class="pr-dver" x="42" y="70" width="16" height="12" rx="2"/></svg></div></div>
         <div class="pr-o" id="pr-o">Берёшь элемент явления и кладёшь на его долю круга. Шестнадцать явлений на выбор.</div>
       </div>
       <div class="pr-fakt" id="pr-fakt" hidden></div>
@@ -688,10 +690,15 @@
     if(i<пройдено) seg.className='est';
     дорога.appendChild(seg);
   }
+  /* Подпись — простая и всегда одна и та же: сколько уроков пройдено из
+     написанных. «Курс ждёт дальше» звучало как укор и ничего не сообщало. */
+  var ВСЕГО_УРОКОВ=6;   /* l1, b2, b3, b4, l2_night, l3_morning */
+  var всеПройденные=0;
+  try{ if(Array.isArray(прошёл)) всеПройденные=прошёл.length; }catch(e){}
+  if(всеПройденные>ВСЕГО_УРОКОВ) всеПройденные=ВСЕГО_УРОКОВ;
+  document.getElementById('ucheba-o').textContent =
+    'Твой прогресс: ' + всеПройденные + ' из ' + ВСЕГО_УРОКОВ + ' уроков';
   if(пройдено>0){
-    document.getElementById('ucheba-o').textContent = пройдено>=ОСТАНОВОК
-      ? 'Базовый курс пройден целиком. Дальше — авторские разборы и практики.'
-      : 'Пройдено уроков: '+пройдено+' из '+ОСТАНОВОК+'. Курс ждёт дальше.';
     document.getElementById('ucheba-m').innerHTML = пройдено>=ОСТАНОВОК
       ? '<span class="m">курс пройден</span>' : '<span class="m">продолжить</span>';
   }
@@ -832,8 +839,10 @@
     var П=[
     {id:'pamyat',metka:'память · ~2 минуты',t:'Разложи по кругу',o:'Берёшь элемент явления и кладёшь на его долю круга. Шестнадцать явлений на выбор.',href:'games/krug/index.html',kn:'Играть'},
     {id:'pogruzhenie',metka:'погружение · ~5 минут',t:'Разобрать явление',o:'Конструктор: раскладываешь своё дело по двенадцати частям — в плоскости и в объёме.',href:'konstruktor.html',kn:'Разложить'},
-    {id:'obshchenie',metka:'общение · ~30 минут',t:'Читать людей',o:'Тренажёр переговоров: четыре сценария — от первого контакта до выхода без осадка.',href:'negotiations.html',kn:'Начать'},
-    {id:'dom',metka:'разговор · ~10 минут',t:'Выйти без осадка',o:'Сценарий «Удержать и выйти»: как закончить разговор, чтобы не осталось горечи.',href:'negotiations.html#dom',kn:'Начать'}
+    /* «Семья» пока без содержания — так и написано. Заглушка честная: ссылки
+       нет, карточка не притворяется работающей. */
+    {id:'semya',metka:'семья · пишется',t:'Ясна семьи',o:'Разложим семейные роли и события по тем же двенадцати местам. Пока не написано — добавим.',href:null,kn:''},
+    {id:'obshchenie',metka:'общение · ~30 минут',t:'Читать людей',o:'Тренажёр переговоров: четыре сценария — от первого контакта до выхода без осадка.',href:'negotiations.html',kn:'Начать'}
     ];
     var чипы=document.querySelectorAll('.pr-chip'), карта=document.getElementById('pr-karta');
     if(!чипы.length||!карта) return;
@@ -860,6 +869,7 @@
         return c>0 ? {текст:'просмотрено '+c+' из 4 сценариев', всего:4, есть:c}
                    : {текст:'четыре сценария · первый — «Кто передо мной»', всего:4, есть:0};
       }
+      if(id==='semya') return {текст:'пока не написано — добавим', всего:0, есть:0};
       return {текст:'один разговор · разбор по шагам', всего:0, есть:0};
     }
     function показатьФакт(id){
@@ -877,7 +887,8 @@
 
     function показать(id){
       var п=П.filter(function(x){return x.id===id})[0]; if(!п) return;
-      карта.href=п.href;
+      if(п.href){ карта.href=п.href; карта.removeAttribute('aria-disabled'); карта.classList.remove('pr-karta--pusto'); }
+      else { карта.removeAttribute('href'); карта.setAttribute('aria-disabled','true'); карта.classList.add('pr-karta--pusto'); }
       document.getElementById('pr-metka').textContent=п.metka;
       document.getElementById('pr-t').textContent=п.t;
       document.getElementById('pr-o').textContent=п.o;
