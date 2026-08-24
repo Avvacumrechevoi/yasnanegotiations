@@ -39,14 +39,7 @@ const APP_FILES = [
   'core/dosye.js',     // ← досье мест из книги и уроков (window.YasnaDosye)
   'core/info-card.js',
   'core/yasna-star.js',
-  'lessons/engine.js',
-  'lessons/lesson-1-what-is-yasna.js',
-  'lessons/lesson-2-four-pillars.js',
-  'lessons/lesson-3-two-lines.js',
-  'lessons/lesson-4-line-names.js',
-  'lessons/lesson-l2-night.js',
-  'lessons/lesson-l3-morning.js',
-  'lessons/lessons-index.js',
+  'lessons/engine.js',   // ← сами уроки в отдельном бандле uroki.min.js (грузится по требованию)
   'tours/engine.js',
   'tours/tour-atm.js',
   'tours/tour-atm-skrytyh.js',
@@ -86,6 +79,21 @@ const DUEL_FILES = [
   'games/duel/duel-page.js',
 ];
 
+/* ─── Уроки: отдельный бандл, грузится по требованию ────────────────
+   Уроков становится много (по явлению — своя серия), и держать их все в
+   app.min.js значит платить их весом при каждом открытии конструктора,
+   даже когда человек пришёл просто разложить круг. Поэтому: движок
+   (lessons/engine.js) остаётся в основном бандле, а тексты уроков живут
+   в uroki.min.js — его подтягивает window.YasnaLessons.загрузить().
+   Список собирается с диска: добавил файл урока — он в сборке. */
+async function файлыУроков(){
+  const { readdir } = await import('node:fs/promises');
+  const имена = (await readdir(path.join(PROJECT,'docs','lessons')))
+    .filter(n => /^lesson-.+\.js$/.test(n))
+    .sort((a,b) => a.localeCompare(b,'ru',{numeric:true}));
+  return имена.map(n => 'lessons/' + n).concat(['lessons/lessons-index.js']);
+}
+
 // ─── Helpers ────────────────────────────────────────────────────────
 
 async function fileExists(p){
@@ -102,13 +110,14 @@ async function transformFile(srcPath, relPath){
     jsxFactory: 'React.createElement',
     jsxFragment: 'React.Fragment',
     target: 'es2018',
+    charset: 'utf8',     // ← иначе кириллица уезжает в \uXXXX и текст толстеет втрое
     sourcefile: relPath, // для красивого источника в sourcemap'ах
     sourcemap: false,    // в финальном бандле sourcemap'ы делаем отдельно
   });
   return result.code;
 }
 
-async function buildBundle(name, files, srcRoot, distRoot){
+async function buildBundle(name, files, srcRoot, distRoot, преамбула = ''){
   const parts = [];
   for(const rel of files){
     const abs = path.join(srcRoot, rel);
@@ -122,7 +131,8 @@ async function buildBundle(name, files, srcRoot, distRoot){
     // type="text/babel" в браузере делал то же самое неявно (eval per script).
     parts.push(`/* ─── ${rel} ─── */\n;(function(){\n${transformed}\n})();`);
   }
-  const combined = `/* Yasna bundle: ${name}.js — собран ${new Date().toISOString()} */\n` + parts.join('\n');
+  const combined = `/* Yasna bundle: ${name}.js — собран ${new Date().toISOString()} */\n`
+    + (преамбула ? преамбула + '\n' : '') + parts.join('\n');
 
   await mkdir(distRoot, { recursive: true });
 
@@ -140,6 +150,10 @@ async function buildBundle(name, files, srcRoot, distRoot){
   const min = await esbuild.transform(combined, {
     minify: true,
     target: 'es2018',
+    /* Без charset:'utf8' esbuild пишет каждую русскую букву как \uXXXX —
+       шесть байт вместо двух. На наших бандлах это была треть веса.
+       Страницы объявляют <meta charset="utf-8">, файлы свои — безопасно. */
+    charset: 'utf8',
     legalComments: 'none',
   });
   const minOut = path.join(distRoot, `${name}.min.js`);
@@ -251,9 +265,20 @@ async function buildAll(){
     }
 
     console.log(`▶ build [${t.label}] ${t.src}/ → ${t.dist}/`);
-    const r1 = await buildBundle('app', APP_FILES, srcRoot, distRoot);
+    /* Уроки собираем первыми: их хэш уезжает в основной бандл, чтобы
+       ленивая загрузка просила именно свежий файл, а не то, что осело в
+       кэше браузера. Руками такие версии мы уже забывали бампать. */
+    const r0 = await buildBundle('uroki', await файлыУроков(), srcRoot, distRoot);
+    const { createHash } = await import('node:crypto');
+    const версияУроков = createHash('sha256')
+      .update(await readFile(path.join(distRoot,'uroki.min.js')))
+      .digest('hex').slice(0,8);
+
+    const r1 = await buildBundle('app', APP_FILES, srcRoot, distRoot,
+      `window.__yasnaУрокиВерсия=${JSON.stringify(версияУроков)};`);
     const r2 = await buildBundle('duel', DUEL_FILES, srcRoot, distRoot);
 
+    console.log(`  ✓ uroki.min.js${fmt(r0.minSize).padStart(8)} (${r0.files} файлов, версия ${версияУроков})`);
     console.log(`  ✓ app.min.js  ${fmt(r1.minSize).padStart(8)} (dev ${fmt(r1.devSize)}, ${r1.files} файлов)`);
     console.log(`  ✓ duel.min.js ${fmt(r2.minSize).padStart(8)} (dev ${fmt(r2.devSize)}, ${r2.files} файлов)`);
 

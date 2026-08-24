@@ -1521,6 +1521,39 @@ function Lesson({lessonId,onClose,onComplete,onPickAnother,onOpenLesson}){
 }
 
 
+/* ── Ленивая загрузка текстов уроков ───────────────────────────────
+   Движок едет в основном бандле, а сами уроки — в dist/uroki.min.js.
+   Причина простая: уроков теперь по серии на каждое явление, и держать
+   их в app.min.js значит платить их весом при каждом открытии
+   конструктора, даже если человек пришёл разложить круг.
+
+   загрузить() возвращает обещание и зовётся столько раз, сколько нужно:
+   файл подтягивается один раз. Версия ?v= проставляется сборкой
+   (window.__yasnaУрокиВерсия), иначе браузер отдавал бы старый файл. */
+window.YasnaLessons.загружены = function(){
+  var л = window.YasnaLessons.lessons;
+  return !!(л && л.length);
+};
+window.YasnaLessons.загрузить = (function(){
+  var обещание = null;
+  return function(){
+    if (window.YasnaLessons.загружены()) return Promise.resolve(true);
+    if (обещание) return обещание;
+    обещание = new Promise(function(готово){
+      var v = window.__yasnaУрокиВерсия || '';
+      var s = document.createElement('script');
+      /* Адрес считаем от страницы: конструктор лежит и в docs/, и в
+         app/www/ — относительный путь верен в обоих случаях. */
+      s.src = 'dist/uroki.min.js' + (v ? '?v=' + v : '');
+      s.async = true;
+      s.onload = function(){ готово(true); };
+      s.onerror = function(){ обещание = null; готово(false); };
+      document.head.appendChild(s);
+    });
+    return обещание;
+  };
+})();
+
 // Expose engine pieces
 Object.assign(window.YasnaLessons, {
   Lesson,

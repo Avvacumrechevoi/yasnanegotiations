@@ -12,7 +12,10 @@ const{useState,useMemo,useEffect,useRef,useCallback}=React;
 // в отличие от babel-standalone, где они случайно "протекали" между скриптами.
 // Достаём всё что app.js использует из window.YasnaCore / YasnaData.
 const {Star, Yasna3DView, Info, OverlayLegend, Editor, OverlayPicker, Picker, Verification, GLOSS, T, FL} = window.YasnaCore;
-const {Lesson, LESSONS} = window.YasnaLessons;
+const {Lesson} = window.YasnaLessons;
+/* Тексты уроков грузятся отдельным бандлом (см. lessons/engine.js), поэтому
+   список берём в момент отрисовки, а не при старте — на старте он пуст. */
+const списокУроков = () => (window.YasnaLessons && window.YasnaLessons.lessons) || [];
 
 
 // Lesson Picker — splash to pick a lesson
@@ -159,7 +162,7 @@ const CURRICULUM={
 };
 
 function LessonPicker({onSelectLesson,onClose,completedLessons=[]}){
-  const lessonsMap=Object.fromEntries(LESSONS.map(l=>[l.id,l]));
+  const lessonsMap=Object.fromEntries(списокУроков().map(l=>[l.id,l]));
   const[showArchive,setShowArchive]=useState(false);
 
   // ── primitives ──
@@ -917,6 +920,26 @@ function App(){
   const[astroMode,setAstroMode] = window.YasnaAstro.useAstroMode();
   const[astroLayers,toggleAstroLayer] = window.YasnaAstro.useAstroLayers();
   const[activeLesson,setActiveLesson]=useState(null);
+  /* Тексты уроков живут в отдельном бандле и подтягиваются по требованию.
+     Держим флаг, чтобы не отрисовать урок раньше, чем приедет его текст. */
+  const[урокиЕсть,setУрокиЕсть]=useState(()=>{
+    try{ return !!(window.YasnaLessons&&window.YasnaLessons.загружены&&window.YasnaLessons.загружены()); }
+    catch(_){ return false; }
+  });
+  const открытьУроки=React.useCallback((дальше)=>{
+    try{
+      const з=window.YasnaLessons&&window.YasnaLessons.загрузить;
+      if(!з){ дальше(); return; }
+      з().then(()=>{ setУрокиЕсть(true); дальше(); });
+    }catch(_){ дальше(); }
+  },[]);
+  /* Подтягиваем заранее, когда экран уже отрисован: к моменту, когда человек
+     дойдёт до уроков, файл обычно уже лежит. */
+  useEffect(()=>{
+    const пуск=()=>{ try{ window.YasnaLessons.загрузить().then(ок=>ок&&setУрокиЕсть(true)); }catch(_){} };
+    if(window.requestIdleCallback) window.requestIdleCallback(пуск,{timeout:3000});
+    else setTimeout(пуск,1200);
+  },[]);
   // Уроки и каталог — светлый «документ» (фикс-оверлей на весь экран). В тёмной
   // теме приложения хрупкий catch-all красил белые карточки в тёмный, но НЕ их
   // тёмный текст → нечитаемо. Пока открыт урок/каталог, снимаем body.theme-vk-dark
@@ -1011,9 +1034,12 @@ function App(){
       const raw=q.get('lesson');
       if(raw){
         const id=(raw==='1'||raw==='l1'||raw==='intro')?'l1_intro':raw;
-        const ls=(window.YasnaLessons&&window.YasnaLessons.lessons)||[];
-        const exists=ls.some(l=>l&&l.id===id);
-        if(exists) setActiveLesson(id);
+        /* Ждём бандл уроков: без этого список пуст, урок «не найден», и
+           переход с экрана «Уроки» открывал пустую звезду. */
+        открытьУроки(()=>{
+          const ls=(window.YasnaLessons&&window.YasnaLessons.lessons)||[];
+          if(ls.some(l=>l&&l.id===id)) setActiveLesson(id);
+        });
         // чистим URL, чтобы перезагрузка не открывала урок повторно
         q.delete('lesson');
         const rest=q.toString();
@@ -1021,7 +1047,7 @@ function App(){
       }
       // ?lessons=1 — открыть выбор уроков (заход со страницы «Тренажёры»)
       if(q.get('lessons')!=null){
-        setLessonPicker(true);
+        открытьУроки(()=>setLessonPicker(true));
         q.delete('lessons');
         const rest2=q.toString();
         window.history.replaceState(null,'',window.location.pathname+(rest2?'?'+rest2:''));
@@ -1502,7 +1528,7 @@ function App(){
           <button className='side-panel-toggle' onClick={()=>setPanelCollapsed(c=>!c)} title={panelCollapsed?'Развернуть панель':'Свернуть панель'} aria-label={panelCollapsed?'Развернуть панель':'Свернуть панель'}>{panelCollapsed?'‹':'›'}</button>
           {!panelCollapsed && <Info i={sel} p={y.p} af={af} y={y} overlay={overlay} onEdit={editCurrent}
             onClose={()=>setSel(null)} onSel={setSel}
-            onLesson={id=>setActiveLesson(id)}
+            onLesson={id=>открытьУроки(()=>setActiveLesson(id))}
             onTour={()=>setShowTour(true)}
             onYasna={t=>loadAt(t)}
             откуда={откуда}/>}
@@ -1533,7 +1559,7 @@ function App(){
       {showOverlayPicker&&<OverlayPicker currentName={y.name} overlay={overlay} onSelect={setOverlay} onClose={()=>setShowOverlayPicker(false)}/>}
       {verif&&<Verification y={y} vs={vState} setVs={setVState} onClose={()=>{setVerif(false);if(!домойЕслиРадиОкна())снятьЯкорь();}}/>}
       {instr&&<Instruction onClose={()=>{setInstr(false);if(!домойЕслиРадиОкна())снятьЯкорь();}}/>}
-      {lessonPicker&&<LessonPicker onSelectLesson={(id)=>{setActiveLesson(id);setLessonPicker(false);}} onClose={()=>setLessonPicker(false)} completedLessons={completedLessons}/>}
+      {lessonPicker&&урокиЕсть&&<LessonPicker onSelectLesson={(id)=>{setActiveLesson(id);setLessonPicker(false);}} onClose={()=>setLessonPicker(false)} completedLessons={completedLessons}/>}
       {showTour&&window.YasnaTours&&window.YasnaTours.has(y.name)&&(()=>{
         const tour=window.YasnaTours.get(y.name);
         const tpl=T.find(t=>t.n===y.name);
@@ -1543,7 +1569,8 @@ function App(){
         }
         return React.createElement(window.YasnaTours.GuideRunner,{tour,yasnaTpl:tpl,onClose:()=>setShowTour(false),onLoadYasna:()=>{if(tpl)load(tpl);}});
       })()}
-      {activeLesson&&<Lesson lessonId={activeLesson} onClose={()=>setActiveLesson(null)} onComplete={(id)=>setCompletedLessons(prev=>prev.includes(id)?prev:[...prev,id])} onPickAnother={()=>{setActiveLesson(null);setLessonPicker(true);}} onOpenLesson={(id)=>setActiveLesson(id)}/>}
+      {(activeLesson||lessonPicker)&&!урокиЕсть&&<div style={{position:'fixed',inset:0,zIndex:140,background:'var(--bg,#fff)',display:'flex',alignItems:'center',justifyContent:'center',font:'600 15px/1.4 Manrope,Inter,sans-serif',color:'var(--ink,#111)'}}>Открываю урок…</div>}
+      {activeLesson&&урокиЕсть&&<Lesson lessonId={activeLesson} onClose={()=>setActiveLesson(null)} onComplete={(id)=>setCompletedLessons(prev=>prev.includes(id)?prev:[...prev,id])} onPickAnother={()=>{setActiveLesson(null);setLessonPicker(true);}} onOpenLesson={(id)=>setActiveLesson(id)}/>}
       {glossary&&<Glossary onClose={()=>{setGlossary(false);if(!домойЕслиРадиОкна())снятьЯкорь();}}/>}
       {/* ═══ ТЕЛЕФОН: нижний док ══════════════════════════════════════
           Два действия под большим пальцем вместо полосы-каталога:
