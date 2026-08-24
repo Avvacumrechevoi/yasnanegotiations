@@ -160,7 +160,16 @@ a { color: inherit; text-decoration: none; }
   display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .dr-lupa svg { width: 20px; height: 20px; }
 .dr-lupa:hover { color: var(--text-primary); border-color: var(--border-strong); }
-.dr-schet { margin: 6px 0 0; font-size: 13px; line-height: 1.45; color: var(--text-secondary); }
+/* Полоса общего прохождения: одна на всё обучение. Градиент — чтобы
+   пройденное читалось как путь, а не как заполненная форма. */
+.dr-polosa { display: flex; align-items: center; gap: 10px; margin: 10px 0 0; }
+.dr-polosa-zhelob { flex: 1; height: 8px; border-radius: 6px; overflow: hidden;
+  background: var(--border, rgba(255,255,255,.10)); }
+.dr-polosa-fill { height: 100%; width: 0; border-radius: 6px;
+  background: linear-gradient(90deg, var(--accent, #0077FF) 0%, #7B61FF 55%, var(--gold, #F6C64A) 100%);
+  box-shadow: 0 0 10px rgba(0,119,255,.35); transition: width .5s cubic-bezier(.32,.72,0,1); }
+.dr-polosa-pct { font-size: 13px; font-weight: 700; color: var(--text-primary);
+  font-variant-numeric: tabular-nums; min-width: 38px; text-align: right; }
 
 /* ─── Продолжить ─── */
 .dr-prod { display: block; width: 100%; text-align: left; text-decoration: none;
@@ -820,7 +829,13 @@ html[data-theme='light'] {
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       </button>
     </div>
-    <p class="dr-schet" id="dr-schet">Всё обучение Ясны в одном месте.</p>
+    <!-- Технический счёт «пройдено 2 из 15 написанных занятий · ещё 19
+         явлений пишется» человеку ничего не говорил: он о нашей кухне, а не
+         о его пути. Осталась полоса и один процент. -->
+    <div class="dr-polosa" id="dr-polosa">
+      <div class="dr-polosa-zhelob"><div class="dr-polosa-fill" id="dr-polosa-fill"></div></div>
+      <div class="dr-polosa-pct" id="dr-polosa-pct">0%</div>
+    </div>
   </header>
 
   <div id="dr-prodolzhit"></div>
@@ -829,8 +844,16 @@ html[data-theme='light'] {
        «Готовые круги» и «Все 12 мест» стояли здесь наравне с ними и читались
        как четыре равных раздела. Теперь они живут в дереве, каждый в своём
        блоке. -->
-  <div class="dr-chipy" id="dr-chipy">
-    <button type="button" class="dr-chip" data-vsyo="1" id="dr-vsyo">Всё дерево</button>
+  <!-- Фильтры вместо «Всё дерево»: строка отвечает на вопрос «что я сейчас
+       хочу», а не «как показать». Выбранный фильтр раскрывает ветви и
+       оставляет в них только подходящее. -->
+  <div class="dr-chipy" id="dr-chipy" role="tablist" aria-label="Что показать">
+    <button type="button" class="dr-chip est" data-f="all">Всё</button>
+    <button type="button" class="dr-chip" data-f="урок">Уроки</button>
+    <button type="button" class="dr-chip" data-f="разбор">Разборы</button>
+    <button type="button" class="dr-chip" data-f="практика">Практика</button>
+    <button type="button" class="dr-chip" data-f="справка">Справка</button>
+    <button type="button" class="dr-chip" data-f="ne">Не пройдено</button>
   </div>
 
   <div class="dr-polotno" id="dr-polotno"></div>
@@ -1087,7 +1110,7 @@ html[data-theme='light'] {
         '<span class="dr-uzel-o dr-ist">' + экр(ПОДПИСЬ_ИСТОЧНИКА[у.источник] || у.источник) + '</span>' +
       '</span>';
 
-    if (у.нет || !у.адрес) return '<div class="' + класс + '">' + внутри + '</div>';
+    if (у.нет || !у.адрес) return '<div class="' + класс + '" data-uzel="' + экр(у.id) + '">' + внутри + '</div>';
     return '<a class="' + класс + '" href="' + экр(у.адрес) + '" data-uzel="' + экр(у.id) + '">' + внутри + '</a>';
   }
 
@@ -1179,13 +1202,12 @@ html[data-theme='light'] {
   }
 
   function подписьСчёта() {
-    var э = document.getElementById('dr-schet');
-    if (!э) return;
     var с = З.счёт();
-    var пишется = Д.ПИШЕТСЯ.length;
-    э.textContent = с.пройдено
-      ? 'Пройдено ' + с.пройдено + ' из ' + с.всего + ' написанных занятий · ещё ' + пишется + ' явлений пишется'
-      : 'Написано ' + с.всего + ' занятий · ещё ' + пишется + ' явлений пишется';
+    var pct = с.всего ? Math.round(с.пройдено / с.всего * 100) : 0;
+    var fill = document.getElementById('dr-polosa-fill');
+    var над = document.getElementById('dr-polosa-pct');
+    if (fill) fill.style.width = Math.max(pct, pct ? 3 : 0) + '%';
+    if (над) над.textContent = pct + '%';
   }
 
   function нарисоватьДерево() {
@@ -1363,17 +1385,61 @@ html[data-theme='light'] {
       э.hidden = !показ;
       document.documentElement.style.overflow = показ ? 'hidden' : '';
     }
-    /* «Всё дерево» — увидеть разом всё, что есть: раскрывает все ветви.
-       Отдельного экрана-карты нет намеренно: на 393px подписи графа
-       становятся 4–5px и налезают друг на друга — проверено замером. */
-    var чипВсё = document.getElementById('dr-vsyo');
-    if (чипВсё) чипВсё.addEventListener('click', function () {
-      var ветви = document.querySelectorAll('.dr-vetv');
-      var раскрыть = ![].every.call(ветви, function (в) { return в.open; });
-      [].forEach.call(ветви, function (в) { в.open = раскрыть; });
-      чипВсё.textContent = раскрыть ? 'Свернуть' : 'Всё дерево';
-      if (!раскрыть) window.scrollTo({ top: 0, behavior: 'smooth' });
+    /* Фильтры. «Всё» — обычное дерево со свёрнутыми ветвями. Любой другой
+       фильтр раскрывает ветви и прячет всё, что под него не подходит; ветвь
+       без подходящих занятий уходит целиком. «Практика» — это круги и
+       вопросы: то, где ход делает человек. */
+    var ПОДХОДИТ = {
+      'урок':      function (у) { return у.жанр === 'урок'; },
+      'разбор':    function (у) { return у.жанр === 'разбор'; },
+      'практика':  function (у) { return у.жанр === 'круг' || у.жанр === 'вопросы' || у.жанр === 'своё'; },
+      'справка':   function (у) { return у.жанр === 'справка' || у.жанр === 'книга' || у.жанр === 'записи'; },
+      'ne':        function (у) { var к = З.состояние(у).код; return к !== 'пройдено' && к !== 'держится' && !у.нет; }
+    };
+    var фильтр = 'all';
+    function применитьФильтр() {
+      var чипы = document.querySelectorAll('.dr-chip[data-f]');
+      [].forEach.call(чипы, function (ч) { ч.classList.toggle('est', ч.dataset.f === фильтр); });
+      var проверка = ПОДХОДИТ[фильтр];
+      [].forEach.call(document.querySelectorAll('.dr-vetv'), function (в) {
+        var id = в.dataset.vetv;
+        var ветвь = null;
+        Д.ВЕТВИ.forEach(function (x) { if (x.id === id) ветвь = x; });
+        if (!проверка) {                       /* «Всё» — вернуть как было */
+          в.hidden = false; в.open = false;
+          [].forEach.call(в.querySelectorAll('.dr-uzel'), function (у) { у.hidden = false; });
+          return;
+        }
+        if (!ветвь || !ветвь.узлы) { в.hidden = true; return; }
+        var видно = 0;
+        [].forEach.call(в.querySelectorAll('[data-uzel], .dr-uzel'), function (узелЭл) {
+          var uid = узелЭл.dataset ? узелЭл.dataset.uzel : null;
+          var паспорт = null;
+          ветвь.узлы.forEach(function (у) { if (у.id === uid) паспорт = у; });
+          if (!паспорт) {                      /* строка без адреса — ищем по имени */
+            var имя = (узелЭл.querySelector('.dr-uzel-imya') || {}).textContent;
+            ветвь.узлы.forEach(function (у) { if (у.имя === имя) паспорт = у; });
+          }
+          var годится = paспортГодится(паспорт, проверка);
+          узелЭл.hidden = !годится;
+          if (годится) видно++;
+        });
+        в.hidden = видно === 0;
+        в.open = видно > 0;
+      });
+    }
+    function paспортГодится(паспорт, проверка) {
+      if (!паспорт) return false;
+      try { return !!проверка(паспорт); } catch (e) { return false; }
+    }
+    [].forEach.call(document.querySelectorAll('.dr-chip[data-f]'), function (ч) {
+      ч.addEventListener('click', function () {
+        фильтр = ч.dataset.f === фильтр ? 'all' : ч.dataset.f;
+        применитьФильтр();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
     });
+    window.__drФильтр = применитьФильтр;
 
     /* Листы открываются из самого дерева: строка «Все готовые ясны» и узел
        «Двенадцать мест круга». Отдельных чипов для них больше нет. */
