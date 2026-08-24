@@ -259,11 +259,11 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
         className: 'dp-hero-cta-btn dp-hero-cta-btn--ghost',
         onClick: () => { location.href = 'games/krug/index.html'; },
         type: 'button',
-        'aria-label': 'Открыть «Разложи по кругу»'
+        'aria-label': 'Открыть «Разложи по Ясне»'
       },
         React.createElement('span', { className: 'dp-hero-cta-icon', 'aria-hidden': 'true' }, '◎'),
         React.createElement('span', { className: 'dp-hero-cta-body' },
-          React.createElement('span', { className: 'dp-hero-cta-title' }, 'Разложи по кругу'),
+          React.createElement('span', { className: 'dp-hero-cta-title' }, 'Разложи по Ясне'),
           React.createElement('span', { className: 'dp-hero-cta-sub' }, 'Поставь элемент на своё место')
         )
       )
@@ -433,6 +433,7 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
               React.createElement('span', null, games, ' ', склонПартий(games))
             )
           ),
+          React.createElement('div', { className: 'dp-hero-podpis' }, 'Твой прогресс'),
           React.createElement('div', { className: 'dp-hero-progress', 'aria-label': 'Прогресс ступени' },
             React.createElement('div', { className: 'dp-hero-progress-fill', style: { width: pct + '%' } })
           ),
@@ -636,26 +637,55 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
         React.createElement('line', { key: 'c1', className: 'kp-nit kp-nit-2', x1: 96.0, y1: 170.0, x2: 244.0, y2: 170.0 }),
         React.createElement('circle', { className: 'kp-obod', cx: 170, cy: 170, r: 132 })
       ),
-      React.createElement('div', { className: 'kp-podpis' }, 'ставишь элемент — сходится ось')
     );
   }
 
-  function DPMainGames({ onPartiya, onUzor }){
-    return React.createElement('section', { className: 'dp-section', role: 'region', 'aria-label': 'Игровые практики' },
+  /* ─── Превью Партии ───────────────────────────────────────────────
+     У «Разложи по Ясне» картинка показывает, что произойдёт: доли круга
+     занимаются, ось вспыхивает. У Партии такой картинки не было вовсе, и
+     карточка выглядела пустой рядом с соседкой. Здесь ровно то же правило:
+     показываем сам ход игры — вопрос, четыре ответа, один загорается верным,
+     и в счёт уходит бусина. Ничего, чего в игре нет. */
+  function DPPartiyaPreview(){
+    return React.createElement('div', { className: 'pp' },
+      React.createElement('svg', { className: 'pp-svg', viewBox: '0 0 320 150', 'aria-hidden': 'true' },
+        /* карточка вопроса */
+        React.createElement('rect', { className: 'pp-vopros', x: 20, y: 12, width: 280, height: 30, rx: 10 }),
+        React.createElement('rect', { className: 'pp-stroka', x: 34, y: 22, width: 150, height: 5, rx: 2.5 }),
+        React.createElement('rect', { className: 'pp-stroka pp-stroka--2', x: 34, y: 31, width: 96, height: 5, rx: 2.5 }),
+        /* четыре ответа */
+        React.createElement('rect', { className: 'pp-otvet pp-o1', x: 20, y: 54, width: 134, height: 26, rx: 9 }),
+        React.createElement('rect', { className: 'pp-otvet pp-o2 pp-verno', x: 166, y: 54, width: 134, height: 26, rx: 9 }),
+        React.createElement('rect', { className: 'pp-otvet pp-o3', x: 20, y: 88, width: 134, height: 26, rx: 9 }),
+        React.createElement('rect', { className: 'pp-otvet pp-o4', x: 166, y: 88, width: 134, height: 26, rx: 9 }),
+        /* галочка на верном */
+        React.createElement('path', { className: 'pp-galka', d: 'M258 67l5 5 9-10' }),
+        /* бусина уходит в счёт */
+        React.createElement('path', { className: 'pp-busina',
+          d: 'M233 41l2.6 7.4 7.4 2.6-7.4 2.6-2.6 7.4-2.6-7.4-7.4-2.6 7.4-2.6z' }),
+        /* счёт */
+        React.createElement('rect', { className: 'pp-schet', x: 20, y: 126, width: 60, height: 14, rx: 7 }),
+        React.createElement('rect', { className: 'pp-schet pp-schet--2', x: 240, y: 126, width: 60, height: 14, rx: 7 })
+      )
+    );
+  }
+
+  function DPMainGames({ onPartiya, onUzor, onProsto }){
+    return React.createElement('section', { className: 'dp-section', role: 'region', 'aria-label': 'Режимы игр' },
       React.createElement('div', { style: { marginBottom: 'var(--space-5)' } },
         React.createElement('h2', { className: 'dp-section-h', style: { fontFamily: 'var(--font-serif)', fontWeight: 500, fontSize: 22, letterSpacing: '-0.005em' } },
-          'Игровые практики'
+          'Режимы игр'
         )
       ),
       React.createElement('div', { className: 'dp-games-grid' },
         React.createElement('div', { className: 'dp-game-card dp-game-primary' },
-          React.createElement('div', { className: 'dp-game-eyebrow' }, '\u2726  \u0414\u043e\u0441\u0442\u0443\u043f\u043d\u0430 \u00b7 ~2 \u043c\u0438\u043d\u0443\u0442\u044b'),
+          React.createElement('div', { className: 'dp-game-eyebrow' }, 'Тренажёр · 2 минуты'),
           React.createElement('div', { className: 'dp-game-title-row' },
-            React.createElement('div', { className: 'dp-game-title' }, 'Разложи по кругу')
+            React.createElement('div', { className: 'dp-game-title' }, 'Разложи по Ясне')
           ),
           /YasnaApp\//.test(navigator.userAgent) && React.createElement(DPKrugPreview, null),
           React.createElement('div', { className: 'dp-game-sub' },
-            'Тренировка: берёшь элемент явления и ставишь его на своё место в круге.'
+            'Тренируйся расставлять по полочкам.'
           ),
           React.createElement('ul', { className: 'dp-game-bullets' },
             React.createElement('li', null, '16 Ясн на выбор — или случайная'),
@@ -666,7 +696,7 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
             React.createElement('button', {
               type: 'button', className: 'dp-cta dp-cta--solo',
               onClick: (e) => { e.stopPropagation(); location.href = 'games/krug/index.html'; },
-              'aria-label': 'Играть в «Разложи по кругу»'
+              'aria-label': 'Играть в «Разложи по Ясне»'
             },
               React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
                 React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
@@ -676,20 +706,21 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
               ),
               React.createElement('span', { className: 'dp-cta__body' },
                 React.createElement('span', { className: 'dp-cta__title' }, 'Играть'),
-                React.createElement('span', { className: 'dp-cta__sub' }, 'одному, вдвоём или компанией')
+                React.createElement('span', { className: 'dp-cta__sub' }, 'одному или с друзьями')
               )
             )
           )
         ),
         // (карточка «Переговоры» живёт на своём экране — negotiations.html)
         React.createElement('div', { className: 'dp-game-card' },
-          React.createElement('div', { className: 'dp-game-eyebrow' }, '✦  Доступна · ~5 минут'),
+          React.createElement('div', { className: 'dp-game-eyebrow' }, 'Викторина · 5 минут'),
           React.createElement('div', { className: 'dp-game-title-row' },
             React.createElement('div', { className: 'dp-game-title' }, 'Партия'),
             React.createElement(DPPartiyaHowTooltip, null)
           ),
+          /YasnaApp\//.test(navigator.userAgent) && React.createElement(DPPartiyaPreview, null),
           React.createElement('div', { className: 'dp-game-sub' },
-            'Викторина по темам Ясны. Выбираешь длительность и темы — играешь против Тени или с другом.'
+            'Вопрос — четыре ответа. Верный отвечен — идёт бусина.'
           ),
           React.createElement('ul', { className: 'dp-game-bullets' },
             React.createElement('li', null, '10 · 18 · 30 вопросов на выбор'),
@@ -699,11 +730,15 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
           /* Одна кнопка: с кем играть — следующим шагом, в окне настройки.
              Три равные плитки заставляли выбирать соперника раньше, чем
              человек решил играть, и «Компанией» не помещалось на 360. */
+          /* Две двери: «Просто играть» — сразу партия с Тенью на обычной
+             длине, «Выбрать партию» — длительность, темы и соперник.
+             Раньше единственная кнопка звалась «Играть», но вела в настройку:
+             человек хотел играть, а попадал в форму. */
           React.createElement('div', { className: 'dp-cta-row' },
             React.createElement('button', {
               type: 'button', className: 'dp-cta dp-cta--solo',
-              onClick: (e) => { e.stopPropagation(); onPartiya('shadow'); },
-              'aria-label': 'Играть Партию'
+              onClick: (e) => { e.stopPropagation(); onProsto && onProsto(); },
+              'aria-label': 'Просто играть — партия с Тенью'
             },
               React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
                 React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
@@ -711,8 +746,23 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
                 )
               ),
               React.createElement('span', { className: 'dp-cta__body' },
-                React.createElement('span', { className: 'dp-cta__title' }, 'Играть'),
-                React.createElement('span', { className: 'dp-cta__sub' }, 'с Тенью, другом или компанией')
+                React.createElement('span', { className: 'dp-cta__title' }, 'Просто играть'),
+                React.createElement('span', { className: 'dp-cta__sub' }, 'с Тенью, обычная длина')
+              )
+            ),
+            React.createElement('button', {
+              type: 'button', className: 'dp-cta dp-cta--vybor',
+              onClick: (e) => { e.stopPropagation(); onPartiya('shadow'); },
+              'aria-label': 'Выбрать партию: длительность, темы, соперник'
+            },
+              React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
+                React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
+                  React.createElement('path', { d: 'M4 7h16M4 12h10M4 17h7' })
+                )
+              ),
+              React.createElement('span', { className: 'dp-cta__body' },
+                React.createElement('span', { className: 'dp-cta__title' }, 'Выбрать партию'),
+                React.createElement('span', { className: 'dp-cta__sub' }, 'длина, темы, соперник')
               )
             )
           )
@@ -2263,7 +2313,8 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
             // содержимому, чем shortcut-кнопки сверху, и видны без скролла.
             React.createElement(DPProfileHero, { user, profile, onLoginClick, remoteProfile }),
             React.createElement(DPSyncNotice, { user, onLoginClick }),
-            React.createElement(DPMainGames, { onPartiya: onPartiyaCTA, onUzor: startUzorPvP }),
+            React.createElement(DPMainGames, { onPartiya: onPartiyaCTA, onUzor: startUzorPvP,
+              onProsto: () => startPartiyaWithShadow('medium', 'standard', null) }),
             React.createElement(DPQuestsRow, { onEtude: () => startPartiyaWithShadow('easy') }),
             React.createElement(DPPartitura, null),
             React.createElement('section', { className: 'dp-section' },

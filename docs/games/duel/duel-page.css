@@ -3407,3 +3407,78 @@ body.theme-vk-dark:not(.vk-light) .kp-nit { stroke: #FFD479; }
   font: 600 12.5px/1 Manrope, system-ui, sans-serif; cursor: pointer; }
 .yz-kn .da { background: var(--vk-accent, #0077FF); color: #fff; }
 .yz-kn .net { background: transparent; color: var(--text-3, #8a95a3); }
+
+/* ═══════════════════════════════════════════════════════════════════
+   ЭКРАН «ИГРА» В ПРИЛОЖЕНИИ
+
+   Было: содержимое сжато двойным полем (16px у .dp-root + 20px у main),
+   карточки 321px в окне 393 — экран выглядел вставленным в рамку, а не
+   родным. Заголовок стоял слева и вплотную к верхнему краю, полоса
+   прогресса ничего о себе не говорила, у «Партии» не было картинки.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Одно поле вместо двух: карточки во всю ширину экрана */
+html.yk-est .dp-root { padding-left: 16px; padding-right: 16px; }
+html.yk-est .dp-root main { padding-left: 0 !important; padding-right: 0 !important; }
+
+/* Заголовок экрана — по центру, как имя всего экрана */
+html.yk-est .dp-castalia-h1 { text-align: center; }
+html.yk-est .dp-castalia-h1 + .dp-castalia-lead,
+html.yk-est .dp-section > div > .dp-section-h { text-align: left; }
+
+/* Подпись над полосой ступени */
+.dp-hero-podpis {
+  font-size: 12px; font-weight: 600; letter-spacing: .04em;
+  color: var(--text-3, #8A95A3); margin: 2px 0 6px;
+}
+
+/* Кнопки в карточках были крупнее самой карточки: иконка 38, две строки
+   подписи. Уменьшаем до размера строки. */
+html.yk-est .dp-cta { padding: 9px 12px; gap: 10px; }
+html.yk-est .dp-cta-row > :first-child { padding: 10px 13px; }
+html.yk-est .dp-cta__title { line-height: 1.25; }
+html.yk-est .dp-cta__sub { line-height: 1.25; }
+html.yk-est .dp-cta__icon { width: 30px; height: 30px; border-radius: 9px; }
+html.yk-est .dp-cta__icon svg { width: 17px; height: 17px; }
+html.yk-est .dp-cta__title { font-size: 14px; }
+html.yk-est .dp-cta__sub { font-size: 12px; }
+html.yk-est .dp-cta-row { grid-template-columns: 1fr; gap: 8px; }
+
+/* ─── Превью Партии: ход игры одной картинкой ─── */
+.pp { margin: 12px 0 4px; border-radius: 14px; overflow: hidden;
+  background: var(--bg-tonal, rgba(255,255,255,.04)); }
+.pp-svg { display: block; width: 100%; height: auto; }
+.pp-vopros { fill: var(--bg-surface, #fff); stroke: var(--border-1, rgba(0,0,0,.10)); stroke-width: 1; }
+.pp-stroka { fill: var(--text-3, #8A95A3); opacity: .5; }
+.pp-stroka--2 { opacity: .3; }
+.pp-otvet { fill: var(--bg-surface, #fff); stroke: var(--border-1, rgba(0,0,0,.10)); stroke-width: 1; }
+.pp-verno { animation: ppVerno 4.2s ease-in-out infinite; }
+.pp-galka { fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
+  opacity: 0; animation: ppGalka 4.2s ease-in-out infinite; }
+.pp-busina { fill: var(--gold, #F6C64A); opacity: 0; animation: ppBusina 4.2s ease-in-out infinite; }
+.pp-schet { fill: var(--text-3, #8A95A3); opacity: .18; }
+.pp-schet--2 { animation: ppSchet 4.2s ease-in-out infinite; }
+.pp-o1 { animation: ppMimo 4.2s ease-in-out infinite; }
+
+@keyframes ppVerno {
+  0%, 34% { fill: var(--bg-surface, #fff); stroke: var(--border-1, rgba(0,0,0,.10)); }
+  42%, 86% { fill: #2E9E5B; stroke: #2E9E5B; }
+  94%, 100% { fill: var(--bg-surface, #fff); stroke: var(--border-1, rgba(0,0,0,.10)); }
+}
+@keyframes ppGalka { 0%, 38% { opacity: 0 } 46%, 86% { opacity: 1 } 94%, 100% { opacity: 0 } }
+@keyframes ppMimo {
+  0%, 18% { opacity: 1 } 26%, 88% { opacity: .45 } 96%, 100% { opacity: 1 }
+}
+@keyframes ppBusina {
+  0%, 44% { opacity: 0; transform: translate(0, 0) scale(.7) }
+  54% { opacity: 1; transform: translate(0, 0) scale(1) }
+  78% { opacity: 1; transform: translate(38px, 82px) scale(.8) }
+  86%, 100% { opacity: 0; transform: translate(38px, 82px) scale(.6) }
+}
+@keyframes ppSchet { 0%, 76% { opacity: .18 } 84%, 96% { opacity: .5 } 100% { opacity: .18 } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pp-verno, .pp-galka, .pp-busina, .pp-schet--2, .pp-o1 { animation: none }
+  .pp-verno { fill: #2E9E5B; stroke: #2E9E5B }
+  .pp-galka { opacity: 1 }
+}
