@@ -13,7 +13,6 @@ const CLOSED = [
   '/konstruktor.html',
   '/duel.html',
   '/learn.html',
-  '/trainers.html',
   '/rating.html',
   '/negotiations.html',
   '/admin.html',

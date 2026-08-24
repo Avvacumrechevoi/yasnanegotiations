@@ -208,7 +208,7 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
         React.createElement('a', { className: 'ynav-item', href: 'konstruktor.html' }, 'Конструктор'),
         React.createElement('a', { className: 'ynav-item is-active', href: 'duel.html' }, 'Игра', React.createElement('span', { className: 'ynav-new' }, 'NEW')),
         React.createElement('a', { className: 'ynav-item', href: 'learn.html' }, 'Обучение'),
-        React.createElement('a', { className: 'ynav-item', href: 'trainers.html' }, 'Тренажёры')
+        React.createElement('a', { className: 'ynav-item', href: 'negotiations.html' }, 'Разговор')
         // «Рейтинг» убран из свитчера: канонический набор разделов — четыре
         // (core/site-nav.js SECTIONS), а здесь был пятый пункт. Из-за расхождения
         // на 375px последний раздел обрезался контейнером (right 350 > край 346),
@@ -681,7 +681,7 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
             )
           )
         ),
-        // (карточка «Переговоры» переехала в раздел «Тренажёры» — trainers.html)
+        // (карточка «Переговоры» живёт на своём экране — negotiations.html)
         React.createElement('div', { className: 'dp-game-card' },
           React.createElement('div', { className: 'dp-game-eyebrow' }, '✦  Доступна · ~5 минут'),
           React.createElement('div', { className: 'dp-game-title-row' },

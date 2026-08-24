@@ -42,7 +42,7 @@
       '<circle cx="12" cy="8" r="3.6"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/>'],
   ];
   /* Экраны вне пятёрки подсвечивают ближайший по смыслу раздел. */
-  var РОДИЧ = { 'rating.html': 'duel.html', 'trainers.html': 'learn.html',
+  var РОДИЧ = { 'rating.html': 'duel.html',
                 'negotiations.html': 'learn.html' };
   var текущий = РОДИЧ[файл] || файл;
   if (часть.indexOf('krug') >= 0) текущий = 'duel.html';
@@ -102,7 +102,10 @@
        (карточка «Уроков» открыла «Разбор», рейтинг открыт из игры) обязан
        иметь видимый выход назад. Своей шапки у экранов витрины нет, поэтому
        кнопку рисует наббар — одну и ту же на всех экранах. */
-    '.yk-nazad{position:fixed;z-index:118;left:calc(8px + env(safe-area-inset-left,0px));' +
+    /* z-index 210, а не 118: уроки рисуются слоем 130, разборы — 200, и
+       кнопка возврата физически лежала под ними. Человек, ушедший в занятие
+       из «Уроков», не видел выхода и уходил аппаратной «назад» с экрана. */
+    '.yk-nazad{position:fixed;z-index:210;left:calc(8px + env(safe-area-inset-left,0px));' +
       'top:calc(8px + var(--yk-sverhu));display:inline-flex;align-items:center;gap:6px;' +
       'height:40px;padding:0 14px 0 10px;border-radius:20px;border:1px solid var(--yk-kayma);' +
       'background:var(--yk-kart);color:var(--yk-ink2);font:600 13.5px/1 Manrope,Inter,sans-serif;' +
@@ -175,7 +178,7 @@
   var ИМЕНА = { 'index.html': 'Главная', 'duel.html': 'Игра', 'learn.html': 'Уроки',
                 'konstruktor.html': 'Разбор', 'profil.html': 'Профиль',
                 'rating.html': 'Рейтинг', 'negotiations.html': 'Переговоры',
-                'trainers.html': 'Тренажёры' };
+                };
 
   function имяЭкрана(имяФайла) {
     if (!имяФайла) return 'назад';

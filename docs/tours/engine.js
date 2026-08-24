@@ -83,6 +83,21 @@
   // getSpeed() берётся из YasnaTours.speed (можно переопределить через window.YasnaTours.speed = ...)
   const getSpeed = () => (window.YasnaTours && window.YasnaTours.speed) || 2.0;
 
+  /* Разборы не записывали о себе НИЧЕГО: ни одного обращения к хранилищу во
+     всех восьми файлах. Из-за этого экран «Уроки» не мог показать ни «начат»,
+     ни «просмотрен» — семь разборов всегда выглядели нетронутыми. Пишем факт
+     в тот же ключ, что читает дерево знаний. */
+  function отметитьРазбор(id, поле) {
+    if (!id) return;
+    try {
+      var к = 'yasna_znanie_v1';
+      var д = JSON.parse(localStorage.getItem(к) || '{}') || {};
+      var узел = 'tour_' + id;
+      д[узел] = Object.assign({}, д[узел], поле, { когда: Date.now() });
+      localStorage.setItem(к, JSON.stringify(д));
+    } catch (e) {}
+  }
+
   function GuideRunner({ tour, yasnaTpl, onClose, onLoadYasna }){
     const {Star} = window.YasnaCore;
 
@@ -97,6 +112,7 @@
       return -1;
     })();
     const [stepIdx, setStepIdx] = useState(initialStep);
+    useEffect(()=>{ отметитьРазбор(tour.id, {открывал:true}); },[tour.id]);
     const [stageT, setStageT] = useState(0);
     const [playing, setPlaying] = useState(true);
     const stepStartRef = useRef(performance.now());
@@ -128,6 +144,7 @@
     const total = (tour.steps||[]).length;
     const isIntro = stepIdx === -1;
     const isOutro = stepIdx === total;
+    useEffect(()=>{ if(isOutro) отметитьРазбор(tour.id,{дошёл:true}); },[isOutro,tour.id]);
     const isStep  = stepIdx >= 0 && stepIdx < total;
     const step    = isStep ? tour.steps[stepIdx] : null;
 
@@ -597,6 +614,25 @@
                     })}
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Общий финал: outro написан только у разбора «Суток», а шесть
+                остальных упирались в пустой экран без единой двери. Теперь
+                финал есть всегда — с именем ясны и двумя выходами. */}
+            {isOutro && !tour.outro && (
+              <div className="tour-card" style={{animation:'cardIn .6s cubic-bezier(.16,1,.3,1)',maxWidth:440}}>
+                <div style={{fontSize:11,letterSpacing:1.8,textTransform:'uppercase',color:FG_DIM,marginBottom:14,fontWeight:600}}>Конец разбора</div>
+                <h1 style={{fontSize:28,fontWeight:700,lineHeight:1.22,marginBottom:18,letterSpacing:-.4,color:FG}}>Круг «{tour.name||tour.id}» разобран</h1>
+                <div style={{fontSize:15,lineHeight:1.7,color:FG,marginBottom:26}}>
+                  Все двенадцать мест прошли перед вами. Дальше это же явление
+                  можно разложить самому — или открыть его в круге и посмотреть,
+                  что стоит на каждом месте.
+                </div>
+                <div style={{display:'flex',flexDirection:'column',gap:10}}>
+                  <button onClick={()=>{ if(onLoadYasna) onLoadYasna(); handleClose(); }} style={{padding:'14px 22px',borderRadius:12,border:'none',background:accent,color:'#0e1019',cursor:'pointer',fontSize:14,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>{ICONS.check}<span>Открыть в круге</span></button>
+                  <button onClick={handleClose} style={{padding:'13px 22px',borderRadius:12,border:'1px solid '+BORDER,background:'transparent',color:FG_MUTED,cursor:'pointer',fontSize:13.5,fontWeight:600}}>Вернуться к урокам</button>
+                </div>
               </div>
             )}
 

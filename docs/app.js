@@ -449,11 +449,11 @@ function Instruction({onClose}){
 
         <Step n="7" title="Проверьте стихии — 4 Праны (§648-653, §583-584)">
           Три позиции каждой Праны должны быть похожи «по духу». У каждой праны — глухой и звонкий глас:<br/>
-          <b>Земля ШЭ / ЭЛ</b> (0, 4, 8): все устойчивые. <b>Вода ФО / ОМ</b> (1, 5, 9): все текучие.<br/>
+          <b>Земля ШЕ / ЭЛ</b> (0, 4, 8): все устойчивые. <b>Вода ФО / ОМ</b> (1, 5, 9): все текучие.<br/>
           <b>Воздух ЦИ / ИНЬ</b> (2, 6, 10): все переходные. <b>Огонь ХА / АНГ</b> (3, 7, 11): все яркие.
           <div style={{padding:'10px 14px',background:'var(--bg2,#f0f5ff)',borderRadius:8,marginTop:8,fontSize:12,color:'#424245',lineHeight:1.6}}>
             <b>Круговорот воды:</b><br/>
-            Земля ШЭ (0,4,8): Грязь, Пар, Дождь — устойчивые состояния воды ✓<br/>
+            Земля ШЕ (0,4,8): Грязь, Пар, Дождь — устойчивые состояния воды ✓<br/>
             Вода ФО (1,5,9): Родник, Облако, Касание — моменты перемен, текучие ✓<br/>
             Воздух ЦИ (2,6,10): Река, Перенос, Стекание — каналы, несущие среды ✓<br/>
             Огонь ХА (3,7,11): Поверхность(вскипает), Гроза(молния!), Лужа(последняя вспышка) ✓
@@ -578,7 +578,7 @@ function Instruction({onClose}){
           <Check>Все 6 пар (0↔6, 1↔7, 2↔8, 3↔9, 4↔10, 5↔11) — зеркальны?</Check>
         </Card>
         <Card title="3 Дуги Тепла" color="#9060D0">
-          <Check>Дуга I (1→2→3→4→5): плавная последовательность ФО→ЦИ→ХА→ШЭ→ФО?</Check>
+          <Check>Дуга I (1→2→3→4→5): плавная последовательность ФО→ЦИ→ХА→ШЕ→ФО?</Check>
           <Check>Дуга II (5→6→7→8→9): плавная последовательность?</Check>
           <Check>Дуга III (9→10→11→0→1): плавная последовательность?</Check>
           <Check>Середина каждой дуги (ХА) — самый яркий элемент из пяти?</Check>
@@ -608,7 +608,7 @@ function Instruction({onClose}){
           </div>
           <div style={{padding:'12px 16px',background:'var(--bg2,#fff5f5)',border:'1px solid #ffd4d4',borderRadius:10}}>
             <div style={{fontSize:13,fontWeight:700,color:'#c62828',marginBottom:4}}>4. Нарушение структуры Пран</div>
-            <div style={{fontSize:12,color:'#424245',lineHeight:1.6}}>На позиции ШЭ (0,4,8) стоит что-то резкое и скачкообразное. Праны — неизменная структура. Если элемент не соответствует пране — он стоит не на своей полочке.</div>
+            <div style={{fontSize:12,color:'#424245',lineHeight:1.6}}>На позиции ШЕ (0,4,8) стоит что-то резкое и скачкообразное. Праны — неизменная структура. Если элемент не соответствует пране — он стоит не на своей полочке.</div>
           </div>
           <div style={{padding:'12px 16px',background:'var(--bg2,#fff5f5)',border:'1px solid #ffd4d4',borderRadius:10}}>
             <div style={{fontSize:13,fontWeight:700,color:'#c62828',marginBottom:4}}>5. Слабые противоположности</div>
@@ -666,7 +666,7 @@ function Glossary({onClose}){
   return(
     <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'var(--bg,#fff)',zIndex:130,display:'flex',flexDirection:'column'}}>
       <div style={{display:'flex',alignItems:'center',padding:'14px 24px',borderBottom:'1px solid #e5e5ea',flexShrink:0}}>
-        <h2 style={{fontSize:24,fontWeight:700,color:'var(--txt,#1d1d1f)',flex:1}}>Глоссарий</h2>
+        <h2 style={{fontSize:24,fontWeight:700,color:'var(--txt,#1d1d1f)',flex:1}}>Словарь</h2>
         <button onClick={onClose} style={{fontSize:13,color:'#0071e3',padding:'8px 20px',border:'1px solid #0071e3',borderRadius:8}}>Закрыть</button>
       </div>
       <div className='fullpage-content' style={{flex:1,overflowY:'auto',padding:'20px 24px',maxWidth:720,margin:'0 auto',width:'100%'}}>
@@ -804,7 +804,7 @@ function App(){
      открывает справку поверх звезды, а кнопка «назад» бесконечно её возвращает. */
   const снятьЯкорь=()=>{ try{ history.replaceState(null,'',location.pathname+location.search); }catch(_){} };
 
-  /* ВХОД ПО ЯКОРЮ. Инструкция, Глоссарий и Проверка Ясны живут здесь, внутри
+  /* ВХОД ПО ЯКОРЮ. Инструкция, Словарь и Вопросы к кругу живут здесь, внутри
      конструктора, но человек ищет их в обучении — и по просьбе владельца точки
      входа переехали на экран «Уроки». Сам разбор переносить некуда: он завязан
      на текущую Ясну. Поэтому «Уроки» открывают konstruktor.html#spravka
@@ -933,6 +933,19 @@ function App(){
     return()=>window.removeEventListener('yasna:назад',назад);
   },[instr,glossary,verif,menu,picker,showOverlayPicker,ed,fullStar,activeLesson,lessonPicker,showTour]);
 
+  /* Отметка «урок открывали» — её читает дерево знаний на экране «Уроки»,
+     чтобы показать «Продолжить». Пройденные уроки лежат в своём ключе, а
+     начатые не считал никто. */
+  useEffect(()=>{
+    if(!activeLesson) return;
+    try{
+      const к='yasna_znanie_v1';
+      const д=JSON.parse(localStorage.getItem(к)||'{}')||{};
+      д[activeLesson]=Object.assign({},д[activeLesson],{открывал:true,когда:Date.now()});
+      localStorage.setItem(к,JSON.stringify(д));
+    }catch(_){}
+  },[activeLesson]);
+
   // Прогресс уроков персистится между сессиями (раньше терялся при F5).
   const[completedLessons,setCompletedLessons]=useState(()=>{try{const s=JSON.parse(localStorage.getItem('yasna_completed_lessons_v1'));return Array.isArray(s)?s:[];}catch(_){return[];}});
   useEffect(()=>{try{localStorage.setItem('yasna_completed_lessons_v1',JSON.stringify(completedLessons));}catch(_){}},[completedLessons]);
@@ -1058,7 +1071,7 @@ function App(){
           <a className='ynav-item is-active' href='konstruktor.html'>Конструктор</a>
           <a className='ynav-item' href='duel.html'>Игра<span className='ynav-new'>NEW</span></a>
           <a className='ynav-item' href='learn.html'>Обучение</a>
-          <a className='ynav-item' href='trainers.html'>Тренажёры</a>
+          <a className='ynav-item' href='negotiations.html'>Разговор</a>
         </nav>
         <div style={{flex:1}}/>
         <div className='hdr-btns' style={{display:'flex',gap:6,alignItems:'center'}}>
@@ -1080,7 +1093,7 @@ function App(){
         {/* Игра переехала влево, рядом с лого — см. начало .hdr */}
         {/* 3. Справка ▼ (Стихии переехала в "..." настройки над звездой) */}
         <div style={{position:'relative'}}>
-          <button onClick={()=>setHelpOpen(o=>!o)} title='Инструкция · Глоссарий · Проверка' className='hdr-btn' style={{border:`1px solid ${helpOpen?'rgba(0,113,227,.4)':'#d2d2d7'}`,color:helpOpen?'#0058b8':'#424245',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:helpOpen?'rgba(0,113,227,.06)':'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:6,boxSizing:'border-box'}}>
+          <button onClick={()=>setHelpOpen(o=>!o)} title='Инструкция · Словарь · Проверка' className='hdr-btn' style={{border:`1px solid ${helpOpen?'rgba(0,113,227,.4)':'#d2d2d7'}`,color:helpOpen?'#0058b8':'#424245',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:helpOpen?'rgba(0,113,227,.06)':'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:6,boxSizing:'border-box'}}>
             <span>Справка</span>
             <span style={{fontSize:11,display:'inline-block',transform:helpOpen?'rotate(180deg)':'none',transition:'transform .2s',opacity:.7}}>▼</span>
           </button>
@@ -1088,8 +1101,8 @@ function App(){
             <div onClick={()=>setHelpOpen(false)} style={{position:'fixed',inset:0,zIndex:99}}/>
             <div style={{position:'absolute',top:'calc(100% + 4px)',right:0,minWidth:200,background:'var(--bg,#fff)',border:'1px solid #d2d2d7',borderRadius:10,boxShadow:'0 6px 24px rgba(0,0,0,.12)',zIndex:100,overflow:'hidden'}}>
               <button onClick={()=>{setInstr(true);setHelpOpen(false)}} style={{display:'flex',width:'100%',padding:'11px 14px',fontSize:13,color:'var(--txt,#1d1d1f)',border:'none',borderBottom:'1px solid var(--border,#f5f5f7)',background:'var(--bg,#fff)',textAlign:'left',cursor:'pointer'}}>Инструкция</button>
-              <button onClick={()=>{setGlossary(true);setHelpOpen(false)}} style={{display:'flex',width:'100%',padding:'11px 14px',fontSize:13,color:'var(--txt,#1d1d1f)',border:'none',borderBottom:'1px solid var(--border,#f5f5f7)',background:'var(--bg,#fff)',textAlign:'left',cursor:'pointer'}}>Глоссарий</button>
-              <button onClick={()=>{setVerif(true);setHelpOpen(false)}} style={{display:'flex',width:'100%',padding:'11px 14px',fontSize:13,color:'var(--txt,#1d1d1f)',border:'none',background:'var(--bg,#fff)',textAlign:'left',cursor:'pointer'}}>Проверка Ясны</button>
+              <button onClick={()=>{setGlossary(true);setHelpOpen(false)}} style={{display:'flex',width:'100%',padding:'11px 14px',fontSize:13,color:'var(--txt,#1d1d1f)',border:'none',borderBottom:'1px solid var(--border,#f5f5f7)',background:'var(--bg,#fff)',textAlign:'left',cursor:'pointer'}}>Словарь</button>
+              <button onClick={()=>{setVerif(true);setHelpOpen(false)}} style={{display:'flex',width:'100%',padding:'11px 14px',fontSize:13,color:'var(--txt,#1d1d1f)',border:'none',background:'var(--bg,#fff)',textAlign:'left',cursor:'pointer'}}>Вопросы к кругу</button>
             </div>
           </>}
         </div>
@@ -1131,7 +1144,7 @@ function App(){
             <a href='konstruktor.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'#0058b8',fontWeight:700,borderBottom:'1px solid var(--border,#f5f5f7)',background:'rgba(0,113,227,.06)',textDecoration:'none'}}>Конструктор</a>
             <a href='duel.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'var(--txt,#1d1d1f)',borderBottom:'1px solid var(--border,#f5f5f7)',background:'var(--bg,#fff)',textDecoration:'none'}}>Игра</a>
             <a href='learn.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'var(--txt,#1d1d1f)',borderBottom:'1px solid var(--border,#f5f5f7)',background:'var(--bg,#fff)',textDecoration:'none'}}>Обучение</a>
-            <a href='trainers.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'var(--txt,#1d1d1f)',borderBottom:'1px solid var(--border,#f5f5f7)',background:'var(--bg,#fff)',textDecoration:'none'}}>Тренажёры</a>
+            <a href='negotiations.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'var(--txt,#1d1d1f)',borderBottom:'1px solid var(--border,#f5f5f7)',background:'var(--bg,#fff)',textDecoration:'none'}}>Разговор</a>
             {/* Войти — профиль с аватаром, первой кнопкой */}
             <a href='duel.html#login' onClick={e=>{ if(window.YasnaAccount){ e.preventDefault(); window.YasnaAccount.isLoggedIn() ? window.YasnaAccount.openProfile() : window.YasnaAccount.openLogin(); } }} style={{display:'flex',width:'100%',padding:'14px 16px',fontSize:14,color:'var(--txt,#1d1d1f)',border:'none',borderBottom:'1px solid var(--border,#f5f5f7)',background:'var(--bg,#fff)',textDecoration:'none',alignItems:'center',gap:12,fontWeight:600,boxSizing:'border-box'}}>
               <span style={{width:32,height:32,borderRadius:'50%',background:'linear-gradient(135deg,#0071e3,#16A7FF)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
@@ -1148,8 +1161,8 @@ function App(){
             {/* СПРАВКА — только это и тема в бургере; Обучение в хедере, Инструменты в "..." */}
             <div style={{padding:'12px 16px 6px',fontSize:11,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',color:'#86868b'}}>Справка</div>
             <button onClick={()=>{setInstr(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'11px 16px',fontSize:14,color:'var(--txt,#1d1d1f)',border:'none',borderBottom:'1px solid var(--border,#f5f5f7)',background:'var(--bg,#fff)',textAlign:'left',cursor:'pointer'}}>Инструкция</button>
-            <button onClick={()=>{setGlossary(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'11px 16px',fontSize:14,color:'var(--txt,#1d1d1f)',border:'none',borderBottom:'1px solid var(--border,#f5f5f7)',background:'var(--bg,#fff)',textAlign:'left',cursor:'pointer'}}>Глоссарий</button>
-            <button onClick={()=>{setVerif(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'11px 16px',fontSize:14,color:'var(--txt,#1d1d1f)',border:'none',borderBottom:'1px solid var(--border,#f5f5f7)',background:'var(--bg,#fff)',textAlign:'left',cursor:'pointer'}}>Проверка Ясны</button>
+            <button onClick={()=>{setGlossary(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'11px 16px',fontSize:14,color:'var(--txt,#1d1d1f)',border:'none',borderBottom:'1px solid var(--border,#f5f5f7)',background:'var(--bg,#fff)',textAlign:'left',cursor:'pointer'}}>Словарь</button>
+            <button onClick={()=>{setVerif(true);setMenu(false)}} style={{display:'block',width:'100%',padding:'11px 16px',fontSize:14,color:'var(--txt,#1d1d1f)',border:'none',borderBottom:'1px solid var(--border,#f5f5f7)',background:'var(--bg,#fff)',textAlign:'left',cursor:'pointer'}}>Вопросы к кругу</button>
             {/* ТЕМА */}
             <div style={{padding:'12px 16px 6px',fontSize:11,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',color:'#86868b',borderTop:'1px solid #f5f5f7'}}>Тема</div>
             <button onClick={()=>{
@@ -1168,7 +1181,7 @@ function App(){
       {learnOpen && <>
         <div onClick={()=>setLearnOpen(false)} style={{position:'fixed',inset:0,zIndex:99,background:'transparent'}}/>
         <div className='hdr-learn-dropdown' style={{position:'fixed',top:60,right:16,minWidth:240,maxWidth:'min(320px, calc(100vw - 32px))',maxHeight:'calc(100vh - 80px)',overflowY:'auto',background:'var(--bg,#fff)',border:'1px solid #d2d2d7',borderRadius:12,boxShadow:'0 12px 36px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.06)',zIndex:100,animation:'slideDown .2s cubic-bezier(.16,1,.3,1)'}}>
-          {/* «Уроки» переехали в раздел «Тренажёры» (trainers.html) — в Гиде остаются только гиды по Яснам */}
+          {/* Уроки живут на своём экране (learn.html) — здесь только разборы ясн */}
           {(()=>{
             const allTours=(window.YasnaTours&&window.YasnaTours.list?window.YasnaTours.list():[]);
             if(allTours.length===0)return <div style={{padding:'12px 16px',fontSize:12,color:'#aeaeb2',fontStyle:'italic'}}>Гиды появятся скоро</div>;
@@ -1345,7 +1358,7 @@ function App(){
                 а на «Уроках» те же двери открываются по якорям. */}
             <div style={{display:'flex',gap:6,marginBottom:10}}>
               <button onClick={()=>{setRotPanelOpen(false);setInstr(true)}} style={{flex:1,padding:'8px 6px',borderRadius:10,fontSize:12,border:'1px solid var(--border,#d2d2d7)',background:'transparent',color:'var(--txt2,#6e6e73)',cursor:'pointer'}}>Инструкция</button>
-              <button onClick={()=>{setRotPanelOpen(false);setGlossary(true)}} style={{flex:1,padding:'8px 6px',borderRadius:10,fontSize:12,border:'1px solid var(--border,#d2d2d7)',background:'transparent',color:'var(--txt2,#6e6e73)',cursor:'pointer'}}>Глоссарий</button>
+              <button onClick={()=>{setRotPanelOpen(false);setGlossary(true)}} style={{flex:1,padding:'8px 6px',borderRadius:10,fontSize:12,border:'1px solid var(--border,#d2d2d7)',background:'transparent',color:'var(--txt2,#6e6e73)',cursor:'pointer'}}>Словарь</button>
               <button onClick={()=>{setRotPanelOpen(false);setVerif(true)}} style={{flex:1,padding:'8px 6px',borderRadius:10,fontSize:12,border:'1px solid var(--border,#d2d2d7)',background:'transparent',color:'var(--txt2,#6e6e73)',cursor:'pointer'}}>Проверка</button>
             </div>
             <button onClick={()=>setShowComposition(c=>!c)} title='Состав 4 пран в каждой Полке' style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1px solid ${showComposition?'rgba(192,148,58,.5)':'#e5e5ea'}`,background:showComposition?'rgba(192,148,58,.10)':'#fff',color:showComposition?'#7a5e25':'#424245',fontSize:12.5,cursor:'pointer',fontWeight:500,marginBottom:6}}>

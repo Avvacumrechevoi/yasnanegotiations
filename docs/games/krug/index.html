@@ -45,10 +45,18 @@
     <h1 class="ttl" id="krug-zagolovok">Разложи по кругу</h1>
     <button class="khd-ist" id="krug-istoriya" type="button" hidden>История</button>
     <script>
-    /* В приложении сюда приходят с главной; на сайте — из раздела Игры. */
-    if (/YasnaApp\//.test(navigator.userAgent)) {
-      document.getElementById('krug-nazad').href='../../index.html';
-    }
+    /* Возврат — туда, откуда пришли. Раньше в приложении он был жёстко
+       прибит к главной: человек нажимал «Разложить Сутки» в «Уроках», а
+       выходил на главный экран и терял место, на котором остановился.
+       Метку ставит ссылка: ?otkuda=uroki. */
+    (function () {
+      var кнопка = document.getElementById('krug-nazad');
+      var откуда = '';
+      try { откуда = new URLSearchParams(location.search).get('otkuda') || ''; } catch (e) {}
+      var адреса = { uroki: '../../learn.html', igra: '../../duel.html', glavnaya: '../../index.html' };
+      if (адреса[откуда]) { кнопка.href = адреса[откуда]; return; }
+      if (/YasnaApp\//.test(navigator.userAgent)) кнопка.href = '../../index.html';
+    })();
     </script>
   </header>
   <main id="app"></main>

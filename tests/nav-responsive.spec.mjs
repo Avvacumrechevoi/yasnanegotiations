@@ -33,13 +33,14 @@ const PAGES = [
   { path: '/konstruktor.html', name: 'Конструктор', spa: true,  active: 'konstruktor.html' },
   { path: '/duel.html',     name: 'Игра',        spa: true,  active: 'duel.html'     },
   { path: '/',              name: 'Лендинг',     spa: false, active: null            },
-  { path: '/learn.html',    name: 'Обучение',    spa: false, active: 'learn.html'    },
-  { path: '/trainers.html', name: 'Тренажёры',   spa: false, active: 'trainers.html' },
+  { path: '/learn.html',    name: 'Уроки',       spa: false, active: 'learn.html'    },
 ];
-const SECTION_HREFS = ['konstruktor.html', 'duel.html', 'learn.html', 'trainers.html'];
+/* «Тренажёры» сняты: вторая витрина дублировала карточки «Уроков», и одна
+   вещь звалась тремя словами. Разделов теперь три, как вкладок в приложении. */
+const SECTION_HREFS = ['konstruktor.html', 'duel.html', 'learn.html'];
 
 // Опорная ссылка для «бар отрисован» — берём последний раздел набора.
-const ANCHOR_HREF = 'trainers.html';
+const ANCHOR_HREF = 'learn.html';
 
 async function waitBar(page){
   // Ждём, что ссылки бара отрисованы. state:'attached' — чтобы не залипнуть на

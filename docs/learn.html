@@ -9,9 +9,14 @@
 <script src="core/gate.js"></script>
 <script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);var e=document.documentElement;e.setAttribute('data-theme',d?'dark':'light');e.style.colorScheme=d?'dark':'light';}catch(e){}</script>
 <script src="core/theme.js?v=37af65b1"></script>
-<script src="core/storage.js?v=c79cf748"></script>
+<script src="core/storage.js?v=529ec80c"></script>
 <script src="core/access.js?v=3ae5d2f4"></script>
 <script src="core/account.js?v=6b129375"></script>
+<!-- Дерево знаний: паспорта занятий и общий счёт пройденного. Обычные
+     script-теги — на этой странице нет сборки и нет React. -->
+<script src="core/data.js?v=2f602398"></script>
+<script src="core/derevo-dannye.js?v=a959172b"></script>
+<script src="core/znanie.js?v=3d6132aa"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
 <!-- Приложение: манифест, иконки и цвет строки состояния. Раньше манифест
      висел на двух страницах из девяти, иконка была одна — SVG в data-URI, а
@@ -130,509 +135,155 @@ a { color: inherit; text-decoration: none; }
 .l-back:hover { color: var(--text-primary); border-color: var(--text-secondary); }
 .l-back-arrow { font-size: 14px; }
 
-/* ─── HERO ─── */
-.l-hero {
-  max-width: 920px;
-  margin: 32px auto 16px;
-  padding: 0 24px;
-  text-align: center;
-}
-.l-hero-eyebrow {
-  display: inline-block;
-  padding: 6px 14px;
-  margin-bottom: 18px;
-  background: var(--accent-soft);
-  border: 1px solid rgba(0, 119, 255, 0.20);
-  border-radius: 100px;
-  color: var(--accent-hover);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-.l-hero-title {
-  font-family: var(--font-serif);
-  font-weight: 500;
-  font-size: clamp(30px, 7vw, 64px);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  margin: 0 0 16px;
-}
-.l-hero-title em {
-  font-style: italic;
-  color: var(--accent-hover);
-}
-.l-hero-desc {
-  font-size: clamp(15px, 1.6vw, 18px);
-  line-height: 1.55;
-  color: var(--text-secondary);
-  max-width: 640px;
-  margin: 0 auto;
-}
+/* Шапка-герой и лента прогресса сняты вместе с курсом «Путь по Руси»:
+   на экране их не было ни одной, а стилей — 70 строк. */
 
-/* ─── PROGRESS RIBBON ─── */
-.l-progress {
-  max-width: 920px;
-  margin: 28px auto 0;
-  padding: 0 24px;
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 16px;
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-.l-progress-track {
-  flex: 1;
-  height: 4px;
-  background: var(--border-strong);
-  border-radius: 100px;
-  overflow: hidden;
-}
-.l-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent) 0%, var(--gold) 100%);
-  width: 0%;
-  transition: width 320ms ease;
-  box-shadow: 0 0 12px var(--accent-glow);
-}
-.l-progress-count { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text-primary); }
 
-/* ═══ PATH — вертикальный таймлайн обучения ═══ */
-.l-gidy { max-width: 980px; margin: 40px auto 0; padding: 0 24px; }
-.l-gidy-sub { color: var(--text-secondary, #A8B1BE); font-size: 14px; margin: 6px 0 16px; }
-.l-gidy-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
-.l-gid { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; min-height: 64px;
-  border: 1px solid var(--border, rgba(255,255,255,.08)); border-radius: 14px;
-  background: var(--bg-card, rgba(255,255,255,.03)); text-decoration: none; }
-.l-gid b { color: var(--text-primary, #FEFEFE); font-size: 15px; font-weight: 650; }
-.l-gid span { color: var(--text-tertiary, #626D7A); font-size: 12.5px; }
-.l-gid:hover { border-color: var(--accent, #0077FF); }
-.l-path-wrap {
-  max-width: 1100px;
-  margin: 32px auto 0;
-  padding: 0 16px;
-  position: relative;
-}
-.l-path-header {
-  display: flex; align-items: baseline; justify-content: space-between;
-  gap: 12px; flex-wrap: wrap;
-  margin-bottom: 28px;
-}
-.l-path-title {
-  font-family: var(--font-display);
-  font-size: 22px; font-weight: 600; letter-spacing: -0.012em;
-  color: var(--text-primary); margin: 0;
-}
-.l-path-legend {
-  display: flex; gap: 18px; flex-wrap: wrap;
-  font-size: 12.5px; color: var(--text-muted);
-  font-family: var(--font-sans);
-}
-.l-path-legend-item { display: flex; align-items: center; gap: 7px; }
-.l-path-legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-.l-path-legend-dot.active { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
-.l-path-legend-dot.done   { background: var(--gold); }
-.l-path-legend-dot.locked { background: var(--text-muted); opacity: 0.5; }
+/* ═══════════════════════════════════════════════════════════════════
+   ДЕРЕВО ЗНАНИЙ
 
-/* Сам путь — список .l-stop карточек, соединённых вертикальной линией */
-.l-path { position: relative; padding-left: 0; list-style: none; margin: 0; }
+   Форма дерева здесь — это порядок, а не картинка: общее внизу ствола,
+   частное выше, пройденное видно и не пропадает. Слова «корень», «ствол»,
+   «лист» на экран не выходят — у автора они означают места Ясны Дерева
+   (Корни 0, Лист 8, Ветка 9, Ствол 10), и разделами их звать нельзя.
 
-/* Вертикальная нить проходит через центр маркеров слева */
-.l-path::before {
-  content: '';
-  position: absolute;
-  left: 32px;
-  top: 28px; bottom: 28px;
-  width: 2px;
-  background: linear-gradient(
-    to bottom,
-    var(--gold) 0%,
-    var(--gold) var(--progress, 0%),
-    rgba(255,255,255,0.08) var(--progress, 0%),
-    rgba(255,255,255,0.08) 100%
-  );
-  border-radius: 2px;
-  z-index: 0;
-}
+   Замеры: строка ветви 56px, узел 56px, «Продолжить» 96px, чипы 44px —
+   тап-целей меньше 44px нет ни одной; весь текст ≥12px.
+   ═══════════════════════════════════════════════════════════════════ */
+.dr { max-width: 720px; margin: 0 auto; padding: 12px 16px 24px; }
+.dr-shapka { padding: 4px 0 12px; }
+.dr-shapka-ryad { display: flex; align-items: center; gap: 10px; }
+.dr-zag { flex: 1; margin: 0; font-family: var(--font-serif); font-weight: 500;
+  font-size: 30px; line-height: 1.1; letter-spacing: -0.02em; color: var(--text-primary); }
+.dr-lupa { width: 44px; height: 44px; flex: 0 0 auto; border-radius: 12px;
+  border: 1px solid var(--border); background: var(--bg-card); color: var(--text-secondary);
+  display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.dr-lupa svg { width: 20px; height: 20px; }
+.dr-lupa:hover { color: var(--text-primary); border-color: var(--border-strong); }
+.dr-schet { margin: 6px 0 0; font-size: 13px; line-height: 1.45; color: var(--text-secondary); }
 
-/* Каждая остановка — flex с маркером слева и карточкой справа */
-.l-stop {
-  position: relative;
-  display: flex;
-  align-items: stretch;
-  gap: 24px;
-  padding: 8px 0;
-  margin: 0;
-}
-.l-stop + .l-stop { margin-top: 12px; }
+/* ─── Продолжить ─── */
+.dr-prod { display: block; width: 100%; text-align: left; text-decoration: none;
+  border: 1px solid var(--accent-glow); background: var(--accent-soft);
+  border-radius: 18px; padding: 14px 16px; margin: 14px 0 0; cursor: pointer; }
+.dr-prod:hover { border-color: var(--accent); }
+.dr-prod-klejmo { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.10em;
+  text-transform: uppercase; color: var(--accent-hover); }
+.dr-prod-imya { display: block; margin-top: 4px; font-size: 19px; font-weight: 700; line-height: 1.25;
+  color: var(--text-primary); }
+.dr-prod-pod { display: block; margin-top: 4px; font-size: 13px; color: var(--text-secondary); }
+.dr-prod-knop { margin-top: 12px; display: inline-flex; align-items: center; gap: 8px;
+  min-height: 44px; padding: 0 18px; border-radius: 12px; background: var(--accent);
+  color: #fff; font-size: 14px; font-weight: 700; }
 
-/* Маркер — круг с номером */
-.l-stop-marker {
-  position: relative;
-  flex-shrink: 0;
-  width: 64px;
-  display: flex; align-items: flex-start; justify-content: center;
-  padding-top: 22px;
-  z-index: 1;
-}
-.l-stop-marker__circle {
-  width: 56px; height: 56px;
-  border-radius: 50%;
-  background: var(--bg-elevated);
-  border: 2px solid rgba(255,255,255,0.10);
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-display);
-  font-weight: 700; font-size: 22px;
-  color: var(--text-secondary);
-  transition: transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1), border-color 200ms, background 200ms, color 200ms, box-shadow 240ms;
-}
+/* ─── Чипы ─── */
+.dr-chipy { display: flex; gap: 8px; margin: 14px 0 0; overflow-x: auto;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.dr-chipy::-webkit-scrollbar { display: none; }
+.dr-chip { flex: 0 0 auto; min-height: 44px; display: inline-flex; align-items: center;
+  padding: 0 15px; border-radius: 12px; border: 1px solid var(--border-strong);
+  background: var(--bg-card); color: var(--text-primary); font-size: 14px; font-weight: 600;
+  text-decoration: none; cursor: pointer; }
+.dr-chip:hover { border-color: var(--accent); color: var(--accent-hover); }
 
-/* Карточка остановки */
-.l-stop-card {
-  flex: 1;
-  position: relative;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 24px 28px;
-  cursor: pointer;
-  transition: transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1), border-color 200ms, box-shadow 240ms, background 200ms;
-  text-align: left;
-  font-family: var(--font-sans);
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 16px 24px;
-  align-items: center;
-}
-.l-stop-card-info { min-width: 0; grid-column: 1; }
-.l-stop-card-eyebrow {
-  font-size: 12px; font-weight: 700; letter-spacing: 0.14em;
-  text-transform: uppercase; color: var(--text-muted);
-  margin-bottom: 6px;
-}
-.l-stop-card-city {
-  font-family: var(--font-display);
-  font-size: 22px; font-weight: 600; letter-spacing: -0.01em;
-  color: var(--text-primary); margin: 0 0 4px;
-  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-}
-.l-stop-card-theme {
-  display: inline-flex; align-items: center;
-  font-family: var(--font-display);
-  font-size: 12.5px; font-weight: 600;
-  padding: 3px 10px; border-radius: 999px;
-  background: rgba(0, 119, 255, 0.08);
-  color: var(--accent-hover); /* #16A7FF: 6.2:1 на бейдж-плашке (var(--accent) давал 3.95:1) */
-  border: 1px solid rgba(0, 119, 255, 0.18);
-  letter-spacing: 0.01em;
-}
-.l-stop-card-desc {
-  font-size: 14.5px; color: var(--text-secondary); line-height: 1.5;
-  margin: 8px 0 0;
-}
-.l-stop-card-meta {
-  display: flex; gap: 16px; flex-wrap: wrap;
-  font-size: 12.5px; color: var(--text-muted);
-  margin-top: 10px;
-}
-.l-stop-card-meta strong { color: var(--text-secondary); font-weight: 500; }
+/* ─── Полотно ─── */
+.dr-polotno { margin-top: 22px; }
+.dr-gruppa-zag { margin: 22px 0 8px; font-size: 12px; font-weight: 700;
+  letter-spacing: 0.10em; text-transform: uppercase; color: var(--text-secondary);
+  display: flex; align-items: baseline; gap: 8px; }
+.dr-gruppa-zag span { margin-left: auto; font-weight: 500; letter-spacing: 0;
+  text-transform: none; font-size: 12px; color: var(--text-tertiary); }
 
-/* Кнопка-стрелка справа */
-.l-stop-card-cta {
-  grid-column: 2;
-  display: flex; align-items: center; justify-content: center;
-  width: 44px; height: 44px;
-  border-radius: 50%;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  color: var(--text-secondary);
-  font-size: 20px;
-  transition: all 200ms ease;
-  flex-shrink: 0;
-}
+/* Ствол группы: вертикальная черта, на которой сидят ветви. Это и есть
+   дерево — не рисунок поверх списка, а его собственная геометрия: точка
+   ветви стоит НА линии, между точками линия видна. */
+.dr-stvol { position: relative; }
+.dr-stvol::before { content: ''; position: absolute; left: 7px; top: 18px; bottom: 18px;
+  width: 1.5px; background: var(--border-strong); }
 
-/* ─── Состояния ─── */
-.l-stop[data-status="locked"] .l-stop-card { opacity: 0.55; cursor: not-allowed; }
-.l-stop[data-status="locked"] .l-stop-marker__circle {
-  background: var(--bg-base);
-  border-color: rgba(255,255,255,0.06);
-  color: var(--text-muted);
-}
-.l-stop[data-status="locked"] .l-stop-card-cta { opacity: 0.4; }
+/* Ветвь: строка, которая раскрывается на месте */
+.dr-vetv-knop::-webkit-details-marker { display: none; }
+.dr-vetv { border-bottom: 1px solid var(--border); }
+.dr-vetv-knop { display: flex; list-style: none; align-items: center; gap: 12px; width: 100%;
+  min-height: 56px; padding: 8px 2px; background: none; border: 0; cursor: pointer;
+  text-align: left; color: inherit; }
+.dr-tochka { position: relative; z-index: 1; flex: 0 0 auto; width: 15px; height: 15px;
+  border-radius: 50%; border: 1.5px solid var(--text-muted); background: var(--bg-base, #0F1115);
+  box-shadow: 0 0 0 3px var(--bg-base, #0F1115); }
+.dr-tochka--chast { background: linear-gradient(180deg, var(--accent) 50%, var(--bg-base,#0F1115) 50%);
+  border-color: var(--accent); }
+.dr-tochka--vsyo { background: var(--accent); border-color: var(--accent); }
+.dr-tochka--net { border-style: dashed; opacity: .6; }
+.dr-vetv-tekst { flex: 1; min-width: 0; }
+.dr-vetv-imya { display: block; font-size: 16px; font-weight: 650; line-height: 1.25; color: var(--text-primary); }
+.dr-vetv-pod { display: block; margin-top: 2px; font-size: 12.5px; line-height: 1.35; color: var(--text-secondary); }
+.dr-vetv-strelka { flex: 0 0 auto; color: var(--text-muted); font-size: 18px;
+  transition: transform 180ms ease; }
+.dr-vetv[open] .dr-vetv-strelka { transform: rotate(90deg); }
 
-.l-stop[data-status="active"] .l-stop-card {
-  border-color: rgba(0,119,255,0.50);
-  box-shadow: 0 12px 32px rgba(0,119,255,0.12), 0 0 0 1px rgba(0,119,255,0.20);
-  background: linear-gradient(135deg, rgba(0,119,255,0.04), transparent 60%), var(--bg-card);
-}
-.l-stop[data-status="active"] .l-stop-marker__circle {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-  box-shadow: 0 0 0 6px rgba(0,119,255,0.16), 0 0 24px rgba(0,119,255,0.45);
-}
-.l-stop[data-status="active"] .l-stop-card-cta {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
-}
+/* Узлы внутри ветви — с вертикальной чертой родства */
+.dr-uzly { position: relative; margin: 0 0 12px 6px; padding-left: 18px; }
+.dr-uzly::before { content: ''; position: absolute; left: 0; top: 4px; bottom: 16px;
+  width: 1.5px; background: var(--border-strong); }
+.dr-uzel { display: flex; align-items: flex-start; gap: 10px; min-height: 56px;
+  padding: 9px 2px; text-decoration: none; color: inherit; cursor: pointer;
+  background: none; border: 0; width: 100%; text-align: left; }
+.dr-uzel--net { cursor: default; opacity: .72; }
+.dr-uzel-znak { flex: 0 0 auto; width: 10px; height: 10px; margin-top: 6px; border-radius: 50%;
+  border: 1.5px solid var(--text-muted); }
+.dr-uzel--gotovo .dr-uzel-znak { background: var(--accent); border-color: var(--accent); }
+.dr-uzel--nachato .dr-uzel-znak { box-shadow: 0 0 0 3px var(--accent-soft); border-color: var(--accent); }
+.dr-uzel--net .dr-uzel-znak { border-style: dashed; }
+.dr-uzel-tekst { flex: 1; min-width: 0; }
+.dr-uzel-imya { display: block; font-size: 15px; font-weight: 600; line-height: 1.3; color: var(--text-primary); }
+.dr-uzel--net .dr-uzel-imya { font-weight: 500; color: var(--text-secondary); }
+.dr-uzel-meta { display: block; margin-top: 2px; font-size: 12.5px; line-height: 1.4; color: var(--text-secondary); }
+.dr-uzel-o { display: block; margin-top: 3px; font-size: 12.5px; line-height: 1.4; color: var(--text-tertiary); }
+.dr-ist { font-size: 12px; color: var(--text-tertiary); }
+.dr-pishetsya { margin: 14px 0 0; padding: 12px 14px; border: 1px dashed var(--border-strong);
+  border-radius: 14px; font-size: 12.5px; line-height: 1.5; color: var(--text-secondary); }
 
-.l-stop[data-status="done"] .l-stop-marker__circle {
-  background: rgba(246,198,74,0.10);
-  border-color: var(--gold);
-  color: var(--gold);
-}
-.l-stop[data-status="done"] .l-stop-marker__circle::after {
-  content: '✓';
-  position: absolute; right: 4px; top: 4px;
-  width: 18px; height: 18px;
-  background: var(--gold);
-  color: var(--bg-base);
-  border-radius: 50%;
-  font-size: 11px; font-weight: 800;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 0 0 2px var(--bg-card);
-}
-.l-stop[data-status="done"] .l-stop-card { background: rgba(246,198,74,0.02); }
-.l-stop[data-status="done"] .l-stop-card-eyebrow { color: var(--gold); }
+/* ─── Лист поверх: места и поиск ─── */
+.dr-list { position: fixed; inset: 0; z-index: 140; display: flex; flex-direction: column;
+  background: var(--bg-base, #0F1115); }
+.dr-list[hidden] { display: none; }
+.dr-list-shapka { display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+  border-bottom: 1px solid var(--border); flex: 0 0 auto; }
+.dr-list-zag { flex: 1; margin: 0; font-size: 20px; font-weight: 700; color: var(--text-primary); }
+.dr-list-x { width: 44px; height: 44px; flex: 0 0 auto; border: 0; background: none;
+  color: var(--text-secondary); font-size: 26px; line-height: 1; cursor: pointer; }
+.dr-list-pod { margin: 12px 16px 0; font-size: 13px; line-height: 1.45; color: var(--text-secondary); }
+.dr-list-telo { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 16px calc(24px + var(--yk-snizu, 0px)); }
+.dr-poisk-vvod { flex: 1; min-height: 44px; padding: 0 14px; border-radius: 12px;
+  border: 1px solid var(--border-strong); background: var(--bg-card);
+  color: var(--text-primary); font-size: 16px; font-family: inherit; }
+.dr-mesto { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 54px;
+  padding: 8px 2px; border: 0; border-bottom: 1px solid var(--border); background: none;
+  color: inherit; text-align: left; cursor: pointer; }
+.dr-mesto-nom { flex: 0 0 auto; width: 32px; height: 32px; border-radius: 50%;
+  border: 1.5px solid var(--border-strong); display: flex; align-items: center;
+  justify-content: center; font-size: 14px; font-weight: 700; color: var(--text-secondary); }
+.dr-mesto--gorit .dr-mesto-nom { border-color: var(--accent); color: var(--accent-hover); }
+.dr-mesto-imya { flex: 1; min-width: 0; font-size: 15px; font-weight: 600; color: var(--text-primary); }
+.dr-mesto-skolko { font-size: 12.5px; color: var(--text-secondary); }
+.dr-nashli { padding: 12px 0; border-bottom: 1px solid var(--border); display: block;
+  text-decoration: none; color: inherit; }
+.dr-nashli-imya { display: block; font-size: 15px; font-weight: 600; color: var(--text-primary); }
+.dr-nashli-meta { display: block; margin-top: 2px; font-size: 12.5px; color: var(--text-secondary); }
+.dr-pusto { padding: 24px 0; font-size: 14px; color: var(--text-secondary); }
 
-/* Hover/focus только на доступных карточках. Через transform на child, не на родителе — без jitter. */
-.l-stop:not([data-status="locked"]) .l-stop-card:hover,
-.l-stop:not([data-status="locked"]) .l-stop-card:focus-visible {
-  transform: translateY(-2px);
-  border-color: rgba(0,119,255,0.50);
-  box-shadow: 0 14px 36px rgba(0,119,255,0.16);
+@media (min-width: 700px) {
+  .dr-zag { font-size: 38px; }
+  .dr-polotno { margin-top: 26px; }
 }
-.l-stop:not([data-status="locked"]) .l-stop-card:hover .l-stop-card-cta,
-.l-stop:not([data-status="locked"]) .l-stop-card:focus-visible .l-stop-card-cta {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
-}
-
-/* Адаптив: на мобильных делаем компактнее */
-@media (max-width: 640px) {
-  .l-path::before { left: 22px; }
-  .l-stop { gap: 14px; }
-  .l-stop-marker { width: 44px; padding-top: 18px; }
-  .l-stop-marker__circle { width: 38px; height: 38px; font-size: 16px; }
-  .l-stop-card { padding: 18px 18px; grid-template-columns: 1fr; }
-  .l-stop-card-cta { display: none; }
-  .l-stop-card-city { font-size: 18px; }
-  .l-stop-card-desc { font-size: 13.5px; }
-}
-
-/* ─── ACTIVE STATION PANEL — главный CTA сразу под прогрессом ─── */
-.l-active {
-  max-width: 1100px;
-  margin: 24px auto 36px;
-  padding: 32px 36px 32px;
-  background:
-    radial-gradient(ellipse 60% 100% at 90% 50%, rgba(0,119,255,0.10) 0%, transparent 70%),
-    linear-gradient(135deg, rgba(0,119,255,0.06), transparent 50%),
-    var(--bg-card);
-  border: 1px solid rgba(0, 119, 255, 0.30);
-  border-radius: 24px;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 20px 32px;
-  align-items: center;
-  box-shadow: 0 16px 40px rgba(0, 119, 255, 0.10), 0 0 0 1px rgba(0, 119, 255, 0.10);
-  position: relative;
-}
-/* Маркер «следующая остановка» сверху-слева */
-.l-active::before {
-  content: 'СЛЕДУЮЩАЯ ОСТАНОВКА';
-  position: absolute;
-  top: -10px; left: 28px;
-  padding: 4px 12px;
-  background: var(--accent);
-  color: var(--accent-on);
-  font-family: var(--font-sans);
-  font-size: 10px; font-weight: 700;
-  letter-spacing: 0.18em;
-  border-radius: 100px;
-}
-.l-active-text { display: flex; flex-direction: column; gap: 8px; }
-.l-active-eyebrow {
-  font-size: 12px; font-weight: 600;
-  letter-spacing: 0.18em; text-transform: uppercase;
-  color: var(--accent-hover);
-}
-.l-active-title {
-  font-family: var(--font-serif);
-  font-weight: 500;
-  font-size: 32px;
-  letter-spacing: -0.005em;
-  margin: 0;
-  line-height: 1.1;
-}
-.l-active-title em { font-style: italic; color: var(--text-secondary); font-weight: 400; }
-.l-active-desc {
-  font-size: 15px;
-  line-height: 1.55;
-  color: var(--text-secondary);
-  margin: 4px 0 0;
-  max-width: 540px;
-}
-.l-active-cta {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 14px 24px;
-  background: var(--accent);
-  color: var(--accent-on);
-  border: none;
-  border-radius: 100px;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 14px;
-  letter-spacing: 0.02em;
-  cursor: pointer;
-  white-space: nowrap;
-  box-shadow: 0 4px 16px var(--accent-glow);
-  transition: all 180ms ease;
-}
-.l-active-cta:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 6px 20px var(--accent-glow); }
-.l-active-cta:disabled { background: var(--bg-elevated); color: var(--text-muted); box-shadow: none; cursor: not-allowed; }
-.l-active-cta-arrow { font-size: 16px; }
-
-/* ─── MODAL ─── */
-.l-modal-bg {
-  position: fixed; inset: 0;
-  background: var(--bg-overlay);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  display: none;
-  align-items: center; justify-content: center;
-  z-index: 130; /* выше наббара приложения */
-  padding: 20px;
-  animation: fadeIn 180ms ease;
-}
-.l-modal-bg[data-open="1"] { display: flex; }
-.l-modal {
-  background: var(--bg-card);
-  border: 1px solid var(--border-strong);
-  border-radius: 24px;
-  max-width: 540px;
-  width: 100%;
-  padding: 32px 28px 28px;
-  position: relative;
-  animation: slideUp 220ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-.l-modal-close {
-  position: absolute; top: 14px; right: 14px;
-  width: 36px; height: 36px;
-  display: flex; align-items: center; justify-content: center;
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 50%;
-  color: var(--text-secondary);
-  font-size: 18px;
-  cursor: pointer;
-  transition: all 180ms ease;
-}
-.l-modal-close:hover { background: var(--bg-elevated); color: var(--text-primary); }
-.l-modal-num {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 56px; height: 56px;
-  background: var(--accent-soft);
-  border: 1px solid rgba(0, 119, 255, 0.22);
-  border-radius: 18px;
-  color: var(--accent-hover);
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 22px;
-  margin-bottom: 16px;
-}
-.l-modal-eyebrow {
-  font-size: 11px; font-weight: 600;
-  letter-spacing: 0.18em; text-transform: uppercase;
-  color: var(--accent-hover);
-  margin-bottom: 8px;
-}
-.l-modal-title {
-  font-family: var(--font-serif);
-  font-weight: 500;
-  font-size: 30px;
-  letter-spacing: -0.005em;
-  margin: 0 0 8px;
-}
-.l-modal-subtitle {
-  font-size: 14px;
-  color: var(--text-secondary);
-  margin: 0 0 18px;
-  font-style: italic;
-}
-.l-modal-body {
-  font-size: 15px;
-  line-height: 1.6;
-  color: var(--text-secondary);
-  margin: 0 0 20px;
-}
-.l-modal-meta {
-  display: flex; gap: 16px; flex-wrap: wrap;
-  margin: 0 0 24px;
-  padding: 14px 16px;
-  background: var(--bg-elevated);
-  border-radius: 12px;
-  font-size: 12px;
-  color: var(--text-muted);
-}
-.l-modal-meta-item { display: flex; align-items: center; gap: 6px; }
-.l-modal-meta-key { color: var(--text-muted); }
-.l-modal-meta-val { color: var(--text-primary); font-weight: 600; }
-.l-modal-actions { display: flex; gap: 10px; }
-.l-modal-cta {
-  flex: 1;
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 14px 20px;
-  background: var(--accent);
-  color: var(--accent-on);
-  border: none;
-  border-radius: 100px;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  box-shadow: 0 4px 16px var(--accent-glow);
-  transition: all 180ms ease;
-}
-.l-modal-cta:hover { background: var(--accent-hover); }
-.l-modal-cta[data-locked="1"] { background: var(--bg-elevated); color: var(--text-muted); box-shadow: none; cursor: not-allowed; }
-.l-modal-cta[data-locked="1"]:hover { background: var(--bg-elevated); transform: none; }
-.l-modal-secondary {
-  padding: 14px 20px;
-  background: transparent;
-  border: 1px solid var(--border-strong);
-  border-radius: 100px;
-  color: var(--text-secondary);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 180ms ease;
-}
-.l-modal-secondary:hover { border-color: var(--text-secondary); color: var(--text-primary); }
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
 /* ─── RESPONSIVE ─── */
-@media (max-width: 900px) {
-  .l-hero { margin: 24px auto 8px; }
-  .l-hero-title { font-size: 36px; }
-  .l-progress { padding: 0 16px; }
-  .l-active {
-    grid-template-columns: 1fr;
-    margin: 20px 16px 60px;
-    padding: 20px 18px;
-    border-radius: 18px;
-  }
-  .l-active-title { font-size: 24px; }
-  .l-active-cta { width: 100%; justify-content: center; }
-}
 @media (max-width: 600px) {
   .l-header { margin: 8px; }
   .l-back-text { display: none; }
-  .l-hero { padding: 0 16px; }
-  .l-hero-title { font-size: 30px; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -963,7 +614,7 @@ html[data-theme='light'] {
 <body>
 <link rel="stylesheet" href="core/site-nav.css?v=f8cd9a99"/>
 <header class="ynav ynav--dark ynav--sticky" id="site-nav"></header>
-<script src="core/site-nav.js?v=b91d3ec1"></script>
+<script src="core/site-nav.js?v=9ba1a8b7"></script>
 <script>window.SiteNav&&SiteNav.mount('site-nav','learn');</script>
 
 <!-- ═══ ONBOARDING — показывается при первом заходе ═══ -->
@@ -1146,112 +797,57 @@ html[data-theme='light'] {
      понять метод → разобрать своё явление → закрепить → свериться.
      Внутри группы порядок от простого к сложному. Числа проставлены только
      там, где они проверены по файлам; где не проверены — числа нет вовсе. -->
-<section class="hub" aria-labelledby="hub-zag">
-  <h1 class="hub-zag" id="hub-zag">Уроки</h1>
-  <p class="hub-pod" id="hub-pod">Всё обучение Ясны в одном месте.</p>
+<!-- ═══ ДЕРЕВО ЗНАНИЙ ═══════════════════════════════════════════════════
+     Было: четыре группы и двенадцать карточек, 2567 px — три экрана
+     прокрутки, тринадцать ссылок из девятнадцати уводили на чужой экран, и
+     ни одна не отвечала на вопрос «где я остановился».
 
-  <div class="hub-grp">
-    <h2 class="hub-grp-zag">Понять метод</h2>
-    <div class="hub-ryad">
-      <a class="hub-k hub-k--glav" href="#znakomstvo" id="hub-znakomstvo">
-        <span class="hub-k-t">Знакомство с методом</span>
-        <span class="hub-k-o">Пять минут разговором: что такое Ясна и зачем 12 полок.</span>
-        <span class="hub-k-m" id="hub-znakomstvo-m">5 минут</span>
-      </a>
-      <a class="hub-k" href="konstruktor.html?lessons=1" id="hub-kurs">
-        <span class="hub-k-t">Базовый курс</span>
-        <span class="hub-k-o">Четыре урока по шагам, с подсказками прямо в круге.</span>
-        <span class="hub-k-m" id="hub-kurs-m">4 урока</span>
-      </a>
-      <a class="hub-k" href="konstruktor.html#spravka">
-        <span class="hub-k-t">Инструкция</span>
-        <span class="hub-k-o">Как составить свою Ясну — по шагам, от явления до проверки.</span>
-      </a>
+     Стало: дерево по ЯВЛЕНИЯМ. Ветвь — то, что раскладывают (Сутки,
+     Разговор, Печь), узел — занятие на ней, жанр («урок», «разбор», «круг»)
+     — подпись, а не раздел. Ветвь раскрывается на месте, никуда не уводя.
+     Всё полотно рисует JS из core/derevo-dannye.js — там же паспорта узлов
+     и обязательное поле «источник». -->
+<section class="dr" aria-labelledby="dr-zag">
+  <header class="dr-shapka">
+    <div class="dr-shapka-ryad">
+      <h1 class="dr-zag" id="dr-zag">Уроки</h1>
+      <button type="button" class="dr-lupa" id="dr-lupa" aria-label="Найти занятие">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
     </div>
+    <p class="dr-schet" id="dr-schet">Всё обучение Ясны в одном месте.</p>
+  </header>
+
+  <div id="dr-prodolzhit"></div>
+
+  <div class="dr-chipy" id="dr-chipy">
+    <button type="button" class="dr-chip" data-vsyo="1" id="dr-vsyo">Всё дерево</button>
+    <button type="button" class="dr-chip" data-mesta="1">Все 12 мест</button>
+    <a class="dr-chip" href="konstruktor.html#glossariy">Словарь</a>
+    <a class="dr-chip" href="konstruktor.html#biblioteka">Готовые круги</a>
   </div>
 
-  <div class="hub-grp">
-    <h2 class="hub-grp-zag">Разобрать явление</h2>
-    <div class="hub-ryad">
-      <a class="hub-k" href="#gidy">
-        <span class="hub-k-t">Авторские гиды</span>
-        <span class="hub-k-o">Готовые разборы: автор ведёт по кругу и объясняет каждый шаг.</span>
-        <span class="hub-k-m">7 разборов</span>
-      </a>
-      <a class="hub-k" href="konstruktor.html#biblioteka">
-        <span class="hub-k-t">Библиотека явлений</span>
-        <span class="hub-k-o">Список готовых Ясн: отметьте нужные — и они появятся вкладками в «Разборе».</span>
-      </a>
-      <a class="hub-k" href="konstruktor.html#proverka">
-        <span class="hub-k-t">Проверка Ясны</span>
-        <span class="hub-k-o">Вопросы к той Ясне, что открыта в Разборе: где она ещё не сходится. Ответы не сохраняются.</span>
-        <span class="hub-k-m">38 проверок</span>
-      </a>
-    </div>
-  </div>
-
-  <div class="hub-grp">
-    <h2 class="hub-grp-zag">Закрепить</h2>
-    <div class="hub-ryad">
-      <a class="hub-k" href="games/krug/index.html">
-        <span class="hub-k-t">Разложи по кругу</span>
-        <span class="hub-k-o">Берёшь элемент явления и кладёшь на его долю круга.</span>
-        <span class="hub-k-m">16 явлений</span>
-      </a>
-      <a class="hub-k" href="duel.html">
-        <span class="hub-k-t">Викторина по Ясне</span>
-        <span class="hub-k-o">Вопросы по книге с разбором ответа. Одному или с друзьями.</span>
-        <span class="hub-k-m">11 тем · 168 вопросов</span>
-      </a>
-      <a class="hub-k" href="negotiations.html">
-        <span class="hub-k-t">Переговоры</span>
-        <span class="hub-k-o">Разбор разговора по кругу: четыре сценария с практикумами.</span>
-        <span class="hub-k-m" id="hub-neg-m">4 сценария</span>
-      </a>
-      <a class="hub-k" href="negotiations.html#spar">
-        <span class="hub-k-t">Живой спарринг</span>
-        <span class="hub-k-o">Собеседник отвечает: без сети — готовые сцены, со связью — свободный разговор.</span>
-      </a>
-    </div>
-  </div>
-
-  <div class="hub-grp">
-    <h2 class="hub-grp-zag">Свериться</h2>
-    <div class="hub-ryad">
-      <a class="hub-k" href="konstruktor.html#glossariy">
-        <span class="hub-k-t">Глоссарий</span>
-        <span class="hub-k-o">Слова метода: полка, крест, прана, противоположность.</span>
-      </a>
-      <a class="hub-k" href="rating.html">
-        <span class="hub-k-t">Как считается рост</span>
-        <span class="hub-k-o">Две шкалы: освоение метода и место в общем зачёте.</span>
-      </a>
-    </div>
-  </div>
+  <div class="dr-polotno" id="dr-polotno"></div>
 </section>
 
-<!-- КУРС «ПУТЬ ПО РУСИ» СНЯТ С ЭКРАНА.
-     Из восьми обещанных остановок в приложении работала одна: у семи
-     не было ни урока, ни содержимого, и полоса «0 из 8» не могла
-     сдвинуться дальше первой. Экран «Уроки» стал хабом, который
-     разводит по тому, что действительно есть; курс вернётся сюда
-     карточкой, когда будут готовы остальные остановки. -->
-
-<!-- Авторские гиды: готовые анимированные разборы явлений. Раньше жили только
-     внутри Разбора и с экрана Уроков были недостижимы — тупик после главы 1. -->
-<div class="l-gidy" id="gidy">
-  <div class="l-path-header"><h2 class="l-path-title">Авторские гиды</h2></div>
-  <p class="l-gidy-sub">Автор разбирает явление по шагам, круг собирается на глазах. Смотреть можно
-     подряд или выбрать своё — порядок ниже от главного к частному.</p>
-  <div class="l-gidy-grid">
-    <a class="l-gid" href="konstruktor.html#tour=sutki"><b>Сутки — корень всего</b><span>главный круг метода</span></a>
-    <a class="l-gid" href="konstruktor.html#tour=pechi"><b>Ясна печи</b><span>урок автора, дословно</span></a>
-    <a class="l-gid" href="konstruktor.html#tour=goda"><b>Год</b><span>двойник Суток крупнее</span></a>
-    <a class="l-gid" href="konstruktor.html#tour=zhizni"><b>Жизнь</b><span>жизнь как круг</span></a>
-    <a class="l-gid" href="konstruktor.html#tour=atm"><b>Атмосфера</b><span>видимая — как круг</span></a>
-    <a class="l-gid" href="konstruktor.html#tour=atm_skrytyh"><b>Под атмосферой</b><span>скрытые явления</span></a>
-    <a class="l-gid" href="konstruktor.html#tour=peregovorov"><b>Переговоры</b><span>разговор как круг</span></a>
+<!-- Лист «Все 12 мест»: обратный срез по кругу — где про каждое место учат.
+     Ради него дерево и строится: связь «место × явление» есть у автора в
+     таблице, а в приложении её негде было увидеть. -->
+<div class="dr-list" id="dr-mesta" hidden>
+  <div class="dr-list-shapka">
+    <h2 class="dr-list-zag">Все 12 мест</h2>
+    <button type="button" class="dr-list-x" id="dr-mesta-x" aria-label="Закрыть">×</button>
   </div>
+  <p class="dr-list-pod">Круг один и тот же во всех явлениях. Имена — по Ясне Суток; место загорается, когда вы разобрали его в двух явлениях и больше.</p>
+  <div class="dr-list-telo" id="dr-mesta-telo"></div>
+</div>
+
+<div class="dr-list" id="dr-poisk" hidden>
+  <div class="dr-list-shapka">
+    <input type="search" class="dr-poisk-vvod" id="dr-poisk-vvod" placeholder="Найти: печь, место 6, словарь" autocomplete="off">
+    <button type="button" class="dr-list-x" id="dr-poisk-x" aria-label="Закрыть">×</button>
+  </div>
+  <div class="dr-list-telo" id="dr-poisk-telo"></div>
 </div>
 
 </div><!-- /#learnMain -->
@@ -1424,400 +1020,341 @@ html[data-theme='light'] {
   }
   initIntro();
 
-  /* ── Хаб: живые подписи и переходы ─────────────────────────────────
-     Карточки хаба не должны врать: «пройдено» появляется только если
-     знакомство действительно закончено, а «продолжить» — если в курсе есть
-     отметки. Числа, которых мы не можем проверить, не показываем вовсе. */
-  (function(){
-    var карта = document.getElementById('hub-znakomstvo');
-    if(карта){
-      карта.addEventListener('click', function(e){
-        e.preventDefault();
-        window.yasnaZnakomstvo && window.yasnaZnakomstvo();
-      });
-      var м = document.getElementById('hub-znakomstvo-m');
-      if(м && isIntroDone()) м.textContent = 'пройдено';
+
+  /* ═══ ДЕРЕВО ЗНАНИЙ ══════════════════════════════════════════════════
+     Рисуем из паспортов core/derevo-dannye.js и состояний core/znanie.js.
+     Правила, которых держимся:
+       • ни одного замка: порядок — совет, а не запрет;
+       • чего нет — так и написано («в приложении пока нет»), без «скоро»;
+       • знаменатель называется вслух и считает только написанное;
+       • у каждого занятия видно, чьи это слова.                          */
+
+  var Д = window.YasnaDerevo, З = window.YasnaZnanie;
+
+  var ПОДПИСЬ_ИСТОЧНИКА = {
+    книга: 'книга автора',
+    занятие: 'занятие автора',
+    рубрикатор: 'таблица автора',
+    чужая: 'чужая книга',
+    наше: 'слова приложения'
+  };
+
+  function экр(т) {
+    return String(т == null ? '' : т)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function метаУзла(у, сост) {
+    var части = [];
+    if (у.жанр) части.push(у.жанр);
+    if (у.объём) части.push(у.объём);
+    if (сост && сост.текст) части.push(сост.текст);
+    else if (сост && сост.код === 'нет') части.push('ещё не открывали');
+    return части.join(' · ');
+  }
+
+  function узелHTML(у) {
+    var с = З.состояние(у);
+    var класс = 'dr-uzel';
+    if (у.нет || !у.адрес) класс += ' dr-uzel--net';
+    else if (с.код === 'пройдено' || с.код === 'держится') класс += ' dr-uzel--gotovo';
+    else if (с.код === 'начато') класс += ' dr-uzel--nachato';
+
+    var внутри =
+      '<span class="dr-uzel-znak" aria-hidden="true"></span>' +
+      '<span class="dr-uzel-tekst">' +
+        '<span class="dr-uzel-imya">' + экр(у.имя) + '</span>' +
+        '<span class="dr-uzel-meta">' + экр(метаУзла(у, с)) + '</span>' +
+        (у.о ? '<span class="dr-uzel-o">' + экр(у.о) + '</span>' : '') +
+        '<span class="dr-uzel-o dr-ist">' + экр(ПОДПИСЬ_ИСТОЧНИКА[у.источник] || у.источник) + '</span>' +
+      '</span>';
+
+    if (у.нет || !у.адрес) return '<div class="' + класс + '">' + внутри + '</div>';
+    return '<a class="' + класс + '" href="' + экр(у.адрес) + '" data-uzel="' + экр(у.id) + '">' + внутри + '</a>';
+  }
+
+  function ветвьHTML(в) {
+    var сч = З.поВетви(в);
+    var класс = 'dr-tochka';
+    if (!сч.всего) класс += ' dr-tochka--net';
+    else if (сч.пройдено >= сч.всего) класс += ' dr-tochka--vsyo';
+    else if (сч.пройдено > 0) класс += ' dr-tochka--chast';
+
+    var жанры = {};
+    в.узлы.forEach(function (у) { if (!у.нет) жанры[у.жанр] = (жанры[у.жанр] || 0) + 1; });
+    /* Склонение вслух: «5 уроков», а не «5 урока» — иначе строка сразу
+       выдаёт машину. */
+    function много(н, од, дв, мн) {
+      var о = н % 10, д = н % 100;
+      if (д > 10 && д < 20) return мн;
+      if (о === 1) return од;
+      if (о >= 2 && о <= 4) return дв;
+      return мн;
     }
-    /* Открытие знакомства по адресу — с главной и из хаба. */
-    function поЯкорю(){
-      if((location.hash||'') === '#znakomstvo') window.yasnaZnakomstvo && window.yasnaZnakomstvo();
+    var СКЛОН = {
+      'урок':    ['урок', 'урока', 'уроков'],
+      'разбор':  ['разбор', 'разбора', 'разборов'],
+      'круг':    ['круг', 'круга', 'кругов'],
+      'вопросы': ['вопросы', 'набора вопросов', 'наборов вопросов'],
+      'справка': ['справка', 'справки', 'справок'],
+      'книга':   ['книга', 'книги', 'книг'],
+      'записи':  ['запись занятий', 'записи занятий', 'записей занятий'],
+      'своё':    ['свой круг', 'своих круга', 'своих кругов']
+    };
+    /* Считаем только то, что человек считает: уроки, разборы, круги.
+       «Справка» и «вопросы» называются один раз без числа — «3 набора
+       вопросов» звучит как отчёт, а не как строка на экране. */
+    var СЧИТАЕМ = { 'урок': 1, 'разбор': 1, 'круг': 1, 'книга': 1 };
+    var перечень = Object.keys(жанры).map(function (ж) {
+      var н = жанры[ж], ф = СКЛОН[ж] || [ж, ж, ж];
+      return (н > 1 && СЧИТАЕМ[ж]) ? н + ' ' + много(н, ф[0], ф[1], ф[2]) : ф[0];
+    }).join(' · ');
+    var хвост = сч.пройдено ? ' · пройдено ' + сч.пройдено + ' из ' + сч.всего : '';
+
+    return '<details class="dr-vetv" data-vetv="' + экр(в.id) + '">' +
+      '<summary class="dr-vetv-knop">' +
+        '<span class="' + класс + '" aria-hidden="true"></span>' +
+        '<span class="dr-vetv-tekst">' +
+          '<span class="dr-vetv-imya">' + экр(в.имя) + '</span>' +
+          '<span class="dr-vetv-pod">' + экр(перечень + хвост) + '</span>' +
+        '</span>' +
+        '<span class="dr-vetv-strelka" aria-hidden="true">›</span>' +
+      '</summary>' +
+      '<div class="dr-uzly">' +
+        в.узлы.map(узелHTML).join('') +
+        (в.подпись ? '<div class="dr-uzel-o" style="padding:2px 2px 10px">' + экр(в.подпись) + '</div>' : '') +
+      '</div>' +
+    '</details>';
+  }
+
+  function шапкаПродолжить() {
+    var место = document.getElementById('dr-prodolzhit');
+    if (!место) return;
+    var д = З.продолжить();
+    if (!д) {
+      место.innerHTML = '<div class="dr-prod"><span class="dr-prod-klejmo">Всё, что написано, пройдено</span>' +
+        '<span class="dr-prod-imya">Дальше — свой круг</span>' +
+        '<span class="dr-prod-pod">Возьмите своё явление и разложите его сами.</span>' +
+        '<a class="dr-prod-knop" href="konstruktor.html#novaya">Собрать</a></div>';
+      return;
+    }
+    var первый = д.состояние.код === 'нет';
+    место.innerHTML =
+      '<a class="dr-prod" href="' + экр(д.узел.адрес) + '">' +
+        '<span class="dr-prod-klejmo">' + (первый ? 'Первый раз здесь' : 'Продолжить') + '</span>' +
+        '<span class="dr-prod-imya">' + экр(д.узел.имя) + '</span>' +
+        '<span class="dr-prod-pod">' + экр(метаУзла(д.узел, д.состояние)) + '</span>' +
+        '<span class="dr-prod-knop">' + (первый ? 'Начать' : 'Продолжить') + '</span>' +
+      '</a>';
+  }
+
+  function подписьСчёта() {
+    var э = document.getElementById('dr-schet');
+    if (!э) return;
+    var с = З.счёт();
+    var пишется = Д.ПИШЕТСЯ.length;
+    э.textContent = с.пройдено
+      ? 'Пройдено ' + с.пройдено + ' из ' + с.всего + ' написанных занятий · ещё ' + пишется + ' явлений пишется'
+      : 'Написано ' + с.всего + ' занятий · ещё ' + пишется + ' явлений пишется';
+  }
+
+  function нарисоватьДерево() {
+    if (!Д || !З) return;
+    var полотно = document.getElementById('dr-polotno');
+    if (!полотно) return;
+
+    подписьСчёта();
+    шапкаПродолжить();
+
+    var группы = [
+      { id: 'метод', заг: 'Как устроен круг' },
+      { id: 'явление', заг: 'Явления' },
+      { id: 'своё', заг: 'Своё' },
+      { id: 'источники', заг: 'Источники' }
+    ];
+    var html = '';
+    группы.forEach(function (г) {
+      var ветви = Д.ВЕТВИ.filter(function (в) { return в.группа === г.id; });
+      if (!ветви.length) return;
+      var хвост = г.id === 'явление'
+        ? '<span>' + ветви.length + ' разобрано · ещё ' + Д.ПИШЕТСЯ.length + ' пишется</span>' : '';
+      html += '<h2 class="dr-gruppa-zag">' + экр(г.заг) + хвост + '</h2>';
+      html += '<div class="dr-stvol">';
+      ветви.forEach(function (в) { html += ветвьHTML(в); });
+      html += '</div>';
+      if (г.id === 'явление') {
+        html += '<p class="dr-pishetsya">Пишется: ' + экр(Д.ПИШЕТСЯ.join(' · ')) +
+          '. У автора эти занятия есть — записями и расшифровками; в приложении их пока нет.</p>';
+      }
+    });
+    полотно.innerHTML = html;
+
+    /* Отмечаем открытие занятия: иначе «Продолжить» не с чего считать. */
+    полотно.addEventListener('click', function (e) {
+      var а = e.target.closest && e.target.closest('a[data-uzel]');
+      if (а) З.отметить(а.dataset.uzel, { открывал: true });
+    });
+  }
+
+  /* ─── Лист «Все 12 мест» ─── */
+  function нарисоватьМеста() {
+    var тело = document.getElementById('dr-mesta-telo');
+    if (!тело) return;
+    var имена = (window.YasnaData && window.YasnaData.T || []).filter(function (т) { return т.id === 'суток'; })[0];
+    var подписи = имена ? имена.p : ['0','1','2','3','4','5','6','7','8','9','10','11'];
+    var html = '';
+    for (var i = 0; i < 12; i++) {
+      var узлы = Д.поМесту(i);
+      /* Место «горит» не когда его прошли где-то однажды, а когда человек
+         встретил его в ДВУХ И БОЛЕЕ явлениях. Это единственная отметка,
+         которая измеряет перенос — то, ради чего Ясна и нужна. */
+      var пройденоЯвлений = {};
+      узлы.forEach(function (у) {
+        var к = З.состояние(у).код;
+        if (к === 'пройдено' || к === 'держится') пройденоЯвлений[у.ветвь] = 1;
+      });
+      var перенос = Object.keys(пройденоЯвлений).length;
+      var подпись = !узлы.length ? 'про это место пока не записано'
+        : перенос >= 2 ? 'вы разбирали его в ' + перенос + ' явлениях'
+        : перенос === 1 ? 'разобрано в одном явлении'
+        : 'встречается в ' + узлы.length + ' занятиях';
+      html += '<button type="button" class="dr-mesto' + (перенос >= 2 ? ' dr-mesto--gorit' : '') + '" data-mesto="' + i + '">' +
+        '<span class="dr-mesto-nom">' + i + '</span>' +
+        '<span class="dr-mesto-imya">' + экр(подписи[i] || ('Место ' + i)) + '</span>' +
+        '<span class="dr-mesto-skolko">' + подпись + '</span>' +
+      '</button>';
+    }
+    тело.innerHTML = html;
+    тело.addEventListener('click', function (e) {
+      var к = e.target.closest && e.target.closest('[data-mesto]');
+      if (!к) return;
+      var i = +к.dataset.mesto;
+      var узлы = Д.поМесту(i);
+      var сп = узлы.map(function (у) {
+        return '<a class="dr-nashli" href="' + экр(у.адрес || '#') + '">' +
+          '<span class="dr-nashli-imya">' + экр(у.имя) + '</span>' +
+          '<span class="dr-nashli-meta">' + экр(у.ветвьИмя + ' · ' + у.жанр + (у.объём ? ' · ' + у.объём : '')) + '</span></a>';
+      }).join('');
+      к.insertAdjacentHTML('afterend', '<div class="dr-uzly">' + (сп ||
+        '<div class="dr-pusto">Про это место у нас пока не записано.</div>') + '</div>');
+      к.disabled = true;
+    });
+  }
+
+  /* ─── Поиск по паспортам ─── */
+  function поиск(строка) {
+    var т = (строка || '').trim().toLowerCase();
+    var тело = document.getElementById('dr-poisk-telo');
+    if (!тело) return;
+    if (т.length < 2) { тело.innerHTML = '<div class="dr-pusto">Наберите слово: печь, место 6, словарь.</div>'; return; }
+    var место = т.match(/место\s*(\d{1,2})/);
+    var найдено = место
+      ? Д.поМесту(+место[1])
+      : Д.всеУзлы().filter(function (у) {
+          return (у.имя + ' ' + (у.о || '') + ' ' + у.ветвьИмя + ' ' + у.жанр).toLowerCase().indexOf(т) >= 0;
+        });
+    тело.innerHTML = найдено.length ? найдено.map(function (у) {
+      var с = З.состояние(у);
+      return '<a class="dr-nashli" href="' + экр(у.адрес || '#') + '">' +
+        '<span class="dr-nashli-imya">' + экр(у.имя) + '</span>' +
+        '<span class="dr-nashli-meta">' + экр(у.ветвьИмя + ' · ' + метаУзла(у, с)) + '</span></a>';
+    }).join('') : '<div class="dr-pusto">Ничего не нашлось. Попробуйте «сутки», «разговор», «место 9».</div>';
+  }
+
+  /* ─── Открытие и закрытие листов ─── */
+  (function () {
+    function показать(id, показ) {
+      var э = document.getElementById(id);
+      if (!э) return;
+      э.hidden = !показ;
+      document.documentElement.style.overflow = показ ? 'hidden' : '';
+    }
+    /* «Всё дерево» — увидеть разом всё, что есть: раскрывает все ветви.
+       Отдельного экрана-карты нет намеренно: на 393px подписи графа
+       становятся 4–5px и налезают друг на друга — проверено замером. */
+    var чипВсё = document.getElementById('dr-vsyo');
+    if (чипВсё) чипВсё.addEventListener('click', function () {
+      var ветви = document.querySelectorAll('.dr-vetv');
+      var раскрыть = ![].every.call(ветви, function (в) { return в.open; });
+      [].forEach.call(ветви, function (в) { в.open = раскрыть; });
+      чипВсё.textContent = раскрыть ? 'Свернуть' : 'Всё дерево';
+      if (!раскрыть) window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    var чипМеста = document.querySelector('[data-mesta]');
+    if (чипМеста) чипМеста.addEventListener('click', function () {
+      нарисоватьМеста(); показать('dr-mesta', true);
+    });
+    var xМеста = document.getElementById('dr-mesta-x');
+    if (xМеста) xМеста.addEventListener('click', function () { показать('dr-mesta', false); });
+
+    var лупа = document.getElementById('dr-lupa');
+    if (лупа) лупа.addEventListener('click', function () {
+      показать('dr-poisk', true);
+      var поле = document.getElementById('dr-poisk-vvod');
+      if (поле) { поле.value = ''; поиск(''); setTimeout(function () { поле.focus(); }, 40); }
+    });
+    var xПоиска = document.getElementById('dr-poisk-x');
+    if (xПоиска) xПоиска.addEventListener('click', function () { показать('dr-poisk', false); });
+    var поле = document.getElementById('dr-poisk-vvod');
+    if (поле) поле.addEventListener('input', function () { поиск(поле.value); });
+
+    /* Escape и аппаратная «назад» закрывают лист, а не экран. */
+    window.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      показать('dr-mesta', false); показать('dr-poisk', false);
+    });
+    window.addEventListener('yasna:назад', function (e) {
+      var открыт = ['dr-mesta', 'dr-poisk'].filter(function (id) {
+        var э = document.getElementById(id); return э && !э.hidden;
+      });
+      if (!открыт.length) return;
+      e.preventDefault();
+      открыт.forEach(function (id) { показать(id, false); });
+    });
+  })();
+
+  /* Знакомство открывается по адресу #znakomstvo — так на него ссылается
+     карточка «Продолжить» и переход с главной. Раньше это делал код хаба,
+     снятый вместе с ним. Возврат системной «назад» закрывает окно, а не
+     уносит с экрана. */
+  (function () {
+    function поЯкорю() {
+      if (location.hash === '#znakomstvo' && typeof window.yasnaZnakomstvo === 'function') {
+        window.yasnaZnakomstvo();
+      }
+    }
+    function закрытьЗнакомство() {
+      var окно = document.getElementById('learnIntro');
+      if (!окно || окно.hidden) return false;
+      окно.hidden = true;
+      var полоса = document.getElementById('introProgressBar');
+      if (полоса) полоса.hidden = true;
+      var главное = document.getElementById('learnMain');
+      if (главное) главное.style.display = '';
+      document.documentElement.style.overflow = '';
+      if (typeof нарисоватьДерево === 'function') нарисоватьДерево();
+      return true;
     }
     поЯкорю();
     window.addEventListener('hashchange', поЯкорю);
-    /* Возврат по системной «назад»: адрес теряет #znakomstvo — закрываем окно
-       без отметки «пройдено», человек просто передумал. */
-    window.addEventListener('popstate', function(){
-      var окно = document.getElementById('learnIntro');
-      if(окно && !окно.hidden && location.hash !== '#znakomstvo'){
-        окно.hidden = true;
-        var полоса = document.getElementById('introProgressBar');
-        if(полоса) полоса.hidden = true;
-        var хаб = document.getElementById('learnMain');
-        if(хаб) хаб.style.display = '';
-      }
+    window.addEventListener('popstate', function () {
+      if (location.hash === '#znakomstvo') return;
+      закрытьЗнакомство();
     });
-
-    /* Якорь #gidy приходил с главной приложения раньше, чем блок гидов был
-       готов, и прокрутка не срабатывала. Доводим её после отрисовки. */
-    if((location.hash||'') === '#gidy'){
-      setTimeout(function(){
-        var г = document.getElementById('gidy');
-        if(г) г.scrollIntoView({behavior:'smooth', block:'start'});
-      }, 400);
-    }
-
-    /* Базовый курс: если человек уже проходил уроки — говорим «продолжить». */
-    /* В yasna_completed_lessons_v1 лежат ВСЕ пройденные уроки конструктора,
-       включая отдельные («Ночь», «Утро»), а в базовом курсе их четыре — из-за
-       этого карточка показывала «пройдено 6 из 4». Считаем по своему списку. */
-    var БАЗОВЫЙ = ['l1_intro','b2_four_pillars','b3_two_lines','b4_line_names'];
-    function подписьКурса(){
-      try{
-        var пройдено = JSON.parse(localStorage.getItem('yasna_completed_lessons_v1') || '[]');
-        if(!Array.isArray(пройдено)) return;
-        var своих = пройдено.filter(function(id){ return БАЗОВЫЙ.indexOf(id) > -1; }).length;
-        var мк = document.getElementById('hub-kurs-m');
-        if(!мк || !своих) return;
-        мк.textContent = своих >= БАЗОВЫЙ.length
-          ? 'курс пройден'
-          : 'пройдено ' + своих + ' из ' + БАЗОВЫЙ.length;
-      }catch(_){}
-    }
-    подписьКурса();
-    try{
-      var нг = JSON.parse(localStorage.getItem('yasna_neg_lessons_v1') || '{}');
-      var мн = document.getElementById('hub-neg-m');
-      var сколько = нг && typeof нг==='object' ? Object.keys(нг).length : 0;
-      if(мн && сколько) мн.textContent = 'пройдено ' + сколько + ' из 4';
-    }catch(_){}
-    /* Прогресс приходит с сервера позже первой отрисовки (core/storage.js
-       тянет его через ~1.2 с). Иначе на новом устройстве человек увидел бы
-       «4 урока» вместо «пройдено 3 из 4». */
-    setTimeout(подписьКурса, 1800);
+    /* Аппаратная «назад» закрывает разговор, а не уносит с экрана. */
+    window.addEventListener('yasna:назад', function (e) {
+      var окно = document.getElementById('learnIntro');
+      if (!окно || окно.hidden) return;
+      e.preventDefault();
+      if (location.hash === '#znakomstvo') { history.back(); return; }
+      закрытьЗнакомство();
+    });
   })();
 
-  // ═══ КОНТЕНТ — 8 СТАНЦИЙ ═══
-  const STATIONS = [
-    {
-      id: 'moscow',
-      num: 1,
-      city: 'Москва',
-      theme: 'Корень',
-      title: 'Что такое Ясна',
-      subtitle: 'Основа метода — 12 полок',
-      body: 'Москва — сердце. Здесь начинается всё. Узнаешь, что такое Ясна, как устроены 12 полок и почему любое явление — от чашки чая до целой жизни — раскладывается по этой структуре.',
-      duration: '5 минут',
-      format: 'Урок + 5 вопросов',
-      action: { label: 'Начать главу', href: 'konstruktor.html?lesson=1', available: true }
-    },
-    {
-      id: 'novgorod',
-      num: 2,
-      city: 'Великий Новгород',
-      theme: 'Время',
-      title: 'Ясна Суток',
-      subtitle: 'День и ночь — первый цикл',
-      body: 'В Новгороде били вечевой колокол — здесь рождалось чувство времени общины. На станции — Ясна Суток: рассвет, полдень, закат, полночь и переходы между ними.',
-      duration: '6 минут',
-      format: 'Разбор Ясны + квиз',
-      action: { label: 'Скоро', href: '', available: false }
-    },
-    {
-      id: 'spb',
-      num: 3,
-      city: 'Санкт-Петербург',
-      theme: 'Слово',
-      title: 'Ясна Переговоров',
-      subtitle: 'Имперский этикет разговора',
-      body: 'Петербург — окно в Европу и школа дипломатии. На этой станции — структура переговоров: как открывают разговор, как ведут к развязке, что считается победой и проигрышем в русской традиции.',
-      duration: '7 минут',
-      format: 'Разбор Ясны + кейсы',
-      action: { label: 'Скоро', href: '', available: false }
-    },
-    {
-      id: 'arkhangelsk',
-      num: 4,
-      city: 'Архангельск',
-      theme: 'Небо',
-      title: 'Ясна Атмосферных явлений',
-      subtitle: 'Северное сияние, вьюга, гром',
-      body: 'На Севере небо ближе к человеку. Ясна Атмосферных явлений учит читать небо как страницу: с какого знака начинается буря, чем заканчивается затишье.',
-      duration: '6 минут',
-      format: 'Наблюдение + квиз',
-      action: { label: 'Скоро', href: '', available: false }
-    },
-    {
-      id: 'kazan',
-      num: 5,
-      city: 'Казань',
-      theme: 'Круг',
-      title: 'Ясна Года',
-      subtitle: 'Зима, весна, лето, осень',
-      body: 'Казань — перекрёсток земледельческих культур. Здесь встречаются полевые ритмы. Ясна Года показывает, как один и тот же круг повторяется на разных уровнях — от пашни до планеты.',
-      duration: '6 минут',
-      format: 'Сезоны + квиз',
-      action: { label: 'Скоро', href: '', available: false }
-    },
-    {
-      id: 'ural',
-      num: 6,
-      city: 'Урал',
-      theme: 'Камень',
-      title: 'Ясна Жизни',
-      subtitle: 'Рождение, зрелость, уход',
-      body: 'Урал — каменный пояс, граница миров. На этой станции — Ясна Жизни: 12 этапов человеческого пути от младенчества до прощания, без приукрашивания и без страха.',
-      duration: '8 минут',
-      format: 'Биография + квиз',
-      action: { label: 'Скоро', href: '', available: false }
-    },
-    {
-      id: 'baikal',
-      num: 7,
-      city: 'Байкал',
-      theme: 'Вода',
-      title: 'Ясна Круговорота воды',
-      subtitle: 'Капля, ручей, океан, облако',
-      body: 'Байкал — самое глубокое озеро мира. Здесь вода молчит и помнит. Ясна Круговорота воды показывает, как одно вещество проходит все полки — от ледника до пара и обратно.',
-      duration: '6 минут',
-      format: 'Природный цикл + квиз',
-      action: { label: 'Скоро', href: '', available: false }
-    },
-    {
-      id: 'vladivostok',
-      num: 8,
-      city: 'Владивосток',
-      theme: 'Горизонт',
-      title: 'Собери свою Ясну',
-      subtitle: 'Финал — выйди к океану',
-      body: 'Владивосток — край земли и начало океана. Здесь странник складывает всё узнанное в одну собственную Ясну: явление из своей жизни, разобранное по 12 полкам. Сохрани её и поделись.',
-      duration: '15 минут',
-      format: 'Конструктор + защита',
-      action: { label: 'Скоро', href: 'konstruktor.html?path=create', available: false }
-    }
-  ];
-
-  // ═══ ПРОГРЕСС ═══
-  const PROGRESS_KEY = 'yasna_course_progress';
-
-  function getProgress(){
-    try { return JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}'); }
-    catch(_){ return {}; }
-  }
-  function setStationDone(id){
-    if(!document.getElementById('learnPath')) return;   /* курс снят с экрана */
-    const p = getProgress();
-    p[id] = { done: true, ts: Date.now() };
-    try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)); } catch(_){}
-    renderAll();
-  }
-
-  // Станция засчитывается по РЕАЛЬНОМУ завершению урока в конструкторе,
-  // а не по клику. Конструктор пишет id пройденных уроков в этот ключ.
-  const LESSON_OF = { moscow: 'l1_intro' };
-  function syncFromLessons(){
-    if(!document.getElementById('learnPath')) return;   /* курс снят с экрана */
-    let completed = [];
-    try { completed = JSON.parse(localStorage.getItem('yasna_completed_lessons_v1')) || []; }
-    catch(_){ completed = []; }
-    if(!Array.isArray(completed) || !completed.length) return;
-    const p = getProgress();
-    let changed = false;
-    Object.keys(LESSON_OF).forEach(function(stationId){
-      if(completed.indexOf(LESSON_OF[stationId]) !== -1 && !(p[stationId] && p[stationId].done)){
-        p[stationId] = { done: true, ts: Date.now() };
-        changed = true;
-      }
-    });
-    if(changed){ try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)); } catch(_){} }
-  }
-
-  // Станции объявляют себя в черновике каталога доступов. Это НЕ права
-  // (declare ничего не закрывает — см. core/access.js): черновик нужен
-  // админке, чтобы собрать каталог одной кнопкой. status из action.available:
-  // ненаписанную главу открыть невозможно по конструкции — это wip.
-  try {
-    if (window.YasnaAccess && window.YasnaAccess.declare) {
-      window.YasnaAccess.declare(STATIONS.map(function(s){
-        return {
-          feature: 'course:stop:' + s.id,
-          area: 'course',
-          parent: 'section:learn',
-          title: s.city + ' — ' + s.title,
-          kind: 'lesson',
-          defaultAccess: 'open',
-          status: (s.action && s.action.available) ? 'live' : 'wip',
-          declaredAt: 'learn.html'
-        };
-      }));
-    }
-  } catch(_){}
-
-  // ═══ СТАТУС СТАНЦИИ ═══
-  // 1) Всё пройденное → done
-  // 2) Первая непройденная → active
-  // 3) Остальные → locked
-  function getStatus(idx){
-    const p = getProgress();
-    const station = STATIONS[idx];
-    if(p[station.id] && p[station.id].done) return 'done';
-    // активна если все предыдущие пройдены (или это первая)
-    for(let i = 0; i < idx; i++){
-      if(!p[STATIONS[i].id] || !p[STATIONS[i].id].done) return 'locked';
-    }
-    return 'active';
-  }
-
-  function findActiveIdx(){
-    for(let i = 0; i < STATIONS.length; i++){
-      if(getStatus(i) === 'active') return i;
-    }
-    // всё пройдено — последняя как «следующая»
-    return STATIONS.length - 1;
-  }
-
-  // ═══ РЕНДЕР ПУТИ (timeline-список остановок) ═══
-  function renderPath(){
-    if(!document.getElementById('learnPath')) return;   /* курс снят с экрана */
-    const list = document.getElementById('learnPath');
-    if(!list) return;
-    const html = STATIONS.map((s, i) => {
-      const status = getStatus(i);
-      const cta = status === 'done' ? '✓' : (status === 'locked' ? '🔒' : '→');
-      return (
-        '<li class="l-stop" data-status="' + status + '" data-idx="' + i + '">' +
-          '<div class="l-stop-marker" aria-hidden="true">' +
-            '<div class="l-stop-marker__circle">' + s.num + '</div>' +
-          '</div>' +
-          '<button type="button" class="l-stop-card" tabindex="0" aria-label="Открыть остановку ' + s.num + ' — ' + s.city + '">' +
-            '<div class="l-stop-card-info">' +
-              '<div class="l-stop-card-eyebrow">' + (status === 'done' ? 'ПРОЙДЕНО' : (status === 'active' ? 'СЕЙЧАС' : 'ОСТАНОВКА ' + s.num)) + '</div>' +
-              '<h3 class="l-stop-card-city">' + s.city + ' <span class="l-stop-card-theme">' + s.theme + '</span></h3>' +
-              '<p class="l-stop-card-desc">' + (s.subtitle || '') + '</p>' +
-              '<div class="l-stop-card-meta">' +
-                '<span><strong>' + s.duration + '</strong></span>' +
-                '<span>·</span>' +
-                '<span>' + s.format + '</span>' +
-              '</div>' +
-            '</div>' +
-            '<div class="l-stop-card-cta" aria-hidden="true">' + cta + '</div>' +
-          '</button>' +
-        '</li>'
-      );
-    }).join('');
-    list.innerHTML = html;
-
-    // Прогресс-нить — заполняем линию пропорционально пройденным
-    const p = getProgress();
-    const doneCount = STATIONS.filter(s => p[s.id] && p[s.id].done).length;
-    const pct = (doneCount / Math.max(1, STATIONS.length)) * 100;
-    list.style.setProperty('--progress', pct + '%');
-
-    // Привязываем клики (заново — innerHTML их сбрасывает)
-    list.querySelectorAll('.l-stop-card').forEach((card, i) => {
-      card.addEventListener('click', () => openStation(i));
-      card.addEventListener('keydown', (e) => {
-        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openStation(i); }
-      });
-    });
-  }
-
-  // ═══ РЕНДЕР АКТИВНОЙ ПАНЕЛИ ═══
-  function renderActive(){
-    if(!document.getElementById('learnPath')) return;   /* курс снят с экрана */
-    const idx = findActiveIdx();
-    const s = STATIONS[idx];
-    const status = getStatus(idx);
-    const isDoneAll = STATIONS.every((st, i) => getStatus(i) === 'done');
-
-    document.getElementById('activeEyebrow').textContent =
-      isDoneAll ? `Курс пройден целиком · 8 из 8` :
-      `${s.theme} · Остановка ${s.num} из 8`;
-    document.getElementById('activeTitle').textContent = s.city;
-    document.getElementById('activeDesc').textContent = s.body;
-
-    const cta = document.getElementById('activeCta');
-    const ctaLabel = document.getElementById('activeCtaLabel');
-    if(isDoneAll){
-      ctaLabel.textContent = 'Перепройти финал';
-      cta.disabled = false;
-    } else if(s.action.available){
-      ctaLabel.textContent = s.action.label;
-      cta.disabled = false;
-    } else {
-      ctaLabel.textContent = s.action.label;
-      cta.disabled = true;
-    }
-    cta.onclick = () => openStation(idx);
-  }
-
-  function renderProgress(){
-    if(!document.getElementById('learnPath')) return;   /* курс снят с экрана */
-    const p = getProgress();
-    const done = STATIONS.filter(s => p[s.id] && p[s.id].done).length;
-    const pct = (done / STATIONS.length) * 100;
-    document.getElementById('progressFill').style.width = pct + '%';
-    document.getElementById('progressCount').textContent = `${done} из ${STATIONS.length}`;
-  }
-
-  function renderAll(){
-    renderPath();
-    renderActive();
-    renderProgress();
-  }
-
-  // ═══ МОДАЛКА ═══
-  function openStation(idx){
-    if(!document.getElementById('learnPath')) return;   /* курс снят с экрана */
-    const s = STATIONS[idx];
-    const status = getStatus(idx);
-    document.getElementById('modalNum').textContent = s.num;
-    document.getElementById('modalEyebrow').textContent = `${s.theme.toUpperCase()} · ОСТАНОВКА ${s.num}`;
-    document.getElementById('modalTitle').textContent = s.city;
-    document.getElementById('modalSubtitle').textContent = s.title + ' — ' + s.subtitle;
-    document.getElementById('modalBody').textContent = s.body;
-    document.getElementById('modalDuration').textContent = s.duration;
-    document.getElementById('modalFormat').textContent = s.format;
-    document.getElementById('modalStatus').textContent =
-      status === 'done' ? 'Пройдена' :
-      status === 'active' ? 'Доступна' :
-      (s.action.available ? 'Заблокирована — пройди предыдущие' : 'Глава готовится');
-
-    const cta = document.getElementById('modalCta');
-    if(status === 'locked'){
-      cta.textContent = s.action.available ? 'Откроется после предыдущих' : 'Глава готовится';
-      cta.dataset.locked = '1';
-      cta.onclick = null;
-    } else if(s.action.available){
-      cta.textContent = status === 'done' ? 'Пройти заново →' : (s.action.label + ' →');
-      cta.dataset.locked = '';
-      cta.onclick = () => {
-        // Прогресс НЕ засчитываем по клику — только реальное завершение урока
-        // (см. syncFromLessons). Просто открываем главу в конструкторе.
-        if(s.action.href) window.location.href = s.action.href;
-      };
-    } else {
-      cta.textContent = 'Глава готовится';
-      cta.dataset.locked = '1';
-      cta.onclick = null;
-    }
-
-    document.getElementById('modalBg').dataset.open = '1';
-  }
-
-  function closeModal(){
-    if(!document.getElementById('learnPath')) return;   /* курс снят с экрана */
-    document.getElementById('modalBg').dataset.open = '';
-  }
-
-  /* Обработчики модалки остановки сняты вместе с самой модалкой: курс
-     «Путь по Руси» ушёл с экрана, и элементов больше нет — прежние
-     addEventListener падали с «Cannot read properties of null». */
-
-  // (DEBUG-параметры обработаны в начале IIFE — см. PROGRESS_KEY_FOR_RESET)
-
-  // ═══ INIT ═══
-  syncFromLessons();
-  renderAll();
+  // ═══ ЗАПУСК ═══
+  нарисоватьДерево();
 
 })();
 </script>

@@ -1002,7 +1002,9 @@ function SummaryBlockInline({block}){
         <div style={{fontSize:11,color:'rgba(255,255,255,.75)',textTransform:'uppercase',letterSpacing:1.2,fontWeight:700,marginBottom:12}}>Главное из этого урока</div>
         <div style={{fontSize:22,fontWeight:700,marginBottom:18,lineHeight:1.25,letterSpacing:'-0.3px'}}>{block.title}</div>
         <ul style={{listStyle:'none',padding:0,margin:0}}>
-          {(block.points||[]).map((p,i)=>(
+          {/* points или items: половина уроков написана через items, и их
+              итоговые пункты просто не выводились — 12 строк в трёх уроках. */}
+          {(block.points||block.items||[]).map((p,i)=>(
             <li key={i} style={{display:'flex',gap:12,marginBottom:12,fontSize:14,lineHeight:1.6,color:'rgba(255,255,255,.94)'}}>
               <span style={{flexShrink:0,marginTop:2,opacity:.9}}>—</span>
               <span>{p}</span>

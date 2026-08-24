@@ -124,7 +124,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
           {tr.map((idx,j)=><text key={j} x={pts[idx].x} y={pts[idx].y-nr-6} textAnchor="middle" fill={col} fontSize="12" fontWeight="800" opacity=".9" style={{pointerEvents:'none'}}>{['В','Б','П'][j]}</text>)}
         </g>;
       })}
-      {/* Three arcs: ФО→ЦИ→ХА→ШЭ→ФО */}
+      {/* Three arcs: ФО→ЦИ→ХА→ШЕ→ФО */}
       {af.includes('arcs')&&[[1,2,3,4,5],[5,6,7,8,9],[9,10,11,0,1]].map((arc,ai)=>{
         const cols=['#4090D8','#9060D0','#30A060'];const col=cols[ai];
         const d=arc.map((idx,j)=>{const p=pts[idx];return`${j===0?'M':'L'}${p.x},${p.y}`;}).join(' ');

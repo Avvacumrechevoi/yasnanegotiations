@@ -10,8 +10,10 @@
   var SECTIONS = [
     { sec:'constructor', label:'Конструктор', href:'konstruktor.html'  },
     { sec:'game',        label:'Игра',        href:'duel.html', badge:'NEW' },
-    { sec:'learn',       label:'Обучение',    href:'learn.html' },
-    { sec:'trainers',    label:'Тренажёры',   href:'trainers.html' }
+    /* «Уроки», а не «Обучение»: одно слово на одну вещь — так же названа
+       вкладка в приложении. Вторая витрина «Тренажёры» снята: она дублировала
+       карточки этого же экрана, и одна вещь звалась тремя словами. */
+    { sec:'learn',       label:'Уроки',       href:'learn.html' }
   ];
   var AVATAR_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.5-3.5 4.5-5 7-5s5.5 1.5 7 5"/></svg>';
 

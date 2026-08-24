@@ -40,6 +40,7 @@
     yasna_course_progress:      { scope: 'progress', json: true,  owner: 'learn.html',         about: 'прогресс по карте курса' },
     yasna_path_stats:           { scope: 'progress', json: true,  owner: 'index.html',         about: 'статистика пути' },
     yasna_learn_intro_done_v1:  { scope: 'progress', json: false, owner: 'learn.html',         about: 'вводный экран обучения пройден' },
+    yasna_znanie_v1:            { scope: 'progress', json: true,  owner: 'core/znanie.js',     about: 'что открывали и что досмотрели: уроки, разборы — общий след для дерева знаний' },
     yasna_visited:              { scope: 'progress', json: false, owner: 'index.html',         about: 'был ли первый визит' },
 
     // ── игровой прогресс ──
