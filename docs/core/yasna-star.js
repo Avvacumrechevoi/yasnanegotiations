@@ -339,8 +339,15 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
       {!overlay&&(starRotation?lpsRot:lps).map((pt,i)=>{const lOrig=p[i]||'';if(!lOrig)return null;let dy=5;if(!starRotation){if(i===0)dy=16;if(i===6)dy=-7;}
         // Trim incomplete trailing tokens (e.g. '("кита' or '(без свинст') — likely data-import artifacts
         let l=lOrig.replace(/\s*\([^)]*$/,'').replace(/\s*\/\s*$/,'').trim();
-        // Cap each line to fit the canvas
-        const maxLine=isMob?14:18;
+        /* Предел строки. На телефоне было 14 знаков, и это меряло знаки, а не
+           ширину: «Равноденствие», «Принципиальная», «Плановый отдел» —
+           ровно 13–14 знаков — вылезали за край экрана (замер по всем 44
+           яснам: 6–7 подписей обрезано на 360–412 px). 12 знаков держатся
+           внутри при любой из 44 раскладок. */
+        /* Боковым местам (2·3·4 и 8·9·10) подпись уходит по горизонтали от
+           края круга, и им остаётся меньше поля, чем верхним и нижним. */
+        const боковое=[2,3,4,8,9,10].includes(i);
+        const maxLine=isMob?(боковое?11:12):18;
         let parts=null;
         if(l.includes(' ')){const w=l.split(' ');const m=Math.ceil(w.length/2);parts=[w.slice(0,m).join(' '),w.slice(m).join(' ')];}
         else if(l.includes('-')&&l.length>10){const hi=l.indexOf('-');parts=[l.slice(0,hi+1),l.slice(hi+1)];}

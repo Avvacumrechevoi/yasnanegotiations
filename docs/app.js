@@ -974,6 +974,35 @@ function App(){
   // Прогресс уроков персистится между сессиями (раньше терялся при F5).
   const[completedLessons,setCompletedLessons]=useState(()=>{try{const s=JSON.parse(localStorage.getItem('yasna_completed_lessons_v1'));return Array.isArray(s)?s:[];}catch(_){return[];}});
   useEffect(()=>{try{localStorage.setItem('yasna_completed_lessons_v1',JSON.stringify(completedLessons));}catch(_){}},[completedLessons]);
+  /* Открыть КОНКРЕТНУЮ ясну по адресу: konstruktor.html?yasna=<id|имя>.
+     Раньше «Уроки» могли только показать окно выбора со списком и галочками —
+     человек нажимал «Готовые круги», видел незнакомое окно и не понимал, что
+     делать дальше. Теперь строка списка ведёт прямо на круг этой ясны. */
+  useEffect(()=>{
+    const открыть=()=>{
+      let ключ='';
+      try{
+        const q=new URLSearchParams(window.location.search);
+        ключ=q.get('yasna')||'';
+        if(!ключ){
+          const m=(location.hash||'').match(/^#yasna=(.+)$/);
+          if(m) ключ=decodeURIComponent(m[1]);
+        }
+      }catch(_){}
+      if(!ключ) return;
+      const норм=с=>String(с||'').trim().toLowerCase();
+      const свои=(()=>{try{const c=JSON.parse(localStorage.getItem('yasna_custom_v1'));return Array.isArray(c)?c:[];}catch(_){return[];}})();
+      const цель=[...(T||[]),...свои].find(t=>норм(t.id)===норм(ключ)||норм(t.n||t.name)===норм(ключ));
+      if(цель){
+        load(цель);
+        try{ history.replaceState(null,'',location.pathname); }catch(_){}
+      }
+    };
+    открыть();
+    window.addEventListener('hashchange',открыть);
+    return()=>window.removeEventListener('hashchange',открыть);
+  },[]);
+
   // Deep-link из курса/лендинга: index.html?lesson=<id|1> открывает урок.
   // Без этого «Начать главу» (learn.html) вело на пустую звезду.
   useEffect(()=>{

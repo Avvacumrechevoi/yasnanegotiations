@@ -15,7 +15,7 @@
 <!-- Дерево знаний: паспорта занятий и общий счёт пройденного. Обычные
      script-теги — на этой странице нет сборки и нет React. -->
 <script src="core/data.js?v=2f602398"></script>
-<script src="core/derevo-dannye.js?v=a959172b"></script>
+<script src="core/derevo-dannye.js?v=928fbba4"></script>
 <script src="core/znanie.js?v=3d6132aa"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
 <!-- Приложение: манифест, иконки и цвет строки состояния. Раньше манифест
@@ -188,6 +188,7 @@ a { color: inherit; text-decoration: none; }
 
 /* ─── Полотно ─── */
 .dr-polotno { margin-top: 22px; }
+.dr-otstup { height: 14px; }
 .dr-gruppa-zag { margin: 22px 0 8px; font-size: 12px; font-weight: 700;
   letter-spacing: 0.10em; text-transform: uppercase; color: var(--text-secondary);
   display: flex; align-items: baseline; gap: 8px; }
@@ -264,8 +265,12 @@ a { color: inherit; text-decoration: none; }
   border: 1.5px solid var(--border-strong); display: flex; align-items: center;
   justify-content: center; font-size: 14px; font-weight: 700; color: var(--text-secondary); }
 .dr-mesto--gorit .dr-mesto-nom { border-color: var(--accent); color: var(--accent-hover); }
-.dr-mesto-imya { flex: 1; min-width: 0; font-size: 15px; font-weight: 600; color: var(--text-primary); }
-.dr-mesto-skolko { font-size: 12.5px; color: var(--text-secondary); }
+.dr-mesto-tekst { flex: 1; min-width: 0; }
+.dr-mesto-imya { display: block; font-size: 15px; font-weight: 600; color: var(--text-primary);
+  text-transform: lowercase; }
+.dr-mesto-imya::first-letter { text-transform: uppercase; }
+.dr-mesto-skolko { display: block; margin-top: 2px; font-size: 12.5px; line-height: 1.35;
+  color: var(--text-secondary); }
 .dr-nashli { padding: 12px 0; border-bottom: 1px solid var(--border); display: block;
   text-decoration: none; color: inherit; }
 .dr-nashli-imya { display: block; font-size: 15px; font-weight: 600; color: var(--text-primary); }
@@ -820,11 +825,12 @@ html[data-theme='light'] {
 
   <div id="dr-prodolzhit"></div>
 
+  <!-- В чипах остаются только способы смотреть, а не содержание: «Словарь»,
+       «Готовые круги» и «Все 12 мест» стояли здесь наравне с ними и читались
+       как четыре равных раздела. Теперь они живут в дереве, каждый в своём
+       блоке. -->
   <div class="dr-chipy" id="dr-chipy">
     <button type="button" class="dr-chip" data-vsyo="1" id="dr-vsyo">Всё дерево</button>
-    <button type="button" class="dr-chip" data-mesta="1">Все 12 мест</button>
-    <a class="dr-chip" href="konstruktor.html#glossariy">Словарь</a>
-    <a class="dr-chip" href="konstruktor.html#biblioteka">Готовые круги</a>
   </div>
 
   <div class="dr-polotno" id="dr-polotno"></div>
@@ -835,11 +841,22 @@ html[data-theme='light'] {
      таблице, а в приложении её негде было увидеть. -->
 <div class="dr-list" id="dr-mesta" hidden>
   <div class="dr-list-shapka">
-    <h2 class="dr-list-zag">Все 12 мест</h2>
+    <h2 class="dr-list-zag">Двенадцать мест круга</h2>
     <button type="button" class="dr-list-x" id="dr-mesta-x" aria-label="Закрыть">×</button>
   </div>
-  <p class="dr-list-pod">Круг один и тот же во всех явлениях. Имена — по Ясне Суток; место загорается, когда вы разобрали его в двух явлениях и больше.</p>
+  <p class="dr-list-pod">У каждого места своя роль — она одна и та же в любом явлении. Место загорается, когда вы разобрали его в двух ясных и больше.</p>
   <div class="dr-list-telo" id="dr-mesta-telo"></div>
+</div>
+
+<!-- Все готовые ясны: строка ведёт прямо на круг этой ясны, а не в окно
+     выбора с галочками, из которого было непонятно, что делать. -->
+<div class="dr-list" id="dr-yasny" hidden>
+  <div class="dr-list-shapka">
+    <h2 class="dr-list-zag">Готовые ясны</h2>
+    <button type="button" class="dr-list-x" id="dr-yasny-x" aria-label="Закрыть">×</button>
+  </div>
+  <p class="dr-list-pod">Явления, уже разложенные по двенадцати местам. Нажмите — откроется круг этой ясны.</p>
+  <div class="dr-list-telo" id="dr-yasny-telo"></div>
 </div>
 
 <div class="dr-list" id="dr-poisk" hidden>
@@ -1075,6 +1092,18 @@ html[data-theme='light'] {
   }
 
   function ветвьHTML(в) {
+    /* Ветвь-лист: не раскрывается, а открывает лист поверх экрана
+       («Все готовые ясны»). Такой строке нечего показывать внутри. */
+    if (в.лист) {
+      return '<div class="dr-vetv"><button type="button" class="dr-vetv-knop" data-list="' + экр(в.лист) + '">' +
+        '<span class="dr-tochka dr-tochka--net" aria-hidden="true"></span>' +
+        '<span class="dr-vetv-tekst">' +
+          '<span class="dr-vetv-imya">' + экр(в.имя) + '</span>' +
+          '<span class="dr-vetv-pod">' + экр(в.подпись) + '</span>' +
+        '</span>' +
+        '<span class="dr-vetv-strelka" aria-hidden="true">›</span>' +
+      '</button></div>';
+    }
     var сч = З.поВетви(в);
     var класс = 'dr-tochka';
     if (!сч.всего) класс += ' dr-tochka--net';
@@ -1167,23 +1196,29 @@ html[data-theme='light'] {
     подписьСчёта();
     шапкаПродолжить();
 
+    /* Три блока, по одному правилу: учит методу — учит одному явлению —
+       источник, который не проходят. */
     var группы = [
-      { id: 'метод', заг: 'Как устроен круг' },
-      { id: 'явление', заг: 'Явления' },
-      { id: 'своё', заг: 'Своё' },
-      { id: 'источники', заг: 'Источники' }
+      { id: 'метод', заг: 'Метод Ясны' },
+      { id: 'ясна',  заг: 'Ясны' },
+      { id: 'прочее', заг: 'Прочие материалы' }
     ];
     var html = '';
     группы.forEach(function (г) {
       var ветви = Д.ВЕТВИ.filter(function (в) { return в.группа === г.id; });
       if (!ветви.length) return;
-      var хвост = г.id === 'явление'
-        ? '<span>' + ветви.length + ' разобрано · ещё ' + Д.ПИШЕТСЯ.length + ' пишется</span>' : '';
-      html += '<h2 class="dr-gruppa-zag">' + экр(г.заг) + хвост + '</h2>';
+      var разобрано = ветви.filter(function (в) { return в.узлы.length && !в.лист && в.ясна; }).length;
+      var хвост = г.id === 'ясна'
+        ? '<span>' + разобрано + ' разобрано · ещё ' + Д.ПИШЕТСЯ.length + ' пишется</span>' : '';
+      /* Заголовок блока ставим только там, где он что-то объединяет. У блоков
+         из одной строки имя и так написано в самой строке — «МЕТОД ЯСНЫ» над
+         строкой «Метод Ясны» читалось как заикание. */
+      if (ветви.length > 1) html += '<h2 class="dr-gruppa-zag">' + экр(г.заг) + хвост + '</h2>';
+      else html += '<div class="dr-otstup"></div>';
       html += '<div class="dr-stvol">';
       ветви.forEach(function (в) { html += ветвьHTML(в); });
       html += '</div>';
-      if (г.id === 'явление') {
+      if (г.id === 'ясна') {
         html += '<p class="dr-pishetsya">Пишется: ' + экр(Д.ПИШЕТСЯ.join(' · ')) +
           '. У автора эти занятия есть — записями и расшифровками; в приложении их пока нет.</p>';
       }
@@ -1197,12 +1232,17 @@ html[data-theme='light'] {
     });
   }
 
-  /* ─── Лист «Все 12 мест» ─── */
+  /* ─── Лист «Двенадцать мест круга» ───────────────────────────────────
+     Показываем РОЛЬ места (она одна во всех явлениях), а имя из Ясны Суток —
+     только примером. Раньше строки были подписаны именами суток, и лист
+     выглядел так, будто он про одну ясну. */
   function нарисоватьМеста() {
     var тело = document.getElementById('dr-mesta-telo');
     if (!тело) return;
-    var имена = (window.YasnaData && window.YasnaData.T || []).filter(function (т) { return т.id === 'суток'; })[0];
-    var подписи = имена ? имена.p : ['0','1','2','3','4','5','6','7','8','9','10','11'];
+    var Дан = window.YasnaData || {};
+    var роли = Дан.REF || [];
+    var сутки = (Дан.T || []).filter(function (т) { return т.id === 'суток'; })[0];
+    var подписи = сутки ? сутки.p : [];
     var html = '';
     for (var i = 0; i < 12; i++) {
       var узлы = Д.поМесту(i);
@@ -1219,10 +1259,14 @@ html[data-theme='light'] {
         : перенос >= 2 ? 'вы разбирали его в ' + перенос + ' явлениях'
         : перенос === 1 ? 'разобрано в одном явлении'
         : 'встречается в ' + узлы.length + ' занятиях';
+      var роль = (роли[i] && роли[i].f) ? роли[i].f.toLowerCase() : ('место ' + i);
+      var пример = подписи[i] ? 'в Сутках это «' + подписи[i] + '»' : '';
       html += '<button type="button" class="dr-mesto' + (перенос >= 2 ? ' dr-mesto--gorit' : '') + '" data-mesto="' + i + '">' +
         '<span class="dr-mesto-nom">' + i + '</span>' +
-        '<span class="dr-mesto-imya">' + экр(подписи[i] || ('Место ' + i)) + '</span>' +
-        '<span class="dr-mesto-skolko">' + подпись + '</span>' +
+        '<span class="dr-mesto-tekst">' +
+          '<span class="dr-mesto-imya">' + экр(роль) + '</span>' +
+          '<span class="dr-mesto-skolko">' + подпись + (пример ? ' · ' + экр(пример) : '') + '</span>' +
+        '</span>' +
       '</button>';
     }
     тело.innerHTML = html;
@@ -1240,6 +1284,55 @@ html[data-theme='light'] {
         '<div class="dr-pusto">Про это место у нас пока не записано.</div>') + '</div>');
       к.disabled = true;
     });
+  }
+
+  /* ─── Лист «Готовые ясны» ────────────────────────────────────────────
+     Строка ведёт прямо на круг этой ясны (konstruktor.html?yasna=<id>).
+     Раньше на её месте было внутреннее окно конструктора с галочками
+     закрепления: человек нажимал «Готовые круги» и оставался без понятного
+     следующего шага. */
+  function нарисоватьЯсны() {
+    var тело = document.getElementById('dr-yasny-telo');
+    if (!тело) return;
+    var Т = (window.YasnaData && window.YasnaData.T) || [];
+    var ветви = {};
+    Д.ВЕТВИ.forEach(function (в) { if (в.ясна) ветви[в.ясна] = в; });
+    var свои = [];
+    try { var c = JSON.parse(localStorage.getItem('yasna_custom_v1')); if (Array.isArray(c)) свои = c; } catch (e) {}
+
+    function строка(имя, id, подпись, свой) {
+      return '<a class="dr-nashli" href="konstruktor.html?yasna=' + encodeURIComponent(id) + '">' +
+        '<span class="dr-nashli-imya">' + экр(имя) + (свой ? ' <span class="dr-ist">своя</span>' : '') + '</span>' +
+        '<span class="dr-nashli-meta">' + экр(подпись) + '</span></a>';
+    }
+
+    var html = '';
+    if (свои.length) {
+      html += '<h3 class="dr-gruppa-zag">Мои ясны<span>' + свои.length + '</span></h3>';
+      свои.forEach(function (я) {
+        var заполнено = (я.p || []).filter(Boolean).length;
+        html += строка(я.name || 'без имени', я.id, 'собрано ' + заполнено + ' мест из 12', true);
+      });
+    }
+    /* Имена в data.js стоят в родительном падеже («Суток», «Года») — так их
+       пишет автор после слова «Ясна». В списке без этого слова они читались
+       обрывками, поэтому здесь возвращаем полную форму. */
+    function полное(имя) { return /^Ясна/i.test(имя) ? имя : 'Ясна ' + имя; }
+    var авторские = Т.filter(function (т) { return т.rubrik; });
+    var прочие = Т.filter(function (т) { return !т.rubrik; });
+    html += '<h3 class="dr-gruppa-zag">Из таблицы автора<span>' + авторские.length + '</span></h3>';
+    авторские.forEach(function (т) {
+      var в = ветви[т.id];
+      var что = [];
+      if (в) в.узлы.forEach(function (у) { if (!у.нет) что.push(у.жанр); });
+      что = [].filter.call([].concat.apply([], [[...new Set(что)]]), Boolean);
+      html += строка(полное(т.n), т.id, что.length ? 'есть ' + что.join(' · ') : 'только раскладка по местам');
+    });
+    if (прочие.length) {
+      html += '<h3 class="dr-gruppa-zag">Выведено приложением<span>' + прочие.length + '</span></h3>';
+      прочие.forEach(function (т) { html += строка(полное(т.n), т.id, 'у автора этого нет'); });
+    }
+    тело.innerHTML = html;
   }
 
   /* ─── Поиск по паспортам ─── */
@@ -1282,12 +1375,23 @@ html[data-theme='light'] {
       if (!раскрыть) window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    var чипМеста = document.querySelector('[data-mesta]');
-    if (чипМеста) чипМеста.addEventListener('click', function () {
-      нарисоватьМеста(); показать('dr-mesta', true);
+    /* Листы открываются из самого дерева: строка «Все готовые ясны» и узел
+       «Двенадцать мест круга». Отдельных чипов для них больше нет. */
+    var полотно = document.getElementById('dr-polotno');
+    if (полотно) полотно.addEventListener('click', function (e) {
+      var лист = e.target.closest && e.target.closest('[data-list]');
+      if (лист) {
+        e.preventDefault();
+        if (лист.dataset.list === 'yasny') { нарисоватьЯсны(); показать('dr-yasny', true); }
+        return;
+      }
+      var места = e.target.closest && e.target.closest('a[href="#mesta"]');
+      if (места) { e.preventDefault(); нарисоватьМеста(); показать('dr-mesta', true); }
     });
     var xМеста = document.getElementById('dr-mesta-x');
     if (xМеста) xМеста.addEventListener('click', function () { показать('dr-mesta', false); });
+    var xЯсн = document.getElementById('dr-yasny-x');
+    if (xЯсн) xЯсн.addEventListener('click', function () { показать('dr-yasny', false); });
 
     var лупа = document.getElementById('dr-lupa');
     if (лупа) лупа.addEventListener('click', function () {
@@ -1303,10 +1407,10 @@ html[data-theme='light'] {
     /* Escape и аппаратная «назад» закрывают лист, а не экран. */
     window.addEventListener('keydown', function (e) {
       if (e.key !== 'Escape') return;
-      показать('dr-mesta', false); показать('dr-poisk', false);
+      показать('dr-mesta', false); показать('dr-poisk', false); показать('dr-yasny', false);
     });
     window.addEventListener('yasna:назад', function (e) {
-      var открыт = ['dr-mesta', 'dr-poisk'].filter(function (id) {
+      var открыт = ['dr-mesta', 'dr-poisk', 'dr-yasny'].filter(function (id) {
         var э = document.getElementById(id); return э && !э.hidden;
       });
       if (!открыт.length) return;
