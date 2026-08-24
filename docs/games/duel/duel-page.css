@@ -3550,3 +3550,25 @@ html.yk-est .dp-cta-row { grid-template-columns: 1fr; gap: 8px; }
 .dp-znaki-esche { width: 100%; min-height: 44px; margin-top: 10px; border-radius: 12px;
   border: 1px solid var(--border-1, rgba(0,0,0,.10)); background: transparent; cursor: pointer;
   font-family: inherit; font-size: 13.5px; font-weight: 600; color: var(--text-2, #6e6e73); }
+
+/* Уход сцены превью: смена формата должна быть переходом, а не рывком */
+.pq-ekran { transition: opacity .5s ease, transform .5s ease; }
+.pq-ekran--uhodit { opacity: 0; transform: translateY(-6px); }
+@keyframes pqVhodM { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: none } }
+.pq-ekran { animation: pqVhodM .5s ease-out; }
+.pq-otvet { transition: background .45s ease, border-color .45s ease, color .45s ease, opacity .45s ease; }
+.pq-para-nit, .pq-para-l, .pq-para-r { transition: background .45s ease, border-color .45s ease, color .45s ease; }
+
+/* Подпись справа в шапке карточки: «за неделю» */
+.dp-card-h-sub { margin-left: 8px; font-size: 12px; font-weight: 500;
+  color: var(--text-3, #8A95A3); white-space: nowrap; }
+
+/* Раскрытие знака: что значит и как получить */
+.dp-znak-stroka { width: 100%; text-align: left; background: none; border: 0;
+  border-bottom: 1px solid var(--border-1, rgba(0,0,0,.06)); font-family: inherit; cursor: pointer; }
+.dp-znak-stroka.raskryt { background: var(--bg-tonal, rgba(0,0,0,.03)); border-radius: 12px; }
+.dp-znak-tolk { display: block; margin-top: 8px; padding-top: 8px;
+  border-top: 1px dashed var(--border-1, rgba(0,0,0,.12)); }
+.dp-znak-tolk-t { display: block; font-size: 12.5px; line-height: 1.45; color: var(--text-2, #6e6e73); }
+.dp-znak-tolk-k { display: block; margin-top: 4px; font-size: 12.5px; line-height: 1.45;
+  color: var(--text-3, #8A95A3); }

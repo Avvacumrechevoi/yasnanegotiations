@@ -229,8 +229,8 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
         // На приветственном экране (первый визит) этих секций нет — без условия
         // ссылки были бы «мёртвыми» (клик ничего не делает). Показываем их только
         // когда отрисован главный экран (вернувшийся игрок / после онбординга).
-        !isFirstTime && React.createElement('a', { href: '#hronika', onClick: onAnchorClick('hronika') }, 'Топ недели'),
-        !isFirstTime && React.createElement('a', { href: '#zhurnal', onClick: onAnchorClick('zhurnal') }, 'Журнал'),
+        !isFirstTime && React.createElement('a', { href: '#hronika', onClick: onAnchorClick('hronika') }, 'Рейтинг'),
+        !isFirstTime && React.createElement('a', { href: '#zhurnal', onClick: onAnchorClick('zhurnal') }, 'История'),
         !isFirstTime && React.createElement('a', { href: '#znaki', onClick: onAnchorClick('znaki') }, 'Достижения'),
         React.createElement('div', { className: 'dp-header-auth' },
           user
@@ -693,20 +693,25 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
       if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         setФаза(1); return;
       }
+      /* Медленно и без рывков: вопрос читается 2,4 с, ответ горит ещё 4 с,
+         потом сцена уходит плавно и только затем сменяется. Раньше цикл был
+         4,2 с целиком — глаз не успевал дочитать вопрос, а смена выглядела
+         рывком, потому что старая сцена исчезала мгновенно. */
       let живо = true;
-      const т1 = setTimeout(() => { if (живо) setФаза(1); }, 1500);
-      const т2 = setTimeout(() => {
+      const т1 = setTimeout(() => { if (живо) setФаза(1); }, 2400);
+      const т2 = setTimeout(() => { if (живо) setФаза(2); }, 6600);   /* уходит */
+      const т3 = setTimeout(() => {
         if (!живо) return;
         setФаза(0);
         setШаг(ш => (ш + 1) % сцены.length);
-      }, 4200);
-      return () => { живо = false; clearTimeout(т1); clearTimeout(т2); };
+      }, 7400);
+      return () => { живо = false; clearTimeout(т1); clearTimeout(т2); clearTimeout(т3); };
     }, [шаг, сцены.length]);
 
     if (сцены.length === 0) return null;
     const сцена = сцены[шаг];
     const q = сцена.q;
-    const ключ = сцена.вид + шаг + фаза;
+    const ключ = сцена.вид + шаг;   /* ключ не меняем на фазах — иначе сцена перерисовывается заново и мигает */
 
     const подпись = { выбор: 'выбрать ответ', данет: 'верно или нет', пары: 'соединить пары' }[сцена.вид];
 
@@ -716,18 +721,19 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
       тело = React.createElement('div', { className: 'pq-otvety' + (сцена.вид === 'данет' ? ' pq-otvety--dva' : '') },
         q.options.map((о, i) => React.createElement('div', {
           key: i,
-          className: 'pq-otvet' + (фаза && i === верный ? ' pq-otvet--verno' : '') +
-                     (фаза && i !== верный ? ' pq-otvet--mimo' : '')
+          className: 'pq-otvet' + (фаза >= 1 && i === верный ? ' pq-otvet--verno' : '') +
+                     (фаза >= 1 && i !== верный ? ' pq-otvet--mimo' : '')
         },
           короткий(о, 30),
-          фаза && i === верный ? React.createElement('span', { className: 'pq-galka' }, '✓') : null
+          фаза >= 1 && i === верный ? React.createElement('span', { className: 'pq-galka' }, '✓') : null
         ))
       );
     } else {
       const пары = (q.pairsLeft || []).slice(0, 3);
       const справа = (q.pairsRight || []).slice(0, 3);
       тело = React.createElement('div', { className: 'pq-pary' },
-        пары.map((л, i) => React.createElement('div', { key: i, className: 'pq-para' + (фаза ? ' pq-para--svyazana' : '') },
+        пары.map((л, i) => React.createElement('div', { key: i, className: 'pq-para' + (фаза >= 1 ? ' pq-para--svyazana' : ''),
+          style: { transitionDelay: (i * 260) + 'ms' } },
           React.createElement('span', { className: 'pq-para-l' }, короткий(л, 18)),
           React.createElement('span', { className: 'pq-para-nit' }),
           React.createElement('span', { className: 'pq-para-r' }, короткий(справа[i], 26))
@@ -742,7 +748,7 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
           сцены.map((_, i) => React.createElement('i', { key: i, className: i === шаг ? 'est' : '' }))
         )
       ),
-      React.createElement('div', { className: 'pq-ekran', key: ключ },
+      React.createElement('div', { className: 'pq-ekran' + (фаза === 2 ? ' pq-ekran--uhodit' : ''), key: ключ },
         React.createElement('div', { className: 'pq-vopros' }, короткий(q.text, 92)),
         тело
       )
@@ -941,7 +947,7 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
         type: 'button', className: 'dp-temy-knopka', onClick: () => setРаскрыто(в => !в),
         'aria-expanded': раскрыто ? 'true' : 'false'
       },
-        React.createElement('span', null, 'Освоение тем книги'),
+        React.createElement('span', null, 'Прогресс освоения тем'),
         React.createElement('span', { className: 'dp-temy-shevron' }, раскрыто ? '⌃' : '⌄')
       ),
       раскрыто && React.createElement('div', { className: 'dp-temy' },
@@ -983,7 +989,8 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
     return React.createElement('div', { className: 'dp-card', id: 'hronika' },
       React.createElement('div', { className: 'dp-card-h' },
         React.createElement('h3', null, IconScroll(), ' ',
-          Term('Топ недели', 'Лидерборд — кто заработал больше бусин за эту неделю. Обнуляется в субботу 23:59.')
+          Term('Рейтинг игроков', 'Кто заработал больше бусин за эту неделю. Обнуляется в субботу 23:59.'),
+          React.createElement('span', { className: 'dp-card-h-sub' }, 'за неделю')
         ),
         React.createElement('span', { className: 'dp-card-meta' }, 'Сб 23:59')
       ),
@@ -1040,6 +1047,7 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
     const Ach = _g('YasnaDuelAchievements');
     const Storage = _g('YasnaDuelStorage');
     const [всё, setВсё] = useState(false);
+    const [открыт, setОткрыт] = useState(null);   /* какой знак раскрыт */
     if(!Ach?.list) return null;
 
     const данные = Storage?.getOverallStats?.() || {};
@@ -1053,6 +1061,23 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
       .sort((x, y) => (y.цель ? y.сделано / y.цель : 0) - (x.цель ? x.сделано / x.цель : 0));
     const показать = всё ? взятые.concat(впереди) : взятые.concat(впереди).slice(0, 5);
 
+    /* Что знак значит — по семье условий. Достижения в данных описаны
+       условием («25 партий»), но не смыслом; человек спрашивает не «сколько»,
+       а «зачем». Собираем объяснение из id — данные не трогаем. */
+    function смысл(a){
+      const i = a.id || '';
+      if (/^first/.test(i)) return 'Первый шаг: знак ставится сразу, как только сыграна партия.';
+      if (/^matches/.test(i)) return 'За постоянство: сколько партий сыграно всего, побед не требуется.';
+      if (/^wins/.test(i)) return 'За результат: считаются только выигранные партии, с любым соперником.';
+      if (/^streak/.test(i)) return 'За серию: победы подряд, без единого поражения между ними.';
+      if (/^perfect|accuracy|precise/.test(i)) return 'За точность: партия без единой ошибки.';
+      if (/sprint|fast|speed/.test(i)) return 'За скорость: ответы быстрее обычного темпа.';
+      if (/shadow|bot/.test(i)) return 'За победу над Тенью — так зовут соперника-бота.';
+      if (/theme|tema/.test(i)) return 'За широту: вопросы разных тем книги.';
+      if (/daily|day/.test(i)) return 'За возвращения: играть в разные дни.';
+      return 'Знак за упорство в игре.';
+    }
+
     return React.createElement('div', { className: 'dp-card', id: 'znaki' },
       React.createElement('div', { className: 'dp-card-h' },
         React.createElement('h3', null, IconStar(), ' ',
@@ -1062,7 +1087,12 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
       ),
       React.createElement('div', { className: 'dp-znaki' },
         показать.map(({ a, взят, цель, сделано }) =>
-          React.createElement('div', { key: a.id, className: 'dp-znak-stroka' + (взят ? ' est' : '') },
+          React.createElement('button', {
+            key: a.id, type: 'button',
+            className: 'dp-znak-stroka' + (взят ? ' est' : '') + (открыт === a.id ? ' raskryt' : ''),
+            onClick: () => setОткрыт(т => (т === a.id ? null : a.id)),
+            'aria-expanded': открыт === a.id ? 'true' : 'false'
+          },
             React.createElement('span', { className: 'dp-znak-ikonka', 'aria-hidden': 'true' }, a.icon || '✦'),
             React.createElement('span', { className: 'dp-znak-telo' },
               React.createElement('span', { className: 'dp-znak-imya' }, a.title),
@@ -1070,6 +1100,14 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
                 взят ? 'получен' : (a.desc || '')),
               !взят && цель > 0 && React.createElement('span', { className: 'dp-znak-polosa' },
                 React.createElement('i', { style: { width: Math.min(100, Math.round(сделано / цель * 100)) + '%' } })
+              ),
+              открыт === a.id && React.createElement('span', { className: 'dp-znak-tolk' },
+                React.createElement('span', { className: 'dp-znak-tolk-t' }, смысл(a)),
+                React.createElement('span', { className: 'dp-znak-tolk-k' },
+                  взят ? 'Знак уже ваш.'
+                       : (цель > 0
+                          ? ('Как получить: ' + (a.desc || '') + '. Сейчас ' + Math.min(сделано, цель) + ' из ' + цель + '.')
+                          : ('Как получить: ' + (a.desc || ''))))
               )
             ),
             !взят && цель > 0 && React.createElement('span', { className: 'dp-znak-schet' },
@@ -1129,7 +1167,7 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
 
     return React.createElement('div', { className: 'dp-card', id: 'zhurnal' },
       React.createElement('div', { className: 'dp-card-h' },
-        React.createElement('h3', null, IconJournal(), ' ', Term('Журнал', 'История твоих последних партий — соперник, счёт, точность.')),
+        React.createElement('h3', null, IconJournal(), ' ', Term('История игры', 'Твои последние партии: соперник, счёт, точность.')),
         React.createElement('span', { className: 'dp-card-meta' }, matches.length > 0 ? matches.length + ' последних' : '')
       ),
       matches.length === 0
