@@ -2149,6 +2149,10 @@ a { color: inherit; }
   color: var(--accent-strong);
   margin-bottom: 2px;
 }
+/* Светлая тема красила заголовок в чистый акцент #0071e3 — 4.3:1 на белом,
+   ниже нормы. Тёмной темы правило не касается: там свой цвет. */
+body:not(.theme-vk-dark) .dp-sync-notice-title,
+body.theme-vk-dark.vk-light .dp-sync-notice-title { color: #0060c4; }
 .dp-sync-notice-text {
   font-size: 12px;
   line-height: 1.5;

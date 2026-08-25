@@ -32,7 +32,7 @@
   var ПУНКТЫ = [
     ['index.html', 'Главная',
       '<path d="M4 11.2 12 4l8 7.2M6 9.8V20h12V9.8"/>'],
-    ['duel.html', 'Игра',
+    ['duel.html', 'Игры',
       '<circle cx="12" cy="12" r="8.6"/><circle cx="12" cy="12" r="4.6"/><circle cx="12" cy="12" r="1.1" fill="currentColor"/>'],
     ['learn.html', 'Уроки',
       '<path d="M12 4 2.8 8.4 12 12.8l9.2-4.4zM6 10.6V16c0 1.4 2.7 3 6 3s6-1.6 6-3v-5.4"/>'],
@@ -195,7 +195,7 @@
      Помним ОТКУДА пришли (sessionStorage, живёт до закрытия приложения):
      метку ставит сам переход по ссылке, а переключение вкладок её стирает. */
   var КЛЮЧ_ОТКУДА = 'yasna_otkuda_v1';
-  var ИМЕНА = { 'index.html': 'Главная', 'duel.html': 'Игра', 'learn.html': 'Уроки',
+  var ИМЕНА = { 'index.html': 'Главная', 'duel.html': 'Игры', 'learn.html': 'Уроки',
                 'konstruktor.html': 'Разбор', 'profil.html': 'Профиль',
                 'rating.html': 'Рейтинг', 'negotiations.html': 'Переговоры',
                 };

@@ -78,9 +78,9 @@
 <link rel="stylesheet" href="vendor/fonts/shrifty.css">
 <style>
   :root{
-    --syn:#0071e3; --syn-t:#0B57C0;
+    --syn:#0071e3; --syn-glub:#0060c4; --syn-fon:#0071e3; --syn-t:#0B57C0;
     --fon:#f5f6f8; --kart:#ffffff;
-    --ink:#101418; --ink-2:#5c6570; --ink-3:#8b95a1;
+    --ink:#101418; --ink-2:#525b66; --ink-3:#5f6b78;
     --kayma:rgba(16,20,24,.08);
     --ik-fon:#eaf2fe;
     --cit-grad:#e3eefc;
@@ -91,21 +91,21 @@
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
       --fon:#101214; --kart:#1a1d21;
-      --ink:#e8ebee; --ink-2:#9aa3ad; --ink-3:#6d7681;
+      --ink:#e8ebee; --ink-2:#9aa3ad; --ink-3:#98a3b1;
       --kayma:rgba(232,235,238,.12);
       --ik-fon:#1f2b3d;
       --cit-grad:#182338;
-      --syn:#3d96f0;
+      --syn:#3d96f0; --syn-glub:#5ea8f5; --syn-fon:#1668cc;
     }
   }
   /* Явный выбор в Профиле (html[data-theme]) сильнее системного */
   :root[data-theme="dark"]{
       --fon:#101214; --kart:#1a1d21;
-      --ink:#e8ebee; --ink-2:#9aa3ad; --ink-3:#6d7681;
+      --ink:#e8ebee; --ink-2:#9aa3ad; --ink-3:#98a3b1;
       --kayma:rgba(232,235,238,.12);
       --ik-fon:#1f2b3d;
       --cit-grad:#182338;
-      --syn:#3d96f0;
+      --syn:#3d96f0; --syn-glub:#5ea8f5; --syn-fon:#1668cc;
     }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0}
@@ -196,7 +196,7 @@
     color:inherit;position:relative;overflow:hidden}
   .delo:active{filter:brightness(.96)}
   .delo .k{font:600 12px/1 Manrope,sans-serif;letter-spacing:.11em;
-    text-transform:uppercase;color:var(--syn)}
+    text-transform:uppercase;color:var(--syn-glub)}
   .delo .t{font:600 20px/1.25 Manrope,Inter,sans-serif;margin:7px 0 4px;
     padding-right:52px}
   .delo .o{font-size:13.5px;color:var(--ink-2);max-width:78%;line-height:1.45}
@@ -292,7 +292,7 @@
   .pr-chip{flex:0 0 auto;min-height:44px;padding:0 14px;border-radius:99px;
     border:1px solid var(--kayma);background:var(--kart);color:var(--ink-2);
     font:600 13px/1 Manrope,Inter,sans-serif;cursor:pointer}
-  .pr-chip.est{background:var(--syn);border-color:transparent;color:#fff}
+  .pr-chip.est{background:var(--syn-fon);border-color:transparent;color:#fff}
   @media (max-width:380px){
     .pr-chipy{gap:6px}
     .pr-chip{padding:0 11px;font-size:12.5px}
@@ -517,9 +517,9 @@
   <h2>Начать сейчас</h2>
 
   <a class="delo delo--glav" href="duel.html">
-    <span class="k">Игра</span>
-    <div class="t">Викторина по Ясне</div>
-    <div class="o">Играй один или с друзьями.</div>
+    <span class="k">Сыграть</span>
+    <div class="t">Игры по Ясне</div>
+    <div class="o">Один или с друзьями.</div>
     <div class="meta" id="igra-meta"></div>
     <span class="strelka" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>

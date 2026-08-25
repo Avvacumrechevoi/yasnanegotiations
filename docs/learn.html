@@ -195,6 +195,7 @@ a { color: inherit; text-decoration: none; }
   background: var(--bg-card); color: var(--text-primary); font-size: 14px; font-weight: 600;
   text-decoration: none; cursor: pointer; }
 .dr-chip:hover { border-color: var(--accent); color: var(--accent-hover); }
+.dr-chip-n { margin-left: 7px; font-size: 12px; font-weight: 700; color: var(--accent); }
 
 /* ─── Полотно ─── */
 .dr-polotno { margin-top: 22px; }
@@ -634,7 +635,7 @@ html.yk-est .l-intro-progress { top: 0; }
 /* ── Светлая тема (единый ключ; html[data-theme='light']) — переопределяем тёмные токены ── */
 html[data-theme='light'] {
   --bg-base:#F5F5F7; --bg-surface:#FFFFFF; --bg-elevated:#FFFFFF; --bg-card:#FFFFFF; --bg-tonal:#ECEEF1;
-  --text-primary:#0D1B2A; --text-secondary:#3D4852; --text-tertiary:#6E7781; --text-muted:#6E7781;
+  --text-primary:#0D1B2A; --text-secondary:#3D4852; --text-tertiary:#59626C; --text-muted:#59626C;
   --border:rgba(0,0,0,0.08); --border-strong:rgba(0,0,0,0.14);
   --accent:#0071E3; --accent-hover:#0058B8; --accent-soft:rgba(0,119,255,0.10); --accent-glow:rgba(0,119,255,0.22); --accent-on:#FFFFFF;
 }
@@ -863,15 +864,11 @@ html[data-theme='light'] {
        хочу», а не «как показать». Выбранный фильтр раскрывает ветви и
        оставляет в них только подходящее. -->
   <div class="dr-chipy" id="dr-chipy" role="tablist" aria-label="Что показать">
-    <!-- Четыре чипа, потому что ширины 361px: шесть выталкивали «Справку» и
-         «Не пройдено» за край без намёка на прокрутку. «Уроки» включают
-         разборы (разбор — тот же урок, только ведёт автор). Чип «Не пройдено»
-         снят: он раскрывал всё дерево разом и не пустел никогда — справка
-         «пройденной» не бывает. -->
-    <button type="button" class="dr-chip est" data-f="all">Всё</button>
-    <button type="button" class="dr-chip" data-f="урок">Уроки</button>
-    <button type="button" class="dr-chip" data-f="практика">Практика</button>
-    <button type="button" class="dr-chip" data-f="справка">Справка</button>
+    <!-- Чипы-фильтры сняты: «Уроки» раскрывал все двадцать ветвей разом —
+         почти каждый узел и есть урок, фильтр выглядел бессмысленным.
+         Вместо них два перехода со счётом: списки конкретных действий. -->
+    <button type="button" class="dr-chip" data-list="praktika">Практика<span class="dr-chip-n" id="chip-n-praktika"></span></button>
+    <button type="button" class="dr-chip" data-list="spravka">Справка<span class="dr-chip-n" id="chip-n-spravka"></span></button>
   </div>
 
   <div class="dr-polotno" id="dr-polotno"></div>
@@ -880,6 +877,26 @@ html[data-theme='light'] {
 <!-- Лист «Все 12 мест»: обратный срез по кругу — где про каждое место учат.
      Ради него дерево и строится: связь «место × явление» есть у автора в
      таблице, а в приложении её негде было увидеть. -->
+<!-- Практика: все круги и вопросы одним списком — то, где ход делает человек. -->
+<div class="dr-list" id="dr-praktika" hidden>
+  <div class="dr-list-shapka">
+    <h2 class="dr-list-zag">Практика</h2>
+    <button type="button" class="dr-list-x" data-x="dr-praktika" aria-label="Закрыть">×</button>
+  </div>
+  <p class="dr-list-pod">Разложить круг самому или проверить себя вопросами. Нажми — и сразу в дело.</p>
+  <div class="dr-list-telo" id="dr-praktika-telo"></div>
+</div>
+
+<!-- Справка: словарь, места круга, карточки ясен — всё, куда заглядывают. -->
+<div class="dr-list" id="dr-spravka" hidden>
+  <div class="dr-list-shapka">
+    <h2 class="dr-list-zag">Справка</h2>
+    <button type="button" class="dr-list-x" data-x="dr-spravka" aria-label="Закрыть">×</button>
+  </div>
+  <p class="dr-list-pod">Короткие вещи, куда заглядывают по ходу: словарь, места круга, карточки ясен.</p>
+  <div class="dr-list-telo" id="dr-spravka-telo"></div>
+</div>
+
 <div class="dr-list" id="dr-mesta" hidden>
   <div class="dr-list-shapka">
     <h2 class="dr-list-zag">Двенадцать мест круга</h2>
@@ -1442,6 +1459,44 @@ html[data-theme='light'] {
     });
   })();
 
+  /* Листы «Практика» и «Справка»: конкретные строки-переходы, сгруппированные
+     по явлениям. Раньше на их месте были чипы-фильтры, которые раскрывали
+     всё дерево разом — стена вместо смысла. */
+  function строкаДействия(у, ветвьИмя) {
+    var с = З.состояние(у);
+    var мета = [у.жанр, у.объём, (с.текст && с.код !== 'нет') ? с.текст : null]
+      .filter(Boolean).join(' · ');
+    return '<a class="dr-nashli" href="' + экр(у.адрес) + '" data-uzel="' + экр(у.id) + '">' +
+      '<span class="dr-nashli-imya">' + экр(у.имя) + '</span>' +
+      '<span class="dr-nashli-meta">' + экр(ветвьИмя + ' · ' + мета) + '</span></a>';
+  }
+  function нарисоватьДействия(телоId, жанры) {
+    var тело = document.getElementById(телоId);
+    if (!тело) return 0;
+    var html = '', всего = 0;
+    Д.ВЕТВИ.forEach(function (в) {
+      if (в.лист || !в.узлы) return;
+      var свои = в.узлы.filter(function (у) {
+        return !у.нет && у.адрес && жанры.indexOf(у.жанр) >= 0;
+      });
+      if (!свои.length) return;
+      html += '<h3 class="dr-gruppa-zag">' + экр(в.имя) + '<span>' + свои.length + '</span></h3>';
+      свои.forEach(function (у) { html += строкаДействия(у, в.имя); всего++; });
+    });
+    тело.innerHTML = html;
+    return всего;
+  }
+  function нарисоватьПрактику() {
+    var н = нарисоватьДействия('dr-praktika-telo', ['круг', 'вопросы', 'своё']);
+    var сч = document.getElementById('chip-n-praktika');
+    if (сч) сч.textContent = н || '';
+  }
+  function нарисоватьСправку() {
+    var н = нарисоватьДействия('dr-spravka-telo', ['справка', 'книга']);
+    var сч = document.getElementById('chip-n-spravka');
+    if (сч) сч.textContent = н || '';
+  }
+
   function нарисоватьЯсны() {
     var тело = document.getElementById('dr-yasny-telo');
     if (!тело) return;
@@ -1514,68 +1569,9 @@ html[data-theme='light'] {
       э.hidden = !показ;
       document.documentElement.style.overflow = показ ? 'hidden' : '';
     }
-    /* Фильтры. «Всё» — обычное дерево со свёрнутыми ветвями. Любой другой
-       фильтр раскрывает ветви и прячет всё, что под него не подходит; ветвь
-       без подходящих занятий уходит целиком. «Практика» — это круги и
-       вопросы: то, где ход делает человек. */
-    var ПОДХОДИТ = {
-      'урок':      function (у) { return у.жанр === 'урок' || у.жанр === 'разбор'; },
-      'практика':  function (у) { return у.жанр === 'круг' || у.жанр === 'вопросы' || у.жанр === 'своё'; },
-      'справка':   function (у) { return у.жанр === 'справка' || у.жанр === 'книга' || у.жанр === 'записи'; }
-    };
-    var фильтр = 'all';
-    function применитьФильтр() {
-      var чипы = document.querySelectorAll('.dr-chip[data-f]');
-      [].forEach.call(чипы, function (ч) { ч.classList.toggle('est', ч.dataset.f === фильтр); });
-      var проверка = ПОДХОДИТ[фильтр];
-      [].forEach.call(document.querySelectorAll('.dr-vetv'), function (в) {
-        var id = в.dataset.vetv;
-        var ветвь = null;
-        Д.ВЕТВИ.forEach(function (x) { if (x.id === id) ветвь = x; });
-        if (!проверка) {
-          /* «Всё» показывает всё, но НЕ трогает open: человек раскрыл ветвь
-             рукой — фильтр не вправе её захлопнуть. Сворачиваем только то,
-             что раскрыл сам фильтр. */
-          в.hidden = false;
-          if (в.dataset.filterOpened) { в.open = false; delete в.dataset.filterOpened; }
-          [].forEach.call(в.querySelectorAll('.dr-uzel'), function (у) {
-            /* Строки под нераскрытой складкой остаются скрытыми: «Всё»
-               возвращает обычный вид, а не вскрывает складки без кнопки. */
-            var м = у.dataset ? у.dataset.sklad : null;
-            у.hidden = !!(м && в.querySelector('.dr-skladka[data-skladka="' + м + '"]'));
-          });
-          return;
-        }
-        if (!ветвь || !ветвь.узлы) { в.hidden = true; return; }
-        var видно = 0;
-        [].forEach.call(в.querySelectorAll('[data-uzel], .dr-uzel'), function (узелЭл) {
-          var uid = узелЭл.dataset ? узелЭл.dataset.uzel : null;
-          var паспорт = null;
-          ветвь.узлы.forEach(function (у) { if (у.id === uid) паспорт = у; });
-          if (!паспорт) {                      /* строка без адреса — ищем по имени */
-            var имя = (узелЭл.querySelector('.dr-uzel-imya') || {}).textContent;
-            ветвь.узлы.forEach(function (у) { if (у.имя === имя) паспорт = у; });
-          }
-          var годится = paспортГодится(паспорт, проверка);
-          узелЭл.hidden = !годится;
-          if (годится) видно++;
-        });
-        в.hidden = видно === 0;
-        if (видно > 0 && !в.open) { в.open = true; в.dataset.filterOpened = '1'; }
-      });
-    }
-    function paспортГодится(паспорт, проверка) {
-      if (!паспорт) return false;
-      try { return !!проверка(паспорт); } catch (e) { return false; }
-    }
-    [].forEach.call(document.querySelectorAll('.dr-chip[data-f]'), function (ч) {
-      ч.addEventListener('click', function () {
-        фильтр = ч.dataset.f === фильтр ? 'all' : ч.dataset.f;
-        применитьФильтр();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-    });
-    window.__drФильтр = применитьФильтр;
+    /* Чипы-фильтры заменены листами «Практика» и «Справка» — см. ниже.
+       Старый фильтр раскрывал все ветви разом и выглядел бессмысленным. */
+    window.__drФильтр = function(){};
 
     /* Складки «Пройдено N · показать» / «Ещё N». Делегирование на документ:
        дерево перерисовывается целиком, вешать слушателей на каждую кнопку —
@@ -1594,14 +1590,17 @@ html[data-theme='light'] {
 
     /* Листы открываются из самого дерева: строка «Все готовые ясны» и узел
        «Двенадцать мест круга». Отдельных чипов для них больше нет. */
-    var полотно = document.getElementById('dr-polotno');
-    if (полотно) полотно.addEventListener('click', function (e) {
+    document.addEventListener('click', function (e) {
       var лист = e.target.closest && e.target.closest('[data-list]');
       if (лист) {
         e.preventDefault();
         if (лист.dataset.list === 'yasny') { нарисоватьЯсны(); показать('dr-yasny', true); }
+        if (лист.dataset.list === 'praktika') { нарисоватьПрактику(); показать('dr-praktika', true); }
+        if (лист.dataset.list === 'spravka') { нарисоватьСправку(); показать('dr-spravka', true); }
         return;
       }
+      var кнX = e.target.closest && e.target.closest('[data-x]');
+      if (кнX) { показать(кнX.dataset.x, false); return; }
       var места = e.target.closest && e.target.closest('a[href="#mesta"]');
       if (места) { e.preventDefault(); нарисоватьМеста(); показать('dr-mesta', true); }
     });
@@ -1625,6 +1624,7 @@ html[data-theme='light'] {
     window.addEventListener('keydown', function (e) {
       if (e.key !== 'Escape') return;
       показать('dr-mesta', false); показать('dr-poisk', false); показать('dr-yasny', false);
+      показать('dr-praktika', false); показать('dr-spravka', false);
     });
     window.addEventListener('yasna:назад', function (e) {
       var открыт = ['dr-mesta', 'dr-poisk', 'dr-yasny'].filter(function (id) {
@@ -1676,6 +1676,8 @@ html[data-theme='light'] {
 
   // ═══ ЗАПУСК ═══
   нарисоватьДерево();
+  нарисоватьПрактику();   /* счётчики на чипах */
+  нарисоватьСправку();
 
 })();
 </script>

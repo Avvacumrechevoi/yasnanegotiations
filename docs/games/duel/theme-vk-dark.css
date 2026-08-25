@@ -2298,3 +2298,19 @@ body.theme-vk-dark .dp-hero-progress { height: 6px; }
 /* Корень страницы: до применения body.theme-vk-dark html оставался кремовым
    (#F7F4EE из duel-page.css) — светлая рамка мигала за краями в тёмной теме. */
 html[data-theme="dark"] { background: #212121; }
+
+
+/* ── Контраст (25.08.2026): белый текст лежал на чистом акценте #0077FF —
+   4.13:1, ниже нормы для мелкого кегля. Заливки плашек и кнопок чуть
+   глубже; сам акцент дизайн-системы не тронут. Синие подписи на тёмном
+   фоне, наоборот, светлеют. */
+body.theme-vk-dark:not(.vk-light) .dp-cta,
+body.theme-vk-dark:not(.vk-light) .dp-sync-notice-cta,
+body.theme-vk-dark:not(.vk-light) .dp-hero-rank-pill,
+body.theme-vk-dark:not(.vk-light) .dp-game-eyebrow {
+  background: #0a63cf;
+}
+body.theme-vk-dark:not(.vk-light) .dp-sync-notice-title,
+body.theme-vk-dark:not(.vk-light) .dp-tema-metka {
+  color: #4da3ff;
+}

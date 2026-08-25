@@ -213,7 +213,7 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
       // Свитчер разделов (Вариант B) — «Игра» активна.
       React.createElement('nav', { className: 'ynav-links dp-switch', style: { flex: '0 1 auto' }, 'aria-label': 'Разделы' },
         React.createElement('a', { className: 'ynav-item', href: 'konstruktor.html' }, 'Конструктор'),
-        React.createElement('a', { className: 'ynav-item is-active', href: 'duel.html' }, 'Игра', React.createElement('span', { className: 'ynav-new' }, 'NEW')),
+        React.createElement('a', { className: 'ynav-item is-active', href: 'duel.html' }, 'Игры', React.createElement('span', { className: 'ynav-new' }, 'NEW')),
         React.createElement('a', { className: 'ynav-item', href: 'learn.html' }, 'Обучение'),
         React.createElement('a', { className: 'ynav-item', href: 'negotiations.html' }, 'Разговор')
         // «Рейтинг» убран из свитчера: канонический набор разделов — четыре
