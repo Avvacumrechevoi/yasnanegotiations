@@ -40,7 +40,7 @@ window.YasnaLessons.lessons.push(
     id:'rs6',
     order:1,
     format:'scroll',
-    module:'Голова',
+    module:'Человек',
     moduleOrder:1,
     title:'Голова в профиль: двенадцать мест',
     subtitle:'От шеи вверх по лицу и вниз по затылку — и каждое место автор сверяет с тем, что уже разложено',

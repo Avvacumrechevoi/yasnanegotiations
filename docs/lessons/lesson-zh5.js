@@ -32,7 +32,7 @@ window.YasnaLessons.lessons.push(
     id:'zh5',
     order:5,
     format:'scroll',
-    module:'Хозяйственный двор',
+    module:'Двор',
     moduleOrder:5,
     title:'Каждое место спорит с тем, что напротив',
     subtitle:'Круг двора дописан — и оказывается, что место и то, что стоит против него, всегда оборотни друг друга',

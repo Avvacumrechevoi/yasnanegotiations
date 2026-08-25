@@ -24,7 +24,7 @@ window.YasnaLessons.lessons.push(
     id:'zh4',
     order:4,
     format:'scroll',
-    module:'Хозяйственный двор',
+    module:'Двор',
     moduleOrder:4,
     title:'У каждого животного своё ремесло',
     subtitle:'Кузня, мастерская, амбар, веранда, баня — постройки встают на места животных',

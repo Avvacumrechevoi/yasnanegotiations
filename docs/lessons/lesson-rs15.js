@@ -30,7 +30,7 @@ window.YasnaLessons.lessons.push(
     id:'rs15',
     order:1,
     format:'scroll',
-    module:'Сказка и стих',
+    module:'Слово',
     moduleOrder:1,
     title:'Колобок катится по созвездиям',
     subtitle:'Сказка, четыре числа и «Арион» Пушкина на одном круге',

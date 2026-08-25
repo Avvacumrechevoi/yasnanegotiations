@@ -12,7 +12,7 @@ window.YasnaLessons.lessons.push(
     id:'rs9',
     order:4,
     format:'scroll',
-    module:'Тело человека',
+    module:'Человек',
     moduleOrder:4,
     yasna:'линий_руки',
     title:'Рука: двенадцать линий и их имена',

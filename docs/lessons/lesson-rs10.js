@@ -10,7 +10,7 @@ window.YasnaLessons.lessons.push(
     id:'rs10',
     order:5,
     format:'scroll',
-    module:'Тело человека',
+    module:'Человек',
     moduleOrder:5,
     title:'Ясна монеты: цену показывали на руке',
     subtitle:'Каждой монете — своя линия, от ногтя до плеча',

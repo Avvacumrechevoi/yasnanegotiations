@@ -42,7 +42,7 @@ window.YasnaLessons.lessons.push(
     id:'rs16',
     order:1,
     format:'scroll',
-    module:'Пословицы-апостолы',
+    module:'Слово',
     moduleOrder:1,
     title:'Пословица из двенадцати слов',
     subtitle:'Про верблюда и игольное ушко — двенадцать слов на двенадцати местах',

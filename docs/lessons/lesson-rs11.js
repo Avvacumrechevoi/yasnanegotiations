@@ -35,7 +35,7 @@ window.YasnaLessons.lessons.push(
     id:'rs11',
     order:6,
     format:'scroll',
-    module:'Тело человека',
+    module:'Человек',
     moduleOrder:6,
     title:'Ясна лица',
     subtitle:'Двенадцать линий от складки на лбу до края губы',

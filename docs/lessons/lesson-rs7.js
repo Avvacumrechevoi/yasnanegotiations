@@ -9,7 +9,7 @@ window.YasnaLessons.lessons.push(
     id:'rs7',
     order:2,
     format:'scroll',
-    module:'Тело человека',
+    module:'Человек',
     moduleOrder:2,
     title:'Тело человека: двенадцать мест снаружи',
     subtitle:'От подошв до ягодиц — один из вариантов разложения тела',

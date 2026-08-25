@@ -16,7 +16,7 @@ window.YasnaLessons.lessons.push(
     id:'rs8',
     order:3,
     format:'scroll',
-    module:'Тело человека',
+    module:'Человек',
     moduleOrder:3,
     title:'Ясна кишечника начинается вне тела',
     subtitle:'Двенадцать мест пищеварения — от запаха до запаха',

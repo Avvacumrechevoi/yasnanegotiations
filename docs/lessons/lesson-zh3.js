@@ -20,7 +20,7 @@ window.YasnaLessons.lessons.push(
     id:'zh3',
     order:3,
     format:'scroll',
-    module:'Хозяйственный двор',
+    module:'Двор',
     moduleOrder:3,
     title:'Дальний край двора и из чего сложены ворота',
     subtitle:'Круг животных замыкается, и в нуле открывается устройство самих ворот',
