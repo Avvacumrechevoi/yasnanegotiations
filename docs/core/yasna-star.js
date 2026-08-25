@@ -353,8 +353,18 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
         else if(l.includes('-')&&l.length>10){const hi=l.indexOf('-');parts=[l.slice(0,hi+1),l.slice(hi+1)];}
         else if(l.includes('/')&&l.length>10){const si=l.indexOf('/');parts=[l.slice(0,si+1),l.slice(si+1).trim()];}
         else if(l.length>12){const m=Math.ceil(l.length/2);parts=[l.slice(0,m)+'-',l.slice(m)];}
-        if(parts){parts=parts.map(s=>s.length>maxLine?s.slice(0,maxLine-1).trimEnd()+'…':s);}
-        else if(l.length>maxLine)l=l.slice(0,maxLine-1).trimEnd()+'…';
+        /* «Утренняя З…» читалось обрубком. Строку длиннее предела теперь
+           спасает шрифт: до +40% сверх предела подпись сжимается, и только
+           совсем длинное режется многоточием. */
+        let сжатие=1;
+        const длиннейшая=parts?Math.max(parts[0].length,parts[1].length):l.length;
+        if(длиннейшая>maxLine){
+          if(длиннейшая<=Math.round(maxLine*1.4))сжатие=maxLine/длиннейшая;
+          else{
+            if(parts)parts=parts.map(s=>s.length>maxLine?s.slice(0,maxLine-1).trimEnd()+'…':s);
+            else l=l.slice(0,maxLine-1).trimEnd()+'…';
+          }
+        }
         // Во время вращения per-index offsets дают резкие скачки (они спроектированы
         // под статичный layout). Используем единый layout — middle anchor, без xOff,
         // базовый dy. Лейблы плавно орбитируют вместе с полками.
@@ -364,8 +374,9 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
         const anchEff = isRotating ? 'middle' : anch(i);
         /* Однострочные имена полок были 22 ед. = 9.7 px на телефоне (поле
            зрения сжимает рисунок вдвое). Порог читаемости 12 px даёт 28 ед. */
-        const fs=isMob?(sel===i?'32':'30'):(sel===i?'26':'24');
-        const fsW=isMob?(sel===i?'32':'30'):(sel===i?'26':'24');if(parts){return<text key={`l${i}`} x={pt.x+xOff} y={pt.y+dyEff-9} textAnchor={anchEff} fill={'var(--star-ink,#000)'} fontSize={fsW} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}><tspan x={pt.x+xOff} dy="0">{parts[0]}</tspan><tspan x={pt.x+xOff} dy={isMob?22:22}>{parts[1]}</tspan></text>;}
+        const базКегль=isMob?(sel===i?32:30):(sel===i?26:24);
+        const fs=String(Math.round(базКегль*сжатие));
+        const fsW=fs;if(parts){return<text key={`l${i}`} x={pt.x+xOff} y={pt.y+dyEff-9} textAnchor={anchEff} fill={'var(--star-ink,#000)'} fontSize={fsW} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}><tspan x={pt.x+xOff} dy="0">{parts[0]}</tspan><tspan x={pt.x+xOff} dy={isMob?22:22}>{parts[1]}</tspan></text>;}
         return<text key={`l${i}`} x={pt.x+xOff} y={pt.y+dyEff} textAnchor={anchEff} fill={'var(--star-ink,#000)'} fontSize={fs} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}>{l}</text>;})}
       {overlay&&<>
         {/* Outer orbit - more visible, solid thin line */}

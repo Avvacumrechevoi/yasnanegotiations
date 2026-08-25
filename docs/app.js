@@ -1140,6 +1140,15 @@ function App(){
   const togglePin=id=>setPinned(p=>p.includes(id)?p.filter(x=>x!==id):[...p,id]);
   const hl=useMemo(()=>{if(!af.length)return null;const all=new Set();af.forEach(id=>{const f=FL.find(x=>x.id===id);if(f?.p)f.p.forEach(x=>all.add(x));});return all.size?[...all]:null;},[af]);
   const pinnedTemplates=pinned.map(id=>T.find(t=>t.id===id)||customs.find(c=>c.id===id)).filter(Boolean);
+  /* Свои ясны без нетронутых копий встроенных: «Редактировать» молча
+     создаёт копию, и в списках появлялись две «Суток». Сравниваем полки,
+     схлопнув все пробелы и переносы — в каноне имена многострочные. */
+  const видимыеCustoms=useMemo(()=>customs.filter(c=>{
+    const канон=T.find(t=>t.n===(c.n||c.name));
+    if(!канон)return true;
+    const норм=м=>(м||[]).map(х=>String(х||'').replace(/\s+/g,' ').trim()).join('|');
+    return норм(c.p)!==норм(канон.p);
+  }),[customs]);
 
   useEffect(()=>{
     if(!y||!y.name) return;
@@ -1152,8 +1161,14 @@ function App(){
   },[y&&y.name]);
 
   const недавние = недавниеИмена
-    .map(имя => customs.find(c=>(c.n||c.name)===имя) || T.find(t=>t.n===имя))
-    .filter(Boolean);
+    /* Канон выигрывает у своей копии с тем же именем: случайная копия
+       «Суток» (кнопка «Редактировать» её создаёт молча) перехватывала
+       чип и открывалась вместо выверенной ясны. */
+    .map(имя => T.find(t=>t.n===имя) || customs.find(c=>(c.n||c.name)===имя))
+    .filter(Boolean)
+    /* Текущую ясну в чипах не повторяем — её имя уже стоит в плашке над
+       ними; дубль съедал место у действительно других ясен. */
+    .filter(t => (t.n||t.name) !== y.name);
   return(
     <div style={{background:'var(--bg)',height:'100vh',display:'flex',flexDirection:'column'}}>
       <div className='hdr' style={{display:'flex',alignItems:'center',padding:'10px 20px',background:'var(--bg2)',borderBottom:'1px solid rgba(0,0,0,.06)',flexShrink:0,minHeight:56}}>
@@ -1323,13 +1338,13 @@ function App(){
           <span className='raz-imya-shevron' aria-hidden='true'>▾</span>
         </button>
         {/* Ряд недавних: пять последних Ясн одним фликом вместо каталога-щели. */}
-        {недавние.length>1 && <div className='raz-nedavnie'>
+        {недавние.length>0 && <div className='raz-nedavnie'>
           {недавние.map(t=>{
             const тут=y.name===(t.n||t.name);
             return <button key={'n-'+(t.id||t.n)} className={'raz-chip'+(тут?' tut':'')}
               onClick={()=>{ if(!тут) load(t); }}>{t.n||t.name}</button>;
           })}
-          <button className='raz-chip raz-chip--vse' onClick={()=>{setПоиск('');setЛистЯсн(true)}}>Все {T.length+customs.length} ›</button>
+          <button className='raz-chip raz-chip--vse' onClick={()=>{setПоиск('');setЛистЯсн(true)}}>Все {T.length+видимыеCustoms.length} ›</button>
         </div>}
       </div>
       <div className='nav-tabs' style={{display:'flex',alignItems:'center',padding:'8px 0 8px 20px',background:'var(--bg2)',borderBottom:'1px solid #d2d2d7',flexShrink:0,position:'relative'}}>
@@ -1517,6 +1532,9 @@ function App(){
           onToggle: toggleAstroLayer,
           onClose: ()=>setAstroMode(false),
         })}
+        {/* Пустота под кругом в приложении: тихая подсказка, пока место
+            не выбрано. Исчезает при первом же тапе. */}
+        {sel==null && <div className='star-podskazka' aria-hidden='true'>Нажми на место круга — откроется его карточка</div>}
         <div className="star-svg-wrap" style={{width:'100%',height:'100%',maxWidth:'none',maxHeight:'none',flex:1}}>{(()=>{
           /* Если карточка свёрнута и кликнули по ТОЙ ЖЕ полке — раскрываем
              панель вместо снятия выделения. Это нужно мобильному, чтобы
@@ -1671,7 +1689,7 @@ function App(){
           «Все Ясны» тап лишь закреплял её в ленте, а открыть незакреплённую
           было нельзя вовсе — из 44 разборов 36 оставались недоступными. */}
       {листЯсн && (()=>{
-        const мои=customs.map(c=>({...c, n:c.n||c.name, свой:true}));
+        const мои=видимыеCustoms.map(c=>({...c, n:c.n||c.name, свой:true}));
         const все=[...мои, ...T];
         const q=поиск.trim().toLowerCase();
         const найдено=q?все.filter(t=>String(t.n||'').toLowerCase().includes(q)):все;
@@ -1684,16 +1702,16 @@ function App(){
               <button className='raz-list-x' onClick={()=>setЛистЯсн(false)} aria-label='Закрыть'>×</button>
             </div>
             <input className='raz-list-poisk' value={поиск} onChange={e=>setПоиск(e.target.value)}
-              placeholder='Найти по названию' inputMode='search' aria-label='Поиск Ясны'/>
+              placeholder='Найти по имени' inputMode='search' aria-label='Поиск Ясны'/>
             <div className='raz-list-telo'>
               <button className='raz-list-nov' onClick={()=>{setЛистЯсн(false);createNew();}}>＋ Новая Ясна</button>
-              {найдено.length===0 && <div className='raz-list-pusto'>Ничего не нашлось. Проверьте написание.</div>}
+              {найдено.length===0 && <div className='raz-list-pusto'>Ничего не нашлось. Проверь написание.</div>}
               {найдено.map((t,i)=>{
                 const текущая = y.name===(t.n||t.name);
                 return <button key={(t.id||t.n)+'-'+i} className={'raz-list-str'+(текущая?' tut':'')}
                   onClick={()=>{ if(!текущая) load(t); setЛистЯсн(false); }}>
                   <span className='raz-list-imya'>{t.n||t.name}</span>
-                  <span className='raz-list-meta'>{t.свой?'ваша':(t.verified?'проверена':'из материалов')}</span>
+                  <span className='raz-list-meta'>{t.свой?'моя':(t.verified?'проверена':'из материалов')}</span>
                   {текущая && <span className='raz-list-tut'>сейчас</span>}
                 </button>;
               })}

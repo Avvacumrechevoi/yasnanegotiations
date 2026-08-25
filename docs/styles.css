@@ -926,7 +926,12 @@ html.yk-est .raz-imya-polosa{display:block;position:fixed;left:0;right:0;
    снизу — под док. Круг центрируется в коробке, поэтому оба отступа
    двигают его вниз; числа подобраны так, чтобы подписи не уходили ни под
    полосу, ни под наббар. */
-html.yk-est .star-area{padding:126px 12px calc(96px + var(--yk-snizu,0px)) !important}
+html.yk-est .star-area{padding:126px 12px calc(96px + var(--yk-snizu,0px)) !important;
+  /* Круг прижат к шапке: вертикальное центрирование оставляло над и под
+     ним пустоты по трети экрана. */
+  justify-content:flex-start !important;align-items:flex-start !important}
+html.yk-est .star-svg-wrap{flex:0 0 auto !important;height:auto !important}
+html.yk-est .star-svg-wrap>svg{height:auto !important}
 html.yk-est body:has(.raz-nedavnie) .star-area{padding-top:170px !important}
 html.yk-est .raz-imya{display:flex;align-items:center;gap:11px;width:100%;
   min-height:48px;padding:7px 12px;border-radius:14px;text-align:left;
@@ -1170,3 +1175,9 @@ body.theme-vk-dark{--na-akcente:#06131d;--sht-kayma:rgba(255,255,255,.22)}
   .sht-telo{flex:1 1 auto;height:auto}
   .sht-shapka{padding-top:14px}
 }
+
+/* Подсказка под кругом — только в приложении, где под звездой пусто. */
+.star-podskazka{display:none}
+html.yk-est .star-podskazka{display:block;position:absolute;left:24px;right:24px;
+  top:calc(126px + 86vw);text-align:center;font:400 13px/1.5 var(--sans);
+  color:var(--txt2,#8a94a0);pointer-events:none}
