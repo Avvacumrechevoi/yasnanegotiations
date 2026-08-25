@@ -15,8 +15,8 @@
 <!-- Дерево знаний: паспорта занятий и общий счёт пройденного. Обычные
      script-теги — на этой странице нет сборки и нет React. -->
 <script src="core/data.js?v=2f602398"></script>
-<script src="core/pasporta.js?v=6cc7e068"></script>
-<script src="core/derevo-dannye.js?v=719cc8b0"></script>
+<script src="core/pasporta.js?v=161fde46"></script>
+<script src="core/derevo-dannye.js?v=bbdb96ae"></script>
 <script src="core/znanie.js?v=1d3035e0"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
 <!-- Приложение: манифест, иконки и цвет строки состояния. Раньше манифест
@@ -39,10 +39,10 @@ if(m)location.replace('konstruktor.html#tour='+m[1]);})();
 </script>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <title>Обучение · Ясна</title>
-<meta name="description" content="Всё обучение методу Ясны в одном месте: знакомство, базовый курс, авторские разборы, тренировки и справочник."/>
+<meta name="description" content="Всё обучение методу Ясны в одном месте: знакомство, базовый курс, разборы, тренировки и справочник."/>
 <meta property="og:type" content="website"/>
 <meta property="og:title" content="Обучение методу Ясны"/>
-<meta property="og:description" content="Знакомство, базовый курс, авторские разборы, тренировки и справочник — всё обучение в одном месте."/>
+<meta property="og:description" content="Знакомство, базовый курс, разборы, тренировки и справочник — всё обучение в одном месте."/>
 <link rel="stylesheet" href="vendor/fonts/shrifty.css">
 
 <style>
@@ -717,7 +717,7 @@ html[data-theme='light'] {
       идут прямо в круге — подсказки появляются там, где вы работаете.
     </p>
     <p class="l-intro-msg">
-      А <strong>авторские разборы</strong> — это готовые круги: автор берёт печь,
+      А <strong>разборы</strong> — это готовые круги: берём печь,
       сутки, год или переговоры и раскладывает их на глазах. Смотреть можно в
       любом порядке, ничего не закрыто.
     </p>
@@ -1106,9 +1106,9 @@ html[data-theme='light'] {
   var Д = window.YasnaDerevo, З = window.YasnaZnanie;
 
   var ПОДПИСЬ_ИСТОЧНИКА = {
-    книга: 'книга автора',
-    занятие: 'занятие автора',
-    рубрикатор: 'таблица автора',
+    книга: 'из книги',
+    занятие: 'из занятия',
+    рубрикатор: 'из таблицы',
     чужая: 'чужая книга',
     наше: 'слова приложения'
   };
@@ -1126,7 +1126,8 @@ html[data-theme='light'] {
     var части = [];
     if (у.жанр) части.push(у.жанр);
     if (у.объём) части.push(у.объём);
-    части.push(ПОДПИСЬ_ИСТОЧНИКА[у.источник] || у.источник);
+    /* Подпись источника с экрана снята: урок — законченный продукт, а не
+       конспект со сноской. Поле «источник» остаётся в данных для своих. */
     if (сост && сост.текст && сост.код !== 'пройдено') части.push(сост.текст);
     return части.join(' · ');
   }
@@ -1348,7 +1349,7 @@ html[data-theme='light'] {
       html += '</div>';
       if (г.id === 'ясна') {
         html += '<p class="dr-pishetsya">Пишется: ' + экр(Д.ПИШЕТСЯ.join(' · ')) +
-          '. У автора эти занятия есть — записями и расшифровками; в приложении их пока нет.</p>';
+          '. Эти занятия существуют записями; в приложение они пока не разобраны.</p>';
       }
     });
     полотно.innerHTML = html;
@@ -1470,7 +1471,7 @@ html[data-theme='light'] {
     function полное(имя) { return /^Ясна/i.test(имя) ? имя : 'Ясна ' + имя; }
     var авторские = Т.filter(function (т) { return т.rubrik; });
     var прочие = Т.filter(function (т) { return !т.rubrik; });
-    html += '<h3 class="dr-gruppa-zag">Из таблицы автора<span>' + авторские.length + '</span></h3>';
+    html += '<h3 class="dr-gruppa-zag">Готовые круги<span>' + авторские.length + '</span></h3>';
     авторские.forEach(function (т) {
       var в = ветви[т.id];
       var что = [];
@@ -1480,7 +1481,7 @@ html[data-theme='light'] {
     });
     if (прочие.length) {
       html += '<h3 class="dr-gruppa-zag">Выведено приложением<span>' + прочие.length + '</span></h3>';
-      прочие.forEach(function (т) { html += строка(полное(т.n), т.id, 'у автора этого нет'); });
+      прочие.forEach(function (т) { html += строка(полное(т.n), т.id, 'выведенный круг'); });
     }
     тело.innerHTML = html;
   }

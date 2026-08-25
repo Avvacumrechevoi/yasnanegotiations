@@ -221,7 +221,7 @@ function Verification({y,vs,setVs,onClose}){
   const allCritDone=critChecks.every(c=>get(c.id)!==undefined);
   const allCritPassed=critChecks.every(c=>{const v=get(c.id);return v===true||v==='na';});
 
-  let status='Не начато',statusColor='#86868b',statusDesc='Начните с Шага 0 (Быстрая проверка) — 7 проверок ядра по правилам автора.';
+  let status='Не начато',statusColor='#86868b',statusDesc='Начните с Шага 0 (Быстрая проверка) — 7 проверок ядра по правилам метода.';
   if(expressDone&&expressPassed&&!allCritDone){
     status='Шаг 0 ✓ Быстрая проверка пройдена';statusColor='#0071e3';
     statusDesc='Быстрая проверка пройдена. Для глубокой — пройдите Шаги 1–4.';
@@ -449,7 +449,7 @@ function Verification({y,vs,setVs,onClose}){
 
         {tab==='krest'&&<>
           <div style={{fontSize:12,color:'var(--txt2,#6e6e73)',marginBottom:12,lineHeight:1.55,padding:'9px 12px',background:'#f0f5ff',borderRadius:8}}>
-            <b style={{color:'#0071e3'}}>Шаг 1. Опорный Крест</b> — авторский алгоритм построения Ясны (Ясна Года №11–16). Линия Горизонта × Линия Единения = 4 опоры (0/3/6/9).
+            <b style={{color:'#0071e3'}}>Шаг 1. Опорный Крест</b> — алгоритм построения Ясны (Ясна Года №11–16). Линия Горизонта × Линия Единения = 4 опоры (0/3/6/9).
           </div>
           <div style={{border:'1px solid #e5e5ea',borderRadius:10,padding:'4px 14px'}}>
             {krestChecks.map(c=><Check key={c.id} id={c.id} weight={c.w} q={c.q} info={c.info} hint={c.hint}/>)}
@@ -458,7 +458,7 @@ function Verification({y,vs,setVs,onClose}){
 
         {tab==='polki'&&<>
           <div style={{fontSize:12,color:'var(--txt2,#6e6e73)',marginBottom:12,lineHeight:1.55,padding:'9px 12px',background:'#f0f5ff',borderRadius:8}}>
-            <b style={{color:'#0071e3'}}>Шаг 2. 12 Полок</b> — ключевые определения автора из Ясны Суток, узел 2, пункты 88–97. Самая короткая формулировка во всех трёх книгах.
+            <b style={{color:'#0071e3'}}>Шаг 2. 12 Полок</b> — ключевые определения из Ясны Суток, узел 2, пункты 88–97. Самая короткая формулировка во всех трёх книгах.
           </div>
           <div style={{border:'1px solid #e5e5ea',borderRadius:10,padding:'4px 14px'}}>
             {polkiChecks.map(c=><Check key={c.id} id={c.id} weight={c.w} q={c.q} info={c.info} hint={c.hint}/>)}

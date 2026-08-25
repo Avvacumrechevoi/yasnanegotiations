@@ -1309,7 +1309,7 @@ function App(){
               const занято=(y.p||[]).filter(x=>x&&String(x).trim()).length;
               if(свои) return 'ваша Ясна · заполнено '+занято+' из 12';
               const шаблон=T.find(t=>t.n===y.name);
-              if(шаблон&&шаблон.verified) return 'проверена автором';
+              if(шаблон&&шаблон.verified) return 'выверенная ясна';
               return 'заполнено '+занято+' из 12';
             })()}</span>
           </span>
