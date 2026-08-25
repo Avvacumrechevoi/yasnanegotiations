@@ -711,6 +711,14 @@ function route(){
     if(!y||!/^\d+$/.test(sd||'')) return badLink();
     S.yasna=y; S.seed=parseInt(sd,10)|0; S.mode='link'; S.invited=true; return start();
   }
+  /* ?yasna=<id> — заход с «Уроков» и из финалов уроков: одиночная партия
+     по выбранному явлению со случайной раздачей. Раньше эту метку не читал
+     никто, и «Разложить Сутки» открывало экран выбора ясны. */
+  const прямо=u.get('yasna');
+  if(прямо){
+    const y=LIST.find(x=>x.id===прямо||x.id===decodeURIComponent(прямо));
+    if(y){ S.yasna=y; S.seed=(Math.random()*1e9)|0; S.mode='solo'; S.invited=false; return start(); }
+  }
   const pre=(location.hash||'').replace('#','');
   S.invited=false;
   if(pre==='solo'||pre==='duo'||pre==='link'){ S.mode=pre; S.preset=true; S.yasna=null; }
