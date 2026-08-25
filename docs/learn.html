@@ -249,6 +249,13 @@ a { color: inherit; text-decoration: none; }
 .dr-uzel--net .dr-uzel-imya { font-weight: 500; color: var(--text-secondary); }
 .dr-uzel-meta { display: block; margin-top: 2px; font-size: 12.5px; line-height: 1.4; color: var(--text-secondary); }
 .dr-uzel-o { display: block; margin-top: 3px; font-size: 12.5px; line-height: 1.4; color: var(--text-tertiary); }
+.dr-uzel--dalshe { background: var(--accent-soft, rgba(0,113,227,.07)); border-radius: 12px;
+  margin: 2px -8px; padding: 8px; }
+.dr-uzel--dalshe .dr-uzel-imya { color: var(--accent-hover, var(--accent)); }
+.dr-skladka { display: flex; align-items: center; width: 100%; min-height: 44px; padding: 4px 2px;
+  border: 0; background: none; font: 500 13px/1.3 inherit; font-family: inherit;
+  color: var(--text-secondary); cursor: pointer; text-align: left; }
+.dr-skladka:hover { color: var(--accent); }
 .dr-ist { font-size: 12px; color: var(--text-tertiary); }
 .dr-pishetsya { margin: 14px 0 0; padding: 12px 14px; border: 1px dashed var(--border-strong);
   border-radius: 14px; font-size: 12.5px; line-height: 1.5; color: var(--text-secondary); }
@@ -1089,32 +1096,97 @@ html[data-theme='light'] {
   }
 
   function метаУзла(у, сост) {
+    /* Постоянные слова не печатаются: «ещё не открывали» стояло на 33
+       строках из 35 и при полном каталоге повторилось бы полсотни раз.
+       Печатается только необычное состояние; обычное показывает знак. */
     var части = [];
     if (у.жанр) части.push(у.жанр);
     if (у.объём) части.push(у.объём);
-    if (сост && сост.текст) части.push(сост.текст);
-    else if (сост && сост.код === 'нет') части.push('ещё не открывали');
+    части.push(ПОДПИСЬ_ИСТОЧНИКА[у.источник] || у.источник);
+    if (сост && сост.текст && сост.код !== 'пройдено') части.push(сост.текст);
     return части.join(' · ');
   }
 
-  function узелHTML(у) {
+  function узелHTML(у, номер, дальше) {
     var с = З.состояние(у);
     var класс = 'dr-uzel';
     if (у.нет || !у.адрес) класс += ' dr-uzel--net';
     else if (с.код === 'пройдено' || с.код === 'держится') класс += ' dr-uzel--gotovo';
     else if (с.код === 'начато') класс += ' dr-uzel--nachato';
+    if (дальше) класс += ' dr-uzel--dalshe';
 
+    /* Номер — авторский порядок занятий внутри явления. Нумеруются только
+       уроки и разборы: справке и кругу порядковый номер ничего не даёт. */
+    var имя = (номер ? номер + ' · ' : '') + у.имя;
     var внутри =
       '<span class="dr-uzel-znak" aria-hidden="true"></span>' +
       '<span class="dr-uzel-tekst">' +
-        '<span class="dr-uzel-imya">' + экр(у.имя) + '</span>' +
+        '<span class="dr-uzel-imya">' + экр(имя) + '</span>' +
         '<span class="dr-uzel-meta">' + экр(метаУзла(у, с)) + '</span>' +
-        (у.о ? '<span class="dr-uzel-o">' + экр(у.о) + '</span>' : '') +
-        '<span class="dr-uzel-o dr-ist">' + экр(ПОДПИСЬ_ИСТОЧНИКА[у.источник] || у.источник) + '</span>' +
+        (дальше && у.о ? '<span class="dr-uzel-o">' + экр(у.о) + '</span>' : '') +
       '</span>';
 
     if (у.нет || !у.адрес) return '<div class="' + класс + '" data-uzel="' + экр(у.id) + '">' + внутри + '</div>';
     return '<a class="' + класс + '" href="' + экр(у.адрес) + '" data-uzel="' + экр(у.id) + '">' + внутри + '</a>';
+  }
+
+  /* Внутренность ветви. Правила показа, снятые с промеров:
+       • занятия нумеруются по порядку автора — раньше порядок был, но
+         его не было видно;
+       • «дальше» — первое непройденное занятие ветви: только у него
+         печатается описание и подсветка, это следующий шаг внутри явления;
+       • пройденные впереди «дальше» складываются в одну строку
+         «Пройдено N · показать» — раскрывается касанием;
+       • после «дальше» видно ещё два занятия, остальное — «Ещё N занятий».
+     Со складками ветвь на семь узлов занимает треть экрана вместо
+     полутора; порядок остаётся советом — складка не замок. */
+  function узлыВетвиHTML(в) {
+    var узлы = в.узлы || [];
+    var номера = {}, н = 0;
+    узлы.forEach(function (у) {
+      if (!у.нет && (у.жанр === 'урок' || у.жанр === 'разбор')) номера[у.id] = ++н;
+    });
+    var дальшеId = null;
+    узлы.some(function (у) {
+      if (у.нет || !у.адрес || !(у.жанр === 'урок' || у.жанр === 'разбор')) return false;
+      var к = З.состояние(у).код;
+      if (к !== 'пройдено' && к !== 'держится') { дальшеId = у.id; return true; }
+      return false;
+    });
+    /* Раскладываем по трём корзинам, не меняя порядка строк:
+         p — пройденные занятия до «дальше», e — занятия после «дальше»,
+         начиная с третьего. Скрытые остаются НА СВОЁМ МЕСТЕ (hidden),
+         кнопка-складка встаёт перед первым скрытым — иначе раскрытые
+         занятия выпрыгивали в конец ветви, после справки. */
+    var куски = [], скрыто = { p: 0, e: 0 }, кнопкаБыла = { p: false, e: false };
+    var дальшеБыл = false, послеДальше = 0;
+    узлы.forEach(function (у) {
+      var корзина = null;
+      if (у.id === дальшеId) дальшеБыл = true;
+      else if (!у.нет && (у.жанр === 'урок' || у.жанр === 'разбор')) {
+        var к = З.состояние(у).код;
+        if (!дальшеБыл && (к === 'пройдено' || к === 'держится')) корзина = 'p';
+        if (дальшеБыл && ++послеДальше > 2) корзина = 'e';
+      }
+      var html = узелHTML(у, номера[у.id], у.id === дальшеId);
+      if (корзина) {
+        скрыто[корзина]++;
+        if (!кнопкаБыла[корзина]) { куски.push({ метка: корзина }); кнопкаБыла[корзина] = true; }
+        куски.push({ h: html.replace(/^(<(?:a|div) )/, '$1hidden data-sklad="' + корзина + '" ') });
+      } else куски.push({ h: html });
+    });
+    var ИМЯ = { p: function (n) { return '✓ Пройдено ' + n + ' · показать'; },
+                e: function (n) { return 'Ещё ' + n + ' — показать'; } };
+    return куски.map(function (к) {
+      if (!к.метка) return к.h;
+      /* Одну строку прятать не за чем — кнопка длиннее самой строки. */
+      if (скрыто[к.метка] < 2) return '';
+      return '<button type="button" class="dr-skladka" data-skladka="' + к.метка + '">' +
+        экр(ИМЯ[к.метка](скрыто[к.метка])) + '</button>';
+    }).join('').replace(/hidden data-sklad="([pe])"/g, function (м, б) {
+      /* Если складка не встала (одна строка) — строка остаётся видимой. */
+      return скрыто[б] < 2 ? 'data-sklad="' + б + '"' : м;
+    }) + (в.подпись ? '<div class="dr-uzel-o" style="padding:2px 2px 10px">' + экр(в.подпись) + '</div>' : '');
   }
 
   function ветвьHTML(в) {
@@ -1176,10 +1248,7 @@ html[data-theme='light'] {
         '</span>' +
         '<span class="dr-vetv-strelka" aria-hidden="true">›</span>' +
       '</summary>' +
-      '<div class="dr-uzly">' +
-        в.узлы.map(узелHTML).join('') +
-        (в.подпись ? '<div class="dr-uzel-o" style="padding:2px 2px 10px">' + экр(в.подпись) + '</div>' : '') +
-      '</div>' +
+      '<div class="dr-uzly">' + узлыВетвиHTML(в) + '</div>' +
     '</details>';
   }
 
@@ -1445,6 +1514,21 @@ html[data-theme='light'] {
       });
     });
     window.__drФильтр = применитьФильтр;
+
+    /* Складки «Пройдено N · показать» / «Ещё N». Делегирование на документ:
+       дерево перерисовывается целиком, вешать слушателей на каждую кнопку —
+       терять их при каждой перерисовке. */
+    document.addEventListener('click', function (е) {
+      var кн = е.target.closest ? е.target.closest('.dr-skladka') : null;
+      if (!кн) return;
+      var ветвь = кн.closest('.dr-vetv');
+      var метка = кн.dataset.skladka;
+      if (ветвь && метка) {
+        [].forEach.call(ветвь.querySelectorAll('[data-sklad="' + метка + '"]'),
+          function (у) { у.hidden = false; });
+        кн.remove();
+      }
+    });
 
     /* Листы открываются из самого дерева: строка «Все готовые ясны» и узел
        «Двенадцать мест круга». Отдельных чипов для них больше нет. */
