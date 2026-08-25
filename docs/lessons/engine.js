@@ -1044,7 +1044,7 @@ function NextStepsBlockInline({block,onClose,onPickAnother,onRepeat,onOpenLesson
      «Уроки» (otkuda=uroki) — единственный экран с корректным возвратом. */
   const ИГРОВЫЕ=['суток','двора','двора_животных','дома','кухни','круговорота_воды','года',
     'дерева','печи','завода_предприятия','колокольни','театра','фаз_жизни','kostra','emotsiy','удочки'];
-  constпрактика=lesson&&lesson.yasna&&ИГРОВЫЕ.indexOf(lesson.yasna)>=0
+  const практика=lesson&&lesson.yasna&&ИГРОВЫЕ.indexOf(lesson.yasna)>=0
     ?'games/krug/index.html?yasna='+encodeURIComponent(lesson.yasna)+'&otkuda=uroki':null;
   return(
     <div style={{padding:'16px 24px 60px',maxWidth:680,margin:'0 auto'}}>
@@ -1094,6 +1094,136 @@ function NextStepsBlockInline({block,onClose,onPickAnother,onRepeat,onOpenLesson
             <button onClick={onRepeat} style={{fontSize:14,fontWeight:500,padding:'12px 24px',borderRadius:12,border:'none',background:'transparent',color:'#6E7781',cursor:'pointer',fontFamily:'inherit'}}>⟲ Пройти ещё раз</button>
           </>
         )}
+      </div>
+    </div>);
+}
+
+
+// ─── Общий пульс анимационных сцен ──────────────────────────────────
+// Каждая сцена раньше крутила бы свой setInterval без остановки. Один хук:
+// уважает prefers-reduced-motion (в спокойном режиме часов нет вовсе, шаги
+// листаются руками), встаёт на паузу за экраном и в скрытой вкладке,
+// на 120 Гц идёт по requestAnimationFrame ровно.
+function useШаги({стадий,мсНаСтадию}){
+  const[кадр,ставь]=useState({i:0,ts:0});
+  const[спок,ставьСпок]=useState(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(_){return false;}});
+  const[ручной,ставьРучной]=useState(0);
+  const узел=useRef(null),виден=useRef(true),t0=useRef(0),прошло=useRef(0);
+  useEffect(()=>{
+    let m;try{m=matchMedia('(prefers-reduced-motion: reduce)');}catch(_){return;}
+    const h=e=>ставьСпок(e.matches);
+    m.addEventListener?m.addEventListener('change',h):m.addListener(h);
+    return()=>{m.removeEventListener?m.removeEventListener('change',h):m.removeListener(h);};
+  },[]);
+  useEffect(()=>{
+    if(!узел.current||typeof IntersectionObserver==='undefined')return;
+    const o=new IntersectionObserver(([e])=>{виден.current=e.isIntersecting;},{threshold:.2});
+    o.observe(узел.current);return()=>o.disconnect();
+  },[]);
+  useEffect(()=>{
+    if(спок)return;
+    let id;const шаг=(t)=>{
+      if(!t0.current)t0.current=t;
+      if(виден.current&&!document.hidden){
+        прошло.current=(t-t0.current)%(стадий*мсНаСтадию);
+        ставь({i:Math.floor(прошло.current/мсНаСтадию),ts:(прошло.current%мсНаСтадию)/мсНаСтадию});
+      }else{t0.current=t-прошло.current;}
+      id=requestAnimationFrame(шаг);
+    };
+    id=requestAnimationFrame(шаг);return()=>cancelAnimationFrame(id);
+  },[спок,стадий,мсНаСтадию]);
+  if(спок)return{i:((ручной%стадий)+стадий)%стадий,ts:1,спок:true,узел,
+    вперёд:()=>ставьРучной(v=>v+1),назад:()=>ставьРучной(v=>v-1)};
+  return{i:кадр.i,ts:кадр.ts,спок:false,узел};
+}
+
+// ─── Круговорот воды: круг, развёрнутый в пейзаж ────────────────────
+// Горизонт сцены = линия 3–9 круга: слева вода поднимается, справа
+// спускается, и петля замыкается сама, без затемнения и перезапуска.
+// Подземная ветка (промокание → пустоты → коллекторы → ключ) идёт вторым,
+// приглушённым слоем под горизонтом — автор проговаривает её отдельно.
+function InlineWaterCycleBlock({block}){
+  const МС=1500,СТАДИЙ=12;
+  const ш=useШаги({стадий:СТАДИЙ,мсНаСтадию:МС});
+  const яснаВоды=useMemo(()=>{
+    try{return (Array.isArray(T)?T:Object.values(T)).find(y=>y.id==='круговорота_воды');}catch(_){return null;}
+  },[]);
+  // стадия k соответствует месту круга: 0-я стадия — место 3, дальше по кругу
+  const МЕСТО=[3,4,5,6,7,8,9,10,11,0,1,2];
+  const место=МЕСТО[ш.i];
+  const имя=яснаВоды&&яснаВоды.p&&яснаВоды.p[место]?String(яснаВоды.p[место]).replace(/\n/g,' '):'';
+  // п(k): 0 до стадии k, плавно 0→1 на стадии k, 1 после (до конца петли)
+  const п=k=>ш.i>k?1:(ш.i===k?ш.ts:0);
+  const вспышка=ш.i===4?(ш.ts<.15||( ш.ts>.3&&ш.ts<.45)?1:0):0;
+  const волна=Math.sin((ш.i+ш.ts)*2.4);
+  const цветТучи=ш.i>=4?'#7E8896':'#fff';
+  return(
+    <div ref={ш.узел} style={{padding:'8px 24px'}}>
+      <div style={{maxWidth:680,margin:'0 auto',background:'#fff',border:'1px solid #E5E5EA',borderRadius:16,overflow:'hidden'}}>
+        {block.title&&<div style={{padding:'16px 18px 0',fontSize:16,fontWeight:700,color:'#0D1B2A'}}>{block.title}</div>}
+        <svg viewBox="0 0 400 250" style={{display:'block',width:'100%'}} aria-label="Круговорот воды по кругу Ясны">
+          <rect width="400" height="150" fill="#F2F7FC"/>
+          <rect y="150" width="400" height="100" fill="#EFE7DC"/>
+          <path d="M0 150 H136 L150 250 H0 Z" fill="#BBD8EC"/>
+          <line x1="0" y1="150" x2="400" y2="150" stroke="#8FA3B5" strokeDasharray="3 4"/>
+          {/* 3 · поверхность: барашки */}
+          {[16,44,72,100].map((x,j)=>(
+            <path key={'b'+j} d={'M'+x+' 150 q6 '+(-4-волна*2)+' 12 0'} stroke="#2E86C1" strokeWidth="2" fill="none" opacity={.5+.5*п(0)}/>
+          ))}
+          {/* 4 · пар: столбик капель тает кверху */}
+          {[0,1,2,3,4].map(j=>(
+            <circle key={'p'+j} cx={38+j*11} cy={146-п(1)*(34+j*9)} r="3" fill="#9CC5E0" opacity={п(1)*(1-j*.16)}/>
+          ))}
+          {/* 5–7 · облако → караван → туча */}
+          <g transform={'translate('+(120+п(3)*120)+' 72)'} opacity={п(2)}>
+            <ellipse rx="26" ry="13" fill={цветТучи}/>
+            <ellipse cx="-18" cy="4" rx="15" ry="9" fill={цветТучи}/>
+            <ellipse cx="17" cy="5" rx="13" ry="8" fill={цветТучи}/>
+            <ellipse cx="-42" cy="6" rx="11" ry="7" fill={цветТучи} opacity={п(3)}/>
+            <ellipse cx="40" cy="7" rx="9" ry="6" fill={цветТучи} opacity={п(3)}/>
+          </g>
+          <path d="M262 62 l-8 16 h8 l-7 15" stroke="#F6C64A" strokeWidth="3" fill="none" opacity={вспышка}/>
+          {/* 8 · дождь: косые струи */}
+          {[0,1,2,3,4,5].map(j=>(
+            <line key={'d'+j} x1={226+j*13} y1={88+((ш.i+ш.ts)*37+j*17)%52} x2={222+j*13} y2={100+((ш.i+ш.ts)*37+j*17)%52}
+              stroke="#2E86C1" strokeWidth="2" opacity={п(5)*.8}/>
+          ))}
+          {/* 9 · касание: крыша и всплески */}
+          <path d="M236 150 L266 128 L296 150 Z" fill="#B5764A"/>
+          {[248,266,284].map((x,j)=>(
+            <path key={'v'+j} d={'M'+x+' '+(140-j*4)+' q3 -5 6 0'} stroke="#5BA3D0" strokeWidth="2" fill="none" opacity={п(6)}/>
+          ))}
+          {/* 10 · стекание по скату */}
+          <path d="M266 130 L294 150 L318 164" stroke="#5BA3D0" strokeWidth={2.5*п(7)} fill="none" opacity={п(7)}/>
+          {/* 11 · лужа + подземная пустота */}
+          <ellipse cx="330" cy="168" rx={26*п(8)} ry={5*п(8)} fill="#5BA3D0"/>
+          <ellipse cx="330" cy="214" rx={18*п(8)} ry={7*п(8)} fill="#7FA8C4" opacity=".4"/>
+          {/* 0 · грязь: поток влево */}
+          <path d={'M330 172 H'+(330-160*п(9))+' q-6 8 4 12 H330 Z'} fill="#8B6B4A" opacity={.85*п(9)}/>
+          {/* 1 · болото и ключ */}
+          <ellipse cx="150" cy="200" rx={34*п(10)} ry={9*п(10)} fill="#6E8B5A"/>
+          {[0,1,2].map(j=>(
+            <circle key={'k'+j} cx={144+j*6} cy={198-((ш.i+ш.ts)*23+j*7)%14} r="2" fill="#BBD8EC" opacity={п(10)}/>
+          ))}
+          {/* 2 · река назад в водоём */}
+          <path d="M148 196 C120 192, 100 180, 84 166" stroke="#2E86C1" strokeWidth={4*п(11)} fill="none" strokeDasharray="10 8" opacity={п(11)}/>
+          {/* подземная ветка приглушённо */}
+          <path d="M318 170 C300 205, 220 220, 160 204" stroke="#7FA8C4" strokeWidth="2" strokeDasharray="4 6" fill="none" opacity={.35*п(8)}/>
+        </svg>
+        <div style={{display:'flex',alignItems:'center',gap:10,padding:'10px 18px 16px'}}>
+          {ш.спок&&<button onClick={ш.назад} aria-label="Предыдущий шаг" style={{minWidth:44,minHeight:44,border:'1px solid #E5E5EA',borderRadius:10,background:'#fff',fontSize:16,cursor:'pointer'}}>‹</button>}
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:11,fontWeight:700,color:'#0071e3',letterSpacing:.6}}>МЕСТО {место}</div>
+            <div style={{fontSize:14.5,fontWeight:600,color:'#0D1B2A',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{имя||('стадия '+(ш.i+1))}</div>
+          </div>
+          <div style={{display:'flex',gap:3}} aria-hidden="true">
+            {МЕСТО.map((м,j)=>(
+              <span key={м} style={{width:6,height:6,borderRadius:3,background:j===ш.i?'#0071e3':'#D9DEE4'}}/>
+            ))}
+          </div>
+          {ш.спок&&<button onClick={ш.вперёд} aria-label="Следующий шаг" style={{minWidth:44,minHeight:44,border:'1px solid #E5E5EA',borderRadius:10,background:'#fff',fontSize:16,cursor:'pointer'}}>›</button>}
+        </div>
+        {block.caption&&<div style={{padding:'0 18px 16px',fontSize:12.5,color:'#6E7781',lineHeight:1.5}}>{block.caption}</div>}
       </div>
     </div>);
 }
@@ -1565,6 +1695,7 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
             case 'reflection': return wrap(<ReflectionBlock block={block} lessonId={lesson.id}/>);
             case 'final-quiz-inline': return wrap(<FinalQuizInlineBlock block={block} onComplete={()=>markBlockComplete(i)}/>);
             case 'sunrise-animation': return wrap(<InlineSunriseBlock block={block}/>);
+            case 'water-cycle-animation': return wrap(<InlineWaterCycleBlock block={block}/>);
             case 'three-shelves': return wrap(<InlineThreeShelvesBlock block={block} onComplete={()=>markBlockComplete(i)}/>);
             case 'carousel': return wrap(<InlineCarouselBlock block={block}/>);
             case 'bar-chart': return wrap(<InlineBarChartBlock block={block}/>);
