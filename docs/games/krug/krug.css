@@ -154,8 +154,9 @@ h2{font-size:19px;margin:0 0 4px;letter-spacing:-.2px}
 /* Занятая доля отвечает нейтрально, а не «ошибкой»: это не промах. */
 .wedge.zanyato{animation:kzan .6s ease-out}
 @keyframes kzan{0%{filter:brightness(1)}35%{filter:brightness(1.5)}100%{filter:brightness(1)}}
-/* Подсказка после промаха: пульс той доли, о которой говорит разбор. */
-.wedge.podskazka{animation:kpod 1.1s ease-in-out 2}
+/* Подсказка после промаха: пульс той доли, о которой говорит разбор.
+   Бесконечный: класс снимает place() при постановке, а не таймер. */
+.wedge.podskazka{animation:kpod 1.1s ease-in-out infinite}
 @keyframes kpod{0%,100%{filter:brightness(1)}50%{filter:brightness(1.75) drop-shadow(0 0 6px var(--k-gold))}}
 /* выравнивание по стороне круга: подпись «растёт» от кольца наружу */
 .nm-c{transform:translate(-50%,-50%);text-align:center}

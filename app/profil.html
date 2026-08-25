@@ -112,6 +112,8 @@
   .kod{font:700 21px/1.15 Manrope,Inter,sans-serif;letter-spacing:.16em;
     margin-top:4px;font-variant-numeric:tabular-nums}
   .kod-kn{width:auto;flex:0 0 auto;margin:0;min-height:44px;padding:0 14px}
+  /* Дизейбл виден глазом: пока код не опубликован, «Скопировать» спит. */
+  .kod-kn:disabled{opacity:.45;cursor:default}
   .kod-vvod{display:flex;gap:8px;margin-top:6px}
   .kod-vvod input{flex:1;min-width:0;text-transform:uppercase;letter-spacing:.14em}
   .kod-vvod input::placeholder{text-transform:none;letter-spacing:0;color:var(--ink-3)}
@@ -420,14 +422,25 @@
      всегда, чтобы человек видел, что счётчик существует. */
   (function(){
     function ч(к){ try{ return JSON.parse(localStorage.getItem(к)) }catch(e){ return null } }
+    /* Подпись склоняем вместе с числом: «1 урок», «2 урока», «5 уроков» —
+       застывшее «1 уроков» выглядит как поломка. */
+    function скл(n,ф){ n=Math.abs(n)%100; if(n>10&&n<20) return ф[2];
+      n=n%10; if(n===1) return ф[0]; if(n>1&&n<5) return ф[1]; return ф[2]; }
     var д=ч('yasna_duel_data')||{};
     var б=+(д.totalScore||0);
     var п=(д.totals&&(д.totals.played||д.totals.matches))||0;
-    var БАЗ=['l1_intro','b2_four_pillars','b3_two_lines','b4_line_names'];
+    /* Считаем ВСЕ пройденные уроки, а не только четыре базовых: маршрутов
+       уже больше, и счётчик должен расти вместе с человеком. */
     var у=ч('yasna_completed_lessons_v1');
-    var уроков=Array.isArray(у)?у.filter(function(и){return БАЗ.indexOf(и)>-1}).length:0;
-    var т={'ya-buseny':б,'ya-partiy':п,'ya-urokov':уроков};
-    Object.keys(т).forEach(function(ид){ var э=document.getElementById(ид); if(э) э.textContent=т[ид]; });
+    var уроков=Array.isArray(у)?у.filter(function(и,i){return у.indexOf(и)===i}).length:0;
+    var т={'ya-buseny':[б,['бусина','бусины','бусин']],
+           'ya-partiy':[п,['партия','партии','партий']],
+           'ya-urokov':[уроков,['урок','урока','уроков']]};
+    Object.keys(т).forEach(function(ид){
+      var э=document.getElementById(ид); if(!э) return;
+      э.textContent=т[ид][0];
+      var метка=э.nextElementSibling; if(метка) метка.textContent=скл(т[ид][0],т[ид][1]);
+    });
   })();
 
   /* Подсказки: раскрываются в потоке, одна за раз, закрываются повторным
@@ -636,7 +649,12 @@
     if(к==='это-я') return 'Это ваш собственный код.';
     if(к==='короткий-код') return 'Код — шесть знаков.';
     if(/PERMISSION_DENIED/i.test(к)) return 'ТИХО:Друзья скоро заработают — общая база для них ещё открывается.';
-    if(к==='время-вышло') return 'Нет связи. Попробуйте позже.';
+    /* Обрыв сети — не вина человека и не загадка «не получилось»: Firebase
+       говорит о нём словами network/offline/unavailable, а браузер — флагом
+       onLine. Называем причину прямо, чтобы было ясно, что делать. */
+    if(к==='время-вышло'
+      || /network|offline|unavailable|disconnect|timeout|failed to fetch/i.test(к)
+      || navigator.onLine===false) return 'Нет связи. Попробуйте позже.';
     return 'Не получилось. Попробуйте позже.';
   }
 
@@ -645,17 +663,24 @@
      До успеха публикации показываем точки и причину. */
   var полеКода = document.getElementById('moy-kod');
   var подписьКода = document.querySelector('.kod-metka');
+  var кнКопир = document.getElementById('kod-kopirovat');
   полеКода.textContent = '······';
+  /* Пока на экране точки, копировать нечего: локальный код ещё не опубликован,
+     друг по нему никого не найдёт. Кнопка ждёт вместе с кодом. */
+  кнКопир.disabled = true;
   function показатьКод(){
     полеКода.textContent = Д.мойКод() || '······';
     if(подписьКода) подписьКода.textContent = 'Мой код';
+    кнКопир.disabled = !Д.мойКод();
   }
   function кодНеГотов(причина){
     полеКода.textContent = '······';
     if(подписьКода) подписьКода.textContent = причина || 'Код появится, когда будет связь';
+    кнКопир.disabled = true;
   }
-  document.getElementById('kod-kopirovat').onclick=function(){
+  кнКопир.onclick=function(){
     var к=Д.мойКод()||''; var кн=this;
+    if(кн.disabled || !к) return;
     (navigator.clipboard ? navigator.clipboard.writeText(к) : Promise.reject())
       .then(function(){ кн.textContent='Скопировано'; setTimeout(function(){ кн.textContent='Скопировать' },1600); })
       .catch(function(){ сказать('Код: '+к); });

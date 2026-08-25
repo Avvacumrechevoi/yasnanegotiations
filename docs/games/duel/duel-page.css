@@ -3576,3 +3576,16 @@ html.yk-est .dp-cta-row { grid-template-columns: 1fr; gap: 8px; }
 .dp-znak-tolk-t { display: block; font-size: 12.5px; line-height: 1.45; color: var(--text-2, #6e6e73); }
 .dp-znak-tolk-k { display: block; margin-top: 4px; font-size: 12.5px; line-height: 1.45;
   color: var(--text-3, #8A95A3); }
+
+/* Кнопка входа в плашке синхронизации: в приложении шапка скрыта, и это
+   единственное место, где гость может войти по почте. */
+.dp-sync-notice-vhod { margin-top: 10px; min-height: 40px; padding: 8px 16px;
+  border: 0; border-radius: 10px; background: var(--accent-strong, #0060c4);
+  color: #fff; font: 600 13.5px/1 inherit; font-family: inherit; cursor: pointer; }
+
+/* Подсказка термина по тапу (тач-устройства): плашка под словом. */
+.dp-term-plashka { position: absolute; left: 0; top: calc(100% + 6px); z-index: 60;
+  min-width: 200px; max-width: 260px; padding: 10px 12px; border-radius: 10px;
+  background: #1D2530; color: #F2F5F8; font: 400 12.5px/1.5 Manrope, Inter, sans-serif;
+  text-transform: none; letter-spacing: normal; white-space: normal;
+  box-shadow: 0 6px 20px rgba(0,0,0,.35); }

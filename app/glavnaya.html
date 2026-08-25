@@ -577,7 +577,7 @@
       </span>
       <span class="vid-shkala" aria-hidden="true"><i id="vid-shkala-fill"></i></span>
       <span class="vid-glav-niz">
-        <em id="vid-do">Сыграйте первую партию — пойдут бусины</em>
+        <em id="vid-do">Сыграй первую партию — пойдут бусины</em>
         <em id="vid-partiy"></em>
       </span>
     </a>
@@ -619,7 +619,7 @@
         </span>
         <b id="vid-svoya-n">Своя Ясна</b>
         <span class="vid-plit-t" id="vid-svoya-t">Разобрать своё</span>
-        <em id="vid-svoya-o">двенадцать полок, ваше явление</em>
+        <em id="vid-svoya-o">двенадцать полок, твоё явление</em>
         <span class="vid-plit-shkala" aria-hidden="true"><i id="vid-svoya-fill"></i></span>
       </a>
     </div>
@@ -640,9 +640,12 @@
         <b>Ясна печи</b>
         <em>живое занятие, разложенное по шагам</em>
       </a>
-      <a class="vid-karta" href="learn.html#gidy">
-        <span class="vid-karta-metka">Разборы</span>
-        <b>Семь гидов</b>
+      <!-- Раньше тут стояли «Семь гидов» со ссылкой learn.html#gidy —
+           такого якоря на экране «Уроки» нет, тап приводил в начало
+           страницы. Карточка честнее зовёт к разборам целиком. -->
+      <a class="vid-karta" href="learn.html">
+        <span class="vid-karta-metka">Видео</span>
+        <b>Разборы</b>
         <em>по кругу шаг за шагом</em>
       </a>
     </div>
@@ -710,8 +713,16 @@
       var н=0; try{ if(Array.isArray(прошёл)) н=прошёл.length; }catch(e){}
       pct=Math.min(100, Math.round(н/6*100));
     }
-    fill.style.width=Math.max(pct, pct?3:0)+'%';
-    if(над) над.textContent=pct+'%';
+    if(pct>0){
+      fill.style.width=Math.max(pct,3)+'%';
+      if(над) над.textContent=pct+'%';
+    } else {
+      /* Новичку пустая полоса и «0%» говорят «ты ничего не сделал».
+         Прячем шкалу вовсе и зовём делом — обещанием, а не нулём. */
+      var полоса=fill.closest('.uch-polosa'); if(полоса) полоса.hidden=true;
+      var о=document.getElementById('ucheba-o');
+      if(о) о.textContent='Пять минут — и первый урок пройден';
+    }
     var м=document.getElementById('ucheba-m');
     if(м) м.innerHTML = pct>=100
       ? '<span class="m">всё пройдено</span>'
@@ -773,7 +784,7 @@
     } else {
       текст('vid-buseny','✦ 0');
       текст('vid-stupen','Послушник');
-      текст('vid-do','Сыграйте первую партию — пойдут бусины');
+      текст('vid-do','Сыграй первую партию — пойдут бусины');
       текст('vid-partiy','начать →');
     }
 
@@ -819,7 +830,7 @@
       var занято=0;
       try{ занято=(последняя.p||[]).filter(function(x){return x&&String(x).trim()}).length; }catch(e){}
       текст('vid-svoya-n',занято+' из 12');
-      текст('vid-svoya-t',последняя.n||последняя.name||'Ваша Ясна');
+      текст('vid-svoya-t',последняя.n||последняя.name||'Твоя Ясна');
       текст('vid-svoya-o',занято>=12?'круг собран':'полок заполнено');
       сШкалой(document.getElementById('vid-svoya-fill').closest('.vid-plit'));
       шкала('vid-svoya-fill',занято/12);
@@ -833,7 +844,10 @@
       текст('vid-dalshe-t','Дальше: знакомство с методом');
       текст('vid-dalshe-o','пять минут разговором — что такое Ясна');
       д2.setAttribute('href','learn.html#znakomstvo');
-    } else if(прошли<БАЗ.length){
+    } else if(прошли<БАЗ.length && !естьХоть){
+      /* Курс зовём отсюда только пока сетка плиток скрыта: когда она видна,
+         вход в базовый курс уже стоит плиткой выше — вторая карточка с тем
+         же адресом читалась бы дословным повтором одной двери. */
       текст('vid-dalshe-t','Дальше: базовый курс');
       текст('vid-dalshe-o',прошли?('пройдено '+прошли+' из '+БАЗ.length+' — продолжить'):'четыре урока по шагам, прямо в круге');
       д2.setAttribute('href','konstruktor.html?lessons=1');
@@ -843,7 +857,7 @@
       д2.setAttribute('href','negotiations.html');
     } else {
       текст('vid-dalshe-t','Дальше: разобрать своё явление');
-      текст('vid-dalshe-o','двенадцать полок, ваш круг');
+      текст('vid-dalshe-o','двенадцать полок, твой круг');
       д2.setAttribute('href','konstruktor.html');
     }
   })();
@@ -870,7 +884,9 @@
         var кр=ч2('yasna_krug_v1')||{}, n=0;
         try{ n=Object.keys(кр.best||{}).length; }catch(e){}
         return n>0 ? {текст:'разобрано '+n+' из 16 явлений', всего:16, есть:n}
-                   : {текст:'шестнадцать явлений ждут раскладки', всего:16, есть:0};
+                   /* Число уже названо в описании карточки — тут не повторяем
+                      его дословно, а объясняем точки. */
+                   : {текст:'каждая точка — явление, начни с любого', всего:16, есть:0};
       }
       if(id==='pogruzhenie'){
         var свои=ч2('yasna_custom_v1');
@@ -921,13 +937,24 @@
   })();
 
   /* Цитата дня — дословная строка книги (citaty.js); та же, что уходит
-     утренним уведомлением. */
+     утренним уведомлением. Ротация по дню года живёт в citaty.js; если
+     файл не доехал или пуст, стоит запасная строка — карточка не должна
+     встречать человека пустотой. */
   (function(){
     var к=document.getElementById('citata');
     if(!к) return;
-    к.querySelector('.tx').textContent='«Мир — управляемый страх»';
-    к.querySelector('.ot').textContent='';
-    к.querySelector('.ist').textContent='Ясна';
+    var тх='«Мир — управляемый страх»', от='', ист='Ясна';
+    try{
+      var ц=window.yasnaCitata && window.yasnaCitata();
+      if(ц && ц[0]){
+        тх='«'+ц[0]+'»';
+        от=ц[1]||'';
+        ист=ц[2]?'Ясна Суток · '+ц[2]:'Ясна Суток';
+      }
+    }catch(e){}
+    к.querySelector('.tx').textContent=тх;
+    к.querySelector('.ot').textContent=от;
+    к.querySelector('.ist').textContent=ист;
   })();
 
   /* Обновления: тихая проверка раз в несколько часов; плашка — только

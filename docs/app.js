@@ -369,7 +369,7 @@ function Instruction({onClose}){
 
         {/* INTRO */}
         <div style={{padding:'20px 24px',background:'linear-gradient(135deg,#f0f5ff,#faf5ff)',borderRadius:16,marginBottom:32}}>
-          <div style={{fontSize:20,fontWeight:700,color:'var(--txt,#1d1d1f)',marginBottom:8}}>Что такое Ясна?</div>
+          <div style={{fontSize:20,fontWeight:700,color:'#1d1d1f',marginBottom:8}}>Что такое Ясна?</div>
           <div style={{fontSize:14,color:'#424245',lineHeight:1.7}}>
             Ясна — это 12-частная циклическая структура, описывающая любое явление. Как циферблат часов, но вместо часов — этапы процесса. Каждый элемент стоит на своей «полочке» и связан с остальными через набор правил (механик). Если все 12 элементов расставлены правильно — Ясна «звучит», как настроенный инструмент.
           </div>
@@ -1047,12 +1047,11 @@ function App(){
           try{ sessionStorage.setItem('yasna_urok_otkuda','uroki'); }catch(_){}
         }
         /* Неизвестный id больше не глотается молча: Lesson сам покажет
-           «этот урок ещё не написан» с дорогой назад. */
+           «этот урок ещё не написан» с дорогой назад.
+           ?lesson= из адреса НЕ стираем: перезагрузка WebView (память,
+           смена темы) должна вернуть открытый урок, а не голый круг.
+           Адрес чистится при закрытии урока. */
         открытьУроки(()=>setActiveLesson(id));
-        // чистим URL, чтобы перезагрузка не открывала урок повторно
-        q.delete('lesson');
-        const rest=q.toString();
-        window.history.replaceState(null,'',window.location.pathname+(rest?'?'+rest:''));
       }
       // ?lessons=1 — открыть выбор уроков (заход со страницы «Тренажёры»)
       if(q.get('lessons')!=null){
@@ -1112,6 +1111,14 @@ function App(){
     setYasna2Drill(null);
     setОткуда(прежняя&&прежняя.n!==(t.n||t.name)?прежняя:null);
   };
+  /* Прямая ссылка на создание своей ясны: learn.html зовёт
+     konstruktor.html#novaya («Дальше — свой круг»). Раньше хэш никто не
+     читал, и главный призыв метода открывал чужое колесо. */
+  useEffect(()=>{
+    if((window.location.hash||'')!=='#novaya')return;
+    try{ window.history.replaceState(null,'',window.location.pathname+window.location.search); }catch(_){}
+    createNew();
+  },[]);
   const createNew=()=>{upsertCustom(y);setY({id:genId(),user:true,name:'Новая',p:Array(12).fill(''),th:'',bh:'',lh:'',rh:'',custom:true});setSel(null);setEd(true);};
   // Редактировать текущую: своя — открываем как есть; встроенный шаблон —
   // copy-on-write (копия «(моя)»), оригинал из data.js не трогаем.
@@ -1423,7 +1430,7 @@ function App(){
           {/* 5. Настройки (⋯) — внутри: скорость, направление, отображение, совместить */}
           <button onClick={()=>setRotPanelOpen(o=>!o)} title='Скорость вращения и режимы' style={{width:40,height:40,borderRadius:10,border:'1px solid '+(rotPanelOpen?'#a21caf':'var(--diag-btn-border,#e5e5ea)'),background:rotPanelOpen?'#a21caf':'var(--diag-btn-bg,#fff)',color:rotPanelOpen?'#fff':'var(--diag-btn-ink,#424245)',fontSize:18,lineHeight:1,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>⋯</button>
         </div>
-        {rotPanelOpen && <div onClick={e=>e.stopPropagation()} style={{position:'absolute',top:50,right:10,width:240,zIndex:7,background:'var(--diag-pop-bg,#fff)',border:'1px solid var(--diag-btn-border,#d2d2d7)',borderRadius:12,boxShadow:'0 6px 24px rgba(0,0,0,.12)',padding:'12px 14px'}}>
+        {rotPanelOpen && <div onClick={e=>e.stopPropagation()} style={{position:'absolute',top:50,right:10,width:240,zIndex:60,background:'var(--diag-pop-bg,#fff)',border:'1px solid var(--diag-btn-border,#d2d2d7)',borderRadius:12,boxShadow:'0 6px 24px rgba(0,0,0,.12)',padding:'12px 14px'}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
             <span style={{fontWeight:600,fontSize:11,color:'#581c87',letterSpacing:.5,textTransform:'uppercase'}}>Скорость</span>
             <span style={{color:'#a21caf',fontWeight:700,fontVariantNumeric:'tabular-nums',fontSize:12}}>{rotationSpeed}s/оборот</span>
@@ -1590,6 +1597,14 @@ function App(){
       </div>}
       {activeLesson&&урокиЕсть&&<Lesson lessonId={activeLesson}
         onClose={()=>{
+          /* Урок закрыт — стираем ?lesson= из адреса, чтобы перезагрузка
+             после закрытия не открывала его снова. */
+          try{
+            const кю=new URLSearchParams(window.location.search);
+            if(кю.has('lesson')){кю.delete('lesson');кю.delete('otkuda');
+              const х=кю.toString();
+              window.history.replaceState(null,'',window.location.pathname+(х?'?'+х:''));}
+          }catch(_){}
           /* Пришли с «Уроков» — туда и возвращаем: раньше ✕ бросал человека
              в конструкторе на чужом круге, и дорога назад терялась. */
           let сУроков=false;
@@ -1598,7 +1613,16 @@ function App(){
             window.location.href='learn.html'; return; }
           setActiveLesson(null);
         }}
-        onComplete={(id)=>setCompletedLessons(prev=>prev.includes(id)?prev:[...prev,id])}
+        onComplete={(id)=>{
+          /* Пишем сразу и синхронно: следом может прийти ✕ с переходом на
+             learn.html, и отложенный эффект записи не успевал — пройденный
+             урок оставался «начатым». */
+          try{
+            const с=JSON.parse(localStorage.getItem('yasna_completed_lessons_v1'))||[];
+            if(!с.includes(id)){с.push(id);localStorage.setItem('yasna_completed_lessons_v1',JSON.stringify(с));}
+          }catch(_){}
+          setCompletedLessons(prev=>prev.includes(id)?prev:[...prev,id]);
+        }}
         onPickAnother={()=>{
           /* Каталог уроков один — экран «Уроки». Второй («Курс по Ясне»)
              показывал «0 из 4» и прятал только что пройденный урок в

@@ -419,9 +419,10 @@ function share(){
   S.scr='share'; app().innerHTML=''; app().classList.remove('duo-col');
   const q='?y='+(SLUG[S.yasna.id]||encodeURIComponent(S.yasna.id))+'&s='+S.seed;
   /* В приложении origin = https://localhost — ссылка мертва у получателя.
-     Подставляем живой адрес сайта; на сайте ветка не работает. */
+     Подставляем живой адрес сайта; на сайте ветка не работает. Домен —
+     yasnalab.ru: старый GitHub Pages из московских сетей не открывается. */
   const url=(/YasnaApp\//.test(navigator.userAgent)
-    ? 'https://avvacumrechevoi.github.io/yasnanegotiations/games/krug/index.html'
+    ? 'https://yasnalab.ru/games/krug/index.html'
     : location.origin+location.pathname)+q;
   /* адрес хоста тоже переписываем: иначе после перезагрузки ссылку не переслать */
   try{ history.replaceState(null,'',q) }catch(_){}
@@ -536,6 +537,8 @@ function say(kind,hd,bd,btn,fn){
 }
 
 function place(i,free){
+  /* Элемент встал — подсказка промаха про эту долю больше не нужна. */
+  if(N.w[i]) N.w[i].classList.remove('podskazka');
   /* Пульс на доле и на её подписи: момент попадания должен быть виден
      боковым зрением, иначе ход «проваливается» в текст разбора. */
   if(!free && N.w[i]){
@@ -588,13 +591,14 @@ function onTap(i){
       setTimeout(function(){ N.w[i] && N.w[i].classList.remove('mimo') }, 620); }
     /* Разбор называл нужное место словами («первый просвет после дна»), а на
        круге номеров нет — отсчитывать доли в уме приходилось самому. Мягко
-       подсвечиваем ту долю, о которой идёт речь: не цветом «верно», а пульсом. */
-    if(N.w[t]){ N.w[t].classList.add('podskazka');
-      setTimeout(function(){ N.w[t] && N.w[t].classList.remove('podskazka') }, 2600); }
+       подсвечиваем ту долю, о которой идёт речь: не цветом «верно», а пульсом.
+       Таймера нет: пока человек читает разбор, подсказка обязана ждать его —
+       снимет её place(), когда элемент действительно встанет на место. */
+    if(N.w[t]) N.w[t].classList.add('podskazka');
     say('no','Не сюда',
       `Место ${i}: ${POS[i]}. Там живёт что-то другое.<br><br>
        «<b>${esc(S.yasna.p[t])}</b>» ищи там, где ${POS[t]} — доля подсвечена на круге.`,
-      'Поставить туда →', ()=>hand());
+      'Понял, ставлю →', ()=>hand());
     return;
   }
   place(t);
@@ -753,6 +757,15 @@ function once(){ if(booted) return; booted=true; boot(); }
      с игровых экранов возвращает к выбору ясны, и только с самого выбора —
      наружу. Из начатой партии спрашиваем подтверждение. */
   function назадНаВыбор(){
+    /* Пришли из «Уроков» (?otkuda=uroki) и не поставили ни одного элемента:
+       экрана «Выберите ясну» человек не видел, вести туда — тупик. Первый
+       «Назад» возвращает в уроки; после первого хода — обычный путь. */
+    try{
+      if (new URLSearchParams(location.search||'').get('otkuda') === 'uroki'
+          && S.scr === 'play' && S.i === 0) {
+        location.href = '../../learn.html'; return;
+      }
+    }catch(_){}
     if (S.scr === 'play' && S.i > 0 && !confirm('Выйти из партии? Раскладка не сохранится.')) return;
     try { history.replaceState(null, '', location.pathname); } catch (_) {}
     S.preset = false; S.invited = false;

@@ -450,11 +450,19 @@
        а сразу показываем каталог с рекомендацией самого «домашнего»
        сценария (осадок после разговора). Выбор человека не перетираем. */
     if (location.hash === '#dom' && !loadOnb()) saveOnb('l4');
+    /* Прямые двери из дерева «Уроков»: обе раньше вели на вводный опрос,
+       хотя обещали конкретное. #kontakt — сразу урок «Кто передо мной»
+       (семь встреч входа в контакт); #praktika — каталог без опроса,
+       прокрученный к сценариям: разборы ситуаций живут в них. */
+    var прямая = location.hash === '#kontakt' || location.hash === '#praktika';
+    if (прямая) { try { saveOnb(loadOnb() || 'l1'); } catch (_) {} }
     showCatalog();
     renderCatalog();
-    if (!loadOnb()) renderOnboarding();
-    if (location.hash === '#dom' && catalogSec && catalogSec.scrollIntoView)
+    if (!loadOnb() && !прямая) renderOnboarding();
+    if ((location.hash === '#dom' || location.hash === '#praktika')
+        && catalogSec && catalogSec.scrollIntoView)
       catalogSec.scrollIntoView({ block: 'start' });
+    if (location.hash === '#kontakt') openLesson(LESSONS[0]);
 
     // главная кнопка-вход в герое: продолжить с первого непройденного
     var heroStart = document.getElementById('neg-hero-start');

@@ -16,7 +16,7 @@
      script-теги — на этой странице нет сборки и нет React. -->
 <script src="core/data.js?v=2f602398"></script>
 <script src="core/pasporta.js?v=161fde46"></script>
-<script src="core/derevo-dannye.js?v=bbdb96ae"></script>
+<script src="core/derevo-dannye.js?v=f489f526"></script>
 <script src="core/znanie.js?v=1d3035e0"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
 <!-- Приложение: манифест, иконки и цвет строки состояния. Раньше манифест
@@ -301,6 +301,10 @@ a { color: inherit; text-decoration: none; }
 .dr-nashli-imya { display: block; font-size: 15px; font-weight: 600; color: var(--text-primary); }
 .dr-nashli-meta { display: block; margin-top: 2px; font-size: 12.5px; color: var(--text-secondary); }
 .dr-pusto { padding: 24px 0; font-size: 14px; color: var(--text-secondary); }
+/* Свой display у этих классов перебивал атрибут [hidden]: поиск по листу
+   ясен и складки «Ещё N» ставили hidden, а строки оставались на экране.
+   Явное правило возвращает атрибуту силу. */
+.dr-nashli[hidden], .dr-uzel[hidden], .dr-vetv[hidden], .dr-chast[hidden] { display: none; }
 
 @media (min-width: 700px) {
   .dr-zag { font-size: 38px; }
@@ -715,7 +719,7 @@ html[data-theme='light'] {
     <p class="l-intro-msg">
       Учиться можно с двух сторон. <strong>Базовый курс</strong> ведёт по шагам:
       что такое явление, где у него опоры, как ложатся две главные линии. Уроки
-      идут прямо в круге — подсказки появляются там, где вы работаете.
+      идут прямо в круге — подсказки появляются там, где ты работаешь.
     </p>
     <p class="l-intro-msg">
       А <strong>разборы</strong> — это готовые круги: берём печь,
@@ -793,7 +797,7 @@ html[data-theme='light'] {
     </p>
     <p class="l-intro-msg">
       Дальше — как пойдёт: можно идти по курсу, а можно смотреть готовые разборы.
-      Всё это собрано на экране «Уроки», куда вы сейчас вернётесь.
+      Всё это собрано на экране «Уроки», куда ты сейчас вернёшься.
     </p>
     <div class="l-intro-cta-row">
       <a class="l-intro-btn l-intro-btn--primary" data-action="kurs" href="konstruktor.html?lesson=l1_intro&amp;otkuda=uroki">Открыть базовый курс →</a>
@@ -902,7 +906,7 @@ html[data-theme='light'] {
     <h2 class="dr-list-zag">Двенадцать мест круга</h2>
     <button type="button" class="dr-list-x" id="dr-mesta-x" aria-label="Закрыть">×</button>
   </div>
-  <p class="dr-list-pod">У каждого места своя роль — она одна и та же в любом явлении. Место загорается, когда вы разобрали его в двух ясных и больше.</p>
+  <p class="dr-list-pod">У каждого места своя роль — она одна и та же в любом явлении. Место загорается, когда ты разберёшь его в двух ясных и больше.</p>
   <div class="dr-list-telo" id="dr-mesta-telo"></div>
 </div>
 
@@ -913,7 +917,7 @@ html[data-theme='light'] {
     <h2 class="dr-list-zag">Готовые ясны</h2>
     <button type="button" class="dr-list-x" id="dr-yasny-x" aria-label="Закрыть">×</button>
   </div>
-  <p class="dr-list-pod">Явления, уже разложенные по двенадцати местам. Нажмите — откроется круг этой ясны.</p>
+  <p class="dr-list-pod">Явления, уже разложенные по двенадцати местам. Нажми — откроется круг этой ясны.</p>
   <!-- Строк больше сорока и растёт: без поиска лист листали семь экранов. -->
   <input class="dr-list-poisk" id="dr-yasny-poisk" type="search"
          placeholder="Найти ясну…" autocomplete="off" aria-label="Поиск по яснам">
@@ -1311,7 +1315,7 @@ html[data-theme='light'] {
     if (!д) {
       место.innerHTML = '<div class="dr-prod"><span class="dr-prod-klejmo">Всё, что написано, пройдено</span>' +
         '<span class="dr-prod-imya">Дальше — свой круг</span>' +
-        '<span class="dr-prod-pod">Возьмите своё явление и разложите его сами.</span>' +
+        '<span class="dr-prod-pod">Возьми своё явление и разложи его сам.</span>' +
         '<a class="dr-prod-knop" href="konstruktor.html#novaya">Собрать</a></div>';
       return;
     }
@@ -1402,7 +1406,7 @@ html[data-theme='light'] {
       });
       var перенос = Object.keys(пройденоЯвлений).length;
       var подпись = !узлы.length ? 'про это место пока не записано'
-        : перенос >= 2 ? 'вы разбирали его в ' + перенос + ' явлениях'
+        : перенос >= 2 ? 'ты разбирал его в ' + перенос + ' явлениях'
         : перенос === 1 ? 'разобрано в одном явлении'
         : 'встречается в ' + узлы.length + ' занятиях';
       var роль = (роли[i] && роли[i].f) ? роли[i].f.toLowerCase() : ('место ' + i);
@@ -1466,9 +1470,11 @@ html[data-theme='light'] {
     var с = З.состояние(у);
     var мета = [у.жанр, у.объём, (с.текст && с.код !== 'нет') ? с.текст : null]
       .filter(Boolean).join(' · ');
+    /* Имя ветви в мете не повторяем — строка и так стоит под заголовком
+       своей группы. */
     return '<a class="dr-nashli" href="' + экр(у.адрес) + '" data-uzel="' + экр(у.id) + '">' +
       '<span class="dr-nashli-imya">' + экр(у.имя) + '</span>' +
-      '<span class="dr-nashli-meta">' + экр(ветвьИмя + ' · ' + мета) + '</span></a>';
+      '<span class="dr-nashli-meta">' + экр(мета) + '</span></a>';
   }
   function нарисоватьДействия(телоId, жанры) {
     var тело = document.getElementById(телоId);
@@ -1546,19 +1552,22 @@ html[data-theme='light'] {
     var т = (строка || '').trim().toLowerCase();
     var тело = document.getElementById('dr-poisk-telo');
     if (!тело) return;
-    if (т.length < 2) { тело.innerHTML = '<div class="dr-pusto">Наберите слово: печь, место 6, словарь.</div>'; return; }
+    if (т.length < 2) { тело.innerHTML = '<div class="dr-pusto">Набери слово: печь, место 6, словарь.</div>'; return; }
     var место = т.match(/место\s*(\d{1,2})/);
-    var найдено = место
+    var найдено = (место
       ? Д.поМесту(+место[1])
       : Д.всеУзлы().filter(function (у) {
           return (у.имя + ' ' + (у.о || '') + ' ' + у.ветвьИмя + ' ' + у.жанр).toLowerCase().indexOf(т) >= 0;
-        });
+        })
+      /* Узлы без адреса (видеозаписи, которых ещё нет в приложении) вели
+         на href="#" — из поиска такие строки только путали. */
+      ).filter(function (у) { return !!у.адрес; });
     тело.innerHTML = найдено.length ? найдено.map(function (у) {
       var с = З.состояние(у);
       return '<a class="dr-nashli" href="' + экр(у.адрес || '#') + '">' +
         '<span class="dr-nashli-imya">' + экр(у.имя) + '</span>' +
         '<span class="dr-nashli-meta">' + экр(у.ветвьИмя + ' · ' + метаУзла(у, с)) + '</span></a>';
-    }).join('') : '<div class="dr-pusto">Ничего не нашлось. Попробуйте «сутки», «разговор», «место 9».</div>';
+    }).join('') : '<div class="dr-pusto">Ничего не нашлось. Попробуй «сутки», «разговор», «место 9».</div>';
   }
 
   /* ─── Открытие и закрытие листов ─── */

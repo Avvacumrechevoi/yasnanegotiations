@@ -106,9 +106,34 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
   const IconJournal  = Icon('M3 3h10v10H3zM3 6h10M6 3v10');
 
   // ─── Term tooltip ─────────────────────────────────────────────────
-  const Term = (label, tip) => React.createElement('span', {
-    className: 'dp-term', tabIndex: 0, 'data-tip': tip
-  }, label);
+  /* Подсказка термина. На десктопе — CSS-тултип по ховеру (как было).
+     На тач ховера нет, CSS-тултипы там спрятаны (см. theme-vk-dark.css) —
+     раньше пунктир обещал подсказку, которой нельзя было увидеть никогда.
+     Теперь тап открывает ту же подсказку маленькой плашкой под термином;
+     второй тап или тап мимо — закрывает. */
+  const Term = (label, tip) => {
+    const тач = typeof matchMedia === 'function' && matchMedia('(hover: none)').matches;
+    if (!тач) return React.createElement('span', {
+      className: 'dp-term', tabIndex: 0, 'data-tip': tip
+    }, label);
+    return React.createElement(TermTap, { label: label, tip: tip });
+  };
+  function TermTap({ label, tip }){
+    const [открыт, setОткрыт] = useState(false);
+    useEffect(() => {
+      if (!открыт) return;
+      const мимо = () => setОткрыт(false);
+      /* Слушатель вешаем после текущего клика, иначе он же и закроет. */
+      const t = setTimeout(() => document.addEventListener('click', мимо), 0);
+      return () => { clearTimeout(t); document.removeEventListener('click', мимо); };
+    }, [открыт]);
+    return React.createElement('span', { className: 'dp-term dp-term--tap', style: { position: 'relative' } },
+      React.createElement('span', {
+        onClick: (e) => { e.stopPropagation(); setОткрыт(v => !v); }
+      }, label),
+      открыт && React.createElement('span', { className: 'dp-term-plashka', role: 'tooltip' }, tip)
+    );
+  }
 
   // ─── VK System Message — компонент-плашка из VK DS ────────────────
   // kind: 'info' | 'success' | 'warn' | 'error' (default: 'info')
@@ -283,7 +308,7 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
     return React.createElement('div', { className: 'dp-castalia-title' },
       !вПрилож && React.createElement('div', { className: 'dp-castalia-eyebrow' }, '✦  Тренажёр Ясны'),
       вПрилож
-        ? React.createElement('h1', { className: 'dp-castalia-h1' }, 'Мастерство в игре')
+        ? React.createElement('h1', { className: 'dp-castalia-h1' }, 'Игры')
         : React.createElement('h1', { className: 'dp-castalia-h1' },
             React.createElement('span', null, 'Ясна —'),
             React.createElement('br'),
@@ -537,12 +562,18 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
       React.createElement('div', { className: 'dp-sync-notice', role: 'note' },
         React.createElement('div', { className: 'dp-sync-notice-icon', 'aria-hidden': 'true' }, '◷'),
         React.createElement('div', { className: 'dp-sync-notice-body' },
-          React.createElement('div', { className: 'dp-sync-notice-title' }, 'Прогресс сохраняется на сервере'),
+          React.createElement('div', { className: 'dp-sync-notice-title' }, 'Уроки — на сервере, партии — на устройстве'),
           React.createElement('div', { className: 'dp-sync-notice-text' },
             'Уроки и разборы уже лежат на сервере — пока для этого устройства.',
             React.createElement('br'),
             'Войди по почте, и они привяжутся к тебе: вернутся после переустановки и откроются на другом телефоне. Бусины и история партий пока живут только здесь.'
-          )
+          ),
+          /* В приложении шапка с кнопкой «Войти» скрыта — призыв «войди по
+             почте» оставался без действия. Кнопка живёт прямо здесь. */
+          window.YasnaAccount && React.createElement('button', {
+            className: 'dp-sync-notice-vhod', type: 'button',
+            onClick: function(){ window.YasnaAccount.openLogin(); }
+          }, 'Войти по почте')
         ),
         React.createElement('div', { className: 'dp-sync-notice-actions' },
           React.createElement('button', { className: 'dp-sync-notice-cta', onClick: downloadProgress, type: 'button' }, 'Скачать копию'),
@@ -972,13 +1003,17 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
   // ─── Хроника (бывш. лидерборд) ──────────────────────────────────
   function DPHronika({ user }){
     const [items, setItems] = useState(null);
+    const [повтор, setПовтор] = useState(0);
     useEffect(() => {
       const LB = _g('YasnaLeaderboardClient');
       if(!LB?.isEnabled?.()){ setItems([]); return; }
       LB.fetchLeaderboard({ gameId: 'turnir', yasnaId: 'суток', period: 'week', limit: 8 })
         .then(res => setItems(res?.items || []))
-        .catch(() => setItems([]));
-    }, []);
+        /* Сбой сети — не пустой рейтинг: раньше оба случая показывали
+           «Хроника ждёт первой записи», и человек без сети думал, что
+           никто не играет. */
+        .catch(() => setItems('сеть'));
+    }, [повтор]);
 
     const myDeviceId = user?.deviceId || _g('YasnaDuelProfile')?.load?.()?.deviceId;
     // Признак «это я» считает сервер (leaderboard.js): идентификаторы игроков
@@ -994,7 +1029,12 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
         ),
         React.createElement('span', { className: 'dp-card-meta' }, 'Сб 23:59')
       ),
-      items === null
+      items === 'сеть'
+        ? React.createElement('div', { className: 'dp-card-empty' },
+            'Нет связи — рейтинг не загрузился.', React.createElement('br'),
+            React.createElement('button', { className: 'dp-btn-text', type: 'button',
+              onClick: function(){ setItems(null); setПовтор(v => v + 1); } }, 'Повторить'))
+        : items === null
         ? React.createElement('div', { className: 'dp-card-empty' }, 'Пока пусто. Сыграй Партию.')
         : items.length === 0
           ? React.createElement('div', { className: 'dp-card-empty' }, 'Хроника ждёт первой записи.', React.createElement('br'), 'Сыграй Партию.')
@@ -2269,7 +2309,12 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
     // конкретное — играй на одной теме.
     const askPartiyaMode = (preferredOpponent) => {
       const allThemes = (window.YasnaTrivia && window.YasnaTrivia.getThemes && window.YasnaTrivia.getThemes()) || [];
-      const firstTheme = allThemes[0]?.id;
+      /* Первая каноничная тема, а не allThemes[0]: первым в банке лежит
+         «Джива», которую витрина сама исключает как «не из книг Ясны» —
+         предлагать её пикером было непоследовательно. */
+      const каноничная = allThemes.find(т => (т.book || т.id || '') !== 'dzhiva'
+        && String(т.book || т.id || '').indexOf('dzhiva') < 0) || allThemes[0];
+      const firstTheme = каноничная?.id;
       requireProfile(() => setPartiyaPicker({
         mode: 'standard',
         expanded: false,
