@@ -1180,4 +1180,6 @@ body.theme-vk-dark{--na-akcente:#06131d;--sht-kayma:rgba(255,255,255,.22)}
 .star-podskazka{display:none}
 html.yk-est .star-podskazka{display:block;position:absolute;left:24px;right:24px;
   top:calc(126px + 86vw);text-align:center;font:400 13px/1.5 var(--sans);
-  color:var(--txt2,#8a94a0);pointer-events:none}
+  color:var(--txt2,#8a94a0);pointer-events:none;
+  /* Фоновый rect звезды тянется ниже видимого круга и закрывал подпись. */
+  z-index:5}
