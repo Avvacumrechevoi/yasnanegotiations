@@ -16,7 +16,7 @@
      script-теги — на этой странице нет сборки и нет React. -->
 <script src="core/data.js?v=2f602398"></script>
 <script src="core/pasporta.js?v=d69641d9"></script>
-<script src="core/derevo-dannye.js?v=4f5e8e32"></script>
+<script src="core/derevo-dannye.js?v=342b0a7f"></script>
 <script src="core/znanie.js?v=1d3035e0"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
 <!-- Приложение: манифест, иконки и цвет строки состояния. Раньше манифест
@@ -791,7 +791,7 @@ html[data-theme='light'] {
       Всё это собрано на экране «Уроки», куда вы сейчас вернётесь.
     </p>
     <div class="l-intro-cta-row">
-      <a class="l-intro-btn l-intro-btn--primary" href="konstruktor.html?lessons=1">Открыть базовый курс →</a>
+      <a class="l-intro-btn l-intro-btn--primary" data-action="kurs" href="konstruktor.html?lesson=l1_intro&amp;otkuda=uroki">Открыть базовый курс →</a>
       <button class="l-intro-btn" data-action="finish">Сначала осмотрюсь</button>
     </div>
   </div>
@@ -1024,13 +1024,26 @@ html[data-theme='light'] {
       updateProgress();
     }
 
-    // Привязка кнопок «Дальше»
+    // Привязка кнопок «Дальше». Слушатель ОДИН на всю жизнь страницы:
+    // повторный вход вешал второй поверх первого, и одно нажатие
+    // раскрывало сразу два шага. Функция шага хранится на элементе —
+    // слушатель всегда зовёт шаг ТЕКУЩЕГО входа, а не первого.
+    introEl.__шаг = showNextStep;
+    if(introEl.dataset.slushaet) return;
+    introEl.dataset.slushaet = '1';
     introEl.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-action]');
       if(!btn) return;
       const action = btn.dataset.action;
+      if(action === 'kurs'){
+        /* Главная кнопка знакомства должна засчитывать знакомство:
+           раньше кредит давала только «Сначала осмотрюсь». */
+        markIntroDone();
+        try{ sessionStorage.setItem('yasna_urok_otkuda','uroki'); }catch(_){}
+        return; /* переход по href */
+      }
       if(action === 'next'){
-        showNextStep();
+        (introEl.__шаг||showNextStep)();
       } else if(action === 'finish'){
         finishIntro();
       } else if(action === 'check'){

@@ -37,6 +37,8 @@ const APP_FILES = [
   'core/dialogs.js',
   'core/shtorka.js',   // ← шторка с упорами (window.YasnaShtorka) — до info-card
   'core/dosye.js',     // ← досье мест из книги и уроков (window.YasnaDosye)
+  'core/pasporta.js',  // ← АВТОГЕН: паспорта уроков (имя, места, минуты)
+  'core/derevo-dannye.js', // ← дерево знаний: info-card ищет урок места в нём
   'core/info-card.js',
   'core/yasna-star.js',
   'lessons/engine.js',   // ← сами уроки в отдельном бандле uroki.min.js (грузится по требованию)
@@ -64,6 +66,8 @@ const DUEL_FILES = [
   'core/dialogs.js',
   'core/shtorka.js',   // ← шторка с упорами (window.YasnaShtorka) — до info-card
   'core/dosye.js',     // ← досье мест из книги и уроков (window.YasnaDosye)
+  'core/pasporta.js',  // ← АВТОГЕН: паспорта уроков (имя, места, минуты)
+  'core/derevo-dannye.js', // ← дерево знаний: info-card ищет урок места в нём
   'core/info-card.js',
   'core/yasna-star.js',
   'games/duel/duel.js',

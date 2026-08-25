@@ -314,15 +314,24 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose,onSel,onLesson,onTour,
   },[i,y.name]);
 
   /* ── Первичное действие: первое подходящее, дальше не идём ────── */
+  /* Урок для места берётся из дерева знаний (YasnaDerevo.поМесту), а не из
+     ручной карты: карта знала два урока и только для Суток, и новые серии
+     (Двор, Дом, Вода…) в карточку места не попадали бы никогда. Паспорта
+     уроков заполняют «места» из yasna-star блоков самого урока. */
   const урок=useMemo(()=>{
-    const L=(window.YasnaLessons&&window.YasnaLessons.LESSONS)||[];
-    if(!суточная) return null;
-    const карта={0:'l2_night_foundation',1:'l3_morning',2:'l3_morning',3:'l3_morning'};
-    const id=карта[i];
-    if(!id) return null;
-    const l=L.find(x=>x.id===id);
-    return l?{id:l.id,t:l.title}:null;
-  },[i,суточная]);
+    try{
+      const Д=window.YasnaDerevo;
+      if(!Д||!Д.ВЕТВИ) return null;
+      for(const в of Д.ВЕТВИ){
+        if(в.ясна!==y.name) continue;
+        const у=(в.узлы||[]).find(у=>!у.нет&&у.жанр==='урок'&&
+          Array.isArray(у.места)&&у.места.indexOf(i)>=0&&
+          /lesson=([a-z0-9_]+)/.test(у.адрес||''));
+        if(у) return {id:(у.адрес.match(/lesson=([a-z0-9_]+)/)||[])[1],t:у.имя};
+      }
+    }catch(_){}
+    return null;
+  },[i,y.name]);
   const естьТур=!!(window.YasnaTours&&window.YasnaTours.has&&window.YasnaTours.has(y.name));
 
   /* Раньше здесь стояла цепочка else if, и на четырёх местах Суток из

@@ -926,11 +926,18 @@ function App(){
     try{ return !!(window.YasnaLessons&&window.YasnaLessons.загружены&&window.YasnaLessons.загружены()); }
     catch(_){ return false; }
   });
+  const[урокиОшибка,setУрокиОшибка]=useState(false);
   const открытьУроки=React.useCallback((дальше)=>{
     try{
       const з=window.YasnaLessons&&window.YasnaLessons.загрузить;
       if(!з){ дальше(); return; }
-      з().then(()=>{ setУрокиЕсть(true); дальше(); });
+      /* загрузить() отдаёт false, если бандл не доехал: без этой ветки
+         заглушка «Открываю урок…» висела бы вечно. */
+      з().then((ок)=>{
+        if(ок){ setУрокиЕсть(true); setУрокиОшибка(false); }
+        else setУрокиОшибка(true);
+        дальше();
+      });
     }catch(_){ дальше(); }
   },[]);
   /* Подтягиваем заранее, когда экран уже отрисован: к моменту, когда человек
@@ -1036,10 +1043,12 @@ function App(){
         const id=(raw==='1'||raw==='l1'||raw==='intro')?'l1_intro':raw;
         /* Ждём бандл уроков: без этого список пуст, урок «не найден», и
            переход с экрана «Уроки» открывал пустую звезду. */
-        открытьУроки(()=>{
-          const ls=(window.YasnaLessons&&window.YasnaLessons.lessons)||[];
-          if(ls.some(l=>l&&l.id===id)) setActiveLesson(id);
-        });
+        if(q.get('otkuda')==='uroki'){
+          try{ sessionStorage.setItem('yasna_urok_otkuda','uroki'); }catch(_){}
+        }
+        /* Неизвестный id больше не глотается молча: Lesson сам покажет
+           «этот урок ещё не написан» с дорогой назад. */
+        открытьУроки(()=>setActiveLesson(id));
         // чистим URL, чтобы перезагрузка не открывала урок повторно
         q.delete('lesson');
         const rest=q.toString();
@@ -1569,8 +1578,35 @@ function App(){
         }
         return React.createElement(window.YasnaTours.GuideRunner,{tour,yasnaTpl:tpl,onClose:()=>setShowTour(false),onLoadYasna:()=>{if(tpl)load(tpl);}});
       })()}
-      {(activeLesson||lessonPicker)&&!урокиЕсть&&<div style={{position:'fixed',inset:0,zIndex:140,background:'var(--bg,#fff)',display:'flex',alignItems:'center',justifyContent:'center',font:'600 15px/1.4 Manrope,Inter,sans-serif',color:'var(--ink,#111)'}}>Открываю урок…</div>}
-      {activeLesson&&урокиЕсть&&<Lesson lessonId={activeLesson} onClose={()=>setActiveLesson(null)} onComplete={(id)=>setCompletedLessons(prev=>prev.includes(id)?prev:[...prev,id])} onPickAnother={()=>{setActiveLesson(null);setLessonPicker(true);}} onOpenLesson={(id)=>setActiveLesson(id)}/>}
+      {(activeLesson||lessonPicker)&&!урокиЕсть&&<div style={{position:'fixed',inset:0,zIndex:140,background:'var(--bg,#fff)',display:'flex',alignItems:'center',justifyContent:'center',padding:24}}>
+        {урокиОшибка
+          ?<div style={{maxWidth:420,textAlign:'center',font:'400 14px/1.6 Manrope,Inter,sans-serif',color:'var(--ink,#111)'}}>
+            <div style={{fontSize:19,fontWeight:700,marginBottom:8}}>Урок не загрузился</div>
+            <div style={{marginBottom:20,color:'#555'}}>Похоже, нет сети. Проверьте связь и попробуйте ещё раз.</div>
+            <button onClick={()=>{setУрокиОшибка(false);открытьУроки(()=>{});}} style={{font:'600 15px/1 Manrope,Inter,sans-serif',padding:'13px 26px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer',marginRight:10}}>Повторить</button>
+            <button onClick={()=>{setActiveLesson(null);setLessonPicker(false);}} style={{font:'500 14px/1 Manrope,Inter,sans-serif',padding:'13px 20px',borderRadius:12,border:'1px solid #ddd',background:'transparent',cursor:'pointer'}}>Закрыть</button>
+          </div>
+          :<div style={{font:'600 15px/1.4 Manrope,Inter,sans-serif',color:'var(--ink,#111)'}}>Открываю урок…</div>}
+      </div>}
+      {activeLesson&&урокиЕсть&&<Lesson lessonId={activeLesson}
+        onClose={()=>{
+          /* Пришли с «Уроков» — туда и возвращаем: раньше ✕ бросал человека
+             в конструкторе на чужом круге, и дорога назад терялась. */
+          let сУроков=false;
+          try{ сУроков=sessionStorage.getItem('yasna_urok_otkuda')==='uroki'; }catch(_){}
+          if(сУроков){ try{ sessionStorage.removeItem('yasna_urok_otkuda'); }catch(_){}
+            window.location.href='learn.html'; return; }
+          setActiveLesson(null);
+        }}
+        onComplete={(id)=>setCompletedLessons(prev=>prev.includes(id)?prev:[...prev,id])}
+        onPickAnother={()=>{
+          /* Каталог уроков один — экран «Уроки». Второй («Курс по Ясне»)
+             показывал «0 из 4» и прятал только что пройденный урок в
+             «ранние черновики». */
+          try{ sessionStorage.removeItem('yasna_urok_otkuda'); }catch(_){}
+          window.location.href='learn.html';
+        }}
+        onOpenLesson={(id)=>setActiveLesson(id)}/>}
       {glossary&&<Glossary onClose={()=>{setGlossary(false);if(!домойЕслиРадиОкна())снятьЯкорь();}}/>}
       {/* ═══ ТЕЛЕФОН: нижний док ══════════════════════════════════════
           Два действия под большим пальцем вместо полосы-каталога:

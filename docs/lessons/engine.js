@@ -1018,8 +1018,34 @@ function SummaryBlockInline({block}){
     </div>);
 }
 
-function NextStepsBlockInline({block,onClose,onPickAnother,onRepeat,onOpenLesson}){
-  const canOpenNext=block.nextLessonId&&block.nextLessonStatus!=='planned'&&onOpenLesson;
+function NextStepsBlockInline({block,onClose,onPickAnother,onRepeat,onOpenLesson,lesson}){
+  /* Следующий урок предлагается, только если он РЕАЛЬНО написан: раньше
+     битый nextLessonId молча открывал первый попавшийся урок (ALL[0]). */
+  const все=(window.YasnaLessons&&window.YasnaLessons.lessons)||[];
+  const следВФайле=block.nextLessonId&&все.some(l=>l&&l.id===block.nextLessonId);
+  /* Если урок сам следующего не назвал — берём соседа по своей ветви дерева:
+     связи лежат в YasnaDerevo, и рукой их в каждом финале не удержать. */
+  const следПоДереву=useMemo(()=>{
+    if(block.nextLessonId||!lesson)return null;
+    try{
+      const Д=window.YasnaDerevo;if(!Д)return null;
+      for(const в of Д.ВЕТВИ){
+        const узлы=(в.узлы||[]).filter(у=>!у.нет&&у.адрес&&(у.жанр==='урок'||у.жанр==='разбор'));
+        const i=узлы.findIndex(у=>у.id===lesson.id);
+        if(i>=0&&узлы[i+1]&&все.some(l=>l&&l.id===узлы[i+1].id))
+          return {id:узлы[i+1].id,имя:узлы[i+1].имя};
+      }
+    }catch(_){}
+    return null;
+  },[block.nextLessonId,lesson&&lesson.id]);
+  const canOpenNext=(следВФайле||следПоДереву)&&block.nextLessonStatus!=='planned'&&onOpenLesson;
+  const открытьСлед=()=>onOpenLesson(следВФайле?block.nextLessonId:следПоДереву.id);
+  /* Практика после урока: раскладка своей ясны. Игра умеет вернуть на
+     «Уроки» (otkuda=uroki) — единственный экран с корректным возвратом. */
+  const ИГРОВЫЕ=['суток','двора','двора_животных','дома','кухни','круговорота_воды','года',
+    'дерева','печи','завода_предприятия','колокольни','театра','фаз_жизни','kostra','emotsiy','удочки'];
+  constпрактика=lesson&&lesson.yasna&&ИГРОВЫЕ.indexOf(lesson.yasna)>=0
+    ?'games/krug/index.html?yasna='+encodeURIComponent(lesson.yasna)+'&otkuda=uroki':null;
   return(
     <div style={{padding:'16px 24px 60px',maxWidth:680,margin:'0 auto'}}>
       {/* Custom next-lesson promo (optional) — clickable card if nextLessonId provided */}
@@ -1029,7 +1055,7 @@ function NextStepsBlockInline({block,onClose,onPickAnother,onRepeat,onOpenLesson
           {block.intro&&<div style={{fontSize:13.5,color:'#3D4852',lineHeight:1.55,marginBottom:14}}>{renderRichText(block.intro)}</div>}
           {canOpenNext?(
             <button
-              onClick={()=>onOpenLesson(block.nextLessonId)}
+              onClick={открытьСлед}
               style={{display:'block',width:'100%',textAlign:'left',padding:'14px 14px',background:'#F0F7FF',borderRadius:12,border:'1px solid #C6E0FA',cursor:'pointer',fontFamily:'inherit',transition:'all .2s'}}
               onMouseEnter={e=>{e.currentTarget.style.background='#E3EFFE';e.currentTarget.style.borderColor='#95C2F0';e.currentTarget.style.transform='translateY(-1px)';e.currentTarget.style.boxShadow='0 4px 14px rgba(0,113,227,.15)';}}
               onMouseLeave={e=>{e.currentTarget.style.background='#F0F7FF';e.currentTarget.style.borderColor='#C6E0FA';e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='none';}}
@@ -1056,14 +1082,16 @@ function NextStepsBlockInline({block,onClose,onPickAnother,onRepeat,onOpenLesson
       <div style={{display:'flex',flexDirection:'column',gap:10}}>
         {canOpenNext?(
           <>
-            <button onClick={()=>onOpenLesson(block.nextLessonId)} style={{fontSize:15,fontWeight:600,padding:'14px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer',boxShadow:'0 4px 14px rgba(0,113,227,.3)',fontFamily:'inherit'}}>Перейти к следующему уроку →</button>
-            <button onClick={onPickAnother} style={{fontSize:14,fontWeight:500,padding:'12px 24px',borderRadius:12,border:'1px solid #E5E5EA',background:'#fff',color:'#3D4852',cursor:'pointer',fontFamily:'inherit'}}>← Вернуться к списку уроков</button>
+            <button onClick={открытьСлед} style={{fontSize:15,fontWeight:600,padding:'14px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer',boxShadow:'0 4px 14px rgba(0,113,227,.3)',fontFamily:'inherit'}}>{'Следующий урок'+(следПоДереву&&!следВФайле?': '+следПоДереву.имя:'')+' →'}</button>
+            {практика&&<a href={практика} style={{fontSize:14,fontWeight:600,padding:'12px 24px',borderRadius:12,border:'1px solid #C6E0FA',background:'#F0F7FF',color:'#0071e3',cursor:'pointer',fontFamily:'inherit',textAlign:'center',textDecoration:'none'}}>Разложить самому — закрепить</a>}
+            <button onClick={onPickAnother} style={{fontSize:14,fontWeight:500,padding:'12px 24px',borderRadius:12,border:'1px solid #E5E5EA',background:'#fff',color:'#3D4852',cursor:'pointer',fontFamily:'inherit'}}>← Вернуться к «Урокам»</button>
             <button onClick={onRepeat} style={{fontSize:13,fontWeight:500,padding:'10px 24px',borderRadius:12,border:'none',background:'transparent',color:'#6E7781',cursor:'pointer',fontFamily:'inherit'}}>⟲ Пройти ещё раз</button>
           </>
         ):(
           <>
-            <button onClick={onPickAnother} style={{fontSize:15,fontWeight:600,padding:'14px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer',boxShadow:'0 4px 14px rgba(0,113,227,.3)',fontFamily:'inherit'}}>← Вернуться к списку уроков</button>
-            <button onClick={onRepeat} style={{fontSize:14,fontWeight:500,padding:'12px 24px',borderRadius:12,border:'1px solid #E5E5EA',background:'#fff',color:'#3D4852',cursor:'pointer',fontFamily:'inherit'}}>⟲ Пройти ещё раз</button>
+            {практика&&<a href={практика} style={{fontSize:15,fontWeight:600,padding:'14px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer',boxShadow:'0 4px 14px rgba(0,113,227,.3)',fontFamily:'inherit',textAlign:'center',textDecoration:'none',display:'block'}}>Разложить самому — закрепить</a>}
+            <button onClick={onPickAnother} style={практика?{fontSize:14,fontWeight:500,padding:'12px 24px',borderRadius:12,border:'1px solid #E5E5EA',background:'#fff',color:'#3D4852',cursor:'pointer',fontFamily:'inherit'}:{fontSize:15,fontWeight:600,padding:'14px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer',boxShadow:'0 4px 14px rgba(0,113,227,.3)',fontFamily:'inherit'}}>← Вернуться к «Урокам»</button>
+            <button onClick={onRepeat} style={{fontSize:14,fontWeight:500,padding:'12px 24px',borderRadius:12,border:'none',background:'transparent',color:'#6E7781',cursor:'pointer',fontFamily:'inherit'}}>⟲ Пройти ещё раз</button>
           </>
         )}
       </div>
@@ -1375,9 +1403,27 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
     });
   },[lesson.id]);
 
-  // unlockedGates: количество раскрытых секций. Старт = 1 (первая секция + её gate видны)
-  const[unlockedGates,setUnlockedGates]=useState(1);
-  const[completedBlocks,setCompletedBlocks]=useState(()=>new Set());
+  // unlockedGates: количество раскрытых секций. Старт = 1 (первая секция + её gate видны).
+  // Позиция сохраняется в yasna_znanie_v1[id].поз: раньше выход на 14% означал
+  // «начать заново», и «Продолжить» на «Уроках» было обещанием, а не правдой.
+  const сохранённая=useMemo(()=>{
+    try{
+      const з=JSON.parse(localStorage.getItem('yasna_znanie_v1')||'{}');
+      const п=(з[lesson.id]||{}).поз;
+      if(п&&п.ворота>1)return {ворота:п.ворота,блоки:new Set(п.блоки||[])};
+    }catch(_){}
+    return null;
+  },[lesson.id]);
+  const[unlockedGates,setUnlockedGates]=useState(()=>сохранённая?сохранённая.ворота:1);
+  const[completedBlocks,setCompletedBlocks]=useState(()=>сохранённая?сохранённая.блоки:new Set());
+  useEffect(()=>{
+    try{
+      const з=JSON.parse(localStorage.getItem('yasna_znanie_v1')||'{}');
+      з[lesson.id]=Object.assign({},з[lesson.id],
+        {поз:{ворота:unlockedGates,блоки:[...completedBlocks]},когда:Date.now()});
+      localStorage.setItem('yasna_znanie_v1',JSON.stringify(з));
+    }catch(_){}
+  },[unlockedGates,completedBlocks,lesson.id]);
 
   const markBlockComplete=useCallback((blockIdx)=>{
     setCompletedBlocks(prev=>{
@@ -1408,9 +1454,32 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
   // до первого касания.
   const progress=totalGates>0?Math.min(100,Math.max(0,(unlockedGates-1)/totalGates*100)):100;
 
+  // «Пройдено» ставится, когда человек ДОШЁЛ до низа раскрытого урока,
+  // а не в момент нажатия последних ворот: после них ещё финальный опрос,
+  // итоги и «куда дальше» — раньше всё это оставалось непрочитанным,
+  // а урок уже значился пройденным.
+  const[дочитан,setДочитан]=useState(false);
   useEffect(()=>{
-    if(fullyDone&&onComplete)onComplete(lesson.id);
-  },[fullyDone]);
+    if(!fullyDone||дочитан)return;
+    const узел=scrollRef.current;
+    if(!узел)return;
+    const проверить=()=>{
+      if(узел.scrollTop+узел.clientHeight>=узел.scrollHeight-160)setДочитан(true);
+    };
+    проверить();
+    узел.addEventListener('scroll',проверить,{passive:true});
+    return()=>узел.removeEventListener('scroll',проверить);
+  },[fullyDone,дочитан]);
+  useEffect(()=>{
+    if(fullyDone&&дочитан&&onComplete)onComplete(lesson.id);
+  },[fullyDone,дочитан]);
+
+  // Esc закрывает урок — раньше клавиатура не работала вовсе.
+  useEffect(()=>{
+    const h=(e)=>{if(e.key==='Escape'&&onClose){e.preventDefault();onClose();}};
+    document.addEventListener('keydown',h);
+    return()=>document.removeEventListener('keydown',h);
+  },[onClose]);
 
   // Guarantee scroll starts at top when lesson opens (belt + suspenders;
   // key prop should already remount component on lesson.id change)
@@ -1500,7 +1569,7 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
             case 'carousel': return wrap(<InlineCarouselBlock block={block}/>);
             case 'bar-chart': return wrap(<InlineBarChartBlock block={block}/>);
             case 'summary-block': return wrap(<SummaryBlockInline block={block}/>);
-            case 'next-steps-block': return wrap(<NextStepsBlockInline block={block} onClose={onClose} onPickAnother={onPickAnother} onRepeat={repeat} onOpenLesson={onOpenLesson}/>);
+            case 'next-steps-block': return wrap(<NextStepsBlockInline block={block} lesson={lesson} onClose={onClose} onPickAnother={onPickAnother} onRepeat={repeat} onOpenLesson={onOpenLesson}/>);
             default: return wrap(<div style={{padding:20,color:'#B0B0B8',textAlign:'center'}}>Блок '{block.type}' не реализован</div>);
           }
         })}
@@ -1516,7 +1585,17 @@ function Lesson({lessonId,onClose,onComplete,onPickAnother,onOpenLesson}){
   // LESSONS из lessons-index.js здесь НЕ виден (в babel-standalone «протекал»).
   // Берём список из window.YasnaLessons.lessons — он populated к моменту рендера.
   const ALL=(window.YasnaLessons&&window.YasnaLessons.lessons)||[];
-  const lesson=ALL.find(l=>l.id===lessonId)||ALL[0];
+  const lesson=ALL.find(l=>l.id===lessonId);
+  /* Урока нет — говорим прямо. Раньше стояло ||ALL[0]: битая ссылка молча
+     открывала «Что такое Ясна?», и человек не понимал, куда попал. */
+  if(!lesson)return(
+    <div style={{position:'fixed',inset:0,zIndex:150,background:'#F5F5F7',display:'flex',alignItems:'center',justifyContent:'center',padding:24}}>
+      <div style={{maxWidth:420,textAlign:'center'}}>
+        <div style={{fontSize:20,fontWeight:700,color:'#0D1B2A',marginBottom:10}}>Этот урок ещё не написан</div>
+        <div style={{fontSize:14,color:'#3D4852',lineHeight:1.6,marginBottom:22}}>Ссылка ведёт на занятие, которого в приложении пока нет.</div>
+        <button onClick={onPickAnother||onClose} style={{fontSize:15,fontWeight:600,padding:'13px 26px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer',fontFamily:'inherit'}}>← К «Урокам»</button>
+      </div>
+    </div>);
   return<ScrollLesson key={lesson.id} lesson={lesson} onClose={onClose} onComplete={onComplete} onPickAnother={onPickAnother} onOpenLesson={onOpenLesson}/>;
 }
 
