@@ -848,12 +848,15 @@ html[data-theme='light'] {
        хочу», а не «как показать». Выбранный фильтр раскрывает ветви и
        оставляет в них только подходящее. -->
   <div class="dr-chipy" id="dr-chipy" role="tablist" aria-label="Что показать">
+    <!-- Четыре чипа, потому что ширины 361px: шесть выталкивали «Справку» и
+         «Не пройдено» за край без намёка на прокрутку. «Уроки» включают
+         разборы (разбор — тот же урок, только ведёт автор). Чип «Не пройдено»
+         снят: он раскрывал всё дерево разом и не пустел никогда — справка
+         «пройденной» не бывает. -->
     <button type="button" class="dr-chip est" data-f="all">Всё</button>
     <button type="button" class="dr-chip" data-f="урок">Уроки</button>
-    <button type="button" class="dr-chip" data-f="разбор">Разборы</button>
     <button type="button" class="dr-chip" data-f="практика">Практика</button>
     <button type="button" class="dr-chip" data-f="справка">Справка</button>
-    <button type="button" class="dr-chip" data-f="ne">Не пройдено</button>
   </div>
 
   <div class="dr-polotno" id="dr-polotno"></div>
@@ -1390,11 +1393,9 @@ html[data-theme='light'] {
        без подходящих занятий уходит целиком. «Практика» — это круги и
        вопросы: то, где ход делает человек. */
     var ПОДХОДИТ = {
-      'урок':      function (у) { return у.жанр === 'урок'; },
-      'разбор':    function (у) { return у.жанр === 'разбор'; },
+      'урок':      function (у) { return у.жанр === 'урок' || у.жанр === 'разбор'; },
       'практика':  function (у) { return у.жанр === 'круг' || у.жанр === 'вопросы' || у.жанр === 'своё'; },
-      'справка':   function (у) { return у.жанр === 'справка' || у.жанр === 'книга' || у.жанр === 'записи'; },
-      'ne':        function (у) { var к = З.состояние(у).код; return к !== 'пройдено' && к !== 'держится' && !у.нет; }
+      'справка':   function (у) { return у.жанр === 'справка' || у.жанр === 'книга' || у.жанр === 'записи'; }
     };
     var фильтр = 'all';
     function применитьФильтр() {
@@ -1405,8 +1406,12 @@ html[data-theme='light'] {
         var id = в.dataset.vetv;
         var ветвь = null;
         Д.ВЕТВИ.forEach(function (x) { if (x.id === id) ветвь = x; });
-        if (!проверка) {                       /* «Всё» — вернуть как было */
-          в.hidden = false; в.open = false;
+        if (!проверка) {
+          /* «Всё» показывает всё, но НЕ трогает open: человек раскрыл ветвь
+             рукой — фильтр не вправе её захлопнуть. Сворачиваем только то,
+             что раскрыл сам фильтр. */
+          в.hidden = false;
+          if (в.dataset.filterOpened) { в.open = false; delete в.dataset.filterOpened; }
           [].forEach.call(в.querySelectorAll('.dr-uzel'), function (у) { у.hidden = false; });
           return;
         }
@@ -1425,7 +1430,7 @@ html[data-theme='light'] {
           if (годится) видно++;
         });
         в.hidden = видно === 0;
-        в.open = видно > 0;
+        if (видно > 0 && !в.open) { в.open = true; в.dataset.filterOpened = '1'; }
       });
     }
     function paспортГодится(паспорт, проверка) {
