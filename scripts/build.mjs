@@ -94,6 +94,46 @@ async function файлыУроков(){
   return имена.map(n => 'lessons/' + n).concat(['lessons/lessons-index.js']);
 }
 
+/* ─── Паспорта уроков: docs/core/pasporta.js ────────────────────────
+   Каждый урок был описан дважды: в своём файле и рукой в дереве
+   (core/derevo-dannye.js). На шести уроках расхождений уже два
+   («Учимся находить опоры» ↔ «Четыре опоры»). На сорока шести рукопись
+   разошлась бы гарантированно. Теперь сборка читает файлы уроков и
+   выпускает лёгкий паспорт (id, имя, подзаголовок, часть, минуты,
+   места) — дерево берёт имена оттуда, а рукой в дереве остаётся только
+   то, чего файл урока не знает: ветвь, источник, «о». */
+async function собратьПаспорта(){
+  const { readdir } = await import('node:fs/promises');
+  const vm = await import('node:vm');
+  const каталог = path.join(PROJECT,'docs','lessons');
+  const имена = (await readdir(каталог)).filter(n => /^lesson-.+\.js$/.test(n)).sort();
+  const песок = { window: { YasnaLessons: { lessons: [] } } };
+  vm.createContext(песок);
+  for(const имя of имена){
+    const код = await readFile(path.join(каталог,имя),'utf8');
+    try { vm.runInContext(код, песок, { timeout: 5000 }); }
+    catch(e){ console.warn(`  ⚠ паспорт: ${имя} не выполнился — ${e.message.slice(0,80)}`); }
+  }
+  const паспорта = песок.window.YasnaLessons.lessons.map(l => {
+    const места = new Set();
+    for(const б of (l.blocks||[])){
+      for(const ключ of ['highlightPositions','highlighted']){
+        if(Array.isArray(б[ключ])) б[ключ].forEach(м => { if(Number.isInteger(м)) места.add(м); });
+      }
+    }
+    return {
+      id: l.id, имя: l.title || l.id, под: l.subtitle || '',
+      часть: l.module || '', порядок: l.moduleOrder || l.order || 0,
+      объём: l.duration || (l.blocks ? l.blocks.length + ' шагов' : ''),
+      ясна: l.yasna || null, места: [...места].sort((а,б)=>а-б)
+    };
+  });
+  const из = `/* АВТОГЕН scripts/build.mjs — НЕ ПРАВИТЬ РУКАМИ.\n   Паспорта уроков, прочитанные из docs/lessons/lesson-*.js. */\n`
+    + 'window.YasnaPasporta = ' + JSON.stringify(паспорта, null, 1) + ';\n';
+  await writeFile(path.join(PROJECT,'docs','core','pasporta.js'), из);
+  return паспорта.length;
+}
+
 // ─── Helpers ────────────────────────────────────────────────────────
 
 async function fileExists(p){
@@ -269,6 +309,8 @@ async function buildAll(){
        ленивая загрузка просила именно свежий файл, а не то, что осело в
        кэше браузера. Руками такие версии мы уже забывали бампать. */
     const r0 = await buildBundle('uroki', await файлыУроков(), srcRoot, distRoot);
+    const пасп = await собратьПаспорта();
+    console.log(`  ✓ pasporta.js  ${пасп} уроков`);
     const { createHash } = await import('node:crypto');
     const версияУроков = createHash('sha256')
       .update(await readFile(path.join(distRoot,'uroki.min.js')))

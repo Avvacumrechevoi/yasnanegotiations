@@ -15,8 +15,9 @@
 <!-- Дерево знаний: паспорта занятий и общий счёт пройденного. Обычные
      script-теги — на этой странице нет сборки и нет React. -->
 <script src="core/data.js?v=2f602398"></script>
+<script src="core/pasporta.js?v=1"></script>
 <script src="core/derevo-dannye.js?v=928fbba4"></script>
-<script src="core/znanie.js?v=3d6132aa"></script>
+<script src="core/znanie.js?v=1d3035e0"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
 <!-- Приложение: манифест, иконки и цвет строки состояния. Раньше манифест
      висел на двух страницах из девяти, иконка была одна — SVG в data-URI, а
@@ -256,6 +257,9 @@ a { color: inherit; text-decoration: none; }
   border: 0; background: none; font: 500 13px/1.3 inherit; font-family: inherit;
   color: var(--text-secondary); cursor: pointer; text-align: left; }
 .dr-skladka:hover { color: var(--accent); }
+.dr-chast { min-height: 38px; display: flex; align-items: flex-end; padding: 10px 2px 4px;
+  font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--text-muted); }
 .dr-ist { font-size: 12px; color: var(--text-tertiary); }
 .dr-pishetsya { margin: 14px 0 0; padding: 12px 14px; border: 1px dashed var(--border-strong);
   border-radius: 14px; font-size: 12.5px; line-height: 1.5; color: var(--text-secondary); }
@@ -1160,6 +1164,9 @@ html[data-theme='light'] {
          занятия выпрыгивали в конец ветви, после справки. */
     var куски = [], скрыто = { p: 0, e: 0 }, кнопкаБыла = { p: false, e: false };
     var дальшеБыл = false, послеДальше = 0;
+    var части = {};
+    узлы.forEach(function (у) { if (у.часть) части[у.часть] = 1; });
+    var частиРазные = Object.keys(части).length > 1, текущаяЧасть = null;
     узлы.forEach(function (у) {
       var корзина = null;
       if (у.id === дальшеId) дальшеБыл = true;
@@ -1169,6 +1176,13 @@ html[data-theme='light'] {
         if (дальшеБыл && ++послеДальше > 2) корзина = 'e';
       }
       var html = узелHTML(у, номера[у.id], у.id === дальшеId);
+      /* Часть — средний уровень: явление → часть → занятие. Заголовок
+         печатается только когда часть меняется, и только если частей
+         в ветви больше одной — правило само выключается на малых ветвях. */
+      if (у.часть && частиРазные && у.часть !== текущаяЧасть) {
+        текущаяЧасть = у.часть;
+        куски.push({ h: '<div class="dr-chast">' + экр(у.часть) + '</div>' });
+      }
       if (корзина) {
         скрыто[корзина]++;
         if (!кнопкаБыла[корзина]) { куски.push({ метка: корзина }); кнопкаБыла[корзина] = true; }
