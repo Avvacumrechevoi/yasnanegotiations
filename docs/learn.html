@@ -1537,7 +1537,12 @@ html[data-theme='light'] {
              что раскрыл сам фильтр. */
           в.hidden = false;
           if (в.dataset.filterOpened) { в.open = false; delete в.dataset.filterOpened; }
-          [].forEach.call(в.querySelectorAll('.dr-uzel'), function (у) { у.hidden = false; });
+          [].forEach.call(в.querySelectorAll('.dr-uzel'), function (у) {
+            /* Строки под нераскрытой складкой остаются скрытыми: «Всё»
+               возвращает обычный вид, а не вскрывает складки без кнопки. */
+            var м = у.dataset ? у.dataset.sklad : null;
+            у.hidden = !!(м && в.querySelector('.dr-skladka[data-skladka="' + м + '"]'));
+          });
           return;
         }
         if (!ветвь || !ветвь.узлы) { в.hidden = true; return; }
