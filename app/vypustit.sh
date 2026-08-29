@@ -54,6 +54,12 @@ print(json.dumps({
   "izmeneniya": sys.argv[3],
 }, ensure_ascii=False, indent=2))
 PY
+# Страница скачивания живёт рядом и сама читает version.json — выкладываем
+# её только если файл менялся (обычно нет).
+if [ app/skachat.html -nt /tmp/.skachat-vylozhen 2>/dev/null ] || [ ! -f /tmp/.skachat-vylozhen ]; then
+  yc storage s3 cp "$(dirname "$0")/skachat.html" s3://yasnalab.ru/app.html \
+    --content-type "text/html; charset=utf-8" && touch /tmp/.skachat-vylozhen
+fi
 yc storage s3 cp /tmp/version.json s3://yasnalab.ru/app/version.json \
   --content-type "application/json; charset=utf-8"
 

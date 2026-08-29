@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Ясна — приложение для Android</title>
+<meta name="description" content="Скачай приложение «Ясна»: уроки, игры и разбор явлений по кругу из двенадцати мест. Android, бесплатно."/>
+<meta property="og:title" content="Ясна — приложение для Android"/>
+<meta property="og:description" content="Уроки, игры и разбор явлений по кругу из двенадцати мест. Скачать бесплатно."/>
+<style>
+:root{
+  --bg:#F4F6F9; --kart:#FFFFFF; --ink:#0D1B2A; --ink2:#525B66; --ink3:#5F6B78;
+  --syn:#0071E3; --syn-glub:#0060C4; --kayma:#E3E8EF;
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#0F1318; --kart:#1A2029; --ink:#E8EBEE; --ink2:#9AA3AD; --ink3:#98A3B1;
+    --syn:#3D96F0; --syn-glub:#5EA8F5; --kayma:#2A323E}
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.6 Manrope,-apple-system,"Segoe UI",Roboto,sans-serif;
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px}
+.kart{background:var(--kart);border:1px solid var(--kayma);border-radius:24px;max-width:430px;width:100%;
+  padding:32px 26px 28px;box-shadow:0 8px 40px rgba(13,27,42,.08)}
+.shapka{display:flex;align-items:center;gap:16px;margin-bottom:6px}
+.ikona{width:72px;height:72px;border-radius:18px;flex:0 0 auto;box-shadow:0 2px 12px rgba(0,0,0,.18)}
+h1{font-size:26px;line-height:1.2;font-weight:800}
+.pod{color:var(--ink2);font-size:14px;margin-top:2px}
+.o{color:var(--ink2);font-size:15px;margin:16px 0 20px}
+.knopka{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:56px;
+  background:var(--syn);color:#fff;border-radius:16px;text-decoration:none;font-weight:700;font-size:17px;
+  transition:background .15s}
+.knopka:active{background:var(--syn-glub)}
+.knopka svg{flex:0 0 auto}
+.meta{display:flex;justify-content:center;gap:14px;margin-top:10px;color:var(--ink3);font-size:13px}
+.meta b{color:var(--ink2);font-weight:600}
+.novoe{margin-top:18px;padding:12px 14px;background:var(--bg);border-radius:12px;font-size:13.5px;color:var(--ink2)}
+.novoe b{display:block;color:var(--ink);font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.shagi{margin-top:20px}
+.shagi b{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+.shagi ol{padding-left:20px;color:var(--ink2);font-size:14px}
+.shagi li{margin-bottom:6px}
+.qr{display:none;margin-top:22px;text-align:center}
+.qr img{width:132px;height:132px;border-radius:10px;background:#fff;padding:6px}
+.qr div{font-size:12.5px;color:var(--ink3);margin-top:6px}
+@media (min-width:700px) and (hover:hover){.qr{display:block}}
+.niz{margin-top:20px;text-align:center;font-size:12.5px;color:var(--ink3)}
+</style>
+</head>
+<body>
+<main class="kart">
+  <div class="shapka">
+    <img class="ikona" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAAAAXNSR0IArs4c6QAAEBhJREFUeJztnV9sFMcdx8c2GAcf8dnIxqGQO4dEERsCRqoUierilEhUfknzcDQWwqhRFCl5aEVUVSpXyUJ+OB4qBUt9iKIoQsIgWc29VFFlCTWIY1uqSJFik3ppmgBnoMQ2sr0udvwHMH2Ycjl8vt3Zmd/O/GY9nzfw7u1vZr/zm9/82d9U1b9xgRgIaW+L/em3u7Y2bfC98vbU4i/+8M+h67NS7MJOtWoDUNAYW3f6qMWiHkLI1qYNp49ajbF14dulAUZAhBByonvHM1ueYL/+mS1PnOjeEaZF2mAERPa2bTrc0Rr0rsMdrXvbNoVjkU4YAZGuVIvkG6OEERDZv7tR8o1RYq0LqKa6aue2er57d26rr6mugrZIM9a6gOL1QoMpwdsjwFoXkEEQjA0oZcVTVrz4T9txbcdVapEaaCUUqwJnPeASUCadzKQTZf+dsB3XdmayuYISq+STsuKZdKK0FRFCCEkQQrK5UVT1gEVAKSs+2LPH46+0NlHVXUgM9uwpk84PZNKJTDqBR0YoYqBMOumhnpLLErMDHR6VqzspK85YwEw6kUknpRjlg3oBVei2PK4PcLFeBK0HDG1JvYBSVkPA6+NIGh8smXQyqCAwtCXFAuKoNTyNDxAaNXPcpbwe1HsgPjA0PkC4daC8HpR7IM7yY2h8UASNAktRXgkqBSRYeOWNDwrBgqjVkK5dWGSiad2LoLGAouGEdC+CSgGBrOywzECiBcT9qF0gU+yBxAuvbzQtEjsXUb68qlhA2dyo+I/o3guIYDszag1Q74HWphMCcT8YVpfVB9Fr0wkBqQeg6gRRLyAoJ6TReBjEVCQ7OtQLCNAJ6dKRgbgf5eEzBYWAoDZratGRQbkfI6DH6OwdFv8R/NF0ZGLnIlgEtEai6aCbn1YFQ+xcBJWACtEe0vNtfioHj/vBJSCotoV2cSMyQ/dScAkILppGN6SP0tC9FFwCivCQPmKxcxF0ArIdN3rRNJT7gbAFGHQCgmpnqDxQVN0PUgFBtTYkGgIaeWF0P5gFBDCkjwy24+J0P3gFhLnNBUXcAynf9OMBXgHhzGbCgWApEA7dS+HMzlGatAbUnsfI5kYHe/ibbzT0F7Z6BF9lMAHR4eiKMQUdeIfxtugvoxqQc0BdKV9HFl4/nkknU1bDCqs4XiWrgFZ9HiVlxQd74iHJKJsr8AkIVQhlOzO8AoJ3Px47AjheJVMMRB/pXQU0Q5R3ciQ++HZ6oIob+IwBbwN036Zvg6SvknHy019AgRJHFGXEeD0LHNE0KvdDCdoMwGNnmsWL/VUy5rDyFxCHGmimLcAVzc7eYXYN4Ry2BFqigZ34yaSTswMdHJEAyy01tbt+6f1s7i6Jbs25cWfxxp0Fvl8o5Wx+nJAqX2M6e4fP5sfYf3bjhpr3XtvObVXfpzfnl5YZL7Ydl6UI2dzoOx98zW1SKdTriAUVVd5Nt8r7vLDZgQ6BZ/8fwPh61WEghc/xbN60fvSjfdz2JN6+NHn3XtC7KgUisAMRqO2zsa68x1+9BOSdOTUosD1LcechrW7uSlciIApUEcqBkg7FO37wGsbDjqdg89NGYJ46jCLASoeSsuKcAgqDTDqRshrwfJUSGTwm6kJFQaLxUCceg+LO3Vd4OxRhOB5GlC2mBpqtCo8Hyw+dm3N89zo35x4sP4S2KBjcQ3R2vBu5l4AkuAcMyefPfzUt+UYQJEiHBR8ByeliwCevAzFgj0u+URxpfZavBny6MGlbmWCnDAIxdH22/0KAuUdK/4UxVUfHB1qREMR39txnJppx8hSERHOd77xnSPz9ysxrLzU3xdYzXv/t2Hz3SWfhHuscNCCZdJLjjGk+WJZffAREf0VaqJuy4ko0tHBv+dK/Zn62d/OTG/2HpbcmFw+9PzIKsT4TlJQV//Dd56U97oVffe57DdMoLNBapqZcLsweOD50bmjK+7JzQ1MHjg9dLqjpvKT1XLbjMm4f8FkLK0Va4Oa9+BI2B/e1vPnqUy+/sLLXvjjinvrsu08uTSiyi0AtTfoSaLUggIAqH8UIDAaH19JQuzsZa22sJYSMTS9dLsxOzCypNUnCOINO7YaypZViO25nrxu2jLwXX+QwMbP012Gf7ixi8C1T8sxE0w4S4a6/aBNei83mRmNdeb5Fbv6ljGyuEOvKh/QxBvhvGlZFRDoU0cXUzt5hOYGRwXZcevI3CLQDEd9aEyyI9gBQRmpHYZiBGoUBbu7zn0hk5MadBcZty95g2OOBGIDqhR3kgnmgIoKuyLgfb7idUEgfq4B5oCLUFdnOTKK5LtFcF+jezt5hkE84Ik1gJ2Q77tn8eEifOsELiFKUEfvKXzY3GuiLnLVJ0OVt+pFQeFEBfBdWDssaCM6vAdHCMistp0plCMg7MDLS4abSRnqZVSpJQEVKS2tGWyDQKi2u/0iuVdkCMkQMvCnuDFpgBGQQwgjIIIQRkEEIIyCDEEZABiGMgAxCGAEZhDACMghhBGQQYpU90TXVVfF6BYmnynHn7itPwKMc5K/jB8v2tm3qSrXs3924c1u9dNsq4tycO//V9IA9rioVhira22JdqS37X2y0tiN6HVduzZ2/PD1gT3x5/S79n6r6Ny40xtad6N4hLecDH/0Xxo71X0WSUi5U4vXrTnTv6H4F9es4kx871n91evZ+1U9+98Xpo9YzW55QbZI/347NH+lzVCU2kMPuZOz0UevZVg1ex7Xx+SN9TtV/Jhe2Nm1QbQwrtyYXDxwfiuq+6aeb684db9+2WZvXcXtqsVoj9RBCtm3e0PfWc6qtCIu+t57TSD2EkK1NG/Qbxh9obzq4r0W1FfAc3NdyoL1JtRWB0U9AhJA3X31KtQnwaFooLQX08gvxloZa1VZA0tJQW57SSgu0FBAdrag2ARJ9i6OrgGjusMigb3F0FZABCboKaGxaccZCWPQtjq4Cith8tL7F0VJAF0dc5TlTYZmYWbo4ouV3uloK6NRn36k2AR5NC6WfgM4NTanN9h0Sn1ya8M2Tj5Dq21OLqm0IwK3JxaMff6PairA4+vE3tyZ1eh23pxZrPq9+/ZUXGxuZD6pRyLdj84feH/n37e9VGxIWM9/fv+i4Hbsa2c8NUsi18flD74/UTP3o0MDfxmlmf9UmedF/Yaz7pKPkjByZjLtLA/Z4c0PtHtyv40x+7PBJpzCx8EN6F7OlFRU6bWldcRHyXdxrDeSvYxXLHiw/nLx7T5ZVBh+Qvw79hvEGVBgBGYQwAjIIYQRkEMIIyCCEEZBBCCMggxBGQAYhjIAMQhgBGYSQvcii9mSQqKLwCBt5Aio7NSxBS2s7M+a4Jz4qHcRmO660o2exHDgHexJs5MFzhl+4AmIpZxFz8hwjgWo17JYZ1pmptJCB0ualrDghVcYPeZOy4h+++zz79Yc7WlNW/MadxZCycoXigQI1kRWYY7+94T72O6TACNgDZdLJwZ493IfGE0KME/Igk05y122iue5wRyt49YJ5IBGvswLjhCrB7X5KgXVFAMP4TDpJCIFST+kskaEUMb/+2O8M9sShZCQqIEDHU8QISAJFGXX2Dov8Dv9SRiadnB3oAFePoRJQHmjFb84OdNA+hA8eDxSG1ynFuB/JZNKJlNXA16MFE1DKiqes+FrwOvRTXZp5bmx66XJhVnlCGdtx6fpPGHAHRgFGYWE7niJqR2EH97W8+epT5TlTL464pz77Tm1iEJBRmC+BlgSY5oHo7Kec01hsxz2bH5fwoHKebq479eudv/n504mWuvK/JlrqXn+p+cfPPvmPr/87872qM1+qwoiEVkD7GcbJa6YgWnhuMADZ3KicB61gdzJ27ni7b674A+1N5463I09EIU7Kig/27GG50t8DDfbsSTSv0iLDIJsbPZsfk/OsUuL16/78+93J1RxPOU9uXNexq3HAHl+4txy+aY9hO64cJ/QI/2lrHwGlrLjIGC8QtuO+88HXcp61gpNvPffTXY3s1zfF1jc31P7li8kwjVod23FTVlxOk2ZZ3vbpwqQNuLK5UcEZLW7a22Icp7t1v9La3qamI5O5dyplNXhf4CUgGkxBm7QKancCdaW2SL5RnM7eYTntzVcDijfVZ3Ojsa682n1k+18M0HmB3AiC7bixrryEMYe3gLwmEkN1P0j2H9ZUV3GnALO219dUV6lNgZXNFWzHzaQTEiPrx1CQ+grVRnrB5F/x+nXKsz/ZjtvZ69IVAvkyki0gJI4nelAZSVstKOIlINjFF1jpFL8ve+TS9Ft/DaMI2VwhmyvAysjbMF8BAQAonQqOOqGXb1vtBSeKs/DipYANjLxl4DsTLTrvCfheM+nkh+8+X2kO7dGcZ7A9vxs31Lz32nZuk/o+vTm/FGA+OmXFnT++VKlKH42ZAbYt37izcDY/bjszieY6kVlH38V5/9V47hVgWJfAvh4X6LmbN60f/Wgft1WJty+xB9HsPYv4RkG+55bjuzPCfx6IY6YBfHYn0NcICse0HgR6i+xrmSxkc4VYV57Dq7GImEVABXYN0RUJ2FiEowEB1j4UQYsAvgxAJ6/ZZcS4s4xpJjqbK7A8m/Yd4AMiPvcrbQ2YBT5jwJsB7Rl9XyXdl8joBVjngTxmq0KdGOTWge8qoEy4Q5BMOglesR6vkmMYyPlhYfHBYU/AiGziZPGacoLosEshguCr5JyJljNxh6ob4kYwlMmkE529Ida24KvEm+JOfDoV4ViMA2mbavjAKyDxIEbH9Y1VwfwdFVIBiaShiB4yNxYHBa2AANocEg8EYgZaJ4RRQCCtTdXnQasCpCGMTgingABaG6qVeRA141yiQSeg6Lmf4tyu+O8g7MhwCQhqJxQq90MBMQnhkB6bgEDUg8v9FAHZoYHNCSESEEjnZTsuQvdDAdm3im1Ij0pAIEP3GQhbwiJ6kRAWAUHFzmjdDwVq8zyeDU8oBASV9Qy5eiggTghPNI1FQOI/gjZ2XkHEhvTqBRThoXslQPZtInFCGAQU5aF7JSLjhBQLaI3EzuVADemVOyHFAkK1c1ky0XBCygUk2oB0dD8UKCcEZA4nKgUENPjSUj0UkMUNtRpSH0SLoF3sXI7uRdBdQBq7H0oYn2LKRKWABCtO97ZbRLAgavWn2ANxF17f2LkckWhaeStSn6WV70at3X45ynXAjXoPxCGFME4fVgvfAhmGzU/qg+igFYeh1sKAI5rGsPlJvYCCNj59vb0vQesBQ0NSLyD2HFY0N3vEOq9S2JPPg2fx4gaFgIpp2CrVXTEzknS7FECbU6V2QtMH4mlFnPmBQqV0kZnWVHj1JTPJZlBWLLbjTIet4KgDX3DWlHy0qAcsXZhBU9a6gNw5oeNzBW+PAGtdQA+WH165Ncd375Vbc2rPesLAWhcQIeT85WnJN0YJIyAyYE9IvjFKGAGRL6/fPRP8rPEz+bEvr98NxyKdMAIihJBj/Vevjc+zX39tfP5Y/9UwLdIGIyBCCJmevX+kz7k9tchy8e2pxSN9zvTsWh9/Uf4HEpE2YlH0cksAAAAASUVORK5CYII=" alt="" width="72" height="72"/>
+    <div>
+      <h1>Ясна</h1>
+      <div class="pod">приложение для Android</div>
+    </div>
+  </div>
+  <p class="o">Уроки, игры и разбор явлений по кругу из двенадцати мест. Бесплатно, без регистрации, работает из России.</p>
+
+  <a class="knopka" id="skachat" href="https://storage.yandexcloud.net/yasnalab.ru/app/yasna.apk">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v13M6 10l6 6 6-6M4 21h16"/></svg>
+    Скачать приложение
+  </a>
+  <div class="meta"><span>версия <b id="versiya">5.7</b></span><span>·</span><span><b id="razmer">7,2 МБ</b></span><span>·</span><span>Android 8+</span></div>
+
+  <div class="novoe" id="novoe" hidden><b>Что нового</b><span id="novoe-tekst"></span></div>
+
+  <div class="shagi">
+    <b>Как установить</b>
+    <ol>
+      <li>Нажми «Скачать» и открой загруженный файл.</li>
+      <li>Телефон спросит про установку из этого источника — разреши: приложение приходит напрямую от нас, минуя магазин.</li>
+      <li>Нажми «Установить» — и открывай Ясну с рабочего стола.</li>
+    </ol>
+  </div>
+
+  <div class="qr">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZoAAAGaAQAAAAAefbjOAAADQ0lEQVR4nO1bbYqkMBCtqNA/bZgD9FHiDfZIw97MHGUOMGB+Dii11EeiM8vAZFtWJfV+NBr7YYJFVb2qxCEUIzTlHAAjKYykMJLCSAojKYykMNKVSE7RAUDswA2RrghBxtIfhkOmVwgj7UDySJjINu5kB+nHveJMz1t+jpdaUxmM9IUUswPoZ8Cxn9VRkI/gB+pBPpGKYKRrkLq/RmI3Oz8tnTqEftrpTY2RLklCnBYnl+QecIzO4Xia6f0IRtrDR/TkEiJfzR1CfEHnpxe6bzmRALzOmhojPU8KrCQolRziDTWjoOzhlbLNARaRGju8qQxGOshH4HZIowaKy4DF4Zc/nH1NjZGeIIGoSi/qs918eRYcrEhFfVIyIRp0PPmaGiM97yOCa2dHwjMlDksH/k2TDDYTlzOK06+pMdIOpP7DcVEC/LSkygS0COGBmlbQgz3eVAQjHRQ1kIIDInJxioIIxQqKJOC5ZinOw6JGPSQ3QIupKrk4CHdyD1lcUPxgezloeoUw0i5RYyanMIvclHxS3EPueUkL7Pk3FcFIh0UNJItIsYJDB46UR6wyw7RGHSTQj9yvdkBg4ZnBOpQNROzl5GtqjPR8FdtTadK/Ud7Qv9MY5RG/3lO7i9Xn2vM6+ZoaI+1AitTQIh8hKQQrTUkc+OqG3PPa401FMNJBPsJRp4u/N4aBsod4B+dx6SC4tZRNRaz/PL3GSAfWI2AtQPhcz6bbTXnb8oh6Mst508NYxahUraQUIWNmEXV0ukDERdpTyYVL2GhO9RumPuvpfU6cT6YCRA4iEjC0RpEUqVlELRYBqeyQcgs2huw38gOziFqixig1qJRRSI65djO4BWYWUQcJN/6AdtXxoQ1uaQR3EztYt0tcZE2FMNI3Z7rw9+ODalUaK9ZaFUNr3JdYUyGM9M2uOsaqKzY7JcRAaNCiRlVnugIf8Ht8ZM+Qd0r05DwOml4RjLQ/yU+0gYbMIjy2e6hsf0SNpJh3TrEiJUchV+eY3g9gpH3PdAFtuY4sNqTn5VDaXfFmZ8MrqkcIkgSVVDL3OshHpA6HZZaVnelC8Qw6RmbBd/yTz/ecfE2NkQRGUhhJYSSFkRRGUhhJ8U+Z5R8B4z12hD4yjwAAAABJRU5ErkJggg==" alt="QR-код этой страницы"/>
+    <div>Наведи камеру телефона — откроется эта страница</div>
+  </div>
+
+  <div class="niz">Обновления приложение находит само и предлагает установить.</div>
+</main>
+<script>
+/* Версия и «что нового» — из version.json рядом: страница не устаревает. */
+fetch('app/version.json?t='+Date.now()).then(function(r){return r.json()}).then(function(v){
+  if(!v||!v.versionName)return;
+  document.getElementById('versiya').textContent=v.versionName;
+  if(v.url)document.getElementById('skachat').setAttribute('href',v.url);
+  if(v.izmeneniya){
+    document.getElementById('novoe-tekst').textContent=v.izmeneniya;
+    document.getElementById('novoe').hidden=false;
+  }
+}).catch(function(){});
+/* Размер — честный, из заголовков файла. */
+fetch('app/yasna.apk',{method:'HEAD'}).then(function(r){
+  var б=+r.headers.get('content-length')||0;
+  if(б)document.getElementById('razmer').textContent=(б/1048576).toFixed(1).replace('.',',')+' МБ';
+}).catch(function(){});
+</script>
+</body>
+</html>
