@@ -154,6 +154,7 @@ a { color: inherit; text-decoration: none; }
 .dr { max-width: 720px; margin: 0 auto; padding: 12px 16px 24px; }
 .dr-shapka { padding: 4px 0 12px; }
 .dr-shapka-ryad { display: flex; align-items: center; gap: 10px; }
+.dr-nazad-mesto:empty { display: none; }   /* пришли не вглубь — места не занимаем */
 .dr-zag { flex: 1; margin: 0; font-family: var(--font-serif); font-weight: 500;
   font-size: 30px; line-height: 1.1; letter-spacing: -0.02em; color: var(--text-primary); }
 .dr-lupa { width: 44px; height: 44px; flex: 0 0 auto; border-radius: 12px;
@@ -892,6 +893,9 @@ html[data-theme='light'] {
 <section class="dr" aria-labelledby="dr-zag">
   <header class="dr-shapka">
     <div class="dr-shapka-ryad">
+      <!-- Место кнопки возврата: единая навигация — возврат всегда в шапке,
+           а не плавающей кнопкой поверх экрана. -->
+      <span class="dr-nazad-mesto" data-yk-nazad-mesto=""></span>
       <h1 class="dr-zag" id="dr-zag">Уроки</h1>
       <button type="button" class="dr-lupa" id="dr-lupa" aria-label="Найти занятие">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -932,7 +936,7 @@ html[data-theme='light'] {
   <span class="kn-karta-txt">
     <span class="kn-karta-klejmo">Учебник</span>
     <b class="kn-karta-imya">Ясна Суток</b>
-    <em class="kn-karta-pod">Вся книга целиком — слово в слово, со схемами</em>
+    <em class="kn-karta-pod">Первая книга о том, как всё устроено</em>
     <span class="kn-karta-niz">
       <span class="kn-karta-zhelob"><i id="kn-karta-fill"></i></span>
       <span class="kn-karta-pct" id="kn-karta-pct">открыть</span>

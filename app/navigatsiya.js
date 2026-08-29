@@ -113,6 +113,10 @@
     '.yk-nazad svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;' +
       'stroke-linecap:round;stroke-linejoin:round}' +
     '.yk-nazad:active{transform:scale(.96)}' +
+    /* Кнопка, севшая в шапку страницы: без тени и фиксации, едет со строкой. */
+    '.yk-nazad--v-shapke{position:static;box-shadow:none;background:transparent;' +
+      'border-color:transparent;padding:0 10px 0 6px;height:44px;color:var(--yk-ink2)}' +
+    '.yk-nazad--v-shapke span{max-width:9em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
     /* ПОЛОСА ПОД КНОПКОЙ ВОЗВРАТА.
        Кнопка висит в левом верхнем углу и наезжала на заголовки экранов:
        «Уроки», «Профиль», «Мастерство в игре», «✦ Рейтинг» — проверено
@@ -227,8 +231,33 @@
   }, true);
 
   (function кнопкаНазад() {
-    var откуда = прочитатьОткуда();
-    if (!откуда || откуда.файл === файл) return;
+    /* МЕСТО В ШАПКЕ. Плавающая кнопка искалась глазами по всему экрану —
+       особенно на длинных страницах, где шапка липкая, а кнопка уехала со
+       скроллом. Если страница даёт место (data-yk-nazad-mesto="файл|Имя"),
+       кнопка садится туда и едет вместе с шапкой. Значение атрибута — куда
+       вести, когда человек пришёл прямой ссылкой и «откуда» пусто. */
+    var место = document.querySelector('[data-yk-nazad-mesto]');
+    var запасной = null;
+    if (место) {
+      var зн = (место.getAttribute('data-yk-nazad-mesto') || '').split('|');
+      if (зн[0]) запасной = { файл: зн[0], имя: зн[1] || 'Назад', путь: вверх + зн[0] };
+    }
+    /* Подпись обязана совпадать с тем, куда кнопка реально уведёт. Нажатие
+       сперва идёт по истории, поэтому имя берём с предыдущей страницы, а
+       метку «откуда» — только когда истории нет. Иначе кнопка обещала
+       «Главная», а возвращала на «Уроки». */
+    var поИстории = null;
+    try {
+      if (document.referrer && history.length > 1) {
+        var р = new URL(document.referrer);
+        if (р.origin === location.origin) {
+          var ф = (р.pathname.split('/').pop() || 'index.html');
+          if (ф !== файл && ИМЕНА[ф]) поИстории = { файл: ф, имя: ИМЕНА[ф], путь: вверх + ф };
+        }
+      }
+    } catch (_) {}
+    var откуда = поИстории || прочитатьОткуда() || запасной;
+    if (!откуда || (откуда.файл === файл && !место)) return;
     /* На «Круге» своя стрелка в шапке — второй кнопки не надо. */
     if (часть.indexOf('krug') >= 0 || document.getElementById('krug-nazad')) return;
     var кн = document.createElement('a');
@@ -239,11 +268,29 @@
                    '<span>' + откуда.имя + '</span>';
     кн.addEventListener('click', function (e) {
       e.preventDefault();
+      /* Сперва спрашиваем страницу: у неё может быть свой уровень вглубь
+         (открытая глава книги, раскрытый лист). Отменила событие — значит
+         разобралась сама, и с экрана уходить рано. */
+      var соб;
+      try {
+        соб = new CustomEvent('yasna:назад', { cancelable: true });
+      } catch (_) {
+        соб = document.createEvent('CustomEvent');
+        соб.initCustomEvent('yasna:назад', false, true, null);
+      }
+      window.dispatchEvent(соб);
+      if (соб.defaultPrevented) return;
       записатьОткуда(null);
       /* Настоящая история лучше: сохраняет прокрутку и состояние экрана. */
       if (history.length > 1) { history.back(); return; }
       location.replace(кн.href);
     });
+    if (место) {
+      /* В шапке кнопка — часть строки, а не карточка поверх экрана. */
+      кн.classList.add('yk-nazad--v-shapke');
+      место.appendChild(кн);
+      return;                       /* размещать по экрану больше нечего */
+    }
     document.body.appendChild(кн);
 
     /* ══ ГДЕ СТОЯТЬ КНОПКЕ ═══════════════════════════════════════════════

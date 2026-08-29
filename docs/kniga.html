@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <title>Ясна Суток — учебник</title>
-<meta name="description" content="Учебник «Ясна Суток» целиком: режим последовательного изучения, слово в слово, со всеми схемами."/>
+<meta name="description" content="Первая книга о том, как всё устроено. Учебник «Ясна Суток» целиком, со всеми схемами."/>
 <script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);var e=document.documentElement;e.setAttribute('data-theme',d?'dark':'light');e.style.colorScheme=d?'dark':'light';}catch(e){}</script>
 <script src="core/theme.js"></script>
 <script src="kniga/opis.js?v=fc30e271"></script>
@@ -31,7 +31,7 @@ body{background:var(--kn-bum);color:var(--kn-ink);font-family:var(--kn-serif);
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 
 /* ── Оглавление ── */
-.ogl{max-width:660px;margin:0 auto;padding:22px 18px calc(28px + var(--yk-snizu,0px))}
+.ogl{max-width:660px;margin:0 auto;padding:18px 18px calc(28px + var(--yk-snizu,0px))}
 .obl{padding:26px 22px 22px;border-radius:18px;background:var(--kn-list);
   border:1px solid var(--kn-kayma);text-align:center;position:relative;overflow:hidden}
 .obl-nad{font:600 11.5px/1 var(--kn-sans);letter-spacing:.18em;text-transform:uppercase;
@@ -72,14 +72,14 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 body.chtenie .list{display:block}
 body.chtenie .ogl{display:none}
 .polosa{position:fixed;left:0;top:0;height:3px;width:0;background:var(--kn-akc);z-index:30}
-.gl-shapka{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;
-  margin:0 -18px;padding:10px 16px;background:var(--kn-bum);
-  border-bottom:1px solid var(--kn-kayma)}
-html.yk-est .gl-shapka{padding-top:calc(10px + var(--yk-sverhu,0px))}
-.gl-nazad{flex:0 0 auto;min-width:44px;min-height:44px;display:flex;align-items:center;
-  justify-content:center;font-size:20px;color:var(--kn-ink-2)}
-.gl-shapka-t{flex:1;min-width:0;font:600 13.5px/1.3 var(--kn-sans);white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis}
+/* Шапка страницы — одна на оглавление и главу: возврат всегда на месте,
+   а не плавающей кнопкой, которую надо искать глазами. */
+.kn-shapka{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:6px;
+  padding:8px 12px;background:var(--kn-bum);border-bottom:1px solid var(--kn-kayma)}
+html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
+.kn-nazad-mesto{flex:0 0 auto;display:flex;align-items:center;min-height:44px}
+.kn-shapka-t{flex:1;min-width:0;font:600 14px/1.3 var(--kn-sans);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;text-align:center;color:var(--kn-ink)}
 .gl-kegl{flex:0 0 auto;min-width:44px;min-height:44px;display:flex;align-items:center;
   justify-content:center;font:600 13px/1 var(--kn-sans);color:var(--kn-ink-2);
   border:1px solid var(--kn-kayma);border-radius:11px;padding:0 10px}
@@ -128,11 +128,19 @@ html.yk-est .gl-shapka{padding-top:calc(10px + var(--yk-sverhu,0px))}
 <body>
 <div class="polosa" id="polosa" aria-hidden="true"></div>
 
+<header class="kn-shapka" id="kn-shapka">
+  <!-- Место для кнопки возврата: её ставит наббар приложения (единая
+       навигация на всех экранах). В вебе, где наббара нет, место пустует. -->
+  <span class="kn-nazad-mesto" data-yk-nazad-mesto="learn.html|Уроки"></span>
+  <div class="kn-shapka-t" id="shapka-t">Ясна Суток</div>
+  <button class="gl-kegl" id="kegl" type="button" aria-label="Размер текста" hidden>Аа</button>
+</header>
+
 <main class="ogl" id="ogl">
   <div class="obl">
     <div class="obl-nad">Учебник</div>
     <h1 id="obl-imya">Ясна Суток</h1>
-    <div class="obl-pod" id="obl-pod">учебник целиком, слово в слово</div>
+    <div class="obl-pod" id="obl-pod">Первая книга о том, как всё устроено</div>
     <svg class="obl-znak" viewBox="0 0 60 60" aria-hidden="true">
       <circle cx="30" cy="30" r="26"/><circle cx="30" cy="30" r="17"/>
       <line x1="30" y1="4" x2="30" y2="56"/><line x1="4" y1="30" x2="56" y2="30"/>
@@ -153,11 +161,6 @@ html.yk-est .gl-shapka{padding-top:calc(10px + var(--yk-sverhu,0px))}
 </main>
 
 <article class="list" id="list">
-  <div class="gl-shapka">
-    <button class="gl-nazad" id="k-oglavleniyu" type="button" aria-label="К оглавлению">‹</button>
-    <div class="gl-shapka-t" id="shapka-t"></div>
-    <button class="gl-kegl" id="kegl" type="button" aria-label="Размер текста">Аа</button>
-  </div>
   <div class="telo" id="telo"></div>
   <div class="hvost">
     <button id="pred" type="button">‹ Назад</button>
@@ -305,6 +308,7 @@ html.yk-est .gl-shapka{padding-top:calc(10px + var(--yk-sverhu,0px))}
     эТело.innerHTML='<div class="grузка">Открываю…</div>';
     document.body.classList.add('chtenie');
     document.getElementById('shapka-t').textContent=оп.имя;
+    document.getElementById('kegl').hidden=false;   /* кегль нужен только в главе */
     window.scrollTo(0,0);
     загрузить(н, function(г){
       if(!г){ эТело.innerHTML='<div class="grузка">Эта глава ещё набирается со скана.</div>'; return; }
@@ -324,6 +328,9 @@ html.yk-est .gl-shapka{padding-top:calc(10px + var(--yk-sverhu,0px))}
 
   function кОглавлению(){
     document.body.classList.remove('chtenie');
+    document.getElementById('shapka-t').textContent='Ясна Суток';
+    document.getElementById('kegl').hidden=true;
+    document.getElementById('polosa').style.width='0';
     рисоватьОглавление();
     window.scrollTo(0,0);
   }
@@ -339,7 +346,6 @@ html.yk-est .gl-shapka{padding-top:calc(10px + var(--yk-sverhu,0px))}
     }
   }, {passive:true});
 
-  document.getElementById('k-oglavleniyu').onclick=кОглавлению;
   эСписок.addEventListener('click', function(e){
     var к=e.target.closest&&e.target.closest('[data-gl]');
     if(к) открыть(+к.getAttribute('data-gl'));
@@ -351,6 +357,8 @@ html.yk-est .gl-shapka{padding-top:calc(10px + var(--yk-sverhu,0px))}
   };
   /* Аппаратная «назад» и Esc: из главы — в оглавление, а не из книги вон. */
   window.addEventListener('yasna:назад', function(e){
+    /* Читаем главу — возвращаемся в оглавление, а не уходим с экрана.
+       Событие шлют оба пути: аппаратная «назад» и кнопка в шапке. */
     if(document.body.classList.contains('chtenie')){ e.preventDefault&&e.preventDefault(); кОглавлению(); }
   });
   window.addEventListener('keydown', function(e){
