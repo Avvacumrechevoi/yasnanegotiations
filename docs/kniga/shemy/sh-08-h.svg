@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-352 -280 684 548" font-family="var(--kn-serif,Georgia,serif)">
+<line x1="0.00" y1="-190.00" x2="0.00" y2="180.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.50"/>
+<line x1="-12.00" y1="-190.00" x2="12.00" y2="-190.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.60"/>
+<line x1="-12.00" y1="180.00" x2="12.00" y2="180.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.60"/>
+<line x1="-190.00" y1="0.00" x2="167.00" y2="0.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.50"/>
+<line x1="-190.00" y1="-12.00" x2="-190.00" y2="12.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.60"/>
+<line x1="167.00" y1="-12.00" x2="167.00" y2="12.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.60"/>
+<line x1="-11.00" y1="-233.00" x2="-11.00" y2="-221.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.20"/>
+<line x1="-17.00" y1="-227.00" x2="-5.00" y2="-227.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.20"/>
+<circle cx="-11.00" cy="217.00" r="8.50" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.80"/>
+<line x1="-222.00" y1="-7.00" x2="-222.00" y2="7.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.20"/>
+<path d="M 200,-8 L 191,6 L 209,6 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.80" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="-11.00" y="-256.00" font-size="15.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)">Воздух</text>
+<text x="-11.00" y="252.00" font-size="15.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)">Земля</text>
+<text x="-248.00" y="-9.00" font-size="13.0" text-anchor="end" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">Огненое</text>
+<text x="-248.00" y="4.00" font-size="13.0" text-anchor="end" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">Сражение</text>
+<text x="-248.00" y="17.00" font-size="13.0" text-anchor="end" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">на Востоке</text>
+<text x="229.00" y="-18.00" font-size="13.0" text-anchor="start" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">Водное</text>
+<text x="229.00" y="-5.00" font-size="13.0" text-anchor="start" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">Сражение</text>
+<text x="229.00" y="8.00" font-size="13.0" text-anchor="start" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">на Западе</text>
+<path d="M -348.83,-23.00 C -349.54,-44.26 -338.92,-48.31 -330.12,-73.61 C -325.88,-49.32 -320.22,-40.21 -320.50,-23.00 Z" fill="var(--kn-ink,#1a1a1a)"/>
+<path d="M -334.67,-25.00 C -338.92,-40.21 -333.08,-44.26 -331.85,-59.44" fill="none" stroke="var(--kn-paper,#fff)" stroke-width="2.83" stroke-linecap="round"/>
+<path d="M -332.17,-23.00 C -332.88,-56.80 -322.25,-63.24 -310.33,-103.49 C -309.22,-64.85 -303.55,-50.37 -303.83,-23.00 Z" fill="var(--kn-ink,#1a1a1a)"/>
+<path d="M -318.00,-25.00 C -322.25,-50.37 -315.31,-56.80 -313.24,-80.95" fill="none" stroke="var(--kn-paper,#fff)" stroke-width="2.83" stroke-linecap="round"/>
+<path d="M -315.50,-23.00 C -316.21,-48.92 -305.58,-53.86 -293.97,-84.73 C -292.55,-55.10 -286.88,-43.99 -287.17,-23.00 Z" fill="var(--kn-ink,#1a1a1a)"/>
+<path d="M -301.33,-25.00 C -305.58,-43.99 -298.76,-48.92 -296.77,-67.44" fill="none" stroke="var(--kn-paper,#fff)" stroke-width="2.83" stroke-linecap="round"/>
+<path d="M -298.83,-23.00 C -299.54,-59.14 -288.92,-66.03 -284.42,-109.05 C -275.88,-67.75 -270.22,-52.26 -270.50,-23.00 Z" fill="var(--kn-ink,#1a1a1a)"/>
+<path d="M -284.67,-25.00 C -288.92,-52.26 -284.58,-59.14 -284.52,-84.96" fill="none" stroke="var(--kn-paper,#fff)" stroke-width="2.83" stroke-linecap="round"/>
+<path d="M -282.17,-23.00 C -282.88,-54.28 -272.25,-60.23 -264.90,-97.47 C -259.22,-61.72 -253.55,-48.32 -253.83,-23.00 Z" fill="var(--kn-ink,#1a1a1a)"/>
+<path d="M -268.00,-25.00 C -272.25,-48.32 -266.91,-54.28 -266.08,-76.61" fill="none" stroke="var(--kn-paper,#fff)" stroke-width="2.83" stroke-linecap="round"/>
+<path d="M -265.50,-23.00 C -266.21,-61.79 -255.58,-69.18 -256.58,-115.36 C -242.55,-71.02 -236.88,-54.40 -237.17,-23.00 Z" fill="var(--kn-ink,#1a1a1a)"/>
+<path d="M -251.33,-25.00 C -255.58,-54.40 -253.17,-61.79 -254.59,-89.50" fill="none" stroke="var(--kn-paper,#fff)" stroke-width="2.83" stroke-linecap="round"/>
+<path d="M -248.83,-23.00 C -249.54,-46.00 -238.92,-50.38 -237.84,-77.76 C -225.88,-51.47 -220.22,-41.62 -220.50,-23.00 Z" fill="var(--kn-ink,#1a1a1a)"/>
+<path d="M -234.67,-25.00 C -238.92,-41.62 -235.78,-46.00 -236.63,-62.43" fill="none" stroke="var(--kn-paper,#fff)" stroke-width="2.83" stroke-linecap="round"/>
+<path d="M -232.17,-23.00 C -232.88,-53.59 -222.25,-59.42 -216.07,-95.83 C -209.22,-60.87 -203.55,-47.76 -203.83,-23.00 Z" fill="var(--kn-ink,#1a1a1a)"/>
+<path d="M -218.00,-25.00 C -222.25,-47.76 -217.32,-53.59 -216.80,-75.44" fill="none" stroke="var(--kn-paper,#fff)" stroke-width="2.83" stroke-linecap="round"/>
+<path d="M -215.50,-23.00 C -216.21,-39.57 -205.58,-42.72 -204.97,-62.44 C -192.55,-43.51 -186.88,-36.41 -187.17,-23.00 Z" fill="var(--kn-ink,#1a1a1a)"/>
+<path d="M -201.33,-25.00 C -205.58,-36.41 -202.61,-39.57 -203.59,-51.40" fill="none" stroke="var(--kn-paper,#fff)" stroke-width="2.83" stroke-linecap="round"/>
+<line x1="-346.00" y1="-23.00" x2="-190.00" y2="-23.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.60"/>
+<path d="M 160.00,-37.12 C 170.88,-56.32 184.48,-92.16 206.24,-99.84 C 236.16,-108.80 268.80,-101.12 271.52,-81.92 C 272.88,-64.00 238.88,-62.72 223.92,-76.80 C 257.92,-49.92 282.40,-40.96 296.00,-37.12 Z" fill="var(--kn-ink,#1a1a1a)"/>
+<path d="M 190.74,-54.14 Q 216.74,-71.35 240.95,-61.95" fill="none" stroke="var(--kn-paper,#fff)" stroke-width="1.5"/>
+<path d="M 194.82,-56.06 Q 220.28,-73.52 243.12,-64.51" fill="none" stroke="var(--kn-paper,#fff)" stroke-width="1.5"/>
+<path d="M 198.90,-57.98 Q 223.81,-75.70 245.30,-67.07" fill="none" stroke="var(--kn-paper,#fff)" stroke-width="1.5"/>
+<path d="M 202.98,-59.90 Q 227.35,-77.88 247.48,-69.63" fill="none" stroke="var(--kn-paper,#fff)" stroke-width="1.5"/>
+<path d="M 207.06,-61.82 Q 230.88,-80.05 249.65,-72.19" fill="none" stroke="var(--kn-paper,#fff)" stroke-width="1.5"/>
+<path d="M 211.14,-63.74 Q 234.42,-82.23 251.83,-74.75" fill="none" stroke="var(--kn-paper,#fff)" stroke-width="1.5"/>
+<circle cx="207.60" cy="-107.62" r="1.72" fill="var(--kn-ink,#1a1a1a)"/>
+<circle cx="208.36" cy="-106.42" r="1.39" fill="var(--kn-ink,#1a1a1a)"/>
+<circle cx="192.31" cy="-106.51" r="1.43" fill="var(--kn-ink,#1a1a1a)"/>
+<circle cx="227.05" cy="-96.89" r="1.10" fill="var(--kn-ink,#1a1a1a)"/>
+<circle cx="186.94" cy="-113.37" r="1.49" fill="var(--kn-ink,#1a1a1a)"/>
+<circle cx="184.15" cy="-117.35" r="1.76" fill="var(--kn-ink,#1a1a1a)"/>
+<circle cx="219.11" cy="-108.90" r="0.96" fill="var(--kn-ink,#1a1a1a)"/>
+<circle cx="182.62" cy="-106.89" r="0.86" fill="var(--kn-ink,#1a1a1a)"/>
+<circle cx="192.62" cy="-100.29" r="0.83" fill="var(--kn-ink,#1a1a1a)"/>
+<circle cx="208.26" cy="-104.87" r="1.64" fill="var(--kn-ink,#1a1a1a)"/>
+<circle cx="211.41" cy="-109.47" r="1.30" fill="var(--kn-ink,#1a1a1a)"/>
+<circle cx="219.60" cy="-105.26" r="1.08" fill="var(--kn-ink,#1a1a1a)"/>
+<circle cx="238.75" cy="-117.66" r="1.64" fill="var(--kn-ink,#1a1a1a)"/>
+<circle cx="222.19" cy="-101.98" r="1.03" fill="var(--kn-ink,#1a1a1a)"/>
+<line x1="151.84" y1="-37.12" x2="309.60" y2="-37.12" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.30"/>
+</svg>

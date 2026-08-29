@@ -111,8 +111,11 @@ html.yk-est .gl-shapka{padding-top:calc(10px + var(--yk-sverhu,0px))}
 .shema svg{max-width:100%;height:auto;display:block;margin:0 auto}
 .shema-pod{margin-top:10px;font:400 calc(13px * var(--kn-kegl))/1.45 var(--kn-sans);
   color:var(--kn-ink-2)}
-.shema-net{padding:26px 12px;color:var(--kn-ink-3);font:400 13.5px/1.5 var(--kn-sans)}
-.shema-net b{display:block;font:600 13px/1 var(--kn-sans);color:var(--kn-ink-2);margin-bottom:5px}
+.shema-net{padding:22px 12px;color:var(--kn-ink-3);font:400 15px/1 var(--kn-sans)}
+/* Оформление издания: рамка не нужна, довольно подписи. */
+.shema--podpis{background:none;border:0;border-left:2px solid var(--kn-kayma);
+  border-radius:0;padding:2px 0 2px 14px;margin:18px 0;text-align:left}
+.shema--podpis .shema-pod{margin-top:0;font-style:italic}
 
 .hvost{display:flex;gap:10px;margin-top:30px}
 .hvost button{flex:1;min-height:52px;border-radius:14px;border:1px solid var(--kn-kayma);
@@ -266,8 +269,7 @@ html.yk-est .gl-shapka{padding-top:calc(10px + var(--yk-sverhu,0px))}
     if(ч.т==='сноска') return '<p class="snoska">'+экр(ч.текст)+'</p>';
     if(ч.т==='схема'){
       return '<figure class="shema" data-shema="'+экр(ч.id)+'">'
-        + '<div class="shema-mesto shema-net"><b>Схема книги</b>'
-        + 'перерисовывается' + (ч.страница?(' · стр. '+ч.страница):'') + '</div>'
+        + '<div class="shema-mesto shema-net">…</div>'
         + (ч.подпись ? '<figcaption class="shema-pod">'+экр(ч.подпись)+'</figcaption>' : '')
         + '</figure>';
     }
@@ -286,7 +288,14 @@ html.yk-est .gl-shapka{padding-top:calc(10px + var(--yk-sverhu,0px))}
         if(svg.indexOf('<svg')<0) throw 0;
         var м=ф.querySelector('.shema-mesto');
         if(м){ м.classList.remove('shema-net'); м.innerHTML=svg; }
-      }).catch(function(){});
+      }).catch(function(){
+        /* Рисунка нет — это оформление издания (обложка, марка, QR-код):
+           перерисовать его «один в один» нельзя, подделка была бы хуже
+           отсутствия. Оставляем честную подпись вместо пустой рамки. */
+        var м=ф.querySelector('.shema-mesto');
+        if(м) м.remove();
+        ф.classList.add('shema--podpis');
+      });
     });
   }
 

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-272 -274 514 538" font-family="var(--kn-serif,Georgia,serif)">
+<line x1="0.00" y1="0.00" x2="0.00" y2="-138.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.7" stroke-dasharray="15 9"/>
+<line x1="0.00" y1="-172.00" x2="0.00" y2="-262.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.7" stroke-dasharray="15 9"/>
+<line x1="-0.00" y1="-0.00" x2="-0.00" y2="138.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.7" stroke-dasharray="15 9"/>
+<line x1="-0.00" y1="172.00" x2="-0.00" y2="246.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.7" stroke-dasharray="15 9"/>
+<line x1="-0.00" y1="0.00" x2="-138.00" y2="-0.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.7" stroke-dasharray="15 9"/>
+<line x1="-172.00" y1="-0.00" x2="-250.00" y2="-0.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.7" stroke-dasharray="15 9"/>
+<line x1="0.00" y1="0.00" x2="138.00" y2="-0.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.7" stroke-dasharray="15 9"/>
+<line x1="172.00" y1="-0.00" x2="226.00" y2="-0.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.7" stroke-dasharray="15 9"/>
+<line x1="76.00" y1="-0.00" x2="128.00" y2="-0.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.0"/>
+<line x1="128.00" y1="-9.00" x2="128.00" y2="9.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2"/>
+<path d="M 155.00 -10.54 L 165.00 6.46 L 145.00 6.46 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.8"/>
+<line x1="0.00" y1="-76.00" x2="0.00" y2="-128.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.0"/>
+<line x1="-9.00" y1="-128.00" x2="9.00" y2="-128.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2"/>
+<path d="M -9.50 -155.00 H 9.50 M 0.00 -164.50 V -145.50" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.9"/>
+<line x1="-76.00" y1="-0.00" x2="-128.00" y2="-0.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.0"/>
+<line x1="-128.00" y1="9.00" x2="-128.00" y2="-9.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2"/>
+<line x1="-155.00" y1="-9.50" x2="-155.00" y2="9.50" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.9"/>
+<line x1="-0.00" y1="76.00" x2="-0.00" y2="128.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.0"/>
+<line x1="9.00" y1="128.00" x2="-9.00" y2="128.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2"/>
+<circle cx="-0.00" cy="155.00" r="8.5" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.8"/>
+<line x1="0.00" y1="0.00" x2="93.00" y2="-161.08" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.0"/>
+<line x1="76.00" y1="-141.14" x2="76.00" y2="-122.14" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.9"/>
+<line x1="-0.00" y1="0.00" x2="-209.58" y2="-121.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.0"/>
+<circle cx="-131.64" cy="-76.00" r="8.5" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.8"/>
+<line x1="-0.00" y1="-0.00" x2="-124.00" y2="214.77" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.0"/>
+<path d="M -76.00 121.10 L -66.00 138.10 L -86.00 138.10 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.8"/>
+<line x1="0.00" y1="-0.00" x2="190.53" y2="110.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.0"/>
+<path d="M 122.14 76.00 H 141.14 M 131.64 66.50 V 85.50" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.9"/>
+<line x1="79.67" y1="-46.00" x2="112.58" y2="-65.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.0"/>
+<line x1="-46.00" y1="-79.67" x2="-65.00" y2="-112.58" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.0"/>
+<line x1="-79.67" y1="46.00" x2="-112.58" y2="65.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.0"/>
+<line x1="46.00" y1="79.67" x2="65.00" y2="112.58" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.0"/>
+<line x1="-208" y1="-184" x2="-208" y2="-26" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.7"/>
+<path d="M -208.00 -193.00 L -213.40 -175.00 L -202.60 -175.00 Z" fill="var(--kn-ink,#1a1a1a)" fill-opacity="1" stroke="none"/>
+<path d="M -208.00 -14.00 L -202.00 -34.00 L -214.00 -34.00 Z" fill="var(--kn-ink,#1a1a1a)" fill-opacity="0.5" stroke="none"/>
+<path d="M -142 -212 Q -45 -196 50 -203" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.7"/>
+<path d="M -150.00 -213.00 L -134.18 -207.64 L -133.84 -217.24 Z" fill="var(--kn-ink,#1a1a1a)" fill-opacity="0.55" stroke="none"/>
+<path d="M 58.00 -203.00 L 43.55 -209.04 L 42.61 -200.09 Z" fill="var(--kn-ink,#1a1a1a)" fill-opacity="1" stroke="none"/>
+<path d="M -140 136 C -150 144 -150 154 -140 160" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.7"/>
+<path d="M -131 147 C -128 143 -123 143 -121 147" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.7"/>
+<ellipse cx="-126" cy="155" rx="3.6" ry="5.4" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.9"/>
+<path d="M -130 160 C -128 172 -119 180 -108 181 L -107 175 C -116 174 -123 168 -125 158 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<path d="M -100.00 182.00 L -111.87 171.79 L -115.53 180.01 Z" fill="var(--kn-ink,#1a1a1a)" fill-opacity="1" stroke="none"/>
+<text x="-170.00" y="-212.00" font-size="14.00" text-anchor="end" fill="var(--kn-ink,#1a1a1a)">Сдвиг</text>
+<text x="-170.00" y="-196.00" font-size="14.00" text-anchor="end" fill="var(--kn-ink,#1a1a1a)">120 градусов</text>
+<text x="74.00" y="-236.00" font-size="13.50" text-anchor="start" fill="var(--kn-ink,#1a1a1a)">Весь Крест Победы</text>
+<text x="74.00" y="-222.50" font-size="13.50" text-anchor="start" fill="var(--kn-ink,#1a1a1a)">со всеми своими знаками</text>
+<text x="74.00" y="-209.00" font-size="13.50" text-anchor="start" fill="var(--kn-ink,#1a1a1a)">сдвинут относительно</text>
+<text x="74.00" y="-195.50" font-size="13.50" text-anchor="start" fill="var(--kn-ink,#1a1a1a)">Опорного Креста</text>
+<text x="74.00" y="-182.00" font-size="13.50" text-anchor="start" fill="var(--kn-ink,#1a1a1a)">на 120 градусов</text>
+<text x="74.00" y="-168.50" font-size="13.50" text-anchor="start" fill="var(--kn-ink,#1a1a1a)">по часовой стрелки</text>
+<text x="-148.00" y="142.00" font-size="14.00" text-anchor="end" fill="var(--kn-ink,#1a1a1a)">Крест</text>
+<text x="-148.00" y="157.00" font-size="14.00" text-anchor="end" fill="var(--kn-ink,#1a1a1a)">Победы</text>
+<text x="2.00" y="216.00" font-size="14.00" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)">Опорный Крест</text>
+</svg>

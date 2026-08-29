@@ -43,15 +43,15 @@
 <line x1="19" y1="376" x2="19" y2="398" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.2"/>
 <path d="M 472 290 C 494 284, 516 287, 532 293 C 514 299, 492 299, 472 290 Z" fill="var(--kn-ink,#1a1a1a)" fill-opacity=".68"/>
 <ellipse cx="508" cy="188" rx="16" ry="20" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.3"/>
-<path d="M 492 186 A 16 20 0 0 1 524 186 Z" fill="var(--kn-ink,#1a1a1a)" fill-opacity=".22"/>
+<path d="M 492 186 A 16 20 0 0 0 524 186 Z" fill="var(--kn-ink,#1a1a1a)" fill-opacity=".22"/>
 <line x1="492.6" y1="186" x2="523.4" y2="186" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.7"/>
 <line x1="512" y1="168.5" x2="512" y2="207.5" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.7"/>
-<path d="M 492 208 C 504 201, 516 201, 524 209" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.2" stroke-linecap="round"/>
-<path d="M 494 209 C 490 222, 496 230, 498 235" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.2" stroke-linecap="round"/>
-<path d="M 523 210 C 525 224, 520 230, 518 235" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.2" stroke-linecap="round"/>
-<path d="M 498 235 C 504 243, 512 243, 518 235" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.2" stroke-linecap="round"/>
-<path d="M 498 235 C 483 244, 481 270, 492 286" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.2" stroke-linecap="round"/>
-<path d="M 518 235 C 521 255, 518 274, 512 290" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.2" stroke-linecap="round"/>
+<path d="M 492 207 C 503 200, 515 200, 524 208" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.2" stroke-linecap="round"/>
+<path d="M 494 208 C 494 220, 497 229, 498 236" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.2" stroke-linecap="round"/>
+<path d="M 523 209 C 523 221, 519 229, 518 236" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.2" stroke-linecap="round"/>
+<path d="M 498 236 C 503 246, 512 246, 518 236" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.2" stroke-linecap="round"/>
+<path d="M 498 236 C 480 244, 476 271, 487 287" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.2" stroke-linecap="round"/>
+<path d="M 518 236 C 523 256, 520 275, 514 291" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.2" stroke-linecap="round"/>
 <path d="M 493 209 L 476 170" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.2" stroke-linecap="round"/>
 <path d="M 524 210 L 541 172" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.2" stroke-linecap="round"/>
 <path d="M 468 170 l 12 -7 l 6 10 l -12 7 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.2" stroke-linecap="round"/>
