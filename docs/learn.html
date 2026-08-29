@@ -196,6 +196,54 @@ a { color: inherit; text-decoration: none; }
   text-decoration: none; cursor: pointer; }
 .dr-chip:hover { border-color: var(--accent); color: var(--accent-hover); }
 .dr-chip-n { margin-left: 7px; font-size: 12px; font-weight: 700; color: var(--accent); }
+/* ── Карточка книги ──────────────────────────────────────────────
+   Учебник — не строка в списке занятий, а отдельный вход: тёплая
+   бумага, серифное имя, тихо вращающийся круг. Движение мягкое и
+   бесконечное, но при prefers-reduced-motion всё замирает. */
+.kn-karta { position: relative; display: flex; gap: 14px; align-items: center;
+  margin: 12px 0 14px; padding: 16px 16px 14px; border-radius: 18px; overflow: hidden;
+  text-decoration: none; border: 1px solid var(--kayma-kn, #E2D9CA);
+  background: linear-gradient(135deg, #FFFDF8 0%, #F4EEE3 100%); }
+:root[data-theme="dark"] .kn-karta { border-color: #2C323B;
+  background: linear-gradient(135deg, #1A1E25 0%, #171A20 100%); }
+.kn-karta-fon { flex: 0 0 auto; width: 76px; height: 76px; display: block; }
+.kn-karta-krug { width: 76px; height: 76px; display: block; }
+.kn-karta-krug circle, .kn-karta-krug line { fill: none; stroke: #A8452B; stroke-width: 1.5; }
+.kn-karta-krug .kn-karta-luchi line { opacity: .38; stroke-width: 1.1; }
+.kn-karta-krug .kn-karta-tochka { fill: #A8452B; stroke: none; }
+:root[data-theme="dark"] .kn-karta-krug circle,
+:root[data-theme="dark"] .kn-karta-krug line { stroke: #E0895F; }
+:root[data-theme="dark"] .kn-karta-krug .kn-karta-tochka { fill: #E0895F; }
+.kn-karta-txt { flex: 1; min-width: 0; }
+.kn-karta-klejmo { display: block; font: 700 11px/1 var(--sans, sans-serif);
+  letter-spacing: .16em; text-transform: uppercase; color: #A8452B; }
+:root[data-theme="dark"] .kn-karta-klejmo { color: #E0895F; }
+.kn-karta-imya { display: block; margin-top: 6px;
+  font: 400 23px/1.15 Georgia, 'Times New Roman', serif; color: var(--text-primary); }
+.kn-karta-pod { display: block; margin-top: 5px; font-style: normal;
+  font: 400 13px/1.45 var(--sans, sans-serif); color: var(--text-secondary); }
+.kn-karta-niz { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+.kn-karta-zhelob { flex: 1; height: 5px; border-radius: 3px; overflow: hidden;
+  background: rgba(168,69,43,.16); }
+.kn-karta-zhelob i { display: block; height: 100%; width: 0; border-radius: 3px;
+  background: #A8452B; transition: width .8s cubic-bezier(.2,.9,.3,1); }
+:root[data-theme="dark"] .kn-karta-zhelob { background: rgba(224,137,95,.2); }
+:root[data-theme="dark"] .kn-karta-zhelob i { background: #E0895F; }
+.kn-karta-pct { font: 700 12.5px/1 var(--sans, sans-serif); color: #A8452B;
+  font-variant-numeric: tabular-nums; white-space: nowrap; }
+:root[data-theme="dark"] .kn-karta-pct { color: #E0895F; }
+@media (prefers-reduced-motion: no-preference) {
+  .kn-karta-krug { animation: kn-vrash 44s linear infinite; }
+  .kn-karta-krug .kn-karta-tochka { animation: kn-migan 3.6s ease-in-out infinite; }
+  .kn-karta::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(105deg, transparent 42%, rgba(255,255,255,.5) 50%, transparent 58%);
+    transform: translateX(-120%); animation: kn-blik 7s ease-in-out infinite; }
+  :root[data-theme="dark"] .kn-karta::after {
+    background: linear-gradient(105deg, transparent 42%, rgba(255,255,255,.07) 50%, transparent 58%); }
+  @keyframes kn-vrash { to { transform: rotate(360deg); } }
+  @keyframes kn-migan { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+  @keyframes kn-blik { 0%,72% { transform: translateX(-120%); } 88%,100% { transform: translateX(120%); } }
+}
 
 /* ─── Полотно ─── */
 .dr-polotno { margin-top: 22px; }
@@ -867,10 +915,36 @@ html[data-theme='light'] {
   <!-- Фильтры вместо «Всё дерево»: строка отвечает на вопрос «что я сейчас
        хочу», а не «как показать». Выбранный фильтр раскрывает ветви и
        оставляет в них только подходящее. -->
-  <div class="dr-chipy" id="dr-chipy" role="tablist" aria-label="Что показать">
+  <!-- Книга стоит отдельной карточкой, а не строкой в ветви: это не занятие
+     на десять минут, а весь учебник — его надо видеть сразу. Круг на
+     карточке тихо вращается, страницы перелистываются. -->
+<a class="kn-karta" id="kn-karta" href="kniga.html">
+  <span class="kn-karta-fon" aria-hidden="true">
+    <svg viewBox="0 0 120 120" class="kn-karta-krug">
+      <circle cx="60" cy="60" r="46"/><circle cx="60" cy="60" r="30"/>
+      <g class="kn-karta-luchi">
+        <line x1="60" y1="8" x2="60" y2="112"/><line x1="8" y1="60" x2="112" y2="60"/>
+        <line x1="23" y1="23" x2="97" y2="97"/><line x1="97" y1="23" x2="23" y2="97"/>
+      </g>
+      <circle class="kn-karta-tochka" cx="60" cy="14" r="4"/>
+    </svg>
+  </span>
+  <span class="kn-karta-txt">
+    <span class="kn-karta-klejmo">Учебник</span>
+    <b class="kn-karta-imya">Ясна Суток</b>
+    <em class="kn-karta-pod">Вся книга целиком — слово в слово, со схемами</em>
+    <span class="kn-karta-niz">
+      <span class="kn-karta-zhelob"><i id="kn-karta-fill"></i></span>
+      <span class="kn-karta-pct" id="kn-karta-pct">открыть</span>
+    </span>
+  </span>
+</a>
+
+<div class="dr-chipy" id="dr-chipy" role="tablist" aria-label="Что показать">
     <!-- Чипы-фильтры сняты: «Уроки» раскрывал все двадцать ветвей разом —
          почти каждый узел и есть урок, фильтр выглядел бессмысленным.
          Вместо них два перехода со счётом: списки конкретных действий. -->
+    <button type="button" class="dr-chip dr-chip--kniga" data-kniga="1">Книга</button>
     <button type="button" class="dr-chip" data-list="praktika">Практика<span class="dr-chip-n" id="chip-n-praktika"></span></button>
     <button type="button" class="dr-chip" data-list="spravka">Справка<span class="dr-chip-n" id="chip-n-spravka"></span></button>
   </div>
@@ -1608,6 +1682,8 @@ html[data-theme='light'] {
         if (лист.dataset.list === 'spravka') { нарисоватьСправку(); показать('dr-spravka', true); }
         return;
       }
+      var кКниге = e.target.closest && e.target.closest('[data-kniga]');
+      if(кКниге){ e.preventDefault(); location.href='kniga.html'; return; }
       var кнX = e.target.closest && e.target.closest('[data-x]');
       if (кнX) { показать(кнX.dataset.x, false); return; }
       var места = e.target.closest && e.target.closest('a[href="#mesta"]');
@@ -1687,6 +1763,29 @@ html[data-theme='light'] {
   нарисоватьДерево();
   нарисоватьПрактику();   /* счётчики на чипах */
   нарисоватьСправку();
+
+  /* Карточка книги: показываем, сколько частей учебника прочитано.
+     Счёт берём из ключа читалки — он же рисует прогресс внутри книги. */
+  (function(){
+    var полоса=document.getElementById('kn-karta-fill'), над=document.getElementById('kn-karta-pct');
+    if(!полоса) return;
+    var всего=0, прочитано=0;
+    try{
+      var оп=window.YasnaKnigaOpis;
+      /* Описи здесь нет (она грузится в самой книге) — считаем по числу
+         написанных частей, известному дереву: 11 частей учебника. */
+      всего=(оп&&оп.главы&&оп.главы.length)||11;
+      var с=JSON.parse(localStorage.getItem('yasna_kniga_v1')||'{}');
+      прочитано=Object.keys(с.прочитано||{}).length;
+    }catch(e){}
+    if(прочитано>0){
+      var д=Math.min(1,прочитано/всего);
+      requestAnimationFrame(function(){ полоса.style.width=Math.max(4,д*100)+'%'; });
+      if(над) над.textContent='прочитано '+прочитано+' из '+всего;
+    } else {
+      if(над) над.textContent='открыть';
+    }
+  })();
 
 })();
 </script>
