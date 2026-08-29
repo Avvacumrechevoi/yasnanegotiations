@@ -424,6 +424,27 @@
   .vid-glav-niz em:last-child{color:var(--syn);font-weight:600;white-space:nowrap}
 
   .vid-setka{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  /* ── Живые виджеты ─────────────────────────────────────────────
+     Числа набегают, шкалы и кольцо заполняются, плитки поднимаются —
+     всё один раз, когда блок доехал до глаз. Кому движение мешает
+     (prefers-reduced-motion) — значения встают сразу. */
+  .vid-kolco{position:relative;width:44px;height:44px;margin-bottom:2px;display:block}
+  .vid-kolco svg{width:44px;height:44px;transform:rotate(-90deg)}
+  .vid-kolco-fon{fill:none;stroke:var(--kayma,#E3E8EF);stroke-width:4.5}
+  .vid-kolco-hod{fill:none;stroke:url(#vidgrad);stroke:var(--syn);stroke-width:4.5;stroke-linecap:round;
+    stroke-dasharray:116.24;stroke-dashoffset:116.24;
+    transition:stroke-dashoffset .9s cubic-bezier(.2,.9,.3,1)}
+  .vid-kolco-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font:700 11.5px/1 Manrope,sans-serif;color:var(--ink);font-variant-numeric:tabular-nums}
+  .vid-glav-verh b{font-variant-numeric:tabular-nums}
+  .vid-plit b{font-variant-numeric:tabular-nums}
+  @media (prefers-reduced-motion: no-preference){
+    .vid-plit,.vid-glav,.vid-shirokaya{opacity:0;transform:translateY(12px);
+      transition:opacity .45s ease,transform .45s cubic-bezier(.2,.9,.3,1)}
+    .vid .vidno{opacity:1;transform:none}
+    .vid-iskra{display:inline-block;animation:vid-mercanie 3.2s ease-in-out infinite}
+    @keyframes vid-mercanie{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.88)}}
+  }
   .vid-plit{position:relative;display:flex;flex-direction:column;gap:3px;padding:14px;
     border-radius:16px;background:var(--kart);border:1px solid var(--kayma);
     text-decoration:none;min-height:132px}
@@ -593,13 +614,20 @@
         <span class="vid-plit-shkala" aria-hidden="true"><i id="vid-krug-fill"></i></span>
       </a>
 
-      <a class="vid-plit" href="konstruktor.html?lessons=1">
-        <span class="vid-znak vid-znak--kurs" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M12 4 2.8 8.4 12 12.8l9.2-4.4zM6 10.6V16c0 1.4 2.7 3 6 3s6-1.6 6-3v-5.4"/></svg>
+      <a class="vid-plit" href="learn.html">
+        <!-- Кольцо вместо значка: общий прогресс обучения — тот же счёт,
+             что на экране «Уроки». Плитка «Базовый курс 2 из 4» дублировала
+             вход в курс и спорила с общей полосой на карточке выше. -->
+        <span class="vid-kolco" aria-hidden="true">
+          <svg viewBox="0 0 44 44">
+            <circle class="vid-kolco-fon" cx="22" cy="22" r="18.5"/>
+            <circle class="vid-kolco-hod" id="vid-kolco-hod" cx="22" cy="22" r="18.5"/>
+          </svg>
+          <span class="vid-kolco-txt" id="vid-kolco-pct">0%</span>
         </span>
-        <b id="vid-kurs-n">4 урока</b>
-        <span class="vid-plit-t">Базовый курс</span>
-        <em id="vid-kurs-o">по шагам, прямо в круге</em>
+        <b id="vid-kurs-n">Уроки</b>
+        <span class="vid-plit-t" id="vid-kurs-t">Дерево знаний</span>
+        <em id="vid-kurs-o">занятия по всем явлениям</em>
         <span class="vid-plit-shkala" aria-hidden="true"><i id="vid-kurs-fill"></i></span>
       </a>
 
@@ -745,7 +773,49 @@
       return {имя:тек[0], от:тек[1], след:след};
     }
     function текст(ид,зн){ var э=document.getElementById(ид); if(э) э.textContent=зн; }
-    function шкала(ид,доля){ var э=document.getElementById(ид); if(э) setTimeout(function(){ э.style.width=Math.max(0,Math.min(1,доля))*100+'%'; },60); }
+    /* Анимация виджетов. Все заполнения складываются в очередь и
+       запускаются один раз, когда блок «Где ты сейчас» доехал до глаз;
+       числа набегают за ~0,65 с. При prefers-reduced-motion очередь
+       выполняется мгновенно и без набега. */
+    var БЕЗ_ДВИЖЕНИЯ=false;
+    try{ БЕЗ_ДВИЖЕНИЯ=window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
+    var ОЧЕРЕДЬ=[];
+    function приПоказе(ф){ ОЧЕРЕДЬ.push(ф); }
+    function набег(ид,до,приставка,хвост){
+      приПоказе(function(){
+        var э=document.getElementById(ид); if(!э) return;
+        приставка=приставка||''; хвост=хвост||'';
+        if(БЕЗ_ДВИЖЕНИЯ||до<=0){ э.textContent=приставка+до+хвост; return; }
+        var старт=null;
+        function кадр(т){
+          if(старт===null) старт=т;
+          var д=Math.min(1,(т-старт)/650);
+          д=1-Math.pow(1-д,3);   /* easeOutCubic */
+          э.textContent=приставка+Math.round(до*д)+хвост;
+          if(д<1) requestAnimationFrame(кадр);
+        }
+        requestAnimationFrame(кадр);
+      });
+    }
+    function пуск(){
+      var блок=document.querySelector('.vid'); if(!блок){ ОЧЕРЕДЬ=[]; return; }
+      /* плитки поднимаются каскадом */
+      var эл=блок.querySelectorAll('.vid-glav,.vid-plit,.vid-shirokaya');
+      [].forEach.call(эл,function(э,и){
+        if(БЕЗ_ДВИЖЕНИЯ){ э.classList.add('vidno'); return; }
+        setTimeout(function(){ э.classList.add('vidno'); }, 60*и);
+      });
+      ОЧЕРЕДЬ.forEach(function(ф){ ф(); }); ОЧЕРЕДЬ=[];
+    }
+    (function(){
+      var блок=document.querySelector('.vid'); if(!блок) return;
+      if(!('IntersectionObserver' in window)||БЕЗ_ДВИЖЕНИЯ){ setTimeout(пуск,80); return; }
+      var н=new IntersectionObserver(function(з){
+        if(з.some(function(x){return x.isIntersecting})){ н.disconnect(); пуск(); }
+      },{threshold:.18});
+      н.observe(блок);
+    })();
+    function шкала(ид,доля){ приПоказе(function(){ var э=document.getElementById(ид); if(э) requestAnimationFrame(function(){ э.style.width=Math.max(0,Math.min(1,доля))*100+'%'; }); }); }
     function сШкалой(э){ if(э) э.classList.add('s-shkaloy'); }
 
     /* Правило раздела: на чистой установке его нет вовсе. Показывать «✦ 0»,
@@ -774,7 +844,8 @@
     }
     if(партий>0||бусин>0){
       var ст=ступень(бусин);
-      текст('vid-buseny','✦ '+бусин);
+      document.getElementById('vid-buseny').innerHTML='<span class="vid-iskra">✦</span> <span id="vid-buseny-n">0</span>';
+      набег('vid-buseny-n',бусин,'','');
       текст('vid-stupen',ст.имя);
       текст('vid-partiy',партий+' '+(партий%10===1&&партий%100!==11?'партия':([2,3,4].indexOf(партий%10)>-1&&[12,13,14].indexOf(партий%100)===-1?'партии':'партий')));
       if(ст.след){
@@ -794,30 +865,42 @@
     try{ разобрано=Object.keys(кр.best||{}).length; }catch(e){}
     var ВСЕГО_ЯВЛЕНИЙ=16;
     if(разобрано>0){
-      текст('vid-krug-n',разобрано+' из '+ВСЕГО_ЯВЛЕНИЙ);
+      набег('vid-krug-n',разобрано,'',' из '+ВСЕГО_ЯВЛЕНИЙ);
       текст('vid-krug-o','явлений разобрано');
       сШкалой(document.getElementById('vid-krug-fill').closest('.vid-plit'));
       шкала('vid-krug-fill',разобрано/ВСЕГО_ЯВЛЕНИЙ);
     }
 
-    /* Базовый курс: те же четыре урока, что считает хаб «Уроки». */
-    var БАЗ=['l1_intro','b2_four_pillars','b3_two_lines','b4_line_names'];
-    var уроки=читать('yasna_completed_lessons_v1');
-    var прошли=0;
-    if(Array.isArray(уроки)) прошли=уроки.filter(function(и){return БАЗ.indexOf(и)>-1}).length;
-    if(прошли>0){
-      текст('vid-kurs-n',прошли+' из '+БАЗ.length);
-      текст('vid-kurs-o',прошли>=БАЗ.length?'курс пройден':'уроков пройдено');
-      сШкалой(document.getElementById('vid-kurs-fill').closest('.vid-plit'));
-      шкала('vid-kurs-fill',прошли/БАЗ.length);
-    }
+    /* Уроки: общий счёт обучения — тот же, что на экране «Уроки» и на
+       карточке сверху (YasnaZnanie по всему дереву). Кольцо заполняется
+       на долю пройденного, число занятий набегает. Плитка «Базовый курс
+       2 из 4» здесь дублировала вход и спорила с общим счётом. */
+    (function(){
+      var pct=0, пройдено=0;
+      try{
+        if(window.YasnaZnanie && window.YasnaZnanie.счёт){
+          var сч=window.YasnaZnanie.счёт();
+          if(сч.всего){ pct=Math.round(сч.пройдено/сч.всего*100); пройдено=сч.пройдено; }
+        }
+      }catch(e){}
+      if(пройдено>0){
+        набег('vid-kurs-n',пройдено,'',' '+(пройдено%10===1&&пройдено%100!==11?'занятие':([2,3,4].indexOf(пройдено%10)>-1&&[12,13,14].indexOf(пройдено%100)===-1?'занятия':'занятий')));
+        текст('vid-kurs-o','пройдено по всем темам');
+      }
+      набег('vid-kolco-pct',pct,'','%');
+      приПоказе(function(){
+        var х=document.getElementById('vid-kolco-hod'); if(!х) return;
+        var Д=116.24;   /* длина окружности r=18.5 */
+        requestAnimationFrame(function(){ х.style.strokeDashoffset=String(Д*(1-Math.max(0,Math.min(100,pct))/100)); });
+      });
+    })();
 
     /* Переговоры: просмотренные сценарии (это просмотр, а не освоение). */
     var нег=читать('yasna_neg_lessons_v1');
     var сцен=0;
     try{ сцен=Array.isArray(нег)?нег.length:Object.keys(нег||{}).length; }catch(e){}
     if(сцен>0){
-      текст('vid-neg-n',сцен+' из 4');
+      набег('vid-neg-n',сцен,'',' из 4');
       текст('vid-neg-o','сценариев просмотрено');
       сШкалой(document.getElementById('vid-neg-fill').closest('.vid-plit'));
       шкала('vid-neg-fill',сцен/4);
