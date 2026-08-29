@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Ясна Суток — учебник</title>
+<meta name="description" content="Учебник «Ясна Суток» целиком: режим последовательного изучения, слово в слово, со всеми схемами."/>
+<script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);var e=document.documentElement;e.setAttribute('data-theme',d?'dark':'light');e.style.colorScheme=d?'dark':'light';}catch(e){}</script>
+<script src="core/theme.js"></script>
+<script src="kniga/opis.js?v=fc30e271"></script>
+<style>
+/* ══ Книга — свой мир внутри приложения ═════════════════════════════
+   Интерфейс приложения синий и рубленый; учебник должен читаться как
+   учебник: тёплая бумага, серифный шрифт, спокойная кирпичная киноварь
+   вместо интерфейсного синего. Шрифты — только системные: приложение
+   обязано открываться без сети. */
+:root{
+  --kn-bum:#F6F2EA; --kn-list:#FFFDF8; --kn-ink:#1F1B16; --kn-ink-2:#5A5148;
+  --kn-ink-3:#8A7F72; --kn-kayma:#E2D9CA; --kn-akc:#A8452B; --kn-akc-fon:#F2E4DE;
+  --kn-serif:Georgia,'Times New Roman',serif;
+  --kn-sans:-apple-system,'Segoe UI',Roboto,sans-serif;
+  --kn-kegl:1;
+}
+:root[data-theme="dark"]{
+  --kn-bum:#14171C; --kn-list:#1A1E25; --kn-ink:#E9E6E0; --kn-ink-2:#B0A99F;
+  --kn-ink-3:#8A8279; --kn-kayma:#2C323B; --kn-akc:#E0895F; --kn-akc-fon:#2A2019;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--kn-bum);color:var(--kn-ink);font-family:var(--kn-serif);
+  -webkit-text-size-adjust:100%;overflow-wrap:break-word}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+
+/* ── Оглавление ── */
+.ogl{max-width:660px;margin:0 auto;padding:22px 18px calc(28px + var(--yk-snizu,0px))}
+.obl{padding:26px 22px 22px;border-radius:18px;background:var(--kn-list);
+  border:1px solid var(--kn-kayma);text-align:center;position:relative;overflow:hidden}
+.obl-nad{font:600 11.5px/1 var(--kn-sans);letter-spacing:.18em;text-transform:uppercase;
+  color:var(--kn-akc)}
+.obl h1{font:400 33px/1.15 var(--kn-serif);margin:10px 0 6px;letter-spacing:-.01em}
+.obl-pod{font:italic 400 15px/1.5 var(--kn-serif);color:var(--kn-ink-2)}
+.obl-znak{margin:16px auto 4px;display:block;width:58px;height:58px;opacity:.9}
+.obl-znak circle{fill:none;stroke:var(--kn-akc);stroke-width:1.4}
+.obl-znak line{stroke:var(--kn-akc);stroke-width:1.1;opacity:.55}
+.obl-hod{display:flex;align-items:center;gap:10px;margin-top:18px}
+.obl-zhelob{flex:1;height:5px;border-radius:3px;background:var(--kn-kayma);overflow:hidden}
+.obl-fill{display:block;height:100%;width:0;border-radius:3px;background:var(--kn-akc);
+  transition:width .7s cubic-bezier(.2,.9,.3,1)}
+.obl-pct{font:600 12.5px/1 var(--kn-sans);color:var(--kn-ink-2);font-variant-numeric:tabular-nums}
+
+.dalshe{display:flex;align-items:center;gap:12px;width:100%;margin-top:14px;padding:14px 16px;
+  border-radius:14px;background:var(--kn-akc);color:#fff;text-align:left}
+.dalshe b{display:block;font:600 15.5px/1.25 var(--kn-sans)}
+.dalshe em{display:block;font:400 12.5px/1.35 var(--kn-sans);font-style:normal;opacity:.86;margin-top:2px}
+.dalshe span{margin-left:auto;font-size:19px;line-height:1}
+
+.zag-gr{margin:26px 0 8px;font:600 11.5px/1 var(--kn-sans);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--kn-ink-3)}
+.gl{display:flex;align-items:baseline;gap:12px;width:100%;padding:14px 4px;text-align:left;
+  border-bottom:1px solid var(--kn-kayma)}
+.gl:last-child{border-bottom:0}
+.gl-n{flex:0 0 26px;font:600 13px/1.3 var(--kn-sans);color:var(--kn-ink-3);
+  font-variant-numeric:tabular-nums}
+.gl-t{flex:1;min-width:0}
+.gl-imya{font:400 17px/1.3 var(--kn-serif);display:block}
+.gl-meta{display:block;margin-top:3px;font:400 12.5px/1.4 var(--kn-sans);color:var(--kn-ink-3)}
+.gl-gal{flex:0 0 auto;font-size:13px;color:var(--kn-akc)}
+.gl--net{opacity:.45}
+.gl--net .gl-gal{color:var(--kn-ink-3)}
+
+/* ── Лист главы ── */
+.list{display:none;max-width:660px;margin:0 auto;padding:0 18px calc(96px + var(--yk-snizu,0px))}
+body.chtenie .list{display:block}
+body.chtenie .ogl{display:none}
+.polosa{position:fixed;left:0;top:0;height:3px;width:0;background:var(--kn-akc);z-index:30}
+.gl-shapka{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;
+  margin:0 -18px;padding:10px 16px;background:var(--kn-bum);
+  border-bottom:1px solid var(--kn-kayma)}
+html.yk-est .gl-shapka{padding-top:calc(10px + var(--yk-sverhu,0px))}
+.gl-nazad{flex:0 0 auto;min-width:44px;min-height:44px;display:flex;align-items:center;
+  justify-content:center;font-size:20px;color:var(--kn-ink-2)}
+.gl-shapka-t{flex:1;min-width:0;font:600 13.5px/1.3 var(--kn-sans);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.gl-kegl{flex:0 0 auto;min-width:44px;min-height:44px;display:flex;align-items:center;
+  justify-content:center;font:600 13px/1 var(--kn-sans);color:var(--kn-ink-2);
+  border:1px solid var(--kn-kayma);border-radius:11px;padding:0 10px}
+
+.telo{font-size:calc(17.5px * var(--kn-kegl));line-height:1.62;padding-top:22px}
+.telo .zag{font:400 calc(25px * var(--kn-kegl))/1.25 var(--kn-serif);margin:30px 0 14px;
+  text-align:center}
+.telo .zag:first-child{margin-top:6px}
+.telo p{margin:0 0 13px;text-indent:1.4em;text-align:justify;hyphens:auto}
+.telo p.bez{text-indent:0}
+.telo .nom{float:left;margin-left:-2.6em;width:2.2em;text-align:right;
+  font:600 calc(11px * var(--kn-kegl))/1.9 var(--kn-sans);color:var(--kn-ink-3);
+  font-variant-numeric:tabular-nums}
+@media (max-width:520px){ .telo .nom{float:none;margin:0 .5em 0 0;line-height:inherit} }
+.telo .vydel{margin:16px 0;padding:13px 16px;border-left:3px solid var(--kn-akc);
+  background:var(--kn-akc-fon);border-radius:0 10px 10px 0;font-weight:600;text-indent:0}
+/* Пункты книги пронумерованы внутри самих строк («1. Длительность…»),
+   поэтому маркеры списка сняты — иначе выходило «• 1.». Отступ висячий:
+   номер стоит на поле, продолжение строки выравнивается по тексту. */
+.telo ul.spis{margin:8px 0 15px;padding-left:1.6em;list-style:none}
+.telo ul.spis li{margin-bottom:8px;text-indent:-1.6em}
+.telo .snoska{margin:14px 0;font-size:calc(14px * var(--kn-kegl));color:var(--kn-ink-2);
+  text-indent:0;font-style:italic}
+.telo table{width:100%;margin:16px 0;border-collapse:collapse;font-size:calc(15px * var(--kn-kegl))}
+.telo td{border:1px solid var(--kn-kayma);padding:8px 10px;vertical-align:top}
+
+.shema{margin:22px 0;padding:16px 12px 12px;background:var(--kn-list);
+  border:1px solid var(--kn-kayma);border-radius:14px;text-align:center}
+.shema svg{max-width:100%;height:auto;display:block;margin:0 auto}
+.shema-pod{margin-top:10px;font:400 calc(13px * var(--kn-kegl))/1.45 var(--kn-sans);
+  color:var(--kn-ink-2)}
+.shema-net{padding:26px 12px;color:var(--kn-ink-3);font:400 13.5px/1.5 var(--kn-sans)}
+.shema-net b{display:block;font:600 13px/1 var(--kn-sans);color:var(--kn-ink-2);margin-bottom:5px}
+
+.hvost{display:flex;gap:10px;margin-top:30px}
+.hvost button{flex:1;min-height:52px;border-radius:14px;border:1px solid var(--kn-kayma);
+  background:var(--kn-list);font:600 14.5px/1.25 var(--kn-sans);padding:8px 12px}
+.hvost button.glav{background:var(--kn-akc);color:#fff;border-color:transparent}
+.hvost button[disabled]{opacity:.4}
+.grузка{padding:40px 0;text-align:center;color:var(--kn-ink-3);font:400 14px/1.5 var(--kn-sans)}
+</style>
+</head>
+<body>
+<div class="polosa" id="polosa" aria-hidden="true"></div>
+
+<main class="ogl" id="ogl">
+  <div class="obl">
+    <div class="obl-nad">Учебник</div>
+    <h1 id="obl-imya">Ясна Суток</h1>
+    <div class="obl-pod" id="obl-pod">учебник целиком, слово в слово</div>
+    <svg class="obl-znak" viewBox="0 0 60 60" aria-hidden="true">
+      <circle cx="30" cy="30" r="26"/><circle cx="30" cy="30" r="17"/>
+      <line x1="30" y1="4" x2="30" y2="56"/><line x1="4" y1="30" x2="56" y2="30"/>
+      <line x1="11.6" y1="11.6" x2="48.4" y2="48.4"/><line x1="48.4" y1="11.6" x2="11.6" y2="48.4"/>
+    </svg>
+    <div class="obl-hod">
+      <span class="obl-zhelob"><i class="obl-fill" id="obl-fill"></i></span>
+      <span class="obl-pct" id="obl-pct">0%</span>
+    </div>
+    <button class="dalshe" id="dalshe" type="button">
+      <span class="dalshe-t"><b id="dalshe-t">Начать чтение</b><em id="dalshe-o">с первой страницы</em></span>
+      <span aria-hidden="true">›</span>
+    </button>
+  </div>
+
+  <div class="zag-gr">Оглавление</div>
+  <div id="spisok"></div>
+</main>
+
+<article class="list" id="list">
+  <div class="gl-shapka">
+    <button class="gl-nazad" id="k-oglavleniyu" type="button" aria-label="К оглавлению">‹</button>
+    <div class="gl-shapka-t" id="shapka-t"></div>
+    <button class="gl-kegl" id="kegl" type="button" aria-label="Размер текста">Аа</button>
+  </div>
+  <div class="telo" id="telo"></div>
+  <div class="hvost">
+    <button id="pred" type="button">‹ Назад</button>
+    <button id="sled" class="glav" type="button">Дальше ›</button>
+  </div>
+</article>
+
+<script src="navigatsiya.js"></script>
+<script>
+(function(){
+  var О = window.YasnaKnigaOpis || {главы:[]};
+  var КЛЮЧ = 'yasna_kniga_v1';
+  function читать(){ try{ return JSON.parse(localStorage.getItem(КЛЮЧ)) || {}; }catch(e){ return {}; } }
+  function писать(с){ try{ localStorage.setItem(КЛЮЧ, JSON.stringify(с)); }catch(e){} }
+  var сост = читать();
+  if(!сост.прочитано) сост.прочитано = {};
+  if(!сост.кегль) сост.кегль = 1;
+  document.documentElement.style.setProperty('--kn-kegl', сост.кегль);
+
+  var эОгл=document.getElementById('ogl'), эЛист=document.getElementById('list'),
+      эТело=document.getElementById('telo'), эСписок=document.getElementById('spisok');
+
+  /* Главы лежат отдельными файлами и подключаются по требованию: узел 8 — это
+     четверть книги, держать её в памяти ради оглавления незачем. */
+  var загружены = {};
+  function главаДанные(н){
+    var л = (window.YasnaKniga && window.YasnaKniga.главы) || [];
+    for(var i=0;i<л.length;i++) if(л[i].номер===н) return л[i];
+    return null;
+  }
+  function загрузить(н, дальше){
+    if(главаДанные(н)) return дальше(главаДанные(н));
+    var оп = опись(н);
+    if(!оп) return дальше(null);
+    if(загружены[н]) return setTimeout(function(){ дальше(главаДанные(н)); }, 60);
+    загружены[н]=true;
+    var с=document.createElement('script');
+    с.src='kniga/'+оп.файл+'.js?v=1';
+    с.onload=function(){ дальше(главаДанные(н)); };
+    с.onerror=function(){ загружены[н]=false; дальше(null); };
+    document.head.appendChild(с);
+  }
+  function опись(н){
+    for(var i=0;i<О.главы.length;i++) if(О.главы[i].номер===н) return О.главы[i];
+    return null;
+  }
+
+  /* ── Оглавление ── */
+  function числоЗаписей(оп){ return оп.записи ? (оп.записи[1]-оп.записи[0]+1) : 0; }
+  function естьГлава(оп){
+    /* Ненаписанные главы честно помечаем: обещать оглавлением то, чего нет,
+       хуже, чем показать «пишется». */
+    return оп.есть !== false;
+  }
+  function рисоватьОглавление(){
+    var html='';
+    О.главы.forEach(function(оп){
+      var пр = !!сост.прочитано[оп.номер];
+      var мета = 'стр. ' + оп.страницы[0] + (оп.страницы[1]!==оп.страницы[0] ? '–'+оп.страницы[1] : '');
+      if(оп.записи) мета += ' · записи ' + оп.записи[0] + '–' + оп.записи[1];
+      html += '<button class="gl'+(оп.есть===false?' gl--net':'')+'" data-gl="'+оп.номер+'" type="button">'
+        + '<span class="gl-n">'+(оп.номер||'—')+'</span>'
+        + '<span class="gl-t"><span class="gl-imya">'+оп.имя+'</span>'
+        + '<span class="gl-meta">'+мета+(оп.есть===false?' · пишется':'')+'</span></span>'
+        + '<span class="gl-gal">'+(оп.есть===false?'·':(пр?'✓':'›'))+'</span></button>';
+    });
+    эСписок.innerHTML=html;
+
+    var всего=О.главы.filter(естьГлава).length;
+    var сдел=О.главы.filter(function(оп){ return естьГлава(оп) && сост.прочитано[оп.номер]; }).length;
+    var pct = всего ? Math.round(сдел/всего*100) : 0;
+    document.getElementById('obl-pct').textContent = pct+'%';
+    setTimeout(function(){ document.getElementById('obl-fill').style.width = pct+'%'; }, 60);
+
+    var дальшеН = сост.глава!=null ? сост.глава : null;
+    if(дальшеН==null){
+      for(var i=0;i<О.главы.length;i++){
+        if(естьГлава(О.главы[i]) && !сост.прочитано[О.главы[i].номер]){ дальшеН=О.главы[i].номер; break; }
+      }
+    }
+    if(дальшеН==null) дальшеН = О.главы[0].номер;
+    var оп=опись(дальшеН);
+    document.getElementById('dalshe-t').textContent = сост.глава!=null ? 'Продолжить' : 'Начать чтение';
+    document.getElementById('dalshe-o').textContent = оп ? оп.имя : '';
+    document.getElementById('dalshe').onclick=function(){ открыть(дальшеН); };
+  }
+
+  /* ── Отрисовка главы ── */
+  function экр(т){ return String(т==null?'':т).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function частьВHTML(ч){
+    if(ч.т==='заголовок') return '<h2 class="zag">'+экр(ч.текст)+'</h2>';
+    if(ч.т==='абзац'){
+      var ном = ч.н ? '<span class="nom">'+ч.н+'</span>' : '';
+      return '<p'+(ч.н?'':' class="bez"')+'>'+ном+экр(ч.текст)+'</p>';
+    }
+    if(ч.т==='выделение') return '<p class="vydel">'+экр(ч.текст)+'</p>';
+    if(ч.т==='список'){
+      var нумер = (ч.пункты||[]).every(function(п){ return /^\s*\d+[.)]/.test(п); });
+      var тег = нумер ? 'ul' : 'ul';   /* номера уже внутри строк книги */
+      return '<'+тег+' class="spis">'+(ч.пункты||[]).map(function(п){
+        return '<li>'+экр(п)+'</li>'; }).join('')+'</'+тег+'>';
+    }
+    if(ч.т==='таблица'){
+      return '<table><tbody>'+(ч.строки||[]).map(function(р){
+        return '<tr>'+r(р)+'</tr>'; }).join('')+'</tbody></table>';
+      function r(р){ return (р||[]).map(function(к){ return '<td>'+экр(к)+'</td>'; }).join(''); }
+    }
+    if(ч.т==='сноска') return '<p class="snoska">'+экр(ч.текст)+'</p>';
+    if(ч.т==='схема'){
+      return '<figure class="shema" data-shema="'+экр(ч.id)+'">'
+        + '<div class="shema-mesto shema-net"><b>Схема книги</b>'
+        + 'перерисовывается' + (ч.страница?(' · стр. '+ч.страница):'') + '</div>'
+        + (ч.подпись ? '<figcaption class="shema-pod">'+экр(ч.подпись)+'</figcaption>' : '')
+        + '</figure>';
+    }
+    return '';
+  }
+
+  /* Схемы — отдельные SVG-файлы: тянем после отрисовки текста, чтобы чтение
+     начиналось сразу, а не ждало картинок. */
+  function подтянутьСхемы(){
+    var места=эТело.querySelectorAll('[data-shema]');
+    [].forEach.call(места, function(ф){
+      var id=ф.getAttribute('data-shema');
+      fetch('kniga/shemy/'+id+'.svg').then(function(о){
+        if(!о.ok) throw 0; return о.text();
+      }).then(function(svg){
+        if(svg.indexOf('<svg')<0) throw 0;
+        var м=ф.querySelector('.shema-mesto');
+        if(м){ м.classList.remove('shema-net'); м.innerHTML=svg; }
+      }).catch(function(){});
+    });
+  }
+
+  function открыть(н){
+    var оп=опись(н);
+    if(!оп || оп.есть===false) return;
+    эТело.innerHTML='<div class="grузка">Открываю…</div>';
+    document.body.classList.add('chtenie');
+    document.getElementById('shapka-t').textContent=оп.имя;
+    window.scrollTo(0,0);
+    загрузить(н, function(г){
+      if(!г){ эТело.innerHTML='<div class="grузка">Эта глава ещё набирается со скана.</div>'; return; }
+      эТело.innerHTML=(г.части||[]).map(частьВHTML).join('');
+      подтянутьСхемы();
+      сост.глава=н; писать(сост);
+      var i=О.главы.map(function(x){return x.номер}).indexOf(н);
+      var пред=i>0?О.главы[i-1]:null, след=i<О.главы.length-1?О.главы[i+1]:null;
+      var кП=document.getElementById('пред')||document.getElementById('pred');
+      var кС=document.getElementById('sled');
+      кП.disabled=!пред; кС.disabled=!(след&&след.есть!==false);
+      кП.onclick=function(){ if(пред) открыть(пред.номер); };
+      кС.onclick=function(){ if(след&&след.есть!==false) открыть(след.номер); };
+      кС.textContent = (след&&след.есть!==false) ? 'Дальше ›' : 'Это конец книги';
+    });
+  }
+
+  function кОглавлению(){
+    document.body.classList.remove('chtenie');
+    рисоватьОглавление();
+    window.scrollTo(0,0);
+  }
+
+  /* Прогресс чтения: полоска сверху; дочитал до низа — глава прочитана. */
+  window.addEventListener('scroll', function(){
+    if(!document.body.classList.contains('chtenie')) return;
+    var в=document.documentElement.scrollHeight-window.innerHeight;
+    var д=в>0?Math.min(1,window.scrollY/в):1;
+    document.getElementById('polosa').style.width=(д*100)+'%';
+    if(д>0.94 && сост.глава!=null && !сост.прочитано[сост.глава]){
+      сост.прочитано[сост.глава]=Date.now(); писать(сост);
+    }
+  }, {passive:true});
+
+  document.getElementById('k-oglavleniyu').onclick=кОглавлению;
+  эСписок.addEventListener('click', function(e){
+    var к=e.target.closest&&e.target.closest('[data-gl]');
+    if(к) открыть(+к.getAttribute('data-gl'));
+  });
+  document.getElementById('kegl').onclick=function(){
+    сост.кегль = сост.кегль>=1.3 ? 0.9 : Math.round((сост.кегль+0.2)*10)/10;
+    document.documentElement.style.setProperty('--kn-kegl', сост.кегль);
+    писать(сост);
+  };
+  /* Аппаратная «назад» и Esc: из главы — в оглавление, а не из книги вон. */
+  window.addEventListener('yasna:назад', function(e){
+    if(document.body.classList.contains('chtenie')){ e.preventDefault&&e.preventDefault(); кОглавлению(); }
+  });
+  window.addEventListener('keydown', function(e){
+    if(e.key==='Escape' && document.body.classList.contains('chtenie')) кОглавлению();
+  });
+
+  /* Ненаписанные главы помечаем по описи: файла нет — глава «пишется». */
+  О.главы.forEach(function(оп){ if(оп.номер>3) оп.есть=false; });
+  рисоватьОглавление();
+
+  var q=new URLSearchParams(location.search);
+  if(q.get('glava')) открыть(+q.get('glava'));
+})();
+</script>
+</body>
+</html>
