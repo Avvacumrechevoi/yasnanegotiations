@@ -531,8 +531,8 @@
   <a class="citata" id="citata" href="konstruktor.html">
     <svg class="znak-vod" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.6l2.2 6.3 6.3 2.1-6.3 2.1-2.2 6.3-2.2-6.3-6.3-2.1 6.3-2.1z"/></svg>
     <span class="k">Цитата</span>
-    <div class="tx"></div>
-    <div class="niz"><span class="ot"></span><span class="ist"></span></div>
+    <div class="tx">«Мир — управляемый страх»</div>
+    <div class="niz"><span class="ot"></span><span class="ist">Ясна</span></div>
   </a>
 
   <h2>Начать сейчас</h2>
@@ -690,6 +690,14 @@
 <script src="obnovlenie.js"></script>
 <script>
 (function(){
+  /* Чипы практики оживают первой строкой и делегированием: на одном
+     телефоне владельца скрипт падал где-то ниже, и чипы оставались
+     мёртвыми. Теперь их работа не зависит от остального кода. */
+  document.addEventListener('click',function(e){
+    var ч=e.target.closest&&e.target.closest('.pr-chip');
+    if(ч&&window.__прЧип) window.__прЧип(ч);
+  });
+
   function читать(ключ){
     try{ return JSON.parse(localStorage.getItem(ключ)) }catch(e){ return null }
   }
@@ -726,7 +734,7 @@
      считает все написанные занятия (уроки и разборы), а не один курс.
      Раньше карточка показывала четыре остановки базового курса, и человек
      видел «пройдено», когда впереди оставалось ещё три четверти дерева. */
-  (function(){
+  try{ (function(){
     var fill=document.getElementById('ucheba-fill'), над=document.getElementById('ucheba-pct');
     if(!fill) return;
     var pct=0, есть=false;
@@ -755,14 +763,14 @@
     if(м) м.innerHTML = pct>=100
       ? '<span class="m">всё пройдено</span>'
       : (pct>0 ? '<span class="m">продолжить</span>' : '<span class="m">начать</span>');
-  })();
+  })(); }catch(__е){ try{console.error("секция главной:",__е)}catch(_){}}
 
   /* ── Виджеты «Где ты сейчас» ────────────────────────────────────────
      Правило одно: показываем только то, что посчитано. Нет данных — не
      печатаем ноль, а зовём начать. Ступени те же, что в игре и Профиле
      (duel-page.js: Послушник 0 / Студент 1000 / Игрок 3000 / Мастер 10000
      / Магистр 30000) — расхождение шкал уже однажды стоило доверия. */
-  (function(){
+  try{ (function(){
     var СТУПЕНИ=[['Послушник',0],['Студент',1000],['Игрок',3000],['Мастер',10000],['Магистр',30000]];
     function ступень(б){
       var тек=СТУПЕНИ[0], след=null;
@@ -943,11 +951,11 @@
       текст('vid-dalshe-o','двенадцать полок, твой круг');
       д2.setAttribute('href','konstruktor.html');
     }
-  })();
+  })(); }catch(__е){ try{console.error("секция главной:",__е)}catch(_){}}
 
   /* Практики: переключение задачи меняет карточку и запускает свою сцену.
      Ссылки настоящие — карточка остаётся одной большой кнопкой. */
-  (function(){
+  try{ (function(){
     var П=[
     {id:'pamyat',metka:'память · короткий круг',t:'Разложи по Ясне',o:'Тренируйся расставлять по полочкам. Шестнадцать явлений на выбор.',href:'games/krug/index.html',kn:'Играть'},
     {id:'pogruzhenie',metka:'погружение · ~5 минут',t:'Разобрать явление',o:'Конструктор: раскладываешь своё дело по двенадцати частям — в плоскости и в объёме.',href:'konstruktor.html',kn:'Разложить'},
@@ -1014,16 +1022,15 @@
       карта.classList.remove('smena'); void карта.offsetWidth; карта.classList.add('smena');
     }
     показатьФакт('pamyat');
-    [].forEach.call(чипы,function(ч){
-      ч.addEventListener('click',function(){ показать(ч.getAttribute('data-p')); });
-    });
-  })();
+    /* Нажатия приходят через делегат в самом верху скрипта. */
+    window.__прЧип=function(ч){ показать(ч.getAttribute('data-p')); };
+  })(); }catch(__е){ try{console.error("секция главной:",__е)}catch(_){}}
 
   /* Цитата дня — дословная строка книги (citaty.js); та же, что уходит
      утренним уведомлением. Ротация по дню года живёт в citaty.js; если
      файл не доехал или пуст, стоит запасная строка — карточка не должна
      встречать человека пустотой. */
-  (function(){
+  try{ (function(){
     var к=document.getElementById('citata');
     if(!к) return;
     var тх='«Мир — управляемый страх»', от='', ист='Ясна';
@@ -1038,7 +1045,7 @@
     к.querySelector('.tx').textContent=тх;
     к.querySelector('.ot').textContent=от;
     к.querySelector('.ist').textContent=ист;
-  })();
+  })(); }catch(__е){ try{console.error("секция главной:",__е)}catch(_){}}
 
   /* Обновления: тихая проверка раз в несколько часов; плашка — только
      когда в хранилище действительно лежит более новая сборка. */

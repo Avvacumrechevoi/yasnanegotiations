@@ -926,12 +926,13 @@ html.yk-est .raz-imya-polosa{display:block;position:fixed;left:0;right:0;
    снизу — под док. Круг центрируется в коробке, поэтому оба отступа
    двигают его вниз; числа подобраны так, чтобы подписи не уходили ни под
    полосу, ни под наббар. */
-html.yk-est .star-area{padding:126px 12px calc(96px + var(--yk-snizu,0px)) !important;
-  /* Круг прижат к шапке: вертикальное центрирование оставляло над и под
-     ним пустоты по трети экрана. */
-  justify-content:flex-start !important;align-items:flex-start !important}
+html.yk-est .star-area{padding:126px 6px calc(96px + var(--yk-snizu,0px)) !important;
+  /* Круг — главный герой экрана: крупнее и по центру зоны между шапкой
+     и нижними кнопками (не всего экрана — иначе он визуально «всплывал»
+     выше или ниже, смотря откуда мерить). */
+  justify-content:center !important;align-items:center !important}
 html.yk-est .star-svg-wrap{flex:0 0 auto !important;height:auto !important}
-html.yk-est .star-svg-wrap>svg{height:auto !important}
+html.yk-est .star-svg-wrap>svg{height:auto !important;width:100% !important}
 html.yk-est body:has(.raz-nedavnie) .star-area{padding-top:170px !important}
 html.yk-est .raz-imya{display:flex;align-items:center;gap:11px;width:100%;
   min-height:48px;padding:7px 12px;border-radius:14px;text-align:left;
@@ -1179,7 +1180,22 @@ body.theme-vk-dark{--na-akcente:#06131d;--sht-kayma:rgba(255,255,255,.22)}
 /* Подсказка под кругом — только в приложении, где под звездой пусто. */
 .star-podskazka{display:none}
 html.yk-est .star-podskazka{display:block;position:absolute;left:24px;right:24px;
-  top:calc(126px + 86vw);text-align:center;font:400 13px/1.5 var(--sans);
+  bottom:calc(178px + var(--yk-snizu,0px));text-align:center;font:400 13px/1.5 var(--sans);
   color:var(--txt2,#8a94a0);pointer-events:none;
   /* Фоновый rect звезды тянется ниже видимого круга и закрывал подпись. */
   z-index:5}
+
+/* Правка списка ясен: скрыть встроенную / удалить свою. */
+.raz-list-pravka{margin-left:auto;margin-right:8px;padding:7px 12px;border-radius:12px;
+  border:1px solid var(--border,#d2d2d7);background:transparent;color:var(--txt2,#6e6e73);
+  font:600 13px/1 var(--sans);cursor:pointer;flex:0 0 auto}
+.raz-list-pravka.est{border-color:#0071e3;color:#0071e3;background:rgba(0,113,227,.08)}
+.raz-list-str{cursor:pointer}
+.raz-list-str.skryta .raz-list-imya{opacity:.45}
+.raz-list-dey{flex:0 0 auto;margin-left:10px;padding:7px 12px;border-radius:11px;
+  border:1px solid var(--border,#d2d2d7);background:transparent;color:#0071e3;
+  font:600 12.5px/1 var(--sans);cursor:pointer}
+.raz-list-dey--ud{color:#C4302B;border-color:rgba(196,48,43,.4)}
+.raz-list-skrytye{display:block;width:100%;margin:10px 0 4px;padding:12px;border-radius:12px;
+  border:1px dashed var(--border,#d2d2d7);background:transparent;color:var(--txt2,#6e6e73);
+  font:500 13px/1.3 var(--sans);cursor:pointer}

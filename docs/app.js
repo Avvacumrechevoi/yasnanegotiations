@@ -862,6 +862,7 @@ function App(){
      ставит html.yk-est то раньше, то позже монтирования React — гонка. Новые
      узлы рендерятся всегда и по умолчанию скрыты, показывает их CSS. */
   const[листЯсн,setЛистЯсн]=useState(false);
+  const[правкаЯсн,setПравкаЯсн]=useState(false);
   /* Недавние: пять последних открытых Ясн. Лента чипов росла от закреплений
      (восемь штук — 1179 px в окне 169, а «выбрать все» давало 32 экрана);
      здесь длина постоянна и умещается в один флик. */
@@ -1143,6 +1144,14 @@ function App(){
   /* Свои ясны без нетронутых копий встроенных: «Редактировать» молча
      создаёт копию, и в списках появлялись две «Суток». Сравниваем полки,
      схлопнув все пробелы и переносы — в каноне имена многострочные. */
+  /* Скрытые встроенные ясны: человек оставляет себе только нужный список.
+     Хранится имя, а не id — встроенные стабильны по имени. Скрытая ясна
+     не исчезает из данных: её можно вернуть из складки «Скрытые». */
+  const[скрытые,setСкрытые]=useState(()=>{try{const х=JSON.parse(localStorage.getItem('yasna_skrytye_v1'));return Array.isArray(х)?х:[];}catch(_){return[];}});
+  useEffect(()=>{try{localStorage.setItem('yasna_skrytye_v1',JSON.stringify(скрытые));}catch(_){}},[скрытые]);
+  const скрыта=имя=>скрытые.indexOf(имя)>=0;
+  const переключитьСкрытие=имя=>setСкрытые(п=>п.indexOf(имя)>=0?п.filter(х=>х!==имя):[...п,имя]);
+
   const видимыеCustoms=useMemo(()=>customs.filter(c=>{
     const канон=T.find(t=>t.n===(c.n||c.name));
     if(!канон)return true;
@@ -1168,7 +1177,8 @@ function App(){
     .filter(Boolean)
     /* Текущую ясну в чипах не повторяем — её имя уже стоит в плашке над
        ними; дубль съедал место у действительно других ясен. */
-    .filter(t => (t.n||t.name) !== y.name);
+    .filter(t => (t.n||t.name) !== y.name)
+    .filter(t => !скрыта(t.n||t.name));
   return(
     <div style={{background:'var(--bg)',height:'100vh',display:'flex',flexDirection:'column'}}>
       <div className='hdr' style={{display:'flex',alignItems:'center',padding:'10px 20px',background:'var(--bg2)',borderBottom:'1px solid rgba(0,0,0,.06)',flexShrink:0,minHeight:56}}>
@@ -1692,29 +1702,46 @@ function App(){
         const мои=видимыеCustoms.map(c=>({...c, n:c.n||c.name, свой:true}));
         const все=[...мои, ...T];
         const q=поиск.trim().toLowerCase();
-        const найдено=q?все.filter(t=>String(t.n||'').toLowerCase().includes(q)):все;
+        const поЗапросу=q?все.filter(t=>String(t.n||'').toLowerCase().includes(q)):все;
+        /* Свой список: скрытые встроенные уезжают в складку внизу; в режиме
+           «Изменить» у строк появляются действия — скрыть/вернуть или, для
+           своей, удалить насовсем. */
+        const найдено=правкаЯсн?поЗапросу:поЗапросу.filter(t=>t.свой||!скрыта(t.n));
+        const спрятано=поЗапросу.filter(t=>!t.свой&&скрыта(t.n)).length;
+        const строка=(t,i)=>{
+          const имя=t.n||t.name, текущая=y.name===имя, спр=!t.свой&&скрыта(имя);
+          return <div key={(t.id||имя)+'-'+i} className={'raz-list-str'+(текущая?' tut':'')+(спр?' skryta':'')}
+            role='button' tabIndex={0}
+            onClick={()=>{ if(правкаЯсн) return; if(!текущая) load(t); setЛистЯсн(false); }}>
+            <span className='raz-list-imya'>{имя}</span>
+            <span className='raz-list-meta'>{t.свой?'моя':(спр?'скрыта':(t.verified?'проверена':'из материалов'))}</span>
+            {текущая && !правкаЯсн && <span className='raz-list-tut'>сейчас</span>}
+            {правкаЯсн && (t.свой
+              ? <button className='raz-list-dey raz-list-dey--ud' onClick={e=>{e.stopPropagation();
+                  if(window.confirm('Удалить «'+имя+'» насовсем? Вернуть будет нельзя.')) deleteCustom(t.id);
+                }}>Удалить</button>
+              : <button className='raz-list-dey' onClick={e=>{e.stopPropagation();переключитьСкрытие(имя);}}>
+                  {спр?'Вернуть':'Скрыть'}</button>)}
+          </div>;
+        };
         return <>
           <div className='raz-list-fon' onClick={()=>setЛистЯсн(false)}/>
           <div className='raz-list' role='dialog' aria-modal='true' aria-label='Выбор Ясны'>
             <div className='raz-list-ruchka' aria-hidden='true'/>
             <div className='raz-list-shapka'>
-              <b>Ясны</b><span>{все.length}</span>
-              <button className='raz-list-x' onClick={()=>setЛистЯсн(false)} aria-label='Закрыть'>×</button>
+              <b>Ясны</b><span>{все.length-спрятано}</span>
+              <button className={'raz-list-pravka'+(правкаЯсн?' est':'')} onClick={()=>setПравкаЯсн(п=>!п)}>
+                {правкаЯсн?'Готово':'Изменить'}</button>
+              <button className='raz-list-x' onClick={()=>{setПравкаЯсн(false);setЛистЯсн(false);}} aria-label='Закрыть'>×</button>
             </div>
             <input className='raz-list-poisk' value={поиск} onChange={e=>setПоиск(e.target.value)}
               placeholder='Найти по имени' inputMode='search' aria-label='Поиск Ясны'/>
             <div className='raz-list-telo'>
               <button className='raz-list-nov' onClick={()=>{setЛистЯсн(false);createNew();}}>＋ Новая Ясна</button>
               {найдено.length===0 && <div className='raz-list-pusto'>Ничего не нашлось. Проверь написание.</div>}
-              {найдено.map((t,i)=>{
-                const текущая = y.name===(t.n||t.name);
-                return <button key={(t.id||t.n)+'-'+i} className={'raz-list-str'+(текущая?' tut':'')}
-                  onClick={()=>{ if(!текущая) load(t); setЛистЯсн(false); }}>
-                  <span className='raz-list-imya'>{t.n||t.name}</span>
-                  <span className='raz-list-meta'>{t.свой?'моя':(t.verified?'проверена':'из материалов')}</span>
-                  {текущая && <span className='raz-list-tut'>сейчас</span>}
-                </button>;
-              })}
+              {найдено.map(строка)}
+              {!правкаЯсн && спрятано>0 && <button className='raz-list-skrytye' onClick={()=>setПравкаЯсн(true)}>
+                Скрытые: {спрятано} — показать и вернуть</button>}
             </div>
           </div>
         </>;
