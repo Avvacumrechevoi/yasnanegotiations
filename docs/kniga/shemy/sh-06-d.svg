@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="55 95 755 428" font-family="var(--kn-serif,Georgia,serif)">
+  <defs>
+    <path id="sh06d-finger" d="M -3.2 0 C -3.7 -10 -3.1 -20 -1.5 -27 C -0.6 -30.6 1.2 -30.6 2 -27 C 3.5 -20 3.7 -10 3.2 0 Z"/>
+    <g id="sh06d-hand" fill="var(--kn-ink,#1a1a1a)">
+      <rect x="611" y="440" width="15" height="61"/>
+      <path d="M 606 444 C 604 432 605 420 609 414 L 633 414 C 637 420 638 432 636 444 C 628 450 613 450 606 444 Z"/>
+      <use href="#sh06d-finger" transform="translate(612,418) rotate(-14)"/>
+      <use href="#sh06d-finger" transform="translate(616,415) rotate(-5)"/>
+      <use href="#sh06d-finger" transform="translate(620.5,415) rotate(0)"/>
+      <use href="#sh06d-finger" transform="translate(625,417) rotate(3) scale(1,0.93)"/>
+      <use href="#sh06d-finger" transform="translate(634,432) rotate(12) scale(0.95,0.6)"/>
+    </g>
+  </defs>
+
+  <g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.7">
+    <polygon points="250,300 341,139 531,139 622,300 531,462 341,462"/>
+    <line x1="175" y1="300" x2="707" y2="300"/>
+    <path d="M 225 288 L 249 300 L 225 312 Z"/>
+    <path d="M 652 288 L 623 300 L 652 312 Z"/>
+  </g>
+
+  <!-- стрела вверх: Победил Свет -->
+  <g stroke="var(--kn-ink,#1a1a1a)" fill="var(--kn-ink,#1a1a1a)">
+    <line x1="87.5" y1="248" x2="87.5" y2="154" stroke-width="1.7"/>
+    <path d="M 87.5 146 L 82.6 165 L 87.5 161 L 92.4 165 Z" stroke="none"/>
+    <path d="M 87.5 157 C 84 163 81 168 78.5 174" fill="none" stroke-width="1.1"/>
+    <path d="M 87.5 157 C 91 163 94 168 96.5 174" fill="none" stroke-width="1.1"/>
+    <path d="M 87.5 232 C 85 240 82.5 247 80.5 253" fill="none" stroke-width="1.1"/>
+    <path d="M 87.5 232 C 90 240 92.5 247 94.5 253" fill="none" stroke-width="1.1"/>
+    <path d="M 87.5 236 L 84.6 253 L 87.5 249 L 90.4 253 Z" stroke="none"/>
+  </g>
+
+  <!-- стрела вниз: Победила Тьма -->
+  <g stroke="var(--kn-ink,#1a1a1a)" fill="var(--kn-ink,#1a1a1a)">
+    <line x1="788.5" y1="350" x2="788.5" y2="444" stroke-width="1.7"/>
+    <path d="M 788.5 452 L 783.6 433 L 788.5 437 L 793.4 433 Z" stroke="none"/>
+    <path d="M 788.5 441 C 785 435 782 430 779.5 424" fill="none" stroke-width="1.1"/>
+    <path d="M 788.5 441 C 792 435 795 430 797.5 424" fill="none" stroke-width="1.1"/>
+    <path d="M 788.5 366 C 786 358 783.5 351 781.5 345" fill="none" stroke-width="1.1"/>
+    <path d="M 788.5 366 C 791 358 793.5 351 795.5 345" fill="none" stroke-width="1.1"/>
+    <path d="M 788.5 362 L 785.6 345 L 788.5 349 L 791.4 345 Z" stroke="none"/>
+  </g>
+
+  <!-- тёмные руки -->
+  <use href="#sh06d-hand"/>
+  <use href="#sh06d-hand" transform="translate(1294,0) scale(-1,1)"/>
+
+  <!-- трубач с завитками -->
+  <g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.1" stroke-linecap="round">
+    <path d="M 168 392 C 173 373 168 350 152 338 C 135 325 111 329 105 346 C 99 363 110 381 126 383 C 139 385 149 376 147 366 C 145 356 133 353 128 360 C 123 367 129 375 136 373"/>
+    <path d="M 168 392 C 165 398 162 402 159 404"/>
+    <circle cx="157" cy="411" r="8"/>
+    <path d="M 151 419 C 147 426 146 436 149 444"/>
+    <path d="M 159 419 C 163 427 163 437 160 445"/>
+    <path d="M 149 444 C 145 452 142 460 141 468"/>
+    <path d="M 160 445 C 164 452 168 458 173 462"/>
+    <path d="M 150 400 C 140 390 130 386 126 390 C 122 395 126 406 132 414 C 138 422 146 426 151 424"/>
+    <path d="M 133 393 C 137 402 142 411 148 417"/>
+    <path d="M 128 399 C 132 407 137 414 143 421"/>
+    <path d="M 164 416 C 170 414 178 414 185 416"/>
+    <path d="M 168 420 L 213 413 L 213 406 L 224 402 L 224 424 L 213 420 L 213 413"/>
+    <path d="M 168 420 C 164 421 161 419 162 416 C 163 413 166 413 168 415"/>
+    <path d="M 177 419 L 177 413 M 187 417 L 187 411 M 197 416 L 197 410 M 206 415 L 206 409"/>
+    <path d="M 140 466 C 130 476 112 480 98 472 C 86 461 82 450 88 442"/>
+    <path d="M 146 472 C 148 484 142 494 128 500 C 116 506 104 502 100 492"/>
+    <path d="M 176 462 C 190 462 204 458 212 448 C 222 441 226 430 222 422"/>
+    <path d="M 178 470 C 188 480 200 484 214 484 C 228 484 238 476 238 466"/>
+    <path d="M 96 470 C 88 478 87 490 94 496 C 100 501 108 499 110 493"/>
+    <path d="M 231 470 C 239 478 251 478 255 469"/>
+  </g>
+
+  <g fill="var(--kn-ink,#1a1a1a)" font-size="17">
+    <text x="132" y="115" text-anchor="middle">Победил</text>
+    <text x="132" y="132" text-anchor="middle">Свет</text>
+    <text x="435" y="120" text-anchor="middle">Свет</text>
+    <text x="430" y="501" text-anchor="middle">Тьма</text>
+    <text x="166" y="286" text-anchor="end">Честное</text>
+    <text x="166" y="303" text-anchor="end">Утреннее</text>
+    <text x="166" y="320" text-anchor="end">Сражение</text>
+    <text x="718" y="291">Обманное</text>
+    <text x="718" y="308">Вечернее</text>
+    <text x="718" y="325">Сражение</text>
+    <text x="745" y="480" text-anchor="middle">Победила</text>
+    <text x="745" y="497" text-anchor="middle">Тьма</text>
+  </g>
+</svg>

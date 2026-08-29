@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="180 122 508 528" width="508" height="528" role="img" aria-label="Звезда Числа: 12 лучей, три креста">
+  <g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.2" stroke-linecap="round">
+    <!-- Опорный Крест (Крест Бытия): 0 - 3 - 6 - 9 -->
+    <line x1="400" y1="400" x2="400" y2="575"/>
+    <line x1="400" y1="400" x2="230" y2="400"/>
+    <line x1="400" y1="400" x2="400" y2="228"/>
+    <line x1="400" y1="400" x2="588" y2="400"/>
+    <!-- засечки на концах Опорного Креста -->
+    <line x1="389" y1="575" x2="411" y2="575"/>
+    <line x1="230" y1="389" x2="230" y2="411"/>
+    <line x1="389" y1="228" x2="411" y2="228"/>
+    <line x1="588" y1="389" x2="588" y2="411"/>
+    <!-- Огненый Крест (Крест Исхода): 1 - 4 - 7 - 10 -->
+    <line x1="400" y1="400" x2="283" y2="603"/>
+    <line x1="400" y1="400" x2="222" y2="297"/>
+    <line x1="400" y1="400" x2="525" y2="184"/>
+    <line x1="400" y1="400" x2="607" y2="520"/>
+    <!-- Крест Веры (Левый Крест): 2 - 5 - 8 - 11 -->
+    <g stroke-dasharray="9 7">
+      <line x1="400" y1="400" x2="280" y2="469"/>
+      <line x1="400" y1="400" x2="320" y2="262"/>
+      <line x1="400" y1="400" x2="533" y2="324"/>
+      <line x1="400" y1="400" x2="482" y2="542"/>
+    </g>
+    <circle cx="400" cy="400" r="3.4" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  </g>
+
+  <!-- стрелка к Кресту Веры: завиток -->
+  <g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.6" stroke-linecap="round">
+    <path d="M 224 484 C 212 464, 214 436, 232 429 C 247 423, 253 441, 244 451 C 235 461, 221 452, 226 437 C 232 421, 255 423, 269 440"/>
+  </g>
+  <path d="M 275 447 L 261 440 L 265 434 Z" fill="var(--kn-ink,#1a1a1a)"/>
+
+  <!-- стрелка к Опорному Кресту -->
+  <g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.6" stroke-linecap="round">
+    <path d="M 431 611 C 452 588, 452 556, 431 540"/>
+  </g>
+  <path d="M 419 533 L 434 534 L 429 545 Z" fill="var(--kn-ink,#1a1a1a)"/>
+
+  <!-- стрелка к Огненому Кресту -->
+  <g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.6" stroke-linecap="round">
+    <path d="M 594 574 C 556 581, 528 570, 528 548 C 528 537, 538 530, 549 531"/>
+  </g>
+  <path d="M 557 526 L 547 538 L 543 528 Z" fill="var(--kn-ink,#1a1a1a)"/>
+
+  <g font-family="var(--kn-serif,Georgia,serif)" fill="var(--kn-ink,#1a1a1a)" font-weight="600">
+    <!-- заголовки -->
+    <g font-size="17" text-anchor="middle">
+      <text x="408" y="150">Звезда</text>
+      <text x="408" y="169">Числа</text>
+      <text x="556" y="152">Исход</text>
+    </g>
+    <!-- номера лучей -->
+    <g font-size="18" text-anchor="middle">
+      <text x="399" y="595">0</text>
+      <text x="272" y="624">1</text>
+      <text x="264" y="482">2</text>
+      <text x="213" y="407">3</text>
+      <text x="210" y="287">4</text>
+      <text x="314" y="253">5</text>
+      <text x="407" y="215">6</text>
+      <text x="541" y="177">7</text>
+      <text x="550" y="322">8</text>
+      <text x="602" y="407">9</text>
+      <text x="617" y="546">10</text>
+      <text x="489" y="562">11</text>
+    </g>
+    <!-- подписи -->
+    <g font-size="17">
+      <text x="262" y="644" text-anchor="middle">Холод</text>
+      <text x="622" y="407">Бытие</text>
+      <text x="196" y="502">Крест</text>
+      <text x="196" y="520">Веры</text>
+      <text x="392" y="614" text-anchor="middle">Опорный</text>
+      <text x="392" y="632" text-anchor="middle">Крест</text>
+      <text x="600" y="574">Огненый</text>
+      <text x="600" y="592">Крест</text>
+    </g>
+  </g>
+</svg>

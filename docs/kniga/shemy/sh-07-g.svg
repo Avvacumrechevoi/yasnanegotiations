@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="126 80 596 632" width="596" height="632" role="img" aria-label="Звезда Числа: Вера в Своё Дело, Страхи, Конкурс">
+  <g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.1" stroke-linecap="round">
+    <!-- Опорный крест 0 - 3 - 6 - 9 с засечками -->
+    <line x1="400" y1="400" x2="400" y2="613"/>
+    <line x1="400" y1="400" x2="228" y2="400"/>
+    <line x1="400" y1="400" x2="400" y2="200"/>
+    <line x1="400" y1="400" x2="612" y2="400"/>
+    <line x1="389" y1="613" x2="411" y2="613"/>
+    <line x1="228" y1="389" x2="228" y2="411"/>
+    <line x1="389" y1="200" x2="411" y2="200"/>
+    <line x1="612" y1="389" x2="612" y2="411"/>
+    <!-- Крест Победы 1 - 4 - 7 - 10 -->
+    <line x1="400" y1="400" x2="255" y2="651"/>
+    <line x1="400" y1="400" x2="213" y2="292"/>
+    <line x1="400" y1="400" x2="552" y2="138"/>
+    <line x1="400" y1="400" x2="571" y2="499"/>
+    <!-- Крест Веры 2 - 5 - 8 - 11 -->
+    <g stroke-dasharray="9 7">
+      <line x1="400" y1="400" x2="254" y2="485"/>
+      <line x1="400" y1="400" x2="314" y2="251"/>
+      <line x1="400" y1="400" x2="563" y2="306"/>
+      <line x1="400" y1="400" x2="493" y2="560"/>
+    </g>
+    <circle cx="400" cy="400" r="3.4" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  </g>
+
+  <!-- верхняя стрелка: Вера в Своё Дело -> Дело -> Победа Трудовая -->
+  <g stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.8" fill="none" stroke-linecap="round">
+    <line x1="360" y1="96" x2="382" y2="96"/>
+    <line x1="428" y1="96" x2="484" y2="96"/>
+  </g>
+  <path d="M 345 92 L 362 96 L 345 100 Z" fill="var(--kn-ink,#1a1a1a)"/>
+  <path d="M 492 96 L 476 91 L 477 101 Z" fill="var(--kn-ink,#1a1a1a)"/>
+
+  <!-- нижняя стрелка: Вера в Завтрашний День -> Страхи -> Победа над своими страхами -->
+  <g stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.8" fill="none" stroke-linecap="round">
+    <line x1="358" y1="687" x2="331" y2="687"/>
+    <line x1="432" y1="687" x2="466" y2="687"/>
+  </g>
+  <path d="M 321 687 L 337 682 L 336 692 Z" fill="var(--kn-ink,#1a1a1a)"/>
+  <path d="M 484 684 L 464 688 L 484 691 Z" fill="var(--kn-ink,#1a1a1a)"/>
+
+  <!-- две стрелки вверх слева -->
+  <g stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.6" fill="none" stroke-linecap="round">
+    <line x1="175" y1="412" x2="175" y2="360"/>
+    <line x1="172" y1="491" x2="172" y2="456"/>
+  </g>
+  <path d="M 175 351 L 170 366 L 180 366 Z" fill="var(--kn-ink,#1a1a1a)"/>
+  <path d="M 172 447 L 167 462 L 177 462 Z" fill="var(--kn-ink,#1a1a1a)"/>
+
+  <!-- две стрелки вниз справа -->
+  <g stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.6" fill="none" stroke-linecap="round">
+    <line x1="689" y1="330" x2="689" y2="367"/>
+    <line x1="689" y1="439" x2="689" y2="475"/>
+  </g>
+  <path d="M 689 376 L 684 361 L 694 361 Z" fill="var(--kn-ink,#1a1a1a)"/>
+  <path d="M 689 484 L 684 469 L 694 469 Z" fill="var(--kn-ink,#1a1a1a)"/>
+
+  <g font-family="var(--kn-serif,Georgia,serif)" fill="var(--kn-ink,#1a1a1a)" font-weight="600">
+    <!-- номера лучей -->
+    <g font-size="17" text-anchor="middle">
+      <text x="394" y="636">0</text>
+      <text x="271" y="661">1</text>
+      <text x="253" y="505">2</text>
+      <text x="216" y="411">3</text>
+      <text x="209" y="281">4</text>
+      <text x="321" y="236">5</text>
+      <text x="407" y="185">6</text>
+      <text x="560" y="124">7</text>
+      <text x="575" y="294">8</text>
+      <text x="628" y="404">9</text>
+      <text x="587" y="514">10</text>
+      <text x="495" y="584">11</text>
+    </g>
+    <!-- горизонтальная ось Дела -->
+    <g font-size="15">
+      <text x="338" y="101" text-anchor="end">Вера в Своё Дело</text>
+      <text x="405" y="101" text-anchor="middle">Дело</text>
+      <text x="500" y="101">Победа Трудовая</text>
+      <text x="306" y="682" text-anchor="end">Победа над</text>
+      <text x="306" y="698" text-anchor="end">своими страхами</text>
+      <text x="395" y="692" text-anchor="middle">Страхи</text>
+      <text x="496" y="682">Вера в</text>
+      <text x="496" y="699">Завтрашний День</text>
+    </g>
+    <!-- боковые подписи -->
+    <g font-size="14">
+      <text x="647" y="262">Вера в</text>
+      <text x="647" y="278">Победу</text>
+      <text x="647" y="294">Болеть за</text>
+      <text x="647" y="310">Своих</text>
+
+      <text x="647" y="389">Потешное</text>
+      <text x="647" y="406">Сражение</text>
+      <text x="647" y="423">Конкурс</text>
+
+      <text x="615" y="506">Победа</text>
+      <text x="615" y="522">над собой -</text>
+      <text x="615" y="538">Умение</text>
+      <text x="615" y="554">проигрывать</text>
+
+      <text x="176" y="313" text-anchor="middle">Выбор</text>
+      <text x="176" y="329" text-anchor="middle">Курса</text>
+
+      <text x="170" y="409" text-anchor="middle">Битва за</text>
+      <text x="170" y="425" text-anchor="middle">Право на</text>
+      <text x="170" y="441" text-anchor="middle">Дело</text>
+
+      <text x="176" y="517" text-anchor="middle">Вера в</text>
+      <text x="176" y="533" text-anchor="middle">Свои Силы</text>
+    </g>
+  </g>
+</svg>

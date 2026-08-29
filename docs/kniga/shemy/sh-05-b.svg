@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 720" font-family="var(--kn-serif,Georgia,serif)">
+  <polygon points="160.0,360.0 255.0,185.0 445.0,185.0 540.0,360.0 445.0,535.0 255.0,535.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.5"/>
+  <path d="M 260.0 187.1 C 320.2 186.5 380.4 185.9 432.0 185.7 L 432.0 178.5 L 457.0 187.5 L 432.0 196.5 L 432.0 189.3 C 380.4 189.1 320.2 188.5 260.0 187.9 Z" fill="var(--kn-ink,#1a1a1a)"/>
+  <path d="M 277.0 196.0 Q 316.0 194.2 355.0 195.7 Q 316.0 196.6 277.0 196.0 Z" fill="var(--kn-ink,#1a1a1a)"/>
+  <path d="M 245.5 272.1 C 316.6 271.5 387.7 270.8 448.6 270.6 L 448.6 264.5 L 471.6 272.5 L 448.6 280.5 L 448.6 274.4 C 387.7 274.2 316.6 273.5 245.5 272.9 Z" fill="var(--kn-ink,#1a1a1a)"/>
+  <path d="M 257.5 281.5 Q 310.5 279.5 363.5 281.2 Q 310.5 282.2 257.5 281.5 Z" fill="var(--kn-ink,#1a1a1a)"/>
+  <path d="M 213.2 360.0 L 215.2 362.4 L 217.1 364.5 L 219.1 366.0 L 221.0 366.5 L 223.0 365.9 L 224.9 364.3 L 226.9 361.9 L 228.8 359.1 L 230.8 356.2 L 232.7 354.0 L 234.7 352.6 L 236.6 352.5 L 238.6 353.6 L 240.6 355.9 L 242.5 358.9 L 244.5 362.1 L 246.4 365.1 L 248.4 367.2 L 250.3 368.2 L 252.3 367.8 L 254.2 366.2 L 256.2 363.4 L 258.1 360.1 L 260.1 356.7 L 262.1 353.9 L 264.0 352.0 L 266.0 351.5 L 267.9 352.4 L 269.9 354.5 L 271.8 357.6 L 273.8 361.0 L 275.7 364.3 L 277.7 366.8 L 279.6 368.3 L 281.6 368.4 L 283.5 367.0 L 285.5 364.5 L 287.5 361.3 L 289.4 357.9 L 291.4 354.8 L 293.3 352.6 L 295.3 351.7 L 297.2 352.3 L 299.2 354.1 L 301.1 356.7 L 303.1 359.8 L 305.0 362.8 L 307.0 365.2 L 309.0 366.6 L 310.9 366.9 L 312.9 366.1 L 314.8 364.3 L 316.8 361.9 L 318.7 359.3 L 320.7 357.0 L 322.6 355.3 L 324.6 354.4 L 326.5 354.5 L 328.5 355.5 L 330.4 357.2 L 332.4 359.2 L 334.4 361.2 L 336.3 362.8 L 338.3 363.9 L 340.2 364.3 L 342.2 364.0 L 344.1 363.0 L 346.1 361.6" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 219.2 362.3 L 221.1 364.1 L 223.1 365.1 L 225.0 365.0 L 227.0 363.8 L 228.9 361.6 L 230.9 359.0 L 232.8 356.4 L 234.7 354.5 L 236.7 353.8 L 238.6 354.4 L 240.6 356.3 L 242.5 359.0 L 244.5 362.1 L 246.4 364.8 L 248.3 366.4 L 250.3 366.7 L 252.2 365.6 L 254.2 363.1 L 256.1 360.0 L 258.1 356.9 L 260.0 354.4 L 262.0 353.1 L 263.9 353.3 L 265.8 355.0 L 267.8 357.8 L 269.7 361.0 L 271.7 364.0 L 273.6 366.2 L 275.6 367.0 L 277.5 366.3 L 279.4 364.2 L 281.4 361.3 L 283.3 358.0 L 285.3 355.3 L 287.2 353.7 L 289.2 353.6 L 291.1 354.8 L 293.0 357.0 L 295.0 359.8 L 296.9 362.4 L 298.9 364.4 L 300.8 365.3 L 302.8 365.1 L 304.7 363.7 L 306.6 361.7 L 308.6 359.5 L 310.5 357.5 L 312.5 356.2 L 314.4 355.8 L 316.4 356.3 L 318.3 357.6 L 320.3 359.2 L 322.2 360.9 L 324.1 362.2 L 326.1 362.9" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 342.1 357.6 C 389.4 357.7 436.7 356.2 477.3 355.8 L 477.3 345.0 L 515.3 360.0 L 477.3 375.0 L 477.3 364.2 C 436.7 363.8 389.4 362.3 342.1 362.4 Z" fill="var(--kn-ink,#1a1a1a)"/>
+  <path d="M 225.2 371.0 Q 234.2 369.3 243.2 370.7 Q 234.2 371.6 225.2 371.0 Z" fill="var(--kn-ink,#1a1a1a)"/>
+  <path d="M 259.2 373.0 Q 268.2 371.1 277.2 372.7 Q 268.2 373.7 259.2 373.0 Z" fill="var(--kn-ink,#1a1a1a)"/>
+  <path d="M 295.2 370.0 Q 304.2 368.4 313.2 369.7 Q 304.2 370.6 295.2 370.0 Z" fill="var(--kn-ink,#1a1a1a)"/>
+  <path d="M 247.2 347.0 Q 255.2 345.5 263.2 346.7 Q 255.2 347.5 247.2 347.0 Z" fill="var(--kn-ink,#1a1a1a)"/>
+  <path d="M 283.2 349.0 Q 290.2 347.6 297.2 348.7 Q 290.2 349.5 283.2 349.0 Z" fill="var(--kn-ink,#1a1a1a)"/>
+  <path d="M 236.0 447.1 C 310.5 446.8 385.0 446.3 448.8 446.2 L 448.8 441.0 L 467.8 447.5 L 448.8 454.0 L 448.8 448.8 C 385.0 448.7 310.5 448.2 236.0 447.9 Z" fill="var(--kn-ink,#1a1a1a)"/>
+  <path d="M 250.0 455.5 Q 307.0 453.3 364.0 455.2 Q 307.0 456.3 250.0 455.5 Z" fill="var(--kn-ink,#1a1a1a)"/>
+  <path d="M 260.0 532.1 C 318.8 531.5 377.6 530.9 428.0 530.7 L 428.0 523.5 L 453.0 532.5 L 428.0 541.5 L 428.0 534.3 C 377.6 534.1 318.8 533.5 260.0 532.9 Z" fill="var(--kn-ink,#1a1a1a)"/>
+  <path d="M 277.0 526.0 Q 316.0 524.2 355.0 525.7 Q 316.0 526.6 277.0 526.0 Z" fill="var(--kn-ink,#1a1a1a)"/>
+  <line x1="350.0" y1="100.0" x2="350.0" y2="168.0" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9"/><line x1="350.0" y1="100.0" x2="350.0" y2="168.0" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.2" stroke-dasharray="1 2.2" opacity="0.85"/>
+  <path d="M 350.0 185.0 L 341.0 168.0 L 359.0 168.0 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.1"/><line x1="350.0" y1="185.0" x2="350.0" y2="168.0" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.8"/>
+  <path d="M 346.6 69.8 Q 340.6 64.5 338.5 61.8" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <path d="M 353.4 69.8 Q 359.4 64.5 361.5 61.8" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <ellipse cx="350.0" cy="71.9" rx="5.7" ry="4.3" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <ellipse cx="350.0" cy="84.0" rx="9.7" ry="12.8" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <ellipse cx="350.0" cy="84.0" rx="5.9" ry="9.5" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <line x1="350.0" y1="75.2" x2="350.0" y2="94.8" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9"/>
+  <path d="M 342.6 73.9 Q 337.5 67.8 332.4 67.2" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <path d="M 357.4 73.9 Q 362.5 67.8 367.6 67.2" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <path d="M 342.6 80.7 Q 336.8 77.3 331.1 79.3" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <path d="M 357.4 80.7 Q 363.2 77.3 368.9 79.3" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <path d="M 342.6 87.4 Q 338.2 87.4 333.8 92.8" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <path d="M 357.4 87.4 Q 361.8 87.4 366.2 92.8" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <line x1="350.0" y1="552.0" x2="350.0" y2="620.0" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9"/><line x1="350.0" y1="552.0" x2="350.0" y2="620.0" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.2" stroke-dasharray="1 2.2" opacity="0.85"/>
+  <path d="M 350.0 535.0 L 341.0 552.0 L 359.0 552.0 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.1"/><line x1="350.0" y1="535.0" x2="350.0" y2="552.0" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.8"/>
+  <path d="M 346.6 650.1 Q 340.6 655.5 338.5 658.2" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <path d="M 353.4 650.1 Q 359.4 655.5 361.5 658.2" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <ellipse cx="350.0" cy="648.1" rx="5.7" ry="4.3" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <ellipse cx="350.0" cy="636.0" rx="9.7" ry="12.8" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <ellipse cx="350.0" cy="636.0" rx="5.9" ry="9.5" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <line x1="350.0" y1="644.8" x2="350.0" y2="625.2" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9"/>
+  <path d="M 342.6 646.1 Q 337.5 652.2 332.4 652.9" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <path d="M 357.4 646.1 Q 362.5 652.2 367.6 652.9" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <path d="M 342.6 639.4 Q 336.8 642.7 331.1 640.7" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <path d="M 357.4 639.4 Q 363.2 642.7 368.9 640.7" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <path d="M 342.6 632.6 Q 338.2 632.6 333.8 627.2" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <path d="M 357.4 632.6 Q 361.8 632.6 366.2 627.2" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <g fill="var(--kn-ink,#1a1a1a)">
+  <text x="350" y="38" text-anchor="middle" font-size="16" letter-spacing="0.4">Внутреннее Противоречие Света</text>
+  <text x="350" y="700" text-anchor="middle" font-size="16" letter-spacing="0.4">Внутреннее Противоречие Тьмы</text>
+  <text x="131" y="365" text-anchor="end" font-size="16" letter-spacing="0.4">Горизонт</text>
+  <text x="569" y="365" text-anchor="start" font-size="16" letter-spacing="0.4">Горизонт</text>
+  </g>
+</svg>

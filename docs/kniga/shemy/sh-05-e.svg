@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-140 -80 1090 855" font-family="var(--kn-serif,Georgia,serif)">
+  <line x1="168" y1="330" x2="235.6" y2="205.3" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.6"/><line x1="252.7" y1="173.6" x2="310" y2="68" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.6"/>
+  <line x1="310" y1="68" x2="550" y2="68" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.6"/>
+  <line x1="550" y1="68" x2="614.6" y2="187.1" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.6"/><line x1="631.7" y1="218.8" x2="692" y2="330" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.6"/>
+  <line x1="692" y1="330" x2="627.4" y2="449.1" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.6"/><line x1="610.3" y1="480.8" x2="550" y2="592" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.6"/>
+  <line x1="550" y1="592" x2="310" y2="592" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.6"/>
+  <line x1="310" y1="592" x2="244.6" y2="471.3" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.6"/><line x1="227.5" y1="439.7" x2="168" y2="330" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.6"/>
+  <path d="M 310.0 68.0 L 305.2 104.1 L 282.4 91.7 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4" stroke-linejoin="round"/><line x1="305.1" y1="77.0" x2="297.3" y2="91.3" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4"/>
+  <path d="M 550.0 68.0 L 516.0 81.0 L 516.0 55.0 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4" stroke-linejoin="round"/><line x1="539.8" y1="68.0" x2="523.5" y2="68.0" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4"/>
+  <path d="M 692.0 330.0 L 664.4 306.3 L 687.2 293.9 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4" stroke-linejoin="round"/><line x1="687.1" y1="321.0" x2="679.3" y2="306.7" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4"/>
+  <path d="M 550.0 592.0 L 554.8 555.9 L 577.6 568.3 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4" stroke-linejoin="round"/><line x1="554.9" y1="583.0" x2="562.7" y2="568.7" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4"/>
+  <path d="M 310.0 592.0 L 344.0 579.0 L 344.0 605.0 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4" stroke-linejoin="round"/><line x1="320.2" y1="592.0" x2="336.5" y2="592.0" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4"/>
+  <path d="M 168.0 330.0 L 195.6 353.7 L 172.8 366.1 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4" stroke-linejoin="round"/><line x1="172.9" y1="339.0" x2="180.7" y2="353.3" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4"/>
+  <line x1="438" y1="-32" x2="438" y2="24" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4"/>
+  <path d="M 438.0 38.0 L 432.5 22.0 L 443.5 22.0 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.2" stroke-linejoin="round"/>
+  <line x1="438" y1="718" x2="438" y2="638" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4"/>
+  <path d="M 438.0 624.0 L 443.5 640.0 L 432.5 640.0 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.2" stroke-linejoin="round"/>
+  <line x1="62" y1="330" x2="136" y2="330" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4"/>
+  <path d="M 168.0 330.0 L 136.0 344.0 L 136.0 316.0 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4" stroke-linejoin="round"/><line x1="158.4" y1="330.0" x2="143.0" y2="330.0" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4"/>
+  <line x1="800" y1="330" x2="726" y2="330" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4"/>
+  <path d="M 692.0 330.0 L 722.0 316.0 L 722.0 344.0 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4" stroke-linejoin="round"/><line x1="701.0" y1="330.0" x2="715.4" y2="330.0" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4"/>
+  <path d="M 622 30 Q 630 66 588 84" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4"/>
+  <path d="M 580.0 86.0 L 591.5 75.1 L 595.7 84.2 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="M 262 672 Q 300 668 300 614" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4"/>
+  <path d="M 301.0 604.0 L 305.5 619.2 L 295.5 618.8 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.2" stroke-linejoin="round"/>
+  <path fill-rule="evenodd" fill="var(--kn-ink,#1a1a1a)" d="M 51.9 119.9 L 51.9 121.8 L 57.7 127.0 L 58.4 134.8 L 62.9 139.3 L 75.9 140.0 L 84.4 136.8 L 90.9 131.6 L 92.8 132.9 L 92.2 149.8 L 94.1 158.8 L 92.8 165.3 L 94.1 166.0 L 96.7 161.5 L 98.0 152.3 L 94.8 130.9 L 98.0 118.5 L 96.0 117.9 L 92.2 124.4 L 81.1 133.5 L 74.6 136.8 L 64.8 137.4 L 61.0 134.2 L 59.6 123.8 L 57.1 121.2 Z M 174.7 112.0 L 170.8 114.0 L 168.8 114.0 L 165.6 111.4 L 162.3 111.4 L 161.1 112.7 L 161.1 117.2 L 165.0 119.2 L 170.2 126.4 L 170.8 140.0 L 169.5 141.3 L 163.0 132.2 L 157.8 128.9 L 151.3 127.0 L 129.2 127.0 L 124.0 129.6 L 113.6 130.9 L 108.4 138.1 L 101.9 157.6 L 90.9 177.1 L 91.5 177.7 L 95.4 174.5 L 102.5 164.1 L 113.6 140.0 L 122.0 134.8 L 129.2 134.2 L 129.9 132.2 L 128.6 130.9 L 129.9 129.6 L 141.6 129.6 L 144.2 130.9 L 155.2 132.2 L 160.4 135.4 L 163.0 140.0 L 172.1 147.2 L 174.7 139.3 L 174.7 128.9 L 171.5 117.9 L 174.7 115.3 Z M 103.2 106.9 L 103.9 107.5 L 107.8 103.0 L 118.8 86.0 L 131.8 69.8 L 138.9 56.8 L 141.6 47.7 L 146.1 44.5 L 150.7 45.1 L 163.7 52.9 L 178.0 67.2 L 192.2 84.1 L 193.6 87.4 L 192.9 91.9 L 194.8 93.9 L 193.6 95.8 L 189.0 95.8 L 186.4 93.2 L 187.7 90.6 L 191.0 90.0 L 191.0 88.0 L 187.7 85.4 L 183.8 85.4 L 181.2 88.0 L 180.6 90.6 L 181.2 93.9 L 184.5 97.8 L 193.6 101.7 L 194.2 105.5 L 195.5 105.5 L 198.8 99.0 L 204.0 97.8 L 211.1 93.2 L 215.0 89.3 L 217.6 82.8 L 216.3 82.2 L 214.3 85.4 L 206.6 92.5 L 201.3 95.2 L 196.8 95.2 L 196.2 93.9 L 198.8 91.9 L 196.2 83.5 L 188.3 69.8 L 180.6 60.7 L 157.2 40.5 L 147.4 36.0 L 144.8 36.0 L 137.0 42.5 L 131.2 62.6 L 105.8 99.7 Z"/>
+  <path fill-rule="evenodd" fill="var(--kn-ink,#1a1a1a)" d="M 638.6 104.5 L 641.9 111.0 L 648.4 117.5 L 648.4 119.5 L 644.5 122.0 L 644.5 124.7 L 648.4 128.6 L 650.3 128.6 L 652.9 124.7 L 655.5 124.7 L 681.5 147.4 L 679.5 152.0 L 679.5 155.2 L 683.5 159.1 L 684.8 159.1 L 688.6 153.9 L 695.8 157.2 L 698.4 156.5 L 711.4 147.4 L 728.3 146.8 L 735.5 148.1 L 738.0 150.7 L 742.6 150.0 L 747.8 144.2 L 749.8 135.1 L 755.6 131.2 L 757.5 131.2 L 760.8 135.7 L 761.5 148.1 L 764.0 152.0 L 763.4 159.8 L 764.7 176.0 L 762.1 184.5 L 765.4 188.3 L 765.4 191.0 L 762.8 194.2 L 762.8 196.2 L 765.4 196.8 L 768.0 194.8 L 769.9 188.3 L 768.6 174.7 L 770.5 170.8 L 771.2 165.6 L 769.9 133.8 L 770.5 122.7 L 769.2 118.8 L 771.2 112.3 L 770.5 104.5 L 765.4 98.0 L 763.4 93.5 L 752.4 81.1 L 729.0 63.6 L 718.5 62.9 L 712.0 64.2 L 701.0 64.2 L 695.1 68.1 L 694.5 71.3 L 698.4 74.6 L 703.6 74.6 L 712.7 71.3 L 727.6 73.3 L 729.6 75.9 L 725.7 78.5 L 730.2 83.1 L 736.1 92.2 L 734.8 94.8 L 723.8 93.5 L 719.2 95.4 L 710.8 95.4 L 706.9 92.8 L 703.0 92.8 L 695.8 96.7 L 690.6 96.0 L 686.7 97.4 L 683.5 100.0 L 664.6 107.1 L 658.8 105.2 L 655.5 102.5 L 652.2 105.2 L 647.0 105.2 L 644.5 107.1 L 639.9 103.9 Z M 657.5 121.4 L 664.0 116.2 L 671.1 114.2 L 678.9 113.6 L 682.1 115.5 L 686.7 114.2 L 697.8 114.2 L 708.1 119.5 L 716.0 118.8 L 721.1 120.8 L 725.0 125.3 L 725.7 132.4 L 717.9 137.0 L 711.4 138.9 L 696.5 139.6 L 694.5 141.6 L 695.8 151.3 L 693.2 153.9 L 690.0 152.6 L 684.8 146.8 L 665.9 131.2 L 657.5 122.7 Z"/>
+  <g fill="var(--kn-ink,#1a1a1a)" font-size="25" font-weight="bold">
+  <text x="438" y="-46" text-anchor="middle">Труд</text>
+  <text x="578" y="1" text-anchor="start">Достижение</text>
+  <text x="578" y="26" text-anchor="start">Труда</text>
+  <text x="48" y="316" text-anchor="end">Лёгкое</text>
+  <text x="48" y="341" text-anchor="end">Достижение</text>
+  <text x="48" y="366" text-anchor="end">Света</text>
+  <text x="758" y="320" text-anchor="start">Лёгкое</text>
+  <text x="758" y="345" text-anchor="start">Достижение</text>
+  <text x="758" y="370" text-anchor="start">Тьмы</text>
+  <text x="282" y="696" text-anchor="end">Достижение</text>
+  <text x="282" y="722" text-anchor="end">Терпением</text>
+  <text x="438" y="743" text-anchor="middle">Ждать</text>
+  <text x="247.0" y="200.0" text-anchor="middle">Подъём</text>
+  <text x="623.0" y="212.0" text-anchor="middle">Спуск</text>
+  <text x="237.0" y="464.0" text-anchor="middle">Заря</text>
+  <text x="619.0" y="474.0" text-anchor="middle">Сумерки</text>
+  </g>
+</svg>

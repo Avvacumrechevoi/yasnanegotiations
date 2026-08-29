@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="116 74 616 630" width="616" height="630" role="img" aria-label="Звезда Числа с подписями побед">
+  <g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.1" stroke-linecap="round">
+    <!-- Опорный крест 0 - 3 - 6 - 9 с засечками -->
+    <line x1="400" y1="400" x2="400" y2="598"/>
+    <line x1="400" y1="400" x2="231" y2="400"/>
+    <line x1="400" y1="400" x2="400" y2="196"/>
+    <line x1="400" y1="400" x2="611" y2="400"/>
+    <line x1="389" y1="598" x2="411" y2="598"/>
+    <line x1="231" y1="389" x2="231" y2="411"/>
+    <line x1="389" y1="196" x2="411" y2="196"/>
+    <line x1="611" y1="389" x2="611" y2="411"/>
+    <!-- Огненый крест 1 - 4 - 7 - 10 -->
+    <line x1="400" y1="400" x2="258" y2="647"/>
+    <line x1="400" y1="400" x2="213" y2="292"/>
+    <line x1="400" y1="400" x2="555" y2="132"/>
+    <line x1="400" y1="400" x2="619" y2="527"/>
+    <!-- Крест Веры 2 - 5 - 8 - 11 -->
+    <g stroke-dasharray="9 7">
+      <line x1="400" y1="400" x2="251" y2="486"/>
+      <line x1="400" y1="400" x2="314" y2="251"/>
+      <line x1="400" y1="400" x2="567" y2="304"/>
+      <line x1="400" y1="400" x2="492" y2="559"/>
+    </g>
+    <circle cx="400" cy="400" r="3.4" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  </g>
+
+  <!-- стрелка «Дело» -->
+  <g stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.8" fill="none" stroke-linecap="round">
+    <line x1="454" y1="104" x2="543" y2="101"/>
+    <path d="M 456 99 L 464 104 L 456 109"/>
+    <path d="M 464 99 L 472 104 L 464 109"/>
+  </g>
+  <path d="M 551 101 L 535 96 L 536 106 Z" fill="var(--kn-ink,#1a1a1a)"/>
+
+  <!-- стрелка «Страхи» -->
+  <g stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.8" fill="none" stroke-linecap="round">
+    <line x1="341" y1="684" x2="263" y2="684"/>
+  </g>
+  <path d="M 255 684 L 271 679 L 270 689 Z" fill="var(--kn-ink,#1a1a1a)"/>
+  <path d="M 345 681 L 327 685 L 345 688 Z" fill="var(--kn-ink,#1a1a1a)"/>
+
+  <!-- стрелка вверх слева -->
+  <g stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.8" fill="none" stroke-linecap="round">
+    <line x1="148" y1="378" x2="148" y2="299"/>
+  </g>
+  <path d="M 148 291 L 143 306 L 153 306 Z" fill="var(--kn-ink,#1a1a1a)"/>
+
+  <!-- стрелка вниз справа -->
+  <g stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.8" fill="none" stroke-linecap="round">
+    <line x1="719" y1="432" x2="719" y2="524"/>
+  </g>
+  <path d="M 719 532 L 714 517 L 724 517 Z" fill="var(--kn-ink,#1a1a1a)"/>
+
+  <g font-family="var(--kn-serif,Georgia,serif)" fill="var(--kn-ink,#1a1a1a)" font-weight="600">
+    <!-- номера лучей -->
+    <g font-size="17" text-anchor="middle">
+      <text x="394" y="617">0</text>
+      <text x="273" y="657">1</text>
+      <text x="246" y="502">2</text>
+      <text x="216" y="406">3</text>
+      <text x="209" y="279">4</text>
+      <text x="327" y="237">5</text>
+      <text x="409" y="182">6</text>
+      <text x="569" y="124">7</text>
+      <text x="581" y="296">8</text>
+      <text x="630" y="406">9</text>
+      <text x="644" y="547">10</text>
+      <text x="486" y="586">11</text>
+    </g>
+    <!-- подписи -->
+    <g font-size="14">
+      <text x="589" y="92">Победа над своим</text>
+      <text x="589" y="109">неумением.</text>
+      <text x="589" y="126">Умение добиться</text>
+      <text x="589" y="143">своего</text>
+
+      <text x="170" y="130">Огненый</text>
+      <text x="184" y="148">Крест</text>
+      <text x="167" y="197">Исход</text>
+
+      <text x="153" y="228">Победа над собой -</text>
+      <text x="165" y="246">Умение отстоять</text>
+      <text x="177" y="264">свой план</text>
+
+      <text x="200" y="391" text-anchor="end">Утреннее</text>
+      <text x="200" y="408" text-anchor="end">Сражение</text>
+
+      <text x="647" y="391">Вечернее</text>
+      <text x="647" y="408">Сражение</text>
+
+      <text x="187" y="517">Крест</text>
+      <text x="187" y="534">Веры</text>
+
+      <text x="535" y="566">Победа над собой -</text>
+      <text x="535" y="583">Умение проигрывать</text>
+
+      <text x="250" y="652" text-anchor="end">Победа над</text>
+      <text x="250" y="669" text-anchor="end">своими страхами</text>
+    </g>
+    <g font-size="16">
+      <text x="444" y="110" text-anchor="end">Дело</text>
+      <text x="350" y="690">Страхи</text>
+    </g>
+  </g>
+</svg>

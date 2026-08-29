@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="26 18 808 560" font-family="var(--kn-serif,Georgia,serif)">
+  <polygon points="220,300 320,116 520,116 620,300 520,484 320,484" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.5"/>
+  <line x1="220" y1="300" x2="620" y2="300" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.5"/>
+  <path d="M 320.0 116.0 L 319.2 140.6 L 299.8 130.1 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4" stroke-linejoin="round"/><line x1="316.8" y1="121.8" x2="309.5" y2="135.3" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4"/>
+  <path d="M 620.0 300.0 L 599.8 285.9 L 619.2 275.4 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4" stroke-linejoin="round"/><line x1="616.8" y1="294.2" x2="609.5" y2="280.7" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4"/>
+  <path d="M 520.0 484.0 L 520.8 459.4 L 540.2 469.9 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4" stroke-linejoin="round"/><line x1="523.2" y1="478.2" x2="530.5" y2="464.7" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4"/>
+  <path d="M 220.0 300.0 L 240.2 314.1 L 220.8 324.6 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4" stroke-linejoin="round"/><line x1="223.2" y1="305.8" x2="230.5" y2="319.3" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4"/>
+  <line x1="190" y1="300" x2="212" y2="300" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <path d="M 220.0 300.0 L 202.0 309.0 L 202.0 291.0 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.2" stroke-linejoin="round"/><line x1="214.6" y1="300.0" x2="202.0" y2="300.0" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.2"/>
+  <line x1="650" y1="300" x2="628" y2="300" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1"/>
+  <path d="M 620.0 300.0 L 638.0 291.0 L 638.0 309.0 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.2" stroke-linejoin="round"/><line x1="625.4" y1="300.0" x2="638.0" y2="300.0" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.2"/>
+  <line x1="55" y1="548.0" x2="55" y2="112.0" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.5"/>
+  <path d="M 55 112.0 L 47 146.0 L 55 130.7 L 63 146.0 Z" fill="var(--kn-ink,#1a1a1a)"/>
+  <path d="M 45.5 541.0 L 55 548.0 L 64.5 541.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 45.8 535.0 L 55 542.0 L 64.2 535.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 46.1 529.0 L 55 536.0 L 63.9 529.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 46.4 523.0 L 55 530.0 L 63.6 523.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 46.8 517.0 L 55 524.0 L 63.2 517.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 47.1 511.0 L 55 518.0 L 62.9 511.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 47.4 505.0 L 55 512.0 L 62.6 505.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 47.7 499.0 L 55 506.0 L 62.3 499.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 48.0 493.0 L 55 500.0 L 62.0 493.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 48.3 487.0 L 55 494.0 L 61.7 487.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 48.6 481.0 L 55 488.0 L 61.4 481.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 48.9 475.0 L 55 482.0 L 61.1 475.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 49.2 469.0 L 55 476.0 L 60.8 469.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 49.6 463.0 L 55 470.0 L 60.4 463.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 49.9 457.0 L 55 464.0 L 60.1 457.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 50.2 451.0 L 55 458.0 L 59.8 451.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 44.0 552.0 L 55 545.0 L 66.0 552.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.8"/>
+  <path d="M 45.2 555.0 L 55 548.0 L 64.8 555.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.8"/>
+  <path d="M 46.4 558.0 L 55 551.0 L 63.6 558.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.8"/>
+  <path d="M 47.6 561.0 L 55 554.0 L 62.4 561.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.8"/>
+  <path d="M 48.8 564.0 L 55 557.0 L 61.2 564.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.8"/>
+  <path d="M 50.0 567.0 L 55 560.0 L 60.0 567.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.8"/>
+  <path d="M 51.2 570.0 L 55 563.0 L 58.8 570.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.8"/>
+  <line x1="800" y1="52.0" x2="800" y2="488.0" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.5"/>
+  <path d="M 800 488.0 L 792 454.0 L 800 469.3 L 808 454.0 Z" fill="var(--kn-ink,#1a1a1a)"/>
+  <path d="M 790.5 59.0 L 800 52.0 L 809.5 59.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 790.8 65.0 L 800 58.0 L 809.2 65.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 791.1 71.0 L 800 64.0 L 808.9 71.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 791.4 77.0 L 800 70.0 L 808.6 77.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 791.8 83.0 L 800 76.0 L 808.2 83.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 792.1 89.0 L 800 82.0 L 807.9 89.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 792.4 95.0 L 800 88.0 L 807.6 95.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 792.7 101.0 L 800 94.0 L 807.3 101.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 793.0 107.0 L 800 100.0 L 807.0 107.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 793.3 113.0 L 800 106.0 L 806.7 113.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 793.6 119.0 L 800 112.0 L 806.4 119.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 793.9 125.0 L 800 118.0 L 806.1 125.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 794.2 131.0 L 800 124.0 L 805.8 131.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 794.6 137.0 L 800 130.0 L 805.4 137.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 794.9 143.0 L 800 136.0 L 805.1 143.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 795.2 149.0 L 800 142.0 L 804.8 149.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.9" stroke-linejoin="round"/>
+  <path d="M 789.0 48.0 L 800 55.0 L 811.0 48.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.8"/>
+  <path d="M 790.2 45.0 L 800 52.0 L 809.8 45.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.8"/>
+  <path d="M 791.4 42.0 L 800 49.0 L 808.6 42.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.8"/>
+  <path d="M 792.6 39.0 L 800 46.0 L 807.4 39.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.8"/>
+  <path d="M 793.8 36.0 L 800 43.0 L 806.2 36.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.8"/>
+  <path d="M 795.0 33.0 L 800 40.0 L 805.0 33.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.8"/>
+  <path d="M 796.2 30.0 L 800 37.0 L 803.8 30.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.8"/>
+  <g fill="var(--kn-ink,#1a1a1a)">
+  <text x="420" y="98" text-anchor="middle" font-size="14" letter-spacing="0.3">День</text>
+  <text x="420" y="514" text-anchor="middle" font-size="14" letter-spacing="0.3">Ночь</text>
+  <text x="248" y="178" text-anchor="end" font-size="14" letter-spacing="0.3">Подъём</text>
+  <text x="248" y="194" text-anchor="end" font-size="14" letter-spacing="0.3">Солнца</text>
+  <text x="690" y="100" text-anchor="middle" font-size="14" letter-spacing="0.3">Вечерний</text>
+  <text x="690" y="116" text-anchor="middle" font-size="14" letter-spacing="0.3">Закат</text>
+  <text x="250" y="236" text-anchor="end" font-size="14" letter-spacing="0.3">замедление</text>
+  <text x="566" y="182" text-anchor="start" font-size="14" letter-spacing="0.3">ускорение</text>
+  <text x="588" y="382" text-anchor="start" font-size="14" letter-spacing="0.3">замедление</text>
+  <text x="250" y="374" text-anchor="end" font-size="14" letter-spacing="0.3">ускорение</text>
+  <text x="150" y="284" text-anchor="middle" font-size="14" letter-spacing="0.3">Самая большая</text>
+  <text x="150" y="300" text-anchor="middle" font-size="14" letter-spacing="0.3">скорость</text>
+  <text x="150" y="316" text-anchor="middle" font-size="14" letter-spacing="0.3">нарастания</text>
+  <text x="648" y="294" text-anchor="start" font-size="14" letter-spacing="0.3">Самая большая</text>
+  <text x="648" y="310" text-anchor="start" font-size="14" letter-spacing="0.3">скорость спада</text>
+  <text x="200" y="434" text-anchor="middle" font-size="14" letter-spacing="0.3">Утренняя</text>
+  <text x="200" y="450" text-anchor="middle" font-size="14" letter-spacing="0.3">Заря</text>
+  <text x="690" y="414" text-anchor="middle" font-size="14" letter-spacing="0.3">Вечерние</text>
+  <text x="690" y="430" text-anchor="middle" font-size="14" letter-spacing="0.3">Сумерки</text>
+  </g>
+</svg>

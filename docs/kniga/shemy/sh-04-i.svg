@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 900" width="1060" height="900" role="img">
+  <g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2" stroke-linecap="round">
+
+    <!-- вихрь в середине -->
+    <g transform="translate(470,455)" stroke-linejoin="round">
+        <path d="M 40 0 L 43.1 5.9 L 45.6 12.6 L 47.3 20.3 L 48 28.7 L 47.5 38 L 45.6 47.9 L 42.1 58.2 L 36.8 68.9 L 29.6 79.6 L 20.2 90.1" transform="rotate(0)" stroke-width="4.5"/>
+        <path d="M 40 0 L 43.1 5.9 L 45.6 12.6 L 47.3 20.3 L 48 28.7 L 47.5 38 L 45.6 47.9 L 42.1 58.2 L 36.8 68.9 L 29.6 79.6 L 20.2 90.1" transform="rotate(30)" stroke-width="4.5"/>
+        <path d="M 40 0 L 43.1 5.9 L 45.6 12.6 L 47.3 20.3 L 48 28.7 L 47.5 38 L 45.6 47.9 L 42.1 58.2 L 36.8 68.9 L 29.6 79.6 L 20.2 90.1" transform="rotate(60)" stroke-width="4.5"/>
+        <path d="M 40 0 L 43.1 5.9 L 45.6 12.6 L 47.3 20.3 L 48 28.7 L 47.5 38 L 45.6 47.9 L 42.1 58.2 L 36.8 68.9 L 29.6 79.6 L 20.2 90.1" transform="rotate(90)" stroke-width="4.5"/>
+        <path d="M 40 0 L 43.1 5.9 L 45.6 12.6 L 47.3 20.3 L 48 28.7 L 47.5 38 L 45.6 47.9 L 42.1 58.2 L 36.8 68.9 L 29.6 79.6 L 20.2 90.1" transform="rotate(120)" stroke-width="4.5"/>
+        <path d="M 40 0 L 43.1 5.9 L 45.6 12.6 L 47.3 20.3 L 48 28.7 L 47.5 38 L 45.6 47.9 L 42.1 58.2 L 36.8 68.9 L 29.6 79.6 L 20.2 90.1" transform="rotate(150)" stroke-width="4.5"/>
+        <path d="M 40 0 L 43.1 5.9 L 45.6 12.6 L 47.3 20.3 L 48 28.7 L 47.5 38 L 45.6 47.9 L 42.1 58.2 L 36.8 68.9 L 29.6 79.6 L 20.2 90.1" transform="rotate(180)" stroke-width="4.5"/>
+        <path d="M 40 0 L 43.1 5.9 L 45.6 12.6 L 47.3 20.3 L 48 28.7 L 47.5 38 L 45.6 47.9 L 42.1 58.2 L 36.8 68.9 L 29.6 79.6 L 20.2 90.1" transform="rotate(210)" stroke-width="4.5"/>
+        <path d="M 40 0 L 43.1 5.9 L 45.6 12.6 L 47.3 20.3 L 48 28.7 L 47.5 38 L 45.6 47.9 L 42.1 58.2 L 36.8 68.9 L 29.6 79.6 L 20.2 90.1" transform="rotate(240)" stroke-width="4.5"/>
+        <path d="M 40 0 L 43.1 5.9 L 45.6 12.6 L 47.3 20.3 L 48 28.7 L 47.5 38 L 45.6 47.9 L 42.1 58.2 L 36.8 68.9 L 29.6 79.6 L 20.2 90.1" transform="rotate(270)" stroke-width="4.5"/>
+        <path d="M 40 0 L 43.1 5.9 L 45.6 12.6 L 47.3 20.3 L 48 28.7 L 47.5 38 L 45.6 47.9 L 42.1 58.2 L 36.8 68.9 L 29.6 79.6 L 20.2 90.1" transform="rotate(300)" stroke-width="4.5"/>
+        <path d="M 40 0 L 43.1 5.9 L 45.6 12.6 L 47.3 20.3 L 48 28.7 L 47.5 38 L 45.6 47.9 L 42.1 58.2 L 36.8 68.9 L 29.6 79.6 L 20.2 90.1" transform="rotate(330)" stroke-width="4.5"/>
+        <path d="M 56 0 L 59.4 6.3 L 62.4 13.3 L 64.7 21.1 L 66.3 29.6 L 67.1 38.9 L 66.9 48.8 L 65.5 59.2 L 62.9 70.2 L 58.9 81.5 L 53.4 93.1" transform="rotate(15)" stroke-width="3.5"/>
+        <path d="M 56 0 L 59.4 6.3 L 62.4 13.3 L 64.7 21.1 L 66.3 29.6 L 67.1 38.9 L 66.9 48.8 L 65.5 59.2 L 62.9 70.2 L 58.9 81.5 L 53.4 93.1" transform="rotate(45)" stroke-width="3.5"/>
+        <path d="M 56 0 L 59.4 6.3 L 62.4 13.3 L 64.7 21.1 L 66.3 29.6 L 67.1 38.9 L 66.9 48.8 L 65.5 59.2 L 62.9 70.2 L 58.9 81.5 L 53.4 93.1" transform="rotate(75)" stroke-width="3.5"/>
+        <path d="M 56 0 L 59.4 6.3 L 62.4 13.3 L 64.7 21.1 L 66.3 29.6 L 67.1 38.9 L 66.9 48.8 L 65.5 59.2 L 62.9 70.2 L 58.9 81.5 L 53.4 93.1" transform="rotate(105)" stroke-width="3.5"/>
+        <path d="M 56 0 L 59.4 6.3 L 62.4 13.3 L 64.7 21.1 L 66.3 29.6 L 67.1 38.9 L 66.9 48.8 L 65.5 59.2 L 62.9 70.2 L 58.9 81.5 L 53.4 93.1" transform="rotate(135)" stroke-width="3.5"/>
+        <path d="M 56 0 L 59.4 6.3 L 62.4 13.3 L 64.7 21.1 L 66.3 29.6 L 67.1 38.9 L 66.9 48.8 L 65.5 59.2 L 62.9 70.2 L 58.9 81.5 L 53.4 93.1" transform="rotate(165)" stroke-width="3.5"/>
+        <path d="M 56 0 L 59.4 6.3 L 62.4 13.3 L 64.7 21.1 L 66.3 29.6 L 67.1 38.9 L 66.9 48.8 L 65.5 59.2 L 62.9 70.2 L 58.9 81.5 L 53.4 93.1" transform="rotate(195)" stroke-width="3.5"/>
+        <path d="M 56 0 L 59.4 6.3 L 62.4 13.3 L 64.7 21.1 L 66.3 29.6 L 67.1 38.9 L 66.9 48.8 L 65.5 59.2 L 62.9 70.2 L 58.9 81.5 L 53.4 93.1" transform="rotate(225)" stroke-width="3.5"/>
+        <path d="M 56 0 L 59.4 6.3 L 62.4 13.3 L 64.7 21.1 L 66.3 29.6 L 67.1 38.9 L 66.9 48.8 L 65.5 59.2 L 62.9 70.2 L 58.9 81.5 L 53.4 93.1" transform="rotate(255)" stroke-width="3.5"/>
+        <path d="M 56 0 L 59.4 6.3 L 62.4 13.3 L 64.7 21.1 L 66.3 29.6 L 67.1 38.9 L 66.9 48.8 L 65.5 59.2 L 62.9 70.2 L 58.9 81.5 L 53.4 93.1" transform="rotate(285)" stroke-width="3.5"/>
+        <path d="M 56 0 L 59.4 6.3 L 62.4 13.3 L 64.7 21.1 L 66.3 29.6 L 67.1 38.9 L 66.9 48.8 L 65.5 59.2 L 62.9 70.2 L 58.9 81.5 L 53.4 93.1" transform="rotate(315)" stroke-width="3.5"/>
+        <path d="M 56 0 L 59.4 6.3 L 62.4 13.3 L 64.7 21.1 L 66.3 29.6 L 67.1 38.9 L 66.9 48.8 L 65.5 59.2 L 62.9 70.2 L 58.9 81.5 L 53.4 93.1" transform="rotate(345)" stroke-width="3.5"/>
+        <path d="M 30 0 L 32 3.7 L 33.7 7.9 L 35 12.6 L 35.8 17.7 L 36 23.3 L 35.5 29.3 L 34.3 35.6 L 32.2 42.2 L 29.1 49 L 25 55.9" transform="rotate(8)" stroke-width="3"/>
+        <path d="M 30 0 L 32 3.7 L 33.7 7.9 L 35 12.6 L 35.8 17.7 L 36 23.3 L 35.5 29.3 L 34.3 35.6 L 32.2 42.2 L 29.1 49 L 25 55.9" transform="rotate(53)" stroke-width="3"/>
+        <path d="M 30 0 L 32 3.7 L 33.7 7.9 L 35 12.6 L 35.8 17.7 L 36 23.3 L 35.5 29.3 L 34.3 35.6 L 32.2 42.2 L 29.1 49 L 25 55.9" transform="rotate(98)" stroke-width="3"/>
+        <path d="M 30 0 L 32 3.7 L 33.7 7.9 L 35 12.6 L 35.8 17.7 L 36 23.3 L 35.5 29.3 L 34.3 35.6 L 32.2 42.2 L 29.1 49 L 25 55.9" transform="rotate(143)" stroke-width="3"/>
+        <path d="M 30 0 L 32 3.7 L 33.7 7.9 L 35 12.6 L 35.8 17.7 L 36 23.3 L 35.5 29.3 L 34.3 35.6 L 32.2 42.2 L 29.1 49 L 25 55.9" transform="rotate(188)" stroke-width="3"/>
+        <path d="M 30 0 L 32 3.7 L 33.7 7.9 L 35 12.6 L 35.8 17.7 L 36 23.3 L 35.5 29.3 L 34.3 35.6 L 32.2 42.2 L 29.1 49 L 25 55.9" transform="rotate(233)" stroke-width="3"/>
+        <path d="M 30 0 L 32 3.7 L 33.7 7.9 L 35 12.6 L 35.8 17.7 L 36 23.3 L 35.5 29.3 L 34.3 35.6 L 32.2 42.2 L 29.1 49 L 25 55.9" transform="rotate(278)" stroke-width="3"/>
+        <path d="M 30 0 L 32 3.7 L 33.7 7.9 L 35 12.6 L 35.8 17.7 L 36 23.3 L 35.5 29.3 L 34.3 35.6 L 32.2 42.2 L 29.1 49 L 25 55.9" transform="rotate(323)" stroke-width="3"/>
+      <path d="M-8 -7 h32 M8 -23 v32" stroke-width="2.5"/>
+    </g>
+
+    <!-- ось Чистый Свет — Полная Тьма -->
+    <path d="M470 350 V150"/>
+    <path d="M456 150 H484"/>
+    <path d="M470 560 V785"/>
+    <path d="M456 785 H484"/>
+
+    <!-- лучи -->
+    <path d="M522 364 L640 160"/>   <!-- Начало Тьмы -->
+    <path d="M560 404 L650 352"/>   <!-- Спуск -->
+    <path d="M575 455 H646"/>       <!-- Пропадание Света -->
+    <path d="M560 506 L650 558"/>   <!-- Сумерки -->
+    <path d="M522 546 L634 740"/>   <!-- Конец Света -->
+    <path d="M418 546 L330 720"/>   <!-- Начало Света -->
+    <path d="M379 506 L300 566"/>   <!-- Заря -->
+    <path d="M365 455 H300"/>       <!-- Проявление Света -->
+    <path d="M379 404 L306 378"/>   <!-- Подъём -->
+    <path d="M418 364 L340 230"/>   <!-- Последняя Тьма -->
+
+    <!-- разделительные метки на линии восток—запад -->
+    <path d="M812 452 H832 M828 438 V468"/>
+    <path d="M152 438 V468 M152 452 H172"/>
+
+    <!-- Растёт Явный Свет -->
+    <path d="M70 375 C52 295 78 210 152 170" stroke-width="9"/>
+    <path d="M195 138 L149 154 L167 192 Z" fill="var(--kn-ink,#1a1a1a)" stroke-width="2"/>
+
+    <!-- Растёт Неявный Свет -->
+    <path d="M80 800 C58 745 68 690 106 662" stroke-width="9"/>
+    <path d="M120 628 L88 660 L128 674 Z" fill="var(--kn-ink,#1a1a1a)" stroke-width="2"/>
+
+    <!-- Растёт Неявная Тьма -->
+    <path d="M785 48 C852 38 906 60 918 106 C929 148 899 178 874 156 C851 136 866 98 901 105 C936 113 946 166 936 216 C929 251 916 262 906 274" stroke-width="9"/>
+    <path d="M906 302 L882 260 L924 256 Z" fill="var(--kn-ink,#1a1a1a)" stroke-width="2"/>
+
+    <!-- Растёт Явная Тьма -->
+    <path d="M838 578 C862 544 906 556 901 596 C897 626 862 631 855 606 C848 580 881 570 896 601 C916 641 900 701 850 731 C822 748 792 755 764 758" stroke-width="9"/>
+    <path d="M718 766 L762 742 L768 782 Z" fill="var(--kn-ink,#1a1a1a)" stroke-width="2"/>
+  </g>
+
+  <g fill="var(--kn-ink,#1a1a1a)" font-family="var(--kn-serif,Georgia,serif)" font-size="22">
+    <!-- подписи времён по кругу -->
+    <text x="470" y="105" text-anchor="middle">Чистый</text>
+    <text x="470" y="131" text-anchor="middle">Свет</text>
+
+    <text x="668" y="110" text-anchor="middle">Начало</text>
+    <text x="668" y="136" text-anchor="middle">Тьмы</text>
+
+    <text x="660" y="332" text-anchor="start">Спуск</text>
+
+    <text x="654" y="449" text-anchor="start">Пропадание</text>
+    <text x="654" y="475" text-anchor="start">Света</text>
+
+    <text x="842" y="449" text-anchor="start">Заход</text>
+    <text x="842" y="475" text-anchor="start">Солнца</text>
+
+    <text x="660" y="586" text-anchor="start">Сумерки</text>
+
+    <text x="620" y="800" text-anchor="start">Конец Света</text>
+
+    <text x="470" y="836" text-anchor="middle">Полная</text>
+    <text x="470" y="862" text-anchor="middle">Тьма</text>
+
+    <text x="258" y="838" text-anchor="middle">Начало Света</text>
+
+    <text x="264" y="644" text-anchor="middle">Заря</text>
+
+    <text x="296" y="449" text-anchor="end">Проявление</text>
+    <text x="238" y="475" text-anchor="middle">Света</text>
+
+    <text x="144" y="449" text-anchor="end">Выход</text>
+    <text x="144" y="475" text-anchor="end">Солнца</text>
+
+    <text x="298" y="400" text-anchor="end">Подъём</text>
+
+    <text x="270" y="172" text-anchor="middle">Последняя</text>
+    <text x="288" y="198" text-anchor="middle">Тьма</text>
+
+    <!-- подписи движений -->
+    <g font-size="19">
+      <text x="172" y="260" text-anchor="middle">Растёт</text>
+      <text x="172" y="283" text-anchor="middle">Явный</text>
+      <text x="172" y="306" text-anchor="middle">Свет</text>
+
+      <text x="165" y="674" text-anchor="middle">Растёт</text>
+      <text x="165" y="697" text-anchor="middle">Неявный</text>
+      <text x="165" y="720" text-anchor="middle">Свет</text>
+
+      <text x="700" y="166" text-anchor="start">Растёт</text>
+      <text x="700" y="189" text-anchor="start">Неявная</text>
+      <text x="700" y="212" text-anchor="start">Тьма</text>
+
+      <text x="722" y="654" text-anchor="start">Растёт</text>
+      <text x="722" y="677" text-anchor="start">Явная</text>
+      <text x="722" y="700" text-anchor="start">Тьма</text>
+    </g>
+  </g>
+</svg>

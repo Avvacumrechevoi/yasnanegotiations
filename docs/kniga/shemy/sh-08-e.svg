@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-228 -274 505 540" font-family="var(--kn-serif,Georgia,serif)">
+<line x1="0.00" y1="0.00" x2="0.00" y2="153.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.30"/>
+<line x1="9.00" y1="153.00" x2="-9.00" y2="153.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.60"/>
+<line x1="0.00" y1="0.00" x2="-105.00" y2="181.87" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.30"/>
+<line x1="0.00" y1="0.00" x2="-105.66" y2="61.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.30" stroke-dasharray="9 7"/>
+<line x1="0.00" y1="0.00" x2="-140.00" y2="0.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.30"/>
+<line x1="-140.00" y1="9.00" x2="-140.00" y2="-9.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.60"/>
+<line x1="0.00" y1="0.00" x2="-144.63" y2="-83.50" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.30"/>
+<line x1="0.00" y1="0.00" x2="-66.50" y2="-115.18" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.30" stroke-dasharray="9 7"/>
+<line x1="0.00" y1="0.00" x2="-0.00" y2="-155.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.30"/>
+<line x1="-9.00" y1="-155.00" x2="9.00" y2="-155.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.60"/>
+<line x1="0.00" y1="0.00" x2="116.50" y2="-201.78" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.30"/>
+<line x1="0.00" y1="0.00" x2="126.44" y2="-73.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.30" stroke-dasharray="9 7"/>
+<line x1="0.00" y1="0.00" x2="171.00" y2="-0.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.30"/>
+<line x1="171.00" y1="-9.00" x2="171.00" y2="9.00" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.60"/>
+<line x1="0.00" y1="0.00" x2="181.00" y2="104.50" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.30"/>
+<line x1="0.00" y1="0.00" x2="76.00" y2="131.64" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.30" stroke-dasharray="9 7"/>
+<circle cx="0" cy="0" r="4" fill="var(--kn-ink,#1a1a1a)"/>
+<text x="0.00" y="176.00" font-size="15.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">0</text>
+<text x="-114.00" y="202.45" font-size="15.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">1</text>
+<text x="-121.24" y="75.00" font-size="15.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">2</text>
+<text x="-158.00" y="5.00" font-size="15.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">3</text>
+<text x="-160.21" y="-87.50" font-size="15.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">4</text>
+<text x="-75.50" y="-125.77" font-size="15.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">5</text>
+<text x="-0.00" y="-168.00" font-size="15.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">6</text>
+<text x="125.50" y="-212.37" font-size="15.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">7</text>
+<text x="142.03" y="-77.00" font-size="15.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">8</text>
+<text x="189.00" y="5.00" font-size="15.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">9</text>
+<text x="196.59" y="118.50" font-size="15.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">10</text>
+<text x="85.00" y="152.22" font-size="15.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">11</text>
+<text x="-2.00" y="193.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">Земля</text>
+<text x="-2.00" y="209.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">ШЕ</text>
+<text x="-114.00" y="214.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">Вода</text>
+<text x="-114.00" y="229.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">ФО</text>
+<text x="-159.00" y="95.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">Воздух</text>
+<text x="-159.00" y="112.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">ЦИ</text>
+<text x="-198.00" y="-2.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">Огонь</text>
+<text x="-198.00" y="14.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">ХА</text>
+<text x="-183.00" y="-125.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">ШЕ</text>
+<text x="-183.00" y="-110.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">Земля</text>
+<text x="-80.00" y="-171.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">ФО</text>
+<text x="-80.00" y="-155.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">Вода</text>
+<text x="2.00" y="-211.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">ЦИ</text>
+<text x="2.00" y="-195.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">Воздух</text>
+<text x="138.00" y="-254.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">ХА</text>
+<text x="138.00" y="-239.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">Огонь</text>
+<text x="187.00" y="-118.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">ШЕ</text>
+<text x="187.00" y="-103.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">Земля</text>
+<text x="223.00" y="-2.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">Вода</text>
+<text x="223.00" y="14.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">ФО</text>
+<text x="228.00" y="138.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">Воздух</text>
+<text x="228.00" y="155.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">ЦИ</text>
+<text x="96.00" y="172.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">Огонь</text>
+<text x="96.00" y="189.00" font-size="13.0" text-anchor="middle" fill="var(--kn-ink,#1a1a1a)" font-weight="bold">ХА</text>
+<path d="M -141.00,-205.77 C -126.38,-197.00 -91.31,-197.00 -65.00,-207.23 C -76.69,-201.38 -97.15,-204.31 -105.92,-210.15 C -117.62,-216.00 -132.23,-213.08 -141.00,-205.77 Z" fill="var(--kn-ink,#1a1a1a)"/>
+<path d="M -119.18,-216.80 L -119.33,-216.60 L -119.45,-216.38 L -119.55,-216.13 L -119.62,-215.87 L -119.65,-215.59 L -119.64,-215.30 L -119.59,-215.00 L -119.51,-214.70 L -119.37,-214.41 L -119.20,-214.12 L -118.98,-213.86 L -118.71,-213.62 L -118.41,-213.41 L -118.07,-213.23 L -117.70,-213.10 L -117.30,-213.02 L -116.88,-212.99 L -116.45,-213.01 L -116.00,-213.10 L -115.56,-213.25 L -115.13,-213.47 L -114.72,-213.75 L -114.34,-214.09 L -113.99,-214.50 L -113.69,-214.96 L -113.45,-215.48 L -113.28,-216.04 L -113.18,-216.64 L -113.16,-217.27 L -113.22,-217.92 L -113.38,-218.58 L -113.63,-219.23 L -113.98,-219.86 L -114.42,-220.46 L -114.96,-221.01 L -115.59,-221.50 L -116.30,-221.92 L -117.08,-222.25 L -117.93,-222.48 L -118.84,-222.59 L -119.78,-222.59 L -120.74,-222.45 L -121.72,-222.18 L -122.67,-221.77 L -123.59,-221.21 L -124.46,-220.51 L -125.26,-219.68 L -125.96,-218.71 L -122.34,-217.54 L -121.90,-218.06 L -121.41,-218.50 L -120.89,-218.86 L -120.36,-219.13 L -119.81,-219.31 L -119.27,-219.42 L -118.75,-219.46 L -118.25,-219.42 L -117.78,-219.32 L -117.34,-219.17 L -116.95,-218.97 L -116.61,-218.73 L -116.31,-218.46 L -116.06,-218.16 L -115.87,-217.85 L -115.72,-217.53 L -115.63,-217.21 L -115.57,-216.89 L -115.57,-216.58 L -115.60,-216.29 L -115.67,-216.02 L -115.77,-215.77 L -115.89,-215.54 L -116.04,-215.35 L -116.21,-215.18 L -116.38,-215.04 L -116.57,-214.94 L -116.76,-214.86 L -116.95,-214.81 L -117.14,-214.79 L -117.32,-214.79 L -117.49,-214.81 L -117.65,-214.86 L -117.79,-214.92 L -117.92,-215.00 L -118.03,-215.09 L -118.13,-215.19 L -118.20,-215.30 L -118.26,-215.41 L -118.30,-215.53 L -118.33,-215.64 L -118.34,-215.75 L -118.33,-215.86 L -118.31,-215.95 L -118.28,-216.05 L -118.24,-216.13 L -118.19,-216.20 L -118.14,-216.27 Z" fill="var(--kn-ink,#1a1a1a)"/>
+<path d="M -125.96,-218.71 L -120.99,-220.17 L -105.92,-204.31 L -111.77,-202.85 Z" fill="var(--kn-ink,#1a1a1a)"/>
+<path d="M -92.87,-213.87 L -93.02,-213.68 L -93.16,-213.46 L -93.26,-213.21 L -93.33,-212.94 L -93.37,-212.66 L -93.37,-212.36 L -93.33,-212.05 L -93.25,-211.74 L -93.12,-211.44 L -92.94,-211.14 L -92.72,-210.86 L -92.45,-210.60 L -92.14,-210.37 L -91.79,-210.18 L -91.40,-210.03 L -90.98,-209.94 L -90.53,-209.89 L -90.07,-209.91 L -89.60,-210.00 L -89.12,-210.15 L -88.65,-210.37 L -88.20,-210.66 L -87.78,-211.02 L -87.39,-211.46 L -87.06,-211.95 L -86.78,-212.51 L -86.58,-213.12 L -86.45,-213.78 L -86.41,-214.47 L -86.47,-215.19 L -86.63,-215.92 L -86.89,-216.65 L -87.26,-217.37 L -87.74,-218.05 L -88.33,-218.68 L -89.03,-219.25 L -89.82,-219.74 L -90.71,-220.14 L -91.67,-220.42 L -92.70,-220.57 L -93.78,-220.59 L -94.89,-220.46 L -96.01,-220.17 L -97.13,-219.72 L -98.22,-219.10 L -99.25,-218.31 L -100.19,-217.35 L -101.04,-216.24 L -97.42,-215.06 L -96.82,-215.73 L -96.17,-216.28 L -95.48,-216.71 L -94.78,-217.04 L -94.08,-217.25 L -93.39,-217.36 L -92.72,-217.38 L -92.09,-217.32 L -91.51,-217.17 L -90.98,-216.96 L -90.50,-216.70 L -90.09,-216.39 L -89.73,-216.04 L -89.45,-215.67 L -89.22,-215.29 L -89.06,-214.90 L -88.96,-214.51 L -88.91,-214.13 L -88.91,-213.76 L -88.96,-213.42 L -89.06,-213.10 L -89.18,-212.81 L -89.34,-212.56 L -89.52,-212.33 L -89.71,-212.15 L -89.92,-212.00 L -90.14,-211.89 L -90.36,-211.80 L -90.57,-211.76 L -90.78,-211.74 L -90.98,-211.75 L -91.17,-211.78 L -91.34,-211.84 L -91.50,-211.92 L -91.64,-212.01 L -91.75,-212.11 L -91.85,-212.22 L -91.93,-212.34 L -91.99,-212.46 L -92.03,-212.58 L -92.05,-212.70 L -92.05,-212.82 L -92.04,-212.93 L -92.02,-213.03 L -91.99,-213.12 L -91.94,-213.21 L -91.89,-213.28 L -91.83,-213.34 Z" fill="var(--kn-ink,#1a1a1a)"/>
+<path d="M -101.04,-216.24 L -96.07,-217.70 L -79.62,-201.38 L -85.46,-199.92 Z" fill="var(--kn-ink,#1a1a1a)"/>
+<path d="M 139.20,243.00 C 134.64,207.30 154.40,198.70 158.96,160.00 C 169.60,184.08 174.16,189.24 172.64,172.04 C 192.40,201.28 187.84,228.80 184.80,243.00 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.20" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 152.12,242.00 C 149.08,220.20 160.48,216.76 162.76,196.12 C 176.44,213.32 174.16,232.24 171.88,242.00 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.00" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 139.20,241.00 C 128.56,209.88 139.20,203.00 145.28,192.68" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.00" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 111.94,252.15 L 188.90,240.79 L 187.74,232.97 L 110.78,244.33 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.1" stroke-linejoin="round"/>
+<path d="M 135.10,240.79 L 212.06,252.15 L 213.22,244.33 L 136.26,232.97 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.1" stroke-linejoin="round"/>
+<path d="M 114.77,261.46 L 191.77,253.88 L 190.99,246.02 L 113.99,253.60 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.1" stroke-linejoin="round"/>
+<path d="M 132.23,253.88 L 209.23,261.46 L 210.01,253.60 L 133.01,246.02 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.1" stroke-linejoin="round"/>
+</svg>

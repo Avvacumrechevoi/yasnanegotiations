@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="80 50 600 450" font-family="var(--kn-serif,Georgia,serif)">
+  <defs>
+    <g id="sh06b-sword">
+      <path d="M 0 -62 L 2.0 -44 L 2.0 10 L -2.0 10 L -2.0 -44 Z" fill="var(--kn-ink,#1a1a1a)"/>
+      <path d="M -9.5 2 C -9.5 12.5 -4.8 17 0 17 C 4.8 17 9.5 12.5 9.5 2 C 7.7 11 4.4 13.4 0 13.4 C -4.4 13.4 -7.7 11 -9.5 2 Z" fill="var(--kn-ink,#1a1a1a)"/>
+      <rect x="-1.5" y="16" width="3.0" height="15" fill="var(--kn-ink,#1a1a1a)"/>
+      <circle cx="0" cy="34.5" r="3.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.5"/>
+    </g>
+    <mask id="sh06b-shieldmask">
+      <rect x="0" y="0" width="800" height="560" fill="#fff"/>
+      <path transform="translate(608.7,365.3)"
+            d="M -25.5 -30.5 Q 0 -37 25.5 -30.5 L 25.5 5 C 25.5 19.8 14 27.2 0 32 C -14 27.2 -25.5 19.8 -25.5 5 Z"
+            fill="#000"/>
+    </mask>
+  </defs>
+
+  <!-- шестиугольник -->
+  <polygon points="215,270 288,130 432,130 505,270 432,408 288,408"
+           fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.6"/>
+
+  <!-- ось Утреннее сражение — Вечернее сражение -->
+  <line x1="172" y1="270" x2="560" y2="270" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.6"/>
+  <!-- левая стрелка: остриё вправо, в шестиугольник -->
+  <path d="M 188 257 L 214 270 L 188 283 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.6"/>
+  <!-- правая стрелка: остриё влево, в шестиугольник -->
+  <path d="M 532 257 L 506 270 L 532 283 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.6"/>
+
+  <!-- скрещённые мечи (остриями вверх) — Утреннее Сражение -->
+  <g transform="translate(135,210.7)">
+    <g transform="rotate(-40,0,-19)"><use href="#sh06b-sword"/></g>
+    <g transform="rotate(40,0,-19)"><use href="#sh06b-sword"/></g>
+  </g>
+
+  <!-- щит со скрещёнными мечами (остриями вниз) — Вечернее Сражение -->
+  <g mask="url(#sh06b-shieldmask)">
+    <g transform="translate(608.7,378.6) scale(1.19)">
+      <g transform="rotate(135,0,-19)"><use href="#sh06b-sword"/></g>
+      <g transform="rotate(-135,0,-19)"><use href="#sh06b-sword"/></g>
+    </g>
+  </g>
+  <g transform="translate(608.7,365.3)">
+    <path d="M -18.5 -23 Q 0 -28.5 18.5 -23 L 18.5 3.5 C 18.5 14.3 10.2 19.6 0 23 C -10.2 19.6 -18.5 14.3 -18.5 3.5 Z"
+          fill="var(--kn-ink,#1a1a1a)"/>
+    <path d="M -24 -29 Q 0 -35 24 -29 L 24 4.5 C 24 18.6 13.2 25.5 0 30 C -13.2 25.5 -24 18.6 -24 4.5 Z"
+          fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.5"/>
+  </g>
+
+  <g fill="var(--kn-ink,#1a1a1a)">
+    <text x="358" y="86" text-anchor="middle" font-size="15">Сила Света</text>
+    <text x="358" y="110" text-anchor="middle" font-size="15">Дно Чаши Света</text>
+    <text x="358" y="436" text-anchor="middle" font-size="15">Дно Чаши Тьмы</text>
+    <text x="358" y="460" text-anchor="middle" font-size="15">Сила Тьмы</text>
+    <text x="168" y="258" text-anchor="end" font-size="15">Утреннее</text>
+    <text x="168" y="274" text-anchor="end" font-size="15">Сражение</text>
+    <text x="566" y="272" font-size="19">Вечернее</text>
+    <text x="566" y="291" font-size="19">Сражение</text>
+  </g>
+</svg>
