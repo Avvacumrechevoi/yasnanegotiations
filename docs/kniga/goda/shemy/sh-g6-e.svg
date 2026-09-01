@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1195 678" width="1195" height="678" role="img" aria-label="Шестиугольник Ясны Года: Дуги Выходов Солнца на Востоке и Западе">
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-linecap="round" stroke-linejoin="round">
+<polygon points="446.2,374.8 491.3,264.3 703.8,264.3 748.9,374.8 703.8,485.3 491.3,485.3" stroke-width="2.2"/>
+<line x1="472.6" y1="374.8" x2="724.2" y2="374.8" stroke-width="2.2"/>
+<line x1="598.4" y1="149.6" x2="598.4" y2="193.8" stroke-width="2" stroke-dasharray="7 6"/>
+<line x1="598.4" y1="226.1" x2="598.4" y2="520.2" stroke-width="2" stroke-dasharray="7 6"/>
+<line x1="598.4" y1="547.4" x2="598.4" y2="591.6" stroke-width="2" stroke-dasharray="7 6"/>
+<polygon points="598.4,134.3 604.4,147.3 592.4,147.3" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<polygon points="598.4,615.4 592.4,602.4 604.4,602.4" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<line x1="374.0" y1="374.8" x2="309.7" y2="374.8" stroke-width="2.2"/>
+<polygon points="290.7,374.8 312.7,367.3 312.7,382.3" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<line x1="834.7" y1="374.8" x2="883.7" y2="374.8" stroke-width="2.2"/>
+<polygon points="902.7,374.8 880.7,382.3 880.7,367.3" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<line x1="266.9" y1="251.6" x2="404.9" y2="278.9" stroke-width="2" stroke-dasharray="8 6"/>
+<polygon points="421.6,282.2 400.6,285.2 403.3,271.5" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<line x1="880.6" y1="253.3" x2="795.0" y2="276.1" stroke-width="2" stroke-dasharray="8 6"/>
+<polygon points="778.6,280.5 796.1,268.6 799.7,282.1" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<path d="M 465.8 268.6 Q 365.5 373.1 465.8 477.7 Q 391.0 373.1 465.8 268.6 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<polygon points="472.6,256.7 469.5,270.4 460.6,264.0" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<polygon points="472.6,489.6 460.6,482.3 469.5,475.9" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<path d="M 729.3 268.6 Q 829.6 373.1 729.3 477.7 Q 804.1 373.1 729.3 268.6 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<polygon points="722.5,256.7 734.5,264.0 725.6,270.4" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<polygon points="722.5,489.6 725.6,475.9 734.5,482.3" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<path d="M 549.1,51.0 C 569.5,49.3 583.1,40.8 593.3,30.6 C 603.5,18.7 613.7,11.9 618.8,17.0 C 623.9,22.1 615.4,27.2 608.6,25.5" stroke-width="2.4"/>
+<path d="M 608.6,40.8 C 629.0,35.7 654.5,34.0 674.9,37.4 C 688.5,39.1 697.0,44.2 702.1,40.8 C 707.2,37.4 705.5,32.3 700.4,34.0" stroke-width="1.9"/>
+<path d="M 533.8,54.4 C 552.5,59.5 578.0,59.5 598.4,56.1 C 620.5,52.7 646.0,47.6 666.4,52.7 C 681.7,57.8 693.6,49.3 703.8,52.7 C 712.3,56.1 712.3,64.6 703.8,66.3 C 697.0,68.0 690.2,66.3 686.8,64.6" stroke-width="2.4"/>
+<path d="M 501.5,64.6 C 518.5,61.2 535.5,66.3 552.5,69.7 C 571.2,73.1 588.2,71.4 605.2,68.0" stroke-width="1.9"/>
+</g>
+<g fill="var(--kn-ink,#1a1a1a)" font-family="var(--kn-serif,Georgia,serif)" font-size="25">
+<text x="268.6" y="149.6" text-anchor="start">Точка Летнего</text>
+<text x="268.6" y="173.4" text-anchor="start">Солнцестояния</text>
+<text x="919.7" y="149.6" text-anchor="end">Точка Летнего</text>
+<text x="919.7" y="173.4" text-anchor="end">Солнцестояния</text>
+<text x="124.1" y="236.3" text-anchor="start">Дуга Выходов</text>
+<text x="124.1" y="260.1" text-anchor="start">Солнца на</text>
+<text x="124.1" y="283.9" text-anchor="start">Востоке</text>
+<text x="1076.1" y="236.3" text-anchor="end">Дуга Выходов</text>
+<text x="1076.1" y="260.1" text-anchor="end">Солнца на</text>
+<text x="1076.1" y="283.9" text-anchor="end">Западе</text>
+<text x="28.9" y="348.5" text-anchor="start">Весеннее</text>
+<text x="28.9" y="372.3" text-anchor="start">Равноденствие и</text>
+<text x="28.9" y="396.1" text-anchor="start">Осеннее</text>
+<text x="28.9" y="419.9" text-anchor="start">Равноденствие</text>
+<text x="1162.8" y="348.5" text-anchor="end">Весеннее</text>
+<text x="1162.8" y="372.3" text-anchor="end">Равноденствие и</text>
+<text x="1162.8" y="396.1" text-anchor="end">Осеннее</text>
+<text x="1162.8" y="419.9" text-anchor="end">Равноденствие</text>
+<text x="266.9" y="591.6" text-anchor="start">Точка Зимнего</text>
+<text x="266.9" y="615.4" text-anchor="start">Солнцестояния</text>
+<text x="909.5" y="591.6" text-anchor="end">Точка Зимнего</text>
+<text x="909.5" y="615.4" text-anchor="end">Солнцестояния</text>
+<text x="599.2" y="115.6" text-anchor="middle">Север</text>
+<text x="598.4" y="659.6" text-anchor="middle">Юг</text>
+</g>
+<g fill="var(--kn-ink,#1a1a1a)" font-family="var(--kn-serif,Georgia,serif)" font-size="26" text-anchor="middle">
+<text x="493.0" y="234.6">5</text>
+<text x="598.4" y="219.3">6</text>
+<text x="703.8" y="234.6">7</text>
+<text x="410.6" y="311.1">4</text>
+<text x="784.5" y="311.1">8</text>
+<text x="390.1" y="384.2">3</text>
+<text x="812.6" y="384.2">9</text>
+<text x="411.4" y="455.6">2</text>
+<text x="790.5" y="453.9">10</text>
+<text x="486.2" y="530.4">1</text>
+<text x="597.5" y="542.3">0</text>
+<text x="708.9" y="528.7">11</text>
+</g>
+</svg>

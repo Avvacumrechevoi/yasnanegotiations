@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2300 1800" width="2300" height="1800" role="img" aria-label="Разложение Суток и Года по цветам">
+<g font-family="var(--kn-serif,Georgia,serif)" fill="var(--kn-ink,#1a1a1a)">
+<g fill="var(--kn-ink,#1a1a1a)" stroke="none"><path d="M273.0 452.8 L296.5 413.7 L325.8 368.6 L357.7 319.5 L397.0 265.6 L439.2 219.6 L480.8 184.8 L520.4 157.2 L511.6 134.8 L459.2 143.2 L400.8 172.4 L347.0 222.4 L302.3 280.5 L266.2 335.4 L247.5 394.3 L243.0 443.2 Z"/><path d="M1840.1 219.9 L1883.5 282.8 L1921.7 351.6 L1955.9 421.3 L1997.7 478.5 L2033.2 524.7 L2066.4 553.7 L2093.6 542.3 L2094.8 495.3 L2074.3 433.5 L2036.1 366.7 L1978.3 308.4 L1916.5 253.2 L1851.9 208.1 Z"/><path d="M2062 548 C2088 596 2110 638 2124 664 L2110 668 C2094 640 2072 598 2048 556 Z"/><path d="M196.7 1360.6 L203.2 1423.4 L224.9 1492.0 L259.5 1556.1 L304.4 1607.1 L353.3 1635.0 L390.7 1605.0 L375.6 1552.9 L344.5 1499.9 L307.1 1444.0 L260.8 1392.6 L215.3 1351.4 Z"/><path d="M330 1470 L448 1548 L440 1566 L318 1500 Z"/><path d="M348 1516 L452 1594 L442 1610 L338 1546 Z"/><path d="M362 1560 L438 1626 L428 1640 L352 1586 Z"/><path d="M1769.7 1653.2 L1827.2 1705.6 L1906.9 1723.4 L1985.1 1701.5 L2045.7 1654.5 L2074.3 1593.1 L2041.7 1558.9 L1986.3 1577.5 L1938.9 1598.5 L1893.1 1612.6 L1840.8 1626.4 L1774.3 1638.8 Z"/></g>
+<g><path d="M264 430 C292 356 344 276 410 216 C452 178 486 158 512 148" fill="none" stroke="#fff" stroke-width="7"/><path d="M1876 300 C1930 366 1990 448 2040 528" fill="none" stroke="#fff" stroke-width="6"/><path d="M1902 340 C1952 404 2008 480 2052 550" fill="none" stroke="#fff" stroke-width="5"/></g>
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3.4">
+<line x1="1150.0" y1="575.0" x2="1150.0" y2="1225.0"/>
+<line x1="825.0" y1="900.0" x2="1475.0" y2="900.0"/>
+</g>
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="8">
+<line x1="1121.0" y1="575.0" x2="1179.0" y2="575.0"/>
+<line x1="1121.0" y1="1225.0" x2="1179.0" y2="1225.0"/>
+<line x1="825.0" y1="871.0" x2="825.0" y2="929.0"/>
+<line x1="1475.0" y1="871.0" x2="1475.0" y2="929.0"/>
+</g>
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3.2">
+<line x1="1047.5" y1="1077.5" x2="990.0" y2="1177.1"/>
+<line x1="972.5" y1="797.5" x2="872.9" y2="740.0"/>
+<line x1="1047.5" y1="722.5" x2="990.0" y2="622.9"/>
+<line x1="1252.5" y1="722.5" x2="1310.0" y2="622.9"/>
+<line x1="1327.5" y1="1002.5" x2="1427.1" y2="1060.0"/>
+<line x1="1252.5" y1="1077.5" x2="1310.0" y2="1177.1"/>
+</g>
+<circle cx="1150.0" cy="420.0" r="40.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3"/>
+<path d="M1150.0 380.0 A40.0 40.0 0 0 1 1150.0 460.0 A20.0 20.0 0 0 1 1150.0 420.0 A20.0 20.0 0 0 0 1150.0 380.0 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<circle cx="1150.0" cy="440.0" r="7.4074074074074066" fill="#fff" stroke="none"/>
+<circle cx="1150.0" cy="400.0" r="7.4074074074074066" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<line x1="1150" y1="141" x2="1150" y2="183" stroke="var(--kn-ink,#1a1a1a)" stroke-width="4.0"/>
+<line x1="1150" y1="308" x2="1150" y2="350" stroke="var(--kn-ink,#1a1a1a)" stroke-width="4.0"/>
+<line x1="1150" y1="1488" x2="1150" y2="1526" stroke="var(--kn-ink,#1a1a1a)" stroke-width="4.0"/>
+<line x1="1150" y1="1650" x2="1150" y2="1690" stroke="var(--kn-ink,#1a1a1a)" stroke-width="4.0"/>
+<line x1="118" y1="900" x2="196" y2="900" stroke="var(--kn-ink,#1a1a1a)" stroke-width="4.0"/>
+<line x1="543" y1="900" x2="590" y2="900" stroke="var(--kn-ink,#1a1a1a)" stroke-width="4.0"/>
+<line x1="710" y1="900" x2="746" y2="900" stroke="var(--kn-ink,#1a1a1a)" stroke-width="4.0"/>
+<line x1="1590" y1="900" x2="1632" y2="900" stroke="var(--kn-ink,#1a1a1a)" stroke-width="4.0"/>
+<line x1="1698" y1="900" x2="1800" y2="900" stroke="var(--kn-ink,#1a1a1a)" stroke-width="4.0"/>
+<line x1="2150" y1="900" x2="2234" y2="900" stroke="var(--kn-ink,#1a1a1a)" stroke-width="4.0"/>
+<text x="1150.0" y="1305.0" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">0</text>
+<text x="956.0" y="1253.0" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">1</text>
+<text x="814.0" y="1111.0" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">2</text>
+<text x="762.0" y="917.0" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">3</text>
+<text x="814.0" y="723.0" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">4</text>
+<text x="956.0" y="581.0" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">5</text>
+<text x="1150.0" y="529.0" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">6</text>
+<text x="1344.0" y="581.0" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">7</text>
+<text x="1486.0" y="723.0" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">8</text>
+<text x="1538.0" y="917.0" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">9</text>
+<text x="1486.0" y="1111.0" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">10</text>
+<text x="1344.0" y="1253.0" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">11</text>
+<text x="1150.0" y="1418.0" text-anchor="middle" font-size="74" dominant-baseline="central">♑︎</text>
+<text x="895.0" y="1341.7" text-anchor="middle" font-size="74" dominant-baseline="central">♒︎</text>
+<text x="708.3" y="1155.0" text-anchor="middle" font-size="74" dominant-baseline="central">♓︎</text>
+<text x="648.0" y="900.0" text-anchor="middle" font-size="74" dominant-baseline="central">♈︎</text>
+<text x="708.3" y="645.0" text-anchor="middle" font-size="74" dominant-baseline="central">♉︎</text>
+<text x="895.0" y="458.3" text-anchor="middle" font-size="74" dominant-baseline="central">♊︎</text>
+<text x="1405.0" y="458.3" text-anchor="middle" font-size="74" dominant-baseline="central">♌︎</text>
+<text x="1591.7" y="645.0" text-anchor="middle" font-size="74" dominant-baseline="central">♍︎</text>
+<text x="1662.0" y="900.0" text-anchor="middle" font-size="74" dominant-baseline="central">♎︎</text>
+<text x="1591.7" y="1155.0" text-anchor="middle" font-size="74" dominant-baseline="central">♏︎</text>
+<text x="1405.0" y="1341.7" text-anchor="middle" font-size="74" dominant-baseline="central">♐︎</text>
+<text x="1150" y="103" text-anchor="middle" font-size="50" font-weight="700" letter-spacing="1.8">День - Лето</text>
+<text x="1150" y="268" text-anchor="middle" font-size="50" font-weight="700" letter-spacing="1.8">Синий</text>
+<text x="770" y="350" text-anchor="middle" font-size="50" font-weight="700" letter-spacing="1.8">Фиолетовый</text>
+<text x="676" y="552" text-anchor="middle" font-size="50" font-weight="700" letter-spacing="1.8">Чёрный</text>
+<text x="1525" y="386" text-anchor="middle" font-size="50" font-weight="700" letter-spacing="1.8">Голубой</text>
+<text x="1806" y="618" text-anchor="middle" font-size="50" font-weight="700" letter-spacing="1.8">Морская Волна</text>
+<text x="324" y="817" text-anchor="middle" font-size="50" font-weight="700" letter-spacing="1.8">Утро - Весна</text>
+<text x="377" y="918" text-anchor="middle" font-size="50" font-weight="700" letter-spacing="1.8">Красный</text>
+<text x="1965" y="918" text-anchor="middle" font-size="50" font-weight="700" letter-spacing="1.8">Зелёный</text>
+<text x="2008" y="1025" text-anchor="middle" font-size="50" font-weight="700" letter-spacing="1.8">Вечер - Осень</text>
+<text x="212" y="1068" text-anchor="start" font-size="50" font-weight="700" letter-spacing="1.8">Цвета</text>
+<text x="212" y="1118" text-anchor="start" font-size="50" font-weight="700" letter-spacing="1.8">Зелёные</text>
+<text x="627" y="1270" text-anchor="middle" font-size="50" font-weight="700" letter-spacing="1.8">Розовый</text>
+<text x="1746" y="1336" text-anchor="middle" font-size="50" font-weight="700" letter-spacing="1.8">Салатовый</text>
+<text x="722" y="1454" text-anchor="middle" font-size="50" font-weight="700" letter-spacing="1.8">Оранжевый</text>
+<text x="1603" y="1520" text-anchor="middle" font-size="50" font-weight="700" letter-spacing="1.8">Жёлто-Зелёный</text>
+<text x="1150" y="1590" text-anchor="middle" font-size="50" font-weight="700" letter-spacing="1.8">Жёлтый</text>
+<text x="1150" y="1746" text-anchor="middle" font-size="50" font-weight="700" letter-spacing="1.8">Ночь - Зима</text>
+</g></svg>

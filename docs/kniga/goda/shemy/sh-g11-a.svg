@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2960 1360" width="100%" font-family="var(--kn-serif,Georgia,serif)" fill="var(--kn-ink,#1a1a1a)" role="img" aria-label="Католический Крест: перекладина — отрезок Реки Вечности, шест — переправа, камень Павел">
+<defs>
+  <marker id="ca-ah" viewBox="0 0 10 8" refX="9.6" refY="4" markerWidth="46" markerHeight="37" orient="auto" markerUnits="userSpaceOnUse">
+    <path d="M0,0 L10,4 L0,8 L2.4,4 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  </marker>
+</defs>
+
+<!-- ===== крест ===== -->
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-linejoin="round">
+  <path stroke-width="6" d="M1434,210 A12,12 0 0 1 1446,198 L1530,198 A12,12 0 0 1 1542,210 L1542,376 A12,12 0 0 0 1554,388 L1693,388 A12,12 0 0 1 1705,400 L1705,488 A12,12 0 0 1 1693,500 L1554,500 A12,12 0 0 0 1542,512 L1542,894 A12,12 0 0 1 1530,906 L1446,906 A12,12 0 0 1 1434,894 L1434,512 A12,12 0 0 0 1422,500 L1281,500 A12,12 0 0 1 1269,488 L1269,400 A12,12 0 0 1 1281,388 L1422,388 A12,12 0 0 0 1434,376 Z"/>
+  <path stroke-width="3" d="M1448,222 A10,10 0 0 1 1458,212 L1518,212 A10,10 0 0 1 1528,222 L1528,392 A10,10 0 0 0 1538,402 L1681,402 A10,10 0 0 1 1691,412 L1691,476 A10,10 0 0 1 1681,486 L1538,486 A10,10 0 0 0 1528,496 L1528,882 A10,10 0 0 1 1518,892 L1458,892 A10,10 0 0 1 1448,882 L1448,496 A10,10 0 0 0 1438,486 L1293,486 A10,10 0 0 1 1283,476 L1283,412 A10,10 0 0 1 1293,402 L1438,402 A10,10 0 0 0 1448,392 Z"/>
+</g>
+
+<!-- резьба креста -->
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.4" stroke-linecap="round">
+  <!-- средокрестие: розетка -->
+  <circle cx="1488" cy="444" r="17"/>
+  <circle cx="1488" cy="444" r="9"/>
+  <path d="M1488,410 l7,17 l-14,0 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <path d="M1488,478 l7,-17 l-14,0 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <path d="M1454,444 l17,7 l0,-14 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <path d="M1522,444 l-17,7 l0,-14 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <!-- стрелки на перекладине, обращённые к средокрестию -->
+  <path d="M1382,444 l-30,-15 l0,30 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <path d="M1594,444 l30,-15 l0,30 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <!-- ромбы на концах перекладины -->
+  <path d="M1310,444 l16,-16 l16,16 l-16,16 Z"/>
+  <path d="M1666,444 l-16,-16 l-16,16 l16,16 Z"/>
+  <!-- цветок на верхнем плече -->
+  <path d="M1488,300 l0,-34 M1488,300 l-16,-24 M1488,300 l16,-24 M1488,300 l-24,-12 M1488,300 l24,-12"/>
+  <circle cx="1488" cy="304" r="5" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <!-- узор на шесте -->
+  <path d="M1462,548 l52,0 M1462,566 l52,0"/>
+  <path d="M1488,584 l20,20 l-20,20 l-20,-20 Z"/>
+  <path d="M1488,632 l20,20 l-20,20 l-20,-20 Z"/>
+  <path d="M1462,700 l52,0 M1462,716 l52,0"/>
+  <circle cx="1488" cy="748" r="17"/>
+  <circle cx="1488" cy="748" r="8"/>
+  <path d="M1462,784 l52,0"/>
+  <path d="M1488,802 a26,20 0 0 1 0,40 a26,20 0 0 1 0,-40 Z"/>
+  <path d="M1462,864 l52,0 M1462,880 l52,0"/>
+</g>
+
+<!-- ===== камень «Павел» ===== -->
+<g>
+  <circle cx="1488" cy="969" r="79" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="4"/>
+  <circle cx="1488" cy="969" r="53" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="5"/>
+  <circle cx="1488" cy="969" r="40" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3"/>
+  <circle cx="1488" cy="969" r="27" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3"/>
+  <circle cx="1488" cy="969" r="13" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3"/>
+  <circle cx="1488" cy="969" r="4" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.6">
+    <circle cx="1554" cy="969" r="9"/>
+    <circle cx="1548" cy="1001" r="9"/>
+    <circle cx="1530" cy="1027" r="9"/>
+    <circle cx="1502" cy="1044" r="9"/>
+    <circle cx="1470" cy="1043" r="9"/>
+    <circle cx="1443" cy="1027" r="9"/>
+    <circle cx="1427" cy="1000" r="9"/>
+    <circle cx="1422" cy="969" r="9"/>
+    <circle cx="1427" cy="938" r="9"/>
+    <circle cx="1443" cy="911" r="9"/>
+    <circle cx="1530" cy="911" r="9"/>
+    <circle cx="1548" cy="937" r="9"/>
+  </g>
+</g>
+
+<!-- ===== стрелки-выноски ===== -->
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="4" marker-end="url(#ca-ah)">
+  <line x1="1488" y1="172" x2="1488" y2="76"/>
+  <line x1="1488" y1="1192" x2="1488" y2="1128"/>
+</g>
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3.4" stroke-dasharray="14 12" marker-end="url(#ca-ah)">
+  <line x1="560" y1="458" x2="1196" y2="458"/>
+  <line x1="1980" y1="692" x2="1608" y2="692"/>
+</g>
+
+<!-- ===== подписи ===== -->
+<g font-size="56" font-weight="700" letter-spacing="4">
+  <text x="2650" y="118" text-anchor="end">Направление в Будущий Год.</text>
+  <text x="2650" y="174" text-anchor="end">Или, Направление В Будущее.</text>
+
+  <text x="44" y="362">Перекладина – отрезок</text>
+  <text x="44" y="418">Течения Реки Вечности.</text>
+  <text x="44" y="474">Реки Времён.</text>
+
+  <text x="2900" y="692" text-anchor="end">Шест – Переправа через</text>
+  <text x="2900" y="748" text-anchor="end">Реку Времени.</text>
+  <text x="2900" y="804" text-anchor="end">Переход от прошедшего Года в</text>
+  <text x="2900" y="860" text-anchor="end">Год следующий.</text>
+
+  <text x="1480" y="1246" text-anchor="middle">Камень «Павел» Прошедший Год.</text>
+  <text x="1465" y="1302" text-anchor="middle">Или, прошлое Время, о котором нужно помнить.</text>
+</g>
+</svg>

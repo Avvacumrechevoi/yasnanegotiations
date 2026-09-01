@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2190 680" width="100%" font-family="var(--kn-serif,Georgia,serif)" fill="var(--kn-ink,#1a1a1a)" role="img" aria-label="Знак Планеты Венеры: Восьмиугольная Звезда из двух квадратов или Восьмилучевая Звезда">
+
+<!-- Восьмиугольная Звезда: два наложенных квадрата -->
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="4">
+  <rect x="112" y="156" width="336" height="344"/>
+  <path d="M280,80 L514,328 L280,576 L46,328 Z"/>
+</g>
+
+<text x="1060" y="360" text-anchor="middle" font-size="92" letter-spacing="6">Или</text>
+
+<!-- Восьмилучевая Звезда -->
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3">
+  <line x1="1843" y1="336" x2="2071" y2="336"/>
+  <line x1="1843" y1="336" x2="2004.2" y2="497.2"/>
+  <line x1="1843" y1="336" x2="1843" y2="564"/>
+  <line x1="1843" y1="336" x2="1681.8" y2="497.2"/>
+  <line x1="1843" y1="336" x2="1615" y2="336"/>
+  <line x1="1843" y1="336" x2="1681.8" y2="174.8"/>
+  <line x1="1843" y1="336" x2="1843" y2="108"/>
+  <line x1="1843" y1="336" x2="2004.2" y2="174.8"/>
+</g>
+<g fill="var(--kn-ink,#1a1a1a)" stroke="none">
+  <path d="M-38,0 L0,-24 L38,0 L0,24 Z" transform="translate(2103,336)"/>
+  <path d="M-38,0 L0,-24 L38,0 L0,24 Z" transform="translate(2026.8,519.8) rotate(45)"/>
+  <path d="M-38,0 L0,-24 L38,0 L0,24 Z" transform="translate(1843,596) rotate(90)"/>
+  <path d="M-38,0 L0,-24 L38,0 L0,24 Z" transform="translate(1659.2,519.8) rotate(135)"/>
+  <path d="M-38,0 L0,-24 L38,0 L0,24 Z" transform="translate(1583,336) rotate(180)"/>
+  <path d="M-38,0 L0,-24 L38,0 L0,24 Z" transform="translate(1659.2,152.2) rotate(225)"/>
+  <path d="M-38,0 L0,-24 L38,0 L0,24 Z" transform="translate(1843,76) rotate(270)"/>
+  <path d="M-38,0 L0,-24 L38,0 L0,24 Z" transform="translate(2026.8,152.2) rotate(315)"/>
+  <circle cx="1843" cy="336" r="7"/>
+</g>
+</svg>

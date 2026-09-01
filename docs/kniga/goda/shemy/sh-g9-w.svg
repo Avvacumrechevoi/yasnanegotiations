@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2620 2210" width="100%" font-family="var(--kn-serif,Georgia,serif)" fill="var(--kn-ink,#1a1a1a)" role="img" aria-label="Газета и Журнал: круг с крайними путями светил, полями Газеты и Журнала, страницами и разворотами">
+<defs>
+  <marker id="gw-ah" viewBox="0 0 10 8" refX="9.6" refY="4" markerWidth="44" markerHeight="35" orient="auto" markerUnits="userSpaceOnUse">
+    <path d="M0,0 L10,4 L0,8 L2.4,4 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  </marker>
+  <marker id="gw-ax" viewBox="0 0 10 8" refX="9.6" refY="4" markerWidth="52" markerHeight="42" orient="auto" markerUnits="userSpaceOnUse">
+    <path d="M0,0 L10,4 L0,8 L2.4,4 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  </marker>
+</defs>
+
+<!-- ===== крайние пути светил (пунктирные дуги) ===== -->
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="4" stroke-dasharray="15 13">
+  <path d="M947.6,1191.3 A360,360 0 1 1 1645.2,1138.8"/>
+  <path d="M910.7,1876.2 A882,882 0 1 1 1628.9,1894.4"/>
+</g>
+
+<!-- ===== крайние точки: наконечники дуг ===== -->
+<g fill="var(--kn-ink,#1a1a1a)" stroke="none">
+  <ellipse cx="947.6" cy="1191.3" rx="33" ry="21" transform="rotate(42,947.6,1191.3)"/>
+  <ellipse cx="1645.2" cy="1138.8" rx="33" ry="21" transform="rotate(134.5,1645.2,1138.8)"/>
+  <ellipse cx="910.7" cy="1876.2" rx="33" ry="21" transform="rotate(-44.7,910.7,1876.2)"/>
+  <ellipse cx="1628.9" cy="1894.4" rx="33" ry="21" transform="rotate(-130.7,1628.9,1894.4)"/>
+</g>
+
+<!-- ===== точки на круге ===== -->
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3" stroke-dasharray="5 5">
+  <circle cx="990" cy="1246.8" r="18"/>
+  <circle cx="1557" cy="1194" r="18"/>
+  <circle cx="960" cy="1831.8" r="18"/>
+  <circle cx="1530" cy="1809" r="18"/>
+</g>
+
+<!-- ===== ось Юг — Север ===== -->
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="4">
+  <line x1="1290" y1="1800" x2="1290" y2="112" marker-end="url(#gw-ax)"/>
+  <line x1="1290" y1="1944" x2="1290" y2="2044" marker-end="url(#gw-ax)"/>
+</g>
+
+<!-- ===== ось Восток — Запад ===== -->
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="4">
+  <line x1="2382" y1="1518" x2="310" y2="1518" marker-end="url(#gw-ax)"/>
+  <line x1="310" y1="1518" x2="2354" y2="1518" marker-end="url(#gw-ax)"/>
+</g>
+
+<!-- ===== круг ===== -->
+<circle cx="1290" cy="1500" r="378" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="7"/>
+
+<!-- ===== выноски ===== -->
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3.4" stroke-dasharray="13 11" marker-end="url(#gw-ah)">
+  <line x1="1730" y1="204" x2="1740" y2="290"/>
+  <line x1="1580" y1="210" x2="1378" y2="622"/>
+  <line x1="1550" y1="664" x2="1414" y2="1098"/>
+  <line x1="870" y1="724" x2="1012" y2="1118"/>
+  <line x1="760" y1="1074" x2="922" y2="1164"/>
+  <line x1="580" y1="1274" x2="860" y2="1366"/>
+  <line x1="560" y1="1464" x2="840" y2="1510"/>
+  <line x1="620" y1="1754" x2="852" y2="1690"/>
+  <line x1="790" y1="1964" x2="902" y2="1890"/>
+  <line x1="1850" y1="934" x2="1670" y2="1102"/>
+  <line x1="2020" y1="1144" x2="1690" y2="1294"/>
+  <line x1="1980" y1="1404" x2="1700" y2="1470"/>
+  <line x1="1910" y1="1684" x2="1680" y2="1658"/>
+  <line x1="1760" y1="1964" x2="1660" y2="1900"/>
+  <line x1="950" y1="2114" x2="1074" y2="1936"/>
+  <line x1="1460" y1="2114" x2="1414" y2="1946"/>
+</g>
+
+<!-- ===== подписи ===== -->
+<g font-size="54" font-weight="700" letter-spacing="4">
+  <text x="1280" y="60" text-anchor="middle">Юг</text>
+  <text x="1480" y="164">Крайние Пути Светил</text>
+
+  <text x="1460" y="634">Поле Журнала</text>
+  <text x="700" y="694">Поле Газеты</text>
+
+  <text x="70" y="1050">Крайняя Южная Точка</text>
+  <text x="30" y="1108">Восхода Светил</text>
+
+  <text x="30" y="1254">Южная Страница</text>
+  <text x="30" y="1312">Газеты</text>
+
+  <text x="40" y="1444">Разворот Газеты</text>
+
+  <text x="40" y="1610">Восток</text>
+
+  <text x="30" y="1784">Северная Страница</text>
+  <text x="30" y="1842">Газеты</text>
+
+  <text x="30" y="1990">Крайняя Северная Точка</text>
+  <text x="30" y="2048">Восхода Всех Светил</text>
+
+  <text x="2580" y="914" text-anchor="end">Крайняя Южная Точка</text>
+  <text x="2580" y="972" text-anchor="end">Захода Светил</text>
+
+  <text x="2580" y="1124" text-anchor="end">Южная Страница</text>
+  <text x="2580" y="1182" text-anchor="end">Журнала</text>
+
+  <text x="2570" y="1384" text-anchor="end">Разворот Журнала</text>
+
+  <text x="2570" y="1544" text-anchor="end">Запад</text>
+
+  <text x="2570" y="1704" text-anchor="end">Северная Страница</text>
+  <text x="2570" y="1762" text-anchor="end">Журнала</text>
+
+  <text x="2570" y="1990" text-anchor="end">Крайняя Северная Точка</text>
+  <text x="2570" y="2048" text-anchor="end">Захода Всех Светил</text>
+
+  <text x="650" y="2164">Поле Газеты</text>
+  <text x="1150" y="2164">Север</text>
+  <text x="1430" y="2164">Поле Журнала</text>
+</g>
+</svg>

@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1044 756" width="100%" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-linejoin="round" font-family="var(--kn-serif,Georgia,serif)" style="font-feature-settings:'lnum' 1">
+<g stroke="var(--kn-ink,#1a1a1a)" fill="none">
+<polygon points="86.0,110.0 300.0,114.0 580.0,122.0 820.0,142.0 990.0,154.0 976.0,168.0 960.0,186.0 944.0,208.0 928.0,232.0 912.0,258.0 896.0,284.0 880.0,308.0 864.0,332.0 848.0,356.0 830.0,382.0 816.0,364.0 804.0,348.0 792.0,322.0 780.0,292.0 768.0,266.0 756.0,248.0 744.0,236.0 732.0,230.0 716.0,216.0 704.0,220.0 692.0,218.0 680.0,202.0 668.0,188.0 654.0,190.0 638.0,184.0 622.0,178.0 604.0,168.0 586.0,160.0 560.0,152.0 400.0,138.0 220.0,124.0 86.0,114.0" fill="var(--kn-ink,#1a1a1a)" fill-opacity="0.32" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.8" stroke-linejoin="round"/>
+<polyline points="624.0,156.0 692.0,176.0 748.0,206.0 796.0,252.0 826.0,358.0" stroke-width="1.2"/>
+<polyline points="684.0,140.0 742.0,166.0 782.0,198.0 812.0,250.0 828.0,338.0" stroke-width="1.2"/>
+<polyline points="820.0,154.0 856.0,198.0 884.0,246.0 904.0,298.0" stroke-width="1.2"/>
+<polyline points="904.0,166.0 934.0,206.0 954.0,250.0" stroke-width="1.2"/>
+<polyline points="588.0,140.0 624.0,158.0 650.0,170.0" stroke-width="1.2"/>
+<polyline points="160.0,118.0 380.0,128.0 560.0,142.0" stroke-width="1.2"/>
+<polygon points="44.0,616.0 60.0,600.0 80.0,582.0 100.0,564.0 120.0,544.0 136.0,520.0 148.0,488.0 160.0,460.0 172.0,442.0 184.0,416.0 196.0,396.0 206.0,380.0 218.0,366.0 228.0,388.0 238.0,410.0 246.0,432.0 254.0,450.0 264.0,466.0 276.0,480.0 286.0,492.0 292.0,500.0 304.0,524.0 318.0,546.0 332.0,562.0 348.0,528.0 360.0,552.0 374.0,564.0 396.0,574.0 424.0,582.0 456.0,590.0 496.0,598.0 528.0,604.0 560.0,608.0 700.0,622.0 840.0,634.0 980.0,646.0 900.0,648.0 700.0,644.0 500.0,638.0 300.0,630.0 160.0,624.0 44.0,618.0" fill="var(--kn-ink,#1a1a1a)" fill-opacity="0.32" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.8" stroke-linejoin="round"/>
+<polyline points="92.0,600.0 164.0,544.0 216.0,436.0" stroke-width="1.2"/>
+<polyline points="112.0,612.0 180.0,556.0 212.0,480.0" stroke-width="1.2"/>
+<polyline points="56.0,612.0 128.0,568.0 176.0,516.0" stroke-width="1.2"/>
+<polyline points="224.0,416.0 252.0,468.0 280.0,500.0" stroke-width="1.2"/>
+<polyline points="236.0,460.0 268.0,508.0 300.0,548.0" stroke-width="1.2"/>
+<polyline points="304.0,588.0 332.0,556.0 346.0,536.0" stroke-width="1.2"/>
+<polyline points="360.0,556.0 396.0,580.0 444.0,592.0" stroke-width="1.2"/>
+<polyline points="180.0,608.0 260.0,588.0 320.0,568.0" stroke-width="1.2"/>
+<polyline points="420.0,596.0 500.0,608.0 580.0,616.0" stroke-width="1.2"/>
+<line x1="519.1" y1="113.3" x2="495.0" y2="112.5" stroke-width="2.6" stroke-linecap="round"/>
+<line x1="519.6" y1="109.7" x2="502.8" y2="105.9" stroke-width="2.6" stroke-linecap="round"/>
+<line x1="520.7" y1="106.3" x2="498.7" y2="96.5" stroke-width="2.6" stroke-linecap="round"/>
+<line x1="522.5" y1="103.2" x2="508.4" y2="93.3" stroke-width="2.6" stroke-linecap="round"/>
+<line x1="524.9" y1="100.4" x2="508.1" y2="83.0" stroke-width="2.6" stroke-linecap="round"/>
+<line x1="527.7" y1="98.1" x2="518.3" y2="83.7" stroke-width="2.6" stroke-linecap="round"/>
+<line x1="530.9" y1="96.5" x2="521.9" y2="74.1" stroke-width="2.6" stroke-linecap="round"/>
+<line x1="534.4" y1="95.4" x2="531.1" y2="78.5" stroke-width="2.6" stroke-linecap="round"/>
+<line x1="538.0" y1="95.1" x2="538.0" y2="71.0" stroke-width="2.6" stroke-linecap="round"/>
+<line x1="541.6" y1="95.4" x2="544.9" y2="78.5" stroke-width="2.6" stroke-linecap="round"/>
+<line x1="545.1" y1="96.5" x2="554.1" y2="74.1" stroke-width="2.6" stroke-linecap="round"/>
+<line x1="548.3" y1="98.1" x2="557.7" y2="83.7" stroke-width="2.6" stroke-linecap="round"/>
+<line x1="551.1" y1="100.4" x2="567.9" y2="83.0" stroke-width="2.6" stroke-linecap="round"/>
+<line x1="553.5" y1="103.2" x2="567.6" y2="93.3" stroke-width="2.6" stroke-linecap="round"/>
+<line x1="555.3" y1="106.3" x2="577.3" y2="96.5" stroke-width="2.6" stroke-linecap="round"/>
+<line x1="556.4" y1="109.7" x2="573.2" y2="105.9" stroke-width="2.6" stroke-linecap="round"/>
+<line x1="556.9" y1="113.3" x2="581.0" y2="112.5" stroke-width="2.6" stroke-linecap="round"/>
+<path d="M 517.0 114.0 A 21.0 21.0 0 0 1 559.0 114.0 Z M 524.6999999999999 107.7 a 3.6 3.6 0 1 0 7.2 0 a 3.6 3.6 0 1 0 -7.2 0 M 534.8 106.9 a 3.6 3.6 0 1 0 7.2 0 a 3.6 3.6 0 1 0 -7.2 0 M 544.9 108.1 a 3.6 3.6 0 1 0 7.2 0 a 3.6 3.6 0 1 0 -7.2 0" fill="var(--kn-ink,#1a1a1a)" fill-opacity="0.85" fill-rule="evenodd" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.6"/>
+<text x="534.0" y="44.0" font-size="25.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)">Полдень</text>
+<line x1="534.0" y1="52.0" x2="534.0" y2="70.0" stroke-width="1.4" stroke-linecap="butt"/>
+<line x1="514.0" y1="646.0" x2="514.0" y2="700.0" stroke-width="1.4" stroke-linecap="butt"/>
+<text x="514.0" y="728.0" font-size="25.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)">Полночь</text>
+<line x1="52.0" y1="362.0" x2="300.0" y2="366.0" stroke-width="1.4" stroke-linecap="butt" stroke-dasharray="1.2 3.4"/>
+<line x1="336.0" y1="368.0" x2="354.0" y2="368.0" stroke-width="1.6" stroke-linecap="butt"/>
+<line x1="396.0" y1="370.0" x2="664.0" y2="376.0" stroke-width="1.6" stroke-linecap="butt"/>
+<line x1="710.0" y1="378.0" x2="826.0" y2="380.0" stroke-width="1.4" stroke-linecap="butt" stroke-dasharray="1.2 3.4"/>
+<line x1="834.0" y1="384.0" x2="986.0" y2="396.0" stroke-width="1.6" stroke-linecap="butt"/>
+<line x1="26.0" y1="644.0" x2="1010.0" y2="114.0" stroke-width="1.8" stroke-linecap="butt" stroke-dasharray="14 8"/>
+<line x1="529.4" y1="374.0" x2="529.4" y2="508.0" stroke-width="1.7" stroke-linecap="butt"/>
+<line x1="514.0" y1="508.0" x2="544.8" y2="508.0" stroke-width="3.2" stroke-linecap="butt"/>
+<line x1="529.4" y1="374.0" x2="395.4" y2="374.0" stroke-width="1.7" stroke-linecap="butt"/>
+<line x1="395.4" y1="389.4" x2="395.4" y2="358.6" stroke-width="3.2" stroke-linecap="butt"/>
+<line x1="529.4" y1="374.0" x2="529.4" y2="240.0" stroke-width="1.7" stroke-linecap="butt"/>
+<line x1="544.8" y1="240.0" x2="514.0" y2="240.0" stroke-width="3.2" stroke-linecap="butt"/>
+<line x1="529.4" y1="374.0" x2="663.4" y2="374.0" stroke-width="1.7" stroke-linecap="butt"/>
+<line x1="663.4" y1="358.6" x2="663.4" y2="389.4" stroke-width="3.2" stroke-linecap="butt"/>
+<line x1="481.2" y1="457.6" x2="462.4" y2="490.0" stroke-width="1.5" stroke-linecap="butt"/>
+<line x1="445.8" y1="325.8" x2="413.4" y2="307.0" stroke-width="1.5" stroke-linecap="butt"/>
+<line x1="481.2" y1="290.4" x2="462.4" y2="258.0" stroke-width="1.5" stroke-linecap="butt"/>
+<line x1="577.6" y1="290.4" x2="596.4" y2="258.0" stroke-width="1.5" stroke-linecap="butt"/>
+<line x1="613.0" y1="422.2" x2="645.4" y2="441.0" stroke-width="1.5" stroke-linecap="butt"/>
+<line x1="577.6" y1="457.6" x2="596.4" y2="490.0" stroke-width="1.5" stroke-linecap="butt"/>
+<text x="529.4" y="534.8" font-size="30.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">0</text>
+<text x="449.0" y="513.3" font-size="30.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">1</text>
+<text x="390.1" y="454.4" font-size="30.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">2</text>
+<text x="368.6" y="374.0" font-size="30.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">3</text>
+<text x="390.1" y="293.6" font-size="30.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">4</text>
+<text x="449.0" y="234.7" font-size="30.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">5</text>
+<text x="529.4" y="213.2" font-size="30.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">6</text>
+<text x="609.8" y="234.7" font-size="30.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">7</text>
+<text x="668.7" y="293.6" font-size="30.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">8</text>
+<text x="690.2" y="374.0" font-size="30.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">9</text>
+<text x="668.7" y="454.4" font-size="30.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">10</text>
+<text x="609.8" y="513.3" font-size="30.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">11</text>
+<text x="529.4" y="585.7" font-size="40.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">♑︎</text>
+<text x="423.5" y="557.4" font-size="40.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">♒︎</text>
+<text x="346.0" y="479.9" font-size="40.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">♓︎</text>
+<text x="317.7" y="364.0" font-size="40.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">♈︎</text>
+<text x="346.0" y="268.1" font-size="40.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">♉︎</text>
+<text x="423.5" y="190.6" font-size="40.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">♊︎</text>
+<text x="529.4" y="162.3" font-size="40.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">♋︎</text>
+<text x="635.3" y="190.6" font-size="40.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">♌︎</text>
+<text x="712.8" y="268.1" font-size="40.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">♍︎</text>
+<text x="741.1" y="364.0" font-size="40.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">♎︎</text>
+<text x="712.8" y="479.9" font-size="40.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">♏︎</text>
+<text x="635.3" y="557.4" font-size="40.0" text-anchor="middle" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)" dominant-baseline="central">♐︎</text>
+<path transform="translate(138.0,164.0) scale(1.0)" d="M 0 0 C -3 -3 -5.2 -8 -4.6 -13 C -4 -18.4 -1 -21.4 2.2 -24 C 0.7 -19 0.7 -14.6 2.6 -10.8 C 4.2 -7.6 5.2 -4.8 3.9 -2 C 3 0 1.5 0.7 0 0 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<line x1="138.0" y1="128.0" x2="138.0" y2="142.0" stroke-width="1.1" stroke-linecap="butt" stroke-dasharray="1 2.5"/>
+<path transform="translate(748.0,244.0) scale(1.0)" d="M 0 0 C -3 -3 -5.2 -8 -4.6 -13 C -4 -18.4 -1 -21.4 2.2 -24 C 0.7 -19 0.7 -14.6 2.6 -10.8 C 4.2 -7.6 5.2 -4.8 3.9 -2 C 3 0 1.5 0.7 0 0 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<path transform="translate(968.0,432.0) scale(1.25)" d="M 0 0 C -3 -3 -5.2 -8 -4.6 -13 C -4 -18.4 -1 -21.4 2.2 -24 C 0.7 -19 0.7 -14.6 2.6 -10.8 C 4.2 -7.6 5.2 -4.8 3.9 -2 C 3 0 1.5 0.7 0 0 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<line x1="968.0" y1="398.0" x2="968.0" y2="406.0" stroke-width="1.1" stroke-linecap="butt" stroke-dasharray="1 2.5"/>
+<path transform="translate(78.0,658.0) scale(1.083)" d="M 0 0 C -3 -3 -5.2 -8 -4.6 -13 C -4 -18.4 -1 -21.4 2.2 -24 C 0.7 -19 0.7 -14.6 2.6 -10.8 C 4.2 -7.6 5.2 -4.8 3.9 -2 C 3 0 1.5 0.7 0 0 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<line x1="78.0" y1="662.0" x2="78.0" y2="672.0" stroke-width="1.1" stroke-linecap="butt" stroke-dasharray="1 2.5"/>
+<text x="80.0" y="188.0" font-size="25.0" text-anchor="start" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)">Подошва</text>
+<text x="80.0" y="214.0" font-size="25.0" text-anchor="start" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)">Горы</text>
+<text x="80.0" y="240.0" font-size="25.0" text-anchor="start" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)">Дня</text>
+<text x="736.0" y="120.0" font-size="25.0" text-anchor="start" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)">Гиперцолом</text>
+<line x1="778.0" y1="126.0" x2="758.0" y2="152.0" stroke-width="1.2" stroke-linecap="butt"/>
+<text x="264.0" y="338.0" font-size="25.0" text-anchor="start" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)">Гиппарх</text>
+<text x="52.0" y="394.0" font-size="25.0" text-anchor="start" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)">Мудрена</text>
+<text x="52.0" y="420.0" font-size="25.0" text-anchor="start" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)">Утро</text>
+<text x="276.0" y="442.0" font-size="25.0" text-anchor="start" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)">Птолемей</text>
+<text x="860.0" y="372.0" font-size="25.0" text-anchor="start" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)">Целомъ</text>
+<text x="860.0" y="398.0" font-size="25.0" text-anchor="start" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)">Олимп</text>
+<text x="996.0" y="468.0" font-size="25.0" text-anchor="end" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)">Старый</text>
+<text x="996.0" y="494.0" font-size="25.0" text-anchor="end" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)">Горизонт Мира</text>
+<text x="996.0" y="520.0" font-size="25.0" text-anchor="end" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)">Соломон или</text>
+<text x="996.0" y="546.0" font-size="25.0" text-anchor="end" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)">Иерусалим</text>
+<text x="56.0" y="684.0" font-size="25.0" text-anchor="start" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)">Новый Горизонт Мира</text>
+<text x="56.0" y="710.0" font-size="25.0" text-anchor="start" font-weight="bold" stroke="none" fill="var(--kn-ink,#1a1a1a)">Новый Иерусалим</text>
+</g>
+</svg>

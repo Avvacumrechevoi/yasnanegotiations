@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="45 10 700 565" width="100%" fill="var(--kn-ink,#1a1a1a)" stroke="none" font-family="var(--kn-serif,Georgia,serif)" role="img" aria-label="Треугольник Огня: Стрелец - Овен - Лев на Полках 11, 3, 7">
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)">
+<polygon points="377.5,295 631,152.5 625,436" stroke-width="2.1"/>
+<line x1="380" y1="296" x2="722" y2="300" stroke-width="1.7" stroke-dasharray="9 7"/>
+<line x1="542.5" y1="129" x2="536" y2="475" stroke-width="1.7" stroke-dasharray="9 7"/>
+<line x1="175" y1="285" x2="250" y2="286" stroke-width="2.2"/>
+<line x1="305" y1="288" x2="322" y2="288" stroke-width="2.2"/>
+</g>
+<g transform="translate(107.50,203.00) scale(0.9500) translate(-115,-407)">
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">
+<path d="M 118 361 C 110 376 105 384 109 398 C 100 391 97 380 100 369 C 91 381 88 398 95 411 C 90 406 87 400 87 393 C 80 406 85 421 99 428 L 133 428 C 145 419 146 404 137 393 C 139 384 134 374 127 369 C 130 380 127 387 122 389 C 125 376 124 366 118 361 Z"/>
+<path d="M 112 400 C 108 392 110 384 116 379"/>
+<path d="M 124 404 C 126 396 124 389 120 385"/>
+</g>
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3.4" stroke-linecap="round">
+<line x1="115" y1="427" x2="72" y2="431"/>
+<line x1="115" y1="427" x2="76" y2="444"/>
+<line x1="115" y1="427" x2="93" y2="451"/>
+<line x1="115" y1="427" x2="115" y2="453"/>
+<line x1="115" y1="427" x2="138" y2="450"/>
+<line x1="115" y1="427" x2="153" y2="441"/>
+<line x1="115" y1="427" x2="158" y2="429"/>
+</g>
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4">
+<line x1="90.5" y1="426.0" x2="96.5" y2="432.0"/>
+<line x1="92.5" y1="432.5" x2="98.5" y2="438.5"/>
+<line x1="101.0" y1="436.0" x2="107.0" y2="442.0"/>
+<line x1="112.0" y1="437.0" x2="118.0" y2="443.0"/>
+<line x1="123.5" y1="435.5" x2="129.5" y2="441.5"/>
+<line x1="131.0" y1="431.0" x2="137.0" y2="437.0"/>
+<line x1="133.5" y1="425.0" x2="139.5" y2="431.0"/>
+</g>
+</g>
+<g font-size="30" font-weight="bold" text-anchor="middle">
+<text x="345" y="297">3</text>
+<text x="650" y="120">7</text>
+<text x="648" y="481">11</text>
+</g>
+<g font-size="40" text-anchor="middle" style="font-variant-emoji:text">
+<text x="272" y="299">♈︎</text>
+<text x="685" y="72">♌︎</text>
+<text x="675" y="552">♐︎</text>
+</g>
+<g font-size="25" font-weight="bold">
+<text x="67.5" y="276">Огонь</text>
+<text x="67.5" y="300">ХА</text>
+<text x="177.5" y="118">Треугольник</text>
+<text x="177.5" y="143">Соединения</text>
+<text x="177.5" y="168">Жизни</text>
+<text x="640" y="42" text-anchor="end">Огонь</text>
+<text x="640" y="67" text-anchor="end">ХА</text>
+<text x="622.5" y="524" text-anchor="end">Огонь</text>
+<text x="622.5" y="549" text-anchor="end">ХА</text>
+</g>
+</svg>

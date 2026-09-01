@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3560 1810" width="100%" font-family="var(--kn-serif,Georgia,serif)" fill="var(--kn-ink,#1a1a1a)" role="img" aria-label="Общий Знак для исчисления годов по луне: звёздочка Венеры, Луна в Новолуние, Шест Переправы и Камень Памяти">
+<defs>
+  <marker id="gd-ah" viewBox="0 0 10 8" refX="9.6" refY="4" markerWidth="60" markerHeight="48" orient="auto" markerUnits="userSpaceOnUse">
+    <path d="M0,0 L10,4 L0,8 L2.4,4 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  </marker>
+  <pattern id="gd-uzor" width="66" height="66" patternUnits="userSpaceOnUse">
+    <g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.2">
+      <circle cx="33" cy="33" r="25"/>
+      <circle cx="33" cy="33" r="17"/>
+      <circle cx="33" cy="33" r="9"/>
+      <path d="M0,-12 L3.5,-3.5 L12,0 L3.5,3.5 L0,12 L-3.5,3.5 L-12,0 L-3.5,-3.5 Z"/>
+      <path d="M66,-12 L69.5,-3.5 L78,0 L69.5,3.5 L66,12 L62.5,3.5 L54,0 L62.5,-3.5 Z"/>
+      <path d="M0,54 L3.5,62.5 L12,66 L3.5,69.5 L0,78 L-3.5,69.5 L-12,66 L-3.5,62.5 Z"/>
+      <path d="M66,54 L69.5,62.5 L78,66 L69.5,69.5 L66,78 L62.5,69.5 L54,66 L62.5,62.5 Z"/>
+    </g>
+    <circle cx="33" cy="33" r="3" fill="var(--kn-ink,#1a1a1a)"/>
+  </pattern>
+  <clipPath id="gd-serp">
+    <path d="M1769.3,461 A392.2,392.2 0 1 1 1328.3,908.8 A325.9,325.9 0 1 0 1769.3,461 Z"/>
+  </clipPath>
+  <clipPath id="gd-shest">
+    <rect x="1613.6" y="1213.6" width="186.4" height="346.4"/>
+  </clipPath>
+</defs>
+
+<!-- ===== Звёздочка Планеты Венера ===== -->
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3">
+  <line x1="1688" y1="226.4" x2="1808" y2="226.4"/>
+  <line x1="1688" y1="226.4" x2="1772.9" y2="311.3"/>
+  <line x1="1688" y1="226.4" x2="1688" y2="346.4"/>
+  <line x1="1688" y1="226.4" x2="1603.1" y2="311.3"/>
+  <line x1="1688" y1="226.4" x2="1568" y2="226.4"/>
+  <line x1="1688" y1="226.4" x2="1603.1" y2="141.5"/>
+  <line x1="1688" y1="226.4" x2="1688" y2="106.4"/>
+  <line x1="1688" y1="226.4" x2="1772.9" y2="141.5"/>
+</g>
+<g fill="var(--kn-ink,#1a1a1a)" stroke="none">
+  <path d="M-40,0 L0,-26 L40,0 L0,26 Z" transform="translate(1834,226.4)"/>
+  <path d="M-40,0 L0,-26 L40,0 L0,26 Z" transform="translate(1791.2,329.6) rotate(45)"/>
+  <path d="M-40,0 L0,-26 L40,0 L0,26 Z" transform="translate(1688,372.4) rotate(90)"/>
+  <path d="M-40,0 L0,-26 L40,0 L0,26 Z" transform="translate(1584.8,329.6) rotate(135)"/>
+  <path d="M-40,0 L0,-26 L40,0 L0,26 Z" transform="translate(1542,226.4) rotate(180)"/>
+  <path d="M-40,0 L0,-26 L40,0 L0,26 Z" transform="translate(1584.8,123.2) rotate(225)"/>
+  <path d="M-40,0 L0,-26 L40,0 L0,26 Z" transform="translate(1688,80.4) rotate(270)"/>
+  <path d="M-40,0 L0,-26 L40,0 L0,26 Z" transform="translate(1791.2,123.2) rotate(315)"/>
+  <circle cx="1688" cy="226.4" r="7"/>
+</g>
+
+<!-- ===== Шест Переправы ===== -->
+<g clip-path="url(#gd-shest)">
+  <g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.4">
+    <line x1="1646" y1="1213.6" x2="1646" y2="1560"/>
+    <line x1="1678" y1="1213.6" x2="1678" y2="1560"/>
+    <line x1="1710" y1="1213.6" x2="1710" y2="1560"/>
+    <line x1="1742" y1="1213.6" x2="1742" y2="1560"/>
+    <line x1="1774" y1="1213.6" x2="1774" y2="1560"/>
+    <line x1="1613.6" y1="1260" x2="1800" y2="1260"/>
+    <line x1="1613.6" y1="1320" x2="1800" y2="1320"/>
+    <line x1="1613.6" y1="1380" x2="1800" y2="1380"/>
+    <line x1="1613.6" y1="1440" x2="1800" y2="1440"/>
+    <line x1="1613.6" y1="1500" x2="1800" y2="1500"/>
+  </g>
+</g>
+<rect x="1613.6" y="1213.6" width="186.4" height="346.4" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="5"/>
+
+<!-- ===== Луна в Новолуние ===== -->
+<g clip-path="url(#gd-serp)">
+  <rect x="1300" y="440" width="840" height="830" fill="url(#gd-uzor)"/>
+</g>
+<path d="M1769.3,461 A392.2,392.2 0 1 1 1328.3,908.8 A325.9,325.9 0 1 0 1769.3,461 Z" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="7"/>
+
+<!-- ===== Камень Прошедшего Года ===== -->
+<g>
+  <circle cx="1706.4" cy="1618.4" r="146" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="5"/>
+  <circle cx="1706.4" cy="1618.4" r="100" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="6"/>
+  <circle cx="1706.4" cy="1618.4" r="76" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3.5"/>
+  <circle cx="1706.4" cy="1618.4" r="50" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3.5"/>
+  <circle cx="1706.4" cy="1618.4" r="26" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3.5"/>
+  <circle cx="1706.4" cy="1618.4" r="8" fill="var(--kn-ink,#1a1a1a)"/>
+  <g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3">
+    <circle cx="1830.4" cy="1618.4" r="17"/>
+    <circle cx="1818.0" cy="1673.2" r="17"/>
+    <circle cx="1783.2" cy="1717.4" r="17"/>
+    <circle cx="1731.8" cy="1740.6" r="17"/>
+    <circle cx="1675.2" cy="1737.0" r="17"/>
+    <circle cx="1626.6" cy="1707.4" r="17"/>
+    <circle cx="1596.4" cy="1659.2" r="17"/>
+    <circle cx="1592.0" cy="1602.6" r="17"/>
+    <circle cx="1613.6" cy="1550.2" r="17"/>
+    <circle cx="1656.0" cy="1512.4" r="17"/>
+    <circle cx="1756.8" cy="1512.4" r="17"/>
+    <circle cx="1799.2" cy="1550.2" r="17"/>
+    <circle cx="1820.8" cy="1602.6" r="17"/>
+  </g>
+</g>
+
+<!-- ===== выноски ===== -->
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="4" stroke-dasharray="16 14" marker-end="url(#gd-ah)">
+  <line x1="1200" y1="253.6" x2="1440" y2="228"/>
+  <line x1="2640" y1="800" x2="2240" y2="800"/>
+  <line x1="920" y1="1386.4" x2="1494" y2="1386.4"/>
+  <line x1="2253.6" y1="1613.6" x2="1988" y2="1613.6"/>
+</g>
+
+<!-- ===== подписи ===== -->
+<g font-size="80" font-weight="700" letter-spacing="4">
+  <text x="40" y="320">Звёздочка Планеты Венера</text>
+
+  <text x="3506" y="808" text-anchor="end">Луна в Новолуние.</text>
+  <text x="3506" y="888" text-anchor="end">Начало Лунного Года</text>
+
+  <text x="54" y="1421.6">Шест Переправы из</text>
+  <text x="54" y="1501.6">Старого Года в Год Новый.</text>
+
+  <text x="3480" y="1560" text-anchor="end">Камень Прошедшего Года</text>
+  <text x="3480" y="1640" text-anchor="end">Камень Памяти.</text>
+</g>
+</svg>

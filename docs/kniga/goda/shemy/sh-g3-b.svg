@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="15 140 1510 850" width="100%" role="img" aria-label="Ясна Суток: двенадцать точек, шестиугольник переломов, серпы Света Дня и Тьмы Ночи" font-family="var(--kn-serif,Georgia,serif)" fill="var(--kn-ink,#1a1a1a)" stroke="none">
+
+<!-- ========== серп СВЕТА (левая половина, светлый) ========== -->
+<path d="M 600,300.192 A 300,300 0 0 0 450,560 A 300,300 0 0 0 900,819.808 A 301.05,301.05 0 0 1 600,300.192 Z"
+      fill="var(--kn-ink,#1a1a1a)" fill-opacity="0.42"/>
+
+<!-- ========== серп ТЬМЫ (правая половина, чёрный) ========== -->
+<path d="M 600,300.192 A 300,300 0 0 1 1050,560 A 300,300 0 0 1 900,819.808 A 301.05,301.05 0 0 0 600,300.192 Z"
+      fill="var(--kn-ink,#1a1a1a)"/>
+
+<!-- ========== шестиугольник точек 1–3–5–7–9–11 ========== -->
+<path d="M 600,300.192 L 900,300.192 L 1050,560 L 900,819.808 L 600,819.808 L 450,560 Z"
+      fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.4"/>
+
+<!-- ========== Линия борьбы и сопротивления ========== -->
+<line x1="406" y1="560" x2="585" y2="560" stroke="var(--kn-ink,#1a1a1a)" stroke-opacity="0.5" stroke-width="6"/>
+<line x1="921" y1="560" x2="1104.5" y2="560" stroke="var(--kn-ink,#1a1a1a)" stroke-width="6.5"/>
+<g font-size="33" letter-spacing="2.5" text-anchor="middle">
+  <text x="748" y="553">Линия борьбы и</text>
+  <text x="748" y="585">сопротивления</text>
+</g>
+
+<!-- ========== пунктирные стрелки хода ========== -->
+<g stroke="var(--kn-ink,#1a1a1a)" stroke-width="3" fill="none" stroke-dasharray="6 9">
+  <line x1="545.8" y1="496.4" x2="597.3" y2="406.8"/>
+  <line x1="954.2" y1="623.2" x2="902.7" y2="713.2"/>
+</g>
+<path d="M 616.4,374.3 L 591.8,392.2 L 611.9,404.5 Z" fill="var(--kn-ink,#1a1a1a)"/>
+<path d="M 883.6,745.7 L 908.2,727.8 L 888.1,715.5 Z" fill="var(--kn-ink,#1a1a1a)"/>
+
+<!-- ========== номера точек 0–11 ========== -->
+<g font-size="33" text-anchor="middle" font-variant-numeric="lining-nums">
+  <text x="755" y="226.5">6</text>
+  <text x="584" y="264.6">5</text>
+  <text x="457" y="394.5">4</text>
+  <text x="396" y="569">3</text>
+  <text x="452" y="748.3">2</text>
+  <text x="584" y="872">1</text>
+  <text x="753" y="912">0</text>
+  <text x="928" y="876">11</text>
+  <text x="1054" y="748.3">10</text>
+  <text x="1128" y="571.4">9</text>
+  <text x="1053" y="401.2">8</text>
+  <text x="924" y="267">7</text>
+</g>
+
+<!-- ========== подписи ========== -->
+<g font-size="33" letter-spacing="2.5">
+
+  <!-- Свет Дня / Тьма Ночи -->
+  <text x="756" y="175" text-anchor="middle">Свет Дня</text>
+  <text x="747" y="970" text-anchor="middle">Тьма Ночи</text>
+
+  <!-- точка 5 -->
+  <text x="185" y="206">Конец Подъёма</text>
+  <text x="185" y="236">Солнца и Начало</text>
+  <text x="185" y="265">Дневного Перехода</text>
+
+  <!-- точка 4 -->
+  <text x="408" y="394.5" text-anchor="end">Подъём Солнца</text>
+
+  <!-- точка 3 -->
+  <text x="35" y="491">Конец Утренней</text>
+  <text x="35" y="522">Зари и Начало</text>
+  <text x="35" y="553">Подъёма Солнца</text>
+
+  <!-- точка 2 -->
+  <text x="408" y="748.3" text-anchor="end">Утренняя Заря</text>
+
+  <!-- точка 1 -->
+  <text x="270" y="875">Конец Тьмы</text>
+  <text x="270" y="905">Начало</text>
+  <text x="270" y="935">Утренней Зари</text>
+
+  <!-- точка 7 -->
+  <text x="1331" y="208" text-anchor="end">Конец Дневного</text>
+  <text x="1331" y="237" text-anchor="end">Перехода и Начало</text>
+  <text x="1331" y="266" text-anchor="end">Спуска Солнца</text>
+
+  <!-- точка 8 -->
+  <text x="1098" y="401">Спуск Солнца</text>
+
+  <!-- точка 9 -->
+  <text x="1505" y="588" text-anchor="end">Конец Спуска</text>
+  <text x="1505" y="618" text-anchor="end">Солнца и Начало</text>
+  <text x="1505" y="648" text-anchor="end">Вечерних Сумерек</text>
+
+  <!-- точка 10 -->
+  <text x="1100" y="750">Вечерние Сумерки</text>
+
+  <!-- точка 11 -->
+  <text x="1313" y="876" text-anchor="end">Конец Вечерних</text>
+  <text x="1313" y="908" text-anchor="end">Сумерек и Начало</text>
+  <text x="1313" y="940" text-anchor="end">Тьмы Ночи</text>
+
+</g>
+</svg>

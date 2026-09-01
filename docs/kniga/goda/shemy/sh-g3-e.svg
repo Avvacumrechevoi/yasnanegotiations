@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-570 -425 1100 840" width="1100" height="840" role="img" aria-label="Ясна Года: Иерусалим — Красная Горка, Красные и Зелёные Ворота">
+<g fill="var(--kn-ink,#1a1a1a)" stroke="none" font-family="var(--kn-serif,Georgia,serif)" dominant-baseline="central">
+<defs><clipPath id="lensE"><path d="M -150,-259.81 A 300.9,300.9 0 0 0 150,259.81 A 301.2,301.2 0 0 0 -150,-259.81 Z"/></clipPath></defs>
+<g clip-path="url(#lensE)" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.2">
+<line x1="-150" y1="-259.81" x2="-300" y2="0"/>
+<line x1="-300" y1="0" x2="-150" y2="259.81"/>
+<line x1="150" y1="-259.81" x2="300" y2="-0"/>
+<line x1="300" y1="-0" x2="150" y2="259.81"/>
+<line x1="-150" y1="-259.81" x2="-26" y2="-259.81" stroke-width="2.6"/>
+<line x1="26" y1="-259.81" x2="150" y2="-259.81" stroke-width="2.6"/>
+<line x1="-150" y1="259.81" x2="-26" y2="259.81" stroke-width="2.6"/>
+<line x1="26" y1="259.81" x2="150" y2="259.81" stroke-width="2.6"/>
+</g>
+<path d="M -150,-259.81 A 300,300 0 0 0 150,259.81 A 300.9,300.9 0 0 1 -150,-259.81 Z" fill="var(--kn-ink,#1a1a1a)" fill-opacity="0.40" stroke="none"/>
+<path d="M -150,-259.81 A 300,300 0 0 1 150,259.81 A 301.2,301.2 0 0 0 -150,-259.81 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<g stroke="var(--kn-ink,#1a1a1a)" stroke-linecap="butt">
+<line x1="-324.28" y1="0" x2="-133.16" y2="0" stroke-width="3.2" stroke-opacity="0.85"/>
+<line x1="137.86" y1="0" x2="324.28" y2="0" stroke-width="6"/>
+</g>
+<g stroke="var(--kn-ink,#1a1a1a)">
+<line x1="-231.5" y1="-156" x2="-212.5" y2="-156" stroke-width="6.4" stroke-linecap="butt"/>
+<line x1="-230.5" y1="144" x2="-213.5" y2="144" stroke-width="5.2" stroke-linecap="butt"/><line x1="-222" y1="135.5" x2="-222" y2="152.5" stroke-width="5.2" stroke-linecap="butt"/>
+<line x1="207.5" y1="-154" x2="224.5" y2="-154" stroke-width="5.2" stroke-linecap="butt"/><line x1="216" y1="-162.5" x2="216" y2="-145.5" stroke-width="5.2" stroke-linecap="butt"/>
+<line x1="206.5" y1="154" x2="225.5" y2="154" stroke-width="6.4" stroke-linecap="butt"/>
+</g>
+<g stroke="var(--kn-ink,#1a1a1a)" fill="none" stroke-linecap="butt">
+<line x1="-213.3" y1="-67.1" x2="-157.87" y2="-157.62" stroke-width="2.2" stroke-dasharray="8 8"/>
+<polygon points="-142.2,-183.2 -149.34,-152.39 -166.4,-162.84" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<line x1="213.3" y1="67.1" x2="157.87" y2="157.62" stroke-width="2.2" stroke-dasharray="8 8"/>
+<polygon points="142.2,183.2 149.34,152.39 166.4,162.84" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+</g>
+<g fill="var(--kn-ink,#1a1a1a)" font-family="var(--kn-serif,Georgia,serif)">
+<text x="0" y="-258.81" font-size="19" text-anchor="middle" font-weight="bold">0</text>
+<text x="0" y="260.81" font-size="19" text-anchor="middle" font-weight="bold">0</text>
+</g>
+<g><text x="1.57" y="-7.05" font-size="24" text-anchor="middle" font-weight="bold" letter-spacing="0.6">Линия борьбы и</text>
+<text x="7.05" y="16.45" font-size="24" text-anchor="middle" font-weight="bold" letter-spacing="0.6">сопротивления</text>
+<text x="5.48" y="-386.16" font-size="25" text-anchor="middle" font-weight="normal">Лето</text>
+<text x="6.27" y="-361.88" font-size="25" text-anchor="middle" font-weight="normal">Иерусалим</text>
+<text x="3.13" y="370.5" font-size="25" text-anchor="middle" font-weight="normal">Зима</text>
+<text x="-540.47" y="-221.67" font-size="23" text-anchor="start" font-weight="bold">Красная Горка</text>
+<text x="-540.47" y="-199.74" font-size="23" text-anchor="start" font-weight="bold">Вербное Воскресение</text>
+<text x="-540.47" y="-177.81" font-size="23" text-anchor="start" font-weight="bold">Пасха</text>
+<text x="-542.04" y="-50.91" font-size="23" text-anchor="start" font-weight="bold">Красные Ворота</text>
+<text x="-542.04" y="-29.77" font-size="23" text-anchor="start" font-weight="bold">Вход в</text>
+<text x="-542.04" y="-8.62" font-size="23" text-anchor="start" font-weight="bold">Иерусалим</text>
+<text x="-542.04" y="12.53" font-size="23" text-anchor="start" font-weight="bold">в летнюю</text>
+<text x="-542.04" y="37.6" font-size="23" text-anchor="start" font-weight="bold">половину</text>
+<text x="-542.04" y="58.75" font-size="23" text-anchor="start" font-weight="bold">года</text>
+<text x="-542.04" y="209.92" font-size="23" text-anchor="start" font-weight="bold">Спасение от</text>
+<text x="-542.04" y="233.42" font-size="23" text-anchor="start" font-weight="bold">холода и голода зимы</text>
+<text x="507.57" y="-47.78" font-size="21" text-anchor="end" font-weight="bold">Зелёные Ворота</text>
+<text x="507.57" y="-27.42" font-size="21" text-anchor="end" font-weight="bold">Выход из</text>
+<text x="507.57" y="-6.27" font-size="21" text-anchor="end" font-weight="bold">Иерусалима</text>
+<text x="507.57" y="14.1" font-size="21" text-anchor="end" font-weight="bold">в зимнюю</text>
+<text x="507.57" y="37.6" font-size="21" text-anchor="end" font-weight="bold">половину года</text>
+<text x="-0" y="336" font-size="25" text-anchor="middle" font-weight="normal">0</text>
+<text x="-168" y="290.98" font-size="25" text-anchor="middle" font-weight="normal">1</text>
+<text x="-290.98" y="168" font-size="25" text-anchor="middle" font-weight="normal">2</text>
+<text x="-336" y="0" font-size="25" text-anchor="middle" font-weight="normal">3</text>
+<text x="-290.98" y="-168" font-size="25" text-anchor="middle" font-weight="normal">4</text>
+<text x="-168" y="-290.98" font-size="25" text-anchor="middle" font-weight="normal">5</text>
+<text x="-0" y="-336" font-size="25" text-anchor="middle" font-weight="normal">6</text>
+<text x="168" y="-290.98" font-size="25" text-anchor="middle" font-weight="normal">7</text>
+<text x="290.98" y="-168" font-size="25" text-anchor="middle" font-weight="normal">8</text>
+<text x="336" y="-0" font-size="25" text-anchor="middle" font-weight="normal">9</text>
+<text x="290.98" y="168" font-size="25" text-anchor="middle" font-weight="normal">10</text>
+<text x="168" y="290.98" font-size="25" text-anchor="middle" font-weight="normal">11</text></g>
+</g>
+</svg>

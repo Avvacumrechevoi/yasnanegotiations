@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 704 508" width="704" height="508" role="img" aria-label="Чертёж Года, перевёрнутый относительно Линии Горизонта: направления на Север и Юг, точки Летнего и Зимнего Солнцестояния для выхода и захода солнца, ход солнца по горизонту на Востоке и Западе">
+<g transform="translate(-163 -274)">
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="516.5" cy="522.0" r="94.0" stroke-width="2"/>
+  <path d="M 516.5 447.0 L 516.5 598.0 M 438.0 522.0 L 596.0 522.0" stroke-width="1.4"/>
+  <path d="M 434.5 458.0 A 87.1 87.1 0 0 0 434.5 586.0 A 104 104 0 0 1 434.5 458.0 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <path d="M 598.5 458.0 A 87.1 87.1 0 0 1 598.5 586.0 A 104 104 0 0 0 598.5 458.0 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <path d="M 431.7 457.0 L 442.0 463.0 L 435.0 468.4 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <path d="M 431.7 587.0 L 435.0 575.6 L 442.0 581.0 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <path d="M 601.3 457.0 L 598.0 468.4 L 591.0 463.0 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <path d="M 601.3 587.0 L 591.0 581.0 L 598.0 575.6 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <circle cx="435.2" cy="444.4" r="2.3" stroke-width="1.1"/>
+  <circle cx="430.0" cy="444.0" r="1.5" stroke-width="1.1"/>
+  <circle cx="424.0" cy="442.0" r="1.4" stroke-width="1.1"/>
+  <circle cx="434.0" cy="439.0" r="1.7" stroke-width="1.1"/>
+  <circle cx="431.5" cy="435.0" r="1.2" stroke-width="1.1"/>
+  <circle cx="435.2" cy="599.6" r="2.3" stroke-width="1.1"/>
+  <circle cx="430.0" cy="600.0" r="1.5" stroke-width="1.1"/>
+  <circle cx="424.0" cy="602.0" r="1.4" stroke-width="1.1"/>
+  <circle cx="434.0" cy="605.0" r="1.7" stroke-width="1.1"/>
+  <circle cx="431.5" cy="609.0" r="1.2" stroke-width="1.1"/>
+  <circle cx="597.8" cy="444.4" r="2.3" stroke-width="1.1"/>
+  <circle cx="603.0" cy="444.0" r="1.5" stroke-width="1.1"/>
+  <circle cx="609.0" cy="442.0" r="1.4" stroke-width="1.1"/>
+  <circle cx="599.0" cy="439.0" r="1.7" stroke-width="1.1"/>
+  <circle cx="601.5" cy="435.0" r="1.2" stroke-width="1.1"/>
+  <circle cx="597.8" cy="599.6" r="2.3" stroke-width="1.1"/>
+  <circle cx="603.0" cy="600.0" r="1.5" stroke-width="1.1"/>
+  <circle cx="609.0" cy="602.0" r="1.4" stroke-width="1.1"/>
+  <circle cx="599.0" cy="605.0" r="1.7" stroke-width="1.1"/>
+  <circle cx="601.5" cy="609.0" r="1.2" stroke-width="1.1"/>
+  <path d="M 516.5 405.0 L 516.5 322.0" stroke-width="1.6"/>
+  <path d="M 516.5 311.0 L 511.0 328.0 L 522.0 328.0 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <path d="M 516.5 636.0 L 516.5 729.0" stroke-width="1.6"/>
+  <path d="M 516.5 742.0 L 511.0 725.0 L 522.0 725.0 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <path d="M 396 523 L 381 523" stroke-width="1.6"/>
+  <path d="M 365 523.5 L 380 518 L 380 529 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <path d="M 644 521 L 659 521" stroke-width="1.6"/>
+  <path d="M 671 521.5 L 656 516 L 656 527 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <path d="M 300 461 L 394 490" stroke-width="1.2" stroke-dasharray="4 3.5"/>
+  <path d="M 407 493.5 L 391 486 L 393.5 497.5 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <path d="M 732 583 L 641 555" stroke-width="1.2" stroke-dasharray="4 3.5"/>
+  <path d="M 626 551.5 L 642 549 L 639.5 560.5 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <g transform="translate(435.0 439.0) rotate(45)" fill="var(--kn-ink,#1a1a1a)" stroke="none">
+    <path d="M 0,0 L -6.2,-3.4 C -8.4,-5.2 -11.5,-7.4 -14.6,-6.9 C -18.2,-6.3 -20.2,-3.2 -20.2,-0.4 C -20.2,2.6 -18.4,5.6 -14.6,6.1 C -10.6,6.6 -6.6,4.4 -3.4,2.0 Z"/>
+    <path d="M -18.5,-7.4 L -23.8,-6.2 L -23.8,6.4 L -18.5,7.6 Z"/>
+  </g>
+  <path d="M 404 409 L 417 421" stroke-width="1.2" stroke-dasharray="3.5 3"/>
+  <g transform="translate(598.0 435.0) rotate(135)" fill="var(--kn-ink,#1a1a1a)" stroke="none">
+    <path d="M 0,0 L -6.2,-3.4 C -8.4,-5.2 -11.5,-7.4 -14.6,-6.9 C -18.2,-6.3 -20.2,-3.2 -20.2,-0.4 C -20.2,2.6 -18.4,5.6 -14.6,6.1 C -10.6,6.6 -6.6,4.4 -3.4,2.0 Z"/>
+    <path d="M -18.5,-7.4 L -23.8,-6.2 L -23.8,6.4 L -18.5,7.6 Z"/>
+  </g>
+  <path d="M 630 408 L 617 420" stroke-width="1.2" stroke-dasharray="3.5 3"/>
+  <g transform="translate(431.0 605.0) rotate(-45)" fill="var(--kn-ink,#1a1a1a)" stroke="none">
+    <path d="M 0,0 L -6.2,-3.4 C -8.4,-5.2 -11.5,-7.4 -14.6,-6.9 C -18.2,-6.3 -20.2,-3.2 -20.2,-0.4 C -20.2,2.6 -18.4,5.6 -14.6,6.1 C -10.6,6.6 -6.6,4.4 -3.4,2.0 Z"/>
+    <path d="M -18.5,-7.4 L -23.8,-6.2 L -23.8,6.4 L -18.5,7.6 Z"/>
+  </g>
+  <path d="M 404 636 L 416 624" stroke-width="1.2" stroke-dasharray="3.5 3"/>
+  <g transform="translate(602.0 601.0) rotate(-135)" fill="var(--kn-ink,#1a1a1a)" stroke="none">
+    <path d="M 0,0 L -6.2,-3.4 C -8.4,-5.2 -11.5,-7.4 -14.6,-6.9 C -18.2,-6.3 -20.2,-3.2 -20.2,-0.4 C -20.2,2.6 -18.4,5.6 -14.6,6.1 C -10.6,6.6 -6.6,4.4 -3.4,2.0 Z"/>
+    <path d="M -18.5,-7.4 L -23.8,-6.2 L -23.8,6.4 L -18.5,7.6 Z"/>
+  </g>
+  <path d="M 632 634 L 620 622" stroke-width="1.2" stroke-dasharray="3.5 3"/>
+</g>
+<g fill="var(--kn-ink,#1a1a1a)" font-family="var(--kn-serif,Georgia,serif)" font-size="16.5">
+  <text x="516.5" y="298.0" text-anchor="middle">
+    <tspan x="516.5" dy="0">Направление на Север</tspan>
+  </text>
+  <text x="516.5" y="769.0" text-anchor="middle">
+    <tspan x="516.5" dy="0">Направление на Юг</tspan>
+  </text>
+  <text x="270.0" y="385.0" text-anchor="start">
+    <tspan x="270.0" dy="0">Точка Летнего</tspan>
+    <tspan x="270.0" dy="15.2">Солнцестояния</tspan>
+    <tspan x="270.0" dy="15.2">Для Выхода Солнца</tspan>
+  </text>
+  <text x="270.0" y="649.0" text-anchor="start">
+    <tspan x="270.0" dy="0">Точка Зимнего</tspan>
+    <tspan x="270.0" dy="15.2">Солнцестояния</tspan>
+    <tspan x="270.0" dy="15.2">Для Выхода Солнца</tspan>
+  </text>
+  <text x="760.0" y="376.0" text-anchor="end">
+    <tspan x="760.0" dy="0">Точка Летнего</tspan>
+    <tspan x="760.0" dy="15.2">Солнцестояния</tspan>
+    <tspan x="760.0" dy="15.2">Для Захода Солнца</tspan>
+  </text>
+  <text x="761.0" y="643.0" text-anchor="end">
+    <tspan x="761.0" dy="0">Точка Зимнего</tspan>
+    <tspan x="761.0" dy="15.2">Солнцестояния</tspan>
+    <tspan x="761.0" dy="15.2">Для Захода Солнца</tspan>
+  </text>
+  <text x="176.0" y="452.0" text-anchor="start">
+    <tspan x="176.0" dy="0">Ход солнца по</tspan>
+    <tspan x="176.0" dy="15.2">горизонту на</tspan>
+    <tspan x="176.0" dy="15.2">Востоке</tspan>
+  </text>
+  <text x="846.0" y="576.0" text-anchor="end">
+    <tspan x="846.0" dy="0">Ход солнца по</tspan>
+    <tspan x="846.0" dy="15.2">горизонту на</tspan>
+    <tspan x="846.0" dy="15.2">Западе</tspan>
+  </text>
+  <text x="175.0" y="528.0" text-anchor="start">
+    <tspan x="175.0" dy="0">Восток</tspan>
+    <tspan x="175.0" dy="15.2">Точка Весеннего и</tspan>
+    <tspan x="175.0" dy="15.2">Осеннего</tspan>
+    <tspan x="175.0" dy="15.2">Равноденствия</tspan>
+  </text>
+  <text x="847.0" y="491.0" text-anchor="end">
+    <tspan x="847.0" dy="0">Запад</tspan>
+    <tspan x="847.0" dy="15.2">Точка Весеннего и</tspan>
+    <tspan x="847.0" dy="15.2">Осеннего</tspan>
+    <tspan x="847.0" dy="15.2">Равноденствия</tspan>
+  </text>
+</g>
+</g>
+</svg>

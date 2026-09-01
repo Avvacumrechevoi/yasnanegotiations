@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="45 5 765 535" width="100%" fill="var(--kn-ink,#1a1a1a)" stroke="none" font-family="var(--kn-serif,Georgia,serif)" role="img" aria-label="Треугольник Воздуха: Скорпион - Рыбы - Рак на Полках 10, 2, 6">
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)">
+<polygon points="385,179 242.5,442.5 527.5,442.5" stroke-width="2.1"/>
+<line x1="385" y1="190" x2="384" y2="515" stroke-width="1.7" stroke-dasharray="9 7"/>
+<line x1="222.5" y1="357.5" x2="552.5" y2="356" stroke-width="1.7" stroke-dasharray="9 7"/>
+<line x1="392.5" y1="27" x2="392.5" y2="45" stroke-width="2.2"/>
+</g>
+<g font-size="30" font-weight="bold" text-anchor="middle">
+<text x="386" y="146">6</text>
+<text x="212" y="468">2</text>
+<text x="564" y="468">10</text>
+</g>
+<g font-size="42" text-anchor="middle" style="font-variant-emoji:text">
+<text x="393" y="98">♋︎</text>
+<text x="162" y="495">♓︎</text>
+<text x="629" y="501">♏︎</text>
+</g>
+<g font-size="27" font-weight="bold">
+<text x="296" y="50" text-anchor="middle">Воздух</text>
+<text x="296" y="74" text-anchor="middle">ЦИ</text>
+<text x="572" y="195" text-anchor="start">Треугольник</text>
+<text x="565" y="221" text-anchor="start">Жизни в воде</text>
+<text x="61" y="431" text-anchor="start">Воздух</text>
+<text x="61" y="455" text-anchor="start">ЦИ</text>
+<text x="760" y="431" text-anchor="end">Воздух</text>
+<text x="760" y="455" text-anchor="end">ЦИ</text>
+</g>
+</svg>

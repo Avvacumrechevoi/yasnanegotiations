@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2800 2280" width="100%" font-family="var(--kn-serif,Georgia,serif)" fill="var(--kn-ink,#1a1a1a)" role="img" aria-label="Поле Обсерватории: круг горизонта, три пунктирные дуги солнечных путей, точки восходов и заходов">
+<defs>
+  <g id="sunface">
+    <g fill="var(--kn-ink,#1a1a1a)" stroke="none">
+      <path d="M0,-100 L9,-52 L-9,-52 Z"/>
+      <path d="M0,-100 L9,-52 L-9,-52 Z" transform="rotate(20)"/>
+      <path d="M0,-100 L9,-52 L-9,-52 Z" transform="rotate(40)"/>
+      <path d="M0,-100 L9,-52 L-9,-52 Z" transform="rotate(60)"/>
+      <path d="M0,-100 L9,-52 L-9,-52 Z" transform="rotate(80)"/>
+      <path d="M0,-100 L9,-52 L-9,-52 Z" transform="rotate(100)"/>
+      <path d="M0,-100 L9,-52 L-9,-52 Z" transform="rotate(120)"/>
+      <path d="M0,-100 L9,-52 L-9,-52 Z" transform="rotate(140)"/>
+      <path d="M0,-100 L9,-52 L-9,-52 Z" transform="rotate(160)"/>
+      <path d="M0,-100 L9,-52 L-9,-52 Z" transform="rotate(180)"/>
+      <path d="M0,-100 L9,-52 L-9,-52 Z" transform="rotate(200)"/>
+      <path d="M0,-100 L9,-52 L-9,-52 Z" transform="rotate(220)"/>
+      <path d="M0,-100 L9,-52 L-9,-52 Z" transform="rotate(240)"/>
+      <path d="M0,-100 L9,-52 L-9,-52 Z" transform="rotate(260)"/>
+      <path d="M0,-100 L9,-52 L-9,-52 Z" transform="rotate(280)"/>
+      <path d="M0,-100 L9,-52 L-9,-52 Z" transform="rotate(300)"/>
+      <path d="M0,-100 L9,-52 L-9,-52 Z" transform="rotate(320)"/>
+      <path d="M0,-100 L9,-52 L-9,-52 Z" transform="rotate(340)"/>
+      <path d="M0,-88 L8,-52 L-8,-52 Z" transform="rotate(10)"/>
+      <path d="M0,-88 L8,-52 L-8,-52 Z" transform="rotate(30)"/>
+      <path d="M0,-88 L8,-52 L-8,-52 Z" transform="rotate(50)"/>
+      <path d="M0,-88 L8,-52 L-8,-52 Z" transform="rotate(70)"/>
+      <path d="M0,-88 L8,-52 L-8,-52 Z" transform="rotate(90)"/>
+      <path d="M0,-88 L8,-52 L-8,-52 Z" transform="rotate(110)"/>
+      <path d="M0,-88 L8,-52 L-8,-52 Z" transform="rotate(130)"/>
+      <path d="M0,-88 L8,-52 L-8,-52 Z" transform="rotate(150)"/>
+      <path d="M0,-88 L8,-52 L-8,-52 Z" transform="rotate(170)"/>
+      <path d="M0,-88 L8,-52 L-8,-52 Z" transform="rotate(190)"/>
+      <path d="M0,-88 L8,-52 L-8,-52 Z" transform="rotate(210)"/>
+      <path d="M0,-88 L8,-52 L-8,-52 Z" transform="rotate(230)"/>
+      <path d="M0,-88 L8,-52 L-8,-52 Z" transform="rotate(250)"/>
+      <path d="M0,-88 L8,-52 L-8,-52 Z" transform="rotate(270)"/>
+      <path d="M0,-88 L8,-52 L-8,-52 Z" transform="rotate(290)"/>
+      <path d="M0,-88 L8,-52 L-8,-52 Z" transform="rotate(310)"/>
+      <path d="M0,-88 L8,-52 L-8,-52 Z" transform="rotate(330)"/>
+      <path d="M0,-88 L8,-52 L-8,-52 Z" transform="rotate(350)"/>
+    </g>
+    <circle r="50" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="6"/>
+    <g fill="var(--kn-ink,#1a1a1a)" stroke="none">
+      <circle cx="-19" cy="-12" r="6"/><circle cx="19" cy="-12" r="6"/>
+      <path d="M-4,-8 L-7,10 L5,10 Z"/>
+      <path d="M-17,22 a19,13 0 0 0 34,0 a19,7 0 0 1 -34,0 Z"/>
+    </g>
+  </g>
+</defs>
+
+<!-- ===== пунктирные дуги солнечных путей ===== -->
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="4" stroke-dasharray="14 12">
+  <path d="M1141.7,1215.1 A324,324 0 1 1 1762.3,1215.1"/>
+  <path d="M1126.1,1582.3 A564,564 0 1 1 1777.9,1582.3"/>
+  <path d="M1140.5,1889.1 A828,828 0 1 1 1763.5,1889.1"/>
+</g>
+
+<!-- ===== крупные наконечники дуг (точки восходов и заходов) ===== -->
+<g fill="var(--kn-ink,#1a1a1a)" stroke="none">
+  <path d="M1141.7,1215.1 l80.3,74.9 l-27.4,-63.6 l-14.6,32.4 Z"/>
+  <path d="M1762.3,1215.1 l-77.7,77.5 l26.0,-64.2 l14.0,32.7 Z"/>
+  <path d="M1061,1526 l72,42 l-63,-2 l17,-19 Z"/>
+  <path d="M1849,1531 l-72,42 l63,-2 l-17,-19 Z"/>
+  <path d="M1140.5,1889.1 l87.7,-66.0 l-64.6,20.1 l30.7,17.4 Z"/>
+  <path d="M1763.5,1889.1 l-85.5,-68.7 l63.0,22.7 l-31.4,16.5 Z"/>
+</g>
+
+<!-- ===== три солнца на дугах ===== -->
+<g transform="translate(1651.5,866.7) scale(0.36)"><use href="#sunface"/></g>
+<g transform="translate(1799.2,677.6) scale(0.50)"><use href="#sunface"/></g>
+<g transform="translate(1961.7,469.5) scale(0.70)"><use href="#sunface"/></g>
+
+<!-- ===== ось Юг — Север (пунктир со стрелками) ===== -->
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="4" stroke-dasharray="12 12">
+  <line x1="1455" y1="212" x2="1455" y2="2088"/>
+</g>
+<g fill="var(--kn-ink,#1a1a1a)" stroke="none">
+  <path d="M1455,180 l17,44 l-34,0 Z"/>
+  <path d="M1455,2120 l17,-44 l-34,0 Z"/>
+</g>
+
+<!-- ===== ось Восток — Запад (сплошная со стрелками) ===== -->
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="5">
+  <line x1="470" y1="1560" x2="2385" y2="1560"/>
+</g>
+<g fill="var(--kn-ink,#1a1a1a)" stroke="none">
+  <path d="M438,1560 l44,-17 l0,34 Z"/>
+  <path d="M2417,1560 l-44,-17 l0,34 Z"/>
+</g>
+
+<!-- ===== круг Поля Обсерватории ===== -->
+<ellipse cx="1455" cy="1560" rx="330" ry="348" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="6"/>
+
+<!-- ===== точки на круге ===== -->
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3" stroke-dasharray="5 5">
+  <circle cx="1234.2" cy="1301.4" r="20"/>
+  <circle cx="1675.8" cy="1301.4" r="20"/>
+  <circle cx="1234.2" cy="1818.6" r="20"/>
+  <circle cx="1675.8" cy="1818.6" r="20"/>
+</g>
+
+<!-- ===== выноски подписей ===== -->
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3.4" stroke-dasharray="12 10">
+  <line x1="1110" y1="1060" x2="1192" y2="1160"/>
+  <line x1="1090" y1="1380" x2="1098" y2="1492"/>
+  <line x1="750" y1="1810" x2="1098" y2="1706"/>
+  <line x1="1120" y1="1990" x2="1178" y2="1922"/>
+  <line x1="1870" y1="1140" x2="1818" y2="1200"/>
+  <line x1="2100" y1="1430" x2="1884" y2="1572"/>
+  <line x1="2140" y1="1880" x2="1862" y2="1758"/>
+  <line x1="1840" y1="2030" x2="1798" y2="1968"/>
+</g>
+<g fill="var(--kn-ink,#1a1a1a)" stroke="none">
+  <path d="M1200,1170 l-30,-4 l10,-16 Z"/>
+  <path d="M1100,1508 l-14,-28 l22,-4 Z"/>
+  <path d="M1110,1702 l-30,-6 l6,-18 Z"/>
+  <path d="M1186,1912 l-4,-30 l-18,10 Z"/>
+  <path d="M1810,1210 l30,-6 l-8,-18 Z"/>
+  <path d="M1870,1580 l30,-12 l-4,20 Z"/>
+  <path d="M1850,1750 l30,4 l-12,18 Z"/>
+  <path d="M1790,1960 l6,30 l18,-12 Z"/>
+</g>
+
+<!-- ===== подписи ===== -->
+<g font-size="52" font-weight="700" letter-spacing="2">
+  <text x="1455" y="122" text-anchor="middle">Юг</text>
+  <text x="1455" y="2188" text-anchor="middle">Север</text>
+  <text x="175" y="1578">Восток</text>
+  <text x="2440" y="1578">Запад</text>
+
+  <text x="556" y="986">Точка Зимнего</text>
+  <text x="570" y="1042">Солнцестояния</text>
+
+  <text x="170" y="1310">Точка Весеннего и</text>
+  <text x="170" y="1366">Осеннего Равноденствий</text>
+
+  <text x="500" y="1846">Газета</text>
+
+  <text x="590" y="2030">Точка Летнего</text>
+  <text x="620" y="2086">Солнцестояния</text>
+
+  <text x="1880" y="1074">Заход в Зимнее</text>
+  <text x="1860" y="1130">Солнцестояние</text>
+
+  <text x="2610" y="1350" text-anchor="end">Заход в Весеннее</text>
+  <text x="2610" y="1406" text-anchor="end">и Осеннее</text>
+  <text x="2610" y="1462" text-anchor="end">Равноденствия</text>
+
+  <text x="2150" y="1910">Журнал</text>
+
+  <text x="1850" y="2066">Заход в Летнее</text>
+  <text x="1860" y="2122">Солнцестояние</text>
+</g>
+</svg>

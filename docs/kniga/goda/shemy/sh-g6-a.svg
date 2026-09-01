@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 686 564" width="686" height="564" role="img" aria-label="Чертёж Года: круг Линии Горизонта, точки восхода и захода солнца в солнцестояния и равноденствия, пути Солнца по небу в разные времена года">
+<defs>
+<g id="knSolnceG">
+  <path d="M 1.000 0.000 L 0.400 0.115 L 0.400 -0.115 Z M 0.726 0.144 L 0.382 0.132 L 0.403 0.024 Z M 0.924 0.383 L 0.326 0.259 L 0.414 0.047 Z M 0.615 0.411 L 0.302 0.268 L 0.363 0.176 Z M 0.707 0.707 L 0.202 0.364 L 0.364 0.202 Z M 0.411 0.615 L 0.176 0.363 L 0.268 0.302 Z M 0.383 0.924 L 0.047 0.414 L 0.259 0.326 Z M 0.144 0.726 L 0.024 0.403 L 0.132 0.382 Z M 0.000 1.000 L -0.115 0.400 L 0.115 0.400 Z M -0.144 0.726 L -0.132 0.382 L -0.024 0.403 Z M -0.383 0.924 L -0.259 0.326 L -0.047 0.414 Z M -0.411 0.615 L -0.268 0.302 L -0.176 0.363 Z M -0.707 0.707 L -0.364 0.202 L -0.202 0.364 Z M -0.615 0.411 L -0.363 0.176 L -0.302 0.268 Z M -0.924 0.383 L -0.414 0.047 L -0.326 0.259 Z M -0.726 0.144 L -0.403 0.024 L -0.382 0.132 Z M -1.000 0.000 L -0.400 -0.115 L -0.400 0.115 Z M -0.726 -0.144 L -0.382 -0.132 L -0.403 -0.024 Z M -0.924 -0.383 L -0.326 -0.259 L -0.414 -0.047 Z M -0.615 -0.411 L -0.302 -0.268 L -0.363 -0.176 Z M -0.707 -0.707 L -0.202 -0.364 L -0.364 -0.202 Z M -0.411 -0.615 L -0.176 -0.363 L -0.268 -0.302 Z M -0.383 -0.924 L -0.047 -0.414 L -0.259 -0.326 Z M -0.144 -0.726 L -0.024 -0.403 L -0.132 -0.382 Z M -0.000 -1.000 L 0.115 -0.400 L -0.115 -0.400 Z M 0.144 -0.726 L 0.132 -0.382 L 0.024 -0.403 Z M 0.383 -0.924 L 0.259 -0.326 L 0.047 -0.414 Z M 0.411 -0.615 L 0.268 -0.302 L 0.176 -0.363 Z M 0.707 -0.707 L 0.364 -0.202 L 0.202 -0.364 Z M 0.615 -0.411 L 0.363 -0.176 L 0.302 -0.268 Z M 0.924 -0.383 L 0.414 -0.047 L 0.326 -0.259 Z M 0.726 -0.144 L 0.403 -0.024 L 0.382 -0.132 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <circle cx="0" cy="0" r="0.42" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.075"/>
+  <ellipse cx="-0.155" cy="-0.10" rx="0.105" ry="0.058" fill="var(--kn-ink,#1a1a1a)" transform="rotate(-18 -0.155 -0.10)"/>
+  <ellipse cx="0.135" cy="-0.10" rx="0.105" ry="0.058" fill="var(--kn-ink,#1a1a1a)" transform="rotate(18 0.135 -0.10)"/>
+  <path d="M -0.02 0.02 L -0.045 0.16 L 0.045 0.16" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.055"/>
+  <ellipse cx="0.00" cy="0.245" rx="0.075" ry="0.048" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="0.06"/>
+</g>
+<mask id="knMaskG" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="1200">
+  <rect x="0" y="0" width="1000" height="1200" fill="#fff"/>
+  <rect x="176" y="757" width="176" height="50" fill="#000"/>
+  <rect x="555" y="759" width="170" height="50" fill="#000"/>
+</mask>
+</defs>
+<g transform="translate(-110 -478)">
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4" stroke-dasharray="5 4" mask="url(#knMaskG)">
+  <path d="M 388.0 716.0 A 85.7 85.7 0 1 0 519.0 716.0"/>
+  <path d="M 361.0 651.0 A 152.0 152.0 0 1 0 546.0 651.0"/>
+  <path d="M 385.0 582.0 A 198.4 198.4 0 1 0 522.0 582.0"/>
+</g>
+<g>
+  <path d="M 370.4 750.3 L 371.8 760.5 L 364.4 758.6 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <path d="M 536.6 750.3 L 542.6 758.6 L 535.2 760.5 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <path d="M 346.9 663.1 L 342.8 672.5 L 337.5 667.1 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <path d="M 560.1 663.1 L 569.5 667.1 L 564.2 672.5 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <path d="M 356.7 594.9 L 350.2 602.9 L 346.5 596.2 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  <path d="M 550.3 594.9 L 560.5 596.2 L 556.8 602.9 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+</g>
+<use xlink:href="#knSolnceG" transform="translate(392.0 841.5) scale(12.70)"/>
+<use xlink:href="#knSolnceG" transform="translate(358.5 885.0) scale(17.50)"/>
+<use xlink:href="#knSolnceG" transform="translate(318.5 938.0) scale(23.00)"/>
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="453.5" cy="651.0" r="92.5" stroke-width="2.1"/>
+  <path d="M 453.5 575 L 453.5 727 M 379 651 L 528 651" stroke-width="1.3"/>
+  <path d="M 453.5 536 L 453.5 524"/>
+  <path d="M 453.5 764 L 453.5 988"/>
+  <path d="M 344 651 L 199 651"/>
+  <path d="M 563 651 L 711 651"/>
+</g>
+<g fill="var(--kn-ink,#1a1a1a)" stroke="none">
+  <path d="M 453.5 510 L 448.0 524 L 459.0 524 Z"/>
+  <path d="M 453.5 1003 L 448.0 988 L 459.0 988 Z"/>
+  <path d="M 183 651 L 199 645.4 L 199 656.6 Z"/>
+  <path d="M 727 651 L 711 645.4 L 711 656.6 Z"/>
+</g>
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.2" stroke-dasharray="4 3.5">
+  <path d="M 248 613 L 344 641"/>
+  <path d="M 659 613 L 563 641"/>
+</g>
+<path d="M 358.0 645.5 L 345.1 646.8 L 348.0 637.2 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<path d="M 549.0 645.5 L 559.0 637.2 L 561.9 646.8 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.1">
+  <circle cx="374.9" cy="572.4" r="1.50"/>
+  <circle cx="380.9" cy="575.4" r="1.05"/>
+  <circle cx="385.9" cy="576.4" r="0.85"/>
+  <circle cx="377.9" cy="581.4" r="1.25"/>
+  <circle cx="374.9" cy="729.6" r="1.50"/>
+  <circle cx="380.9" cy="726.6" r="1.05"/>
+  <circle cx="385.9" cy="725.6" r="0.85"/>
+  <circle cx="377.9" cy="720.6" r="1.25"/>
+  <circle cx="532.1" cy="572.4" r="1.50"/>
+  <circle cx="526.1" cy="575.4" r="1.05"/>
+  <circle cx="521.1" cy="576.4" r="0.85"/>
+  <circle cx="529.1" cy="581.4" r="1.25"/>
+  <circle cx="532.1" cy="729.6" r="1.50"/>
+  <circle cx="526.1" cy="726.6" r="1.05"/>
+  <circle cx="521.1" cy="725.6" r="0.85"/>
+  <circle cx="529.1" cy="720.6" r="1.25"/>
+</g>
+<g transform="translate(375.0 565.0) rotate(45)" fill="var(--kn-ink,#1a1a1a)" stroke="none">
+  <path d="M 0,0 L -7.5,-2.6 C -9.5,-5.4 -12.5,-7.6 -15.5,-7.0 C -19.2,-6.3 -21.0,-3.2 -21.0,-0.3 C -21.0,2.8 -19.3,5.9 -15.8,6.4 C -12.2,6.9 -9.2,4.4 -6.6,1.9 Z"/>
+  <path d="M -18.5,-7.4 L -23.8,-6.2 L -23.8,6.4 L -18.5,7.6 Z"/>
+</g>
+<path d="M 347 540 L 357 550" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.2" stroke-dasharray="3.5 3"/>
+<g transform="translate(532.0 565.0) rotate(135)" fill="var(--kn-ink,#1a1a1a)" stroke="none">
+  <path d="M 0,0 L -7.5,-2.6 C -9.5,-5.4 -12.5,-7.6 -15.5,-7.0 C -19.2,-6.3 -21.0,-3.2 -21.0,-0.3 C -21.0,2.8 -19.3,5.9 -15.8,6.4 C -12.2,6.9 -9.2,4.4 -6.6,1.9 Z"/>
+  <path d="M -18.5,-7.4 L -23.8,-6.2 L -23.8,6.4 L -18.5,7.6 Z"/>
+</g>
+<path d="M 560 540 L 550 550" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.2" stroke-dasharray="3.5 3"/>
+<g transform="translate(376.0 733.0) rotate(-45)" fill="var(--kn-ink,#1a1a1a)" stroke="none">
+  <path d="M 0,0 L -7.5,-2.6 C -9.5,-5.4 -12.5,-7.6 -15.5,-7.0 C -19.2,-6.3 -21.0,-3.2 -21.0,-0.3 C -21.0,2.8 -19.3,5.9 -15.8,6.4 C -12.2,6.9 -9.2,4.4 -6.6,1.9 Z"/>
+  <path d="M -18.5,-7.4 L -23.8,-6.2 L -23.8,6.4 L -18.5,7.6 Z"/>
+</g>
+<path d="M 334 774 L 356 752" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.2" stroke-dasharray="3.5 3"/>
+<g transform="translate(531.0 733.0) rotate(-135)" fill="var(--kn-ink,#1a1a1a)" stroke="none">
+  <path d="M 0,0 L -7.5,-2.6 C -9.5,-5.4 -12.5,-7.6 -15.5,-7.0 C -19.2,-6.3 -21.0,-3.2 -21.0,-0.3 C -21.0,2.8 -19.3,5.9 -15.8,6.4 C -12.2,6.9 -9.2,4.4 -6.6,1.9 Z"/>
+  <path d="M -18.5,-7.4 L -23.8,-6.2 L -23.8,6.4 L -18.5,7.6 Z"/>
+</g>
+<path d="M 573 774 L 551 752" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.2" stroke-dasharray="3.5 3"/>
+<g transform="translate(600.0 907.0) rotate(-135)" fill="var(--kn-ink,#1a1a1a)" stroke="none">
+  <path d="M 0,0 L -7.5,-2.6 C -9.5,-5.4 -12.5,-7.6 -15.5,-7.0 C -19.2,-6.3 -21.0,-3.2 -21.0,-0.3 C -21.0,2.8 -19.3,5.9 -15.8,6.4 C -12.2,6.9 -9.2,4.4 -6.6,1.9 Z"/>
+  <path d="M -18.5,-7.4 L -23.8,-6.2 L -23.8,6.4 L -18.5,7.6 Z"/>
+</g>
+<path d="M 617 925 L 625 933" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.2" stroke-dasharray="3.5 3"/>
+<g fill="var(--kn-ink,#1a1a1a)" font-family="var(--kn-serif,Georgia,serif)" font-size="16.5">
+  <text x="453.5" y="497.0" text-anchor="middle">
+    <tspan x="453.5" dy="0">Север</tspan>
+  </text>
+  <text x="453.5" y="1030.0" text-anchor="middle">
+    <tspan x="453.5" dy="0">Юг</tspan>
+  </text>
+  <text x="117.0" y="657.0" text-anchor="start">
+    <tspan x="117.0" dy="0">Восток</tspan>
+  </text>
+  <text x="788.0" y="657.0" text-anchor="end">
+    <tspan x="788.0" dy="0">Запад</tspan>
+  </text>
+  <text x="181.0" y="505.0" text-anchor="start">
+    <tspan x="181.0" dy="0">Точка Летнего</tspan>
+    <tspan x="181.0" dy="14.0">Солнцестояния</tspan>
+    <tspan x="181.0" dy="14.0">Для Выхода Солнца</tspan>
+  </text>
+  <text x="716.0" y="507.0" text-anchor="end">
+    <tspan x="716.0" dy="0">Точка Летнего</tspan>
+    <tspan x="716.0" dy="14.0">Солнцестояния</tspan>
+    <tspan x="716.0" dy="14.0">Для Захода Солнца</tspan>
+  </text>
+  <text x="117.0" y="582.0" text-anchor="start">
+    <tspan x="117.0" dy="0">Точка Весеннего и</tspan>
+    <tspan x="117.0" dy="14.0">Осеннего Равноденствий</tspan>
+    <tspan x="117.0" dy="14.0">для Выхода Солнца</tspan>
+  </text>
+  <text x="787.0" y="584.0" text-anchor="end">
+    <tspan x="787.0" dy="0">Точка Весеннего и</tspan>
+    <tspan x="787.0" dy="14.0">Осеннего Равноденствий</tspan>
+    <tspan x="787.0" dy="14.0">для Захода Солнца</tspan>
+  </text>
+  <text x="182.0" y="772.0" text-anchor="start">
+    <tspan x="182.0" dy="0">Точка Зимнего</tspan>
+    <tspan x="182.0" dy="14.0">Солнцестояния для</tspan>
+    <tspan x="182.0" dy="14.0">Выхода Солнца</tspan>
+  </text>
+  <text x="719.0" y="774.0" text-anchor="end">
+    <tspan x="719.0" dy="0">Точка Зимнего</tspan>
+    <tspan x="719.0" dy="14.0">Солнцестояния для</tspan>
+    <tspan x="719.0" dy="14.0">Захода Солнца</tspan>
+  </text>
+  <text x="787.0" y="945.0" text-anchor="end">
+    <tspan x="787.0" dy="0">Пути Солнца по небу в</tspan>
+    <tspan x="787.0" dy="14.0">разные времена года</tspan>
+  </text>
+</g>
+</g>
+</svg>

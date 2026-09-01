@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-548 -455 1096 918" width="1096" height="918" role="img" aria-label="Снеговая Ясна: круг года с двенадцатью местами и природными приметами">
+<g fill="var(--kn-ink,#1a1a1a)" stroke="none" font-family="var(--kn-serif,Georgia,serif)" dominant-baseline="central">
+<defs><clipPath id="lensD"><path d="M -150,-259.81 A 300.9,300.9 0 0 0 150,259.81 A 301.2,301.2 0 0 0 -150,-259.81 Z"/></clipPath></defs>
+<g clip-path="url(#lensD)" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.2">
+<line x1="-150" y1="-259.81" x2="-300" y2="0"/>
+<line x1="-300" y1="0" x2="-150" y2="259.81"/>
+<line x1="150" y1="-259.81" x2="300" y2="-0"/>
+<line x1="300" y1="-0" x2="150" y2="259.81"/>
+<line x1="-150" y1="-259.81" x2="-26" y2="-259.81" stroke-width="2.6"/>
+<line x1="26" y1="-259.81" x2="150" y2="-259.81" stroke-width="2.6"/>
+<line x1="-150" y1="259.81" x2="-26" y2="259.81" stroke-width="2.6"/>
+<line x1="26" y1="259.81" x2="150" y2="259.81" stroke-width="2.6"/>
+</g>
+<path d="M -150,-259.81 A 300,300 0 0 0 150,259.81 A 300.9,300.9 0 0 1 -150,-259.81 Z" fill="var(--kn-ink,#1a1a1a)" fill-opacity="0.40" stroke="none"/>
+<path d="M -150,-259.81 A 300,300 0 0 1 150,259.81 A 301.2,301.2 0 0 0 -150,-259.81 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<g stroke="var(--kn-ink,#1a1a1a)" stroke-linecap="butt">
+<line x1="-315.98" y1="0" x2="-116.95" y2="0" stroke-width="3.2" stroke-opacity="0.85"/>
+<line x1="115.5" y1="0" x2="315.98" y2="0" stroke-width="6"/>
+</g>
+<g stroke="var(--kn-ink,#1a1a1a)">
+<line x1="-231.5" y1="-156" x2="-212.5" y2="-156" stroke-width="6.4" stroke-linecap="butt"/>
+<line x1="-230.5" y1="144" x2="-213.5" y2="144" stroke-width="5.2" stroke-linecap="butt"/><line x1="-222" y1="135.5" x2="-222" y2="152.5" stroke-width="5.2" stroke-linecap="butt"/>
+<line x1="207.5" y1="-154" x2="224.5" y2="-154" stroke-width="5.2" stroke-linecap="butt"/><line x1="216" y1="-162.5" x2="216" y2="-145.5" stroke-width="5.2" stroke-linecap="butt"/>
+<line x1="206.5" y1="154" x2="225.5" y2="154" stroke-width="6.4" stroke-linecap="butt"/>
+</g>
+<g stroke="var(--kn-ink,#1a1a1a)" fill="none" stroke-linecap="butt">
+<line x1="-213.3" y1="-67.1" x2="-157.87" y2="-157.62" stroke-width="2.2" stroke-dasharray="8 8"/>
+<polygon points="-142.2,-183.2 -149.34,-152.39 -166.4,-162.84" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<line x1="213.3" y1="67.1" x2="157.87" y2="157.62" stroke-width="2.2" stroke-dasharray="8 8"/>
+<polygon points="142.2,183.2 149.34,152.39 166.4,162.84" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+</g>
+<g fill="var(--kn-ink,#1a1a1a)" font-family="var(--kn-serif,Georgia,serif)">
+<text x="0" y="-258.81" font-size="19" text-anchor="middle" font-weight="bold">0</text>
+<text x="0" y="260.81" font-size="19" text-anchor="middle" font-weight="bold">0</text>
+</g>
+<g><text x="0.73" y="-12.35" font-size="23" text-anchor="middle" font-weight="bold" letter-spacing="0.6">Линия борьбы и</text>
+<text x="0.73" y="10.9" font-size="23" text-anchor="middle" font-weight="bold" letter-spacing="0.6">сопротивления</text>
+<text x="-5.08" y="-394.43" font-size="25" text-anchor="middle" font-weight="bold">Лето</text>
+<text x="-5.08" y="-371.19" font-size="25" text-anchor="middle" font-weight="bold">Всё созревает</text>
+<text x="-2.18" y="376.27" font-size="25" text-anchor="middle" font-weight="bold">Зима</text>
+<text x="-2.18" y="398.06" font-size="25" text-anchor="middle" font-weight="bold">Всё отдыхает</text>
+<text x="-247.7" y="-329.78" font-size="26" text-anchor="middle" font-weight="normal">Конец Весны</text>
+<text x="248.43" y="-331.23" font-size="26" text-anchor="middle" font-weight="normal">Начало Осени</text>
+<text x="-263.68" y="335.59" font-size="26" text-anchor="middle" font-weight="normal">Начало Весны</text>
+<text x="239.71" y="338.5" font-size="26" text-anchor="middle" font-weight="normal">Конец Осени</text>
+<text x="-459.81" y="-410.41" font-size="25" text-anchor="middle" font-weight="normal">Перелом</text>
+<text x="471.43" y="-421.31" font-size="25" text-anchor="middle" font-weight="normal">Перелом</text>
+<text x="-456.17" y="404.6" font-size="25" text-anchor="middle" font-weight="normal">Перелом</text>
+<text x="470.7" y="432.2" font-size="25" text-anchor="middle" font-weight="normal">Перелом</text>
+<text x="-519.37" y="-231.72" font-size="23" text-anchor="start" font-weight="bold">Теплеет</text>
+<text x="-519.37" y="-210.65" font-size="23" text-anchor="start" font-weight="bold">Появляются листья</text>
+<text x="-519.37" y="-188.14" font-size="23" text-anchor="start" font-weight="bold">Весенние дожди</text>
+<text x="-516.46" y="-53.75" font-size="23" text-anchor="start" font-weight="bold">Стаивание</text>
+<text x="-516.46" y="-32.69" font-size="23" text-anchor="start" font-weight="bold">Последнего</text>
+<text x="-516.46" y="-11.62" font-size="23" text-anchor="start" font-weight="bold">Снега</text>
+<text x="-507.75" y="175.79" font-size="23" text-anchor="start" font-weight="bold">Теплеет</text>
+<text x="-507.75" y="196.85" font-size="23" text-anchor="start" font-weight="bold">Природа оживает</text>
+<text x="-507.75" y="217.92" font-size="23" text-anchor="start" font-weight="bold">Тают снега</text>
+<text x="506.3" y="-230.27" font-size="23" text-anchor="end" font-weight="bold">Холодеет</text>
+<text x="506.3" y="-209.2" font-size="23" text-anchor="end" font-weight="bold">Желтеют листья</text>
+<text x="506.3" y="-188.14" font-size="23" text-anchor="end" font-weight="bold">Идут дожди</text>
+<text x="516.46" y="-4.36" font-size="23" text-anchor="end" font-weight="bold">Выпадение</text>
+<text x="516.46" y="16.71" font-size="23" text-anchor="end" font-weight="bold">Первого</text>
+<text x="516.46" y="37.77" font-size="23" text-anchor="end" font-weight="bold">Снега</text>
+<text x="499.03" y="201.21" font-size="23" text-anchor="end" font-weight="bold">Холодает</text>
+<text x="499.03" y="222.28" font-size="23" text-anchor="end" font-weight="bold">Опадают листья</text>
+<text x="499.03" y="243.34" font-size="23" text-anchor="end" font-weight="bold">Идут снега</text>
+<text x="-0" y="333" font-size="25" text-anchor="middle" font-weight="normal">0</text>
+<text x="-166.5" y="288.39" font-size="25" text-anchor="middle" font-weight="normal">1</text>
+<text x="-288.39" y="166.5" font-size="25" text-anchor="middle" font-weight="normal">2</text>
+<text x="-333" y="0" font-size="25" text-anchor="middle" font-weight="normal">3</text>
+<text x="-288.39" y="-166.5" font-size="25" text-anchor="middle" font-weight="normal">4</text>
+<text x="-166.5" y="-288.39" font-size="25" text-anchor="middle" font-weight="normal">5</text>
+<text x="-0" y="-333" font-size="25" text-anchor="middle" font-weight="normal">6</text>
+<text x="166.5" y="-288.39" font-size="25" text-anchor="middle" font-weight="normal">7</text>
+<text x="288.39" y="-166.5" font-size="25" text-anchor="middle" font-weight="normal">8</text>
+<text x="333" y="-0" font-size="25" text-anchor="middle" font-weight="normal">9</text>
+<text x="288.39" y="166.5" font-size="25" text-anchor="middle" font-weight="normal">10</text>
+<text x="166.5" y="288.39" font-size="25" text-anchor="middle" font-weight="normal">11</text></g>
+<g stroke="var(--kn-ink,#1a1a1a)" fill="none" stroke-linecap="butt">
+<line x1="-477.24" y1="-395.16" x2="-370.04" y2="-364.53" stroke-width="2.4" stroke-dasharray="9 7"/>
+<polygon points="-345.04,-357.38 -372.37,-356.35 -367.7,-372.7" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<line x1="461.26" y1="-398.06" x2="380.89" y2="-366.81" stroke-width="2.4" stroke-dasharray="9 7"/>
+<polygon points="356.66,-357.38 377.81,-374.73 383.97,-358.89" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<line x1="-440.92" y1="386.44" x2="-366.87" y2="362.48" stroke-width="2.4" stroke-dasharray="9 7"/>
+<polygon points="-342.13,354.48 -364.25,370.57 -369.48,354.4" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<line x1="452.54" y1="411.14" x2="375.33" y2="383.56" stroke-width="2.4" stroke-dasharray="9 7"/>
+<polygon points="350.85,374.82 378.19,375.56 372.47,391.57" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+</g>
+</g>
+</svg>
