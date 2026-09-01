@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1230 965" width="100%" fill="var(--kn-ink,#1a1a1a)" stroke="none" font-family="var(--kn-serif,Georgia,serif)">
+
+<circle cx="650" cy="480" r="200" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="4"/>
+
+<g stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.4" fill="none">
+<line x1="550" y1="653.2" x2="573.5" y2="612.5"/>
+<line x1="476.8" y1="580" x2="517.5" y2="556.5"/>
+<line x1="476.8" y1="380" x2="517.5" y2="403.5"/>
+<line x1="550" y1="306.8" x2="573.5" y2="347.5"/>
+<line x1="750" y1="306.8" x2="726.5" y2="347.5"/>
+<line x1="823.2" y1="380" x2="782.5" y2="403.5"/>
+<line x1="823.2" y1="580" x2="782.5" y2="556.5"/>
+<line x1="750" y1="653.2" x2="726.5" y2="612.5"/>
+<line x1="650" y1="280" x2="650" y2="327"/>
+<line x1="650" y1="680" x2="650" y2="619"/>
+</g>
+
+<circle cx="650" cy="345" r="15.5" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="5"/>
+<circle cx="650" cy="605" r="12.5" fill="var(--kn-ink,#1a1a1a)"/>
+
+<g stroke="var(--kn-ink,#1a1a1a)" stroke-width="2.2" stroke-dasharray="8 5" fill="none">
+<line x1="341" y1="480" x2="400" y2="480"/>
+<line x1="432" y1="480" x2="591" y2="480"/>
+<line x1="729" y1="480" x2="868" y2="480"/>
+<line x1="904" y1="480" x2="956" y2="480"/>
+<line x1="430" y1="122" x2="822" y2="122"/>
+<line x1="918" y1="164" x2="1038" y2="424"/>
+<line x1="1046" y1="515" x2="933" y2="806"/>
+<line x1="835" y1="838" x2="458" y2="838"/>
+<line x1="386" y1="804" x2="255" y2="515"/>
+<line x1="260" y1="435" x2="364" y2="159"/>
+</g>
+
+<g fill="var(--kn-ink,#1a1a1a)">
+<path d="M 822 122 L 792 111 L 792 133 Z"/>
+<path d="M 1038 424 L 1015.4 401.4 L 1035.4 392.2 Z"/>
+<path d="M 933 806 L 933.7 774 L 954.2 782 Z"/>
+<path d="M 458 838 L 488 827 L 488 849 Z"/>
+<path d="M 255 515 L 277.4 537.8 L 257.4 546.8 Z"/>
+<path d="M 364 159 L 363.7 191 L 343.1 183.2 Z"/>
+</g>
+
+<circle cx="327" cy="480" r="9" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3.5"/>
+<circle cx="965" cy="480" r="9" fill="var(--kn-ink,#1a1a1a)"/>
+
+<text x="656" y="476" text-anchor="middle" font-size="32">Ясна</text>
+<text x="656" y="505" text-anchor="middle" font-size="32">Жизни</text>
+
+<g text-anchor="middle" font-size="30">
+<text x="650" y="735.5">0</text>
+<text x="527.5" y="702.7">1</text>
+<text x="437.8" y="613">2</text>
+<text x="414" y="490.5">3</text>
+<text x="437.8" y="368">4</text>
+<text x="527.5" y="278.3">5</text>
+<text x="650" y="245.5">6</text>
+<text x="772.5" y="278.3">7</text>
+<text x="862.2" y="368">8</text>
+<text x="886" y="490.5">9</text>
+<text x="862.2" y="613">10</text>
+<text x="772.5" y="702.7">11</text>
+</g>
+
+<g text-anchor="middle" font-size="34">
+<text x="633.6" y="59.1">Работа и семья</text>
+<text x="1011.9" y="141">Конец работы</text>
+<text x="1109.4" y="281.4">Учитель</text>
+<text x="1154.9" y="489.4">Смерть</text>
+<text x="1118.5" y="701.3">Скорбь</text>
+<text x="1005.4" y="870.3">Памятник</text>
+<text x="664.8" y="931.4">Память</text>
+<text x="326.8" y="885.9">Зачатие</text>
+<text x="129.2" y="720.8">Беременность</text>
+<text x="99.3" y="501.1">Рождение</text>
+<text x="142.2" y="317.8">Обучение</text>
+<text x="242.3" y="135.8">Определение</text>
+</g>
+
+</svg>

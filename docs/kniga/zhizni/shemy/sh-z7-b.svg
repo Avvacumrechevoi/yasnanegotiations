@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="620 342 516 336" width="100%" fill="var(--kn-ink,#1a1a1a)" stroke="none" font-family="var(--kn-serif,Georgia,serif)">
+<defs>
+<clipPath id="z7b-oval"><path d="M 682.0 509.0 A 195.0 115.0 0 1 1 1072.0 509.0 A 195.0 115.0 0 1 1 682.0 509.0 Z"/></clipPath>
+</defs>
+
+<g clip-path="url(#z7b-oval)">
+<path d="M 676 514 C 780 497 860 470 920 430 C 950 410 975 392 1010 368 L 1090 424 C 1050 433 1000 447 950 463 C 870 489 780 507 676 516 Z" fill="var(--kn-ink,#1a1a1a)" fill-opacity=".10" stroke="none"/>
+<path d="M 700 596 C 740 570 790 554 850 542 C 920 528 1010 517 1080 511 C 1040 513 990 521 930 540 C 870 570 820 612 760 662 Z" fill="var(--kn-ink,#1a1a1a)" fill-opacity=".34" stroke="none"/>
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.4" stroke-dasharray="7 5">
+<path d="M 676 514 C 780 497 860 470 920 430 C 950 410 975 392 1010 368"/>
+<path d="M 676 516 C 780 507 870 489 950 463 C 1000 447 1050 433 1090 424"/>
+</g>
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.5">
+<path d="M 700 596 C 740 570 790 554 850 542 C 920 528 1010 517 1080 511" stroke-dasharray="2.5 2.5"/>
+<path d="M 760 662 C 820 612 870 570 930 540 C 990 521 1040 513 1080 511"/>
+</g>
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.6" stroke-linecap="round">
+<path d="M 738.0 505.0 q 4 -4 8 0 q 4 4 8 0 M 740.0 500.0 q 4 -4 8 0 q 4 4 8 0"/>
+<path d="M 761.0 501.0 q 4 -4 8 0 q 4 4 8 0 M 763.0 496.0 q 4 -4 8 0 q 4 4 8 0"/>
+<path d="M 784.0 497.0 q 4 -4 8 0 q 4 4 8 0 M 786.0 492.0 q 4 -4 8 0 q 4 4 8 0"/>
+<path d="M 807.0 493.0 q 4 -4 8 0 q 4 4 8 0 M 809.0 488.0 q 4 -4 8 0 q 4 4 8 0"/>
+<path d="M 830.0 488.0 q 4 -4 8 0 q 4 4 8 0 M 832.0 483.0 q 4 -4 8 0 q 4 4 8 0"/>
+<path d="M 854.0 481.0 q 4 -4 8 0 q 4 4 8 0 M 856.0 476.0 q 4 -4 8 0 q 4 4 8 0"/>
+<path d="M 878.0 473.0 q 4 -4 8 0 q 4 4 8 0 M 880.0 468.0 q 4 -4 8 0 q 4 4 8 0"/>
+<path d="M 902.0 464.0 q 4 -4 8 0 q 4 4 8 0 M 904.0 459.0 q 4 -4 8 0 q 4 4 8 0"/>
+<path d="M 924.0 455.0 q 4 -4 8 0 q 4 4 8 0 M 926.0 450.0 q 4 -4 8 0 q 4 4 8 0"/>
+<path d="M 949.0 445.0 q 4 -4 8 0 q 4 4 8 0 M 951.0 440.0 q 4 -4 8 0 q 4 4 8 0"/>
+<path d="M 998.0 441.0 q 4 -4 8 0 q 4 4 8 0 M 1000.0 436.0 q 4 -4 8 0 q 4 4 8 0"/>
+<path d="M 955.0 418.0 q 4 -4 8 0 q 4 4 8 0 M 957.0 413.0 q 4 -4 8 0 q 4 4 8 0"/>
+</g>
+</g>
+
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.6" stroke-linejoin="round">
+<path d="M 698.9 555.9 L 703.3 561.3 L 708.2 566.6 L 713.6 571.7 L 719.4 576.7 L 725.6 581.5 L 732.2 586.0 L 739.3 590.4 L 746.7 594.5 L 754.4 598.4 L 757.0 599.6"/>
+<path d="M 773.6 606.5 L 782.4 609.6 L 791.5 612.3 L 800.8 614.8 L 810.3 617.1 L 819.9 619.0 L 829.8 620.6 L 834.2 621.2"/>
+<path d="M 852.1 623.1 L 862.3 623.7 L 872.5 624.0 L 882.7 624.0 L 892.9 623.6 L 903.0 623.0 L 905.2 622.8"/>
+<path d="M 923.1 620.7 L 933.0 619.2 L 942.7 617.3 L 952.2 615.1 L 961.5 612.6 L 970.6 609.9 L 979.4 606.9 L 983.2 605.5"/>
+<path d="M 999.7 598.4 L 1007.5 594.5 L 1014.9 590.3 L 1021.9 585.9 L 1028.6 581.4 L 1034.8 576.6 L 1040.5 571.6 L 1045.9 566.5 L 1050.8 561.2 L 1055.1 555.8 L 1058.8 550.5"/>
+<path d="M 1067.1 534.6 L 1069.1 528.6 L 1070.6 522.7 L 1071.6 516.7 L 1072.0 510.7 L 1071.9 504.7 L 1071.2 498.7 L 1070.0 492.7 L 1068.3 486.7 L 1066.1 480.9 L 1065.4 479.4"/>
+<path d="M 1056.4 463.9 L 1052.1 458.4 L 1047.4 453.1 L 1042.2 447.9 L 1036.5 442.9 L 1030.5 438.0 L 1024.0 433.4 L 1017.0 429.0 L 1009.8 424.8 L 1002.1 420.8 L 994.1 417.0 L 985.8 413.6 L 977.2 410.3 L 968.3 407.4 L 959.1 404.7 L 949.7 402.3 L 940.2 400.2 L 930.4 398.4 L 929.7 398.3"/>
+<path d="M 911.9 395.9 L 901.8 394.9 L 891.7 394.3 L 881.5 394.0 L 871.3 394.0 L 861.1 394.4 L 855.5 394.7"/>
+<path d="M 837.6 396.4 L 827.6 397.7 L 817.8 399.4 L 808.2 401.4 L 798.7 403.7 L 789.5 406.2 L 780.5 409.1 L 773.6 411.5"/>
+<path d="M 757.0 418.4 L 749.1 422.2 L 741.6 426.3 L 734.4 430.5 L 727.7 435.1 L 721.3 439.8 L 715.4 444.7 L 709.9 449.7 L 704.9 455.0 L 700.3 460.4 L 697.6 463.9"/>
+<path d="M 688.6 479.4 L 686.2 485.3 L 684.4 491.2 L 683.0 497.2 L 682.3 503.2 L 682.0 509.2 L 682.3 515.2 L 683.1 521.2 L 684.5 527.2 L 686.3 533.1 L 688.7 538.9 L 689.5 540.6"/>
+</g>
+
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="1.5">
+<path d="M 748 391 Q 762 384 779 365"/>
+<path d="M 701 407 L 678 413"/>
+<path d="M 669 446 C 668 435 671 422 674 414"/>
+<path d="M 664 466 C 658 482 645 500 635 511"/>
+</g>
+<path d="M 673.5 413.8 L 686 409.6 L 684.5 418.2 Z" fill="var(--kn-ink,#1a1a1a)"/>
+<path d="M 782 362.5 L 774.5 372 L 772 364.5 Z" fill="var(--kn-ink,#1a1a1a)"/>
+<path d="M 632 514.5 L 641.5 506.5 L 643 514 Z" fill="var(--kn-ink,#1a1a1a)"/>
+
+<text x="835" y="369" text-anchor="middle" font-size="15.5">Вечные</text>
+<text x="833" y="384" text-anchor="middle" font-size="15.5">снега</text>
+<text x="926" y="383" text-anchor="middle" font-size="15.5">Урочище</text>
+<text x="1079" y="398" text-anchor="middle" font-size="15.5">Облака</text>
+<text x="1060" y="413" text-anchor="middle" font-size="15.5">Горная река</text>
+<text x="742" y="404" text-anchor="middle" font-size="15.5">Вершина Мира</text>
+<text x="849" y="418" text-anchor="middle" font-size="15.5">Небеса</text>
+<text x="914" y="418" text-anchor="middle" font-size="15.5">Скалы</text>
+<text x="788" y="440" text-anchor="middle" font-size="15.5">Небосвод</text>
+<text x="664" y="462" text-anchor="middle" font-size="15.5">Канада</text>
+<text x="1101" y="455" text-anchor="middle" font-size="15.5">Ковёр</text>
+<text x="1096" y="470" text-anchor="middle" font-size="15.5">Самолёт</text>
+<text x="707" y="476" text-anchor="start" font-size="15.5">Белая</text>
+<text x="707" y="490" text-anchor="start" font-size="15.5">Вежа</text>
+<text x="1004" y="483" text-anchor="middle" font-size="15.5">Альпийские</text>
+<text x="1030" y="497" text-anchor="middle" font-size="15.5">Луга</text>
+<text x="710" y="543" text-anchor="start" font-size="15.5">Высокий</text>
+<text x="710" y="557" text-anchor="start" font-size="15.5">берег</text>
+<text x="665" y="574" text-anchor="middle" font-size="15.5">Обрыв</text>
+<text x="1017" y="556" text-anchor="middle" font-size="15.5">Опушка</text>
+<text x="1093" y="565" text-anchor="middle" font-size="15.5">Сад</text>
+<text x="1088" y="579" text-anchor="middle" font-size="15.5">Эдем</text>
+<text x="973" y="581" text-anchor="middle" font-size="15.5">Лес</text>
+<text x="972" y="594" text-anchor="middle" font-size="15.5">Бор</text>
+<text x="961" y="607" text-anchor="middle" font-size="15.5">Чаща</text>
+<text x="780" y="594" text-anchor="middle" font-size="15.5">Дно</text>
+<text x="851" y="603" text-anchor="middle" font-size="15.5">Поле</text>
+<text x="852" y="616" text-anchor="middle" font-size="15.5">Пуща</text>
+<text x="907" y="603" text-anchor="middle" font-size="15.5">Роща</text>
+<text x="907" y="616" text-anchor="middle" font-size="15.5">Куща</text>
+<text x="740" y="629" text-anchor="middle" font-size="15.5">Низинная река</text>
+<text x="1018" y="629" text-anchor="middle" font-size="15.5">Кондовый Лес</text>
+<text x="835" y="651" text-anchor="middle" font-size="15.5">Заливной</text>
+<text x="815" y="665" text-anchor="middle" font-size="15.5">луг</text>
+<text x="920" y="651" text-anchor="middle" font-size="15.5">Охотный</text>
+<text x="939" y="665" text-anchor="middle" font-size="15.5">Ряд</text>
+<text x="764" y="612" text-anchor="middle" font-size="17">0</text>
+<text x="844" y="632" text-anchor="middle" font-size="17">1</text>
+<text x="914" y="631" text-anchor="middle" font-size="17">2</text>
+<text x="997" y="611" text-anchor="middle" font-size="17">3</text>
+<text x="1066" y="556" text-anchor="middle" font-size="17">4</text>
+<text x="1065" y="478" text-anchor="middle" font-size="17">5</text>
+<text x="920" y="404" text-anchor="middle" font-size="17">7</text>
+<text x="847" y="404" text-anchor="middle" font-size="17">8</text>
+<text x="765" y="423" text-anchor="middle" font-size="17">9</text>
+<text x="697" y="478" text-anchor="middle" font-size="17">10</text>
+<text x="695" y="557" text-anchor="middle" font-size="17">11</text>
+</svg>
