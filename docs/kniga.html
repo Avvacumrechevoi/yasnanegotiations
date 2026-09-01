@@ -15,6 +15,7 @@
   try{ к=new URLSearchParams(location.search).get('kniga'); }catch(e){}
   window.__кнИд=(к==='goda')?'goda':'sutki';
   window.__кнПуть=(window.__кнИд==='sutki')?'kniga/':'kniga/'+window.__кнИд+'/';
+  document.documentElement.classList.add('kniga-'+window.__кнИд);
   document.write('<script src="'+window.__кнПуть+'opis.js?v=2"><\/script>');
 })();
 </script>
@@ -31,10 +32,16 @@
   --kn-sans:-apple-system,'Segoe UI',Roboto,sans-serif;
   --kn-kegl:1;
 }
+/* Каждая книга красит чтение своим акцентом: Сутки — киноварь по тёплой
+   бумаге, Года — небесная синь. Класс kniga-<ид> ставится на html. */
+html.kniga-goda{
+  --kn-akc:#2264A8; --kn-akc-fon:#E4EEF9;
+}
 :root[data-theme="dark"]{
   --kn-bum:#14171C; --kn-list:#1A1E25; --kn-ink:#E9E6E0; --kn-ink-2:#B0A99F;
   --kn-ink-3:#8A8279; --kn-kayma:#2C323B; --kn-akc:#E0895F; --kn-akc-fon:#2A2019;
 }
+html.kniga-goda[data-theme="dark"]{ --kn-akc:#7FB4E8; --kn-akc-fon:#1B2B3D; }
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--kn-bum);color:var(--kn-ink);font-family:var(--kn-serif);
   -webkit-text-size-adjust:100%;overflow-wrap:break-word}
@@ -133,6 +140,39 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
 .hvost button.glav{background:var(--kn-akc);color:#fff;border-color:transparent}
 .hvost button[disabled]{opacity:.4}
 .grузка{padding:40px 0;text-align:center;color:var(--kn-ink-3);font:400 14px/1.5 var(--kn-sans)}
+
+/* ── Акценты текста ─────────────────────────────────────────────
+   Номер записи и врезки — в цвете книги; первый абзац главы открывает
+   буквица. Акцент разный у книг (киноварь/небо) — см. html.kniga-*. */
+.telo .nom{color:var(--kn-akc);opacity:.75}
+.telo .zag{color:var(--kn-akc)}
+.telo p.bukvica::first-letter{font-size:3.05em;line-height:.82;float:left;
+  padding:2px 8px 0 0;color:var(--kn-akc);font-family:var(--kn-serif)}
+.kegl-vspl{position:fixed;left:50%;bottom:calc(96px + var(--yk-snizu,0px));
+  transform:translateX(-50%);padding:9px 16px;border-radius:12px;z-index:40;
+  background:var(--kn-ink);color:var(--kn-bum);font:600 13px/1 var(--kn-sans);
+  opacity:0;pointer-events:none}
+.kegl-vspl.vidno{animation:kegl-pokaz 1.4s ease forwards}
+@keyframes kegl-pokaz{0%{opacity:0;transform:translateX(-50%) translateY(6px)}
+  12%,70%{opacity:1;transform:translateX(-50%)}100%{opacity:0}}
+
+/* ── Дыхание чтения ─────────────────────────────────────────────
+   Части главы поднимаются по мере прокрутки, схемы проявляются после
+   загрузки. Всё гаснет при prefers-reduced-motion. */
+@media (prefers-reduced-motion: no-preference){
+  .telo>*{opacity:0;transform:translateY(10px);
+    transition:opacity .5s ease,transform .5s cubic-bezier(.2,.9,.3,1)}
+  .telo>.vidno{opacity:1;transform:none}
+  .shema svg{opacity:0;transform:scale(.985);
+    transition:opacity .6s ease,transform .6s cubic-bezier(.2,.9,.3,1)}
+  .shema.pokazana svg{opacity:1;transform:none}
+  .obl-znak{animation:kn-vrash-znak 60s linear infinite}
+  @keyframes kn-vrash-znak{to{transform:rotate(360deg)}}
+}
+@media (prefers-reduced-motion: reduce){
+  .telo>*{opacity:1;transform:none}
+  .shema svg{opacity:1;transform:none}
+}
 </style>
 </head>
 <body>
@@ -143,7 +183,7 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
        навигация на всех экранах). В вебе, где наббара нет, место пустует. -->
   <span class="kn-nazad-mesto" data-yk-nazad-mesto="learn.html|Уроки"></span>
   <div class="kn-shapka-t" id="shapka-t">Библиотека Ясна</div>
-  <button class="gl-kegl" id="kegl" type="button" aria-label="Размер текста" hidden>Аа</button>
+  <button class="gl-kegl" id="kegl" type="button" aria-label="Размер текста">Аа</button>
 </header>
 
 <main class="ogl" id="ogl">
@@ -244,8 +284,15 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
     });
     эСписок.innerHTML=html;
 
-    var всего=О.главы.filter(естьГлава).length;
-    var сдел=О.главы.filter(function(оп){ return естьГлава(оп) && сост.прочитано[оп.номер]; }).length;
+    /* Процент — по книжным страницам прочитанных глав: главы разного
+       веса, и «3 из 13» врало бы о реальном месте в книге. */
+    function вес(оп){ return (оп.страницы&&оп.страницы[1])?(оп.страницы[1]-оп.страницы[0]+1):1; }
+    var всего=0, сдел=0;
+    О.главы.forEach(function(оп){
+      if(!естьГлава(оп)) return;
+      всего+=вес(оп);
+      if(сост.прочитано[оп.номер]) сдел+=вес(оп);
+    });
     var pct = всего ? Math.round(сдел/всего*100) : 0;
     document.getElementById('obl-pct').textContent = pct+'%';
     setTimeout(function(){ document.getElementById('obl-fill').style.width = pct+'%'; }, 60);
@@ -305,7 +352,8 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
       }).then(function(svg){
         if(svg.indexOf('<svg')<0) throw 0;
         var м=ф.querySelector('.shema-mesto');
-        if(м){ м.classList.remove('shema-net'); м.innerHTML=svg; }
+        if(м){ м.classList.remove('shema-net'); м.innerHTML=svg;
+          requestAnimationFrame(function(){ ф.classList.add('pokazana'); }); }
       }).catch(function(){
         /* Рисунка нет — это оформление издания (обложка, марка, QR-код):
            перерисовать его «один в один» нельзя, подделка была бы хуже
@@ -323,11 +371,22 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
     эТело.innerHTML='<div class="grузка">Открываю…</div>';
     document.body.classList.add('chtenie');
     document.getElementById('shapka-t').textContent=оп.имя;
-    document.getElementById('kegl').hidden=false;   /* кегль нужен только в главе */
     window.scrollTo(0,0);
     загрузить(н, function(г){
       if(!г){ эТело.innerHTML='<div class="grузка">Эта глава ещё набирается со скана.</div>'; return; }
       эТело.innerHTML=(г.части||[]).map(частьВHTML).join('');
+      /* Буквица — первому содержательному абзацу главы. */
+      var перв=эТело.querySelector('p:not(.snoska):not(.vydel)');
+      if(перв && перв.textContent.replace(/\s/g,'').length>40) перв.classList.add('bukvica');
+      /* Части поднимаются, когда доезжают до глаз; без наблюдателя — сразу. */
+      if('IntersectionObserver' in window){
+        var набл=new IntersectionObserver(function(зап){
+          зап.forEach(function(x){ if(x.isIntersecting){ x.target.classList.add('vidno'); набл.unobserve(x.target); } });
+        },{rootMargin:'0px 0px -8% 0px'});
+        [].forEach.call(эТело.children,function(э){ набл.observe(э); });
+      } else {
+        [].forEach.call(эТело.children,function(э){ э.classList.add('vidno'); });
+      }
       подтянутьСхемы();
       сост.глава=н; писать(сост);
       var i=О.главы.map(function(x){return x.номер}).indexOf(н);
@@ -344,7 +403,6 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
   function кОглавлению(){
     document.body.classList.remove('chtenie');
     document.getElementById('shapka-t').textContent=О.имя||'Книга';
-    document.getElementById('kegl').hidden=true;
     document.getElementById('polosa').style.width='0';
     рисоватьОглавление();
     window.scrollTo(0,0);
@@ -365,11 +423,27 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
     var к=e.target.closest&&e.target.closest('[data-gl]');
     if(к) открыть(+к.getAttribute('data-gl'));
   });
+  /* Размер текста: четыре честные ступени по кругу. Кнопка живёт и в
+     оглавлении — это настройка всего чтения, не одной главы. Прежний шаг
+     +0.2 давал дикий ряд 1 → 1.2 → 1.4 → 0.9. */
+  var СТУПЕНИ=[1,1.15,1.3,0.9], ПОДПИСИ=['обычный','крупнее','крупный','мелкий'];
   document.getElementById('kegl').onclick=function(){
-    сост.кегль = сост.кегль>=1.3 ? 0.9 : Math.round((сост.кегль+0.2)*10)/10;
+    var т=СТУПЕНИ.indexOf(сост.кегль); if(т<0) т=0;
+    т=(т+1)%СТУПЕНИ.length;
+    сост.кегль=СТУПЕНИ[т];
     document.documentElement.style.setProperty('--kn-kegl', сост.кегль);
     писать(сост);
+    var п=document.getElementById('kegl-vspl');
+    if(!п){ п=document.createElement('div'); п.id='kegl-vspl'; п.className='kegl-vspl';
+      document.body.appendChild(п); }
+    п.textContent='Текст: '+ПОДПИСИ[т];
+    п.classList.remove('vidno'); void п.offsetWidth; п.classList.add('vidno');
   };
+  /* Сохранённый прежним шагом кегль 1.2/1.4 приводим к ближней ступени. */
+  if(СТУПЕНИ.indexOf(сост.кегль)<0){
+    сост.кегль=сост.кегль>1.2?1.3:(сост.кегль>1?1.15:1);
+    document.documentElement.style.setProperty('--kn-kegl', сост.кегль);
+  }
   /* Аппаратная «назад» и Esc: из главы — в оглавление, а не из книги вон. */
   window.addEventListener('yasna:назад', function(e){
     /* Читаем главу — возвращаемся в оглавление, а не уходим с экрана.
