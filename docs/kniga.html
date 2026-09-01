@@ -7,7 +7,17 @@
 <meta name="description" content="Первая книга о том, как всё устроено. Учебник «Ясна Суток» целиком, со всеми схемами."/>
 <script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);var e=document.documentElement;e.setAttribute('data-theme',d?'dark':'light');e.style.colorScheme=d?'dark':'light';}catch(e){}</script>
 <script src="core/theme.js"></script>
-<script src="kniga/opis.js?v=fc30e271"></script>
+<script>
+/* Какая книга открыта. Первая (Сутки) живёт в корне kniga/ — так уже
+   читают; новые книги — в подпапках kniga/<ид>/. */
+(function(){
+  var к=null;
+  try{ к=new URLSearchParams(location.search).get('kniga'); }catch(e){}
+  window.__кнИд=(к==='goda')?'goda':'sutki';
+  window.__кнПуть=(window.__кнИд==='sutki')?'kniga/':'kniga/'+window.__кнИд+'/';
+  document.write('<script src="'+window.__кнПуть+'opis.js?v=2"><\/script>');
+})();
+</script>
 <style>
 /* ══ Книга — свой мир внутри приложения ═════════════════════════════
    Интерфейс приложения синий и рубленый; учебник должен читаться как
@@ -132,7 +142,7 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
   <!-- Место для кнопки возврата: её ставит наббар приложения (единая
        навигация на всех экранах). В вебе, где наббара нет, место пустует. -->
   <span class="kn-nazad-mesto" data-yk-nazad-mesto="learn.html|Уроки"></span>
-  <div class="kn-shapka-t" id="shapka-t">Ясна Суток</div>
+  <div class="kn-shapka-t" id="shapka-t">Библиотека Ясна</div>
   <button class="gl-kegl" id="kegl" type="button" aria-label="Размер текста" hidden>Аа</button>
 </header>
 
@@ -172,7 +182,9 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
 <script>
 (function(){
   var О = window.YasnaKnigaOpis || {главы:[]};
-  var КЛЮЧ = 'yasna_kniga_v1';
+  /* У каждой книги свои путь и память чтения. */
+  var ПУТЬ = window.__кнПуть || 'kniga/';
+  var КЛЮЧ = (window.__кнИд==='sutki') ? 'yasna_kniga_v1' : 'yasna_kniga_'+window.__кнИд+'_v1';
   function читать(){ try{ return JSON.parse(localStorage.getItem(КЛЮЧ)) || {}; }catch(e){ return {}; } }
   function писать(с){ try{ localStorage.setItem(КЛЮЧ, JSON.stringify(с)); }catch(e){} }
   var сост = читать();
@@ -198,7 +210,7 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
     if(загружены[н]) return setTimeout(function(){ дальше(главаДанные(н)); }, 60);
     загружены[н]=true;
     var с=document.createElement('script');
-    с.src='kniga/'+оп.файл+'.js?v=1';
+    с.src=ПУТЬ+оп.файл+'.js?v=2';
     с.onload=function(){ дальше(главаДанные(н)); };
     с.onerror=function(){ загружены[н]=false; дальше(null); };
     document.head.appendChild(с);
@@ -219,8 +231,11 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
     var html='';
     О.главы.forEach(function(оп){
       var пр = !!сост.прочитано[оп.номер];
-      var мета = 'стр. ' + оп.страницы[0] + (оп.страницы[1]!==оп.страницы[0] ? '–'+оп.страницы[1] : '');
-      if(оп.записи) мета += ' · записи ' + оп.записи[0] + '–' + оп.записи[1];
+      var мета = оп.страницы && оп.страницы[0]
+        ? 'стр. ' + оп.страницы[0] + (оп.страницы[1]!==оп.страницы[0] ? '–'+оп.страницы[1] : '')
+        : '';
+      if(оп.записи) мета += (мета?' · ':'') + 'записи ' + оп.записи[0] + '–' + оп.записи[1];
+      if(!мета && оп.есть===false) мета = 'набирается со скана';
       html += '<button class="gl'+(оп.есть===false?' gl--net':'')+'" data-gl="'+оп.номер+'" type="button">'
         + '<span class="gl-n">'+(оп.номер||'—')+'</span>'
         + '<span class="gl-t"><span class="gl-imya">'+оп.имя+'</span>'
@@ -285,7 +300,7 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
     var места=эТело.querySelectorAll('[data-shema]');
     [].forEach.call(места, function(ф){
       var id=ф.getAttribute('data-shema');
-      fetch('kniga/shemy/'+id+'.svg').then(function(о){
+      fetch(ПУТЬ+'shemy/'+id+'.svg').then(function(о){
         if(!о.ok) throw 0; return о.text();
       }).then(function(svg){
         if(svg.indexOf('<svg')<0) throw 0;
@@ -328,7 +343,7 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
 
   function кОглавлению(){
     document.body.classList.remove('chtenie');
-    document.getElementById('shapka-t').textContent='Ясна Суток';
+    document.getElementById('shapka-t').textContent=О.имя||'Книга';
     document.getElementById('kegl').hidden=true;
     document.getElementById('polosa').style.width='0';
     рисоватьОглавление();
@@ -365,6 +380,10 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
     if(e.key==='Escape' && document.body.classList.contains('chtenie')) кОглавлению();
   });
 
+  document.getElementById('obl-imya').textContent=О.имя||'Книга';
+  document.getElementById('obl-pod').textContent=О.подпись||'';
+  document.getElementById('shapka-t').textContent=О.имя||'Книга';
+  document.title=(О.имя||'Книга')+' — учебник';
   /* Ненаписанных глав больше нет — весь учебник набран. Пометку оставляем
      в механике: если опись когда-нибудь опередит файлы, глава честно скажет
      «пишется», а не отдаст пустой лист. */

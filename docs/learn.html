@@ -16,7 +16,7 @@
      script-теги — на этой странице нет сборки и нет React. -->
 <script src="core/data.js?v=cc8dd0fe"></script>
 <script src="core/pasporta.js?v=f4319d11"></script>
-<script src="core/derevo-dannye.js?v=4d3644d9"></script>
+<script src="core/derevo-dannye.js?v=d68d7619"></script>
 <script src="core/znanie.js?v=1d3035e0"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
 <!-- Приложение: манифест, иконки и цвет строки состояния. Раньше манифест
@@ -233,8 +233,28 @@ a { color: inherit; text-decoration: none; }
 .kn-karta-pct { font: 700 12.5px/1 var(--sans, sans-serif); color: #A8452B;
   font-variant-numeric: tabular-nums; white-space: nowrap; }
 :root[data-theme="dark"] .kn-karta-pct { color: #E0895F; }
+.kn-karta--goda { background: linear-gradient(135deg, #F6FAF3 0%, #E9F0E0 100%);
+  border-color: #D5E0C8; }
+:root[data-theme="dark"] .kn-karta--goda { border-color: #2C3B2E;
+  background: linear-gradient(135deg, #1A2520 0%, #16201B 100%); }
+.kn-karta--goda .kn-karta-klejmo, .kn-karta--goda .kn-karta-pct { color: #4E7A2E; }
+:root[data-theme="dark"] .kn-karta--goda .kn-karta-klejmo,
+:root[data-theme="dark"] .kn-karta--goda .kn-karta-pct { color: #9FCB72; }
+.kn-karta-krug--goda circle, .kn-karta-krug--goda path { stroke: #4E7A2E; }
+.kn-karta-krug--goda .kn-karta-mesyacy circle { fill: #C9A13B; stroke: none; }
+.kn-karta-krug--goda .kn-karta-serp { fill: none; stroke-width: 1.4; }
+:root[data-theme="dark"] .kn-karta-krug--goda circle,
+:root[data-theme="dark"] .kn-karta-krug--goda path { stroke: #9FCB72; }
+:root[data-theme="dark"] .kn-karta-krug--goda .kn-karta-mesyacy circle { fill: #D9B75B; }
+.kn-karta--goda .kn-karta-zhelob { background: rgba(78,122,46,.16); }
+.kn-karta--goda .kn-karta-zhelob i { background: #4E7A2E; }
+:root[data-theme="dark"] .kn-karta--goda .kn-karta-zhelob { background: rgba(159,203,114,.2); }
+:root[data-theme="dark"] .kn-karta--goda .kn-karta-zhelob i { background: #9FCB72; }
 @media (prefers-reduced-motion: no-preference) {
   .kn-karta-krug { animation: kn-vrash 44s linear infinite; }
+  /* Год крутится в другую сторону — сезоны идут навстречу суткам. */
+  .kn-karta-krug--goda { animation: kn-vrash-ob 52s linear infinite; }
+  @keyframes kn-vrash-ob { to { transform: rotate(-360deg); } }
   .kn-karta-krug .kn-karta-tochka { animation: kn-migan 3.6s ease-in-out infinite; }
   .kn-karta::after { content: ''; position: absolute; inset: 0; pointer-events: none;
     background: linear-gradient(105deg, transparent 42%, rgba(255,255,255,.5) 50%, transparent 58%);
@@ -940,6 +960,30 @@ html[data-theme='light'] {
     <span class="kn-karta-niz">
       <span class="kn-karta-zhelob"><i id="kn-karta-fill"></i></span>
       <span class="kn-karta-pct" id="kn-karta-pct">открыть</span>
+    </span>
+  </span>
+</a>
+
+<a class="kn-karta kn-karta--goda" id="kn-karta-goda" href="kniga.html?kniga=goda">
+  <span class="kn-karta-fon" aria-hidden="true">
+    <svg viewBox="0 0 120 120" class="kn-karta-krug kn-karta-krug--goda">
+      <circle cx="60" cy="60" r="46"/><circle cx="60" cy="60" r="30"/>
+      <g class="kn-karta-mesyacy">
+        <circle cx="60" cy="14" r="3.2"/><circle cx="83" cy="20.2" r="3.2"/><circle cx="99.8" cy="37" r="3.2"/>
+        <circle cx="106" cy="60" r="3.2"/><circle cx="99.8" cy="83" r="3.2"/><circle cx="83" cy="99.8" r="3.2"/>
+        <circle cx="60" cy="106" r="3.2"/><circle cx="37" cy="99.8" r="3.2"/><circle cx="20.2" cy="83" r="3.2"/>
+        <circle cx="14" cy="60" r="3.2"/><circle cx="20.2" cy="37" r="3.2"/><circle cx="37" cy="20.2" r="3.2"/>
+      </g>
+      <path class="kn-karta-serp" d="M60 40a20 20 0 1 0 0 40 16 16 0 1 1 0-40z"/>
+    </svg>
+  </span>
+  <span class="kn-karta-txt">
+    <span class="kn-karta-klejmo">Учебник</span>
+    <b class="kn-karta-imya">Ясна Года</b>
+    <em class="kn-karta-pod">Вторая книга — круг года и зодиака</em>
+    <span class="kn-karta-niz">
+      <span class="kn-karta-zhelob"><i id="kn-goda-fill"></i></span>
+      <span class="kn-karta-pct" id="kn-goda-pct">скоро</span>
     </span>
   </span>
 </a>
@@ -1767,6 +1811,22 @@ html[data-theme='light'] {
   нарисоватьДерево();
   нарисоватьПрактику();   /* счётчики на чипах */
   нарисоватьСправку();
+
+  /* Карточка «Ясны Года»: свой ключ чтения; пока главы набираются,
+     подпись честно говорит «скоро». */
+  (function(){
+    var полоса=document.getElementById('kn-goda-fill'), над=document.getElementById('kn-goda-pct');
+    if(!полоса) return;
+    try{
+      var с=JSON.parse(localStorage.getItem('yasna_kniga_goda_v1')||'{}');
+      var н=Object.keys(с.прочитано||{}).length;
+      if(н>0){
+        var д=Math.min(1,н/13);
+        requestAnimationFrame(function(){ полоса.style.width=Math.max(4,д*100)+'%'; });
+        if(над) над.textContent='прочитано '+н+' из 13';
+      }
+    }catch(e){}
+  })();
 
   /* Карточка книги: показываем, сколько частей учебника прочитано.
      Счёт берём из ключа читалки — он же рисует прогресс внутри книги. */
