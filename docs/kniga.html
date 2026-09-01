@@ -13,7 +13,7 @@
 (function(){
   var к=null;
   try{ к=new URLSearchParams(location.search).get('kniga'); }catch(e){}
-  window.__кнИд=(к==='goda')?'goda':'sutki';
+  window.__кнИд=(к==='goda'||к==='zhizni')?к:'sutki';
   window.__кнПуть=(window.__кнИд==='sutki')?'kniga/':'kniga/'+window.__кнИд+'/';
   document.documentElement.classList.add('kniga-'+window.__кнИд);
   document.write('<script src="'+window.__кнПуть+'opis.js?v=2"><\/script>');
@@ -37,11 +37,15 @@
 html.kniga-goda{
   --kn-akc:#2264A8; --kn-akc-fon:#E4EEF9;
 }
+html.kniga-zhizni{
+  --kn-akc:#1E7A5A; --kn-akc-fon:#E2F2EB;
+}
 :root[data-theme="dark"]{
   --kn-bum:#14171C; --kn-list:#1A1E25; --kn-ink:#E9E6E0; --kn-ink-2:#B0A99F;
   --kn-ink-3:#8A8279; --kn-kayma:#2C323B; --kn-akc:#E0895F; --kn-akc-fon:#2A2019;
 }
 html.kniga-goda[data-theme="dark"]{ --kn-akc:#7FB4E8; --kn-akc-fon:#1B2B3D; }
+html.kniga-zhizni[data-theme="dark"]{ --kn-akc:#6FCBA8; --kn-akc-fon:#16302A; }
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--kn-bum);color:var(--kn-ink);font-family:var(--kn-serif);
   -webkit-text-size-adjust:100%;overflow-wrap:break-word}

@@ -16,7 +16,7 @@
      script-теги — на этой странице нет сборки и нет React. -->
 <script src="core/data.js?v=cc8dd0fe"></script>
 <script src="core/pasporta.js?v=f4319d11"></script>
-<script src="core/derevo-dannye.js?v=d68d7619"></script>
+<script src="core/derevo-dannye.js?v=4237672e"></script>
 <script src="core/znanie.js?v=1d3035e0"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
 <!-- Приложение: манифест, иконки и цвет строки состояния. Раньше манифест
@@ -256,8 +256,37 @@ a { color: inherit; text-decoration: none; }
 .kn-karta--goda .kn-karta-zhelob i { background: #2264A8; }
 :root[data-theme="dark"] .kn-karta--goda .kn-karta-zhelob { background: rgba(127,180,232,.2); }
 :root[data-theme="dark"] .kn-karta--goda .kn-karta-zhelob i { background: #7FB4E8; }
+.kn-karta--zhizni { background: linear-gradient(135deg, #F2FAF6 0%, #E1F1E9 100%);
+  border-color: #C6E2D4; }
+:root[data-theme="dark"] .kn-karta--zhizni { border-color: #24443A;
+  background: linear-gradient(135deg, #16261F 0%, #121F1A 100%); }
+.kn-karta--zhizni .kn-karta-klejmo, .kn-karta--zhizni .kn-karta-pct { color: #1E7A5A; }
+:root[data-theme="dark"] .kn-karta--zhizni .kn-karta-klejmo,
+:root[data-theme="dark"] .kn-karta--zhizni .kn-karta-pct { color: #6FCBA8; }
+.kn-karta-krug--zhizni circle, .kn-karta-krug--zhizni line,
+.kn-karta-krug--zhizni path { stroke: #1E7A5A; fill: none; stroke-width: 1.5; }
+.kn-karta-krug--zhizni rect, .kn-karta-krug--zhizni .kn-zh-os { fill: #1E7A5A; stroke: none; }
+.kn-karta-krug--zhizni .kn-zh-zhuravl { fill: #1E7A5A; stroke: none; }
+.kn-karta-krug--zhizni .kn-zh-riski line { stroke-width: 1.2; opacity: .55; }
+.kn-karta-krug--zhizni .kn-zh-strelka-ch { stroke-width: 2.2; }
+.kn-karta-krug--zhizni .kn-zh-strelka-m { stroke-width: 1.6; }
+:root[data-theme="dark"] .kn-karta-krug--zhizni circle,
+:root[data-theme="dark"] .kn-karta-krug--zhizni line,
+:root[data-theme="dark"] .kn-karta-krug--zhizni path { stroke: #6FCBA8; }
+:root[data-theme="dark"] .kn-karta-krug--zhizni rect,
+:root[data-theme="dark"] .kn-karta-krug--zhizni .kn-zh-os,
+:root[data-theme="dark"] .kn-karta-krug--zhizni .kn-zh-zhuravl { fill: #6FCBA8; }
+.kn-karta--zhizni .kn-karta-zhelob { background: rgba(30,122,90,.16); }
+.kn-karta--zhizni .kn-karta-zhelob i { background: #1E7A5A; }
+:root[data-theme="dark"] .kn-karta--zhizni .kn-karta-zhelob { background: rgba(111,203,168,.2); }
+:root[data-theme="dark"] .kn-karta--zhizni .kn-karta-zhelob i { background: #6FCBA8; }
 @media (prefers-reduced-motion: no-preference) {
   .kn-karta-krug { animation: kn-vrash 44s linear infinite; }
+  /* Часы Жизни: сама рамка не крутится — идут стрелки и шестерня. */
+  .kn-karta-krug--zhizni { animation: none; }
+  .kn-zh-strelka-m { transform-origin: 60px 60px; animation: kn-vrash 24s linear infinite; }
+  .kn-zh-strelka-ch { transform-origin: 60px 60px; animation: kn-vrash 288s linear infinite; }
+  .kn-zh-zubya { transform-origin: 44px 66px; animation: kn-vrash-ob 14s linear infinite; }
   /* Год крутится в другую сторону — сезоны идут навстречу суткам. */
   .kn-karta-krug--goda { animation: kn-vrash-ob 52s linear infinite; }
   @keyframes kn-vrash-ob { to { transform: rotate(-360deg); } }
@@ -1007,7 +1036,53 @@ html[data-theme='light'] {
     <em class="kn-karta-pod">Вторая книга — круг года и зодиака</em>
     <span class="kn-karta-niz">
       <span class="kn-karta-zhelob"><i id="kn-goda-fill"></i></span>
-      <span class="kn-karta-pct" id="kn-goda-pct">скоро</span>
+      <span class="kn-karta-pct" id="kn-goda-pct">открыть</span>
+    </span>
+  </span>
+</a>
+
+<a class="kn-karta kn-karta--zhizni" id="kn-karta-zhizni" href="kniga.html?kniga=zhizni">
+  <span class="kn-karta-fon" aria-hidden="true">
+    <!-- Часы с шестернями — образ с титула книги: жизнь идёт, механизм крутится. -->
+    <svg viewBox="0 0 120 120" class="kn-karta-krug kn-karta-krug--zhizni">
+      <circle cx="60" cy="60" r="46"/>
+      <g class="kn-zh-riski">
+        <line x1="60" y1="15" x2="60" y2="22"/><line x1="60" y1="98" x2="60" y2="105"/>
+        <line x1="15" y1="60" x2="22" y2="60"/><line x1="98" y1="60" x2="105" y2="60"/>
+        <line x1="28.2" y1="28.2" x2="33.1" y2="33.1"/><line x1="86.9" y1="86.9" x2="91.8" y2="91.8"/>
+        <line x1="91.8" y1="28.2" x2="86.9" y2="33.1"/><line x1="33.1" y1="86.9" x2="28.2" y2="91.8"/>
+      </g>
+      <g class="kn-zh-shesternya">
+        <circle cx="44" cy="66" r="11"/>
+        <g class="kn-zh-zubya">
+          <rect x="42.6" y="51.5" width="2.8" height="5" rx="1"/>
+          <rect x="42.6" y="75.5" width="2.8" height="5" rx="1"/>
+          <rect x="29.5" y="64.6" width="5" height="2.8" rx="1"/>
+          <rect x="53.5" y="64.6" width="5" height="2.8" rx="1"/>
+          <g transform="rotate(45 44 66)">
+            <rect x="42.6" y="51.5" width="2.8" height="5" rx="1"/>
+            <rect x="42.6" y="75.5" width="2.8" height="5" rx="1"/>
+            <rect x="29.5" y="64.6" width="5" height="2.8" rx="1"/>
+            <rect x="53.5" y="64.6" width="5" height="2.8" rx="1"/>
+          </g>
+        </g>
+        <circle cx="44" cy="66" r="3.4" class="kn-zh-os"/>
+      </g>
+      <g class="kn-zh-strelki">
+        <line x1="60" y1="60" x2="60" y2="34" class="kn-zh-strelka-m"/>
+        <line x1="60" y1="60" x2="76" y2="52" class="kn-zh-strelka-ch"/>
+        <circle cx="60" cy="60" r="2.6" class="kn-zh-os"/>
+      </g>
+      <path class="kn-zh-zhuravl" d="M84 30l7-5-2 6 8-1-6 4 4 3-8-1 1 5z"/>
+    </svg>
+  </span>
+  <span class="kn-karta-txt">
+    <span class="kn-karta-klejmo">Учебник</span>
+    <b class="kn-karta-imya">Ясна Жизни</b>
+    <em class="kn-karta-pod">Начальная книга — жизнь как круг</em>
+    <span class="kn-karta-niz">
+      <span class="kn-karta-zhelob"><i id="kn-zhizni-fill"></i></span>
+      <span class="kn-karta-pct" id="kn-zhizni-pct">скоро</span>
     </span>
   </span>
 </a>
@@ -1843,7 +1918,9 @@ html[data-theme='light'] {
       { ключ:'yasna_kniga_v1',      полоса:'kn-karta-fill', над:'kn-karta-pct',
         стр:{0:4,1:2,2:7,3:1,4:17,5:10,6:7,7:15,8:24,9:18,10:1} },
       { ключ:'yasna_kniga_goda_v1', полоса:'kn-goda-fill',  над:'kn-goda-pct',
-        стр:{0:6,1:4,2:7,3:12,4:10,5:15,6:9,7:28,8:35,9:46,10:20,11:26,12:8} }
+        стр:{0:6,1:4,2:7,3:12,4:10,5:15,6:9,7:28,8:35,9:46,10:20,11:26,12:8} },
+      { ключ:'yasna_kniga_zhizni_v1', полоса:'kn-zhizni-fill', над:'kn-zhizni-pct',
+        стр:{0:5,1:2,2:5,3:11,4:19,5:11,6:14,7:11,8:21,9:11,10:29,11:41,12:4} }
     ];
     КНИГИ.forEach(function(к){
       var полоса=document.getElementById(к.полоса), над=document.getElementById(к.над);
