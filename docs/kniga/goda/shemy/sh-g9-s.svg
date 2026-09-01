@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="230 140 1860 1490" width="1860" height="1490" role="img" aria-label="Расклад животных на Тарелке Ясны">
+<g font-family="var(--kn-serif,Georgia,serif)" fill="var(--kn-ink,#1a1a1a)">
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3.4" stroke-linecap="round">
+<line x1="1150.0" y1="580.0" x2="1150.0" y2="1220.0"/>
+<line x1="830.0" y1="900.0" x2="1470.0" y2="900.0"/>
+<line x1="1030.0" y1="1107.8" x2="985.0" y2="1185.8"/>
+<line x1="942.2" y1="1020.0" x2="864.2" y2="1065.0"/>
+<line x1="942.2" y1="780.0" x2="864.2" y2="735.0"/>
+<line x1="1030.0" y1="692.2" x2="985.0" y2="614.2"/>
+<line x1="1270.0" y1="692.2" x2="1315.0" y2="614.2"/>
+<line x1="1357.8" y1="780.0" x2="1435.8" y2="735.0"/>
+<line x1="1357.8" y1="1020.0" x2="1435.8" y2="1065.0"/>
+<line x1="1270.0" y1="1107.8" x2="1315.0" y2="1185.8"/>
+</g>
+<circle cx="1150.0" cy="378.0" r="44.0" fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3"/>
+<path d="M1150.0 334.0 A44.0 44.0 0 0 1 1150.0 422.0 A22.0 22.0 0 0 1 1150.0 378.0 A22.0 22.0 0 0 0 1150.0 334.0 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<circle cx="1150.0" cy="400.0" r="8.148148148148147" fill="#fff" stroke="none"/>
+<circle cx="1150.0" cy="356.0" r="8.148148148148147" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+<line x1="1150" y1="221" x2="1150" y2="283" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3.6"/>
+<line x1="1150" y1="1505" x2="1150" y2="1562" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3.6"/>
+<line x1="442" y1="900" x2="578" y2="900" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3.6"/>
+<line x1="698" y1="900" x2="732" y2="900" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3.6"/>
+<line x1="1596" y1="900" x2="1641" y2="900" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3.6"/>
+<line x1="1755" y1="900" x2="1834" y2="900" stroke="var(--kn-ink,#1a1a1a)" stroke-width="3.6"/>
+<text x="1150.0" y="1317.0" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">0</text>
+<text x="950.0" y="1263.4" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">1</text>
+<text x="803.6" y="1117.0" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">2</text>
+<text x="750.0" y="917.0" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">3</text>
+<text x="803.6" y="717.0" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">4</text>
+<text x="950.0" y="570.6" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">5</text>
+<text x="1150.0" y="517.0" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">6</text>
+<text x="1350.0" y="570.6" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">7</text>
+<text x="1496.4" y="717.0" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">8</text>
+<text x="1550.0" y="917.0" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">9</text>
+<text x="1496.4" y="1117.0" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">10</text>
+<text x="1350.0" y="1263.4" text-anchor="middle" font-size="46" font-weight="700" letter-spacing="1">11</text>
+<text x="1150.0" y="1424.0" text-anchor="middle" font-size="76" dominant-baseline="central">♑︎</text>
+<text x="887.5" y="1354.7" text-anchor="middle" font-size="76" dominant-baseline="central">♒︎</text>
+<text x="695.3" y="1162.5" text-anchor="middle" font-size="76" dominant-baseline="central">♓︎</text>
+<text x="635.0" y="900.0" text-anchor="middle" font-size="76" dominant-baseline="central">♈︎</text>
+<text x="695.3" y="637.5" text-anchor="middle" font-size="76" dominant-baseline="central">♉︎</text>
+<text x="887.5" y="445.3" text-anchor="middle" font-size="76" dominant-baseline="central">♊︎</text>
+<text x="1412.5" y="445.3" text-anchor="middle" font-size="76" dominant-baseline="central">♌︎</text>
+<text x="1604.7" y="637.5" text-anchor="middle" font-size="76" dominant-baseline="central">♍︎</text>
+<text x="1698.0" y="900.0" text-anchor="middle" font-size="76" dominant-baseline="central">♎︎</text>
+<text x="1604.7" y="1162.5" text-anchor="middle" font-size="76" dominant-baseline="central">♏︎</text>
+<text x="1412.5" y="1354.7" text-anchor="middle" font-size="76" dominant-baseline="central">♐︎</text>
+<text x="1150" y="188" text-anchor="middle" font-size="48" font-weight="400" letter-spacing="1.6">Обезьяна</text>
+<text x="789" y="336" text-anchor="middle" font-size="48" font-weight="400" letter-spacing="1.6">Олень</text>
+<text x="1423" y="342" text-anchor="middle" font-size="48" font-weight="400" letter-spacing="1.6">Кот</text>
+<text x="561" y="605" text-anchor="middle" font-size="48" font-weight="400" letter-spacing="1.6">Телец</text>
+<text x="1760" y="612" text-anchor="middle" font-size="48" font-weight="400" letter-spacing="1.6">Собака</text>
+<text x="334" y="918" text-anchor="middle" font-size="48" font-weight="400" letter-spacing="1.6">Овен</text>
+<text x="1953" y="918" text-anchor="middle" font-size="48" font-weight="400" letter-spacing="1.6">Петух</text>
+<text x="544" y="1228" text-anchor="middle" font-size="48" font-weight="400" letter-spacing="1.6">Лошадь</text>
+<text x="1800" y="1228" text-anchor="middle" font-size="48" font-weight="400" letter-spacing="1.6">Дракон</text>
+<text x="852" y="1512" text-anchor="middle" font-size="48" font-weight="400" letter-spacing="1.6">Мышь</text>
+<text x="1510" y="1512" text-anchor="middle" font-size="48" font-weight="400" letter-spacing="1.6">Змея</text>
+<text x="1150" y="1598" text-anchor="middle" font-size="48" font-weight="400" letter-spacing="1.6">Свинья</text>
+</g></svg>

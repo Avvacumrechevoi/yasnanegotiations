@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3700 2500" width="100%" font-family="var(--kn-serif,Georgia,serif)" fill="var(--kn-ink,#1a1a1a)" role="img" aria-label="Крест с косой нижней перекладиной: планка, перекладина, Гистерезис Луны косой перекладиной, шест и камень">
+<defs>
+  <marker id="gg-ah" viewBox="0 0 10 8" refX="9.6" refY="4" markerWidth="60" markerHeight="48" orient="auto" markerUnits="userSpaceOnUse">
+    <path d="M0,0 L10,4 L0,8 L2.4,4 Z" fill="var(--kn-ink,#1a1a1a)" stroke="none"/>
+  </marker>
+</defs>
+
+<!-- ===== крест ===== -->
+<g fill="var(--kn-ink,#1a1a1a)" stroke="none">
+  <!-- шест -->
+  <rect x="1706.4" y="367.4" width="120" height="1733"/>
+  <!-- верхний трилистник -->
+  <circle cx="1766.4" cy="367.4" r="56"/>
+  <circle cx="1716" cy="426.6" r="56"/>
+  <circle cx="1816.8" cy="426.6" r="56"/>
+  <!-- планка -->
+  <rect x="1458" y="634.4" width="577.6" height="144"/>
+  <circle cx="1458" cy="706.4" r="58"/>
+  <circle cx="1516" cy="648.4" r="58"/>
+  <circle cx="1516" cy="764.4" r="58"/>
+  <circle cx="2035.6" cy="706.4" r="58"/>
+  <circle cx="1977.6" cy="648.4" r="58"/>
+  <circle cx="1977.6" cy="764.4" r="58"/>
+  <!-- перекладина -->
+  <rect x="1370.4" y="928" width="787.2" height="144"/>
+  <circle cx="1370.4" cy="1000" r="56"/>
+  <circle cx="1426.4" cy="944" r="56"/>
+  <circle cx="1426.4" cy="1056" r="56"/>
+  <circle cx="2157.6" cy="1000" r="56"/>
+  <circle cx="2101.6" cy="944" r="56"/>
+  <circle cx="2101.6" cy="1056" r="56"/>
+  <!-- косая перекладина: Гистерезис Луны -->
+  <path d="M1573.6,1640 L1933.6,1498.4 L1933.6,1626.4 L1573.6,1765.6 Z"/>
+  <!-- камень -->
+  <circle cx="1744" cy="2206.4" r="242.4"/>
+</g>
+
+<!-- ===== выноски ===== -->
+<g fill="none" stroke="var(--kn-ink,#1a1a1a)" stroke-width="4" stroke-dasharray="15 13" marker-end="url(#gg-ah)">
+  <line x1="1766.4" y1="293.6" x2="1766.4" y2="180"/>
+  <line x1="1030" y1="746.4" x2="1303" y2="746.4"/>
+  <line x1="2506.4" y1="986.4" x2="2323" y2="986.4"/>
+  <line x1="820" y1="1653.6" x2="1436" y2="1653.6"/>
+  <line x1="2466.4" y1="1800" x2="1936" y2="1800"/>
+  <line x1="1000" y1="2200" x2="1436" y2="2200"/>
+</g>
+
+<!-- ===== подписи ===== -->
+<g font-size="78" font-weight="700" letter-spacing="3.5">
+  <text x="1786" y="66" text-anchor="middle">Направление в будущее</text>
+
+  <text x="34" y="712">Планка стоит на месте</text>
+  <text x="34" y="794">Звёздочки Венеры</text>
+
+  <text x="3654" y="960" text-anchor="end">Перекладина – отрезок</text>
+  <text x="3654" y="1040" text-anchor="end">Течения Реки Вечности.</text>
+
+  <text x="34" y="1694">Гистерезис Луны</text>
+
+  <text x="3654" y="1746" text-anchor="end">Шест – Переправа через</text>
+  <text x="3654" y="1826" text-anchor="end">Реку Времени.</text>
+  <text x="3654" y="1906" text-anchor="end">Переход от прошедшего</text>
+  <text x="3654" y="1986" text-anchor="end">Года в Год следующий.</text>
+
+  <text x="34" y="2134">Прошедший Год.</text>
+  <text x="34" y="2214">Или, прошлое Время,</text>
+  <text x="34" y="2294">о котором нужно помнить.</text>
+</g>
+</svg>
