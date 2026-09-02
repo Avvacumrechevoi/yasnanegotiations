@@ -87,11 +87,14 @@ body{
     <div class="e-mark">✦</div>
     <div class="e-code">Ошибка 404</div>
     <h1 class="e-title">Такой страницы нет</h1>
-    <p class="e-desc">Возможно, ссылка устарела или вы ошиблись адресом. Вернитесь на главную или загляните в один из разделов.</p>
+    <!-- «Загляните в один из разделов» не годится: в приложении navigatsiya.js
+         прячет все кнопки, кроме «На главную», и человек видит одну. -->
+    <p class="e-desc">Возможно, ссылка устарела или вы ошиблись адресом. Отсюда можно вернуться на главную.</p>
+    <!-- Разделы зовём именами вкладок: «Разбор» и «Уроки», а не «Конструктор» и «Обучение». -->
     <div class="e-links" id="e-links">
       <a class="e-btn e-btn--primary" data-p="index.html">На главную</a>
-      <a class="e-btn" data-p="konstruktor.html">Конструктор</a>
-      <a class="e-btn" data-p="learn.html">Обучение</a>
+      <a class="e-btn" data-p="konstruktor.html">Разбор</a>
+      <a class="e-btn" data-p="learn.html">Уроки</a>
       <a class="e-btn" data-p="duel.html">Игры</a>
       <a class="e-btn" data-p="negotiations.html">Переговоры</a>
     </div>

@@ -133,8 +133,12 @@
     '.yac-card .yac-in,.akkaunt .yac-in{width:100%;box-sizing:border-box;padding:12px;min-height:48px;',
     '  font:400 16px/1.3 inherit;border-radius:12px;',
     '  border:1px solid #d2d2d7;background:#fff;color:#1d1d1f}',
-    'html[data-theme="dark"] .yac-card .yac-in,.akkaunt .yac-in{border-color:rgba(255,255,255,.24);',
-    '  background:rgba(255,255,255,.06);color:#fefefe}',
+    /* Тёмная тема прописывается КАЖДОЙ половине списка. Пока вторая половина
+       была просто «.akkaunt .yac-in», её специфичность совпадала со светлым
+       правилом выше, а стояла она позже — и поля встроенной формы (Профиль
+       приложения) в светлой теме выходили белым по белому. */
+    'html[data-theme="dark"] .yac-card .yac-in,html[data-theme="dark"] .akkaunt .yac-in{',
+    '  border-color:rgba(255,255,255,.24);background:rgba(255,255,255,.06);color:#fefefe}',
     '.yac-card .yac-in:focus,.akkaunt .yac-in:focus{outline:2px solid #0071e3;outline-offset:1px}',
     '.yac-card .yac-code,.akkaunt .yac-code{letter-spacing:.34em;font-size:26px;font-weight:600;text-align:center;',
     '  min-height:58px;font-variant-numeric:tabular-nums}',
@@ -144,7 +148,10 @@
     'html[data-theme="dark"] .yac-btn{border-color:rgba(255,255,255,.2);',
     '  background:rgba(255,255,255,.1);color:#fefefe}',
     '.yac-card .yac-btn--main,.akkaunt .yac-btn--main{background:#1d1d1f;border-color:#1d1d1f;color:#fff}',
-    'html[data-theme="dark"] .yac-card .yac-btn--main,.akkaunt .yac-btn--main{background:#fefefe;border-color:#fefefe;color:#151515}',
+    /* Та же беда была у главной кнопки: «Сохранить» в светлой теме рисовалась
+       белым по белой карточке — форму нельзя было закончить. */
+    'html[data-theme="dark"] .yac-card .yac-btn--main,html[data-theme="dark"] .akkaunt .yac-btn--main{',
+    '  background:#fefefe;border-color:#fefefe;color:#151515}',
     '.yac-btn--danger{color:#a12d2d;border-color:#e8b4b4;background:#fdf2f2;flex:0 0 auto}',
     'html[data-theme="dark"] .yac-btn--danger{color:#ff9a9a;border-color:rgba(255,90,90,.35);',
     '  background:rgba(255,90,90,.12)}',
@@ -243,8 +250,10 @@
   // Экран, на котором открыли окно (например, Профиль приложения), должен
   // узнать о входе и выходе: иначе под закрывшейся модалкой остаётся
   // надпись «Вы играете гостем» до перезагрузки страницы.
-  function сообщитьОбАккаунте() {
-    try { window.dispatchEvent(new CustomEvent('yasna:аккаунт')); } catch (_) {}
+  // detail нужен экрану, чтобы отличить свежий вход от выхода и сказать об
+  // этом своими словами (снэкбар в приложении вместо второго окна).
+  function сообщитьОбАккаунте(детали) {
+    try { window.dispatchEvent(new CustomEvent('yasna:аккаунт', { detail: детали || null })); } catch (_) {}
   }
 
   function say(host, text, bad) {
@@ -414,8 +423,17 @@
             }
           } catch (_) {}
           renderNav();
-          сообщитьОбАккаунте();
-          openProfile({ welcome: d.isNew ? 'Аккаунт создан. Здесь можно заполнить имя и фамилию — это видно только вам и администратору.' : 'Вы вошли.' });
+          // Где поля аккаунта уже стоят прямо на экране (узел .akkaunt —
+          // Профиль приложения), окно «Мой профиль» дало бы вторую копию той
+          // же формы поверх первой: два «Имя», две «Фамилии», разные подписи
+          // и непонятно, какая настоящая. Там просто закрываем окно, а экран
+          // сам скажет о входе и покажет свою карточку.
+          var естьСвояФорма = !!document.querySelector('.akkaunt');
+          if (естьСвояФорма) closeModal();
+          сообщитьОбАккаунте({ вошли: true, почта: addr, новый: !!d.isNew });
+          if (!естьСвояФорма) {
+            openProfile({ welcome: d.isNew ? 'Аккаунт создан. Здесь можно заполнить имя и фамилию — это видно только вам и администратору.' : 'Вы вошли.' });
+          }
         }).catch(function (e) {
           go.disabled = false; go.textContent = linkMode ? 'Привязать' : 'Войти';
           // Одно сообщение, а не два подряд: раньше сначала показывалось

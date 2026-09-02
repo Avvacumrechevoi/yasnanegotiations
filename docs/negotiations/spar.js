@@ -266,13 +266,17 @@
        «Начать спарринг», а по нажатию молча прокручивала страницу к готовым
        сценам — человек считал, что она сломана. Говорим прямо. */
     var живой = proxyOn();
+    var вПриложении = /YasnaApp\//.test(navigator.userAgent);
     var cta = el('button', 'neg-cfg-start', живой
       ? 'Начать спарринг: ' + esc(tt.label || '') + ' · ' + esc(sk.label) + ' →'
-      : 'Живой диалог сейчас недоступен — открыть готовые сцены →');
+      : (вПриложении ? 'Открыть готовые сцены →' : 'Живой диалог сейчас недоступен — открыть готовые сцены →'));
     cta.type = 'button';
     cta.addEventListener('click', onStartConfigured);
     cfg.appendChild(cta);
-    if (!живой) {
+    /* Один факт объясняем один раз. В приложении про устройство сервера
+       говорить нечего (ключ туда не вставить), там остаётся единственная
+       строка ниже; в вебе эта заметка ведёт к своему ключу. */
+    if (!живой && !вПриложении) {
       cfg.appendChild(el('div', 'neg-cfg-note',
         'Свободный разговор с собеседником включается на сервере. Сейчас он выключен, ' +
         'поэтому доступны шесть готовых сцен — они работают и без сети.'));
@@ -288,9 +292,9 @@
     else {
       /* В приложении чужое поле «вставьте API-ключ» — красный флаг для
          магазинов и лишний внешний хост. Говорим честно и не предлагаем. */
-      if (/YasnaApp\//.test(navigator.userAgent)) {
+      if (вПриложении) {
         sparRoot.appendChild(el('div', 'neg-spar-ailink',
-          'Живой диалог скоро появится — пока доступны готовые сценарии ниже.'));
+          'Свободного разговора с собеседником в приложении пока нет — готовые сцены ниже работают и без сети.'));
       } else {
         var link = el('button', 'neg-spar-ailink', '🔑 Для живого диалога нужен свой ключ Anthropic — подключить →');
         link.type = 'button';
@@ -631,8 +635,19 @@
       AI.history.push({ role: 'user', content: '[начало встречи]' }, { role: 'assistant', content: reply });
       aiTyping(false); bubble(AI.msgs, 'ai', reply, AI.sc.persona.glyph);
     } catch (e) {
-      aiTyping(false); aiError(e);
+      aiTyping(false); aiError(e, aiKick);
     } finally { aiSetBusy(false); }
+  }
+  /* Спросить ответ по уже сложенной истории. Вынесено из aiSend, чтобы
+     «Повторить» после сбоя переспрашивало то же самое: реплика человека уже
+     в истории и на экране — она не теряется. */
+  async function aiAskReply() {
+    aiSetBusy(true); aiTyping(true);
+    try {
+      var reply = await callClaude(AI.history.slice(), aiSystem(AI.sc), 320);
+      AI.history.push({ role: 'assistant', content: reply });
+      aiTyping(false); bubble(AI.msgs, 'ai', reply, AI.sc.persona.glyph);
+    } catch (e) { aiTyping(false); aiError(e, aiAskReply); } finally { aiSetBusy(false); }
   }
   async function aiSend(ta) {
     if (AI.busy) return;
@@ -641,12 +656,7 @@
     AI.history.push({ role: 'user', content: t });
     AI.turns += 1;
     var fin = document.getElementById('neg-spar-finish'); if (fin && AI.turns >= 1) fin.hidden = false;
-    aiSetBusy(true); aiTyping(true);
-    try {
-      var reply = await callClaude(AI.history.slice(), aiSystem(AI.sc), 320);
-      AI.history.push({ role: 'assistant', content: reply });
-      aiTyping(false); bubble(AI.msgs, 'ai', reply, AI.sc.persona.glyph);
-    } catch (e) { aiTyping(false); aiError(e); } finally { aiSetBusy(false); }
+    await aiAskReply();
   }
   async function aiFinish() {
     if (AI.busy) return;
@@ -663,13 +673,28 @@
       showDebrief(AI.msgs, tier, 'Разбор спарринга', verdict, '', null);
       var fin = document.getElementById('neg-spar-finish'); if (fin) fin.hidden = true;
       var tb = sparRoot.querySelector('.neg-spar-typebar'); if (tb) tb.style.display = 'none';
-    } catch (e) { aiTyping(false); aiError(e); } finally { aiSetBusy(false); }
+    } catch (e) { aiTyping(false); aiError(e, aiFinish); } finally { aiSetBusy(false); }
   }
-  function aiError(e) {
+  /* Человеку — что случилось и что сделать; коды HTTP и detail сервера —
+     только в консоль. Совет «проверь ключ» имеет смысл лишь там, где ключ
+     свой: в приложении панели ключа нет вовсе, и совет был невыполним. */
+  function aiError(e, повторить) {
     var msg = (e && e.message) ? e.message : 'неизвестная ошибка';
+    try { console.warn('[спарринг] ответ не получен:', msg, e); } catch (_) {}
+    var свойКлюч = !proxyOn() && !/YasnaApp\//.test(navigator.userAgent);
     var box = el('div', 'neg-spar-aierr');
-    box.innerHTML = '⚠ Не удалось получить ответ ИИ: ' + esc(msg) +
-      '<br><span class="neg-spar-aierr-sub">Проверь API-ключ и доступ к модели. Можно сменить ключ в «← К выбору».</span>';
+    box.innerHTML = '<div>⚠ Собеседник не ответил. Проверь сеть и попробуй ещё раз.</div>' +
+      (свойКлюч ? '<div class="neg-spar-aierr-sub">Если диалог идёт на своём ключе — проверить его можно в «← К выбору».</div>' : '');
+    if (повторить) {
+      var again = el('button', 'neg-spar-back neg-spar-aierr-retry', 'Повторить');
+      again.type = 'button';
+      again.addEventListener('click', function () {
+        if (AI.busy) return;
+        if (box.parentNode) box.parentNode.removeChild(box);
+        повторить();
+      });
+      box.appendChild(again);
+    }
     AI.msgs.appendChild(box); AI.msgs.scrollTop = AI.msgs.scrollHeight;
   }
 

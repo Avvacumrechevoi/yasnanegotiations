@@ -8,16 +8,16 @@
 <!-- Замок: подключён ПЕРВЫМ, до всего остального (см. core/gate.js) -->
 <script src="core/gate.js"></script>
 <script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);var e=document.documentElement;e.setAttribute('data-theme',d?'dark':'light');e.style.colorScheme=d?'dark':'light';}catch(e){}</script>
-<script src="core/theme.js?v=37af65b1"></script>
+<script src="core/theme.js?v=86eb1366"></script>
 <script src="core/storage.js?v=529ec80c"></script>
-<script src="core/access.js?v=3ae5d2f4"></script>
-<script src="core/account.js?v=6b129375"></script>
+<script src="core/access.js?v=4ed1e962"></script>
+<script src="core/account.js?v=19915f6a"></script>
 <!-- Дерево знаний: паспорта занятий и общий счёт пройденного. Обычные
      script-теги — на этой странице нет сборки и нет React. -->
-<script src="core/data.js?v=cc8dd0fe"></script>
+<script src="core/data.js?v=ffd01d69"></script>
 <script src="core/pasporta.js?v=f4319d11"></script>
-<script src="core/derevo-dannye.js?v=4237672e"></script>
-<script src="core/znanie.js?v=1d3035e0"></script>
+<script src="core/derevo-dannye.js?v=297a3e32"></script>
+<script src="core/znanie.js?v=4b63efa1"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
 <!-- Приложение: манифест, иконки и цвет строки состояния. Раньше манифест
      висел на двух страницах из девяти, иконка была одна — SVG в data-URI, а
@@ -38,11 +38,11 @@
 if(m)location.replace('konstruktor.html#tour='+m[1]);})();
 </script>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
-<title>Обучение · Ясна</title>
-<meta name="description" content="Всё обучение методу Ясны в одном месте: знакомство, базовый курс, разборы, тренировки и справочник."/>
+<title>Уроки · Ясна</title>
+<meta name="description" content="Уроки Метода Ясны в одном месте: знакомство, разборы, тренировки и справочник."/>
 <meta property="og:type" content="website"/>
-<meta property="og:title" content="Обучение методу Ясны"/>
-<meta property="og:description" content="Знакомство, базовый курс, разборы, тренировки и справочник — всё обучение в одном месте."/>
+<meta property="og:title" content="Уроки · Метод Ясны"/>
+<meta property="og:description" content="Знакомство, уроки, разборы, тренировки и справочник — всё в одном месте."/>
 <link rel="stylesheet" href="vendor/fonts/shrifty.css">
 
 <style>
@@ -162,16 +162,11 @@ a { color: inherit; text-decoration: none; }
   display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .dr-lupa svg { width: 20px; height: 20px; }
 .dr-lupa:hover { color: var(--text-primary); border-color: var(--border-strong); }
-/* Полоса общего прохождения: одна на всё обучение. Градиент — чтобы
-   пройденное читалось как путь, а не как заполненная форма. */
-.dr-polosa { display: flex; align-items: center; gap: 10px; margin: 10px 0 0; }
-.dr-polosa-zhelob { flex: 1; height: 8px; border-radius: 6px; overflow: hidden;
-  background: var(--border, rgba(255,255,255,.10)); }
-.dr-polosa-fill { height: 100%; width: 0; border-radius: 6px;
-  background: linear-gradient(90deg, var(--accent, #0077FF) 0%, #7B61FF 55%, var(--gold, #F6C64A) 100%);
-  box-shadow: 0 0 10px rgba(0,119,255,.35); transition: width .5s cubic-bezier(.32,.72,0,1); }
-.dr-polosa-pct { font-size: 13px; font-weight: 700; color: var(--text-primary);
-  font-variant-numeric: tabular-nums; min-width: 38px; text-align: right; }
+/* Счёт вслух вместо полосы и процента: «6 %» от неназванного целого не
+   говорит ничего, а общего процента у нас нет по решению — считаем только
+   среди написанного и словами. */
+.dr-schet { margin: 8px 0 0; font-size: 13px; color: var(--text-secondary);
+  font-variant-numeric: tabular-nums; }
 
 /* ─── Продолжить ─── */
 .dr-prod { display: block; width: 100%; text-align: left; text-decoration: none;
@@ -772,7 +767,7 @@ html[data-theme='light'] {
       <div class="l-intro-avatar" aria-hidden="true">Я</div>
       <div class="l-intro-author-info">
         <div class="l-intro-author-name">Ясна</div>
-        <div class="l-intro-author-role">Твой проводник по 12 полкам</div>
+        <div class="l-intro-author-role">Твой проводник по 12 местам</div>
       </div>
     </div>
     <p class="l-intro-msg">
@@ -787,22 +782,22 @@ html[data-theme='light'] {
     </div>
   </div>
 
-  <!-- Шаг 2: Что такое 12 полок -->
+  <!-- Шаг 2: Что такое 12 мест -->
   <div class="l-intro-step" data-step="2">
     <div class="l-intro-author">
       <div class="l-intro-avatar" aria-hidden="true">Я</div>
       <div class="l-intro-author-info">
         <div class="l-intro-author-name">Ясна</div>
-        <div class="l-intro-author-role">Твой проводник по 12 полкам</div>
+        <div class="l-intro-author-role">Твой проводник по 12 местам</div>
       </div>
     </div>
     <p class="l-intro-msg">
       У любого явления есть устройство — кто его начинает, что его держит,
-      что в нём важно, чем оно заканчивается. <strong>12 полок</strong> — это узнаваемые
+      что в нём важно, чем оно заканчивается. <strong>12 мест</strong> — это узнаваемые
       роли в любом цикле.
     </p>
     <p class="l-intro-msg">
-      На раcсвете и в детстве — одинаковое <em>«начало»</em>. На полудне и в зрелости —
+      На рассвете и в детстве — одинаковое <em>«начало»</em>. На полудне и в зрелости —
       одинаковая <em>«вершина»</em>. День и жизнь сделаны по одной структуре, и метод
       эту структуру показывает.
     </p>
@@ -817,17 +812,17 @@ html[data-theme='light'] {
       <div class="l-intro-avatar" aria-hidden="true">Я</div>
       <div class="l-intro-author-info">
         <div class="l-intro-author-name">Ясна</div>
-        <div class="l-intro-author-role">Твой проводник по 12 полкам</div>
+        <div class="l-intro-author-role">Твой проводник по 12 местам</div>
       </div>
     </div>
     <p class="l-intro-msg">
-      Учиться можно с двух сторон. <strong>Базовый курс</strong> ведёт по шагам:
-      что такое явление, где у него опоры, как ложатся две главные линии. Уроки
+      Учиться можно с двух сторон. <strong>Уроки</strong> ведут по шагам:
+      что такое явление, где у него опоры, как ложатся две главные линии. Они
       идут прямо в круге — подсказки появляются там, где ты работаешь.
     </p>
     <p class="l-intro-msg">
       А <strong>разборы</strong> — это готовые круги: берём печь,
-      сутки, год или переговоры и раскладывает их на глазах. Смотреть можно в
+      сутки, год или переговоры и раскладываем их на глазах. Смотреть можно в
       любом порядке, ничего не закрыто.
     </p>
     <div class="l-intro-cta-row">
@@ -846,7 +841,7 @@ html[data-theme='light'] {
     </div>
     <p class="l-intro-msg">
       Чтобы убедиться, что мы понимаем друг друга — короткий вопрос.
-      Что из перечисленного <strong>не</strong> раскладывается по 12 полкам?
+      Что из перечисленного <strong>не</strong> раскладывается по 12 местам?
     </p>
 
     <div class="l-intro-quiz" id="introQuiz">
@@ -896,15 +891,15 @@ html[data-theme='light'] {
       </div>
     </div>
     <p class="l-intro-msg">
-      Ну что, начнём? Первый урок — про само явление и про то, почему полок
+      Ну что, начнём? Первый урок — про само явление и про то, почему мест
       двенадцать. Он короткий, и всё делается прямо в круге.
     </p>
     <p class="l-intro-msg">
-      Дальше — как пойдёт: можно идти по курсу, а можно смотреть готовые разборы.
+      Дальше — как пойдёт: можно идти уроками по порядку, а можно смотреть готовые разборы.
       Всё это собрано на экране «Уроки», куда ты сейчас вернёшься.
     </p>
     <div class="l-intro-cta-row">
-      <a class="l-intro-btn l-intro-btn--primary" data-action="kurs" href="konstruktor.html?lesson=l1_intro&amp;otkuda=uroki">Открыть базовый курс →</a>
+      <a class="l-intro-btn l-intro-btn--primary" data-action="kurs" href="konstruktor.html?lesson=l1_intro&amp;otkuda=uroki">Открыть первый урок →</a>
       <button class="l-intro-btn" data-action="finish">Сначала осмотрюсь</button>
     </div>
   </div>
@@ -956,13 +951,11 @@ html[data-theme='light'] {
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       </button>
     </div>
-    <!-- Технический счёт «пройдено 2 из 15 написанных занятий · ещё 19
-         явлений пишется» человеку ничего не говорил: он о нашей кухне, а не
-         о его пути. Осталась полоса и один процент. -->
-    <div class="dr-polosa" id="dr-polosa">
-      <div class="dr-polosa-zhelob"><div class="dr-polosa-fill" id="dr-polosa-fill"></div></div>
-      <div class="dr-polosa-pct" id="dr-polosa-pct">0%</div>
-    </div>
+    <!-- Полоса с процентом обещала путь, но мерила его от числа, которого
+         на экране нет. Теперь одна строка: сколько пройдено и из скольких
+         написанных. У кого пройдено ноль — строки нет вовсе: про первый раз
+         говорит карточка ниже. -->
+    <p class="dr-schet" id="dr-schet" hidden></p>
   </header>
 
   <div id="dr-prodolzhit"></div>
@@ -1082,7 +1075,7 @@ html[data-theme='light'] {
     <em class="kn-karta-pod">Начальная книга — жизнь как круг</em>
     <span class="kn-karta-niz">
       <span class="kn-karta-zhelob"><i id="kn-zhizni-fill"></i></span>
-      <span class="kn-karta-pct" id="kn-zhizni-pct">скоро</span>
+      <span class="kn-karta-pct" id="kn-zhizni-pct">открыть</span>
     </span>
   </span>
 </a>
@@ -1539,23 +1532,49 @@ html[data-theme='light'] {
         '<a class="dr-prod-knop" href="konstruktor.html#novaya">Собрать</a></div>';
       return;
     }
-    var первый = д.состояние.код === 'нет';
+    /* Клеймо — про человека, а не про узел. Раньше оно читалось с состояния
+       выбранного занятия, и тот, кто прошёл четыре урока, на каждом новом
+       читал «Первый раз здесь». Смотрим по всему дереву: тронуто ли хоть
+       одно занятие. Знакомство не в счёт — это разговор на пять минут, и
+       тот, кто его только что закрыл, действительно здесь впервые. */
+    var начато = д.состояние.код === 'начато';
+    var тронуто = false;
+    try {
+      тронуто = Д.всеУзлы().some(function (у) {
+        if (у.нет || у.ключ === 'yasna_learn_intro_done_v1') return false;
+        if (у.жанр !== 'урок' && у.жанр !== 'разбор') return false;
+        var к = З.состояние(у).код;
+        return к === 'пройдено' || к === 'держится' || к === 'начато';
+      });
+    } catch (e) { тронуто = З.счёт().пройдено > 0; }
+    var клеймо = !тронуто ? 'Первый раз здесь' : (начато ? 'Продолжить' : 'Дальше по порядку');
     место.innerHTML =
       '<a class="dr-prod" href="' + экр(д.узел.адрес) + '">' +
-        '<span class="dr-prod-klejmo">' + (первый ? 'Первый раз здесь' : 'Продолжить') + '</span>' +
+        '<span class="dr-prod-klejmo">' + клеймо + '</span>' +
         '<span class="dr-prod-imya">' + экр(д.узел.имя) + '</span>' +
         '<span class="dr-prod-pod">' + экр(метаУзла(д.узел, д.состояние)) + '</span>' +
-        '<span class="dr-prod-knop">' + (первый ? 'Начать' : 'Продолжить') + '</span>' +
+        '<span class="dr-prod-knop">' + (начато ? 'Продолжить' : 'Начать') + '</span>' +
       '</a>';
   }
 
   function подписьСчёта() {
     var с = З.счёт();
-    var pct = с.всего ? Math.round(с.пройдено / с.всего * 100) : 0;
-    var fill = document.getElementById('dr-polosa-fill');
-    var над = document.getElementById('dr-polosa-pct');
-    if (fill) fill.style.width = Math.max(pct, pct ? 3 : 0) + '%';
-    if (над) над.textContent = pct + '%';
+    var стр = document.getElementById('dr-schet');
+    if (!стр) return;
+    if (!с.пройдено) { стр.textContent = ''; стр.hidden = true; return; }
+    /* Существительное согласуется с ПЕРВЫМ числом, а не со знаменателем:
+       «Пройдено 1 занятие из 83 написанных», «Пройдено 3 занятия из 83
+       написанных». Прежний порядок («из 83 написанных занятия») склонял
+       хвост по знаменателю и на большинстве чисел давал нечитаемое
+       согласование — это первое, что выдаёт в тексте машину. */
+    var о = с.пройдено % 10, дд = с.пройдено % 100;
+    var слово = (дд > 10 && дд < 20) ? 'занятий'
+      : о === 1 ? 'занятие'
+      : (о >= 2 && о <= 4) ? 'занятия'
+      : 'занятий';
+    стр.textContent = 'Пройдено ' + с.пройдено + ' ' + слово +
+                      ' из ' + с.всего + ' написанных';
+    стр.hidden = false;
   }
 
   function нарисоватьДерево() {
@@ -1912,7 +1931,12 @@ html[data-theme='light'] {
 
   /* Прогресс книг — по КНИЖНЫМ СТРАНИЦАМ прочитанных глав, тем же счётом,
      что и обложка самой читалки: главы разного веса, и «2 из 11» врало о
-     месте в книге. Карты страниц сняты с описей книг. */
+     месте в книге. Карты страниц сняты с описей книг.
+
+     Подпись под полосой считается ЗДЕСЬ для всех трёх карточек — раньше она
+     была зашита в разметку, и «Ясна Жизни» печатала «скоро» при набранной
+     книге: карточка вела в готовые 13 глав, а надпись говорила, что книги
+     нет. Одно место — одна правда. */
   (function(){
     var КНИГИ=[
       { ключ:'yasna_kniga_v1',      полоса:'kn-karta-fill', над:'kn-karta-pct',
@@ -1927,12 +1951,15 @@ html[data-theme='light'] {
       if(!полоса) return;
       try{
         var с=JSON.parse(localStorage.getItem(к.ключ)||'{}');
-        var всего=0, сдел=0, глав=0;
-        for(var н in к.стр){ всего+=к.стр[н]; if((с.прочитано||{})[н]){ сдел+=к.стр[н]; глав++; } }
+        var всего=0, сдел=0, глав=0, всегоГлав=0;
+        for(var н in к.стр){ всегоГлав++; всего+=к.стр[н]; if((с.прочитано||{})[н]){ сдел+=к.стр[н]; глав++; } }
+        var подпись='открыть';
+        if(всегоГлав && глав>=всегоГлав) подпись='прочитана';
+        else if(глав>0) подпись='стр. '+сдел+' из '+всего;
+        if(над) над.textContent=подпись;
         if(глав>0){
           var pct=Math.round(сдел/всего*100);
           requestAnimationFrame(function(){ полоса.style.width=Math.max(4,pct)+'%'; });
-          if(над) над.textContent='прочитано '+pct+'%';
         }
       }catch(e){}
     });

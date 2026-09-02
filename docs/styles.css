@@ -972,8 +972,11 @@ html.yk-est .raz-meh-schet{min-width:20px;height:20px;border-radius:10px;backgro
   color:#fff;font:700 12px/20px var(--sans);text-align:center;font-style:normal}
 html.yk-est .raz-plyus-obertka{position:fixed;right:12px;z-index:51;
   bottom:calc(82px + var(--yk-snizu,env(safe-area-inset-bottom,0px)))}
+/* «+» залит акцентом, а в тёмной теме акцент светлеет до #16A7FF: белый «+»
+   давал на нём 2.6:1 и пропадал. Надпись берём из --na-akcente — тем же
+   токеном, что и карточка места (объявлен ниже, у карточки). */
 html.yk-est .raz-plyus{width:64px;height:64px;border-radius:32px;border:0;
-  background:var(--accent,#0071e3);color:#fff;font:300 30px/1 var(--sans);cursor:pointer;
+  background:var(--accent,#0071e3);color:var(--na-akcente,#fff);font:300 30px/1 var(--sans);cursor:pointer;
   box-shadow:0 4px 16px rgba(0,113,227,.34)}
 html.yk-est .raz-plyus:active{transform:scale(.96)}
 html.yk-est .raz-menyu-fon{position:fixed;inset:0;z-index:128;background:rgba(0,0,0,.28)}
@@ -1034,6 +1037,10 @@ html.yk-est body:has(aside.side-panel) .raz-dok{display:none}
    Цвета только токенами: карточка живёт в обеих темах.
    ═══════════════════════════════════════════════════════════════════ */
 
+/* --na-akcente — цвет надписи НА залитой акцентом плашке, общий токен для
+   всей витрины, а не только для этой карточки: им красятся «+» Разбора и
+   кнопки «На главную» досье. Всё, что заливается var(--accent), обязано
+   брать надпись отсюда, иначе в тёмной теме получится белое на светлом. */
 :root{--na-akcente:#ffffff;--sht-kayma:#b6b6bc}
 /* В тёмной теме акцент светлее (#16A7FF), и белая надпись на нём давала
    2.6:1 — ниже порога. На светлом акценте текст должен быть тёмным. */

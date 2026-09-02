@@ -127,7 +127,7 @@
     const myCorrect = myAnswers.filter(a => a.correct).length;
     const oppCorrect = '?'; // не раскрываем сопернику свой реальный счёт до финиша
     const currentQ = questions[qIdx];
-    const polkaName = yasna.p?.[currentQ] || ('Полка ' + currentQ);
+    const polkaName = yasna.p?.[currentQ] || ('Место ' + currentQ);
 
     if(waitingForOpponent){
       return (
@@ -152,7 +152,7 @@
         </div>
 
         <div className="duel-task" style={{textAlign:'center'}}>
-          🎯 <strong>Назови антипод полки «{polkaName}»</strong> ({currentQ}). Кликни на её противоположность.
+          🎯 <strong>Назови антипод места «{polkaName}»</strong> ({currentQ}). Кликни на его противоположность.
         </div>
 
         <div className="duel-star-wrap">
@@ -178,7 +178,7 @@
             color: feedback.correct ? '#16a34a' : '#dc2626',
             fontSize:14, fontWeight:600,
           }}>
-            {feedback.correct ? '✓ Правильно!' : `✗ Антипод полки ${currentQ} — это ${feedback.expected}`}
+            {feedback.correct ? '✓ Правильно!' : `✗ Антипод места ${currentQ} — это ${feedback.expected}`}
           </div>
         )}
       </>
@@ -189,8 +189,8 @@
     id: 'quiz-antipodes',
     category: 'quiz',
     title: 'Антиподы',
-    subtitle: '5 вопросов на знание противоположных полок',
-    description: 'Дано 5 случайных полок. На каждую назови её антипод (полку напротив через центр круга). Очко за правильный ответ. При равенстве — кто быстрее.',
+    subtitle: '5 вопросов на знание противоположных мест',
+    description: 'Дано 5 случайных мест. На каждое назови его антипод (место напротив через центр круга). Очко за правильный ответ. При равенстве — кто быстрее.',
     yasnaIds: ['суток', 'года', 'фаз_жизни'],
     defaultYasna: 'суток',
     difficulty: 2,

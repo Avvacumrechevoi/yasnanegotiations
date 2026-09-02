@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<!-- Значок вкладки. Без него браузер сам просит /favicon.ico и получает
+     404 в консоль при каждом старте; в приложении значок берётся из
+     манифеста, но страницы открываются и в браузере. -->
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
 <title>Ясна</title>
 <!--
   ГЛАВНАЯ ПРИЛОЖЕНИЯ. Заменяет собой index.html сайта при сборке www/
@@ -87,6 +91,11 @@
     --serif:"Cormorant Garamond",Georgia,serif;
     --sverhu: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
     --snizu:  var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
+    /* Дорожка шкал прогресса. Её не объявляли вовсе, и var(--pole) отдавал
+       пустоту: шкалы рисовались прозрачными, а синий штрих доли висел без
+       желоба — доля не читалась. Через --kayma, чтобы дорожка меняла тон
+       вместе с темой сама. */
+    --pole: var(--kayma);
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
@@ -136,16 +145,28 @@
 
   main{padding:12px 16px calc(86px + var(--snizu))}
 
-  /* ── Плашка обновления ── */
-  .obnova{background:var(--kart);border:1.5px solid var(--syn);border-radius:16px;
-    padding:14px 16px;margin:2px 0 12px}
+  /* ── Плашка обновления ──
+     Стояла в потоке над цитатой и приезжала после нативного запроса (до
+     10 секунд): страница прыгала на 132 dp под пальцем уже читающего
+     человека. Теперь плашка лежит слоем над наббаром и ничего не двигает.
+     Сама не гаснет — обновление важнее, чем снэкбар, который человек может
+     не успеть прочесть; уходит только по «Позже» или после установки.
+     Кнопки — 48 dp, платформенный минимум для пальца. */
+  .obnova{position:fixed;z-index:118;left:12px;right:12px;
+    bottom:calc(78px + var(--snizu));max-width:520px;margin:0 auto;
+    background:var(--kart);border:1.5px solid var(--syn);border-radius:16px;
+    padding:14px 16px;box-shadow:0 10px 30px rgba(8,20,40,.22)}
   .obnova-t{font:600 15.5px/1.3 Manrope,Inter,sans-serif}
   .obnova-o{font-size:13px;color:var(--ink-2);margin-top:4px;line-height:1.45}
-  .obnova-r{display:flex;gap:12px;align-items:center;margin-top:11px}
-  .obnova-da{font:600 14px/1 Manrope,sans-serif;color:#fff;background:var(--syn);
-    border:0;border-radius:10px;padding:11px 14px;cursor:pointer}
-  .obnova-net{font:500 13px/1 Manrope,sans-serif;color:var(--ink-2);
-    background:none;border:0;padding:8px;cursor:pointer}
+  .obnova-r{display:flex;gap:8px;align-items:center;margin-top:11px}
+  .obnova-da{flex:1;min-height:48px;font:600 14.5px/1.2 Manrope,sans-serif;color:#fff;
+    background:var(--syn);border:0;border-radius:12px;padding:0 16px;cursor:pointer}
+  .obnova-net{min-height:48px;font:600 14px/1 Manrope,sans-serif;color:var(--syn);
+    background:none;border:0;border-radius:12px;padding:0 14px;cursor:pointer}
+  @media (prefers-reduced-motion: no-preference){
+    .obnova{animation:obnova-vyhod .32s cubic-bezier(.2,.9,.3,1) both}
+    @keyframes obnova-vyhod{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  }
 
   /* ── Цитата дня ──
      Одна карточка — и та, что видно первой на экране. Градиент «ночного
@@ -254,7 +275,7 @@
   @media (prefers-reduced-motion: reduce){
     .busy i,.delo .put.zhdet i{animation:none}
   }
-  /* Обучение — свой тон, чтобы две карточки не читались одной плиткой. */
+  /* Уроки — свой тон, чтобы две карточки не читались одной плиткой. */
   .delo--uch{background:
     radial-gradient(130% 100% at 100% 0%, var(--ik-fon) 0%, transparent 58%),
     linear-gradient(150deg,var(--kart) 55%,var(--ik-fon) 100%)}
@@ -311,13 +332,8 @@
   .pr-tochki{display:flex;gap:3px;flex:0 0 auto}
   .pr-tochki i{width:5px;height:5px;border-radius:50%;background:var(--kayma)}
   .pr-tochki i.est{background:var(--syn)}
-  .uch-polosa{display:flex;align-items:center;gap:10px;margin-top:10px}
-  .uch-zhelob{flex:1;height:8px;border-radius:6px;background:var(--kayma);overflow:hidden;display:block}
-  .uch-fill{display:block;height:100%;width:0;border-radius:6px;
-    background:linear-gradient(90deg,var(--syn) 0%,#7B61FF 55%,#F6C64A 100%);
-    box-shadow:0 0 10px rgba(0,113,227,.35);transition:width .5s cubic-bezier(.32,.72,0,1)}
-  .uch-pct{font:700 13px/1 Manrope,Inter,sans-serif;color:var(--ink);min-width:36px;text-align:right;
-    font-variant-numeric:tabular-nums}
+  /* Полоса общего процента на карточке «Уроки» снята вместе с самим
+     процентом (см. скрипт): счёт идёт словами, среди написанного. */
   .pr-karta--pusto{opacity:.72;cursor:default}
   .pr-karta--pusto .pr-strelka{display:none}
   .pr-strelka{position:absolute;right:14px;top:14px;width:44px;height:44px;border-radius:50%;
@@ -425,17 +441,11 @@
 
   .vid-setka{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   /* ── Живые виджеты ─────────────────────────────────────────────
-     Числа набегают, шкалы и кольцо заполняются, плитки поднимаются —
-     всё один раз, когда блок доехал до глаз. Кому движение мешает
-     (prefers-reduced-motion) — значения встают сразу. */
-  .vid-kolco{position:relative;width:44px;height:44px;margin-bottom:2px;display:block}
-  .vid-kolco svg{width:44px;height:44px;transform:rotate(-90deg)}
-  .vid-kolco-fon{fill:none;stroke:var(--kayma,#E3E8EF);stroke-width:4.5}
-  .vid-kolco-hod{fill:none;stroke:url(#vidgrad);stroke:var(--syn);stroke-width:4.5;stroke-linecap:round;
-    stroke-dasharray:116.24;stroke-dashoffset:116.24;
-    transition:stroke-dashoffset .9s cubic-bezier(.2,.9,.3,1)}
-  .vid-kolco-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    font:700 11.5px/1 Manrope,sans-serif;color:var(--ink);font-variant-numeric:tabular-nums}
+     Числа набегают, шкалы заполняются, плитки поднимаются — всё один раз,
+     когда блок доехал до глаз. Кому движение мешает
+     (prefers-reduced-motion) — значения встают сразу.
+     Кольцо с общим процентом отсюда снято вместе со стилями: счёт на этом
+     экране идёт словами и только среди написанного. */
   .vid-glav-verh b{font-variant-numeric:tabular-nums}
   .vid-plit b{font-variant-numeric:tabular-nums}
   @media (prefers-reduced-motion: no-preference){
@@ -547,11 +557,14 @@
     </span>
   </a>
 
+  <!-- Метка и заголовок названы так же, как целевой экран («Уроки», дерево
+       знаний): «Обучение · Устройство Ясны» обещало другой экран. Полоса с
+       общим процентом снята — счёт говорим словами и только среди
+       написанного (см. скрипт ниже). -->
   <a class="delo delo--uch" href="learn.html">
-    <span class="k">Обучение</span>
-    <div class="t" id="ucheba-t">Устройство Ясны</div>
-    <div class="o" id="ucheba-o">Твой прогресс</div>
-    <div class="uch-polosa"><span class="uch-zhelob"><i class="uch-fill" id="ucheba-fill"></i></span><span class="uch-pct" id="ucheba-pct">0%</span></div>
+    <span class="k">Уроки</span>
+    <div class="t" id="ucheba-t">Дерево знаний</div>
+    <div class="o" id="ucheba-o">Занятия по всем явлениям</div>
     <div class="meta" id="ucheba-m"></div>
     <span class="strelka" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
@@ -570,14 +583,14 @@
     <a class="pr-karta" id="pr-karta" href="games/krug/index.html">
       <div class="pr-verh">
         <div class="pr-metka" id="pr-metka">память · короткий круг</div>
-        <div class="pr-t" id="pr-t">Разложи по Ясне</div>
+        <div class="pr-t" id="pr-t">Разложи по кругу</div>
       </div>
       <span class="pr-strelka" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
       </span>
       <div class="pr-ryad">
       <div class="pr-scen"><div class="pr-holst" data-s="pamyat"><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><path class="pr-dolya pr-h1" d="M61.7 88.3A40 40 0 0 1 38.3 88.3L43.0 73.0A24 24 0 0 0 57.0 73.0Z" fill="#131A30"/><path class="pr-dolya" d="M37.0 87.8A40 40 0 0 1 23.8 80.2L34.3 68.1A24 24 0 0 0 42.2 72.7Z" fill="#1B2545"/><path class="pr-dolya" d="M22.7 79.3A40 40 0 0 1 11.0 59.0L26.6 55.4A24 24 0 0 0 33.6 67.6Z" fill="#2F4472"/><path class="pr-dolya pr-h3" d="M10.7 57.6A40 40 0 0 1 10.7 42.4L26.4 45.4A24 24 0 0 0 26.4 54.6Z" fill="#4D74B4"/><path class="pr-dolya" d="M11.0 41.0A40 40 0 0 1 22.7 20.7L33.6 32.4A24 24 0 0 0 26.6 44.6Z" fill="#8AA6D4"/><path class="pr-dolya" d="M23.8 19.8A40 40 0 0 1 37.0 12.2L42.2 27.3A24 24 0 0 0 34.3 31.9Z" fill="#D3C493"/><path class="pr-dolya pr-h2" d="M38.3 11.7A40 40 0 0 1 61.7 11.7L57.0 27.0A24 24 0 0 0 43.0 27.0Z" fill="#F5CF74"/><path class="pr-dolya" d="M63.0 12.2A40 40 0 0 1 76.2 19.8L65.7 31.9A24 24 0 0 0 57.8 27.3Z" fill="#EAB35C"/><path class="pr-dolya" d="M77.3 20.7A40 40 0 0 1 89.0 41.0L73.4 44.6A24 24 0 0 0 66.4 32.4Z" fill="#D8894A"/><path class="pr-dolya pr-h4" d="M89.3 42.4A40 40 0 0 1 89.3 57.6L73.6 54.6A24 24 0 0 0 73.6 45.4Z" fill="#C06A3C"/><path class="pr-dolya" d="M89.0 59.0A40 40 0 0 1 77.3 79.3L66.4 67.6A24 24 0 0 0 73.4 55.4Z" fill="#7A4634"/><path class="pr-dolya" d="M76.2 80.2A40 40 0 0 1 63.0 87.8L57.8 72.7A24 24 0 0 0 65.7 68.1Z" fill="#3B2A33"/><line class="pr-nit" x1="50.0" y1="72.0" x2="50.0" y2="28.0"/></svg></div><div class="pr-holst" data-s="pogruzhenie" hidden><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><circle class="pr-obod" cx="50" cy="50" r="38"/><polygon class="pr-setka" points="50.0,88.0 31.0,82.9 17.1,69.0 12.0,50.0 17.1,31.0 31.0,17.1 50.0,12.0 69.0,17.1 82.9,31.0 88.0,50.0 82.9,69.0 69.0,82.9"/><line class="pr-os pr-os1" x1="50.0" y1="88.0" x2="50.0" y2="12.0"/><line class="pr-os pr-os2" x1="17.1" y1="69.0" x2="82.9" y2="31.0"/><line class="pr-os pr-os3" x1="17.1" y1="31.0" x2="82.9" y2="69.0"/><circle class="pr-uzel" cx="50.0" cy="88.0" r="2.6"/><circle class="pr-uzel" cx="31.0" cy="82.9" r="2.6"/><circle class="pr-uzel" cx="17.1" cy="69.0" r="2.6"/><circle class="pr-uzel" cx="12.0" cy="50.0" r="2.6"/><circle class="pr-uzel" cx="17.1" cy="31.0" r="2.6"/><circle class="pr-uzel" cx="31.0" cy="17.1" r="2.6"/><circle class="pr-uzel" cx="50.0" cy="12.0" r="2.6"/><circle class="pr-uzel" cx="69.0" cy="17.1" r="2.6"/><circle class="pr-uzel" cx="82.9" cy="31.0" r="2.6"/><circle class="pr-uzel" cx="88.0" cy="50.0" r="2.6"/><circle class="pr-uzel" cx="82.9" cy="69.0" r="2.6"/><circle class="pr-uzel" cx="69.0" cy="82.9" r="2.6"/><path class="pr-znak" d="M50 41l2.4 6.6 6.6 2.4-6.6 2.4-2.4 6.6-2.4-6.6-6.6-2.4 6.6-2.4z"/></svg></div><div class="pr-holst" data-s="obshchenie" hidden><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><rect class="pr-rep pr-r1" x="12" y="20" width="52" height="20" rx="10"/><rect class="pr-rep pr-r2 pr-otvet" x="36" y="46" width="52" height="20" rx="10"/><rect class="pr-rep pr-r3" x="12" y="72" width="44" height="18" rx="9"/></svg></div><div class="pr-holst" data-s="semya" hidden><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><path class="pr-krysha" d="M14 46 50 18l36 28"/><path class="pr-steny" d="M22 43v39h56V43"/><rect class="pr-okno pr-o1" x="32" y="52" width="15" height="15" rx="3"/><rect class="pr-okno pr-o2" x="53" y="52" width="15" height="15" rx="3"/><rect class="pr-dver" x="42" y="70" width="16" height="12" rx="2"/></svg></div></div>
-        <div class="pr-o" id="pr-o">Тренируйся расставлять по полочкам. Шестнадцать явлений на выбор.</div>
+        <div class="pr-o" id="pr-o">Тренируйся расставлять по местам. Шестнадцать явлений на выбор.</div>
       </div>
       <div class="pr-fakt" id="pr-fakt" hidden></div>
     </a>
@@ -609,26 +622,22 @@
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4v17.2M3.4 12h17.2"/></svg>
         </span>
         <b id="vid-krug-n">16 явлений</b>
-        <span class="vid-plit-t">Разложи по Ясне</span>
+        <span class="vid-plit-t">Разложи по кругу</span>
         <em id="vid-krug-o">каждое явление — свой круг</em>
         <span class="vid-plit-shkala" aria-hidden="true"><i id="vid-krug-fill"></i></span>
       </a>
 
       <a class="vid-plit" href="learn.html">
-        <!-- Кольцо вместо значка: общий прогресс обучения — тот же счёт,
-             что на экране «Уроки». Плитка «Базовый курс 2 из 4» дублировала
-             вход в курс и спорила с общей полосой на карточке выше. -->
-        <span class="vid-kolco" aria-hidden="true">
-          <svg viewBox="0 0 44 44">
-            <circle class="vid-kolco-fon" cx="22" cy="22" r="18.5"/>
-            <circle class="vid-kolco-hod" id="vid-kolco-hod" cx="22" cy="22" r="18.5"/>
-          </svg>
-          <span class="vid-kolco-txt" id="vid-kolco-pct">0%</span>
+        <!-- Здесь стояло кольцо с общим процентом: у новичка оно печатало
+             «0 %» на той же странице, где ноль не печатают, а у прошедшего
+             три занятия — «4 %». Счёт говорим словами и только среди
+             написанного (скрипт ниже), значок — как у соседних плиток. -->
+        <span class="vid-znak vid-znak--uroki" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M4 5.5h6a2 2 0 0 1 2 2v11a2.4 2.4 0 0 0-2-1H4zM20 5.5h-6a2 2 0 0 0-2 2v11a2.4 2.4 0 0 1 2-1h6z"/></svg>
         </span>
         <b id="vid-kurs-n">Уроки</b>
         <span class="vid-plit-t" id="vid-kurs-t">Дерево знаний</span>
         <em id="vid-kurs-o">занятия по всем явлениям</em>
-        <span class="vid-plit-shkala" aria-hidden="true"><i id="vid-kurs-fill"></i></span>
       </a>
 
       <a class="vid-plit" href="negotiations.html">
@@ -645,9 +654,9 @@
         <span class="vid-znak vid-znak--svoya" aria-hidden="true">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M12 8v8M8 12h8"/></svg>
         </span>
-        <b id="vid-svoya-n">Своя Ясна</b>
+        <b id="vid-svoya-n">Мои ясны</b>
         <span class="vid-plit-t" id="vid-svoya-t">Разобрать своё</span>
-        <em id="vid-svoya-o">двенадцать полок, твоё явление</em>
+        <em id="vid-svoya-o">двенадцать мест, твоё явление</em>
         <span class="vid-plit-shkala" aria-hidden="true"><i id="vid-svoya-fill"></i></span>
       </a>
     </div>
@@ -662,25 +671,30 @@
       </span>
     </a>
 
+    <!-- Две двери в разборы, и обе открывают то, что названо. Здесь стояла
+         карточка «Видео · Разборы»: видео в приложении нет ни одного (в
+         дереве все записи помечены «в приложении пока нет»), а вела она в
+         тот же каталог, что и три соседние ссылки. Имена взяты из дерева
+         знаний — на том экране разборы называются так же. -->
     <div class="vid-para">
       <a class="vid-karta" href="konstruktor.html#tour=pechi">
         <span class="vid-karta-metka">Разбор</span>
-        <b>Ясна печи</b>
-        <em>живое занятие, разложенное по шагам</em>
+        <b>Печь по кругу</b>
+        <em>живое занятие, 9 шагов</em>
       </a>
-      <!-- Раньше тут стояли «Семь гидов» со ссылкой learn.html#gidy —
-           такого якоря на экране «Уроки» нет, тап приводил в начало
-           страницы. Карточка честнее зовёт к разборам целиком. -->
-      <a class="vid-karta" href="learn.html">
-        <span class="vid-karta-metka">Видео</span>
-        <b>Разборы</b>
-        <em>по кругу шаг за шагом</em>
+      <a class="vid-karta" href="konstruktor.html#tour=sutki">
+        <span class="vid-karta-metka">Разбор</span>
+        <b>Сутки по кругу</b>
+        <em>двенадцать времён, 14 шагов</em>
       </a>
     </div>
 
+    <!-- Тихие ссылки подписаны тем, что стоит на целевом экране: было
+         «Всё обучение одним списком» (там дерево, а не список) и «Как
+         устроен рост» (там «Как устроен рейтинг · Две шкалы прогресса»). -->
     <div class="vid-para vid-para--tihie">
-      <a class="vid-tihaya" href="learn.html">Всё обучение одним списком</a>
-      <a class="vid-tihaya" href="rating.html">Как устроен рост</a>
+      <a class="vid-tihaya" href="learn.html">Все уроки</a>
+      <a class="vid-tihaya" href="rating.html">Как устроен рейтинг</a>
     </div>
   </div>
 </main>
@@ -716,53 +730,27 @@
       '<span class="m">✦ '+бусин+' бусин</span><span class="m">партий: '+партий+'</span>';
   }
 
-  /* Обучение: дорога базового курса. Раньше это были восемь остановок
-     «Пути по Руси» — курс снят с экрана «Уроки» (из восьми работала одна),
-     и главная обещала то, чего больше нет. Теперь считаем те же четыре
-     урока, что показывает хаб: yasna_completed_lessons_v1. */
-  var БАЗОВЫЙ=['l1_intro','b2_four_pillars','b3_two_lines','b4_line_names'];
-  var ОСТАНОВОК=БАЗОВЫЙ.length;
-  var прошёл=читать('yasna_completed_lessons_v1');
-  var пройдено=0;
-  try{
-    if(Array.isArray(прошёл)) пройдено=прошёл.filter(function(id){return БАЗОВЫЙ.indexOf(id)>-1}).length;
-  }catch(e){}
-  if(пройдено>ОСТАНОВОК) пройдено=ОСТАНОВОК;
-  /* Дорожка из четырёх сегментов снята: на её месте общая полоса прогресса
-     обучения (ниже), и считает она всё дерево, а не базовый курс. */
-  /* Общий прогресс обучения — тот же счёт, что на экране «Уроки»: там он
-     считает все написанные занятия (уроки и разборы), а не один курс.
-     Раньше карточка показывала четыре остановки базового курса, и человек
-     видел «пройдено», когда впереди оставалось ещё три четверти дерева. */
+  /* Уроки: счёт словами, а не общим процентом.
+     Здесь стояла полоса с «4 %» — доля от всего дерева. Человек, прошедший
+     всё, что успел открыть, читал её как «ты почти ничего не сделал», а
+     знаменатель нигде не назывался. Считаем ровно то, что можно пройти и
+     что уже написано (YasnaZnanie.счёт — один источник и для экрана
+     «Уроки», и для ветвей), и говорим это словами. Ноль не печатаем:
+     новичка зовём делом. */
   try{ (function(){
-    var fill=document.getElementById('ucheba-fill'), над=document.getElementById('ucheba-pct');
-    if(!fill) return;
-    var pct=0, есть=false;
-    try{
-      if(window.YasnaZnanie && window.YasnaZnanie.счёт){
-        var с=window.YasnaZnanie.счёт();
-        if(с.всего){ pct=Math.round(с.пройдено/с.всего*100); есть=true; }
-      }
-    }catch(e){}
-    if(!есть){
-      /* Модули не загрузились — считаем по тому, что знаем наверняка. */
-      var н=0; try{ if(Array.isArray(прошёл)) н=прошёл.length; }catch(e){}
-      pct=Math.min(100, Math.round(н/6*100));
-    }
-    if(pct>0){
-      fill.style.width=Math.max(pct,3)+'%';
-      if(над) над.textContent=pct+'%';
+    var о=document.getElementById('ucheba-o'), м=document.getElementById('ucheba-m');
+    var сч=null;
+    try{ if(window.YasnaZnanie && window.YasnaZnanie.счёт) сч=window.YasnaZnanie.счёт(); }catch(e){}
+    var пройдено=(сч&&сч.пройдено)||0, всего=(сч&&сч.всего)||0;
+    if(пройдено>0 && всего>0){
+      if(о) о.textContent='Пройдено '+пройдено+' из '+всего+' написанных';
+      if(м) м.innerHTML = пройдено>=всего
+        ? '<span class="m">пройдено всё написанное</span>'
+        : '<span class="m">продолжить</span>';
     } else {
-      /* Новичку пустая полоса и «0%» говорят «ты ничего не сделал».
-         Прячем шкалу вовсе и зовём делом — обещанием, а не нулём. */
-      var полоса=fill.closest('.uch-polosa'); if(полоса) полоса.hidden=true;
-      var о=document.getElementById('ucheba-o');
       if(о) о.textContent='Пять минут — и первый урок пройден';
+      if(м) м.innerHTML='<span class="m">начать</span>';
     }
-    var м=document.getElementById('ucheba-m');
-    if(м) м.innerHTML = pct>=100
-      ? '<span class="m">всё пройдено</span>'
-      : (pct>0 ? '<span class="m">продолжить</span>' : '<span class="m">начать</span>');
   })(); }catch(__е){ try{console.error("секция главной:",__е)}catch(_){}}
 
   /* ── Виджеты «Где ты сейчас» ────────────────────────────────────────
@@ -843,7 +831,10 @@
     }catch(e){}
     if(!естьХоть){
       var заг=document.getElementById('vid-zag'), блок=document.querySelector('.vid');
-      if(заг) заг.hidden=true;
+      /* Заголовок не прячем, а меняем: спрятанный оставлял хвост из карточек
+         без всякой подписи — они читались как продолжение блока «Практика».
+         «Где ты сейчас» на чистой установке спрашивать не о чем. */
+      if(заг) заг.textContent='С чего начать';
       /* Оставляем только двери — то, что можно открыть прямо сейчас. */
       if(блок){
         var глав=document.getElementById('vid-glav'); if(глав) глав.remove();
@@ -879,28 +870,24 @@
       шкала('vid-krug-fill',разобрано/ВСЕГО_ЯВЛЕНИЙ);
     }
 
-    /* Уроки: общий счёт обучения — тот же, что на экране «Уроки» и на
-       карточке сверху (YasnaZnanie по всему дереву). Кольцо заполняется
-       на долю пройденного, число занятий набегает. Плитка «Базовый курс
-       2 из 4» здесь дублировала вход и спорила с общим счётом. */
+    /* Уроки: счёт тот же, что на карточке сверху и на экране «Уроки»
+       (YasnaZnanie.счёт — только написанное и только то, что можно пройти).
+       Числом называем пройденное, знаменатель — словом «из N написанных»:
+       без знаменателя «12 занятий» не отвечало, много это или мало. */
     (function(){
-      var pct=0, пройдено=0;
+      var пройдено=0, всего=0;
       try{
         if(window.YasnaZnanie && window.YasnaZnanie.счёт){
           var сч=window.YasnaZnanie.счёт();
-          if(сч.всего){ pct=Math.round(сч.пройдено/сч.всего*100); пройдено=сч.пройдено; }
+          пройдено=сч.пройдено||0; всего=сч.всего||0;
         }
       }catch(e){}
       if(пройдено>0){
         набег('vid-kurs-n',пройдено,'',' '+(пройдено%10===1&&пройдено%100!==11?'занятие':([2,3,4].indexOf(пройдено%10)>-1&&[12,13,14].indexOf(пройдено%100)===-1?'занятия':'занятий')));
-        текст('vid-kurs-o','пройдено по всем темам');
+        /* Знаменатель встаёт в ту же очередь, что и число: иначе до прокрутки
+           плитка читалась «Уроки · из 83 написанных» — подпись без числа. */
+        приПоказе(function(){ текст('vid-kurs-o', всего ? 'из '+всего+' написанных' : 'пройдено'); });
       }
-      набег('vid-kolco-pct',pct,'','%');
-      приПоказе(function(){
-        var х=document.getElementById('vid-kolco-hod'); if(!х) return;
-        var Д=116.24;   /* длина окружности r=18.5 */
-        requestAnimationFrame(function(){ х.style.strokeDashoffset=String(Д*(1-Math.max(0,Math.min(100,pct))/100)); });
-      });
     })();
 
     /* Переговоры: просмотренные сценарии (это просмотр, а не освоение). */
@@ -914,54 +901,57 @@
       шкала('vid-neg-fill',сцен/4);
     }
 
-    /* Своя Ясна: сколько полок заполнено в последней своей раскладке. */
+    /* Мои ясны: сколько мест заполнено в последней своей раскладке. */
     var свои=читать('yasna_custom_v1');
     if(Array.isArray(свои)&&свои.length){
       var последняя=свои[свои.length-1]||{};
       var занято=0;
       try{ занято=(последняя.p||[]).filter(function(x){return x&&String(x).trim()}).length; }catch(e){}
       текст('vid-svoya-n',занято+' из 12');
-      текст('vid-svoya-t',последняя.n||последняя.name||'Твоя Ясна');
-      текст('vid-svoya-o',занято>=12?'круг собран':'полок заполнено');
+      текст('vid-svoya-t',последняя.n||последняя.name||'Моя ясна');
+      текст('vid-svoya-o',занято>=12?'круг собран':'мест заполнено');
       сШкалой(document.getElementById('vid-svoya-fill').closest('.vid-plit'));
       шкала('vid-svoya-fill',занято/12);
     }
 
-    /* Широкая плитка «Дальше» ведёт туда, где человек остановился. */
-    var знак=false;
-    try{ знак=localStorage.getItem('yasna_learn_intro_done_v1')==='1'; }catch(e){}
-    var д2=document.getElementById('vid-dalshe');
-    if(!знак){
-      текст('vid-dalshe-t','Дальше: знакомство с методом');
-      текст('vid-dalshe-o','пять минут разговором — что такое Ясна');
-      д2.setAttribute('href','learn.html#znakomstvo');
-    } else if(прошли<БАЗ.length && !естьХоть){
-      /* Курс зовём отсюда только пока сетка плиток скрыта: когда она видна,
-         вход в базовый курс уже стоит плиткой выше — вторая карточка с тем
-         же адресом читалась бы дословным повтором одной двери. */
-      текст('vid-dalshe-t','Дальше: базовый курс');
-      текст('vid-dalshe-o',прошли?('пройдено '+прошли+' из '+БАЗ.length+' — продолжить'):'четыре урока по шагам, прямо в круге');
-      д2.setAttribute('href','konstruktor.html?lessons=1');
-    } else if(сцен<4){
-      текст('vid-dalshe-t','Дальше: переговоры');
-      текст('vid-dalshe-o','метод в разговоре — четыре сценария');
-      д2.setAttribute('href','negotiations.html');
-    } else {
-      текст('vid-dalshe-t','Дальше: разобрать своё явление');
-      текст('vid-dalshe-o','двенадцать полок, твой круг');
-      д2.setAttribute('href','konstruktor.html');
-    }
+    /* Широкая плитка «Дальше» ведёт туда, где человек остановился.
+       Здесь стояло собственное ветвление по «базовому курсу»: оно читало
+       переменные, которых в этой области нет (прошли/БАЗ вместо
+       пройдено/БАЗОВЫЙ), и падало у ВСЕХ, кто прошёл знакомство, — плитка
+       навсегда оставалась с разметочным «Дальше: знакомство с методом» и
+       вела в уже пройденное. Ошибку глотал try/catch, поэтому её не было
+       видно. Теперь источник один и тот же, что и на экране «Уроки»:
+       YasnaZnanie.продолжить() — первое незаконченное занятие по дереву. */
+    (function(){
+      var д2=document.getElementById('vid-dalshe'); if(!д2) return;
+      var п=null;
+      try{ if(window.YasnaZnanie && window.YasnaZnanie.продолжить) п=window.YasnaZnanie.продолжить(); }catch(e){}
+      var у=п&&п.узел;
+      if(!у||!у.адрес){
+        /* Дерево не доехало или пройдено всё написанное — зовём в каталог
+           тем же именем, каким называется сам экран. */
+        текст('vid-dalshe-t','Уроки · дерево знаний');
+        текст('vid-dalshe-o','занятия по всем явлениям');
+        д2.setAttribute('href','learn.html');
+        return;
+      }
+      var начато=п.состояние&&п.состояние.код==='начато';
+      текст('vid-dalshe-t',(начато?'Продолжить: ':'Дальше: ')+у.имя);
+      текст('vid-dalshe-o',[у.ветвьИмя,у.жанр,у.объём].filter(Boolean).join(' · '));
+      /* У знакомства в дереве адрес — якорь: живёт он на экране «Уроки». */
+      д2.setAttribute('href', у.адрес.charAt(0)==='#' ? 'learn.html'+у.адрес : у.адрес);
+    })();
   })(); }catch(__е){ try{console.error("секция главной:",__е)}catch(_){}}
 
   /* Практики: переключение задачи меняет карточку и запускает свою сцену.
      Ссылки настоящие — карточка остаётся одной большой кнопкой. */
   try{ (function(){
     var П=[
-    {id:'pamyat',metka:'память · короткий круг',t:'Разложи по Ясне',o:'Тренируйся расставлять по полочкам. Шестнадцать явлений на выбор.',href:'games/krug/index.html',kn:'Играть'},
-    {id:'pogruzhenie',metka:'погружение · ~5 минут',t:'Разобрать явление',o:'Конструктор: раскладываешь своё дело по двенадцати частям — в плоскости и в объёме.',href:'konstruktor.html',kn:'Разложить'},
+    {id:'pamyat',metka:'память · короткий круг',t:'Разложи по кругу',o:'Тренируйся расставлять по местам. Шестнадцать явлений на выбор.',href:'games/krug/index.html',kn:'Играть'},
+    {id:'pogruzhenie',metka:'погружение · ~5 минут',t:'Разобрать явление',o:'Разбор: раскладываешь своё дело по двенадцати местам — в плоскости и в объёме.',href:'konstruktor.html',kn:'Разложить'},
     /* «Семья» пока без содержания — так и написано. Заглушка честная: ссылки
-       нет, карточка не притворяется работающей. */
-    {id:'semya',metka:'семья · пишется',t:'Ясна семьи',o:'Разложим семейные роли и события по тем же двенадцати местам. Пока не написано — добавим.',href:null,kn:''},
+       нет, карточка не притворяется работающей и ничего не обещает. */
+    {id:'semya',metka:'семья · пишется',t:'Ясна семьи',o:'Разложим семейные роли и события по тем же двенадцати местам. В приложении пока нет.',href:null,kn:''},
     {id:'obshchenie',metka:'общение · ~30 минут',t:'Читать людей',o:'Тренажёр переговоров: четыре сценария — от первого контакта до выхода без осадка.',href:'negotiations.html',kn:'Начать'}
     ];
     var чипы=document.querySelectorAll('.pr-chip'), карта=document.getElementById('pr-karta');
@@ -982,8 +972,8 @@
       if(id==='pogruzhenie'){
         var свои=ч2('yasna_custom_v1');
         var к=Array.isArray(свои)?свои.length:0;
-        return к>0 ? {текст:'своих Ясн: '+к, всего:0, есть:0}
-                   : {текст:'двенадцать полок — от основы до вершины', всего:0, есть:0};
+        return к>0 ? {текст:'моих ясн: '+к, всего:0, есть:0}
+                   : {текст:'двенадцать мест — от основы до вершины', всего:0, есть:0};
       }
       if(id==='obshchenie'){
         var нег=ч2('yasna_neg_lessons_v1'), c=0;
@@ -991,7 +981,7 @@
         return c>0 ? {текст:'просмотрено '+c+' из 4 сценариев', всего:4, есть:c}
                    : {текст:'четыре сценария · первый — «Кто передо мной»', всего:4, есть:0};
       }
-      if(id==='semya') return {текст:'пока не написано — добавим', всего:0, есть:0};
+      if(id==='semya') return {текст:'в приложении пока нет', всего:0, есть:0};
       return {текст:'один разговор · разбор по шагам', всего:0, есть:0};
     }
     function показатьФакт(id){

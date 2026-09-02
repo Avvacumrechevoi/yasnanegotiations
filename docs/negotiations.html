@@ -8,10 +8,10 @@
 <!-- Замок: подключён ПЕРВЫМ, до всего остального (см. core/gate.js) -->
 <script src="core/gate.js"></script>
 <script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);var e=document.documentElement;e.setAttribute('data-theme',d?'dark':'light');e.style.colorScheme=d?'dark':'light';}catch(e){}</script>
-<script src="core/theme.js?v=37af65b1"></script>
+<script src="core/theme.js?v=86eb1366"></script>
 <script src="core/storage.js?v=529ec80c"></script>
-<script src="core/access.js?v=3ae5d2f4"></script>
-<script src="core/account.js?v=6b129375"></script>
+<script src="core/access.js?v=4ed1e962"></script>
+<script src="core/account.js?v=19915f6a"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
 <!-- Приложение: манифест, иконки и цвет строки состояния. Раньше манифест
      висел на двух страницах из девяти, иконка была одна — SVG в data-URI, а
@@ -76,6 +76,15 @@ body {
     var(--bg-base);
   background-attachment: fixed;
 }
+
+/* Мягкая подпись вместо замка под нерешённой практикой: «Дальше →» активна
+   всегда, а состояние объясняется словами (см. lessons-neg.js). */
+.neg-gate-hint {
+  margin: 2px 0 8px; font-size: 13px; line-height: 1.45;
+  color: var(--text-secondary);
+}
+/* «Повторить» в сообщении о сбое спарринга — отдельной строкой под текстом. */
+.neg-spar-aierr-retry { margin-top: 10px; }
 </style>
 
 <link rel="stylesheet" href="core/site-nav.css?v=f8cd9a99"/>
@@ -98,7 +107,10 @@ body {
       Переговоры — это <strong>навык</strong>. За 4 коротких сценария: читать людей, вести разговор,
       договариваться честно и выходить красиво. По шагам, с разбором каждого хода.
     </p>
-    <button class="neg-hero-cta" id="neg-hero-start" type="button">Начать: Сценарий 1 — Кто передо мной →</button>
+    <!-- Подпись до запуска скрипта = первый вход; дальше её рисует из
+         состояния lessons-neg.js (обновитьГероя), потому что кнопка ведёт
+         в первый НЕпройденный сценарий, а не всегда в первый. -->
+    <button class="neg-hero-cta" id="neg-hero-start" type="button">Начать: сценарий 1 — Кто передо мной →</button>
   </section>
 
   <div class="neg-mode-tabs" id="neg-mode-tabs" role="tablist">
@@ -141,9 +153,9 @@ body {
 <script src="negotiations/scenarios.js?v=9a6048b5"></script>
 <script src="negotiations/practice-content.js?v=0612deb5"></script>
 <script src="negotiations/trainer.js?v=8aeea04d"></script>
-<script src="negotiations/lessons-neg.js?v=09287d6d"></script>
+<script src="negotiations/lessons-neg.js?v=80294306"></script>
 <script src="negotiations/spar-content.js?v=de97d09b"></script>
-<script src="negotiations/spar.js?v=add3c8e8"></script>
+<script src="negotiations/spar.js?v=ad04bf19"></script>
 
 </body>
 </html>

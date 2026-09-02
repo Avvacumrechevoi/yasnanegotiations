@@ -131,7 +131,7 @@ const CURRICULUM={
       lockedHint:'Откроется после Базового',
       modules:[
         {id:'mod_sutok',title:'Ясна Суток',subtitle:'Детальный разбор цикла дня и ночи',status:'planned',
-          themes:['Полочка 0 — Ночь','Полочки 1-2-3 — Утро','Полочки 4-5-6 — Подъём и День','Полочки 7-8-9 — Спад и Вечер','Полочки 10-11 — Сумерки']},
+          themes:['Место 0 — Ночь','Места 1-2-3 — Утро','Места 4-5-6 — Подъём и День','Места 7-8-9 — Спад и Вечер','Места 10-11 — Сумерки']},
         {id:'mod_doma',title:'Ясна Дома',subtitle:'12 комнат и их смысл',status:'planned'},
         {id:'mod_vody',title:'Ясна Круговорота Воды',subtitle:'От грязи к облаку и обратно',status:'planned'},
         {id:'mod_dereva',title:'Ясна Дерева',subtitle:'От корня до ветки и обратно',status:'planned'},
@@ -152,7 +152,7 @@ const CURRICULUM={
   archive:{
     id:'archive_drafts',
     title:'Ранние черновики',
-    subtitle:'Первые эксперименты с глубоким разбором отдельных полочек',
+    subtitle:'Первые эксперименты с глубоким разбором отдельных мест',
     note:'Эти уроки дали ценные находки, которые войдут в «Ясну Суток — детально» (Путь 2). Пока оставлены для справки.',
     lessons:[
       {id:'l2_night_foundation',status:'draft'},
@@ -170,7 +170,7 @@ function LessonPicker({onSelectLesson,onClose,completedLessons=[]}){
     const c=status==='ready'?{bg:'#E8F5EE',fg:'#1B7A3F',t:'готов'}
           :status==='in_progress'?{bg:'#FFF4E0',fg:'#B8560E',t:'идёт'}
           :status==='draft'?{bg:'#F3E9F8',fg:'#6B3A8A',t:'черновик'}
-          :{bg:'#EEF0F3',fg:'#6E7781',t:note||'скоро'};
+          :{bg:'#EEF0F3',fg:'#6E7781',t:note||'пока нет'};
     return<span style={{display:'inline-block',fontSize:10,fontWeight:700,color:c.fg,background:c.bg,padding:'3px 8px',borderRadius:10,letterSpacing:0.3,textTransform:'uppercase',whiteSpace:'nowrap'}}>{c.t}</span>;
   };
 
@@ -195,9 +195,9 @@ function LessonPicker({onSelectLesson,onClose,completedLessons=[]}){
       <div style={{width:30,height:30,borderRadius:'50%',background:'#D1D1D6',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,flexShrink:0}}>{idx}</div>
       <div style={{flex:1,minWidth:0}}>
         <div style={{fontSize:13.5,fontWeight:600,color:'#6E7781',lineHeight:1.3,marginBottom:1}}>{l.title}</div>
-        <div style={{fontSize:11.5,color:'#AEAEB2',lineHeight:1.4}}>{l.subtitle||(l.mechanics&&l.mechanics.join(' · '))||'В разработке'}{l.duration?' · '+l.duration:''}</div>
+        <div style={{fontSize:11.5,color:'#AEAEB2',lineHeight:1.4}}>{l.subtitle||(l.mechanics&&l.mechanics.join(' · '))||'В приложении пока нет'}{l.duration?' · '+l.duration:''}</div>
       </div>
-      <div style={{flexShrink:0}}>{statusPill('planned','скоро')}</div>
+      <div style={{flexShrink:0}}>{statusPill('planned','пока нет')}</div>
     </div>
   );
 
@@ -219,7 +219,7 @@ function LessonPicker({onSelectLesson,onClose,completedLessons=[]}){
         <div style={{padding:'14px 16px 12px',background:`linear-gradient(135deg,${accent}08,${accent}16)`,borderBottom:'1px solid '+accent+'22'}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:10,marginBottom:4}}>
             <div style={{fontSize:10,fontWeight:700,color:accent,letterSpacing:0.8,textTransform:'uppercase'}}>Уровень {course.level} · {course.duration}</div>
-            {isLocked?statusPill('planned',course.note?'скоро':'в разработке'):null}
+            {isLocked?statusPill('planned','пока нет'):null}
           </div>
           <div style={{fontSize:16,fontWeight:800,color:'#0D1B2A',letterSpacing:'-0.2px',marginBottom:3}}>{course.title}</div>
           <div style={{fontSize:12.5,color:'#3D4852',lineHeight:1.45}}>{course.subtitle}</div>
@@ -276,7 +276,7 @@ function LessonPicker({onSelectLesson,onClose,completedLessons=[]}){
           <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:4}}>
             <span style={{fontSize:20}}>{path.icon}</span>
             <div style={{fontSize:15,fontWeight:800,color:'#0D1B2A',letterSpacing:'-0.1px'}}>{path.title}</div>
-            {locked&&statusPill('planned','скоро')}
+            {locked&&statusPill('planned','пока нет')}
           </div>
           <div style={{fontSize:12.5,color:'#6E7781',lineHeight:1.5,paddingLeft:29}}>{path.subtitle}</div>
         </div>
@@ -309,7 +309,7 @@ function LessonPicker({onSelectLesson,onClose,completedLessons=[]}){
       {/* Content */}
       <div style={{flex:1,overflowY:'auto',padding:'18px 16px 24px',maxWidth:700,margin:'0 auto',width:'100%',boxSizing:'border-box'}}>
         <div style={{padding:'14px 16px',background:'var(--bg,#fff)',border:'1px solid #E5E5EA',borderRadius:14,marginBottom:22,fontSize:13,color:'#3D4852',lineHeight:1.6}}>
-          Любое явление можно разобрать на части. День, разговор, проект, дом — всё устроено по одной и той же схеме.<br/><br/>Эту схему можно увидеть на разной глубине: <b>4 полочки</b>, если смотреть крупно. <b>8 полочек</b>, если присмотреться. <b>12 полочек</b>, если разобрать детально.<br/><br/>Эта схема и есть <b>Ясна</b> — одна для всего, что есть в мире. Базовый курс учит видеть Ясну в любом явлении.<br/><br/>А кому интересно, как Ясна работает в конкретном явлении, — есть отдельные курсы: Ясна Суток, Ясна Года, Ясна Жизни и другие разборы.
+          Любое явление можно разобрать на части. День, разговор, проект, дом — всё устроено по одной и той же схеме.<br/><br/>Эту схему можно увидеть на разной глубине: <b>4 места</b>, если смотреть крупно. <b>8 мест</b>, если присмотреться. <b>12 мест</b>, если разобрать детально.<br/><br/>Эта схема и есть <b>Ясна</b> — одна для всего, что есть в мире. Базовый курс учит видеть Ясну в любом явлении.<br/><br/>А кому интересно, как Ясна работает в конкретном явлении, — есть отдельные курсы: Ясна Суток, Ясна Года, Ясна Жизни и другие разборы.
         </div>
 
         {CURRICULUM.paths.map(p=><PathBlock key={p.id} path={p}/>)}
@@ -368,10 +368,10 @@ function Instruction({onClose}){
       <div className='fullpage-content' style={{flex:1,overflowY:'auto',padding:'24px',maxWidth:760,margin:'0 auto',width:'100%'}}>
 
         {/* INTRO */}
-        <div style={{padding:'20px 24px',background:'linear-gradient(135deg,#f0f5ff,#faf5ff)',borderRadius:16,marginBottom:32}}>
-          <div style={{fontSize:20,fontWeight:700,color:'#1d1d1f',marginBottom:8}}>Что такое Ясна?</div>
-          <div style={{fontSize:14,color:'#424245',lineHeight:1.7}}>
-            Ясна — это 12-частная циклическая структура, описывающая любое явление. Как циферблат часов, но вместо часов — этапы процесса. Каждый элемент стоит на своей «полочке» и связан с остальными через набор правил (механик). Если все 12 элементов расставлены правильно — Ясна «звучит», как настроенный инструмент.
+        <div style={{padding:'20px 24px',background:'var(--bg2,#f5f5f7)',border:'1px solid var(--border,#e5e5ea)',borderRadius:16,marginBottom:32}}>
+          <div style={{fontSize:20,fontWeight:700,color:'var(--txt,#1d1d1f)',marginBottom:8}}>Что такое Ясна?</div>
+          <div style={{fontSize:14,color:'var(--txt2,#6e6e73)',lineHeight:1.7}}>
+            Ясна — это 12-частная циклическая структура, описывающая любое явление. Как циферблат часов, но вместо часов — этапы процесса. Каждая часть стоит на своём месте и связана с остальными через набор правил (механик). Если все 12 мест заняты правильно — Ясна «звучит», как настроенный инструмент.
           </div>
         </div>
 
@@ -387,12 +387,12 @@ function Instruction({onClose}){
 
         <Step n="2" title="Найдите 4 опоры (Опорный Крест · Крест Бытия · Надежда)">
           Определите 4 главных состояния/события вашего явления. Они встанут на Опорный Крест, он же Крест Бытия, Крест Надежды:<br/>
-          <b>Позиция 0</b> — Минимум параметра. В книге: <b>Сила Тьмы</b>, дно Чаши Тьмы, скрытая основа.<br/>
-          <b>Позиция 3</b> — Горизонт рождения. В книге: <b>Проявление Света</b>, Восход, <b>Стрелка Весов</b>, Точка Истины.<br/>
-          <b>Позиция 6</b> — Максимум параметра. В книге: <b>Сила Света</b>, дно Чаши Света, Чистый Свет.<br/>
-          <b>Позиция 9</b> — Горизонт завершения. В книге: <b>Проявление Тьмы</b>, Закат, <b>Планка Весов</b>, Точка Розыгрыша.<br/>
+          <b>Место 0</b> — Минимум параметра. В книге: <b>Сила Тьмы</b>, дно Чаши Тьмы, скрытая основа.<br/>
+          <b>Место 3</b> — Горизонт рождения. В книге: <b>Проявление Света</b>, Восход, <b>Стрелка Весов</b>, Точка Истины.<br/>
+          <b>Место 6</b> — Максимум параметра. В книге: <b>Сила Света</b>, дно Чаши Света, Чистый Свет.<br/>
+          <b>Место 9</b> — Горизонт завершения. В книге: <b>Проявление Тьмы</b>, Закат, <b>Планка Весов</b>, Точка Розыгрыша.<br/>
           <div style={{padding:'10px 14px',background:'#E8364F08',borderLeft:'3px solid #E8364F',borderRadius:8,marginTop:8,fontSize:12,color:'var(--txt2,#6e6e73)'}}>
-            Проверка: 0 и 6 — полярные противоположности (Линия Единства, §249). 3 и 9 — тоже противоположности (Линия Борьбы, §164). Если антипод не читается — позиции перепутаны.
+            Проверка: 0 и 6 — полярные противоположности (Линия Единства, §249). 3 и 9 — тоже противоположности (Линия Борьбы, §164). Если антипод не читается — места перепутаны.
           </div>
           <div style={{padding:'10px 14px',background:'var(--bg2,#f0f5ff)',borderRadius:8,marginTop:8,fontSize:12,color:'#424245',lineHeight:1.6}}>
             <b>Круговорот воды:</b><br/>
@@ -429,7 +429,7 @@ function Instruction({onClose}){
         </Step>
 
         <Step n="5" title="Проверьте тип (Долгое/Короткое — Грани/Углы)">
-          Чётные позиции (0,2,4,6,8,10) — <b>долгие, «грани»</b>: процессы, зоны, состояния, накопления.<br/>
+          Чётные места (0,2,4,6,8,10) — <b>долгие, «грани»</b>: процессы, зоны, состояния, накопления.<br/>
           Нечётные (1,3,5,7,9,11) — <b>короткие, «углы/переломы»</b>: моменты, переломы, вспышки, скачки.<br/>
           <b>Основной Закон Ясны</b> (§290): переход количества в качество. Долгое копит, короткое скачком превращает накопленное в новое качество.<br/>
           Если на чётной стоит «момент» или на нечётной «процесс» — переместите.
@@ -441,17 +441,17 @@ function Instruction({onClose}){
         </Step>
 
         <Step n="6" title="Лёгкие / Тяжёлые / Ожидания (§275-277)">
-          Из всех 6 долгих позиций три типа по характеру изменения:<br/>
+          Из всех 6 долгих мест три типа по характеру изменения:<br/>
           <b>Лёгкие</b> (2, 8) — свет меняется с <b>ускорением</b>. Заря разгорается быстрее, Спуск ускоряется к закату.<br/>
           <b>Тяжёлые</b> (4, 10) — свет меняется с <b>замедлением</b>. Подъём замедляется к зениту, Сумерки замедляются.<br/>
           <b>Ожидания</b> (0, 6) — свет <b>не меняется</b>. Ночь и День — накапливается что-то другое (холод / жар).
           <div style={{padding:'10px 14px',background:'var(--bg2,#f0f5ff)',borderRadius:8,marginTop:8,fontSize:12,color:'#424245',lineHeight:1.6}}>
-            <b>Проверка:</b> на позициях 2 и 8 ваш элемент должен быть «лёгким, ускоряющимся». На 4 и 10 — «тяжёлым, замедляющимся». На 0 и 6 — «неподвижным ожиданием», в котором копится что-то невидимое.
+            <b>Проверка:</b> на местах 2 и 8 должно стоять «лёгкое, ускоряющееся». На 4 и 10 — «тяжёлое, замедляющееся». На 0 и 6 — «неподвижное ожидание», в котором копится что-то невидимое.
           </div>
         </Step>
 
         <Step n="7" title="Проверьте стихии — 4 Праны (§648-653, §583-584)">
-          Три позиции каждой Праны должны быть похожи «по духу». У каждой праны — глухой и звонкий глас:<br/>
+          Три места каждой Праны должны быть похожи «по духу». У каждой праны — глухой и звонкий глас:<br/>
           <b>Земля ШЕ / ЭЛ</b> (0, 4, 8): все устойчивые. <b>Вода ФО / ОМ</b> (1, 5, 9): все текучие.<br/>
           <b>Воздух ЦИ / ИНЬ</b> (2, 6, 10): все переходные. <b>Огонь ХА / АНГ</b> (3, 7, 11): все яркие.
           <div style={{padding:'10px 14px',background:'var(--bg2,#f0f5ff)',borderRadius:8,marginTop:8,fontSize:12,color:'#424245',lineHeight:1.6}}>
@@ -488,39 +488,39 @@ function Instruction({onClose}){
         </Step>
 
         <Step n="10" title="Найдите системную ошибку 8↔9 (§ Урок 3 Суток)">
-          <b>Это свойство мира</b>, а не баг Ясны. Цитата из книги: «Девятка ясно — есть ошибка. Ошибка — это свойство мира. Во всех остальных яснах эта ошибка присутствует». На границе полочек 8 и 9 существует встроенная ПУТАНИЦА — элемент 8 может «притворяться» 9 и наоборот.
+          <b>Это свойство мира</b>, а не баг Ясны. Цитата из книги: «Девятка ясно — есть ошибка. Ошибка — это свойство мира. Во всех остальных яснах эта ошибка присутствует». На границе мест 8 и 9 существует встроенная ПУТАНИЦА — место 8 может «притворяться» 9 и наоборот.
           <div style={{padding:'10px 14px',background:'#D946EF0C',borderLeft:'3px solid #D946EF',borderRadius:8,marginTop:8,fontSize:12,color:'#424245',lineHeight:1.6}}>
-            <b>Лингвистическое доказательство:</b> ДЕ<b>ВА</b>ть(9) содержит «ДЕВА» (знак зодиака на позиции 8!). ВО<b>С</b>емь(8) содержит «ВЕС-» (Весы — знак на позиции 9!). Слова намеренно перепутаны. Само слово «девиация» (отклонение стрелки весов) — от того же корня.
+            <b>Лингвистическое доказательство:</b> ДЕ<b>ВА</b>ть(9) содержит «ДЕВА» (знак зодиака на месте 8!). ВО<b>С</b>емь(8) содержит «ВЕС-» (Весы — знак на месте 9!). Слова намеренно перепутаны. Само слово «девиация» (отклонение стрелки весов) — от того же корня.
           </div>
           <div style={{padding:'10px 14px',background:'var(--bg2,#f0f5ff)',borderRadius:8,marginTop:8,fontSize:12,color:'#424245',lineHeight:1.6}}>
             <b>Три вопроса для проверки:</b><br/>
-            1. Что на вашей полочке 8 может быть перепутано с 9? (Пример в Доме: лазарет — лежишь как в спальне-9, но не спишь как в женской-8)<br/>
+            1. Что на вашем месте 8 может быть перепутано с 9? (Пример в Доме: лазарет — лежишь как в спальне-9, но не спишь как в женской-8)<br/>
             2. Есть ли зеркальная путаница 2↔3? (Пример: бар в столовой — по сути кухня-3, но находится в столовой-2)<br/>
             3. Определены ли 4 типа ошибок на Опорном Кресте? 0=ошибка во сне, 3=просмотрел, 6=мираж, 9=ошибка измерения
           </div>
         </Step>
 
         <Step n="11" title="Сверьтесь с рубрикатором">
-          Каждая полочка проверяется на соответствие с другими проверенными Яснами. Откройте вкладку «+ ещё» и посмотрите, что стоит на вашей позиции в других ясн:
+          Каждое место проверяется на соответствие с другими проверенными Яснами. Откройте вкладку «+ ещё» и посмотрите, что стоит на этом же месте в других ясн:
           <div style={{padding:'10px 14px',background:'var(--bg2,#f0f5ff)',borderRadius:8,marginTop:8,fontSize:12,color:'#424245',lineHeight:1.6}}>
             <b>Эталонные Ясны для сверки:</b> Суток, Круговорот Воды, Цветов радуги, Животных двора, Дома, Кухни, Атмосферы, Облачности, Осадков, Примет погоды.<br/><br/>
-            Для каждой позиции: «Есть ли смысловая связь между моим элементом и элементами на этой же полочке в других Яснах?»
+            Для каждого места: «Есть ли смысловая связь между моим и тем, что стоит на этом же месте в других Яснах?»
           </div>
         </Step>
 
         {/* CHECKLIST: POSITION */}
-        <div style={{fontSize:22,fontWeight:700,color:'var(--txt,#1d1d1f)',marginBottom:16,marginTop:40,paddingTop:20,borderTop:'1px solid #e5e5ea'}}>Чек-лист полочки (8 проверок)</div>
-        <p style={{fontSize:13,color:'var(--txt2,#6e6e73)',marginBottom:16,lineHeight:1.6}}>Каждый элемент на каждой позиции должен пройти все 8 проверок. Для позиций 8 и 9 — дополнительная, 9-я проверка на системную ошибку.</p>
+        <div style={{fontSize:22,fontWeight:700,color:'var(--txt,#1d1d1f)',marginBottom:16,marginTop:40,paddingTop:20,borderTop:'1px solid #e5e5ea'}}>Чек-лист места (8 проверок)</div>
+        <p style={{fontSize:13,color:'var(--txt2,#6e6e73)',marginBottom:16,lineHeight:1.6}}>Каждое место должно пройти все 8 проверок. Для мест 8 и 9 — дополнительная, 9-я проверка на системную ошибку.</p>
 
         <Card title="1. Тип" color="#1d1d1f">
-          <Check>Чётная позиция → элемент является процессом, состоянием, зоной?</Check>
-          <Check>Нечётная позиция → элемент является моментом, переломом, вспышкой?</Check>
+          <Check>Чётное место → на нём процесс, состояние, зона?</Check>
+          <Check>Нечётное место → на нём момент, перелом, вспышка?</Check>
         </Card>
         <Card title="2. Прана (стихия)" color="#C0943A">
-          <Check>Позиции 0,4,8 → элемент устойчивый, земной, фундаментальный?</Check>
-          <Check>Позиции 1,5,9 → элемент текучий, водный, переменчивый?</Check>
-          <Check>Позиции 2,6,10 → элемент воздушный, промежуточный, переходный?</Check>
-          <Check>Позиции 3,7,11 → элемент огненный, яркий, взрывной?</Check>
+          <Check>Места 0,4,8 → устойчивое, земное, фундаментальное?</Check>
+          <Check>Места 1,5,9 → текучее, водное, переменчивое?</Check>
+          <Check>Места 2,6,10 → воздушное, промежуточное, переходное?</Check>
+          <Check>Места 3,7,11 → огненное, яркое, взрывное?</Check>
         </Card>
         <Card title="3. Крест" color="#E8364F">
           <Check>Опорная (0,3,6,9) → это одно из 4 главных событий? Без него всё рассыпется?</Check>
@@ -528,7 +528,7 @@ function Instruction({onClose}){
           <Check>Левая (2,5,8,11) → это подготовка к следующей Опорной?</Check>
         </Card>
         <Card title="4. Противоположность" color="#ff9500">
-          <Check>Элемент [i] и элемент [i+6] — зеркально противоположны?</Check>
+          <Check>Место [i] и место [i+6] — зеркально противоположны?</Check>
           <Check>Можете назвать, в чём именно противоположность?</Check>
         </Card>
         <Card title="5. Соседство" color="#30A060">
@@ -536,17 +536,17 @@ function Instruction({onClose}){
           <Check>Нет «разрывов» — логика не ломается?</Check>
         </Card>
         <Card title="6. Половина (зоны Чаш)" color="#6366f1">
-          <Check>Верхний элемент (4-8), Чаша Света → про явное, открытое, дневное?</Check>
-          <Check>Нижний элемент (10-2), Чаша Тьмы → про скрытое, закрытое, ночное?</Check>
+          <Check>Верхнее место (4-8), Чаша Света → про явное, открытое, дневное?</Check>
+          <Check>Нижнее место (10-2), Чаша Тьмы → про скрытое, закрытое, ночное?</Check>
           <Check>Левый (1-5) → про рост? Правый (7-11) → про спад?</Check>
         </Card>
         <Card title="7. Аналогия с эталонами" color="#9060D0">
-          <Check>Элемент выполняет ту же функцию, что и элементы на этой позиции в других Яснах?</Check>
+          <Check>Здесь та же функция, что и на этом же месте в других Яснах?</Check>
           <Check>Примеры для сравнения: Суток, Дома, Кухни, Круговорота воды, Цветов радуги, Животных</Check>
         </Card>
         <Card title="8. Системная ошибка (для 8 и 9 обязательно)" color="#D946EF">
-          <Check>Для полочки 8: есть ли в элементе что-то, что может быть принято за элемент 9?</Check>
-          <Check>Для полочки 9: есть ли в элементе что-то, что может быть принято за элемент 8?</Check>
+          <Check>Для места 8: есть ли здесь что-то, что можно принять за 9?</Check>
+          <Check>Для места 9: есть ли здесь что-то, что можно принять за 8?</Check>
           <Check>Зеркально: есть ли аналогичная путаница между 2 и 3?</Check>
           <Check>Для 0,3,6,9: определён ли тип ошибки (во сне / просмотрел / мираж / измерения)?</Check>
         </Card>
@@ -556,14 +556,14 @@ function Instruction({onClose}){
         <p style={{fontSize:13,color:'var(--txt2,#6e6e73)',marginBottom:16,lineHeight:1.6}}>Проверьте каждую механику на всей Ясне целиком.</p>
 
         <Card title="Опорный Крест (Бытия · Надежда)" color="#E8364F">
-          <Check>4 Опоры (0,3,6,9) — самые важные элементы? Остальные без них теряют смысл?</Check>
+          <Check>4 Опоры (0,3,6,9) — самые важные места? Остальные без них теряют смысл?</Check>
           <Check>0↔6 противоположны (Линия Единства)? 3↔9 противоположны (Линия Борьбы)?</Check>
         </Card>
         <Card title="Крест Управления (Правый · Исхода · Любви)" color="#E8A834">
-          <Check>Каждый из 4 элементов (1,4,7,10) — результат/исход предыдущей Опорной?</Check>
+          <Check>Каждое из 4 мест (1,4,7,10) — результат/исход предыдущей Опорной?</Check>
         </Card>
         <Card title="Крест Веры (Левый · Левит · Духа)" color="#5B9CF6">
-          <Check>Каждый из 4 элементов (2,5,8,11) — подготовка/вера перед следующей Опорной?</Check>
+          <Check>Каждое из 4 мест (2,5,8,11) — подготовка/вера перед следующей Опорной?</Check>
         </Card>
         <Card title="4 тройки ритма" color="#30A060">
           <Check>Тройка 2→3→4: читается как Вера→Бой→Победа?</Check>
@@ -584,10 +584,10 @@ function Instruction({onClose}){
           <Check>Дуга I (1→2→3→4→5): плавная последовательность ФО→ЦИ→ХА→ШЕ→ФО?</Check>
           <Check>Дуга II (5→6→7→8→9): плавная последовательность?</Check>
           <Check>Дуга III (9→10→11→0→1): плавная последовательность?</Check>
-          <Check>Середина каждой дуги (ХА) — самый яркий элемент из пяти?</Check>
+          <Check>Середина каждой дуги (ХА) — самое яркое из пяти?</Check>
         </Card>
         <Card title="Системная ошибка 8↔9" color="#D946EF">
-          <Check>Найдена зона путаницы между полочками 8 и 9?</Check>
+          <Check>Найдена зона путаницы между местами 8 и 9?</Check>
           <Check>Найдена зеркальная путаница между 2 и 3?</Check>
           <Check>Определены 4 типа ошибок на Опорном Кресте (0, 3, 6, 9)?</Check>
         </Card>
@@ -611,7 +611,7 @@ function Instruction({onClose}){
           </div>
           <div style={{padding:'12px 16px',background:'var(--bg2,#fff5f5)',border:'1px solid #ffd4d4',borderRadius:10}}>
             <div style={{fontSize:13,fontWeight:700,color:'#c62828',marginBottom:4}}>4. Нарушение структуры Пран</div>
-            <div style={{fontSize:12,color:'#424245',lineHeight:1.6}}>На позиции ШЕ (0,4,8) стоит что-то резкое и скачкообразное. Праны — неизменная структура. Если элемент не соответствует пране — он стоит не на своей полочке.</div>
+            <div style={{fontSize:12,color:'#424245',lineHeight:1.6}}>На местах ШЕ (0,4,8) стоит что-то резкое и скачкообразное. Праны — неизменная структура. Если содержимое не соответствует пране — оно стоит не на своём месте.</div>
           </div>
           <div style={{padding:'12px 16px',background:'var(--bg2,#fff5f5)',border:'1px solid #ffd4d4',borderRadius:10}}>
             <div style={{fontSize:13,fontWeight:700,color:'#c62828',marginBottom:4}}>5. Слабые противоположности</div>
@@ -627,7 +627,7 @@ function Instruction({onClose}){
           </div>
           <div style={{padding:'12px 16px',background:'var(--bg2,#fff5f5)',border:'1px solid #ffd4d4',borderRadius:10}}>
             <div style={{fontSize:13,fontWeight:700,color:'#c62828',marginBottom:4}}>8. Пренебрежение Дугами и Ритмом</div>
-            <div style={{fontSize:12,color:'#424245',lineHeight:1.6}}>Проверили Кресты и Праны, но не прочитали 3 дуги как плавные циклы и 4 тройки как мини-истории. Дуги и Ритм — проверки связности. Если дуга читается рывками — элементы в ней не связаны.</div>
+            <div style={{fontSize:12,color:'#424245',lineHeight:1.6}}>Проверили Кресты и Праны, но не прочитали 3 дуги как плавные циклы и 4 тройки как мини-истории. Дуги и Ритм — проверки связности. Если дуга читается рывками — места в ней не связаны.</div>
           </div>
         </div>
 
@@ -635,23 +635,23 @@ function Instruction({onClose}){
         <div style={{fontSize:22,fontWeight:700,color:'var(--txt,#1d1d1f)',marginBottom:16,marginTop:40,paddingTop:20,borderTop:'1px solid #e5e5ea'}}>Финальная проверка всей Ясны</div>
 
         <div style={{padding:'20px 24px',background:'var(--bg2)',borderRadius:16,marginBottom:20}}>
-          <Check>Все 12 позиций заполнены?</Check>
+          <Check>Все 12 мест заполнены?</Check>
           <Check>Ясна читается по кругу 0→1→...→11→0 без разрывов?</Check>
           <Check>Все 6 противоположностей зеркальны?</Check>
           <Check>4 Опоры — действительно главные? Без них всё теряет смысл?</Check>
           <Check>Чётные — процессы, нечётные — моменты? (12 проверок)</Check>
-          <Check>Треугольники стихий — элементы внутри каждого похожи? (4 проверки)</Check>
+          <Check>Треугольники стихий — места внутри каждого похожи? (4 проверки)</Check>
           <Check>4 тройки ритма — каждая читается как мини-история?</Check>
-          <Check>Верхние элементы (4-8) явные? Нижние (10-2) скрытые?</Check>
+          <Check>Верхние места (4-8) явные? Нижние (10-2) скрытые?</Check>
           <Check>Левые (1-5) растут? Правые (7-11) убывают?</Check>
-          <Check>Можете объяснить каждый элемент не-эксперту за 1 предложение?</Check>
-          <Check>Описана ли системная ошибка 8↔9? Что на полочке 8 может быть перепутано с 9? Есть ли зеркало на 2↔3?</Check>
+          <Check>Можете объяснить каждое место не-эксперту за 1 предложение?</Check>
+          <Check>Описана ли системная ошибка 8↔9? Что на месте 8 может быть перепутано с 9? Есть ли зеркало на 2↔3?</Check>
         </div>
 
-        <div style={{padding:'20px 24px',background:'linear-gradient(135deg,#f0fff5,#f0f5ff)',borderRadius:16,marginBottom:32}}>
+        <div style={{padding:'20px 24px',background:'var(--bg2,#f5f5f7)',border:'1px solid var(--border,#e5e5ea)',borderRadius:16,marginBottom:32}}>
           <div style={{fontSize:16,fontWeight:700,color:'var(--txt,#1d1d1f)',marginBottom:8}}>Когда Ясна готова?</div>
-          <div style={{fontSize:14,color:'#424245',lineHeight:1.7}}>
-            Ясна готова, когда все проверки пройдены и вы можете объяснить логику размещения каждого элемента. Идеальная Ясна — та, где невозможно поменять местами ни одну пару элементов без потери смысла. Каждый стоит на единственно возможном месте.
+          <div style={{fontSize:14,color:'var(--txt2,#6e6e73)',lineHeight:1.7}}>
+            Ясна готова, когда все проверки пройдены и вы можете объяснить логику каждого места. Идеальная Ясна — та, где невозможно поменять местами ни одну пару без потери смысла. Каждое стоит на единственно возможном месте.
           </div>
         </div>
 
@@ -674,7 +674,7 @@ function Glossary({onClose}){
       </div>
       <div className='fullpage-content' style={{flex:1,overflowY:'auto',padding:'20px 24px',maxWidth:720,margin:'0 auto',width:'100%'}}>
         <p style={{fontSize:14,color:'var(--txt2,#6e6e73)',marginBottom:24,lineHeight:1.7}}>
-          Ясна — это способ описать любое явление через 12 позиций, расположенных по кругу. Каждая позиция имеет свойства и связана с другими через механики. Понимание механик — ключ к составлению правильных Ясен.
+          Ясна — это способ описать любое явление через 12 мест, расположенных по кругу. Каждое место имеет свойства и связано с другими через механики. Понимание механик — ключ к составлению правильных Ясен.
         </p>
 
         {GLOSS.map(g=>{const isOpen=open===g.id;return(
@@ -683,7 +683,7 @@ function Glossary({onClose}){
               <div style={{width:8,height:8,borderRadius:'50%',background:g.color,flexShrink:0}}/>
               <div style={{flex:1}}>
                 <div style={{fontSize:16,fontWeight:600,color:'var(--txt,#1d1d1f)'}}>{g.title}</div>
-                {g.positions&&<div style={{fontSize:11,color:'#86868b',marginTop:2}}>Позиции: {g.positions}</div>}
+                {g.positions&&<div style={{fontSize:11,color:'#86868b',marginTop:2}}>Места: {g.positions}</div>}
                 {!isOpen&&<div style={{fontSize:12,color:'#aeaeb2',marginTop:4}}>{g.what.slice(0,80)}...</div>}
               </div>
               <span style={{fontSize:18,color:'#c7c7cc',transform:isOpen?'rotate(90deg)':'none',transition:'transform .2s'}}>›</span>
@@ -764,7 +764,7 @@ function App(){
     setStarRotation(dir);
     impulseTimerRef.current=setTimeout(()=>{setStarRotation(null);impulseTimerRef.current=null;},rotationSpeed*1000+50);
   };
-  // Авто-стоп вращения при выборе полки (sel) для чтения Info-карточки
+  // Авто-стоп вращения при выборе места (sel) для чтения Info-карточки
   useEffect(()=>{ if(sel!==null&&starRotation){setStarRotation(null);if(impulseTimerRef.current){clearTimeout(impulseTimerRef.current);impulseTimerRef.current=null;}} },[sel]);
   // Cleanup таймера при размонтировании или сбросе
   useEffect(()=>{ if(!starRotation&&impulseTimerRef.current){clearTimeout(impulseTimerRef.current);impulseTimerRef.current=null;} },[starRotation]);
@@ -1142,7 +1142,7 @@ function App(){
   const hl=useMemo(()=>{if(!af.length)return null;const all=new Set();af.forEach(id=>{const f=FL.find(x=>x.id===id);if(f?.p)f.p.forEach(x=>all.add(x));});return all.size?[...all]:null;},[af]);
   const pinnedTemplates=pinned.map(id=>T.find(t=>t.id===id)||customs.find(c=>c.id===id)).filter(Boolean);
   /* Свои ясны без нетронутых копий встроенных: «Редактировать» молча
-     создаёт копию, и в списках появлялись две «Суток». Сравниваем полки,
+     создаёт копию, и в списках появлялись две «Суток». Сравниваем места,
      схлопнув все пробелы и переносы — в каноне имена многострочные. */
   /* Скрытые встроенные ясны: человек оставляет себе только нужный список.
      Хранится имя, а не id — встроенные стабильны по имени. Скрытая ясна
@@ -1172,7 +1172,7 @@ function App(){
   const недавние = недавниеИмена
     /* Канон выигрывает у своей копии с тем же именем: случайная копия
        «Суток» (кнопка «Редактировать» её создаёт молча) перехватывала
-       чип и открывалась вместо выверенной ясны. */
+       чип и открывалась вместо готовой ясны. */
     .map(имя => T.find(t=>t.n===имя) || customs.find(c=>(c.n||c.name)===имя))
     .filter(Boolean)
     /* Текущую ясну в чипах не повторяем — её имя уже стоит в плашке над
@@ -1189,9 +1189,9 @@ function App(){
         </a>
         {/* Свитчер разделов (Вариант B) — десктоп; на мобайле разделы в бургере */}
         <nav className='ynav-links hdr-switch' style={{flex:'0 1 auto',marginRight:6}} aria-label='Разделы'>
-          <a className='ynav-item is-active' href='konstruktor.html'>Конструктор</a>
+          <a className='ynav-item is-active' href='konstruktor.html'>Разбор</a>
           <a className='ynav-item' href='duel.html'>Игра<span className='ynav-new'>NEW</span></a>
-          <a className='ynav-item' href='learn.html'>Обучение</a>
+          <a className='ynav-item' href='learn.html'>Уроки</a>
           <a className='ynav-item' href='negotiations.html'>Разговор</a>
         </nav>
         <div style={{flex:1}}/>
@@ -1262,9 +1262,9 @@ function App(){
           {menu&&<div style={{position:'absolute',top:'100%',right:0,marginTop:4,background:'var(--bg,#fff)',border:'1px solid #e5e5ea',borderRadius:12,boxShadow:'0 8px 30px rgba(0,0,0,.12)',zIndex:80,minWidth:260,maxWidth:'calc(100vw - 24px)',maxHeight:'calc(100vh - 80px)',overflowY:'auto'}}>
             {/* Разделы (Вариант B) — навигация между страницами */}
             <div style={{padding:'12px 16px 6px',fontSize:11,fontWeight:700,letterSpacing:1.4,textTransform:'uppercase',color:'#86868b'}}>Разделы</div>
-            <a href='konstruktor.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'#0058b8',fontWeight:700,borderBottom:'1px solid var(--border,#f5f5f7)',background:'rgba(0,113,227,.06)',textDecoration:'none'}}>Конструктор</a>
+            <a href='konstruktor.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'#0058b8',fontWeight:700,borderBottom:'1px solid var(--border,#f5f5f7)',background:'rgba(0,113,227,.06)',textDecoration:'none'}}>Разбор</a>
             <a href='duel.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'var(--txt,#1d1d1f)',borderBottom:'1px solid var(--border,#f5f5f7)',background:'var(--bg,#fff)',textDecoration:'none'}}>Игра</a>
-            <a href='learn.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'var(--txt,#1d1d1f)',borderBottom:'1px solid var(--border,#f5f5f7)',background:'var(--bg,#fff)',textDecoration:'none'}}>Обучение</a>
+            <a href='learn.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'var(--txt,#1d1d1f)',borderBottom:'1px solid var(--border,#f5f5f7)',background:'var(--bg,#fff)',textDecoration:'none'}}>Уроки</a>
             <a href='negotiations.html' style={{display:'block',padding:'11px 16px',fontSize:14,color:'var(--txt,#1d1d1f)',borderBottom:'1px solid var(--border,#f5f5f7)',background:'var(--bg,#fff)',textDecoration:'none'}}>Разговор</a>
             {/* Войти — профиль с аватаром, первой кнопкой */}
             <a href='duel.html#login' onClick={e=>{ if(window.YasnaAccount){ e.preventDefault(); window.YasnaAccount.isLoggedIn() ? window.YasnaAccount.openProfile() : window.YasnaAccount.openLogin(); } }} style={{display:'flex',width:'100%',padding:'14px 16px',fontSize:14,color:'var(--txt,#1d1d1f)',border:'none',borderBottom:'1px solid var(--border,#f5f5f7)',background:'var(--bg,#fff)',textDecoration:'none',alignItems:'center',gap:12,fontWeight:600,boxSizing:'border-box'}}>
@@ -1305,7 +1305,7 @@ function App(){
           {/* Уроки живут на своём экране (learn.html) — здесь только разборы ясн */}
           {(()=>{
             const allTours=(window.YasnaTours&&window.YasnaTours.list?window.YasnaTours.list():[]);
-            if(allTours.length===0)return <div style={{padding:'12px 16px',fontSize:12,color:'#aeaeb2',fontStyle:'italic'}}>Гиды появятся скоро</div>;
+            if(allTours.length===0)return <div style={{padding:'12px 16px',fontSize:12,color:'#aeaeb2',fontStyle:'italic'}}>Гидов в приложении пока нет</div>;
             const PRIORITY=['Суток','Года','Жизни'];
             const tours=[...allTours].sort((a,b)=>{
               const ai=PRIORITY.indexOf(a),bi=PRIORITY.indexOf(b);
@@ -1319,7 +1319,7 @@ function App(){
         </div>
       </>}
       {/* ═══ ТЕЛЕФОН: полоса имени сверху ═══════════════════════════════
-          Одна крупная цель во всю ширину: кружок Ясны (двенадцать полок,
+          Одна крупная цель во всю ширину: кружок Ясны (двенадцать мест,
           заполненные — залиты), имя, мета и шеврон. Тап открывает лист со
           всеми Яснами. Заменяет собой и ленту чипов, и «☰». */}
       <div className='raz-imya-polosa'>
@@ -1341,7 +1341,7 @@ function App(){
               const занято=(y.p||[]).filter(x=>x&&String(x).trim()).length;
               if(свои) return 'ваша Ясна · заполнено '+занято+' из 12';
               const шаблон=T.find(t=>t.n===y.name);
-              if(шаблон&&шаблон.verified) return 'выверенная ясна';
+              if(шаблон&&шаблон.verified) return 'готовая ясна';
               return 'заполнено '+занято+' из 12';
             })()}</span>
           </span>
@@ -1414,20 +1414,20 @@ function App(){
           })}
         </div>
       </>}
-      {/* Ясна² Drill: панель управления внутренней Ясной (только когда mb_yasna2 + клик по полке) */}
+      {/* Ясна² Drill: панель управления внутренней Ясной (только когда mb_yasna2 + клик по месту) */}
       {yasna2Drill!=null&&<div className='drill-bar' style={{padding:'10px 16px',background:'linear-gradient(90deg,rgba(162,28,175,.06),rgba(162,28,175,.02))',borderBottom:'1px solid rgba(162,28,175,.25)',display:'flex',gap:8,alignItems:'center',flexShrink:0,flexWrap:'wrap'}}>
         <button onClick={()=>{setYasna2Drill(null);setDrillEditing(false);}} style={{padding:'6px 14px',borderRadius:9,border:'1px solid #a21caf',background:'var(--bg,#fff)',color:'#a21caf',fontWeight:600,fontSize:12.5,cursor:'pointer',display:'flex',alignItems:'center',gap:4}}>← Назад</button>
         <div style={{display:'flex',alignItems:'center',gap:6,fontSize:12.5,color:'#581c87',minWidth:0,flex:'1 1 auto'}}>
           <span style={{color:'#86868b',whiteSpace:'nowrap'}}>{y.name}</span>
           <span style={{color:'#a21caf'}}>→</span>
-          <span style={{fontWeight:700,whiteSpace:'nowrap'}}>Полка {yasna2Drill}</span>
+          <span style={{fontWeight:700,whiteSpace:'nowrap'}}>Место {yasna2Drill}</span>
           {y.p[yasna2Drill]&&<span style={{color:'#581c87',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>: {y.p[yasna2Drill]}</span>}
         </div>
         <select value="" onChange={e=>{const tpl=T.find(t=>t.id===e.target.value);if(tpl){setSubPolkiAll(y.name,yasna2Drill,tpl.p);}e.target.value="";}} style={{padding:'6px 10px',fontSize:12.5,border:'1px solid #a21caf',borderRadius:9,background:'var(--bg,#fff)',color:'#581c87',cursor:'pointer',fontWeight:500}}>
           <option value="">📥 Импорт из шаблона…</option>
           {T.filter(t=>t.p&&t.p.length===12).map(t=><option key={t.id} value={t.id}>{t.n}</option>)}
         </select>
-        <button onClick={()=>{if(confirm('Очистить sub-полки этой Полки?'))clearSub(y.name,yasna2Drill);}} title="Очистить" style={{padding:'6px 10px',borderRadius:9,border:'1px solid #d2d2d7',background:'var(--bg,#fff)',cursor:'pointer',fontSize:13}}>🧹 Очистить</button>
+        <button onClick={()=>{if(confirm('Очистить вложенные места этого места?'))clearSub(y.name,yasna2Drill);}} title="Очистить" style={{padding:'6px 10px',borderRadius:9,border:'1px solid #d2d2d7',background:'var(--bg,#fff)',cursor:'pointer',fontSize:13}}>🧹 Очистить</button>
         <button onClick={()=>setDrillEditing(v=>!v)} style={{padding:'6px 14px',borderRadius:9,border:`1px solid ${drillEditing?'#a21caf':'#a21caf66'}`,background:drillEditing?'#a21caf':'var(--diag-btn-bg,#fff)',color:drillEditing?'#fff':'#a21caf',fontWeight:600,fontSize:12.5,cursor:'pointer',display:'flex',alignItems:'center',gap:5}}>{drillEditing?'✓ Готово':'✏️ Редактировать'}</button>
       </div>}
       {/* app-body: flex row с workspace и side-panel — Решение 1+3 */}
@@ -1482,7 +1482,7 @@ function App(){
               <button onClick={()=>{setRotPanelOpen(false);setGlossary(true)}} style={{flex:1,padding:'8px 6px',borderRadius:10,fontSize:12,border:'1px solid var(--border,#d2d2d7)',background:'transparent',color:'var(--txt2,#6e6e73)',cursor:'pointer'}}>Словарь</button>
               <button onClick={()=>{setRotPanelOpen(false);setVerif(true)}} style={{flex:1,padding:'8px 6px',borderRadius:10,fontSize:12,border:'1px solid var(--border,#d2d2d7)',background:'transparent',color:'var(--txt2,#6e6e73)',cursor:'pointer'}}>Проверка</button>
             </div>
-            <button onClick={()=>setShowComposition(c=>!c)} title='Состав 4 пран в каждой Полке' style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1px solid ${showComposition?'rgba(192,148,58,.5)':'#e5e5ea'}`,background:showComposition?'rgba(192,148,58,.10)':'#fff',color:showComposition?'#7a5e25':'#424245',fontSize:12.5,cursor:'pointer',fontWeight:500,marginBottom:6}}>
+            <button onClick={()=>setShowComposition(c=>!c)} title='Состав 4 пран на каждом месте' style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1px solid ${showComposition?'rgba(192,148,58,.5)':'#e5e5ea'}`,background:showComposition?'rgba(192,148,58,.10)':'#fff',color:showComposition?'#7a5e25':'#424245',fontSize:12.5,cursor:'pointer',fontWeight:500,marginBottom:6}}>
               <span style={{display:'inline-flex',gap:1.5,alignItems:'center',flexShrink:0}}>
                 <span style={{width:3,height:14,background:'#C0943A',borderRadius:1}}/>
                 <span style={{width:3,height:14,background:'#4090D8',borderRadius:1}}/>
@@ -1520,7 +1520,7 @@ function App(){
               <span style={{fontSize:10,color:showCage?'rgba(255,255,255,.85)':'#aeaeb2',fontWeight:700}}>{showCage?'Вкл':'Выкл'}</span>
             </button>}
             {/* Астрономический режим — открывает отдельную панель «Астрономия» с под-тогглами */}
-            {is3D && <button onClick={()=>setAstroMode(a=>!a)} title='Открыть панель астрономических слоёв — каждый элемент включается отдельно' style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1px solid ${astroMode?'#0071e3':'var(--diag-btn-border,#e5e5ea)'}`,background:astroMode?'#0071e3':'var(--diag-btn-bg,#fff)',color:astroMode?'#fff':'var(--diag-btn-ink,#424245)',fontSize:12.5,cursor:'pointer',fontWeight:astroMode?600:500,boxShadow:astroMode?'0 2px 8px rgba(0,113,227,.25)':'none'}}>
+            {is3D && <button onClick={()=>setAstroMode(a=>!a)} title='Открыть панель астрономических слоёв — каждый слой включается отдельно' style={{width:'100%',display:'flex',alignItems:'center',gap:10,padding:'8px 10px',borderRadius:8,border:`1px solid ${astroMode?'#0071e3':'var(--diag-btn-border,#e5e5ea)'}`,background:astroMode?'#0071e3':'var(--diag-btn-bg,#fff)',color:astroMode?'#fff':'var(--diag-btn-ink,#424245)',fontSize:12.5,cursor:'pointer',fontWeight:astroMode?600:500,boxShadow:astroMode?'0 2px 8px rgba(0,113,227,.25)':'none'}}>
               <span style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:18,height:18,flexShrink:0}}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
                   <circle cx="12" cy="12" r="9"/>
@@ -1546,7 +1546,7 @@ function App(){
             не выбрано. Исчезает при первом же тапе. */}
         {sel==null && <div className='star-podskazka' aria-hidden='true'>Нажми на место круга — откроется его карточка</div>}
         <div className="star-svg-wrap" style={{width:'100%',height:'100%',maxWidth:'none',maxHeight:'none',flex:1}}>{(()=>{
-          /* Если карточка свёрнута и кликнули по ТОЙ ЖЕ полке — раскрываем
+          /* Если карточка свёрнута и кликнули по ТОМУ ЖЕ месту — раскрываем
              панель вместо снятия выделения. Это нужно мобильному, чтобы
              пользователь мог снова открыть карточку без потери обводки. */
           const onStarSel=(next)=>{
@@ -1578,17 +1578,17 @@ function App(){
             откуда={откуда}/>}
         </aside>}
       </div>
-      {/* Ясна² Drill Editor: bottom-panel с 12 inputs для sub-полок */}
+      {/* Ясна² Drill Editor: bottom-panel с 12 inputs для вложенных мест */}
       {yasna2Drill!=null&&drillEditing&&<div style={{flexShrink:0,padding:'14px 18px',background:'linear-gradient(180deg,rgba(162,28,175,.04),rgba(162,28,175,.08))',borderTop:'1px solid rgba(162,28,175,.25)',maxHeight:'40vh',overflowY:'auto'}}>
         <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
-          <div style={{fontSize:10,color:'#a21caf',fontWeight:700,letterSpacing:1.5,textTransform:'uppercase'}}>Sub-Полки внутренней Ясны Полки {yasna2Drill}</div>
+          <div style={{fontSize:10,color:'#a21caf',fontWeight:700,letterSpacing:1.5,textTransform:'uppercase'}}>Вложенные места внутренней Ясны места {yasna2Drill}</div>
           <div style={{fontSize:11,color:'#86868b'}}>· сохраняется автоматически</div>
         </div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))',gap:8}}>
           {Array.from({length:12},(_,j)=>{const v=getSubPolki(y.name,yasna2Drill)[j]||'';return(
             <div key={j} style={{display:'flex',gap:8,alignItems:'center'}}>
               <span style={{width:24,height:24,borderRadius:'50%',border:'1.5px solid #a21caf',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'#a21caf',flexShrink:0,background:'var(--bg,#fff)'}}>{j}</span>
-              <input value={v} onChange={e=>setSubPolkaAt(y.name,yasna2Drill,j,e.target.value)} placeholder="название sub-полки" style={{flex:1,padding:'6px 10px',border:'1px solid #d2d2d7',borderRadius:7,fontSize:12.5,fontFamily:'inherit',outline:'none',background:'var(--bg,#fff)'}} onFocus={e=>{e.target.style.borderColor='#a21caf';e.target.style.boxShadow='0 0 0 3px rgba(162,28,175,.1)'}} onBlur={e=>{e.target.style.borderColor='#d2d2d7';e.target.style.boxShadow='none'}}/>
+              <input value={v} onChange={e=>setSubPolkaAt(y.name,yasna2Drill,j,e.target.value)} placeholder="название вложенного места" style={{flex:1,padding:'6px 10px',border:'1px solid #d2d2d7',borderRadius:7,fontSize:12.5,fontFamily:'inherit',outline:'none',background:'var(--bg,#fff)'}} onFocus={e=>{e.target.style.borderColor='#a21caf';e.target.style.boxShadow='0 0 0 3px rgba(162,28,175,.1)'}} onBlur={e=>{e.target.style.borderColor='#d2d2d7';e.target.style.boxShadow='none'}}/>
             </div>
           );})}
         </div>
@@ -1685,7 +1685,7 @@ function App(){
               </button>
               <button role='menuitem' onClick={()=>{setМенюПлюс(false);createNew();}}>
                 <b>＋ Создать новую</b>
-                <i>пустой круг из двенадцати полок</i>
+                <i>пустой круг из двенадцати мест</i>
               </button>
             </div>
           </>}
@@ -1714,7 +1714,7 @@ function App(){
             role='button' tabIndex={0}
             onClick={()=>{ if(правкаЯсн) return; if(!текущая) load(t); setЛистЯсн(false); }}>
             <span className='raz-list-imya'>{имя}</span>
-            <span className='raz-list-meta'>{t.свой?'моя':(спр?'скрыта':(t.verified?'проверена':'из материалов'))}</span>
+            <span className='raz-list-meta'>{t.свой?'моя':(спр?'скрыта':(t.verified?'готовая':'из материалов'))}</span>
             {текущая && !правкаЯсн && <span className='raz-list-tut'>сейчас</span>}
             {правкаЯсн && (t.свой
               ? <button className='raz-list-dey raz-list-dey--ud' onClick={e=>{e.stopPropagation();

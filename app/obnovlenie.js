@@ -168,7 +168,10 @@
     return У && У.otmenit ? У.otmenit() : Promise.resolve();
   };
 
-  /* Плашка на главной: вставляется в #obnova-mesto, если там она уместна. */
+  /* Плашка на главной: вставляется в #obnova-mesto, если там она уместна.
+     Ответ хранилища приходит через секунды после первого кадра, поэтому
+     плашка стоит слоем над наббаром (стили .obnova на главной), а не в
+     потоке: иначе она сдвигала бы уже читаемый экран вниз. */
   window.yasnaObnovaPlashka = function () {
     var место = document.getElementById('obnova-mesto');
     if (!место) return;
@@ -182,7 +185,7 @@
         (о.изменения ? '<div class="obnova-o"></div>' : '') +
         '<div class="obnova-r">' +
           '<button type="button" class="obnova-da">Скачать и установить</button>' +
-          '<button type="button" class="obnova-net">позже</button>' +
+          '<button type="button" class="obnova-net">Позже</button>' +
         '</div>';
       /* Всё из удалённого манифеста — только textContent, никакого innerHTML. */
       d.querySelector('.obnova-t').textContent = 'Вышла версия ' + о.имя;

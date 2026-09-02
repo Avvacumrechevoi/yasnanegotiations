@@ -1020,26 +1020,52 @@ function SummaryBlockInline({block}){
 
 function NextStepsBlockInline({block,onClose,onPickAnother,onRepeat,onOpenLesson,lesson}){
   /* Следующий урок предлагается, только если он РЕАЛЬНО написан: раньше
-     битый nextLessonId молча открывал первый попавшийся урок (ALL[0]). */
+     битый nextLessonId молча открывал первый попавшийся урок (ALL[0]).
+     Имя, подпись и объём тоже берём у самого урока и у его узла в дереве,
+     а поля из финала оставляем запасными: набранные руками, они разъезжаются
+     при первой правке соседа — чужое название, чужие минуты, «готовится»
+     у давно написанного урока. */
   const все=(window.YasnaLessons&&window.YasnaLessons.lessons)||[];
-  const следВФайле=block.nextLessonId&&все.some(l=>l&&l.id===block.nextLessonId);
-  /* Если урок сам следующего не назвал — берём соседа по своей ветви дерева:
-     связи лежат в YasnaDerevo, и рукой их в каждом финале не удержать. */
-  const следПоДереву=useMemo(()=>{
-    if(block.nextLessonId||!lesson)return null;
-    try{
-      const Д=window.YasnaDerevo;if(!Д)return null;
-      for(const в of Д.ВЕТВИ){
-        const узлы=(в.узлы||[]).filter(у=>!у.нет&&у.адрес&&(у.жанр==='урок'||у.жанр==='разбор'));
-        const i=узлы.findIndex(у=>у.id===lesson.id);
-        if(i>=0&&узлы[i+1]&&все.some(l=>l&&l.id===узлы[i+1].id))
-          return {id:узлы[i+1].id,имя:узлы[i+1].имя};
-      }
-    }catch(_){}
-    return null;
+  const след=useMemo(()=>{
+    const урокПоId=id=>все.find(l=>l&&l.id===id)||null;
+    const узелПоId=id=>{
+      try{
+        const Д=window.YasnaDerevo;if(!Д)return null;
+        for(const в of Д.ВЕТВИ){
+          const у=(в.узлы||[]).find(у=>у&&у.id===id);
+          if(у)return у;
+        }
+      }catch(_){}
+      return null;
+    };
+    // 1. Урок назвал следующего сам — но верим только написанному.
+    let id=block.nextLessonId&&урокПоId(block.nextLessonId)?block.nextLessonId:null;
+    // 2. Не назвал (или назвал несуществующего) — берём соседа по своей ветви.
+    if(!id&&lesson){
+      try{
+        const Д=window.YasnaDerevo;
+        if(Д)for(const в of Д.ВЕТВИ){
+          const узлы=(в.узлы||[]).filter(у=>!у.нет&&у.адрес&&(у.жанр==='урок'||у.жанр==='разбор'));
+          const i=узлы.findIndex(у=>у.id===lesson.id);
+          if(i>=0&&узлы[i+1]&&урокПоId(узлы[i+1].id)){id=узлы[i+1].id;break;}
+        }
+      }catch(_){}
+    }
+    if(!id)return null;
+    const у=урокПоId(id),н=узелПоId(id);
+    return {id,
+      имя:(у&&у.title)||(н&&н.имя)||block.nextLessonTitle||'',
+      подпись:(у&&у.subtitle)||(н&&н.о)||block.nextLessonSubtitle||'',
+      объём:(у&&у.duration)||(н&&н.объём)||block.nextLessonDuration||''};
   },[block.nextLessonId,lesson&&lesson.id]);
-  const canOpenNext=(следВФайле||следПоДереву)&&block.nextLessonStatus!=='planned'&&onOpenLesson;
-  const открытьСлед=()=>onOpenLesson(следВФайле?block.nextLessonId:следПоДереву.id);
+  /* Статус 'planned' из файла больше не гасит кнопку: урок либо написан
+     (тогда он открывается), либо его нет — и об этом говорит подпись. */
+  const canOpenNext=!!(след&&onOpenLesson);
+  const открытьСлед=()=>onOpenLesson(след.id);
+  // Пока урока нет — печатаем то, что набрано в финале: это единственный источник.
+  const имяСлед=(след&&след.имя)||block.nextLessonTitle||'';
+  const подписьСлед=(след&&след.подпись)||block.nextLessonSubtitle||'';
+  const объёмСлед=(след&&след.объём)||block.nextLessonDuration||'';
   /* Практика после урока: раскладка своей ясны. Игра умеет вернуть на
      «Уроки» (otkuda=uroki) — единственный экран с корректным возвратом. */
   const ИГРОВЫЕ=['суток','двора','двора_животных','дома','кухни','круговорота_воды','года',
@@ -1049,7 +1075,7 @@ function NextStepsBlockInline({block,onClose,onPickAnother,onRepeat,onOpenLesson
   return(
     <div style={{padding:'16px 24px 60px',maxWidth:680,margin:'0 auto'}}>
       {/* Custom next-lesson promo (optional) — clickable card if nextLessonId provided */}
-      {block.nextLessonTitle&&(
+      {имяСлед&&(
         <div style={{background:'#fff',border:'1px solid #E5E5EA',borderRadius:14,padding:'18px 18px',marginBottom:12,boxShadow:'0 1px 3px rgba(15,27,42,.05)'}}>
           {block.title&&<div style={{fontSize:10,fontWeight:700,color:'#0071e3',textTransform:'uppercase',letterSpacing:0.8,marginBottom:6}}>{block.title}</div>}
           {block.intro&&<div style={{fontSize:13.5,color:'#3D4852',lineHeight:1.55,marginBottom:14}}>{renderRichText(block.intro)}</div>}
@@ -1061,20 +1087,21 @@ function NextStepsBlockInline({block,onClose,onPickAnother,onRepeat,onOpenLesson
               onMouseLeave={e=>{e.currentTarget.style.background='#F0F7FF';e.currentTarget.style.borderColor='#C6E0FA';e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='none';}}
             >
               <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6}}>
-                <div style={{fontSize:14,fontWeight:700,color:'#0D1B2A',flex:1,minWidth:0}}>{block.nextLessonTitle}</div>
+                <div style={{fontSize:14,fontWeight:700,color:'#0D1B2A',flex:1,minWidth:0}}>{имяСлед}</div>
                 <span style={{fontSize:18,color:'#0071e3',fontWeight:700,flexShrink:0}}>→</span>
               </div>
-              {block.nextLessonSubtitle&&<div style={{fontSize:12.5,color:'#3D4852',lineHeight:1.5,marginBottom:4}}>{block.nextLessonSubtitle}</div>}
-              {block.nextLessonDuration&&<div style={{fontSize:11.5,color:'#6E7781'}}>{block.nextLessonDuration}</div>}
+              {подписьСлед&&<div style={{fontSize:12.5,color:'#3D4852',lineHeight:1.5,marginBottom:4}}>{подписьСлед}</div>}
+              {объёмСлед&&<div style={{fontSize:11.5,color:'#6E7781'}}>{объёмСлед}</div>}
             </button>
           ):(
             <div style={{padding:'14px 14px',background:'#F0F7FF',borderRadius:12,border:'1px solid #C6E0FA'}}>
               <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6}}>
-                <div style={{fontSize:14,fontWeight:700,color:'#0D1B2A',flex:1,minWidth:0}}>{block.nextLessonTitle}</div>
-                {block.nextLessonStatus==='planned'&&<span style={{fontSize:10,fontWeight:700,color:'#6E7781',background:'#EEF0F3',padding:'3px 8px',borderRadius:10,letterSpacing:0.3,textTransform:'uppercase',whiteSpace:'nowrap'}}>скоро</span>}
+                <div style={{fontSize:14,fontWeight:700,color:'#0D1B2A',flex:1,minWidth:0}}>{имяСлед}</div>
+                {/* Урока в приложении нет — так и говорим, без «скоро». */}
+                <span style={{fontSize:10,fontWeight:700,color:'#6E7781',background:'#EEF0F3',padding:'3px 8px',borderRadius:10,letterSpacing:0.3,whiteSpace:'nowrap'}}>в приложении пока нет</span>
               </div>
-              {block.nextLessonSubtitle&&<div style={{fontSize:12.5,color:'#3D4852',lineHeight:1.5,marginBottom:4}}>{block.nextLessonSubtitle}</div>}
-              {block.nextLessonDuration&&<div style={{fontSize:11.5,color:'#6E7781'}}>{block.nextLessonDuration}</div>}
+              {подписьСлед&&<div style={{fontSize:12.5,color:'#3D4852',lineHeight:1.5,marginBottom:4}}>{подписьСлед}</div>}
+              {объёмСлед&&<div style={{fontSize:11.5,color:'#6E7781'}}>{объёмСлед}</div>}
             </div>
           )}
         </div>
@@ -1082,7 +1109,7 @@ function NextStepsBlockInline({block,onClose,onPickAnother,onRepeat,onOpenLesson
       <div style={{display:'flex',flexDirection:'column',gap:10}}>
         {canOpenNext?(
           <>
-            <button onClick={открытьСлед} style={{fontSize:15,fontWeight:600,padding:'14px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer',boxShadow:'0 4px 14px rgba(0,113,227,.3)',fontFamily:'inherit'}}>{'Следующий урок'+(следПоДереву&&!следВФайле?': '+следПоДереву.имя:'')+' →'}</button>
+            <button onClick={открытьСлед} style={{fontSize:15,fontWeight:600,padding:'14px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer',boxShadow:'0 4px 14px rgba(0,113,227,.3)',fontFamily:'inherit'}}>{'Следующий урок →'}</button>
             {практика&&<a href={практика} style={{fontSize:14,fontWeight:600,padding:'12px 24px',borderRadius:12,border:'1px solid #C6E0FA',background:'#F0F7FF',color:'#0071e3',cursor:'pointer',fontFamily:'inherit',textAlign:'center',textDecoration:'none'}}>Разложить самому — закрепить</a>}
             <button onClick={onPickAnother} style={{fontSize:14,fontWeight:500,padding:'12px 24px',borderRadius:12,border:'1px solid #E5E5EA',background:'#fff',color:'#3D4852',cursor:'pointer',fontFamily:'inherit'}}>← Вернуться к «Урокам»</button>
             <button onClick={onRepeat} style={{fontSize:13,fontWeight:500,padding:'10px 24px',borderRadius:12,border:'none',background:'transparent',color:'#6E7781',cursor:'pointer',fontFamily:'inherit'}}>⟲ Пройти ещё раз</button>

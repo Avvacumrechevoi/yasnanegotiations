@@ -8,10 +8,10 @@
 <!-- Замок: подключён ПЕРВЫМ, до всего остального (см. core/gate.js) -->
 <script src="core/gate.js"></script>
 <script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);var e=document.documentElement;e.setAttribute('data-theme',d?'dark':'light');e.style.colorScheme=d?'dark':'light';}catch(e){}</script>
-<script src="core/theme.js?v=37af65b1"></script>
+<script src="core/theme.js?v=86eb1366"></script>
 <script src="core/storage.js?v=529ec80c"></script>
-<script src="core/access.js?v=3ae5d2f4"></script>
-<script src="core/account.js?v=6b129375"></script>
+<script src="core/access.js?v=4ed1e962"></script>
+<script src="core/account.js?v=19915f6a"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,viewport-fit=cover"/>
 <!-- Приложение: манифест, иконки и цвет строки состояния. Раньше манифест
      висел на двух страницах из девяти, иконка была одна — SVG в data-URI, а
@@ -433,7 +433,8 @@
   }
   .rt-foot strong { color: #aeaeb2; font-style: normal; }
 
-/* Честная плашка статуса и бейдж «скоро» — обе темы. */
+/* Честная плашка статуса и бейдж «в приложении пока нет» — обе темы.
+   Бейдж не обещает срок: он говорит только о том, чего в приложении нет. */
 .rt-moi { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 10px;
   margin: 16px 0 2px; padding: 14px 16px; border-radius: 14px;
   background: rgba(0,119,255,.10); border: 1px solid rgba(0,119,255,.25);
@@ -565,11 +566,13 @@ try {
     <span class="rt-moi__hint">твои числа на этом устройстве</span>
   </div>
 
+  <!-- Экран и блок зовём их настоящими именами: вкладка называется «Игры»,
+       блок в ней — «Лидерборд». Прежние «Игра» и «Топ недели» человек искал и не находил. -->
   <div class="rt-status-note">
     <strong class="rt-status-note__lead">Сейчас работает:</strong> таблица лидеров по партиям —
-    лучший результат, топ недели и всех времён — на экране «Игра», блок «Топ недели».
-    Шкалы <strong>Освоения</strong> и <strong>Касты</strong>,
-    описанные ниже, — целевая система: включаем поэтапно, числа и звания появятся в профиле сами.
+    блок <strong>«Лидерборд»</strong> на экране «Игры».
+    Шкал <strong>Освоения</strong> и <strong>Касты</strong>,
+    описанных ниже, в приложении пока нет: страница описывает их устройство.
   </div>
 
   <!-- ═══ Quick glossary — короткий словарь в самом начале ═══ -->
@@ -700,7 +703,7 @@ try {
       </div>
       <div class="rt-track-titles">
         <div class="rt-track-eyebrow">Соревновательный рейтинг</div>
-        <h2 class="rt-track-h2">Каста <span class="rt-soon-chip">скоро</span></h2>
+        <h2 class="rt-track-h2">Каста <span class="rt-soon-chip">в приложении пока нет</span></h2>
       </div>
     </div>
 

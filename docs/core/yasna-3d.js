@@ -728,7 +728,7 @@ function Yasna3DView({ y, af, sel, onSel, rotationOn, speedSec, drill, onDrill, 
       const subS = new THREE.Mesh(subPoleGeom.clone(), subPoleMat); subS.position.set(0, -subPoleY, 0); drillGroup.add(subS);
 
       // Заголовок полки сверху
-      const titleText = (y && y.p && y.p[drillIdx]) ? `Полка ${drillIdx}: ${y.p[drillIdx].slice(0,18)}` : `Полка ${drillIdx}`;
+      const titleText = (y && y.p && y.p[drillIdx]) ? `Место ${drillIdx}: ${y.p[drillIdx].slice(0,18)}` : `Место ${drillIdx}`;
       const title = makeTextSprite(titleText, '#e8d8ff', 60, '700');
       title.position.set(0, subPoleY + subPolkaR*2.6, 0);
       title.scale.set(180, 30, 1);

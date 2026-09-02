@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <!-- DayNight, а не Light: тема приложения обязана уметь оба состояния,
+         иначе системные виджеты (диалоги установщика обновления, выделение
+         текста) остаются светлыми на тёмном экране. -->
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -10,14 +13,19 @@
     <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <!-- Фон окна под страницей. Раньше стоял @null, и на долю секунды
-             между заставкой и первой отрисовкой мелькал белый прямоугольник. -->
-        <item name="android:background">@color/splashBackground</item>
+        <!-- Фон окна под страницей. Раньше здесь стоял android:background с
+             зелёным цветом заставки — не тот атрибут и не тот цвет: окно
+             читается по windowBackground, и именно он виден в полосах строки
+             состояния и жестов, поэтому они выходили тёмно-зелёными поверх
+             обеих тем. Теперь это фон страницы, с ночным вариантом. -->
+        <item name="android:windowBackground">@color/fon_stranicy</item>
     </style>
 
     <!-- Заставка. Способ Android 12: цвет и знак, а не картинка на каждую
          плотность и ориентацию. Знак тот же, что в иконке, — человек видит
-         одно и то же в списке приложений и при запуске. -->
+         одно и то же в списке приложений и при запуске. Переход на тему
+         приложения делает installSplashScreen() в MainActivity: без вызова
+         postSplashScreenTheme не применяется вовсе. -->
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/splashBackground</item>
         <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>

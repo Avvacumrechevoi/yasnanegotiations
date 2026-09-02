@@ -7,7 +7,17 @@
     <color name="colorPrimary">#0071e3</color>
     <color name="colorPrimaryDark">#0B57C0</color>
     <color name="colorAccent">#0071e3</color>
-    <!-- Заставка и фон окна: глубокий зелёный знака Ясны — тот же, что
-         у веб-заставки на главной, чтобы стык был незаметен. -->
+    <!-- Заставка: глубокий зелёный знака Ясны. Только заставка — фоном окна
+         он больше не служит, иначе тем же зелёным заливались полосы строки
+         состояния и жестов поверх светлых и тёмных страниц. -->
     <color name="splashBackground">#0e3f47</color>
+
+    <!-- Фон страницы, он же цвет в полосах системных панелей: переменная fon
+         из glavnaya.html и profil.html. Оба оттенка названы явно, потому что
+         MainActivity берёт нужный по теме приложения, а не по ночному
+         режиму системы; fon_stranicy — то же самое для темы окна, у него
+         есть ночной вариант в values-night/colors.xml. -->
+    <color name="fon_stranicy_svet">#f5f6f8</color>
+    <color name="fon_stranicy_tma">#101214</color>
+    <color name="fon_stranicy">@color/fon_stranicy_svet</color>
 </resources>

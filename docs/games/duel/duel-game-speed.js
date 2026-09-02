@@ -113,7 +113,7 @@
     if(!seed) return <div className="duel-result"><h1 style={{fontSize:18,color:'#6e6e73'}}>Загрузка вопросов…</h1></div>;
 
     const polka = idx < sequence.length ? sequence[idx] : null;
-    const polkaName = polka != null ? (yasna.p?.[polka] || 'Полка ' + polka) : '';
+    const polkaName = polka != null ? (yasna.p?.[polka] || 'Место ' + polka) : '';
 
     if(waitingForOpponent){
       return (
@@ -160,7 +160,7 @@
         </div>
 
         <div className="duel-task" style={{textAlign:'center',fontSize:15}}>
-          🎯 Полка <strong>«{polkaName}»</strong> ({polka}) — это <strong>Опорный Крест</strong>?
+          🎯 Место <strong>«{polkaName}»</strong> ({polka}) — это <strong>Опорный Крест</strong>?
         </div>
 
         <div style={{display:'flex',gap:14,justifyContent:'center',padding:'24px 0'}}>
@@ -189,7 +189,7 @@
         </div>
 
         <div style={{textAlign:'center',fontSize:11,color:'#6e6e73'}}>
-          Опорный Крест = полки 0, 3, 6, 9. <span style={{color:'#a1a1a6'}}>Штраф −½ балла за каждую ошибку.</span>
+          Опорный Крест = места 0, 3, 6, 9. <span style={{color:'#a1a1a6'}}>Штраф −½ балла за каждую ошибку.</span>
         </div>
       </>
     );
@@ -199,8 +199,8 @@
     id: 'speed-cross-yesno',
     category: 'speed',
     title: 'Молния',
-    subtitle: '30 секунд — ✓/✗ за каждую полку',
-    description: '30 секунд. Случайная полка → отвечаешь ✓ или ✗ в ответ на «это Опорный Крест?». Очко за правильный, минус за ошибку. Кто наберёт больше — тот победил.',
+    subtitle: '30 секунд — ✓/✗ за каждое место',
+    description: '30 секунд. Случайное место → отвечаешь ✓ или ✗ в ответ на «это Опорный Крест?». Очко за правильный, минус за ошибку. Кто наберёт больше — тот победил.',
     yasnaIds: ['суток', 'года', 'фаз_жизни'],
     defaultYasna: 'суток',
     difficulty: 1,

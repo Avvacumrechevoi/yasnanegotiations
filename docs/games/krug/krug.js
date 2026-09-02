@@ -391,7 +391,7 @@ function mode(){
   S.scr='mode'; app().innerHTML=''; app().classList.remove('duo-col');
   шапка('Ясна ' + S.yasna.n); прятатьИсторию();
   app().appendChild(el(`<div><h2>Как играем?</h2>
-    <div class="sub">${S.random?'Ясна выпала случайно. ':''}Двенадцать элементов, шесть осей.</div></div>`));
+    <div class="sub">${S.random?'Ясна выпала случайно. ':''}Двенадцать мест, шесть осей.</div></div>`));
   const opts=[
     ['solo','Одному','сам себе, ~2 минуты'],
     ['duo','Вдвоём на одном телефоне','ходите по очереди, телефон между вами'],
@@ -427,8 +427,8 @@ function share(){
   /* адрес хоста тоже переписываем: иначе после перезагрузки ссылку не переслать */
   try{ history.replaceState(null,'',q) }catch(_){}
   app().appendChild(el(`<div><h2>Одна раздача на всех</h2>
-    <div class="sub">Отправь ссылку — у каждого будет та же Ясна и тот же порядок элементов.
-    Каждый раскладывает у себя, потом сверяете, кто где промахнулся.</div></div>`));
+    <div class="sub">Отправь ссылку — у каждого будет та же Ясна и тот же порядок имён.
+    Каждый раскладывает у себя.</div></div>`));
   app().appendChild(el(`<div class="say"><div class="hd">Ссылка</div>
     <div class="bd" style="word-break:break-all;font-size:12.5px">${esc(url)}</div></div>`));
   const cp=el(`<button class="go">Скопировать ссылку</button>`);
@@ -437,8 +437,10 @@ function share(){
   app().appendChild(cp);
   app().appendChild(el(`<button class="gh" id="kgo">Начать свою раскладку →</button>`));
   document.getElementById('kgo').onclick=start;
-  app().appendChild(el(`<div class="note">Живая комната, где ответы всех видно сразу, —
-    следующий шаг: она пойдёт через тот же транспорт, что и «Партия».</div>`));
+  /* Сноска обещала общую комнату «следующим шагом» — срока нет и обещать нечего.
+     Говорим, чего нет, и как обойтись тем, что есть. */
+  app().appendChild(el(`<div class="note">Общей комнаты, где ответы всех видно сразу,
+    в приложении пока нет: итоги сверяйте между собой.</div>`));
 }
 
 /* ═══════════ ПАРТИЯ ═══════════ */
@@ -490,10 +492,10 @@ function hand(){
   b.appendChild(prog());
   b.appendChild(el(`<div class="hand">
     ${S.mode==='duo'?`<div class="turnbar t${S.turn}">Ходит ${esc(S.players[S.turn])}</div>`:''}
-    <div class="hand-k">элемент ${S.i+1} из ${S.deck.length}</div>
+    <div class="hand-k">имя ${S.i+1} из ${S.deck.length}</div>
     <div class="el">${esc(S.yasna.p[t])}</div>
     <div class="q">Куда на круге?</div></div>`));
-  N.mid.innerHTML='<b>'+(S.i+1)+' / '+S.deck.length+'</b>элементов';
+  N.mid.innerHTML='<b>'+(S.i+1)+' / '+S.deck.length+'</b>имён';
 }
 function prog(){
   const p=el('<div class="prog"></div>');
@@ -577,7 +579,7 @@ function onTap(i){
     if(N.n[i]) N.n[i].classList.add('on');
     const кто=S.yasna.p[i];
     say('no','Место занято',
-      `Здесь уже стоит «<b>${esc(кто)}</b>». Выберите свободную долю.`,
+      `Здесь уже стоит «<b>${esc(кто)}</b>». Выберите свободное место.`,
       'Понятно →', ()=>hand());
     return;
   }
@@ -597,7 +599,7 @@ function onTap(i){
     if(N.w[t]) N.w[t].classList.add('podskazka');
     say('no','Не сюда',
       `Место ${i}: ${POS[i]}. Там живёт что-то другое.<br><br>
-       «<b>${esc(S.yasna.p[t])}</b>» ищи там, где ${POS[t]} — доля подсвечена на круге.`,
+       «<b>${esc(S.yasna.p[t])}</b>» ищи там, где ${POS[t]} — место подсвечено на круге.`,
       'Понял, ставлю →', ()=>hand());
     return;
   }
@@ -656,7 +658,7 @@ function finish(){
     const t=el(`<div class="say"><div class="hd">Что путал</div>
       <table class="res"></table>
       <div class="bd" style="margin-top:8px;font-size:12.5px;color:var(--k-tx3)">
-      Слева — элемент, справа — куда ты его отправил в первый раз.</div></div>`);
+      Слева — имя, справа — место, куда ты его отправил в первый раз.</div></div>`);
     /* строки собираем строкой: <tr>, вставленный через div-обёртку, парсер выбрасывает */
     t.querySelector('table').innerHTML = missed.map(x=>{
       const w=(S.miss[x]||[])[0];

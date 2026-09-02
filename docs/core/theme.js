@@ -48,11 +48,25 @@
     } catch (_) {}
   }
 
+  // Приложение Android: строка состояния и полоса жестов рисуются фоном ОКНА,
+  // а окно про выбор темы внутри страницы ничего не знает — оно идёт по
+  // системному ночному режиму. Без этого сообщения человек, включивший тёмную
+  // на светлом телефоне, получает светлый козырёк с тёмными значками над
+  // чёрной страницей. Мост ставит MainActivity; в браузере его нет, и ветка
+  // молчит.
+  function panelyPrilozheniya(d) {
+    try {
+      var most = window.YasnaPaneli;
+      if (most && typeof most.tema === 'function') most.tema(d);
+    } catch (_) {}
+  }
+
   function apply() {
     var d = resolve();
     var e = document.documentElement;
     e.setAttribute('data-theme', d);
     try { e.style.colorScheme = d; } catch (_) {}
+    panelyPrilozheniya(d);
     if (typeof window.YasnaThemeAdapter === 'function') { try { window.YasnaThemeAdapter(d); } catch (_) {} }
     for (var i = 0; i < subs.length; i++) { try { subs[i](d); } catch (_) {} }
   }

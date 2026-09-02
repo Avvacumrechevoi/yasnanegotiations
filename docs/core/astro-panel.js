@@ -74,7 +74,7 @@ const SECTIONS = [
     { k:'sun',        label:'Солнце' },
     { k:'sunCycle',   label:'Цикл Солнца',           sub:'анимация' },
     { k:'terminator', label:'Терминатор · день/ночь' },
-    { k:'dayNight',   label:'Освещённость полок' },
+    { k:'dayNight',   label:'Освещённость мест' },
     { k:'tiltAxis',   label:'Наклон оси Земли',      sub:'23.5°' },
   ]},
   { title: 'Реальное небо', layers: [

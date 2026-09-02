@@ -11,6 +11,8 @@ import { readFileSync, writeFileSync, mkdirSync, rmSync, cpSync, existsSync,
          readdirSync, statSync } from 'node:fs';
 import { join, relative, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { собратьИсходники, проверитьТексты, проверитьДерево, напечатать }
+  from '../scripts/proverki.mjs';
 
 const ЗДЕСЬ = dirname(fileURLToPath(import.meta.url));
 const ИСТОК = join(ЗДЕСЬ, '..', 'docs');
@@ -292,3 +294,14 @@ if (остатки.length) {
 if (известные.length) {
   console.log(`  (известное исключение: виджет Telegram в ${известные.length} местах — код есть, в приложении не выполняется)`);
 }
+
+/* СЛОВА НА ЭКРАНЕ. Те же правила, что и у сборки сайта (scripts/proverki.mjs):
+   чего нет — «в приложении пока нет», а не «скоро»; продукт говорит от себя;
+   место круга зовётся местом. Здесь смотрим СВОИ страницы приложения —
+   glavnaya.html, profil.html и скрипты прибавки: в docs/ их нет, и сборка
+   сайта до них не дотягивается. Всё, что приехало из docs/, проверено там.
+   Дерево знаний перепроверяем по копии, которая реально ляжет в APK: в
+   приложение уезжает она, а не исходник. */
+const слова = проверитьТексты(собратьИсходники(ЗДЕСЬ))
+  .concat(проверитьДерево(join(ЦЕЛЬ, 'core', 'derevo-dannye.js'), 'www/core/derevo-dannye.js'));
+if (напечатать(слова, 'app/')) process.exitCode = 1;

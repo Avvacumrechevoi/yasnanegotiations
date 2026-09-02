@@ -123,7 +123,7 @@
       if(!onQuit) return;
       if(confirm('Закончить эту Партию досрочно?')) onQuit();
     };
-    return React.createElement('button', { className: 'tn-quit', onClick: handle }, 'Сдаться');
+    return React.createElement('button', { className: 'tn-quit', onClick: handle }, 'Прервать');
   }
 
   // ─── Top bar (eyebrow + quit) ───────────────────────────────────
@@ -266,7 +266,7 @@
         React.createElement('div', { className: 'tn-vs-info' },
           React.createElement('div', { className: 'tn-vs-name' }, player.nickname),
           React.createElement('div', { className: 'tn-vs-score-row' },
-            React.createElement('span', { className: 'tn-vs-score' }, scoreP, ' бусин'),
+            React.createElement('span', { className: 'tn-vs-score' }, 'счёт ', scoreP),
             bonusP > 0 && React.createElement('span', {
               key: 'bonus-' + scoreP,
               className: 'tn-vs-bonus',
@@ -284,7 +284,7 @@
               key: 'bonus-' + scoreO,
               className: 'tn-vs-bonus',
             }, '+', bonusO),
-            React.createElement('span', { className: 'tn-vs-score' }, scoreO, ' бусин')
+            React.createElement('span', { className: 'tn-vs-score' }, 'счёт ', scoreO)
           )
         )
       )
@@ -786,7 +786,7 @@
   // ─── Mid-partiya recap — заставка на середине партии ─────────────
   // Показывает: прогресс N/total · текущий счёт · топ темы · слабая тема.
   // Авто-продвижение через 4 сек или по клику «Дальше».
-  function TnMidRecap({ qOverall, totalOverall, scoreP, scoreO, totalBusey, streakPeak, partiyaLog, opponent, player, onContinue }){
+  function TnMidRecap({ qOverall, totalOverall, scoreP, scoreO, streakPeak, partiyaLog, opponent, player, onContinue }){
     // Авто-продвижение через 4 сек
     useEffect(() => {
       const t = setTimeout(() => onContinue(), 4500);
@@ -820,7 +820,7 @@
           React.createElement('div', { className: 'tn-midrecap-row' },
             React.createElement('div', { className: 'tn-midrecap-stat' },
               React.createElement('div', { className: 'tn-midrecap-stat-label' }, '✦ Бусины'),
-              React.createElement('div', { className: 'tn-midrecap-stat-value' }, '+', totalBusey)
+              React.createElement('div', { className: 'tn-midrecap-stat-value' }, '+', scoreP)
             ),
             streakPeak >= 3 && React.createElement('div', { className: 'tn-midrecap-stat' },
               React.createElement('div', { className: 'tn-midrecap-stat-label' }, '🔥 Серия'),
@@ -939,6 +939,7 @@
             oppCorrect: oppData.correct,
             oppTime: oppData.time,
             oppBusey: oppData.busey,  // ← пересчитанный соперником на его стороне
+            timedOut: !!isTimeout,    // ← разбор ошибок помечает такие вопросы
           });
         } else {
           setTimeout(tryAdvance, 150);
@@ -1126,7 +1127,10 @@
 
   // ─── Заголовок и церемониальная подпись ─────────────────────────
   function TnFinalHeadline({ kind, headline, sub }){
-    const eyebrowLabel = kind === 'win' ? 'Победа' : kind === 'draw' ? 'Ничья' : kind === 'leave' ? 'Партия прервана' : 'Поражение';
+    // «Поражение» стояло прямо над строкой «В игре нет проигравших» — экран
+    // спорил сам с собой. В Ясне не выигрывают и не проигрывают, поэтому
+    // надстрочник у всех исходов один: партия сыграна (или прервана).
+    const eyebrowLabel = kind === 'leave' ? 'Партия прервана' : 'Партия сыграна';
     return React.createElement('header', { className: 'tn-final-head' },
       React.createElement('div', { className: 'tn-final-eyebrow tn-final-eyebrow-' + kind }, '✦  ', eyebrowLabel),
       React.createElement('h1', { className: 'tn-final-headline' }, headline),
@@ -1142,19 +1146,19 @@
       React.createElement('div', { className: 'tn-final-vs-side ' + (playerWin ? 'tn-final-vs-side-winner' : oppWin ? 'tn-final-vs-side-loser' : '') },
         React.createElement('div', { className: 'tn-final-vs-name' }, playerName || 'Игрок'),
         React.createElement('div', { className: 'tn-final-vs-num' }, scoreP),
-        React.createElement('div', { className: 'tn-final-vs-unit' }, 'бусин ✦')
+        React.createElement('div', { className: 'tn-final-vs-unit' }, 'счёт партии')
       ),
       React.createElement('div', { className: 'tn-final-vs-divider' }, ':'),
       React.createElement('div', { className: 'tn-final-vs-side ' + (oppWin ? 'tn-final-vs-side-winner' : playerWin ? 'tn-final-vs-side-loser' : '') },
         React.createElement('div', { className: 'tn-final-vs-name' }, opponentName || 'Тень'),
         React.createElement('div', { className: 'tn-final-vs-num' }, scoreO),
-        React.createElement('div', { className: 'tn-final-vs-unit' }, 'бусин ✦')
+        React.createElement('div', { className: 'tn-final-vs-unit' }, 'счёт партии')
       )
     );
   }
 
   // ─── Статистика партии (точность · скорость · бусины) ──────────
-  function TnFinalStats({ correctCount, totalQ, avgTimeMs, totalBusey }){
+  function TnFinalStats({ correctCount, totalQ, avgTimeMs, buseyPartii }){
     const accuracyPct = totalQ > 0 ? Math.round(correctCount / totalQ * 100) : 0;
     const avgSec = avgTimeMs > 0 ? (avgTimeMs / 1000).toFixed(1) : '—';
     return React.createElement('div', { className: 'tn-final-stats' },
@@ -1170,7 +1174,7 @@
       ),
       React.createElement('div', { className: 'tn-final-stat tn-final-stat-accent' },
         React.createElement('div', { className: 'tn-final-stat-label' }, 'Бусины'),
-        React.createElement('div', { className: 'tn-final-stat-value' }, '+', totalBusey),
+        React.createElement('div', { className: 'tn-final-stat-value' }, '+', buseyPartii),
         React.createElement('div', { className: 'tn-final-stat-sub' }, 'в Хронику')
       )
     );
@@ -1254,6 +1258,34 @@
     );
   }
 
+  // Верные ответы для разбора — списком строк, потому что их бывает больше
+  // одного. Раньше всё, что не число и не строка, давало «Правильно: —»,
+  // и разбор молчал ровно там, где он нужнее всего: на вопросах с несколькими
+  // ответами и на парах.
+  function верныеОтветы(r){
+    const qc = r.qCorrect;
+    const opts = r.qOptions;
+    if(r.qType === 'match-pair'){
+      // В контенте correct = [[слева, справа], …]. Если его нет — берём сами
+      // колонки: проверка ответа ждёт совпадения по индексу (chosen[i] === i).
+      if(Array.isArray(qc) && Array.isArray(qc[0])){
+        return qc.map(пара => пара[0] + ' — ' + пара[1]);
+      }
+      const слева = r.qPairsLeft || [];
+      const справа = r.qPairsRight || [];
+      return слева.map((л, i) => л + ' — ' + (справа[i] != null ? справа[i] : '?'));
+    }
+    // Несколько верных: correct = список индексов вариантов.
+    if(Array.isArray(qc)){
+      return qc.map(i => (opts && opts[i] != null) ? opts[i] : String(i));
+    }
+    if(typeof qc === 'number') return [(opts && opts[qc] != null) ? opts[qc] : String(qc)];
+    if(typeof qc === 'string') return [qc];
+    // true-false в контенте бывает булевым; варианты идут «верно, неверно».
+    if(typeof qc === 'boolean') return [(opts && opts[qc ? 0 : 1]) || (qc ? 'Верно' : 'Неверно')];
+    return [];
+  }
+
   // ─── Разбор ошибок с цитатами из книги ────────────────────────
   // Каждая ошибка раскрывается отдельной карточкой: вопрос + правильный
   // ответ + дословная цитата из источника (атома). Если ошибок > 0 —
@@ -1304,17 +1336,20 @@
         React.createElement('ul', { className: 'tn-final-recap-list' },
           group.items.map((r, i) => {
             qNum++;
-            const correctText = (r.qOptions && typeof r.qCorrect === 'number')
-              ? r.qOptions[r.qCorrect]
-              : (typeof r.qCorrect === 'string' ? r.qCorrect : '—');
+            const верные = верныеОтветы(r);
             return React.createElement('li', { key: i, className: 'tn-final-recap-item' },
               React.createElement('div', { className: 'tn-final-recap-q' },
                 React.createElement('span', { className: 'tn-final-recap-q-num' }, '№', qNum),
-                React.createElement('span', { className: 'tn-final-recap-q-text' }, r.qText)
+                React.createElement('span', { className: 'tn-final-recap-q-text' }, r.qText),
+                // Вопрос без ответа читается как ошибка — говорим, что случилось
+                r.timedOut && React.createElement('span', { className: 'tn-final-recap-q-vremya' }, '◷ время вышло')
               ),
               React.createElement('div', { className: 'tn-final-recap-answer' },
                 React.createElement('span', { className: 'tn-final-recap-answer-label' }, 'Правильно: '),
-                React.createElement('strong', null, correctText)
+                верные.length > 1
+                  ? React.createElement('div', { className: 'tn-final-recap-answer-spisok' },
+                      верные.map((т, j) => React.createElement('div', { key: j, className: 'tn-final-recap-answer-stroka' }, т)))
+                  : React.createElement('strong', null, верные[0] || '—')
               ),
               r.qHint && React.createElement('blockquote', { className: 'tn-final-recap-quote' }, r.qHint)
             );
@@ -1341,7 +1376,7 @@
   }
 
   // ─── Final Result ──────────────────────────────────────────────
-  function FinalResult({ partiyaLog, scoreP, scoreO, totalBusey, player, opponent, isPvP, oppDisconnected, onClose, onAgain }){
+  function FinalResult({ partiyaLog, scoreP, scoreO, player, opponent, isPvP, oppDisconnected, onClose, onAgain }){
     const won = scoreP > scoreO;
     const draw = scoreP === scoreO;
     const correctCount = partiyaLog.filter(r => r.playerCorrect).length;
@@ -1400,7 +1435,9 @@
             kind,
           }),
           !oppDisconnected && React.createElement(TnFinalStats, {
-            correctCount, totalQ, avgTimeMs, totalBusey,
+            // Бусины партии — это её счёт: сколько набрал, столько и уйдёт
+            // в Хронику. Второго числа под тем же словом больше нет.
+            correctCount, totalQ, avgTimeMs, buseyPartii: scoreP,
           }),
           // Главные действия — сразу под итогами, до разбора ошибок
           React.createElement(TnFinalActions, { onAgain, onClose }),
@@ -1452,7 +1489,6 @@
     const [qIdx, setQIdx] = useState(0);
     const [scoreP, setScoreP] = useState(0);
     const [scoreO, setScoreO] = useState(0);
-    const [totalBusey, setTotalBusey] = useState(0);
     const [partiyaLog, setPartiyaLog] = useState([]);
     const [oppDisconnected, setOppDisconnected] = useState(false);
     // Гость ждёт partiya-init от хоста. Если за 30с не пришло — выход из тупика.
@@ -1588,13 +1624,15 @@
     const qOverall = partiya.slice(0, roundIdx).reduce((sum, r) => sum + r.questions.length, 0) + qIdx;
 
     function onAnswer(result){
-      let dp = 0, doO = 0, dB = 0;
+      let dp = 0, doO = 0;
       const newStreak = result.playerCorrect ? streak + 1 : 0;
       const mult = streakMultiplier(newStreak);
       if(result.playerCorrect){
-        const b = buseyForCorrect(result.playerTime);
-        dp = Math.round(b * mult);                    // streak-усиление в счёт партии
-        dB = Math.round((5 + Math.floor(b / 4)) * mult); // и в общие бусины
+        // Счёт партии и бусины — одно и то же число: 10 за верный, до +5 за
+        // скорость, множитель за серию (так написано и в правилах на экране).
+        // Второй, скрытой формулы бусин (5 + b/4) больше нет: из-за неё итог
+        // обещал «+104 бусины», а в Хронику уходил счёт партии — 194.
+        dp = Math.round(buseyForCorrect(result.playerTime) * mult);
       }
       if(result.oppCorrect){
         // PvP: opp присылает уже пересчитанный busey включая свой streak.
@@ -1606,7 +1644,6 @@
       }
       const newScoreP = scoreP + dp;
       const newScoreO = scoreO + doO;
-      const newBusey = totalBusey + dB;
       setStreak(newStreak);
       if(newStreak > streakPeak) setStreakPeak(newStreak);
 
@@ -1619,15 +1656,17 @@
         qCorrect: currentQ.correct,
         qHint: currentQ.hint,                // explanation.quote из контента
         qType: currentQ.type || 'single-choice',
+        qPairsLeft: currentQ.pairsLeft,      // для разбора пар: «лево — право»
+        qPairsRight: currentQ.pairsRight,
         playerCorrect: result.playerCorrect,
         oppCorrect: result.oppCorrect,
         playerTime: result.playerTime,
+        timedOut: !!result.timedOut,         // разбор помечает «время вышло»
       };
       const newLog = [...partiyaLog, logEntry];
 
       setScoreP(newScoreP);
       setScoreO(newScoreO);
-      setTotalBusey(newBusey);
       setPartiyaLog(newLog);
 
       // Mid-recap удалён — прогресс-бар сверху и так показывает где мы.
@@ -1639,11 +1678,11 @@
         setQIdx(0);
         setPhase('intro');
       } else {
-        finishPartiya(newScoreP, newScoreO, newBusey, newLog);
+        finishPartiya(newScoreP, newScoreO, newLog);
       }
     }
 
-    function finishPartiya(finalP, finalO, finalB, finalLog){
+    function finishPartiya(finalP, finalO, finalLog){
       // Партия доиграна до конца → последующий выход соперника с экрана
       // результатов больше не считается «прерыванием» (см. обработчик opp-leave).
       matchFinishedRef.current = true;
@@ -1748,7 +1787,7 @@
       setPartiya(window.YasnaTrivia.generatePartiya(Date.now(), partiyaMode, themesFilter));
       setRoundIdx(0); setQIdx(0);
       setScoreP(0); setScoreO(0);
-      setTotalBusey(0); setPartiyaLog([]);
+      setPartiyaLog([]);
       setStreak(0); setStreakPeak(0);
       setMidRecapShown(false);
       setOppDisconnected(false);
@@ -1862,14 +1901,14 @@
       };
       return React.createElement(TnMidRecap, {
         qOverall: partiyaLog.length,
-        totalOverall, scoreP, scoreO, totalBusey, streakPeak,
+        totalOverall, scoreP, scoreO, streakPeak,
         partiyaLog, player, opponent: opp,
         onContinue: handleContinue
       });
     }
     if(phase === 'final'){
       return React.createElement(FinalResult, {
-        partiyaLog, scoreP, scoreO, totalBusey,
+        partiyaLog, scoreP, scoreO,
         player,
         opponent: { name: opp.name },
         isPvP,

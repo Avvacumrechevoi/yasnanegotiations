@@ -250,7 +250,7 @@ function QuestionEditor({ question, themes, onSave, onCancel, onDelete }){
 
         React.createElement('div', null,
           React.createElement('label', null, 'Текст вопроса'),
-          React.createElement('textarea', { value: q.text, onChange: e => setQ({ ...q, text: e.target.value }), placeholder:'Например: Сколько полок в Ясне Суток?' })
+          React.createElement('textarea', { value: q.text, onChange: e => setQ({ ...q, text: e.target.value }), placeholder:'Например: Сколько мест в Ясне Суток?' })
         ),
 
         // ─── Options for single-choice / true-false ─────────────────

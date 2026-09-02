@@ -244,7 +244,10 @@
     data.totals.played = (data.totals.played || 0) + 1;
     if(match.result === 'win') data.totals.wins = (data.totals.wins || 0) + 1;
     else if(match.result === 'loss') data.totals.losses = (data.totals.losses || 0) + 1;
-    // Копим cumulative score (бусины) — duel-page показывает в Hero
+    // Бусины — одна валюта на все экраны. Счёт партии И ЕСТЬ бусины, набранные
+    // в ней (10 за верный, до +5 за скорость, серия даёт множитель — как и
+    // написано в правилах), поэтому копим их одним числом: сумму счетов партий.
+    // Ключ totalScore исторический, его читают Главная, Профиль и Рейтинг.
     if(typeof match.score === 'number'){
       data.totalScore = (data.totalScore || 0) + match.score;
     }
@@ -316,15 +319,18 @@
 
   function getOverallStats(){
     const d = _loadData();
-    // duel-page ожидает totals.matches и totals.score (выводит «N партий», бусины),
-    // streaks.daily.current (стрик дня), masteryByTheme (Партитура).
-    // recordMatch их не пишет — возвращаем безопасные алиасы/дефолты.
+    // duel-page ожидает totals.matches («N партий»), streaks.daily.current
+    // (стрик дня), masteryByTheme (Партитура). recordMatch их не пишет —
+    // возвращаем безопасные алиасы/дефолты.
     const totals = Object.assign({}, d.totals || {});
     if(totals.matches == null) totals.matches = totals.played || 0;
-    if(totals.score == null){
-      // Score копится отдельным ключом raw.totalScore при finishPartiya, см. turnir-engine.js
-      totals.score = (d.totalScore || (totals.wins || 0) * 50 + (totals.losses || 0) * 5);
-    }
+    // Единственный источник накопленных бусин: сумма счетов сыгранных партий
+    // (см. recordMatch). Шапка ступени, плитка статистики и Хроника читают
+    // только его — раньше каждая считала по-своему, и на одном экране слово
+    // «бусины» означало три разных числа. Выдуманного «wins*50 + losses*5»
+    // тут больше нет: у того, кто не набирал, бусин ноль.
+    totals.beads = d.totalScore || 0;
+    totals.score = totals.beads;   // легаси-алиас: старые вызовы читали totals.score
     const streaks = Object.assign({}, d.streaks || {});
     streaks.daily = streaks.daily || { current: 0, best: 0, lastDay: null };
     return {
@@ -1902,10 +1908,10 @@
         {!isEnabled && (
           <div style={{padding:'24px',background:'#f5f5f7',borderRadius:12,textAlign:'center'}}>
             <div style={{fontSize:48,marginBottom:8}}>⚙️</div>
-            <div style={{fontWeight:600,marginBottom:6}}>Лидерборд скоро появится</div>
+            <div style={{fontWeight:600,marginBottom:6}}>Лидерборд пуст</div>
             <div style={{fontSize:13,color:'#6e6e73',lineHeight:1.5}}>
-              Сейчас все онлайн-матчи копятся в очереди ({pendingCount} pending).<br/>
-              Когда подключим серверный backend (Yandex Cloud) — лидерборд автоматически наполнится из накопленной истории.
+              Сервер рейтинга не подключён, поэтому таблицы нет.<br/>
+              Результаты онлайн-матчей копятся в очереди на этом устройстве ({pendingCount} в очереди) — они не потеряются.
             </div>
           </div>
         )}

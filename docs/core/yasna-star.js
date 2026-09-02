@@ -262,7 +262,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
             <text x={cx} y={cy-6} textAnchor="middle" fontSize="14" fontWeight="700" fill="#a21caf"
                   stroke="#fff" strokeWidth="3.5" paintOrder="stroke">Ясна² = 144</text>
             <text x={cx} y={cy+12} textAnchor="middle" fontSize="10.5" fill="#86198f"
-                  stroke="#fff" strokeWidth="2.5" paintOrder="stroke">12 × 12 — каждая Полка раскрывается в свою Ясну</text>
+                  stroke="#fff" strokeWidth="2.5" paintOrder="stroke">12 × 12 — каждое Место раскрывается в свою Ясну</text>
           </>}
         </g>;
       })()}
@@ -326,7 +326,7 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
           <text x={px} y={py+ph+8} textAnchor="middle" fontSize="9" fontWeight="600" fill={COMP_COLORS[maxIdx]} fontFamily="var(--sans)">{r[maxIdx]}%</text>
         </g>;
       })}
-      {pts.map((pt,i)=>{const isSel=sel===i,c=nc(i),o=no(i);const zsz=(isSel?nr+3:nr)*1.7;const lbl=p[i]||'';const tipText=lbl?`Полка ${i}: ${lbl}`:`Полка ${i}`;return(
+      {pts.map((pt,i)=>{const isSel=sel===i,c=nc(i),o=no(i);const zsz=(isSel?nr+3:nr)*1.7;const lbl=p[i]||'';const tipText=lbl?`Место ${i}: ${lbl}`:`Место ${i}`;return(
         <g key={i} onMouseEnter={()=>setHov(i)} onMouseLeave={()=>setHov(null)} onClick={()=>{if(af.includes('mb_yasna2')&&drill==null&&onDrill){onDrill(i);}else{onSel(sel===i?null:i);}}} style={{cursor:'pointer'}}>
           <title>{tipText}</title>
           <circle cx={pt.x} cy={pt.y} r={nr+14} fill="transparent" stroke="none"/>
@@ -424,9 +424,9 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
           <rect x={cx-100} y={cardY+22} width="200" height="26" rx="13" fill="#a21caf"/>
           <text x={cx} y={cardY+39} textAnchor="middle" fontSize="11" fontWeight="700" letterSpacing="2.4" fill="#fff" fontFamily="var(--sans)">ВЛОЖЕННАЯ ЯСНА²</text>
           {/* Главный заголовок попапа */}
-          <text x={cx} y={cardY+76} textAnchor="middle" fontSize={isMob?26:32} fontWeight="700" fill="var(--star-ink,#1d1d1f)" fontFamily="var(--serif)">{(p[drill]||`Полка ${drill}`)}</text>
+          <text x={cx} y={cardY+76} textAnchor="middle" fontSize={isMob?26:32} fontWeight="700" fill="var(--star-ink,#1d1d1f)" fontFamily="var(--serif)">{(p[drill]||`Место ${drill}`)}</text>
           {/* Подзаголовок-путь */}
-          <text x={cx} y={cardY+102} textAnchor="middle" fontSize="12" fill="#86868b" fontFamily="var(--sans)">{(yy.name.length>26?yy.name.slice(0,24)+'…':yy.name)} · Полка {drill}</text>
+          <text x={cx} y={cardY+102} textAnchor="middle" fontSize="12" fill="#86868b" fontFamily="var(--sans)">{(yy.name.length>26?yy.name.slice(0,24)+'…':yy.name)} · Место {drill}</text>
           {/* Декоративный разделитель */}
           <line x1={cx-100} y1={cardY+118} x2={cx+100} y2={cardY+118} stroke="rgba(162,28,175,.22)" strokeWidth="1"/>
           {/* Close-кнопка ✕ в правом верхнем углу */}

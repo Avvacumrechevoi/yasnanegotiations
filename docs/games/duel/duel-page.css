@@ -3167,6 +3167,31 @@ body.theme-vk-dark .dp-theme-banner__count { color: var(--text-2, #aeaeb2); }
 /* Скрыть тему на самой карточке вопроса — она уже в заголовке группы */
 .tn-final-recap-q-theme { display: none !important; }
 
+/* ─── Разбор: верных ответов бывает несколько ─────────────────────
+   Для вопросов с несколькими ответами и для пар «Правильно» — это
+   список, а не одна строка. Каждый ответ на своей строке, чтобы пары
+   «лево — право» читались как пары, а не как перечисление через запятую. */
+.tn-final-recap-answer-spisok {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.tn-final-recap-answer-stroka {
+  font-weight: 600;
+  color: var(--primary);
+  line-height: 1.4;
+}
+/* «Время вышло» — почему у вопроса нет ответа */
+.tn-final-recap-q-vremya {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--text-3, #8A95A3);
+}
+
 
 /* ─── Бонус-бэйдж «+N» рядом со счётом в шапке ──────────────────
    Появляется при правильном ответе с лёгкой анимацией всплытия.
@@ -3505,6 +3530,10 @@ html.yk-est .dp-cta-row { grid-template-columns: 1fr; gap: 8px; }
 .dp-tema-knopka { min-height: 40px; display: inline-flex; align-items: center; padding: 0 16px;
   border-radius: 11px; background: var(--vk-accent, #0077FF); color: #fff;
   font-size: 14px; font-weight: 700; }
+/* В тёмной теме акцент светлеет, и белая надпись на нём даёт 4.1:1 — ниже
+   порога 4.5. На светлом акценте текст тёмный, тем же приёмом, что и в
+   карточке места (styles.css: --na-akcente). */
+body.theme-vk-dark:not(.vk-light) .dp-tema-knopka { color: #06131d; }
 .dp-tema-fakt { font-size: 12.5px; color: var(--text-3, #8A95A3); }
 
 @media (prefers-reduced-motion: reduce) {
@@ -3582,6 +3611,9 @@ html.yk-est .dp-cta-row { grid-template-columns: 1fr; gap: 8px; }
 .dp-sync-notice-vhod { margin-top: 10px; min-height: 40px; padding: 8px 16px;
   border: 0; border-radius: 10px; background: var(--accent-strong, #0060c4);
   color: #fff; font: 600 13.5px/1 inherit; font-family: inherit; cursor: pointer; }
+/* Тёмная тема: --accent-strong там светлый (#16A7FF), и белым по нему — 2.6:1.
+   Главный вход гостя должен читаться, поэтому надпись тёмная (7:1). */
+body.theme-vk-dark:not(.vk-light) .dp-sync-notice-vhod { color: #06131d; }
 
 /* Подсказка термина по тапу (тач-устройства): плашка под словом. */
 .dp-term-plashka { position: absolute; left: 0; top: calc(100% + 6px); z-index: 60;

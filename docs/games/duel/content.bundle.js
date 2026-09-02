@@ -1,11 +1,11 @@
 // АВТОГЕНЕРИРОВАННЫЙ ФАЙЛ — НЕ РЕДАКТИРОВАТЬ
 // Источник: content/*.json
 // Сборщик: scripts/build-content.mjs
-// Build: 2026-09-01T16:29:06.329Z
+// Build: 2026-09-02T20:23:13.211Z
 // Themes: 11 · Atoms: 334 · Questions: 168 (single-choice: 100)
 
 ;(function(){
-  const BUILD_INFO = {"builtAt":"2026-09-01T16:29:06.329Z","contentVersion":"1.1.0","files":11,"themes":11,"atomsTotal":334,"questionsTotal":168,"questionsLegacy":100};
+  const BUILD_INFO = {"builtAt":"2026-09-02T20:23:13.211Z","contentVersion":"1.1.0","files":11,"themes":11,"atomsTotal":334,"questionsTotal":168,"questionsLegacy":100};
   const THEMES = [
   {
     "id": "dzhiva-serdtse",
@@ -1187,7 +1187,7 @@
     "theme": "sutki-chertyozh",
     "type": "single-choice",
     "diff": 1,
-    "text": "Сколько рисок ставит автор на чертеже?",
+    "text": "Сколько рисок на чертеже?",
     "options": [
       "2 (по точкам горизонта)",
       "4 (две дневных и две ночных)",
@@ -2224,7 +2224,7 @@
     "theme": "chashi-vesy",
     "type": "single-choice",
     "diff": 3,
-    "text": "Какое определение характера учения Ясны автор считает самым точным («ещё лучше сказать…»)?",
+    "text": "Какое определение характера учения Ясны самое точное («ещё лучше сказать…»)?",
     "options": [
       "Научное",
       "Антинаучное",
@@ -5198,7 +5198,7 @@
     "type": "single-choice",
     "difficulty": "easy",
     "diff": 1,
-    "stem": "Сколько рисок ставит автор на чертеже?",
+    "stem": "Сколько рисок на чертеже?",
     "correct": "4 (две дневных и две ночных)",
     "options": [
       "2 (по точкам горизонта)",
@@ -7138,7 +7138,7 @@
     "type": "single-choice",
     "difficulty": "hard",
     "diff": 3,
-    "stem": "Какое определение характера учения Ясны автор считает самым точным («ещё лучше сказать…»)?",
+    "stem": "Какое определение характера учения Ясны самое точное («ещё лучше сказать…»)?",
     "correct": "Вненаучное",
     "options": [
       "Научное",

@@ -207,10 +207,12 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
     const subLevel = total === Infinity ? 1 : Math.min(9, Math.floor(inLevel / total * 10));
     return { ...s, subLevel: subLevel + 1, busey, toNext: s.to - busey };
   }
+  // Накоплено бусин за всё время. Один источник — getOverallStats().totals.beads
+  // (сумма счетов сыгранных партий, см. duel.js). Прежний запасной расчёт
+  // «победы×50 + поражения×5» выдумывал бусины, которых человек не набирал.
   function totalBusey(){
     const s = _g('YasnaDuelStorage')?.getOverallStats?.();
-    if(!s) return 0;
-    return s.totals?.score || (s.totals?.wins || 0) * 50 + (s.totals?.losses || 0) * 5;
+    return (s && s.totals && s.totals.beads) || 0;
   }
   function toRoman(n){
     const r = ['','I','II','III','IV','V','VI','VII','VIII','IX','X'];
@@ -296,7 +298,7 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
         React.createElement('span', { className: 'dp-hero-cta-icon', 'aria-hidden': 'true' }, '◎'),
         React.createElement('span', { className: 'dp-hero-cta-body' },
           React.createElement('span', { className: 'dp-hero-cta-title' }, 'Разложи по Ясне'),
-          React.createElement('span', { className: 'dp-hero-cta-sub' }, 'Поставь элемент на своё место')
+          React.createElement('span', { className: 'dp-hero-cta-sub' }, 'Поставь карточку на своё место')
         )
       )
     );
@@ -530,6 +532,7 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
     });
     if(user) return null;       // авторизованным не нужно
     if(dismissed) return null;  // закрыли вручную
+    const вПриложении = /YasnaApp\//.test(navigator.userAgent);
     const dismiss = () => {
       try { localStorage.setItem('yasna_sync_notice_dismissed', '1'); } catch(_){}
       setDismissed(true);
@@ -576,7 +579,10 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
           }, 'Войти по почте')
         ),
         React.createElement('div', { className: 'dp-sync-notice-actions' },
-          React.createElement('button', { className: 'dp-sync-notice-cta', onClick: downloadProgress, type: 'button' }, 'Скачать копию'),
+          /* В приложении кнопки нет: выгрузка идёт через <a download>, а WebView
+             такую ссылку молча игнорирует (обработчика загрузок в обёртке нет) —
+             кнопка обещала файл и не давала ничего. В браузере она работает. */
+          !вПриложении && React.createElement('button', { className: 'dp-sync-notice-cta', onClick: downloadProgress, type: 'button' }, 'Скачать копию'),
           React.createElement('button', { className: 'dp-sync-notice-x', onClick: dismiss, type: 'button', 'aria-label': 'Закрыть' }, '×')
         )
       )
@@ -801,7 +807,7 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
           ),
           /YasnaApp\//.test(navigator.userAgent) && React.createElement(DPKrugPreview, null),
           React.createElement('div', { className: 'dp-game-sub' },
-            'Тренируйся расставлять по полочкам.'
+            'Тренируйся расставлять по местам.'
           ),
           React.createElement('ul', { className: 'dp-game-bullets' },
             React.createElement('li', null, '16 Ясн на выбор — или случайная'),
@@ -954,7 +960,9 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
     const итоги = общее.totals || {};
     const партий = итоги.played || 0;
     const побед = итоги.wins || 0;
-    const бусины = общее.beads != null ? общее.beads : (общее.busey || 0);
+    // Тот же getter, что и в шапке ступени: общее.beads/общее.busey storage
+    // никогда не писал, и плитка показывала «0 бусин» рядом с «✦ 194» в шапке.
+    const бусины = итоги.beads || 0;
     const серия = (общее.streak && (общее.streak.best || общее.streak.current)) || итоги.bestStreak || 0;
 
     const числа = [

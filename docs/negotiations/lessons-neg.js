@@ -141,6 +141,14 @@
     }
   ];
 
+  /* Шаги, которые засчитываются как решённая практика. Один список на два
+     места (знаменатель итога и гейт) — раньше знаменатель считал только
+     'practice', а счёт рос ещё и за contact/stagedrill, и итог печатал
+     «практик решено: 3 из 2». */
+  function этоПрактика(seg) {
+    return !!seg && (seg.type === 'practice' || seg.type === 'contact' || seg.type === 'stagedrill');
+  }
+
   function nextLesson(id) {
     var i = -1;
     LESSONS.forEach(function (l, k) { if (l.id === id) i = k; });
@@ -166,9 +174,22 @@
     return -1; // всё пройдено
   }
 
+  /* Подпись главной кнопки рисуем из состояния: она открывает первый
+     непройденный сценарий, а обещала статично «Сценарий 1 — Кто передо мной»
+     даже тому, кто первый уже прошёл. */
+  function обновитьГероя() {
+    var b = document.getElementById('neg-hero-start');
+    if (!b) return;
+    var idx = firstUndoneIndex();
+    if (idx < 0) b.textContent = 'Все пройдены — повторить с первого →';
+    else if (idx === 0) b.textContent = 'Начать: сценарий 1 — ' + LESSONS[0].title + ' →';
+    else b.textContent = 'Продолжить: сценарий ' + LESSONS[idx].n + ' — ' + LESSONS[idx].title + ' →';
+  }
+
   // ── каталог сценариев: маршрут + карточки ────────────────────────
   function renderCatalog() {
     if (!catalogList) return;
+    обновитьГероя();
     catalogList.innerHTML = '';
     var done = loadDone();
     var hereIdx = firstUndoneIndex();
@@ -218,7 +239,7 @@
   // ── открыть урок ─────────────────────────────────────────────────
   function openLesson(lesson) {
     state = { lesson: lesson, segWrap: null, bar: null, решено: 0,
-      всегоПрактик: (lesson.segments || []).filter(function (s) { return s.type === 'practice'; }).length };
+      всегоПрактик: (lesson.segments || []).filter(этоПрактика).length };
     lessonRoot.innerHTML = '';
 
     var head = el('div', 'neg-l-head');
@@ -314,12 +335,19 @@
         appendSegment(i + 1);
       });
     }
-    var unlock = function () { if (gate) { gate.disabled = false; gate.classList.remove('is-wait'); gate.classList.add('is-ready'); gate.textContent = 'Дальше →'; } };
+    /* Гейт не запирает: «Дальше →» активна всегда (ни одного замка на
+       уроках), решённая практика лишь снимает мягкую подпись и подсвечивает
+       кнопку. Раньше здесь стояло disabled и «Сначала пройди практику ↑». */
+    var подпись = null;
+    var unlock = function () {
+      if (подпись) { if (подпись.parentNode) подпись.parentNode.removeChild(подпись); подпись = null; }
+      if (gate) { gate.classList.remove('is-wait'); gate.classList.add('is-ready'); }
+    };
     /* Каждая пройденная практика считается: по этому счёту итоговый экран
        отличает «просмотрел» от «прошёл». */
     var onDone = function () { state.решено = (state.решено || 0) + 1; unlock(); };
 
-    var needsDone = (seg.type === 'practice' || seg.type === 'contact' || seg.type === 'stagedrill');
+    var needsDone = этоПрактика(seg);
 
     switch (seg.type) {
       case 'widget':
@@ -343,8 +371,12 @@
     }
 
     if (gate) {
-      if (needsDone) { gate.disabled = true; gate.classList.add('is-wait'); gate.textContent = 'Сначала пройди практику ↑'; }
-      else { unlock(); }
+      if (needsDone) {
+        /* Кнопку не приглушаем (.is-wait читается как «выключено») — она
+           обычная и рабочая, а состояние объясняет подпись под ней. */
+        подпись = el('div', 'neg-gate-hint', 'Практику ещё не решил — можно пройти дальше и вернуться сюда позже.');
+        block.appendChild(подпись);
+      } else { unlock(); }
       block.appendChild(gate);
     }
 

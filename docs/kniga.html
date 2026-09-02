@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<!-- Значок вкладки: без него браузер сам просит /favicon.ico и получает
+     404 в консоль при каждом открытии книги. -->
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
 <title>Ясна Суток — учебник</title>
 <meta name="description" content="Первая книга о том, как всё устроено. Учебник «Ясна Суток» целиком, со всеми схемами."/>
 <script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);var e=document.documentElement;e.setAttribute('data-theme',d?'dark':'light');e.style.colorScheme=d?'dark':'light';}catch(e){}</script>
@@ -139,11 +142,17 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
 .shema--podpis .shema-pod{margin-top:0;font-style:italic}
 
 .hvost{display:flex;gap:10px;margin-top:30px}
+/* Пока главы нет (открываем или не открылась), листать нечем — хвост убираем.
+   Своё display:flex перебивает встроенное [hidden], поэтому правило явное. */
+.hvost[hidden]{display:none}
 .hvost button{flex:1;min-height:52px;border-radius:14px;border:1px solid var(--kn-kayma);
   background:var(--kn-list);font:600 14.5px/1.25 var(--kn-sans);padding:8px 12px}
 .hvost button.glav{background:var(--kn-akc);color:#fff;border-color:transparent}
 .hvost button[disabled]{opacity:.4}
 .grузка{padding:40px 0;text-align:center;color:var(--kn-ink-3);font:400 14px/1.5 var(--kn-sans)}
+.grузка .povtor{display:block;margin:16px auto 0;min-height:48px;padding:0 22px;
+  border-radius:14px;border:1px solid var(--kn-kayma);background:var(--kn-list);
+  color:var(--kn-ink);font:600 14.5px/1 var(--kn-sans)}
 
 /* ── Акценты текста ─────────────────────────────────────────────
    Номер записи и врезки — в цвете книги; первый абзац главы открывает
@@ -167,6 +176,10 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
   .telo>*{opacity:0;transform:translateY(10px);
     transition:opacity .5s ease,transform .5s cubic-bezier(.2,.9,.3,1)}
   .telo>.vidno{opacity:1;transform:none}
+  /* Служебные блоки («Открываю…», сообщение о сбое) в это дыхание не входят:
+     наблюдатель, который зажигает абзацы, ставится только после удачной
+     загрузки — и глава молча выглядела пустой. */
+  .telo>.grузка{opacity:1;transform:none}
   .shema svg{opacity:0;transform:scale(.985);
     transition:opacity .6s ease,transform .6s cubic-bezier(.2,.9,.3,1)}
   .shema.pokazana svg{opacity:1;transform:none}
@@ -237,7 +250,8 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
   document.documentElement.style.setProperty('--kn-kegl', сост.кегль);
 
   var эОгл=document.getElementById('ogl'), эЛист=document.getElementById('list'),
-      эТело=document.getElementById('telo'), эСписок=document.getElementById('spisok');
+      эТело=document.getElementById('telo'), эСписок=document.getElementById('spisok'),
+      эХвост=document.querySelector('.hvost');
 
   /* Главы лежат отдельными файлами и подключаются по требованию: узел 8 — это
      четверть книги, держать её в памяти ради оглавления незачем. */
@@ -369,19 +383,35 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
     });
   }
 
+  /* Глава не доехала. Раньше здесь стояло «Эта глава ещё набирается со скана»
+     — неправда: книга набрана целиком, а файл просто не загрузился. Говорим
+     как есть и даём повторить; листать нечего, поэтому хвост скрыт. */
+  function сбой(н){
+    эТело.innerHTML='<div class="grузка">Не удалось открыть главу.'
+      + '<button class="povtor" id="povtor" type="button">Повторить</button></div>';
+    эХвост.hidden=true;
+    var к=document.getElementById('povtor');
+    if(к) к.onclick=function(){ открыть(н); };
+  }
+
   function открыть(н){
     var оп=опись(н);
     if(!оп || оп.есть===false) return;
     эТело.innerHTML='<div class="grузка">Открываю…</div>';
+    эХвост.hidden=true;
     document.body.classList.add('chtenie');
     document.getElementById('shapka-t').textContent=оп.имя;
     window.scrollTo(0,0);
     загрузить(н, function(г){
-      if(!г){ эТело.innerHTML='<div class="grузка">Эта глава ещё набирается со скана.</div>'; return; }
+      if(!г){ сбой(н); return; }
+      эХвост.hidden=false;
       эТело.innerHTML=(г.части||[]).map(частьВHTML).join('');
-      /* Буквица — первому содержательному абзацу главы. */
+      /* Буквица — первому содержательному абзацу главы, и только если он без
+         номера записи: ::first-letter взял бы первую цифру номера, и запись
+         931 читалась как «9…31» (главы 4, 8, 10). */
       var перв=эТело.querySelector('p:not(.snoska):not(.vydel)');
-      if(перв && перв.textContent.replace(/\s/g,'').length>40) перв.classList.add('bukvica');
+      if(перв && !перв.querySelector('.nom')
+         && перв.textContent.replace(/\s/g,'').length>40) перв.classList.add('bukvica');
       /* Части поднимаются, когда доезжают до глаз; без наблюдателя — сразу. */
       if('IntersectionObserver' in window){
         var набл=new IntersectionObserver(function(зап){
