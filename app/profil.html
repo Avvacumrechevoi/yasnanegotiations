@@ -598,14 +598,22 @@
   var статус=document.getElementById('vhod-status');
   var кнВход=document.getElementById('vhod-knopka');
   var опис=document.getElementById('vhod-opis');
+  /* ВОШЁЛ ИЛИ НЕТ — ОДИН ВОПРОС С ОДНИМ ОТВЕТОМ: есть ли токен.
+     Раньше верхняя строка спрашивала «токен И сохранённый пользователь», а
+     блок полей ниже — только «токен». Стоило пропасть объекту пользователя
+     (вход с другого экрана, чистка, старая версия ключа), и один экран
+     говорил о себе двумя голосами: сверху «Вы играете гостем» и кнопка
+     «Войти по почте», а прямо под ней — почта, поля и «Выйти». Человек
+     видит это как «показано, что я вошёл, и тут же предлагают войти».
+     Почта — не признак входа, а подробность: её и покажем, когда знаем. */
+  function вошли(){ return !!localStorage.getItem('yasna_duel_token'); }
   function показатьВход(){
     var польз=null;
     try{ польз=JSON.parse(localStorage.getItem('yasna_duel_user')) }catch(e){}
-    var есть=!!localStorage.getItem('yasna_duel_token');
-    if(есть&&польз){
+    if(вошли()){
       /* Сервер отдаёт nickname/firstName/email; поля name у него нет — раньше
          тут почти всегда выводилось слово «аккаунт». */
-      статус.textContent=польз.email||'Вход выполнен';
+      статус.textContent=(польз&&польз.email)||'Вход выполнен';
       кнВход.hidden=true;
       опис.hidden=true;
     } else {
@@ -621,9 +629,8 @@
   function показатьПоля(){
     var узел=document.getElementById('akkaunt');
     if(!узел||!window.YasnaAccount) return;
-    var вошли=!!localStorage.getItem('yasna_duel_token');
-    узел.hidden=!вошли;
-    if(вошли) window.YasnaAccount.встроить(узел,{приВыходе:function(){ показатьВход(); показатьПоля(); }});
+    узел.hidden=!вошли();
+    if(вошли()) window.YasnaAccount.встроить(узел,{приВыходе:function(){ показатьВход(); показатьПоля(); }});
     else узел.innerHTML='';
   }
   /* Короткое сообщение внизу экрана; живёт одно, уходит само. */
