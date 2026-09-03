@@ -304,10 +304,31 @@ public class UstanovkaObnovleniya extends Plugin {
     private void predlozhitUstanovku(File apk) {
         Context ctx = getContext();
         Uri adres = FileProvider.getUriForFile(ctx, ctx.getPackageName() + ".fileprovider", apk);
-        Intent i = new Intent(Intent.ACTION_VIEW);
+        final Intent i = new Intent(Intent.ACTION_VIEW);
         i.setDataAndType(adres, "application/vnd.android.package-archive");
         // Без этого флага установщик получает адрес, который ему не разрешено читать.
-        i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        // ОКНО ОТКРЫВАЕМ ИЗ АКТИВНОСТИ, А НЕ ИЗ КОНТЕКСТА ПРИЛОЖЕНИЯ.
+        // Раньше здесь стоял ещё и FLAG_ACTIVITY_NEW_TASK — контексту
+        // приложения он обязателен, но у него есть цена: новое окно ищет
+        // существующую задачу установщика и переиспользует её. Стоило один раз
+        // отменить установку, и следующая попытка попадала в ОСТАТОК прошлой
+        // задачи (packageinstaller.DeleteStagedFileOnResult), которая
+        // закрывалась молча. Со стороны это выглядит как «нажимаю — и ничего»:
+        // приложение честно говорит «скачано и проверено», а окна нет.
+        // Воспроизведено на стенде: отменить установку, нажать «Скачать» ещё
+        // раз — окно не появляется, в журнале result code=2 и
+        // onActivityRestartAttempt.
+        // Из активности флаг не нужен вовсе: окно ложится поверх приложения,
+        // своей задачи не заводит и остатков не наследует.
+        final android.app.Activity a = getActivity();
+        if (a != null) {
+            a.runOnUiThread(() -> a.startActivity(i));
+            return;
+        }
+        // Активности нет (приложение свернули совсем) — тогда по-старому.
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         ctx.startActivity(i);
     }
 
