@@ -305,11 +305,11 @@ function открытьКруг(){
         className: 'dp-hero-cta-btn dp-hero-cta-btn--ghost',
         onClick: открытьКруг,
         type: 'button',
-        'aria-label': 'Открыть «Разложи по Ясне»'
+        'aria-label': 'Открыть «Разложи по кругу»'
       },
         React.createElement('span', { className: 'dp-hero-cta-icon', 'aria-hidden': 'true' }, '◎'),
         React.createElement('span', { className: 'dp-hero-cta-body' },
-          React.createElement('span', { className: 'dp-hero-cta-title' }, 'Разложи по Ясне'),
+          React.createElement('span', { className: 'dp-hero-cta-title' }, 'Разложи по кругу'),
           React.createElement('span', { className: 'dp-hero-cta-sub' }, 'Поставь карточку на своё место')
         )
       )
@@ -815,7 +815,7 @@ function открытьКруг(){
         React.createElement('div', { className: 'dp-game-card dp-game-primary' },
           React.createElement('div', { className: 'dp-game-eyebrow' }, 'Тренажёр · 2 минуты'),
           React.createElement('div', { className: 'dp-game-title-row' },
-            React.createElement('div', { className: 'dp-game-title' }, 'Разложи по Ясне')
+            React.createElement('div', { className: 'dp-game-title' }, 'Разложи по кругу')
           ),
           /YasnaApp\//.test(navigator.userAgent) && React.createElement(DPKrugPreview, null),
           React.createElement('div', { className: 'dp-game-sub' },
@@ -830,7 +830,7 @@ function открытьКруг(){
             React.createElement('button', {
               type: 'button', className: 'dp-cta dp-cta--solo',
               onClick: (e) => { e.stopPropagation(); открытьКруг(); },
-              'aria-label': 'Играть в «Разложи по Ясне»'
+              'aria-label': 'Играть в «Разложи по кругу»'
             },
               React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
                 React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },

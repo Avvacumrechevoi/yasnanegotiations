@@ -43,6 +43,8 @@ if(m)location.replace('konstruktor.html#tour='+m[1]);})();
 <meta property="og:type" content="website"/>
 <meta property="og:title" content="Уроки · Метод Ясны"/>
 <meta property="og:description" content="Знакомство, уроки, разборы, тренировки и справочник — всё в одном месте."/>
+<!-- Роли цвета, шкала типа и движение: один файл на сайт и приложение. Подключён ПЕРВЫМ из стилей — он только объявляет переменные и ничего не перебивает. -->
+<link rel="stylesheet" href="core/tokeny.css">
 <link rel="stylesheet" href="vendor/fonts/shrifty.css">
 
 <style>
@@ -57,11 +59,17 @@ if(m)location.replace('konstruktor.html#tour='+m[1]);})();
   --border:         rgba(255, 255, 255, 0.06);
   --border-strong:  rgba(255, 255, 255, 0.12);
 
-  --accent:         #0077FF;
+  /* Акцент тёмной темы — роль из core/tokeny.css, а не свой синий.
+     Почему: белая подпись на #0077FF давала 4.13:1 — ниже нормы 4.5 для
+     текста кнопки «Начать» (14px 700). В дизайн-системе в тёмной теме
+     акцент светлый, а надпись на нём тёмная (--on-primary), и та же пара
+     даёт 7.70:1. Заодно акцент как ТЕКСТ (счётчик у чипа) поднимается
+     с 4.27 до 10.39:1 на карточке. */
+  --accent:         var(--primary);
   --accent-hover:   #16A7FF;
   --accent-soft:    rgba(0, 119, 255, 0.12);
   --accent-glow:    rgba(0, 119, 255, 0.30);
-  --accent-on:      #FFFFFF;
+  --accent-on:      var(--on-primary);
   /* Токен использовался в подписях гидов и рамках, но объявлен был только в
      светлой теме: в тёмной подписи падали на фолбэк #626D7A — 2.6:1 на
      карточке, нечитаемо. */
@@ -148,15 +156,16 @@ a { color: inherit; text-decoration: none; }
    «лист» на экран не выходят — у автора они означают места Ясны Дерева
    (Корни 0, Лист 8, Ветка 9, Ствол 10), и разделами их звать нельзя.
 
-   Замеры: строка ветви 56px, узел 56px, «Продолжить» 96px, чипы 44px —
-   тап-целей меньше 44px нет ни одной; весь текст ≥12px.
+   Замеры: строка ветви 56px, узел 56px, «Продолжить» 96px. Порог целей
+   касания — 48px (Android), а не 44 (iPhone): по 44 промахивались лупой и
+   крестиками листов. Весь текст ≥12px.
    ═══════════════════════════════════════════════════════════════════ */
 .dr { max-width: 720px; margin: 0 auto; padding: 12px 16px 24px; }
 .dr-shapka { padding: 4px 0 12px; }
 .dr-shapka-ryad { display: flex; align-items: center; gap: 10px; }
 .dr-zag { flex: 1; margin: 0; font-family: var(--font-serif); font-weight: 500;
   font-size: 30px; line-height: 1.1; letter-spacing: -0.02em; color: var(--text-primary); }
-.dr-lupa { width: 44px; height: 44px; flex: 0 0 auto; border-radius: 12px;
+.dr-lupa { width: var(--cel-min, 48px); height: var(--cel-min, 48px); flex: 0 0 auto; border-radius: 12px;
   border: 1px solid var(--border); background: var(--bg-card); color: var(--text-secondary);
   display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .dr-lupa svg { width: 20px; height: 20px; }
@@ -178,14 +187,14 @@ a { color: inherit; text-decoration: none; }
   color: var(--text-primary); }
 .dr-prod-pod { display: block; margin-top: 4px; font-size: 13px; color: var(--text-secondary); }
 .dr-prod-knop { margin-top: 12px; display: inline-flex; align-items: center; gap: 8px;
-  min-height: 44px; padding: 0 18px; border-radius: 12px; background: var(--accent);
-  color: #fff; font-size: 14px; font-weight: 700; }
+  min-height: var(--cel-min, 48px); padding: 0 18px; border-radius: 12px; background: var(--accent);
+  color: var(--accent-on); font-size: 14px; font-weight: 700; }
 
 /* ─── Чипы ─── */
 .dr-chipy { display: flex; gap: 8px; margin: 14px 0 0; overflow-x: auto;
   scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .dr-chipy::-webkit-scrollbar { display: none; }
-.dr-chip { flex: 0 0 auto; min-height: 44px; display: inline-flex; align-items: center;
+.dr-chip { flex: 0 0 auto; min-height: var(--cel-min, 48px); display: inline-flex; align-items: center;
   padding: 0 15px; border-radius: 12px; border: 1px solid var(--border-strong);
   background: var(--bg-card); color: var(--text-primary); font-size: 14px; font-weight: 600;
   text-decoration: none; cursor: pointer; }
@@ -352,7 +361,7 @@ a { color: inherit; text-decoration: none; }
 .dr-uzel--dalshe { background: var(--accent-soft, rgba(0,113,227,.07)); border-radius: 12px;
   margin: 2px -8px; padding: 8px; }
 .dr-uzel--dalshe .dr-uzel-imya { color: var(--accent-hover, var(--accent)); }
-.dr-skladka { display: flex; align-items: center; width: 100%; min-height: 44px; padding: 4px 2px;
+.dr-skladka { display: flex; align-items: center; width: 100%; min-height: var(--cel-min, 48px); padding: 4px 2px;
   border: 0; background: none; font: 500 13px/1.3 inherit; font-family: inherit;
   color: var(--text-secondary); cursor: pointer; text-align: left; }
 .dr-skladka:hover { color: var(--accent); }
@@ -374,15 +383,15 @@ a { color: inherit; text-decoration: none; }
    его «×» уезжают под часы. Так же устроена шапка книги. */
 html.yk-est .dr-list-shapka { padding-top: calc(12px + var(--yk-sverhu, 0px)); }
 .dr-list-zag { flex: 1; margin: 0; font-size: 20px; font-weight: 700; color: var(--text-primary); }
-.dr-list-x { width: 44px; height: 44px; flex: 0 0 auto; border: 0; background: none;
+.dr-list-x { width: var(--cel-min, 48px); height: var(--cel-min, 48px); flex: 0 0 auto; border: 0; background: none;
   color: var(--text-secondary); font-size: 26px; line-height: 1; cursor: pointer; }
 .dr-list-pod { margin: 12px 16px 0; font-size: 13px; line-height: 1.45; color: var(--text-secondary); }
-.dr-list-poisk { width: 100%; min-height: 44px; margin: 10px 0 4px; padding: 10px 14px;
+.dr-list-poisk { width: 100%; min-height: var(--cel-min, 48px); margin: 10px 0 4px; padding: 10px 14px;
   border: 1px solid var(--border); border-radius: 12px; background: var(--bg-card);
   color: var(--text-primary); font: 400 15px/1.3 inherit; font-family: inherit; }
 .dr-list-poisk:focus { outline: none; border-color: var(--accent); }
 .dr-list-telo { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 16px calc(24px + var(--yk-snizu, 0px)); }
-.dr-poisk-vvod { flex: 1; min-height: 44px; padding: 0 14px; border-radius: 12px;
+.dr-poisk-vvod { flex: 1; min-height: var(--cel-min, 48px); padding: 0 14px; border-radius: 12px;
   border: 1px solid var(--border-strong); background: var(--bg-card);
   color: var(--text-primary); font-size: 16px; font-family: inherit; }
 .dr-mesto { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 54px;
@@ -463,6 +472,7 @@ html.yk-est .dr-list-shapka { padding-top: calc(12px + var(--yk-sverhu, 0px)); }
   color: var(--text-muted);
   font-family: var(--font-sans);
   font-size: 13px; font-weight: 500;
+  min-height: var(--cel-min, 48px);
   padding: 13px 16px; border-radius: 100px;
   cursor: pointer;
   transition: color 200ms ease, border-color 200ms ease;
@@ -548,6 +558,7 @@ html.yk-est .l-intro-progress { top: 0; }
 .l-intro-btn[hidden] { display: none !important; }
 .l-intro-btn {
   display: inline-flex; align-items: center; gap: 8px;
+  min-height: var(--cel-min, 48px);
   padding: 12px 22px;
   background: var(--bg-card);
   color: var(--text-primary);
@@ -601,6 +612,7 @@ html.yk-est .l-intro-progress { top: 0; }
 }
 .l-intro-option {
   display: flex; align-items: center; gap: 12px;
+  min-height: var(--cel-min, 48px);
   padding: 14px 18px;
   background: transparent;
   border: 1px solid var(--border);
@@ -748,7 +760,7 @@ html[data-theme='light'] {
 </style>
 </head>
 <body>
-<link rel="stylesheet" href="core/site-nav.css?v=f8cd9a99"/>
+<link rel="stylesheet" href="core/site-nav.css?v=52aebf72"/>
 <header class="ynav ynav--dark ynav--sticky" id="site-nav"></header>
 <script src="core/site-nav.js?v=9ba1a8b7"></script>
 <script>window.SiteNav&&SiteNav.mount('site-nav','learn');</script>

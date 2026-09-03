@@ -26,9 +26,11 @@
 <meta name="apple-mobile-web-app-title" content="Ясна">
 <script defer src="core/pwa.js"></script>
 <title>Ясна · Админка контента</title>
-<link rel="stylesheet" href="styles.css?v=8511f716"/>
+<!-- Роли цвета, шкала типа и движение: один файл на сайт и приложение. Подключён ПЕРВЫМ из стилей — он только объявляет переменные и ничего не перебивает. -->
+<link rel="stylesheet" href="core/tokeny.css">
+<link rel="stylesheet" href="styles.css?v=6107844c"/>
 <link rel="stylesheet" href="vk-tech-tokens.css?v=b93ac0b9"/>
-<link rel="stylesheet" href="games/duel/duel-page.css?v=2e7dce9a"/>
+<link rel="stylesheet" href="games/duel/duel-page.css?v=d3fbd5c2"/>
 <style>
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;background:#f5f5f7;color:#1d1d1f}
   .ad-shell{max-width:1100px;margin:0 auto;padding:24px}

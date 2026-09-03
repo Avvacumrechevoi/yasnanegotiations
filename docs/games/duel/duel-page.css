@@ -1,95 +1,147 @@
 /* ═══════════════════════════════════════════════════════════════════
-   Касталия Ясны · дизайн-система v5
-   Apple-минимализм × Герман Гессе «Игра в бисер»
-   Палитра: пергамент (cream) + ambre + deep green
+   Игры — единственный компонентный CSS экрана.
+   Цвет берётся ролями из core/tokeny.css: там один источник и для света,
+   и для тьмы. Раньше экран собирал вид из трёх слоёв разом — «Касталия»
+   (пергамент + ambre) в этом файле, VK-тёмная поверх неё и vk-light,
+   красившая тёмную обратно в светлое. Из-за этого любая правка цвета
+   всплывала в другой теме, а на экран приезжало 389 КБ стилей.
+   Теперь: tokeny.css (роли) + этот файл. Слои сведены сюда же — их
+   правила лежат ниже, за отбивкой «СЛОЙ ВЁРСТКИ», и держатся на классе
+   .igra (он стоит на body только на этом экране, чтобы правила не
+   доставали до admin.html, который тоже грузит этот файл).
    ═══════════════════════════════════════════════════════════════════ */
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* styles.css держит body в overflow:hidden/height:100vh (там экран-приложение
+   без прокрутки). Этот файл грузится ПОСЛЕ него, поэтому !important не нужен —
+   при равной силе выигрывает последний. */
 html, body {
-  overflow: visible !important;
-  height: auto !important;
+  overflow: visible;
+  height: auto;
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
 }
 
+/* ─── Имена экрана → роли дизайн-системы ──────────────────────────────
+   Блок один на обе темы: роли сами меняются в тёмной (tokeny.css), и
+   дублировать их здесь не нужно. Старые имена (--bg-page, --text-1,
+   --accent…) оставлены псевдонимами — на них держатся ~800 правил ниже,
+   и переезд идёт по одному месту за раз, а не разом. */
 :root {
-  /* ─── Поверхности — пергамент ─── */
-  --bg-page: #F7F4EE;
-  --bg-surface: #FFFFFF;
-  --bg-soft: #F1EDE4;
-  --bg-tonal: #EBE6DA;
-  --bg-deep: #1d1d1f;
+  /* ─── Поверхности: лестница вместо теней ─── */
+  --bg-page: var(--background);
+  --bg-surface: var(--surface-container-lowest);
+  --bg-soft: var(--surface-container-low);
+  --bg-tonal: var(--surface-container-high);
+  --bg-deep: var(--surface-container-highest);
 
-  /* ─── Текст — четыре уровня ─── */
-  --text-1: #1d1d1f;
-  --text-2: #5f5d57;
-  --text-3: #6e6e73;
-  --text-on-dark: #f5f5f7;
+  /* ─── Текст ─── */
+  --text-1: var(--on-surface);
+  --text-2: var(--on-surface-variant);
+  --text-3: var(--on-surface-variant);
+  --text-on-dark: var(--inverse-on-surface);
 
-  /* ─── Акценты ─── */
-  /* Затемнён с #BA7517 → #8F5609 для WCAG-AA: старый давал лишь 3.7:1 на белом
-     и 3.2:1 на кремовых карточках (мелкие 11px подписи-eyebrow не проходили AA).
-     Тёмная тема не затрагивается — у неё свой --accent:#0077FF в theme-vk-dark.css. */
-  --accent: #8F5609;
-  --accent-soft: #FAEEDA;
-  --accent-strong: #633806;
-  --primary: #3B6D11;
-  --primary-strong: #27500A;
-  --primary-soft: #EAF3DE;
-  --info: #229ED9;
-  --info-soft: #E6F1FB;
-  --info-text: #0C447C;
-  --danger: #A32D2D;
-  --gold-1: #C0943A;
-  --gold-2: #8E8E93;
-  --gold-3: #B5651D;
+  /* ─── Акценты ───
+     --accent и --primary НЕ объявляем: в tokeny.css --accent уже указывает
+     на роль --primary, а объявление здесь перебивало бы её (именно так на
+     этом экране жили сразу три «главных синих»). «Второго синего для
+     наведения» в системе нет — берём ту же роль. */
+  --accent-soft: var(--primary-container);
+  --accent-strong: var(--primary);
+  --primary-strong: var(--primary);
+  --primary-soft: var(--primary-container);
+  --info: var(--primary);
+  --info-soft: var(--primary-container);
+  --info-text: var(--on-primary-container);
+  --danger: var(--error);
+  /* Золото знака — им помечают, а не заливают кнопки. */
+  --gold-1: var(--tertiary);
+  --gold-2: var(--outline);
+  --gold-3: var(--tertiary);
 
-  /* ─── Линии и тени ─── */
-  --border-1: rgba(60, 50, 30, 0.18);
-  --border-2: rgba(60, 50, 30, 0.10);
-  --shadow-sm: 0 1px 2px rgba(40, 30, 15, 0.04);
-  --shadow-md: 0 4px 14px rgba(40, 30, 15, 0.07);
-  --shadow-lg: 0 8px 32px rgba(40, 30, 15, 0.12);
-  --shadow-deep: 0 12px 60px rgba(40, 30, 15, 0.18);
+  /* ─── Линии ───
+     Оба уровня ведут на --outline-variant: это разделители. Там, где рамка
+     остаётся единственным признаком контрола, ставится --outline на месте. */
+  --border-1: var(--outline-variant);
+  --border-2: var(--outline-variant);
+
+  /* Тени — бесцветные и одинаковые в обеих темах: высоту передаёт лестница
+     поверхностей, тень только подсказывает край. */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.10);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.14);
+  --shadow-deep: 0 12px 60px rgba(0, 0, 0, 0.20);
 
   /* ─── Типографика ─── */
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", serif;
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Helvetica Neue", system-ui, sans-serif;
 
   /* ─── Радиусы ─── */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
+  --radius-sm: var(--shape-s);
+  --radius-md: var(--shape-m);
+  --radius-lg: var(--shape-l);
   --radius-xl: 24px;
 
   /* ─── Spacing ─── */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
+  --space-1: var(--sp-1);
+  --space-2: var(--sp-2);
+  --space-3: var(--sp-3);
+  --space-4: var(--sp-4);
   --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
+  --space-6: var(--sp-6);
+  --space-8: var(--sp-8);
   --space-10: 40px;
   --space-12: 48px;
   --space-16: 64px;
   --space-20: 80px;
 
-  /* ─── Анимации ─── */
-  --duration-fast: 150ms;
-  --duration-base: 250ms;
-  --duration-slow: 450ms;
+  /* ─── Движение: три длительности и две кривые системы ─── */
+  --duration-fast: var(--dur-short);
+  --duration-base: var(--dur-medium);
+  --duration-slow: var(--dur-long);
   --duration-medi: 1200ms;
-  --easing-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --easing-medi: cubic-bezier(0.65, 0, 0.35, 1);
+  --easing-out: var(--ease-emphasized-decel);
+  --easing-medi: var(--ease-standard);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+/* Блок «убрать анимации» больше не нужен: он есть в tokeny.css один на всё
+   приложение (и это единственное место, где !important уместен). */
+
+/* Общие узлы ядра (шторка, досье места) брали цвет из styles.css по классу
+   theme-vk-dark — а он стоял на Играх ВСЕГДА, и в светлой теме экран получал
+   тёмные значения. Класса больше нет, поэтому те же два имени объявлены здесь
+   ролями: они верны в обеих темах сами. */
+:root {
+  --na-akcente: var(--on-primary);      /* надпись НА залитой акцентом плашке */
+  --sht-kayma: var(--outline-variant);
 }
+/* Те же общие узлы держатся на старых именах (--bg, --accent, --txt…), а
+   styles.css объявляет их сам светлыми значениями и грузится раньше ролей.
+   Пока он не переехал, на этом экране имена ведут на роли — иначе в тёмной
+   теме шторка и досье оставались светлыми поверх тёмной страницы.
+   Объявление на body, а не в :root: оно сильнее и не задевает admin.html. */
+body.igra {
+  --bg: var(--surface);
+  --bg2: var(--surface-container);
+  --bg3: var(--surface-container-highest);
+  --border: var(--outline-variant);
+  --accent: var(--primary);
+  --txt: var(--on-surface);
+  --txt2: var(--on-surface-variant);
+  --txt3: var(--on-surface-variant);
+}
+/* Карточка шторки на почти таком же фоне не читалась как отдельный слой
+   (1.01:1) — в тёмной теме ей нужна светлая кромка и заметное затемнение.
+   Блока два, потому что тема бывает системная и выбранная руками. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .side-panel { box-shadow: 0 -1px 0 rgba(255,255,255,.16), 0 -12px 34px rgba(0,0,0,.6); }
+  :root:not([data-theme="light"]) .sht-fon { background: rgba(0,0,0,.62); }
+}
+:root[data-theme="dark"] .side-panel { box-shadow: 0 -1px 0 rgba(255,255,255,.16), 0 -12px 34px rgba(0,0,0,.6); }
+:root[data-theme="dark"] .sht-fon { background: rgba(0,0,0,.62); }
 
 html, body {
   margin: 0;
@@ -183,21 +235,7 @@ a { color: inherit; }
   padding: var(--space-2) 0 var(--space-4);
   border-bottom: 0.5px solid var(--border-2);
   margin-bottom: var(--space-12);
-}
-.dp-header-back {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  text-decoration: none;
-  color: var(--text-2);
-  font-size: 13px;
-  padding: 6px 4px;
-  border-radius: var(--radius-sm);
-  transition: color var(--duration-fast) var(--easing-out);
-}
-.dp-header-back:hover { color: var(--text-1); }
-.dp-header-back-arrow { font-size: 14px; }
-.dp-header-spacer { flex: 1; }
+}.dp-header-spacer { flex: 1; }
 .dp-header-nav {
   display: flex;
   gap: var(--space-5);
@@ -234,15 +272,15 @@ a { color: inherit; }
 .dp-btn:active { transform: scale(0.98); }
 .dp-btn-primary {
   background: var(--primary);
-  color: #ffffff;
+  color: var(--on-primary);
   border-color: var(--primary);
   font-weight: 600;
   box-shadow: 0 1px 3px rgba(0, 119, 255, 0.20);
 }
-.dp-btn-primary:hover { background: var(--primary-strong); border-color: var(--primary-strong); color: #ffffff; }
+.dp-btn-primary:hover { background: var(--primary-strong); border-color: var(--primary-strong); color: var(--on-primary); }
 .dp-btn-cta {
   background: var(--primary);
-  color: #fff;
+  color: var(--on-primary);
   border-color: var(--primary);
   padding: 12px 22px;
   font-size: 14px;
@@ -262,81 +300,21 @@ a { color: inherit; }
   padding: 6px 8px;
   font-size: 13px;
 }
-.dp-btn-text:hover { color: var(--text-1); }
-.dp-help-btn {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  border: 0.5px solid var(--border-1);
-  background: transparent;
-  color: var(--text-2);
-  font-size: 12px; font-weight: 500;
-  cursor: pointer;
-  transition: all var(--duration-fast) var(--easing-out);
-}
-.dp-help-btn:hover { border-color: var(--text-1); color: var(--text-1); }
-
-/* ═══ Help popover ═══ */
-.dp-help-popover {
-  position: absolute; right: 0; top: 36px;
-  width: 280px; padding: var(--space-4);
-  background: var(--bg-surface);
-  border: 0.5px solid var(--border-1);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
-  font-size: 12.5px; color: var(--text-2);
-  z-index: 50;
-  line-height: 1.6;
-}
-.dp-help-popover h4 {
-  font-size: 13px; font-weight: 600;
-  color: var(--text-1);
-  margin-bottom: var(--space-2);
-}
-.dp-help-popover ul { padding-left: 16px; margin-top: var(--space-2); }
-.dp-help-popover li { margin-bottom: 4px; }
-.dp-help-popover strong { color: var(--text-1); font-weight: 500; }
-
-/* ═══ Eyebrow + Section heading ═══ */
-.dp-eyebrow {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--text-3);
-  margin-bottom: var(--space-2);
-}
-.dp-eyebrow-accent { color: var(--accent); }
-
-.dp-section {
+.dp-btn-text:hover { color: var(--text-1); }.dp-section {
   margin-bottom: var(--space-12);
 }
 .dp-section-h-row {
   display: flex; justify-content: space-between; align-items: baseline;
   flex-wrap: wrap; gap: 4px 8px;
   margin-bottom: var(--space-2);
-}
-.dp-section-h-sub { min-width: 0; }
-.dp-section-h {
+}.dp-section-h {
   font-size: 17px;
   font-weight: 600;
   color: var(--text-1);
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-}
-.dp-section-h-sub {
-  font-size: 12px;
-  color: var(--text-3);
-}
-.dp-section-desc {
-  font-size: 13px;
-  color: var(--text-2);
-  max-width: 580px;
-  margin-bottom: var(--space-5);
-  line-height: 1.6;
-}
-
-/* Subtle icon styles for section headings */
+}/* Subtle icon styles for section headings */
 .dp-icon {
   width: 14px; height: 14px;
   display: inline-block;
@@ -492,17 +470,20 @@ a { color: inherit; }
 }
 .dp-hero-stats-sep { color: var(--text-3); }
 .dp-hero-streak { color: var(--primary); }
+/* Линейный прогресс — одна из двух идиом экрана (вторая — шаги .tn-progress-seg).
+   Везде 4dp, радиус 2, заливка ролью, желоб — верхняя ступень поверхности.
+   Ни градиентов, ни свечения: полоса показывает величину, а не украшает. */
 .dp-hero-progress {
   margin-top: var(--space-3);
-  height: 3px;
-  background: var(--bg-soft);
+  height: 4px;
+  background: var(--surface-container-highest);
   border-radius: 2px;
   overflow: hidden;
 }
 .dp-hero-progress-fill {
   height: 100%;
-  background: var(--accent);
-  transition: width var(--duration-slow) var(--easing-out);
+  background: var(--primary);
+  transition: width var(--duration-base) var(--easing-out);
 }
 .dp-hero-cta {
   background: transparent;
@@ -581,146 +562,9 @@ a { color: inherit; }
   margin-bottom: var(--space-4);
   flex: 1;
 }
-.dp-game-primary .dp-game-sub { color: rgba(245, 245, 247, 0.85); }
-.dp-game-meta {
-  font-size: 12px;
-  color: var(--text-3);
-  display: flex;
-  gap: var(--space-2);
-  align-items: center;
-}
-.dp-game-primary .dp-game-meta { color: rgba(245, 245, 247, 0.75); }
-.dp-game-meta-pvp {
-  color: var(--accent);
-  font-weight: 500;
-}
-.dp-game-primary .dp-game-meta-pvp { color: var(--accent-soft); }
-/* Карточка-переход на тренажёр переговоров */
-.dp-game-card--neg { cursor: pointer; transition: border-color var(--duration-fast) var(--easing-out), transform var(--duration-fast) var(--easing-out); }
-.dp-game-card--neg:hover { border-color: var(--vk-accent, #0077FF); transform: translateY(-1px); }
-.dp-game-meta-open { color: var(--vk-accent, #0077FF); font-weight: 600; font-size: 14px; }
-/* Заметная единая CTA-кнопка карточки «Переговоры» */
+.dp-game-primary .dp-game-sub { color: rgba(245, 245, 247, 0.85); }/* Заметная единая CTA-кнопка карточки «Переговоры» */
 .dp-cta--neg { grid-column: 1 / -1; border-color: rgba(0,119,255,0.30); background: rgba(0,119,255,0.08); }
-.dp-cta--neg .dp-cta__icon { background: rgba(0,119,255,0.12); border-color: rgba(0,119,255,0.30); color: var(--vk-accent, #0077FF); }
-.dp-game-card--neg:hover .dp-cta--neg { border-color: var(--vk-accent, #0077FF); background: rgba(0,119,255,0.14); }
-.dp-game-card--neg:hover .dp-cta--neg .dp-cta__icon { background: var(--vk-accent, #0077FF); color: #fff; }
-
-/* ═══ Сегодня (Этюды дня) ═══ */
-.dp-quests {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-3);
-}
-.dp-quest {
-  background: var(--bg-surface);
-  border: 0.5px solid var(--border-2);
-  border-radius: var(--radius-md);
-  padding: var(--space-4) var(--space-5);
-  text-align: left;
-  cursor: pointer;
-  transition: border-color var(--duration-fast) var(--easing-out),
-              background var(--duration-fast) var(--easing-out),
-              transform 100ms;
-  font-family: inherit;
-}
-.dp-quest:hover { border-color: var(--text-3); }
-.dp-quest:active { transform: scale(0.985); }
-.dp-quest:disabled, .dp-quest-locked {
-  opacity: 0.55;
-  cursor: not-allowed;
-  background: var(--bg-soft);
-}
-.dp-quest-locked:hover { border-color: var(--border-2); background: var(--bg-soft); }
-.dp-quest-locked:active { transform: none; }
-.dp-quest-tag {
-  font-size: 11px;
-  color: var(--accent);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin-bottom: var(--space-1);
-  font-weight: 600;
-}
-.dp-quest-locked .dp-quest-tag::after {
-  content: " · готовится";
-  font-size: 10.5px;
-  color: var(--text-3);
-  letter-spacing: 0;
-  font-weight: 500;
-}
-.dp-quest-title {
-  font-size: 14px;
-  color: var(--text-1);
-  line-height: 1.4;
-  font-weight: 400;
-  margin-bottom: var(--space-2);
-}
-.dp-quest-foot {
-  font-size: 12px;
-  color: var(--primary);
-  font-weight: 500;
-}
-.dp-quest-foot-mute { color: var(--text-3); }
-
-/* ═══ Партитура (карта тем с прогрессом) ═══ */
-.dp-partitura {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-3);
-}
-.dp-theme {
-  background: var(--bg-surface);
-  border: 0.5px solid var(--border-2);
-  border-radius: var(--radius-md);
-  padding: var(--space-4);
-  transition: border-color var(--duration-fast) var(--easing-out);
-}
-.dp-theme.dp-theme-current {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-}
-.dp-theme.dp-theme-locked {
-  opacity: 0.55;
-}
-.dp-theme-name {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-1);
-  margin-bottom: var(--space-2);
-  display: flex; justify-content: space-between; align-items: center;
-  gap: var(--space-2);
-}
-.dp-theme-current-badge {
-  font-size: 10.5px;
-  font-weight: 700;
-  color: var(--accent);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-.dp-theme-bar {
-  height: 3px;
-  background: var(--bg-soft);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-bottom: var(--space-2);
-}
-.dp-theme.dp-theme-current .dp-theme-bar { background: rgba(186, 117, 23, 0.18); }
-.dp-theme-bar-fill {
-  height: 100%;
-  background: var(--accent);
-  transition: width var(--duration-slow) var(--easing-out);
-}
-.dp-theme-meta {
-  font-size: 11px;
-  color: var(--text-3);
-  display: flex; justify-content: space-between;
-}
-.dp-theme-locked-icon {
-  color: var(--text-3);
-  /* 11px — ниже порога читаемости на телефоне (12px). */
-  font-size: 12px;
-}
-
-/* ═══ Bottom blocks (Хроника + Знаки) ═══ */
+.dp-cta--neg .dp-cta__icon { background: rgba(0,119,255,0.12); border-color: rgba(0,119,255,0.30); color: var(--vk-accent, #0077FF); }/* ═══ Bottom blocks (Хроника + Знаки) ═══ */
 .dp-two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -801,42 +645,7 @@ a { color: inherit; }
   font-size: 11px;
   color: var(--text-3);
   display: flex; justify-content: space-between;
-}
-
-/* ═══ Знаки Магистра ═══ */
-.dp-znaki-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-2);
-  margin-bottom: var(--space-3);
-}
-.dp-znak {
-  aspect-ratio: 1;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px;
-  font-weight: 600;
-  background: var(--bg-soft);
-  color: var(--text-3);
-  transition: transform var(--duration-fast) var(--easing-out);
-}
-.dp-znak:hover { transform: scale(1.05); }
-.dp-znak.dp-znak-on {
-  background: var(--accent-soft);
-  color: var(--accent-strong);
-  border: 0.5px solid rgba(186, 117, 23, 0.25);
-}
-.dp-znaki-foot {
-  font-size: 12px;
-  font-size: 11px;
-  color: var(--text-3);
-  padding-top: var(--space-3);
-  border-top: 0.5px solid var(--border-2);
-  line-height: 1.5;
-}
-.dp-znaki-foot strong { color: var(--text-2); font-weight: 500; }
-
-/* ═══ Журнал Партий ═══ */
+}/* ═══ Журнал Партий ═══ */
 .dp-journal-row {
   display: flex; align-items: center;
   gap: var(--space-3);
@@ -862,19 +671,7 @@ a { color: inherit; }
   white-space: nowrap;
 }
 .dp-journal-win { color: var(--primary); }
-.dp-journal-loss { color: var(--text-3); }
-.dp-journal-link {
-  display: block;
-  text-align: center;
-  margin-top: var(--space-3);
-  font-size: 12px;
-  color: var(--info);
-  text-decoration: none;
-  padding: var(--space-2);
-}
-.dp-journal-link:hover { color: var(--info-text); }
-
-/* ═══ Auth modal ═══ */
+.dp-journal-loss { color: var(--text-3); }/* ═══ Auth modal ═══ */
 .dp-auth-overlay {
   position: fixed;
   inset: 0;
@@ -1294,45 +1091,7 @@ a { color: inherit; }
   line-height: 1.4;
   pointer-events: none;
   box-shadow: var(--shadow-md);
-}
-
-/* ═══ Orientation banner ═══ */
-.dp-orient {
-  background: var(--info-soft);
-  border: 0.5px solid rgba(34, 158, 217, 0.3);
-  border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-4);
-  margin-bottom: var(--space-6);
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
-  font-size: 13px;
-  color: var(--info-text);
-  line-height: 1.5;
-}
-.dp-orient-icon {
-  width: 20px; height: 20px;
-  border-radius: 50%;
-  background: var(--info);
-  color: #fff;
-  flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 700;
-}
-.dp-orient-text { flex: 1; }
-.dp-orient-text strong { color: var(--info-text); font-weight: 600; }
-.dp-orient-close {
-  background: transparent;
-  border: none;
-  color: var(--info-text);
-  font-size: 18px;
-  cursor: pointer;
-  padding: 0 var(--space-2);
-  opacity: 0.6;
-}
-.dp-orient-close:hover { opacity: 1; }
-
-/* ═══ Responsive ═══ */
+}/* ═══ Responsive ═══ */
 @media (max-width: 720px) {
   .dp-root { padding: var(--space-3) var(--space-4) var(--space-12); }
   .dp-hero {
@@ -1431,13 +1190,15 @@ a { color: inherit; }
   min-width: 0;
   height: 4px;
   border-radius: 2px;
-  background: var(--bg-tonal);
-  transition: background var(--duration-fast) ease-out;
+  background: var(--surface-container-highest);
+  transition: background var(--duration-fast) var(--easing-out);
 }
-.tn-progress-seg-i.is-done { background: var(--accent); }
+.tn-progress-seg-i.is-done { background: var(--primary); }
+/* Текущий шаг отличается формой (обводка), а не свечением: цветной glow
+   вокруг полосы читался как подсветка, а не как «ты здесь». */
 .tn-progress-seg-i.is-now {
-  background: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent), 0 0 6px rgba(0, 119, 255, 0.45);
+  background: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
 }
 
 /* ─── Vs Header (две стороны и счёт) ────────────────────────────── */
@@ -1489,10 +1250,12 @@ a { color: inherit; }
 }
 
 /* ─── Timer Bar (обратный отсчёт) ───────────────────────────────── */
+/* Таймер — та же линейная идиома: 4dp, тот же желоб. Раньше он был 6dp
+   с другим желобом, и на экране вопроса выходило три разных полосы. */
 .tn-timer-bar {
-  height: 6px;
-  background: var(--bg-tonal);
-  border-radius: 3px;
+  height: 4px;
+  background: var(--surface-container-highest);
+  border-radius: 2px;
   overflow: hidden;
   margin-bottom: var(--space-4);
   position: relative;
@@ -1500,8 +1263,8 @@ a { color: inherit; }
 .tn-timer-fill {
   height: 100%;
   background: var(--primary);
-  border-radius: 3px;
-  transition: background-color var(--duration-base) ease-out;
+  border-radius: 2px;
+  transition: background-color var(--duration-base) var(--easing-out);
 }
 /* Плавный линейный обратный отсчёт ширины (длительность = QUESTION_TIME,
    задаётся инлайн). Раньше ширина прыгала посекундно → рывки. */
@@ -1543,25 +1306,13 @@ a { color: inherit; }
   font-weight: 500;
   margin-bottom: 8px;
 }
-.tn-q-meta-num { color: var(--accent); font-weight: 600; }
-.tn-q-meta-dot { opacity: 0.5; }
-.tn-q-meta-theme { color: var(--text-2); }
-/* Строка темы — приглушённо, обычным регистром, читается как «Тема: …» */
+.tn-q-meta-num { color: var(--accent); font-weight: 600; }/* Строка темы — приглушённо, обычным регистром, читается как «Тема: …» */
 .tn-q-theme {
   font-size: 12.5px;
   line-height: 1.35;
   color: var(--text-3);
   margin-bottom: 14px;
-}
-.tn-q-meta-time {
-  margin-left: auto;
-  background: var(--bg-soft);
-  padding: 3px 8px;
-  border-radius: 6px;
-  color: var(--text-2);
-  font-variant-numeric: tabular-nums;
-}
-.tn-q-text {
+}.tn-q-text {
   font-family: var(--font-serif);
   font-weight: 500;
   font-size: 22px;
@@ -1750,10 +1501,6 @@ a { color: inherit; }
   letter-spacing: 0.01em;
   text-align: center;
 }
-.tn-foot-hint {
-  font-style: italic;
-}
-
 /* ─── Loading / Round Intro ─────────────────────────────────────── */
 .tn-card {
   background: var(--bg-surface);
@@ -1980,22 +1727,7 @@ a { color: inherit; }
   color: var(--text-3);
   font-weight: 600;
   margin-bottom: var(--space-2);
-}
-.tn-final-scoring-text {
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--text-2);
-}
-.tn-final-scoring-text strong {
-  color: var(--text-1);
-  font-weight: 600;
-}
-.tn-final-scoring-text em {
-  color: var(--accent-strong);
-  font-style: italic;
-}
-
-/* ─── Archive — где сохранён результат ──────────────────────────── */
+}/* ─── Archive — где сохранён результат ──────────────────────────── */
 .tn-final-archive {
   background: var(--bg-soft);
   border-radius: var(--radius-md);
@@ -2077,12 +1809,12 @@ a { color: inherit; }
 .tn-final-btn-primary {
   background: var(--primary);
   border-color: var(--primary);
-  color: white;
+  color: var(--on-primary);
 }
 .tn-final-btn-primary:hover {
   background: var(--primary-strong);
   border-color: var(--primary-strong);
-  color: white;
+  color: var(--on-primary);
 }
 
 /* ─── Mobile ────────────────────────────────────────────────────── */
@@ -2099,14 +1831,7 @@ a { color: inherit; }
   .tn-final-stat-sub { margin-top: 0; margin-left: var(--space-3); }
   .tn-final-scoring-text { font-size: 12px; }
   .tn-final-archive-list { font-size: 12px; }
-}
-
-/* ═══ Карточка «в разработке» (Расклад / будущее) ═══ */
-.dp-game-soon { pointer-events: none; }
-.dp-game-soon .dp-game-eyebrow { color: var(--text-3); }
-.dp-game-soon .dp-game-title { color: var(--text-3); font-style: italic; }
-
-/* ═══ Журнал — точность и результат ═══ */
+}/* ═══ Журнал — точность и результат ═══ */
 .dp-journal-acc {
   font-size: 12px;
   color: var(--text-3);
@@ -2149,10 +1874,8 @@ a { color: inherit; }
   color: var(--accent-strong);
   margin-bottom: 2px;
 }
-/* Светлая тема красила заголовок в чистый акцент #0071e3 — 4.3:1 на белом,
-   ниже нормы. Тёмной темы правило не касается: там свой цвет. */
-body:not(.theme-vk-dark) .dp-sync-notice-title,
-body.theme-vk-dark.vk-light .dp-sync-notice-title { color: #0060c4; }
+/* Раньше здесь стояли два ручных синих — один для светлой темы, другой для
+   тёмной. Роль --primary посчитана на контраст в обеих, второй синий не нужен. */
 .dp-sync-notice-text {
   font-size: 12px;
   line-height: 1.5;
@@ -2163,7 +1886,7 @@ body.theme-vk-dark.vk-light .dp-sync-notice-title { color: #0060c4; }
 }
 .dp-sync-notice-cta {
   background: var(--accent);
-  color: white;
+  color: var(--on-primary);
   border: 0;
   padding: 6px 12px;
   border-radius: var(--radius-sm);
@@ -2218,24 +1941,7 @@ body.theme-vk-dark.vk-light .dp-sync-notice-title { color: #0060c4; }
   color: var(--text-3);
   line-height: 1.5;
   text-align: center;
-}
-.dp-auth-msg-loading {
-  margin-top: var(--space-3);
-  font-size: 13px;
-  color: var(--text-2);
-  text-align: center;
-}
-.dp-auth-msg-error {
-  margin-top: var(--space-3);
-  font-size: 13px;
-  color: var(--danger);
-  background: #fef2f2;
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-sm);
-  text-align: center;
-}
-
-/* Состояние успеха */
+}/* Состояние успеха */
 .dp-auth-success-icon {
   font-size: 48px;
   text-align: center;
@@ -2309,7 +2015,7 @@ body.theme-vk-dark.vk-light .dp-sync-notice-title { color: #0060c4; }
 .dp-howto-trigger[aria-expanded='true'] {
   background: var(--vk-accent, #0077FF);
   border-color: var(--vk-accent, #0077FF);
-  color: #fff;
+  color: var(--on-primary);
 }
 .dp-howto-trigger:focus-visible {
   outline: 2px solid var(--vk-accent, #0077FF);
@@ -2371,7 +2077,7 @@ body.theme-vk-dark.vk-light .dp-sync-notice-title { color: #0060c4; }
   letter-spacing: 0.04em;
   text-transform: uppercase;
   background: var(--vk-accent, #0077FF);
-  color: #fff;
+  color: var(--on-primary);
   padding: 4px 8px;
   border-radius: 999px;
   white-space: nowrap;
@@ -2611,17 +2317,8 @@ body.theme-vk-dark.vk-light .dp-sync-notice-title { color: #0060c4; }
 }
 .dp-cta--pvp:hover .dp-cta__icon {
   background: var(--vk-accent, #0077FF);
-  color: #ffffff;
+  color: var(--on-primary);
 }
-.dp-cta__badge {
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  font-size: 12px;
-  color: var(--vk-accent, #0077FF);
-  opacity: 0.55;
-}
-
 
 /* Mobile: stack vertically */
 @media (max-width: 480px) {
@@ -2637,12 +2334,6 @@ body.theme-vk-dark.vk-light .dp-sync-notice-title { color: #0060c4; }
 }
 .dp-cta--group:hover { border-color: #7C5CFC; background: rgba(124, 92, 252, 0.10); }
 .dp-cta--group:hover .dp-cta__icon { background: #7C5CFC; color: #fff; }
-.dp-cta--group .dp-cta__badge {
-  background: #7C5CFC; color: #fff; opacity: 1;
-  font-size: 10.5px; font-weight: 700; letter-spacing: .04em;
-  padding: 2px 6px; border-radius: 6px; top: 10px;
-}
-
 /* Лобби-комната группы */
 .dp-group-lobby-head { display:flex; align-items:baseline; gap:8px; margin: 14px 0 8px; }
 .dp-group-lobby-count { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text-1, #fff); }
@@ -2713,9 +2404,7 @@ body.theme-vk-dark.vk-light .dp-sync-notice-title { color: #0060c4; }
 
 /* Список 4+ мест */
 .dp-group-results { display:flex; flex-direction:column; gap:6px; margin-top:8px; }
-.dp-group-results-row { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px; background: rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); }
-.dp-group-results-row.is-podium { background: rgba(124,92,252,.10); }
-.dp-group-results-row.is-me { border-color:#7C5CFC; }
+.dp-group-results-row { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px; background: rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); }.dp-group-results-row.is-me { border-color:#7C5CFC; }
 .dp-group-results-rank { font-size:18px; min-width:30px; text-align:center; font-variant-numeric:tabular-nums; }
 .dp-group-results-name { flex:1; min-width:0; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color: var(--text-1,#fff); }
 .dp-group-results-score { font-weight:700; font-variant-numeric:tabular-nums; color: var(--text-1,#fff); }
@@ -2724,7 +2413,7 @@ body.theme-vk-dark.vk-light .dp-sync-notice-title { color: #0060c4; }
 /* Preferred opponent — подсвечена тонкой рамкой VK-accent чтобы пользователь
    видел, что мы помним его выбор из карточки. Не auto-click — пусть подтвердит. */
 .dp-opponent-btn--preferred {
-  border-color: var(--vk-accent, #0077FF) !important;
+  border-color: var(--vk-accent, #0077FF);
   box-shadow: 0 0 0 2px rgba(0, 119, 255, 0.20);
 }
 
@@ -2764,7 +2453,7 @@ body.theme-vk-dark.vk-light .dp-sync-notice-title { color: #0060c4; }
   text-align: center;
   font-family: inherit;
   transition: all .15s ease;
-  --theme-color: #0077FF;
+  --theme-color: var(--primary);   /* цвет темы карточки; по умолчанию роль действия */
   min-height: 52px;
 }
 .dp-theme-banner:hover {
@@ -2834,17 +2523,15 @@ body.theme-vk-dark.vk-light .dp-sync-notice-title { color: #0060c4; }
 }
 
 /* Dark theme — поверх color-mix чтобы был приличный контраст */
-body.theme-vk-dark .dp-theme-banner {
+body.igra .dp-theme-banner {
   background: var(--bg-tonal, rgba(255,255,255,.04));
   border-color: var(--border-1, rgba(255,255,255,.08));
 }
-body.theme-vk-dark .dp-theme-banner__name { color: var(--text-1, #fff); }
-body.theme-vk-dark .dp-theme-banner__count { color: var(--text-2, #aeaeb2); }
-
+body.igra .dp-theme-banner__name { color: var(--text-1, #fff); }
 /* ─── Picker — шире чем стандартная auth-modal ─────────────────
    Picker содержит сетку тем 2-3 колонки, нужно больше места. */
 .dp-partiya-picker--v2 {
-  max-width: 580px !important;
+  max-width: 580px;
   /* Не выше экрана: на невысоких телефонах контент (количество + темы + кнопка)
      раньше превышал вьюпорт, модалка была overflow:hidden без скролла →
      кнопка «Начать партию» обрезалась и была недостижима.
@@ -2882,7 +2569,7 @@ body.theme-vk-dark .dp-theme-banner__count { color: var(--text-2, #aeaeb2); }
   width: 100%;
   background: var(--vk-accent, #0077FF);
   border: none;
-  color: #ffffff;
+  color: var(--on-primary);
   font-family: inherit;
   font-size: 15px;
   font-weight: 600;
@@ -3163,10 +2850,6 @@ body.theme-vk-dark .dp-theme-banner__count { color: var(--text-2, #aeaeb2); }
   font-weight: 500;
   white-space: nowrap;
 }
-
-/* Скрыть тему на самой карточке вопроса — она уже в заголовке группы */
-.tn-final-recap-q-theme { display: none !important; }
-
 /* ─── Разбор: верных ответов бывает несколько ─────────────────────
    Для вопросов с несколькими ответами и для пар «Правильно» — это
    список, а не одна строка. Каждый ответ на своей строке, чтобы пары
@@ -3244,12 +2927,10 @@ body.theme-vk-dark .dp-theme-banner__count { color: var(--text-2, #aeaeb2); }
    вспыхивает золотая нить. Палитра и геометрия — из самой игры. */
 .kp { display: flex; flex-direction: column; align-items: center; margin: 2px 0 12px; }
 .kp-svg { width: 168px; height: 168px; }
-.kp-podpis { margin-top: 4px; font-size: 12px; color: var(--text-3, #8a95a3); }
-
-.kp-dolya { fill-opacity: .22; stroke: rgba(0,0,0,.14); stroke-width: 1.4; }
-body.theme-vk-dark:not(.vk-light) .kp-dolya { stroke: rgba(255,255,255,.14); }
-.kp-obod { fill: none; stroke: rgba(16,20,24,.16); stroke-width: 1.6; }
-body.theme-vk-dark:not(.vk-light) .kp-obod { stroke: rgba(255,255,255,.18); }
+/* Обводки долей и обода — роль разделителя: она уже светлеет в тёмной теме,
+   поэтому пары «своя обводка для света, своя для тьмы» больше нет. */
+.kp-dolya { fill-opacity: .22; stroke: var(--outline-variant); stroke-width: 1.4; }
+.kp-obod { fill: none; stroke: var(--outline-variant); stroke-width: 1.6; }
 
 /* Четыре хода: 0 → 6 (ось сошлась) → 3 → 9 (вторая ось). Цикл 7.2 с. */
 .kp-hod-1 { animation: kp-zanyat 7.2s ease-out infinite; animation-delay: .2s; }
@@ -3263,8 +2944,8 @@ body.theme-vk-dark:not(.vk-light) .kp-obod { stroke: rgba(255,255,255,.18); }
   86%     { fill-opacity: .22; }
   100%    { fill-opacity: .22; }
 }
-.kp-nit { stroke: #E0A93B; stroke-width: 2.4; stroke-linecap: round; opacity: 0; }
-body.theme-vk-dark:not(.vk-light) .kp-nit { stroke: #FFD479; }
+/* Золотая нить — роль «золото знака»: в тёмной теме она сама светлеет. */
+.kp-nit { stroke: var(--tertiary); stroke-width: 2.4; stroke-linecap: round; opacity: 0; }
 .kp-nit-1 { animation: kp-nit-vspyh 7.2s ease-out infinite; animation-delay: 1.5s; }
 .kp-nit-2 { animation: kp-nit-vspyh 7.2s ease-out infinite; animation-delay: 3.7s; }
 @keyframes kp-nit-vspyh {
@@ -3292,17 +2973,17 @@ body.theme-vk-dark:not(.vk-light) .kp-nit { stroke: #FFD479; }
   padding: 14px 16px;
 }
 .dp-cta--group { grid-column: auto; }              /* было «во всю ширину» */
-.dp-cta-row > :first-child .dp-cta__title { color: #fff; font-size: 15.5px; }
-.dp-cta-row > :first-child .dp-cta__sub { color: rgba(255,255,255,.82); }
+.dp-cta-row > :first-child .dp-cta__title { color: var(--on-primary); font-size: 15.5px; }
+.dp-cta-row > :first-child .dp-cta__sub { color: var(--on-primary); opacity: .82; }
 .dp-cta-row > :first-child .dp-cta__icon {
   background: rgba(255,255,255,.20);
   border-color: rgba(255,255,255,.34);
-  color: #fff;
+  color: var(--on-primary);
 }
 .dp-cta-row > :first-child::after {
   content: '→';
   margin-left: auto;
-  color: #fff;
+  color: var(--on-primary);
   font-size: 17px;
   line-height: 1;
   opacity: .9;
@@ -3314,8 +2995,6 @@ body.theme-vk-dark:not(.vk-light) .kp-nit { stroke: #FFD479; }
 .dp-cta-row > :not(:first-child) .dp-cta__title { font-size: 13.5px; }
 .dp-cta-row > :not(:first-child) .dp-cta__icon { width: 30px; height: 30px; }
 .dp-cta-row > :not(:first-child) .dp-cta__icon svg { width: 17px; height: 17px; }
-.dp-cta--group .dp-cta__badge { top: 6px; right: 8px; }
-
 /* ═══ Полоса ступени в приложении ════════════════════════════════════
    Имя, зверь и вход живут на экране «Профиль» (и в наббаре), поэтому
    здесь остаётся только то, ради чего играют: ступень и путь к следующей. */
@@ -3339,14 +3018,7 @@ body.theme-vk-dark:not(.vk-light) .kp-nit { stroke: #FFD479; }
    (Прежнее мобильное правило ставило все три в столбик.) */
 @media (max-width: 480px) {
   .dp-cta-row { grid-template-columns: 1fr 1fr; }
-}
-/* В компактной кнопке метка NEW не помещается рядом со словом и режет его —
-   оставляем точку: «здесь новое» читается и без надписи. */
-.dp-cta-row > :not(:first-child) .dp-cta__badge {
-  width: 8px; height: 8px; padding: 0; border-radius: 50%;
-  font-size: 0; line-height: 0; top: 8px; right: 8px;
-}
-/* Плашка «Доступна · ~2 минуты» — метка, а не баннер: в колоночном флексе
+}/* Плашка «Доступна · ~2 минуты» — метка, а не баннер: в колоночном флексе
    карточки inline-flex растягивался на всю ширину и спорил с главной кнопкой. */
 .dp-game-card .dp-game-eyebrow { align-self: flex-start; }
 
@@ -3405,7 +3077,7 @@ body.theme-vk-dark:not(.vk-light) .kp-nit { stroke: #FFD479; }
 }
 .dp-zvat-kn {
   flex: 0 0 auto; min-height: 36px; min-width: 96px; padding: 0 12px; border-radius: 10px;
-  border: 0; background: var(--vk-accent, #0077FF); color: #fff;
+  border: 0; background: var(--vk-accent, #0077FF); color: var(--on-primary);
   font: 600 12.5px/1 Manrope, system-ui, sans-serif; cursor: pointer;
 }
 .dp-zvat-kn.is-est { background: var(--bg-tonal, rgba(255,255,255,.08)); color: var(--text-2, #aeaeb2); }
@@ -3434,7 +3106,7 @@ body.theme-vk-dark:not(.vk-light) .kp-nit { stroke: #FFD479; }
 .yz-kn { display: flex; gap: 6px; flex: 0 0 auto; }
 .yz-kn button { min-height: 38px; padding: 0 12px; border-radius: 11px; border: 0;
   font: 600 12.5px/1 Manrope, system-ui, sans-serif; cursor: pointer; }
-.yz-kn .da { background: var(--vk-accent, #0077FF); color: #fff; }
+.yz-kn .da { background: var(--vk-accent, #0077FF); color: var(--on-primary); }
 .yz-kn .net { background: transparent; color: var(--text-3, #8a95a3); }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -3448,7 +3120,10 @@ body.theme-vk-dark:not(.vk-light) .kp-nit { stroke: #FFD479; }
 
 /* Одно поле вместо двух: карточки во всю ширину экрана */
 html.yk-est .dp-root { padding-left: 16px; padding-right: 16px; }
-html.yk-est .dp-root main { padding-left: 0 !important; padding-right: 0 !important; }
+/* Поля экрана в приложении даёт оболочка (navigatsiya.js), поэтому у main
+   их быть не должно. Раньше это держалось на !important; теперь на
+   селекторе — он сильнее, чем правило слоя «body.igra .dp-root main». */
+html.yk-est body.igra .dp-root main { padding-left: 0; padding-right: 0; }
 
 /* Заголовок экрана — по центру, как имя всего экрана */
 html.yk-est .dp-castalia-h1 { text-align: center; }
@@ -3527,13 +3202,12 @@ html.yk-est .dp-cta-row { grid-template-columns: 1fr; gap: 8px; }
   color: var(--text-1, #1d1d1f); }
 .dp-tema-o { margin-top: 3px; font-size: 13px; color: var(--text-2, #6e6e73); }
 .dp-tema-niz { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+/* Надпись на залитой кнопке — всегда --on-primary: роль сама держит контраст
+   и в светлой (белым по синему), и в тёмной (тёмным по светло-синему).
+   Раньше тёмный цвет надписи дописывали отдельным правилом для тёмной темы. */
 .dp-tema-knopka { min-height: 40px; display: inline-flex; align-items: center; padding: 0 16px;
-  border-radius: 11px; background: var(--vk-accent, #0077FF); color: #fff;
+  border-radius: 11px; background: var(--primary); color: var(--on-primary);
   font-size: 14px; font-weight: 700; }
-/* В тёмной теме акцент светлеет, и белая надпись на нём даёт 4.1:1 — ниже
-   порога 4.5. На светлом акценте текст тёмный, тем же приёмом, что и в
-   карточке места (styles.css: --na-akcente). */
-body.theme-vk-dark:not(.vk-light) .dp-tema-knopka { color: #06131d; }
 .dp-tema-fakt { font-size: 12.5px; color: var(--text-3, #8A95A3); }
 
 @media (prefers-reduced-motion: reduce) {
@@ -3558,8 +3232,8 @@ body.theme-vk-dark:not(.vk-light) .dp-tema-knopka { color: #06131d; }
 .dp-tema-stroka-verh { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
 .dp-tema-stroka-imya { flex: 1; min-width: 0; font-size: 13.5px; color: var(--text-1, #1d1d1f); }
 .dp-tema-stroka-pct { font-size: 12px; color: var(--text-3, #8A95A3); font-variant-numeric: tabular-nums; }
-.dp-tema-stroka-polosa { height: 4px; border-radius: 2px; background: var(--border-1, rgba(0,0,0,.08)); overflow: hidden; }
-.dp-tema-stroka-fill { height: 100%; background: var(--vk-accent, #0077FF); border-radius: 2px; }
+.dp-tema-stroka-polosa { height: 4px; border-radius: 2px; background: var(--surface-container-highest); overflow: hidden; }
+.dp-tema-stroka-fill { height: 100%; background: var(--primary); border-radius: 2px; }
 
 /* ─── Достижения списком ─── */
 .dp-znaki { display: flex; flex-direction: column; gap: 2px; }
@@ -3575,9 +3249,9 @@ body.theme-vk-dark:not(.vk-light) .dp-tema-knopka { color: #06131d; }
 .dp-znak-imya { font-size: 14px; font-weight: 600; color: var(--text-1, #1d1d1f); }
 .dp-znak-stroka:not(.est) .dp-znak-imya { color: var(--text-2, #6e6e73); font-weight: 500; }
 .dp-znak-o { font-size: 12.5px; line-height: 1.35; color: var(--text-3, #8A95A3); }
-.dp-znak-polosa { display: block; height: 3px; margin-top: 5px; border-radius: 2px;
-  background: var(--border-1, rgba(0,0,0,.08)); overflow: hidden; }
-.dp-znak-polosa i { display: block; height: 100%; background: var(--vk-accent, #0077FF); }
+.dp-znak-polosa { display: block; height: 4px; margin-top: 5px; border-radius: 2px;
+  background: var(--surface-container-highest); overflow: hidden; }
+.dp-znak-polosa i { display: block; height: 100%; background: var(--primary); }
 .dp-znak-schet { flex: 0 0 auto; font-size: 12px; color: var(--text-3, #8A95A3);
   font-variant-numeric: tabular-nums; padding-top: 2px; }
 .dp-znaki-esche { width: 100%; min-height: 44px; margin-top: 10px; border-radius: 12px;
@@ -3609,11 +3283,8 @@ body.theme-vk-dark:not(.vk-light) .dp-tema-knopka { color: #06131d; }
 /* Кнопка входа в плашке синхронизации: в приложении шапка скрыта, и это
    единственное место, где гость может войти по почте. */
 .dp-sync-notice-vhod { margin-top: 10px; min-height: 40px; padding: 8px 16px;
-  border: 0; border-radius: 10px; background: var(--accent-strong, #0060c4);
-  color: #fff; font: 600 13.5px/1 inherit; font-family: inherit; cursor: pointer; }
-/* Тёмная тема: --accent-strong там светлый (#16A7FF), и белым по нему — 2.6:1.
-   Главный вход гостя должен читаться, поэтому надпись тёмная (7:1). */
-body.theme-vk-dark:not(.vk-light) .dp-sync-notice-vhod { color: #06131d; }
+  border: 0; border-radius: 10px; background: var(--primary);
+  color: var(--on-primary); font: 600 13.5px/1 inherit; font-family: inherit; cursor: pointer; }
 
 /* Подсказка термина по тапу (тач-устройства): плашка под словом. */
 .dp-term-plashka { position: absolute; left: 0; top: calc(100% + 6px); z-index: 60;
@@ -3621,3 +3292,3483 @@ body.theme-vk-dark:not(.vk-light) .dp-sync-notice-vhod { color: #06131d; }
   background: #1D2530; color: #F2F5F8; font: 400 12.5px/1.5 Manrope, Inter, sans-serif;
   text-transform: none; letter-spacing: normal; white-space: normal;
   box-shadow: 0 6px 20px rgba(0,0,0,.35); }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   СЛОЙ ВЁРСТКИ ЭКРАНА (бывший theme-vk-dark.css)
+   ──────────────────────────────────────────────────────────────────────
+   Он назывался «тёмной темой», но стоял на экране ВСЕГДА — и в светлой
+   тоже: класс theme-vk-dark висел на body при любой теме, а светлые
+   цвета возвращал третий файл (vk-light.css). Никакой темы здесь нет —
+   это вёрстка и размеры экрана Игр. Цвета из него ушли в роли, остальное
+   лежит ниже как есть, на классе .igra.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ─── Дополнительные правки контраста для тёмной темы ─── */
+
+/* Аватары/Avatar — внутренний фон должен быть темнее общего */
+body.igra .tn-vs-avatar,
+body.igra .dp-hero-avatar {
+  background: var(--bg-tonal);
+  border-color: var(--border-1);
+}
+
+/* Кнопки выбора ответа — подсветка hover в тёмной теме */
+body.igra .tn-option {
+  background: var(--bg-surface);
+  color: var(--text-1);
+}
+/* hover-подсветка варианта — ТОЛЬКО на hover-устройствах: на тач :hover
+   «залипает» после тапа и выглядит как пред-выбранный (ложный) вариант. */
+@media (hover: hover) and (pointer: fine) {
+  body.igra .tn-option:not([disabled]):hover {
+    background: var(--bg-tonal);
+    border-color: var(--accent);
+  }
+  body.igra .tn-option:not([disabled]):hover .tn-option-letter {
+    background: rgba(1, 135, 246, 0.20);
+    color: var(--accent);
+  }
+}
+body.igra .tn-option-letter {
+  background: var(--bg-tonal);
+  color: var(--text-2);
+}
+
+/* ─── Состояния ответа в тёмной теме ─────────────────────────────
+   Дизайн: те же SOLID-filled цвета что в светлой — белый текст на
+   зелёном (--vk-success) или красном (--vk-danger). Высокий контраст
+   независимо от темы. Замена прежнего «teal-on-teal» который был
+   плохо читаем (синий текст на зелёном фоне). */
+
+body.igra .tn-option-correct {
+  background: var(--vk-success);
+  border-color: var(--vk-success);
+  color: #ffffff;
+}
+body.igra .tn-option-correct .tn-option-text { color: #ffffff; }
+body.igra .tn-option-correct .tn-option-letter {
+  background: rgba(255,255,255,0.22);
+  color: #ffffff;
+}
+body.igra .tn-option-correct .tn-option-mark { color: #ffffff; }
+
+body.igra .tn-option-shown-correct {
+  background: rgba(89, 168, 64, 0.20);
+  border-color: var(--vk-success);
+  color: #A4D480;  /* lighter green, читаем на тёмном bg */
+}
+body.igra .tn-option-shown-correct .tn-option-text { color: #A4D480; }
+body.igra .tn-option-shown-correct .tn-option-letter {
+  background: var(--vk-success);
+  color: #ffffff;
+}
+body.igra .tn-option-shown-correct .tn-option-mark { color: var(--vk-success); }
+
+/* Wrong — приглушённый красный (как shown-correct у зелёного).
+   Тинтованный bg + красный текст + красный letter — НЕ solid white-on-red,
+   потому что тогда визуально сильнее перевешивает зелёный. Ошибка должна
+   быть видна, но не «кричать» громче чем правильный ответ. */
+body.igra .tn-option-wrong {
+  background: rgba(242, 55, 65, 0.18);
+  border-color: var(--vk-danger);
+  color: #F2949C;  /* lighter red for readability on dark */
+}
+body.igra .tn-option-wrong .tn-option-text { color: #F2949C; font-weight: 600; }
+body.igra .tn-option-wrong .tn-option-letter {
+  background: var(--vk-danger);
+  color: #ffffff;
+}
+body.igra .tn-option-wrong .tn-option-mark,
+body.igra .tn-option-wrong .tn-option-mark-wrong { color: var(--vk-danger); }
+
+/* Таймер: желоб, высота и заливка заданы один раз в базе (4dp, роль).
+   Здесь остаются только предупреждающие состояния — золото и ошибка. */
+body.igra .tn-timer-fill.tn-timer-warn { background: var(--tertiary); }
+body.igra .tn-timer-fill.tn-timer-danger { background: var(--danger); }
+
+/* Игровой фон фуллскрин */
+body.igra .tn-fullscreen,
+body.igra .tn-overlay {
+  background: var(--bg-page);
+  color: var(--text-1);
+}
+
+/* Карточки в духе VK */
+body.igra .tn-q-card,
+body.igra .tn-final-vs,
+body.igra .tn-final-stat,
+body.igra .dp-card,
+body.igra .dp-game-card,
+body.igra .dp-quest,
+body.igra .dp-theme,
+body.igra .dp-hero {
+  background: var(--bg-surface);
+  border-color: var(--border-1);
+  color: var(--text-1);
+}
+
+body.igra .tn-q-text,
+body.igra .tn-final-headline,
+body.igra .tn-final-vs-num,
+body.igra .tn-final-stat-value,
+body.igra .tn-round-title,
+body.igra .dp-castalia-h1 {
+  color: var(--text-1);
+}
+/* Final accent stat — solid VK-accent с белым текстом для максимального
+   контраста. Раньше был синий текст на зелёно-тинтованном фоне (плохо). */
+body.igra .tn-final-stat-accent {
+  background: var(--vk-accent, #0077FF);
+  border-color: var(--vk-accent, #0077FF);
+}
+body.igra .tn-final-stat-accent .tn-final-stat-label,
+body.igra .tn-final-stat-accent .tn-final-stat-value,
+body.igra .tn-final-stat-accent .tn-final-stat-sub {
+  color: #ffffff;
+}
+
+/* Feedback banners */
+body.igra .tn-feedback-correct {
+  background: rgba(0, 211, 230, 0.15);
+  color: var(--primary);
+}
+body.igra .tn-feedback-wrong {
+  background: rgba(248, 80, 80, 0.15);
+  color: var(--danger);
+}
+body.igra .tn-feedback-timeout {
+  background: var(--bg-soft);
+  color: var(--text-2);
+}
+
+/* Кнопки */
+body.igra .tn-final-btn {
+  background: var(--bg-surface);
+  border-color: var(--border-1);
+  color: var(--text-1);
+}
+body.igra .tn-final-btn:hover {
+  background: var(--bg-tonal);
+}
+body.igra .tn-final-btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-primary);
+}
+body.igra .tn-final-btn-primary:hover {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+
+body.igra .tn-quit {
+  background: var(--bg-tonal);
+  border-color: var(--border-1);
+  color: var(--text-2);
+}
+body.igra .tn-quit:hover {
+  background: var(--bg-soft);
+  color: var(--text-1);
+}
+
+/* Sync notice / архив */
+body.igra .dp-sync-notice {
+  background: rgba(1, 135, 246, 0.10);
+  border-color: var(--accent);
+}
+body.igra .tn-final-archive,
+body.igra .tn-final-scoring {
+  background: var(--bg-tonal, rgba(255,255,255,.04));
+  border: 1px solid var(--border-1, rgba(255,255,255,.08));
+  color: var(--text-1, #fff);
+}
+
+/* Scoring — карточка со звездой VK-accent slim banner. Отдельные строки
+   с числом-в-круге слева + подпись. Высокий контраст: yellow-tinted
+   numbers и понятный белый текст подписи. */
+body.igra .tn-final-scoring {
+  padding: 16px 18px;
+  border-radius: 14px;
+  margin-top: 16px;
+}
+body.igra .tn-final-scoring-eyebrow {
+  display: inline-block;
+  font-family: var(--vk-font-title);
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--vk-accent-hover, #5B9CF6);
+  background: rgba(0, 119, 255, 0.12);
+  border: 1px solid rgba(0, 119, 255, 0.22);
+  padding: 5px 10px;
+  border-radius: 999px;
+  margin-bottom: 14px;
+  font-weight: 700;
+}
+body.igra .tn-final-scoring-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+body.igra .tn-final-scoring-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--vk-font-body);
+}
+body.igra .tn-final-scoring-num {
+  font-family: var(--vk-font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--vk-accent, #0077FF);
+  font-variant-numeric: tabular-nums;
+  min-width: 44px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 119, 255, 0.14);
+  border: 1px solid rgba(0, 119, 255, 0.24);
+  border-radius: 8px;
+}
+body.igra .tn-final-scoring-desc {
+  font-size: 13.5px;
+  color: var(--text-1, #fff);
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+/* Скроллбар */
+body.igra::-webkit-scrollbar { background: var(--bg-page); width: 10px; }
+body.igra::-webkit-scrollbar-thumb { background: var(--bg-soft); border-radius: 5px; }
+body.igra::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
+
+/* Плавный transition при переключении темы */
+body.igra,
+body.igra .tn-fullscreen,
+body.igra .dp-card,
+body.igra .dp-hero,
+body.igra .dp-game-card,
+body.igra .tn-q-card,
+body.igra .tn-final-vs,
+body.igra .tn-final-stat {
+  transition: background-color var(--duration-base) ease-out,
+              border-color var(--duration-base) ease-out,
+              color var(--duration-base) ease-out;
+}
+
+@media (max-width: 600px) {}
+
+/* ═══════════════════════════════════════════════════════════════════
+   VK Typography System — полностью из Figma file cfX0idPjpMd6Eb2J9LTaeB
+   node 3:184744 (Fonts). Шкалы Display / Title / Body / Caption / Mono.
+   ═══════════════════════════════════════════════════════════════════ */
+
+body.igra {
+  /* ─── Шрифтовые семейства (Inter / Manrope как лицензионная замена) ─── */
+  --vk-font-display: 'Manrope', 'Inter', 'SF Pro Display', system-ui, sans-serif;  /* VK Sans Display Expanded */
+  --vk-font-title:   'Manrope', 'Inter', 'SF Pro Display', system-ui, sans-serif;  /* VK Sans Display Expanded */
+  --vk-font-body:    'Inter', 'SF Pro Text', system-ui, sans-serif;                /* VK Sans Display */
+  --vk-font-text:    'Inter', 'SF Pro Text', system-ui, sans-serif;                /* VK Sans Text */
+
+  /* ─── Display ─── */
+  --vk-display-l-size: 64px;   --vk-display-l-line: 68px;   --vk-display-l-weight: 500;
+  --vk-display-m-size: 40px;   --vk-display-m-line: 48px;   --vk-display-m-weight: 500;
+  --vk-display-s-size: 32px;   --vk-display-s-line: 40px;   --vk-display-s-weight: 500;
+
+  /* ─── Title ─── */
+  --vk-title-xl-size: 26px;    --vk-title-xl-line: 32px;    --vk-title-xl-weight: 500;
+  --vk-title-l-size:  20px;    --vk-title-l-line:  28px;    --vk-title-l-weight:  500;
+  --vk-title-m-size:  16px;    --vk-title-m-line:  24px;    --vk-title-m-weight:  500;
+  --vk-title-s-size:  11.5px;    --vk-title-s-line:  16px;    --vk-title-s-weight:  500;
+
+  /* ─── Body ─── */
+  --vk-body-xl-size: 26px;     --vk-body-xl-line: 36px;     --vk-body-xl-line-paragraph: 40px;
+  --vk-body-l-size:  26px;     --vk-body-l-line:  36px;     --vk-body-l-line-paragraph:  40px;
+  --vk-body-m-size:  20px;     --vk-body-m-line:  28px;     --vk-body-m-line-paragraph:  32px;
+  --vk-body-s-size:  17px;     --vk-body-s-line:  28px;     --vk-body-s-line-paragraph:  32px;
+
+  /* ─── Caption ─── */
+  --vk-caption-m-size: 15px;   --vk-caption-m-line: 20px;
+  --vk-caption-s-size: 12px;   --vk-caption-s-line: 16px;
+
+  /* ─── Mono ─── */
+  --vk-mono-s-size: 14px;      --vk-mono-s-line: 20px;
+
+  /* ─── Spacing (из Figma) ─── */
+  --vk-spacing-x6:  24px;   /* core/24 */
+  --vk-spacing-x10: 40px;   /* spacing-x10 */
+
+  /* ─── Layout ─── */
+}/* ═══════════════════════════════════════════════════════════════════
+   Применение типографики к существующему UI в темной теме
+   ═══════════════════════════════════════════════════════════════════ */
+
+body.igra {
+  font-family: var(--vk-font-text);
+}
+
+/* ─── Глобально текст ─── */
+body.igra p,
+body.igra li,
+body.igra span,
+body.igra div {
+  font-family: inherit;
+}
+
+/* ─── Hero — главный заголовок страницы ─── */
+body.igra .dp-castalia-h1 {
+  font-family: var(--vk-font-display);
+  font-size: var(--vk-display-m-size);
+  line-height: var(--vk-display-m-line);
+  font-weight: var(--vk-display-m-weight);
+  letter-spacing: -0.01em;
+}
+body.igra .dp-castalia-eyebrow,
+body.igra .dp-welcome-eyebrow,
+body.igra .dp-eyebrow,
+body.igra .tn-eyebrow {
+  font-family: var(--vk-font-title);
+  font-size: var(--vk-title-s-size);
+  line-height: var(--vk-title-s-line);
+  font-weight: var(--vk-title-s-weight);
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+}
+
+body.igra .dp-welcome-title {
+  font-family: var(--vk-font-display);
+  font-size: var(--vk-display-l-size);
+  line-height: var(--vk-display-l-line);
+  font-weight: var(--vk-display-l-weight);
+  letter-spacing: -0.015em;
+}
+
+/* ─── Hero (профиль) ─── */
+body.igra .dp-hero-name {
+  font-family: var(--vk-font-title);
+  font-size: var(--vk-title-l-size);
+  line-height: var(--vk-title-l-line);
+  font-weight: 600;
+}
+body.igra .dp-hero-stats,
+body.igra .dp-hero-bead {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-body-s-size);
+  line-height: var(--vk-body-s-line);
+}
+
+/* ─── Section headings ─── */
+body.igra .dp-section-h {
+  font-family: var(--vk-font-title);
+  font-size: var(--vk-title-xl-size);
+  line-height: var(--vk-title-xl-line);
+  font-weight: var(--vk-title-xl-weight);
+}
+/* ─── Карточки игр — заголовки и описания ─── */
+body.igra .dp-game-title {
+  font-family: var(--vk-font-display);
+  font-size: var(--vk-display-s-size);
+  line-height: var(--vk-display-s-line);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+body.igra .dp-game-eyebrow {
+  font-family: var(--vk-font-title);
+  font-size: var(--vk-title-s-size);
+  line-height: var(--vk-title-s-line);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+}
+body.igra .dp-game-sub {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-body-s-size);
+  line-height: var(--vk-body-s-line);
+}
+
+/* ─── Партия — Round / Question ─── */
+body.igra .tn-round-title {
+  font-family: var(--vk-font-display);
+  font-size: var(--vk-display-m-size);
+  line-height: var(--vk-display-m-line);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+body.igra .tn-q-text {
+  font-family: var(--vk-font-display);
+  font-size: var(--vk-display-s-size);
+  line-height: var(--vk-display-s-line);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+body.igra .tn-q-meta,
+body.igra .tn-q-meta-num,
+body.igra .tn-q-meta-theme,
+body.igra .tn-q-meta-time {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-caption-m-size);
+  line-height: var(--vk-caption-m-line);
+}
+
+/* ─── VS-блок (имя игрока, очки) ─── */
+body.igra .tn-vs-name {
+  font-family: var(--vk-font-title);
+  font-size: var(--vk-title-m-size);
+  line-height: var(--vk-title-m-line);
+  font-weight: 600;
+}
+body.igra .tn-vs-score {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-caption-m-size);
+  line-height: var(--vk-caption-m-line);
+}
+
+/* ─── Опции ответа ─── */
+body.igra .tn-option,
+body.igra .tn-option-text {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-body-m-size);
+  line-height: var(--vk-body-m-line);
+  font-weight: 500;
+}
+body.igra .tn-option-letter {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-caption-m-size);
+  font-weight: 600;
+}
+
+/* ─── Экран вопроса: кнопка «Ответить» всегда видна + вмещаемость ─── */
+/* tn-fullscreen — скролл-контейнер (overflow:auto). При multi с 7+ вариантами
+   кнопка отправки уезжала на ~180px под фолд. Делаем её липкой к низу — видна
+   всегда, без скролла. Применяется и к light-VK, и к dark-VK. */
+body.igra .tn-multi-submit,
+body.igra .tn-fill-submit {
+  position: sticky;
+  bottom: 8px;
+  z-index: 6;
+  margin-top: 4px;
+  box-shadow: 0 6px 22px rgba(20, 30, 60, 0.18);
+}
+body.igra .tn-options-multi { gap: 8px; }
+body.igra .tn-multi-list { gap: 6px; padding-bottom: 2px; }
+
+/* Невысокие экраны (ноутбуки 13", мобайл) — компактнее вопрос и варианты,
+   чтобы помещалось с минимумом скролла. */
+@media (max-height: 820px) {
+  body.igra .tn-q-card { padding: 16px 20px; }
+  body.igra .tn-q-text { font-size: var(--vk-title-l-size, 22px); line-height: 1.25; }
+  body.igra .tn-option { padding-top: 11px; padding-bottom: 11px; }
+  body.igra .tn-multi-list { gap: 5px; }
+}
+
+/* ─── Финал партии ─── */
+body.igra .tn-final-eyebrow {
+  font-family: var(--vk-font-title);
+  font-size: var(--vk-title-s-size);
+  line-height: var(--vk-title-s-line);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+body.igra .tn-final-headline {
+  font-family: var(--vk-font-display);
+  font-size: var(--vk-display-m-size);
+  line-height: var(--vk-display-m-line);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+body.igra .tn-final-sub {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-body-s-size);
+  line-height: var(--vk-body-s-line-paragraph);
+  font-style: normal;       /* убираем italic — VK не использует */
+}
+body.igra .tn-final-vs-num {
+  font-family: var(--vk-font-display);
+  font-size: var(--vk-display-l-size);
+  line-height: var(--vk-display-l-line);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+body.igra .tn-final-vs-name {
+  font-family: var(--vk-font-title);
+  font-size: var(--vk-title-m-size);
+  line-height: var(--vk-title-m-line);
+  font-weight: 500;
+}
+body.igra .tn-final-vs-unit {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-caption-s-size);
+  line-height: var(--vk-caption-s-line);
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+}
+body.igra .tn-final-stat-label {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-caption-s-size);
+  line-height: var(--vk-caption-s-line);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+}
+body.igra .tn-final-stat-value {
+  font-family: var(--vk-font-display);
+  font-size: var(--vk-display-s-size);
+  line-height: var(--vk-display-s-line);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.005em;
+}
+body.igra .tn-final-stat-sub {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-caption-s-size);
+  line-height: var(--vk-caption-s-line);
+}
+body.igra .tn-final-scoring-eyebrow,
+body.igra .tn-final-archive-eyebrow {
+  font-family: var(--vk-font-title);
+  font-size: var(--vk-title-s-size);
+  line-height: var(--vk-title-s-line);
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  font-weight: 600;
+}
+body.igra .tn-final-scoring-text,
+body.igra .tn-final-archive-list {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-caption-m-size);
+  line-height: var(--vk-caption-m-line);
+}
+body.igra .tn-final-btn {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-body-m-size);
+  line-height: var(--vk-body-m-line);
+  font-weight: 500;
+}
+
+/* ─── Feedback после ответа ─── */
+body.igra .tn-feedback,
+body.igra .tn-feedback-text {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-body-s-size);
+  line-height: var(--vk-body-s-line);
+  font-weight: 500;
+}
+body.igra .tn-feedback-busey {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-caption-m-size);
+  font-weight: 600;
+}
+
+/* ─── Quit / Sync ─── */
+body.igra .tn-quit,
+body.igra .dp-sync-notice-cta,
+body.igra .dp-theme-toggle {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-caption-m-size);
+  font-weight: 500;
+}
+body.igra .dp-sync-notice-title {
+  font-family: var(--vk-font-title);
+  font-size: var(--vk-title-m-size);
+  line-height: var(--vk-title-m-line);
+  font-weight: 600;
+}
+body.igra .dp-sync-notice-text {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-caption-m-size);
+  line-height: var(--vk-caption-m-line);
+}
+/* ─── Радиусы карточек VK-шире ─── */
+body.igra .dp-card,
+body.igra .dp-game-card,
+body.igra .tn-q-card,
+body.igra .tn-final-vs,
+body.igra .tn-final-stat,
+body.igra .dp-hero {
+  border-radius: var(--vk-spacing-x6);  /* 24px у VK для карточек */
+}
+
+/* ─── Auth modal в VK-стиле ─── */
+body.igra .dp-auth-modal {
+  background: var(--bg-surface);
+  border: 0.5px solid var(--border-1);
+  border-radius: var(--vk-spacing-x6);
+}
+body.igra .dp-auth-modal h2 {
+  font-family: var(--vk-font-display);
+  font-size: var(--vk-display-s-size);
+  line-height: var(--vk-display-s-line);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+body.igra .dp-auth-modal p {
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-body-s-size);
+  line-height: var(--vk-body-s-line);
+}
+body.igra .dp-auth-eyebrow {
+  font-family: var(--vk-font-title);
+  font-size: var(--vk-title-s-size);
+  line-height: var(--vk-title-s-line);
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+}
+
+/* ─── Мобильная адаптация: Display L → M ─── */
+@media (max-width: 600px) {
+  body.igra .dp-welcome-title,
+  body.igra .tn-final-vs-num {
+    font-size: var(--vk-display-m-size);
+    line-height: var(--vk-display-m-line);
+  }
+  body.igra .dp-castalia-h1,
+  body.igra .tn-final-headline,
+  body.igra .tn-round-title {
+    font-size: var(--vk-display-s-size);
+    line-height: var(--vk-display-s-line);
+  }
+  body.igra .tn-q-text {
+    font-size: var(--vk-title-xl-size);
+    line-height: var(--vk-title-xl-line);
+  }
+  body.igra .tn-option {
+    font-size: var(--vk-body-s-size);
+    line-height: var(--vk-body-s-line);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   VK Components — Tags, Badges, Cards, Dividers
+   Источник: cfX0idPjpMd6Eb2J9LTaeB · SectionHead (3:3305) + Card (3:31422)
+   ═══════════════════════════════════════════════════════════════════ */
+
+body.igra {
+  /* ─── Радиусы из VK ─── */
+  --vk-radius-tag:        6px;   /* Components/Tag/M/Border Radius */
+  --vk-radius-pill:       999px; /* dimension-border-radius-full */
+  --vk-radius-x4:         16px;
+  --vk-radius-component:  24px;
+
+  /* ─── Tag tokens ─── */
+  --vk-tag-height:    28px;  /* Components/Tag/M/Size */
+  --vk-tag-padding-x: 12px;
+  --vk-tag-gap:       4px;
+  --vk-tag-font-size: 15px;
+  --vk-tag-line:      20px;
+  --vk-tag-weight:    500;
+
+  /* ─── Badge tokens ─── */
+  --vk-badge-success-bg: rgba(0, 211, 230, 0.15);
+  --vk-badge-success-fg: #00D3E6;
+
+  /* ─── Дивайдер ─── */
+  --vk-divider:       #3c3d40;
+  --vk-border-thin:   1px;
+}
+
+/* ═══ TAG — переопределяем eyebrow в темной теме как пилюли ═══ */
+body.igra .dp-game-eyebrow,
+body.igra .dp-castalia-eyebrow,
+body.igra .dp-welcome-eyebrow,
+body.igra .dp-eyebrow,
+body.igra .dp-section-h-sub,
+body.igra .dp-quest .dp-quest-tag,
+body.igra .tn-final-archive-eyebrow,
+body.igra .tn-final-scoring-eyebrow,
+body.igra .dp-sync-notice-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--vk-tag-gap);
+  height: var(--vk-tag-height);
+  padding: 0 var(--vk-tag-padding-x);
+  background: var(--bg-tonal);
+  color: var(--text-2);
+  border-radius: var(--vk-radius-tag);
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-tag-font-size);
+  line-height: var(--vk-tag-line);
+  font-weight: var(--vk-tag-weight);
+  text-transform: none;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+/* tn-eyebrow в TopBar — компактнее, без фона (просто capson UPPERCASE) */
+body.igra .tn-eyebrow,
+body.igra .tn-final-eyebrow,
+body.igra .tn-round-eyebrow {
+  display: inline-block;
+  height: auto;
+  padding: 0;
+  background: transparent;
+  color: var(--text-3);
+  font-family: var(--vk-font-title);
+  font-size: var(--vk-title-s-size);
+  line-height: var(--vk-title-s-line);
+  font-weight: var(--vk-title-s-weight);
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  border-radius: 0;
+}
+/* ─── Акцент как МЕЛКИЙ ТЕКСТ на тёмном ───────────────────────────
+   vk-scheme.css в 29 местах красит текст в color:var(--accent) (#0077FF).
+   На тёмных поверхностях это 3.66:1 (#262626) — ниже AA для 11–16px.
+   Для ТЕКСТОВЫХ применений берём --accent-strong (#16A7FF, ≈6.2:1).
+   Заливки CTA НЕ трогаем: там белый текст на #0077FF, и осветление фона
+   только ухудшило бы контраст. */
+body.igra .tn-prematch-eyebrow,
+body.igra .tn-prematch-theme-num,
+body.igra .tn-midrecap-eyebrow,
+body.igra .tn-q-meta-type,
+body.igra .tn-final-recap-q-num,
+body.igra .tn-final-recap-q-theme,
+body.igra .tn-match-text,
+body.igra .tn-match-selected,
+body.igra .tn-multi-list,
+body.igra .tn-option-multi,
+body.igra .dp-mode-btn-count,
+body.igra .dp-mode-btn-active,
+body.igra .dp-themes-reset,
+body.igra .dp-themes-toggle-label,
+body.igra .dp-theme-chip-checked,
+body.igra .dp-theme-item-checked,
+body.igra .dp-opponent-btn--accent { color: var(--accent-strong); }
+
+body.igra .tn-final-eyebrow-win  { color: var(--primary); }
+body.igra .tn-final-eyebrow-lose { color: var(--text-2); } /* было --text-3 #626D7A 3.06:1 → --text-2 7.4:1 */
+body.igra .tn-final-eyebrow-draw { color: var(--accent); }
+/* «Партия прервана» и разделитель «vs» брали --text-3 (3.06:1 на --bg-page) → AA-фикс */
+body.igra .tn-final-eyebrow-leave { color: var(--text-2); }
+body.igra .tn-vs-divider { color: var(--text-2); }
+
+/* tn-q-meta-num и meta-time — VK-tag-стиль */
+body.igra .tn-q-meta-num,
+body.igra .tn-q-meta-time {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: var(--vk-radius-tag);
+  font-family: var(--vk-font-body);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+body.igra .tn-q-meta-num   { background: rgba(1, 135, 246, 0.18); color: var(--accent); }/* ═══ BADGE — статусы в финале ═══ */
+body.igra .tn-final-vs-side-winner .tn-final-vs-unit {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  background: var(--vk-badge-success-bg);
+  color: var(--vk-badge-success-fg);
+  border-radius: var(--vk-radius-tag);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 600;
+}
+/* tn-final-stat-accent — переопределение поверх vk-scheme. Solid VK-accent
+   (синий) + белый текст. Заменили teal-tinted bg + teal text который был
+   нечитаем (см. бойлерплейт выше). */
+body.igra .tn-final-stat-accent {
+  background: var(--vk-accent, #0077FF);
+  border: 1px solid var(--vk-accent, #0077FF);
+  color: var(--on-primary);
+}
+body.igra .tn-final-stat-accent .tn-final-stat-label,
+body.igra .tn-final-stat-accent .tn-final-stat-value,
+body.igra .tn-final-stat-accent .tn-final-stat-sub {
+  color: #ffffff;
+}
+
+/* ═══ CARDS — увеличенные радиусы, дивайдер ═══ */
+body.igra .dp-card,
+body.igra .dp-game-card,
+body.igra .tn-q-card,
+body.igra .tn-final-vs,
+body.igra .dp-hero,
+body.igra .dp-quest,
+body.igra .dp-theme {
+  border-radius: var(--vk-radius-component);  /* 24px единый */
+  border-width: var(--vk-border-thin);
+  border-style: solid;
+}
+
+/* Маленькие карточки (статы) — радиус поменьше */
+body.igra .tn-final-stat,
+body.igra .tn-final-archive,
+body.igra .tn-final-scoring {
+  border-radius: var(--vk-radius-x4);   /* 16px */
+}
+
+/* Кнопки финала — pill-форма как у VK CTA */
+body.igra .tn-final-btn {
+  border-radius: var(--vk-radius-pill);
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-body-s-size);
+  font-weight: 500;
+  height: 56px;
+}
+body.igra .tn-final-btn-primary {
+  background: var(--accent);
+  color: var(--on-primary);
+  border-color: var(--accent);
+}
+
+/* Theme toggle — основные стили в начале файла (line 222),
+   здесь только VK font-family унификация (если уже подключены VK-fonts) */
+
+/* Кнопка-дискорд "Сдаться" — pill */
+body.igra .tn-quit {
+  border-radius: var(--vk-radius-pill);
+  height: 32px;
+  padding: 0 14px;
+}
+
+/* Опции ответа — увеличенный радиус */
+body.igra .tn-option {
+  border-radius: var(--vk-radius-x4);  /* 16px */
+}
+
+/* ═══ DIVIDERS ═══ */
+body.igra hr,
+body.igra .dp-divider {
+  border: 0;
+  border-top: 1px solid var(--vk-divider);
+  margin: var(--vk-spacing-x6) 0;
+}
+
+/* Разделитель между секциями карточек */
+body.igra .dp-card-h {
+  border-bottom: 1px solid var(--vk-divider);
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+
+/* ═══ SYNC NOTICE — VK Info Card ═══ */
+body.igra .dp-sync-notice {
+  border-radius: var(--vk-radius-x4);
+  background: rgba(1, 135, 246, 0.10);
+  border: 1px solid var(--accent);
+  color: var(--text-1);
+}
+body.igra .dp-sync-notice-title {
+  color: var(--accent);
+  display: block;
+  background: transparent;
+  padding: 0;
+  height: auto;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 600;
+}
+
+/* ═══ HERO — VK Profile Card ═══ */
+body.igra .dp-hero {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-1);
+  border-radius: var(--vk-radius-component);
+}
+body.igra .dp-hero-rank-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  background: rgba(1, 135, 246, 0.18);
+  color: var(--accent);
+  border-radius: var(--vk-radius-tag);
+  font-family: var(--vk-font-body);
+  font-size: 13px;
+  font-weight: 500;
+  margin-left: 8px;
+}
+body.igra .dp-hero-bead {
+  font-family: var(--vk-font-body);
+  font-weight: 600;
+  color: var(--primary);    /* mint cyan для бусин */
+}
+/* Высота и цвет полосы — один раз в базе (4dp, роль). Слой их больше не
+   переопределяет: было 8px здесь, 6px ниже и 5px в узком ряду. */
+body.igra .dp-hero-cta {
+  background: var(--accent);
+  color: var(--on-primary);
+  border-radius: var(--vk-radius-pill);
+  padding: 0 16px;
+  height: 36px;
+  font-weight: 500;
+}
+body.igra .dp-hero-cta:hover {
+  background: var(--accent-strong);
+}
+body.igra .dp-hero-synced {
+  background: var(--vk-badge-success-bg);
+  color: var(--vk-badge-success-fg);
+  border-radius: var(--vk-radius-tag);
+  padding: 0 10px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--vk-font-body);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ═══ Game cards (Партия / Расклад) — VK-style ═══ */
+body.igra .dp-game-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-1);
+  border-radius: var(--vk-radius-component);
+  padding: 24px;
+  transition: all var(--duration-fast);
+}
+body.igra .dp-game-card:hover {
+  background: var(--bg-tonal);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+body.igra .dp-game-primary {
+  background: linear-gradient(135deg, rgba(1, 135, 246, 0.10), transparent);
+  border-color: var(--accent);
+}/* ═══ Auth modal ═══ */
+body.igra .dp-auth-overlay {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+}
+body.igra .dp-auth-modal {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-1);
+  border-radius: var(--vk-radius-component);
+}
+body.igra .dp-auth-perks li::before {
+  color: var(--primary);
+}
+body.igra .dp-auth-foot {
+  color: var(--text-3);
+  font-family: var(--vk-font-body);
+}
+
+/* Top header (если он показывается) */
+body.igra .dp-header {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--vk-divider);
+}
+
+/* Section headers — увеличенный отступ x10 как в VK */
+body.igra .dp-section {
+  margin-bottom: var(--vk-spacing-x10);
+}
+
+/* ═══ Final VS card ═══ */
+body.igra .tn-final-vs {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-1);
+  border-radius: var(--vk-radius-component);
+}
+body.igra .tn-final-vs-side-winner .tn-final-vs-num {
+  color: var(--primary);
+}
+body.igra .tn-final-vs-side-loser .tn-final-vs-num {
+  color: var(--text-3);
+}
+body.igra .tn-final-vs-divider {
+  color: var(--text-3);
+  font-weight: 300;
+}
+
+/* ═══ Footer ═══ */
+body.igra .dp-footer {
+  border-top: 1px solid var(--vk-divider);
+  background: transparent;
+  color: var(--text-3);
+  font-family: var(--vk-font-body);
+  font-size: var(--vk-caption-m-size);
+  line-height: var(--vk-caption-m-line);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   VK Adaptive — точные брейкпоинты Desktop / Tablet / Mobile
+   Источник: cfX0idPjpMd6Eb2J9LTaeB · SectionGrid (3:102747)
+   • Desktop:  ≥1280px · padding 60 · gap 24 · max-width 1280
+   • Tablet:   768–1279 · padding 32 · gap 20 · max-width 768
+   • Mobile:   ≤767px · padding 20 · gap 16 · 1 колонка
+   ═══════════════════════════════════════════════════════════════════ */
+
+body.igra {
+  /* Брейкпоинты */
+
+  /* Контейнеры */
+  --vk-container-max-desktop: 1280px;
+  --vk-container-max-tablet:  768px;
+
+  /* Padding контейнеров */
+  --vk-container-pad-desktop: 60px;
+  --vk-container-pad-tablet:  32px;
+  --vk-container-pad-mobile:  20px;
+
+  /* Gaps между карточками */
+  --vk-grid-gap-desktop: 24px;
+  --vk-grid-gap-tablet:  20px;
+  --vk-grid-gap-mobile:  16px;
+
+  /* Section vertical spacing (margin-m из VK = 120, делим для нашего масштаба) */
+  --vk-section-gap-desktop: 80px;
+  --vk-section-gap-tablet:  56px;
+  --vk-section-gap-mobile:  40px;
+
+  /* Карточки внутренний padding */
+  --vk-card-pad-desktop: 32px;
+  --vk-card-pad-tablet:  24px;
+  --vk-card-pad-mobile:  20px;
+}
+
+/* ─── Главный контейнер страницы (Hero + секции) ──────────────────── */
+body.igra main,
+body.igra .dp-root > main {
+  max-width: var(--vk-container-max-desktop);
+  margin: 0 auto;
+  padding-left: var(--vk-container-pad-desktop);
+  padding-right: var(--vk-container-pad-desktop);
+}
+
+/* ─── Сетка карточек игр (Партия + Расклад) ───────────────────────── */
+body.igra .dp-games-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--vk-grid-gap-desktop);
+}
+
+/* Партитура (Освоение тем) — 3 колонки на десктопе, 2 на планшете, 1 на мобиле */
+body.igra .dp-partitura {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--vk-grid-gap-desktop);
+}
+/* Two-col секция (Хроника + Достижения) */
+body.igra .dp-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--vk-grid-gap-desktop);
+}
+
+/* Финал — 3 stat карточки в ряд */
+body.igra .tn-final-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--vk-grid-gap-mobile);
+}
+
+/* ─── Section vertical spacing ────────────────────────────────────── */
+body.igra .dp-section {
+  margin-bottom: var(--vk-section-gap-desktop);
+}
+
+/* ─── Карточки игр padding ────────────────────────────────────────── */
+body.igra .dp-game-card {
+  padding: var(--vk-card-pad-desktop);
+}
+
+/* ─── Hero ────────────────────────────────────────────────────────── */
+body.igra .dp-hero {
+  padding: var(--vk-card-pad-desktop);
+}
+
+/* ─── Игровой экран Партии ────────────────────────────────────────── */
+/* Внутри Партии оставляем узкий контейнер 720px — текст вопроса
+   читается лучше в одной короткой колонке, не растягиваясь на 1280 */
+body.igra .tn-container {
+  max-width: 720px;
+  padding: 32px 24px 48px;
+}
+body.igra .tn-container-final {
+  max-width: 720px;
+  padding: 32px 24px 80px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   TABLET · 768–1279px
+   ═══════════════════════════════════════════════════════════════════ */
+@media (min-width: 768px) and (max-width: 1279px) {
+  body.igra main,
+  body.igra .dp-root > main {
+    max-width: var(--vk-container-max-tablet);
+    padding-left: var(--vk-container-pad-tablet);
+    padding-right: var(--vk-container-pad-tablet);
+  }
+  body.igra .dp-games-grid,
+  body.igra .dp-quests,
+  body.igra .dp-two-col {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--vk-grid-gap-tablet);
+  }
+  body.igra .dp-partitura {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--vk-grid-gap-tablet);
+  }
+  body.igra .dp-section {
+    margin-bottom: var(--vk-section-gap-tablet);
+  }
+  body.igra .dp-game-card,
+  body.igra .dp-hero {
+    padding: var(--vk-card-pad-tablet);
+  }
+  /* Display L → M на планшете */
+  body.igra .dp-welcome-title,
+  body.igra .tn-final-vs-num {
+    font-size: var(--vk-display-m-size);
+    line-height: var(--vk-display-m-line);
+  }
+  body.igra .dp-castalia-h1,
+  body.igra .tn-round-title,
+  body.igra .tn-final-headline {
+    font-size: var(--vk-display-s-size);
+    line-height: var(--vk-display-s-line);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   MOBILE · ≤767px — одна колонка, минимальные паддинги
+   ═══════════════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  body.igra main,
+  body.igra .dp-root > main {
+    max-width: 100%;
+    padding-left: var(--vk-container-pad-mobile);
+    padding-right: var(--vk-container-pad-mobile);
+  }
+  body.igra .dp-games-grid,
+  body.igra .dp-quests,
+  body.igra .dp-two-col,
+  body.igra .dp-partitura {
+    grid-template-columns: 1fr;
+    gap: var(--vk-grid-gap-mobile);
+  }
+  body.igra .tn-final-stats {
+    grid-template-columns: 1fr;
+    gap: var(--vk-grid-gap-mobile);
+  }
+  /* Mobile stat — горизонтальная раскладка */
+  body.igra .tn-final-stat {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+    padding: 16px 20px;
+    flex-wrap: nowrap;
+  }
+  body.igra .tn-final-stat-label {
+    margin-bottom: 0;
+    flex: 0 0 auto;
+  }
+  body.igra .tn-final-stat-value {
+    font-size: 24px;
+    line-height: 32px;
+    text-align: right;
+    margin-left: auto;
+  }
+  body.igra .tn-final-stat-sub {
+    margin-top: 0;
+    margin-left: 12px;
+    flex: 0 0 auto;
+  }
+  body.igra .dp-section {
+    margin-bottom: var(--vk-section-gap-mobile);
+  }
+  body.igra .dp-game-card,
+  body.igra .dp-hero {
+    padding: var(--vk-card-pad-mobile);
+  }
+  /* Display: всё уменьшается на step */
+  body.igra .dp-welcome-title {
+    font-size: var(--vk-display-m-size);
+    line-height: var(--vk-display-m-line);
+    letter-spacing: -0.01em;
+  }
+  body.igra .dp-castalia-h1 {
+    font-size: var(--vk-display-s-size);
+    line-height: var(--vk-display-s-line);
+  }
+  body.igra .tn-final-vs-num {
+    font-size: 40px;
+    line-height: 48px;
+  }
+  body.igra .tn-final-headline {
+    font-size: 28px;
+    line-height: 36px;
+  }
+  body.igra .tn-round-title {
+    font-size: 28px;
+    line-height: 36px;
+  }
+  body.igra .tn-q-text {
+    font-size: 22px;
+    line-height: 30px;
+  }
+  body.igra .tn-option {
+    font-size: var(--vk-body-s-size);
+    line-height: var(--vk-body-s-line);
+    padding: 14px 16px;
+    min-height: 56px;
+    border-radius: 14px;
+  }
+  body.igra .tn-option-letter {
+    width: 28px;
+    height: 28px;
+    font-size: 13px;
+  }
+  body.igra .tn-container,
+  body.igra .tn-container-final {
+    padding: 12px 16px 32px;
+  }
+  body.igra .tn-q-card {
+    padding: 16px 18px;
+  }
+  /* ─── Компактная игровая «шапка» на мобиле ───
+     Меньше высоты у VS-плашки и отступов блоков → вопрос и варианты
+     поднимаются выше и помещаются на экран (было «перегружено»). */
+  body.igra .tn-topbar { padding-bottom: 8px; }
+  body.igra .tn-progress-seg { margin-bottom: 10px; }
+  body.igra .tn-vs-header { margin-bottom: 10px; padding: 2px 0; gap: 10px; }
+  body.igra .tn-vs-avatar { width: 32px; height: 32px; font-size: 15px; }
+  body.igra .tn-vs-name { font-size: 13px; }
+  body.igra .tn-vs-score { font-size: 11px; }
+  body.igra .tn-timer-bar { margin-bottom: 10px; }
+  body.igra .tn-final-vs {
+    padding: 24px 20px;
+  }
+  /* Tag-кнопки на мобиле — компактнее */
+  body.igra .dp-game-eyebrow,
+  body.igra .dp-castalia-eyebrow {
+    height: 24px;
+    padding: 0 10px;
+    font-size: 13px;
+    line-height: 18px;
+  }
+  /* Toggle — позиция теперь в основном правиле .dp-theme-toggle (top-right),
+     mobile-override без bottom/right (они уже в основном правиле). */
+  /* Sync notice стопка */
+  body.igra .dp-sync-notice {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  body.igra .dp-sync-notice-actions {
+    justify-content: flex-end;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   DESKTOP LARGE · ≥1280px — финальные правки для широких экранов
+   ═══════════════════════════════════════════════════════════════════ */
+@media (min-width: 1280px) {
+  /* На больших экранах toggle чуть отступает от края (top-right) */
+  body.igra .dp-theme-toggle {
+    top: 16px;
+    right: 24px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   LAYOUT v2 — VK DS-grid · десктоп 1200px · карточки больше
+   Источник: VK Tech UI Kit — Avatars (3:185834), Section Slider Grid.
+   Применяется ТОЛЬКО под body.igra, не трогает прод.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Корневой контейнер — 1200 на десктопе, 1024 на ноуте, 768 на планшете */
+body.igra .dp-root {
+  max-width: 1200px;
+  padding: 16px 32px 80px;
+}
+@media (max-width: 1279px) {
+  body.igra .dp-root { max-width: 1024px; padding: 16px 24px 64px; }
+}
+@media (max-width: 767px) {
+  body.igra .dp-root { padding: 12px 16px 64px; }
+}
+
+/* Хедер — на всю ширину контейнера, обводка как у VK-card */
+body.igra .dp-header {
+  padding: 12px 20px;
+  border-radius: 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-2);
+  margin-bottom: 32px;
+  gap: 16px;
+}body.igra .dp-header-nav {
+  font-size: 14px;
+  gap: 24px;
+}
+body.igra .dp-header-nav a,
+body.igra .dp-header-nav button {
+  color: var(--text-2);
+  transition: color 150ms ease;
+}
+body.igra .dp-header-nav a:hover,
+body.igra .dp-header-nav button:hover {
+  color: var(--text-1);
+}
+@media (max-width: 767px) {
+  body.igra .dp-header { padding: 8px 12px; margin-bottom: 20px; gap: 6px; }
+  body.igra .dp-header-nav { gap: 8px; font-size: 13px; }
+  /* Скрываем якорные ссылки секций — они дублируют скролл,
+     контент тех же блоков и так доступен прокруткой ниже */
+  body.igra .dp-header-nav > a[href^='#'] { display: none; }
+  /* Spacer не должен раздуваться — даём auth-группе прижаться вправо */
+  body.igra .dp-header-spacer { flex: 1; }
+  /* Кнопка Войти компактнее на мобильном */
+  body.igra .dp-header-auth .dp-btn-primary {
+    padding: 7px 14px;
+    font-size: 13px;
+    height: 32px;
+  }/* Back-кнопка — компактнее, но видна */
+  body.igra .dp-header-back { font-size: 13px; padding: 6px 8px; gap: 4px; }
+  /* Auth-группа — флекс с гэпом, без переносов */
+  body.igra .dp-header-auth { gap: 4px; flex-wrap: nowrap; }
+}
+
+/* ─── Войти Primary CTA — solid VK Blue + БЕЛЫЙ текст по дизайн-системе ─── */
+body.igra .dp-header .dp-btn-primary,
+body.igra .dp-btn-primary {
+  background: var(--primary);
+  color: var(--on-primary);
+  border-color: var(--primary);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 119, 255, 0.30);
+}
+body.igra .dp-header .dp-btn-primary:hover,
+body.igra .dp-btn-primary:hover {
+  background: var(--primary-strong);
+  border-color: var(--primary-strong);
+  color: var(--on-primary);
+}
+
+/* Кнопка-помощь «?» — icon-only круг, нейтральный tonal */
+body.igra .dp-help-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-soft, #2A2A2D);
+  color: var(--text-2);
+  border: 1px solid var(--border-1, rgba(255,255,255,.08));
+  font-size: 15px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 160ms, color 160ms;
+}/* Выйти text-button (когда залогинен) — accent text */
+body.igra .dp-btn-text {
+  background: transparent;
+  border: none;
+  color: var(--text-2);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+body.igra .dp-btn-text:hover {
+  color: var(--text-1);
+  background: var(--bg-soft, rgba(255,255,255,.04));
+}
+
+/* Касталия headline — VK Display L: 56px, line-height 1.04 */
+body.igra .dp-castalia-h1 {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 56px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+@media (max-width: 1279px) {
+  body.igra .dp-castalia-h1 { font-size: 44px; }
+}
+@media (max-width: 767px) {
+  body.igra .dp-castalia-h1 { font-size: 32px; line-height: 1.1; }
+}
+
+/* Hero-блок — больше padding, аватар по VK Size=56 + рамка */
+body.igra .dp-hero {
+  padding: 24px;
+  border-radius: 20px;
+  gap: 20px;
+}
+body.igra .dp-hero-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--bg-tonal);
+  border: 1px solid var(--border-1);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--text-1);
+}
+body.igra .dp-hero-name {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--text-1);
+}
+body.igra .dp-hero-rank-pill {
+  background: var(--accent);
+  color: var(--on-primary);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  padding: 4px 10px;
+  border-radius: 8px;
+  text-transform: none;
+}
+body.igra .dp-hero-bead {
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+@media (max-width: 767px) {
+  body.igra .dp-hero { padding: 16px; gap: 12px; }
+  body.igra .dp-hero-avatar { width: 48px; height: 48px; font-size: 18px; }
+  body.igra .dp-hero-name { font-size: 17px; line-height: 24px; }
+}
+
+/* Сетка двух игр — на десктопе 2 равных, без сжатия текста */
+body.igra .dp-games-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+@media (max-width: 767px) {
+  body.igra .dp-games-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* Карточки игр — VK card 24px padding, radius 20 */
+body.igra .dp-game-card {
+  padding: 24px;
+  border-radius: 20px;
+  min-height: 240px;
+  border: 1px solid var(--border-1);
+  background: var(--bg-surface);
+}
+body.igra .dp-game-card.dp-game-primary {
+  background: var(--bg-surface);
+  color: var(--text-1);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 4px 14px rgba(1, 135, 246, 0.15);
+}
+body.igra .dp-game-card.dp-game-primary:hover {
+  background: var(--bg-tonal);
+}
+body.igra .dp-game-primary .dp-game-eyebrow {
+  background: var(--accent);
+  color: var(--on-primary);
+}
+/* Вторая доступная практика: плашка тональная, а не серая. Серый в этом месте
+   читается как «выключено» — ровно так выглядела карточка «Расклад · в разработке»,
+   и рядом с ней живой режим казался недоступным. */
+body.igra .dp-game-card:not(.dp-game-primary):not(.dp-game-soon) .dp-game-eyebrow {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  /* чистый --accent на тёмном даёт 3.66:1 — для мелкого жирного текста мало,
+     осветляем до 5.6:1 */
+  color: color-mix(in srgb, var(--accent) 72%, #fff);
+}
+body.igra .dp-game-title {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 28px;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+body.igra .dp-game-sub {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+@media (max-width: 767px) {
+  body.igra .dp-game-card { padding: 20px; min-height: 0; }
+  body.igra .dp-game-title { font-size: 24px; }
+}
+
+/* Section heading — крупнее на десктопе */
+body.igra .dp-section-h {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 767px) {
+  body.igra .dp-section-h { font-size: 20px; line-height: 28px; }}
+
+/* ═══════════════════════════════════════════════════════════════════
+   System Message — VK component (S и M размеры)
+   ⚙ icon + text + опц. action, четыре статуса (info/success/warn/error)
+   ═══════════════════════════════════════════════════════════════════ */
+
+body.igra .vk-sysmsg {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-2);
+  border-radius: 16px;
+  padding: 16px;
+  margin: 12px 0;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+body.igra .vk-sysmsg-icon {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--bg-tonal);
+  color: var(--text-1);
+  font-size: 16px;
+}
+
+body.igra .vk-sysmsg-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+body.igra .vk-sysmsg-title {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--text-1);
+}
+
+body.igra .vk-sysmsg-text {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text-2);
+}
+
+/* Размер S — компактный, без заголовка, для inline-подсказок */
+body.igra .vk-sysmsg--s {
+  padding: 10px 12px;
+  border-radius: 12px;
+  gap: 8px;
+  margin: 8px 0;
+}
+body.igra .vk-sysmsg--s .vk-sysmsg-icon {
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+}
+body.igra .vk-sysmsg--s .vk-sysmsg-text {
+  font-size: 12px;
+  line-height: 16px;
+}
+
+/* Статусы — VK accent palette */
+body.igra .vk-sysmsg--info .vk-sysmsg-icon {
+  background: rgba(67, 155, 251, 0.15);
+  color: var(--info);
+}
+body.igra .vk-sysmsg--success .vk-sysmsg-icon {
+  background: rgba(0, 211, 230, 0.15);
+  color: var(--primary);
+}
+body.igra .vk-sysmsg--warn .vk-sysmsg-icon {
+  background: rgba(255, 181, 70, 0.18);
+  color: var(--gold-1);
+}
+body.igra .vk-sysmsg--error {
+  border-color: rgba(248, 80, 80, 0.45);
+}
+body.igra .vk-sysmsg--error .vk-sysmsg-icon {
+  background: rgba(248, 80, 80, 0.15);
+  color: var(--danger);
+}
+body.igra .vk-sysmsg--error .vk-sysmsg-title {
+  color: var(--danger);
+}
+
+/* Кнопка-действие в правом углу плашки */
+body.igra .vk-sysmsg-action {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid var(--border-1);
+  color: var(--text-1);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease;
+  white-space: nowrap;
+}
+body.igra .vk-sysmsg-action:hover {
+  background: var(--bg-tonal);
+}
+body.igra .vk-sysmsg-action--accent {
+  background: var(--accent);
+  color: var(--on-primary);
+  border-color: var(--accent);
+}
+body.igra .vk-sysmsg-action--accent:hover {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+
+@media (max-width: 767px) {
+  body.igra .vk-sysmsg {
+    padding: 12px;
+    border-radius: 12px;
+    gap: 10px;
+  }
+  body.igra .vk-sysmsg-icon {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ADAPTIVE HEADLINE — заголовок Касталии в одну строку на десктопе
+   На широких экранах (≥900) скрываем явный <br>, текст течёт сам.
+   На узких — оставляем перенос как есть.
+   ═══════════════════════════════════════════════════════════════════ */
+@media (min-width: 900px) {
+  body.igra .dp-castalia-h1 br,
+  body.igra .dp-welcome-title br {
+    display: none;
+  }
+  body.igra .dp-castalia-h1 span:first-child::after {
+    content: ' ';
+  }
+  body.igra .dp-castalia-h1 {
+    white-space: normal;
+    word-break: keep-all;
+    overflow-wrap: normal;
+  }
+}
+
+/* На очень больших экранах — чуть меньше шрифт чтобы влезло гарантированно */
+@media (min-width: 1280px) {
+  body.igra .dp-castalia-h1 {
+    font-size: 64px;
+    line-height: 1.04;
+  }
+}
+@media (min-width: 900px) and (max-width: 1279px) {
+  body.igra .dp-castalia-h1 {
+    font-size: 48px;
+    line-height: 1.08;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   VK Tooltip — Figma node 3:191264
+   Tokens: Background #151515 · Padding 16/16 · Radius 12
+            Title 17/28 Regular · Text 15/20 Regular · Content gap 12
+   ─────────────────────────────────────────────────────────────────
+   Перекрывает .dp-term::after (раньше использовал --text-1 как фон,
+   что в Dark было #FEFEFE → белый на белом → пустое окошко).
+   ═══════════════════════════════════════════════════════════════════ */
+body.igra .dp-term {
+  border-bottom: 1px dotted var(--text-3);
+  cursor: help;
+}
+body.igra .dp-term:hover::after,
+body.igra .dp-term:focus-visible::after {
+  /* VK Tooltip background: Components/Tooltip/Background Default */
+  background: #151515;
+  /* VK Tooltip text colors */
+  color: #fefefe;
+  /* VK Tooltip padding 16/16 */
+  padding: 12px 16px;
+  /* VK Tooltip border radius 12 */
+  border-radius: 12px;
+  /* VK Tooltip Text: 15/20 Regular */
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: 0;
+  /* Размеры */
+  max-width: 320px;
+  width: max-content;
+  white-space: normal;
+  /* Тень — VK use no shadow but soft glow на тёмном фоне */
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 8px 24px rgba(0, 0, 0, 0.50);
+  /* Анимация появления */
+  animation: vkTooltipIn 150ms ease-out;
+}
+@keyframes vkTooltipIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-2px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+}
+
+/* Маленькая стрелочка снизу tooltip — направление вниз */
+body.igra .dp-term:hover::before,
+body.igra .dp-term:focus-visible::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-1px);
+  border: 5px solid transparent;
+  border-top-color: #151515;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* Если data-tip пустой — не показываем tooltip вообще */
+body.igra .dp-term[data-tip=""]::after,
+body.igra .dp-term:not([data-tip])::after {
+  display: none;
+}
+
+/* Расширенный tooltip с заголовком (data-tip-title="" + data-tip="") */
+body.igra .dp-term[data-tip-title]:hover::after,
+body.igra .dp-term[data-tip-title]:focus-visible::after {
+  content: attr(data-tip-title) "\A" attr(data-tip);
+  white-space: pre-line;
+  padding: 16px;
+  max-width: 360px;
+}
+body.igra .dp-term[data-tip-title]:hover::after::first-line,
+body.igra .dp-term[data-tip-title]:focus-visible::after::first-line {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+}
+
+/* Mobile — увеличиваем тач-зону и сдвигаем чтобы не вылетал за край */
+@media (max-width: 767px) {
+  body.igra .dp-term:hover::after,
+  body.igra .dp-term:focus-visible::after {
+    max-width: calc(100vw - 32px);
+    font-size: 13px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   .dp-tip — quiet tooltip, без визуального индикатора у родителя.
+   Применяется к pill-ам, badge-ам, иконкам, где dotted-underline
+   ломал бы оформление. Tooltip показывается по hover/focus так же,
+   как у .dp-term, но в той же VK-стилистике.
+   Работает ТОЛЬКО в Dark — в Light осторожно с tooltip-ами на pill.
+   ═══════════════════════════════════════════════════════════════════ */
+body.igra .dp-tip {
+  position: relative;
+  cursor: help;
+}
+body.igra .dp-tip:hover::after,
+body.igra .dp-tip:focus-visible::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  background: #151515;
+  color: #fefefe;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: 0;
+  max-width: 320px;
+  width: max-content;
+  white-space: normal;
+  z-index: 100;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 8px 24px rgba(0, 0, 0, 0.50);
+  animation: vkTooltipIn 150ms ease-out;
+}
+/* Стрелочка вниз */
+body.igra .dp-tip:hover::before,
+body.igra .dp-tip:focus-visible::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-3px);
+  border: 5px solid transparent;
+  border-top-color: #151515;
+  pointer-events: none;
+  z-index: 100;
+}
+body.igra .dp-tip[data-tip=""]::after,
+body.igra .dp-tip:not([data-tip])::after {
+  display: none;
+}
+@media (max-width: 767px) {
+  body.igra .dp-tip:hover::after,
+  body.igra .dp-tip:focus-visible::after {
+    max-width: calc(100vw - 32px);
+    font-size: 13px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Компактная продуктовая типографика лендинга (2026-06-03)
+   Было «постерно»: hero 64px (--vk-display-m), крупные карточки/отступы.
+   Приводим к плотной шкале (~40px hero). Применяется к light-VK и dark-VK.
+   ═══════════════════════════════════════════════════════════════════ */
+body.igra .dp-castalia-h1,
+body.igra .dp-welcome-title {
+  font-size: 40px;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+body.igra .dp-castalia-title { margin-bottom: 20px; }
+body.igra .dp-game-title { font-size: 21px; line-height: 1.2; }
+body.igra .dp-hero { padding: 18px 20px; }
+body.igra .dp-game-card { padding: 18px 20px; }
+
+@media (max-width: 640px) {
+  body.igra .dp-castalia-h1,
+  body.igra .dp-welcome-title { font-size: 28px; line-height: 1.12; }
+  body.igra .dp-game-title { font-size: 18px; }
+  body.igra .dp-hero,
+  body.igra .dp-game-card { padding: 15px 16px; }
+}
+
+/* ─── Компактная мобильная главная: десктопные размеры (заголовок 28-32px,
+   крупные карточки) выталкивали действия «Играть соло / С другом» за фолд.
+   Ужимаем заголовок, профиль и отступы — действия поднимаются на первый экран.
+   В конце файла + высокая специфичность → перекрывает прежние правила. */
+@media (max-width: 767px) {
+  body.igra .dp-castalia-h1,
+  body.igra .dp-welcome-title { font-size: 22px; line-height: 1.18; }
+  body.igra .dp-castalia-title { margin-bottom: 14px; }
+  body.igra .dp-castalia-eyebrow { margin-bottom: 6px; }
+  body.igra .dp-hero { padding: 14px 16px; gap: 12px; margin-bottom: 16px; }
+  body.igra .dp-section { margin-bottom: 20px; }
+  /* Карточка «Партия» компактнее: кнопки «Играть соло / С другом» — на первом
+     экране. Пункты-детали (10·18·30, форматы, разбор) на мобильном скрыты —
+     они есть в подсказке «i» и в модалке выбора; здесь приоритет — действие. */
+  body.igra .dp-game-card { padding: 14px 16px; }
+  body.igra .dp-game-eyebrow { margin-bottom: 8px; }
+  body.igra .dp-game-sub { margin: 6px 0 10px; font-size: 14px; line-height: 1.4; }
+  body.igra .dp-game-bullets { display: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ДЕСКТОПНАЯ РАСКЛАДКА «ИГРЫ» — action-first (CJM: главное действие —
+   НАЧАТЬ ПАРТИЮ). Компактный заголовок + эйчброу-чип в строку, профиль —
+   горизонтальная лента вместо большой карточки, действия «Играть соло /
+   С другом» поднимаются на первый экран. Только ≥768px — мобильный вид
+   (@media ≤767) не затрагивается. В конце файла → перекрывает ранние
+   правила H1 (64/48px) и hero.
+   ═══════════════════════════════════════════════════════════════════ */
+@media (min-width: 768px) {
+  /* Заголовок и эйчброу — одна компактная строка */
+  body.igra .dp-castalia-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  body.igra .dp-castalia-h1 { font-size: 34px; line-height: 1.08; order: 0; }
+  body.igra .dp-castalia-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 5px 12px;
+    border-radius: 8px;
+    background: var(--accent-soft, rgba(0, 119, 255, 0.12));
+    color: var(--vk-accent, #0077FF);
+    font-size: 11px;
+    letter-spacing: 0.10em;
+    white-space: nowrap;
+    align-self: center;
+    order: 1;
+  }
+
+  /* Профиль — горизонтальная лента во всю ширину (а не крупная карточка) */
+  body.igra .dp-hero {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    grid-template-columns: none;
+    padding: 12px 18px;
+    min-height: 56px;
+    margin-bottom: 20px;
+    border-radius: 14px;
+  }
+  body.igra .dp-hero-avatar { width: 40px; height: 40px; font-size: 16px; flex-shrink: 0; }
+  body.igra .dp-hero-body {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  body.igra .dp-hero-name-row { margin-bottom: 0; display: inline-flex; align-items: center; gap: 8px; }
+  body.igra .dp-hero-name { font-size: 16px; line-height: 1.2; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  body.igra .dp-hero-stats { margin: 0; }
+  body.igra .dp-hero-progress { margin: 0; width: 180px; flex-shrink: 0; }
+  body.igra .dp-hero-body > div:last-child { margin-top: 0; }
+  body.igra .dp-hero-cta { margin-left: auto; flex-shrink: 0; align-self: center; }
+
+  /* Карточка «Партия» компактнее — CTA на первом экране */
+  body.igra .dp-game-card { min-height: 0; padding: 20px; }
+  body.igra .dp-game-bullets { font-size: 12.5px; line-height: 1.45; margin: 8px 0 12px; }
+  body.igra .dp-cta-row { margin-top: 12px; padding-top: 12px; }
+
+  /* «Играть соло» — доминирующая primary-кнопка (один визуальный фокус) */
+  body.igra .dp-cta--solo {
+    background: var(--vk-accent, #0077FF);
+    border-color: var(--vk-accent, #0077FF);
+  }
+  body.igra .dp-cta--solo .dp-cta__title,
+  body.igra .dp-cta--solo .dp-cta__sub { color: #fff; }
+  body.igra .dp-cta--solo .dp-cta__icon {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.28);
+    color: #fff;
+  }
+}
+@media (min-width: 1280px) {
+  body.igra .dp-castalia-h1 { font-size: 40px; line-height: 1.06; }
+}
+
+/* На тач-устройствах CSS-тултипы .dp-tip/.dp-term (ранг, бусины, «партий»)
+   «залипали» после тапа (нет hover, :focus-visible не сбрасывался) и
+   перекрывали контент без возможности закрыть. На touch их прячем — на
+   ранг/бусины тап ведёт на rating.html (подсказка там и так есть). */
+@media (hover: none) {
+  body.igra .dp-term::after,
+  body.igra .dp-term::before,
+  body.igra .dp-tip::after,
+  body.igra .dp-tip::before { display: none; }
+}
+
+/* Корень страницы: до применения body.igra html оставался кремовым
+   (#F7F4EE из duel-page.css) — светлая рамка мигала за краями в тёмной теме. */
+html[data-theme="dark"] { background: #212121; }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   СЛОЙ ВОПРОСОВ И ИТОГА (бывший vk-scheme.css)
+   Карточка вопроса, варианты ответа, пары, итог партии и объяснитель
+   «куда записана партия». Имя файла обещало «схему VK» — на деле здесь
+   80 % экрана игры.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════════
+   VK Scheme — компонент-объяснитель из VK Tech DS (node 3:29842)
+   Активируется ТОЛЬКО под body.igra.
+   В светлой теме все .vk-scheme-* скрыты (display: none).
+   ─────────────────────────────────────────────────────────────────
+   Структура:
+     .vk-scheme              — внешняя оболочка (bg-surface, padding 8, radius 20)
+       .vk-scheme-canvas     — внутренний канвас (bg-deep #000, radius 16)
+         .vk-scheme-tag      — метка-момент в углу (radius 8, Caption/M)
+         .vk-scheme-tag--accent — акцентная метка (bg accent, белый текст)
+         .vk-scheme-step     — шаг: numbered chip + description card + arrow
+           .vk-scheme-num    — кружок с номером 56×56, radius 12
+           .vk-scheme-desc   — карточка-описание, radius 16
+           .vk-scheme-arrow  — стрелка-коннектор
+         .vk-scheme-entity   — карточка сущности (Pod/Node/Архив), radius 16
+           .vk-scheme-chip   — мини-чип внутри (radius 4, bg #000)
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* По умолчанию все scheme-блоки скрыты — показываем только в Dark */
+.vk-scheme-block { display: none; }
+body.igra .vk-scheme-block { display: block; }
+
+/* ─── Внешняя оболочка (Background Base Secondary #151515) ─── */
+body.igra .vk-scheme {
+  background: var(--bg-surface);
+  border-radius: 20px;
+  padding: 8px;
+  box-shadow:
+    inset 0 0 0 1px var(--border-2),
+    0 4px 14px rgba(0, 0, 0, 0.30);
+  overflow: hidden;
+}
+
+/* ─── Внутренний канвас (Background Base Background #000) ─── */
+body.igra .vk-scheme-canvas {
+  background: var(--bg-deep);
+  border-radius: 16px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ─── Метка-момент (Caption/M, 15/20, padding 12/8, radius 8) ─── */
+body.igra .vk-scheme-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  background: var(--bg-surface);
+  color: var(--text-1);
+  border-radius: 8px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+body.igra .vk-scheme-tag-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Акцентная метка (bg accent #0187F6, белый текст) */
+body.igra .vk-scheme-tag--accent {
+  background: var(--accent);
+  color: var(--on-primary);
+}
+
+/* Серая Caption/S метка-подсказка */
+body.igra .vk-scheme-tag--mute {
+  background: var(--bg-surface);
+  color: var(--text-2);
+  font-size: 12px;
+  line-height: 16px;
+  padding: 4px 8px;
+}
+
+/* ─── Заголовок Scheme (наверху канваса) ─── */
+body.igra .vk-scheme-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+body.igra .vk-scheme-header-title {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 28px;
+  letter-spacing: -0.005em;
+  color: var(--text-1);
+  margin: 0;
+  flex: 1 0 auto;
+}
+
+/* ─── Список шагов ─── */
+body.igra .vk-scheme-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ─── Один шаг: numbered chip + description card ─── */
+body.igra .vk-scheme-step {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  position: relative;
+}
+
+/* Номер 56×56, radius 12, bg surface, внутри чёрный bg-deep квадрат с цифрой */
+body.igra .vk-scheme-num {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  background: var(--bg-surface);
+  border-radius: 12px;
+  padding: 4px;
+  box-shadow: inset 0.75px 0 0.75px 0 rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+body.igra .vk-scheme-num-inner {
+  width: 100%;
+  height: 100%;
+  background: var(--bg-deep);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 16px;
+  color: var(--text-1);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Description-карточка: bg-surface, radius 16, padding 12, Caption/S 12/16 */
+body.igra .vk-scheme-desc {
+  flex: 1 1 auto;
+  background: var(--bg-surface);
+  border-radius: 16px;
+  padding: 12px 16px;
+  box-shadow: inset -0.5px 0 1px 0 rgba(255, 255, 255, 0.15);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-2);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+body.igra .vk-scheme-desc-title {
+  color: var(--text-1);
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 18px;
+}
+body.igra .vk-scheme-desc-text {
+  color: var(--text-2);
+}
+body.igra .vk-scheme-desc strong {
+  color: var(--text-1);
+  font-weight: 500;
+}/* Соединитель между шагами (вертикальная линия) */
+body.igra .vk-scheme-step + .vk-scheme-step::before {
+  content: '';
+  position: absolute;
+  left: 27px;
+  top: -12px;
+  width: 1px;
+  height: 12px;
+  background: var(--border-1);
+}/* Мини-чипы внутри сущности (Pod 1, Pod 2 и т.п.) */
+body.igra .vk-scheme-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}/* ─── Footer-подпись Scheme (внизу канваса) ─── */
+body.igra .vk-scheme-foot {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-2);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-3);
+  font-style: italic;
+}
+
+/* ─── Прячем оригинальные «лёгкие» списки в Dark, когда рядом есть scheme-block ─── */
+body.igra .vk-light-only { display: none; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   ADAPTIVE — Mobile / Tablet
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 767px) {
+  body.igra .vk-scheme-canvas {
+    padding: 16px;
+  }
+  body.igra .vk-scheme-header-title {
+    font-size: 17px;
+    line-height: 24px;
+  }
+  body.igra .vk-scheme-num {
+    width: 44px;
+    height: 44px;
+  }
+  body.igra .vk-scheme-num-inner {
+    font-size: 12px;
+  }
+  body.igra .vk-scheme-step + .vk-scheme-step::before {
+    left: 21px;
+  }
+  body.igra .vk-scheme-arrow {
+    left: 44px;
+    width: 8px;
+  }
+  body.igra .vk-scheme-desc {
+    padding: 10px 12px;
+  }
+  body.igra .vk-scheme-entities {
+    grid-template-columns: 1fr;
+  }
+  body.igra .vk-scheme-tag {
+    padding: 6px 10px;
+    font-size: 13px;
+    line-height: 18px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1279px) {
+  body.igra .vk-scheme-canvas {
+    padding: 20px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   DPHeroCTA — крупные «play now» кнопки сразу под H1
+   Большая primary с акцентом + ghost-вторая. Цель: первое намерение
+   игрока решается одним кликом без скроллинга.
+   ═══════════════════════════════════════════════════════════════════ */
+body.igra .dp-hero-cta-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin: 24px 0 32px;
+}
+
+@media (max-width: 767px) {
+  body.igra .dp-hero-cta-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin: 20px 0 24px;
+  }
+}
+
+body.igra .dp-hero-cta-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  border-radius: 20px;
+  border: 1px solid var(--border-1);
+  background: var(--bg-surface);
+  color: var(--text-1);
+  font-family: 'Manrope', system-ui, sans-serif;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 200ms ease, box-shadow 200ms ease, background 200ms ease, border-color 200ms ease;
+  position: relative;
+  overflow: hidden;
+}
+
+body.igra .dp-hero-cta-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.40);
+}
+
+body.igra .dp-hero-cta-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+body.igra .dp-hero-cta-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Primary вариант — акцентная заливка, лёгкий glow */
+body.igra .dp-hero-cta-btn--primary {
+  background: linear-gradient(135deg, var(--accent) 0%, #0066d9 100%);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow:
+    0 0 0 1px rgba(1, 135, 246, 0.4),
+    0 8px 24px rgba(1, 135, 246, 0.25);
+}
+body.igra .dp-hero-cta-btn--primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2199ff 0%, var(--accent) 100%);
+  box-shadow:
+    0 0 0 1px rgba(1, 135, 246, 0.6),
+    0 16px 40px rgba(1, 135, 246, 0.40);
+}
+
+/* Анимация пульсации иконки play */
+body.igra .dp-hero-cta-btn--primary .dp-hero-cta-icon {
+  animation: pulsePlay 2.4s ease-in-out infinite;
+}
+@keyframes pulsePlay {
+  0%, 70%, 100% { transform: scale(1); opacity: 1; }
+  35% { transform: scale(1.12); opacity: 0.85; }
+}
+
+/* Иконка слева — крупная */
+body.igra .dp-hero-cta-icon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 600;
+}
+body.igra .dp-hero-cta-btn--ghost .dp-hero-cta-icon {
+  background: var(--bg-tonal);
+  color: var(--text-2);
+}
+
+/* Текст справа от иконки */
+body.igra .dp-hero-cta-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+body.igra .dp-hero-cta-title {
+  font-size: 20px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+body.igra .dp-hero-cta-sub {
+  font-size: 13px;
+  line-height: 18px;
+  opacity: 0.80;
+  font-weight: 400;
+}
+body.igra .dp-hero-cta-btn--ghost .dp-hero-cta-sub {
+  color: var(--text-3);
+  opacity: 1;
+}
+
+/* Декоративный shine — пробежка по primary при загрузке */
+body.igra .dp-hero-cta-btn--primary::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  animation: shineSweep 4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes shineSweep {
+  0%, 80%, 100% { left: -100%; }
+  35% { left: 150%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.igra .dp-hero-cta-btn--primary::after,
+  body.igra .dp-hero-cta-btn--primary .dp-hero-cta-icon {
+    animation: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Карточки игр — больше ИГРОВОГО feel: свечение под primary,
+   крупная иконка-эмодзи слева, разделитель внизу карточки.
+   ═══════════════════════════════════════════════════════════════════ */
+body.igra .dp-game-card.dp-game-primary::before {
+  content: '✦';
+  position: absolute;
+  top: 16px;
+  right: 24px;
+  font-size: 56px;
+  line-height: 1;
+  opacity: 0.08;
+  color: var(--accent);
+  pointer-events: none;
+  transition: transform 400ms ease, opacity 400ms ease;
+}
+body.igra .dp-game-card.dp-game-primary:hover::before {
+  transform: scale(1.15) rotate(15deg);
+  opacity: 0.18;
+}
+body.igra .dp-game-card {
+  position: relative;
+  overflow: hidden;
+}
+/* Под dp-game-meta — отступ, подчёркивающий что это карточка действия */
+body.igra .dp-game-card .dp-game-meta {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-2);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   True/False — две большие кнопки «Верно / Не верно»
+   ═══════════════════════════════════════════════════════════════════ */
+.tn-options-tf {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.tn-option-tf {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 32px 24px;
+  min-height: 120px;
+  border-radius: 16px;
+  text-align: center;
+}
+.tn-option-tf-sym {
+  font-size: 36px;
+  font-weight: 600;
+  line-height: 1;
+}
+.tn-option-tf-text {
+  font-size: 18px;
+  font-weight: 500;
+}
+@media (max-width: 767px) {
+  .tn-option-tf {
+    padding: 24px 16px;
+    min-height: 96px;
+  }
+  .tn-option-tf-sym { font-size: 28px; }
+  .tn-option-tf-text { font-size: 16px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Fill-blank — input с кнопкой «Ответить»
+   ═══════════════════════════════════════════════════════════════════ */
+.tn-fill {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+.tn-fill-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid;
+  font-family: inherit;
+  font-size: 18px;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+  background: var(--bg-surface);
+  border-color: var(--border-1);
+  color: var(--text-1);
+}
+.tn-fill-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(1, 135, 246, 0.15);
+}
+.tn-fill-submit {
+  padding: 16px 24px;
+  border-radius: 12px;
+  border: none;
+  background: var(--accent);
+  color: var(--on-primary);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease, transform 100ms;
+  white-space: nowrap;
+}
+.tn-fill-submit:hover:not(:disabled) {
+  background: var(--accent-strong, #0066d9);
+}
+.tn-fill-submit:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.tn-fill-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.tn-fill-result {
+  width: 100%;
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid;
+  text-align: center;
+}
+.tn-fill-result-correct { border-color: var(--primary); background: rgba(0, 211, 230, 0.08); }
+.tn-fill-result-wrong   { border-color: var(--danger);  background: rgba(248, 80, 80, 0.08); }
+.tn-fill-result-label {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.tn-fill-result-text {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text-1);
+}
+.tn-fill-result-text.tn-fill-result-correct {
+  color: var(--primary);
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+@media (max-width: 767px) {
+  .tn-fill { flex-direction: column; gap: 12px; }
+  .tn-fill-input  { font-size: 16px; padding: 14px 16px; }
+  .tn-fill-submit { padding: 14px 20px; }
+}/* ═══════════════════════════════════════════════════════════════════
+   Final Recap — разбор ошибок с цитатами из книги
+   ═══════════════════════════════════════════════════════════════════ */
+.tn-final-recap {
+  margin-top: 24px;
+  padding: 20px 24px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-2);
+  border-radius: 16px;
+}
+body.igra .tn-final-recap {
+  background: var(--bg-deep);
+  border: 1px solid var(--border-2);
+  padding: 24px;
+  border-radius: 20px;
+}
+.tn-final-recap-eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-3);
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+.tn-final-recap-title {
+  font-family: var(--font-serif, 'Manrope'), serif;
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 500;
+  color: var(--text-1);
+  margin-bottom: 16px;
+}
+body.igra .tn-final-recap-title {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.tn-final-recap-perfect {
+  text-align: center;
+}
+.tn-final-recap-perfect .tn-final-recap-eyebrow {
+  color: var(--primary);
+}
+
+.tn-final-recap-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.tn-final-recap-item {
+  padding: 16px;
+  background: var(--bg-page);
+  border-radius: 12px;
+  border-left: 3px solid var(--danger);
+}
+body.igra .tn-final-recap-item {
+  background: var(--bg-surface);
+  border-left: 3px solid var(--danger);
+  padding: 16px 20px;
+  border-radius: 12px;
+}
+.tn-final-recap-q {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.tn-final-recap-q-num {
+  font-family: 'PT Mono', monospace;
+  font-size: 12px;
+  color: var(--text-3);
+  font-weight: 500;
+}.tn-final-recap-q-text {
+  flex: 1 1 100%;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--text-1);
+  font-weight: 500;
+}
+.tn-final-recap-answer {
+  margin: 8px 0;
+  font-size: 14px;
+  color: var(--text-2);
+}
+.tn-final-recap-answer strong {
+  color: var(--primary);
+  font-weight: 600;
+}
+.tn-final-recap-quote {
+  margin: 8px 0 0;
+  padding: 10px 14px;
+  background: var(--bg-soft);
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--text-2);
+  border-left: 2px solid var(--text-3);
+}
+body.igra .tn-final-recap-quote {
+  background: var(--bg-tonal);
+  border-left: 2px solid var(--accent);
+  color: var(--text-1);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+@media (max-width: 767px) {
+  .tn-final-recap { padding: 16px; }
+  .tn-final-recap-item { padding: 14px; }
+  .tn-final-recap-q-text { font-size: 14px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Партия picker — выбор длительности (Блиц / Стандарт / Эксперт)
+   ═══════════════════════════════════════════════════════════════════ */
+.dp-partiya-picker {
+  max-width: 460px;
+}
+
+.dp-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 0;
+}
+
+.dp-mode-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 10px 6px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border-2);
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 150ms ease, background 150ms ease, transform 100ms;
+  text-align: center;
+}
+.dp-mode-btn:hover {
+  border-color: var(--text-3);
+  background: var(--bg-tonal);
+}
+.dp-mode-btn:active {
+  transform: scale(0.98);
+}
+
+.dp-mode-btn-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.dp-mode-btn-active:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.dp-mode-btn-count {
+  font-family: var(--font-serif, 'Manrope'), serif;
+  font-size: 20px;
+  line-height: 1;
+  font-weight: 600;
+  color: var(--text-1);
+  font-variant-numeric: tabular-nums;
+}
+.dp-mode-btn-active .dp-mode-btn-count {
+  color: var(--accent);
+}
+
+.dp-mode-btn-label {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-1);
+}
+.dp-mode-btn-time {
+  font-size: 11px;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}/* ─── Dark theme overrides ─── */
+body.igra .dp-mode-btn {
+  background: var(--bg-tonal);
+  border-color: var(--border-1);
+}
+body.igra .dp-mode-btn:hover {
+  background: var(--bg-soft);
+  border-color: var(--text-3);
+}
+body.igra .dp-mode-btn-active {
+  background: rgba(1, 135, 246, 0.12);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), 0 4px 14px rgba(1, 135, 246, 0.20);
+}
+body.igra .dp-mode-btn-count {
+  font-family: 'Manrope', system-ui, sans-serif;
+}
+
+@media (max-width: 480px) {
+  .dp-mode-btn-count { font-size: 22px; }
+  .dp-mode-btn-label { font-size: 12px; }
+  .dp-mode-btn { padding: 12px 6px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Multi-choice — несколько верных вариантов
+   ═══════════════════════════════════════════════════════════════════ */
+.tn-options-multi {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.tn-multi-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tn-option-multi {
+  position: relative;
+  padding-right: 48px;
+}
+.tn-option-multi.tn-option-picked {
+  background: var(--accent-soft, rgba(1, 135, 246, 0.15));
+  border-color: var(--accent);
+}
+body.igra .tn-option-multi.tn-option-picked {
+  background: rgba(1, 135, 246, 0.18);
+  border-color: var(--accent);
+}
+.tn-option-check {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid var(--border-1);
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: transparent;
+  background: var(--bg-page);
+  transition: all 150ms ease;
+}
+.tn-option-multi.tn-option-picked .tn-option-check {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-primary);
+}
+.tn-option-multi.tn-option-correct .tn-option-check {
+  background: var(--primary, #00D3E6);
+  border-color: var(--primary);
+  color: #000;
+}
+.tn-option-multi.tn-option-wrong .tn-option-check {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+.tn-option-multi.tn-option-shown-correct .tn-option-check {
+  background: transparent;
+  border-color: var(--primary, #00D3E6);
+  color: var(--primary, #00D3E6);
+}
+
+.tn-multi-submit {
+  align-self: stretch;
+  padding: 14px 20px;
+  border-radius: 12px;
+  border: none;
+  background: var(--accent);
+  color: var(--on-primary);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease, transform 100ms;
+}
+.tn-multi-submit:hover:not(:disabled) {
+  background: var(--accent-strong, #0066d9);
+}
+.tn-multi-submit:active:not(:disabled) { transform: scale(0.99); }
+.tn-multi-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--bg-tonal);
+  color: var(--text-3);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Match-pair — соединить пары
+   ═══════════════════════════════════════════════════════════════════ */
+.tn-options-match {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+/* Построчная сетка: каждая строка = [левый] [правый], равной высоты
+   (align-items:stretch) → исчезают «разные уровни». */
+.tn-match-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 12px;        /* row-gap 14 (воздух — кнопки не «пляшут»), col-gap 12 */
+  align-items: stretch;
+}
+.tn-match-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 2px solid var(--border-1);   /* всегда 2px → нет сдвига раскладки при выборе/связи */
+  background: var(--bg-surface);
+  color: var(--text-1);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+  min-height: 56px;
+  transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
+}
+.tn-match-text { flex: 1 1 auto; min-width: 0; }
+.tn-match-item:hover:not(:disabled) { border-color: var(--text-3); }
+
+/* Выбран левый — кольцо акцента (box-shadow не двигает раскладку) */
+.tn-match-selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(38, 136, 235, 0.22);
+}
+/* Пока левый выбран — правые «ждут» пунктиром (только стиль рамки, не толщина) */
+.is-selecting .tn-match-right.tn-match-default {
+  border-style: dashed;
+  border-color: var(--accent);
+}
+/* Пара соединена — рамка в цвете пары + короткий импульс связи (scale не вызывает reflow) */
+.tn-match-matched {
+  border-color: var(--pair, var(--accent));
+  animation: tnMatchLink .26s ease-out;
+}
+@keyframes tnMatchLink { 0% { transform: scale(1); } 45% { transform: scale(1.025); } 100% { transform: scale(1); } }
+/* Бейдж номера пары — цветной кружок, ОДИНАКОВЫЙ слева и справа = связь */
+.tn-match-badge {
+  flex: 0 0 auto;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff;
+  background: var(--pair, var(--accent));
+  animation: tnMatchPop .22s cubic-bezier(.34, 1.56, .64, 1);
+}
+@keyframes tnMatchPop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.tn-match-badge-correct { background: var(--vk-success, #2BB573); }
+.tn-match-badge-wrong   { background: var(--vk-danger, #F85050); }
+/* Фидбэк — только цвет рамки (толщина 2px не меняется → без «дёрганья») */
+.tn-match-correct { border-color: var(--vk-success, #2BB573); }
+.tn-match-wrong   { border-color: var(--vk-danger, #F85050); }
+/* Подсказка-строка под сеткой */
+.tn-match-hint {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-3);
+  min-height: 16px;
+}
+@media (max-width: 480px) {
+  .tn-match-grid { gap: 12px 8px; }
+  .tn-match-item { font-size: 13px; padding: 11px 12px; min-height: 52px; gap: 6px; }
+  .tn-match-badge { width: 22px; height: 22px; font-size: 11px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Streak indicator в feedback banner
+   ═══════════════════════════════════════════════════════════════════ */
+.tn-feedback-streak {
+  margin-left: 12px;
+  padding: 4px 10px;
+  background: linear-gradient(90deg, #FFB546, #FF6F2C);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  animation: streakPulse 600ms ease-out;
+}
+@keyframes streakPulse {
+  0%   { transform: scale(0.6); opacity: 0; }
+  70%  { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1.0); opacity: 1; }
+}
+.tn-feedback-streak-broken {
+  margin-left: 12px;
+  font-size: 12px;
+  color: var(--text-3);
+  opacity: 0.8;
+}
+body.igra .tn-feedback-streak {
+  box-shadow: 0 4px 12px rgba(255, 111, 44, 0.30);
+}
+@media (max-width: 480px) {
+  .tn-feedback-streak {
+    margin-left: 0;
+    margin-top: 8px;
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Mid-partiya recap — заставка на середине партии
+   ═══════════════════════════════════════════════════════════════════ */
+.tn-midrecap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tn-midrecap-card {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 32px 28px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-2);
+  border-radius: 20px;
+  text-align: center;
+  animation: midrecapIn 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+body.igra .tn-midrecap-card {
+  background: var(--bg-deep);
+  border-color: var(--border-1);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.50);
+}
+@keyframes midrecapIn {
+  from { opacity: 0; transform: scale(0.94) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.tn-midrecap-eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.tn-midrecap-progress {
+  font-family: var(--font-serif, 'Manrope'), serif;
+  font-size: 56px;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-1);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 8px;
+}
+body.igra .tn-midrecap-progress {
+  font-family: 'Manrope', system-ui, sans-serif;
+}
+.tn-midrecap-lead {
+  font-size: 16px;
+  color: var(--text-2);
+  margin-bottom: 24px;
+}
+.tn-midrecap-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.tn-midrecap-stat {
+  flex: 0 0 auto;
+  padding: 12px 20px;
+  background: var(--bg-soft);
+  border-radius: 12px;
+  text-align: center;
+}
+body.igra .tn-midrecap-stat {
+  background: var(--bg-tonal);
+}
+.tn-midrecap-stat-label {
+  font-size: 11px;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+.tn-midrecap-stat-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-1);
+  font-variant-numeric: tabular-nums;
+}
+.tn-midrecap-themes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+.tn-midrecap-theme {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--bg-soft);
+  font-size: 14px;
+}
+body.igra .tn-midrecap-theme {
+  background: var(--bg-tonal);
+}
+.tn-midrecap-theme-best {
+  background: rgba(0, 211, 230, 0.10);
+}
+body.igra .tn-midrecap-theme-best {
+  background: rgba(0, 211, 230, 0.12);
+}
+.tn-midrecap-theme-worst {
+  background: rgba(255, 181, 70, 0.10);
+}
+body.igra .tn-midrecap-theme-worst {
+  background: rgba(255, 181, 70, 0.12);
+}
+.tn-midrecap-theme-icon { font-size: 14px; flex-shrink: 0; }
+.tn-midrecap-theme-name {
+  flex: 1 1 auto;
+  font-weight: 500;
+  color: var(--text-1);
+}
+.tn-midrecap-theme-stat {
+  font-family: 'PT Mono', monospace;
+  font-size: 13px;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+.tn-midrecap-btn {
+  width: 100%;
+  padding: 16px 24px;
+  background: var(--accent);
+  color: var(--on-primary);
+  border: none;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease, transform 100ms;
+}
+.tn-midrecap-btn:hover { background: var(--accent-strong, #0066d9); }
+.tn-midrecap-btn:active { transform: scale(0.99); }
+.tn-midrecap-hint {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-3);
+  font-style: italic;
+}
+@media (max-width: 480px) {
+  .tn-midrecap-card { padding: 24px 16px; }
+  .tn-midrecap-progress { font-size: 44px; }
+  .tn-midrecap-stat { padding: 10px 14px; }
+  .tn-midrecap-stat-value { font-size: 16px; }
+}.dp-themes-reset {
+  font-size: 12px;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.dp-themes-reset:hover {
+  background: var(--accent-soft, rgba(1, 135, 246, 0.10));
+}
+
+.dp-themes-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin-bottom: 12px;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 4px;
+}
+@media (max-width: 480px) {
+  .dp-themes-list { grid-template-columns: 1fr; }
+}.dp-themes-warn {
+  margin: 8px 0 12px;
+  padding: 10px 12px;
+  background: rgba(255, 181, 70, 0.10);
+  border: 1px solid rgba(255, 181, 70, 0.40);
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--text-1);
+}
+body.igra .dp-themes-warn {
+  background: rgba(255, 181, 70, 0.15);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Pre-match preview (PvP) — список тем + ready-индикаторы
+   ═══════════════════════════════════════════════════════════════════ */
+.tn-prematch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tn-prematch-card {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 32px 28px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-2);
+  border-radius: 20px;
+  text-align: center;
+  animation: midrecapIn 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+body.igra .tn-prematch-card {
+  background: var(--bg-deep);
+  border-color: var(--border-1);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.50);
+}
+
+.tn-prematch-eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.tn-prematch-title {
+  font-family: var(--font-serif, 'Manrope'), serif;
+  font-size: 36px;
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 0 0 24px;
+  color: var(--text-1);
+}
+body.igra .tn-prematch-title {
+  font-family: 'Manrope', system-ui, sans-serif;
+}
+
+/* ─── Аватары + ready states ─── */
+.tn-prematch-players {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.tn-prematch-player {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 12px;
+  border-radius: 16px;
+  background: var(--bg-soft);
+  border: 1.5px solid transparent;
+  transition: border-color 240ms ease, background 240ms ease;
+  min-width: 0;
+}
+body.igra .tn-prematch-player {
+  background: var(--bg-tonal);
+}
+.tn-prematch-player-ready {
+  border-color: var(--primary, #00D3E6);
+  background: rgba(0, 211, 230, 0.08);
+}
+body.igra .tn-prematch-player-ready {
+  background: rgba(0, 211, 230, 0.10);
+  box-shadow: 0 0 0 1px var(--primary, #00D3E6);
+}
+
+.tn-prematch-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 600;
+  background: var(--bg-page);
+  color: var(--text-1);
+  border: 1px solid var(--border-1);
+  overflow: hidden;
+}
+body.igra .tn-prematch-avatar {
+  background: var(--bg-deep);
+}
+.tn-prematch-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.tn-prematch-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.tn-prematch-status {
+  font-size: 12px;
+  color: var(--text-2);
+  font-weight: 500;
+}
+.tn-prematch-player-ready .tn-prematch-status {
+  color: var(--primary, #00D3E6);
+}
+
+.tn-prematch-vs {
+  flex: 0 0 auto;
+  font-family: ui-serif, Georgia, serif;
+  font-style: italic;
+  font-size: 16px;
+  color: var(--text-3);
+  opacity: 0.7;
+  align-self: center;
+}
+
+/* ─── Список тем ─── */
+.tn-prematch-themes-eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-3);
+  font-weight: 600;
+  margin: 8px 0;
+  text-align: left;
+}
+.tn-prematch-themes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+.tn-prematch-theme {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border-2);
+  border-radius: 100px;
+  font-size: 13px;
+  color: var(--text-1);
+}
+body.igra .tn-prematch-theme {
+  background: var(--bg-surface);
+  border-color: var(--border-1);
+}
+.tn-prematch-theme-num {
+  font-family: 'PT Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 600;
+}
+.tn-prematch-theme-name {
+  font-weight: 500;
+}
+
+/* ─── Кнопка / waiting / go ─── */
+.tn-prematch-btn {
+  width: 100%;
+  padding: 16px 24px;
+  border-radius: 12px;
+  border: none;
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease, transform 100ms;
+  margin-top: 8px;
+}
+.tn-prematch-btn-primary {
+  background: var(--accent);
+  color: var(--on-primary);
+  box-shadow: 0 0 0 1px rgba(1, 135, 246, 0.4),
+              0 8px 24px rgba(1, 135, 246, 0.20);
+}
+.tn-prematch-btn-primary:hover { background: var(--accent-strong, #0066d9); }
+.tn-prematch-btn-primary:active { transform: scale(0.99); }
+
+.tn-prematch-waiting {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 22px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border-2);
+  border-radius: 12px;
+  font-size: 14px;
+  color: var(--text-2);
+  margin-top: 8px;
+}
+body.igra .tn-prematch-waiting {
+  background: var(--bg-tonal);
+  border-color: var(--border-1);
+}
+.tn-prematch-waiting-spinner {
+  display: inline-block;
+  font-size: 16px;
+  animation: spin 1.6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.tn-prematch-go {
+  padding: 14px 22px;
+  background: linear-gradient(90deg, var(--primary, #00D3E6), var(--accent));
+  color: #fff;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 15px;
+  margin-top: 8px;
+  animation: midrecapIn 240ms ease-out;
+}
+
+.tn-prematch-hint {
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--text-3);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+@media (max-width: 480px) {
+  .tn-prematch-card { padding: 24px 16px; }
+  .tn-prematch-title { font-size: 28px; }
+  .tn-prematch-avatar { width: 52px; height: 52px; font-size: 20px; }
+  .tn-prematch-players { gap: 8px; }
+  .tn-prematch-player { padding: 12px 8px; }
+  .tn-prematch-vs { font-size: 13px; }
+  .tn-prematch-theme { font-size: 12px; padding: 6px 10px; }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   PARTIYA PICKER v2 — секционный layout с eyebrow и разделителями
+   ════════════════════════════════════════════════════════════════════ */
+.dp-partiya-picker--v2 {
+  max-width: 520px;
+  padding: 0;
+  overflow: hidden;
+}
+.dp-picker-head {
+  padding: 18px 20px 12px;
+  border-bottom: 1px solid var(--border-2);
+}
+body.igra .dp-picker-head {
+  border-bottom-color: var(--vk-border);
+}
+.dp-picker-head h2 {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 4px 0 0;
+}
+
+/* Секции — каждая с padding и нижним divider */
+.dp-picker-section {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-2);
+}
+.dp-picker-section:last-of-type {
+  border-bottom: none;
+}
+body.igra .dp-picker-section {
+  border-bottom-color: var(--vk-border);
+}
+
+.dp-picker-section-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-3);
+  margin-bottom: 10px;
+}
+body.igra .dp-picker-section-eyebrow {
+  color: var(--vk-text-secondary);
+}
+
+.dp-picker-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.dp-picker-section-head .dp-picker-section-eyebrow {
+  margin-bottom: 0;
+}
+.dp-picker-section-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+body.igra .dp-picker-section-meta {
+  color: var(--vk-text-secondary);
+}
+.dp-picker-section-meta .dp-themes-reset {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+body.igra .dp-picker-section-meta .dp-themes-reset {
+  color: var(--vk-accent-hover);
+}
+.dp-picker-section-meta .dp-themes-reset:hover {
+  background: var(--accent-soft);
+}
+body.igra .dp-picker-section-meta .dp-themes-reset:hover {
+  background: rgba(0, 119, 255, 0.10);
+}
+
+/* Тема как чип */
+.dp-themes-list--chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  grid-template-columns: none;
+  max-height: none;
+  overflow: visible;
+  padding: 0;
+}
+
+@media (max-width: 480px) {
+  .dp-partiya-picker--v2 { max-width: 100%; }
+  .dp-picker-section { padding: 12px 16px; }
+  .dp-picker-head { padding: 14px 16px 10px; }
+  .dp-picker-head h2 { font-size: 20px; }}
+
+/* ─── Модалка «Какая партия?»: компактный заголовок (аудит 08.2026) ───
+   Токен --vk-display-s-size (32px) для этой модалки слишком крупный:
+   на телефоне шапка съедала экран. Селектор двойного класса стоит ПОСЛЕ
+   темных правил и перекрывает их без !important. */
+/* Три класса + тег: сильнее body.igra .dp-auth-modal h2 (0,2,2). */
+.dp-auth-overlay .dp-auth-modal.dp-partiya-picker--v2 h2 { font-size: 22px; line-height: 1.25; }
+@media (max-width: 480px) {
+  .dp-auth-overlay .dp-auth-modal.dp-partiya-picker--v2 h2 { font-size: 20px; }
+}

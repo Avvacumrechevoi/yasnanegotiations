@@ -8,7 +8,7 @@
 
 .ynav{
   display:flex; align-items:center; gap:16px;
-  padding:9px 20px; min-height:56px; box-sizing:border-box;
+  padding:4px 20px; min-height:56px; box-sizing:border-box;
   background:#fff; border-bottom:1px solid rgba(0,0,0,.08);
   font-family:var(--sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
 }
@@ -44,7 +44,7 @@
 
 /* ── Мобильный ── */
 @media (max-width:640px){
-  .ynav{ gap:5px; padding:8px 8px; }
+  .ynav{ gap:5px; padding:4px 8px; }
   .ynav-name{ display:none; }
   .ynav-item{ padding:5px 7px; font-size:12px; }     /* компактно — все 4 раздела влезают на узких телефонах (~375px) */
   .ynav-new{ display:none; }                          /* NEW-бейдж скрыт на мобайле — экономит место */
@@ -58,13 +58,32 @@
    nav-responsive это и поймал. Ужимаем ровно настолько, чтобы все четыре
    раздела влезали без горизонтального скролла. */
 @media (max-width:430px){
-  .ynav{ gap:4px; padding:8px 6px; }
+  .ynav{ gap:4px; padding:4px 6px; }
   .ynav-links{ gap:0; }
   .ynav-item{ padding:5px 4px; font-size:11px; letter-spacing:-0.01em; }
   .ynav-theme{ width:30px; height:30px; }
   .ynav-login{ padding:6px 6px; }
   .ynav-login-av{ width:20px; height:20px; }
 }
+
+/* ── Цели касания: правило 48 ─────────────────────────────────────────
+   Пункт свитчера был 22–26 dp высотой, кнопка темы 30–36, «Войти» 36 —
+   это ниже минимума Android (48×48). Настоящую высоту им дать нельзя: у
+   «Войти» и кнопки темы видимая рамка, а у активного раздела — заливка;
+   пилюля 48 читалась бы как кнопка другого веса. Поэтому цель добирает
+   прозрачный слой поверх: вид шапки прежний, палец попадает в 48.
+   Полосе разделов при этом нужен свой min-height — у неё включён
+   горизонтальный скролл, а значит и вертикальное обрезание, и слой выше
+   пункта она бы срезала. Шапка от этого не подросла: у неё min-height 56,
+   а поля ужаты с 9 до 4 — те же 56.
+   Ширину слоя не растим: четыре раздела впритык влезают на 375 px, и вылет
+   за пункт добавил бы ложную горизонтальную прокрутку. */
+.ynav-links{ min-height:var(--cel-min, 48px); }
+.ynav-item::before, .ynav-login::before, .ynav-theme::before{
+  content:''; position:absolute; left:0; right:0; top:50%;
+  transform:translateY(-50%); height:var(--cel-min, 48px);
+}
+.ynav-login, .ynav-theme{ position:relative; }
 
 /* Липкий вариант — для статических страниц (start/learn/rating) */
 .ynav--sticky{ position:sticky; top:0; z-index:50; }

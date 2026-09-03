@@ -29,6 +29,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <title>Как устроен рейтинг · Ясна</title>
 <meta name="description" content="Две шкалы прогресса в Ясне: личное Освоение (бусины) и соревновательная Каста (рейтинг в партиях против другого игрока)."/>
+<!-- Роли цвета, шкала типа и движение: один файл на сайт и приложение. Подключён ПЕРВЫМ из стилей — он только объявляет переменные и ничего не перебивает. -->
+<link rel="stylesheet" href="core/tokeny.css">
 <link rel="stylesheet" href="vendor/fonts/shrifty.css">
 
 <link rel="stylesheet" href="vk-tech-tokens.css?v=b93ac0b9"/>
@@ -445,7 +447,10 @@
 html[data-theme='light'] .rt-moi { color: #101418; background: rgba(0,113,227,.08); border-color: rgba(0,113,227,.22); }
 html[data-theme='light'] .rt-moi__hint { color: #5c6570; }
 html[data-theme='light'] .rt-moi__b { color: #0b62c4; }
-html[data-theme='light'] .rt-moi__sep { color: #8b95a1; }
+/* Разделитель «·» между числами: #8b95a1 на голубой плашке — 2.50:1,
+   он просто исчезал. #5C6A80 — 4.89:1, тот же серый, что у прочих
+   вторичных подписей светлой темы Рейтинга. */
+html[data-theme='light'] .rt-moi__sep { color: #5C6A80; }
 .rt-status-note { margin: 14px 0 6px; padding: 12px 16px; border: 1px solid rgba(240,180,80,.35); background: rgba(240,180,80,.08); border-radius: 12px; font-size: 14px; line-height: 1.55; color: #d2d2d7; }
 .rt-status-note strong { color: #fff; font-weight: 600; }
 .rt-status-note__lead { color: #f0c274 !important; }
@@ -459,7 +464,10 @@ html[data-theme='light'] .rt-soon-chip { background: rgba(240,180,80,.18); borde
 html[data-theme='light'] body { background:#F5F5F7; color:#0D1B2A; }
 html[data-theme='light'] .rt-back { color:#5C6A80; border-color:rgba(0,0,0,.12); }
 html[data-theme='light'] .rt-back:hover { background:rgba(0,0,0,.05); color:#0D1B2A; }
-html[data-theme='light'] .rt-eyebrow { color:#1F6FCB; background:rgba(0,119,255,.10); border-color:rgba(0,119,255,.28); }
+/* Метка над заголовком стоит НА голубой плашке, а не на белом: #1F6FCB
+   давал там 4.05:1. #0058B8 (тот же синий, что --accent-hover светлой
+   темы) — 5.87:1. */
+html[data-theme='light'] .rt-eyebrow { color:#0058B8; background:rgba(0,119,255,.10); border-color:rgba(0,119,255,.28); }
 html[data-theme='light'] .rt-lead { color:#3D4852; }
 html[data-theme='light'] .rt-lead strong, html[data-theme='light'] .rt-track-lead strong { color:#0D1B2A; }
 html[data-theme='light'] .rt-track-lead { color:#3D4852; }
@@ -524,7 +532,7 @@ html[data-theme='light'] .rt-shell [style*="background: rgba(255,255,255,.02)"] 
   </style>
 </head>
 <body>
-<link rel="stylesheet" href="core/site-nav.css?v=f8cd9a99"/>
+<link rel="stylesheet" href="core/site-nav.css?v=52aebf72"/>
 <header class="ynav ynav--dark ynav--sticky" id="site-nav"></header>
 <script src="core/site-nav.js?v=9ba1a8b7"></script>
 <script>window.SiteNav&&SiteNav.mount('site-nav','rating');</script>

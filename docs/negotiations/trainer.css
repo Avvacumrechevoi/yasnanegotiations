@@ -3,6 +3,20 @@
    Опирается на VK-dark токены, объявленные inline в negotiations.html.
    ═══════════════════════════════════════════════════════════════════ */
 
+/* Акцент по умолчанию (тёмная тема раздела) — роль из core/tokeny.css.
+   Почему не прежний #0077FF: белым по нему выходило 4.13:1, а на этой паре
+   стоят ВСЕ главные кнопки раздела — «Дальше», «Начать спарринг», активная
+   вкладка режима, кружок «вы здесь», кнопка отправки. Норма для подписи
+   14–15px — 4.5. В дизайн-системе тёмный акцент светлый, а надпись на нём
+   тёмная (--on-primary): та же пара даёт 7.70:1.
+   Блок стоит здесь, а не в negotiations.html: этот файл грузится позже
+   inline-стиля страницы, поэтому и перебивает его. Светлую тему он не
+   трогает — у html[data-theme='light'] в конце файла вес больше. */
+:root{
+  --accent: var(--primary);
+  --accent-on: var(--on-primary);
+}
+
 .neg-wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px 80px; }
 
 /* ── hero ───────────────────────────────────────────────────────── */
@@ -32,7 +46,7 @@
 .neg-section-sub { font-size: 14px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 20px; max-width: 640px; }
 
 /* ── гид по дуге (5 фаз, шаг за шагом) ───────────────────────────── */
-.neg-guide-rail { display: flex; gap: 6px; margin-bottom: 16px; }
+.neg-guide-rail { display: flex; gap: var(--sp-2, 8px); margin-bottom: 16px; }
 .neg-guide-seg {
   flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 7px;
   background: transparent; border: 0; cursor: pointer; padding: 4px 2px; font: inherit;
@@ -779,11 +793,11 @@ html[data-neg-mode="spar"] .neg-hero-cta:hover { color: var(--text-primary); bor
 
 /* — маршрут «ты здесь» над каталогом — */
 .neg-route { margin-bottom: 22px; }
-.neg-route-rail { display: flex; gap: 6px; }
+.neg-route-rail { display: flex; gap: var(--sp-2, 8px); }
 .neg-route-step { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 7px; background: transparent; border: 0; cursor: pointer; padding: 4px 2px; font: inherit; color: var(--text-tertiary); }
 .neg-route-dot { width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; background: var(--bg-tonal); color: var(--text-secondary); border: 1px solid var(--border-strong); transition: background .15s, color .15s, box-shadow .15s; }
 .neg-route-step.is-done .neg-route-dot { background: rgba(47,191,113,.18); color: #2FBF71; border-color: rgba(47,191,113,.4); }
-.neg-route-step.is-here .neg-route-dot { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.neg-route-step.is-here .neg-route-dot { background: var(--accent); color: var(--accent-on); border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
 .neg-route-lbl { font-size: 12px; line-height: 1.25; text-align: center; }
 .neg-route-step.is-here .neg-route-lbl { color: var(--text-primary); font-weight: 600; }
 .neg-route-step:hover .neg-route-lbl { color: var(--text-secondary); }
@@ -844,9 +858,46 @@ html[data-neg-mode="spar"] .neg-hero-cta:hover { color: var(--text-primary); bor
 .neg-onb-skip:hover { color: var(--text-primary); }
 @media (max-width: 520px) { .neg-onb { padding: 12px 0; } .neg-onb-card { max-width: none; border-radius: 0; padding: 24px 18px; } }
 
-/* «Тебе сюда» — зелёным, отличать от синего «Вы здесь» */
-.neg-cat-reco { background: #2FBF71; }
+/* «Тебе сюда» — зелёным, отличать от синего «Вы здесь».
+   Подпись .neg-cat-here белая, а белым по #2FBF71 — 2.38:1: надпись на
+   пилюле пропадала. Тёмная тушь по светлой зелени даёт 7.17:1 (тот же
+   приём, что у номера верного ответа .neg-opt-num). */
+.neg-cat-reco { background: #2FBF71; color: #04210f; }
 .neg-cat-card.is-reco { border-color: #2FBF71; }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   ЦЕЛИ КАСАНИЯ — правило 48
+   Замер по разделу дал дюжину целей ниже нормы: «← Сценарии» и «← К выбору»
+   по 32 dp, «Дальше» 39, ворота 43, вкладки режима 45, отправка 44, фазы
+   дуги 30. 44 — норма iPhone; на Android минимум 48×48 с зазором 8, и
+   промахи по 30-точечной фазе дуги ловились руками, а не замером.
+   Здесь добирается только НАЖИМАЕМАЯ высота: паддинги и кегли не тронуты,
+   вид кнопок прежний — просто пальцу есть куда попасть.
+   ═══════════════════════════════════════════════════════════════════ */
+.neg-l-back, .neg-spar-back,
+.neg-next, .neg-btn, .neg-guide-btn, .neg-gate,
+.neg-mode-tab, .neg-c-tab,
+.neg-cfg-start, .neg-hero-cta,
+.neg-onb-opt, .neg-onb-skip,
+.neg-spar-chip, .neg-spar-key-save, .neg-spar-key-link,
+.neg-guide-seg, .neg-route-step {
+  min-height: var(--cel-min, 48px);
+}
+/* Кнопки, у которых подпись стояла бы верхом на верхнем крае добранной
+   высоты: центруем содержимое, иначе добор виден как съехавший текст. */
+.neg-l-back, .neg-spar-back, .neg-c-tab, .neg-mode-tab,
+.neg-spar-key-save, .neg-spar-key-link {
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.neg-spar-chip { display: inline-flex; align-items: center; }
+/* Отправка сообщения — круг: растёт вместе с высотой, иначе выйдет овал. */
+.neg-spar-send { width: var(--cel-min, 48px); height: var(--cel-min, 48px); }
+/* ФАБ «Отзыв» на телефоне сжимается до иконки — 44×40; добираем обе стороны. */
+@media (max-width: 640px) {
+  .neg-fab-fb { min-width: var(--cel-min, 48px); min-height: var(--cel-min, 48px);
+    justify-content: center; }
+}
 
 /* ═══════════════════════════════════════════════════════════════════
    LIGHT THEME — html[data-theme='light']
@@ -1031,7 +1082,9 @@ html[data-theme='light'] .neg-cat-card.is-here { border-color: var(--accent); ba
 /* .neg-cat-reco is a SOLID green pill carrying white .neg-cat-here text →
    white-on-#1F8F50 = 4.12 (FAIL) and white-on-#2FBF71 = 2.38 (FAIL).
    Use #147A3C so white text clears AA (5.41). */
-html[data-theme='light'] .neg-cat-reco         { background: #147A3C; }
+/* Цвет подписи здесь обязателен: в тёмной теме .neg-cat-reco перекрасил её
+   в тёмную тушь, а по тёмно-зелёному #147A3C та даёт 3.15:1. Белым — 5.41. */
+html[data-theme='light'] .neg-cat-reco         { background: #147A3C; color: #FFFFFF; }
 html[data-theme='light'] .neg-cat-card.is-reco { border-color: #147A3C; }
 /* .neg-cat-here / .neg-spar-card-rec keep --accent-on white text on --accent
    bg → white-on-#0071E3 = 4.70 ok */

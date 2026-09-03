@@ -1,0 +1,467 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ТОКЕНЫ ЯСНЫ — один файл ролей на все экраны сайта и приложения.
+
+   ЗАЧЕМ. До этого файла в 16 таблицах стилей жило девять несвязанных наборов
+   имён (--vk-*, --bg/--txt/--accent, --syn/--ink/--fon, --k-*, --kn-*,
+   --yk-*, --bg-base/--text-primary, --bg-page/--text-1, голый hex Рейтинга)
+   и больше трёхсот разных цветов. Три «главных синих» в светлой теме и шесть
+   в тёмной; восемь «чёрных» фонов; белая надпись на светлом акценте в тёмной
+   теме давала 1.95–3.08:1 — её было не прочесть. Поправить цвет в одном месте
+   было нельзя: он объявлен ещё в восьми.
+
+   ПРАВИЛО ФАЙЛА. Здесь только объявления переменных и утилиты — ни одного
+   правила, которое красит чужой узел вёрстки. Файл подключается ПЕРВЫМ, до
+   всех прочих стилей, поэтому он ничего не перебивает: пока экран не
+   переехал, его собственные объявления сильнее, и вид не меняется. Старые
+   имена ниже объявлены алиасами на новые роли — они срабатывают только там,
+   где своего объявления у экрана нет. Алиас удаляют вместе с последним его
+   употреблением, а не раньше.
+
+   ТРИ БЛОКА И БОЛЬШЕ НИЧЕГО (так уже устроена тема в приложении:
+   core/theme.js ставит html[data-theme], ключ один — yasna_theme):
+     :root                                        — светлая;
+     @media (prefers-color-scheme: dark)
+       :root:not([data-theme="light"])             — системная тёмная;
+     :root[data-theme="dark"]                      — выбранная руками тёмная
+                                                     (явный выбор сильнее системы).
+
+   СМЕНА БРЕНДА — ТРИ СТРОКИ. Роль primary сейчас синяя (#0071E3): бренд без
+   решения владельца не меняют. В ds.md посчитан и второй вариант — зелёный
+   знака Ясны. Чтобы перейти на него, правят ровно три строки, помеченные
+   ниже «СТРОКА БРЕНДА» (по одной в каждом блоке); готовые значения записаны
+   рядом в комментарии. Больше в файле про синий ничего нет.
+
+   ГРАБЛИ, О КОТОРЫХ НАДО ЗНАТЬ. Имя --primary занято ещё и на экране Игр,
+   причём дважды: duel-page.css:39 объявляет зелень «Касталии» #3B6D11 в
+   :root, а слои VK — на body (theme-vk-dark.css:32 #0077FF и vk-light.css:49
+   #0071e3). Проверено в браузере: внутри body там побеждает синий VK, роль
+   из этого файла до экрана Игр не доходит. Лечится сносом трёх палитр —
+   шаг 7 миграции в ds.md §6.2; трогать их отсюда нельзя, иначе весь экран
+   перекрасится разом. Пока шаг не сделан, компоненту, которому важно попасть
+   в роль на ЛЮБОМ экране, надо брать --ya-primary: то же значение под
+   именем, которого больше никто не объявляет. По той же причине гарнитуры
+   лежат под своими именами --ya-font-*, а --font-sans/--font-serif/--sans/
+   --serif объявлены алиасами на них: и duel-page.css, и learn.html, и
+   kniga.html объявляют свои гарнитуры сами.
+
+   ЧЕГО ЗДЕСЬ НЕТ НАРОЧНО. color-scheme не ставим: его выставляет core/theme.js
+   через style.colorScheme, и объявление в CSS только спорило бы с ним на
+   страницах, у которых своя схема (games/krug/krug.css:6).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Гарнитуры. Здесь, а не ссылкой со страницы, потому что ссылка стояла не на
+   всех: на Книге, на Круге и на «Скачать» её нет вовсе, и гарнитура на
+   телефоне менялась при переходе между вкладками — Manrope на Главной,
+   Roboto на Книге, Noto Serif в Круге. Файл местный: приложение обязано
+   открываться без сети. Тот же приём уже применён в vk-tech-tokens.css, и
+   адрес разрешается в тот же самый — браузер скачает его один раз. */
+@import url('../vendor/fonts/shrifty.css');
+
+:root{
+  /* ═══ ЦВЕТ · СВЕТЛАЯ ТЕМА ══════════════════════════════════════════════ */
+
+  /* СТРОКА БРЕНДА 1 из 3. Вариант Б (зелёный знака) — заменить на:
+     --ya-primary:#0E4F5A; --on-primary:#FFFFFF; --primary-container:#9FEFFF; --on-primary-container:#001F25; */
+  --ya-primary:#0071E3; --on-primary:#FFFFFF; --primary-container:#D6E3FE; --on-primary-container:#001D38;
+  --primary: var(--ya-primary);          /* белый на нём 4.70:1 */
+
+  /* secondary — глубокий зелёный знака Ясны: бренд звучит в тональных
+     плашках, а действие остаётся синим (компромисс из ds.md §1.1). */
+  --secondary:#466369; --on-secondary:#FFFFFF;
+  --secondary-container:#C8E8EF; --on-secondary-container:#011F24;
+
+  /* tertiary — золото знака. Им помечают, а не заливают кнопки. */
+  --tertiary:#7B5800; --on-tertiary:#FFFFFF;
+  --tertiary-container:#FFDEAD; --on-tertiary-container:#261A00;
+
+  --error:#B3261E; --on-error:#FFFFFF;
+  --error-container:#F9DEDC; --on-error-container:#410E0B;
+
+  /* Верно и неверно в вопросах — роль, а не палитра телефона: зелёный
+     #34c759 давал 2.4:1 и читался как подсветка, а не как ответ. */
+  --ok:#1B5D35; --on-ok:#FFFFFF;
+  --ok-container:#D9F0E2; --on-ok-container:#04220F;
+
+  /* Лестница поверхностей. Высоту передаёт тон, а не тень (ds.md §3.2):
+     0 — фон экрана, 2 — шапка и наббар, 5 — диалог. */
+  --background:#F7F8FA;
+  --surface:#F7F8FA;
+  --surface-container-lowest:#FFFFFF;
+  --surface-container-low:#F2F4F7;
+  --surface-container:#ECEEF2;
+  --surface-container-high:#E6E9EE;
+  --surface-container-highest:#DFE3E9;
+
+  --on-surface:#101418;          /* 17.41:1 на фоне */
+  --on-surface-variant:#535D6A;  /* 6.29:1 — заменяет 14 разных серых */
+  --outline:#74777F;             /* граница как единственный признак: ≥3:1 */
+  --outline-variant:#C4C6CF;     /* только декоративные разделители */
+
+  --inverse-surface:#2F3236;
+  --inverse-on-surface:#F0F1F3;
+  --scrim:rgba(0,0,0,.32);
+
+  /* ═══ КНИЖНЫЕ РОЛИ ═════════════════════════════════════════════════════
+     Три книги — не темы и не варианты бренда: это принадлежность
+     содержимого. В заливку кнопок действия они не идут никогда. */
+  --book-sutki:#A8452B;  --on-book-sutki:#FFFFFF;  --book-sutki-container:#F2E4DE;
+  --book-goda:#2264A8;   --on-book-goda:#FFFFFF;   --book-goda-container:#E4EEF9;
+  --book-zhizni:#1E7A5A; --on-book-zhizni:#FFFFFF; --book-zhizni-container:#E2F2EB;
+
+  /* Бумага читалки — тёплая, отдельно от интерфейсных поверхностей. */
+  --reader-paper:#F6F2EA;
+  --reader-sheet:#FFFDF8;
+  --reader-ink:#1F1B16;
+  --reader-ink-2:#6E6458;   /* было #8A7F72 — 3.51:1, не проходило */
+  --reader-rule:#E2D9CA;
+  --reader-kegl:1;          /* шкала «Аа» читалки: 0.85 … 1.3 */
+
+  /* ═══ ТИПОГРАФИКА ══════════════════════════════════════════════════════
+     Три гарнитуры и роли вместо ~45 кеглей вразнобой. Разделение труда:
+     Manrope — заголовки и подписи, Inter — текст, Cormorant — только цитата
+     и книга. Системные стеки (-apple-system, Georgia) сюда не входят: на
+     Android их нет, и стек падал в Roboto и Noto Serif — на одном экране
+     оказывались два разных серифа.
+     В WebView нет sp: значения в px равны sp при масштабе 1.0, а системный
+     масштаб их умножает сам (navigatsiya.js уже ставит text-size-adjust:100%).
+     ЗАПРЕТЫ шкалы: полупиксельных кеглей (12.5px, 11.5px…) не бывает;
+     меньше 11px не бывает; UPPERCASE — не меньше 12px; clamp(...vw...) в
+     заголовках не бывает — ширина телефона известна. */
+  --ya-font-display:'Manrope','Inter',system-ui,sans-serif;
+  --ya-font-text:'Inter',system-ui,sans-serif;
+  --ya-font-quote:'Cormorant Garamond',Georgia,serif;
+  --ya-font-mono:'PT Mono',ui-monospace,monospace;
+
+  /* Роли шкалы. Каждая — готовое значение для сокращения font:,
+     то есть «font: var(--type-title-l)». Классы .ya-* ниже — то же самое
+     для разметки. */
+  --type-display-s: 600 32px/40px var(--ya-font-display);
+  --type-headline-l:600 30px/36px var(--ya-font-display);
+  --type-headline-m:600 26px/32px var(--ya-font-display);
+  --type-headline-s:600 22px/28px var(--ya-font-display);
+  --type-title-l:   600 19px/24px var(--ya-font-display);
+  --type-title-m:   600 16px/24px var(--ya-font-display);
+  --type-title-s:   600 14px/20px var(--ya-font-display);
+  --type-body-l:    400 17px/26px var(--ya-font-text);
+  --type-body-m:    400 15px/22px var(--ya-font-text);
+  --type-body-s:    400 13px/18px var(--ya-font-text);
+  --type-label-l:   600 14px/20px var(--ya-font-display);
+  --type-label-m:   600 12px/16px var(--ya-font-display);
+  --type-label-s:   500 12px/16px var(--ya-font-display);
+  --type-quote:     italic 500 20px/30px var(--ya-font-quote);
+  --type-reader-title:600 24px/32px var(--ya-font-quote);
+  --type-reader-body: 400 18px/29px var(--ya-font-quote);
+  --type-mono:      400 14px/20px var(--ya-font-mono);
+  /* Межбуквенное у метки секции — одно значение на всё приложение.
+     В коде их было семнадцать: от .01em до .34em. */
+  --track-label:.08em;
+
+  /* ═══ ФОРМА ════════════════════════════════════════════════════════════ */
+  --shape-xs:4px;    /* бейдж, шкала прогресса, галочка */
+  --shape-s:8px;     /* поле ввода, чип, меню, плитка */
+  --shape-m:12px;    /* кнопка, сегмент, вкладка наббара */
+  --shape-l:16px;    /* карточка, FAB, банер, пустое состояние */
+  --shape-xl:28px;   /* лист снизу, диалог, строка поиска */
+  --shape-full:999px;/* аватар, точка, пилюля только с иконкой */
+
+  /* ═══ ВЫСОТА ═══════════════════════════════════════════════════════════
+     Уровни 0–2 — это подложка из лестницы surface-container, тени у них нет
+     вовсе. Тень только у 3–5, и она бесцветная: цветных свечений
+     («0 6px 22px rgba(0,119,255,.5)») в системе нет. */
+  --elev-3:0 1px 2px rgba(0,0,0,.30), 0 1px 3px 1px rgba(0,0,0,.15);
+  --elev-4:0 2px 6px rgba(0,0,0,.30), 0 1px 2px rgba(0,0,0,.15);
+  --elev-5:0 4px 12px rgba(0,0,0,.30);
+
+  /* ═══ ОТСТУПЫ · модуль 4 ═══════════════════════════════════════════════
+     Поля экрана 16; между карточками 12; между разделами 24; зазор между
+     нажимаемыми узлами не меньше 8. */
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-6:24px; --sp-8:32px;
+
+  /* ═══ РАЗМЕРЫ КОНТРОЛОВ · правило 48 ═══════════════════════════════════
+     Нажимаемая область — не меньше 48×48, видимая высота может быть меньше
+     (добор прозрачным паддингом). */
+  --cel-min:48px;
+  --h-btn:48px; --h-btn-compact:40px; --h-btn-hero:56px;
+  --h-pole:56px; --h-chip:40px; --h-ib:40px;
+
+  /* ═══ ДВИЖЕНИЕ ═════════════════════════════════════════════════════════
+     Три длительности и две кривые вместо двенадцати и девяти. Кривая
+     «стандарт» — на всё обычное; «выразительная» — на появление и уход
+     листов и диалогов, у неё две ветви, потому что вход и выход не
+     зеркальны. */
+  --dur-short:150ms;   /* нажатие, наведение, галочка */
+  --dur-medium:300ms;  /* прогресс, раскрытие, смена состояния */
+  --dur-long:400ms;    /* лист, диалог, шапка large → small */
+  --ease-standard:cubic-bezier(.2,0,0,1);
+  --ease-emphasized-decel:cubic-bezier(.05,.7,.1,1);  /* появление */
+  --ease-emphasized-accel:cubic-bezier(.3,0,.8,.15);  /* уход */
+
+  /* ═══ СЛОИ СОСТОЯНИЙ ═══════════════════════════════════════════════════
+     Второго hex «для нажатого» в системе нет: поверх подложки кладётся слой
+     из её же цвета текста. Это снимает восемь «вторых синих»
+     (#0060c4, #0058b8, #005bb5, #16A7FF, #1668cc, #1F6FCB, #0b62c4, #0B57C0). */
+  --state-hover:.08;
+  --state-focus:.10;
+  --state-pressed:.12;
+  --state-drag:.16;
+  --state-disabled-content:.38;
+  --state-disabled-fon:.12;
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     АЛИАСЫ СТАРЫХ ИМЁН.
+     Не копии, а ссылки: правится роль — меняются все, кто ещё на старом
+     имени. Работают только там, где экран не объявил имя сам, поэтому
+     подключение файла ничего не перекрашивает. Каждый алиас умирает вместе
+     с последним своим употреблением.
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  /* Разбор и общий styles.css */
+  --bg:var(--surface);
+  --bg2:var(--surface-container);
+  --bg3:var(--surface-container-highest);
+  --border:var(--outline-variant);
+  --accent:var(--primary);
+  --txt:var(--on-surface);
+  --txt2:var(--on-surface-variant);
+  --txt3:var(--on-surface-variant);
+  --sans:var(--ya-font-text);
+  --serif:var(--ya-font-quote);
+
+  /* Оболочка приложения (app/navigatsiya.js). --yk-sverhu/--yk-snizu не
+     трогаем: это безопасные поля экрана, а не цвет. */
+  --yk-kart:var(--surface-container);
+  --yk-kayma:var(--outline-variant);
+  --yk-ink1:var(--on-surface);
+  --yk-ink2:var(--on-surface-variant);
+  --yk-syn:var(--primary);
+  --yk-fon-akt:var(--secondary-container);
+
+  /* Главная и Профиль */
+  --syn:var(--primary);
+  --syn-t:var(--primary);
+  --syn-glub:var(--primary);
+  --syn-fon:var(--primary);
+  --na-syn:var(--on-primary);
+  --fon:var(--surface);
+  --kart:var(--surface-container-low);
+  --ink:var(--on-surface);
+  --ink-2:var(--on-surface-variant);
+  --ink-3:var(--on-surface-variant);
+  --kayma:var(--outline-variant);
+  --pole:var(--surface-container-highest);
+  --ploho:var(--error);
+
+  /* Книга */
+  --kn-bum:var(--reader-paper);
+  --kn-list:var(--reader-sheet);
+  --kn-ink:var(--reader-ink);
+  --kn-ink-2:var(--reader-ink-2);
+  --kn-ink-3:var(--reader-ink-2);
+  --kn-kayma:var(--reader-rule);
+  --kn-akc:var(--book-sutki);
+  --kn-akc-fon:var(--book-sutki-container);
+  --kn-serif:var(--ya-font-quote);
+  --kn-sans:var(--ya-font-text);
+
+  /* Уроки, Переговоры, 404 */
+  --bg-base:var(--surface);
+  --bg-card:var(--surface-container-low);
+  --bg-elevated:var(--surface-container-high);
+  --bg-surface:var(--surface-container-lowest);
+  --text-primary:var(--on-surface);
+  --text-secondary:var(--on-surface-variant);
+  --text-tertiary:var(--on-surface-variant);
+  --text-muted:var(--on-surface-variant);
+  --border-strong:var(--outline);
+  --accent-hover:var(--primary);
+  --accent-on:var(--on-primary);
+  --font-sans:var(--ya-font-text);
+  --font-display:var(--ya-font-display);
+  --font-serif:var(--ya-font-quote);
+
+  /* Круг */
+  --k-bg:var(--surface);
+  --k-card:var(--surface-container-low);
+  --k-tx:var(--on-surface);
+  --k-tx2:var(--on-surface-variant);
+  --k-tx3:var(--on-surface-variant);
+  --k-line:var(--outline-variant);
+  --k-line-strong:var(--outline);
+  --k-acc:var(--primary);
+  --k-acct:var(--on-primary);
+  --k-gold:var(--tertiary);
+  --k-gold-ink:var(--tertiary);
+  --k-ok:var(--ok);
+  --k-bad:var(--error);
+  --k-grey:var(--outline);
+
+  /* Игры и слой VK. Внутри vk-tech-tokens.css те же имена объявлены под
+     body.theme-vk-dark — там они сильнее, и вид экрана не меняется. */
+  --vk-accent:var(--primary);
+  --vk-accent-hover:var(--primary);
+  --vk-text-primary:var(--on-surface);
+  --vk-text-secondary:var(--on-surface-variant);
+  --vk-text-tertiary:var(--on-surface-variant);
+  --vk-bg-base:var(--surface);
+  --vk-bg-surface:var(--surface-container-low);
+  --vk-bg-elevated:var(--surface-container-high);
+  --vk-bg-tonal:var(--surface-container);
+  --vk-border:var(--outline-variant);
+  --vk-error:var(--error);
+  --vk-danger:var(--error);
+  --vk-success:var(--ok);
+  --vk-warn:var(--tertiary);
+  --vk-font:var(--ya-font-text);
+}
+
+/* ─── Тёмная тема по настройке телефона ──────────────────────────────────
+   :not([data-theme="light"]) — чтобы выбранная руками светлая тема не
+   темнела вслед за системой. Роли переопределяем, алиасы — нет: они уже
+   смотрят на роли и переедут сами. */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    /* СТРОКА БРЕНДА 2 из 3. Вариант Б:
+       --ya-primary:#7DD3E4; --on-primary:#001F25; --primary-container:#004E59; --on-primary-container:#9FEFFF; */
+    --ya-primary:#A8C8FE; --on-primary:#00325B; --primary-container:#00497E; --on-primary-container:#D6E3FE;
+    --primary: var(--ya-primary);
+
+    --secondary:#ADCCD2; --on-secondary:#18343A;
+    --secondary-container:#2F4B51; --on-secondary-container:#C8E8EF;
+
+    --tertiary:#FABC3E; --on-tertiary:#412D00;
+    --tertiary-container:#5E4200; --on-tertiary-container:#FFDEAD;
+
+    --error:#FFB4A5; --on-error:#690000;
+    --error-container:#93000B; --on-error-container:#FFDAD3;
+
+    --ok:#7FD9A4; --on-ok:#00391E;
+    --ok-container:#1B5D35; --on-ok-container:#D9F0E2;
+
+    --background:#101214;
+    --surface:#101214;
+    --surface-container-lowest:#0B0D10;
+    --surface-container-low:#16191D;
+    --surface-container:#1A1D21;
+    --surface-container-high:#22262B;
+    --surface-container-highest:#2A2F35;
+
+    --on-surface:#E8EBEE;
+    --on-surface-variant:#9AA3AD;
+    --outline:#8E9199;
+    --outline-variant:#44474E;
+
+    --inverse-surface:#E8EBEE;
+    --inverse-on-surface:#1A1D21;
+    --scrim:rgba(0,0,0,.32);
+
+    /* Книга. Главное здесь — тёмный текст НА светлом акценте: белым по
+       киновари в тёмной теме выходило 2.65:1, по небу 2.19:1, по изумруду
+       1.95:1 — надписи на кнопках книги было не прочесть. */
+    --book-sutki:#E0895F;  --on-book-sutki:#3A1200;  --book-sutki-container:#2A2019;
+    --book-goda:#7FB4E8;   --on-book-goda:#00325B;   --book-goda-container:#1B2B3D;
+    --book-zhizni:#6FCBA8; --on-book-zhizni:#00382A; --book-zhizni-container:#16302A;
+
+    --reader-paper:#14171C;
+    --reader-sheet:#1A1E25;
+    --reader-ink:#E9E6E0;
+    --reader-ink-2:#B0A99F;
+    --reader-rule:#2C323B;
+  }
+}
+
+/* ─── Тёмная тема, выбранная руками ──────────────────────────────────────
+   Те же значения: явный выбор в Профиле сильнее системной настройки.
+   Дублирование здесь неизбежно — CSS не умеет применять один блок к двум
+   условиям сразу, и так же сделано на Главной и в Профиле. */
+:root[data-theme="dark"]{
+  /* СТРОКА БРЕНДА 3 из 3. Вариант Б:
+     --ya-primary:#7DD3E4; --on-primary:#001F25; --primary-container:#004E59; --on-primary-container:#9FEFFF; */
+  --ya-primary:#A8C8FE; --on-primary:#00325B; --primary-container:#00497E; --on-primary-container:#D6E3FE;
+  --primary: var(--ya-primary);
+
+  --secondary:#ADCCD2; --on-secondary:#18343A;
+  --secondary-container:#2F4B51; --on-secondary-container:#C8E8EF;
+
+  --tertiary:#FABC3E; --on-tertiary:#412D00;
+  --tertiary-container:#5E4200; --on-tertiary-container:#FFDEAD;
+
+  --error:#FFB4A5; --on-error:#690000;
+  --error-container:#93000B; --on-error-container:#FFDAD3;
+
+  --ok:#7FD9A4; --on-ok:#00391E;
+  --ok-container:#1B5D35; --on-ok-container:#D9F0E2;
+
+  --background:#101214;
+  --surface:#101214;
+  --surface-container-lowest:#0B0D10;
+  --surface-container-low:#16191D;
+  --surface-container:#1A1D21;
+  --surface-container-high:#22262B;
+  --surface-container-highest:#2A2F35;
+
+  --on-surface:#E8EBEE;
+  --on-surface-variant:#9AA3AD;
+  --outline:#8E9199;
+  --outline-variant:#44474E;
+
+  --inverse-surface:#E8EBEE;
+  --inverse-on-surface:#1A1D21;
+  --scrim:rgba(0,0,0,.32);
+
+  --book-sutki:#E0895F;  --on-book-sutki:#3A1200;  --book-sutki-container:#2A2019;
+  --book-goda:#7FB4E8;   --on-book-goda:#00325B;   --book-goda-container:#1B2B3D;
+  --book-zhizni:#6FCBA8; --on-book-zhizni:#00382A; --book-zhizni-container:#16302A;
+
+  --reader-paper:#14171C;
+  --reader-sheet:#1A1E25;
+  --reader-ink:#E9E6E0;
+  --reader-ink-2:#B0A99F;
+  --reader-rule:#2C323B;
+}
+
+/* ═══ ШКАЛА ТИПА КЛАССАМИ ══════════════════════════════════════════════════
+   То же самое, что --type-*, но для разметки. Классы ничего не красят: цвет
+   берётся ролью на месте применения, иначе они спорили бы с экраном. */
+.ya-display-s { font: var(--type-display-s);  text-wrap: balance; }
+.ya-headline-l{ font: var(--type-headline-l); text-wrap: balance; }
+.ya-headline-m{ font: var(--type-headline-m); text-wrap: balance; }
+.ya-headline-s{ font: var(--type-headline-s); text-wrap: balance; }
+.ya-title-l   { font: var(--type-title-l); }
+.ya-title-m   { font: var(--type-title-m); }
+.ya-title-s   { font: var(--type-title-s); }
+.ya-body-l    { font: var(--type-body-l); }
+.ya-body-m    { font: var(--type-body-m); }
+.ya-body-s    { font: var(--type-body-s); }
+/* Подпись кнопки — всегда одна строка: двухстрочная подпись внутри кнопки
+   перестаёт читаться как кнопка. Длинному тексту место в строке списка. */
+.ya-label-l   { font: var(--type-label-l); white-space: nowrap; }
+/* Метка раздела: единственный капс в системе, и он не меньше 12px. */
+.ya-label-m   { font: var(--type-label-m); letter-spacing: var(--track-label);
+                text-transform: uppercase; color: var(--on-surface-variant); }
+.ya-label-s   { font: var(--type-label-s); }
+.ya-quote     { font: var(--type-quote); }
+.ya-reader-title{ font: var(--type-reader-title);
+                  font-size: calc(24px * var(--reader-kegl)); }
+.ya-reader-body { font: var(--type-reader-body);
+                  font-size: calc(18px * var(--reader-kegl)); }
+.ya-mono      { font: var(--type-mono); letter-spacing:.14em;
+                font-variant-numeric: tabular-nums; }
+
+/* ═══ «УБРАТЬ АНИМАЦИИ» ════════════════════════════════════════════════════
+   Один блок на всё приложение. Раньше системную настройку уважали только
+   отдельные места (шторка Разбора, вращение обложки книги), а пульс звезды
+   урока, пульс кнопки-ворот и пульс «Дальше» в Переговорах шли вечно — прямо
+   в поле зрения читающего человека.
+   !important здесь уместен: это утилита доступности, а не оформление
+   компонента (в компонентах !important запрещён). Длительность оставляем
+   ненулевой, чтобы событие окончания перехода всё-таки приходило — на нём
+   держится закрытие шторки. */
+@media (prefers-reduced-motion: reduce){
+  :root{ --dur-short:1ms; --dur-medium:1ms; --dur-long:1ms; }
+  *, *::before, *::after{
+    animation-duration:1ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:1ms !important;
+    scroll-behavior:auto !important;
+  }
+}

@@ -31,6 +31,8 @@
 <meta property="og:url" content="https://yasnalab.ru/"/>
 <meta property="og:title" content="Ясна — интерактивный тренажёр"/>
 <meta property="og:description" content="Видеть устройство любого явления по методу Ясны."/>
+<!-- Роли цвета, шкала типа и движение: один файл на сайт и приложение. Подключён ПЕРВЫМ из стилей — он только объявляет переменные и ничего не перебивает. -->
+<link rel="stylesheet" href="core/tokeny.css">
 <link rel="stylesheet" href="vendor/fonts/shrifty.css">
 
 <style>
@@ -525,7 +527,7 @@ html[data-theme='light'] {
 </style>
 </head>
 <body>
-<link rel="stylesheet" href="core/site-nav.css?v=f8cd9a99"/>
+<link rel="stylesheet" href="core/site-nav.css?v=52aebf72"/>
 <header class="ynav ynav--dark ynav--sticky" id="site-nav"></header>
 <script src="core/site-nav.js?v=9ba1a8b7"></script>
 <script>window.SiteNav&&SiteNav.mount('site-nav','home');</script>

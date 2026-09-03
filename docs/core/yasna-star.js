@@ -367,17 +367,45 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
         }
         // Во время вращения per-index offsets дают резкие скачки (они спроектированы
         // под статичный layout). Используем единый layout — middle anchor, без xOff,
-        // базовый dy. Лейблы плавно орбитируют вместе с полками.
+        // базовый dy. Лейблы плавно орбитируют вместе с местами.
         const isRotating = !!starRotation;
         const xOff = isRotating ? 0 : (i===3?14:i===9?-14:i===4?8:i===8?-8:0);
         const dyEff = isRotating ? 5 : dy;
         const anchEff = isRotating ? 'middle' : anch(i);
         /* Однострочные имена полок были 22 ед. = 9.7 px на телефоне (поле
            зрения сжимает рисунок вдвое). Порог читаемости 12 px даёт 28 ед. */
+        /* Гарнитура подписи. Стояло var(--serif), и это был не выбор, а
+           случайность: styles.css объявляет --serif как -apple-system,
+           BlinkMacSystemFont,'SF Pro Display',Georgia,serif — на Маке это
+           гротеск SF, а на Android ни одной из этих гарнитур нет, и стек
+           падал в generic serif, то есть в жирный Noto Serif. Круг Разбора
+           на телефоне выходил «книжным» по случайности, шире расчёта, и
+           боковая подпись («Вечер Сутки») не влезала в кадр. Берём гарнитуру
+           интерфейса: --ya-font-display объявлен только в core/tokeny.css,
+           поэтому его никто не перебивает, а --sans оставлен запасным на
+           случай страницы без ролей. */
         const базКегль=isMob?(sel===i?32:30):(sel===i?26:24);
-        const fs=String(Math.round(базКегль*сжатие));
-        const fsW=fs;if(parts){return<text key={`l${i}`} x={pt.x+xOff} y={pt.y+dyEff-9} textAnchor={anchEff} fill={'var(--star-ink,#000)'} fontSize={fsW} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}><tspan x={pt.x+xOff} dy="0">{parts[0]}</tspan><tspan x={pt.x+xOff} dy={isMob?22:22}>{parts[1]}</tspan></text>;}
-        return<text key={`l${i}`} x={pt.x+xOff} y={pt.y+dyEff} textAnchor={anchEff} fill={'var(--star-ink,#000)'} fontSize={fs} fontFamily="var(--serif)" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}>{l}</text>;})}
+        /* Второй предел — по КРАЮ КАДРА, а не по числу знаков. Предел в
+           знаках считался под метрики SF, и после смены гарнитуры боковая
+           подпись «Запад / Вечер Сутки» всё равно упиралась в правый край:
+           знаки у разных гарнитур разной ширины, а поле у бокового места
+           разное на 360 и на 412 dp. Считаем, сколько остаётся от начала
+           подписи до края viewBox, и поджимаем кегль ровно на нехватку.
+           0.55 — средняя ширина знака кириллицы в Manrope долей кегля. */
+        const кадрЛ=mob?2:-80, кадрП=mob?892:980, хТ=pt.x+xOff;
+        const поле=anchEff==='start'?(кадрП-хТ-10)
+                  :anchEff==='end'?(хТ-кадрЛ-10)
+                  :(Math.min(хТ-кадрЛ,кадрП-хТ)*2-10);
+        const ширина=длиннейшая*0.55*базКегль*сжатие;
+        if(поле>0&&ширина>поле)сжатие*=поле/ширина;
+        const fs=Math.round(базКегль*сжатие);
+        /* Межстрочное расстояние двухстрочной подписи было 22 при кегле 30:
+           строки налезали друг на друга («Утренний Салют», «Первая Тьма»).
+           Ведём его от кегля, а первую строку поднимаем на половину — тогда
+           подпись остаётся по центру своего места при любом сжатии. */
+        const межстрочное=Math.round(fs*1.15);
+        if(parts){return<text key={`l${i}`} x={pt.x+xOff} y={pt.y+dyEff-Math.round(межстрочное/2)} textAnchor={anchEff} fill={'var(--star-ink,#000)'} fontSize={String(fs)} fontFamily="var(--ya-font-display,var(--sans))" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}><tspan x={pt.x+xOff} dy="0">{parts[0]}</tspan><tspan x={pt.x+xOff} dy={межстрочное}>{parts[1]}</tspan></text>;}
+        return<text key={`l${i}`} x={pt.x+xOff} y={pt.y+dyEff} textAnchor={anchEff} fill={'var(--star-ink,#000)'} fontSize={String(fs)} fontFamily="var(--ya-font-display,var(--sans))" fontWeight={sel===i?'700':'600'} style={{pointerEvents:'none'}}>{l}</text>;})}
       {overlay&&<>
         {/* Outer orbit - more visible, solid thin line */}
         <circle cx={cx} cy={cy} r={lr+12} fill="none" stroke="rgba(147,51,234,.18)" strokeWidth="1" strokeDasharray="2 4" style={{pointerEvents:'none'}}/>
@@ -389,9 +417,9 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
             карточка там не открывалась вовсе. */}
         {Array.from({length:12},(_,i)=>{const op=xy(i,cx,cy,lr+12);return<line key={`oc${i}`} x1={pts[i].x} y1={pts[i].y} x2={op.x} y2={op.y} stroke="rgba(147,51,234,.15)" strokeWidth="1" strokeDasharray="2 3" style={{pointerEvents:'none'}}/>;})}
         {/* Primary Yasna labels - inner ring */}
-        {ilps.map((pt,i)=>{const l=p[i]||'';if(!l)return null;const a=angDeg(i);let dy=4;if(!starRotation){if(i===0)dy=12;if(i===6)dy=-5;}return<text key={`p${i}`} x={pt.x} y={pt.y+dy} textAnchor={starRotation?'middle':anch(i)} fill={sel===i?'var(--star-ink,#1d1d1f)':'rgba(0,122,255,.8)'} fontSize={sel===i?"16":"14"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'500'} style={{pointerEvents:'none'}}>{l}</text>;})}
+        {ilps.map((pt,i)=>{const l=p[i]||'';if(!l)return null;const a=angDeg(i);let dy=4;if(!starRotation){if(i===0)dy=12;if(i===6)dy=-5;}return<text key={`p${i}`} x={pt.x} y={pt.y+dy} textAnchor={starRotation?'middle':anch(i)} fill={sel===i?'var(--star-ink,#1d1d1f)':'rgba(0,122,255,.8)'} fontSize={sel===i?"16":"14"} fontFamily="var(--ya-font-display,var(--sans))" fontWeight={sel===i?'700':'500'} style={{pointerEvents:'none'}}>{l}</text>;})}
         {/* Overlay Yasna labels - outer ring */}
-        {olps.map((pt,i)=>{const l=(overlay.p||[])[i]||'';if(!l)return null;let dy=22;if(!starRotation){if(i===0)dy=34;if(i===6)dy=-22;if([3,9].includes(i))dy=26;if([2,10].includes(i))dy=26;if([4,8].includes(i))dy=34;if([1,11].includes(i))dy=28;if([5,7].includes(i))dy=24;}return<text key={`o${i}`} x={pt.x} y={pt.y+dy} textAnchor={starRotation?'middle':anch(i)} fill={sel===i?'#7c3aed':'#9333ea'} fontSize={sel===i?"17":"15"} fontFamily="var(--serif)" fontWeight={sel===i?'700':'500'} fontStyle="italic" style={{pointerEvents:'none'}}>{l}</text>;})}
+        {olps.map((pt,i)=>{const l=(overlay.p||[])[i]||'';if(!l)return null;let dy=22;if(!starRotation){if(i===0)dy=34;if(i===6)dy=-22;if([3,9].includes(i))dy=26;if([2,10].includes(i))dy=26;if([4,8].includes(i))dy=34;if([1,11].includes(i))dy=28;if([5,7].includes(i))dy=24;}return<text key={`o${i}`} x={pt.x} y={pt.y+dy} textAnchor={starRotation?'middle':anch(i)} fill={sel===i?'#7c3aed':'#9333ea'} fontSize={sel===i?"17":"15"} fontFamily="var(--ya-font-display,var(--sans))" fontWeight={sel===i?'700':'500'} fontStyle="italic" style={{pointerEvents:'none'}}>{l}</text>;})}
       </>}
       {/* M-Г-066 Ясна² Drill-down: клик по полке открывает её внутреннюю Ясну */}
       {drill!=null&&(()=>{
@@ -424,9 +452,9 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
           <rect x={cx-100} y={cardY+22} width="200" height="26" rx="13" fill="#a21caf"/>
           <text x={cx} y={cardY+39} textAnchor="middle" fontSize="11" fontWeight="700" letterSpacing="2.4" fill="#fff" fontFamily="var(--sans)">ВЛОЖЕННАЯ ЯСНА²</text>
           {/* Главный заголовок попапа */}
-          <text x={cx} y={cardY+76} textAnchor="middle" fontSize={isMob?26:32} fontWeight="700" fill="var(--star-ink,#1d1d1f)" fontFamily="var(--serif)">{(p[drill]||`Место ${drill}`)}</text>
+          <text x={cx} y={cardY+76} textAnchor="middle" fontSize={isMob?26:32} fontWeight="700" fill="var(--star-ink,#1d1d1f)" fontFamily="var(--ya-font-display,var(--sans))">{(p[drill]||`Место ${drill}`)}</text>
           {/* Подзаголовок-путь */}
-          <text x={cx} y={cardY+102} textAnchor="middle" fontSize="12" fill="#86868b" fontFamily="var(--sans)">{(yy.name.length>26?yy.name.slice(0,24)+'…':yy.name)} · Место {drill}</text>
+          <text x={cx} y={cardY+102} textAnchor="middle" fontSize="12" fill="var(--star-ink-50,#86868b)" fontFamily="var(--sans)">{(yy.name.length>26?yy.name.slice(0,24)+'…':yy.name)} · Место {drill}</text>
           {/* Декоративный разделитель */}
           <line x1={cx-100} y1={cardY+118} x2={cx+100} y2={cardY+118} stroke="rgba(162,28,175,.22)" strokeWidth="1"/>
           {/* Close-кнопка ✕ в правом верхнем углу */}
@@ -471,12 +499,12 @@ function Star({yy,sel,onSel,hl,af=[],showOpp,overlay,mob,drill,onDrill,subPolki,
               <text x={sx} y={sy+(isMob?8:9)} textAnchor="middle" fontSize={isMob?28:32} fontWeight="700" fill="var(--star-ink,#1f2937)" fontFamily="var(--sans)">{j}</text>
               {/* Подпись sub-полки — снаружи кольца */}
               {subName && parts ? (
-                <text x={lx} y={ly-9} textAnchor={anchor} fontSize={isMob?17:20} fill="#1d1d1f" fontWeight="600" fontFamily="var(--serif)">
+                <text x={lx} y={ly-9} textAnchor={anchor} fontSize={isMob?17:20} fill="var(--star-ink,#1d1d1f)" fontWeight="600" fontFamily="var(--ya-font-display,var(--sans))">
                   <tspan x={lx} dy="0">{parts[0]}</tspan>
                   <tspan x={lx} dy={isMob?20:24}>{parts[1]}</tspan>
                 </text>
               ) : subName ? (
-                <text x={lx} y={ly+7} textAnchor={anchor} fontSize={isMob?17:20} fill="#1d1d1f" fontWeight="600" fontFamily="var(--serif)">{subName}</text>
+                <text x={lx} y={ly+7} textAnchor={anchor} fontSize={isMob?17:20} fill="var(--star-ink,#1d1d1f)" fontWeight="600" fontFamily="var(--ya-font-display,var(--sans))">{subName}</text>
               ) : null}
             </g>;
           })}

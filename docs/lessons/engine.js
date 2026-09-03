@@ -59,30 +59,30 @@ function LessonStar({mode,highlighted=[],labels={},visiblePositions=null,showNum
       {(mode==='halves'||mode==='cross-outline'||mode==='longs'||mode==='shorts'||mode==='full')&&<>
         <path d={`M ${cx-R-30} ${cy} A ${R+30} ${R+30} 0 0 1 ${cx+R+30} ${cy} Z`} fill="rgba(255,200,40,.07)"/>
         <path d={`M ${cx-R-30} ${cy} A ${R+30} ${R+30} 0 0 0 ${cx+R+30} ${cy} Z`} fill="rgba(40,60,160,.05)"/>
-        <line x1={cx-R-30} y1={cy} x2={cx+R+30} y2={cy} stroke="#e5e5ea" strokeWidth="1" strokeDasharray="3 4"/>
+        <line x1={cx-R-30} y1={cy} x2={cx+R+30} y2={cy} stroke="var(--outline-variant)" strokeWidth="1" strokeDasharray="3 4"/>
       </>}
 
       {/* Halves labels (only in halves mode) */}
       {mode==='halves'&&<>
-        <text x={cx} y={cy-R-12} textAnchor="middle" fontSize="16" fontWeight="600" fill="#c07800">☀️ День · Свет</text>
-        <text x={cx} y={cy+R+24} textAnchor="middle" fontSize="16" fontWeight="600" fill="#4060a0">🌙 Ночь · Тьма</text>
+        <text x={cx} y={cy-R-12} textAnchor="middle" fontSize="16" fontWeight="600" fill="var(--on-surface)">☀️ День · Свет</text>
+        <text x={cx} y={cy+R+24} textAnchor="middle" fontSize="16" fontWeight="600" fill="var(--on-surface)">🌙 Ночь · Тьма</text>
       </>}
 
       {/* Circle */}
       {showCircle&&(mode==='cross-outline'||mode==='cross-labeled'||mode==='longs'||mode==='shorts'||mode==='full')&&<>
-        <circle cx={cx} cy={cy} r={R} fill="none" stroke="#e5e5ea" strokeWidth="1"/>
+        <circle cx={cx} cy={cy} r={R} fill="none" stroke="var(--outline-variant)" strokeWidth="1"/>
       </>}
 
       {/* Cross lines: in cross-labeled mode — ACCENT colors (visible cross);
           in other modes — technical dashed gray */}
       {mode==='cross-labeled'&&<>
         {/* Vertical (0↔6, foundations) — gold */}
-        <line x1={cx} y1={cy-R-6} x2={cx} y2={cy+R+6} stroke="#E8A52B" strokeWidth="4" strokeLinecap="round"/>
+        <line x1={cx} y1={cy-R-6} x2={cx} y2={cy+R+6} stroke="var(--tertiary)" strokeWidth="4" strokeLinecap="round"/>
         {/* Horizontal (3↔9, transitions) — blue */}
-        <line x1={cx-R-6} y1={cy} x2={cx+R+6} y2={cy} stroke="#3B7BC7" strokeWidth="4" strokeLinecap="round"/>
+        <line x1={cx-R-6} y1={cy} x2={cx+R+6} y2={cy} stroke="var(--primary)" strokeWidth="4" strokeLinecap="round"/>
       </>}
       {(mode==='cross-outline'||mode==='longs'||mode==='shorts'||mode==='full')&&<>
-        <line x1={cx} y1={cy-R-20} x2={cx} y2={cy+R+20} stroke="#e5e5ea" strokeWidth="1" strokeDasharray="3 4"/>
+        <line x1={cx} y1={cy-R-20} x2={cx} y2={cy+R+20} stroke="var(--outline-variant)" strokeWidth="1" strokeDasharray="3 4"/>
       </>}
 
       {/* Star connecting lines — two overlapping hexagons make the Ясна-Звезда */}
@@ -118,7 +118,7 @@ function LessonStar({mode,highlighted=[],labels={},visiblePositions=null,showNum
             <animate attributeName="r" values={`${r+4};${r+14};${r+4}`} dur="1.4s" repeatCount="indefinite"/>
             <animate attributeName="opacity" values=".25;.05;.25" dur="1.4s" repeatCount="indefinite"/>
           </circle>}
-          <circle cx={p.x} cy={p.y} r={r} fill={fill} stroke="#fff" strokeWidth="2" style={{transition:'r .3s'}}/>
+          <circle cx={p.x} cy={p.y} r={r} fill={fill} stroke="var(--surface-container-low)" strokeWidth="2" style={{transition:'r .3s'}}/>
           {showNumbers&&<text x={p.x} y={p.y+5} textAnchor="middle" fontSize={isOpor?'16':'13'} fontWeight="700" fill="#fff">{i}</text>}
         </g>;
       })}
@@ -139,7 +139,7 @@ function LessonStar({mode,highlighted=[],labels={},visiblePositions=null,showNum
         const opacity=highlighted?focusOpacity:.3;
         // Focused labels slightly bolder
         const inFocus=!focusType||(focusType==='longs'&&isLong)||(focusType==='shorts'&&!isLong);
-        return<text key={'l'+i} x={lp.x} y={lp.y+4} textAnchor={anch(i)} fontSize={isOpor?'24':'20'} fontWeight={inFocus?(isOpor?'700':'600'):'400'} fill={inFocus?'#1d1d1f':'#6e6e73'} opacity={opacity} style={{transition:'opacity .3s, font-weight .3s'}}>{lbl}</text>;
+        return<text key={'l'+i} x={lp.x} y={lp.y+4} textAnchor={anch(i)} fontSize={isOpor?'24':'20'} fontWeight={inFocus?(isOpor?'700':'600'):'400'} fill={inFocus?'var(--on-surface)':'var(--on-surface-variant)'} opacity={opacity} style={{transition:'opacity .3s, font-weight .3s'}}>{lbl}</text>;
       })}
     </svg>);
 }
@@ -162,7 +162,8 @@ function LessonStar({mode,highlighted=[],labels={},visiblePositions=null,showNum
 // Main Lesson component
 // ═══════════════════════════════════════════════════════════════════
 // SCROLL-FORMAT LESSON — progressive disclosure (gate-based)
-// Palette: #FBFAF7 bg, #0071e3 accent, #F2F7FD speaker bg, охра для сценариев
+// Палитра: роли из core/tokeny.css — --surface под листом, --primary у
+// действия, --surface-container у реплики, --tertiary-container у сценария.
 // ═══════════════════════════════════════════════════════════════════
 
 // Markdown-lite: **bold** + \n → <br>
@@ -171,7 +172,7 @@ function renderRichText(text){
   const parts=text.split(/(\*\*[^*]+\*\*)/g);
   return parts.map((p,i)=>{
     if(p.startsWith('**')&&p.endsWith('**'))
-      return<b key={i} style={{fontWeight:700,color:'#0D1B2A'}}>{p.slice(2,-2)}</b>;
+      return<b key={i} style={{fontWeight:700,color:'var(--on-surface)'}}>{p.slice(2,-2)}</b>;
     const lines=p.split('\n');
     return lines.map((line,j)=>(
       <React.Fragment key={i+'_'+j}>
@@ -187,10 +188,10 @@ function renderRichText(text){
 function HeroBlock({block}){
   return(
     <div style={{padding:'32px 24px 20px',maxWidth:680,margin:'0 auto'}}>
-      {block.eyebrow&&<div style={{fontSize:11,color:'#0071e3',textTransform:'uppercase',letterSpacing:1.1,fontWeight:700,marginBottom:16}}>{block.eyebrow}</div>}
-      <h1 style={{fontSize:30,fontWeight:800,color:'#0D1B2A',marginBottom:16,lineHeight:1.15,letterSpacing:'-0.5px'}}>{block.title}</h1>
-      {block.lead&&<p style={{fontSize:16,color:'#3D4852',lineHeight:1.6,fontWeight:400,marginBottom:0}}>{renderRichText(block.lead)}</p>}
-      <div style={{height:2,width:48,background:'#0071e3',marginTop:24,borderRadius:2}}/>
+      {block.eyebrow&&<div style={{fontSize:11,color:'var(--primary)',textTransform:'uppercase',letterSpacing:1.1,fontWeight:700,marginBottom:16}}>{block.eyebrow}</div>}
+      <h1 style={{fontSize:30,fontWeight:800,color:'var(--on-surface)',marginBottom:16,lineHeight:1.15,letterSpacing:'-0.5px'}}>{block.title}</h1>
+      {block.lead&&<p style={{fontSize:16,color:'var(--on-surface)',lineHeight:1.6,fontWeight:400,marginBottom:0}}>{renderRichText(block.lead)}</p>}
+      <div style={{height:2,width:48,background:'var(--primary)',marginTop:24,borderRadius:2}}/>
     </div>);
 }
 
@@ -213,12 +214,12 @@ function SpiralMap({block}){
     const y=cy-Math.sin(ang)*r;
     const isLearned=learned.has(i);
     const isCurrent=current.has(i);
-    let fill='#E0E5EA', stroke='none', strokeW=0, textFill='#B0B8C0';
+    let fill='var(--outline-variant)', stroke='none', strokeW=0, textFill='var(--on-surface-variant)';
     let dotR=5.5;
     if(isCurrent){
-      fill='#0071e3'; textFill='#fff'; dotR=9; stroke='#fff'; strokeW=2.5;
+      fill='var(--primary)'; textFill='var(--on-primary)'; dotR=9; stroke='var(--surface-container-low)'; strokeW=2.5;
     } else if(isLearned){
-      fill='#4A9D68'; textFill='#fff'; dotR=6.5;
+      fill='var(--ok)'; textFill='var(--on-ok)'; dotR=6.5;
     }
     dots.push(
       <g key={i}>
@@ -242,41 +243,41 @@ function SpiralMap({block}){
 
   return(
     <div style={{padding:'12px 24px 16px',maxWidth:680,margin:'0 auto'}}>
-      <div style={{background:'#F8FAFC',borderRadius:16,padding:'18px 20px',border:'1px solid #E5E9EF'}}>
-        {block.eyebrow&&<div style={{fontSize:10.5,color:'#0071e3',textTransform:'uppercase',letterSpacing:1,fontWeight:700,marginBottom:4}}>{block.eyebrow}</div>}
-        {block.title&&<div style={{fontSize:15,fontWeight:700,color:'#0D1B2A',marginBottom:block.subtitle?2:12,lineHeight:1.35}}>{block.title}</div>}
-        {block.subtitle&&<div style={{fontSize:12.5,color:'#6E7781',marginBottom:12,lineHeight:1.5}}>{block.subtitle}</div>}
+      <div style={{background:'var(--surface-container-low)',borderRadius:16,padding:'18px 20px',border:'1px solid var(--outline-variant)'}}>
+        {block.eyebrow&&<div style={{fontSize:10.5,color:'var(--primary)',textTransform:'uppercase',letterSpacing:1,fontWeight:700,marginBottom:4}}>{block.eyebrow}</div>}
+        {block.title&&<div style={{fontSize:15,fontWeight:700,color:'var(--on-surface)',marginBottom:block.subtitle?2:12,lineHeight:1.35}}>{block.title}</div>}
+        {block.subtitle&&<div style={{fontSize:12.5,color:'var(--on-surface-variant)',marginBottom:12,lineHeight:1.5}}>{block.subtitle}</div>}
         <div style={{display:'flex',gap:16,alignItems:'center'}}>
           <div style={{flexShrink:0}}>
             <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
               {/* Faint outer circle */}
-              <circle cx={cx} cy={cy} r={r} fill="none" stroke="#E5E9EF" strokeWidth="1"/>
-              {activePositions.length>1&&<path d={pathD} stroke="#0071e3" strokeWidth="1.5" fill="none" opacity="0.3" strokeDasharray="3 3"/>}
+              <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--outline-variant)" strokeWidth="1"/>
+              {activePositions.length>1&&<path d={pathD} stroke="var(--primary)" strokeWidth="1.5" fill="none" opacity="0.3" strokeDasharray="3 3"/>}
               {dots}
             </svg>
           </div>
           <div style={{flex:1,minWidth:0,fontSize:12.5,lineHeight:1.55}}>
             {learnedArr.length>0&&(
               <div style={{marginBottom:8,display:'flex',gap:8,alignItems:'flex-start'}}>
-                <span style={{flexShrink:0,marginTop:3,width:10,height:10,borderRadius:'50%',background:'#4A9D68',display:'inline-block'}}/>
-                <div><b style={{color:'#0D1B2A'}}>Уже знаешь:</b> <span style={{color:'#3D4852'}}>{block.learnedLabels||'полочки '+learnedArr.join(', ')}</span></div>
+                <span style={{flexShrink:0,marginTop:3,width:10,height:10,borderRadius:'50%',background:'var(--ok)',display:'inline-block'}}/>
+                <div><b style={{color:'var(--on-surface)'}}>Уже знаешь:</b> <span style={{color:'var(--on-surface)'}}>{block.learnedLabels||'полочки '+learnedArr.join(', ')}</span></div>
               </div>
             )}
             {currentArr.length>0&&(
               <div style={{marginBottom:learnedArr.length>0?0:0,display:'flex',gap:8,alignItems:'flex-start'}}>
-                <span style={{flexShrink:0,marginTop:3,width:10,height:10,borderRadius:'50%',background:'#0071e3',display:'inline-block'}}/>
-                <div><b style={{color:'#0D1B2A'}}>Сегодня:</b> <span style={{color:'#3D4852'}}>{block.currentLabels||'полочки '+currentArr.join(', ')}</span></div>
+                <span style={{flexShrink:0,marginTop:3,width:10,height:10,borderRadius:'50%',background:'var(--primary)',display:'inline-block'}}/>
+                <div><b style={{color:'var(--on-surface)'}}>Сегодня:</b> <span style={{color:'var(--on-surface)'}}>{block.currentLabels||'полочки '+currentArr.join(', ')}</span></div>
               </div>
             )}
             {block.upcomingLabels&&(
               <div style={{marginTop:8,display:'flex',gap:8,alignItems:'flex-start'}}>
-                <span style={{flexShrink:0,marginTop:3,width:10,height:10,borderRadius:'50%',background:'#E0E5EA',display:'inline-block'}}/>
-                <div><b style={{color:'#0D1B2A'}}>Дальше:</b> <span style={{color:'#6E7781'}}>{block.upcomingLabels}</span></div>
+                <span style={{flexShrink:0,marginTop:3,width:10,height:10,borderRadius:'50%',background:'var(--outline-variant)',display:'inline-block'}}/>
+                <div><b style={{color:'var(--on-surface)'}}>Дальше:</b> <span style={{color:'var(--on-surface-variant)'}}>{block.upcomingLabels}</span></div>
               </div>
             )}
           </div>
         </div>
-        {block.note&&<div style={{fontSize:12.5,color:'#3D4852',lineHeight:1.6,marginTop:14,paddingTop:12,borderTop:'1px solid #E5E9EF'}}>{renderRichText(block.note)}</div>}
+        {block.note&&<div style={{fontSize:12.5,color:'var(--on-surface)',lineHeight:1.6,marginTop:14,paddingTop:12,borderTop:'1px solid var(--outline-variant)'}}>{renderRichText(block.note)}</div>}
       </div>
     </div>);
 }
@@ -284,16 +285,16 @@ function SpiralMap({block}){
 function TocBlock({block}){
   return(
     <div style={{padding:'12px 24px 20px',maxWidth:680,margin:'0 auto'}}>
-      <div style={{background:'#fff',border:'1px solid #E5E5EA',borderRadius:16,padding:'24px 24px',boxShadow:'0 1px 3px rgba(15,27,42,.04)'}}>
-        <div style={{fontSize:19,fontWeight:700,color:'#0D1B2A',marginBottom:14,letterSpacing:'-0.2px'}}>{block.title||'Что в этом уроке'}</div>
-        {block.intro&&<div style={{fontSize:14.5,color:'#3D4852',lineHeight:1.65,marginBottom:16}}>{renderRichText(block.intro)}</div>}
+      <div style={{background:'var(--surface-container-lowest)',border:'1px solid var(--outline-variant)',borderRadius:16,padding:'24px 24px',boxShadow:'0 1px 3px rgba(15,27,42,.04)'}}>
+        <div style={{fontSize:19,fontWeight:700,color:'var(--on-surface)',marginBottom:14,letterSpacing:'-0.2px'}}>{block.title||'Что в этом уроке'}</div>
+        {block.intro&&<div style={{fontSize:14.5,color:'var(--on-surface)',lineHeight:1.65,marginBottom:16}}>{renderRichText(block.intro)}</div>}
         {block.items&&block.items.length>0&&(
           <>
-            {block.itemsHeader&&<div style={{fontSize:14,color:'#0D1B2A',fontWeight:600,marginBottom:10}}>{block.itemsHeader}</div>}
+            {block.itemsHeader&&<div style={{fontSize:14,color:'var(--on-surface)',fontWeight:600,marginBottom:10}}>{block.itemsHeader}</div>}
             <ul style={{listStyle:'none',padding:0,margin:0}}>
               {block.items.map((item,i)=>(
-                <li key={i} style={{display:'flex',gap:10,marginBottom:10,fontSize:14,color:'#3D4852',lineHeight:1.55}}>
-                  <span style={{flexShrink:0,marginTop:1,color:'#0071e3',fontWeight:700}}>{i+1}.</span>
+                <li key={i} style={{display:'flex',gap:10,marginBottom:10,fontSize:14,color:'var(--on-surface)',lineHeight:1.55}}>
+                  <span style={{flexShrink:0,marginTop:1,color:'var(--primary)',fontWeight:700}}>{i+1}.</span>
                   <span>{renderRichText(item)}</span>
                 </li>
               ))}
@@ -301,12 +302,12 @@ function TocBlock({block}){
           </>
         )}
         {block.outcomes&&block.outcomes.length>0&&(
-          <div style={{marginTop:18,paddingTop:16,borderTop:'1px solid #F0F0F2'}}>
-            <div style={{fontSize:13,color:'#0D1B2A',fontWeight:600,marginBottom:10}}>{block.outcomesHeader||'После урока ты сможешь:'}</div>
+          <div style={{marginTop:18,paddingTop:16,borderTop:'1px solid var(--outline-variant)'}}>
+            <div style={{fontSize:13,color:'var(--on-surface)',fontWeight:600,marginBottom:10}}>{block.outcomesHeader||'После урока ты сможешь:'}</div>
             <ul style={{listStyle:'none',padding:0,margin:0}}>
               {block.outcomes.map((o,i)=>(
-                <li key={i} style={{display:'flex',gap:10,marginBottom:8,fontSize:13.5,color:'#3D4852',lineHeight:1.55}}>
-                  <span style={{flexShrink:0,marginTop:2,color:'#2D7A4A'}}>✓</span>
+                <li key={i} style={{display:'flex',gap:10,marginBottom:8,fontSize:13.5,color:'var(--on-surface)',lineHeight:1.55}}>
+                  <span style={{flexShrink:0,marginTop:2,color:'var(--ok)'}}>✓</span>
                   <span>{renderRichText(o)}</span>
                 </li>
               ))}
@@ -314,9 +315,9 @@ function TocBlock({block}){
           </div>
         )}
         {block.duration&&(
-          <div style={{marginTop:18,paddingTop:14,borderTop:'1px solid #F0F0F2',display:'flex',alignItems:'center',gap:8,fontSize:13,color:'#6E7781'}}>
+          <div style={{marginTop:18,paddingTop:14,borderTop:'1px solid var(--outline-variant)',display:'flex',alignItems:'center',gap:8,fontSize:13,color:'var(--on-surface-variant)'}}>
             <span style={{fontSize:14}}>⏱</span>
-            <span>Время прохождения: <b style={{color:'#0D1B2A',fontWeight:600}}>{block.duration}</b></span>
+            <span>Время прохождения: <b style={{color:'var(--on-surface)',fontWeight:600}}>{block.duration}</b></span>
           </div>
         )}
       </div>
@@ -354,16 +355,15 @@ function ScienceTag({science,onOpen}){
       style={{
         display:'inline-flex',alignItems:'center',gap:6,
         padding:'7px 12px',borderRadius:20,
-        background:'#EEF4FD',border:'1px solid #B8D4F5',
-        color:'#0060C0',fontSize:11.5,fontWeight:600,
+        background:'var(--secondary-container)',border:'1px solid var(--outline-variant)',
+        color:'var(--on-secondary-container)',fontSize:11.5,fontWeight:600,
         letterSpacing:0.2,
         cursor:'pointer',fontFamily:'inherit',flexShrink:0,
         minHeight:34,
         transition:'all .15s',
-        boxShadow:'0 1px 2px rgba(0,96,192,.08)',
       }}
-      onMouseEnter={e=>{e.currentTarget.style.background='#DEEAFB';e.currentTarget.style.borderColor='#7FB0E8';}}
-      onMouseLeave={e=>{e.currentTarget.style.background='#EEF4FD';e.currentTarget.style.borderColor='#B8D4F5';}}
+      onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--outline)';}}
+      onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--outline-variant)';}}
       aria-label="Открыть научное обоснование"
     >
       <span style={{fontSize:13}}>🔬</span>
@@ -412,7 +412,7 @@ function SciencePopupSheet({science,onClose}){
       onClick={handleOverlayClick}
       className="yl-lightscope"
       style={{
-        position:'fixed',inset:0,zIndex:9999,colorScheme:'light',
+        position:'fixed',inset:0,zIndex:9999,colorScheme:'light dark',
         background:'rgba(15,27,42,.55)',
         display:'flex',alignItems:'flex-end',justifyContent:'center',
         animation:'scienceFade .2s ease-out',
@@ -421,7 +421,7 @@ function SciencePopupSheet({science,onClose}){
       <div
         style={{
           width:'100%',maxWidth:680,
-          background:'#fff',
+          background:'var(--surface-container-lowest)',
           borderTopLeftRadius:20,borderTopRightRadius:20,
           padding:'20px 22px 32px',
           maxHeight:'85vh',overflowY:'auto',
@@ -437,8 +437,8 @@ function SciencePopupSheet({science,onClose}){
           style={{
             position:'absolute',top:14,right:14,
             width:36,height:36,borderRadius:'50%',
-            border:'none',background:'#F2F4F7',
-            color:'#5C6A80',fontSize:20,fontWeight:400,
+            border:'none',background:'var(--surface-container)',
+            color:'var(--on-surface-variant)',fontSize:20,fontWeight:400,
             cursor:'pointer',fontFamily:'inherit',
             display:'flex',alignItems:'center',justifyContent:'center',
             padding:0,lineHeight:1,zIndex:2,
@@ -446,32 +446,32 @@ function SciencePopupSheet({science,onClose}){
         >×</button>
 
         {/* Drag handle */}
-        <div style={{width:40,height:4,background:'#D1D5DB',borderRadius:2,margin:'0 auto 16px'}}/>
+        <div style={{width:40,height:4,background:'var(--outline-variant)',borderRadius:2,margin:'0 auto 16px'}}/>
 
         {/* Area label */}
         {science.area&&(
-          <div style={{fontSize:10.5,color:'#5C6A80',textTransform:'uppercase',letterSpacing:1.1,fontWeight:700,marginBottom:8,display:'flex',alignItems:'center',gap:6,paddingRight:40}}>
+          <div style={{fontSize:10.5,color:'var(--on-surface-variant)',textTransform:'uppercase',letterSpacing:1.1,fontWeight:700,marginBottom:8,display:'flex',alignItems:'center',gap:6,paddingRight:40}}>
             <span style={{fontSize:12}}>🔬</span>
             <span>Научная опора · {science.area}</span>
           </div>
         )}
 
         {/* Title */}
-        {science.title&&<div style={{fontSize:17,fontWeight:700,color:'#0D1B2A',marginBottom:4,lineHeight:1.3,letterSpacing:'-0.2px',paddingRight:40}}>{science.title}</div>}
+        {science.title&&<div style={{fontSize:17,fontWeight:700,color:'var(--on-surface)',marginBottom:4,lineHeight:1.3,letterSpacing:'-0.2px',paddingRight:40}}>{science.title}</div>}
 
         {/* Citation */}
-        {science.citation&&<div style={{fontSize:12,color:'#6B7A90',fontStyle:'italic',marginBottom:14}}>{science.citation}</div>}
+        {science.citation&&<div style={{fontSize:12,color:'var(--on-surface-variant)',fontStyle:'italic',marginBottom:14}}>{science.citation}</div>}
 
         {/* Body */}
-        <div style={{fontSize:14.5,color:'#1F2933',lineHeight:1.7,whiteSpace:'pre-wrap'}}>{renderRichText(science.body||'')}</div>
+        <div style={{fontSize:14.5,color:'var(--on-surface)',lineHeight:1.7,whiteSpace:'pre-wrap'}}>{renderRichText(science.body||'')}</div>
 
         {/* Note */}
-        {science.note&&<div style={{marginTop:14,padding:'12px 14px',background:'#F4F7FC',borderRadius:10,border:'1px solid #DCE6F2',fontSize:13,color:'#3D5A80',lineHeight:1.55}}>{renderRichText(science.note)}</div>}
+        {science.note&&<div style={{marginTop:14,padding:'12px 14px',background:'var(--surface-container)',borderRadius:10,border:'1px solid var(--outline-variant)',fontSize:13,color:'var(--on-surface-variant)',lineHeight:1.55}}>{renderRichText(science.note)}</div>}
 
         {/* Bottom close button */}
         <div style={{marginTop:22,textAlign:'center'}}>
           <button onClick={handleClose}
-            style={{fontSize:14,fontWeight:600,padding:'12px 36px',borderRadius:12,border:'none',background:'#0071E3',color:'#fff',cursor:'pointer',fontFamily:'inherit',boxShadow:'0 2px 8px rgba(0,113,227,.25)'}}>
+            style={{fontSize:14,fontWeight:600,padding:'12px 36px',borderRadius:12,border:'none',background:'var(--primary)',color:'var(--on-primary)',cursor:'pointer',fontFamily:'inherit',boxShadow:'var(--elev-3)'}}>
             Понятно
           </button>
         </div>
@@ -487,7 +487,7 @@ function SpeakerBlock({block}){
   const[popup,setPopup]=useState(false);
   return(
     <div style={{padding:'16px 24px',maxWidth:680,margin:'0 auto'}}>
-      <div style={{background:'#F4F8FD',borderRadius:16,padding:'20px 22px',border:'1px solid #E0ECF7'}}>
+      <div style={{background:'var(--surface-container)',borderRadius:16,padding:'20px 22px',border:'1px solid var(--outline-variant)'}}>
         {block.science&&(
           <div style={{display:'flex',justifyContent:'flex-end',marginBottom:10}}>
             <ScienceTag science={block.science} onOpen={()=>setPopup(true)}/>
@@ -495,15 +495,15 @@ function SpeakerBlock({block}){
         )}
         <div style={{display:'flex',gap:12,alignItems:'center',marginBottom:12}}>
           {useAvatarLogo
-            ? <div style={{flexShrink:0,borderRadius:'50%',width:52,height:52,overflow:'hidden',background:'#fff',border:'1px solid #E0ECF7',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 1px 3px rgba(15,27,42,.06)'}}><YasnaAvatar size={44}/></div>
-            : <div style={{width:40,height:40,borderRadius:'50%',background:block.avatarColor||'#0071e3',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontWeight:700,flexShrink:0,boxShadow:'0 2px 6px rgba(0,113,227,.25)'}}>{block.avatar||'?'}</div>
+            ? <div style={{flexShrink:0,borderRadius:'50%',width:52,height:52,overflow:'hidden',background:'var(--surface-container-lowest)',border:'1px solid var(--outline-variant)',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 1px 3px rgba(15,27,42,.06)'}}><YasnaAvatar size={44}/></div>
+            : <div style={{width:40,height:40,borderRadius:'50%',background:block.avatarColor||'var(--primary)',color:'var(--on-primary)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontWeight:700,flexShrink:0,boxShadow:'var(--elev-3)'}}>{block.avatar||'?'}</div>
           }
           <div>
-            <div style={{fontSize:14,fontWeight:700,color:'#0D1B2A',lineHeight:1.2}}>{block.name}</div>
-            {block.role&&<div style={{fontSize:12,color:'#6E7781',marginTop:1}}>{block.role}</div>}
+            <div style={{fontSize:14,fontWeight:700,color:'var(--on-surface)',lineHeight:1.2}}>{block.name}</div>
+            {block.role&&<div style={{fontSize:12,color:'var(--on-surface-variant)',marginTop:1}}>{block.role}</div>}
           </div>
         </div>
-        <div style={{fontSize:15,color:'#1F2933',lineHeight:1.65,whiteSpace:'pre-wrap'}}>{renderRichText(block.text)}</div>
+        <div style={{fontSize:15,color:'var(--on-surface)',lineHeight:1.65,whiteSpace:'pre-wrap'}}>{renderRichText(block.text)}</div>
       </div>
       {popup&&<SciencePopupSheet science={block.science} onClose={()=>setPopup(false)}/>}
     </div>);
@@ -513,14 +513,14 @@ function ExplanationBlock({block}){
   const[popup,setPopup]=useState(false);
   return(
     <div style={{padding:'16px 24px',maxWidth:680,margin:'0 auto'}}>
-      <div style={{background:'#fff',borderRadius:14,padding:'22px 24px',border:'1px solid #E8E3D9',boxShadow:'0 1px 3px rgba(15,27,42,.04)'}}>
+      <div style={{background:'var(--surface-container-lowest)',borderRadius:14,padding:'22px 24px',border:'1px solid var(--outline-variant)',boxShadow:'0 1px 3px rgba(15,27,42,.04)'}}>
         {block.science&&(
           <div style={{display:'flex',justifyContent:'flex-end',marginBottom:10}}>
             <ScienceTag science={block.science} onOpen={()=>setPopup(true)}/>
           </div>
         )}
-        {block.title&&<div style={{fontSize:14,fontWeight:700,color:'#0D1B2A',marginBottom:12,lineHeight:1.35}}>{block.title}</div>}
-        <div style={{fontSize:14.5,color:'#3D4852',lineHeight:1.7,whiteSpace:'pre-wrap'}}>{renderRichText(block.body)}</div>
+        {block.title&&<div style={{fontSize:14,fontWeight:700,color:'var(--on-surface)',marginBottom:12,lineHeight:1.35}}>{block.title}</div>}
+        <div style={{fontSize:14.5,color:'var(--on-surface)',lineHeight:1.7,whiteSpace:'pre-wrap'}}>{renderRichText(block.body)}</div>
       </div>
       {popup&&<SciencePopupSheet science={block.science} onClose={()=>setPopup(false)}/>}
     </div>);
@@ -530,13 +530,13 @@ function ScienceNoteBlock({block}){
   const phases=block.phases; // optional: [{label, type: 'hold'|'switch', desc}]
   return(
     <div style={{padding:'12px 24px',maxWidth:680,margin:'0 auto'}}>
-      <div style={{background:'#F2F4F7',borderRadius:12,padding:'18px 22px',border:'1px solid #D9DEE5',borderLeft:'3px solid #6B7A90'}}>
-        <div style={{fontSize:10.5,color:'#5C6A80',textTransform:'uppercase',letterSpacing:1.1,fontWeight:700,marginBottom:8,display:'flex',alignItems:'center',gap:6}}>
+      <div style={{background:'var(--surface-container)',borderRadius:12,padding:'18px 22px',border:'1px solid var(--outline-variant)',borderLeft:'3px solid var(--on-surface-variant)'}}>
+        <div style={{fontSize:10.5,color:'var(--on-surface-variant)',textTransform:'uppercase',letterSpacing:1.1,fontWeight:700,marginBottom:8,display:'flex',alignItems:'center',gap:6}}>
           <span style={{fontSize:12}}>🔬</span>
           <span>Научная сноска{block.subtitle?' · '+block.subtitle:''}</span>
         </div>
-        {block.title&&<div style={{fontSize:13.5,fontWeight:700,color:'#1F2933',marginBottom:8,lineHeight:1.4}}>{block.title}</div>}
-        <div style={{fontSize:13.5,color:'#3D4852',lineHeight:1.65,whiteSpace:'pre-wrap'}}>{renderRichText(block.body)}</div>
+        {block.title&&<div style={{fontSize:13.5,fontWeight:700,color:'var(--on-surface)',marginBottom:8,lineHeight:1.4}}>{block.title}</div>}
+        <div style={{fontSize:13.5,color:'var(--on-surface)',lineHeight:1.65,whiteSpace:'pre-wrap'}}>{renderRichText(block.body)}</div>
 
         {/* Optional 4-phase diagram */}
         {phases&&phases.length===4&&(()=>{
@@ -550,8 +550,8 @@ function ScienceNoteBlock({block}){
             {x:W*0.72, y:175},   // bottom-right
             {x:W*0.28, y:175}    // bottom-left
           ];
-          const color=(type)=>type==='hold'?'#E8A52B':'#3B7BC7';
-          const colorLight=(type)=>type==='hold'?'#FBEFD3':'#DEEBF9';
+          const color=(type)=>type==='hold'?'var(--tertiary)':'var(--primary)';
+          const colorLight=(type)=>type==='hold'?'var(--tertiary-container)':'var(--primary-container)';
           const labelY=(i)=>i<2?positions[i].y-36:positions[i].y+42;
           // Arrows between consecutive phases (rectangular path)
           const arrows=[
@@ -561,8 +561,8 @@ function ScienceNoteBlock({block}){
             {from:3,to:0,type:'vertical',x:W*0.28}
           ];
           return(
-            <div style={{marginTop:14,marginBottom:4,background:'#fff',borderRadius:10,padding:'14px 10px',border:'1px solid #E0E4EA'}}>
-              {block.phasesTitle&&<div style={{fontSize:11,color:'#6B7A90',textAlign:'center',marginBottom:4,fontWeight:600}}>{block.phasesTitle}</div>}
+            <div style={{marginTop:14,marginBottom:4,background:'var(--surface-container-lowest)',borderRadius:10,padding:'14px 10px',border:'1px solid var(--outline-variant)'}}>
+              {block.phasesTitle&&<div style={{fontSize:11,color:'var(--on-surface-variant)',textAlign:'center',marginBottom:4,fontWeight:600}}>{block.phasesTitle}</div>}
               <svg viewBox={`0 0 ${W} ${H}`} style={{width:'100%',height:'auto',display:'block',maxHeight:260}}>
                 {/* Arrows forming rectangular cycle */}
                 {arrows.map((a,i)=>{
@@ -572,16 +572,16 @@ function ScienceNoteBlock({block}){
                     const x1=isForward?from.x+24:from.x-24;
                     const x2=isForward?to.x-24:to.x+24;
                     return<g key={'a'+i}>
-                      <line x1={x1} y1={a.y} x2={x2} y2={a.y} stroke="#C7CED6" strokeWidth="1.5" strokeDasharray="3 3"/>
+                      <line x1={x1} y1={a.y} x2={x2} y2={a.y} stroke="var(--outline-variant)" strokeWidth="1.5" strokeDasharray="3 3"/>
                       {/* arrow head */}
-                      <polygon points={`${x2},${a.y} ${x2-5},${a.y-3} ${x2-5},${a.y+3}`} fill="#C7CED6" transform={isForward?'':`rotate(180 ${x2} ${a.y})`}/>
+                      <polygon points={`${x2},${a.y} ${x2-5},${a.y-3} ${x2-5},${a.y+3}`} fill="var(--outline-variant)" transform={isForward?'':`rotate(180 ${x2} ${a.y})`}/>
                     </g>;
                   }else{
                     const y1=isForward?from.y+24:from.y-24;
                     const y2=isForward?to.y-24:to.y+24;
                     return<g key={'a'+i}>
-                      <line x1={a.x} y1={y1} x2={a.x} y2={y2} stroke="#C7CED6" strokeWidth="1.5" strokeDasharray="3 3"/>
-                      <polygon points={`${a.x},${y2} ${a.x-3},${y2-5} ${a.x+3},${y2-5}`} fill="#C7CED6" transform={isForward?'':`rotate(180 ${a.x} ${y2})`}/>
+                      <line x1={a.x} y1={y1} x2={a.x} y2={y2} stroke="var(--outline-variant)" strokeWidth="1.5" strokeDasharray="3 3"/>
+                      <polygon points={`${a.x},${y2} ${a.x-3},${y2-5} ${a.x+3},${y2-5}`} fill="var(--outline-variant)" transform={isForward?'':`rotate(180 ${a.x} ${y2})`}/>
                     </g>;
                   }
                 })}
@@ -601,18 +601,18 @@ function ScienceNoteBlock({block}){
                 {phases.map((ph,i)=>{
                   const p=positions[i];
                   return(
-                    <text key={'l'+i} x={p.x} y={labelY(i)} textAnchor="middle" fontSize="12" fontWeight="700" fill="#1F2933">{ph.label}</text>
+                    <text key={'l'+i} x={p.x} y={labelY(i)} textAnchor="middle" fontSize="12" fontWeight="700" fill="var(--on-surface)">{ph.label}</text>
                   );
                 })}
               </svg>
               {/* Legend */}
-              <div style={{display:'flex',justifyContent:'center',gap:16,marginTop:4,fontSize:11,color:'#5C6A80'}}>
+              <div style={{display:'flex',justifyContent:'center',gap:16,marginTop:4,fontSize:11,color:'var(--on-surface-variant)'}}>
                 <div style={{display:'flex',alignItems:'center',gap:5}}>
-                  <span style={{display:'inline-block',width:10,height:10,borderRadius:'50%',background:'#FBEFD3',border:'2px solid #E8A52B'}}/>
+                  <span style={{display:'inline-block',width:10,height:10,borderRadius:'50%',background:'var(--tertiary-container)',border:'2px solid var(--tertiary)'}}/>
                   <span>держится</span>
                 </div>
                 <div style={{display:'flex',alignItems:'center',gap:5}}>
-                  <span style={{display:'inline-block',width:10,height:10,borderRadius:'50%',background:'#DEEBF9',border:'2px solid #3B7BC7'}}/>
+                  <span style={{display:'inline-block',width:10,height:10,borderRadius:'50%',background:'var(--primary-container)',border:'2px solid var(--primary)'}}/>
                   <span>меняется</span>
                 </div>
               </div>
@@ -620,7 +620,7 @@ function ScienceNoteBlock({block}){
           );
         })()}
 
-        {block.citation&&<div style={{fontSize:11.5,color:'#6B7A90',marginTop:10,fontStyle:'italic',lineHeight:1.5}}>{block.citation}</div>}
+        {block.citation&&<div style={{fontSize:11.5,color:'var(--on-surface-variant)',marginTop:10,fontStyle:'italic',lineHeight:1.5}}>{block.citation}</div>}
       </div>
     </div>);
 }
@@ -632,7 +632,7 @@ function GateBlock({block,isActive,isUnlocked,canUnlock,onUnlock}){
   if(isUnlocked){
     return(
       <div style={{padding:'20px 24px',maxWidth:680,margin:'0 auto',display:'flex',alignItems:'center',gap:10,justifyContent:'center'}}>
-        <div style={{display:'flex',alignItems:'center',gap:8,padding:'8px 16px',borderRadius:20,background:'#E8F3EA',color:'#2D7A4A',fontSize:12,fontWeight:600}}>
+        <div style={{display:'flex',alignItems:'center',gap:8,padding:'8px 16px',borderRadius:20,background:'var(--ok-container)',color:'var(--on-ok-container)',fontSize:12,fontWeight:600}}>
           <span style={{fontSize:14}}>✓</span>
           <span>{block.label}</span>
         </div>
@@ -644,12 +644,12 @@ function GateBlock({block,isActive,isUnlocked,canUnlock,onUnlock}){
         <button
           disabled
           style={{
-            fontSize:15,fontWeight:600,color:'#A8A8B0',padding:'14px 32px',
-            borderRadius:14,border:'1px solid #E5E5EA',background:'#F5F5F7',
+            fontSize:15,fontWeight:600,color:'var(--on-surface-variant)',padding:'14px 32px',
+            borderRadius:14,border:'1px solid var(--outline-variant)',background:'var(--surface-container)',
             cursor:'not-allowed',fontFamily:'inherit',transition:'all .2s'
           }}
         >{block.label||'Продолжить'} →</button>
-        <div style={{fontSize:12,color:'#8A8A8F',textAlign:'center',lineHeight:1.5}}>↑ Сначала ответь на вопросы выше</div>
+        <div style={{fontSize:12,color:'var(--on-surface-variant)',textAlign:'center',lineHeight:1.5}}>↑ Сначала ответь на вопросы выше</div>
       </div>);
   }
   return(
@@ -658,13 +658,13 @@ function GateBlock({block,isActive,isUnlocked,canUnlock,onUnlock}){
         onClick={onUnlock}
         className="gate-active"
         style={{
-          fontSize:15,fontWeight:600,color:'#fff',padding:'14px 32px',
-          borderRadius:14,border:'none',background:'#0071e3',cursor:'pointer',
-          boxShadow:'0 4px 16px rgba(0,113,227,.32)',
+          fontSize:15,fontWeight:600,color:'var(--on-primary)',padding:'14px 32px',
+          borderRadius:14,border:'none',background:'var(--primary)',cursor:'pointer',
+          boxShadow:'var(--elev-3)',
           transition:'all .2s',fontFamily:'inherit'
         }}
-        onMouseEnter={e=>{e.currentTarget.style.background='#005bb5';e.currentTarget.style.transform='translateY(-1px)';e.currentTarget.style.boxShadow='0 6px 20px rgba(0,113,227,.4)';}}
-        onMouseLeave={e=>{e.currentTarget.style.background='#0071e3';e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='0 4px 16px rgba(0,113,227,.32)';}}
+        onMouseEnter={e=>{e.currentTarget.style.background='var(--primary)';e.currentTarget.style.transform='translateY(-1px)';e.currentTarget.style.boxShadow='var(--elev-4)';}}
+        onMouseLeave={e=>{e.currentTarget.style.background='var(--primary)';e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='var(--elev-3)';}}
       >{block.label||'Продолжить'} →</button>
     </div>);
 }
@@ -695,9 +695,9 @@ function CheckboxQuizBlock({block,blockId,onComplete}){
   };
   return(
     <div style={{padding:'16px 24px',maxWidth:680,margin:'0 auto'}}>
-      <div style={{background:'#fff',borderRadius:14,padding:'22px 22px',border:'1px solid #E5E5EA',boxShadow:'0 1px 3px rgba(15,27,42,.04)'}}>
-        <div style={{fontSize:15,fontWeight:700,color:'#0D1B2A',marginBottom:6,lineHeight:1.4}}>{block.question}</div>
-        {block.hint&&<div style={{fontSize:13,color:'#6E7781',marginBottom:16,lineHeight:1.5}}>{block.hint}</div>}
+      <div style={{background:'var(--surface-container-lowest)',borderRadius:14,padding:'22px 22px',border:'1px solid var(--outline-variant)',boxShadow:'0 1px 3px rgba(15,27,42,.04)'}}>
+        <div style={{fontSize:15,fontWeight:700,color:'var(--on-surface)',marginBottom:6,lineHeight:1.4}}>{block.question}</div>
+        {block.hint&&<div style={{fontSize:13,color:'var(--on-surface-variant)',marginBottom:16,lineHeight:1.5}}>{block.hint}</div>}
         <div style={{display:'flex',flexDirection:'column',gap:10}}>
           {block.items.map(item=>{
             const isChecked=!!checked[item.id];
@@ -705,8 +705,8 @@ function CheckboxQuizBlock({block,blockId,onComplete}){
             // Show feedback ONLY for items the user actually clicked
             const showFb=isTouched;
             const isRight=showFb&&(isChecked===item.correct);
-            const borderColor=showFb?(isRight?'#4A9D68':'#D46B6B'):'#E5E5EA';
-            const fbColor=isRight?'#2D7A4A':'#B8464D';
+            const borderColor=showFb?(isRight?'var(--ok)':'var(--error)'):'var(--outline-variant)';
+            const fbColor=isRight?'var(--ok)':'var(--error)';
             const fbText=isChecked?item.feedbackOn:item.feedbackOff;
             return(
               <div key={item.id} style={{paddingLeft:12,borderLeft:'3px solid '+borderColor,transition:'border-color .3s',paddingBottom:showFb&&fbText?2:0}}>
@@ -716,9 +716,9 @@ function CheckboxQuizBlock({block,blockId,onComplete}){
                     name={single?blockId:undefined}
                     checked={isChecked}
                     onChange={()=>toggle(item.id)}
-                    style={{marginTop:3,cursor:'pointer',accentColor:'#0071e3',width:16,height:16,flexShrink:0}}
+                    style={{marginTop:3,cursor:'pointer',accentColor:'var(--primary)',width:16,height:16,flexShrink:0}}
                   />
-                  <span style={{fontSize:14,color:'#1F2933',lineHeight:1.5}}>{item.label}</span>
+                  <span style={{fontSize:14,color:'var(--on-surface)',lineHeight:1.5}}>{item.label}</span>
                 </label>
                 {showFb&&fbText&&(
                   <div style={{fontSize:12.5,color:fbColor,marginTop:4,marginLeft:26,lineHeight:1.55,animation:'slideDown .3s ease'}}>{fbText}</div>
@@ -778,14 +778,14 @@ function PillarsPickerBlock({block,onComplete}){
   return(
     <div style={{padding:'16px 20px',maxWidth:680,margin:'0 auto'}}>
       {/* Question card — black border, minimalist */}
-      <div style={{background:'#fff',border:'2px solid #0D1B2A',borderRadius:4,padding:'22px 20px'}}>
+      <div style={{background:'var(--surface-container-lowest)',border:'2px solid var(--outline)',borderRadius:4,padding:'22px 20px'}}>
         {/* Mode + Yasna label */}
         <div style={{marginBottom:16}}>
-          <div style={{fontSize:10,fontWeight:700,color:block.mode==='guided'?'#B8560E':'#0071E3',letterSpacing:0.8,textTransform:'uppercase',marginBottom:6}}>
+          <div style={{fontSize:10,fontWeight:700,color:block.mode==='guided'?'var(--tertiary)':'var(--primary)',letterSpacing:0.8,textTransform:'uppercase',marginBottom:6}}>
             {block.mode==='guided'?'Упражнение с подсказкой':'Практика'}
           </div>
-          {block.yasna&&<div style={{fontSize:18,fontWeight:700,color:'#0D1B2A',marginBottom:10,letterSpacing:'-0.2px',lineHeight:1.25}}>{block.yasna}</div>}
-          {block.question&&<div style={{fontSize:15,color:'#1F2933',lineHeight:1.55,fontWeight:400}}>{renderRichText(block.question)}</div>}
+          {block.yasna&&<div style={{fontSize:18,fontWeight:700,color:'var(--on-surface)',marginBottom:10,letterSpacing:'-0.2px',lineHeight:1.25}}>{block.yasna}</div>}
+          {block.question&&<div style={{fontSize:15,color:'var(--on-surface)',lineHeight:1.55,fontWeight:400}}>{renderRichText(block.question)}</div>}
         </div>
 
         {/* Hint (guided only) — collapsed by default so users try
@@ -796,20 +796,20 @@ function PillarsPickerBlock({block,onComplete}){
               style={{
                 display:'flex',alignItems:'center',gap:8,
                 width:'100%',padding:'10px 14px',
-                background:hintOpen?'#FFF8EC':'#FAFBFC',
-                borderLeft:`3px solid ${hintOpen?'#E8A52B':'#D1D5DB'}`,
+                background:hintOpen?'var(--tertiary-container)':'var(--surface-container-low)',
+                borderLeft:`3px solid ${hintOpen?'var(--tertiary)':'var(--outline-variant)'}`,
                 borderTop:'none',borderRight:'none',borderBottom:'none',
                 borderRadius:'0 4px 4px 0',
                 cursor:'pointer',fontFamily:'inherit',textAlign:'left',
-                fontSize:13,color:hintOpen?'#6B4E15':'#5C6A80',fontWeight:600,
+                fontSize:13,color:hintOpen?'var(--on-tertiary-container)':'var(--on-surface-variant)',fontWeight:600,
                 transition:'all .15s'
               }}>
               <span style={{fontSize:14}}>💡</span>
               <span style={{flex:1}}>{hintOpen?'Подсказка':'Показать подсказку'}</span>
-              <span style={{fontSize:11,color:hintOpen?'#B8852A':'#8A95A5',transition:'transform .2s',transform:hintOpen?'rotate(90deg)':'none'}}>▶</span>
+              <span style={{fontSize:11,color:hintOpen?'var(--on-tertiary-container)':'var(--on-surface-variant)',transition:'transform .2s',transform:hintOpen?'rotate(90deg)':'none'}}>▶</span>
             </button>
             {hintOpen&&(
-              <div style={{padding:'10px 14px 12px 17px',background:'#FFF8EC',borderLeft:'3px solid #E8A52B',borderRadius:'0 0 4px 0',fontSize:13.5,color:'#6B4E15',lineHeight:1.55,marginTop:-1}}>
+              <div style={{padding:'10px 14px 12px 17px',background:'var(--tertiary-container)',borderLeft:'3px solid var(--tertiary)',borderRadius:'0 0 4px 0',fontSize:13.5,color:'var(--on-tertiary-container)',lineHeight:1.55,marginTop:-1}}>
                 {renderRichText(block.hint)}
               </div>
             )}
@@ -821,28 +821,31 @@ function PillarsPickerBlock({block,onComplete}){
           {(block.candidates||[]).map((c,idx)=>{
             const isSelected=selected.has(c.id);
             const isRight=correct.has(c.id);
-            let rowColor='#1F2933', rowWeight=400, indicatorBg='#fff', indicatorBorder='#C7C7CC', indicatorFill=null;
+            // Знак внутри кружка красится ПАРОЙ к своей заливке (--on-ok,
+            // --on-error, --on-primary): в тёмной теме заливки светлые, и
+            // общий белый знак на них было бы не различить.
+            let rowColor='var(--on-surface)', rowWeight=400, indicatorBg='var(--surface-container-lowest)', indicatorBorder='var(--outline)', indicatorInk='var(--on-primary)', indicatorFill=null;
             if(submitted){
               if(isSelected && isRight){
-                rowColor='#1B5D35'; rowWeight=600;
-                indicatorBg='#4A9D68'; indicatorBorder='#4A9D68'; indicatorFill='✓';
+                rowColor='var(--ok)'; rowWeight=600;
+                indicatorBg='var(--ok)'; indicatorBorder='var(--ok)'; indicatorInk='var(--on-ok)'; indicatorFill='✓';
               } else if(isSelected && !isRight){
-                rowColor='#8A3939'; rowWeight=500;
-                indicatorBg='#D46B6B'; indicatorBorder='#D46B6B'; indicatorFill='✕';
+                rowColor='var(--error)'; rowWeight=500;
+                indicatorBg='var(--error)'; indicatorBorder='var(--error)'; indicatorInk='var(--on-error)'; indicatorFill='✕';
               } else if(!isSelected && isRight){
-                rowColor='#6B5018'; rowWeight=500;
-                indicatorBorder='#C89030'; indicatorFill=null;
+                rowColor='var(--tertiary)'; rowWeight=500;
+                indicatorBorder='var(--tertiary)'; indicatorFill=null;
               }
             } else if(isSelected){
-              rowColor='#004EB5'; rowWeight=600;
-              indicatorBg='#0071E3'; indicatorBorder='#0071E3'; indicatorFill='✓';
+              rowColor='var(--primary)'; rowWeight=600;
+              indicatorBg='var(--primary)'; indicatorBorder='var(--primary)'; indicatorInk='var(--on-primary)'; indicatorFill='✓';
             }
             return(
               <button key={c.id} onClick={()=>toggle(c.id)}
                 disabled={submitted&&isCorrect}
-                style={{display:'flex',alignItems:'center',gap:14,padding:'14px 0',background:'transparent',border:'none',borderBottom:idx<block.candidates.length-1?'1px solid #F0F0F2':'none',cursor:submitted&&isCorrect?'default':'pointer',textAlign:'left',fontFamily:'inherit',width:'100%'}}>
+                style={{display:'flex',alignItems:'center',gap:14,padding:'14px 0',background:'transparent',border:'none',borderBottom:idx<block.candidates.length-1?'1px solid var(--outline-variant)':'none',cursor:submitted&&isCorrect?'default':'pointer',textAlign:'left',fontFamily:'inherit',width:'100%'}}>
                 {/* Circular checkbox indicator */}
-                <span style={{flexShrink:0,width:22,height:22,borderRadius:'50%',border:`2px solid ${indicatorBorder}`,background:indicatorBg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'#fff',transition:'all .15s'}}>
+                <span style={{flexShrink:0,width:22,height:22,borderRadius:'50%',border:`2px solid ${indicatorBorder}`,background:indicatorBg,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:indicatorInk,transition:'all .15s'}}>
                   {indicatorFill}
                 </span>
                 <span style={{fontSize:15,color:rowColor,fontWeight:rowWeight,lineHeight:1.4,flex:1}}>{c.label}</span>
@@ -853,10 +856,10 @@ function PillarsPickerBlock({block,onComplete}){
 
         {/* Counter + action */}
         {!submitted&&(
-          <div style={{display:'flex',alignItems:'center',gap:12,marginTop:18,paddingTop:16,borderTop:'1px solid #F0F0F2'}}>
-            <div style={{fontSize:12.5,color:'#6E7781',flex:1}}>Выбрано <b style={{color:selected.size===numCorrect?'#0071E3':'#0D1B2A'}}>{selected.size}</b> из {numCorrect}</div>
+          <div style={{display:'flex',alignItems:'center',gap:12,marginTop:18,paddingTop:16,borderTop:'1px solid var(--outline-variant)'}}>
+            <div style={{fontSize:12.5,color:'var(--on-surface-variant)',flex:1}}>Выбрано <b style={{color:selected.size===numCorrect?'var(--primary)':'var(--on-surface)'}}>{selected.size}</b> из {numCorrect}</div>
             <button onClick={check} disabled={selected.size!==numCorrect}
-              style={{fontSize:13.5,fontWeight:600,padding:'10px 20px',borderRadius:4,border:'none',background:selected.size===numCorrect?'#0D1B2A':'#E5E5EA',color:selected.size===numCorrect?'#fff':'#AEAEB2',cursor:selected.size===numCorrect?'pointer':'default',fontFamily:'inherit',transition:'all .15s',letterSpacing:0.2}}>
+              style={{fontSize:13.5,fontWeight:600,padding:'10px 20px',borderRadius:4,border:'none',background:selected.size===numCorrect?'var(--primary)':'var(--surface-container-highest)',color:selected.size===numCorrect?'var(--on-primary)':'var(--on-surface-variant)',cursor:selected.size===numCorrect?'pointer':'default',fontFamily:'inherit',transition:'all .15s',letterSpacing:0.2}}>
               Проверить
             </button>
           </div>
@@ -865,14 +868,14 @@ function PillarsPickerBlock({block,onComplete}){
 
       {/* Feedback — OUTSIDE the question card, with coloured vertical bar on the left */}
       {submitted&&(
-        <div style={{marginTop:14,padding:'16px 18px 16px 20px',borderLeft:`3px solid ${isCorrect?'#4A9D68':'#D46B6B'}`,fontSize:14,lineHeight:1.65,color:'#1F2933'}}>
-          <div style={{fontWeight:700,marginBottom:8,color:isCorrect?'#1B5D35':'#8A3939'}}>
+        <div style={{marginTop:14,padding:'16px 18px 16px 20px',borderLeft:`3px solid ${isCorrect?'var(--ok)':'var(--error)'}`,fontSize:14,lineHeight:1.65,color:'var(--on-surface)'}}>
+          <div style={{fontWeight:700,marginBottom:8,color:isCorrect?'var(--ok)':'var(--error)'}}>
             {isCorrect?'Верно!':'Неверный ответ.'}
           </div>
           <div style={{whiteSpace:'pre-wrap'}}>{renderRichText(isCorrect?block.feedbackOk:block.feedbackError)}</div>
           {!isCorrect&&(
             <button onClick={reset}
-              style={{marginTop:14,fontSize:13,fontWeight:500,padding:'8px 16px',borderRadius:4,border:'1px solid #D1D5DB',background:'#fff',color:'#3D4852',cursor:'pointer',fontFamily:'inherit'}}>
+              style={{marginTop:14,fontSize:13,fontWeight:500,padding:'8px 16px',borderRadius:4,border:'1px solid var(--outline)',background:'var(--surface-container-lowest)',color:'var(--on-surface)',cursor:'pointer',fontFamily:'inherit'}}>
               Попробовать снова
             </button>
           )}
@@ -884,12 +887,12 @@ function PillarsPickerBlock({block,onComplete}){
 function ScenarioBlock({block}){
   return(
     <div style={{padding:'20px 24px 4px',maxWidth:680,margin:'0 auto'}}>
-      <div style={{background:'#FFF7E8',border:'1px solid #F2E1BF',borderRadius:14,padding:'18px 20px'}}>
+      <div style={{background:'var(--tertiary-container)',border:'1px solid var(--tertiary)',borderRadius:14,padding:'18px 20px'}}>
         <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8,flexWrap:'wrap'}}>
-          <div style={{fontSize:10.5,color:'#A26B1F',textTransform:'uppercase',letterSpacing:1,fontWeight:700,background:'#fff',padding:'3px 10px',borderRadius:6,border:'1px solid #F2E1BF'}}>{block.variant}</div>
-          <div style={{fontSize:15,fontWeight:700,color:'#0D1B2A'}}>{block.name}</div>
+          <div style={{fontSize:10.5,color:'var(--on-surface-variant)',textTransform:'uppercase',letterSpacing:1,fontWeight:700,background:'var(--surface-container-lowest)',padding:'3px 10px',borderRadius:6,border:'1px solid var(--outline-variant)'}}>{block.variant}</div>
+          <div style={{fontSize:15,fontWeight:700,color:'var(--on-tertiary-container)'}}>{block.name}</div>
         </div>
-        <div style={{fontSize:14,color:'#3D4852',lineHeight:1.6}}>{block.context}</div>
+        <div style={{fontSize:14,color:'var(--on-tertiary-container)',lineHeight:1.6}}>{block.context}</div>
       </div>
     </div>);
 }
@@ -905,14 +908,14 @@ function YasnaStarBlock({block}){
   const focusType=block.focusType!==undefined?block.focusType:(mode==='full'?'longs':null);
   return(
     <div style={{padding:'20px 16px',maxWidth:680,margin:'0 auto'}}>
-      <div style={{background:'#F8FAFC',borderRadius:16,padding:'20px 4px',border:'1px solid #E5E9EF',textAlign:'center'}}>
-        {block.title&&<div style={{fontSize:14,fontWeight:700,color:'#0D1B2A',marginBottom:12}}>{block.title}</div>}
+      <div style={{background:'var(--surface-container-low)',borderRadius:16,padding:'20px 4px',border:'1px solid var(--outline-variant)',textAlign:'center'}}>
+        {block.title&&<div style={{fontSize:14,fontWeight:700,color:'var(--on-surface)',marginBottom:12}}>{block.title}</div>}
         <div style={{width:'100%',margin:'0 auto',aspectRatio:'800/460'}}>
           <div className="yasna-star-pulse" style={{width:'100%',height:'100%'}}>
             <LessonStar mode={mode} highlighted={highlighted} labels={labels} focusType={focusType}/>
           </div>
         </div>
-        {block.caption&&<div style={{fontSize:13,color:'#6E7781',marginTop:14,lineHeight:1.55,padding:'0 8px'}}>{block.caption}</div>}
+        {block.caption&&<div style={{fontSize:13,color:'var(--on-surface-variant)',marginTop:14,lineHeight:1.55,padding:'0 8px'}}>{block.caption}</div>}
       </div>
     </div>);
 }
@@ -929,23 +932,23 @@ function ReflectionBlock({block,lessonId}){
   };
   return(
     <div style={{padding:'16px 24px',maxWidth:680,margin:'0 auto'}}>
-      <div style={{background:'#FFFBF0',border:'1px solid #F2E3C7',borderRadius:16,padding:'22px 22px'}}>
-        <div style={{fontSize:10.5,color:'#A26B1F',textTransform:'uppercase',letterSpacing:1,fontWeight:700,marginBottom:10}}>Личные заметки</div>
-        <div style={{fontSize:16,fontWeight:700,color:'#0D1B2A',marginBottom:6}}>{block.title}</div>
-        {block.intro&&<div style={{fontSize:13.5,color:'#5C5C63',lineHeight:1.6,marginBottom:18}}>{block.intro}</div>}
+      <div style={{background:'var(--tertiary-container)',border:'1px solid var(--tertiary)',borderRadius:16,padding:'22px 22px'}}>
+        <div style={{fontSize:10.5,color:'var(--on-tertiary-container)',textTransform:'uppercase',letterSpacing:1,fontWeight:700,marginBottom:10}}>Личные заметки</div>
+        <div style={{fontSize:16,fontWeight:700,color:'var(--on-tertiary-container)',marginBottom:6}}>{block.title}</div>
+        {block.intro&&<div style={{fontSize:13.5,color:'var(--on-tertiary-container)',opacity:.85,lineHeight:1.6,marginBottom:18}}>{block.intro}</div>}
         {(block.questions||[]).map(q=>(
           <div key={q.id} style={{marginBottom:14}}>
-            <label style={{display:'block',fontSize:13,fontWeight:600,color:'#0D1B2A',marginBottom:6,lineHeight:1.4}}>{q.label}</label>
+            <label style={{display:'block',fontSize:13,fontWeight:600,color:'var(--on-tertiary-container)',marginBottom:6,lineHeight:1.4}}>{q.label}</label>
             <textarea
               value={answers[q.id]||''}
               onChange={e=>update(q.id,e.target.value)}
               placeholder={q.placeholder||''}
               rows={2}
-              style={{width:'100%',padding:'10px 12px',fontSize:14,fontFamily:'inherit',color:'#1F2933',border:'1px solid #E8D8AE',borderRadius:8,outline:'none',resize:'vertical',lineHeight:1.5,background:'#fff',boxSizing:'border-box'}}
+              style={{width:'100%',padding:'10px 12px',fontSize:14,fontFamily:'inherit',color:'var(--on-surface)',border:'1px solid var(--outline)',borderRadius:8,outline:'none',resize:'vertical',lineHeight:1.5,background:'var(--surface-container-lowest)',boxSizing:'border-box'}}
             />
           </div>
         ))}
-        {block.footer&&<div style={{fontSize:12,color:'#8A7D4F',lineHeight:1.5,marginTop:8,fontStyle:'italic'}}>{block.footer}</div>}
+        {block.footer&&<div style={{fontSize:12,color:'var(--on-tertiary-container)',opacity:.85,lineHeight:1.5,marginTop:8,fontStyle:'italic'}}>{block.footer}</div>}
       </div>
     </div>);
 }
@@ -959,34 +962,34 @@ function FinalQuizInlineBlock({block,onComplete}){
   },[Object.keys(answers).length]);
   return(
     <div style={{padding:'20px 24px',maxWidth:680,margin:'0 auto'}}>
-      <div style={{background:'#fff',borderRadius:16,padding:'24px 24px',border:'1px solid #E5E5EA'}}>
-        {block.title&&<div style={{fontSize:16,fontWeight:700,color:'#0D1B2A',marginBottom:18}}>{block.title}</div>}
+      <div style={{background:'var(--surface-container-lowest)',borderRadius:16,padding:'24px 24px',border:'1px solid var(--outline-variant)'}}>
+        {block.title&&<div style={{fontSize:16,fontWeight:700,color:'var(--on-surface)',marginBottom:18}}>{block.title}</div>}
         {block.questions.map((q,qi)=>{
           const answeredIdx=answers[qi];
           const answered=answeredIdx!=null;
           return(
-            <div key={qi} style={{marginBottom:22,paddingBottom:20,borderBottom:qi<block.questions.length-1?'1px solid #F0F0F2':'none'}}>
-              <div style={{fontSize:14.5,fontWeight:600,color:'#0D1B2A',marginBottom:12,lineHeight:1.45}}>{qi+1}. {q.q}</div>
+            <div key={qi} style={{marginBottom:22,paddingBottom:20,borderBottom:qi<block.questions.length-1?'1px solid var(--outline-variant)':'none'}}>
+              <div style={{fontSize:14.5,fontWeight:600,color:'var(--on-surface)',marginBottom:12,lineHeight:1.45}}>{qi+1}. {q.q}</div>
               <div style={{display:'flex',flexDirection:'column',gap:8}}>
                 {q.options.map((opt,oi)=>{
                   const isSelected=answeredIdx===oi;
                   const isCorrect=oi===q.correctIdx;
-                  let bg='#fff',border='#E5E5EA',color='#1F2933';
+                  let bg='var(--surface-container-lowest)',border='var(--outline-variant)',color='var(--on-surface)';
                   if(answered){
-                    if(isCorrect){bg='#F0F8F3';border='#4A9D68';}
-                    else if(isSelected){bg='#FDF2F2';border='#D46B6B';}
+                    if(isCorrect){bg='var(--ok-container)';border='var(--ok)';}
+                    else if(isSelected){bg='var(--error-container)';border='var(--error)';}
                   }
                   return(
                     <button key={oi}
                       onClick={()=>!answered&&setAnswers(prev=>({...prev,[qi]:oi}))}
                       disabled={answered}
                       style={{textAlign:'left',padding:'11px 14px',fontSize:14,color,background:bg,border:'1.5px solid '+border,borderRadius:10,cursor:answered?'default':'pointer',transition:'all .2s',fontFamily:'inherit',lineHeight:1.4}}
-                    >{opt}{answered&&isCorrect?<span style={{color:'#2D7A4A',fontWeight:700,marginLeft:8}}>✓</span>:null}{answered&&isSelected&&!isCorrect?<span style={{color:'#B8464D',fontWeight:700,marginLeft:8}}>✗</span>:null}</button>);
+                    >{opt}{answered&&isCorrect?<span style={{color:'var(--ok)',fontWeight:700,marginLeft:8}}>✓</span>:null}{answered&&isSelected&&!isCorrect?<span style={{color:'var(--error)',fontWeight:700,marginLeft:8}}>✗</span>:null}</button>);
                 })}
               </div>
               {answered&&q.explain&&(
-                <div style={{marginTop:12,padding:'12px 14px',background:'#F8FAFC',borderRadius:10,fontSize:13,color:'#3D4852',lineHeight:1.6,borderLeft:'3px solid #0071e3'}}>
-                  <b style={{color:'#0D1B2A'}}>Разбор:</b> {q.explain}
+                <div style={{marginTop:12,padding:'12px 14px',background:'var(--surface-container-low)',borderRadius:10,fontSize:13,color:'var(--on-surface)',lineHeight:1.6,borderLeft:'3px solid var(--primary)'}}>
+                  <b style={{color:'var(--on-surface)'}}>Разбор:</b> {q.explain}
                 </div>
               )}
             </div>);
@@ -998,21 +1001,21 @@ function FinalQuizInlineBlock({block,onComplete}){
 function SummaryBlockInline({block}){
   return(
     <div style={{padding:'24px'}}>
-      <div style={{maxWidth:680,margin:'0 auto',background:'linear-gradient(135deg,#0071e3 0%,#004EB5 100%)',color:'#fff',borderRadius:18,padding:'28px 28px',boxShadow:'0 8px 28px rgba(0,78,181,.25)'}}>
-        <div style={{fontSize:11,color:'rgba(255,255,255,.75)',textTransform:'uppercase',letterSpacing:1.2,fontWeight:700,marginBottom:12}}>Главное из этого урока</div>
+      <div style={{maxWidth:680,margin:'0 auto',background:'var(--primary)',color:'var(--on-primary)',borderRadius:18,padding:'28px 28px',boxShadow:'var(--elev-3)'}}>
+        <div style={{fontSize:11,color:'var(--on-primary)',opacity:.8,textTransform:'uppercase',letterSpacing:1.2,fontWeight:700,marginBottom:12}}>Главное из этого урока</div>
         <div style={{fontSize:22,fontWeight:700,marginBottom:18,lineHeight:1.25,letterSpacing:'-0.3px'}}>{block.title}</div>
         <ul style={{listStyle:'none',padding:0,margin:0}}>
           {/* points или items: половина уроков написана через items, и их
               итоговые пункты просто не выводились — 12 строк в трёх уроках. */}
           {(block.points||block.items||[]).map((p,i)=>(
-            <li key={i} style={{display:'flex',gap:12,marginBottom:12,fontSize:14,lineHeight:1.6,color:'rgba(255,255,255,.94)'}}>
+            <li key={i} style={{display:'flex',gap:12,marginBottom:12,fontSize:14,lineHeight:1.6,color:'var(--on-primary)'}}>
               <span style={{flexShrink:0,marginTop:2,opacity:.9}}>—</span>
               <span>{p}</span>
             </li>
           ))}
         </ul>
         {block.nextLabel&&(
-          <div style={{marginTop:22,padding:'14px 16px',background:'rgba(255,255,255,.12)',borderRadius:10,fontSize:13,color:'rgba(255,255,255,.9)',lineHeight:1.55}}>{block.nextLabel}</div>
+          <div style={{marginTop:22,padding:'14px 16px',background:'var(--primary-container)',borderRadius:10,fontSize:13,color:'var(--on-primary-container)',lineHeight:1.55}}>{block.nextLabel}</div>
         )}
       </div>
     </div>);
@@ -1076,32 +1079,32 @@ function NextStepsBlockInline({block,onClose,onPickAnother,onRepeat,onOpenLesson
     <div style={{padding:'16px 24px 60px',maxWidth:680,margin:'0 auto'}}>
       {/* Custom next-lesson promo (optional) — clickable card if nextLessonId provided */}
       {имяСлед&&(
-        <div style={{background:'#fff',border:'1px solid #E5E5EA',borderRadius:14,padding:'18px 18px',marginBottom:12,boxShadow:'0 1px 3px rgba(15,27,42,.05)'}}>
-          {block.title&&<div style={{fontSize:10,fontWeight:700,color:'#0071e3',textTransform:'uppercase',letterSpacing:0.8,marginBottom:6}}>{block.title}</div>}
-          {block.intro&&<div style={{fontSize:13.5,color:'#3D4852',lineHeight:1.55,marginBottom:14}}>{renderRichText(block.intro)}</div>}
+        <div style={{background:'var(--surface-container-lowest)',border:'1px solid var(--outline-variant)',borderRadius:14,padding:'18px 18px',marginBottom:12,boxShadow:'0 1px 3px rgba(15,27,42,.05)'}}>
+          {block.title&&<div style={{fontSize:10,fontWeight:700,color:'var(--primary)',textTransform:'uppercase',letterSpacing:0.8,marginBottom:6}}>{block.title}</div>}
+          {block.intro&&<div style={{fontSize:13.5,color:'var(--on-surface)',lineHeight:1.55,marginBottom:14}}>{renderRichText(block.intro)}</div>}
           {canOpenNext?(
             <button
               onClick={открытьСлед}
-              style={{display:'block',width:'100%',textAlign:'left',padding:'14px 14px',background:'#F0F7FF',borderRadius:12,border:'1px solid #C6E0FA',cursor:'pointer',fontFamily:'inherit',transition:'all .2s'}}
-              onMouseEnter={e=>{e.currentTarget.style.background='#E3EFFE';e.currentTarget.style.borderColor='#95C2F0';e.currentTarget.style.transform='translateY(-1px)';e.currentTarget.style.boxShadow='0 4px 14px rgba(0,113,227,.15)';}}
-              onMouseLeave={e=>{e.currentTarget.style.background='#F0F7FF';e.currentTarget.style.borderColor='#C6E0FA';e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='none';}}
+              style={{display:'block',width:'100%',textAlign:'left',padding:'14px 14px',background:'var(--primary-container)',borderRadius:12,border:'1px solid var(--outline-variant)',cursor:'pointer',fontFamily:'inherit',transition:'all .2s'}}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor='var(--outline)';e.currentTarget.style.transform='translateY(-1px)';e.currentTarget.style.boxShadow='var(--elev-3)';}}
+              onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--outline-variant)';e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='none';}}
             >
               <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6}}>
-                <div style={{fontSize:14,fontWeight:700,color:'#0D1B2A',flex:1,minWidth:0}}>{имяСлед}</div>
-                <span style={{fontSize:18,color:'#0071e3',fontWeight:700,flexShrink:0}}>→</span>
+                <div style={{fontSize:14,fontWeight:700,color:'var(--on-primary-container)',flex:1,minWidth:0}}>{имяСлед}</div>
+                <span style={{fontSize:18,color:'var(--on-primary-container)',fontWeight:700,flexShrink:0}}>→</span>
               </div>
-              {подписьСлед&&<div style={{fontSize:12.5,color:'#3D4852',lineHeight:1.5,marginBottom:4}}>{подписьСлед}</div>}
-              {объёмСлед&&<div style={{fontSize:11.5,color:'#6E7781'}}>{объёмСлед}</div>}
+              {подписьСлед&&<div style={{fontSize:12.5,color:'var(--on-primary-container)',lineHeight:1.5,marginBottom:4}}>{подписьСлед}</div>}
+              {объёмСлед&&<div style={{fontSize:11.5,color:'var(--on-primary-container)',opacity:.8}}>{объёмСлед}</div>}
             </button>
           ):(
-            <div style={{padding:'14px 14px',background:'#F0F7FF',borderRadius:12,border:'1px solid #C6E0FA'}}>
+            <div style={{padding:'14px 14px',background:'var(--primary-container)',borderRadius:12,border:'1px solid var(--outline-variant)'}}>
               <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6}}>
-                <div style={{fontSize:14,fontWeight:700,color:'#0D1B2A',flex:1,minWidth:0}}>{имяСлед}</div>
+                <div style={{fontSize:14,fontWeight:700,color:'var(--on-primary-container)',flex:1,minWidth:0}}>{имяСлед}</div>
                 {/* Урока в приложении нет — так и говорим, без «скоро». */}
-                <span style={{fontSize:10,fontWeight:700,color:'#6E7781',background:'#EEF0F3',padding:'3px 8px',borderRadius:10,letterSpacing:0.3,whiteSpace:'nowrap'}}>в приложении пока нет</span>
+                <span style={{fontSize:10,fontWeight:700,color:'var(--on-surface-variant)',background:'var(--surface-container)',padding:'3px 8px',borderRadius:10,letterSpacing:0.3,whiteSpace:'nowrap'}}>в приложении пока нет</span>
               </div>
-              {подписьСлед&&<div style={{fontSize:12.5,color:'#3D4852',lineHeight:1.5,marginBottom:4}}>{подписьСлед}</div>}
-              {объёмСлед&&<div style={{fontSize:11.5,color:'#6E7781'}}>{объёмСлед}</div>}
+              {подписьСлед&&<div style={{fontSize:12.5,color:'var(--on-primary-container)',lineHeight:1.5,marginBottom:4}}>{подписьСлед}</div>}
+              {объёмСлед&&<div style={{fontSize:11.5,color:'var(--on-primary-container)',opacity:.8}}>{объёмСлед}</div>}
             </div>
           )}
         </div>
@@ -1109,16 +1112,16 @@ function NextStepsBlockInline({block,onClose,onPickAnother,onRepeat,onOpenLesson
       <div style={{display:'flex',flexDirection:'column',gap:10}}>
         {canOpenNext?(
           <>
-            <button onClick={открытьСлед} style={{fontSize:15,fontWeight:600,padding:'14px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer',boxShadow:'0 4px 14px rgba(0,113,227,.3)',fontFamily:'inherit'}}>{'Следующий урок →'}</button>
-            {практика&&<a href={практика} style={{fontSize:14,fontWeight:600,padding:'12px 24px',borderRadius:12,border:'1px solid #C6E0FA',background:'#F0F7FF',color:'#0071e3',cursor:'pointer',fontFamily:'inherit',textAlign:'center',textDecoration:'none'}}>Разложить самому — закрепить</a>}
-            <button onClick={onPickAnother} style={{fontSize:14,fontWeight:500,padding:'12px 24px',borderRadius:12,border:'1px solid #E5E5EA',background:'#fff',color:'#3D4852',cursor:'pointer',fontFamily:'inherit'}}>← Вернуться к «Урокам»</button>
-            <button onClick={onRepeat} style={{fontSize:13,fontWeight:500,padding:'10px 24px',borderRadius:12,border:'none',background:'transparent',color:'#6E7781',cursor:'pointer',fontFamily:'inherit'}}>⟲ Пройти ещё раз</button>
+            <button onClick={открытьСлед} style={{fontSize:15,fontWeight:600,padding:'14px 24px',borderRadius:12,border:'none',background:'var(--primary)',color:'var(--on-primary)',cursor:'pointer',boxShadow:'var(--elev-3)',fontFamily:'inherit'}}>{'Следующий урок →'}</button>
+            {практика&&<a href={практика} style={{fontSize:14,fontWeight:600,padding:'12px 24px',borderRadius:12,border:'none',background:'var(--primary-container)',color:'var(--on-primary-container)',cursor:'pointer',fontFamily:'inherit',textAlign:'center',textDecoration:'none'}}>Разложить самому — закрепить</a>}
+            <button onClick={onPickAnother} style={{fontSize:14,fontWeight:500,padding:'12px 24px',borderRadius:12,border:'1px solid var(--outline-variant)',background:'var(--surface-container-lowest)',color:'var(--on-surface)',cursor:'pointer',fontFamily:'inherit'}}>← Вернуться к «Урокам»</button>
+            <button onClick={onRepeat} style={{fontSize:13,fontWeight:500,padding:'10px 24px',borderRadius:12,border:'none',background:'transparent',color:'var(--on-surface-variant)',cursor:'pointer',fontFamily:'inherit'}}>⟲ Пройти ещё раз</button>
           </>
         ):(
           <>
-            {практика&&<a href={практика} style={{fontSize:15,fontWeight:600,padding:'14px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer',boxShadow:'0 4px 14px rgba(0,113,227,.3)',fontFamily:'inherit',textAlign:'center',textDecoration:'none',display:'block'}}>Разложить самому — закрепить</a>}
-            <button onClick={onPickAnother} style={практика?{fontSize:14,fontWeight:500,padding:'12px 24px',borderRadius:12,border:'1px solid #E5E5EA',background:'#fff',color:'#3D4852',cursor:'pointer',fontFamily:'inherit'}:{fontSize:15,fontWeight:600,padding:'14px 24px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer',boxShadow:'0 4px 14px rgba(0,113,227,.3)',fontFamily:'inherit'}}>← Вернуться к «Урокам»</button>
-            <button onClick={onRepeat} style={{fontSize:14,fontWeight:500,padding:'12px 24px',borderRadius:12,border:'none',background:'transparent',color:'#6E7781',cursor:'pointer',fontFamily:'inherit'}}>⟲ Пройти ещё раз</button>
+            {практика&&<a href={практика} style={{fontSize:15,fontWeight:600,padding:'14px 24px',borderRadius:12,border:'none',background:'var(--primary)',color:'var(--on-primary)',cursor:'pointer',boxShadow:'var(--elev-3)',fontFamily:'inherit',textAlign:'center',textDecoration:'none',display:'block'}}>Разложить самому — закрепить</a>}
+            <button onClick={onPickAnother} style={практика?{fontSize:14,fontWeight:500,padding:'12px 24px',borderRadius:12,border:'1px solid var(--outline-variant)',background:'var(--surface-container-lowest)',color:'var(--on-surface)',cursor:'pointer',fontFamily:'inherit'}:{fontSize:15,fontWeight:600,padding:'14px 24px',borderRadius:12,border:'none',background:'var(--primary)',color:'var(--on-primary)',cursor:'pointer',boxShadow:'var(--elev-3)',fontFamily:'inherit'}}>← Вернуться к «Урокам»</button>
+            <button onClick={onRepeat} style={{fontSize:14,fontWeight:500,padding:'12px 24px',borderRadius:12,border:'none',background:'transparent',color:'var(--on-surface-variant)',cursor:'pointer',fontFamily:'inherit'}}>⟲ Пройти ещё раз</button>
           </>
         )}
       </div>
@@ -1169,6 +1172,9 @@ function useШаги({стадий,мсНаСтадию}){
 // спускается, и петля замыкается сама, без затемнения и перезапуска.
 // Подземная ветка (промокание → пустоты → коллекторы → ключ) идёт вторым,
 // приглушённым слоем под горизонтом — автор проговаривает её отдельно.
+// Цвета внутри картинки (небо, земля, вода, туча, крыша) — это рисунок, а
+// не интерфейс: он одинаков в обеих темах, как фотография на странице.
+// Ролями взяты только карточка вокруг него, подписи и точки шагов.
 function InlineWaterCycleBlock({block}){
   const МС=1500,СТАДИЙ=12;
   const ш=useШаги({стадий:СТАДИЙ,мсНаСтадию:МС});
@@ -1186,8 +1192,8 @@ function InlineWaterCycleBlock({block}){
   const цветТучи=ш.i>=4?'#7E8896':'#fff';
   return(
     <div ref={ш.узел} style={{padding:'8px 24px'}}>
-      <div style={{maxWidth:680,margin:'0 auto',background:'#fff',border:'1px solid #E5E5EA',borderRadius:16,overflow:'hidden'}}>
-        {block.title&&<div style={{padding:'16px 18px 0',fontSize:16,fontWeight:700,color:'#0D1B2A'}}>{block.title}</div>}
+      <div style={{maxWidth:680,margin:'0 auto',background:'var(--surface-container-lowest)',border:'1px solid var(--outline-variant)',borderRadius:16,overflow:'hidden'}}>
+        {block.title&&<div style={{padding:'16px 18px 0',fontSize:16,fontWeight:700,color:'var(--on-surface)'}}>{block.title}</div>}
         <svg viewBox="0 0 400 250" style={{display:'block',width:'100%'}} aria-label="Круговорот воды по кругу Ясны">
           <rect width="400" height="150" fill="#F2F7FC"/>
           <rect y="150" width="400" height="100" fill="#EFE7DC"/>
@@ -1238,24 +1244,26 @@ function InlineWaterCycleBlock({block}){
           <path d="M318 170 C300 205, 220 220, 160 204" stroke="#7FA8C4" strokeWidth="2" strokeDasharray="4 6" fill="none" opacity={.35*п(8)}/>
         </svg>
         <div style={{display:'flex',alignItems:'center',gap:10,padding:'10px 18px 16px'}}>
-          {ш.спок&&<button onClick={ш.назад} aria-label="Предыдущий шаг" style={{minWidth:44,minHeight:44,border:'1px solid #E5E5EA',borderRadius:10,background:'#fff',fontSize:16,cursor:'pointer'}}>‹</button>}
+          {ш.спок&&<button onClick={ш.назад} aria-label="Предыдущий шаг" style={{minWidth:44,minHeight:44,border:'1px solid var(--outline-variant)',borderRadius:10,background:'var(--surface-container-lowest)',fontSize:16,cursor:'pointer'}}>‹</button>}
           <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:11,fontWeight:700,color:'#0071e3',letterSpacing:.6}}>МЕСТО {место}</div>
-            <div style={{fontSize:14.5,fontWeight:600,color:'#0D1B2A',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{имя||('стадия '+(ш.i+1))}</div>
+            <div style={{fontSize:11,fontWeight:700,color:'var(--primary)',letterSpacing:.6}}>МЕСТО {место}</div>
+            <div style={{fontSize:14.5,fontWeight:600,color:'var(--on-surface)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{имя||('стадия '+(ш.i+1))}</div>
           </div>
           <div style={{display:'flex',gap:3}} aria-hidden="true">
             {МЕСТО.map((м,j)=>(
-              <span key={м} style={{width:6,height:6,borderRadius:3,background:j===ш.i?'#0071e3':'#D9DEE4'}}/>
+              <span key={м} style={{width:6,height:6,borderRadius:3,background:j===ш.i?'var(--primary)':'var(--outline-variant)'}}/>
             ))}
           </div>
-          {ш.спок&&<button onClick={ш.вперёд} aria-label="Следующий шаг" style={{minWidth:44,minHeight:44,border:'1px solid #E5E5EA',borderRadius:10,background:'#fff',fontSize:16,cursor:'pointer'}}>›</button>}
+          {ш.спок&&<button onClick={ш.вперёд} aria-label="Следующий шаг" style={{minWidth:44,minHeight:44,border:'1px solid var(--outline-variant)',borderRadius:10,background:'var(--surface-container-lowest)',fontSize:16,cursor:'pointer'}}>›</button>}
         </div>
-        {block.caption&&<div style={{padding:'0 18px 16px',fontSize:12.5,color:'#6E7781',lineHeight:1.5}}>{block.caption}</div>}
+        {block.caption&&<div style={{padding:'0 18px 16px',fontSize:12.5,color:'var(--on-surface-variant)',lineHeight:1.5}}>{block.caption}</div>}
       </div>
     </div>);
 }
 
 // ─── Animated sunrise with rising cortisol curve ───
+// Солнце и линия горизонта остаются своими цветами по той же причине, что и
+// круговорот воды: это рисунок. Карточка, подписи и оси — роли.
 function InlineSunriseBlock({block}){
   const[tick,setTick]=useState(0);
   useEffect(()=>{
@@ -1286,9 +1294,9 @@ function InlineSunriseBlock({block}){
 
   return(
     <div style={{padding:'16px 24px',maxWidth:680,margin:'0 auto'}}>
-      <div style={{background:'linear-gradient(180deg,#F8FAFC 0%,#FFF6E8 60%,#FFEBD9 100%)',borderRadius:16,padding:'20px 18px',border:'1px solid #F2E1BF'}}>
-        {block.title&&<div style={{fontSize:15,fontWeight:700,color:'#0D1B2A',marginBottom:4,textAlign:'center'}}>{block.title}</div>}
-        {block.caption&&<div style={{fontSize:13,color:'#6E7781',marginBottom:14,textAlign:'center',lineHeight:1.5}}>{block.caption}</div>}
+      <div style={{background:'var(--surface-container-low)',borderRadius:16,padding:'20px 18px',border:'1px solid var(--outline-variant)'}}>
+        {block.title&&<div style={{fontSize:15,fontWeight:700,color:'var(--on-surface)',marginBottom:4,textAlign:'center'}}>{block.title}</div>}
+        {block.caption&&<div style={{fontSize:13,color:'var(--on-surface-variant)',marginBottom:14,textAlign:'center',lineHeight:1.5}}>{block.caption}</div>}
 
         <svg viewBox="0 0 400 220" style={{width:'100%',height:200,display:'block'}}>
           {/* Horizon */}
@@ -1297,7 +1305,7 @@ function InlineSunriseBlock({block}){
           {/* Cortisol curve — monotonic dashed blue line */}
           <path
             d={`M 20 170 Q ${60+t*150} ${170-cortisolH*80} ${sunX} ${170-cortisolH*125}`}
-            fill="none" stroke="#0071e3" strokeWidth="2.5" strokeDasharray="4 4" opacity={0.75*fade}
+            fill="none" stroke="var(--primary)" strokeWidth="2.5" strokeDasharray="4 4" opacity={0.75*fade}
           />
 
           {/* Sun */}
@@ -1305,16 +1313,16 @@ function InlineSunriseBlock({block}){
           <circle cx={sunX} cy={sunY} r={14} fill="#FFB020" opacity={fade}/>
 
           {/* Axis labels */}
-          <text x="20" y="190" fontSize="10" fill="#6E7781">~3:00</text>
-          <text x="200" y="190" fontSize="10" fill="#6E7781" textAnchor="middle">~6:30</text>
-          <text x="380" y="190" fontSize="10" fill="#6E7781" textAnchor="end">~9:00</text>
+          <text x="20" y="190" fontSize="10" fill="var(--on-surface-variant)">~3:00</text>
+          <text x="200" y="190" fontSize="10" fill="var(--on-surface-variant)" textAnchor="middle">~6:30</text>
+          <text x="380" y="190" fontSize="10" fill="var(--on-surface-variant)" textAnchor="end">~9:00</text>
 
           {/* Legend */}
           <g transform="translate(10, 208)">
-            <line x1="0" y1="0" x2="16" y2="0" stroke="#0071e3" strokeWidth="2" strokeDasharray="3 3"/>
-            <text x="22" y="3" fontSize="9" fill="#6E7781">кортизол</text>
+            <line x1="0" y1="0" x2="16" y2="0" stroke="var(--primary)" strokeWidth="2" strokeDasharray="3 3"/>
+            <text x="22" y="3" fontSize="9" fill="var(--on-surface-variant)">кортизол</text>
             <circle cx="80" cy="0" r="4" fill="#FFB020"/>
-            <text x="90" y="3" fontSize="9" fill="#6E7781">солнце</text>
+            <text x="90" y="3" fontSize="9" fill="var(--on-surface-variant)">солнце</text>
           </g>
         </svg>
 
@@ -1322,10 +1330,10 @@ function InlineSunriseBlock({block}){
           {shelfLabels.map(s=>{
             const isActive=activeShelf===s.num;
             return(
-              <div key={s.num} style={{flex:1,textAlign:'center',padding:'8px 6px',borderRadius:10,background:isActive?'#fff':'transparent',border:'1.5px solid '+(isActive?'#0071e3':'transparent'),transition:'all .3s'}}>
-                <div style={{fontSize:16,fontWeight:800,color:isActive?'#0071e3':'#B0B8C0',transition:'color .3s'}}>{s.num}</div>
-                <div style={{fontSize:11.5,fontWeight:700,color:isActive?'#0D1B2A':'#8A8A8F',marginTop:2,transition:'color .3s'}}>{s.name}</div>
-                <div style={{fontSize:10.5,color:'#6E7781',marginTop:1,lineHeight:1.3}}>{s.desc}</div>
+              <div key={s.num} style={{flex:1,textAlign:'center',padding:'8px 6px',borderRadius:10,background:isActive?'var(--surface-container-lowest)':'transparent',border:'1.5px solid '+(isActive?'var(--primary)':'transparent'),transition:'all .3s'}}>
+                <div style={{fontSize:16,fontWeight:800,color:isActive?'var(--primary)':'var(--on-surface-variant)',transition:'color .3s'}}>{s.num}</div>
+                <div style={{fontSize:11.5,fontWeight:700,color:isActive?'var(--on-surface)':'var(--on-surface-variant)',marginTop:2,transition:'color .3s'}}>{s.name}</div>
+                <div style={{fontSize:10.5,color:'var(--on-surface-variant)',marginTop:1,lineHeight:1.3}}>{s.desc}</div>
               </div>);
           })}
         </div>
@@ -1345,16 +1353,16 @@ function InlineThreeShelvesBlock({block,onComplete}){
 
   return(
     <div style={{padding:'16px 24px',maxWidth:680,margin:'0 auto'}}>
-      <div style={{background:'#fff',borderRadius:14,padding:'22px 22px',border:'1px solid #E5E5EA',boxShadow:'0 1px 3px rgba(15,27,42,.04)'}}>
-        <div style={{fontSize:15,fontWeight:700,color:'#0D1B2A',marginBottom:6,lineHeight:1.4}}>{block.question}</div>
-        {block.hint&&<div style={{fontSize:13,color:'#6E7781',marginBottom:16,lineHeight:1.5}}>{block.hint}</div>}
+      <div style={{background:'var(--surface-container-lowest)',borderRadius:14,padding:'22px 22px',border:'1px solid var(--outline-variant)',boxShadow:'0 1px 3px rgba(15,27,42,.04)'}}>
+        <div style={{fontSize:15,fontWeight:700,color:'var(--on-surface)',marginBottom:6,lineHeight:1.4}}>{block.question}</div>
+        {block.hint&&<div style={{fontSize:13,color:'var(--on-surface-variant)',marginBottom:16,lineHeight:1.5}}>{block.hint}</div>}
 
         {/* Shelf legend */}
-        <div style={{display:'flex',gap:8,marginBottom:16,padding:'12px 10px',background:'#F5F8FC',borderRadius:12}}>
+        <div style={{display:'flex',gap:8,marginBottom:16,padding:'12px 10px',background:'var(--surface-container)',borderRadius:12}}>
           {block.shelves.map(s=>(
             <div key={s.num} style={{flex:1,textAlign:'center'}}>
-              <div style={{fontSize:16,fontWeight:800,color:'#0071e3'}}>{s.num}</div>
-              <div style={{fontSize:12,fontWeight:700,color:'#0D1B2A',marginTop:2}}>{s.name}</div>
+              <div style={{fontSize:16,fontWeight:800,color:'var(--primary)'}}>{s.num}</div>
+              <div style={{fontSize:12,fontWeight:700,color:'var(--on-surface)',marginTop:2}}>{s.name}</div>
             </div>
           ))}
         </div>
@@ -1364,20 +1372,20 @@ function InlineThreeShelvesBlock({block,onComplete}){
           const assigned=assignments[item.id];
           const attempted=assigned!=null;
           const isCorrect=assigned===item.correct;
-          const cardBg=attempted?(isCorrect?'#F0F8F3':'#FDF3F3'):'#fff';
-          const cardBorder=attempted?(isCorrect?'#4A9D68':'#D46B6B'):'#E5E5EA';
+          const cardBg=attempted?(isCorrect?'var(--ok-container)':'var(--error-container)'):'var(--surface-container-lowest)';
+          const cardBorder=attempted?(isCorrect?'var(--ok)':'var(--error)'):'var(--outline-variant)';
           return(
             <div key={item.id} style={{marginBottom:10,padding:'14px 14px',background:cardBg,border:'1px solid '+cardBorder,borderRadius:12,transition:'all .25s'}}>
-              <div style={{fontSize:14,color:'#1F2933',marginBottom:10,lineHeight:1.45}}>{item.label}</div>
+              <div style={{fontSize:14,color:attempted?(isCorrect?'var(--on-ok-container)':'var(--on-error-container)'):'var(--on-surface)',marginBottom:10,lineHeight:1.45}}>{item.label}</div>
               <div style={{display:'flex',gap:6}}>
                 {block.shelves.map(s=>{
                   const selected=assigned===s.num;
                   const correctBtn=attempted&&s.num===item.correct;
-                  let bg='#fff',color='#3D4852',border='#E5E5EA';
+                  let bg='var(--surface-container-lowest)',color='var(--on-surface)',border='var(--outline-variant)';
                   if(attempted){
-                    if(selected&&isCorrect){bg='#4A9D68';color='#fff';border='#4A9D68';}
-                    else if(selected&&!isCorrect){bg='#D46B6B';color='#fff';border='#D46B6B';}
-                    else if(correctBtn){bg='#fff';color='#4A9D68';border='#4A9D68';}
+                    if(selected&&isCorrect){bg='var(--ok)';color='var(--on-ok)';border='var(--ok)';}
+                    else if(selected&&!isCorrect){bg='var(--error)';color='var(--on-error)';border='var(--error)';}
+                    else if(correctBtn){bg='var(--surface-container-lowest)';color='var(--ok)';border='var(--ok)';}
                   }
                   return(
                     <button key={s.num}
@@ -1388,7 +1396,7 @@ function InlineThreeShelvesBlock({block,onComplete}){
                 })}
               </div>
               {attempted&&item.explain&&(
-                <div style={{fontSize:12.5,color:isCorrect?'#2D7A4A':'#B8464D',marginTop:10,lineHeight:1.55}}>
+                <div style={{fontSize:12.5,color:isCorrect?'var(--on-ok-container)':'var(--on-error-container)',marginTop:10,lineHeight:1.55}}>
                   {isCorrect?'✓ ':'Правильно — '+item.correct+'. '}{item.explain}
                 </div>
               )}
@@ -1425,22 +1433,22 @@ function InlineCarouselBlock({block}){
     const vbPadX=44, vbPadY=22;
     return(
       <svg viewBox={`${-vbPadX} ${-vbPadY} ${size+vbPadX*2} ${size+vbPadY*2}`} style={{width:'100%',maxWidth:260,display:'block',margin:'0 auto'}}>
-        <circle cx={cx} cy={cy} r={r} fill="none" stroke={color+'33'} strokeWidth="1" strokeDasharray="2 3"/>
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke={color} strokeOpacity=".2" strokeWidth="1" strokeDasharray="2 3"/>
         {/* cross lines: 0↔6 (vertical) and 3↔9 (horizontal) */}
         {[[0,6],[3,9]].map(([a,b],i)=>{
           const pa=pt(a), pb=pt(b);
-          return<line key={i} x1={pa.x} y1={pa.y} x2={pb.x} y2={pb.y} stroke={color+'55'} strokeWidth="1.5"/>;
+          return<line key={i} x1={pa.x} y1={pa.y} x2={pb.x} y2={pb.y} stroke={color} strokeOpacity=".33" strokeWidth="1.5"/>;
         })}
         {/* 12 dots — only 4 pillars are colored, rest are muted */}
         {Array.from({length:12}).map((_,i)=>{
           const p=pt(i);
           const isPillar=pillarPositions.includes(i);
-          return<circle key={i} cx={p.x} cy={p.y} r={isPillar?8:3} fill={isPillar?color:'#D1D1D6'}/>;
+          return<circle key={i} cx={p.x} cy={p.y} r={isPillar?8:3} fill={isPillar?color:'var(--outline-variant)'}/>;
         })}
         {/* pillar position numbers inside colored dots */}
         {pillars.map(p=>{
           const pos=pt(p.pos);
-          return<text key={'n'+p.pos} x={pos.x} y={pos.y+3.5} textAnchor="middle" fontSize="9" fontWeight="700" fill="#fff">{p.pos}</text>;
+          return<text key={'n'+p.pos} x={pos.x} y={pos.y+3.5} textAnchor="middle" fontSize="9" fontWeight="700" fill="var(--on-primary)">{p.pos}</text>;
         })}
         {/* pillar labels outside — anchored by position to avoid clipping at sides */}
         {pillars.map(p=>{
@@ -1462,8 +1470,8 @@ function InlineCarouselBlock({block}){
   return(
     <div style={{padding:'16px 0',maxWidth:680,margin:'0 auto'}}>
       <div style={{padding:'0 24px',marginBottom:14}}>
-        {block.title&&<div style={{fontSize:15,fontWeight:700,color:'#0D1B2A',marginBottom:4}}>{block.title}</div>}
-        {block.hint&&<div style={{fontSize:13,color:'#6E7781',lineHeight:1.5}}>{block.hint}</div>}
+        {block.title&&<div style={{fontSize:15,fontWeight:700,color:'var(--on-surface)',marginBottom:4}}>{block.title}</div>}
+        {block.hint&&<div style={{fontSize:13,color:'var(--on-surface-variant)',lineHeight:1.5}}>{block.hint}</div>}
       </div>
       <div
         ref={ref}
@@ -1471,19 +1479,19 @@ function InlineCarouselBlock({block}){
         style={{display:'flex',gap:12,overflowX:'auto',scrollSnapType:'x mandatory',padding:'4px 24px 12px',WebkitOverflowScrolling:'touch',scrollbarWidth:'none'}}
       >
         {block.items.map((item,i)=>(
-          <div key={i} style={{flex:'0 0 78%',maxWidth:320,scrollSnapAlign:'start',background:item.bg||'#fff',borderRadius:14,padding:'18px 18px',border:'1px solid '+(item.color||item.accent||'#E5E5EA')+'40',boxShadow:'0 1px 3px rgba(15,27,42,.05)'}}>
+          <div key={i} style={{flex:'0 0 78%',maxWidth:320,scrollSnapAlign:'start',background:'var(--surface-container-low)',borderRadius:14,padding:'18px 18px',border:'1px solid var(--outline-variant)',boxShadow:'none'}}>
             {item.emoji&&<div style={{fontSize:26,marginBottom:8}}>{item.emoji}</div>}
-            <div style={{fontSize:15,fontWeight:700,color:'#0D1B2A',marginBottom:3,lineHeight:1.3}}>{item.title}</div>
-            {item.subtitle&&<div style={{fontSize:11.5,color:'#6E7781',marginBottom:12,textTransform:'uppercase',letterSpacing:0.6,fontWeight:600}}>{item.subtitle}</div>}
-            {item.pillars && <div style={{padding:'12px 0 8px'}}><PillarsMini pillars={item.pillars} color={item.color||'#0071e3'}/></div>}
-            {item.body && <div style={{fontSize:13.5,color:'#3D4852',lineHeight:1.6,whiteSpace:'pre-wrap'}}>{renderRichText(item.body)}</div>}
+            <div style={{fontSize:15,fontWeight:700,color:'var(--on-surface)',marginBottom:3,lineHeight:1.3}}>{item.title}</div>
+            {item.subtitle&&<div style={{fontSize:11.5,color:'var(--on-surface-variant)',marginBottom:12,textTransform:'uppercase',letterSpacing:0.6,fontWeight:600}}>{item.subtitle}</div>}
+            {item.pillars && <div style={{padding:'12px 0 8px'}}><PillarsMini pillars={item.pillars} color={'var(--primary)'}/></div>}
+            {item.body && <div style={{fontSize:13.5,color:'var(--on-surface)',lineHeight:1.6,whiteSpace:'pre-wrap'}}>{renderRichText(item.body)}</div>}
           </div>
         ))}
       </div>
       {/* dots */}
       <div style={{display:'flex',justifyContent:'center',gap:6,marginTop:8}}>
         {block.items.map((_,i)=>(
-          <div key={i} style={{width:activeIdx===i?18:6,height:6,borderRadius:3,background:activeIdx===i?'#0071e3':'#D1D1D6',transition:'all .25s'}}/>
+          <div key={i} style={{width:activeIdx===i?18:6,height:6,borderRadius:3,background:activeIdx===i?'var(--primary)':'var(--outline-variant)',transition:'all .25s'}}/>
         ))}
       </div>
     </div>);
@@ -1500,16 +1508,16 @@ function InlineBarChartBlock({block}){
   const max=Math.max(...block.bars.map(b=>b.value));
   return(
     <div style={{padding:'16px 24px',maxWidth:680,margin:'0 auto'}}>
-      <div style={{background:'#fff',borderRadius:14,padding:'22px 22px',border:'1px solid #E5E5EA',boxShadow:'0 1px 3px rgba(15,27,42,.04)'}}>
-        {block.title&&<div style={{fontSize:14,fontWeight:700,color:'#0D1B2A',marginBottom:6}}>{block.title}</div>}
-        {block.caption&&<div style={{fontSize:12.5,color:'#6E7781',marginBottom:20,lineHeight:1.55}}>{block.caption}</div>}
+      <div style={{background:'var(--surface-container-lowest)',borderRadius:14,padding:'22px 22px',border:'1px solid var(--outline-variant)',boxShadow:'0 1px 3px rgba(15,27,42,.04)'}}>
+        {block.title&&<div style={{fontSize:14,fontWeight:700,color:'var(--on-surface)',marginBottom:6}}>{block.title}</div>}
+        {block.caption&&<div style={{fontSize:12.5,color:'var(--on-surface-variant)',marginBottom:20,lineHeight:1.55}}>{block.caption}</div>}
         <div style={{display:'flex',gap:16,alignItems:'flex-end',height:170,paddingBottom:8}}>
           {block.bars.map((b,i)=>{
             const minVisible=6; // always show at least a sliver for zero/tiny values
             const h=max>0?Math.max(minVisible,(b.value/max)*130):minVisible;
             return(
               <div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'flex-end',height:'100%',minWidth:0}}>
-                <div style={{width:'100%',maxWidth:72,height:(mounted?h:0)+'px',background:b.color||'#0071e3',borderRadius:'6px 6px 0 0',transition:'height .7s cubic-bezier(0.16,1,0.3,1) '+(i*150)+'ms'}}/>
+                <div style={{width:'100%',maxWidth:72,height:(mounted?h:0)+'px',background:b.color||'var(--primary)',borderRadius:'6px 6px 0 0',transition:'height .7s cubic-bezier(0.16,1,0.3,1) '+(i*150)+'ms'}}/>
               </div>);
           })}
         </div>
@@ -1517,19 +1525,19 @@ function InlineBarChartBlock({block}){
         <div style={{display:'flex',gap:16,marginTop:8}}>
           {block.bars.map((b,i)=>(
             <div key={i} style={{flex:1,textAlign:'center',minWidth:0}}>
-              <div style={{fontSize:11.5,fontWeight:700,color:b.color||'#0071e3',lineHeight:1.35,wordBreak:'break-word'}}>{b.valueLabel||b.value}</div>
+              <div style={{fontSize:11.5,fontWeight:700,color:b.color||'var(--primary)',lineHeight:1.35,wordBreak:'break-word'}}>{b.valueLabel||b.value}</div>
             </div>
           ))}
         </div>
-        <div style={{display:'flex',gap:16,marginTop:12,borderTop:'1px solid #F0F0F2',paddingTop:12}}>
+        <div style={{display:'flex',gap:16,marginTop:12,borderTop:'1px solid var(--outline-variant)',paddingTop:12}}>
           {block.bars.map((b,i)=>(
             <div key={i} style={{flex:1,textAlign:'center',minWidth:0}}>
-              <div style={{fontSize:13,fontWeight:700,color:'#0D1B2A'}}>{b.label}</div>
-              {b.sublabel&&<div style={{fontSize:11,color:'#6E7781',marginTop:2,lineHeight:1.4}}>{b.sublabel}</div>}
+              <div style={{fontSize:13,fontWeight:700,color:'var(--on-surface)'}}>{b.label}</div>
+              {b.sublabel&&<div style={{fontSize:11,color:'var(--on-surface-variant)',marginTop:2,lineHeight:1.4}}>{b.sublabel}</div>}
             </div>
           ))}
         </div>
-        {block.footer&&<div style={{fontSize:12,color:'#6E7781',marginTop:16,lineHeight:1.55,textAlign:'center',fontStyle:'italic'}}>{block.footer}</div>}
+        {block.footer&&<div style={{fontSize:12,color:'var(--on-surface-variant)',marginTop:16,lineHeight:1.55,textAlign:'center',fontStyle:'italic'}}>{block.footer}</div>}
       </div>
     </div>);
 }
@@ -1679,25 +1687,30 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
   };
 
   return(
-    <div className="yl-lightscope" style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'#F8F8F9',zIndex:130,display:'flex',flexDirection:'column',colorScheme:'light'}}>
+    /* Урок больше не «светлый остров»: фон и все цвета блоков — роли из
+       core/tokeny.css, поэтому тема урока совпадает с темой приложения и не
+       мигает при открытии. colorScheme здесь инлайном нарочно: правило
+       .yl-lightscope{color-scheme:light} в vk-tech-tokens.css принудительно
+       светлило элементы формы и полосы прокрутки, а инлайн сильнее его. */
+    <div className="yl-lightscope" style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'var(--surface)',zIndex:130,display:'flex',flexDirection:'column',colorScheme:'light dark'}}>
       {/* Sticky header */}
-      <div style={{padding:'10px 16px',borderBottom:'1px solid #ECECEE',flexShrink:0,display:'flex',alignItems:'center',gap:10,background:'#fff',position:'relative',boxShadow:'0 1px 2px rgba(0,0,0,.02)'}}>
+      <div style={{padding:'10px 16px',borderBottom:'1px solid var(--outline-variant)',flexShrink:0,display:'flex',alignItems:'center',gap:10,background:'var(--surface-container-lowest)',position:'relative',boxShadow:'0 1px 2px rgba(0,0,0,.02)'}}>
         <div style={{flex:1,minWidth:0}}>
-          <div style={{fontSize:10,color:'#6E7781',textTransform:'uppercase',letterSpacing:0.6,fontWeight:600}}>{lesson.module?'Урок '+lesson.order+' · '+lesson.module:'Урок '+lesson.order}</div>
-          <div style={{fontSize:14,fontWeight:600,color:'#0D1B2A',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{lesson.title}</div>
+          <div style={{fontSize:10,color:'var(--on-surface-variant)',textTransform:'uppercase',letterSpacing:0.6,fontWeight:600}}>{lesson.module?'Урок '+lesson.order+' · '+lesson.module:'Урок '+lesson.order}</div>
+          <div style={{fontSize:14,fontWeight:600,color:'var(--on-surface)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{lesson.title}</div>
         </div>
-        <div style={{fontSize:11,color:'#6E7781',fontWeight:600,marginRight:6}}>{Math.round(progress)}%</div>
+        <div style={{fontSize:11,color:'var(--on-surface-variant)',fontWeight:600,marginRight:6}}>{Math.round(progress)}%</div>
         {/* Один выход из урока: ✕, Esc и аппаратная «назад» зовут один и тот
             же onClose (закрытьУрок в app.js) — разных дорог наружу быть не
             может. Имя кнопке нужно: без него TalkBack читал «крестик». */}
-        <button onClick={onClose} aria-label='Закрыть урок' style={{width:32,height:32,borderRadius:8,border:'1px solid #E5E5EA',background:'#fff',cursor:'pointer',color:'#3D4852',fontSize:14}}>✕</button>
-        <div style={{position:'absolute',left:0,bottom:-1,height:3,width:'100%',background:'#ECECEE'}}>
-          <div style={{height:'100%',width:progress+'%',background:'linear-gradient(90deg,#0071e3,#2D94F0)',transition:'width .35s ease'}}/>
+        <button onClick={onClose} aria-label='Закрыть урок' style={{width:32,height:32,borderRadius:8,border:'1px solid var(--outline-variant)',background:'var(--surface-container-lowest)',cursor:'pointer',color:'var(--on-surface)',fontSize:14}}>✕</button>
+        <div style={{position:'absolute',left:0,bottom:-1,height:3,width:'100%',background:'var(--surface-container-high)'}}>
+          <div style={{height:'100%',width:progress+'%',background:'var(--primary)',transition:'width .35s ease'}}/>
         </div>
       </div>
 
       {/* Scrollable body */}
-      <div ref={scrollRef} style={{flex:1,overflowY:'auto',WebkitOverflowScrolling:'touch',background:'#F8F8F9'}}>
+      <div ref={scrollRef} style={{flex:1,overflowY:'auto',WebkitOverflowScrolling:'touch',background:'var(--surface)'}}>
         {visibleBlocks.map((block,i)=>{
           const setRef=(el)=>{blockRefs.current[i]=el;};
           const animClass=i>=(gateIndices[unlockedGates-2]!=null?gateIndices[unlockedGates-2]+1:0)?'scroll-lesson-block-appear':'';
@@ -1731,7 +1744,7 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
             case 'bar-chart': return wrap(<InlineBarChartBlock block={block}/>);
             case 'summary-block': return wrap(<SummaryBlockInline block={block}/>);
             case 'next-steps-block': return wrap(<NextStepsBlockInline block={block} lesson={lesson} onClose={onClose} onPickAnother={onPickAnother} onRepeat={repeat} onOpenLesson={onOpenLesson}/>);
-            default: return wrap(<div style={{padding:20,color:'#B0B0B8',textAlign:'center'}}>Блок '{block.type}' не реализован</div>);
+            default: return wrap(<div style={{padding:20,color:'var(--on-surface-variant)',textAlign:'center'}}>Блок '{block.type}' не реализован</div>);
           }
         })}
         {/* bottom padding */}
@@ -1750,11 +1763,11 @@ function Lesson({lessonId,onClose,onComplete,onPickAnother,onOpenLesson}){
   /* Урока нет — говорим прямо. Раньше стояло ||ALL[0]: битая ссылка молча
      открывала «Что такое Ясна?», и человек не понимал, куда попал. */
   if(!lesson)return(
-    <div style={{position:'fixed',inset:0,zIndex:150,background:'#F5F5F7',display:'flex',alignItems:'center',justifyContent:'center',padding:24}}>
+    <div style={{position:'fixed',inset:0,zIndex:150,background:'var(--surface)',display:'flex',alignItems:'center',justifyContent:'center',padding:24}}>
       <div style={{maxWidth:420,textAlign:'center'}}>
-        <div style={{fontSize:20,fontWeight:700,color:'#0D1B2A',marginBottom:10}}>Этот урок ещё не написан</div>
-        <div style={{fontSize:14,color:'#3D4852',lineHeight:1.6,marginBottom:22}}>Ссылка ведёт на занятие, которого в приложении пока нет.</div>
-        <button onClick={onPickAnother||onClose} style={{fontSize:15,fontWeight:600,padding:'13px 26px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer',fontFamily:'inherit'}}>← К «Урокам»</button>
+        <div style={{fontSize:20,fontWeight:700,color:'var(--on-surface)',marginBottom:10}}>Этот урок ещё не написан</div>
+        <div style={{fontSize:14,color:'var(--on-surface)',lineHeight:1.6,marginBottom:22}}>Ссылка ведёт на занятие, которого в приложении пока нет.</div>
+        <button onClick={onPickAnother||onClose} style={{fontSize:15,fontWeight:600,padding:'13px 26px',borderRadius:12,border:'none',background:'var(--primary)',color:'var(--on-primary)',cursor:'pointer',fontFamily:'inherit'}}>← К «Урокам»</button>
       </div>
     </div>);
   return<ScrollLesson key={lesson.id} lesson={lesson} onClose={onClose} onComplete={onComplete} onPickAnother={onPickAnother} onOpenLesson={onOpenLesson}/>;

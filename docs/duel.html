@@ -4,10 +4,11 @@
 <meta charset="UTF-8"/>
 <meta name="robots" content="noindex, nofollow"/>
 <meta name="yandex" content="noindex, nofollow"/>
-<!-- Единая тема (core/theme.js, ключ yasna_theme). Адаптер: light → body.vk-light (как раньше). -->
+<!-- Единая тема (core/theme.js, ключ yasna_theme): html[data-theme] и роли из
+     tokeny.css. Адаптер с классом vk-light убран — цвет больше не собирается
+     из трёх слоёв, светлая и тёмная берутся из одних и тех же ролей. -->
 <!-- Замок: подключён ПЕРВЫМ, до всего остального (см. core/gate.js) -->
 <script src="core/gate.js"></script>
-<script>window.YasnaThemeAdapter=function(d){if(document.body)document.body.classList.toggle('vk-light',d==='light');};</script>
 <script src="core/theme.js?v=86eb1366"></script>
 <script src="core/storage.js?v=529ec80c"></script>
 <script src="core/access.js?v=4ed1e962"></script>
@@ -39,22 +40,25 @@
 <meta name="yasna:api"    content="https://d5dmdje8c5mk8811il5j.iwzqm34r.apigw.yandexcloud.net"/>
 <meta name="yasna:tg-bot" content="YasnaDuelBot"/>
 
+<!-- Роли цвета, шкала типа и движение: один файл на сайт и приложение. Подключён ПЕРВЫМ из стилей — он только объявляет переменные и ничего не перебивает. -->
+<link rel="stylesheet" href="core/tokeny.css">
+<!-- styles.css нужен ради общих узлов, которые рисует ядро: шторка (.sht-*),
+     досье места (.dos-*), круг. Собственно экран Игр — один файл ниже.
+     Было семь таблиц на 389 КБ, и три из них перекрашивали друг друга.
+     Гарнитуры больше не отдельной ссылкой: их подтягивает tokeny.css. -->
 <link rel="stylesheet" href="styles.css"/>
-<link rel="stylesheet" href="games/duel/duel-page.css?v=2e7dce9a"/>
-<!-- Светлая VK-тема: широкая вёрстка тёмной темы в светлых цветах Конструктора -->
-<link rel="stylesheet" href="vendor/fonts/shrifty.css">
-<link rel="stylesheet" href="vk-tech-tokens.css?v=b93ac0b9"/>
-<link rel="stylesheet" href="games/duel/theme-vk-dark.css?v=332fb143"/>
-<link rel="stylesheet" href="games/duel/vk-scheme.css?v=ea68fbc1"/>
-<link rel="stylesheet" href="games/duel/vk-light.css?v=fe30e59f"/>
-<link rel="stylesheet" href="core/site-nav.css?v=f8cd9a99"/>
+<link rel="stylesheet" href="games/duel/duel-page.css?v=d3fbd5c2"/>
+<link rel="stylesheet" href="core/site-nav.css?v=52aebf72"/>
 </head>
-<body class="theme-vk-dark vk-light">
+<!-- .igra — область действия компонентного CSS экрана, а не тема: тему держит
+     html[data-theme]. Без этого класса правила экрана доставали бы до
+     admin.html, который грузит тот же файл. -->
+<body class="igra">
 <!-- Тема оформления: применяем сохранённый выбор ДО отрисовки (без мигания).
-     Светлая по умолчанию (vk-light); '1' в localStorage → тёмная (снимаем vk-light).
+     Класс на body больше не переключаем — цвет держат роли и html[data-theme].
      color-scheme выставляем явно, чтобы браузер в системном тёмном НЕ перекрашивал
      светлую страницу принудительно (force-dark делал текст серым). -->
-<script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.setAttribute('data-theme',d?'dark':'light');document.documentElement.style.colorScheme=d?'dark':'light';document.body.classList.toggle('vk-light',!d);}catch(e){}</script>
+<script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.setAttribute('data-theme',d?'dark':'light');document.documentElement.style.colorScheme=d?'dark':'light';}catch(e){}</script>
 <div id="duel-page-root"></div>
 
 <!-- React + Three.js + Firebase из CDN -->
@@ -76,6 +80,6 @@
 
 <!-- Pre-built bundle: core/* + games/duel/* + duel-page (см. scripts/build.mjs) -->
 <!-- Cache-busting: меняй версию при каждом релизе чтобы CDN отдавал свежий файл -->
-<script src="dist/duel.min.js?v=aa80ff52"></script>
+<script src="dist/duel.min.js?v=d5cb075b"></script>
 </body>
 </html>
