@@ -87,15 +87,18 @@ fetch('app/version.json?t='+Date.now()).then(function(r){return r.json()}).then(
   if(!v||!v.versionName)return;
   document.getElementById('versiya').textContent=v.versionName;
   if(v.url)document.getElementById('skachat').setAttribute('href',v.url);
+  /* Размер — оттуда же, где версия. Раньше он брался отдельным HEAD по самому
+     APK: запрос на девятимегабайтный файл ради одного заголовка браузеры рвут
+     (net::ERR_ABORTED), и на странице навсегда оставалось «7,2 МБ» из
+     заглушки — цифра из позапрошлого года. Теперь размер кладёт в манифест
+     vypustit.sh, по тому же файлу, что и отпечаток: лишнего запроса нет, и
+     разойтись им негде. */
+  if(v.razmer>0)
+    document.getElementById('razmer').textContent=(v.razmer/1048576).toFixed(1).replace('.',',')+' МБ';
   if(v.izmeneniya){
     document.getElementById('novoe-tekst').textContent=v.izmeneniya;
     document.getElementById('novoe').hidden=false;
   }
-}).catch(function(){});
-/* Размер — честный, из заголовков файла. */
-fetch('app/yasna.apk',{method:'HEAD'}).then(function(r){
-  var б=+r.headers.get('content-length')||0;
-  if(б)document.getElementById('razmer').textContent=(б/1048576).toFixed(1).replace('.',',')+' МБ';
 }).catch(function(){});
 </script>
 </body>
