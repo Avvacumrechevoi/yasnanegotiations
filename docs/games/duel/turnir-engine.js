@@ -117,11 +117,93 @@
     return avatarInitials(name);
   }
 
+  // ─── Вопрос с глаголами на кнопках ──────────────────────────────
+  // Вместо window.confirm(). В приложении системный confirm рисует кнопки
+  // «OK» и «Cancel» — по-английски и одинаково на любой вопрос: на «Прервать
+  // партию?» человек читает «OK» и заново гадает, что он сейчас нажмёт. Здесь
+  // на кнопках стоят глаголы того самого действия, о котором спрашивают,
+  // отказ держит фокус, а «назад» и Escape отвечают отказом.
+  // Своё окно, а не общее на приложение: общего в оболочке пока нет
+  // (см. поле foreign в отчёте), а трогать чужие файлы этой правкой нельзя.
+  let ВОПРОС = null;
+  function вопросЖивёт(){ return !!ВОПРОС; }
+  function стилиВопроса(){
+    if(document.getElementById('tn-stili-voprosa')) return;
+    const s = document.createElement('style');
+    s.id = 'tn-stili-voprosa';
+    s.textContent =
+      '.tn-vopros{position:fixed;inset:0;z-index:9600;display:flex;align-items:center;' +
+        'justify-content:center;padding:24px;background:rgba(10,12,16,.32);' +
+        '--tv-karta:#fff;--tv-tx:#101418;--tv-akc:#0071e3}' +
+      'html[data-theme="dark"] .tn-vopros{--tv-karta:#232830;--tv-tx:#e8ebee;--tv-akc:#6f9bff}' +
+      '@media (prefers-color-scheme:dark){html:not([data-theme]) .tn-vopros' +
+        '{--tv-karta:#232830;--tv-tx:#e8ebee;--tv-akc:#6f9bff}}' +
+      '.tn-vopros-karta{width:100%;max-width:340px;border-radius:28px;padding:22px 22px 10px;' +
+        'background:var(--tv-karta);color:var(--tv-tx);box-shadow:0 14px 44px rgba(10,12,16,.34);' +
+        'font-family:var(--font-sans,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif)}' +
+      '.tn-vopros-zag{margin:0 0 8px;font-size:20px;line-height:1.28;font-weight:700}' +
+      '.tn-vopros-txt{margin:0;font-size:14.5px;line-height:1.45;opacity:.78}' +
+      '.tn-vopros-ryad{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px;margin-top:14px}' +
+      '.tn-vopros-kn{min-height:48px;padding:0 16px;border:0;border-radius:24px;' +
+        'background:transparent;color:var(--tv-akc);font-weight:600;font-size:15px;cursor:pointer}' +
+      '.tn-vopros-kn:active{background:color-mix(in srgb,var(--tv-akc) 14%,transparent)}';
+    (document.head || document.documentElement).appendChild(s);
+  }
+  // Закрытие без действия — отказ: так уходит «назад», Escape и тап по фону.
+  function закрытьВопрос(){
+    if(!ВОПРОС) return;
+    const в = ВОПРОС; ВОПРОС = null;
+    window.removeEventListener('yasna:назад', в.назад);
+    document.removeEventListener('keydown', в.клавиша, true);
+    if(в.корень && в.корень.parentNode) в.корень.parentNode.removeChild(в.корень);
+    try { if(в.фокус && в.фокус.focus) в.фокус.focus(); } catch(_){}
+  }
+  // о: { заголовок, текст, да:'Прервать', нет:'Продолжить', наДа }
+  function спросить(о){
+    if(ВОПРОС) return;               // два вопроса разом — это уже не вопрос
+    стилиВопроса();
+    const корень = document.createElement('div');
+    корень.className = 'tn-vopros';
+    const карта = document.createElement('div');
+    карта.className = 'tn-vopros-karta';
+    карта.setAttribute('role', 'dialog');
+    карта.setAttribute('aria-modal', 'true');
+    const заг = document.createElement('h2');
+    заг.className = 'tn-vopros-zag'; заг.textContent = о.заголовок;
+    const txt = document.createElement('p');
+    txt.className = 'tn-vopros-txt'; txt.textContent = о.текст || '';
+    const ряд = document.createElement('div');
+    ряд.className = 'tn-vopros-ryad';
+    const кнНет = document.createElement('button');
+    кнНет.type = 'button'; кнНет.className = 'tn-vopros-kn'; кнНет.textContent = о.нет;
+    кнНет.onclick = закрытьВопрос;
+    const кнДа = document.createElement('button');
+    кнДа.type = 'button'; кнДа.className = 'tn-vopros-kn'; кнДа.textContent = о.да;
+    кнДа.onclick = () => { закрытьВопрос(); if(о.наДа) о.наДа(); };
+    ряд.appendChild(кнНет); ряд.appendChild(кнДа);
+    карта.appendChild(заг); карта.appendChild(txt); карта.appendChild(ряд);
+    корень.appendChild(карта);
+    корень.addEventListener('click', e => { if(e.target === корень) закрытьВопрос(); });
+    const состояние = { корень, фокус: document.activeElement };
+    состояние.клавиша = e => { if(e.key === 'Escape'){ e.preventDefault(); закрытьВопрос(); } };
+    // Пока висит вопрос, «назад» отвечает на него, а не уводит с экрана.
+    состояние.назад = e => { e.preventDefault(); закрытьВопрос(); };
+    document.addEventListener('keydown', состояние.клавиша, true);
+    window.addEventListener('yasna:назад', состояние.назад);
+    ВОПРОС = состояние;
+    document.body.appendChild(корень);
+    try { кнНет.focus(); } catch(_){}
+  }
+  function спроситьПрервать(наДа){
+    спросить({ заголовок: 'Прервать партию?', текст: 'Ответы этой партии не сохранятся.',
+               нет: 'Продолжить', да: 'Прервать', наДа: наДа });
+  }
+
   // ─── Quit Button ────────────────────────────────────────────────
   function TnQuitButton({ onQuit }){
     const handle = () => {
       if(!onQuit) return;
-      if(confirm('Закончить эту Партию досрочно?')) onQuit();
+      спроситьПрервать(onQuit);
     };
     return React.createElement('button', { className: 'tn-quit', onClick: handle }, 'Прервать');
   }
@@ -1475,6 +1557,26 @@
       : TEN_LEVELS[opponentLevel || 'medium'];
 
     const [phase, setPhase] = useState('vs');
+
+    /* Партия — занятие во весь экран, и оболочке она объявляет себя слоем:
+       наббар на время партии убран совсем. Раньше нижняя полоса оставалась
+       под игрой, и промах по вкладке уводил с экрана без вопроса — партия
+       пропадала вместе со счётом. Заодно у крестика шапки и у аппаратной
+       «назад» появляется один путь выхода — тот же вопрос, что у кнопки
+       «Прервать»: из одного экрана не может быть двух разных выходов.
+       Фазу читаем через ссылку, а не из замыкания: на итоге партия уже
+       доиграна, спрашивать «прервать?» там нечего — просто закрываем. */
+    const фазаРеф = useRef(phase);
+    фазаРеф.current = phase;
+    React.useEffect(() => {
+      const Н = window.yasnaNav;
+      if(!Н || !Н.объявить) return;
+      Н.объявить({ тип: 'слой', имя: 'Партия', закрыть: () => {
+        if(фазаРеф.current === 'final'){ onClose(); return; }
+        спроситьПрервать(onClose);
+      } });
+      return () => { try { Н.объявить(null); } catch(_){} };
+    }, [onClose]);
 
     // Для PvP: хост генерирует Партию, шлёт её гостю; гость ждёт.
     // Для shadow: каждый раз новый seed.

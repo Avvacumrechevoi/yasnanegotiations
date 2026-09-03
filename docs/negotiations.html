@@ -153,9 +153,13 @@ body {
 <script src="negotiations/scenarios.js?v=9a6048b5"></script>
 <script src="negotiations/practice-content.js?v=0612deb5"></script>
 <script src="negotiations/trainer.js?v=8aeea04d"></script>
-<script src="negotiations/lessons-neg.js?v=80294306"></script>
+<!-- Память экрана: прокрутка каталога сценариев переживает уход на другую
+     вкладку. Грузится ДО lessons-neg.js — тот зовёт её сразу после отрисовки
+     каталога, в том же кадре, чтобы возврат не выглядел прыжком. -->
+<script src="core/pamyat-ekrana.js?v=7f2eb113"></script>
+<script src="negotiations/lessons-neg.js?v=8ca68ca9"></script>
 <script src="negotiations/spar-content.js?v=de97d09b"></script>
-<script src="negotiations/spar.js?v=ad04bf19"></script>
+<script src="negotiations/spar.js?v=a844f671"></script>
 
 </body>
 </html>

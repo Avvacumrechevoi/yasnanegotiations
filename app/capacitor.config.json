@@ -5,7 +5,8 @@
   "android": {
     "allowMixedContent": false,
     "appendUserAgent": "YasnaApp/1.0",
-    "backgroundColor": "#0e3f47"
+    "_pro_backgroundColor": "Прозрачный намеренно: между документами виден фон WebView, и прежний #0e3f47 мелькал тёмно-зелёным в обеих темах. Прозрачный показывает фон окна, а его красит MainActivity по теме приложения (fon_stranicy_svet/tma) — вспышка совпадает с фоном страницы.",
+    "backgroundColor": "#00000000"
   },
   "server": {
     "androidScheme": "https"

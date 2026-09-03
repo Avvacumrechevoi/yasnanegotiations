@@ -726,17 +726,33 @@
     }
   }
 
-  // Кнопка «назад» телефона: из «Живого спарринга» — к «Сценариям»,
-  // а не закрывать приложение (событие шлёт app/pribavka.js).
+  /* Открыт ли разговор: шапка чата рисуется только в chatShell() и живёт
+     ровно столько, сколько сам разговор. */
+  function открытРазговор() {
+    return !!(sparRoot && sparRoot.querySelector('.neg-spar-head'));
+  }
+
+  // Кнопка «назад» телефона и стрелка в шапке приложения (событие шлют
+  // app/pribavka.js и app/navigatsiya.js). Уровни снимаются по одному — ровно
+  // так, как человек их открывал: разговор → выбор собеседника → «Сценарии».
+  // Раньше обработчик смотрел только на активную вкладку и с любого уровня
+  // прыгал сразу на «Сценарии»: видимая кнопка «← К выбору» вела на один
+  // уровень, а системная — на два, и открытый разговор пропадал молча.
   window.addEventListener('yasna:назад', function (e) {
     if (e.defaultPrevented) return;      /* уже перехвачено другим слоем */
     var акт = document.querySelector('#neg-mode-tabs .neg-mode-tab.is-active');
-    if (акт && акт.getAttribute('data-mode') === 'spar') {
-      e.preventDefault();
-      var л = document.querySelector('#neg-mode-tabs [data-mode="lessons"]');
-      if (л) л.click();
-      window.scrollTo(0, 0);
-    }
+    if (!акт || акт.getAttribute('data-mode') !== 'spar') return;   /* не наша вкладка */
+    e.preventDefault();
+    /* 1. Разговор — то же самое, что «← К выбору»: у одного экрана не бывает
+          двух разных выходов. */
+    if (открытРазговор()) { renderSelector(); window.scrollTo(0, 0); return; }
+    /* 2. Панель ключа раскрыта поверх выбора — сворачиваем её. */
+    if (aiSetupOpen) { aiSetupOpen = false; renderSelector(); return; }
+    /* 3. Сам выбор — на вкладку «Сценарии». Дальше отпустим событие: с
+          каталога уводит уже оболочка, на «Уроки». */
+    var л = document.querySelector('#neg-mode-tabs [data-mode="lessons"]');
+    if (л) л.click();
+    window.scrollTo(0, 0);
   });
 
   // ═══ публичный мост: открыть спарринг по id (зов из урока) ════════

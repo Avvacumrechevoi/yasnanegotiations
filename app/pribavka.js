@@ -26,17 +26,33 @@
   if (!C || !C.Plugins) return;                 /* открыли в браузере — молчим */
   var P = C.Plugins;
 
-  /* ── 1. Кнопка «назад» ─────────────────────────────────────────────────── */
+  /* ── 1. Кнопка «назад» ───────────────────────────────────────────────────
+     Порядок жёсткий и один на всё приложение:
+       1) открыт слой или окно — страница закрывает его сама (отменяет событие);
+       2) экран дочерний или слой — на уровень вверх по стеку yasnaNav;
+       3) корневая вкладка не Главная — на Главную, стек обнуляется;
+       4) Главная — свернуть приложение (не закрыть: состояние сохраняется).
+
+     e.canGoBack НЕ спрашиваем сознательно. Он видит историю WebView, а
+     переключение вкладок делает location.replace: записи прежней вкладки
+     остаются под верхушкой, и «назад» с корневой вкладки уходила на случайный
+     экран из-под чужого стека вместо Главной. Правду о том, откуда мы пришли,
+     знает только свой стек (app/navigatsiya.js, window.yasnaNav). */
   if (P.App && P.App.addListener) {
-    P.App.addListener('backButton', function (e) {
-      /* Сначала спрашиваем страницу: вдруг открыт попап или слой, и «назад»
-         должен закрыть его, а не уводить с экрана. Страница отвечает тем, что
-         отменяет событие. */
+    P.App.addListener('backButton', function () {
       var своё = new CustomEvent('yasna:назад', { cancelable: true });
       var перехватили = !window.dispatchEvent(своё);
       if (перехватили) return;
 
-      if (e && e.canGoBack) { window.history.back(); return; }
+      var N = window.yasnaNav;
+      if (N) {
+        if (N.закрытьСлой && N.закрытьСлой()) return;   /* слой закрывает себя */
+        if (N.тип() !== 'корень' || !N.корневой()) { N.назад(); return; }
+        if (N.файл() !== 'index.html') { N.корень('index.html'); return; }
+      } else if (window.history.length > 1) {
+        /* Оболочки нет (страница без navigatsiya.js) — старое поведение. */
+        window.history.back(); return;
+      }
 
       /* Идти некуда. Закрывать приложение молча нельзя — человек теряет
          состояние; сворачиваем, как делает почта или браузер. */
@@ -77,6 +93,24 @@
     pl.setAttribute('aria-hidden', 'true');
     (document.body || document.documentElement).appendChild(pl);
   })();
+
+  /* ── 2а. Клавиатура: правда от системы ────────────────────────────────────
+     Наббар прячется, когда всплыла клавиатура. Веб-признак (насколько
+     visualViewport ниже окна) честен не всегда: при adjustResize окно
+     сжимается вместе с ним, и разницы не видно. Если в сборке есть плагин
+     клавиатуры — берём инсет IME у системы и рассказываем оболочке событием
+     yasna:клавиатура; его же ждёт app/navigatsiya.js. Плагина нет —
+     ветка молчит, остаётся веб-признак. */
+  if (P.Keyboard && P.Keyboard.addListener) {
+    var сказать = function (видна, высота) {
+      window.dispatchEvent(new CustomEvent('yasna:клавиатура',
+        { detail: { видна: !!видна, высота: высота || 0 } }));
+    };
+    P.Keyboard.addListener('keyboardWillShow', function (с) { сказать(true, с && с.keyboardHeight); });
+    P.Keyboard.addListener('keyboardDidShow', function (с) { сказать(true, с && с.keyboardHeight); });
+    P.Keyboard.addListener('keyboardWillHide', function () { сказать(false, 0); });
+    P.Keyboard.addListener('keyboardDidHide', function () { сказать(false, 0); });
+  }
 
   /* ── 3. Знак о пропаже сети ────────────────────────────────────────────
      РОДНОЕ УВЕДОМЛЕНИЕ ANDROID, а не своя полоса в разметке. Две попытки до

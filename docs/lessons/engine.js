@@ -1687,7 +1687,10 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
           <div style={{fontSize:14,fontWeight:600,color:'#0D1B2A',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{lesson.title}</div>
         </div>
         <div style={{fontSize:11,color:'#6E7781',fontWeight:600,marginRight:6}}>{Math.round(progress)}%</div>
-        <button onClick={onClose} style={{width:32,height:32,borderRadius:8,border:'1px solid #E5E5EA',background:'#fff',cursor:'pointer',color:'#3D4852',fontSize:14}}>✕</button>
+        {/* Один выход из урока: ✕, Esc и аппаратная «назад» зовут один и тот
+            же onClose (закрытьУрок в app.js) — разных дорог наружу быть не
+            может. Имя кнопке нужно: без него TalkBack читал «крестик». */}
+        <button onClick={onClose} aria-label='Закрыть урок' style={{width:32,height:32,borderRadius:8,border:'1px solid #E5E5EA',background:'#fff',cursor:'pointer',color:'#3D4852',fontSize:14}}>✕</button>
         <div style={{position:'absolute',left:0,bottom:-1,height:3,width:'100%',background:'#ECECEE'}}>
           <div style={{height:'100%',width:progress+'%',background:'linear-gradient(90deg,#0071e3,#2D94F0)',transition:'width .35s ease'}}/>
         </div>

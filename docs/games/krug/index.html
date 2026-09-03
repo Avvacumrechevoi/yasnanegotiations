@@ -48,18 +48,22 @@
     /* Возврат — туда, откуда пришли. Раньше в приложении он был жёстко
        прибит к главной: человек нажимал «Разложить Сутки» в «Уроках», а
        выходил на главный экран и терял место, на котором остановился.
-       Метку ставит ссылка: ?otkuda=uroki. */
+       Метку ставит ссылка: ?otkuda=uroki.
+
+       Без метки ведём на «Игры» — там Круг и живёт (data-yk-roditel). Ветка
+       «в приложении — на главную» убрана: она спорила и с наббаром, который
+       всё это время подсвечивал «Игры», и с самой оболочкой — в приложении
+       эту шапку рисует не страница, а yasnaNav, и возврат считает по стеку. */
     (function () {
       var кнопка = document.getElementById('krug-nazad');
       var откуда = '';
       try { откуда = new URLSearchParams(location.search).get('otkuda') || ''; } catch (e) {}
       var адреса = { uroki: '../../learn.html', igra: '../../duel.html', glavnaya: '../../index.html' };
-      if (адреса[откуда]) { кнопка.href = адреса[откуда]; return; }
-      if (/YasnaApp\//.test(navigator.userAgent)) кнопка.href = '../../index.html';
+      if (адреса[откуда]) кнопка.href = адреса[откуда];
     })();
     </script>
   </header>
   <main id="app"></main>
 </div>
 
-<script src="krug.js?v=496b8f3b"></script>
+<script src="krug.js?v=1528fa06"></script>

@@ -22,6 +22,18 @@ function inviteBase(){
 /* Наружу: тем же адресом пользуется группа (group-engine.js) — файлы бандла
    не видят функций друг друга напрямую. */
 try { window.YasnaInviteBase = inviteBase; } catch (_) {}
+
+/* Вход в Круг с экрана Игр. Метка ?otkuda=igra говорит оболочке сразу две
+   вещи: чью вкладку держать подсвеченной и куда вести возврат. Без неё стрелка
+   Круга уводила на Главную, а наббар всё это время показывал «Игры» — кнопка
+   и вкладка спорили друг с другом, и человек терял место на экране Игр.
+   Через yasnaNav.вглубь() возврат идёт по истории, то есть с прокруткой на
+   прежнем месте; на сайте оболочки нет — там обычный переход. */
+const АДРЕС_КРУГА = 'games/krug/index.html?otkuda=igra';
+function открытьКруг(){
+  if (window.yasnaNav && window.yasnaNav.вглубь) { window.yasnaNav.вглубь(АДРЕС_КРУГА); return; }
+  location.href = АДРЕС_КРУГА;
+}
   const _g = (n) => window[n];
 
   // ─── Иконки и цвета тем — для banner-cards в picker'е ───────────────
@@ -291,7 +303,7 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
       ),
       React.createElement('button', {
         className: 'dp-hero-cta-btn dp-hero-cta-btn--ghost',
-        onClick: () => { location.href = 'games/krug/index.html'; },
+        onClick: открытьКруг,
         type: 'button',
         'aria-label': 'Открыть «Разложи по Ясне»'
       },
@@ -817,7 +829,7 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
           React.createElement('div', { className: 'dp-cta-row' },
             React.createElement('button', {
               type: 'button', className: 'dp-cta dp-cta--solo',
-              onClick: (e) => { e.stopPropagation(); location.href = 'games/krug/index.html'; },
+              onClick: (e) => { e.stopPropagation(); открытьКруг(); },
               'aria-label': 'Играть в «Разложи по Ясне»'
             },
               React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
@@ -2394,6 +2406,30 @@ try { window.YasnaInviteBase = inviteBase; } catch (_) {}
         selectedThemes
       });
     };
+
+    /* ─── Аппаратная «назад»: закрывает верхнее окно, а не уводит с экрана ───
+       На Играх её ловило одно-единственное окно — вход по почте (core/account.js).
+       Из окна «Какая партия?» и из лобби системная кнопка выбрасывала со всего
+       экрана: человек терял и настройку партии, и созданную комнату. Правило
+       платформы простое — «назад» снимает верхний слой; здесь их два.
+       Партию (game) и групповое лобби не трогаем: у них свои обработчики —
+       иначе один шаг «назад» закрыл бы сразу два уровня. */
+    useEffect(() => {
+      const назад = (e) => {
+        if(e.defaultPrevented || game || groupLobby) return;
+        if(partiyaPicker){ e.preventDefault(); setPartiyaPicker(null); return; }
+        if(lobby){
+          e.preventDefault();
+          setLobby(null);           // размонтирование лобби закрывает и комнату (cleanup)
+          // Комнату открыли по зову (?room=…): без чистки адреса перезагрузка
+          // втащила бы человека обратно в только что покинутую комнату.
+          try { window.history.replaceState({}, '', window.location.pathname); } catch(_){}
+          return;
+        }
+      };
+      window.addEventListener('yasna:назад', назад);
+      return () => window.removeEventListener('yasna:назад', назад);
+    }, [partiyaPicker, lobby, game, groupLobby]);
 
     // Если есть room в URL — нужно убедиться что профиль есть
     useEffect(() => {

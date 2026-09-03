@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- ПРЕДПРОСМОТР ЖЕСТА «НАЗАД» (predictive back, Android 13+).
+         Без этого флага система не показывает, куда уведёт жест: человек
+         тянет от края и не видит ни предыдущего экрана, ни того, что сейчас
+         свернётся приложение. Флаг переводит обработку «назад» на новый
+         системный вызов; веб-слой по-прежнему получает своё событие
+         (app/pribavka.js) и первым закрывает открытый слой, а когда
+         закрывать нечего — ход отдаётся системе, и она рисует предпросмотр. -->
     <application
+        android:enableOnBackInvokedCallback="true"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"

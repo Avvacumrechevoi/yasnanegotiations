@@ -287,6 +287,77 @@ function shortName(s){
 }
 const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 
+/* ═══════════ ВОПРОС С ГЛАГОЛАМИ НА КНОПКАХ ═══════════
+   Вместо window.confirm(). В приложении системный confirm рисует «OK» и
+   «Cancel» — по-английски и одинаково на любой вопрос: на «Выйти из партии?»
+   человек читает «OK» и заново гадает, что он сейчас нажмёт. Здесь на кнопках
+   стоят глаголы того самого действия, о котором спрашивают, отказ стоит
+   слева и держит фокус, а само окно закрывается по «назад» и по Escape.
+
+   Своя вёрстка, а не общая на приложение: эта страница грузит только krug.js
+   и core/*, общего окна в оболочке пока нет (см. поле foreign в отчёте). */
+let ВОПРОС=null;
+function вопросЖивёт(){ return !!ВОПРОС; }
+function стилиВопроса(){
+  if(document.getElementById('krug-stili-voprosa')) return;
+  const s=document.createElement('style');
+  s.id='krug-stili-voprosa';
+  s.textContent=
+    '.kvopr{position:fixed;inset:0;z-index:9600;display:flex;align-items:center;'+
+      'justify-content:center;padding:24px;background:rgba(10,12,16,.32);'+
+      '--kv-karta:#fff;--kv-tx:#101418;--kv-akc:#0071e3}'+
+    'html[data-theme="dark"] .kvopr{--kv-karta:#232830;--kv-tx:#e8ebee;--kv-akc:#6f9bff}'+
+    '@media (prefers-color-scheme:dark){html:not([data-theme]) .kvopr'+
+      '{--kv-karta:#232830;--kv-tx:#e8ebee;--kv-akc:#6f9bff}}'+
+    '.kvopr-karta{width:100%;max-width:340px;border-radius:28px;padding:22px 22px 10px;'+
+      'background:var(--kv-karta);color:var(--kv-tx);'+
+      'box-shadow:0 14px 44px rgba(10,12,16,.34)}'+
+    '.kvopr-zag{margin:0 0 8px;font-size:20px;line-height:1.28;font-weight:700}'+
+    '.kvopr-txt{margin:0;font-size:14.5px;line-height:1.45;opacity:.78}'+
+    '.kvopr-ryad{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:6px;margin-top:14px}'+
+    '.kvopr-kn{min-height:48px;padding:0 16px;border:0;border-radius:24px;'+
+      'background:transparent;color:var(--kv-akc);font-weight:600;font-size:15px;cursor:pointer}'+
+    '.kvopr-kn:active{background:color-mix(in srgb,var(--kv-akc) 14%,transparent)}';
+  (document.head||document.documentElement).appendChild(s);
+}
+/* Закрытие без действия — это отказ: так уходит «назад», Escape и тап по фону.
+   Фокус возвращается на кнопку, с которой вопрос начался. */
+function закрытьВопрос(){
+  if(!ВОПРОС) return;
+  const в=ВОПРОС; ВОПРОС=null;
+  window.removeEventListener('yasna:назад',в.назад);
+  document.removeEventListener('keydown',в.клавиша,true);
+  if(в.корень&&в.корень.parentNode) в.корень.parentNode.removeChild(в.корень);
+  try{ if(в.фокус&&в.фокус.focus) в.фокус.focus(); }catch(_){}
+}
+/* о: {заголовок, текст, да:'Выйти', нет:'Остаться', наДа} */
+function спросить(о){
+  if(ВОПРОС) return;                 /* два вопроса разом — это уже не вопрос */
+  стилиВопроса();
+  const корень=document.createElement('div');
+  корень.className='kvopr';
+  корень.innerHTML=`<div class="kvopr-karta" role="dialog" aria-modal="true"
+      aria-labelledby="kvopr-zag" aria-describedby="kvopr-txt">
+    <h2 class="kvopr-zag" id="kvopr-zag">${esc(о.заголовок)}</h2>
+    <p class="kvopr-txt" id="kvopr-txt">${esc(о.текст||'')}</p>
+    <div class="kvopr-ryad">
+      <button class="kvopr-kn" type="button" data-kv="нет">${esc(о.нет)}</button>
+      <button class="kvopr-kn" type="button" data-kv="да">${esc(о.да)}</button>
+    </div></div>`;
+  const состояние={ корень:корень, фокус:document.activeElement };
+  корень.querySelector('[data-kv="да"]').onclick=()=>{ закрытьВопрос(); if(о.наДа) о.наДа(); };
+  корень.querySelector('[data-kv="нет"]').onclick=закрытьВопрос;
+  корень.addEventListener('click',e=>{ if(e.target===корень) закрытьВопрос(); });
+  состояние.клавиша=e=>{ if(e.key==='Escape'){ e.preventDefault(); закрытьВопрос(); } };
+  /* Пока висит вопрос, «назад» отвечает на него, а не уводит с экрана. */
+  состояние.назад=e=>{ e.preventDefault(); закрытьВопрос(); };
+  document.addEventListener('keydown',состояние.клавиша,true);
+  window.addEventListener('yasna:назад',состояние.назад);
+  ВОПРОС=состояние;
+  document.body.appendChild(корень);
+  try{ корень.querySelector('[data-kv="нет"]').focus(); }catch(_){}
+}
+
 /* ═══════════ ЭКРАН 1 · НАСТРОЙКА ═══════════ */
 /* Заголовок в шапке — это ответ на вопрос «где я сейчас». Меняется вместе
    с экраном: выбор → название игры, поле → имя разложенной ясны, история →
@@ -379,8 +450,12 @@ function history_(){
   app().appendChild(back);
   if(d.games.length){
     const clr=el(`<button class="gh">Очистить историю</button>`);
-    clr.onclick=()=>{ if(confirm('Удалить все записи партий с этого устройства?')){
-      try{ localStorage.removeItem(LS) }catch(_){} setup(); } };
+    clr.onclick=()=>спросить({
+      заголовок:'Удалить историю партий?',
+      текст:'Записи хранятся только на этом устройстве — вернуть их будет неоткуда.',
+      нет:'Оставить', да:'Удалить',
+      наДа:()=>{ try{ localStorage.removeItem(LS) }catch(_){} setup(); }
+    });
     app().appendChild(clr);
   }
 }
@@ -750,7 +825,30 @@ function once(){ if(booted) return; booted=true; boot(); }
   // и каждый hashchange добавлял дубликат слушателя).
   window.addEventListener('yasna:назад', function (e) {
     if (e.defaultPrevented) return;
+    /* Вопрос уже висит — на него и отвечает «назад» (окно гасит событие само,
+       см. спросить). Иначе второе нажатие открыло бы второй такой же вопрос. */
+    if (вопросЖивёт()) return;
     if (S.scr && S.scr !== 'setup') { e.preventDefault(); назадНаВыбор(); }
+  });
+
+  /* Вкладка наббара партию не крадёт. Оболочка перед сменой вкладки шлёт
+     отменяемое yasna:уход — тем же способом, что и «назад». Раньше промах по
+     нижней полосе стирал раскладку молча, а стрелка в шапке о том же самом
+     спрашивала: одно действие вело себя двумя способами. */
+  window.addEventListener('yasna:уход', function (e) {
+    if (e.defaultPrevented) return;
+    if (вопросЖивёт()) { e.preventDefault(); return; }
+    if (!(S.scr === 'play' && S.i > 0)) return;
+    e.preventDefault();
+    var куда = (e.detail && e.detail.куда) || '';
+    спросить({
+      заголовок: 'Выйти из партии?', текст: 'Раскладка не сохранится.',
+      нет: 'Остаться', да: 'Выйти',
+      наДа: function () {
+        if (window.yasnaNav) window.yasnaNav.корень(куда);
+        else if (куда) location.href = куда;
+      }
+    });
   });
 
   /* Стрелка в шапке вела на Главную с любого экрана — из середины партии она
@@ -768,7 +866,18 @@ function once(){ if(booted) return; booted=true; boot(); }
         location.href = '../../learn.html'; return;
       }
     }catch(_){}
-    if (S.scr === 'play' && S.i > 0 && !confirm('Выйти из партии? Раскладка не сохранится.')) return;
+    if (S.scr === 'play' && S.i > 0) {
+      спросить({
+        заголовок: 'Выйти из партии?', текст: 'Раскладка не сохранится.',
+        нет: 'Остаться', да: 'Выйти', наДа: кВыбору
+      });
+      return;
+    }
+    кВыбору();
+  }
+  /* Сам выход: отдельно от вопроса, потому что вопрос отвечает не сразу и
+     звать его надо из двух мест — из кнопки окна и напрямую. */
+  function кВыбору(){
     try { history.replaceState(null, '', location.pathname); } catch (_) {}
     S.preset = false; S.invited = false;
     setup(); window.scrollTo(0, 0);

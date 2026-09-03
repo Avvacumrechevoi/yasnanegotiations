@@ -962,32 +962,137 @@ function App(){
     try{document.documentElement.style.colorScheme=open?'light':'dark';}catch(_){}
     return ()=>{ try{ if(localStorage.getItem('yasna_theme_vk_dark')==='1'){document.body.classList.add('theme-vk-dark');document.documentElement.style.colorScheme='dark';} }catch(_){} };
   },[lessonPicker,activeLesson]);
-  /* Аппаратная «назад» закрывает по одному слою за нажатие. Урок, каталог
-     уроков и тур сюда не входили: внутри урока кнопка не делала ничего, и
-     выйти из него на телефоне было нечем — только свернуть приложение.
-     Слушатель стоит ЗДЕСЬ, ниже объявления activeLesson: список зависимостей
-     считается на отрисовке, и выше по файлу эти переменные ещё не существуют. */
+  /* ═══ УРОК В АДРЕСЕ ═══════════════════════════════════════════════════
+     Пока урок открыт, он держится в адресе: Android выгружает WebView при
+     нехватке памяти, смене темы и масштаба шрифта, и без метки человек
+     возвращался в ПЕРВЫЙ урок (адрес хранил прежний lesson=) или на голый
+     круг. Пишем replaceState, а не pushState: у слоя нет своей записи в
+     истории — «назад» закрывает урок целиком, а не листает уроки по одному
+     (иначе ✕ и системная кнопка снова разошлись бы). */
+  const адресУрока=React.useCallback((id)=>{
+    try{
+      const кю=new URLSearchParams(window.location.search);
+      if(id) кю.set('lesson',id);
+      else { кю.delete('lesson'); кю.delete('otkuda'); }
+      const х=кю.toString();
+      window.history.replaceState(null,'',window.location.pathname+(х?'?'+х:''));
+    }catch(_){}
+  },[]);
+  useEffect(()=>{ if(activeLesson) адресУрока(activeLesson); },[activeLesson,адресУрока]);
+
+  /* ═══ ОДИН ВЫХОД ИЗ УРОКА ═════════════════════════════════════════════
+     ✕, Esc и аппаратная «назад» обязаны вести в ОДНО место. Раньше ✕ уходил
+     на «Уроки» через location.href, а «назад» просто снимала слой — человек
+     оставался на голом круге Разбора, куда не шёл, и адрес держал ?lesson=:
+     перезагрузка WebView снова открывала урок. */
+  const закрытьУрок=React.useCallback(()=>{
+    /* Читаем «откуда» ДО чистки адреса: ?otkuda=uroki живёт в адресе всё
+       время, пока открыт урок, — переход к следующему уроку его сохраняет. */
+    let сУроков=false;
+    try{ сУроков=new URLSearchParams(window.location.search).get('otkuda')==='uroki'; }catch(_){}
+    /* Метку «пришёл с Уроков» снимаем всегда: пережив закрытие, она выбросила
+       бы на «Уроки» и следующий урок, открытый уже из Разбора. */
+    try{
+      if(sessionStorage.getItem('yasna_urok_otkuda')==='uroki') сУроков=true;
+      sessionStorage.removeItem('yasna_urok_otkuda');
+    }catch(_){}
+    адресУрока(null);
+    setActiveLesson(null);
+    setLessonPicker(false);
+    const N=window.yasnaNav;
+    if(N){
+      /* В приложении об «откуда» знает стек оболочки: пришли откуда-то вглубь
+         — туда и вернёмся (history.back() бережёт прокрутку). */
+      if(N.верх()){ N.назад(); return; }
+      /* Стек пуст. Урок, открытый поверх Разбора, просто снимается: под ним
+         свой круг, уходить с экрана незачем. Но урок, открытый ссылкой с
+         «Уроков», стека не оставляет — konstruktor.html оболочка считает
+         корневой вкладкой и при переходе стек обнуляет; тогда об «откуда»
+         говорит метка. «Уроки» — вкладка, поэтому переключаемся на неё. */
+      if(сУроков) N.корень('learn.html');
+      return;
+    }
+    /* На сайте оболочки нет — там об «откуда» говорит только метка.
+       replace, а не push: иначе на «Уроках» копится история закрытых уроков. */
+    if(сУроков) window.location.replace('learn.html');
+  },[адресУрока]);
+
+  /* Разбор по кругу (гид) закрывается одинаково из ✕, аппаратной «назад» и
+     возврата по истории: якорь #tour=…&step=… снимаем ВСЕГДА. Иначе он
+     оставался в адресе (step=-1), перезагрузка снова открывала гид, а
+     hashchange-слушатель оболочки видел мусор. */
+  const закрытьТур=React.useCallback(()=>{
+    setShowTour(false);
+    if(!домойЕслиРадиОкна()) снятьЯкорь();
+  },[]);
+
+  /* Возврат по истории обязан закрывать слой: адрес уже другой, а урок или
+     гид оставались поверх круга — экран и адрес расходились. */
+  useEffect(()=>{
+    const поИстории=()=>{
+      let вАдресе=null;
+      try{ вАдресе=new URLSearchParams(window.location.search).get('lesson'); }catch(_){}
+      if(вАдресе&&вАдресе!==activeLesson) открытьУроки(()=>setActiveLesson(вАдресе));
+      else if(!вАдресе&&activeLesson) setActiveLesson(null);
+      if(!/tour=/.test(window.location.hash||'')) setShowTour(false);
+    };
+    window.addEventListener('popstate',поИстории);
+    return()=>window.removeEventListener('popstate',поИстории);
+  },[activeLesson,открытьУроки]);
+
+  /* ═══ РЕЕСТР ОТКРЫТЫХ СЛОЁВ ═══════════════════════════════════════════
+     Аппаратная «назад» закрывает ВЕРХНИЙ открытый слой — тот, что человек
+     открыл последним. Прежняя цепочка if-ов знала лишь часть окон: лист ясн,
+     «Механики», меню «+» и попап «⋯» в неё не входили, и «назад» при
+     открытом листе уводила с экрана или сворачивала приложение (вкладки
+     переключаются через location.replace, истории под нами нет).
+     Порядок хранит сам реестр: слой встаёт в него при открытии и уходит при
+     закрытии — новый лист достаточно объявить одной строкой ниже.
+     Реестр стоит ЗДЕСЬ, ниже объявления activeLesson: выше по файлу этих
+     переменных ещё не существует. */
+  const слои=useRef([]);
+  const слой=(имя,открыт,закрыть)=>{
+    /* Закрывающая функция пересоздаётся каждый рендер — держим её в ref,
+       иначе эффект переподписывался бы и слой всплывал бы на вершину. */
+    const держатель=useRef(закрыть);
+    держатель.current=закрыть;
+    useEffect(()=>{
+      if(!открыт) return;
+      const запись={имя:имя,закрыть:()=>держатель.current()};
+      слои.current.push(запись);
+      return()=>{ слои.current=слои.current.filter(з=>з!==запись); };
+    },[открыт]);
+  };
+  слой('урок',!!activeLesson,закрытьУрок);
+  слой('каталог уроков',lessonPicker,()=>setLessonPicker(false));
+  слой('разбор по кругу',showTour,закрытьТур);
+  /* Окна справки открываются и якорем с «Уроков» — закрываются они так же,
+     как крестиком: домойЕслиРадиОкна() уводит туда, откуда пришли, иначе
+     снимается якорь. Раньше «назад» якорь не снимала, и перезагрузка
+     открывала окно снова. */
+  слой('инструкция',instr,()=>{setInstr(false);if(!домойЕслиРадиОкна())снятьЯкорь();});
+  слой('словарь',glossary,()=>{setGlossary(false);if(!домойЕслиРадиОкна())снятьЯкорь();});
+  слой('вопросы к кругу',verif,()=>{setVerif(false);if(!домойЕслиРадиОкна())снятьЯкорь();});
+  слой('готовые ясны',picker,()=>{setPicker(false);if(!домойЕслиРадиОкна())снятьЯкорь();});
+  слой('совмещение',showOverlayPicker,()=>setShowOverlayPicker(false));
+  слой('меню',menu,()=>setMenu(false));
+  слой('правка',ed,()=>setEd(false));
+  слой('во весь экран',fullStar,()=>setFullStar(false));
+  слой('лист ясн',листЯсн,()=>{setПравкаЯсн(false);setЛистЯсн(false);});
+  слой('механики',filtersOpen,()=>setFiltersOpen(false));
+  слой('меню «+»',менюПлюс,()=>setМенюПлюс(false));
+  слой('вид',rotPanelOpen,()=>setRotPanelOpen(false));
   useEffect(()=>{
     const назад=(e)=>{
       if(e.defaultPrevented) return;
-      if(activeLesson){ e.preventDefault(); setActiveLesson(null); return; }
-      if(lessonPicker){ e.preventDefault(); setLessonPicker(false); return; }
-      if(showTour){ e.preventDefault(); setShowTour(false); return; }
-      if(instr||glossary||verif||menu||picker||showOverlayPicker){
-        e.preventDefault();
-        setInstr(false);setGlossary(false);setVerif(false);
-        setMenu(false);setPicker(false);setShowOverlayPicker(false);
-        /* Если пришли на экран ради этого окна — «назад» ведёт домой, а не
-           оставляет человека на чужом экране. */
-        домойЕслиРадиОкна();
-        return;
-      }
-      if(ed){ e.preventDefault(); setEd(false); return; }
-      if(fullStar){ e.preventDefault(); setFullStar(false); return; }
+      const верх=слои.current[слои.current.length-1];
+      if(!верх) return;
+      e.preventDefault();
+      верх.закрыть();
     };
     window.addEventListener('yasna:назад',назад);
     return()=>window.removeEventListener('yasna:назад',назад);
-  },[instr,glossary,verif,menu,picker,showOverlayPicker,ed,fullStar,activeLesson,lessonPicker,showTour]);
+  },[]);
 
   /* Отметка «урок открывали» — её читает дерево знаний на экране «Уроки»,
      чтобы показать «Продолжить». Пройденные уроки лежат в своём ключе, а
@@ -1455,6 +1560,11 @@ function App(){
           {/* 5. Настройки (⋯) — внутри: скорость, направление, отображение, совместить */}
           <button onClick={()=>setRotPanelOpen(o=>!o)} title='Скорость вращения и режимы' style={{width:40,height:40,borderRadius:10,border:'1px solid '+(rotPanelOpen?'#a21caf':'var(--diag-btn-border,#e5e5ea)'),background:rotPanelOpen?'#a21caf':'var(--diag-btn-bg,#fff)',color:rotPanelOpen?'#fff':'var(--diag-btn-ink,#424245)',fontSize:18,lineHeight:1,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>⋯</button>
         </div>
+        {/* Подложка: попап закрывался ТОЛЬКО повторным тапом по «⋯» — ни
+            тапом мимо, ни «назад», и оставался поверх имени ясны и чипов.
+            Прозрачная, но кликабельная: круг под ней остаётся видимым. */}
+        {rotPanelOpen && <div onClick={()=>setRotPanelOpen(false)} aria-hidden='true'
+          style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:59}}/>}
         {rotPanelOpen && <div onClick={e=>e.stopPropagation()} style={{position:'absolute',top:50,right:10,width:240,zIndex:60,background:'var(--diag-pop-bg,#fff)',border:'1px solid var(--diag-btn-border,#d2d2d7)',borderRadius:12,boxShadow:'0 6px 24px rgba(0,0,0,.12)',padding:'12px 14px'}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
             <span style={{fontWeight:600,fontSize:11,color:'#581c87',letterSpacing:.5,textTransform:'uppercase'}}>Скорость</span>
@@ -1611,7 +1721,7 @@ function App(){
         if(tpl && y.name===tpl.n && (!y.p || y.p.length!==12 || !y.p[0])){
           load(tpl);
         }
-        return React.createElement(window.YasnaTours.GuideRunner,{tour,yasnaTpl:tpl,onClose:()=>setShowTour(false),onLoadYasna:()=>{if(tpl)load(tpl);}});
+        return React.createElement(window.YasnaTours.GuideRunner,{tour,yasnaTpl:tpl,onClose:закрытьТур,onLoadYasna:()=>{if(tpl)load(tpl);}});
       })()}
       {(activeLesson||lessonPicker)&&!урокиЕсть&&<div style={{position:'fixed',inset:0,zIndex:140,background:'var(--bg,#fff)',display:'flex',alignItems:'center',justifyContent:'center',padding:24}}>
         {урокиОшибка
@@ -1619,28 +1729,12 @@ function App(){
             <div style={{fontSize:19,fontWeight:700,marginBottom:8}}>Урок не загрузился</div>
             <div style={{marginBottom:20,color:'#555'}}>Похоже, нет сети. Проверьте связь и попробуйте ещё раз.</div>
             <button onClick={()=>{setУрокиОшибка(false);открытьУроки(()=>{});}} style={{font:'600 15px/1 Manrope,Inter,sans-serif',padding:'13px 26px',borderRadius:12,border:'none',background:'#0071e3',color:'#fff',cursor:'pointer',marginRight:10}}>Повторить</button>
-            <button onClick={()=>{setActiveLesson(null);setLessonPicker(false);}} style={{font:'500 14px/1 Manrope,Inter,sans-serif',padding:'13px 20px',borderRadius:12,border:'1px solid #ddd',background:'transparent',cursor:'pointer'}}>Закрыть</button>
+            <button onClick={закрытьУрок} style={{font:'500 14px/1 Manrope,Inter,sans-serif',padding:'13px 20px',borderRadius:12,border:'1px solid #ddd',background:'transparent',cursor:'pointer'}}>Закрыть</button>
           </div>
           :<div style={{font:'600 15px/1.4 Manrope,Inter,sans-serif',color:'var(--ink,#111)'}}>Открываю урок…</div>}
       </div>}
       {activeLesson&&урокиЕсть&&<Lesson lessonId={activeLesson}
-        onClose={()=>{
-          /* Урок закрыт — стираем ?lesson= из адреса, чтобы перезагрузка
-             после закрытия не открывала его снова. */
-          try{
-            const кю=new URLSearchParams(window.location.search);
-            if(кю.has('lesson')){кю.delete('lesson');кю.delete('otkuda');
-              const х=кю.toString();
-              window.history.replaceState(null,'',window.location.pathname+(х?'?'+х:''));}
-          }catch(_){}
-          /* Пришли с «Уроков» — туда и возвращаем: раньше ✕ бросал человека
-             в конструкторе на чужом круге, и дорога назад терялась. */
-          let сУроков=false;
-          try{ сУроков=sessionStorage.getItem('yasna_urok_otkuda')==='uroki'; }catch(_){}
-          if(сУроков){ try{ sessionStorage.removeItem('yasna_urok_otkuda'); }catch(_){}
-            window.location.href='learn.html'; return; }
-          setActiveLesson(null);
-        }}
+        onClose={закрытьУрок}
         onComplete={(id)=>{
           /* Пишем сразу и синхронно: следом может прийти ✕ с переходом на
              learn.html, и отложенный эффект записи не успевал — пройденный
@@ -1654,9 +1748,16 @@ function App(){
         onPickAnother={()=>{
           /* Каталог уроков один — экран «Уроки». Второй («Курс по Ясне»)
              показывал «0 из 4» и прятал только что пройденный урок в
-             «ранние черновики». */
+             «ранние черновики».
+             Кнопка обещает «Уроки» — туда и ведём, даже если урок открыли из
+             Разбора: подпись важнее стека. Адрес чистим тем же путём, что и
+             при закрытии, иначе ?lesson= вернёт урок при перезагрузке. */
+          адресУрока(null);
           try{ sessionStorage.removeItem('yasna_urok_otkuda'); }catch(_){}
-          window.location.href='learn.html';
+          /* «Уроки» — корневая вкладка: переключаемся на неё (стек
+             обнуляется, история не копится), а не заходим вглубь. */
+          if(window.yasnaNav) window.yasnaNav.корень('learn.html');
+          else window.location.href='learn.html';
         }}
         onOpenLesson={(id)=>setActiveLesson(id)}/>}
       {glossary&&<Glossary onClose={()=>{setGlossary(false);if(!домойЕслиРадиОкна())снятьЯкорь();}}/>}

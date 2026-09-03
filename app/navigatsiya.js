@@ -1,26 +1,48 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   СКВОЗНАЯ НАВИГАЦИЯ ПРИЛОЖЕНИЯ — нижний наббар на каждом экране.
+   СКВОЗНАЯ ОБОЛОЧКА ПРИЛОЖЕНИЯ: одна шапка сверху, один наббар снизу,
+   один стек «откуда я пришёл».
 
-   До этого наббар был только у главной и Профиля, а остальные экраны жили
-   с сайтовой шапкой: мелкие ссылки сверху, бургер, «Войти» — на телефоне это
-   читается как «сайт в рамке». Приняты правила платформы: основная навигация
-   мобильного приложения — нижняя полоса, одинаковая на всех экранах.
+   Почему файл переписан. Об «откуда» в приложении говорили ЧЕТЫРЕ независимых
+   источника: document.referrer, метка yasna_otkuda_v1, ключ yasna_urok_otkuda
+   и параметр ?otkuda. Они противоречили друг другу, и отсюда росли все жалобы
+   навигации разом: на самом экране «Уроки» всплывала кнопка «‹ Уроки», после
+   переключения вкладок на корневом экране появлялась «‹ предыдущая вкладка»
+   и сдвигала содержимое на 52 px, подпись обещала одно, а нажатие уводило в
+   другое. Теперь источник один — стек в sessionStorage (window.yasnaNav), и
+   подпись возврата берётся ТОЛЬКО из него.
 
-   Этот файл (кладёт сборщик app/sobrat-vitrinu.mjs на все страницы витрины):
-     — рисует один и тот же наббар из пяти разделов; текущий подсвечен;
-     — прячет сайтовую шапку (.ynav) — её роли переехали: разделы сюда,
-       тема — в Профиль («Вид»), вход — в Профиль;
-     — отодвигает низ страницы, чтобы содержимое не пряталось за наббаром;
-     — прячется, когда открыта клавиатура (вьюпорт становится низким) —
-       иначе полоса всплывала бы над клавиатурой в чатах и формах.
+   ДОГОВОР (на него опираются экраны):
 
-   Свои токены (--yk-*): страницы витрины стилизованы по-разному, и наббар
+   1) Тип экрана страница объявляет САМА — атрибутами на <body>:
+        data-yk-tip="корень|дочерний|слой"   (латиницей тоже понимается)
+        data-yk-imya="Уроки"                 — имя экрана: заголовок и подпись
+        data-yk-roditel="learn.html"         — чья вкладка подсвечена
+        data-yk-imya-iz="#узел"              — брать заголовок из узла страницы
+        data-yk-holst                        — оболочка ровно во весь экран
+        data-yk-deystvie   (на кнопке)       — переехать в действия шапки
+      Экран, который НИЧЕГО не объявил, считается корнем: кнопки возврата на
+      нём не будет никогда. Атрибуты известным экранам проставляет сборщик
+      app/sobrat-vitrinu.mjs — страницы витрины о приложении не знают.
+
+   2) Переходы — через window.yasnaNav:
+        yasnaNav.корень(файл)          переключение вкладки: стек пуст, replace
+        yasnaNav.вглубь(адрес, {имя})  заход вглубь: кладём себя в стек
+        yasnaNav.назад()               снять верх стека и вернуться
+        yasnaNav.верх()                {файл, путь, имя} или null
+        yasnaNav.объявить({тип,имя})   переобъявить экран на ходу (открыт слой)
+        yasnaNav.заголовок(текст)      сменить заголовок шапки
+        yasnaNav.действия()            контейнер действий справа в шапке
+      Событие yasna:назад (аппаратная кнопка и стрелка шапки) остаётся: слой
+      обязан закрыть себя сам и отменить событие.
+
+   Свои токены (--yk-*): страницы витрины стилизованы по-разному, и оболочка
    не может полагаться на чужие переменные. Тёмная тема — по html[data-theme],
    который выставляет core/theme.js на каждой странице.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   if (document.querySelector('.yk-nav')) return;
-  document.documentElement.classList.add('yk-est');
+  var КОРЕНЬ_HTML = document.documentElement;
+  КОРЕНЬ_HTML.classList.add('yk-est');
 
   /* Глубина текущей страницы относительно корня витрины: у games/krug/ ссылки
      должны начинаться с ../../, иначе уведут в несуществующие файлы. */
@@ -41,38 +63,293 @@
     ['profil.html', 'Профиль',
       '<circle cx="12" cy="8" r="3.6"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/>'],
   ];
-  /* Экраны вне пятёрки подсвечивают ближайший по смыслу раздел. */
-  var РОДИЧ = { 'rating.html': 'duel.html',
-                'negotiations.html': 'learn.html' };
-  var текущий = РОДИЧ[файл] || файл;
-  if (часть.indexOf('krug') >= 0) текущий = 'duel.html';
+  function корневой(имяФайла) {
+    for (var i = 0; i < ПУНКТЫ.length; i++) if (ПУНКТЫ[i][0] === имяФайла) return true;
+    return false;
+  }
+  /* Корневая вкладка — только та, что лежит в корне витрины. У Круга файл
+     тоже index.html (games/krug/index.html), и по одному имени файла он
+     считался Главной: отсюда «‹ Главная» после Круга и подсветка не той
+     вкладки. Смотрим на путь целиком. */
+  var вПодпапке = часть.length > 1;
+  function самКорень() { return !вПодпапке && корневой(файл); }
 
+  /* Экраны вне пятёрки подсвечивают ближайший по смыслу раздел. Книга сюда
+     добавлена не для красоты: без неё на экране книги не была подсвечена ни
+     одна вкладка — человек не понимал, в каком он разделе. */
+  var РОДИЧ = { 'rating.html': 'duel.html',
+                'negotiations.html': 'learn.html',
+                'kniga.html': 'learn.html' };
+  /* Круг открывают из трёх мест, и подсвечивать надо то, ОТКУДА пришли, а не
+     «Игры» всегда: «Разложить Сутки» на Уроках уводил в Круг, а наббар
+     показывал «Игры». Метку ставит ссылка (?otkuda=uroki|igra|glavnaya). */
+  var ПО_ОТКУДА = { uroki: 'learn.html', igra: 'duel.html', glavnaya: 'index.html' };
+
+  var ИМЕНА = { 'index.html': 'Главная', 'duel.html': 'Игры', 'learn.html': 'Уроки',
+                'konstruktor.html': 'Разбор', 'profil.html': 'Профиль',
+                'rating.html': 'Рейтинг', 'negotiations.html': 'Переговоры',
+                'kniga.html': 'Библиотека Ясна' };
+
+  /* Имя считаем по ПОЛНОМУ пути, а не по последнему сегменту: у Круга файл
+     тоже index.html, и по имени файла он читался как «Главная». */
+  function имяПути(путь) {
+    if (!путь) return '';
+    var чистый = String(путь).split('#')[0].split('?')[0];
+    if (чистый.indexOf('/krug/') >= 0) return 'Разложи по кругу';
+    return ИМЕНА[чистый.split('/').pop() || 'index.html'] || '';
+  }
+
+  /* ══ 1. ОБЪЯВЛЕНИЕ ЭКРАНА ═══════════════════════════════════════════════
+     Страница говорит о себе сама. Латиница понимается наравне с кириллицей:
+     атрибуты проставляют и сборщик, и руки, и путать людей написанием
+     незачем. Ничего не объявила — считаем корнем: на корне кнопки возврата
+     не бывает, и это самое безопасное умолчание. */
+  var ТИПЫ = { 'корень': 'корень', 'koren': 'корень', 'root': 'корень',
+               'дочерний': 'дочерний', 'дочка': 'дочерний', 'dochka': 'дочерний',
+               'dochernij': 'дочерний', 'child': 'дочерний',
+               'слой': 'слой', 'sloy': 'слой', 'layer': 'слой' };
+  var тело = document.body;
+  function атрибут(имя) { return (тело && тело.getAttribute(имя)) || ''; }
+
+  var объявлено = {
+    тип: ТИПЫ[атрибут('data-yk-tip').toLowerCase()] || 'корень',
+    имя: атрибут('data-yk-imya') || атрибут('data-yk-zagolovok') || имяПути(location.pathname),
+    родитель: атрибут('data-yk-roditel') || '',
+    холст: тело ? тело.hasAttribute('data-yk-holst') : false
+  };
+  /* Переобъявление на ходу (страница открыла слой поверх себя). */
+  var сейчас = { тип: объявлено.тип, имя: объявлено.имя, закрыть: null };
+
+  /* ══ 2. СТЕК «ОТКУДА» ══════════════════════════════════════════════════
+     Один список на всё приложение. Внизу — экран, с которого начали, вверху
+     — тот, куда вернёт «назад». Текущего экрана в стеке НЕТ.
+
+     sessionStorage не переживает убийство процесса, поэтому есть зеркало в
+     localStorage со сроком 30 минут: человек, вернувшийся в приложение через
+     минуту, не должен обнаружить, что «назад» вести некуда. */
+  var КЛЮЧ = 'yasna_stek_v1';
+  var КЛЮЧ_ЗЕРКАЛО = 'yasna_stek_zerkalo_v1';
+  var СРОК = 30 * 60 * 1000;
+
+  function прочитать() {
+    var с = null;
+    try { с = JSON.parse(sessionStorage.getItem(КЛЮЧ) || 'null'); } catch (_) {}
+    if (!Array.isArray(с)) {
+      try {
+        var з = JSON.parse(localStorage.getItem(КЛЮЧ_ЗЕРКАЛО) || 'null');
+        if (з && Array.isArray(з.стек) && (Date.now() - (з.когда || 0)) < СРОК) с = з.стек;
+      } catch (_) {}
+    }
+    return Array.isArray(с) ? с : [];
+  }
+  function записать(с) {
+    try { sessionStorage.setItem(КЛЮЧ, JSON.stringify(с)); } catch (_) {}
+    try { localStorage.setItem(КЛЮЧ_ЗЕРКАЛО, JSON.stringify({ стек: с, когда: Date.now() })); } catch (_) {}
+    /* ВРЕМЕННОЕ ЗЕРКАЛО в старый ключ yasna_otkuda_v1. Его читает
+       домойЕслиРадиОкна() в docs/app.js: окно Справки/Словаря, открытое
+       якорем с «Уроков», возвращает человека на «Уроки». Ключ больше не
+       источник правды — только отражение вершины стека, поэтому противоречия
+       с ним быть не может. Снять, когда Разбор перейдёт на yasnaNav.назад(). */
+    try {
+      var в = с.length ? с[с.length - 1] : null;
+      if (в) sessionStorage.setItem('yasna_otkuda_v1',
+        JSON.stringify({ файл: в.файл, путь: в.путь, имя: в.имя }));
+      else sessionStorage.removeItem('yasna_otkuda_v1');
+    } catch (_) {}
+  }
+
+  var стек = прочитать();
+
+  /* Приведение стека к правде при каждой загрузке документа.
+     — корневая вкладка обнуляет стек: под «домом» ничего не лежит;
+     — если наверху стека мы сами (вернулись по истории) — снять. Иначе на
+       экране «Уроки» после системного «назад» из урока появлялась кнопка
+       «‹ Уроки», ведущая на себя же. */
+  (function привести() {
+    var изменилось = false;
+    if (самКорень() && стек.length) { стек = []; изменилось = true; }
+    while (стек.length && стек[стек.length - 1].файл === файл &&
+           (стек[стек.length - 1].путь || '').split('?')[0] === location.pathname) {
+      стек.pop(); изменилось = true;
+    }
+    if (изменилось) записать(стек);
+  })();
+
+  function адресОт(куда) {
+    if (!куда) return вверх + 'index.html';
+    if (/^[a-z]+:|^\//i.test(куда)) return куда;      /* уже полный адрес */
+    return вверх + куда;
+  }
+  function файлИз(адрес) {
+    return String(адрес || '').split('#')[0].split('?')[0].split('/').pop() || 'index.html';
+  }
+  /* Куда вести и чью вкладку подсвечивать, когда стек пуст (пришли прямой
+     ссылкой или после холодного запуска). Первой спрашиваем метку ?otkuda:
+     она говорит о ЖИВОМ переходе, а объявленный родитель — только о том, где
+     экран живёт вообще. Круг открывают и из Игр, и из Уроков, и подсвечивать
+     «Игры» всегда — значит врать половине переходов. */
+  function запаснойРодитель() {
+    var откуда = '';
+    try { откуда = new URLSearchParams(location.search).get('otkuda') || ''; } catch (_) {}
+    if (ПО_ОТКУДА[откуда]) return ПО_ОТКУДА[откуда];
+    if (объявлено.родитель) return объявлено.родитель;
+    if (РОДИЧ[файл]) return РОДИЧ[файл];
+    return 'index.html';
+  }
+
+  var yasnaNav = {
+    файл: function () { return файл; },
+    корневой: function (кто) { return кто ? корневой(кто) : самКорень(); },
+    тип: function () { return сейчас.тип; },
+    имя: function () { return сейчас.имя; },
+    верх: function () { return стек.length ? стек[стек.length - 1] : null; },
+    стек: function () { return стек.slice(); },
+
+    /* Переключение вкладки: стек обнуляется, история не копится (правило
+       нижней навигации — иначе десять переходов по вкладкам = десять
+       нажатий «назад»). */
+    корень: function (куда) {
+      стек = []; записать(стек);
+      var адрес = адресОт(куда);
+      if (файлИз(адрес) === файл && адрес.indexOf('?') < 0) return;
+      location.replace(адрес);
+    },
+
+    /* Заход вглубь: кладём в стек ТЕКУЩИЙ экран — туда и вернёмся. */
+    вглубь: function (куда, о) {
+      о = о || {};
+      var я = location.pathname + location.search;
+      /* Себя дважды не кладём: переход мог не состояться (кто-то отменил
+         клик позже нас), и тогда в стеке остался бы двойник — «назад»
+         возвращала бы на тот же экран. */
+      while (стек.length && стек[стек.length - 1].путь === я) стек.pop();
+      стек.push({ файл: файл, путь: я, корень: самКорень(),
+                  имя: о.откуда || сейчас.имя || имяПути(location.pathname) || 'Назад',
+                  история: true });
+      записать(стек);
+      if (куда) location.assign(адресОт(куда));
+    },
+
+    /* Возврат ровно на один уровень. history.back() — только когда верх
+       стека мы туда и положили переходом: он сохраняет прокрутку экрана. */
+    назад: function () {
+      var кто = стек.pop();
+      записать(стек);
+      if (!кто) {
+        if (!самКорень()) { location.replace(адресОт(запаснойРодитель())); }
+        return;
+      }
+      if (кто.история && history.length > 1) { history.back(); return; }
+      location.replace(адресОт(кто.путь || кто.файл));
+    },
+
+    /* Экран переобъявляет себя на ходу: открыл слой поверх себя (урок, глава,
+       партия) — шапка меняет ← на ✕, наббар прячется. объявить(null) —
+       вернуться к тому, что написано в разметке. */
+    объявить: function (о) {
+      if (!о) сейчас = { тип: объявлено.тип, имя: объявлено.имя, закрыть: null };
+      else сейчас = { тип: ТИПЫ[String(о.тип || '').toLowerCase()] || сейчас.тип,
+                      имя: о.имя || сейчас.имя,
+                      закрыть: typeof о.закрыть === 'function' ? о.закрыть : null };
+      обновитьШапку();
+    },
+    /* Слой, объявленный с обработчиком закрытия, закрывает себя и по
+       аппаратной «назад» — чтобы у ✕ и системной кнопки был один путь. */
+    закрытьСлой: function () {
+      if (сейчас.тип === 'слой' && сейчас.закрыть) { сейчас.закрыть(); return true; }
+      return false;
+    },
+    заголовок: function (текст) { сейчас.имя = текст || сейчас.имя; обновитьШапку(); },
+    шапка: function () { return шапка; },
+    действия: function () { return действия; }
+  };
+  window.yasnaNav = yasnaNav;
+
+  /* ══ 3. СТИЛИ ══════════════════════════════════════════════════════════ */
+  var ВЫС_ШАПКИ = 64, ВЫС_НАВ = 80;
   var st = document.createElement('style');
   st.textContent =
     /* Android WebView «удобно» раздувает шрифты (font boosting): заголовки
        20px рендерились как 32px. Приложение задаёт размеры само. */
     'html{-webkit-text-size-adjust:100%;text-size-adjust:100%}' +
-    ':root{--yk-kart:#ffffff;--yk-kayma:rgba(16,20,24,.08);--yk-ink2:#5c6570;' +
-      '--yk-syn:#0071e3;--yk-fon-akt:#eaf2fe;' +
-      '--yk-snizu:var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))}' +
+    ':root{--yk-kart:#ffffff;--yk-kayma:rgba(16,20,24,.08);--yk-ink1:#101418;--yk-ink2:#5c6570;' +
+      '--yk-syn:#0071e3;--yk-fon-akt:#d7e6fb;' +
+      '--yk-sverhu:var(--safe-area-inset-top, env(safe-area-inset-top, 0px));' +
+      '--yk-snizu:var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));' +
+      '--yk-shapka:calc(' + ВЫС_ШАПКИ + 'px + var(--yk-sverhu));' +
+      '--yk-nav:calc(' + ВЫС_НАВ + 'px + var(--yk-snizu))}' +
     'html[data-theme="dark"]{--yk-kart:#1a1d21;--yk-kayma:rgba(232,235,238,.12);' +
-      '--yk-ink2:#9aa3ad;--yk-syn:#3d96f0;--yk-fon-akt:#1f2b3d}' +
+      '--yk-ink1:#e8ebee;--yk-ink2:#9aa3ad;--yk-syn:#3d96f0;--yk-fon-akt:#20344d}' +
+
+    /* ── НАББАР ПО СПЕЦИФИКАЦИИ M3 ────────────────────────────────────────
+       Было 63 dp без индикатора: активная вкладка отличалась ТОЛЬКО оттенком
+       синего от серого — разница светлот 1.26:1, то есть в оттенках серого и
+       при дальтонизме её нет вовсе. Стало: 80 dp, под иконкой активной —
+       пилюля 64×32, подпись потолще. Форма, а не только цвет. */
     '.yk-nav{position:fixed;left:0;right:0;bottom:0;z-index:120;display:flex;' +
       'background:var(--yk-kart);border-top:1px solid var(--yk-kayma);' +
-      'padding:6px 6px calc(6px + var(--yk-snizu))}' +
-    '.yk-nav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;' +
-      'padding:6px 2px;text-decoration:none;color:var(--yk-ink2);' +
-      'font:500 11.5px/1 Manrope,Inter,system-ui,sans-serif;border-radius:12px;' +
-      'min-height:48px;justify-content:center}' +
-    '.yk-nav .yk-zver{width:23px;height:23px;border-radius:50%;display:flex;' +
-      'align-items:center;justify-content:center;font-size:15px;line-height:1;' +
-      'background:var(--yk-fon-akt);border:1px solid var(--yk-kayma)}' +
-    '.yk-nav a.yk-tut .yk-zver{border-color:var(--yk-syn)}' +
-    '.yk-nav a svg{width:23px;height:23px;stroke:currentColor;fill:none;' +
+      'padding:12px 4px calc(16px + var(--yk-snizu))}' +
+    '.yk-nav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;' +
+      'text-decoration:none;color:var(--yk-ink2);' +
+      'font:500 12px/16px Manrope,Inter,system-ui,sans-serif}' +
+    '.yk-nav .yk-znak{width:64px;height:32px;border-radius:16px;display:flex;' +
+      'align-items:center;justify-content:center;transition:background .12s ease}' +
+    '.yk-nav a.yk-tut .yk-znak{background:var(--yk-fon-akt)}' +
+    '.yk-nav a.yk-tut{color:var(--yk-syn);font-weight:700}' +
+    '.yk-nav a svg{width:24px;height:24px;stroke:currentColor;fill:none;' +
       'stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}' +
-    '.yk-nav a.yk-tut{color:var(--yk-syn)}' +
-    '.yk-nav a:active{background:var(--yk-fon-akt)}' +
-    'body{padding-bottom:calc(70px + var(--yk-snizu)) !important}' +
+    '.yk-nav a.yk-tut svg{stroke-width:2.3}' +
+    '.yk-nav .yk-zver{width:24px;height:24px;border-radius:50%;display:flex;' +
+      'align-items:center;justify-content:center;font-size:16px;line-height:1}' +
+    '.yk-nav a:active .yk-znak{background:var(--yk-fon-akt)}' +
+    'body{padding-bottom:calc(' + (ВЫС_НАВ + 4) + 'px + var(--yk-snizu)) !important}' +
+    /* Клавиатура закрывает нижнюю треть экрана — полосе там не место. */
+    '.yk-nav.yk-klava{display:none}' +
+    /* В слое наббара нет вовсе: занятие занимает экран целиком. */
+    'html.yk-sloy .yk-nav{display:none}' +
+    'html.yk-sloy body{padding-bottom:0 !important}' +
+
+    /* ── ОДНА ШАПКА НА ВСЕ ЭКРАНЫ ─────────────────────────────────────────
+       Восемь паттернов шапки было в приложении: где-то h1 по центру, где-то
+       «‹ Уроки» подписью (это паттерн iOS), где-то шапки не было вовсе, а
+       возврат висел плавающей пилюлей поверх содержимого и наезжал на
+       заголовки. Теперь одна: 64 dp, прилипшая, слева 48×48 (← у дочернего,
+       ✕ у слоя, ничего у корня), заголовок, действия справа. */
+    '.yk-shapka{position:fixed;left:0;right:0;top:0;z-index:119;display:flex;' +
+      'align-items:center;gap:4px;height:var(--yk-shapka);padding:var(--yk-sverhu) 8px 0;' +
+      'background:var(--yk-kart);border-bottom:1px solid var(--yk-kayma);' +
+      'box-sizing:border-box}' +
+    '.yk-shapka-zag{flex:1 1 auto;min-width:0;margin:0;padding:0 4px;' +
+      'font:600 21px/1.25 Manrope,Inter,system-ui,sans-serif;color:var(--yk-ink1);' +
+      'white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+    '.yk-shapka-nazad{flex:0 0 auto;width:48px;height:48px;display:flex;' +
+      'align-items:center;justify-content:center;border:0;background:transparent;' +
+      'color:var(--yk-ink1);border-radius:24px;cursor:pointer;padding:0}' +
+    '.yk-shapka-nazad svg{width:24px;height:24px;stroke:currentColor;fill:none;' +
+      'stroke-width:2;stroke-linecap:round;stroke-linejoin:round}' +
+    '.yk-shapka-nazad:active{background:var(--yk-fon-akt)}' +
+    /* На корне кнопки возврата нет — и места под неё тоже: правило класса
+       сильнее браузерного [hidden], без этой строки заголовок корневых
+       экранов был отодвинут на 48 px пустотой. */
+    '.yk-shapka-nazad[hidden]{display:none !important}' +
+    '.yk-shapka-dela{flex:0 0 auto;display:flex;align-items:center;gap:2px}' +
+    /* Действия страницы переезжают в шапку как есть, со своими обработчиками;
+       выравниваем только размер цели — 48 dp. */
+    '.yk-shapka .yk-deystvie{min-width:48px;min-height:48px;padding:0 10px;' +
+      'display:inline-flex;align-items:center;justify-content:center;' +
+      'border:0;background:transparent;color:var(--yk-ink1);border-radius:24px;' +
+      'box-shadow:none;margin:0;font:600 15px/1 Manrope,Inter,system-ui,sans-serif}' +
+    '.yk-shapka .yk-deystvie:active{background:var(--yk-fon-akt)}' +
+    /* Скрытое остаётся скрытым: правило класса сильнее браузерного [hidden],
+       и «История» Круга (её показывают, когда история появилась) без этой
+       строки висела в шапке всегда. */
+    '.yk-shapka .yk-deystvie[hidden]{display:none !important}' +
+    '.yk-shapka .yk-deystvie svg{width:24px;height:24px}' +
+    /* Содержимое начинается под шапкой. Исключение — экраны, чья оболочка
+       ровно во весь экран (data-yk-holst): им отступ создал бы прокрутку и
+       увёл низ под наббар, поэтому там шапка лежит поверх. */
+    'html.yk-shapka-est:not(.yk-holst) body{padding-top:var(--yk-shapka) !important}' +
+
     /* Сайтовая шапка: разделы и тема переехали (наббар / Профиль→Вид). */
     '.ynav{display:none !important}' +
     '.dp-header{display:none !important}' +
@@ -84,62 +361,151 @@
     '.hdr{display:none !important}' +
     /* Та же история на «Уроках»: своя шапка .l-header дублирует наббар. */
     '.l-header{display:none !important}' +
+    /* Ниже — экраны, чьи собственные шапки повторяют общую. Прячем их тем же
+       способом: заголовок и возврат теперь рисует оболочка, а нужные кнопки
+       («Аа», «История», лупа) переезжают в действия шапки по метке
+       data-yk-deystvie. */
+    'html.yk-shapka-est .dr-shapka-ryad{display:none !important}' +   /* Уроки: h1 + лупа */
+    'html.yk-shapka-est .kn-shapka{display:none !important}' +        /* Книга */
+    'html.yk-shapka-est .khd{display:none !important}' +              /* Круг */
+    'html.yk-shapka-est .dp-castalia-h1{display:none !important}' +   /* Игры: h1 по центру */
+    'html.yk-shapka-est body>header .shapka{display:none !important}' + /* Главная: привет */
+    /* :not(.yk-shapka) обязателен — иначе правило гасит заголовок своей же
+       шапки: она тоже <header> первым ребёнком body. */
+    'html.yk-shapka-est body>header:not(.yk-shapka)>h1{display:none !important}' + /* Профиль */
     /* «Рейтинг»: ссылка «← к Ясне» вела на сайтовую главную и в приложении
        дублировала вкладку наббара. */
     '.rt-back{display:none !important}' +
     /* Панель «Редактор» в Разборе — во всю высоту окна, и её кнопка выхода
        оказывалась ровно под наббаром: закрыть редактор было нечем. */
-    '.editor-panel{height:calc(100vh - 70px - var(--yk-snizu)) !important;z-index:129 !important}' +
+    '.editor-panel{height:calc(100vh - var(--yk-nav)) !important;z-index:129 !important}' +
     /* Без шапки полотно конструктора начиналось вплотную к строке состояния. */
     '.wrap-outer,.app-root,#root>div{padding-top:0}' +
+    /* Экраны-полотна: их собственные прилипшие ленты живут под общей шапкой. */
+    'html.yk-shapka-est .raz-imya-polosa,html.yk-shapka-est .dp-sticky,' +
+      'html.yk-shapka-est .rt-top{top:calc(var(--yk-shapka) + 6px) !important}' +
+    /* Плавающий тулбар Разбора висит в углу полотна (top:10 инлайном) и
+       оказался бы ровно под шапкой — опускаем его под ленту с именем ясны. */
+    'html.yk-shapka-est .diag-corner-toolbar{top:calc(var(--yk-shapka) + 68px) !important}' +
     /* Плавающие кнопки «Отзыв» — над наббаром, а не под ним. */
-    '.tr-fab-fb,.neg-fab-fb{bottom:calc(84px + var(--yk-snizu)) !important}' +
+    '.tr-fab-fb,.neg-fab-fb{bottom:calc(var(--yk-nav) + 14px) !important}' +
     /* 404: разделы уже в наббаре — остаётся одна дверь «На главную». */
-    '.e-links .e-btn:not(.e-btn--primary){display:none}' +
-    '.yk-nav.yk-klava{display:none}' +
-    /* ВОЗВРАТ ИЗ ЗАХОДА ВГЛУБЬ.
-       Правило платформы: переключение вкладок — без истории, а заход вглубь
-       (карточка «Уроков» открыла «Разбор», рейтинг открыт из игры) обязан
-       иметь видимый выход назад. Своей шапки у экранов витрины нет, поэтому
-       кнопку рисует наббар — одну и ту же на всех экранах. */
-    /* z-index 210, а не 118: уроки рисуются слоем 130, разборы — 200, и
-       кнопка возврата физически лежала под ними. Человек, ушедший в занятие
-       из «Уроков», не видел выхода и уходил аппаратной «назад» с экрана. */
-    '.yk-nazad{position:fixed;z-index:210;left:calc(8px + env(safe-area-inset-left,0px));' +
-      'top:calc(8px + var(--yk-sverhu));display:inline-flex;align-items:center;gap:6px;' +
-      'height:40px;padding:0 14px 0 10px;border-radius:20px;border:1px solid var(--yk-kayma);' +
-      'background:var(--yk-kart);color:var(--yk-ink2);font:600 13.5px/1 Manrope,Inter,sans-serif;' +
-      'box-shadow:0 2px 10px rgba(0,0,0,.10);cursor:pointer;text-decoration:none}' +
-    '.yk-nazad svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;' +
-      'stroke-linecap:round;stroke-linejoin:round}' +
-    '.yk-nazad:active{transform:scale(.96)}' +
-    /* Кнопка, севшая в шапку страницы: без тени и фиксации, едет со строкой. */
-    '.yk-nazad--v-shapke{position:static;box-shadow:none;background:transparent;' +
-      'border-color:transparent;padding:0 10px 0 6px;height:44px;color:var(--yk-ink2)}' +
-    '.yk-nazad--v-shapke span{max-width:9em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
-    /* ПОЛОСА ПОД КНОПКОЙ ВОЗВРАТА.
-       Кнопка висит в левом верхнем углу и наезжала на заголовки экранов:
-       «Уроки», «Профиль», «Мастерство в игре», «✦ Рейтинг» — проверено
-       замером, наложение до 2600 px². Раз кнопка занимает верхнюю полосу,
-       полосу надо отдать ей целиком: содержимое страницы начинается ниже.
-       Так же, как наббар внизу получает свои 70px. */
-    /* Базовый воздух сверху: без него заголовок экрана лип к строке
-       состояния и всё выглядело приплюснутым. Ставится только страницам,
-       которые и так прокручиваются, — экраны с оболочкой ровно во весь
-       экран («Разбор») от лишнего отступа поехали бы под наббар. */
-    'html.yk-verh body{padding-top:calc(14px + var(--yk-sverhu)) !important}' +
-    'html.yk-nazad-est body{padding-top:calc(52px + var(--yk-sverhu)) !important}' +
-    /* Экраны, у которых своя верхняя лента приклеена к окну (её body-отступ
-       не двигает) — сдвигаем саму ленту. */
-    'html.yk-nazad-est .raz-imya-polosa,html.yk-nazad-est .dp-sticky,' +
-      'html.yk-nazad-est .rt-top{top:calc(52px + var(--yk-sverhu)) !important}' +
-    /* Пока поверх экрана открыт лист во весь экран (карточка места, «Все 12
-       мест», поиск), кнопка мешает его собственной шапке — прячем. Признак
-       ставит страница: html.yk-bez-nazad. */
-    'html.yk-bez-nazad .yk-nazad{display:none !important}' +
-    ':root{--yk-sverhu:var(--safe-area-inset-top, env(safe-area-inset-top, 0px))}';
+    '.e-links .e-btn:not(.e-btn--primary){display:none}';
   (document.head || document.documentElement).appendChild(st);
 
+  /* ══ 4. ШАПКА ══════════════════════════════════════════════════════════ */
+  var шапка = null, заголовокУзел = null, кнопкаНазад = null, действия = null;
+
+  function рисоватьШапку() {
+    if (!сейчас.имя) return;                 /* имени нет — шапки не будет */
+    шапка = document.createElement('header');
+    шапка.className = 'yk-shapka';
+    кнопкаНазад = document.createElement('button');
+    кнопкаНазад.type = 'button';
+    кнопкаНазад.className = 'yk-shapka-nazad';
+    кнопкаНазад.hidden = true;
+    кнопкаНазад.addEventListener('click', уйтиНазад);
+    заголовокУзел = document.createElement('h1');
+    заголовокУзел.className = 'yk-shapka-zag';
+    действия = document.createElement('div');
+    действия.className = 'yk-shapka-dela';
+    шапка.appendChild(кнопкаНазад);
+    шапка.appendChild(заголовокУзел);
+    шапка.appendChild(действия);
+    document.body.insertBefore(шапка, document.body.firstChild);
+    КОРЕНЬ_HTML.classList.add('yk-shapka-est');
+    if (объявлено.холст) КОРЕНЬ_HTML.classList.add('yk-holst');
+    обновитьШапку();
+    забратьДействия();
+  }
+
+  var СТРЕЛКА = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>';
+  var КРЕСТ = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+
+  function обновитьШапку() {
+    if (!шапка) return;
+    заголовокУзел.textContent = сейчас.имя || '';
+    КОРЕНЬ_HTML.classList.toggle('yk-sloy', сейчас.тип === 'слой');
+    if (сейчас.тип === 'корень') {           /* корень не рисует возврат НИКОГДА */
+      кнопкаНазад.hidden = true;
+      return;
+    }
+    кнопкаНазад.hidden = false;
+    кнопкаНазад.innerHTML = сейчас.тип === 'слой' ? КРЕСТ : СТРЕЛКА;
+    /* Подпись — только в aria-label: текстовая подпись обязана совпадать с
+       целью, а цель в многостраничном приложении зависит от истории, которой
+       подписи не видно. Стрелка + заголовок экрана ничего не обещают словами. */
+    var куда = yasnaNav.верх();
+    var имяЦели = (куда && куда.имя) || имяПути(запаснойРодитель()) || '';
+    кнопкаНазад.setAttribute('aria-label',
+      сейчас.тип === 'слой' ? ('Закрыть: ' + (сейчас.имя || ''))
+                            : ('Назад' + (имяЦели ? ': ' + имяЦели : '')));
+  }
+
+  /* Действия страницы (лупа «Уроков», «Аа» книги, «История» Круга) переезжают
+     в шапку вместе со своими обработчиками — их ставит сама страница. */
+  function забратьДействия() {
+    if (!действия) return;
+    var список = document.querySelectorAll('[data-yk-deystvie]');
+    for (var i = 0; i < список.length; i++) {
+      var э = список[i];
+      if (э.parentNode === действия) continue;
+      э.classList.add('yk-deystvie');
+      действия.appendChild(э);
+    }
+  }
+
+  /* Зверь на Главной — вход в Профиль. Знак приветствия на Главной был
+     нетапабельным, хотя выглядел как аватар; теперь это настоящая цель 48 dp
+     в правом углу шапки, как принято на домашнем экране.
+     Зовётся ниже, когда посчитан зверь. */
+  function зверьНаГлавной() {
+    if (!действия || файл !== 'index.html' || часть.indexOf('krug') >= 0) return;
+    var a = document.createElement('a');
+    a.className = 'yk-deystvie';
+    a.href = вверх + 'profil.html';
+    a.setAttribute('aria-label', 'Профиль');
+    a.innerHTML = мойЗверь
+      ? '<span class="yk-zver" aria-hidden="true">' + мойЗверь + '</span>'
+      : '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" ' +
+        'stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="3.6"/>' +
+        '<path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg>';
+    действия.appendChild(a);
+  }
+
+  function уйтиНазад() {
+    /* Сперва спрашиваем страницу: у неё может быть свой уровень вглубь
+       (открытая глава, раскрытый лист). Отменила событие — разобралась сама. */
+    var соб;
+    try { соб = new CustomEvent('yasna:назад', { cancelable: true }); }
+    catch (_) {
+      соб = document.createEvent('CustomEvent');
+      соб.initCustomEvent('yasna:назад', false, true, null);
+    }
+    window.dispatchEvent(соб);
+    if (соб.defaultPrevented) return;
+    if (сейчас.тип === 'слой' && сейчас.закрыть) { сейчас.закрыть(); return; }
+    yasnaNav.назад();
+  }
+
+  рисоватьШапку();
+  /* Заголовок, живущий на самой странице (имя книги, имя разложенной ясны),
+     ведём за ней: страница указывает узел атрибутом data-yk-imya-iz. */
+  (function заголовокИзУзла() {
+    var сел = атрибут('data-yk-imya-iz');
+    if (!сел || !шапка) return;
+    var узел = null;
+    try { узел = document.querySelector(сел); } catch (_) {}
+    if (!узел) return;
+    var снять = function () {
+      var т = (узел.textContent || '').trim();
+      if (т && т !== сейчас.имя) { сейчас.имя = т; обновитьШапку(); }
+    };
+    снять();
+    try { new MutationObserver(снять).observe(узел, { childList: true, characterData: true, subtree: true }); } catch (_) {}
+  })();
+
+  /* ══ 5. НАББАР ═════════════════════════════════════════════════════════ */
   /* Свой знак вместо человечка: если человек назвался или вошёл по почте,
      вкладка «Профиль» показывает его зверя — как аватар в мессенджерах. */
   var мойЗверь = (function () {
@@ -151,6 +517,19 @@
       return (вошёл || назвался) ? п.avatar : null;
     } catch (e) { return null; }
   })();
+  зверьНаГлавной();
+
+  /* Активна вкладка РОДИТЕЛЯ, а не файла. Порядок источников: объявление
+     страницы → таблица родичей → метка ?otkuda (Круг) → низ стека. Экрана
+     без подсвеченной вкладки быть не должно. */
+  var текущий = (function () {
+    if (самКорень()) return файл;
+    /* Живой переход знает лучше любой таблицы: ищем ближайший корень в стеке
+       (сверху вниз) — из него мы сюда и пришли. */
+    for (var i = стек.length - 1; i >= 0; i--) if (стек[i].корень) return стек[i].файл;
+    var запас = запаснойРодитель();
+    return корневой(запас) ? запас : '';
+  })();
 
   var nav = document.createElement('nav');
   nav.className = 'yk-nav';
@@ -159,320 +538,106 @@
     var тут = п[0] === текущий;
     return '<a href="' + вверх + п[0] + '"' +
       (тут ? ' class="yk-tut" aria-current="page"' : '') + '>' +
+      '<span class="yk-znak">' +
       (п[0] === 'profil.html' && мойЗверь
         ? '<span class="yk-zver" aria-hidden="true">' + мойЗверь + '</span>'
         : '<svg viewBox="0 0 24 24" aria-hidden="true">' + п[2] + '</svg>') +
-      п[1] + '</a>';
+      '</span>' + п[1] + '</a>';
   }).join('');
-  /* Переключение вкладок НЕ копит историю (правило нижней навигации):
-     иначе десять переходов по вкладкам = десять нажатий «назад».
-     Заходы вглубь (урок, партия, круг) остаются обычными переходами. */
+
   nav.addEventListener('click', function (e) {
     var a = e.target.closest('a');
     if (!a) return;
     e.preventDefault();
-    /* Переключение вкладок — это смена «дома», а не заход вглубь: метку
-       «откуда» снимаем, иначе кнопка возврата всплыла бы на самой вкладке. */
-    try { sessionStorage.removeItem('yasna_otkuda_v1'); } catch (_) {}
+    /* Партию, урок и живую сцену вкладка не крадёт молча: экран может
+       отменить уход и спросить сам («Прервать партию?»). Механизм тот же,
+       что у аппаратной «назад», — отменяемое событие. */
+    var уход;
+    try { уход = new CustomEvent('yasna:уход', { cancelable: true, detail: { куда: a.getAttribute('href') } }); }
+    catch (_) {
+      уход = document.createEvent('CustomEvent');
+      уход.initCustomEvent('yasna:уход', false, true, { куда: a.getAttribute('href') });
+    }
+    window.dispatchEvent(уход);
+    if (уход.defaultPrevented) return;
     /* Тап по УЖЕ активной вкладке — наверх (стандарт нижней навигации).
-       Но подсвеченной вкладка бывает и на «дочернем» экране (Тренажёры и
-       Переговоры подсвечивают «Уроки», Рейтинг — «Игру»): там прокрутка
-       наверх выглядела так, будто вкладка сломана. С дочернего экрана
-       уходим на сам раздел. */
+       Но подсвеченной вкладка бывает и на «дочернем» экране (Переговоры и
+       Книга подсвечивают «Уроки», Рейтинг — «Игры»): там прокрутка наверх
+       выглядела так, будто вкладка сломана. С дочернего уходим на раздел. */
     if (a.getAttribute('aria-current') === 'page') {
       var свой = a.getAttribute('href');
-      if (свой && свой.split('/').pop() !== файл) { location.replace(свой); return; }
+      if (свой && свой.split('/').pop() !== файл) { yasnaNav.корень(свой); return; }
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
-    location.replace(a.href);
-  });
-
-  /* ══ ВОЗВРАТ ИЗ ЗАХОДА ВГЛУБЬ ═══════════════════════════════════════
-     Как это принято: пять вкладок — это пять «домов», переключение между
-     ними историю не копит. Всё остальное — заход вглубь: из «Уроков» в
-     «Разбор» за инструкцией, из «Игры» в «Рейтинг», из главной в практику.
-     У такого перехода обязан быть видимый выход назад — раньше его не было
-     вовсе: человек уходил в «Разбор» и мог вернуться только вкладкой,
-     потеряв место, откуда пришёл.
-
-     Помним ОТКУДА пришли (sessionStorage, живёт до закрытия приложения):
-     метку ставит сам переход по ссылке, а переключение вкладок её стирает. */
-  var КЛЮЧ_ОТКУДА = 'yasna_otkuda_v1';
-  var ИМЕНА = { 'index.html': 'Главная', 'duel.html': 'Игры', 'learn.html': 'Уроки',
-                'konstruktor.html': 'Разбор', 'profil.html': 'Профиль',
-                'rating.html': 'Рейтинг', 'negotiations.html': 'Переговоры',
-                };
-
-  function имяЭкрана(имяФайла) {
-    if (!имяФайла) return 'назад';
-    if (имяФайла.indexOf('krug') >= 0) return 'Разложи по кругу';
-    return ИМЕНА[имяФайла] || 'назад';
-  }
-  function прочитатьОткуда() {
-    try { return JSON.parse(sessionStorage.getItem(КЛЮЧ_ОТКУДА) || 'null'); } catch (_) { return null; }
-  }
-  function записатьОткуда(з) {
-    try { з ? sessionStorage.setItem(КЛЮЧ_ОТКУДА, JSON.stringify(з))
-            : sessionStorage.removeItem(КЛЮЧ_ОТКУДА); } catch (_) {}
-  }
-
-  /* Любой переход по ссылке внутри приложения (кроме наббара) — заход вглубь.
-     Ставим метку до ухода: на новой странице она уже будет. */
-  document.addEventListener('click', function (e) {
-    var a = e.target && e.target.closest && e.target.closest('a[href]');
-    if (!a || a.closest('.yk-nav')) return;
-    var href = a.getAttribute('href') || '';
-    if (!href || href.charAt(0) === '#' || /^(https?:|mailto:|tel:|javascript:)/i.test(href)) return;
-    if (a.target === '_blank') return;
-    var сюда = href.split('#')[0].split('?')[0].split('/').pop();
-    if (!сюда || сюда === файл) return;              /* тот же экран — не заход */
-    записатьОткуда({ файл: файл, путь: location.pathname + location.search, имя: имяЭкрана(файл) });
-  }, true);
-
-  (function кнопкаНазад() {
-    /* МЕСТО В ШАПКЕ. Плавающая кнопка искалась глазами по всему экрану —
-       особенно на длинных страницах, где шапка липкая, а кнопка уехала со
-       скроллом. Если страница даёт место (data-yk-nazad-mesto="файл|Имя"),
-       кнопка садится туда и едет вместе с шапкой. Значение атрибута — куда
-       вести, когда человек пришёл прямой ссылкой и «откуда» пусто. */
-    var место = document.querySelector('[data-yk-nazad-mesto]');
-    var запасной = null;
-    if (место) {
-      var зн = (место.getAttribute('data-yk-nazad-mesto') || '').split('|');
-      if (зн[0]) запасной = { файл: зн[0], имя: зн[1] || 'Назад', путь: вверх + зн[0] };
-    }
-    /* Подпись обязана совпадать с тем, куда кнопка реально уведёт. Нажатие
-       сперва идёт по истории, поэтому имя берём с предыдущей страницы, а
-       метку «откуда» — только когда истории нет. Иначе кнопка обещала
-       «Главная», а возвращала на «Уроки». */
-    var поИстории = null;
-    try {
-      if (document.referrer && history.length > 1) {
-        var р = new URL(document.referrer);
-        if (р.origin === location.origin) {
-          var ф = (р.pathname.split('/').pop() || 'index.html');
-          if (ф !== файл && ИМЕНА[ф]) поИстории = { файл: ф, имя: ИМЕНА[ф], путь: вверх + ф };
-        }
-      }
-    } catch (_) {}
-    var откуда = поИстории || прочитатьОткуда() || запасной;
-    if (!откуда || (откуда.файл === файл && !место)) return;
-    /* На «Круге» своя стрелка в шапке — второй кнопки не надо. */
-    if (часть.indexOf('krug') >= 0 || document.getElementById('krug-nazad')) return;
-    var кн = document.createElement('a');
-    кн.className = 'yk-nazad';
-    кн.href = откуда.путь || (вверх + откуда.файл);
-    кн.setAttribute('aria-label', 'Назад: ' + откуда.имя);
-    кн.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>' +
-                   '<span>' + откуда.имя + '</span>';
-    кн.addEventListener('click', function (e) {
-      e.preventDefault();
-      /* Сперва спрашиваем страницу: у неё может быть свой уровень вглубь
-         (открытая глава книги, раскрытый лист). Отменила событие — значит
-         разобралась сама, и с экрана уходить рано. */
-      var соб;
-      try {
-        соб = new CustomEvent('yasna:назад', { cancelable: true });
-      } catch (_) {
-        соб = document.createEvent('CustomEvent');
-        соб.initCustomEvent('yasna:назад', false, true, null);
-      }
-      window.dispatchEvent(соб);
-      if (соб.defaultPrevented) return;
-      записатьОткуда(null);
-      /* Настоящая история лучше: сохраняет прокрутку и состояние экрана. */
-      if (history.length > 1) { history.back(); return; }
-      location.replace(кн.href);
-    });
-    if (место) {
-      /* В шапке кнопка — часть строки, а не карточка поверх экрана. */
-      кн.classList.add('yk-nazad--v-shapke');
-      место.appendChild(кн);
-      return;                       /* размещать по экрану больше нечего */
-    }
-    document.body.appendChild(кн);
-
-    /* ══ ГДЕ СТОЯТЬ КНОПКЕ ═══════════════════════════════════════════════
-       Кнопка висит в левом верхнем углу и наезжала на заголовки: «Уроки»,
-       «Профиль», «Мастерство в игре», «✦ Рейтинг» (замер: наложение до
-       2600 px²). Место выбираем не на глаз, а проверкой:
-
-         1. Если под кнопкой ничего нет — оставляем как есть.
-         2. Если есть — отдаём ей верхнюю полосу: содержимое страницы
-            начинается на 52px ниже (класс yk-nazad-est).
-         3. Полоса не годится экранам, чья оболочка ровно во весь экран
-            («Разбор»): страница станет на 52px выше себя и поедет под
-            наббар. Там вместо полосы сдвигаем саму кнопку — сначала ниже
-            помехи, потом правее.
-
-       Проверка повторяется после отрисовки и при повороте: заголовки
-       появляются позже первого кадра. */
-    var корень = document.documentElement;
-    var ПОЛОСА = 52;
-
-    function помехи() {
-      var r = кн.getBoundingClientRect();
-      var сп = [];
-      var узлы = document.body.querySelectorAll('*');
-      for (var i = 0; i < узлы.length; i++) {
-        var э = узлы[i];
-        if (э === кн || кн.contains(э) || э.contains(кн)) continue;
-        var cs = getComputedStyle(э);
-        if (cs.display === 'none' || cs.visibility === 'hidden') continue;
-        if (parseFloat(cs.opacity) < 0.05) continue;
-        var свой = false, д = э.childNodes;
-        for (var j = 0; j < д.length; j++) {
-          if (д[j].nodeType === 3 && д[j].textContent.trim()) { свой = true; break; }
-        }
-        var интер = /^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/.test(э.tagName);
-        if (!свой && !интер) continue;
-        var rr = э.getBoundingClientRect();
-        if (!rr.width || !rr.height) continue;
-        if (rr.right < r.left || rr.left > r.right || rr.bottom < r.top || rr.top > r.bottom) continue;
-        сп.push(rr);
-      }
-      return сп;
-    }
-
-    /* Оболочка ровно во весь экран — значит страница не прокручивается и
-       полосу отдавать нельзя. */
-    function оболочкаВоВесьЭкран() {
-      return document.body.scrollHeight <= window.innerHeight + 2;
-    }
-
-    function разместить() {
-      кн.style.top = ''; кн.style.left = '';
-      корень.classList.remove('yk-nazad-est');
-      if (!помехи().length) return;
-
-      var жёсткая = оболочкаВоВесьЭкран();
-      if (!жёсткая) {
-        корень.classList.add('yk-nazad-est');
-        if (!помехи().length) return;
-        корень.classList.remove('yk-nazad-est');
-      }
-
-      /* Сдвигаем кнопку: сначала ниже самой низкой помехи. */
-      var сп = помехи();
-      var низ = 0;
-      сп.forEach(function (rr) { if (rr.bottom > низ) низ = rr.bottom; });
-      var предел = Math.round(window.innerHeight * 0.34);
-      var новыйВерх = Math.min(Math.round(низ + 8), предел);
-      кн.style.top = новыйВерх + 'px';
-      if (!помехи().length) return;
-
-      /* Не помогло — уходим правее всего, что мешает. */
-      сп = помехи();
-      var право = 0;
-      сп.forEach(function (rr) { if (rr.right > право) право = rr.right; });
-      var шир = кн.getBoundingClientRect().width;
-      var лево = Math.min(Math.round(право + 8), Math.max(8, window.innerWidth - шир - 8));
-      кн.style.left = лево + 'px';
-    }
-
-    var ждём = false;
-    function пересмотретьМесто() {
-      if (ждём) return;
-      ждём = true;
-      requestAnimationFrame(function () { ждём = false; разместить(); });
-    }
-    пересмотретьМесто();
-    setTimeout(пересмотретьМесто, 400);
-    setTimeout(пересмотретьМесто, 1500);
-    window.addEventListener('resize', пересмотретьМесто);
-    window.addEventListener('orientationchange', пересмотретьМесто);
-
-    /* Метку не снимаем по аппаратной «назад»: то же событие приходит и когда
-       она всего лишь закрывает окно поверх экрана. Метка безвредна — кнопка
-       рисуется, только если экран в ней отличается от текущего, а переключение
-       вкладок стирает её само. */
-
-    /* ПОКА ПОВЕРХ ЭКРАНА ЛЕЖИТ ЛИСТ ВО ВЕСЬ ЭКРАН — КНОПКУ ПРЯЧЕМ.
-       Урок, разбор автора, карточка места на полном упоре, «Все 12 мест»,
-       поиск, редактор — у каждого своя шапка со своим крестиком, и кнопка
-       возврата наезжала на их заголовки (замер: до 2600 px² наложения на
-       заголовке урока). Признак ищем по виду, а не по имени класса: любой
-       слой position:fixed с z-index ≥ 129, который накрывает почти весь
-       экран. Так правило работает и для листов, которых ещё нет.
-       Аппаратная «назад» и крестик такие листы закрывают — выход есть. */
-    var корень = document.documentElement;
-    function накрытоЛистом() {
-      /* Обходим всё поддерево: карточка места лежит четвёртым уровнем от
-         body (#root > .app > .app-body > aside), и обход «на три уровня»
-         её не видел. Экраны небольшие (275–500 узлов), а сам обход зажат
-         в один кадр и не слушает правки inline-стиля — иначе он срабатывал
-         бы на каждом кадре перетаскивания шторки. */
-      var узлы = document.body.querySelectorAll('*');
-      var W = window.innerWidth, H = window.innerHeight;
-      for (var i = 0; i < узлы.length; i++) {
-        var э = узлы[i];
-        if (э.classList && э.classList.contains('yk-nazad')) continue;
-        var cs = getComputedStyle(э);
-        if (cs.position !== 'fixed') continue;
-        if (cs.display === 'none' || cs.visibility === 'hidden') continue;
-        if (parseFloat(cs.opacity) < 0.02) continue;
-        if ((+cs.zIndex || 0) < 129) continue;
-        var r = э.getBoundingClientRect();
-        if (r.width >= W * 0.9 && r.height >= H * 0.8) return true;
-      }
-      return false;
-    }
-    var ждёмКадр = false;
-    function пересмотреть() {
-      if (ждёмКадр) return;
-      ждёмКадр = true;
-      requestAnimationFrame(function () {
-        ждёмКадр = false;
-        корень.classList.toggle('yk-bez-nazad', накрытоЛистом());
-      });
-    }
-    пересмотреть();
-    try {
-      new MutationObserver(пересмотреть).observe(document.body, {
-        childList: true, subtree: true,
-        attributes: true, attributeFilter: ['class', 'hidden', 'aria-hidden', 'data-upor']
-      });
-    } catch (_) {}
-    window.addEventListener('resize', пересмотреть);
-    window.addEventListener('hashchange', пересмотреть);
-  })();
-
-  /* ── Базовый отступ сверху для всех экранов ─────────────────────────
-     Кнопка возврата отдаёт странице свои 52px, но её на экране может и не
-     быть — а воздух сверху нужен всегда. Ставим 14px тем страницам, которые
-     прокручиваются: у экранов с оболочкой во весь экран лишний отступ
-     создал бы прокрутку и увёл низ под наббар. */
-  (function верхнийОтступ() {
-    var корень = document.documentElement;
-    function решить() {
-      if (корень.classList.contains('yk-nazad-est')) { корень.classList.remove('yk-verh'); return; }
-      var прокручивается = document.body.scrollHeight > window.innerHeight + 2;
-      корень.classList.toggle('yk-verh', прокручивается);
-    }
-    решить();
-    setTimeout(решить, 500);
-    setTimeout(решить, 1600);
-    window.addEventListener('resize', решить);
-    window.addEventListener('orientationchange', решить);
-  })();
-
-  /* Клавиатура: медиазапрос по высоте ловил не все телефоны (высокие экраны
-     с клавиатурой оставались «высокими») и гасил навигацию в сплит-скрине.
-     Честный признак — вьюпорт просел ощутимо ниже своего максимума за
-     сессию: Android resize'ит WebView под клавиатуру. */
-  var максВысота = window.innerHeight;
-  window.addEventListener('resize', function () {
-    if (window.innerHeight > максВысота) максВысота = window.innerHeight;
-    nav.classList.toggle('yk-klava', window.innerHeight < максВысота * 0.72);
+    yasnaNav.корень(a.getAttribute('href'));
   });
   document.body.appendChild(nav);
+
+  /* ══ 6. ССЫЛКИ СТРАНИЦ ═════════════════════════════════════════════════
+     Ссылка на корневой файл — это переключение вкладки, а не заход вглубь:
+     иначе после карточки «Игры» на Главной экран Игр становился «дочерним»,
+     с кнопкой возврата и полосой 52 px, которых на вкладке быть не может.
+     Всё остальное — заход вглубь: кладём себя в стек и идём обычным переходом
+     (браузер сам сохранит историю, а мы — имя, откуда пришли). */
+  document.addEventListener('click', function (e) {
+    var a = e.target && e.target.closest && e.target.closest('a[href]');
+    if (!a) return;
+    if (a.closest('.yk-nav') || a.closest('.yk-shapka')) return;   /* оболочка ходит сама */
+    if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.button > 0) return;
+    var href = a.getAttribute('href') || '';
+    if (!href || href.charAt(0) === '#' || /^(https?:|mailto:|tel:|javascript:)/i.test(href)) return;
+    if (a.target === '_blank' || a.hasAttribute('download')) return;
+    var сюда = файлИз(href);
+    if (сюда === файл && href.indexOf('?') < 0) return;            /* тот же экран */
+    if (корневой(сюда) && href.indexOf('/krug/') < 0) {
+      e.preventDefault();
+      yasnaNav.корень(a.href);
+      return;
+    }
+    yasnaNav.вглубь(null);                                          /* переход сделает браузер */
+  }, true);
+
+  /* Вернулись по истории — верх стека уже не про нас. Приведение делает то
+     же, что при загрузке: снимает с вершины экран, на котором мы стоим. */
+  window.addEventListener('pageshow', function (e) {
+    if (!e.persisted) return;
+    стек = прочитать();
+    while (стек.length && стек[стек.length - 1].файл === файл) стек.pop();
+    записать(стек);
+    обновитьШапку();
+  });
+
+  /* ══ 7. КЛАВИАТУРА ═════════════════════════════════════════════════════
+     Было: «вьюпорт ниже 72 % от своего максимума — значит клавиатура». В
+     разделённом экране (и в любом низком окне) наббар от этого исчезал
+     совсем — уйти с экрана было нечем. Считаем по инсету IME: сколько
+     нижней части окна отъела всплывшая панель. Родное событие с моста
+     (yasna:клавиатура) главнее — оно знает правду от системы. */
+  var сНатива = null;
+  var vv = window.visualViewport;
+  function проверитьКлавиатуру() {
+    var видна;
+    if (сНатива !== null) видна = сНатива;
+    else if (vv) видна = (КОРЕНЬ_HTML.clientHeight - (vv.height + vv.offsetTop)) > 140;
+    else видна = false;
+    nav.classList.toggle('yk-klava', !!видна);
+  }
+  if (vv) {
+    vv.addEventListener('resize', проверитьКлавиатуру);
+    vv.addEventListener('scroll', проверитьКлавиатуру);
+  }
+  window.addEventListener('yasna:клавиатура', function (e) {
+    сНатива = !!(e && e.detail && e.detail.видна);
+    проверитьКлавиатуру();
+  });
+  проверитьКлавиатуру();
 
   /* Профиль сохраняет имя и зверя на этой же странице — событие storage
      в своей вкладке не приходит, поэтому даём ему прямой способ обновить
      вкладку, не перезагружая экран. */
   window.yasnaNavbarObnovi = function () {
-    var а = nav.querySelector('a[href$="profil.html"]');
+    var а = nav.querySelector('a[href$="profil.html"] .yk-znak');
     if (!а) return;
     var зверь = null;
     try {
@@ -481,12 +646,10 @@
       if (п && п.avatar && (вошёл || (п.nickname && п.nickname !== 'Гость'))) зверь = п.avatar;
     } catch (e) {}
     var было = а.querySelector('.yk-zver, svg');
-    if (!было) return;
-    if (зверь) {
-      if (было.classList.contains('yk-zver')) { было.textContent = зверь; return; }
-      var s = document.createElement('span');
-      s.className = 'yk-zver'; s.setAttribute('aria-hidden', 'true'); s.textContent = зверь;
-      а.replaceChild(s, было);
-    }
+    if (!было || !зверь) return;
+    if (было.classList.contains('yk-zver')) { было.textContent = зверь; return; }
+    var s = document.createElement('span');
+    s.className = 'yk-zver'; s.setAttribute('aria-hidden', 'true'); s.textContent = зверь;
+    а.replaceChild(s, было);
   };
 })();

@@ -154,7 +154,6 @@ a { color: inherit; text-decoration: none; }
 .dr { max-width: 720px; margin: 0 auto; padding: 12px 16px 24px; }
 .dr-shapka { padding: 4px 0 12px; }
 .dr-shapka-ryad { display: flex; align-items: center; gap: 10px; }
-.dr-nazad-mesto:empty { display: none; }   /* пришли не вглубь — места не занимаем */
 .dr-zag { flex: 1; margin: 0; font-family: var(--font-serif); font-weight: 500;
   font-size: 30px; line-height: 1.1; letter-spacing: -0.02em; color: var(--text-primary); }
 .dr-lupa { width: 44px; height: 44px; flex: 0 0 auto; border-radius: 12px;
@@ -370,6 +369,10 @@ a { color: inherit; text-decoration: none; }
 .dr-list[hidden] { display: none; }
 .dr-list-shapka { display: flex; align-items: center; gap: 10px; padding: 12px 16px;
   border-bottom: 1px solid var(--border); flex: 0 0 auto; }
+/* Лист лежит поверх всего экрана (inset: 0) — значит и под строкой состояния.
+   В приложении отступ сверху даёт безопасная зона, иначе заголовок листа и
+   его «×» уезжают под часы. Так же устроена шапка книги. */
+html.yk-est .dr-list-shapka { padding-top: calc(12px + var(--yk-sverhu, 0px)); }
 .dr-list-zag { flex: 1; margin: 0; font-size: 20px; font-weight: 700; color: var(--text-primary); }
 .dr-list-x { width: 44px; height: 44px; flex: 0 0 auto; border: 0; background: none;
   color: var(--text-secondary); font-size: 26px; line-height: 1; cursor: pointer; }
@@ -943,9 +946,11 @@ html[data-theme='light'] {
 <section class="dr" aria-labelledby="dr-zag">
   <header class="dr-shapka">
     <div class="dr-shapka-ryad">
-      <!-- Место кнопки возврата: единая навигация — возврат всегда в шапке,
-           а не плавающей кнопкой поверх экрана. -->
-      <span class="dr-nazad-mesto" data-yk-nazad-mesto=""></span>
+      <!-- Кнопки возврата здесь нет и быть не может: «Уроки» — корневая
+           вкладка, уходить с неё «назад» некуда. Прежнее пустое место для
+           неё заполняла оболочка приложения — и на самом экране «Уроки»
+           всплывало «‹ Уроки». В приложении весь этот ряд прячет общая
+           шапка, лупа переезжает в её действия. -->
       <h1 class="dr-zag" id="dr-zag">Уроки</h1>
       <button type="button" class="dr-lupa" id="dr-lupa" aria-label="Найти занятие">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -1811,11 +1816,26 @@ html[data-theme='light'] {
 
   /* ─── Открытие и закрытие листов ─── */
   (function () {
+    /* Реестр открытых листов. Аппаратная «назад» обязана закрывать верхний
+       лист — раньше её перехватывали только три из пяти, и на «Практике» со
+       «Справкой» приложение сворачивалось целиком. Реестр же держит порядок
+       открытия: одно нажатие — один лист, и прокрутку страницы отпускает
+       только последний закрытый, а не первый попавшийся. */
+    var открытыеЛисты = [];
     function показать(id, показ) {
       var э = document.getElementById(id);
       if (!э) return;
       э.hidden = !показ;
-      document.documentElement.style.overflow = показ ? 'hidden' : '';
+      var i = открытыеЛисты.indexOf(id);
+      if (i >= 0) открытыеЛисты.splice(i, 1);
+      if (показ) открытыеЛисты.push(id);
+      document.documentElement.style.overflow = открытыеЛисты.length ? 'hidden' : '';
+    }
+    function закрытьВерхнийЛист() {
+      var id = открытыеЛисты[открытыеЛисты.length - 1];
+      if (!id) return false;
+      показать(id, false);
+      return true;
     }
     /* Чипы-фильтры заменены листами «Практика» и «Справка» — см. ниже.
        Старый фильтр раскрывал все ветви разом и выглядел бессмысленным. */
@@ -1870,19 +1890,13 @@ html[data-theme='light'] {
     var поле = document.getElementById('dr-poisk-vvod');
     if (поле) поле.addEventListener('input', function () { поиск(поле.value); });
 
-    /* Escape и аппаратная «назад» закрывают лист, а не экран. */
+    /* Escape и аппаратная «назад» закрывают лист, а не экран, и ходят одной
+       дорогой: список закрываемых листов в двух местах уже разъезжался. */
     window.addEventListener('keydown', function (e) {
-      if (e.key !== 'Escape') return;
-      показать('dr-mesta', false); показать('dr-poisk', false); показать('dr-yasny', false);
-      показать('dr-praktika', false); показать('dr-spravka', false);
+      if (e.key === 'Escape') закрытьВерхнийЛист();
     });
     window.addEventListener('yasna:назад', function (e) {
-      var открыт = ['dr-mesta', 'dr-poisk', 'dr-yasny'].filter(function (id) {
-        var э = document.getElementById(id); return э && !э.hidden;
-      });
-      if (!открыт.length) return;
-      e.preventDefault();
-      открыт.forEach(function (id) { показать(id, false); });
+      if (закрытьВерхнийЛист()) e.preventDefault();
     });
   })();
 
