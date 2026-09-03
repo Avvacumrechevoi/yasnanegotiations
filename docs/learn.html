@@ -9,15 +9,9 @@
 <script src="core/gate.js"></script>
 <script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);var e=document.documentElement;e.setAttribute('data-theme',d?'dark':'light');e.style.colorScheme=d?'dark':'light';}catch(e){}</script>
 <script src="core/theme.js?v=86eb1366"></script>
-<script src="core/storage.js?v=529ec80c"></script>
+<script src="core/storage.js?v=9d701501"></script>
 <script src="core/access.js?v=4ed1e962"></script>
 <script src="core/account.js?v=19915f6a"></script>
-<!-- Дерево знаний: паспорта занятий и общий счёт пройденного. Обычные
-     script-теги — на этой странице нет сборки и нет React. -->
-<script src="core/data.js?v=ffd01d69"></script>
-<script src="core/pasporta.js?v=f4319d11"></script>
-<script src="core/derevo-dannye.js?v=297a3e32"></script>
-<script src="core/znanie.js?v=4b63efa1"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
 <!-- Приложение: манифест, иконки и цвет строки состояния. Раньше манифест
      висел на двух страницах из девяти, иконка была одна — SVG в data-URI, а
@@ -1164,6 +1158,16 @@ html[data-theme='light'] {
 
 </div><!-- /#learnMain -->
 
+
+<!-- Данные дерева — внизу страницы, а не в <head>. Они нужны только
+     скрипту ниже, а в шапке 161 кБ разбирались до того, как человек
+     видел хоть строчку. Теги остались обычными (не defer): скрипт
+     ниже читает YasnaData и YasnaDerevo прямо при разборе, и порядок
+     важнее. -->
+<script src="core/data.js?v=ffd01d69"></script>
+<script src="core/pasporta.js?v=f4319d11"></script>
+<script src="core/derevo-dannye.js?v=297a3e32"></script>
+<script src="core/znanie.js?v=4b63efa1"></script>
 
 <script>
 'use strict';

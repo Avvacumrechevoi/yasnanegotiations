@@ -300,10 +300,13 @@
 
   <section class="kart">
     <h2>Вид</h2>
+    <!-- role=radio, а не button: атрибут aria-checked у роли «кнопка»
+         недопустим, и чтец читал «Светлая, кнопка», умалчивая, какая тема
+         стоит сейчас. Разметку и стрелки доводит скрипт внизу страницы. -->
     <div class="segmenty" id="tema-segmenty" role="radiogroup" aria-label="Тема">
-      <button type="button" data-tema="auto">Как в системе</button>
-      <button type="button" data-tema="light">Светлая</button>
-      <button type="button" data-tema="dark">Тёмная</button>
+      <button type="button" role="radio" aria-checked="false" data-tema="auto">Как в системе</button>
+      <button type="button" role="radio" aria-checked="false" data-tema="light">Светлая</button>
+      <button type="button" role="radio" aria-checked="false" data-tema="dark">Тёмная</button>
     </div>
   </section>
 
@@ -320,6 +323,7 @@
 
   <div class="versiya">Ясна для Android</div>
 </main>
+
 
 
 <!-- Друзья живут на той же базе, что и комнаты; SDK нужен и здесь. -->
@@ -822,6 +826,45 @@
     }).catch(function(e){ сказать(ошибкаТекстом(e), true) })
       .then(function(){ кн.disabled=false });
   };
+})();
+</script>
+<script>
+/* Тема и зверь — выбор одного из ряда. Двенадцать аватаров и три сегмента
+   стояли двенадцатью и тремя остановками Tab, а состояние не звучало.
+   Радиоряд: одна остановка на группу, стрелки ходят внутри, выбранный
+   держит tabindex=0. Наблюдатель нужен потому, что aria-checked ставят
+   чужие обработчики (тема меняется и снаружи, из системы). */
+(function(){
+  [].forEach.call(document.querySelectorAll('[role="radiogroup"]'), function(ряд){
+    function кнопки(){ return [].slice.call(ряд.querySelectorAll('button')); }
+    function свести(){
+      var сп=кнопки(), есть=false;
+      сп.forEach(function(к){
+        к.setAttribute('role','radio');
+        if(!к.hasAttribute('aria-checked')) к.setAttribute('aria-checked','false');
+        var вкл=к.getAttribute('aria-checked')==='true';
+        if(вкл) есть=true;
+        к.tabIndex=вкл?0:-1;
+      });
+      /* Ничего не выбрано — вход в группу всё равно нужен: даём первому. */
+      if(!есть&&сп[0]) сп[0].tabIndex=0;
+    }
+    ряд.addEventListener('keydown', function(e){
+      var сп=кнопки(), i=сп.indexOf(document.activeElement);
+      if(i<0) return;
+      var д=(e.key==='ArrowRight'||e.key==='ArrowDown')?1
+           :(e.key==='ArrowLeft'||e.key==='ArrowUp')?-1:0;
+      if(!д) return;
+      e.preventDefault();
+      var с=сп[(i+д+сп.length)%сп.length];
+      с.focus(); с.click();
+    });
+    try{
+      new MutationObserver(свести).observe(ряд,
+        {attributes:true, attributeFilter:['aria-checked'], subtree:true, childList:true});
+    }catch(_){}
+    свести();
+  });
 })();
 </script>
 </body>

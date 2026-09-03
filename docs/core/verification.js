@@ -43,15 +43,18 @@ function Verification({y,vs,setVs,onClose}){
     return(
     <div data-check-id={id} style={{display:'flex',alignItems:'flex-start',gap:10,padding:'10px 0',borderBottom:'1px solid #f0f0f2'}}>
       <div style={{display:'flex',gap:4,flexShrink:0,marginTop:1}}>
-        <button onClick={()=>ans(id,v===true?null:true)} title="Да" style={{width:28,height:28,borderRadius:6,border:`1.5px solid ${v===true?'#30A060':'#d2d2d7'}`,background:v===true?'#30A06012':'#fff',fontSize:13,color:v===true?'#30A060':'#c7c7cc',cursor:'pointer',fontWeight:600}}>✓</button>
-        <button onClick={()=>ans(id,v===false?null:false)} title="Нет" style={{width:28,height:28,borderRadius:6,border:`1.5px solid ${v===false?'#E8364F':'#d2d2d7'}`,background:v===false?'#E8364F12':'#fff',fontSize:13,color:v===false?'#E8364F':'#c7c7cc',cursor:'pointer',fontWeight:600}}>✗</button>
-        <button onClick={()=>ans(id,v==='na'?null:'na')} title="Не применимо" style={{width:28,height:28,borderRadius:6,border:`1.5px solid ${v==='na'?'#86868b':'#d2d2d7'}`,background:v==='na'?'#86868b12':'#fff',fontSize:12,color:v==='na'?'#86868b':'#c7c7cc',cursor:'pointer',fontWeight:600}}>—</button>
+        {/* Имя кнопки бралось из содержимого: чтец читал «галочка», «звёздочка»
+            и молчал о том, что выбрано. title именем не становится, когда
+            внутри есть текст, — поэтому aria-label и aria-pressed. */}
+        <button onClick={()=>ans(id,v===true?null:true)} title="Да" aria-label="Да" aria-pressed={v===true} style={{width:28,height:28,borderRadius:6,border:`1.5px solid ${v===true?'#30A060':'#d2d2d7'}`,background:v===true?'#30A06012':'#fff',fontSize:13,color:v===true?'#30A060':'#c7c7cc',cursor:'pointer',fontWeight:600}}>✓</button>
+        <button onClick={()=>ans(id,v===false?null:false)} title="Нет" aria-label="Нет" aria-pressed={v===false} style={{width:28,height:28,borderRadius:6,border:`1.5px solid ${v===false?'#E8364F':'#d2d2d7'}`,background:v===false?'#E8364F12':'#fff',fontSize:13,color:v===false?'#E8364F':'#c7c7cc',cursor:'pointer',fontWeight:600}}>✗</button>
+        <button onClick={()=>ans(id,v==='na'?null:'na')} title="Не применимо" aria-label="Не применимо" aria-pressed={v==='na'} style={{width:28,height:28,borderRadius:6,border:`1.5px solid ${v==='na'?'#86868b':'#d2d2d7'}`,background:v==='na'?'#86868b12':'#fff',fontSize:12,color:v==='na'?'#86868b':'#c7c7cc',cursor:'pointer',fontWeight:600}}>—</button>
       </div>
       <div style={{flex:1,minWidth:0}}>
         <div style={{display:'flex',alignItems:'flex-start',gap:6,marginBottom:2}}>
           {weight&&<span style={{fontSize:9,fontWeight:700,color:wColor,padding:'1px 5px',border:`1px solid ${wColor}40`,borderRadius:3,letterSpacing:0.3,flexShrink:0,marginTop:2}}>{weight}</span>}
           <div style={{fontSize:13,color:'var(--txt,#1d1d1f)',lineHeight:1.5,flex:1}}>{q}</div>
-          {info&&<button onClick={()=>setOpenInfo(isOpen?null:id)} title="Подробнее"
+          {info&&<button onClick={()=>setOpenInfo(isOpen?null:id)} title="Подробнее" aria-label="Подробнее" aria-expanded={isOpen}
             style={{width:20,height:20,borderRadius:'50%',border:'1.5px solid #c7c7cc',background:isOpen?'#0071e3':'#fff',color:isOpen?'#fff':'#86868b',fontSize:11,cursor:'pointer',fontWeight:700,flexShrink:0,marginTop:1,lineHeight:1,padding:0,fontFamily:'Georgia,serif',fontStyle:'italic'}}>i</button>}
         </div>
         {info&&isOpen&&<div style={{fontSize:12,color:'var(--txt2,#6e6e73)',marginTop:6,padding:'8px 10px',background:'var(--bg2,#f5f5f7)',border:'1px solid var(--border,#d2d2d7)',borderLeft:'3px solid #0071e3',borderRadius:6,lineHeight:1.55}} dangerouslySetInnerHTML={{__html:info.replace(/\*\*([^*]+)\*\*/g,'<b style="color:var(--txt,#1d1d1f)">$1</b>')}}/>}
@@ -281,10 +284,12 @@ function Verification({y,vs,setVs,onClose}){
       <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'var(--bg,#fff)',color:'var(--txt,#1d1d1f)',zIndex:130,display:'flex',flexDirection:'column'}}>
         <div style={{padding:'12px 20px',borderBottom:'1px solid #f0f0f2',display:'flex',alignItems:'center',gap:10,flexShrink:0}}>
           <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:10,color:'#86868b',textTransform:'uppercase',letterSpacing:0.8,fontWeight:600,marginBottom:2}}>Проверка</div>
+            <div style={{fontSize:11,color:'#86868b',textTransform:'uppercase',letterSpacing:0.8,fontWeight:600,marginBottom:2}}>Проверка</div>
             <h2 style={{fontSize:18,fontWeight:700,color:'var(--txt,#1d1d1f)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{y.name}</h2>
           </div>
-          <button onClick={onClose} style={{width:36,height:36,borderRadius:10,border:'1px solid #e5e5ea',background:'var(--bg,#fff)',fontSize:16,color:'#424245',cursor:'pointer',flexShrink:0}}>✕</button>
+          {/* Без имени чтец называл кнопку «знак умножения»; 36 — меньше
+              нормы 44 под палец. */}
+          <button onClick={onClose} aria-label="Закрыть проверку" style={{width:44,height:44,borderRadius:10,border:'1px solid #e5e5ea',background:'var(--bg,#fff)',fontSize:16,color:'#424245',cursor:'pointer',flexShrink:0}}>✕</button>
         </div>
         <div className='fullpage-content' style={{flex:1,overflowY:'auto',padding:'24px 20px',maxWidth:680,margin:'0 auto',width:'100%'}}>
           <div style={{fontSize:24,fontWeight:700,color:'var(--txt,#1d1d1f)',marginBottom:10,lineHeight:1.25}}>Вопросы к кругу</div>
@@ -375,11 +380,11 @@ function Verification({y,vs,setVs,onClose}){
       {/* HEADER */}
       <div className="verif-header" style={{display:'flex',alignItems:'center',padding:'12px 20px',borderBottom:'1px solid #f0f0f2',flexShrink:0,gap:10}}>
         <div style={{flex:1,minWidth:0}}>
-          <div style={{fontSize:10,color:'#86868b',textTransform:'uppercase',letterSpacing:0.8,fontWeight:600,marginBottom:2}}>Проверка</div>
+          <div style={{fontSize:11,color:'#86868b',textTransform:'uppercase',letterSpacing:0.8,fontWeight:600,marginBottom:2}}>Проверка</div>
           <h2 className="verif-title" style={{fontSize:18,fontWeight:700,color:'var(--txt,#1d1d1f)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{y.name}</h2>
         </div>
-        <button onClick={()=>setShowIntro(true)} className="verif-help" title="Показать инструкцию" style={{width:36,height:36,borderRadius:10,border:'1px solid #e5e5ea',background:'var(--bg,#fff)',fontSize:15,color:'#424245',cursor:'pointer',flexShrink:0,fontFamily:'Georgia,serif',fontStyle:'italic',fontWeight:700}}>?</button>
-        <button onClick={onClose} className="verif-close" style={{width:36,height:36,borderRadius:10,border:'1px solid #e5e5ea',background:'var(--bg,#fff)',fontSize:16,color:'#424245',cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+        <button onClick={()=>setShowIntro(true)} className="verif-help" title="Показать инструкцию" aria-label="Показать инструкцию" style={{width:44,height:44,borderRadius:10,border:'1px solid #e5e5ea',background:'var(--bg,#fff)',fontSize:15,color:'#424245',cursor:'pointer',flexShrink:0,fontFamily:'Georgia,serif',fontStyle:'italic',fontWeight:700}}>?</button>
+        <button onClick={onClose} className="verif-close" aria-label="Закрыть проверку" style={{width:44,height:44,borderRadius:10,border:'1px solid #e5e5ea',background:'var(--bg,#fff)',fontSize:16,color:'#424245',cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
       </div>
 
       {/* STATUS + PROGRESS */}
@@ -406,8 +411,12 @@ function Verification({y,vs,setVs,onClose}){
         {(totalFailed>0||totalDone<totalCount)&&<button onClick={jumpToNextIssue} style={{fontSize:11,color:'#0071e3',padding:'5px 10px',border:'1px solid #0071e320',borderRadius:7,background:'rgba(0,122,255,.06)',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:4}}>
           <span>→</span><span>К следующему</span>
         </button>}
-        <button onClick={()=>setHidePassed(v=>!v)} style={{fontSize:11,color:hidePassed?'#0071e3':'#6e6e73',padding:'5px 10px',border:`1px solid ${hidePassed?'#0071e3':'#e5e5ea'}`,borderRadius:7,background:hidePassed?'rgba(0,122,255,.06)':'#fff',cursor:'pointer',fontWeight:500}}>{hidePassed?'Показать все':'Скрыть ✓'}</button>
-        {totalDone>0&&<button onClick={exportReport} style={{fontSize:11,color:'#424245',padding:'5px 10px',border:'1px solid #e5e5ea',borderRadius:7,background:'var(--bg,#fff)',cursor:'pointer',fontWeight:500}}>{copyFeedback||'📋 Отчёт'}</button>}
+        <button onClick={()=>setHidePassed(v=>!v)} style={{fontSize:11,color:hidePassed?'#0071e3':'#6e6e73',padding:'5px 10px',border:`1px solid ${hidePassed?'#0071e3':'#e5e5ea'}`,borderRadius:7,background:hidePassed?'rgba(0,122,255,.06)':'#fff',cursor:'pointer',fontWeight:500}} aria-pressed={hidePassed} aria-label={hidePassed?'Показать все пункты':'Скрыть пройденные пункты'}>{hidePassed?'Показать все':<span>Скрыть <span aria-hidden="true">✓</span></span>}</button>
+        {/* Прежде подпись самой кнопки становилась «Скопировано» — смена
+            имени кнопки чтецом не объявляется, и человек не знал, вышло ли.
+            Имя кнопки теперь постоянно, а исход говорит живая строка. */}
+        {totalDone>0&&<button onClick={exportReport} aria-label="Скопировать отчёт" style={{fontSize:11,color:'#424245',padding:'5px 10px',border:'1px solid #e5e5ea',borderRadius:7,background:'var(--bg,#fff)',cursor:'pointer',fontWeight:500}}><span aria-hidden="true">📋 </span>{copyFeedback||'Отчёт'}</button>}
+        <div role="status" aria-live="polite" style={{position:'absolute',width:1,height:1,overflow:'hidden',clip:'rect(0 0 0 0)',whiteSpace:'nowrap'}}>{copyFeedback}</div>
         <div style={{flex:1}}/>
         <button onClick={()=>{if(confirm('Сбросить все ответы для этой Ясны?')){const keys=Object.keys(vs).filter(k=>k.startsWith(y.name+'_'));const nv={...vs};keys.forEach(k=>delete nv[k]);setVs(nv);setShowIntro(true);}}} style={{fontSize:11,color:'#E8364F',padding:'5px 10px',border:'1px solid #E8364F30',borderRadius:7,background:'var(--bg,#fff)',cursor:'pointer'}}>Сбросить</button>
       </div>
@@ -429,8 +438,8 @@ function Verification({y,vs,setVs,onClose}){
 
         <div style={{display:'flex',alignItems:'center',gap:10,padding:'8px 12px',background:'var(--bg2,#f5f5f7)',borderRadius:10,marginBottom:14,fontSize:11,color:'var(--txt2,#6e6e73)',flexWrap:'wrap'}}>
           <span style={{fontWeight:600,color:'#424245'}}>Как отвечать:</span>
-          <span style={{display:'inline-flex',alignItems:'center',gap:4}}><span style={{width:16,height:16,borderRadius:4,border:'1.5px solid #30A060',background:'#30A06012',color:'#30A060',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700}}>✓</span>верно</span>
-          <span style={{display:'inline-flex',alignItems:'center',gap:4}}><span style={{width:16,height:16,borderRadius:4,border:'1.5px solid #E8364F',background:'#E8364F12',color:'#E8364F',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700}}>✗</span>неверно</span>
+          <span style={{display:'inline-flex',alignItems:'center',gap:4}}><span style={{width:16,height:16,borderRadius:4,border:'1.5px solid #30A060',background:'#30A06012',color:'#30A060',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700}} aria-hidden="true">✓</span>верно</span>
+          <span style={{display:'inline-flex',alignItems:'center',gap:4}}><span style={{width:16,height:16,borderRadius:4,border:'1.5px solid #E8364F',background:'#E8364F12',color:'#E8364F',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700}} aria-hidden="true">✗</span>неверно</span>
           <span style={{display:'inline-flex',alignItems:'center',gap:4}}><span style={{width:16,height:16,borderRadius:4,border:'1.5px solid #86868b',background:'#86868b12',color:'#86868b',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:700}}>—</span>n/a</span>
           <span style={{color:'#aeaeb2'}}>· нажмите <span style={{display:'inline-flex',width:14,height:14,borderRadius:'50%',border:'1px solid #c7c7cc',color:'#86868b',fontSize:9,alignItems:'center',justifyContent:'center',fontFamily:'Georgia,serif',fontStyle:'italic',fontWeight:700}}>i</span> чтобы увидеть цитату из книги</span>
         </div>

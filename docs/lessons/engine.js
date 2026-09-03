@@ -15,6 +15,12 @@ const {Star, Info, OverlayLegend, Editor, OverlayPicker, Picker, Verification} =
 // Initialize lessons namespace
 window.YasnaLessons = window.YasnaLessons || {lessons: []};
 
+/* Текст только для чтеца. Глифы «✓ ✗ ✕» читаются вслух буквально
+   («галочка», «знак умножения»), поэтому сам глиф прячем от чтеца, а
+   смысл отдаём словом — видимая картинка при этом не меняется. */
+const СКРЫТО={position:'absolute',width:1,height:1,margin:-1,padding:0,
+  overflow:'hidden',clip:'rect(0 0 0 0)',whiteSpace:'nowrap',border:0};
+
 // ═══════════════════════════════════════════════════════════════════
 // LESSON COMPONENTS
 // ═══════════════════════════════════════════════════════════════════
@@ -673,8 +679,19 @@ function CheckboxQuizBlock({block,blockId,onComplete}){
   const[checked,setChecked]=useState({});
   const[touched,setTouched]=useState(()=>new Set());
   const[anyInteraction,setAnyInteraction]=useState(false);
+  /* Отклик на ответ появлялся обычным текстом под пунктом — чтец молчал, и
+     незрячий не знал, принят ли выбор и верен ли он. Живая строка одна на
+     блок и не пересоздаётся: только так объявление вообще случается. */
+  const[отклик,setОтклик]=useState('');
   const single=!!block.single;
   const toggle=(id)=>{
+    const пункт=(block.items||[]).find(x=>x.id===id);
+    if(пункт){
+      const станет=single?true:!checked[id];
+      const верно=(станет===пункт.correct);
+      const текст=станет?пункт.feedbackOn:пункт.feedbackOff;
+      setОтклик((верно?'Верно. ':'Неверно. ')+(текст||пункт.label||''));
+    }
     if(!anyInteraction){
       setAnyInteraction(true);
       if(onComplete)onComplete();
@@ -726,6 +743,7 @@ function CheckboxQuizBlock({block,blockId,onComplete}){
               </div>);
           })}
         </div>
+        <div role='status' aria-live='polite' style={СКРЫТО}>{отклик}</div>
       </div>
     </div>);
 }
@@ -867,6 +885,10 @@ function PillarsPickerBlock({block,onComplete}){
       </div>
 
       {/* Feedback — OUTSIDE the question card, with coloured vertical bar on the left */}
+      {/* Обёртка живёт всегда: чтец объявляет только то, что появилось
+          ВНУТРИ существующего role=status; если родить сам узел с ролью, он
+          промолчит. Внешний вид не меняется — обёртка пустая. */}
+      <div role='status' aria-live='polite'>
       {submitted&&(
         <div style={{marginTop:14,padding:'16px 18px 16px 20px',borderLeft:`3px solid ${isCorrect?'var(--ok)':'var(--error)'}`,fontSize:14,lineHeight:1.65,color:'var(--on-surface)'}}>
           <div style={{fontWeight:700,marginBottom:8,color:isCorrect?'var(--ok)':'var(--error)'}}>
@@ -881,6 +903,7 @@ function PillarsPickerBlock({block,onComplete}){
           )}
         </div>
       )}
+      </div>
     </div>);
 }
 
@@ -984,14 +1007,19 @@ function FinalQuizInlineBlock({block,onComplete}){
                       onClick={()=>!answered&&setAnswers(prev=>({...prev,[qi]:oi}))}
                       disabled={answered}
                       style={{textAlign:'left',padding:'11px 14px',fontSize:14,color,background:bg,border:'1.5px solid '+border,borderRadius:10,cursor:answered?'default':'pointer',transition:'all .2s',fontFamily:'inherit',lineHeight:1.4}}
-                    >{opt}{answered&&isCorrect?<span style={{color:'var(--ok)',fontWeight:700,marginLeft:8}}>✓</span>:null}{answered&&isSelected&&!isCorrect?<span style={{color:'var(--error)',fontWeight:700,marginLeft:8}}>✗</span>:null}</button>);
+                    >{opt}{answered&&isCorrect?<span style={{color:'var(--ok)',fontWeight:700,marginLeft:8}}><span aria-hidden='true'>✓</span><span style={СКРЫТО}> — верный ответ</span></span>:null}{answered&&isSelected&&!isCorrect?<span style={{color:'var(--error)',fontWeight:700,marginLeft:8}}><span aria-hidden='true'>✗</span><span style={СКРЫТО}> — ваш ответ, неверный</span></span>:null}</button>);
                 })}
               </div>
+              {/* Разбор появляется на месте, а не рождается вместе с ролью:
+                  постоянный role=status объявляет его вслух сразу после
+                  ответа. Вид не меняется — пустая обёртка ничего не рисует. */}
+              <div role='status' aria-live='polite'>
               {answered&&q.explain&&(
                 <div style={{marginTop:12,padding:'12px 14px',background:'var(--surface-container-low)',borderRadius:10,fontSize:13,color:'var(--on-surface)',lineHeight:1.6,borderLeft:'3px solid var(--primary)'}}>
                   <b style={{color:'var(--on-surface)'}}>Разбор:</b> {q.explain}
                 </div>
               )}
+              </div>
             </div>);
         })}
       </div>
@@ -1395,11 +1423,13 @@ function InlineThreeShelvesBlock({block,onComplete}){
                     >{s.num}</button>);
                 })}
               </div>
+              <div role='status' aria-live='polite'>
               {attempted&&item.explain&&(
                 <div style={{fontSize:12.5,color:isCorrect?'var(--on-ok-container)':'var(--on-error-container)',marginTop:10,lineHeight:1.55}}>
-                  {isCorrect?'✓ ':'Правильно — '+item.correct+'. '}{item.explain}
+                  {isCorrect?<span><span aria-hidden='true'>✓ </span><span style={СКРЫТО}>Верно. </span></span>:'Правильно — '+item.correct+'. '}{item.explain}
                 </div>
               )}
+              </div>
             </div>);
         })}
       </div>
@@ -1639,12 +1669,25 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
     if(fullyDone&&дочитан&&onComplete)onComplete(lesson.id);
   },[fullyDone,дочитан]);
 
-  // Esc закрывает урок — раньше клавиатура не работала вовсе.
+  /* Урок — лист поверх Разбора. Раньше это был просто div: TalkBack свайпом
+     читал экран ПОД уроком («3D», «Механики», наббар), Tab шесть раз попадал
+     на перекрытые кнопки, прежде чем дойти до ✕, а фокус после открытия
+     оставался на body. Помощник «слой» (core/dialogs.js) ставит роль диалога,
+     гасит соседей через inert (на #root его вешать нельзя — урок живёт
+     ВНУТРИ него), уводит фокус в заголовок урока и возвращает его на кнопку,
+     которая урок открыла. Escape закрывает урок там же — отдельный слушатель
+     отсюда убран, чтобы дорога наружу осталась одна.
+     Список зависимостей пуст нарочно: иначе слой переоткрывался бы на каждой
+     перерисовке урока и каждый раз уводил фокус в заголовок. Свежий onClose
+     держим в ссылке. */
+  const слойРеф=useRef(null);
+  const закрытьРеф=useRef(onClose);
+  закрытьРеф.current=onClose;
   useEffect(()=>{
-    const h=(e)=>{if(e.key==='Escape'&&onClose){e.preventDefault();onClose();}};
-    document.addEventListener('keydown',h);
-    return()=>document.removeEventListener('keydown',h);
-  },[onClose]);
+    const с=window.YasnaOkna&&window.YasnaOkna.слой;
+    if(!с||!слойРеф.current)return;
+    return с(слойРеф.current,{наЗакрытие:()=>{const f=закрытьРеф.current;if(f)f();}});
+  },[]);
 
   // Guarantee scroll starts at top when lesson opens (belt + suspenders;
   // key prop should already remount component on lesson.id change)
@@ -1692,19 +1735,37 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
        мигает при открытии. colorScheme здесь инлайном нарочно: правило
        .yl-lightscope{color-scheme:light} в vk-tech-tokens.css принудительно
        светлило элементы формы и полосы прокрутки, а инлайн сильнее его. */
-    <div className="yl-lightscope" style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'var(--surface)',zIndex:130,display:'flex',flexDirection:'column',colorScheme:'light dark'}}>
+    <div className="yl-lightscope" ref={слойРеф} style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'var(--surface)',zIndex:130,display:'flex',flexDirection:'column',colorScheme:'light dark'}}>
       {/* Sticky header */}
       <div style={{padding:'10px 16px',borderBottom:'1px solid var(--outline-variant)',flexShrink:0,display:'flex',alignItems:'center',gap:10,background:'var(--surface-container-lowest)',position:'relative',boxShadow:'0 1px 2px rgba(0,0,0,.02)'}}>
-        <div style={{flex:1,minWidth:0}}>
-          <div style={{fontSize:10,color:'var(--on-surface-variant)',textTransform:'uppercase',letterSpacing:0.6,fontWeight:600}}>{lesson.module?'Урок '+lesson.order+' · '+lesson.module:'Урок '+lesson.order}</div>
+        {/* data-ya-zag — по нему помощник «слой» берёт имя урока и ставит
+            сюда фокус при открытии: вслух читается ровно то, что видно. */}
+        <div data-ya-zag style={{flex:1,minWidth:0}}>
+          {/* 10 px капителью — ниже нижней границы читаемости (label-small
+              начинается с 11). Строка одна: без ellipsis 11 px переносился
+              бы на вторую и растил шапку. */}
+          <div style={{fontSize:11,color:'var(--on-surface-variant)',textTransform:'uppercase',letterSpacing:0.6,fontWeight:600,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{lesson.module?'Урок '+lesson.order+' · '+lesson.module:'Урок '+lesson.order}</div>
           <div style={{fontSize:14,fontWeight:600,color:'var(--on-surface)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{lesson.title}</div>
         </div>
-        <div style={{fontSize:11,color:'var(--on-surface-variant)',fontWeight:600,marginRight:6}}>{Math.round(progress)}%</div>
+        {/* Цифру прячем от чтеца: её же называет полоса ниже — иначе
+            «25 процентов» звучит дважды. */}
+        <div aria-hidden='true' style={{fontSize:11,color:'var(--on-surface-variant)',fontWeight:600,marginRight:6}}>{Math.round(progress)}%</div>
         {/* Один выход из урока: ✕, Esc и аппаратная «назад» зовут один и тот
             же onClose (закрытьУрок в app.js) — разных дорог наружу быть не
             может. Имя кнопке нужно: без него TalkBack читал «крестик». */}
-        <button onClick={onClose} aria-label='Закрыть урок' style={{width:32,height:32,borderRadius:8,border:'1px solid var(--outline-variant)',background:'var(--surface-container-lowest)',cursor:'pointer',color:'var(--on-surface)',fontSize:14}}>✕</button>
-        <div style={{position:'absolute',left:0,bottom:-1,height:3,width:'100%',background:'var(--surface-container-high)'}}>
+        {/* Палец промахивался: квадрат 32×32 вдвое меньше нормы 48. Рамка
+            осталась прежней (внутренний квадрат 32), а нажимается 48 —
+            отрицательные поля съедают прирост, поэтому шапка не выросла и
+            крестик стоит там же. */}
+        <button onClick={onClose} aria-label='Закрыть урок' style={{width:48,height:48,margin:'-8px -8px -8px 0',padding:0,border:'none',background:'none',cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>
+          <span aria-hidden='true' style={{width:32,height:32,borderRadius:8,border:'1px solid var(--outline-variant)',background:'var(--surface-container-lowest)',color:'var(--on-surface)',fontSize:14,display:'flex',alignItems:'center',justifyContent:'center'}}>✕</span>
+        </button>
+        {/* Полоса была просто двумя div: чтец о продвижении по уроку не
+            говорил вовсе. Теперь это прогресс с долей и словами. */}
+        <div role='progressbar' aria-label='Прогресс урока'
+             aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)}
+             aria-valuetext={totalGates>0?(Math.max(0,unlockedGates-1)+' из '+totalGates+' разделов'):'урок пройден'}
+             style={{position:'absolute',left:0,bottom:-1,height:3,width:'100%',background:'var(--surface-container-high)'}}>
           <div style={{height:'100%',width:progress+'%',background:'var(--primary)',transition:'width .35s ease'}}/>
         </div>
       </div>

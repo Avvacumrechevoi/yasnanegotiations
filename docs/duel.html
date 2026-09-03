@@ -10,7 +10,7 @@
 <!-- Замок: подключён ПЕРВЫМ, до всего остального (см. core/gate.js) -->
 <script src="core/gate.js"></script>
 <script src="core/theme.js?v=86eb1366"></script>
-<script src="core/storage.js?v=529ec80c"></script>
+<script src="core/storage.js?v=9d701501"></script>
 <script src="core/access.js?v=4ed1e962"></script>
 <script src="core/account.js?v=19915f6a"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
@@ -47,7 +47,7 @@
      Было семь таблиц на 389 КБ, и три из них перекрашивали друг друга.
      Гарнитуры больше не отдельной ссылкой: их подтягивает tokeny.css. -->
 <link rel="stylesheet" href="styles.css"/>
-<link rel="stylesheet" href="games/duel/duel-page.css?v=d3fbd5c2"/>
+<link rel="stylesheet" href="games/duel/duel-page.css?v=f7cbeffe"/>
 <link rel="stylesheet" href="core/site-nav.css?v=52aebf72"/>
 </head>
 <!-- .igra — область действия компонентного CSS экрана, а не тема: тему держит
@@ -61,10 +61,12 @@
 <script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.setAttribute('data-theme',d?'dark':'light');document.documentElement.style.colorScheme=d?'dark':'light';}catch(e){}</script>
 <div id="duel-page-root"></div>
 
-<!-- React + Three.js + Firebase из CDN -->
+<!-- React + Firebase из CDN. Three.js отсюда убран: объёмной звезды на экране
+     Игр нет вовсе (Yasna3DView не рисует ни одна игра), а 589 кБ разбирались
+     и компилировались до первой отрисовки лобби. Подтягивает загрузчик в
+     конце страницы — на случай, если объём сюда когда-нибудь придёт. -->
 <script src="vendor/js/react-18.2.0.min.js"></script>
 <script src="vendor/js/react-dom-18.2.0.min.js"></script>
-<script src="vendor/js/three-r128.min.js"></script>
 <!-- Firebase compat-сборки: глобальный объект `firebase`, классические script-теги -->
 <script src="vendor/js/firebase-app-compat-10.13.2.js"></script>
 <script src="vendor/js/firebase-auth-compat-10.13.2.js"></script>
@@ -80,6 +82,46 @@
 
 <!-- Pre-built bundle: core/* + games/duel/* + duel-page (см. scripts/build.mjs) -->
 <!-- Cache-busting: меняй версию при каждом релизе чтобы CDN отдавал свежий файл -->
-<script src="dist/duel.min.js?v=d5cb075b"></script>
+<script src="dist/duel.min.js?v=d5f01af5"></script>
+
+<!-- Three.js — после первой отрисовки или по первому действию: экрану Игр он
+     не нужен ни разу, но пусть будет под рукой, если игра его попросит.
+     window.YasnaБиблиотеки.нужна('three') — точка, за которую можно
+     зацепиться из бандла. -->
+<script>
+(function(){
+  var АДРЕСА = { three: 'vendor/js/three-r128.min.js' };
+  var начатые = {};
+  function нужна(имя){
+    if(начатые[имя]) return начатые[имя];
+    начатые[имя] = new Promise(function(готово){
+      var s = document.createElement('script');
+      s.src = АДРЕСА[имя];
+      s.async = true;
+      s.onload  = function(){ готово(true); };
+      s.onerror = function(){ готово(false); };
+      document.head.appendChild(s);
+    });
+    return начатые[имя];
+  }
+  window.YasnaБиблиотеки = { нужна: нужна };
+
+  var СОБЫТИЯ = ['pointerdown','keydown','wheel','touchstart'];
+  var поднято = false;
+  function поднять(){
+    if(поднято) return;
+    поднято = true;
+    СОБЫТИЯ.forEach(function(с){ window.removeEventListener(с, поднять, true); });
+    нужна('three');
+  }
+  СОБЫТИЯ.forEach(function(с){ window.addEventListener(с, поднять, true); });
+  function потом(){
+    if(window.requestIdleCallback) requestIdleCallback(поднять, { timeout: 1500 });
+    else setTimeout(поднять, 300);
+  }
+  if(document.readyState === 'complete') потом();
+  else window.addEventListener('load', потом);
+})();
+</script>
 </body>
 </html>

@@ -51,7 +51,9 @@ const ZNAK = {
   '__default':'<circle cx="12" cy="12" r="8.6"/><path d="M12 3.4v17.2M3.4 12h17.2"/>',
 };
 function znak(id){
-  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" '
+  /* aria-hidden: рядом стоит имя Ясны, а чтец объявлял «графика» перед
+     каждой из 17 карточек выбора. */
+  return '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" '
        + 'stroke-linecap="round" stroke-linejoin="round">' + (ZNAK[id] || ZNAK.__default) + '</svg>';
 }
 
@@ -507,8 +509,10 @@ function share(){
   app().appendChild(el(`<div class="say"><div class="hd">Ссылка</div>
     <div class="bd" style="word-break:break-all;font-size:12.5px">${esc(url)}</div></div>`));
   const cp=el(`<button class="go">Скопировать ссылку</button>`);
-  cp.onclick=async()=>{ try{ await navigator.clipboard.writeText(url); cp.textContent='Скопировано ✓' }
-    catch(e){ cp.textContent='Скопируй вручную ↑' } };
+  cp.onclick=async()=>{ try{ await navigator.clipboard.writeText(url);
+      cp.innerHTML='Скопировано <span aria-hidden="true">✓</span>'; живо('Ссылка скопирована'); }
+    catch(e){ cp.innerHTML='Скопируй вручную <span aria-hidden="true">↑</span>';
+      живо('Скопировать не вышло, выделите ссылку выше'); } };
   app().appendChild(cp);
   app().appendChild(el(`<button class="gh" id="kgo">Начать свою раскладку →</button>`));
   document.getElementById('kgo').onclick=start;
@@ -560,6 +564,24 @@ function chordCol(k){
 }
 function bot(){ return document.getElementById('kbot') }
 
+/* Разбор хода и «Место занято» рисуются обычными узлами внутри #kbot,
+   который каждый раз пересобирается, — чтец о них молчал, и незрячий не
+   знал, принят ли ход. Живая строка одна на экран и НЕ пересоздаётся:
+   объявляется только смена текста внутри уже существующего role=status. */
+function живо(текст){
+  var z=document.getElementById('kzhivo');
+  if(!z){
+    z=document.createElement('div');
+    z.id='kzhivo';
+    z.setAttribute('role','status');
+    z.setAttribute('aria-live','polite');
+    z.style.cssText='position:absolute;width:1px;height:1px;overflow:hidden;'
+      + 'clip:rect(0 0 0 0);white-space:nowrap';
+    document.body.appendChild(z);
+  }
+  z.textContent=текст||'';
+}
+
 function hand(){
   const b=bot(); b.innerHTML='';
   if(S.i>=S.deck.length) return finish();
@@ -594,6 +616,7 @@ function say(kind,hd,bd,btn,fn){
   S.vstuplenie=false;
   const блок=el(`<div class="say ${kind}"><div class="hd">${hd}</div><div class="bd">${bd}</div></div>`);
   b.appendChild(блок);
+  живо(hd + '. ' + (блок.querySelector('.bd')||{textContent:''}).textContent);
   const g=el(`<button class="go">${btn||'Дальше →'}</button>`);
   g.onclick=fn||(()=>{ S.i++; if(S.mode==='duo') S.turn=1-S.turn; hand(); });
   b.appendChild(g);

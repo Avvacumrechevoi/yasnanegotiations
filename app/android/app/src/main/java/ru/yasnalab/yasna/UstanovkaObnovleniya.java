@@ -20,6 +20,9 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.security.MessageDigest;
 
 /**
  * Установка обновления приложения, минуя магазин.
@@ -32,9 +35,14 @@ import java.io.File;
  * Здесь путь явный и целиком наш:
  *   1. DownloadManager кладёт APK в приватную папку приложения — разрешения
  *      на внешнюю память для этого не нужны;
- *   2. по завершении показываем системное окно установки с content://-адресом
+ *   2. скачанное СВЕРЯЕМ с манифестом версии: размер и sha256. Раньше сверки
+ *      не было вовсе — что скачалось по адресу, то и уезжало в установщик.
+ *      Установка идёт мимо магазина, поэтому отпечаток — единственное, чем мы
+ *      отвечаем за файл до того, как система проверит подпись APK. Не совпало
+ *      — файл удаляем и говорим об этом словами, окно установки не открываем;
+ *   3. затем показываем системное окно установки с content://-адресом
  *      через FileProvider, который Capacitor уже объявил в манифесте;
- *   3. если у приложения нет права ставить пакеты, сначала ведём человека в
+ *   4. если у приложения нет права ставить пакеты, сначала ведём человека в
  *      системную настройку — иначе установщик молча не открылся бы.
  *
  * Прогресс отдаём событиями 'yasnaObnovaHod' и 'yasnaObnovaGotovo', чтобы
@@ -48,8 +56,17 @@ public class UstanovkaObnovleniya extends Plugin {
 
     private BroadcastReceiver priyomnik;
     private long zadanie = -1;
+    /** Отпечаток из манифеста версии: с ним сверяем скачанное. */
+    private String zhdemSha;
+    private long zhdemRazmer;
 
-    /** Скачать APK и предложить установку. { url: "https://…/yasna.apk" } */
+    /**
+     * Скачать APK и предложить установку.
+     * { url: "https://…/yasna.apk", sha256: "…64 hex…", razmer: 31457280 }
+     *
+     * Без sha256 и размера не начинаем вовсе: проверить скачанное было бы
+     * нечем, а ставить непроверенный пакет мимо магазина нельзя.
+     */
     @PluginMethod
     public void skachat(PluginCall call) {
         String url = call.getString("url");
@@ -57,6 +74,16 @@ public class UstanovkaObnovleniya extends Plugin {
             call.reject("нет адреса файла");
             return;
         }
+
+        String sha = call.getString("sha256");
+        sha = sha == null ? "" : sha.trim().toLowerCase();
+        Long razmer = call.getLong("razmer", 0L);
+        if (!sha.matches("[0-9a-f]{64}") || razmer == null || razmer <= 0) {
+            call.reject("нет отпечатка версии — проверить скачанное будет нечем");
+            return;
+        }
+        zhdemSha = sha;
+        zhdemRazmer = razmer;
 
         Context ctx = getContext();
         File cel = new File(ctx.getExternalFilesDir(PAPKA), IMYA);
@@ -88,10 +115,8 @@ public class UstanovkaObnovleniya extends Plugin {
                 if (id != zadanie) return;
                 snyatPriyomnik();
                 if (uspeshno(dm, id)) {
-                    JSObject e = new JSObject();
-                    e.put("gotovo", true);
-                    notifyListeners("yasnaObnovaGotovo", e);
-                    predlozhitUstanovku(cel);
+                    // Сверка идёт по всему файлу — на главном потоке это ANR.
+                    proveritIPredlozhit(cel);
                 } else {
                     JSObject e = new JSObject();
                     e.put("oshibka", "загрузка не удалась");
@@ -205,6 +230,65 @@ public class UstanovkaObnovleniya extends Plugin {
         snyatPriyomnik();
         zadanie = -1;
         call.resolve();
+    }
+
+    /**
+     * Сверить скачанное с манифестом и только потом открывать установщик.
+     *
+     * Сначала размер (дёшево, отсекает обрыв загрузки), потом sha256 всего
+     * файла. Не совпало — файл УДАЛЯЕМ: оставленный APK с чужим содержимым
+     * человек однажды откроет из папки загрузок сам. Причина расхождения может
+     * быть и безобидной (версию перевыложили, пока шла загрузка), но отличить
+     * её от подмены нам нечем, поэтому ответ один — не ставим.
+     *
+     * Считаем в отдельном потоке: onReceive выполняется на главном, а хэш
+     * тридцати мегабайт держал бы его секунды — это ANR.
+     */
+    private void proveritIPredlozhit(File apk) {
+        new Thread(() -> {
+            JSObject hod = new JSObject();
+            hod.put("proveryaem", true);
+            notifyListeners("yasnaObnovaHod", hod);
+
+            long dlina = apk.length();
+            String svoj = dlina == zhdemRazmer ? otpechatok(apk) : null;
+            boolean sovpalo = zhdemSha != null && zhdemSha.equals(svoj);
+
+            JSObject e = new JSObject();
+            if (sovpalo) {
+                e.put("gotovo", true);
+                notifyListeners("yasnaObnovaGotovo", e);
+                predlozhitUstanovku(apk);
+                return;
+            }
+            // Причину пишем в журнал, человеку её показывать незачем: ему важно,
+            // что файл не тот и установки не будет (текст — в obnovlenie.js).
+            android.util.Log.w("YasnaUstanovka", "отпечаток не совпал: ждали "
+                    + zhdemSha + " (" + zhdemRazmer + " Б), получили " + svoj + " (" + dlina + " Б)");
+            //noinspection ResultOfMethodCallIgnored
+            apk.delete();
+            e.put("oshibka", "otpechatok");
+            notifyListeners("yasnaObnovaGotovo", e);
+        }).start();
+    }
+
+    /** sha256 файла шестнадцатеричной строкой; null — прочитать не вышло. */
+    private static String otpechatok(File f) {
+        try (InputStream in = new FileInputStream(f)) {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] buf = new byte[64 * 1024];
+            int n;
+            while ((n = in.read(buf)) > 0) md.update(buf, 0, n);
+            byte[] d = md.digest();
+            StringBuilder sb = new StringBuilder(d.length * 2);
+            for (byte b : d) {
+                sb.append(Character.forDigit((b >> 4) & 0xF, 16));
+                sb.append(Character.forDigit(b & 0xF, 16));
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private void predlozhitUstanovku(File apk) {

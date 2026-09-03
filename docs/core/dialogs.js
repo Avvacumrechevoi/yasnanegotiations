@@ -59,6 +59,144 @@ function стили(){
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', стили);
 else стили();
 
+/* ─── СЛОЙ ПОВЕРХ ЭКРАНА ───────────────────────────────────────────────
+   ЗАЧЕМ. Урок, тур, «Готовые круги», «Совместить» и карточка места —
+   прямоугольник поверх экрана, но для чтения с экрана они оставались
+   обычным div. TalkBack свайпом читал то, что ПОД слоем («3D»,
+   «Механики», наббар), а Tab уводил на перекрытые кнопки: до крестика
+   урока доходило шесть нажатий. Фокус после открытия оставался на body —
+   человек не слышал, что вообще открылось.
+
+   ЧТО ДЕЛАЕТ. Ставит роль диалога и имя по заголовку листа; гасит фон
+   (всё, что не слой) через inert — это же и держит фокус внутри; уводит
+   фокус на заголовок слоя, а при закрытии возвращает его на кнопку,
+   которая слой открыла; Escape закрывает, если хозяин слоя дал чем.
+
+   ПОЧЕМУ ЗДЕСЬ. Помощник нужен трём движкам сразу — Разбору, Уроку и
+   Туру, — а этот файл едет в оба бандла и стоит в них раньше движков.
+
+   ФОН ГАСИМ У СОСЕДЕЙ, А НЕ У #root: урок рисуется ВНУТРИ #root, и inert
+   на корне выключил бы сам урок. Идём от слоя вверх и гасим соседей на
+   каждом уровне — так под запрет попадают и наббар, и шапка оболочки,
+   а слой остаётся живым.
+
+   слой(узел, о) → снять()
+   о: {метка, заг, фокус, наЗакрытие, модальный:false — немодальный лист,
+       у которого фон остаётся рабочим (карточка места: с круга под ней
+       выбирают соседнее место)}
+   ─────────────────────────────────────────────────────────────────────── */
+
+const ЕСТЬ_INERT = (function(){ try { return 'inert' in document.createElement('div'); } catch(_) { return false; } })();
+const САМИ_ФОКУСНЫ = /^(A|BUTTON|INPUT|SELECT|TEXTAREA|SUMMARY)$/;
+const СТОПКА = [];
+let счётЗаголовков = 0;
+
+function погаситьФон(узел, снято){
+  let э = узел;
+  while (э && э.parentNode && э.parentNode.nodeType === 1) {
+    const род = э.parentNode, дети = род.children;
+    for (let i = 0; i < дети.length; i++) {
+      const с = дети[i];
+      if (с === э) continue;
+      if (/^(HEAD|SCRIPT|STYLE|LINK|TEMPLATE|NOSCRIPT)$/.test(с.tagName)) continue;
+      /* Сообщение о сделанном обязано дочитываться и при открытом слое:
+         inert выносит узел из дерева доступности вместе с ним. */
+      if (с.getAttribute('role') === 'status' || с.hasAttribute('aria-live')) continue;
+      if (с.hasAttribute('data-ya-fon')) continue;      /* погашен слоем ниже */
+      снято.push({ у: с, ah: с.getAttribute('aria-hidden') });
+      с.setAttribute('data-ya-fon', '');
+      if (ЕСТЬ_INERT) с.inert = true;
+      /* Старому webview inert неизвестен: Tab туда всё равно уйдёт, но хотя
+         бы вслух это не читается. */
+      else с.setAttribute('aria-hidden', 'true');
+    }
+    э = род;
+  }
+}
+
+function вернутьФон(снято){
+  for (let i = снято.length - 1; i >= 0; i--) {
+    const з = снято[i];
+    з.у.removeAttribute('data-ya-fon');
+    if (ЕСТЬ_INERT) з.у.inert = false;
+    if (з.ah == null) з.у.removeAttribute('aria-hidden');
+    else з.у.setAttribute('aria-hidden', з.ah);
+  }
+}
+
+function слой(узел, о){
+  о = о || {};
+  if (!узел || узел.nodeType !== 1) return function(){};
+  const состояние = {};
+  const снято = [], дописано = [];
+  const откуда = document.activeElement;
+  let табУ = null, былОтступ = '', кадр = 0, клавиша = null;
+
+  /* Дописываем только то, чего в разметке нет: у вопроса роль и имя стоят
+     руками, и снимать их при закрытии не надо. */
+  const дописать = function(атр, знач){
+    if (узел.hasAttribute(атр)) return;
+    узел.setAttribute(атр, знач); дописано.push(атр);
+  };
+  дописать('role', 'dialog');
+  if (о.модальный !== false) дописать('aria-modal', 'true');
+
+  const заг = о.заг || узел.querySelector('[data-ya-zag]') || узел.querySelector('h1,h2,h3');
+  if (о.метка) дописать('aria-label', о.метка);
+  else if (заг && !узел.hasAttribute('aria-label')) {
+    if (!заг.id) заг.id = 'ya-sloy-' + (++счётЗаголовков);
+    дописать('aria-labelledby', заг.id);
+  }
+
+  if (о.модальный !== false) погаситьФон(узел, снято);
+
+  /* Фокус — на заголовок листа: человек слышит, куда попал, и дальше идёт
+     по слою сверху вниз. Следующим кадром, потому что React в этот миг
+     ещё дорисовывает содержимое. */
+  const цель = о.фокус || заг || узел;
+  if (цель && !цель.hasAttribute('tabindex') && !САМИ_ФОКУСНЫ.test(цель.tagName)) {
+    цель.setAttribute('tabindex', '-1'); табУ = цель;
+    /* Обводку фокуса на заголовке гасим. Она рисуется вокруг целой шапки
+       листа, а не вокруг кнопки, и появляется при открытии урока по ссылке
+       с «Уроков» — золотая рамка поперёк заголовка на пустом месте. Куда
+       человек попал, показывает сам лист: он только что занял весь экран.
+       Кнопки внутри слоя свою обводку сохраняют — им tabindex не ставим. */
+    былОтступ = цель.style.outline; цель.style.outline = 'none';
+  }
+  кадр = requestAnimationFrame(function(){
+    кадр = 0;
+    try { цель.focus({ preventScroll: true }); } catch(_) { try { цель.focus(); } catch(__){} }
+  });
+
+  if (о.наЗакрытие) {
+    клавиша = function(e){
+      if (e.key !== 'Escape' || e.defaultPrevented) return;
+      if (СТОПКА[СТОПКА.length - 1] !== состояние) return;   /* закрывается верхний */
+      e.preventDefault(); e.stopPropagation();
+      о.наЗакрытие();
+    };
+    document.addEventListener('keydown', клавиша, true);
+  }
+
+  состояние.снять = function(){
+    const i = СТОПКА.indexOf(состояние);
+    if (i < 0) return;                                  /* уже сняли */
+    СТОПКА.splice(i, 1);
+    if (кадр) cancelAnimationFrame(кадр);
+    if (клавиша) document.removeEventListener('keydown', клавиша, true);
+    for (let k = 0; k < дописано.length; k++) узел.removeAttribute(дописано[k]);
+    if (табУ) { табУ.removeAttribute('tabindex'); табУ.style.outline = былОтступ; }
+    вернутьФон(снято);
+    /* Фокус возвращаем на кнопку, которая слой открыла: иначе он падает на
+       body и человек начинает экран сначала. */
+    try {
+      if (откуда && откуда.focus && document.contains(откуда)) откуда.focus({ preventScroll: true });
+    } catch(_){}
+  };
+  СТОПКА.push(состояние);
+  return состояние.снять;
+}
+
 /* ─── ВОПРОС (Dialog) ─────────────────────────────────────────────── */
 let ВОПРОС = null;
 
@@ -68,7 +206,7 @@ function закрытьВопрос(){
   window.removeEventListener('yasna:назад', в.назад);
   document.removeEventListener('keydown', в.клавиша, true);
   if (в.корень && в.корень.parentNode) в.корень.parentNode.removeChild(в.корень);
-  try { if (в.фокус && в.фокус.focus) в.фокус.focus(); } catch(_){}
+  if (в.снять) в.снять();          /* вернуть фон и фокус тому, кто спросил */
   if (в.наНет && !в.отвечено) в.наНет();
 }
 
@@ -86,7 +224,7 @@ function спросить(о){
         '<button class="ya-btn ya-btn--text' + (о.опасно ? ' ya-btn--opasno' : '') +
           '" type="button" data-ya="да">' + экр(о.да || 'Продолжить') + '</button>' +
       '</div></div></div>');
-  const состояние = { корень: корень, фокус: document.activeElement, наНет: о.наНет, отвечено: false };
+  const состояние = { корень: корень, наНет: о.наНет, отвечено: false };
   корень.querySelector('[data-ya="да"]').onclick = () => {
     состояние.отвечено = true; закрытьВопрос(); if (о.наДа) о.наДа();
   };
@@ -99,7 +237,11 @@ function спросить(о){
   window.addEventListener('yasna:назад', состояние.назад);
   ВОПРОС = состояние;
   document.body.appendChild(корень);
-  try { корень.querySelector('[data-ya="нет"]').focus(); } catch(_){}
+  /* Роль и имя у карточки стоят в разметке; помощник добавляет то, чего не
+     было: гасит фон (inert) и возвращает фокус тому, кто задал вопрос.
+     Escape и «назад» остаются свои — они здесь ещё и считают отказ. */
+  состояние.снять = слой(корень.querySelector('.ya-dialog__karta'),
+    { фокус: корень.querySelector('[data-ya="нет"]') });
 }
 
 /* ─── СООБЩЕНИЕ О СДЕЛАННОМ (Snackbar) ───────────────────────────── */
@@ -175,13 +317,13 @@ function пусто(о){
   return корень;
 }
 
-window.YasnaOkna = { спросить, тост, полоса, пусто, значок, закрытьВопрос, убратьТост };
+window.YasnaOkna = { спросить, тост, полоса, пусто, значок, закрытьВопрос, убратьТост, слой };
 
 })();
 
 (function(){
 
-const { useState, useMemo } = React;
+const { useState, useMemo, useEffect, useRef } = React;
 const { CR, REF, T, GLOSS, gc } = window.YasnaData;
 
 function OverlayLegend({y,overlay,onClear}){
@@ -256,6 +398,18 @@ function Editor({y,setY,onClose,мест}){
 
 function OverlayPicker({currentName,overlay,onSelect,onClose}){
   const[q,setQ]=useState('');
+  /* Попап был обычным div поверх Разбора: Tab уходил на перекрытые кнопки
+     под ним, а фокус после открытия оставался на скрытом экране. Помощник
+     (core/dialogs.js) ставит роль диалога, гасит фон и возвращает фокус на
+     кнопку, которая попап открыла. Список зависимостей пуст нарочно:
+     onClose приходит новой стрелкой на каждую перерисовку, и с ним слой
+     переоткрывался бы, каждый раз уводя фокус в заголовок. */
+  const лист=useRef(null);
+  useEffect(()=>{
+    const с=window.YasnaOkna&&window.YasnaOkna.слой;
+    if(!с||!лист.current)return;
+    return с(лист.current,{наЗакрытие:onClose});
+  },[]);
   const filtered=T.filter(t=>t.n!==currentName&&t.n.toLowerCase().includes(q.toLowerCase()));
   const rubrikList=filtered.filter(t=>t.rubrik);
   const customList=filtered.filter(t=>t.custom&&!t.rubrik);
@@ -285,7 +439,7 @@ function OverlayPicker({currentName,overlay,onSelect,onClose}){
 
   return(
     <div className="popup-overlay" style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'rgba(0,0,0,.25)',zIndex:130,display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(3px)'}} onClick={onClose}>
-      <div className='picker-inner' style={{background:'rgba(255,255,255,.99)',border:'1px solid rgba(175,82,222,.15)',borderRadius:20,boxShadow:'0 20px 60px rgba(0,0,0,.15)',padding:0,width:'100%',maxWidth:600,height:'82vh',maxHeight:720,display:'flex',flexDirection:'column',overflow:'hidden'}} onClick={e=>e.stopPropagation()}>
+      <div className='picker-inner' ref={лист} style={{background:'rgba(255,255,255,.99)',border:'1px solid rgba(175,82,222,.15)',borderRadius:20,boxShadow:'0 20px 60px rgba(0,0,0,.15)',padding:0,width:'100%',maxWidth:600,height:'82vh',maxHeight:720,display:'flex',flexDirection:'column',overflow:'hidden'}} onClick={e=>e.stopPropagation()}>
         {/* HEADER */}
         <div style={{padding:'18px 22px 14px',borderBottom:'1px solid #f0f0f2',flexShrink:0}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:10}}>
@@ -326,6 +480,18 @@ function OverlayPicker({currentName,overlay,onSelect,onClose}){
 
 function Picker({pinned,onTogglePin,onClear,onClose,customs=[],onOpenCustom,onDeleteCustom}){
   const[q,setQ]=useState('');
+  /* Попап был обычным div поверх Разбора: Tab уходил на перекрытые кнопки
+     под ним, а фокус после открытия оставался на скрытом экране. Помощник
+     (core/dialogs.js) ставит роль диалога, гасит фон и возвращает фокус на
+     кнопку, которая попап открыла. Список зависимостей пуст нарочно:
+     onClose приходит новой стрелкой на каждую перерисовку, и с ним слой
+     переоткрывался бы, каждый раз уводя фокус в заголовок. */
+  const лист=useRef(null);
+  useEffect(()=>{
+    const с=window.YasnaOkna&&window.YasnaOkna.слой;
+    if(!с||!лист.current)return;
+    return с(лист.current,{наЗакрытие:onClose});
+  },[]);
   const filtered=T.filter(t=>t.n.toLowerCase().includes(q.toLowerCase()));
   const myList=customs.filter(c=>((c.n||c.name)||'').toLowerCase().includes(q.toLowerCase()));
   const starterList=filtered.filter(t=>t.starter);
@@ -364,7 +530,7 @@ function Picker({pinned,onTogglePin,onClear,onClose,customs=[],onOpenCustom,onDe
 
   return(
     <div className="popup-overlay" style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'rgba(0,0,0,.25)',zIndex:130,display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(3px)'}} onClick={onClose}>
-      <div className='picker-inner' style={{background:'rgba(255,255,255,.99)',border:'1px solid rgba(0,0,0,.08)',borderRadius:20,boxShadow:'0 20px 60px rgba(0,0,0,.15)',padding:0,width:'100%',maxWidth:600,height:'82vh',maxHeight:720,display:'flex',flexDirection:'column',overflow:'hidden'}} onClick={e=>e.stopPropagation()}>
+      <div className='picker-inner' ref={лист} style={{background:'rgba(255,255,255,.99)',border:'1px solid rgba(0,0,0,.08)',borderRadius:20,boxShadow:'0 20px 60px rgba(0,0,0,.15)',padding:0,width:'100%',maxWidth:600,height:'82vh',maxHeight:720,display:'flex',flexDirection:'column',overflow:'hidden'}} onClick={e=>e.stopPropagation()}>
         {/* HEADER */}
         <div style={{padding:'18px 22px 14px',borderBottom:'1px solid #f0f0f2',flexShrink:0}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:10}}>

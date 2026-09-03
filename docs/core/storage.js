@@ -34,6 +34,11 @@
     yasna_custom_v1:            { scope: 'creation', json: true,  owner: 'core/dialogs.js',    about: 'собственные Ясны, собранные в конструкторе' },
     yasna_pinned_v1:            { scope: 'creation', json: true,  owner: 'app.js',             about: 'закреплённые механики' },
     yasna2_subdata:             { scope: 'creation', json: true,  owner: 'app.js',             about: 'пользовательские подданные звезды' },
+    // Список друзей — зеркало своего поддерева в базе. Человек собирал его
+    // руками, по одному коду: без него переустановка означает «начни знакомиться
+    // заново», хотя карточки друзей в базе никуда не делись.
+    yasna_druzya_v1:            { scope: 'creation', json: true,  owner: 'core/druzya.js',     about: 'свой список друзей (зеркало базы, работает офлайн)' },
+    yasna_zayavki_out_v1:       { scope: 'creation', json: true,  owner: 'core/druzya.js',     about: 'кому я сам отправлял заявки в друзья' },
 
     // ── учебный прогресс ──
     yasna_completed_lessons_v1: { scope: 'progress', json: true,  owner: 'app.js',             about: 'пройденные уроки курса' },
@@ -48,6 +53,7 @@
     yasna_duel_achievements:    { scope: 'progress', json: true,  owner: 'games/duel/duel.js', about: 'достижения' },
     yasna_duel_daily:           { scope: 'progress', json: true,  owner: 'games/duel/duel.js', about: 'дневной вызов и streak' },
     yasna_seen_questions:       { scope: 'progress', json: true,  owner: 'games/duel/trivia-bank.js', about: 'история показов вопросов (антиповтор)' },
+    yasna_krug_v1:              { scope: 'progress', json: true,  owner: 'games/krug/krug.js', about: 'круг: собранные ясны и история партий' },
 
     // ── прогресс тренажёра переговоров ──
     yasna_neg_progress_v1:      { scope: 'progress', json: true,  owner: 'negotiations/trainer.js',        about: 'прогресс дриллов по стадиям' },
@@ -63,6 +69,12 @@
     yasna_device_secret_v1:     { scope: 'identity', json: false, owner: 'core/storage.js',    about: 'секрет устройства: доказывает право на гостевой прогресс', sensitive: true },
     yasna_duel_user:            { scope: 'identity', json: true,  owner: 'games/duel/duel.js', about: 'залогиненный пользователь (Telegram)' },
     yasna_duel_token:           { scope: 'identity', json: false, owner: 'games/duel/duel.js', about: 'JWT сессии', sensitive: true },
+    // Свой адрес в базе друзей. НЕ синхронизируем нарочно: узел lyudi/<pid>
+    // принадлежит тому uid, который застолбил его первым (TOFU, см. druzya.js).
+    // Второе устройство с тем же pid просто не смогло бы записать свою карточку
+    // — друзья видели бы её застывшей. Новая установка честно берёт новый pid.
+    yasna_pid_v1:               { scope: 'identity', json: false, owner: 'core/druzya.js',     about: 'мой публичный id в базе друзей' },
+    yasna_moy_kod_v1:           { scope: 'identity', json: false, owner: 'core/druzya.js',     about: 'мой код дружбы (по нему меня находят)' },
 
     // ── настройки ──
     yasna_theme:                { scope: 'prefs', json: false, owner: 'core/theme.js',            about: 'единая тема light|dark|auto' },
@@ -81,6 +93,9 @@
     yasna_neg_spar_skill:       { scope: 'prefs', json: false, owner: 'negotiations/spar.js',     about: 'тренируемый навык' },
     yasna_neg_engine:           { scope: 'prefs', json: false, owner: 'negotiations/spar.js',     about: 'движок спарринга' },
     yasna_negc_tab:             { scope: 'prefs', json: false, owner: 'negotiations/contact-trainer.js', about: 'активная вкладка' },
+    yasna_nedavnie_v1:          { scope: 'prefs', json: true,  owner: 'app.js',                  about: 'недавно открытые ясны' },
+    yasna_skrytye_v1:           { scope: 'prefs', json: true,  owner: 'app.js',                  about: 'скрытые карточки' },
+    yasna_citata_push:          { scope: 'prefs', json: false, owner: 'app/citaty.js',           about: 'утренняя цитата включена' },
 
     // ── производное / не выгружаем ──
     yasna_duel_pending:            { scope: 'cache',  json: true,  owner: 'games/duel/duel.js',        about: 'очередь неотправленных матчей' },
@@ -89,15 +104,39 @@
     yasna2:                        { scope: 'cache',  json: true,  owner: 'core/yasna-star.js',        about: 'состояние звезды' },
     yasna_sync_state_v1:           { scope: 'cache',  json: true,  owner: 'core/storage.js',           about: 'состояние синхронизации: rev и подписи по ключам' },
     yasna_sync_conflicts_v1:       { scope: 'cache',  json: true,  owner: 'core/storage.js',           about: 'журнал расхождений: локальные версии, вытесненные серверными' },
+    yasna_access_declared_v1:      { scope: 'cache',  json: true,  owner: 'core/access.js',            about: 'черновик каталога доступов, объявленный разделами' },
+    yasna_spar_proxy_v1:           { scope: 'cache',  json: false, owner: 'negotiations/spar.js',      about: 'найденный адрес прокси спарринга' },
+    yasna_druzya_kartochka_v1:     { scope: 'cache',  json: true,  owner: 'core/druzya.js',            about: 'слепок своей карточки: что уже записано в базе' },
+    yasna_obnova_kogda:            { scope: 'cache',  json: false, owner: 'app/obnovlenie.js',         about: 'когда последний раз смотрели, не вышла ли версия' },
+    yasna_obnova_otlozheno:        { scope: 'cache',  json: false, owner: 'app/obnovlenie.js',         about: 'версия, обновление до которой отложили' },
+    yasna_obnova_kesh:             { scope: 'cache',  json: true,  owner: 'app/obnovlenie.js',         about: 'последний прочитанный манифест версии' },
+    yasna_stek_zerkalo_v1:         { scope: 'cache',  json: true,  owner: 'app/navigatsiya.js',        about: 'зеркало стека «назад» на полчаса (WebView убивают вместе с сессией)' },
+
+    // ── живёт в sessionStorage: до закрытия вкладки, в снапшот не идёт ──
+    // Держим в реестре, чтобы перечень ключей был полным: иначе линтер сборки
+    // ругался бы на них при каждом чтении, а человек — гадал, что это за ключи.
+    yasna_stek_v1:                 { scope: 'cache', json: true,  store: 'session', owner: 'app/navigatsiya.js', about: 'стек «назад» по экранам' },
+    yasna_otkuda_v1:               { scope: 'cache', json: true,  store: 'session', owner: 'app/navigatsiya.js', about: 'вершина стека для окон Справки и Словаря' },
+    yasna_urok_otkuda:             { scope: 'cache', json: false, store: 'session', owner: 'learn.html',         about: 'урок открыт с экрана «Уроки»' },
+    yasna_zastavka:                { scope: 'cache', json: false, store: 'session', owner: 'app/glavnaya.html',  about: 'заставку в этот заход уже показали' },
 
     // ── секреты: НИКОГДА не попадают в экспорт ──
     yasna_admin_pwd_v1:         { scope: 'secret', json: false, owner: 'admin.js',                about: 'пароль публикации контента', sensitive: true },
-    yasna_neg_aikey:            { scope: 'secret', json: false, owner: 'negotiations/spar.js',     about: 'пользовательский ключ LLM', sensitive: true }
+    yasna_neg_aikey:            { scope: 'secret', json: false, owner: 'negotiations/spar.js',     about: 'пользовательский ключ LLM', sensitive: true },
+    // Признак «пароль сайта введён». Не выгружаем и не принимаем из снапшота:
+    // иначе файл снапшота работал бы ключом от закрытых страниц.
+    yasna_gate_pass:            { scope: 'secret', json: false, owner: 'core/gate.js',             about: 'пароль сайта введён на этом устройстве', sensitive: true }
   };
 
   // Динамические ключи по префиксу — их нельзя перечислить заранее.
   var PREFIXES = [
-    { prefix: 'yasna_reflection_', scope: 'progress', json: false, owner: 'lessons/engine.js', about: 'личные заметки к уроку (по одному ключу на урок)' }
+    { prefix: 'yasna_reflection_', scope: 'progress', json: false, owner: 'lessons/engine.js', about: 'личные заметки к уроку (по одному ключу на урок)' },
+    // Прогресс чтения книг: ключ на книгу (yasna_kniga_v1 — Сутки,
+    // yasna_kniga_goda_v1, yasna_kniga_zhizni_v1 и все следующие). Книг будет
+    // больше, поэтому префикс, а не три литерала.
+    { prefix: 'yasna_kniga_',      scope: 'progress', json: true,  owner: 'kniga.html',        about: 'прочитанные узлы книги и кегль' },
+    { prefix: 'yasna_ekran_v1:',   scope: 'cache',    json: true,  owner: 'core/pamyat-ekrana.js', about: 'память экрана: прокрутка и раскрытые части' },
+    { prefix: 'yasna_storage_migrated_v', scope: 'cache', json: false, owner: 'core/storage.js', about: 'отметка о выполненной миграции' }
   ];
 
   var SCOPES_IN_SNAPSHOT = { creation: 1, progress: 1, prefs: 1 };
@@ -186,13 +225,18 @@
       // прогресс и заметки, а теперь ещё и доступ к серверной копии.
       if (devSecret) out.identity.yasna_device_secret_v1 = devSecret;
     }
-    // динамические ключи (заметки к урокам)
+    // динамические ключи (заметки к урокам, прогресс чтения книг)
+    // Scope у префиксов проверяем так же, как у реестровых ключей: среди них
+    // есть и производные (память экрана, отметки миграций) — им в снапшоте
+    // делать нечего, а импорт всё равно отверг бы их как cache.
     try {
       for (i = 0; i < s.length; i++) {
         var key = s.key(i);
         if (!key) continue;
         for (var p = 0; p < PREFIXES.length; p++) {
-          if (key.indexOf(PREFIXES[p].prefix) === 0) out.data[key] = getRaw(key);
+          if (key.indexOf(PREFIXES[p].prefix) !== 0) continue;
+          if (!SCOPES_IN_SNAPSHOT[PREFIXES[p].scope] || PREFIXES[p].sensitive) continue;
+          out.data[key] = getRaw(key);
         }
       }
     } catch (_) {}
@@ -215,7 +259,9 @@
     }
     for (var k in snapshot.data) {
       var m = meta(k);
-      if (!m || m.sensitive || m.scope === 'cache' || m.scope === 'secret') { res.rejected++; continue; }
+      // store:'session' — ключ живёт в sessionStorage; писать его в localStorage
+      // значит завести двойника, который переживёт вкладку и начнёт спорить.
+      if (!m || m.sensitive || m.store === 'session' || m.scope === 'cache' || m.scope === 'secret') { res.rejected++; continue; }
       if (merge && getRaw(k) !== null) { res.skipped++; continue; }
       if (setRaw(k, String(snapshot.data[k]))) res.written++;
     }
@@ -405,12 +451,29 @@
     };
   }
 
-  // Локальные ключи, подлежащие синхронизации: реестровые нужных scope
-  // плюс динамические заметки к урокам (они уезжают в user_notes).
+  // Динамический ключ, который надо синхронизировать как обычный item.
+  // Заметки к урокам сюда не входят: у них свой канал (user_notes).
+  // Нужно затем, что прогресс чтения книг живёт по префиксу yasna_kniga_*, а
+  // раньше синхронизация перебирала ТОЛЬКО реестровые ключи — и книги молча
+  // оставались на одном устройстве, хотя реестр заведён ровно против этого.
+  function prefixSync(key) {
+    for (var p = 0; p < PREFIXES.length; p++) {
+      var pf = PREFIXES[p];
+      if (pf.prefix === NOTE_PREFIX) continue;
+      if (key.indexOf(pf.prefix) !== 0) continue;
+      if (!SYNC_SCOPES[pf.scope] || pf.sensitive || pf.store === 'session') return null;
+      return pf;
+    }
+    return null;
+  }
+
+  // Локальные ключи, подлежащие синхронизации: реестровые нужных scope,
+  // динамические по префиксу (прогресс чтения книг) плюс заметки к урокам
+  // (они уезжают в user_notes).
   function localSyncable() {
     var s = ls(), items = [], notes = [], k, i;
     for (k in KEYS) {
-      if (!SYNC_SCOPES[KEYS[k].scope] || KEYS[k].sensitive) continue;
+      if (!SYNC_SCOPES[KEYS[k].scope] || KEYS[k].sensitive || KEYS[k].store === 'session') continue;
       var raw = getRaw(k);
       if (raw === null || raw === undefined) continue;
       items.push({ scope: KEYS[k].scope, itemId: k, state: raw });
@@ -419,10 +482,18 @@
       try {
         for (i = 0; i < s.length; i++) {
           var key = s.key(i);
-          if (!key || key.indexOf(NOTE_PREFIX) !== 0) continue;
-          var text = getRaw(key);
-          if (text === null) continue;
-          notes.push({ itemId: key.slice(NOTE_PREFIX.length), text: text });
+          if (!key) continue;
+          if (key.indexOf(NOTE_PREFIX) === 0) {
+            var text = getRaw(key);
+            if (text === null) continue;
+            notes.push({ itemId: key.slice(NOTE_PREFIX.length), text: text });
+            continue;
+          }
+          var pf = prefixSync(key);
+          if (!pf) continue;
+          var praw = getRaw(key);
+          if (praw === null || praw === undefined) continue;
+          items.push({ scope: pf.scope, itemId: key, state: praw });
         }
       } catch (_) {}
     }
@@ -658,7 +729,7 @@
       var s = ls();
       var removed = 0, k, i;
       for (k in KEYS) {
-        if (!SYNC_SCOPES[KEYS[k].scope]) continue;
+        if (!SYNC_SCOPES[KEYS[k].scope] || KEYS[k].store === 'session') continue;
         if (getRaw(k) !== null) { remove(k); removed++; }
       }
       if (s) {
@@ -666,7 +737,10 @@
         try {
           for (i = 0; i < s.length; i++) {
             var key = s.key(i);
-            if (key && key.indexOf(NOTE_PREFIX) === 0) kill.push(key);
+            if (!key) continue;
+            // И заметки, и прогресс чтения книг: на общем телефоне следующий
+            // вошедший не должен увидеть, докуда дочитал предыдущий.
+            if (key.indexOf(NOTE_PREFIX) === 0 || prefixSync(key)) kill.push(key);
           }
         } catch (_) {}
         for (i = 0; i < kill.length; i++) { remove(kill[i]); removed++; }

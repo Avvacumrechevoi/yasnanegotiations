@@ -40,18 +40,38 @@ if [ "$KOD" != "$KOD_APK" ]; then
   echo "  Пересоберите APK и выпустите заново." >&2
   exit 1
 fi
+# ОТПЕЧАТОК ФАЙЛА. Приложение ставит APK мимо магазина: скачало по адресу и
+# открыло установщик. Пока в манифесте не было ни размера, ни хэша, сверить
+# скачанное было НЕ С ЧЕМ — подменённый файл в бакете или по дороге дошёл бы
+# до окна установки как родной. Считаем здесь, по тому самому файлу, который
+# уходит в хранилище; obnovlenie.js и UstanovkaObnovleniya.java сверяют.
+# (Отпечаток говорит «файл тот же», а не «файл наш» — за «наш» отвечает
+# подпись APK, ключ владельца, и её проверяет уже сама система при установке.)
+RAZMER=$(wc -c < "$APK" | tr -d ' ')
+if command -v shasum >/dev/null 2>&1; then
+  SHA=$(shasum -a 256 "$APK" | awk '{print $1}')
+elif command -v sha256sum >/dev/null 2>&1; then
+  SHA=$(sha256sum "$APK" | awk '{print $1}')
+else
+  echo "✗ нечем посчитать sha256 (нет ни shasum, ни sha256sum)" >&2
+  echo "  Без отпечатка приложение откажется ставить обновление — и правильно." >&2
+  exit 1
+fi
 echo "Выпускаю $IMYA (код $KOD): $CHTO"
+echo "  отпечаток: $SHA ($RAZMER Б)"
 
 yc storage s3 cp "$APK" s3://yasnalab.ru/app/yasna.apk \
   --content-type "application/vnd.android.package-archive"
 
-python3 - "$KOD" "$IMYA" "$CHTO" <<'PY' > /tmp/version.json
+python3 - "$KOD" "$IMYA" "$CHTO" "$SHA" "$RAZMER" <<'PY' > /tmp/version.json
 import json,sys
 print(json.dumps({
   "versionCode": int(sys.argv[1]),
   "versionName": sys.argv[2],
   "url": "https://storage.yandexcloud.net/yasnalab.ru/app/yasna.apk?v=" + sys.argv[1],
   "izmeneniya": sys.argv[3],
+  "sha256": sys.argv[4],
+  "razmer": int(sys.argv[5]),
 }, ensure_ascii=False, indent=2))
 PY
 # Страница скачивания живёт рядом и сама читает version.json — выкладываем

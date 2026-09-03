@@ -51,7 +51,9 @@
   };
 
   // Минимум иконок — большинство выдержано в тексте
-  const I = (path, opts) => { opts = opts||{}; return <svg viewBox="0 0 24 24" width={opts.size||16} height={opts.size||16} fill="none" stroke="currentColor" strokeWidth={opts.sw||1.6} strokeLinecap="round" strokeLinejoin="round">{path}</svg>; };
+  /* aria-hidden на всех иконках: они дублируют подпись рядом, а без него
+     чтец объявлял «графика» перед каждой кнопкой тура. */
+  const I = (path, opts) => { opts = opts||{}; return <svg aria-hidden="true" viewBox="0 0 24 24" width={opts.size||16} height={opts.size||16} fill="none" stroke="currentColor" strokeWidth={opts.sw||1.6} strokeLinecap="round" strokeLinejoin="round">{path}</svg>; };
   const ICONS = {
     play:       I(<path d="M8 5 V19 L19 12 Z" fill="currentColor"/>, {size:13}),
     pause:      I(<g><path d="M7 5 H10 V19 H7 Z" fill="currentColor"/><path d="M14 5 H17 V19 H14 Z" fill="currentColor"/></g>, {size:13}),
@@ -352,6 +354,20 @@
       return ()=>{ target.removeEventListener('touchstart',onTS); target.removeEventListener('touchend',onTE); };
     }, [stepIdx]);
 
+    /* Тур — лист во весь экран, но для чтения с экрана он оставался обычным
+       div: TalkBack свайпом читал Разбор ПОД туром, Tab уходил на перекрытые
+       кнопки, фокус после открытия оставался на body. Помощник «слой»
+       (core/dialogs.js) ставит роль диалога, гасит фон через inert и
+       возвращает фокус на кнопку, которая тур открыла. Escape тур ловит сам
+       (onKey выше) — второго слушателя не заводим, иначе закрытие пошло бы
+       двумя дорогами. */
+    const слойРеф = useRef(null);
+    useEffect(()=>{
+      const с = window.YasnaOkna && window.YasnaOkna.слой;
+      if(!с || !слойРеф.current) return;
+      return с(слойРеф.current, {});
+    }, []);
+
     if(!y) return null;
 
     const stageState = step?.stages
@@ -382,13 +398,15 @@
     const SURFACE_RAISED = 'rgba(255,255,255,.04)';
 
     return (
-      <div style={{position:'fixed',inset:0,background:BG,zIndex:200,display:'flex',flexDirection:'column',color:FG,fontFamily:'inherit',animation:'tourFadeIn .5s ease'}} onClick={e=>{ if(e.target===e.currentTarget) handleClose(); }}>
+      <div ref={слойРеф} style={{position:'fixed',inset:0,background:BG,zIndex:200,display:'flex',flexDirection:'column',color:FG,fontFamily:'inherit',animation:'tourFadeIn .5s ease'}} onClick={e=>{ if(e.target===e.currentTarget) handleClose(); }}>
 
         {/* TOP — minimal (bar заменяет точки) */}
         <div style={{padding:'14px 24px',display:'flex',alignItems:'center',gap:14,borderBottom:'1px solid '+BORDER,flexShrink:0,background:BG}}>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
             <div style={{width:26,height:26,borderRadius:7,background:accent,display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,color:'#0e1019',fontWeight:700}}>✦</div>
-            <div>
+            {/* data-ya-zag — отсюда помощник «слой» берёт имя тура и сюда же
+                ставит фокус при открытии. */}
+            <div data-ya-zag>
               <div style={{fontSize:12.5,fontWeight:600,letterSpacing:.2,color:FG}}>Гид по Ясне</div>
               <div style={{fontSize:11,color:FG_DIM,marginTop:1}}>{y.name}</div>
             </div>
@@ -417,7 +435,9 @@
             <div style={{position:'absolute',top:-3,left:`${overallPercent}%`,width:8,height:16,marginLeft:-4,background:accent,borderRadius:2,boxShadow:`0 0 8px ${accent}`,transition:'left .4s cubic-bezier(.4,0,.2,1)',pointerEvents:'none'}}/>
           </div>
           <div style={{fontSize:11.5,color:FG_DIM,fontVariantNumeric:'tabular-nums',whiteSpace:'nowrap',display:'flex',alignItems:'center',gap:8}}><span>{stepIdx+2} / {total+2}</span><span style={{color:accent,fontWeight:700}}>{overallPercent}%</span></div>
-          <button onClick={handleClose} style={{display:'flex',alignItems:'center',gap:5,background:'transparent',border:'1px solid '+BORDER,color:FG_MUTED,padding:'6px 11px',borderRadius:8,fontSize:12,cursor:'pointer',fontWeight:500}}>{ICONS.close}<span style={{display:typeof window!=='undefined'&&window.innerWidth<=600?'none':'inline'}}>Закрыть</span></button>
+          {/* На телефоне подпись прячется и остаётся голая иконка: без имени
+              чтец молчал, а цель была 38×28 вместо 44. Имя даём всегда. */}
+          <button onClick={handleClose} aria-label="Закрыть тур" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:5,minWidth:44,minHeight:44,background:'transparent',border:'1px solid '+BORDER,color:FG_MUTED,padding:'6px 11px',borderRadius:8,fontSize:12,cursor:'pointer',fontWeight:500,flexShrink:0}}>{ICONS.close}<span style={{display:typeof window!=='undefined'&&window.innerWidth<=600?'none':'inline'}}>Закрыть</span></button>
         </div>
 
         {/* BODY split */}
@@ -738,7 +758,9 @@
             .tour-panel h1 { font-size: 22px !important; line-height: 1.22 !important; word-break: keep-all; hyphens: none; margin-bottom: 10px !important; }
             .tour-panel h2 { font-size: 19px !important; line-height: 1.25 !important; word-break: keep-all; hyphens: none; margin-bottom: 8px !important; }
             /* Meta-row (Глава N · N из M · ЗАКОН) — компактнее, в одну линию */
-            .tour-card > div:first-of-type { font-size: 9.5px !important; gap: 6px !important; flex-wrap: wrap !important; margin-bottom: 10px !important; letter-spacing: 1px !important; }
+            /* Было 9.5px с трекингом 1px — ниже нижней границы читаемости
+               (11px) и с разрежением, которое капитель ломает окончательно. */
+            .tour-card > div:first-of-type { font-size: 11px !important; gap: 6px !important; flex-wrap: wrap !important; margin-bottom: 10px !important; letter-spacing: .4px !important; }
             .tour-panel p, .tour-panel div { font-size: 15px !important; line-height: 1.5 !important; }
 
             /* Шапка гида: убрать лишние элементы */

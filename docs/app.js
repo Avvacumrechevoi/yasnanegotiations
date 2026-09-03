@@ -948,20 +948,15 @@ function App(){
     if(window.requestIdleCallback) window.requestIdleCallback(пуск,{timeout:3000});
     else setTimeout(пуск,1200);
   },[]);
-  // Уроки и каталог — светлый «документ» (фикс-оверлей на весь экран). В тёмной
-  // теме приложения хрупкий catch-all красил белые карточки в тёмный, но НЕ их
-  // тёмный текст → нечитаемо. Пока открыт урок/каталог, снимаем body.theme-vk-dark
-  // (оверлей всё равно закрывает тёмный фон целиком) — урок рендерится в чистой
-  // светлой палитре. По закрытии тему возвращаем из localStorage. useLayoutEffect —
-  // до отрисовки, чтобы не было вспышки тёмного. См. также .yl-lightscope в CSS.
-  React.useLayoutEffect(()=>{
-    let dark=false; try{dark=localStorage.getItem('yasna_theme_vk_dark')==='1';}catch(_){}
-    if(!dark) return;
-    const open=lessonPicker||!!activeLesson;
-    document.body.classList.toggle('theme-vk-dark',!open);
-    try{document.documentElement.style.colorScheme=open?'light':'dark';}catch(_){}
-    return ()=>{ try{ if(localStorage.getItem('yasna_theme_vk_dark')==='1'){document.body.classList.add('theme-vk-dark');document.documentElement.style.colorScheme='dark';} }catch(_){} };
-  },[lessonPicker,activeLesson]);
+  /* Раньше здесь урок принудительно делался СВЕТЛЫМ: у него не было своей
+     тёмной палитры, цвета были зашиты в блоки, и общий тёмный catch-all
+     красил белые карточки в тёмный, не трогая их тёмный текст, — читать
+     было нечем. Обход снимал body.theme-vk-dark на время урока.
+     Теперь у блоков урока есть роли (docs/core/tokeny.css), и в тёмной теме
+     урок читается сам. Обход снят: он оставлял тему приложения и тему урока
+     в разном состоянии — под слоем экран становился светлым, а
+     colorScheme говорил «light» на тёмном фоне, из-за чего системные
+     полосы прокрутки и поля ввода приходили светлыми. */
   /* ═══ УРОК В АДРЕСЕ ═══════════════════════════════════════════════════
      Пока урок открыт, он держится в адресе: Android выгружает WebView при
      нехватке памяти, смене темы и масштаба шрифта, и без метки человек

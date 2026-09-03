@@ -3870,16 +3870,20 @@ body.igra .dp-theme-toggle {
   font-size: var(--vk-caption-m-size);
   font-weight: 500;
 }
+/* Межстрочье долей, а не в пикселях: системный масштаб шрифта множит
+   кегль, но не пиксельный line-height (24px на 16px — те же 1.5, а на
+   25,6px строки уже налезали друг на друга). При обычном кегле счёт тот
+   же: 24/16 и 20/15. */
 body.igra .dp-sync-notice-title {
   font-family: var(--vk-font-title);
   font-size: var(--vk-title-m-size);
-  line-height: var(--vk-title-m-line);
+  line-height: 1.5;
   font-weight: 600;
 }
 body.igra .dp-sync-notice-text {
   font-family: var(--vk-font-body);
   font-size: var(--vk-caption-m-size);
-  line-height: var(--vk-caption-m-line);
+  line-height: 1.34;
 }
 /* ─── Радиусы карточек VK-шире ─── */
 body.igra .dp-card,
@@ -4166,6 +4170,16 @@ body.igra .dp-sync-notice-title {
   text-transform: none;
   letter-spacing: 0;
   font-weight: 600;
+  /* Заголовок перестал быть тегом-пилюлей (display:block выше), а
+     white-space:nowrap из правила пилюль остался: при системном масштабе
+     шрифта строка требовала одну неразрывную полосу в 447 px и резалась
+     краем карточки. Заголовку положено переноситься на вторую строку. */
+  white-space: normal;
+  overflow-wrap: anywhere;
+  /* Межстрочье тоже досталось от пилюли — ровно 20 px на одну строку.
+     Заголовок теперь переносится, и на крупном кегле вторая строка
+     налезала на первую; доля вместо пикселей растёт вместе с кеглем. */
+  line-height: 1.5;
 }
 
 /* ═══ HERO — VK Profile Card ═══ */
@@ -4556,6 +4570,17 @@ body.igra .tn-container-final {
   body.igra .dp-sync-notice {
     flex-direction: column;
     align-items: stretch;
+    /* flex-wrap:wrap достался от рядной раскладки (≤600px). В колонке он
+       делает контейнер многополосным, и ширину полосы берут по самому
+       широкому ребёнку, а не по карточке: при системном масштабе шрифта
+       ×1.3 полоса раздувалась до 447 px внутри карточки в 378 px и текст
+       уезжал за правый край экрана. Колонка здесь всегда одна. */
+    flex-wrap: nowrap;
+  }
+  /* Ни один ребёнок плашки не имеет права растянуть её шире карточки:
+     без min-width:0 длинная строка задаёт минимум по своему содержимому. */
+  body.igra .dp-sync-notice > * {
+    min-width: 0;
   }
   body.igra .dp-sync-notice-actions {
     justify-content: flex-end;

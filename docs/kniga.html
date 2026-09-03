@@ -180,6 +180,14 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
 .telo .zag{color:var(--kn-akc)}
 .telo p.bukvica::first-letter{font-size:3.05em;line-height:.82;float:left;
   padding:2px 8px 0 0;color:var(--kn-akc);font-family:var(--kn-serif)}
+/* Только для чтеца: глифы «✓ › ·» читаются вслух буквально, поэтому сам
+   знак прячем, а состояние главы даём словом. */
+.kn-tiho{position:absolute;width:1px;height:1px;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap}
+/* В приложении имя главы уже стоит заголовком первого уровня в шапке
+   оболочки — второй такой же только сбивает ход по заголовкам. Служебный
+   нужен на сайте, где своей шапки у оболочки нет. */
+html.yk-shapka-est #glava-imya{display:none}
 .kegl-vspl{position:fixed;left:50%;bottom:calc(96px + var(--yk-snizu,0px));
   transform:translateX(-50%);padding:9px 16px;border-radius:12px;z-index:40;
   background:var(--kn-ink);color:var(--kn-bum);font:600 13px/1 var(--kn-sans);
@@ -213,6 +221,10 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
 </head>
 <body>
 <div class="polosa" id="polosa" aria-hidden="true"></div>
+<!-- Узел живёт с самого начала: role=status объявляет только смену текста
+     ВНУТРИ уже существующего узла, а прежде всплывашка создавалась вместе с
+     подписью — и ступень кегля менялась беззвучно. -->
+<div class="kegl-vspl" id="kegl-vspl" role="status" aria-live="polite"></div>
 
 <header class="kn-shapka" id="kn-shapka">
   <!-- Кнопку возврата рисует оболочка приложения в своей шапке, эту она
@@ -248,6 +260,11 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
 </main>
 
 <article class="list" id="list">
+  <!-- Заголовок первого уровня у главы был только на обложке: в чтении
+       экран для чтеца оставался безымянным, и «пролистать по заголовкам»
+       было не от чего. Имя главы уже стоит в шапке оболочки, поэтому
+       второй раз его не показываем — узел нужен чтецу. -->
+  <h1 class="kn-tiho" id="glava-imya"></h1>
   <div class="telo" id="telo"></div>
   <div class="hvost">
     <button id="pred" type="button">‹ Назад</button>
@@ -318,7 +335,9 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
         + '<span class="gl-n">'+(оп.номер||'—')+'</span>'
         + '<span class="gl-t"><span class="gl-imya">'+оп.имя+'</span>'
         + '<span class="gl-meta">'+мета+(оп.есть===false?' · пишется':'')+'</span></span>'
-        + '<span class="gl-gal">'+(оп.есть===false?'·':(пр?'✓':'›'))+'</span></button>';
+        + '<span class="gl-gal" aria-hidden="true">'+(оп.есть===false?'·':(пр?'✓':'›'))+'</span>'
+        + (пр&&оп.есть!==false?'<span class="kn-tiho">прочитано</span>':'')
+        + '</button>';
     });
     эСписок.innerHTML=html;
 
@@ -457,6 +476,8 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
     эХвост.hidden=true;
     document.body.classList.add('chtenie');
     document.getElementById('shapka-t').textContent=оп.имя;
+    var эИмя=document.getElementById('glava-imya');
+    if(эИмя) эИмя.textContent=оп.имя;
     window.scrollTo(0,0);
     загрузить(н, function(г){
       if(!г){ сбой(н); return; }
@@ -544,15 +565,24 @@ html.yk-est .kn-shapka{padding-top:calc(8px + var(--yk-sverhu,0px))}
     писать(сост);
     var п=document.getElementById('kegl-vspl');
     if(!п){ п=document.createElement('div'); п.id='kegl-vspl'; п.className='kegl-vspl';
+      п.setAttribute('role','status'); п.setAttribute('aria-live','polite');
       document.body.appendChild(п); }
     п.textContent='Текст: '+ПОДПИСИ[т];
     п.classList.remove('vidno'); void п.offsetWidth; п.classList.add('vidno');
+    подписьКегля(т);
   };
+  /* Имя кнопки называет ступень, которая стоит сейчас: «Аа» само по себе
+     чтецу ничего не говорит, а ступеней четыре и они ходят по кругу. */
+  function подписьКегля(т){
+    var к=document.getElementById('kegl');
+    if(к) к.setAttribute('aria-label','Размер текста: '+ПОДПИСИ[т]);
+  }
   /* Сохранённый прежним шагом кегль 1.2/1.4 приводим к ближней ступени. */
   if(СТУПЕНИ.indexOf(сост.кегль)<0){
     сост.кегль=сост.кегль>1.2?1.3:(сост.кегль>1?1.15:1);
     document.documentElement.style.setProperty('--kn-kegl', сост.кегль);
   }
+  подписьКегля(Math.max(0,СТУПЕНИ.indexOf(сост.кегль)));
   /* Аппаратная «назад» и Esc: из главы — в оглавление, а не из книги вон. */
   window.addEventListener('yasna:назад', function(e){
     /* Читаем главу — возвращаемся в оглавление, а не уходим с экрана.
