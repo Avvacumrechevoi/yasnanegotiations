@@ -11,7 +11,7 @@ import { readFileSync, writeFileSync, mkdirSync, rmSync, cpSync, existsSync,
          readdirSync, statSync } from 'node:fs';
 import { join, relative, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { собратьИсходники, проверитьТексты, проверитьДерево, напечатать }
+import { собратьИсходники, проверитьТексты, проверитьДерево, проверитьМост, напечатать }
   from '../scripts/proverki.mjs';
 
 const ЗДЕСЬ = dirname(fileURLToPath(import.meta.url));
@@ -444,5 +444,10 @@ if (известные.length) {
    Дерево знаний перепроверяем по копии, которая реально ляжет в APK: в
    приложение уезжает она, а не исходник. */
 const слова = проверитьТексты(собратьИсходники(ЗДЕСЬ))
-  .concat(проверитьДерево(join(ЦЕЛЬ, 'core', 'derevo-dannye.js'), 'www/core/derevo-dannye.js'));
+  .concat(проверитьДерево(join(ЦЕЛЬ, 'core', 'derevo-dannye.js'), 'www/core/derevo-dannye.js'))
+  /* НАТИВНЫЙ МОСТ. Проверка здесь, а не в сборке сайта: java есть только у
+     приложения. Ловит тихую пропажу числа на мосту — из-за неё обновления
+     не ставились с 6.4 по 7.2 включительно, и ни одна сборка об этом не
+     сказала. */
+  .concat(проверитьМост(join(ЗДЕСЬ, 'android', 'app', 'src', 'main', 'java')));
 if (напечатать(слова, 'app/')) process.exitCode = 1;

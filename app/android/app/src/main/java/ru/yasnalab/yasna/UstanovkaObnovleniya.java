@@ -77,8 +77,18 @@ public class UstanovkaObnovleniya extends Plugin {
 
         String sha = call.getString("sha256");
         sha = sha == null ? "" : sha.trim().toLowerCase();
-        Long razmer = call.getLong("razmer", 0L);
-        if (!sha.matches("[0-9a-f]{64}") || razmer == null || razmer <= 0) {
+        // Размер читаем через optLong, а НЕ через call.getLong — и это не
+        // придирка к стилю. Мост Capacitor переносит объект из JS через JSON,
+        // и число 9227701 приходит сюда как Integer. PluginCall.getLong отдаёт
+        // значение, только если оно уже Long, а иначе молча возвращает
+        // запасное — то есть ноль. Из-за этого проверка ниже срабатывала на
+        // совершенно исправном манифесте, и обновление отказывалось начаться
+        // словами «нет отпечатка версии». Так вели себя ВСЕ сборки 6.4–7.2:
+        // канал обновлений был мёртв с того дня, как появилась сверка.
+        // optLong живёт в org.json и приводит к числу и Integer, и Long, и
+        // Double, и строку из цифр — что бы мост ни положил.
+        long razmer = call.getData().optLong("razmer", 0L);
+        if (!sha.matches("[0-9a-f]{64}") || razmer <= 0) {
             call.reject("нет отпечатка версии — проверить скачанное будет нечем");
             return;
         }
