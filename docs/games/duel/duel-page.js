@@ -913,6 +913,56 @@ function открытьКруг(){
     );
   }
 
+  /* ─── Темы, у которых есть источник ──────────────────────────────
+     «Джива» лежит в банке первой, но она не из книг Ясны: витрина сама
+     исключает её из показа как нечестную (см. фильтр демо-вопросов ниже) и
+     из умолчания пикера. При этом «Быстрая игра» и «Тема дня» брали список
+     целиком — и первое, что видел новичок, была именно она. Одно правило на
+     все места, где тему выбирает не человек, а приложение. */
+  function темыСИсточником(themes){
+    return (themes || []).filter(т => {
+      const к = String((т && (т.book || т.id)) || '');
+      return к.indexOf('dzhiva') < 0;
+    });
+  }
+
+  /* ─── Недоигранная партия (Д9) ───────────────────────────────────
+     Android выгружает WebView, стоит человеку переключиться в мессенджер, —
+     партия жила только в памяти вкладки и пропадала вместе с ответами.
+     Движок кладёт снимок после каждого ответа; здесь единственное место,
+     где о нём говорят вслух. Карточки нет, пока нечего продолжать. */
+  function DPProdolzhit({ onProdolzhit }){
+    const T = _g('YasnaTurnir');
+    const [снимок, setСнимок] = useState(() => {
+      try { return (T && T.прочитатьСнимок && T.прочитатьСнимок()) || null; }
+      catch(_){ return null; }
+    });
+    if(!снимок || !T) return null;
+    const счёт = (T.счётСнимка && T.счётСнимка(снимок)) || { отвечено: 0, всего: 0 };
+    return React.createElement('section', { className: 'dp-section' },
+      React.createElement('div', { className: 'dp-card' },
+        React.createElement('div', { className: 'dp-card-h' },
+          React.createElement('h3', null, 'Партия не доиграна')
+        ),
+        React.createElement('div', { className: 'dp-card-empty', style: { textAlign: 'left' } },
+          счёт.всего
+            ? ('Остановились на вопросе ' + Math.min(счёт.отвечено + 1, счёт.всего) + ' из ' + счёт.всего + '.')
+            : 'Партия осталась незаконченной.'),
+        React.createElement('button', {
+          type: 'button', className: 'dp-btn dp-btn-primary',
+          onClick: () => onProdolzhit && onProdolzhit(снимок),
+        }, 'Продолжить партию'),
+        React.createElement('button', {
+          type: 'button', className: 'dp-btn-text',
+          onClick: () => {
+            try { T.стеретьСнимок && T.стеретьСнимок(); } catch(_){}
+            setСнимок(null);
+          },
+        }, 'Забыть эту партию')
+      )
+    );
+  }
+
   // ─── Тема дня ────────────────────────────────────────────────────
   // Было две плитки: «Вызов дня» и запертая «Тема дня» с подписью «формат
   // ещё готовится», плюс счётчик «1 доступно · 1 в подготовке» — экран
@@ -920,7 +970,8 @@ function открытьКруг(){
   // тема выбирается по дате (у всех одна и та же), нажатие открывает блиц
   // ровно по этой теме, снизу видно, играл ли ты сегодня.
   function DPTemaDnya({ onTema }){
-    const themes = (window.YasnaTrivia && window.YasnaTrivia.getThemes && window.YasnaTrivia.getThemes()) || [];
+    const themes = темыСИсточником(
+      (window.YasnaTrivia && window.YasnaTrivia.getThemes && window.YasnaTrivia.getThemes()) || []);
     if(!themes.length) return null;
     const д = new Date();
     const ключДня = д.getFullYear() + '-' + String(д.getMonth()+1).padStart(2,'0') + '-' + String(д.getDate()).padStart(2,'0');
@@ -935,10 +986,14 @@ function открытьКруг(){
     const освоено = (общее.masteryByTheme || {})[тема.id] || 0;
 
     /* «Играл сегодня» берём из истории партий: своего сигнала у темы дня
-       нет, и выдумывать его нечестно. */
+       нет, и выдумывать его нечестно. Считаем ТОЛЬКО партии по этой теме —
+       раньше строка говорила «сегодня сыграно: 1», хотя тема дня не тронута,
+       а сыграна была совсем другая. themesPlayed пишет движок партии. */
     const история = Storage?.getMatchHistory?.() || [];
     const началоДня = new Date(); началоДня.setHours(0,0,0,0);
-    const сегодняПартий = история.filter(m => m && m.date >= началоДня.getTime()).length;
+    const сегодняПартий = история.filter(m =>
+      m && m.date >= началоДня.getTime()
+      && Array.isArray(m.themesPlayed) && m.themesPlayed.indexOf(тема.id) > -1).length;
 
     return React.createElement('section', { className: 'dp-section', role: 'region', 'aria-label': 'Тема дня' },
       React.createElement('div', { className: 'dp-section-h-row' },
@@ -954,11 +1009,17 @@ function открытьКруг(){
         ),
         React.createElement('div', { className: 'dp-tema-imya' }, тема.name),
         React.createElement('div', { className: 'dp-tema-o' },
-          вопросов ? ('Блиц по этой теме · ' + вопросов + ' ' + склонВопросов(вопросов) + ' в запасе') : 'Блиц по этой теме'),
+          /* «в запасе» — внутреннее слово банка вопросов, снаружи оно ничего
+             не значит: осталось просто число вопросов. */
+          вопросов ? ('Блиц по этой теме · ' + вопросов + ' ' + склонВопросов(вопросов)) : 'Блиц по этой теме'),
         React.createElement('div', { className: 'dp-tema-niz' },
           React.createElement('span', { className: 'dp-tema-knopka' }, 'Пройти тему'),
           React.createElement('span', { className: 'dp-tema-fakt' },
-            сегодняПартий ? ('сегодня сыграно: ' + сегодняПартий + ' ' + склонПартий(сегодняПартий)) : 'сегодня ещё не играл')
+            /* «сегодня ещё не играл» — мужской род о человеке, которого мы не
+               знаем. Говорим о партии, а не об игроке. */
+            сегодняПартий
+              ? ('сегодня по этой теме: ' + сегодняПартий + ' ' + склонПартий(сегодняПартий))
+              : 'сегодня по этой теме партий не было')
         )
       )
     );
@@ -1071,7 +1132,9 @@ function открытьКруг(){
             React.createElement('button', { className: 'dp-btn-text', type: 'button',
               onClick: function(){ setItems(null); setПовтор(v => v + 1); } }, 'Повторить'))
         : items === null
-        ? React.createElement('div', { className: 'dp-card-empty' }, 'Пока пусто. Сыграй Партию.')
+        /* Пока таблица едет, экран говорил «Пока пусто. Сыграй Партию» — и
+           человек, только что сыгравший, читал, что его партии не было. */
+        ? React.createElement('div', { className: 'dp-card-empty' }, 'Загружаем рейтинг…')
         : items.length === 0
           ? React.createElement('div', { className: 'dp-card-empty' }, 'Рейтинг недели пока пуст.', React.createElement('br'), 'Сыграй Партию.')
           : React.createElement(React.Fragment, null,
@@ -2324,6 +2387,29 @@ function открытьКруг(){
     // ─── Старт игры с Тенью (бот) ───
     // mode: 'blitz' | 'standard' | 'expert' — определяет длину партии
     // selectedThemes: null (все) или массив theme.id для кастом-выбора
+    /* «Быстрая игра» отдавала движку null = «все темы банка», и «Джива» без
+       источника оказывалась среди шести тем партии. Отдаём явный список. */
+    const темыБыстройИгры = () => {
+      const все = (window.YasnaTrivia && window.YasnaTrivia.getThemes && window.YasnaTrivia.getThemes()) || [];
+      const годные = темыСИсточником(все).map(т => т.id);
+      return годные.length ? годные : null;
+    };
+
+    /* Возврат в недоигранную партию: движку отдаём снимок, он поднимает из
+       него вопросы, счёт и позицию. Соперник — только Тень: живого по снимку
+       не воскресить, поэтому PvP снимков и не пишет. */
+    const продолжитьПартию = (снимок) => {
+      if(!снимок) return;
+      requireProfile(() => setGame({
+        type: 'turnir',
+        opponent: 'shadow',
+        shadowLevel: снимок.opponentLevel || 'medium',
+        mode: снимок.mode || 'standard',
+        selectedThemes: null,
+        снимок: снимок,
+      }));
+    };
+
     const startPartiyaWithShadow = (level, mode, selectedThemes) => {
       requireProfile(() => setGame({
         type: 'turnir',
@@ -2486,6 +2572,7 @@ function открытьКруг(){
           opponentMode: game.opponent, // 'shadow' or 'pvp'
           mode: game.mode || 'standard', // 'blitz' | 'standard' | 'expert'
           selectedThemes: game.selectedThemes || null, // null = все темы
+          снимок: game.снимок || null,                 // возврат в недоигранную партию
           transport: game.transport,
           role: game.role,
           oppData: game.opp,
@@ -2540,8 +2627,9 @@ function открытьКруг(){
                семь нулей и две кнопки про почту раньше, чем кнопку «играть».
                Ступень, числа, рейтинг недели и знаки никуда не делись, они
                просто ниже — там, где на них смотрят после игры, а не до. */
+            React.createElement(DPProdolzhit, { onProdolzhit: продолжитьПартию }),
             React.createElement(DPMainGames, { onPartiya: onPartiyaCTA, onUzor: startUzorPvP,
-              onProsto: () => startPartiyaWithShadow('medium', 'standard', null) }),
+              onProsto: () => startPartiyaWithShadow('medium', 'standard', темыБыстройИгры()) }),
             React.createElement(DPTemaDnya, { onTema: (themeId) => startPartiyaWithShadow('medium', 'blitz', [themeId]) }),
             React.createElement(DPProfileHero, { user, profile, onLoginClick, remoteProfile }),
             React.createElement(DPSyncNotice, { user, onLoginClick }),
@@ -2582,7 +2670,10 @@ function открытьКруг(){
         /* Ссылку на репозиторий убрали намеренно: она указывала на исходники
            прямо из подвала, то есть выдавала и площадку, и точное имя проекта
            тому, кто вообще не искал. */
-        React.createElement('div', null,
+        /* В приложении «Главная» — вкладка наббара, и вторая дорога туда из
+           подвала её просто дублирует. На сайте ссылка остаётся: там наббара
+           нет и уйти с экрана Игр больше нечем. */
+        !/YasnaApp\//.test(navigator.userAgent) && React.createElement('div', null,
           React.createElement('a', { href: 'index.html' }, 'К Ясне')
         ),
         /* Версия была вписана руками («v2.0 · мая 2026») и устарела на четыре

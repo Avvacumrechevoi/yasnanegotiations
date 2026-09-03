@@ -28,8 +28,23 @@
   }
   function scrollToBlock(block) {
     if (!block) return;
-    var y = block.getBoundingClientRect().top + window.pageYOffset - 80;
-    if (window.scrollTo) window.scrollTo({ top: y, behavior: 'smooth' });
+    /* Отступ был жёстко 80 px, а заголовок нового шага закрывают ДВЕ полосы:
+       шапка оболочки (в приложении) и липкая шапка сценария с прогрессом.
+       Меряем обе по факту — иначе каждый шаг начинался с полускрытого
+       заголовка, просвечивающего сквозь блюр. */
+    var шапки = 0;
+    ['.yk-shapka', '.neg-l-head'].forEach(function (сел) {
+      var э = document.querySelector(сел);
+      if (!э) return;
+      var с = getComputedStyle(э);
+      if (с.position === 'static') return;   /* не липнет — ничего не закрывает */
+      /* Закрытая полоса = где полоса прилипает (top) + её высота. Складывать
+         высоты нельзя: липкая шапка сценария уже посажена ПОД шапку оболочки. */
+      шапки = Math.max(шапки, (parseFloat(с.top) || 0) + э.getBoundingClientRect().height);
+    });
+    шапки = Math.round(шапки);
+    var y = block.getBoundingClientRect().top + window.pageYOffset - (шапки || 80) - 16;
+    if (window.scrollTo) window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
   }
 
   // ── Наставник (аватар-помощник) ──────────────────────────────────
@@ -194,6 +209,12 @@
     var done = loadDone();
     var hereIdx = firstUndoneIndex();
 
+    /* Вопрос «с чего начать» — первой карточкой каталога, а не модальным
+       окном поверх экрана: окно закрывало наббар и требовало ответа раньше,
+       чем человек увидел сценарии, а при крупном шрифте его крестик уезжал
+       за верх экрана. Карточку можно просто прокрутить. */
+    if (!loadOnb()) catalogList.appendChild(вводнаяКарточка());
+
     // маршрут «ты здесь»: дорожка 1→2→3→4
     var route = el('div', 'neg-route');
     var rail = el('div', 'neg-route-rail');
@@ -238,6 +259,10 @@
 
   // ── открыть урок ─────────────────────────────────────────────────
   function openLesson(lesson) {
+    /* Рекомендация — указатель, а не метка: как только человек по ней пошёл,
+       она своё отработала. Иначе «Тебе сюда» висело на карточке вечно, рядом
+       с «✓ пройдено» и «Вы здесь» на соседней. */
+    if (loadOnb() === lesson.id) saveOnb('skip');
     state = { lesson: lesson, segWrap: null, bar: null, решено: 0,
       всегоПрактик: (lesson.segments || []).filter(этоПрактика).length };
     lessonRoot.innerHTML = '';
@@ -420,43 +445,39 @@
     }
   }
 
-  // ── вводный экран первого визита ─────────────────────────────────
-  function renderOnboarding() {
-    var host = document.getElementById('neg-onb-root');
-    if (!host) return;
-    var ov = el('div', 'neg-onb');
-    var card = el('div', 'neg-onb-card');
-    card.innerHTML =
-      '<div class="neg-onb-eyebrow">Тренажёр переговоров</div>' +
-      '<div class="neg-onb-value">Переговоры — это навык. 4 коротких сценария, ~30 минут.</div>' +
-      '<div class="neg-onb-sub">Один вопрос — и подскажем, с чего начать именно тебе. Или просто пройди по порядку.</div>' +
-      '<div class="neg-onb-q">Что у тебя сейчас горит?</div>';
-    var opts = el('div', 'neg-onb-opts');
+  // ── вводный вопрос: первая карточка каталога ─────────────────────
+  /* БЫЛО: модальное окно (.neg-onb) поверх размытого экрана — оно ложилось
+     и на наббар, требовало решения до того, как человек увидел каталог, и
+     при масштабе шрифта 130 % на 360×780 уводило свой крестик за верх
+     экрана. СТАЛО: тот же вопрос обычным блоком каталога — его видно
+     вместе со сценариями, ответ подсвечивает нужную карточку и подводит
+     к ней, а можно просто пролистать мимо. */
+  function вводнаяКарточка() {
+    var box = el('div', 'neg-start');
+    box.innerHTML =
+      '<div class="neg-start-q">С чего начать?</div>' +
+      '<div class="neg-start-sub">Скажи, что сейчас горит, — подсветим подходящий сценарий. Или иди по порядку.</div>';
+    var opts = el('div', 'neg-start-opts');
     PAINS.forEach(function (p) {
-      var b = el('button', 'neg-onb-opt');
+      var b = el('button', 'neg-start-opt');
       b.type = 'button';
       b.textContent = p.label;
       b.addEventListener('click', function () {
         saveOnb(p.lesson);
-        host.innerHTML = '';
-        var l = lessonById(p.lesson);
-        if (l) openLesson(l);
+        renderCatalog();
+        /* Подводим к подсвеченной карточке, но не открываем сценарий за
+           человека: выбор боли — это подсказка, а не согласие начать. */
+        var карт = catalogList && catalogList.querySelector('.neg-cat-card.is-reco');
+        if (карт && карт.scrollIntoView) карт.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
       opts.appendChild(b);
     });
-    card.appendChild(opts);
-    /* Крестик добавляем ПОСЛЕ innerHTML — иначе разметка его затирает. */
-    var x = el('button', 'neg-onb-x', '✕');
-    x.type = 'button';
-    x.setAttribute('aria-label', 'Закрыть');
-    x.addEventListener('click', function () { saveOnb('skip'); host.innerHTML = ''; renderCatalog(); });
-    card.appendChild(x);
-    var skip = el('button', 'neg-onb-skip', 'Не уверен — просто веди по порядку →');
+    box.appendChild(opts);
+    var skip = el('button', 'neg-start-skip', 'Не уверен — просто веди по порядку →');
     skip.type = 'button';
-    skip.addEventListener('click', function () { saveOnb('skip'); host.innerHTML = ''; renderCatalog(); });
-    card.appendChild(skip);
-    ov.appendChild(card);
-    host.appendChild(ov);
+    skip.addEventListener('click', function () { saveOnb('skip'); renderCatalog(); });
+    box.appendChild(skip);
+    return box;
   }
 
   // Кнопка «назад» телефона и стрелка в шапке приложения (событие yasna:назад
@@ -465,12 +486,8 @@
   // отпускает событие дальше — тогда уводит уже оболочка.
   window.addEventListener('yasna:назад', function (e) {
     if (e.defaultPrevented) return;      /* уже перехвачено другим слоем */
-    /* Вводное окно — самый верхний уровень: оно лежит поверх всего, включая
-       вкладку спарринга и наббар. Раньше проверка вкладки стояла ВЫШЕ, и на
-       вкладке спарринга «назад» переключала вкладку под окном, а окно
-       оставалось висеть — человек упирался в него снова. */
-    var onb = document.querySelector('.neg-onb');
-    if (onb) { e.preventDefault(); saveOnb('skip'); onb.parentNode.innerHTML = ''; renderCatalog(); return; }
+    /* Вводного окна здесь больше нет: вопрос «с чего начать» стоит обычной
+       карточкой внутри каталога, снимать его нажатием «назад» нечего. */
     /* Открыта вкладка «Живой спарринг» — уступаем её слушателю (spar.js
        закроет открытый разговор, потом вернёт на «Сценарии», где открытый
        урок ещё жив). */
@@ -495,9 +512,11 @@
        прокрученный к сценариям: разборы ситуаций живут в них. */
     var прямая = location.hash === '#kontakt' || location.hash === '#praktika';
     if (прямая) { try { saveOnb(loadOnb() || 'l1'); } catch (_) {} }
+    /* Прямая дверь на спарринг (#spar из хаба «Уроки»): человек уже выбрал,
+       куда шёл, — вопрос «с чего начать» на вкладке сценариев ему не нужен. */
+    if (location.hash === '#spar' && !loadOnb()) saveOnb('skip');
     showCatalog();
-    renderCatalog();
-    if (!loadOnb() && !прямая) renderOnboarding();
+    renderCatalog();   /* вводный вопрос рисуется внутри каталога первым блоком */
     if ((location.hash === '#dom' || location.hash === '#praktika')
         && catalogSec && catalogSec.scrollIntoView)
       catalogSec.scrollIntoView({ block: 'start' });

@@ -87,10 +87,94 @@ body {
 }
 /* «Повторить» в сообщении о сбое спарринга — отдельной строкой под текстом. */
 .neg-spar-aierr-retry { margin-top: 10px; }
+
 </style>
 
 <link rel="stylesheet" href="core/site-nav.css?v=52aebf72"/>
 <link rel="stylesheet" href="negotiations/trainer.css?v=e0c70fe7"/>
+
+<style>
+/* ═══ Экран, а не посадочная страница ══════════════════════════════════
+   Раздел был собран как страница сайта: герой 399 dp (надзаголовок + h1 +
+   лид на пять строк + большая кнопка), под ним ещё один заголовок
+   «Сценарии» с абзацем о том же — и первая карточка сценария уезжала за
+   сгиб. В приложении шапку и имя экрана рисует оболочка (app/navigatsiya.js
+   ставит html.yk-est), поэтому здесь остаются только вкладки и каталог.
+   Гейт по html.yk-est обязателен: docs/ общий с сайтом, там герой остаётся. */
+html.yk-est .neg-hero { display: none !important; }
+html.yk-est .neg-foot { display: none !important; }
+html.yk-est #neg-catalog > .neg-section-h,
+html.yk-est #neg-catalog > .neg-section-sub { display: none !important; }
+html.yk-est .neg-wrap { padding: 0 16px 24px; }
+/* Вкладки во всю ширину, половина на половину, палец 48 dp. */
+html.yk-est .neg-mode-tabs { display: grid; grid-template-columns: 1fr 1fr; width: auto; margin: 4px 0 18px; }
+html.yk-est .neg-mode-tab { min-height: 48px; padding: 12px 10px; }
+
+/* Плавающей кнопки «Отзыв» больше нет — полосу справа, которую блоки
+   держали под неё, забираем обратно (было .neg-spar-grid/.neg-cfg-start
+   padding-right: 62px в trainer.css). */
+@media (max-width: 720px) {
+  .neg-spar-grid, .neg-cfg-start { padding-right: 0; }
+}
+.neg-fb-row {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 48px; margin: 28px auto 0; max-width: 420px;
+  border: 1px solid var(--border-strong); border-radius: 100px;
+  color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 600;
+}
+.neg-fb-row:hover { color: var(--text-primary); border-color: var(--accent); }
+.neg-fb-row-ico { font-size: 16px; line-height: 1; }
+
+/* ═══ Вводный вопрос — карточка каталога, а не модальное окно ══════════
+   Разметку рисует lessons-neg.js (вводнаяКарточка). Обычный поток: не
+   закрывает наббар, не требует ответа и не теряет крестик при крупном
+   шрифте — крестик тут просто не нужен. */
+.neg-start {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px;
+  padding: 18px; margin-bottom: 18px;
+}
+.neg-start-q { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--text-primary); }
+.neg-start-sub { font-size: 13.5px; line-height: 1.5; color: var(--text-secondary); margin-top: 6px; }
+.neg-start-opts { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.neg-start-opt {
+  text-align: left; background: var(--bg-elevated); border: 1px solid var(--border-strong);
+  border-radius: 12px; padding: 13px 15px; min-height: 48px;
+  color: var(--text-primary); font: inherit; font-size: 14px; line-height: 1.4; cursor: pointer;
+  transition: border-color .13s, background .13s;
+}
+.neg-start-opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+.neg-start-skip {
+  display: block; width: 100%; min-height: 48px; margin-top: 10px;
+  background: transparent; border: 0; color: var(--text-tertiary);
+  font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+}
+.neg-start-skip:hover { color: var(--text-primary); }
+
+/* Липкая шапка сценария в приложении липла к самому верху окна (top: 0 в
+   trainer.css) — то есть пряталась ПОД шапкой оболочки. Сажаем её под неё,
+   как это уже сделано для лент Разбора и Игр в app/navigatsiya.js. */
+html.yk-est .neg-l-head { top: calc(var(--yk-shapka, 56px) + 6px); }
+
+/* ═══ Спарринг: сцены сверху, живой собеседник — одним блоком ══════════ */
+/* Подпись сцен теперь первая на вкладке — верхняя черта и отступ под ней
+   были нужны, когда над ней стоял конструктор. */
+.neg-spar-pick-label--top { margin-top: 0; padding-top: 0; border-top: 0; }
+/* Подпись состояния сцены («лучшее 4/5») переехала в тело карточки строкой. */
+.neg-spar-card-foot { margin-top: 6px; }
+/* Плашка «из сценария 1» рвалась между строк — держим её целиком. */
+.neg-spar-card-from { display: inline-block; white-space: nowrap; }
+.neg-spar-live { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); }
+.neg-spar-live-h { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--text-primary); }
+.neg-spar-live-note { font-size: 13.5px; line-height: 1.5; color: var(--text-secondary); margin-top: 8px; }
+
+/* ═══ Тип ШЕ «Практик» — своя земля-зелень ═════════════════════════════
+   В trainer.css цвет висел на селекторе .neg-c-type--ШЭ, а данные
+   (contact-content.js) дают код «ШЕ» — правило не срабатывало ни разу, и
+   «земля» показывалась синей, как «вода» (ФО). Здесь цвет достаётся
+   верному коду; строки с «ШЭ» в trainer.css трогать не пришлось. */
+.neg-c-type--ШЕ { --tcol: #2BB573; }
+html[data-theme='light'] .neg-c-type--ШЕ { --tcol: #147A3C; }
+</style>
 </head>
 <body>
 
@@ -117,7 +201,7 @@ body {
 
   <div class="neg-mode-tabs" id="neg-mode-tabs" role="tablist">
     <button class="neg-mode-tab is-active" type="button" data-mode="lessons" role="tab">Сценарии</button>
-    <button class="neg-mode-tab" type="button" data-mode="spar" role="tab">Живой спарринг</button>
+    <button class="neg-mode-tab" type="button" data-mode="spar" role="tab">Спарринг</button>
   </div>
 
   <div id="neg-mode-lessons">
@@ -131,24 +215,33 @@ body {
   </div>
 
   <div id="neg-mode-spar" hidden>
+    <!-- Заголовок «Живой спарринг» и абзац о настройке стояли над сценами и
+         повторяли активную вкладку, а обещали ровно то, чего без сервера
+         нет. Содержимое вкладки рисует spar.js: сверху шесть готовых сцен,
+         под ними — блок «Живой собеседник» со своим честным состоянием. -->
     <section class="neg-section">
-      <h2 class="neg-section-h">Живой спарринг</h2>
-      <p class="neg-section-sub">Веди настоящий разговор: выбери, кого тренируешь, какой навык качаешь и насколько жёстко играть — и заходи. Собеседник реагирует по-живому, как человек напротив.</p>
       <div id="neg-spar-root"></div>
     </section>
   </div>
 
+  <!-- Три ссылки подвала повторяли вкладки наббара и звали их чужими
+       именами («обучение», «игру»). Осталась одна дверь — в тот же круг
+       переговоров, разобранный по шагам. В приложении подвал скрыт (см.
+       правило html.yk-est выше): там эти разделы и есть наббар. -->
   <div class="neg-foot">
-    Модель цикла переговоров из 12 стадий · та же механика есть в
-    <a href="konstruktor.html">конструкторе</a>. См. также <a href="learn.html">обучение</a> и <a href="duel.html">игру</a>.
+    Модель цикла переговоров из 12 стадий — тот же круг разбирается по шагам
+    в <a href="konstruktor.html#tour=peregovorov">Разборе</a>.
   </div>
 
-</main>
+  <!-- «Отзыв» жил плавающей кнопкой 44×40 поверх содержимого: она садилась
+       на угол карточки, прикрывала низ ленты разговора и заставляла соседние
+       блоки держать пустую полосу справа. Теперь это обычная строка в конце
+       экрана — её видно, когда человек дочитал, и она никому не мешает. -->
+  <a class="neg-fb-row" href="https://t.me/YasnaDuelBot?start=otzyv" target="_blank" rel="noopener">
+    <span class="neg-fb-row-ico" aria-hidden="true">💬</span> Написать отзыв о тренажёре
+  </a>
 
-<!-- Кнопка обратной связи для тестеров — ведёт в Telegram-бот -->
-<a class="neg-fab-fb" href="https://t.me/YasnaDuelBot?start=otzyv" target="_blank" rel="noopener" title="Оставить отзыв в Telegram">
-  <span class="neg-fab-fb-ico" aria-hidden="true">💬</span><span class="neg-fab-fb-txt">Отзыв</span>
-</a>
+</main>
 
 <script src="negotiations/contact-content.js?v=24f21a5a"></script>
 <script src="negotiations/contact-trainer.js?v=7158c51e"></script>
@@ -159,9 +252,9 @@ body {
      вкладку. Грузится ДО lessons-neg.js — тот зовёт её сразу после отрисовки
      каталога, в том же кадре, чтобы возврат не выглядел прыжком. -->
 <script src="core/pamyat-ekrana.js?v=7f2eb113"></script>
-<script src="negotiations/lessons-neg.js?v=8ca68ca9"></script>
+<script src="negotiations/lessons-neg.js?v=d80d7076"></script>
 <script src="negotiations/spar-content.js?v=de97d09b"></script>
-<script src="negotiations/spar.js?v=a844f671"></script>
+<script src="negotiations/spar.js?v=6d5b71b2"></script>
 
 </body>
 </html>

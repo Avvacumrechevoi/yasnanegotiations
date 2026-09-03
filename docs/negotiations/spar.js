@@ -80,12 +80,12 @@
 
   // боль + связь с уроком (JTBD): спарринг = «живая» версия навыка из урока
   var SPAR_META = {
-    rezonans:        { when: 'Собеседник пришёл холодным скептиком, а ты по привычке хочешь сразу питчить.', from: 'Урок 2' },
-    'type-ha':       { when: 'Перед тобой нетерпеливый командир: «у меня пять минут», давит на результат.', from: 'Урок 1' },
-    'give-take':     { when: 'Оппонент давит односторонне — требует уступок, а взамен молчит.', from: 'Урок 3' },
-    'status-benefit':{ when: 'Клиент твердит «дорого», но на деле его задело отношение.', from: 'Урок 3' },
-    protivostoyanie: { when: 'Пик: ультиматум, голос на пределе — «или цена падает, или мы уходим».', from: 'Урок 2' },
-    hidden:          { when: 'За вежливым «дорого» прячется настоящая причина — страх рискнуть.', from: 'Урок 2' }
+    rezonans:        { when: 'Собеседник пришёл холодным скептиком, а ты по привычке хочешь сразу питчить.', from: 'сценария 2' },
+    'type-ha':       { when: 'Перед тобой нетерпеливый командир: «у меня пять минут», давит на результат.', from: 'сценария 1' },
+    'give-take':     { when: 'Оппонент давит односторонне — требует уступок, а взамен молчит.', from: 'сценария 3' },
+    'status-benefit':{ when: 'Клиент твердит «дорого», но на деле его задело отношение.', from: 'сценария 3' },
+    protivostoyanie: { when: 'Пик: ультиматум, голос на пределе — «или цена падает, или мы уходим».', from: 'сценария 2' },
+    hidden:          { when: 'За вежливым «дорого» прячется настоящая причина — страх рискнуть.', from: 'сценария 2' }
   };
 
   // ── хранилище ────────────────────────────────────────────────────
@@ -109,7 +109,9 @@
   // запасным путём: если прокси не настроен (/spar/status → configured:false),
   // показываем прежнюю панель «вставь свой ключ».
   var PROXY_CACHE_KEY = 'yasna_spar_proxy_v1';
-  var proxyState = 'unknown';                     // 'unknown' | 'yes' | 'no'
+  /* 'offline' отдельно от 'no': «сервер выключен» и «нет сети» — разные
+     причины, а экран показывал одну и ту же (неверную) для обеих. */
+  var proxyState = 'unknown';                     // 'unknown' | 'yes' | 'no' | 'offline'
   function apiBase() {
     try {
       var m = document.querySelector('meta[name="yasna:api"]');
@@ -131,7 +133,7 @@
       proxyState = d && d.configured ? 'yes' : 'no';
       try { sessionStorage.setItem(PROXY_CACHE_KEY, JSON.stringify({ configured: proxyState === 'yes', at: Date.now() })); } catch (_) {}
       if (done) done();
-    }).catch(function () { proxyState = 'no'; if (done) done(); });
+    }).catch(function () { proxyState = 'offline'; if (done) done(); });
   }
   function proxyOn() { return proxyState === 'yes'; }
   function deviceIdRaw() { try { return localStorage.getItem('yasna_device_id_v1') || ''; } catch (_) { return ''; } }
@@ -192,33 +194,115 @@
     [].forEach.call(tabs.querySelectorAll('.neg-mode-tab'), function (b) {
       b.addEventListener('click', function () { show(b.getAttribute('data-mode')); });
     });
-    var saved = null; try { saved = localStorage.getItem('yasna_neg_mode'); } catch (_) {}
+    /* Запомненную вкладку при входе БЕЗ хеша не применяем: узел дерева
+       «Четыре сценария» ведёт сюда без хеша, а человек попадал в спарринг,
+       где был вчера. Хеш #spar по-прежнему открывает спарринг сразу. */
     /* Прямые двери (#dom с главной приложения) сильнее сохранённой вкладки:
        человек шёл к сценариям, а не в свой прошлый спарринг. */
     if (location.hash === '#dom') show('lessons');
     /* Прямая дверь из хаба «Уроки»: negotiations.html#spar открывает
        вкладку спарринга сразу, как это уже сделано для #dom. */
-    else if (location.hash === '#spar') {
-      /* Пришли по прямой ссылке из хаба «Уроки» — вводное окно тренажёра
-         поверх спарринга здесь только мешает: человек уже выбрал, куда шёл. */
-      try { localStorage.setItem('yasna_neg_onb_v1', '1'); } catch (_) {}
-      var онб = document.querySelector('.neg-onb');
-      if (онб) онб.remove();
-      show('spar');
-    }
-    else show(saved === 'spar' ? 'spar' : 'lessons');
+    else if (location.hash === '#spar') show('spar');
+    else show('lessons');
   }
 
   var sparRoot = null;
 
-  // ═══ экран выбора: собеседники (движок ИИ — за ссылкой) ═══════════
+  // ═══ экран спарринга: сначала то, что работает ════════════════════
+  /* БЫЛО: три ряда конструктора (4 типа × 6 навыков × 3 уровня = 13 карточек
+     настройки), а под ними кнопка «Живой диалог сейчас недоступен» — и лишь
+     на 2000 dp ниже шесть готовых сцен, единственное, что работает без
+     сервера и без сети. Человек делал три выбора, чтобы узнать, что выбирать
+     было нечего. СТАЛО: сцены сверху, живой собеседник — одним блоком под
+     ними, и он честно говорит, в каком он состоянии. */
   var aiSetupOpen = false;
+
+  function вПриложении() { return /YasnaApp\//.test(navigator.userAgent); }
 
   function renderSelector() {
     if (!sparRoot) return;
     sparRoot.innerHTML = '';
+    if (SPAR.length) sparRoot.appendChild(сценыБлок());
+    sparRoot.appendChild(живойБлок());
+  }
 
-    // ── конструктор: тип × навык × уровень ──
+  // ── шесть готовых сцен ───────────────────────────────────────────
+  function сценыБлок() {
+    var box = el('div', 'neg-spar-sceny');
+    box.appendChild(el('div', 'neg-spar-pick-label neg-spar-pick-label--top',
+      'Готовые сцены — начать сразу, без настройки'));
+    var grid = el('div', 'neg-spar-grid');
+    SPAR.forEach(function (sc) {
+      var st = prog[sc.id] || {};
+      var badge = st.plays
+        ? '<span class="neg-spar-card-badge">лучшее ' + (st.best || 0) + '/' + sc.beats.length + '</span>'
+        : '<span class="neg-spar-card-badge neg-spar-card-badge--new">тренировать →</span>';
+      var meta = SPAR_META[sc.id] || {};
+      var card = el('button', 'neg-spar-card');
+      card.type = 'button';
+      /* Подпись состояния («лучшее 4/5» / «тренировать →») стоит ВНУТРИ тела
+         карточки отдельной строкой, а не колонкой справа: справа она не
+         переносилась и сжимала текст сцены в столбик по одному-два слова. */
+      card.innerHTML =
+        '<span class="neg-spar-card-glyph">' + esc(sc.persona.glyph) + '</span>' +
+        '<span class="neg-spar-card-body">' +
+          '<span class="neg-spar-card-title">' + esc(sc.title) + '</span>' +
+          (meta.when ? '<span class="neg-spar-card-when">Когда: ' + esc(meta.when) + '</span>' : '') +
+          '<span class="neg-spar-card-persona">' + esc(sc.persona.name) + ' · ' + esc(sc.persona.role) +
+            (meta.from ? ' <span class="neg-spar-card-from">из ' + esc(meta.from) + '</span>' : '') + '</span>' +
+          '<span class="neg-spar-card-foot">' + badge + '</span>' +
+        '</span>';
+      card.addEventListener('click', function () { startScriptChat(sc); });
+      grid.appendChild(card);
+    });
+    box.appendChild(grid);
+    return box;
+  }
+
+  // ── живой собеседник: одно место, одно честное состояние ─────────
+  function живойБлок() {
+    var wrap = el('div', 'neg-spar-live');
+    wrap.appendChild(el('div', 'neg-spar-live-h', 'Живой собеседник'));
+
+    /* Пока /spar/status не ответил, кнопка успевала показать «недоступен» и
+       через миг перерисоваться — мигание с ложным смыслом. Ждём молча. */
+    if (proxyState === 'unknown') {
+      wrap.appendChild(el('div', 'neg-spar-live-note', 'Проверяем живого собеседника…'));
+      return wrap;
+    }
+
+    var живой = proxyOn();
+    var свойКлюч = !вПриложении() && (!!getKey() || aiSetupOpen);
+    if (живой || свойКлюч) {
+      wrap.appendChild(конструктор());
+      if (живой) wrap.appendChild(el('div', 'neg-spar-ailink neg-spar-ailink--on',
+        '✓ Живой диалог включён — ключ не нужен'));
+      else wrap.appendChild(renderKeyPanel());
+      return wrap;
+    }
+
+    /* Причину называем настоящую: сеть и выключенный сервер — разные вещи. */
+    if (proxyState === 'offline') {
+      wrap.appendChild(el('div', 'neg-spar-live-note',
+        'Нет сети — живой собеседник недоступен. Готовые сцены выше работают и без неё.'));
+      return wrap;
+    }
+    if (вПриложении()) {
+      /* В приложении чужое поле «вставьте API-ключ» — красный флаг для
+         магазинов и лишний внешний хост. Говорим честно и не предлагаем. */
+      wrap.appendChild(el('div', 'neg-spar-live-note',
+        'Свободного разговора с собеседником в приложении пока нет — готовые сцены выше работают и без сети.'));
+      return wrap;
+    }
+    var link = el('button', 'neg-spar-ailink', '🔑 Для живого диалога нужен свой ключ Anthropic — подключить →');
+    link.type = 'button';
+    link.addEventListener('click', function () { aiSetupOpen = true; renderSelector(); });
+    wrap.appendChild(link);
+    return wrap;
+  }
+
+  // ── конструктор: тип × навык × уровень (показываем, когда он рабочий) ──
+  function конструктор() {
     var cfg = el('div', 'neg-cfg');
     var curType = getSparType(), curSkill = getSparSkill(), curLvl = getLevel();
 
@@ -261,90 +345,21 @@
     cfg.appendChild(lvlRow);
 
     var tt = typeById(curType) || {}, sk = skillById(curSkill);
-    /* Живой собеседник работает только когда включён серверный прокси
-       (/spar/status → configured:true). Пока его нет, кнопка называла себя
-       «Начать спарринг», а по нажатию молча прокручивала страницу к готовым
-       сценам — человек считал, что она сломана. Говорим прямо. */
-    var живой = proxyOn();
-    var вПриложении = /YasnaApp\//.test(navigator.userAgent);
-    var cta = el('button', 'neg-cfg-start', живой
-      ? 'Начать спарринг: ' + esc(tt.label || '') + ' · ' + esc(sk.label) + ' →'
-      : (вПриложении ? 'Открыть готовые сцены →' : 'Живой диалог сейчас недоступен — открыть готовые сцены →'));
+    var cta = el('button', 'neg-cfg-start',
+      'Начать спарринг: ' + esc(tt.label || '') + ' · ' + esc(sk.label) + ' →');
     cta.type = 'button';
     cta.addEventListener('click', onStartConfigured);
     cfg.appendChild(cta);
-    /* Один факт объясняем один раз. В приложении про устройство сервера
-       говорить нечего (ключ туда не вставить), там остаётся единственная
-       строка ниже; в вебе эта заметка ведёт к своему ключу. */
-    if (!живой && !вПриложении) {
-      cfg.appendChild(el('div', 'neg-cfg-note',
-        'Свободный разговор с собеседником включается на сервере. Сейчас он выключен, ' +
-        'поэтому доступны шесть готовых сцен — они работают и без сети.'));
-    }
-    sparRoot.appendChild(cfg);
-
-    // Ключ для живого диалога. При работающем серверном прокси ключ не
-    // нужен вовсе; BYOK-панель остаётся только как запасной путь.
-    if (proxyOn()) {
-      var okNote = el('div', 'neg-spar-ailink neg-spar-ailink--on', '✓ Живой диалог включён — жми «Начать спарринг», ключ не нужен');
-      sparRoot.appendChild(okNote);
-    } else if (aiSetupOpen || getKey()) sparRoot.appendChild(renderKeyPanel());
-    else {
-      /* В приложении чужое поле «вставьте API-ключ» — красный флаг для
-         магазинов и лишний внешний хост. Говорим честно и не предлагаем. */
-      if (вПриложении) {
-        sparRoot.appendChild(el('div', 'neg-spar-ailink',
-          'Свободного разговора с собеседником в приложении пока нет — готовые сцены ниже работают и без сети.'));
-      } else {
-        var link = el('button', 'neg-spar-ailink', '🔑 Для живого диалога нужен свой ключ Anthropic — подключить →');
-        link.type = 'button';
-        link.addEventListener('click', function () { aiSetupOpen = true; renderSelector(); });
-        sparRoot.appendChild(link);
-      }
-    }
-
-    // ── готовые сценарии: быстрый старт без настройки и без ключа ──
-    if (SPAR.length) {
-      sparRoot.appendChild(el('div', 'neg-spar-pick-label',
-        /YasnaApp\//.test(navigator.userAgent)
-          ? 'Готовые сценарии — сразу, без настройки:'
-          : 'Или готовый сценарий — сразу, без настройки и ключа:'));
-      var grid = el('div', 'neg-spar-grid');
-      SPAR.forEach(function (sc, idx) {
-        var st = prog[sc.id] || {};
-        var badge = st.plays
-          ? '<span class="neg-spar-card-badge">лучшее ' + (st.best || 0) + '/' + sc.beats.length + '</span>'
-          : '<span class="neg-spar-card-badge neg-spar-card-badge--new">тренировать →</span>';
-        var meta = SPAR_META[sc.id] || {};
-        var card = el('button', 'neg-spar-card');
-        card.type = 'button';
-        card.innerHTML =
-          '<span class="neg-spar-card-glyph">' + esc(sc.persona.glyph) + '</span>' +
-          '<span class="neg-spar-card-body">' +
-            '<span class="neg-spar-card-title">' + esc(sc.title) + '</span>' +
-            (meta.when ? '<span class="neg-spar-card-when">Когда: ' + esc(meta.when) + '</span>' : '') +
-            '<span class="neg-spar-card-persona">' + esc(sc.persona.name) + ' · ' + esc(sc.persona.role) +
-              (meta.from ? ' <span class="neg-spar-card-from">из «' + esc(meta.from) + '»</span>' : '') + '</span>' +
-          '</span>' +
-          '<span class="neg-spar-card-foot">' + badge + '</span>';
-        card.addEventListener('click', function () { startScriptChat(sc); });
-        grid.appendChild(card);
-      });
-      sparRoot.appendChild(grid);
-    }
+    return cfg;
   }
+
 
   // Старт настроенного живого диалога. С прокси ключ не нужен;
   // без прокси и без ключа — открываем панель ключа.
   function onStartConfigured() {
     if (proxyOn()) { startAIChat(buildScenario(getSparType(), getSparSkill())); return; }
-    if (/YasnaApp\//.test(navigator.userAgent)) {
-      /* В приложении панель «вставь API-ключ» не показываем никогда (красный
-         флаг для магазинов) — ведём к готовым сценариям. */
-      var сетка = sparRoot && sparRoot.querySelector('.neg-spar-grid');
-      if (сетка && сетка.scrollIntoView) сетка.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      return;
-    }
+    /* В приложении сюда не попасть: без прокси конструктор там не рисуется
+       вовсе, вместо него стоит одна честная строка. */
     if (!getKey()) {
       aiSetupOpen = true; renderSelector();
       var i = document.getElementById('neg-spar-key-input');
@@ -792,7 +807,9 @@
     // Узнаём про серверный прокси асинхронно и перерисовываем селектор,
     // только если человек ещё на нём (не в открытом чате).
     probeProxy(function () {
-      if (sparRoot && sparRoot.querySelector('.neg-cfg')) renderSelector();
+      /* Метка — блок «Живой собеседник»: он есть на экране выбора всегда,
+         а .neg-cfg теперь рисуется только при рабочем живом диалоге. */
+      if (sparRoot && sparRoot.querySelector('.neg-spar-live')) renderSelector();
     });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

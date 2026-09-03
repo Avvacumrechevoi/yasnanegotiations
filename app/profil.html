@@ -19,6 +19,16 @@
   личности, собрано здесь — имя и зверь для Партии, вход по почте, выход.
   Пишет в те же ключи, что и сайт: yasna_duel_profile (nickname, avatar,
   deviceId — deviceId НЕ трогаем, это ключ к прогрессу).
+
+  УСТРОЙСТВО ЭКРАНА (итерация 6, Д13). Раньше это была стопка из шести
+  равновесных карточек-плиток с четырьмя залитыми синими кнопками — экран
+  читался как лендинг, а не как настройки Android. Теперь так:
+    1) одна сводка сверху — кто я: зверь, имя в игре, ступень;
+    2) ниже список строк (одна строка = одна настройка, вся строка нажимается);
+    3) главное действие на экране ровно одно — «Войти по почте» у гостя.
+  Порядок разделов идёт от важности: аккаунт и свои люди сразу под сводкой,
+  «Настройки» (вид и утренняя цитата) следом, «О приложении» с версией — внизу.
+  Отдельного подвала с версией больше нет: версия называлась дважды.
 -->
 <link rel="stylesheet" href="vendor/fonts/shrifty.css">
 <style>
@@ -26,10 +36,9 @@
     --syn:#0071e3; --syn-t:#0B57C0;
     /* Цвет надписи НА залитой акцентом кнопке. В светлой теме белый по
        #0071e3 — 4.7:1. В тёмной акцент светлеет до #3d96f0, и белым по нему
-       выходило 3.08:1: главные кнопки экрана («Войти по почте», «Позвать»,
-       «Включить») читались с трудом. Поэтому в тёмной надпись тёмная —
-       #06131d по #3d96f0 даёт 6.1:1. Так же уже сделано в карточке места
-       на сайте (--na-akcente). */
+       выходило 3.08:1: главные кнопки экрана читались с трудом. Поэтому в
+       тёмной надпись тёмная — #06131d по #3d96f0 даёт 6.1:1. Так же уже
+       сделано в карточке места на сайте (--na-akcente). */
     --na-syn:#ffffff;
     --fon:#f5f6f8; --kart:#ffffff;
     --ink:#101418; --ink-2:#5c6570; --ink-3:#8b95a1; --kayma:rgba(16,20,24,.1);
@@ -57,132 +66,164 @@
     padding-top:var(--sverhu)}
   header{padding:16px 20px 4px}
   header h1{font:600 24px/1.2 Manrope,Inter,sans-serif;margin:0}
-  header .pod{font-size:13px;color:var(--ink-2);margin-top:3px}
-  main{padding:10px 16px calc(84px + var(--snizu))}
-  .kart{background:var(--kart);border:1px solid var(--kayma);border-radius:18px;
-    padding:18px;margin:12px 0 0}
-  .kart h2{font:600 12.5px/1 Manrope,sans-serif;letter-spacing:.09em;
-    text-transform:uppercase;color:var(--ink-2);margin:0 0 14px}
+  main{padding:8px 16px calc(84px + var(--snizu))}
 
-  /* имя и зверь */
+  /* ── Поля и кнопки ───────────────────────────────────────────────────────
+     Нажимаемая цель — 48, а не 44: 44 — число из iOS, на Android минимум
+     Material 48×48, и промахи по «Скопировать»/«Убрать» это подтверждали. */
   label{display:block;font:600 13px/1 Manrope,sans-serif;color:var(--ink-2);
-    margin:0 0 7px}
+    margin:14px 0 7px}
   input[type=text]{width:100%;font:400 17px/1.3 Inter,sans-serif;color:var(--ink);
     background:var(--pole);border:1.5px solid transparent;border-radius:12px;
-    padding:13px 14px;outline:none}
+    padding:15px 14px;outline:none}
   input[type=text]:focus{border-color:var(--syn)}
-  .zveri{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:14px 0 0;max-width:344px}
-  .zver{width:100%;aspect-ratio:1;max-width:50px;border-radius:50%;border:2px solid var(--kayma);
-    background:var(--pole);font-size:24px;display:flex;align-items:center;
-    justify-content:center;cursor:pointer;padding:0}
-  .zver.vybran{border-color:var(--syn);background:transparent}
-  .knopka{display:block;width:100%;font:600 16px/1 Manrope,Inter,sans-serif;
+  .knopka{display:block;width:100%;min-height:48px;
+    font:600 16px/1.2 Manrope,Inter,sans-serif;
     color:var(--na-syn);background:var(--syn);border:0;border-radius:12px;
-    padding:15px;margin:16px 0 0;cursor:pointer;text-align:center;
+    padding:12px 16px;margin:14px 0 0;cursor:pointer;text-align:center;
     text-decoration:none}
   .knopka:active{filter:brightness(.92)}
+  /* Тихая кнопка — обводка, а не заливка: залитым остаётся ровно одно
+     главное действие экрана, иначе глазу не за что зацепиться. */
   .knopka--tihaya{background:transparent;color:var(--syn);
-    border:1.5px solid var(--kayma)}
-  .soobshenie{font-size:13.5px;color:var(--syn);margin:10px 0 0;min-height:1.2em}
-  .opis{font-size:13.5px;color:var(--ink-2);line-height:1.55;margin:8px 0 0}
-  .vhod-status{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:15px;
-    min-width:0;overflow-wrap:anywhere}
-  .versiya{text-align:center;color:var(--ink-2);font-size:12px;margin:26px 0 0}
+    border:1px solid var(--kayma)}
+  .knopka--uzkaya{width:auto;margin:0;padding:0 16px;flex:0 0 auto}
+  .ryad-kn{display:flex;gap:8px}
+  .ryad-kn .knopka{flex:1}
+  /* Сообщение живёт всегда (чтец читает его как role=status), но пустое
+     не занимает места — иначе под каждой строкой висел бы пустой отступ. */
+  .soobshenie{font-size:13px;line-height:1.45;color:var(--syn);margin:10px 0 0;
+    overflow-wrap:anywhere}
+  .soobshenie:empty{display:none;margin:0}
+  .opis{font-size:13.5px;color:var(--ink-2);line-height:1.55;margin:10px 0 0}
+
+  /* ── Сводка «кто я» ──────────────────────────────────────────────────────
+     Одна карточка сверху и ничего больше: имя, зверь, ступень. Числа
+     показываем, когда есть что показывать: три нуля подряд у новичка —
+     не сводка пути, а объявление о том, что он ничего не сделал. */
+  .svodka{background:var(--kart);border:1px solid var(--kayma);border-radius:16px;
+    padding:16px}
+  .ya{display:flex;align-items:center;gap:12px}
+  .ya-zver{width:56px;height:56px;flex:0 0 auto;border-radius:50%;
+    background:var(--pole);border:1px solid var(--kayma);
+    display:flex;align-items:center;justify-content:center;font-size:29px}
+  .ya-txt{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+  .ya-imya{font:600 20px/1.25 Manrope,Inter,sans-serif;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ya-schet{font-size:13px;line-height:1.45;color:var(--ink-2)}
+  .ya-pravit{flex:0 0 auto;min-height:48px;padding:0 16px;border-radius:12px;
+    border:1px solid var(--kayma);background:transparent;color:var(--syn);
+    font:600 14px/1 Manrope,Inter,sans-serif;cursor:pointer}
+  .ya-chisla{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;
+    padding-top:12px;border-top:1px solid var(--kayma)}
+  .ya-chisla span{display:flex;flex-direction:column;gap:3px}
+  .ya-chisla b{font:700 20px/1 Manrope,Inter,sans-serif;color:var(--ink)}
+  .ya-chisla i{font:600 12px/1 Manrope,sans-serif;font-style:normal;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--ink-3)}
+  .pole-pod{font-size:12.5px;color:var(--ink-3);margin:6px 0 0}
+  /* Звери: цель не меньше 48, поэтому колонок столько, сколько влезает,
+     а не жёсткие шесть — на 360 dp шесть давали кружок 43. */
+  .zveri{display:grid;grid-template-columns:repeat(auto-fill,minmax(48px,1fr));
+    gap:8px;margin:14px 0 0}
+  .zver{width:100%;aspect-ratio:1;max-width:56px;border-radius:50%;
+    border:2px solid var(--kayma);background:var(--pole);font-size:24px;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+  .zver.vybran{border-color:var(--syn);background:transparent}
+
+  /* ── Подпись раздела ─────────────────────────────────────────────────────
+     Обычный регистр и 14 px: капслок 12 px не отличался от заголовков
+     карточек, и разделитель читался как осиротевший заголовок. */
+  .razdel{font:600 14px/1.3 Manrope,Inter,sans-serif;color:var(--ink-2);
+    margin:24px 0 8px;padding:0 4px}
+
+  /* ── Список настроек ─────────────────────────────────────────────────────
+     Строка Material: заголовок, поясняющая строка, хвост (шеврон или
+     переключатель). Нажимается вся строка целиком. */
+  .spisok{background:var(--kart);border:1px solid var(--kayma);border-radius:16px;
+    margin:12px 0 0;overflow:hidden}
+  .str{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;
+    padding:12px 16px;background:transparent;border:0;color:var(--ink);
+    font:inherit;text-align:left;cursor:pointer}
+  .str+.str,.telo+.str{border-top:1px solid var(--kayma)}
+  button.str:active{background:var(--pole)}
+  .str--tihaya{cursor:default}
+  .str-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+  .str-zag{font:600 16px/1.35 Manrope,Inter,sans-serif}
+  .str-pod{font-size:13px;line-height:1.45;color:var(--ink-2);overflow-wrap:anywhere}
+  .str-hvost{flex:0 0 auto;display:flex;align-items:center;color:var(--ink-3)}
+  .shevron{width:10px;height:10px;border-right:2px solid currentColor;
+    border-bottom:2px solid currentColor;transform:rotate(-45deg);
+    margin:0 4px 0 0;display:block}
+  .str[aria-expanded="true"] .shevron{transform:rotate(45deg);margin:0 0 3px 0}
+  @media (prefers-reduced-motion:no-preference){
+    .shevron{transition:transform .16s ease-out}
+  }
+  /* Тело строки: раскрывается под ней, в том же списке. */
+  .telo{padding:0 16px 16px}
+  .telo--sms{padding:0 16px}
+  .telo--sms .soobshenie{margin:0 0 12px}
+
+  /* Переключатель Material: вся строка — role=switch, поэтому цель равна
+     строке, а не самому тумблеру. */
+  .tumbler{width:52px;height:32px;border-radius:16px;background:var(--pole);
+    border:2px solid var(--ink-3);position:relative;display:block}
+  .tumbler::after{content:'';position:absolute;top:50%;left:5px;width:16px;height:16px;
+    border-radius:50%;background:var(--ink-3);transform:translateY(-50%)}
+  [aria-checked="true"]>.str-hvost .tumbler{background:var(--syn);border-color:var(--syn)}
+  [aria-checked="true"]>.str-hvost .tumbler::after{left:22px;width:24px;height:24px;
+    background:var(--na-syn)}
+  @media (prefers-reduced-motion:no-preference){
+    .tumbler,.tumbler::after{transition:background .14s ease-out,border-color .14s ease-out,
+      left .14s ease-out,width .14s ease-out,height .14s ease-out}
+  }
+
   .segmenty{display:flex;gap:6px;background:var(--fon);border:1px solid var(--kayma);
-    border-radius:14px;padding:4px;margin-top:10px}
-  .segmenty button{flex:1;min-height:44px;border:0;border-radius:10px;background:none;
-    color:var(--ink-2);font:600 13.5px/1.2 Manrope,Inter,sans-serif;cursor:pointer}
+    border-radius:14px;padding:4px}
+  .segmenty button{flex:1;min-height:48px;border:0;border-radius:10px;background:none;
+    color:var(--ink-2);font:600 14px/1.2 Manrope,Inter,sans-serif;cursor:pointer}
   .segmenty button[aria-checked="true"]{background:var(--kart);color:var(--syn);
     box-shadow:0 1px 4px rgba(0,0,0,.12)}
-  
-  /* ── Кто я: сводка вместо формы ── */
-  .kart--ya{padding-top:14px}
-  .ya{display:flex;align-items:center;gap:12px}
-  .ya-zver{width:52px;height:52px;flex:0 0 auto;border-radius:50%;
-    background:var(--pole);border:1.5px solid var(--kayma);
-    display:flex;align-items:center;justify-content:center;font-size:27px}
-  .ya-txt{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
-  .ya-imya{font:600 19px/1.2 Manrope,Inter,sans-serif;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .ya-schet{font-size:13px;color:var(--ink-2)}
-  .ya-pravit{flex:0 0 auto;min-height:44px;padding:0 14px;border-radius:11px;
-    border:1px solid var(--kayma);background:var(--fon);color:var(--ink-2);
-    font:600 13px/1 Manrope,Inter,sans-serif;cursor:pointer}
-  #pravka{margin-top:14px}
-
-  /* ── Раздел ── */
-  .razdel{font:600 12px/1 Manrope,Inter,sans-serif;letter-spacing:.1em;
-    text-transform:uppercase;color:var(--ink-2);margin:26px 0 10px}
 
   /* ── Свои люди ── */
-  .kod-ryad{display:flex;align-items:center;gap:10px;margin:12px 0 4px;
+  .kod-ryad{display:flex;align-items:center;gap:10px;margin:0 0 4px;
     background:var(--fon);border:1px solid var(--kayma);border-radius:14px;padding:10px 12px}
   .kod-ryad>div{flex:1;min-width:0}
-  .kod-metka{font:600 11px/1 Manrope,sans-serif;letter-spacing:.08em;
+  .kod-metka{font:600 12px/1 Manrope,sans-serif;letter-spacing:.08em;
     text-transform:uppercase;color:var(--ink-3)}
   .kod{font:700 21px/1.15 Manrope,Inter,sans-serif;letter-spacing:.16em;
     margin-top:4px;font-variant-numeric:tabular-nums}
-  .kod-kn{width:auto;flex:0 0 auto;margin:0;min-height:44px;padding:0 14px}
+  .kod-kn{width:auto;flex:0 0 auto;margin:0;min-height:48px;padding:0 14px}
   /* Дизейбл виден глазом: пока код не опубликован, «Скопировать» спит. */
   .kod-kn:disabled{opacity:.45;cursor:default}
-  .kod-vvod{display:flex;gap:8px;margin-top:6px}
+  /* Состояние кода обычным регистром: капслок в три строки был самой мелкой
+     надписью экрана и читался как ошибка вёрстки, а не как объяснение. */
+  .kod-sost{font-size:13px;line-height:1.45;color:var(--ink-2);margin:8px 0 0}
+  .kod-sost:empty{display:none}
+  .kod-vvod{display:flex;gap:8px}
   .kod-vvod input{flex:1;min-width:0;text-transform:uppercase;letter-spacing:.14em}
   .kod-vvod input::placeholder{text-transform:none;letter-spacing:0;color:var(--ink-3)}
-  .podzag{font:600 12.5px/1 Manrope,Inter,sans-serif;color:var(--ink-2);margin:16px 0 8px}
+  .podzag{font:600 13px/1 Manrope,Inter,sans-serif;color:var(--ink-2);margin:18px 0 8px}
   .lyudi{display:flex;flex-direction:column;gap:8px}
   .chel{display:flex;align-items:center;gap:11px;background:var(--fon);
     border:1px solid var(--kayma);border-radius:14px;padding:9px 11px}
   .chel-zver{width:36px;height:36px;flex:0 0 auto;border-radius:50%;
     background:var(--kart);border:1px solid var(--kayma);
     display:flex;align-items:center;justify-content:center;font-size:19px}
-  .chel-imya{flex:1;min-width:0;font:600 14.5px/1.2 Manrope,Inter,sans-serif;
+  .chel-imya{flex:1;min-width:0;font:600 15px/1.2 Manrope,Inter,sans-serif;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .chel-kn{display:flex;gap:6px;flex:0 0 auto}
-  .chel-kn button{min-height:44px;padding:0 12px;border-radius:10px;
+  .chel-kn button{min-height:48px;padding:0 12px;border-radius:10px;
     border:1px solid var(--kayma);background:var(--kart);color:var(--ink-2);
-    font:600 12.5px/1 Manrope,Inter,sans-serif;cursor:pointer}
+    font:600 13px/1 Manrope,Inter,sans-serif;cursor:pointer}
   .chel-kn button.da{background:var(--syn);border-color:transparent;color:var(--na-syn)}
-
-  /* Обновление: одна строка — версия и кнопка. */
-  .kart--obnova{padding:12px 14px}
-  .obnova-ryad{display:flex;align-items:center;gap:12px}
-  .obnova-versiya{flex:1;min-width:0;font:600 14.5px/1.3 Manrope,Inter,sans-serif;color:var(--ink)}
-  .knopka--uzkaya{width:auto;margin:0;padding:0 16px;min-height:44px;flex:0 0 auto}
-
-  /* ── Подсказки «i» ──
-     Пояснения ушли с экрана: вместо абзаца в каждой карточке — знак «i»
-     рядом с заголовком. Раскрывается строкой в потоке (не всплывашкой:
-     на телефоне она перекрывает то, что объясняет), по нажатию, одна за раз. */
-  .zag-ryad{display:flex;align-items:center;gap:4px}
-  .zag-ryad h2{margin:0}
-  .pdsk-kn{width:44px;height:44px;margin:-10px -10px -10px 0;border:0;background:transparent;
-    display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto}
-  .pdsk-kn i{width:20px;height:20px;border-radius:10px;border:1.4px solid var(--ink-3);
-    color:var(--ink-2);font:600 12px/18px Manrope,sans-serif;font-style:normal;text-align:center}
-  .pdsk-kn[aria-expanded="true"] i{border-color:var(--syn);color:var(--syn)}
-  .pdsk{margin:8px 0 0;padding:11px 13px;border-radius:12px;background:var(--pole);
-    font:400 13px/1.45 Manrope,Inter,sans-serif;color:var(--ink-2)}
-  .pdsk[hidden]{display:none}
-  @media (prefers-reduced-motion:no-preference){
-    .pdsk{animation:pdsk-v .14s ease-out}
-    @keyframes pdsk-v{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
-  }
-
-  .ya-schet-ryad{display:flex;align-items:center;gap:2px}
-  .ya-chisla{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;
-    padding-top:12px;border-top:1px solid var(--kayma)}
-  .ya-chisla span{display:flex;flex-direction:column;gap:2px}
-  .ya-chisla b{font:700 20px/1 Manrope,Inter,sans-serif;color:var(--ink)}
-  .ya-chisla i{font:600 11.5px/1 Manrope,sans-serif;font-style:normal;letter-spacing:.07em;
-    text-transform:uppercase;color:var(--ink-3)}
 
   .kod-format{font:500 12px/1.3 Manrope,sans-serif;color:var(--ink-3);margin:6px 0 0}
 
-  /* Карточке дают фокус после входа: окно закрылось, и фокусу некуда деться.
-     Рамку не рисуем — карточка не в обходе табом (tabindex="-1"), это не
+  /* Строке дают фокус после входа: окно закрылось, и фокусу некуда деться.
+     Рамку не рисуем — строка не в обходе табом (tabindex="-1"), это не
      орган управления, а системная рамка поверх неё выглядит поломкой.
      Найти взглядом помогают прокрутка и снэкбар. */
-  .kart[tabindex]:focus{outline:none}
+  .spisok[tabindex]:focus{outline:none}
 
   /* ── Снэкбар ──
      Коротким сообщением внизу отвечаем на вход: раньше вместо него всплывало
@@ -191,7 +232,7 @@
   .snek{position:fixed;left:12px;right:12px;bottom:calc(78px + var(--snizu));z-index:300;
     max-width:420px;margin:0 auto;background:var(--ink);color:var(--fon);
     border-radius:14px;padding:13px 15px;text-align:center;overflow-wrap:anywhere;
-    font:600 14.5px/1.35 Manrope,Inter,sans-serif;box-shadow:0 8px 26px rgba(0,0,0,.28)}
+    font:600 15px/1.35 Manrope,Inter,sans-serif;box-shadow:0 8px 26px rgba(0,0,0,.28)}
   @media (prefers-reduced-motion:no-preference){
     .snek{animation:snek-v .16s ease-out}
     @keyframes snek-v{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -208,120 +249,153 @@
 </header>
 
 <main>
-  <section class="kart kart--ya">
+  <!-- 1. СВОДКА. Кто я — и ничего больше. Правка спрятана за одной кнопкой:
+       в профиль сначала смотрят, а не заполняют поля. -->
+  <section class="svodka">
     <div class="ya">
       <span class="ya-zver" id="ya-zver" aria-hidden="true">✦</span>
       <span class="ya-txt">
         <span class="ya-imya" id="ya-imya">Гость</span>
-        <span class="ya-schet-ryad">
-          <span class="ya-schet" id="ya-schet">Послушник</span>
-          <button class="pdsk-kn" type="button" aria-expanded="false" aria-controls="pdsk-stupen"
-            aria-label="Подсказка: что такое ступень"><i aria-hidden="true">i</i></button>
-        </span>
+        <span class="ya-schet" id="ya-schet">Путь ещё не начат</span>
       </span>
-      <button class="ya-pravit" id="ya-pravit" type="button">Изменить</button>
+      <button class="ya-pravit" id="ya-pravit" type="button"
+              aria-expanded="false" aria-controls="pravka">Изменить</button>
     </div>
-    <div class="pdsk" id="pdsk-stupen" role="note" hidden>Ступень растёт от бусин: Послушник — до 1000,
-      Студент — от 1000, Игрок — от 3000, Мастер — от 10 000, Магистр — от 30 000. Бусины дают партии.</div>
-    <div class="ya-chisla">
+    <div class="ya-chisla" id="ya-chisla" hidden>
       <span><b id="ya-buseny">0</b><i>бусин</i></span>
       <span><b id="ya-partiy">0</b><i>партий</i></span>
       <span><b id="ya-urokov">0</b><i>уроков</i></span>
     </div>
     <div id="pravka" hidden>
-      <label for="imya">Имя</label>
-      <input type="text" id="imya" maxlength="20" autocomplete="nickname" placeholder="Например, Иван">
+      <!-- «Имя в игре», а не просто «Имя»: настоящее имя лежит ниже, в полях
+           аккаунта, и два одинаковых «Имя» на одном экране путали. -->
+      <label for="imya">Имя в игре</label>
+      <input type="text" id="imya" maxlength="20" autocomplete="nickname" placeholder="Гость">
+      <div class="pole-pod">Его видят соперники и друзья.</div>
       <div class="zveri" id="zveri" role="radiogroup" aria-label="Зверь-аватар"></div>
-      <button class="knopka" id="sohranit" type="button">Сохранить</button>
+      <div class="ryad-kn">
+        <button class="knopka knopka--tihaya" id="otmenit" type="button">Отмена</button>
+        <button class="knopka" id="sohranit" type="button">Сохранить</button>
+      </div>
     </div>
     <div class="soobshenie" id="soobshenie" role="status"></div>
   </section>
 
-  <!-- Версия и обновление — сразу под именем: это первое, за чем сюда
-       заходят, когда что-то не так. Пояснение снято: строка версии и
-       кнопка говорят сами за себя. -->
-  <section class="kart kart--obnova">
-    <div class="obnova-ryad">
-      <span class="obnova-versiya" id="obnova-status">Версия …</span>
-      <button class="knopka knopka--tihaya knopka--uzkaya" id="obnova-knopka" type="button">Проверить</button>
+  <!-- 2. АККАУНТ И ЛЮДИ. Это не настройки, поэтому идут сразу под сводкой и
+       без подписи раздела. Версия уехала вниз: за ней приходят реже всего. -->
+  <section class="spisok" id="spisok-ya">
+    <div class="str str--tihaya">
+      <span class="str-txt">
+        <span class="str-zag">Аккаунт</span>
+        <span class="str-pod" id="vhod-status">Вы играете гостем</span>
+      </span>
     </div>
-    <div class="soobshenie" id="obnova-soobshenie" role="status"></div>
-  </section>
+    <div class="telo">
+      <!-- Причина входа стоит открытым текстом, а не за знаком «i»: без неё
+           человек не знает, что даёт вход, и кнопка висит просьбой ни о чём.
+           Про удаление говорим вошедшему и рядом с самой кнопкой (она внутри
+           полей аккаунта), а не гостю, у которого её нет. -->
+      <p class="opis" id="vhod-opis">Сохраняет прогресс и возвращает его на другом телефоне.
+        Пароля нет — код придёт на почту.</p>
+      <button class="knopka" id="vhod-knopka" type="button">Войти по почте</button>
+      <!-- Поля аккаунта стоят здесь же, а не за кнопкой «Мой аккаунт»: человек
+           должен видеть, что у него заполнено, не открывая ничего. Рисует их
+           core/account.js (встроить) — тот же код, что и в окне на сайте.
+           Класс .akkaunt важен: по нему account.js понимает, что форма уже на
+           экране, и не открывает поверх неё окно «Мой профиль». -->
+      <div class="akkaunt" id="akkaunt" hidden></div>
+    </div>
 
-  <!-- Вход — не настройка, поэтому карточка стоит сразу под «Кто я»: это
-       второй по важности шаг после имени. Кнопка открывает окно core/account.js
-       прямо здесь; раньше это была ссылка на duel.html#login, и человек уезжал
-       в раздел игры, где ему предлагали вернуться обратно в Профиль. -->
-  <section class="kart">
-    <div class="zag-ryad"><h2>Аккаунт</h2><button class="pdsk-kn" type="button" aria-expanded="false" aria-controls="pdsk-akkaunt" aria-label="Подсказка: зачем вход по почте"><i aria-hidden="true">i</i></button></div>
-    <div class="pdsk" id="pdsk-akkaunt" role="note" hidden>Пароля нет: на почту приходит код из шести цифр. Аккаунт можно удалить в любой момент — кнопка внизу.</div>
-    <div class="vhod-status" id="vhod-status"></div>
-    <button class="knopka" id="vhod-knopka" type="button">Войти по почте</button>
-    <!-- Поля аккаунта стоят здесь же, а не за кнопкой «Мой аккаунт»: человек
-         должен видеть, что у него заполнено, не открывая ничего. Рисует их
-         core/account.js (встроить) — тот же код, что и в окне на сайте. -->
-    <div class="akkaunt" id="akkaunt" hidden></div>
-  </section>
-
-  <section class="kart">
-    <div class="zag-ryad"><h2>Свои люди</h2><button class="pdsk-kn" type="button" aria-expanded="false" aria-controls="pdsk-lyudi" aria-label="Подсказка: зачем свои люди"><i aria-hidden="true">i</i></button></div>
-    <div class="pdsk" id="pdsk-lyudi" role="note" hidden>Друзей видно при создании партии: зовёте одним касанием, код пересылать не нужно.</div>
-
-    <div class="kod-ryad">
-      <div>
-        <div class="kod-metka">Мой код</div>
-        <div class="kod" id="moy-kod">······</div>
+    <button class="str" type="button" id="lyudi-str"
+            aria-expanded="false" aria-controls="lyudi-telo">
+      <span class="str-txt">
+        <span class="str-zag">Свои люди</span>
+        <span class="str-pod" id="lyudi-pod">Подключаюсь…</span>
+      </span>
+      <span class="str-hvost"><i class="shevron" aria-hidden="true"></i></span>
+    </button>
+    <div class="telo" id="lyudi-telo" hidden>
+      <div class="kod-ryad">
+        <div>
+          <div class="kod-metka">Мой код</div>
+          <div class="kod" id="moy-kod">······</div>
+        </div>
+        <button class="knopka knopka--tihaya kod-kn" id="kod-kopirovat" type="button">Скопировать</button>
       </div>
-      <button class="knopka knopka--tihaya kod-kn" id="kod-kopirovat" type="button">Скопировать</button>
-    </div>
+      <div class="kod-sost" id="kod-sost">Подключаюсь…</div>
+      <button class="knopka knopka--tihaya" id="kod-povtor" type="button" hidden>Повторить</button>
 
-    <label for="chuzhoy-kod">Код друга</label>
-    <div class="kod-vvod">
-      <input type="text" id="chuzhoy-kod" maxlength="6" autocapitalize="characters"
-             autocomplete="off" spellcheck="false" inputmode="latin" enterkeyhint="send">
-      <button class="knopka kod-kn" id="pozvat" type="button">Позвать</button>
-    </div>
-    <div class="kod-format">6 знаков, латиница и цифры</div>
-    <div class="soobshenie" id="druzya-soobshenie" role="status"></div>
+      <label for="chuzhoy-kod">Код друга</label>
+      <div class="kod-vvod">
+        <input type="text" id="chuzhoy-kod" maxlength="6" autocapitalize="characters"
+               autocomplete="off" spellcheck="false" inputmode="latin" enterkeyhint="send">
+        <!-- «Добавить», а не «Позвать»: позвать — это зов в партию, и одно
+             слово на два действия обещало игру, а отправляло заявку. -->
+        <button class="knopka knopka--tihaya kod-kn" id="pozvat" type="button">Добавить</button>
+      </div>
+      <div class="kod-format">6 знаков, латиница и цифры</div>
+      <div class="soobshenie" id="druzya-soobshenie" role="status"></div>
 
-    <div id="zayavki-blok" hidden>
-      <div class="podzag">Просятся в друзья</div>
-      <div class="lyudi" id="zayavki"></div>
-    </div>
+      <div id="zayavki-blok" hidden>
+        <div class="podzag">Просятся в друзья</div>
+        <div class="lyudi" id="zayavki"></div>
+      </div>
 
-    <div class="podzag" id="druzya-zag" hidden>Друзья</div>
-    <div class="lyudi" id="druzya"></div>
-    <div class="opis" id="druzya-pusto">Пока никого. Обменяйтесь кодами — и друг
-       появится здесь у обоих.</div>
+      <div class="podzag" id="druzya-zag" hidden>Друзья</div>
+      <div class="lyudi" id="druzya"></div>
+      <div class="opis" id="druzya-pusto">Пока никого. Обменяйтесь кодами — и друг
+         появится здесь у обоих.</div>
+      <p class="opis">Друзей видно при создании партии: зовёте одним касанием,
+         код пересылать не нужно.</p>
+    </div>
   </section>
 
+  <!-- 3. НАСТРОЙКИ. Подпись покрывает ровно то, что под ней: вид и цитату. -->
   <div class="razdel">Настройки</div>
-
-
-  <section class="kart">
-    <h2>Вид</h2>
-    <!-- role=radio, а не button: атрибут aria-checked у роли «кнопка»
-         недопустим, и чтец читал «Светлая, кнопка», умалчивая, какая тема
-         стоит сейчас. Разметку и стрелки доводит скрипт внизу страницы. -->
-    <div class="segmenty" id="tema-segmenty" role="radiogroup" aria-label="Тема">
-      <button type="button" role="radio" aria-checked="false" data-tema="auto">Как в системе</button>
-      <button type="button" role="radio" aria-checked="false" data-tema="light">Светлая</button>
-      <button type="button" role="radio" aria-checked="false" data-tema="dark">Тёмная</button>
+  <section class="spisok">
+    <button class="str" type="button" id="tema-str"
+            aria-expanded="false" aria-controls="tema-telo">
+      <span class="str-txt">
+        <span class="str-zag">Вид</span>
+        <span class="str-pod" id="tema-pod">Как в системе</span>
+      </span>
+      <span class="str-hvost"><i class="shevron" aria-hidden="true"></i></span>
+    </button>
+    <div class="telo" id="tema-telo" hidden>
+      <!-- role=radio, а не button: атрибут aria-checked у роли «кнопка»
+           недопустим, и чтец читал «Светлая, кнопка», умалчивая, какая тема
+           стоит сейчас. Разметку и стрелки доводит скрипт внизу страницы. -->
+      <div class="segmenty" id="tema-segmenty" role="radiogroup" aria-label="Тема">
+        <button type="button" role="radio" aria-checked="false" data-tema="auto">Как в системе</button>
+        <button type="button" role="radio" aria-checked="false" data-tema="light">Светлая</button>
+        <button type="button" role="radio" aria-checked="false" data-tema="dark">Тёмная</button>
+      </div>
     </div>
+
+    <!-- Переключатель вместо залитой кнопки «Включить»: включение уведомлений
+         кричало на экране так же громко, как вход. -->
+    <button class="str" type="button" role="switch" aria-checked="false" id="push-knopka">
+      <span class="str-txt">
+        <span class="str-zag">Утренняя цитата</span>
+        <span class="str-pod" id="push-status">Каждое утро в 9:30</span>
+      </span>
+      <span class="str-hvost"><i class="tumbler" aria-hidden="true"></i></span>
+    </button>
+    <div class="telo telo--sms"><div class="soobshenie" id="push-soobshenie" role="status"></div></div>
   </section>
 
-
-  <section class="kart">
-    <div class="zag-ryad"><h2>Цитата дня</h2><button class="pdsk-kn" type="button"
-      aria-expanded="false" aria-controls="pdsk-citata" aria-label="Подсказка: как приходит цитата"><i aria-hidden="true">i</i></button></div>
-    <div class="pdsk" id="pdsk-citata" role="note" hidden>Одна строка из книги «Ясна Суток».
-      Уведомление готовит сам телефон, интернет для него не нужен.</div>
-    <div class="vhod-status" id="push-status">Каждое утро в 9:30</div>
-    <button class="knopka" id="push-knopka" type="button">Включить</button>
-    <div class="soobshenie" id="push-soobshenie" role="status"></div>
+  <!-- 4. О ПРИЛОЖЕНИИ. Версия названа один раз и внизу; подпись кнопки не
+       меняется после нажатия, иначе строка прыгала по ширине. -->
+  <div class="razdel">О приложении</div>
+  <section class="spisok">
+    <button class="str" type="button" id="obnova-knopka">
+      <span class="str-txt">
+        <span class="str-zag">Проверить обновления</span>
+        <span class="str-pod" id="obnova-status">Ясна для Android</span>
+      </span>
+    </button>
+    <div class="telo telo--sms"><div class="soobshenie" id="obnova-soobshenie" role="status"></div></div>
   </section>
-
-  <div class="versiya">Ясна для Android</div>
 </main>
 
 
@@ -360,54 +434,113 @@
   function профиль(){
     try{ return JSON.parse(localStorage.getItem(КЛЮЧ))||{} }catch(e){ return {} }
   }
+  function ч(к){ try{ return JSON.parse(localStorage.getItem(к)) }catch(e){ return null } }
+  /* Подпись склоняем вместе с числом: «1 урок», «2 урока», «5 уроков» —
+     застывшее «1 уроков» выглядит как поломка. */
+  function скл(n,ф){ n=Math.abs(n)%100; if(n>10&&n<20) return ф[2];
+    n=n%10; if(n===1) return ф[0]; if(n>1&&n<5) return ф[1]; return ф[2]; }
 
   var п=профиль();
   var выбран=п.avatar||ЗВЕРИ[0];
   document.getElementById('imya').value=(п.nickname==='Гость'?'':п.nickname)||'';
 
-  /* Сводка сверху: зверь, имя и ступень со счётом. Форму показываем по
-     кнопке — в профиле игрока сначала смотрят на себя, а не правят поля. */
-  var СТУПЕНИ=[['Послушник',0],['Студент',1000],['Игрок',3000],['Мастер',10000],['Магистр',30000]];
+  /* Сводка сверху: зверь, имя и ступень со счётом. */
+  /* Третьим полем — родительный падеж: «до Студент — 1000 бусин» читалось
+     как недописанная строка. */
+  var СТУПЕНИ=[['Послушник',0,'Послушника'],['Студент',1000,'Студента'],
+               ['Игрок',3000,'Игрока'],['Мастер',10000,'Мастера'],
+               ['Магистр',30000,'Магистра']];
   function сводка(){
     var т=профиль();
     document.getElementById('ya-zver').textContent=т.avatar||'✦';
     document.getElementById('ya-imya').textContent=т.nickname||'Гость';
-    var д={}; try{ д=JSON.parse(localStorage.getItem('yasna_duel_data'))||{} }catch(e){}
-    var бусин=+(д.totalScore||0), партий=+((д.totals&&(д.totals.played||д.totals.matches))||0);
-    var ст='Послушник';
-    СТУПЕНИ.forEach(function(п2){ if(бусин>=п2[1]) ст=п2[0] });
-    /* Числа стоят строкой ниже — в этой строке только ступень, иначе
-       одно и то же повторяется дважды подряд. */
-    document.getElementById('ya-schet').textContent = ст;
+
+    var д=ч('yasna_duel_data')||{};
+    var бусин=+(д.totalScore||0);
+    var партий=+((д.totals&&(д.totals.played||д.totals.matches))||0);
+    var у=ч('yasna_completed_lessons_v1');
+    var уроков=Array.isArray(у)?у.filter(function(и,i){return у.indexOf(и)===i}).length:0;
+
+    /* Три нуля подряд — не сводка пути, а объявление о том, что человек
+       ничего не сделал. Пока считать нечего, числа и ступень не показываем:
+       ступень без единой партии всё равно ничего не значит. */
+    var началось = бусин>0 || партий>0 || уроков>0;
+    document.getElementById('ya-chisla').hidden = !началось;
+
+    var строка='Путь ещё не начат';
+    if(началось){
+      var ст='Послушник', следующая=null;
+      СТУПЕНИ.forEach(function(с){
+        if(бусин>=с[1]) ст=с[0];
+        else if(!следующая) следующая=с;
+      });
+      строка='Ступень: '+ст;
+      if(следующая){
+        var надо=следующая[1]-бусин;
+        строка+=' · до '+следующая[2]+' '+надо+' '+скл(надо,['бусина','бусины','бусин']);
+      }
+    }
+    document.getElementById('ya-schet').textContent=строка;
+
+    var т2={'ya-buseny':[бусин,['бусина','бусины','бусин']],
+            'ya-partiy':[партий,['партия','партии','партий']],
+            'ya-urokov':[уроков,['урок','урока','уроков']]};
+    Object.keys(т2).forEach(function(ид){
+      var э=document.getElementById(ид); if(!э) return;
+      э.textContent=т2[ид][0];
+      var метка=э.nextElementSibling; if(метка) метка.textContent=скл(т2[ид][0],т2[ид][1]);
+    });
   }
   сводка();
+
+  /* Правка: открывается по «Изменить», закрывается «Отменой» или сохранением.
+     «Отмена» возвращает прежнего зверя — раньше «Свернуть» оставляло выбор
+     висеть, и сводка расходилась с формой. */
   var правка=document.getElementById('pravka'), кнПравить=document.getElementById('ya-pravit');
+  var полеИмени=document.getElementById('imya');
+  var ряд=document.getElementById('zveri');
+  function отметитьЗверя(з){
+    выбран=з;
+    ряд.querySelectorAll('.zver').forEach(function(x){
+      x.classList.toggle('vybran',x.textContent===з);
+      x.setAttribute('aria-checked',x.textContent===з?'true':'false');
+    });
+  }
+  function закрытьПравку(){
+    правка.hidden=true;
+    кнПравить.textContent='Изменить';
+    кнПравить.setAttribute('aria-expanded','false');
+  }
   кнПравить.onclick=function(){
-    правка.hidden=!правка.hidden;
-    кнПравить.textContent=правка.hidden?'Изменить':'Свернуть';
-    if(!правка.hidden) document.getElementById('imya').focus();
+    if(!правка.hidden){ закрытьПравку(); return; }
+    var т=профиль();
+    отметитьЗверя(т.avatar||ЗВЕРИ[0]);
+    полеИмени.value=(т.nickname==='Гость'?'':т.nickname)||'';
+    document.getElementById('soobshenie').textContent='';
+    правка.hidden=false;
+    кнПравить.textContent='Свернуть';
+    кнПравить.setAttribute('aria-expanded','true');
+    полеИмени.focus();
+  };
+  document.getElementById('otmenit').onclick=function(){
+    закрытьПравку();
+    document.getElementById('soobshenie').textContent='';
+    кнПравить.focus();
   };
 
-  var ряд=document.getElementById('zveri');
   ЗВЕРИ.forEach(function(з){
     var b=document.createElement('button');
     b.type='button'; b.className='zver'+(з===выбран?' vybran':''); b.textContent=з;
     b.setAttribute('role','radio');
     b.setAttribute('aria-checked', з===выбран?'true':'false');
-    b.onclick=function(){
-      выбран=з;
-      ряд.querySelectorAll('.zver').forEach(function(x){
-        x.classList.toggle('vybran',x.textContent===з);
-        x.setAttribute('aria-checked',x.textContent===з?'true':'false');
-      });
-    };
+    b.onclick=function(){ отметитьЗверя(з); };
     ряд.appendChild(b);
   });
 
   /* Имя режем по ГРАФЕМАМ: maxlength считает единицы UTF-16 и рубит эмодзи
-     пополам. Пустое имя больше не подменяется молча на «Гость» — просим
-     вписать. Управляющие символы и двунаправленные метки выкидываем. */
-  var полеИмени=document.getElementById('imya');
+     пополам. Пустое имя — не ошибка: человек мог зайти сюда только за зверем,
+     и требовать имя ради смены аватара незачем. Пустое становится «Гость».
+     Управляющие символы и двунаправленные метки выкидываем. */
   function чистоеИмя(){
     var т=(полеИмени.value||'')
       .replace(/[\u0000-\u001f\u007f\u200b-\u200f\u202a-\u202e\u2066-\u2069<>]/g,'')
@@ -419,12 +552,7 @@
     if(e.key==='Enter'){ e.preventDefault(); document.getElementById('sohranit').click(); }
   });
   document.getElementById('sohranit').onclick=function(){
-    var имя=чистоеИмя();
-    if(!имя){
-      document.getElementById('soobshenie').textContent='Впишите имя.';
-      полеИмени.focus();
-      return;
-    }
+    var имя=чистоеИмя()||'Гость';
     var п=профиль();
     /* deviceId сохраняем как есть: это ключ к накопленному прогрессу. */
     п.nickname=имя; п.avatar=выбран;
@@ -440,7 +568,8 @@
          иначе он появлялся только после перехода на другой экран. */
       if(window.yasnaNavbarObnovi) window.yasnaNavbarObnovi();
       сводка();
-      правка.hidden=true; кнПравить.textContent='Изменить';
+      закрытьПравку();
+      кнПравить.focus();
       /* имя и зверь видны друзьям — обновим карточку в общей базе */
       if(window.YasnaDruzya){
         var поле=document.getElementById('moy-kod');
@@ -452,57 +581,23 @@
     }
   };
 
-  /* Три числа под именем. Ноль — это состояние, а не пустота: показываем
-     всегда, чтобы человек видел, что счётчик существует. */
-  (function(){
-    function ч(к){ try{ return JSON.parse(localStorage.getItem(к)) }catch(e){ return null } }
-    /* Подпись склоняем вместе с числом: «1 урок», «2 урока», «5 уроков» —
-       застывшее «1 уроков» выглядит как поломка. */
-    function скл(n,ф){ n=Math.abs(n)%100; if(n>10&&n<20) return ф[2];
-      n=n%10; if(n===1) return ф[0]; if(n>1&&n<5) return ф[1]; return ф[2]; }
-    var д=ч('yasna_duel_data')||{};
-    var б=+(д.totalScore||0);
-    var п=(д.totals&&(д.totals.played||д.totals.matches))||0;
-    /* Считаем ВСЕ пройденные уроки, а не только четыре базовых: маршрутов
-       уже больше, и счётчик должен расти вместе с человеком. */
-    var у=ч('yasna_completed_lessons_v1');
-    var уроков=Array.isArray(у)?у.filter(function(и,i){return у.indexOf(и)===i}).length:0;
-    var т={'ya-buseny':[б,['бусина','бусины','бусин']],
-           'ya-partiy':[п,['партия','партии','партий']],
-           'ya-urokov':[уроков,['урок','урока','уроков']]};
-    Object.keys(т).forEach(function(ид){
-      var э=document.getElementById(ид); if(!э) return;
-      э.textContent=т[ид][0];
-      var метка=э.nextElementSibling; if(метка) метка.textContent=скл(т[ид][0],т[ид][1]);
-    });
-  })();
-
-  /* Подсказки: раскрываются в потоке, одна за раз, закрываются повторным
-     нажатием, Escape и тапом вне. Ховера на телефоне нет, title не вызвать. */
-  (function(){
-    var открыта=null;
-    function закрыть(){
-      if(!открыта) return;
-      открыта.тело.hidden=true; открыта.кнопка.setAttribute('aria-expanded','false');
-      открыта=null;
-    }
-    document.addEventListener('click',function(e){
-      var кн=e.target.closest?e.target.closest('.pdsk-kn'):null;
-      if(!кн){ if(!e.target.closest||!e.target.closest('.pdsk')) закрыть(); return; }
-      var тело=document.getElementById(кн.getAttribute('aria-controls'));
-      if(!тело) return;
-      var былоОткрыто = открыта && открыта.тело===тело;
-      закрыть();
-      if(былоОткрыто) return;
-      тело.hidden=false; кн.setAttribute('aria-expanded','true');
-      открыта={кнопка:кн,тело:тело};
-    });
-    document.addEventListener('keydown',function(e){ if(e.key==='Escape') закрыть(); });
-  })();
+  /* Раскрывающиеся строки списка: одна строка — одно тело под ней. */
+  function связать(идКнопки, идТела){
+    var кн=document.getElementById(идКнопки), тело=document.getElementById(идТела);
+    if(!кн||!тело) return;
+    кн.onclick=function(){
+      var открыть=тело.hidden;
+      тело.hidden=!открыть;
+      кн.setAttribute('aria-expanded', открыть?'true':'false');
+    };
+  }
+  связать('lyudi-str','lyudi-telo');
+  связать('tema-str','tema-telo');
 
   /* Статус входа. Токен и пользователь — те же ключи, что на сайте. */
   var статус=document.getElementById('vhod-status');
   var кнВход=document.getElementById('vhod-knopka');
+  var опис=document.getElementById('vhod-opis');
   function показатьВход(){
     var польз=null;
     try{ польз=JSON.parse(localStorage.getItem('yasna_duel_user')) }catch(e){}
@@ -510,11 +605,13 @@
     if(есть&&польз){
       /* Сервер отдаёт nickname/firstName/email; поля name у него нет — раньше
          тут почти всегда выводилось слово «аккаунт». */
-      статус.textContent='';
+      статус.textContent=польз.email||'Вход выполнен';
       кнВход.hidden=true;
+      опис.hidden=true;
     } else {
-      статус.textContent='';
+      статус.textContent='Вы играете гостем';
       кнВход.hidden=false;
+      опис.hidden=false;
     }
   }
   кнВход.onclick=function(){
@@ -526,7 +623,7 @@
     if(!узел||!window.YasnaAccount) return;
     var вошли=!!localStorage.getItem('yasna_duel_token');
     узел.hidden=!вошли;
-    if(вошли) window.YasnaAccount.встроить(узел,{приВыходе:показатьВход});
+    if(вошли) window.YasnaAccount.встроить(узел,{приВыходе:function(){ показатьВход(); показатьПоля(); }});
     else узел.innerHTML='';
   }
   /* Короткое сообщение внизу экрана; живёт одно, уходит само. */
@@ -545,21 +642,20 @@
      Вторым окном («Мой профиль») о входе не сообщаем: поля аккаунта стоят
      прямо здесь, и вторая копия той же формы поверх первой только сбивала
      с толку — два «Имя» на одном экране. Вместо окна: снэкбар и прокрутка
-     к карточке «Аккаунт», где эти поля и лежат. */
+     к строке «Аккаунт», где эти поля и лежат. */
   window.addEventListener('yasna:аккаунт', function(e){
     показатьВход(); показатьПоля();
     var д=e&&e.detail;
     if(!д||!д.вошли) return;
     снэкбар((д.новый?'Аккаунт создан':'Вы вошли')+(д.почта?': '+д.почта:''));
-    var поля=document.getElementById('akkaunt');
-    var карточка=поля&&поля.closest?поля.closest('.kart'):null;
-    if(!карточка) return;
-    try{ карточка.scrollIntoView({behavior:'smooth',block:'start'}); }
-    catch(_){ карточка.scrollIntoView(); }
+    var список=document.getElementById('spisok-ya');
+    if(!список) return;
+    try{ список.scrollIntoView({behavior:'smooth',block:'start'}); }
+    catch(_){ список.scrollIntoView(); }
     /* Окно закрылось — фокусу некуда вернуться (кнопку «Войти по почте» мы
-       только что спрятали), поэтому кладём его на карточку. */
-    карточка.setAttribute('tabindex','-1');
-    try{ карточка.focus({preventScroll:true}); }catch(_){}
+       только что спрятали), поэтому кладём его на список. */
+    список.setAttribute('tabindex','-1');
+    try{ список.focus({preventScroll:true}); }catch(_){}
   });
   /* Обновления. */
   (function(){
@@ -568,12 +664,11 @@
     var сб=document.getElementById('obnova-soobshenie');
     var П=(window.Capacitor&&window.Capacitor.Plugins)||{};
     if(П.App&&П.App.getInfo) П.App.getInfo().then(function(i){
-      ст.textContent='Версия '+i.version;
-      var ф=document.querySelector('.versiya');
-      if(ф) ф.textContent='Ясна для Android · '+i.version;
+      ст.textContent='Ясна для Android · версия '+i.version;
     });
     /* Состояния проверки говорят вслух. Раньше ответ «свежая» выглядел так
-       же тихо, как отказ по сети, и кнопка казалась мёртвой. */
+       же тихо, как отказ по сети, и кнопка казалась мёртвой. Подпись самой
+       кнопки при этом не меняется: она меняла ширину прямо под пальцем. */
     function сказать(текст, плохо){
       сб.innerHTML='';
       var д=document.createElement('div');
@@ -583,15 +678,14 @@
       return д;
     }
     кн.onclick=function(){
-      кн.disabled=true; кн.textContent='Проверяю…';
+      кн.disabled=true;
       сказать('Смотрю, не вышла ли новая версия…');
       window.yasnaObnova(true).then(function(о){
-        кн.disabled=false; кн.textContent='Проверить обновления';
+        кн.disabled=false;
         if(о.статус==='есть'){
           сказать('Вышла версия '+о.имя+(о.изменения?': '+о.изменения:''));
           var b=document.createElement('button');
           b.className='knopka'; b.type='button';
-          b.style.marginTop='10px';
           b.textContent='Скачать и установить '+о.имя;
           b.onclick=function(){
             b.disabled=true;
@@ -630,18 +724,19 @@
     };
   })();
 
-  /* Утренняя цитата: включение просит разрешение на уведомления,
-     расписание собирает citaty.js. */
+  /* Утренняя цитата: строка-переключатель. Включение просит разрешение на
+     уведомления, расписание собирает citaty.js. */
   var пСтатус=document.getElementById('push-status');
   var пКнопка=document.getElementById('push-knopka');
   var пСооб=document.getElementById('push-soobshenie');
   function показатьПуш(){
-    var вкл=window.yasnaPushiVkl && window.yasnaPushiVkl();
-    пСтатус.textContent=вкл?'Каждое утро в 9:30':'Утренние цитаты выключены';
-    пКнопка.textContent=вкл?'Выключить':'Включить';
+    var вкл=!!(window.yasnaPushiVkl && window.yasnaPushiVkl());
+    пСтатус.textContent=вкл?'Каждое утро в 9:30 — строка из книги «Ясна Суток»'
+                          :'Выключена. Интернет для неё не нужен.';
+    пКнопка.setAttribute('aria-checked', вкл?'true':'false');
   }
   пКнопка.onclick=function(){
-    var вкл=window.yasnaPushiVkl && window.yasnaPushiVkl();
+    var вкл=!!(window.yasnaPushiVkl && window.yasnaPushiVkl());
     пКнопка.disabled=true; пСооб.textContent='';
     window.yasnaPushi(!вкл).then(function(итог){
       пКнопка.disabled=false;
@@ -675,9 +770,16 @@
   var ряд=document.getElementById('tema-segmenty');
   if(!ряд||!window.Theme)return;
   var кнопки=ряд.querySelectorAll('button');
+  var подпись=document.getElementById('tema-pod');
   function показать(){
     var м=window.Theme.mode();
-    кнопки.forEach(function(к){к.setAttribute('aria-checked',String(к.dataset.tema===м));});
+    кнопки.forEach(function(к){
+      var вкл=к.dataset.tema===м;
+      к.setAttribute('aria-checked',String(вкл));
+      /* Подпись строки называет текущий выбор — иначе, не раскрыв её,
+         не узнать, какая тема стоит. */
+      if(вкл&&подпись) подпись.textContent=к.textContent;
+    });
   }
   кнопки.forEach(function(к){к.addEventListener('click',function(){
     window.Theme.set(к.dataset.tema); показать();
@@ -697,6 +799,9 @@
   var спис=document.getElementById('druzya'), пусто=document.getElementById('druzya-pusto');
   var загД=document.getElementById('druzya-zag');
   var блокЗ=document.getElementById('zayavki-blok'), списЗ=document.getElementById('zayavki');
+  var подпись=document.getElementById('lyudi-pod');
+  var сост=document.getElementById('kod-sost');
+  var кнПовтор=document.getElementById('kod-povtor');
 
   function сказать(текст, плохо){
     if(текст && текст.indexOf('ТИХО:')===0){ текст=текст.slice(5); плохо=false; }
@@ -717,29 +822,46 @@
        onLine. Называем причину прямо, чтобы было ясно, что делать. */
     if(к==='время-вышло'
       || /network|offline|unavailable|disconnect|timeout|failed to fetch/i.test(к)
-      || navigator.onLine===false) return 'Нет связи. Попробуйте позже.';
+      || navigator.onLine===false) return 'Нет связи — код появится, когда она вернётся.';
     return 'Не получилось. Попробуйте позже.';
   }
+  function безТихо(т){ return (т&&т.indexOf('ТИХО:')===0)?т.slice(5):т; }
 
   /* Код рисовался сразу из локального хранилища, даже если карточка не
      доехала до общей базы: друг вводил такой код и получал «Такого кода нет».
-     До успеха публикации показываем точки и причину. */
+     До успеха публикации показываем точки и причину обычным текстом — раньше
+     причина была набрана капслоком в три строки и читалась как поломка. */
   var полеКода = document.getElementById('moy-kod');
-  var подписьКода = document.querySelector('.kod-metka');
   var кнКопир = document.getElementById('kod-kopirovat');
+  var сколькоДрузей = 0;
   полеКода.textContent = '······';
   /* Пока на экране точки, копировать нечего: локальный код ещё не опубликован,
      друг по нему никого не найдёт. Кнопка ждёт вместе с кодом. */
   кнКопир.disabled = true;
+
+  function подписьСтроки(хвост){
+    var к=Д.мойКод();
+    var части=[];
+    if(к) части.push('Мой код '+к);
+    if(сколькоДрузей) части.push(сколькоДрузей+' '+
+      (function(n){ n=Math.abs(n)%100; if(n>10&&n<20) return 'друзей';
+        n=n%10; if(n===1) return 'друг'; if(n>1&&n<5) return 'друга'; return 'друзей'; })(сколькоДрузей));
+    if(хвост) части.push(хвост);
+    подпись.textContent = части.length ? части.join(' · ') : 'Подключаюсь…';
+  }
   function показатьКод(){
     полеКода.textContent = Д.мойКод() || '······';
-    if(подписьКода) подписьКода.textContent = 'Мой код';
     кнКопир.disabled = !Д.мойКод();
+    сост.textContent = '';
+    кнПовтор.hidden = true;
+    подписьСтроки();
   }
   function кодНеГотов(причина){
     полеКода.textContent = '······';
-    if(подписьКода) подписьКода.textContent = причина || 'Код появится, когда будет связь';
     кнКопир.disabled = true;
+    сост.textContent = причина || 'Нет связи — код появится, когда она вернётся.';
+    кнПовтор.hidden = false;
+    подпись.textContent = причина || 'Нет связи';
   }
   кнКопир.onclick=function(){
     var к=Д.мойКод()||''; var кн=this;
@@ -771,6 +893,8 @@
     });
     var есть=(список||[]).length>0;
     загД.hidden=!есть; пусто.hidden=есть;
+    сколькоДрузей=(список||[]).length;
+    if(Д.мойКод()) подписьСтроки();
   }
 
   function показатьЗаявки(список){
@@ -791,17 +915,22 @@
   }
   function обновитьЗаявки(){ Д.заявки().then(показатьЗаявки).catch(function(){}); }
 
-  /* Первый заход: показываем сохранённый список сразу, потом обновляем из базы */
+  /* Первый заход: показываем сохранённый список сразу, потом обновляем из
+     базы. Сбой не оставляет человека с точками без объяснения — говорим
+     причину и даём «Повторить». */
   показатьДрузей(Д.списокЛокально());
-  Д.объявиться()
-    .then(function(){ показатьКод(); return Д.забратьОтветы(); })
-    .then(function(){ return Д.друзья(); })
-    .then(показатьДрузей)
-    .then(обновитьЗаявки)
-    .catch(function(e){
-      кодНеГотов();
-      сказать(ошибкаТекстом(e), true);
-    });
+  function подключиться(){
+    сост.textContent='Подключаюсь…';
+    кнПовтор.hidden=true;
+    return Д.объявиться()
+      .then(function(){ показатьКод(); return Д.забратьОтветы(); })
+      .then(function(){ return Д.друзья(); })
+      .then(показатьДрузей)
+      .then(обновитьЗаявки)
+      .catch(function(e){ кодНеГотов(безТихо(ошибкаТекстом(e))); });
+  }
+  кнПовтор.onclick=function(){ подключиться(); };
+  подключиться();
 
   document.getElementById('pozvat').onclick=function(){
     var поле=document.getElementById('chuzhoy-kod');
@@ -822,7 +951,7 @@
     if(код.length<6){ сказать('Код — шесть знаков.',true); return }
     var кн=this; кн.disabled=true; сказать('Отправляю…');
     Д.позвать(код).then(function(){
-      поле.value=''; сказать('Заявка ушла. Друг увидит её у себя в Профиле.');
+      поле.value=''; сказать('Заявка отправлена. Друг увидит её у себя в Профиле.');
     }).catch(function(e){ сказать(ошибкаТекстом(e), true) })
       .then(function(){ кн.disabled=false });
   };

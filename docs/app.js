@@ -351,6 +351,33 @@ function LessonPicker({onSelectLesson,onClose,completedLessons=[]}){
     </div>);
 }
 
+/* ═══ ОДИН ШАБЛОН ШАПКИ ДЛЯ ОКОН РАЗБОРА (Д7) ════════════════════════════
+   Пять окон поверх круга закрывались пятью разными способами: outlined
+   «Закрыть», ✕ в квадрате, ✕ в круге, ручка, крестик-текст. Одно и то же
+   действие человек искал каждый раз заново.
+   Здесь — шапка полноэкранного окна по Material: ✕ 48 dp СЛЕВА, имя окна,
+   справа при надобности одно текстовое действие. Стили инлайном, как и во
+   всём файле: окна живут и на сайте, где нет ни одного класса приложения. */
+function ОкноШапка({имя,onClose,действие,наДействие}){
+  return(
+    <header style={{display:'flex',alignItems:'center',gap:4,padding:'8px 12px',
+      borderBottom:'1px solid var(--border,#e5e5ea)',flexShrink:0,minHeight:64,boxSizing:'border-box'}}>
+      <button type='button' onClick={onClose} aria-label={'Закрыть: '+имя} title='Закрыть'
+        style={{width:48,height:48,flex:'0 0 auto',border:0,background:'transparent',
+          color:'var(--txt,#1d1d1f)',borderRadius:24,cursor:'pointer',
+          display:'flex',alignItems:'center',justifyContent:'center',padding:0}}>
+        <svg width='24' height='24' viewBox='0 0 24 24' aria-hidden='true' fill='none'
+          stroke='currentColor' strokeWidth='1.9' strokeLinecap='round'><path d='M6 6l12 12M18 6 6 18'/></svg>
+      </button>
+      <h2 style={{flex:1,minWidth:0,margin:0,padding:'0 4px',font:'600 22px/1.25 var(--sans,-apple-system,sans-serif)',
+        color:'var(--txt,#1d1d1f)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{имя}</h2>
+      {действие && <button type='button' onClick={наДействие}
+        style={{flex:'0 0 auto',minHeight:48,padding:'0 14px',border:0,background:'transparent',
+          color:'var(--accent,#0071e3)',font:'600 15px/1 var(--sans,-apple-system,sans-serif)',
+          borderRadius:12,cursor:'pointer'}}>{действие}</button>}
+    </header>);
+}
+
 function Instruction({onClose}){
   const Step=({n,title,children})=><div style={{display:'flex',gap:16,marginBottom:28}}>
     <div style={{width:40,height:40,borderRadius:'50%',background:'#0071e3',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:700,flexShrink:0}}>{n}</div>
@@ -361,13 +388,10 @@ function Instruction({onClose}){
 
   return(
     <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'var(--bg,#fff)',zIndex:130,display:'flex',flexDirection:'column'}}>
-      <div style={{display:'flex',alignItems:'center',padding:'14px 24px',borderBottom:'1px solid #e5e5ea',flexShrink:0}}>
-        {/* Заголовок = имя двери в дереве «Уроков» («Как собрать свою ясну»):
-            человек нажимал одно, а попадал в «Инструкцию по составлению
-            Ясны» и сомневался, туда ли пришёл. */}
-        <h2 style={{fontSize:24,fontWeight:700,color:'var(--txt,#1d1d1f)',flex:1}}>Как собрать свою ясну</h2>
-        <button onClick={onClose} style={{fontSize:13,color:'#0071e3',padding:'8px 20px',border:'1px solid #0071e3',borderRadius:8}}>Закрыть</button>
-      </div>
+      {/* Заголовок = имя двери в дереве «Уроков» («Как собрать свою ясну»):
+          человек нажимал одно, а попадал в «Инструкцию по составлению
+          Ясны» и сомневался, туда ли пришёл. Шапка — общая (Д7). */}
+      <ОкноШапка имя='Как собрать свою ясну' onClose={onClose}/>
       <div className='fullpage-content' style={{flex:1,overflowY:'auto',padding:'24px',maxWidth:760,margin:'0 auto',width:'100%'}}>
 
         {/* INTRO */}
@@ -671,10 +695,7 @@ function Glossary({onClose}){
 
   return(
     <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'var(--bg,#fff)',zIndex:130,display:'flex',flexDirection:'column'}}>
-      <div style={{display:'flex',alignItems:'center',padding:'14px 24px',borderBottom:'1px solid #e5e5ea',flexShrink:0}}>
-        <h2 style={{fontSize:24,fontWeight:700,color:'var(--txt,#1d1d1f)',flex:1}}>Словарь</h2>
-        <button onClick={onClose} style={{fontSize:13,color:'#0071e3',padding:'8px 20px',border:'1px solid #0071e3',borderRadius:8}}>Закрыть</button>
-      </div>
+      <ОкноШапка имя='Словарь' onClose={onClose}/>
       <div className='fullpage-content' style={{flex:1,overflowY:'auto',padding:'20px 24px',maxWidth:720,margin:'0 auto',width:'100%'}}>
         <p style={{fontSize:14,color:'var(--txt2,#6e6e73)',marginBottom:24,lineHeight:1.7}}>
           Ясна — это способ описать любое явление через 12 мест, расположенных по кругу. Каждое место имеет свойства и связано с другими через механики. Понимание механик — ключ к составлению правильных Ясен.
@@ -873,7 +894,13 @@ function App(){
     try{ const с=JSON.parse(localStorage.getItem('yasna_nedavnie_v1')); return Array.isArray(с)?с:[]; }
     catch(_){ return []; }
   });
-  const[менюПлюс,setМенюПлюс]=useState(false);
+  /* Д5. Меню под «+» отменено: у экрана один главный жест — «Своя ясна».
+     «Изменить эту ясну» переехало в меню «Вид» (⋮ в общей шапке) и в
+     карточку места, где оно и нужно («Заполнить место N»).
+     Д6. Плавающий тулбар из пяти иконок ушёл с первого уровня: его дела
+     живут в общей шапке — «?» открывает лист «Справка», «⋮» лист «Вид». */
+  const[справка,setСправка]=useState(false);
+  const[видЛист,setВидЛист]=useState(false);
   const[поиск,setПоиск]=useState('');
   /* Аппаратная «назад» в приложении (событие из app/pribavka.js). Раньше она
      уносила с экрана целиком, даже когда открыт редактор или окно справки, —
@@ -1078,8 +1105,9 @@ function App(){
   слой('во весь экран',fullStar,()=>setFullStar(false));
   слой('лист ясн',листЯсн,()=>{setПравкаЯсн(false);setЛистЯсн(false);});
   слой('механики',filtersOpen,()=>setFiltersOpen(false));
-  слой('меню «+»',менюПлюс,()=>setМенюПлюс(false));
-  слой('вид',rotPanelOpen,()=>setRotPanelOpen(false));
+  слой('справка',справка,()=>setСправка(false));
+  слой('вид',видЛист,()=>setВидЛист(false));
+  слой('настройки круга',rotPanelOpen,()=>setRotPanelOpen(false));
   useEffect(()=>{
     const назад=(e)=>{
       if(e.defaultPrevented) return;
@@ -1090,6 +1118,59 @@ function App(){
     };
     window.addEventListener('yasna:назад',назад);
     return()=>window.removeEventListener('yasna:назад',назад);
+  },[]);
+
+  /* ═══ Д6. ДЕЙСТВИЯ ЭКРАНА — В ОБЩЕЙ ШАПКЕ ═══════════════════════════════
+     Первый уровень занимал плавающий тулбар из пяти иконок без подписей
+     (⛶ 3D ↺ ↻ ⋯) ради редких дел, а вся справка пряталась в попапе «⋯» под
+     заголовком «Отображение» — там её никто не искал.
+     Теперь на первом уровне только круг: «?» и «⋮» стоят в шапке приложения
+     рядом с аватаром, как на всех остальных экранах. Сам тулбар в приложении
+     скрыт стилем (см. konstruktor.html, блок raz-it6); на сайте он остаётся.
+     Узлы делаем вручную: шапку рисует оболочка (app/navigatsiya.js), она вне
+     дерева React. Оболочка грузится отложенно и к первому рендеру ещё не
+     существует — отсюда короткие повторы, а не одна попытка. */
+  const наСправку=useRef(null), наВид=useRef(null);
+  наСправку.current=()=>{setВидЛист(false);setСправка(true);};
+  наВид.current=()=>{setСправка(false);setВидЛист(о=>!о);};
+  useEffect(()=>{
+    let свои=[], таймер=null, попыток=0;
+    const кнопка=(имя,рисунок,на)=>{
+      const b=document.createElement('button');
+      b.type='button';
+      b.className='yk-deystvie raz-shapka-knopka';
+      b.setAttribute('data-raz-shapka','');
+      b.setAttribute('aria-label',имя);
+      b.title=имя;
+      b.innerHTML=рисунок;
+      b.addEventListener('click',на);
+      return b;
+    };
+    const поставить=()=>{
+      const место=window.yasnaNav&&window.yasnaNav.действия&&window.yasnaNav.действия();
+      if(!место) return false;
+      if(место.querySelector('[data-raz-shapka]')) return true;
+      /* Перед аватаром: «я» остаётся в самом углу на всех вкладках. */
+      const аватар=место.querySelector('.yk-avatar');
+      свои=[
+        кнопка('Справка',
+          '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" '+
+          'stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/>'+
+          '<path d="M9.5 9.4a2.6 2.6 0 1 1 3.4 2.5c-.7.3-1.1.9-1.1 1.7v.4"/>'+
+          '<circle cx="11.8" cy="17.2" r="1.05" fill="currentColor" stroke="none"/></svg>',
+          ()=>наСправку.current&&наСправку.current()),
+        кнопка('Вид',
+          '<svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor" stroke="none">'+
+          '<circle cx="12" cy="5.2" r="1.85"/><circle cx="12" cy="12" r="1.85"/>'+
+          '<circle cx="12" cy="18.8" r="1.85"/></svg>',
+          ()=>наВид.current&&наВид.current()),
+      ];
+      свои.forEach(у=>место.insertBefore(у,аватар||null));
+      return true;
+    };
+    const тик=()=>{ if(поставить()||++попыток>40) return; таймер=setTimeout(тик,100); };
+    тик();
+    return()=>{ if(таймер) clearTimeout(таймер); свои.forEach(у=>у.remove()); };
   },[]);
 
   /* Отметка «урок открывали» — её читает дерево знаний на экране «Уроки»,
@@ -1650,9 +1731,6 @@ function App(){
           onToggle: toggleAstroLayer,
           onClose: ()=>setAstroMode(false),
         })}
-        {/* Пустота под кругом в приложении: тихая подсказка, пока место
-            не выбрано. Исчезает при первом же тапе. */}
-        {sel==null && <div className='star-podskazka' aria-hidden='true'>Нажми на место круга — откроется его карточка</div>}
         <div className="star-svg-wrap" style={{width:'100%',height:'100%',maxWidth:'none',maxHeight:'none',flex:1}}>{(()=>{
           /* Если карточка свёрнута и кликнули по ТОМУ ЖЕ месту — раскрываем
              панель вместо снятия выделения. Это нужно мобильному, чтобы
@@ -1668,6 +1746,23 @@ function App(){
             ? <Yasna3DView y={y} af={af} sel={sel} onSel={onStarSel} rotationOn={starRotation} speedSec={rotationSpeed} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} solidMech={solidMech} showCage={showCage} astroMode={astroMode} astroLayers={astroLayers}/>
             : <Star yy={y} sel={sel} onSel={onStarSel} hl={hl} af={af} showOpp={af.includes('opp')} overlay={overlay} mob={typeof window!=='undefined'&&window.innerWidth<=768} drill={yasna2Drill} onDrill={setYasna2Drill} subPolki={yasna2Drill!=null?getSubPolki(y.name,yasna2Drill):null} starRotation={starRotation} rotationSpeed={rotationSpeed} showComposition={showComposition}/>;
         })()}</div>
+        {/* ═══ Д4. ПОЛОСА ПОД КРУГОМ ════════════════════════════════════
+            Экран встречал шестью незнакомыми словами и одной серой строкой
+            у самого дока — единственным объяснением, что тут вообще делать.
+            Теперь под кругом стоит постоянная полоса: до выбора она говорит,
+            из чего круг и что с ним делать, после выбора показывает, какое
+            место открыто. Полоса — в потоке, сразу под рисунком, а не у
+            нижнего края экрана. В объёмном виде её нет: там полотно занимает
+            всю коробку. Показывает её стиль приложения (konstruktor.html). */}
+        {!is3D && <div className='raz-pod'>
+          {sel==null
+            ? <span className='raz-pod-txt'>Круг — <b>12 мест</b> одного явления. Нажми место, чтобы прочитать о нём.</span>
+            : <>
+                <span className='raz-pod-nomer' aria-hidden='true'>{sel}</span>
+                <span className='raz-pod-txt'><b>{(y.p&&y.p[sel])||'Место не заполнено'}</b>
+                  <span className='raz-pod-p'>{panelCollapsed?'карточка свёрнута — нажми, чтобы открыть':'карточка места открыта'}</span></span>
+              </>}
+        </div>}
         <OverlayLegend y={y} overlay={overlay} onClear={()=>setOverlay(null)}/>
             </div>
         </div>
@@ -1759,39 +1854,111 @@ function App(){
         }}
         onOpenLesson={(id)=>setActiveLesson(id)}/>}
       {glossary&&<Glossary onClose={()=>{setGlossary(false);if(!домойЕслиРадиОкна())снятьЯкорь();}}/>}
-      {/* ═══ ТЕЛЕФОН: нижний док ══════════════════════════════════════
-          Два действия под большим пальцем вместо полосы-каталога:
-          «Механики» словом (иконка одна не вытягивает понятие) и «+».
-          Правка живёт в меню «+» — отдельной кнопки «✎» больше нет. */}
+      {/* ═══ Д5. ОДИН ГЛАВНЫЙ ЖЕСТ ════════════════════════════════════
+          В доке спорили два действия: пилюля «Механики» и круглый «+» на
+          64 dp, который открывал меню, а первым пунктом в нём стояло
+          «Изменить» — ярлык обещал одно, а давал другое.
+          Остался один extended FAB со словом: он делает ровно то, что
+          написано. «Механики» переехали в лист «Вид», «Изменить эту ясну» —
+          туда же и в карточку места. */}
       {!ed && !fullStar && <div className='raz-dok'>
-        <button className={'raz-meh'+(af.length?' est':'')+(filtersOpen?' otkryt':'')}
-          onClick={()=>setFiltersOpen(o=>!o)} aria-expanded={filtersOpen}>
-          <svg viewBox='0 0 24 24' aria-hidden='true' width='22' height='22' fill='none'
-            stroke='currentColor' strokeWidth='1.7' strokeLinecap='round'>
-            <circle cx='12' cy='12' r='8.4'/><path d='M5 9.2h14M6.4 15.2h11.2'/>
-            <circle cx='12' cy='3.6' r='1.6' fill='currentColor' stroke='none'/>
+        <button className='raz-fab' onClick={createNew} aria-label='Своя ясна — собрать новый круг'>
+          <svg viewBox='0 0 24 24' aria-hidden='true' width='24' height='24' fill='none'
+            stroke='currentColor' strokeWidth='2' strokeLinecap='round'>
+            <path d='M12 5.5v13M5.5 12h13'/>
           </svg>
-          <span>Механики</span>
-          {af.length>0 && <i className='raz-meh-schet'>{af.length}</i>}
+          <span>Своя ясна</span>
         </button>
-        <div className='raz-plyus-obertka'>
-          {менюПлюс && <>
-            <div className='raz-menyu-fon' onClick={()=>setМенюПлюс(false)}/>
-            <div className='raz-menyu' role='menu'>
-              <button role='menuitem' onClick={()=>{setМенюПлюс(false);editCurrent();}}>
-                <b>✎ Изменить эту Ясну</b>
-                <i>для встроенной создастся ваша копия</i>
-              </button>
-              <button role='menuitem' onClick={()=>{setМенюПлюс(false);createNew();}}>
-                <b>＋ Создать новую</b>
-                <i>пустой круг из двенадцати мест</i>
-              </button>
-            </div>
-          </>}
-          <button className='raz-plyus' onClick={()=>setМенюПлюс(o=>!o)}
-            aria-label='Создать или изменить Ясну' aria-haspopup='menu' aria-expanded={менюПлюс}>+</button>
-        </div>
       </div>}
+
+      {/* ═══ Д6. ЛИСТ «СПРАВКА» ═══════════════════════════════════════
+          Четыре двери, которые раньше лежали тремя обрезанными кнопками
+          внутри попапа «⋯» под заголовком «Отображение». */}
+      {справка && <>
+        <div className='raz-sht-fon' onClick={()=>setСправка(false)}/>
+        <div className='raz-sht' role='dialog' aria-modal='true' aria-label='Справка'>
+          <div className='raz-sht-ruchka' aria-hidden='true'/>
+          <div className='raz-sht-shapka'>
+            <b>Справка</b>
+            <button className='raz-sht-x' onClick={()=>setСправка(false)} aria-label='Закрыть: Справка'>✕</button>
+          </div>
+          <div className='raz-sht-telo'>
+            <button className='raz-str' onClick={()=>{setСправка(false);setInstr(true);}}>
+              <span className='raz-str-t'>Как собрать свою ясну
+                <span className='raz-str-p'>с чего начать и что куда ставить</span></span>
+            </button>
+            <button className='raz-str' onClick={()=>{setСправка(false);setGlossary(true);}}>
+              <span className='raz-str-t'>Словарь
+                <span className='raz-str-p'>кресты, стихии, механики — своими словами</span></span>
+            </button>
+            <button className='raz-str' onClick={()=>{setСправка(false);setVerif(true);}}>
+              <span className='raz-str-t'>Вопросы к кругу
+                <span className='raz-str-p'>проверить, всё ли стоит на своём месте</span></span>
+            </button>
+            <button className='raz-str' onClick={()=>{setСправка(false);setShowTour(true);}}>
+              <span className='raz-str-t'>Разбор по кругу
+                <span className='raz-str-p'>пройти круг место за местом</span></span>
+            </button>
+          </div>
+        </div>
+      </>}
+
+      {/* ═══ Д6. ЛИСТ «ВИД» ═══════════════════════════════════════════
+          Всё, чем раньше занимался тулбар из пяти иконок и попап «⋯»:
+          механики, объём, вращение, совмещение, стихии, во весь экран.
+          Плюс правка текущей ясны — она ушла сюда из меню «+». */}
+      {видЛист && <>
+        <div className='raz-sht-fon' onClick={()=>setВидЛист(false)}/>
+        <div className='raz-sht' role='dialog' aria-modal='true' aria-label='Вид'>
+          <div className='raz-sht-ruchka' aria-hidden='true'/>
+          <div className='raz-sht-shapka'>
+            <b>Вид</b>
+            <button className='raz-sht-x' onClick={()=>setВидЛист(false)} aria-label='Закрыть: Вид'>✕</button>
+          </div>
+          <div className='raz-sht-telo'>
+            <button className='raz-str' onClick={()=>{setВидЛист(false);setFiltersOpen(true);}}>
+              <span className='raz-str-t'>Механики
+                <span className='raz-str-p'>кресты, стихии и линии поверх круга</span></span>
+              <span className={'raz-str-z'+(af.length?' vkl':'')}>{af.length?af.length:'нет'}</span>
+            </button>
+            <button className='raz-str' onClick={()=>setIs3D(v=>!v)} aria-pressed={is3D}>
+              <span className='raz-str-t'>Объёмный вид
+                <span className='raz-str-p'>круг как шар, его можно вращать пальцем</span></span>
+              <span className={'raz-str-z'+(is3D?' vkl':'')}>{is3D?'вкл':'выкл'}</span>
+            </button>
+            <button className='raz-str' disabled={yasna2Drill!=null}
+              onClick={()=>setStarRotation(r=>r?null:'cw')} aria-pressed={!!starRotation}>
+              <span className='raz-str-t'>Вращение
+                <span className='raz-str-p'>круг идёт сам, чтобы смотреть на движение</span></span>
+              <span className={'raz-str-z'+(starRotation?' vkl':'')}>{starRotation?'вкл':'выкл'}</span>
+            </button>
+            {starRotation && <div className='raz-skorost'>
+              <label htmlFor='raz-skorost-vvod'>Оборот за {rotationSpeed} с</label>
+              <input id='raz-skorost-vvod' type='range' min='5' max='120' value={rotationSpeed}
+                onChange={e=>setRotationSpeed(+e.target.value)}/>
+            </div>}
+            <button className='raz-str' onClick={()=>{if(overlay){setOverlay(null);}else{setВидЛист(false);setShowOverlayPicker(true);}}}>
+              <span className='raz-str-t'>Совместить с другой ясной
+                <span className='raz-str-p'>{overlay?('поверх: '+(overlay.n||overlay.name||'')):'сравнить два круга на одном'}</span></span>
+              <span className={'raz-str-z'+(overlay?' vkl':'')}>{overlay?'вкл':'выкл'}</span>
+            </button>
+            <button className='raz-str' onClick={()=>setShowComposition(c=>!c)} aria-pressed={showComposition}>
+              <span className='raz-str-t'>Стихии
+                <span className='raz-str-p'>состав четырёх стихий на каждом месте</span></span>
+              <span className={'raz-str-z'+(showComposition?' vkl':'')}>{showComposition?'вкл':'выкл'}</span>
+            </button>
+            <button className='raz-str' onClick={()=>{setВидЛист(false);setFullStar(true);}}>
+              <span className='raz-str-t'>Во весь экран
+                <span className='raz-str-p'>круг без шапки и кнопок</span></span>
+            </button>
+            <div className='raz-razdel'/>
+            <button className='raz-str' onClick={()=>{setВидЛист(false);editCurrent();}}>
+              <span className='raz-str-t'>Изменить эту ясну
+                <span className='raz-str-p'>{y.user?'править имена мест':'для готовой создастся ваша копия'}</span></span>
+            </button>
+          </div>
+        </div>
+      </>}
 
       {/* ═══ ТЕЛЕФОН: лист со всеми Яснами ═══════════════════════════
           Тап по строке ОТКРЫВАЕТ Ясну и закрывает лист. В прежнем окне
@@ -1829,9 +1996,11 @@ function App(){
             <div className='raz-list-ruchka' aria-hidden='true'/>
             <div className='raz-list-shapka'>
               <b>Ясны</b><span>{все.length-спрятано}</span>
+              {/* Д7. Было два разных «Изменить» на одном экране: это правит
+                  СПИСОК (скрыть/удалить), а не круг. Разводим их словами. */}
               <button className={'raz-list-pravka'+(правкаЯсн?' est':'')} onClick={()=>setПравкаЯсн(п=>!п)}>
-                {правкаЯсн?'Готово':'Изменить'}</button>
-              <button className='raz-list-x' onClick={()=>{setПравкаЯсн(false);setЛистЯсн(false);}} aria-label='Закрыть'>×</button>
+                {правкаЯсн?'Готово':'Править список'}</button>
+              <button className='raz-list-x' onClick={()=>{setПравкаЯсн(false);setЛистЯсн(false);}} aria-label='Закрыть: Ясны'>✕</button>
             </div>
             <input className='raz-list-poisk' value={поиск} onChange={e=>setПоиск(e.target.value)}
               placeholder='Найти по имени' inputMode='search' aria-label='Поиск Ясны'/>

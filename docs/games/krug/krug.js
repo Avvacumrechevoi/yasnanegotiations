@@ -158,6 +158,55 @@ function record(g){
   save(d); return d;
 }
 const bestOf=id=>{ const b=load().best[id]; return b===undefined?null:b };
+
+/* ─── Снимок недоигранной раскладки (Д9) ──────────────────────────
+   Android выгружает WebView при нехватке памяти — звонок, смена темы, любой
+   мессенджер, — и двухминутная раскладка пропадала без слова: состояние S
+   жило только в памяти вкладки. Кладём снимок после каждого хода в тот же
+   ключ yasna_krug_v1: своего ключа не заводим, реестр в core/storage.js
+   правят другие руки, а это поле уезжает вместе с прогрессом круга.
+   Раздачу по ссылке (?y=&s=) не сохраняем: у неё свой вход, и воскрешать
+   чужую раздачу поверх новой ссылки нельзя. */
+const СНИМОК_ЖИВЁТ_МС = 6*60*60*1000;   /* старше — это уже не «продолжить» */
+function снимокСохранить(){
+  if(S.scr!=='play' || S.mode==='link' || !S.yasna) return;
+  const d=load();
+  d.partiya={ ts:Date.now(), yasna:S.yasna.id, seed:S.seed, mode:S.mode,
+    deck:S.deck, i:S.i, placed:S.placed, first:S.first, by:S.by, miss:S.miss,
+    turn:S.turn, hits:S.hits, tries:S.tries, els:S.els, axBy:S.axBy,
+    players:S.players, ms:Math.max(0,Date.now()-(S.t0||Date.now())) };
+  save(d);
+}
+function снимокСтереть(){ const d=load(); if(!d.partiya) return; delete d.partiya; save(d); }
+function снимокПрочитать(){
+  const с=load().partiya;
+  if(!с||!с.yasna||!Array.isArray(с.deck)||!Array.isArray(с.placed)) return null;
+  if(!с.ts||Date.now()-с.ts>СНИМОК_ЖИВЁТ_МС){ снимокСтереть(); return null; }
+  /* До boot() список ясен пуст, а setup() успевает отработать раньше него —
+     наблюдатель темы зовёт его на первую же смену data-theme. Без этой строки
+     снимок стирался как «ясна не найдена» ещё до того, как её искать было где. */
+  if(!LIST.length) return null;
+  if(!LIST.some(y=>y.id===с.yasna)){ снимокСтереть(); return null; }
+  if((с.i|0)>=с.deck.length){ снимокСтереть(); return null; }   /* доиграна — нечего продолжать */
+  return с;
+}
+function снимокВосстановить(с){
+  const y=LIST.find(x=>x.id===с.yasna); if(!y) return false;
+  S.yasna=y; S.seed=с.seed|0; S.mode=с.mode||'solo'; S.invited=false; S.preset=false;
+  S.scr='play'; шапка('Ясна '+S.yasna.n); прятатьИсторию();
+  S.deck=с.deck.slice(); S.i=с.i|0;
+  S.placed=с.placed.slice(); S.first=(с.first||[]).slice(); S.by=(с.by||[]).slice();
+  S.miss=с.miss||{}; S.turn=с.turn|0;
+  S.hits=с.hits||[0,0]; S.tries=с.tries||[0,0]; S.els=с.els||[0,0];
+  S.axBy=с.axBy||new Array(6).fill(null);
+  S.players=с.players||['Золотой','Синий'];
+  S.intro=false; S.vstuplenie=false; S.logged=false;
+  /* Отсчёт времени продолжаем с наигранного: иначе рекорд поставила бы
+     партия, «сыгранная» за десять секунд после возвращения. */
+  S.t0=Date.now()-(с.ms|0);
+  render();
+  return true;
+}
 const played=()=>Object.keys(load().best).length;
 function fmtDate(t){
   const dt=new Date(t), n=new Date(), d0=new Date(n.getFullYear(),n.getMonth(),n.getDate());
@@ -169,7 +218,7 @@ function fmtDate(t){
 const MODE_RU={solo:'одному',duo:'вдвоём',link:'общая раздача'};
 
 /* ─── состояние ───────────────────────────────────────────────────── */
-const S={ scr:'setup', yasna:null, seed:0, mode:'solo', preset:false,
+const S={ scr:'setup', yasna:null, seed:0, mode:'solo', preset:false, intro:false,
           deck:[], i:0, placed:[], first:[], by:[], miss:{}, turn:0, hits:[0,0], tries:[0,0], els:[0,0], axBy:[], players:['Золотой','Синий'] };
 let LIST=[];
 
@@ -392,6 +441,21 @@ function setup(){
     кнИст.onclick=history_;
   }
 
+  /* Оборванная раскладка ждёт здесь: сама она не воскресает, а человек
+     видит, сколько уже разложил, и решает сам. */
+  const снимок=снимокПрочитать();
+  if(снимок){
+    const имя=((LIST.find(y=>y.id===снимок.yasna)||{}).n)||'';
+    app().appendChild(el(`<div class="say ok"><div class="hd">Раскладка не закончена</div>
+      <div class="bd">Ясна ${esc(имя)} — ${снимок.i|0} из ${снимок.deck.length}.</div></div>`));
+    const прод=el(`<button class="go">Продолжить раскладку →</button>`);
+    прод.onclick=()=>снимокВосстановить(снимок);
+    app().appendChild(прод);
+    const заново=el(`<button class="gh">Начать заново</button>`);
+    заново.onclick=()=>{ снимокСтереть(); setup(); };
+    app().appendChild(заново);
+  }
+
   app().appendChild(el(`<div class="sect">Выберите ясну</div>`));
   const g=el(`<div class="grid"></div>`);
   /* Случайная — такая же карточка, только знак кубика и акцентный тон:
@@ -448,8 +512,10 @@ function history_(){
     app().appendChild(el(`<div class="say"><div class="hd">Последние партии</div>
       <table class="res">${rows}</table></div>`));
   }
-  const back=el(`<button class="go">← К выбору ясны</button>`); back.onclick=setup;
-  app().appendChild(back);
+  /* Кнопки «← К выбору ясны» здесь больше нет: уход назад — не действие
+     экрана, и стрелка в шапке делает ровно то же самое. Главным действием
+     истории она быть не могла, а разрушительное «Очистить» стояло под ней
+     на том же уровне. */
   if(d.games.length){
     const clr=el(`<button class="gh">Очистить историю</button>`);
     clr.onclick=()=>спросить({
@@ -467,15 +533,24 @@ function mode(){
   try{ window.scrollTo(0,0) }catch(_){}
   S.scr='mode'; app().innerHTML=''; app().classList.remove('duo-col');
   шапка('Ясна ' + S.yasna.n); прятатьИсторию();
+  /* «Шесть осей» стояло раньше, чем слово «ось» вообще объяснено. Говорим
+     сначала, что такое пара напротив, и только потом называем её осью. */
   app().appendChild(el(`<div><h2>Как играем?</h2>
-    <div class="sub">${S.random?'Ясна выпала случайно. ':''}Двенадцать мест, шесть осей.</div></div>`));
+    <div class="sub">${S.random?'Ясна выпала случайно. ':''}Двенадцать мест по кругу.
+    Те, что напротив, — пара: когда стоят оба, между ними протянется ось.</div></div>`));
   const opts=[
     ['solo','Одному','сам себе, ~2 минуты'],
     ['duo','Вдвоём на одном телефоне','ходите по очереди, телефон между вами'],
     ['link','Компанией по ссылке','всем достаётся одна и та же раздача']
   ];
   opts.forEach(([id,t,s])=>{
-    const b=el(`<button class="tile" style="min-height:56px;width:100%"><b>${t}</b><i>${s}</i></button>`);
+    /* .tile — flex-строка, и подпись курсивом вставала СПРАВА от названия,
+       крупнее его; три плитки при этом соприкасались без зазора. Столбик и
+       8 dp между целями — правилами вёрстки самой плитки, без правки krug.css
+       (тот файл общий с сайтом и правят его другие руки). */
+    const b=el(`<button class="tile" style="min-height:56px;width:100%;flex-direction:column;
+      align-items:flex-start;gap:2px;margin-bottom:8px"><b>${t}</b>
+      <i style="font-size:13px;opacity:.72">${s}</i></button>`);
     b.onclick=()=>{ S.mode=id; id==='link'?share():start() };
     app().appendChild(b);
   });
@@ -508,7 +583,20 @@ function share(){
     Каждый раскладывает у себя.</div></div>`));
   app().appendChild(el(`<div class="say"><div class="hd">Ссылка</div>
     <div class="bd" style="word-break:break-all;font-size:12.5px">${esc(url)}</div></div>`));
-  const cp=el(`<button class="go">Скопировать ссылку</button>`);
+  /* «Отправить друзьям» на Android — это системный лист, а не буфер обмена:
+     копирование заставляло искать мессенджер руками. navigator.share в
+     WebView работает по жесту; где его нет — остаётся копирование. */
+  if(navigator.share){
+    const sh=el(`<button class="go">Поделиться</button>`);
+    sh.onclick=()=>{
+      navigator.share({ title:'Ясна '+S.yasna.n,
+        text:'Разложим по кругу одну и ту же раздачу: Ясна '+S.yasna.n+'.', url:url })
+        .then(()=>живо('Ссылка отправлена'))
+        .catch(()=>{});   /* отмена в системном листе — не ошибка */
+    };
+    app().appendChild(sh);
+  }
+  const cp=el(`<button class="${navigator.share?'gh':'go'}">Скопировать ссылку</button>`);
   cp.onclick=async()=>{ try{ await navigator.clipboard.writeText(url);
       cp.innerHTML='Скопировано <span aria-hidden="true">✓</span>'; живо('Ссылка скопирована'); }
     catch(e){ cp.innerHTML='Скопируй вручную <span aria-hidden="true">↑</span>';
@@ -523,20 +611,25 @@ function share(){
 }
 
 /* ═══════════ ПАРТИЯ ═══════════ */
-function start(){
+/* колода — необязательная: с ней играется повтор промахов (см. finish). */
+function start(колода){
   S.scr='play'; шапка('Ясна ' + S.yasna.n); прятатьИсторию(); S.i=0; S.placed=new Array(12).fill(false);
   S.first=new Array(12).fill(null); S.by=new Array(12).fill(null); S.miss={}; S.turn=0;
   S.hits=[0,0]; S.tries=[0,0]; S.els=[0,0]; S.axBy=new Array(6).fill(null);
   S.t0=Date.now(); S.logged=false;
   const rnd=mulberry(S.seed);
   /* ноль и шестёрка выдаются даром: это опоры круга, от них считается всё остальное */
-  S.deck=shuffled([1,2,3,4,5,7,8,9,10,11],rnd);
+  S.deck=(колода&&колода.length)?колода.slice():shuffled([1,2,3,4,5,7,8,9,10,11],rnd);
+  /* Во вступлении карточки элемента нет вовсе. Раньше она стояла над
+     объяснением и спрашивала «Куда на круге?» раньше правил, а тап по кругу
+     в этот момент молча проглатывался — экран выглядел сломанным. */
+  S.intro=true; S.vstuplenie=true;
   render();
   place(0,true); place(6,true);
-  S.vstuplenie=true;
+  снимокСохранить();
   say('ok','Низ и верх выдаём',
     `<b>${esc(S.yasna.p[0])}</b> — ${POS[0]}. Напротив, на вершине, — <b>${esc(S.yasna.p[6])}</b>.
-     Остальные десять поставь сам.`, 'Начали →', ()=>hand());
+     Остальные ${S.deck.length} поставь сам.`, 'Начали →', ()=>{ S.intro=false; hand(); });
 }
 
 function render(){
@@ -584,6 +677,8 @@ function живо(текст){
 
 function hand(){
   const b=bot(); b.innerHTML='';
+  /* Вступление: только полоска хода, без карточки с вопросом. */
+  if(S.intro){ b.appendChild(prog()); N.mid.innerHTML='<b>0 / '+S.deck.length+'</b>имён'; return; }
   if(S.i>=S.deck.length) return finish();
   const t=S.deck[S.i];
   b.appendChild(prog());
@@ -636,6 +731,18 @@ function say(kind,hd,bd,btn,fn){
   }catch(_){}
 }
 
+/* Верный ход подтверждения не требует: следующий элемент показывается сразу,
+   а объяснение остаётся полосой под кругом до следующего хода. Раньше каждое
+   попадание упиралось в кнопку «Дальше →» — партия из десяти элементов стоила
+   двадцати одного тапа. Класс .otklik отличает полосу от разбора: при ней круг
+   ходы принимает (см. onTap), при разборе — нет. */
+function отклик(kind,hd,bd){
+  const b=bot(); if(!b) return;
+  const блок=el(`<div class="say ${kind} otklik"><div class="hd">${hd}</div><div class="bd">${bd}</div></div>`);
+  b.appendChild(блок);
+  живо(hd + '. ' + (блок.querySelector('.bd')||{textContent:''}).textContent);
+}
+
 function place(i,free){
   /* Элемент встал — подсказка промаха про эту долю больше не нужна. */
   if(N.w[i]) N.w[i].classList.remove('podskazka');
@@ -663,10 +770,22 @@ function place(i,free){
 
 function onTap(i){
   if(S.scr!=='play') return;
-  /* Показан разбор — круг не принимает ходов. Признак теперь сам разбор:
-     карточка элемента при нём остаётся на экране (приглушённой), и проверка
-     по её наличию пропускала тап, ломая партию. */
-  if(!bot() || bot().querySelector('.say')) return;
+  /* Показан разбор — круг не принимает ходов. Полоса отклика (.otklik) ходам
+     не мешает: она объясняет уже сделанный ход, а не ждёт ответа. */
+  const низ=bot(); if(!низ) return;
+  const карта=низ.querySelector('.say:not(.otklik)');
+  if(карта){
+    /* Тап по кругу во вступлении сам начинает партию: человек уже показал,
+       что готов ставить. Раньше он молча проглатывался. */
+    if(S.intro){ S.intro=false; hand(); живо('Начали'); return; }
+    /* А при разборе тап отвечает тряской и называет ту кнопку, которая ждёт,
+       — раньше экран просто дёргался без слов. */
+    shake();
+    const кн=низ.querySelector('button.go');
+    const имя=String(кн?кн.textContent:'').replace(/\s*→\s*$/,'').trim()||'Дальше';
+    живо('Сначала — «'+имя+'»');
+    return;
+  }
   if(S.placed[i]){
     /* Тряска — тот же сигнал, что и у промаха, но там есть разбор, а здесь
        не было ни слова: человек тапал, экран дёргался, и было непонятно,
@@ -695,6 +814,7 @@ function onTap(i){
        Таймера нет: пока человек читает разбор, подсказка обязана ждать его —
        снимет её place(), когда элемент действительно встанет на место. */
     if(N.w[t]) N.w[t].classList.add('podskazka');
+    снимокСохранить();
     say('no','Не сюда',
       `Место ${i}: ${POS[i]}. Там живёт что-то другое.<br><br>
        «<b>${esc(S.yasna.p[t])}</b>» ищи там, где ${POS[t]} — место подсвечено на круге.`,
@@ -703,11 +823,24 @@ function onTap(i){
   }
   place(t);
   const k=t%6, closed=S.placed[k]&&S.placed[k+6];
-  say('ok', closed?'Ось сошлась':'На месте',
-    closed
-      ? `«<b>${esc(S.yasna.p[k])}</b>» и «<b>${esc(S.yasna.p[k+6])}</b>» — два конца одной нитки.<br><br>
-         Одно место: ${POS[k]}.<br>Ровно напротив: ${POS[k+6]}.`
-      : `«<b>${esc(S.yasna.p[t])}</b>» стоит там, где ${POS[t]}. Напротив пока пусто.`);
+  const разбор = closed
+    ? `«<b>${esc(S.yasna.p[k])}</b>» и «<b>${esc(S.yasna.p[k+6])}</b>» — два конца одной оси.<br><br>
+       Одно место: ${POS[k]}.<br>Ровно напротив: ${POS[k+6]}.`
+    : `«<b>${esc(S.yasna.p[t])}</b>» стоит там, где ${POS[t]}. Напротив пока пусто.`;
+  /* Серая ось выглядела ошибкой: легенды у цвета нигде не было. Объясняем
+     один раз — в тот момент, когда серая нитка впервые протянулась. */
+  /* Вдвоём серая нитка значит другое (ось никому не досталась) — там эта
+     подпись солгала бы. */
+  const серая = closed && S.mode!=='duo' && chordCol(k)==='var(--k-grey)';
+  const текст = серая
+    ? разбор + `<br><br><span style="color:var(--k-tx3)">Ось серая: один её конец
+       встал не с первого раза.</span>`
+    : разбор;
+  S.i++; if(S.mode==='duo') S.turn=1-S.turn;
+  hand();                                   /* следующий элемент — сразу */
+  снимокСохранить();
+  /* hand() на последнем ходе уводит в итог — там полосе уже не место. */
+  if(S.scr==='play') отклик('ok', closed?'Ось сошлась':'На месте', текст);
 }
 
 function plural(n,a,b,c){ const x=Math.abs(n)%100,y=x%10;
@@ -716,18 +849,24 @@ function plural(n,a,b,c){ const x=Math.abs(n)%100,y=x%10;
 /* ═══════════ ИТОГ ═══════════ */
 function finish(){
   S.scr='end';
+  снимокСтереть();                    /* партия доиграна — продолжать нечего */
   const b=bot(); b.innerHTML='';
   N.mid.innerHTML='<b>Круг собран</b>';
   const clean=S.deck.filter(t=>S.first[t]===true).length;
   const prevBest=bestOf(S.yasna.id);
+  const полная=S.placed.every(Boolean);   /* повтор промахов ставит не все двенадцать */
   if(!S.logged){                      /* один раз на партию, а не на каждый рендер */
     S.logged=true;
-    record({ t:Date.now(), yasna:S.yasna.id, name:S.yasna.n, mode:S.mode,
+    /* Повтор промахов — не отдельная партия: в историю он не идёт, иначе
+       список заполнят строки «3 из 4», несравнимые с полными раскладками. */
+    if(полная) record({ t:Date.now(), yasna:S.yasna.id, name:S.yasna.n, mode:S.mode,
              clean:clean, total:S.deck.length, ms:Math.max(0,Date.now()-S.t0) });
   }
   const missed=S.deck.filter(t=>S.first[t]===false);
 
-  let body=`Все двенадцать на местах, шесть ниток протянуты.`;
+  let body=полная
+    ? `Все двенадцать на местах, шесть осей протянуты.`
+    : `Разобрано ${S.deck.length} ${plural(S.deck.length,'имя','имени','имён')} из тех, что путал.`;
   if(S.mode!=='duo'){
     body+=` С первого раза — <b>${clean}</b> из ${S.deck.length}.`;
   } else {
@@ -770,7 +909,7 @@ function finish(){
       круг там тот же, меняется только оболочка.</div></div>`));
   }
 
-  if(S.mode!=='duo'){
+  if(S.mode!=='duo' && полная){
     const nowBest=bestOf(S.yasna.id);
     b.appendChild(el(`<div class="note" style="margin-top:10px">${
       prevBest===null ? 'Это твоя первая раскладка Ясны '+esc(S.yasna.n)+'.'
@@ -778,7 +917,15 @@ function finish(){
                         : 'Твой лучший результат на этой Ясне: '+nowBest+' из '+S.deck.length+'.')
     }</div>`));
   }
-  const again=el(`<button class="go">Ещё Ясна →</button>`);
+  /* Самый ценный момент — сразу после ошибки, а итог предлагал только «другую
+     ясну»: разобрать то, что путал, было негде. Колода из промахов — главное
+     действие экрана, когда промахи есть. */
+  if(missed.length){
+    const пов=el(`<button class="go">Ещё раз — только промахи (${missed.length})</button>`);
+    пов.onclick=()=>{ if(S.mode!=='link') S.seed=(Math.random()*1e9)|0; start(missed) };
+    b.appendChild(пов);
+  }
+  const again=el(`<button class="${missed.length?'gh':'go'}">Ещё Ясна →</button>`);
   again.onclick=()=>{ try{ history.replaceState(null,'',location.pathname) }catch(_){}
     S.invited=false; S.preset=false; setup() };
   b.appendChild(again);
@@ -868,6 +1015,7 @@ function once(){ if(booted) return; booted=true; boot(); }
       заголовок: 'Выйти из партии?', текст: 'Раскладка не сохранится.',
       нет: 'Остаться', да: 'Выйти',
       наДа: function () {
+        снимокСтереть();          /* уход по вкладке — тот же отказ от раскладки */
         if (window.yasnaNav) window.yasnaNav.корень(куда);
         else if (куда) location.href = куда;
       }
@@ -901,6 +1049,9 @@ function once(){ if(booted) return; booted=true; boot(); }
   /* Сам выход: отдельно от вопроса, потому что вопрос отвечает не сразу и
      звать его надо из двух мест — из кнопки окна и напрямую. */
   function кВыбору(){
+    /* Человек сам согласился, что раскладка не сохранится, — снимок «продолжить»
+       после этого предлагал бы ровно то, от чего он отказался. */
+    снимокСтереть();
     try { history.replaceState(null, '', location.pathname); } catch (_) {}
     S.preset = false; S.invited = false;
     setup(); window.scrollTo(0, 0);

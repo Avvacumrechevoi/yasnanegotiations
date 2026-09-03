@@ -173,12 +173,106 @@ function LessonStar({mode,highlighted=[],labels={},visiblePositions=null,showNum
 // ═══════════════════════════════════════════════════════════════════
 
 // Markdown-lite: **bold** + \n → <br>
-function renderRichText(text){
+/* ═══ ТЕРМИНЫ УРОКА ═══════════════════════════════════════════════
+   Слова корпуса («опорный крест», «столб суток», «прана») объяснялись
+   ТОЛЬКО по ходу: кто забыл их к шестой секции, не имел иного способа
+   вспомнить, кроме прокрутки на восемь экранов вверх — Словарь и Справка
+   живут на другом экране и из урока недостижимы. Теперь у термина два
+   входа: тап по подчёркнутому слову в тексте и «⋮ → Словарь» в шапке.
+
+   Длинные разборы здесь не дублируются: если у термина есть статья в
+   общем словаре (GLOSS, core/data.js), она открывается по ссылке «гл» —
+   один источник правды на приложение. Своими словами описаны только те
+   термины, статей о которых в GLOSS нет. */
+const ТЕРМИНЫ=[
+  {имя:'Опорный крест', шаблон:'опорн(?:ый|ого|ому|ым|ом|ые|ых|ыми|ая|ой|ую)\\s+крест[а-яё]*',
+   кратко:'Четыре главных места круга: 0, 3, 6, 9. Уберите любое — явление рассыплется.', гл:'support'},
+  {имя:'Крест Управления', шаблон:'крест[а-яё]*\\s+управлени[а-яё]+',
+   кратко:'Места 1, 4, 7, 10 — итоги: что получилось после опорного.', гл:'right'},
+  {имя:'Крест Веры', шаблон:'крест[а-яё]*\\s+веры',
+   кратко:'Места 2, 5, 8, 11 — подготовка к следующему опорному.', гл:'left'},
+  {имя:'Линия Единства', шаблон:'лини[а-яё]*\\s+единства',
+   кратко:'Вертикаль 0↔6. Делит круг на нарастание и спад.', гл:'support'},
+  {имя:'Линия Борьбы', шаблон:'лини[а-яё]*\\s+борьбы',
+   кратко:'Горизонт 3↔9. Делит круг на свет и тьму.', гл:'support'},
+  {имя:'Столб суток', шаблон:'столб[а-яё]*\\s+(?:суток|врем[её]н)',
+   кратко:'Вертикаль круга суток: Ночь (0) — День (6). Делит утреннюю сторону круга и вечернюю. Второе имя — столб времён.'},
+  {имя:'Горизонт суток', шаблон:'горизонт[а-яё]*\\s+суток',
+   кратко:'Линия 3—9 круга суток: Восход — Закат. Отделяет свет от тьмы.'},
+  {имя:'Пятиминутка', шаблон:'пятиминутк[а-яё]*',
+   кратко:'Восход (3) и Закат (9): солнечный диск идёт через горизонт около пяти минут — оттого и имя.'},
+  {имя:'Прана', шаблон:'пран[аыуе](?![а-яё])',
+   кратко:'Стихия места: ШЕ — земля, ФО — вода, ЦИ — воздух, ХА — огонь. Каждая занимает по три места круга.', гл:'she'},
+  {имя:'Долгое время', шаблон:'долг(?:ое|ого|ому|им|ом)\\s+врем[яениё][а-яё]*',
+   кратко:'Чётные места (0, 2, 4, 6, 8, 10) — там копится, тянется, длится.', гл:'type'},
+  {имя:'Короткое время', шаблон:'коротк(?:ое|ого|ому|им|ом)\\s+врем[яениё][а-яё]*',
+   кратко:'Нечётные места (1, 3, 5, 7, 9, 11) — там перелом: накопленное переходит в новое.', гл:'type'}
+];
+
+/* Один разбор на все термины: свой RegExp на каждый термин означал бы
+   одиннадцать проходов по каждому абзацу урока. Скобки внутри шаблонов
+   нарочно незахватывающие — номер сработавшей группы и есть номер
+   термина. Хвостовой заслон (?![а-яё]) держит «пранатерапию» и «долгое
+   времяпрепровождение» подальше от разметки. */
+const ОБЩИЙ=new RegExp(ТЕРМИНЫ.map(т=>'('+т.шаблон+')').join('|')+'(?![а-яё])','gi');
+
+function найтиТермин(слово){
+  if(!слово)return null;
+  const р=new RegExp('^(?:'+ТЕРМИНЫ.map(т=>т.шаблон).join('|')+')$','i');
+  if(!р.test(слово.trim()))return null;
+  const л=new RegExp(ОБЩИЙ.source,'i');
+  const м=л.exec(слово);
+  if(!м)return null;
+  for(let k=1;k<м.length;k++)if(м[k]!==undefined)return ТЕРМИНЫ[k-1];
+  return null;
+}
+
+/* Кто откроет объяснение. Урок на экране всегда один (lesson.html рисует
+   ровно его), поэтому один общий обработчик честнее, чем контекст,
+   протянутый через двадцать один тип блока. Ставит его ScrollLesson. */
+let ОТКРЫТЬ_ТЕРМИН=null;
+
+function Термин({термин,слово}){
+  return(
+    <button type='button'
+      onClick={()=>{if(ОТКРЫТЬ_ТЕРМИН)ОТКРЫТЬ_ТЕРМИН(термин);}}
+      aria-label={'Что такое «'+термин.имя+'» — открыть объяснение'}
+      style={{font:'inherit',color:'inherit',background:'none',border:'none',padding:0,margin:0,
+        cursor:'pointer',textDecoration:'underline',textDecorationStyle:'dotted',
+        textDecorationColor:'var(--primary)',textUnderlineOffset:3}}>{слово}</button>);
+}
+
+/* Термин размечаем ОДИН раз на текст — первое вхождение. Подчеркнуть
+   каждый «опорный крест» в абзаце значило бы превратить урок в гирлянду
+   ссылок и увести глаз с самого текста. */
+function разметить(текст,были){
+  if(!текст)return[{т:текст}];
+  const куски=[]; let конец=0, м;
+  были=были||{};
+  ОБЩИЙ.lastIndex=0;
+  while((м=ОБЩИЙ.exec(текст))!==null){
+    if(м[0]===''){ОБЩИЙ.lastIndex++;continue;}
+    let н=-1;
+    for(let k=1;k<м.length;k++)if(м[k]!==undefined){н=k-1;break;}
+    if(н<0||были[н])continue;
+    были[н]=true;
+    if(м.index>конец)куски.push({т:текст.slice(конец,м.index)});
+    куски.push({т:м[0],термин:ТЕРМИНЫ[н]});
+    конец=м.index+м[0].length;
+  }
+  if(конец<текст.length)куски.push({т:текст.slice(конец)});
+  return куски;
+}
+
+/* о.термины=true — размечать термины самим. Включено только там, где идёт
+   сплошная речь урока (объяснение, говорящий, научная сноска): в вопросах
+   и подписях подчёркивание спорило бы с ответами. Явная разметка [термин]
+   работает везде и без флага. */
+function renderRichText(text,о){
   if(!text) return null;
-  const parts=text.split(/(\*\*[^*]+\*\*)/g);
-  return parts.map((p,i)=>{
-    if(p.startsWith('**')&&p.endsWith('**'))
-      return<b key={i} style={{fontWeight:700,color:'var(--on-surface)'}}>{p.slice(2,-2)}</b>;
+  const сам=!!(о&&о.термины);
+  const parts=text.split(/(\*\*[^*]+\*\*|\[[^\][]+\])/g);
+  const строки=(p,i)=>{
     const lines=p.split('\n');
     return lines.map((line,j)=>(
       <React.Fragment key={i+'_'+j}>
@@ -186,6 +280,29 @@ function renderRichText(text){
         {line}
       </React.Fragment>
     ));
+  };
+  const были={};
+  const термины=(текст,к)=>разметить(текст,были).map((ч,j)=>ч.термин
+    ?<Термин key={к+'t'+j} термин={ч.термин} слово={ч.т}/>
+    :<React.Fragment key={к+'p'+j}>{строки(ч.т,к+'p'+j)}</React.Fragment>);
+  return parts.map((p,i)=>{
+    if(p.startsWith('**')&&p.endsWith('**')){
+      const жир=p.slice(2,-2);
+      /* Термины ищем и в жирном тоже: уроки как раз и выделяют слово
+         корпуса жирным в тот миг, когда вводят его («**столб суток**»).
+         Без этого разметка обходила бы ровно те места, ради которых
+         затевалась. */
+      return<b key={i} style={{fontWeight:700,color:'var(--on-surface)'}}>{сам?термины(жир,i):жир}</b>;
+    }
+    if(p.startsWith('[')&&p.endsWith(']')&&p.length>2){
+      const слово=p.slice(1,-1);
+      const т=найтиТермин(слово);
+      /* Скобки вокруг незнакомого слова — это опечатка, а не разметка:
+         показываем слово, а не квадратные скобки. */
+      return т?<Термин key={i} термин={т} слово={слово}/>:<React.Fragment key={i}>{слово}</React.Fragment>;
+    }
+    if(сам)return термины(p,i);
+    return строки(p,i);
   });
 }
 
@@ -509,7 +626,7 @@ function SpeakerBlock({block}){
             {block.role&&<div style={{fontSize:12,color:'var(--on-surface-variant)',marginTop:1}}>{block.role}</div>}
           </div>
         </div>
-        <div style={{fontSize:15,color:'var(--on-surface)',lineHeight:1.65,whiteSpace:'pre-wrap'}}>{renderRichText(block.text)}</div>
+        <div style={{fontSize:15,color:'var(--on-surface)',lineHeight:1.65,whiteSpace:'pre-wrap'}}>{renderRichText(block.text,{термины:true})}</div>
       </div>
       {popup&&<SciencePopupSheet science={block.science} onClose={()=>setPopup(false)}/>}
     </div>);
@@ -526,7 +643,7 @@ function ExplanationBlock({block}){
           </div>
         )}
         {block.title&&<div style={{fontSize:14,fontWeight:700,color:'var(--on-surface)',marginBottom:12,lineHeight:1.35}}>{block.title}</div>}
-        <div style={{fontSize:14.5,color:'var(--on-surface)',lineHeight:1.7,whiteSpace:'pre-wrap'}}>{renderRichText(block.body)}</div>
+        <div style={{fontSize:14.5,color:'var(--on-surface)',lineHeight:1.7,whiteSpace:'pre-wrap'}}>{renderRichText(block.body,{термины:true})}</div>
       </div>
       {popup&&<SciencePopupSheet science={block.science} onClose={()=>setPopup(false)}/>}
     </div>);
@@ -542,7 +659,7 @@ function ScienceNoteBlock({block}){
           <span>Научная сноска{block.subtitle?' · '+block.subtitle:''}</span>
         </div>
         {block.title&&<div style={{fontSize:13.5,fontWeight:700,color:'var(--on-surface)',marginBottom:8,lineHeight:1.4}}>{block.title}</div>}
-        <div style={{fontSize:13.5,color:'var(--on-surface)',lineHeight:1.65,whiteSpace:'pre-wrap'}}>{renderRichText(block.body)}</div>
+        <div style={{fontSize:13.5,color:'var(--on-surface)',lineHeight:1.65,whiteSpace:'pre-wrap'}}>{renderRichText(block.body,{термины:true})}</div>
 
         {/* Optional 4-phase diagram */}
         {phases&&phases.length===4&&(()=>{
@@ -675,10 +792,14 @@ function GateBlock({block,isActive,isUnlocked,canUnlock,onUnlock}){
     </div>);
 }
 
-function CheckboxQuizBlock({block,blockId,onComplete}){
-  const[checked,setChecked]=useState({});
-  const[touched,setTouched]=useState(()=>new Set());
-  const[anyInteraction,setAnyInteraction]=useState(false);
+/* начало / наОтвет — ответ переживает уход с экрана. Раньше выбор жил только
+   в useState: после возврата в урок вопросы стояли пустыми, хотя шапка
+   утверждала, что раздел пройден. Хранит и восстанавливает их ScrollLesson
+   (yasna_znanie_v1[урок].поз.ответы), блок лишь отдаёт своё состояние. */
+function CheckboxQuizBlock({block,blockId,onComplete,начало,наОтвет}){
+  const[checked,setChecked]=useState(()=>(начало&&начало.checked)||{});
+  const[touched,setTouched]=useState(()=>new Set((начало&&начало.touched)||[]));
+  const[anyInteraction,setAnyInteraction]=useState(!!начало);
   /* Отклик на ответ появлялся обычным текстом под пунктом — чтец молчал, и
      незрячий не знал, принят ли выбор и верен ли он. Живая строка одна на
      блок и не пересоздаётся: только так объявление вообще случается. */
@@ -701,14 +822,19 @@ function CheckboxQuizBlock({block,blockId,onComplete}){
       next.add(id);
       return next;
     });
+    let следВыбор, следТронуто;
     if(single){
       // single-select: the newly picked item becomes the only checked one,
       // and we reset touched to just this item so previous picks don't show feedback
-      setChecked({[id]:true});
-      setTouched(new Set([id]));
+      следВыбор={[id]:true}; следТронуто=[id];
+      setChecked(следВыбор);
+      setTouched(new Set(следТронуто));
     } else {
-      setChecked(prev=>({...prev,[id]:!prev[id]}));
+      следВыбор={...checked,[id]:!checked[id]};
+      следТронуто=[...new Set([...touched,id])];
+      setChecked(следВыбор);
     }
+    if(наОтвет)наОтвет({checked:следВыбор,touched:следТронуто});
   };
   return(
     <div style={{padding:'16px 24px',maxWidth:680,margin:'0 auto'}}>
@@ -761,10 +887,11 @@ function CheckboxQuizBlock({block,blockId,onComplete}){
 //   correct         — array of ids that are correct
 //   numCorrect      — how many user must select (default 4, stages 1-2 use 2)
 //   feedbackOk, feedbackError
-function PillarsPickerBlock({block,onComplete}){
+function PillarsPickerBlock({block,onComplete,начало,наОтвет}){
   const numCorrect=block.numCorrect||4;
-  const[selected,setSelected]=useState(()=>new Set());
-  const[submitted,setSubmitted]=useState(false);
+  /* начало / наОтвет — см. CheckboxQuizBlock: ответ переживает уход с экрана. */
+  const[selected,setSelected]=useState(()=>new Set((начало&&начало.selected)||[]));
+  const[submitted,setSubmitted]=useState(!!(начало&&начало.submitted));
   const[hintOpen,setHintOpen]=useState(false);
   const correct=new Set(block.correct||[]);
   const isCorrect=selected.size===numCorrect
@@ -773,16 +900,16 @@ function PillarsPickerBlock({block,onComplete}){
 
   const toggle=(id)=>{
     if(submitted&&isCorrect)return; // locked after success
-    setSelected(prev=>{
-      const next=new Set(prev);
-      if(next.has(id))next.delete(id);
-      else next.add(id);
-      return next;
-    });
+    const next=new Set(selected);
+    if(next.has(id))next.delete(id);
+    else next.add(id);
+    setSelected(next);
     if(submitted)setSubmitted(false);
+    if(наОтвет)наОтвет({selected:[...next],submitted:false});
   };
   const check=()=>{
     setSubmitted(true);
+    if(наОтвет)наОтвет({selected:[...selected],submitted:true});
     // Call onComplete regardless of correctness — user can advance with
     // a wrong answer. Feedback will still show the right one; retry is
     // optional. This avoids the trap of forcing retries to unlock a gate.
@@ -791,6 +918,7 @@ function PillarsPickerBlock({block,onComplete}){
   const reset=()=>{
     setSelected(new Set());
     setSubmitted(false);
+    if(наОтвет)наОтвет({selected:[],submitted:false});
   };
 
   return(
@@ -976,8 +1104,9 @@ function ReflectionBlock({block,lessonId}){
     </div>);
 }
 
-function FinalQuizInlineBlock({block,onComplete}){
-  const[answers,setAnswers]=useState({});
+function FinalQuizInlineBlock({block,onComplete,начало,наОтвет}){
+  /* начало / наОтвет — см. CheckboxQuizBlock: ответ переживает уход с экрана. */
+  const[answers,setAnswers]=useState(()=>(начало&&начало.answers)||{});
   useEffect(()=>{
     if(Object.keys(answers).length===block.questions.length&&onComplete){
       onComplete();
@@ -1004,7 +1133,7 @@ function FinalQuizInlineBlock({block,onComplete}){
                   }
                   return(
                     <button key={oi}
-                      onClick={()=>!answered&&setAnswers(prev=>({...prev,[qi]:oi}))}
+                      onClick={()=>{if(answered)return;const след={...answers,[qi]:oi};setAnswers(след);if(наОтвет)наОтвет({answers:след});}}
                       disabled={answered}
                       style={{textAlign:'left',padding:'11px 14px',fontSize:14,color,background:bg,border:'1.5px solid '+border,borderRadius:10,cursor:answered?'default':'pointer',transition:'all .2s',fontFamily:'inherit',lineHeight:1.4}}
                     >{opt}{answered&&isCorrect?<span style={{color:'var(--ok)',fontWeight:700,marginLeft:8}}><span aria-hidden='true'>✓</span><span style={СКРЫТО}> — верный ответ</span></span>:null}{answered&&isSelected&&!isCorrect?<span style={{color:'var(--error)',fontWeight:700,marginLeft:8}}><span aria-hidden='true'>✗</span><span style={СКРЫТО}> — ваш ответ, неверный</span></span>:null}</button>);
@@ -1370,13 +1499,16 @@ function InlineSunriseBlock({block}){
 }
 
 // ─── Tap-to-assign: place elements on 3 shelves ───
-function InlineThreeShelvesBlock({block,onComplete}){
-  const[assignments,setAssignments]=useState({});
-  const[interacted,setInteracted]=useState(false);
+function InlineThreeShelvesBlock({block,onComplete,начало,наОтвет}){
+  /* начало / наОтвет — см. CheckboxQuizBlock: ответ переживает уход с экрана. */
+  const[assignments,setAssignments]=useState(()=>(начало&&начало.assignments)||{});
+  const[interacted,setInteracted]=useState(!!начало);
 
   const assign=(itemId,shelfNum)=>{
     if(!interacted){setInteracted(true);if(onComplete)onComplete();}
-    setAssignments(prev=>({...prev,[itemId]:shelfNum}));
+    const след={...assignments,[itemId]:shelfNum};
+    setAssignments(след);
+    if(наОтвет)наОтвет({assignments:след});
   };
 
   return(
@@ -1572,6 +1704,152 @@ function InlineBarChartBlock({block}){
     </div>);
 }
 
+/* ─── СЛОВАРЬ ПОВЕРХ УРОКА ──────────────────────────────────────────
+   Лист, а не переход: уходить с урока за одним словом — значит терять
+   место, на котором остановился. Слой поднимается НАД уроком (у урока
+   zIndex 130), поэтому 160. Роль диалога, гашение фона и возврат фокуса
+   берём у общего помощника core/dialogs.js — второго такого механизма в
+   приложении быть не должно. */
+function ЛистСловаря({термины,выбран,onClose}){
+  const[открыт,setОткрыт]=useState(выбран?выбран.имя:null);
+  const узел=useRef(null);
+  useEffect(()=>{
+    const с=window.YasnaOkna&&window.YasnaOkna.слой;
+    if(!с||!узел.current)return;
+    return с(узел.current,{наЗакрытие:onClose});
+  },[]);
+  /* Аппаратная «назад» закрывает ВЕРХНИЙ слой — по договору навигации. Без
+     этого перехвата она закрыла бы весь урок, и человек, заглянувший в
+     словарь за одним словом, вылетал бы на «Уроки». */
+  const закрытьРеф=useRef(onClose);
+  закрытьРеф.current=onClose;
+  useEffect(()=>{
+    const назад=(e)=>{if(e.defaultPrevented)return;e.preventDefault();закрытьРеф.current();};
+    window.addEventListener('yasna:назад',назад);
+    return()=>window.removeEventListener('yasna:назад',назад);
+  },[]);
+  const строка=(имя,кратко,подробно,ключ)=>{
+    const это=открыт===имя;
+    const нутро=(
+      <div style={{flex:1,minWidth:0}}>
+        <div style={{fontSize:15,fontWeight:700,color:'var(--on-surface)',lineHeight:1.35}}>{имя}</div>
+        <div style={{fontSize:13,color:'var(--on-surface-variant)',lineHeight:1.5,marginTop:3}}>{кратко}</div>
+      </div>);
+    return(
+      <div key={ключ} style={{borderBottom:'1px solid var(--outline-variant)'}}>
+        {/* Строка без разбора — не кнопка: нажимать её незачем, а мнимая
+            кнопка врёт и пальцу, и чтецу. */}
+        {подробно?(
+          <button type='button' onClick={()=>setОткрыт(это?null:имя)} aria-expanded={это}
+            style={{width:'100%',minHeight:48,display:'flex',alignItems:'flex-start',gap:10,
+              padding:'12px 4px',background:'none',border:'none',textAlign:'left',cursor:'pointer',fontFamily:'inherit'}}>
+            {нутро}
+            <span aria-hidden='true' style={{fontSize:16,color:'var(--on-surface-variant)',flexShrink:0,
+              transform:это?'rotate(90deg)':'none',transition:'transform .2s',marginTop:2}}>›</span>
+          </button>
+        ):(
+          <div style={{minHeight:48,display:'flex',padding:'12px 4px'}}>{нутро}</div>
+        )}
+        {это&&подробно?<div style={{padding:'0 4px 14px',fontSize:13.5,color:'var(--on-surface)',lineHeight:1.65,whiteSpace:'pre-wrap'}}>{подробно}</div>:null}
+      </div>);
+  };
+  return(
+    <div ref={узел} style={{position:'fixed',left:0,right:0,bottom:0,top:'8%',zIndex:160,
+      background:'var(--surface-container-low)',borderRadius:'28px 28px 0 0',
+      display:'flex',flexDirection:'column',boxShadow:'0 -8px 28px rgba(0,0,0,.18)'}}>
+      <div style={{padding:'8px 8px 0',flexShrink:0}}>
+        <div aria-hidden='true' style={{width:32,height:4,borderRadius:2,background:'var(--outline-variant)',margin:'0 auto 6px'}}/>
+        <div style={{display:'flex',alignItems:'center',gap:8,padding:'0 8px 8px'}}>
+          <div data-ya-zag style={{flex:1,fontSize:18,fontWeight:700,color:'var(--on-surface)'}}>Словарь</div>
+          <button type='button' onClick={onClose} aria-label='Закрыть словарь'
+            style={{width:48,height:48,border:'none',background:'none',cursor:'pointer',color:'var(--on-surface)',fontSize:16,flexShrink:0}}>
+            <span aria-hidden='true'>✕</span>
+          </button>
+        </div>
+      </div>
+      <div style={{flex:1,overflowY:'auto',padding:'0 20px 28px'}}>
+        {термины.length?(
+          <div style={{marginBottom:20}}>
+            <div style={{fontSize:11,fontWeight:700,letterSpacing:0.6,textTransform:'uppercase',
+              color:'var(--on-surface-variant)',margin:'8px 0 4px'}}>В этом уроке</div>
+            {термины.map((т,i)=>строка(т.имя,т.кратко,т.гл?статьяСловаря(т.гл):null,'т'+i))}
+          </div>
+        ):null}
+        <div style={{fontSize:11,fontWeight:700,letterSpacing:0.6,textTransform:'uppercase',
+          color:'var(--on-surface-variant)',margin:'8px 0 4px'}}>Круг и его механики</div>
+        {(GLOSS||[]).map((г,i)=>строка(г.title,г.what,[г.why,г.how].filter(Boolean).join('\n\n'),'г'+i))}
+      </div>
+    </div>);
+}
+
+/* Подробное объяснение термина берём из общей статьи GLOSS, а не пишем
+   второй раз своими словами: разойдутся на первой же правке корпуса. */
+function статьяСловаря(ид){
+  const г=(GLOSS||[]).find(x=>x.id===ид);
+  if(!г)return null;
+  return [г.what,г.why].filter(Boolean).join('\n\n');
+}
+
+/* ─── МЕНЮ ШАПКИ УРОКА ──────────────────────────────────────────────
+   Три действия, которым нет места в шапке шириной с телефон. Попап
+   привязан к кнопке, закрывается тапом мимо, Escape и выбором пункта. */
+function МенюУрока({пункты}){
+  const[открыто,setОткрыто]=useState(false);
+  const первый=useRef(null);
+  useEffect(()=>{
+    if(!открыто)return;
+    const кл=(e)=>{if(e.key==='Escape'){e.stopPropagation();setОткрыто(false);}};
+    /* «Назад» при открытом меню закрывает меню, а не урок. */
+    const назад=(e)=>{if(e.defaultPrevented)return;e.preventDefault();setОткрыто(false);};
+    document.addEventListener('keydown',кл,true);
+    window.addEventListener('yasna:назад',назад);
+    if(первый.current)try{первый.current.focus();}catch(_){}
+    return()=>{
+      document.removeEventListener('keydown',кл,true);
+      window.removeEventListener('yasna:назад',назад);
+    };
+  },[открыто]);
+  return(
+    <div style={{position:'relative',flexShrink:0}}>
+      <button type='button' onClick={()=>setОткрыто(о=>!о)}
+        aria-label='Ещё: словарь, заново, весь текст' aria-haspopup='menu' aria-expanded={открыто}
+        style={{width:48,height:48,margin:'-8px 0',padding:0,border:'none',background:'none',
+          cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',
+          color:'var(--on-surface)',fontSize:18,lineHeight:1}}>
+        <span aria-hidden='true'>⋮</span>
+      </button>
+      {открыто&&(
+        <React.Fragment>
+          {/* Тап мимо меню закрывает его — иначе меню жило бы до
+              перезагрузки экрана и перекрывало первый абзац урока. */}
+          <div onClick={()=>setОткрыто(false)} aria-hidden='true'
+            style={{position:'fixed',inset:0,zIndex:140,background:'transparent'}}/>
+          <div role='menu' aria-label='Действия урока'
+            style={{position:'absolute',top:44,right:0,zIndex:141,minWidth:200,
+              background:'var(--surface-container-high)',border:'1px solid var(--outline-variant)',
+              borderRadius:8,padding:'6px 0',boxShadow:'0 6px 20px rgba(0,0,0,.18)'}}>
+            {пункты.map((п,i)=>(
+              <button key={i} role='menuitem' type='button' ref={i===0?первый:null}
+                onClick={()=>{setОткрыто(false);п.делать();}}
+                style={{display:'block',width:'100%',minHeight:48,padding:'0 18px',border:'none',
+                  background:'none',textAlign:'left',cursor:'pointer',fontFamily:'inherit',
+                  fontSize:15,color:'var(--on-surface)'}}>{п.имя}</button>
+            ))}
+          </div>
+        </React.Fragment>
+      )}
+    </div>);
+}
+
+/* Отступ блока от начала ПРОКРУЧИВАЕМОГО СПИСКА, а не от слоя урока.
+   offsetTop сам по себе меряется от ближайшего позиционированного предка —
+   а это слой урока целиком, вместе с шапкой. Разница ровно в её высоту, и
+   на неё промахивались обе стороны: возврат ставил разделитель под шапку,
+   за край видимого, а счёт прочитанного считал блоки ниже, чем они есть. */
+function верхВПотоке(эл,список){
+  return эл.offsetTop-список.offsetTop;
+}
+
 function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
   const scrollRef=useRef(null);
   const blockRefs=useRef([]);
@@ -1601,24 +1879,59 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
   // unlockedGates: количество раскрытых секций. Старт = 1 (первая секция + её gate видны).
   // Позиция сохраняется в yasna_znanie_v1[id].поз: раньше выход на 14% означал
   // «начать заново», и «Продолжить» на «Уроках» было обещанием, а не правдой.
+  //
+  // ВТОРАЯ ПОЛОВИНА ТОЙ ЖЕ ПРАВДЫ. Ворота возвращались, а прокрутка и ответы —
+  // нет: человек после звонка попадал на первый экран урока, шапка обещала
+  // «100 %», а под ней стояли чистые радиокнопки. Поэтому в «поз» теперь
+  // лежит всё, из чего состоит место в уроке: ворота, зачтённые блоки,
+  // ОТВЕТЫ по блокам, прокрутка, номер верхнего блока и докуда дочитано.
   const сохранённая=useMemo(()=>{
     try{
       const з=JSON.parse(localStorage.getItem('yasna_znanie_v1')||'{}');
       const п=(з[lesson.id]||{}).поз;
-      if(п&&п.ворота>1)return {ворота:п.ворота,блоки:new Set(п.блоки||[])};
+      if(п&&(п.ворота>1||п.прокрутка>0))return {
+        ворота:Math.max(1,п.ворота||1), блоки:new Set(п.блоки||[]),
+        ответы:п.ответы||{}, прокрутка:п.прокрутка||0,
+        блок:п.блок==null?null:п.блок, прочитано:п.прочитано||0};
     }catch(_){}
     return null;
   },[lesson.id]);
   const[unlockedGates,setUnlockedGates]=useState(()=>сохранённая?сохранённая.ворота:1);
   const[completedBlocks,setCompletedBlocks]=useState(()=>сохранённая?сохранённая.блоки:new Set());
-  useEffect(()=>{
+  /* Ответы по номеру блока. Рядом с ответом лежит ТИП блока: уроки правятся,
+     и блок №7 завтра может оказаться другим — чужой ответ подставлять нельзя. */
+  const[ответы,setОтветы]=useState(()=>сохранённая?сохранённая.ответы:{});
+  /* Докуда дочитано — номер последнего блока, показанного целиком. Из него
+     считается прогресс (см. ниже), и он же переживает уход с экрана. */
+  const[прочитано,setПрочитано]=useState(()=>сохранённая?сохранённая.прочитано:0);
+  const местоРеф=useRef({прокрутка:сохранённая?сохранённая.прокрутка:0,блок:сохранённая?сохранённая.блок:null});
+
+  const записатьОтвет=useCallback((i,тип,знач)=>{
+    setОтветы(prev=>{
+      const след=Object.assign({},prev);
+      след[i]={т:тип,з:знач};
+      return след;
+    });
+  },[]);
+
+  /* Один писарь на все части места. Прокрутка приходит из обработчика
+     прокрутки (без перерисовки, через ссылку), остальное — из состояния;
+     если бы писали в двух местах, одно затирало бы другое. */
+  const состояниеРеф=useRef(null);
+  состояниеРеф.current={ворота:unlockedGates,блоки:completedBlocks,ответы:ответы,прочитано:прочитано};
+  const сохранить=useCallback(()=>{
+    const с=состояниеРеф.current; if(!с)return;
     try{
       const з=JSON.parse(localStorage.getItem('yasna_znanie_v1')||'{}');
-      з[lesson.id]=Object.assign({},з[lesson.id],
-        {поз:{ворота:unlockedGates,блоки:[...completedBlocks]},когда:Date.now()});
+      з[lesson.id]=Object.assign({},з[lesson.id],{поз:{
+        ворота:с.ворота, блоки:[...с.блоки], ответы:с.ответы,
+        прокрутка:Math.round(местоРеф.current.прокрутка||0),
+        блок:местоРеф.current.блок, прочитано:с.прочитано
+      },когда:Date.now()});
       localStorage.setItem('yasna_znanie_v1',JSON.stringify(з));
     }catch(_){}
-  },[unlockedGates,completedBlocks,lesson.id]);
+  },[lesson.id]);
+  useEffect(()=>{сохранить();},[unlockedGates,completedBlocks,ответы,прочитано,lesson.id]);
 
   const markBlockComplete=useCallback((blockIdx)=>{
     setCompletedBlocks(prev=>{
@@ -1644,10 +1957,16 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
 
   const visibleBlocks=lesson.blocks.slice(0,lastVisibleIdx+1);
 
-  // Прогресс: сделанное пользователем. unlockedGates стартует с 1 (первая
-  // секция открыта сама), поэтому вычитаем её — иначе шкала показывала 25%
-  // до первого касания.
-  const progress=totalGates>0?Math.min(100,Math.max(0,(unlockedGates-1)/totalGates*100)):100;
+  // ПРОГРЕСС — ПО ПРОЧИТАННОМУ, а не по воротам. Ворота давали 100 % в тот
+  // миг, когда человек нажимал «Подвести итог»: сам итог, финальный опрос и
+  // «куда дальше» были ещё впереди, а шкала уже говорила «всё». И после
+  // возврата в урок те же 100 % стояли над пустыми вопросами. Теперь доля —
+  // это блоки урока, показанные целиком, из ВСЕХ блоков урока: пока нижние
+  // секции не раскрыты и не прочитаны, до сотни не дойти.
+  const всегоБлоков=lesson.blocks.length;
+  const progress=всегоБлоков>0?Math.min(100,Math.max(0,прочитано/всегоБлоков*100)):100;
+  const разделов=Math.max(1,totalGates);
+  const раздел=Math.min(разделов,Math.max(1,unlockedGates));
 
   // «Пройдено» ставится, когда человек ДОШЁЛ до низа раскрытого урока,
   // а не в момент нажатия последних ворот: после них ещё финальный опрос,
@@ -1689,13 +2008,80 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
     return с(слойРеф.current,{наЗакрытие:()=>{const f=закрытьРеф.current;if(f)f();}});
   },[]);
 
-  // Guarantee scroll starts at top when lesson opens (belt + suspenders;
-  // key prop should already remount component on lesson.id change)
+  /* ВОЗВРАТ НА СВОЁ МЕСТО. Раньше здесь стояло scrollTop=0 без условий: урок
+     всегда открывался с первого экрана, и «Продолжить» с «Уроков» означало
+     «начни сначала» — до нужных ворот приходилось листать до десяти экранов.
+     Теперь возвращаемся к блоку, на котором ушли, и ставим над ним видимый
+     разделитель. Место ищем ПО БЛОКУ, а не по числу пикселей: высота блоков
+     зависит от ширины экрана и кегля системного шрифта, и сохранённые
+     пиксели после поворота телефона указали бы в другой абзац. */
+  const[остановка,setОстановка]=useState(()=>{
+    const м=местоРеф.current;
+    return (м&&м.блок!=null&&м.блок>0)?м.блок:null;
+  });
+  const восстановитьРеф=useRef(остановка!=null||(местоРеф.current&&местоРеф.current.прокрутка>0));
   useEffect(()=>{
-    if(scrollRef.current){
-      scrollRef.current.scrollTop=0;
-    }
+    const узел=scrollRef.current;
+    if(!узел)return;
+    if(!восстановитьРеф.current){узел.scrollTop=0;return;}
+    восстановитьРеф.current=false;
+    const цель=остановка, пикс=местоРеф.current.прокрутка||0;
+    /* Три кадра: блоки дорисовываются анимацией появления, и высота
+       последнего успевает измениться уже после первого кадра. */
+    let кадров=0;
+    const ставить=()=>{
+      const эл=цель!=null?blockRefs.current[цель]:null;
+      /* Целимся в РАЗДЕЛИТЕЛЬ, а не в сам блок: он стоит прямо над блоком, и
+         прокрутка к блоку прятала бы его выше края экрана — человек видел бы
+         урок, открывшийся с середины, и ни слова о том, почему. */
+      const над=(эл&&эл.previousElementSibling&&эл.previousElementSibling.getAttribute('role')==='note')
+        ? эл.previousElementSibling : эл;
+      узел.scrollTop=над?Math.max(0,верхВПотоке(над,узел)-8):пикс;
+      if(++кадров<3)requestAnimationFrame(ставить);
+    };
+    requestAnimationFrame(ставить);
   },[lesson.id]);
+
+  /* ЧТО ПРОЧИТАНО И ГДЕ МЫ СЕЙЧАС — один обработчик прокрутки на урок.
+     Он же убирает разделитель «Вы остановились здесь»: человек тронулся с
+     места — напоминание больше не нужно. Первые 900 мс прокрутка наша
+     собственная (возврат на место), её не считаем за движение. */
+  const пишуРеф=useRef(0);
+  const открытоРеф=useRef(Date.now());
+  useEffect(()=>{
+    const узел=scrollRef.current;
+    if(!узел)return;
+    let ждём=0;
+    const считать=()=>{
+      ждём=0;
+      const низ=узел.scrollTop+узел.clientHeight;
+      let верхний=0, целиком=0;
+      for(let i=0;i<blockRefs.current.length;i++){
+        const э=blockRefs.current[i];
+        if(!э)continue;
+        const верх=верхВПотоке(э,узел);
+        if(верх<=узел.scrollTop+80)верхний=i;
+        if(верх+э.offsetHeight<=низ+16)целиком=i+1;
+      }
+      местоРеф.current={прокрутка:узел.scrollTop,блок:верхний};
+      setПрочитано(п=>Math.max(п,целиком));
+      /* Запись раз в 400 мс: писать в localStorage на каждый кадр прокрутки
+         значит дёргать диск сотни раз на экран. */
+      if(!пишуРеф.current)пишуРеф.current=setTimeout(()=>{пишуРеф.current=0;сохранить();},400);
+    };
+    const наПрокрутку=()=>{
+      if(остановка!=null&&Date.now()-открытоРеф.current>900)setОстановка(null);
+      if(!ждём)ждём=requestAnimationFrame(считать);
+    };
+    считать();
+    узел.addEventListener('scroll',наПрокрутку,{passive:true});
+    return()=>{
+      узел.removeEventListener('scroll',наПрокрутку);
+      if(ждём)cancelAnimationFrame(ждём);
+      if(пишуРеф.current){clearTimeout(пишуРеф.current);пишуРеф.current=0;}
+      сохранить();                 /* уходя с урока — записать место точно */
+    };
+  },[lesson.id,остановка,unlockedGates]);
 
   const unlockGate=(gateNum)=>{
     setUnlockedGates(prev=>Math.max(prev,gateNum+1));
@@ -1726,8 +2112,44 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
   const repeat=()=>{
     setUnlockedGates(1);
     setCompletedBlocks(new Set());
+    /* Заново — значит заново: ответы и место тоже стираем, иначе урок
+       начался бы с начала, но с уже отмеченными вопросами. */
+    setОтветы({});
+    setПрочитано(0);
+    setОстановка(null);
+    местоРеф.current={прокрутка:0,блок:null};
     if(scrollRef.current)scrollRef.current.scrollTop=0;
   };
+
+  /* ⋮ в шапке урока. Из урока не было дороги ни в Словарь, ни к началу:
+     термины объяснялись только по ходу, а «Заново» лежало в самом низу, за
+     всем текстом урока. Три пункта — ровно те, что нужны на середине
+     занятия. «Текст целиком» снимает постепенное раскрытие: кто ищет
+     забытое слово, не обязан проходить ворота заново. */
+  const[словарьОткрыт,setСловарьОткрыт]=useState(false);
+  const[выбранныйТермин,setВыбранныйТермин]=useState(null);
+  useEffect(()=>{
+    ОТКРЫТЬ_ТЕРМИН=(т)=>{setВыбранныйТермин(т);setСловарьОткрыт(true);};
+    return()=>{ОТКРЫТЬ_ТЕРМИН=null;};
+  },[]);
+  /* Какие термины урок вводит на самом деле — ищем по его же тексту.
+     Список руками пришлось бы держать в каждом из полусотни уроков. */
+  const терминыУрока=useMemo(()=>{
+    let текст='';
+    try{текст=JSON.stringify(lesson.blocks||[]);}catch(_){return[];}
+    return ТЕРМИНЫ.filter(т=>new RegExp(т.шаблон,'i').test(текст));
+  },[lesson.id]);
+  const пунктыМеню=[
+    {имя:'Словарь',делать:()=>{setВыбранныйТермин(null);setСловарьОткрыт(true);}},
+    {имя:'Заново',делать:()=>{
+      const с=window.YasnaOkna&&window.YasnaOkna.спросить;
+      /* Стереть ответы — потеря, а не переключение вида: спрашиваем. */
+      if(с)с({заголовок:'Начать урок заново?',текст:'Ответы и место, на котором вы остановились, будут стёрты.',
+             да:'Начать заново',нет:'Отмена',опасно:true,наДа:repeat});
+      else repeat();
+    }},
+    {имя:'Текст целиком',делать:()=>setUnlockedGates(totalGates+1)}
+  ];
 
   return(
     /* Урок больше не «светлый остров»: фон и все цвета блоков — роли из
@@ -1749,7 +2171,8 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
         </div>
         {/* Цифру прячем от чтеца: её же называет полоса ниже — иначе
             «25 процентов» звучит дважды. */}
-        <div aria-hidden='true' style={{fontSize:11,color:'var(--on-surface-variant)',fontWeight:600,marginRight:6}}>{Math.round(progress)}%</div>
+        <div aria-hidden='true' style={{fontSize:11,color:'var(--on-surface-variant)',fontWeight:600,marginRight:2}}>{Math.round(progress)}%</div>
+        <МенюУрока пункты={пунктыМеню}/>
         {/* Один выход из урока: ✕, Esc и аппаратная «назад» зовут один и тот
             же onClose (закрытьУрок в app.js) — разных дорог наружу быть не
             может. Имя кнопке нужно: без него TalkBack читал «крестик». */}
@@ -1764,7 +2187,7 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
             говорил вовсе. Теперь это прогресс с долей и словами. */}
         <div role='progressbar' aria-label='Прогресс урока'
              aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)}
-             aria-valuetext={totalGates>0?(Math.max(0,unlockedGates-1)+' из '+totalGates+' разделов'):'урок пройден'}
+             aria-valuetext={totalGates>0?('прочитано '+Math.round(progress)+' процентов, раздел '+раздел+' из '+разделов):('прочитано '+Math.round(progress)+' процентов')}
              style={{position:'absolute',left:0,bottom:-1,height:3,width:'100%',background:'var(--surface-container-high)'}}>
           <div style={{height:'100%',width:progress+'%',background:'var(--primary)',transition:'width .35s ease'}}/>
         </div>
@@ -1775,9 +2198,27 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
         {visibleBlocks.map((block,i)=>{
           const setRef=(el)=>{blockRefs.current[i]=el;};
           const animClass=i>=(gateIndices[unlockedGates-2]!=null?gateIndices[unlockedGates-2]+1:0)?'scroll-lesson-block-appear':'';
+          /* Разделитель «Вы остановились здесь» — только при возврате и
+             только над тем блоком, на котором ушли: без него человек не
+             понимает, почему урок открылся с середины. Уходит с первой
+             прокруткой (см. обработчик выше). */
           const wrap=(content)=>(
-            <div key={i} ref={setRef} className={animClass}>{content}</div>
+            <React.Fragment key={i}>
+              {остановка===i?(
+                <div role='note' style={{display:'flex',alignItems:'center',gap:10,maxWidth:680,margin:'8px auto 0',padding:'0 24px'}}>
+                  <div aria-hidden='true' style={{flex:1,height:1,background:'var(--primary)',opacity:.35}}/>
+                  <div style={{fontSize:12,fontWeight:700,color:'var(--primary)',whiteSpace:'nowrap'}}>Вы остановились здесь</div>
+                  <div aria-hidden='true' style={{flex:1,height:1,background:'var(--primary)',opacity:.35}}/>
+                </div>
+              ):null}
+              <div ref={setRef} className={animClass}>{content}</div>
+            </React.Fragment>
           );
+          /* Ответ подставляем только если на этом номере стоит блок того же
+             типа: уроки правятся, и вчерашний ответ чужого блока показал бы
+             галочки не там, где человек их ставил. */
+          const прошлый=(ответы[i]&&ответы[i].т===block.type)?ответы[i].з:null;
+          const записать=(з)=>записатьОтвет(i,block.type,з);
           switch(block.type){
             case 'hero': return wrap(<HeroBlock block={block}/>);
             case 'spiral-map': return wrap(<SpiralMap block={block}/>);
@@ -1792,15 +2233,15 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
               const canUnlock=canUnlockGate(gateNum);
               return wrap(<GateBlock block={block} isActive={isActive} isUnlocked={isUnlocked} canUnlock={canUnlock} onUnlock={()=>unlockGate(gateNum)}/>);
             }
-            case 'checkbox-quiz': return wrap(<CheckboxQuizBlock block={block} blockId={'b'+i} onComplete={()=>markBlockComplete(i)}/>);
-            case 'pillars-picker': return wrap(<PillarsPickerBlock block={block} onComplete={()=>markBlockComplete(i)}/>);
+            case 'checkbox-quiz': return wrap(<CheckboxQuizBlock block={block} blockId={'b'+i} onComplete={()=>markBlockComplete(i)} начало={прошлый} наОтвет={записать}/>);
+            case 'pillars-picker': return wrap(<PillarsPickerBlock block={block} onComplete={()=>markBlockComplete(i)} начало={прошлый} наОтвет={записать}/>);
             case 'scenario': return wrap(<ScenarioBlock block={block}/>);
             case 'yasna-star': return wrap(<YasnaStarBlock block={block}/>);
             case 'reflection': return wrap(<ReflectionBlock block={block} lessonId={lesson.id}/>);
-            case 'final-quiz-inline': return wrap(<FinalQuizInlineBlock block={block} onComplete={()=>markBlockComplete(i)}/>);
+            case 'final-quiz-inline': return wrap(<FinalQuizInlineBlock block={block} onComplete={()=>markBlockComplete(i)} начало={прошлый} наОтвет={записать}/>);
             case 'sunrise-animation': return wrap(<InlineSunriseBlock block={block}/>);
             case 'water-cycle-animation': return wrap(<InlineWaterCycleBlock block={block}/>);
-            case 'three-shelves': return wrap(<InlineThreeShelvesBlock block={block} onComplete={()=>markBlockComplete(i)}/>);
+            case 'three-shelves': return wrap(<InlineThreeShelvesBlock block={block} onComplete={()=>markBlockComplete(i)} начало={прошлый} наОтвет={записать}/>);
             case 'carousel': return wrap(<InlineCarouselBlock block={block}/>);
             case 'bar-chart': return wrap(<InlineBarChartBlock block={block}/>);
             case 'summary-block': return wrap(<SummaryBlockInline block={block}/>);
@@ -1811,6 +2252,10 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
         {/* bottom padding */}
         <div style={{height:40}}/>
       </div>
+      {словарьОткрыт&&(
+        <ЛистСловаря термины={терминыУрока} выбран={выбранныйТермин}
+          onClose={()=>{setСловарьОткрыт(false);setВыбранныйТермин(null);}}/>
+      )}
     </div>);
 }
 

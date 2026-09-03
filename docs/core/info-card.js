@@ -368,7 +368,11 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose,onSel,onLesson,onTour,
       </div>
 
       <header className="sht-shapka" data-tyaga>
-        <button type="button" className="sht-zakryt" onClick={закрыть} aria-label="Закрыть карточку" title="Закрыть">×</button>
+        {/* Д7. Один крестик на все окна Разбора: тот же знак «✕», та же
+            цель 48 dp, та же подпись «Закрыть: …». Раньше карточка
+            закрывалась ✕ в круге, лист ясн — «×» текстом, справка —
+            рамочной кнопкой «Закрыть»: одно действие, четыре облика. */}
+        <button type="button" className="sht-zakryt" onClick={закрыть} aria-label="Закрыть: карточка места" title="Закрыть">✕</button>
         <div className="sht-ryad">
           {/* Обводка цветом креста, цифра — обычным текстом: цветом креста
               она давала 2.1–4.1:1 на белом, а это самый заметный знак шапки. */}

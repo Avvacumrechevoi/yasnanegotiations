@@ -56,6 +56,47 @@
               accuracy: 0.92, minTime: 1, maxTime: 3, level: 'hard' },
   };
 
+  // ─── Снимок недоигранной партии (Д9) ────────────────────────────
+  // Android выгружает WebView, как только человек переключился в мессенджер:
+  // партия жила только в React-state и пропадала вместе с восемнадцатью
+  // ответами, не оставив следа даже в истории. Кладём снимок на каждом ответе
+  // и предлагаем продолжить при следующем заходе в Игры.
+  //
+  // Своего ключа хранилища не заводим: реестр ключей лежит в core/storage.js,
+  // и правят его другие руки. Пишем поле в тот же yasna_duel_data — этот файл
+  // уже дополняет его так же (см. updateMasteryAndDaily), а duel.js при чтении
+  // сохраняет чужие поля (Object.assign поверх пустышки).
+  const СНИМОК_КЛЮЧ = 'yasna_duel_data';
+  const СНИМОК_ЖИВЁТ_МС = 6 * 60 * 60 * 1000;   // старше — это уже не «продолжить»
+  function читатьХранилище(){
+    try { return JSON.parse(localStorage.getItem(СНИМОК_КЛЮЧ) || '{}') || {}; }
+    catch(_){ return {}; }
+  }
+  function писатьХранилище(d){
+    try { localStorage.setItem(СНИМОК_КЛЮЧ, JSON.stringify(d)); } catch(_){}
+  }
+  function записатьСнимок(с){
+    const d = читатьХранилище(); d.nezavershennaya = с; писатьХранилище(d);
+  }
+  function стеретьСнимок(){
+    const d = читатьХранилище();
+    if(!d.nezavershennaya) return;
+    delete d.nezavershennaya; писатьХранилище(d);
+  }
+  function прочитатьСнимок(){
+    const с = читатьХранилище().nezavershennaya;
+    if(!с || !Array.isArray(с.partiya) || !с.partiya.length) return null;
+    // Вчерашняя партия — не «продолжить», а недоумение: молча забываем.
+    if(!с.ts || Date.now() - с.ts > СНИМОК_ЖИВЁТ_МС){ стеретьСнимок(); return null; }
+    return с;
+  }
+  // Сколько вопросов уже отвечено — этим числом карточка «Продолжить» говорит,
+  // где человек остановился.
+  function счётСнимка(с){
+    const всего = (с.partiya || []).reduce((n, r) => n + ((r.questions && r.questions.length) || 0), 0);
+    return { отвечено: (с.log || []).length, всего: всего };
+  }
+
   function buseyForCorrect(timeMs){
     const baseScore = 10;
     const speedBonus = Math.max(0, Math.round(5 * (1 - timeMs / (QUESTION_TIME * 1000))));
@@ -209,10 +250,18 @@
   }
 
   // ─── Top bar (eyebrow + quit) ───────────────────────────────────
-  function TnTopBar({ eyebrow }){
+  // конец=true — партия уже доиграна: прерывать нечего, и спрашивать «ответы
+  // не сохранятся» тем более (они уже сохранены). Раньше на экране «Партия
+  // завершена» стояла та же кнопка «Прервать» с тем же вопросом.
+  function TnTopBar({ eyebrow, конец }){
     return React.createElement('div', { className: 'tn-topbar' },
       React.createElement('span', { className: 'tn-eyebrow' }, eyebrow),
-      React.createElement(TnQuitButton, { onQuit: window.__tnOnClose })
+      конец
+        ? React.createElement('button', {
+            className: 'tn-quit', type: 'button', 'aria-label': 'Закрыть партию',
+            onClick: () => { const з = window.__tnOnClose; if(з) з(); },
+          }, 'Закрыть')
+        : React.createElement(TnQuitButton, { onQuit: window.__tnOnClose })
     );
   }
 
@@ -220,14 +269,21 @@
   // Стартовый экран Партии: крупные аватары + большой «VS» в центре +
   // плашка с темами. Дизайн-токены VK Tech.
   function VsScreen({ player, opponent, themes, onReady }){
-    useEffect(() => {
-      const t = setTimeout(onReady, SHOW_VS_MS);
-      return () => clearTimeout(t);
-    }, []);
+    /* Заставка уезжала сама через 2,2 с, и единственной кнопкой на первом
+       экране партии была «Прервать»: прочитать, по каким темам будет партия,
+       человек не успевал, а пропустить показ не мог. Таймера больше нет —
+       уход по кнопке «Начать →» или по тапу в любом месте заставки.
+       Тап по шапке не считается: там живёт «Прервать» со своим вопросом. */
+    const ушли = useRef(false);
+    const начать = () => { if(ушли.current) return; ушли.current = true; onReady(); };
+    const тапМимоШапки = (e) => {
+      try { if(e.target && e.target.closest && e.target.closest('.tn-topbar')) return; } catch(_){}
+      начать();
+    };
     const totalQ = themes.reduce((s, r) => s + (r.questions?.length || 0), 0);
     const themeCount = themes.length;
     const themeChips = themes.slice(0, 6); // кап на 6 чтобы не разъезжалось
-    return React.createElement('div', { className: 'tn-fullscreen tn-vs-screen' },
+    return React.createElement('div', { className: 'tn-fullscreen tn-vs-screen', onClick: тапМимоШапки },
       React.createElement('div', { className: 'tn-container' },
         React.createElement(TnTopBar, { eyebrow: '✦ Партия начинается' }),
         React.createElement('div', { className: 'tn-vs-stage' },
@@ -282,7 +338,12 @@
                   r.theme.name || r.theme.id
                 )
               )
-            )
+            ),
+            React.createElement('button', {
+              className: 'tn-final-btn tn-final-btn-primary', type: 'button',
+              style: { marginTop: 14, width: '100%' },
+              onClick: (e) => { e.stopPropagation(); начать(); },
+            }, 'Начать →')
           )
         )
       )
@@ -294,11 +355,20 @@
      хотя раундов и вопросов бывает другое число — партия сама говорила о себе
      неправду ещё до первого вопроса. Берём настоящие числа из партии. */
   function RoundIntro({ roundNum, roundsTotal, qCount, theme, onReady }){
+    /* Раундов в партии шесть, и требовать тап на каждой заставке значило бы
+       вернуть те же лишние тапы. Таймер остаётся, но заставку можно снять
+       тапом: раньше 1,8 с приходилось просто пережидать. */
+    const ушли = useRef(false);
+    const дальше = () => { if(ушли.current) return; ушли.current = true; onReady(); };
     useEffect(() => {
-      const t = setTimeout(onReady, SHOW_ROUND_INTRO_MS);
+      const t = setTimeout(дальше, SHOW_ROUND_INTRO_MS);
       return () => clearTimeout(t);
     }, []);
-    return React.createElement('div', { className: 'tn-fullscreen' },
+    const тапМимоШапки = (e) => {
+      try { if(e.target && e.target.closest && e.target.closest('.tn-topbar')) return; } catch(_){}
+      дальше();
+    };
+    return React.createElement('div', { className: 'tn-fullscreen', onClick: тапМимоШапки },
       React.createElement('div', { className: 'tn-container' },
         React.createElement(TnTopBar, { eyebrow: '✦ Раунд ' + roundNum + ' из ' + (roundsTotal || roundNum) }),
         React.createElement('div', { className: 'tn-round-intro' },
@@ -955,16 +1025,19 @@
       // Лежит под ключом q.id, никогда не путается с другими вопросами.
     }, [q?.id]);
 
-    // Бот-Тень в shadow-режиме: симулируем ответ соперника таймером
+    // Бот-Тень в shadow-режиме: её ответ разыгран жребием ещё до того, как
+    // человек прочитал вопрос, — ждать нечего. Раньше готовый результат клали
+    // в ref по таймеру на minTime..maxTime секунд (3–6 с у средней Тени), и
+    // после зелёной подсветки экран замирал ещё на 3–5 с: человек не понимал,
+    // ждать ли, и тыкал в другие варианты. Кладём ответ сразу, а разыгранное
+    // «время» Тени сохраняем — по нему считаются её бусины и сравнение
+    // скорости, поэтому счёт партии не меняется. Уходит только пустая пауза:
+    // от ответа до следующего вопроса остаётся ровно SHOW_FEEDBACK_MS.
     useEffect(() => {
       if(isPvP) return;
       const t = TEN_LEVELS[opponent.level] || TEN_LEVELS.medium;
       const oppTime = (t.minTime + Math.random() * (t.maxTime - t.minTime)) * 1000;
-      const oppCorrect = Math.random() < t.accuracy;
-      const tm = setTimeout(() => {
-        oppFinishedRef.current = { correct: oppCorrect, time: oppTime };
-      }, oppTime);
-      return () => clearTimeout(tm);
+      oppFinishedRef.current = { correct: Math.random() < t.accuracy, time: oppTime };
     }, [q?.id, opponent.level, isPvP]);
 
     // Таймер обратного отсчёта
@@ -1257,7 +1330,7 @@
       React.createElement('div', { className: 'tn-final-stat tn-final-stat-accent' },
         React.createElement('div', { className: 'tn-final-stat-label' }, 'Бусины'),
         React.createElement('div', { className: 'tn-final-stat-value' }, '+', buseyPartii),
-        React.createElement('div', { className: 'tn-final-stat-sub' }, 'в Хронику')
+        React.createElement('div', { className: 'tn-final-stat-sub' }, 'в рейтинг недели')
       )
     );
   }
@@ -1290,7 +1363,7 @@
       React.createElement('div', { className: 'vk-light-only' },
         React.createElement('div', { className: 'tn-final-archive-eyebrow' }, '☷  Партия записана в'),
         React.createElement('ul', { className: 'tn-final-archive-list' },
-          React.createElement('li', null, React.createElement('strong', null, 'Хронику'), ' — список твоих партий'),
+          React.createElement('li', null, React.createElement('strong', null, 'Историю игры'), ' — список твоих партий'),
           React.createElement('li', null, React.createElement('strong', null, 'Достижения'), ' — открыты звания и серии'),
           React.createElement('li', null, React.createElement('strong', null, 'Партитуру'), ' — мастерство по темам Ясны')
         )
@@ -1309,7 +1382,7 @@
                   React.createElement('div', { className: 'vk-scheme-num-inner' }, '01')
                 ),
                 React.createElement('div', { className: 'vk-scheme-desc' },
-                  React.createElement('div', { className: 'vk-scheme-desc-title' }, 'Хроника'),
+                  React.createElement('div', { className: 'vk-scheme-desc-title' }, 'История игры'),
                   React.createElement('div', { className: 'vk-scheme-desc-text' }, 'Список всех твоих партий — кто, когда, со счётом')
                 )
               ),
@@ -1453,7 +1526,9 @@
         className: 'tn-final-btn',
         onClick: onClose,
         type: 'button',
-      }, 'На главную')
+      /* Кнопка звалась «На главную», а возвращала в лобби Игр — «Главная»
+         же отдельная вкладка наббара. Подпись называет то место, куда ведёт. */
+      }, 'К играм')
     );
   }
 
@@ -1475,8 +1550,8 @@
       kind = 'win';
       headline = 'Партия твоя.';
       sub = isPvP
-        ? 'Ты опередил собеседника. Бусины зачтены в Хронику.'
-        : 'Ты опередил Тень. Бусины зачтены в Хронику.';
+        ? 'Ты опередил собеседника. Бусины зачтены в рейтинг недели.'
+        : 'Ты опередил Тень. Бусины зачтены в рейтинг недели.';
     } else if(draw){
       kind = 'draw';
       headline = 'Равная Партия.';
@@ -1502,10 +1577,10 @@
 
     // Порядок блоков: heading → vs → stats → ACTIONS → recap → scoring.
     // Actions выше разбора ошибок: кому интересно — почитают разбор ниже,
-    // а главные кнопки «Новая партия / На главную» под рукой.
+    // а главные кнопки «Новая Партия / К играм» под рукой.
     return React.createElement('div', { className: 'tn-fullscreen' },
       React.createElement('div', { className: 'tn-container tn-container-final' },
-        React.createElement(TnTopBar, { eyebrow: 'Партия завершена' }),
+        React.createElement(TnTopBar, { eyebrow: 'Партия завершена', конец: true }),
         React.createElement('div', { className: 'tn-final' },
           React.createElement(TnFinalHeadline, { kind, headline, sub }),
           disconnectMsg,
@@ -1518,7 +1593,7 @@
           }),
           !oppDisconnected && React.createElement(TnFinalStats, {
             // Бусины партии — это её счёт: сколько набрал, столько и уйдёт
-            // в Хронику. Второго числа под тем же словом больше нет.
+            // в рейтинг недели. Второго числа под тем же словом больше нет.
             correctCount, totalQ, avgTimeMs, buseyPartii: scoreP,
           }),
           // Главные действия — сразу под итогами, до разбора ошибок
@@ -1531,10 +1606,13 @@
   }
 
   // ─── Main Engine ─────────────────────────────────────────────────
-  function TurnirGame({ player, opponentLevel, onClose, opponentMode, transport, role, oppData, mode, selectedThemes }){
-    React.useEffect(() => { window.__tnOnClose = onClose; return () => { delete window.__tnOnClose; }; }, [onClose]);
+  function TurnirGame({ player, opponentLevel, onClose, opponentMode, transport, role, oppData, mode, selectedThemes, снимок }){
+    /* Выход из партии — всегда осознанный: снимок «продолжить» после него
+       не нужен, иначе брошенная партия предлагалась бы снова и снова. */
+    const закрыть = React.useCallback(() => { стеретьСнимок(); if(onClose) onClose(); }, [onClose]);
+    React.useEffect(() => { window.__tnOnClose = закрыть; return () => { delete window.__tnOnClose; }; }, [закрыть]);
 
-    // При выходе из партии (unmount по «Сдаться»/«Новая Партия»/«На главную»)
+    // При выходе из партии (unmount по «Прервать»/«Новая Партия»/«К играм»)
     // закрываем транспорт: соперник получит opp-leave, heartbeat и listeners
     // остановятся, комната не зависнет в статусе 'playing'. Без этого соперник
     // продолжал играть с «призраком», а комната жила вечно.
@@ -1556,7 +1634,10 @@
         }
       : TEN_LEVELS[opponentLevel || 'medium'];
 
-    const [phase, setPhase] = useState('vs');
+    // Снимок восстановленной партии сразу ставит на вопрос: заставку VS
+    // человек уже видел, а показать её второй раз — сказать «начинаем» о том,
+    // что идёт с седьмого вопроса.
+    const [phase, setPhase] = useState(снимок ? 'question' : 'vs');
 
     /* Партия — занятие во весь экран, и оболочке она объявляет себя слоем:
        наббар на время партии убран совсем. Раньше нижняя полоса оставалась
@@ -1572,26 +1653,28 @@
       const Н = window.yasnaNav;
       if(!Н || !Н.объявить) return;
       Н.объявить({ тип: 'слой', имя: 'Партия', закрыть: () => {
-        if(фазаРеф.current === 'final'){ onClose(); return; }
-        спроситьПрервать(onClose);
+        if(фазаРеф.current === 'final'){ закрыть(); return; }
+        спроситьПрервать(закрыть);
       } });
       return () => { try { Н.объявить(null); } catch(_){} };
-    }, [onClose]);
+    }, [закрыть]);
 
     // Для PvP: хост генерирует Партию, шлёт её гостю; гость ждёт.
     // Для shadow: каждый раз новый seed.
     const [partiya, setPartiya] = useState(() => {
+      if(снимок) return снимок.partiya;        // те же вопросы, что были на экране
       if(!isPvP || role === 'host') {
         return window.YasnaTrivia.generatePartiya(Date.now(), partiyaMode, themesFilter);
       }
       return null; // гость ждёт от хоста
     });
 
-    const [roundIdx, setRoundIdx] = useState(0);
-    const [qIdx, setQIdx] = useState(0);
-    const [scoreP, setScoreP] = useState(0);
-    const [scoreO, setScoreO] = useState(0);
-    const [partiyaLog, setPartiyaLog] = useState([]);
+    const [roundIdx, setRoundIdx] = useState(снимок ? (снимок.roundIdx | 0) : 0);
+    const [qIdx, setQIdx] = useState(снимок ? (снимок.qIdx | 0) : 0);
+    const [scoreP, setScoreP] = useState(снимок ? (снимок.scoreP | 0) : 0);
+    const [scoreO, setScoreO] = useState(снимок ? (снимок.scoreO | 0) : 0);
+    const [partiyaLog, setPartiyaLog] = useState(
+      снимок && Array.isArray(снимок.log) ? снимок.log : []);
     const [oppDisconnected, setOppDisconnected] = useState(false);
     // Гость ждёт partiya-init от хоста. Если за 30с не пришло — выход из тупика.
     const [guestStuck, setGuestStuck] = useState(false);
@@ -1599,14 +1682,28 @@
     // ─── Streak — серия верных ответов ──────────────────────────
     // 3 верных подряд → ×1.2, 5 → ×1.5, 7+ → ×2.0
     // Промах сбрасывает на 0. Множитель применяется к бусинам за вопрос.
-    const [streak, setStreak] = useState(0);
-    const [streakPeak, setStreakPeak] = useState(0);
+    const [streak, setStreak] = useState(снимок ? (снимок.streak | 0) : 0);
+    const [streakPeak, setStreakPeak] = useState(снимок ? (снимок.streakPeak | 0) : 0);
     function streakMultiplier(s){
       if(s >= 7) return 2.0;
       if(s >= 5) return 1.5;
       if(s >= 3) return 1.2;
       return 1.0;
     }
+
+    /* Снимок пишем после каждого ответа. PvP не сохраняем: живого соперника
+       по снимку не воскресить, а «продолжить» без него было бы ложью. */
+    React.useEffect(() => {
+      if(isPvP) return;
+      if(phase !== 'question' && phase !== 'intro') return;
+      if(!partiya || !partiya.length) return;
+      записатьСнимок({
+        ts: Date.now(), mode: partiyaMode, opponentLevel: opponentLevel || 'medium',
+        partiya: partiya, roundIdx: roundIdx, qIdx: qIdx,
+        scoreP: scoreP, scoreO: scoreO, log: partiyaLog,
+        streak: streak, streakPeak: streakPeak,
+      });
+    }, [phase, roundIdx, qIdx, scoreP, scoreO, partiyaLog, isPvP]);
 
     // Mid-partiya recap — показывается один раз за партию
     const [midRecapShown, setMidRecapShown] = useState(false);
@@ -1714,7 +1811,7 @@
             className: 'tn-final-btn',
             style: { marginTop: 24 },
             type: 'button',
-            onClick: onClose,
+            onClick: закрыть,
           }, guestStuck ? 'Вернуться →' : 'Выйти'),
         )
       );
@@ -1733,7 +1830,7 @@
         // Счёт партии и бусины — одно и то же число: 10 за верный, до +5 за
         // скорость, множитель за серию (так написано и в правилах на экране).
         // Второй, скрытой формулы бусин (5 + b/4) больше нет: из-за неё итог
-        // обещал «+104 бусины», а в Хронику уходил счёт партии — 194.
+        // обещал «+104 бусины», а в рейтинг уходил счёт партии — 194.
         dp = Math.round(buseyForCorrect(result.playerTime) * mult);
       }
       if(result.oppCorrect){
@@ -1788,6 +1885,7 @@
       // Партия доиграна до конца → последующий выход соперника с экрана
       // результатов больше не считается «прерыванием» (см. обработчик opp-leave).
       matchFinishedRef.current = true;
+      стеретьСнимок();          // партия доиграна — продолжать нечего
       const log = finalLog || partiyaLog;
       const totalTime = log.reduce((s, r) => s + (r.playerTime || 0), 0);
       const sharedMatchId = 'turnir-' + Date.now();
@@ -1882,11 +1980,12 @@
 
     function startAgain(){
       // PvP: живого соперника здесь не переподключить — выходим в лобби.
-      if(isPvP){ onClose(); return; }
+      if(isPvP){ закрыть(); return; }
       // Соло: реальный рестарт — новая раскладка + полный сброс состояния
       // (раньше «Новая Партия» просто звала onClose и закрывала экран).
       matchFinishedRef.current = false;
       setPartiya(window.YasnaTrivia.generatePartiya(Date.now(), partiyaMode, themesFilter));
+      стеретьСнимок();          // прежний снимок к новой партии отношения не имеет
       setRoundIdx(0); setQIdx(0);
       setScoreP(0); setScoreO(0);
       setPartiyaLog([]);
@@ -2015,7 +2114,7 @@
         opponent: { name: opp.name },
         isPvP,
         oppDisconnected,
-        onClose, onAgain: startAgain
+        onClose: закрыть, onAgain: startAgain
       });
     }
     return null;
@@ -2023,6 +2122,8 @@
 
   window.YasnaTurnir = {
     TurnirGame,
+    // Лобби Игр спрашивает у движка, есть ли недоигранная партия (Д9).
+    прочитатьСнимок, стеретьСнимок, счётСнимка,
     // Общие presentational-компоненты и хелперы для group-engine.js.
     // НЕ содержат 2p-логики (scoreP/scoreO/opp-wait) — чистый рендер + расчёт.
     __shared: {
