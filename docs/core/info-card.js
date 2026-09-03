@@ -30,7 +30,10 @@ const { useState, useMemo, useEffect, useRef } = React;
 const {
   CR, PR, REF, T,
   POS_DESC, CROSS_CTX, PRANA_CTX, OPP_DESC,
-  gc, gp, opp
+  gc, gp, opp,
+  /* Имена мест Суток лежат одним списком в core/data.js: карточка не хранит
+     своих слов, а берёт оттуда и имя приложения, и имя книги. */
+  книжноеИмя, второеИмя
 } = window.YasnaData;
 
 /* ─── Мелкие части ──────────────────────────────────────────────── */
@@ -209,6 +212,12 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose,onSel,onLesson,onTour,
   const overlayLabel=overlay&&overlay.p?(overlay.p[i]||''):'';
   const дос=(window.YasnaDosye&&window.YasnaDosye.место)?window.YasnaDosye.место(y,i):null;
   const суточная=!!дос;
+  /* Е2. Два имени одного места: приложение первым, книга следом. Раньше на
+     круге стояло одно слово, на звезде урока другое, в книге третье — и
+     карточка ни разу не говорила, что это одно и то же место. */
+  const книжное=суточная&&книжноеИмя?книжноеИмя(i):'';
+  const второе=суточная&&второеИмя?второеИмя(i):'';
+  const вКниге=(книжное&&книжное!==label)?книжное:'';
 
   /* ── Механики: показываем только то, что человек сам включил ── */
   const mechItems=[];
@@ -380,6 +389,9 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose,onSel,onLesson,onTour,
           <div className="sht-imena">
             <div className="sht-yasna">{y.name||''}</div>
             <h2 className="sht-imya">{label||<span className="sht-pusto">Место не заполнено</span>}</h2>
+            {/* Книжное имя — сразу под заголовком: человек, пришедший с урока,
+                должен узнать своё место в читалке, не разворачивая карточку. */}
+            {вКниге&&<div className="sht-pasport">в книге — {вКниге}</div>}
             <div className="sht-pasport">{паспорт}</div>
           </div>
         </div>
@@ -424,11 +436,18 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose,onSel,onLesson,onTour,
 
         <Самопроверка i={i} p={p} cr={cr} pr={pr} суточная={суточная}/>
 
-        {дос&&дос.kn&&дос.kn!==label&&<section className="dos-blok">
-          <Клеймо>Как называется</Клеймо>
-          <p>{label
-            ?<>Короткая подпись места — «{label}». Полное имя — «{дос.kn}».</>
-            :<>Место не заполнено. Его имя — «{дос.kn}».</>}</p>
+        {/* Прежде блок прятался, когда книжное имя совпадало с подписью круга,
+            и место 7 оставалось единственным, у которого имени с уроков
+            («обед») в карточке не было вовсе. Теперь имена показаны всегда и
+            все: приложения, второе того же уровня и книжное. */}
+        {суточная&&<section className="dos-blok">
+          <Клеймо>Имена места</Клеймо>
+          <p>
+            {label?<>Здесь и в уроках это место зовут «{label}».</>:<>Место не заполнено.</>}
+            {второе?<> Второе имя того же места — «{второе.toLowerCase()}».</>:null}
+            {вКниге?<> В книге у него своё имя — «{вКниге}».</>
+                   :<> В книге имя то же.</>}
+          </p>
           <Цитата t={window.YasnaDosye.именаКниги.t} s={window.YasnaDosye.именаКниги.s}/>
         </section>}
 
@@ -451,7 +470,7 @@ function Info({i,p,af=[],y={},overlay=null,onEdit,onClose,onSel,onLesson,onTour,
         </section>}
 
         {дос&&дос.urok&&дос.urok.length>0&&<section className="dos-blok">
-          <Клеймо>С занятия</Клеймо>
+          <Клеймо>Из урока</Клеймо>
           {дос.urok.map((ц,k)=><Цитата key={k} t={ц.t} s={ц.s} урок/>)}
         </section>}
 

@@ -1071,6 +1071,64 @@ function YasnaStarBlock({block}){
     </div>);
 }
 
+/* ПУТЬ СОЛНЦА — единственная картинка, которой уроку не хватало.
+   Первый урок начинается с того, что человек встаёт лицом к югу и видит,
+   как солнце идёт слева направо: выходит на востоке жёлтым, заходит на
+   западе красным, а ночью продолжает путь под землёй, где его не видно.
+   До сих пор это было сказано только словами — звезда рисует деление
+   надвое, но ни востока, ни запада, ни дуги в ней нет, и текст опирался
+   на картинку, которой не существовало.
+   Данные берём ровно те, что есть в расшифровке: куда смотрим, откуда
+   куда идёт дуга, рисовать ли скрытую часть и какого цвета полусолнца. */
+function SunPathBlock({block}){
+  const {from='восток',to='запад'}=block.arc||{};
+  const метки=block.marks||[];
+  const цвет=(где,запас)=>{
+    const м=метки.find(x=>x.at===где);
+    if(!м) return запас;
+    return /красн/i.test(м.color)?'#C2410C':/жёлт|желт|золот/i.test(м.color)?'#E8A52B':запас;
+  };
+  const цвВосх=цвет(from,'#E8A52B'), цвЗах=цвет(to,'#C2410C');
+  /* Полотно 640×300: земля по центру, дуга сверху, зеркальная — снизу. */
+  const W=640,H=300,зем=190,лев=90,прав=550,верх=54,низ=зем+96;
+  const дуга=(y)=>`M ${лев} ${зем} Q ${(лев+прав)/2} ${y} ${прав} ${зем}`;
+  return(
+    <div style={{padding:'20px 16px',maxWidth:680,margin:'0 auto'}}>
+      <div style={{background:'var(--surface-container-low)',borderRadius:16,padding:'20px 4px',border:'1px solid var(--outline-variant)',textAlign:'center'}}>
+        {block.title&&<div style={{fontSize:14,fontWeight:700,color:'var(--on-surface)',marginBottom:12}}>{block.title}</div>}
+        <div style={{width:'100%',margin:'0 auto',aspectRatio:'640/300'}}>
+          <svg viewBox={`0 0 ${W} ${H}`} style={{width:'100%',height:'100%',display:'block'}}
+               role="img" aria-label={`Путь солнца: восходит на стороне «${from}», заходит на стороне «${to}», ночью идёт под землёй`}>
+            {/* Небо и земля: свет сверху, тьма снизу — как в самом уроке. */}
+            <rect x="0" y="0" width={W} height={зем} fill="var(--primary-container)" opacity=".25"/>
+            <rect x="0" y={зем} width={W} height={H-зем} fill="var(--on-surface)" opacity=".07"/>
+            <line x1="24" y1={зем} x2={W-24} y2={зем} stroke="var(--on-surface)" strokeWidth="2" opacity=".55"/>
+            {/* Видимая дуга — сплошная; скрытая часть пути — пунктиром. */}
+            <path d={дуга(верх)} fill="none" stroke="var(--primary)" strokeWidth="3" strokeLinecap="round"/>
+            {block.hiddenPath!==false&&
+              <path d={дуга(низ)} fill="none" stroke="var(--on-surface-variant)" strokeWidth="2.5"
+                    strokeLinecap="round" strokeDasharray="7 9" opacity=".75"/>}
+            {/* Куда идёт солнце: стрелка на вершине дуги, слева направо. */}
+            <path d={`M ${(лев+прав)/2 - 26} ${верх+38} l 52 0 m -13 -8 l 13 8 l -13 8`}
+                  fill="none" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity=".85"/>
+            {/* Полусолнца на концах: на востоке золотое, на западе красное. */}
+            <path d={`M ${лев-30} ${зем} a 30 30 0 0 1 60 0 z`} fill={цвВосх}/>
+            <path d={`M ${прав-30} ${зем} a 30 30 0 0 1 60 0 z`} fill={цвЗах}/>
+            <text x={лев} y={зем+30} textAnchor="middle" fontSize="17" fontWeight="600"
+                  fill="var(--on-surface)" fontFamily="var(--ya-font-display,var(--sans))">{from}</text>
+            <text x={прав} y={зем+30} textAnchor="middle" fontSize="17" fontWeight="600"
+                  fill="var(--on-surface)" fontFamily="var(--ya-font-display,var(--sans))">{to}</text>
+            {block.facing&&
+              <text x={W/2} y={H-14} textAnchor="middle" fontSize="15"
+                    fill="var(--on-surface-variant)" fontFamily="var(--ya-font-display,var(--sans))">
+                {`стоим лицом к ${block.facing === 'юг' ? 'югу' : block.facing}`}</text>}
+          </svg>
+        </div>
+        {block.caption&&<div style={{fontSize:13,color:'var(--on-surface-variant)',marginTop:14,lineHeight:1.55,padding:'0 8px'}}>{block.caption}</div>}
+      </div>
+    </div>);
+}
+
 function ReflectionBlock({block,lessonId}){
   const storageKey='yasna_reflection_'+lessonId+'_'+(block.id||'default');
   const[answers,setAnswers]=useState(()=>{
@@ -2240,6 +2298,7 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
             case 'reflection': return wrap(<ReflectionBlock block={block} lessonId={lesson.id}/>);
             case 'final-quiz-inline': return wrap(<FinalQuizInlineBlock block={block} onComplete={()=>markBlockComplete(i)} начало={прошлый} наОтвет={записать}/>);
             case 'sunrise-animation': return wrap(<InlineSunriseBlock block={block}/>);
+            case 'sun-path': return wrap(<SunPathBlock block={block}/>);
             case 'water-cycle-animation': return wrap(<InlineWaterCycleBlock block={block}/>);
             case 'three-shelves': return wrap(<InlineThreeShelvesBlock block={block} onComplete={()=>markBlockComplete(i)} начало={прошлый} наОтвет={записать}/>);
             case 'carousel': return wrap(<InlineCarouselBlock block={block}/>);
