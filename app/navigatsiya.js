@@ -51,17 +51,27 @@
               (часть.length > 1 ? '../' : '');
   var файл = часть.length ? часть[часть.length - 1] : 'index.html';
 
+  /* ПЯТЬ ВКЛАДОК ПО РЕШЕНИЮ ВЛАДЕЛЬЦА (решение от 03.09).
+     Было: Главная · Игры · Уроки · Разбор · Профиль — нарезка по техническим
+     страницам, а не по делам человека. Главная собирала 12–14 чужих ссылок,
+     трём книгам не досталось двери вовсе, а Профиль — это «я», а не раздел,
+     и занимал пятое место наравне с занятиями.
+     Стало: «Сегодня» отвечает на вопрос «что делать сейчас», «Практика»
+     собирает все занятия (Партия, круг, Переговоры, рейтинг), «Библиотека» —
+     все книги и справочники. Профиль ушёл в правый угол общей шапки
+     аватаром (см. аватарВШапке): он доступен с любой вкладки и не отнимает
+     у занятий место. */
   var ПУНКТЫ = [
-    ['index.html', 'Главная',
+    ['index.html', 'Сегодня',
       '<path d="M4 11.2 12 4l8 7.2M6 9.8V20h12V9.8"/>'],
-    ['duel.html', 'Игры',
-      '<circle cx="12" cy="12" r="8.6"/><circle cx="12" cy="12" r="4.6"/><circle cx="12" cy="12" r="1.1" fill="currentColor"/>'],
     ['learn.html', 'Уроки',
       '<path d="M12 4 2.8 8.4 12 12.8l9.2-4.4zM6 10.6V16c0 1.4 2.7 3 6 3s6-1.6 6-3v-5.4"/>'],
+    ['praktika.html', 'Практика',
+      '<circle cx="12" cy="12" r="8.6"/><circle cx="12" cy="12" r="4.6"/><circle cx="12" cy="12" r="1.1" fill="currentColor"/>'],
+    ['biblioteka.html', 'Библиотека',
+      '<path d="M12 6.7C10.9 5.6 9.3 5 7.6 5H4v12.2h3.6c1.7 0 3.3.6 4.4 1.7M12 6.7C13.1 5.6 14.7 5 16.4 5H20v12.2h-3.6c-1.7 0-3.3.6-4.4 1.7M12 6.7V18.9"/>'],
     ['konstruktor.html', 'Разбор',
       '<circle cx="12" cy="12" r="8.6"/><path d="M12 3.4v17.2M3.4 12h17.2"/>'],
-    ['profil.html', 'Профиль',
-      '<circle cx="12" cy="8" r="3.6"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/>'],
   ];
   function корневой(имяФайла) {
     for (var i = 0; i < ПУНКТЫ.length; i++) if (ПУНКТЫ[i][0] === имяФайла) return true;
@@ -76,19 +86,30 @@
 
   /* Экраны вне пятёрки подсвечивают ближайший по смыслу раздел. Книга сюда
      добавлена не для красоты: без неё на экране книги не была подсвечена ни
-     одна вкладка — человек не понимал, в каком он разделе. */
-  var РОДИЧ = { 'rating.html': 'duel.html',
-                'negotiations.html': 'learn.html',
-                'kniga.html': 'learn.html' };
+     одна вкладка — человек не понимал, в каком он разделе.
+     Партия (duel.html) и Рейтинг теперь тоже здесь: своей вкладки у них
+     больше нет, они живут внутри «Практики». Профиля в таблице НЕТ нарочно —
+     в него входят с любой вкладки, и подсвечивать надо ту, откуда вошли; об
+     этом говорит стек (см. «текущий» ниже), а не таблица. */
+  var РОДИЧ = { 'duel.html': 'praktika.html',
+                'rating.html': 'praktika.html',
+                'negotiations.html': 'praktika.html',
+                'lesson.html': 'learn.html',
+                'kniga.html': 'biblioteka.html' };
   /* Круг открывают из трёх мест, и подсвечивать надо то, ОТКУДА пришли, а не
-     «Игры» всегда: «Разложить Сутки» на Уроках уводил в Круг, а наббар
-     показывал «Игры». Метку ставит ссылка (?otkuda=uroki|igra|glavnaya). */
-  var ПО_ОТКУДА = { uroki: 'learn.html', igra: 'duel.html', glavnaya: 'index.html' };
+     «Практику» всегда: «Разложить Сутки» на Уроках уводил в Круг, а наббар
+     показывал чужой раздел. Метку ставит ссылка (?otkuda=…). Старое значение
+     igra остаётся понятным: ссылки с ним живут в игровых страницах, и
+     ломаться при переименовании вкладки они не должны. */
+  var ПО_ОТКУДА = { uroki: 'learn.html', igra: 'praktika.html',
+                    praktika: 'praktika.html', glavnaya: 'index.html' };
 
-  var ИМЕНА = { 'index.html': 'Главная', 'duel.html': 'Игры', 'learn.html': 'Уроки',
-                'konstruktor.html': 'Разбор', 'profil.html': 'Профиль',
+  var ИМЕНА = { 'index.html': 'Сегодня', 'learn.html': 'Уроки',
+                'praktika.html': 'Практика', 'biblioteka.html': 'Библиотека',
+                'konstruktor.html': 'Разбор',
+                'duel.html': 'Игры', 'profil.html': 'Профиль',
                 'rating.html': 'Рейтинг', 'negotiations.html': 'Переговоры',
-                'kniga.html': 'Библиотека Ясна' };
+                'lesson.html': 'Урок', 'kniga.html': 'Книга' };
 
   /* Имя считаем по ПОЛНОМУ пути, а не по последнему сегменту: у Круга файл
      тоже index.html, и по имени файла он читался как «Главная». */
@@ -288,19 +309,23 @@
        пилюля 64×32, подпись потолще. Форма, а не только цвет. */
     '.yk-nav{position:fixed;left:0;right:0;bottom:0;z-index:120;display:flex;' +
       'background:var(--yk-kart);border-top:1px solid var(--yk-kayma);' +
-      'padding:12px 4px calc(16px + var(--yk-snizu))}' +
-    '.yk-nav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;' +
-      'text-decoration:none;color:var(--yk-ink2);' +
-      'font:500 12px/16px Manrope,Inter,system-ui,sans-serif}' +
-    '.yk-nav .yk-znak{width:64px;height:32px;border-radius:16px;display:flex;' +
+      'padding:12px 2px calc(16px + var(--yk-snizu))}' +
+    /* min-width:0 обязателен: пять вкладок на 360 dp дают по 70 dp, и без
+       него flex-элемент не даёт подписи «Библиотека» ужаться — полоса
+       разъезжается шире экрана. Кегль 11 — нижняя граница читаемости, ниже
+       не опускаемся; подпись в одну строку с многоточием. */
+    '.yk-nav a{flex:1 1 0;min-width:0;display:flex;flex-direction:column;' +
+      'align-items:center;gap:4px;text-decoration:none;color:var(--yk-ink2);' +
+      'font:500 11px/14px Manrope,Inter,system-ui,sans-serif}' +
+    '.yk-nav .yk-podpis{max-width:100%;white-space:nowrap;overflow:hidden;' +
+      'text-overflow:ellipsis}' +
+    '.yk-nav .yk-znak{width:min(64px,100%);height:32px;border-radius:16px;display:flex;' +
       'align-items:center;justify-content:center;transition:background .12s ease}' +
     '.yk-nav a.yk-tut .yk-znak{background:var(--yk-fon-akt)}' +
     '.yk-nav a.yk-tut{color:var(--yk-syn);font-weight:700}' +
     '.yk-nav a svg{width:24px;height:24px;stroke:currentColor;fill:none;' +
       'stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}' +
     '.yk-nav a.yk-tut svg{stroke-width:2.3}' +
-    '.yk-nav .yk-zver{width:24px;height:24px;border-radius:50%;display:flex;' +
-      'align-items:center;justify-content:center;font-size:16px;line-height:1}' +
     '.yk-nav a:active .yk-znak{background:var(--yk-fon-akt)}' +
     'body{padding-bottom:calc(' + (ВЫС_НАВ + 4) + 'px + var(--yk-snizu)) !important}' +
     /* Клавиатура закрывает нижнюю треть экрана — полосе там не место. */
@@ -345,6 +370,17 @@
        строки висела в шапке всегда. */
     '.yk-shapka .yk-deystvie[hidden]{display:none !important}' +
     '.yk-shapka .yk-deystvie svg{width:24px;height:24px}' +
+    /* АВАТАР ПРОФИЛЯ. Профиль перестал быть вкладкой: его место — правый
+       угол шапки на каждой корневой вкладке. Картинка 40 dp (столько просил
+       владелец), нажимается 48 — правило целей, а не только вид. Правила
+       ниже правил .yk-deystvie нарочно: у них одинаковая сила, и выигрывает
+       последнее — иначе аватар остался бы 24 dp. */
+    '.yk-shapka .yk-avatar{padding:0 4px}' +
+    '.yk-shapka .yk-avatar .yk-zver,.yk-shapka .yk-avatar svg{width:40px;height:40px;' +
+      'border-radius:20px;background:var(--yk-fon-akt);color:var(--yk-ink1);' +
+      'display:flex;align-items:center;justify-content:center}' +
+    '.yk-shapka .yk-avatar .yk-zver{font-size:22px;line-height:1}' +
+    '.yk-shapka .yk-avatar svg{padding:8px;box-sizing:border-box}' +
     /* Содержимое начинается под шапкой. Исключение — экраны, чья оболочка
        ровно во весь экран (data-yk-holst): им отступ создал бы прокрутку и
        увёл низ под наббар, поэтому там шапка лежит поверх. */
@@ -455,14 +491,19 @@
     }
   }
 
-  /* Зверь на Главной — вход в Профиль. Знак приветствия на Главной был
-     нетапабельным, хотя выглядел как аватар; теперь это настоящая цель 48 dp
-     в правом углу шапки, как принято на домашнем экране.
+  /* АВАТАР ПРОФИЛЯ В ШАПКЕ. Профиль — это «я», а не раздел: своей вкладки у
+     него больше нет, и вход в него стоит там, где его ищут на телефоне —
+     в правом углу шапки, на КАЖДОЙ корневой вкладке. Приём не новый: такой
+     же зверь рисовался во вкладке наббара, он просто переехал.
+     Переход кладём в стек руками. Перехватчик ссылок ниже пропускает всё,
+     что лежит в шапке («оболочка ходит сама»), и без этой строки «назад» из
+     Профиля возвращала бы всегда на «Сегодня» — а вернуться человек должен
+     на ту вкладку, с которой вошёл (решение владельца).
      Зовётся ниже, когда посчитан зверь. */
-  function зверьНаГлавной() {
-    if (!действия || файл !== 'index.html' || часть.indexOf('krug') >= 0) return;
+  function аватарВШапке() {
+    if (!действия || сейчас.тип !== 'корень' || !самКорень()) return;
     var a = document.createElement('a');
-    a.className = 'yk-deystvie';
+    a.className = 'yk-deystvie yk-avatar';
     a.href = вверх + 'profil.html';
     a.setAttribute('aria-label', 'Профиль');
     a.innerHTML = мойЗверь
@@ -470,6 +511,11 @@
       : '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" ' +
         'stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="3.6"/>' +
         '<path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg>';
+    a.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.button > 0) return;
+      e.preventDefault();
+      yasnaNav.вглубь('profil.html', { откуда: сейчас.имя });
+    });
     действия.appendChild(a);
   }
 
@@ -507,7 +553,7 @@
 
   /* ══ 5. НАББАР ═════════════════════════════════════════════════════════ */
   /* Свой знак вместо человечка: если человек назвался или вошёл по почте,
-     вкладка «Профиль» показывает его зверя — как аватар в мессенджерах. */
+     аватар в шапке показывает его зверя — как в мессенджерах. */
   var мойЗверь = (function () {
     try {
       var п = JSON.parse(localStorage.getItem('yasna_duel_profile') || 'null');
@@ -517,7 +563,7 @@
       return (вошёл || назвался) ? п.avatar : null;
     } catch (e) { return null; }
   })();
-  зверьНаГлавной();
+  аватарВШапке();
 
   /* Активна вкладка РОДИТЕЛЯ, а не файла. Порядок источников: объявление
      страницы → таблица родичей → метка ?otkuda (Круг) → низ стека. Экрана
@@ -539,10 +585,8 @@
     return '<a href="' + вверх + п[0] + '"' +
       (тут ? ' class="yk-tut" aria-current="page"' : '') + '>' +
       '<span class="yk-znak">' +
-      (п[0] === 'profil.html' && мойЗверь
-        ? '<span class="yk-zver" aria-hidden="true">' + мойЗверь + '</span>'
-        : '<svg viewBox="0 0 24 24" aria-hidden="true">' + п[2] + '</svg>') +
-      '</span>' + п[1] + '</a>';
+      '<svg viewBox="0 0 24 24" aria-hidden="true">' + п[2] + '</svg>' +
+      '</span><span class="yk-podpis">' + п[1] + '</span></a>';
   }).join('');
 
   nav.addEventListener('click', function (e) {
@@ -635,9 +679,10 @@
 
   /* Профиль сохраняет имя и зверя на этой же странице — событие storage
      в своей вкладке не приходит, поэтому даём ему прямой способ обновить
-     вкладку, не перезагружая экран. */
+     аватар, не перезагружая экран. Имя функции прежнее: его зовёт
+     app/profil.html, и переименование сломало бы вызов молча. */
   window.yasnaNavbarObnovi = function () {
-    var а = nav.querySelector('a[href$="profil.html"] .yk-znak');
+    var а = действия && действия.querySelector('.yk-avatar');
     if (!а) return;
     var зверь = null;
     try {

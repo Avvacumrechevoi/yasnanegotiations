@@ -9,25 +9,28 @@
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
 <title>Ясна</title>
 <!--
-  ГЛАВНАЯ ПРИЛОЖЕНИЯ. Заменяет собой index.html сайта при сборке www/
-  (см. sobrat-vitrinu.mjs).
+  «СЕГОДНЯ» — первая вкладка приложения. Заменяет собой index.html сайта
+  при сборке www/ (см. sobrat-vitrinu.mjs).
 
-  Экран собран по задачам человека (JTBD), а не по устройству продукта:
-  каждый блок отвечает на «зачем мне это», а не «что у нас есть».
+  ЧЕМ ЭТОТ ЭКРАН ОТЛИЧАЕТСЯ ОТ ВКЛАДОК. Раньше здесь стояла витрина из
+  13–19 дверей, и каждая вела туда же, куда наббар в десяти пикселях ниже:
+  «Игры по Ясне», «Обучение», «Всё обучение одним списком», «Дальше»,
+  «Видео · Разборы» — четыре имени одного экрана «Уроки». Человек не мог
+  ответить, зачем ему главная, если внизу и так пять вкладок.
 
-  Устройство экрана — сверху вниз по убыванию личного:
-    1. приветствие: знак приложения, имя и девиз (тап — в Профиль;
-       зверь владельца живёт в Профиле и во вкладке наббара);
-    2. цитата дня — одна карточка с градиентом: дословная строка из книги
-       (citaty.js), источник «Ясна Суток · №» в правом нижнем углу;
-    3. два главных действия; их прогресс живёт прямо в карточках:
-       у обучения — дорога из 8 остановок (yasna_course_progress; при
-       нуле спрятана, чтобы не выглядела скелетоном), у игры — бусины и
-       партии (yasna_duel_data), нули не показываем новичку;
-    4. практики с настоящими числами (16 ясн в Круге — считано с экрана
-       Круга; 4 сценария — с экрана переговоров);
-    5. знание: библиотека и рейтинг (счёт и место — там, а не на главной).
-  Наббар приходит из navigatsiya.js — общий для всех экранов витрины.
+  Правило теперь одно: на «Сегодня» нет ссылок на вкладку как таковую.
+  Здесь живёт только то, чего во вкладках нет, — что делать ПРЯМО СЕЙЧАС:
+    1. одно дело: «Продолжить: <занятие>» — первое незаконченное занятие
+       по дереву (YasnaZnanie.продолжить(), тот же источник, что и на
+       экране «Уроки»: два экрана не должны звать в разные места);
+    2. цитата дня — дословная строка учебника (citaty.js); тап открывает
+       ГЛАВУ КНИГИ, в которой эта запись стоит (раньше вёл в Разбор на
+       пустой круг — обещание «посмотреть, из чего сложено» не сбывалось);
+    3. «Тренировка» — три строки со своим счётом: Разложи по кругу,
+       Переговоры, Партия. Ноль не печатаем никогда: у кого счёта ещё нет,
+       строка говорит, что внутри.
+  Целей на экране пять. Профиль — аватар в общей шапке (navigatsiya.js),
+  своей карточки здесь у него нет; шапку и наббар рисует оболочка.
 
   Вёрстка нарочно простая: обычный поток, без вложенного скролла и
   backdrop-filter — они рисовали «призраков» в WebView.
@@ -82,20 +85,17 @@
 <link rel="stylesheet" href="vendor/fonts/shrifty.css">
 <style>
   :root{
-    --syn:#0071e3; --syn-glub:#0060c4; --syn-fon:#0071e3; --syn-t:#0B57C0;
+    /* Ролей ровно столько, сколько на экране красок. Ушли вместе со своими
+       блоками: --syn-glub и --syn-fon (метки и чипы практик), --cit-grad
+       (градиент цитаты), --pole (дорожка шкал прогресса). */
+    --syn:#0071e3; --syn-t:#0B57C0;
     --fon:#f5f6f8; --kart:#ffffff;
     --ink:#101418; --ink-2:#525b66; --ink-3:#5f6b78;
     --kayma:rgba(16,20,24,.08);
     --ik-fon:#eaf2fe;
-    --cit-grad:#e3eefc;
     --serif:"Cormorant Garamond",Georgia,serif;
     --sverhu: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
     --snizu:  var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
-    /* Дорожка шкал прогресса. Её не объявляли вовсе, и var(--pole) отдавал
-       пустоту: шкалы рисовались прозрачными, а синий штрих доли висел без
-       желоба — доля не читалась. Через --kayma, чтобы дорожка меняла тон
-       вместе с темой сама. */
-    --pole: var(--kayma);
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
@@ -103,8 +103,7 @@
       --ink:#e8ebee; --ink-2:#9aa3ad; --ink-3:#98a3b1;
       --kayma:rgba(232,235,238,.12);
       --ik-fon:#1f2b3d;
-      --cit-grad:#182338;
-      --syn:#3d96f0; --syn-glub:#5ea8f5; --syn-fon:#1668cc;
+      --syn:#3d96f0;
     }
   }
   /* Явный выбор в Профиле (html[data-theme]) сильнее системного */
@@ -113,8 +112,7 @@
       --ink:#e8ebee; --ink-2:#9aa3ad; --ink-3:#98a3b1;
       --kayma:rgba(232,235,238,.12);
       --ik-fon:#1f2b3d;
-      --cit-grad:#182338;
-      --syn:#3d96f0; --syn-glub:#5ea8f5; --syn-fon:#1668cc;
+      --syn:#3d96f0;
     }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0}
@@ -126,24 +124,11 @@
   .plashka{position:fixed;top:0;left:0;right:0;height:var(--sverhu);
     background:var(--syn-t);z-index:1000}
 
-  /* ── Приветствие ── */
-  header{padding:18px 20px 4px}
-  .shapka{display:flex;align-items:center;gap:12px;min-width:0}
-  /* Знак Ясны: круг из двенадцати лучей с засечками и стрелкой — тот же,
-     что на обложке. Золото на глубоком зелёном, как в оригинале. */
-  .znak{width:44px;height:44px;border-radius:14px;flex:0 0 auto;
-    background:linear-gradient(150deg,#12525a 0%,#0e3f47 100%);
-    color:#F6B93B;
-    display:flex;align-items:center;justify-content:center;
-    box-shadow:0 3px 10px rgba(8,40,44,.34)}
-  .znak svg{width:32px;height:32px}
-  .privet{min-width:0;flex:1}
-  .privet .im{display:block;font:600 21px/1.15 Manrope,Inter,sans-serif;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .privet .im i{font:italic 600 23px/1 var(--serif);color:var(--syn)}
-  .privet .pod{font-size:12.5px;color:var(--ink-2);margin-top:2px}
-
-  main{padding:12px 16px calc(86px + var(--snizu))}
+  /* Приветствия со знаком и девизом здесь больше нет: заголовок экрана
+     («Сегодня») и вход в Профиль рисует общая шапка оболочки, а второй
+     заголовок под ней был бы тем же самым, сказанным дважды. Заодно ушёл
+     разнобой имён: главная звала гостя «Гость», «Уроки» — «Странник». */
+  main{padding:14px 16px calc(86px + var(--snizu))}
 
   /* ── Плашка обновления ──
      Стояла в потоке над цитатой и приезжала после нативного запроса (до
@@ -169,341 +154,77 @@
   }
 
   /* ── Цитата дня ──
-     Одна карточка — и та, что видно первой на экране. Градиент «ночного
-     неба» нарочно другого рода, чем синяя кнопка ниже: две одинаково
-     ярких синих плитки подряд спорили бы друг с другом. Знак ✦ — водяной,
-     он же держит правый верхний угол, чтобы текст не висел в пустоте. */
-  .citata{position:relative;display:block;overflow:hidden;
-    border-radius:18px;padding:13px 15px 12px;margin-top:2px;
-    text-decoration:none;color:#fff;isolation:isolate;
-    background:
-      radial-gradient(120% 90% at 12% 8%, rgba(255,255,255,.16) 0%, transparent 55%),
-      linear-gradient(135deg,#1d3a86 0%,#3b2f8f 52%,#5a2f80 100%);
-    box-shadow:0 10px 26px rgba(24,32,84,.28)}
-  .citata:active{filter:brightness(.95)}
-  .citata .znak-vod{position:absolute;right:-10px;top:-22px;width:92px;height:92px;
-    fill:#fff;opacity:.10;pointer-events:none}
-  .citata .k{position:relative;font:700 12px/1 Manrope,sans-serif;
-    letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.72)}
+     Была залитой карточкой с градиентом «ночного неба» и стояла первой —
+     вместе с залитой карточкой игры это давало два «главных» на одном
+     экране, и личный шаг оказывался ниже сгиба. Залитая на «Сегодня»
+     теперь одна («Сейчас»), а цитата читается как выписка из книги:
+     тихая карточка, серифная строка, источник — ссылка с шевроном. */
+  .citata{position:relative;display:block;
+    border-radius:18px;padding:14px 16px 12px;margin:14px 0 0;
+    text-decoration:none;color:inherit;
+    background:var(--kart);border:1px solid var(--kayma)}
+  .citata:active{filter:brightness(.97)}
+  .citata .znak-vod{position:absolute;right:12px;top:12px;width:26px;height:26px;
+    fill:var(--syn);opacity:.22;pointer-events:none}
+  .citata .k{display:block;font:700 12px/1 Manrope,sans-serif;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);padding-right:34px}
   /* Строк три, а не две: самая длинная цитата корпуса укладывается в две
      строки только при обычном кегле. При системном масштабе шрифта ×1.6
      ей нужна третья, и обрезка съедала конец дословной строки книги. */
-  .citata .tx{position:relative;font:500 16.5px/1.32 var(--serif);font-style:italic;
-    margin:6px 0 0;color:#fff;text-wrap:pretty;
+  .citata .tx{font:500 17px/1.34 var(--serif);font-style:italic;
+    margin:7px 0 0;color:var(--ink);text-wrap:pretty;
     display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-  .citata .niz{position:relative;display:flex;align-items:baseline;
-    justify-content:space-between;gap:10px;margin-top:7px}
-  .citata .ot{font:500 12px/1.2 Manrope,sans-serif;color:rgba(255,255,255,.74)}
-  .citata .ist{flex:0 0 auto;font:600 12px/1 Manrope,sans-serif;letter-spacing:.06em;
-    text-transform:uppercase;color:rgba(255,255,255,.58);white-space:nowrap}
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]) .citata{
-      background:
-        radial-gradient(120% 90% at 12% 8%, rgba(255,255,255,.10) 0%, transparent 55%),
-        linear-gradient(135deg,#152a5f 0%,#2a2166 52%,#42215d 100%);
-      box-shadow:0 10px 24px rgba(0,0,0,.4)}
-  }
-  :root[data-theme="dark"] .citata{
-    background:
-      radial-gradient(120% 90% at 12% 8%, rgba(255,255,255,.10) 0%, transparent 55%),
-      linear-gradient(135deg,#152a5f 0%,#2a2166 52%,#42215d 100%);
-    box-shadow:0 10px 24px rgba(0,0,0,.4)}
+  .citata .niz{display:flex;align-items:baseline;
+    justify-content:space-between;gap:10px;margin-top:9px}
+  .citata .ot{font:500 12px/1.2 Manrope,sans-serif;color:var(--ink-2)}
+  .citata .ist{flex:0 0 auto;font:600 12px/1 Manrope,sans-serif;letter-spacing:.04em;
+    color:var(--syn);white-space:nowrap}
 
   h2{font:600 12.5px/1 Manrope,Inter,sans-serif;letter-spacing:.09em;
     text-transform:uppercase;color:var(--ink-2);margin:22px 4px 10px;
     display:flex;align-items:center;gap:10px}
   h2::after{content:"";flex:1;height:1px;background:var(--kayma)}
 
-  /* ── Главные действия ── */
-  .delo{display:block;background:var(--kart);border:1px solid var(--kayma);
-    border-radius:18px;padding:17px 16px;margin:0 0 10px;text-decoration:none;
-    color:inherit;position:relative;overflow:hidden}
-  .delo:active{filter:brightness(.96)}
-  .delo .k{font:600 12px/1 Manrope,sans-serif;letter-spacing:.11em;
-    text-transform:uppercase;color:var(--syn-glub)}
-  .delo .t{font:600 20px/1.25 Manrope,Inter,sans-serif;margin:7px 0 4px;
-    padding-right:52px}
-  .delo .o{font-size:13.5px;color:var(--ink-2);max-width:78%;line-height:1.45}
-  /* Дорога курса: восемь остановок карты «Путь по Руси» сегментами.
-     Пройденные заливаются — виден путь, а не голое число. */
-  .delo .put{display:flex;gap:4px;margin:12px 0 0}
-  .delo .put i{flex:1;height:5px;border-radius:3px;background:var(--kayma)}
-  .delo .put i.est{background:var(--syn)}
-  .delo .meta{display:flex;gap:6px;margin:12px 0 0;flex-wrap:wrap}
-  .delo .m{font:500 11.5px/1 Manrope,sans-serif;color:var(--ink-2);
-    background:var(--fon);border:1px solid var(--kayma);border-radius:99px;
-    padding:6px 10px}
-  .delo .strelka{position:absolute;right:14px;top:17px;
-    width:38px;height:38px;border-radius:50%;background:var(--syn);
-    display:flex;align-items:center;justify-content:center}
-  .delo .strelka svg{width:18px;height:18px}
-  /* ── Живые превью в карточках ──
-     Карточки не должны быть одинаковыми плитками: у игры — бусины, которые
-     набегают за ответы, у обучения — дорога курса, по которой бежит свет.
-     Это и украшение, и обещание: видно, что будет, если нажать. */
-  .busy{position:absolute;right:14px;bottom:14px;display:flex;gap:5px;
-    pointer-events:none}
-  .busy i{font-style:normal;font-size:12px;line-height:1;color:rgba(255,255,255,.34);
-    animation:busy-nabor 3.6s ease-in-out infinite}
-  .busy i::before{content:'✦'}
-  .busy i:nth-child(2){animation-delay:.28s}
-  .busy i:nth-child(3){animation-delay:.56s}
-  .busy i:nth-child(4){animation-delay:.84s}
-  .busy i:nth-child(5){animation-delay:1.12s}
-  @keyframes busy-nabor{
-    0%,12%{color:rgba(255,255,255,.30);transform:scale(1)}
-    22%{color:#fff;transform:scale(1.35)}
-    58%{color:#fff;transform:scale(1)}
-    82%,100%{color:rgba(255,255,255,.30);transform:scale(1)}
-  }
-  /* Дорога курса, пока ничего не пройдено: по ней бежит свет — «путь ждёт». */
-  .delo .put.zhdet i{background:var(--kayma);animation:put-svet 4.2s ease-in-out infinite}
-  .delo .put.zhdet i:nth-child(2){animation-delay:.16s}
-  .delo .put.zhdet i:nth-child(3){animation-delay:.32s}
-  .delo .put.zhdet i:nth-child(4){animation-delay:.48s}
-  .delo .put.zhdet i:nth-child(5){animation-delay:.64s}
-  .delo .put.zhdet i:nth-child(6){animation-delay:.8s}
-  .delo .put.zhdet i:nth-child(7){animation-delay:.96s}
-  .delo .put.zhdet i:nth-child(8){animation-delay:1.12s}
-  /* Пробегающий огонёк красился тем же синим, что и пройденная остановка, —
-     на свежей установке человек видел «шесть из восьми пройдено», хотя не
-     проходил ничего. Огонёк теперь другого языка: бледная подсветка, а не
-     цвет пройденного. */
-  @keyframes put-svet{
-    0%,10%{background:var(--kayma)}
-    20%{background:color-mix(in srgb, var(--ink-2) 42%, transparent)}
-    40%{background:var(--kayma)}
-    100%{background:var(--kayma)}
-  }
-  @media (prefers-reduced-motion: reduce){
-    .busy i,.delo .put.zhdet i{animation:none}
-  }
-  /* Уроки — свой тон, чтобы две карточки не читались одной плиткой. */
-  .delo--uch{background:
-    radial-gradient(130% 100% at 100% 0%, var(--ik-fon) 0%, transparent 58%),
-    linear-gradient(150deg,var(--kart) 55%,var(--ik-fon) 100%)}
-  .delo--glav{background:linear-gradient(135deg,#0B57C0,#0071e3);border:none;color:#fff}
-  .delo--glav .k{color:rgba(255,255,255,.85)}
-  .delo--glav .o{color:rgba(255,255,255,.88)}
-  .delo--glav .m{color:#fff;background:rgba(255,255,255,.14);border-color:transparent}
-  .delo--glav .strelka{background:rgba(255,255,255,.2)}
+  /* ── Сейчас: одно дело ──
+     Единственная залитая карточка экрана. Раньше залитой была игра, и
+     первым сигналом «Сегодня» было «это игра», а личный шаг лежал ниже
+     сгиба (y=901 при экране 915). Вся карточка — одна ссылка, поэтому
+     внутри нет ни кнопок, ни кружков-стрелок: залитый кружок обещал
+     отдельное действие, которого нет. Шеврон — только знак направления. */
+  .sejchas{display:flex;align-items:center;gap:12px;min-height:88px;
+    background:linear-gradient(135deg,#0B57C0,#0071e3);color:#fff;
+    border-radius:18px;padding:16px;margin:0;text-decoration:none;
+    box-shadow:0 8px 22px rgba(11,60,140,.22)}
+  .sejchas:active{filter:brightness(.96)}
+  .sejchas-txt{min-width:0;flex:1}
+  .sejchas .k{display:block;font:700 12px/1 Manrope,sans-serif;letter-spacing:.11em;
+    text-transform:uppercase;color:rgba(255,255,255,.84)}
+  .sejchas .t{display:block;font:700 20px/1.25 Manrope,Inter,sans-serif;
+    margin:8px 0 4px;text-wrap:pretty}
+  .sejchas .o{display:block;font-size:13px;line-height:1.4;color:rgba(255,255,255,.88)}
+  .sejchas .shevron{flex:0 0 auto;width:24px;height:24px}
+  .sejchas .shevron svg{width:24px;height:24px;fill:none;stroke:#fff;stroke-width:2.2;
+    stroke-linecap:round;stroke-linejoin:round;opacity:.92}
 
-  /* ── Практики ── */
-  .setka{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .yach{background:var(--kart);border:1px solid var(--kayma);border-radius:16px;
-    padding:14px;text-decoration:none;color:inherit;min-height:112px;
-    display:flex;flex-direction:column;justify-content:space-between}
-  .yach:active{filter:brightness(.96)}
-  .yach .verh{display:flex;align-items:center;justify-content:space-between}
-  .yach .ik{width:34px;height:34px;border-radius:9px;background:var(--ik-fon);
-    display:flex;align-items:center;justify-content:center}
-  .yach .ik svg{width:20px;height:20px;stroke:var(--syn)}
-  .yach .n{font:600 11.5px/1 Manrope,sans-serif;color:var(--ink-3);
-    font-variant-numeric:tabular-nums}
-  .yach .t{font:600 15px/1.2 Manrope,Inter,sans-serif;margin-top:10px}
-  .yach .o{font-size:12px;color:var(--ink-2);margin-top:3px;line-height:1.4}
-
-
-  /* ── Практики под задачу ──
-     Чипы задач + одна живая карточка. Сцены рисуют то, что человек
-     увидит внутри: доли круга занимаются, оси прочерчиваются, реплики
-     отвечают друг другу, в доме зажигается свет. Анимации идут только
-     у показанной сцены (скрытые в display:none их не крутят). */
-  .praktiki{margin-top:2px}
-  .pr-chipy{display:flex;gap:7px;overflow-x:auto;padding:2px 16px 10px;
-    margin:0 -16px;scrollbar-width:none}
-  .pr-chipy::-webkit-scrollbar{display:none}
-  /* Намёк на продолжение ленты. При системном масштабе шрифта ×1.3 чипы
-     перестают помещаться в ширину экрана, и последний («Общение») просто
-     упирался в край: прокрутка есть, но ничто о ней не говорит. Класс
-     ставит скрипт — только когда справа действительно осталось что смотреть,
-     иначе край гаснуть не должен. */
-  .pr-chipy.hvost{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 34px),transparent);
-    mask-image:linear-gradient(to right,#000 calc(100% - 34px),transparent)}
-  .pr-chip{flex:0 0 auto;min-height:44px;padding:0 14px;border-radius:99px;
-    border:1px solid var(--kayma);background:var(--kart);color:var(--ink-2);
-    font:600 13px/1 Manrope,Inter,sans-serif;cursor:pointer}
-  .pr-chip.est{background:var(--syn-fon);border-color:transparent;color:#fff}
-  @media (max-width:380px){
-    .pr-chipy{gap:6px}
-    .pr-chip{padding:0 11px;font-size:12.5px}
-  }
-  /* Карточка-обложка: метка и заголовок стоят НАД сценой, круглая стрелка —
-     в правом верхнем углу. Раньше единственное действие («Играть →») лежало
-     широкой кнопкой внизу карточки и на 393×850 целиком уходило под наббар:
-     человек видел половину синей полосы. Теперь действие всегда над сгибом. */
-  .pr-karta{display:block;position:relative;overflow:hidden;
-    background:var(--kart);border:1px solid var(--kayma);border-radius:18px;
-    padding:15px 15px 14px;text-decoration:none;color:inherit}
-  .pr-verh{padding-right:56px}
-  .pr-ryad{display:grid;grid-template-columns:96px 1fr;gap:14px;align-items:center;margin-top:12px}
-  .pr-fakt{display:flex;align-items:center;gap:9px;margin-top:12px;padding-top:11px;
-    border-top:1px solid var(--kayma);font:500 12.5px/1.35 Manrope,sans-serif;color:var(--ink-2)}
-  .pr-tochki{display:flex;gap:3px;flex:0 0 auto}
-  .pr-tochki i{width:5px;height:5px;border-radius:50%;background:var(--kayma)}
-  .pr-tochki i.est{background:var(--syn)}
-  /* Полоса общего процента на карточке «Уроки» снята вместе с самим
-     процентом (см. скрипт): счёт идёт словами, среди написанного. */
-  .pr-karta--pusto{opacity:.72;cursor:default}
-  .pr-karta--pusto .pr-strelka{display:none}
-  .pr-strelka{position:absolute;right:14px;top:14px;width:44px;height:44px;border-radius:50%;
-    background:var(--syn);display:flex;align-items:center;justify-content:center}
-  .pr-strelka svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2.2;
-    stroke-linecap:round;stroke-linejoin:round}
-  .pr-karta:active{filter:brightness(.96)}
-  .pr-karta.smena .pr-telo{animation:pr-vhod .28s ease-out}
-  @keyframes pr-vhod{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-  .pr-scen{width:96px;height:96px;border-radius:14px;background:var(--fon);
-    display:flex;align-items:center;justify-content:center;overflow:hidden}
-  .pr-scena{width:84px;height:84px}
-  .pr-metka{font:600 12px/1 Manrope,sans-serif;letter-spacing:.06em;
-    text-transform:uppercase;color:var(--ink-3)}
-  .pr-t{font:700 21px/1.18 Manrope,Inter,sans-serif;margin:6px 0 0;letter-spacing:-.3px}
-  .pr-o{font-size:12.5px;line-height:1.45;color:var(--ink-2)}
-  .pr-knopka{grid-column:1 / -1;margin-top:2px;min-height:46px;border-radius:13px;
-    background:var(--syn);color:#fff;display:flex;align-items:center;
-    justify-content:center;gap:6px;font:600 15px/1 Manrope,Inter,sans-serif}
-
-  /* сцена «память»: доли занимаются по очереди, ось сходится нитью */
-  .pr-dolya{fill-opacity:.3;stroke:rgba(16,20,24,.14);stroke-width:1}
-  .pr-h1{animation:pr-zanyat 6.4s ease-out infinite .2s}
-  .pr-h2{animation:pr-zanyat 6.4s ease-out infinite 1s}
-  .pr-h3{animation:pr-zanyat 6.4s ease-out infinite 2.1s}
-  .pr-h4{animation:pr-zanyat 6.4s ease-out infinite 2.9s}
-  @keyframes pr-zanyat{0%{fill-opacity:.3}5%{fill-opacity:1}64%{fill-opacity:1}
-    84%{fill-opacity:.3}100%{fill-opacity:.3}}
-  .pr-nit{stroke:#E0A93B;stroke-width:2;stroke-linecap:round;opacity:0;
-    animation:pr-vspyh 6.4s ease-out infinite 1.4s}
-  @keyframes pr-vspyh{0%{opacity:0}4%{opacity:1}48%{opacity:.85}72%{opacity:0}100%{opacity:0}}
-
-  /* сцена «погружение»: оси прочерчиваются одна за другой */
-  .pr-obod{fill:none;stroke:var(--kayma);stroke-width:1.4}
-  .pr-setka{fill:none;stroke:var(--kayma);stroke-width:1}
-  .pr-uzel{fill:var(--ink-3);opacity:.55}
-  .pr-os{stroke:var(--syn);stroke-width:1.8;stroke-linecap:round;
-    stroke-dasharray:76;stroke-dashoffset:76}
-  .pr-os1{animation:pr-cherta 6s ease-out infinite .2s}
-  .pr-os2{animation:pr-cherta 6s ease-out infinite .7s}
-  .pr-os3{animation:pr-cherta 6s ease-out infinite 1.2s}
-  @keyframes pr-cherta{0%{stroke-dashoffset:76}18%{stroke-dashoffset:0}
-    72%{stroke-dashoffset:0}86%{stroke-dashoffset:76}100%{stroke-dashoffset:76}}
-  .pr-znak{fill:var(--syn);opacity:0;animation:pr-znak-v 6s ease-out infinite 1.9s}
-  @keyframes pr-znak-v{0%{opacity:0;transform:scale(.6)}12%{opacity:1;transform:scale(1)}
-    70%{opacity:1}88%{opacity:0}100%{opacity:0}}
-
-  /* сцена «общение»: реплики отвечают друг другу */
-  .pr-rep{fill:var(--ik-fon);opacity:0}
-  .pr-otvet{fill:var(--syn);opacity:0}
-  .pr-r1{animation:pr-replika 5.4s ease-out infinite .2s}
-  .pr-r2{animation:pr-replika 5.4s ease-out infinite 1.1s}
-  .pr-r3{animation:pr-replika 5.4s ease-out infinite 2s}
-  @keyframes pr-replika{0%{opacity:0;transform:translateY(4px)}
-    10%{opacity:1;transform:none}72%{opacity:1}88%{opacity:0}100%{opacity:0}}
-
-  /* сцена «дом»: в окнах зажигается свет */
-  .pr-krysha,.pr-steny{fill:none;stroke:var(--ink-3);stroke-width:2.4;
-    stroke-linecap:round;stroke-linejoin:round;opacity:.7}
-  .pr-dver{fill:var(--kayma)}
-  .pr-okno{fill:var(--kayma)}
-  .pr-o1{animation:pr-svet 5.2s ease-in-out infinite .4s}
-  .pr-o2{animation:pr-svet 5.2s ease-in-out infinite 1.4s}
-  @keyframes pr-svet{0%{fill:var(--kayma)}14%{fill:#F5CF74}66%{fill:#F5CF74}
-    86%{fill:var(--kayma)}100%{fill:var(--kayma)}}
-
-  @media (prefers-reduced-motion: reduce){
-    .pr-h1,.pr-h2,.pr-h3,.pr-h4,.pr-nit,.pr-os,.pr-znak,.pr-rep,.pr-otvet,
-    .pr-okno,.pr-karta.smena .pr-telo{animation:none}
-    .pr-dolya{fill-opacity:1}.pr-nit{opacity:.9}.pr-os{stroke-dashoffset:0}
-    .pr-znak,.pr-rep,.pr-otvet{opacity:1}.pr-okno{fill:#F5CF74}
-  }
-
-  /* ── Список задач ── */
+  /* ── Тренировка ──
+     Три строки списка вместо четырёх плиток-виджетов, ленты чипов и
+     карточки со сценой: у всех трёх дверей одно и то же дело — открыть
+     тренировку и увидеть свой счёт. Один компонент вместо семи. */
   .spisok{background:var(--kart);border:1px solid var(--kayma);border-radius:16px;
     overflow:hidden}
-  .spisok a{display:flex;align-items:center;gap:10px;padding:14px 14px;
+  .spisok a{display:flex;align-items:center;gap:12px;padding:13px 14px;min-height:64px;
     text-decoration:none;color:inherit;border-bottom:1px solid var(--kayma)}
   .spisok a:last-child{border-bottom:0}
   .spisok a:active{filter:brightness(.95)}
-  .spisok span{flex:1;font:600 15px/1.25 Manrope,Inter,sans-serif}
-  .spisok small{display:block;font:400 12px/1.4 Inter,sans-serif;
-    color:var(--ink-2);margin-top:3px}
-  .spisok svg{width:16px;height:16px;stroke:var(--ink-3);fill:none;
-    stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
-
-  /* ── Виджеты «Где ты сейчас» ──
-     Плоский список строк с шевронами не говорил ничего о человеке. Плитки
-     показывают посчитанное: сколько явлений разобрано в Круге, сколько
-     уроков пройдено, сколько сценариев просмотрено. Пустое состояние не
-     печатает ноль — оно приглашает. */
-  .vid{display:flex;flex-direction:column;gap:10px}
-  .vid-glav{display:flex;flex-direction:column;gap:9px;padding:16px;border-radius:18px;
-    background:linear-gradient(140deg,var(--kart) 0%,color-mix(in srgb,var(--syn) 9%,var(--kart)) 100%);
-    border:1px solid var(--kayma);text-decoration:none}
-  .vid-glav-verh{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-  .vid-glav-verh b{font:700 30px/1 Manrope,Inter,sans-serif;color:var(--ink);letter-spacing:-.5px}
-  .vid-glav-verh i{font:600 14px/1 Manrope,sans-serif;font-style:normal;color:var(--ink-2)}
-  .vid-shkala{display:block;height:6px;border-radius:3px;background:var(--pole);overflow:hidden}
-  .vid-shkala i{display:block;height:100%;width:0;border-radius:3px;background:var(--syn);
-    transition:width .6s cubic-bezier(.2,.9,.3,1)}
-  .vid-glav-niz{display:flex;align-items:center;justify-content:space-between;gap:10px}
-  .vid-glav-niz em{font:500 12.5px/1.3 Manrope,sans-serif;font-style:normal;color:var(--ink-2)}
-  .vid-glav-niz em:last-child{color:var(--syn);font-weight:600;white-space:nowrap}
-
-  .vid-setka{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  /* ── Живые виджеты ─────────────────────────────────────────────
-     Числа набегают, шкалы заполняются, плитки поднимаются — всё один раз,
-     когда блок доехал до глаз. Кому движение мешает
-     (prefers-reduced-motion) — значения встают сразу.
-     Кольцо с общим процентом отсюда снято вместе со стилями: счёт на этом
-     экране идёт словами и только среди написанного. */
-  .vid-glav-verh b{font-variant-numeric:tabular-nums}
-  .vid-plit b{font-variant-numeric:tabular-nums}
-  @media (prefers-reduced-motion: no-preference){
-    .vid-plit,.vid-glav,.vid-shirokaya{opacity:0;transform:translateY(12px);
-      transition:opacity .45s ease,transform .45s cubic-bezier(.2,.9,.3,1)}
-    .vid .vidno{opacity:1;transform:none}
-    .vid-iskra{display:inline-block;animation:vid-mercanie 3.2s ease-in-out infinite}
-    @keyframes vid-mercanie{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.88)}}
-  }
-  .vid-plit{position:relative;display:flex;flex-direction:column;gap:3px;padding:14px;
-    border-radius:16px;background:var(--kart);border:1px solid var(--kayma);
-    text-decoration:none;min-height:132px}
-  .vid-plit:active{filter:brightness(.97)}
-  .vid-znak{width:34px;height:34px;border-radius:11px;display:flex;align-items:center;
-    justify-content:center;background:color-mix(in srgb,var(--syn) 13%,transparent);
-    color:var(--syn);margin-bottom:5px}
-  .vid-znak svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;
+  .spisok .ik{flex:0 0 auto;width:34px;height:34px;border-radius:10px;background:var(--ik-fon);
+    display:flex;align-items:center;justify-content:center}
+  .spisok .ik svg{width:19px;height:19px;stroke:var(--syn);fill:none;stroke-width:1.8;
     stroke-linecap:round;stroke-linejoin:round}
-  .vid-plit b{font:700 19px/1.15 Manrope,Inter,sans-serif;color:var(--ink);letter-spacing:-.3px}
-  .vid-plit-t{font:600 13.5px/1.25 Manrope,sans-serif;color:var(--ink)}
-  .vid-plit em{font:500 12px/1.35 Manrope,sans-serif;font-style:normal;color:var(--ink-2)}
-  .vid-plit-shkala{position:absolute;left:14px;right:14px;bottom:12px;height:4px;border-radius:2px;
-    background:var(--pole);overflow:hidden;display:none}
-  .vid-plit-shkala i{display:block;height:100%;width:0;border-radius:2px;background:var(--syn)}
-  .vid-plit.s-shkaloy{padding-bottom:26px}
-  .vid-plit.s-shkaloy .vid-plit-shkala{display:block}
-
-  .vid-shirokaya{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;
-    background:var(--kart);border:1px solid var(--kayma);text-decoration:none}
-  .vid-shirokaya-txt{min-width:0;display:flex;flex-direction:column;gap:2px}
-  .vid-shirokaya b{font:700 15.5px/1.25 Manrope,Inter,sans-serif;color:var(--ink)}
-  .vid-shirokaya em{font:500 12.5px/1.35 Manrope,sans-serif;font-style:normal;color:var(--ink-2)}
-
-  .vid-para{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .vid-karta{display:flex;flex-direction:column;gap:4px;padding:14px;border-radius:16px;
-    background:var(--kart);border:1px solid var(--kayma);text-decoration:none;min-height:104px}
-  .vid-karta-metka{font:700 11px/1 Manrope,sans-serif;letter-spacing:.12em;text-transform:uppercase;
-    color:var(--ink-2)}
-  .vid-karta b{font:700 16px/1.2 Manrope,Inter,sans-serif;color:var(--ink)}
-  .vid-karta em{font:500 12px/1.35 Manrope,sans-serif;font-style:normal;color:var(--ink-2)}
-  .vid-tihaya{display:flex;align-items:center;justify-content:center;text-align:center;
-    min-height:52px;padding:10px 12px;border-radius:14px;border:1px solid var(--kayma);
-    background:transparent;color:var(--ink-2);text-decoration:none;
-    font:600 13px/1.25 Manrope,sans-serif}
-  @media (max-width:360px){
-    .vid-plit{min-height:126px;padding:12px}
-    .vid-plit b{font-size:18px}
-  }
+  .spisok span{flex:1;min-width:0;font:600 15px/1.25 Manrope,Inter,sans-serif}
+  .spisok small{display:block;font:400 12px/1.4 Inter,sans-serif;
+    color:var(--ink-2);margin-top:3px;font-variant-numeric:tabular-nums}
+  .spisok .shevron{width:16px;height:16px;stroke:var(--ink-3);fill:none;
+    stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
 
   [hidden]{display:none !important}
   </style>
@@ -521,191 +242,74 @@
   }catch(e){}})();
   </script>
   <script src="core/theme.js"></script>
-  <!-- Тот же счёт, что на экране «Уроки»: карточка обязана показывать общий
-       прогресс обучения, а не прогресс одного курса. -->
+  <!-- Дерево знаний и состояние занятий: карточка «Сейчас» обязана звать
+       туда же, куда экран «Уроки», — значит и считать одним кодом. -->
   <script src="core/data.js?v=1"></script>
   <script src="core/derevo-dannye.js?v=1"></script>
   <script src="core/znanie.js?v=1"></script>
+  <!-- Опись учебника: по номеру записи из цитаты находим главу, в которой
+       эта запись стоит. Номера глав здесь не повторяем — они разошлись бы
+       с книгой на первой же правке описи. -->
+  <script src="kniga/opis.js?v=2"></script>
 </head>
 <body>
 <div class="plashka"></div>
-
-<header>
-  <div class="shapka">
-    <span class="znak" aria-hidden="true"><svg viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.9" stroke-linecap="round"><line x1="20.0" y1="13.4" x2="20.0" y2="4.6"/><line x1="23.6" y1="4.6" x2="16.4" y2="4.6"/><line x1="23.3" y1="14.3" x2="28.5" y2="5.3"/><line x1="28.5" y1="5.3" x2="24.9" y2="7.4"/><line x1="28.5" y1="5.3" x2="28.5" y2="9.5"/><line x1="25.7" y1="16.7" x2="33.3" y2="12.3"/><line x1="26.6" y1="20.0" x2="35.4" y2="20.0"/><line x1="35.4" y1="23.6" x2="35.4" y2="16.4"/><line x1="25.7" y1="23.3" x2="33.3" y2="27.7"/><line x1="23.3" y1="25.7" x2="27.7" y2="33.3"/><line x1="20.0" y1="26.6" x2="20.0" y2="35.4"/><line x1="16.4" y1="35.4" x2="23.6" y2="35.4"/><line x1="16.7" y1="25.7" x2="12.3" y2="33.3"/><line x1="14.3" y1="23.3" x2="6.7" y2="27.7"/><line x1="13.4" y1="20.0" x2="4.6" y2="20.0"/><line x1="4.6" y1="16.4" x2="4.6" y2="23.6"/><line x1="14.3" y1="16.7" x2="6.7" y2="12.3"/><line x1="16.7" y1="14.3" x2="12.3" y2="6.7"/></g></svg></span>
-    <span class="privet">
-      <span class="im">Привет, <i id="imya">Странник</i></span>
-      <div class="pod">Открой строй вещей — от суток до судьбы</div>
-    </span>
-  </div>
-</header>
 
 <main>
   <!-- Сюда встаёт плашка «вышла версия…», когда хранилище говорит о новой
        сборке (obnovlenie.js). Пустой узел ничего не занимает. -->
   <div id="obnova-mesto"></div>
 
-  <!-- Цитата дня: одна дословная строка из книги, та же, что приходит
-       утренним уведомлением. Тап уводит в Разбор — «посмотреть, из чего
-       это явление сложено». -->
-  <a class="citata" id="citata" href="konstruktor.html">
+  <!-- ОДНО ДЕЛО НА СЕЙЧАС. Имя, ветвь, объём и адрес приходят из
+       YasnaZnanie.продолжить() — первое незаконченное занятие по дереву.
+       В разметке стоит положение новичка: если дерево не доедет, человек
+       увидит осмысленную карточку, а не пустую рамку. -->
+  <a class="sejchas" id="sejchas" href="learn.html">
+    <span class="sejchas-txt">
+      <span class="k" id="sejchas-k">Начать</span>
+      <span class="t" id="sejchas-t">Знакомство с методом</span>
+      <span class="o" id="sejchas-o">Метод Ясны · 5 минут</span>
+    </span>
+    <span class="shevron" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M9 5.5 15.5 12 9 18.5"/></svg>
+    </span>
+  </a>
+
+  <!-- ЦИТАТА ДНЯ — дословная строка учебника (citaty.js), та же, что уходит
+       утренним уведомлением. Адрес ставит скрипт: по номеру записи находим
+       главу и открываем книгу на ней. -->
+  <a class="citata" id="citata" href="kniga.html">
     <svg class="znak-vod" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.6l2.2 6.3 6.3 2.1-6.3 2.1-2.2 6.3-2.2-6.3-6.3-2.1 6.3-2.1z"/></svg>
-    <span class="k">Цитата</span>
+    <span class="k">Цитата дня</span>
     <div class="tx">«Мир — управляемый страх»</div>
-    <div class="niz"><span class="ot"></span><span class="ist">Ясна</span></div>
+    <div class="niz"><span class="ot"></span><span class="ist">Ясна Суток ›</span></div>
   </a>
 
-  <h2>Начать сейчас</h2>
-
-  <a class="delo delo--glav" href="duel.html">
-    <span class="k">Сыграть</span>
-    <div class="t">Игры по Ясне</div>
-    <div class="o">Один или с друзьями.</div>
-    <div class="meta" id="igra-meta"></div>
-    <span class="strelka" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
-    </span>
-  </a>
-
-  <!-- Метка и заголовок названы так же, как целевой экран («Уроки», дерево
-       знаний): «Обучение · Устройство Ясны» обещало другой экран. Полоса с
-       общим процентом снята — счёт говорим словами и только среди
-       написанного (см. скрипт ниже). -->
-  <a class="delo delo--uch" href="learn.html">
-    <span class="k">Уроки</span>
-    <div class="t" id="ucheba-t">Дерево знаний</div>
-    <div class="o" id="ucheba-o">Занятия по всем явлениям</div>
-    <div class="meta" id="ucheba-m"></div>
-    <span class="strelka" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
-    </span>
-  </a>
-
-  <h2>Практика</h2>
-
-  <!-- Практики: не четыре одинаковые плитки, а выбор задачи и одна живая
-       карточка. У каждой практики своя сцена: круг занимает доли (Память),
-       оси прочерчиваются (Погружение), реплики отвечают друг другу
-       (Общение), в доме зажигается свет (Дом). Видно, что будет, если
-       нажать, — и переключается одним касанием. -->
-  <div class="praktiki">
-    <div class="pr-chipy" role="tablist" aria-label="Задача"><button type="button" class="pr-chip est" data-p="pamyat">Память</button><button type="button" class="pr-chip" data-p="pogruzhenie">Погружение</button><button type="button" class="pr-chip" data-p="semya">Семья</button><button type="button" class="pr-chip" data-p="obshchenie">Общение</button></div>
-    <a class="pr-karta" id="pr-karta" href="games/krug/index.html">
-      <div class="pr-verh">
-        <div class="pr-metka" id="pr-metka">память · короткий круг</div>
-        <div class="pr-t" id="pr-t">Разложи по кругу</div>
-      </div>
-      <span class="pr-strelka" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+  <h2>Тренировка</h2>
+  <!-- Три двери, и все три ведут в дело, а не в раздел. Подписи ставит
+       скрипт: есть свой счёт — говорим счёт, нет — говорим, что внутри. -->
+  <div class="spisok">
+    <a href="games/krug/index.html">
+      <span class="ik" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4v17.2M3.4 12h17.2"/></svg>
       </span>
-      <div class="pr-ryad">
-      <div class="pr-scen"><div class="pr-holst" data-s="pamyat"><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><path class="pr-dolya pr-h1" d="M61.7 88.3A40 40 0 0 1 38.3 88.3L43.0 73.0A24 24 0 0 0 57.0 73.0Z" fill="#131A30"/><path class="pr-dolya" d="M37.0 87.8A40 40 0 0 1 23.8 80.2L34.3 68.1A24 24 0 0 0 42.2 72.7Z" fill="#1B2545"/><path class="pr-dolya" d="M22.7 79.3A40 40 0 0 1 11.0 59.0L26.6 55.4A24 24 0 0 0 33.6 67.6Z" fill="#2F4472"/><path class="pr-dolya pr-h3" d="M10.7 57.6A40 40 0 0 1 10.7 42.4L26.4 45.4A24 24 0 0 0 26.4 54.6Z" fill="#4D74B4"/><path class="pr-dolya" d="M11.0 41.0A40 40 0 0 1 22.7 20.7L33.6 32.4A24 24 0 0 0 26.6 44.6Z" fill="#8AA6D4"/><path class="pr-dolya" d="M23.8 19.8A40 40 0 0 1 37.0 12.2L42.2 27.3A24 24 0 0 0 34.3 31.9Z" fill="#D3C493"/><path class="pr-dolya pr-h2" d="M38.3 11.7A40 40 0 0 1 61.7 11.7L57.0 27.0A24 24 0 0 0 43.0 27.0Z" fill="#F5CF74"/><path class="pr-dolya" d="M63.0 12.2A40 40 0 0 1 76.2 19.8L65.7 31.9A24 24 0 0 0 57.8 27.3Z" fill="#EAB35C"/><path class="pr-dolya" d="M77.3 20.7A40 40 0 0 1 89.0 41.0L73.4 44.6A24 24 0 0 0 66.4 32.4Z" fill="#D8894A"/><path class="pr-dolya pr-h4" d="M89.3 42.4A40 40 0 0 1 89.3 57.6L73.6 54.6A24 24 0 0 0 73.6 45.4Z" fill="#C06A3C"/><path class="pr-dolya" d="M89.0 59.0A40 40 0 0 1 77.3 79.3L66.4 67.6A24 24 0 0 0 73.4 55.4Z" fill="#7A4634"/><path class="pr-dolya" d="M76.2 80.2A40 40 0 0 1 63.0 87.8L57.8 72.7A24 24 0 0 0 65.7 68.1Z" fill="#3B2A33"/><line class="pr-nit" x1="50.0" y1="72.0" x2="50.0" y2="28.0"/></svg></div><div class="pr-holst" data-s="pogruzhenie" hidden><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><circle class="pr-obod" cx="50" cy="50" r="38"/><polygon class="pr-setka" points="50.0,88.0 31.0,82.9 17.1,69.0 12.0,50.0 17.1,31.0 31.0,17.1 50.0,12.0 69.0,17.1 82.9,31.0 88.0,50.0 82.9,69.0 69.0,82.9"/><line class="pr-os pr-os1" x1="50.0" y1="88.0" x2="50.0" y2="12.0"/><line class="pr-os pr-os2" x1="17.1" y1="69.0" x2="82.9" y2="31.0"/><line class="pr-os pr-os3" x1="17.1" y1="31.0" x2="82.9" y2="69.0"/><circle class="pr-uzel" cx="50.0" cy="88.0" r="2.6"/><circle class="pr-uzel" cx="31.0" cy="82.9" r="2.6"/><circle class="pr-uzel" cx="17.1" cy="69.0" r="2.6"/><circle class="pr-uzel" cx="12.0" cy="50.0" r="2.6"/><circle class="pr-uzel" cx="17.1" cy="31.0" r="2.6"/><circle class="pr-uzel" cx="31.0" cy="17.1" r="2.6"/><circle class="pr-uzel" cx="50.0" cy="12.0" r="2.6"/><circle class="pr-uzel" cx="69.0" cy="17.1" r="2.6"/><circle class="pr-uzel" cx="82.9" cy="31.0" r="2.6"/><circle class="pr-uzel" cx="88.0" cy="50.0" r="2.6"/><circle class="pr-uzel" cx="82.9" cy="69.0" r="2.6"/><circle class="pr-uzel" cx="69.0" cy="82.9" r="2.6"/><path class="pr-znak" d="M50 41l2.4 6.6 6.6 2.4-6.6 2.4-2.4 6.6-2.4-6.6-6.6-2.4 6.6-2.4z"/></svg></div><div class="pr-holst" data-s="obshchenie" hidden><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><rect class="pr-rep pr-r1" x="12" y="20" width="52" height="20" rx="10"/><rect class="pr-rep pr-r2 pr-otvet" x="36" y="46" width="52" height="20" rx="10"/><rect class="pr-rep pr-r3" x="12" y="72" width="44" height="18" rx="9"/></svg></div><div class="pr-holst" data-s="semya" hidden><svg class="pr-scena" viewBox="0 0 100 100" aria-hidden="true"><path class="pr-krysha" d="M14 46 50 18l36 28"/><path class="pr-steny" d="M22 43v39h56V43"/><rect class="pr-okno pr-o1" x="32" y="52" width="15" height="15" rx="3"/><rect class="pr-okno pr-o2" x="53" y="52" width="15" height="15" rx="3"/><rect class="pr-dver" x="42" y="70" width="16" height="12" rx="2"/></svg></div></div>
-        <div class="pr-o" id="pr-o">Тренируйся расставлять по местам. Шестнадцать явлений на выбор.</div>
-      </div>
-      <div class="pr-fakt" id="pr-fakt" hidden></div>
+      <span>Разложи по кругу<small id="tr-krug">шестнадцать явлений на выбор</small></span>
+      <svg class="shevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5.5 15.5 12 9 18.5"/></svg>
     </a>
-  </div>
-
-<!-- ═══ ГДЕ ТЫ СЕЙЧАС ═══════════════════════════════════════════════
-     Здесь был плоский список из пяти строк с шевронами — он выглядел как
-     системные настройки и ничего не рассказывал о человеке. Теперь виджеты
-     с ЖИВЫМИ числами: каждая плитка показывает то, что действительно
-     посчитано, и ведёт туда, откуда это число берётся. Если данных нет
-     (первый запуск), плитка не показывает ноль — она приглашает начать. -->
-<h2 id="vid-zag">Где ты сейчас</h2>
-  <div class="vid">
-    <a class="vid-glav" id="vid-glav" href="rating.html">
-      <span class="vid-glav-verh">
-        <b id="vid-buseny">✦ —</b>
-        <i id="vid-stupen">Послушник</i>
+    <a href="negotiations.html">
+      <span class="ik" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M4 6.5h16v9H9.5L5.5 19v-3.5H4z"/></svg>
       </span>
-      <span class="vid-shkala" aria-hidden="true"><i id="vid-shkala-fill"></i></span>
-      <span class="vid-glav-niz">
-        <em id="vid-do">Сыграй первую партию — пойдут бусины</em>
-        <em id="vid-partiy"></em>
-      </span>
+      <span>Переговоры<small id="tr-neg">четыре сценария разговора</small></span>
+      <svg class="shevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5.5 15.5 12 9 18.5"/></svg>
     </a>
-
-    <div class="vid-setka">
-      <a class="vid-plit" href="games/krug/index.html">
-        <span class="vid-znak vid-znak--krug" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4v17.2M3.4 12h17.2"/></svg>
-        </span>
-        <b id="vid-krug-n">16 явлений</b>
-        <span class="vid-plit-t">Разложи по кругу</span>
-        <em id="vid-krug-o">каждое явление — свой круг</em>
-        <span class="vid-plit-shkala" aria-hidden="true"><i id="vid-krug-fill"></i></span>
-      </a>
-
-      <a class="vid-plit" href="learn.html">
-        <!-- Здесь стояло кольцо с общим процентом: у новичка оно печатало
-             «0 %» на той же странице, где ноль не печатают, а у прошедшего
-             три занятия — «4 %». Счёт говорим словами и только среди
-             написанного (скрипт ниже), значок — как у соседних плиток. -->
-        <span class="vid-znak vid-znak--uroki" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M4 5.5h6a2 2 0 0 1 2 2v11a2.4 2.4 0 0 0-2-1H4zM20 5.5h-6a2 2 0 0 0-2 2v11a2.4 2.4 0 0 1 2-1h6z"/></svg>
-        </span>
-        <b id="vid-kurs-n">Уроки</b>
-        <span class="vid-plit-t" id="vid-kurs-t">Дерево знаний</span>
-        <em id="vid-kurs-o">занятия по всем явлениям</em>
-      </a>
-
-      <a class="vid-plit" href="negotiations.html">
-        <span class="vid-znak vid-znak--razgovor" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M4 6.5h16v9H9.5L5.5 19v-3.5H4z"/></svg>
-        </span>
-        <b id="vid-neg-n">4 сценария</b>
-        <span class="vid-plit-t">Переговоры</span>
-        <em id="vid-neg-o">разговор как круг</em>
-        <span class="vid-plit-shkala" aria-hidden="true"><i id="vid-neg-fill"></i></span>
-      </a>
-
-      <a class="vid-plit" href="konstruktor.html">
-        <span class="vid-znak vid-znak--svoya" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M12 8v8M8 12h8"/></svg>
-        </span>
-        <b id="vid-svoya-n">Мои ясны</b>
-        <span class="vid-plit-t" id="vid-svoya-t">Разобрать своё</span>
-        <em id="vid-svoya-o">двенадцать мест, твоё явление</em>
-        <span class="vid-plit-shkala" aria-hidden="true"><i id="vid-svoya-fill"></i></span>
-      </a>
-    </div>
-
-    <a class="vid-shirokaya" id="vid-dalshe" href="learn.html">
-      <span class="vid-znak vid-znak--dalshe" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M5 12h13M13 6.5 18.5 12 13 17.5"/></svg>
+    <a href="duel.html">
+      <span class="ik" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 3.4l2.4 6.2 6.2 2.4-6.2 2.4-2.4 6.2-2.4-6.2L3.4 12l6.2-2.4z"/></svg>
       </span>
-      <span class="vid-shirokaya-txt">
-        <b id="vid-dalshe-t">Дальше: знакомство с методом</b>
-        <em id="vid-dalshe-o">пять минут разговором — что такое Ясна</em>
-      </span>
+      <span>Партия<small id="tr-duel">вопросы на темы Ясны</small></span>
+      <svg class="shevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5.5 15.5 12 9 18.5"/></svg>
     </a>
-
-    <!-- Две двери в разборы, и обе открывают то, что названо. Здесь стояла
-         карточка «Видео · Разборы»: видео в приложении нет ни одного (в
-         дереве все записи помечены «в приложении пока нет»), а вела она в
-         тот же каталог, что и три соседние ссылки. Имена взяты из дерева
-         знаний — на том экране разборы называются так же. -->
-    <div class="vid-para">
-      <a class="vid-karta" href="konstruktor.html#tour=pechi">
-        <span class="vid-karta-metka">Разбор</span>
-        <b>Печь по кругу</b>
-        <em>живое занятие, 9 шагов</em>
-      </a>
-      <a class="vid-karta" href="konstruktor.html#tour=sutki">
-        <span class="vid-karta-metka">Разбор</span>
-        <b>Сутки по кругу</b>
-        <em>двенадцать времён, 14 шагов</em>
-      </a>
-    </div>
-
-    <!-- Тихие ссылки подписаны тем, что стоит на целевом экране: было
-         «Всё обучение одним списком» (там дерево, а не список) и «Как
-         устроен рост» (там «Как устроен рейтинг · Две шкалы прогресса»). -->
-    <div class="vid-para vid-para--tihie">
-      <a class="vid-tihaya" href="learn.html">Все уроки</a>
-      <a class="vid-tihaya" href="rating.html">Как устроен рейтинг</a>
-    </div>
   </div>
 </main>
 
@@ -714,369 +318,126 @@
 <script src="obnovlenie.js"></script>
 <script>
 (function(){
-  /* Чипы практики оживают первой строкой и делегированием: на одном
-     телефоне владельца скрипт падал где-то ниже, и чипы оставались
-     мёртвыми. Теперь их работа не зависит от остального кода. */
-  document.addEventListener('click',function(e){
-    var ч=e.target.closest&&e.target.closest('.pr-chip');
-    if(ч&&window.__прЧип) window.__прЧип(ч);
-  });
-
   function читать(ключ){
     try{ return JSON.parse(localStorage.getItem(ключ)) }catch(e){ return null }
   }
-
-  /* Приветствие: имя и зверь из профиля. */
-  var п=читать('yasna_duel_profile')||{};
-  if(п.nickname) document.getElementById('imya').textContent=п.nickname;
-
-  /* Игра: у новичка под заголовком пусто — карточка и так говорит,
-     что предлагает; как только человек заиграл, там встаёт ЕГО счёт. */
-  var д=читать('yasna_duel_data')||{};
-  var бусин=д.totalScore||0;
-  var партий=(д.totals&&д.totals.played)||0;
-  if(партий>0){
-    document.getElementById('igra-meta').innerHTML=
-      '<span class="m">✦ '+бусин+' бусин</span><span class="m">партий: '+партий+'</span>';
+  function текст(ид,зн){ var э=document.getElementById(ид); if(э) э.textContent=зн; }
+  function склонение(н,один,два,много){
+    return (н%10===1&&н%100!==11) ? один
+         : ([2,3,4].indexOf(н%10)>-1&&[12,13,14].indexOf(н%100)===-1) ? два : много;
   }
 
-  /* Уроки: счёт словами, а не общим процентом.
-     Здесь стояла полоса с «4 %» — доля от всего дерева. Человек, прошедший
-     всё, что успел открыть, читал её как «ты почти ничего не сделал», а
-     знаменатель нигде не назывался. Считаем ровно то, что можно пройти и
-     что уже написано (YasnaZnanie.счёт — один источник и для экрана
-     «Уроки», и для ветвей), и говорим это словами. Ноль не печатаем:
-     новичка зовём делом. */
+  /* ── СЕЙЧАС: одно дело ─────────────────────────────────────────────────
+     Раньше здесь стояли две карточки — «Игры по Ясне» и «Обучение», — и обе
+     вели на вкладку наббара, а карточка «Обучение» обещала «пять минут — и
+     первый урок пройден», открывая каталог из десятков узлов. Теперь ссылка
+     ведёт в САМО ЗАНЯТИЕ, а имя занятия и его объём человек читает до
+     нажатия. Источник один с экраном «Уроки»: YasnaZnanie.продолжить(). */
+  function адресЗанятия(а){
+    а=String(а||'');
+    /* Урок теперь свой экран. В дереве ещё стоит старый адрес
+       konstruktor.html?lesson=…: в приложении он переадресуется, но лишней
+       загрузкой всего Разбора — пишем сразу новый. Метка otkuda нужна не
+       живому переходу (его помнит оболочка), а холодному запуску по ссылке. */
+    var м=/[?&]lesson=([^&#]+)/.exec(а);
+    if(м) return 'lesson.html?lesson='+м[1]+'&otkuda=index.html';
+    /* Якорь без файла — знакомство: оно живёт на экране «Уроки». */
+    if(а.charAt(0)==='#') return 'learn.html'+а;
+    return а;
+  }
   try{ (function(){
-    var о=document.getElementById('ucheba-o'), м=document.getElementById('ucheba-m');
-    var сч=null;
-    try{ if(window.YasnaZnanie && window.YasnaZnanie.счёт) сч=window.YasnaZnanie.счёт(); }catch(e){}
-    var пройдено=(сч&&сч.пройдено)||0, всего=(сч&&сч.всего)||0;
-    if(пройдено>0 && всего>0){
-      if(о) о.textContent='Пройдено '+пройдено+' из '+всего+' написанных';
-      if(м) м.innerHTML = пройдено>=всего
-        ? '<span class="m">пройдено всё написанное</span>'
-        : '<span class="m">продолжить</span>';
-    } else {
-      if(о) о.textContent='Пять минут — и первый урок пройден';
-      if(м) м.innerHTML='<span class="m">начать</span>';
+    var к=document.getElementById('sejchas'); if(!к) return;
+    var п=null;
+    try{ if(window.YasnaZnanie && window.YasnaZnanie.продолжить) п=window.YasnaZnanie.продолжить(); }catch(e){}
+    var у=п&&п.узел;
+    if(!у||!у.адрес){
+      /* Дерево не доехало или пройдено всё написанное. Ставим дверь в дерево
+         и говорим ровно то, что посчитано, — общего процента здесь нет. */
+      var сч=null;
+      try{ if(window.YasnaZnanie && window.YasnaZnanie.счёт) сч=window.YasnaZnanie.счёт(); }catch(e){}
+      текст('sejchas-k','Уроки');
+      текст('sejchas-t','Дерево знаний');
+      текст('sejchas-o', (сч&&сч.всего&&сч.пройдено>=сч.всего)
+        ? 'пройдено '+сч.пройдено+' из '+сч.всего+' написанных'
+        : 'занятия по всем явлениям');
+      к.setAttribute('href','learn.html');
+      return;
     }
+    текст('sejchas-k', (п.состояние&&п.состояние.код==='начато') ? 'Продолжить' : 'Начать');
+    текст('sejchas-t', у.имя);
+    текст('sejchas-o', [у.ветвьИмя, у.жанр, у.объём].filter(Boolean).join(' · '));
+    к.setAttribute('href', адресЗанятия(у.адрес));
   })(); }catch(__е){ try{console.error("секция главной:",__е)}catch(_){}}
 
-  /* ── Виджеты «Где ты сейчас» ────────────────────────────────────────
-     Правило одно: показываем только то, что посчитано. Нет данных — не
-     печатаем ноль, а зовём начать. Ступени те же, что в игре и Профиле
-     (duel-page.js: Послушник 0 / Студент 1000 / Игрок 3000 / Мастер 10000
-     / Магистр 30000) — расхождение шкал уже однажды стоило доверия. */
+  /* ── ТРЕНИРОВКА ────────────────────────────────────────────────────────
+     Правило то же, что было у виджетов: показываем только посчитанное.
+     Нет своего счёта — строка говорит, что внутри, а не печатает ноль:
+     ноль на первом экране читается как упрёк, а не как приглашение. */
   try{ (function(){
-    var СТУПЕНИ=[['Послушник',0],['Студент',1000],['Игрок',3000],['Мастер',10000],['Магистр',30000]];
-    function ступень(б){
-      var тек=СТУПЕНИ[0], след=null;
-      for(var i=0;i<СТУПЕНИ.length;i++){
-        if(б>=СТУПЕНИ[i][1]) тек=СТУПЕНИ[i];
-        else { след=СТУПЕНИ[i]; break; }
-      }
-      return {имя:тек[0], от:тек[1], след:след};
-    }
-    function текст(ид,зн){ var э=document.getElementById(ид); if(э) э.textContent=зн; }
-    /* Анимация виджетов. Все заполнения складываются в очередь и
-       запускаются один раз, когда блок «Где ты сейчас» доехал до глаз;
-       числа набегают за ~0,65 с. При prefers-reduced-motion очередь
-       выполняется мгновенно и без набега. */
-    var БЕЗ_ДВИЖЕНИЯ=false;
-    try{ БЕЗ_ДВИЖЕНИЯ=window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
-    var ОЧЕРЕДЬ=[];
-    function приПоказе(ф){ ОЧЕРЕДЬ.push(ф); }
-    function набег(ид,до,приставка,хвост){
-      приПоказе(function(){
-        var э=document.getElementById(ид); if(!э) return;
-        приставка=приставка||''; хвост=хвост||'';
-        if(БЕЗ_ДВИЖЕНИЯ||до<=0){ э.textContent=приставка+до+хвост; return; }
-        var старт=null;
-        function кадр(т){
-          if(старт===null) старт=т;
-          var д=Math.min(1,(т-старт)/650);
-          д=1-Math.pow(1-д,3);   /* easeOutCubic */
-          э.textContent=приставка+Math.round(до*д)+хвост;
-          if(д<1) requestAnimationFrame(кадр);
-        }
-        requestAnimationFrame(кадр);
-      });
-    }
-    function пуск(){
-      var блок=document.querySelector('.vid'); if(!блок){ ОЧЕРЕДЬ=[]; return; }
-      /* плитки поднимаются каскадом */
-      var эл=блок.querySelectorAll('.vid-glav,.vid-plit,.vid-shirokaya');
-      [].forEach.call(эл,function(э,и){
-        if(БЕЗ_ДВИЖЕНИЯ){ э.classList.add('vidno'); return; }
-        setTimeout(function(){ э.classList.add('vidno'); }, 60*и);
-      });
-      ОЧЕРЕДЬ.forEach(function(ф){ ф(); }); ОЧЕРЕДЬ=[];
-    }
-    (function(){
-      var блок=document.querySelector('.vid'); if(!блок) return;
-      if(!('IntersectionObserver' in window)||БЕЗ_ДВИЖЕНИЯ){ setTimeout(пуск,80); return; }
-      var н=new IntersectionObserver(function(з){
-        if(з.some(function(x){return x.isIntersecting})){ н.disconnect(); пуск(); }
-      },{threshold:.18});
-      н.observe(блок);
-    })();
-    function шкала(ид,доля){ приПоказе(function(){ var э=document.getElementById(ид); if(э) requestAnimationFrame(function(){ э.style.width=Math.max(0,Math.min(1,доля))*100+'%'; }); }); }
-    function сШкалой(э){ if(э) э.classList.add('s-shkaloy'); }
-
-    /* Правило раздела: на чистой установке его нет вовсе. Показывать «✦ 0»,
-       «0 из 16» и пустые полосы — значит рассказывать человеку, что он ничего
-       не сделал, вместо того чтобы показать, что тут есть. */
-    var д=читать('yasna_duel_data')||{};
-    var бусин=+(д.totalScore||0), партий=(д.totals&&д.totals.played)||0;
-    var естьХоть=false;
-    try{
-      var к0=читать('yasna_krug_v1')||{}, у0=читать('yasna_completed_lessons_v1'),
-          н0=читать('yasna_neg_lessons_v1'), с0=читать('yasna_custom_v1');
-      естьХоть = партий>0 || бусин>0
-        || Object.keys(к0.best||{}).length>0
-        || (Array.isArray(у0)&&у0.length>0)
-        || (н0 && Object.keys(н0).length>0)
-        || (Array.isArray(с0)&&с0.length>0);
-    }catch(e){}
-    if(!естьХоть){
-      var заг=document.getElementById('vid-zag'), блок=document.querySelector('.vid');
-      /* Заголовок не прячем, а меняем: спрятанный оставлял хвост из карточек
-         без всякой подписи — они читались как продолжение блока «Практика».
-         «Где ты сейчас» на чистой установке спрашивать не о чем. */
-      if(заг) заг.textContent='С чего начать';
-      /* Оставляем только двери — то, что можно открыть прямо сейчас. */
-      if(блок){
-        var глав=document.getElementById('vid-glav'); if(глав) глав.remove();
-        var сетка=блок.querySelector('.vid-setka'); if(сетка) сетка.remove();
-      }
-    }
-    if(партий>0||бусин>0){
-      var ст=ступень(бусин);
-      document.getElementById('vid-buseny').innerHTML='<span class="vid-iskra">✦</span> <span id="vid-buseny-n">0</span>';
-      набег('vid-buseny-n',бусин,'','');
-      текст('vid-stupen',ст.имя);
-      текст('vid-partiy',партий+' '+(партий%10===1&&партий%100!==11?'партия':([2,3,4].indexOf(партий%10)>-1&&[12,13,14].indexOf(партий%100)===-1?'партии':'партий')));
-      if(ст.след){
-        текст('vid-do','ещё '+(ст.след[1]-бусин)+' ✦ до ступени «'+ст.след[0]+'»');
-        шкала('vid-shkala-fill',(бусин-ст.от)/(ст.след[1]-ст.от));
-      } else { текст('vid-do','высшая ступень'); шкала('vid-shkala-fill',1); }
-    } else {
-      текст('vid-buseny','✦ 0');
-      текст('vid-stupen','Послушник');
-      текст('vid-do','Сыграй первую партию — пойдут бусины');
-      текст('vid-partiy','начать →');
-    }
-
-    /* Круг: сколько явлений разобрано (ключ игры — тот же, что в самой игре). */
-    var кр=читать('yasna_krug_v1')||{};
-    var разобрано=0;
+    /* Круг: ключ игры (games/krug/krug.js) — {v,games,best}; в best лежат
+       ясны, которые человек уже раскладывал. Всего их 16 — столько же, как
+       на экране Круга (6 из уроков + 10 из корпуса). */
+    var кр=читать('yasna_krug_v1')||{}, разобрано=0;
     try{ разобрано=Object.keys(кр.best||{}).length; }catch(e){}
-    var ВСЕГО_ЯВЛЕНИЙ=16;
-    if(разобрано>0){
-      набег('vid-krug-n',разобрано,'',' из '+ВСЕГО_ЯВЛЕНИЙ);
-      текст('vid-krug-o','явлений разобрано');
-      сШкалой(document.getElementById('vid-krug-fill').closest('.vid-plit'));
-      шкала('vid-krug-fill',разобрано/ВСЕГО_ЯВЛЕНИЙ);
-    }
+    if(разобрано>0) текст('tr-krug', разобрано+' из 16 явлений разобрано');
 
-    /* Уроки: счёт тот же, что на карточке сверху и на экране «Уроки»
-       (YasnaZnanie.счёт — только написанное и только то, что можно пройти).
-       Числом называем пройденное, знаменатель — словом «из N написанных»:
-       без знаменателя «12 занятий» не отвечало, много это или мало. */
-    (function(){
-      var пройдено=0, всего=0;
-      try{
-        if(window.YasnaZnanie && window.YasnaZnanie.счёт){
-          var сч=window.YasnaZnanie.счёт();
-          пройдено=сч.пройдено||0; всего=сч.всего||0;
-        }
-      }catch(e){}
-      if(пройдено>0){
-        набег('vid-kurs-n',пройдено,'',' '+(пройдено%10===1&&пройдено%100!==11?'занятие':([2,3,4].indexOf(пройдено%10)>-1&&[12,13,14].indexOf(пройдено%100)===-1?'занятия':'занятий')));
-        /* Знаменатель встаёт в ту же очередь, что и число: иначе до прокрутки
-           плитка читалась «Уроки · из 83 написанных» — подпись без числа. */
-        приПоказе(function(){ текст('vid-kurs-o', всего ? 'из '+всего+' написанных' : 'пройдено'); });
-      }
-    })();
-
-    /* Переговоры: просмотренные сценарии (это просмотр, а не освоение). */
-    var нег=читать('yasna_neg_lessons_v1');
-    var сцен=0;
+    var нег=читать('yasna_neg_lessons_v1'), сцен=0;
     try{ сцен=Array.isArray(нег)?нег.length:Object.keys(нег||{}).length; }catch(e){}
-    if(сцен>0){
-      набег('vid-neg-n',сцен,'',' из 4');
-      текст('vid-neg-o','сценариев просмотрено');
-      сШкалой(document.getElementById('vid-neg-fill').closest('.vid-plit'));
-      шкала('vid-neg-fill',сцен/4);
-    }
+    if(сцен>0) текст('tr-neg', сцен+' из 4 сценариев просмотрено');
 
-    /* Мои ясны: сколько мест заполнено в последней своей раскладке. */
-    var свои=читать('yasna_custom_v1');
-    if(Array.isArray(свои)&&свои.length){
-      var последняя=свои[свои.length-1]||{};
-      var занято=0;
-      try{ занято=(последняя.p||[]).filter(function(x){return x&&String(x).trim()}).length; }catch(e){}
-      текст('vid-svoya-n',занято+' из 12');
-      текст('vid-svoya-t',последняя.n||последняя.name||'Моя ясна');
-      текст('vid-svoya-o',занято>=12?'круг собран':'мест заполнено');
-      сШкалой(document.getElementById('vid-svoya-fill').closest('.vid-plit'));
-      шкала('vid-svoya-fill',занято/12);
-    }
-
-    /* Широкая плитка «Дальше» ведёт туда, где человек остановился.
-       Здесь стояло собственное ветвление по «базовому курсу»: оно читало
-       переменные, которых в этой области нет (прошли/БАЗ вместо
-       пройдено/БАЗОВЫЙ), и падало у ВСЕХ, кто прошёл знакомство, — плитка
-       навсегда оставалась с разметочным «Дальше: знакомство с методом» и
-       вела в уже пройденное. Ошибку глотал try/catch, поэтому её не было
-       видно. Теперь источник один и тот же, что и на экране «Уроки»:
-       YasnaZnanie.продолжить() — первое незаконченное занятие по дереву. */
-    (function(){
-      var д2=document.getElementById('vid-dalshe'); if(!д2) return;
-      var п=null;
-      try{ if(window.YasnaZnanie && window.YasnaZnanie.продолжить) п=window.YasnaZnanie.продолжить(); }catch(e){}
-      var у=п&&п.узел;
-      if(!у||!у.адрес){
-        /* Дерево не доехало или пройдено всё написанное — зовём в каталог
-           тем же именем, каким называется сам экран. */
-        текст('vid-dalshe-t','Уроки · дерево знаний');
-        текст('vid-dalshe-o','занятия по всем явлениям');
-        д2.setAttribute('href','learn.html');
-        return;
-      }
-      var начато=п.состояние&&п.состояние.код==='начато';
-      текст('vid-dalshe-t',(начато?'Продолжить: ':'Дальше: ')+у.имя);
-      текст('vid-dalshe-o',[у.ветвьИмя,у.жанр,у.объём].filter(Boolean).join(' · '));
-      /* У знакомства в дереве адрес — якорь: живёт он на экране «Уроки». */
-      д2.setAttribute('href', у.адрес.charAt(0)==='#' ? 'learn.html'+у.адрес : у.адрес);
-    })();
+    var д=читать('yasna_duel_data')||{};
+    var партий=(д.totals&&д.totals.played)||0;
+    if(партий>0) текст('tr-duel', партий+' '+склонение(партий,'партия','партии','партий')+' сыграно');
   })(); }catch(__е){ try{console.error("секция главной:",__е)}catch(_){}}
 
-  /* Практики: переключение задачи меняет карточку и запускает свою сцену.
-     Ссылки настоящие — карточка остаётся одной большой кнопкой. */
-  try{ (function(){
-    var П=[
-    {id:'pamyat',metka:'память · короткий круг',t:'Разложи по кругу',o:'Тренируйся расставлять по местам. Шестнадцать явлений на выбор.',href:'games/krug/index.html',kn:'Играть'},
-    {id:'pogruzhenie',metka:'погружение · ~5 минут',t:'Разобрать явление',o:'Разбор: раскладываешь своё дело по двенадцати местам — в плоскости и в объёме.',href:'konstruktor.html',kn:'Разложить'},
-    /* «Семья» пока без содержания — так и написано. Заглушка честная: ссылки
-       нет, карточка не притворяется работающей и ничего не обещает. */
-    {id:'semya',metka:'семья · пишется',t:'Ясна семьи',o:'Разложим семейные роли и события по тем же двенадцати местам. В приложении пока нет.',href:null,kn:''},
-    {id:'obshchenie',metka:'общение · ~30 минут',t:'Читать людей',o:'Тренажёр переговоров: четыре сценария — от первого контакта до выхода без осадка.',href:'negotiations.html',kn:'Начать'}
-    ];
-    var чипы=document.querySelectorAll('.pr-chip'), карта=document.getElementById('pr-karta');
-    if(!чипы.length||!карта) return;
-    /* Строка под карточкой. Есть данные — говорим о человеке («разобрано 3 из
-       16»), нет — о содержании («шестнадцать явлений ждут раскладки»). Ноль
-       не печатаем никогда. */
-    function фактДля(id){
-      function ч2(к){ try{ return JSON.parse(localStorage.getItem(к)) }catch(e){ return null } }
-      if(id==='pamyat'){
-        var кр=ч2('yasna_krug_v1')||{}, n=0;
-        try{ n=Object.keys(кр.best||{}).length; }catch(e){}
-        return n>0 ? {текст:'разобрано '+n+' из 16 явлений', всего:16, есть:n}
-                   /* Число уже названо в описании карточки — тут не повторяем
-                      его дословно, а объясняем точки. */
-                   : {текст:'каждая точка — явление, начни с любого', всего:16, есть:0};
-      }
-      if(id==='pogruzhenie'){
-        var свои=ч2('yasna_custom_v1');
-        var к=Array.isArray(свои)?свои.length:0;
-        return к>0 ? {текст:'моих ясн: '+к, всего:0, есть:0}
-                   : {текст:'двенадцать мест — от основы до вершины', всего:0, есть:0};
-      }
-      if(id==='obshchenie'){
-        var нег=ч2('yasna_neg_lessons_v1'), c=0;
-        try{ c=Array.isArray(нег)?нег.length:Object.keys(нег||{}).length; }catch(e){}
-        return c>0 ? {текст:'просмотрено '+c+' из 4 сценариев', всего:4, есть:c}
-                   : {текст:'четыре сценария · первый — «Кто передо мной»', всего:4, есть:0};
-      }
-      if(id==='semya') return {текст:'в приложении пока нет', всего:0, есть:0};
-      return {текст:'один разговор · разбор по шагам', всего:0, есть:0};
-    }
-    function показатьФакт(id){
-      var э=document.getElementById('pr-fakt'); if(!э) return;
-      var ф=фактДля(id);
-      э.innerHTML='';
-      if(ф.всего){
-        var т=document.createElement('span'); т.className='pr-tochki';
-        for(var i=0;i<ф.всего;i++){ var и=document.createElement('i'); if(i<ф.есть) и.className='est'; т.appendChild(и); }
-        э.appendChild(т);
-      }
-      var сп=document.createElement('span'); сп.textContent=ф.текст; э.appendChild(сп);
-      э.hidden=false;
-    }
+  /* ── ЦИТАТА ДНЯ ────────────────────────────────────────────────────────
+     Дословная строка книги (citaty.js); та же, что уходит утренним
+     уведомлением. Ротация по дню года живёт в citaty.js; если файл не
+     доехал или пуст, стоит запасная строка — карточка не должна встречать
+     человека пустотой.
 
-    function показать(id){
-      var п=П.filter(function(x){return x.id===id})[0]; if(!п) return;
-      if(п.href){ карта.href=п.href; карта.removeAttribute('aria-disabled'); карта.classList.remove('pr-karta--pusto'); }
-      else { карта.removeAttribute('href'); карта.setAttribute('aria-disabled','true'); карта.classList.add('pr-karta--pusto'); }
-      document.getElementById('pr-metka').textContent=п.metka;
-      document.getElementById('pr-t').textContent=п.t;
-      document.getElementById('pr-o').textContent=п.o;
-      показатьФакт(id);
-      [].forEach.call(document.querySelectorAll('.pr-holst'),function(х){
-        х.hidden = х.getAttribute('data-s')!==id;
-      });
-      [].forEach.call(чипы,function(ч){ ч.classList.toggle('est', ч.getAttribute('data-p')===id); });
-      карта.classList.remove('smena'); void карта.offsetWidth; карта.classList.add('smena');
-    }
-    показатьФакт('pamyat');
-    /* Нажатия приходят через делегат в самом верху скрипта. */
-    window.__прЧип=function(ч){ показать(ч.getAttribute('data-p')); };
-
-    /* Лента чипов: гасим правый край, пока справа есть непоказанные чипы.
-       При крупном системном шрифте лента длиннее экрана, и без этого
-       намёка последний чип выглядит просто обрезанным. */
-    var лента=document.querySelector('.pr-chipy');
-    if(лента){
-      var хвост=function(){
-        лента.classList.toggle('hvost',
-          лента.scrollWidth-лента.clientWidth-лента.scrollLeft>8);
-      };
-      лента.addEventListener('scroll',хвост,{passive:true});
-      window.addEventListener('resize',хвост);
-      /* Системный кегль меняется без изменения размеров окна: ловим рост
-         самих чипов, иначе после смены масштаба шрифта намёк не появится. */
-      try{
-        if(window.ResizeObserver){
-          var н=new ResizeObserver(хвост);
-          н.observe(лента);
-          if(чипы[0]) н.observe(чипы[0]);
-        }
-      }catch(e){}
-      хвост();
-    }
-  })(); }catch(__е){ try{console.error("секция главной:",__е)}catch(_){}}
-
-  /* Цитата дня — дословная строка книги (citaty.js); та же, что уходит
-     утренним уведомлением. Ротация по дню года живёт в citaty.js; если
-     файл не доехал или пуст, стоит запасная строка — карточка не должна
-     встречать человека пустотой. */
+     Куда ведёт. Прежде — в Разбор на пустой круг: карточка обещала
+     «посмотреть, из чего это сложено», и не выполняла обещание. Теперь в
+     учебник, на главу, где эта запись стоит. Номер записи есть в самой
+     цитате, границы глав — в описи книги (kniga/opis.js), так что номера
+     глав здесь не повторяются и разойтись с книгой не могут. */
   try{ (function(){
     var к=document.getElementById('citata');
     if(!к) return;
-    var тх='«Мир — управляемый страх»', от='', ист='Ясна';
+    var тх='«Мир — управляемый страх»', от='', ист='Ясна Суток', ном=null;
     try{
       var ц=window.yasnaCitata && window.yasnaCitata();
       if(ц && ц[0]){
         тх='«'+ц[0]+'»';
         от=ц[1]||'';
-        ист=ц[2]?'Ясна Суток · '+ц[2]:'Ясна Суток';
+        if(ц[2]){ ист='Ясна Суток · '+ц[2];
+          var ц2=/(\d+)/.exec(String(ц[2])); if(ц2) ном=+ц2[1]; }
       }
     }catch(e){}
     к.querySelector('.tx').textContent=тх;
     к.querySelector('.ot').textContent=от;
-    к.querySelector('.ist').textContent=ист;
+    /* Шеврон — знак того, что карточка открывается: без него тапабельность
+       цитаты ничем не показана. */
+    к.querySelector('.ist').textContent=ист+' ›';
+    var глава=null;
+    try{
+      var О=window.YasnaKnigaOpis;
+      if(ном!=null && О && О.главы) О.главы.forEach(function(г){
+        if(г.записи && ном>=г.записи[0] && ном<=г.записи[1] && г.есть!==false) глава=г.номер;
+      });
+    }catch(e){}
+    к.setAttribute('href', глава!=null ? 'kniga.html?glava='+глава : 'kniga.html');
+    /* Голосом читается одной фразой: «цитата, откуда она, куда ведёт». */
+    к.setAttribute('aria-label','Цитата дня: '+тх+'. Открыть учебник, '+ист);
   })(); }catch(__е){ try{console.error("секция главной:",__е)}catch(_){}}
 
-  /* Обновления: тихая проверка раз в несколько часов; плашка — только
-     когда в хранилище действительно лежит более новая сборка. */
   /* Утренние цитаты: включённое расписание сдвигаем на 14 дней вперёд при
      каждом открытии — иначе оно молча иссякает через две недели. */
   if(window.yasnaPushiVkl && window.yasnaPushiVkl() && window.yasnaPushi)
     window.yasnaPushi(true);
 
+  /* Обновления: тихая проверка раз в несколько часов; плашка — только
+     когда в хранилище действительно лежит более новая сборка. */
   if(window.yasnaObnovaPlashka) window.yasnaObnovaPlashka();
 
 })();

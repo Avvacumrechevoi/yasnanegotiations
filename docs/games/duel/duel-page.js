@@ -359,7 +359,7 @@ function открытьКруг(){
         ),
         React.createElement('div', { className: 'dp-welcome-pillar' },
           React.createElement('div', { className: 'dp-welcome-pillar-label' }, '✦  Бусины'),
-          React.createElement('div', { className: 'dp-welcome-pillar-text' }, '10 за верный ответ, +5 за быстрый. Хроника недели — топ игроков')
+          React.createElement('div', { className: 'dp-welcome-pillar-text' }, '10 за верный ответ, +5 за быстрый. Рейтинг недели — топ игроков')
         )
       )
     );
@@ -469,7 +469,7 @@ function открытьКруг(){
       /* Кликабельна вся полоса: пилюля — метка, а не кнопка (она выглядела
          кнопкой и просилась в нажатие сильнее самой партии). */
       return React.createElement('a', { className: 'dp-hero dp-hero--stupen', href: 'rating.html',
-          'aria-label': 'Ступень ' + stupen.name + ' — как считается рейтинг' },
+          'aria-label': 'Ступень ' + stupen.name + ' — открыть «Прогресс»' },
         React.createElement('div', { className: 'dp-hero-body' },
           React.createElement('div', { className: 'dp-hero-name-row' },
             React.createElement('span', { className: 'dp-hero-rank-pill' }, stupen.name, ' ', toRoman(stupen.subLevel)),
@@ -497,7 +497,7 @@ function открытьКруг(){
           React.createElement('a', {
             className: 'dp-hero-rank-pill dp-tip',
             href: 'rating.html',
-            'data-tip': 'Ступень — твой уровень в Ясне. Растёт с каждой партией. Нажми, чтобы узнать про шкалы прогресса.',
+            'data-tip': 'Ступень — твой уровень в Ясне. Растёт с каждой партией. Нажми, чтобы открыть «Прогресс».',
             style: { textDecoration: 'none' },
           }, stupen.name, ' ', toRoman(stupen.subLevel))
         ),
@@ -505,7 +505,7 @@ function открытьКруг(){
           React.createElement('a', {
             className: 'dp-hero-bead dp-tip',
             href: 'rating.html',
-            'data-tip': 'Бусины ✦ — очки за партии. Нажми, чтобы узнать, как считается рейтинг.',
+            'data-tip': 'Бусины ✦ — очки за партии. Нажми, чтобы открыть «Прогресс».',
             style: { textDecoration: 'none' },
           }, '✦ ', busey),
           React.createElement('span', { className: 'dp-hero-stats-sep' }, '·'),
@@ -522,15 +522,15 @@ function открытьКруг(){
       isGuest && (/YasnaApp\//.test(navigator.userAgent)
         ? React.createElement('button', { className: 'dp-hero-cta',
             onClick: function(){ if (window.YasnaAccount) window.YasnaAccount.openLogin(); } }, 'Войти по почте →')
-        : React.createElement('button', { className: 'dp-hero-cta', onClick: onLoginClick, title: 'Войди — попадёшь в Хронику' }, 'Войти →')),
+        : React.createElement('button', { className: 'dp-hero-cta', onClick: onLoginClick, title: 'Войди — попадёшь в рейтинг недели' }, 'Войти →')),
       !isGuest && remoteProfile && React.createElement('div', {
         className: 'dp-hero-synced',
         // Прогресс уже на сервере (server/progress.js): формулировка ниже
         // (в БД есть только users/device_links/matches — таблицы прогресса нет,
         // и GET /profile не реализован). Telegram-вход сейчас даёт участие в
         // Хронике и рейтинге по партиям, а не перенос прогресса между устройствами.
-        title: 'Вход выполнен: партии учитываются в Хронике и рейтинге. Прогресс обучения пока хранится в этом браузере'
-      }, '✓ в Хронике')
+        title: 'Вход выполнен: партии учитываются в рейтинге недели. Прогресс обучения пока хранится в этом браузере'
+      }, '✓ в рейтинге')
     );
   }
 
@@ -577,11 +577,14 @@ function открытьКруг(){
       React.createElement('div', { className: 'dp-sync-notice', role: 'note' },
         React.createElement('div', { className: 'dp-sync-notice-icon', 'aria-hidden': 'true' }, '◷'),
         React.createElement('div', { className: 'dp-sync-notice-body' },
-          React.createElement('div', { className: 'dp-sync-notice-title' }, 'Уроки — на сервере, партии — на устройстве'),
+          /* Было 45 слов в шесть строк — треть первого экрана на объяснение
+             устройства хранения. Осталось то, ради чего плашку читают: что
+             будет, если войти, и что входом не переносится. Заголовок стал
+             короче ещё и потому, что у него white-space:nowrap — прежний на
+             360 px обрезался на «…на устройст». */
+          React.createElement('div', { className: 'dp-sync-notice-title' }, 'Прогресс держится на этом телефоне'),
           React.createElement('div', { className: 'dp-sync-notice-text' },
-            'Уроки и разборы уже лежат на сервере — пока для этого устройства.',
-            React.createElement('br'),
-            'Войди по почте, и они привяжутся к тебе: вернутся после переустановки и откроются на другом телефоне. Бусины и история партий пока живут только здесь.'
+            'Войди по почте — уроки и разборы вернутся после переустановки и откроются на другом телефоне. Бусины и партии пока остаются здесь.'
           ),
           /* В приложении шапка с кнопкой «Войти» скрыта — призыв «войди по
              почте» оставался без действия. Кнопка живёт прямо здесь. */
@@ -811,42 +814,13 @@ function открытьКруг(){
           'Режимы игр'
         )
       ),
+      /* Партия первой и залитой, круг за ней. Раньше первой стояла карточка
+         круга с превью на 405 dp, и первая кнопка «играть» на 412×915
+         оказывалась на y≈911 — за полтора экрана прокрутки. Круг вдобавок
+         открывается прямой дверью с «Практики», а Партия живёт только здесь:
+         главное действие этого экрана — она. */
       React.createElement('div', { className: 'dp-games-grid' },
         React.createElement('div', { className: 'dp-game-card dp-game-primary' },
-          React.createElement('div', { className: 'dp-game-eyebrow' }, 'Тренажёр · 2 минуты'),
-          React.createElement('div', { className: 'dp-game-title-row' },
-            React.createElement('div', { className: 'dp-game-title' }, 'Разложи по кругу')
-          ),
-          /YasnaApp\//.test(navigator.userAgent) && React.createElement(DPKrugPreview, null),
-          React.createElement('div', { className: 'dp-game-sub' },
-            'Тренируйся расставлять по местам.'
-          ),
-          React.createElement('ul', { className: 'dp-game-bullets' },
-            React.createElement('li', null, '16 Ясн на выбор — или случайная'),
-            React.createElement('li', null, 'Ставишь тапом по самому кругу, а не по кнопкам под ним'),
-            React.createElement('li', null, 'Нитка через середину вспыхивает сама, когда ось сошлась')
-          ),
-          React.createElement('div', { className: 'dp-cta-row' },
-            React.createElement('button', {
-              type: 'button', className: 'dp-cta dp-cta--solo',
-              onClick: (e) => { e.stopPropagation(); открытьКруг(); },
-              'aria-label': 'Играть в «Разложи по кругу»'
-            },
-              React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
-                React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
-                  React.createElement('circle', { cx: 12, cy: 12, r: 8 }),
-                  React.createElement('path', { d: 'M12 4v16M4 12h16' })
-                )
-              ),
-              React.createElement('span', { className: 'dp-cta__body' },
-                React.createElement('span', { className: 'dp-cta__title' }, 'Играть'),
-                React.createElement('span', { className: 'dp-cta__sub' }, 'одному или с друзьями')
-              )
-            )
-          )
-        ),
-        // (карточка «Переговоры» живёт на своём экране — negotiations.html)
-        React.createElement('div', { className: 'dp-game-card' },
           React.createElement('div', { className: 'dp-game-eyebrow' }, 'Викторина · 5 минут'),
           React.createElement('div', { className: 'dp-game-title-row' },
             React.createElement('div', { className: 'dp-game-title' }, 'Партия'),
@@ -897,6 +871,40 @@ function открытьКруг(){
               React.createElement('span', { className: 'dp-cta__body' },
                 React.createElement('span', { className: 'dp-cta__title' }, 'Настроить партию'),
                 React.createElement('span', { className: 'dp-cta__sub' }, 'длина, темы, соперник')
+              )
+            )
+          )
+        ),
+        // (карточка «Переговоры» живёт на своём экране — negotiations.html)
+        React.createElement('div', { className: 'dp-game-card' },
+          React.createElement('div', { className: 'dp-game-eyebrow' }, 'Тренажёр · 2 минуты'),
+          React.createElement('div', { className: 'dp-game-title-row' },
+            React.createElement('div', { className: 'dp-game-title' }, 'Разложи по кругу')
+          ),
+          /YasnaApp\//.test(navigator.userAgent) && React.createElement(DPKrugPreview, null),
+          React.createElement('div', { className: 'dp-game-sub' },
+            'Тренируйся расставлять по местам.'
+          ),
+          React.createElement('ul', { className: 'dp-game-bullets' },
+            React.createElement('li', null, '16 Ясн на выбор — или случайная'),
+            React.createElement('li', null, 'Ставишь тапом по самому кругу, а не по кнопкам под ним'),
+            React.createElement('li', null, 'Нитка через середину вспыхивает сама, когда ось сошлась')
+          ),
+          React.createElement('div', { className: 'dp-cta-row' },
+            React.createElement('button', {
+              type: 'button', className: 'dp-cta dp-cta--solo',
+              onClick: (e) => { e.stopPropagation(); открытьКруг(); },
+              'aria-label': 'Играть в «Разложи по кругу»'
+            },
+              React.createElement('span', { className: 'dp-cta__icon', 'aria-hidden': 'true' },
+                React.createElement('svg', { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
+                  React.createElement('circle', { cx: 12, cy: 12, r: 8 }),
+                  React.createElement('path', { d: 'M12 4v16M4 12h16' })
+                )
+              ),
+              React.createElement('span', { className: 'dp-cta__body' },
+                React.createElement('span', { className: 'dp-cta__title' }, 'Играть'),
+                React.createElement('span', { className: 'dp-cta__sub' }, 'одному или с друзьями')
               )
             )
           )
@@ -1012,7 +1020,10 @@ function открытьКруг(){
               React.createElement('span', { className: 'dp-tema-stroka-pct' }, pct ? pct + '%' : 'не открыта')
             ),
             React.createElement('div', { className: 'dp-tema-stroka-polosa' },
-              React.createElement('div', { className: 'dp-tema-stroka-fill', style: { width: Math.max(2, pct) + '%' } })
+              /* Ноль рисуем нулём. Math.max(2, pct) подкрашивал каждую из
+                 десяти нетронутых тем на 2 % — десять синих хвостиков читались
+                 как «немного уже пройдено», хотя не сыграно ни партии. */
+              React.createElement('div', { className: 'dp-tema-stroka-fill', style: { width: (pct > 0 ? Math.max(2, pct) : 0) + '%' } })
             )
           );
         })
@@ -1020,7 +1031,13 @@ function открытьКруг(){
     );
   }
 
-  // ─── Хроника (бывш. лидерборд) ──────────────────────────────────
+  // ─── Рейтинг недели (бывш. «Хроника», бывш. лидерборд) ──────────
+  // Одна и та же таблица звалась Хроникой, лидербордом, «Рейтингом игроков»
+  // и «Топом недели» — четыре имени на пяти экранах. В видимом тексте
+  // осталось одно: «рейтинг недели».
+  //
+  // ВНИМАНИЕ: имя «Хроника» ещё живёт в turnir-engine.js («зачтены в
+  // Хронику», «Партия записана в три места») — тот файл правят другие руки.
   function DPHronika({ user }){
     const [items, setItems] = useState(null);
     const [повтор, setПовтор] = useState(0);
@@ -1044,8 +1061,7 @@ function открытьКруг(){
     return React.createElement('div', { className: 'dp-card', id: 'hronika' },
       React.createElement('div', { className: 'dp-card-h' },
         React.createElement('h3', null, IconScroll(), ' ',
-          Term('Рейтинг игроков', 'Кто заработал больше бусин за эту неделю. Обнуляется в субботу 23:59.'),
-          React.createElement('span', { className: 'dp-card-h-sub' }, 'за неделю')
+          Term('Рейтинг недели', 'Кто заработал больше бусин за эту неделю. Обнуляется в субботу 23:59.')
         ),
         React.createElement('span', { className: 'dp-card-meta' }, 'Сб 23:59')
       ),
@@ -1057,13 +1073,13 @@ function открытьКруг(){
         : items === null
         ? React.createElement('div', { className: 'dp-card-empty' }, 'Пока пусто. Сыграй Партию.')
         : items.length === 0
-          ? React.createElement('div', { className: 'dp-card-empty' }, 'Хроника ждёт первой записи.', React.createElement('br'), 'Сыграй Партию.')
+          ? React.createElement('div', { className: 'dp-card-empty' }, 'Рейтинг недели пока пуст.', React.createElement('br'), 'Сыграй Партию.')
           : React.createElement(React.Fragment, null,
               React.createElement('table', { className: 'dp-table' },
                 React.createElement('thead', null,
                   React.createElement('tr', null,
                     React.createElement('th', { className: 'dp-th-rank' }, '#'),
-                    React.createElement('th', null, 'Игрок'),
+                    React.createElement('th', null, 'Кто'),
                     React.createElement('th', { className: 'dp-th-num dp-th-games' }, 'Партий'),
                     React.createElement('th', { className: 'dp-th-num' }, 'Бусины')
                   )
@@ -1077,7 +1093,7 @@ function открытьКруг(){
                       className: isMe ? 'dp-tr-me' : ''
                     },
                       React.createElement('td', { className: 'dp-td-rank ' + rankCls }, idx + 1),
-                      React.createElement('td', { className: 'dp-td-name' }, row.nickname || 'Игрок'),
+                      React.createElement('td', { className: 'dp-td-name' }, row.nickname || 'Без имени'),
                       React.createElement('td', { className: 'dp-td-num dp-td-games' }, row.matches || row.games || '—'),
                       React.createElement('td', { className: 'dp-td-num-strong' }, row.score != null ? '✦ ' + row.score : '—')
                     );
@@ -1087,7 +1103,7 @@ function открытьКруг(){
               React.createElement('div', { className: 'dp-table-foot' },
                 React.createElement('span', null,
                   myInTop ? 'Ты на ' + myRank + '-й позиции'
-                          : (myDeviceId ? 'Ты пока вне топ-5' : 'Сыграй, чтобы попасть в Хронику')
+                          : (myDeviceId ? 'Ты пока вне топ-5' : 'Сыграй, чтобы попасть в рейтинг недели')
                 ),
                 /* Ссылка обещала полный список и не делала ничего: href='#'
                    и preventDefault. Экран рейтинга в приложении есть. */
@@ -2015,7 +2031,7 @@ function открытьКруг(){
         phase === 'success' && React.createElement(React.Fragment, null,
           React.createElement('div', { className: 'dp-auth-success-icon', 'aria-hidden': 'true' }, '✦'),
           React.createElement('h2', { className: 'dp-auth-success-title' }, 'Привет, ', welcomeName, '.'),
-          React.createElement('p', { className: 'dp-auth-success-text' }, 'Теперь партии попадают в Хронику и рейтинг под твоим именем, а уроки и бусины привязаны к аккаунту — откроются на любом устройстве.')
+          React.createElement('p', { className: 'dp-auth-success-text' }, 'Теперь партии попадают в рейтинг недели под твоим именем, а уроки и бусины привязаны к аккаунту — откроются на любом устройстве.')
         ),
 
         // ─── Idle / loading / error ───
@@ -2518,11 +2534,17 @@ function открытьКруг(){
             // DPHeroCTA удалён — дублировал карточки в DPMainGames с собственными
             // CTA кнопками («Играть соло» / «С другом»). Карточки богаче по
             // содержимому, чем shortcut-кнопки сверху, и видны без скролла.
-            React.createElement(DPProfileHero, { user, profile, onLoginClick, remoteProfile }),
-            React.createElement(DPSyncNotice, { user, onLoginClick }),
+            /* Порядок: сначала во что играть, потом как идут дела. До этого
+               первый экран занимали карточка ступени (119 dp) и плашка про
+               хранение прогресса (310 dp) — человек без единой партии видел
+               семь нулей и две кнопки про почту раньше, чем кнопку «играть».
+               Ступень, числа, рейтинг недели и знаки никуда не делись, они
+               просто ниже — там, где на них смотрят после игры, а не до. */
             React.createElement(DPMainGames, { onPartiya: onPartiyaCTA, onUzor: startUzorPvP,
               onProsto: () => startPartiyaWithShadow('medium', 'standard', null) }),
             React.createElement(DPTemaDnya, { onTema: (themeId) => startPartiyaWithShadow('medium', 'blitz', [themeId]) }),
+            React.createElement(DPProfileHero, { user, profile, onLoginClick, remoteProfile }),
+            React.createElement(DPSyncNotice, { user, onLoginClick }),
             React.createElement(DPStatistika, null),
             React.createElement('section', { className: 'dp-section' },
               React.createElement('div', { className: 'dp-two-col' },

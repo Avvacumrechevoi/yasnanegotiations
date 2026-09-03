@@ -6,8 +6,8 @@
 <!-- Значок вкладки: без него браузер сам просит /favicon.ico и получает
      404 в консоль при каждом открытии книги. -->
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
-<title>Ясна Суток — учебник</title>
-<meta name="description" content="Первая книга о том, как всё устроено. Учебник «Ясна Суток» целиком, со всеми схемами."/>
+<title>Ясна Суток — книга</title>
+<meta name="description" content="Первая книга о том, как всё устроено. «Ясна Суток» целиком, со всеми схемами."/>
 <script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);var e=document.documentElement;e.setAttribute('data-theme',d?'dark':'light');e.style.colorScheme=d?'dark':'light';}catch(e){}</script>
 <script src="core/theme.js"></script>
 <script>
@@ -231,13 +231,20 @@ html.yk-shapka-est #glava-imya{display:none}
        прячет целиком. Прежняя подпись обещала «Уроки», а в главе кнопка
        вела в оглавление — обещание не совпадало с делом. Заголовок оболочка
        читает отсюда (data-yk-imya-iz="#shapka-t"), поэтому узел остаётся. -->
-  <div class="kn-shapka-t" id="shapka-t">Библиотека Ясна</div>
+  <div class="kn-shapka-t" id="shapka-t">Книга</div>
   <button class="gl-kegl" id="kegl" type="button" aria-label="Размер текста">Аа</button>
 </header>
+<!-- Имя книги ставим сразу, а не в конце разбора: опись подключена
+     document.write-ом ещё в <head>, значит имя уже известно. Раньше здесь
+     стояло «Библиотека Ясна» — теперь так зовётся ВКЛАДКА, из которой в
+     книгу входят, и шапка книги повторяла имя предыдущего экрана. Оболочка
+     читает заголовок отсюда (data-yk-imya-iz="#shapka-t") и следит за
+     изменениями, поэтому подстановка до её запуска ничего не ломает. -->
+<script>try{var _О=window.YasnaKnigaOpis;if(_О&&_О.имя){document.getElementById('shapka-t').textContent=_О.имя;}}catch(e){}</script>
 
 <main class="ogl" id="ogl">
   <div class="obl">
-    <div class="obl-nad">Учебник</div>
+    <div class="obl-nad">Книга</div>
     <h1 id="obl-imya">Ясна Суток</h1>
     <div class="obl-pod" id="obl-pod">Первая книга о том, как всё устроено</div>
     <svg class="obl-znak" viewBox="0 0 60 60" aria-hidden="true">
@@ -596,7 +603,7 @@ html.yk-shapka-est #glava-imya{display:none}
   document.getElementById('obl-imya').textContent=О.имя||'Книга';
   document.getElementById('obl-pod').textContent=О.подпись||'';
   document.getElementById('shapka-t').textContent=О.имя||'Книга';
-  document.title=(О.имя||'Книга')+' — учебник';
+  document.title=(О.имя||'Книга')+' — книга';
   /* Ненаписанных глав больше нет — весь учебник набран. Пометку оставляем
      в механике: если опись когда-нибудь опередит файлы, глава честно скажет
      «пишется», а не отдаст пустой лист. */

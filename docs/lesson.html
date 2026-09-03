@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="robots" content="noindex, nofollow"/>
+<meta name="yandex" content="noindex, nofollow"/>
+<meta name="yasna:api" content="https://d5dmdje8c5mk8811il5j.iwzqm34r.apigw.yandexcloud.net"/>
+<!-- Замок: подключён ПЕРВЫМ, до всего остального (см. core/gate.js) -->
+<script src="core/gate.js"></script>
+<script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);var e=document.documentElement;e.setAttribute('data-theme',d?'dark':'light');e.style.colorScheme=d?'dark':'light';}catch(e){}</script>
+<script src="core/theme.js?v=86eb1366"></script>
+<script src="core/storage.js?v=9d701501"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<meta name="theme-color" content="#0071e3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0b0d" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ясна">
+<title>Урок · Ясна</title>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     УРОК — СВОЙ ЭКРАН, А НЕ СЛОЙ ПОВЕРХ «РАЗБОРА».
+
+     Было: урок жил внутри konstruktor.html. Чтобы открыть занятие, человек
+     платил загрузкой всего конструктора — звезда, механики, редактор,
+     объёмный режим (three.js, 589 кБ) и живая игра (peerjs, 91 кБ), — при
+     том что уроку не нужно ничего из этого. Закрытие возвращало в круг,
+     которого он не просил.
+
+     Стало: адрес lesson.html?lesson=<ид>&otkuda=<откуда>. Экран грузит
+     движок уроков и сами уроки — и ни одной тяжёлой библиотеки.
+
+     ЧЕСТНО О ВЕСЕ. Движок уроков (docs/lessons/engine.js) собран внутрь
+     dist/app.min.js: он берёт из window.YasnaCore звезду, карточку места и
+     проверку, а отдельного бандла у него нет — список бандлов живёт в
+     scripts/build.mjs. Поэтому здесь подключён app.min.js целиком. Выигрыш
+     всё равно есть и он крупный: 696 кБ библиотек не разбираются и не
+     компилируются, и React не монтирует дерево конструктора.
+     ═══════════════════════════════════════════════════════════════════════ -->
+
+<!-- Роли цвета, шкала типа и движение: один файл на сайт и приложение. -->
+<link rel="stylesheet" href="core/tokeny.css">
+<!-- Блоки урока написаны инлайновыми стилями поверх общего сброса из
+     styles.css (*{box-sizing:border-box}) и берут оттуда же три анимации:
+     .scroll-lesson-block-appear, .gate-active, .yasna-star-pulse. Копировать
+     их сюда значило бы завести второй источник правды о виде урока. -->
+<link rel="stylesheet" href="styles.css?v=6107844c"/>
+<link rel="stylesheet" href="vendor/fonts/shrifty.css">
+
+<style>
+/* Пока движок не приехал, экран не должен быть пустым белым листом. */
+.ul-plashka{position:fixed;inset:0;z-index:10;display:flex;align-items:center;
+  justify-content:center;padding:24px;background:var(--surface);
+  font-family:var(--ya-font-text,system-ui,sans-serif)}
+.ul-plashka[hidden]{display:none}
+.ul-nutro{max-width:420px;text-align:center;color:var(--on-surface)}
+.ul-zag{font-size:20px;font-weight:700;margin-bottom:10px}
+.ul-tekst{font-size:14px;line-height:1.6;color:var(--on-surface-variant);margin-bottom:22px}
+.ul-dver{display:inline-flex;align-items:center;justify-content:center;
+  min-height:48px;padding:0 26px;border:none;border-radius:12px;
+  font:600 15px/1 var(--ya-font-text,system-ui,sans-serif);
+  background:var(--primary);color:var(--on-primary);cursor:pointer;
+  text-decoration:none}
+</style>
+</head>
+<body>
+<div id="urok"></div>
+
+<div class="ul-plashka" id="urok-zhdu">
+  <div class="ul-nutro"><div class="ul-tekst">Открываю урок…</div></div>
+</div>
+
+<div class="ul-plashka" id="urok-beda" hidden>
+  <div class="ul-nutro">
+    <div class="ul-zag">Урок не загрузился</div>
+    <div class="ul-tekst">Похоже, нет сети. Проверьте связь и попробуйте ещё раз.</div>
+    <button type="button" class="ul-dver" id="urok-snova">Повторить</button>
+  </div>
+</div>
+
+<div class="ul-plashka" id="urok-net" hidden>
+  <div class="ul-nutro">
+    <div class="ul-zag">Не сказано, какой урок открыть</div>
+    <div class="ul-tekst">В адресе нет имени занятия. Все уроки собраны в дереве знаний.</div>
+    <a class="ul-dver" href="learn.html">Открыть Уроки</a>
+  </div>
+</div>
+
+<script src="vendor/js/react-18.2.0.min.js"></script>
+<script src="vendor/js/react-dom-18.2.0.min.js"></script>
+
+<script>
+/* app.min.js заканчивается строкой, монтирующей ВЕСЬ Разбор в #root. Здесь
+   Разбора нет и узла #root тоже нет — нарочно. Без этой заглушки
+   createRoot(null) бросил бы исключение в консоль на каждом открытии урока.
+   Гасим ровно этот случай: пустой узел — пустой корень, который ничего не
+   рисует. Все остальные вызовы в бандле адресуют свои живые div'ы. */
+(function(){
+  var родной = ReactDOM.createRoot;
+  ReactDOM.createRoot = function(узел){
+    if(!узел) return { render:function(){}, unmount:function(){} };
+    return родной.apply(ReactDOM, arguments);
+  };
+})();
+</script>
+
+<!-- Движок уроков и всё, на что он опирается (window.YasnaCore). Тяжёлых
+     библиотек здесь нет: ни three.js, ни peerjs. -->
+<script src="dist/app.min.js?v=605232f9"></script>
+
+<script>
+(function(){
+  'use strict';
+  var узел = document.getElementById('urok');
+  var ждуУзел = document.getElementById('urok-zhdu');
+  var бедаУзел = document.getElementById('urok-beda');
+  var нетУзел = document.getElementById('urok-net');
+
+  var q; try{ q = new URLSearchParams(location.search); }catch(_){ q = null; }
+  function пар(имя){ try{ return (q && q.get(имя)) || ''; }catch(_){ return ''; } }
+
+  /* Старые ссылки звали первый урок цифрой — они обязаны работать. */
+  var идУрока = пар('lesson');
+  if(идУрока === '1' || идУрока === 'l1' || идУрока === 'intro') идУрока = 'l1_intro';
+
+  /* ОТКУДА ПРИШЛИ. Сотня ссылок в дереве знаний пишет метку словом
+     (?otkuda=uroki), новым ссылкам естественнее писать имя файла
+     (?otkuda=learn.html). Понимаем оба написания: правят дерево другие руки,
+     и до правки старые ссылки ломаться не должны. */
+  var СЛОВОМ = { uroki:'learn.html', igra:'praktika.html', praktika:'praktika.html',
+                 glavnaya:'index.html', razbor:'konstruktor.html' };
+  function откуда(){
+    var о = пар('otkuda');
+    if(/\.html$/i.test(о)) return о;
+    return СЛОВОМ[о] || '';
+  }
+
+  /* Открытый урок держится в адресе: WebView выгружают при нехватке памяти,
+     смене темы и масштаба шрифта, и без метки человек вернулся бы не в тот
+     урок. replaceState, а не push: своей записи в истории у смены урока нет —
+     «назад» уводит с экрана целиком, а не листает уроки по одному. */
+  function записатьАдрес(ид){
+    try{
+      var к = new URLSearchParams(location.search);
+      if(ид) к.set('lesson', ид); else к.delete('lesson');
+      var х = к.toString();
+      history.replaceState(null, '', location.pathname + (х ? '?' + х : ''));
+    }catch(_){}
+  }
+
+  /* ОДИН ВЫХОД. Крестик самого урока, ✕ общей шапки, Esc и аппаратная
+     «назад» зовут отсюда одно и то же — разных дорог наружу быть не может. */
+  function уйти(){
+    var N = window.yasnaNav;
+    if(N && N.верх()){ N.назад(); return; }      /* пришли вглубь — туда и вернёмся */
+    var куда = откуда() || 'learn.html';
+    if(N && N.корневой(куда)){ N.корень(куда); return; }
+    location.replace(куда);
+  }
+
+  /* Каталог уроков один — экран «Уроки». Кнопка «выбрать другой» обещает
+     именно его, куда бы ни вёл стек: подпись важнее истории. */
+  function кУрокам(){
+    записатьАдрес(null);
+    try{ sessionStorage.removeItem('yasna_urok_otkuda'); }catch(_){}
+    if(window.yasnaNav) window.yasnaNav.корень('learn.html');
+    else location.href = 'learn.html';
+  }
+
+  function показать(что){
+    ждуУзел.hidden = (что !== 'жду');
+    бедаУзел.hidden = (что !== 'беда');
+    нетУзел.hidden  = (что !== 'нет');
+  }
+
+  var корень = null;
+  function нарисовать(ид){
+    if(!корень) корень = ReactDOM.createRoot(узел);
+    показать('');
+    корень.render(React.createElement(window.YasnaLessons.Lesson, {
+      lessonId: ид,
+      onClose: уйти,
+      onPickAnother: кУрокам,
+      /* Пишем сразу и синхронно: следом может прийти уход с экрана, и
+         отложенная запись не успевала — пройденный урок оставался
+         «начатым». Ключ из реестра docs/core/storage.js. */
+      onComplete: function(готовый){
+        try{
+          var с = JSON.parse(localStorage.getItem('yasna_completed_lessons_v1')) || [];
+          if(с.indexOf(готовый) < 0){
+            с.push(готовый);
+            localStorage.setItem('yasna_completed_lessons_v1', JSON.stringify(с));
+          }
+        }catch(_){}
+      },
+      onOpenLesson: function(следующий){
+        идУрока = следующий;
+        записатьАдрес(следующий);
+        обновитьЗаголовок(следующий);
+        нарисовать(следующий);
+      }
+    }));
+  }
+
+  /* Заголовок общей шапки — имя урока: под слоем её не видно, но подпись
+     возврата и чтец берут имя оттуда. */
+  function обновитьЗаголовок(ид){
+    var N = window.yasnaNav;
+    if(!N) return;
+    var имя = 'Урок';
+    try{
+      var все = (window.YasnaLessons && window.YasnaLessons.lessons) || [];
+      for(var i = 0; i < все.length; i++) if(все[i].id === ид){ имя = все[i].title || имя; break; }
+    }catch(_){}
+    N.объявить({ тип:'слой', имя: имя, закрыть: уйти });
+  }
+
+  function пуск(){
+    if(!идУрока){ показать('нет'); return; }
+    показать('жду');
+    var з = window.YasnaLessons && window.YasnaLessons.загрузить;
+    if(!з){ показать('беда'); return; }
+    з().then(function(ок){
+      if(!ок){ показать('беда'); return; }
+      обновитьЗаголовок(идУрока);
+      нарисовать(идУрока);
+    });
+  }
+
+  document.getElementById('urok-snova').addEventListener('click', пуск);
+
+  /* Оболочку приложения (window.yasnaNav) приносит отложенный скрипт — он
+     отработает позже этого инлайна, но раньше DOMContentLoaded. Поэтому
+     объявляемся слоем именно здесь: иначе аппаратная «назад» и ✕ шапки не
+     знали бы, что закрывать. На сайте оболочки нет вовсе, и урок закроется
+     переходом по адресу. */
+  document.addEventListener('DOMContentLoaded', function(){
+    if(window.yasnaNav) window.yasnaNav.объявить({ тип:'слой', имя:'Урок', закрыть: уйти });
+    пуск();
+  });
+})();
+</script>
+</body>
+</html>

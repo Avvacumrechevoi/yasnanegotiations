@@ -362,7 +362,10 @@ function Instruction({onClose}){
   return(
     <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'var(--bg,#fff)',zIndex:130,display:'flex',flexDirection:'column'}}>
       <div style={{display:'flex',alignItems:'center',padding:'14px 24px',borderBottom:'1px solid #e5e5ea',flexShrink:0}}>
-        <h2 style={{fontSize:24,fontWeight:700,color:'var(--txt,#1d1d1f)',flex:1}}>Инструкция по составлению Ясны</h2>
+        {/* Заголовок = имя двери в дереве «Уроков» («Как собрать свою ясну»):
+            человек нажимал одно, а попадал в «Инструкцию по составлению
+            Ясны» и сомневался, туда ли пришёл. */}
+        <h2 style={{fontSize:24,fontWeight:700,color:'var(--txt,#1d1d1f)',flex:1}}>Как собрать свою ясну</h2>
         <button onClick={onClose} style={{fontSize:13,color:'#0071e3',padding:'8px 20px',border:'1px solid #0071e3',borderRadius:8}}>Закрыть</button>
       </div>
       <div className='fullpage-content' style={{flex:1,overflowY:'auto',padding:'24px',maxWidth:760,margin:'0 auto',width:'100%'}}>
@@ -1307,8 +1310,8 @@ function App(){
         {/* «Игра» переехала в свитчер разделов рядом с лого (см. .hdr-switch выше) */}
         {/* 2. Обучение ▼ — dropdown рендерится после всего хедера (см. ниже),
             чтобы работало и на десктопе, и на мобильном. */}
-        <button onClick={()=>setLearnOpen(o=>!o)} title='Уроки и гиды по Яснам' className='hdr-btn' style={{border:`1px solid ${learnOpen?'rgba(0,113,227,.4)':'#d2d2d7'}`,color:learnOpen?'#0058b8':'#424245',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:learnOpen?'rgba(0,113,227,.06)':'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:6,boxSizing:'border-box'}}>
-          <span>Гид</span>
+        <button onClick={()=>setLearnOpen(o=>!o)} title='Разборы по кругу' className='hdr-btn' style={{border:`1px solid ${learnOpen?'rgba(0,113,227,.4)':'#d2d2d7'}`,color:learnOpen?'#0058b8':'#424245',padding:'7px 14px',height:36,borderRadius:8,fontSize:13,background:learnOpen?'rgba(0,113,227,.06)':'#fff',cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:6,boxSizing:'border-box'}}>
+          <span>Разборы</span>
           <span style={{fontSize:11,display:'inline-block',transform:learnOpen?'rotate(180deg)':'none',transition:'transform .2s',opacity:.7}}>▼</span>
         </button>
         {/* Игра переехала влево, рядом с лого — см. начало .hdr */}
@@ -1348,7 +1351,7 @@ function App(){
             <span style={{position:'absolute',top:-3,right:-3,width:8,height:8,borderRadius:'50%',background:'#FF3985',border:'1.5px solid var(--bg2,#fff)'}} title='NEW'/>
           </a>
           {/* 2. Обучение — icon-only кнопка с дропдауном (Уроки + все гиды) */}
-          <button onClick={()=>setLearnOpen(o=>!o)} title='Уроки и гиды по Яснам' aria-label='Гид' style={{width:36,height:36,padding:0,border:`1px solid ${learnOpen?'rgba(0,113,227,.4)':'var(--border,#d2d2d7)'}`,borderRadius:10,background:learnOpen?'rgba(0,113,227,.06)':'var(--bg3,#fff)',color:learnOpen?'#0058b8':'var(--txt,#424245)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',boxSizing:'border-box'}}>
+          <button onClick={()=>setLearnOpen(o=>!o)} title='Разборы по кругу' aria-label='Разборы' style={{width:36,height:36,padding:0,border:`1px solid ${learnOpen?'rgba(0,113,227,.4)':'var(--border,#d2d2d7)'}`,borderRadius:10,background:learnOpen?'rgba(0,113,227,.06)':'var(--bg3,#fff)',color:learnOpen?'#0058b8':'var(--txt,#424245)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',boxSizing:'border-box'}}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 8.5l9-5 9 5-9 5-9-5z"/>
               <path d="M7 11v4.5c0 1.5 2.5 2.5 5 2.5s5-1 5-2.5V11"/>
@@ -1405,14 +1408,14 @@ function App(){
           {/* Уроки живут на своём экране (learn.html) — здесь только разборы ясн */}
           {(()=>{
             const allTours=(window.YasnaTours&&window.YasnaTours.list?window.YasnaTours.list():[]);
-            if(allTours.length===0)return <div style={{padding:'12px 16px',fontSize:12,color:'#aeaeb2',fontStyle:'italic'}}>Гидов в приложении пока нет</div>;
+            if(allTours.length===0)return <div style={{padding:'12px 16px',fontSize:12,color:'#aeaeb2',fontStyle:'italic'}}>Разборов по кругу в приложении пока нет</div>;
             const PRIORITY=['Суток','Года','Жизни'];
             const tours=[...allTours].sort((a,b)=>{
               const ai=PRIORITY.indexOf(a),bi=PRIORITY.indexOf(b);
               return (ai===-1?999:ai)-(bi===-1?999:bi);
             });
             return <>
-              <div style={{padding:'10px 16px 6px',fontSize:11,fontWeight:600,letterSpacing:1.4,textTransform:'uppercase',color:'#86868b'}}>Гиды по Яснам <span style={{color:'#aeaeb2',fontWeight:500}}>· {tours.length}</span></div>
+              <div style={{padding:'10px 16px 6px',fontSize:11,fontWeight:600,letterSpacing:1.4,textTransform:'uppercase',color:'#86868b'}}>Разборы по кругу <span style={{color:'#aeaeb2',fontWeight:500}}>· {tours.length}</span></div>
               {tours.map(name=>{const isCurrent=y&&y.name===name;return <button key={name} onClick={()=>{const t=T.find(tt=>tt.n===name);if(t&&!isCurrent)load(t);setShowTour(true);setLearnOpen(false);}} className={'hdr-learn-item'+(isCurrent?' is-current':'')} style={{display:'flex',alignItems:'center',gap:8,width:'100%',padding:'11px 16px',fontSize:13,color:isCurrent?'#fff':'#1d1d1f',border:'none',borderLeft:`3px solid ${isCurrent?'#0071e3':'transparent'}`,borderBottom:'1px solid var(--border,#f5f5f7)',background:isCurrent?'#0071e3':'#fff',textAlign:'left',cursor:'pointer',fontWeight:isCurrent?600:500}}><span style={{flex:1}}>{name}</span>{isCurrent && <span style={{fontSize:10,padding:'2px 7px',background:'rgba(255,255,255,.22)',color:'#fff',borderRadius:8,fontWeight:700,letterSpacing:.4}}>сейчас</span>}</button>;})}
             </>;
           })()}

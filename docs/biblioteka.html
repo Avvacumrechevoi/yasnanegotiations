@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="robots" content="noindex, nofollow"/>
+<meta name="yandex" content="noindex, nofollow"/>
+<meta name="yasna:api" content="https://d5dmdje8c5mk8811il5j.iwzqm34r.apigw.yandexcloud.net"/>
+<!-- Замок: подключён ПЕРВЫМ, до всего остального (см. core/gate.js) -->
+<script src="core/gate.js"></script>
+<script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);var e=document.documentElement;e.setAttribute('data-theme',d?'dark':'light');e.style.colorScheme=d?'dark':'light';}catch(e){}</script>
+<script src="core/theme.js?v=86eb1366"></script>
+<script src="core/storage.js?v=9d701501"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<meta name="theme-color" content="#0071e3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0b0d" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ясна">
+<title>Библиотека · Ясна</title>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     «БИБЛИОТЕКА» — ВКЛАДКА КНИГ И СПРАВОЧНИКОВ.
+
+     У книг не было своей двери: три издания лежали карточками на экране
+     «Уроки», Словарь и Проверка — окнами внутри «Разбора», а «Готовые ясны»
+     звались на четырёх экранах по-разному. Теперь всё, что читают и по чему
+     справляются, живёт в одном месте.
+
+     ОДИН ВХОД В КНИГУ. Раньше в одну и ту же книгу вели четыре разные ссылки
+     на одном экране «Уроки» (карточка издания, узел ветви, строка «Книги и
+     записи», строка «Справки») — и человек не понимал, одно это или четыре
+     разных. Здесь у книги ровно две цели: сама книга (оглавление) и «Читать
+     дальше» — то место, где чтение остановилось.
+
+     ЧИСЛА НЕ ПИШУТСЯ РУКАМИ. Объём книги берётся из её описи (kniga/*/opis.js),
+     число готовых ясн и слов Словаря — из core/schet.js. Вписанные руками
+     цифры разошлись с данными на четырёх экранах сразу, и «16 · 44 · 10 · 6»
+     были ответом на один и тот же вопрос.
+
+     Страница нарочно простая: обычные script-теги, никакой сборки — как
+     docs/learn.html. Оболочка приложения (app/navigatsiya.js) рисует на ней
+     шапку и наббар, а метки экрана ставит app/sobrat-vitrinu.mjs.
+     ═══════════════════════════════════════════════════════════════════════ -->
+
+<link rel="stylesheet" href="core/tokeny.css">
+<link rel="stylesheet" href="vendor/fonts/shrifty.css">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--surface);color:var(--on-surface);
+  font-family:var(--ya-font-text,system-ui,sans-serif);
+  -webkit-font-smoothing:antialiased}
+.bk-shapka{padding:20px 16px 4px}
+/* Кегли — из шкалы типа (core/tokeny.css), а не свои: на устройстве
+   насчитали ~45 размеров в px, и каждый новый экран добавлял свои. */
+.bk-shapka h1{font:var(--type-headline-l)}
+.bk-pod{margin-top:6px;font:var(--type-body-m);color:var(--on-surface-variant)}
+.bk-telo{padding:12px 16px 24px;display:flex;flex-direction:column;gap:22px}
+.bk-razdel h2{font:var(--type-label-m);
+  text-transform:uppercase;letter-spacing:.6px;color:var(--on-surface-variant);
+  margin-bottom:10px}
+.bk-set{list-style:none;display:flex;flex-direction:column;gap:10px}
+/* Цель — вся карточка: 48 dp это нижняя граница, а не цель. */
+.bk-dver{display:block;min-height:72px;padding:14px 16px;border-radius:16px;
+  background:var(--surface-container-low);border:1px solid var(--outline-variant);
+  color:inherit;text-decoration:none}
+.bk-dver:active{background:var(--surface-container-high)}
+.bk-imya{display:block;font:var(--type-title-l)}
+.bk-o{display:block;margin-top:4px;font:var(--type-body-s);
+  color:var(--on-surface-variant)}
+/* Число под дверью — счёт, а не подпись: набор цифрами и в один ряд, чтобы
+   «44» и «19» читались взглядом, а не вычитывались из фразы. */
+.bk-schet{display:block;margin-top:6px;font:var(--type-label-m);
+  color:var(--on-surface-variant);font-variant-numeric:tabular-nums}
+
+/* ── Книга ────────────────────────────────────────────────────────────
+   Том — не строка списка: у него цвет издания на корешке слева, объём
+   в страницах и своя вторая цель «Читать дальше». Рамка и скругление
+   живут на самом томе, чтобы обе цели читались одной вещью. */
+.bk-tom{border-radius:16px;overflow:hidden;
+  background:var(--surface-container-low);border:1px solid var(--outline-variant);
+  border-left:4px solid var(--book-sutki,var(--primary))}
+.bk-tom--goda{border-left-color:var(--book-goda,var(--primary))}
+.bk-tom--zhizni{border-left-color:var(--book-zhizni,var(--primary))}
+.bk-tom .bk-dver{border:0;border-radius:0;background:transparent}
+.bk-tom .bk-dver:active{background:var(--surface-container-high)}
+/* Объём книги — всегда в страницах. Раньше одна и та же книга мерилась
+   то частями и страницами, то разворотами, то цитатами: три единицы на
+   одну вещь, и ни одна не совпадала с процентом чтения. */
+.bk-obem{display:block;margin-top:8px;font:var(--type-label-m);
+  color:var(--on-surface-variant);font-variant-numeric:tabular-nums}
+.bk-hod{display:flex;align-items:center;gap:8px;margin-top:8px}
+/* Своё display:flex перебивает встроенное [hidden] — правило обязано быть
+   явным, иначе у непрочитанной книги висел пустой жёлоб хода. */
+.bk-hod[hidden],.bk-dalshe[hidden]{display:none}
+.bk-zhelob{flex:0 0 96px;height:4px;border-radius:2px;
+  background:var(--outline-variant);overflow:hidden}
+.bk-zhelob i{display:block;height:100%;width:0;border-radius:2px;
+  background:var(--book-sutki,var(--primary))}
+.bk-tom--goda .bk-zhelob i{background:var(--book-goda,var(--primary))}
+.bk-tom--zhizni .bk-zhelob i{background:var(--book-zhizni,var(--primary))}
+.bk-hod-t{font:var(--type-body-s);color:var(--on-surface-variant);
+  font-variant-numeric:tabular-nums}
+/* Вторая цель тома. Цвет — книжный, а не интерфейсный синий: внутри
+   карточки книги синяя строка выглядела бы чужой вставкой. */
+.bk-dalshe{display:flex;align-items:center;gap:10px;min-height:56px;
+  padding:12px 16px;border-top:1px solid var(--outline-variant);
+  color:var(--book-sutki,var(--primary));text-decoration:none}
+.bk-tom--goda .bk-dalshe{color:var(--book-goda,var(--primary))}
+.bk-tom--zhizni .bk-dalshe{color:var(--book-zhizni,var(--primary))}
+.bk-dalshe:active{background:var(--surface-container-high)}
+.bk-dalshe b{display:block;font:var(--type-label-l)}
+.bk-dalshe em{display:block;margin-top:2px;font:var(--type-body-s);
+  font-style:normal;color:var(--on-surface-variant)}
+.bk-dalshe-strelka{margin-left:auto;font-size:19px;line-height:1}
+
+/* ── Двенадцать мест ──────────────────────────────────────────────────
+   Справочник, который читают на месте: уводить за ним на другую вкладку
+   не за чем — это двенадцать строк, а не экран. */
+.bk-mesta{padding:0}
+.bk-mesta>summary{display:flex;align-items:center;gap:8px;
+  min-height:72px;padding:14px 16px;cursor:pointer;list-style:none}
+.bk-mesta>summary::-webkit-details-marker{display:none}
+.bk-mesta-t{flex:1;min-width:0}
+.bk-mesta>summary::after{content:'›';flex:0 0 auto;
+  color:var(--on-surface-variant);font-size:19px;line-height:1}
+.bk-mesta[open]>summary::after{content:'⌄'}
+.bk-mesta-set{list-style:none;margin:0 16px 14px;padding:0;
+  border-top:1px solid var(--outline-variant)}
+.bk-mesto{display:flex;gap:12px;padding:10px 0;
+  border-bottom:1px solid var(--outline-variant)}
+.bk-mesto:last-child{border-bottom:0}
+.bk-mesto-n{flex:0 0 22px;font:var(--type-label-m);color:var(--on-surface-variant);
+  font-variant-numeric:tabular-nums;padding-top:2px}
+.bk-mesto-imya{display:block;font:var(--type-title-s)}
+.bk-mesto-prim{display:block;margin-top:2px;font:var(--type-body-s);
+  color:var(--on-surface-variant)}
+</style>
+</head>
+<body>
+<header class="bk-shapka">
+  <h1>Библиотека</h1>
+  <p class="bk-pod">Три книги, готовые ясны и справочники — всё, по чему сверяются.</p>
+</header>
+
+<main class="bk-telo">
+  <section class="bk-razdel">
+    <h2>Книги</h2>
+    <ul class="bk-set" id="bk-knigi">
+      <li class="bk-tom" data-kniga="sutki">
+        <a class="bk-dver" href="kniga.html">
+          <span class="bk-imya">Ясна Суток</span>
+          <span class="bk-o">Первая книга о том, как всё устроено</span>
+          <span class="bk-obem" data-obem></span>
+          <span class="bk-hod" data-hod hidden>
+            <span class="bk-zhelob" aria-hidden="true"><i data-fill></i></span>
+            <span class="bk-hod-t" data-hod-t></span>
+          </span>
+        </a>
+        <a class="bk-dalshe" href="kniga.html" data-dalshe hidden>
+          <span><b data-dalshe-t></b><em data-dalshe-o></em></span>
+          <span class="bk-dalshe-strelka" aria-hidden="true">›</span>
+        </a>
+      </li>
+      <li class="bk-tom bk-tom--goda" data-kniga="goda">
+        <a class="bk-dver" href="kniga.html?kniga=goda">
+          <span class="bk-imya">Ясна Года</span>
+          <span class="bk-o">Вторая книга — круг года и зодиака</span>
+          <span class="bk-obem" data-obem></span>
+          <span class="bk-hod" data-hod hidden>
+            <span class="bk-zhelob" aria-hidden="true"><i data-fill></i></span>
+            <span class="bk-hod-t" data-hod-t></span>
+          </span>
+        </a>
+        <a class="bk-dalshe" href="kniga.html?kniga=goda" data-dalshe hidden>
+          <span><b data-dalshe-t></b><em data-dalshe-o></em></span>
+          <span class="bk-dalshe-strelka" aria-hidden="true">›</span>
+        </a>
+      </li>
+      <li class="bk-tom bk-tom--zhizni" data-kniga="zhizni">
+        <a class="bk-dver" href="kniga.html?kniga=zhizni">
+          <span class="bk-imya">Ясна Жизни</span>
+          <span class="bk-o">Начальная книга — жизнь как круг</span>
+          <span class="bk-obem" data-obem></span>
+          <span class="bk-hod" data-hod hidden>
+            <span class="bk-zhelob" aria-hidden="true"><i data-fill></i></span>
+            <span class="bk-hod-t" data-hod-t></span>
+          </span>
+        </a>
+        <a class="bk-dalshe" href="kniga.html?kniga=zhizni" data-dalshe hidden>
+          <span><b data-dalshe-t></b><em data-dalshe-o></em></span>
+          <span class="bk-dalshe-strelka" aria-hidden="true">›</span>
+        </a>
+      </li>
+    </ul>
+  </section>
+
+  <section class="bk-razdel">
+    <h2>Справочники</h2>
+    <ul class="bk-set">
+      <li><a class="bk-dver" href="konstruktor.html#biblioteka">
+        <span class="bk-imya">Готовые ясны</span>
+        <span class="bk-o">Разобранные явления: открыть круг и посмотреть, как он собран</span>
+        <span class="bk-schet" id="bk-yasny-schet"></span></a></li>
+      <li><a class="bk-dver" href="konstruktor.html#glossariy">
+        <span class="bk-imya">Словарь</span>
+        <span class="bk-o">Слова Метода Ясны, каждое с примером</span>
+        <span class="bk-schet" id="bk-slovar-schet"></span></a></li>
+      <li>
+        <details class="bk-dver bk-mesta" id="bk-mesta">
+          <summary>
+            <span class="bk-mesta-t">
+              <span class="bk-imya">Двенадцать мест</span>
+              <span class="bk-o">Роль каждого места круга — она одна во всех явлениях</span>
+              <span class="bk-schet" id="bk-mesta-schet"></span>
+            </span>
+          </summary>
+          <ol class="bk-mesta-set" id="bk-mesta-set"></ol>
+        </details>
+      </li>
+      <li><a class="bk-dver" href="konstruktor.html#proverka">
+        <span class="bk-imya">Проверка</span>
+        <span class="bk-o">Вопросы к своему кругу: сходится ли он сам с собой</span></a></li>
+    </ul>
+  </section>
+</main>
+
+<script src="core/data.js?v=ffd01d69"></script>
+<script src="core/derevo-dannye.js?v=72faa9a7"></script>
+<script src="core/schet.js?v=1ecbbd4a"></script>
+<script>
+(function(){
+  'use strict';
+
+  /* ─── Книги ────────────────────────────────────────────────────────────
+     Опись каждой книги лежит рядом с её главами и объявляет один и тот же
+     глобальный YasnaKnigaOpis — поэтому описи грузятся ПО ОЧЕРЕДИ, и каждая
+     снимается сразу после загрузки. Адрес файла и версия — те же, что у
+     читалки (kniga.html), чтобы браузер брал уже прочитанный файл, а не
+     тянул второй такой же. */
+  var КНИГИ = [
+    { ид:'sutki',  путь:'kniga/',        ключ:'yasna_kniga_v1' },
+    { ид:'goda',   путь:'kniga/goda/',   ключ:'yasna_kniga_goda_v1' },
+    { ид:'zhizni', путь:'kniga/zhizni/', ключ:'yasna_kniga_zhizni_v1' }
+  ];
+
+  function читатьСост(ключ){
+    try { return JSON.parse(localStorage.getItem(ключ)) || {}; } catch(e){ return {}; }
+  }
+
+  function есть(оп){ return оп.есть !== false; }
+
+  /* Склонение при числе. Без него «44 явлений» и «2 части» пишутся сами
+     собой, а число с неверным словом читается как опечатка и роняет доверие
+     ко всему счёту. Три формы: 1 страница · 2 страницы · 5 страниц. */
+  function при(н, одна, две, много){
+    var д = Math.abs(н) % 100, е = д % 10;
+    var слово = (д > 10 && д < 20) ? много : (е === 1 ? одна : (е >= 2 && е <= 4 ? две : много));
+    return н + ' ' + слово;
+  }
+
+  /* Страницы глав НАКЛАДЫВАЮТСЯ друг на друга: глава 6 Суток начинается на
+     той же 41-й странице, где кончается пятая. Складывать длины нельзя —
+     выходило «прочитано 13 из 106 страниц» под подписью «104 страницы», то
+     есть два разных объёма одной книги в одной карточке. Поэтому считаем
+     сами страницы: отмечаем прочитанные и меряем отметки. */
+  function страницыГлав(главы){
+    var отметки = {}, н = 0;
+    главы.forEach(function(оп){
+      if(!есть(оп) || !оп.страницы) return;
+      for(var с = оп.страницы[0]; с <= оп.страницы[1]; с++)
+        if(!отметки[с]){ отметки[с] = 1; н++; }
+    });
+    return н;
+  }
+
+  function объём(О){
+    var частей = 0, последняя = 0;
+    О.главы.forEach(function(оп){
+      if(!есть(оп)) return;
+      частей++;
+      if(оп.страницы && оп.страницы[1] > последняя) последняя = оп.страницы[1];
+    });
+    return { частей: частей, страниц: последняя };
+  }
+
+  /* Куда ведёт «Читать дальше»: остановленная глава, а если её нет —
+     первая непрочитанная. Ровно то же решение принимает сама читалка,
+     иначе кнопка на этом экране обещала бы не ту страницу. */
+  function дальше(О, сост){
+    /* «Начать чтение» — только для книги, которую не открывали ни разу.
+       Прежде подпись смотрела на одну остановленную главу, и человеку,
+       прочитавшему две главы подряд до конца, книга снова предлагала
+       «начать»: прочитанное как будто не считалось. */
+    var прочитано = сост.прочитано || {};
+    var трогали = сост.глава != null;
+    for(var к in прочитано) if(прочитано[к]) { трогали = true; break; }
+    if(сост.глава != null) return { номер: сост.глава, начало: false };
+    for(var i=0;i<О.главы.length;i++){
+      var оп = О.главы[i];
+      if(есть(оп) && !прочитано[оп.номер]) return { номер: оп.номер, начало: !трогали };
+    }
+    return { номер: О.главы[0] ? О.главы[0].номер : 0, начало: !трогали };
+  }
+
+  function имяГлавы(О, н){
+    for(var i=0;i<О.главы.length;i++) if(О.главы[i].номер === н) return О.главы[i].имя;
+    return '';
+  }
+
+  function наполнитьТом(к, О){
+    var том = document.querySelector('[data-kniga="'+к.ид+'"]');
+    if(!том || !О || !О.главы || !О.главы.length) return;
+    var сост = читатьСост(к.ключ);
+    var прочитано = сост.прочитано || {};
+    var о = объём(О);
+
+    var эОбъём = том.querySelector('[data-obem]');
+    if(эОбъём) эОбъём.textContent = при(о.частей,'часть','части','частей')
+      + ' · ' + при(о.страниц,'страница','страницы','страниц');
+
+    /* Прочитанное считаем в страницах — в той же единице, что и объём.
+       Процента здесь нет нарочно: «74 из 104 страниц» человек проверяет
+       глазами по оглавлению, а процент проверить нечем. */
+    var всего = о.страниц;
+    var сдел = страницыГлав(О.главы.filter(function(оп){ return прочитано[оп.номер]; }));
+    if(сдел > 0){
+      var эХод = том.querySelector('[data-hod]');
+      var эЗал = том.querySelector('[data-fill]');
+      var эТек = том.querySelector('[data-hod-t]');
+      if(эХод) эХод.hidden = false;
+      if(эЗал) эЗал.style.width = (всего ? Math.round(сдел/всего*100) : 0) + '%';
+      if(эТек) эТек.textContent = 'прочитано ' + сдел + ' из '
+        + при(всего,'страницы','страниц','страниц');
+    }
+
+    var д = дальше(О, сост);
+    var имя = имяГлавы(О, д.номер);
+    var эД = том.querySelector('[data-dalshe]');
+    if(!эД) return;
+    var адрес = 'kniga.html' + (к.ид === 'sutki' ? '?' : '?kniga=' + к.ид + '&') + 'glava=' + д.номер;
+    эД.setAttribute('href', адрес);
+    эД.hidden = false;
+    var подпись = (д.номер ? 'глава ' + д.номер + ' · ' : '') + имя;
+    эД.querySelector('[data-dalshe-t]').textContent = д.начало ? 'Начать чтение' : 'Читать дальше';
+    эД.querySelector('[data-dalshe-o]').textContent = подпись;
+    /* Читают вслух обе цели тома подряд — вторая обязана назвать книгу,
+       иначе «Читать дальше» звучит трижды подряд без разницы. */
+    эД.setAttribute('aria-label',
+      (О.имя || 'Книга') + ': ' + (д.начало ? 'начать чтение' : 'читать дальше') +
+      (подпись ? ', ' + подпись : ''));
+  }
+
+  (function поОчереди(i){
+    if(i >= КНИГИ.length) return;
+    var к = КНИГИ[i];
+    var с = document.createElement('script');
+    с.src = к.путь + 'opis.js?v=2';
+    с.onload = function(){
+      var О = window.YasnaKnigaOpis;
+      window.YasnaKnigaOpis = null;
+      try { наполнитьТом(к, О); } catch(e){}
+      поОчереди(i+1);
+    };
+    /* Описи нет — том остаётся дверью без объёма: имя, подпись и вход в
+       книгу стоят в разметке и работают без единой строки этого файла. */
+    с.onerror = function(){ поОчереди(i+1); };
+    document.head.appendChild(с);
+  })(0);
+
+  /* ─── Числа справочников ───────────────────────────────────────────────
+     Считает core/schet.js из самих данных. Нет источника — строки со счётом
+     просто нет: пустое место честнее числа, взятого с потолка. */
+  var С = window.YasnaSchet;
+  function счёт(id, текст){
+    var э = document.getElementById(id);
+    if(э && текст) э.textContent = текст;
+  }
+  if(С){
+    var ясн = С.готовыхЯсн(), сЗан = С.сЗанятиями(), слов = С.словарь(), мест = С.мест();
+    /* Два числа рядом нарочно: «44» и «16» — не спор, а вложение, и человек
+       должен видеть, что занятия есть не у каждого готового круга. */
+    if(ясн) счёт('bk-yasny-schet', при(ясн,'явление','явления','явлений')
+      + (сЗан ? ' · занятия есть у ' + сЗан : ''));
+    if(слов) счёт('bk-slovar-schet', при(слов,'слово','слова','слов'));
+    if(мест) счёт('bk-mesta-schet', при(мест,'роль','роли','ролей') + ' круга');
+  }
+
+  /* ─── Двенадцать мест ──────────────────────────────────────────────────
+     Показываем РОЛЬ места — она одна во всех явлениях, — а имена из трёх
+     разных ясн даём примером. Рисуем при первом раскрытии: закрытый
+     справочник не должен стоить ни одного лишнего узла. */
+  var эМеста = document.getElementById('bk-mesta');
+  if(эМеста) эМеста.addEventListener('toggle', function(){
+    var набор = document.getElementById('bk-mesta-set');
+    if(!эМеста.open || !набор || набор.childElementCount) return;
+    var роли = (window.YasnaData && window.YasnaData.REF) || [];
+    var html = '';
+    for(var i=0;i<роли.length;i++){
+      var роль = (роли[i] && роли[i].f) ? роли[i].f : ('место ' + i);
+      роль = роль.charAt(0) + роль.slice(1).toLowerCase();
+      var прим = (роли[i] && роли[i].ex) ? роли[i].ex : '';
+      html += '<li class="bk-mesto"><span class="bk-mesto-n">' + i + '</span>'
+        + '<span><span class="bk-mesto-imya">' + роль + '</span>'
+        + (прим ? '<span class="bk-mesto-prim">' + прим + '</span>' : '')
+        + '</span></li>';
+    }
+    набор.innerHTML = html;
+  });
+})();
+</script>
+</body>
+</html>

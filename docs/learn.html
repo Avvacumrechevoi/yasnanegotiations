@@ -155,7 +155,8 @@ a { color: inherit; text-decoration: none; }
    крестиками листов. Весь текст ≥12px.
    ═══════════════════════════════════════════════════════════════════ */
 .dr { max-width: 720px; margin: 0 auto; padding: 12px 16px 24px; }
-.dr-shapka { padding: 4px 0 12px; }
+/* Строки счёта под шапкой больше нет — и нижний отступ ей не нужен. */
+.dr-shapka { padding: 4px 0 6px; }
 .dr-shapka-ryad { display: flex; align-items: center; gap: 10px; }
 .dr-zag { flex: 1; margin: 0; font-family: var(--font-serif); font-weight: 500;
   font-size: 30px; line-height: 1.1; letter-spacing: -0.02em; color: var(--text-primary); }
@@ -164,142 +165,48 @@ a { color: inherit; text-decoration: none; }
   display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .dr-lupa svg { width: 20px; height: 20px; }
 .dr-lupa:hover { color: var(--text-primary); border-color: var(--border-strong); }
-/* Счёт вслух вместо полосы и процента: «6 %» от неназванного целого не
-   говорит ничего, а общего процента у нас нет по решению — считаем только
-   среди написанного и словами. */
-.dr-schet { margin: 8px 0 0; font-size: 13px; color: var(--text-secondary);
-  font-variant-numeric: tabular-nums; }
+/* ─── Дальше ──────────────────────────────────────────────────────────
+   Экран называется «Уроки», а первая ветвь дерева начиналась на 789 dp:
+   выше стояли полоса счёта, карточка в 180 dp и три карточки-учебника по
+   124 dp. Учебники уехали в «Библиотеку», а карточка стала строкой в три
+   этажа с шевроном — 80 dp вместо 180.
 
-/* ─── Продолжить ─── */
-.dr-prod { display: block; width: 100%; text-align: left; text-decoration: none;
+   Счёт вслух («3 занятия из 67 написанных») переехал в её первую строку:
+   своей строки он стоил ещё 26 dp, а сказать его надо один раз. Процента
+   нет по решению — считаем только среди написанного и словами.
+
+   Отдельной кнопки «Продолжить» здесь больше нет: вся карточка и так
+   ссылка, и слово стояло на ней дважды — клеймом и кнопкой. */
+.dr-prod { display: flex; align-items: center; gap: 10px; width: 100%;
+  text-align: left; text-decoration: none;
   border: 1px solid var(--accent-glow); background: var(--accent-soft);
-  border-radius: 18px; padding: 14px 16px; margin: 14px 0 0; cursor: pointer; }
+  border-radius: 16px; padding: 12px 14px; margin: 10px 0 0; cursor: pointer; }
 .dr-prod:hover { border-color: var(--accent); }
-.dr-prod-klejmo { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.10em;
+.dr-prod-tekst { flex: 1; min-width: 0; }
+.dr-prod-ryad { display: flex; align-items: baseline; gap: 10px; }
+.dr-prod-klejmo { flex: 0 0 auto; font-size: 11px; font-weight: 700; letter-spacing: 0.10em;
   text-transform: uppercase; color: var(--accent-hover); }
-.dr-prod-imya { display: block; margin-top: 4px; font-size: 19px; font-weight: 700; line-height: 1.25;
-  color: var(--text-primary); }
-.dr-prod-pod { display: block; margin-top: 4px; font-size: 13px; color: var(--text-secondary); }
-.dr-prod-knop { margin-top: 12px; display: inline-flex; align-items: center; gap: 8px;
-  min-height: var(--cel-min, 48px); padding: 0 18px; border-radius: 12px; background: var(--accent);
-  color: var(--accent-on); font-size: 14px; font-weight: 700; }
+/* Счёт ужимается первым: клеймо короткое и должно читаться целиком. */
+.dr-prod-schet { flex: 1 1 auto; min-width: 0; text-align: right; font-size: 12px;
+  color: var(--text-secondary); font-variant-numeric: tabular-nums;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dr-prod-imya { display: block; margin-top: 3px; font-size: 16px; font-weight: 700;
+  line-height: 1.25; color: var(--text-primary); }
+.dr-prod-pod { display: block; margin-top: 2px; font-size: 12.5px; line-height: 1.35;
+  color: var(--text-secondary); }
+.dr-prod-strelka { flex: 0 0 auto; font-size: 20px; line-height: 1; color: var(--accent-hover); }
 
-/* ─── Чипы ─── */
-.dr-chipy { display: flex; gap: 8px; margin: 14px 0 0; overflow-x: auto;
-  scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-.dr-chipy::-webkit-scrollbar { display: none; }
-.dr-chip { flex: 0 0 auto; min-height: var(--cel-min, 48px); display: inline-flex; align-items: center;
-  padding: 0 15px; border-radius: 12px; border: 1px solid var(--border-strong);
-  background: var(--bg-card); color: var(--text-primary); font-size: 14px; font-weight: 600;
-  text-decoration: none; cursor: pointer; }
-.dr-chip:hover { border-color: var(--accent); color: var(--accent-hover); }
-.dr-chip-n { margin-left: 7px; font-size: 12px; font-weight: 700; color: var(--accent); }
-/* ── Карточка книги ──────────────────────────────────────────────
-   Учебник — не строка в списке занятий, а отдельный вход: тёплая
-   бумага, серифное имя, тихо вращающийся круг. Движение мягкое и
-   бесконечное, но при prefers-reduced-motion всё замирает. */
-.kn-karta { position: relative; display: flex; gap: 14px; align-items: center;
-  margin: 12px 0 14px; padding: 16px 16px 14px; border-radius: 18px; overflow: hidden;
-  text-decoration: none; border: 1px solid var(--kayma-kn, #E2D9CA);
-  background: linear-gradient(135deg, #FFFDF8 0%, #F4EEE3 100%); }
-:root[data-theme="dark"] .kn-karta { border-color: #2C323B;
-  background: linear-gradient(135deg, #1A1E25 0%, #171A20 100%); }
-.kn-karta-fon { flex: 0 0 auto; width: 76px; height: 76px; display: block; }
-.kn-karta-krug { width: 76px; height: 76px; display: block; }
-.kn-karta-krug circle, .kn-karta-krug line { fill: none; stroke: #A8452B; stroke-width: 1.5; }
-.kn-karta-krug .kn-karta-luchi line { opacity: .38; stroke-width: 1.1; }
-.kn-karta-krug .kn-karta-tochka { fill: #A8452B; stroke: none; }
-:root[data-theme="dark"] .kn-karta-krug circle,
-:root[data-theme="dark"] .kn-karta-krug line { stroke: #E0895F; }
-:root[data-theme="dark"] .kn-karta-krug .kn-karta-tochka { fill: #E0895F; }
-.kn-karta-txt { flex: 1; min-width: 0; }
-.kn-karta-klejmo { display: block; font: 700 11px/1 var(--sans, sans-serif);
-  letter-spacing: .16em; text-transform: uppercase; color: #A8452B; }
-:root[data-theme="dark"] .kn-karta-klejmo { color: #E0895F; }
-.kn-karta-imya { display: block; margin-top: 6px;
-  font: 400 23px/1.15 Georgia, 'Times New Roman', serif; color: var(--text-primary); }
-.kn-karta-pod { display: block; margin-top: 5px; font-style: normal;
-  font: 400 13px/1.45 var(--sans, sans-serif); color: var(--text-secondary); }
-.kn-karta-niz { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
-.kn-karta-zhelob { flex: 1; height: 5px; border-radius: 3px; overflow: hidden;
-  background: rgba(168,69,43,.16); }
-.kn-karta-zhelob i { display: block; height: 100%; width: 0; border-radius: 3px;
-  background: #A8452B; transition: width .8s cubic-bezier(.2,.9,.3,1); }
-:root[data-theme="dark"] .kn-karta-zhelob { background: rgba(224,137,95,.2); }
-:root[data-theme="dark"] .kn-karta-zhelob i { background: #E0895F; }
-.kn-karta-pct { font: 700 12.5px/1 var(--sans, sans-serif); color: #A8452B;
-  font-variant-numeric: tabular-nums; white-space: nowrap; }
-:root[data-theme="dark"] .kn-karta-pct { color: #E0895F; }
-/* Года — небо: голубые и синие, как сама книга. Оттенки согласованы с
-   системным акцентом приложения (#0071E3), но мягче — это бумага. */
-.kn-karta--goda { background: linear-gradient(135deg, #F3F8FE 0%, #E3EEFA 100%);
-  border-color: #C9DCF2; }
-:root[data-theme="dark"] .kn-karta--goda { border-color: #24354A;
-  background: linear-gradient(135deg, #16202E 0%, #131B27 100%); }
-.kn-karta--goda .kn-karta-klejmo, .kn-karta--goda .kn-karta-pct { color: #2264A8; }
-:root[data-theme="dark"] .kn-karta--goda .kn-karta-klejmo,
-:root[data-theme="dark"] .kn-karta--goda .kn-karta-pct { color: #7FB4E8; }
-.kn-karta-krug--goda circle, .kn-karta-krug--goda path,
-.kn-karta-krug--goda line { stroke: #2264A8; fill: none; stroke-width: 1.5; }
-.kn-karta-krug--goda rect { fill: #2264A8; stroke: none; }
-.kn-karta-krug--goda .kn-karta-glaz { fill: #2264A8; stroke: none; }
-.kn-karta-krug--goda .kn-karta-luchiki line { stroke-width: 1.2; opacity: .6; }
-:root[data-theme="dark"] .kn-karta-krug--goda circle,
-:root[data-theme="dark"] .kn-karta-krug--goda path,
-:root[data-theme="dark"] .kn-karta-krug--goda line { stroke: #7FB4E8; }
-:root[data-theme="dark"] .kn-karta-krug--goda rect,
-:root[data-theme="dark"] .kn-karta-krug--goda .kn-karta-glaz { fill: #7FB4E8; }
-.kn-karta--goda .kn-karta-zhelob { background: rgba(34,100,168,.16); }
-.kn-karta--goda .kn-karta-zhelob i { background: #2264A8; }
-:root[data-theme="dark"] .kn-karta--goda .kn-karta-zhelob { background: rgba(127,180,232,.2); }
-:root[data-theme="dark"] .kn-karta--goda .kn-karta-zhelob i { background: #7FB4E8; }
-.kn-karta--zhizni { background: linear-gradient(135deg, #F2FAF6 0%, #E1F1E9 100%);
-  border-color: #C6E2D4; }
-:root[data-theme="dark"] .kn-karta--zhizni { border-color: #24443A;
-  background: linear-gradient(135deg, #16261F 0%, #121F1A 100%); }
-.kn-karta--zhizni .kn-karta-klejmo, .kn-karta--zhizni .kn-karta-pct { color: #1E7A5A; }
-:root[data-theme="dark"] .kn-karta--zhizni .kn-karta-klejmo,
-:root[data-theme="dark"] .kn-karta--zhizni .kn-karta-pct { color: #6FCBA8; }
-.kn-karta-krug--zhizni circle, .kn-karta-krug--zhizni line,
-.kn-karta-krug--zhizni path { stroke: #1E7A5A; fill: none; stroke-width: 1.5; }
-.kn-karta-krug--zhizni rect, .kn-karta-krug--zhizni .kn-zh-os { fill: #1E7A5A; stroke: none; }
-.kn-karta-krug--zhizni .kn-zh-zhuravl { fill: #1E7A5A; stroke: none; }
-.kn-karta-krug--zhizni .kn-zh-riski line { stroke-width: 1.2; opacity: .55; }
-.kn-karta-krug--zhizni .kn-zh-strelka-ch { stroke-width: 2.2; }
-.kn-karta-krug--zhizni .kn-zh-strelka-m { stroke-width: 1.6; }
-:root[data-theme="dark"] .kn-karta-krug--zhizni circle,
-:root[data-theme="dark"] .kn-karta-krug--zhizni line,
-:root[data-theme="dark"] .kn-karta-krug--zhizni path { stroke: #6FCBA8; }
-:root[data-theme="dark"] .kn-karta-krug--zhizni rect,
-:root[data-theme="dark"] .kn-karta-krug--zhizni .kn-zh-os,
-:root[data-theme="dark"] .kn-karta-krug--zhizni .kn-zh-zhuravl { fill: #6FCBA8; }
-.kn-karta--zhizni .kn-karta-zhelob { background: rgba(30,122,90,.16); }
-.kn-karta--zhizni .kn-karta-zhelob i { background: #1E7A5A; }
-:root[data-theme="dark"] .kn-karta--zhizni .kn-karta-zhelob { background: rgba(111,203,168,.2); }
-:root[data-theme="dark"] .kn-karta--zhizni .kn-karta-zhelob i { background: #6FCBA8; }
-@media (prefers-reduced-motion: no-preference) {
-  .kn-karta-krug { animation: kn-vrash 44s linear infinite; }
-  /* Часы Жизни: сама рамка не крутится — идут стрелки и шестерня. */
-  .kn-karta-krug--zhizni { animation: none; }
-  .kn-zh-strelka-m { transform-origin: 60px 60px; animation: kn-vrash 24s linear infinite; }
-  .kn-zh-strelka-ch { transform-origin: 60px 60px; animation: kn-vrash 288s linear infinite; }
-  .kn-zh-zubya { transform-origin: 44px 66px; animation: kn-vrash-ob 14s linear infinite; }
-  /* Год крутится в другую сторону — сезоны идут навстречу суткам. */
-  .kn-karta-krug--goda { animation: kn-vrash-ob 52s linear infinite; }
-  @keyframes kn-vrash-ob { to { transform: rotate(-360deg); } }
-  .kn-karta-krug .kn-karta-tochka { animation: kn-migan 3.6s ease-in-out infinite; }
-  .kn-karta::after { content: ''; position: absolute; inset: 0; pointer-events: none;
-    background: linear-gradient(105deg, transparent 42%, rgba(255,255,255,.5) 50%, transparent 58%);
-    transform: translateX(-120%); animation: kn-blik 7s ease-in-out infinite; }
-  :root[data-theme="dark"] .kn-karta::after {
-    background: linear-gradient(105deg, transparent 42%, rgba(255,255,255,.07) 50%, transparent 58%); }
-  @keyframes kn-vrash { to { transform: rotate(360deg); } }
-  @keyframes kn-migan { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
-  @keyframes kn-blik { 0%,72% { transform: translateX(-120%); } 88%,100% { transform: translateX(120%); } }
-}
+/* Чипов «Практика» и «Справка» здесь больше нет: они открывали листы,
+   собранные из тех же узлов дерева, — дубли вкладок «Практика» и
+   «Библиотека». Стиль карточки-учебника (.kn-karta, 140 строк с
+   вращающимися кругами) уехал вместе с самими карточками в «Библиотеку»:
+   на экране уроков книга занимала 124 dp и отодвигала уроки за сгиб. */
 
 /* ─── Полотно ─── */
-.dr-polotno { margin-top: 22px; }
+/* Отступ до дерева срезан с 22 до 10 dp, а первый заголовок группы стоит
+   вплотную: каждые лишние 12 dp здесь — это дерево, ушедшее за сгиб. */
+.dr-polotno { margin-top: 10px; }
+.dr-polotno > .dr-gruppa-zag:first-child { margin-top: 6px; }
 .dr-otstup { height: 14px; }
 .dr-gruppa-zag { margin: 22px 0 8px; font-size: 12px; font-weight: 700;
   letter-spacing: 0.10em; text-transform: uppercase; color: var(--text-secondary);
@@ -768,7 +675,10 @@ html[data-theme='light'] {
 <section class="l-intro" id="learnIntro" hidden>
   <button class="l-intro-skip" id="introSkip" type="button">Пропустить →</button>
 
-  <h1 class="l-intro-title">Привет, <em>Странник</em></h1>
+  <!-- Заголовок = имя двери в дереве («Знакомство с методом»): человек
+       нажимал одно, а попадал на «Привет, Странник» — и обращение это
+       спорило с именем «Гость» в профиле. -->
+  <h1 class="l-intro-title">Знакомство с <em>методом</em></h1>
 
   <!-- Шаг 1: Знакомство -->
   <div class="l-intro-step is-visible" data-step="1">
@@ -908,7 +818,7 @@ html[data-theme='light'] {
       Всё это собрано на экране «Уроки», куда ты сейчас вернёшься.
     </p>
     <div class="l-intro-cta-row">
-      <a class="l-intro-btn l-intro-btn--primary" data-action="kurs" href="konstruktor.html?lesson=l1_intro&amp;otkuda=uroki">Открыть первый урок →</a>
+      <a class="l-intro-btn l-intro-btn--primary" data-action="kurs" href="lesson.html?lesson=l1_intro&amp;otkuda=learn.html">Открыть первый урок →</a>
       <button class="l-intro-btn" data-action="finish">Сначала осмотрюсь</button>
     </div>
   </div>
@@ -962,169 +872,25 @@ html[data-theme='light'] {
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       </button>
     </div>
-    <!-- Полоса с процентом обещала путь, но мерила его от числа, которого
-         на экране нет. Теперь одна строка: сколько пройдено и из скольких
-         написанных. У кого пройдено ноль — строки нет вовсе: про первый раз
-         говорит карточка ниже. -->
-    <p class="dr-schet" id="dr-schet" hidden></p>
+    <!-- Счёт («3 занятия из 67 написанных») стоит в первой строке карточки
+         «Дальше»: своей строки он стоил 26 dp, а дерево из-за них не
+         помещалось на первый экран. У кого пройдено ноль — счёта нет. -->
   </header>
 
   <div id="dr-prodolzhit"></div>
 
-  <!-- В чипах остаются только способы смотреть, а не содержание: «Словарь»,
-       «Готовые круги» и «Все 12 мест» стояли здесь наравне с ними и читались
-       как четыре равных раздела. Теперь они живут в дереве, каждый в своём
-       блоке. -->
-  <!-- Фильтры вместо «Всё дерево»: строка отвечает на вопрос «что я сейчас
-       хочу», а не «как показать». Выбранный фильтр раскрывает ветви и
-       оставляет в них только подходящее. -->
-  <!-- Книга стоит отдельной карточкой, а не строкой в ветви: это не занятие
-     на десять минут, а весь учебник — его надо видеть сразу. Круг на
-     карточке тихо вращается, страницы перелистываются. -->
-<a class="kn-karta" id="kn-karta" href="kniga.html">
-  <span class="kn-karta-fon" aria-hidden="true">
-    <svg viewBox="0 0 120 120" class="kn-karta-krug">
-      <circle cx="60" cy="60" r="46"/><circle cx="60" cy="60" r="30"/>
-      <g class="kn-karta-luchi">
-        <line x1="60" y1="8" x2="60" y2="112"/><line x1="8" y1="60" x2="112" y2="60"/>
-        <line x1="23" y1="23" x2="97" y2="97"/><line x1="97" y1="23" x2="23" y2="97"/>
-      </g>
-      <circle class="kn-karta-tochka" cx="60" cy="14" r="4"/>
-    </svg>
-  </span>
-  <span class="kn-karta-txt">
-    <span class="kn-karta-klejmo">Учебник</span>
-    <b class="kn-karta-imya">Ясна Суток</b>
-    <em class="kn-karta-pod">Первая книга о том, как всё устроено</em>
-    <span class="kn-karta-niz">
-      <span class="kn-karta-zhelob"><i id="kn-karta-fill"></i></span>
-      <span class="kn-karta-pct" id="kn-karta-pct">открыть</span>
-    </span>
-  </span>
-</a>
-
-<a class="kn-karta kn-karta--goda" id="kn-karta-goda" href="kniga.html?kniga=goda">
-  <span class="kn-karta-fon" aria-hidden="true">
-    <!-- Колесо-солнцеворот с обложки книги: лик солнца в кольце из
-         колонн-лучей. Вращается медленно, навстречу кругу Суток. -->
-    <svg viewBox="0 0 120 120" class="kn-karta-krug kn-karta-krug--goda">
-      <circle cx="60" cy="60" r="47" stroke-dasharray="3.5 3.1"/>
-      <circle cx="60" cy="60" r="40"/>
-      <g class="kn-karta-kolonny">
-        <rect x="57.6" y="15" width="4.8" height="14" rx="1.6"/>
-        <rect x="57.6" y="91" width="4.8" height="14" rx="1.6"/>
-        <rect x="15" y="57.6" width="14" height="4.8" rx="1.6"/>
-        <rect x="91" y="57.6" width="14" height="4.8" rx="1.6"/>
-        <g transform="rotate(45 60 60)">
-          <rect x="57.6" y="15" width="4.8" height="14" rx="1.6"/>
-          <rect x="57.6" y="91" width="4.8" height="14" rx="1.6"/>
-          <rect x="15" y="57.6" width="14" height="4.8" rx="1.6"/>
-          <rect x="91" y="57.6" width="14" height="4.8" rx="1.6"/>
-        </g>
-      </g>
-      <g class="kn-karta-luchiki">
-        <line x1="60" y1="34" x2="60" y2="42"/><line x1="60" y1="78" x2="60" y2="86"/>
-        <line x1="34" y1="60" x2="42" y2="60"/><line x1="78" y1="60" x2="86" y2="60"/>
-        <line x1="42" y1="42" x2="47" y2="47"/><line x1="78" y1="42" x2="73" y2="47"/>
-        <line x1="42" y1="78" x2="47" y2="73"/><line x1="78" y1="78" x2="73" y2="73"/>
-      </g>
-      <circle cx="60" cy="60" r="15"/>
-      <circle cx="55" cy="57" r="1.6" class="kn-karta-glaz"/>
-      <circle cx="65" cy="57" r="1.6" class="kn-karta-glaz"/>
-      <path d="M55 64q5 4 10 0" fill="none"/>
-    </svg>
-  </span>
-  <span class="kn-karta-txt">
-    <span class="kn-karta-klejmo">Учебник</span>
-    <b class="kn-karta-imya">Ясна Года</b>
-    <em class="kn-karta-pod">Вторая книга — круг года и зодиака</em>
-    <span class="kn-karta-niz">
-      <span class="kn-karta-zhelob"><i id="kn-goda-fill"></i></span>
-      <span class="kn-karta-pct" id="kn-goda-pct">открыть</span>
-    </span>
-  </span>
-</a>
-
-<a class="kn-karta kn-karta--zhizni" id="kn-karta-zhizni" href="kniga.html?kniga=zhizni">
-  <span class="kn-karta-fon" aria-hidden="true">
-    <!-- Часы с шестернями — образ с титула книги: жизнь идёт, механизм крутится. -->
-    <svg viewBox="0 0 120 120" class="kn-karta-krug kn-karta-krug--zhizni">
-      <circle cx="60" cy="60" r="46"/>
-      <g class="kn-zh-riski">
-        <line x1="60" y1="15" x2="60" y2="22"/><line x1="60" y1="98" x2="60" y2="105"/>
-        <line x1="15" y1="60" x2="22" y2="60"/><line x1="98" y1="60" x2="105" y2="60"/>
-        <line x1="28.2" y1="28.2" x2="33.1" y2="33.1"/><line x1="86.9" y1="86.9" x2="91.8" y2="91.8"/>
-        <line x1="91.8" y1="28.2" x2="86.9" y2="33.1"/><line x1="33.1" y1="86.9" x2="28.2" y2="91.8"/>
-      </g>
-      <g class="kn-zh-shesternya">
-        <circle cx="44" cy="66" r="11"/>
-        <g class="kn-zh-zubya">
-          <rect x="42.6" y="51.5" width="2.8" height="5" rx="1"/>
-          <rect x="42.6" y="75.5" width="2.8" height="5" rx="1"/>
-          <rect x="29.5" y="64.6" width="5" height="2.8" rx="1"/>
-          <rect x="53.5" y="64.6" width="5" height="2.8" rx="1"/>
-          <g transform="rotate(45 44 66)">
-            <rect x="42.6" y="51.5" width="2.8" height="5" rx="1"/>
-            <rect x="42.6" y="75.5" width="2.8" height="5" rx="1"/>
-            <rect x="29.5" y="64.6" width="5" height="2.8" rx="1"/>
-            <rect x="53.5" y="64.6" width="5" height="2.8" rx="1"/>
-          </g>
-        </g>
-        <circle cx="44" cy="66" r="3.4" class="kn-zh-os"/>
-      </g>
-      <g class="kn-zh-strelki">
-        <line x1="60" y1="60" x2="60" y2="34" class="kn-zh-strelka-m"/>
-        <line x1="60" y1="60" x2="76" y2="52" class="kn-zh-strelka-ch"/>
-        <circle cx="60" cy="60" r="2.6" class="kn-zh-os"/>
-      </g>
-      <path class="kn-zh-zhuravl" d="M84 30l7-5-2 6 8-1-6 4 4 3-8-1 1 5z"/>
-    </svg>
-  </span>
-  <span class="kn-karta-txt">
-    <span class="kn-karta-klejmo">Учебник</span>
-    <b class="kn-karta-imya">Ясна Жизни</b>
-    <em class="kn-karta-pod">Начальная книга — жизнь как круг</em>
-    <span class="kn-karta-niz">
-      <span class="kn-karta-zhelob"><i id="kn-zhizni-fill"></i></span>
-      <span class="kn-karta-pct" id="kn-zhizni-pct">открыть</span>
-    </span>
-  </span>
-</a>
-
-<div class="dr-chipy" id="dr-chipy" role="tablist" aria-label="Что показать">
-    <!-- Чипы-фильтры сняты: «Уроки» раскрывал все двадцать ветвей разом —
-         почти каждый узел и есть урок, фильтр выглядел бессмысленным.
-         Вместо них два перехода со счётом: списки конкретных действий. -->
-    <button type="button" class="dr-chip" data-list="praktika">Практика<span class="dr-chip-n" id="chip-n-praktika"></span></button>
-    <button type="button" class="dr-chip" data-list="spravka">Справка<span class="dr-chip-n" id="chip-n-spravka"></span></button>
-  </div>
-
+  <!-- Здесь стояли три карточки-учебника (372 dp) и чипы «Практика» и
+       «Справка». Книги живут во вкладке «Библиотека» — на экране уроков
+       они занимали первый экран целиком; чипы открывали листы, собранные
+       из тех же узлов дерева, то есть дубли вкладок «Практика» и
+       «Библиотека». Книга каждого явления осталась строкой в своей ветви,
+       так что путь к ней из дерева не потерялся. -->
   <div class="dr-polotno" id="dr-polotno"></div>
 </section>
 
 <!-- Лист «Все 12 мест»: обратный срез по кругу — где про каждое место учат.
      Ради него дерево и строится: связь «место × явление» есть у автора в
      таблице, а в приложении её негде было увидеть. -->
-<!-- Практика: все круги и вопросы одним списком — то, где ход делает человек. -->
-<div class="dr-list" id="dr-praktika" hidden>
-  <div class="dr-list-shapka">
-    <h2 class="dr-list-zag">Практика</h2>
-    <button type="button" class="dr-list-x" data-x="dr-praktika" aria-label="Закрыть">×</button>
-  </div>
-  <p class="dr-list-pod">Разложить круг самому или проверить себя вопросами. Нажми — и сразу в дело.</p>
-  <div class="dr-list-telo" id="dr-praktika-telo"></div>
-</div>
-
-<!-- Справка: словарь, места круга, карточки ясен — всё, куда заглядывают. -->
-<div class="dr-list" id="dr-spravka" hidden>
-  <div class="dr-list-shapka">
-    <h2 class="dr-list-zag">Справка</h2>
-    <button type="button" class="dr-list-x" data-x="dr-spravka" aria-label="Закрыть">×</button>
-  </div>
-  <p class="dr-list-pod">Короткие вещи, куда заглядывают по ходу: словарь, места круга, карточки ясен.</p>
-  <div class="dr-list-telo" id="dr-spravka-telo"></div>
-</div>
-
 <div class="dr-list" id="dr-mesta" hidden>
   <div class="dr-list-shapka">
     <h2 class="dr-list-zag">Двенадцать мест круга</h2>
@@ -1166,7 +932,7 @@ html[data-theme='light'] {
      важнее. -->
 <script src="core/data.js?v=ffd01d69"></script>
 <script src="core/pasporta.js?v=f4319d11"></script>
-<script src="core/derevo-dannye.js?v=297a3e32"></script>
+<script src="core/derevo-dannye.js?v=72faa9a7"></script>
 <script src="core/znanie.js?v=4b63efa1"></script>
 
 <script>
@@ -1542,15 +1308,46 @@ html[data-theme='light'] {
     '</details>';
   }
 
+  /* Счёт вслух. Существительное согласуется с ПЕРВЫМ числом, а не со
+     знаменателем: «1 занятие из 83 написанных», «3 занятия из 83
+     написанных». Прежний порядок склонял хвост по знаменателю — это первое,
+     что выдаёт в тексте машину. Пройдено ноль — счёта нет вовсе. */
+  function счётВслух() {
+    var с = З.счёт();
+    if (!с.пройдено) return '';
+    var о = с.пройдено % 10, дд = с.пройдено % 100;
+    var слово = (дд > 10 && дд < 20) ? 'занятий'
+      : о === 1 ? 'занятие'
+      : (о >= 2 && о <= 4) ? 'занятия'
+      : 'занятий';
+    return с.пройдено + ' ' + слово + ' из ' + с.всего + ' написанных';
+  }
+
+  /* Карточка «Дальше» — единственное, что стоит между шапкой и деревом,
+     поэтому она строка, а не плакат: клеймо и счёт в одну строку, имя
+     занятия, мета, шеврон. Клеймо короткое («Дальше», а не «Дальше по
+     порядку»): рядом с ним на 360 dp должен помещаться счёт. */
+  function карточкаДальше(адрес, клеймо, имя, мета, счёт) {
+    return '<a class="dr-prod" href="' + экр(адрес) + '">' +
+      '<span class="dr-prod-tekst">' +
+        '<span class="dr-prod-ryad">' +
+          '<span class="dr-prod-klejmo">' + экр(клеймо) + '</span>' +
+          '<span class="dr-prod-schet">' + экр(счёт || '') + '</span>' +
+        '</span>' +
+        '<span class="dr-prod-imya">' + экр(имя) + '</span>' +
+        '<span class="dr-prod-pod">' + экр(мета) + '</span>' +
+      '</span>' +
+      '<span class="dr-prod-strelka" aria-hidden="true">›</span>' +
+    '</a>';
+  }
+
   function шапкаПродолжить() {
     var место = document.getElementById('dr-prodolzhit');
     if (!место) return;
     var д = З.продолжить();
     if (!д) {
-      место.innerHTML = '<div class="dr-prod"><span class="dr-prod-klejmo">Всё, что написано, пройдено</span>' +
-        '<span class="dr-prod-imya">Дальше — свой круг</span>' +
-        '<span class="dr-prod-pod">Возьми своё явление и разложи его сам.</span>' +
-        '<a class="dr-prod-knop" href="konstruktor.html#novaya">Собрать</a></div>';
+      место.innerHTML = карточкаДальше('konstruktor.html#novaya', 'Всё пройдено',
+        'Дальше — свой круг', 'Возьми своё явление и разложи его сам.', счётВслух());
       return;
     }
     /* Клеймо — про человека, а не про узел. Раньше оно читалось с состояния
@@ -1568,34 +1365,15 @@ html[data-theme='light'] {
         return к === 'пройдено' || к === 'держится' || к === 'начато';
       });
     } catch (e) { тронуто = З.счёт().пройдено > 0; }
-    var клеймо = !тронуто ? 'Первый раз здесь' : (начато ? 'Продолжить' : 'Дальше по порядку');
-    место.innerHTML =
-      '<a class="dr-prod" href="' + экр(д.узел.адрес) + '">' +
-        '<span class="dr-prod-klejmo">' + клеймо + '</span>' +
-        '<span class="dr-prod-imya">' + экр(д.узел.имя) + '</span>' +
-        '<span class="dr-prod-pod">' + экр(метаУзла(д.узел, д.состояние)) + '</span>' +
-        '<span class="dr-prod-knop">' + (начато ? 'Продолжить' : 'Начать') + '</span>' +
-      '</a>';
-  }
-
-  function подписьСчёта() {
-    var с = З.счёт();
-    var стр = document.getElementById('dr-schet');
-    if (!стр) return;
-    if (!с.пройдено) { стр.textContent = ''; стр.hidden = true; return; }
-    /* Существительное согласуется с ПЕРВЫМ числом, а не со знаменателем:
-       «Пройдено 1 занятие из 83 написанных», «Пройдено 3 занятия из 83
-       написанных». Прежний порядок («из 83 написанных занятия») склонял
-       хвост по знаменателю и на большинстве чисел давал нечитаемое
-       согласование — это первое, что выдаёт в тексте машину. */
-    var о = с.пройдено % 10, дд = с.пройдено % 100;
-    var слово = (дд > 10 && дд < 20) ? 'занятий'
-      : о === 1 ? 'занятие'
-      : (о >= 2 && о <= 4) ? 'занятия'
-      : 'занятий';
-    стр.textContent = 'Пройдено ' + с.пройдено + ' ' + слово +
-                      ' из ' + с.всего + ' написанных';
-    стр.hidden = false;
+    var клеймо = !тронуто ? 'Первый раз здесь' : (начато ? 'Продолжить' : 'Дальше');
+    /* Ветвь названа в мете: «ФО: искра в воде» само по себе не говорит, к
+       чему относится, а в имя её не вставить — строка станет в два этажа. */
+    var мета = [д.узел.ветвьИмя, метаУзла(д.узел, д.состояние)].filter(Boolean).join(' · ');
+    /* Тому, кто здесь впервые, счёт не показываем: «Первый раз здесь» и
+       рядом «1 занятие из 83» — это спор двух надписей на одной строке.
+       Знакомство в счёт занятий идёт, а первым разом быть не перестаёт. */
+    место.innerHTML = карточкаДальше(д.узел.адрес, клеймо, д.узел.имя, мета,
+      тронуто ? счётВслух() : '');
   }
 
   function нарисоватьДерево() {
@@ -1603,7 +1381,6 @@ html[data-theme='light'] {
     var полотно = document.getElementById('dr-polotno');
     if (!полотно) return;
 
-    подписьСчёта();
     шапкаПродолжить();
 
     /* Три блока, по одному правилу: учит методу — учит одному явлению —
@@ -1723,46 +1500,6 @@ html[data-theme='light'] {
     });
   })();
 
-  /* Листы «Практика» и «Справка»: конкретные строки-переходы, сгруппированные
-     по явлениям. Раньше на их месте были чипы-фильтры, которые раскрывали
-     всё дерево разом — стена вместо смысла. */
-  function строкаДействия(у, ветвьИмя) {
-    var с = З.состояние(у);
-    var мета = [у.жанр, у.объём, (с.текст && с.код !== 'нет') ? с.текст : null]
-      .filter(Boolean).join(' · ');
-    /* Имя ветви в мете не повторяем — строка и так стоит под заголовком
-       своей группы. */
-    return '<a class="dr-nashli" href="' + экр(у.адрес) + '" data-uzel="' + экр(у.id) + '">' +
-      '<span class="dr-nashli-imya">' + экр(у.имя) + '</span>' +
-      '<span class="dr-nashli-meta">' + экр(мета) + '</span></a>';
-  }
-  function нарисоватьДействия(телоId, жанры) {
-    var тело = document.getElementById(телоId);
-    if (!тело) return 0;
-    var html = '', всего = 0;
-    Д.ВЕТВИ.forEach(function (в) {
-      if (в.лист || !в.узлы) return;
-      var свои = в.узлы.filter(function (у) {
-        return !у.нет && у.адрес && жанры.indexOf(у.жанр) >= 0;
-      });
-      if (!свои.length) return;
-      html += '<h3 class="dr-gruppa-zag">' + экр(в.имя) + '<span>' + свои.length + '</span></h3>';
-      свои.forEach(function (у) { html += строкаДействия(у, в.имя); всего++; });
-    });
-    тело.innerHTML = html;
-    return всего;
-  }
-  function нарисоватьПрактику() {
-    var н = нарисоватьДействия('dr-praktika-telo', ['круг', 'вопросы', 'своё']);
-    var сч = document.getElementById('chip-n-praktika');
-    if (сч) сч.textContent = н || '';
-  }
-  function нарисоватьСправку() {
-    var н = нарисоватьДействия('dr-spravka-telo', ['справка', 'книга']);
-    var сч = document.getElementById('chip-n-spravka');
-    if (сч) сч.textContent = н || '';
-  }
-
   function нарисоватьЯсны() {
     var тело = document.getElementById('dr-yasny-telo');
     if (!тело) return;
@@ -1879,8 +1616,6 @@ html[data-theme='light'] {
       if (лист) {
         e.preventDefault();
         if (лист.dataset.list === 'yasny') { нарисоватьЯсны(); показать('dr-yasny', true); }
-        if (лист.dataset.list === 'praktika') { нарисоватьПрактику(); показать('dr-praktika', true); }
-        if (лист.dataset.list === 'spravka') { нарисоватьСправку(); показать('dr-spravka', true); }
         return;
       }
       var кКниге = e.target.closest && e.target.closest('[data-kniga]');
@@ -1956,46 +1691,6 @@ html[data-theme='light'] {
 
   // ═══ ЗАПУСК ═══
   нарисоватьДерево();
-  нарисоватьПрактику();   /* счётчики на чипах */
-  нарисоватьСправку();
-
-  /* Прогресс книг — по КНИЖНЫМ СТРАНИЦАМ прочитанных глав, тем же счётом,
-     что и обложка самой читалки: главы разного веса, и «2 из 11» врало о
-     месте в книге. Карты страниц сняты с описей книг.
-
-     Подпись под полосой считается ЗДЕСЬ для всех трёх карточек — раньше она
-     была зашита в разметку, и «Ясна Жизни» печатала «скоро» при набранной
-     книге: карточка вела в готовые 13 глав, а надпись говорила, что книги
-     нет. Одно место — одна правда. */
-  (function(){
-    var КНИГИ=[
-      { ключ:'yasna_kniga_v1',      полоса:'kn-karta-fill', над:'kn-karta-pct',
-        стр:{0:4,1:2,2:7,3:1,4:17,5:10,6:7,7:15,8:24,9:18,10:1} },
-      { ключ:'yasna_kniga_goda_v1', полоса:'kn-goda-fill',  над:'kn-goda-pct',
-        стр:{0:6,1:4,2:7,3:12,4:10,5:15,6:9,7:28,8:35,9:46,10:20,11:26,12:8} },
-      { ключ:'yasna_kniga_zhizni_v1', полоса:'kn-zhizni-fill', над:'kn-zhizni-pct',
-        стр:{0:5,1:2,2:5,3:11,4:19,5:11,6:14,7:11,8:21,9:11,10:29,11:41,12:4} }
-    ];
-    КНИГИ.forEach(function(к){
-      var полоса=document.getElementById(к.полоса), над=document.getElementById(к.над);
-      if(!полоса) return;
-      try{
-        var с=JSON.parse(localStorage.getItem(к.ключ)||'{}');
-        var всего=0, сдел=0, глав=0, всегоГлав=0;
-        for(var н in к.стр){ всегоГлав++; всего+=к.стр[н]; if((с.прочитано||{})[н]){ сдел+=к.стр[н]; глав++; } }
-        var подпись='открыть';
-        if(всегоГлав && глав>=всегоГлав) подпись='прочитана';
-        else if(глав>0) подпись='стр. '+сдел+' из '+всего;
-        if(над) над.textContent=подпись;
-        if(глав>0){
-          var pct=Math.round(сдел/всего*100);
-          requestAnimationFrame(function(){ полоса.style.width=Math.max(4,pct)+'%'; });
-        }
-      }catch(e){}
-    });
-  })();
-
-
 
 })();
 </script>

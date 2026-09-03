@@ -27,913 +27,247 @@
 <meta name="apple-mobile-web-app-title" content="Ясна">
 <script defer src="core/pwa.js"></script>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
-<title>Как устроен рейтинг · Ясна</title>
-<meta name="description" content="Две шкалы прогресса в Ясне: личное Освоение (бусины) и соревновательная Каста (рейтинг в партиях против другого игрока)."/>
-<!-- Роли цвета, шкала типа и движение: один файл на сайт и приложение. Подключён ПЕРВЫМ из стилей — он только объявляет переменные и ничего не перебивает. -->
+<title>Прогресс · Ясна</title>
+<meta name="description" content="Личный счёт в Ясне: ступень, бусины, сыгранные партии и пройденные уроки."/>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     «ПРОГРЕСС» — ЛИЧНЫЙ ЭКРАН, А НЕ СТАТЬЯ О РЕЙТИНГЕ.
+
+     Здесь лежала статья на 6 500 css px (семь экранов): словарь из шести
+     карточек, две шкалы с формулами, лестница из пяти каст, две таблицы с
+     горизонтальной прокруткой и шесть раскрывающихся вопросов. Она описывала
+     ЦЕЛЕВУЮ систему — Касту с победами, поражениями и штрафом за сдачу, —
+     которой в приложении нет; и на неё вёл главный виджет прогресса. Человек
+     нажимал «Послушник I · Твой прогресс» и получал спецификацию.
+
+     Осталось то, что человек искал: своя ступень, свои три числа и одна
+     строка о том, что дальше. Устройство счёта — под «Как это устроено»,
+     тремя короткими разделами. Чего нет — сказано прямо, без обещаний.
+
+     Экран объявляет себя сам (data-yk-* на <body>): в приложении он дочерний
+     к «Практике», и заголовок шапки — «Прогресс», а не прежний «Рейтинг».
+     Сборщик app/sobrat-vitrinu.mjs своё объявление не навязывает, если
+     страница сказала о себе первой.
+     ═══════════════════════════════════════════════════════════════════════ -->
+
+<!-- Роли цвета, шкала типа и движение: один файл на сайт и приложение. -->
 <link rel="stylesheet" href="core/tokeny.css">
 <link rel="stylesheet" href="vendor/fonts/shrifty.css">
 
-<link rel="stylesheet" href="vk-tech-tokens.css?v=7f404c3d"/>
-
 <style>
+  /* Своей палитры у экрана больше нет: было ~90 сырых hex, второй блок
+     светлой темы с !important и моно-шрифт 'SF Mono' — страница выглядела
+     из другого приложения. Теперь только роли из core/tokeny.css. */
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    background: #0a0a0a;
-    color: #f5f5f7;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    line-height: 1.5;
+    background: var(--surface);
+    color: var(--on-surface);
+    font-family: var(--ya-font-text, system-ui, sans-serif);
     -webkit-font-smoothing: antialiased;
-    min-height: 100vh;
   }
-  .rt-shell { max-width: 980px; margin: 0 auto; padding: 32px 28px 96px; }
-  @media (max-width: 720px) { .rt-shell { padding: 24px 16px 80px; } }
+  .rt-shell { max-width: 720px; margin: 0 auto; padding: 20px 16px 40px; }
 
+  /* «← к Ясне» — для сайта. В приложении оболочка её прячет (navigatsiya.js:
+     правило .rt-back{display:none}), там возврат живёт в общей шапке. */
   .rt-back {
-    display: inline-flex; align-items: center; gap: 6px;
-    color: #aeaeb2; text-decoration: none;
-    font-size: 13px; padding: 6px 12px; border-radius: 8px;
-    border: 1px solid rgba(255,255,255,.08);
-    margin-bottom: 32px; transition: all .15s ease;
+    display: inline-flex; align-items: center; min-height: 44px;
+    color: var(--on-surface-variant); text-decoration: none;
+    font: var(--type-label-l);
   }
-  .rt-back:hover { background: rgba(255,255,255,.04); color: #fff; }
 
-  /* ─── Hero ─────────────────────────────────────────────────────── */
-  .rt-range-notes { margin: 18px 0 48px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  @media (max-width: 640px) { .rt-range-notes { grid-template-columns: 1fr; } }
-  .rt-eyebrow {
-    display: inline-block;
-    font-size: 12px; font-weight: 700; letter-spacing: 0.14em;
-    text-transform: uppercase; color: #5B9CF6;
-    background: rgba(0,119,255,.12); border: 1px solid rgba(0,119,255,.22);
-    padding: 5px 11px; border-radius: 999px; margin-bottom: 18px;
-  }
-  .rt-h1 {
-    font-family: 'Manrope', ui-serif, Georgia, serif;
-    font-size: clamp(26px, 6vw, 48px); font-weight: 600; line-height: 1.08;
-    letter-spacing: -0.02em;
-    margin: 0 0 18px;
-  }
-  .rt-lead {
-    font-size: 18.5px; color: #c7c7cc;
-    margin: 0 0 48px; line-height: 1.55;
-    max-width: 760px;
-  }
-  .rt-lead strong { color: #fff; font-weight: 600; }
+  .rt-h1 { margin: 8px 0 0; font: var(--type-headline-l); }
+  .rt-lead { margin: 6px 0 0; font: var(--type-body-m); color: var(--on-surface-variant); }
 
-  /* ─── Track section ────────────────────────────────────────────── */
-  .rt-track {
-    margin-bottom: 80px;
+  .rt-stupen {
+    margin-top: 20px; padding: 16px; border-radius: 16px;
+    background: var(--surface-container-low); border: 1px solid var(--outline-variant);
   }
-  .rt-track-head {
-    display: flex; align-items: center; gap: 16px;
-    margin-bottom: 24px;
+  .rt-stupen-imya { font: var(--type-title-l); }
+  .rt-polosa {
+    height: 8px; margin-top: 12px; border-radius: 4px; overflow: hidden;
+    background: var(--surface-container-highest);
   }
-  .rt-track-icon {
-    width: 56px; height: 56px;
-    border-radius: 16px;
+  /* Ширина ставится скриптом. Нулевая — нулевая: подкрашенный хвостик при
+     нуле читался бы как «немного уже пройдено». */
+  .rt-polosa-fill { height: 100%; width: 0; background: var(--primary); }
+  .rt-dalshe { margin-top: 10px; font: var(--type-body-s); color: var(--on-surface-variant); }
+
+  .rt-chisla { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+  .rt-chislo {
+    padding: 14px 8px; border-radius: 14px; text-align: center;
+    background: var(--surface-container-low); border: 1px solid var(--outline-variant);
+  }
+  .rt-chislo-n { font: var(--type-headline-s); font-variant-numeric: tabular-nums; }
+  .rt-chislo-p { margin-top: 2px; font: var(--type-body-s); color: var(--on-surface-variant); }
+
+  .rt-knopka {
     display: inline-flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .rt-track-icon svg { width: 28px; height: 28px; }
-  .rt-track-icon--mastery {
-    background: rgba(89,168,64,.16);
-    border: 1px solid rgba(89,168,64,.32);
-    color: #A4D480;
-  }
-  .rt-track-icon--caste {
-    background: rgba(0,119,255,.16);
-    border: 1px solid rgba(0,119,255,.32);
-    color: #5B9CF6;
-  }
-  .rt-track-titles { flex: 1; min-width: 0; }
-  .rt-track-eyebrow {
-    font-size: 12px; font-weight: 700; letter-spacing: 0.14em;
-    text-transform: uppercase; color: #8e8e93; /* было #6e6e73 (3.9:1 на тёмном) → 6.07:1, AA */
-    margin-bottom: 4px;
-  }
-  .rt-track-h2 {
-    font-family: 'Manrope', ui-serif, Georgia, serif;
-    font-size: 32px; font-weight: 600; line-height: 1.15;
-    letter-spacing: -0.012em; margin: 0;
+    margin-top: 16px; min-height: 48px; padding: 0 24px; border-radius: 24px;
+    background: var(--primary); color: var(--on-primary);
+    font: var(--type-label-l); text-decoration: none;
   }
 
-  .rt-track-lead {
-    font-size: 17px; color: #d2d2d7; line-height: 1.6;
-    margin: 0 0 32px;
+  .rt-kak { margin-top: 28px; border-top: 1px solid var(--outline-variant); }
+  /* 48 dp у каждой строки-раскрывашки: прежние ряды вопросов были 25 dp. */
+  .rt-kak > summary {
+    min-height: 48px; display: flex; align-items: center; gap: 8px;
+    font: var(--type-title-m); cursor: pointer; list-style: none;
   }
-  .rt-track-lead strong { color: #fff; font-weight: 600; }
-
-  /* ─── Formula stat-cards (заменяет green code block) ──────────── */
-  .rt-formula {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-bottom: 32px;
+  .rt-kak > summary::-webkit-details-marker { display: none; }
+  .rt-kak > summary::after { content: '›'; margin-left: auto; color: var(--on-surface-variant); }
+  .rt-kak[open] > summary::after { content: '⌄'; }
+  .rt-kak h2 { margin: 18px 0 4px; font: var(--type-title-s); }
+  .rt-kak p { margin: 0; font: var(--type-body-m); color: var(--on-surface-variant); }
+  .rt-lestnica { margin: 6px 0 0; padding: 0; list-style: none; font-variant-numeric: tabular-nums; }
+  .rt-lestnica li {
+    display: flex; justify-content: space-between; gap: 12px;
+    padding: 6px 0; font: var(--type-body-m); color: var(--on-surface-variant);
+    border-bottom: 1px solid var(--outline-variant);
   }
-  @media (max-width: 640px) {
-    .rt-formula { grid-template-columns: 1fr 1fr; }
-    .rt-formula .rt-formula__card:last-child:nth-child(odd) { grid-column: span 2; }
+  .rt-net {
+    margin-top: 18px; padding: 12px 14px; border-radius: 14px;
+    background: var(--surface-container); font: var(--type-body-s);
+    color: var(--on-surface-variant);
   }
-
-  .rt-formula__card {
-    background: rgba(255,255,255,.04);
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 16px;
-    padding: 22px 18px;
-    text-align: center;
-  }
-  .rt-formula__card--accent {
-    background: var(--accent-bg, rgba(89,168,64,.10));
-    border-color: var(--accent-border, rgba(89,168,64,.25));
-  }
-  .rt-formula__big {
-    font-family: 'Manrope', ui-serif, Georgia, serif;
-    font-size: 40px; font-weight: 700; line-height: 1;
-    color: var(--accent, #B7E48E);
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -0.015em;
-    margin-bottom: 10px;
-  }
-  .rt-formula__label {
-    font-size: 14px; color: #e5e5ea; line-height: 1.4;
-    font-weight: 500;
-  }
-
-  /* ─── Level progress bar (визуальная шкала уровней) ────────────── */
-  .rt-levels-bar {
-    margin-top: 12px;
-    margin-bottom: 32px;
-  }
-  .rt-levels-bar-title {
-    font-size: 12px; font-weight: 700; letter-spacing: 0.14em;
-    text-transform: uppercase; color: #8e8e93;
-    margin-bottom: 16px;
-  }
-  .rt-levels-track {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 4px;
-    height: 12px;
-    border-radius: 6px;
-    overflow: hidden;
-    margin-bottom: 14px;
-  }
-  .rt-levels-track__seg {
-    background: var(--seg-bg, rgba(255,255,255,.06));
-    transition: opacity .2s ease;
-  }
-  .rt-track--mastery .rt-levels-track__seg { background: var(--seg-bg, rgba(89,168,64,.12)); }
-  .rt-track--mastery .rt-levels-track__seg:nth-child(1) { background: rgba(89,168,64,.30); }
-  .rt-track--mastery .rt-levels-track__seg:nth-child(2) { background: rgba(89,168,64,.45); }
-  .rt-track--mastery .rt-levels-track__seg:nth-child(3) { background: rgba(89,168,64,.60); }
-  .rt-track--mastery .rt-levels-track__seg:nth-child(4) { background: rgba(89,168,64,.78); }
-  .rt-track--mastery .rt-levels-track__seg:nth-child(5) { background: rgba(89,168,64,1); }
-
-  .rt-track--caste .rt-levels-track__seg:nth-child(1) { background: rgba(0,119,255,.26); }
-  .rt-track--caste .rt-levels-track__seg:nth-child(2) { background: rgba(0,119,255,.42); }
-  .rt-track--caste .rt-levels-track__seg:nth-child(3) { background: rgba(0,119,255,.58); }
-  .rt-track--caste .rt-levels-track__seg:nth-child(4) { background: rgba(0,119,255,.78); }
-  .rt-track--caste .rt-levels-track__seg:nth-child(5) { background: rgba(0,119,255,1); }
-
-  /* Level cards under the bar */
-  .rt-levels-cards {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-  }
-  @media (max-width: 720px) {
-    .rt-levels-cards { grid-template-columns: repeat(2, 1fr); }
-  }
-  @media (max-width: 420px) {
-    .rt-levels-cards { grid-template-columns: 1fr; }
-  }
-
-  .rt-level-card {
-    background: rgba(255,255,255,.04);
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 14px;
-    padding: 18px 14px;
-    text-align: center;
-    position: relative;
-  }
-  .rt-level-card__name {
-    font-size: 15px; font-weight: 600; color: #fff;
-    margin-bottom: 8px; line-height: 1.2;
-  }
-  .rt-level-card__range {
-    font-size: 13px; color: #c7c7cc;
-    font-variant-numeric: tabular-nums;
-    font-family: 'SF Mono', ui-monospace, Menlo, monospace;
-    line-height: 1.4;
-  }
-  .rt-level-card__dot {
-    width: 9px; height: 9px; border-radius: 50%;
-    margin: 0 auto 10px;
-  }
-  .rt-track--mastery .rt-level-card:nth-child(1) .rt-level-card__dot { background: rgba(89,168,64,.35); }
-  .rt-track--mastery .rt-level-card:nth-child(2) .rt-level-card__dot { background: rgba(89,168,64,.55); }
-  .rt-track--mastery .rt-level-card:nth-child(3) .rt-level-card__dot { background: rgba(89,168,64,.72); }
-  .rt-track--mastery .rt-level-card:nth-child(4) .rt-level-card__dot { background: rgba(89,168,64,.90); }
-  .rt-track--mastery .rt-level-card:nth-child(5) .rt-level-card__dot { background: #59A840; box-shadow: 0 0 10px rgba(89,168,64,0.5); }
-
-  .rt-track--caste .rt-level-card:nth-child(1) .rt-level-card__dot { background: rgba(0,119,255,.32); }
-  .rt-track--caste .rt-level-card:nth-child(2) .rt-level-card__dot { background: rgba(0,119,255,.50); }
-  .rt-track--caste .rt-level-card:nth-child(3) .rt-level-card__dot { background: rgba(0,119,255,.68); }
-  .rt-track--caste .rt-level-card:nth-child(4) .rt-level-card__dot { background: rgba(0,119,255,.86); }
-  .rt-track--caste .rt-level-card:nth-child(5) .rt-level-card__dot { background: #0077FF; box-shadow: 0 0 10px rgba(0,119,255,0.5); }
-
-  /* ─── PR Delta example (визуальная иллюстрация ELO) ────────────── */
-  .rt-delta-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin: 32px 0;
-  }
-  @media (max-width: 640px) { .rt-delta-grid { grid-template-columns: 1fr; } }
-
-  .rt-delta-card {
-    background: rgba(255,255,255,.04);
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 16px;
-    padding: 22px 24px;
-  }
-  .rt-delta-card__title {
-    font-size: 13px; font-weight: 700; letter-spacing: 0.10em;
-    text-transform: uppercase; color: #c7c7cc;
-    margin-bottom: 6px;
-  }
-  .rt-delta-card__sub {
-    font-size: 13px; color: #8e8e93; line-height: 1.5;
-    margin: 0 0 14px;
-  }
-  .rt-delta-card__head {
-    display: flex; align-items: baseline; justify-content: space-between;
-    gap: 12px;
-    font-size: 11px; font-weight: 700; letter-spacing: 0.10em;
-    text-transform: uppercase; color: #8e8e93;
-    padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.10);
-    margin-bottom: 4px;
-  }
-  .rt-delta-card__row {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 12px;
-    font-size: 15px;
-    padding: 11px 0;
-    border-bottom: 1px dashed rgba(255,255,255,.06);
-  }
-  .rt-delta-card__row:last-child { border-bottom: 0; }
-  .rt-delta-card__row > span:first-child { color: #e5e5ea; }
-  .rt-delta-card__row em {
-    color: #8e8e93; font-style: normal; font-size: 13px; margin-left: 4px;
-  }
-  .rt-delta-card__delta {
-    font-weight: 700; font-variant-numeric: tabular-nums;
-    font-family: 'SF Mono', ui-monospace, Menlo, monospace;
-    font-size: 16px; white-space: nowrap;
-  }
-  .rt-delta-card__delta--win { color: #B7E48E; }
-  .rt-delta-card__delta--lose { color: #F2949C; }
-
-  /* ─── Comparison section ───────────────────────────────────────── */
-  .rt-section { margin-top: 80px; }
-  .rt-section-title {
-    font-family: 'Manrope', ui-serif, Georgia, serif;
-    font-size: 28px; font-weight: 600; margin: 0 0 14px;
-    letter-spacing: -0.012em;
-  }
-  .rt-section-text {
-    font-size: 16.5px; color: #d2d2d7; line-height: 1.6;
-    margin: 0 0 14px;
-  }
-  .rt-section-text strong { color: #fff; font-weight: 600; }
-
-  .rt-compare {
-    background: rgba(255,255,255,.04);
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 16px;
-    overflow: hidden;
-    margin-top: 20px;
-  }
-  .rt-compare table { width: 100%; border-collapse: collapse; }
-  .rt-compare th, .rt-compare td {
-    padding: 16px 22px; text-align: left;
-    border-bottom: 1px solid rgba(255,255,255,.06);
-    font-size: 15px;
-  }
-  .rt-compare thead th {
-    font-weight: 600; color: #c7c7cc;
-    background: rgba(255,255,255,.02);
-    font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em;
-    padding: 14px 22px;
-  }
-  .rt-compare tr:last-child td { border-bottom: 0; }
-  @media (max-width: 720px) {
-    /* было overflow:hidden — колонку «Каста» на телефоне обрезало целиком.
-       Прокрутка есть, но о ней никто не догадывался: тень у правого края
-       показывает, что таблица продолжается, а первая колонка липнет к левому
-       краю — иначе, прокрутив вправо, человек терял подписи строк. */
-    .rt-compare { overflow-x: auto; -webkit-overflow-scrolling: touch;
-      background-image: linear-gradient(to left, rgba(0,0,0,.35), transparent 28px);
-      background-repeat: no-repeat; background-position: right center; background-size: 28px 100%;
-      background-attachment: local, scroll; }
-    .rt-compare table { min-width: 540px; }
-    .rt-compare th, .rt-compare td { padding: 10px 12px; }
-    .rt-compare td:first-child, .rt-compare th:first-child {
-      position: sticky; left: 0; z-index: 1; background: #14171c; }
-  }
-  html[data-theme='light'] .rt-compare td:first-child,
-  html[data-theme='light'] .rt-compare th:first-child { background: #ffffff; }
-  .rt-compare td:first-child { color: #fff; font-weight: 500; }
-  .rt-tag {
-    display: inline-flex; align-items: center; gap: 4px;
-    padding: 5px 11px; border-radius: 999px; font-size: 12.5px;
-    font-weight: 600; white-space: nowrap;
-  }
-  .rt-tag--mastery { background: rgba(89,168,64,.18); color: #A4D480; border: 1px solid rgba(89,168,64,.30); }
-  .rt-tag--caste { background: rgba(0,119,255,.16); color: #5B9CF6; border: 1px solid rgba(0,119,255,.30); }
-  .rt-tag--neutral { background: rgba(255,255,255,.06); color: #aeaeb2; border: 1px solid rgba(255,255,255,.10); }
-
-  /* ─── Glossary (terms) ─────────────────────────────────────────── */
-  .rt-glossary {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin: 0 0 64px;
-  }
-  @media (max-width: 880px) { .rt-glossary { grid-template-columns: 1fr 1fr; } }
-  @media (max-width: 540px) { .rt-glossary { grid-template-columns: 1fr; } }
-
-  .rt-gloss {
-    background: rgba(255,255,255,.04);
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 14px;
-    padding: 18px 20px;
-  }
-  .rt-gloss__name {
-    font-family: 'Manrope', ui-serif, Georgia, serif;
-    font-size: 17px; font-weight: 600; color: #fff;
-    margin-bottom: 6px; letter-spacing: -0.005em;
-  }
-  .rt-gloss__desc {
-    font-size: 14.5px; color: #c7c7cc; line-height: 1.55;
-  }
-
-  /* ─── Hesse note (одна цитата под глоссарием) ──────────────────── */
-  .rt-hesse {
-    background: linear-gradient(135deg, rgba(91, 156, 246, .08), rgba(89, 168, 64, .08));
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 16px;
-    padding: 22px 26px;
-    margin-bottom: 64px;
-  }
-  .rt-hesse__title {
-    font-size: 12px; font-weight: 700; letter-spacing: 0.14em;
-    text-transform: uppercase; color: #8e8e93;
-    margin-bottom: 10px;
-  }
-  .rt-hesse__text {
-    font-size: 15.5px; color: #d2d2d7; line-height: 1.6;
-    margin: 0;
-  }
-  .rt-hesse__text strong { color: #fff; font-weight: 600; }
-
-  /* ─── FAQ ──────────────────────────────────────────────────────── */
-  .rt-faq { display: flex; flex-direction: column; gap: 10px; }
-  .rt-faq details {
-    background: rgba(255,255,255,.04);
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 14px;
-    padding: 18px 22px;
-    transition: background .15s ease;
-  }
-  .rt-faq details:hover { background: rgba(255,255,255,.06); }
-  .rt-faq details[open] { background: rgba(255,255,255,.06); }
-  .rt-faq summary {
-    font-size: 16.5px; font-weight: 600; color: #fff;
-    cursor: pointer; list-style: none;
-    display: flex; justify-content: space-between; align-items: center;
-    gap: 14px;
-  }
-  .rt-faq summary::after {
-    content: '+'; font-size: 24px; color: #aeaeb2;
-    line-height: 1; transition: transform .2s ease;
-    flex-shrink: 0;
-  }
-  .rt-faq details[open] summary::after { content: '−'; }
-  .rt-faq details p {
-    margin: 14px 0 0; color: #d2d2d7; font-size: 15.5px; line-height: 1.6;
-  }
-  .rt-faq details p strong { color: #fff; }
-
-  /* ─── Foot ─────────────────────────────────────────────────────── */
-  .rt-foot {
-    margin-top: 80px; padding-top: 36px;
-    border-top: 1px solid rgba(255,255,255,.08);
-    color: #8e8e93; font-size: 13.5px; font-style: italic;
-    line-height: 1.65;
-  }
-  .rt-foot strong { color: #aeaeb2; font-style: normal; }
-
-/* Честная плашка статуса и бейдж «в приложении пока нет» — обе темы.
-   Бейдж не обещает срок: он говорит только о том, чего в приложении нет. */
-.rt-moi { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 10px;
-  margin: 16px 0 2px; padding: 14px 16px; border-radius: 14px;
-  background: rgba(0,119,255,.10); border: 1px solid rgba(0,119,255,.25);
-  font-size: 15px; color: #e8ebee; font-variant-numeric: tabular-nums; }
-.rt-moi__b { font-weight: 700; color: #5B9CF6; font-size: 17px; }
-.rt-moi__sep { color: #6d7681; }
-.rt-moi__hint { flex-basis: 100%; font-size: 12px; color: #8e939b; }
-html[data-theme='light'] .rt-moi { color: #101418; background: rgba(0,113,227,.08); border-color: rgba(0,113,227,.22); }
-html[data-theme='light'] .rt-moi__hint { color: #5c6570; }
-html[data-theme='light'] .rt-moi__b { color: #0b62c4; }
-/* Разделитель «·» между числами: #8b95a1 на голубой плашке — 2.50:1,
-   он просто исчезал. #5C6A80 — 4.89:1, тот же серый, что у прочих
-   вторичных подписей светлой темы Рейтинга. */
-html[data-theme='light'] .rt-moi__sep { color: #5C6A80; }
-.rt-status-note { margin: 14px 0 6px; padding: 12px 16px; border: 1px solid rgba(240,180,80,.35); background: rgba(240,180,80,.08); border-radius: 12px; font-size: 14px; line-height: 1.55; color: #d2d2d7; }
-.rt-status-note strong { color: #fff; font-weight: 600; }
-.rt-status-note__lead { color: #f0c274 !important; }
-.rt-soon-chip { display: inline-block; vertical-align: middle; margin-left: 10px; padding: 3px 12px; border-radius: 999px; background: rgba(240,180,80,.14); border: 1px solid rgba(240,180,80,.35); color: #f0c274; font-size: 13px; font-weight: 600; letter-spacing: .02em; }
-html[data-theme='light'] .rt-status-note { border-color: rgba(150,100,10,.35); background: rgba(240,180,80,.14); color: #3a3a3c; }
-html[data-theme='light'] .rt-status-note strong { color: #0D1B2A; }
-html[data-theme='light'] .rt-status-note__lead { color: #8a5a12 !important; }
-html[data-theme='light'] .rt-soon-chip { background: rgba(240,180,80,.18); border-color: rgba(150,100,10,.35); color: #8a5a12; }
-
-/* ── Светлая тема (единый ключ html[data-theme='light']) — рейтинг на raw-hex ── */
-html[data-theme='light'] body { background:#F5F5F7; color:#0D1B2A; }
-html[data-theme='light'] .rt-back { color:#5C6A80; border-color:rgba(0,0,0,.12); }
-html[data-theme='light'] .rt-back:hover { background:rgba(0,0,0,.05); color:#0D1B2A; }
-/* Метка над заголовком стоит НА голубой плашке, а не на белом: #1F6FCB
-   давал там 4.05:1. #0058B8 (тот же синий, что --accent-hover светлой
-   темы) — 5.87:1. */
-html[data-theme='light'] .rt-eyebrow { color:#0058B8; background:rgba(0,119,255,.10); border-color:rgba(0,119,255,.28); }
-html[data-theme='light'] .rt-lead { color:#3D4852; }
-html[data-theme='light'] .rt-lead strong, html[data-theme='light'] .rt-track-lead strong { color:#0D1B2A; }
-html[data-theme='light'] .rt-track-lead { color:#3D4852; }
-html[data-theme='light'] .rt-track-eyebrow, html[data-theme='light'] .rt-levels-bar-title { color:#5C6A80; }
-html[data-theme='light'] .rt-track-icon--caste { color:#1F6FCB; }
-html[data-theme='light'] .rt-track-icon--mastery { color:#147A3C; }
-html[data-theme='light'] .rt-formula__card, html[data-theme='light'] .rt-level-card { background:rgba(0,0,0,.04); border-color:rgba(0,0,0,.10); }
-html[data-theme='light'] .rt-formula__label { color:#3D4852; }
-html[data-theme='light'] .rt-formula__big { color:#147A3C; }
-html[data-theme='light'] .rt-levels-track__seg { background:rgba(0,0,0,.08); }
-/* серый текст и тонкие плашки на светлом */
-html[data-theme='light'] .rt-level-card *, html[data-theme='light'] .rt-formula__card * { border-color:rgba(0,0,0,.10); }
-
-/* ── Светлая тема, ЧАСТЬ 2 (аудит 23.06: покрытие было ~40%) ──────────
-   Всё ниже герой-блока жило на прибитых тёмных цветах: словарь, уровни,
-   таблицы, теги, Гессе-цитата, FAQ и инлайн-стили заголовков/врезок.
-   Инлайны перебиваются только !important — поэтому он здесь легален. */
-html[data-theme='light'] .rt-h1 { color:#0D1B2A; }
-html[data-theme='light'] .rt-track-h2 { color:#0D1B2A; }
-html[data-theme='light'] .rt-shell h3 { color:#0D1B2A !important; }
-html[data-theme='light'] .rt-section-text { color:#3D4852 !important; }
-html[data-theme='light'] .rt-section-text strong { color:#0D1B2A; }
-html[data-theme='light'] .rt-gloss { background:rgba(0,0,0,.04); border-color:rgba(0,0,0,.10); }
-html[data-theme='light'] .rt-gloss__name { color:#0D1B2A; }
-html[data-theme='light'] .rt-gloss__desc { color:#3D4852; }
-html[data-theme='light'] .rt-level-card__name { color:#0D1B2A; }
-html[data-theme='light'] .rt-level-card__range { color:#5C6A80; }
-html[data-theme='light'] .rt-hesse { background:rgba(0,0,0,.04); border-color:rgba(0,0,0,.10); }
-html[data-theme='light'] .rt-hesse__title { color:#0D1B2A; }
-html[data-theme='light'] .rt-hesse__text { color:#3D4852; }
-html[data-theme='light'] .rt-hesse__text strong { color:#0D1B2A; }
-html[data-theme='light'] .rt-compare table { background:transparent; }
-html[data-theme='light'] .rt-compare th { color:#5C6A80; border-color:rgba(0,0,0,.12); }
-html[data-theme='light'] .rt-compare td { color:#0D1B2A; border-color:rgba(0,0,0,.08); }
-html[data-theme='light'] .rt-compare td span { color:inherit; }
-html[data-theme='light'] .rt-delta-card__delta--win { color:#147A3C; }
-html[data-theme='light'] .rt-delta-card__delta--lose { color:#B3261E; }
-html[data-theme='light'] .rt-tag { color:#3D4852; background:rgba(0,0,0,.05); border-color:rgba(0,0,0,.12); }
-html[data-theme='light'] .rt-faq details { background:rgba(0,0,0,.03); border-color:rgba(0,0,0,.10); }
-html[data-theme='light'] .rt-faq details:hover, html[data-theme='light'] .rt-faq details[open] { background:rgba(0,0,0,.06); }
-html[data-theme='light'] .rt-faq summary { color:#0D1B2A; }
-html[data-theme='light'] .rt-faq p { color:#3D4852 !important; }
-html[data-theme='light'] .rt-faq p strong { color:#0D1B2A !important; }
-/* Инлайн-стили: заголовки h3 style="color:#fff", врезки со style="color:#d2d2d7…",
-   мелкие подписи #8e8e93 — ловим по контейнеру страницы. */
-html[data-theme='light'] .rt-shell [style*="color: #d2d2d7"],
-html[data-theme='light'] .rt-shell [style*="color:#d2d2d7"] { color:#3D4852 !important; }
-html[data-theme='light'] .rt-shell [style*="color: #8e8e93"],
-html[data-theme='light'] .rt-shell [style*="color:#8e8e93"] { color:#5C6A80 !important; }
-html[data-theme='light'] .rt-shell [style*="color: #a8b1be"],
-html[data-theme='light'] .rt-shell [style*="color:#a8b1be"] { color:#3D4852 !important; }
-html[data-theme='light'] .rt-shell [style*="color: #fff"],
-html[data-theme='light'] .rt-shell [style*="color:#fff"] { color:#0D1B2A !important; }
-html[data-theme='light'] .rt-shell [style*="background: rgba(255,255,255,.03)"],
-html[data-theme='light'] .rt-shell [style*="background: rgba(255,255,255,.02)"] { background:rgba(0,0,0,.04) !important; border-color:rgba(0,0,0,.10) !important; }
-  /* моб-типографика */
-  @media (max-width: 640px) {
-    .rt-track-h2 { font-size: 24px; }
-    .rt-section-title { font-size: 22px; }
-    .rt-formula__big { font-size: 30px; }
-  }
-  </style>
+</style>
 </head>
-<body>
+<body data-yk-tip="дочерний" data-yk-imya="Прогресс" data-yk-roditel="praktika.html">
 <link rel="stylesheet" href="core/site-nav.css?v=52aebf72"/>
 <header class="ynav ynav--dark ynav--sticky" id="site-nav"></header>
 <script src="core/site-nav.js?v=9ba1a8b7"></script>
 <script>window.SiteNav&&SiteNav.mount('site-nav','rating');</script>
 <script>
-// Страница и обе шкалы — в черновик каталога доступов. Шкалы wip: страница
-// описывает целевую систему, серверного расчёта Касты/Освоения ещё нет.
+// Каталог доступов: экран и то, что на нём считается. Каста остаётся здесь
+// со статусом wip — её в приложении нет, и каталог об этом должен знать,
+// хотя сам экран о ней больше не рассказывает.
 try {
   if (window.YasnaAccess && window.YasnaAccess.declare) {
     window.YasnaAccess.declare([
-      { feature: 'section:rating', area: 'rating', title: 'Рейтинг', kind: 'section', declaredAt: 'rating.html' },
-      { feature: 'rating:mastery', area: 'rating', parent: 'section:rating', title: 'Шкала «Освоение»', kind: 'widget', status: 'wip', declaredAt: 'rating.html' },
-      { feature: 'rating:caste', area: 'rating', parent: 'section:rating', title: 'Шкала «Каста»', kind: 'widget', status: 'wip', declaredAt: 'rating.html' }
+      { feature: 'section:rating', area: 'rating', title: 'Прогресс', kind: 'section', declaredAt: 'rating.html' },
+      { feature: 'rating:mastery', area: 'rating', parent: 'section:rating', title: 'Ступени по бусинам', kind: 'widget', declaredAt: 'rating.html' },
+      { feature: 'rating:caste', area: 'rating', parent: 'section:rating', title: 'Рейтинг в партиях с людьми', kind: 'widget', status: 'wip', declaredAt: 'rating.html' }
     ]);
   }
 } catch(_){}
 </script>
 <div class="rt-shell">
 
-  <!-- «Назад»: вернуться на страницу, с которой пришли (напр. из Дуэли по «Рейтинг»);
-       при прямом заходе href ведёт на лендинг index.html. -->
+  <!-- «Назад»: вернуться на страницу, с которой пришли; при прямом заходе
+       href ведёт на лендинг index.html. -->
   <a href="index.html" class="rt-back" onclick="if(document.referrer&&document.referrer.indexOf(location.origin)===0&&history.length>1){event.preventDefault();history.back();}">← к Ясне</a>
 
-  <!-- ═══ Hero ═══ -->
-  <div class="rt-eyebrow">✦ Рейтинг</div>
-  <h1 class="rt-h1">Две шкалы прогресса</h1>
-  <p class="rt-lead">
-    В Ясне твой путь измеряется по двум независимым шкалам.
-    <strong>Освоение</strong> — личный накопительный опыт, который не теряется.
-    <strong>Каста</strong> — соревновательный рейтинг в партиях против другого человека.
-    Каждая отвечает на свой вопрос: «как хорошо знаешь» и «как играешь».
-  </p>
+  <h1 class="rt-h1">Прогресс</h1>
+  <p class="rt-lead">Что набрано в партиях и уроках. Числа — с этого устройства.</p>
 
-  <!-- Честный статус: страница описывает ЦЕЛЕВУЮ систему. Не убираем её —
-       это спецификация для игроков, — но помечаем, что уже работает. -->
-  <div class="rt-moi" id="rt-moi" hidden>
-    <span class="rt-moi__b" id="rt-moi-busy">✦ 0</span>
-    <span class="rt-moi__sep">·</span>
-    <span id="rt-moi-part">партий: 0</span>
-    <span class="rt-moi__hint">твои числа на этом устройстве</span>
-  </div>
-
-  <!-- Экран и блок зовём их настоящими именами: вкладка называется «Игры»,
-       блок в ней — «Лидерборд». Прежние «Игра» и «Топ недели» человек искал и не находил. -->
-  <div class="rt-status-note">
-    <strong class="rt-status-note__lead">Сейчас работает:</strong> таблица лидеров по партиям —
-    блок <strong>«Лидерборд»</strong> на экране «Игры».
-    Шкал <strong>Освоения</strong> и <strong>Касты</strong>,
-    описанных ниже, в приложении пока нет: страница описывает их устройство.
-  </div>
-
-  <!-- ═══ Quick glossary — короткий словарь в самом начале ═══ -->
-  <div class="rt-glossary">
-    <div class="rt-gloss">
-      <div class="rt-gloss__name">✦ Бусина</div>
-      <div class="rt-gloss__desc">Награда за каждый верный ответ. Накапливается, никогда не пропадает.</div>
-    </div>
-    <div class="rt-gloss">
-      <div class="rt-gloss__name">Освоение</div>
-      <div class="rt-gloss__desc">Шкала бусин. Сколько ты прошёл по миру Ясны. Только растёт.</div>
-    </div>
-    <div class="rt-gloss">
-      <div class="rt-gloss__name">Каста</div>
-      <div class="rt-gloss__desc">Соревновательный ранг. Меняется только в партиях против человека.</div>
-    </div>
-    <div class="rt-gloss">
-      <div class="rt-gloss__name">Рейтинг</div>
-      <div class="rt-gloss__desc">Число, стоящее за кастой. Старт 1200; растёт от побед, падает от поражений.</div>
-    </div>
-    <div class="rt-gloss">
-      <div class="rt-gloss__name">Тень</div>
-      <div class="rt-gloss__desc">Соперник в одиночной партии — тренажёр, не живой человек.</div>
-    </div>
-    <div class="rt-gloss">
-      <div class="rt-gloss__name">Партия</div>
-      <div class="rt-gloss__desc">Одна сессия игры — несколько вопросов по выбранным темам.</div>
-    </div>
-  </div>
-
-  <!-- ═══ Hesse origin note ═══ -->
-  <div class="rt-hesse">
-    <div class="rt-hesse__title">Откуда названия</div>
-    <p class="rt-hesse__text">
-      Имена шкал и каст — отсылка к роману <strong>Германа Гессе «Игра в бисер»</strong>.
-      Касталия в романе — школа-орден, где знание из науки, музыки, математики, поэзии
-      сводится в единый язык. Игроки нанизывают <strong>бусины</strong> — каждая означает связь
-      между идеями. <strong>Магистр Игры</strong> (Magister Ludi) — глава ордена.
-    </p>
-  </div>
-
-  <!-- ═══ Track 1: Освоение ═══════════════════════════════════════ -->
-  <section class="rt-track rt-track--mastery">
-    <div class="rt-track-head">
-      <div class="rt-track-icon rt-track-icon--mastery" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2l2.4 6.8 7.1.4-5.5 4.6 1.9 6.9L12 17.3 6.1 20.7l1.9-6.9L2.5 9.2l7.1-.4z"/>
-        </svg>
-      </div>
-      <div class="rt-track-titles">
-        <div class="rt-track-eyebrow">Личный путь · ✦ Бусины</div>
-        <h2 class="rt-track-h2">Освоение</h2>
-      </div>
-    </div>
-
-    <p class="rt-track-lead">
-      Как хорошо ты знаешь Ясну и как часто играешь.
-      Растёт от каждой партии — одиночной (с Тенью) и против другого человека.
-      <strong>Никогда не падает.</strong> Это шкала «как хорошо ты знаком с миром Ясны».
-    </p>
-
-    <!-- Formula stat-cards -->
-    <div class="rt-formula" style="--accent: #A4D480; --accent-bg: rgba(89,168,64,.10); --accent-border: rgba(89,168,64,.25);">
-      <div class="rt-formula__card rt-formula__card--accent">
-        <div class="rt-formula__big">10 ✦</div>
-        <div class="rt-formula__label">за верный ответ</div>
-      </div>
-      <div class="rt-formula__card rt-formula__card--accent">
-        <div class="rt-formula__big">+5 ✦</div>
-        <div class="rt-formula__label">бонус за скорость</div>
-      </div>
-      <div class="rt-formula__card rt-formula__card--accent">
-        <div class="rt-formula__big">×2.0</div>
-        <div class="rt-formula__label">множитель при серии 7+</div>
-      </div>
-    </div>
-
-    <!-- Level progress bar -->
-    <div class="rt-levels-bar">
-      <div class="rt-levels-bar-title">Ступени · от Послушника до Магистра</div>
-      <div class="rt-levels-track">
-        <div class="rt-levels-track__seg" title="Послушник"></div>
-        <div class="rt-levels-track__seg" title="Студент"></div>
-        <div class="rt-levels-track__seg" title="Игрок"></div>
-        <div class="rt-levels-track__seg" title="Мастер"></div>
-        <div class="rt-levels-track__seg" title="Магистр"></div>
-      </div>
-      <div class="rt-levels-cards">
-        <div class="rt-level-card">
-          <div class="rt-level-card__dot"></div>
-          <div class="rt-level-card__name">Послушник</div>
-          <div class="rt-level-card__range">0 — 999 ✦</div>
-        </div>
-        <div class="rt-level-card">
-          <div class="rt-level-card__dot"></div>
-          <div class="rt-level-card__name">Студент</div>
-          <div class="rt-level-card__range">1k — 2.9k ✦</div>
-        </div>
-        <div class="rt-level-card">
-          <div class="rt-level-card__dot"></div>
-          <div class="rt-level-card__name">Игрок</div>
-          <div class="rt-level-card__range">3k — 9.9k ✦</div>
-        </div>
-        <div class="rt-level-card">
-          <div class="rt-level-card__dot"></div>
-          <div class="rt-level-card__name">Мастер</div>
-          <div class="rt-level-card__range">10k — 29.9k ✦</div>
-        </div>
-        <div class="rt-level-card">
-          <div class="rt-level-card__dot"></div>
-          <div class="rt-level-card__name">Магистр</div>
-          <div class="rt-level-card__range">30k+ ✦</div>
-        </div>
-      </div>
-    </div>
+  <section class="rt-stupen" aria-label="Ступень">
+    <div class="rt-stupen-imya" id="rt-stupen">Послушник I</div>
+    <div class="rt-polosa" aria-hidden="true"><div class="rt-polosa-fill" id="rt-polosa"></div></div>
+    <div class="rt-dalshe" id="rt-dalshe">Сыграй первую партию — пойдут бусины ✦</div>
   </section>
 
-  <!-- ═══ Track 2: Каста ═════════════════════════════════════════ -->
-  <section class="rt-track rt-track--caste">
-    <div class="rt-track-head">
-      <div class="rt-track-icon rt-track-icon--caste" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="8" cy="9" r="3"/>
-          <circle cx="17" cy="10" r="2.5"/>
-          <path d="M2 20c0-3.314 2.686-6 6-6s6 2.686 6 6"/>
-          <path d="M14 20c.4-2.4 2.4-4.2 4.8-4.2s4.4 1.8 4.8 4.2"/>
-        </svg>
-      </div>
-      <div class="rt-track-titles">
-        <div class="rt-track-eyebrow">Соревновательный рейтинг</div>
-        <h2 class="rt-track-h2">Каста <span class="rt-soon-chip">в приложении пока нет</span></h2>
-      </div>
-    </div>
+  <div class="rt-chisla">
+    <div class="rt-chislo"><div class="rt-chislo-n" id="rt-busy">✦ 0</div><div class="rt-chislo-p">бусин</div></div>
+    <div class="rt-chislo"><div class="rt-chislo-n" id="rt-part">0</div><div class="rt-chislo-p" id="rt-part-p">партий</div></div>
+    <div class="rt-chislo"><div class="rt-chislo-n" id="rt-urok">0</div><div class="rt-chislo-p" id="rt-urok-p">уроков</div></div>
+  </div>
 
-    <p class="rt-track-lead">
-      Твоё место среди живых игроков. Меняется <strong>только</strong> в партиях против другого
-      человека — с Тенью эта шкала не растёт. Может расти и падать. Старт — <strong>1200 пунктов</strong>.
-    </p>
+  <a class="rt-knopka" href="duel.html">Сыграть партию</a>
 
-    <!-- Formula -->
-    <div class="rt-formula" style="--accent: #6BA9FF; --accent-bg: rgba(0,119,255,.10); --accent-border: rgba(0,119,255,.25);">
-      <div class="rt-formula__card rt-formula__card--accent">
-        <div class="rt-formula__big">1200</div>
-        <div class="rt-formula__label">старт</div>
-      </div>
-      <div class="rt-formula__card rt-formula__card--accent">
-        <div class="rt-formula__big">±6…26</div>
-        <div class="rt-formula__label">изменение за партию</div>
-      </div>
-      <div class="rt-formula__card rt-formula__card--accent">
-        <div class="rt-formula__big">800</div>
-        <div class="rt-formula__label">пол — ниже не упасть</div>
-      </div>
-    </div>
+  <details class="rt-kak">
+    <summary>Как это устроено</summary>
 
-    <!-- How rating changes — single unified table with column headers -->
-    <h3 style="font-family:'Manrope',serif; font-size:22px; font-weight:600; letter-spacing:-0.012em; margin: 8px 0 12px; color:#fff;">
-      Как меняется рейтинг
-    </h3>
-    <p class="rt-section-text" style="margin-bottom: 22px;">
-      Размер изменения зависит от разрыва в рейтинге между тобой и соперником.
-      Обыграть заметно более сильного — большой плюс. Проиграть заметно более слабому — болезненный минус.
-      Внутри одного «пояса» (около 100 пунктов разницы) изменение почти одинаковое.
-    </p>
+    <h2>Бусины ✦</h2>
+    <p>Одна бусина — за верный ответ в партии: 10 за верный, ещё 5 за быстрый.
+       Бусины складываются за всё время и не убывают.</p>
 
-    <div class="rt-compare" style="margin-top: 0;">
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 44%;">Соперник относительно тебя</th>
-            <th style="width: 28%;">Ты победил</th>
-            <th style="width: 28%;">Ты проиграл</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Заметно сильнее <span style="color:#8e8e93; font-size:13px; font-weight:400;">— на 200+ пунктов выше</span></td>
-            <td><span class="rt-delta-card__delta rt-delta-card__delta--win">+22…26</span></td>
-            <td><span class="rt-delta-card__delta rt-delta-card__delta--lose">−6…10</span></td>
-          </tr>
-          <tr>
-            <td>Примерно равный <span style="color:#8e8e93; font-size:13px; font-weight:400;">— разница ±100</span></td>
-            <td><span class="rt-delta-card__delta rt-delta-card__delta--win">+12…20</span></td>
-            <td><span class="rt-delta-card__delta rt-delta-card__delta--lose">−12…20</span></td>
-          </tr>
-          <tr>
-            <td>Заметно слабее <span style="color:#8e8e93; font-size:13px; font-weight:400;">— на 200+ пунктов ниже</span></td>
-            <td><span class="rt-delta-card__delta rt-delta-card__delta--win">+6…10</span></td>
-            <td><span class="rt-delta-card__delta rt-delta-card__delta--lose">−22…26</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <h2>Ступени</h2>
+    <p>Ступень считается по бусинам. Внутри ступени десять делений — это
+       римская цифра рядом с именем.</p>
+    <ul class="rt-lestnica">
+      <li><span>Послушник</span><span>до 1 000 ✦</span></li>
+      <li><span>Студент</span><span>от 1 000 ✦</span></li>
+      <li><span>Игрок</span><span>от 3 000 ✦</span></li>
+      <li><span>Мастер</span><span>от 10 000 ✦</span></li>
+      <li><span>Магистр</span><span>от 30 000 ✦</span></li>
+    </ul>
 
-    <div class="rt-range-notes">
-      <div style="background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); border-radius: 12px; padding: 14px 18px;">
-        <div style="font-size: 12px; font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase; color: #8e8e93; margin-bottom: 6px;">Откуда диапазон</div>
-        <div style="font-size: 14.5px; color: #d2d2d7; line-height: 1.55;">
-          Внутри пояса разрыв тоже разный: 80 пунктов — это меньше, чем 200, но всё ещё «равный».
-          Чем точнее ты сильнее или слабее — тем ближе ты к верхней или нижней границе диапазона.
-        </div>
-      </div>
-      <div style="background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); border-radius: 12px; padding: 14px 18px;">
-        <div style="font-size: 12px; font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase; color: #8e8e93; margin-bottom: 6px;">Где границы</div>
-        <div style="font-size: 14.5px; color: #d2d2d7; line-height: 1.55;">
-          1199 vs 1200 — равный. 1100 vs 1200 — тоже почти равный. 1000 vs 1200 — уже заметно слабее.
-          Никаких резких ступенек: чем ближе по рейтингу, тем меньше асимметрия.
-        </div>
-      </div>
-    </div>
+    <h2>Рейтинг недели</h2>
+    <!-- Дорогу называем дверями, а не заголовками экранов: заголовок экрана
+         Партии ставит сборщик витрины (app/sobrat-vitrinu.mjs), и пока он
+         там прежний — «Игры». Имя двери на «Практике» верно в обоих случаях. -->
+    <p>Кто набрал больше бусин с понедельника. Обнуляется в субботу в 23:59.
+       Смотреть — в «Практике», за дверью «Партия».</p>
 
-    <!-- Caste levels bar -->
-    <div class="rt-levels-bar">
-      <div class="rt-levels-bar-title">Касты · от Странника до Великого Магистра</div>
-      <div class="rt-levels-track">
-        <div class="rt-levels-track__seg" title="Странник"></div>
-        <div class="rt-levels-track__seg" title="Знаток"></div>
-        <div class="rt-levels-track__seg" title="Игрок"></div>
-        <div class="rt-levels-track__seg" title="Магистр Игры"></div>
-        <div class="rt-levels-track__seg" title="Великий Магистр"></div>
-      </div>
-      <div class="rt-levels-cards">
-        <div class="rt-level-card">
-          <div class="rt-level-card__dot"></div>
-          <div class="rt-level-card__name">Странник</div>
-          <div class="rt-level-card__range">< 1100</div>
-        </div>
-        <div class="rt-level-card">
-          <div class="rt-level-card__dot"></div>
-          <div class="rt-level-card__name">Знаток</div>
-          <div class="rt-level-card__range">1100—1399</div>
-        </div>
-        <div class="rt-level-card">
-          <div class="rt-level-card__dot"></div>
-          <div class="rt-level-card__name">Игрок</div>
-          <div class="rt-level-card__range">1400—1699</div>
-        </div>
-        <div class="rt-level-card">
-          <div class="rt-level-card__dot"></div>
-          <div class="rt-level-card__name">Магистр Игры</div>
-          <div class="rt-level-card__range">1700—1999</div>
-        </div>
-        <div class="rt-level-card">
-          <div class="rt-level-card__dot"></div>
-          <div class="rt-level-card__name">Великий Магистр</div>
-          <div class="rt-level-card__range">2000+</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ What changes when ═══ -->
-  <section class="rt-section">
-    <h2 class="rt-section-title">Что меняется после партии</h2>
-    <p class="rt-section-text">
-      Простая логика: <strong>бусины</strong> ты получаешь за каждый верный ответ, в любой партии.
-      <strong>Рейтинг касты</strong> двигается только в партиях против другого человека.
-      С Тенью каста никогда не меняется — это твой личный тренажёр.
-    </p>
-    <div class="rt-compare">
-      <table>
-        <thead>
-          <tr>
-            <th>Партия</th>
-            <th>Освоение</th>
-            <th>Каста</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Одиночная (с Тенью)</td>
-            <td><span class="rt-tag rt-tag--mastery">+ бусины</span></td>
-            <td><span class="rt-tag rt-tag--neutral">— не меняется</span></td>
-          </tr>
-          <tr>
-            <td>С другим человеком · победа</td>
-            <td><span class="rt-tag rt-tag--mastery">+ бусины</span></td>
-            <td><span class="rt-tag rt-tag--caste">+ рейтинг</span></td>
-          </tr>
-          <tr>
-            <td>С другим человеком · поражение</td>
-            <td><span class="rt-tag rt-tag--mastery">+ бусины за верные</span></td>
-            <td><span class="rt-tag rt-tag--caste">− рейтинг</span></td>
-          </tr>
-          <tr>
-            <td>Сдался досрочно</td>
-            <td><span class="rt-tag rt-tag--mastery">+ бусины за пройденное</span></td>
-            <td><span class="rt-tag rt-tag--caste">− рейтинг (штраф)</span></td>
-          </tr>
-          <tr>
-            <td>Прервалась связь</td>
-            <td><span class="rt-tag rt-tag--neutral">— не меняется</span></td>
-            <td><span class="rt-tag rt-tag--neutral">— не меняется</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-
-  <!-- ═══ FAQ ═══ -->
-  <section class="rt-section">
-    <h2 class="rt-section-title">Часто спрашивают</h2>
-    <div class="rt-faq">
-      <details>
-        <summary>Можно ли потерять бусины?</summary>
-        <p>Нет. Бусины — это память о пройденном пути. Они только накапливаются. Поражения, сдача и истёкшее время не уменьшают бусины.</p>
-      </details>
-      <details>
-        <summary>Почему мой рейтинг упал? Я ведь правильно отвечал!</summary>
-        <p>В партиях против человека важно не только насколько ты прав, но и кто соперник. Если ты проиграл явно более сильному — потеря небольшая. Если соперник был слабее — больше. Это симметрично работает и в плюс: побеждать сильного приносит больше, чем побеждать слабого. Бусины при этом продолжают начисляться за каждый твой верный ответ.</p>
-      </details>
-      <details>
-        <summary>Нужно ли играть с другими людьми?</summary>
-        <p>Не обязательно. Если хочешь только изучать Ясну — играй с Тенью, копи бусины, расти по ступеням Освоения. Партии против живого соперника добавляют соревновательный слой для тех, кому интересно меряться силой с другими.</p>
-      </details>
-      <details>
-        <summary>Что если я долго не играл — упадёт ли каста?</summary>
-        <p>Нет. Рейтинг не «выветривается». Ты возвращаешься на той же касте, на которой ушёл.</p>
-      </details>
-      <details>
-        <summary>Можно ли стать Великим Магистром только играя с Тенью?</summary>
-        <p>Нет — Великий Магистр это высшая каста, она требует побед над живыми игроками. Но ты можешь стать <strong style="color:#fff">Магистром</strong> по линии Освоения, играя только с Тенью — это путь знания, а не состязания.</p>
-      </details>
-      <details>
-        <summary>Я сильный по Освоению (Магистр), но слабый по Касте (Странник). Это нормально?</summary>
-        <p>Да, это нормально и даже типично. Ты много знаешь, но мало играл против людей. Бусины — про знание; рейтинг — про практику соревнования. Это разные навыки.</p>
-      </details>
-    </div>
-  </section>
+    <div class="rt-net">В приложении пока нет: отдельного счёта за партии с
+      живыми людьми — побед, поражений и рейтинга по ним. Счёт один на все
+      партии, и он в бусинах.</div>
+  </details>
 
 </div>
 <script>
-/* Твои числа — те же ключи localStorage, что читает главная приложения. */
+/* Свои числа — из тех же ключей, что читают экран Партии и «Практика»:
+   yasna_duel_data (бусины и партии) и yasna_completed_lessons_v1 (уроки).
+   Лестница ступеней повторяет STUPENI из games/duel/duel-page.js — это
+   единственное место, где она задублирована, и пороги обязаны совпадать:
+   0 · 1000 · 3000 · 10000 · 30000. */
 (function () {
+  var СТУПЕНИ = [
+    { имя: 'Послушник', род: 'Послушника', от: 0,     до: 1000 },
+    { имя: 'Студент',   род: 'Студента',   от: 1000,  до: 3000 },
+    { имя: 'Игрок',     род: 'Игрока',     от: 3000,  до: 10000 },
+    { имя: 'Мастер',    род: 'Мастера',    от: 10000, до: 30000 },
+    { имя: 'Магистр',   род: 'Магистра',   от: 30000, до: Infinity }
+  ];
+  var РИМ = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+
+  function склон(n, один, два, много) {
+    var д = n % 10, с = n % 100;
+    if (д === 1 && с !== 11) return один;
+    if (д >= 2 && д <= 4 && (с < 12 || с > 14)) return два;
+    return много;
+  }
+  function число(id, знач) {
+    var у = document.getElementById(id);
+    if (у) у.textContent = знач;
+  }
+
   try {
     var д = JSON.parse(localStorage.getItem('yasna_duel_data') || 'null');
-    var блок = document.getElementById('rt-moi');
-    if (!блок) return;
     var бусин = (д && +д.totalScore) || 0;
     var партий = (д && д.totals && +д.totals.played) || 0;
-    document.getElementById('rt-moi-busy').textContent = '✦ ' + бусин;
-    document.getElementById('rt-moi-part').textContent = 'партий: ' + партий;
-    блок.hidden = false;
+    var уроки = JSON.parse(localStorage.getItem('yasna_completed_lessons_v1') || '[]');
+    var уроков = Array.isArray(уроки) ? уроки.length : 0;
+
+    var i = 0;
+    while (i < СТУПЕНИ.length - 1 && бусин >= СТУПЕНИ[i].до) i++;
+    var с = СТУПЕНИ[i];
+    var внутри = бусин - с.от;
+    var всего = с.до - с.от;
+    var деление = (с.до === Infinity) ? 1 : Math.min(9, Math.floor(внутри / всего * 10)) + 1;
+
+    число('rt-stupen', с.имя + ' ' + РИМ[деление]);
+    число('rt-busy', '✦ ' + бусин);
+    число('rt-part', партий);
+    число('rt-part-p', склон(партий, 'партия', 'партии', 'партий'));
+    число('rt-urok', уроков);
+    число('rt-urok-p', склон(уроков, 'урок', 'урока', 'уроков'));
+
+    var полоса = document.getElementById('rt-polosa');
+    if (полоса && с.до !== Infinity && внутри > 0) {
+      полоса.style.width = Math.min(100, внутри / всего * 100) + '%';
+    } else if (полоса && с.до === Infinity) {
+      полоса.style.width = '100%';
+    }
+
+    if (бусин > 0 || партий > 0) {
+      число('rt-dalshe', с.до === Infinity
+        ? 'Высшая ступень'
+        : 'Ещё ' + (с.до - бусин) + ' ✦ до ' + СТУПЕНИ[i + 1].род);
+    }
   } catch (e) {}
 })();
 </script>
-<!-- Возврат на «Рейтинг» не должен начинаться с верха. Экран длинный (две
-     шкалы, две таблицы и полтора десятка раскрывающихся вопросов), а уходят
-     с него в Игры и обратно постоянно: в приложении переключение вкладки —
-     это новый документ, и прокрутка с раскрытыми вопросами умирала вместе со
-     старым. Скрипт стоит ПОСЛЕ содержимого: к этому мигу высота документа
-     уже настоящая, и возврат происходит до первой отрисовки — без прыжка. -->
 <script src="core/pamyat-ekrana.js?v=7f2eb113"></script>
 <script>window.ЯснаПамять && ЯснаПамять.помнить('rating');</script>
 </body>
