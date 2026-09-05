@@ -22,31 +22,22 @@
 <title>Лента управлений · Ясна</title>
 
 <!-- ═══════════════════════════════════════════════════════════════════════
-     «ЛЕНТА УПРАВЛЕНИЙ» — записи из открытых каналов управлений центра.
+     «ЛЕНТА УПРАВЛЕНИЙ» — вся лента с чипами управлений.
 
-     ЗАЧЕМ. Всё, что в приложении менялось само, — цитата дня и прогресс.
-     Анонсы натурных уроков, разборы затмений, съезд — жили в двадцати
-     адресах на чужих площадках. Здесь они в одном месте, в хронологии,
-     с именем управления и ссылкой в источник.
+     Главный вход в ленту — раздел «Лента новостей» на «Сегодня»
+     (app/glavnaya.html); сюда ведут дверь из Библиотеки («Вся лента»), чип
+     «Записи в ленте» на карточке управления и пункт «Только «Управление»» в
+     меню записи. Экран — тонкая обёртка над core/lenta.js: чипы управлений
+     (только те, у кого есть записи) и YasnaLenta.встроить() с фильтром.
 
-     ОТКУДА ДАННЫЕ. Сервер (GET /lenta) отдаёт уже собранные записи; экран
-     к площадкам не ходит и ничего с чужих серверов не грузит: картинки —
-     копии из своего хранилища, адреса приходят в ответе и ставятся из
-     данных. Карточку, кэш и время даёт core/lenta.js — один рендерер на
-     ленту и на строку «Сегодня».
-
-     КАК ЖИВЁТ. Первый кадр — из кэша, до запроса. Пачки по 20 по сторожу
-     (IntersectionObserver, root: null — в приложении прокручивается сам
-     документ). В DOM держим три пачки, дальние сворачиваются в блок
-     измеренной высоты. «Есть новое» — пилюлей после тихого /lenta?n=0.
-     Без сети — сохранённое и честная полоса; без кэша — честная пустота.
-
-     ЧЕГО ЗДЕСЬ НЕТ. Просмотров, лайков, процентов и чужого HTML: весь текст
-     ставится через textContent. Никаких «скоро».
+     Разбор владельца 05.09.2026: чипов типов записей нет (угадывали тип
+     неверно), бесконечной прокрутки нет — «Показать ещё» по 20 записей.
+     Числа, слова и состояния — в модуле; здесь только чипы и адрес.
      ═══════════════════════════════════════════════════════════════════════ -->
 
 <link rel="stylesheet" href="core/tokeny.css">
 <link rel="stylesheet" href="vendor/fonts/shrifty.css">
+<link rel="stylesheet" href="core/lenta.css">
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -55,201 +46,16 @@ body{background:var(--surface);color:var(--on-surface);padding-bottom:24px;
   font-family:var(--ya-font-text,system-ui,sans-serif);-webkit-font-smoothing:antialiased}
 [hidden]{display:none !important}
 button{font:inherit;color:inherit}
-
-/* ── Шапка страницы. В приложении заголовок даёт оболочка (html.yk-shapka-est),
+/* Шапка страницы. В приложении заголовок даёт оболочка (html.yk-shapka-est),
    своя шапка тогда прячется — иначе «Лента управлений» стояла бы дважды. */
 .ln-shapka{padding:20px 16px 4px}
 .ln-shapka h1{font:var(--type-headline-l)}
 .ln-shapka p{margin-top:6px;font:var(--type-body-m);color:var(--on-surface-variant)}
 html.yk-shapka-est .ln-shapka{display:none}
-
-/* ── Прилипшие чипы: управления и виды. Цель нажатия ≥48 — ::before. */
-.ln-lipko{position:sticky;top:var(--yk-shapka,0px);z-index:10;background:var(--surface);padding:6px 0 0}
-.chipy{display:flex;gap:8px;padding:6px 16px 8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.chipy::-webkit-scrollbar{display:none}
-.chip{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 12px 0 6px;border-radius:18px;border:0;
-  background:var(--surface-container);color:var(--on-surface);font:var(--type-label-l);cursor:pointer;position:relative;white-space:nowrap}
-.chip.bez{padding-left:12px}
-.chip::before{content:"";position:absolute;inset:-6px 0}
-.chip[aria-pressed="true"]{background:var(--secondary-container);color:var(--on-secondary-container)}
-.chip .mdisk{width:26px;height:26px;border-radius:50%;background:#fff;border:1px solid var(--outline-variant);display:flex;align-items:center;justify-content:center;
-  font:var(--type-label-s);color:#101418;overflow:hidden}
-.chip .mdisk img{width:19px;height:19px;object-fit:contain;display:block}
-.chip.molchit{opacity:.75}
-.chip .tiho{font:var(--type-label-s);color:var(--on-surface-variant)}
-.chip[aria-pressed="true"] .tiho{color:inherit;opacity:.8}
-.chipy.tipy{padding-top:0;padding-bottom:8px;border-bottom:1px solid var(--outline-variant)}
-.chipy.tipy .chip{min-height:32px;font:var(--type-label-m);padding:0 12px;background:transparent;border:1px solid var(--outline-variant);color:var(--on-surface-variant)}
-.chipy.tipy .chip[aria-pressed="true"]{background:var(--secondary-container);color:var(--on-secondary-container);border-color:transparent}
-.chipy.tipy .chip svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.chipy.tipy .chip::before{inset:-8px 0}
-
-/* ── Полоса состояния: без сети / сервер не отвечает. */
-.polosa{margin:10px 16px 0;padding:10px 12px;border-radius:var(--shape-m);background:var(--surface-container);display:flex;gap:10px;align-items:flex-start;font:var(--type-body-s);color:var(--on-surface)}
-.polosa svg{flex:0 0 18px;width:18px;height:18px;stroke:var(--on-surface-variant);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;margin-top:1px}
-.polosa > div{flex:1;min-width:0}
-.polosa b{font:var(--type-label-m);display:block;margin-bottom:2px}
-.polosa button{flex:0 0 auto;font:var(--type-label-m);color:var(--primary);background:none;border:0;padding:0 6px;min-height:36px;min-width:48px;cursor:pointer}
-.polosa.oshibka{background:var(--error-container);color:var(--on-error-container)}
-.polosa.oshibka svg{stroke:var(--on-error-container)}
-.polosa.oshibka button{color:var(--on-error-container);text-decoration:underline}
-
-/* ── Пилюля «есть новое»: слой поверх ленты, не прокручивается с ней. */
-.pilulya{position:fixed;left:50%;transform:translateX(-50%);z-index:118;height:40px;padding:0 16px 0 12px;border-radius:20px;
-  background:var(--primary);color:var(--on-primary);font:var(--type-label-l);display:inline-flex;align-items:center;gap:6px;box-shadow:var(--elev-3);border:0;cursor:pointer;white-space:nowrap}
-.pilulya svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-
-/* ── Лента и метки месяцев. */
+/* Прилипшие чипы управлений. */
+.ln-lipko{position:sticky;top:var(--yk-shapka,0px);z-index:10;background:var(--surface);padding:6px 0 0;border-bottom:1px solid var(--outline-variant)}
+.ln-lipko[hidden]{display:none !important}
 .ln-telo{padding:0 0 8px}
-.lenta{list-style:none;padding:10px 16px 0;display:flex;flex-direction:column;gap:10px}
-.ln-pachka{display:flex;flex-direction:column;gap:10px}
-.ln-pachka[aria-hidden="true"]{overflow:hidden}
-.mesyac{font:var(--type-label-m);letter-spacing:var(--track-label);text-transform:uppercase;color:var(--on-surface-variant);
-  display:flex;align-items:center;gap:10px;margin:8px 2px 0}
-.mesyac::after{content:"";flex:1;height:1px;background:var(--outline-variant)}
-.zametka{padding:10px 12px;border-radius:var(--shape-m);background:var(--surface-container);font:var(--type-body-s);color:var(--on-surface-variant);display:flex;gap:10px;align-items:flex-start}
-.zametka svg{flex:0 0 18px;width:18px;height:18px;stroke:var(--primary);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;margin-top:1px}
-
-/* ── Карточка (core/lenta.js строит DOM, здесь её вид). */
-.k{background:var(--surface-container-low);border:1px solid var(--outline-variant);border-radius:var(--shape-l);overflow:hidden;
-  content-visibility:auto;contain-intrinsic-size:auto 200px}
-.k-telo{display:block;color:inherit;text-decoration:none;padding:12px 14px 4px}
-.k-telo:active{background:var(--surface-container-high)}
-.k-shapka{display:flex;gap:10px;align-items:center;min-height:36px}
-.disk{flex:0 0 36px;width:36px;height:36px;border-radius:50%;background:#fff;border:1px solid var(--outline-variant);
-  box-shadow:0 1px 2px rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center;font:var(--type-label-l);color:#101418;overflow:hidden}
-.disk img{width:26px;height:26px;object-fit:contain;display:block}
-.k-kto{min-width:0;flex:1}
-.k-upr{font:var(--type-title-s);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* Мета-строка переносится, а не режется: имя канала — указание источника, его
-   не обрезают ни при каком кегле (системный масштаб ×1.3 умножает шрифт, а
-   ширина та же). Не влезло — время уходит на вторую строку. Точка между
-   источником и временем живёт в зазоре слева от времени: на одной строке она
-   в зазоре, на второй — за левым краем, и overflow:hidden её срезает, чтобы
-   строка начиналась со слова, а не с точки. */
-.k-meta{font:var(--type-label-s);color:var(--on-surface-variant);display:flex;flex-wrap:wrap;align-items:center;column-gap:14px;row-gap:0;min-width:0;overflow:hidden}
-.k-meta svg{flex:0 0 14px;width:14px;height:14px;stroke:var(--primary);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.k-meta .pl{display:inline-flex;align-items:center;gap:5px;min-width:0;max-width:100%}
-.k-meta .pl > span{min-width:0;overflow-wrap:anywhere}
-.k-meta time{flex:0 0 auto;position:relative;font-variant-numeric:tabular-nums}
-.k-meta time::before{content:"·";position:absolute;left:-14px;top:0;width:14px;text-align:center}
-.k-vedet{font:var(--type-label-s);color:var(--on-surface-variant);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.k-soderzh{display:flex;gap:12px;margin-top:10px;align-items:flex-start}
-.k-tekst{flex:1;min-width:0}
-.k-zag{font:var(--type-title-m);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
-.k-vyd{font:var(--type-body-m);color:var(--on-surface-variant);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;white-space:pre-line}
-.k-zag + .k-vyd{margin-top:4px;font:var(--type-body-s)}
-.k-tekst > .k-vyd:first-child{-webkit-line-clamp:4}
-.k-mini{flex:0 0 96px;width:96px;height:96px;border-radius:var(--shape-m);border:1px solid var(--outline-variant);overflow:hidden;position:relative;background:var(--surface-container-high)}
-.k-mini img{width:100%;height:100%;object-fit:cover;display:block}
-.k-mini .n{position:absolute;left:6px;top:6px;padding:1px 6px;border-radius:6px;background:rgba(16,20,24,.62);color:#fff;font:var(--type-label-s)}
-.k-video{display:flex;gap:10px;align-items:center;margin-top:10px;padding:6px;border-radius:var(--shape-m);background:var(--surface-container)}
-.kadr{flex:0 0 96px;width:96px;height:54px;border-radius:8px;overflow:hidden;position:relative;background:var(--surface-container-high)}
-.kadr.bez{display:flex;align-items:center;justify-content:center}
-.kadr .igrat{width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center}
-.kadr .igrat svg{width:14px;height:14px;fill:#fff;stroke:none;margin-left:2px}
-.k-video b{display:block;font:var(--type-label-m);color:var(--on-surface)}
-.k-video small{display:block;font:var(--type-label-s);color:var(--on-surface-variant);margin-top:2px}
-.k-plashka{display:flex;gap:10px;align-items:center;margin-top:10px;padding:10px 12px;border-radius:var(--shape-m);background:var(--surface-container);font:var(--type-body-s);color:var(--on-surface-variant)}
-.k-plashka svg{flex:0 0 20px;width:20px;height:20px;stroke:var(--primary);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.k-ssylka{display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:0 10px;height:28px;border-radius:14px;background:var(--surface-container);font:var(--type-label-s);color:var(--on-surface-variant);max-width:100%}
-.k-ssylka svg{flex:0 0 13px;width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.k-foto{display:none;margin:6px 14px 4px;border-radius:var(--shape-m);overflow:hidden;border:1px solid var(--outline-variant);background:var(--surface-container-high)}
-.k-foto img{width:100%;max-height:320px;object-fit:cover;display:block}
-.k[data-foto="open"] .k-foto{display:block}
-.k-niz{display:flex;align-items:center;gap:2px;padding:2px 4px 4px 14px;min-height:44px}
-.k-otkryt{display:inline-flex;align-items:center;gap:5px;font:var(--type-label-m);color:var(--primary);text-decoration:none;min-height:40px;padding-right:6px;flex:0 1 auto;min-width:0}
-.k-otkryt svg{flex:0 0 14px;width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.k-chip{margin-left:auto;display:inline-flex;align-items:center;gap:5px;height:32px;padding:0 10px;border-radius:16px;background:var(--surface-container);color:var(--on-surface-variant);font:var(--type-label-s);border:0;cursor:pointer;text-decoration:none;white-space:nowrap;position:relative}
-.k-chip::before{content:"";position:absolute;inset:-8px 0}
-.k-chip svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.k-chip.tiho{cursor:default}
-.k-chip[aria-expanded="true"]{background:var(--secondary-container);color:var(--on-secondary-container)}
-.k-chip + .k-share{margin-left:2px}
-.k-share,.k-esche{flex:0 0 40px;width:40px;height:40px;border-radius:50%;border:0;background:none;color:var(--on-surface-variant);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer}
-.k-share{margin-left:auto}
-.k-chip ~ .k-share{margin-left:2px}
-.k-share::before,.k-esche::before{content:"";position:absolute;inset:-4px}
-.k-share svg,.k-esche svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.k-esche svg{stroke-width:2.6}
-.k-share:active,.k-esche:active,.k-chip:active{background:var(--surface-container-high)}
-
-/* ── Скелет: первое открытие и «Загружаю ещё…». */
-.skelet{list-style:none;padding:10px 16px 0;display:flex;flex-direction:column;gap:10px}
-.sk{background:var(--surface-container-low);border:1px solid var(--outline-variant);border-radius:var(--shape-l);padding:12px 14px 14px}
-.sk-r{display:flex;gap:10px;align-items:center}
-.sk i{display:block;background:var(--surface-container-high);border-radius:6px;height:12px}
-.sk .d{width:36px;height:36px;border-radius:50%;flex:0 0 36px}
-.sk .s1{width:120px;height:14px;margin-bottom:6px}.sk .s2{width:180px;height:10px;max-width:50vw}
-.sk .t{margin-top:12px;height:14px;width:88%}.sk .t2{width:70%}.sk .t3{width:60%;height:11px;margin-top:8px}
-.sk-podpis{display:flex;align-items:center;justify-content:center;gap:10px;font:var(--type-label-m);color:var(--on-surface-variant);padding:6px 0 4px}
-.kolco{width:20px;height:20px;border-radius:50%;border:2.5px solid var(--outline-variant);border-top-color:var(--primary)}
-.storozh{height:1px}
-
-/* ── Пусто, без сети, хвост, концовка. */
-.pusto{margin:24px 16px 0;padding:22px 16px;text-align:center;border-radius:var(--shape-l);background:var(--surface-container-low);border:1px solid var(--outline-variant)}
-.pusto svg{width:40px;height:40px;stroke:var(--on-surface-variant);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-.pusto b{display:block;font:var(--type-title-s);margin-top:6px}
-.pusto p{margin:6px 0 0;font:var(--type-body-s);color:var(--on-surface-variant);text-wrap:pretty}
-.pusto button{margin-top:12px;min-height:44px;padding:0 16px;border-radius:22px;border:1px solid var(--outline);background:none;color:var(--primary);font:var(--type-label-l);cursor:pointer}
-.hvost{margin:14px 16px 8px;text-align:center;font:var(--type-body-s);color:var(--on-surface-variant);text-wrap:pretty}
-.hvost button{display:block;margin:8px auto 0;min-height:40px;padding:0 14px;border-radius:20px;border:1px solid var(--outline);background:none;color:var(--primary);font:var(--type-label-l);cursor:pointer}
-.konec{margin:18px 16px 0;padding:18px 16px 16px;text-align:center;border-radius:var(--shape-l);background:var(--surface-container-low);border:1px solid var(--outline-variant)}
-.konec svg.luchi{width:36px;height:36px;stroke:var(--tertiary);stroke-width:1.8;stroke-linecap:round;fill:none;margin-bottom:6px}
-.konec b{display:block;font:var(--type-title-s)}
-.konec p{margin:6px 0 0;font:var(--type-body-s);color:var(--on-surface-variant);text-wrap:pretty}
-.konec a.dver{display:inline-flex;align-items:center;gap:4px;margin-top:10px;min-height:40px;padding:0 14px;border-radius:20px;border:1px solid var(--outline);color:var(--primary);font:var(--type-label-l);text-decoration:none}
-.konec .prava{margin-top:12px;padding-top:12px;border-top:1px solid var(--outline-variant);font:var(--type-label-s);color:var(--on-surface-variant);line-height:1.45}
-.o-sebe{margin:14px 16px 8px;font:var(--type-label-s);color:var(--on-surface-variant);text-align:center;line-height:1.45}
-
-/* ── Лист долгого нажатия и форма жалобы. Поверх наббара оболочки. */
-.scrim{position:fixed;inset:0;z-index:140;background:var(--scrim,rgba(0,0,0,.32))}
-.list{position:fixed;left:0;right:0;bottom:0;z-index:141;background:var(--surface-container-low);color:var(--on-surface);border-radius:var(--shape-xl) var(--shape-xl) 0 0;
-  padding:8px 8px calc(20px + var(--yk-snizu,0px));box-shadow:0 -6px 24px rgba(0,0,0,.18);max-height:88vh;overflow-y:auto}
-.list-ruchka{width:32px;height:4px;border-radius:2px;background:var(--outline-variant);margin:4px auto 10px}
-.list-zag{padding:0 12px 4px;font:var(--type-title-s);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.list-o{padding:0 12px 8px;font:var(--type-label-s);color:var(--on-surface-variant)}
-.list-p{display:flex;align-items:center;gap:14px;width:100%;min-height:52px;padding:0 12px;border:0;border-radius:12px;background:transparent;color:var(--on-surface);font:var(--type-body-m);text-align:left;text-decoration:none;cursor:pointer}
-.list-p:active{background:var(--surface-container-high)}
-.list-p svg{flex:0 0 auto;width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;color:var(--primary)}
-.list-p.zhaloba{color:var(--error)}
-.list-p.zhaloba svg{color:var(--error)}
-.zh-forma{padding:0 12px}
-.zh-forma fieldset{border:0;margin-top:6px}
-.zh-forma legend{font:var(--type-label-m);color:var(--on-surface-variant);margin-bottom:4px}
-.zh-forma label.pr{display:flex;align-items:center;gap:12px;min-height:48px;font:var(--type-body-m);cursor:pointer}
-.zh-forma label.pr input{width:20px;height:20px;accent-color:var(--primary);flex:0 0 auto}
-.zh-forma label.pole{display:block;margin-top:10px;font:var(--type-label-m);color:var(--on-surface-variant)}
-.zh-forma textarea,.zh-forma input[type="text"]{display:block;width:100%;margin-top:4px;padding:10px 12px;border-radius:var(--shape-s);border:1px solid var(--outline);background:var(--surface-container-lowest);color:var(--on-surface);font:var(--type-body-m)}
-.zh-forma textarea{min-height:72px;resize:vertical}
-.zh-knopki{display:flex;gap:8px;margin-top:14px}
-.zh-kn{flex:1;min-height:44px;border-radius:22px;border:1px solid var(--outline);background:none;color:var(--primary);font:var(--type-label-l);cursor:pointer}
-.zh-kn.glav{background:var(--primary);color:var(--on-primary);border-color:transparent}
-.zh-kn[disabled]{opacity:.6;cursor:default}
-.zh-itog{padding:6px 12px 0;font:var(--type-body-s);color:var(--on-surface-variant);text-wrap:pretty}
-.zh-itog.beda{color:var(--error)}
-.snek{position:fixed;left:16px;right:16px;bottom:calc(var(--yk-nav,0px) + 16px);z-index:142;padding:12px 16px;border-radius:var(--shape-s);background:var(--inverse-surface);color:var(--inverse-on-surface);font:var(--type-body-s);box-shadow:var(--elev-3);text-align:center}
-
-/* ── Фокус и цели. */
-.chip:focus-visible,.k-telo:focus-visible,.k-otkryt:focus-visible,.k-chip:focus-visible,.k-share:focus-visible,.k-esche:focus-visible,
-.list-p:focus-visible,.pilulya:focus-visible,.polosa button:focus-visible,.pusto button:focus-visible,.hvost button:focus-visible,
-.konec a:focus-visible,.zh-kn:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
-
-/* ── Движение: подъём только первой пачки; скелет дышит; лист снизу. */
-@media (prefers-reduced-motion: no-preference){
-  .sk{animation:ln-dyh 1.1s ease-in-out infinite alternate}
-  @keyframes ln-dyh{from{opacity:.55}to{opacity:1}}
-  .kolco{animation:ln-vr 1s linear infinite}
-  @keyframes ln-vr{to{transform:rotate(360deg)}}
-  .ln-pachka--pervaya .k{opacity:0;transform:translateY(8px);animation:ln-pod .34s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--n,0) * 45ms)}
-  @keyframes ln-pod{to{opacity:1;transform:none}}
-  .pilulya{animation:ln-pil var(--dur-medium,300ms) var(--ease-emphasized-decel,cubic-bezier(.05,.7,.1,1)) both}
-  @keyframes ln-pil{from{opacity:0;transform:translate(-50%,-8px)}to{opacity:1;transform:translate(-50%,0)}}
-  .list{animation:ln-snizu var(--dur-long,400ms) var(--ease-emphasized-decel,cubic-bezier(.05,.7,.1,1)) both}
-  @keyframes ln-snizu{from{transform:translateY(100%)}to{transform:none}}
-  .snek{animation:ln-snek var(--dur-medium,300ms) var(--ease-emphasized-decel,cubic-bezier(.05,.7,.1,1)) both}
-  @keyframes ln-snek{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-}
 </style>
 </head>
 <body>
@@ -258,61 +64,13 @@ html.yk-shapka-est .ln-shapka{display:none}
   <p>Записи из открытых каналов управлений центра.</p>
 </header>
 
-<div class="ln-lipko" id="ln-lipko">
-  <div class="chipy upr" id="chipy-upr" role="group" aria-label="Управления"></div>
-  <div class="chipy tipy" id="chipy-tip" role="group" aria-label="Вид записей"></div>
+<div class="ln-lipko" id="ln-lipko" hidden>
+  <div class="chipy" id="chipy-upr" role="group" aria-label="Управления"></div>
 </div>
 
 <main class="ln-telo">
-  <div class="polosa" id="polosa" hidden role="status">
-    <svg id="polosa-znak-set" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 8.5a15 15 0 0 1 20 0M5.5 12a10 10 0 0 1 13 0M9 15.5a5 5 0 0 1 6 0M12 19h.01M3 3l18 18"/></svg>
-    <svg id="polosa-znak-beda" viewBox="0 0 24 24" aria-hidden="true" hidden><path d="M12 8v5M12 16h.01M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z"/></svg>
-    <div><b id="polosa-zag"></b><span id="polosa-tekst"></span></div>
-    <button type="button" id="polosa-kn">Обновить</button>
-  </div>
-
-  <div class="lenta" id="lenta" role="feed" aria-busy="false" aria-label="Записи управлений"></div>
-  <div class="storozh" id="storozh" aria-hidden="true"></div>
-  <ul class="skelet" id="skelet" hidden aria-hidden="true"></ul>
-
-  <div class="polosa oshibka" id="dogruzka" hidden role="alert">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5M12 16h.01M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z"/></svg>
-    <div><b>Дальше не загрузилось</b><span id="dogruzka-tekst"></span></div>
-    <button type="button" id="dogruzka-kn">Повторить</button>
-  </div>
-
-  <div class="pusto" id="pusto" hidden>
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5h16v11H4zM8 10.5h8M8 13.5h5"/></svg>
-    <b id="pusto-zag">По этому выбору записей нет</b>
-    <p id="pusto-chto"></p>
-    <button type="button" id="pusto-vse">Показать все</button>
-  </div>
-
-  <div class="pusto" id="bez-seti" hidden>
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 8.5a15 15 0 0 1 20 0M5.5 12a10 10 0 0 1 13 0M9 15.5a5 5 0 0 1 6 0M12 19h.01M3 3l18 18"/></svg>
-    <b id="bez-seti-zag">Нет сети, а сохранённых записей ещё нет</b>
-    <p id="bez-seti-tekst"></p>
-    <button type="button" id="bez-seti-kn">Повторить</button>
-  </div>
-
-  <div class="hvost" id="hvost" hidden><span id="hvost-tekst"></span><button type="button" id="hvost-kn">Повторить</button></div>
-
-  <div class="konec" id="konec" hidden>
-    <svg class="luchi" viewBox="0 0 24 24" aria-hidden="true"><g id="luch"><path d="M12 3v3.5"/></g><use href="#luch" transform="rotate(30 12 12)"/><use href="#luch" transform="rotate(60 12 12)"/><use href="#luch" transform="rotate(90 12 12)"/><use href="#luch" transform="rotate(120 12 12)"/><use href="#luch" transform="rotate(150 12 12)"/><use href="#luch" transform="rotate(180 12 12)"/><use href="#luch" transform="rotate(210 12 12)"/><use href="#luch" transform="rotate(240 12 12)"/><use href="#luch" transform="rotate(270 12 12)"/><use href="#luch" transform="rotate(300 12 12)"/><use href="#luch" transform="rotate(330 12 12)"/><circle cx="12" cy="12" r="2.2"/></svg>
-    <b>Это все записи</b>
-    <p id="konec-schet"></p>
-    <p id="konec-otkuda"></p>
-    <p id="konec-bez" hidden></p>
-    <a class="dver" href="upravleniya.html">Каналы управлений <span aria-hidden="true">›</span></a>
-    <p class="prava">Если вы изображены на фото или запись нарушает ваши права — нажмите и удерживайте запись, выберите «Пожаловаться на запись». Такие записи убирают в течение трёх дней.</p>
-  </div>
-  <p class="o-sebe" id="o-sebe" hidden></p>
+  <div id="lenta-koren"></div>
 </main>
-
-<button class="pilulya" id="pilulya" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg><span id="pilulya-tekst"></span></button>
-<div class="scrim" id="scrim" hidden></div>
-<div class="list" id="list" hidden role="dialog" aria-modal="true" aria-label="Действия с записью" tabindex="-1"></div>
-<div class="snek" id="snek" hidden role="status"></div>
 
 <script src="core/svyaz.js"></script>
 <script src="core/upravleniya-dannye.js"></script>
@@ -320,45 +78,23 @@ html.yk-shapka-est .ln-shapka{display:none}
 <script>
 (function(){
   'use strict';
-  var Л = window.YasnaLenta, С = window.YasnaSvyaz;
+  var Л = window.YasnaLenta;
   if(!Л) return;
-  var эл = Л.эл, свг = Л.свг, ЗНАК = Л.ЗНАК, при = Л.при;
-  var ПАЧКА = Л.ПАЧКА || 20;
-  var ОКНО_ПАЧЕК = 3;                 /* больше пачек в DOM не держим */
-  var МОЛЧИТ_МС = 56 * 86400000;      /* 8 недель без записей — «молчит» */
-  var У_ВЕРХА = 80;                   /* px: человек у начала ленты */
+  var эл = Л.эл;
   var КЛЮЧ_ФИЛЬТРА = 'yasna_lenta_filtr_v1';
-  var ВИДЫ = [['', 'Все виды', null], ['tekst', 'Текст', ЗНАК.текст], ['foto', 'Фото', ЗНАК.фото],
-              ['video', 'Видео', ЗНАК.видео], ['statya', 'Статьи', ЗНАК.статья]];
-  var ИМЯ_ВИДА = { tekst: 'текст', foto: 'фото', video: 'видео', statya: 'статьи' };
   var $ = function(id){ return document.getElementById(id); };
-  var лента = $('lenta'), сторож = $('storozh'), скелетУл = $('skelet');
 
-  /* ── Параметры адреса и фильтр. Три источника по старшинству:
-     1) адрес — ссылка со страницы управления обязана открыть именно его;
-     2) вход со стороны (есть ?otkuda= и это не возврат по истории) — чистый
-        лист: дверь «3 новые записи» на «Сегодня» обещает общую ленту, а не
-        прошлый выбор «Только Астроневод», и ссылка из Библиотеки — тоже;
-     3) память сессии — только для возвратов внутрь ленты (назад со страницы
-        управления: оболочка идёт history.back(), адрес тот же, но тип
-        навигации back_forward). Память — до закрытия приложения. */
+  /* ── Фильтр управления. Старшинство: адрес (ссылка с карточки управления
+     обязана открыть его) → память сессии при возврате внутрь ленты → пусто. */
   var П = new URLSearchParams(location.search);
   var ОТКУДА = /^(segodnya|biblioteka|upravleniya|lenta)$/.test(П.get('otkuda') || '') ? П.get('otkuda') : '';
-  var СО_СТОРОНЫ = П.has('otkuda') && !возврат();
-  var ФИЛЬТР = { упр: '', тип: '' };
+  var УПР = '';
   (function(){
-    if(!СО_СТОРОНЫ) try {
-      var с = JSON.parse(sessionStorage.getItem(КЛЮЧ_ФИЛЬТРА) || 'null');
-      if(с && typeof с === 'object'){ ФИЛЬТР.упр = String(с.упр || ''); ФИЛЬТР.тип = String(с.тип || ''); }
-    } catch(e){}
-    var у = П.get('upravlenie'), т = П.get('tip');
-    if(у != null) ФИЛЬТР.упр = /^[a-z0-9-]{1,40}$/.test(у) ? у : '';
-    if(т != null) ФИЛЬТР.тип = видЕсть(т) ? т : '';
-    if(!видЕсть(ФИЛЬТР.тип)) ФИЛЬТР.тип = '';
-    if(!/^[a-z0-9-]{0,40}$/.test(ФИЛЬТР.упр)) ФИЛЬТР.упр = '';
-    if(СО_СТОРОНЫ) запомнитьФильтр();   /* прошлый выбор забыт, а не отложен */
+    var у = П.get('upravlenie');
+    if(у != null){ УПР = /^[a-z0-9-]{1,40}$/.test(у) ? у : ''; return; }
+    if(П.has('otkuda') && !возврат()) return;
+    try { var с = JSON.parse(sessionStorage.getItem(КЛЮЧ_ФИЛЬТРА) || 'null'); if(с && /^[a-z0-9-]{1,40}$/.test(String(с.упр || ''))) УПР = String(с.упр); } catch(e){}
   })();
-  /* Возврат по истории (назад со страницы управления) против входа по ссылке. */
   function возврат(){
     try {
       var н = performance.getEntriesByType ? performance.getEntriesByType('navigation')[0] : null;
@@ -366,552 +102,53 @@ html.yk-shapka-est .ln-shapka{display:none}
       return !!(performance.navigation && performance.navigation.type === 2);
     } catch(e){ return false; }
   }
-  function видЕсть(т){ return ВИДЫ.some(function(в){ return в[0] === т; }); }
-  function запомнитьФильтр(){ try { sessionStorage.setItem(КЛЮЧ_ФИЛЬТРА, JSON.stringify(ФИЛЬТР)); } catch(e){} }
-  function безФильтра(){ return !ФИЛЬТР.упр && !ФИЛЬТР.тип; }
+  function запомнить(){ try { sessionStorage.setItem(КЛЮЧ_ФИЛЬТРА, JSON.stringify({ упр: УПР })); } catch(e){} }
 
-  /* ── Состояние ленты. */
-  var Т = {
-    записи: [], пачки: [], dalshe: null, конец: false, гружу: false, ждуСервер: false,
-    изКэша: false, кэш: null, управления: [], последняя: {}, первичные: {}, вторичные: {},
-    sobrano_at: null, ожидает: null, n: 0, предМес: null, заход: 0
-  };
-
-  /* ── Отбор. Сервер уже отфильтровал; здесь та же функция для кэша и одно
-     правило сверх: видеотека Rutube — только под чипом «Видео», в общей
-     хронологии перезаливкам старых уроков не место. */
-  function вид(з){ var в = Л.видЗаписи(з); return в === 'bez' ? 'tekst' : в; }
-  function видим(з){
-    if(ФИЛЬТР.упр){
-      var у = Array.isArray(з.upravleniya) && з.upravleniya.length ? з.upravleniya : [з.upravlenie];
-      if(у.indexOf(ФИЛЬТР.упр) < 0) return false;
-    }
-    if(ФИЛЬТР.тип && вид(з) !== ФИЛЬТР.тип) return false;
-    if(з.istochnik === 'rutube' && ФИЛЬТР.тип !== 'video') return false;
-    return true;
-  }
-  /* Даты последних записей — только из ответов без фильтра вида: под чипом
-     «Видео» самая свежая запись канала — не самая свежая его запись, и
-     «молчит» по ней было бы ложью. Кто первичный владелец канала, а кто
-     совладелец, — узнаём из любого ответа. */
-  function учестьДаты(записи, безВида){
-    записи.forEach(function(з){
-      var все = (Array.isArray(з.upravleniya) ? з.upravleniya : []).concat(з.upravlenie ? [з.upravlenie] : []);
-      все.forEach(function(id){
-        if(!id) return;
-        if(безВида && (!Т.последняя[id] || з.data > Т.последняя[id])) Т.последняя[id] = з.data;
-        if(id === з.upravlenie) Т.первичные[id] = true; else Т.вторичные[id] = true;
-      });
+  /* ── Чипы: «Все» и только управления с записями (сервер их называет),
+     в порядке центра (по nomer). Центр и совладельцы чужого канала (Граника у
+     канала Ясна-Школы) чипа не получают — иначе чужой канал выдавался бы за
+     их ленту. */
+  var сЗаписями = [];
+  function порядок(id){ var у = Л.управление(id); var д = (window.YasnaUpravleniya && window.YasnaUpravleniya.upravleniya) || []; for(var i=0;i<д.length;i++) if(д[i].id === id) return д[i].nomer || 99; return 99; }
+  function чипы(){
+    var к = $('chipy-upr'), список = сЗаписями.filter(function(id){ return id && id !== 'centr'; });
+    if(УПР && список.indexOf(УПР) < 0) список.push(УПР);
+    список.sort(function(a, b){ return порядок(a) - порядок(b); });
+    while(к.firstChild) к.removeChild(к.firstChild);
+    if(!список.length){ $('ln-lipko').hidden = true; return; }
+    [''].concat(список).forEach(function(id){
+      var упр = id ? Л.управление(id) : null;
+      var б = эл('button', { class: 'chip' + (id ? '' : ' bez'), type: 'button', 'aria-pressed': String(УПР === id), 'data-upr': id },
+        [ упр ? Л.диск(упр, 'mdisk') : null, упр ? упр.имя : 'Все' ]);
+      б.addEventListener('click', function(){ выбрать(id); });
+      к.appendChild(б);
     });
+    $('ln-lipko').hidden = false;
+    var активный = к.querySelector('[aria-pressed="true"]');
+    if(активный && активный.scrollIntoView){ try { активный.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch(e){} }
   }
-  function молчит(id){ return !!Т.последняя[id] && (Date.now() - Date.parse(Т.последняя[id])) > МОЛЧИТ_МС; }
-  function уВерха(){ return (window.pageYOffset || document.documentElement.scrollTop || 0) < У_ВЕРХА; }
-
-  /* ── Чипы управлений: только те, у кого есть записи (сервер), по свежести;
-     молчащие — в хвост с пометкой. Управление, которое встречается лишь как
-     совладелец чужого канала (Граника у канала Ясна-Школы), чипа не получает —
-     иначе чужой канал выдавался бы за его ленту. Центр — не управление. */
-  function идЧипов(){
-    var есть = {};
-    Т.управления.forEach(function(id){ if(id) есть[id] = true; });
-    Object.keys(Т.последняя).forEach(function(id){ есть[id] = true; });
-    var список = Object.keys(есть).filter(function(id){
-      if(id === 'centr') return false;
-      if(id === ФИЛЬТР.упр) return true;
-      if(Т.вторичные[id] && !Т.первичные[id]) return false;
-      return true;
-    });
-    if(ФИЛЬТР.упр && список.indexOf(ФИЛЬТР.упр) < 0) список.push(ФИЛЬТР.упр);
-    var ранг = function(id){ return молчит(id) ? 2 : (Т.последняя[id] ? 0 : 1); };
-    список.sort(function(a, b){
-      var р = ранг(a) - ранг(b); if(р) return р;
-      var д = String(Т.последняя[b] || '').localeCompare(String(Т.последняя[a] || '')); if(д) return д;
-      return Л.управление(a).имя.localeCompare(Л.управление(b).имя, 'ru');
-    });
-    return список;
-  }
-  function чипыУправлений(){
-    var у = $('chipy-upr');
-    while(у.firstChild) у.removeChild(у.firstChild);
-    var список = [''].concat(идЧипов());
-    список.forEach(function(id){
-      var упр = id ? Л.управление(id) : null, м = id && молчит(id);
-      var б = эл('button', { class: 'chip' + (id ? '' : ' bez') + (м ? ' molchit' : ''), type: 'button',
-        'aria-pressed': String(ФИЛЬТР.упр === id), 'data-upr': id,
-        title: м ? 'Канал молчит с ' + Л.полнаяДата(Т.последняя[id], true) : null },
-        [ упр ? Л.диск(упр, 'mdisk') : null, упр ? упр.имя : 'Все', м ? эл('span', { class: 'tiho', text: '· молчит' }) : null ]);
-      б.addEventListener('click', function(){ выбратьУпр(id); });
-      у.appendChild(б);
-    });
-    var активный = у.querySelector('[aria-pressed="true"]');
-    if(активный && активный.scrollIntoView) { try { активный.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch(e){} }
-  }
-  function чипыВидов(){
-    var т = $('chipy-tip');
-    while(т.firstChild) т.removeChild(т.firstChild);
-    ВИДЫ.forEach(function(в){
-      var б = эл('button', { class: 'chip', type: 'button', 'aria-pressed': String(ФИЛЬТР.тип === в[0]), 'data-tip': в[0] },
-        [ в[2] ? свг(в[2]) : null, в[1] ]);
-      б.addEventListener('click', function(){ выбратьВид(в[0]); });
-      т.appendChild(б);
-    });
-  }
-  function выбратьУпр(id){
-    if(ФИЛЬТР.упр === id) return;
-    ФИЛЬТР.упр = id; запомнитьФильтр();
-    [].forEach.call($('chipy-upr').children, function(c){ c.setAttribute('aria-pressed', String(c.getAttribute('data-upr') === id)); });
-    перерисовать(); наверх();
-  }
-  function выбратьВид(т){
-    if(ФИЛЬТР.тип === т) return;
-    ФИЛЬТР.тип = т; запомнитьФильтр();
-    [].forEach.call($('chipy-tip').children, function(c){ c.setAttribute('aria-pressed', String(c.getAttribute('data-tip') === т)); });
-    перерисовать(); наверх();
-  }
-  function наверх(){ try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch(e){ window.scrollTo(0, 0); } }
-
-  /* ── Пачки и окно DOM. Пачка — узел с карточками и метками месяцев.
-     Дальние (2,5 экрана и дальше) сворачиваются в пустой блок своей высоты и
-     разворачиваются из памяти: прокрутка не прыгает, а DOM не растёт. */
-  var наблюдательПачек = ('IntersectionObserver' in window) ? new IntersectionObserver(function(вх){
-    вх.forEach(function(e){
-      var п = null;
-      for(var i = 0; i < Т.пачки.length; i++) if(Т.пачки[i].узел === e.target){ п = Т.пачки[i]; break; }
-      if(!п) return;
-      if(e.isIntersecting) развернуть(п); else свернуть(п);
-    });
-  }, { root: null, rootMargin: '250% 0px' }) : null;
-  function свернуть(п){
-    if(п.свёрнута || Т.пачки.length <= ОКНО_ПАЧЕК) return;
-    п.высота = п.узел.offsetHeight;
-    if(!п.высота) return;
-    п.дети = [].slice.call(п.узел.childNodes);
-    while(п.узел.firstChild) п.узел.removeChild(п.узел.firstChild);
-    п.узел.style.height = п.высота + 'px';
-    п.узел.setAttribute('aria-hidden', 'true');
-    п.узел.classList.remove('ln-pachka--pervaya');   /* подъём один раз, не при каждом развороте */
-    п.свёрнута = true;
-  }
-  function развернуть(п){
-    if(!п.свёрнута) return;
-    п.дети.forEach(function(д){ п.узел.appendChild(д); });
-    п.дети = null;
-    п.узел.style.height = '';
-    п.узел.removeAttribute('aria-hidden');
-    п.свёрнута = false;
-  }
-  function добавитьПачку(записи, первая){
-    var узел = эл('div', { class: 'ln-pachka' + (первая ? ' ln-pachka--pervaya' : '') });
-    записи.forEach(function(з){
-      var м = Л.меткаМесяца(з.data);
-      if(м && м.текст && м.ключ !== Т.предМес) узел.appendChild(эл('div', { class: 'mesyac', role: 'heading', 'aria-level': '2', text: м.текст }));
-      if(м) Т.предМес = м.ключ;
-      узел.appendChild(Л.карточка(з, { n: первая ? Т.n++ : null }));
-    });
-    лента.appendChild(узел);
-    var п = { узел: узел, дети: null, высота: 0, свёрнута: false };
-    Т.пачки.push(п);
-    if(наблюдательПачек) наблюдательПачек.observe(узел);
-    return узел;
-  }
-  function очистить(){
-    Т.пачки.forEach(function(п){ if(наблюдательПачек) наблюдательПачек.unobserve(п.узел); });
-    while(лента.firstChild) лента.removeChild(лента.firstChild);
-    Т.пачки = []; Т.n = 0; Т.предМес = null; Т.конец = false; Т.гружу = false; Т.ожидает = null;
-    скрытьПилюлю();
-  }
-  function заметка(текст){
-    return эл('div', { class: 'zametka', role: 'note' }, [ свг('M12 8v5M12 16h.01M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z'), текст ]);
-  }
-  function заметки(записи){
-    var старые = лента.querySelectorAll('.zametka');
-    [].forEach.call(старые, function(з){ лента.removeChild(з); });
-    var первая = лента.firstChild;
-    if(ФИЛЬТР.упр && молчит(ФИЛЬТР.упр))
-      лента.insertBefore(заметка('Канал молчит с ' + Л.полнаяДата(Т.последняя[ФИЛЬТР.упр], true) + ' — ниже прежние записи.'), первая);
-    if(ФИЛЬТР.тип === 'video' && записи.some(function(з){ return з.istochnik === 'rutube'; }))
-      лента.insertBefore(заметка('Видео из архива на Rutube: в общую ленту они не попадают, даты — выкладки на Rutube.'), первая);
+  function выбрать(id){
+    if(УПР === id) return;
+    УПР = id || ''; запомнить();
+    [].forEach.call($('chipy-upr').children, function(c){ c.setAttribute('aria-pressed', String(c.getAttribute('data-upr') === УПР)); });
+    лента.фильтр(УПР || null);
+    try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch(e){ window.scrollTo(0, 0); }
   }
 
-  /* ── Блоки состояния. */
-  function скелет(сколько, подпись){
-    while(скелетУл.firstChild) скелетУл.removeChild(скелетУл.firstChild);
-    for(var i = 0; i < сколько; i++) скелетУл.appendChild(эл('li', { class: 'sk' }, [
-      эл('div', { class: 'sk-r' }, [ эл('i', { class: 'd' }), эл('div', {}, [ эл('i', { class: 's1' }), эл('i', { class: 's2' }) ]) ]),
-      эл('i', { class: 't' }), эл('i', { class: 't t2' }), эл('i', { class: 't3' }) ]));
-    if(подпись) скелетУл.appendChild(эл('li', { class: 'sk-podpis' }, [ эл('span', { class: 'kolco' }), подпись ]));
-    скелетУл.hidden = false;
-    лента.setAttribute('aria-busy', 'true');
-  }
-  function скрытьСкелет(){ скелетУл.hidden = true; лента.setAttribute('aria-busy', 'false'); }
-  function показатьПолосу(e){
-    var п = $('polosa'), сеть = e && e.причина === 'нет-сети';
-    п.classList.toggle('oshibka', !сеть);
-    $('polosa-znak-set').hidden = !сеть; $('polosa-znak-beda').hidden = сеть;
-    $('polosa-zag').textContent = сеть ? 'Без сети' : (e && e.причина === 'отказ' ? 'Сервер отказал' : 'Сервер не отвечает');
-    var когда = Т.кэш && Т.кэш.kogda ? Л.полнаяДата(Т.кэш.kogda) : '';
-    $('polosa-tekst').textContent = (когда ? 'Показываю сохранённое от ' + когда : 'Показываю сохранённое')
-      + (сеть ? '' : ' · ' + (С ? С.словами(e) : ''));
-    $('polosa-kn').textContent = сеть ? 'Обновить' : 'Повторить';
-    п.hidden = false;
-  }
-  function скрытьПолосу(){ $('polosa').hidden = true; }
-  function показатьХвост(){
-    $('hvost-tekst').textContent = 'Без сети видно только сохранённое — ' + Т.записи.length + ' ' + при(Т.записи.length, 'запись', 'записи', 'записей')
-      + ' из последнего захода; остальное подтянется, когда сеть вернётся.';
-    $('hvost').hidden = false;
-  }
-  function показатьБезСети(e){
-    var сеть = e && e.причина === 'нет-сети';
-    $('bez-seti-zag').textContent = сеть ? 'Нет сети, а сохранённых записей ещё нет' : 'Лента не открылась';
-    $('bez-seti-tekst').textContent = сеть ? 'Записи подтянутся, когда сеть вернётся.' : (С ? С.словами(e) : '');
-    $('bez-seti').hidden = false;
-  }
-  function показатьПусто(){
-    var что = [];
-    if(ФИЛЬТР.упр) что.push(Л.управление(ФИЛЬТР.упр).имя);
-    if(ФИЛЬТР.тип) что.push(ИМЯ_ВИДА[ФИЛЬТР.тип] || ФИЛЬТР.тип);
-    if(что.length){
-      $('pusto-zag').textContent = 'По этому выбору записей нет';
-      $('pusto-chto').textContent = что.join(' · ') + ' — канал мог не публиковать такого или закрыт для чтения без входа.';
-      $('pusto-vse').hidden = false;
-    } else {
-      $('pusto-zag').textContent = 'Записей пока нет';
-      $('pusto-chto').textContent = 'Лента наполняется из открытых каналов управлений; сейчас в ней пусто.';
-      $('pusto-vse').hidden = true;
-    }
-    $('pusto').hidden = false;
-  }
-  function спрятатьВсё(){
-    скрытьПолосу(); скрытьСкелет();
-    ['dogruzka', 'pusto', 'bez-seti', 'hvost', 'konec', 'o-sebe'].forEach(function(id){ $(id).hidden = true; });
-  }
-  var ЧИСЛОМ = ['', 'одного', 'двух', 'трёх', 'четырёх', 'пяти', 'шести', 'семи', 'восьми', 'девяти', 'десяти', 'одиннадцати', 'двенадцати'];
-  function концовка(){
-    var n = Т.записи.length;
-    if(!n){ $('konec').hidden = true; return; }
-    var старая = Т.записи[n - 1] ? Л.полнаяДата(Т.записи[n - 1].data, true) : '';
-    $('konec-schet').textContent = (безФильтра() ? 'В ленте ' : 'По этому выбору — ') + n + ' ' + при(n, 'запись', 'записи', 'записей')
-      + (старая ? ', самая старая — ' + старая : '') + '.';
-    /* Число и перечень управлений считаются из данных, не вшиты. */
-    var ид = идЧипов();
-    var имена = ид.map(function(id){ return Л.управление(id).имя + (молчит(id) ? ' (молчит)' : ''); });
-    $('konec-otkuda').textContent = имена.length
-      ? 'Лента собирается из каналов ' + (ЧИСЛОМ[имена.length] || имена.length) + ' ' + при(имена.length, 'управления', 'управлений', 'управлений') + ': ' + имена.join(', ') + '.'
-      : 'Лента собирается из открытых каналов управлений.';
-    var все = (window.YasnaUpravleniya && window.YasnaUpravleniya.upravleniya) || [];
-    var безЗаписей = все.filter(function(у){ return ид.indexOf(у.id) < 0 && Т.управления.indexOf(у.id) < 0; }).map(function(у){ return у.nazvanie; });
-    $('konec-bez').textContent = безЗаписей.length ? 'Записей в ленте пока нет у: ' + безЗаписей.join(', ') + '.' : '';
-    $('konec-bez').hidden = !безЗаписей.length;
-    $('konec').hidden = false;
-  }
-  function оСебе(){
-    var о = $('o-sebe');
-    if(!Т.sobrano_at){ о.hidden = true; return; }
-    о.textContent = 'Записи из открытых каналов управлений; обновлено ' + Л.время(Т.sobrano_at) + '.';
-    о.hidden = false;
-  }
-  function хвостЛенты(){
-    сторож.hidden = !Т.dalshe || Т.конец;
-    if(Т.конец && !Т.ждуСервер) концовка(); else $('konec').hidden = true;
-    оСебе();
-    проверитьСторожа();
-  }
-
-  /* ── Первый экран: кэш → запрос. */
-  function перерисовать(){
-    Т.заход++;
-    очистить(); спрятатьВсё();
-    Т.изКэша = false; Т.записи = []; Т.dalshe = null;
-    var к = Л.кэш(); Т.кэш = к;
-    if(к){
-      Т.управления = к.upravleniya_s_zapisyami.slice(); учестьДаты(к.zapisi, true);   /* кэш — общая лента, даты честные */
-      if(!Т.sobrano_at) Т.sobrano_at = к.sobrano_at;
-    }
-    var изК = к ? к.zapisi.filter(видим) : [];
-    if(изК.length){
-      Т.изКэша = true; Т.записи = изК;
-      Т.dalshe = безФильтра() ? к.dalshe : null;
-      добавитьПачку(изК, true); заметки(изК);
-      Т.ждуСервер = true; хвостЛенты();
-    } else {
-      скелет(3, '');
-    }
-    чипыУправлений();
-    первая();
-  }
-  function первая(){
-    Т.ждуСервер = true; $('konec').hidden = true;
-    var метка = Т.заход, откуда = ОТКУДА, общая = безФильтра(); ОТКУДА = '';
-    Л.страница({ n: ПАЧКА, upravlenie: ФИЛЬТР.упр || null, tip: ФИЛЬТР.тип || null, otkuda: откуда || null })
-      .then(function(о){
-        if(метка !== Т.заход){
-          /* Человек выбрал чип, пока шёл ответ. Вход со стороны всё же состоялся:
-             верх общей ленты считаем увиденным, иначе дверь «N новых» на
-             «Сегодня» висела бы с тем же числом до конца сессии. */
-          if(откуда && общая && о.zapisi.length) Л.увидел(о.zapisi[0].kursor);
-          return;
-        }
-        принятьПервую(о);
-      }, function(e){ if(метка !== Т.заход) return; сбойПервой(e); });
-  }
-  function принятьПервую(о){
-    Т.ждуСервер = false; скрытьСкелет(); скрытьПолосу();
-    $('hvost').hidden = true; $('bez-seti').hidden = true; $('pusto').hidden = true;
-    if(безФильтра()) Л.запомнить(о);
-    Т.управления = о.upravleniya_s_zapisyami.slice(); учестьДаты(о.zapisi, !ФИЛЬТР.тип);
-    Т.sobrano_at = о.sobrano_at || Т.sobrano_at;
-    var видимые = о.zapisi.filter(видим);
-    if(Т.изКэша){
-      var показано = Т.записи.map(function(з){ return з.id; }), свежие = видимые.map(function(з){ return з.id; });
-      if(показано.join('|') === свежие.join('|')){
-        Т.записи = видимые; Т.dalshe = о.dalshe; Т.изКэша = false;
-      } else if(уВерха()){
-        заменить(видимые, о.dalshe);
-      } else {
-        /* Человек уже читает: не дёргаем ленту, а предлагаем новое пилюлей. */
-        var верх = Т.записи[0], новых = видимые.filter(function(з){ return показано.indexOf(з.id) < 0 && верх && з.data > верх.data; }).length;
-        Т.ожидает = { записи: видимые, dalshe: о.dalshe };
-        if(новых > 0) пилюля(новых);
-        else if(показано.length && свежие.length && показано[показано.length - 1] === свежие[свежие.length - 1]) Т.dalshe = о.dalshe;
-      }
-    } else {
-      заменить(видимые, о.dalshe);
-    }
-    if(безФильтра() && о.zapisi.length && !Т.ожидает) Л.увидел(о.zapisi[0].kursor);
-    if(!Т.записи.length && !Т.dalshe) показатьПусто();
-    else if(!Т.записи.length && Т.dalshe) загрузитьЕщё();   /* первая страница целиком отфильтрована — идём дальше */
-    Т.конец = !Т.dalshe;
-    чипыУправлений(); заметки(Т.записи); хвостЛенты();
-    узнатьПоследние();
-  }
-  /* У управления есть записи (сервер сказал), но на первой странице их нет —
-     значит, оно давно молчит или пишет редко. Честная пометка «молчит»
-     требует даты, а не догадки: спрашиваем по одной последней записи. Таких
-     управлений единицы, ответ кэшируется шлюзом на две минуты. */
-  var спрошены = {};
-  function узнатьПоследние(){
-    var метка = Т.заход;
-    Т.управления.forEach(function(id){
-      if(!id || id === 'centr' || Т.последняя[id] || спрошены[id]) return;
-      if(Т.вторичные[id] && !Т.первичные[id]) return;
-      спрошены[id] = true;
-      Л.страница({ n: 1, upravlenie: id }).then(function(о){
-        if(!о.zapisi.length) return;
-        учестьДаты(о.zapisi, true);
-        if(метка !== Т.заход) return;
-        чипыУправлений();
-        if(Т.конец && !Т.ждуСервер) концовка();
-        if(ФИЛЬТР.упр === id) заметки(Т.записи);
-      }, function(){ спрошены[id] = false; });
-    });
-  }
-  function заменить(записи, dalshe){
-    очистить();
-    Т.записи = записи; Т.dalshe = dalshe; Т.изКэша = false;
-    if(записи.length) добавитьПачку(записи, true);
-  }
-  function сбойПервой(e){
-    Т.ждуСервер = false; скрытьСкелет();
-    if(Т.изКэша){ показатьПолосу(e); показатьХвост(); Т.конец = true; $('konec').hidden = true; сторож.hidden = true; }
-    else показатьБезСети(e);
-    оСебе();
-  }
-
-  /* ── Догрузка: сторож за 600 px до низа. */
-  function загрузитьЕщё(){
-    if(Т.гружу || Т.конец || !Т.dalshe || Т.ждуСервер) return;
-    Т.гружу = true; $('dogruzka').hidden = true;
-    скелет(2, 'Загружаю ещё…');
-    var метка = Т.заход, курсор = Т.dalshe;
-    Л.страница({ n: ПАЧКА, kursor: курсор, upravlenie: ФИЛЬТР.упр || null, tip: ФИЛЬТР.тип || null })
-      .then(function(о){
-        if(метка !== Т.заход) return;
-        Т.гружу = false; скрытьСкелет();
-        учестьДаты(о.zapisi, !ФИЛЬТР.тип);
-        var в = о.zapisi.filter(видим);
-        Т.записи = Т.записи.concat(в);
-        Т.dalshe = о.dalshe;
-        if(в.length) добавитьПачку(в, false);
-        if(!о.dalshe){ Т.конец = true; if(!Т.записи.length) показатьПусто(); }
-        чипыУправлений(); хвостЛенты();
-        if(о.dalshe && !в.length) загрузитьЕщё();
-      }, function(e){
-        if(метка !== Т.заход) return;
-        Т.гружу = false; скрытьСкелет();
-        $('dogruzka-tekst').textContent = С ? С.словами(e) : '';
-        $('dogruzka').hidden = false;
-      });
-  }
-  function проверитьСторожа(){
-    if(сторожСкрыт()) return;
-    requestAnimationFrame(function(){
-      var r = сторож.getBoundingClientRect();
-      if(r.top < window.innerHeight + 600) загрузитьЕщё();
-    });
-  }
-  function сторожСкрыт(){ return сторож.hidden || Т.конец || !Т.dalshe; }
-  if('IntersectionObserver' in window){
-    new IntersectionObserver(function(вх){ if(вх.some(function(e){ return e.isIntersecting; })) загрузитьЕщё(); },
-      { root: null, rootMargin: '600px 0px' }).observe(сторож);
-  } else {
-    window.addEventListener('scroll', function(){
-      var де = document.scrollingElement || document.documentElement;
-      if(де.scrollTop + window.innerHeight > де.scrollHeight - 600) загрузитьЕщё();
-    }, { passive: true });
-  }
-  $('dogruzka-kn').addEventListener('click', function(){ $('dogruzka').hidden = true; загрузитьЕщё(); });
-  $('polosa-kn').addEventListener('click', function(){ if(С && С.забыть) С.забыть(); перерисовать(); });
-  $('hvost-kn').addEventListener('click', function(){ if(С && С.забыть) С.забыть(); перерисовать(); });
-  $('bez-seti-kn').addEventListener('click', function(){ if(С && С.забыть) С.забыть(); перерисовать(); });
-  $('pusto-vse').addEventListener('click', function(){
-    ФИЛЬТР = { упр: '', тип: '' }; запомнитьФильтр();
-    чипыВидов(); перерисовать(); наверх();
+  /* ── Лента. Чипы перерисовываются по каждому первому ответу сервера
+     (в нём — управления с записями); «Только «Управление»» из меню записи
+     перехватываем здесь и переключаем чип, а не уходим на другой экран. */
+  var кэш = Л.кэш();
+  if(кэш && кэш.upravleniya_s_zapisyami){ сЗаписями = кэш.upravleniya_s_zapisyami.slice(); чипы(); }
+  var лента = Л.встроить($('lenta-koren'), { n: Л.ПАЧКА, upravlenie: УПР || null, otkuda: ОТКУДА || 'lenta' });
+  document.addEventListener('yasna:лента-ответ', function(e){
+    var о = e.detail && e.detail.ответ;
+    if(о && о.upravleniya_s_zapisyami && о.upravleniya_s_zapisyami.length){ сЗаписями = о.upravleniya_s_zapisyami.slice(); чипы(); }
   });
-
-  /* ── «Есть новое». У начала — новое просто встаёт сверху; ниже — пилюля. */
-  function пилюля(n){
-    var п = $('pilulya');
-    $('pilulya-tekst').textContent = n + ' ' + (n === 1 ? 'новая запись' : при(n, 'новая запись', 'новые записи', 'новых записей'));
-    п.style.top = Math.round($('ln-lipko').getBoundingClientRect().bottom + 8) + 'px';
-    п.hidden = false;
-  }
-  function скрытьПилюлю(){ $('pilulya').hidden = true; }
-  $('pilulya').addEventListener('click', function(){
-    скрытьПилюлю();
-    if(Т.ожидает){
-      var о = Т.ожидает; Т.ожидает = null;
-      заменить(о.записи, о.dalshe); Т.конец = !Т.dalshe;
-      if(безФильтра() && о.записи.length) Л.увидел(о.записи[0].kursor);
-      чипыУправлений(); заметки(Т.записи); хвостЛенты(); наверх();
-    } else { Л.забытьСвежее(); перерисовать(); наверх(); }
+  document.addEventListener('yasna:лента-фильтр', function(e){
+    e.preventDefault();
+    выбрать(e.detail && e.detail.upravlenie);
   });
-  function проверитьНовое(){
-    if(!безФильтра() || Т.ждуСервер || Т.гружу || document.hidden) return;
-    Л.свежее().then(function(о){
-      if(!о || !(о.novyh > 0)) return;
-      if(уВерха()){ Л.забытьСвежее(); перерисовать(); }
-      else пилюля(о.novyh);
-    });
-  }
-  window.addEventListener('online', проверитьНовое);
-  document.addEventListener('visibilitychange', function(){ if(!document.hidden) проверитьНовое(); });
-
-  /* ── Лист долгого нажатия. */
-  var листУзел = $('list'), scrim = $('scrim'), кудаВернуть = null;
-  function закрытьЛист(){
-    if(листУзел.hidden) return false;
-    листУзел.hidden = true; scrim.hidden = true;
-    while(листУзел.firstChild) листУзел.removeChild(листУзел.firstChild);
-    if(кудаВернуть && кудаВернуть.focus){ try { кудаВернуть.focus(); } catch(e){} }
-    кудаВернуть = null;
-    return true;
-  }
-  function открытьЛист(){ scrim.hidden = false; листУзел.hidden = false; try { листУзел.focus(); } catch(e){} }
-  scrim.addEventListener('click', закрытьЛист);
-  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') закрытьЛист(); });
-  /* Системная «назад» в приложении: открыт лист — закрывает его, а не экран. */
-  window.addEventListener('yasna:назад', function(e){ if(закрытьЛист()) e.preventDefault(); });
-
-  function пункт(знак, текст, чем, класс){
-    var э = чем === 'button'
-      ? эл('button', { class: 'list-p' + (класс ? ' ' + класс : ''), type: 'button' })
-      : эл('a', { class: 'list-p', href: чем, target: класс === 'svoj' ? null : '_blank', rel: класс === 'svoj' ? null : 'noopener' });
-    э.appendChild(свг(знак)); э.appendChild(эл('span', { text: текст }));
-    листУзел.appendChild(э);
-    return э;
-  }
-  function лист(з, узел){
-    кудаВернуть = узел.querySelector('.k-esche') || узел;
-    while(листУзел.firstChild) листУзел.removeChild(листУзел.firstChild);
-    var пл = Л.площадка(з), тз = Л.заголовокИВыдержка(з), упр = Л.управление(з.upravlenie);
-    var заг = тз.заг || тз.выд.slice(0, 70) || пл.имя;
-    листУзел.appendChild(эл('div', { class: 'list-ruchka', 'aria-hidden': 'true' }));
-    листУзел.appendChild(эл('div', { class: 'list-zag', text: заг }));
-    листУзел.appendChild(эл('div', { class: 'list-o', text: упр.имя + ' · ' + пл.имя + ' · ' + Л.подписьКанала(з) + ' · ' + Л.полнаяДата(з.data) }));
-    пункт(ЗНАК.наружу, пл.открыть, з.ssylka).addEventListener('click', function(){ setTimeout(закрытьЛист, 0); });
-    пункт(ЗНАК.дели, 'Поделиться', 'button').addEventListener('click', function(){
-      закрытьЛист();
-      Л.поделиться(з).then(function(как){ if(как === 'copy') сказать('Ссылка скопирована'); });
-    });
-    пункт(ЗНАК.копия, 'Скопировать ссылку', 'button').addEventListener('click', function(){
-      закрытьЛист();
-      Л.скопировать(з.ssylka).then(function(ок){ сказать(ок ? 'Ссылка скопирована' : 'Не удалось скопировать: ' + з.ssylka); });
-    });
-    if(упр.id && упр.id !== 'centr' && ФИЛЬТР.упр !== упр.id)
-      пункт(ЗНАК.канал, 'Только «' + упр.имя + '»', 'button').addEventListener('click', function(){ закрытьЛист(); выбратьУпр(упр.id); чипыУправлений(); });
-    пункт(ЗНАК.сайт, 'Страница управления', 'upravleniya.html' + (упр.id && упр.id !== 'centr' ? '#' + упр.id : ''), 'svoj');
-    пункт(ЗНАК.жалоба, 'Пожаловаться на запись', 'button', 'zhaloba').addEventListener('click', function(){ формаЖалобы(з); });
-    открытьЛист();
-  }
-  лента.addEventListener('yasna:лента-лист', function(e){ лист(e.detail.запись, e.detail.узел); });
-  лента.addEventListener('yasna:лента-поделился', function(e){ if(e.detail.как === 'copy') сказать('Ссылка скопирована'); });
-
-  /* ── Жалоба: причина, что не так, как связаться. Уходит в /lenta/zhaloba. */
-  function формаЖалобы(з){
-    while(листУзел.firstChild) листУзел.removeChild(листУзел.firstChild);
-    var тз = Л.заголовокИВыдержка(з);
-    листУзел.appendChild(эл('div', { class: 'list-ruchka', 'aria-hidden': 'true' }));
-    листУзел.appendChild(эл('div', { class: 'list-zag', text: 'Пожаловаться на запись' }));
-    листУзел.appendChild(эл('div', { class: 'list-o', text: тз.заг || тз.выд.slice(0, 70) || з.ssylka }));
-    var форма = эл('form', { class: 'zh-forma', novalidate: '' });
-    var набор = эл('fieldset', {}, [ эл('legend', { text: 'Причина' }) ]);
-    [['ya_na_foto', 'Я на фото'], ['prava', 'Нарушение прав'], ['reklama', 'Реклама'], ['drugoe', 'Другое']].forEach(function(п, i){
-      var вход = эл('input', { type: 'radio', name: 'prichina', value: п[0] });
-      if(i === 0) вход.checked = true;
-      набор.appendChild(эл('label', { class: 'pr' }, [ вход, п[1] ]));
-    });
-    форма.appendChild(набор);
-    var текст = эл('textarea', { name: 'tekst', maxlength: '1000', placeholder: 'Что именно не так' });
-    var контакт = эл('input', { type: 'text', name: 'kontakt', maxlength: '200', placeholder: 'Почта или телеграм, если нужен ответ', autocomplete: 'off' });
-    форма.appendChild(эл('label', { class: 'pole' }, [ 'Что не так (не обязательно)', текст ]));
-    форма.appendChild(эл('label', { class: 'pole' }, [ 'Как с вами связаться (не обязательно)', контакт ]));
-    var итог = эл('div', { class: 'zh-itog', role: 'status' });
-    var отправить = эл('button', { class: 'zh-kn glav', type: 'submit', text: 'Отправить' });
-    var отмена = эл('button', { class: 'zh-kn', type: 'button', text: 'Отмена' });
-    отмена.addEventListener('click', закрытьЛист);
-    форма.appendChild(эл('div', { class: 'zh-knopki' }, [ отмена, отправить ]));
-    форма.appendChild(итог);
-    форма.addEventListener('submit', function(e){
-      e.preventDefault();
-      var выбрано = форма.querySelector('input[name="prichina"]:checked');
-      отправить.disabled = true; отправить.textContent = 'Отправляю…'; итог.className = 'zh-itog'; итог.textContent = '';
-      Л.жалоба(з.id, выбрано ? выбрано.value : 'drugoe', текст.value.trim(), контакт.value.trim()).then(function(о){
-        while(листУзел.firstChild) листУзел.removeChild(листУзел.firstChild);
-        листУзел.appendChild(эл('div', { class: 'list-ruchka', 'aria-hidden': 'true' }));
-        листУзел.appendChild(эл('div', { class: 'list-zag', text: 'Спасибо, жалоба принята' }));
-        листУзел.appendChild(эл('div', { class: 'zh-itog', text: 'Запись посмотрят и при необходимости уберут в течение ' + срокСловами(о && о.srok) + '.' }));
-        var кн = эл('button', { class: 'zh-kn', type: 'button', text: 'Закрыть', style: 'margin:14px 12px 0;width:calc(100% - 24px)' });
-        кн.addEventListener('click', закрытьЛист);
-        листУзел.appendChild(кн);
-      }, function(e){
-        отправить.disabled = false; отправить.textContent = 'Отправить';
-        итог.className = 'zh-itog beda';
-        итог.textContent = (e && e.код === 429) ? 'Жалоб с этого устройства пока достаточно — попробуйте через час.' : (С ? С.словами(e) : 'Не получилось отправить.');
-      });
-    });
-    листУзел.appendChild(форма);
-    открытьЛист();
-    try { набор.querySelector('input').focus(); } catch(e){}
-  }
-
-  /* Срок из ответа сервера («3 дня») — в родительном падеже после «в течение». */
-  function срокСловами(srok){
-    var м = String(srok || '').match(/^(\d+)/), n = м ? Number(м[1]) : 3;
-    return ({ 1: 'одного дня', 2: 'двух дней', 3: 'трёх дней', 4: 'четырёх дней', 5: 'пяти дней', 7: 'недели' })[n] || (n + ' дней');
-  }
-
-  /* ── Короткое сообщение внизу. */
-  var снекТаймер = null;
-  function сказать(текст){
-    var с = $('snek'); с.textContent = текст; с.hidden = false;
-    if(снекТаймер) clearTimeout(снекТаймер);
-    снекТаймер = setTimeout(function(){ с.hidden = true; }, 2200);
-  }
-
-  /* ── Пошли. */
-  чипыВидов();
-  перерисовать();
 })();
 </script>
 </body>

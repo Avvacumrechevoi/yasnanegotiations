@@ -2,7 +2,8 @@
    ЛЕНТА УПРАВЛЕНИЙ — клиентский модуль. Экспорт: window.YasnaLenta.
 
    ЗАЧЕМ ОТДЕЛЬНЫЙ ФАЙЛ. Записи из открытых каналов управлений показывают два
-   экрана: сама лента (lenta.html) и строка-дверь на «Сегодня» («N новых»).
+   экрана: главный («Лента новостей», app/glavnaya.html) и вся лента с чипами
+   управлений (lenta.html) — обе через встроить().
    Одна карточка, один кэш, одно правило времени — иначе экраны разойдутся
    на первой же правке. Здесь нет ни разметки экрана, ни его состояний: только
    сеть, хранилище, карточка и время. Состояния — дело страницы.
@@ -353,29 +354,30 @@
     return ['foto', 'video', 'statya', 'ssylka', 'anons', 'tekst'].indexOf(т) >= 0 ? т : 'tekst';
   }
 
-  /* ─── Карточка ──────────────────────────────────────────────────────────
-     Строение: шапка (эмблема · управление · площадка · время) → заголовок →
-     выдержка (+ миниатюра справа) → медиа по типу → низ («Открыть в …»,
-     чип типа, «Поделиться», «Ещё»). Тело карточки — одна ссылка в источник;
-     кнопки вне ссылки. Долгое нажатие (450 мс) и кнопка «Ещё» шлют событие
-     yasna:лента-лист — лист действий рисует экран. */
+  /* ─── Карточка v2 ───────────────────────────────────────────────────────
+     Разбор владельца (05.09.2026): прежняя карточка называла площадку дважды
+     («Телеграм» в шапке и «Открыть в Телеграме» внизу), дублировала
+     «Поделиться» в нижней строке и в меню, несла чип типа, который угадывал
+     тип неверно. Теперь: шапка — эмблема · управление · «@канал · время ↗»
+     (имя канала — единственное и обязательное указание источника по
+     лицензии); заголовок и выдержка с миниатюрой справа; внизу два действия:
+     «Поделиться» и «⋯» (открыть в источнике, скопировать ссылку, только это
+     управление, страница управления, пожаловаться). Вся карточка — ссылка в
+     источник. Долгое нажатие открывает то же меню. */
   function карточка(з, о) {
     о = о || {};
     var пл = площадка(з), тз = заголовокИВыдержка(з), упр = управление(з.upravlenie);
     var вид = видЗаписи(з);
     var когда = время(з.data, о.сейчас);
     var коротко = тз.заг || тз.выд.slice(0, 80) || пл.имя;
-    var к = эл('article', { class: 'k k--' + вид, 'data-id': з.id, 'data-upr': упр.id, 'data-tip': вид,
-      'aria-label': упр.имя + ', ' + пл.имя + ' ' + подписьКанала(з, true) + ', ' + когда + ': ' + коротко });
+    var к = эл('article', { class: 'k k--' + вид, 'data-id': з.id, 'data-upr': упр.id,
+      'aria-label': упр.имя + ', ' + подписьКанала(з, true) + ', ' + когда + ': ' + коротко });
     if (о.n != null) к.style.setProperty('--n', String(о.n));
 
-    var т = эл('time', { datetime: з.data, title: полнаяДата(з.data), text: когда });
-    /* Два звена: «знак · площадка · @канал» и время. Точку между ними рисует
-       экран (::before у времени) — на второй строке она не нужна. Имя канала
-       не режется: при нехватке места время переносится, а не обрезает его. */
     var мета = эл('div', { class: 'k-meta' }, [
-      эл('span', { class: 'pl' }, [ свг(ЗНАК[пл.знак]), эл('span', { text: пл.имя + ' · ' + подписьКанала(з) }) ]),
-      т ]);
+      эл('span', { class: 'kanal', text: подписьКанала(з) }),
+      эл('time', { datetime: з.data, title: полнаяДата(з.data), text: когда }),
+      эл('span', { class: 'vyhod', 'aria-hidden': 'true' }, [ свг(ЗНАК.наружу) ]) ]);
     var шапка = эл('div', { class: 'k-shapka' }, [ диск(упр), эл('div', { class: 'k-kto' }, [
       эл('div', { class: 'k-upr', text: упр.имя }), мета,
       з.vedushchij ? эл('div', { class: 'k-vedet', text: 'ведёт ' + з.vedushchij }) : null ]) ]);
@@ -384,8 +386,7 @@
       тз.заг ? эл('h3', { class: 'k-zag', text: тз.заг }) : null,
       тз.выд ? эл('p', { class: 'k-vyd', text: тз.выд }) : null ]);
     var содерж = эл('div', { class: 'k-soderzh' }, [ текст ]);
-    var естьМини = !!з.kartinka && (вид === 'foto' || вид === 'ssylka' || вид === 'anons' || вид === 'tekst');
-    if (естьМини) {
+    if (з.kartinka && вид !== 'video') {
       var мини = эл('div', { class: 'k-mini' });
       var мИмг = эл('img', { src: з.kartinka, alt: '', loading: 'lazy', decoding: 'async' });
       /* Битой картинки не бывает: узел уходит вместе с картинкой. */
@@ -396,12 +397,12 @@
     }
     var телоДети = [ шапка, содерж ];
     if (вид === 'video') {
-      /* Кадра нет нарочно: условия площадки. Плашка — знак, длительность, имя. */
+      /* Кадра нет нарочно: условия площадок. Плашка — знак, длительность. */
       телоДети.push(эл('div', { class: 'k-video' }, [
         эл('div', { class: 'kadr bez' }, [ эл('span', { class: 'igrat' }, [ свг(ЗНАК.игра) ]) ]),
         эл('div', {}, [
           эл('b', { text: 'Видео' + (з.dlitelnost_s ? ' · ' + длительность(з.dlitelnost_s) : '') }),
-          эл('small', { text: з.istochnik === 'rutube' ? 'Rutube · архив видеотеки' : пл.имя + ' · видео' }) ]) ]));
+          эл('small', { text: пл.имя }) ]) ]));
     }
     if (вид === 'bez') телоДети.push(эл('div', { class: 'k-plashka' }, [ свг(ЗНАК.микро), 'Голосовое, кружок или стикер — открывается в Телеграме' ]));
     if (з.ssylka_v_zapisi) телоДети.push(эл('span', { class: 'k-ssylka' }, [ свг(ЗНАК.наружу), 'ссылка в записи: ' + хост(з.ssylka_v_zapisi) ]));
@@ -410,53 +411,140 @@
       'aria-label': пл.открыть + ': ' + коротко }, телоДети);
     к.appendChild(тело);
 
-    /* Чип типа. «Фото» раскрывает копию побольше внутри карточки — только
-       если сервер её дал (лицензия у канала); иначе чип ведёт в источник. */
-    var чип = null, фото = null;
-    var подписьФото = з.kartinok > 1 ? 'Фото · ' + з.kartinok : 'Фото';
-    if (вид === 'foto' && з.kartinka_polnaya) {
-      фото = эл('div', { class: 'k-foto' });
-      var фИмг = эл('img', { src: з.kartinka_polnaya, alt: '', loading: 'lazy', decoding: 'async' });
-      фИмг.addEventListener('error', function () {
-        if (фото.parentNode) фото.parentNode.removeChild(фото);
-        if (чип && чип.parentNode) чип.parentNode.removeChild(чип);
-        к.removeAttribute('data-foto');
-      });
-      фото.appendChild(фИмг);
-      чип = эл('button', { class: 'k-chip', type: 'button', 'aria-expanded': 'false' }, [ свг(ЗНАК.фото), эл('span', { text: подписьФото }) ]);
-      чип.addEventListener('click', function () {
-        var открыто = к.getAttribute('data-foto') === 'open';
-        if (открыто) к.removeAttribute('data-foto'); else к.setAttribute('data-foto', 'open');
-        чип.setAttribute('aria-expanded', открыто ? 'false' : 'true');
-        чип.lastChild.textContent = открыто ? подписьФото : 'Скрыть';
-      });
-    } else if (вид === 'foto') {
-      чип = эл('a', { class: 'k-chip', href: з.ssylka, target: '_blank', rel: 'noopener' }, [ свг(ЗНАК.фото), эл('span', { text: подписьФото }) ]);
-    } else if (вид === 'statya') чип = эл('span', { class: 'k-chip tiho' }, [ свг(ЗНАК.статья), эл('span', { text: 'Статья' }) ]);
-    else if (вид === 'anons') чип = эл('span', { class: 'k-chip tiho' }, [ свг(ЗНАК.запись), эл('span', { text: 'Анонс' }) ]);
-
-    var дели = эл('button', { class: 'k-share', type: 'button', 'aria-label': 'Поделиться ссылкой на запись' }, [ свг(ЗНАК.дели) ]);
+    var дели = эл('button', { class: 'k-share', type: 'button', 'aria-label': 'Поделиться ссылкой на запись', title: 'Поделиться' }, [ свг(ЗНАК.дели) ]);
     дели.addEventListener('click', function (e) {
       e.preventDefault();
-      поделиться(з).then(function (как) {
-        к.dispatchEvent(new CustomEvent('yasna:лента-поделился', { bubbles: true, detail: { запись: з, как: как } }));
-      });
+      поделиться(з).then(function (как) { if (как === 'copy') сказать('Ссылка скопирована'); });
     });
-    var ещё = эл('button', { class: 'k-esche', type: 'button', 'aria-label': 'Действия с записью' }, [ свг(ЗНАК.ещё) ]);
-    ещё.addEventListener('click', function (e) { e.preventDefault(); лист(к, з); });
-
-    var низ = эл('div', { class: 'k-niz' }, [
-      эл('a', { class: 'k-otkryt', href: з.ssylka, target: '_blank', rel: 'noopener' }, [ пл.открыть + ' ', свг(ЗНАК.наружу) ]),
-      чип, дели, ещё ]);
-    if (фото) к.appendChild(фото);
-    к.appendChild(низ);
+    var ещё = эл('button', { class: 'k-esche', type: 'button', 'aria-label': 'Действия с записью', 'aria-haspopup': 'dialog' }, [ свг(ЗНАК.ещё) ]);
+    ещё.addEventListener('click', function (e) { e.preventDefault(); лист(з, к); });
+    к.appendChild(эл('div', { class: 'k-niz' }, [ дели, ещё ]));
     долгоеНажатие(к, з);
     return к;
   }
 
-  function лист(узел, з) {
-    узел.dispatchEvent(new CustomEvent('yasna:лента-лист', { bubbles: true, detail: { запись: з, узел: узел } }));
+  /* ─── Лист действий, жалоба, короткое сообщение ─────────────────────────
+     Живут в модуле, а не на экране: ленту показывают два экрана (сама лента
+     и главный), и меню карточки у них одно. Узлы создаются по первому зову
+     и висят в конце body поверх наббара оболочки. */
+  var листУзел = null, скрим = null, снек = null, кудаВернуть = null, снекТаймер = null;
+  function узлыЛиста() {
+    if (листУзел) return;
+    скрим = эл('div', { class: 'scrim' }); скрим.hidden = true;
+    листУзел = эл('div', { class: 'list', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Действия с записью', tabindex: '-1' }); листУзел.hidden = true;
+    снек = эл('div', { class: 'snek', role: 'status' }); снек.hidden = true;
+    document.body.appendChild(скрим); document.body.appendChild(листУзел); document.body.appendChild(снек);
+    скрим.addEventListener('click', закрытьЛист);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') закрытьЛист(); });
+    /* Системная «назад» в приложении: открыт лист — закрывает его, а не экран. */
+    window.addEventListener('yasna:назад', function (e) { if (закрытьЛист()) e.preventDefault(); });
   }
+  function очиститьЛист() { while (листУзел.firstChild) листУзел.removeChild(листУзел.firstChild); }
+  function закрытьЛист() {
+    if (!листУзел || листУзел.hidden) return false;
+    листУзел.hidden = true; скрим.hidden = true;
+    очиститьЛист();
+    if (кудаВернуть && кудаВернуть.focus) { try { кудаВернуть.focus(); } catch (e) {} }
+    кудаВернуть = null;
+    return true;
+  }
+  function открытьЛист() { скрим.hidden = false; листУзел.hidden = false; try { листУзел.focus(); } catch (e) {} }
+  function пункт(знак, текст, чем, класс) {
+    var э = чем === 'button'
+      ? эл('button', { class: 'list-p' + (класс ? ' ' + класс : ''), type: 'button' })
+      : эл('a', { class: 'list-p', href: чем, target: класс === 'svoj' ? null : '_blank', rel: класс === 'svoj' ? null : 'noopener' });
+    э.appendChild(свг(знак)); э.appendChild(эл('span', { text: текст }));
+    листУзел.appendChild(э);
+    return э;
+  }
+  /* «Только это управление»: экран ленты перехватывает событие
+     yasna:лента-фильтр и меняет чип; главный экран не перехватывает — тогда
+     уходим на экран ленты с этим управлением. */
+  function лист(з, узел) {
+    узлыЛиста();
+    кудаВернуть = (узел && узел.querySelector && узел.querySelector('.k-esche')) || узел || null;
+    очиститьЛист();
+    var пл = площадка(з), тз = заголовокИВыдержка(з), упр = управление(з.upravlenie);
+    листУзел.appendChild(эл('div', { class: 'list-ruchka', 'aria-hidden': 'true' }));
+    листУзел.appendChild(эл('div', { class: 'list-zag', text: тз.заг || тз.выд.slice(0, 70) || пл.имя }));
+    листУзел.appendChild(эл('div', { class: 'list-o', text: упр.имя + ' · ' + подписьКанала(з) + ' · ' + полнаяДата(з.data) }));
+    пункт(ЗНАК.наружу, пл.открыть, з.ssylka).addEventListener('click', function () { setTimeout(закрытьЛист, 0); });
+    пункт(ЗНАК.копия, 'Скопировать ссылку', 'button').addEventListener('click', function () {
+      закрытьЛист();
+      скопировать(з.ssylka).then(function (ок) { сказать(ок ? 'Ссылка скопирована' : 'Не удалось скопировать: ' + з.ssylka); });
+    });
+    if (упр.id && упр.id !== 'centr') {
+      пункт(ЗНАК.канал, 'Только «' + упр.имя + '»', 'button').addEventListener('click', function () {
+        закрытьЛист();
+        var e = new CustomEvent('yasna:лента-фильтр', { bubbles: true, cancelable: true, detail: { upravlenie: упр.id } });
+        var перехвачено = !(узел || document.body).dispatchEvent(e);
+        if (!перехвачено) location.href = 'lenta.html?upravlenie=' + encodeURIComponent(упр.id) + '&otkuda=lenta';
+      });
+    }
+    пункт(ЗНАК.сайт, 'Страница управления', 'upravleniya.html' + (упр.id && упр.id !== 'centr' ? '#' + упр.id : ''), 'svoj');
+    пункт(ЗНАК.жалоба, 'Пожаловаться на запись', 'button', 'zhaloba').addEventListener('click', function () { формаЖалобы(з); });
+    открытьЛист();
+  }
+  /* Жалоба: причина, что не так, как связаться. Уходит в /lenta/zhaloba. */
+  function формаЖалобы(з) {
+    узлыЛиста();
+    очиститьЛист();
+    var С = window.YasnaSvyaz, тз = заголовокИВыдержка(з);
+    листУзел.appendChild(эл('div', { class: 'list-ruchka', 'aria-hidden': 'true' }));
+    листУзел.appendChild(эл('div', { class: 'list-zag', text: 'Пожаловаться на запись' }));
+    листУзел.appendChild(эл('div', { class: 'list-o', text: тз.заг || тз.выд.slice(0, 70) || з.ssylka }));
+    var форма = эл('form', { class: 'zh-forma', novalidate: '' });
+    var набор = эл('fieldset', {}, [ эл('legend', { text: 'Причина' }) ]);
+    [['ya_na_foto', 'Я на фото'], ['prava', 'Нарушение прав'], ['reklama', 'Реклама'], ['drugoe', 'Другое']].forEach(function (п, i) {
+      var вход = эл('input', { type: 'radio', name: 'prichina', value: п[0] });
+      if (i === 0) вход.checked = true;
+      набор.appendChild(эл('label', { class: 'pr' }, [ вход, п[1] ]));
+    });
+    форма.appendChild(набор);
+    var текст = эл('textarea', { name: 'tekst', maxlength: '1000', placeholder: 'Что именно не так' });
+    var контакт = эл('input', { type: 'text', name: 'kontakt', maxlength: '200', placeholder: 'Почта или телеграм, если нужен ответ', autocomplete: 'off' });
+    форма.appendChild(эл('label', { class: 'pole' }, [ 'Что не так (не обязательно)', текст ]));
+    форма.appendChild(эл('label', { class: 'pole' }, [ 'Как с вами связаться (не обязательно)', контакт ]));
+    var итог = эл('div', { class: 'zh-itog', role: 'status' });
+    var отправить = эл('button', { class: 'zh-kn glav', type: 'submit', text: 'Отправить' });
+    var отмена = эл('button', { class: 'zh-kn', type: 'button', text: 'Отмена' });
+    отмена.addEventListener('click', закрытьЛист);
+    форма.appendChild(эл('div', { class: 'zh-knopki' }, [ отмена, отправить ]));
+    форма.appendChild(итог);
+    форма.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var выбрано = форма.querySelector('input[name="prichina"]:checked');
+      отправить.disabled = true; отправить.textContent = 'Отправляю…'; итог.className = 'zh-itog'; итог.textContent = '';
+      жалоба(з.id, выбрано ? выбрано.value : 'drugoe', текст.value.trim(), контакт.value.trim()).then(function (о) {
+        очиститьЛист();
+        листУзел.appendChild(эл('div', { class: 'list-ruchka', 'aria-hidden': 'true' }));
+        листУзел.appendChild(эл('div', { class: 'list-zag', text: 'Спасибо, жалоба принята' }));
+        листУзел.appendChild(эл('div', { class: 'zh-itog', text: 'Запись посмотрят и при необходимости уберут в течение ' + срокСловами(о && о.srok) + '.' }));
+        var кн = эл('button', { class: 'zh-kn', type: 'button', text: 'Закрыть', style: 'margin:14px 12px 0;width:calc(100% - 24px)' });
+        кн.addEventListener('click', закрытьЛист);
+        листУзел.appendChild(кн);
+      }, function (e) {
+        отправить.disabled = false; отправить.textContent = 'Отправить';
+        итог.className = 'zh-itog beda';
+        итог.textContent = (e && e.код === 429) ? 'Жалоб с этого устройства пока достаточно — попробуйте через час.' : (С && С.словами ? С.словами(e) : 'Не получилось отправить.');
+      });
+    });
+    листУзел.appendChild(форма);
+    открытьЛист();
+    try { набор.querySelector('input').focus(); } catch (e) {}
+  }
+  /* Срок из ответа сервера («3 дня») — в родительном падеже после «в течение». */
+  function срокСловами(srok) {
+    var м = String(srok || '').match(/^(\d+)/), n = м ? Number(м[1]) : 3;
+    return ({ 1: 'одного дня', 2: 'двух дней', 3: 'трёх дней', 4: 'четырёх дней', 5: 'пяти дней', 7: 'недели' })[n] || (n + ' дней');
+  }
+  function сказать(текст) {
+    узлыЛиста();
+    снек.textContent = текст; снек.hidden = false;
+    if (снекТаймер) clearTimeout(снекТаймер);
+    снекТаймер = setTimeout(function () { снек.hidden = true; }, 2200);
+  }
+
 
   /* Долгое нажатие: 450 мс без сдвига больше 8 px. Клик после него гасится,
      чтобы вместе с листом не открылся и источник. contextmenu (то же долгое
@@ -472,7 +560,7 @@
       if (Date.now() - последнийЛист < 600) return;
       последнийЛист = Date.now();
       подавитьДо = Date.now() + 700;
-      лист(к, з);
+      лист(з, к);
     }
     function отмена() { if (таймер) { clearTimeout(таймер); таймер = null; } }
     к.addEventListener('pointerdown', function (e) {
@@ -526,6 +614,172 @@
     return скопировать(з.ssylka).then(function (ок) { return ок ? 'copy' : false; });
   }
 
+  /* ─── Встроенная лента ──────────────────────────────────────────────────
+     Одна логика на два экрана: встроить(контейнер, {n, upravlenie, otkuda})
+     рисует первую пачку ИЗ КЭША, обновляет с сервера, ставит кнопку
+     «Показать ещё» на следующие n записей по курсору (бесконечной прокрутки
+     нет — так решил владелец), в конце — честную концовку. Состояния тихие:
+     без сети с кэшем — полоса «показываю сохранённое»; без кэша — одна
+     строка и «Повторить». Возвращает { обновить, фильтр, состояние }. */
+  function встроить(контейнер, н) {
+    н = н || {};
+    var упр = н.upravlenie || null, N = Math.max(1, Math.min(50, Number(н.n) || ПАЧКА));
+    var откуда = н.otkuda || null;
+    var корень = эл('div', { class: 'ln-vstroeno' });
+    var лента = эл('div', { class: 'lenta', role: 'feed', 'aria-busy': 'false', 'aria-label': 'Записи управлений' });
+    var скелет = эл('ul', { class: 'skelet', 'aria-hidden': 'true' }); скелет.hidden = true;
+    var полоса = эл('div', { class: 'polosa', role: 'status' }); полоса.hidden = true;
+    var тихо = эл('div', { class: 'tiho-sost', role: 'status' }); тихо.hidden = true;
+    var кнопка = эл('button', { class: 'esche-kn', type: 'button', text: 'Показать ещё' }); кнопка.hidden = true;
+    var концовка = эл('div', { class: 'konec' }); концовка.hidden = true;
+    var оСебе = эл('p', { class: 'o-sebe' }); оСебе.hidden = true;
+    [лента, скелет, полоса, тихо, кнопка, концовка, оСебе].forEach(function (у) { корень.appendChild(у); });
+    while (контейнер.firstChild) контейнер.removeChild(контейнер.firstChild);
+    контейнер.appendChild(корень);
+
+    var Т = { записи: [], dalshe: null, гружу: false, заход: 0, sobrano_at: null, управления: [], предМес: null, n: 0, изКэша: false };
+    function видим(з) {
+      if (!упр) return true;
+      var у = Array.isArray(з.upravleniya) && з.upravleniya.length ? з.upravleniya : [з.upravlenie];
+      return у.indexOf(упр) >= 0;
+    }
+    function скелетПоказать(сколько, подпись) {
+      while (скелет.firstChild) скелет.removeChild(скелет.firstChild);
+      for (var i = 0; i < сколько; i++) скелет.appendChild(эл('li', { class: 'sk' }, [
+        эл('div', { class: 'sk-r' }, [ эл('i', { class: 'd' }), эл('div', {}, [ эл('i', { class: 's1' }), эл('i', { class: 's2' }) ]) ]),
+        эл('i', { class: 't' }), эл('i', { class: 't t2' }), эл('i', { class: 't3' }) ]));
+      if (подпись) скелет.appendChild(эл('li', { class: 'sk-podpis' }, [ эл('span', { class: 'kolco' }), подпись ]));
+      скелет.hidden = false; лента.setAttribute('aria-busy', 'true');
+    }
+    function скелетСкрыть() { скелет.hidden = true; лента.setAttribute('aria-busy', 'false'); }
+    function пачка(записи, первая) {
+      var узел = эл('div', { class: 'ln-pachka' + (первая ? ' ln-pachka--pervaya' : '') });
+      записи.forEach(function (з) {
+        var м = меткаМесяца(з.data);
+        if (м && м.текст && м.ключ !== Т.предМес) узел.appendChild(эл('div', { class: 'mesyac', role: 'heading', 'aria-level': '3', text: м.текст }));
+        if (м) Т.предМес = м.ключ;
+        узел.appendChild(карточка(з, { n: первая ? Т.n++ : null }));
+      });
+      лента.appendChild(узел);
+    }
+    function очистить() {
+      while (лента.firstChild) лента.removeChild(лента.firstChild);
+      Т.записи = []; Т.dalshe = null; Т.предМес = null; Т.n = 0; Т.гружу = false;
+      полоса.hidden = true; тихо.hidden = true; кнопка.hidden = true; концовка.hidden = true; оСебе.hidden = true;
+      кнопка.className = 'esche-kn'; кнопка.textContent = 'Показать ещё';
+    }
+    function кнопкаПоказать() { кнопка.hidden = !Т.dalshe || Т.гружу; }
+    function полосаПоказать(e, когда) {
+      var сеть = e && e.причина === 'нет-сети', С = window.YasnaSvyaz;
+      while (полоса.firstChild) полоса.removeChild(полоса.firstChild);
+      полоса.appendChild(свг(сеть ? 'M2 8.5a15 15 0 0 1 20 0M5.5 12a10 10 0 0 1 13 0M9 15.5a5 5 0 0 1 6 0M12 19h.01M3 3l18 18' : 'M12 8v5M12 16h.01M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z'));
+      полоса.appendChild(эл('div', {}, [ эл('b', { text: сеть ? 'Без сети' : 'Сервер не отвечает' }),
+        эл('span', { text: (когда ? 'Показываю сохранённое от ' + полнаяДата(когда) : 'Показываю сохранённое') + (сеть || !С ? '' : ' · ' + С.словами(e)) }) ]));
+      var кн = эл('button', { type: 'button', text: сеть ? 'Обновить' : 'Повторить' });
+      кн.addEventListener('click', function () { if (С && С.забыть) С.забыть(); первая(); });
+      полоса.appendChild(кн);
+      полоса.hidden = false;
+    }
+    function тихоПоказать(текст, сПовтором) {
+      while (тихо.firstChild) тихо.removeChild(тихо.firstChild);
+      тихо.appendChild(эл('span', { text: текст }));
+      if (сПовтором) {
+        var кн = эл('button', { type: 'button', text: 'Повторить' });
+        кн.addEventListener('click', function () { var С = window.YasnaSvyaz; if (С && С.забыть) С.забыть(); первая(); });
+        тихо.appendChild(кн);
+      }
+      тихо.hidden = false;
+    }
+    function концовкаПоказать() {
+      while (концовка.firstChild) концовка.removeChild(концовка.firstChild);
+      var n = Т.записи.length;
+      if (!n) { концовка.hidden = true; return; }
+      var старая = полнаяДата(Т.записи[n - 1].data, true);
+      var лучи = свг('M12 3v3.5', 'luchi');
+      концовка.appendChild(лучи);
+      концовка.appendChild(эл('b', { text: 'Это все записи' }));
+      концовка.appendChild(эл('p', { text: (упр ? 'У этого управления ' : 'В ленте ') + n + ' ' + при(n, 'запись', 'записи', 'записей') + (старая ? ', самая старая — ' + старая : '') + '.' }));
+      var все = данныеУправлений(), есть = Т.управления;
+      var без = все.filter(function (у) { return есть.indexOf(у.id) < 0; }).map(function (у) { return у.nazvanie; });
+      if (!упр && без.length) концовка.appendChild(эл('p', { text: 'Записей в ленте пока нет у: ' + без.join(', ') + '.' }));
+      концовка.appendChild(эл('a', { class: 'dver', href: 'upravleniya.html', text: 'Каналы управлений ›' }));
+      концовка.appendChild(эл('p', { class: 'prava', text: 'Если вы изображены на фото или запись нарушает ваши права — откройте меню «⋯» у записи и выберите «Пожаловаться на запись». Такие записи убирают в течение трёх дней.' }));
+      концовка.hidden = false;
+    }
+    function оСебеПоказать() {
+      if (!Т.sobrano_at) { оСебе.hidden = true; return; }
+      оСебе.textContent = 'Записи из открытых каналов управлений; обновлено ' + время(Т.sobrano_at) + '.';
+      оСебе.hidden = false;
+    }
+    function принять(о, первыйЗаход) {
+      скелетСкрыть(); полоса.hidden = true; тихо.hidden = true;
+      if (!упр && первыйЗаход) запомнить(о);
+      Т.управления = о.upravleniya_s_zapisyami.slice();
+      Т.sobrano_at = о.sobrano_at || Т.sobrano_at;
+      var в = о.zapisi.filter(видим);
+      if (первыйЗаход) {
+        var было = Т.записи.map(function (з) { return з.id; }).join('|'), стало = в.map(function (з) { return з.id; }).join('|');
+        if (!Т.изКэша || было !== стало) { очистить(); Т.записи = в; if (в.length) пачка(в, true); }
+        else Т.записи = в;
+        Т.изКэша = false;
+        if (!упр && о.zapisi.length) увидел(о.zapisi[0].kursor);
+      } else {
+        Т.записи = Т.записи.concat(в);
+        if (в.length) пачка(в, false);
+      }
+      Т.dalshe = о.dalshe;
+      Т.sobrano_at = о.sobrano_at || Т.sobrano_at;
+      if (!Т.записи.length && !Т.dalshe) тихоПоказать(упр ? 'У этого управления записей в ленте пока нет.' : 'Записей пока нет: лента наполняется из открытых каналов управлений.', false);
+      else if (!Т.записи.length && Т.dalshe) { ещё(); return; }
+      кнопкаПоказать();
+      if (!Т.dalshe) концовкаПоказать(); else концовка.hidden = true;
+      оСебеПоказать();
+      корень.dispatchEvent(new CustomEvent('yasna:лента-ответ', { bubbles: true, detail: { ответ: о, upravlenie: упр, первый: первыйЗаход } }));
+    }
+    function первая() {
+      Т.заход++;
+      var метка = Т.заход, отк = откуда; откуда = null;
+      очистить(); Т.изКэша = false;
+      var к = кэш(), изК = к ? к.zapisi.filter(видим) : [];
+      if (к) { Т.управления = к.upravleniya_s_zapisyami.slice(); Т.sobrano_at = к.sobrano_at; }
+      if (изК.length) { Т.изКэша = true; Т.записи = изК; Т.dalshe = упр ? null : к.dalshe; пачка(изК, true); оСебеПоказать(); }
+      else скелетПоказать(3, '');
+      страница({ n: N, upravlenie: упр, otkuda: отк }).then(function (о) {
+        if (метка !== Т.заход) return;
+        принять(о, true);
+      }, function (e) {
+        if (метка !== Т.заход) return;
+        скелетСкрыть();
+        if (Т.изКэша) { полосаПоказать(e, к && к.kogda); кнопка.hidden = true; }
+        else тихоПоказать(e && e.причина === 'нет-сети' ? 'Нет сети, а сохранённых записей пока нет.' : 'Лента не открылась: ' + (window.YasnaSvyaz ? window.YasnaSvyaz.словами(e) : 'сервер не отвечает') + '.', true);
+      });
+    }
+    function ещё() {
+      if (Т.гружу || !Т.dalshe) return;
+      Т.гружу = true; кнопка.hidden = true; кнопка.className = 'esche-kn';
+      скелетПоказать(2, 'Загружаю ещё…');
+      var метка = Т.заход, курсор = Т.dalshe;
+      страница({ n: N, kursor: курсор, upravlenie: упр }).then(function (о) {
+        if (метка !== Т.заход) return;
+        Т.гружу = false; принять(о, false);
+      }, function (e) {
+        if (метка !== Т.заход) return;
+        Т.гружу = false; скелетСкрыть();
+        кнопка.className = 'esche-kn beda';
+        кнопка.textContent = 'Не загрузилось — повторить';
+        кнопка.hidden = false;
+      });
+    }
+    кнопка.addEventListener('click', ещё);
+    первая();
+    return {
+      обновить: первая,
+      фильтр: function (id) { упр = id || null; первая(); },
+      состояние: Т,
+      корень: корень
+    };
+  }
+
   window.YasnaLenta = {
     страница: страница,
     кэш: кэш,
@@ -535,6 +789,10 @@
     увидел: увидел,
     видено: видено,
     карточка: карточка,
+    лист: лист,
+    встроить: встроить,
+    сказать: сказать,
+    закрытьЛист: закрытьЛист,
     время: время,
     полнаяДата: полнаяДата,
     меткаМесяца: меткаМесяца,
