@@ -1226,9 +1226,14 @@
   (function(){
     var ряд=document.querySelector('.kod-ryad');
     if(ряд) ряд.insertBefore(знак('kod'), ряд.firstChild);
-    [['zayavki-blok','prosyatsya'],['poslannye-blok','zhdyom']].forEach(function(п){
+    /* Знак у КАЖДОГО подзаголовка списка, а не у двух из трёх: разнобой
+       читается как «здесь что-то важное, а здесь нет», хотя это просто три
+       части одного раздела. Заголовок «Друзья» лежит не в блоке, а рядом со
+       списком, поэтому его берём по id. */
+    [['zayavki-blok','prosyatsya'],['poslannye-blok','zhdyom'],['druzya-zag','ludi']].forEach(function(п){
       var б=document.getElementById(п[0]); if(!б) return;
-      var з=б.querySelector('.podzag'); if(!з) return;
+      var з=б.classList.contains('podzag') ? б : б.querySelector('.podzag');
+      if(!з) return;
       var обёртка=document.createElement('div');
       обёртка.style.cssText='display:flex;align-items:center;gap:10px;margin:18px 0 8px';
       з.parentNode.insertBefore(обёртка,з);
