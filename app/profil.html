@@ -1196,8 +1196,12 @@
     /* Обрыв сети — не вина человека и не загадка «не получилось»: Firebase
        говорит о нём словами network/offline/unavailable, а браузер — флагом
        onLine. Называем причину прямо, чтобы было ясно, что делать. */
-    if(к==='время-вышло'
-      || /network|offline|unavailable|disconnect|timeout|failed to fetch/i.test(к)
+    if(к==='время-вышло' || к==='нет-api'
+      || /network|offline|unavailable|disconnect|timeout|failed to (fetch|connect)/i.test(к)
+      /* CapacitorHttp говорит «Failed to connect to <хост>/<ip>:443», и под
+         прежний набор слов это не подходило: человек видел «Не получилось»
+         вместо причины. Проверено на стенде. */
+      || /failed to connect|unable to resolve host|connection (refused|reset)/i.test(к)
       || navigator.onLine===false) return 'Нет связи — код появится, когда она вернётся.';
     return 'Не получилось. Попробуйте позже.';
   }
@@ -1296,15 +1300,25 @@
      готовая фраза: голые шесть букв в чужой переписке ничего не объясняют. */
   (function(){
     var кн=document.getElementById('kod-podelitsya');
-    if(!кн || !navigator.share) return;
+    if(!кн) return;
+    /* NAVIGATOR.SHARE В ANDROID WEBVIEW НЕТ ВОВСЕ. Это не «требует жеста» и не
+       «нужен https» — Web Share в WebView просто не реализован, и проверка
+       на его наличие честно прятала кнопку ровно там, где она нужнее всего.
+       Проверено на стенде: в приложении кнопка не появлялась.
+       Поэтому в приложении делимся через родной плагин Capacitor, а
+       navigator.share остаётся для сайта, где он есть. */
+    var П=(window.Capacitor&&window.Capacitor.Plugins)||{};
+    var родной=П.Share&&П.Share.share;
+    if(!родной && !navigator.share) return;
     кн.hidden=false;
     кн.onclick=function(){
       var к=Д.мойКод();
       if(!к){ сказать('Код ещё не готов — подождите связь.',true); return; }
-      navigator.share({
-        title:'Ясна',
-        text:'Добавь меня в Ясне: мой код '+к+'. Профиль → Свои люди → Код друга.'
-      }).catch(function(){ /* закрыл окно — это не ошибка */ });
+      var что={ title:'Ясна',
+        text:'Добавь меня в Ясне: мой код '+к+'. Профиль → Свои люди → Код друга.' };
+      var дело = родной ? П.Share.share(Object.assign({dialogTitle:'Поделиться кодом'},что))
+                        : navigator.share(что);
+      Promise.resolve(дело).catch(function(){ /* закрыл окно — это не ошибка */ });
     };
   })();
 
