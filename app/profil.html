@@ -77,6 +77,21 @@
     background:var(--pole);border:1.5px solid transparent;border-radius:12px;
     padding:15px 14px;outline:none}
   input[type=text]:focus{border-color:var(--syn)}
+  /* Форма заявки: та же одежда, что и у поля имени, плюс многострочное поле
+     и галочка согласия. Отдельного вида у них нет нарочно — на одном экране
+     не должно быть двух разных форм. */
+  textarea{width:100%;font:400 16px/1.4 Inter,sans-serif;color:var(--ink);
+    background:var(--pole);border:1.5px solid transparent;border-radius:12px;
+    padding:13px 14px;outline:none;resize:vertical;min-height:84px}
+  textarea:focus{border-color:var(--syn)}
+  .galka{display:flex;gap:10px;align-items:flex-start;margin:16px 0 0;
+    font:400 13.5px/1.5 Inter,sans-serif;color:var(--ink-2)}
+  .galka input{flex:0 0 auto;width:22px;height:22px;margin:0;accent-color:var(--syn)}
+  /* Своя заявка: состояние словами, а не значком — значок пришлось бы
+     объяснять. */
+  .zayavka-moya{margin:14px 0 0;padding:12px 14px;border:1px solid var(--kayma);
+    border-radius:12px;font-size:14px;line-height:1.5}
+  .zayavka-moya b{display:block;font:600 14px/1.3 Manrope,sans-serif;margin-bottom:3px}
   .knopka{display:block;width:100%;min-height:48px;
     font:600 16px/1.2 Manrope,Inter,sans-serif;
     color:var(--na-syn);background:var(--syn);border:0;border-radius:12px;
@@ -376,7 +391,47 @@
     </div>
   </section>
 
-  <!-- 3. НАСТРОЙКИ. Подпись покрывает ровно то, что под ней: вид и цитату. -->
+  <!-- 3. ИМЯ. Просьба посчитать имя — это разговор с человеком, а не расчёт
+       в приложении. Поэтому здесь заявка с состоянием, а не кнопка «узнать»:
+       у обещания ответить должен быть виден срок жизни. -->
+  <div class="razdel">Имя</div>
+  <section class="spisok">
+    <button class="str" type="button" id="imya-str"
+            aria-expanded="false" aria-controls="imya-telo">
+      <span class="str-txt">
+        <span class="str-zag">Посчитать имя</span>
+        <span class="str-pod" id="imya-pod">Считает команда Ясны и связывается с вами</span>
+      </span>
+      <span class="str-hvost"><i class="shevron" aria-hidden="true"></i></span>
+    </button>
+    <div class="telo" id="imya-telo" hidden>
+      <p class="opis">Имя считает человек, а не программа. Оставьте заявку —
+         ответим тем способом, который укажете.</p>
+      <div id="z-moi"></div>
+
+      <label for="z-imya">Имя полностью</label>
+      <input type="text" id="z-imya" maxlength="80" autocomplete="name">
+
+      <label for="z-rozhd">Дата рождения</label>
+      <input type="text" id="z-rozhd" maxlength="40" placeholder="12.04.1988" inputmode="numeric">
+
+      <label for="z-svyaz">Как с вами связаться</label>
+      <input type="text" id="z-svyaz" maxlength="120" placeholder="почта или телефон">
+
+      <label for="z-vopros">Что хочется узнать</label>
+      <textarea id="z-vopros" maxlength="500" rows="3"></textarea>
+
+      <label class="galka" for="z-soglasie">
+        <input type="checkbox" id="z-soglasie">
+        <span>Согласен на обработку имени, даты рождения и способа связи —
+              они нужны только для того, чтобы посчитать имя и ответить.</span>
+      </label>
+      <button class="knopka" id="z-otpravit" type="button">Отправить заявку</button>
+      <div class="soobshenie" id="z-soobshenie" role="status"></div>
+    </div>
+  </section>
+
+  <!-- 4. НАСТРОЙКИ. Подпись покрывает ровно то, что под ней: вид и цитату. -->
   <div class="razdel">Настройки</div>
   <section class="spisok">
     <button class="str" type="button" id="tema-str"
@@ -655,6 +710,115 @@
   связать('lyudi-str','lyudi-telo');
   связать('tema-str','tema-telo');
   связать('dannye-str','dannye-telo');
+  связать('imya-str','imya-telo');
+
+  /* ─── ЗАЯВКА «ПОСЧИТАТЬ ИМЯ» ──────────────────────────────────────────
+     Считает человек, а не программа, поэтому здесь заявка с состоянием, а не
+     кнопка «узнать». Состояние показываем на месте: «отправлено 5 сентября»
+     честнее, чем «спасибо, мы свяжемся» в никуда.
+
+     Запрос идём НАТИВНЫМ CapacitorHttp, если он есть: тот же приём, что и у
+     проверки обновлений. Браузерный fetch упёрся бы в CORS хранилища на части
+     сборок, а нативному запросу он безразличен. Вне приложения — обычный
+     fetch, там свой origin в белом списке. */
+  var АДРЕС_API=(document.querySelector('meta[name="yasna:api"]')||{}).content||'';
+  function зовАПИ(путь, как, тело){
+    var url=АДРЕС_API+путь;
+    var шапка={'Content-Type':'application/json'};
+    var т=null;
+    try{ т=localStorage.getItem('yasna_duel_token'); }catch(e){}
+    if(т) шапка.Authorization='Bearer '+т;
+    var П=(window.Capacitor&&window.Capacitor.Plugins)||{};
+    if(П.CapacitorHttp){
+      var зов=(как==='POST')
+        ? П.CapacitorHttp.post({url:url,headers:шапка,data:тело||{}})
+        : П.CapacitorHttp.get({url:url,headers:шапка});
+      return зов.then(function(r){
+        var д=typeof r.data==='string'?JSON.parse(r.data||'{}'):(r.data||{});
+        if(r.status>=400){ var e=new Error(д.detail||д.error||('код '+r.status)); e.код=r.status; throw e; }
+        return д;
+      });
+    }
+    return fetch(url,{method:как,headers:шапка,body:тело?JSON.stringify(тело):undefined})
+      .then(function(r){ return r.json().catch(function(){return {}}).then(function(д){
+        if(!r.ok){ var e=new Error(д.detail||д.error||('код '+r.status)); e.код=r.status; throw e; }
+        return д; }); });
+  }
+
+  var СОСТОЯНИЕ_СЛОВАМИ={
+    novaya:'Заявка принята — ждёт разбора',
+    v_rabote:'Заявка в работе',
+    otvecheno:'Вам ответили'
+  };
+  function датаСловами(iso){
+    if(!iso) return '';
+    var д=new Date(iso); if(isNaN(д)) return '';
+    var М=['января','февраля','марта','апреля','мая','июня','июля','августа',
+           'сентября','октября','ноября','декабря'];
+    return д.getDate()+' '+М[д.getMonth()];
+  }
+  function показатьСвоиЗаявки(){
+    var где=document.getElementById('z-moi');
+    if(!где) return;
+    var ид=''; try{ ид=localStorage.getItem('yasna_device_id_v1')||''; }catch(e){}
+    зовАПИ('/zayavka?deviceId='+encodeURIComponent(ид),'GET').then(function(о){
+      var сп=(о&&о.zayavki)||[];
+      где.innerHTML='';
+      if(!сп.length) return;
+      сп.slice(0,3).forEach(function(з){
+        var д=document.createElement('div');
+        д.className='zayavka-moya';
+        var b=document.createElement('b');
+        b.textContent=СОСТОЯНИЕ_СЛОВАМИ[з.sostoyanie]||'Заявка отправлена';
+        var т=document.createElement('div');
+        т.textContent='Имя «'+(з.imya||'')+'», отправлена '+датаСловами(з.createdAt)+'.';
+        д.appendChild(b); д.appendChild(т);
+        if(з.otvet){ var о2=document.createElement('div'); о2.style.marginTop='6px';
+          о2.textContent=з.otvet; д.appendChild(о2); }
+        где.appendChild(д);
+      });
+      /* Подпись свёрнутой строки тоже говорит состояние: раскрывать раздел
+         ради одного слова человек не должен. */
+      var п=document.getElementById('imya-pod');
+      if(п) п.textContent=СОСТОЯНИЕ_СЛОВАМИ[сп[0].sostoyanie]||п.textContent;
+    }).catch(function(){ /* нет связи — форма всё равно работает */ });
+  }
+
+  document.getElementById('z-otpravit').onclick=function(){
+    var кн=this, сооб=document.getElementById('z-soobshenie');
+    var поле=function(и){ return (document.getElementById(и).value||'').trim(); };
+    var сказать=function(т,плохо){ сооб.style.color=плохо?'var(--ploho)':''; сооб.textContent=т; };
+    if(!document.getElementById('z-soglasie').checked)
+      return сказать('Отметьте согласие — без него мы не вправе обрабатывать имя и дату рождения.',true);
+    if(!поле('z-imya')) return сказать('Напишите имя — считать пока нечего.',true);
+    if(!поле('z-svyaz')) return сказать('Оставьте почту или телефон — иначе ответить некуда.',true);
+    var ид=''; try{ ид=localStorage.getItem('yasna_device_id_v1')||''; }catch(e){}
+    кн.disabled=true; сказать('Отправляю…');
+    зовАПИ('/zayavka','POST',{
+      imya:поле('z-imya'), rozhdenie:поле('z-rozhd'), svyaz:поле('z-svyaz'),
+      vopros:поле('z-vopros'), soglasie:true, deviceId:ид
+    }).then(function(){
+      кн.disabled=false;
+      сказать('Заявка принята. Ответим тем способом, который вы указали.');
+      document.getElementById('z-vopros').value='';
+      показатьСвоиЗаявки();
+    }).catch(function(e){
+      кн.disabled=false;
+      /* Причину называем словами сервера, когда он их дал: «вы уже оставили
+         заявку» человеку понятнее, чем «ошибка 429». */
+      сказать(e && e.message ? e.message : 'Не удалось отправить — нет связи. Попробуйте позже.', true);
+    });
+  };
+
+  /* Подставляем то, что уже знаем: заставлять человека вводить своё же имя
+     заново — лишний труд, а пустая форма выглядит длиннее, чем она есть. */
+  (function(){
+    var п=профиль();
+    if(п.nickname && п.nickname!=='Гость') document.getElementById('z-imya').value=п.nickname;
+    var польз=null; try{ польз=JSON.parse(localStorage.getItem('yasna_duel_user')); }catch(e){}
+    if(польз&&польз.email) document.getElementById('z-svyaz').value=польз.email;
+    показатьСвоиЗаявки();
+  })();
 
   /* ─── ДАННЫЕ ───────────────────────────────────────────────────────────
      Что о человеке хранится, где именно и как забрать это себе. Раньше на

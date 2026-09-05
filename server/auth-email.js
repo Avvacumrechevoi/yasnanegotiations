@@ -599,6 +599,15 @@ exports.handler = async (event) => {
     if(/\/auth\/email\/verify/.test(path)  && method === 'POST') return await handleVerify(drv, { body, event });
     if(/\/account\/delete/.test(path)      && method === 'POST') return await handleDelete(drv, { event });
     if(/\/account/.test(path) && (method === 'GET' || method === 'PUT')) return await handleAccount(drv, { method, body, event });
+    /* Заявки «Посчитать имя» живут в своём модуле, но в ЭТОМ пакете: здесь
+       уже есть почта, разбор токена и живой драйвер YDB. Помощники отдаём
+       параметром — свои копии разошлись бы с этими на первой же правке. */
+    if(/\/zayavk/.test(path)) return await require('./zayavki.js').route(drv, {
+      method, path, body, event,
+      query: event.queryStringParameters || {},
+      д: { TypedValues, Types, ok, fail, txt, num, ts, clean, ipHash,
+           throttleHit, verifyJWT, loadProfile, mailer },
+    });
     return fail(404, 'not found', { path });
   } catch(e){
     // Наружу 500, а не «как будто получилось»: молчаливые ошибки в этом
