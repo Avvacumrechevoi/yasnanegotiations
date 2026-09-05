@@ -76,10 +76,65 @@ body{background:var(--surface);color:var(--on-surface);
 .bk-schet{display:block;margin-top:6px;font:var(--type-label-m);
   color:var(--on-surface-variant);font-variant-numeric:tabular-nums}
 
-/* ── Книга ────────────────────────────────────────────────────────────
-   Том — не строка списка: у него цвет издания на корешке слева, объём
-   в страницах и своя вторая цель «Читать дальше». Рамка и скругление
-   живут на самом томе, чтобы обе цели читались одной вещью. */
+/* ── Полка ────────────────────────────────────────────────────────────
+   Три книги стояли тремя карточками по 270 dp: первый экран уходил под них
+   целиком, а справочники — за сгиб (та же беда, что была на «Уроках»). Теперь
+   книги стоят на полке в ряд, как книги: обложка цветом издания, имя, объём
+   и полоса прочитанного. Три корешка занимают один ряд вместо трёх экранов
+   и читаются библиотекой, а не списком. */
+.bk-polka{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;list-style:none}
+.bk-koreshok{display:flex;flex-direction:column;min-height:150px;border-radius:14px;
+  overflow:hidden;background:var(--surface-container-low);
+  border:1px solid var(--outline-variant);color:inherit;text-decoration:none}
+.bk-koreshok:active{background:var(--surface-container-high)}
+.bk-oblozhka{flex:1;display:flex;align-items:flex-end;padding:12px 12px 10px;
+  background:var(--book-sutki-container,var(--primary-container));
+  color:var(--book-sutki,var(--primary));
+  border-bottom:3px solid var(--book-sutki,var(--primary))}
+.bk-koreshok--goda .bk-oblozhka{background:var(--book-goda-container);color:var(--book-goda);border-bottom-color:var(--book-goda)}
+.bk-koreshok--zhizni .bk-oblozhka{background:var(--book-zhizni-container);color:var(--book-zhizni);border-bottom-color:var(--book-zhizni)}
+.bk-oblozhka b{font:var(--type-title-m);line-height:1.15;text-wrap:balance}
+.bk-koreshok-niz{padding:8px 12px 10px;display:flex;flex-direction:column;gap:6px}
+.bk-obem{font:var(--type-label-m);color:var(--on-surface-variant);font-variant-numeric:tabular-nums;min-height:1.2em}
+.bk-hod[hidden]{display:none}
+.bk-zhelob{display:block;height:4px;border-radius:2px;background:var(--outline-variant);overflow:hidden}
+.bk-zhelob i{display:block;height:100%;width:0;border-radius:2px;background:var(--book-sutki,var(--primary))}
+.bk-koreshok--goda .bk-zhelob i{background:var(--book-goda,var(--primary))}
+.bk-koreshok--zhizni .bk-zhelob i{background:var(--book-zhizni,var(--primary))}
+.bk-zhivo .bk-zhelob i{width:var(--cel,0%)}
+.bk-hod-t{font:var(--type-body-s);color:var(--on-surface-variant);font-variant-numeric:tabular-nums}
+
+/* Одна строка «Читать дальше» на всю полку — для книги, где чтение
+   остановилось. Раньше строк было три, по одной под каждой книгой, и
+   «Читать дальше» звучало трижды подряд у книг, которые не открывали. */
+.bk-dalshe{display:flex;align-items:center;gap:12px;min-height:56px;margin-top:10px;
+  padding:10px 14px;border-radius:14px;background:var(--surface-container-low);
+  border:1px solid var(--outline-variant);color:inherit;text-decoration:none}
+.bk-dalshe[hidden]{display:none}
+.bk-dalshe:active{background:var(--surface-container-high)}
+.bk-dalshe-cvet{flex:0 0 4px;align-self:stretch;border-radius:2px;background:var(--primary)}
+.bk-dalshe b{display:block;font:var(--type-label-l)}
+.bk-dalshe em{display:block;margin-top:2px;font:var(--type-body-s);font-style:normal;color:var(--on-surface-variant)}
+.bk-dalshe-strelka{margin-left:auto;font-size:19px;line-height:1;color:var(--on-surface-variant)}
+
+/* Знак у справочника — тот же, что в профиле и на «Уроках». */
+.bk-dver{display:grid;grid-template-columns:34px 1fr;gap:2px 14px;align-items:start}
+.bk-znak{grid-row:1 / span 3;width:34px;height:34px;border-radius:10px;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--surface-container);color:var(--primary)}
+.bk-znak svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.bk-imya,.bk-o,.bk-schet{grid-column:2}
+
+/* Корешки поднимаются при загрузке один за другим, полосы наливаются кадром
+   позже — единственное движение экрана; при «меньше движения» его нет. */
+@media (prefers-reduced-motion: no-preference){
+  .bk-koreshok{opacity:0;transform:translateY(8px);
+    animation:bk-podnyat .34s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--n,0) * 70ms)}
+  @keyframes bk-podnyat{to{opacity:1;transform:none}}
+  .bk-zhelob i{transition:width .7s cubic-bezier(.2,.8,.2,1) .35s}
+}
+
+/* ── (прежние стили тома — оставлены ради читалки, которая их не зовёт) ── */
 .bk-tom{border-radius:16px;overflow:hidden;
   background:var(--surface-container-low);border:1px solid var(--outline-variant);
   border-left:4px solid var(--book-sutki,var(--primary))}
@@ -121,7 +176,8 @@ body{background:var(--surface);color:var(--on-surface);
    Справочник, который читают на месте: уводить за ним на другую вкладку
    не за чем — это двенадцать строк, а не экран. */
 .bk-mesta{padding:0}
-.bk-mesta>summary{display:flex;align-items:center;gap:8px;
+.bk-mesta{display:block}
+.bk-mesta>summary{display:grid;grid-template-columns:34px 1fr auto;gap:2px 14px;align-items:start;
   min-height:72px;padding:14px 16px;cursor:pointer;list-style:none}
 .bk-mesta>summary::-webkit-details-marker{display:none}
 .bk-mesta-t{flex:1;min-width:0}
@@ -149,69 +205,67 @@ body{background:var(--surface);color:var(--on-surface);
 <main class="bk-telo">
   <section class="bk-razdel">
     <h2>Книги</h2>
-    <ul class="bk-set" id="bk-knigi">
-      <li class="bk-tom" data-kniga="sutki">
-        <a class="bk-dver" href="kniga.html">
-          <span class="bk-imya">Ясна Суток</span>
-          <span class="bk-o">Первая книга о том, как всё устроено</span>
-          <span class="bk-obem" data-obem></span>
-          <span class="bk-hod" data-hod hidden>
-            <span class="bk-zhelob" aria-hidden="true"><i data-fill></i></span>
-            <span class="bk-hod-t" data-hod-t></span>
+    <ul class="bk-polka" id="bk-knigi">
+      <li data-kniga="sutki" style="--n:0">
+        <a class="bk-koreshok" href="kniga.html" aria-label="Ясна Суток">
+          <span class="bk-oblozhka"><b>Ясна Суток</b></span>
+          <span class="bk-koreshok-niz">
+            <span class="bk-obem" data-obem></span>
+            <span class="bk-hod" data-hod hidden>
+              <span class="bk-zhelob" aria-hidden="true"><i data-fill></i></span>
+            </span>
           </span>
-        </a>
-        <a class="bk-dalshe" href="kniga.html" data-dalshe hidden>
-          <span><b data-dalshe-t></b><em data-dalshe-o></em></span>
-          <span class="bk-dalshe-strelka" aria-hidden="true">›</span>
         </a>
       </li>
-      <li class="bk-tom bk-tom--goda" data-kniga="goda">
-        <a class="bk-dver" href="kniga.html?kniga=goda">
-          <span class="bk-imya">Ясна Года</span>
-          <span class="bk-o">Вторая книга — круг года и зодиака</span>
-          <span class="bk-obem" data-obem></span>
-          <span class="bk-hod" data-hod hidden>
-            <span class="bk-zhelob" aria-hidden="true"><i data-fill></i></span>
-            <span class="bk-hod-t" data-hod-t></span>
+      <li data-kniga="goda" style="--n:1">
+        <a class="bk-koreshok bk-koreshok--goda" href="kniga.html?kniga=goda" aria-label="Ясна Года">
+          <span class="bk-oblozhka"><b>Ясна Года</b></span>
+          <span class="bk-koreshok-niz">
+            <span class="bk-obem" data-obem></span>
+            <span class="bk-hod" data-hod hidden>
+              <span class="bk-zhelob" aria-hidden="true"><i data-fill></i></span>
+            </span>
           </span>
-        </a>
-        <a class="bk-dalshe" href="kniga.html?kniga=goda" data-dalshe hidden>
-          <span><b data-dalshe-t></b><em data-dalshe-o></em></span>
-          <span class="bk-dalshe-strelka" aria-hidden="true">›</span>
         </a>
       </li>
-      <li class="bk-tom bk-tom--zhizni" data-kniga="zhizni">
-        <a class="bk-dver" href="kniga.html?kniga=zhizni">
-          <span class="bk-imya">Ясна Жизни</span>
-          <span class="bk-o">Начальная книга — жизнь как круг</span>
-          <span class="bk-obem" data-obem></span>
-          <span class="bk-hod" data-hod hidden>
-            <span class="bk-zhelob" aria-hidden="true"><i data-fill></i></span>
-            <span class="bk-hod-t" data-hod-t></span>
+      <li data-kniga="zhizni" style="--n:2">
+        <a class="bk-koreshok bk-koreshok--zhizni" href="kniga.html?kniga=zhizni" aria-label="Ясна Жизни">
+          <span class="bk-oblozhka"><b>Ясна Жизни</b></span>
+          <span class="bk-koreshok-niz">
+            <span class="bk-obem" data-obem></span>
+            <span class="bk-hod" data-hod hidden>
+              <span class="bk-zhelob" aria-hidden="true"><i data-fill></i></span>
+            </span>
           </span>
-        </a>
-        <a class="bk-dalshe" href="kniga.html?kniga=zhizni" data-dalshe hidden>
-          <span><b data-dalshe-t></b><em data-dalshe-o></em></span>
-          <span class="bk-dalshe-strelka" aria-hidden="true">›</span>
         </a>
       </li>
     </ul>
+    <!-- Одна строка на полку: книга, где чтение остановилось, или первая —
+         «Начать чтение». -->
+    <a class="bk-dalshe" id="bk-dalshe" href="kniga.html" hidden>
+      <span class="bk-dalshe-cvet" id="bk-dalshe-cvet" aria-hidden="true"></span>
+      <span><b id="bk-dalshe-t"></b><em id="bk-dalshe-o"></em></span>
+      <span class="bk-dalshe-strelka" aria-hidden="true">›</span>
+    </a>
   </section>
 
   <section class="bk-razdel">
     <h2>Справочники</h2>
     <ul class="bk-set">
       <li><a class="bk-dver" href="konstruktor.html#biblioteka">
+        <span class="bk-znak" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17M3.5 12h17M6 6l12 12M18 6L6 18"/></svg></span>
         <span class="bk-imya">Готовые ясны</span>
         <span class="bk-o">Разобранные явления: открыть круг и посмотреть, как он собран</span>
         <span class="bk-schet" id="bk-yasny-schet"></span></a></li>
       <li><a class="bk-dver" href="konstruktor.html#glossariy">
+        <span class="bk-znak" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4.5h11a3 3 0 0 1 3 3v12H7a3 3 0 0 0-3 3z"/><path d="M4 19.5a3 3 0 0 1 3-3h11"/><path d="M8 9h6"/></svg></span>
         <span class="bk-imya">Словарь</span>
         <span class="bk-o">Слова Метода Ясны, каждое с примером</span>
         <span class="bk-schet" id="bk-slovar-schet"></span></a></li>
       <li>
         <details class="bk-dver bk-mesta" id="bk-mesta">
           <summary>
+            <span class="bk-znak" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="4.5" r="1.1"/><circle cx="19.5" cy="12" r="1.1"/><circle cx="12" cy="19.5" r="1.1"/><circle cx="4.5" cy="12" r="1.1"/></svg></span>
             <span class="bk-mesta-t">
               <span class="bk-imya">Двенадцать мест</span>
               <span class="bk-o">Роль каждого места круга — она одна во всех явлениях</span>
@@ -222,6 +276,7 @@ body{background:var(--surface);color:var(--on-surface);
         </details>
       </li>
       <li><a class="bk-dver" href="konstruktor.html#proverka">
+        <span class="bk-znak" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 12.2l2.4 2.4 4.6-4.8"/></svg></span>
         <span class="bk-imya">Проверка</span>
         <span class="bk-o">Вопросы к своему кругу: сходится ли он сам с собой</span></a></li>
     </ul>
@@ -330,32 +385,52 @@ body{background:var(--surface);color:var(--on-surface);
     if(сдел > 0){
       var эХод = том.querySelector('[data-hod]');
       var эЗал = том.querySelector('[data-fill]');
-      var эТек = том.querySelector('[data-hod-t]');
       if(эХод) эХод.hidden = false;
-      if(эЗал) эЗал.style.width = (всего ? Math.round(сдел/всего*100) : 0) + '%';
-      if(эТек) эТек.textContent = 'прочитано ' + сдел + ' из '
-        + при(всего,'страницы','страниц','страниц');
+      /* Целевая ширина — переменной: полоса наливается кадром позже, когда
+         полка получит .bk-zhivo (см. ниже). Процент только в стиле, на
+         экране его нет. */
+      if(эЗал) эЗал.style.setProperty('--cel', (всего ? Math.round(сдел/всего*100) : 0) + '%');
+      /* Объём подменяем прочитанным: «74 из 104 страниц» говорит больше,
+         чем «104 страницы», и места под корешком на два числа нет. */
+      var эОб = том.querySelector('[data-obem]');
+      if(эОб) эОб.textContent = сдел + ' из ' + при(всего,'страницы','страниц','страниц');
     }
 
+    /* Кандидат в «читать дальше»: книга, которую трогали, идёт раньше той,
+       которую нет; среди тронутых — первая по порядку полки. */
     var д = дальше(О, сост);
-    var имя = имяГлавы(О, д.номер);
-    var эД = том.querySelector('[data-dalshe]');
+    кандидаты.push({ к: к, О: О, д: д, имя: имяГлавы(О, д.номер),
+                     трогали: !д.начало, порядок: КНИГИ.indexOf(к) });
+  }
+
+  var кандидаты = [];
+  function строкаДальше(){
+    if(!кандидаты.length) return;
+    кандидаты.sort(function(a,b){ return (b.трогали - a.трогали) || (a.порядок - b.порядок); });
+    var в = кандидаты[0];
+    var эД = document.getElementById('bk-dalshe');
     if(!эД) return;
-    var адрес = 'kniga.html' + (к.ид === 'sutki' ? '?' : '?kniga=' + к.ид + '&') + 'glava=' + д.номер;
+    var адрес = 'kniga.html' + (в.к.ид === 'sutki' ? '?' : '?kniga=' + в.к.ид + '&') + 'glava=' + в.д.номер;
     эД.setAttribute('href', адрес);
+    var подпись = (в.О.имя || 'Книга') + (в.д.номер ? ' · глава ' + в.д.номер : '') + (в.имя ? ' · ' + в.имя : '');
+    document.getElementById('bk-dalshe-t').textContent = в.д.начало ? 'Начать чтение' : 'Читать дальше';
+    document.getElementById('bk-dalshe-o').textContent = подпись;
+    var цвет = document.getElementById('bk-dalshe-cvet');
+    if(цвет) цвет.style.background = 'var(--book-' + в.к.ид + ', var(--primary))';
+    эД.setAttribute('aria-label', (в.д.начало ? 'Начать чтение' : 'Читать дальше') + ': ' + подпись);
     эД.hidden = false;
-    var подпись = (д.номер ? 'глава ' + д.номер + ' · ' : '') + имя;
-    эД.querySelector('[data-dalshe-t]').textContent = д.начало ? 'Начать чтение' : 'Читать дальше';
-    эД.querySelector('[data-dalshe-o]').textContent = подпись;
-    /* Читают вслух обе цели тома подряд — вторая обязана назвать книгу,
-       иначе «Читать дальше» звучит трижды подряд без разницы. */
-    эД.setAttribute('aria-label',
-      (О.имя || 'Книга') + ': ' + (д.начало ? 'начать чтение' : 'читать дальше') +
-      (подпись ? ', ' + подпись : ''));
   }
 
   (function поОчереди(i){
-    if(i >= КНИГИ.length) return;
+    if(i >= КНИГИ.length){
+      строкаДальше();
+      /* Оживляем кадром позже: полосы стоят пустыми в первом кадре и
+         наливаются во втором. Два requestAnimationFrame — чтобы браузер
+         успел отрисовать пустое; при «меньше движения» перехода нет. */
+      var полка = document.getElementById('bk-knigi');
+      if(полка) requestAnimationFrame(function(){ requestAnimationFrame(function(){ полка.classList.add('bk-zhivo'); }); });
+      return;
+    }
     var к = КНИГИ[i];
     var с = document.createElement('script');
     с.src = к.путь + 'opis.js?v=2';

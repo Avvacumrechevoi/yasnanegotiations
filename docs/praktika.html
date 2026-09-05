@@ -77,65 +77,165 @@ body{background:var(--surface);color:var(--on-surface);
 /* Цифры прогресса появляются только когда они есть: четыре нуля вместо
    счёта — шум, который ещё и обесценивает первую партию. */
 .pk-chisla{font-variant-numeric:tabular-nums}
+
+/* ── Сводка над дверями ──────────────────────────────────────────────
+   Раньше «Прогресс» стоял отдельной дверью в самом низу, под заголовком
+   «Как идут дела», — то есть свои числа человек видел последними. Теперь они
+   первой строкой под девизом, и только когда они есть: у того, кто ещё не
+   играл, строки нет вовсе. Вся строка — вход в «Прогресс». */
+.pk-svodka{display:flex;align-items:center;gap:10px;margin:12px 0 0;
+  padding:10px 14px;border-radius:12px;background:var(--surface-container-low);
+  border:1px solid var(--outline-variant);color:inherit;text-decoration:none;
+  font:var(--type-body-m);font-variant-numeric:tabular-nums}
+.pk-svodka[hidden]{display:none}
+.pk-svodka b{font:var(--type-label-l)}
+.pk-svodka .pk-strelka{margin-left:auto;color:var(--on-surface-variant);font-size:19px;line-height:1}
+
+/* ── Знак у двери ────────────────────────────────────────────────────
+   Тот же знак, что в профиле и на «Уроках»: обводка без заливки, 34 px.
+   Дверь со знаком узнаётся раньше, чем прочитано её имя. */
+.pk-dver{display:grid;grid-template-columns:34px 1fr;gap:2px 14px;align-items:start}
+.pk-znak{grid-row:1 / span 3;width:34px;height:34px;border-radius:10px;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--surface-container);color:var(--primary)}
+.pk-dver--glavnaya .pk-znak{background:rgba(255,255,255,.55);color:var(--primary)}
+html[data-theme="dark"] .pk-dver--glavnaya .pk-znak{background:rgba(255,255,255,.10)}
+.pk-znak svg{width:19px;height:19px;stroke:currentColor;fill:none;
+  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.pk-imya,.pk-o,.pk-sost,.pk-knopka{grid-column:2}
+
+/* ── Что человек здесь уже делал ─────────────────────────────────────
+   Дверь без следа — это дверь в незнакомую комнату. Строка состояния под
+   описанием говорит: «3 партии», «1 из 4 сценариев», «2 своих ясны». Берётся
+   из тех же ключей, что пишут сами занятия; нет данных — нет строки. */
+.pk-sost{display:block;margin-top:6px;font:var(--type-label-m);
+  color:var(--primary);font-variant-numeric:tabular-nums}
+.pk-dver--glavnaya .pk-sost{color:var(--on-primary-container)}
+.pk-sost[hidden]{display:none}
+.pk-knopka{justify-self:start}
+
+/* Двери поднимаются при загрузке — одна за другой, сверху вниз. Это первое
+   и единственное движение экрана; при «меньше движения» его нет. */
+@media (prefers-reduced-motion: no-preference){
+  .pk-set li{opacity:0;transform:translateY(8px);
+    animation:pk-podnyat .34s cubic-bezier(.2,.8,.2,1) forwards;
+    animation-delay:calc(var(--n,0) * 55ms)}
+  @keyframes pk-podnyat{to{opacity:1;transform:none}}
+}
 </style>
 </head>
 <body>
 <header class="pk-shapka">
   <h1>Практика</h1>
   <p class="pk-pod">Здесь Ясна проверяется делом: круг раскладывают руками, а не читают о нём.</p>
+  <!-- Сводка — первой строкой и только когда есть что сводить. Ведёт в
+       «Прогресс»: отдельной двери внизу у него больше нет. -->
+  <a class="pk-svodka" id="pk-svodka" href="rating.html" hidden>
+    <span id="pk-svodka-t"></span>
+    <span class="pk-strelka" aria-hidden="true">›</span>
+  </a>
 </header>
 
 <main class="pk-telo">
   <section class="pk-razdel">
     <h2>Занятия</h2>
     <ul class="pk-set">
-      <li><a class="pk-dver pk-dver--glavnaya" href="duel.html">
+      <li style="--n:0"><a class="pk-dver pk-dver--glavnaya" href="duel.html">
+        <span class="pk-znak" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></svg></span>
         <span class="pk-imya">Партия</span>
         <span class="pk-o">Вопросы по кругу: одному, вдвоём или с коллективом. Около пяти минут.</span>
+        <span class="pk-sost" id="pk-sost-partiya" hidden></span>
         <span class="pk-knopka">Играть</span></a></li>
-      <li><a class="pk-dver" href="games/krug/index.html?otkuda=praktika">
+      <li style="--n:1"><a class="pk-dver" href="games/krug/index.html?otkuda=praktika">
+        <span class="pk-znak" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v3M12 17.5v3M3.5 12h3M17.5 12h3"/><circle cx="12" cy="12" r="2"/></svg></span>
         <span class="pk-imya">Разложи по кругу</span>
-        <span class="pk-o">Расставить явление по двенадцати местам круга и увидеть, что сходится</span></a></li>
-      <li><a class="pk-dver" href="negotiations.html">
+        <span class="pk-o">Расставить явление по двенадцати местам круга и увидеть, что сходится</span>
+        <span class="pk-sost" id="pk-sost-krug" hidden></span></a></li>
+      <li style="--n:2"><a class="pk-dver" href="negotiations.html">
+        <span class="pk-znak" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6.5h11a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H9l-3.5 3v-3H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2z"/><path d="M19.5 10.5h.5a2 2 0 0 1 2 2v3.5a2 2 0 0 1-2 2h-.5v2.5l-3-2.5"/></svg></span>
         <span class="pk-imya">Переговоры</span>
-        <span class="pk-o">Разбор встречи по кругу: вход в контакт, сцены, спарринг</span></a></li>
-      <li><a class="pk-dver" href="konstruktor.html">
+        <span class="pk-o">Разбор встречи по кругу: вход в контакт, сцены, спарринг</span>
+        <span class="pk-sost" id="pk-sost-neg" hidden></span></a></li>
+      <li style="--n:3"><a class="pk-dver" href="konstruktor.html">
+        <span class="pk-znak" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l2.2 6.8L21 12l-6.8 2.2L12 21l-2.2-6.8L3 12l6.8-2.2z"/></svg></span>
         <span class="pk-imya">Своя ясна</span>
-        <span class="pk-o">Собрать круг своего явления в Разборе и сохранить в «Мои ясны»</span></a></li>
-    </ul>
-  </section>
-
-  <section class="pk-razdel">
-    <h2>Как идут дела</h2>
-    <ul class="pk-set">
-      <li><a class="pk-dver" href="rating.html">
-        <span class="pk-imya">Прогресс</span>
-        <span class="pk-o" id="pk-progress">Ступень, бусины и сыгранные партии</span></a></li>
+        <span class="pk-o">Собрать круг своего явления в Разборе и сохранить в «Мои ясны»</span>
+        <span class="pk-sost" id="pk-sost-svoya" hidden></span></a></li>
     </ul>
     <!-- Достижения и рейтинг недели живут внутри Партии (duel.html): вкладке
-         они не двери, а подробности после игры. -->
+         они не двери, а подробности после игры. Дверь «Прогресс» переехала
+         наверх сводкой — свои числа человек видит первыми, а не последними. -->
   </section>
 </main>
 
 <script>
-/* Подпись «Прогресса» — по своим числам, если они есть. Ключ yasna_duel_data
-   тот же, что читают экран Партии и «Прогресс»: ступень здесь нарочно не
-   считается, иначе лестница бусин жила бы в двух местах и разошлась бы. */
+/* ЧТО ЧЕЛОВЕК ЗДЕСЬ УЖЕ ДЕЛАЛ. Читаем те же ключи, что пишут сами занятия,
+   и ровно в тех формах, в каких они их пишут (формы сняты с кода владельцев
+   ключей, а не придуманы):
+     yasna_duel_data       {totalScore, totals:{played}}          — Партия
+     yasna_krug_v1         {games:[…], best:{явление:…}, partiya?} — Круг
+     yasna_neg_lessons_v1  [id, …] из четырёх сценариев          — Переговоры
+     yasna_neg_progress_v1 {answered, correct, bestStreak}
+     yasna_custom_v1       [{…}, …]                               — Своя ясна
+   Ступень здесь нарочно не считается: лестница бусин живёт в «Прогрессе»,
+   и второе место расчёта разошлось бы с первым. Нет данных — нет строки. */
 (function(){
-  try{
-    var д = JSON.parse(localStorage.getItem('yasna_duel_data') || 'null');
-    var бусин = (д && +д.totalScore) || 0;
-    var партий = (д && д.totals && +д.totals.played) || 0;
-    if(!бусин && !партий) return;
-    var д10 = партий % 10, с100 = партий % 100;
-    var слово = (д10 === 1 && с100 !== 11) ? 'партия'
-      : (д10 >= 2 && д10 <= 4 && (с100 < 12 || с100 > 14)) ? 'партии' : 'партий';
-    var узел = document.getElementById('pk-progress');
-    if(узел){
-      узел.className = 'pk-o pk-chisla';
-      узел.textContent = '\u2726 ' + бусин + ' \u00B7 ' + партий + ' ' + слово;
-    }
-  }catch(e){}
+  function ч(к, поум){ try{ var v=JSON.parse(localStorage.getItem(к)||'null'); return v==null?поум:v; }catch(e){ return поум; } }
+  function при(н, одна, две, много){
+    var д=Math.abs(н)%100, е=д%10;
+    return н+' '+((д>10&&д<20)?много:(е===1?одна:(е>=2&&е<=4?две:много)));
+  }
+  function строка(ид, текст){
+    var э=document.getElementById(ид); if(!э||!текст) return;
+    э.textContent=текст; э.hidden=false;
+  }
+
+  /* Партия и сводка */
+  var д=ч('yasna_duel_data',{});
+  var бусин=+д.totalScore||0, партий=+((д.totals&&(д.totals.played||д.totals.matches))||0);
+  if(партий||бусин){
+    строка('pk-sost-partiya', при(партий,'партия','партии','партий')+' · \u2726 '+бусин);
+  }
+
+  /* Круг: сыгранные раскладки и сколько явлений разобрано начисто (best) */
+  var к=ч('yasna_krug_v1',{});
+  var кругов=Array.isArray(к.games)?к.games.length:0;
+  var явлений=к.best&&typeof к.best==='object'?Object.keys(к.best).length:0;
+  /* Недоигранная раскладка не старше шести часов — это «продолжить», и
+     сказать об этом важнее, чем посчитать прошлое. Срок тот же, что у
+     самого круга: старше он её не воскрешает. */
+  var п=к.partiya;
+  if(п&&п.ts&&Date.now()-п.ts<6*60*60*1000){
+    строка('pk-sost-krug','Есть недоигранная раскладка — продолжить');
+  } else if(кругов){
+    строка('pk-sost-krug', при(кругов,'раскладка','раскладки','раскладок')
+      +(явлений?' · '+при(явлений,'явление','явления','явлений')+' начисто':''));
+  }
+
+  /* Переговоры: сценарии из четырёх и верные ответы в тренажёре */
+  var сц=ч('yasna_neg_lessons_v1',[]), тр=ч('yasna_neg_progress_v1',{});
+  var пройдено=Array.isArray(сц)?сц.length:0, верных=+тр.correct||0;
+  if(пройдено||верных){
+    строка('pk-sost-neg', (пройдено?пройдено+' из 4 сценариев':'')
+      +(пройдено&&верных?' · ':'')+(верных?при(верных,'верный ответ','верных ответа','верных ответов'):''));
+  }
+
+  /* Своя ясна */
+  var свои=ч('yasna_custom_v1',[]);
+  if(Array.isArray(свои)&&свои.length){
+    строка('pk-sost-svoya', при(свои.length,'своя ясна','свои ясны','своих ясн'));
+  }
+
+  /* Сводка над дверями — одна строка про всё сразу */
+  var части=[];
+  if(бусин) части.push('\u2726 '+при(бусин,'бусина','бусины','бусин'));
+  if(партий) части.push(при(партий,'партия','партии','партий'));
+  if(кругов) части.push(при(кругов,'раскладка','раскладки','раскладок'));
+  if(части.length){
+    var св=document.getElementById('pk-svodka');
+    var т=document.getElementById('pk-svodka-t');
+    if(св&&т){ т.innerHTML='<b>'+части.join('</b> · <b>').replace(/<b>(\S+ )/g,'<b>$1')+'</b>'; св.hidden=false; }
+  }
 })();
 </script>
 </body>
