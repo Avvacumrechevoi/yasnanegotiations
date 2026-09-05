@@ -813,8 +813,19 @@ function AdminApp(){
       window.YasnaAccessTab && React.createElement('button', {
         className: 'ad-tab' + (activeView === 'access' ? ' is-active' : ''),
         onClick: () => setActiveView('access'),
-      }, 'Доступы')
+      }, 'Доступы'),
+      // «Заявки» — тем же порядком, что и «Доступы»: отдельный файл
+      // admin-zayavki.js, кнопка появляется только если он подключён.
+      window.YasnaZayavkiTab && React.createElement('button', {
+        className: 'ad-tab' + (activeView === 'zayavki' ? ' is-active' : ''),
+        onClick: () => setActiveView('zayavki'),
+      }, 'Заявки')
     ),
+
+    // ─── View: Заявки «Посчитать имя» ───
+    activeView === 'zayavki' && window.YasnaZayavkiTab &&
+      React.createElement('div', { className:'ad-card', style:{ padding:16 } },
+        React.createElement(window.YasnaZayavkiTab)),
 
     // ─── View: Доступы ───
     activeView === 'access' && window.YasnaAccessTab &&

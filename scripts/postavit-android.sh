@@ -49,10 +49,18 @@ else
   curl -fsSL "$URL" -o /tmp/jdk21.tar.gz
   rm -rf /tmp/jdk21 && mkdir -p /tmp/jdk21
   tar -xzf /tmp/jdk21.tar.gz -C /tmp/jdk21
-  INNER="$(find /tmp/jdk21 -maxdepth 1 -type d -name '*jdk*' | head -1)"
-  [ -n "$INNER" ] || { echo "✗ в архиве не нашлось каталога jdk" >&2; exit 1; }
+  # -mindepth 1 обязателен: без него шаблон '*jdk*' совпадает с самой
+  # /tmp/jdk21, и наверх уезжает временная папка, а настоящий каталог JDK
+  # остаётся вложенным. Проверено на себе: java оказывалась на этаж ниже,
+  # а sdkmanager потом молча не ставил ни одного пакета.
+  INNER="$(find /tmp/jdk21 -mindepth 1 -maxdepth 1 -type d -name 'jdk-*' | head -1)"
+  [ -n "$INNER" ] || { echo "✗ в архиве не нашлось каталога jdk-*" >&2; exit 1; }
   rm -rf "$JDK" && mv "$INNER" "$JDK"
-  rm -f /tmp/jdk21.tar.gz
+  rm -rf /tmp/jdk21 /tmp/jdk21.tar.gz
+  # Проверяем сразу: сломанная раскладка обнаруживается здесь, а не через
+  # десять минут на непонятной ошибке сборки.
+  [ -x "$JDK/Contents/Home/bin/java" ] || {
+    echo "✗ java не нашлась в $JDK/Contents/Home/bin — раскладка архива другая" >&2; exit 1; }
   echo "✓ JDK 21: $("$JDK/Contents/Home/bin/java" -version 2>&1 | head -1)"
 fi
 
