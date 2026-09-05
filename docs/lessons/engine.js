@@ -1213,6 +1213,189 @@ function FinalQuizInlineBlock({block,onComplete,начало,наОтвет}){
     </div>);
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   ВИДЕО И ЗВУК ВНУТРИ УРОКА
+
+   ЗАЧЕМ. Вводный урок управления не обязан быть текстом: одно управление
+   пришлёт запись беседы, другое — звуковую дорожку. Эти два блока дают
+   уроку оба вида, не меняя его форму: тот же массив blocks, тот же
+   порядок, та же прокрутка.
+
+   ПОЧЕМУ ВИДЕО НЕ ВСТРОЕНО В СТРАНИЦУ. Встроенный плеер — это чужой код,
+   загруженный с чужого сервера: сборщик витрины (app/sobrat-vitrinu.mjs)
+   такие загрузки ловит и роняет сборку, а условия площадок разрешают показ
+   записи только в их собственном проигрывателе. Поэтому здесь — обложка
+   (своя, если управление её прислало), имя записи, длительность и кнопка,
+   которая отдаёт адрес системному браузеру. Экран урока при этом остаётся
+   на месте: человек возвращается на него из браузера.
+
+   ПОЧЕМУ ЗВУК ИГРАЕТ ЗДЕСЬ. Звуковой файл лежит в нашем хранилище, адрес
+   приходит из данных урока — чужого кода не появляется. Проигрыватель
+   обычный, без автозапуска и без предзакачки (preload="none"): урок
+   открывают и в дороге, качать дорожку без спроса нельзя. Если браузер
+   формат не взял, под проигрывателем стоит запасная дверь «Открыть файл».
+
+   ПОЛЯ БЛОКА video:
+     {type:'video', title, body, src, cover, duration, platform, note}
+       src      — адрес записи (внешний; открывается браузером);
+       cover    — свой файл обложки; нет — рисуем знак;
+       duration — «12 мин», «4:20» — как есть, строкой;
+       platform — имя площадки; не задано — берём хост из адреса;
+       note     — строка под кнопкой вместо строки по умолчанию.
+   ПОЛЯ БЛОКА audio:
+     {type:'audio', title, body, src, duration, note}
+       src      — адрес звукового файла в нашем хранилище.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Одна таблица стилей на оба блока. Инлайновым стилем не задать ни
+   :focus-visible, ни поведение картинки-обложки, а второй источник правды
+   о виде урока (см. lesson.html) заводить не хочется — поэтому крошечный
+   лист вставляем один раз на страницу. */
+const СТИЛИ_МЕДИА = `
+.ur-media-kn:focus-visible,.ur-media-zapas:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.ur-media-zvuk:focus-visible{outline:2px solid var(--primary);outline-offset:3px;border-radius:10px}
+.ur-media-oblozhka{display:block;width:100%;height:100%;object-fit:cover}
+`;
+function вставитьСтилиМедиа(){
+  try{
+    if(document.getElementById('ur-media-stili'))return;
+    const л=document.createElement('style');
+    л.id='ur-media-stili';л.textContent=СТИЛИ_МЕДИА;
+    document.head.appendChild(л);
+  }catch(_){}
+}
+
+/* Площадка по адресу — только чтобы человек знал, куда уходит. */
+function площадкаПоАдресу(адрес){
+  try{
+    const хост=new URL(String(адрес)).host.replace(/^www\./,'');
+    if(/rutube\.ru$/i.test(хост))return 'Rutube';
+    if(/(^|\.)vk(video)?\.(com|ru)$/i.test(хост))return 'ВК Видео';
+    if(/youtube\.com$|youtu\.be$/i.test(хост))return 'YouTube';
+    if(/t\.me$/i.test(хост))return 'Телеграм';
+    return хост;
+  }catch(_){return '';}
+}
+
+function VideoBlock({block}){
+  useEffect(вставитьСтилиМедиа,[]);
+  const адрес=block.src||block.href||'';
+  const площадка=block.platform||площадкаПоАдресу(адрес);
+  const метка='Смотреть'+(block.title?' «'+block.title+'»':' запись')
+    +(площадка?', '+площадка:'')+' — откроется в браузере';
+  return(
+    <div className='ur-media ur-media--video' style={{padding:'16px 24px',maxWidth:680,margin:'0 auto'}}>
+      <div style={{background:'var(--surface-container-lowest)',borderRadius:14,border:'1px solid var(--outline-variant)',overflow:'hidden',boxShadow:'0 1px 3px rgba(15,27,42,.04)'}}>
+        {/* Обложка: своя картинка, если управление её прислало, иначе знак.
+            Плашка с треугольником — примета записи, а не живой плеер: она
+            не кликается, дверь наружу одна и подписана словами. */}
+        <div style={{position:'relative',aspectRatio:'16 / 9',background:'var(--surface-container-high)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+          {block.cover?(
+            <React.Fragment>
+              <img className='ur-media-oblozhka' src={block.cover} alt='' loading='lazy' decoding='async'/>
+              {/* Плашка с треугольником — только поверх обложки: она говорит,
+                  что картинка — это запись. Без обложки её место занимает
+                  сам знак записи, и две приметы одного не спорят. */}
+              <div aria-hidden='true' style={{position:'absolute',left:'50%',top:'50%',transform:'translate(-50%,-50%)',width:58,height:58,borderRadius:'50%',background:'var(--primary)',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'var(--elev-3)'}}>
+                <svg viewBox='0 0 24 24' style={{width:26,height:26,marginLeft:3}}><path d='M8.5 5.5 18.5 12l-10 6.5z' fill='var(--on-primary)'/></svg>
+              </div>
+            </React.Fragment>
+          ):(
+            <svg viewBox='0 0 96 60' aria-hidden='true' style={{width:112,height:70,opacity:.6}}>
+              <rect x='3' y='7' width='64' height='46' rx='8' fill='none' stroke='var(--on-surface-variant)' strokeWidth='2.5'/>
+              <path d='M69 24 92 13v34L69 36z' fill='none' stroke='var(--on-surface-variant)' strokeWidth='2.5' strokeLinejoin='round'/>
+              <path d='M28 20l17 10-17 10z' fill='var(--on-surface-variant)'/>
+            </svg>
+          )}
+          {block.duration&&(
+            <div style={{position:'absolute',right:10,bottom:10,padding:'3px 9px',borderRadius:6,background:'rgba(0,0,0,.66)',color:'#FFFFFF',fontSize:11.5,fontWeight:700,letterSpacing:.2}}>{block.duration}</div>
+          )}
+        </div>
+        <div style={{padding:'16px 20px 18px'}}>
+          <div style={{fontSize:10.5,color:'var(--on-surface-variant)',textTransform:'uppercase',letterSpacing:1.1,fontWeight:700,marginBottom:8}}>
+            Видео{площадка?' · '+площадка:''}{block.duration?' · '+block.duration:''}
+          </div>
+          {block.title&&<div style={{fontSize:15,fontWeight:700,color:'var(--on-surface)',marginBottom:8,lineHeight:1.35}}>{block.title}</div>}
+          {block.body&&<div style={{fontSize:14,color:'var(--on-surface)',lineHeight:1.65,whiteSpace:'pre-wrap',marginBottom:14}}>{renderRichText(block.body,{термины:true})}</div>}
+          {адрес?(
+            <React.Fragment>
+              <a className='ur-media-kn' href={адрес} target='_blank' rel='noopener noreferrer' aria-label={метка}
+                 style={{display:'inline-flex',alignItems:'center',justifyContent:'center',gap:8,minHeight:48,padding:'0 24px',borderRadius:12,background:'var(--primary)',color:'var(--on-primary)',fontSize:15,fontWeight:600,textDecoration:'none'}}>
+                <svg viewBox='0 0 24 24' aria-hidden='true' style={{width:18,height:18,flexShrink:0}}><path d='M8.5 5.5 18.5 12l-10 6.5z' fill='currentColor'/></svg>
+                <span>Смотреть</span>
+              </a>
+              <div style={{fontSize:12,color:'var(--on-surface-variant)',lineHeight:1.5,marginTop:10}}>
+                {block.note||('Запись откроется в браузере'+(площадка?' на площадке '+площадка:'')+'. Урок останется здесь.')}
+              </div>
+            </React.Fragment>
+          ):(
+            <div style={{fontSize:13,color:'var(--on-surface-variant)',lineHeight:1.6}}>Адрес записи в уроке не указан.</div>
+          )}
+        </div>
+      </div>
+    </div>);
+}
+
+function AudioBlock({block}){
+  useEffect(вставитьСтилиМедиа,[]);
+  /* Браузер молчит по-разному: где-то не тянет формат, где-то файл не
+     доехал. Человеку нужен один ответ — запасная дверь к файлу, — поэтому
+     она стоит всегда, а при сбое над ней появляется строка с причиной. */
+  const[сбой,setСбой]=useState(false);
+  const адрес=block.src||block.href||'';
+  const метка='Звуковая запись'+(block.title?' «'+block.title+'»':'')
+    +(block.duration?', '+block.duration:'');
+  return(
+    <div className='ur-media ur-media--zvuk' style={{padding:'16px 24px',maxWidth:680,margin:'0 auto'}}>
+      <div style={{background:'var(--surface-container-lowest)',borderRadius:14,border:'1px solid var(--outline-variant)',padding:'18px 20px 18px',boxShadow:'0 1px 3px rgba(15,27,42,.04)'}}>
+        <div style={{display:'flex',alignItems:'center',gap:8,fontSize:10.5,color:'var(--on-surface-variant)',textTransform:'uppercase',letterSpacing:1.1,fontWeight:700,marginBottom:8}}>
+          <svg viewBox='0 0 24 24' aria-hidden='true' style={{width:15,height:15,flexShrink:0}}>
+            <path d='M4 14v-2a8 8 0 0 1 16 0v2' fill='none' stroke='currentColor' strokeWidth='1.8' strokeLinecap='round'/>
+            <rect x='3' y='13.5' width='4.5' height='6.5' rx='2' fill='none' stroke='currentColor' strokeWidth='1.8'/>
+            <rect x='16.5' y='13.5' width='4.5' height='6.5' rx='2' fill='none' stroke='currentColor' strokeWidth='1.8'/>
+          </svg>
+          <span>Звук{block.duration?' · '+block.duration:''}</span>
+        </div>
+        {block.title&&<div style={{fontSize:15,fontWeight:700,color:'var(--on-surface)',marginBottom:8,lineHeight:1.35}}>{block.title}</div>}
+        {block.body&&<div style={{fontSize:14,color:'var(--on-surface)',lineHeight:1.65,whiteSpace:'pre-wrap',marginBottom:14}}>{renderRichText(block.body,{термины:true})}</div>}
+        {адрес?(
+          <React.Fragment>
+            {/* Проигрыватель — родной, системный: его умеет и чтец, и наушники,
+                и кнопки на гарнитуре. Без автозапуска и без предзакачки —
+                звук начинается только по нажатию, дорожка качается только
+                после него. Полосу проигрывателя рисует сама система (свой
+                вид она берёт от системной темы, не от нашей), поэтому мы
+                сажаем её на подложку: так она читается как часть карточки,
+                а не как чужая деталь на ней. */}
+            <div style={{background:'var(--surface-container)',borderRadius:14,padding:6,border:'1px solid var(--outline-variant)'}}>
+              <audio className='ur-media-zvuk' controls preload='none' src={адрес}
+                     aria-label={метка} onError={()=>setСбой(true)}
+                     style={{display:'block',width:'100%',minHeight:44}}/>
+            </div>
+            {сбой&&(
+              <div role='status' style={{marginTop:10,padding:'10px 12px',borderRadius:10,background:'var(--surface-container)',border:'1px solid var(--outline-variant)',fontSize:12.5,color:'var(--on-surface)',lineHeight:1.55}}>
+                Здесь запись не проигралась. Откройте файл отдельно — ссылка ниже.
+              </div>
+            )}
+            <div style={{marginTop:12,display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}>
+              <a className='ur-media-zapas' href={адрес} target='_blank' rel='noopener noreferrer'
+                 aria-label={'Открыть звуковой файл отдельно'+(block.title?' — «'+block.title+'»':'')}
+                 style={{display:'inline-flex',alignItems:'center',gap:7,minHeight:44,padding:'0 16px',borderRadius:11,border:'1px solid var(--outline-variant)',color:'var(--primary)',fontSize:14,fontWeight:600,textDecoration:'none'}}>
+                <svg viewBox='0 0 24 24' aria-hidden='true' style={{width:16,height:16,flexShrink:0}}>
+                  <path d='M14 4h6v6M20 4l-8.5 8.5M18 14v4.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10' fill='none' stroke='currentColor' strokeWidth='1.8' strokeLinecap='round' strokeLinejoin='round'/>
+                </svg>
+                <span>Открыть файл</span>
+              </a>
+              <span style={{fontSize:12,color:'var(--on-surface-variant)',lineHeight:1.5}}>{block.note||'Если проигрыватель молчит.'}</span>
+            </div>
+          </React.Fragment>
+        ):(
+          <div style={{fontSize:13,color:'var(--on-surface-variant)',lineHeight:1.6}}>Адрес звукового файла в уроке не указан.</div>
+        )}
+      </div>
+    </div>);
+}
+
 function SummaryBlockInline({block}){
   return(
     <div style={{padding:'24px'}}>
@@ -2227,9 +2410,12 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
           <div style={{fontSize:11,color:'var(--on-surface-variant)',textTransform:'uppercase',letterSpacing:0.6,fontWeight:600,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{lesson.module?'Урок '+lesson.order+' · '+lesson.module:'Урок '+lesson.order}</div>
           <div style={{fontSize:14,fontWeight:600,color:'var(--on-surface)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{lesson.title}</div>
         </div>
-        {/* Цифру прячем от чтеца: её же называет полоса ниже — иначе
-            «25 процентов» звучит дважды. */}
-        <div aria-hidden='true' style={{fontSize:11,color:'var(--on-surface-variant)',fontWeight:600,marginRight:2}}>{Math.round(progress)}%</div>
+        {/* Процента на экране нет: продукт нигде не меряет себя долями, и
+            «50 %» в шапке урока — единственное место, где он оставался
+            (ревью 8.8). Вместо доли — раздел, который человек проверяет
+            глазами по воротам; у уроков без ворот в шапке не стоит ничего.
+            Цифру прячем от чтеца: её же называет полоса ниже. */}
+        {totalGates>0 && <div aria-hidden='true' style={{fontSize:11,color:'var(--on-surface-variant)',fontWeight:600,marginRight:2,whiteSpace:'nowrap'}}>{раздел} / {разделов}</div>}
         <МенюУрока пункты={пунктыМеню}/>
         {/* Один выход из урока: ✕, Esc и аппаратная «назад» зовут один и тот
             же onClose (закрытьУрок в app.js) — разных дорог наружу быть не
@@ -2245,7 +2431,7 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
             говорил вовсе. Теперь это прогресс с долей и словами. */}
         <div role='progressbar' aria-label='Прогресс урока'
              aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)}
-             aria-valuetext={totalGates>0?('прочитано '+Math.round(progress)+' процентов, раздел '+раздел+' из '+разделов):('прочитано '+Math.round(progress)+' процентов')}
+             aria-valuetext={totalGates>0?('раздел '+раздел+' из '+разделов):undefined}
              style={{position:'absolute',left:0,bottom:-1,height:3,width:'100%',background:'var(--surface-container-high)'}}>
           <div style={{height:'100%',width:progress+'%',background:'var(--primary)',transition:'width .35s ease'}}/>
         </div>
@@ -2303,6 +2489,9 @@ function ScrollLesson({lesson,onClose,onComplete,onPickAnother,onOpenLesson}){
             case 'three-shelves': return wrap(<InlineThreeShelvesBlock block={block} onComplete={()=>markBlockComplete(i)} начало={прошлый} наОтвет={записать}/>);
             case 'carousel': return wrap(<InlineCarouselBlock block={block}/>);
             case 'bar-chart': return wrap(<InlineBarChartBlock block={block}/>);
+            /* Видео и звук: вводный урок управления может быть записью. */
+            case 'video': return wrap(<VideoBlock block={block}/>);
+            case 'audio': return wrap(<AudioBlock block={block}/>);
             case 'summary-block': return wrap(<SummaryBlockInline block={block}/>);
             case 'next-steps-block': return wrap(<NextStepsBlockInline block={block} lesson={lesson} onClose={onClose} onPickAnother={onPickAnother} onRepeat={repeat} onOpenLesson={onOpenLesson}/>);
             default: return wrap(<div style={{padding:20,color:'var(--on-surface-variant)',textAlign:'center'}}>Блок '{block.type}' не реализован</div>);

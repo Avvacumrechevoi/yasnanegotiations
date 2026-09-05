@@ -3,6 +3,13 @@
    держит четыре «таблицы» обычными массивами. Модуль прав (access.js) тянет
    ydb-sdk, которого на машине нет, — подменяем его через require.cache.
 
+   ОДНОВРЕМЕННОСТЬ. Каждый executeQuery сначала уступает очередь событий
+   (setImmediate) — как настоящий поход по сети. Поэтому параллельные вызовы
+   ручек по-настоящему перемежаются, и «проверил, потом записал» двумя
+   запросами разъезжается ровно так же, как разъехалось в бою (F16). Один
+   запрос при этом остаётся неделимым: его обработчик отрабатывает без
+   уступок — это и есть модель транзакции YDB.
+
    Запуск:  node server/proby/proba-lenta.mjs   (PATH с node 22, см. README)   */
 import { createRequire } from 'node:module';
 import { createHash } from 'node:crypto';
@@ -140,10 +147,20 @@ const УСТРОЙСТВА = new Map([
   ['dev-3', хешСекрета('третье-устройство')],
 ]);
 let базаЛежит = false, запросовПубликаций = 0, журналЛомается = false, обращенийКУстройствам = 0;
+/* Индекс очереди жалоб строится в фоне (миграция 011): пока он не готов, YDB
+   отвечает на запрос через VIEW ошибкой схемы. Включаем это здесь, чтобы
+   проверить запасной путь — обход таблицы без VIEW. */
+let индексНеГотов = false, читаноБезИндекса = 0;
+let задержкаЖурнала = 0, жалобОтдано = 0;
+const уступить = () => new Promise((r) => setImmediate(r));
 
 const сессия = {
   async executeQuery(sql, p = {}) {
+    /* Поход по сети: до этой точки соседние вызовы успевают вклиниться. */
+    await уступить();
     if (базаЛежит) throw new Error('Transport unavailable: connection refused');
+    if (индексНеГотов && /VIEW lenta_zhaloby_po_sostoyaniyu/.test(sql))
+      throw new Error("Scheme error: index lenta_zhaloby_po_sostoyaniyu is not found in table /ru-central1/db/lenta_zhaloby");
     /* Как настоящая YDB: UPSERT обязан нести все NOT NULL колонки таблицы. */
     for (const м of sql.matchAll(/UPSERT INTO (\w+) \(([^)]*)\)/g)) {
       const есть = new Set(м[2].split(',').map((x) => x.trim()));
@@ -203,9 +220,22 @@ const сессия = {
       ЖАЛОБЫ.push({ klyuch: v('$k'), at: iso(Date.now()), prichina: v('$p'), tekst: v('$t'), kontakt: v('$c'), ustrojstvo: v('$u'), sostoyanie: v('$s') });
       return { resultSets: [] };
     }
-    if (/SELECT COUNT\(\*\) AS n FROM lenta_zhaloby WHERE sostoyanie = \$s/.test(sql)) {
-      return { resultSets: [{ rows: [{ items: [{ uint64Value: String(ЖАЛОБЫ.filter((ж) => ж.sostoyanie === v('$s')).length) }] }] }] };
+    /* Потолок неразобранных: только по новым и не больше предела строк. */
+    if (/SELECT COUNT\(\*\) AS n FROM \$novye/.test(sql) && /FROM lenta_zhaloby VIEW lenta_zhaloby_po_sostoyaniyu/.test(sql)) {
+      if (!/WHERE sostoyanie = \$s LIMIT \$n/.test(sql)) throw new Error('потолок считается обходом всей таблицы (нет LIMIT)');
+      const n = ЖАЛОБЫ.filter((ж) => ж.sostoyanie === v('$s')).slice(0, Number(v('$n'))).length;
+      return { resultSets: [{ rows: [{ items: [{ uint64Value: String(n) }] }] }] };
     }
+    /* Без индекса потолок считается обходом — но ТОЛЬКО пока индекс строится.
+       В обычное время такой запрос по-прежнему запрещён (F17). */
+    if (/SELECT COUNT\(\*\) AS n FROM \$novye/.test(sql) && /FROM lenta_zhaloby\s/.test(sql) && индексНеГотов) {
+      if (!/WHERE sostoyanie = \$s LIMIT \$n/.test(sql)) throw new Error('запасной счёт без LIMIT — обход всей таблицы');
+      читаноБезИндекса++;
+      const n = ЖАЛОБЫ.filter((ж) => ж.sostoyanie === v('$s')).slice(0, Number(v('$n'))).length;
+      return { resultSets: [{ rows: [{ items: [{ uint64Value: String(n) }] }] }] };
+    }
+    if (/COUNT\(\*\)/.test(sql) && /lenta_zhaloby/.test(sql) && !/VIEW lenta_zhaloby_po_sostoyaniyu/.test(sql))
+      throw new Error('потолок жалоб считается без индекса по состоянию (F17)');
     if (/SELECT secret_hash FROM device_auth WHERE device_id = \$d/.test(sql)) {
       obращ();
       const х = УСТРОЙСТВА.get(v('$d'));
@@ -217,8 +247,31 @@ const сессия = {
       return { resultSets: [{ rows: д ? [{ items: [т(д[0])] }] : [] }] };
     }
     if (/UPSERT INTO device_auth/.test(sql)) throw new Error('жалоба не должна привязывать устройство (TOFU здесь — дыра в лимите)');
+    /* Решение по жалобе: сперва читаем метки и состояния по ключу записи. */
+    if (/SELECT at, sostoyanie FROM lenta_zhaloby WHERE klyuch = \$k/.test(sql)) {
+      const ряд = ЖАЛОБЫ.filter((ж) => ж.klyuch === v('$k'));
+      return { resultSets: [{ rows: ряд.map((ж) => ({ items: [мкс(ж.at), т(ж.sostoyanie)] })) }] };
+    }
+    if (/UPDATE lenta_zhaloby SET sostoyanie = \$s/.test(sql)) {
+      if (!/sostoyanie = "novaya"u/.test(sql)) throw new Error('решение переписывает уже закрытые жалобы');
+      const окно = [...sql.matchAll(/at ([<>]=?) Timestamp\("([^"]+)"\)/g)].map((m) => [m[1], m[2]]);
+      for (const ж of ЖАЛОБЫ) {
+        if (ж.klyuch !== v('$k') || ж.sostoyanie !== 'novaya') continue;
+        if (окно.length && !(ж.at >= окно[0][1] && ж.at < окно[1][1])) continue;
+        ж.sostoyanie = v('$s'); ж.reshil = v('$u');
+        ж.reshenie_prichina = v('$p'); ж.reshenie_at = iso(Date.now());
+      }
+      return { resultSets: [] };
+    }
+    /* Очередь жалоб: порядок и предел ОБЯЗАНЫ стоять в запросе (F17). */
     if (/FROM lenta_zhaloby/.test(sql)) {
-      const ряд = ЖАЛОБЫ.filter((ж) => ж.sostoyanie === v('$s')).slice(0, Number(v('$n')));
+      if (!/VIEW lenta_zhaloby_po_sostoyaniyu/.test(sql) && !индексНеГотов) throw new Error('жалобы читаются без индекса по состоянию');
+      if (!/VIEW lenta_zhaloby_po_sostoyaniyu/.test(sql)) читаноБезИндекса++;
+      if (!/ORDER BY sostoyanie DESC, at DESC LIMIT \$n/.test(sql)) throw new Error('жалобы выбираются без порядка и предела в запросе (F17)');
+      const ряд = ЖАЛОБЫ.filter((ж) => ж.sostoyanie === v('$s'))
+        .sort((a, b) => String(b.at).localeCompare(String(a.at)))
+        .slice(0, Number(v('$n')));
+      жалобОтдано = ряд.length;
       return { resultSets: [{ rows: ряд.map((ж) => ({ items: [т(ж.klyuch), мкс(ж.at), т(ж.prichina), т(ж.tekst), т(ж.kontakt), т(ж.ustrojstvo), т(ж.sostoyanie)] })) }] };
     }
     if (/FROM lenta_zhurnal/.test(sql)) {
@@ -226,20 +279,31 @@ const сессия = {
       return { resultSets: [{ rows: ряд.map((з) => ({ items: [мкс(з.at), т(з.ishod), т(з.soobshchenie), ч(з.dlitelnost_ms), ч(з.novyh)] })) }] };
     }
     if (/UPSERT INTO lenta_zhurnal/.test(sql)) {
+      if (задержкаЖурнала) await new Promise((r) => setTimeout(r, задержкаЖурнала));
       if (журналЛомается) throw new Error('журнал недоступен');
       ЖУРНАЛ.push({ klyuch: v('$k'), at: iso(Date.now()), ishod: 'prosmotr', soobshchenie: v('$s'), dlitelnost_ms: v('$d'), novyh: v('$n'), otkuda: v('$o') });
       return { resultSets: [] };
     }
-    if (/SELECT window_start, hits FROM auth_throttle/.test(sql)) {
-      const з = ЧАСТОТА.get(v('$b'));
-      return { resultSets: [{ rows: з ? [{ items: [{ uint64Value: String(з.start * 1000) }, ч(з.hits)] }] : [] }] };
+    /* ЛИМИТ ЖАЛОБ — ОДНИМ ЗАПРОСОМ. Чтение, решение и запись в одном тексте:
+       обработчик отрабатывает без уступок, то есть неделимо, как транзакция
+       YDB. Расходятся только те, кто ходит в базу дважды, — а такие запросы
+       ниже отвергнуты нарочно. */
+    if (/UPSERT INTO auth_throttle SELECT/.test(sql) && /FROM auth_throttle WHERE bucket = \$b/.test(sql)) {
+      for (const к of ['bucket', 'window_start', 'hits'])
+        if (!new RegExp('UPSERT INTO auth_throttle SELECT[^;]*\\b' + к + '\\b').test(sql))
+          throw new Error('BadRequest (code 400010): Missing not null column in input: ' + к);
+      if (!/Interval\("PT3600S"\)/.test(sql)) throw new Error('окно лимита не часовое');
+      if (!/WHERE mozhno/.test(sql)) throw new Error('счётчик пишется и при отказе');
+      const ведро = v('$b'), предел = Number(v('$p')), сейчас = Date.now();
+      const з = ЧАСТОТА.get(ведро);
+      const заново = !з || (сейчас - з.start) > 3600000;
+      const было = заново ? 0 : з.hits;
+      const можно = заново || было < предел;
+      if (можно) ЧАСТОТА.set(ведро, { start: заново ? сейчас : з.start, hits: заново ? 1 : было + 1 });
+      return { resultSets: [{ rows: [{ items: [б(можно)] }] }] };
     }
-    if (/UPSERT INTO auth_throttle \(bucket, window_start, hits\)/.test(sql)) {
-      ЧАСТОТА.set(v('$b'), { start: Date.now(), hits: v('$h') }); return { resultSets: [] };
-    }
-    if (/UPDATE auth_throttle SET hits = \$h WHERE bucket = \$b/.test(sql)) {
-      const з = ЧАСТОТА.get(v('$b')); if (!з) throw new Error('hits без окна'); з.hits = v('$h'); return { resultSets: [] };
-    }
+    if (/FROM auth_throttle/.test(sql) || /INTO auth_throttle/.test(sql) || /UPDATE auth_throttle/.test(sql))
+      throw new Error('лимит жалоб читается и пишется разными запросами — между ними влезет соседний вызов (F16)');
     throw new Error('поддельная база не знает запроса: ' + sql.trim().slice(0, 90));
   },
 };
@@ -422,16 +486,48 @@ console.log('Есть новое');
 
 console.log('Журнал «откуда»');
 {
+  Л.сброситьЖурналСчёт();
   const было = ЖУРНАЛ.length;
   r = await зов('GET', '/lenta', { n: '3', otkuda: 'segodnya', upravlenie: 'astronevod' });
+  await Л.журналДоехал();
   так(r.statusCode === 200 && ЖУРНАЛ.length === было + 1 && ЖУРНАЛ[было].klyuch === 'klient:segodnya' && ЖУРНАЛ[было].otkuda === 'segodnya' && ЖУРНАЛ[было].novyh === 3,
     'otkuda=segodnya → строка журнала klient:segodnya с числом записей', ЖУРНАЛ[было]);
+  так(/dolya=10/.test(ЖУРНАЛ[было].soobshchenie), 'в строке записана доля выборки', ЖУРНАЛ[было].soobshchenie);
   r = await зов('GET', '/lenta', { n: '3' });
+  await Л.журналДоехал();
   так(ЖУРНАЛ.length === было + 1, 'без otkuda журнал не пишется');
+  Л.сброситьЖурналСчёт();
   журналЛомается = true;
   r = await зов('GET', '/lenta', { n: '3', otkuda: 'lenta' });
+  await Л.журналДоехал();
   журналЛомается = false;
   так(r.statusCode === 200 && r.тело.zapisi.length === 3, 'сломанный журнал не ломает ленту');
+}
+{
+  /* ДОЛЯ. Строка пишется на каждый десятый просмотр с меткой: тысяча активных
+     не должна давать восемь тысяч строк в сутки. Первый просмотр экземпляра
+     пишется всегда — по нему видно, что холодный старт удался. */
+  Л.сброситьЖурналСчёт();
+  const было = ЖУРНАЛ.length;
+  for (let i = 0; i < 10; i++) await зов('GET', '/lenta', { n: '1', otkuda: 'lenta' });
+  await Л.журналДоехал();
+  так(ЖУРНАЛ.length === было + 1, 'десять просмотров с меткой → одна строка журнала', ЖУРНАЛ.length - было);
+  for (let i = 0; i < 10; i++) await зов('GET', '/lenta', { n: '1', otkuda: 'lenta' });
+  await Л.журналДоехал();
+  так(ЖУРНАЛ.length === было + 2, 'ещё десять → ещё одна', ЖУРНАЛ.length - было);
+  const б2 = ЖУРНАЛ.length;
+  for (let i = 0; i < 10; i++) await зов('GET', '/lenta', { n: '1' });
+  await Л.журналДоехал();
+  так(ЖУРНАЛ.length === б2, 'просмотры без метки долю не тратят');
+  /* НЕ БЛОКИРУЕТ. Журнал пишется дольше ответа — ответ всё равно уходит первым. */
+  Л.сброситьЖурналСчёт();
+  задержкаЖурнала = 40;
+  const б3 = ЖУРНАЛ.length;
+  const о = await зов('GET', '/lenta', { n: '1', otkuda: 'biblioteka' });
+  так(о.statusCode === 200 && ЖУРНАЛ.length === б3, 'ответ ушёл раньше строки журнала (запись не блокирует)', ЖУРНАЛ.length - б3);
+  await Л.журналДоехал();
+  так(ЖУРНАЛ.length === б3 + 1, 'строка журнала доехала после ответа');
+  задержкаЖурнала = 0;
 }
 
 console.log('Состояние сбора');
@@ -538,6 +634,26 @@ r = await зов('POST', '/lenta/zhaloba', {}, СЕКРЕТ, { id: ЦЕЛЬ, pri
   ЖАЛОБЫ.splice(было, 300);
   ЧАСТОТА.delete(в);
 }
+{
+  /* ГОНКА ЛИМИТА (F16). Двенадцать жалоб уходят одновременно, предел — пять.
+     Пока проверка и увеличение шли двумя запросами, каждая читала «было ноль»
+     и проходили все двенадцать. Теперь счёт неделим: ровно пять успехов. */
+  const ведро = 'lenta-zhaloba:' + createHash('sha256').update('секрет-устройства-1').digest('hex').slice(0, 32);
+  ЧАСТОТА.delete(ведро);
+  ЧАСТОТА.delete('lenta-zhaloba-ip:ip');
+  const жалобБыло = ЖАЛОБЫ.length;
+  const ответы = await Promise.all(Array.from({ length: 12 }, () =>
+    зов('POST', '/lenta/zhaloba', {}, СЕКРЕТ, { id: ЦЕЛЬ, prichina: 'drugoe' })));
+  const коды = ответы.map((о) => о.statusCode);
+  const успехов = коды.filter((к) => к === 200).length;
+  так(успехов === 5 && коды.filter((к) => к === 429).length === 7,
+    '12 одновременных жалоб при пределе 5 → ровно 5 успехов и 7 отказов', коды.join(','));
+  так(ЧАСТОТА.get(ведро).hits === 5, 'счётчик устройства ровно 5 (отказы его не наращивают)', ЧАСТОТА.get(ведро));
+  так(ЖАЛОБЫ.length === жалобБыло + 5, 'в таблице ровно пять новых строк', ЖАЛОБЫ.length - жалобБыло);
+  так(ЧАСТОТА.get('lenta-zhaloba-ip:ip').hits === 5, 'ведро адреса тоже посчитано один раз на успех', ЧАСТОТА.get('lenta-zhaloba-ip:ip'));
+  ЧАСТОТА.delete(ведро);
+  ЧАСТОТА.delete('lenta-zhaloba-ip:ip');
+}
 
 console.log('Скрытие');
 ПРАВА = { isSuperadmin: false, caps: ['cap:lenta.istochniki'] };
@@ -575,6 +691,113 @@ r = await зов('GET', '/lenta/istochniki', {}, ТОКЕН);
   const ж = r.тело.zhaloby;
   так(ж.length === 1 && ж[0].id === ДРУГАЯ && ж[0].sostoyanie === 'novaya' && ж[0].zagolovok && ж[0].ssylka && ж[0].skryto === false && ж[0].zapis_est === true,
     'в состоянии — только новые жалобы (разобранные ушли), с заголовком и ссылкой записи', ж);
+}
+
+console.log('Очередь жалоб и решения');
+const ЖИВАЯ = видимые().find((з) => з.kanal === 'russkaya_yasna').klyuch;
+{
+  /* Шестьдесят новых жалобы вперемешку по времени: очередь обязана отдать
+     пятьдесят САМЫХ СВЕЖИХ, отсортированных базой. Прежний код брал двести
+     произвольных строк и сортировал их в памяти (F17). */
+  const шаг = Date.parse('2026-09-01T00:00:00Z');
+  for (let k = 0; k < 60; k++) {
+    const i = (k * 7) % 60;                       /* вперемешку, но повторяемо */
+    ЖАЛОБЫ.push({ klyuch: 'telegram:russkaya_yasna:q' + i, at: iso(шаг + i * 60000),
+      prichina: 'drugoe', tekst: null, kontakt: null, ustrojstvo: 'x', sostoyanie: 'novaya' });
+  }
+  ПРАВА = { isSuperadmin: true, caps: [] };
+  r = await зов('GET', '/lenta/istochniki', {}, ТОКЕН);
+  const ж = r.тело.zhaloby;
+  так(ж.length === 50 && жалобОтдано === 50, 'из 61 новой жалобы отдано ровно 50 — предел в запросе, а не в памяти', [ж.length, жалобОтдано]);
+  так(ж.every((x, i, a) => !i || a[i - 1].at >= x.at), 'жалобы по убыванию времени', ж.map((x) => x.at).slice(0, 3));
+  так(ж[0].id === ЖИВАЯ, 'первая — самая свежая жалоба', ж[0]);
+  так(ж[49].id === 'telegram:russkaya_yasna:q11', 'последняя из пятидесяти — одиннадцатая с конца', ж[49].id);
+  так(!ж.some((x) => /:q([0-9]|10)$/.test(x.id)), 'самые старые в выдачу не попали');
+}
+{
+  /* Решение «отклонено»: жалоба закрыта, запись НЕ скрыта. */
+  ПРАВА = { isSuperadmin: false, caps: [] };
+  r = await зов('POST', '/lenta/zhaloba/reshit', {}, {}, { id: ЖИВАЯ, reshenie: 'otkloneno' });
+  так(r.statusCode === 401, 'решение без токена → 401', r.тело);
+  ПРАВА = { isSuperadmin: false, caps: ['cap:lenta.istochniki'] };
+  r = await зов('POST', '/lenta/zhaloba/reshit', {}, ТОКЕН, { id: ЖИВАЯ, reshenie: 'otkloneno' });
+  так(r.statusCode === 403, 'право istochniki не даёт решать → 403', r.тело);
+  ПРАВА = { isSuperadmin: false, caps: ['cap:lenta.moderate'] };
+  r = await зов('POST', '/lenta/zhaloba/reshit', {}, ТОКЕН, { id: ЖИВАЯ, reshenie: 'sжечь' });
+  так(r.statusCode === 400, 'чужое решение → 400', r.тело);
+  r = await зов('POST', '/lenta/zhaloba/reshit', {}, ТОКЕН, { id: 'мусор', reshenie: 'otkloneno' });
+  так(r.statusCode === 400, 'мусорный id → 400', r.тело);
+  r = await зов('POST', '/lenta/zhaloba/reshit', {}, ТОКЕН, { id: ЖИВАЯ, at: 'вчера' });
+  так(r.statusCode === 400, 'мусорный at → 400', r.тело);
+  const БЕЗ_ЖАЛОБ = видимые().find((з) => з.kanal === 'neglinka78').klyuch;
+  r = await зов('POST', '/lenta/zhaloba/reshit', {}, ТОКЕН, { id: БЕЗ_ЖАЛОБ, reshenie: 'otkloneno' });
+  так(r.statusCode === 404, 'запись без новых жалоб → 404', r.тело);
+
+  r = await зов('POST', '/lenta/zhaloba/reshit', {}, ТОКЕН, { id: ЖИВАЯ, reshenie: 'otkloneno', prichina: 'свой анонс управления' });
+  так(r.statusCode === 200 && r.тело.sostoyanie === 'otkloneno' && r.тело.zhalob === 1, 'жалоба отклонена → { ok, sostoyanie, zhalob }', r.тело);
+  const ж = ЖАЛОБЫ.find((x) => x.klyuch === ЖИВАЯ);
+  так(ж.sostoyanie === 'otkloneno' && ж.reshil === 'user-1' && ж.reshenie_prichina === 'свой анонс управления' && ж.reshenie_at,
+    'в строке жалобы — решение, кто и когда', ж);
+  так(ПУБЛ.find((x) => x.klyuch === ЖИВАЯ).skryto === false, 'запись при этом НЕ скрыта — в этом весь смысл решения');
+  const лента = await зов('GET', '/lenta', { n: '50' });
+  так(лента.тело.zapisi.some((x) => x.id === ЖИВАЯ), 'запись осталась в ленте');
+  r = await зов('POST', '/lenta/zhaloba/reshit', {}, ТОКЕН, { id: ЖИВАЯ, reshenie: 'razobrana' });
+  так(r.statusCode === 404, 'повторное решение по закрытой жалобе → 404, чужое решение не переписано', r.тело);
+  так(ЖАЛОБЫ.find((x) => x.klyuch === ЖИВАЯ).sostoyanie === 'otkloneno', 'решение осталось прежним');
+  r = await зов('GET', '/lenta/zhaloba/reshit', {}, ТОКЕН);
+  так(r.statusCode === 405, 'GET /lenta/zhaloba/reshit → 405', r.тело);
+}
+{
+  /* at выбирает ОДНУ жалобу из нескольких на одной записи. */
+  const К = 'telegram:naturnie_uroki:pair';
+  ЖАЛОБЫ.push({ klyuch: К, at: '2026-09-02T10:00:00Z', prichina: 'prava', tekst: null, kontakt: null, ustrojstvo: 'x', sostoyanie: 'novaya' });
+  ЖАЛОБЫ.push({ klyuch: К, at: '2026-09-02T10:00:05Z', prichina: 'reklama', tekst: null, kontakt: null, ustrojstvo: 'x', sostoyanie: 'novaya' });
+  r = await зов('POST', '/lenta/zhaloba/reshit', {}, ТОКЕН, { id: К, at: '2026-09-02T10:00:00Z', reshenie: 'otkloneno' });
+  так(r.statusCode === 200 && r.тело.zhalob === 1, 'с at закрывается ровно одна жалоба', r.тело);
+  так(ЖАЛОБЫ.find((x) => x.klyuch === К && x.at === '2026-09-02T10:00:00Z').sostoyanie === 'otkloneno'
+   && ЖАЛОБЫ.find((x) => x.klyuch === К && x.at === '2026-09-02T10:00:05Z').sostoyanie === 'novaya', 'соседняя секунда не задета');
+  r = await зов('POST', '/lenta/zhaloba/reshit', {}, ТОКЕН, { id: К, reshenie: 'razobrana' });
+  так(r.statusCode === 200 && r.тело.zhalob === 1 && ЖАЛОБЫ.find((x) => x.klyuch === К && x.at.endsWith('05Z')).sostoyanie === 'razobrana',
+    'без at закрываются все оставшиеся новые', r.тело);
+}
+{
+  /* Потолок считает ТОЛЬКО новые: отклонённые очередь не занимают. */
+  const было = ЖАЛОБЫ.length;
+  for (let i = 0; i < 300; i++) ЖАЛОБЫ.push({ klyuch: 'telegram:y:' + i, at: iso(Date.now()), prichina: 'drugoe', ustrojstvo: 'x', sostoyanie: 'otkloneno' });
+  const в = 'lenta-zhaloba:' + createHash('sha256').update('другое-устройство').digest('hex').slice(0, 32);
+  ЧАСТОТА.delete(в); ЧАСТОТА.delete('lenta-zhaloba-ip:ip');
+  const п = await зов('POST', '/lenta/zhaloba', {}, { 'X-Device-Secret': 'другое-устройство' }, { id: ЖИВАЯ, prichina: 'drugoe' });
+  так(п.statusCode === 200, '300 отклонённых жалоб не закрывают приём новых', п.тело);
+  ЖАЛОБЫ.splice(было, 300);
+  ЧАСТОТА.delete(в); ЧАСТОТА.delete('lenta-zhaloba-ip:ip');
+}
+
+/* ── индекс очереди ещё строится (миграция 011) ─────────────────────────── */
+/* ALTER TABLE ... ADD INDEX GLOBAL в YDB строится в фоне: миграция вернулась,
+   а индекса ещё нет. Пока его нет, запрос через VIEW отвечает ошибкой схемы —
+   и без запасного пути падал бы не только закрытый разбор, но и ПУБЛИЧНЫЙ
+   приём жалоб: потолок неразобранных считается по тому же индексу, а любой
+   отказ базы — это 503. */
+console.log('Окно построения индекса жалоб');
+{
+  индексНеГотов = true;
+  читаноБезИндекса = 0;
+  const в = 'lenta-zhaloba:' + createHash('sha256').update('устройство-в-окне').digest('hex').slice(0, 32);
+  ЧАСТОТА.delete(в); ЧАСТОТА.delete('lenta-zhaloba-ip:ip');
+  УСТРОЙСТВА.set('dev-okno', createHash('sha256').update('устройство-в-окне').digest('hex'));
+  r = await зов('POST', '/lenta/zhaloba', {}, { 'X-Device-Secret': 'устройство-в-окне' }, { id: ЦЕЛЬ, prichina: 'drugoe' });
+  так(r.statusCode === 200, 'жалоба принимается, пока индекс строится (а не 503)', r.тело);
+  так(читаноБезИндекса > 0, 'потолок неразобранных сосчитан обходом таблицы', читаноБезИндекса);
+  ПРАВА = { isSuperadmin: true, caps: [] };
+  r = await зов('GET', '/lenta/istochniki', {}, ТОКЕН);
+  const ж = r.тело.zhaloby;
+  так(r.statusCode === 200 && ж.length === 50, 'очередь читается и без индекса: те же пятьдесят', [r.statusCode, ж.length]);
+  так(ж.every((x, i, a) => !i || a[i - 1].at >= x.at), 'порядок «свежие сверху» держится и на запасном пути (F17)');
+  так(r.тело.indeks_zhalob === 'stroitsya', 'разбирающему сказано, что индекс ещё строится', r.тело.indeks_zhalob);
+  индексНеГотов = false;
+  r = await зов('GET', '/lenta/istochniki', {}, ТОКЕН);
+  так(r.тело.indeks_zhalob === undefined, 'индекс готов — про стройку молчим');
+  ЧАСТОТА.delete(в); ЧАСТОТА.delete('lenta-zhaloba-ip:ip');
 }
 
 console.log('Прочее');

@@ -477,6 +477,33 @@ paths:
         '200':
           description: CORS preflight
 
+  # Решение по жалобе (миграция 011, право cap:lenta.moderate). Путь свой,
+  # отдельной строкой: шаблонов ({proxy+}) в этой спецификации нет вовсе, и
+  # без неё шлюз ответил бы 404 сам, не вызывая функцию, — а жалоба, которую
+  # нельзя отклонить, висит в очереди навсегда (ревью 8.8, F17).
+  # Внутри lenta.js этот маршрут стоит ДО /lenta/zhaloba, иначе жалоба
+  # перехватила бы решение.
+  /lenta/zhaloba/reshit:
+    post:
+      summary: Закрыть жалобу — разобрана или отклонена (нужно право)
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
   # Разбор закрыт правом cap:zayavki.read — внутри персональные данные.
   /zayavki:
     get:

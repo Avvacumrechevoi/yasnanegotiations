@@ -11,12 +11,14 @@
    чаще раза в сутки; уборка «10 без срока + 365 дней» без качелей; ручной
    запуск по телу; разбор события; форма запросов слоя YDB против миграции.
 
-   Страницы в репозиторий не кладутся: путь — переменная LENTA_STRANICY.
+   Страницы лежат в репозитории (server/proby/stranicy): разметка настоящая,
+   тексты выдуманы. Переменная LENTA_STRANICY даёт прогнать на живых страницах.
    Запуск:  node server/proby/proba-sbor.mjs */
 import { createRequire } from 'node:module';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { файл, первыйФайл, нуженКаталог } from './obshee.mjs';
 
 const require = createRequire(import.meta.url);
 const ЗДЕСЬ = dirname(fileURLToPath(import.meta.url));
@@ -24,15 +26,10 @@ const С = require(join(ЗДЕСЬ, '..', 'lenta-sbor.js'));
 const Р = require(join(ЗДЕСЬ, '..', 'lenta-razbor.js'));
 const JPEG = require(join(ЗДЕСЬ, '..', 'jpeg-js.js'));
 
-const СТРАНИЦЫ = process.env.LENTA_STRANICY
-  || '/private/tmp/claude-501/-Users-avva-Downloads----------------------/aecf3972-c620-48a3-a891-8c6b8ab7a98b/scratchpad/lenta';
-if (!existsSync(join(СТРАНИЦЫ, 'russkaya_yasna.html'))) {
-  console.error('нет сохранённых страниц в ' + СТРАНИЦЫ + ' — задай LENTA_STRANICY');
-  process.exit(2);
-}
-const файл = (имя) => readFileSync(join(СТРАНИЦЫ, имя));
-const JPEG_800 = файл('itog-src/neglinka_2604_orig.jpg');          /* 800×533 baseline, 113 КБ */
-const JPEG_МАЛЫЙ = файл('thumb-s.jpg');                             /* 193×108 */
+нуженКаталог('russkaya_yasna.html', 'astronevod.html', 'naturnie_uroki.html', 'neglinka78.html', 'aleksandriya_2026.html', 'rutube-rss.xml');
+/* 800×533 baseline «как с фотоаппарата» и уже маленькая 193×108. */
+const JPEG_800 = первыйФайл('foto-800x533.jpg', 'itog-src/neglinka_2604_orig.jpg');
+const JPEG_МАЛЫЙ = первыйФайл('foto-193x108.jpg', 'thumb-s.jpg');
 const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0]);
 
 let провалов = 0, проверок = 0;
@@ -78,16 +75,30 @@ const ТЕЛА = {
 const ПОДМЕНЫ = {};                       /* url → тело (для сценариев правок и удалений) */
 const запросы = [];                       /* журнал обращений к «сети» */
 let картинкаПлохая = null;                /* url картинки, которая отдаёт PNG */
+let обрывКартинок = false;                /* true — запросы картинок рвутся, как t.me из облака */
+let скачано = 0;                          /* сколько картинок отдано за прогон */
+let картинокДоСрыва = 0;                  /* >0 — после стольких картинок остаток() «кончает» функцию */
+const РВЁТСЯ = new Set();                 /* url страниц, до которых «не дотянуться» (ТСПУ) */
+const ВХОД_КАРТИНКИ = new Set();          /* url картинок, которые почтальон уже привёз в бакет */
+/* Когда задано — после запроса страницы площадки остаток бюджета падает до
+   этого числа: так облако тратит срок функции на висящем t.me. */
+let остатокПослеСтраницы = null;
 async function взять(url, о = {}) {
   запросы.push({ url, байты: !!о.байты, ua: Р.АГЕНТ });
+  if (!о.байты && остатокПослеСтраницы != null && /^https:\/\/t\.me\/s\//.test(url)) остатокМс = остатокПослеСтраницы;
   if (о.байты) {
+    /* Сырьё почтальона лежит в бакете: до него дорога есть даже тогда, когда
+       до площадки её нет, поэтому обрыв на него не распространяется. */
+    if (/\/lenta\/vhod\//.test(url)) return ВХОД_КАРТИНКИ.has(url) ? { статус: 200, тип: 'image/jpeg', тело: JPEG_800 } : { статус: 404, тело: null };
+    if (обрывКартинок) { const e = new Error('fetch failed'); e.cause = { code: 'ECONNRESET' }; throw e; }
     if (url === картинкаПлохая) return { статус: 200, тип: 'image/png', тело: PNG };
-    if (/telesco\.pe|telegram\.org/.test(url)) return { статус: 200, тип: 'image/jpeg', тело: JPEG_800 };
+    if (/telesco\.pe|telegram\.org/.test(url)) { скачано++; return { статус: 200, тип: 'image/jpeg', тело: JPEG_800 }; }
     return { статус: 404, тело: null };
   }
   if (/\/robots\.txt$/.test(url) && !ТЕЛА[url]) return { статус: 404, текст: '' };
   if (url === 'https://t.me/s/slomannyj') throw new Error('нет сети');
   if (url === 'https://t.me/s/zakryto') return { статус: 302, текст: '', куда: 'https://t.me/zakryto' };
+  if (РВЁТСЯ.has(url)) { const e = new Error('fetch failed'); e.cause = { code: 'ECONNRESET', address: '149.154.167.99', port: 443 }; throw e; }
   const т = ПОДМЕНЫ[url] || ТЕЛА[url];
   return т != null ? { статус: 200, текст: т } : { статус: 404, текст: '' };
 }
@@ -114,11 +125,22 @@ const хранилище = {
   async источники() { return [...ИСТ.values()].map((и) => Object.assign({}, и)); },
   async записиКанала(ист, отISO) {
     return [...ПУБЛ.values()].filter((з) => з.istochnik === ист.istochnik && з.kanal === ист.kanal && з.data >= отISO)
-      .map((з) => ({ klyuch: з.klyuch, data: з.data, tekst_hash: з.tekst_hash, skryto: !!з.skryto, kartinka: з.kartinka, kartinka_polnaya: з.kartinka_polnaya, kartinka_popytok: з.kartinka_popytok || 0, kartinka_istochnika: з.kartinka_istochnika }));
+      .map((з) => ({ klyuch: з.klyuch, data: з.data, tekst_hash: з.tekst_hash, skryto: !!з.skryto, kartinka: з.kartinka, kartinka_polnaya: з.kartinka_polnaya, kartinka_popytok: з.kartinka_popytok || 0, kartinka_istochnika: з.kartinka_istochnika, skryto_prichina: з.skryto_prichina || null,
+        kartinok: з.kartinok || 0, dlitelnost_s: з.dlitelnost_s == null ? null : з.dlitelnost_s, bez_prevyu: !!з.bez_prevyu }));
   },
   async записать(записи) { for (const з of записи) ПУБЛ.set(з.klyuch, Object.assign({ skryto: false }, з)); },
-  async обновить(записи) { for (const з of записи) Object.assign(ПУБЛ.get(з.klyuch), { tip: з.tip, zagolovok: з.zagolovok, tekst: з.tekst, kartinok: з.kartinok, ssylka_v_zapisi: з.ssylka_v_zapisi, tekst_hash: з.tekst_hash, obnovleno_at: з.obnovleno_at }); },
+  /* Как настоящий UPDATE: медиа-поля правятся вместе с текстом, а при смене
+     адреса картинки копии и попытки обнуляются. */
+  async обновить(записи) {
+    for (const з of записи) {
+      const было = ПУБЛ.get(з.klyuch);
+      Object.assign(было, { tip: з.tip, zagolovok: з.zagolovok, tekst: з.tekst, kartinok: з.kartinok, ssylka_v_zapisi: з.ssylka_v_zapisi, tekst_hash: з.tekst_hash, obnovleno_at: з.obnovleno_at,
+        kartinka_istochnika: з.kartinka_istochnika, dlitelnost_s: з.dlitelnost_s, bez_prevyu: з.bez_prevyu });
+      if (з.сброситьКартинку) Object.assign(было, { kartinka: null, kartinka_polnaya: null, kartinka_popytok: 0 });
+    }
+  },
   async скрыть(klyuch, причина, сейчасISO) { Object.assign(ПУБЛ.get(klyuch), { skryto: true, skryto_prichina: причина, skryto_at: сейчасISO, obnovleno_at: сейчасISO }); },
+  async показать(klyuch, сейчасISO) { Object.assign(ПУБЛ.get(klyuch), { skryto: false, skryto_prichina: null, skryto_at: null, kartinka_popytok: 0, obnovleno_at: сейчасISO }); },
   async картинка(klyuch, m, p, попыток, сейчасISO) { Object.assign(ПУБЛ.get(klyuch), { kartinka: m, kartinka_polnaya: p, kartinka_popytok: попыток, obnovleno_at: сейчасISO }); },
   async безКартинки(ист, макс, предел) {
     return [...ПУБЛ.values()].filter((з) => з.istochnik === ист.istochnik && з.kanal === ист.kanal && !з.kartinka && з.kartinka_istochnika && (з.kartinka_popytok || 0) < макс && !з.skryto)
@@ -150,7 +172,42 @@ const хранилище = {
   async убратьЖурнал(доISO) { const было = ЖУРНАЛ.length; for (let i = ЖУРНАЛ.length - 1; i >= 0; i--) if (ЖУРНАЛ[i].at < доISO) ЖУРНАЛ.splice(i, 1); return было - ЖУРНАЛ.length; },
 };
 function sек() { return сек(сейчасМс); }
-const о = { хранилище, взять, бакет, сейчас: () => сейчасМс, остаток: () => остатокМс, пауза: async () => {} };
+/* Остаток бюджета. Когда задан картинокДоСрыва, после стольких скачанных
+   картинок сама проверка остатка бросает — так облако обрывает функцию по
+   сроку посреди шага картинок (ревью 8.8, F02). */
+const о = {
+  хранилище, взять, бакет, сейчас: () => сейчасМс, пауза: async () => {},
+  остаток: () => {
+    if (картинокДоСрыва && скачано >= картинокДоСрыва) throw new Error('срок функции истёк');
+    return остатокМс;
+  },
+};
+
+/* Синтетическая страница превью: столько блоков, сколько надо сценарию. */
+function блокТГ(канал, б) {
+  return '<div class="tgme_widget_message_wrap js-widget_message_wrap"><div class="tgme_widget_message js-widget_message" data-post="' + канал + '/' + б.id + '">'
+    + (б.фото ? '<a class="tgme_widget_message_photo_wrap" href="https://t.me/' + канал + '/' + б.id + '" style="width:453px;background-image:url(\'' + б.фото + '\')"></a>' : '')
+    + '<div class="tgme_widget_message_text js-message_text" dir="auto">' + б.текст + '</div>'
+    + '<div class="tgme_widget_message_footer compact js-message_footer"><span class="tgme_widget_message_meta"><a class="tgme_widget_message_date" href="https://t.me/' + канал + '/' + б.id + '">'
+    + '<time datetime="' + б.дата + '" class="time">10:00</time></a></span></div></div></div>';
+}
+function страницаТГ(канал, блоки) {
+  return '<html><head><meta property="og:title" content="' + канал + '"></head><body><div class="tgme_channel_info"></div>'
+    + блоки.map((б) => блокТГ(канал, б)).join('') + '</body></html>';
+}
+/* n блоков подряд: id от первого, дата — по дню на запись. */
+function блоки(первыйId, сколько, деньОт, доп = {}) {
+  const из = [];
+  for (let i = 0; i < сколько; i++) {
+    из.push(Object.assign({
+      id: первыйId + i,
+      дата: new Date(Date.parse(деньОт) + i * 3600000).toISOString().replace(/\.\d+Z$/, '+00:00'),
+      текст: 'Запись номер ' + (первыйId + i) + ' про натурный урок и наблюдения за небом',
+      фото: 'https://cdn4.telesco.pe/file/proba' + (первыйId + i) + '.jpg',
+    }, доп));
+  }
+  return из;
+}
 
 function источник(klyuch, istochnik, kanal, upravlenie, доп = {}) {
   ИСТ.set(klyuch, Object.assign({ klyuch, istochnik, kanal, adres: 'https://x/' + kanal, nazvanie: null, upravlenie, upravleniya: upravlenie, vklyuchen: true,
@@ -191,18 +248,9 @@ const всего1 = ПУБЛ.size;
 так([...ПУБЛ.values()].every((з) => /^(telegram|rutube):[^:]+:[^:]+$/.test(з.klyuch) && /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$/.test(з.data) && з.sobrano_at === з.obnovleno_at && з.skryto === false), 'форма строк: klyuch, data до секунды, sobrano_at, skryto=false');
 так([...ПУБЛ.values()].every((з) => з.zagolovok.length <= 120 && (з.tekst === null || з.tekst.length <= 400) && Р.ТИПЫ.includes(з.tip)), 'заголовок ≤120, текст ≤400, tip из словаря');
 так(ПУБЛ.get('telegram:russkaya_yasna:1400').upravleniya === 'yasna-shkola,granika,centr' && ПУБЛ.get('telegram:russkaya_yasna:1400').upravlenie === 'yasna-shkola', 'общий канал: upravleniya через запятую, upravlenie главное');
-const сКарт = [...ПУБЛ.values()].filter((з) => з.kartinka);
-так(сКарт.length === 15 + 17 + 18, 'картинки только у каналов с согласием: ' + сКарт.length + ' записей (russkaya_yasna 15, naturnie 17, neglinka 18)');
-так(бакет.положено === сКарт.length * 2 && бакет.объекты.size === сКарт.length * 2, 'в бакете по два объекта на запись: ' + бакет.объекты.size);
-так([...бакет.объекты.keys()].every((к) => /^lenta\/telegram\/[0-9a-f]{24}(-m)?\.jpg$/.test(к)), 'ключи lenta/telegram/<hash>-m.jpg и <hash>.jpg');
-так(сКарт.every((з) => з.kartinka.endsWith('-m.jpg') && з.kartinka_polnaya.endsWith('.jpg') && з.kartinka.startsWith('https://storage.yandexcloud.net/yasnalab.ru/lenta/telegram/')), 'адреса копий — бакет yasnalab.ru');
-{
-  const объ = [...бакет.объекты.values()];
-  const малые = объ.filter((x) => x.байт < 25000), большие = объ.filter((x) => x.байт >= 25000);
-  так(малые.length === сКарт.length && большие.length === сКарт.length, `размеры объектов: миниатюры ≈${малые[0] && малые[0].байт} байт, полные ≈${большие[0] && большие[0].байт} байт`);
-  const один = размерJPEG(бакет.объекты.get(С.ключиБакета(сКарт[0]).m).тело), два = размерJPEG(бакет.объекты.get(С.ключиБакета(сКарт[0]).p).тело);
-  так(Math.max(один.w, один.h) <= 160 && Math.max(два.w, два.h) <= 480, `в бакете лежат уменьшенные копии: ${один.w}×${один.h} и ${два.w}×${два.h}`);
-}
+/* Картинки идут ПОСЛЕ записи и пачками: не больше 8 на источник за заход
+   (F02). Записи при этом легли все — их число не зависит от картинок. */
+так([...ПУБЛ.values()].filter((з) => з.kartinka).length === 8 * 3, 'за первый заход собрано по 8 картинок на каждый из трёх каналов с согласием: ' + [...ПУБЛ.values()].filter((з) => з.kartinka).length);
 так(видимые('telegram:astronevod').every((з) => !з.kartinka && з.kartinka_popytok === 0) && видимые('telegram:astronevod').filter((з) => з.kartinka_istochnika).length === 11, 'без согласия: адреса картинок сохранены, копий нет, попытки не потрачены');
 {
   const ии = ИСТ.get('telegram:russkaya_yasna');
@@ -215,6 +263,23 @@ const сКарт = [...ПУБЛ.values()].filter((з) => з.kartinka);
 так(ЖУРНАЛ.filter((з) => з.klyuch === 'uborka').length === 1 && /удалено записей 0/.test(ЖУРНАЛ.find((з) => з.klyuch === 'uborka').soobshchenie), 'уборка прошла в первый запуск: удалять нечего');
 так(запросы.filter((q) => /robots\.txt$/.test(q.url)).length === 2, 'robots.txt спрошен по разу на хост (t.me, rutube.ru): ' + запросы.filter((q) => /robots\.txt$/.test(q.url)).length);
 так(запросы.every((q) => q.ua === Р.АГЕНТ), 'все обращения — с честным User-Agent');
+
+/* ── 1б. дозаливка картинок следующими заходами ────────────────────────── */
+console.log('Дозаливка картинок (по 8 за заход на источник)');
+{
+  for (let i = 0; i < 3; i++) for (const к of ['telegram:russkaya_yasna', 'telegram:naturnie_uroki', 'telegram:neglinka78']) await С.сбор(о, { istochnik: к, otkuda: 'ruchnoj' });
+  const сКарт = [...ПУБЛ.values()].filter((з) => з.kartinka);
+  так(сКарт.length === 15 + 17 + 18, 'через несколько заходов картинки собраны все: ' + сКарт.length + ' записей (russkaya_yasna 15, naturnie 17, neglinka 18)');
+  так(бакет.положено === сКарт.length * 2 && бакет.объекты.size === сКарт.length * 2, 'в бакете по два объекта на запись: ' + бакет.объекты.size);
+  так([...бакет.объекты.keys()].every((к) => /^lenta\/telegram\/[0-9a-f]{24}(-m)?\.jpg$/.test(к)), 'ключи lenta/telegram/<hash>-m.jpg и <hash>.jpg');
+  так(сКарт.every((з) => з.kartinka.endsWith('-m.jpg') && з.kartinka_polnaya.endsWith('.jpg') && з.kartinka.startsWith('https://storage.yandexcloud.net/yasnalab.ru/lenta/telegram/')), 'адреса копий — бакет yasnalab.ru');
+  const объ = [...бакет.объекты.values()];
+  const малые = объ.filter((x) => x.байт < 25000), большие = объ.filter((x) => x.байт >= 25000);
+  так(малые.length === сКарт.length && большие.length === сКарт.length, `размеры объектов: миниатюры ≈${малые[0] && малые[0].байт} байт, полные ≈${большие[0] && большие[0].байт} байт`);
+  const один = размерJPEG(бакет.объекты.get(С.ключиБакета(сКарт[0]).m).тело), два = размерJPEG(бакет.объекты.get(С.ключиБакета(сКарт[0]).p).тело);
+  так(Math.max(один.w, один.h) <= 160 && Math.max(два.w, два.h) <= 480, `в бакете лежат уменьшенные копии: ${один.w}×${один.h} и ${два.w}×${два.h}`);
+  так(ПУБЛ.size === всего1, 'дозаливка ничего не добавила и не удвоила: записей ' + ПУБЛ.size);
+}
 
 /* ── 2. второй запуск через 20 минут ───────────────────────────────────── */
 console.log('Второй запуск через 20 минут (периоды, идемпотентность)');
@@ -273,14 +338,17 @@ console.log('Сверка с источником (удалённое в кан�
   так(ИСТ.get('telegram:russkaya_yasna').zapisej === 19, 'zapisej считает только видимые: 19');
   /* граница окна: самая старая запись страницы пропала — это не удаление, а конец листания */
   const безСтарой = блоки.filter((б) => б !== самыйСтарый).join('');
+  const самыйСтарыйId = (самыйСтарый.match(/data-post="russkaya_yasna\/(\d+)"/) || [])[1];
   ПОДМЕНЫ['https://t.me/s/russkaya_yasna'] = безСтарой;
-  const скрытыхБыло = канал('telegram:russkaya_yasna').filter((x) => x.skryto).length;
   await С.сбор(о, { istochnik: 'telegram:russkaya_yasna', otkuda: 'ruchnoj' });
-  так(канал('telegram:russkaya_yasna').filter((x) => x.skryto).length === скрытыхБыло, 'пропажа самой старой записи страницы не считается удалением (граница окна)');
+  так(ПУБЛ.get('telegram:russkaya_yasna:' + самыйСтарыйId).skryto === false, 'пропажа самой старой записи страницы (' + самыйСтарыйId + ') не считается удалением: граница окна');
   delete ПОДМЕНЫ['https://t.me/s/russkaya_yasna'];
-  /* запись вернулась на страницу — остаётся скрытой (klyuch уже есть), не удваивается */
+  /* запись вернулась на страницу — авто-скрытие снимается, картинка собирается заново */
   await С.сбор(о, { istochnik: 'telegram:russkaya_yasna', otkuda: 'ruchnoj' });
-  так(ПУБЛ.get('telegram:russkaya_yasna:1398').skryto === true && ПУБЛ.size === всего1, 'вернувшаяся запись не воскресает и не удваивается');
+  const в = ПУБЛ.get('telegram:russkaya_yasna:1398');
+  так(в.skryto === false && в.skryto_prichina === null && ПУБЛ.size === всего1, 'вернувшаяся на страницу авто-скрытая запись воскресает и не удваивается', JSON.stringify([в.skryto, в.skryto_prichina, ПУБЛ.size]));
+  await С.сбор(о, { istochnik: 'telegram:russkaya_yasna', otkuda: 'ruchnoj' });
+  так(!былаКартинка || !!ПУБЛ.get('telegram:russkaya_yasna:1398').kartinka, 'картинка воскресшей записи собрана заново');
 }
 
 /* ── 5. скрыто модератором → объекты долой ─────────────────────────────── */
@@ -304,17 +372,18 @@ console.log('Картинки: согласие появилось; не-JPEG �
   const плохая = видимые('telegram:astronevod').find((з) => з.kartinka_istochnika);
   картинкаПлохая = плохая.kartinka_istochnika;
   const put0 = бакет.положено;
-  р = await С.сбор(о, { istochnik: 'telegram:astronevod', otkuda: 'ruchnoj' });
+  await С.сбор(о, { istochnik: 'telegram:astronevod', otkuda: 'ruchnoj' });
+  await С.сбор(о, { istochnik: 'telegram:astronevod', otkuda: 'ruchnoj' });
   const сКарт = видимые('telegram:astronevod').filter((з) => з.kartinka);
-  так(сКарт.length === 10 && бакет.положено === put0 + 20, 'после согласия безКартинки() подобрал записи с попыток 0: 10 записей, 20 объектов', JSON.stringify([сКарт.length, бакет.положено - put0]));
-  так(плохая.kartinka === null && плохая.kartinka_popytok === 1, 'PNG под видом картинки → без копии, попытка 1');
+  так(сКарт.length === 10 && бакет.положено === put0 + 20, 'после согласия безКартинки() подобрал записи с попыток 0 (два захода по 8): 10 записей, 20 объектов', JSON.stringify([сКарт.length, бакет.положено - put0]));
+  так(плохая.kartinka === null && плохая.kartinka_popytok >= 1, 'PNG под видом картинки → без копии, попытка потрачена: ' + плохая.kartinka_popytok);
   const запросовК = () => запросы.filter((q) => q.байты && q.url === картинкаПлохая).length;
-  const n1 = запросовК();
+  const n1 = запросовК(), п1 = плохая.kartinka_popytok;
   await С.сбор(о, { istochnik: 'telegram:astronevod', otkuda: 'ruchnoj' });
   await С.сбор(о, { istochnik: 'telegram:astronevod', otkuda: 'ruchnoj' });
-  так(плохая.kartinka_popytok === 3 && запросовК() === n1 + 2, 'ещё два захода — попытки 2 и 3');
+  так(плохая.kartinka_popytok === 3 && запросовК() === n1 + (3 - п1), 'следующие заходы доводят до третьей попытки');
   await С.сбор(о, { istochnik: 'telegram:astronevod', otkuda: 'ruchnoj' });
-  так(плохая.kartinka_popytok === 3 && запросовК() === n1 + 2, 'после третьей попытки картинку больше не просят');
+  так(плохая.kartinka_popytok === 3 && запросовК() === n1 + (3 - п1), 'после третьей попытки картинку больше не просят');
   картинкаПлохая = null;
 }
 
@@ -513,6 +582,268 @@ console.log('Слой YDB: форма запросов против миграц
   так(upsertПубл && значение(upsertПубл.params['$tekst']) === 'B' && upsertПубл.params['$kartinka'].v === null && upsertПубл.params['$bez_prevyu'].t === 'Bool' && upsertПубл.params['$kartinok'].t === 'Uint32', 'UPSERT публикации: Optional через optionalNull, Bool и Uint32 типизированы');
   const сост = журналSQL.filter((q) => /UPDATE lenta_istochniki SET/.test(q.текст));
   так(сост.length === 2 && /udacha_at/.test(сост[0].текст) && /nazvanie/.test(сост[0].текст) && /poslednyaya_publikaciya/.test(сост[0].текст) && !/udacha_at/.test(сост[1].текст) && сост[1].params['$podryad'].v === 1 && сост[1].params['$oshibka'].v === 'нет сети', 'состояние: при удаче — udacha_at/nazvanie/свежая, при сбое — oshibka и счётчик');
+}
+
+/* ── 12. срок функции кончается на картинках (ревью 8.8, F02) ──────────── */
+console.log('Функция обрывается на картинках — записи уже в базе (F02)');
+{
+  сейчасМс = Date.parse('2027-11-01T12:00:00Z');
+  остатокМс = 120000;
+  ТЕЛА['https://t.me/s/proba_srok'] = страницаТГ('proba_srok', блоки(100, 10, '2027-10-25T08:00:00Z'));
+  источник('telegram:proba_srok', 'telegram', 'proba_srok', 'izvod');
+  скачано = 0; картинокДоСрыва = 2;
+  р = await С.сбор(о, { istochnik: 'telegram:proba_srok', otkuda: 'timer' });
+  картинокДоСрыва = 0;
+  const свои = канал('telegram:proba_srok');
+  так(свои.length === 10, 'все 10 разобранных записей легли в базу до того, как пошли картинки', свои.length);
+  так(свои.filter((з) => з.kartinka).length === 2, 'две картинки успели, остальные ждут следующего захода', свои.filter((з) => з.kartinka).length);
+  так(свои.every((з) => з.kartinka || з.kartinka_popytok === 0), 'у недокачанных попытка не потрачена — обрыв по сроку не считается');
+  const строка = ЖУРНАЛ.filter((з) => з.klyuch === 'telegram:proba_srok');
+  так(строка.length === 1 && строка[0].ishod === 'ok' && строка[0].novyh === 10, 'итог и журнал написаны ДО картинок: ok, новых 10', JSON.stringify(строка[0]));
+  так(ИСТ.get('telegram:proba_srok').zapisej === 10 && ИСТ.get('telegram:proba_srok').udacha_at === sек(), 'состояние источника записано: 10 записей, удача');
+  так(по(р)['telegram:proba_srok'].ishod === 'oshibka' && /срок функции/.test(по(р)['telegram:proba_srok'].soobshchenie), 'сам заход оборвался на картинках: ' + по(р)['telegram:proba_srok'].soobshchenie);
+  /* следующий заход спокойно добирает картинки */
+  р = await С.сбор(о, { istochnik: 'telegram:proba_srok', otkuda: 'timer' });
+  так(канал('telegram:proba_srok').filter((з) => з.kartinka).length === 10, 'следующий заход добрал остальные картинки', канал('telegram:proba_srok').filter((з) => з.kartinka).length);
+}
+
+/* ── 13. сетевой обрыв картинок: попытка не тратится, предохранитель ────── */
+console.log('Сетевой обрыв картинок не тратит попытку, два подряд — стоп (F03)');
+{
+  for (const и of ИСТ.values()) и.vklyuchen = false;
+  ТЕЛА['https://t.me/s/proba_obryv_a'] = страницаТГ('proba_obryv_a', блоки(200, 4, '2027-10-26T08:00:00Z'));
+  ТЕЛА['https://t.me/s/proba_obryv_b'] = страницаТГ('proba_obryv_b', блоки(300, 4, '2027-10-26T08:00:00Z'));
+  источник('telegram:proba_obryv_a', 'telegram', 'proba_obryv_a', 'izvod');
+  источник('telegram:proba_obryv_b', 'telegram', 'proba_obryv_b', 'izvod');
+  обрывКартинок = true;
+  const запросов0 = запросы.filter((q) => q.байты).length;
+  р = await С.сбор(о, { vse: true, otkuda: 'timer' });
+  обрывКартинок = false;
+  и = по(р);
+  const а = канал('telegram:proba_obryv_a'), б = канал('telegram:proba_obryv_b');
+  так(а.length === 4 && б.length === 4, 'записи обоих источников записаны, хотя картинки рвались', JSON.stringify([а.length, б.length]));
+  так(а.every((з) => з.kartinka_popytok === 0) && б.every((з) => з.kartinka_popytok === 0), 'сетевой обрыв попытку не тратит: у всех записей kartinka_popytok = 0');
+  так(запросы.filter((q) => q.байты).length - запросов0 === 2, 'после двух обрывов подряд картинки захода прекращены: всего 2 запроса за картинками', запросы.filter((q) => q.байты).length - запросов0);
+  так(/картинки захода остановлены/.test(и['telegram:proba_obryv_b'].soobshchenie || ''), 'второму источнику картинки уже не пробовали: ' + и['telegram:proba_obryv_b'].soobshchenie);
+  так(и['telegram:proba_obryv_a'].ishod === 'ok' && и['telegram:proba_obryv_b'].ishod === 'ok' && ИСТ.get('telegram:proba_obryv_b').oshibok_podryad === 0, 'исход обоих — удача: обрыв картинок не делает заход неудачным');
+  р = await С.сбор(о, { vse: true, otkuda: 'timer' });
+  так(канал('telegram:proba_obryv_a').every((з) => з.kartinka) && канал('telegram:proba_obryv_b').every((з) => з.kartinka), 'сеть вернулась — следующий заход собрал все картинки, попытки не сгорели');
+}
+
+/* ── 14. замена фото при том же тексте (ревью 8.8, F04) ────────────────── */
+console.log('Замена фото при том же тексте (F04)');
+{
+  const текст = 'Натурный урок в Коломенском: смотрим тени и считаем время до заката';
+  ТЕЛА['https://t.me/s/proba_foto'] = страницаТГ('proba_foto', [{ id: 400, дата: '2027-10-28T08:00:00+00:00', текст, фото: 'https://cdn4.telesco.pe/file/staroe.jpg' }]);
+  источник('telegram:proba_foto', 'telegram', 'proba_foto', 'izvod');
+  await С.сбор(о, { istochnik: 'telegram:proba_foto', otkuda: 'ruchnoj' });
+  const з = ПУБЛ.get('telegram:proba_foto:400');
+  const ключи = С.ключиБакета(з), хешБыл = з.tekst_hash;
+  так(з.kartinka_istochnika === 'https://cdn4.telesco.pe/file/staroe.jpg' && з.kartinka && бакет.объекты.has(ключи.m), 'первый заход: старое фото собрано');
+  ПОДМЕНЫ['https://t.me/s/proba_foto'] = страницаТГ('proba_foto', [{ id: 400, дата: '2027-10-28T08:00:00+00:00', текст, фото: 'https://cdn4.telesco.pe/file/novoe.jpg' }]);
+  const удалено0 = бакет.удалено;
+  р = await С.сбор(о, { istochnik: 'telegram:proba_foto', otkuda: 'ruchnoj' });
+  delete ПОДМЕНЫ['https://t.me/s/proba_foto'];
+  так(/правок 1/.test(по(р)['telegram:proba_foto'].soobshchenie || ''), 'смена фото при том же тексте — это правка: ' + по(р)['telegram:proba_foto'].soobshchenie);
+  так(з.tekst_hash === хешБыл, 'отпечаток текста не менялся — правку нашли по медиа, а не по тексту');
+  так(з.kartinka_istochnika === 'https://cdn4.telesco.pe/file/novoe.jpg', 'kartinka_istochnika обновлён на новый адрес: ' + з.kartinka_istochnika);
+  так(бакет.удалено === удалено0 + 2, 'старые копии сняты из бакета: удалений ' + (бакет.удалено - удалено0));
+  так(з.kartinka && з.kartinka_polnaya && бакет.объекты.has(ключи.m) && бакет.объекты.has(ключи.p), 'новое фото залито тем же заходом');
+  так(запросы.some((q) => q.байты && q.url === 'https://cdn4.telesco.pe/file/novoe.jpg'), 'новый адрес скачан');
+}
+
+/* ── 15. добор пропусков после простоя (ревью 8.8, F05) ────────────────── */
+console.log('Дыра после простоя добирается назад по ?before= (F05)');
+{
+  ТЕЛА['https://t.me/s/proba_dyra'] = страницаТГ('proba_dyra', блоки(100, 5, '2027-10-20T08:00:00Z'));
+  источник('telegram:proba_dyra', 'telegram', 'proba_dyra', 'izvod');
+  await С.сбор(о, { istochnik: 'telegram:proba_dyra', otkuda: 'timer' });
+  так(канал('telegram:proba_dyra').length === 5, 'первый заход: 5 записей');
+  /* канал жил, сборщик молчал: на первой странице только самые новые */
+  ПОДМЕНЫ['https://t.me/s/proba_dyra'] = страницаТГ('proba_dyra', блоки(120, 5, '2027-10-24T08:00:00Z'));
+  ТЕЛА['https://t.me/s/proba_dyra?before=120'] = страницаТГ('proba_dyra', блоки(110, 5, '2027-10-22T08:00:00Z'));
+  ТЕЛА['https://t.me/s/proba_dyra?before=110'] = страницаТГ('proba_dyra', блоки(100, 5, '2027-10-20T08:00:00Z'));
+  const запросов0 = запросы.length;
+  р = await С.сбор(о, { istochnik: 'telegram:proba_dyra', otkuda: 'timer' });
+  delete ПОДМЕНЫ['https://t.me/s/proba_dyra'];
+  const было = запросы.slice(запросов0).map((q) => q.url);
+  так(канал('telegram:proba_dyra').length === 15, 'дыра закрыта: в базе все 15 записей, а не только пятёрка первой страницы', канал('telegram:proba_dyra').length);
+  так(по(р)['telegram:proba_dyra'].novyh === 10 && /добрано страниц 2/.test(по(р)['telegram:proba_dyra'].soobshchenie), 'заход добрал две страницы назад: ' + по(р)['telegram:proba_dyra'].soobshchenie);
+  так(было.includes('https://t.me/s/proba_dyra?before=120') && было.includes('https://t.me/s/proba_dyra?before=110'), 'ходили назад по ?before=');
+  так(!было.includes('https://t.me/s/proba_dyra?before=100'), 'на знакомой записи добор остановился, третью страницу не просили');
+  const ещё = запросы.length;
+  р = await С.сбор(о, { istochnik: 'telegram:proba_dyra', otkuda: 'timer' });
+  так(!запросы.slice(ещё).some((q) => /before=/.test(q.url)), 'дыры нет — назад не ходим');
+}
+
+/* ── 16. все записи страницы отфильтрованы (ревью 8.8, F08) ────────────── */
+console.log('Вся страница — реклама: заход удачный, решения применяются (F08)');
+{
+  const тексты = ['Первая запись про звёзды и наблюдения этой недели', 'Вторая запись про натурный урок в парке', 'Третья запись про меры и вес зерна'];
+  ТЕЛА['https://t.me/s/proba_reklama'] = страницаТГ('proba_reklama', тексты.map((т, i) => ({ id: 500 + i, дата: '2027-10-2' + (7 + i) + 'T08:00:00+00:00', текст: т, фото: null })));
+  источник('telegram:proba_reklama', 'telegram', 'proba_reklama', 'izvod');
+  await С.сбор(о, { istochnik: 'telegram:proba_reklama', otkuda: 'timer' });
+  так(канал('telegram:proba_reklama').length === 3, 'первый заход: 3 записи');
+  ПОДМЕНЫ['https://t.me/s/proba_reklama'] = страницаТГ('proba_reklama', тексты.map((т, i) => ({ id: 500 + i, дата: '2027-10-2' + (7 + i) + 'T08:00:00+00:00', текст: 'Промокод ЯСНА: ' + т, фото: null })));
+  р = await С.сбор(о, { istochnik: 'telegram:proba_reklama', otkuda: 'timer' });
+  delete ПОДМЕНЫ['https://t.me/s/proba_reklama'];
+  const о16 = по(р)['telegram:proba_reklama'];
+  так(о16.ishod === 'ok' && о16.udacha === true, 'страница, где всё отфильтровано, — удачный заход, а не «разметка: ни одной записи»: ' + о16.ishod);
+  так(/все 3 записей страницы отфильтрованы/.test(о16.soobshchenie || ''), 'в журнале сказано, что записи отфильтрованы: ' + о16.soobshchenie);
+  так(канал('telegram:proba_reklama').every((з) => з.skryto && з.skryto_prichina === 'reklama'), 'решения по известным id применены: все три скрыты причиной reklama');
+  так(ИСТ.get('telegram:proba_reklama').oshibok_podryad === 0 && ИСТ.get('telegram:proba_reklama').udacha_at === sек(), 'источник не считается сломанным');
+  /* а вот страница без единого распознанного блока — по-прежнему ошибка */
+  ПОДМЕНЫ['https://t.me/s/proba_reklama'] = '<html><body><div class="tgme_channel_info"></div></body></html>';
+  р = await С.сбор(о, { istochnik: 'telegram:proba_reklama', otkuda: 'timer' });
+  delete ПОДМЕНЫ['https://t.me/s/proba_reklama'];
+  так(по(р)['telegram:proba_reklama'].ishod === 'oshibka' && /ни одного блока/.test(по(р)['telegram:proba_reklama'].soobshchenie), 'страница без единого блока записи — ошибка: ' + по(р)['telegram:proba_reklama'].soobshchenie);
+}
+
+/* ── 17. скидка — не реклама, а анонс (решение владельца 8.8) ──────────── */
+console.log('Скидка не отбрасывается, а помечается анонсом');
+{
+  ТЕЛА['https://t.me/s/proba_anons'] = страницаТГ('proba_anons', [
+    { id: 600, дата: '2027-10-29T08:00:00+00:00', текст: 'Для детей скидка на натурный урок в Коломенском, записаться у Лидии', фото: null },
+    { id: 601, дата: '2027-10-29T09:00:00+00:00', текст: 'Партнёрский материал о том, как выбрать окна к зиме', фото: null },
+  ]);
+  источник('telegram:proba_anons', 'telegram', 'proba_anons', 'izvod');
+  р = await С.сбор(о, { istochnik: 'telegram:proba_anons', otkuda: 'timer' });
+  const свои = канал('telegram:proba_anons');
+  так(свои.length === 1 && свои[0].klyuch === 'telegram:proba_anons:600', 'запись со скидкой собрана, чужая реклама отброшена', JSON.stringify(свои.map((з) => з.klyuch)));
+  так(свои[0].tip === 'anons', 'скидка помечена типом anons: ' + свои[0].tip);
+  так(/отброшено reklama 1/.test(по(р)['telegram:proba_anons'].soobshchenie || ''), 'партнёрский материал отброшен: ' + по(р)['telegram:proba_anons'].soobshchenie);
+}
+
+/* ── 18. почтальон: прямой заход упал → сырьё из бакета ─────────────────── */
+console.log('Прямой заход упал — берём сырьё почтальона (ПОЧТАЛЬОН)');
+{
+  const канал = 'proba_pochta';
+  const ключ = 'telegram:' + канал;
+  const вх = С.ключиВхода(канал);
+  const адресВхода = (к) => бакет.адрес(к);
+  /* Страница канала: до площадки не дотянуться (ТСПУ), а в бакете лежит та
+     же страница, привезённая почтальоном час назад. */
+  const стр = страницаТГ(канал, блоки(700, 5, '2027-11-01T08:00:00Z'));
+  РВЁТСЯ.add('https://t.me/s/' + канал);
+  источник(ключ, 'telegram', канал, 'izvod');
+  const положитьСырьё = (о = {}) => {
+    if (о.страница !== null) ТЕЛА[адресВхода(вх.stranica)] = о.страница === undefined ? стр : о.страница;
+    ТЕЛА[адресВхода(вх.meta)] = JSON.stringify({
+      versiya: 1, kanal: о.kanal === undefined ? канал : о.kanal, snyato: о.snyato === undefined ? sек() : о.snyato,
+      zapisej: 5, blokov: 5, bajt_stranicy: стр.length, kartinok: 5, kartinki: [],
+    });
+  };
+  /* Почтальон привёз три превью из пяти: две записи ждут следующей поездки. */
+  const адресаФото = блоки(700, 5, '2027-11-01T08:00:00Z').map((б) => б.фото);
+  for (const а of адресаФото.slice(0, 3)) ВХОД_КАРТИНКИ.add(адресВхода(вх.картинка(а)));
+  положитьСырьё();
+
+  const запросов0 = запросы.length;
+  р = await С.сбор(о, { istochnik: ключ, otkuda: 'timer' });
+  const о18 = по(р)[ключ];
+  const ходы = запросы.slice(запросов0).map((q) => q.url);
+  так(о18.ishod === 'ok' && о18.novyh === 5, 'своей дороги нет, а лента наполнилась: 5 новых записей из сырья', JSON.stringify([о18.ishod, о18.novyh, о18.soobshchenie]));
+  так(о18.otkuda === 'pochtalon' && ЖУРНАЛ[ЖУРНАЛ.length - 1].otkuda === 'pochtalon', 'в журнале видно, кто довёз: otkuda=pochtalon', о18.otkuda);
+  так(/через почтальона \(снято /.test(о18.soobshchenie || ''), 'в строке журнала сказано, когда снято сырьё: ' + о18.soobshchenie);
+  так(ходы.indexOf('https://t.me/s/' + канал) === 0, 'сначала сам: первым делом всё равно ходили на площадку');
+  так(ходы.includes(адресВхода(вх.meta)) && ходы.includes(адресВхода(вх.stranica)), 'потом почтальон: прочитаны meta.json и stranica.html');
+  так(!ходы.some((u) => /before=/.test(u)), 'добора назад по ?before= в этом заходе нет — дороги к площадке всё равно нет');
+  /* Картинки — из сырья почтальона, а копии в ленте лежат как обычно. */
+  так(ходы.some((u) => u.startsWith(адресВхода(С.КОНСТАНТЫ.ПРЕФИКС_ВХОДА + канал + '/kartinki/'))), 'картинки скачаны из сырья, а не с cdn');
+  так(!ходы.some((u) => /cdn4\.telesco\.pe/.test(u)), 'к недоступному cdn не ходили вовсе');
+  const свои = канал18();
+  так(свои.filter((з) => з.kartinka).length === 3, 'три привезённых превью легли в ленту: ' + свои.filter((з) => з.kartinka).length);
+  так(свои.filter((з) => з.kartinka).every((з) => з.kartinka.startsWith('https://storage.yandexcloud.net/yasnalab.ru/lenta/telegram/')), 'копии лежат в lenta/telegram/ как всегда — для ленты ничего не изменилось');
+  так(свои.filter((з) => !з.kartinka).every((з) => з.kartinka_popytok === 0), 'двух превью в сырье не было — попытки НЕ потрачены, придут следующим сырьём');
+  так(/нет в сырье 2/.test(о18.soobshchenie || ''), 'и это сказано словами: ' + о18.soobshchenie);
+
+  /* Почтальон довёз остальные два — следующий заход их подберёт. */
+  for (const а of адресаФото.slice(3)) ВХОД_КАРТИНКИ.add(адресВхода(вх.картинка(а)));
+  положитьСырьё();
+  await С.сбор(о, { istochnik: ключ, otkuda: 'timer' });
+  так(канал18().filter((з) => з.kartinka).length === 5, 'следующей поездкой собраны все пять: ' + канал18().filter((з) => з.kartinka).length);
+
+  /* Сырьё протухло: три часа — предел, дальше честная ошибка. */
+  сейчасМс += 4 * 3600000;
+  ПОДМЕНЫ[адресВхода(вх.stranica)] = страницаТГ(канал, блоки(700, 8, '2027-11-01T08:00:00Z'));
+  р = await С.сбор(о, { istochnik: ключ, otkuda: 'timer' });
+  const с18 = по(р)[ключ];
+  так(с18.ishod === 'oshibka' && /сеть: /.test(с18.soobshchenie) && /почтальон: сырьё старое/.test(с18.soobshchenie), 'сырьё старше трёх часов не берём, и в журнале обе половины причины: ' + с18.soobshchenie);
+  так(с18.otkuda === 'timer' && канал18().length === 5, 'заход не выдал себя за почтальона и новых записей из протухшего сырья не взял');
+
+  /* Сырьё не того канала — не берём никогда: чужая страница легла бы в чужую ленту. */
+  положитьСырьё({ kanal: 'sovsem_drugoj' });
+  р = await С.сбор(о, { istochnik: ключ, otkuda: 'timer' });
+  так(/почтальон: сырьё чужого канала: sovsem_drugoj/.test(по(р)[ключ].soobshchenie || ''), 'сырьё чужого канала отвергнуто: ' + по(р)[ключ].soobshchenie);
+  так(канал18().length === 5, 'из чужого сырья в ленту не попало ничего');
+
+  /* Свежее сырьё снова годится. Между сохранённой пятёркой (по 01.11) и
+     страницей сырья (с 05.11) — дыра, и своим ходом сборщик полез бы назад
+     по ?before=. Через почтальона — не лезет: дороги к площадке нет, а в
+     сырье лежит одна первая страница. Пропуски доберутся, когда откроется. */
+  ПОДМЕНЫ[адресВхода(вх.stranica)] = страницаТГ(канал, блоки(730, 8, '2027-11-05T08:00:00Z'));
+  ТЕЛА['https://t.me/s/' + канал + '?before=730'] = страницаТГ(канал, блоки(720, 5, '2027-11-03T08:00:00Z'));
+  положитьСырьё({ страница: null });
+  const запросовД = запросы.length;
+  р = await С.сбор(о, { istochnik: ключ, otkuda: 'timer' });
+  delete ПОДМЕНЫ[адресВхода(вх.stranica)];
+  так(по(р)[ключ].ishod === 'ok' && канал18().length === 13, 'свежее сырьё снова в дело: 8 новых записей поверх пяти', канал18().length);
+  так(!запросы.slice(запросовД).some((q) => /before=/.test(q.url)), 'дыра есть, но назад по ?before= не ходим: к площадке дороги нет');
+
+  /* А когда площадка отвечает сама — к сырью не ходим вовсе. */
+  РВЁТСЯ.delete('https://t.me/s/' + канал);
+  ТЕЛА['https://t.me/s/' + канал] = страницаТГ(канал, блоки(730, 8, '2027-11-05T08:00:00Z'));
+  const запросов1 = запросы.length;
+  р = await С.сбор(о, { istochnik: ключ, otkuda: 'timer' });
+  так(!запросы.slice(запросов1).some((q) => /\/lenta\/vhod\//.test(q.url)), 'дорога открылась — сырьё не спрашиваем: сначала сам, потом почтальон');
+  так(по(р)[ключ].otkuda === 'timer', 'и в журнале снова timer, а не pochtalon');
+
+  /* Ответ со смыслом (302 у закрытого превью) почтальоном не лечится:
+     он получил бы то же самое, а подмена спрятала бы причину от владельца. */
+  const запросов2 = запросы.length;
+  await С.сбор(о, { istochnik: 'telegram:zakryto', otkuda: 'timer' });
+  так(!запросы.slice(запросов2).some((q) => /\/lenta\/vhod\//.test(q.url)), 'при 302 к сырью не идём: причину надо видеть, а не прятать');
+}
+function канал18() { return канал('telegram:proba_pochta'); }
+
+/* ── 19. бюджет на дорогу почтальона (ревью 8.8, F02 на новой дороге) ───── */
+/* Дорога стала длиннее: страница до 30 с, потом meta и страница из бакета по
+   20 с. Источник, взятый в работу на прежнем пороге в 40 с, выходил за
+   300-секундный потолок функции ДО первой записи в базу — и разобранная
+   пачка, журнал и состояние не писались вовсе, как 05.09.2026. */
+console.log('Бюджет на новой дороге: порог = страница + сырьё + резерв записи');
+{
+  const канал = 'proba_pochta';
+  const ключ = 'telegram:' + канал;
+  const вх = С.ключиВхода(канал);
+  так(С.КОНСТАНТЫ.МИН_ОСТАТОК_МС === С.КОНСТАНТЫ.СРОК_ЗАПРОСА_МС + 2 * С.КОНСТАНТЫ.СРОК_СЫРЬЯ_МС + С.КОНСТАНТЫ.РЕЗЕРВ_ЗАПИСИ_МС,
+    'порог взятия источника — сумма самого долгого пути до записи: ' + С.КОНСТАНТЫ.МИН_ОСТАТОК_МС + ' мс');
+
+  /* 60 с хватало по старому порогу (40 с), но не хватает на страницу с
+     сырьём и запись: источник ждёт следующего запуска, ничего не тронув. */
+  остатокМс = 60000;
+  const записей0 = канал18().length;
+  р = await С.сбор(о, { istochnik: ключ, otkuda: 'timer' });
+  так(по(р)[ключ].ishod === 'propusk' && канал18().length === записей0, 'остатка 60 с (хватало по старому порогу) уже мало → propusk', JSON.stringify(по(р)[ключ]));
+  остатокМс = 120000;
+
+  /* А теперь бюджет кончается ПОСЛЕ страницы: до сырья идти нельзя, иначе
+     функцию убьют прямо на бакете. Сырьё в бакете при этом лежит свежее. */
+  РВЁТСЯ.add('https://t.me/s/' + канал);
+  ТЕЛА[бакет.адрес(вх.stranica)] = страницаТГ(канал, блоки(700, 5, '2027-11-01T08:00:00Z'));
+  ТЕЛА[бакет.адрес(вх.meta)] = JSON.stringify({ versiya: 1, kanal: канал, snyato: sек(), zapisej: 5, blokov: 5, bajt_stranicy: 100, kartinok: 0, kartinki: [] });
+  остатокПослеСтраницы = 45000;                  /* меньше 12 + 40 = 52 с */
+  const запросов3 = запросы.length, журнала3 = ЖУРНАЛ.length;
+  р = await С.сбор(о, { istochnik: ключ, otkuda: 'timer' });
+  остатокПослеСтраницы = null;
+  остатокМс = 120000;
+  const о19 = по(р)[ключ];
+  так(о19.ishod === 'oshibka' && /на сырьё не хватило срока функции/.test(о19.soobshchenie || ''), 'на сырьё срока не осталось — сказано словами, а не молчанием: ' + о19.soobshchenie);
+  так(!запросы.slice(запросов3).some((q) => /\/lenta\/vhod\//.test(q.url)), 'к бакету не пошли вовсе: обрыв по сроку там стоил бы всей пачки');
+  так(ЖУРНАЛ.length > журнала3 && ЖУРНАЛ[ЖУРНАЛ.length - 1].klyuch === ключ, 'строка журнала всё равно написана: владелец видит заход');
+  РВЁТСЯ.delete('https://t.me/s/' + канал);
+  delete ТЕЛА[бакет.адрес(вх.stranica)];
+  delete ТЕЛА[бакет.адрес(вх.meta)];
 }
 
 console.log(провалов ? `\nПРОВАЛОВ: ${провалов} из ${проверок}` : `\nВсе ${проверок} проверок прошли (обращений к «сети»: ${запросы.length}, PUT: ${бакет.положено}, DELETE: ${бакет.удалено})`);

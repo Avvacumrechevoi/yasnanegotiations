@@ -9,7 +9,7 @@
 <script src="core/gate.js"></script>
 <script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);var e=document.documentElement;e.setAttribute('data-theme',d?'dark':'light');e.style.colorScheme=d?'dark':'light';}catch(e){}</script>
 <script src="core/theme.js?v=86eb1366"></script>
-<script src="core/storage.js?v=f1f80300"></script>
+<script src="core/storage.js?v=8cd86245"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
@@ -22,23 +22,31 @@
 <title>Библиотека · Ясна</title>
 
 <!-- ═══════════════════════════════════════════════════════════════════════
-     «БИБЛИОТЕКА» — ВКЛАДКА КНИГ И СПРАВОЧНИКОВ.
+     «БИБЛИОТЕКА» — ВКЛАДКА КНИГ, УПРАВЛЕНИЙ И СПРАВОЧНИКОВ.
 
      У книг не было своей двери: три издания лежали карточками на экране
      «Уроки», Словарь и Проверка — окнами внутри «Разбора», а «Готовые ясны»
      звались на четырёх экранах по-разному. Теперь всё, что читают и по чему
      справляются, живёт в одном месте.
 
-     ОДИН ВХОД В КНИГУ. Раньше в одну и ту же книгу вели четыре разные ссылки
-     на одном экране «Уроки» (карточка издания, узел ветви, строка «Книги и
-     записи», строка «Справки») — и человек не понимал, одно это или четыре
-     разных. Здесь у книги ровно две цели: сама книга (оглавление) и «Читать
-     дальше» — то место, где чтение остановилось.
+     НИЧЕГО НЕ ЛИСТАЕТСЯ ВБОК. Три книги стояли в ряд по 94 px на 360 dp, а
+     двенадцать управлений — каруселью, которая нарочно вылезала за правый
+     край экрана. Со стороны это читалось одинаково: «страница не помещается
+     и ездит вбок». Горизонтальных лент на этом экране нет вовсе — книги
+     идут столбцом, управления сеткой в две колонки, и ширина любой карточки
+     равна ширине экрана минус поля. Лента управлений живёт на главной.
 
-     ЧИСЛА НЕ ПИШУТСЯ РУКАМИ. Объём книги берётся из её описи (kniga/*/opis.js),
-     число готовых ясн и слов Словаря — из core/schet.js. Вписанные руками
-     цифры разошлись с данными на четырёх экранах сразу, и «16 · 44 · 10 · 6»
-     были ответом на один и тот же вопрос.
+     ОДИН ВХОД В КНИГУ. Раньше в одну и ту же книгу вели четыре разные ссылки
+     на одном экране «Уроки», плюс общая строка «Читать дальше» под тремя
+     книгами сразу — и было не понять, к какой из них она относится. Теперь
+     цель одна: вся карточка книги. Куда именно она ведёт, написано на ней же
+     («Остановились на части 6 · Чаши и весы»).
+
+     ЧИСЛА НЕ ПИШУТСЯ РУКАМИ. Объём книги и имя части берутся из её описи
+     (kniga/*/opis.js), объём вводного урока — из core/pasporta.js, данные
+     управлений — из core/upravleniya-dannye.js, число готовых ясн и слов
+     Словаря — из core/schet.js. Вписанные руками цифры разошлись с данными
+     на четырёх экранах сразу.
 
      Страница нарочно простая: обычные script-теги, никакой сборки — как
      docs/learn.html. Оболочка приложения (app/navigatsiya.js) рисует на ней
@@ -62,6 +70,7 @@ body{background:var(--surface);color:var(--on-surface);
 .bk-razdel h2{font:var(--type-label-m);
   text-transform:uppercase;letter-spacing:.6px;color:var(--on-surface-variant);
   margin-bottom:10px}
+.bk-razdel-pod{margin:-4px 0 10px;font:var(--type-body-s);color:var(--on-surface-variant)}
 .bk-set{list-style:none;display:flex;flex-direction:column;gap:10px}
 /* Цель — вся карточка: 48 dp это нижняя граница, а не цель. */
 .bk-dver{display:block;min-height:72px;padding:14px 16px;border-radius:16px;
@@ -76,75 +85,143 @@ body{background:var(--surface);color:var(--on-surface);
 .bk-schet{display:block;margin-top:6px;font:var(--type-label-m);
   color:var(--on-surface-variant);font-variant-numeric:tabular-nums}
 
-/* ── Полка ────────────────────────────────────────────────────────────
-   Три книги стояли тремя карточками по 270 dp: первый экран уходил под них
-   целиком, а справочники — за сгиб (та же беда, что была на «Уроках»). Теперь
-   книги стоят на полке в ряд, как книги: обложка цветом издания, имя, объём
-   и полоса прочитанного. Три корешка занимают один ряд вместо трёх экранов
-   и читаются библиотекой, а не списком.
+/* ── Книги ────────────────────────────────────────────────────────────
+   Одна книга — одна карточка во всю ширину экрана. Слева нарисованная
+   обложка, справа имя, о чём книга, полоса прочитанного со счётом в
+   страницах и фраза о том, где чтение остановилось. Всё, что раньше висело
+   общей строкой под тремя книгами, стоит теперь внутри своей книги. */
+.bk-kn-set{list-style:none;display:flex;flex-direction:column;gap:12px}
+.bk-kn-kart{
+  display:grid;
+  /* Обложка — доля ширины экрана, а не жёсткие px: на 320 dp это 86,
+     на 360 — 97, на 412 и шире упирается в 112. */
+  grid-template-columns:min(112px,27vw) 1fr;
+  gap:14px;align-items:stretch;
+  padding:14px;border-radius:20px;
+  background:var(--surface-container-low);
+  border:1px solid var(--outline-variant);
+  color:inherit;text-decoration:none;
+  box-shadow:0 1px 2px rgba(0,0,0,.05),0 10px 20px -16px rgba(0,0,0,.35);
+  transition:transform .18s cubic-bezier(.2,.8,.2,1),background .18s linear}
+.bk-kn-kart:active{transform:scale(.985);background:var(--surface-container-high)}
 
-   ПОЛКА КАК ВЕЩЬ. Корешки стояли на голом фоне и читались тремя плитками
-   списка. Теперь под ними лёгкая подложка тоном ниже страницы и доска полки
-   внизу — три книги стоят НА чём-то. Корешок скруглён сильнее справа, чем
-   слева (как переплёт), у обложки затемнённый сгиб у левого края и цветная
-   лента заглавия сверху; имя набрано книжной антиквой (той же, что у цитат),
-   а не шрифтом интерфейса — обложка и должна отличаться от кнопки.
-   Всё это — светом и тенью поверх токенов, без новых цветов: в тёмной теме
-   те же правила дают ту же полку. */
-.bk-polka-fon{position:relative;padding:14px 12px 20px;border-radius:20px;
-  background:linear-gradient(180deg,var(--surface-container-low),var(--surface-container));
+/* ── Обложка ───────────────────────────────────────────────────────────
+   Картинок обложек в приложении нет: рисуем узор SVG цветом издания.
+   У каждой книги свой чертёж, взятый из её содержания, а не украшение:
+   сутки — круг с двенадцатью местами и дуга солнца; год — колесо с опорным
+   крестом и четырьмя сезонами; жизнь — витки возрастов. Кант слева —
+   корешок переплёта. Других цветов, кроме книжных ролей, здесь нет:
+   тёмная тема перекрашивает обложку сама. */
+.bk-kn-obl{position:relative;display:block;aspect-ratio:3/4;width:100%;
+  border-radius:4px 12px 12px 4px;overflow:hidden;
+  background:var(--book-sutki-container);color:var(--book-sutki);
+  box-shadow:0 1px 3px rgba(0,0,0,.18)}
+.bk-kn-kart--goda .bk-kn-obl{background:var(--book-goda-container);color:var(--book-goda)}
+.bk-kn-kart--zhizni .bk-kn-obl{background:var(--book-zhizni-container);color:var(--book-zhizni)}
+.bk-kn-obl svg{display:block;width:100%;height:100%}
+/* Кант-корешок: полоса цветом издания у левого края + тень сгиба. */
+.bk-kn-obl::before{content:'';position:absolute;inset:0 auto 0 0;width:7px;
+  background:currentColor;opacity:.85}
+.bk-kn-obl::after{content:'';position:absolute;inset:0 auto 0 7px;width:9px;
+  background:linear-gradient(90deg,rgba(0,0,0,.18),rgba(0,0,0,0))}
+
+/* ── Текстовая колонка ─────────────────────────────────────────────────
+   min-width:0 обязателен: без него длинное имя части раздвигает сетку и
+   экран едет вбок — ровно та беда, из-за которой раздел переделан. */
+.bk-kn-telo{min-width:0;display:flex;flex-direction:column;gap:4px}
+.bk-kn-imya{font:var(--type-title-l);color:var(--on-surface)}
+.bk-kn-pod{font:var(--type-body-s);color:var(--on-surface-variant);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.bk-kn-hod{margin-top:auto;padding-top:10px;display:flex;flex-direction:column;gap:6px}
+
+/* Полоса прочитанного. Процента на экране нет нарочно: страницы человек
+   сверяет с оглавлением, а процент сверить нечем. Ширина заливки приходит
+   переменной --cel из скрипта. */
+.bk-kn-zhelob{display:block;height:6px;border-radius:3px;
+  background:var(--outline-variant);overflow:hidden}
+.bk-kn-zhelob i{display:block;height:100%;width:0;border-radius:3px;
+  background:var(--book-sutki)}
+.bk-kn-kart--goda .bk-kn-zhelob i{background:var(--book-goda)}
+.bk-kn-kart--zhizni .bk-kn-zhelob i{background:var(--book-zhizni)}
+.bk-kn-zhivo .bk-kn-zhelob i{width:var(--cel,0%)}
+/* Нетронутая книга: жёлоб не рисуем вовсе — пустая полоса читается как
+   сломанная, а не как «ещё не начинали». Своё display перебивает встроенное
+   [hidden], поэтому правило обязано быть явным. */
+.bk-kn-zhelob[hidden]{display:none}
+.bk-kn-schet{font:var(--type-label-m);color:var(--on-surface-variant);
+  font-variant-numeric:tabular-nums}
+
+/* Фраза «на чём остановились» — цветом издания, со стрелкой: она же
+   объясняет, куда ведёт нажатие по карточке. */
+.bk-kn-gde{display:flex;align-items:baseline;gap:8px;
+  font:var(--type-label-l);color:var(--book-sutki)}
+.bk-kn-kart--goda .bk-kn-gde{color:var(--book-goda)}
+.bk-kn-kart--zhizni .bk-kn-gde{color:var(--book-zhizni)}
+.bk-kn-gde span{min-width:0;display:-webkit-box;-webkit-line-clamp:3;
+  -webkit-box-orient:vertical;overflow:hidden}
+.bk-kn-gde i{margin-left:auto;font-style:normal;font-size:19px;line-height:1;
+  flex:0 0 auto;align-self:center}
+
+/* ── Управления центра ─────────────────────────────────────────────────
+   Двенадцать управлений «Золотого Ясеня» — тех, кто ведёт занятия и пишет
+   уроки. Сетка в две колонки: карусель на этом же экране вылезала за правый
+   край, и человек видел это как сломанную страницу. У карточки две цели:
+   верх ведёт в список управлений (upravleniya.html#ид), нижняя строка —
+   прямо во вводный урок.
+   ЭМБЛЕМА — вещь управления: показываем как есть, без перекраски и обрезки,
+   на белом диске в обеих темах. Пять эмблем растровые с непрозрачным фоном,
+   и на тёмной подложке без диска они висели бы белыми квадратами. */
+.bu-set{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+/* minmax(0,1fr) обязателен: без него содержимое распирает колонку, и
+   страница снова уезжает вправо. */
+.bu-el{display:flex}
+.bu-k{position:relative;display:flex;flex-direction:column;width:100%;
+  border-radius:16px;overflow:hidden;background:var(--surface-container-low);
   border:1px solid var(--outline-variant)}
-/* Доска полки: под корешками, чуть шире их ряда. */
-.bk-polka-fon::after{content:'';position:absolute;left:10px;right:10px;bottom:10px;height:5px;
-  border-radius:3px;background:var(--outline-variant);opacity:.8}
-.bk-polka{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;list-style:none}
-.bk-koreshok{position:relative;display:flex;flex-direction:column;min-height:156px;
-  border-radius:6px 13px 13px 6px;overflow:hidden;background:var(--surface-container-lowest);
-  border:1px solid var(--outline-variant);color:inherit;text-decoration:none;
-  box-shadow:0 1px 2px rgba(0,0,0,.06),0 8px 16px -10px rgba(0,0,0,.28);
-  transform-origin:50% 100%;
-  transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s cubic-bezier(.2,.8,.2,1)}
-/* Нажатие — книгу чуть вынимают с полки: приподнять и качнуть, не перекрасить. */
-.bk-koreshok:active{transform:translateY(-4px) rotate(-1.2deg);
-  box-shadow:0 2px 4px rgba(0,0,0,.08),0 14px 22px -10px rgba(0,0,0,.34)}
-.bk-oblozhka{position:relative;flex:1;display:flex;align-items:flex-end;padding:14px 12px 10px;
-  background:var(--book-sutki-container,var(--primary-container));
-  color:var(--book-sutki,var(--primary));
-  border-bottom:3px solid var(--book-sutki,var(--primary));
-  /* лента заглавия — цветом издания, через currentColor */
-  background-image:linear-gradient(currentColor,currentColor);
-  background-size:100% 3px;background-repeat:no-repeat;background-position:0 12px}
-.bk-koreshok--goda .bk-oblozhka{background-color:var(--book-goda-container);color:var(--book-goda);border-bottom-color:var(--book-goda)}
-.bk-koreshok--zhizni .bk-oblozhka{background-color:var(--book-zhizni-container);color:var(--book-zhizni);border-bottom-color:var(--book-zhizni)}
-/* Сгиб переплёта у левого края. */
-.bk-oblozhka::before{content:'';position:absolute;top:0;bottom:0;left:0;width:9px;pointer-events:none;
-  background:linear-gradient(90deg,rgba(0,0,0,.16),rgba(0,0,0,0))}
-/* Блик по обложке — один раз, при загрузке, вслед за подъёмом корешка. */
-.bk-oblozhka::after{content:'';position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(112deg,transparent 32%,rgba(255,255,255,.42) 50%,transparent 68%);
-  transform:translateX(-130%)}
-.bk-oblozhka b{position:relative;font:600 19px/1.12 var(--ya-font-quote);letter-spacing:.01em;text-wrap:balance}
-.bk-koreshok-niz{padding:8px 12px 10px;display:flex;flex-direction:column;gap:6px}
-.bk-obem{font:var(--type-label-m);color:var(--on-surface-variant);font-variant-numeric:tabular-nums;min-height:1.2em}
-.bk-hod[hidden]{display:none}
-.bk-zhelob{display:block;height:4px;border-radius:2px;background:var(--outline-variant);overflow:hidden}
-.bk-zhelob i{display:block;height:100%;width:0;border-radius:2px;background:var(--book-sutki,var(--primary))}
-.bk-koreshok--goda .bk-zhelob i{background:var(--book-goda,var(--primary))}
-.bk-koreshok--zhizni .bk-zhelob i{background:var(--book-zhizni,var(--primary))}
-.bk-zhivo .bk-zhelob i{width:var(--cel,0%)}
-.bk-hod-t{font:var(--type-body-s);color:var(--on-surface-variant);font-variant-numeric:tabular-nums}
+.bu-verh{flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:8px;
+  padding:12px 12px 10px;color:inherit;text-decoration:none}
+.bu-verh:active{background:var(--surface-container-high)}
+.bu-disk{width:52px;height:52px;border-radius:50%;background:#fff;flex:0 0 auto;overflow:hidden;
+  border:1px solid var(--outline-variant);display:flex;align-items:center;justify-content:center;
+  box-shadow:0 1px 2px rgba(0,0,0,.06)}
+/* Сторона картинки — по вписанному в круг квадрату: внутри каймы 50, значит
+   не больше 35 (диагональ 48). При 38 диагональ выходила 54, и углы пяти
+   растровых эмблем с непрозрачным фоном срезали белый диск — от него
+   оставались четыре серпа. overflow тут страховкой: при вписанном размере
+   резать уже нечего. */
+.bu-disk img{width:34px;height:34px;object-fit:contain;display:block}
+.bu-nom{position:absolute;top:10px;right:12px;font:var(--type-label-s);
+  color:var(--on-surface-variant);font-variant-numeric:tabular-nums}
+/* Переносы по слогам и по любому месту слова: при системном шрифте ×1.3 на
+   320 dp «Воспитание и Образование» иначе рвётся посреди буквы. */
+.bu-imya{font:var(--type-title-s);line-height:1.25;
+  hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.bu-temy{margin-top:auto;display:flex;flex-wrap:wrap;gap:4px;max-width:100%}
+.bu-tema{font:var(--type-label-s);padding:3px 8px;border-radius:999px;max-width:100%;
+  background:var(--surface-container);color:var(--on-surface-variant);
+  hyphens:auto;-webkit-hyphens:auto;overflow-wrap:break-word}
+.bu-urok{display:grid;grid-template-columns:16px minmax(0,1fr);gap:1px 8px;align-items:center;
+  min-height:52px;padding:8px 12px;border-top:1px solid var(--outline-variant);
+  background:var(--surface-container);color:inherit;text-decoration:none}
+.bu-urok:active{background:var(--surface-container-high)}
+.bu-urok svg{grid-row:1 / span 2;width:16px;height:16px;stroke:currentColor;fill:none;
+  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;color:var(--primary)}
+.bu-urok-t{grid-column:2;font:var(--type-label-m)}
+.bu-urok-o{grid-column:2;font:var(--type-label-s);color:var(--on-surface-variant);
+  font-variant-numeric:tabular-nums}
+.bu-k--proiden .bu-urok svg{color:var(--ok)}
+.bu-k--proiden .bu-urok-o{color:var(--ok)}
 
-/* Одна строка «Читать дальше» на всю полку — для книги, где чтение
-   остановилось. Раньше строк было три, по одной под каждой книгой, и
-   «Читать дальше» звучало трижды подряд у книг, которые не открывали. */
+/* Дверь под разделом: одна строка, ведущая дальше по теме раздела. */
 .bk-dalshe{display:flex;align-items:center;gap:12px;min-height:56px;margin-top:10px;
   padding:10px 14px;border-radius:14px;background:var(--surface-container-low);
   border:1px solid var(--outline-variant);color:inherit;text-decoration:none}
-.bk-dalshe[hidden]{display:none}
 .bk-dalshe:active{background:var(--surface-container-high)}
-.bk-dalshe-cvet{flex:0 0 4px;align-self:stretch;border-radius:2px;background:var(--primary)}
+.bk-dalshe-cvet{flex:0 0 4px;align-self:stretch;border-radius:2px;background:var(--tertiary)}
 .bk-dalshe b{display:block;font:var(--type-label-l)}
-.bk-dalshe em{display:block;margin-top:2px;font:var(--type-body-s);font-style:normal;color:var(--on-surface-variant)}
+.bk-dalshe em{display:block;margin-top:2px;font:var(--type-body-s);font-style:normal;
+  color:var(--on-surface-variant)}
 .bk-dalshe-strelka{margin-left:auto;font-size:19px;line-height:1;color:var(--on-surface-variant)}
 
 /* Знак у справочника — тот же, что в профиле и на «Уроках». */
@@ -155,92 +232,26 @@ body{background:var(--surface);color:var(--on-surface);
 .bk-znak svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .bk-imya,.bk-o,.bk-schet{grid-column:2}
 
-/* Корешки поднимаются при загрузке один за другим, полосы наливаются кадром
-   позже — единственное движение экрана; при «меньше движения» его нет. */
+/* ── Движение ──────────────────────────────────────────────────────────
+   Карточки поднимаются одна за другой, обложка при этом чуть подрастает,
+   полосы наливаются кадром позже (класс .bk-kn-zhivo ставит скрипт через
+   два requestAnimationFrame). Единственное движение экрана; при «меньше
+   движения» его нет вовсе. */
 @media (prefers-reduced-motion: no-preference){
-  .bk-koreshok{opacity:0;transform:translateY(8px);
-    animation:bk-podnyat .34s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--n,0) * 70ms)}
-  @keyframes bk-podnyat{to{opacity:1;transform:none}}
-  .bk-zhelob i{transition:width .7s cubic-bezier(.2,.8,.2,1) .35s}
-  .bk-zhivo .bk-oblozhka::after{animation:bk-blik 1.05s ease-out 1 forwards;
-    animation-delay:calc(.4s + var(--n,0) * 110ms)}
-  @keyframes bk-blik{to{transform:translateX(130%)}}
-  .bk-upr li{opacity:0;transform:translateY(8px);
-    animation:bk-podnyat .34s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(.2s + var(--n,0) * 45ms)}
+  .bk-kn-kart{opacity:0;transform:translateY(10px);
+    animation:bk-kn-podnyat .36s cubic-bezier(.2,.8,.2,1) forwards;
+    animation-delay:calc(var(--n,0) * 80ms)}
+  @keyframes bk-kn-podnyat{to{opacity:1;transform:none}}
+  .bk-kn-obl{transform:scale(.965);
+    animation:bk-kn-obl-rost .5s cubic-bezier(.2,.8,.2,1) forwards;
+    animation-delay:calc(var(--n,0) * 80ms + 60ms)}
+  @keyframes bk-kn-obl-rost{to{transform:none}}
+  .bk-kn-zhelob i{transition:width .7s cubic-bezier(.2,.8,.2,1) .45s}
+  .bu-el{opacity:0;transform:translateY(8px);
+    animation:bu-podnyat .34s cubic-bezier(.2,.8,.2,1) forwards;
+    animation-delay:calc(var(--n,0) * 40ms)}
+  @keyframes bu-podnyat{to{opacity:1;transform:none}}
 }
-
-/* ── Управления центра ─────────────────────────────────────────────────
-   Двенадцать управлений «Золотого Ясеня» — тех, кто ведёт занятия и пишет
-   уроки. Здесь они лентой в один ряд с прокруткой вбок: двенадцать карточек
-   столбиком отодвинули бы справочники на два экрана вниз, а лента занимает
-   один ряд и листается большим пальцем. Каждая карточка — дверь в список
-   управлений (upravleniya.html#ид), где описание, руководитель, запись и
-   вводный урок.
-   ЭМБЛЕМА — вещь управления: показываем как есть, без перекраски и обрезки,
-   на белом диске в обеих темах. Пять эмблем растровые с непрозрачным фоном,
-   и на тёмной подложке без диска они висели бы белыми квадратами. */
-.bk-razdel-pod{margin:-4px 0 10px;font:var(--type-body-s);color:var(--on-surface-variant)}
-.bk-upr{list-style:none;display:flex;gap:10px;margin:0 -16px;padding:2px 16px 6px;
-  overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;
-  /* Точки прилипания считаются от края прокрутки, а не от внутреннего
-     отступа: без этого первая карточка при загрузке вставала вплотную к
-     краю экрана, съев свои 16 px. */
-  scroll-padding:0 16px}
-.bk-upr::-webkit-scrollbar{display:none}
-.bk-upr li{flex:0 0 136px;scroll-snap-align:start}
-.bk-upr-k{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:8px;
-  min-height:164px;height:100%;padding:12px;border-radius:16px;
-  background:var(--surface-container-low);border:1px solid var(--outline-variant);
-  color:inherit;text-decoration:none}
-.bk-upr-k:active{background:var(--surface-container-high)}
-.bk-upr-disk{width:58px;height:58px;border-radius:50%;background:#fff;
-  border:1px solid var(--outline-variant);display:flex;align-items:center;justify-content:center;
-  box-shadow:0 1px 2px rgba(0,0,0,.06)}
-.bk-upr-disk img{width:42px;height:42px;object-fit:contain;display:block}
-.bk-upr-nom{position:absolute;top:10px;right:12px;font:var(--type-label-s);
-  color:var(--on-surface-variant);font-variant-numeric:tabular-nums}
-.bk-upr-n{font:var(--type-title-s);line-height:1.2;text-wrap:balance;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.bk-upr-t{margin-top:auto;max-width:100%;font:var(--type-label-s);color:var(--on-surface-variant);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-/* ── (прежние стили тома — оставлены ради читалки, которая их не зовёт) ── */
-.bk-tom{border-radius:16px;overflow:hidden;
-  background:var(--surface-container-low);border:1px solid var(--outline-variant);
-  border-left:4px solid var(--book-sutki,var(--primary))}
-.bk-tom--goda{border-left-color:var(--book-goda,var(--primary))}
-.bk-tom--zhizni{border-left-color:var(--book-zhizni,var(--primary))}
-.bk-tom .bk-dver{border:0;border-radius:0;background:transparent}
-.bk-tom .bk-dver:active{background:var(--surface-container-high)}
-/* Объём книги — всегда в страницах. Раньше одна и та же книга мерилась
-   то частями и страницами, то разворотами, то цитатами: три единицы на
-   одну вещь, и ни одна не совпадала с процентом чтения. */
-.bk-obem{display:block;margin-top:8px;font:var(--type-label-m);
-  color:var(--on-surface-variant);font-variant-numeric:tabular-nums}
-.bk-hod{display:flex;align-items:center;gap:8px;margin-top:8px}
-/* Своё display:flex перебивает встроенное [hidden] — правило обязано быть
-   явным, иначе у непрочитанной книги висел пустой жёлоб хода. */
-.bk-hod[hidden],.bk-dalshe[hidden]{display:none}
-.bk-zhelob{flex:0 0 96px;height:4px;border-radius:2px;
-  background:var(--outline-variant);overflow:hidden}
-.bk-zhelob i{display:block;height:100%;width:0;border-radius:2px;
-  background:var(--book-sutki,var(--primary))}
-.bk-tom--goda .bk-zhelob i{background:var(--book-goda,var(--primary))}
-.bk-tom--zhizni .bk-zhelob i{background:var(--book-zhizni,var(--primary))}
-.bk-hod-t{font:var(--type-body-s);color:var(--on-surface-variant);
-  font-variant-numeric:tabular-nums}
-/* Вторая цель тома. Цвет — книжный, а не интерфейсный синий: внутри
-   карточки книги синяя строка выглядела бы чужой вставкой. */
-.bk-dalshe{display:flex;align-items:center;gap:10px;min-height:56px;
-  padding:12px 16px;border-top:1px solid var(--outline-variant);
-  color:var(--book-sutki,var(--primary));text-decoration:none}
-.bk-tom--goda .bk-dalshe{color:var(--book-goda,var(--primary))}
-.bk-tom--zhizni .bk-dalshe{color:var(--book-zhizni,var(--primary))}
-.bk-dalshe:active{background:var(--surface-container-high)}
-.bk-dalshe b{display:block;font:var(--type-label-l)}
-.bk-dalshe em{display:block;margin-top:2px;font:var(--type-body-s);
-  font-style:normal;color:var(--on-surface-variant)}
-.bk-dalshe-strelka{margin-left:auto;font-size:19px;line-height:1}
 
 /* ── Двенадцать мест ──────────────────────────────────────────────────
    Справочник, который читают на месте: уводить за ним на другую вкладку
@@ -275,69 +286,131 @@ body{background:var(--surface);color:var(--on-surface);
 <main class="bk-telo">
   <section class="bk-razdel">
     <h2>Книги</h2>
-    <div class="bk-polka-fon">
-    <ul class="bk-polka" id="bk-knigi">
-      <li data-kniga="sutki" style="--n:0">
-        <a class="bk-koreshok" href="kniga.html" aria-label="Ясна Суток">
-          <span class="bk-oblozhka"><b>Ясна Суток</b></span>
-          <span class="bk-koreshok-niz">
-            <span class="bk-obem" data-obem></span>
-            <span class="bk-hod" data-hod hidden>
-              <span class="bk-zhelob" aria-hidden="true"><i data-fill></i></span>
+    <ul class="bk-kn-set" id="bk-knigi">
+
+      <li style="--n:0" data-kniga="sutki">
+        <a class="bk-kn-kart bk-kn-kart--sutki" href="kniga.html">
+          <span class="bk-kn-obl" aria-hidden="true">
+            <svg viewBox="0 0 96 128" preserveAspectRatio="xMidYMid meet"
+                 fill="none" stroke="currentColor" stroke-width="1.6"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <!-- Ясна Суток: дуга солнца над горизонтом, круг суток
+                   с двенадцатью местами и отметкой первого места. -->
+              <path d="M18 50 A30 30 0 0 1 78 50" opacity=".9"/>
+              <circle cx="48" cy="20" r="5" fill="currentColor" stroke="none"/>
+              <path d="M12 50 H84" opacity=".55"/>
+              <circle cx="48" cy="86" r="24"/>
+              <g opacity=".75">
+                <path d="M48 62 V56"/><path d="M60 65.2 L63 60"/>
+                <path d="M68.8 74 L74 71"/><path d="M72 86 H78"/>
+                <path d="M68.8 98 L74 101"/><path d="M60 106.8 L63 112"/>
+                <path d="M48 110 V116"/><path d="M36 106.8 L33 112"/>
+                <path d="M27.2 98 L22 101"/><path d="M24 86 H18"/>
+                <path d="M27.2 74 L22 71"/><path d="M36 65.2 L33 60"/>
+              </g>
+              <circle cx="48" cy="62" r="3.4" fill="currentColor" stroke="none"/>
+              <path d="M48 86 L48 70" opacity=".5"/>
+            </svg>
+          </span>
+          <span class="bk-kn-telo">
+            <b class="bk-kn-imya">Ясна Суток</b>
+            <span class="bk-kn-pod">Первая книга о том, как всё устроено</span>
+            <span class="bk-kn-hod">
+              <span class="bk-kn-zhelob" aria-hidden="true" hidden><i data-fill></i></span>
+              <span class="bk-kn-schet" data-schet></span>
+              <span class="bk-kn-gde"><span data-gde></span><i aria-hidden="true">›</i></span>
             </span>
           </span>
         </a>
       </li>
-      <li data-kniga="goda" style="--n:1">
-        <a class="bk-koreshok bk-koreshok--goda" href="kniga.html?kniga=goda" aria-label="Ясна Года">
-          <span class="bk-oblozhka"><b>Ясна Года</b></span>
-          <span class="bk-koreshok-niz">
-            <span class="bk-obem" data-obem></span>
-            <span class="bk-hod" data-hod hidden>
-              <span class="bk-zhelob" aria-hidden="true"><i data-fill></i></span>
+
+      <li style="--n:1" data-kniga="goda">
+        <a class="bk-kn-kart bk-kn-kart--goda" href="kniga.html?kniga=goda">
+          <span class="bk-kn-obl" aria-hidden="true">
+            <svg viewBox="0 0 96 128" preserveAspectRatio="xMidYMid meet"
+                 fill="none" stroke="currentColor" stroke-width="1.6"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <!-- Ясна Года: годовое колесо, опорный крест, четыре сезона
+                   четырьмя дугами разной толщины, наклон эклиптики. -->
+              <circle cx="48" cy="64" r="38"/>
+              <circle cx="48" cy="64" r="14" opacity=".8"/>
+              <path d="M48 26 V50 M48 78 V102 M10 64 H36 M60 64 H86" opacity=".85"/>
+              <g fill="none">
+                <path d="M48 34 A30 30 0 0 1 78 64" stroke-width="1"/>
+                <path d="M78 64 A30 30 0 0 1 48 94" stroke-width="2"/>
+                <path d="M48 94 A30 30 0 0 1 18 64" stroke-width="3"/>
+                <path d="M18 64 A30 30 0 0 1 48 34" stroke-width="4" opacity=".55"/>
+              </g>
+              <path d="M17 82 L79 46" stroke-dasharray="3 4" opacity=".55"/>
+              <circle cx="48" cy="26" r="3" fill="currentColor" stroke="none"/>
+              <circle cx="86" cy="64" r="3" fill="currentColor" stroke="none"/>
+              <circle cx="48" cy="102" r="3" fill="currentColor" stroke="none"/>
+              <circle cx="10" cy="64" r="3" fill="currentColor" stroke="none"/>
+            </svg>
+          </span>
+          <span class="bk-kn-telo">
+            <b class="bk-kn-imya">Ясна Года</b>
+            <span class="bk-kn-pod">Вторая книга — круг года и зодиака</span>
+            <span class="bk-kn-hod">
+              <span class="bk-kn-zhelob" aria-hidden="true" hidden><i data-fill></i></span>
+              <span class="bk-kn-schet" data-schet></span>
+              <span class="bk-kn-gde"><span data-gde></span><i aria-hidden="true">›</i></span>
             </span>
           </span>
         </a>
       </li>
-      <li data-kniga="zhizni" style="--n:2">
-        <a class="bk-koreshok bk-koreshok--zhizni" href="kniga.html?kniga=zhizni" aria-label="Ясна Жизни">
-          <span class="bk-oblozhka"><b>Ясна Жизни</b></span>
-          <span class="bk-koreshok-niz">
-            <span class="bk-obem" data-obem></span>
-            <span class="bk-hod" data-hod hidden>
-              <span class="bk-zhelob" aria-hidden="true"><i data-fill></i></span>
+
+      <li style="--n:2" data-kniga="zhizni">
+        <a class="bk-kn-kart bk-kn-kart--zhizni" href="kniga.html?kniga=zhizni">
+          <span class="bk-kn-obl" aria-hidden="true">
+            <svg viewBox="0 0 96 128" preserveAspectRatio="xMidYMid meet"
+                 fill="none" stroke="currentColor" stroke-width="1.6"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <!-- Ясна Жизни: витки возрастов от середины наружу,
+                   отметки — переходы возрастов. -->
+              <circle cx="48" cy="64" r="40" opacity=".3"/>
+              <g transform="translate(2 0) translate(48 64) scale(1.42) translate(-48 -64)">
+                <path d="M48 64
+                         A5 5 0 0 1 48 54
+                         A8 8 0 0 1 48 70
+                         A11 11 0 0 1 48 48
+                         A14 14 0 0 1 48 76
+                         A17 17 0 0 1 48 42
+                         A20 20 0 0 1 48 82"/>
+                <g fill="currentColor" stroke="none">
+                  <circle cx="48" cy="64" r="2.2"/>
+                  <circle cx="48" cy="54" r="1.7"/>
+                  <circle cx="48" cy="70" r="1.7"/>
+                  <circle cx="48" cy="48" r="1.7"/>
+                  <circle cx="48" cy="76" r="1.7"/>
+                  <circle cx="48" cy="42" r="1.7"/>
+                  <circle cx="48" cy="82" r="2.4"/>
+                </g>
+              </g>
+            </svg>
+          </span>
+          <span class="bk-kn-telo">
+            <b class="bk-kn-imya">Ясна Жизни</b>
+            <span class="bk-kn-pod">Начальная книга — жизнь как круг</span>
+            <span class="bk-kn-hod">
+              <span class="bk-kn-zhelob" aria-hidden="true" hidden><i data-fill></i></span>
+              <span class="bk-kn-schet" data-schet></span>
+              <span class="bk-kn-gde"><span data-gde></span><i aria-hidden="true">›</i></span>
             </span>
           </span>
         </a>
       </li>
+
     </ul>
-    </div>
-    <!-- Одна строка на полку: книга, где чтение остановилось, или первая —
-         «Начать чтение». -->
-    <a class="bk-dalshe" id="bk-dalshe" href="kniga.html" hidden>
-      <span class="bk-dalshe-cvet" id="bk-dalshe-cvet" aria-hidden="true"></span>
-      <span><b id="bk-dalshe-t"></b><em id="bk-dalshe-o"></em></span>
-      <span class="bk-dalshe-strelka" aria-hidden="true">›</span>
-    </a>
   </section>
 
   <section class="bk-razdel" id="bk-upr-razdel" hidden>
     <h2>Управления центра</h2>
-    <p class="bk-razdel-pod">Двенадцать управлений «Золотого Ясеня»: чем заняты и с чего начать.</p>
-    <ul class="bk-upr" id="bk-upr" aria-label="Управления центра"></ul>
+    <p class="bk-razdel-pod">Двенадцать управлений «Золотого Ясеня» ведут занятия. У каждого — вводный урок: чем занято, кто ведёт и с чего начать.</p>
+    <ul class="bu-set" id="bk-upr" aria-label="Управления центра"></ul>
     <a class="bk-dalshe" href="upravleniya.html">
-      <span class="bk-dalshe-cvet" style="background:var(--tertiary)" aria-hidden="true"></span>
-      <span><b>Все двенадцать</b><em>Руководители, формат, запись и связь с центром</em></span>
-      <span class="bk-dalshe-strelka" aria-hidden="true">›</span>
-    </a>
-    <!-- Вторая дверь раздела — лента записей из открытых каналов управлений.
-         Дверь стоит всегда: экран ленты сам честно говорит, если сети нет.
-         Подпись ставит скрипт из кэша и ответа сервера: «N новых записей»,
-         когда есть непрочитанное, иначе время последнего сбора; ничего не
-         узнали — остаётся подпись без числа. -->
-    <a class="bk-dalshe" id="bk-lenta" href="lenta.html?otkuda=biblioteka" aria-label="Лента управлений: что пишут сейчас">
-      <span class="bk-dalshe-cvet" style="background:var(--tertiary)" aria-hidden="true"></span>
-      <span><b>Лента управлений</b><em id="bk-lenta-o">Что пишут сейчас</em></span>
+      <span class="bk-dalshe-cvet" aria-hidden="true"></span>
+      <span><b>Почитать подробнее</b><em>Все двенадцать: формат, запись, каналы и связь с центром</em></span>
       <span class="bk-dalshe-strelka" aria-hidden="true">›</span>
     </a>
   </section>
@@ -380,13 +453,25 @@ body{background:var(--surface);color:var(--on-surface);
 <script src="core/derevo-dannye.js?v=b59aebf3"></script>
 <script src="core/schet.js?v=1ecbbd4a"></script>
 <script src="core/upravleniya-dannye.js"></script>
-<!-- Лента управлений: транспорт к серверу и модуль ленты — подпись двери
-     «N новых записей» считается тем же кодом, что и на экране ленты. -->
-<script src="core/svyaz.js"></script>
-<script src="core/lenta.js"></script>
+<script src="core/pasporta.js?v=5d4e2ce1"></script>
 <script>
 (function(){
   'use strict';
+
+  /* Склонение при числе. Без него «44 явлений» и «2 части» пишутся сами
+     собой, а число с неверным словом читается как опечатка и роняет доверие
+     ко всему счёту. Три формы: 1 страница · 2 страницы · 5 страниц. */
+  function при(н, одна, две, много){
+    var д = Math.abs(н) % 100, е = д % 10;
+    var слово = (д > 10 && д < 20) ? много : (е === 1 ? одна : (е >= 2 && е <= 4 ? две : много));
+    return н + ' ' + слово;
+  }
+
+  function экр(т){
+    return String(т).replace(/[&<>"]/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
+    });
+  }
 
   /* ─── Книги ────────────────────────────────────────────────────────────
      Опись каждой книги лежит рядом с её главами и объявляет один и тот же
@@ -406,16 +491,7 @@ body{background:var(--surface);color:var(--on-surface);
 
   function есть(оп){ return оп.есть !== false; }
 
-  /* Склонение при числе. Без него «44 явлений» и «2 части» пишутся сами
-     собой, а число с неверным словом читается как опечатка и роняет доверие
-     ко всему счёту. Три формы: 1 страница · 2 страницы · 5 страниц. */
-  function при(н, одна, две, много){
-    var д = Math.abs(н) % 100, е = д % 10;
-    var слово = (д > 10 && д < 20) ? много : (е === 1 ? одна : (е >= 2 && е <= 4 ? две : много));
-    return н + ' ' + слово;
-  }
-
-  /* Страницы глав НАКЛАДЫВАЮТСЯ друг на друга: глава 6 Суток начинается на
+  /* Страницы частей НАКЛАДЫВАЮТСЯ друг на друга: часть 6 Суток начинается на
      той же 41-й странице, где кончается пятая. Складывать длины нельзя —
      выходило «прочитано 13 из 106 страниц» под подписью «104 страницы», то
      есть два разных объёма одной книги в одной карточке. Поэтому считаем
@@ -440,23 +516,42 @@ body{background:var(--surface);color:var(--on-surface);
     return { частей: частей, страниц: последняя };
   }
 
-  /* Куда ведёт «Читать дальше»: остановленная глава, а если её нет —
-     первая непрочитанная. Ровно то же решение принимает сама читалка,
-     иначе кнопка на этом экране обещала бы не ту страницу. */
+  /* Где чтение остановилось: сначала отмеченная читалкой часть, а если её
+     нет — первая непрочитанная. Ровно то же решение принимает сама читалка,
+     иначе карточка обещала бы не ту страницу.
+     Обложку (часть 0) пропускаем, КОГДА чтение уже началось: дочитавший
+     первую часть отправлялся карточкой назад на обложку — она ведь не
+     отмечена прочитанной. Нетронутую книгу, наоборот, открываем с обложки. */
   function дальше(О, сост){
-    /* «Начать чтение» — только для книги, которую не открывали ни разу.
-       Прежде подпись смотрела на одну остановленную главу, и человеку,
-       прочитавшему две главы подряд до конца, книга снова предлагала
-       «начать»: прочитанное как будто не считалось. */
     var прочитано = сост.прочитано || {};
-    var трогали = сост.глава != null;
-    for(var к in прочитано) if(прочитано[к]) { трогали = true; break; }
-    if(сост.глава != null) return { номер: сост.глава, начало: false };
+    if(сост.глава != null) return сост.глава;
+    var началось = false;
+    for(var i=0;i<О.главы.length;i++)
+      if(есть(О.главы[i]) && прочитано[О.главы[i].номер]){ началось = true; break; }
     for(var i=0;i<О.главы.length;i++){
       var оп = О.главы[i];
-      if(есть(оп) && !прочитано[оп.номер]) return { номер: оп.номер, начало: !трогали };
+      if(!есть(оп)) continue;
+      if(началось && оп.номер === 0) continue;
+      if(!прочитано[оп.номер]) return оп.номер;
     }
-    return { номер: О.главы[0] ? О.главы[0].номер : 0, начало: !трогали };
+    return О.главы[0] ? О.главы[0].номер : 0;
+  }
+
+  /* Место в книге: сколько страниц лежит до начала части. Нужно для книги,
+     которую читают прямо сейчас: читалка отмечает часть прочитанной только
+     когда её долистали до конца (kniga.html), и на середине первой же части
+     прочитанных частей нет вовсе. Без этого счёта карточка говорила «13
+     частей · 224 страницы» — подпись НЕтронутой книги — рядом с фразой
+     «Остановились на части 12». */
+  function местоДо(О, н){
+    var начало = null, тут = null;
+    О.главы.forEach(function(оп){
+      if(!есть(оп) || !оп.страницы) return;
+      if(начало === null || оп.страницы[0] < начало) начало = оп.страницы[0];
+      if(оп.номер === н) тут = оп.страницы[0];
+    });
+    if(начало === null || тут === null) return 0;
+    return Math.max(0, тут - начало);
   }
 
   function имяГлавы(О, н){
@@ -464,69 +559,92 @@ body{background:var(--surface);color:var(--on-surface);
     return '';
   }
 
-  function наполнитьТом(к, О){
-    var том = document.querySelector('[data-kniga="'+к.ид+'"]');
-    if(!том || !О || !О.главы || !О.главы.length) return;
+  /* Карточка книги пишет о себе четыре вещи: счёт страниц, ширину полосы,
+     фразу «на чём остановились» и адрес, куда ведёт нажатие. Больше на
+     карточке ничего динамического нет. */
+  function наполнитьКнигу(к, О){
+    var карт = document.querySelector('[data-kniga="'+к.ид+'"]');
+    if(!карт || !О || !О.главы || !О.главы.length) return;
+    var ссылка = карт.querySelector('a');
     var сост = читатьСост(к.ключ);
     var прочитано = сост.прочитано || {};
     var о = объём(О);
 
-    var эОбъём = том.querySelector('[data-obem]');
-    if(эОбъём) эОбъём.textContent = при(о.частей,'часть','части','частей')
-      + ' · ' + при(о.страниц,'страница','страницы','страниц');
+    var эИмя = карт.querySelector('.bk-kn-imya');
+    if(эИмя && О.имя) эИмя.textContent = О.имя;
+    var эПод = карт.querySelector('.bk-kn-pod');
+    if(эПод && О.подпись) эПод.textContent = О.подпись;
 
-    /* Прочитанное считаем в страницах — в той же единице, что и объём.
-       Процента здесь нет нарочно: «74 из 104 страниц» человек проверяет
-       глазами по оглавлению, а процент проверить нечем. */
+    var частиЕсть   = О.главы.filter(есть);
+    var частиГотовы = частиЕсть.filter(function(оп){ return прочитано[оп.номер]; });
     var всего = о.страниц;
-    var сдел = страницыГлав(О.главы.filter(function(оп){ return прочитано[оп.номер]; }));
-    if(сдел > 0){
-      var эХод = том.querySelector('[data-hod]');
-      var эЗал = том.querySelector('[data-fill]');
-      if(эХод) эХод.hidden = false;
-      /* Целевая ширина — переменной: полоса наливается кадром позже, когда
-         полка получит .bk-zhivo (см. ниже). Процент только в стиле, на
-         экране его нет. */
-      if(эЗал) эЗал.style.setProperty('--cel', (всего ? Math.round(сдел/всего*100) : 0) + '%');
-      /* Объём подменяем прочитанным: «74 из 104 страниц» говорит больше,
-         чем «104 страницы», и места под корешком на два числа нет. */
-      var эОб = том.querySelector('[data-obem]');
-      if(эОб) эОб.textContent = сдел + ' из ' + при(всего,'страницы','страниц','страниц');
+    var сдел  = страницыГлав(частиГотовы);
+    var дочитана = частиЕсть.length > 0 && частиГотовы.length === частиЕсть.length;
+    /* Часть, на которой стоит человек. Ноль — обложка: местом остановки она
+       не считается, «часть 0» читателю не говорит ничего, а на соседней
+       карточке та же обложка зовётся человеческим «Начать с обложки». */
+    var н = дочитана ? 0 : дальше(О, сост);
+    var нетронута = частиГотовы.length === 0 && сост.глава == null;
+    var наОбложке = !дочитана && (н === 0 || нетронута);
+    /* Открытая, но не дочитанная часть тоже двигает счёт: иначе счёт и фраза
+       на одной карточке говорили о разном. Берём большее из двух — сколько
+       страниц отмечено прочитанными и сколько лежит до начала текущей части. */
+    if(!дочитана && !наОбложке) сдел = Math.max(сдел, местоДо(О, н));
+    /* Прочитаны все части — значит прочитана вся книга: «177 из 178» под
+       фразой «Прочитана вся» читалось бы как недоделка. Расхождение в одну
+       страницу даёт разметка книги: у «Ясны Жизни» первая часть начинается
+       со второй страницы, и первая не входит ни в одну часть. */
+    if(дочитана) сдел = всего;
+    /* Полоса и счёт страниц идут вместе: есть место в книге — есть и то, и
+       другое; нет — объём и пустое поле вместо полосы. */
+    var трогали = сдел > 0;
+
+    /* Счёт — всегда в страницах: единица одна и та же и у объёма, и у
+       прочитанного. Процента здесь нет нарочно: «41 из 104 страниц» человек
+       проверяет глазами по оглавлению, а процент проверить нечем. */
+    var счёт = трогали
+      ? сдел + ' из ' + при(всего,'страницы','страниц','страниц')
+      : при(о.частей,'часть','части','частей') + ' · ' + при(всего,'страница','страницы','страниц');
+    var эСчёт = карт.querySelector('[data-schet]');
+    if(эСчёт) эСчёт.textContent = счёт;
+
+    /* Целевая ширина — переменной: полоса наливается кадром позже, когда
+       список получит .bk-kn-zhivo (см. ниже). Процент только в стиле. */
+    var эЖёлоб = карт.querySelector('.bk-kn-zhelob');
+    var эЗал   = карт.querySelector('[data-fill]');
+    if(эЖёлоб) эЖёлоб.hidden = !трогали;
+    if(эЗал && трогали)
+      эЗал.style.setProperty('--cel', (всего ? Math.round(сдел/всего*100) : 0) + '%');
+
+    var корень = к.ид === 'sutki' ? 'kniga.html' : 'kniga.html?kniga=' + к.ид;
+    var разделитель = к.ид === 'sutki' ? '?' : '&';
+    var фраза, адрес;
+    if(дочитана){
+      фраза = 'Прочитана вся · открыть оглавление';
+      адрес = корень;
+    } else if(наОбложке){
+      фраза = 'Начать с обложки';
+      адрес = корень + разделитель + 'glava=' + н;
+    } else {
+      var имя = имяГлавы(О, н);
+      фраза = 'Остановились на части ' + н + (имя ? ' · ' + имя : '');
+      адрес = корень + разделитель + 'glava=' + н;
     }
-
-    /* Кандидат в «читать дальше»: книга, которую трогали, идёт раньше той,
-       которую нет; среди тронутых — первая по порядку полки. */
-    var д = дальше(О, сост);
-    кандидаты.push({ к: к, О: О, д: д, имя: имяГлавы(О, д.номер),
-                     трогали: !д.начало, порядок: КНИГИ.indexOf(к) });
-  }
-
-  var кандидаты = [];
-  function строкаДальше(){
-    if(!кандидаты.length) return;
-    кандидаты.sort(function(a,b){ return (b.трогали - a.трогали) || (a.порядок - b.порядок); });
-    var в = кандидаты[0];
-    var эД = document.getElementById('bk-dalshe');
-    if(!эД) return;
-    var адрес = 'kniga.html' + (в.к.ид === 'sutki' ? '?' : '?kniga=' + в.к.ид + '&') + 'glava=' + в.д.номер;
-    эД.setAttribute('href', адрес);
-    var подпись = (в.О.имя || 'Книга') + (в.д.номер ? ' · глава ' + в.д.номер : '') + (в.имя ? ' · ' + в.имя : '');
-    document.getElementById('bk-dalshe-t').textContent = в.д.начало ? 'Начать чтение' : 'Читать дальше';
-    document.getElementById('bk-dalshe-o').textContent = подпись;
-    var цвет = document.getElementById('bk-dalshe-cvet');
-    if(цвет) цвет.style.background = 'var(--book-' + в.к.ид + ', var(--primary))';
-    эД.setAttribute('aria-label', (в.д.начало ? 'Начать чтение' : 'Читать дальше') + ': ' + подпись);
-    эД.hidden = false;
+    var эГде = карт.querySelector('[data-gde]');
+    if(эГде) эГде.textContent = фраза;
+    if(ссылка){
+      ссылка.setAttribute('href', адрес);
+      ссылка.setAttribute('aria-label', (О.имя || 'Книга') + '. ' + счёт + '. ' + фраза);
+    }
   }
 
   (function поОчереди(i){
     if(i >= КНИГИ.length){
-      строкаДальше();
       /* Оживляем кадром позже: полосы стоят пустыми в первом кадре и
          наливаются во втором. Два requestAnimationFrame — чтобы браузер
          успел отрисовать пустое; при «меньше движения» перехода нет. */
-      var полка = document.getElementById('bk-knigi');
-      if(полка) requestAnimationFrame(function(){ requestAnimationFrame(function(){ полка.classList.add('bk-zhivo'); }); });
+      var набор = document.getElementById('bk-knigi');
+      if(набор) requestAnimationFrame(function(){ requestAnimationFrame(function(){ набор.classList.add('bk-kn-zhivo'); }); });
       return;
     }
     var к = КНИГИ[i];
@@ -535,11 +653,11 @@ body{background:var(--surface);color:var(--on-surface);
     с.onload = function(){
       var О = window.YasnaKnigaOpis;
       window.YasnaKnigaOpis = null;
-      try { наполнитьТом(к, О); } catch(e){}
+      try { наполнитьКнигу(к, О); } catch(e){}
       поОчереди(i+1);
     };
-    /* Описи нет — том остаётся дверью без объёма: имя, подпись и вход в
-       книгу стоят в разметке и работают без единой строки этого файла. */
+    /* Описи нет — карточка остаётся дверью без счёта: имя, подпись и вход
+       в книгу стоят в разметке и работают без единой строки этого файла. */
     с.onerror = function(){ поОчереди(i+1); };
     document.head.appendChild(с);
   })(0);
@@ -547,56 +665,86 @@ body{background:var(--surface);color:var(--on-surface);
   /* ─── Управления центра ────────────────────────────────────────────────
      Порядок — по полю nomer, как на сайте. Раздел стоит скрытым в разметке
      и открывается, только если данные загрузились и в них есть хоть одно
-     управление: пустая лента с заголовком выглядела бы поломкой. */
-  (function лентаУправлений(){
-    var Д = window.YasnaUpravleniya, раздел = document.getElementById('bk-upr-razdel'),
-        лента = document.getElementById('bk-upr');
-    if(!Д || !раздел || !лента || !Д.upravleniya || !Д.upravleniya.length) return;
-    var список = Д.upravleniya.slice().sort(function(a,b){ return a.nomer - b.nomer; });
-    function экр(т){ return String(т).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
-    var html = '';
-    for(var i=0;i<список.length;i++){
-      var у = список[i];
-      html += '<li style="--n:' + i + '"><a class="bk-upr-k" href="upravleniya.html#' + экр(у.id) + '"'
-        + ' aria-label="' + экр(у.nazvanie) + ', управление ' + у.nomer + ' из 12">'
-        + '<span class="bk-upr-disk"><img src="' + экр(у.emblema) + '" alt="" loading="lazy" decoding="async"></span>'
-        + '<span class="bk-upr-nom" aria-hidden="true">' + у.nomer + '</span>'
-        + '<span class="bk-upr-n">' + экр(у.nazvanie) + '</span>'
-        + (у.temy && у.temy.length ? '<span class="bk-upr-t">' + экр(у.temy[0]) + '</span>' : '')
-        + '</a></li>';
-    }
-    лента.innerHTML = html;
-    раздел.hidden = false;
-  })();
+     управление: пустая сетка с заголовком выглядела бы поломкой.
 
-  /* ─── Лента управлений: подпись двери ──────────────────────────────────
-     Сначала из кэша первой страницы (мгновенно и без сети), затем из ответа
-     сервера. Есть непрочитанное — число новых; нет — когда лента собиралась
-     в последний раз, тем же правилом времени, что и у самой ленты. Ошибка
-     сети остаётся внутри модуля (свежее() не бросает), а дверь при любом
-     исходе стоит на месте: без числа, но не без входа. */
-  (function дверьЛенты(){
-    var Л = window.YasnaLenta, эД = document.getElementById('bk-lenta'), эО = document.getElementById('bk-lenta-o');
-    if(!Л || !эД || !эО || typeof Л.свежее !== 'function') return;
-    function подпись(novyh, sobrano_at){
-      var н = Number(novyh) || 0, т = 'Что пишут сейчас';
-      if(н >= 1) т = при(н, 'новая запись', 'новые записи', 'новых записей');
-      else if(sobrano_at && typeof Л.время === 'function'){
-        var когда = Л.время(sobrano_at);
-        if(когда) т = т + ' · обновлено ' + когда;
-      }
-      эО.textContent = т;
-      эД.setAttribute('aria-label', 'Лента управлений: ' + т);
+     У карточки две цели: верх — описание управления, нижняя строка — его
+     вводный урок. Объём урока берём из паспортов, чтобы он не разошёлся с
+     тем, что человек увидит, открыв сам урок. Пройденность читаем из того
+     же ключа, куда её пишет lesson.html, — своего ключа этот экран не
+     заводит. */
+  (function сеткаУправлений(){
+    var Д = window.YasnaUpravleniya, раздел = document.getElementById('bk-upr-razdel'),
+        сетка = document.getElementById('bk-upr');
+    if(!Д || !раздел || !сетка || !Д.upravleniya || !Д.upravleniya.length) return;
+
+    var пройдены = [];
+    try { пройдены = JSON.parse(localStorage.getItem('yasna_completed_lessons_v1')) || []; } catch(e){ пройдены = []; }
+    if(!Array.isArray(пройдены)) пройдены = [];
+
+    function объёмУрока(ид){
+      var П = window.YasnaPasporta;
+      if(!П || !П.length) return '';
+      for(var i=0;i<П.length;i++) if(П[i].id === 'upr-' + ид) return П[i]['объём'] || '';
+      return '';
     }
-    var к = null;
-    try { к = Л.кэш(); } catch(e){}
-    if(к && к.sobrano_at) подпись(0, к.sobrano_at);
-    try {
-      Л.свежее().then(function(о){
-        if(!о) return;
-        подпись(о.novyh, о.sobrano_at || (к && к.sobrano_at));
-      }, function(){});
-    } catch(e){}
+
+    var ЗНАК = {
+      урок: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 2.8 8.4 12 12.8l9.2-4.4zM6 10.6V16c0 1.4 2.7 3 6 3s6-1.6 6-3v-5.4"/></svg>',
+      готов: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 12.2l2.4 2.4 4.6-4.8"/></svg>',
+      видео: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5h11v9H4zM15 10.5l5-2.5v8l-5-2.5"/></svg>',
+      звук: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13.5v-1.5a8 8 0 0 1 16 0v1.5"/><path d="M3.2 13.8h4.3v6.2H5.2a2 2 0 0 1-2-2zM16.5 13.8h4.3v4.2a2 2 0 0 1-2 2h-2.3z"/></svg>'
+    };
+
+    /* Вид вводного урока — из данных (поле vvodnyj_urok). Полоса на карточке
+       та же самая: меняются только знак, подпись и адрес. Видео и звук с
+       адресом уходят наружу, в системный браузер; без адреса запись лежит
+       внутри самого урока, и полоса ведёт в урок, как текстовая. */
+    function вводный(у){
+      var в = у.vvodnyj_urok || {};
+      var вид = в.vid || 'tekst';
+      var звук = (вид === 'zvuk' || вид === 'audio'), видео = (вид === 'video');
+      var наружу = !!(в.ssylka && (видео || звук));
+      return {
+        подпись: видео ? 'Смотреть видео' : звук ? 'Послушать' : 'Вводный урок',
+        знак: видео ? ЗНАК.видео : звук ? ЗНАК.звук : ЗНАК.урок,
+        наружу: наружу,
+        мера: в.dlitelnost || '',
+        адрес: наружу ? в.ssylka
+          : 'lesson.html?lesson=' + (в.urok || ('upr-' + у.id)) + '&otkuda=biblioteka.html'
+      };
+    }
+
+    var список = Д.upravleniya.slice().sort(function(a,b){ return a.nomer - b.nomer; });
+    var всего = список.length;
+    var html = '';
+    for(var i=0;i<всего;i++){
+      var у = список[i];
+      var пройден = пройдены.indexOf('upr-' + у.id) !== -1;
+      var вв = вводный(у);
+      /* Длительность записи важнее объёма из паспорта: паспорт считает
+         текстовый урок-заглушку, а человек услышит или увидит запись. */
+      var мера = вв.мера || объёмУрока(у.id);
+      var правая = пройден ? 'пройден' : мера;
+      html += '<li class="bu-el" style="--n:' + i + '">'
+        + '<div class="bu-k' + (пройден ? ' bu-k--proiden' : '') + '">'
+        + '<a class="bu-verh" href="upravleniya.html#' + экр(у.id) + '"'
+        + ' aria-label="' + экр(у.nazvanie) + ', управление ' + у.nomer + ' из ' + всего + '">'
+        + '<span class="bu-disk"><img src="' + экр(у.emblema) + '" alt="" loading="lazy" decoding="async"></span>'
+        + '<span class="bu-nom" aria-hidden="true">' + у.nomer + '</span>'
+        + '<span class="bu-imya">' + экр(у.nazvanie) + '</span>'
+        + (у.temy && у.temy.length ? '<span class="bu-temy"><span class="bu-tema">' + экр(у.temy[0]) + '</span></span>' : '')
+        + '</a>'
+        + '<a class="bu-urok" href="' + экр(вв.адрес) + '"'
+        + (вв.наружу ? ' target="_blank" rel="noopener"' : '')
+        + ' aria-label="' + экр(вв.подпись) + ' — вводный урок управления «' + экр(у.nazvanie) + '»'
+        + (правая ? ', ' + экр(правая) : '') + (вв.наружу ? ', откроется в браузере' : '') + '">'
+        + (пройден && !вв.наружу ? ЗНАК.готов : вв.знак)
+        + '<span class="bu-urok-t">' + экр(вв.подпись) + '</span>'
+        + (правая ? '<span class="bu-urok-o">' + экр(правая) + '</span>' : '')
+        + '</a></div></li>';
+    }
+    сетка.innerHTML = html;
+    раздел.hidden = false;
   })();
 
   /* ─── Числа справочников ───────────────────────────────────────────────

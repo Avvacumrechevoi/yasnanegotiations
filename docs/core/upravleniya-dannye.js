@@ -22,7 +22,42 @@
      • числа, даты, обещания — только те, что уже есть на сайте.
 
    Тот же порядок, что у дерева знаний: обычный script-тег, экспорт в
-   window.YasnaUpravleniya. Обновлять — пересобрать из JSON, не править руками.
+   window.YasnaUpravleniya. Всё, что пришло с сайта, обновляют пересборкой
+   из JSON, руками не правят. Исключение — поле vvodnyj_urok: оно наше,
+   приложенческое, на сайте его нет, и правят его прямо здесь.
+
+   ─── vvodnyj_urok — вводный урок управления ─────────────────────────────
+   Вводный урок бывает трёх видов, и вид решает, куда ведут обе двери:
+   кнопка на карточке в upravleniya.html и полоса урока в biblioteka.html.
+
+     "vvodnyj_urok": {
+       "vid": "tekst" | "video" | "zvuk",   ← вид урока, решает подпись
+       "urok": "upr-<id>",                  ← урок в приложении (lesson.html)
+       "ssylka": null,                      ← адрес записи или файла
+       "dlitelnost": null,                  ← «12 мин», «4:20» — как есть
+       "oblozhka": null                     ← свой файл обложки для видео
+     }
+
+   Как переключить управление, не трогая код:
+     • ТЕКСТ (как сейчас у всех двенадцати): vid = "tekst", urok — имя
+       урока. Подпись двери — «Вводный урок».
+     • ВИДЕО: vid = "video". Дальше на выбор:
+         – ssylka на запись у площадки (Rutube, ВК Видео) — дверь подписана
+           «Смотреть видео» и открывает запись системным браузером. Чужой
+           плеер в страницу не встраиваем: сборщик витрины следит, чтобы
+           приложение ничего не грузило с чужих серверов, да и условия
+           площадок это запрещают;
+         – ssylka: null, а в самом уроке urok стоит блок {"type":"video"} —
+           дверь открывает урок, а видео живёт внутри него.
+       oblozhka — свой файл (assets/…), не адрес чужого сервера.
+     • ЗВУК: vid = "zvuk". Так же: ssylka на свой файл в хранилище — дверь
+       подписана «Послушать» и открывает файл; или блок {"type":"audio"}
+       внутри урока — дверь открывает урок, проигрыватель стоит в нём.
+     • dlitelnost показывается на карточке в Библиотеке вместо объёма из
+       паспорта урока. Не указана — берётся объём урока, как и раньше.
+
+   Блоки "video" и "audio" понимает движок уроков (lessons/engine.js);
+   поля блоков описаны там же, рядом с самими блоками.
    ═══════════════════════════════════════════════════════════════════════ */
 (function () {
 'use strict';
@@ -72,7 +107,14 @@ window.YasnaUpravleniya = {
     "https://t.me/russkaya_yasna",
     "https://vk.com/yasnaslovo",
     "https://youtube.com/@russkaya_yasna"
-   ]
+   ],
+   "vvodnyj_urok": {
+    "vid": "tekst",
+    "urok": "upr-yasna-shkola",
+    "ssylka": null,
+    "dlitelnost": null,
+    "oblozhka": null
+   }
   },
   {
    "nomer": 2,
@@ -90,7 +132,14 @@ window.YasnaUpravleniya = {
    "stranica": "https://zolotoj-yasen.ru/upravleniya/vospitanie/",
    "kontakty": [
     "mailto:proyasna@yandex.ru"
-   ]
+   ],
+   "vvodnyj_urok": {
+    "vid": "tekst",
+    "urok": "upr-vospitanie",
+    "ssylka": null,
+    "dlitelnost": null,
+    "oblozhka": null
+   }
   },
   {
    "nomer": 3,
@@ -111,7 +160,14 @@ window.YasnaUpravleniya = {
     "https://t.me/mobictas",
     "https://t.me/yasna_besedy",
     "mailto:admin@yasna.spb.ru"
-   ]
+   ],
+   "vvodnyj_urok": {
+    "vid": "tekst",
+    "urok": "upr-alexandria",
+    "ssylka": null,
+    "dlitelnost": null,
+    "oblozhka": null
+   }
   },
   {
    "nomer": 4,
@@ -133,7 +189,14 @@ window.YasnaUpravleniya = {
     "https://dzen.ru/id/629888dd626c9e4130ceb7ea",
     "https://t.me/neglinka78",
     "https://vk.com/public_38meridian"
-   ]
+   ],
+   "vvodnyj_urok": {
+    "vid": "tekst",
+    "urok": "upr-neglinka",
+    "ssylka": null,
+    "dlitelnost": null,
+    "oblozhka": null
+   }
   },
   {
    "nomer": 5,
@@ -151,7 +214,14 @@ window.YasnaUpravleniya = {
    "stranica": "https://zolotoj-yasen.ru/upravleniya/granika/",
    "kontakty": [
     "https://t.me/russkaya_yasna"
-   ]
+   ],
+   "vvodnyj_urok": {
+    "vid": "tekst",
+    "urok": "upr-granika",
+    "ssylka": null,
+    "dlitelnost": null,
+    "oblozhka": null
+   }
   },
   {
    "nomer": 6,
@@ -170,7 +240,14 @@ window.YasnaUpravleniya = {
    "kontakty": [
     "https://dzen.ru/astronevod",
     "https://t.me/astronevod"
-   ]
+   ],
+   "vvodnyj_urok": {
+    "vid": "tekst",
+    "urok": "upr-astronevod",
+    "ssylka": null,
+    "dlitelnost": null,
+    "oblozhka": null
+   }
   },
   {
    "nomer": 7,
@@ -188,7 +265,14 @@ window.YasnaUpravleniya = {
    "stranica": "https://zolotoj-yasen.ru/upravleniya/marshruty/",
    "kontakty": [
     "https://t.me/naturnie_uroki"
-   ]
+   ],
+   "vvodnyj_urok": {
+    "vid": "tekst",
+    "urok": "upr-marshruty",
+    "ssylka": null,
+    "dlitelnost": null,
+    "oblozhka": null
+   }
   },
   {
    "nomer": 8,
@@ -203,7 +287,14 @@ window.YasnaUpravleniya = {
    "emblema": "assets/upravleniya/litprosvet-mark.svg",
    "zayavka": "https://zolotoj-yasen.ru/zayavka/?dir=litprosvet",
    "stranica": null,
-   "kontakty": []
+   "kontakty": [],
+   "vvodnyj_urok": {
+    "vid": "tekst",
+    "urok": "upr-litprosvet",
+    "ssylka": null,
+    "dlitelnost": null,
+    "oblozhka": null
+   }
   },
   {
    "nomer": 9,
@@ -222,7 +313,14 @@ window.YasnaUpravleniya = {
     "https://dzen.ru/id/5e9a2d632385352365504c51",
     "https://t.me/+9ZxiZ56f8zY3ODhi",
     "https://t.me/+zWpMyIdJOJdlNjBi"
-   ]
+   ],
+   "vvodnyj_urok": {
+    "vid": "tekst",
+    "urok": "upr-izvod",
+    "ssylka": null,
+    "dlitelnost": null,
+    "oblozhka": null
+   }
   },
   {
    "nomer": 10,
@@ -238,7 +336,14 @@ window.YasnaUpravleniya = {
    "emblema": "assets/upravleniya/dzhiva.png",
    "zayavka": "https://zolotoj-yasen.ru/zayavka/?dir=dzhiva",
    "stranica": "https://zolotoj-yasen.ru/upravleniya/dzhiva/",
-   "kontakty": []
+   "kontakty": [],
+   "vvodnyj_urok": {
+    "vid": "tekst",
+    "urok": "upr-dzhiva",
+    "ssylka": null,
+    "dlitelnost": null,
+    "oblozhka": null
+   }
   },
   {
    "nomer": 11,
@@ -254,7 +359,14 @@ window.YasnaUpravleniya = {
    "emblema": "assets/upravleniya/parad.png",
    "zayavka": "https://zolotoj-yasen.ru/zayavka/?dir=parad",
    "stranica": null,
-   "kontakty": []
+   "kontakty": [],
+   "vvodnyj_urok": {
+    "vid": "tekst",
+    "urok": "upr-parad",
+    "ssylka": null,
+    "dlitelnost": null,
+    "oblozhka": null
+   }
   },
   {
    "nomer": 12,
@@ -270,7 +382,14 @@ window.YasnaUpravleniya = {
    "emblema": "assets/upravleniya/geraldika.png",
    "zayavka": "https://zolotoj-yasen.ru/zayavka/?dir=geraldika",
    "stranica": "https://zolotoj-yasen.ru/upravleniya/geraldika/",
-   "kontakty": []
+   "kontakty": [],
+   "vvodnyj_urok": {
+    "vid": "tekst",
+    "urok": "upr-geraldika",
+    "ssylka": null,
+    "dlitelnost": null,
+    "oblozhka": null
+   }
   }
  ]
 };

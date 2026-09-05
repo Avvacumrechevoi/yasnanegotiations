@@ -6,13 +6,61 @@ name: Smoke tests
 # безлимитны, и это было незаметно; на приватном их 2000 в месяц, а темп
 # разработки — около 105 коммитов в месяц. Дубль съедал половину лимита, и по
 # его исчерпании встал бы не только сайт, но и автодеплой бэкенда.
+#
+# Пробы ленты (server/proby/*.mjs) гоняются отдельной работой на КАЖДЫЙ push и
+# pull request, а не только перед публикацией: они читают синтетические
+# страницы из репозитория, не ходят в сеть, не трогают YDB и не просят ни
+# одного секрета, а идут секунды. Смоук витрины остаётся на pull request:
+# у своей ветки push и pull_request сработают оба, но дублируется только
+# лёгкая работа с пробами, а не установка chromium и сборка бандлов.
 on:
+  push:
   pull_request:
     branches: [main]
   workflow_dispatch:
 
 jobs:
+  proby-lenty:
+    name: Пробы ленты (без сети и секретов)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # Ни npm ci, ни бандлов: серверные модули ленты — CommonJS без
+      # зависимостей, а страницы лежат рядом с пробами.
+      - name: Разборщики ленты
+        run: node server/proby/proba-razbor.mjs
+
+      - name: Сборщик ленты
+        run: node server/proby/proba-sbor.mjs
+
+      - name: Ручки ленты
+        run: node server/proby/proba-lenta.mjs
+
+      # Страницы собираются кодом: если sozdat.mjs и готовые файлы разошлись,
+      # значит кто-то правил .html руками или забыл положить их в коммит.
+      # git status ловит и правку, и недостающий файл; git diff — только правку.
+      # Строка «??» в выводе — файл вообще не в индексе: в чистом клоне страниц
+      # не будет, и proba-razbor / proba-sbor выйдут кодом 2 «не из чего
+      # проверять». Поэтому сообщение называет оба случая отдельно.
+      - name: Страницы собраны из sozdat.mjs
+        run: |
+          node server/proby/stranicy/sozdat.mjs
+          if [ -n "$(git status --porcelain -- server/proby/stranicy)" ]; then
+            echo 'Страницы разошлись со сборщиком.'
+            echo '  «M …» — файл правили руками: пересобери и закоммить'
+            echo '           node server/proby/stranicy/sozdat.mjs'
+            echo '  «?? …» — файла нет в коммите: git add server/proby/stranicy'
+            git status --porcelain -- server/proby/stranicy
+            exit 1
+          fi
+
   smoke:
+    if: github.event_name != 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

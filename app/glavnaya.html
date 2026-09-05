@@ -23,23 +23,31 @@
   ответить, зачем ему главная, если внизу и так пять вкладок.
 
   Правило теперь одно: на «Сегодня» нет ссылок на вкладку как таковую.
-  Здесь живёт только то, чего во вкладках нет, — что делать ПРЯМО СЕЙЧАС:
-    1. одно дело: «Продолжить: <занятие>» — первое незаконченное занятие
-       по дереву (YasnaZnanie.продолжить(), тот же источник, что и на
+  Здесь живёт только то, чего во вкладках нет, — что делать ПРЯМО СЕЙЧАС.
+
+  ПОРЯДОК И ВЕС (8.9). Экран читается сверху вниз как одна фраза: «сделай —
+  потренируйся — почитай — посмотри, чем живёт центр». Ярких пятен ровно
+  одно, крупных имён тоже одно — карточка «Сейчас». Всё остальное намеренно
+  тише её: одинаковые тихие заголовки разделов, карточки на общем светлом
+  фоне, никаких вторых заливок. Так у глаза с холодного старта есть ровно
+  одна точка входа, а не три равновесных.
+    1. «Сейчас» — одно дело: «Продолжить: <занятие>» — первое незаконченное
+       занятие по дереву (YasnaZnanie.продолжить(), тот же источник, что и на
        экране «Уроки»: два экрана не должны звать в разные места);
-    2. цитата дня — дословная строка учебника (citaty.js); тап открывает
-       ГЛАВУ КНИГИ, в которой эта запись стоит (раньше вёл в Разбор на
-       пустой круг — обещание «посмотреть, из чего сложено» не сбывалось);
-    3. «Тренировка» — три строки со своим счётом: Разложи по кругу,
+    2. «Тренировка» — три плитки со своим счётом: Разложи по кругу,
        Переговоры, Партия. Ноль не печатаем никогда: у кого счёта ещё нет,
-       строка говорит, что внутри;
+       подпись говорит, что внутри;
+    3. цитата дня — дословная строка учебника (citaty.js) тихой полосой; тап
+       открывает ГЛАВУ КНИГИ, в которой эта запись стоит (раньше вёл в Разбор
+       на пустой круг — обещание «посмотреть, из чего сложено» не сбывалось);
     4. «Управления центра» — двенадцать карточек каруселью, по порядку
        центра, каждая ведёт на свою карточку (upravleniya.html);
     5. «Лента управлений» — записи из открытых каналов управлений прямо здесь:
        первые 20 из кэша и с сервера, дальше кнопка «Показать ещё»
        (core/lenta.js, встроить()). Без сети — тихая подпись, не ошибка:
        главный экран не должен встречать человека красной полосой.
-  Целей на экране: три двери дня, двенадцать управлений и лента. Профиль — аватар в общей шапке (navigatsiya.js),
+  Целей на экране: дело дня, три двери тренировки, цитата, двенадцать
+  управлений и лента. Профиль — аватар в общей шапке (navigatsiya.js),
   своей карточки здесь у него нет; шапку и наббар рисует оболочка.
 
   Вёрстка нарочно простая: обычный поток, без вложенного скролла и
@@ -137,17 +145,25 @@
   .upr-kart{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:10px;height:100%;min-height:176px;
     padding:14px 14px 12px;border-radius:18px;background:var(--kart);border:1px solid var(--kayma);color:inherit;text-decoration:none}
   .upr-kart:active{filter:brightness(.95)}
-  .upr-disk{width:64px;height:64px;border-radius:50%;background:#fff;border:1px solid rgba(16,20,24,.1);
+  .upr-disk{width:64px;height:64px;border-radius:50%;background:#fff;border:1px solid rgba(16,20,24,.1);overflow:hidden;
     box-shadow:0 1px 2px rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center}
-  .upr-disk img{width:46px;height:46px;object-fit:contain;display:block}
+  /* Сторона картинки — по вписанному в круг квадрату: внутри каймы 62, значит
+     не больше 43 (диагональ 61). При 46 диагональ была 65, и углы растровых
+     эмблем с непрозрачным фоном выходили за окружность. Та же мера, что у
+     .bu-disk в Библиотеке: диск должен выглядеть одинаково на обоих экранах. */
+  .upr-disk img{width:43px;height:43px;object-fit:contain;display:block}
   .upr-nom{position:absolute;top:12px;right:14px;font:500 12px/1 Inter,sans-serif;color:var(--ink-3);font-variant-numeric:tabular-nums}
   .upr-imya{font:600 15px/1.2 Manrope,Inter,sans-serif;color:var(--ink);text-wrap:balance;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .upr-tema{margin-top:auto;max-width:100%;font:400 12px/1.3 Inter,sans-serif;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .upr-vse{display:flex;align-items:center;justify-content:center;height:100%;min-height:176px;padding:14px;border-radius:18px;
+  .upr-vse{display:flex;align-items:center;justify-content:center;gap:6px;height:100%;min-height:176px;padding:14px;border-radius:18px;
     border:1px dashed var(--kayma);color:var(--syn);font:600 14px/1.3 Manrope,Inter,sans-serif;text-align:center;text-decoration:none}
+  .upr-vse i{font-style:normal;font-size:19px;line-height:1}
+  .upr-vse:active{filter:brightness(.95)}
   /* Лента на главном: подзаголовок и край ленты — как у остальных карточек. */
-  .lenta-pod{margin:-6px 0 10px;font:400 13px/1.4 Inter,sans-serif;color:var(--ink-3)}
-  #lenta-koren .k{background:var(--kart);border-color:var(--kayma)}
+  /* Подпись ленты — тише заголовка и тише всего, что выше: лента стоит
+     последней и соревноваться с уроком ей нечем. */
+  .lenta-pod{margin:-4px 0 10px;font:400 12.5px/1.4 Inter,sans-serif;color:var(--ink-3)}
+  #lenta-koren .ln-k{background:var(--kart);border-color:var(--kayma)}
   @media (prefers-reduced-motion: no-preference){
     .upr-karusel li{opacity:0;transform:translateY(8px);animation:upr-pod .34s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(.15s + var(--n,0) * 45ms)}
     @keyframes upr-pod{to{opacity:1;transform:none}}
@@ -191,78 +207,125 @@
     @keyframes obnova-vyhod{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
   }
 
-  /* ── Цитата дня ──
-     Была залитой карточкой с градиентом «ночного неба» и стояла первой —
-     вместе с залитой карточкой игры это давало два «главных» на одном
-     экране, и личный шаг оказывался ниже сгиба. Залитая на «Сегодня»
-     теперь одна («Сейчас»), а цитата читается как выписка из книги:
-     тихая карточка, серифная строка, источник — ссылка с шевроном. */
-  .citata{position:relative;display:block;
-    border-radius:18px;padding:14px 16px 12px;margin:14px 0 0;
-    text-decoration:none;color:inherit;
-    background:var(--kart);border:1px solid var(--kayma)}
-  .citata:active{filter:brightness(.97)}
-  .citata .znak-vod{position:absolute;right:12px;top:12px;width:26px;height:26px;
-    fill:var(--syn);opacity:.22;pointer-events:none}
-  .citata .k{display:block;font:700 12px/1 Manrope,sans-serif;
-    letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);padding-right:34px}
-  /* Строк три, а не две: самая длинная цитата корпуса укладывается в две
-     строки только при обычном кегле. При системном масштабе шрифта ×1.6
-     ей нужна третья, и обрезка съедала конец дословной строки книги. */
-  .citata .tx{font:500 17px/1.34 var(--serif);font-style:italic;
-    margin:7px 0 0;color:var(--ink);text-wrap:pretty;
-    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-  .citata .niz{display:flex;align-items:baseline;
-    justify-content:space-between;gap:10px;margin-top:9px}
-  .citata .ot{font:500 12px/1.2 Manrope,sans-serif;color:var(--ink-2)}
-  .citata .ist{flex:0 0 auto;font:600 12px/1 Manrope,sans-serif;letter-spacing:.04em;
-    color:var(--syn);white-space:nowrap}
+  /* ── ИЕРАРХИЯ ВНИМАНИЯ (8.9, разбор владельца 05.09.2026) ─────────────
+     Жалоба была: «на главной с холодного старта непонятна иерархия
+     внимания». Виноват был не порядок разделов, а РОВНАЯ ПЛОТНОСТЬ.
+     Синяя карточка «Сейчас» (99 dp), крупная белая «Цитата дня» (145 dp) и
+     список тренировки из трёх строк по 64 dp шли подряд тремя пятнами
+     сравнимого веса, а каждый заголовок раздела ещё резал экран линейкой
+     во всю ширину. Два «главных» на одном экране — это ноль главных.
 
-  h2{font:600 12.5px/1 Manrope,Inter,sans-serif;letter-spacing:.09em;
-    text-transform:uppercase;color:var(--ink-2);margin:22px 4px 10px;
-    display:flex;align-items:center;gap:10px}
-  h2::after{content:"";flex:1;height:1px;background:var(--kayma)}
+     Правки, все четыре об одном — развести вес:
+       1) «Сейчас» крупнее (116 dp, имя 22-го кегля) и остаётся ЕДИНСТВЕННЫМ
+          цветным пятном экрана;
+       2) тренировка — ряд из трёх плиток вместо трёх строк: тот же смысл
+          вдвое ниже, и «Тренировка» перестала весить как урок;
+       3) цитата — тихая полоса ПОД тренировкой: она про почитать, а не про
+          сделать, и спорить с делом дня ей больше нечем;
+       4) заголовки разделов одинаковые и тихие, линейка во всю ширину
+          убрана: разделы разводит воздух, а не пять горизонтальных черт.
+     Порядок на экране теперь читается сверху вниз как «сделай — потренируйся
+     — почитай — посмотри, чем живёт центр». */
 
   /* ── Сейчас: одно дело ──
-     Единственная залитая карточка экрана. Раньше залитой была игра, и
-     первым сигналом «Сегодня» было «это игра», а личный шаг лежал ниже
-     сгиба (y=901 при экране 915). Вся карточка — одна ссылка, поэтому
-     внутри нет ни кнопок, ни кружков-стрелок: залитый кружок обещал
-     отдельное действие, которого нет. Шеврон — только знак направления. */
-  .sejchas{display:flex;align-items:center;gap:12px;min-height:88px;
-    background:linear-gradient(135deg,#0B57C0,#0071e3);color:#fff;
-    border-radius:18px;padding:16px;margin:0;text-decoration:none;
-    box-shadow:0 8px 22px rgba(11,60,140,.22)}
+     Единственная залитая карточка экрана и единственное крупное имя на нём.
+     Вся карточка — одна ссылка, поэтому внутри нет ни кнопок, ни кружков со
+     стрелкой: залитый кружок обещал бы отдельное действие, которого нет.
+     Шеврон — только знак направления.
+
+     ЦВЕТ. Синий стал глубже: #0B4FAE → #0067D0 вместо #0B57C0 → #0071e3.
+     Мерить контраст надо по СВЕТЛОМУ концу градиента — он и есть худший
+     случай, а подпись под именем урока стоит как раз у правого края. На
+     прежнем светлом конце белый 13-й кегль давал 3.98 к 1 при пороге 4.5,
+     а надстрочная метка («Начать») — 3.76. Теперь 4.7 и 5.0. */
+  .sejchas{display:flex;align-items:center;gap:14px;min-height:116px;
+    background:linear-gradient(135deg,#0B4FAE 0%,#0067D0 100%);color:#fff;
+    border-radius:20px;padding:18px;margin:2px 0 0;text-decoration:none;
+    box-shadow:0 10px 26px rgba(8,45,110,.26)}
   .sejchas:active{filter:brightness(.96)}
   .sejchas-txt{min-width:0;flex:1}
-  .sejchas .k{display:block;font:700 12px/1 Manrope,sans-serif;letter-spacing:.11em;
-    text-transform:uppercase;color:rgba(255,255,255,.84)}
-  .sejchas .t{display:block;font:700 20px/1.25 Manrope,Inter,sans-serif;
-    margin:8px 0 4px;text-wrap:pretty}
-  .sejchas .o{display:block;font-size:13px;line-height:1.4;color:rgba(255,255,255,.88)}
-  .sejchas .shevron{flex:0 0 auto;width:24px;height:24px}
-  .sejchas .shevron svg{width:24px;height:24px;fill:none;stroke:#fff;stroke-width:2.2;
-    stroke-linecap:round;stroke-linejoin:round;opacity:.92}
+  .sejchas .k{display:block;font:700 12px/1.1 Manrope,sans-serif;letter-spacing:.13em;
+    text-transform:uppercase;color:#fff;opacity:.95}
+  .sejchas .t{display:block;font:700 22px/1.2 Manrope,Inter,sans-serif;
+    margin:8px 0 5px;text-wrap:pretty;overflow-wrap:anywhere}
+  .sejchas .o{display:block;font:400 13.5px/1.4 Inter,sans-serif;color:#fff;opacity:.95}
+  .sejchas .shevron{flex:0 0 auto;width:26px;height:26px}
+  .sejchas .shevron svg{width:26px;height:26px;fill:none;stroke:#fff;stroke-width:2.2;
+    stroke-linecap:round;stroke-linejoin:round;opacity:.9}
 
-  /* ── Тренировка ──
-     Три строки списка вместо четырёх плиток-виджетов, ленты чипов и
-     карточки со сценой: у всех трёх дверей одно и то же дело — открыть
-     тренировку и увидеть свой счёт. Один компонент вместо семи. */
-  .spisok{background:var(--kart);border:1px solid var(--kayma);border-radius:16px;
-    overflow:hidden}
-  .spisok a{display:flex;align-items:center;gap:12px;padding:13px 14px;min-height:64px;
-    text-decoration:none;color:inherit;border-bottom:1px solid var(--kayma)}
-  .spisok a:last-child{border-bottom:0}
-  .spisok a:active{filter:brightness(.95)}
-  .spisok .ik{flex:0 0 auto;width:34px;height:34px;border-radius:10px;background:var(--ik-fon);
+  /* ── Тренировка: ряд из трёх плиток ──
+     Было три строки по 64 dp в одной карточке — 200 dp сплошного белого
+     сразу под уроком; на первом экране этот блок весил больше главного
+     дела, хотя все три двери в нём — второстепенные. Плитки говорят то же
+     самое вдвое ниже и читаются как ряд равных, а не как список.
+     Подписи короткие («16 явлений», «5 из 16»): длинная строка в плитке
+     шириной 90 dp расползалась на четыре строки.
+     Имя дела ломается по любому месту (overflow-wrap): при системном
+     шрифте ×1.3 слово «Разложи» шире плитки на экране 320 dp, и без
+     переноса оно вылезло бы за край. */
+  .tren-ryad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .tren-pl{display:flex;flex-direction:column;align-items:flex-start;
+    min-height:104px;padding:12px 11px 11px;border-radius:16px;
+    background:var(--kart);border:1px solid var(--kayma);color:inherit;text-decoration:none}
+  .tren-pl:active{filter:brightness(.95)}
+  .tren-pl .ik{flex:0 0 auto;width:30px;height:30px;border-radius:9px;background:var(--ik-fon);
     display:flex;align-items:center;justify-content:center}
-  .spisok .ik svg{width:19px;height:19px;stroke:var(--syn);fill:none;stroke-width:1.8;
+  .tren-pl .ik svg{width:17px;height:17px;stroke:var(--syn);fill:none;stroke-width:1.8;
     stroke-linecap:round;stroke-linejoin:round}
-  .spisok span{flex:1;min-width:0;font:600 15px/1.25 Manrope,Inter,sans-serif}
-  .spisok small{display:block;font:400 12px/1.4 Inter,sans-serif;
-    color:var(--ink-2);margin-top:3px;font-variant-numeric:tabular-nums}
-  .spisok .shevron{width:16px;height:16px;stroke:var(--ink-3);fill:none;
-    stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+  .tren-pl b{display:block;margin-top:9px;font:600 13.5px/1.22 Manrope,Inter,sans-serif;
+    color:var(--ink);text-wrap:balance;overflow-wrap:anywhere;hyphens:manual}
+  .tren-pl small{display:block;margin-top:auto;padding-top:5px;
+    font:400 11.5px/1.3 Inter,sans-serif;color:var(--ink-3);
+    font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+  @media (max-width:359px){
+    .tren-ryad{gap:7px}
+    .tren-pl{padding:11px 9px 10px}
+    .tren-pl b{font-size:12.5px}
+  }
+
+  /* ── Цитата дня: тихая полоса ──
+     Была залитой карточкой с градиентом «ночного неба» и стояла первой;
+     потом стала белой карточкой сразу под «Сейчас» — и всё равно спорила с
+     ним: серифная строка 17-го кегля весит столько же, сколько имя урока,
+     и глаз метался между двумя крупными пятнами.
+     Теперь это полоса, и стоит она ПОД тренировкой: цитата — про почитать,
+     дело дня — про сделать; порядок на экране такой же. Ключ и источник
+     стоят одной строкой сверху и переносятся при большом кегле; водяной
+     знак ✦ убран — в полосе ему негде стоять, а лишнее пятно на экране,
+     который чинили от лишних пятен, было бы смешно.
+     Строк четыре, а не три. Замерено на самой длинной строке корпуса (75
+     знаков): при обычном кегле ей хватает двух строк, при ×1.3 — трёх, а
+     на экране 320 dp при ×1.6 нужна четвёртая, и при обрезке в три конец
+     строки книги пропадал. Дословную строку обрезать нельзя: цитата,
+     которую подрезали, перестаёт быть цитатой. */
+  .citata{position:relative;display:block;margin:16px 0 0;
+    padding:11px 14px 12px;border-radius:16px;text-decoration:none;color:inherit;
+    background:var(--kart);border:1px solid var(--kayma)}
+  .citata:active{filter:brightness(.97)}
+  .citata .k{display:block;font:700 11px/1.3 Manrope,sans-serif;
+    letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+  .citata .tx{font:500 15px/1.36 var(--serif);font-style:italic;
+    margin:6px 0 0;color:var(--ink);text-wrap:pretty;
+    display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+  /* «о чём она» и источник — подпись ПОД цитатой, как под выпиской. Наверху,
+     рядом с ключом, синий источник читался вторым заголовком и на первом
+     экране был вторым по яркости после дела дня; под цитатой он на своём
+     месте — это подпись, а не приглашение. При большом кегле строка
+     переносится (flex-wrap), а не режется: имя книги указывать обязаны. */
+  .citata .niz{display:flex;flex-wrap:wrap;align-items:baseline;
+    justify-content:space-between;gap:2px 12px;margin-top:6px}
+  .citata .ot{min-width:0;font:400 11.5px/1.35 Inter,sans-serif;color:var(--ink-3)}
+  .citata .ist{flex:0 0 auto;font:600 11.5px/1.3 Manrope,sans-serif;letter-spacing:.03em;
+    color:var(--syn);white-space:nowrap}
+
+  /* ── Заголовки разделов ──
+     Одинаковые и тихие: у них одна работа — назвать, что ниже, и ни одному
+     из них не положено спорить с делом дня. Линейку во всю ширину
+     (h2::after) убрали: пять черт резали экран на пять равных плит, и
+     ни одна из плит не была главной. Разводит разделы воздух — 24 dp
+     сверху, всегда одинаково. */
+  h2{font:600 11.5px/1.2 Manrope,Inter,sans-serif;letter-spacing:.11em;
+    text-transform:uppercase;color:var(--ink-3);margin:24px 4px 9px}
 
   [hidden]{display:none !important}
   </style>
@@ -317,42 +380,44 @@
     </span>
   </a>
 
-  <!-- ЦИТАТА ДНЯ — дословная строка учебника (citaty.js), та же, что уходит
-       утренним уведомлением. Адрес ставит скрипт: по номеру записи находим
-       главу и открываем книгу на ней. -->
-  <a class="citata" id="citata" href="kniga.html">
-    <svg class="znak-vod" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.6l2.2 6.3 6.3 2.1-6.3 2.1-2.2 6.3-2.2-6.3-6.3-2.1 6.3-2.1z"/></svg>
-    <span class="k">Цитата дня</span>
-    <div class="tx">«Мир — управляемый страх»</div>
-    <div class="niz"><span class="ot"></span><span class="ist">Ясна Суток ›</span></div>
-  </a>
-
-  <h2>Тренировка</h2>
-  <!-- Три двери, и все три ведут в дело, а не в раздел. Подписи ставит
-       скрипт: есть свой счёт — говорим счёт, нет — говорим, что внутри. -->
-  <div class="spisok">
-    <a href="games/krug/index.html">
+  <!-- ТРЕНИРОВКА — ряд из трёх плиток. Все три двери ведут в дело, а не в
+       раздел. Подписи ставит скрипт: есть свой счёт — говорим счёт, нет —
+       говорим коротко, что внутри. Ноль не печатаем никогда: ноль на первом
+       экране читается как упрёк, а не как приглашение. -->
+  <h2 id="tren-zag">Тренировка</h2>
+  <div class="tren-ryad">
+    <a class="tren-pl" href="games/krug/index.html">
       <span class="ik" aria-hidden="true">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M12 3.4v17.2M3.4 12h17.2"/></svg>
       </span>
-      <span>Разложи по кругу<small id="tr-krug">шестнадцать явлений на выбор</small></span>
-      <svg class="shevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5.5 15.5 12 9 18.5"/></svg>
+      <b>Разложи по кругу</b>
+      <small id="tr-krug">16 явлений</small>
     </a>
-    <a href="negotiations.html">
+    <a class="tren-pl" href="negotiations.html">
       <span class="ik" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path d="M4 6.5h16v9H9.5L5.5 19v-3.5H4z"/></svg>
       </span>
-      <span>Переговоры<small id="tr-neg">четыре сценария разговора</small></span>
-      <svg class="shevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5.5 15.5 12 9 18.5"/></svg>
+      <b>Переговоры</b>
+      <small id="tr-neg">4 сценария</small>
     </a>
-    <a href="duel.html">
+    <a class="tren-pl" href="duel.html">
       <span class="ik" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path d="M12 3.4l2.4 6.2 6.2 2.4-6.2 2.4-2.4 6.2-2.4-6.2L3.4 12l6.2-2.4z"/></svg>
       </span>
-      <span>Партия<small id="tr-duel">вопросы на темы Ясны</small></span>
-      <svg class="shevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5.5 15.5 12 9 18.5"/></svg>
+      <b>Партия</b>
+      <small id="tr-duel">вопросы Ясны</small>
     </a>
   </div>
+
+  <!-- ЦИТАТА ДНЯ — дословная строка учебника (citaty.js), та же, что уходит
+       утренним уведомлением. Стоит ПОД тренировкой: это чтение, а не дело,
+       и спорить с уроком дня ей нечем. Адрес ставит скрипт: по номеру записи
+       находим главу и открываем книгу на ней. -->
+  <a class="citata" id="citata" href="kniga.html">
+    <span class="k">Цитата дня</span>
+    <div class="tx">«Мир — управляемый страх»</div>
+    <span class="niz"><span class="ot"></span><span class="ist">Ясна Суток ›</span></span>
+  </a>
 
   <!-- УПРАВЛЕНИЯ ЦЕНТРА — двенадцать карточек каруселью, по порядку центра
        (nomer); каждая ведёт на свою карточку в upravleniya.html. Раздел
@@ -436,19 +501,23 @@
 
   /* ── ТРЕНИРОВКА ────────────────────────────────────────────────────────
      Правило то же, что было у виджетов: показываем только посчитанное.
-     Нет своего счёта — строка говорит, что внутри, а не печатает ноль:
-     ноль на первом экране читается как упрёк, а не как приглашение. */
+     Нет своего счёта — подпись говорит, что внутри, а не печатает ноль:
+     ноль на первом экране читается как упрёк, а не как приглашение.
+     Подписи стали короткими вместе с плитками: «5 из 16» вместо «5 из 16
+     явлений разобрано». Слово «разобрано» в плитке шириной 90 dp уезжало
+     на четвёртую строку, а работу подписи не делало: что именно
+     посчитано, уже сказано именем дела над ней. */
   try{ (function(){
     /* Круг: ключ игры (games/krug/krug.js) — {v,games,best}; в best лежат
        ясны, которые человек уже раскладывал. Всего их 16 — столько же, как
        на экране Круга (6 из уроков + 10 из корпуса). */
     var кр=читать('yasna_krug_v1')||{}, разобрано=0;
     try{ разобрано=Object.keys(кр.best||{}).length; }catch(e){}
-    if(разобрано>0) текст('tr-krug', разобрано+' из 16 явлений разобрано');
+    if(разобрано>0) текст('tr-krug', разобрано+' из 16');
 
     var нег=читать('yasna_neg_lessons_v1'), сцен=0;
     try{ сцен=Array.isArray(нег)?нег.length:Object.keys(нег||{}).length; }catch(e){}
-    if(сцен>0) текст('tr-neg', сцен+' из 4 сценариев просмотрено');
+    if(сцен>0) текст('tr-neg', сцен+' из 4');
 
     var д=читать('yasna_duel_data')||{};
     var партий=(д.totals&&д.totals.played)||0;
@@ -456,8 +525,8 @@
   })(); }catch(__е){ try{console.error("секция главной:",__е)}catch(_){}}
 
   /* ── УПРАВЛЕНИЯ ЦЕНТРА: карусель из core/upravleniya-dannye.js ──────────
-     Порядок — по nomer, как на сайте центра; в конце — дверь «Все
-     двенадцать» на список. Раздел показывается только с данными. */
+     Порядок — по nomer, как на сайте центра; в конце — дверь «Почитать
+     подробнее» на список управлений. Раздел показывается только с данными. */
   try{ (function(){
     var Д=window.YasnaUpravleniya, раздел=document.getElementById('upr-razdel'), лента=document.getElementById('upr-karusel');
     if(!Д||!Д.upravleniya||!Д.upravleniya.length||!раздел||!лента) return;
@@ -473,7 +542,17 @@
           у.temy&&у.temy.length?эл('span',{class:'upr-tema',text:у.temy[0]}):null ]) ]);
       лента.appendChild(li);
     });
-    лента.appendChild(эл('li',{style:'--n:'+список.length},[эл('a',{class:'upr-vse',href:'upravleniya.html',text:'Все двенадцать и связь с центром ›'})]));
+    /* Дверь в конце ленты. Была «Все двенадцать и связь с центром ›» —
+       перечень того, ЧТО внутри, вместо приглашения; человек читал это как
+       ещё одну карточку управления. Стало «Почитать подробнее»: обещание
+       действия. Что именно откроется, договаривает aria-label — на экране
+       место есть только под короткую строку. Стрелка вынесена отдельным
+       узлом и скрыта от чтения: вслух «›» звучит как мусор. */
+    лента.appendChild(эл('li',{style:'--n:'+список.length},[
+      эл('a',{class:'upr-vse',href:'upravleniya.html',
+        'aria-label':'Почитать подробнее: все двенадцать управлений, формат, запись и связь с центром'},[
+        эл('span',{text:'Почитать подробнее'}),
+        эл('i',{'aria-hidden':'true',text:'›'}) ]) ]));
     раздел.hidden=false;
   })(); }catch(__е){ try{console.error("секция главной:",__е)}catch(_){}}
 

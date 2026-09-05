@@ -6,6 +6,26 @@
    POST /lenta/skryt   { id, prichina }                       — скрыть запись (право)
    POST /lenta/zhaloba { id, prichina, tekst?, kontakt?, deviceId? } — жалоба на запись
         (X-Device-Secret привязанного устройства; deviceId ускоряет проверку)
+   POST /lenta/zhaloba/reshit { id, reshenie, at?, prichina? } — закрыть жалобу (право)
+
+   ДВА РЕШЕНИЯ ПО ЖАЛОБЕ. «razobrana» ставит скрытие записи (/lenta/skryt), но
+   не всякая жалоба ведёт к скрытию: на «реклама» в собственном анонсе управления
+   правильный ответ — «жалоба отклонена», запись остаётся. Без такого решения
+   разбирающему приходилось выбирать между «скрыть невиновную запись» и
+   «оставить жалобу висеть», и очередь не разгребалась (ревью 8.8, F17).
+   Отсюда третье состояние otkloneno и ручка /lenta/zhaloba/reshit
+   (право cap:lenta.moderate, миграция 011).
+
+   ОЧЕРЕДЬ ЖАЛОБ — сортировка и предел В ЗАПРОСЕ, по индексу
+   lenta_zhaloby_po_sostoyaniyu (sostoyanie, at). Раньше брались произвольные
+   200 строк и сортировались в памяти: при 250 новых жалобах разбирающий видел
+   не пятьдесят свежих, а пятьдесят случайных. Потолок «300 неразобранных»
+   считается по тому же индексу и только по sostoyanie = novaya: отклонённые
+   и разобранные очередь не занимают.
+   Индекс строится в фоне, и пока он не готов, запрос через VIEW отвечает
+   ошибкой схемы. На этот случай оба запроса повторяются без VIEW (обходом
+   маленькой таблицы): иначе в окно построения индекса ПУБЛИЧНЫЙ приём жалоб
+   отвечал бы 503 — потолок неразобранных считается по тому же индексу.
 
    РУЧКИ НИКОГДА НЕ ХОДЯТ К ПЛОЩАДКАМ. Здесь — только чтение и запись YDB.
    Источники опрашивает отдельная функция yasna-lenta-sbor по таймеру; она же
@@ -57,9 +77,15 @@ const МАКС_КОНТАКТ = 120;
 const МАКС_ПРИЧИНА_СКРЫТИЯ = 200;
 const МАКС_СЕКРЕТ = 200;
 
+const МАКС_ПРИЧИНА_РЕШЕНИЯ = 200;
+
 const ТИПЫ = ['tekst', 'foto', 'video', 'ssylka', 'statya', 'anons'];
 const ОТКУДА = ['segodnya', 'biblioteka', 'upravleniya', 'lenta'];
 const ПРИЧИНЫ_ЖАЛОБ = ['ya_na_foto', 'prava', 'reklama', 'drugoe'];
+/* Решения разбирающего: «разобрана» (запись скрыта или вопрос закрыт) и
+   «отклонена» (жалоба не подтвердилась, запись остаётся). Состояние novaya
+   ставит только сама жалоба. */
+const РЕШЕНИЯ = ['razobrana', 'otkloneno'];
 
 /* Пять жалоб в час с одного устройства. Больше — это не человек, которому
    нужен разбор, а кто-то, кому нужна наша таблица. Устройство — только
@@ -71,6 +97,8 @@ const ЖАЛОБ_В_ЧАС = 5;
 const ЖАЛОБ_В_ЧАС_С_АДРЕСА = 30;
 const ПОТОЛОК_НОВЫХ_ЖАЛОБ = 300;
 const ОКНО_ЖАЛОБ_МС = 60 * 60 * 1000;
+const ОКНО_ЖАЛОБ_ISO = 'PT' + (ОКНО_ЖАЛОБ_МС / 1000) + 'S';   /* то же окно литералом Interval */
+const ПОПЫТОК_ЛИМИТА = 4;        /* столько раз перечитываем счётчик при ABORTED */
 const СРОК_ЖАЛОБЫ = '3 дня';
 const МАКС_DEVICE_ID = 128;
 
@@ -79,6 +107,7 @@ const МОЛЧИТ_ДНЕЙ = 56;                   /* восемь недель
 const ТРЕВОГА_МС = 24 * 60 * 60 * 1000;   /* сутки без удачного опроса — «тревога» */
 const ЖУРНАЛ_НА_ИСТОЧНИК = 5;
 const ЖАЛОБ_В_СОСТОЯНИИ = 50;
+const ДОЛЯ_ЖУРНАЛА = 10;                  /* в журнал идёт каждый десятый просмотр */
 
 const ИСТОЧНИКИ_ЖИВУТ_МС = 5 * 60 * 1000; /* кэш списка каналов в экземпляре */
 const КЭШ_ОТВЕТА = 'public, max-age=120'; /* сборщик ходит раз в четверть часа */
@@ -94,6 +123,13 @@ const ПОЛЯ = `klyuch, istochnik, kanal, id, data, upravlenie, upravleniya, t
 function секунды(iso) { return iso ? String(iso).slice(0, 19) + 'Z' : null; }
 function да(в) { return !!(в && в.boolValue === true); }
 function каналКлюч(istochnik, kanal) { return istochnik + ':' + kanal; }
+
+/* Необязательная строка параметром: пусто — это NULL нужного типа, а не
+   пустая строка (иначе «контакта не оставили» и «оставили пустой» слились бы). */
+function необязательное(д) {
+  const { TypedValues, Types } = д;
+  return (v) => (v ? TypedValues.optional(TypedValues.utf8(v)) : TypedValues.optionalNull(Types.UTF8));
+}
 
 /* Чужой текст режем по слову с «…». Сборщик делает это сам; здесь — вторая
    линия, чтобы контракт (120/400) держался даже при сбое сборщика. */
@@ -153,6 +189,36 @@ async function вБазе(drv, f) {
     ошибка.код = 503;
     ошибка.detail = String((e && e.message) || e).slice(0, 200);
     throw ошибка;
+  }
+}
+
+/* ─── индекс очереди жалоб, пока он ещё строится ─────────────────────────── */
+/* Индекс lenta_zhaloby_po_sostoyaniyu добавляется миграцией 011, а YDB строит
+   такие индексы В ФОНЕ: миграция возвращается раньше, чем индекс готов (сама
+   011 это и оговаривает — «если раннер не дождался, вручную»). В это окно
+   запрос через VIEW отвечает ошибкой схемы, и без запасного пути на ней падал
+   бы не только закрытый разбор, но и ПУБЛИЧНЫЙ приём жалоб: потолок «300
+   неразобранных» считается по тому же индексу, а любая ошибка базы — это 503.
+   То есть выкладка отвечала бы человеку «сервер не отвечает» на жалобу, пока
+   строится индекс.
+
+   Поэтому: увидели «нет такого индекса» — повторяем ТЕМ ЖЕ запросом без VIEW.
+   Таблица жалоб мала (сотни строк), обход её на несколько секунд — честная
+   плата за то, чтобы приём жалоб не вставал. Порядок и предел при этом
+   остаются в запросе, то есть обещание F17 (свежие, а не случайные) держится
+   и на запасном пути. */
+const НЕТ_ИНДЕКСА = /lenta_zhaloby_po_sostoyaniyu|(?:no such|not found|unknown|cannot find|doesn'?t exist|does not exist|not ready)[^;]{0,60}index|index[^;]{0,60}(?:not found|does not exist|is not ready|is being built|building)/i;
+function индексаНет(e) {
+  return НЕТ_ИНДЕКСА.test(String((e && (e.detail || e.message)) || e));
+}
+/* Запрос по индексу, а при его отсутствии — тот же без VIEW. Возвращает
+   { r, безИндекса }, чтобы вызывающий мог сказать об этом в ответе. */
+async function поИндексуЖалоб(s, сVIEW, безVIEW, параметры) {
+  try { return { r: await s.executeQuery(сVIEW, параметры), безИндекса: false }; }
+  catch (e) {
+    if (!индексаНет(e)) throw e;
+    console.warn('[lenta] индекс lenta_zhaloby_po_sostoyaniyu недоступен, читаем обходом: ' + String((e && e.message) || e).slice(0, 160));
+    return { r: await s.executeQuery(безVIEW, параметры), безИндекса: true };
   }
 }
 
@@ -342,7 +408,30 @@ function ответ(ok, тело) {
 
 /* Метка «откуда открыли» — в журнал, лучшими стараниями: счётчик не должен
    ломать ленту. Ключ klient:<otkuda> — чтобы считать по префиксу ключа,
-   не пересекаясь со строками сборщика. */
+   не пересекаясь со строками сборщика.
+
+   ВЫБОРОЧНО. Раньше строка писалась на КАЖДОЕ чтение с меткой и ответ её ждал:
+   при тысяче активных это восемь тысяч строк в сутки (журнал живёт 30 дней) и
+   лишний поход в базу каждому человеку. Теперь в журнал идёт каждый десятый
+   просмотр с меткой; в сообщении стоит «dolya=10», чтобы при подсчёте строку
+   умножали на десять. Счётчик — в экземпляре функции: экземпляров несколько,
+   и каждый ведёт свою десятку, поэтому доля соблюдается в среднем, а не точно.
+   Первый просмотр экземпляра пишется всегда — по нему видно, что холодный
+   старт удался.
+
+   НЕ ЖДЁМ. Ответ уходит, не дожидаясь записи. В облачной функции контейнер
+   после ответа может замереть — тогда недописанная строка теряется; для
+   выборочного счётчика это допустимо, а вот держать человека ради неё — нет.
+   Ошибки внутри проглочены (try/catch), так что «висящее» обещание никогда не
+   отклоняется и unhandledRejection не поднимет. */
+let просмотров = 0;
+let журналВПути = null;
+
+function пораВЖурнал() {
+  просмотров++;
+  return ДОЛЯ_ЖУРНАЛА <= 1 || (просмотров % ДОЛЯ_ЖУРНАЛА) === 1;
+}
+
 async function вЖурнал(drv, д, otkuda, сообщение, сколько, началоМс) {
   const { TypedValues } = д;
   try {
@@ -391,7 +480,9 @@ async function лента(drv, ctx) {
   const поКаналу = new Map(список.map((и) => [каналКлюч(и.istochnik, и.kanal), и]));
   const общее = {
     upravleniya_s_zapisyami: управленияСЗаписями(список),
-    sobrano_at: собраноAt(список),
+    /* Свежесть — по источникам ЭТОЙ выдачи: общий максимум по всем каналам
+       выдавал время исправного канала за время молчащего (ревью 8.8, F15). */
+    sobrano_at: собраноAt(upravlenie ? список.filter((и) => и.upravleniya.indexOf(upravlenie) >= 0) : список),
     upravlenie: upravlenie || null,
     tip: tip || null,
   };
@@ -409,7 +500,9 @@ async function лента(drv, ctx) {
   const пусто = (novyh) => ответ(ok, Object.assign({ zapisi: [], dalshe: null, novyh }, общее));
   if (n === 0 && !после) return пусто(null);
   if (каналы && !каналы.length) {
-    if (otkuda) await вЖурнал(drv, д, otkuda, `upravlenie=${upravlenie} bez-kanalov`, 0, начало);
+    if (otkuda && пораВЖурнал()) {
+      журналВПути = вЖурнал(drv, д, otkuda, `upravlenie=${upravlenie} bez-kanalov dolya=${ДОЛЯ_ЖУРНАЛА}`, 0, начало);
+    }
     return пусто(после ? 0 : null);
   }
 
@@ -445,9 +538,10 @@ async function лента(drv, ctx) {
   const dalshe = естьЕщё && записи.length ? курсорИз(записи[записи.length - 1]) : null;
   const novyh = после ? Math.min(всего, ПРЕДЕЛ_НОВЫХ) : null;
 
-  if (otkuda) {
-    await вЖурнал(drv, д, otkuda,
-      `upravlenie=${upravlenie || '-'} tip=${tip || '-'} kursor=${курсор ? 'da' : 'net'} posle=${после ? 'da' : 'net'} n=${n}`,
+  /* Не ждём записи: строка журнала — счётчик, а не часть ответа. */
+  if (otkuda && пораВЖурнал()) {
+    журналВПути = вЖурнал(drv, д, otkuda,
+      `upravlenie=${upravlenie || '-'} tip=${tip || '-'} kursor=${курсор ? 'da' : 'net'} posle=${после ? 'da' : 'net'} n=${n} dolya=${ДОЛЯ_ЖУРНАЛА}`,
       записи.length, начало);
   }
   return ответ(ok, Object.assign({
@@ -511,6 +605,9 @@ async function состояние(drv, ctx) {
   const итог = список.map((и) => состояниеИсточника(и, сейчас));
 
   const жалобы = [];
+  /* Индекс очереди мог ещё строиться — тогда жалобы читаются обходом, и об
+     этом сказано в ответе: разбирающий видит, почему выдача идёт медленнее. */
+  let стройкаИндекса = false;
   await вБазе(drv, async (s) => {
     /* Последние пять записей журнала на источник — чтобы видеть не только
        «сломан», но и с какого раза. Ключ (istochnik_klyuch, at) — это
@@ -525,12 +622,24 @@ async function состояние(drv, ctx) {
         dlitelnost_ms: num(row.items[3]), novyh: num(row.items[4]),
       }));
     }
-    /* Новые жалобы. Индекса по состоянию нет — таблица на десятки строк,
-       полный обход дешевле индекса. */
-    const rж = await s.executeQuery(`DECLARE $s AS Utf8; DECLARE $n AS Uint64;
-      SELECT klyuch, at, prichina, tekst, kontakt, ustrojstvo, sostoyanie FROM lenta_zhaloby
-      WHERE sostoyanie = $s LIMIT $n;`,
-      { '$s': TypedValues.utf8('novaya'), '$n': TypedValues.uint64(ЖАЛОБ_В_СОСТОЯНИИ * 4) });
+    /* Новые жалобы — пятьдесят САМЫХ СВЕЖИХ. Порядок и предел стоят в запросе,
+       по индексу lenta_zhaloby_po_sostoyaniyu (sostoyanie, at) из миграции 011:
+       ORDER BY совпадает с ключом индекса, значит база отдаёт ровно пятьдесят
+       строк с конца, а не первые попавшиеся. Прежний вариант («взять 200 без
+       порядка, отсортировать в памяти, отрезать 50») при 250 новых жалобах
+       показывал разбирающему случайные, и самые свежие могли не попасть в
+       выдачу вовсе (ревью 8.8, F17). */
+    const { r: rж, безИндекса } = await поИндексуЖалоб(s,
+      `DECLARE $s AS Utf8; DECLARE $n AS Uint64;
+      SELECT klyuch, at, prichina, tekst, kontakt, ustrojstvo, sostoyanie
+      FROM lenta_zhaloby VIEW lenta_zhaloby_po_sostoyaniyu
+      WHERE sostoyanie = $s ORDER BY sostoyanie DESC, at DESC LIMIT $n;`,
+      `DECLARE $s AS Utf8; DECLARE $n AS Uint64;
+      SELECT klyuch, at, prichina, tekst, kontakt, ustrojstvo, sostoyanie
+      FROM lenta_zhaloby
+      WHERE sostoyanie = $s ORDER BY sostoyanie DESC, at DESC LIMIT $n;`,
+      { '$s': TypedValues.utf8('novaya'), '$n': TypedValues.uint64(ЖАЛОБ_В_СОСТОЯНИИ) });
+    if (безИндекса) стройкаИндекса = true;
     for (const row of ((rж.resultSets[0] || {}).rows || [])) {
       const и = row.items;
       жалобы.push({
@@ -538,8 +647,6 @@ async function состояние(drv, ctx) {
         kontakt: txt(и[4]), ustrojstvo: txt(и[5]), sostoyanie: txt(и[6]),
       });
     }
-    жалобы.sort((a, b) => String(b.at || '').localeCompare(String(a.at || '')));
-    жалобы.splice(ЖАЛОБ_В_СОСТОЯНИИ);
     /* Разбирающему нужно видеть, на что жалуются: заголовок и ссылка записи.
        Ключей — единицы, чтение по первичному ключу. */
     const карточки = new Map();
@@ -560,7 +667,8 @@ async function состояние(drv, ctx) {
     }
   });
 
-  return ok({ istochniki: итог, zhaloby: жалобы, sobrano_at: собраноAt(список) });
+  return ok(Object.assign({ istochniki: итог, zhaloby: жалобы, sobrano_at: собраноAt(список) },
+    стройкаИндекса ? { indeks_zhalob: 'stroitsya' } : null));
 }
 
 /* ─── запись по ключу (есть ли такая) ────────────────────────────────────── */
@@ -648,14 +756,27 @@ async function устройствоПоСекрету(drv, д, секрет, dev
   return привязано ? хеш.slice(0, 32) : null;
 }
 
-/* Потолок неразобранных: таблица на десятки строк, индекса по состоянию нет —
-   полный обход дешевле индекса (то же в состояние()). */
+/* Потолок неразобранных считается ТОЛЬКО по новым: разобранные и отклонённые
+   очередь не занимают, иначе таблица за год закрыла бы приём жалоб навсегда.
+   Читаем по тому же индексу (sostoyanie, at) и не больше потолка строк: сверх
+   трёхсот ответ всё равно один и тот же, а обход всей таблицы — нет. */
 async function новыхЖалоб(drv, д) {
   const { TypedValues, num } = д;
   let n = 0;
   await вБазе(drv, async (s) => {
-    const r = await s.executeQuery(`DECLARE $s AS Utf8;
-      SELECT COUNT(*) AS n FROM lenta_zhaloby WHERE sostoyanie = $s;`, { '$s': TypedValues.utf8('novaya') });
+    /* Пока индекс строится (миграция 011 добавляет его в фоне), тот же счёт
+       идёт обходом таблицы: приём жалоб от этого не встаёт. Предел строк
+       остаётся — сверх потолка ответ всё равно один и тот же. */
+    const { r } = await поИндексуЖалоб(s,
+      `DECLARE $s AS Utf8; DECLARE $n AS Uint64;
+      $novye = SELECT klyuch FROM lenta_zhaloby VIEW lenta_zhaloby_po_sostoyaniyu
+               WHERE sostoyanie = $s LIMIT $n;
+      SELECT COUNT(*) AS n FROM $novye;`,
+      `DECLARE $s AS Utf8; DECLARE $n AS Uint64;
+      $novye = SELECT klyuch FROM lenta_zhaloby
+               WHERE sostoyanie = $s LIMIT $n;
+      SELECT COUNT(*) AS n FROM $novye;`,
+      { '$s': TypedValues.utf8('novaya'), '$n': TypedValues.uint64(ПОТОЛОК_НОВЫХ_ЖАЛОБ) });
     const row = ((r.resultSets[0] || {}).rows || [])[0];
     n = row ? (num(row.items[0]) || 0) : 0;
   });
@@ -665,34 +786,78 @@ async function новыхЖалоб(drv, д) {
 /* ─── частота жалоб ──────────────────────────────────────────────────────── */
 /* Та же таблица auth_throttle, что у throttleHit из auth-email.js, но своё
    окно: там оно зашито в 15 минут, а жалобам обещано «5 в час». Окно не
-   скользит: начинается с первой жалобы и через час обнуляется. */
+   скользит: начинается с первой жалобы и через час обнуляется.
+
+   ОДНИМ ЗАПРОСОМ. Раньше проверка и увеличение шли двумя executeQuery: между
+   ними успевали вклиниться соседние запросы, и двенадцать одновременных жалоб
+   при пределе пять проходили все двенадцать — каждая читала «было ноль»
+   (ревью 8.8, F16). Теперь чтение, решение и запись — один текст запроса, а
+   значит одна транзакция YDB (executeQuery без txControl выполняется в
+   автокоммите SerializableReadWrite): либо счётчик увеличен, либо отказ, и
+   строку между чтением и записью никто подменить не может.
+
+   ЗАПИСЬ ПОД УСЛОВИЕМ. UPSERT ... SELECT ... WHERE mozhno: при отказе строка
+   вовсе не пишется, поэтому отказ не наращивает счётчик (обещание «отказ не
+   наращивает» проверяется пробой). Все три NOT NULL колонки в SELECT есть —
+   YDB требует их в UPSERT целиком.
+
+   ПОВТОР ПРИ ABORTED. Одновременные транзакции по одной строке серьёзно
+   конфликтуют: проигравшая получает ABORTED («Transaction locks invalidated»).
+   Это не поломка, а обычная плата за строгую изоляцию — перечитываем и
+   пробуем снова, до ПОПЫТОК_ЛИМИТА раз. Если и они кончились, отвечаем
+   «нельзя»: при таком напоре по одному ведру лишний 429 честнее, чем
+   пропущенный поток жалоб. */
+function этоРасхождение(e) {
+  return /aborted|locks invalidated|transaction locks/i.test(String((e && (e.detail || e.message)) || e));
+}
+
 async function частотаЖалоб(drv, д, ведро, предел) {
-  const { TypedValues, num } = д;
+  const { TypedValues } = д;
   const лимит = предел || ЖАЛОБ_В_ЧАС;
-  let можно = true;
-  await вБазе(drv, async (s) => {
-    const r = await s.executeQuery(`DECLARE $b AS Utf8;
-      SELECT window_start, hits FROM auth_throttle WHERE bucket = $b;`,
-      { '$b': TypedValues.utf8(ведро) });
-    const row = ((r.resultSets[0] || {}).rows || [])[0];
-    const сейчас = Date.now();
-    const началоМс = row ? Number(String((row.items[0] || {}).uint64Value || 0)) / 1000 : 0;
-    const было = row ? (num(row.items[1]) || 0) : 0;
-    const заново = !row || (сейчас - началоМс) > ОКНО_ЖАЛОБ_МС;
-    if (!заново && было >= лимит) { можно = false; return; }
-    if (заново) {
-      await s.executeQuery(`DECLARE $b AS Utf8; DECLARE $h AS Uint32;
-        UPSERT INTO auth_throttle (bucket, window_start, hits) VALUES ($b, CurrentUtcTimestamp(), $h);`,
-        { '$b': TypedValues.utf8(ведро), '$h': TypedValues.uint32(1) });
-    } else {
-      /* window_start не трогаем. UPDATE, а не UPSERT части колонок: YDB
-         требует в UPSERT все NOT NULL колонки (window_start) — см. сборщик. */
-      await s.executeQuery(`DECLARE $b AS Utf8; DECLARE $h AS Uint32;
-        UPDATE auth_throttle SET hits = $h WHERE bucket = $b;`,
-        { '$b': TypedValues.utf8(ведро), '$h': TypedValues.uint32(было + 1) });
+  const запрос = `
+    DECLARE $b AS Utf8; DECLARE $p AS Uint32;
+    $seychas = CurrentUtcTimestamp();
+    $granica = $seychas - Interval("${ОКНО_ЖАЛОБ_ISO}");
+    $bylo = SELECT MAX(window_start) AS ws, MAX(hits) AS h
+            FROM auth_throttle WHERE bucket = $b;
+    $okno = SELECT COALESCE(ws IS NULL OR ws < $granica, true) AS zanovo,
+                   COALESCE(ws, $seychas) AS ws,
+                   COALESCE(h, 0u) AS h
+            FROM $bylo;
+    $itog = SELECT $b AS bucket,
+                   IF(zanovo, $seychas, ws) AS window_start,
+                   IF(zanovo, 1u, h + 1u) AS hits,
+                   (zanovo OR h < $p) AS mozhno
+            FROM $okno;
+    UPSERT INTO auth_throttle SELECT bucket, window_start, hits FROM $itog WHERE mozhno;
+    SELECT mozhno FROM $itog;`;
+  const парам = { '$b': TypedValues.utf8(ведро), '$p': TypedValues.uint32(лимит) };
+
+  for (let попытка = 1; попытка <= ПОПЫТОК_ЛИМИТА; попытка++) {
+    try {
+      let можно = false;
+      await вБазе(drv, async (s) => {
+        const r = await s.executeQuery(запрос, парам);
+        const наборы = (r.resultSets || []).filter((н) => ((н || {}).rows || []).length);
+        const row = наборы.length ? наборы[наборы.length - 1].rows[0] : null;
+        /* Ответа нет — значит запрос выполнился не так, как задумано. Закрываем:
+           неизвестное состояние счётчика не должно открывать приём жалоб. */
+        if (!row) { console.warn('[lenta] счётчик жалоб не ответил', ведро); можно = false; return; }
+        можно = да(row.items[0]);
+      });
+      return можно;
+    } catch (e) {
+      if (!этоРасхождение(e) || попытка === ПОПЫТОК_ЛИМИТА) {
+        if (этоРасхождение(e)) {
+          console.warn('[lenta] счётчик жалоб разошёлся', ведро, '— считаем за отказ');
+          return false;
+        }
+        throw e;
+      }
+      await new Promise((r) => setTimeout(r, 10 * попытка));
     }
-  });
-  return можно;
+  }
+  return false;
 }
 
 /* ─── жалоба на запись ───────────────────────────────────────────────────── */
@@ -702,7 +867,7 @@ async function частотаЖалоб(drv, д, ведро, предел) {
    по первичному ключу device_auth, без него — по индексу хеша. */
 async function жалоба(drv, ctx) {
   const { body, event, д } = ctx;
-  const { TypedValues, Types, ok, fail, clean } = д;
+  const { TypedValues, ok, fail, clean } = д;
   const секрет = (event.headers && (event.headers['X-Device-Secret'] || event.headers['x-device-secret'])) || '';
   if (!секрет || String(секрет).length > МАКС_СЕКРЕТ)
     return fail(403, 'forbidden', { detail: 'нужен секрет устройства' });
@@ -732,7 +897,7 @@ async function жалоба(drv, ctx) {
   const з = await публикация(drv, д, id);
   if (!з) return fail(404, 'not found', { detail: 'такой записи в ленте нет' });
 
-  const опц = (v) => (v ? TypedValues.optional(TypedValues.utf8(v)) : TypedValues.optionalNull(Types.UTF8));
+  const опц = необязательное(д);
   await вБазе(drv, async (s) => {
     await s.executeQuery(`
       DECLARE $k AS Utf8; DECLARE $p AS Utf8; DECLARE $t AS Optional<Utf8>;
@@ -750,6 +915,82 @@ async function жалоба(drv, ctx) {
   return ok({ ok: true, srok: СРОК_ЖАЛОБЫ });
 }
 
+/* ─── решение по жалобе (модератор) ──────────────────────────────────────── */
+/* Закрыть жалобу, НЕ трогая запись. Скрытие (/lenta/skryt) закрывает жалобы
+   само; сюда приходят те случаи, когда запись оставляют: «реклама» в
+   собственном анонсе управления, «права» на свой же материал, повтор.
+
+   ЧТО ПРИХОДИТ: id записи, reshenie ('otkloneno' | 'razobrana'), необязательные
+   at (какую именно жалобу закрыть) и prichina (для истории).
+
+   ПОЧЕМУ at — ОКНО, А НЕ РАВЕНСТВО. В таблице at хранится с микросекундами
+   (CurrentUtcTimestamp), а наружу и в курсор идут секунды. Сравнение на
+   равенство с секундной меткой не нашло бы ни одной строки, поэтому берём
+   секунду целиком: [at, at+1с). Без at закрываются все НОВЫЕ жалобы на запись —
+   разбирающий обычно решает про запись, а не про отдельное обращение.
+
+   Уже закрытые (razobrana/otkloneno) не трогаем: WHERE sostoyanie = "novaya".
+   Иначе повторное решение переписывало бы чужое и стирало, кто и когда его
+   принял. */
+async function решить(drv, ctx) {
+  const { body, д } = ctx;
+  const { TypedValues, ok, fail, clean, txt } = д;
+  const кто = await ктоСПравом(drv, ctx, ПРАВО_МОДЕРАЦИИ);
+  if (кто.код) return fail(кто.код, кто.error, кто.detail ? { detail: кто.detail } : undefined);
+
+  const id = ключЗаписи(clean, body && body.id);
+  if (!id) return fail(400, 'bad id', { detail: 'id записи: istochnik:kanal:id' });
+  const reshenie = clean(body && (body.reshenie || body.sostoyanie), 20) || 'otkloneno';
+  if (РЕШЕНИЯ.indexOf(reshenie) < 0)
+    return fail(400, 'bad reshenie', { detail: 'reshenie: ' + РЕШЕНИЯ.join(', ') });
+  const prichina = clean(body && body.prichina, МАКС_ПРИЧИНА_РЕШЕНИЯ);
+
+  /* at — только ISO UTC; в запрос уходит литералом, поэтому регулярка строгая. */
+  let окно = null;
+  const сыройAt = clean(body && body.at, 40);
+  if (сыройAt) {
+    const м = /^(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d)(?:\.\d{1,6})?Z$/.exec(сыройAt);
+    if (!м || Number.isNaN(Date.parse(м[1] + 'Z'))) return fail(400, 'bad at', { detail: 'at: ISO UTC' });
+    окно = { с: м[1] + 'Z', по: секунды(new Date(Date.parse(м[1] + 'Z') + 1000).toISOString()) };
+  }
+
+  const условиеAt = окно
+    ? ` AND at >= Timestamp("${окно.с}") AND at < Timestamp("${окно.по}")` : '';
+
+  let затронуто = 0;
+  await вБазе(drv, async (s) => {
+    /* Сколько закроем — считаем до правки: UPDATE числа строк не возвращает,
+       а разбирающему важно видеть «закрыто 3», а не «ok». Чтение по префиксу
+       первичного ключа (klyuch, at) — строк на запись единицы. */
+    const r = await s.executeQuery(`DECLARE $k AS Utf8;
+      SELECT at, sostoyanie FROM lenta_zhaloby WHERE klyuch = $k;`,
+      { '$k': TypedValues.utf8(id) });
+    for (const row of ((r.resultSets[0] || {}).rows || [])) {
+      if (txt(row.items[1]) !== 'novaya') continue;
+      if (окно) {
+        const at = секунды(д.ts(row.items[0]));
+        if (!(at >= окно.с && at < окно.по)) continue;
+      }
+      затронуто++;
+    }
+    if (!затронуто) return;
+    await s.executeQuery(`
+      DECLARE $k AS Utf8; DECLARE $s AS Utf8; DECLARE $u AS Utf8; DECLARE $p AS Optional<Utf8>;
+      UPDATE lenta_zhaloby SET sostoyanie = $s, reshenie_at = CurrentUtcTimestamp(),
+             reshil = $u, reshenie_prichina = $p
+      WHERE klyuch = $k AND sostoyanie = "novaya"u${условиеAt};`, {
+        '$k': TypedValues.utf8(id),
+        '$s': TypedValues.utf8(reshenie),
+        '$u': TypedValues.utf8(String(кто.userId).slice(0, 200)),
+        '$p': необязательное(д)(prichina),
+      });
+  });
+
+  if (!затронуто) return fail(404, 'not found', { detail: 'новых жалоб на эту запись нет' });
+  console.log('[lenta] жалоба', reshenie, id, 'кем', кто.userId, 'почему', prichina || '-');
+  return ok({ ok: true, id, sostoyanie: reshenie, zhalob: затронуто });
+}
+
 /* ─── маршруты ───────────────────────────────────────────────────────────── */
 exports.route = async function route(drv, ctx) {
   const { method, path, д } = ctx;
@@ -765,6 +1006,12 @@ exports.route = async function route(drv, ctx) {
     if (/\/lenta\/skryt(\/|\?|$)/.test(path)) {
       if (method !== 'POST') return fail(405, 'method not allowed');
       return await скрыть(drv, ctx);
+    }
+    /* Решение — ДО жалобы: /lenta/zhaloba(\/…) поймал бы и /lenta/zhaloba/reshit,
+       и решение уходило бы в приём жалоб. */
+    if (/\/lenta\/zhaloba\/reshit(\/|\?|$)/.test(path)) {
+      if (method !== 'POST') return fail(405, 'method not allowed');
+      return await решить(drv, ctx);
     }
     if (/\/lenta\/zhaloba(\/|\?|$)/.test(path)) {
       if (method !== 'POST') return fail(405, 'method not allowed');
@@ -785,6 +1032,12 @@ exports.ПРАВО_ИСТОЧНИКИ = ПРАВО_ИСТОЧНИКИ;
 exports.ПРАВО_МОДЕРАЦИИ = ПРАВО_МОДЕРАЦИИ;
 exports.ТИПЫ = ТИПЫ;
 exports.ПРИЧИНЫ_ЖАЛОБ = ПРИЧИНЫ_ЖАЛОБ;
+exports.РЕШЕНИЯ = РЕШЕНИЯ;
+exports.ДОЛЯ_ЖУРНАЛА = ДОЛЯ_ЖУРНАЛА;
+/* Для пробы: журнал пишется мимо ответа, а доля считается счётчиком экземпляра.
+   В бою ни то, ни другое не зовут. */
+exports.журналДоехал = () => журналВПути || Promise.resolve();
+exports.сброситьЖурналСчёт = () => { просмотров = 0; журналВПути = null; };
 exports.курсорИз = курсорИз;
 exports.курсорВ = курсорВ;
 exports.перемежить = перемежить;

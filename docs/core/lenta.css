@@ -4,11 +4,18 @@
    (app/glavnaya.html, раздел «Лента управлений»). Разметку строит
    core/lenta.js (встроить, карточка, лист) — здесь только её вид.
 
+   ИМЕНА КЛАССОВ. Все начинаются с ln-: этот файл подключён и на главном
+   экране, а там есть свои .k («Начать», «Цитата дня»), и однобуквенное имя
+   красило их фоном и рамкой карточки (ревью 8.8, F13). Короткие общие имена
+   в общем файле — мина: страница-хозяин про них не знает.
+
    КАРТОЧКА v2 (разбор владельца 05.09.2026): источник назван ОДИН раз —
    именем канала в шапке (это указание источника по лицензии); слово
    «Телеграм» живёт только в меню «⋯» у действия «Открыть в Телеграме».
    Действий внизу два: «Поделиться» и «⋯». Чипа типа записи нет: типы
    угадывались неверно (запись со ссылкой на видео считалась фото).
+   ЖИВАЯ ЛЕНТА (8.9): полоса «Есть новые записи» над лентой (.ln-novye) и
+   короткий обвод у карточки, которую сервер поправил (.ln-k--pravka).
    Всё на ролях core/tokeny.css — обе темы из одних правил.
    ═══════════════════════════════════════════════════════════════════════════ */
 
@@ -30,7 +37,10 @@
 .polosa svg{flex:0 0 18px;width:18px;height:18px;stroke:var(--on-surface-variant);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;margin-top:1px}
 .polosa > div{flex:1;min-width:0}
 .polosa b{font:var(--type-label-m);display:block;margin-bottom:2px}
-.polosa button{flex:0 0 auto;font:var(--type-label-m);color:var(--primary);background:none;border:0;padding:0 6px;min-height:36px;min-width:48px;cursor:pointer}
+.polosa button{flex:0 0 auto;font:var(--type-label-m);color:var(--primary);background:none;border:0;padding:0 6px;min-height:36px;min-width:48px;cursor:pointer;position:relative}
+/* Полоса не должна расти ради пальца: кнопка остаётся ростом в 36, а цель
+   нажатия добирается до 48 невидимым расширителем — как у чипов. */
+.polosa button::before{content:"";position:absolute;inset:-6px 0}
 
 /* ── Лента, пачки, метки месяцев. */
 .lenta{list-style:none;padding:10px 16px 0;display:flex;flex-direction:column;gap:10px}
@@ -40,7 +50,7 @@
 .mesyac::after{content:"";flex:1;height:1px;background:var(--outline-variant)}
 
 /* ── Карточка. */
-.k{background:var(--surface-container-low);border:1px solid var(--outline-variant);border-radius:var(--shape-l);overflow:hidden}
+.ln-k{background:var(--surface-container-low);border:1px solid var(--outline-variant);border-radius:var(--shape-l);overflow:hidden}
 .k-telo{display:block;color:inherit;text-decoration:none;padding:12px 14px 4px}
 .k-telo:active{background:var(--surface-container-high)}
 .k-shapka{display:flex;gap:10px;align-items:center;min-height:36px}
@@ -82,7 +92,7 @@
    лентах телефона): нижний ряд прибавлял ~44 dp пустоты каждой карточке.
    Кнопки лежат ВНЕ ссылки тела (кнопка внутри <a> — невалидна), а визуально
    стоят в шапке: абсолютное положение, шапка оставляет им место справа. */
-.k{position:relative}
+.ln-k{position:relative}
 .k-shapka{padding-right:88px}
 .k-telo{padding-bottom:12px}
 .k-niz{position:absolute;top:6px;right:6px;display:flex;align-items:center;gap:0}
@@ -91,6 +101,19 @@
 .k-share svg,.k-esche svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .k-esche svg{stroke-width:2.6}
 .k-share:active,.k-esche:active{background:var(--surface-container-high)}
+
+/* ── Полоса «Есть новые записи» (живая лента 8.9). Пока человек читает
+   середину ленты, новое сверху не въезжает ему под ноги, а ждёт здесь.
+   Липкая: полоса над лентой, увиденная только с самого верха, не сказала бы
+   о новом никому. Липнет НИЖЕ шапки оболочки и чипов управлений — высоту
+   чипов кладёт в --ln-lipko сам модуль (он их и меряет). Неброская: та же
+   подложка, что у карточек, без заливки цветом и без движения. */
+.ln-novye{position:sticky;top:calc(var(--yk-shapka,0px) + var(--ln-lipko,0px) + 8px);z-index:9;
+  display:flex;align-items:center;justify-content:center;gap:6px;width:max-content;max-width:calc(100% - 32px);
+  margin:0 auto 10px;padding:0 16px;min-height:40px;border-radius:20px;border:1px solid var(--outline-variant);
+  background:var(--surface-container-high);color:var(--primary);font:var(--type-label-l);cursor:pointer;box-shadow:var(--elev-3)}
+.ln-novye svg{flex:0 0 16px;width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ln-novye:active{background:var(--surface-container-highest)}
 
 /* ── «Показать ещё» — вместо бесконечной прокрутки. */
 .esche-kn{display:block;width:calc(100% - 32px);margin:12px 16px 0;min-height:48px;border-radius:24px;border:1px solid var(--outline);
@@ -113,12 +136,15 @@
 .tiho-sost{margin:12px 16px 0;padding:12px 14px;border-radius:var(--shape-m);background:var(--surface-container-low);border:1px solid var(--outline-variant);
   font:var(--type-body-s);color:var(--on-surface-variant);text-wrap:pretty;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .tiho-sost span{flex:1;min-width:0}
-.tiho-sost button{flex:0 0 auto;min-height:36px;padding:0 12px;border-radius:18px;border:1px solid var(--outline);background:none;color:var(--primary);font:var(--type-label-m);cursor:pointer}
+.tiho-sost button{flex:0 0 auto;min-height:36px;padding:0 12px;border-radius:18px;border:1px solid var(--outline);background:none;color:var(--primary);font:var(--type-label-m);cursor:pointer;position:relative}
+/* −7, а не −6: у этой кнопки есть рамка, и расширитель считается от поля
+   внутри неё — иначе цель выходит 46, а не 48. */
+.tiho-sost button::before{content:"";position:absolute;inset:-7px 0}
 .konec{margin:18px 16px 0;padding:18px 16px 16px;text-align:center;border-radius:var(--shape-l);background:var(--surface-container-low);border:1px solid var(--outline-variant)}
 .konec svg.luchi{width:36px;height:36px;stroke:var(--tertiary);stroke-width:1.8;stroke-linecap:round;fill:none;margin-bottom:6px}
 .konec b{display:block;font:var(--type-title-s)}
 .konec p{margin:6px 0 0;font:var(--type-body-s);color:var(--on-surface-variant);text-wrap:pretty}
-.konec a.dver{display:inline-flex;align-items:center;gap:4px;margin-top:10px;min-height:40px;padding:0 14px;border-radius:20px;border:1px solid var(--outline);color:var(--primary);font:var(--type-label-l);text-decoration:none}
+.konec a.dver{display:inline-flex;align-items:center;gap:4px;margin-top:10px;min-height:48px;padding:0 16px;border-radius:24px;border:1px solid var(--outline);color:var(--primary);font:var(--type-label-l);text-decoration:none}
 .konec .prava{margin-top:12px;padding-top:12px;border-top:1px solid var(--outline-variant);font:var(--type-label-s);color:var(--on-surface-variant);line-height:1.45}
 .o-sebe{margin:14px 16px 8px;font:var(--type-label-s);color:var(--on-surface-variant);text-align:center;line-height:1.45}
 
@@ -158,7 +184,7 @@
 .snek{position:fixed;left:16px;right:16px;bottom:calc(var(--yk-nav,0px) + 16px);z-index:142;padding:12px 16px;border-radius:var(--shape-s);background:var(--inverse-surface);color:var(--inverse-on-surface);font:var(--type-body-s);box-shadow:var(--elev-3);text-align:center}
 
 /* ── Фокус. */
-.chip:focus-visible,.k-telo:focus-visible,.k-share:focus-visible,.k-esche:focus-visible,.esche-kn:focus-visible,
+.chip:focus-visible,.k-telo:focus-visible,.k-share:focus-visible,.k-esche:focus-visible,.esche-kn:focus-visible,.ln-novye:focus-visible,
 .list-p:focus-visible,.polosa button:focus-visible,.tiho-sost button:focus-visible,.konec a:focus-visible,.zh-kn:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
 
 /* ── Движение: подъём только первой пачки; скелет дышит; лист снизу. */
@@ -167,8 +193,15 @@
   @keyframes ln-dyh{from{opacity:.55}to{opacity:1}}
   .kolco{animation:ln-vr 1s linear infinite}
   @keyframes ln-vr{to{transform:rotate(360deg)}}
-  .ln-pachka--pervaya .k{opacity:0;transform:translateY(8px);animation:ln-pod .34s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--n,0) * 45ms)}
+  .ln-pachka--pervaya .ln-k{opacity:0;transform:translateY(8px);animation:ln-pod .34s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--n,0) * 45ms)}
   @keyframes ln-pod{to{opacity:1;transform:none}}
+  /* Правка пришла с сервера: карточка заменена на месте (F09). Она не
+     всплывает заново вместе с пачкой — только коротко обводится, чтобы глаз
+     заметил, что изменилось именно здесь. Заливку не трогаем: у главного
+     экрана карточка своего цвета. */
+  .ln-k--pravka,.ln-pachka--pervaya .ln-k.ln-k--pravka{opacity:1;transform:none;
+    animation:ln-pravka 1.2s var(--ease-standard,cubic-bezier(.2,0,0,1))}
+  @keyframes ln-pravka{from{box-shadow:inset 0 0 0 2px var(--primary)}to{box-shadow:inset 0 0 0 2px transparent}}
   .list{animation:ln-snizu var(--dur-long,400ms) var(--ease-emphasized-decel,cubic-bezier(.05,.7,.1,1)) both}
   @keyframes ln-snizu{from{transform:translateY(100%)}to{transform:none}}
   .snek{animation:ln-snek var(--dur-medium,300ms) var(--ease-emphasized-decel,cubic-bezier(.05,.7,.1,1)) both}

@@ -9,7 +9,7 @@
 <script src="core/gate.js"></script>
 <script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);var e=document.documentElement;e.setAttribute('data-theme',d?'dark':'light');e.style.colorScheme=d?'dark':'light';}catch(e){}</script>
 <script src="core/theme.js?v=86eb1366"></script>
-<script src="core/storage.js?v=f1f80300"></script>
+<script src="core/storage.js?v=8cd86245"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
@@ -81,6 +81,12 @@ body{background:var(--surface);color:var(--on-surface);
    а не отдельный экран: двенадцать экранов по одному абзацу — это двенадцать
    переходов «туда-назад», а список с раскрытием читается как оглавление. */
 .up-set{list-style:none;display:flex;flex-direction:column;gap:10px}
+/* Из Библиотеки и с «Сегодня» сюда приходят по якорю upravleniya.html#<ид>:
+   карточка раскрывается и подводится под верх окна. Без этого запаса верх
+   карточки уезжал ПОД шапку оболочки (она fixed, высотой --yk-shapka), и
+   человек попадал на середину имени. В браузере, где оболочки нет,
+   работает запасное число. */
+.up-set li{scroll-margin-top:calc(var(--yk-shapka, 64px) + 12px)}
 .up-kart{border-radius:18px;background:var(--surface-container-low);
   border:1px solid var(--outline-variant);overflow:hidden}
 .up-kart[open]{background:var(--surface-container-lowest);box-shadow:0 1px 2px rgba(0,0,0,.05),0 10px 20px -14px rgba(0,0,0,.3)}
@@ -106,10 +112,13 @@ body{background:var(--surface);color:var(--on-surface);
 .up-fakty{margin-top:12px;display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font:var(--type-body-s)}
 .up-fakty dt{color:var(--on-surface-variant)}
 .up-fakty dd{font-variant-numeric:tabular-nums}
-.up-kanaly{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+.up-kanaly{margin-top:12px;display:flex;flex-wrap:wrap;gap:12px 8px}
 .up-kanal{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border-radius:18px;
   background:var(--surface-container);color:var(--on-surface);font:var(--type-label-m);text-decoration:none;
-  max-width:100%}
+  max-width:100%;position:relative}
+/* Чип ростом в 36 остаётся ростом в 36 — палец получает 48 через невидимый
+   расширитель, тем же приёмом, что у чипов ленты. */
+.up-kanal::before{content:"";position:absolute;inset:-6px 0}
 .up-kanal:active{background:var(--surface-container-high)}
 .up-kanal svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto;color:var(--primary)}
 .up-kanal span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -123,8 +132,8 @@ body{background:var(--surface);color:var(--on-surface);
 .up-kanal--lenta:active{filter:brightness(.95)}
 .up-kanal[hidden],.up-kanaly[hidden]{display:none}
 .up-knopki{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
-.up-kn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;
-  border-radius:22px;font:var(--type-label-l);text-decoration:none;
+.up-kn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:48px;padding:0 16px;
+  border-radius:24px;font:var(--type-label-l);text-decoration:none;
   border:1px solid var(--outline);color:var(--primary);background:transparent}
 .up-kn:active{background:var(--surface-container-high)}
 .up-kn--glav{background:var(--primary);color:var(--on-primary,#fff);border-color:transparent;flex:1 1 100%}
@@ -203,8 +212,35 @@ body{background:var(--surface);color:var(--on-surface);
     статья: '<svg viewBox="0 0 24 24"><path d="M6 4h9l4 4v12H6zM15 4v4h4M9 12h6M9 15.5h6"/></svg>',
     тел:    '<svg viewBox="0 0 24 24"><path d="M6.5 4h3l1.5 4-2 1.3a10 10 0 0 0 5.7 5.7l1.3-2 4 1.5v3a2 2 0 0 1-2 2A15 15 0 0 1 4.5 6a2 2 0 0 1 2-2z"/></svg>',
     /* Лента — строки записей: знак текста из карточки ленты (core/lenta.js). */
-    лента:  '<svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h9"/></svg>'
+    лента:  '<svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h9"/></svg>',
+    звук:   '<svg viewBox="0 0 24 24"><path d="M4 13.5v-1.5a8 8 0 0 1 16 0v1.5"/><path d="M3.2 13.8h4.3v6.2H5.2a2 2 0 0 1-2-2zM16.5 13.8h4.3v4.2a2 2 0 0 1-2 2h-2.3z"/></svg>'
   };
+
+  /* ── Вводный урок управления ───────────────────────────────────────────
+     Вид урока живёт в данных (core/upravleniya-dannye.js, поле
+     vvodnyj_urok) — здесь только подпись и адрес. Три случая:
+       • текст — открываем урок в приложении, подпись «Вводный урок»;
+       • видео с адресом — «Смотреть видео», уходит в системный браузер:
+         чужой плеер в свою страницу мы не встраиваем;
+       • звук с адресом — «Послушать», так же наружу, к своему файлу.
+     Видео и звук БЕЗ адреса — значит запись лежит внутри самого урока
+     (блоки video/audio в движке): дверь ведёт в урок, подпись остаётся по
+     виду, чтобы человек знал, что его там ждёт. */
+  function вводный(у){
+    var в = у.vvodnyj_urok || {};
+    var вид = в.vid || 'tekst';
+    var звук = (вид === 'zvuk' || вид === 'audio');
+    var видео = (вид === 'video');
+    var срок = в.dlitelnost ? ' · ' + экр(в.dlitelnost) : '';
+    var подпись = видео ? 'Смотреть видео' : звук ? 'Послушать' : 'Вводный урок';
+    var знак = видео ? ЗНАК.видео : звук ? ЗНАК.звук : ЗНАК.урок;
+    var метка = подпись + ' — вводный урок управления «' + у.nazvanie + '»'
+      + (в.dlitelnost ? ', ' + в.dlitelnost : '');
+    if(в.ssylka && (видео || звук))
+      return наружу(в.ssylka, 'up-kn up-kn--glav', знак + подпись + срок, метка + ', откроется в браузере');
+    return '<a class="up-kn up-kn--glav" href="lesson.html?lesson=' + экр(в.urok || ('upr-' + у.id)) + '&otkuda=upravleniya.html"'
+      + ' aria-label="' + экр(метка) + '">' + знак + подпись + срок + '</a>';
+  }
 
   /* Канал по адресу: имя площадки и, где есть, короткое имя канала — чтобы
      три ссылки на Дзен не читались тремя одинаковыми кнопками. */
@@ -279,7 +315,7 @@ body{background:var(--surface);color:var(--on-surface);
       + ' aria-label="Записи в ленте — ' + экр(у.nazvanie) + '">' + ЗНАК.лента + '<span>Записи в ленте ›</span></a>'
       + каналы + '</div>'
       + '<div class="up-knopki">'
-      + '<a class="up-kn up-kn--glav" href="lesson.html?lesson=upr-' + экр(у.id) + '&otkuda=upravleniya.html">' + ЗНАК.урок + 'Вводный урок</a>'
+      + вводный(у)
       + наружу(запись, 'up-kn', ЗНАК.запись + 'Записаться', 'Записаться — ' + у.nazvanie)
       /* Нет своей страницы — нет и третьей кнопки: она вела бы туда же, куда
          «Записаться», а две кнопки в одно место читаются как ошибка. */
