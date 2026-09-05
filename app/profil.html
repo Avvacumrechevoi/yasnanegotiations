@@ -88,6 +88,18 @@
   .knopka--tihaya{background:transparent;color:var(--syn);
     border:1px solid var(--kayma)}
   .knopka--uzkaya{width:auto;margin:0;padding:0 16px;flex:0 0 auto}
+  /* Опасная кнопка — обводкой и цветом отказа, а не заливкой: удаление не
+     должно выглядеть так же приглашающе, как «Сохранить». Раньше «Удалить
+     аккаунт» стояло третьей одинаковой кнопкой в столбик. */
+  .knopka--opasno{background:transparent;color:var(--ploho);
+    border:1px solid var(--ploho)}
+  /* Что хранится: пара «строка — где живёт», без рамок и карточек. */
+  .dannye-spisok{display:flex;flex-direction:column;gap:2px;margin-top:4px}
+  .dannye-spisok div{display:flex;justify-content:space-between;gap:14px;
+    padding:7px 0;border-bottom:1px solid var(--kayma);font-size:14px}
+  .dannye-spisok div:last-child{border-bottom:0}
+  .dannye-spisok i{font-style:normal;color:var(--ink-2);text-align:right;
+    flex:0 0 auto}
   .ryad-kn{display:flex;gap:8px}
   .ryad-kn .knopka{flex:1}
   /* Сообщение живёт всегда (чтец читает его как role=status), но пустое
@@ -267,11 +279,14 @@
       <span><b id="ya-urokov">0</b><i>уроков</i></span>
     </div>
     <div id="pravka" hidden>
-      <!-- «Имя в игре», а не просто «Имя»: настоящее имя лежит ниже, в полях
-           аккаунта, и два одинаковых «Имя» на одном экране путали. -->
-      <label for="imya">Имя в игре</label>
-      <input type="text" id="imya" maxlength="20" autocomplete="nickname" placeholder="Гость">
-      <div class="pole-pod">Его видят соперники и друзья.</div>
+      <!-- ИМЯ ОДНО НА ВСЁ. Раньше здесь стояло «Имя в игре», а в полях
+           аккаунта — второе «Имя», настоящее. Человек правил одно и ждал, что
+           изменится другое, а вошедшего продолжали звать Гостем. Теперь имя
+           здесь единственное: его же профиль кладёт на сервер, и поля
+           аккаунта своего «Имени» больше не рисуют. -->
+      <label for="imya">Имя</label>
+      <input type="text" id="imya" maxlength="20" autocomplete="name" placeholder="Гость">
+      <div class="pole-pod">Так вас зовут везде: в Партии, среди друзей и в письмах.</div>
       <div class="zveri" id="zveri" role="radiogroup" aria-label="Зверь-аватар"></div>
       <div class="ryad-kn">
         <button class="knopka knopka--tihaya" id="otmenit" type="button">Отмена</button>
@@ -295,8 +310,12 @@
            человек не знает, что даёт вход, и кнопка висит просьбой ни о чём.
            Про удаление говорим вошедшему и рядом с самой кнопкой (она внутри
            полей аккаунта), а не гостю, у которого её нет. -->
+      <!-- Что даёт вход — говорили. Чего лишается гость — молчали, а это
+           половина причины входить. -->
       <p class="opis" id="vhod-opis">Сохраняет прогресс и возвращает его на другом телефоне.
-        Пароля нет — код придёт на почту.</p>
+        Пароля нет — код придёт на почту.<br>
+        Без входа уроки и партии живут только на этом телефоне и уходят вместе
+        с приложением.</p>
       <button class="knopka" id="vhod-knopka" type="button">Войти по почте</button>
       <!-- Поля аккаунта стоят здесь же, а не за кнопкой «Мой аккаунт»: человек
            должен видеть, что у него заполнено, не открывая ничего. Рисует их
@@ -310,11 +329,16 @@
             aria-expanded="false" aria-controls="lyudi-telo">
       <span class="str-txt">
         <span class="str-zag">Свои люди</span>
-        <span class="str-pod" id="lyudi-pod">Подключаюсь…</span>
+        <span class="str-pod" id="lyudi-pod">Играть в Партию с друзьями</span>
       </span>
       <span class="str-hvost"><i class="shevron" aria-hidden="true"></i></span>
     </button>
     <div class="telo" id="lyudi-telo" hidden>
+      <!-- ЗАЧЕМ — ПЕРВОЙ СТРОКОЙ. Раньше объяснение стояло последним, после
+           формы, поля и пустого списка: человек читал его уже после того, как
+           перестал понимать, что происходит. -->
+      <p class="opis">Обменяйтесь кодами — и друг появится у обоих. Дальше
+         зовёте его в Партию одним касанием, код пересылать не нужно.</p>
       <div class="kod-ryad">
         <div>
           <div class="kod-metka">Мой код</div>
@@ -343,10 +367,12 @@
 
       <div class="podzag" id="druzya-zag" hidden>Друзья</div>
       <div class="lyudi" id="druzya"></div>
-      <div class="opis" id="druzya-pusto">Пока никого. Обменяйтесь кодами — и друг
-         появится здесь у обоих.</div>
-      <p class="opis">Друзей видно при создании партии: зовёте одним касанием,
-         код пересылать не нужно.</p>
+      <div class="opis" id="druzya-pusto">Пока никого.</div>
+      <!-- Друзья живут на ЭТОМ телефоне, а не в аккаунте: сказать об этом
+           честно дешевле, чем позволить человеку решить, что вход их
+           перенесёт. -->
+      <p class="opis">Друзья привязаны к этому телефону: на другом их
+         придётся добавить заново.</p>
     </div>
   </section>
 
@@ -384,7 +410,37 @@
     <div class="telo telo--sms"><div class="soobshenie" id="push-soobshenie" role="status"></div></div>
   </section>
 
-  <!-- 4. О ПРИЛОЖЕНИИ. Версия названа один раз и внизу; подпись кнопки не
+  <!-- 4. ДАННЫЕ. Человек имеет право знать, что о нём хранится, забрать это
+       себе и стереть. Раньше на экране не было об этом ни строки, при том что
+       здесь собираются почта, телефон и имя. «Удалить аккаунт» переехало
+       сюда из полей: необратимое не должно стоять вплотную к «Сохранить» и
+       выглядеть так же. -->
+  <div class="razdel">Данные</div>
+  <section class="spisok">
+    <button class="str" type="button" id="dannye-str"
+            aria-expanded="false" aria-controls="dannye-telo">
+      <span class="str-txt">
+        <span class="str-zag">Что о вас хранится</span>
+        <span class="str-pod">И как забрать это себе</span>
+      </span>
+      <span class="str-hvost"><i class="shevron" aria-hidden="true"></i></span>
+    </button>
+    <div class="telo" id="dannye-telo" hidden>
+      <div class="dannye-spisok" id="dannye-spisok"></div>
+      <button class="knopka knopka--tihaya" id="dannye-kopirovat" type="button">Скопировать мои данные</button>
+      <div class="soobshenie" id="dannye-soobshenie" role="status"></div>
+
+      <div id="udalenie" hidden>
+        <div class="podzag">Удалить аккаунт</div>
+        <p class="opis">Сотрёт почту, имя, фамилию и телефон с сервера и закроет
+           вход. Прогресс на этом телефоне останется, но вернуть его на другой
+           будет уже нечем. Отменить это нельзя.</p>
+        <button class="knopka knopka--opasno" id="udalit-akkaunt" type="button">Удалить аккаунт</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. О ПРИЛОЖЕНИИ. Версия названа один раз и внизу; подпись кнопки не
        меняется после нажатия, иначе строка прыгала по ширине. -->
   <div class="razdel">О приложении</div>
   <section class="spisok">
@@ -576,6 +632,11 @@
         if(поле) поле.textContent=window.YasnaDruzya.мойКод()||'······';
         window.YasnaDruzya.объявиться().catch(function(){});
       }
+      /* Имя одно на всё — значит и на сервере тоже. Вошедшему оно переедет на
+         другой телефон вместе с аккаунтом. Не вышло — молчим: на телефоне уже
+         сохранено, а сеть человек не чинил и чинить не должен. */
+      if(вошли() && window.YasnaAccount && window.YasnaAccount.сохранить)
+        window.YasnaAccount.сохранить({firstName: имя==='Гость' ? '' : имя}).catch(function(){});
     }catch(e){
       document.getElementById('soobshenie').textContent='Не удалось сохранить.';
     }
@@ -593,6 +654,90 @@
   }
   связать('lyudi-str','lyudi-telo');
   связать('tema-str','tema-telo');
+  связать('dannye-str','dannye-telo');
+
+  /* ─── ДАННЫЕ ───────────────────────────────────────────────────────────
+     Что о человеке хранится, где именно и как забрать это себе. Раньше на
+     экране не было об этом ни строки — при том что здесь собираются почта,
+     телефон и имя. Список не выдуман: он пересказывает реестр ключей
+     core/storage.js обычными словами. */
+  function показатьДанные(){
+    var узел=document.getElementById('dannye-spisok');
+    if(!узел) return;
+    var в=вошли();
+    var строки=[
+      ['Имя и зверь', 'этот телефон' + (в ? ' и сервер' : '')],
+      ['Уроки, партии, бусины', в ? 'телефон и сервер' : 'только этот телефон'],
+      ['Фамилия, телефон, почта', в ? 'сервер' : 'не собираются'],
+      ['Друзья и код дружбы', 'этот телефон'],
+      ['Тема и утренняя цитата', 'этот телефон']
+    ];
+    узел.innerHTML='';
+    строки.forEach(function(с){
+      var д=document.createElement('div');
+      var н=document.createElement('span'); н.textContent=с[0];
+      var г=document.createElement('i');    г.textContent=с[1];
+      д.appendChild(н); д.appendChild(г); узел.appendChild(д);
+    });
+  }
+
+  function показатьУдаление(){
+    var б=document.getElementById('udalenie');
+    if(б) б.hidden=!вошли();
+  }
+
+  /* Забрать своё. Снимок собирает core/storage.js — он идёт ПО РЕЕСТРУ ключей
+     и сам пропускает помеченные как чувствительные. Своего обхода хранилища
+     здесь нет нарочно: он бы разошёлся с реестром на первой же новой записи,
+     и человек унёс бы неполную копию, не узнав об этом.
+
+     Одно отличие от снимка для переезда: секрет устройства мы вырезаем.
+     В снимке-файле он нужен — без него перенесённый прогресс на новом
+     телефоне получит отказ. Но здесь человек кладёт данные в БУФЕР ОБМЕНА,
+     чтобы прочитать их или переслать себе, а секрет — это ключ от прогресса,
+     и в буфере ему делать нечего. Так и говорим вслух. */
+  document.getElementById('dannye-kopirovat').onclick=function(){
+    var сооб=document.getElementById('dannye-soobshenie');
+    var С=window.YasnaStorage;
+    if(!С||!С.exportAll){
+      сооб.style.color='var(--ploho)';
+      сооб.textContent='Не удалось собрать данные: не загрузился модуль хранилища.';
+      return;
+    }
+    var снимок=С.exportAll();
+    if(снимок.identity) delete снимок.identity.yasna_device_secret_v1;
+    var сколько=Object.keys(снимок.data||{}).length;
+    var текст=JSON.stringify(снимок,null,2);
+    var удалось=function(){
+      сооб.style.color='';
+      сооб.textContent='Скопировано: '+сколько+' '+скл(сколько,['запись','записи','записей'])
+        +'. Ключ от прогресса не копируется — в буфере обмена ему не место.';
+    };
+    var неудалось=function(){
+      сооб.style.color='var(--ploho)';
+      сооб.textContent='Не удалось скопировать: телефон не дал доступ к буферу обмена.';
+    };
+    if(navigator.clipboard&&navigator.clipboard.writeText)
+      navigator.clipboard.writeText(текст).then(удалось).catch(неудалось);
+    else неудалось();
+  };
+
+  document.getElementById('udalit-akkaunt').onclick=function(){
+    var кн=this, сооб=document.getElementById('dannye-soobshenie');
+    if(!window.confirm('Удалить аккаунт? Почта, имя, фамилия и телефон будут стёрты с сервера, вход закроется. Отменить это нельзя.')) return;
+    кн.disabled=true; кн.textContent='Удаляю…';
+    window.YasnaAccount.удалить().then(function(){
+      return window.YasnaAccount.logout();
+    }).then(function(){
+      кн.disabled=false; кн.textContent='Удалить аккаунт';
+      показатьВход(); показатьПоля(); показатьДанные();
+      сооб.style.color=''; сооб.textContent='Аккаунт удалён. Прогресс на этом телефоне остался.';
+    }).catch(function(){
+      кн.disabled=false; кн.textContent='Удалить аккаунт';
+      сооб.style.color='var(--ploho)';
+      сооб.textContent='Не удалось удалить — сервер не ответил. Попробуйте позже.';
+    });
+  };
 
   /* Статус входа. Токен и пользователь — те же ключи, что на сайте. */
   var статус=document.getElementById('vhod-status');
@@ -630,8 +775,41 @@
     var узел=document.getElementById('akkaunt');
     if(!узел||!window.YasnaAccount) return;
     узел.hidden=!вошли();
-    if(вошли()) window.YasnaAccount.встроить(узел,{приВыходе:function(){ показатьВход(); показатьПоля(); }});
+    if(вошли()) window.YasnaAccount.встроить(узел,{
+      /* Имя рисует карточка наверху — оно одно на всё. Почта уже стоит
+         подписью строки «Аккаунт». Удаление уехало вниз, в «Данные». */
+      безИмени:true, безПочты:true, безУдаления:true,
+      приДанных:принятьДанныеАккаунта,
+      приВыходе:function(){ показатьВход(); показатьПоля(); показатьДанные(); }
+    });
     else узел.innerHTML='';
+    показатьУдаление();
+    показатьДанные();
+  }
+
+  /* ОДНО ИМЯ НА ВСЁ. У вошедшего источник правды — сервер: имя переезжает
+     вместе с аккаунтом, и на новом телефоне человек находит себя, а не Гостя.
+     Если на сервере пусто, а здесь имя есть — отправляем своё, чтобы оно там
+     появилось. Ошибку не показываем: имя уже сохранено на телефоне, и мешать
+     человеку сообщением про сервер незачем. */
+  function принятьДанныеАккаунта(u){
+    if(!u) return;
+    /* Почту в строке «Аккаунт» ставим по ответу сервера, а не только по
+       сохранённому объекту пользователя: его может не быть (вход с другого
+       экрана, чистка, старый ключ). Панель полей почту больше не печатает —
+       значит без этой строки человек не увидел бы её вовсе. */
+    if(u.email) статус.textContent=u.email+(u.emailVerified?'':' · не подтверждена');
+    var своё=(профиль().nickname||'').trim();
+    var серверное=(u.firstName||'').trim();
+    if(серверное && серверное!==своё){
+      var п=профиль(); п.nickname=серверное;
+      try{ localStorage.setItem(КЛЮЧ,JSON.stringify(п)); }catch(e){}
+      сводка();
+      if(window.yasnaNavbarObnovi) window.yasnaNavbarObnovi();
+      if(window.YasnaDruzya) window.YasnaDruzya.объявиться().catch(function(){});
+    } else if(!серверное && своё && своё!=='Гость'){
+      window.YasnaAccount.сохранить({firstName:своё}).catch(function(){});
+    }
   }
   /* Короткое сообщение внизу экрана; живёт одно, уходит само. */
   var снекТаймер=null;
@@ -846,15 +1024,20 @@
      друг по нему никого не найдёт. Кнопка ждёт вместе с кодом. */
   кнКопир.disabled = true;
 
+  /* ПОДПИСЬ СТРОКИ ГОВОРИТ, ЗАЧЕМ РАЗДЕЛ, А НЕ ПОВТОРЯЕТ КОД.
+     Раньше здесь стояло «Мой код XXXXXX» — тот же код, что и в карточке под
+     строкой, причём в карточке он до подключения показан точками. Один и тот
+     же код в двух местах и в двух разных видах человек читает как поломку, а
+     на вопрос «что это за раздел» подпись не отвечала вовсе. Число друзей —
+     отвечает: оно и есть состояние раздела. */
   function подписьСтроки(хвост){
-    var к=Д.мойКод();
-    var части=[];
-    if(к) части.push('Мой код '+к);
-    if(сколькоДрузей) части.push(сколькоДрузей+' '+
-      (function(n){ n=Math.abs(n)%100; if(n>10&&n<20) return 'друзей';
-        n=n%10; if(n===1) return 'друг'; if(n>1&&n<5) return 'друга'; return 'друзей'; })(сколькоДрузей));
-    if(хвост) части.push(хвост);
-    подпись.textContent = части.length ? части.join(' · ') : 'Подключаюсь…';
+    if(сколькоДрузей){
+      подпись.textContent = сколькоДрузей+' '+
+        (function(n){ n=Math.abs(n)%100; if(n>10&&n<20) return 'друзей';
+          n=n%10; if(n===1) return 'друг'; if(n>1&&n<5) return 'друга'; return 'друзей'; })(сколькоДрузей);
+      return;
+    }
+    подпись.textContent = хвост || 'Играть в Партию с друзьями';
   }
   function показатьКод(){
     полеКода.textContent = Д.мойКод() || '······';
@@ -868,7 +1051,10 @@
     кнКопир.disabled = true;
     сост.textContent = причина || 'Нет связи — код появится, когда она вернётся.';
     кнПовтор.hidden = false;
-    подпись.textContent = причина || 'Нет связи';
+    /* Причину показываем ВНУТРИ, рядом с самим кодом. В подписи свёрнутой
+       строки она делала вид, будто сломан весь раздел, — а не готов только
+       код: список друзей при этом читается из своего зеркала и работает. */
+    подписьСтроки();
   }
   кнКопир.onclick=function(){
     var к=Д.мойКод()||''; var кн=this;

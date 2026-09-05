@@ -128,33 +128,31 @@
     '.yac-card .yac-h,.akkaunt .yac-h{font-size:21px;font-weight:700;margin:0 0 6px;padding-right:44px;line-height:1.25}',
     '.yac-sub{font-size:14.5px;line-height:1.5;color:#6e6e73;margin:0 0 16px}',
     'html[data-theme="dark"] .yac-sub{color:rgba(255,255,255,.66)}',
-    '.yac-lbl{display:block;font-size:13px;color:#6e6e73;margin:12px 0 5px}',
-    'html[data-theme="dark"] .yac-lbl{color:rgba(255,255,255,.66)}',
+    /* ЦВЕТА — ИЗ РОЛЕЙ core/tokeny.css, а не своим набором hex.
+       Раньше здесь стояла своя палитра, и тёмную тему приходилось прописывать
+       каждой половине списка вручную: отсюда были и белые поля на белом, и
+       чёрная кнопка «Сохранить» посреди синего продукта. Роли переключаются
+       вместе со всей темой сами, поэтому парных правил под
+       html[data-theme="dark"] здесь больше нет. Запасные значения оставлены
+       на случай страницы, куда tokeny.css не подключён. */
+    '.yac-lbl{display:block;font-size:13px;color:var(--on-surface-variant,#6e6e73);margin:12px 0 5px}',
     '.yac-card .yac-in,.akkaunt .yac-in{width:100%;box-sizing:border-box;padding:12px;min-height:48px;',
     '  font:400 16px/1.3 inherit;border-radius:12px;',
-    '  border:1px solid #d2d2d7;background:#fff;color:#1d1d1f}',
-    /* Тёмная тема прописывается КАЖДОЙ половине списка. Пока вторая половина
-       была просто «.akkaunt .yac-in», её специфичность совпадала со светлым
-       правилом выше, а стояла она позже — и поля встроенной формы (Профиль
-       приложения) в светлой теме выходили белым по белому. */
-    'html[data-theme="dark"] .yac-card .yac-in,html[data-theme="dark"] .akkaunt .yac-in{',
-    '  border-color:rgba(255,255,255,.24);background:rgba(255,255,255,.06);color:#fefefe}',
-    '.yac-card .yac-in:focus,.akkaunt .yac-in:focus{outline:2px solid #0071e3;outline-offset:1px}',
+    '  border:1px solid var(--outline-variant,#d2d2d7);background:var(--surface-container-lowest,#fff);',
+    '  color:var(--on-surface,#1d1d1f)}',
+    '.yac-card .yac-in:focus,.akkaunt .yac-in:focus{outline:2px solid var(--primary,#0071e3);outline-offset:1px}',
     '.yac-card .yac-code,.akkaunt .yac-code{letter-spacing:.34em;font-size:26px;font-weight:600;text-align:center;',
     '  min-height:58px;font-variant-numeric:tabular-nums}',
     '.yac-row{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}',
     '.yac-card .yac-btn,.akkaunt .yac-btn{flex:1 1 auto;min-height:48px;padding:12px 16px;font-size:15px;border-radius:12px;',
-    '  cursor:pointer;border:1px solid #d2d2d7;background:#f5f5f7;color:#1d1d1f;font-weight:500}',
-    'html[data-theme="dark"] .yac-btn{border-color:rgba(255,255,255,.2);',
-    '  background:rgba(255,255,255,.1);color:#fefefe}',
-    '.yac-card .yac-btn--main,.akkaunt .yac-btn--main{background:#1d1d1f;border-color:#1d1d1f;color:#fff}',
-    /* Та же беда была у главной кнопки: «Сохранить» в светлой теме рисовалась
-       белым по белой карточке — форму нельзя было закончить. */
-    'html[data-theme="dark"] .yac-card .yac-btn--main,html[data-theme="dark"] .akkaunt .yac-btn--main{',
-    '  background:#fefefe;border-color:#fefefe;color:#151515}',
-    '.yac-btn--danger{color:#a12d2d;border-color:#e8b4b4;background:#fdf2f2;flex:0 0 auto}',
-    'html[data-theme="dark"] .yac-btn--danger{color:#ff9a9a;border-color:rgba(255,90,90,.35);',
-    '  background:rgba(255,90,90,.12)}',
+    '  cursor:pointer;border:1px solid var(--outline-variant,#d2d2d7);background:var(--surface-container,#f5f5f7);',
+    '  color:var(--on-surface,#1d1d1f);font-weight:500}',
+    /* Главная кнопка — цветом продукта. Была чёрной: свой hex, не знавший, что
+       продукт синий, и на экране это читалось как чужая кнопка. */
+    '.yac-card .yac-btn--main,.akkaunt .yac-btn--main{background:var(--primary,#0071e3);',
+    '  border-color:var(--primary,#0071e3);color:var(--on-primary,#fff)}',
+    '.yac-btn--danger{color:var(--error,#a12d2d);border-color:var(--error-container,#e8b4b4);',
+    '  background:var(--error-container,#fdf2f2);flex:0 0 auto}',
     '.yac-btn[disabled]{opacity:.55;cursor:default}',
     '.yac-msg{margin-top:14px;padding:11px 13px;border-radius:12px;font-size:14px;line-height:1.45}',
     '.yac-msg--bad{background:#fdecec;color:#8c2020}',
@@ -601,18 +599,30 @@
 
     api('/account').then(function (d) {
       var u = d.user || {};
+      /* Экран мог попросить сами данные: в профиле приложения имя одно на всё,
+         и оно берётся отсюда. Отдаём их сюда же, а не вторым запросом — один
+         экран не должен спрашивать сервер об одном и том же дважды. */
+      if (typeof о.приДанных === 'function') { try { о.приДанных(u); } catch (_) {} }
       сост.textContent = '';
-      if (u.email) сост.appendChild(el('div', null, u.email + (u.emailVerified ? '' : ' · не подтверждена')));
-      else сост.appendChild(el('div', null, 'Почта не привязана'));
+      /* Почту печатаем, только если её негде было показать выше. В профиле
+         приложения она уже стоит подписью строки «Аккаунт», и вторая копия
+         подряд выглядела сбоем отрисовки. */
+      if (!о.безПочты || !u.email)
+        сост.appendChild(u.email
+          ? el('div', null, u.email + (u.emailVerified ? '' : ' · не подтверждена'))
+          : el('div', null, 'Почта не привязана'));
       /* Ответ пришёл — дальше «Выйти» стоит в общем ряду с «Сохранить», и
          ранний дубль убираем. */
       подвал.remove();
 
+      /* Имя может рисовать не эта панель: в профиле приложения имя одно на
+         всё и правится наверху, в карточке «кто я». Два поля «Имя» на одном
+         экране человек читает как ошибку. */
       var поля = [
         ['firstName', 'Имя', u.firstName || '', 'text', 'given-name'],
         ['lastName', 'Фамилия', u.lastName || '', 'text', 'family-name'],
         ['phone', 'Телефон', u.phone || '', 'tel', 'tel']
-      ];
+      ].filter(function (ф) { return !(о.безИмени && ф[0] === 'firstName'); });
       var входы = {};
       поля.forEach(function (ф) {
         var л = el('label', 'yac-lbl', ф[1]);
@@ -629,7 +639,7 @@
       function проверить() {
         var т = (входы.phone.value || '').trim();
         if (т && !/^[+()\d\s-]{10,18}$/.test(т)) return 'Телефон: только цифры, пробелы, скобки, «+» и «-», от 10 знаков.';
-        if ((входы.firstName.value || '').trim().length > 40) return 'Имя длиннее 40 знаков.';
+        if (входы.firstName && (входы.firstName.value || '').trim().length > 40) return 'Имя длиннее 40 знаков.';
         if ((входы.lastName.value || '').trim().length > 40) return 'Фамилия длиннее 40 знаков.';
         return null;
       }
@@ -657,11 +667,10 @@
         var беда = проверить();
         if (беда) { say(узел, беда, true); return; }
         сохр.disabled = true; сохр.textContent = 'Сохраняю…';
-        api('/account', { method: 'PUT', body: {
-          firstName: входы.firstName.value.trim(),
-          lastName: входы.lastName.value.trim(),
-          phone: входы.phone.value.trim()
-        } }).then(function () {
+        var тело = { lastName: входы.lastName.value.trim(), phone: входы.phone.value.trim() };
+        /* Имени в форме может не быть — тогда и не трогаем его на сервере. */
+        if (входы.firstName) тело.firstName = входы.firstName.value.trim();
+        api('/account', { method: 'PUT', body: тело }).then(function () {
           сохр.disabled = false; сохр.textContent = 'Сохранить';
           say(узел, 'Сохранено.', false);
           setTimeout(function () { say(узел, ''); }, 2500);
@@ -672,6 +681,9 @@
         });
       });
 
+      /* Удаление может жить не здесь: в профиле приложения оно уехало вниз,
+         в раздел «Данные», подальше от обыденного «Сохранить». */
+      if (о.безУдаления) return;
       var опасно = el('div', 'yac-row');
       var удалить = el('button', 'yac-btn yac-btn--danger', 'Удалить аккаунт');
       удалить.addEventListener('click', function () {
@@ -875,6 +887,11 @@
     openLogin: openLogin,
     openProfile: openProfile,
     встроить: встроить,
+    /* Экрану нужны сами поля: в приложении имя одно на всё, и профиль должен
+       уметь и прочитать его с сервера, и записать туда. */
+    данные: function () { return api('/account'); },
+    сохранить: function (поля) { return api('/account', { method: 'PUT', body: поля }); },
+    удалить: function () { return api('/account/delete', { method: 'POST' }); },
     logout: logout,
     user: user,
     isLoggedIn: isLoggedIn,
