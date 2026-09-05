@@ -15,7 +15,7 @@
 #     откат тега откатывает и сборщик;
 #   сервисный аккаунт yasna-duel-sa (serverless.functions.invoker) — тот же,
 #     под которым работают функции;
-#   retry 2 × 2 мин — на случай холодного старта дольше срока.
+#   retry 2 × 1 мин — на случай холодного старта дольше срока.
 # Событие таймера приходит без тела: сборщик берёт просроченные источники по
 # period_min сам (server/lenta-sbor.js).
 #
@@ -49,7 +49,7 @@ SA_ID="${YC_SA_ID:-aje0k8v128i3gvatqah2}"
 CRON="${YC_LENTA_CRON:-3/15 * * * ? *}"
 TAG="stable"
 RETRY_ATTEMPTS=2
-RETRY_INTERVAL="2m"
+RETRY_INTERVAL="${RETRY_INTERVAL:-1m}"
 
 DRY=0; ACTION=apply; CHECK_RIGHTS=1
 for a in "$@"; do
