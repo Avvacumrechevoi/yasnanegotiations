@@ -1138,7 +1138,12 @@
           b.textContent='Скачать и установить '+о.имя;
           b.onclick=function(){
             b.disabled=true;
+            /* Прежние строки хода снимаем: после ветки «право» строка
+               «Разрешили? Нажмите ещё раз» оставалась над новой «Скачиваю…»
+               и читалась как текущее состояние (видно на стенде 8.5→8.6). */
+            Array.prototype.forEach.call(сб.querySelectorAll('.obnova-hod'), function(х){ х.remove(); });
             var ход=document.createElement('div');
+            ход.className='obnova-hod';
             ход.style.marginTop='8px'; ход.style.color='var(--ink-2)';
             ход.textContent='Скачиваю…';
             сб.appendChild(ход);
