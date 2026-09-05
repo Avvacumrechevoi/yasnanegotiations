@@ -40,7 +40,9 @@ async function getDriver(){
 const CORS = {
   // адрес проставляется на запрос в applyCors(), см. ниже
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  /* X-Device-Secret — как в submit.js/progress.js: клиентский транспорт
+     шлёт его всегда, иначе preflight с сайта отбрасывает запрос целиком. */
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Device-Secret',
   'Content-Type': 'application/json',
 };
 
@@ -119,7 +121,8 @@ function reqPath(event){
 }
 function isEmailPath(event){
   const p = reqPath(event);
-  return /\/auth\/email\//.test(p) || /\/account(\/|\?|$)/.test(p) || /\/zayavk/.test(p) || /\/druzya/.test(p);
+  return /\/auth\/email\//.test(p) || /\/account(\/|\?|$)/.test(p) || /\/zayavk/.test(p) || /\/druzya/.test(p)
+    || /\/lenta(\/|\?|$)/.test(p);
 }
 
 exports.handler = async (event) => {

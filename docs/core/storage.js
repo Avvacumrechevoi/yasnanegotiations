@@ -97,6 +97,7 @@
     yasna_nedavnie_v1:          { scope: 'prefs', json: true,  owner: 'app.js',                  about: 'недавно открытые ясны' },
     yasna_skrytye_v1:           { scope: 'prefs', json: true,  owner: 'app.js',                  about: 'скрытые карточки' },
     yasna_citata_push:          { scope: 'prefs', json: false, owner: 'app/citaty.js',           about: 'утренняя цитата включена' },
+    yasna_lenta_videno_v1:      { scope: 'prefs', json: false, owner: 'core/lenta.js',           about: 'курсор самой свежей увиденной записи ленты — от него считаются «N новых»' },
 
     // ── производное / не выгружаем ──
     yasna_duel_pending:            { scope: 'cache',  json: true,  owner: 'games/duel/duel.js',        about: 'очередь неотправленных матчей' },
@@ -112,6 +113,7 @@
     yasna_obnova_otlozheno:        { scope: 'cache',  json: false, owner: 'app/obnovlenie.js',         about: 'версия, обновление до которой отложили' },
     yasna_obnova_kesh:             { scope: 'cache',  json: true,  owner: 'app/obnovlenie.js',         about: 'последний прочитанный манифест версии' },
     yasna_stek_zerkalo_v1:         { scope: 'cache',  json: true,  owner: 'app/navigatsiya.js',        about: 'зеркало стека «назад» на полчаса (WebView убивают вместе с сессией)' },
+    yasna_lenta_kesh_v1:           { scope: 'cache',  json: true,  owner: 'lenta.html',                about: 'первая страница ленты управлений (до 40 записей): рисуется до запроса и без сети' },
 
     // ── живёт в sessionStorage: до закрытия вкладки, в снапшот не идёт ──
     // Держим в реестре, чтобы перечень ключей был полным: иначе линтер сборки
@@ -120,6 +122,7 @@
     yasna_otkuda_v1:               { scope: 'cache', json: true,  store: 'session', owner: 'app/navigatsiya.js', about: 'вершина стека для окон Справки и Словаря' },
     yasna_urok_otkuda:             { scope: 'cache', json: false, store: 'session', owner: 'learn.html',         about: 'урок открыт с экрана «Уроки»' },
     yasna_zastavka:                { scope: 'cache', json: false, store: 'session', owner: 'app/glavnaya.html',  about: 'заставку в этот заход уже показали' },
+    yasna_lenta_filtr_v1:          { scope: 'cache', json: true,  store: 'session', owner: 'lenta.html',         about: 'выбранные управление и вид записей в ленте — до закрытия приложения' },
 
     // ── секреты: НИКОГДА не попадают в экспорт ──
     yasna_admin_pwd_v1:         { scope: 'secret', json: false, owner: 'admin.js',                about: 'пароль публикации контента', sensitive: true },

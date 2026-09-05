@@ -330,6 +330,16 @@ body{background:var(--surface);color:var(--on-surface);
       <span><b>Все двенадцать</b><em>Руководители, формат, запись и связь с центром</em></span>
       <span class="bk-dalshe-strelka" aria-hidden="true">›</span>
     </a>
+    <!-- Вторая дверь раздела — лента записей из открытых каналов управлений.
+         Дверь стоит всегда: экран ленты сам честно говорит, если сети нет.
+         Подпись ставит скрипт из кэша и ответа сервера: «N новых записей»,
+         когда есть непрочитанное, иначе время последнего сбора; ничего не
+         узнали — остаётся подпись без числа. -->
+    <a class="bk-dalshe" id="bk-lenta" href="lenta.html?otkuda=biblioteka" aria-label="Лента управлений: что пишут сейчас">
+      <span class="bk-dalshe-cvet" style="background:var(--tertiary)" aria-hidden="true"></span>
+      <span><b>Лента управлений</b><em id="bk-lenta-o">Что пишут сейчас</em></span>
+      <span class="bk-dalshe-strelka" aria-hidden="true">›</span>
+    </a>
   </section>
 
   <section class="bk-razdel">
@@ -370,6 +380,10 @@ body{background:var(--surface);color:var(--on-surface);
 <script src="core/derevo-dannye.js?v=b59aebf3"></script>
 <script src="core/schet.js?v=1ecbbd4a"></script>
 <script src="core/upravleniya-dannye.js"></script>
+<!-- Лента управлений: транспорт к серверу и модуль ленты — подпись двери
+     «N новых записей» считается тем же кодом, что и на экране ленты. -->
+<script src="core/svyaz.js"></script>
+<script src="core/lenta.js"></script>
 <script>
 (function(){
   'use strict';
@@ -553,6 +567,36 @@ body{background:var(--surface);color:var(--on-surface);
     }
     лента.innerHTML = html;
     раздел.hidden = false;
+  })();
+
+  /* ─── Лента управлений: подпись двери ──────────────────────────────────
+     Сначала из кэша первой страницы (мгновенно и без сети), затем из ответа
+     сервера. Есть непрочитанное — число новых; нет — когда лента собиралась
+     в последний раз, тем же правилом времени, что и у самой ленты. Ошибка
+     сети остаётся внутри модуля (свежее() не бросает), а дверь при любом
+     исходе стоит на месте: без числа, но не без входа. */
+  (function дверьЛенты(){
+    var Л = window.YasnaLenta, эД = document.getElementById('bk-lenta'), эО = document.getElementById('bk-lenta-o');
+    if(!Л || !эД || !эО || typeof Л.свежее !== 'function') return;
+    function подпись(novyh, sobrano_at){
+      var н = Number(novyh) || 0, т = 'Что пишут сейчас';
+      if(н >= 1) т = при(н, 'новая запись', 'новые записи', 'новых записей');
+      else if(sobrano_at && typeof Л.время === 'function'){
+        var когда = Л.время(sobrano_at);
+        if(когда) т = т + ' · обновлено ' + когда;
+      }
+      эО.textContent = т;
+      эД.setAttribute('aria-label', 'Лента управлений: ' + т);
+    }
+    var к = null;
+    try { к = Л.кэш(); } catch(e){}
+    if(к && к.sobrano_at) подпись(0, к.sobrano_at);
+    try {
+      Л.свежее().then(function(о){
+        if(!о) return;
+        подпись(о.novyh, о.sobrano_at || (к && к.sobrano_at));
+      }, function(){});
+    } catch(e){}
   })();
 
   /* ─── Числа справочников ───────────────────────────────────────────────

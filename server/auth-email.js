@@ -57,7 +57,11 @@ async function getDriver(){
 const CORS = {
   // адрес проставляется на запрос в applyCors(), см. ниже
   'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  /* X-Device-Secret — клиентский транспорт (docs/core/svyaz.js) кладёт его в
+     КАЖДЫЙ запрос, а /lenta/zhaloba его требует. Без него в Allow-Headers
+     браузер на сайте режет preflight, и лента с сайта не открывается вовсе
+     (в приложении запросы нативные, там preflight нет — потому и не видно). */
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Device-Secret',
   'Content-Type': 'application/json',
   'Cache-Control': 'no-store',
 };
@@ -611,6 +615,14 @@ exports.handler = async (event) => {
            throttleHit, verifyJWT, loadProfile, mailer },
     });
     if(/\/zayavk/.test(path)) return await require('./zayavki.js').route(drv, {
+      method, path, body, event,
+      query: event.queryStringParameters || {},
+      д: { TypedValues, Types, ok, fail, txt, num, ts, clean, ipHash,
+           throttleHit, verifyJWT, loadProfile, mailer },
+    });
+    /* Лента управлений (миграция 007): чтение страницы, состояние сбора,
+       жалоба, скрытие. Тот же набор помощников — модуль своих копий не держит. */
+    if(/\/lenta(\/|\?|$)/.test(path)) return await require('./lenta.js').route(drv, {
       method, path, body, event,
       query: event.queryStringParameters || {},
       д: { TypedValues, Types, ok, fail, txt, num, ts, clean, ipHash,

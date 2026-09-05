@@ -113,6 +113,15 @@ body{background:var(--surface);color:var(--on-surface);
 .up-kanal:active{background:var(--surface-container-high)}
 .up-kanal svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto;color:var(--primary)}
 .up-kanal span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Записи канала в самом приложении — первый чип в ряду каналов, тоном
+   отличный от внешних ссылок: он ведёт в ленту, а не наружу. Стоит скрытым
+   и открывается только у управлений, чьи записи в ленте есть (по ответу
+   сервера или кэшу ленты). Своё display у чипа и ряда перебивает
+   встроенное [hidden] — правило обязано быть явным. */
+.up-kanal--lenta{background:var(--primary-container,var(--surface-container));color:var(--on-primary-container,var(--on-surface))}
+.up-kanal--lenta svg{color:currentColor}
+.up-kanal--lenta:active{filter:brightness(.95)}
+.up-kanal[hidden],.up-kanaly[hidden]{display:none}
 .up-knopki{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
 .up-kn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;
   border-radius:22px;font:var(--type-label-l);text-decoration:none;
@@ -165,6 +174,10 @@ body{background:var(--surface);color:var(--on-surface);
 </main>
 
 <script src="core/upravleniya-dannye.js"></script>
+<!-- Лента управлений: транспорт к серверу и модуль ленты — у кого из
+     управлений есть записи, знает только он (кэш и ответ сервера). -->
+<script src="core/svyaz.js"></script>
+<script src="core/lenta.js"></script>
 <script>
 (function(){
   'use strict';
@@ -188,7 +201,9 @@ body{background:var(--surface);color:var(--on-surface);
     почта:  '<svg viewBox="0 0 24 24"><path d="M4 6.5h16v11H4zM4 7l8 6 8-6"/></svg>',
     видео:  '<svg viewBox="0 0 24 24"><path d="M4 7.5h11v9H4zM15 10.5l5-2.5v8l-5-2.5"/></svg>',
     статья: '<svg viewBox="0 0 24 24"><path d="M6 4h9l4 4v12H6zM15 4v4h4M9 12h6M9 15.5h6"/></svg>',
-    тел:    '<svg viewBox="0 0 24 24"><path d="M6.5 4h3l1.5 4-2 1.3a10 10 0 0 0 5.7 5.7l1.3-2 4 1.5v3a2 2 0 0 1-2 2A15 15 0 0 1 4.5 6a2 2 0 0 1 2-2z"/></svg>'
+    тел:    '<svg viewBox="0 0 24 24"><path d="M6.5 4h3l1.5 4-2 1.3a10 10 0 0 0 5.7 5.7l1.3-2 4 1.5v3a2 2 0 0 1-2 2A15 15 0 0 1 4.5 6a2 2 0 0 1 2-2z"/></svg>',
+    /* Лента — строки записей: знак текста из карточки ленты (core/lenta.js). */
+    лента:  '<svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h9"/></svg>'
   };
 
   /* Канал по адресу: имя площадки и, где есть, короткое имя канала — чтобы
@@ -256,7 +271,13 @@ body{background:var(--surface);color:var(--on-surface);
       + (у.rukovoditel ? '<dt>Ведёт</dt><dd>' + экр(у.rukovoditel) + '</dd>' : '')
       + (у.format ? '<dt>Формат</dt><dd>' + экр(у.format) + '</dd>' : '')
       + '</dl>'
-      + (каналы ? '<div class="up-kanaly">' + каналы + '</div>' : '')
+      /* Ряд каналов есть у каждой карточки: первым в нём стоит скрытый чип
+         «Записи в ленте» (его откроет двериЛенты ниже), дальше — внешние
+         ссылки. Пока в ряду нечего показать, скрыт и сам ряд. */
+      + '<div class="up-kanaly"' + (каналы ? '' : ' hidden') + '>'
+      + '<a class="up-kanal up-kanal--lenta" href="lenta.html?upravlenie=' + экр(у.id) + '&amp;otkuda=upravleniya" hidden'
+      + ' aria-label="Записи в ленте — ' + экр(у.nazvanie) + '">' + ЗНАК.лента + '<span>Записи в ленте ›</span></a>'
+      + каналы + '</div>'
       + '<div class="up-knopki">'
       + '<a class="up-kn up-kn--glav" href="lesson.html?lesson=upr-' + экр(у.id) + '&otkuda=upravleniya.html">' + ЗНАК.урок + 'Вводный урок</a>'
       + наружу(запись, 'up-kn', ЗНАК.запись + 'Записаться', 'Записаться — ' + у.nazvanie)
@@ -297,6 +318,30 @@ body{background:var(--surface);color:var(--on-surface);
   }
   var эО = document.getElementById('up-obn');
   if(эО && Д.obnovleno){ эО.textContent = 'Сведения с сайта zolotoj-yasen.ru, ' + дата(Д.obnovleno) + '.'; эО.hidden = false; }
+
+  /* ── Записи в ленте ──────────────────────────────────────────────────────
+     Чип открывается только у управлений, чьи записи в ленте есть, — список
+     даёт модуль ленты: сразу из кэша первой страницы (и без сети), затем из
+     ответа сервера. Центр («centr») своей карточки не имеет, его записи
+     помечены и Ясна-Школой. Ничего не узнали — чипов нет, экран цел. */
+  (function двериЛенты(){
+    var Л = window.YasnaLenta;
+    if(!Л || typeof Л.свежее !== 'function') return;
+    function открыть(ид){
+      if(!Array.isArray(ид)) return;
+      ид.forEach(function(id){
+        var li = document.getElementById(String(id || '')), чип = li && li.querySelector('.up-kanal--lenta');
+        if(!чип) return;
+        чип.hidden = false;
+        var ряд = чип.parentNode;
+        if(ряд && ряд.hidden) ряд.hidden = false;
+      });
+    }
+    var к = null;
+    try { к = Л.кэш(); } catch(e){}
+    if(к) открыть(к.upravleniya_s_zapisyami);
+    try { Л.свежее().then(function(о){ if(о) открыть(о.upravleniya_s_zapisyami); }, function(){}); } catch(e){}
+  })();
 })();
 </script>
 </body>

@@ -96,14 +96,17 @@
                 'negotiations.html': 'praktika.html',
                 'lesson.html': 'learn.html',
                 'kniga.html': 'biblioteka.html',
-                'upravleniya.html': 'biblioteka.html' };
+                'upravleniya.html': 'biblioteka.html',
+                'lenta.html': 'biblioteka.html' };
   /* Круг открывают из трёх мест, и подсвечивать надо то, ОТКУДА пришли, а не
      «Практику» всегда: «Разложить Сутки» на Уроках уводил в Круг, а наббар
      показывал чужой раздел. Метку ставит ссылка (?otkuda=…). Старое значение
      igra остаётся понятным: ссылки с ним живут в игровых страницах, и
      ломаться при переименовании вкладки они не должны. */
   var ПО_ОТКУДА = { uroki: 'learn.html', igra: 'praktika.html',
-                    praktika: 'praktika.html', glavnaya: 'index.html' };
+                    praktika: 'praktika.html', glavnaya: 'index.html',
+                    /* лента открывается дверью с «Сегодня» и из Библиотеки */
+                    segodnya: 'index.html', biblioteka: 'biblioteka.html' };
 
   var ИМЕНА = { 'index.html': 'Сегодня', 'learn.html': 'Уроки',
                 'praktika.html': 'Практика', 'biblioteka.html': 'Библиотека',
@@ -111,7 +114,7 @@
                 'duel.html': 'Игры', 'profil.html': 'Профиль',
                 'rating.html': 'Рейтинг', 'negotiations.html': 'Переговоры',
                 'lesson.html': 'Урок', 'kniga.html': 'Книга',
-                'upravleniya.html': 'Управления' };
+                'upravleniya.html': 'Управления', 'lenta.html': 'Лента' };
 
   /* Имя считаем по ПОЛНОМУ пути, а не по последнему сегменту: у Круга файл
      тоже index.html, и по имени файла он читался как «Главная». */

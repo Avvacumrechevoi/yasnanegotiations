@@ -51,7 +51,10 @@ RUNTIME="${YC_RUNTIME:-nodejs16}"
 # (extras_for), своей функции у него нет — квота serverless.functions.count
 # исчерпана. Оставь его в списке — и деплой «всех функций» будет падать на
 # попытке создать yasna-progress.
-ALL_NAMES="submit leaderboard auth-telegram content-fetch content-publish spar"
+# lenta-sbor — сборщик ленты управлений: своя функция, потому что ему нужны
+# nodejs22 (глобальный fetch), 120 с и право писать в бакет (runtime_for,
+# timeout_for ниже); окружение YDB_* при первом деплое берёт у submit.
+ALL_NAMES="submit leaderboard auth-telegram content-fetch content-publish spar lenta-sbor"
 src_for(){
   case "$1" in
     submit)          echo submit.js ;;
@@ -60,6 +63,7 @@ src_for(){
     content-fetch)   echo content-fetch.js ;;
     content-publish) echo content-publish.js ;;
     spar)            echo spar.js ;;
+    lenta-sbor)      echo lenta-sbor.js ;;
     progress)        echo progress.js ;;
     *)               echo "" ;;
   esac
@@ -70,8 +74,9 @@ src_for(){
 extras_for(){
   case "$1" in
     submit)        echo "progress.js rooms-legacy.js access.js" ;;
-    auth-telegram) echo "mailer.js auth-email.js zayavki.js druzya.js access.js" ;;
+    auth-telegram) echo "mailer.js auth-email.js zayavki.js druzya.js lenta.js access.js" ;;
     spar)          echo "access.js" ;;
+    lenta-sbor)    echo "lenta-razbor.js jpeg-js.js" ;;
     *)             echo "" ;;
   esac
 }
@@ -109,9 +114,40 @@ extra_env_for(){
 # быть не должно). Берём у уже настроенной функции с тем же набором.
 env_donor_for(){
   case "$1" in
-    progress) echo yasna-submit ;;
-    spar)     echo yasna-submit ;;
-    *)        echo "" ;;
+    progress)   echo yasna-submit ;;
+    spar)       echo yasna-submit ;;
+    lenta-sbor) echo yasna-submit ;;
+    *)          echo "" ;;
+  esac
+}
+
+# Рантайм функции. Один RUNTIME на всех держит функции на nodejs16; сборщику
+# ленты нужен nodejs22 — глобальный fetch и AbortSignal.timeout. Рантайм НЕ
+# наследуется от донора: у донора он старый.
+runtime_for(){
+  case "$1" in
+    lenta-sbor) echo nodejs22 ;;
+    *)          echo "$RUNTIME" ;;
+  esac
+}
+
+# Срок выполнения. По умолчанию — из meta.txt действующей (или донорской)
+# версии, как раньше; сборщику ленты нужны 120 с на четыре канала с
+# картинками, и наследовать 30 с от донора submit нельзя.
+#   timeout_for <имя> <meta.txt>
+timeout_for(){
+  case "$1" in
+    lenta-sbor) echo 120s ;;
+    *)          cat "$2" ;;
+  esac
+}
+
+# Переменные окружения, заданные КОДОМ (не секреты): добавляются поверх
+# донорских, если у функции их ещё нет. Формат — «ИМЯ=значение» через пробел.
+fixed_env_for(){
+  case "$1" in
+    lenta-sbor) echo "LENTA_BUCKET=yasnalab.ru" ;;
+    *)          echo "" ;;
   esac
 }
 
@@ -244,7 +280,7 @@ else:
 PY
   done
 
-  python3 - "$dir" <<'PY'
+  FIXED_ENV="$(fixed_env_for "$short")" python3 - "$dir" <<'PY'
 import json, sys, os
 d = json.load(open(os.path.join(sys.argv[1], 'cur.json')))
 env = d.get('environment', {}) or {}
@@ -252,6 +288,13 @@ extra_path = os.path.join(sys.argv[1], 'extra_env.json')
 if os.path.exists(extra_path):
     for k, v in json.load(open(extra_path)).items():
         env.setdefault(k, v)
+
+# Переменные, заданные кодом (fixed_env_for): не секреты, поэтому живут в
+# скрипте; не перекрывают то, что уже задано в облаке.
+for spec in (os.environ.get('FIXED_ENV') or '').split():
+    k, _, v = spec.partition('=')
+    if k and v and env.setdefault(k, v) == v:
+        print('  + переменная %s задана кодом' % k)
 
 # Переменные, переданные через окружение вызывающей оболочки (PASSTHROUGH_ENV —
 # список имён через пробел). Нужны для секретов, которых НЕ должно быть в
@@ -275,10 +318,10 @@ PY
 
   ver="$(yc serverless function version create \
         --function-name "$fn" \
-        --runtime "$RUNTIME" \
+        --runtime "$(runtime_for "$short")" \
         --entrypoint index.handler \
         --memory 256m \
-        --execution-timeout "$(cat "$dir/meta.txt")" \
+        --execution-timeout "$(timeout_for "$short" "$dir/meta.txt")" \
         --service-account-id "$SA_ID" \
         --source-path "$dir" \
         --environment "$(cat "$dir/env.txt")" \

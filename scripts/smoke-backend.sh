@@ -113,6 +113,42 @@ fi
 
 check "POST /content/publish без пароля" 401 -X POST -H 'Content-Type: application/json' \
       --data-raw '{"data":{}}' "$GW/content/publish"
+
+# 5г. Лента управлений (server/lenta.js в пакете auth-telegram, миграция 007).
+#     Чтение публично и ничего не пишет; закрытые ручки проверяем отказами —
+#     они срабатывают до обращения к таблицам. Жалоба без секрета устройства —
+#     403 до любой записи.
+check "GET /lenta"                       200 "$GW/lenta?n=3"
+curl -sS -m 25 "$GW/lenta?n=3" | grep -q '"zapisi"' \
+  || { echo "  ✗ в ответе ленты нет поля zapisi"; fails=$((fails+1)); }
+check "OPTIONS /lenta (CORS preflight)"  200 -X OPTIONS -H 'Origin: https://yasnalab.ru' \
+      -H 'Access-Control-Request-Method: GET' "$GW/lenta"
+# Preflight с X-Device-Secret. Клиентский транспорт (docs/core/svyaz.js) кладёт
+# этот заголовок в КАЖДЫЙ запрос, а /lenta/zhaloba его требует; в приложении
+# запросы нативные и preflight нет, поэтому пропажу заголовка из
+# Allow-Headers видно только с сайта — и только здесь. Код 200 не доказательство:
+# браузер смотрит на список заголовков, его и проверяем.
+preflight="$(curl -sS -m 25 -i -X OPTIONS -H 'Origin: https://yasnalab.ru' \
+      -H 'Access-Control-Request-Method: POST' -H 'Access-Control-Request-Headers: x-device-secret' \
+      "$GW/lenta/zhaloba" 2>&1 || true)"
+if printf '%s' "$preflight" | grep -i '^access-control-allow-headers:' | grep -qi 'x-device-secret'; then
+  echo "  ✓ OPTIONS /lenta/zhaloba отдаёт Allow-Headers с X-Device-Secret"
+else
+  echo "  ✗ OPTIONS /lenta/zhaloba — в Allow-Headers нет X-Device-Secret (браузер отбросит запрос с сайта)"
+  printf '%s' "$preflight" | grep -i '^access-control-' | sed 's/^/      /'
+  fails=$((fails+1))
+fi
+check "GET /lenta (битый курсор → 400)"  400 "$GW/lenta?kursor=%D0%BD%D0%B5-%D0%BA%D1%83%D1%80%D1%81%D0%BE%D1%80"
+check "GET /lenta/istochniki без токена" 401 "$GW/lenta/istochniki"
+check "POST /lenta/skryt без токена"     401 -X POST -H 'Content-Type: application/json' \
+      --data-raw '{"id":"telegram:smoke:1"}' "$GW/lenta/skryt"
+check "POST /lenta/zhaloba без секрета"  403 -X POST -H 'Content-Type: application/json' \
+      --data-raw '{"id":"telegram:smoke:1","prichina":"drugoe"}' "$GW/lenta/zhaloba"
+# Случайный секрет — не «новое устройство», а отказ: иначе лимит «5 в час»
+# обходился бы одним циклом. Проверка ничего не пишет: отказ до счётчика.
+check "POST /lenta/zhaloba (непривязанный секрет → 403)" 403 -X POST -H 'Content-Type: application/json' \
+      -H 'X-Device-Secret: smoke-unbound-secret-do-not-reuse' \
+      --data-raw '{"id":"telegram:smoke:1","prichina":"drugoe"}' "$GW/lenta/zhaloba"
 # Метод именно POST: в спеке шлюза у /rooms/create объявлен post, и GET даёт
 # 405 от самого шлюза, не доходя до заглушки.
 check "POST /rooms/create (легаси → 410)" 410 -X POST -H 'Content-Type: application/json' \
