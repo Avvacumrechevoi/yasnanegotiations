@@ -685,9 +685,10 @@ async function частотаЖалоб(drv, д, ведро, предел) {
         UPSERT INTO auth_throttle (bucket, window_start, hits) VALUES ($b, CurrentUtcTimestamp(), $h);`,
         { '$b': TypedValues.utf8(ведро), '$h': TypedValues.uint32(1) });
     } else {
-      /* window_start не трогаем: UPSERT части колонок оставляет остальные. */
+      /* window_start не трогаем. UPDATE, а не UPSERT части колонок: YDB
+         требует в UPSERT все NOT NULL колонки (window_start) — см. сборщик. */
       await s.executeQuery(`DECLARE $b AS Utf8; DECLARE $h AS Uint32;
-        UPSERT INTO auth_throttle (bucket, hits) VALUES ($b, $h);`,
+        UPDATE auth_throttle SET hits = $h WHERE bucket = $b;`,
         { '$b': TypedValues.utf8(ведро), '$h': TypedValues.uint32(было + 1) });
     }
   });

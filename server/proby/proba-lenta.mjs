@@ -144,6 +144,11 @@ let базаЛежит = false, запросовПубликаций = 0, жур
 const сессия = {
   async executeQuery(sql, p = {}) {
     if (базаЛежит) throw new Error('Transport unavailable: connection refused');
+    /* Как настоящая YDB: UPSERT обязан нести все NOT NULL колонки таблицы. */
+    for (const м of sql.matchAll(/UPSERT INTO (\w+) \(([^)]*)\)/g)) {
+      const есть = new Set(м[2].split(',').map((x) => x.trim()));
+      for (const к of (НЕ_NULL_ПРОБЫ[м[1]] || [])) if (!есть.has(к)) throw new Error('BadRequest (code 400010): Missing not null column in input: ' + к + '. All not null columns should be initialized');
+    }
     const v = (k) => (p[k] ? (p[k].v === undefined ? null : p[k].v) : null);
     if (/FROM lenta_istochniki/.test(sql)) {
       return { resultSets: [{ rows: ИСТ.map((и) => ({ items: [
@@ -232,13 +237,19 @@ const сессия = {
     if (/UPSERT INTO auth_throttle \(bucket, window_start, hits\)/.test(sql)) {
       ЧАСТОТА.set(v('$b'), { start: Date.now(), hits: v('$h') }); return { resultSets: [] };
     }
-    if (/UPSERT INTO auth_throttle \(bucket, hits\)/.test(sql)) {
+    if (/UPDATE auth_throttle SET hits = \$h WHERE bucket = \$b/.test(sql)) {
       const з = ЧАСТОТА.get(v('$b')); if (!з) throw new Error('hits без окна'); з.hits = v('$h'); return { resultSets: [] };
     }
     throw new Error('поддельная база не знает запроса: ' + sql.trim().slice(0, 90));
   },
 };
 function obращ() { обращенийКУстройствам++; }
+const НЕ_NULL_ПРОБЫ = {
+  lenta_istochniki: ['klyuch', 'istochnik', 'kanal', 'adres', 'upravlenie', 'upravleniya', 'vklyuchen', 'period_min', 'obnovleno_at'],
+  lenta_publikacii: ['klyuch', 'istochnik', 'kanal', 'id', 'data', 'upravlenie', 'tip', 'zagolovok', 'ssylka', 'sobrano_at', 'obnovleno_at'],
+  lenta_zhurnal: ['istochnik_klyuch', 'at', 'ishod'], lenta_zhaloby: ['klyuch', 'at', 'prichina', 'sostoyanie'],
+  auth_throttle: ['bucket', 'window_start', 'hits'], device_auth: ['device_id', 'secret_hash', 'created_at'],
+};
 const drv = { tableClient: { withSession: async (f) => f(сессия) } };
 
 /* ── помощники — как в auth-email.js (общий объект заголовков!) ─────────── */

@@ -707,8 +707,9 @@ function хранилищеYDB(drv, ydb) {
           await s.executeQuery(`
             DECLARE $klyuch AS Utf8; DECLARE $tip AS Utf8; DECLARE $zagolovok AS Utf8; DECLARE $tekst AS Optional<Utf8>;
             DECLARE $kartinok AS Uint32; DECLARE $ssylka_v_zapisi AS Optional<Utf8>; DECLARE $tekst_hash AS Utf8;
-            UPSERT INTO lenta_publikacii (klyuch, tip, zagolovok, tekst, kartinok, ssylka_v_zapisi, tekst_hash, obnovleno_at)
-            VALUES ($klyuch, $tip, $zagolovok, $tekst, $kartinok, $ssylka_v_zapisi, $tekst_hash, ${tsЛит(з.obnovleno_at)});`, {
+            UPDATE lenta_publikacii SET tip = $tip, zagolovok = $zagolovok, tekst = $tekst, kartinok = $kartinok,
+              ssylka_v_zapisi = $ssylka_v_zapisi, tekst_hash = $tekst_hash, obnovleno_at = ${tsЛит(з.obnovleno_at)}
+            WHERE klyuch = $klyuch;`, {
             '$klyuch': u(з.klyuch), '$tip': u(з.tip), '$zagolovok': u(з.zagolovok || ''), '$tekst': uOpt(з.tekst),
             '$kartinok': u32(з.kartinok), '$ssylka_v_zapisi': uOpt(з.ssylka_v_zapisi), '$tekst_hash': u(з.tekst_hash),
           });
@@ -717,8 +718,8 @@ function хранилищеYDB(drv, ydb) {
     },
     async скрыть(klyuch, причина, сейчасISO) {
       await запрос(`DECLARE $klyuch AS Utf8; DECLARE $prichina AS Utf8;
-        UPSERT INTO lenta_publikacii (klyuch, skryto, skryto_prichina, skryto_at, obnovleno_at)
-        VALUES ($klyuch, true, $prichina, ${tsЛит(сейчасISO)}, ${tsЛит(сейчасISO)});`, { '$klyuch': u(klyuch), '$prichina': u(причина) });
+        UPDATE lenta_publikacii SET skryto = true, skryto_prichina = $prichina, skryto_at = ${tsЛит(сейчасISO)}, obnovleno_at = ${tsЛит(сейчасISO)}
+        WHERE klyuch = $klyuch;`, { '$klyuch': u(klyuch), '$prichina': u(причина) });
     },
     /* Снять авто-скрытие: запись снова читается со страницы. Попытки за
        картинками обнуляются — объекты уже удалены, их надо собрать заново.
@@ -731,8 +732,8 @@ function хранилищеYDB(drv, ydb) {
     },
     async картинка(klyuch, m, p, попыток, сейчасISO) {
       await запрос(`DECLARE $klyuch AS Utf8; DECLARE $kartinka AS Optional<Utf8>; DECLARE $kartinka_polnaya AS Optional<Utf8>; DECLARE $popytok AS Uint32;
-        UPSERT INTO lenta_publikacii (klyuch, kartinka, kartinka_polnaya, kartinka_popytok, obnovleno_at)
-        VALUES ($klyuch, $kartinka, $kartinka_polnaya, $popytok, ${tsЛит(сейчасISO)});`,
+        UPDATE lenta_publikacii SET kartinka = $kartinka, kartinka_polnaya = $kartinka_polnaya, kartinka_popytok = $popytok, obnovleno_at = ${tsЛит(сейчасISO)}
+        WHERE klyuch = $klyuch;`,
         { '$klyuch': u(klyuch), '$kartinka': uOpt(m), '$kartinka_polnaya': uOpt(p), '$popytok': u32(попыток) });
     },
     async безКартинки(ист, макс, предел) {
@@ -756,22 +757,26 @@ function хранилищеYDB(drv, ydb) {
         WHERE istochnik = $i AND kanal = $k AND COALESCE(skryto, false) = false;`, канал(ист));
       return строки.length ? (num(строки[0].items[0]) || 0) : 0;
     },
+    /* Везде UPDATE, а не UPSERT части колонок: YDB требует в UPSERT все
+       NOT NULL колонки строки («Missing not null column in input: adres») —
+       на этом упал первый заход 05.09.2026, и итоги источников не писались,
+       а настоящие исходы каналов были скрыты этой ошибкой. Строка источника
+       всегда есть (её читали), строка публикации — тоже (её писали целиком). */
     async состояние(ист, з) {
-      const колонки = ['klyuch', 'proveren_at', 'oshibka', 'oshibok_podryad', 'obnovleno_at'];
-      const значения = ['$klyuch', tsЛит(з.сейчасISO), '$oshibka', '$podryad', tsЛит(з.сейчасISO)];
+      const поля = ['proveren_at = ' + tsЛит(з.сейчасISO), 'oshibka = $oshibka', 'oshibok_podryad = $podryad', 'obnovleno_at = ' + tsЛит(з.сейчасISO)];
       const параметры = {
         '$klyuch': u(ист.klyuch),
         '$oshibka': uOpt(з.udacha ? null : (з.soobshchenie || з.ishod)),
         '$podryad': u32(з.udacha ? 0 : (Number(ист.oshibok_podryad) || 0) + 1),
       };
       let объявления = 'DECLARE $klyuch AS Utf8; DECLARE $oshibka AS Optional<Utf8>; DECLARE $podryad AS Uint32;';
-      if (з.udacha) { колонки.push('udacha_at'); значения.push(tsЛит(з.сейчасISO)); }
-      if (з.название) { колонки.push('nazvanie'); значения.push('$nazvanie'); параметры['$nazvanie'] = u(з.название); объявления += ' DECLARE $nazvanie AS Utf8;'; }
+      if (з.udacha) поля.push('udacha_at = ' + tsЛит(з.сейчасISO));
+      if (з.название) { поля.push('nazvanie = $nazvanie'); параметры['$nazvanie'] = u(з.название); объявления += ' DECLARE $nazvanie AS Utf8;'; }
       const свежая = з.свежая && (!ист.poslednyaya_publikaciya || з.свежая > сек(ист.poslednyaya_publikaciya)) ? з.свежая : null;
-      if (свежая) { колонки.push('poslednyaya_publikaciya'); значения.push(tsЛит(свежая)); }
-      if (з.zapisej != null) { колонки.push('zapisej'); значения.push('$zapisej'); параметры['$zapisej'] = u64(з.zapisej); объявления += ' DECLARE $zapisej AS Uint64;'; }
+      if (свежая) поля.push('poslednyaya_publikaciya = ' + tsЛит(свежая));
+      if (з.zapisej != null) { поля.push('zapisej = $zapisej'); параметры['$zapisej'] = u64(з.zapisej); объявления += ' DECLARE $zapisej AS Uint64;'; }
       await запрос(`${объявления}
-        UPSERT INTO lenta_istochniki (${колонки.join(', ')}) VALUES (${значения.join(', ')});`, параметры);
+        UPDATE lenta_istochniki SET ${поля.join(', ')} WHERE klyuch = $klyuch;`, параметры);
     },
     async журнал(з) {
       await запрос(`DECLARE $k AS Utf8; DECLARE $ishod AS Utf8; DECLARE $s AS Optional<Utf8>; DECLARE $d AS Uint32; DECLARE $n AS Uint32; DECLARE $otkuda AS Optional<Utf8>;

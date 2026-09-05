@@ -102,6 +102,14 @@ let сейчасМс = Date.parse('2026-09-05T12:00:00Z');
 let остатокМс = 120000;
 const сек = (мс) => new Date(мс).toISOString().slice(0, 19) + 'Z';
 const поУбыванию = (а, б) => (б.data < а.data ? -1 : б.data > а.data ? 1 : (б.klyuch < а.klyuch ? -1 : 1));
+
+/* NOT NULL колонки таблиц ленты — из самой миграции. YDB требует их ВСЕ в
+   каждом UPSERT («Missing not null column in input»), поэтому частичные
+   записи делаются через UPDATE; поддельная база ловит это так же. */
+const __sql007 = readFileSync(new URL('../migrations/007_lenta.sql', import.meta.url), 'utf8');
+const НЕ_NULL = {};
+for (const м of __sql007.matchAll(/CREATE TABLE (\w+)\s*\(([\s\S]*?)\n\);/g))
+  НЕ_NULL[м[1]] = new Set([...м[2].matchAll(/^\s*(\w+)\s+[\w<>]+\s+NOT NULL/gm)].map((x) => x[1]));
 const хранилище = {
   async источники() { return [...ИСТ.values()].map((и) => Object.assign({}, и)); },
   async записиКанала(ист, отISO) {
@@ -487,6 +495,13 @@ console.log('Слой YDB: форма запросов против миграц
     for (const м of текст.matchAll(/UPSERT INTO (lenta_\w+) \(([^)]*)\)/g)) {
       for (const к of м[2].split(',').map((x) => x.trim())) if (таблицы[м[1]] && !таблицы[м[1]].has(к)) { плохих++; console.log('    ✗ в ' + м[1] + ' нет колонки ' + к); }
     }
+    for (const м of текст.matchAll(/UPSERT INTO (\w+) \(([^)]*)\)/g)) {
+      const есть = new Set(м[2].split(',').map((x) => x.trim()));
+      for (const к of (НЕ_NULL[м[1]] || [])) if (!есть.has(к)) { плохих++; console.log('    ✗ UPSERT в ' + м[1] + ' без NOT NULL колонки ' + к + ' — YDB ответит «Missing not null column in input»'); }
+    }
+    for (const м of текст.matchAll(/UPDATE (lenta_\w+) SET ([\s\S]*?) WHERE/g)) {
+      for (const к of м[2].split(',').map((x) => x.trim().split('=')[0].trim())) if (таблицы[м[1]] && !таблицы[м[1]].has(к)) { плохих++; console.log('    ✗ UPDATE ' + м[1] + ': нет колонки ' + к); }
+    }
     for (const м of текст.matchAll(/SELECT ([\s\S]*?) FROM (lenta_\w+)/g)) {
       for (const к of м[1].split(',').map((x) => x.trim().replace(/ AS \w+$/, ''))) if (/^\w+$/.test(к) && таблицы[м[2]] && !таблицы[м[2]].has(к)) { плохих++; console.log('    ✗ в ' + м[2] + ' нет колонки ' + к); }
     }
@@ -496,7 +511,7 @@ console.log('Слой YDB: форма запросов против миграц
   так(журналSQL.length >= 16 && плохих === 0, `${журналSQL.length} запросов слоя YDB: все параметры объявлены и типизированы, таблицы/индексы/колонки — из миграции, Timestamp без долей`);
   const upsertПубл = журналSQL.find((q) => /UPSERT INTO lenta_publikacii \(klyuch, istochnik/.test(q.текст));
   так(upsertПубл && значение(upsertПубл.params['$tekst']) === 'B' && upsertПубл.params['$kartinka'].v === null && upsertПубл.params['$bez_prevyu'].t === 'Bool' && upsertПубл.params['$kartinok'].t === 'Uint32', 'UPSERT публикации: Optional через optionalNull, Bool и Uint32 типизированы');
-  const сост = журналSQL.filter((q) => /UPSERT INTO lenta_istochniki/.test(q.текст));
+  const сост = журналSQL.filter((q) => /UPDATE lenta_istochniki SET/.test(q.текст));
   так(сост.length === 2 && /udacha_at/.test(сост[0].текст) && /nazvanie/.test(сост[0].текст) && /poslednyaya_publikaciya/.test(сост[0].текст) && !/udacha_at/.test(сост[1].текст) && сост[1].params['$podryad'].v === 1 && сост[1].params['$oshibka'].v === 'нет сети', 'состояние: при удаче — udacha_at/nazvanie/свежая, при сбое — oshibka и счётчик');
 }
 
