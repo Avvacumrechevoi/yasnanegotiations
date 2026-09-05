@@ -27,7 +27,20 @@ app/
 export PATH="$HOME/.local/node22/bin:$PATH"
 ```
 
-**JDK 21 и инструменты Android** — уже стоят в `~/.local/android-build`.
+**JDK 21 и инструменты Android** живут в `~/.local/android-build`.
+
+Если их там нет — восстанавливаются одной командой:
+
+```bash
+./scripts/postavit-android.sh          # JDK 21, SDK, эмулятор и стенд
+./scripts/postavit-android.sh --bez-stenda   # только то, чем собирают
+```
+
+Скрипт идемпотентен: что уже стоит, не трогает. Он появился после того, как
+05.09.2026 весь каталог `~/.local/android-build` исчез с машины целиком, и
+восстанавливать его пришлось по обрывкам этого README — путь был описан, а
+порядок установки нет.
+
 Именно 21, а не 17: Capacitor 8 собирается под него, а 17 отвечает
 `invalid source release: 21`.
 
