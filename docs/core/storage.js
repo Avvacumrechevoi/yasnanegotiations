@@ -38,7 +38,8 @@
     // руками, по одному коду: без него переустановка означает «начни знакомиться
     // заново», хотя карточки друзей в базе никуда не делись.
     yasna_druzya_v1:            { scope: 'creation', json: true,  owner: 'core/druzya.js',     about: 'свой список друзей (зеркало базы, работает офлайн)' },
-    yasna_zayavki_out_v1:       { scope: 'creation', json: true,  owner: 'core/druzya.js',     about: 'кому я сам отправлял заявки в друзья' },
+    yasna_druzya_perenos_v1:    { scope: 'creation', json: false, owner: 'core/druzya.js',     about: 'дружба из прежнего дерева уже перенесена в таблицы — разовая метка' },
+    yasna_druzya_ten_v1:        { scope: 'creation', json: true,  owner: 'core/druzya.js',     about: 'тень списка друзей в дереве Firebase: по ней правило зовов пускает зов в Партию' },
 
     // ── учебный прогресс ──
     yasna_completed_lessons_v1: { scope: 'progress', json: true,  owner: 'app.js',             about: 'пройденные уроки курса' },

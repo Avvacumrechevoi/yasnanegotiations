@@ -109,6 +109,16 @@
   .knopka--opasno{background:transparent;color:var(--ploho);
     border:1px solid var(--ploho)}
   /* Что хранится: пара «строка — где живёт», без рамок и карточек. */
+  /* Знаки. Тот же почерк, что у наббара: обводка, без заливки, 2 пикселя —
+     иначе значок в списке спорит с иконкой вкладки внизу экрана. */
+  .znak{width:34px;height:34px;border-radius:10px;flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--pole);color:var(--syn)}
+  .znak svg{width:19px;height:19px;stroke:currentColor;fill:none;
+    stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .kod-ryad .znak{margin-right:12px}
+  .ryad-znak{display:flex;align-items:center;gap:12px;margin:16px 0 0}
+  .ryad-znak .knopka{margin:0}
   .dannye-spisok{display:flex;flex-direction:column;gap:2px;margin-top:4px}
   .dannye-spisok div{display:flex;justify-content:space-between;gap:14px;
     padding:7px 0;border-bottom:1px solid var(--kayma);font-size:14px}
@@ -361,6 +371,12 @@
         </div>
         <button class="knopka knopka--tihaya kod-kn" id="kod-kopirovat" type="button">Скопировать</button>
       </div>
+      <!-- ПОДЕЛИТЬСЯ — главное действие этого блока. Код нужно ПЕРЕСЛАТЬ, а
+           «Скопировать» кладёт его в буфер и оставляет человека самого
+           искать, куда вставить. Системное окно телефона решает это одним
+           касанием и уносит готовую фразу, а не голые шесть букв. Кнопка
+           появляется, только если телефон это умеет. -->
+      <button class="knopka" id="kod-podelitsya" type="button" hidden>Поделиться кодом</button>
       <div class="kod-sost" id="kod-sost">Подключаюсь…</div>
       <button class="knopka knopka--tihaya" id="kod-povtor" type="button" hidden>Повторить</button>
 
@@ -380,14 +396,25 @@
         <div class="lyudi" id="zayavki"></div>
       </div>
 
+      <!-- КОГО ПОЗВАЛ Я. Раньше это знал только сам телефон и никому не
+           показывал: человек вводил код, видел «Заявка отправлена» — и
+           дальше экран об этом молчал навсегда. -->
+      <div id="poslannye-blok" hidden>
+        <div class="podzag">Вы позвали — ждём ответа</div>
+        <div class="lyudi" id="poslannye"></div>
+      </div>
+
       <div class="podzag" id="druzya-zag" hidden>Друзья</div>
       <div class="lyudi" id="druzya"></div>
       <div class="opis" id="druzya-pusto">Пока никого.</div>
       <!-- Друзья живут на ЭТОМ телефоне, а не в аккаунте: сказать об этом
            честно дешевле, чем позволить человеку решить, что вход их
            перенесёт. -->
-      <p class="opis">Друзья привязаны к этому телефону: на другом их
-         придётся добавить заново.</p>
+      <!-- После переезда дружбы в таблицы это уже не «привязаны к телефону»:
+           вошедший находит своих на любом устройстве. Гость — нет, и об этом
+           надо сказать прямо, а не молчать рядом с обещанием входа. -->
+      <p class="opis" id="druzya-perenos">Вошли по почте — друзья найдутся на
+         любом телефоне. Гостю они видны только на этом.</p>
     </div>
   </section>
 
@@ -1180,9 +1207,39 @@
      доехала до общей базы: друг вводил такой код и получал «Такого кода нет».
      До успеха публикации показываем точки и причину обычным текстом — раньше
      причина была набрана капслоком в три строки и читалась как поломка. */
+  /* ЗНАКИ. Рисуем разметкой, а не картинками: значков пять, они мелкие и
+     должны краситься вместе с темой. Набор тот же, что в наббаре — обводка
+     без заливки, чтобы список не спорил с панелью вкладок. */
+  var ЗНАКИ = {
+    ludi:'<circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><path d="M16.5 11.2a2.6 2.6 0 1 0 0-5.2"/><path d="M17 14.4c2.2.4 3.7 2.2 3.7 4.6"/>',
+    kod:'<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7.5 12.5h2M11 12.5h2M14.5 12.5h2"/><path d="M7.5 9h9"/>',
+    podelitsya:'<path d="M12 15V3.5"/><path d="M8.5 7 12 3.5 15.5 7"/><path d="M5 13v5.5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V13"/>',
+    zhdyom:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8"/>',
+    prosyatsya:'<path d="M18 8.5a6 6 0 1 0-12 0c0 5-2 6.5-2 6.5h16s-2-1.5-2-6.5"/><path d="M13.7 19a2 2 0 0 1-3.4 0"/>'
+  };
+  function знак(имя){
+    var d=document.createElement('span');
+    d.className='znak'; d.setAttribute('aria-hidden','true');
+    d.innerHTML='<svg viewBox="0 0 24 24">'+ЗНАКИ[имя]+'</svg>';
+    return d;
+  }
+  (function(){
+    var ряд=document.querySelector('.kod-ryad');
+    if(ряд) ряд.insertBefore(знак('kod'), ряд.firstChild);
+    [['zayavki-blok','prosyatsya'],['poslannye-blok','zhdyom']].forEach(function(п){
+      var б=document.getElementById(п[0]); if(!б) return;
+      var з=б.querySelector('.podzag'); if(!з) return;
+      var обёртка=document.createElement('div');
+      обёртка.style.cssText='display:flex;align-items:center;gap:10px;margin:18px 0 8px';
+      з.parentNode.insertBefore(обёртка,з);
+      обёртка.appendChild(знак(п[1]));
+      з.style.margin='0'; обёртка.appendChild(з);
+    });
+  })();
+
   var полеКода = document.getElementById('moy-kod');
   var кнКопир = document.getElementById('kod-kopirovat');
-  var сколькоДрузей = 0;
+  var сколькоДрузей = 0, сколькоПросятся = 0;
   полеКода.textContent = '······';
   /* Пока на экране точки, копировать нечего: локальный код ещё не опубликован,
      друг по нему никого не найдёт. Кнопка ждёт вместе с кодом. */
@@ -1195,6 +1252,14 @@
      на вопрос «что это за раздел» подпись не отвечала вовсе. Число друзей —
      отвечает: оно и есть состояние раздела. */
   function подписьСтроки(хвост){
+    /* Заявка ждёт человека — это и есть состояние раздела, важнее числа
+       друзей. Раньше о ней не было ни слова, пока не раскроешь раздел. */
+    if(сколькоПросятся){
+      подпись.textContent = сколькоПросятся+' '+
+        (function(n){ n=Math.abs(n)%100; if(n>10&&n<20) return 'просятся в друзья';
+          n=n%10; if(n===1) return 'просится в друзья'; return 'просятся в друзья'; })(сколькоПросятся);
+      return;
+    }
     if(сколькоДрузей){
       подпись.textContent = сколькоДрузей+' '+
         (function(n){ n=Math.abs(n)%100; if(n>10&&n<20) return 'друзей';
@@ -1220,6 +1285,24 @@
        код: список друзей при этом читается из своего зеркала и работает. */
     подписьСтроки();
   }
+  /* ПОДЕЛИТЬСЯ. navigator.share открывает системное окно телефона — тот же
+     список, что и у любого другого приложения. Кнопку показываем, только
+     если телефон это умеет: мёртвая кнопка хуже её отсутствия. Уходит
+     готовая фраза: голые шесть букв в чужой переписке ничего не объясняют. */
+  (function(){
+    var кн=document.getElementById('kod-podelitsya');
+    if(!кн || !navigator.share) return;
+    кн.hidden=false;
+    кн.onclick=function(){
+      var к=Д.мойКод();
+      if(!к){ сказать('Код ещё не готов — подождите связь.',true); return; }
+      navigator.share({
+        title:'Ясна',
+        text:'Добавь меня в Ясне: мой код '+к+'. Профиль → Свои люди → Код друга.'
+      }).catch(function(){ /* закрыл окно — это не ошибка */ });
+    };
+  })();
+
   кнКопир.onclick=function(){
     var к=Д.мойКод()||''; var кн=this;
     if(кн.disabled || !к) return;
@@ -1270,7 +1353,29 @@
     });
     блокЗ.hidden=!(список||[]).length;
   }
-  function обновитьЗаявки(){ Д.заявки().then(показатьЗаявки).catch(function(){}); }
+  /* КОГО ПОЗВАЛ Я. Отменить свою заявку — та же ручка, что и «отклонить»:
+     обе половины стираются одним запросом, поэтому у того, кого позвали, она
+     тоже исчезает. */
+  function показатьПосланные(список){
+    var блок=document.getElementById('poslannye-blok');
+    var сп=document.getElementById('poslannye');
+    if(!блок||!сп) return;
+    сп.innerHTML='';
+    (список||[]).forEach(function(ч){
+      сп.appendChild(человек(ч,[{ т:'Отменить', жать:function(){
+        Д.отклонить(ч.deviceId).then(обновитьЗаявки).catch(function(e){ сказать(ошибкаТекстом(e),true) });
+      }}]));
+    });
+    блок.hidden=!(список||[]).length;
+  }
+  function обновитьЗаявки(){
+    Д.заявки().then(function(сп){
+      показатьЗаявки(сп);
+      сколькоПросятся=(сп||[]).length;
+      подписьСтроки();
+    }).catch(function(){});
+    if(Д.посланные) Д.посланные().then(показатьПосланные).catch(function(){});
+  }
 
   /* Первый заход: показываем сохранённый список сразу, потом обновляем из
      базы. Сбой не оставляет человека с точками без объяснения — говорим
@@ -1280,7 +1385,7 @@
     сост.textContent='Подключаюсь…';
     кнПовтор.hidden=true;
     return Д.объявиться()
-      .then(function(){ показатьКод(); return Д.забратьОтветы(); })
+      .then(function(){ показатьКод(); return Д.перенести ? Д.перенести() : null; })
       .then(function(){ return Д.друзья(); })
       .then(показатьДрузей)
       .then(обновитьЗаявки)

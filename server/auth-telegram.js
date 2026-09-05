@@ -119,7 +119,7 @@ function reqPath(event){
 }
 function isEmailPath(event){
   const p = reqPath(event);
-  return /\/auth\/email\//.test(p) || /\/account(\/|\?|$)/.test(p) || /\/zayavk/.test(p);
+  return /\/auth\/email\//.test(p) || /\/account(\/|\?|$)/.test(p) || /\/zayavk/.test(p) || /\/druzya/.test(p);
 }
 
 exports.handler = async (event) => {

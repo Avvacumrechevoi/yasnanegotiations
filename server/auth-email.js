@@ -602,6 +602,14 @@ exports.handler = async (event) => {
     /* Заявки «Посчитать имя» живут в своём модуле, но в ЭТОМ пакете: здесь
        уже есть почта, разбор токена и живой драйвер YDB. Помощники отдаём
        параметром — свои копии разошлись бы с этими на первой же правке. */
+    /* Друзья — свой модуль в этом же пакете (миграция 006). Помощники и сюда
+       передаём параметром, а не даём модулю свои копии. */
+    if(/\/druzya/.test(path)) return await require('./druzya.js').route(drv, {
+      method, path, body, event,
+      query: event.queryStringParameters || {},
+      д: { TypedValues, Types, ok, fail, txt, num, ts, clean, ipHash,
+           throttleHit, verifyJWT, loadProfile, mailer },
+    });
     if(/\/zayavk/.test(path)) return await require('./zayavki.js').route(drv, {
       method, path, body, event,
       query: event.queryStringParameters || {},

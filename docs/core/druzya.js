@@ -35,7 +35,6 @@
   var КЛЮЧ_PID = 'yasna_pid_v1';            /* мой публичный id в базе друзей */
   var КЛЮЧ_КОД = 'yasna_moy_kod_v1';        /* мой код дружбы */
   var КЛЮЧ_ДРУЗЬЯ = 'yasna_druzya_v1';      /* зеркало списка: работает офлайн */
-  var КЛЮЧ_ИСХОД = 'yasna_zayavki_out_v1';  /* кому я сам отправлял заявки */
   var КЛЮЧ_СЛЕПОК = 'yasna_druzya_kartochka_v1'; /* что уже лежит в базе */
   var АЛФАВИТ = 'BCDFGHJKLMNPQRSTVWXZ23456789';   /* тот же, что у кодов комнат */
 
@@ -106,190 +105,259 @@
     return к;
   }
 
-  /* ── Моя карточка и мой код ─────────────────────────────────────────── */
-  function мойКод() {
-    var есть = читать(КЛЮЧ_КОД, null);
-    if (есть) return есть;
-    var id = мойId();
-    if (!id) return null;
-    var к = случайныйКод();
-    писать(КЛЮЧ_КОД, к);
-    return к;
+  /* ══ ДРУЖБА ЖИВЁТ В ТАБЛИЦАХ ══════════════════════════════════════════
+     Раньше она лежала в дереве Firebase, и оттуда следовали все беды: адрес
+     человека был записью в памяти телефона (переустановил — стал другим),
+     «убрать друга» правило разрешало только в своей половине (убранный
+     продолжал видеть и звать), согласие ложилось в ящик otvety и дружба
+     завершалась лишь тогда, когда позвавший сам откроет приложение, а мусор
+     от прежних личностей оставался в дереве навсегда.
+
+     Теперь всё это — две таблицы (миграция 006) и пять ручек сервера. Обе
+     половины пары меняются ОДНИМ запросом, поэтому разойтись не могут.
+
+     ЗАЧЕМ ДЕРЕВО ВСЁ-ТАКИ ОСТАЛОСЬ. Зовы в Партию живут в нём: им нужна
+     секунда доставки. Их правило требует, чтобы ПОЛУЧАТЕЛЬ имел зовущего в
+     СВОЁМ узле druzya/. Написать туда может только сам получатель — значит
+     каждый отражает свой список друзей в дерево сам. Это тень, а не правда:
+     правда в таблицах. Когда владелец опубликует правило зовов без проверки
+     дружбы, тень можно снять. */
+
+  var КЛЮЧ_СПИСОК_ТЕНЬ = 'yasna_druzya_ten_v1';
+
+  function адресAPI() {
+    var м = document.querySelector('meta[name="yasna:api"]');
+    return (м && м.getAttribute('content')) || '';
   }
-
-  /* Публикуем себя: карточку и код. Без этого друг не найдёт по коду.
-
-     Пишем ТОЛЬКО когда карточка разошлась с тем, что уже лежит в базе.
-     Раньше объявиться() звали на каждом заходе на экран, и каждый заход
-     стоил двух записей в общую базу — при том, что имя и зверь меняются
-     раз в жизни, а код и подавно. Слепок держим у себя: сошёлся — сеть не
-     трогаем вовсе. В слепок входит и uid: после очистки данных вход даёт
-     новый uid, и карточку надо переподписать, иначе правило TOFU перестанет
-     признавать узел своим. */
-  function слепок(id, код, п) {
-    return [id, код, (п.nickname || 'Игрок').slice(0, 40),
-            (п.avatar || '✦').slice(0, 8), uid].join('\u0001');
+  /* Право на свой pid доказываем так же, как весь остальной бэкенд: токеном
+     вошедшего либо секретом устройства. Голого адреса серверу мало — иначе,
+     узнав чужой pid из заявки, можно было бы говорить от его имени. */
+  function шапка() {
+    var ш = { 'Content-Type': 'application/json' };
+    try {
+      var т = localStorage.getItem('yasna_duel_token');
+      if (т) ш.Authorization = 'Bearer ' + т;
+    } catch (e) {}
+    try {
+      if (window.YasnaStorage && window.YasnaStorage.deviceSecret)
+        ш['X-Device-Secret'] = window.YasnaStorage.deviceSecret();
+    } catch (e) {}
+    return ш;
   }
-
-  function объявиться() {
-    var id = мойId(), к = мойКод(), п = профиль();
-    if (!id || !к) return Promise.reject(new Error('нет-профиля'));
-    return подключиться().then(function () {
-      if (читать(КЛЮЧ_СЛЕПОК, null) === слепок(id, к, п)) return true;
-      var карточка = { nick: (п.nickname || 'Игрок').slice(0, 40),
-                       avatar: (п.avatar || '✦').slice(0, 8), uid: uid, ts: Date.now() };
-      /* Раздельно: если код кем-то занят (совпадение), карточка всё равно
-         должна встать — иначе у человека отваливаются и друзья, и зовы. */
-      return db.ref('lyudi/' + id).update(карточка).then(function () {
-        return db.ref('kody/' + к).update({ pid: id, uid: uid, ts: Date.now() })
-          .then(function () { return к; })
-          .catch(function () {
-            /* Код занят — берём новый и пробуем ещё раз (один раз). */
-            var н = случайныйКод(); писать(КЛЮЧ_КОД, н);
-            return db.ref('kody/' + н).update({ pid: id, uid: uid, ts: Date.now() })
-              .then(function () { return н; });
-          });
-      }).then(function (кодИтог) {
-        /* Слепок ставим только после удачной записи: сорвалось — в
-           следующий раз попробуем снова, а не промолчим навсегда. */
-        писать(КЛЮЧ_СЛЕПОК, слепок(id, кодИтог, п));
-        return true;
+  function зовAPI(путь, как, тело) {
+    var база = адресAPI();
+    if (!база) return Promise.reject(new Error('нет-api'));
+    var url = база + путь;
+    var П = (window.Capacitor && window.Capacitor.Plugins) || {};
+    /* В приложении — нативным запросом: тот же приём, что у проверки
+       обновлений, и он не зависит от настроек CORS. */
+    if (П.CapacitorHttp) {
+      var з = (как === 'POST')
+        ? П.CapacitorHttp.post({ url: url, headers: шапка(), data: тело || {} })
+        : П.CapacitorHttp.get({ url: url, headers: шапка() });
+      return з.then(function (r) {
+        var д = typeof r.data === 'string' ? JSON.parse(r.data || '{}') : (r.data || {});
+        if (r.status >= 400) { var e = new Error(д.detail || д.error || ('код ' + r.status)); e.код = r.status; throw e; }
+        return д;
       });
+    }
+    return fetch(url, { method: как, headers: шапка(),
+                        body: тело ? JSON.stringify(тело) : undefined })
+      .then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (д) {
+          if (!r.ok) { var e = new Error(д.detail || д.error || ('код ' + r.status)); e.код = r.status; throw e; }
+          return д;
+        });
+      });
+  }
+
+  /* ── Мой код ─────────────────────────────────────────────────────────
+     Код теперь выдаёт сервер и хранит таблица. Локальную копию держим, чтобы
+     показать его сразу, не дожидаясь сети, — но истина на сервере. */
+  function мойКод() { return читать(КЛЮЧ_КОД, null); }
+
+  /* ── Объявиться ──────────────────────────────────────────────────────
+     Заводит или обновляет карточку и отдаёт код. Прежний код передаём с
+     собой: у людей, заведённых до переезда, он уже разослан друзьям, и менять
+     его — значит рвать связь с теми, кто его записал. */
+  function объявиться() {
+    var id = мойId(), п = профиль();
+    if (!id) return Promise.reject(new Error('нет-профиля'));
+    var д = '';
+    try { д = localStorage.getItem('yasna_device_id_v1') || ''; } catch (e) {}
+    return зовAPI('/druzya/ya', 'POST', {
+      pid: id, deviceId: д,
+      nick: (п.nickname || 'Игрок').slice(0, 40),
+      avatar: (п.avatar || '✦').slice(0, 8),
+      kod: читать(КЛЮЧ_КОД, null) || undefined
+    }).then(function (о) {
+      /* СЕРВЕР МОГ ВЕРНУТЬ ДРУГОЙ АДРЕС. Так бывает у вошедшего на новом
+         телефоне: здесь приложение сочинило себе новый адрес, а в базе уже
+         лежит его прежний — с друзьями. Принимаем настоящий и запоминаем,
+         иначе человек пришёл бы в свой аккаунт и не нашёл никого. Зеркала
+         при смене адреса сбрасываем: они от прежней жизни. */
+      if (о && о.pid && о.pid !== id) {
+        try { localStorage.setItem(КЛЮЧ_PID, о.pid); } catch (e) {}
+        писать(КЛЮЧ_ДРУЗЬЯ, []);
+        писать(КЛЮЧ_СПИСОК_ТЕНЬ, []);
+        писать(КЛЮЧ_СЛЕПОК, null);
+        кэш = null;
+        id = о.pid;
+      }
+      if (о && о.kod) писать(КЛЮЧ_КОД, о.kod);
+      /* Тень в дереве: без карточки lyudi/<pid> правило зовов не пустит. */
+      теньКарточки(id, п).catch(function () {});
+      return о && о.kod;
     });
   }
 
-  /* ── Список друзей: зеркало в localStorage + свежесть из базы ───────── */
+  /* Тень карточки в дереве. Пишем только при расхождении: слепок держим у
+     себя, и сошёлся — сеть не трогаем. */
+  function слепок(id, п) {
+    return [id, (п.nickname || 'Игрок').slice(0, 40),
+            (п.avatar || '✦').slice(0, 8), uid].join('\u0001');
+  }
+  function теньКарточки(id, п) {
+    return подключиться().then(function () {
+      if (читать(КЛЮЧ_СЛЕПОК, null) === слепок(id, п)) return true;
+      return db.ref('lyudi/' + id).update({
+        nick: (п.nickname || 'Игрок').slice(0, 40),
+        avatar: (п.avatar || '✦').slice(0, 8), uid: uid, ts: Date.now()
+      }).then(function () { писать(КЛЮЧ_СЛЕПОК, слепок(id, п)); return true; });
+    });
+  }
+
+  /* Тень списка друзей. Правило зовов смотрит в узел ПОЛУЧАТЕЛЯ, а писать
+     туда может только он сам — поэтому каждый отражает свой список. Пишем
+     только разницу: список меняется редко, а лишняя запись в общую базу
+     стоит денег и подключений. */
+  function теньСписка(мои) {
+    var id = мойId();
+    if (!id) return Promise.resolve();
+    var было = читать(КЛЮЧ_СПИСОК_ТЕНЬ, []) || [];
+    var стало = мои.map(function (ч) { return ч.pid; }).sort();
+    if (было.join(',') === стало.join(',')) return Promise.resolve();
+    return подключиться().then(function () {
+      var дела = мои.map(function (ч) {
+        return db.ref('druzya/' + id + '/' + ч.pid)
+          .update({ nick: ч.nick, avatar: ч.avatar, ts: Date.now() })
+          .catch(function () {});
+      });
+      было.forEach(function (p) {
+        if (стало.indexOf(p) < 0) дела.push(db.ref('druzya/' + id + '/' + p).remove().catch(function () {}));
+      });
+      return Promise.all(дела).then(function () { писать(КЛЮЧ_СПИСОК_ТЕНЬ, стало); });
+    }).catch(function () {});
+  }
+
+  /* ── Разовый перенос дружбы из прежнего дерева ───────────────────────
+     У людей, заведённых до переезда, друзья лежат в зеркале списка (и в
+     дереве), а в таблицах их нет. Без этого шага обновление оставило бы
+     человека с пустым списком — потеря, а не переезд.
+
+     Сервер заводит пары ЗАЯВКАМИ, а не дружбой: поверить приложению на слово,
+     с кем оно дружило, нельзя. Когда вторая сторона тоже обновится и пришлёт
+     свой список, половины сойдутся сами — это тот же путь, что у встречных
+     заявок. Делаем один раз: метка остаётся, даже если перенос ничего не
+     нашёл, иначе запрос уходил бы при каждом заходе. */
+  var КЛЮЧ_ПЕРЕНОС = 'yasna_druzya_perenos_v1';
+  function перенести() {
+    try { if (localStorage.getItem(КЛЮЧ_ПЕРЕНОС)) return Promise.resolve(null); } catch (e) {}
+    var старые = (списокЛокально() || [])
+      .map(function (ч) { return ч.pid || ч.deviceId; })
+      .filter(function (p) { return !!p; });
+    var пометить = function () {
+      try { localStorage.setItem(КЛЮЧ_ПЕРЕНОС, String(Date.now())); } catch (e) {}
+    };
+    if (!старые.length) { пометить(); return Promise.resolve(null); }
+    return зовAPI('/druzya/perenos', 'POST', { pid: мойId(), pids: старые })
+      .then(function (о) { пометить(); кэш = null; return о; })
+      /* Не вышло — метку НЕ ставим: попробуем в следующий раз. Потерять
+         список из-за одного неудачного запроса нельзя. */
+      .catch(function () { return null; });
+  }
+
+  /* ── Состояние: друзья, входящие, посланные ──────────────────────────
+     Одним запросом. Держим его несколько секунд: экран профиля спрашивает и
+     друзей, и заявки подряд, а это один и тот же ответ. */
+  var кэш = null, кэшКогда = 0;
+  var КЭШ_ЖИВЁТ = 5000;
+  function состояние(свежее) {
+    if (!свежее && кэш && (Date.now() - кэшКогда) < КЭШ_ЖИВЁТ) return Promise.resolve(кэш);
+    var id = мойId();
+    if (!id) return Promise.resolve({ druzya: [], vhodyashchie: [], poslannye: [] });
+    return зовAPI('/druzya?pid=' + encodeURIComponent(id), 'GET').then(function (о) {
+      кэш = { druzya: о.druzya || [], vhodyashchie: о.vhodyashchie || [], poslannye: о.poslannye || [] };
+      кэшКогда = Date.now();
+      /* Зеркало для показа без сети + тень для зовов. */
+      писать(КЛЮЧ_ДРУЗЬЯ, кэш.druzya.map(одеть));
+      теньСписка(кэш.druzya);
+      return кэш;
+    });
+  }
+  /* Поле deviceId оставлено ИМЕНЕМ ради тех, кто читает список (Партия,
+     главная): значение — тот же публичный адрес, что и был. Переименовать
+     его — отдельная правка, и делать её заодно с переездом базы не стоит. */
+  function одеть(ч) {
+    return { pid: ч.pid, deviceId: ч.pid, nick: ч.nick || 'Игрок',
+             avatar: ч.avatar || '✦', ts: ч.ts || 0 };
+  }
+
   function списокЛокально() { return читать(КЛЮЧ_ДРУЗЬЯ, []) || []; }
 
   function друзья() {
-    var id = мойId();
-    if (!id) return Promise.resolve(списокЛокально());
-    return подключиться().then(function () {
-      return db.ref('druzya/' + id).once('value');
-    }).then(function (снимок) {
-      var из = снимок.val() || {}, список = [];
-      Object.keys(из).forEach(function (did) {
-        список.push({ deviceId: did, nick: из[did].nick || 'Игрок', avatar: из[did].avatar || '✦', ts: из[did].ts || 0 });
+    return состояние(true).then(function (с) {
+      return с.druzya.map(одеть).sort(function (a, b) {
+        return (a.nick || '').localeCompare(b.nick || '');
       });
-      список.sort(function (a, b) { return (a.nick || '').localeCompare(b.nick || ''); });
-      писать(КЛЮЧ_ДРУЗЬЯ, список);
-      /* Имя и зверь в списке — копия на момент дружбы. Подтягиваем свежие
-         карточки: человек мог переименоваться, и друг не должен видеть
-         старое имя вечно. Ошибки чтения не мешают показать список. */
-      Promise.all(список.map(function (ч) {
-        return db.ref('lyudi/' + ч.deviceId).once('value').then(function (к) {
-          var v = к.val(); if (!v) return;
-          if ((v.nick && v.nick !== ч.nick) || (v.avatar && v.avatar !== ч.avatar)) {
-            ч.nick = v.nick || ч.nick; ч.avatar = v.avatar || ч.avatar;
-            return db.ref('druzya/' + id + '/' + ч.deviceId)
-              .update({ nick: ч.nick, avatar: ч.avatar });
-          }
-        }).catch(function () {});
-      })).then(function () { писать(КЛЮЧ_ДРУЗЬЯ, список); }).catch(function () {});
-      return список;
     }).catch(function () { return списокЛокально(); });
   }
 
-  /* ── Заявка в друзья по коду ────────────────────────────────────────── */
+  function заявки() {
+    return состояние(false).then(function (с) { return с.vhodyashchie.map(одеть); })
+      .catch(function () { return []; });
+  }
+  /* Кому я сам написал и жду ответа. Раньше это жило только в памяти
+     телефона и никому не показывалось. */
+  function посланные() {
+    return состояние(false).then(function (с) { return с.poslannye.map(одеть); })
+      .catch(function () { return []; });
+  }
+
   function позвать(код) {
     var К = String(код || '').trim().toUpperCase().replace(/\s+/g, '');
     if (К.length !== 6) return Promise.reject(new Error('короткий-код'));
     if (К === мойКод()) return Promise.reject(new Error('это-я'));
-    var id = мойId(), п = профиль();
     return объявиться().then(function () {
-      return db.ref('kody/' + К).once('value');
-    }).then(function (с) {
-      var знач = с.val();
-      if (!знач || !знач.pid) throw new Error('нет-такого');
-      var цель = знач.pid;
-      if (цель === id) throw new Error('это-я');
-      return db.ref('zayavki/' + цель + '/' + id).set({
-        nick: (п.nickname || 'Игрок').slice(0, 40),
-        avatar: (п.avatar || '✦').slice(0, 8), uid: uid, ts: Date.now()
-      }).then(function () {
-        /* Помним, кому написали: чужой «ответ» без нашей заявки — попытка
-           навязать дружбу, и мы его не примем. */
-        var исход = читать(КЛЮЧ_ИСХОД, {}) || {};
-        исход[цель] = Date.now();
-        писать(КЛЮЧ_ИСХОД, исход);
-        return { deviceId: цель };
-      });
+      return зовAPI('/druzya/pozvat', 'POST', { pid: мойId(), kod: К });
+    }).then(function (о) {
+      кэш = null;
+      return о;
     });
   }
 
-  /* Мои входящие заявки (кто просится ко мне) */
-  function заявки() {
-    var id = мойId();
-    if (!id) return Promise.resolve([]);
-    return подключиться().then(function () {
-      return db.ref('zayavki/' + id).once('value');
-    }).then(function (с) {
-      var из = с.val() || {};
-      return Object.keys(из).map(function (did) {
-        return { deviceId: did, nick: из[did].nick || 'Игрок', avatar: из[did].avatar || '✦', ts: из[did].ts || 0 };
-      });
-    }).catch(function () { return []; });
+  function принять(другId) {
+    return зовAPI('/druzya/prinyat', 'POST', { pid: мойId(), drugPid: другId })
+      .then(function () { кэш = null; return друзья(); });
   }
-
-  function принять(другId, ник, аватар) {
-    var id = мойId(), п = профиль();
-    return подключиться().then(function () {
-      /* Порядок важен: правило разрешает ответ, только пока жива заявка,
-         поэтому сносим её последней. */
-      return db.ref('otvety/' + другId + '/' + id).set({
-        ok: true, nick: (п.nickname || 'Игрок').slice(0, 40),
-        avatar: (п.avatar || '✦').slice(0, 8), uid: uid, ts: Date.now()
-      }).then(function () {
-        return db.ref('druzya/' + id + '/' + другId)
-          .set({ nick: ник || 'Игрок', avatar: аватар || '✦', ts: Date.now() });
-      }).then(function () {
-        return db.ref('zayavki/' + id + '/' + другId).remove();
-      });
-    }).then(друзья);
-  }
-
   function отклонить(другId) {
-    var id = мойId();
-    return подключиться().then(function () {
-      return db.ref('zayavki/' + id + '/' + другId).remove();
-    });
+    return зовAPI('/druzya/zabyt', 'POST', { pid: мойId(), drugPid: другId })
+      .then(function () { кэш = null; });
   }
-
-  /* Ответы на мои заявки: подтверждённых переношу к себе в список */
-  function забратьОтветы() {
-    var id = мойId();
-    if (!id) return Promise.resolve(0);
-    return подключиться().then(function () {
-      return db.ref('otvety/' + id).once('value');
-    }).then(function (с) {
-      var из = с.val() || {}, все = Object.keys(из);
-      var исход = читать(КЛЮЧ_ИСХОД, {}) || {};
-      /* Чужой ответ без нашей заявки — навязанная дружба: стираем молча. */
-      var чужие = все.filter(function (k) { return !исход[k]; });
-      чужие.forEach(function (k) { db.ref('otvety/' + id + '/' + k).remove().catch(function () {}); });
-      var ключи = все.filter(function (k) { return !!исход[k] && из[k] && из[k].ok === true; });
-      if (!ключи.length) return 0;
-      var дела = ключи.map(function (did) {
-        return db.ref('druzya/' + id + '/' + did)
-          .set({ nick: из[did].nick || 'Игрок', avatar: из[did].avatar || '✦', ts: Date.now() })
-          .then(function () { return db.ref('otvety/' + id + '/' + did).remove(); })
-          .then(function () {
-            var и2 = читать(КЛЮЧ_ИСХОД, {}) || {}; delete и2[did]; писать(КЛЮЧ_ИСХОД, и2);
-          });
-      });
-      return Promise.all(дела).then(function () { return ключи.length; });
-    }).catch(function () { return 0; });
-  }
-
   function забыть(другId) {
-    var id = мойId();
-    /* Убираем из зеркала сразу: иначе при закрытой базе человек жмёт
+    /* Убираем из зеркала сразу: иначе при недоступном сервере человек жмёт
        «Убрать», видит ошибку и того же друга на месте. */
-    писать(КЛЮЧ_ДРУЗЬЯ, списокЛокально().filter(function (ч) { return ч.deviceId !== другId; }));
-    return подключиться().then(function () {
-      return db.ref('druzya/' + id + '/' + другId).remove();
-    }).then(друзья).catch(function () { return списокЛокально(); });
+    писать(КЛЮЧ_ДРУЗЬЯ, списокЛокально().filter(function (ч) {
+      return ч.pid !== другId && ч.deviceId !== другId;
+    }));
+    return зовAPI('/druzya/zabyt', 'POST', { pid: мойId(), drugPid: другId })
+      .then(function () { кэш = null; return друзья(); })
+      .catch(function () { return списокЛокально(); });
   }
+  /* Ящик ответов исчез вместе с переездом: согласие теперь ложится обеим
+     сторонам сразу. Имя оставлено, чтобы не ломать тех, кто его звал, — но
+     делает оно ровно одно: перечитывает список. */
+  function забратьОтветы() { return друзья().then(function (с) { return с.length; }); }
 
   /* ── Зов в комнату ──────────────────────────────────────────────────── */
   function позватьВКомнату(другId, код, вид) {
@@ -325,6 +393,7 @@
   window.YasnaDruzya = {
     мойКод: мойКод,
     объявиться: объявиться,
+    перенести: перенести,
     друзья: друзья,
     списокЛокально: списокЛокально,
     позвать: позвать,
@@ -332,6 +401,7 @@
     принять: принять,
     отклонить: отклонить,
     забратьОтветы: забратьОтветы,
+    посланные: посланные,
     забыть: забыть,
     позватьВКомнату: позватьВКомнату,
     слушатьЗовы: слушатьЗовы,

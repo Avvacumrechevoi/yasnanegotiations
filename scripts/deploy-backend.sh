@@ -70,7 +70,7 @@ src_for(){
 extras_for(){
   case "$1" in
     submit)        echo "progress.js rooms-legacy.js access.js" ;;
-    auth-telegram) echo "mailer.js auth-email.js zayavki.js access.js" ;;
+    auth-telegram) echo "mailer.js auth-email.js zayavki.js druzya.js access.js" ;;
     spar)          echo "access.js" ;;
     *)             echo "" ;;
   esac
