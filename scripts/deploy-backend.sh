@@ -137,7 +137,7 @@ runtime_for(){
 #   timeout_for <имя> <meta.txt>
 timeout_for(){
   case "$1" in
-    lenta-sbor) echo 120s ;;
+    lenta-sbor) echo 300s ;;   # t.me из облака отвечает медленно: пять источников по 30 с + повтор
     *)          cat "$2" ;;
   esac
 }
