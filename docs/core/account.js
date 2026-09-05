@@ -585,8 +585,11 @@
        телефоне это значит, что чужой сеанс не закрыть вовсе.
        Выход — действие местное: он стирает токен и синхронизированное с этого
        устройства, сервер для него не нужен. Значит и ждать сервер незачем. */
+    /* Экран может рисовать выход сам (в приложении он внизу, отдельно):
+       тогда ни ранней кнопки, ни кнопки в ряду здесь не будет. */
     var подвал = el('div', 'yac-row');
     var выйтиРано = el('button', 'yac-btn', 'Выйти');
+    if (о.безВыхода) { выйтиРано.hidden = true; }
     выйтиРано.addEventListener('click', function () {
       выйтиРано.disabled = true; выйтиРано.textContent = 'Выхожу…';
       Promise.resolve(logout()).then(function () {
@@ -653,6 +656,7 @@
         ряд.appendChild(привязать);
       }
       var выйти = el('button', 'yac-btn', 'Выйти');
+      if (о.безВыхода) выйти.hidden = true;
       выйти.addEventListener('click', function () {
         выйти.disabled = true; выйти.textContent = 'Выхожу…';
         Promise.resolve(logout()).then(function () {

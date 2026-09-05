@@ -172,6 +172,32 @@
     display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
   .zver.vybran{border-color:var(--syn);background:transparent}
 
+  /* ── Приглашение войти (гость) ────────────────────────────────────────────
+     Отдельная карточка, а не абзац внутри списка: раньше «Аккаунт» был не
+     строкой и не разделом, а четырьмя строками текста с кнопкой, вставленными
+     между строк списка, — и глаз спотыкался. Это единственная залитая цветом
+     карточка на экране: у гостя вход — главное действие, и он один имеет
+     право быть громким. */
+  .priglashenie{margin:12px 0 0;padding:16px;border-radius:16px;
+    background:var(--primary-container,#D6E3FE);color:var(--on-primary-container,#001D38);
+    display:grid;grid-template-columns:34px 1fr;gap:4px 12px;align-items:start}
+  .priglashenie .znak{background:rgba(255,255,255,.55);color:var(--syn)}
+  html[data-theme="dark"] .priglashenie .znak{background:rgba(255,255,255,.10)}
+  .priglashenie b{display:block;font:600 16px/1.35 Manrope,Inter,sans-serif}
+  .priglashenie p{margin:2px 0 0;font-size:13.5px;line-height:1.5;opacity:.85;max-width:none}
+  .priglashenie .knopka{grid-column:1 / -1;margin:12px 0 0}
+
+  /* Знак в строке списка: тот же, что у друзей и заявок. Строка со знаком
+     читается быстрее, чем строка с одним текстом, — глаз ловит форму раньше
+     слова. */
+  .str .znak{margin:0}
+  .str--tihaya .znak{opacity:.9}
+
+  /* Выход — внизу и тихо. Он не действие профиля, а конец сеанса: ему не
+     место рядом с «Сохранить», где он стоял третьей одинаковой кнопкой. */
+  .vyhod{margin:20px 0 0}
+  .vyhod .knopka{margin:0}
+
   /* ── Подпись раздела ─────────────────────────────────────────────────────
      Обычный регистр и 14 px: капслок 12 px не отличался от заголовков
      карточек, и разделитель читался как осиротевший заголовок. */
@@ -326,37 +352,50 @@
     <div class="soobshenie" id="soobshenie" role="status"></div>
   </section>
 
-  <!-- 2. АККАУНТ И ЛЮДИ. Это не настройки, поэтому идут сразу под сводкой и
-       без подписи раздела. Версия уехала вниз: за ней приходят реже всего. -->
-  <section class="spisok" id="spisok-ya">
+  <!-- 2. ВХОД. Гостю — приглашение отдельной карточкой: единственное громкое
+       место экрана. Вошедшему — две строки списка: почта и личные данные за
+       строкой. Поля больше не стоят раскрытыми посреди настроек. -->
+  <section class="priglashenie" id="priglashenie">
+    <span class="znak" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7l8.5 6 8.5-6"/></svg></span>
+    <div>
+      <b>Войти по почте</b>
+      <p id="vhod-opis">Прогресс сохранится и вернётся на другом телефоне.
+         Пароля нет — код придёт письмом.</p>
+    </div>
+    <button class="knopka" id="vhod-knopka" type="button">Войти</button>
+  </section>
+
+  <section class="spisok" id="spisok-akkaunt" hidden>
     <div class="str str--tihaya">
+      <span class="znak" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7l8.5 6 8.5-6"/></svg></span>
       <span class="str-txt">
-        <span class="str-zag">Аккаунт</span>
-        <span class="str-pod" id="vhod-status">Вы играете гостем</span>
+        <span class="str-zag">Почта</span>
+        <span class="str-pod" id="vhod-status">—</span>
       </span>
     </div>
-    <div class="telo">
-      <!-- Причина входа стоит открытым текстом, а не за знаком «i»: без неё
-           человек не знает, что даёт вход, и кнопка висит просьбой ни о чём.
-           Про удаление говорим вошедшему и рядом с самой кнопкой (она внутри
-           полей аккаунта), а не гостю, у которого её нет. -->
-      <!-- Что даёт вход — говорили. Чего лишается гость — молчали, а это
-           половина причины входить. -->
-      <p class="opis" id="vhod-opis">Сохраняет прогресс и возвращает его на другом телефоне.
-        Пароля нет — код придёт на почту.<br>
-        Без входа уроки и партии живут только на этом телефоне и уходят вместе
-        с приложением.</p>
-      <button class="knopka" id="vhod-knopka" type="button">Войти по почте</button>
-      <!-- Поля аккаунта стоят здесь же, а не за кнопкой «Мой аккаунт»: человек
-           должен видеть, что у него заполнено, не открывая ничего. Рисует их
-           core/account.js (встроить) — тот же код, что и в окне на сайте.
-           Класс .akkaunt важен: по нему account.js понимает, что форма уже на
-           экране, и не открывает поверх неё окно «Мой профиль». -->
-      <div class="akkaunt" id="akkaunt" hidden></div>
+    <button class="str" type="button" id="lichnoe-str"
+            aria-expanded="false" aria-controls="lichnoe-telo">
+      <span class="znak" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 19.5c0-3.6 3-6 7-6s7 2.4 7 6"/></svg></span>
+      <span class="str-txt">
+        <span class="str-zag">Личные данные</span>
+        <span class="str-pod" id="lichnoe-pod">Фамилия и телефон</span>
+      </span>
+      <span class="str-hvost"><i class="shevron" aria-hidden="true"></i></span>
+    </button>
+    <div class="telo" id="lichnoe-telo" hidden>
+      <!-- Поля рисует core/account.js (встроить). Класс .akkaunt важен: по
+           нему account.js понимает, что форма уже на экране, и не открывает
+           поверх неё окно «Мой профиль». -->
+      <div class="akkaunt" id="akkaunt"></div>
     </div>
+  </section>
 
+  <!-- 3. ЛЮДИ И ЯСНА. Свои люди и заявка на расчёт имени — одна карточка:
+       обе строки про то, что делает для человека Ясна и её люди. -->
+  <section class="spisok" id="spisok-ya">
     <button class="str" type="button" id="lyudi-str"
             aria-expanded="false" aria-controls="lyudi-telo">
+      <span class="znak" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><path d="M16.5 11.2a2.6 2.6 0 1 0 0-5.2"/><path d="M17 14.4c2.2.4 3.7 2.2 3.7 4.6"/></svg></span>
       <span class="str-txt">
         <span class="str-zag">Свои люди</span>
         <span class="str-pod" id="lyudi-pod">Играть в Партию с друзьями</span>
@@ -421,18 +460,15 @@
       <p class="opis" id="druzya-perenos">Вошли по почте — друзья найдутся на
          любом телефоне. Гостю они видны только на этом.</p>
     </div>
-  </section>
 
-  <!-- 3. ИМЯ. Просьба посчитать имя — это разговор с человеком, а не расчёт
-       в приложении. Поэтому здесь заявка с состоянием, а не кнопка «узнать»:
-       у обещания ответить должен быть виден срок жизни. -->
-  <div class="razdel">Имя</div>
-  <section class="spisok">
+    <!-- Просьба посчитать имя — разговор с человеком, а не расчёт в
+         приложении. Поэтому заявка с состоянием, а не кнопка «узнать». -->
     <button class="str" type="button" id="imya-str"
             aria-expanded="false" aria-controls="imya-telo">
+      <span class="znak" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l2.2 6.8L21 12l-6.8 2.2L12 21l-2.2-6.8L3 12l6.8-2.2z"/></svg></span>
       <span class="str-txt">
         <span class="str-zag">Посчитать имя</span>
-        <span class="str-pod" id="imya-pod">Считает команда Ясны и связывается с вами</span>
+        <span class="str-pod" id="imya-pod">Считает команда Ясны — и отвечает вам</span>
       </span>
       <span class="str-hvost"><i class="shevron" aria-hidden="true"></i></span>
     </button>
@@ -468,6 +504,7 @@
   <section class="spisok">
     <button class="str" type="button" id="tema-str"
             aria-expanded="false" aria-controls="tema-telo">
+      <span class="znak" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17"/><path d="M12 7a5 5 0 0 1 0 10"/></svg></span>
       <span class="str-txt">
         <span class="str-zag">Вид</span>
         <span class="str-pod" id="tema-pod">Как в системе</span>
@@ -488,6 +525,7 @@
     <!-- Переключатель вместо залитой кнопки «Включить»: включение уведомлений
          кричало на экране так же громко, как вход. -->
     <button class="str" type="button" role="switch" aria-checked="false" id="push-knopka">
+      <span class="znak" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M18 8.5a6 6 0 1 0-12 0c0 5-2 6.5-2 6.5h16s-2-1.5-2-6.5"/><path d="M13.7 19a2 2 0 0 1-3.4 0"/></svg></span>
       <span class="str-txt">
         <span class="str-zag">Утренняя цитата</span>
         <span class="str-pod" id="push-status">Каждое утро в 9:30</span>
@@ -506,6 +544,7 @@
   <section class="spisok">
     <button class="str" type="button" id="dannye-str"
             aria-expanded="false" aria-controls="dannye-telo">
+      <span class="znak" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 12.5h8M8 16h5"/></svg></span>
       <span class="str-txt">
         <span class="str-zag">Что о вас хранится</span>
         <span class="str-pod">И как забрать это себе</span>
@@ -532,12 +571,19 @@
   <div class="razdel">О приложении</div>
   <section class="spisok">
     <button class="str" type="button" id="obnova-knopka">
+      <span class="znak" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 13.7-5.7L20 8.5"/><path d="M20 4v4.5h-4.5"/><path d="M20 12a8 8 0 0 1-13.7 5.7L4 15.5"/><path d="M4 20v-4.5h4.5"/></svg></span>
       <span class="str-txt">
         <span class="str-zag">Проверить обновления</span>
         <span class="str-pod" id="obnova-status">Ясна для Android</span>
       </span>
     </button>
     <div class="telo telo--sms"><div class="soobshenie" id="obnova-soobshenie" role="status"></div></div>
+  </section>
+
+  <!-- 7. ВЫХОД. В самом низу и тихой кнопкой: это конец сеанса, а не правка
+       профиля, и стоять ему рядом с «Сохранить» незачем. Только вошедшему. -->
+  <section class="vyhod" id="vyhod-blok" hidden>
+    <button class="knopka knopka--tihaya" id="vyhod-knopka" type="button">Выйти из аккаунта</button>
   </section>
 </main>
 
@@ -747,6 +793,7 @@
   связать('tema-str','tema-telo');
   связать('dannye-str','dannye-telo');
   связать('imya-str','imya-telo');
+  связать('lichnoe-str','lichnoe-telo');
 
   /* ─── ЗАЯВКА «ПОСЧИТАТЬ ИМЯ» ──────────────────────────────────────────
      Считает человек, а не программа, поэтому здесь заявка с состоянием, а не
@@ -932,6 +979,10 @@
   var статус=document.getElementById('vhod-status');
   var кнВход=document.getElementById('vhod-knopka');
   var опис=document.getElementById('vhod-opis');
+  var приглашение=document.getElementById('priglashenie');
+  var карточкаАккаунта=document.getElementById('spisok-akkaunt');
+  var блокВыхода=document.getElementById('vyhod-blok');
+  var подписьЛичного=document.getElementById('lichnoe-pod');
   /* ВОШЁЛ ИЛИ НЕТ — ОДИН ВОПРОС С ОДНИМ ОТВЕТОМ: есть ли токен.
      Раньше верхняя строка спрашивала «токен И сохранённый пользователь», а
      блок полей ниже — только «токен». Стоило пропасть объекту пользователя
@@ -941,19 +992,21 @@
      видит это как «показано, что я вошёл, и тут же предлагают войти».
      Почта — не признак входа, а подробность: её и покажем, когда знаем. */
   function вошли(){ return !!localStorage.getItem('yasna_duel_token'); }
+  /* ДВА СОСТОЯНИЯ — ДВА РАЗНЫХ БЛОКА, а не один блок, меняющий начинку.
+     Гостю — приглашение отдельной карточкой, вошедшему — строки аккаунта и
+     «Выйти» внизу. Раньше одна карточка «Аккаунт» пыталась быть и тем и
+     другим: у гостя — абзацем с кнопкой, у вошедшего — раскрытой формой. */
   function показатьВход(){
     var польз=null;
     try{ польз=JSON.parse(localStorage.getItem('yasna_duel_user')) }catch(e){}
-    if(вошли()){
+    var в=вошли();
+    if(приглашение) приглашение.hidden=в;
+    if(карточкаАккаунта) карточкаАккаунта.hidden=!в;
+    if(блокВыхода) блокВыхода.hidden=!в;
+    if(в){
       /* Сервер отдаёт nickname/firstName/email; поля name у него нет — раньше
          тут почти всегда выводилось слово «аккаунт». */
       статус.textContent=(польз&&польз.email)||'Вход выполнен';
-      кнВход.hidden=true;
-      опис.hidden=true;
-    } else {
-      статус.textContent='Вы играете гостем';
-      кнВход.hidden=false;
-      опис.hidden=false;
     }
   }
   кнВход.onclick=function(){
@@ -963,11 +1016,11 @@
   function показатьПоля(){
     var узел=document.getElementById('akkaunt');
     if(!узел||!window.YasnaAccount) return;
-    узел.hidden=!вошли();
     if(вошли()) window.YasnaAccount.встроить(узел,{
-      /* Имя рисует карточка наверху — оно одно на всё. Почта уже стоит
-         подписью строки «Аккаунт». Удаление уехало вниз, в «Данные». */
-      безИмени:true, безПочты:true, безУдаления:true,
+      /* Имя рисует карточка наверху — оно одно на всё. Почта стоит своей
+         строкой. Удаление уехало в «Данные», выход — в самый низ экрана.
+         Здесь остаются фамилия, телефон и «Сохранить». */
+      безИмени:true, безПочты:true, безУдаления:true, безВыхода:true,
       приДанных:принятьДанныеАккаунта,
       приВыходе:function(){ показатьВход(); показатьПоля(); показатьДанные(); }
     });
@@ -975,6 +1028,20 @@
     показатьУдаление();
     показатьДанные();
   }
+  /* Выход — внизу экрана, тихой кнопкой. Сервер ему не нужен: он стирает
+     токен и синхронизированное с этого телефона. */
+  (function(){
+    var кн=document.getElementById('vyhod-knopka');
+    if(!кн) return;
+    кн.onclick=function(){
+      кн.disabled=true; кн.textContent='Выхожу…';
+      Promise.resolve(window.YasnaAccount && window.YasnaAccount.logout()).then(function(){
+        кн.disabled=false; кн.textContent='Выйти из аккаунта';
+        показатьВход(); показатьПоля(); показатьДанные();
+        try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); }
+      });
+    };
+  })();
 
   /* ОДНО ИМЯ НА ВСЁ. У вошедшего источник правды — сервер: имя переезжает
      вместе с аккаунтом, и на новом телефоне человек находит себя, а не Гостя.
@@ -983,6 +1050,14 @@
      человеку сообщением про сервер незачем. */
   function принятьДанныеАккаунта(u){
     if(!u) return;
+    /* Строка «Личные данные» говорит, что заполнено, не раскрываясь:
+       «Петров · +7 900…» или «Не заполнены». */
+    if(подписьЛичного){
+      var части=[];
+      if(u.lastName) части.push(u.lastName);
+      if(u.phone) части.push(u.phone);
+      подписьЛичного.textContent = части.length ? части.join(' · ') : 'Фамилия и телефон — не заполнены';
+    }
     /* Почту в строке «Аккаунт» ставим по ответу сервера, а не только по
        сохранённому объекту пользователя: его может не быть (вход с другого
        экрана, чистка, старый ключ). Панель полей почту больше не печатает —
@@ -1022,7 +1097,7 @@
     var д=e&&e.detail;
     if(!д||!д.вошли) return;
     снэкбар((д.новый?'Аккаунт создан':'Вы вошли')+(д.почта?': '+д.почта:''));
-    var список=document.getElementById('spisok-ya');
+    var список=document.getElementById('spisok-akkaunt');
     if(!список) return;
     try{ список.scrollIntoView({behavior:'smooth',block:'start'}); }
     catch(_){ список.scrollIntoView(); }
@@ -1105,8 +1180,8 @@
   var пСооб=document.getElementById('push-soobshenie');
   function показатьПуш(){
     var вкл=!!(window.yasnaPushiVkl && window.yasnaPushiVkl());
-    пСтатус.textContent=вкл?'Каждое утро в 9:30 — строка из книги «Ясна Суток»'
-                          :'Выключена. Интернет для неё не нужен.';
+    пСтатус.textContent=вкл?'Каждое утро в 9:30 — строка из книги'
+                          :'Выключена · без интернета';
     пКнопка.setAttribute('aria-checked', вкл?'true':'false');
   }
   пКнопка.onclick=function(){
