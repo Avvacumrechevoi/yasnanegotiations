@@ -560,6 +560,10 @@
 <script src="vendor/js/firebase-app-compat-10.13.2.js"></script>
 <script src="vendor/js/firebase-auth-compat-10.13.2.js"></script>
 <script src="vendor/js/firebase-database-compat-10.13.2.js"></script>
+<!-- Один транспорт к серверу на всё приложение: срок, повторы
+     только для чтения, предохранитель. Подключён ДО druzya.js —
+     тот им пользуется. -->
+<script src="core/svyaz.js"></script>
 <script src="core/druzya.js"></script>
 <script src="citaty.js"></script>
 <script src="obnovlenie.js"></script>
@@ -753,28 +757,14 @@
      проверки обновлений. Браузерный fetch упёрся бы в CORS хранилища на части
      сборок, а нативному запросу он безразличен. Вне приложения — обычный
      fetch, там свой origin в белом списке. */
-  var АДРЕС_API=(document.querySelector('meta[name="yasna:api"]')||{}).content||'';
+  /* Заявка ходит тем же транспортом, что и всё остальное (core/svyaz.js):
+     срок, отсутствие повторов у записи и предохранитель — там, а не здесь.
+     Своя копия этого кода была третьей в приложении, и у неё, как и у
+     друзей, не было срока: молчащий сервер оставлял кнопку в «Отправляю…». */
   function зовАПИ(путь, как, тело){
-    var url=АДРЕС_API+путь;
-    var шапка={'Content-Type':'application/json'};
-    var т=null;
-    try{ т=localStorage.getItem('yasna_duel_token'); }catch(e){}
-    if(т) шапка.Authorization='Bearer '+т;
-    var П=(window.Capacitor&&window.Capacitor.Plugins)||{};
-    if(П.CapacitorHttp){
-      var зов=(как==='POST')
-        ? П.CapacitorHttp.post({url:url,headers:шапка,data:тело||{}})
-        : П.CapacitorHttp.get({url:url,headers:шапка});
-      return зов.then(function(r){
-        var д=typeof r.data==='string'?JSON.parse(r.data||'{}'):(r.data||{});
-        if(r.status>=400){ var e=new Error(д.detail||д.error||('код '+r.status)); e.код=r.status; throw e; }
-        return д;
-      });
-    }
-    return fetch(url,{method:как,headers:шапка,body:тело?JSON.stringify(тело):undefined})
-      .then(function(r){ return r.json().catch(function(){return {}}).then(function(д){
-        if(!r.ok){ var e=new Error(д.detail||д.error||('код '+r.status)); e.код=r.status; throw e; }
-        return д; }); });
+    var С=window.YasnaSvyaz;
+    if(!С) return Promise.reject(new Error('Не загрузился модуль связи.'));
+    return С.зов(путь, { как: как, тело: тело });
   }
 
   var СОСТОЯНИЕ_СЛОВАМИ={
@@ -838,7 +828,10 @@
       кн.disabled=false;
       /* Причину называем словами сервера, когда он их дал: «вы уже оставили
          заявку» человеку понятнее, чем «ошибка 429». */
-      сказать(e && e.message ? e.message : 'Не удалось отправить — нет связи. Попробуйте позже.', true);
+      /* Причину называет транспорт: он один знает, это нет сети, сервер
+         молчит или сервер отказал и что именно сказал. */
+      сказать(window.YasnaSvyaz ? window.YasnaSvyaz.словами(e)
+              : (e && e.message) || 'Не удалось отправить.', true);
     });
   };
 
@@ -1193,6 +1186,11 @@
   }
   function ошибкаТекстом(e){
     var к=String((e && e.message) || e);
+    /* Транспорт (core/svyaz.js) знает, что именно случилось: нет сети у
+       телефона, сервер молчит или сервер отказал и что сказал. Свои догадки
+       по тексту сообщения оставляем только для того, чего он не покрывает —
+       ошибок самой базы друзей. */
+    if(e && e.причина && window.YasnaSvyaz) return window.YasnaSvyaz.словами(e);
     if(к==='нет-sdk') return 'Друзья работают только в приложении.';
     if(к==='нет-такого') return 'Такого кода нет. Проверьте буквы.';
     if(к==='это-я') return 'Это ваш собственный код.';
@@ -1423,7 +1421,24 @@
       .then(function(){ return Д.друзья(); })
       .then(показатьДрузей)
       .then(обновитьЗаявки)
-      .catch(function(e){ кодНеГотов(безТихо(ошибкаТекстом(e))); });
+      .catch(function(e){
+        /* КОД, РАЗ ПОДТВЕРЖДЁННЫЙ СЕРВЕРОМ, НЕ ПРОПАДАЕТ ВМЕСТЕ СО СВЯЗЬЮ.
+           В хранилище он оказывается только после удачного ответа сервера —
+           значит он настоящий, друг по нему найдёт человека, и прятать его за
+           точками из-за сегодняшнего обрыва незачем. Точки остаются для того,
+           у кого кода ещё НИКОГДА не было: показать неподтверждённый код
+           нельзя, друг услышал бы «такого кода нет».
+           Так экран и ведёт себя честно: код на месте, а строкой ниже сказано,
+           что список друзей мог устареть. */
+        var причина=безТихо(ошибкаТекстом(e));
+        if(Д.мойКод()){
+          показатьКод();
+          сост.textContent = причина + ' Список друзей мог устареть.';
+          кнПовтор.hidden = false;
+        } else {
+          кодНеГотов(причина);
+        }
+      });
   }
   кнПовтор.onclick=function(){ подключиться(); };
   подключиться();

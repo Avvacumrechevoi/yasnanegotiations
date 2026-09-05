@@ -28,6 +28,8 @@
     'vendor/js/firebase-app-compat-10.13.2.js',
     'vendor/js/firebase-auth-compat-10.13.2.js',
     'vendor/js/firebase-database-compat-10.13.2.js',
+    /* Транспорт грузим ПЕРЕД друзьями: они через него ходят на сервер. */
+    'core/svyaz.js',
     'core/druzya.js'
   ];
 

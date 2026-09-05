@@ -128,50 +128,15 @@
 
   var КЛЮЧ_СПИСОК_ТЕНЬ = 'yasna_druzya_ten_v1';
 
-  function адресAPI() {
-    var м = document.querySelector('meta[name="yasna:api"]');
-    return (м && м.getAttribute('content')) || '';
-  }
-  /* Право на свой pid доказываем так же, как весь остальной бэкенд: токеном
-     вошедшего либо секретом устройства. Голого адреса серверу мало — иначе,
-     узнав чужой pid из заявки, можно было бы говорить от его имени. */
-  function шапка() {
-    var ш = { 'Content-Type': 'application/json' };
-    try {
-      var т = localStorage.getItem('yasna_duel_token');
-      if (т) ш.Authorization = 'Bearer ' + т;
-    } catch (e) {}
-    try {
-      if (window.YasnaStorage && window.YasnaStorage.deviceSecret)
-        ш['X-Device-Secret'] = window.YasnaStorage.deviceSecret();
-    } catch (e) {}
-    return ш;
-  }
+  /* Все запросы — через общий транспорт core/svyaz.js: срок, повторы только
+     для чтения, предохранитель и разбор причины там одни на всё приложение.
+     Своя копия этого кода жила здесь ровно один день и уже успела показать,
+     чем это кончается: у друзей не было ни срока, ни повторов, и при мёртвом
+     шлюзе экран висел, а человек читал «Не получилось». */
   function зовAPI(путь, как, тело) {
-    var база = адресAPI();
-    if (!база) return Promise.reject(new Error('нет-api'));
-    var url = база + путь;
-    var П = (window.Capacitor && window.Capacitor.Plugins) || {};
-    /* В приложении — нативным запросом: тот же приём, что у проверки
-       обновлений, и он не зависит от настроек CORS. */
-    if (П.CapacitorHttp) {
-      var з = (как === 'POST')
-        ? П.CapacitorHttp.post({ url: url, headers: шапка(), data: тело || {} })
-        : П.CapacitorHttp.get({ url: url, headers: шапка() });
-      return з.then(function (r) {
-        var д = typeof r.data === 'string' ? JSON.parse(r.data || '{}') : (r.data || {});
-        if (r.status >= 400) { var e = new Error(д.detail || д.error || ('код ' + r.status)); e.код = r.status; throw e; }
-        return д;
-      });
-    }
-    return fetch(url, { method: как, headers: шапка(),
-                        body: тело ? JSON.stringify(тело) : undefined })
-      .then(function (r) {
-        return r.json().catch(function () { return {}; }).then(function (д) {
-          if (!r.ok) { var e = new Error(д.detail || д.error || ('код ' + r.status)); e.код = r.status; throw e; }
-          return д;
-        });
-      });
+    var С = window.YasnaSvyaz;
+    if (!С) return Promise.reject(new Error('нет-транспорта'));
+    return С.зов(путь, { как: как, тело: тело });
   }
 
   /* ── Мой код ─────────────────────────────────────────────────────────
