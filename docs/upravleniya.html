@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="robots" content="noindex, nofollow"/>
+<meta name="yandex" content="noindex, nofollow"/>
+<meta name="yasna:api" content="https://d5dmdje8c5mk8811il5j.iwzqm34r.apigw.yandexcloud.net"/>
+<!-- Замок: подключён ПЕРВЫМ, до всего остального (см. core/gate.js) -->
+<script src="core/gate.js"></script>
+<script>try{var m=localStorage.getItem('yasna_theme')||'auto';var d=m==='dark'||(m==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches);var e=document.documentElement;e.setAttribute('data-theme',d?'dark':'light');e.style.colorScheme=d?'dark':'light';}catch(e){}</script>
+<script src="core/theme.js?v=86eb1366"></script>
+<script src="core/storage.js?v=f1f80300"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes,viewport-fit=cover"/>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<meta name="theme-color" content="#0071e3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0b0d" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ясна">
+<title>Управления центра · Ясна</title>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     «УПРАВЛЕНИЯ ЦЕНТРА» — двенадцать управлений «Золотого Ясеня».
+
+     ЗАЧЕМ. Уроки, книги и занятия приложения ведут живые люди — управления
+     центра. До этого экрана они нигде не были названы: человек читал книгу
+     и не знал, кто её издал, проходил урок и не знал, к кому идти дальше.
+     Здесь — все двенадцать, в порядке сайта: чем заняты, кто ведёт, в каком
+     формате, куда записаться и вводный урок каждого.
+
+     ДАННЫЕ — core/upravleniya-dannye.js, собранный из content/upravleniya.json
+     сайта zolotoj-yasen.ru; при расхождении прав сайт. Страница ничего не
+     тянет с чужих серверов: эмблемы лежат в assets/upravleniya/, а внешние
+     ссылки (запись, страница, каналы) открываются системным браузером.
+
+     ПРАВИЛА САЙТА, которые держим: «управления», не «направления»; названия
+     по-русски как в данных; эмблемы на светлом диске, без перекраски и
+     обрезки; где страницы нет — ведём на запись; общие телефоны — у центра,
+     а не у управлений; числа и даты — только с сайта.
+
+     Страница нарочно простая: обычные script-теги, никакой сборки — как
+     biblioteka.html. Оболочка приложения рисует шапку с «назад» на
+     Библиотеку (метки ставит app/sobrat-vitrinu.mjs).
+     ═══════════════════════════════════════════════════════════════════════ -->
+
+<link rel="stylesheet" href="core/tokeny.css">
+<link rel="stylesheet" href="vendor/fonts/shrifty.css">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--surface);color:var(--on-surface);
+  font-family:var(--ya-font-text,system-ui,sans-serif);-webkit-font-smoothing:antialiased}
+.up-shapka{padding:20px 16px 4px}
+.up-shapka h1{font:var(--type-headline-l)}
+.up-pod{margin-top:6px;font:var(--type-body-m);color:var(--on-surface-variant)}
+.up-telo{padding:12px 16px 28px;display:flex;flex-direction:column;gap:22px}
+.up-razdel h2{font:var(--type-label-m);text-transform:uppercase;letter-spacing:.6px;
+  color:var(--on-surface-variant);margin-bottom:10px}
+
+/* ── Съезд ──────────────────────────────────────────────────────────────
+   Одно событие центра, общее для всех управлений — стоит над списком:
+   это ближайшая точка, где все двенадцать в одном зале. Даты и слова —
+   из данных, не отсюда. */
+.up-sobytie{display:block;padding:14px 16px;border-radius:18px;color:inherit;text-decoration:none;
+  background:linear-gradient(135deg,var(--tertiary-container),var(--surface-container-low));
+  border:1px solid var(--outline-variant)}
+.up-sobytie:active{filter:brightness(.97)}
+.up-sobytie-nad{font:var(--type-label-s);text-transform:uppercase;letter-spacing:.6px;color:var(--tertiary)}
+.up-sobytie-t{margin-top:4px;font:var(--type-title-l)}
+.up-sobytie-o{margin-top:4px;font:var(--type-body-s);color:var(--on-surface-variant)}
+.up-sobytie-kogda{margin-top:8px;font:var(--type-label-l);font-variant-numeric:tabular-nums}
+.up-sobytie-mesto{margin-top:4px;font:var(--type-body-s);color:var(--on-surface-variant)}
+.up-sobytie-kn{display:inline-flex;align-items:center;gap:6px;margin-top:12px;min-height:40px;padding:0 16px;
+  border-radius:20px;background:var(--tertiary);color:var(--on-tertiary,#fff);font:var(--type-label-l)}
+
+/* ── Список управлений ─────────────────────────────────────────────────
+   Карточка раскрывается на месте (details): описание, руководитель, формат,
+   каналы и три двери — вводный урок, запись, страница. Раскрытие на месте,
+   а не отдельный экран: двенадцать экранов по одному абзацу — это двенадцать
+   переходов «туда-назад», а список с раскрытием читается как оглавление. */
+.up-set{list-style:none;display:flex;flex-direction:column;gap:10px}
+.up-kart{border-radius:18px;background:var(--surface-container-low);
+  border:1px solid var(--outline-variant);overflow:hidden}
+.up-kart[open]{background:var(--surface-container-lowest);box-shadow:0 1px 2px rgba(0,0,0,.05),0 10px 20px -14px rgba(0,0,0,.3)}
+.up-kart>summary{display:grid;grid-template-columns:58px 1fr auto;gap:2px 14px;align-items:center;
+  min-height:80px;padding:12px 14px 12px 12px;cursor:pointer;list-style:none}
+.up-kart>summary::-webkit-details-marker{display:none}
+.up-disk{grid-row:1 / span 2;width:58px;height:58px;border-radius:50%;background:#fff;
+  border:1px solid var(--outline-variant);display:flex;align-items:center;justify-content:center;
+  box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.up-disk img{width:42px;height:42px;object-fit:contain;display:block}
+.up-imya{font:var(--type-title-m);line-height:1.2}
+.up-nom{font:var(--type-label-m);color:var(--on-surface-variant);font-variant-numeric:tabular-nums;
+  grid-column:3;grid-row:1;align-self:start;padding-top:2px}
+.up-temy{grid-column:2 / span 2;display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.up-tema{font:var(--type-label-s);padding:3px 9px;border-radius:999px;
+  background:var(--surface-container);color:var(--on-surface-variant)}
+.up-kart[open] .up-tema{background:var(--surface-container-high)}
+.up-strelka{grid-column:3;grid-row:2;justify-self:end;color:var(--on-surface-variant);font-size:19px;line-height:1;
+  transition:transform .2s cubic-bezier(.2,.8,.2,1)}
+.up-kart[open] .up-strelka{transform:rotate(90deg)}
+.up-nutro{padding:0 14px 14px;border-top:1px solid var(--outline-variant)}
+.up-o{padding-top:12px;font:var(--type-body-m);line-height:1.5}
+.up-fakty{margin-top:12px;display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font:var(--type-body-s)}
+.up-fakty dt{color:var(--on-surface-variant)}
+.up-fakty dd{font-variant-numeric:tabular-nums}
+.up-kanaly{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+.up-kanal{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border-radius:18px;
+  background:var(--surface-container);color:var(--on-surface);font:var(--type-label-m);text-decoration:none;
+  max-width:100%}
+.up-kanal:active{background:var(--surface-container-high)}
+.up-kanal svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto;color:var(--primary)}
+.up-kanal span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.up-knopki{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+.up-kn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;
+  border-radius:22px;font:var(--type-label-l);text-decoration:none;
+  border:1px solid var(--outline);color:var(--primary);background:transparent}
+.up-kn:active{background:var(--surface-container-high)}
+.up-kn--glav{background:var(--primary);color:var(--on-primary,#fff);border-color:transparent;flex:1 1 100%}
+.up-kn--glav:active{filter:brightness(.92)}
+.up-kn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── Центр ──────────────────────────────────────────────────────────────
+   Общие телефоны и телеграм — здесь и только здесь: они центра, а не
+   какого-то одного управления. Строка оператора — мелким, но целиком. */
+.up-centr{padding:14px 16px;border-radius:18px;background:var(--surface-container-low);border:1px solid var(--outline-variant)}
+.up-centr-t{font:var(--type-title-m)}
+.up-centr-o{margin-top:2px;font:var(--type-body-s);color:var(--on-surface-variant)}
+.up-centr-set{margin-top:10px;display:flex;flex-direction:column;gap:2px}
+.up-centr-set a{display:flex;align-items:center;gap:12px;min-height:48px;color:inherit;text-decoration:none;
+  border-top:1px solid var(--outline-variant)}
+.up-centr-set a:first-child{border-top:0}
+.up-centr-set svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;color:var(--primary);flex:0 0 auto}
+.up-centr-set b{font:var(--type-label-l);font-variant-numeric:tabular-nums}
+.up-centr-set em{display:block;font:var(--type-body-s);font-style:normal;color:var(--on-surface-variant)}
+.up-centr-op{margin-top:10px;font:var(--type-label-s);color:var(--on-surface-variant);line-height:1.4}
+.up-obn{font:var(--type-body-s);color:var(--on-surface-variant);text-align:center}
+
+/* Карточки поднимаются одна за другой; при «меньше движения» — стоят. */
+@media (prefers-reduced-motion: no-preference){
+  .up-set li{opacity:0;transform:translateY(8px);
+    animation:up-podnyat .34s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--n,0) * 45ms)}
+  @keyframes up-podnyat{to{opacity:1;transform:none}}
+}
+</style>
+</head>
+<body>
+<header class="up-shapka">
+  <h1>Управления центра</h1>
+  <p class="up-pod" id="up-pod">Двенадцать управлений «Золотого Ясеня»: чем заняты, кто ведёт и с чего начать.</p>
+</header>
+
+<main class="up-telo">
+  <a class="up-sobytie" id="up-sobytie" hidden></a>
+
+  <section class="up-razdel">
+    <h2>Двенадцать управлений</h2>
+    <ol class="up-set" id="up-set"></ol>
+  </section>
+
+  <section class="up-centr" id="up-centr" hidden></section>
+  <p class="up-obn" id="up-obn" hidden></p>
+</main>
+
+<script src="core/upravleniya-dannye.js"></script>
+<script>
+(function(){
+  'use strict';
+  var Д = window.YasnaUpravleniya;
+  if(!Д || !Д.upravleniya || !Д.upravleniya.length) return;
+
+  function экр(т){ return String(т == null ? '' : т).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+  /* Внешняя ссылка: в приложении её открывает системный браузер, на сайте —
+     новая вкладка; в обоих случаях человек не теряет экран, с которого ушёл. */
+  function наружу(адрес, класс, внутри, метка){
+    return '<a class="' + класс + '" href="' + экр(адрес) + '" target="_blank" rel="noopener"'
+      + (метка ? ' aria-label="' + экр(метка) + '"' : '') + '>' + внутри + '</a>';
+  }
+
+  var ЗНАК = {
+    урок:   '<svg viewBox="0 0 24 24"><path d="M12 4 2.8 8.4 12 12.8l9.2-4.4zM6 10.6V16c0 1.4 2.7 3 6 3s6-1.6 6-3v-5.4"/></svg>',
+    запись: '<svg viewBox="0 0 24 24"><path d="M4 6.5h16v13H4zM4 10h16M8 4v4M16 4v4"/></svg>',
+    сайт:   '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.6 2.6 2.6 14.4 0 17M12 3.5c-2.6 2.6-2.6 14.4 0 17"/></svg>',
+    канал:  '<svg viewBox="0 0 24 24"><path d="M4 12.5 20 5l-3.2 14L11 15.6zM11 15.6 9.8 19"/></svg>',
+    почта:  '<svg viewBox="0 0 24 24"><path d="M4 6.5h16v11H4zM4 7l8 6 8-6"/></svg>',
+    видео:  '<svg viewBox="0 0 24 24"><path d="M4 7.5h11v9H4zM15 10.5l5-2.5v8l-5-2.5"/></svg>',
+    статья: '<svg viewBox="0 0 24 24"><path d="M6 4h9l4 4v12H6zM15 4v4h4M9 12h6M9 15.5h6"/></svg>',
+    тел:    '<svg viewBox="0 0 24 24"><path d="M6.5 4h3l1.5 4-2 1.3a10 10 0 0 0 5.7 5.7l1.3-2 4 1.5v3a2 2 0 0 1-2 2A15 15 0 0 1 4.5 6a2 2 0 0 1 2-2z"/></svg>'
+  };
+
+  /* Канал по адресу: имя площадки и, где есть, короткое имя канала — чтобы
+     три ссылки на Дзен не читались тремя одинаковыми кнопками. */
+  function канал(адрес){
+    var a = String(адрес || '');
+    var м;
+    if(/^mailto:/i.test(a)) return { знак: ЗНАК.почта, текст: a.slice(7), метка: 'Написать: ' + a.slice(7) };
+    if((м = a.match(/^https?:\/\/t\.me\/(\+)?([^/?#]+)/i))) return { знак: ЗНАК.канал, текст: м[1] ? 'Телеграм · по приглашению' : 'Телеграм @' + м[2], метка: 'Телеграм' };
+    if((м = a.match(/^https?:\/\/vk\.com\/([^/?#]+)/i))) return { знак: ЗНАК.канал, текст: 'ВКонтакте · ' + м[1], метка: 'ВКонтакте' };
+    if(/^https?:\/\/dzen\.ru\/a\//i.test(a)) return { знак: ЗНАК.статья, текст: 'Дзен · статья', метка: 'Дзен, статья' };
+    if(/^https?:\/\/dzen\.ru\//i.test(a)) return { знак: ЗНАК.статья, текст: 'Дзен · канал', метка: 'Дзен' };
+    if(/^https?:\/\/(www\.)?rutube\.ru\//i.test(a)) return { знак: ЗНАК.видео, текст: 'Rutube', метка: 'Rutube' };
+    if(/^https?:\/\/(www\.)?youtube\.com\//i.test(a)) return { знак: ЗНАК.видео, текст: 'YouTube', метка: 'YouTube' };
+    try { return { знак: ЗНАК.сайт, текст: new URL(a).host.replace(/^www\./,''), метка: 'Сайт' }; }
+    catch(e){ return { знак: ЗНАК.сайт, текст: a, метка: 'Ссылка' }; }
+  }
+
+  var МЕСЯЦЫ = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+  function дата(iso){
+    var м = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(!м) return iso || '';
+    return parseInt(м[3],10) + ' ' + МЕСЯЦЫ[parseInt(м[2],10) - 1] + ' ' + м[1];
+  }
+
+  /* ── Съезд ── */
+  var С = Д.sobytie, эС = document.getElementById('up-sobytie');
+  if(С && С.nazvanie && эС){
+    var город = /москв/i.test(С.mesto || '') ? 'Москва' : '';
+    эС.setAttribute('href', С.zapis || С.stranica || '#');
+    эС.setAttribute('target', '_blank'); эС.setAttribute('rel', 'noopener');
+    эС.innerHTML = '<span class="up-sobytie-nad">Съезд центра</span>'
+      + '<span class="up-sobytie-t" style="display:block">«' + экр(С.nazvanie) + '»</span>'
+      + (С.chto ? '<span class="up-sobytie-o" style="display:block">' + экр(С.chto) + '</span>' : '')
+      + '<span class="up-sobytie-kogda" style="display:block">' + экр(дата(С.data)) + (С.den ? ', ' + экр(С.den) : '')
+      + (С.vremya ? ' · ' + экр(С.vremya) : '') + (город ? ' · ' + город : '') + '</span>'
+      + (С.mesto ? '<span class="up-sobytie-mesto" style="display:block">' + экр(С.mesto) + (С.vhod ? '. Вход ' + экр(С.vhod) : '') + '</span>' : '')
+      + (С.zapis ? '<span class="up-sobytie-kn">Записаться ›</span>' : '');
+    эС.hidden = false;
+  }
+
+  /* ── Управления ── */
+  var список = Д.upravleniya.slice().sort(function(a,b){ return a.nomer - b.nomer; });
+  var общаяЗапись = (Д.centr && Д.centr.sajt ? Д.centr.sajt.replace(/\/$/,'') : 'https://zolotoj-yasen.ru') + '/zayavka/';
+  var html = '';
+  for(var i=0;i<список.length;i++){
+    var у = список[i];
+    var запись = у.zayavka || общаяЗапись;
+    var каналы = '';
+    (у.kontakty || []).forEach(function(а){
+      var к = канал(а);
+      каналы += наружу(а, 'up-kanal', к.знак + '<span>' + экр(к.текст) + '</span>', к.метка + ' — ' + у.nazvanie);
+    });
+    html += '<li id="' + экр(у.id) + '" style="--n:' + i + '"><details class="up-kart">'
+      + '<summary aria-label="' + экр(у.nazvanie) + ', управление ' + у.nomer + ' из 12">'
+      + '<span class="up-disk"><img src="' + экр(у.emblema) + '" alt="" loading="lazy" decoding="async"></span>'
+      + '<span class="up-imya">' + экр(у.nazvanie) + '</span>'
+      + '<span class="up-nom" aria-hidden="true">' + у.nomer + ' из 12</span>'
+      + '<span class="up-temy">' + (у.temy || []).map(function(т){ return '<span class="up-tema">' + экр(т) + '</span>'; }).join('') + '</span>'
+      + '<span class="up-strelka" aria-hidden="true">›</span>'
+      + '</summary>'
+      + '<div class="up-nutro">'
+      + '<p class="up-o">' + экр(у.opisanie) + '</p>'
+      + '<dl class="up-fakty">'
+      + (у.rukovoditel ? '<dt>Ведёт</dt><dd>' + экр(у.rukovoditel) + '</dd>' : '')
+      + (у.format ? '<dt>Формат</dt><dd>' + экр(у.format) + '</dd>' : '')
+      + '</dl>'
+      + (каналы ? '<div class="up-kanaly">' + каналы + '</div>' : '')
+      + '<div class="up-knopki">'
+      + '<a class="up-kn up-kn--glav" href="lesson.html?lesson=upr-' + экр(у.id) + '&otkuda=upravleniya.html">' + ЗНАК.урок + 'Вводный урок</a>'
+      + наружу(запись, 'up-kn', ЗНАК.запись + 'Записаться', 'Записаться — ' + у.nazvanie)
+      /* Нет своей страницы — нет и третьей кнопки: она вела бы туда же, куда
+         «Записаться», а две кнопки в одно место читаются как ошибка. */
+      + (у.stranica ? наружу(у.stranica, 'up-kn', ЗНАК.сайт + 'Страница', 'Страница на сайте — ' + у.nazvanie) : '')
+      + '</div></div></details></li>';
+  }
+  document.getElementById('up-set').innerHTML = html;
+
+  /* Ссылка #ид из Библиотеки: раскрыть и подвести. */
+  function поЯкорю(){
+    var ид = (location.hash || '').slice(1);
+    if(!ид) return;
+    var li = document.getElementById(ид);
+    if(!li) return;
+    var к = li.querySelector('details');
+    if(к) к.open = true;
+    requestAnimationFrame(function(){ li.scrollIntoView({ block: 'start', behavior: 'smooth' }); });
+  }
+  поЯкорю();
+  window.addEventListener('hashchange', поЯкорю);
+
+  /* ── Центр ── */
+  var Ц = Д.centr, эЦ = document.getElementById('up-centr');
+  if(Ц && эЦ){
+    var строки = '';
+    (Ц.telefony || []).forEach(function(т){
+      строки += '<a href="tel:' + экр(String(т).replace(/[^\d+]/g,'')) + '">' + ЗНАК.тел + '<span><b>' + экр(т) + '</b><em>Телефон центра</em></span></a>';
+    });
+    if(Ц.telegram) строки += наружу(Ц.telegram, '', ЗНАК.канал + '<span><b>Телеграм</b><em>' + экр(Ц.telegram.replace(/^https?:\/\//,'')) + '</em></span>', 'Телеграм центра');
+    if(Ц.sajt) строки += наружу(Ц.sajt, '', ЗНАК.сайт + '<span><b>Сайт</b><em>' + экр(Ц.sajt.replace(/^https?:\/\//,'')) + '</em></span>', 'Сайт центра');
+    эЦ.innerHTML = '<div class="up-centr-t">' + экр(Ц.nazvanie || 'Центр') + '</div>'
+      + (Ц.podzagolovok ? '<div class="up-centr-o">' + экр(Ц.podzagolovok) + '</div>' : '')
+      + (строки ? '<div class="up-centr-set">' + строки + '</div>' : '')
+      + (Ц.operator ? '<div class="up-centr-op">' + экр(Ц.operator) + '</div>' : '');
+    эЦ.hidden = false;
+  }
+  var эО = document.getElementById('up-obn');
+  if(эО && Д.obnovleno){ эО.textContent = 'Сведения с сайта zolotoj-yasen.ru, ' + дата(Д.obnovleno) + '.'; эО.hidden = false; }
+})();
+</script>
+</body>
+</html>

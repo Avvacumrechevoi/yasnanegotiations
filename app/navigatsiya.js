@@ -95,7 +95,8 @@
                 'rating.html': 'praktika.html',
                 'negotiations.html': 'praktika.html',
                 'lesson.html': 'learn.html',
-                'kniga.html': 'biblioteka.html' };
+                'kniga.html': 'biblioteka.html',
+                'upravleniya.html': 'biblioteka.html' };
   /* Круг открывают из трёх мест, и подсвечивать надо то, ОТКУДА пришли, а не
      «Практику» всегда: «Разложить Сутки» на Уроках уводил в Круг, а наббар
      показывал чужой раздел. Метку ставит ссылка (?otkuda=…). Старое значение
@@ -109,7 +110,8 @@
                 'konstruktor.html': 'Разбор',
                 'duel.html': 'Игры', 'profil.html': 'Профиль',
                 'rating.html': 'Рейтинг', 'negotiations.html': 'Переговоры',
-                'lesson.html': 'Урок', 'kniga.html': 'Книга' };
+                'lesson.html': 'Урок', 'kniga.html': 'Книга',
+                'upravleniya.html': 'Управления' };
 
   /* Имя считаем по ПОЛНОМУ пути, а не по последнему сегменту: у Круга файл
      тоже index.html, и по имени файла он читался как «Главная». */

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <g fill="none" stroke="#211b14" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="200" cy="200" r="176"/>
+
+    <!-- пять лучей: на малом размере семь сливались в пятно -->
+    <path d="M200 202 L200 112"/>
+    <path d="M182 208 L142 130"/>
+    <path d="M218 208 L258 130"/>
+    <path d="M166 220 L100 166"/>
+    <path d="M234 220 L300 166"/>
+
+    <!-- раскрытая книга, поднята для равновесия в круге -->
+    <path d="M200 236 Q138 214 74 230 L74 284 Q138 268 200 290 Z"/>
+    <path d="M200 236 Q262 214 326 230 L326 284 Q262 268 200 290 Z"/>
+    <path d="M200 236 L200 290"/>
+  </g>
+</svg>
