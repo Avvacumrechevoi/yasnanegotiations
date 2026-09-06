@@ -112,9 +112,13 @@ jobs:
         id: before
         run: |
           rollback=""
-          for fn in yasna-submit yasna-leaderboard yasna-auth-telegram yasna-content-fetch yasna-content-publish; do
-            v="$(yc serverless function version list --function-name "$fn" --format json \
-                 | python3 -c "import sys,json;d=json.load(sys.stdin);print(next((x['id'] for x in d if 'stable' in (x.get('tags') or [])), ''))")"
+          # yasna-lenta-sbor (сборщик ленты) и yasna-spar здесь тоже: их stable
+          # переводит тот же deploy-backend.sh --promote. Функции, которой в
+          # облаке ещё нет (первый деплой), пропускаем молча — иначе шаг падал
+          # бы до самого деплоя.
+          for fn in yasna-submit yasna-leaderboard yasna-auth-telegram yasna-content-fetch yasna-content-publish yasna-spar yasna-lenta-sbor; do
+            v="$(yc serverless function version list --function-name "$fn" --format json 2>/dev/null \
+                 | python3 -c "import sys,json;d=json.load(sys.stdin);print(next((x['id'] for x in d if 'stable' in (x.get('tags') or [])), ''))" 2>/dev/null || true)"
             [ -n "$v" ] && rollback="$rollback $v"
           done
           echo "versions=$rollback" >> "$GITHUB_OUTPUT"

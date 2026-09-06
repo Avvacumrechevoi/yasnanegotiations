@@ -226,6 +226,398 @@ paths:
         '200':
           description: CORS preflight
 
+  # ─── Друзья (миграция 006) ──────────────────────────────────────────
+  # Переехали из дерева Firebase в таблицы: обе половины пары меняются одним
+  # запросом, поэтому «убрал» значит «у обоих», а заявка не ждёт в ящике.
+  /druzya:
+    get:
+      summary: Мои друзья, входящие и посланные заявки
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  /druzya/ya:
+    post:
+      summary: Объявиться — карточка и код
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  /druzya/pozvat:
+    post:
+      summary: Заявка в друзья по коду
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  /druzya/prinyat:
+    post:
+      summary: Принять заявку
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  /druzya/zabyt:
+    post:
+      summary: Отклонить заявку или убрать друга (у обоих)
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  # Картинка аватара (миграция 012). Лежит в самой базе: у служебного аккаунта
+  # функций нет права писать в хранилище. GET отдаёт двоичный ответ (функция
+  # возвращает base64 с isBase64Encoded) и вечный кэш по совпавшей метке
+  # версии, поэтому путь обязан быть в спецификации отдельной строкой: путей
+  # с шаблонами здесь нет, и без своей строки шлюз ответил бы 404 сам, не
+  # вызывая функцию.
+  /druzya/avatar:
+    get:
+      summary: Отдать картинку аватара (pid и метка версии в запросе)
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: JPEG
+    post:
+      summary: Положить свою картинку или снять её
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  /druzya/avatar/ubrat:
+    post:
+      summary: Снять картинку аватара, вернуться к знаку
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  # Вернуть себе карточку, к которой привязан чужой секрет устройства. Пока
+  # такой ручки не было, увести карточку, заведённую до миграции 012, можно
+  # было НАВСЕГДА: сбросить чужую привязку было нечем.
+  /druzya/otvyazat:
+    post:
+      summary: Привязать карточку к этому телефону заново (по коду дружбы или device_id)
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  /druzya/perenos:
+    post:
+      summary: Разовый перенос дружбы из прежнего дерева
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  # ─── Заявки «Посчитать имя» ─────────────────────────────────────────
+  # Обслуживает та же функция, что и /account: заявка живёт рядом с профилем,
+  # и там уже есть почта, разбор токена и драйвер YDB.
+  /zayavka:
+    post:
+      summary: Оставить заявку «Посчитать имя»
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    get:
+      summary: Свои заявки (по человеку или устройству)
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  # ─── Лента управлений (миграция 007) ─────────────────────────────────
+  # Публичное чтение страницы ленты, состояние сбора и скрытие — по правам
+  # cap:lenta.istochniki / cap:lenta.moderate, жалоба — с секретом устройства.
+  # Обслуживает пакет auth-telegram (server/lenta.js); сборщик — своя функция.
+  /lenta:
+    get:
+      summary: Страница ленты публикаций управлений
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  /lenta/istochniki:
+    get:
+      summary: Состояние сбора ленты и новые жалобы (нужно право)
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  /lenta/skryt:
+    post:
+      summary: Скрыть запись ленты (нужно право)
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  /lenta/zhaloba:
+    post:
+      summary: Пожаловаться на запись ленты (с секретом устройства)
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  # Решение по жалобе (миграция 011, право cap:lenta.moderate). Путь свой,
+  # отдельной строкой: шаблонов ({proxy+}) в этой спецификации нет вовсе, и
+  # без неё шлюз ответил бы 404 сам, не вызывая функцию, — а жалоба, которую
+  # нельзя отклонить, висит в очереди навсегда (ревью 8.8, F17).
+  # Внутри lenta.js этот маршрут стоит ДО /lenta/zhaloba, иначе жалоба
+  # перехватила бы решение.
+  /lenta/zhaloba/reshit:
+    post:
+      summary: Закрыть жалобу — разобрана или отклонена (нужно право)
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
+  # Разбор закрыт правом cap:zayavki.read — внутри персональные данные.
+  /zayavki:
+    get:
+      summary: Заявки для разбора (нужно право)
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    put:
+      summary: Пометить состояние заявки (нужно право)
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: OK
+    options:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: {AUTH_TELEGRAM_FUNCTION_ID}
+        tag: stable
+        service_account_id: {SERVICE_ACCOUNT_ID}
+      responses:
+        '200':
+          description: CORS preflight
+
   /account:
     get:
       summary: Свой профиль

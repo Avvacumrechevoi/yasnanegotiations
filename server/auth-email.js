@@ -57,7 +57,11 @@ async function getDriver(){
 const CORS = {
   // адрес проставляется на запрос в applyCors(), см. ниже
   'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  /* X-Device-Secret — клиентский транспорт (docs/core/svyaz.js) кладёт его в
+     КАЖДЫЙ запрос, а /lenta/zhaloba его требует. Без него в Allow-Headers
+     браузер на сайте режет preflight, и лента с сайта не открывается вовсе
+     (в приложении запросы нативные, там preflight нет — потому и не видно). */
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Device-Secret',
   'Content-Type': 'application/json',
   'Cache-Control': 'no-store',
 };
@@ -75,6 +79,12 @@ const ALLOWED_ORIGINS = [
   'https://avvacumrechevoi.github.io',   // прежний адрес, живёт до конца переезда
   'https://yasnalab.ru',                 // свой домен
   'https://www.yasnalab.ru',
+  /* Android-приложение (Capacitor, androidScheme https): страницы витрины
+     живут в WebView на origin https://localhost, и без него браузер режет
+     ЛЮБОЙ запрос к API — вход по почте, прогресс, доступы. Это не дыра:
+     API авторизует по Bearer-токену из localStorage, а не по кукам, поэтому
+     чужая локальная страница ничего чужого не прочитает. */
+  'https://localhost',
 ].concat(
   /* ALLOW_ORIGIN здесь ДОБАВЛЯЕТ адрес, а не заменяет список. Так вышло не из
      красоты: scripts/deploy-backend.sh переносит окружение со старой версии и
@@ -531,7 +541,14 @@ async function handleDelete(drv, { event }){
       DELETE FROM device_links WHERE user_id = $u;`,
       { '$u': TypedValues.utf8(userId) });
   });
-  return ok({ deleted: true });
+  // Карточка дружбы — данные ТОГО ЖЕ человека, только в другом модуле: имя,
+  // знак, код и (с миграции 012) ФОТОГРАФИЯ ЛИЦА, которую GET /druzya/avatar
+  // отдаёт любому, кто знает pid. Без этой уборки «удалите мои данные»
+  // выполнялось наполовину. Беду наружу не глушим: человек просил удалить,
+  // и молчаливая половина хуже честного 500 и повторной попытки.
+  const друзья = await require('./druzya.js').убратьПриУдалении(drv,
+    { TypedValues, Types, txt, num, ts, clean }, userId);
+  return ok({ deleted: true, druzya: друзья });
 }
 
 // ─── GET /auth/email/selftest ────────────────────────────────────────
@@ -593,6 +610,31 @@ exports.handler = async (event) => {
     if(/\/auth\/email\/verify/.test(path)  && method === 'POST') return await handleVerify(drv, { body, event });
     if(/\/account\/delete/.test(path)      && method === 'POST') return await handleDelete(drv, { event });
     if(/\/account/.test(path) && (method === 'GET' || method === 'PUT')) return await handleAccount(drv, { method, body, event });
+    /* Заявки «Посчитать имя» живут в своём модуле, но в ЭТОМ пакете: здесь
+       уже есть почта, разбор токена и живой драйвер YDB. Помощники отдаём
+       параметром — свои копии разошлись бы с этими на первой же правке. */
+    /* Друзья — свой модуль в этом же пакете (миграция 006). Помощники и сюда
+       передаём параметром, а не даём модулю свои копии. */
+    if(/\/druzya/.test(path)) return await require('./druzya.js').route(drv, {
+      method, path, body, event,
+      query: event.queryStringParameters || {},
+      д: { TypedValues, Types, ok, fail, txt, num, ts, clean, ipHash,
+           throttleHit, verifyJWT, loadProfile, mailer },
+    });
+    if(/\/zayavk/.test(path)) return await require('./zayavki.js').route(drv, {
+      method, path, body, event,
+      query: event.queryStringParameters || {},
+      д: { TypedValues, Types, ok, fail, txt, num, ts, clean, ipHash,
+           throttleHit, verifyJWT, loadProfile, mailer },
+    });
+    /* Лента управлений (миграция 007): чтение страницы, состояние сбора,
+       жалоба, скрытие. Тот же набор помощников — модуль своих копий не держит. */
+    if(/\/lenta(\/|\?|$)/.test(path)) return await require('./lenta.js').route(drv, {
+      method, path, body, event,
+      query: event.queryStringParameters || {},
+      д: { TypedValues, Types, ok, fail, txt, num, ts, clean, ipHash,
+           throttleHit, verifyJWT, loadProfile, mailer },
+    });
     return fail(404, 'not found', { path });
   } catch(e){
     // Наружу 500, а не «как будто получилось»: молчаливые ошибки в этом

@@ -40,7 +40,9 @@ async function getDriver(){
 const CORS = {
   // адрес проставляется на запрос в applyCors(), см. ниже
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  /* X-Device-Secret — как в submit.js/progress.js: клиентский транспорт
+     шлёт его всегда, иначе preflight с сайта отбрасывает запрос целиком. */
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Device-Secret',
   'Content-Type': 'application/json',
 };
 
@@ -57,6 +59,12 @@ const ALLOWED_ORIGINS = [
   'https://avvacumrechevoi.github.io',   // прежний адрес, живёт до конца переезда
   'https://yasnalab.ru',                 // свой домен
   'https://www.yasnalab.ru',
+  /* Android-приложение (Capacitor, androidScheme https): страницы витрины
+     живут в WebView на origin https://localhost, и без него браузер режет
+     ЛЮБОЙ запрос к API — вход по почте, прогресс, доступы. Это не дыра:
+     API авторизует по Bearer-токену из localStorage, а не по кукам, поэтому
+     чужая локальная страница ничего чужого не прочитает. */
+  'https://localhost',
 ].concat(
   /* ALLOW_ORIGIN здесь ДОБАВЛЯЕТ адрес, а не заменяет список. Так вышло не из
      красоты: scripts/deploy-backend.sh переносит окружение со старой версии и
@@ -113,7 +121,8 @@ function reqPath(event){
 }
 function isEmailPath(event){
   const p = reqPath(event);
-  return /\/auth\/email\//.test(p) || /\/account(\/|\?|$)/.test(p);
+  return /\/auth\/email\//.test(p) || /\/account(\/|\?|$)/.test(p) || /\/zayavk/.test(p) || /\/druzya/.test(p)
+    || /\/lenta(\/|\?|$)/.test(p);
 }
 
 exports.handler = async (event) => {
